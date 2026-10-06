@@ -1,5 +1,7 @@
 #!/bin/sh
-# Adds the Android TV banner and the TV/phone hardware flags to the Gradle project.
+# Prepares the generated Gradle project (android/build):
+#   - Android TV banner and hardware flags
+#   - the QR scanner plugin (android/plugin/QrScannerPlugin.java, Google code scanner)
 # Run once, after "Project > Install Android Build Template" in the Godot editor.
 # Safe to run again. Usage: tools/patch_android_manifest.sh
 set -eu
@@ -40,4 +42,28 @@ else
 	echo "uses-feature flags: added"
 fi
 
-grep -n 'banner\|uses-feature' "$MANIFEST"
+# 4. QR scanner plugin: source file, Gradle dependency, and manifest entries.
+PLUGIN_SRC="$ROOT/android/plugin/QrScannerPlugin.java"
+GRADLE="$BUILD/build.gradle"
+mkdir -p "$BUILD/src/com/example/remoteplay"
+cp "$PLUGIN_SRC" "$BUILD/src/com/example/remoteplay/QrScannerPlugin.java"
+if [ ! -f "$GRADLE" ]; then
+	echo "Not found: $GRADLE" >&2
+	exit 1
+fi
+if grep -q 'play-services-code-scanner' "$GRADLE"; then
+	echo "QR dependency: already set"
+else
+	sed -i '0,/^dependencies {/s//dependencies {\n    implementation "com.google.android.gms:play-services-code-scanner:16.1.0"/' "$GRADLE"
+	grep -q 'play-services-code-scanner' "$GRADLE" || { echo "Cannot find the dependencies block in $GRADLE" >&2; exit 1; }
+	echo "QR dependency: added"
+fi
+if grep -q 'org.godotengine.plugin.v2.QrScanner' "$MANIFEST"; then
+	echo "QR manifest entries: already set"
+else
+	sed -i 's|</application>|        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.remoteplay.QrScannerPlugin" />\n        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />\n    </application>|' "$MANIFEST"
+	echo "QR manifest entries: added"
+fi
+
+grep -n 'banner\|uses-feature\|QrScanner\|DEPENDENCIES' "$MANIFEST"
+grep -n 'code-scanner' "$GRADLE"

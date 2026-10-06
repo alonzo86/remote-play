@@ -25,7 +25,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-A1: The TV runs a WebSocket server (`TCPServer` + `WebSocketPeer`) on fixed TCP port 47801.
 - REQ-A2: The TV sends a UDP broadcast beacon on port 47800 every 1 second.
 - REQ-A3: The TV shows a QR code and a 4-letter room code on screen.
-- REQ-A4: The phone finds the TV with the UDP beacon, or connects with the room code.
+- REQ-A4: The phone scans the QR code, or finds the TV with the UDP beacon, or connects with the room code or the TV IP.
 - REQ-A5: The TV accepts up to 4 phones at the same time.
 - REQ-A6: Input handling and networking are in separate scripts from game logic.
 - REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.
@@ -75,7 +75,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 | ID | Decision |
 |----|----------|
-| D1 | Join by UDP discovery plus room code. The TV shows a QR code that holds `ws://IP:PORT/ROOM`. The phone does not scan it in v1 (Godot has no QR reader). |
+| D1 | Join by UDP discovery plus room code. The TV shows a QR code that holds `ws://IP:PORT/ROOM`. The phone scans it with a small Android plugin (Google code scanner). On a PC the phone window uses a "Paste TV link" button. |
 | D2 | All data goes over WebSocket (TCP) in v1. The overlay shows sensor age so the user can see TCP delay. |
 | D3 | The TV does sensor fusion. The phone sends raw values. |
 | D4 | Godot 4.4 stable. |
@@ -84,4 +84,4 @@ Each requirement has an ID. Use the ID in code comments and tests.
 ## 10. Known limits of this prototype
 
 - The code was checked with Godot headless (script parse and protocol tests). It was not tested on a real TV or phone.
-- Phone-side QR scanning is not included.
+- The QR scanner plugin was compiled only against stubs. It needs Google Play services on the phone.

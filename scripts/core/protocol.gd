@@ -123,6 +123,30 @@ static func pair_url(ip: String, room: String) -> String:
 	return "ws://%s:%d/%s" % [ip, WS_PORT, room]
 
 
+## Parse the text of the TV QR code: ws://IP:PORT/ROOM.
+## Returns {host, port, room}, or an empty Dictionary when the text is not valid.
+static func parse_pair_url(text: String) -> Dictionary:
+	var t := text.strip_edges()
+	if not t.begins_with("ws://"):
+		return {}
+	var rest := t.substr(5)
+	var slash := rest.find("/")
+	var hostport := rest if slash < 0 else rest.substr(0, slash)
+	var room := "" if slash < 0 else rest.substr(slash + 1).to_upper()
+	var parts := hostport.split(":")
+	if parts.size() != 2 or not is_ipv4(parts[0]) or not parts[1].is_valid_int():
+		return {}
+	var port := int(parts[1])
+	if port < 1 or port > 65535:
+		return {}
+	if room.length() != 4 and room != "":
+		return {}
+	for ch in room:
+		if not ROOM_ALPHABET.contains(ch):
+			return {}
+	return {"host": parts[0], "port": port, "room": room}
+
+
 static func is_ipv4(s: String) -> bool:
 	var parts := s.split(".")
 	if parts.size() != 4:

@@ -5,10 +5,12 @@ extends Control
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 
 var _list: VBoxContainer
 var _status: Label
 var _input: LineEdit
+var _qr: Node
 
 
 func _ready() -> void:
@@ -37,6 +39,20 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_status.add_theme_font_size_override("font_size", 38)
 	box.add_child(_status)
+
+	_qr = QrScanner.new()
+	add_child(_qr)
+	_qr.scanned.connect(_on_qr_text)
+	_qr.failed.connect(_on_qr_failed)
+	var scan := Button.new()
+	if _qr.is_available():
+		scan.text = "Scan the QR code on the TV"
+	else:
+		# No plugin (desktop, or a build without it). Paste the link from the clipboard.
+		scan.text = "Paste TV link"
+	scan.custom_minimum_size = Vector2(0, 150)
+	scan.pressed.connect(_on_scan_pressed)
+	box.add_child(scan)
 
 	var tv_title := Label.new()
 	tv_title.text = "TVs on this Wi-Fi"
@@ -111,6 +127,29 @@ func _rebuild_list() -> void:
 		b.custom_minimum_size = Vector2(0, 130)
 		b.pressed.connect(func(): _join(tv.ip, tv.port, tv.room))
 		_list.add_child(b)
+
+
+func _on_scan_pressed() -> void:
+	if _qr.is_available():
+		_qr.scan()
+	else:
+		_on_qr_text(DisplayServer.clipboard_get())
+
+
+func _on_qr_text(text: String) -> void:
+	var pair := Protocol.parse_pair_url(text)
+	if pair.is_empty():
+		App.last_error = "This is not a Remote Play code."
+		_on_state(ControllerClient.State.IDLE)
+		return
+	_join(pair.host, pair.port, pair.room)
+
+
+func _on_qr_failed(reason: String) -> void:
+	if reason == "cancelled":
+		return
+	App.last_error = "QR scan failed: " + reason
+	_on_state(ControllerClient.State.IDLE)
 
 
 func _join_typed() -> void:

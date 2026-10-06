@@ -9,7 +9,7 @@ Godot 4.4 and GDScript. One project makes two apps:
 The goal is to judge the *feel* of a phone as a motion controller. The game content is small on purpose:
 a tilt maze and a pointer test.
 
-Docs: [requirements](docs/REQUIREMENTS.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md)
+Docs: [requirements](docs/REQUIREMENTS.md) | [device test plan](docs/DEVICE_TEST.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md)
 
 ## How it works
 
@@ -27,7 +27,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [protocol](docs/PROTOCOL.md) | [exp
 
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
 - The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`).
-  The phone finds the TV by the UDP beacon, or the user types the room code or the TV IP.
+  The phone scans the QR code (Android plugin), or finds the TV by the UDP beacon, or the user types the room code or the TV IP.
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
 - A phone that loses the connection keeps its slot for 30 seconds and reconnects with a token.
@@ -43,10 +43,11 @@ export_presets.cfg       presets "tv" and "controller"
 scripts/
   app.gd                 autoload. Owns services, switches screens, settings
   core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd
-  net/                   tv_server, tv_discovery, controller_client, controller_discovery
+  net/                   tv_server, tv_discovery, controller_client, controller_discovery, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
   game/                  minigame.gd (base class), maze/, pointer_test/
   ui/                    tv_menu, debug_overlay, controller_connect, controller_pad, ui_theme
+android/plugin/          QrScannerPlugin.java (Android plugin: Google code scanner)
 tests/                   headless tests (see below) and screenshot scripts
 tools/                   make_icons.gd, patch_android_manifest.sh
 docs/                    requirements, protocol, export, risks
@@ -81,7 +82,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 
 1. Install Godot 4.4, JDK 17, the Android SDK, and the export templates. Set the paths in the editor settings.
 2. Open the project. Select **Project > Install Android Build Template**.
-3. Run `tools/patch_android_manifest.sh` (adds the TV banner and the hardware flags).
+3. Run `tools/patch_android_manifest.sh` (adds the TV banner, the hardware flags, and the QR scanner plugin).
 4. Export:
    ```sh
    godot --headless --path . --export-debug "tv"         build/remote-play-tv.apk
@@ -94,8 +95,9 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 
 1. Enable developer options and ADB debugging on the TV (see [docs/EXPORT.md](docs/EXPORT.md), section 5).
 2. Put the TV and the phones on the same Wi-Fi network (5 GHz is best; Ethernet on the TV box is better).
-3. Start the TV app. Start the controller app. Tap the TV in the list.
+3. Start the TV app. Start the controller app. Scan the QR code on the TV (or tap the TV in the list).
 4. Open the debug overlay. Watch RTT, *Age ms*, *Gap ms*, and *Rx Hz*.
+   The full test plan with pass criteria is in [docs/DEVICE_TEST.md](docs/DEVICE_TEST.md).
 5. Run **Pointer Test**: tap RECENTER while you point at the TV. Check drift, range and direction.
    If a direction is wrong, use the invert switches in the TV menu.
 6. Run **Tilt Maze** with 1 to 4 phones.
@@ -106,6 +108,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 |-------|---------|--------|
 | Phone | RECENTER | Set the neutral pose and zero the yaw |
 | Phone | A / B | Buttons. In the maze, A recenters. In the pointer test, A = shoot, B = recenter |
+| Phone | Scan / Paste TV link | Join by the QR code on the TV (or by the link in the clipboard on a PC) |
 | Phone | Leave | Leave the TV and return to the connect screen |
 | TV remote | D-pad | Move the focus |
 | TV remote | OK | Select. In a game: open the pause menu |
@@ -131,4 +134,5 @@ GODOT=/path/to/godot tests/run_all.sh
   The QR codes decode with an independent decoder (OpenCV).
 - **Not tested: real Android TV, real phone sensors, real Wi-Fi.** The first on-device run must check the
   items marked *unverified* in [docs/RISKS.md](docs/RISKS.md), mainly the sensor signs and the key mapping.
-- The phone cannot scan the QR code in the app. Godot has no QR reader. The phone uses discovery or typed codes.
+- The QR scanner plugin compiled only against stubs (the real ML Kit and Godot libraries were not reachable
+  from the build sandbox). It needs Google Play services on the phone. Test it first: `docs/DEVICE_TEST.md`, test 2.

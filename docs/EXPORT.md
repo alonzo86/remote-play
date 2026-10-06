@@ -43,10 +43,26 @@ because Godot adds the `LEANBACK_LAUNCHER` category only with Gradle.
    - copies `assets/icons/banner.png` (320 x 180) to `android/build/res/drawable-xhdpi/banner.png`;
    - adds `android:banner="@drawable/banner"` to the `<application>` tag;
    - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer,
-     all with `required="false"`.
+     all with `required="false"`;
+   - installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
+     `android/build/src/com/example/remoteplay/`, adds the Gradle dependency
+     `com.google.android.gms:play-services-code-scanner:16.1.0`, and adds the plugin entry
+     (`org.godotengine.plugin.v2.QrScanner`) to the manifest.
 
 The TV launcher shows an app only when the app has a banner and the leanback category.
 The category comes from the preset option `package/show_in_android_tv` (set to `true` in the `tv` preset).
+
+### QR scanner plugin
+
+The controller app scans the QR code on the TV screen with the Google code scanner (ML Kit).
+
+- The scanner has its own screen. The app does **not** need the camera permission.
+- The phone needs **Google Play services**. A phone without them shows "QR scan failed" and you use the list or the room code.
+- The first scan can take a few seconds, because Play services can download the scanner module.
+  The manifest entry `com.google.mlkit.vision.DEPENDENCIES = barcode_ui` asks Play services to download it at install time.
+- The first build needs internet access for Gradle (to get the dependency from Google Maven).
+- GDScript side: `scripts/net/qr_scanner.gd`. Without the plugin (PC, or a build where you skipped the patch script)
+  the button on the connect screen is **Paste TV link**. It reads `ws://IP:47801/ROOM` from the clipboard.
 
 ## 3. Export
 
@@ -100,7 +116,7 @@ Or copy the APK to the phone and open it (allow installs from this source).
 
 1. Connect the TV and the phone to the **same Wi-Fi network** (best: 5 GHz).
 2. Start the TV app. It shows the room code and the QR code.
-3. Start the controller app. It shows the TV in the list. Tap it. (Or type the room code.)
+3. Start the controller app. Tap **Scan the QR code on the TV** and scan the code. (Or tap the TV in the list, or type the room code.)
 4. On the TV, press the Menu key (or open the menu item **Debug overlay**) to see the latency numbers.
 5. Select **Pointer Test**. Point the phone at the TV and tap **RECENTER**.
    Move the phone. The cursor must follow. If left and right are wrong, select **Invert pointer yaw** in the menu.
@@ -122,6 +138,8 @@ The phone window has no sensors. The mouse position simulates the tilt and the m
 | Symptom | Likely cause and action |
 |---------|-------------------------|
 | App is not in the TV home row | Banner or leanback category is missing. Run the patch script, export again, check with `aapt`. |
+| "Scan QR" button says **Paste TV link** | The plugin is not in the build. Run the patch script and export again. |
+| "QR scan failed" | Google Play services are missing or old, or the scanner module is still downloading. Try again, or use the list or the room code. |
 | Phone does not find the TV | Wi-Fi guest network or "AP isolation" blocks broadcast. Type the room code (it needs the beacon) or the TV IP. |
 | Phone shows "Cannot reach the TV" | Different subnet, VPN on the phone, or a firewall. Use the TV IP from the TV screen. |
 | Tilt or pointer direction is wrong | Use the invert switches in the TV menu. Report the raw values from the overlay. |

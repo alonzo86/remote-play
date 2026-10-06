@@ -65,6 +65,18 @@ func _test_protocol() -> void:
 	_check(Protocol.make_room_code().length() == 4, "room code has 4 letters")
 	_check(Protocol.is_ipv4("192.168.1.20") and not Protocol.is_ipv4("KQZM"), "ipv4 check")
 	_check(Protocol.subnet_broadcast("192.168.1.20") == "192.168.1.255", "subnet broadcast")
+	var pair := Protocol.parse_pair_url(Protocol.pair_url("192.168.1.20", "kqzm"))
+	_check(pair == {"host": "192.168.1.20", "port": 47801, "room": "KQZM"}, "QR text parses: %s" % str(pair))
+	_check(Protocol.parse_pair_url("ws://10.0.0.5:47801").room == "", "QR text without room is accepted")
+	var bad := ["", "http://192.168.1.20:47801/KQZM", "ws://?:47801/KQZM", "ws://192.168.1.20/KQZM",
+			"ws://192.168.1.20:99999/KQZM", "ws://192.168.1.20:47801/KQ", "ws://192.168.1.20:47801/KQZI",
+			"ws://999.1.1.1:47801/KQZM"]
+	var all_bad := true
+	for b in bad:
+		if not Protocol.parse_pair_url(b).is_empty():
+			all_bad = false
+			print("    accepted: ", b)
+	_check(all_bad, "invalid QR texts are rejected")
 
 
 func _feed(o: OrientationFusion, seconds: float, gyro: Vector3, accel: Vector3, start_ts := 0) -> int:
