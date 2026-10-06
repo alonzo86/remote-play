@@ -1,0 +1,56 @@
+extends Node
+## Phone side. Listens for TV beacons on the UDP port.
+
+const Protocol = preload("res://scripts/core/protocol.gd")
+
+signal list_changed
+
+const EXPIRE_MS := 4000
+
+## room code -> {room, ip, port, name, players, max, seen_ms}
+var tvs: Dictionary = {}
+
+var _udp := PacketPeerUDP.new()
+var listening := false
+
+
+func _ready() -> void:
+	var err := _udp.bind(Protocol.UDP_PORT)
+	listening = (err == OK)
+	if err != OK:
+		push_warning("ControllerDiscovery: cannot bind UDP port %d (error %d)" % [Protocol.UDP_PORT, err])
+
+
+func _process(_delta: float) -> void:
+	if not listening:
+		return
+	var now := Time.get_ticks_msec()
+	var changed := false
+	while _udp.get_available_packet_count() > 0:
+		var data := _udp.get_packet()
+		var from_ip := _udp.get_packet_ip()
+		var msg := Protocol.parse_json(data.get_string_from_utf8())
+		if msg.get("t", "") != "beacon" or int(msg.get("v", 0)) != Protocol.VERSION:
+			continue
+		var room := String(msg.get("room", ""))
+		if room == "":
+			continue
+		if not tvs.has(room):
+			changed = true
+		tvs[room] = {
+			"room": room, "ip": from_ip, "port": int(msg.get("port", Protocol.WS_PORT)),
+			"name": String(msg.get("name", "TV")), "players": int(msg.get("players", 0)),
+			"max": int(msg.get("max", Protocol.MAX_PLAYERS)), "seen_ms": now,
+		}
+	for room in tvs.keys():
+		if now - int(tvs[room].seen_ms) > EXPIRE_MS:
+			tvs.erase(room)
+			changed = true
+	if changed:
+		list_changed.emit()
+
+
+func sorted_list() -> Array:
+	var r: Array = tvs.values()
+	r.sort_custom(func(a, b): return a.room < b.room)
+	return r
