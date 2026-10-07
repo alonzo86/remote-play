@@ -61,7 +61,7 @@ func _process(delta: float) -> void:
 		App.server.set_phase("paused" if _paused_lost else "playing")
 	if not is_paused():
 		_game_tick(delta)
-	queue_redraw()
+	_request_redraw()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -123,19 +123,30 @@ func close_menu() -> void:
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
 	_game_draw()
+	_draw_overlays(self)
+
+
+## Draws the "waiting for players" text and the dim layer of the pause menu on `ci`.
+## 2D games draw it on the game itself. 3D games draw it on the HUD layer above the 3D view.
+func _draw_overlays(ci: CanvasItem) -> void:
 	if _paused_lost:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.6))
+		ci.draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.6))
 		var lost := lost_participants()
 		var names := ""
 		for s in lost:
 			names += "P%d " % (s + 1)
 		var font := ThemeDB.fallback_font
-		draw_string(font, Vector2(0, size.y * 0.45), "Waiting for %sto reconnect" % names,
+		ci.draw_string(font, Vector2(0, size.y * 0.45), "Waiting for %sto reconnect" % names,
 				HORIZONTAL_ALIGNMENT_CENTER, size.x, 60, UiTheme.ACCENT)
-		draw_string(font, Vector2(0, size.y * 0.45 + 70), "Press OK to continue without them",
+		ci.draw_string(font, Vector2(0, size.y * 0.45 + 70), "Press OK to continue without them",
 				HORIZONTAL_ALIGNMENT_CENTER, size.x, 34, UiTheme.TEXT_DIM)
 	elif _menu_open:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.6))
+		ci.draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.6))
+
+
+## Called every frame. Subclasses with more canvas layers redraw them here.
+func _request_redraw() -> void:
+	queue_redraw()
 
 
 # ---- Override in subclasses ----

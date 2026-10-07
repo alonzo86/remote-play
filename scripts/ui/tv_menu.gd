@@ -6,8 +6,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
-const MazeGame = preload("res://scripts/game/maze/maze_game.gd")
-const PointerTest = preload("res://scripts/game/pointer_test/pointer_test.gd")
+const Registry = preload("res://scripts/game/registry.gd")
 
 var _buttons: Array[Button] = []
 var _qr: Array = []
@@ -23,8 +22,8 @@ func _ready() -> void:
 	box.position = Vector2(110, 250)
 	box.custom_minimum_size = Vector2(760, 0)
 	add_child(box)
-	_add(box, "Tilt Maze", func(): App.go(MazeGame))
-	_add(box, "Pointer Test", func(): App.go(PointerTest))
+	for g in Registry.all():
+		_add(box, String(g.title), _start_game.bind(String(g.id)))
 	_toggle_overlay = _add(box, "", _on_toggle_overlay)
 	_toggle_tilt = _add(box, "", _on_toggle_tilt)
 	_toggle_yaw = _add(box, "", _on_toggle_yaw)
@@ -46,6 +45,12 @@ func _add(parent: Control, text: String, cb: Callable) -> Button:
 	parent.add_child(b)
 	_buttons.append(b)
 	return b
+
+
+func _start_game(id: String) -> void:
+	var script := Registry.load_script(id)
+	if script != null:
+		App.go(script)
 
 
 func _refresh_labels() -> void:

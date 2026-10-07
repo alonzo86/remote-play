@@ -7,6 +7,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 var MazeGame
 var PointerTest
+var Demo3D
 var TvMenu
 
 var _fails := 0
@@ -53,6 +54,7 @@ func _run() -> void:
 	# Load now, not at parse time: the App autoload must exist first.
 	MazeGame = load("res://scripts/game/maze/maze_game.gd")
 	PointerTest = load("res://scripts/game/pointer_test/pointer_test.gd")
+	Demo3D = load("res://scripts/game/demo3d/demo3d_game.gd")
 	TvMenu = load("res://scripts/ui/tv_menu.gd")
 	var app: Node = root.get_node("App")
 	_check(is_instance_of(app.current_screen(), TvMenu), "TV starts on the menu")
@@ -129,6 +131,20 @@ func _run() -> void:
 	await _stream(clients[0], 0, 0.1, flat, Vector3.ZERO, Protocol.BTN_A)
 	await _stream(clients[0], 0, 0.1, flat, Vector3.ZERO, 0)
 	await _frames(3)
+
+	# 3D game: a tilted phone moves its sphere on the floor.
+	app.go(Demo3D)
+	await _frames(3)
+	var g3: Control = app.current_screen()
+	_check(is_instance_of(g3, Demo3D) and g3.camera != null and g3.participants.size() == 2, "3D demo starts with a camera")
+	var x0: float = g3._balls[0].position.x
+	await _stream(clients[0], 0, 1.5, tilt)
+	_check(g3._balls[0].position.x > x0 + 0.3, "3D ball 0 rolls right when the phone tilts right")
+	g3.open_menu("Paused", [["Resume", g3.close_menu]])
+	await _frames(2)
+	_check(g3.world.process_mode == Node.PROCESS_MODE_DISABLED, "3D world freezes while paused")
+	g3.close_menu()
+	await _frames(2)
 
 	app.go_menu()
 	await _frames(3)

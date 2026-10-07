@@ -6,6 +6,7 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
+const Registry = preload("res://scripts/game/registry.gd")
 const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
@@ -48,6 +49,7 @@ func _run() -> void:
 	_test_orientation()
 	_test_maze()
 	_test_qr()
+	_test_registry()
 	await _test_network()
 	await _test_room_code_join()
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -133,6 +135,28 @@ func _test_orientation() -> void:
 	o5.update(0xFFFFFFF8, Vector3(0, 0, 1), flat)
 	o5.update(0x00000005, Vector3(0, 0, 1), flat)
 	_check(absf(o5.yaw) < 0.1, "u32 timestamp wrap does not jump")
+
+
+func _test_registry() -> void:
+	print("registry")
+	var ids := {}
+	var all_ok := true
+	for g in Registry.all():
+		ids[g.id] = true
+		var sc := Registry.load_script(String(g.id))
+		var base := "res://scripts/game/minigame_3d.gd" if g.dim == "3d" else "res://scripts/game/minigame.gd"
+		var s := sc
+		var inherits_base := false
+		while s != null:
+			if s.resource_path == base:
+				inherits_base = true
+			s = s.get_base_script()
+		if sc == null or not inherits_base:
+			all_ok = false
+	_check(ids.size() == Registry.all().size(), "registry ids are unique")
+	_check(all_ok, "every registry game loads and extends the right base class")
+	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
+	_check(Registry.accepts(Registry.find("maze"), 4) and not Registry.accepts(Registry.find("maze"), 5), "player range check")
 
 
 func _test_maze() -> void:

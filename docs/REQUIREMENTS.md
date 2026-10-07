@@ -30,6 +30,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-A6: Input handling and networking are in separate scripts from game logic.
 - REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.
 - REQ-A8: `net/` and `input/` scripts must not refer to `game/` scripts.
+- REQ-A9: Games are listed in `scripts/game/registry.gd`. The menu is built from it. 3D games extend `minigame_3d.gd`.
 
 ## 4. Protocol
 

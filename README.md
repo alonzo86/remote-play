@@ -46,7 +46,7 @@ scripts/
   core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd
   net/                   tv_server, tv_discovery, controller_client, controller_discovery, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
-  game/                  minigame.gd (base class), maze/, pointer_test/
+  game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), maze/, pointer_test/, demo3d/
   ui/                    tv_menu, debug_overlay, controller_connect, controller_pad, ui_theme
 android/plugin/          QrScannerPlugin.java (Android plugin: Google code scanner)
 tests/                   headless tests (see below) and screenshot scripts
@@ -65,7 +65,11 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
 2. Extend `scripts/game/minigame.gd`. Override `_game_ready()`, `_game_tick(delta)`, `_game_draw()`.
    The base class gives you the player list, the pause when a phone is lost, the D-pad pause menu
    (Resume, Restart, Back to menu), and the Back key.
-3. Add one button for the game in `scripts/ui/tv_menu.gd`.
+3. Add one entry for the game in `scripts/game/registry.gd`. The TV menu is built from that list.
+
+For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_ready()` (build the scene under `world`),
+`_world_tick(delta)` and optionally `_hud_draw(canvas)`. `scripts/game/demo3d/` is a small template.
+The 3D world is frozen while the game is paused.
 
 ## Run on a PC
 
