@@ -33,6 +33,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 | FD-12 | The Games screen shows a players badge with the number of players, not the room code. OK on the badge opens a modal to manage the players (see the requirements). | 2026-10-07 |
 | FD-9 | Art is no longer limited to flat shapes (changes REQ-P6): the logo and the tile screenshots are image files. Menus and games stay in code. | 2026-10-07 |
 | FD-13 | Visual style: **Party Pop**. Chunky, saturated, sticker-like. Thick dark outlines, hard offset shadows, rounded shapes, bright player color tokens, confetti. The TV and the phone use the same style. Rejected: Arcade Neon (heavy glow, hard to read from a sofa) and Sticker Book (needs paper image assets). | 2026-10-07 |
+| FD-14 | Games share a visual language, not one look. Tier 1 (required): the game shell (pause menu, countdown, results, HUD), fonts, player colors. Tier 2 (required, trial rules): a toy-like world (rounded shapes, flat saturated colors, dark outline on key objects). Tier 3 (free): setting, background, camera, lighting mood. The tier 2 rules are written after a trial on the marble race. | 2026-10-07 |
 
 ## 3. Requirements
 
@@ -80,6 +81,11 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-45: Confetti and background dots are drawn in code. They are not image files.
 - REQ-FL-46: The phone app uses the same palette, fonts and card style (REQ-FL-28).
 
+### Game shell and trial (FD-14)
+- REQ-FL-47: The next pull request restyles the marble race as a trial of the tier 2 rules (REQ-GM-47). The result is judged with a screenshot of the game next to the Games screen (REQ-GM-49). After the trial, the exact tier 2 values are written into `docs/GAME_REQUIREMENTS.md` and `docs/games/marble_race.md`. If the trial shows that games need more freedom, the rules are made looser before any other game is changed.
+- REQ-FL-48: The game shell (REQ-GM-45) is built in the same pull request as the menus. A game must not show an old style pause menu, countdown or result screen next to the new menus.
+- REQ-FL-49: The other games (maze, pointer test, 3D demo) get the shell in the same pull request. Their tier 2 restyle follows in a later pull request.
+
 ### Tile screenshots
 - REQ-FL-20: A tool script makes the screenshot of each game and saves it as `assets/tiles/<id>.png`, 640x360 pixels.
 - REQ-FL-21: The `add-minigame` skill and `docs/games/TEMPLATE.md` include the step to make the screenshot.
@@ -107,7 +113,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 ## 4. Changes to other files in the next pull request
 
 - `docs/REQUIREMENTS.md`: change REQ-P6 (FD-9), REQ-A9 and REQ-T3 to point to this file. Replace "main menu" with the new screens.
-- `docs/GAME_REQUIREMENTS.md`: the menu rules for the title, the description and the tile. Change REQ-GM-42 (flat shapes and `UiTheme` colors, no external assets) to allow the new palette and fonts (FD-9, FD-13).
+- `docs/GAME_REQUIREMENTS.md`: the menu rules for the title, the description and the tile. REQ-GM-42 is changed and REQ-GM-45 to 49 (visual language, FD-14) are added.
 - `docs/DEVICE_TEST.md`: new tests for the flow (splash, connect, late join, Back).
 - `README.md`: project structure (`assets/fonts`, `assets/tiles`) and controls.
 - `scripts/ui/ui_theme.gd`: new palette, outline and shadow helpers (the current colors are replaced).
@@ -115,6 +121,6 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 
 ## 5. Open questions
 
-- Do the games (maze, marble race and others) also use the Party Pop style inside the game, or only the menus? Until decided, only the menus and the HUD overlays change.
+- Exact tier 2 values (outline width, color saturation limits, rounding) are open until the marble race trial ends (FD-14, REQ-FL-47).
 - Logo and splash art: who makes the logo image? Until it exists, the logo screen draws the text "REMOTE PLAY" in code.
 - The screenshot size (640x360) and the tile count per row may change after a check on a real TV.

@@ -52,10 +52,18 @@ Look and sound
 
 - REQ-GM-40: Text and important shapes stay inside the 60 px safe margin of the 1920x1080 screen.
 - REQ-GM-41: Text on the TV is 28 px or larger, and it has good contrast with the background (`UiTheme` colors).
-- REQ-GM-42: A game uses flat shapes and `UiTheme` colors. No external assets (REQ-P6).
+- REQ-GM-42: A game uses `UiTheme` colors, the shell fonts, and mostly shapes made in code. Image, model and font files are allowed when `docs/TV_FLOW.md` (FD-9, FD-13) allows them. A game states its own asset files in its requirements file.
 - REQ-GM-43: Important events give haptic feedback on the phone of the player: start, hit, goal.
   Repeated events have a cool-down of 100 ms or more. Short pulses are 15 to 60 ms. A big event can be longer.
 - REQ-GM-44: The meaning of colors is the same in all games: accent = title or number, OK = good, BAD = danger.
+
+Visual language (decision FD-14 in `docs/TV_FLOW.md`). Three tiers:
+
+- REQ-GM-45: Tier 1, the game shell (required). A game uses the shared shell for its pause menu, countdown, result screen, HUD text and score chips. It does not draw its own versions. The shell is part of `minigame.gd` and `minigame_3d.gd`, and it uses the Party Pop style (`UiTheme`, FD-13).
+- REQ-GM-46: Tier 1. Everything that belongs to a player (marble, ball, cursor, score) uses the slot color from `Protocol`. The meaning of accent, OK and BAD is the same in all games (REQ-GM-44).
+- REQ-GM-47: Tier 2, a toy-like world (required, trial rules). Objects have rounded shapes, flat and saturated colors, and no photo-like textures. The important objects (players, goals, hazards) have a dark outline. In 3D the outline is an inverted-hull mesh (a mesh with front faces culled), not a shader. These rules are in trial until the marble race trial ends (REQ-FL-47). Then this requirement gets exact values.
+- REQ-GM-48: Tier 3, free. Setting, background, camera, lighting mood and theme colors are the choice of the game. The background colors come from the Party Pop color set, or from a set that the game's requirements file lists.
+- REQ-GM-49: Check for a new game: put a screenshot of the game next to the Games screen. They must look like the same toy box. The reviewer (the `review` skill) does this check.
 
 Performance
 

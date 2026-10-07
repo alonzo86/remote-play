@@ -78,6 +78,7 @@ The lengths are measured (`MarbleTrack.length`). The winning times are targets, 
 | REQ-MR-41 | The camera follows the middle of the pack and moves higher when the marbles are far apart (16 m to 48 m). | Done | Device |
 | REQ-MR-42 | All marbles stay in view while they are 55 m or less apart along the screen. Beyond that, an arrow in the color of the marble shows at the screen edge, and a number shows how many meters it is behind the leader. | Done | smoke_tv, Device |
 | REQ-MR-43 | The track floor, the edge, the posts, the finish line and the marbles have clear and different colors. Marbles use the slot color. The posts use a grey that is not a slot color. | Done | smoke_tv (post color), Device |
+| REQ-MR-44 | Trial of the visual language (`docs/TV_FLOW.md`, FD-14, REQ-FL-47). The marbles, the posts and the finish line have rounded shapes, flat saturated colors and a dark outline (inverted-hull mesh). The track and the background use colors from the Party Pop set. A screenshot of the race next to the Games screen looks like the same toy box. | Open | Screenshot, Device |
 
 ## Parameters
 
