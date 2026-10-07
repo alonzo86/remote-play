@@ -72,10 +72,20 @@ func _run() -> void:
 	_check(is_instance_of(app.current_screen(), TvLogo), "TV starts on the logo screen (REQ-FL-2)")
 	_check(app.server.listening, "server is listening while the logo shows (REQ-FL-4)")
 	_check(app.server.phase == "connect", "phase is connect on the logo screen")
-	app.current_screen()._next() # OK skips the logo.
+	# The logo goes on by itself after about 2.5 seconds (REQ-FL-2).
+	var logo_start := Time.get_ticks_msec()
+	while is_instance_of(app.current_screen(), TvLogo) and Time.get_ticks_msec() - logo_start < 5000:
+		await process_frame
+	var logo_ms := Time.get_ticks_msec() - logo_start
+	_check(is_instance_of(app.current_screen(), TvConnect) and logo_ms >= 2000 and logo_ms <= 3500,
+			"the logo goes on to Connect by itself after about 2.5 s (took %d ms)" % logo_ms)
+	app.go_logo()
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvLogo), "the logo can be shown again")
+	app.current_screen().on_back() # Back skips the logo. It does not quit (REQ-FL-3).
 	await _frames(3)
 	var connect: Control = app.current_screen()
-	_check(is_instance_of(connect, TvConnect), "the logo goes on to the Connect screen")
+	_check(is_instance_of(connect, TvConnect), "Back skips the logo screen and goes to Connect")
 	_check(connect._continue.disabled, "Continue is disabled with no phone (REQ-FL-6)")
 	connect.on_back()
 	await _frames(2)

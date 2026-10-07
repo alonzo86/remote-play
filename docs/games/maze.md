@@ -13,6 +13,7 @@ Each player tilts a phone to roll a ball through the same maze. The first ball i
 |------------|------|------|
 | REQ-GM-34 | Exception | The result menu shows the winner and time in its title. It has "Play again" and "Back to menu". |
 | REQ-GM-62 | Gap | Test 6 in `docs/DEVICE_TEST.md` covers the feel. The other device checks are not written. |
+| REQ-GM-47a, 47b, 47d, 47e, 47f, REQ-GM-49 | Gap | The world is not restyled yet: no dark outline on the balls and the exit, the walls are not rounded. The HUD, the countdown and the menus use the shell (REQ-GM-45). The restyle is planned for a later pull request (REQ-FL-49). The tile shows the old world. |
 
 ## Requirements
 

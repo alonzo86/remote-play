@@ -53,6 +53,7 @@ func _run() -> void:
 	_test_marble_track()
 	await _test_network()
 	await _test_room_code_join()
+	await _test_phone_screens()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -297,6 +298,50 @@ func _test_room_code_join() -> void:
 	await create_timer(0.5).timeout
 	_check(app.client.state == ControllerClient.State.IDLE, "no join after the screen is closed")
 	app.controller_discovery.tvs.erase("ZZZZ")
+
+
+## The phone shows the pad for `playing` and `paused`, and the waiting screen for the other phases
+## (REQ-FL-28). It goes back to the connect screen when it leaves.
+func _test_phone_screens() -> void:
+	print("phone screens")
+	var app: Node = root.get_node("App")
+	var Wait: GDScript = load("res://scripts/ui/controller_wait.gd")
+	var Pad: GDScript = load("res://scripts/ui/controller_pad.gd")
+	_check(Wait.texts_for("connect")[0] == "Waiting for the host" and Wait.texts_for("menu")[0] == "Choose a game on the TV"
+			and Wait.texts_for("waiting")[0] == "A round is running", "the waiting screen has a text for each phase")
+	var server := TvServer.new()
+	root.add_child(server)
+	server.start({})
+	app.client.connect_to("127.0.0.1", Protocol.WS_PORT, server.room_code)
+	await _wait_until(func(): return app.client.state == ControllerClient.State.CONNECTED)
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Wait), "connect phase: the phone shows the waiting screen")
+	server.set_phase("menu")
+	await _wait_until(func(): return app.client.phase == "menu")
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Wait), "menu phase: the phone stays on the waiting screen")
+	server.set_phase("playing")
+	await _wait_until(func(): return app.client.phase == "playing")
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Pad), "playing phase: the phone shows the pad")
+	server.set_phase("paused")
+	await _wait_until(func(): return app.client.phase == "paused")
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Pad), "paused phase: the phone keeps the pad")
+	var others: Array[int] = [app.client.slot + 1]
+	server.set_phase("playing", others)
+	await _wait_until(func(): return app.client.phase == "waiting")
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Wait), "a phone that is not in the round goes to the waiting screen")
+	server.set_phase("menu")
+	await _wait_until(func(): return app.client.phase == "menu")
+	app.client.leave()
+	await process_frame
+	await process_frame
+	_check(app.current_screen().get_script().resource_path == "res://scripts/ui/controller_connect.gd",
+			"leaving returns to the connect screen")
+	server.stop()
+	server.queue_free()
 
 
 func _test_network() -> void:

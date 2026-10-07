@@ -15,6 +15,7 @@ the drift, the range and the delay of gyro pointing.
 | REQ-GM-34 | Exception | There is no winner and no end. The test runs until the player leaves. |
 | REQ-GM-35 | Exception | There is no countdown. There is no race. |
 | REQ-GM-62 | Gap | Test 5 in `docs/DEVICE_TEST.md` covers it. |
+| REQ-GM-47a, 47b, 47d, 47e, 47f, REQ-GM-49 | Gap | The cursors and rings are not restyled yet: no dark outline, thin lines. The HUD and the menus use the shell (REQ-GM-45). The restyle is planned for a later pull request (REQ-FL-49). The tile shows the old look. |
 
 ## Requirements
 
