@@ -71,8 +71,9 @@ For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_re
 `_world_tick(delta)` and optionally `_hud_draw(canvas)`. `scripts/game/demo3d/` is a small template.
 The 3D world is frozen while the game is paused.
 
-A registry entry may have `props`. They are set on the game before it starts (and kept for Restart).
-The marble race uses this to pick a track (`track_id`). Tracks are in `scripts/game/marble_race/marble_track.gd`:
+A registry entry may have `props`, set on the game before it starts (and kept for Restart). An entry with `variants`
+(a list of title and props) makes the menu ask which variant to start first. The marble race uses this to pick a track
+(`track_id`). The track can also be changed from its results menu, but not from the pause menu. Tracks are in `scripts/game/marble_race/marble_track.gd`:
 add an id to `IDS`, a case in `make()`, and one registry entry.
 
 ## Run on a PC

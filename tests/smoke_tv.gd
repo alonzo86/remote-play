@@ -152,8 +152,20 @@ func _run() -> void:
 	g3.close_menu()
 	await _frames(2)
 
+	# Marble race menu: one entry, then a track list, then the race.
+	app.go_menu()
+	await _frames(3)
+	var menu: Control = app.current_screen()
+	menu._start_game("marble_race")
+	await _frames(2)
+	_check(is_instance_of(app.current_screen(), TvMenu) and menu._variants_of == "marble_race"
+			and menu._buttons.size() == MarbleTrack.IDS.size() + 1, "Marble Race opens the track list before the race")
+	menu.on_back()
+	await _frames(2)
+	_check(menu._variants_of == "", "Back from the track list returns to the main menu")
+
 	# Marble race: grid wait, tilt moves a marble, finish line ends the race.
-	app.go(MarbleRace, Registry.find("marble_zigzag").props)
+	app.go(MarbleRace, Registry.find("marble_race").variants[2].props)
 	await _frames(3)
 	var mr: Control = app.current_screen()
 	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")

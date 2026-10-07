@@ -8,6 +8,8 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 
+var _box: VBoxContainer
+var _variants_of := ""   # Game id while its variant list is shown.
 var _buttons: Array[Button] = []
 var _qr: Array = []
 var _qr_text := ""
@@ -17,23 +19,48 @@ var _toggle_yaw: Button
 
 
 func _ready() -> void:
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 14)
-	box.position = Vector2(110, 250)
-	box.custom_minimum_size = Vector2(760, 0)
-	add_child(box)
+	_box = VBoxContainer.new()
+	_box.add_theme_constant_override("separation", 14)
+	_box.position = Vector2(110, 250)
+	_box.custom_minimum_size = Vector2(760, 0)
+	add_child(_box)
+	_show_main()
+
+
+func _clear() -> void:
+	for b in _buttons:
+		b.queue_free()
+	_buttons.clear()
+
+
+func _show_main() -> void:
+	_clear()
+	_variants_of = ""
 	for g in Registry.all():
-		_add(box, String(g.title), _start_game.bind(String(g.id)))
-	_toggle_overlay = _add(box, "", _on_toggle_overlay)
-	_toggle_tilt = _add(box, "", _on_toggle_tilt)
-	_toggle_yaw = _add(box, "", _on_toggle_yaw)
-	_add(box, "Quit", func(): App._quit())
+		_add(_box, String(g.title), _start_game.bind(String(g.id)))
+	_toggle_overlay = _add(_box, "", _on_toggle_overlay)
+	_toggle_tilt = _add(_box, "", _on_toggle_tilt)
+	_toggle_yaw = _add(_box, "", _on_toggle_yaw)
+	_add(_box, "Quit", func(): App._quit())
 	_refresh_labels()
 	_buttons[0].grab_focus()
 
 
+## Second step for games with variants (for example the tracks of the marble race).
+func _show_variants(game: Dictionary) -> void:
+	_clear()
+	_variants_of = String(game.id)
+	for v in game.variants:
+		_add(_box, String(v.title), _start_game.bind(String(game.id), v.props))
+	_add(_box, "Back", _show_main)
+	_buttons[0].grab_focus()
+
+
 func on_back() -> void:
-	App._quit()
+	if _variants_of != "":
+		_show_main()
+	else:
+		App._quit()
 
 
 func _add(parent: Control, text: String, cb: Callable) -> Button:
@@ -47,10 +74,14 @@ func _add(parent: Control, text: String, cb: Callable) -> Button:
 	return b
 
 
-func _start_game(id: String) -> void:
+func _start_game(id: String, props := {}) -> void:
+	var game := Registry.find(id)
+	if game.has("variants") and props.is_empty():
+		_show_variants(game)
+		return
 	var script := Registry.load_script(id)
 	if script != null:
-		App.go(script, Registry.find(id).get("props", {}))
+		App.go(script, props if not props.is_empty() else game.get("props", {}))
 
 
 func _refresh_labels() -> void:
@@ -86,6 +117,9 @@ func _draw() -> void:
 	draw_string(font, Vector2(110, 130), "REMOTE PLAY", HORIZONTAL_ALIGNMENT_LEFT, -1, 84, UiTheme.ACCENT)
 	draw_string(font, Vector2(114, 190), "Phone motion controller prototype",
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 34, UiTheme.TEXT_DIM)
+
+	if _variants_of != "":
+		draw_string(font, Vector2(114, 236), "Choose a track", HORIZONTAL_ALIGNMENT_LEFT, -1, 30, UiTheme.ACCENT)
 
 	# Right panel
 	var px := size.x - 860.0

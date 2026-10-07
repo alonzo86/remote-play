@@ -158,11 +158,14 @@ func _test_registry() -> void:
 	_check(ids.size() == Registry.all().size(), "registry ids are unique")
 	_check(all_ok, "every registry game loads and extends the right base class")
 	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
-	var props_ok := true
+	var tracks_ok := true
 	for g in Registry.all():
-		if g.has("props") and g.props.has("track_id") and not MarbleTrack.IDS.has(g.props.track_id):
-			props_ok = false
-	_check(props_ok, "registry track ids exist")
+		if g.id == "marble_race":
+			var track_ids: Array = []
+			for v in g.variants:
+				track_ids.append(v.props.track_id)
+			tracks_ok = track_ids == MarbleTrack.IDS
+	_check(tracks_ok, "marble race menu variants match the track list")
 	_check(Registry.accepts(Registry.find("maze"), 4) and not Registry.accepts(Registry.find("maze"), 5), "player range check")
 
 
