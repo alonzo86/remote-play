@@ -10,6 +10,7 @@ var PointerTest
 var Demo3D
 var MarbleRace
 var Registry
+var MarbleTrack
 var TvMenu
 
 var _fails := 0
@@ -57,6 +58,7 @@ func _run() -> void:
 	MazeGame = load("res://scripts/game/maze/maze_game.gd")
 	PointerTest = load("res://scripts/game/pointer_test/pointer_test.gd")
 	Demo3D = load("res://scripts/game/demo3d/demo3d_game.gd")
+	MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
 	Registry = load("res://scripts/game/registry.gd")
 	MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
 	TvMenu = load("res://scripts/ui/tv_menu.gd")
@@ -167,9 +169,24 @@ func _run() -> void:
 	await _frames(5)
 	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
 	_check(mr._ended and mr.is_paused(), "race ends and the results menu opens")
-	mr.restart()
+	var results_items: int = mr._menu_box.get_child_count()
+	mr._open_picker()
+	await _frames(2)
+	_check(mr._picking and mr._menu_box.get_child_count() == MarbleTrack.IDS.size() + 2,
+			"track picker lists every track and Cancel")
+	mr.on_back()
+	await _frames(2)
+	_check(not mr._picking and mr._ended and mr._menu_box.get_child_count() == results_items,
+			"Back from the picker returns to the results")
+	mr._open_picker()
+	mr._switch_track("sprint")
 	await _frames(3)
-	_check(app.current_screen().track.id == "zigzag", "restart keeps the chosen track")
+	var sp: Control = app.current_screen()
+	_check(sp != mr and sp.track.id == "sprint" and sp.start_props.track_id == "sprint",
+			"picking a track starts that track")
+	sp.restart()
+	await _frames(3)
+	_check(app.current_screen().track.id == "sprint", "restart keeps the chosen track")
 
 	app.go_menu()
 	await _frames(3)

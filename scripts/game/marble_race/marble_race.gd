@@ -45,6 +45,7 @@ var _time := -COUNTDOWN    # Race clock. Below 0 the marbles wait on the grid.
 var _first_finish_time := -1.0
 var _winner := -1
 var _winner_name := ""
+var _picking := false   # True while the track picker is open on the results menu.
 var _ended := false
 var _cam_pos := Vector3.ZERO
 
@@ -192,8 +193,41 @@ func _check_end() -> void:
 			all_done = false
 	if all_done or _time - _first_finish_time >= END_DELAY:
 		_ended = true
-		open_menu("%s wins!" % _winner_name,
-				[["Restart", restart], ["Back to menu", App.go_menu]])
+		_open_results()
+
+
+# ---- Results menu ----
+
+func _open_results() -> void:
+	_picking = false
+	open_menu("%s wins!" % _winner_name,
+			[["Restart", restart], ["Choose track", _open_picker], ["Back to menu", App.go_menu]])
+
+
+func _open_picker() -> void:
+	_picking = true
+	var entries: Array = []
+	for id in MarbleTrack.IDS:
+		var title: String = MarbleTrack.make(id).title
+		entries.append([title + ("  (now)" if id == track_id else ""), _switch_track.bind(id)])
+	entries.append(["Cancel", _open_results])
+	open_menu("Choose a track", entries)
+
+
+func _switch_track(id: String) -> void:
+	var props := start_props.duplicate()
+	props["track_id"] = id
+	App.go(get_script(), props)
+
+
+## Back from the track picker returns to the results. Back from the results leaves the game.
+func on_back() -> void:
+	if _ended and _picking:
+		_open_results()
+	elif _ended:
+		App.go_menu()
+	else:
+		super()
 
 
 # ---- Standings ----
