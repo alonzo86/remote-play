@@ -8,6 +8,7 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 var MazeGame
 var PointerTest
 var Demo3D
+var MarbleRace
 var TvMenu
 
 var _fails := 0
@@ -55,6 +56,7 @@ func _run() -> void:
 	MazeGame = load("res://scripts/game/maze/maze_game.gd")
 	PointerTest = load("res://scripts/game/pointer_test/pointer_test.gd")
 	Demo3D = load("res://scripts/game/demo3d/demo3d_game.gd")
+	MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
 	TvMenu = load("res://scripts/ui/tv_menu.gd")
 	var app: Node = root.get_node("App")
 	_check(is_instance_of(app.current_screen(), TvMenu), "TV starts on the menu")
@@ -145,6 +147,23 @@ func _run() -> void:
 	_check(g3.world.process_mode == Node.PROCESS_MODE_DISABLED, "3D world freezes while paused")
 	g3.close_menu()
 	await _frames(2)
+
+	# Marble race: grid wait, tilt moves a marble, finish line ends the race.
+	app.go(MarbleRace)
+	await _frames(3)
+	var mr: Control = app.current_screen()
+	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")
+	var mx0: float = mr._racers[0].pos.x
+	await _stream(clients[0], 0, 1.0, tilt)
+	_check(absf(mr._racers[0].pos.x - mx0) < 0.01, "marbles wait on the grid during the countdown")
+	await _stream(clients[0], 0, 2.6, tilt)
+	_check(mr._racers[0].pos.x > mx0 + 0.3, "marble 0 rolls right when the phone tilts right")
+	_check(mr.standings().size() == 2, "standings list both players")
+	for s in [0, 1]:
+		mr._racers[s].pos = mr.track.point_at(mr.finish_arc + 0.5)
+	await _frames(5)
+	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
+	_check(mr._ended and mr.is_paused(), "race ends and the results menu opens")
 
 	app.go_menu()
 	await _frames(3)

@@ -7,6 +7,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const Registry = preload("res://scripts/game/registry.gd")
+const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
 const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
@@ -50,6 +51,7 @@ func _run() -> void:
 	_test_maze()
 	_test_qr()
 	_test_registry()
+	_test_marble_track()
 	await _test_network()
 	await _test_room_code_join()
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -157,6 +159,29 @@ func _test_registry() -> void:
 	_check(all_ok, "every registry game loads and extends the right base class")
 	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
 	_check(Registry.accepts(Registry.find("maze"), 4) and not Registry.accepts(Registry.find("maze"), 5), "player range check")
+
+
+func _test_marble_track() -> void:
+	print("marble track")
+	var t = MarbleTrack.make_default()
+	_check(t.length > 100.0, "default track is long enough (%.0f m)" % t.length)
+	var prev := -1.0
+	var mono := true
+	var on_line := true
+	var a := 0.0
+	while a <= t.length:
+		var q: Dictionary = t.query(t.point_at(a))
+		if q.dist > 0.01 or absf(q.arc - a) > 0.05:
+			on_line = false
+		if q.arc < prev:
+			mono = false
+		prev = q.arc
+		a += 1.0
+	_check(on_line, "point_at and query agree along the whole track")
+	_check(mono, "arc grows along the track")
+	var side: Vector2 = t.point_at(30.0) + Vector2(t.half_width + 1.0, 0)
+	_check(t.query(side).dist > t.half_width, "a point beside the track is outside it")
+	_check(absf(t.dir_at(5.0).length() - 1.0) < 0.001, "dir_at is a unit vector")
 
 
 func _test_maze() -> void:

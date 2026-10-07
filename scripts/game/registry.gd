@@ -12,6 +12,8 @@ const GAMES: Array[Dictionary] = [
 			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4},
 	{"id": "pointer_test", "title": "Pointer Test", "dim": "2d",
 			"path": "res://scripts/game/pointer_test/pointer_test.gd", "min_players": 1, "max_players": 4},
+	{"id": "marble_race", "title": "Marble Race", "dim": "3d",
+			"path": "res://scripts/game/marble_race/marble_race.gd", "min_players": 1, "max_players": 4},
 	{"id": "demo3d", "title": "3D Demo (tilt balls)", "dim": "3d",
 			"path": "res://scripts/game/demo3d/demo3d_game.gd", "min_players": 1, "max_players": 4},
 ]

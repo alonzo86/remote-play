@@ -46,7 +46,7 @@ scripts/
   core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd
   net/                   tv_server, tv_discovery, controller_client, controller_discovery, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
-  game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), maze/, pointer_test/, demo3d/
+  game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), maze/, pointer_test/, demo3d/, marble_race/
   ui/                    tv_menu, debug_overlay, controller_connect, controller_pad, ui_theme
 android/plugin/          QrScannerPlugin.java (Android plugin: Google code scanner)
 tests/                   headless tests (see below) and screenshot scripts
