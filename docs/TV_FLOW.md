@@ -33,11 +33,14 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 | FD-12 | The Games screen shows a players badge with the number of players, not the room code. OK on the badge opens a modal to manage the players (see the requirements). | 2026-10-07 |
 | FD-9 | Art is no longer limited to flat shapes (changes REQ-P6): the logo and the tile screenshots are image files. Menus and games stay in code. | 2026-10-07 |
 | FD-13 | Visual style: **Party Pop**. Chunky, saturated, sticker-like. Thick dark outlines, hard offset shadows, rounded shapes, bright player color tokens, confetti. The TV and the phone use the same style. Rejected: Arcade Neon (heavy glow, hard to read from a sofa) and Sticker Book (needs paper image assets). | 2026-10-07 |
-| FD-14 | Games share a visual language, not one look. Tier 1 (required): the game shell (pause menu, countdown, results, HUD), fonts, player colors. Tier 2 (required, trial rules): a toy-like world (rounded shapes, flat saturated colors, dark outline on key objects). Tier 3 (free): setting, background, camera, lighting mood. The tier 2 rules are written after a trial on the marble race. | 2026-10-07 |
+| FD-14 | Games share a visual language, not one look. Tier 1 (required): the game shell (pause menu, countdown, results, HUD), fonts, player colors. Tier 2 (required, trial rules): a toy-like world (rounded shapes, flat saturated colors, dark outline on key objects). Tier 3 (free): setting, background, camera, lighting mood. The exact tier 2 values are in `docs/GAME_REQUIREMENTS.md` (REQ-GM-47a to 47h). A trial on the marble race checks them. | 2026-10-07 |
+| FD-15 | The owner makes the logo image. The developer sets the exact tier 2 values. | 2026-10-07 |
 
 ## 3. Requirements
 
 ### Splash and logo screen
+- REQ-FL-50: Logo file: `assets/logo/logo.png`, PNG with a transparent background, 1600x600 px, the logo centered with at least 80 px of empty space on every side. It must read well on the purple background `#3d1a9e` (FD-13). The logo screen shows it at about 60% of the screen width. If the file is missing, the screen draws the text "REMOTE PLAY" with the title font.
+- REQ-FL-51: The Android splash (REQ-FL-1) uses the purple `#3d1a9e` as the background color. It uses the app icon, or a square version of the logo (`assets/logo/splash.png`, 432x432 px, transparent) when the owner provides one.
 - REQ-FL-1: The app sets the Android splash (background color and icon) in the project settings.
 - REQ-FL-2: After the OS splash, the TV shows a logo screen with an animation. It lasts 2 to 3 seconds.
 - REQ-FL-3: OK, or a tap on a touch screen, skips the logo screen. Back does not show it (FD-6).
@@ -82,7 +85,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-46: The phone app uses the same palette, fonts and card style (REQ-FL-28).
 
 ### Game shell and trial (FD-14)
-- REQ-FL-47: The next pull request restyles the marble race as a trial of the tier 2 rules (REQ-GM-47). The result is judged with a screenshot of the game next to the Games screen (REQ-GM-49). After the trial, the exact tier 2 values are written into `docs/GAME_REQUIREMENTS.md` and `docs/games/marble_race.md`. If the trial shows that games need more freedom, the rules are made looser before any other game is changed.
+- REQ-FL-47: The next pull request restyles the marble race as a trial of the tier 2 rules (REQ-GM-47). The result is judged with a screenshot of the game next to the Games screen (REQ-GM-49). The trial checks the tier 2 values (REQ-GM-47a to 47h) and they are corrected in `docs/GAME_REQUIREMENTS.md` if they are wrong. If the trial shows that games need more freedom, the rules are made looser before any other game is changed.
 - REQ-FL-48: The game shell (REQ-GM-45) is built in the same pull request as the menus. A game must not show an old style pause menu, countdown or result screen next to the new menus.
 - REQ-FL-49: The other games (maze, pointer test, 3D demo) get the shell in the same pull request. Their tier 2 restyle follows in a later pull request.
 
@@ -121,6 +124,6 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 
 ## 5. Open questions
 
-- Exact tier 2 values (outline width, color saturation limits, rounding) are open until the marble race trial ends (FD-14, REQ-FL-47).
-- Logo and splash art: who makes the logo image? Until it exists, the logo screen draws the text "REMOTE PLAY" in code.
+- The tier 2 values are a first version. The marble race trial can change them (FD-14, REQ-FL-47).
+- Logo image: the owner makes it (FD-15). Until the file exists, the logo screen draws the text "REMOTE PLAY" in code.
 - The screenshot size (640x360) and the tile count per row may change after a check on a real TV.
