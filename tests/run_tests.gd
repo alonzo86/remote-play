@@ -243,7 +243,9 @@ func _test_network() -> void:
 	c2._ws.close()
 	await _wait_until(func(): return server.players[slot2].state == PlayerInput.State.LOST)
 	_check(server.players[slot2].state == PlayerInput.State.LOST, "server marks the slot as lost")
-	ok = await _wait_until(func(): return c2.state == ControllerClient.State.CONNECTED and server.players[slot2].is_connected_now(), 6000)
+	ok = await _wait_until(func():
+			return c2.state == ControllerClient.State.CONNECTED and server.players[slot2].is_connected_now(),
+			6000)
 	_check(ok and c2.slot == slot2, "client 2 reconnects to the same slot")
 	_check(events.has("lost%d" % slot2) and events.has("resume%d" % slot2), "lost and resume events fired: %s" % str(events))
 
