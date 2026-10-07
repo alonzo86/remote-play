@@ -12,7 +12,6 @@ const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
-const ControllerConnect = preload("res://scripts/ui/controller_connect.gd")
 
 var _fails := 0
 var _checks := 0
@@ -163,6 +162,24 @@ func _test_registry() -> void:
 			print("    missing requirements file for ", g.id)
 	_check(docs_ok, "every game has a requirements file (REQ-GM-6)")
 	_check(all_ok, "every registry game loads and extends the right base class")
+	_check(Registry.reason({"min_players": 3, "max_players": 4}, 2) == "Needs 3 players",
+			"a game that needs more players says why (REQ-FL-14)")
+	var shown_ok := true
+	for g in Registry.all():
+		var id := String(g.id)
+		if String(g.get("description", "")) == "":
+			shown_ok = false
+			print("    no description for ", id)
+		var tile := String(g.get("tile", ""))
+		if tile == "" or not FileAccess.file_exists(tile):
+			shown_ok = false
+			print("    no tile file for ", id)
+		else:
+			var img := Image.load_from_file(ProjectSettings.globalize_path(tile))
+			if img == null or img.get_width() != 640 or img.get_height() != 360:
+				shown_ok = false
+				print("    tile of ", id, " is not 640x360")
+	_check(shown_ok, "every game has a description and a 640x360 tile file (REQ-FL-19, 20, 22)")
 	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
 	var tracks_ok := true
 	for g in Registry.all():
@@ -263,7 +280,9 @@ func _test_qr() -> void:
 func _test_room_code_join() -> void:
 	print("room code join")
 	var app: Node = root.get_node("App")
-	var screen := ControllerConnect.new()
+	# Load now, not at parse time: the App autoload must exist first.
+	var ControllerConnect: GDScript = load("res://scripts/ui/controller_connect.gd")
+	var screen = ControllerConnect.new()
 	screen.theme = app.theme_res
 	root.add_child(screen)
 	screen._input.text = "ZZZZ"
@@ -273,8 +292,8 @@ func _test_room_code_join() -> void:
 	_check(screen._joining, "second tap during the wait is ignored")
 	# A beacon that arrives after the screen is gone must not start a connection.
 	screen.queue_free()
-	app.controller_discovery.tvs["ZZZZ"] = {"ip": "127.0.0.1", "port": 1, "room": "ZZZZ",
-			"seen_ms": Time.get_ticks_msec()}
+	app.controller_discovery.tvs["ZZZZ"] = {"ip": "127.0.0.1", "port": 1, "room": "ZZZZ", "name": "Test TV",
+			"players": 0, "max": 4, "seen_ms": Time.get_ticks_msec()}
 	await create_timer(0.5).timeout
 	_check(app.client.state == ControllerClient.State.IDLE, "no join after the screen is closed")
 	app.controller_discovery.tvs.erase("ZZZZ")
@@ -357,12 +376,40 @@ func _test_network() -> void:
 	await _wait_until(func(): return not server.players[slot2].is_present())
 	_check(not server.players[slot2].is_present(), "leave frees the slot")
 
+	# Remove (REQ-FL-33): the slot is free at once, the phone is told, and it does not reconnect by itself.
+	var c3: Node = clients[2]
+	var slot3: int = c3.slot
+	var kicked := []
+	c3.rejected.connect(func(r): kicked.append(r))
+	server.kick(slot3)
+	await _wait_until(func(): return not kicked.is_empty())
+	_check(kicked == ["kicked"], "a removed phone is told: %s" % str(kicked))
+	_check(not server.players[slot3].is_present(), "remove frees the slot at once")
+	_check(c3.state == ControllerClient.State.IDLE and c3.slot == -1, "the removed phone goes back to idle")
+	await _wait_until(func(): return false, 1500)
+	_check(not server.players[slot3].is_present() and c3.state == ControllerClient.State.IDLE,
+			"the removed phone does not reconnect by itself")
+
 	# Phase and haptic messages reach the phone.
 	var phases := []
 	clients[0].phase_changed.connect(func(p): phases.append(p))
 	server.set_phase("playing")
 	await _wait_until(func(): return not phases.is_empty())
 	_check(phases == ["playing"], "phase message reaches the phone")
+
+	# A phone that joined late gets "waiting" during a round (REQ-FL-25).
+	var late_phases := []
+	clients[3].phase_changed.connect(func(p): late_phases.append(p))
+	phases.clear()
+	var in_round: Array[int] = [clients[0].slot]
+	server.set_phase("paused", in_round)
+	await _wait_until(func(): return not phases.is_empty() and not late_phases.is_empty())
+	_check(phases == ["paused"] and late_phases == ["waiting"], "late phone gets waiting: %s %s" % [str(phases), str(late_phases)])
+	server.set_phase("menu")
+	phases.clear()
+	late_phases.clear()
+	await _wait_until(func(): return not late_phases.is_empty())
+	_check(late_phases == ["menu"], "the next phase reaches the late phone")
 
 	# Server stop makes clients go to reconnect, not crash.
 	for c in clients:

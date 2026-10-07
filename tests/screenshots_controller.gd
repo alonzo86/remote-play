@@ -26,6 +26,12 @@ func _run() -> void:
 	server.tv_name = "Living Room TV"
 	app.client.connect_to("127.0.0.1", Protocol.WS_PORT, server.room_code)
 	await _frames(90)
+	root.get_texture().get_image().save_png("user://shot_ctl_wait.png")
+	server.set_phase("menu")
+	await _frames(20)
+	root.get_texture().get_image().save_png("user://shot_ctl_menu.png")
+	server.set_phase("playing")
+	await _frames(30)
 	root.get_texture().get_image().save_png("user://shot_ctl_pad.png")
 	print("client state: ", app.client.state, " rtt ", app.client.rtt_ms)
 	app.client.leave()

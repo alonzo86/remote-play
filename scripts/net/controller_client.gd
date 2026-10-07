@@ -20,7 +20,7 @@ const GIVE_UP_AFTER := 3   # Failed first attempts before "unreachable".
 var state: State = State.IDLE
 var slot := -1
 var color := Color.WHITE
-var phase := "lobby"
+var phase := "connect"
 var tv_name := ""
 var rtt_ms := -1.0
 var clock_offset_ms := 0.0   # TV clock minus phone clock.
@@ -162,7 +162,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			color = Color(String(msg.get("color", "#ffffff")))
 			_token = String(msg.get("token", ""))
 			tv_name = String(msg.get("name", "TV"))
-			phase = String(msg.get("phase", "lobby"))
+			phase = String(msg.get("phase", "connect"))
 			_was_connected = true
 			_attempt = 0
 			_tx_window_ms = now
@@ -186,10 +186,19 @@ func _handle(msg: Dictionary, now: int) -> void:
 			_send_json({"t": "stat", "rtt": snappedf(rtt_ms, 0.1),
 					"off": snappedf(clock_offset_ms, 0.1), "hz": snappedf(tx_rate, 0.1)})
 		"phase":
-			phase = String(msg.get("v", "lobby"))
+			phase = String(msg.get("v", "connect"))
 			phase_changed.emit(phase)
 		"haptic":
 			haptic_requested.emit(int(msg.get("ms", 50)))
+		"kicked":
+			# The host removed this phone. Forget the token. Do not reconnect (REQ-FL-33).
+			_close_socket()
+			_token = ""
+			slot = -1
+			_was_connected = false
+			_set_state(State.IDLE)
+			_save_last(true)
+			rejected.emit("kicked")
 		"bye":
 			_close_socket()
 			_set_state(State.IDLE)

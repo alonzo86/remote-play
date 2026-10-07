@@ -18,7 +18,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-P3: The role is chosen by the feature tag `tv` or `controller`.
 - REQ-P4: On desktop, the argument `-- --role=tv` or `-- --role=controller` replaces the feature tag.
 - REQ-P5: Do not use servers, accounts, subscriptions, analytics, or paid services. Use the LAN only.
-- REQ-P6: Do not use external assets. Art is minimal and geometric: flat colors and primitives.
+- REQ-P6: Menus and games are built in code from shapes, with the Party Pop style (`docs/TV_FLOW.md`, FD-13). Allowed files: the two fonts (`assets/fonts`), the game tile screenshots (`assets/tiles`), the logo (`assets/logo`), and the app icons. No other image, sound or model files without a decision in `docs/TV_FLOW.md`.
 
 ## 3. Architecture
 
@@ -30,7 +30,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-A6: Input handling and networking are in separate scripts from game logic.
 - REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.
 - REQ-A8: `net/` and `input/` scripts must not refer to `game/` scripts.
-- REQ-A9: Games are listed in `scripts/game/registry.gd`. The menu is built from it. 3D games extend `minigame_3d.gd`.
+- REQ-A9: Games are listed in `scripts/game/registry.gd`. The Games screen is built from it (title, description, tile, player range). 3D games extend `minigame_3d.gd`.
 - REQ-A10: Each game has a requirements file in `docs/games/`. All games also follow `docs/GAME_REQUIREMENTS.md`.
 
 ## 4. Protocol
@@ -57,6 +57,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-T1: Minigame 1 is a tilt maze. Each phone tilts a ball through a maze. The first ball to reach the exit wins.
 - REQ-T2: A pointer-calibration scene shows a cursor that the phone orientation controls.
 - REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
+- REQ-T6: The TV app follows the flow in `docs/TV_FLOW.md`: logo, Connect controllers, Games, and a game. Settings and the Players modal open from the Games screen.
 - REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values.
 - REQ-T5: The player can pause when a phone disconnects. The player can continue when it reconnects.
 

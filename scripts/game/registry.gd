@@ -6,17 +6,25 @@ extends RefCounted
 ##   dim     "2d" (extends minigame.gd) or "3d" (extends minigame_3d.gd)
 ##   path    script path
 ##   doc     requirements file of the game (REQ-GM-6)
+##   description  one line for the Games screen (REQ-FL-13)
+##   tile    16:9 screenshot for the Games screen, 640x360 (REQ-FL-20). A missing file shows a placeholder.
 ##   props   optional. Values set on the game before it starts (for example the track of a race).
 ##   variants  optional. List of {title, props}. The menu asks which variant to start before the game
 ##             starts (for example the track of a race). The props of the variant are used.
-##   min_players / max_players  allowed player count (REQ-GM-20). The menu does not check it yet.
+##   min_players / max_players  allowed player count (REQ-GM-20). The Games screen dims a game that does not fit.
 
 const GAMES: Array[Dictionary] = [
 	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "Tilt Maze", "dim": "2d",
+			"description": "Tilt your phone to roll your ball through the maze. The first ball in the exit wins.",
+			"tile": "res://assets/tiles/maze.png",
 			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4},
 	{"id": "pointer_test", "doc": "res://docs/games/pointer_test.md", "title": "Pointer Test", "dim": "2d",
+			"description": "Aim at the ring and press A. Shows how well your phone points at the TV.",
+			"tile": "res://assets/tiles/pointer_test.png",
 			"path": "res://scripts/game/pointer_test/pointer_test.gd", "min_players": 1, "max_players": 4},
 	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "Marble Race", "dim": "3d",
+			"description": "Tilt to roll your marble along the track. The first marble over the line wins.",
+			"tile": "res://assets/tiles/marble_race.png",
 			"path": "res://scripts/game/marble_race/marble_race.gd", "min_players": 1, "max_players": 4,
 			"variants": [
 				{"title": "Classic", "props": {"track_id": "classic"}},
@@ -24,7 +32,9 @@ const GAMES: Array[Dictionary] = [
 				{"title": "Zigzag", "props": {"track_id": "zigzag"}},
 				{"title": "Gauntlet", "props": {"track_id": "gauntlet"}},
 			]},
-	{"id": "demo3d", "doc": "res://docs/games/demo3d.md", "title": "3D Demo (tilt balls)", "dim": "3d",
+	{"id": "demo3d", "doc": "res://docs/games/demo3d.md", "title": "3D Demo", "dim": "3d",
+			"description": "Tilt your phone to roll a ball around a 3D floor. A template for new 3D games.",
+			"tile": "res://assets/tiles/demo3d.png",
 			"path": "res://scripts/game/demo3d/demo3d_game.gd", "min_players": 1, "max_players": 4},
 ]
 
@@ -45,6 +55,13 @@ static func load_script(id: String) -> GDScript:
 	if g.is_empty():
 		return null
 	return load(String(g.path)) as GDScript
+
+
+## Why a game cannot start with `players` players (REQ-FL-14).
+static func reason(game: Dictionary, players: int) -> String:
+	if players < int(game.min_players):
+		return "Needs %d players" % int(game.min_players)
+	return "Up to %d players" % int(game.max_players)
 
 
 ## True when `players` is inside the allowed range of the game.

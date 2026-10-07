@@ -14,9 +14,10 @@ Write the results in the table at the end of this file (or copy it).
 
 ## Test 1. Start and join
 
-1. Start the TV app. Check: the menu shows a room code, a QR code, and a URL with an IP address (not `?`).
+1. Start the TV app. Check: the Android splash shows, then the logo screen with an animation (about 2.5 seconds), then the **Connect controllers** screen with a room code and a QR code. If the QR code is empty, the TV has no Wi-Fi address (the screen says so).
 2. Start the controller app on one phone. Check: the phone shows a **portrait** screen.
-3. Join with the **TV list** (tap the TV). Check: the phone shows "Connected - Player 1" and the TV shows the phone in slot 1.
+3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "Ready!", and **Continue** is enabled and focused.
+   Press OK on **Continue**. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
 4. Tap **Leave**, then join with the **room code**. Check: it joins.
 5. Tap **Leave**, then join with the **TV IP address**. Check: it joins.
 
@@ -40,7 +41,7 @@ Open the debug overlay on the TV (Menu key, or the menu item). Hold the phone in
 | Turn the phone to the left (like turning on a table) | `Gyro z` positive. In **Pointer Test**, the cursor goes left |
 | Point the top of the phone higher | The cursor goes up |
 
-If a direction is wrong, use **Invert tilt axes** or **Invert pointer yaw** in the TV menu. Write down which one you needed.
+If a direction is wrong, use **Invert tilt axes** or **Invert pointer yaw** on the **Settings** screen of the TV (the gear on the Games screen). Write down which one you needed.
 If the **vertical** pointer direction is wrong but tilt is right, report it (it needs a code change).
 
 ## Test 4. Latency and packet rate
@@ -82,11 +83,20 @@ A total below 100 ms feels good. Above 150 ms feels slow.
 
 ## Test 8. TV remote
 
-1. Use only the remote. Check that the D-pad moves the focus in the menu and OK selects.
+1. Use only the remote. Check that the D-pad moves the focus on every screen (tiles, badge, gear, buttons) and OK selects. The focused item has a yellow outline and the layout does not move.
 2. In a game, press OK. Check: the pause menu opens with Resume, Restart, and Back to menu.
-3. Press Back in a game: back to the menu. Press Back in the menu: the app quits.
-4. Check the Menu key. If the remote has no Menu key, use the menu item **Debug overlay**.
+3. Press Back in a game: back to the Games screen. Press Back on the Games screen: the Connect screen (the players stay). Press Back on the Connect screen: the quit question opens, with **Stay** in focus.
+4. Check the Menu key. If the remote has no Menu key, open **Settings** (the gear on the Games screen) and use **Debug overlay**.
 5. Check: the app icon and banner show in the Android TV home row (the banner is the TV, the maze and the phone).
+
+## Test 8b. The TV flow and the style
+
+1. Start the TV app from cold. Check: the logo screen goes on by itself after about 2.5 seconds, and OK skips it. Back on the logo screen does not quit.
+2. On the Games screen, with one phone joined, check that every tile shows its screenshot, title and player range, and that the text is readable from the sofa (REQ-FL-40).
+3. Open the **players badge** (OK). Check: the modal shows the slots, a QR code and the room code. Press **Remove** on a player. Check: the phone says that the host removed it and does not reconnect by itself. Join again with the QR code. Check: the slot fills again.
+4. Join a phone while a game runs. Check: the phone says "A round is running", it does not take part, and it joins the next round.
+5. Check the motion on the TV box: the logo, the focus bounce and the confetti run at 60 frames per second (overlay FPS). Check that the Party Pop colors look right on your TV (not washed out, outlines visible).
+6. Phone: check that the fonts and the colors match the TV on the connect, waiting and pad screens.
 
 ## Test 9. Marble race (3D)
 

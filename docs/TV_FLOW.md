@@ -1,7 +1,8 @@
 # TV app flow
 
-Status: **agreed, not built yet.** Chosen visual style: Party Pop (FD-13). This file holds the decisions (FD-n) and the requirements (REQ-FL-n)
-for the redesign of the TV app. The code change comes in the next pull request.
+Status: **built** (the redesign pull request). Chosen visual style: Party Pop (FD-13). This file holds the decisions (FD-n)
+and the requirements (REQ-FL-n) of the TV app flow. Open items: the logo image (the owner makes it, FD-15) and the Android
+splash image, until then the app icon is used (REQ-FL-51).
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
 
 ## 1. Flow
@@ -74,7 +75,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 
 ### Visual style (Party Pop, FD-13)
 - REQ-FL-37: All screens use one palette, kept in `UiTheme` (`scripts/ui/ui_theme.gd`): background purple `#3d1a9e` (darker `#2c1180` for info bars), card white `#ffffff`, text on card `#24104f`, outline and shadow `#1a0b45`, accent yellow `#ffd23f`, room code pink `#ff3d8b`, confetti pink `#ff5ea8`, cyan `#3ddcff` and yellow. The player colors stay as they are in `Protocol`.
-- REQ-FL-38: Cards, slots, badges and buttons have a thick dark outline (about 0.45% of the screen width) and a hard shadow offset down and right, with no blur. Corners are rounded. Pills and the gear are fully round.
+- REQ-FL-38: Cards, slots, badges and buttons have a thick dark outline (6 px at 1080p, `UiTheme.OUTLINE_W`) and a hard shadow offset down and right, with no blur. Corners are rounded. Pills and the gear are fully round.
 - REQ-FL-39: Titles use the display font Lilita One. Other text uses Fredoka (medium and semibold). Both fonts are free (SIL OFL) TTF files in `assets/fonts/`, with their license files. The default Godot font is the fallback.
 - REQ-FL-40: Text on the TV is at least 28 px high at 1080p for titles and game names, and at least 22 px for help text (read from a sofa). Text on the purple background has a contrast ratio of at least 4.5:1.
 - REQ-FL-41: The focused item has a yellow outline and a yellow title. Focus never changes the size of an item or moves the layout. A selected tile may tilt by up to 2 degrees.

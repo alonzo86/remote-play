@@ -167,7 +167,6 @@ func _origin() -> Vector2:
 
 
 func _game_draw() -> void:
-	var font := ThemeDB.fallback_font
 	var o := _origin()
 	# Start and exit cells
 	draw_rect(Rect2(o, Vector2(CELL, CELL)), UiTheme.PANEL)
@@ -183,21 +182,16 @@ func _game_draw() -> void:
 		draw_circle(o + b.pos, BALL_R, col)
 		draw_arc(o + b.pos, BALL_R, 0, TAU, 32, Color.WHITE, 3.0)
 	# HUD
-	draw_string(font, Vector2(60, 70), "TILT MAZE", HORIZONTAL_ALIGNMENT_LEFT, -1, 52, UiTheme.ACCENT)
+	Shell.title(self, "TILT MAZE")
 	var x := size.x - 60.0
 	for s in participants:
-		x -= 230.0
-		draw_rect(Rect2(x, 28, 210, 54), player(s).color)
-		draw_string(font, Vector2(x, 66), "P%d  %s" % [s + 1, player(s).player_name], HORIZONTAL_ALIGNMENT_CENTER,
-				210, 28, UiTheme.BG)
+		x -= 270.0
+		Shell.chip(self, Vector2(x, 36), "P%d  %s" % [s + 1, player(s).player_name], player(s).color, 250.0)
 	if _phase == Phase.PLAYING:
-		draw_string(font, Vector2(0, 80), "%.1f s" % _race_time, HORIZONTAL_ALIGNMENT_CENTER, size.x, 48, UiTheme.TEXT)
+		Shell.text(self, Vector2(0, 94), "%.1f s" % _race_time, 48, UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, size.x)
 	if _phase == Phase.COUNTDOWN and not participants.is_empty():
 		var n := ceili(_clock)
-		draw_string(font, Vector2(0, size.y * 0.5 + 60), str(n) if n > 0 else "GO",
-				HORIZONTAL_ALIGNMENT_CENTER, size.x, 260, Color(1, 1, 1, 0.85))
-		draw_string(font, Vector2(0, size.y - 36), "Hold the phone level. It recenters at GO.",
-				HORIZONTAL_ALIGNMENT_CENTER, size.x, 30, UiTheme.TEXT_DIM)
+		Shell.countdown(self, size, str(n) if n > 0 else "GO", float(n) - _clock)
+		Shell.hint(self, size, "Hold the phone level. It recenters at GO.")
 	if participants.is_empty():
-		draw_string(font, Vector2(0, size.y - 36), "Join with the controller app, then start again.",
-				HORIZONTAL_ALIGNMENT_CENTER, size.x, 30, UiTheme.TEXT_DIM)
+		Shell.hint(self, size, "Join with the controller app, then start again.")

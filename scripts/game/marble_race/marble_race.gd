@@ -26,7 +26,10 @@ const ORDINALS := ["1st", "2nd", "3rd", "4th"]
 const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
 const START_ARC := 2.0         # All marbles start on one line across the track.
 const BUMPER_R := 0.9
-const POST_COLOR := UiTheme.TEXT_DIM   # Not a player color, not red (REQ-MR-43). A test checks it.
+const POST_COLOR := Color("cfd3e0")   # Light grey: not a player color, not red (REQ-MR-43). A test checks it.
+const FLOOR_COLOR := Color("472aa3")  # Purple. Darker than the marbles (REQ-GM-47e).
+const RIM_COLOR := Color("1a0b45")    # The dark edge of the track. It is the outline color.
+const BACKGROUND := Color("0f6a78")   # Teal from the Party Pop set (REQ-GM-48).
 
 class Racer:
 	var slot := 0
@@ -69,7 +72,7 @@ func _world_ready() -> void:
 		var side := (float(i) - (n - 1) * 0.5) * 1.3
 		r.pos = track.point_at(START_ARC) + _perp(track.dir_at(START_ARC)) * side   # REQ-MR-4
 		r.arc = START_ARC
-		r.node = add_mesh(world, sphere, player(s).color, Vector3(r.pos.x, R, r.pos.y))
+		r.node = add_outlined_mesh(world, sphere, player(s).color, Vector3(r.pos.x, R, r.pos.y))
 		_racers[s] = r
 	_cam_pos = _camera_target()
 	_place_camera(1.0)
@@ -279,20 +282,36 @@ func _perp(dir: Vector2) -> Vector2:
 	return Vector2(-dir.y, dir.x)   # For dir (0, -1) this is (1, 0).
 
 
+func _background_color() -> Color:
+	return BACKGROUND
+
+
 func _build_track() -> void:
 	var rim := Node3D.new()
 	var floor_n := Node3D.new()
 	world.add_child(rim)
 	world.add_child(floor_n)
-	_strip(rim, track.half_width + 0.35, 0.3, UiTheme.ACCENT, -0.35)
-	_strip(floor_n, track.half_width, 0.4, UiTheme.PANEL_LIGHT, -0.2)
-	# Finish line: a white band across the track.
+	_strip(rim, track.half_width + 0.35, 0.3, RIM_COLOR, -0.35)
+	_strip(floor_n, track.half_width, 0.4, FLOOR_COLOR, -0.2)
+	# Finish line: a checkered band across the track, made of boxes (no texture, REQ-GM-47h).
 	var dir: Vector2 = track.dir_at(finish_arc)
 	var c: Vector2 = track.point_at(finish_arc)
-	var band := BoxMesh.new()
-	band.size = Vector3(track.half_width * 2.0, 0.05, 1.2)
-	var mi := add_mesh(world, band, Color.WHITE, Vector3(c.x, 0.03, c.y))
-	mi.rotation.y = atan2(-dir.x, -dir.y)
+	var line := Node3D.new()
+	line.position = Vector3(c.x, 0.03, c.y)
+	line.rotation.y = atan2(-dir.x, -dir.y)
+	world.add_child(line)
+	var frame := BoxMesh.new()
+	frame.size = Vector3(track.half_width * 2.0, 0.04, 1.5)
+	add_mesh(line, frame, RIM_COLOR, Vector3(0, -0.005, 0))
+	var cols := int(roundf(track.half_width * 2.0 / 0.75))
+	var cell_w: float = track.half_width * 2.0 / float(cols)
+	var cell := BoxMesh.new()
+	cell.size = Vector3(cell_w, 0.05, 0.6)
+	for row in 2:
+		for col in cols:
+			var white := (row + col) % 2 == 0
+			add_mesh(line, cell, Color.WHITE if white else RIM_COLOR,
+					Vector3((col + 0.5) * cell_w - track.half_width, 0.0, (row - 0.5) * 0.6))
 
 
 ## Boxes along each segment and discs at the joints. Together they match the drivable area.
@@ -322,7 +341,7 @@ func _build_bumpers() -> void:
 		var arc: float = b[0]
 		var pos: Vector2 = track.point_at(arc) + _perp(track.dir_at(arc)) * float(b[1]) * track.half_width * BUMPER_SIDE
 		_bumpers.append(pos)
-		add_mesh(world, post, POST_COLOR, Vector3(pos.x, 0.6, pos.y))
+		add_outlined_mesh(world, post, POST_COLOR, Vector3(pos.x, 0.6, pos.y))
 
 
 # ---- HUD ----
@@ -351,7 +370,6 @@ func edge_markers() -> Array:
 
 
 func _draw_edge_markers(canvas: Control) -> void:
-	var font := ThemeDB.fallback_font
 	for m in edge_markers():
 		var col: Color = player(m.slot).color
 		var d: Vector2 = m.dir
@@ -360,32 +378,28 @@ func _draw_edge_markers(canvas: Control) -> void:
 		canvas.draw_colored_polygon(PackedVector2Array([tip + d * 24.0, tip - d * 12.0 + side * 18.0,
 				tip - d * 12.0 - side * 18.0]), col)
 		var label_pos: Vector2 = tip - d * 40.0 - Vector2(60, -10)
-		canvas.draw_string(font, label_pos, m.text, HORIZONTAL_ALIGNMENT_CENTER, 120, 28, col)
+		Shell.text(canvas, label_pos, m.text, 28, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 120.0)
 
 
 func _hud_draw(canvas: Control) -> void:
-	var font := ThemeDB.fallback_font
-	var y := 100.0
+	var y := 36.0
 	var place := 0
 	for r in standings():
 		var p = player(r.slot)
-		canvas.draw_rect(Rect2(60, y - 30, 16, 36), p.color)
 		var t := ""
 		if r.finish_time >= 0.0:
-			t = "   %.2f s" % r.finish_time
-		canvas.draw_string(font, Vector2(90, y), "%s  %s%s" % [ORDINALS[place], p.player_name, t],
-				HORIZONTAL_ALIGNMENT_LEFT, 600, 32, UiTheme.TEXT)
-		y += 48.0
+			t = "  %.2f s" % r.finish_time
+		Shell.chip(canvas, Vector2(60, y), "%s  %s%s" % [ORDINALS[place], p.player_name, t], p.color, 400.0, 54.0)
+		y += 68.0
 		place += 1
 	if _time < 0.0:
-		canvas.draw_string(font, Vector2(0, canvas.size.y * 0.42), str(ceili(-_time)),
-				HORIZONTAL_ALIGNMENT_CENTER, canvas.size.x, 160, UiTheme.ACCENT)
+		var n := ceili(-_time)
+		Shell.countdown(canvas, canvas.size, str(n), float(n) + _time)
 	elif _time < GO_SHOW:
-		canvas.draw_string(font, Vector2(0, canvas.size.y * 0.42), "GO!",
-				HORIZONTAL_ALIGNMENT_CENTER, canvas.size.x, 160, UiTheme.OK)
+		Shell.countdown(canvas, canvas.size, "GO!", _time / GO_SHOW, UiTheme.OK)
 	elif not _ended:
-		canvas.draw_string(font, Vector2(canvas.size.x - 360, 100), "%.1f s" % _time,
-				HORIZONTAL_ALIGNMENT_RIGHT, 300, 40, UiTheme.TEXT_DIM)
+		Shell.text(canvas, Vector2(canvas.size.x - 360, 90), "%.1f s" % _time, 44, UiTheme.TEXT,
+				HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
 	_draw_edge_markers(canvas)
-	canvas.draw_string(font, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title,
-			HORIZONTAL_ALIGNMENT_RIGHT, 300, 30, UiTheme.TEXT_DIM)
+	Shell.text(canvas, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title, 30, UiTheme.TEXT_DIM,
+			HORIZONTAL_ALIGNMENT_RIGHT, 300.0)

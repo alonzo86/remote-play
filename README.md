@@ -25,6 +25,9 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
                                                └──────────────────────┘
 ```
 
+- TV flow: Android splash, logo screen, **Connect controllers** (QR code, room code, 4 slots, Continue), **Games** (tiles with a
+  screenshot, the players badge, the Settings gear), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
+  Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
 - The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`).
   The phone scans the QR code (Android plugin), or finds the TV by the UDP beacon, or the user types the room code or the TV IP.
@@ -32,7 +35,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   so one code path is easy to tune.
 - A phone that loses the connection keeps its slot for 30 seconds and reconnects with a token.
   The game pauses while a player is lost.
-- The debug overlay (Menu key, F3, or the menu item) shows per player: RTT, sensor age, packet rate,
+- The debug overlay (Menu key, F3, or the switch on the Settings screen) shows per player: RTT, sensor age, packet rate,
   longest gap, lost packets, raw gyroscope and accelerometer, tilt and pointer.
 
 ## Project structure
@@ -46,14 +49,16 @@ scripts/
   net/                   tv_server, tv_discovery, controller_client, controller_discovery, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
   game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), maze/, pointer_test/, demo3d/, marble_race/
-  ui/                    tv_menu, debug_overlay, controller_connect, controller_pad, ui_theme
+  ui/                    TV screens (tv_logo, tv_connect, tv_games, tv_settings, players_modal), controller screens
+                         (controller_connect, controller_wait, controller_pad), ui_theme, ui_kit, debug_overlay
 android/plugin/          QrScannerPlugin.java (Android plugin: Google code scanner)
 tests/                   headless tests (see below) and screenshot scripts
 tools/                   make_icons.gd, patch_android_manifest.sh
 docs/                    requirements, protocol, export, risks
 ```
 
-All screens are built in code from flat shapes. There are no external assets.
+All screens are built in code in the Party Pop style (docs/TV_FLOW.md). Image files: the two fonts (`assets/fonts`),
+the game tile screenshots (`assets/tiles`, made by `tools/make_tiles.gd`), the logo (`assets/logo`) and the icons.
 
 **Separation rule:** `net/` and `input/` never refer to `game/`.
 Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_pressed`, raw values).
@@ -64,9 +69,11 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
    `docs/GAME_REQUIREMENTS.md`.
 1. Make a folder under `scripts/game/`.
 2. Extend `scripts/game/minigame.gd`. Override `_game_ready()`, `_game_tick(delta)`, `_game_draw()`.
-   The base class gives you the player list, the pause when a phone is lost, the D-pad pause menu
-   (Resume, Restart, Back to menu), and the Back key.
-3. Add one entry for the game in `scripts/game/registry.gd` (with the `doc` field). The TV menu is built from that list.
+   The base class is the game shell: the player list, the pause when a phone is lost, the D-pad pause menu
+   (Resume, Restart, Back to menu), the result menu (`open_menu`), and the Back key. Draw titles, score chips, the
+   countdown and hints with `scripts/game/shell.gd`.
+3. Add one entry for the game in `scripts/game/registry.gd` (with `doc`, `description` and `tile`). The Games screen is built
+   from that list. Run `tools/make_tiles.gd` to make the tile screenshot (see the header of that file).
 
 For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_ready()` (build the scene under `world`),
 `_world_tick(delta)` and optionally `_hud_draw(canvas)`. `scripts/game/demo3d/` is a small template.
@@ -108,7 +115,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 4. Open the debug overlay. Watch RTT, *Age ms*, *Gap ms*, and *Rx Hz*.
    The full test plan with pass criteria is in [docs/DEVICE_TEST.md](docs/DEVICE_TEST.md).
 5. Run **Pointer Test**: tap RECENTER while you point at the TV. Check drift, range and direction.
-   If a direction is wrong, use the invert switches in the TV menu.
+   If a direction is wrong, use the invert switches on the TV Settings screen (the gear on the Games screen).
 6. Run **Tilt Maze** with 1 to 4 phones.
 
 ## Controls
@@ -121,7 +128,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 | Phone | Leave | Leave the TV and return to the connect screen |
 | TV remote | D-pad | Move the focus |
 | TV remote | OK | Select. In a game: open the pause menu |
-| TV remote | Back | Back one level. On the main menu: quit |
+| TV remote | Back | Back one level. Games: Connect screen (players stay). Connect: quit question |
 | TV remote | Menu (or F3) | Show or hide the debug overlay |
 
 ## Tests
@@ -133,8 +140,9 @@ GODOT=/path/to/godot tests/run_all.sh
 - `tests/run_tests.gd`: packet codec, sensor fusion (tilt, yaw, bias, timestamp wrap), maze generator,
   QR encoder, and a network test with a real server and 4 clients (join, full room, wrong room, RTT,
   reconnect to the same slot, leave, phase message).
-- `tests/smoke_tv.gd`: starts the whole TV app, joins 2 simulated phones, runs the menu, the maze
-  (tilt moves the ball, pause on lost phone, pause menu, restart) and the pointer test.
+- `tests/smoke_tv.gd`: starts the whole TV app, runs the flow (logo, Connect, Games, Settings, Players modal, Remove, Back),
+  joins 2 simulated phones, and runs the maze (tilt moves the ball, late phone waits, pause on lost phone, pause menu,
+  restart), the pointer test, the 3D demo and the marble race.
 - `tests/screenshots*.gd`: save screenshots (needs a display, for example `xvfb-run`).
 
 ## Status

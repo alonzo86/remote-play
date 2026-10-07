@@ -11,8 +11,11 @@ description: Add a new minigame to the Remote Play TV app. Use when asked to cre
 2. Override `_game_ready()`, `_game_tick(delta)` and `_game_draw()`. Read input only through `player(slot)`:
    `tilt()`, `pointer()`, `is_down()`, `button_pressed`, and the raw values. Never import anything from `scripts/net/`.
    Use `participants` for the players, `is_paused()` to freeze logic, and `App.server.haptic(slot, ms)` for feedback.
-3. Add one entry for it in `scripts/game/registry.gd`, with the `doc` field. The menu is built from the registry. For a 3D game, extend `minigame_3d.gd`.
-4. Draw with flat shapes and `UiTheme` colors. No external assets. Keep text inside the 60 px TV safe margin.
+3. Add one entry for it in `scripts/game/registry.gd`, with the `doc`, `description` and `tile` fields. The Games screen is built from the registry. For a 3D game, extend `minigame_3d.gd`.
+4. Follow the visual language (REQ-GM-45 to 49): use the shell (`scripts/game/shell.gd`, `open_menu`) for titles, chips, countdown and menus,
+   the slot color for everything of a player, and the toy-like world rules (rounded shapes, flat saturated colors, dark outline on key objects;
+   in 3D use `add_outlined_mesh`). Keep text inside the 60 px TV safe margin. Pick the background from the Party Pop set.
+   Make the tile screenshot with `tools/make_tiles.gd` and check it next to the Games screen (REQ-GM-49).
 5. Add a check to `tests/smoke_tv.gd` (start the game with simulated phones, check one state change), and unit tests for pure logic.
    Put the requirement ID in the check text. Add a section to `docs/DEVICE_TEST.md`.
 6. Run the `run-tests` skill and the `review` skill, then update the README project structure if needed.

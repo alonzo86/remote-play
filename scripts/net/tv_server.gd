@@ -13,7 +13,8 @@ signal player_removed(slot: int)
 
 var room_code := ""
 var tv_name := "Living Room TV"
-var phase := "lobby"
+var phase := "connect"   # connect, menu, playing, paused. See docs/PROTOCOL.md.
+var round_slots: Array[int] = []   # Slots that take part in the running round. Empty = all.
 var players: Array[PlayerInput] = []
 var listening := false
 
@@ -64,11 +65,23 @@ func connected_slots() -> Array[int]:
 	return r
 
 
-func set_phase(p_phase: String) -> void:
+## Tells the phones what the TV shows. During a round (`playing`, `paused`), a phone that is not in
+## `slots` gets the phase `waiting`: it joined late and takes part in the next round (REQ-FL-25).
+func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	phase = p_phase
+	round_slots.clear()
+	if p_phase in ["playing", "paused"]:
+		round_slots.append_array(slots)
 	for p in players:
 		if p.is_connected_now():
-			_send_json(p.slot, {"t": "phase", "v": phase})
+			_send_json(p.slot, {"t": "phase", "v": phase_for(p.slot)})
+
+
+## The phase that one slot sees.
+func phase_for(slot: int) -> String:
+	if phase in ["playing", "paused"] and not round_slots.is_empty() and not (slot in round_slots):
+		return "waiting"
+	return phase
 
 
 func haptic(slot: int, ms: int) -> void:
@@ -80,6 +93,17 @@ func haptic(slot: int, ms: int) -> void:
 func drop_player(slot: int) -> void:
 	if _sockets[slot] != null:
 		_send_json(slot, {"t": "bye"})
+		_discard(_sockets[slot])
+		_sockets[slot] = null
+	players[slot].reset()
+	player_removed.emit(slot)
+
+
+## Remove a player (the host chose "Remove" in the Players modal, REQ-FL-33). The slot is free at once.
+## The phone gets `kicked`, forgets its token, and does not reconnect by itself.
+func kick(slot: int) -> void:
+	if _sockets[slot] != null:
+		_send_json(slot, {"t": "kicked"})
 		_discard(_sockets[slot])
 		_sockets[slot] = null
 	players[slot].reset()
@@ -169,7 +193,7 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	_send_json(slot, {
 		"t": "welcome", "slot": slot, "token": token,
 		"color": "#" + player.color.to_html(false),
-		"phase": phase, "name": tv_name,
+		"phase": phase_for(slot), "name": tv_name,
 	})
 	if resumed:
 		player_resumed.emit(slot)
