@@ -24,7 +24,7 @@ The two IDs are different, so you can install both apps on one device.
    ```sh
    keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android \
      -keystore debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" \
-     -validity 9999 -deploymentstoretype pkcs12
+     -validity 9999 -storetype pkcs12
    ```
    Set the path in **Editor Settings > Export > Android > Debug Keystore**
    (user `androiddebugkey`, password `android`).
