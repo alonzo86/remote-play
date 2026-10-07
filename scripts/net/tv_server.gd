@@ -14,7 +14,8 @@ signal player_removed(slot: int)
 var room_code := ""
 var tv_name := "Living Room TV"
 var phase := "connect"   # connect, menu, playing, paused. See docs/PROTOCOL.md.
-var round_slots: Array[int] = []   # Slots that take part in the running round. Empty = all.
+var round_slots: Array[int] = []   # Slots that take part in the running round (when `round_limited`).
+var round_limited := false         # True when the round has its own list. A freed slot leaves the list.
 var players: Array[PlayerInput] = []
 var listening := false
 
@@ -31,11 +32,18 @@ func start(settings: Dictionary) -> Error:
 		players.append(PlayerInput.new(i, settings))
 		_sockets.append(null)
 		_last_rx_ms.append(0)
+	player_removed.connect(_on_player_removed)
 	var err := _tcp.listen(Protocol.WS_PORT)
 	listening = (err == OK)
 	if err != OK:
 		push_error("TvServer: cannot listen on port %d (error %d)" % [Protocol.WS_PORT, err])
 	return err
+
+
+## A slot that is freed during a round (left, removed, grace time over, host continued without it)
+## is not in the round any more. A new phone in that slot waits for the next round (REQ-FL-25).
+func _on_player_removed(slot: int) -> void:
+	round_slots.erase(slot)
 
 
 func stop() -> void:
@@ -70,8 +78,10 @@ func connected_slots() -> Array[int]:
 func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	phase = p_phase
 	round_slots.clear()
-	if p_phase in ["playing", "paused"]:
+	round_limited = false
+	if p_phase in ["playing", "paused"] and not slots.is_empty():
 		round_slots.append_array(slots)
+		round_limited = true
 	for p in players:
 		if p.is_connected_now():
 			_send_json(p.slot, {"t": "phase", "v": phase_for(p.slot)})
@@ -79,7 +89,7 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 
 ## The phase that one slot sees.
 func phase_for(slot: int) -> String:
-	if phase in ["playing", "paused"] and not round_slots.is_empty() and not (slot in round_slots):
+	if phase in ["playing", "paused"] and round_limited and not (slot in round_slots):
 		return "waiting"
 	return phase
 

@@ -41,8 +41,18 @@ func _ready() -> void:
 	leave.custom_minimum_size = Vector2(0, 120)
 	box.add_child(leave)
 
-	App.client.phase_changed.connect(func(_p): _refresh())
-	App.client.state_changed.connect(func(_s): _refresh())
+	# Connect methods, not lambdas: App.client outlives this screen, and Godot disconnects a method
+	# when its node is freed.
+	App.client.phase_changed.connect(_on_phase)
+	App.client.state_changed.connect(_on_state)
+	_refresh()
+
+
+func _on_phase(_phase: String) -> void:
+	_refresh()
+
+
+func _on_state(_state: int) -> void:
 	_refresh()
 
 

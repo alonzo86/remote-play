@@ -63,7 +63,7 @@ static func _load_font(path: String, weight: int) -> Font:
 		return base
 	var v := FontVariation.new()
 	v.base_font = base
-	v.variation_opentype = {"wght": weight}
+	v.variation_opentype = {"weight": weight} # "wght" is ignored by Godot. The name is "weight".
 	return v
 
 

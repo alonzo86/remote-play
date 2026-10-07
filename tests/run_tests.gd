@@ -411,6 +411,17 @@ func _test_network() -> void:
 	await _wait_until(func(): return not late_phases.is_empty())
 	_check(late_phases == ["menu"], "the next phase reaches the late phone")
 
+	# A slot that is freed during a round leaves the round. A new phone in it must wait (REQ-FL-25).
+	var slot4: int = clients[3].slot
+	var round_two: Array[int] = [clients[0].slot, slot4]
+	server.set_phase("playing", round_two)
+	_check(server.phase_for(slot4) == "playing", "a slot in the round sees playing")
+	server.drop_player(slot4)
+	_check(server.phase_for(slot4) == "waiting" and server.round_slots == [clients[0].slot],
+			"a slot freed during the round is not in the round any more")
+	server.set_phase("menu")
+	_check(not server.round_limited and server.phase_for(slot4) == "menu", "the menu phase ends the round list")
+
 	# Server stop makes clients go to reconnect, not crash.
 	for c in clients:
 		c.leave()

@@ -33,6 +33,10 @@ func _run() -> void:
 	server.set_phase("playing")
 	await _frames(30)
 	root.get_texture().get_image().save_png("user://shot_ctl_pad.png")
+	server.set_phase("menu") # Back to the waiting screen. The freed pad must not receive signals.
+	await _frames(10)
+	server.set_phase("playing")
+	await _frames(10)
 	print("client state: ", app.client.state, " rtt ", app.client.rtt_ms)
 	app.client.leave()
 	await _frames(10)

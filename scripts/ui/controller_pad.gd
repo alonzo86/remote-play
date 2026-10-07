@@ -17,8 +17,17 @@ func _ready() -> void:
 	_sampler = SensorSampler.new()
 	_sampler.client = App.client
 	add_child(_sampler)
-	App.client.haptic_requested.connect(func(ms): Input.vibrate_handheld(ms))
-	App.client.phase_changed.connect(func(_p): queue_redraw())
+	# Connect methods, not lambdas: App.client outlives this screen.
+	App.client.haptic_requested.connect(_on_haptic)
+	App.client.phase_changed.connect(_on_phase)
+
+
+func _on_haptic(ms: int) -> void:
+	Input.vibrate_handheld(ms)
+
+
+func _on_phase(_phase: String) -> void:
+	queue_redraw()
 
 
 func _process(delta: float) -> void:
