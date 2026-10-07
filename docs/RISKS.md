@@ -33,7 +33,7 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 | C3 | **Wrong IP on the TV.** Devices with Ethernet and Wi-Fi have two addresses. The code prefers 192.168.x.x, then 10.x, then 172.16-31.x. | The QR code or the URL shows the wrong address. | Add a menu item to choose the interface. The beacon uses the real sender address, so the list on the phone is still right. |
 | C4 | **The /24 assumption.** The subnet broadcast uses `x.y.z.255`. | Wrong on /16 networks. | `255.255.255.255` is also sent. |
 | C5 | **QR scanner plugin is unverified.** It is a small Java plugin (`android/plugin/QrScannerPlugin.java`) for the Google code scanner. It compiled only against stubs, not against the real ML Kit and Godot libraries. It needs Google Play services. | Scan fails or the app does not build. | Check on a phone (`docs/DEVICE_TEST.md`, test 2). Fallbacks: the list, the room code, the TV IP. Use ZXing (`zxing-android-embedded`) if the phone has no Play services. |
-| C6 | **No authentication.** Any device on the LAN can join with the room code. | A neighbour on shared Wi-Fi can join. | Acceptable for a prototype. Add a PIN in `hello` if needed. |
+| C6 | **No authentication.** Any device on the LAN can join with the room code. | A neighbour on shared Wi-Fi can join. | Acceptable for a home LAN. Add a PIN in `hello` if needed. |
 | C7 | **The phone app goes to the background.** Android stops the sensors and the app. | The slot becomes `LOST`; the game pauses. | Done: the reconnect with token. The 30 s slot grace is in `Protocol.SLOT_GRACE_MS`. |
 
 ## D. Android and TV platform
@@ -47,7 +47,7 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 | D5 | **Overscan and TV safe area.** | Text near the edge can be cut. | The layout keeps 60 px margins. Check on your TV. |
 | D6 | **Android TV has no touchscreen and sometimes no sensors.** | None for the TV app. | The manifest sets `required="false"` for these features. |
 
-## E. Prototype limits
+## E. Known limits
 
 - Balls do not collide with each other.
 - Only one maze size and no level progress.

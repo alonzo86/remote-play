@@ -1,6 +1,6 @@
 # Requirements
 
-Project: Remote Play. A prototype of a couch game for Android TV.
+Project: Remote Play. A couch game for Android TV.
 A phone is the motion controller (Wii-remote style).
 
 Style: this text uses ASD-STE100 Simplified Technical English.
@@ -8,8 +8,8 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 ## 1. Goal
 
-- REQ-G1: The prototype must let the user judge if the phone-as-controller feel is good.
-- REQ-G2: The scope is one simple motion minigame. It is not a full game.
+- REQ-G1: The app must give a good phone-as-controller feel: low delay and stable tilt and pointer input.
+- REQ-G2: The app is a collection of minigames. Each game has its own requirements file in `docs/games/`.
 
 ## 2. Platform and tools
 
@@ -83,7 +83,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 | D4 | Godot 4.7 stable. |
 | D5 | Role by feature tag, or by command-line argument on desktop. |
 
-## 10. Known limits of this prototype
+## 10. Known limits
 
 - The code was checked with Godot headless (script parse and protocol tests). It was not tested on a real TV or phone.
 - The QR scanner plugin was compiled only against stubs. It needs Google Play services on the phone.

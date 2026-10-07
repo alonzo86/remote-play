@@ -119,7 +119,7 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
 	var font := ThemeDB.fallback_font
 	draw_string(font, Vector2(110, 130), "REMOTE PLAY", HORIZONTAL_ALIGNMENT_LEFT, -1, 84, UiTheme.ACCENT)
-	draw_string(font, Vector2(114, 190), "Phone motion controller prototype",
+	draw_string(font, Vector2(114, 190), "Phone motion controller games",
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 34, UiTheme.TEXT_DIM)
 
 	if _variants_of != "":

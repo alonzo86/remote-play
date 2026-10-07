@@ -1,14 +1,13 @@
 # Remote Play
 
-A prototype of a couch game for Android TV. A phone is the motion controller (Wii-remote style).
-Godot 4.7 and GDScript. One project makes two apps:
+A couch game for Android TV. A phone is the motion controller (Wii-remote style).
 Godot 4.7 and GDScript. One project makes two apps:
 
 - **tv**: runs on Android TV or a streaming box. It shows the game.
 - **controller**: runs on up to 4 Android phones. It sends gyroscope, accelerometer, touch and button data.
 
-The goal is to judge the *feel* of a phone as a motion controller. The game content is small on purpose:
-a tilt maze and a pointer test.
+The games are minigames that use the phone as a motion controller: a tilt maze, a pointer test,
+a 3D demo and a 3D marble race (with several tracks). New minigames are added through the game registry (see below).
 
 Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [device test plan](docs/DEVICE_TEST.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md)
 
