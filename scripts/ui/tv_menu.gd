@@ -50,7 +50,7 @@ func _add(parent: Control, text: String, cb: Callable) -> Button:
 func _start_game(id: String) -> void:
 	var script := Registry.load_script(id)
 	if script != null:
-		App.go(script)
+		App.go(script, Registry.find(id).get("props", {}))
 
 
 func _refresh_labels() -> void:

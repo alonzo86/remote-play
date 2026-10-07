@@ -22,11 +22,7 @@ const HAPTIC_MIN_SPEED := 3.0
 const HAPTIC_COOLDOWN_MS := 150
 const ORDINALS := ["1st", "2nd", "3rd", "4th"]
 
-# [arc along the track, side offset in meters]. Static round posts to steer around.
-const BUMPERS := [
-	[14.0, -1.4], [26.0, 1.2], [40.0, -1.0], [52.0, 1.4], [66.0, 0.0],
-	[78.0, -1.5], [90.0, 1.2], [102.0, 0.0], [112.0, -1.2],
-]
+const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
 const BUMPER_R := 0.9
 
 class Racer:
@@ -38,6 +34,8 @@ class Racer:
 	var node: MeshInstance3D
 	var last_haptic_ms := 0
 
+## Set before the game starts (App.go props). See marble_track.gd for the ids.
+var track_id := "classic"
 var track
 var finish_arc := 0.0
 
@@ -52,7 +50,7 @@ var _cam_pos := Vector3.ZERO
 
 
 func _world_ready() -> void:
-	track = MarbleTrack.make_default()
+	track = MarbleTrack.make(track_id)
 	finish_arc = track.length - FINISH_BEFORE_END
 	_build_track()
 	_build_bumpers()
@@ -281,9 +279,9 @@ func _build_bumpers() -> void:
 	post.top_radius = BUMPER_R
 	post.bottom_radius = BUMPER_R
 	post.height = 1.2
-	for b in BUMPERS:
+	for b in track.bumpers:
 		var arc: float = b[0]
-		var pos: Vector2 = track.point_at(arc) + _perp(track.dir_at(arc)) * float(b[1]) * 1.5
+		var pos: Vector2 = track.point_at(arc) + _perp(track.dir_at(arc)) * float(b[1]) * track.half_width * BUMPER_SIDE
 		_bumpers.append(pos)
 		add_mesh(world, post, UiTheme.BAD, Vector3(pos.x, 0.6, pos.y))
 
@@ -313,3 +311,5 @@ func _hud_draw(canvas: Control) -> void:
 	elif not _ended:
 		canvas.draw_string(font, Vector2(canvas.size.x - 360, 100), "%.1f s" % _time,
 				HORIZONTAL_ALIGNMENT_RIGHT, 300, 40, UiTheme.TEXT_DIM)
+	canvas.draw_string(font, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title,
+			HORIZONTAL_ALIGNMENT_RIGHT, 300, 30, UiTheme.TEXT_DIM)

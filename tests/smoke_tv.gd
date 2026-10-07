@@ -9,6 +9,7 @@ var MazeGame
 var PointerTest
 var Demo3D
 var MarbleRace
+var Registry
 var TvMenu
 
 var _fails := 0
@@ -56,6 +57,7 @@ func _run() -> void:
 	MazeGame = load("res://scripts/game/maze/maze_game.gd")
 	PointerTest = load("res://scripts/game/pointer_test/pointer_test.gd")
 	Demo3D = load("res://scripts/game/demo3d/demo3d_game.gd")
+	Registry = load("res://scripts/game/registry.gd")
 	MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
 	TvMenu = load("res://scripts/ui/tv_menu.gd")
 	var app: Node = root.get_node("App")
@@ -149,10 +151,11 @@ func _run() -> void:
 	await _frames(2)
 
 	# Marble race: grid wait, tilt moves a marble, finish line ends the race.
-	app.go(MarbleRace)
+	app.go(MarbleRace, Registry.find("marble_zigzag").props)
 	await _frames(3)
 	var mr: Control = app.current_screen()
 	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")
+	_check(mr.track.id == "zigzag", "registry props choose the track")
 	var mx0: float = mr._racers[0].pos.x
 	await _stream(clients[0], 0, 1.0, tilt)
 	_check(absf(mr._racers[0].pos.x - mx0) < 0.01, "marbles wait on the grid during the countdown")
@@ -164,6 +167,9 @@ func _run() -> void:
 	await _frames(5)
 	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
 	_check(mr._ended and mr.is_paused(), "race ends and the results menu opens")
+	mr.restart()
+	await _frames(3)
+	_check(app.current_screen().track.id == "zigzag", "restart keeps the chosen track")
 
 	app.go_menu()
 	await _frames(3)

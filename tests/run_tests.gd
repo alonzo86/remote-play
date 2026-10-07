@@ -158,30 +158,53 @@ func _test_registry() -> void:
 	_check(ids.size() == Registry.all().size(), "registry ids are unique")
 	_check(all_ok, "every registry game loads and extends the right base class")
 	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
+	var props_ok := true
+	for g in Registry.all():
+		if g.has("props") and g.props.has("track_id") and not MarbleTrack.IDS.has(g.props.track_id):
+			props_ok = false
+	_check(props_ok, "registry track ids exist")
 	_check(Registry.accepts(Registry.find("maze"), 4) and not Registry.accepts(Registry.find("maze"), 5), "player range check")
 
 
 func _test_marble_track() -> void:
 	print("marble track")
-	var t = MarbleTrack.make_default()
-	_check(t.length > 100.0, "default track is long enough (%.0f m)" % t.length)
-	var prev := -1.0
-	var mono := true
-	var on_line := true
-	var a := 0.0
-	while a <= t.length:
-		var q: Dictionary = t.query(t.point_at(a))
-		if q.dist > 0.01 or absf(q.arc - a) > 0.05:
-			on_line = false
-		if q.arc < prev:
-			mono = false
-		prev = q.arc
-		a += 1.0
-	_check(on_line, "point_at and query agree along the whole track")
-	_check(mono, "arc grows along the track")
-	var side: Vector2 = t.point_at(30.0) + Vector2(t.half_width + 1.0, 0)
-	_check(t.query(side).dist > t.half_width, "a point beside the track is outside it")
-	_check(absf(t.dir_at(5.0).length() - 1.0) < 0.001, "dir_at is a unit vector")
+	for tid in MarbleTrack.IDS:
+		var t = MarbleTrack.make(tid)
+		_check(t.id == tid and t.length > 60.0, "%s: loads and is long enough (%.0f m)" % [tid, t.length])
+		var prev := -1.0
+		var mono := true
+		var on_line := true
+		var a := 0.0
+		var samples: Array[Vector2] = []
+		while a <= t.length:
+			var q: Dictionary = t.query(t.point_at(a))
+			if q.dist > 0.01 or absf(q.arc - a) > 0.05:
+				on_line = false
+			if q.arc < prev:
+				mono = false
+			prev = q.arc
+			samples.append(t.point_at(a))
+			a += 1.0
+		_check(on_line and mono, "%s: point_at and query agree, arc grows" % tid)
+		# Parts of the track far apart in arc must be far apart in space, or arc is not clear.
+		var apart := true
+		var gap := ceili(t.half_width * 4.0)
+		for i in samples.size():
+			for j in range(i + gap, samples.size()):
+				if samples[i].distance_to(samples[j]) < t.half_width * 1.8:
+					apart = false
+		_check(apart, "%s: track does not touch itself" % tid)
+		_check(t.dir_at(5.0).is_equal_approx(Vector2(0, -1)) and t.point_at(8.0).x == 0.0, "%s: starts with a straight toward -z" % tid)
+		var bumpers_ok := true
+		for b in t.bumpers:
+			var off: float = absf(b[1]) * t.half_width * 0.44
+			if b[0] > t.length - 8.0 or t.half_width + off - 0.9 < 2.0:
+				bumpers_ok = false
+		_check(bumpers_ok, "%s: bumpers leave a marble-wide gap and stay before the finish" % tid)
+	var t0 = MarbleTrack.make("classic")
+	var side: Vector2 = t0.point_at(30.0) + Vector2(t0.half_width + 1.0, 0)
+	_check(t0.query(side).dist > t0.half_width, "a point beside the track is outside it")
+	_check(MarbleTrack.make("nope").id == "classic", "unknown track id gives the classic track")
 
 
 func _test_maze() -> void:

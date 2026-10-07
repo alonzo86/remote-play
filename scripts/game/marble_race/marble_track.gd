@@ -3,9 +3,14 @@ extends RefCounted
 ## The drivable area is every point within half_width of the line. It has no holes and
 ## it has no overlap with itself, so "arc" (distance along the line) is always clear.
 
+var id := ""
+var title := ""
 var points: Array[Vector2] = []
 var half_width := 3.2
 var length := 0.0
+## Round posts to steer around: [arc along the track, side] pairs. A side of 1.0 puts the post
+## at 0.44 of the half-width from the center line, to the right of the driving direction.
+var bumpers: Array = []
 
 var _cum := PackedFloat32Array()   # Arc length at each point.
 
@@ -52,10 +57,44 @@ func _segment_at(arc: float) -> int:
 	return points.size() - 2
 
 
-## The track used by the game. It runs toward -z (up on the screen) with three bends.
-static func make_default() -> RefCounted:
-	var pts: Array[Vector2] = [
-		Vector2(0, 8), Vector2(0, -20), Vector2(9, -36), Vector2(9, -54),
-		Vector2(-7, -70), Vector2(-7, -88), Vector2(0, -102), Vector2(0, -124),
-	]
-	return load("res://scripts/game/marble_race/marble_track.gd").new(pts, 3.4)
+const IDS: Array[String] = ["classic", "sprint", "zigzag", "gauntlet"]
+
+
+## Builds one of the tracks in IDS. Every track starts with a straight, 8 m or longer, toward -z
+## (up on the screen), so the start grid works. Other bends are free but must not touch themselves.
+static func make(track_id: String) -> RefCounted:
+	var pts: Array[Vector2] = []
+	var hw := 3.4
+	var title := "Classic"
+	var bumpers := []
+	match track_id:
+		"sprint":
+			title = "Sprint"
+			hw = 4.0
+			pts = [Vector2(0, 8), Vector2(0, -10), Vector2(6, -20), Vector2(-6, -34),
+					Vector2(-6, -46), Vector2(0, -58), Vector2(0, -76)]
+			bumpers = [[14.0, -1.0], [30.0, 1.0], [46.0, -1.0], [62.0, 0.8]]
+		"zigzag":
+			title = "Zigzag"
+			hw = 2.9
+			pts = [Vector2(0, 8), Vector2(0, -14), Vector2(12, -26), Vector2(-12, -40),
+					Vector2(12, -54), Vector2(-12, -68), Vector2(12, -82), Vector2(0, -94),
+					Vector2(0, -116)]
+		"gauntlet":
+			title = "Gauntlet"
+			hw = 4.6
+			pts = [Vector2(0, 8), Vector2(0, -40), Vector2(5, -60), Vector2(5, -110),
+					Vector2(0, -130), Vector2(0, -150)]
+			for i in 15:
+				bumpers.append([14.0 + i * 8.5, [-1.4, 1.4, 0.0, 1.0, -1.0][i % 5]])
+		_:
+			track_id = "classic"
+			pts = [Vector2(0, 8), Vector2(0, -20), Vector2(9, -36), Vector2(9, -54),
+					Vector2(-7, -70), Vector2(-7, -88), Vector2(0, -102), Vector2(0, -124)]
+			bumpers = [[14.0, -1.0], [26.0, 0.8], [40.0, -0.7], [52.0, 1.0], [66.0, 0.0],
+					[78.0, -1.0], [90.0, 0.8], [102.0, 0.0], [112.0, -0.8]]
+	var t = load("res://scripts/game/marble_race/marble_track.gd").new(pts, hw)
+	t.id = track_id
+	t.title = title
+	t.bumpers = bumpers
+	return t

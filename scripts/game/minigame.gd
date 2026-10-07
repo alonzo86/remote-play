@@ -10,6 +10,9 @@ extends Control
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 
+## Values the game was started with (App.go props). restart() uses them again.
+var start_props := {}
+
 ## Slots that joined when the game started.
 var participants: Array[int] = []
 
@@ -84,7 +87,7 @@ func on_back() -> void:
 
 
 func restart() -> void:
-	App.go(get_script())
+	App.go(get_script(), start_props)
 
 
 func open_menu(title: String, entries: Array) -> void:
