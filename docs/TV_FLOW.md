@@ -1,6 +1,6 @@
 # TV app flow
 
-Status: **agreed, not built yet.** This file holds the decisions (FD-n) and the requirements (REQ-FL-n)
+Status: **agreed, not built yet.** Chosen visual style: Party Pop (FD-13). This file holds the decisions (FD-n) and the requirements (REQ-FL-n)
 for the redesign of the TV app. The code change comes in the next pull request.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
 
@@ -32,6 +32,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 | FD-11 | The Connect screen does not show the WebSocket address. The Continue button is in a footer bar, aligned to the right edge of the content. | 2026-10-07 |
 | FD-12 | The Games screen shows a players badge with the number of players, not the room code. OK on the badge opens a modal to manage the players (see the requirements). | 2026-10-07 |
 | FD-9 | Art is no longer limited to flat shapes (changes REQ-P6): the logo and the tile screenshots are image files. Menus and games stay in code. | 2026-10-07 |
+| FD-13 | Visual style: **Party Pop**. Chunky, saturated, sticker-like. Thick dark outlines, hard offset shadows, rounded shapes, bright player color tokens, confetti. The TV and the phone use the same style. Rejected: Arcade Neon (heavy glow, hard to read from a sofa) and Sticker Book (needs paper image assets). | 2026-10-07 |
 
 ## 3. Requirements
 
@@ -67,6 +68,18 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-35: Remove needs a new message to the phone. Change `docs/PROTOCOL.md` in the same commit (use the `change-protocol` skill).
 - REQ-FL-36: The player count on the badge and the tile dimming (REQ-FL-14) update when the modal changes the players.
 
+### Visual style (Party Pop, FD-13)
+- REQ-FL-37: All screens use one palette, kept in `UiTheme` (`scripts/ui/ui_theme.gd`): background purple `#3d1a9e` (darker `#2c1180` for info bars), card white `#ffffff`, text on card `#24104f`, outline and shadow `#1a0b45`, accent yellow `#ffd23f`, room code pink `#ff3d8b`, confetti pink `#ff5ea8`, cyan `#3ddcff` and yellow. The player colors stay as they are in `Protocol`.
+- REQ-FL-38: Cards, slots, badges and buttons have a thick dark outline (about 0.45% of the screen width) and a hard shadow offset down and right, with no blur. Corners are rounded. Pills and the gear are fully round.
+- REQ-FL-39: Titles use the display font Lilita One. Other text uses Fredoka (medium and semibold). Both fonts are free (SIL OFL) TTF files in `assets/fonts/`, with their license files. The default Godot font is the fallback.
+- REQ-FL-40: Text on the TV is at least 28 px high at 1080p for titles and game names, and at least 22 px for help text (read from a sofa). Text on the purple background has a contrast ratio of at least 4.5:1.
+- REQ-FL-41: The focused item has a yellow outline and a yellow title. Focus never changes the size of an item or moves the layout. A selected tile may tilt by up to 2 degrees.
+- REQ-FL-42: Motion: a focused tile bounces once (about 150 ms). A slot pops in with a small overshoot when a phone joins, with a confetti burst (coin sound optional). Screen changes use a short slide or fade (up to 250 ms).
+- REQ-FL-43: Motion stops while a game is paused or a phone is lost, and no motion blocks input.
+- REQ-FL-44: The style uses only styled boxes, tweens, particles and fonts. It uses no shader. It must run at 60 fps on the weakest supported TV box (check in `docs/DEVICE_TEST.md`).
+- REQ-FL-45: Confetti and background dots are drawn in code. They are not image files.
+- REQ-FL-46: The phone app uses the same palette, fonts and card style (REQ-FL-28).
+
 ### Tile screenshots
 - REQ-FL-20: A tool script makes the screenshot of each game and saves it as `assets/tiles/<id>.png`, 640x360 pixels.
 - REQ-FL-21: The `add-minigame` skill and `docs/games/TEMPLATE.md` include the step to make the screenshot.
@@ -94,12 +107,14 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 ## 4. Changes to other files in the next pull request
 
 - `docs/REQUIREMENTS.md`: change REQ-P6 (FD-9), REQ-A9 and REQ-T3 to point to this file. Replace "main menu" with the new screens.
-- `docs/GAME_REQUIREMENTS.md`: the menu rules for the title, the description and the tile.
+- `docs/GAME_REQUIREMENTS.md`: the menu rules for the title, the description and the tile. Change REQ-GM-42 (flat shapes and `UiTheme` colors, no external assets) to allow the new palette and fonts (FD-9, FD-13).
 - `docs/DEVICE_TEST.md`: new tests for the flow (splash, connect, late join, Back).
-- `README.md`: project structure and controls.
+- `README.md`: project structure (`assets/fonts`, `assets/tiles`) and controls.
+- `scripts/ui/ui_theme.gd`: new palette, outline and shadow helpers (the current colors are replaced).
 - `scripts/ui/tv_menu.gd` is split into the logo, connect, games and settings screens.
 
 ## 5. Open questions
 
+- Do the games (maze, marble race and others) also use the Party Pop style inside the game, or only the menus? Until decided, only the menus and the HUD overlays change.
 - Logo and splash art: who makes the logo image? Until it exists, the logo screen draws the text "REMOTE PLAY" in code.
 - The screenshot size (640x360) and the tile count per row may change after a check on a real TV.
