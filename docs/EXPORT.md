@@ -12,10 +12,11 @@ The two IDs are different, so you can install both apps on one device.
 
 ## 1. Install the tools (one time)
 
-1. Install **Godot 4.4.x** (standard build, not .NET).
-2. Install **JDK 17**.
+1. Install **Godot 4.7.x** (standard build, not .NET).
+2. Install **JDK 17** or newer (the build was checked with JDK 21).
 3. Install the **Android SDK**. The easy way is Android Studio. You need these SDK packages:
-   platform-tools, build-tools 34.0.0, platform android-34 (or the version that Godot asks for), CMake 3.10.2, and NDK r28 (the version that the Godot docs for 4.4 list).
+   platform-tools, build-tools 36.1.0 and platform android-36 (the versions in the 4.7 build template,
+   `android/build/config.gradle`). The Gradle build does not need the NDK or CMake.
 4. In Godot open **Editor > Editor Settings > Export > Android**.
    Set `Java SDK Path` and `Android SDK Path`.
 5. Open **Editor > Manage Export Templates** and install the templates for your Godot version.
@@ -35,17 +36,19 @@ because Godot adds the `LEANBACK_LAUNCHER` category only with Gradle.
 
 1. Open the project in the Godot editor.
 2. Select **Project > Install Android Build Template**.
+   On the command line, `godot --headless --install-android-build-template --export-debug "controller" build/remote-play-controller.apk`
+   installs the template and exports once. Run the patch script after it, then export again.
 3. Close the editor dialog. Then run this command in the project folder:
    ```sh
    tools/patch_android_manifest.sh
    ```
    The script does these things (you can run it again without harm):
    - copies `assets/icons/banner.png` (320 x 180) to `android/build/res/drawable-xhdpi/banner.png`;
-   - adds `android:banner="@drawable/banner"` to the `<application>` tag;
+   - adds `android:banner="@drawable/banner"` to the `<application>` tag in `android/build/src/main/AndroidManifest.xml`;
    - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer,
      all with `required="false"`;
    - installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
-     `android/build/src/com/example/remoteplay/`, adds the Gradle dependency
+     `android/build/src/main/java/com/example/remoteplay/`, adds the Gradle dependency
      `com.google.android.gms:play-services-code-scanner:16.1.0`, and adds the plugin entry
      (`org.godotengine.plugin.v2.QrScanner`) to the manifest.
 
@@ -82,10 +85,13 @@ For a release build, set a release keystore in the preset (`keystore/release*`) 
 ## 4. Check the result
 
 ```sh
-aapt dump badging build/remote-play-tv.apk | grep -E "leanback|banner|launchable|package:"
+aapt dump badging build/remote-play-tv.apk | grep -E "banner|package:"
+aapt dump xmltree build/remote-play-tv.apk AndroidManifest.xml | grep -E "LEANBACK_LAUNCHER|QrScanner"
 ```
 
-You must see `leanback-launchable-activity` (or `android.intent.category.LEANBACK_LAUNCHER`) and a `banner` entry.
+You must see a `banner` entry, `android.intent.category.LEANBACK_LAUNCHER` and `org.godotengine.plugin.v2.QrScanner`.
+(Godot 4.7 puts the launcher categories on an `activity-alias`, so `aapt dump badging` does not show a
+`leanback-launchable-activity` line.)
 If you do not see them, run `tools/patch_android_manifest.sh` again and export again.
 
 ## 5. Install on a real Android TV or streaming box

@@ -27,6 +27,7 @@ mono_crash.*.json
 # Export output and generated Android build template
 build/
 android/build/
+android/.build_version
 *.apk
 *.aab
 android/.build_version

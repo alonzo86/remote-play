@@ -2,6 +2,7 @@
 
 A prototype of a couch game for Android TV. A phone is the motion controller (Wii-remote style).
 Godot 4.7 and GDScript. One project makes two apps:
+Godot 4.7 and GDScript. One project makes two apps:
 
 - **tv**: runs on Android TV or a streaming box. It shows the game.
 - **controller**: runs on up to 4 Android phones. It sends gyroscope, accelerometer, touch and button data.

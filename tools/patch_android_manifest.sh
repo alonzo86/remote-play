@@ -9,8 +9,7 @@ set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BUILD="$ROOT/android/build"
 MANIFEST="$BUILD/src/main/AndroidManifest.xml"
-[ -f "$MANIFEST" ] || MANIFEST="$BUILD/AndroidManifest.xml"   # older templates
-GRADLE="$BUILD/build.gradle"
+BANNER="$ROOT/assets/icons/banner.png"
 
 if [ ! -f "$MANIFEST" ]; then
 	echo "Not found: $MANIFEST" >&2
@@ -42,25 +41,42 @@ patch(manifest, "android:banner=",
       lambda s: s.replace('android:icon="@mipmap/icon"', 'android:icon="@mipmap/icon"\n        android:banner="@drawable/banner"', 1),
       "banner attribute")
 
-# A TV has no touchscreen or gyroscope and uses the leanback UI.
-feat = "".join('    <uses-feature android:name="%s" android:required="false" />\n' % n for n in (
-    "android.software.leanback", "android.hardware.touchscreen",
-    "android.hardware.sensor.gyroscope", "android.hardware.sensor.accelerometer"))
-patch(manifest, "android.software.leanback",
-      lambda s: s.replace("    <application", feat + "\n    <application", 1),
-      "uses-feature flags")
+# 3. Hardware flags. A TV has no touchscreen, no gyroscope, and uses the leanback UI.
+if grep -q 'android.software.leanback' "$MANIFEST"; then
+	echo "uses-feature flags: already set"
+else
+	sed -i '/<application/i\
+    <uses-feature android:name="android.software.leanback" android:required="false" />\
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />\
+    <uses-feature android:name="android.hardware.sensor.gyroscope" android:required="false" />\
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />\
+' "$MANIFEST"
+	echo "uses-feature flags: added"
+fi
 
-patch(manifest, "CHANGE_WIFI_MULTICAST_STATE",
-      lambda s: s.replace("    <application", '    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />\n\n    <application', 1),
-      "multicast permission")
+# 4. QR scanner plugin: source file, Gradle dependency, and manifest entries.
+PLUGIN_SRC="$ROOT/android/plugin/QrScannerPlugin.java"
+GRADLE="$BUILD/build.gradle"
+PLUGIN_DIR="$BUILD/src/main/java/com/example/remoteplay"
+mkdir -p "$PLUGIN_DIR"
+cp "$PLUGIN_SRC" "$PLUGIN_DIR/QrScannerPlugin.java"
+if [ ! -f "$GRADLE" ]; then
+	echo "Not found: $GRADLE" >&2
+	exit 1
+fi
+if grep -q 'play-services-code-scanner' "$GRADLE"; then
+	echo "QR dependency: already set"
+else
+	sed -i '0,/^dependencies {/s//dependencies {\n    implementation "com.google.android.gms:play-services-code-scanner:16.1.0"/' "$GRADLE"
+	grep -q 'play-services-code-scanner' "$GRADLE" || { echo "Cannot find the dependencies block in $GRADLE" >&2; exit 1; }
+	echo "QR dependency: added"
+fi
+if grep -q 'org.godotengine.plugin.v2.QrScanner' "$MANIFEST"; then
+	echo "QR manifest entries: already set"
+else
+	sed -i 's|^\( *\)</application>|        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.remoteplay.QrScannerPlugin" />\n        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />\n\1</application>|' "$MANIFEST"
+	echo "QR manifest entries: added"
+fi
 
-meta = ('        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.remoteplay.QrScannerPlugin" />\n'
-        '        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />\n')
-patch(manifest, "org.godotengine.plugin.v2.QrScanner",
-      lambda s: s.replace("    </application>", meta + "    </application>", 1),
-      "QR manifest entries")
-
-patch(gradle, "play-services-code-scanner",
-      lambda s: s.replace("dependencies {", 'dependencies {\n    implementation "com.google.android.gms:play-services-code-scanner:16.1.0"', 1),
-      "QR dependency")
-PY
+grep -n 'banner\|uses-feature\|QrScanner\|DEPENDENCIES' "$MANIFEST"
+grep -n 'code-scanner' "$GRADLE"
