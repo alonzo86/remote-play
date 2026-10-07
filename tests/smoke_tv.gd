@@ -1,13 +1,11 @@
 extends SceneTree
 ## Smoke test of the whole TV app with two simulated phones. Run:
 ##   godot --headless --path . --script tests/smoke_tv.gd -- --role=tv
-## It opens the menu, the maze and the pointer test, and checks that tilt moves a ball.
+## It runs the TV flow, the maze and the marble race, and checks that tilt moves a ball.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 var MazeGame
-var PointerTest
-var Demo3D
 var MarbleRace
 var Registry
 var MarbleTrack
@@ -59,8 +57,6 @@ func _run() -> void:
 	await _frames(5)
 	# Load now, not at parse time: the App autoload must exist first.
 	MazeGame = load("res://scripts/game/maze/maze_game.gd")
-	PointerTest = load("res://scripts/game/pointer_test/pointer_test.gd")
-	Demo3D = load("res://scripts/game/demo3d/demo3d_game.gd")
 	MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
 	Registry = load("res://scripts/game/registry.gd")
 	MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
@@ -224,35 +220,6 @@ func _run() -> void:
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), MazeGame) and app.current_screen() != game, "restart makes a new maze screen")
 
-	# Pointer test
-	app.go(PointerTest)
-	await _frames(3)
-	var pt: Control = app.current_screen()
-	await _stream(clients[0], 0, 0.5, flat)
-	clients[0].send_recenter()
-	await _stream(clients[0], 0, 0.5, flat)
-	var before: Vector2 = pt._cursor(0)
-	await _stream(clients[0], 0, 0.5, flat, Vector3(0, 0, 1.0))
-	var after: Vector2 = pt._cursor(0)
-	_check(after.x < before.x - 50.0, "cursor moves left when the phone turns left (%.0f -> %.0f)" % [before.x, after.x])
-	await _stream(clients[0], 0, 0.1, flat, Vector3.ZERO, Protocol.BTN_A)
-	await _stream(clients[0], 0, 0.1, flat, Vector3.ZERO, 0)
-	await _frames(3)
-
-	# 3D game: a tilted phone moves its sphere on the floor.
-	app.go(Demo3D)
-	await _frames(3)
-	var g3: Control = app.current_screen()
-	_check(is_instance_of(g3, Demo3D) and g3.camera != null and g3.participants.size() == 2, "3D demo starts with a camera")
-	var x0: float = g3._balls[0].position.x
-	await _stream(clients[0], 0, 1.5, tilt)
-	_check(g3._balls[0].position.x > x0 + 0.3, "3D ball 0 rolls right when the phone tilts right")
-	g3.open_menu("Paused", [["Resume", g3.close_menu]])
-	await _frames(2)
-	_check(g3.world.process_mode == Node.PROCESS_MODE_DISABLED, "3D world freezes while paused")
-	g3.close_menu()
-	await _frames(2)
-
 	# Marble race menu: one entry, then a track list, then the race.
 	app.go_menu()
 	await _frames(3)
@@ -287,6 +254,12 @@ func _run() -> void:
 	var mr: Control = app.current_screen()
 	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")
 	_check(mr.track.id == "zigzag", "registry props choose the track")
+	_check(mr.camera != null, "the 3D game has a camera")
+	mr.open_menu("Paused", [["Resume", mr.close_menu]])
+	await _frames(2)
+	_check(mr.world.process_mode == Node.PROCESS_MODE_DISABLED, "the 3D world freezes while paused")
+	mr.close_menu()
+	await _frames(2)
 	var post_color: Color = MarbleRace.get_script_constant_map()["POST_COLOR"]
 	var clash := false
 	for c in Protocol.PLAYER_COLORS:

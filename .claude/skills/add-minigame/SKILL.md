@@ -7,7 +7,7 @@ description: Add a new minigame to the Remote Play TV app. Use when asked to cre
    the general requirements (all games, plus 2D or 3D) apply, and the game file lists its gaps and its own `REQ-<XX>-n` requirements.
    Show the file to the user before you write code if a requirement is a design choice.
 1. Create `scripts/game/<name>/<name>_game.gd` that `extends "res://scripts/game/minigame.gd"`. Look at `maze/maze_game.gd` and
-   `pointer_test/pointer_test.gd` for the style.
+   `marble_race/marble_race.gd` (3D) for the style.
 2. Override `_game_ready()`, `_game_tick(delta)` and `_game_draw()`. Read input only through `player(slot)`:
    `tilt()`, `pointer()`, `is_down()`, `button_pressed`, and the raw values. Never import anything from `scripts/net/`.
    Use `participants` for the players, `is_paused()` to freeze logic, and `App.server.haptic(slot, ms)` for feedback.

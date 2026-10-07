@@ -1,5 +1,5 @@
 extends Control
-## Settings screen (REQ-FL-23, 24): the debug overlay and the invert switches. Back returns to Games.
+## Settings screen (REQ-FL-23, 24): the debug overlay and the invert tilt switch. Back returns to Games.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -20,7 +20,6 @@ func _ready() -> void:
 	_add_row(box, "Debug overlay", "Shows the link of each phone. The Menu key or F3 does the same.", "overlay",
 			func(): App.toggle_overlay())
 	_add_row(box, "Invert tilt axes", "Use this when a ball rolls the wrong way.", "invert_tilt", Callable())
-	_add_row(box, "Invert pointer yaw", "Use this when the pointer moves left and right the wrong way.", "invert_yaw", Callable())
 	box.add_child(UiKit.spacer(10))
 	box.add_child(UiKit.button("Back", on_back, true, 40))
 	UiKit.focus_later(_rows[0])

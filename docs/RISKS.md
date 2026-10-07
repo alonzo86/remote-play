@@ -8,7 +8,7 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 | # | Risk | Effect | Mitigation |
 |---|------|--------|------------|
 | A1 | **Gyro yaw drift.** Integration of the gyroscope gives a yaw that moves slowly. | The cursor leaves the target after some seconds. | Done: the yaw is frozen while the phone is still; the gyro bias is learned while still; the Recenter button. Next: use `Input.get_magnetometer()` as a slow yaw reference (it fails near metal and speakers), or add a plugin that reads the Android rotation-vector sensor. |
-| A2 | **Axis and sign conventions (unverified).** Godot may flip the sign of the accelerometer or gyroscope on Android. | Tilt or yaw is inverted. | Done: menu switches *Invert tilt axes* and *Invert pointer yaw*, and raw values in the overlay. After you know the real signs, set the defaults in `app.gd` (`settings`). |
+| A2 | **Axis and sign conventions (unverified).** Godot may flip the sign of the accelerometer or gyroscope on Android. | Tilt or yaw is inverted. | Done: the Settings switch *Invert tilt axes*, and raw values in the overlay. After you know the real signs, set the defaults in `app.gd` (`settings`). |
 | A3 | **Sensor rate (unverified).** Android can give gyroscope data at less than 60 Hz. Godot reads the latest value. | Repeated samples; steps in the cursor. | Compare *Rx Hz* with the number of changing values in the overlay. If the sensor rate is low, a plugin can request a faster rate (needs `HIGH_SAMPLING_RATE_SENSORS` above 200 Hz). |
 | A4 | **Phone held in other poses.** The yaw rate is projected on gravity. | Pointing straight up or down is unstable. | Acceptable for a TV pointer. Games should keep the phone near horizontal or vertical. |
 | A5 | **Maze physics values are guesses.** `TILT_ACCEL`, friction and limits are in `maze_game.gd`. | The ball feels too light or too heavy. | Change the constants while you play. This is the main tuning step of the "feel" test. |
@@ -51,5 +51,4 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 
 - Balls do not collide with each other.
 - Only one maze size and no level progress.
-- The pointer test measures only a simple hit error. It does not log to a file.
 - No sound.

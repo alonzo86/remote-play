@@ -24,7 +24,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 | FD-1 | Splash: the Android OS splash first (static, set in project settings), then an animated logo screen of the game for about 2 to 3 seconds. OK skips it. | 2026-10-07 |
 | FD-2 | The Connect screen ends when the host presses OK on the TV remote and at least 1 phone is joined. No "Ready" message from the phones. | 2026-10-07 |
 | FD-3 | Game tiles use a screenshot of each game. The screenshots are PNG files in the repository, made by a script. A tile without a file shows a colored placeholder. | 2026-10-07 |
-| FD-4 | Settings (debug overlay, invert tilt, invert yaw) are on a separate Settings screen. A gear icon on the Games screen opens it. Quit is not on the Games grid. | 2026-10-07 |
+| FD-4 | Settings (debug overlay, invert tilt) are on a separate Settings screen. A gear icon on the Games screen opens it. Quit is not on the Games grid. | 2026-10-07 |
 | FD-5 | Phones can join and leave at any time, also after the Connect screen. Games check the player count. | 2026-10-07 |
 | FD-6 | Back goes one step back. Games -> Connect (the players stay) -> quit confirmation. The Back key skips the logo screen. | 2026-10-07 |
 | FD-7 | Games grid: 16:9 tiles, 3 per row, D-pad focus shown by an outline (tiles do not change size). The title and the player range are under every tile. The description of the focused game is in a fixed info bar under the grid. The grid scrolls down when there are more games. | 2026-10-07 |
@@ -36,6 +36,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 | FD-13 | Visual style: **Party Pop**. Chunky, saturated, sticker-like. Thick dark outlines, hard offset shadows, rounded shapes, bright player color tokens, confetti. The TV and the phone use the same style. Rejected: Arcade Neon (heavy glow, hard to read from a sofa) and Sticker Book (needs paper image assets). | 2026-10-07 |
 | FD-14 | Games share a visual language, not one look. Tier 1 (required): the game shell (pause menu, countdown, results, HUD), fonts, player colors. Tier 2 (required, trial rules): a toy-like world (rounded shapes, flat saturated colors, dark outline on key objects). Tier 3 (free): setting, background, camera, lighting mood. The exact tier 2 values are in `docs/GAME_REQUIREMENTS.md` (REQ-GM-47a to 47h). A trial on the marble race checks them. | 2026-10-07 |
 | FD-15 | The owner makes the logo image. The developer sets the exact tier 2 values. | 2026-10-07 |
+| FD-16 | The pointer test and the 3D demo were only for the first test of the prototype. They are removed: code, requirements files, tiles and tests. The marble race is the example of a 3D game. The pointer input of the phone (`PlayerInput.pointer()`, the yaw fusion) stays as an input for a later game, but it has no Settings switch now. | 2026-10-07 |
 
 ## 3. Requirements
 
@@ -88,7 +89,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 ### Game shell and trial (FD-14)
 - REQ-FL-47: The next pull request restyles the marble race as a trial of the tier 2 rules (REQ-GM-47). The result is judged with a screenshot of the game next to the Games screen (REQ-GM-49). The trial checks the tier 2 values (REQ-GM-47a to 47h) and they are corrected in `docs/GAME_REQUIREMENTS.md` if they are wrong. If the trial shows that games need more freedom, the rules are made looser before any other game is changed.
 - REQ-FL-48: The game shell (REQ-GM-45) is built in the same pull request as the menus. A game must not show an old style pause menu, countdown or result screen next to the new menus.
-- REQ-FL-49: The other games (maze, pointer test, 3D demo) get the shell in the same pull request. Their tier 2 restyle follows in a later pull request.
+- REQ-FL-49: The other games get the shell in the same pull request. Their tier 2 restyle follows in a later pull request. (Done for the maze. The pointer test and the 3D demo were removed, see FD-16.)
 
 ### Tile screenshots
 - REQ-FL-20: A tool script makes the screenshot of each game and saves it as `assets/tiles/<id>.png`, 640x360 pixels.
@@ -96,7 +97,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-22: A test fails when a registry game has no tile file or no description.
 
 ### Settings screen
-- REQ-FL-23: The screen has the debug overlay switch, the invert tilt switch, and the invert yaw switch. The values are saved (REQ already in `app.gd`).
+- REQ-FL-23: The screen has the debug overlay switch and the invert tilt switch. The values are saved (REQ already in `app.gd`).
 - REQ-FL-24: Back returns to the Games screen with the gear in focus.
 
 ### Network scope

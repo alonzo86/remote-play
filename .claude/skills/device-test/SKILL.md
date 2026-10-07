@@ -11,7 +11,6 @@ description: Guide an on-device test run (phone and TV) from docs/DEVICE_TEST.md
 4. Interpret the numbers with `docs/RISKS.md`. Known facts:
    - Raw accel on Android is inverted by Godot. `sensor_sampler.gd` corrects it, so the overlay should show `Accel ~ 0 0 +9.8` flat.
    - The TV decides a phone is lost after 5 s of silence. A shorter Wi-Fi drop will not pause the game.
-   - A pointer test hit counts only within 90 px of the ring. Recenter first.
    - Latency gaps above 100 ms point to the network (risks B1, B2).
 5. Write the user's results into the table: pass, fail, retest or n/a, plus the measured values and the setup. Keep first-run values
    when a retest follows. Do not turn a result into a pass without a measurement.

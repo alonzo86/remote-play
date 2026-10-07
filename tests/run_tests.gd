@@ -3,6 +3,8 @@ extends SceneTree
 ##   godot --headless --path . --script tests/run_tests.gd -- --role=controller
 ## "--role=controller" keeps the TV autoload from taking port 47801.
 
+const Shell = preload("res://scripts/game/shell.gd")
+const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
@@ -55,6 +57,7 @@ func _run() -> void:
 	await _test_room_code_join()
 	await _test_phone_screens()
 	_test_chip_contrast()
+	_test_visual_rules()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -306,8 +309,6 @@ func _test_room_code_join() -> void:
 ## The chip text never sits on the player color, and it is readable on the chip (REQ-GM-46, REQ-FL-40).
 func _test_chip_contrast() -> void:
 	print("chip contrast")
-	var Shell = load("res://scripts/game/shell.gd")
-	var UiTheme = load("res://scripts/ui/ui_theme.gd")
 	var ok := true
 	for c in Protocol.PLAYER_COLORS:
 		var ratio: float = Shell.contrast(UiTheme.CARD_TEXT, UiTheme.CARD)
@@ -320,6 +321,29 @@ func _test_chip_contrast() -> void:
 	_check(ok, "chip text and player-color dots are readable on the white chip")
 	_check(Shell.contrast(Color.WHITE, Color.BLACK) > 20.0 and Shell.contrast(Color.WHITE, Color.WHITE) < 1.01,
 			"the contrast function is right")
+
+
+## The maze colors follow REQ-GM-47d and 47e (REQ-MZ-7). The player colors are checked for every game.
+func _test_visual_rules() -> void:
+	print("visual rules")
+	var Maze = load("res://scripts/game/maze/maze_game.gd")
+	var consts: Dictionary = Maze.get_script_constant_map()
+	var floor_c: Color = consts["FLOOR_COLOR"]
+	var wall_c: Color = consts["WALL_COLOR"]
+	var players_ok := true
+	var floor_ok := true
+	for c in Protocol.PLAYER_COLORS:
+		if c.s < 0.55 or c.v < 0.60:
+			players_ok = false
+			print("    player color not saturated or bright enough: ", c)
+		if Shell.contrast(c, floor_c) < 3.0:
+			floor_ok = false
+			print("    player color too close to the maze floor: ", c)
+	_check(players_ok, "player colors have saturation 0.55+ and value 0.60+ (REQ-GM-47d)")
+	_check(floor_ok, "every player color has a contrast of 3:1 on the maze floor (REQ-GM-47e)")
+	_check(floor_c.s >= 0.35 and floor_c.v >= 0.25 and floor_c.v <= 0.65, "the maze floor is dark and saturated (REQ-GM-47e)")
+	_check(Shell.contrast(wall_c, floor_c) >= 3.0, "the maze walls can be seen on the floor")
+	_check(UiTheme.OUTLINE.v < 0.4, "the outline color is dark")
 
 
 func _test_phone_screens() -> void:

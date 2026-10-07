@@ -112,6 +112,4 @@ Tests
 | Game | Requirements file |
 |------|-------------------|
 | Tilt Maze (2D) | `docs/games/maze.md` |
-| Pointer Test (2D) | `docs/games/pointer_test.md` |
-| 3D Demo (3D, template) | `docs/games/demo3d.md` |
 | Marble Race (3D) | `docs/games/marble_race.md` |

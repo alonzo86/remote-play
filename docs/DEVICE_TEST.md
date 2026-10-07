@@ -11,6 +11,7 @@ This document uses ASD-STE100 style. Time needed: about 45 minutes.
 - The build steps are in `docs/EXPORT.md`.
 
 Write the results in the table at the end of this file (or copy it).
+Test numbers do not change. Test 5 (pointer drift) was removed with the pointer test.
 
 ## Test 1. Start and join
 
@@ -38,11 +39,9 @@ Open the debug overlay on the TV (Menu key, or the menu item). Hold the phone in
 | Phone flat, screen up, still | `Accel` about `0 0 +9.8` |
 | Right side down | `Accel x` negative. In the maze, the ball rolls right |
 | Top of phone up | `Accel y` positive. In the maze, the ball rolls toward you (down on the TV) |
-| Turn the phone to the left (like turning on a table) | `Gyro z` positive. In **Pointer Test**, the cursor goes left |
-| Point the top of the phone higher | The cursor goes up |
+| Turn the phone to the left (like turning on a table) | `Gyro z` positive (raw value only. No game uses the yaw now) |
 
-If a direction is wrong, use **Invert tilt axes** or **Invert pointer yaw** on the **Settings** screen of the TV (the gear on the Games screen). Write down which one you needed.
-If the **vertical** pointer direction is wrong but tilt is right, report it (it needs a code change).
+If a direction is wrong, use **Invert tilt axes** on the **Settings** screen of the TV (the gear on the Games screen). Write down which one you needed.
 
 ## Test 4. Latency and packet rate
 
@@ -56,16 +55,8 @@ Use the overlay. Keep the phone still for 30 seconds, then move it for 30 second
 | Lost | 0 | 0 | any (gaps in the sequence number) |
 
 Also do this: record the TV and the phone with a phone camera in slow motion (240 fps) and count the frames
-between a quick phone movement and the cursor movement. This shows the whole delay, including the TV display.
+between a quick phone movement and the ball movement in the maze. This shows the whole delay, including the TV display.
 A total below 100 ms feels good. Above 150 ms feels slow.
-
-## Test 5. Pointer drift
-
-1. Open **Pointer Test**. Point at the TV and tap **RECENTER**.
-2. Put the phone on a table and leave it for 60 seconds. Write down the yaw value (shown at the bottom, in degrees). Expected: below 1 degree. (The yaw is frozen while the phone is still.)
-3. Hold the phone and wave it around for 60 seconds, then point at the center ring again. Write down the offset of the cursor from the center.
-   Good: below 5 degrees (about 1/5 of the ring distance). If the offset is larger, tap RECENTER and check how often you must do it.
-4. Aim at each ring and press **A**. Write down the *avg error* after 9 hits.
 
 ## Test 6. Tilt maze feel
 
@@ -123,7 +114,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 | 3 Directions (invert switches needed) | pass | The phone reports every accelerometer axis inverted (flat, screen up: z = -9.83). Fixed in `sensor_sampler.gd` (accelerometer sign flipped on the phone). No invert switch is needed. Checked after the fix: tilt directions in the maze are right. Not re-checked: the gyro rows (turn left, point higher) |
 | 4 RTT / Rx Hz / Gap / Lost | fail | RTT above 60 ms, Rx Hz above 55, Gap 150-380 ms, Lost 0. Setup: TV app on a desktop (not a TV box), phone on the same Wi-Fi. Not yet representative of a real TV |
 | 4 Total delay (camera) | n/a | didn't test |
-| 5 Drift (still, moving) / avg error | pass |  |
+| 5 Drift (still, moving) / avg error | n/a | The pointer test was removed (2026-10-07). First run: pass |
 | 6 Maze feel / constants changed | retest | First run: drift and inverted controls (caused by Invert tilt axes being on). After the fix, the maze looks good on the desk. Feel and constants not judged yet |
 | 7 Reconnect | retest | Wi-Fi off on the phone: the phone shows "Reconnecting...". The game kept running and the TV never showed "Waiting for P1 to reconnect". Wi-Fi on: the phone reconnected and the game resumed. Off time was not measured (the TV pauses only after 5 s of silence) |
 | 8 Remote and banner | n/a | didn't test |

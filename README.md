@@ -6,8 +6,7 @@ Godot 4.7 and GDScript. One project makes two apps:
 - **tv**: runs on Android TV or a streaming box. It shows the game.
 - **controller**: runs on up to 4 Android phones. It sends gyroscope, accelerometer, touch and button data.
 
-The games are minigames that use the phone as a motion controller: a tilt maze, a pointer test,
-a 3D demo and a 3D marble race (with several tracks). New minigames are added through the game registry (see below).
+The games are minigames that use the phone as a motion controller: a tilt maze and a 3D marble race (with several tracks). New minigames are added through the game registry (see below).
 
 Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [device test plan](docs/DEVICE_TEST.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md)
 
@@ -48,7 +47,7 @@ scripts/
   core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd
   net/                   tv_server, tv_discovery, controller_client, controller_discovery, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
-  game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), maze/, pointer_test/, demo3d/, marble_race/
+  game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), maze/, marble_race/
   ui/                    TV screens (tv_logo, tv_connect, tv_games, tv_settings, players_modal), controller screens
                          (controller_connect, controller_wait, controller_pad), ui_theme, ui_kit, debug_overlay
 android/plugin/          QrScannerPlugin.java (Android plugin: Google code scanner)
@@ -76,7 +75,8 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
    from that list. Run `tools/make_tiles.gd` to make the tile screenshot (see the header of that file).
 
 For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_ready()` (build the scene under `world`),
-`_world_tick(delta)` and optionally `_hud_draw(canvas)`. `scripts/game/demo3d/` is a small template.
+`_world_tick(delta)` and optionally `_hud_draw(canvas)`. `scripts/game/marble_race/` is the example of a 3D game.
+A key object (player, goal, hazard) gets an outline with `add_outlined_mesh()`.
 The 3D world is frozen while the game is paused.
 
 A registry entry may have `props`, set on the game before it starts (and kept for Restart). An entry with `variants`
@@ -114,16 +114,16 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 3. Start the TV app. Start the controller app. Scan the QR code on the TV (or tap the TV in the list).
 4. Open the debug overlay. Watch RTT, *Age ms*, *Gap ms*, and *Rx Hz*.
    The full test plan with pass criteria is in [docs/DEVICE_TEST.md](docs/DEVICE_TEST.md).
-5. Run **Pointer Test**: tap RECENTER while you point at the TV. Check drift, range and direction.
-   If a direction is wrong, use the invert switches on the TV Settings screen (the gear on the Games screen).
-6. Run **Tilt Maze** with 1 to 4 phones.
+5. Run **Tilt Maze** with 1 to 4 phones. If the ball rolls the wrong way, use **Invert tilt axes** on the TV Settings screen
+   (the gear on the Games screen).
+6. Run **Marble Race** and check the frame rate with 4 phones.
 
 ## Controls
 
 | Where | Control | Action |
 |-------|---------|--------|
 | Phone | RECENTER | Set the neutral pose and zero the yaw |
-| Phone | A / B | Buttons. In the maze, A recenters. In the pointer test, A = shoot, B = recenter |
+| Phone | A / B | Buttons. In the maze, A recenters. In the marble race, B recenters |
 | Phone | Scan / Paste TV link | Join by the QR code on the TV (or by the link in the clipboard on a PC) |
 | Phone | Leave | Leave the TV and return to the connect screen |
 | TV remote | D-pad | Move the focus |
@@ -142,7 +142,7 @@ GODOT=/path/to/godot tests/run_all.sh
   reconnect to the same slot, leave, phase message).
 - `tests/smoke_tv.gd`: starts the whole TV app, runs the flow (logo, Connect, Games, Settings, Players modal, Remove, Back),
   joins 2 simulated phones, and runs the maze (tilt moves the ball, late phone waits, pause on lost phone, pause menu,
-  restart), the pointer test, the 3D demo and the marble race.
+  restart) and the marble race.
 - `tests/screenshots*.gd`: save screenshots (needs a display, for example `xvfb-run`).
 
 ## Status
