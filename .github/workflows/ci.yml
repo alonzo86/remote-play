@@ -53,9 +53,10 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - uses: android-actions/setup-android@v3
-      - name: Android SDK packages
-        run: sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;28.2.13676358" "cmake;3.22.1"
+      - name: Android SDK packages (the runner image has the SDK and sdkmanager)
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;28.2.13676358" "cmake;3.22.1"
       - name: Godot Android settings and debug keystore
         run: |
           VERSION_DIR="${HOME}/.local/share/godot"
