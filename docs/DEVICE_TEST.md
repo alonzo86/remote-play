@@ -90,17 +90,17 @@ A total below 100 ms feels good. Above 150 ms feels slow.
 
 ## Results
 
-| Test | Result (pass / fail / note) |
-|------|-----------------------------|
-| 1 Join (list, code, IP) | |
-| 2 QR scan | |
-| 3 Directions (invert switches needed) | |
-| 4 RTT / Rx Hz / Gap / Lost | |
-| 4 Total delay (camera) | |
-| 5 Drift (still, moving) / avg error | |
-| 6 Maze feel / constants changed | |
-| 7 Reconnect | |
-| 8 Remote and banner | |
+| Test | Result (pass / fail) | Note (optional) |
+|------|----------------------|------|
+| 1 Join (list, code, IP) | fail | Join by code fails with "Room YCNW not found, is the tv on the same wi-fi?". The list and the IP work. Setup: TV app on a desktop, phone on the same Wi-Fi |
+| 2 QR scan | pass | |
+| 3 Directions (invert switches needed) | pass | The phone reports every accelerometer axis inverted (flat, screen up: z = -9.83). Fixed in `sensor_sampler.gd` (accelerometer sign flipped on the phone). No invert switch is needed. Checked after the fix: tilt directions in the maze are right. Not re-checked: the gyro rows (turn left, point higher) |
+| 4 RTT / Rx Hz / Gap / Lost | fail | RTT above 60 ms, Rx Hz above 55, Gap 150-380 ms, Lost 0. Setup: TV app on a desktop (not a TV box), phone on the same Wi-Fi. Not yet representative of a real TV |
+| 4 Total delay (camera) | n/a | didn't test |
+| 5 Drift (still, moving) / avg error | pass |  |
+| 6 Maze feel / constants changed | retest | First run: drift and inverted controls (caused by Invert tilt axes being on). After the fix, the maze looks good on the desk. Feel and constants not judged yet |
+| 7 Reconnect | retest | Wi-Fi off on the phone: the phone shows "Reconnecting...". The game kept running and the TV never showed "Waiting for P1 to reconnect". Wi-Fi on: the phone reconnected and the game resumed. Off time was not measured (the TV pauses only after 5 s of silence) |
+| 8 Remote and banner | n/a | didn't test |
 
 Send the results (and the `adb logcat -s godot` log for any failure). The next step depends on them:
 if the drift, the sensor rate, or the latency spikes are the main problem, see `docs/RISKS.md` (items A1, A3, B1, B2).

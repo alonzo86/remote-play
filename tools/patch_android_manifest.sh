@@ -2,8 +2,8 @@
 # Prepares the generated Gradle project (android/build):
 #   - Android TV banner and hardware flags
 #   - the QR scanner plugin (android/plugin/QrScannerPlugin.java, Google code scanner)
-# Run once, after "Project > Install Android Build Template" in the Godot editor.
-# Safe to run again. Usage: tools/patch_android_manifest.sh
+# Run once, after tools/setup.sh (or "Project > Install Android Build Template" in the Godot editor).
+# Safe to run again. Works on macOS and Linux. Usage: tools/patch_android_manifest.sh
 set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -13,21 +13,33 @@ BANNER="$ROOT/assets/icons/banner.png"
 
 if [ ! -f "$MANIFEST" ]; then
 	echo "Not found: $MANIFEST" >&2
-	echo "In the Godot editor, use Project > Install Android Build Template first." >&2
+	echo "Run tools/setup.sh first (or Project > Install Android Build Template in the Godot editor)." >&2
 	exit 1
 fi
 
-# 1. Banner image (320x180) for the Android TV home screen.
-mkdir -p "$BUILD/res/drawable-xhdpi"
-cp "$BANNER" "$BUILD/res/drawable-xhdpi/banner.png"
+# Banner image (320x180) for the Android TV home screen, and the plugin source.
+mkdir -p "$BUILD/res/drawable-xhdpi" "$BUILD/src/main/java/com/example/remoteplay"
+cp "$ROOT/assets/icons/banner.png" "$BUILD/res/drawable-xhdpi/banner.png"
+cp "$ROOT/android/plugin/QrScannerPlugin.java" "$BUILD/src/main/java/com/example/remoteplay/QrScannerPlugin.java"
 
-# 2. android:banner on <application>.
-if grep -q 'android:banner=' "$MANIFEST"; then
-	echo "banner attribute: already set"
-else
-	sed -i 's|android:icon="@mipmap/icon"|android:icon="@mipmap/icon"\n        android:banner="@drawable/banner"|' "$MANIFEST"
-	echo "banner attribute: added"
-fi
+python3 - "$MANIFEST" "$GRADLE" <<'PY'
+import sys
+manifest, gradle = sys.argv[1:3]
+
+def patch(path, marker, edit, label):
+    s = open(path).read()
+    if marker in s:
+        print(label + ": already set")
+        return
+    new = edit(s)
+    if new == s:
+        sys.exit("cannot patch " + label + " in " + path)
+    open(path, "w").write(new)
+    print(label + ": added")
+
+patch(manifest, "android:banner=",
+      lambda s: s.replace('android:icon="@mipmap/icon"', 'android:icon="@mipmap/icon"\n        android:banner="@drawable/banner"', 1),
+      "banner attribute")
 
 # 3. Hardware flags. A TV has no touchscreen, no gyroscope, and uses the leanback UI.
 if grep -q 'android.software.leanback' "$MANIFEST"; then

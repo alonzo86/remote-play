@@ -2,6 +2,7 @@
 
 A prototype of a couch game for Android TV. A phone is the motion controller (Wii-remote style).
 Godot 4.7 and GDScript. One project makes two apps:
+Godot 4.7 and GDScript. One project makes two apps:
 
 - **tv**: runs on Android TV or a streaming box. It shows the game.
 - **controller**: runs on up to 4 Android phones. It sends gyroscope, accelerometer, touch and button data.
@@ -80,15 +81,13 @@ The phone window has no sensors. The mouse simulates tilt (position) and yaw (mo
 
 Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 
-1. Install Godot 4.7, JDK 17 or newer, the Android SDK, and the export templates. Set the paths in the editor settings.
-2. Open the project. Select **Project > Install Android Build Template**.
-3. Run `tools/patch_android_manifest.sh` (adds the TV banner, the hardware flags, and the QR scanner plugin).
-4. Export:
-   ```sh
-   godot --headless --path . --export-debug "tv"         build/remote-play-tv.apk
-   godot --headless --path . --export-debug "controller" build/remote-play-controller.apk
-   ```
-5. Install: `adb connect <tv-ip>:5555`, then `adb install -r build/remote-play-tv.apk`.
+1. Install Godot 4.7 (with export templates), JDK 17 (`brew install openjdk@17`) and the Android SDK. JDK 26 does not work with the Gradle build.
+2. Run `tools/setup.sh`. It sets the JDK path in the editor settings, installs the Android build template,
+   and patches the manifest (TV banner, hardware flags, QR scanner plugin).
+3. Build the APKs: `tools/build.sh apk` (output: `build/remote-play-tv.apk`, `build/remote-play-controller.apk`).
+4. Deploy to a connected device: `tools/deploy.sh controller` or `tools/deploy.sh tv` (builds, installs, launches; `-s <serial>` picks a device).
+5. Other commands: `tools/build.sh run-tv`, `run-controller`, `test`.
+6. Install (or `tools/build.sh install`): `adb connect <tv-ip>:5555`, then `adb install -r build/remote-play-tv.apk`.
    Install the controller APK on the phone.
 
 ## Test on a real Android TV or streaming box

@@ -56,4 +56,6 @@ func _read_sensors() -> void:
 		_mouse_rel_x = 0.0
 	else:
 		last_gyro = Input.get_gyroscope()
-		last_accel = Input.get_accelerometer()
+		# Measured on a real phone: Godot on Android reports every accelerometer axis inverted
+		# (flat, screen up: z = -9.8). The protocol uses +9.8 on z, so flip it here.
+		last_accel = -Input.get_accelerometer()

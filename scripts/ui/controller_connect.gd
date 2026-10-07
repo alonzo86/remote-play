@@ -162,6 +162,15 @@ func _join_typed() -> void:
 	var room := text.to_upper()
 	var tv: Variant = App.controller_discovery.tvs.get(room)
 	if tv == null:
+		# A broadcast beacon can be late or lost on Wi-Fi. Wait a little before giving up.
+		_status.text = "Looking for room %s..." % room
+		_status.add_theme_color_override("font_color", UiTheme.ACCENT)
+		for i in 30:
+			await get_tree().create_timer(0.1).timeout
+			tv = App.controller_discovery.tvs.get(room)
+			if tv != null:
+				break
+	if tv == null:
 		App.last_error = "Room %s not found. Is the TV on the same Wi-Fi?" % room
 		_on_state(ControllerClient.State.IDLE)
 		return

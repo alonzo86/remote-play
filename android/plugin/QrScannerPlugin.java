@@ -1,6 +1,9 @@
 package com.example.remoteplay;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 
@@ -19,6 +22,8 @@ import java.util.Set;
 /**
  * Godot Android plugin "QrScanner". It opens the Google code scanner (ML Kit, Google Play services).
  * That scanner has its own screen and needs no camera permission in this app.
+ *
+ * It also holds the Wi-Fi locks that the controller needs (low-latency mode, multicast).
  *
  * GDScript use:
  *   var qr = Engine.get_singleton("QrScanner")
@@ -89,5 +94,60 @@ public class QrScannerPlugin extends GodotPlugin {
 				emitSignal(SIGNAL_FAILED, String.valueOf(e.getMessage()));
 			}
 		});
+	}
+
+	private WifiManager.WifiLock wifiLock;
+	private WifiManager.MulticastLock multicastLock;
+
+	/**
+	 * Hold the Wi-Fi radio in low-latency mode (no power save bursts) and accept broadcast packets
+	 * (the TV beacon). Call it when the controller starts. It is safe to call again.
+	 */
+	@UsedByGodot
+	public void acquireWifiLocks() {
+		final Activity activity = getActivity();
+		if (activity == null) {
+			return;
+		}
+		try {
+			WifiManager wifi = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+			if (wifi == null) {
+				return;
+			}
+			if (wifiLock == null) {
+				int mode = Build.VERSION.SDK_INT >= 29
+						? WifiManager.WIFI_MODE_FULL_LOW_LATENCY
+						: WifiManager.WIFI_MODE_FULL_HIGH_PERF;
+				wifiLock = wifi.createWifiLock(mode, "remoteplay:latency");
+				wifiLock.setReferenceCounted(false);
+			}
+			if (!wifiLock.isHeld()) {
+				wifiLock.acquire();
+			}
+			if (multicastLock == null) {
+				multicastLock = wifi.createMulticastLock("remoteplay:beacon");
+				multicastLock.setReferenceCounted(false);
+			}
+			if (!multicastLock.isHeld()) {
+				multicastLock.acquire();
+			}
+		} catch (RuntimeException e) {
+			// Missing permission or no Wi-Fi. The app still works without the locks.
+		}
+	}
+
+	@UsedByGodot
+	public void releaseWifiLocks() {
+		if (wifiLock != null && wifiLock.isHeld()) {
+			wifiLock.release();
+		}
+		if (multicastLock != null && multicastLock.isHeld()) {
+			multicastLock.release();
+		}
+	}
+
+	@Override
+	public void onMainDestroy() {
+		releaseWifiLocks();
 	}
 }
