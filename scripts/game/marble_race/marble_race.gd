@@ -23,6 +23,7 @@ const HAPTIC_COOLDOWN_MS := 150
 const ORDINALS := ["1st", "2nd", "3rd", "4th"]
 
 const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
+const START_ARC := 2.0         # All marbles start on one line across the track.
 const BUMPER_R := 0.9
 
 class Racer:
@@ -64,9 +65,8 @@ func _world_ready() -> void:
 		var r := Racer.new()
 		r.slot = s
 		var side := (float(i) - (n - 1) * 0.5) * 1.3
-		var arc0 := 2.0 + (i % 2) * 1.6   # Two rows, so the marbles do not touch.
-		r.pos = track.point_at(arc0) + _perp(track.dir_at(arc0)) * side
-		r.arc = arc0
+		r.pos = track.point_at(START_ARC) + _perp(track.dir_at(START_ARC)) * side   # REQ-MR-4
+		r.arc = START_ARC
 		r.node = add_mesh(world, sphere, player(s).color, Vector3(r.pos.x, R, r.pos.y))
 		_racers[s] = r
 	_cam_pos = _camera_target()

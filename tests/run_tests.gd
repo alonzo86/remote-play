@@ -156,6 +156,12 @@ func _test_registry() -> void:
 		if sc == null or not inherits_base:
 			all_ok = false
 	_check(ids.size() == Registry.all().size(), "registry ids are unique")
+	var docs_ok := true
+	for g in Registry.all():
+		if not FileAccess.file_exists(String(g.get("doc", ""))):
+			docs_ok = false
+			print("    missing requirements file for ", g.id)
+	_check(docs_ok, "every game has a requirements file (REQ-GM-6)")
 	_check(all_ok, "every registry game loads and extends the right base class")
 	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
 	var tracks_ok := true

@@ -170,6 +170,8 @@ func _run() -> void:
 	var mr: Control = app.current_screen()
 	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")
 	_check(mr.track.id == "zigzag", "registry props choose the track")
+	_check(is_equal_approx(mr._racers[0].arc, mr._racers[1].arc) and absf(mr._racers[0].pos.distance_to(mr._racers[1].pos)) >= 1.0,
+			"marbles start on one line and do not touch (REQ-MR-4)")
 	var mx0: float = mr._racers[0].pos.x
 	await _stream(clients[0], 0, 1.0, tilt)
 	_check(absf(mr._racers[0].pos.x - mx0) < 0.01, "marbles wait on the grid during the countdown")

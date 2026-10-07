@@ -10,7 +10,7 @@ Godot 4.7 and GDScript. One project makes two apps:
 The goal is to judge the *feel* of a phone as a motion controller. The game content is small on purpose:
 a tilt maze and a pointer test.
 
-Docs: [requirements](docs/REQUIREMENTS.md) | [device test plan](docs/DEVICE_TEST.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md)
+Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [device test plan](docs/DEVICE_TEST.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md)
 
 ## How it works
 
@@ -61,11 +61,13 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
 
 ### Add a minigame
 
+0. Write the requirements: copy `docs/games/TEMPLATE.md` to `docs/games/<id>.md`. The general rules are in
+   `docs/GAME_REQUIREMENTS.md`.
 1. Make a folder under `scripts/game/`.
 2. Extend `scripts/game/minigame.gd`. Override `_game_ready()`, `_game_tick(delta)`, `_game_draw()`.
    The base class gives you the player list, the pause when a phone is lost, the D-pad pause menu
    (Resume, Restart, Back to menu), and the Back key.
-3. Add one entry for the game in `scripts/game/registry.gd`. The TV menu is built from that list.
+3. Add one entry for the game in `scripts/game/registry.gd` (with the `doc` field). The TV menu is built from that list.
 
 For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_ready()` (build the scene under `world`),
 `_world_tick(delta)` and optionally `_hud_draw(canvas)`. `scripts/game/demo3d/` is a small template.

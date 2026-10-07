@@ -31,6 +31,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.
 - REQ-A8: `net/` and `input/` scripts must not refer to `game/` scripts.
 - REQ-A9: Games are listed in `scripts/game/registry.gd`. The menu is built from it. 3D games extend `minigame_3d.gd`.
+- REQ-A10: Each game has a requirements file in `docs/games/`. All games also follow `docs/GAME_REQUIREMENTS.md`.
 
 ## 4. Protocol
 
