@@ -1,0 +1,5 @@
+# gdlint settings (https://github.com/Scony/godot-gdscript-toolkit). Only the changes from the defaults.
+disable:
+- class-definitions-order   # preload constants and signals are grouped by topic, not by kind
+- class-variable-name       # preload() constants in tests use PascalCase
+max-line-length: 130

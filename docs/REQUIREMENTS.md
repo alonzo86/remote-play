@@ -1,0 +1,87 @@
+# Requirements
+
+Project: Remote Play. A prototype of a couch game for Android TV.
+A phone is the motion controller (Wii-remote style).
+
+Style: this text uses ASD-STE100 Simplified Technical English.
+Each requirement has an ID. Use the ID in code comments and tests.
+
+## 1. Goal
+
+- REQ-G1: The prototype must let the user judge if the phone-as-controller feel is good.
+- REQ-G2: The scope is one simple motion minigame. It is not a full game.
+
+## 2. Platform and tools
+
+- REQ-P1: Use Godot 4.7 (4.x) with GDScript only.
+- REQ-P2: Use one project with two export targets: `tv` (Android TV) and `controller` (Android phone).
+- REQ-P3: The role is chosen by the feature tag `tv` or `controller`.
+- REQ-P4: On desktop, the argument `-- --role=tv` or `-- --role=controller` replaces the feature tag.
+- REQ-P5: Do not use servers, accounts, subscriptions, analytics, or paid services. Use the LAN only.
+- REQ-P6: Do not use external assets. Art is minimal and geometric: flat colors and primitives.
+
+## 3. Architecture
+
+- REQ-A1: The TV runs a WebSocket server (`TCPServer` + `WebSocketPeer`) on fixed TCP port 47801.
+- REQ-A2: The TV sends a UDP broadcast beacon on port 47800 every 1 second.
+- REQ-A3: The TV shows a QR code and a 4-letter room code on screen.
+- REQ-A4: The phone scans the QR code, or finds the TV with the UDP beacon, or connects with the room code or the TV IP.
+- REQ-A5: The TV accepts up to 4 phones at the same time.
+- REQ-A6: Input handling and networking are in separate scripts from game logic.
+- REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.
+- REQ-A8: `net/` and `input/` scripts must not refer to `game/` scripts.
+
+## 4. Protocol
+
+- REQ-N1: The phone sends sensor data at about 60 Hz in a packed binary frame (36 bytes).
+- REQ-N2: Each sensor packet has a phone timestamp and a sequence number.
+- REQ-N3: Control messages are JSON text frames.
+- REQ-N4: The TV and phone measure RTT and clock offset with `ping` / `pong` once each second.
+- REQ-N5: A phone that loses its connection keeps its slot for 30 seconds.
+- REQ-N6: The phone reconnects automatically with a saved token (backoff 0.5 s, 1 s, 2 s, then every 2 s).
+- REQ-N7: Full message reference: `docs/PROTOCOL.md`.
+
+## 5. Phone controller
+
+- REQ-C1: Read `Input.get_gyroscope()` and `Input.get_accelerometer()`.
+- REQ-C2: Send touch and button events with the sensor packet.
+- REQ-C3: Show a big "Recenter" button that resets the yaw (fixes gyro drift).
+- REQ-C4: Show connection status and a latency readout.
+- REQ-C5: Keep the screen awake.
+- REQ-C6: Lock the screen to portrait.
+
+## 6. TV application
+
+- REQ-T1: Minigame 1 is a tilt maze. Each phone tilts a ball through a maze. The first ball to reach the exit wins.
+- REQ-T2: A pointer-calibration scene shows a cursor that the phone orientation controls.
+- REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
+- REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values.
+- REQ-T5: The player can pause when a phone disconnects. The player can continue when it reconnects.
+
+## 7. Android export
+
+- REQ-E1: The TV app has the `LEANBACK_LAUNCHER` category and a banner icon.
+- REQ-E2: The TV and phone apps use different package IDs so both can be installed on one device.
+- REQ-E3: Document all export steps in `docs/EXPORT.md` and `README.md`.
+- REQ-E4: Document how to test on a real Android TV or streaming box.
+
+## 8. Deliverables
+
+1. Project structure and `README.md` with build and export steps.
+2. The debug overlay (REQ-T4).
+3. A list of open risks and mitigations: `docs/RISKS.md`.
+
+## 9. Decisions (approved by the user)
+
+| ID | Decision |
+|----|----------|
+| D1 | Join by UDP discovery plus room code. The TV shows a QR code that holds `ws://IP:PORT/ROOM`. The phone scans it with a small Android plugin (Google code scanner). On a PC the phone window uses a "Paste TV link" button. |
+| D2 | All data goes over WebSocket (TCP) in v1. The overlay shows sensor age so the user can see TCP delay. |
+| D3 | The TV does sensor fusion. The phone sends raw values. |
+| D4 | Godot 4.7 stable. |
+| D5 | Role by feature tag, or by command-line argument on desktop. |
+
+## 10. Known limits of this prototype
+
+- The code was checked with Godot headless (script parse and protocol tests). It was not tested on a real TV or phone.
+- The QR scanner plugin was compiled only against stubs. It needs Google Play services on the phone.

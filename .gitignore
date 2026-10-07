@@ -23,3 +23,10 @@ mono_crash.*.json
 *.exe
 # Uncomment if your project does not version PCK files as runtime dependencies.
 # *.pck
+
+# Export output and generated Android build template
+build/
+android/build/
+android/.build_version
+*.apk
+*.aab
