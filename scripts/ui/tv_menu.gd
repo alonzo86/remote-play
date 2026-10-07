@@ -51,7 +51,7 @@ func _show_variants(game: Dictionary) -> void:
 	_clear()
 	_variants_of = String(game.id)
 	for v in game.variants:
-		_add(_box, String(v.title), _start_game.bind(String(game.id), v.props))
+		_add(_box, String(v.title), _launch.bind(String(game.id), v.props))
 	_add(_box, "Back", _show_main)
 	_buttons[0].grab_focus()
 
@@ -74,14 +74,18 @@ func _add(parent: Control, text: String, cb: Callable) -> Button:
 	return b
 
 
-func _start_game(id: String, props := {}) -> void:
+func _start_game(id: String) -> void:
 	var game := Registry.find(id)
-	if game.has("variants") and props.is_empty():
+	if game.has("variants"):
 		_show_variants(game)
-		return
+	else:
+		_launch(id, game.get("props", {}))
+
+
+func _launch(id: String, props: Dictionary) -> void:
 	var script := Registry.load_script(id)
 	if script != null:
-		App.go(script, props if not props.is_empty() else game.get("props", {}))
+		App.go(script, props)
 
 
 func _refresh_labels() -> void:

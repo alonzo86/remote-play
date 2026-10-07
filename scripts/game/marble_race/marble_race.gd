@@ -26,6 +26,7 @@ const ORDINALS := ["1st", "2nd", "3rd", "4th"]
 const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
 const START_ARC := 2.0         # All marbles start on one line across the track.
 const BUMPER_R := 0.9
+const POST_COLOR := UiTheme.TEXT_DIM   # Not a player color, not red (REQ-MR-43). A test checks it.
 
 class Racer:
 	var slot := 0
@@ -321,7 +322,7 @@ func _build_bumpers() -> void:
 		var arc: float = b[0]
 		var pos: Vector2 = track.point_at(arc) + _perp(track.dir_at(arc)) * float(b[1]) * track.half_width * BUMPER_SIDE
 		_bumpers.append(pos)
-		add_mesh(world, post, UiTheme.BAD, Vector3(pos.x, 0.6, pos.y))
+		add_mesh(world, post, POST_COLOR, Vector3(pos.x, 0.6, pos.y))
 
 
 # ---- HUD ----

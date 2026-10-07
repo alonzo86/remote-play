@@ -163,6 +163,14 @@ func _run() -> void:
 	menu.on_back()
 	await _frames(2)
 	_check(menu._variants_of == "", "Back from the track list returns to the main menu")
+	menu._start_game("marble_race")
+	await _frames(2)
+	menu._launch("marble_race", {})   # A variant with empty props must start the game, not reopen the list.
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), MarbleRace), "a variant with empty props starts the game")
+	app.go_menu()
+	await _frames(3)
+	menu = app.current_screen()
 
 	# Marble race: grid wait, tilt moves a marble, finish line ends the race.
 	root.size = Vector2i(1920, 1080)   # The headless window can have another shape. The TV is 16:9.
@@ -172,6 +180,12 @@ func _run() -> void:
 	var mr: Control = app.current_screen()
 	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")
 	_check(mr.track.id == "zigzag", "registry props choose the track")
+	var post_color: Color = MarbleRace.get_script_constant_map()["POST_COLOR"]
+	var clash := false
+	for c in Protocol.PLAYER_COLORS:
+		if c.is_equal_approx(post_color):
+			clash = true
+	_check(not clash and not post_color.is_equal_approx(Color("e63946")), "post color is not a player color (REQ-MR-43)")
 	_check(is_equal_approx(mr._racers[0].arc, mr._racers[1].arc) and absf(mr._racers[0].pos.distance_to(mr._racers[1].pos)) >= 1.0,
 			"marbles start on one line and do not touch (REQ-MR-4)")
 	var mx0: float = mr._racers[0].pos.x

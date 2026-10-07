@@ -50,12 +50,12 @@ Status: Done, Open, or Device (needs a real TV and phones). "Check" names the te
 
 | Track | Length | Width | Posts | Winning time (target) |
 |-------|--------|-------|-------|-----------------------|
-| Classic | about 120 m | 6.8 m | 9 | 20 to 30 s |
-| Sprint | about 85 m | 8.0 m | 4 | 12 to 20 s |
+| Classic | about 143 m | 6.8 m | 9 | 20 to 30 s |
+| Sprint | about 92 m | 8.0 m | 4 | 12 to 20 s |
 | Zigzag | about 190 m | 5.8 m | 0 | 30 to 45 s |
 | Gauntlet | about 160 m | 9.2 m | 15 | 25 to 40 s |
 
-The winning times are targets. They are not measured yet. See "Open questions".
+The lengths are measured (`MarbleTrack.length`). The winning times are targets, from a top speed of about 9 m/s. They are not measured on a device yet. See "Open questions".
 
 ### Menus and flow
 
@@ -77,7 +77,7 @@ The winning times are targets. They are not measured yet. See "Open questions".
 | REQ-MR-40 | The camera looks down from above and slightly from behind. It never turns. Up on the screen is toward the start of the track's first straight. | Done | Device |
 | REQ-MR-41 | The camera follows the middle of the pack and moves higher when the marbles are far apart (16 m to 48 m). | Done | Device |
 | REQ-MR-42 | All marbles stay in view while they are 55 m or less apart along the screen. Beyond that, an arrow in the color of the marble shows at the screen edge, and a number shows how many meters it is behind the leader. | Done | smoke_tv, Device |
-| REQ-MR-43 | The track floor, the edge, the posts, the finish line and the marbles have clear and different colors. Marbles use the slot color. | Done | Device |
+| REQ-MR-43 | The track floor, the edge, the posts, the finish line and the marbles have clear and different colors. Marbles use the slot color. The posts use a grey that is not a slot color. | Done | smoke_tv (post color), Device |
 
 ## Parameters
 
