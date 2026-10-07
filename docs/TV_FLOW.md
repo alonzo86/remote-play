@@ -62,7 +62,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 
 ### Players modal
 - REQ-FL-32: The modal shows the 4 slots with color and state, a QR code with the room code for new phones, and a Close button. It opens on the Games screen (FD-12).
-- REQ-FL-33: Each joined or lost slot has a "Remove" action. Remove disconnects the phone and frees the slot. The removed phone returns to its connect screen and its token is no longer valid.
+- REQ-FL-33: Each joined or lost slot has a "Remove" action. Remove disconnects the phone and frees the slot. The removed phone returns to its connect screen and its token is no longer valid. The slot stays free until a phone actively connects to it: the removed player or another player, by QR code, room code, TV list or TV IP. The removed phone must not reconnect by itself.
 - REQ-FL-34: The modal updates live when a phone joins or leaves. The focus starts on Close. Back closes the modal.
 - REQ-FL-35: Remove needs a new message to the phone. Change `docs/PROTOCOL.md` in the same commit (use the `change-protocol` skill).
 - REQ-FL-36: The player count on the badge and the tile dimming (REQ-FL-14) update when the modal changes the players.
