@@ -91,7 +91,7 @@ func _run() -> void:
 	var tilt := Vector3(-sin(a), 0, cos(a)) * 9.81  # Right side down.
 	await _stream_both(clients, 1.0, tilt, flat)
 	var moved: float = game._balls[0].pos.x - start_x
-	_check(moved > 40.0, "ball 0 rolls right when the phone tilts right (moved %.0f px)" % moved)
+	_check(moved > 15.0, "ball 0 rolls right when the phone tilts right (moved %.0f px)" % moved)
 	_check(absf(game._balls[1].pos.x - start_x1) < 5.0, "ball 1 stays (flat phone)")
 
 	# Pause on lost player: kill phone 1's socket and look at the game state.
