@@ -66,7 +66,7 @@ jobs:
           mkdir -p "${HOME}/.config/godot" "${VERSION_DIR}/keystores"
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android \
             -keystore "${VERSION_DIR}/keystores/debug.keystore" -storepass android \
-            -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deploymentstoretype pkcs12
+            -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -storetype pkcs12
           cat > "${HOME}/.config/godot/editor_settings-4.7.tres" <<SETTINGS
           [gd_resource type="EditorSettings" format=3]
 
