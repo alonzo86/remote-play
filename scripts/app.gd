@@ -13,6 +13,7 @@ const DebugOverlay = preload("res://scripts/ui/debug_overlay.gd")
 const TvMenu = preload("res://scripts/ui/tv_menu.gd")
 const ControllerConnect = preload("res://scripts/ui/controller_connect.gd")
 const ControllerPad = preload("res://scripts/ui/controller_pad.gd")
+const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 
 const SETTINGS_FILE := "user://settings.cfg"
 
@@ -156,6 +157,9 @@ func _start_controller() -> void:
 	add_child(client)
 	controller_discovery = ControllerDiscovery.new()
 	add_child(controller_discovery)
+	var wifi_locks := QrScanner.new()
+	add_child(wifi_locks)
+	wifi_locks.acquire_wifi_locks() # Less jitter and no lost TV beacons on Android.
 	client.state_changed.connect(_on_client_state)
 	client.rejected.connect(_on_client_rejected)
 	if "--auto-join" in OS.get_cmdline_user_args():

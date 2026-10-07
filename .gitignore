@@ -29,3 +29,4 @@ build/
 android/build/
 *.apk
 *.aab
+android/.build_version

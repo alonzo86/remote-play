@@ -29,3 +29,11 @@ func scan() -> void:
 		failed.emit("unavailable")
 		return
 	_plugin.call("scan")
+
+
+## Hold the low-latency Wi-Fi lock and the multicast lock (needs the plugin, no-op elsewhere).
+func acquire_wifi_locks() -> void:
+	if _plugin == null and is_available():
+		_ready()
+	if _plugin != null:
+		_plugin.call("acquireWifiLocks")
