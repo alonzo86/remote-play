@@ -10,6 +10,7 @@ const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
+const ControllerConnect = preload("res://scripts/ui/controller_connect.gd")
 
 var _fails := 0
 var _checks := 0
@@ -48,6 +49,7 @@ func _run() -> void:
 	_test_maze()
 	_test_qr()
 	await _test_network()
+	await _test_room_code_join()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -175,6 +177,26 @@ func _test_qr() -> void:
 				if q[y][x]:
 					img2.fill_rect(Rect2i(32 + x * 8, 32 + y * 8, 8, 8), Color.BLACK)
 		img2.save_png("user://qr_test_%d.png" % len)
+
+
+func _test_room_code_join() -> void:
+	print("room code join")
+	var app: Node = root.get_node("App")
+	var screen := ControllerConnect.new()
+	screen.theme = app.theme_res
+	root.add_child(screen)
+	screen._input.text = "ZZZZ"
+	screen._join_typed() # Waits for a beacon that never comes.
+	_check(screen._joining, "typed room code starts one wait")
+	screen._join_typed()
+	_check(screen._joining, "second tap during the wait is ignored")
+	# A beacon that arrives after the screen is gone must not start a connection.
+	screen.queue_free()
+	app.controller_discovery.tvs["ZZZZ"] = {"ip": "127.0.0.1", "port": 1, "room": "ZZZZ",
+			"seen_ms": Time.get_ticks_msec()}
+	await create_timer(0.5).timeout
+	_check(app.client.state == ControllerClient.State.IDLE, "no join after the screen is closed")
+	app.controller_discovery.tvs.erase("ZZZZ")
 
 
 func _test_network() -> void:

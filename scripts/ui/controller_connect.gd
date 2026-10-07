@@ -11,6 +11,7 @@ var _list: VBoxContainer
 var _status: Label
 var _input: LineEdit
 var _qr: Node
+var _joining := false  # True while _join_typed waits for a beacon.
 
 
 func _ready() -> void:
@@ -159,17 +160,23 @@ func _join_typed() -> void:
 	if Protocol.is_ipv4(text):
 		_join(text, Protocol.WS_PORT, "")
 		return
+	if _joining:
+		return # A second tap must not start a second wait.
 	var room := text.to_upper()
 	var tv: Variant = App.controller_discovery.tvs.get(room)
 	if tv == null:
+		_joining = true
 		# A broadcast beacon can be late or lost on Wi-Fi. Wait a little before giving up.
 		_status.text = "Looking for room %s..." % room
 		_status.add_theme_color_override("font_color", UiTheme.ACCENT)
 		for i in 30:
 			await get_tree().create_timer(0.1).timeout
 			tv = App.controller_discovery.tvs.get(room)
+			if not is_inside_tree():
+				return # The screen was replaced during the wait (for example, a saved-token reconnect).
 			if tv != null:
 				break
+		_joining = false
 	if tv == null:
 		App.last_error = "Room %s not found. Is the TV on the same Wi-Fi?" % room
 		_on_state(ControllerClient.State.IDLE)
