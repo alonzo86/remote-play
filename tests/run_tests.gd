@@ -12,7 +12,6 @@ const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
-const ControllerConnect = preload("res://scripts/ui/controller_connect.gd")
 
 var _fails := 0
 var _checks := 0
@@ -54,6 +53,8 @@ func _run() -> void:
 	_test_marble_track()
 	await _test_network()
 	await _test_room_code_join()
+	await _test_phone_screens()
+	_test_chip_contrast()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -163,6 +164,24 @@ func _test_registry() -> void:
 			print("    missing requirements file for ", g.id)
 	_check(docs_ok, "every game has a requirements file (REQ-GM-6)")
 	_check(all_ok, "every registry game loads and extends the right base class")
+	_check(Registry.reason({"min_players": 3, "max_players": 4}, 2) == "Needs 3 players",
+			"a game that needs more players says why (REQ-FL-14)")
+	var shown_ok := true
+	for g in Registry.all():
+		var id := String(g.id)
+		if String(g.get("description", "")) == "":
+			shown_ok = false
+			print("    no description for ", id)
+		var tile := String(g.get("tile", ""))
+		if tile == "" or not FileAccess.file_exists(tile):
+			shown_ok = false
+			print("    no tile file for ", id)
+		else:
+			var img := Image.load_from_file(ProjectSettings.globalize_path(tile))
+			if img == null or img.get_width() != 640 or img.get_height() != 360:
+				shown_ok = false
+				print("    tile of ", id, " is not 640x360")
+	_check(shown_ok, "every game has a description and a 640x360 tile file (REQ-FL-19, 20, 22)")
 	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
 	var tracks_ok := true
 	for g in Registry.all():
@@ -263,7 +282,9 @@ func _test_qr() -> void:
 func _test_room_code_join() -> void:
 	print("room code join")
 	var app: Node = root.get_node("App")
-	var screen := ControllerConnect.new()
+	# Load now, not at parse time: the App autoload must exist first.
+	var ControllerConnect: GDScript = load("res://scripts/ui/controller_connect.gd")
+	var screen = ControllerConnect.new()
 	screen.theme = app.theme_res
 	root.add_child(screen)
 	screen._input.text = "ZZZZ"
@@ -273,11 +294,74 @@ func _test_room_code_join() -> void:
 	_check(screen._joining, "second tap during the wait is ignored")
 	# A beacon that arrives after the screen is gone must not start a connection.
 	screen.queue_free()
-	app.controller_discovery.tvs["ZZZZ"] = {"ip": "127.0.0.1", "port": 1, "room": "ZZZZ",
-			"seen_ms": Time.get_ticks_msec()}
+	app.controller_discovery.tvs["ZZZZ"] = {"ip": "127.0.0.1", "port": 1, "room": "ZZZZ", "name": "Test TV",
+			"players": 0, "max": 4, "seen_ms": Time.get_ticks_msec()}
 	await create_timer(0.5).timeout
 	_check(app.client.state == ControllerClient.State.IDLE, "no join after the screen is closed")
 	app.controller_discovery.tvs.erase("ZZZZ")
+
+
+## The phone shows the pad for `playing` and `paused`, and the waiting screen for the other phases
+## (REQ-FL-28). It goes back to the connect screen when it leaves.
+## The chip text never sits on the player color, and it is readable on the chip (REQ-GM-46, REQ-FL-40).
+func _test_chip_contrast() -> void:
+	print("chip contrast")
+	var Shell = load("res://scripts/game/shell.gd")
+	var UiTheme = load("res://scripts/ui/ui_theme.gd")
+	var ok := true
+	for c in Protocol.PLAYER_COLORS:
+		var ratio: float = Shell.contrast(UiTheme.CARD_TEXT, UiTheme.CARD)
+		if ratio < 4.5:
+			ok = false
+		# The player color is a dot, so it only has to stand out from the white chip.
+		if Shell.contrast(c, UiTheme.CARD) < 2.0:
+			ok = false
+			print("    player color too light for the chip: ", c)
+	_check(ok, "chip text and player-color dots are readable on the white chip")
+	_check(Shell.contrast(Color.WHITE, Color.BLACK) > 20.0 and Shell.contrast(Color.WHITE, Color.WHITE) < 1.01,
+			"the contrast function is right")
+
+
+func _test_phone_screens() -> void:
+	print("phone screens")
+	var app: Node = root.get_node("App")
+	var Wait: GDScript = load("res://scripts/ui/controller_wait.gd")
+	var Pad: GDScript = load("res://scripts/ui/controller_pad.gd")
+	_check(Wait.texts_for("connect")[0] == "Waiting for the host" and Wait.texts_for("menu")[0] == "Choose a game on the TV"
+			and Wait.texts_for("waiting")[0] == "A round is running", "the waiting screen has a text for each phase")
+	var server := TvServer.new()
+	root.add_child(server)
+	server.start({})
+	app.client.connect_to("127.0.0.1", Protocol.WS_PORT, server.room_code)
+	await _wait_until(func(): return app.client.state == ControllerClient.State.CONNECTED)
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Wait), "connect phase: the phone shows the waiting screen")
+	server.set_phase("menu")
+	await _wait_until(func(): return app.client.phase == "menu")
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Wait), "menu phase: the phone stays on the waiting screen")
+	server.set_phase("playing")
+	await _wait_until(func(): return app.client.phase == "playing")
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Pad), "playing phase: the phone shows the pad")
+	server.set_phase("paused")
+	await _wait_until(func(): return app.client.phase == "paused")
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Pad), "paused phase: the phone keeps the pad")
+	var others: Array[int] = [app.client.slot + 1]
+	server.set_phase("playing", others)
+	await _wait_until(func(): return app.client.phase == "waiting")
+	await process_frame
+	_check(is_instance_of(app.current_screen(), Wait), "a phone that is not in the round goes to the waiting screen")
+	server.set_phase("menu")
+	await _wait_until(func(): return app.client.phase == "menu")
+	app.client.leave()
+	await process_frame
+	await process_frame
+	_check(app.current_screen().get_script().resource_path == "res://scripts/ui/controller_connect.gd",
+			"leaving returns to the connect screen")
+	server.stop()
+	server.queue_free()
 
 
 func _test_network() -> void:
@@ -357,12 +441,51 @@ func _test_network() -> void:
 	await _wait_until(func(): return not server.players[slot2].is_present())
 	_check(not server.players[slot2].is_present(), "leave frees the slot")
 
+	# Remove (REQ-FL-33): the slot is free at once, the phone is told, and it does not reconnect by itself.
+	var c3: Node = clients[2]
+	var slot3: int = c3.slot
+	var kicked := []
+	c3.rejected.connect(func(r): kicked.append(r))
+	server.kick(slot3)
+	await _wait_until(func(): return not kicked.is_empty())
+	_check(kicked == ["kicked"], "a removed phone is told: %s" % str(kicked))
+	_check(not server.players[slot3].is_present(), "remove frees the slot at once")
+	_check(c3.state == ControllerClient.State.IDLE and c3.slot == -1, "the removed phone goes back to idle")
+	await _wait_until(func(): return false, 1500)
+	_check(not server.players[slot3].is_present() and c3.state == ControllerClient.State.IDLE,
+			"the removed phone does not reconnect by itself")
+
 	# Phase and haptic messages reach the phone.
 	var phases := []
 	clients[0].phase_changed.connect(func(p): phases.append(p))
 	server.set_phase("playing")
 	await _wait_until(func(): return not phases.is_empty())
 	_check(phases == ["playing"], "phase message reaches the phone")
+
+	# A phone that joined late gets "waiting" during a round (REQ-FL-25).
+	var late_phases := []
+	clients[3].phase_changed.connect(func(p): late_phases.append(p))
+	phases.clear()
+	var in_round: Array[int] = [clients[0].slot]
+	server.set_phase("paused", in_round)
+	await _wait_until(func(): return not phases.is_empty() and not late_phases.is_empty())
+	_check(phases == ["paused"] and late_phases == ["waiting"], "late phone gets waiting: %s %s" % [str(phases), str(late_phases)])
+	server.set_phase("menu")
+	phases.clear()
+	late_phases.clear()
+	await _wait_until(func(): return not late_phases.is_empty())
+	_check(late_phases == ["menu"], "the next phase reaches the late phone")
+
+	# A slot that is freed during a round leaves the round. A new phone in it must wait (REQ-FL-25).
+	var slot4: int = clients[3].slot
+	var round_two: Array[int] = [clients[0].slot, slot4]
+	server.set_phase("playing", round_two)
+	_check(server.phase_for(slot4) == "playing", "a slot in the round sees playing")
+	server.drop_player(slot4)
+	_check(server.phase_for(slot4) == "waiting" and server.round_slots == [clients[0].slot],
+			"a slot freed during the round is not in the round any more")
+	server.set_phase("menu")
+	_check(not server.round_limited and server.phase_for(slot4) == "menu", "the menu phase ends the round list")
 
 	# Server stop makes clients go to reconnect, not crash.
 	for c in clients:

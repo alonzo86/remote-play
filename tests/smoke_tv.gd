@@ -11,7 +11,10 @@ var Demo3D
 var MarbleRace
 var Registry
 var MarbleTrack
-var TvMenu
+var TvLogo
+var TvConnect
+var TvGames
+var TvSettings
 
 var _fails := 0
 var _seq := [0, 0]
@@ -61,10 +64,35 @@ func _run() -> void:
 	MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
 	Registry = load("res://scripts/game/registry.gd")
 	MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
-	TvMenu = load("res://scripts/ui/tv_menu.gd")
+	TvLogo = load("res://scripts/ui/tv_logo.gd")
+	TvConnect = load("res://scripts/ui/tv_connect.gd")
+	TvGames = load("res://scripts/ui/tv_games.gd")
+	TvSettings = load("res://scripts/ui/tv_settings.gd")
 	var app: Node = root.get_node("App")
-	_check(is_instance_of(app.current_screen(), TvMenu), "TV starts on the menu")
-	_check(app.server.listening, "server is listening")
+	_check(is_instance_of(app.current_screen(), TvLogo), "TV starts on the logo screen (REQ-FL-2)")
+	_check(app.server.listening, "server is listening while the logo shows (REQ-FL-4)")
+	_check(app.server.phase == "connect", "phase is connect on the logo screen")
+	# The logo goes on by itself after about 2.5 seconds (REQ-FL-2).
+	var logo_start := Time.get_ticks_msec()
+	while is_instance_of(app.current_screen(), TvLogo) and Time.get_ticks_msec() - logo_start < 5000:
+		await process_frame
+	var logo_ms := Time.get_ticks_msec() - logo_start
+	_check(is_instance_of(app.current_screen(), TvConnect) and logo_ms >= 2000 and logo_ms <= 3500,
+			"the logo goes on to Connect by itself after about 2.5 s (took %d ms)" % logo_ms)
+	app.go_logo()
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvLogo), "the logo can be shown again")
+	app.current_screen().on_back() # Back skips the logo. It does not quit (REQ-FL-3).
+	await _frames(3)
+	var connect: Control = app.current_screen()
+	_check(is_instance_of(connect, TvConnect), "Back skips the logo screen and goes to Connect")
+	_check(connect._continue.disabled, "Continue is disabled with no phone (REQ-FL-6)")
+	connect.on_back()
+	await _frames(2)
+	_check(connect._modal != null, "Back on Connect opens the quit confirmation (REQ-FL-10)")
+	connect.on_back()
+	await _frames(2)
+	_check(connect._modal == null, "Back closes the quit confirmation")
 
 	var clients: Array[Node] = []
 	for i in 2:
@@ -80,6 +108,64 @@ func _run() -> void:
 	var flat := Vector3(0, 0, 9.81)
 	await _stream(clients[0], 0, 0.3, flat)
 	await _stream(clients[1], 1, 0.3, flat)
+	await _frames(3)
+	_check(not connect._continue.disabled and connect._continue.has_focus(),
+			"Continue is enabled and focused after a phone joins (REQ-FL-7)")
+	_check(clients[0].phase == "connect", "the phone sees the connect phase")
+	connect._continue.pressed.emit()
+	await _frames(3)
+	var games: Control = app.current_screen()
+	_check(is_instance_of(games, TvGames) and app.server.phase == "menu", "Continue opens the Games screen")
+	_check(games._tiles.size() == Registry.all().size(), "one tile for each game (REQ-FL-11)")
+	_check(games._badge.text == "2 players", "the badge shows the number of players (REQ-FL-15)")
+	var nobody: bool = true
+	for t in games._tiles:
+		nobody = nobody and t.fits
+	_check(nobody, "all games accept 2 players (REQ-FL-14)")
+	_check(not Registry.accepts({"min_players": 3, "max_players": 4}, 2), "a game for 3 or more players does not accept 2")
+	# The content column keeps its width and stays centered on a wide screen (21:9).
+	root.size = Vector2i(2560, 1080)
+	await _frames(4)
+	var col: Control = games._root
+	_check(is_equal_approx(col.size.x, float(games.CONTENT_W))
+			and absf(col.global_position.x + col.size.x * 0.5 - games.size.x * 0.5) < 2.0,
+			"the Games column keeps its width and stays centered on a wide screen")
+	root.size = Vector2i(1920, 1080)
+	await _frames(4)
+	games.on_back()
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvConnect) and app.server.connected_slots().size() == 2,
+			"Back on Games returns to Connect and the players stay (REQ-FL-9, 18)")
+	app.go_games()
+	await _frames(3)
+	games = app.current_screen()
+	games._gear.pressed.emit()
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvSettings), "the gear opens Settings")
+	app.current_screen().on_back()
+	await _frames(3)
+	games = app.current_screen()
+	_check(is_instance_of(games, TvGames) and games._gear.has_focus(), "Back from Settings returns to the gear (REQ-FL-24)")
+	games._open_players()
+	await _frames(3)
+	_check(games._modal != null, "the badge opens the Players modal")
+	app.server.kick(1)
+	await _frames(3)
+	_check(games._badge.text == "1 player", "Remove updates the badge at once (REQ-FL-36)")
+	_check(not app.server.players[1].is_present(), "Remove frees the slot (REQ-FL-33)")
+	games.on_back()
+	await _frames(2)
+	_check(games._modal == null, "Back closes the Players modal")
+	await _frames(40)
+	_check(clients[1].state == ControllerClient.State.IDLE and not app.server.players[1].is_present(),
+			"the removed phone stays out until it connects again")
+	clients[1].connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+	var t2 := Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t2 < 4000:
+		await process_frame
+	_check(app.server.connected_slots().size() == 2, "a removed player can join again")
+	await _stream(clients[0], 0, 0.2, flat)
+	await _stream(clients[1], 1, 0.2, flat)
 
 	if app.overlay.visible:
 		app.toggle_overlay() # The setting is saved between runs. Start from "off".
@@ -92,6 +178,21 @@ func _run() -> void:
 	await _frames(3)
 	var game: Control = app.current_screen()
 	_check(is_instance_of(game, MazeGame) and game.participants.size() == 2, "maze starts with 2 participants")
+	# A phone that joins during the round waits for the next round (REQ-FL-25).
+	var late := ControllerClient.new()
+	late.player_name = "Late"
+	root.add_child(late)
+	late.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+	var t3 := Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t3 < 4000:
+		await process_frame
+	await _frames(5)
+	_check(app.server.connected_slots().size() == 3 and game.participants.size() == 2,
+			"a late phone joins but does not take part in the round")
+	_check(app.server.phase_for(late.slot) == "waiting" and late.phase == "waiting",
+			"the late phone gets the waiting phase")
+	late.leave()
+	await _frames(5)
 	await _stream(clients[0], 0, 3.3, flat)
 	var a := deg_to_rad(15.0)
 	var start_x: float = game._balls[0].pos.x
@@ -156,14 +257,20 @@ func _run() -> void:
 	app.go_menu()
 	await _frames(3)
 	var menu: Control = app.current_screen()
-	menu._start_game("marble_race")
+	menu._on_tile(Registry.find("marble_race"))
 	await _frames(2)
-	_check(is_instance_of(app.current_screen(), TvMenu) and menu._variants_of == "marble_race"
-			and menu._buttons.size() == MarbleTrack.IDS.size() + 1, "Marble Race opens the track list before the race")
+	var variant_buttons := 0
+	for ch in menu._variant_view.get_children():
+		if ch is Button:
+			variant_buttons += 1
+	_check(is_instance_of(app.current_screen(), TvGames) and menu._variants_of == "marble_race"
+			and variant_buttons == MarbleTrack.IDS.size() + 1, "Marble Race opens the track list before the race (REQ-FL-17)")
 	menu.on_back()
-	await _frames(2)
-	_check(menu._variants_of == "", "Back from the track list returns to the main menu")
-	menu._start_game("marble_race")
+	await _frames(3)
+	var focused = menu.get_viewport().gui_get_focus_owner()
+	_check(menu._variants_of == "" and focused != null and "game" in focused and focused.game.id == "marble_race",
+			"Back from the track list returns to the grid with the same tile in focus")
+	menu._on_tile(Registry.find("marble_race"))
 	await _frames(2)
 	menu._launch("marble_race", {})   # A variant with empty props must start the game, not reopen the list.
 	await _frames(3)
@@ -213,14 +320,14 @@ func _run() -> void:
 	await _frames(5)
 	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
 	_check(mr._ended and mr.is_paused(), "race ends and the results menu opens")
-	var results_items: int = mr._menu_box.get_child_count()
+	var results_items: int = mr.menu_buttons().size()
 	mr._open_picker()
 	await _frames(2)
-	_check(mr._picking and mr._menu_box.get_child_count() == MarbleTrack.IDS.size() + 2,
+	_check(mr._picking and mr.menu_buttons().size() == MarbleTrack.IDS.size() + 1,
 			"track picker lists every track and Cancel")
 	mr.on_back()
 	await _frames(2)
-	_check(not mr._picking and mr._ended and mr._menu_box.get_child_count() == results_items,
+	_check(not mr._picking and mr._ended and mr.menu_buttons().size() == results_items,
 			"Back from the picker returns to the results")
 	mr._open_picker()
 	mr._switch_track("sprint")
@@ -243,7 +350,7 @@ func _run() -> void:
 
 	app.go_menu()
 	await _frames(3)
-	_check(is_instance_of(app.current_screen(), TvMenu), "back to the menu")
+	_check(is_instance_of(app.current_screen(), TvGames), "back to the Games screen")
 	print("smoke test done, %d failed" % _fails)
 	for c in clients:
 		c.leave()

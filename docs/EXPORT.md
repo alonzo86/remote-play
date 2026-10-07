@@ -121,11 +121,11 @@ Or copy the APK to the phone and open it (allow installs from this source).
 ## 6. Run a test session
 
 1. Connect the TV and the phone to the **same Wi-Fi network** (best: 5 GHz).
-2. Start the TV app. It shows the room code and the QR code.
+2. Start the TV app. After the logo it shows the **Connect controllers** screen with the room code and the QR code.
 3. Start the controller app. Tap **Scan the QR code on the TV** and scan the code. (Or tap the TV in the list, or type the room code.)
-4. On the TV, press the Menu key (or open the menu item **Debug overlay**) to see the latency numbers.
+4. On the TV, press **Continue**. Press the Menu key (or open **Settings**, the gear, and switch **Debug overlay** on) to see the latency numbers.
 5. Select **Pointer Test**. Point the phone at the TV and tap **RECENTER**.
-   Move the phone. The cursor must follow. If left and right are wrong, select **Invert pointer yaw** in the menu.
+   Move the phone. The cursor must follow. If left and right are wrong, select **Invert pointer yaw** on the Settings screen.
    If the maze tilt is wrong (the ball rolls the wrong way), select **Invert tilt axes**.
 6. Select **Tilt Maze**. Hold the phone flat during the countdown. Tilt to roll the ball.
 
@@ -148,5 +148,5 @@ The phone window has no sensors. The mouse position simulates the tilt and the m
 | "QR scan failed" | Google Play services are missing or old, or the scanner module is still downloading. Try again, or use the list or the room code. |
 | Phone does not find the TV | Wi-Fi guest network or "AP isolation" blocks broadcast. Type the room code (it needs the beacon) or the TV IP. |
 | Phone shows "Cannot reach the TV" | Different subnet, VPN on the phone, or a firewall. Use the TV IP from the TV screen. |
-| Tilt or pointer direction is wrong | Use the invert switches in the TV menu. Report the raw values from the overlay. |
+| Tilt or pointer direction is wrong | Use the invert switches on the TV Settings screen. Report the raw values from the overlay. |
 | Phone starts in landscape, then turns | Expected. The app sets portrait at start. See `docs/RISKS.md`. |

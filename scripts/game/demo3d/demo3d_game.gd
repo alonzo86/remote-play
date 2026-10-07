@@ -42,5 +42,5 @@ func _world_tick(delta: float) -> void:
 
 
 func _hud_draw(canvas: Control) -> void:
-	canvas.draw_string(ThemeDB.fallback_font, Vector2(60, 100), "3D demo: tilt your phone",
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 40, UiTheme.TEXT)
+	Shell.title(canvas, "3D DEMO")
+	Shell.text(canvas, Vector2(60, 146), "Tilt your phone to roll your ball.", 30, UiTheme.TEXT_DIM)

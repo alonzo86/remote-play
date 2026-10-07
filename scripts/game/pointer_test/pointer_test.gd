@@ -85,7 +85,6 @@ func _game_tick(_delta: float) -> void:
 
 
 func _game_draw() -> void:
-	var font := ThemeDB.fallback_font
 	var c := _center()
 	var a := _area()
 	# Reference grid
@@ -113,9 +112,9 @@ func _game_draw() -> void:
 		draw_line(cp - Vector2(34, 0), cp + Vector2(34, 0), Color.WHITE, 2.0)
 		draw_line(cp - Vector2(0, 34), cp + Vector2(0, 34), Color.WHITE, 2.0)
 	# HUD
-	draw_string(font, Vector2(60, 70), "POINTER TEST", HORIZONTAL_ALIGNMENT_LEFT, -1, 52, UiTheme.ACCENT)
-	draw_string(font, Vector2(60, 112), "Point at the TV and tap Recenter. Aim at your ring. Press A. B recenters.",
-			HORIZONTAL_ALIGNMENT_LEFT, size.x - 120, 28, UiTheme.TEXT_DIM)
+	Shell.title(self, "POINTER TEST")
+	Shell.text(self, Vector2(60, 140), "Point at the TV and tap Recenter. Aim at your ring. Press A. B recenters.",
+			28, UiTheme.TEXT_DIM, HORIZONTAL_ALIGNMENT_LEFT, size.x - 120)
 	var y := size.y - 36.0 - 40.0 * (participants.size() - 1)
 	for s in participants:
 		var st: Stats = _stats[s]
@@ -124,5 +123,5 @@ func _game_draw() -> void:
 		var last := "--" if st.last_error < 0 else "%.0f px" % st.last_error
 		var txt := "P%d   hits %d   avg error %s   last %s   yaw %+.1f deg   %s" % [
 				s + 1, st.hits, avg, last, rad_to_deg(o.yaw), "still" if o.still else "moving"]
-		draw_string(font, Vector2(60, y), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, player(s).color)
+		Shell.text(self, Vector2(60, y), txt, 28, player(s).color.lightened(0.25))
 		y += 40.0

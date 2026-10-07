@@ -2,7 +2,7 @@ extends RefCounted
 ## Shared constants and packet codec for the TV and the controller.
 ## Message reference: docs/PROTOCOL.md
 
-const VERSION := 1
+const VERSION := 2
 const UDP_PORT := 47800
 const WS_PORT := 47801
 const MAX_PLAYERS := 4

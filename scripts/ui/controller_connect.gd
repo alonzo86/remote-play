@@ -16,7 +16,7 @@ var _joining := false  # True while _join_typed waits for a beacon.
 
 func _ready() -> void:
 	var bg := ColorRect.new()
-	bg.color = UiTheme.BG
+	bg.color = Color(UiTheme.BG, 0.0) # The App backdrop (purple with dots) shows through.
 	add_child(bg)
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
@@ -32,7 +32,8 @@ func _ready() -> void:
 
 	var title := Label.new()
 	title.text = "REMOTE PLAY"
-	title.add_theme_font_size_override("font_size", 72)
+	title.add_theme_font_override("font", UiTheme.title_font())
+	title.add_theme_font_size_override("font_size", 92)
 	title.add_theme_color_override("font_color", UiTheme.ACCENT)
 	box.add_child(title)
 

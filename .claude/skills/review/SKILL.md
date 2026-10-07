@@ -32,7 +32,8 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 **Style (matches the code)**
 - GDScript with tabs, typed variables where the surrounding code types them, `##` doc comments, short ASD-STE100 style in docs.
 - `gdlint scripts tests tools` must pass (`.gdlintrc`). Shell scripts pass `shellcheck`.
-- Screens are built in code from flat shapes. No external assets.
+- Screens are built in code in the Party Pop style (`docs/TV_FLOW.md`). Image files only where REQ-P6 allows them.
+- A new game follows the visual language: shell (REQ-GM-45), player colors (REQ-GM-46), toy-like world (REQ-GM-47), and a tile screenshot that looks like the same toy box as the Games screen (REQ-GM-49).
 
 **Games**
 - A game has `docs/games/<id>.md` and a `doc` field in `scripts/game/registry.gd`. A change to game behavior changes that file (REQ-GM-5).

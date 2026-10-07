@@ -5,7 +5,9 @@ extends "res://scripts/game/minigame.gd"
 ##   1. Make a folder under scripts/game/.
 ##   2. Extend this script. Override _world_ready(), _world_tick(), and optionally _hud_draw().
 ##   3. Add the game to scripts/game/registry.gd.
-## Build the scene in code under `world`. Use primitive meshes and flat materials (REQ-P6).
+## Build the scene in code under `world`. Use primitive meshes and flat materials.
+## Key objects (players, goals, hazards) use add_outlined_mesh(): a dark outline made of an inverted
+## hull, with no shader (REQ-GM-47c). See docs/GAME_REQUIREMENTS.md, "Visual language".
 ## The world is frozen while the game is paused, so physics bodies stop too.
 
 ## Root of the 3D scene. Add your nodes here.
@@ -14,6 +16,10 @@ var world: Node3D
 var camera: Camera3D
 ## 2D layer above the 3D view. Scores and labels are drawn here with _hud_draw().
 var hud: Control
+
+const OUTLINE_RATIO := 0.08
+const OUTLINE_MIN := 0.03
+const OUTLINE_MAX := 0.10
 
 var _viewport: SubViewport
 
@@ -55,15 +61,17 @@ func _game_ready() -> void:
 func _make_environment() -> void:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
-	env.background_color = UiTheme.BG
+	env.background_color = _background_color()
+	# A strong ambient light: the shaded side of an object is at least 60% of the lit side (REQ-GM-47h).
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.55, 0.58, 0.65)
-	env.ambient_light_energy = 0.6
+	env.ambient_light_color = Color(0.85, 0.85, 0.9)
+	env.ambient_light_energy = 0.9
 	var we := WorldEnvironment.new()
 	we.environment = env
 	world.add_child(we)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-55, -30, 0)
+	sun.light_energy = 0.5
 	sun.shadow_enabled = false # Shadows are costly on Android TV. Turn on per game if needed.
 	world.add_child(sun)
 
@@ -111,7 +119,33 @@ static func add_mesh(parent: Node3D, mesh: Mesh, color: Color, pos := Vector3.ZE
 	return mi
 
 
+## A flat material with a dark outline: the mesh, and a child hull that is a little bigger, drawn with
+## its front faces culled (REQ-GM-47c). The thickness is 8% of the smallest size of the mesh,
+## from 0.03 m to 0.10 m.
+static func add_outlined_mesh(parent: Node3D, mesh: Mesh, color: Color, pos := Vector3.ZERO) -> MeshInstance3D:
+	var mi := add_mesh(parent, mesh, color, pos)
+	var sz := mesh.get_aabb().size
+	var smallest := minf(sz.x, minf(sz.y, sz.z))
+	var t := clampf(OUTLINE_RATIO * smallest, OUTLINE_MIN, OUTLINE_MAX)
+	var hull := MeshInstance3D.new()
+	hull.mesh = mesh
+	var m := StandardMaterial3D.new()
+	m.albedo_color = UiTheme.OUTLINE
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.cull_mode = BaseMaterial3D.CULL_FRONT
+	hull.material_override = m
+	hull.scale = Vector3(1.0 + 2.0 * t / maxf(sz.x, 0.001), 1.0 + 2.0 * t / maxf(sz.y, 0.001),
+			1.0 + 2.0 * t / maxf(sz.z, 0.001))
+	mi.add_child(hull)
+	return mi
+
+
 # ---- Override in subclasses ----
+
+## The color behind the world. Pick one from the Party Pop set (REQ-GM-48).
+func _background_color() -> Color:
+	return UiTheme.BG
+
 
 ## Build the scene under `world`. Players are in `participants`.
 func _world_ready() -> void:

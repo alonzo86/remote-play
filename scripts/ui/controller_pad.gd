@@ -17,8 +17,17 @@ func _ready() -> void:
 	_sampler = SensorSampler.new()
 	_sampler.client = App.client
 	add_child(_sampler)
-	App.client.haptic_requested.connect(func(ms): Input.vibrate_handheld(ms))
-	App.client.phase_changed.connect(func(_p): queue_redraw())
+	# Connect methods, not lambdas: App.client outlives this screen.
+	App.client.haptic_requested.connect(_on_haptic)
+	App.client.phase_changed.connect(_on_phase)
+
+
+func _on_haptic(ms: int) -> void:
+	Input.vibrate_handheld(ms)
+
+
+func _on_phase(_phase: String) -> void:
+	queue_redraw()
 
 
 func _process(delta: float) -> void:
@@ -115,43 +124,45 @@ func _update_touch(pos: Vector2) -> void:
 # ---- Drawing ----
 
 func _draw() -> void:
-	var font := ThemeDB.fallback_font
+	var tf := UiTheme.title_font()
+	var bf := UiTheme.body_bold()
 	var c: Node = App.client
 	draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
 
-	# Status band, colored with the player color.
+	# Player dot, name and TV. The dot is the player color. It is red when the link is lost.
 	var online: bool = c.state == ControllerClient.State.CONNECTED
-	var band_col: Color = c.color if online else UiTheme.BAD
-	draw_rect(Rect2(0, 0, size.x, 14), band_col)
-	var status := "Connected  -  Player %d" % (c.slot + 1)
-	if not online:
-		status = "Reconnecting..."
-	draw_string(font, Vector2(60, 90), status, HORIZONTAL_ALIGNMENT_LEFT, size.x - 340, 44,
-			UiTheme.TEXT if online else UiTheme.BAD)
-	draw_string(font, Vector2(60, 150), c.tv_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 32, UiTheme.TEXT_DIM)
+	var dot := Vector2(110, 110)
+	draw_circle(dot + UiTheme.SHADOW * 0.5, 54.0, UiTheme.OUTLINE)
+	draw_circle(dot, 54.0, UiTheme.OUTLINE)
+	draw_circle(dot, 46.0, c.color if online else UiTheme.BAD)
+	draw_string(tf, dot + Vector2(-46, 20), str(c.slot + 1), HORIZONTAL_ALIGNMENT_CENTER, 92, 56, Color.WHITE)
+	var status := "Player %d" % (c.slot + 1) if online else "Reconnecting..."
+	draw_string(tf, Vector2(190, 108), status, HORIZONTAL_ALIGNMENT_LEFT, size.x - 460, 56,
+			UiTheme.ACCENT if online else UiTheme.BAD)
+	draw_string(bf, Vector2(190, 156), c.tv_name, HORIZONTAL_ALIGNMENT_LEFT, size.x - 460, 32, UiTheme.TEXT_DIM)
 
 	var lat := "RTT -- ms" if c.rtt_ms < 0 else "RTT %d ms" % roundi(c.rtt_ms)
-	draw_string(font, Vector2(60, 240), lat, HORIZONTAL_ALIGNMENT_LEFT, -1, 56, _lat_color(c.rtt_ms))
-	draw_string(font, Vector2(60, 300), "%d Hz  -  TV: %s" % [roundi(c.tx_rate), c.phase],
+	draw_string(tf, Vector2(60, 262), lat, HORIZONTAL_ALIGNMENT_LEFT, -1, 60, _lat_color(c.rtt_ms))
+	draw_string(bf, Vector2(60, 316), "%d Hz  -  TV: %s" % [roundi(c.tx_rate), c.phase],
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 32, UiTheme.TEXT_DIM)
 
 	# Leave
-	_draw_box(_rect_leave(), UiTheme.PANEL_LIGHT, "Leave", font, 36, UiTheme.TEXT)
+	_draw_box(_rect_leave(), UiTheme.CARD, "Leave", bf, 36, UiTheme.CARD_TEXT)
 
 	# Recenter
 	var rr := _rect_recenter()
 	var fill := UiTheme.ACCENT.lerp(Color.WHITE, _flash.recenter * 0.6)
-	_draw_box(rr, fill, "RECENTER", font, 84, UiTheme.BG)
-	draw_string(font, rr.position + Vector2(0, rr.size.y - 36), "Point at the TV, then tap",
-			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, 32, UiTheme.BG)
+	_draw_box(rr, fill, "RECENTER", tf, 92, UiTheme.CARD_TEXT)
+	draw_string(bf, rr.position + Vector2(0, rr.size.y - 40), "Point at the TV, then tap",
+			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, 34, UiTheme.CARD_TEXT)
 
 	# A and B
 	_draw_button(_center_a(), "A", Protocol.BTN_A, c.color)
-	_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.PANEL_LIGHT.lightened(0.15))
+	_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.CARD)
 
 
 func _draw_box(r: Rect2, fill: Color, text: String, font: Font, fs: int, col: Color) -> void:
-	draw_rect(r, fill)
+	draw_style_box(UiTheme.card(fill, UiTheme.OUTLINE, UiTheme.OUTLINE_W, 40, true), r)
 	var ty := r.position.y + r.size.y * 0.5 + fs * 0.35
 	draw_string(font, Vector2(r.position.x, ty), text, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, fs, col)
 
@@ -159,10 +170,12 @@ func _draw_box(r: Rect2, fill: Color, text: String, font: Font, fs: int, col: Co
 func _draw_button(center: Vector2, label: String, bit: int, col: Color) -> void:
 	var down: bool = (_sampler.buttons & bit) != 0
 	var r := _radius()
-	draw_circle(center, r, col.lightened(0.35) if down else col)
-	draw_arc(center, r, 0, TAU, 48, UiTheme.TEXT, 6.0)
-	draw_string(ThemeDB.fallback_font, center + Vector2(-r, 30), label,
-			HORIZONTAL_ALIGNMENT_CENTER, r * 2, 96, UiTheme.TEXT)
+	var off := Vector2.ZERO if down else UiTheme.SHADOW
+	draw_circle(center + off, r + 8.0, UiTheme.OUTLINE)
+	draw_circle(center + (UiTheme.SHADOW if down else Vector2.ZERO) * 0.0, r + 8.0, UiTheme.OUTLINE)
+	draw_circle(center, r, col.lightened(0.25) if down else col)
+	draw_string(UiTheme.title_font(), center + Vector2(-r, 38), label, HORIZONTAL_ALIGNMENT_CENTER, r * 2, 112,
+			Color.WHITE if col != UiTheme.CARD else UiTheme.CARD_TEXT)
 
 
 func _lat_color(rtt: float) -> Color:

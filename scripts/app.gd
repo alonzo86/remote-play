@@ -10,9 +10,14 @@ const TvDiscovery = preload("res://scripts/net/tv_discovery.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const ControllerDiscovery = preload("res://scripts/net/controller_discovery.gd")
 const DebugOverlay = preload("res://scripts/ui/debug_overlay.gd")
-const TvMenu = preload("res://scripts/ui/tv_menu.gd")
+const Backdrop = preload("res://scripts/ui/backdrop.gd")
+const TvLogo = preload("res://scripts/ui/tv_logo.gd")
+const TvConnect = preload("res://scripts/ui/tv_connect.gd")
+const TvGames = preload("res://scripts/ui/tv_games.gd")
+const TvSettings = preload("res://scripts/ui/tv_settings.gd")
 const ControllerConnect = preload("res://scripts/ui/controller_connect.gd")
 const ControllerPad = preload("res://scripts/ui/controller_pad.gd")
+const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 
 const SETTINGS_FILE := "user://settings.cfg"
@@ -32,6 +37,7 @@ var overlay: CanvasLayer    # TV only
 var client: Node            # Controller only
 var controller_discovery: Node
 var last_error := ""        # Controller only. Shown on the connect screen.
+var last_game := ""         # TV only. The Games screen focuses this tile again.
 
 var _screen: Control
 var _last_back_ms := 0
@@ -40,6 +46,10 @@ var _last_back_ms := 0
 func _ready() -> void:
 	_load_settings()
 	theme_res = UiTheme.make()
+	var layer := CanvasLayer.new()
+	layer.layer = -100
+	layer.add_child(Backdrop.new())
+	add_child(layer)
 	DisplayServer.screen_set_keep_on(true)
 	get_tree().set_auto_accept_quit(false)
 	if Role.is_tv():
@@ -81,12 +91,36 @@ func go(script: GDScript, props := {}) -> void:
 	_screen.theme = theme_res
 	add_child(_screen)
 	_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if not ("start_props" in _screen):
+		# Menu screens fade in (REQ-FL-42). Games do not: they start at once.
+		_screen.modulate.a = 0.0
+		_screen.create_tween().tween_property(_screen, "modulate:a", 1.0, 0.18)
 
 
+## The TV flow: logo -> connect -> games (-> settings). See docs/TV_FLOW.md.
+func go_logo() -> void:
+	go(TvLogo)
+	server.set_phase("connect")
+
+
+func go_connect() -> void:
+	go(TvConnect)
+	server.set_phase("connect")
+
+
+func go_games() -> void:
+	go(TvGames)
+	server.set_phase("menu")
+
+
+func go_settings() -> void:
+	go(TvSettings)
+	server.set_phase("menu")
+
+
+## Back to the Games screen. Minigames call this ("Back to menu").
 func go_menu() -> void:
-	go(TvMenu)
-	if server != null:
-		server.set_phase("lobby")
+	go_games()
 
 
 func current_screen() -> Control:
@@ -141,7 +175,7 @@ func _start_tv() -> void:
 	overlay = DebugOverlay.new()
 	overlay.visible = bool(settings.overlay)
 	add_child(overlay)
-	go_menu()
+	go_logo()
 
 
 func toggle_overlay() -> void:
@@ -167,6 +201,7 @@ func _start_controller() -> void:
 	add_child(wifi_locks)
 	wifi_locks.acquire_wifi_locks() # Less jitter and no lost TV beacons on Android.
 	client.state_changed.connect(_on_client_state)
+	client.phase_changed.connect(func(_p): _show_phone_screen())
 	client.rejected.connect(_on_client_rejected)
 	if "--auto-join" in OS.get_cmdline_user_args():
 		# For desktop tests: join the first TV that sends a beacon.
@@ -189,11 +224,21 @@ func _auto_join() -> void:
 func _on_client_state(state: int) -> void:
 	if state == ControllerClient.State.CONNECTED:
 		last_error = ""
-		if not (_screen is ControllerPad):
-			go(ControllerPad)
+		_show_phone_screen()
 	elif state == ControllerClient.State.IDLE:
 		if not (_screen is ControllerConnect):
 			go(ControllerConnect)
+
+
+## The pad while a game runs, the waiting screen otherwise (REQ-FL-28).
+func _show_phone_screen() -> void:
+	if client.state == ControllerClient.State.IDLE:
+		return
+	var playing: bool = client.phase in ["playing", "paused"]
+	if playing and not (_screen is ControllerPad):
+		go(ControllerPad)
+	elif not playing and not (_screen is ControllerWait):
+		go(ControllerWait)
 
 
 func _on_client_rejected(reason: String) -> void:
@@ -203,4 +248,5 @@ func _on_client_rejected(reason: String) -> void:
 		"version": "App version does not match the TV.",
 		"unreachable": "Cannot reach the TV. Check the Wi-Fi.",
 		"tv_closed": "The TV closed the connection.",
+		"kicked": "The host removed you. Scan the code to join again.",
 	}.get(reason, "Connection refused: " + reason)

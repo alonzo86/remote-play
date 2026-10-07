@@ -14,6 +14,7 @@ if its own requirements file says why.
 - REQ-GM-4: Code comments and tests use the requirement ID, for example `# REQ-MR-7`.
 - REQ-GM-5: A change to the behavior of a game must change its requirements file in the same commit.
 - REQ-GM-6: The registry entry of a game has a `doc` field with the path of its requirements file. A test checks that the file exists.
+- REQ-GM-7: The registry entry also has a `description` (one line) and a `tile` (`assets/tiles/<id>.png`, 640x360, made by `tools/make_tiles.gd`). A test checks both (REQ-FL-19, 22). The Games screen shows them.
 - REQ-GM-7: `docs/games/TEMPLATE.md` is the starting point for a new requirements file. Write it before the code.
 
 ## All games (2D and 3D)
@@ -52,10 +53,26 @@ Look and sound
 
 - REQ-GM-40: Text and important shapes stay inside the 60 px safe margin of the 1920x1080 screen.
 - REQ-GM-41: Text on the TV is 28 px or larger, and it has good contrast with the background (`UiTheme` colors).
-- REQ-GM-42: A game uses flat shapes and `UiTheme` colors. No external assets (REQ-P6).
+- REQ-GM-42: A game uses `UiTheme` colors, the shell fonts, and mostly shapes made in code. Image, model and font files are allowed when `docs/TV_FLOW.md` (FD-9, FD-13) allows them. A game states its own asset files in its requirements file.
 - REQ-GM-43: Important events give haptic feedback on the phone of the player: start, hit, goal.
   Repeated events have a cool-down of 100 ms or more. Short pulses are 15 to 60 ms. A big event can be longer.
 - REQ-GM-44: The meaning of colors is the same in all games: accent = title or number, OK = good, BAD = danger.
+
+Visual language (decision FD-14 in `docs/TV_FLOW.md`). Three tiers:
+
+- REQ-GM-45: Tier 1, the game shell (required). A game uses the shared shell for its pause menu, countdown, result screen, HUD text and score chips. It does not draw its own versions. The shell is part of `minigame.gd` and `minigame_3d.gd`, and it uses the Party Pop style (`UiTheme`, FD-13).
+- REQ-GM-46: Tier 1. Everything that belongs to a player (marble, ball, cursor, score) uses the slot color from `Protocol`. A name or score chip is a white pill with a dot in the slot color and dark text (`Shell.chip`), because white text on the light slot colors has too little contrast. The meaning of accent, OK and BAD is the same in all games (REQ-GM-44).
+- REQ-GM-47: Tier 2, a toy-like world (required). A "key object" is a player object, a goal or a hazard. Values are for 1920x1080 and for the first version. The marble race trial (REQ-FL-47) checks them, and a change needs a change of this file in the same commit. The sub-requirements are 47a to 47h.
+  - REQ-GM-47a: Outline color. Key objects have a dark outline in `#1a0b45` (`UiTheme.OUTLINE`).
+  - REQ-GM-47b: Outline width in 2D. 6 px for key objects of 40 px or more, 4 px for smaller ones. Use `draw_*` with the outline drawn first, under the fill.
+  - REQ-GM-47c: Outline width in 3D. An inverted-hull mesh (a copy of the mesh, scaled out, front faces culled, unshaded, color `#1a0b45`) with a thickness of 8% of the smallest size of the object, limited to 0.03 m to 0.10 m. A game does not use a shader for it.
+  - REQ-GM-47d: Color of key objects. Flat color, no gradient, no texture. HSV saturation 0.55 or more and value 0.60 or more. Player objects use the slot color from `Protocol`. A neutral object (for example a post) may be light grey `#cfd3e0` with the outline.
+  - REQ-GM-47e: Contrast. A key object and its background differ in luminance by a ratio of 3:1 or more. The ground and the background have saturation 0.35 or more and value 0.25 to 0.65, so the key objects are the brightest things on the screen. (The marble race trial found that the Party Pop purple has saturation 0.84, so the upper saturation limit was removed.)
+  - REQ-GM-47f: Rounding in 2D. Key objects have a corner radius of 25% of their shorter side or more (a circle or a capsule is fine). Maze walls and other long shapes have round ends.
+  - REQ-GM-47g: Rounding in 3D. Key objects are spheres, capsules, cylinders or meshes with a bevel of 15% of the shortest side or more. A sharp `BoxMesh` is allowed only for large flat world parts (floor, wall, platform).
+  - REQ-GM-47h: Materials and light in 3D. `StandardMaterial3D` with `metallic` 0, `roughness` 1, no texture, no emission except for a goal (up to 0.3). One directional light, and an ambient light so that the shaded side of a key object is not darker than 60% of its lit side. The pattern of a finish line or a checker is made with geometry or vertex colors, not with a texture file.
+- REQ-GM-48: Tier 3, free. Setting, background, camera, lighting mood and theme colors are the choice of the game. The background colors come from the Party Pop set (purple `#3d1a9e`, blue `#1b3a8a`, teal `#0f6a78`, plum `#7a1f4a`, green `#145a3a`, amber `#8a4a00`), or from a set that the game's requirements file lists, and they follow REQ-GM-47e.
+- REQ-GM-49: Check for a new game: put a screenshot of the game next to the Games screen. They must look like the same toy box. The reviewer (the `review` skill) does this check.
 
 Performance
 
