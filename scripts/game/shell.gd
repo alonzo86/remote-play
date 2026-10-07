@@ -22,16 +22,32 @@ static func text(ci: CanvasItem, pos: Vector2, msg: String, font_size := 32, col
 	ci.draw_string(f, pos, msg, align, width, font_size, color)
 
 
-## A score or name chip in a player color (REQ-GM-46). `pos` is the top-left corner.
+## A score or name chip (REQ-GM-46): a white pill with a dark outline, a dot in the player color,
+## and dark text. White text on the light player colors (orange, teal) is hard to read (contrast
+## below 4.5:1), so the text never sits on the player color. `pos` is the top-left corner.
 static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width := 240.0, height := 58.0) -> Rect2:
 	var r := Rect2(pos, Vector2(width, height))
-	ci.draw_style_box(UiTheme.card(color, UiTheme.OUTLINE, 5, int(height * 0.5), true), r)
-	var f := UiTheme.body_bold()
-	var fs := 32
-	var base := pos + Vector2(0, height * 0.5 + fs * 0.34)
-	ci.draw_string_outline(f, base, msg, HORIZONTAL_ALIGNMENT_CENTER, width, fs, 5, UiTheme.OUTLINE)
-	ci.draw_string(f, base, msg, HORIZONTAL_ALIGNMENT_CENTER, width, fs, Color.WHITE)
+	ci.draw_style_box(UiTheme.card(UiTheme.CARD, UiTheme.OUTLINE, 5, int(height * 0.5), true), r)
+	var c := pos + Vector2(height * 0.5, height * 0.5)
+	ci.draw_circle(c, height * 0.33, UiTheme.OUTLINE)
+	ci.draw_circle(c, height * 0.26, color)
+	var fs := 30
+	var x0 := height * 0.95
+	ci.draw_string(UiTheme.body_bold(), pos + Vector2(x0, height * 0.5 + fs * 0.34), msg,
+			HORIZONTAL_ALIGNMENT_LEFT, width - x0 - height * 0.3, fs, UiTheme.CARD_TEXT)
 	return r
+
+
+## Contrast ratio of two colors (WCAG). Tests use it to check the text on the chips.
+static func contrast(a: Color, b: Color) -> float:
+	var la := _luminance(a)
+	var lb := _luminance(b)
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
+
+
+static func _luminance(c: Color) -> float:
+	var f := func(x: float) -> float: return x / 12.92 if x <= 0.03928 else pow((x + 0.055) / 1.055, 2.4)
+	return 0.2126 * f.call(c.r) + 0.7152 * f.call(c.g) + 0.0722 * f.call(c.b)
 
 
 ## The countdown. `label` is "3", "2", "1" or "GO". `elapsed` is 0 to 1 inside the current number:

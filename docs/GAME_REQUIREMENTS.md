@@ -61,7 +61,7 @@ Look and sound
 Visual language (decision FD-14 in `docs/TV_FLOW.md`). Three tiers:
 
 - REQ-GM-45: Tier 1, the game shell (required). A game uses the shared shell for its pause menu, countdown, result screen, HUD text and score chips. It does not draw its own versions. The shell is part of `minigame.gd` and `minigame_3d.gd`, and it uses the Party Pop style (`UiTheme`, FD-13).
-- REQ-GM-46: Tier 1. Everything that belongs to a player (marble, ball, cursor, score) uses the slot color from `Protocol`. The meaning of accent, OK and BAD is the same in all games (REQ-GM-44).
+- REQ-GM-46: Tier 1. Everything that belongs to a player (marble, ball, cursor, score) uses the slot color from `Protocol`. A name or score chip is a white pill with a dot in the slot color and dark text (`Shell.chip`), because white text on the light slot colors has too little contrast. The meaning of accent, OK and BAD is the same in all games (REQ-GM-44).
 - REQ-GM-47: Tier 2, a toy-like world (required). A "key object" is a player object, a goal or a hazard. Values are for 1920x1080 and for the first version. The marble race trial (REQ-FL-47) checks them, and a change needs a change of this file in the same commit. The sub-requirements are 47a to 47h.
   - REQ-GM-47a: Outline color. Key objects have a dark outline in `#1a0b45` (`UiTheme.OUTLINE`).
   - REQ-GM-47b: Outline width in 2D. 6 px for key objects of 40 px or more, 4 px for smaller ones. Use `draw_*` with the outline drawn first, under the fill.

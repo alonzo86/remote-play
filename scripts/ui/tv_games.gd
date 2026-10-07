@@ -30,9 +30,13 @@ var _flash_reason := 0.0
 
 
 func _ready() -> void:
-	# The content is 1460 px wide and centered. Header, grid and info bar share its edges.
-	var m := UiKit.margin(self, (1920 - CONTENT_W) / 2, 60, (1920 - CONTENT_W) / 2, 56)
+	# The content is a column of CONTENT_W px, centered on any screen width (the stretch mode is
+	# "expand"). Header, grid and info bar share its edges.
+	var m := UiKit.margin(self, 0, 60, 0, 56)
 	_root = VBoxContainer.new()
+	_root.custom_minimum_size = Vector2(CONTENT_W, 0)
+	_root.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_root.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_root.add_theme_constant_override("separation", 20)
 	m.add_child(_root)
 	_show_grid(App.last_game)

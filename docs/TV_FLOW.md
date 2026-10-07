@@ -57,7 +57,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 
 ### Games screen
 - REQ-FL-11: The screen shows one tile for each game in `registry.gd`. A tile has a 16:9 screenshot and the game title (FD-7).
-- REQ-FL-12: The grid has 3 tiles in a row. The D-pad moves the focus in all 4 directions. The grid scrolls to keep the focused tile in view.
+- REQ-FL-12: The grid has 3 tiles in a row. The content is a column of 1460 px, centered on any screen width. The D-pad moves the focus in all 4 directions. The grid scrolls to keep the focused tile in view.
 - REQ-FL-13: Every tile has the same layout: the screenshot, the title, and the player range (for example "1-4 players") under it. The focused tile has an outline. The one-line description of the focused game is in an info bar under the grid, aligned to the left edge of the grid.
 - REQ-FL-14: A game that does not accept the current player count has a dimmed tile and a reason ("Needs 2 players"). OK on it does nothing except show the reason (uses `Registry.accepts()`).
 - REQ-FL-15: A players badge in the top right shows the number of joined players (for example "2 players"). It does not show the room code (FD-12). The badge is a focus target. OK on it opens the Players modal (REQ-FL-32).
@@ -77,7 +77,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-37: All screens use one palette, kept in `UiTheme` (`scripts/ui/ui_theme.gd`): background purple `#3d1a9e` (darker `#2c1180` for info bars), card white `#ffffff`, text on card `#24104f`, outline and shadow `#1a0b45`, accent yellow `#ffd23f`, room code pink `#ff3d8b`, confetti pink `#ff5ea8`, cyan `#3ddcff` and yellow. The player colors stay as they are in `Protocol`.
 - REQ-FL-38: Cards, slots, badges and buttons have a thick dark outline (6 px at 1080p, `UiTheme.OUTLINE_W`) and a hard shadow offset down and right, with no blur. Corners are rounded. Pills and the gear are fully round.
 - REQ-FL-39: Titles use the display font Lilita One. Other text uses Fredoka (medium and semibold). Both fonts are free (SIL OFL) TTF files in `assets/fonts/`, with their license files. The default Godot font is the fallback.
-- REQ-FL-40: Text on the TV is at least 28 px high at 1080p for titles and game names, and at least 22 px for help text (read from a sofa). Text on the purple background has a contrast ratio of at least 4.5:1.
+- REQ-FL-40: Text on the TV is at least 28 px high at 1080p for titles and game names, and at least 22 px for help text (read from a sofa). Text on the purple background has a contrast ratio of at least 4.5:1. Text on a white card is dark (`UiTheme.CARD_TEXT`), also for the chips in the games.
 - REQ-FL-41: The focused item has a yellow outline and a yellow title. Focus never changes the size of an item or moves the layout. A selected tile may tilt by up to 2 degrees.
 - REQ-FL-42: Motion: a focused tile bounces once (about 150 ms). A slot pops in with a small overshoot when a phone joins, with a confetti burst (coin sound optional). Screen changes use a short slide or fade (up to 250 ms).
 - REQ-FL-43: Motion stops while a game is paused or a phone is lost, and no motion blocks input.

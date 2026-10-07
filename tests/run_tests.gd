@@ -54,6 +54,7 @@ func _run() -> void:
 	await _test_network()
 	await _test_room_code_join()
 	await _test_phone_screens()
+	_test_chip_contrast()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -302,6 +303,25 @@ func _test_room_code_join() -> void:
 
 ## The phone shows the pad for `playing` and `paused`, and the waiting screen for the other phases
 ## (REQ-FL-28). It goes back to the connect screen when it leaves.
+## The chip text never sits on the player color, and it is readable on the chip (REQ-GM-46, REQ-FL-40).
+func _test_chip_contrast() -> void:
+	print("chip contrast")
+	var Shell = load("res://scripts/game/shell.gd")
+	var UiTheme = load("res://scripts/ui/ui_theme.gd")
+	var ok := true
+	for c in Protocol.PLAYER_COLORS:
+		var ratio: float = Shell.contrast(UiTheme.CARD_TEXT, UiTheme.CARD)
+		if ratio < 4.5:
+			ok = false
+		# The player color is a dot, so it only has to stand out from the white chip.
+		if Shell.contrast(c, UiTheme.CARD) < 2.0:
+			ok = false
+			print("    player color too light for the chip: ", c)
+	_check(ok, "chip text and player-color dots are readable on the white chip")
+	_check(Shell.contrast(Color.WHITE, Color.BLACK) > 20.0 and Shell.contrast(Color.WHITE, Color.WHITE) < 1.01,
+			"the contrast function is right")
+
+
 func _test_phone_screens() -> void:
 	print("phone screens")
 	var app: Node = root.get_node("App")

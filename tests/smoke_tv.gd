@@ -123,6 +123,15 @@ func _run() -> void:
 		nobody = nobody and t.fits
 	_check(nobody, "all games accept 2 players (REQ-FL-14)")
 	_check(not Registry.accepts({"min_players": 3, "max_players": 4}, 2), "a game for 3 or more players does not accept 2")
+	# The content column keeps its width and stays centered on a wide screen (21:9).
+	root.size = Vector2i(2560, 1080)
+	await _frames(4)
+	var col: Control = games._root
+	_check(is_equal_approx(col.size.x, float(games.CONTENT_W))
+			and absf(col.global_position.x + col.size.x * 0.5 - games.size.x * 0.5) < 2.0,
+			"the Games column keeps its width and stays centered on a wide screen")
+	root.size = Vector2i(1920, 1080)
+	await _frames(4)
 	games.on_back()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), TvConnect) and app.server.connected_slots().size() == 2,
