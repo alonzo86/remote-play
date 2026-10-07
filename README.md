@@ -1,7 +1,7 @@
 # Remote Play
 
 A prototype of a couch game for Android TV. A phone is the motion controller (Wii-remote style).
-Godot 4.4 and GDScript. One project makes two apps:
+Godot 4.7 and GDScript. One project makes two apps:
 
 - **tv**: runs on Android TV or a streaming box. It shows the game.
 - **controller**: runs on up to 4 Android phones. It sends gyroscope, accelerometer, touch and button data.
@@ -80,7 +80,7 @@ The phone window has no sensors. The mouse simulates tilt (position) and yaw (mo
 
 Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 
-1. Install Godot 4.4, JDK 17, the Android SDK, and the export templates. Set the paths in the editor settings.
+1. Install Godot 4.7, JDK 17 or newer, the Android SDK, and the export templates. Set the paths in the editor settings.
 2. Open the project. Select **Project > Install Android Build Template**.
 3. Run `tools/patch_android_manifest.sh` (adds the TV banner, the hardware flags, and the QR scanner plugin).
 4. Export:

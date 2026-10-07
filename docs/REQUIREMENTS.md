@@ -13,7 +13,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 ## 2. Platform and tools
 
-- REQ-P1: Use Godot 4.4 (4.x) with GDScript only.
+- REQ-P1: Use Godot 4.7 (4.x) with GDScript only.
 - REQ-P2: Use one project with two export targets: `tv` (Android TV) and `controller` (Android phone).
 - REQ-P3: The role is chosen by the feature tag `tv` or `controller`.
 - REQ-P4: On desktop, the argument `-- --role=tv` or `-- --role=controller` replaces the feature tag.
@@ -78,7 +78,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 | D1 | Join by UDP discovery plus room code. The TV shows a QR code that holds `ws://IP:PORT/ROOM`. The phone scans it with a small Android plugin (Google code scanner). On a PC the phone window uses a "Paste TV link" button. |
 | D2 | All data goes over WebSocket (TCP) in v1. The overlay shows sensor age so the user can see TCP delay. |
 | D3 | The TV does sensor fusion. The phone sends raw values. |
-| D4 | Godot 4.4 stable. |
+| D4 | Godot 4.7 stable. |
 | D5 | Role by feature tag, or by command-line argument on desktop. |
 
 ## 10. Known limits of this prototype

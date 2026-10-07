@@ -8,7 +8,7 @@ set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BUILD="$ROOT/android/build"
-MANIFEST="$BUILD/AndroidManifest.xml"
+MANIFEST="$BUILD/src/main/AndroidManifest.xml"
 BANNER="$ROOT/assets/icons/banner.png"
 
 if [ ! -f "$MANIFEST" ]; then
@@ -45,8 +45,9 @@ fi
 # 4. QR scanner plugin: source file, Gradle dependency, and manifest entries.
 PLUGIN_SRC="$ROOT/android/plugin/QrScannerPlugin.java"
 GRADLE="$BUILD/build.gradle"
-mkdir -p "$BUILD/src/com/example/remoteplay"
-cp "$PLUGIN_SRC" "$BUILD/src/com/example/remoteplay/QrScannerPlugin.java"
+PLUGIN_DIR="$BUILD/src/main/java/com/example/remoteplay"
+mkdir -p "$PLUGIN_DIR"
+cp "$PLUGIN_SRC" "$PLUGIN_DIR/QrScannerPlugin.java"
 if [ ! -f "$GRADLE" ]; then
 	echo "Not found: $GRADLE" >&2
 	exit 1
@@ -61,7 +62,7 @@ fi
 if grep -q 'org.godotengine.plugin.v2.QrScanner' "$MANIFEST"; then
 	echo "QR manifest entries: already set"
 else
-	sed -i 's|</application>|        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.remoteplay.QrScannerPlugin" />\n        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />\n    </application>|' "$MANIFEST"
+	sed -i 's|^\( *\)</application>|        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.remoteplay.QrScannerPlugin" />\n        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />\n\1</application>|' "$MANIFEST"
 	echo "QR manifest entries: added"
 fi
 

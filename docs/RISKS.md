@@ -40,7 +40,7 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 
 | # | Risk | Effect | Mitigation |
 |---|------|--------|------------|
-| D1 | **Portrait lock is set at run time (unverified).** The Godot manifest value comes from the project setting (landscape). The phone app calls `screen_set_orientation`. | A short landscape flash at start. | Edit `android:screenOrientation` in `android/build/AndroidManifest.xml` for a phone-only build. |
+| D1 | **Portrait lock is set at run time (unverified).** The Godot manifest value comes from the project setting (landscape). The phone app calls `screen_set_orientation`. | A short landscape flash at start. | Edit `android:screenOrientation` in `android/build/src/main/AndroidManifest.xml` for a phone-only build. |
 | D2 | **Remote key mapping (unverified).** The OK button must map to `ui_accept`, the Back button to `KEY_BACK`. The Menu key does not exist on all remotes. | Cannot toggle the overlay or go back. | The overlay switch is also a menu item. Back also works through `NOTIFICATION_WM_GO_BACK_REQUEST`. |
 | D3 | **32-bit TV boxes.** Many boxes run a 32-bit system. | `arm64` APK does not install. | The `tv` preset builds `armeabi-v7a` and `arm64-v8a`. |
 | D4 | **Gradle build is required for Android TV.** | The export needs JDK, SDK and the template. | See `docs/EXPORT.md`. |
