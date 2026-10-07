@@ -34,6 +34,11 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 - `gdlint scripts tests tools` must pass (`.gdlintrc`). Shell scripts pass `shellcheck`.
 - Screens are built in code from flat shapes. No external assets.
 
+**Games**
+- A game has `docs/games/<id>.md` and a `doc` field in `scripts/game/registry.gd`. A change to game behavior changes that file (REQ-GM-5).
+- Check the change against `docs/GAME_REQUIREMENTS.md` (general, plus 2D or 3D) and the game file. Report a broken requirement by its ID.
+- Statuses in the game file match the code. A requirement marked Done has a check, or says why it has none.
+
 **Tests and docs**
 - Behaviour changes in `scripts/` need a check in `tests/run_tests.gd` or `tests/smoke_tv.gd`.
 - User-visible changes update `README.md`, and test results go in `docs/DEVICE_TEST.md`.

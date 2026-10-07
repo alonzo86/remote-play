@@ -7,6 +7,10 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 var MazeGame
 var PointerTest
+var Demo3D
+var MarbleRace
+var Registry
+var MarbleTrack
 var TvMenu
 
 var _fails := 0
@@ -53,6 +57,10 @@ func _run() -> void:
 	# Load now, not at parse time: the App autoload must exist first.
 	MazeGame = load("res://scripts/game/maze/maze_game.gd")
 	PointerTest = load("res://scripts/game/pointer_test/pointer_test.gd")
+	Demo3D = load("res://scripts/game/demo3d/demo3d_game.gd")
+	MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
+	Registry = load("res://scripts/game/registry.gd")
+	MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
 	TvMenu = load("res://scripts/ui/tv_menu.gd")
 	var app: Node = root.get_node("App")
 	_check(is_instance_of(app.current_screen(), TvMenu), "TV starts on the menu")
@@ -129,6 +137,109 @@ func _run() -> void:
 	await _stream(clients[0], 0, 0.1, flat, Vector3.ZERO, Protocol.BTN_A)
 	await _stream(clients[0], 0, 0.1, flat, Vector3.ZERO, 0)
 	await _frames(3)
+
+	# 3D game: a tilted phone moves its sphere on the floor.
+	app.go(Demo3D)
+	await _frames(3)
+	var g3: Control = app.current_screen()
+	_check(is_instance_of(g3, Demo3D) and g3.camera != null and g3.participants.size() == 2, "3D demo starts with a camera")
+	var x0: float = g3._balls[0].position.x
+	await _stream(clients[0], 0, 1.5, tilt)
+	_check(g3._balls[0].position.x > x0 + 0.3, "3D ball 0 rolls right when the phone tilts right")
+	g3.open_menu("Paused", [["Resume", g3.close_menu]])
+	await _frames(2)
+	_check(g3.world.process_mode == Node.PROCESS_MODE_DISABLED, "3D world freezes while paused")
+	g3.close_menu()
+	await _frames(2)
+
+	# Marble race menu: one entry, then a track list, then the race.
+	app.go_menu()
+	await _frames(3)
+	var menu: Control = app.current_screen()
+	menu._start_game("marble_race")
+	await _frames(2)
+	_check(is_instance_of(app.current_screen(), TvMenu) and menu._variants_of == "marble_race"
+			and menu._buttons.size() == MarbleTrack.IDS.size() + 1, "Marble Race opens the track list before the race")
+	menu.on_back()
+	await _frames(2)
+	_check(menu._variants_of == "", "Back from the track list returns to the main menu")
+	menu._start_game("marble_race")
+	await _frames(2)
+	menu._launch("marble_race", {})   # A variant with empty props must start the game, not reopen the list.
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), MarbleRace), "a variant with empty props starts the game")
+	app.go_menu()
+	await _frames(3)
+	menu = app.current_screen()
+
+	# Marble race: grid wait, tilt moves a marble, finish line ends the race.
+	root.size = Vector2i(1920, 1080)   # The headless window can have another shape. The TV is 16:9.
+	await _frames(3)
+	app.go(MarbleRace, Registry.find("marble_race").variants[2].props)
+	await _frames(3)
+	var mr: Control = app.current_screen()
+	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")
+	_check(mr.track.id == "zigzag", "registry props choose the track")
+	var post_color: Color = MarbleRace.get_script_constant_map()["POST_COLOR"]
+	var clash := false
+	for c in Protocol.PLAYER_COLORS:
+		if c.is_equal_approx(post_color):
+			clash = true
+	_check(not clash and not post_color.is_equal_approx(Color("e63946")), "post color is not a player color (REQ-MR-43)")
+	_check(is_equal_approx(mr._racers[0].arc, mr._racers[1].arc) and absf(mr._racers[0].pos.distance_to(mr._racers[1].pos)) >= 1.0,
+			"marbles start on one line and do not touch (REQ-MR-4)")
+	var mx0: float = mr._racers[0].pos.x
+	await _stream(clients[0], 0, 1.0, tilt)
+	_check(absf(mr._racers[0].pos.x - mx0) < 0.01, "marbles wait on the grid during the countdown")
+	await _stream(clients[0], 0, 2.6, tilt)
+	_check(mr._racers[0].pos.x > mx0 + 0.3, "marble 0 rolls right when the phone tilts right")
+	_check(mr.standings().size() == 2, "standings list both players")
+	clients[0].send_recenter()
+	await _stream(clients[0], 0, 0.5, tilt)
+	_check(mr.player(0).tilt().length() < 0.05, "the Recenter button zeroes the tilt in the race (REQ-GM-37)")
+
+	# Camera: all marbles in view at a small spread. Beyond the camera limit (about 55 m), edge markers point to them (REQ-MR-42).
+	mr._racers[0].pos = mr.track.point_at(60.0)
+	mr._racers[1].pos = mr.track.point_at(30.0)
+	await _stream(clients[0], 0, 1.5, flat)
+	_check(mr.edge_markers().is_empty(), "no edge marker when the marbles are close")
+	mr._racers[0].pos = mr.track.point_at(150.0)
+	mr._racers[1].pos = mr.track.point_at(10.0)
+	await _stream(clients[0], 0, 1.5, flat)
+	var markers: Array = mr.edge_markers()
+	_check(not markers.is_empty() and markers[0].slot == 1, "an edge marker points to the marble that is out of view")
+	for s in [0, 1]:
+		mr._racers[s].pos = mr.track.point_at(mr.finish_arc + 0.5)
+	await _frames(5)
+	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
+	_check(mr._ended and mr.is_paused(), "race ends and the results menu opens")
+	var results_items: int = mr._menu_box.get_child_count()
+	mr._open_picker()
+	await _frames(2)
+	_check(mr._picking and mr._menu_box.get_child_count() == MarbleTrack.IDS.size() + 2,
+			"track picker lists every track and Cancel")
+	mr.on_back()
+	await _frames(2)
+	_check(not mr._picking and mr._ended and mr._menu_box.get_child_count() == results_items,
+			"Back from the picker returns to the results")
+	mr._open_picker()
+	mr._switch_track("sprint")
+	await _frames(3)
+	var sp: Control = app.current_screen()
+	_check(sp != mr and sp.track.id == "sprint" and sp.start_props.track_id == "sprint",
+			"picking a track starts that track")
+	sp.restart()
+	await _frames(3)
+	_check(app.current_screen().track.id == "sprint", "restart keeps the chosen track")
+
+	# A player leaves during the race, then the last player leaves (REQ-GM-21, REQ-GM-22).
+	var lr: Control = app.current_screen()
+	app.server.drop_player(1)
+	await _frames(3)
+	_check(lr.participants == [0] and lr._racers.size() == 1 and not lr._ended, "the race goes on when one player leaves")
+	app.server.drop_player(0)
+	await _frames(3)
+	_check(lr._ended and lr.is_paused() and lr._menu_box != null, "a menu opens when all players leave")
 
 	app.go_menu()
 	await _frames(3)

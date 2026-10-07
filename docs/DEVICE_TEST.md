@@ -88,6 +88,22 @@ A total below 100 ms feels good. Above 150 ms feels slow.
 4. Check the Menu key. If the remote has no Menu key, use the menu item **Debug overlay**.
 5. Check: the app icon and banner show in the Android TV home row (the banner is the TV, the maze and the phone).
 
+## Test 9. Marble race (3D)
+
+Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Race" and pick a track.
+
+1. Check: the TV shows the track from above, the order list at the top left, and the track name at the bottom right.
+   All text is inside the screen edge and can be read from the sofa. (REQ-MR-9, REQ-MR-35)
+2. Check: during "3, 2, 1" the marbles do not move when you tilt. At "GO!" every phone buzzes. (REQ-MR-3)
+3. Tilt right: the marble goes right on the screen. Tilt the top of the phone up: the marble goes down on the screen. (REQ-3D-6)
+4. Check the feel. Write down if the marble is too slow, too fast, or too nervous. (`ACCEL`, `DAMPING`)
+5. Hit a wall, a post and another marble at speed. Check: the phone buzzes, not more than 6 times a second. (REQ-MR-13)
+6. Check: the frame rate in the debug overlay is 60 (or close) with 4 phones on Gauntlet. (REQ-GM-50)
+7. Let one marble run far ahead on Gauntlet. Check: when the last marble leaves the view, an arrow in its color shows at the screen edge with a distance, and you can read it. (REQ-MR-42)
+8. Finish a race on each track. Write down the winning time. Compare with the targets in the table. (REQ-MR-21)
+9. At the results: use Choose track, pick another track, and check that the new race has that track. Press Back in the track list: it returns to the results.
+10. During a race, open the pause menu. Check: it has no Choose track. (REQ-MR-32)
+
 ## Results
 
 | Test | Result (pass / fail) | Note (optional) |

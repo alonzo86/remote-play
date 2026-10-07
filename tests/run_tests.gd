@@ -6,6 +6,8 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
+const Registry = preload("res://scripts/game/registry.gd")
+const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
 const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
@@ -48,6 +50,8 @@ func _run() -> void:
 	_test_orientation()
 	_test_maze()
 	_test_qr()
+	_test_registry()
+	_test_marble_track()
 	await _test_network()
 	await _test_room_code_join()
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -133,6 +137,83 @@ func _test_orientation() -> void:
 	o5.update(0xFFFFFFF8, Vector3(0, 0, 1), flat)
 	o5.update(0x00000005, Vector3(0, 0, 1), flat)
 	_check(absf(o5.yaw) < 0.1, "u32 timestamp wrap does not jump")
+
+
+func _test_registry() -> void:
+	print("registry")
+	var ids := {}
+	var all_ok := true
+	for g in Registry.all():
+		ids[g.id] = true
+		var sc := Registry.load_script(String(g.id))
+		var base := "res://scripts/game/minigame_3d.gd" if g.dim == "3d" else "res://scripts/game/minigame.gd"
+		var s := sc
+		var inherits_base := false
+		while s != null:
+			if s.resource_path == base:
+				inherits_base = true
+			s = s.get_base_script()
+		if sc == null or not inherits_base:
+			all_ok = false
+	_check(ids.size() == Registry.all().size(), "registry ids are unique")
+	var docs_ok := true
+	for g in Registry.all():
+		if not FileAccess.file_exists(String(g.get("doc", ""))):
+			docs_ok = false
+			print("    missing requirements file for ", g.id)
+	_check(docs_ok, "every game has a requirements file (REQ-GM-6)")
+	_check(all_ok, "every registry game loads and extends the right base class")
+	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
+	var tracks_ok := true
+	for g in Registry.all():
+		if g.id == "marble_race":
+			var track_ids: Array = []
+			for v in g.variants:
+				track_ids.append(v.props.track_id)
+			tracks_ok = track_ids == MarbleTrack.IDS
+	_check(tracks_ok, "marble race menu variants match the track list")
+	_check(Registry.accepts(Registry.find("maze"), 4) and not Registry.accepts(Registry.find("maze"), 5), "player range check")
+
+
+func _test_marble_track() -> void:
+	print("marble track")
+	for tid in MarbleTrack.IDS:
+		var t = MarbleTrack.make(tid)
+		_check(t.id == tid and t.length > 60.0, "%s: loads and is long enough (%.0f m)" % [tid, t.length])
+		var prev := -1.0
+		var mono := true
+		var on_line := true
+		var a := 0.0
+		var samples: Array[Vector2] = []
+		while a <= t.length:
+			var q: Dictionary = t.query(t.point_at(a))
+			if q.dist > 0.01 or absf(q.arc - a) > 0.05:
+				on_line = false
+			if q.arc < prev:
+				mono = false
+			prev = q.arc
+			samples.append(t.point_at(a))
+			a += 1.0
+		_check(on_line and mono, "%s: point_at and query agree, arc grows" % tid)
+		# Parts of the track far apart in arc must be far apart in space, or arc is not clear.
+		var apart := true
+		var gap := ceili(t.half_width * 4.0)
+		for i in samples.size():
+			for j in range(i + gap, samples.size()):
+				if samples[i].distance_to(samples[j]) < t.half_width * 1.8:
+					apart = false
+		_check(apart, "%s: track does not touch itself" % tid)
+		_check(t.dir_at(5.0).is_equal_approx(Vector2(0, -1)) and t.point_at(8.0).x == 0.0, "%s: starts with a straight toward -z" % tid)
+		var bumpers_ok := true
+		for b in t.bumpers:
+			var off: float = absf(b[1]) * t.half_width * 0.44
+			if b[0] > t.length - 8.0 or t.half_width + off - 0.9 < 2.0:
+				bumpers_ok = false
+		_check(bumpers_ok, "%s: bumpers leave a marble-wide gap and stay before the finish" % tid)
+	var t0 = MarbleTrack.make("classic")
+	var side: Vector2 = t0.point_at(30.0) + Vector2(t0.half_width + 1.0, 0)
+	_check(t0.query(side).dist > t0.half_width, "a point beside the track is outside it")
+	_check(MarbleTrack.make("nope").id == "classic", "unknown track id gives the classic track")
 
 
 func _test_maze() -> void:

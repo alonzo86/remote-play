@@ -67,11 +67,17 @@ func _input(event: InputEvent) -> void:
 
 # ---- Screens ----
 
-func go(script: GDScript) -> void:
+## Switches to a screen. `props` are set on the new screen before it enters the tree,
+## so its _ready() can use them. A minigame keeps them in start_props for restart().
+func go(script: GDScript, props := {}) -> void:
 	if _screen != null:
 		remove_child(_screen)
 		_screen.queue_free()
 	_screen = script.new()
+	for k in props:
+		_screen.set(k, props[k])
+	if "start_props" in _screen:
+		_screen.start_props = props
 	_screen.theme = theme_res
 	add_child(_screen)
 	_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
