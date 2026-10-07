@@ -99,7 +99,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 4. Check the feel. Write down if the marble is too slow, too fast, or too nervous. (`ACCEL`, `DAMPING`)
 5. Hit a wall, a post and another marble at speed. Check: the phone buzzes, not more than 6 times a second. (REQ-MR-13)
 6. Check: the frame rate in the debug overlay is 60 (or close) with 4 phones on Gauntlet. (REQ-GM-50)
-7. Let one marble run far ahead on Zigzag. Check: is the last marble still in view? (REQ-MR-42)
+7. Let one marble run far ahead on Gauntlet. Check: when the last marble leaves the view, an arrow in its color shows at the screen edge with a distance, and you can read it. (REQ-MR-42)
 8. Finish a race on each track. Write down the winning time. Compare with the targets in the table. (REQ-MR-21)
 9. At the results: use Choose track, pick another track, and check that the new race has that track. Press Back in the track list: it returns to the results.
 10. During a race, open the pause menu. Check: it has no Choose track. (REQ-MR-32)

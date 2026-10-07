@@ -18,6 +18,7 @@ const COUNTDOWN := 3.0
 const GO_SHOW := 0.8           # Seconds to show "GO!".
 const END_DELAY := 4.0         # Seconds the others have to finish after the first marble.
 const FINISH_BEFORE_END := 6.0 # Finish line distance from the end of the track.
+const EDGE_MARGIN := 60.0      # Out-of-view markers stay inside the TV safe margin.
 const HAPTIC_MIN_SPEED := 3.0
 const HAPTIC_COOLDOWN_MS := 150
 const ORDINALS := ["1st", "2nd", "3rd", "4th"]
@@ -84,6 +85,9 @@ func _on_participants_changed() -> void:
 		if not participants.has(s):
 			_racers[s].node.queue_free()
 			_racers.erase(s)
+	if participants.is_empty() and not _ended:   # REQ-MR-14
+		_ended = true
+		open_menu("No players connected", [["Back to menu", App.go_menu]])
 
 
 func _world_tick(delta: float) -> void:
@@ -322,6 +326,42 @@ func _build_bumpers() -> void:
 
 # ---- HUD ----
 
+## Markers for marbles that are out of view (REQ-MR-42): [{slot, pos, dir, text}] in HUD pixels.
+func edge_markers() -> Array:
+	var out: Array = []
+	if camera == null or participants.is_empty():
+		return out
+	var rect := Rect2(Vector2.ONE * EDGE_MARGIN, hud.size - Vector2.ONE * EDGE_MARGIN * 2.0)
+	var center := hud.size * 0.5
+	var lead: Racer = standings()[0]
+	for s in participants:
+		var r: Racer = _racers[s]
+		var p3 := Vector3(r.pos.x, R, r.pos.y)
+		var sp := camera.unproject_position(p3)
+		if camera.is_position_behind(p3):
+			sp = Vector2(center.x, hud.size.y * 2.0)
+		if rect.has_point(sp):
+			continue
+		var dir := (sp - center).normalized()
+		var t := minf(rect.size.x * 0.5 / maxf(absf(dir.x), 0.001), rect.size.y * 0.5 / maxf(absf(dir.y), 0.001))
+		out.append({"slot": s, "pos": center + dir * t, "dir": dir,
+				"text": "%d m" % roundi(r.arc - lead.arc)})
+	return out
+
+
+func _draw_edge_markers(canvas: Control) -> void:
+	var font := ThemeDB.fallback_font
+	for m in edge_markers():
+		var col: Color = player(m.slot).color
+		var d: Vector2 = m.dir
+		var side := Vector2(-d.y, d.x)
+		var tip: Vector2 = m.pos
+		canvas.draw_colored_polygon(PackedVector2Array([tip + d * 24.0, tip - d * 12.0 + side * 18.0,
+				tip - d * 12.0 - side * 18.0]), col)
+		var label_pos: Vector2 = tip - d * 40.0 - Vector2(60, -10)
+		canvas.draw_string(font, label_pos, m.text, HORIZONTAL_ALIGNMENT_CENTER, 120, 28, col)
+
+
 func _hud_draw(canvas: Control) -> void:
 	var font := ThemeDB.fallback_font
 	var y := 100.0
@@ -345,5 +385,6 @@ func _hud_draw(canvas: Control) -> void:
 	elif not _ended:
 		canvas.draw_string(font, Vector2(canvas.size.x - 360, 100), "%.1f s" % _time,
 				HORIZONTAL_ALIGNMENT_RIGHT, 300, 40, UiTheme.TEXT_DIM)
+	_draw_edge_markers(canvas)
 	canvas.draw_string(font, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title,
 			HORIZONTAL_ALIGNMENT_RIGHT, 300, 30, UiTheme.TEXT_DIM)

@@ -12,10 +12,7 @@ Marbles bounce off the walls, the posts and each other.
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-22 | Gap | If all players leave during the race, no menu opens and the camera moves to the origin. |
-| REQ-GM-21 | Gap | The code removes the marble of a player who leaves. No test checks it. |
-| REQ-GM-37 | Gap | The B button recenters in the phone UI, but no test checks it in this game. |
-| REQ-GM-62 | Gap | `docs/DEVICE_TEST.md` has a section for this game (Test 9). It is not yet run. |
+| REQ-GM-62 | Gap | `docs/DEVICE_TEST.md` has a section for this game (Test 9). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 
 ## Requirements
@@ -36,7 +33,7 @@ Status: Done, Open, or Device (needs a real TV and phones). "Check" names the te
 | REQ-MR-8 | The first marble that crosses the finish line wins. The other players have 4 s to finish. The race ends when all have finished or after 4 s. | Done | smoke_tv |
 | REQ-MR-9 | While the race runs, the screen shows the order (1st to 4th) and the race time. A finished player shows the finish time. | Done | Device (readability) |
 | REQ-MR-10 | The order is: finished marbles by time, then the others by distance along the track. | Done | smoke_tv (standings) |
-| REQ-MR-11 | A player who leaves is removed from the race. The race continues with the others. | Done | none yet (see gaps) |
+| REQ-MR-11 | A player who leaves is removed from the race. The race continues with the others. | Done | smoke_tv |
 | REQ-MR-12 | A phone that is lost pauses the race (general REQ-GM-30). | Done | smoke_tv (maze, same base class) |
 | REQ-MR-13 | The haptic events are: GO (60 ms), a hit at 3 m/s or faster (20 ms, at most every 150 ms), crossing the finish line (120 ms). | Done | Device |
 
@@ -69,6 +66,8 @@ The winning times are targets. They are not measured yet. See "Open questions".
 | REQ-MR-32 | The pause menu has Resume, Restart and Back to menu. It has no Choose track. A player can leave a race at any time. | Done | smoke_tv (pause menu) |
 | REQ-MR-33 | Restart keeps the track. | Done | smoke_tv |
 | REQ-MR-34 | Back in the track list of the results returns to the results. Back in the results leaves the game. | Done | smoke_tv |
+| REQ-MR-14 | If all players leave during the race, a menu "No players connected" opens with "Back to menu". | Done | smoke_tv |
+| REQ-MR-15 | The Recenter button of the phone zeroes the tilt of that player in the race. | Done | smoke_tv |
 | REQ-MR-35 | The name of the track is shown on the screen during the race. | Done | Device |
 
 ### Camera and look
@@ -77,7 +76,7 @@ The winning times are targets. They are not measured yet. See "Open questions".
 |----|-------------|--------|-------|
 | REQ-MR-40 | The camera looks down from above and slightly from behind. It never turns. Up on the screen is toward the start of the track's first straight. | Done | Device |
 | REQ-MR-41 | The camera follows the middle of the pack and moves higher when the marbles are far apart (16 m to 48 m). | Done | Device |
-| REQ-MR-42 | All marbles stay in view while the spread is 25 m or less. Beyond that, the last marble can leave the view. | Open | Device |
+| REQ-MR-42 | All marbles stay in view while they are 55 m or less apart along the screen. Beyond that, an arrow in the color of the marble shows at the screen edge, and a number shows how many meters it is behind the leader. | Done | smoke_tv, Device |
 | REQ-MR-43 | The track floor, the edge, the posts, the finish line and the marbles have clear and different colors. Marbles use the slot color. | Done | Device |
 
 ## Parameters
@@ -96,5 +95,5 @@ In `scripts/game/marble_race/marble_race.gd` unless it says otherwise. Tune them
 
 - Is a dead zone (like the maze, 0.03) or a speed limit needed? Test on a device.
 - Are the target winning times right? Measure them in Test 9 and update the table.
-- Should the last marble stay in view on long tracks (REQ-MR-42)? A smaller marble view or an arrow at the screen edge are options.
+- Is the edge arrow (REQ-MR-42) clear enough on a TV? Other options: a smaller marble view, or pull the last marble forward.
 - Should the results show all finish times, and should the best time of each track be saved?

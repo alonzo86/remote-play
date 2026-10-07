@@ -165,6 +165,8 @@ func _run() -> void:
 	_check(menu._variants_of == "", "Back from the track list returns to the main menu")
 
 	# Marble race: grid wait, tilt moves a marble, finish line ends the race.
+	root.size = Vector2i(1920, 1080)   # The headless window can have another shape. The TV is 16:9.
+	await _frames(3)
 	app.go(MarbleRace, Registry.find("marble_race").variants[2].props)
 	await _frames(3)
 	var mr: Control = app.current_screen()
@@ -178,6 +180,20 @@ func _run() -> void:
 	await _stream(clients[0], 0, 2.6, tilt)
 	_check(mr._racers[0].pos.x > mx0 + 0.3, "marble 0 rolls right when the phone tilts right")
 	_check(mr.standings().size() == 2, "standings list both players")
+	clients[0].send_recenter()
+	await _stream(clients[0], 0, 0.5, tilt)
+	_check(mr.player(0).tilt().length() < 0.05, "the Recenter button zeroes the tilt in the race (REQ-GM-37)")
+
+	# Camera: all marbles in view at a small spread. Beyond the camera limit (about 55 m), edge markers point to them (REQ-MR-42).
+	mr._racers[0].pos = mr.track.point_at(60.0)
+	mr._racers[1].pos = mr.track.point_at(30.0)
+	await _stream(clients[0], 0, 1.5, flat)
+	_check(mr.edge_markers().is_empty(), "no edge marker when the marbles are close")
+	mr._racers[0].pos = mr.track.point_at(150.0)
+	mr._racers[1].pos = mr.track.point_at(10.0)
+	await _stream(clients[0], 0, 1.5, flat)
+	var markers: Array = mr.edge_markers()
+	_check(not markers.is_empty() and markers[0].slot == 1, "an edge marker points to the marble that is out of view")
 	for s in [0, 1]:
 		mr._racers[s].pos = mr.track.point_at(mr.finish_arc + 0.5)
 	await _frames(5)
@@ -201,6 +217,15 @@ func _run() -> void:
 	sp.restart()
 	await _frames(3)
 	_check(app.current_screen().track.id == "sprint", "restart keeps the chosen track")
+
+	# A player leaves during the race, then the last player leaves (REQ-GM-21, REQ-GM-22).
+	var lr: Control = app.current_screen()
+	app.server.drop_player(1)
+	await _frames(3)
+	_check(lr.participants == [0] and lr._racers.size() == 1 and not lr._ended, "the race goes on when one player leaves")
+	app.server.drop_player(0)
+	await _frames(3)
+	_check(lr._ended and lr.is_paused() and lr._menu_box != null, "a menu opens when all players leave")
 
 	app.go_menu()
 	await _frames(3)
