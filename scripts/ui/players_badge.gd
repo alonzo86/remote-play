@@ -40,4 +40,4 @@ func _draw() -> void:
 	for p in App.server.players:
 		var c := Vector2(44.0 + p.slot * 24.0, size.y * 0.5)
 		draw_circle(c, 15.0, UiTheme.OUTLINE)
-		draw_circle(c, 11.0, p.color if p.is_present() else Color("d8d2ea"))
+		draw_circle(c, 11.0, p.color if p.is_present() else UiTheme.BADGE_EMPTY)

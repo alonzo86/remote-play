@@ -96,7 +96,7 @@ func _make_row(p: PlayerInput) -> Control:
 	dot.custom_minimum_size = Vector2(54, 54)
 	dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var num := p.slot + 1
-	var col: Color = p.color if present else Color("b9b0d6")
+	var col: Color = p.color if present else UiTheme.SLOT_EMPTY
 	dot.draw.connect(func():
 		dot.draw_circle(dot.size * 0.5, 27.0, UiTheme.OUTLINE)
 		dot.draw_circle(dot.size * 0.5, 22.0, col)
@@ -115,7 +115,7 @@ func _make_row(p: PlayerInput) -> Control:
 	match p.state:
 		PlayerInput.State.CONNECTED:
 			state_text = "Ready!"
-			state_col = Color("1f9d6b")
+			state_col = UiTheme.CARD_READY
 		PlayerInput.State.LOST:
 			state_text = "lost"
 			state_col = UiTheme.BAD
