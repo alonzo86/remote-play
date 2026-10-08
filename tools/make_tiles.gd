@@ -12,7 +12,9 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
-const WAIT := {"maze": 4.6, "marble_race": 5.4}
+const WAIT := {"maze": 4.6, "marble_race": 5.4, "target_shoot": 6.2}
+## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
+const AIM_GYRO := {"target_shoot": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55)]}
 
 var _seq := [0, 0]
 
@@ -26,11 +28,11 @@ func _frames(n: int) -> void:
 		await process_frame
 
 
-func _stream(c: Array, seconds: float, accel: Array) -> void:
+func _stream(c: Array, seconds: float, accel: Array, gyro := []) -> void:
 	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
 	while Time.get_ticks_msec() < end:
 		for i in c.size():
-			c[i].send_sensor(Protocol.encode_sensor(_seq[i], Time.get_ticks_msec(), Vector3.ZERO,
+			c[i].send_sensor(Protocol.encode_sensor(_seq[i], Time.get_ticks_msec(), gyro[i] if not gyro.is_empty() else Vector3.ZERO,
 					accel[i], 0, 0, Vector2.ZERO))
 			_seq[i] += 1
 		await _frames(1)
@@ -62,6 +64,9 @@ func _run() -> void:
 		app.go(Registry.load_script(String(g.id)), props)
 		await _stream(clients, 3.2, [flat, flat]) # The countdown.
 		var wait: float = float(WAIT.get(String(g.id), 3.0)) - 3.2
+		if AIM_GYRO.has(String(g.id)):
+			await _stream(clients, 0.5, [flat, flat], AIM_GYRO[String(g.id)])
+			wait -= 0.5
 		if wait > 0.0:
 			await _stream(clients, wait, [right, left])
 		await _frames(3)

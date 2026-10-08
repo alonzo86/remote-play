@@ -444,6 +444,179 @@ func _run() -> void:
 	third.leave()
 	await _frames(3)
 
+	# Target Shoot (REQ-TS-1 to 16): aim, shots, points, the end. Each step sets up its own state, because the real game also
+	# ticks in the frames that are awaited. A step without an await is one tick of the game.
+	var ts_script: GDScript = Registry.load_script("target_shoot")
+	app.go(ts_script, {"seed": 7})
+	await _frames(3)
+	var ts: Control = app.current_screen()
+	var p0 = app.server.players[0]
+	var p1 = app.server.players[1]
+	var area: Rect2 = ts._area()
+	_check(is_instance_of(ts, ts_script) and ts.participants.size() == 2 and ts._shooters.size() == 2,
+			"target shoot starts with 2 players")
+	_check(ts._round.is_counting() and ts._field.targets.is_empty(), "the round starts with the countdown and no target (REQ-TS-1)")
+	p0.button_pressed.emit(Protocol.BTN_A)
+	_check(ts._presses.is_empty(), "a shot in the countdown does nothing (REQ-TS-1)")
+	var aim_x: float = ts._shooters[0].aim.x
+	p0.orientation.yaw += deg_to_rad(-12.5)   # Half of the 25 degree range, to the right.
+	await _frames(3)
+	_check(absf(ts._shooters[0].aim.x - aim_x - area.size.x * 0.25) < 1.0,
+			"the cursor follows the pointer during the countdown: 12.5 degrees is a quarter of the width (REQ-TS-3)")
+	haptics.clear()
+	ts._round.time = -0.005
+	ts._game_tick(0.01)   # The countdown ends: every phone recenters and buzzes.
+	ts._game_tick(0.01)
+	_check(ts._round.is_playing() and ts._shooters[0].aim.distance_to(area.get_center()) < 1.0,
+			"at GO the pose of the phone is the center of the screen (REQ-TS-2)")
+	_check(ts._field.targets.size() == 1, "the first target appears at once (REQ-TS-8)")
+	var first_uv: Vector2 = ts._field.targets[0].uv
+	await _frames(8)
+	_check(haptics.has(60), "GO buzzes the phone 60 ms: %s" % str(haptics))
+
+	var put := func(kind: String, uv: Vector2) -> void:
+		ts._field.targets.clear()
+		var t = ts.TargetField.Target.new()
+		t.kind = kind
+		t.uv = uv
+		t.radius = ts.TargetField.KINDS[kind].radius
+		t.points = ts.TargetField.KINDS[kind].points
+		t.life_left = 99.0
+		ts._field.targets.append(t)
+	var ready_all := func() -> void:
+		for sh in ts._shooters.values():
+			sh.reload_left = 0.0
+			sh.lock_left = 0.0
+		ts._haptics = ts.Haptics.new()
+	var center := Vector2(0.5, 0.5)
+	ts._board.set_score(0, 0.0)
+	ts._board.set_score(1, 0.0)
+	haptics.clear()
+	ready_all.call()
+	put.call("standard", center)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ts._game_tick(0.01)
+	_check(ts._board.score(0) == 10.0 and ts._field.targets.is_empty(),
+			"a shot at a standard target takes it and gives 10 points (REQ-TS-10)")
+	await _frames(8)
+	_check(haptics == [30], "a hit buzzes the shooter 30 ms: %s" % str(haptics))
+
+	# Reload, miss and lock (REQ-TS-5, 6).
+	ready_all.call()
+	put.call("standard", center)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ts._game_tick(0.01)
+	put.call("standard", center)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ts._game_tick(0.01)
+	_check(ts._board.score(0) == 20.0 and ts._field.targets.size() == 1, "a press inside the 0.25 s reload does nothing (REQ-TS-5)")
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ts._game_tick(0.3)
+	_check(ts._board.score(0) == 30.0, "after the reload the next shot works")
+	ts._game_tick(0.3)
+	haptics.clear()
+	ready_all.call()
+	put.call("standard", Vector2(0.1, 0.1))
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ts._game_tick(0.01)
+	var sh0: Object = ts._shooters[0]
+	_check(ts._board.score(0) == 30.0 and is_equal_approx(sh0.lock_left, ts.MISS_LOCK) and not sh0.can_fire(),
+			"a miss gives no points and locks the fire for 0.6 s (REQ-TS-6)")
+	put.call("standard", center)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ts._game_tick(0.3)
+	_check(ts._board.score(0) == 30.0 and ts._field.targets.size() == 1, "a press in the lock does nothing")
+	ts._game_tick(0.31)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ts._game_tick(0.01)
+	_check(ts._board.score(0) == 40.0, "after the lock the next shot works")
+	await _frames(8)
+	_check(haptics.has(15), "a miss buzzes the shooter 15 ms: %s" % str(haptics))
+
+	# Two players, one target: the first press wins (REQ-TS-11).
+	ready_all.call()
+	put.call("small", center)
+	p1.button_pressed.emit(Protocol.BTN_A)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ts._game_tick(0.01)
+	_check(ts._board.score(1) == 25.0 and ts._board.score(0) == 40.0 and ts._shooters[0].lock_left > 0.5,
+			"two shots at one target: the first press gets 25 points, the second is a miss (REQ-TS-11)")
+
+	# A decoy takes 15 points, and a score never goes below 0 (REQ-TS-7, 10).
+	await _frames(8)   # The buzz of the shot before arrives first.
+	ready_all.call()
+	ts._board.set_score(0, 10.0)
+	haptics.clear()
+	put.call("decoy", center)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ts._game_tick(0.01)
+	_check(ts._board.score(0) == 0.0, "a decoy takes 15 points but the score stops at 0 (REQ-TS-10)")
+	await _frames(8)
+	_check(haptics == [60], "a decoy buzzes the shooter 60 ms: %s" % str(haptics))
+
+	# B does nothing. Nothing is shot while the game is paused (REQ-TS-4).
+	ready_all.call()
+	p0.button_pressed.emit(Protocol.BTN_B)
+	_check(ts._presses.is_empty(), "B does nothing")
+	ts.open_menu("Paused", [["Resume", ts.close_menu]])
+	p0.button_pressed.emit(Protocol.BTN_A)
+	_check(ts._presses.is_empty(), "a press in the pause menu does nothing")
+	ts.close_menu()
+
+	# The end of the round: ranking, winner, long buzz (REQ-TS-1, 15).
+	ts._board.set_score(0, 30.0)
+	ts._board.set_score(1, 10.0)
+	haptics.clear()
+	ts._round.time = ts.ROUND_TIME - 0.005
+	ts._game_tick(0.01)
+	await _frames(8)
+	var ts_rows: Array = []
+	for l in ts._menu_box.find_children("*", "Label", true, false):
+		ts_rows.append(l.text)
+	var ts_buttons: Array = ts.menu_buttons().map(func(b): return b.text)
+	_check(ts.is_over and ts_buttons == ["Restart", "Back to menu"] and ts_rows.size() == 3
+			and ts_rows[0] == p0.player_name + " wins!" and ts_rows[1].begins_with("1st") and ts_rows[1].ends_with("30")
+			and ts_rows[2].begins_with("2nd") and ts_rows[2].ends_with("10"),
+			"time up opens the ranking with the winner: %s" % str(ts_rows))
+	_check(haptics == [400], "the winner buzzes 400 ms: %s" % str(haptics))
+	ts.restart()
+	await _frames(3)
+	var ts2: Control = app.current_screen()
+	_check(ts2 != ts and ts2.start_props.get("seed") == 7 and ts2._round.is_counting(),
+			"Restart starts a new round with the same seed (REQ-GM-32)")
+	ts2._round.time = -0.005
+	ts2._game_tick(0.01)
+	ts2._game_tick(0.01)
+	_check(ts2._field.targets.size() == 1 and ts2._field.targets[0].uv == first_uv,
+			"the same seed gives the same first target (REQ-TS-9)")
+	# One player: the score is compared with the medal tiers (REQ-TS-15).
+	ts2._board.remove(1)
+	ts2._board.set_score(0, 400.0)
+	ts2._round.time = ts2.ROUND_TIME - 0.005
+	ts2._game_tick(0.01)
+	await _frames(3)
+	_check(ts2._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!",
+			"400 points alone earn silver (REQ-TS-15)")
+
+	# A player who leaves takes the cursor and the score out (REQ-TS-16).
+	var fourth := ControllerClient.new()
+	fourth.player_name = "Fourth"
+	root.add_child(fourth)
+	fourth.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+	var t6 := Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t6 < 4000:
+		await process_frame
+	app.go(ts_script)
+	await _frames(3)
+	var ts3: Control = app.current_screen()
+	_check(ts3.participants.size() == 3 and ts3._shooters.size() == 3 and ts3._board.size() == 3, "target shoot with 3 phones")
+	app.server.drop_player(fourth.slot)
+	await _frames(3)
+	_check(ts3.participants.size() == 2 and ts3._shooters.size() == 2 and ts3._board.size() == 2 and not ts3.is_paused(),
+			"a player who leaves takes the cursor and the score out and the round goes on (REQ-TS-16)")
+	fourth.leave()
+	await _frames(3)
+
 	# Marble race menu: one entry, then a track list, then the race.
 	app.go_menu()
 	await _frames(3)

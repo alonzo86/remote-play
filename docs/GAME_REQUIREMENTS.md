@@ -125,3 +125,4 @@ Tests
 |------|-------------------|
 | Tilt Maze (2D) | `docs/games/maze.md` |
 | Marble Race (3D) | `docs/games/marble_race.md` |
+| Target Shoot (2D) | `docs/games/target_shoot.md` |

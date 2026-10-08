@@ -109,6 +109,20 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 10. During a race, open the pause menu. Check: it has no Choose track. (REQ-MR-32)
 11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the marble stops drifting.
 
+## Test 10. Target Shoot (pointer)
+
+Needs 1 to 4 phones. Hold each phone like a remote control, pointing at the TV, from the sofa. This is the first game that uses the
+gyroscope pointer, so this test also checks the pointer itself (the old Test 5 for drift was removed).
+
+1. Start **Target Shoot** with 1 phone. Hold the phone toward the TV during "3, 2, 1" and press nothing. Check: a cursor ring in the player color follows the phone, a shot in the countdown does nothing, and at "GO" the cursor is in the middle of the screen. (REQ-TS-1, 2)
+2. Move the phone left, right, up and down. Check: the cursor moves the same way on the screen. Write down if the cursor is too fast or too slow for the distance from the sofa, and if you need a big arm movement to reach the corners. (`pointer_range_deg` in `orientation.gd`, REQ-TS-3)
+3. Hold the phone still for 40 seconds. Check: the cursor stays where it is. Write down how far it drifted (in cm on the screen). Tap **RECENTER**. Check: the cursor goes to the middle. (RISKS A4, REQ-GM-37)
+4. Press **A** on a target. Check: the target goes, the points show, the phone buzzes a little. Press A on empty space. Check: a short buzz, the cursor fades, and A does nothing for about half a second. Press B. Check: nothing happens. (REQ-TS-4 to 6)
+5. Check that the three target kinds are easy to tell apart from the sofa: cyan (10), small yellow (25) and the pink square with an X (-15). Check that the cursor and its number are easy to see on the dark board. (REQ-TS-12)
+6. Play a full round alone. Write down the score. Check the medal at the end and compare with the tiers [200, 350, 500]: are they too easy or too hard? (REQ-TS-15)
+7. Play with 2 to 4 phones. Check: both players see the same targets. Two players shoot the same target: only the first one scores. Check the frame rate in the debug overlay with 4 players (60 expected). (REQ-TS-11, REQ-GM-50)
+8. Switch one phone Wi-Fi off during a round. Check: the game pauses and then goes on, and the cursor and score of a phone that left are gone. (REQ-TS-16)
+
 ## Results
 
 | Test | Result (pass / fail) | Note (optional) |
@@ -122,6 +136,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 | 6 Maze feel / constants changed | retest | First run: drift and inverted controls (caused by Invert tilt axes being on). After the fix, the maze looks good on the desk. Feel and constants not judged yet |
 | 7 Reconnect | retest | Wi-Fi off on the phone: the phone shows "Reconnecting...". The game kept running and the TV never showed "Waiting for P1 to reconnect". Wi-Fi on: the phone reconnected and the game resumed. Off time was not measured (the TV pauses only after 5 s of silence) |
 | 8 Remote and banner | n/a | didn't test |
+| 10 Target Shoot (pointer) | not run | New. Needs the pointer feel (range, drift), the medal tiers and the target sizes |
 
 Send the results (and the `adb logcat -s godot` log for any failure). The next step depends on them:
 if the drift, the sensor rate, or the latency spikes are the main problem, see `docs/RISKS.md` (items A1, A3, B1, B2).
