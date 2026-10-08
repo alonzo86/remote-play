@@ -139,7 +139,6 @@ func _draw() -> void:
 	var status := "Player %d" % (c.slot + 1) if online else "Reconnecting..."
 	draw_string(tf, Vector2(190, 108), status, HORIZONTAL_ALIGNMENT_LEFT, size.x - 460, 56,
 			UiTheme.ACCENT if online else UiTheme.BAD)
-	draw_string(bf, Vector2(190, 156), c.tv_name, HORIZONTAL_ALIGNMENT_LEFT, size.x - 460, 32, UiTheme.TEXT_DIM)
 
 	var lat := "RTT -- ms" if c.rtt_ms < 0 else "RTT %d ms" % roundi(c.rtt_ms)
 	draw_string(tf, Vector2(60, 262), lat, HORIZONTAL_ALIGNMENT_LEFT, -1, 60, _lat_color(c.rtt_ms))

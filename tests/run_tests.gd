@@ -390,6 +390,10 @@ func _test_visual_rules() -> void:
 	_check(Shell.contrast(theme.get_color("font_color", "Button"), UiTheme.BUTTON) >= 4.5
 			and Shell.contrast(theme.get_color("font_focus_color", "Button"), UiTheme.BUTTON) >= 4.5,
 			"button text is readable on the button fill, also when focused")
+	_check(Shell.contrast(theme.get_color("font_disabled_color", "Button"), UiTheme.DISABLED) >= 3.0
+			and Shell.contrast(theme.get_color("font_disabled_color", "PrimaryButton"), UiTheme.DISABLED) >= 3.0,
+			"a disabled button's text can still be read")
+	_check(UiTheme.SHADOW_COLOR.a < 1.0, "the shadow is see-through, so it is lighter than the outline")
 
 	# A name for a phone without one, and a digit centered in its circle.
 	var p := PlayerInput.new(2, {})
@@ -746,8 +750,8 @@ func _test_connect_screen() -> void:
 	var tv_button: Button = null
 	for btn in screen._list.find_children("*", "Button", true, false):
 		tv_button = btn
-	_check(tv_button != null and tv_button.text.contains("Den") and tv_button.text.contains("1/4"),
-			"a detected TV is a button with its name and players")
+	_check(tv_button != null and tv_button.text.contains("QQQQ") and tv_button.text.contains("1/4"),
+			"a detected TV is a button with its room and players, not the TV name")
 	tv_button.pressed.emit()
 	_check(app.client.host == "127.0.0.9" and app.client.room == "QQQQ", "tapping a detected TV joins it")
 	app.client.leave()
@@ -787,6 +791,29 @@ func _test_app_input() -> void:
 	await create_timer(0.3).timeout
 	app._back()
 	_check(probe.calls == 2, "a later Back is sent to the screen")
+
+	# A click leaves no focus on the button. The debug overlay is never saved, so it starts off.
+	var btn := Button.new()
+	btn.focus_mode = Control.FOCUS_ALL
+	probe.add_child(btn)
+	btn.grab_focus()
+	_check(btn.has_focus(), "the test button has the focus")
+	var up := InputEventMouseButton.new()
+	up.button_index = MOUSE_BUTTON_LEFT
+	up.pressed = false
+	app._input(up)
+	await process_frame
+	await process_frame
+	_check(not btn.has_focus(), "a mouse click or a tap leaves no focus on the button")
+	btn.queue_free()
+	var was: bool = app.settings.overlay
+	app.settings.overlay = true
+	app.save_settings()
+	var cfg := ConfigFile.new()
+	cfg.load(app.SETTINGS_FILE)
+	_check(not cfg.has_section_key("settings", "overlay") and cfg.has_section_key("settings", "invert_tilt"),
+			"the debug overlay is not saved, the other settings are")
+	app.settings.overlay = was
 	await create_timer(0.3).timeout
 	var key := InputEventKey.new()
 	key.keycode = KEY_BACK

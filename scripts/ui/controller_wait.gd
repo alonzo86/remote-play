@@ -74,7 +74,7 @@ func _refresh() -> void:
 	_sub.text = t[1]
 	if c.state != ControllerClient.State.CONNECTED:
 		_sub.text = "Reconnecting..."
-	_name.text = "Player %d  -  %s" % [c.slot + 1, c.tv_name]
+	_name.text = "Player %d" % (c.slot + 1)
 	_dot.queue_redraw()
 
 

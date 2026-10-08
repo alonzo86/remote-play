@@ -27,7 +27,7 @@ func _ready() -> void:
 		add_theme_stylebox_override(st, StyleBoxEmpty.new())
 
 	var shadow := Panel.new()
-	shadow.add_theme_stylebox_override("panel", UiTheme.card(UiTheme.OUTLINE, UiTheme.OUTLINE, 0, 20, false))
+	shadow.add_theme_stylebox_override("panel", UiTheme.card(UiTheme.SHADOW_COLOR, UiTheme.SHADOW_COLOR, 0, 20, false))
 	shadow.position = UiTheme.SHADOW
 	shadow.size = SHOT_SIZE
 	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE

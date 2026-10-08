@@ -75,12 +75,12 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-36: The player count on the badge and the tile dimming (REQ-FL-14) update when the modal changes the players.
 
 ### Visual style (Party Pop, FD-13)
-- REQ-FL-37: All screens use one palette, kept in `UiTheme` (`scripts/ui/ui_theme.gd`): background purple `#3d1a9e` (darker `#2c1180` for info bars), card white `#ffffff`, text on card `#24104f`, outline and shadow `#1a0b45`, accent yellow `#ffd23f`, button purple `#5a37d1` (`UiTheme.BUTTON`), room code pink `#ff3d8b`, confetti pink `#ff5ea8`, cyan `#3ddcff` and yellow. The player colors stay as they are in `Protocol`.
+- REQ-FL-37: All screens use one palette, kept in `UiTheme` (`scripts/ui/ui_theme.gd`): background purple `#3d1a9e` (darker `#2c1180` for info bars), card white `#ffffff`, text on card `#24104f`, outline and shadow `#1a0b45`, accent yellow `#ffd23f`, button purple `#7152e8` (`UiTheme.BUTTON`), room code pink `#ff3d8b`, confetti pink `#ff5ea8`, cyan `#3ddcff` and yellow. The player colors stay as they are in `Protocol`.
 - REQ-FL-38: Cards, slots, badges and buttons have a thick dark outline (6 px at 1080p, `UiTheme.OUTLINE_W`) and a hard shadow offset down and right, with no blur. Corners are rounded. Pills and the gear are fully round.
 - REQ-FL-39: Titles use the display font Lilita One. Other text uses Fredoka (medium and semibold). Both fonts are free (SIL OFL) TTF files in `assets/fonts/`, with their license files. The default Godot font is the fallback.
 - REQ-FL-40: Text on the TV is at least 28 px high at 1080p for titles and game names, and at least 22 px for help text (read from a sofa). Text on the purple background has a contrast ratio of at least 4.5:1. Text on a white card is dark (`UiTheme.CARD_TEXT`), also for the chips in the games.
-- REQ-FL-41: The focused item has a yellow outline and a yellow title (a yellow button gets a thicker dark outline). No focus outline is white. Focus never changes the size of an item or moves the layout. A selected tile may tilt by up to 2 degrees.
-- REQ-FL-41a: Buttons are mid purple (`UiTheme.BUTTON`) with white text, not white. The main action is yellow. "Back" on a choice screen is a quiet dark button (`SecondaryButton`), apart from the options, and never looks like one of them. Buttons are only as wide as their text needs (a minimum width, not the full row). Screen margins are as small as the 60 px safe area allows.
+- REQ-FL-41: The focused item has a yellow outline, and a tile has a yellow title (a yellow button gets a thicker dark outline; button text stays readable). No focus outline is white. Focus never changes the size of an item or moves the layout. A selected tile may tilt by up to 2 degrees.
+- REQ-FL-41a: Buttons are light purple (`UiTheme.BUTTON`) with white text, not white. A disabled button is flat and muted (`UiTheme.DISABLED`), not see-through. A click or a tap leaves no focus on the button (the D-pad does focus). The shadow is lighter than the outline (`UiTheme.SHADOW_COLOR`). The main action is yellow. "Back" on a choice screen is a quiet dark button (`SecondaryButton`), apart from the options, and never looks like one of them. Buttons are only as wide as their text needs (a minimum width, not the full row). Screen margins are as small as the 60 px safe area allows.
 - REQ-FL-42: Motion: a focused tile bounces once (about 150 ms). A slot pops in with a small overshoot when a phone joins (no confetti; coin sound optional). The logo still ends with one confetti burst. Screen changes use a short slide or fade (up to 250 ms).
 - REQ-FL-43: Motion stops while a game is paused or a phone is lost, and no motion blocks input.
 - REQ-FL-44: The style uses only styled boxes, tweens, particles and fonts. It uses no shader. It must run at 60 fps on the weakest supported TV box (check in `docs/DEVICE_TEST.md`).
@@ -98,7 +98,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-22: A test fails when a registry game has no tile file or no description.
 
 ### Settings screen
-- REQ-FL-23: The screen has the debug overlay switch and the invert tilt switch. The values are saved (REQ already in `app.gd`).
+- REQ-FL-23: The screen has the debug overlay switch and the invert tilt switch. The invert switch is saved. The debug overlay is never saved: it always starts off.
 - REQ-FL-24: Back returns to the Games screen with the gear in focus.
 
 ### Network scope

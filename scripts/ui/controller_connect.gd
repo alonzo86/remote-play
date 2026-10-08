@@ -99,7 +99,7 @@ func _rebuild_list() -> void:
 		_list.add_child(UiKit.label("Searching..." if searching else "No TVs found", 34, UiTheme.TEXT_DIM))
 		return
 	for tv in tvs:
-		var b := UiKit.button("%s   [%s]   %d/%d" % [tv.name, tv.room, tv.players, tv.max],
+		var b := UiKit.button("TV %s   %d/%d players" % [tv.room, tv.players, tv.max],
 				func(): _join(tv.ip, tv.port, tv.room), false, 36)
 		b.custom_minimum_size = Vector2(0, 130)
 		_list.add_child(b)

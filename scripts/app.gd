@@ -64,6 +64,9 @@ func _notification(what: int) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and not event.pressed:
+		# A click or a tap must not leave a focus outline on the button. The D-pad and the remote still focus.
+		get_viewport().gui_release_focus.call_deferred()
 	if event.is_action_pressed("ui_cancel"):
 		_back() # Escape on desktop. On Android the Back key comes as KEY_BACK.
 	elif event is InputEventKey and event.pressed and not event.echo:
@@ -149,7 +152,8 @@ func _quit() -> void:
 func save_settings() -> void:
 	var cfg := ConfigFile.new()
 	for k in settings:
-		cfg.set_value("settings", k, settings[k])
+		if k != "overlay": # The debug overlay always starts off.
+			cfg.set_value("settings", k, settings[k])
 	cfg.save(SETTINGS_FILE)
 
 
@@ -158,7 +162,8 @@ func _load_settings() -> void:
 	if cfg.load(SETTINGS_FILE) != OK:
 		return
 	for k in settings:
-		settings[k] = cfg.get_value("settings", k, settings[k])
+		if k != "overlay":
+			settings[k] = cfg.get_value("settings", k, settings[k])
 
 
 # ---- TV ----
