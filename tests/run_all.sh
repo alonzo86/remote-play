@@ -8,5 +8,6 @@ echo "== unit and network tests"
 "$GODOT" --headless --path . --script tests/run_tests.gd -- --role=controller
 echo "== design tokens"
 "$GODOT" --headless --path . --script tests/design_tokens.gd -- --role=controller
+python3 tools/design_tokens_css.py --check
 echo "== TV smoke test"
 "$GODOT" --headless --path . --script tests/smoke_tv.gd -- --role=tv

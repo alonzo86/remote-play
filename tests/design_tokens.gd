@@ -42,9 +42,11 @@ func _run() -> void:
 	if not data is Dictionary:
 		return
 	var known := {}
+	var by_name := {}
 	for t in data.color.tokens:
 		var hex := String(t.value).trim_prefix("#").to_lower()
 		known[hex if hex.length() == 8 else hex + "ff"] = t.name
+		by_name[t.name] = hex if hex.length() == 8 else hex + "ff"
 	var consts: Dictionary = (UiTheme as GDScript).get_script_constant_map()
 	var wanted: Array = []
 	for k in consts:
@@ -57,6 +59,20 @@ func _run() -> void:
 	wanted.append_array([UiTheme.ACCENT.lightened(0.35), UiTheme.DISABLED.darkened(0.35),
 			UiTheme.TEXT_DIM.darkened(0.2), Color(UiTheme.TEXT_DIM, 0.55), Color(UiTheme.OUTLINE, 0.72),
 			Color(UiTheme.CARD, 0.5)])
+	# Each named token holds the value of its UiTheme constant (a swap of two values is caught).
+	var named := {"bg": UiTheme.BG, "bg-dark": UiTheme.BG_DARK, "panel-light": UiTheme.PANEL_LIGHT,
+			"button": UiTheme.BUTTON, "disabled": UiTheme.DISABLED, "outline": UiTheme.OUTLINE, "text": UiTheme.TEXT,
+			"text-dim": UiTheme.TEXT_DIM, "accent": UiTheme.ACCENT, "ok": UiTheme.OK, "bad": UiTheme.BAD,
+			"card": UiTheme.CARD, "card-text": UiTheme.CARD_TEXT, "card-dim": UiTheme.CARD_DIM, "room": UiTheme.ROOM,
+			"shadow-ink": UiTheme.SHADOW_COLOR, "confetti-pink": UiTheme.CONFETTI[0],
+			"confetti-cyan": UiTheme.CONFETTI[1], "player-1": Protocol.PLAYER_COLORS[0],
+			"player-2": Protocol.PLAYER_COLORS[1], "player-3": Protocol.PLAYER_COLORS[2],
+			"player-4": Protocol.PLAYER_COLORS[3]}
+	var wrong: Array[String] = []
+	for n in named:
+		if by_name.get(n, "") != (named[n] as Color).to_html(true):
+			wrong.append(n)
+	_check(wrong.is_empty(), "each named token holds its UiTheme value (wrong: %s)" % str(wrong))
 	var missing: Array[String] = []
 	for c in wanted:
 		if not known.has((c as Color).to_html(true)):
