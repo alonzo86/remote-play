@@ -99,7 +99,6 @@ func _run() -> void:
 	_test_registry()
 	_test_marble_track()
 	await _test_network()
-	await _test_room_code_join()
 	await _test_phone_screens()
 	_test_chip_contrast()
 	_test_visual_rules()
@@ -337,28 +336,6 @@ func _test_qr() -> void:
 		img2.save_png("user://qr_test_%d.png" % len)
 
 
-func _test_room_code_join() -> void:
-	print("room code join")
-	var app: Node = root.get_node("App")
-	# Load now, not at parse time: the App autoload must exist first.
-	var connect_script: GDScript = _script("res://scripts/ui/controller_connect.gd")
-	var screen = connect_script.new()
-	screen.theme = app.theme_res
-	root.add_child(screen)
-	screen._input.text = "ZZZZ"
-	screen._join_typed() # Waits for a beacon that never comes.
-	_check(screen._joining, "typed room code starts one wait")
-	screen._join_typed()
-	_check(screen._joining, "second tap during the wait is ignored")
-	# A beacon that arrives after the screen is gone must not start a connection.
-	screen.queue_free()
-	app.controller_discovery.tvs["ZZZZ"] = {"ip": "127.0.0.1", "port": 1, "room": "ZZZZ", "name": "Test TV",
-			"players": 0, "max": 4, "seen_ms": Time.get_ticks_msec()}
-	await create_timer(0.5).timeout
-	_check(app.client.state == ControllerClient.State.IDLE, "no join after the screen is closed")
-	app.controller_discovery.tvs.erase("ZZZZ")
-
-
 ## The phone shows the pad for `playing` and `paused`, and the waiting screen for the other phases
 ## (REQ-FL-28). It goes back to the connect screen when it leaves.
 ## The chip text never sits on the player color, and it is readable on the chip (REQ-GM-46, REQ-FL-40).
@@ -399,6 +376,35 @@ func _test_visual_rules() -> void:
 	_check(floor_c.s >= 0.35 and floor_c.v >= 0.25 and floor_c.v <= 0.65, "the maze floor is dark and saturated (REQ-GM-47e)")
 	_check(Shell.contrast(wall_c, floor_c) >= 3.0, "the maze walls can be seen on the floor")
 	_check(UiTheme.OUTLINE.v < 0.4, "the outline color is dark")
+
+	# Buttons are not white and no button focus outline is white (REQ-FL-41, 41a).
+	var theme := UiTheme.make()
+	var btn_ok := true
+	for type in ["Button", "PrimaryButton", "SecondaryButton"]:
+		for st in ["normal", "focus", "hover", "pressed"]:
+			var sb := theme.get_stylebox(st, type) as StyleBoxFlat
+			if sb.bg_color.is_equal_approx(Color.WHITE) or sb.border_color.is_equal_approx(Color.WHITE):
+				btn_ok = false
+				print("    white button style: ", type, " ", st)
+	_check(btn_ok, "no button fill or focus outline is white")
+	_check(Shell.contrast(theme.get_color("font_color", "Button"), UiTheme.BUTTON) >= 4.5
+			and Shell.contrast(theme.get_color("font_focus_color", "Button"), UiTheme.BUTTON) >= 4.5,
+			"button text is readable on the button fill, also when focused")
+	_check(Shell.contrast(theme.get_color("font_disabled_color", "Button"), UiTheme.DISABLED) >= 3.0
+			and Shell.contrast(theme.get_color("font_disabled_color", "PrimaryButton"), UiTheme.DISABLED) >= 3.0,
+			"a disabled button's text can still be read")
+	_check(UiTheme.SHADOW_COLOR.a < 1.0, "the shadow is see-through, so it is lighter than the outline")
+
+	# A name for a phone without one, and a digit centered in its circle.
+	var p := PlayerInput.new(2, {})
+	p.on_join("", "tok")
+	_check(p.player_name == "Player 3", "a phone without a name is Player N: %s" % p.player_name)
+	p.on_join("Ana", "tok")
+	_check(p.player_name == "Ana", "a given name is kept")
+	var f := UiTheme.title_font()
+	var base := UiTheme.centered_baseline(f, Rect2(0, 10, 54, 54), 30)
+	var mid := base - (f.get_ascent(30) - f.get_descent(30)) * 0.5
+	_check(absf(mid - 37.0) < 0.01 and base > 37.0, "the text middle is at the rect middle, the baseline below it (%.2f)" % base)
 
 
 func _test_phone_screens() -> void:
@@ -684,9 +690,9 @@ func _test_qr_scanner() -> void:
 	root.add_child(screen)
 	var scan_button: Button = null
 	for b in screen.find_children("*", "Button", true, false):
-		if b.text == "Scan the QR code on the TV":
+		if b.text == "Scan QR code":
 			scan_button = b
-	_check(scan_button != null, "the connect screen says Scan the QR code when the plugin exists")
+	_check(scan_button != null, "the connect screen says Scan QR code when the plugin exists")
 	fake.calls.clear()
 	if scan_button != null:
 		scan_button.pressed.emit()
@@ -732,28 +738,44 @@ func _test_connect_screen() -> void:
 			and app.client.state != ControllerClient.State.IDLE, "a TV code joins that TV and room")
 	app.client.leave()
 	app.last_error = ""
-	screen._input.text = "10.1.2.3"
-	screen._join_typed()
-	_check(app.client.host == "10.1.2.3" and app.client.room == "", "a typed IP joins that address without a room")
-	app.client.leave()
-	screen._input.text = "   "
-	screen._join_typed()
-	_check(app.client.state == ControllerClient.State.IDLE, "an empty input joins nothing")
-	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 0,
+	# Only two ways to join: the QR code and the list of detected TVs (no typed room code or IP).
+	_check(screen.find_children("*", "LineEdit", true, false).is_empty(), "the connect screen has no text input")
+	app.controller_discovery.forget_all()
+	screen._rebuild_list()
+	_check(_list_texts(screen) == ["No TVs found"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
+	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
 			"max": 4, "seen_ms": Time.get_ticks_msec()}
-	screen._input.text = "qqqq"
-	screen._join_typed()
-	_check(app.client.host == "127.0.0.9" and app.client.room == "QQQQ", "a typed room code is not case sensitive")
+	screen._rebuild_list()
+	await process_frame
+	var tv_button: Button = null
+	for btn in screen._list.find_children("*", "Button", true, false):
+		tv_button = btn
+	_check(tv_button != null and tv_button.text.contains("QQQQ") and tv_button.text.contains("1/4"),
+			"a detected TV is a button with its room and players, not the TV name")
+	tv_button.pressed.emit()
+	_check(app.client.host == "127.0.0.9" and app.client.room == "QQQQ", "tapping a detected TV joins it")
 	app.client.leave()
+	# Refresh forgets the TVs and says it searches; a TV that beacons again comes back.
+	screen.refresh_list()
+	await process_frame
+	_check(app.controller_discovery.tvs.is_empty() and _list_texts(screen) == ["Searching..."],
+			"Refresh clears the list and shows Searching: %s" % str(_list_texts(screen)))
+	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
+			"max": 4, "seen_ms": Time.get_ticks_msec()}
+	screen._rebuild_list()
+	await process_frame
+	_check(not screen._list.find_children("*", "Button", true, false).is_empty(), "a TV that beacons after Refresh is listed again")
 	app.controller_discovery.tvs.erase("QQQQ")
-	screen._input.text = "WWWW"
-	await screen._join_typed() # Waits 3 s for a beacon that never comes.
-	_check(not screen._joining and app.last_error.begins_with("Room WWWW not found"),
-			"an unknown room code gives an error after the wait: %s" % app.last_error)
-	_check(screen._status.text == app.last_error, "the error shows on the screen")
 	screen.queue_free()
 	app.last_error = ""
 	await process_frame
+
+
+func _list_texts(screen: Control) -> Array:
+	var r: Array = []
+	for c in screen._list.get_children():
+		r.append(c.text if "text" in c else "")
+	return r
 
 
 ## Back, the keys and the messages of App (REQ-T3, REQ-GM-33), and the join of a phone by itself (--auto-join).
@@ -769,6 +791,29 @@ func _test_app_input() -> void:
 	await create_timer(0.3).timeout
 	app._back()
 	_check(probe.calls == 2, "a later Back is sent to the screen")
+
+	# A click leaves no focus on the button. The debug overlay is never saved, so it starts off.
+	var btn := Button.new()
+	btn.focus_mode = Control.FOCUS_ALL
+	probe.add_child(btn)
+	btn.grab_focus()
+	_check(btn.has_focus(), "the test button has the focus")
+	var up := InputEventMouseButton.new()
+	up.button_index = MOUSE_BUTTON_LEFT
+	up.pressed = false
+	app._input(up)
+	await process_frame
+	await process_frame
+	_check(not btn.has_focus(), "a mouse click or a tap leaves no focus on the button")
+	btn.queue_free()
+	var was: bool = app.settings.overlay
+	app.settings.overlay = true
+	app.save_settings()
+	var cfg := ConfigFile.new()
+	cfg.load(app.SETTINGS_FILE)
+	_check(not cfg.has_section_key("settings", "overlay") and cfg.has_section_key("settings", "invert_tilt"),
+			"the debug overlay is not saved, the other settings are")
+	app.settings.overlay = was
 	await create_timer(0.3).timeout
 	var key := InputEventKey.new()
 	key.keycode = KEY_BACK
@@ -833,12 +878,12 @@ func _test_network() -> void:
 	server.player_removed.connect(func(s): events.append("removed%d" % s))
 
 	var c1 := ControllerClient.new()
-	c1.player_name = "One"
+	c1.player_name = "  One  "
 	root.add_child(c1)
 	c1.connect_to("127.0.0.1", Protocol.WS_PORT, server.room_code)
 	var ok := await _wait_until(func(): return c1.state == ControllerClient.State.CONNECTED)
 	_check(ok, "client 1 connects")
-	_check(c1.slot == 0 and server.players[0].player_name == "One", "client 1 gets slot 0")
+	_check(c1.slot == 0 and server.players[0].player_name == "One", "client 1 gets slot 0 with a trimmed name")
 
 	# Send sensor packets at 60 Hz for 1.5 s with a fake sampler.
 	var seq := 0
@@ -946,3 +991,4 @@ func _test_network() -> void:
 	for c in clients:
 		c.leave()
 	server.stop()
+

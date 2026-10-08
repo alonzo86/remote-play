@@ -29,7 +29,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
 - The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`).
-  The phone scans the QR code (Android plugin), or finds the TV by the UDP beacon, or the user types the room code or the TV IP.
+  The phone scans the QR code (Android plugin), or picks the TV from the list found by the UDP beacon (Refresh button). There is no typed room code or IP.
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
 - A phone that loses the connection keeps its slot for 30 seconds and reconnects with a token.

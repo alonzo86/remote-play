@@ -27,7 +27,7 @@ It only tells two TVs apart on one network.
 
 | From | Message | Meaning |
 |------|---------|---------|
-| Phone | `{"t":"hello","v":1,"room":"KQZM","token":"","name":"Phone 42"}` | First message. `room` can be empty (join by IP). `token` is empty for a new player. |
+| Phone | `{"t":"hello","v":1,"room":"KQZM","token":"","name":""}` | First message. `room` can be empty (join by IP). `token` is empty for a new player. `name` can be empty: the TV then shows "Player N". |
 | TV | `{"t":"welcome","slot":0,"token":"…","color":"#e63946","phase":"connect","name":"Living Room TV"}` | Accepted. The phone saves `token`. |
 | TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `version`. |
 
@@ -77,7 +77,7 @@ The phone frame: x = right, y = top of the phone, z = out of the screen.
 
 - The TV has 4 slots. A slot has the state `EMPTY`, `CONNECTED`, or `LOST`.
 - When the socket closes or is silent for 5 seconds, the slot becomes `LOST`. The TV keeps it for 30 seconds.
-- The game pauses while a participant is `LOST`. The TV user can press OK to continue without that player.
+- The game pauses while a participant is `LOST` and another participant is still connected. The TV user can press OK to continue without that player. When all participants are `LOST` for more than 5 seconds, the TV drops them and the game ends with "No players connected". A phone that comes back within those 5 seconds continues.
 - The phone reconnects after 0.5 s, 1 s, 2 s, and then every 2 s. It sends the saved `token`.
   The TV gives the same slot back.
 - A `hello` with an unknown token is a new player.

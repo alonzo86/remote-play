@@ -1,88 +1,57 @@
 extends Control
-## Phone screen before a TV is joined. Lists the TVs found by UDP beacon.
-## The player can also type a room code or the TV IP address.
+## Phone screen before a TV is joined. Two ways to join: scan the QR code on the TV, or pick a TV
+## from the list of TVs found by UDP beacon (with a Refresh button). Nothing else: when neither
+## works there is no TV to connect to.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 
+const SEARCH_MS := 1500   # After Refresh the list says "Searching" this long (the beacon comes each second).
+
 var _list: VBoxContainer
 var _status: Label
-var _input: LineEdit
 var _qr: Node
-var _joining := false  # True while _join_typed waits for a beacon.
+var _search_until_ms := 0
 
 
 func _ready() -> void:
-	var bg := ColorRect.new()
-	bg.color = Color(UiTheme.BG, 0.0) # The App backdrop (purple with dots) shows through.
-	add_child(bg)
-	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-
-	var margin := MarginContainer.new()
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 60)
-	add_child(margin)
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-
+	var margin := UiKit.margin(self, 40, 60, 40, 60)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 24)
 	margin.add_child(box)
 
-	var title := Label.new()
-	title.text = "REMOTE PLAY"
-	title.add_theme_font_override("font", UiTheme.title_font())
-	title.add_theme_font_size_override("font_size", 92)
-	title.add_theme_color_override("font_color", UiTheme.ACCENT)
-	box.add_child(title)
+	box.add_child(UiKit.title("REMOTE PLAY", 92))
 
-	_status = Label.new()
+	_status = UiKit.label("", 38, UiTheme.TEXT, UiTheme.body_font())
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
-	_status.add_theme_font_size_override("font_size", 38)
 	box.add_child(_status)
 
 	_qr = QrScanner.new()
 	add_child(_qr)
 	_qr.scanned.connect(_on_qr_text)
 	_qr.failed.connect(_on_qr_failed)
-	var scan := Button.new()
-	if _qr.is_available():
-		scan.text = "Scan the QR code on the TV"
-	else:
-		# No plugin (desktop, or a build without it). Paste the link from the clipboard.
-		scan.text = "Paste TV link"
+	# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
+	var scan_text := "Scan QR code" if _qr.is_available() else "Paste TV link"
+	var scan := UiKit.button(scan_text, _on_scan_pressed, true, 48)
 	scan.custom_minimum_size = Vector2(0, 150)
-	scan.pressed.connect(_on_scan_pressed)
 	box.add_child(scan)
 
-	var tv_title := Label.new()
-	tv_title.text = "TVs on this Wi-Fi"
-	tv_title.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
-	box.add_child(tv_title)
+	var head := HBoxContainer.new()
+	box.add_child(head)
+	var tv_title := UiKit.label("Detected TVs", 40, UiTheme.TEXT_DIM, UiTheme.body_bold())
+	tv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tv_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	head.add_child(tv_title)
+	var refresh := UiKit.button("Refresh", refresh_list, false, 36)
+	refresh.custom_minimum_size = Vector2(240, 96)
+	head.add_child(refresh)
 
 	_list = VBoxContainer.new()
 	_list.add_theme_constant_override("separation", 16)
 	box.add_child(_list)
-
-	var manual := Label.new()
-	manual.text = "Or type the room code or the TV IP"
-	manual.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
-	box.add_child(manual)
-
-	_input = LineEdit.new()
-	_input.placeholder_text = "KQZM  or  192.168.1.20"
-	_input.max_length = 21
-	_input.custom_minimum_size = Vector2(0, 110)
-	_input.add_theme_font_size_override("font_size", 46)
-	_input.text_submitted.connect(func(_t): _join_typed())
-	box.add_child(_input)
-
-	var join := Button.new()
-	join.text = "Join"
-	join.custom_minimum_size = Vector2(0, 120)
-	join.pressed.connect(_join_typed)
-	box.add_child(join)
 
 	App.controller_discovery.list_changed.connect(_rebuild_list)
 	App.client.state_changed.connect(_on_state)
@@ -113,21 +82,26 @@ func _on_state(state: int) -> void:
 				_status.add_theme_color_override("font_color", UiTheme.TEXT)
 
 
+## Forget the TVs seen so far and listen again. A TV that is on shows up with its next beacon.
+func refresh_list() -> void:
+	App.controller_discovery.forget_all()
+	_search_until_ms = Time.get_ticks_msec() + SEARCH_MS
+	_rebuild_list()
+
+
 func _rebuild_list() -> void:
 	for c in _list.get_children():
+		_list.remove_child(c)
 		c.queue_free()
 	var tvs: Array = App.controller_discovery.sorted_list()
 	if tvs.is_empty():
-		var l := Label.new()
-		l.text = "(none found yet)"
-		l.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
-		_list.add_child(l)
+		var searching := Time.get_ticks_msec() < _search_until_ms
+		_list.add_child(UiKit.label("Searching..." if searching else "No TVs found", 34, UiTheme.TEXT_DIM))
 		return
 	for tv in tvs:
-		var b := Button.new()
-		b.text = "%s   [%s]   %d/%d" % [tv.name, tv.room, tv.players, tv.max]
+		var b := UiKit.button("TV %s   %d/%d players" % [tv.room, tv.players, tv.max],
+				func(): _join(tv.ip, tv.port, tv.room), false, 36)
 		b.custom_minimum_size = Vector2(0, 130)
-		b.pressed.connect(func(): _join(tv.ip, tv.port, tv.room))
 		_list.add_child(b)
 
 
@@ -152,37 +126,6 @@ func _on_qr_failed(reason: String) -> void:
 		return
 	App.last_error = "QR scan failed: " + reason
 	_on_state(ControllerClient.State.IDLE)
-
-
-func _join_typed() -> void:
-	var text := _input.text.strip_edges()
-	if text == "":
-		return
-	if Protocol.is_ipv4(text):
-		_join(text, Protocol.WS_PORT, "")
-		return
-	if _joining:
-		return # A second tap must not start a second wait.
-	var room := text.to_upper()
-	var tv: Variant = App.controller_discovery.tvs.get(room)
-	if tv == null:
-		_joining = true
-		# A broadcast beacon can be late or lost on Wi-Fi. Wait a little before giving up.
-		_status.text = "Looking for room %s..." % room
-		_status.add_theme_color_override("font_color", UiTheme.ACCENT)
-		for i in 30:
-			await get_tree().create_timer(0.1).timeout
-			tv = App.controller_discovery.tvs.get(room)
-			if not is_inside_tree():
-				return # The screen was replaced during the wait (for example, a saved-token reconnect).
-			if tv != null:
-				break
-		_joining = false
-	if tv == null:
-		App.last_error = "Room %s not found. Is the TV on the same Wi-Fi?" % room
-		_on_state(ControllerClient.State.IDLE)
-		return
-	_join(tv.ip, tv.port, tv.room)
 
 
 func _join(host: String, port: int, room: String) -> void:

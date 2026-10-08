@@ -4,7 +4,6 @@ extends "res://scripts/game/minigame_3d.gd"
 ## Tilt comes from PlayerInput.tilt(). Press B on the phone to recenter. The marbles
 ## are simulated here in 2D (x, z) with simple physics, so the race is the same on every run.
 
-const Protocol = preload("res://scripts/core/protocol.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
 
 const R := 0.5                 # Marble radius.

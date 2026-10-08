@@ -12,7 +12,7 @@ const PlayersBadge = preload("res://scripts/ui/players_badge.gd")
 const GearButton = preload("res://scripts/ui/gear_button.gd")
 const PlayersModal = preload("res://scripts/ui/players_modal.gd")
 
-const CONTENT_W := 1460
+const CONTENT_W := 1720
 
 var _root: VBoxContainer
 var _grid_view: Control
@@ -32,7 +32,7 @@ var _flash_reason := 0.0
 func _ready() -> void:
 	# The content is a column of CONTENT_W px, centered on any screen width (the stretch mode is
 	# "expand"). Header, grid and info bar share its edges.
-	var m := UiKit.margin(self, 0, 60, 0, 56)
+	var m := UiKit.margin(self, 0, 60, 0, 60)
 	_root = VBoxContainer.new()
 	_root.custom_minimum_size = Vector2(CONTENT_W, 0)
 	_root.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -188,12 +188,15 @@ func _show_variants(game: Dictionary) -> void:
 	var first: Button = null
 	for v in game.variants:
 		var b := UiKit.button(String(v.title), _launch.bind(String(game.id), v.props), false, 44)
-		b.custom_minimum_size = Vector2(0, 96)
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.custom_minimum_size = Vector2(640, 96)
+		b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		view.add_child(b)
 		if first == null:
 			first = b
-	var back := UiKit.button("Back", func(): _show_grid(_variants_of), false, 36)
+	view.add_child(UiKit.spacer(30)) # Back is apart from the options and looks different.
+	var back := UiKit.button("Back", func(): _show_grid(_variants_of), false, 32, true)
+	back.custom_minimum_size = Vector2(240, 72)
+	back.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	view.add_child(back)
 	UiKit.focus_later(first)
 

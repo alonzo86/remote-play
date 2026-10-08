@@ -12,9 +12,13 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
+const Protocol = preload("res://scripts/core/protocol.gd")
 
 ## Values the game was started with (App.go props). restart() uses them again.
 var start_props := {}
+
+## How long everybody may stay lost before the game ends (tests make it shorter).
+var last_player_grace_ms := Protocol.LAST_PLAYER_GRACE_MS
 
 ## Slots that joined when the game started.
 var participants: Array[int] = []
@@ -59,7 +63,33 @@ func is_paused() -> bool:
 	return _menu_open or _paused_lost
 
 
+## True when every participant is lost: nobody is left to continue with.
+func nobody_connected() -> bool:
+	if participants.is_empty():
+		return false
+	for s in participants:
+		if player(s).state == PlayerInput.State.CONNECTED:
+			return false
+	return true
+
+
+## True when everybody has been lost for longer than `Protocol.LAST_PLAYER_GRACE_MS`. A short Wi-Fi
+## drop of a single player does not end the game: the phone has this long to come back.
+func nobody_left() -> bool:
+	if not nobody_connected():
+		return false
+	var now := Time.get_ticks_msec()
+	for s in participants:
+		if now - player(s).lost_since_ms <= last_player_grace_ms:
+			return false
+	return true
+
+
 func _process(delta: float) -> void:
+	if nobody_left():
+		# The last player is gone. Do not ask to continue without them: end the game (REQ-GM-30a).
+		for s in lost_participants():
+			App.server.drop_player(s)
 	_prune_participants()
 	var was_lost := _paused_lost
 	_paused_lost = not lost_participants().is_empty()
@@ -103,7 +133,6 @@ func open_menu(title: String, entries: Array) -> void:
 	center.add_child(card)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 18)
-	box.custom_minimum_size = Vector2(620, 0)
 	card.add_child(box)
 	var l := UiKit.title(title, 64, UiTheme.CARD_TEXT)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -112,7 +141,8 @@ func open_menu(title: String, entries: Array) -> void:
 	var first: Button = null
 	for e in entries:
 		var b := UiKit.button(String(e[0]), e[1], first == null, 40)
-		b.custom_minimum_size = Vector2(0, 82)
+		b.custom_minimum_size = Vector2(440, 82)
+		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		box.add_child(b)
 		if first == null:
 			first = b
@@ -156,8 +186,9 @@ func _draw_overlays(ci: CanvasItem) -> void:
 		var tf := UiTheme.title_font()
 		ci.draw_string(tf, Vector2(r.position.x, r.position.y + 112.0), "Waiting for %sto reconnect" % names,
 				HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 58, UiTheme.CARD_TEXT)
-		ci.draw_string(UiTheme.body_bold(), Vector2(r.position.x, r.position.y + 185.0),
-				"Press OK to continue without them", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 34, UiTheme.CARD_DIM)
+		if not nobody_connected(): # With nobody connected there is nobody to continue with.
+			ci.draw_string(UiTheme.body_bold(), Vector2(r.position.x, r.position.y + 185.0),
+					"Press OK to continue without them", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 34, UiTheme.CARD_DIM)
 	elif _menu_open:
 		ci.draw_rect(Rect2(Vector2.ZERO, size), Color(UiTheme.OUTLINE, 0.72))
 

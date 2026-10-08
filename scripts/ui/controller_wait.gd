@@ -14,7 +14,7 @@ var _name: Label
 
 
 func _ready() -> void:
-	var m := UiKit.margin(self, 70, 90, 70, 90)
+	var m := UiKit.margin(self, 40, 60, 40, 60)
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 36)
@@ -64,7 +64,7 @@ static func texts_for(phase: String) -> Array:
 		"waiting":
 			return ["A round is running", "You join the next round."]
 		_:
-			return ["Waiting for the host", "The host presses Continue on the TV."]
+			return ["Waiting for the host", ""]
 
 
 func _refresh() -> void:
@@ -74,7 +74,7 @@ func _refresh() -> void:
 	_sub.text = t[1]
 	if c.state != ControllerClient.State.CONNECTED:
 		_sub.text = "Reconnecting..."
-	_name.text = "Player %d  -  %s" % [c.slot + 1, c.tv_name]
+	_name.text = "Player %d" % (c.slot + 1)
 	_dot.queue_redraw()
 
 
@@ -85,5 +85,5 @@ func _draw_dot() -> void:
 	_dot.draw_circle(center + UiTheme.SHADOW, r + 10.0, UiTheme.OUTLINE)
 	_dot.draw_circle(center, r + 10.0, UiTheme.OUTLINE)
 	_dot.draw_circle(center, r, c.color)
-	_dot.draw_string(UiTheme.title_font(), center + Vector2(-r, 56), str(c.slot + 1),
-			HORIZONTAL_ALIGNMENT_CENTER, r * 2.0, 170, Color.WHITE)
+	UiTheme.draw_centered(_dot, UiTheme.title_font(), str(c.slot + 1),
+			Rect2(center - Vector2(r, r), Vector2(r, r) * 2.0), 170, Color.WHITE)

@@ -34,7 +34,7 @@ Status: Done, Open, or Device (needs a real TV and phones). "Check" names the te
 | REQ-MR-9 | While the race runs, the screen shows the order (1st to 4th) and the race time. A finished player shows the finish time. | Done | Device (readability) |
 | REQ-MR-10 | The order is: finished marbles by time, then the others by distance along the track. | Done | smoke_tv (standings) |
 | REQ-MR-11 | A player who leaves is removed from the race. The race continues with the others. | Done | smoke_tv |
-| REQ-MR-12 | A phone that is lost pauses the race (general REQ-GM-30). | Done | smoke_tv (maze, same base class) |
+| REQ-MR-12 | A phone that is lost pauses the race while another player is connected (general REQ-GM-30). | Done | smoke_tv (maze, same base class) |
 | REQ-MR-13 | The haptic events are: GO (60 ms), a hit at 3 m/s or faster (20 ms, at most every 150 ms), crossing the finish line (120 ms). | Done | Device |
 
 ### Tracks

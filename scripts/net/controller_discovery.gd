@@ -50,6 +50,13 @@ func _process(_delta: float) -> void:
 		list_changed.emit()
 
 
+## Forget every TV seen (the Refresh button). The next beacons fill the list again.
+func forget_all() -> void:
+	if not tvs.is_empty():
+		tvs.clear()
+		list_changed.emit()
+
+
 func sorted_list() -> Array:
 	var r: Array = tvs.values()
 	r.sort_custom(func(a, b): return a.room < b.room)

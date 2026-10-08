@@ -19,12 +19,12 @@ Test numbers do not change. Test 5 (pointer drift) was removed with the pointer 
 2. Start the controller app on one phone. Check: the phone shows a **portrait** screen.
 3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "Ready!", and **Continue** is enabled and focused.
    Press OK on **Continue**. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
-4. Tap **Leave**, then join with the **room code**. Check: it joins.
+4. Tap **Leave**, then tap the TV under **Detected TVs**. Check: it joins. Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds.
 5. Tap **Leave**, then join with the **TV IP address**. Check: it joins.
 
 ## Test 2. QR scan (plugin, unverified)
 
-1. Tap **Leave**. On the connect screen, the button must say **Scan the QR code on the TV**.
+1. Tap **Leave**. On the connect screen, the button must say **Scan QR code**.
    If it says **Paste TV link**, the plugin is not in the build. Run `tools/patch_android_manifest.sh` and export again.
 2. Tap the button and scan the QR code on the TV. Check: the phone joins in less than 5 seconds.
 3. Scan again and press Back in the scanner. Check: no error message and the app does not crash.
@@ -86,7 +86,7 @@ A total below 100 ms feels good. Above 150 ms feels slow.
 2. On the Games screen, with one phone joined, check that every tile shows its screenshot, title and player range, and that the text is readable from the sofa (REQ-FL-40).
 3. Open the **players badge** (OK). Check: the modal shows the slots, a QR code and the room code. Press **Remove** on a player. Check: the phone says that the host removed it and does not reconnect by itself. Join again with the QR code. Check: the slot fills again.
 4. Join a phone while a game runs. Check: the phone says "A round is running", it does not take part, and it joins the next round.
-5. Check the motion on the TV box: the logo, the focus bounce and the confetti run at 60 frames per second (overlay FPS). Check that the Party Pop colors look right on your TV (not washed out, outlines visible).
+5. Check the motion on the TV box: the logo (with its confetti), the focus bounce and the screen changes run at 60 frames per second (overlay FPS). Check that the Party Pop colors look right on your TV (not washed out, outlines visible).
 6. Phone: check that the fonts and the colors match the TV on the connect, waiting and pad screens.
 
 ## Test 9. Marble race (3D)

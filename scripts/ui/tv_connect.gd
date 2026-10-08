@@ -17,7 +17,7 @@ var _was_ready := false
 
 
 func _ready() -> void:
-	var m := UiKit.margin(self, 150, 80, 150, 70)
+	var m := UiKit.margin(self, 64, 60, 64, 60) # The 60 px safe area (RISKS D5) is the smallest margin.
 	var root := VBoxContainer.new()
 	root.add_theme_constant_override("separation", 26)
 	m.add_child(root)

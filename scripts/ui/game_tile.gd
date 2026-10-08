@@ -6,7 +6,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 
-const SHOT_SIZE := Vector2(440, 248)
+const SHOT_SIZE := Vector2(520, 293)
 const TEXT_H := 84.0
 
 var game := {}
@@ -27,7 +27,7 @@ func _ready() -> void:
 		add_theme_stylebox_override(st, StyleBoxEmpty.new())
 
 	var shadow := Panel.new()
-	shadow.add_theme_stylebox_override("panel", UiTheme.card(UiTheme.OUTLINE, UiTheme.OUTLINE, 0, 20, false))
+	shadow.add_theme_stylebox_override("panel", UiTheme.card(UiTheme.SHADOW_COLOR, UiTheme.SHADOW_COLOR, 0, 20, false))
 	shadow.position = UiTheme.SHADOW
 	shadow.size = SHOT_SIZE
 	shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE

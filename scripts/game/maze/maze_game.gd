@@ -3,7 +3,6 @@ extends "res://scripts/game/minigame.gd"
 ## Tilt comes from PlayerInput.tilt(). Press A on the phone to recenter fast.
 ## Look (REQ-GM-47): a dark board, light rounded walls, outlined balls and an outlined exit.
 
-const Protocol = preload("res://scripts/core/protocol.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 
 const COLS := 17
@@ -83,6 +82,9 @@ func _on_participants_changed() -> void:
 		if participants.has(b.slot):
 			keep.append(b)
 	_balls = keep
+	if participants.is_empty() and _phase != Phase.DONE:
+		_phase = Phase.DONE
+		open_menu("No players connected", [["Back to menu", App.go_menu]])
 
 
 func _can_open_menu() -> bool:
@@ -218,7 +220,7 @@ func _game_draw() -> void:
 	var x := size.x - 60.0
 	for s in participants:
 		x -= 270.0
-		Shell.chip(self, Vector2(x, 36), "P%d  %s" % [s + 1, player(s).player_name], player(s).color, 250.0)
+		Shell.chip(self, Vector2(x, 36), player(s).player_name, player(s).color, 250.0)
 	if _phase == Phase.PLAYING:
 		Shell.text(self, Vector2(440, 96), "%.1f s" % _race_time, 48, UiTheme.TEXT) # Next to the title: 4 chips use the right side.
 	if _phase == Phase.COUNTDOWN and not participants.is_empty():

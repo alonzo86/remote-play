@@ -25,7 +25,7 @@ var tv_name := ""
 var rtt_ms := -1.0
 var clock_offset_ms := 0.0   # TV clock minus phone clock.
 var tx_rate := 0.0           # Sensor packets sent per second.
-var player_name := "Phone"
+var player_name := ""
 
 var host := ""
 var port := Protocol.WS_PORT

@@ -14,6 +14,8 @@ const ACCENT := Color("ffd23f")      # Yellow: titles, numbers, focus.
 const OK := Color("57cc99")
 const BAD := Color("ff4d6d")
 const OUTLINE := Color("1a0b45")     # Outline and hard shadow.
+const BUTTON := Color("7152e8")      # Button fill: lighter purple than the background, so a button stands out.
+const DISABLED := Color("4a3b8f")    # A disabled button: flat, muted, no shadow.
 const CARD := Color("ffffff")
 const CARD_TEXT := Color("24104f")
 const CARD_DIM := Color("6b5a9e")
@@ -21,7 +23,8 @@ const ROOM := Color("ff3d8b")        # Room code.
 const CONFETTI: Array[Color] = [Color("ff5ea8"), Color("3ddcff"), Color("ffd23f")]
 
 const OUTLINE_W := 6                 # Outline width in pixels at 1920x1080 (REQ-FL-38).
-const SHADOW := Vector2(8, 8)
+const SHADOW := Vector2(6, 6)
+const SHADOW_COLOR := Color(0.10, 0.04, 0.27, 0.45)   # Lighter than the outline, so the shadow is not a second border.
 const RADIUS := 26
 
 const FONT_TITLE := "res://assets/fonts/LilitaOne-Regular.ttf"
@@ -80,7 +83,7 @@ static func card(fill: Color = CARD, border: Color = OUTLINE, border_w := OUTLIN
 	s.content_margin_top = 14
 	s.content_margin_bottom = 14
 	if shadow:
-		s.shadow_color = OUTLINE
+		s.shadow_color = SHADOW_COLOR
 		s.shadow_size = 1
 		s.shadow_offset = SHADOW
 	return s
@@ -100,27 +103,54 @@ static func make() -> Theme:
 	t.set_color("font_color", "Label", TEXT)
 	t.set_font("font", "Button", body_bold())
 	t.set_font_size("font_size", "Button", 36)
-	for c in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
-		t.set_color(c, "Button", CARD_TEXT)
-	t.set_color("font_disabled_color", "Button", CARD_DIM)
-	t.set_stylebox("normal", "Button", card())
-	t.set_stylebox("hover", "Button", card(CARD, ACCENT, 10))
-	t.set_stylebox("focus", "Button", card(CARD, ACCENT, 10))
-	t.set_stylebox("pressed", "Button", card(ACCENT))
-	t.set_stylebox("disabled", "Button", card(Color(CARD, 0.55), OUTLINE, OUTLINE_W, RADIUS, false))
-	# A yellow button for the main action of a screen.
+	# Buttons are light purple with white text. Focus: a thick yellow outline, like a tile (REQ-FL-41).
+	# Nothing is white, so a row of buttons is easy on the eyes.
+	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
+		t.set_color(c, "Button", TEXT)
+	# Yellow text is too weak on this purple, so the text stays white. The outline marks focus.
+	t.set_color("font_focus_color", "Button", TEXT)
+	t.set_color("font_disabled_color", "Button", TEXT_DIM.darkened(0.2))
+	t.set_stylebox("normal", "Button", card(BUTTON))
+	t.set_stylebox("hover", "Button", card(BUTTON, ACCENT, 10))
+	t.set_stylebox("focus", "Button", card(BUTTON, ACCENT, 10))
+	t.set_stylebox("pressed", "Button", card(BUTTON.darkened(0.2), ACCENT, 10))
+	t.set_stylebox("disabled", "Button", card(DISABLED, DISABLED.darkened(0.35), OUTLINE_W, RADIUS, false))
+	# A yellow button for the main action of a screen. Focus: a lighter fill and a thicker dark outline.
 	t.set_type_variation("PrimaryButton", "Button")
+	for c in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
+		t.set_color(c, "PrimaryButton", CARD_TEXT)
+	t.set_color("font_disabled_color", "PrimaryButton", TEXT_DIM.darkened(0.2))
 	t.set_stylebox("normal", "PrimaryButton", card(ACCENT))
-	t.set_stylebox("hover", "PrimaryButton", card(ACCENT, CARD, 10))
-	t.set_stylebox("focus", "PrimaryButton", card(ACCENT, CARD, 10))
+	t.set_stylebox("hover", "PrimaryButton", card(ACCENT.lightened(0.35), OUTLINE, 11))
+	t.set_stylebox("focus", "PrimaryButton", card(ACCENT.lightened(0.35), OUTLINE, 11))
 	t.set_stylebox("pressed", "PrimaryButton", card(ACCENT.darkened(0.15)))
-	t.set_stylebox("disabled", "PrimaryButton", card(Color(ACCENT, 0.45), OUTLINE, OUTLINE_W, RADIUS, false))
+	t.set_stylebox("disabled", "PrimaryButton", card(DISABLED, DISABLED.darkened(0.35), OUTLINE_W, RADIUS, false))
+	# A quiet button for "Back": dark, flat, dim text. It does not look like one of the options.
+	t.set_type_variation("SecondaryButton", "Button")
+	t.set_color("font_color", "SecondaryButton", TEXT_DIM)
+	t.set_color("font_pressed_color", "SecondaryButton", TEXT_DIM)
+	t.set_stylebox("normal", "SecondaryButton", card(BG_DARK, Color(TEXT_DIM, 0.55), 4, RADIUS, false))
+	t.set_stylebox("hover", "SecondaryButton", card(BG_DARK, ACCENT, 8, RADIUS, false))
+	t.set_stylebox("focus", "SecondaryButton", card(BG_DARK, ACCENT, 8, RADIUS, false))
+	t.set_stylebox("pressed", "SecondaryButton", card(BG_DARK.darkened(0.2), ACCENT, 8, RADIUS, false))
 	t.set_color("font_color", "LineEdit", CARD_TEXT)
 	t.set_color("font_placeholder_color", "LineEdit", CARD_DIM)
 	t.set_color("caret_color", "LineEdit", CARD_TEXT)
 	t.set_stylebox("normal", "LineEdit", card(CARD))
 	t.set_stylebox("focus", "LineEdit", card(CARD, ACCENT, 10))
 	return t
+
+
+## Draws `text` centered in `rect` on `ci`, horizontally and vertically (by the font's ascent and
+## descent, so a digit sits in the middle of a circle).
+static func draw_centered(ci: CanvasItem, font: Font, text: String, rect: Rect2, font_size: int, color: Color) -> void:
+	ci.draw_string(font, Vector2(rect.position.x, centered_baseline(font, rect, font_size)), text,
+			HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, font_size, color)
+
+
+## The baseline y that puts the middle of a line of text (ascent to descent) at the middle of `rect`.
+static func centered_baseline(font: Font, rect: Rect2, font_size: int) -> float:
+	return rect.position.y + rect.size.y * 0.5 + (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5
 
 
 ## Scale pop for a node (a slot that fills, a button that is chosen). About 150 ms.
