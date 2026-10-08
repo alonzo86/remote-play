@@ -211,7 +211,9 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	if heading == "":
 		heading = "Round over"
 		if ranking.size() == 1 and not tiers.is_empty():
-			heading = Medals.label(Medals.medal(ranking[0].score, tiers, board.lower_is_better))
+			# A player without a score gets no medal: the score 0 would beat every limit of a time.
+			var medal := Medals.medal(ranking[0].score, tiers, board.lower_is_better) if ranking[0].finished else Medals.NONE
+			heading = Medals.label(medal)
 		elif winners.size() == 1:
 			heading = "%s wins!" % player(winners[0]).player_name
 		elif winners.size() > 1:

@@ -27,7 +27,7 @@ of the maze A shortcut, and it changes `docs/games/maze.md` (REQ-MZ-8) and `test
 |--------|----------|-----|
 | No-players end | The "No players connected" menu and its guard flag, in `maze_game.gd` and `marble_race.gd` | One base-class method and one "over" flag (REQ-GM-22). |
 | Player-left hook | `_balls` filter in the maze, `_racers.erase` in the race | The base class calls `_on_player_left(slot)` once for each removed slot (REQ-GM-21). |
-| `RoundClock` | `Phase`/`_clock` in the maze, negative `_time` and `GO_SHOW` in the race | Countdown (3 s), playing time, ended state. `delta` only (REQ-GM-13, 35). |
+| `RoundClock` | `Phase`/`_clock` in the maze, negative `_time` and `GO_SHOW` in the race | Countdown (3 s), playing time, round length. `delta` only (REQ-GM-13, 35). The end flag is `is_over` in the base class. |
 | `Haptics.pulse` | `haptic_cooldown` in the maze, `last_haptic_ms` in the race | A pulse with a minimum gap for each slot (REQ-GM-43). |
 | Recenter cleanup | A button wiring in the maze (with `_exit_tree`), the stale "B recenters" comment in the race | Delete. The RECENTER button does the work. The maze keeps its recenter at GO. |
 | `Shell.player_chips` | Chip layout in the maze HUD | Chips in slot order for the plain case (REQ-GM-46). The race keeps its standings list. |

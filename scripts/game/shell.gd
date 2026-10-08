@@ -42,16 +42,22 @@ static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width 
 ## slot number in white, so that players do not depend on the color alone. `pos` is the center.
 ## The outline is 6 px for a ball of 40 px or more and 4 px for a smaller one.
 static func ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int) -> void:
-	var outline := 6.0 if radius * 2.0 >= 40.0 else 4.0
-	ci.draw_circle(pos + UiTheme.SHADOW * 0.6, radius + outline, UiTheme.OUTLINE)
-	ci.draw_circle(pos, radius + outline, UiTheme.OUTLINE)
+	var m := ball_metrics(radius)
+	ci.draw_circle(pos + UiTheme.SHADOW * 0.6, radius + m.outline, UiTheme.OUTLINE)
+	ci.draw_circle(pos, radius + m.outline, UiTheme.OUTLINE)
 	ci.draw_circle(pos, radius, color)
-	ci.draw_circle(pos + Vector2(-0.333, -0.375) * radius, radius * 0.25, Color(1, 1, 1, 0.55))
+	ci.draw_circle(pos + m.shine_offset, m.shine_radius, Color(1, 1, 1, 0.55))
 	var f := UiTheme.title_font()
-	var font_size := roundi(radius * 1.08)
-	var base := pos + Vector2(-radius, radius * 0.375)
-	ci.draw_string_outline(f, base, str(slot + 1), HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, font_size, 8, UiTheme.OUTLINE)
-	ci.draw_string(f, base, str(slot + 1), HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, font_size, Color.WHITE)
+	var base: Vector2 = pos + Vector2(-radius, m.baseline)
+	ci.draw_string_outline(f, base, str(slot + 1), HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, m.font_size, 8, UiTheme.OUTLINE)
+	ci.draw_string(f, base, str(slot + 1), HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, m.font_size, Color.WHITE)
+
+
+## The sizes `ball()` draws with, for a ball of `radius` (a test checks them): the outline width (REQ-GM-47b), the shine,
+## the size of the slot number and the baseline of the number under the center.
+static func ball_metrics(radius: float) -> Dictionary:
+	return {"outline": 6.0 if radius * 2.0 >= 40.0 else 4.0, "shine_offset": Vector2(-0.333, -0.375) * radius,
+			"shine_radius": radius * 0.25, "font_size": roundi(radius * 1.08), "baseline": radius * 0.375}
 
 
 ## The players (PlayerInput objects) in slot order, P1 first (REQ-GM-46).
@@ -65,10 +71,18 @@ static func in_slot_order(players: Array) -> Array:
 ## `area_w` is the width of the screen. `y` is the top of the chips.
 static func player_chips(ci: CanvasItem, area_w: float, players: Array, y := 36.0, width := 250.0, step := 270.0) -> void:
 	var ordered := in_slot_order(players)
-	var x := area_w - 60.0 - step * ordered.size() + 20.0
-	for p in ordered:
-		chip(ci, Vector2(x, y), p.player_name, p.color, width)
-		x += step
+	var spots := chip_positions(area_w, ordered.size(), y, width, step)
+	for i in ordered.size():
+		chip(ci, spots[i], ordered[i].player_name, ordered[i].color, width)
+
+
+## The top-left corner of each of `count` chips in a row. The last chip ends at the 60 px safe margin (REQ-GM-40).
+static func chip_positions(area_w: float, count: int, y := 36.0, width := 250.0, step := 270.0) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	var x := area_w - 60.0 - width - step * (count - 1)
+	for i in count:
+		out.append(Vector2(x + step * i, y))
+	return out
 
 
 ## The race timer: a pill with a dark outline, in a fixed place. `pos` is the top-left corner.

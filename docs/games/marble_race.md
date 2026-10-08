@@ -66,7 +66,7 @@ The lengths are measured (`MarbleTrack.length`). The winning times are targets, 
 | REQ-MR-32 | The pause menu has Resume, Restart and Back to menu. It has no Choose track. A player can leave a race at any time. | Done | smoke_tv (pause menu) |
 | REQ-MR-33 | Restart keeps the track. | Done | smoke_tv |
 | REQ-MR-34 | Back in the track list of the results returns to the results. Back in the results leaves the game. | Done | smoke_tv |
-| REQ-MR-14 | If all players leave during the race, a menu "No players connected" opens with "Back to menu". | Done | smoke_tv |
+| REQ-MR-14 | If all players leave during the race, a menu "No players connected" opens with "Back to menu". It is also what opens when the results are asked for (for example Cancel in the track list) after all players left. | Done | smoke_tv |
 | REQ-MR-15 | The Recenter button of the phone zeroes the tilt of that player in the race. | Done | smoke_tv |
 | REQ-MR-35 | The name of the track is shown on the screen during the race. | Done | Device |
 

@@ -191,6 +191,9 @@ func _check_end() -> void:
 
 func _open_results() -> void:
 	_picking = false
+	if participants.is_empty():   # Everyone left after the finish: nobody is left to read a list.
+		open_menu("No players connected", [["Back to menu", App.go_menu]])
+		return
 	# Finished marbles have their time. The others are ranked by how far they got.
 	var board := Scoreboard.new([], true)
 	for s in participants:

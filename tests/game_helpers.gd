@@ -24,6 +24,7 @@ func _initialize() -> void:
 	_round_clock()
 	_haptics()
 	_shell_order()
+	_shell_layout()
 	_round_length()
 	_scoreboard()
 	_medals()
@@ -79,6 +80,31 @@ func _shell_order() -> void:
 	_check(slots == [0, 1, 2, 3], "the chips are in slot order, P1 first (REQ-GM-46): %s" % str(slots))
 	_check(players[0].slot == 2, "the order is a copy: the list of the caller stays as it was")
 	_check(Shell.in_slot_order([]).is_empty(), "no players, no chips")
+
+
+func _shell_layout() -> void:
+	print("chip and ball layout")
+	var edge_ok := true
+	var inside_ok := true
+	for w in [1920.0, 1280.0]:
+		for n in [1, 2, 3, 4]:
+			var spots: Array = Shell.chip_positions(w, n)
+			if not is_equal_approx(spots[n - 1].x + 250.0, w - 60.0):
+				edge_ok = false
+			if spots[0].x < 60.0:
+				inside_ok = false
+	_check(edge_ok, "the last chip ends at the 60 px safe margin on 1920 and 1280 wide screens (REQ-GM-40)")
+	_check(inside_ok, "4 chips fit inside the left margin too")
+	var four: Array = Shell.chip_positions(1920.0, 4)
+	_check(four.size() == 4 and is_equal_approx(four[1].x - four[0].x, 270.0) and four[0].y == 36.0 and four[3].x > four[0].x,
+			"chips go left to right, 270 px apart, in one row")
+	_check(Shell.chip_positions(1920.0, 0).is_empty(), "no players, no chip")
+	_check(Shell.ball_metrics(24.0).outline == 6.0 and Shell.ball_metrics(20.0).outline == 6.0
+			and Shell.ball_metrics(19.0).outline == 4.0, "a ball of 40 px or more has a 6 px outline, a smaller one 4 px (REQ-GM-47b)")
+	var m: Dictionary = Shell.ball_metrics(24.0)
+	_check(m.font_size == 26 and is_equal_approx(m.baseline, 9.0) and is_equal_approx(m.shine_radius, 6.0)
+			and m.shine_offset.x < 0.0 and m.shine_offset.y < 0.0,
+			"the slot number is 26 px at radius 24, and the shine is at the top left")
 
 
 func _round_length() -> void:

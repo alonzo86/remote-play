@@ -326,7 +326,7 @@ func _run() -> void:
 	_check(haptics == [20], "a hard hit buzzes 20 ms, and a second one inside the cool-down does not: %s" % str(haptics))
 	b0.pos = Vector2(horizontal.get_center().x, horizontal.position.y - ball_r + 3.0)
 	b0.vel = Vector2(0, 100)
-	mz._haptics._last.clear()   # The cool-down is over.
+	mz._haptics = mz.Haptics.new()   # The cool-down is over.
 	mz._collide(b0)
 	await _frames(10)
 	_check(haptics == [20] and b0.vel.y < 0.0, "a soft hit bounces without a buzz: %s" % str(haptics))
@@ -397,6 +397,10 @@ func _run() -> void:
 	_check(row_labels.size() == 3 and row_labels[1].begins_with("1st") and row_labels[1].ends_with("9")
 			and row_labels[2].begins_with("2nd") and row_labels[0].ends_with("wins!"),
 			"the ranking lists the best first and the title names the winner: %s" % str(row_labels))
+	var dots: Array = rg._menu_box.find_children("*", "Panel", true, false)
+	var dot_colors: Array = dots.map(func(d): return d.get_theme_stylebox("panel").bg_color)
+	_check(dot_colors == [rg.player(rg.participants[1]).color, rg.player(rg.participants[0]).color],
+			"each row has a dot in the slot color of its player, best first")
 	board.set_score(rg.participants[0], 9)
 	rg.open_results(board)
 	await _frames(2)
@@ -407,6 +411,19 @@ func _run() -> void:
 	await _frames(2)
 	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!",
 			"one player and tiers: the title is the medal")
+	# A time that must be small: 25 s earns silver, and a player who did not finish earns nothing (REQ-GM-73).
+	var fast_tiers := [40.0, 30.0, 20.0]
+	var timed = Scoreboard.new([], true)
+	timed.set_score(rg.participants[0], 25.0)
+	rg.open_results(timed, fast_tiers)
+	await _frames(2)
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!", "a time of 25 s earns silver")
+	var lost = Scoreboard.new([], true)
+	lost.set_unfinished(rg.participants[0], 3.0)
+	rg.open_results(lost, fast_tiers)
+	await _frames(2)
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "No medal this time",
+			"a solo player who did not finish gets no medal, although the score 0 is below every limit")
 
 	# A player who leaves takes the ball out of the game (REQ-GM-21).
 	var third := ControllerClient.new()
@@ -554,6 +571,17 @@ func _run() -> void:
 	_check(late_rows.size() == 3 and late_rows[2].begins_with("2nd") and late_rows[2].ends_with("not finished"),
 			"a marble that did not finish is listed as not finished, after the finishers: %s" % str(late_rows))
 	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
+	mr._open_results()
+	await _frames(2)
+	var kept_players: Array[int] = mr.participants.duplicate()
+	mr.participants.clear()   # Everyone left after the finish. Choose track and Cancel must not show an empty list.
+	mr._open_results()
+	await _frames(2)
+	var left_buttons: Array = mr.menu_buttons().map(func(b): return b.text)
+	var left_title: String = mr._menu_box.find_children("*", "Label", true, false)[0].text
+	_check(left_buttons == ["Back to menu"] and left_title == "No players connected",
+			"results with nobody left say 'No players connected' and only offer Back to menu: %s" % str(left_buttons))
+	mr.participants.append_array(kept_players)
 	mr._open_results()
 	await _frames(2)
 	mr._open_picker()
