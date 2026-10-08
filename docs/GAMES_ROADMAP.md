@@ -9,25 +9,48 @@ This file is a plan, not a requirements file. Each game gets its own `docs/games
 - No saved scores. How users are identified is not decided, so nothing is stored. A solo game compares the score with fixed medal tiers. The tiers reset every run.
 - No bots. A game that needs opponents has `min_players` 2. Only Sumo Bumpers is like this.
 - Order of work: one branch for the common helpers, then one branch for each game. Each game branch starts from the merged helpers.
+- Recenter is the RECENTER button of the phone only (REQ-GM-37). It already works in every game (`{"t":"recenter"}`, `tv_server.gd`). A and B are free for game actions. The maze shortcut "A recenters" is removed.
 - Pointer tuning (Target Shoot) is checked on a real phone and TV with the `device-test` skill.
 
 ## Why helpers first
 
 `scripts/game/minigame.gd` has the shell (pause, result menu, countdown, leave question) but no score, rank or round clock.
-Every game below needs them. They are written once, with tests, in branch 0.
+Every game below needs them. Maze and Marble Race also repeat code that the new games would copy a third to seventh time.
+Branch 0 has two steps.
+
+### Step 0a: extract from the two existing games (no change of behavior)
+
+The existing tests are the safety net. Each helper gets its own unit tests (80% rule). The only behavior change is the removal
+of the maze A shortcut, and it changes `docs/games/maze.md` (REQ-MZ-8) and `tests/smoke_tv.gd` in the same commit (REQ-GM-5).
+
+| Helper | Replaces | Job |
+|--------|----------|-----|
+| No-players end | The "No players connected" menu and its guard flag, in `maze_game.gd` and `marble_race.gd` | One base-class method and one "over" flag (REQ-GM-22). |
+| Player-left hook | `_balls` filter in the maze, `_racers.erase` in the race | The base class calls `_on_player_left(slot)` once for each removed slot (REQ-GM-21). |
+| `RoundClock` | `Phase`/`_clock` in the maze, negative `_time` and `GO_SHOW` in the race | Countdown (3 s), playing time, ended state. `delta` only (REQ-GM-13, 35). |
+| `Haptics.throttled` | `haptic_cooldown` in the maze, `last_haptic_ms` in the race | A pulse with a minimum gap for each slot (REQ-GM-43). |
+| Recenter cleanup | A button wiring in the maze (with `_exit_tree`), the stale "B recenters" comment in the race | Delete. The RECENTER button does the work. The maze keeps its recenter at GO. |
+| `Shell.player_chips` | Chip layout in the maze HUD | Chips in slot order for the plain case (REQ-GM-46). The race keeps its standings list. |
+
+Not extracted: collision code (different in each game), the two damping models (the feel would change and need a device test),
+and 3D-only code (camera, meshes).
+
+### Step 0b: new helpers
 
 | Helper | Job |
 |--------|-----|
 | Scoreboard | Score for each slot, ranking, ties, slot order (REQ-GM-46). Pure logic with unit tests (REQ-GM-61). |
-| Round timer | A round of fixed length, driven by `delta` only (REQ-GM-13), with a visible clock. |
+| Round timer | A round of fixed length on top of `RoundClock`, with a visible clock. |
 | Ranked result | A result menu with the ranking, slot-color chips, Restart and Back to menu (REQ-GM-34). |
 | Medal tiers | Solo rule: bronze, silver and gold score limits for one game. Shown on the result menu. Not saved. |
+| `TiltBody` | Position, velocity, tilt acceleration, damping, bounce. The damping model is a parameter, so maze and race can adopt it later without a change of feel. Added when the first new game needs it (Paint Grab). |
+| `Shell.ball` | The outlined 2D ball with shadow, shine and slot number, moved out of the maze draw code (REQ-GM-46, 47b). |
 
 ## Branches
 
 | # | Branch content | Players | Input | Competitive mode | Solo mode |
 |---|----------------|---------|-------|------------------|-----------|
-| 0 | Common helpers | | | | |
+| 0 | Common helpers (step 0a, then 0b) | | | | |
 | 1 | Target Shoot (`target_shoot`) | 1 to 4 | pointer, A | Same targets for all. Most points in 45 s wins. Some targets give more. | Score attack against medal tiers |
 | 2 | Paint Grab (`paint_grab`) | 1 to 4 | tilt | Roll over tiles to claim them. Others can take them back. Most area at 60 s wins. | Cover 80% of the board before time ends |
 | 3 | Dodge Storm (`dodge_storm`) | 1 to 4 | tilt | Hazards fall. The last player standing wins. | Survive as long as possible, against medal tiers |
@@ -44,7 +67,7 @@ Checked against `main` on 2026-10-08.
 - Leaving a game in progress asks first (REQ-GM-31a). A game overrides `_can_open_menu()` (or `_in_progress()`) to say when it is over.
 - A ball-like player object shows the slot number, and chips are in slot order (REQ-GM-46).
 - Key objects are at least 48 px high and use no pale grey (REQ-GM-47d, 47e). All text is 28 px or larger (REQ-GM-41).
-- On the phone, A is green and B is red (REQ-FL-52). A game states what B does, or that it does nothing.
+- On the phone, A is green and B is red (REQ-FL-52). A game states what A and B do, or that they do nothing. Recenter is not a game action: the RECENTER button does it (REQ-GM-37).
 - Hints use `Shell.hint` (dark plate).
 
 ## Cost of each game branch
