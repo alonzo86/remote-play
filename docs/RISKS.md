@@ -34,7 +34,7 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 | C4 | **The /24 assumption.** The subnet broadcast uses `x.y.z.255`. | Wrong on /16 networks. | `255.255.255.255` is also sent. |
 | C5 | **QR scanner plugin is unverified.** It is a small Java plugin (`android/plugin/QrScannerPlugin.java`) for the Google code scanner. It compiled only against stubs, not against the real ML Kit and Godot libraries. It needs Google Play services. | Scan fails or the app does not build. | Check on a phone (`docs/DEVICE_TEST.md`, test 2). Fallbacks: the list, the room code, the TV IP. Use ZXing (`zxing-android-embedded`) if the phone has no Play services. |
 | C6 | **No authentication.** Any device on the LAN can join with the room code. | A neighbour on shared Wi-Fi can join. | Acceptable for a home LAN. Add a PIN in `hello` if needed. |
-| C7 | **The phone app goes to the background.** Android stops the sensors and the app. | The slot becomes `LOST`; the game pauses. | Done: the reconnect with token. The 30 s slot grace is in `Protocol.SLOT_GRACE_MS`. |
+| C7 | **The phone app goes to the background.** Android stops the sensors and the app. | The slot becomes `LOST`; the game pauses. When no player is left connected the game ends at once (REQ-GM-30a). | Done: the reconnect with token. The 30 s slot grace is in `Protocol.SLOT_GRACE_MS`. |
 
 ## D. Android and TV platform
 

@@ -58,7 +58,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
 - REQ-T6: The TV app follows the flow in `docs/TV_FLOW.md`: logo, Connect controllers, Games, and a game. Settings and the Players modal open from the Games screen.
 - REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values.
-- REQ-T5: The player can pause when a phone disconnects. The player can continue when it reconnects. If the only remaining player stays lost for 5 seconds, the game ends (REQ-GM-30a).
+- REQ-T5: The player can pause when a phone disconnects. The player can continue when it reconnects. When no player is left connected, the game ends at once, without a wait (REQ-GM-30a).
 
 ## 7. Android export
 
