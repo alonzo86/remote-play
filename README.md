@@ -145,6 +145,19 @@ GODOT=/path/to/godot tests/run_all.sh
   restart) and the marble race.
 - `tests/screenshots*.gd`: save screenshots (needs a display, for example `xvfb-run`).
 
+### Coverage
+
+```sh
+GODOT=/path/to/godot tools/coverage.sh        # needs python3 and gdtoolkit (pip install "gdtoolkit==4.*")
+```
+
+Godot has no coverage switch, so `tools/coverage/instrument.py` makes a copy of the project and puts a hit call before each
+statement inside a function in `scripts/` (it uses the parser of gdtoolkit). The two test scripts run on the copy. The result is in
+`build/coverage/`: `summary.md`, `summary.json` and `lcov.info`. `--min 80` makes the script fail below 80%.
+The CI job `coverage` runs the same script, shows the table in the run summary and keeps the files for 14 days. It reports only.
+What it counts: statements in functions that start on their own line. Class variables and constants are not counted.
+Phone-only and Android-only code (`qr_scanner.gd`, `sensor_sampler.gd`) stays low, because only a device can run it.
+
 ## Status
 
 - Tested: headless tests above, and a two-process run (TV and phone) on one PC with real UDP discovery.

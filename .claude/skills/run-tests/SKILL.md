@@ -16,4 +16,7 @@ description: Run the Remote Play headless tests and lint. Use after any change t
    and pass `PIP_CERT=` for that one command. Do not edit the user's pip config.
 4. Report the real counts and any failures. Never report a pass for a step that did not run.
 
+For the line coverage of `scripts/` run `GODOT=<path> tools/coverage.sh` (see the README, section Coverage). Report the total and the
+lowest files. It is slow (it runs the tests again on an instrumented copy), so run it when asked or when tests were added.
+
 Screenshot scripts (`tests/screenshots*.gd`) need a display and are not part of the CI run.

@@ -1,0 +1,28 @@
+#!/bin/sh
+# Line coverage of the GDScript code in scripts/, from the headless tests.
+# Usage: GODOT=/path/to/godot tools/coverage.sh [output dir] [--min PERCENT]
+# Output (default build/coverage): summary.md, summary.json, lcov.info.
+# It needs python3 and gdtoolkit (pip install "gdtoolkit==4.*"). See tools/coverage/instrument.py.
+set -eu
+cd "$(dirname "$0")/.."
+GODOT="${GODOT:-godot}"
+OUT="build/coverage"
+if [ $# -gt 0 ] && [ "${1#--}" = "$1" ]; then
+	OUT="$1"
+	shift
+fi
+WORK="$OUT/instrumented"
+rm -rf "$OUT"
+mkdir -p "$OUT/hits"
+python3 tools/coverage/instrument.py . "$WORK"
+COVERAGE_OUT="$(cd "$OUT/hits" && pwd)"
+export COVERAGE_OUT
+(
+	cd "$WORK"
+	"$GODOT" --headless --path . --import >/dev/null 2>&1 || true
+	echo "== unit and network tests"
+	"$GODOT" --headless --path . --script tests/run_tests.gd -- --role=controller
+	echo "== TV smoke test"
+	"$GODOT" --headless --path . --script tests/smoke_tv.gd -- --role=tv
+)
+python3 tools/coverage/report.py "$WORK/coverage_manifest.json" "$COVERAGE_OUT" "$OUT" "$@"
