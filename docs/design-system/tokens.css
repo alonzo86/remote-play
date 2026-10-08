@@ -1,0 +1,60 @@
+/* Remote Play: generated from tokens.json by tools/design_tokens_css.py. Fonts live in assets/fonts. */
+:root{
+  --bg: #3d1a9e;
+  --bg-dark: #2c1180;
+  --panel-light: #4c2bbd;
+  --button: #7152e8;
+  --disabled: #4a3b8f;
+  --accent-light: #ffe282;
+  --disabled-edge: #30265d;
+  --disabled-text: #aea1cc;
+  --quiet-outline: #d9c9ff8c;
+  --dim-layer: #1a0b45b8;
+  --card-empty: #ffffff80;
+  --outline: #1a0b45;
+  --text: #ffffff;
+  --text-dim: #d9c9ff;
+  --accent: #ffd23f;
+  --ok: #57cc99;
+  --bad: #ff4d6d;
+  --card: #ffffff;
+  --card-text: #24104f;
+  --card-dim: #6b5a9e;
+  --room: #ff3d8b;
+  --card-ready: #1f9d6b;
+  --slot-empty: #b9b0d6;
+  --badge-empty: #d8d2ea;
+  --shadow-ink: #1a0a4573;
+  --confetti-pink: #ff5ea8;
+  --confetti-cyan: #3ddcff;
+  --player-1: #e63946;
+  --player-2: #2a9d8f;
+  --player-3: #f4a261;
+  --player-4: #457b9d;
+  --world-blue: #1b3a8a;
+  --world-teal: #0f6a78;
+  --world-plum: #7a1f4a;
+  --world-green: #145a3a;
+  --world-amber: #8a4a00;
+  --brand-dark: #14161c;
+  --brand-yellow: #ffd166;
+  --shadow-hard: 6px 6px 0 0 #1a0b4573;
+  --space-8: 8px;
+  --space-14: 14px;
+  --space-22: 22px;
+  --space-28: 28px;
+  --space-32: 32px;
+  --space-44: 44px;
+  --safe-area: 60px;
+  --radius-md: 20px;
+  --radius-slot: 22px;
+  --radius-lg: 26px;
+  --radius-pill: 42px;
+  --outline-w: 6px;
+  --outline-focus-w: 10px;
+  --outline-quiet-w: 4px;
+  --font-display: "Lilita One", system-ui, sans-serif;
+  --font-body: "Fredoka", system-ui, sans-serif;
+}
+@font-face{font-family:"Lilita One";src:url(../../assets/fonts/LilitaOne-Regular.ttf) format("truetype");font-weight:400}
+@font-face{font-family:"Fredoka";src:url(../../assets/fonts/Fredoka.ttf) format("truetype");font-weight:300 700}

@@ -20,6 +20,9 @@ const CARD := Color("ffffff")
 const CARD_TEXT := Color("24104f")
 const CARD_DIM := Color("6b5a9e")
 const ROOM := Color("ff3d8b")        # Room code.
+const CARD_READY := Color("1f9d6b")  # The "Ready!" word on a card.
+const SLOT_EMPTY := Color("b9b0d6")  # Dot of an empty slot on a card.
+const BADGE_EMPTY := Color("d8d2ea") # Dot of an empty slot on the players badge.
 const CONFETTI: Array[Color] = [Color("ff5ea8"), Color("3ddcff"), Color("ffd23f")]
 
 const OUTLINE_W := 6                 # Outline width in pixels at 1920x1080 (REQ-FL-38).
