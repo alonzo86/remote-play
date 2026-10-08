@@ -85,6 +85,9 @@ Tests
 - REQ-GM-60: Each game has a check in `tests/smoke_tv.gd`: start with 2 simulated phones, make one input, and check one state change.
 - REQ-GM-61: Pure logic (track maths, maze generation, scoring) has unit tests in `tests/run_tests.gd`.
 - REQ-GM-62: Each game has a short section in `docs/DEVICE_TEST.md` for what only a real device can check (feel, speed, readability).
+- REQ-GM-63: Every script of a game has at least 80% line coverage from the headless tests (`tools/coverage.sh`). The tests check the rules of the
+  game (what wins, what blocks, what happens when a player leaves), not only that the game starts. A script that needs extremely hard work to test
+  can be set aside in `tools/coverage/exclusions.txt` with a reason, and the game file lists it as a gap.
 
 ## 2D games
 

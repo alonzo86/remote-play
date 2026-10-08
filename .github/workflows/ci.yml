@@ -40,7 +40,8 @@ jobs:
         run: GODOT="$(which godot)" tests/run_all.sh
 
   coverage:
-    # Line coverage of scripts/ from the headless tests. It reports only. It does not fail the build.
+    # Line coverage of scripts/ from the headless tests. It fails when a module is below 80%.
+    # Modules that are set aside (with a reason) are in tools/coverage/exclusions.txt.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,8 +56,11 @@ jobs:
       - name: Tests with coverage
         run: GODOT="$(which godot)" tools/coverage.sh build/coverage
       - name: Coverage summary
-        run: cat build/coverage/summary.md >> "$GITHUB_STEP_SUMMARY"
+        if: always()
+        run: |
+          if [ -f build/coverage/summary.md ]; then cat build/coverage/summary.md >> "$GITHUB_STEP_SUMMARY"; fi
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: coverage
           path: |

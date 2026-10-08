@@ -78,6 +78,14 @@ func _run() -> void:
 	app.go_logo()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), TvLogo), "the logo can be shown again")
+	var accept := InputEventAction.new()
+	accept.action = "ui_accept"
+	accept.pressed = true
+	Input.parse_input_event(accept)
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvConnect), "the OK key skips the logo screen (REQ-FL-3)")
+	app.go_logo()
+	await _frames(3)
 	app.current_screen().on_back() # Back skips the logo. It does not quit (REQ-FL-3).
 	await _frames(3)
 	var connect: Control = app.current_screen()
@@ -132,6 +140,25 @@ func _run() -> void:
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), TvConnect) and app.server.connected_slots().size() == 2,
 			"Back on Games returns to Connect and the players stay (REQ-FL-9, 18)")
+	app.go_games()
+	await _frames(3)
+	games = app.current_screen()
+	# The Back key of the remote and F3 (REQ-T3, REQ-T4).
+	var back_key := InputEventKey.new()
+	back_key.keycode = KEY_BACK
+	back_key.pressed = true
+	app._last_back_ms = 0
+	app._input(back_key)
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvConnect), "the Back key of the remote goes back one screen")
+	var f3 := InputEventKey.new()
+	f3.keycode = KEY_F3
+	f3.pressed = true
+	var overlay_before: bool = app.overlay.visible
+	app._input(f3)
+	_check(app.overlay.visible != overlay_before, "F3 toggles the debug overlay")
+	app._input(f3)
+	_check(app.overlay.visible == overlay_before, "F3 toggles it back")
 	app.go_games()
 	await _frames(3)
 	games = app.current_screen()
@@ -219,6 +246,107 @@ func _run() -> void:
 	game.restart()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), MazeGame) and app.current_screen() != game, "restart makes a new maze screen")
+
+	# Maze physics, the end of a round, and the buttons (REQ-MZ-4 to 6).
+	var mz: Control = app.current_screen()
+	var haptics: Array = []
+	clients[0].haptic_requested.connect(func(ms): haptics.append(ms))
+	var b0 = mz._balls[0]
+	var ball_r: float = mz.BALL_R
+	var horizontal: Rect2 = mz._walls.filter(func(r): return r.size.x > r.size.y)[0]
+	var vertical: Rect2 = mz._walls.filter(func(r): return r.size.y > r.size.x)[0]
+	var cases := [
+		["up", Vector2(horizontal.get_center().x, horizontal.position.y + 1.0), horizontal],
+		["down", Vector2(horizontal.get_center().x, horizontal.end.y - 1.0), horizontal],
+		["left", Vector2(vertical.position.x + 1.0, vertical.get_center().y), vertical],
+		["right", Vector2(vertical.end.x - 1.0, vertical.get_center().y), vertical],
+	]
+	var pushed_out := true
+	for c in cases:
+		var wall: Rect2 = c[2]
+		b0.pos = c[1]
+		b0.vel = Vector2.ZERO
+		mz._collide(b0)
+		var nearest := Vector2(clampf(b0.pos.x, wall.position.x, wall.end.x), clampf(b0.pos.y, wall.position.y, wall.end.y))
+		var side_ok: bool = (c[0] == "up" and b0.pos.y < wall.position.y) or (c[0] == "down" and b0.pos.y > wall.end.y) \
+				or (c[0] == "left" and b0.pos.x < wall.position.x) or (c[0] == "right" and b0.pos.x > wall.end.x)
+		if not (side_ok and b0.pos.distance_to(nearest) >= ball_r - 0.5):
+			pushed_out = false
+			print("    a ball in a wall was not pushed out of the ", c[0], " side")
+	_check(pushed_out, "a ball that is inside a wall is pushed out the short way, on all four sides")
+	# A hard hit bounces the ball back with a quarter of its speed and buzzes the phone. A soft hit does not buzz.
+	b0.pos = Vector2(horizontal.get_center().x, horizontal.position.y - ball_r + 3.0)
+	b0.vel = Vector2(0, 400)
+	b0.haptic_cooldown = 0.0
+	mz._collide(b0)
+	_check(is_equal_approx(b0.vel.y, -400.0 * mz.RESTITUTION) and b0.haptic_cooldown > 0.0,
+			"a hard hit bounces the ball back (%.0f px/s) and starts the buzz cool-down" % b0.vel.y)
+	await _frames(10)
+	_check(haptics == [20], "the phone of the ball buzzes 20 ms after a hard hit: %s" % str(haptics))
+	b0.pos = Vector2(horizontal.get_center().x, horizontal.position.y - ball_r + 3.0)
+	b0.vel = Vector2(0, 100)
+	b0.haptic_cooldown = 0.0
+	mz._collide(b0)
+	_check(b0.haptic_cooldown == 0.0 and b0.vel.y < 0.0, "a soft hit bounces without a buzz")
+	b0.pos = Vector2(mz.CELL * 0.5, mz.CELL * 0.5)
+	b0.vel = Vector2(5000.0, 0.0)
+	mz._step_ball(b0, 0.016)
+	_check(b0.vel.length() <= mz.MAX_SPEED + 0.5, "the speed of a ball is limited (%.0f px/s)" % b0.vel.length())
+
+	# The buttons: A recenters (REQ-MZ), B does nothing in the maze.
+	var lean := deg_to_rad(15.0)
+	var tilted := Vector3(-sin(lean), 0.0, cos(lean)) * 9.81
+	var feed := func():
+		for i in 90:
+			app.server.players[0].on_sensor(Protocol.decode_sensor(
+					Protocol.encode_sensor(i, i * 16, Vector3.ZERO, tilted, 0, 0, Vector2.ZERO)), Time.get_ticks_msec())
+	feed.call()
+	app.server.players[0].button_pressed.emit(Protocol.BTN_B)
+	_check(app.server.players[0].tilt().length() > 0.2, "B does not recenter in the maze")
+	app.server.players[0].button_pressed.emit(Protocol.BTN_A)
+	_check(app.server.players[0].tilt().length() < 0.02, "A recenters during the maze")
+	await _stream(clients[0], 0, 0.5, flat) # Back to a flat reference for the next games.
+	app.server.players[0].recenter()
+
+	# A ball in the exit ends the round: one winner, a result menu, a long buzz, no pause menu.
+	mz._clock = 0.0
+	mz._game_tick(0.01)
+	_check(mz._phase == mz.Phase.PLAYING, "the countdown ends and the race starts")
+	haptics.clear()
+	mz._balls[0].pos = mz._exit_center()
+	mz._game_tick(0.016)
+	_check(mz._phase == mz.Phase.DONE and mz._winner == mz._balls[0].slot, "a ball in the exit wins")
+	var labels: Array = mz.menu_buttons().map(func(b): return b.text)
+	_check(labels == ["Play again", "Back to menu"] and mz.is_paused(), "the result menu opens: %s" % str(labels))
+	_check(not mz._can_open_menu(), "the pause menu cannot open over the result menu")
+	mz._balls[1].pos = mz._exit_center()
+	mz._game_tick(0.016)
+	_check(mz._winner == mz._balls[0].slot, "a second ball in the exit does not change the winner")
+	await _frames(10)
+	_check(haptics.has(400), "the phone of the winner buzzes 400 ms: %s" % str(haptics))
+	mz.menu_buttons()[0].pressed.emit()
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), MazeGame) and app.current_screen() != mz and app.current_screen()._phase == 0,
+			"Play again starts a new maze with a countdown")
+
+	# A player who leaves takes the ball out of the game (REQ-GM-21).
+	var third := ControllerClient.new()
+	third.player_name = "Third"
+	root.add_child(third)
+	third.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+	var t4 := Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t4 < 4000:
+		await process_frame
+	app.go(MazeGame)
+	await _frames(3)
+	var mz3: Control = app.current_screen()
+	_check(mz3.participants.size() == 3 and mz3._balls.size() == 3, "a maze with 3 phones has 3 balls")
+	app.server.drop_player(third.slot)
+	await _frames(3)
+	_check(mz3.participants.size() == 2 and mz3._balls.size() == 2 and not mz3.is_paused(),
+			"a player who leaves takes the ball out and the game goes on")
+	third.leave()
+	await _frames(3)
 
 	# Marble race menu: one entry, then a track list, then the race.
 	app.go_menu()

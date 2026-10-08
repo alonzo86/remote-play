@@ -18,5 +18,7 @@ description: Add a new minigame to the Remote Play TV app. Use when asked to cre
    Make the tile screenshot with `tools/make_tiles.gd` and check it next to the Games screen (REQ-GM-49).
 5. Add a check to `tests/smoke_tv.gd` (start the game with simulated phones, check one state change), and unit tests for pure logic.
    Put the requirement ID in the check text. Add a section to `docs/DEVICE_TEST.md`.
+   Every script of the game needs 80% line coverage (`tools/coverage.sh`, REQ-GM-63). Test the rules of the game (win, collision, leaving
+   players, buttons), not only that it starts.
 6. Run the `run-tests` skill and the `review` skill, then update the README project structure if needed.
    Set the status of each requirement (Done, Open, Device) so that the file matches the code.

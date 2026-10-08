@@ -76,11 +76,14 @@ static func decode_sensor(b: PackedByteArray) -> Dictionary:
 	}
 
 
-## Parse a JSON text frame. Returns an empty Dictionary on error.
+## Parse a JSON text frame. Returns an empty Dictionary on error, and when the JSON is not an object.
+## It does not print an error: any device on the Wi-Fi can send text to the beacon port.
 static func parse_json(text: String) -> Dictionary:
-	var v: Variant = JSON.parse_string(text)
-	if v is Dictionary:
-		return v
+	var json := JSON.new()
+	if json.parse(text) != OK:
+		return {}
+	if json.data is Dictionary:
+		return json.data
 	return {}
 
 

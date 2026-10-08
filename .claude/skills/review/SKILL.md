@@ -42,4 +42,7 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 
 **Tests and docs**
 - Behaviour changes in `scripts/` need a check in `tests/run_tests.gd` or `tests/smoke_tv.gd`.
+- Every module has 80% line coverage (`tools/coverage.sh`), or is set aside with a reason in `tools/coverage/exclusions.txt`.
+  Read the new tests: each must assert a behavior and fail when it breaks. Report a test that only runs lines, and a set-aside module
+  that could be tested without extreme work.
 - User-visible changes update `README.md`, and test results go in `docs/DEVICE_TEST.md`.

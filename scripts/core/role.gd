@@ -20,14 +20,20 @@ func is_controller() -> bool:
 
 
 func _detect() -> Kind:
-	for arg in OS.get_cmdline_user_args() + OS.get_cmdline_args():
+	return pick(OS.get_cmdline_user_args() + OS.get_cmdline_args(), OS.has_feature)
+
+
+## The choice itself. `args` are the command line arguments. `has_feature` takes a feature tag and
+## returns true or false. A test can call this with its own values.
+static func pick(args: Array, has_feature: Callable) -> Kind:
+	for arg in args:
 		if arg == "--role=tv":
 			return Kind.TV
 		if arg == "--role=controller":
 			return Kind.CONTROLLER
-	if OS.has_feature("controller"):
+	if has_feature.call("controller"):
 		return Kind.CONTROLLER
-	if OS.has_feature("tv"):
+	if has_feature.call("tv"):
 		return Kind.TV
 	# No tag and no argument (for example, the editor). Phones are the safer default.
-	return Kind.CONTROLLER if OS.has_feature("mobile") else Kind.TV
+	return Kind.CONTROLLER if has_feature.call("mobile") else Kind.TV
