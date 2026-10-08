@@ -9,15 +9,17 @@ func _ready() -> void:
 	custom_minimum_size = Vector2(84, 84)
 	focus_entered.connect(queue_redraw)
 	focus_exited.connect(queue_redraw)
-	for st in ["normal", "disabled"]:
-		add_theme_stylebox_override(st, UiTheme.card(UiTheme.BUTTON, UiTheme.OUTLINE, UiTheme.OUTLINE_W, 42))
-	for st in ["hover", "focus", "pressed"]:
-		add_theme_stylebox_override(st, UiTheme.card(UiTheme.BUTTON, UiTheme.ACCENT, 10, 42))
+	theme_type_variation = "RowButton"
+	add_theme_stylebox_override("normal", UiTheme.button_style(UiTheme.BUTTON, "normal", 42))
+	add_theme_stylebox_override("disabled", UiTheme.button_style(UiTheme.BUTTON, "disabled", 42))
+	for st in ["hover", "focus"]:
+		add_theme_stylebox_override(st, UiTheme.button_style(UiTheme.BUTTON, "focus", 42))
+	add_theme_stylebox_override("pressed", UiTheme.button_style(UiTheme.BUTTON, "pressed", 42))
 
 
 func _draw() -> void:
 	var c := size * 0.5
-	var col := UiTheme.ACCENT if has_focus() else UiTheme.TEXT
+	var col := UiTheme.ACCENT if has_focus() else UiTheme.TEXT # Yellow gear on focus: the border is black.
 	for i in 8:
 		var a := TAU * i / 8.0
 		var dir := Vector2.from_angle(a)

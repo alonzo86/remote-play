@@ -10,8 +10,6 @@ const SENSOR_HZ := 60
 const SENSOR_PACKET_SIZE := 36
 const PKT_SENSOR := 1
 const SLOT_GRACE_MS := 30000
-## How long the only remaining participant may stay lost before the game ends (REQ-GM-30a).
-const LAST_PLAYER_GRACE_MS := 5000
 const HELLO_TIMEOUT_MS := 5000
 const PEER_TIMEOUT_MS := 5000
 const ROOM_ALPHABET := "ACDEFGHJKLMNPQRTUVWXYZ"

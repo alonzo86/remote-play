@@ -11,6 +11,10 @@ var _title: Label
 var _sub: Label
 var _dot: Control
 var _name: Label
+var _leave: Button
+var _leave_timer: Timer
+
+const LEAVE_ARM_SECONDS := 3.0
 
 
 func _ready() -> void:
@@ -37,15 +41,36 @@ func _ready() -> void:
 	_sub.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_sub)
 	box.add_child(UiKit.spacer(60))
-	var leave := UiKit.button("Leave", func(): App.client.leave(), false, 44)
-	leave.custom_minimum_size = Vector2(0, 120)
-	box.add_child(leave)
+	# Leave is a small secondary button. The first tap arms it, the second tap leaves (REQ-FL-52).
+	_leave = UiKit.button("Leave", _on_leave_pressed, false, 40)
+	_leave.custom_minimum_size = Vector2(440, 96)
+	_leave.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(_leave)
+	_leave_timer = Timer.new()
+	_leave_timer.one_shot = true
+	_leave_timer.wait_time = LEAVE_ARM_SECONDS
+	_leave_timer.timeout.connect(_disarm_leave)
+	add_child(_leave_timer)
 
 	# Connect methods, not lambdas: App.client outlives this screen, and Godot disconnects a method
 	# when its node is freed.
 	App.client.phase_changed.connect(_on_phase)
 	App.client.state_changed.connect(_on_state)
 	_refresh()
+
+
+func _on_leave_pressed() -> void:
+	if _leave_timer.is_stopped():
+		_leave.text = "\u2715  Tap again to leave"
+		_leave.theme_type_variation = "DangerButton"
+		_leave_timer.start()
+	else:
+		App.client.leave()
+
+
+func _disarm_leave() -> void:
+	_leave.text = "Leave"
+	_leave.theme_type_variation = ""
 
 
 func _on_phase(_phase: String) -> void:
@@ -86,4 +111,4 @@ func _draw_dot() -> void:
 	_dot.draw_circle(center, r + 10.0, UiTheme.OUTLINE)
 	_dot.draw_circle(center, r, c.color)
 	UiTheme.draw_centered(_dot, UiTheme.title_font(), str(c.slot + 1),
-			Rect2(center - Vector2(r, r), Vector2(r, r) * 2.0), 170, Color.WHITE)
+			Rect2(center - Vector2(r, r), Vector2(r, r) * 2.0), 170, UiTheme.text_on(c.color))

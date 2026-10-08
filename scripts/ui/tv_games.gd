@@ -13,6 +13,7 @@ const GearButton = preload("res://scripts/ui/gear_button.gd")
 const PlayersModal = preload("res://scripts/ui/players_modal.gd")
 
 const CONTENT_W := 1720
+const ROW_LEN := 3   # Tiles in a row: 2 normal tiles and 1 wide tile fit in CONTENT_W.
 
 var _root: VBoxContainer
 var _grid_view: Control
@@ -21,12 +22,9 @@ var _scroll: ScrollContainer
 var _tiles: Array[Button] = []
 var _badge: Button
 var _gear: Button
-var _info_name: Label
-var _info_text: Label
 var _modal: Control
 var _variants_of := ""
 var _players := -1
-var _flash_reason := 0.0
 
 
 func _ready() -> void:
@@ -83,36 +81,26 @@ func _show_grid(focus_id := "") -> void:
 	_scroll.follow_focus = true
 	view.add_child(_scroll)
 	var pad := MarginContainer.new()
+	pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL # The scroll box gives it the full width, so the grid can center.
 	for side in ["left", "right", "top", "bottom"]:
 		pad.add_theme_constant_override("margin_" + side, 16)
 	_scroll.add_child(pad)
-	var grid := GridContainer.new()
-	grid.columns = 3
-	grid.add_theme_constant_override("h_separation", 40)
-	grid.add_theme_constant_override("v_separation", 26)
-	pad.add_child(grid)
+	# Rows of ROW_LEN tiles. The focused tile grows to the right and shows the description, and the tiles after it
+	# move aside (a Netflix menu, REQ-FL-12).
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 26)
+	pad.add_child(rows)
+	var row: HBoxContainer = null
 	for g in Registry.all():
+		if row == null or row.get_child_count() >= ROW_LEN:
+			row = HBoxContainer.new()
+			row.add_theme_constant_override("separation", 30)
+			rows.add_child(row)
 		var t: Button = GameTile.new()
 		t.game = g
 		t.pressed.connect(_on_tile.bind(g))
-		t.focus_entered.connect(_show_info.bind(String(g.title), String(g.description)))
-		grid.add_child(t)
+		row.add_child(t)
 		_tiles.append(t)
-	_badge.focus_entered.connect(_show_info.bind("Players", "See who is connected, remove a player, or add a phone."))
-	_gear.focus_entered.connect(_show_info.bind("Settings", "Debug overlay and the invert switches for tilt and yaw."))
-
-	var bar := UiKit.card_panel(UiTheme.BG_DARK, 20)
-	view.add_child(bar)
-	var h := HBoxContainer.new()
-	h.add_theme_constant_override("separation", 24)
-	bar.add_child(h)
-	_info_name = UiKit.title("", 40)
-	_info_name.custom_minimum_size = Vector2(260, 0)
-	h.add_child(_info_name)
-	_info_text = UiKit.label("", 30, UiTheme.TEXT, UiTheme.body_font())
-	_info_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_info_text.autowrap_mode = TextServer.AUTOWRAP_WORD
-	h.add_child(_info_text)
 
 	_players = -1
 	_update_fit()
@@ -125,21 +113,9 @@ func _show_grid(focus_id := "") -> void:
 	UiKit.focus_later(first)
 
 
-func _show_info(title: String, text: String) -> void:
-	_info_name.text = title
-	_info_text.text = text
-	_info_text.add_theme_color_override("font_color", UiTheme.TEXT)
-
-
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if _variants_of == "":
 		_update_fit()
-	if _flash_reason > 0.0:
-		_flash_reason -= delta
-		if _flash_reason <= 0.0:
-			var f := get_viewport().gui_get_focus_owner()
-			if f != null and "game" in f:
-				_show_info(String(f.game.title), String(f.game.description))
 
 
 ## Dims the tiles of games that do not accept the number of players now (REQ-FL-14, 27).
@@ -155,11 +131,7 @@ func _update_fit() -> void:
 func _on_tile(game: Dictionary) -> void:
 	var n: int = App.server.connected_slots().size()
 	if not Registry.accepts(game, n):
-		_info_name.text = String(game.title)
-		_info_text.text = "%s. Add or remove phones with the players badge." % Registry.reason(game, n)
-		_info_text.add_theme_color_override("font_color", UiTheme.ACCENT)
-		_flash_reason = 2.5
-		return
+		return # The tile shows the reason in yellow under its title (REQ-FL-14).
 	App.last_game = String(game.id)
 	if game.has("variants"):
 		_show_variants(game)

@@ -75,9 +75,9 @@ The lengths are measured (`MarbleTrack.length`). The winning times are targets, 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-MR-40 | The camera looks down from above and slightly from behind. It never turns. Up on the screen is toward the start of the track's first straight. | Done | Device |
-| REQ-MR-41 | The camera follows the middle of the pack and moves higher when the marbles are far apart (16 m to 48 m). | Done | Device |
+| REQ-MR-41 | The camera follows the middle of the pack and moves higher when the marbles are far apart (9 m to 48 m). | Done | Device |
 | REQ-MR-42 | All marbles stay in view while they are 55 m or less apart along the screen. Beyond that, an arrow in the color of the marble shows at the screen edge, and a number shows how many meters it is behind the leader. | Done | smoke_tv, Device |
-| REQ-MR-43 | The track floor, the edge, the posts, the finish line and the marbles have clear and different colors. Marbles use the slot color. The posts use a grey that is not a slot color. | Done | smoke_tv (post color), Device |
+| REQ-MR-43 | The track floor, the edge, the posts, the finish line and the marbles have clear and different colors. Marbles use the slot color. The posts use cyan `#3ddcff`, which is not a slot color. The HUD shows "Finish in N m" for the leader. | Done | smoke_tv (post color), Device |
 | REQ-MR-44 | Visual language (`docs/TV_FLOW.md`, FD-14, REQ-GM-47). The marbles and the posts are outlined spheres and cylinders (inverted-hull mesh, `add_outlined_mesh`). The track floor is purple `#472aa3`, the rim is the dark outline color, the finish line is a checkered band of boxes, the background is teal `#0f6a78`. The shell draws the HUD and the countdown. The tile screenshot shows this look. | Done | Screenshot (`tools/make_tiles.gd`), Device |
 
 ## Parameters

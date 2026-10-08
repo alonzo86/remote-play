@@ -17,9 +17,6 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 ## Values the game was started with (App.go props). restart() uses them again.
 var start_props := {}
 
-## How long everybody may stay lost before the game ends (tests make it shorter).
-var last_player_grace_ms := Protocol.LAST_PLAYER_GRACE_MS
-
 ## Slots that joined when the game started.
 var participants: Array[int] = []
 
@@ -73,21 +70,10 @@ func nobody_connected() -> bool:
 	return true
 
 
-## True when everybody has been lost for longer than `Protocol.LAST_PLAYER_GRACE_MS`. A short Wi-Fi
-## drop of a single player does not end the game: the phone has this long to come back.
-func nobody_left() -> bool:
-	if not nobody_connected():
-		return false
-	var now := Time.get_ticks_msec()
-	for s in participants:
-		if now - player(s).lost_since_ms <= last_player_grace_ms:
-			return false
-	return true
-
-
 func _process(delta: float) -> void:
-	if nobody_left():
-		# The last player is gone. Do not ask to continue without them: end the game (REQ-GM-30a).
+	if nobody_connected():
+		# Every participant is lost, so nobody is left. Do not ask to continue without them: end the game
+		# at once (REQ-GM-30a).
 		for s in lost_participants():
 			App.server.drop_player(s)
 	_prune_participants()
@@ -108,13 +94,22 @@ func _unhandled_input(event: InputEvent) -> void:
 				App.server.drop_player(s)
 			get_viewport().set_input_as_handled()
 		elif _can_open_menu():
-			open_menu("Paused", [["Resume", close_menu], ["Restart", restart], ["Back to menu", App.go_menu]])
+			open_menu("Paused", [["Resume", close_menu], ["Restart", restart], ["Back to menu", request_leave]])
 			get_viewport().set_input_as_handled()
 
 
 func on_back() -> void:
 	if _menu_open:
-		close_menu()
+		close_menu() # Also the "End the game?" question: Back is "Keep playing".
+	else:
+		request_leave()
+
+
+## Leaves the game for the Games screen (REQ-GM-31a). While the game is in progress it asks first: a round
+## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
+func request_leave() -> void:
+	if _in_progress():
+		open_menu("End the game?", [["Keep playing", close_menu], ["\u2715  End game", App.go_menu, "danger"]])
 	else:
 		App.go_menu()
 
@@ -141,6 +136,8 @@ func open_menu(title: String, entries: Array) -> void:
 	var first: Button = null
 	for e in entries:
 		var b := UiKit.button(String(e[0]), e[1], first == null, 40)
+		if e.size() > 2 and e[2] == "danger":
+			b.theme_type_variation = "DangerButton"
 		b.custom_minimum_size = Vector2(440, 82)
 		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		box.add_child(b)
@@ -214,6 +211,13 @@ func _game_draw() -> void:
 
 func _can_open_menu() -> bool:
 	return true
+
+
+## True while the game is in progress, so that leaving it asks first (REQ-GM-31a). It is not the same as
+## `_can_open_menu()`: a game may block the pause menu (for example in a countdown) and still be in progress.
+## By default it is the same.
+func _in_progress() -> bool:
+	return _can_open_menu()
 
 
 func _on_participants_changed() -> void:

@@ -38,16 +38,18 @@ static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width 
 	return r
 
 
+## The race timer: a pill with a dark outline, in a fixed place. `pos` is the top-left corner.
+static func timer(ci: CanvasItem, pos: Vector2, seconds: float, width := 200.0) -> Rect2:
+	var r := Rect2(pos, Vector2(width, 64.0))
+	ci.draw_style_box(UiTheme.card(UiTheme.BG_DARK, UiTheme.OUTLINE, 5, 32, true), r)
+	ci.draw_string(UiTheme.title_font(), pos + Vector2(0, 46.0), "%.1f s" % seconds, HORIZONTAL_ALIGNMENT_CENTER, width, 40,
+			UiTheme.TEXT)
+	return r
+
+
 ## Contrast ratio of two colors (WCAG). Tests use it to check the text on the chips.
 static func contrast(a: Color, b: Color) -> float:
-	var la := _luminance(a)
-	var lb := _luminance(b)
-	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
-
-
-static func _luminance(c: Color) -> float:
-	var f := func(x: float) -> float: return x / 12.92 if x <= 0.03928 else pow((x + 0.055) / 1.055, 2.4)
-	return 0.2126 * f.call(c.r) + 0.7152 * f.call(c.g) + 0.0722 * f.call(c.b)
+	return UiTheme.contrast(a, b)
 
 
 ## The countdown. `label` is "3", "2", "1" or "GO". `elapsed` is 0 to 1 inside the current number:
@@ -68,6 +70,11 @@ static func _outline_for(font_size: int) -> int:
 	return clampi(int(font_size * 0.18), 4, 10)
 
 
-## A hint line at the bottom of the screen.
+## A hint line at the bottom of the screen, on a dark plate so that game graphics behind it
+## (for example a wall) never make it hard to read.
 static func hint(ci: CanvasItem, area: Vector2, msg: String) -> void:
-	text(ci, Vector2(0, area.y - 56), msg, 30, UiTheme.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER, area.x)
+	var w := UiTheme.body_bold().get_string_size(msg, HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x + 64.0
+	var plate := Rect2((area.x - w) * 0.5, area.y - 100.0, w, 64.0)
+	ci.draw_style_box(UiTheme.card(UiTheme.BG_DARK, UiTheme.OUTLINE, 4, 32, false), plate)
+	ci.draw_string(UiTheme.body_bold(), Vector2(plate.position.x, plate.position.y + 43.0), msg,
+			HORIZONTAL_ALIGNMENT_CENTER, w, 30, UiTheme.TEXT)

@@ -35,13 +35,14 @@ func _ready() -> void:
 	_qr.failed.connect(_on_qr_failed)
 	# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
 	var scan_text := "Scan QR code" if _qr.is_available() else "Paste TV link"
-	var scan := UiKit.button(scan_text, _on_scan_pressed, true, 48)
+	var scan := UiKit.button(scan_text, _on_scan_pressed, false, 48)
+	scan.theme_type_variation = "LightButton" # White: it stands out from the green TV buttons and the yellow Refresh.
 	scan.custom_minimum_size = Vector2(0, 150)
 	box.add_child(scan)
 
 	var head := HBoxContainer.new()
 	box.add_child(head)
-	var tv_title := UiKit.label("Detected TVs", 40, UiTheme.TEXT_DIM, UiTheme.body_bold())
+	var tv_title := UiKit.label("Discovered TVs", 40, UiTheme.TEXT_DIM, UiTheme.body_bold())
 	tv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tv_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	head.add_child(tv_title)
@@ -76,7 +77,7 @@ func _on_state(state: int) -> void:
 		_:
 			if App.last_error != "":
 				_status.text = App.last_error
-				_status.add_theme_color_override("font_color", UiTheme.BAD)
+				_status.add_theme_color_override("font_color", UiTheme.BAD_TEXT)
 			else:
 				_status.text = "Looking for a TV..."
 				_status.add_theme_color_override("font_color", UiTheme.TEXT)
@@ -99,8 +100,9 @@ func _rebuild_list() -> void:
 		_list.add_child(UiKit.label("Searching..." if searching else "No TVs found", 34, UiTheme.TEXT_DIM))
 		return
 	for tv in tvs:
-		var b := UiKit.button("TV %s   %d/%d players" % [tv.room, tv.players, tv.max],
-				func(): _join(tv.ip, tv.port, tv.room), false, 36)
+		# Green, so that the Refresh button above (yellow) is not the same color. Only "<code> x/y".
+		var b := UiKit.button("%s %d/%d" % [tv.room, tv.players, tv.max],
+				func(): _join(tv.ip, tv.port, tv.room), true, 40)
 		b.custom_minimum_size = Vector2(0, 130)
 		_list.add_child(b)
 

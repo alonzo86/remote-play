@@ -15,10 +15,21 @@ const OK := Color("57cc99")
 const BAD := Color("ff4d6d")
 const OUTLINE := Color("1a0b45")     # Outline and hard shadow.
 const BUTTON := Color("7152e8")      # Button fill: lighter purple than the background, so a button stands out.
-const DISABLED := Color("4a3b8f")    # A disabled button: flat, muted, no shadow.
+const DISABLED := Color("c4c0cf")    # A disabled button: flat gray, no shadow (not see-through).
+const DISABLED_EDGE := Color("7d7890") # Outline of a disabled button.
+const DISABLED_TEXT := Color("4d4863") # Label of a disabled button.
+const FOCUS_BORDER := Color("000000")  # The border of the focused button (REQ-FL-41).
 const CARD := Color("ffffff")
 const CARD_TEXT := Color("24104f")
 const CARD_DIM := Color("6b5a9e")
+const CHIP_OK := Color("b9f0d3")      # State chips on a card: light fill, dark text (4.5:1 or more).
+const CHIP_OK_TEXT := Color("0d5538")
+const CHIP_BAD := Color("ffd0d9")
+const CHIP_BAD_TEXT := Color("a1163a")
+const DANGER := Color("b3122f")       # Fill of a destructive button. White text: 6.9:1.
+const BAD_TEXT := Color("ff8296")     # Error and offline text on the purple background (4.5:1 or more). BAD is for shapes.
+const CARD_EMPTY := Color(1, 1, 1, 0.82)  # Fill of an empty player slot: its dark text stays readable on the purple.
+const CARD_MUTED := Color("463678")   # Text on an empty slot or an OFF switch: 4.5:1 or more on the dimmed card.
 const ROOM := Color("ff3d8b")        # Room code.
 const CARD_READY := Color("1f9d6b")  # The "Ready!" word on a card.
 const SLOT_EMPTY := Color("b9b0d6")  # Dot of an empty slot on a card.
@@ -98,6 +109,56 @@ static func box(fill: Color, border: Color = Color.TRANSPARENT, border_w := 0, r
 	return s
 
 
+## Contrast ratio of two colors (WCAG).
+static func contrast(a: Color, b: Color) -> float:
+	var la := _luminance(a)
+	var lb := _luminance(b)
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
+
+
+static func _luminance(c: Color) -> float:
+	var f := func(x: float) -> float: return x / 12.92 if x <= 0.03928 else pow((x + 0.055) / 1.055, 2.4)
+	return 0.2126 * f.call(c.r) + 0.7152 * f.call(c.g) + 0.0722 * f.call(c.b)
+
+
+## The text color for a label on a fill (a slot number on a slot color): white or the dark card text,
+## whichever has more contrast. White on orange is 2.1:1, dark on orange is 8.1:1.
+static func text_on(fill: Color) -> Color:
+	return Color.WHITE if contrast(Color.WHITE, fill) >= contrast(CARD_TEXT, fill) else CARD_TEXT
+
+
+## The style of one state of a button (`state`: normal, focus, pressed or disabled).
+## Focus: a thick black border and a longer shadow (the button lifts, its size stays). Pressed: the box moves onto
+## its shadow and the shadow goes (the button sinks). Disabled: flat gray.
+static func button_style(fill: Color, state := "normal", radius := RADIUS) -> StyleBoxFlat:
+	match state:
+		"focus":
+			var f := card(fill, FOCUS_BORDER, 10, radius, true)
+			f.shadow_offset = SHADOW * 1.8
+			return f
+		"pressed":
+			var p := card(fill.darkened(0.12), FOCUS_BORDER, 10, radius, false)
+			p.expand_margin_left = -SHADOW.x
+			p.expand_margin_top = -SHADOW.y
+			p.expand_margin_right = SHADOW.x
+			p.expand_margin_bottom = SHADOW.y
+			return p
+		"disabled":
+			return card(DISABLED, DISABLED_EDGE, 4, radius, false)
+	return card(fill, OUTLINE, OUTLINE_W, radius, true)
+
+
+static func _button_type(t: Theme, type: String, fill: Color, text: Color) -> void:
+	for c in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
+		t.set_color(c, type, text)
+	t.set_color("font_disabled_color", type, DISABLED_TEXT)
+	t.set_stylebox("normal", type, button_style(fill))
+	t.set_stylebox("hover", type, button_style(fill, "focus"))
+	t.set_stylebox("focus", type, button_style(fill, "focus"))
+	t.set_stylebox("pressed", type, button_style(fill, "pressed"))
+	t.set_stylebox("disabled", type, button_style(fill, "disabled"))
+
+
 static func make() -> Theme:
 	var t := Theme.new()
 	t.default_font = body_font()
@@ -106,36 +167,25 @@ static func make() -> Theme:
 	t.set_color("font_color", "Label", TEXT)
 	t.set_font("font", "Button", body_bold())
 	t.set_font_size("font_size", "Button", 36)
-	# Buttons are light purple with white text. Focus: a thick yellow outline, like a tile (REQ-FL-41).
-	# Nothing is white, so a row of buttons is easy on the eyes.
-	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
-		t.set_color(c, "Button", TEXT)
-	# Yellow text is too weak on this purple, so the text stays white. The outline marks focus.
-	t.set_color("font_focus_color", "Button", TEXT)
-	t.set_color("font_disabled_color", "Button", TEXT_DIM.darkened(0.2))
-	t.set_stylebox("normal", "Button", card(BUTTON))
-	t.set_stylebox("hover", "Button", card(BUTTON, ACCENT, 10))
-	t.set_stylebox("focus", "Button", card(BUTTON, ACCENT, 10))
-	t.set_stylebox("pressed", "Button", card(BUTTON.darkened(0.2), ACCENT, 10))
-	t.set_stylebox("disabled", "Button", card(DISABLED, DISABLED.darkened(0.35), OUTLINE_W, RADIUS, false))
-	# A yellow button for the main action of a screen. Focus: a lighter fill and a thicker dark outline.
+	# Three button colors, all with a hard shadow: yellow (default), green (the main action), red (destroys
+	# something). A focused button gets a thick black border and lifts (a longer shadow). A pressed button sinks
+	# onto its shadow. A disabled button is flat gray (REQ-FL-41, 41a, 50).
+	_button_type(t, "Button", ACCENT, CARD_TEXT)
 	t.set_type_variation("PrimaryButton", "Button")
-	for c in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
-		t.set_color(c, "PrimaryButton", CARD_TEXT)
-	t.set_color("font_disabled_color", "PrimaryButton", TEXT_DIM.darkened(0.2))
-	t.set_stylebox("normal", "PrimaryButton", card(ACCENT))
-	t.set_stylebox("hover", "PrimaryButton", card(ACCENT.lightened(0.35), OUTLINE, 11))
-	t.set_stylebox("focus", "PrimaryButton", card(ACCENT.lightened(0.35), OUTLINE, 11))
-	t.set_stylebox("pressed", "PrimaryButton", card(ACCENT.darkened(0.15)))
-	t.set_stylebox("disabled", "PrimaryButton", card(DISABLED, DISABLED.darkened(0.35), OUTLINE_W, RADIUS, false))
-	# A quiet button for "Back": dark, flat, dim text. It does not look like one of the options.
+	_button_type(t, "PrimaryButton", OK, CARD_TEXT)
+	t.set_type_variation("DangerButton", "Button")
+	_button_type(t, "DangerButton", DANGER, Color.WHITE)
+	# A white button: the one action that must stand out among the colored buttons (Scan QR code).
+	t.set_type_variation("LightButton", "Button")
+	_button_type(t, "LightButton", CARD, CARD_TEXT)
+	# A purple row (a settings row, the players badge): white text on the button purple.
+	t.set_type_variation("RowButton", "Button")
+	_button_type(t, "RowButton", BUTTON, TEXT)
+	# A quiet button for "Back" on a choice screen: dark and flat. Focused, it turns light, so the black border shows.
 	t.set_type_variation("SecondaryButton", "Button")
+	_button_type(t, "SecondaryButton", Color("d8d2ea"), CARD_TEXT)
 	t.set_color("font_color", "SecondaryButton", TEXT_DIM)
-	t.set_color("font_pressed_color", "SecondaryButton", TEXT_DIM)
 	t.set_stylebox("normal", "SecondaryButton", card(BG_DARK, Color(TEXT_DIM, 0.55), 4, RADIUS, false))
-	t.set_stylebox("hover", "SecondaryButton", card(BG_DARK, ACCENT, 8, RADIUS, false))
-	t.set_stylebox("focus", "SecondaryButton", card(BG_DARK, ACCENT, 8, RADIUS, false))
-	t.set_stylebox("pressed", "SecondaryButton", card(BG_DARK.darkened(0.2), ACCENT, 8, RADIUS, false))
 	t.set_color("font_color", "LineEdit", CARD_TEXT)
 	t.set_color("font_placeholder_color", "LineEdit", CARD_DIM)
 	t.set_color("caret_color", "LineEdit", CARD_TEXT)

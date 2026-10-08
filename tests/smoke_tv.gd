@@ -22,6 +22,19 @@ func _initialize() -> void:
 	_run()
 
 
+## Texts in the tree of `n` with a font size below 28 px (REQ-FL-40). A label without an override uses 34.
+func _small_text(n: Node) -> Array:
+	var out := []
+	if n is Label or n is Button:
+		var fs: int = n.get_theme_font_size("font_size")
+		var txt: String = n.text
+		if txt != "" and fs < 28:
+			out.append("%s:%d" % [txt.left(20), fs])
+	for c in n.get_children():
+		out.append_array(_small_text(c))
+	return out
+
+
 func _check(cond: bool, what: String) -> void:
 	if cond:
 		print("  ok   ", what)
@@ -121,6 +134,29 @@ func _run() -> void:
 	var games: Control = app.current_screen()
 	_check(is_instance_of(games, TvGames) and app.server.phase == "menu", "Continue opens the Games screen")
 	_check(games._tiles.size() == Registry.all().size(), "one tile for each game (REQ-FL-11)")
+	# The tile_focus tile is wide and shows the description. The others keep the screenshot width (REQ-FL-12, 13).
+	await create_timer(0.4).timeout
+	var tile_focus: Button = null
+	for t in games._tiles:
+		if t.has_focus():
+			tile_focus = t
+	_check(tile_focus != null and is_equal_approx(tile_focus.size.x, tile_focus.wide_width()) and tile_focus._desc.modulate.a > 0.99,
+			"the focused tile grows wide and shows the description (REQ-FL-12)")
+	_check(tile_focus._desc.size.x <= tile_focus.INFO_W and tile_focus._desc.get_line_count() >= 2,
+			"the description wraps inside the panel of the wide tile")
+	var others_small := true
+	for t in games._tiles:
+		if t != tile_focus:
+			others_small = others_small and is_equal_approx(t.size.x, t.SHOT.x) and t._desc.modulate.a < 0.01
+	_check(others_small and games._tiles.size() >= 2, "the other tiles keep the screenshot width")
+	var next_tile: Button = games._tiles[(games._tiles.find(tile_focus) + 1) % games._tiles.size()]
+	next_tile.grab_focus()
+	await create_timer(0.4).timeout
+	_check(is_equal_approx(next_tile.size.x, next_tile.wide_width()) and is_equal_approx(tile_focus.size.x, tile_focus.SHOT.x),
+			"the focus moves: the new tile grows and the old tile shrinks")
+	tile_focus.grab_focus()
+	await create_timer(0.4).timeout
+	_check(_small_text(games).is_empty(), "Games screen: no text below 28 px (REQ-FL-40) " + str(_small_text(games)))
 	_check(games._badge.text == "2 players", "the badge shows the number of players (REQ-FL-15)")
 	var nobody: bool = true
 	for t in games._tiles:
@@ -165,6 +201,8 @@ func _run() -> void:
 	games._gear.pressed.emit()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), TvSettings), "the gear opens Settings")
+	var small: Array = _small_text(app.current_screen())
+	_check(small.is_empty(), "Settings screen: no text below 28 px (REQ-FL-40) " + str(small))
 	app.current_screen().on_back()
 	await _frames(3)
 	games = app.current_screen()
@@ -218,6 +256,8 @@ func _run() -> void:
 	await _frames(5)
 	await _stream(clients[0], 0, 3.3, flat)
 	var a := deg_to_rad(15.0)
+	_check(game._balls[0].pos.distance_to(game._balls[1].pos) > 2.0 * game.BALL_R + 2.0,
+			"two balls do not touch at the start (REQ-MZ-2)")
 	var start_x: float = game._balls[0].pos.x
 	var start_x1: float = game._balls[1].pos.x
 	var tilt := Vector3(-sin(a), 0, cos(a)) * 9.81  # Right side down.
@@ -370,6 +410,39 @@ func _run() -> void:
 	menu._launch("marble_race", {})   # A variant with empty props must start the game, not reopen the list.
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), MarbleRace), "a variant with empty props starts the game")
+	# Leaving a game in progress asks first (REQ-GM-31a).
+	var lg: Control = app.current_screen()
+	lg.on_back()
+	await _frames(2)
+	var leave_labels: Array = []
+	for b in lg.menu_buttons():
+		leave_labels.append(b.text)
+	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["Keep playing", "\u2715  End game"],
+			"Back in a game in progress asks 'End the game?' and pauses: %s" % str(leave_labels))
+	_check(lg._in_progress() == lg._can_open_menu() and lg._in_progress(), "a race in progress is in progress (REQ-GM-31a)")
+	_check(lg.menu_buttons()[1].theme_type_variation == "DangerButton", "End game is the red destructive button")
+	lg.on_back()
+	await _frames(2)
+	_check(app.current_screen() == lg and not lg.is_paused() and lg.menu_buttons().is_empty(), "Back on the question keeps playing")
+	var ok_event := InputEventAction.new()
+	ok_event.action = "ui_accept"
+	ok_event.pressed = true
+	lg._unhandled_input(ok_event) # OK opens the pause menu. Its "Back to menu" asks the same question.
+	await _frames(2)
+	lg.menu_buttons()[2].pressed.emit()
+	await _frames(2)
+	_check(app.current_screen() == lg and lg.menu_buttons().size() == 2 and lg.menu_buttons()[0].text == "Keep playing",
+			"Back to menu in the pause menu asks 'End the game?'")
+	lg.menu_buttons()[1].pressed.emit()
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvGames), "End game leaves for the Games screen")
+	app.go(MazeGame)
+	await _frames(3)
+	var over: Control = app.current_screen()
+	over._phase = over.Phase.DONE
+	over.request_leave()
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvGames), "a game that is over leaves at once, without the question")
 	app.go_menu()
 	await _frames(3)
 	menu = app.current_screen()
@@ -454,31 +527,20 @@ func _run() -> void:
 	root.add_child(solo)
 	solo.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
 	var t5 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 1 and Time.get_ticks_msec() - t5 < 4000:
-		await process_frame
+	while solo.state != ControllerClient.State.CONNECTED and Time.get_ticks_msec() - t5 < 4000:
+		await process_frame # Wait for the welcome: only then `solo.slot` is the slot of this phone.
 	_check(app.server.players[solo.slot].player_name == "Player %d" % (solo.slot + 1), "a phone without a name is Player N")
 	app.go(MazeGame)
 	await _frames(3)
 	var solo_game: Control = app.current_screen()
 	_check(solo_game.participants == [solo.slot], "the maze has the single player")
-	# A short drop does not end the game: the phone reconnects inside the grace time.
-	solo._ws.close()
-	await _frames(20)
-	_check(solo_game._paused_lost or solo.state == ControllerClient.State.CONNECTED, "the single player is lost, the game waits")
-	t5 = Time.get_ticks_msec()
-	while solo.state != ControllerClient.State.CONNECTED and Time.get_ticks_msec() - t5 < 4000:
-		await process_frame
-	await _frames(5)
-	_check(solo_game.participants == [solo.slot] and not solo_game._paused_lost and solo_game._menu_box == null,
-			"a single player who comes back in time continues")
-	# Lost for longer than the grace time: the game ends with a menu, without the pause message.
-	solo_game.last_player_grace_ms = 200
+	# The only player is lost: the game ends at once, with a menu and without the pause message (REQ-GM-30a).
 	solo._ws.close()
 	t5 = Time.get_ticks_msec()
 	while not solo_game.participants.is_empty() and Time.get_ticks_msec() - t5 < 3000:
 		await process_frame
 	_check(solo_game.participants.is_empty() and not solo_game._paused_lost and solo_game._menu_box != null,
-			"the last player stays lost: the game ends with a menu, without the pause message")
+			"the last player is lost: the game ends at once with a menu, without the pause message")
 	solo.leave()
 	await _frames(3)
 
@@ -492,13 +554,12 @@ func _run() -> void:
 	app.go(MarbleRace, Registry.find("marble_race").variants[0].props)
 	await _frames(3)
 	var solo_race: Control = app.current_screen()
-	solo_race.last_player_grace_ms = 200
 	solo2._ws.close()
 	t5 = Time.get_ticks_msec()
 	while not solo_race.participants.is_empty() and Time.get_ticks_msec() - t5 < 3000:
 		await process_frame
 	_check(solo_race._ended and not solo_race._paused_lost and solo_race._menu_box != null,
-			"marble race: the last player stays lost, the race ends with a menu")
+			"marble race: the last player is lost, the race ends at once with a menu")
 	solo2.leave()
 
 	app.go_menu()

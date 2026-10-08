@@ -12,9 +12,9 @@ description: Add a new minigame to the Remote Play TV app. Use when asked to cre
    `tilt()`, `pointer()`, `is_down()`, `button_pressed`, and the raw values. Never import anything from `scripts/net/`.
    Use `participants` for the players, `is_paused()` to freeze logic, and `App.server.haptic(slot, ms)` for feedback.
 3. Add one entry for it in `scripts/game/registry.gd`, with the `doc`, `description` and `tile` fields. The Games screen is built from the registry. For a 3D game, extend `minigame_3d.gd`.
-4. Follow the visual language (REQ-GM-45 to 49): use the shell (`scripts/game/shell.gd`, `open_menu`) for titles, chips, countdown and menus,
-   the slot color for everything of a player, and the toy-like world rules (rounded shapes, flat saturated colors, dark outline on key objects;
-   in 3D use `add_outlined_mesh`). Keep text inside the 60 px TV safe margin. Pick the background from the Party Pop set.
+4. Follow the visual language (REQ-GM-45 to 49): use the shell (`scripts/game/shell.gd`, `open_menu`) for titles, chips (in slot order), the timer pill, hints (on a dark plate), countdown and menus,
+   the slot color for everything of a player (and the slot number on a ball or marble, so color is never the only cue), and the toy-like world rules (rounded shapes, flat saturated colors, dark outline on key objects;
+   in 3D use `add_outlined_mesh`). Keep text inside the 60 px TV safe margin, and all text at 28 px or more. A key object is at least 48 px high on screen (REQ-GM-47e). When the last connected player is lost, the base class ends the game at once: show your "No players connected" menu in `_on_participants_changed()` (REQ-GM-30a). Pick the background from the Party Pop set.
    Make the tile screenshot with `tools/make_tiles.gd` and check it next to the Games screen (REQ-GM-49).
 5. Add a check to `tests/smoke_tv.gd` (start the game with simulated phones, check one state change), and unit tests for pure logic.
    Put the requirement ID in the check text. Add a section to `docs/DEVICE_TEST.md`.
