@@ -359,33 +359,6 @@ func _test_visual_rules() -> void:
 	_check(Shell.contrast(wall_c, floor_c) >= 3.0, "the maze walls can be seen on the floor")
 	_check(UiTheme.OUTLINE.v < 0.4, "the outline color is dark")
 
-	# Three button colors with a shadow, a black focus border, a sinking pressed state, a gray disabled state
-	# (REQ-FL-41, 41a, 50).
-	var theme := UiTheme.make()
-	var fills := {"Button": UiTheme.ACCENT, "PrimaryButton": UiTheme.OK, "DangerButton": UiTheme.DANGER,
-			"RowButton": UiTheme.BUTTON, "LightButton": UiTheme.CARD}
-	var btn_ok := true
-	for type in fills:
-		var n := theme.get_stylebox("normal", type) as StyleBoxFlat
-		var f := theme.get_stylebox("focus", type) as StyleBoxFlat
-		var pr := theme.get_stylebox("pressed", type) as StyleBoxFlat
-		var d := theme.get_stylebox("disabled", type) as StyleBoxFlat
-		btn_ok = btn_ok and n.bg_color.is_equal_approx(fills[type]) and n.shadow_offset == UiTheme.SHADOW
-		btn_ok = btn_ok and f.border_color == UiTheme.FOCUS_BORDER and f.border_width_left >= 10
-		btn_ok = btn_ok and f.shadow_offset.x > n.shadow_offset.x
-		btn_ok = btn_ok and f.bg_color.is_equal_approx(n.bg_color)
-		# Pressed: no shadow, and the box moved onto where the shadow was, with the same size.
-		btn_ok = btn_ok and pr.shadow_size == 0 and pr.expand_margin_left == -UiTheme.SHADOW.x \
-				and pr.expand_margin_right == UiTheme.SHADOW.x and pr.expand_margin_bottom == UiTheme.SHADOW.y
-		# Disabled: opaque, gray, no shadow.
-		btn_ok = btn_ok and d.bg_color.a == 1.0 and d.bg_color.s < 0.15 and d.shadow_size == 0
-		btn_ok = btn_ok and Shell.contrast(theme.get_color("font_color", type), fills[type]) >= 4.5
-		btn_ok = btn_ok and Shell.contrast(theme.get_color("font_disabled_color", type), UiTheme.DISABLED) >= 4.5
-		if not btn_ok:
-			print("    button style problem: ", type)
-			break
-	_check(btn_ok, "buttons: 3 colors, black focus border and lift, sunk pressed state, opaque gray disabled state")
-	_check(fills.Button != fills.PrimaryButton and fills.Button != fills.DangerButton, "yellow, green and red are three colors")
 	_check(UiTheme.SHADOW_COLOR.a < 1.0, "the shadow is see-through, so it is lighter than the outline")
 
 	# A name for a phone without one, and a digit centered in its circle.

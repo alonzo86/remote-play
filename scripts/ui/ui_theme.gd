@@ -28,6 +28,7 @@ const CHIP_BAD := Color("ffd0d9")
 const CHIP_BAD_TEXT := Color("a1163a")
 const DANGER := Color("b3122f")       # Fill of a destructive button. White text: 6.9:1.
 const BAD_TEXT := Color("ff8296")     # Error and offline text on the purple background (4.5:1 or more). BAD is for shapes.
+const CARD_EMPTY := Color(1, 1, 1, 0.82)  # Fill of an empty player slot: its dark text stays readable on the purple.
 const CARD_MUTED := Color("463678")   # Text on an empty slot or an OFF switch: 4.5:1 or more on the dimmed card.
 const ROOM := Color("ff3d8b")        # Room code.
 const CARD_READY := Color("1f9d6b")  # The "Ready!" word on a card.

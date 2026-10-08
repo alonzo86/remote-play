@@ -108,7 +108,7 @@ func on_back() -> void:
 ## Leaves the game for the Games screen (REQ-GM-31a). While the game is in progress it asks first: a round
 ## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
 func request_leave() -> void:
-	if _can_open_menu():
+	if _in_progress():
 		open_menu("End the game?", [["Keep playing", close_menu], ["\u2715  End game", App.go_menu, "danger"]])
 	else:
 		App.go_menu()
@@ -211,6 +211,13 @@ func _game_draw() -> void:
 
 func _can_open_menu() -> bool:
 	return true
+
+
+## True while the game is in progress, so that leaving it asks first (REQ-GM-31a). It is not the same as
+## `_can_open_menu()`: a game may block the pause menu (for example in a countdown) and still be in progress.
+## By default it is the same.
+func _in_progress() -> bool:
+	return _can_open_menu()
 
 
 func _on_participants_changed() -> void:

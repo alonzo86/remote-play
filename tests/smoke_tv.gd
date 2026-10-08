@@ -419,6 +419,7 @@ func _run() -> void:
 		leave_labels.append(b.text)
 	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["Keep playing", "\u2715  End game"],
 			"Back in a game in progress asks 'End the game?' and pauses: %s" % str(leave_labels))
+	_check(lg._in_progress() == lg._can_open_menu() and lg._in_progress(), "a race in progress is in progress (REQ-GM-31a)")
 	_check(lg.menu_buttons()[1].theme_type_variation == "DangerButton", "End game is the red destructive button")
 	lg.on_back()
 	await _frames(2)
@@ -526,8 +527,8 @@ func _run() -> void:
 	root.add_child(solo)
 	solo.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
 	var t5 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 1 and Time.get_ticks_msec() - t5 < 4000:
-		await process_frame
+	while solo.state != ControllerClient.State.CONNECTED and Time.get_ticks_msec() - t5 < 4000:
+		await process_frame # Wait for the welcome: only then `solo.slot` is the slot of this phone.
 	_check(app.server.players[solo.slot].player_name == "Player %d" % (solo.slot + 1), "a phone without a name is Player N")
 	app.go(MazeGame)
 	await _frames(3)

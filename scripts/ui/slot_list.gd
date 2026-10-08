@@ -79,7 +79,7 @@ func _pop(row: Control) -> void:
 
 func _make_row(p: PlayerInput) -> Control:
 	var present := p.is_present()
-	var fill := UiTheme.CARD if present else Color(UiTheme.CARD, 0.82)
+	var fill := UiTheme.CARD if present else UiTheme.CARD_EMPTY
 	var border := UiTheme.BAD if p.state == PlayerInput.State.LOST else UiTheme.OUTLINE
 	var panel := PanelContainer.new()
 	var style := UiTheme.card(fill, border, UiTheme.OUTLINE_W, 22, present)

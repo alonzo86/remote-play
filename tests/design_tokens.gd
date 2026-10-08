@@ -57,15 +57,14 @@ func _run() -> void:
 			wanted.append_array(consts[k].filter(func(v): return v is Color))
 	wanted.append_array(Protocol.PLAYER_COLORS)
 	# Colors the theme derives in code.
-	wanted.append_array([Color(UiTheme.TEXT_DIM, 0.55), Color(UiTheme.OUTLINE, 0.72),
-			Color(UiTheme.CARD, 0.82)])
+	wanted.append_array([Color(UiTheme.TEXT_DIM, 0.55), Color(UiTheme.OUTLINE, 0.72)])
 	# Each named token holds the value of its UiTheme constant (a swap of two values is caught).
 	var named := {"bg": UiTheme.BG, "bg-dark": UiTheme.BG_DARK, "panel-light": UiTheme.PANEL_LIGHT,
 			"button": UiTheme.BUTTON, "disabled": UiTheme.DISABLED, "disabled-edge": UiTheme.DISABLED_EDGE,
 			"disabled-text": UiTheme.DISABLED_TEXT,
 			"focus-border": UiTheme.FOCUS_BORDER, "danger": UiTheme.DANGER, "outline": UiTheme.OUTLINE, "text": UiTheme.TEXT,
 			"text-dim": UiTheme.TEXT_DIM, "accent": UiTheme.ACCENT, "ok": UiTheme.OK, "bad": UiTheme.BAD,
-			"card": UiTheme.CARD, "card-ready": UiTheme.CARD_READY, "slot-empty": UiTheme.SLOT_EMPTY,
+			"card": UiTheme.CARD, "card-empty": UiTheme.CARD_EMPTY, "card-ready": UiTheme.CARD_READY, "slot-empty": UiTheme.SLOT_EMPTY,
 			"badge-empty": UiTheme.BADGE_EMPTY, "card-text": UiTheme.CARD_TEXT, "card-dim": UiTheme.CARD_DIM, "room": UiTheme.ROOM,
 			"shadow-ink": UiTheme.SHADOW_COLOR, "confetti-pink": UiTheme.CONFETTI[0],
 			"confetti-cyan": UiTheme.CONFETTI[1], "player-1": Protocol.PLAYER_COLORS[0],
