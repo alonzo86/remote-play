@@ -38,6 +38,23 @@ static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width 
 	return r
 
 
+## The players (PlayerInput objects) in slot order, P1 first (REQ-GM-46).
+static func in_slot_order(players: Array) -> Array:
+	var ordered := players.duplicate()
+	ordered.sort_custom(func(a, b) -> bool: return a.slot < b.slot)
+	return ordered
+
+
+## One chip for each player in a row at the right edge of the screen, P1 first (REQ-GM-46).
+## `area_w` is the width of the screen. `y` is the top of the chips.
+static func player_chips(ci: CanvasItem, area_w: float, players: Array, y := 36.0, width := 250.0, step := 270.0) -> void:
+	var ordered := in_slot_order(players)
+	var x := area_w - 60.0 - step * ordered.size() + 20.0
+	for p in ordered:
+		chip(ci, Vector2(x, y), p.player_name, p.color, width)
+		x += step
+
+
 ## The race timer: a pill with a dark outline, in a fixed place. `pos` is the top-left corner.
 static func timer(ci: CanvasItem, pos: Vector2, seconds: float, width := 200.0) -> Rect2:
 	var r := Rect2(pos, Vector2(width, 64.0))

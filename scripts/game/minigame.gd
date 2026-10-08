@@ -20,6 +20,10 @@ var start_props := {}
 ## Slots that joined when the game started.
 var participants: Array[int] = []
 
+## True when the game has ended: a winner, or nobody is left. A game sets it when it opens its result menu.
+## The pause menu cannot open and leaving does not ask (REQ-GM-31a) while it is true.
+var is_over := false
+
 var _menu_box: Control
 var _menu_open := false
 var _paused_lost := false
@@ -30,6 +34,8 @@ func _ready() -> void:
 	participants = App.server.connected_slots()
 	App.server.set_phase("playing", participants)
 	_game_ready()
+	if participants.is_empty():
+		end_no_players()
 
 
 func player(slot: int) -> PlayerInput:
@@ -45,15 +51,32 @@ func lost_participants() -> Array[int]:
 	return r
 
 
-## Remove participants that left for good.
+## Remove participants that left for good. The game removes the objects of each one in `_on_player_left()`
+## (REQ-GM-21). When nobody is left, the game ends at once (REQ-GM-22).
 func _prune_participants() -> void:
 	var keep: Array[int] = []
+	var gone: Array[int] = []
 	for s in participants:
 		if player(s).is_present():
 			keep.append(s)
-	if keep.size() != participants.size():
-		participants = keep
-		_on_participants_changed()
+		else:
+			gone.append(s)
+	if gone.is_empty():
+		return
+	participants = keep
+	for s in gone:
+		_on_player_left(s)
+	if participants.is_empty():
+		end_no_players()
+	_on_participants_changed()
+
+
+## Ends the game with the "No players connected" menu (REQ-GM-22). It does nothing when the game is over already.
+func end_no_players() -> void:
+	if is_over:
+		return
+	is_over = true
+	open_menu("No players connected", [["Back to menu", App.go_menu]])
 
 
 func is_paused() -> bool:
@@ -209,8 +232,10 @@ func _game_draw() -> void:
 	pass
 
 
+## True when the pause menu may open. By default it may while the game is not over and a player is left.
+## A game adds its own limits (for example no pause menu in a countdown).
 func _can_open_menu() -> bool:
-	return true
+	return not is_over and not participants.is_empty()
 
 
 ## True while the game is in progress, so that leaving it asks first (REQ-GM-31a). It is not the same as
@@ -220,5 +245,11 @@ func _in_progress() -> bool:
 	return _can_open_menu()
 
 
+## A participant left for good. Remove the object of that slot (REQ-GM-21). `participants` has no `slot` any more.
+func _on_player_left(_slot: int) -> void:
+	pass
+
+
+## The list of participants changed (after `_on_player_left()` for each slot and the end check).
 func _on_participants_changed() -> void:
 	pass

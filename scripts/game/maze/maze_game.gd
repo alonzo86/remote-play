@@ -1,9 +1,11 @@
 extends "res://scripts/game/minigame.gd"
 ## Tilt maze. Each phone tilts its own ball. The first ball in the exit wins.
-## Tilt comes from PlayerInput.tilt(). Press A on the phone to recenter fast.
+## Tilt comes from PlayerInput.tilt(). The RECENTER button of the phone recenters (REQ-GM-37); GO recenters all.
 ## Look (REQ-GM-47): a dark board, light rounded walls, outlined balls and an outlined exit.
 
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
+const RoundClock = preload("res://scripts/game/round_clock.gd")
+const Haptics = preload("res://scripts/game/haptics.gd")
 
 const COLS := 17
 const ROWS := 9
@@ -16,7 +18,8 @@ const FRICTION := 1.6        # 1/s
 const MAX_SPEED := 760.0
 const RESTITUTION := 0.25
 const SUBSTEPS := 2
-const COUNTDOWN := 3.0
+const HIT_BUZZ_MS := 120    # Minimum gap between two wall buzzes of one ball.
+const HIT_BUZZ_SPEED := 320.0
 const TIMER_X := 400.0       # The timer pill has a fixed place, between the title and the chips.
 
 # Colors (REQ-MZ-7). The floor is dark so that every player color has a contrast of 3:1 or more (REQ-GM-47e).
@@ -26,20 +29,16 @@ const WALL_COLOR := Color("8c78e6")
 const BOARD_PAD := 12.0
 const OUTLINE_BIG := 6.0     # Outline of a key object of 40 px or more (REQ-GM-47b).
 
-enum Phase { COUNTDOWN, PLAYING, DONE }
-
 class Ball:
 	var slot := 0
 	var pos := Vector2.ZERO
 	var vel := Vector2.ZERO
-	var haptic_cooldown := 0.0
 
 var _maze := MazeGenerator.new()
 var _walls: Array[Rect2] = []
 var _balls: Array[Ball] = []
-var _phase: Phase = Phase.COUNTDOWN
-var _clock := COUNTDOWN
-var _race_time := 0.0
+var _round := RoundClock.new()
+var _haptics := Haptics.new()
 var _winner := -1
 var _sb_board: StyleBoxFlat   # Made once. Drawing must not create objects every frame (REQ-GM-51).
 var _sb_start: StyleBoxFlat
@@ -61,63 +60,36 @@ func _game_ready() -> void:
 		b.slot = s
 		b.pos = Vector2(CELL, CELL) * 0.5 + offsets[s % 4] * CELL * 0.22
 		_balls.append(b)
-		player(s).button_pressed.connect(_on_button.bind(s))
-	if participants.is_empty():
-		open_menu("No players connected", [["Back to menu", App.go_menu]])
 
 
-func _exit_tree() -> void:
-	for s in participants:
-		var cb := _on_button.bind(s)
-		if player(s).button_pressed.is_connected(cb):
-			player(s).button_pressed.disconnect(cb)
-
-
-func _on_button(bit: int, slot: int) -> void:
-	if bit == Protocol.BTN_A:
-		player(slot).recenter() # Quick recenter during play.
-
-
-func _on_participants_changed() -> void:
-	var keep: Array[Ball] = []
-	for b in _balls:
-		if participants.has(b.slot):
-			keep.append(b)
-	_balls = keep
-	if participants.is_empty() and _phase != Phase.DONE:
-		_phase = Phase.DONE
-		open_menu("No players connected", [["Back to menu", App.go_menu]])
-
-
-func _can_open_menu() -> bool:
-	return _phase != Phase.DONE and not participants.is_empty()
+func _on_player_left(slot: int) -> void:
+	for i in _balls.size():
+		if _balls[i].slot == slot:
+			_balls.remove_at(i)
+			return
 
 
 func _game_tick(delta: float) -> void:
-	match _phase:
-		Phase.COUNTDOWN:
-			_clock -= delta
-			if _clock <= 0.0:
-				for b in _balls:
-					player(b.slot).recenter() # Use the pose held during the countdown.
-				_phase = Phase.PLAYING
-				_race_time = 0.0
-		Phase.PLAYING:
-			_race_time += delta
+	if is_over:
+		return
+	if _round.is_counting():
+		if _round.tick(delta):
 			for b in _balls:
-				_step_ball(b, delta)
-				if b.pos.distance_to(_exit_center()) < CELL * 0.3:
-					_finish(b.slot)
-					return
-		Phase.DONE:
-			pass
+				player(b.slot).recenter() # Use the pose held during the countdown.
+		return
+	_round.tick(delta)
+	for b in _balls:
+		_step_ball(b, delta)
+		if b.pos.distance_to(_exit_center()) < CELL * 0.3:
+			_finish(b.slot)
+			return
 
 
 func _finish(slot: int) -> void:
-	_phase = Phase.DONE
+	is_over = true
 	_winner = slot
 	App.server.haptic(slot, 400)
-	open_menu("Player %d wins!   %.1f s" % [slot + 1, _race_time],
+	open_menu("Player %d wins!   %.1f s" % [slot + 1, _round.time],
 			[["Play again", restart], ["Back to menu", App.go_menu]])
 
 
@@ -134,7 +106,6 @@ func _step_ball(b: Ball, dt: float) -> void:
 	b.vel *= maxf(0.0, 1.0 - FRICTION * dt)
 	if b.vel.length() > MAX_SPEED:
 		b.vel = b.vel.normalized() * MAX_SPEED
-	b.haptic_cooldown = maxf(0.0, b.haptic_cooldown - dt)
 	for i in SUBSTEPS:
 		b.pos += b.vel * dt / SUBSTEPS
 		_collide(b)
@@ -174,9 +145,8 @@ func _collide(b: Ball) -> void:
 		b.pos += n * push
 		var vn := b.vel.dot(n)
 		if vn < 0.0:
-			if -vn > 320.0 and b.haptic_cooldown <= 0.0:
-				App.server.haptic(b.slot, 20)
-				b.haptic_cooldown = 0.12
+			if -vn > HIT_BUZZ_SPEED:
+				_haptics.pulse(b.slot, 20, HIT_BUZZ_MS)
 			b.vel -= (1.0 + RESTITUTION) * vn * n
 
 
@@ -226,17 +196,12 @@ func _game_draw() -> void:
 		draw_string(f, c + Vector2(-BALL_R, 9.0), str(b.slot + 1), HORIZONTAL_ALIGNMENT_CENTER, BALL_R * 2.0, 26, Color.WHITE)
 	# HUD
 	Shell.title(self, "TILT MAZE")
-	var order := participants.duplicate()
-	order.sort() # P1 first, left to right.
-	var x := size.x - 60.0 - 270.0 * order.size() + 20.0
-	for s in order:
-		Shell.chip(self, Vector2(x, 36), player(s).player_name, player(s).color, 250.0)
-		x += 270.0
-	if _phase == Phase.PLAYING:
-		Shell.timer(self, Vector2(TIMER_X, 36.0), _race_time) # Next to the title: 4 chips use the right side.
-	if _phase == Phase.COUNTDOWN and not participants.is_empty():
-		var n := ceili(_clock)
-		Shell.countdown(self, size, str(n) if n > 0 else "GO", float(n) - _clock)
+	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)))
+	if _round.is_playing() and not is_over:
+		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time) # Next to the title: 4 chips use the right side.
+	if _round.is_counting() and not participants.is_empty():
+		var n := _round.count_number()
+		Shell.countdown(self, size, str(n) if n > 0 else "GO", _round.count_elapsed())
 		Shell.hint(self, size, "Hold the phone level. It recenters at GO.")
 	if participants.is_empty():
 		Shell.hint(self, size, "Join with the controller app, then start again.")

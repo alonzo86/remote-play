@@ -1,10 +1,12 @@
 extends "res://scripts/game/minigame_3d.gd"
 ## 3D marble race. Each phone tilts its own marble along a winding track. First to the
 ## finish line wins. Marbles bounce off walls, bumpers and each other.
-## Tilt comes from PlayerInput.tilt(). Press B on the phone to recenter. The marbles
+## Tilt comes from PlayerInput.tilt(). The RECENTER button of the phone recenters (REQ-GM-37). The marbles
 ## are simulated here in 2D (x, z) with simple physics, so the race is the same on every run.
 
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
+const RoundClock = preload("res://scripts/game/round_clock.gd")
+const Haptics = preload("res://scripts/game/haptics.gd")
 
 const R := 0.5                 # Marble radius.
 const ACCEL := 36.0            # m/s^2 for tilt 1.0. 15 degrees gives about 9.
@@ -13,7 +15,6 @@ const WALL_BOUNCE := 0.45
 const BUMPER_BOUNCE := 0.9
 const MARBLE_BOUNCE := 0.85
 const SUBSTEP := 1.0 / 120.0
-const COUNTDOWN := 3.0
 const GO_SHOW := 0.8           # Seconds to show "GO!".
 const END_DELAY := 4.0         # Seconds the others have to finish after the first marble.
 const FINISH_BEFORE_END := 6.0 # Finish line distance from the end of the track.
@@ -38,7 +39,6 @@ class Racer:
 	var arc := 0.0
 	var finish_time := -1.0
 	var node: MeshInstance3D
-	var last_haptic_ms := 0
 
 ## Set before the game starts (App.go props). See marble_track.gd for the ids.
 var track_id := "classic"
@@ -47,12 +47,12 @@ var finish_arc := 0.0
 
 var _racers := {}          # slot -> Racer
 var _bumpers: Array[Vector2] = []
-var _time := -COUNTDOWN    # Race clock. Below 0 the marbles wait on the grid.
+var _round := RoundClock.new()   # Race clock. Below 0 the marbles wait on the grid.
+var _haptics := Haptics.new()
 var _first_finish_time := -1.0
 var _winner := -1
 var _winner_name := ""
 var _picking := false   # True while the track picker is open on the results menu.
-var _ended := false
 var _cam_pos := Vector3.ZERO
 
 
@@ -76,31 +76,20 @@ func _world_ready() -> void:
 		_racers[s] = r
 	_cam_pos = _camera_target()
 	_place_camera(1.0)
-	if participants.is_empty():
-		open_menu("No players connected", [["Back to menu", App.go_menu]])
 
 
-func _can_open_menu() -> bool:
-	return not participants.is_empty() and not _ended
-
-
-func _on_participants_changed() -> void:
-	for s in _racers.keys():
-		if not participants.has(s):
-			_racers[s].node.queue_free()
-			_racers.erase(s)
-	if participants.is_empty() and not _ended:   # REQ-MR-14
-		_ended = true
-		open_menu("No players connected", [["Back to menu", App.go_menu]])
+## REQ-MR-14: when the last player leaves, the base class opens "No players connected".
+func _on_player_left(slot: int) -> void:
+	if _racers.has(slot):
+		_racers[slot].node.queue_free()
+		_racers.erase(slot)
 
 
 func _world_tick(delta: float) -> void:
-	var was_waiting := _time < 0.0
-	_time += delta
-	if was_waiting and _time >= 0.0:
+	if _round.tick(delta):
 		for s in participants:
 			App.server.haptic(s, 60)
-	if _time >= 0.0:
+	if _round.is_playing():
 		var steps := maxi(1, ceili(delta / SUBSTEP))
 		for i in steps:
 			_step(delta / steps)
@@ -128,10 +117,10 @@ func _step(dt: float) -> void:
 		var q: Dictionary = track.query(r.pos)
 		r.arc = q.arc
 		if r.finish_time < 0.0 and r.arc >= finish_arc:
-			r.finish_time = _time
+			r.finish_time = _round.time
 			App.server.haptic(r.slot, 120)
 			if _first_finish_time < 0.0:
-				_first_finish_time = _time
+				_first_finish_time = _round.time
 				_winner = r.slot
 				_winner_name = player(r.slot).player_name
 	for i in live.size():
@@ -186,21 +175,19 @@ func _hit_marbles(a: Racer, b: Racer) -> void:
 
 
 func _buzz(r: Racer, speed: float) -> void:
-	var now := Time.get_ticks_msec()
-	if speed >= HAPTIC_MIN_SPEED and now - r.last_haptic_ms >= HAPTIC_COOLDOWN_MS:
-		r.last_haptic_ms = now
-		App.server.haptic(r.slot, 20)
+	if speed >= HAPTIC_MIN_SPEED:
+		_haptics.pulse(r.slot, 20, HAPTIC_COOLDOWN_MS)
 
 
 func _check_end() -> void:
-	if _ended or _winner < 0:
+	if is_over or _winner < 0:
 		return
 	var all_done := true
 	for s in participants:
 		if _racers[s].finish_time < 0.0:
 			all_done = false
-	if all_done or _time - _first_finish_time >= END_DELAY:
-		_ended = true
+	if all_done or _round.time - _first_finish_time >= END_DELAY:
+		is_over = true
 		_open_results()
 
 
@@ -230,9 +217,9 @@ func _switch_track(id: String) -> void:
 
 ## Back from the track picker returns to the results. Back from the results leaves the game.
 func on_back() -> void:
-	if _ended and _picking:
+	if is_over and _picking:
 		_open_results()
-	elif _ended:
+	elif is_over:
 		App.go_menu()
 	else:
 		super()
@@ -394,17 +381,16 @@ func _hud_draw(canvas: Control) -> void:
 		Shell.chip(canvas, Vector2(60, y), "%s  %s%s" % [ORDINALS[place], p.player_name, t], p.color, 400.0, 54.0)
 		y += 68.0
 		place += 1
-	if _time < 0.0:
-		var n := ceili(-_time)
-		Shell.countdown(canvas, canvas.size, str(n), float(n) + _time)
-	elif _time < GO_SHOW:
-		Shell.countdown(canvas, canvas.size, "GO!", _time / GO_SHOW, UiTheme.OK)
-	elif not _ended:
+	if _round.is_counting():
+		Shell.countdown(canvas, canvas.size, str(_round.count_number()), _round.count_elapsed())
+	elif _round.time < GO_SHOW:
+		Shell.countdown(canvas, canvas.size, "GO!", _round.time / GO_SHOW, UiTheme.OK)
+	elif not is_over:
 		var lead: Racer = standings()[0]
 		var to_go := maxf(finish_arc - lead.arc, 0.0)
 		Shell.text(canvas, Vector2(0, 90), "Finish in %d m" % roundi(to_go), 44, UiTheme.ACCENT,
 				HORIZONTAL_ALIGNMENT_CENTER, canvas.size.x)
-		Shell.text(canvas, Vector2(canvas.size.x - 360, 90), "%.1f s" % _time, 44, UiTheme.TEXT,
+		Shell.text(canvas, Vector2(canvas.size.x - 360, 90), "%.1f s" % _round.time, 44, UiTheme.TEXT,
 				HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
 	_draw_edge_markers(canvas)
 	Shell.text(canvas, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title, 30, UiTheme.TEXT_DIM,

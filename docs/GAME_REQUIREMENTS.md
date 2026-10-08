@@ -31,8 +31,8 @@ Architecture
 Players
 
 - REQ-GM-20: The registry entry gives `min_players` and `max_players`. A game works with the number of phones that are connected when it starts.
-- REQ-GM-21: A game must stay stable when a player leaves during play (the marker or object of that player is removed, no error).
-- REQ-GM-22: A game must stay stable when all players leave. It shows a menu with "Back to menu".
+- REQ-GM-21: A game must stay stable when a player leaves during play (the marker or object of that player is removed, no error). The base class calls `_on_player_left(slot)` once for each participant that left for good. The game removes the objects of that slot there.
+- REQ-GM-22: A game must stay stable when all players leave. It shows a menu with "Back to menu". The base class does this (`end_no_players()`), also when the game starts with no player. It sets `is_over`, and it does nothing when the game is over already.
 - REQ-GM-23: The color of a player in the game is the slot color (`PlayerInput.color`). The names are the phone names.
 - REQ-GM-24: All players use the same input mapping and the same sensitivity. No player has an advantage from the slot.
 - REQ-GM-25: A game that needs a fair start gives all players the same start state (same distance to the goal).
@@ -42,14 +42,14 @@ Flow
 - REQ-GM-30: The game pauses while a participant is lost and at least one other participant is still connected (the base class does this). OK continues without the lost players.
 - REQ-GM-30a: Every time a participant is lost or leaves, the base class checks whether any participant is still connected. When none is, nobody is left to continue with. The game ends at once (no wait): the base class removes the lost players and the game shows its "No players connected" menu (for example REQ-MR-14), not after the 30 s hold. The pause message has no "Press OK" line in this case. When at least one player is still connected, the game pauses as before (REQ-GM-30).
 - REQ-GM-31: OK opens the pause menu: Resume, Restart, Back to menu. Back closes the menu, or leaves the game (after the question of REQ-GM-31a).
-- REQ-GM-31a: Leaving a game that is in progress asks first. Back (or "Back to menu" in the pause menu) opens "End the game?" with two buttons: "Keep playing" (green, the default) and "✕  End game" (red). The game is paused while the question is open. Back on the question is "Keep playing". A game that is over (the result menu, "No players connected") leaves at once, without the question. The base class does this (`Minigame.request_leave()`). A game must not call `App.go_menu()` for a game in progress, and it overrides `_in_progress()` when a game is in progress at a time the pause menu is not allowed. By default `_in_progress()` is `_can_open_menu()`, so a game overrides `_can_open_menu()` to say when it is over.
+- REQ-GM-31a: Leaving a game that is in progress asks first. Back (or "Back to menu" in the pause menu) opens "End the game?" with two buttons: "Keep playing" (green, the default) and "✕  End game" (red). The game is paused while the question is open. Back on the question is "Keep playing". A game that is over (the result menu, "No players connected") leaves at once, without the question. The base class does this (`Minigame.request_leave()`). A game must not call `App.go_menu()` for a game in progress, and it overrides `_in_progress()` when a game is in progress at a time the pause menu is not allowed. By default `_in_progress()` is `_can_open_menu()`. By default `_can_open_menu()` is true while `is_over` is false and a participant is left. A game sets `is_over = true` when it opens its result menu, and it overrides `_can_open_menu()` only to add limits.
 - REQ-GM-32: Restart makes a new game with the same start values (`start_props`).
 - REQ-GM-33: Every menu and every screen works with the D-pad, OK and Back. No touch or mouse is needed on the TV.
 - REQ-GM-34: A game with a winner or a score ends on a result screen that shows the result and offers Restart and Back to menu.
-- REQ-GM-35: A game that needs equal readiness starts with a visible countdown (3 s). Input does not move the players during it.
+- REQ-GM-35: A game that needs equal readiness starts with a visible countdown (3 s). Input does not move the players during it. `RoundClock` (`scripts/game/round_clock.gd`) keeps the countdown and the playing time.
 - REQ-GM-36: A game must not open a menu that lets the player change the game setup during play.
   Setup choices (level, track, mode) are made before the game starts and on the result screen.
-- REQ-GM-37: The Recenter button of the phone works in every game (`PlayerInput.recenter()`).
+- REQ-GM-37: The Recenter button of the phone works in every game (`PlayerInput.recenter()`). It is the only way to recenter during play: a game does not use A or B for it, so A and B are free for the actions of the game. A game may recenter all players at the start of play.
 
 Look and sound
 
@@ -57,7 +57,7 @@ Look and sound
 - REQ-GM-41: Text on the TV is 28 px or larger (all text, also hints and chips; the numbers on a player object are not text), and it has good contrast with the background (`UiTheme` colors).
 - REQ-GM-42: A game uses `UiTheme` colors, the shell fonts, and mostly shapes made in code. Image, model and font files are allowed when `docs/TV_FLOW.md` (FD-9, FD-13) allows them. A game states its own asset files in its requirements file.
 - REQ-GM-43: Important events give haptic feedback on the phone of the player: start, hit, goal.
-  Repeated events have a cool-down of 100 ms or more. Short pulses are 15 to 60 ms. A big event can be longer.
+  Repeated events have a cool-down of 100 ms or more. Short pulses are 15 to 60 ms. A big event can be longer. `Haptics.pulse()` (`scripts/game/haptics.gd`) keeps the cool-down for each slot.
 - REQ-GM-44: The meaning of colors is the same in all games: accent = title or number, OK = good, BAD = danger.
 
 Visual language (decision FD-14 in `docs/TV_FLOW.md`). Three tiers:

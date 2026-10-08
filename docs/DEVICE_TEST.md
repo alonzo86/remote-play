@@ -64,6 +64,7 @@ A total below 100 ms feels good. Above 150 ms feels slow.
 2. Finish the maze. Write down: does the ball feel too light, too heavy, or good? Is the deadzone good (the ball does not creep when the phone is level)?
 3. Tune the constants in `scripts/game/maze/maze_game.gd` (`TILT_ACCEL`, `FRICTION`, `DEADZONE`) if needed.
 4. Repeat with 2 to 4 phones. Check *Rx Hz* and *Gap ms* for all players during the race.
+5. Tilt the phone, then tap **RECENTER**. Check: the ball stops creeping. Tap **A** and **B**. Check: nothing changes (A and B do not recenter, REQ-MZ-8). At GO the phone recenters by itself.
 
 ## Test 7. Disconnect and reconnect
 
@@ -106,6 +107,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 8. Finish a race on each track. Write down the winning time. Compare with the targets in the table. (REQ-MR-21)
 9. At the results: use Choose track, pick another track, and check that the new race has that track. Press Back in the track list: it returns to the results.
 10. During a race, open the pause menu. Check: it has no Choose track. (REQ-MR-32)
+11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the marble stops drifting.
 
 ## Results
 
