@@ -3,7 +3,6 @@ extends "res://scripts/game/minigame.gd"
 ## Tilt comes from PlayerInput.tilt(). Press A on the phone to recenter fast.
 ## Look (REQ-GM-47): a dark board, light rounded walls, outlined balls and an outlined exit.
 
-const Protocol = preload("res://scripts/core/protocol.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 
 const COLS := 17

@@ -461,13 +461,45 @@ func _run() -> void:
 	await _frames(3)
 	var solo_game: Control = app.current_screen()
 	_check(solo_game.participants == [solo.slot], "the maze has the single player")
+	# A short drop does not end the game: the phone reconnects inside the grace time.
+	solo._ws.close()
+	await _frames(20)
+	_check(solo_game._paused_lost or solo.state == ControllerClient.State.CONNECTED, "the single player is lost, the game waits")
+	t5 = Time.get_ticks_msec()
+	while solo.state != ControllerClient.State.CONNECTED and Time.get_ticks_msec() - t5 < 4000:
+		await process_frame
+	await _frames(5)
+	_check(solo_game.participants == [solo.slot] and not solo_game._paused_lost and solo_game._menu_box == null,
+			"a single player who comes back in time continues")
+	# Lost for longer than the grace time: the game ends with a menu, without the pause message.
+	solo_game.last_player_grace_ms = 200
 	solo._ws.close()
 	t5 = Time.get_ticks_msec()
 	while not solo_game.participants.is_empty() and Time.get_ticks_msec() - t5 < 3000:
 		await process_frame
 	_check(solo_game.participants.is_empty() and not solo_game._paused_lost and solo_game._menu_box != null,
-			"the last player is lost: the game ends with a menu at once, without the pause message")
+			"the last player stays lost: the game ends with a menu, without the pause message")
 	solo.leave()
+	await _frames(3)
+
+	# The same in the marble race, which has its own branch for "no players" (REQ-MR-14).
+	var solo2 := ControllerClient.new()
+	root.add_child(solo2)
+	solo2.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+	t5 = Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 1 and Time.get_ticks_msec() - t5 < 4000:
+		await process_frame
+	app.go(MarbleRace, Registry.find("marble_race").variants[0].props)
+	await _frames(3)
+	var solo_race: Control = app.current_screen()
+	solo_race.last_player_grace_ms = 200
+	solo2._ws.close()
+	t5 = Time.get_ticks_msec()
+	while not solo_race.participants.is_empty() and Time.get_ticks_msec() - t5 < 3000:
+		await process_frame
+	_check(solo_race._ended and not solo_race._paused_lost and solo_race._menu_box != null,
+			"marble race: the last player stays lost, the race ends with a menu")
+	solo2.leave()
 
 	app.go_menu()
 	await _frames(3)

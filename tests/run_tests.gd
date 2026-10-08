@@ -851,12 +851,12 @@ func _test_network() -> void:
 	server.player_removed.connect(func(s): events.append("removed%d" % s))
 
 	var c1 := ControllerClient.new()
-	c1.player_name = "One"
+	c1.player_name = "  One  "
 	root.add_child(c1)
 	c1.connect_to("127.0.0.1", Protocol.WS_PORT, server.room_code)
 	var ok := await _wait_until(func(): return c1.state == ControllerClient.State.CONNECTED)
 	_check(ok, "client 1 connects")
-	_check(c1.slot == 0 and server.players[0].player_name == "One", "client 1 gets slot 0")
+	_check(c1.slot == 0 and server.players[0].player_name == "One", "client 1 gets slot 0 with a trimmed name")
 
 	# Send sensor packets at 60 Hz for 1.5 s with a fake sampler.
 	var seq := 0

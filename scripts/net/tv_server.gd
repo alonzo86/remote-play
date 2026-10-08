@@ -175,7 +175,7 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		_reject(ws, "bad_room")
 		return
 	var token := String(msg.get("token", ""))
-	var p_name := String(msg.get("name", "")).substr(0, 16)
+	var p_name := String(msg.get("name", "")).strip_edges().substr(0, 16)
 	var slot := -1
 	var resumed := false
 	if token != "":
