@@ -25,7 +25,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-A1: The TV runs a WebSocket server (`TCPServer` + `WebSocketPeer`) on fixed TCP port 47801.
 - REQ-A2: The TV sends a UDP broadcast beacon on port 47800 every 1 second.
 - REQ-A3: The TV shows a QR code and a 4-letter room code on screen.
-- REQ-A4: The phone scans the QR code, or finds the TV with the UDP beacon, or picks the TV from the list of detected TVs (with a Refresh button). There is no typed room code or IP: if neither works, there is no TV to connect to.
+- REQ-A4: The phone scans the QR code, or finds the TV with the UDP beacon, or picks the TV from the list of discovered TVs (with a Refresh button). A TV in the list is a green button that shows only "<room code> x/y" (players joined and maximum); the Refresh button is yellow, not the same color. There is no typed room code or IP: if neither works, there is no TV to connect to.
 - REQ-A5: The TV accepts up to 4 phones at the same time.
 - REQ-A6: Input handling and networking are in separate scripts from game logic.
 - REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.

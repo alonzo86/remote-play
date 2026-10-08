@@ -19,7 +19,7 @@ Test numbers do not change. Test 5 (pointer drift) was removed with the pointer 
 2. Start the controller app on one phone. Check: the phone shows a **portrait** screen.
 3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "Ready!", and **Continue** is enabled and focused.
    Press OK on **Continue**. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
-4. Tap **Leave**, then tap the TV under **Discovered TVs**. Check: it joins. Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds.
+4. Tap **Leave**, then tap the TV under **Discovered TVs**. Check: it joins (the button reads "<code> x/y", for example "KQZM 1/4", and it is green; **Refresh** is yellow). Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds.
 5. Tap **Leave**, then join with the **TV IP address**. Check: it joins.
 
 ## Test 2. QR scan (plugin, unverified)
@@ -77,8 +77,8 @@ A total below 100 ms feels good. Above 150 ms feels slow.
 ## Test 8. TV remote
 
 1. Use only the remote. Check that the D-pad moves the focus on every screen (tiles, badge, gear, buttons) and OK selects. A focused button has a thick black border and lifts (a longer shadow); a focused game tile grows wide and shows its description. Check that the border is visible from the sofa on every button, also on the purple rows. Press and hold OK on a button: it sinks (no shadow). The layout of the buttons does not move.
-2. In a game, press OK. Check: the pause menu opens with Resume, Restart, and Back to menu.
-3. Press Back in a game: back to the Games screen. Press Back on the Games screen: the Connect screen (the players stay). Press Back on the Connect screen: the quit question opens, with **Stay** in focus.
+2. In a game, press OK. Check: the pause menu opens with Resume, Restart, and Back to menu. Choose Back to menu, and also press Back during play. Check: both ask "End the game?" with **Keep playing** (green, in focus) and **End game** (red). The game is paused. Back on the question keeps playing. **End game** goes to the Games screen. After the game is over (result menu), Back leaves at once.
+3. Press Back in a game and choose **End game**: back to the Games screen. Press Back on the Games screen: the Connect screen (the players stay). Press Back on the Connect screen: the quit question opens, with **Stay** in focus.
 4. Check the Menu key. If the remote has no Menu key, open **Settings** (the gear on the Games screen) and use **Debug overlay**.
 5. Check: the app icon and banner show in the Android TV home row (the banner is the TV, the maze and the phone).
 

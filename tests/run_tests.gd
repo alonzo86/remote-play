@@ -545,12 +545,13 @@ func _test_pad(app: Node, server: Node) -> void:
 				"pad %dx%d: a touch gives the right zone: %s" % [dim.x, dim.y, str(hits)])
 		lay.free()
 	var lat: Control = pad_script.new()
+	lat.size = Vector2(1080, 2160)
+	_check(is_equal_approx(lat._rect_leave().get_center().y, lat.HEADER_Y), "Leave is centered on the pad header row")
 	_check(lat._lat_color(-1.0) == UiTheme.TEXT_DIM and lat._lat_color(10.0) == UiTheme.OK
 			and lat._lat_color(24.9) == UiTheme.OK and lat._lat_color(25.0) == UiTheme.ACCENT
 			and lat._lat_color(59.0) == UiTheme.ACCENT and lat._lat_color(60.0) == UiTheme.BAD_TEXT,
 			"the latency color is dim, green, yellow and red at 25 ms and 60 ms")
 	lat.free()
-
 	var pad = app.current_screen()
 	var sampler = pad._sampler
 	sampler.set_process(false) # No zero samples must overwrite what the test gives the TV player.
@@ -753,8 +754,10 @@ func _test_connect_screen() -> void:
 	var tv_button: Button = null
 	for btn in screen._list.find_children("*", "Button", true, false):
 		tv_button = btn
-	_check(tv_button != null and tv_button.text.contains("QQQQ") and tv_button.text.contains("1/4"),
-			"a detected TV is a button with its room and players, not the TV name")
+	_check(tv_button != null and tv_button.text == "QQQQ 1/4", "a detected TV is only '<code> x/y': %s" % tv_button.text)
+	var refresh_btn: Array = screen.find_children("*", "Button", true, false).filter(func(x): return x.text == "Refresh")
+	_check(refresh_btn.size() == 1 and tv_button.theme_type_variation != refresh_btn[0].theme_type_variation,
+			"the Refresh button is not the same color as the detected TVs")
 	tv_button.pressed.emit()
 	_check(app.client.host == "127.0.0.9" and app.client.room == "QQQQ", "tapping a detected TV joins it")
 	app.client.leave()

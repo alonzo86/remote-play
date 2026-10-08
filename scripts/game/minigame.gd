@@ -94,13 +94,22 @@ func _unhandled_input(event: InputEvent) -> void:
 				App.server.drop_player(s)
 			get_viewport().set_input_as_handled()
 		elif _can_open_menu():
-			open_menu("Paused", [["Resume", close_menu], ["Restart", restart], ["Back to menu", App.go_menu]])
+			open_menu("Paused", [["Resume", close_menu], ["Restart", restart], ["Back to menu", request_leave]])
 			get_viewport().set_input_as_handled()
 
 
 func on_back() -> void:
 	if _menu_open:
-		close_menu()
+		close_menu() # Also the "End the game?" question: Back is "Keep playing".
+	else:
+		request_leave()
+
+
+## Leaves the game for the Games screen (REQ-GM-31a). While the game is in progress it asks first: a round
+## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
+func request_leave() -> void:
+	if _can_open_menu():
+		open_menu("End the game?", [["Keep playing", close_menu], ["\u2715  End game", App.go_menu, "danger"]])
 	else:
 		App.go_menu()
 
@@ -127,6 +136,8 @@ func open_menu(title: String, entries: Array) -> void:
 	var first: Button = null
 	for e in entries:
 		var b := UiKit.button(String(e[0]), e[1], first == null, 40)
+		if e.size() > 2 and e[2] == "danger":
+			b.theme_type_variation = "DangerButton"
 		b.custom_minimum_size = Vector2(440, 82)
 		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		box.add_child(b)

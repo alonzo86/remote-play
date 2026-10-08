@@ -410,6 +410,38 @@ func _run() -> void:
 	menu._launch("marble_race", {})   # A variant with empty props must start the game, not reopen the list.
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), MarbleRace), "a variant with empty props starts the game")
+	# Leaving a game in progress asks first (REQ-GM-31a).
+	var lg: Control = app.current_screen()
+	lg.on_back()
+	await _frames(2)
+	var leave_labels: Array = []
+	for b in lg.menu_buttons():
+		leave_labels.append(b.text)
+	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["Keep playing", "\u2715  End game"],
+			"Back in a game in progress asks 'End the game?' and pauses: %s" % str(leave_labels))
+	_check(lg.menu_buttons()[1].theme_type_variation == "DangerButton", "End game is the red destructive button")
+	lg.on_back()
+	await _frames(2)
+	_check(app.current_screen() == lg and not lg.is_paused() and lg.menu_buttons().is_empty(), "Back on the question keeps playing")
+	var ok_event := InputEventAction.new()
+	ok_event.action = "ui_accept"
+	ok_event.pressed = true
+	lg._unhandled_input(ok_event) # OK opens the pause menu. Its "Back to menu" asks the same question.
+	await _frames(2)
+	lg.menu_buttons()[2].pressed.emit()
+	await _frames(2)
+	_check(app.current_screen() == lg and lg.menu_buttons().size() == 2 and lg.menu_buttons()[0].text == "Keep playing",
+			"Back to menu in the pause menu asks 'End the game?'")
+	lg.menu_buttons()[1].pressed.emit()
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvGames), "End game leaves for the Games screen")
+	app.go(MazeGame)
+	await _frames(3)
+	var over: Control = app.current_screen()
+	over._phase = over.Phase.DONE
+	over.request_leave()
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvGames), "a game that is over leaves at once, without the question")
 	app.go_menu()
 	await _frames(3)
 	menu = app.current_screen()
