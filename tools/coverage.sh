@@ -26,6 +26,8 @@ export COVERAGE_OUT
 	"$GODOT" --headless --path . --script tests/run_tests.gd -- --role=controller
 	echo "== button states and the wait screen Leave"
 	"$GODOT" --headless --path . --script tests/ui_states.gd -- --role=controller
+	echo "== game helpers"
+	"$GODOT" --headless --path . --script tests/game_helpers.gd -- --role=controller
 	echo "== TV smoke test"
 	"$GODOT" --headless --path . --script tests/smoke_tv.gd -- --role=tv
 )

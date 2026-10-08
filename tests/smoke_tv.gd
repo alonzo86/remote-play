@@ -317,23 +317,25 @@ func _run() -> void:
 	# A hard hit bounces the ball back with a quarter of its speed and buzzes the phone. A soft hit does not buzz.
 	b0.pos = Vector2(horizontal.get_center().x, horizontal.position.y - ball_r + 3.0)
 	b0.vel = Vector2(0, 400)
-	b0.haptic_cooldown = 0.0
 	mz._collide(b0)
-	_check(is_equal_approx(b0.vel.y, -400.0 * mz.RESTITUTION) and b0.haptic_cooldown > 0.0,
-			"a hard hit bounces the ball back (%.0f px/s) and starts the buzz cool-down" % b0.vel.y)
+	_check(is_equal_approx(b0.vel.y, -400.0 * mz.RESTITUTION), "a hard hit bounces the ball back (%.0f px/s)" % b0.vel.y)
+	b0.pos = Vector2(horizontal.get_center().x, horizontal.position.y - ball_r + 3.0)
+	b0.vel = Vector2(0, 400)
+	mz._collide(b0)   # A second hard hit right after the first: inside the cool-down.
 	await _frames(10)
-	_check(haptics == [20], "the phone of the ball buzzes 20 ms after a hard hit: %s" % str(haptics))
+	_check(haptics == [20], "a hard hit buzzes 20 ms, and a second one inside the cool-down does not: %s" % str(haptics))
 	b0.pos = Vector2(horizontal.get_center().x, horizontal.position.y - ball_r + 3.0)
 	b0.vel = Vector2(0, 100)
-	b0.haptic_cooldown = 0.0
+	mz._haptics = mz.Haptics.new()   # The cool-down is over.
 	mz._collide(b0)
-	_check(b0.haptic_cooldown == 0.0 and b0.vel.y < 0.0, "a soft hit bounces without a buzz")
+	await _frames(10)
+	_check(haptics == [20] and b0.vel.y < 0.0, "a soft hit bounces without a buzz: %s" % str(haptics))
 	b0.pos = Vector2(mz.CELL * 0.5, mz.CELL * 0.5)
 	b0.vel = Vector2(5000.0, 0.0)
 	mz._step_ball(b0, 0.016)
 	_check(b0.vel.length() <= mz.MAX_SPEED + 0.5, "the speed of a ball is limited (%.0f px/s)" % b0.vel.length())
 
-	# The buttons: A recenters (REQ-MZ), B does nothing in the maze.
+	# The RECENTER button recenters. A and B do not (REQ-MZ-8, REQ-GM-37).
 	var lean := deg_to_rad(15.0)
 	var tilted := Vector3(-sin(lean), 0.0, cos(lean)) * 9.81
 	var feed := func():
@@ -342,22 +344,30 @@ func _run() -> void:
 					Protocol.encode_sensor(i, i * 16, Vector3.ZERO, tilted, 0, 0, Vector2.ZERO)), Time.get_ticks_msec())
 	feed.call()
 	app.server.players[0].button_pressed.emit(Protocol.BTN_B)
-	_check(app.server.players[0].tilt().length() > 0.2, "B does not recenter in the maze")
 	app.server.players[0].button_pressed.emit(Protocol.BTN_A)
-	_check(app.server.players[0].tilt().length() < 0.02, "A recenters during the maze")
+	_check(app.server.players[0].tilt().length() > 0.2, "A and B do not recenter in the maze")
+	clients[0].send_recenter()
+	await _frames(10)
+	_check(app.server.players[0].tilt().length() < 0.02, "the RECENTER button recenters during the maze")
 	await _stream(clients[0], 0, 0.5, flat) # Back to a flat reference for the next games.
 	app.server.players[0].recenter()
 
 	# A ball in the exit ends the round: one winner, a result menu, a long buzz, no pause menu.
-	mz._clock = 0.0
+	mz._round.time = -0.005
 	mz._game_tick(0.01)
-	_check(mz._phase == mz.Phase.PLAYING, "the countdown ends and the race starts")
+	_check(mz._round.is_playing() and not mz.is_over, "the countdown ends and the race starts")
 	haptics.clear()
 	mz._balls[0].pos = mz._exit_center()
 	mz._game_tick(0.016)
-	_check(mz._phase == mz.Phase.DONE and mz._winner == mz._balls[0].slot, "a ball in the exit wins")
+	_check(mz.is_over and mz._winner == mz._balls[0].slot, "a ball in the exit wins")
 	var labels: Array = mz.menu_buttons().map(func(b): return b.text)
-	_check(labels == ["Play again", "Back to menu"] and mz.is_paused(), "the result menu opens: %s" % str(labels))
+	_check(labels == ["Restart", "Back to menu"] and mz.is_paused(), "the result menu opens: %s" % str(labels))
+	var maze_rows: Array = []
+	for l in mz._menu_box.find_children("*", "Label", true, false):
+		maze_rows.append(l.text)
+	_check(maze_rows.size() == 3 and maze_rows[0].ends_with("wins!") and maze_rows[1].begins_with("1st")
+			and maze_rows[1].ends_with(" s") and maze_rows[2].begins_with("2nd") and maze_rows[2].ends_with("not finished"),
+			"the maze result lists the winner with the time and the other ball as not finished: %s" % str(maze_rows))
 	_check(not mz._can_open_menu(), "the pause menu cannot open over the result menu")
 	mz._balls[1].pos = mz._exit_center()
 	mz._game_tick(0.016)
@@ -366,8 +376,54 @@ func _run() -> void:
 	_check(haptics.has(400), "the phone of the winner buzzes 400 ms: %s" % str(haptics))
 	mz.menu_buttons()[0].pressed.emit()
 	await _frames(3)
-	_check(is_instance_of(app.current_screen(), MazeGame) and app.current_screen() != mz and app.current_screen()._phase == 0,
-			"Play again starts a new maze with a countdown")
+	_check(is_instance_of(app.current_screen(), MazeGame) and app.current_screen() != mz
+			and app.current_screen()._round.is_counting(), "Restart starts a new maze with a countdown")
+
+	# The result menu of a round with scores (REQ-GM-34, 72, 73) on the race screen, with its two players gone.
+	# (The fresh maze of "Restart" has both phones.)
+	var Scoreboard = load("res://scripts/game/scoreboard.gd")
+	var rg: Control = app.current_screen()
+	var board = Scoreboard.new(rg.participants)
+	board.set_score(rg.participants[0], 3)
+	board.set_score(rg.participants[1], 9)
+	rg.open_results(board)
+	await _frames(2)
+	var row_labels: Array = []
+	for l in rg._menu_box.find_children("*", "Label", true, false):
+		row_labels.append(l.text)
+	var result_buttons: Array = rg.menu_buttons().map(func(b): return b.text)
+	_check(rg.is_over and result_buttons == ["Restart", "Back to menu"] and not rg._can_open_menu(),
+			"the result menu has Restart and Back to menu, and the game is over: %s" % str(result_buttons))
+	_check(row_labels.size() == 3 and row_labels[1].begins_with("1st") and row_labels[1].ends_with("9")
+			and row_labels[2].begins_with("2nd") and row_labels[0].ends_with("wins!"),
+			"the ranking lists the best first and the title names the winner: %s" % str(row_labels))
+	var dots: Array = rg._menu_box.find_children("*", "Panel", true, false)
+	var dot_colors: Array = dots.map(func(d): return d.get_theme_stylebox("panel").bg_color)
+	_check(dot_colors == [rg.player(rg.participants[1]).color, rg.player(rg.participants[0]).color],
+			"each row has a dot in the slot color of its player, best first")
+	board.set_score(rg.participants[0], 9)
+	rg.open_results(board)
+	await _frames(2)
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Tie!", "equal scores give the title Tie!")
+	var one = Scoreboard.new([rg.participants[0]])
+	one.set_score(rg.participants[0], 25)
+	rg.open_results(one, [10, 20, 30])
+	await _frames(2)
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!",
+			"one player and tiers: the title is the medal")
+	# A time that must be small: 25 s earns silver, and a player who did not finish earns nothing (REQ-GM-73).
+	var fast_tiers := [40.0, 30.0, 20.0]
+	var timed = Scoreboard.new([], true)
+	timed.set_score(rg.participants[0], 25.0)
+	rg.open_results(timed, fast_tiers)
+	await _frames(2)
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!", "a time of 25 s earns silver")
+	var lost = Scoreboard.new([], true)
+	lost.set_unfinished(rg.participants[0], 3.0)
+	rg.open_results(lost, fast_tiers)
+	await _frames(2)
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "No medal this time",
+			"a solo player who did not finish gets no medal, although the score 0 is below every limit")
 
 	# A player who leaves takes the ball out of the game (REQ-GM-21).
 	var third := ControllerClient.new()
@@ -439,7 +495,7 @@ func _run() -> void:
 	app.go(MazeGame)
 	await _frames(3)
 	var over: Control = app.current_screen()
-	over._phase = over.Phase.DONE
+	over.is_over = true
 	over.request_leave()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), TvGames), "a game that is over leaves at once, without the question")
@@ -493,15 +549,48 @@ func _run() -> void:
 		mr._racers[s].pos = mr.track.point_at(mr.finish_arc + 0.5)
 	await _frames(5)
 	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
-	_check(mr._ended and mr.is_paused(), "race ends and the results menu opens")
+	_check(mr.is_over and mr.is_paused(), "race ends and the results menu opens")
 	var results_items: int = mr.menu_buttons().size()
+	_check(mr._menu_box.find_children("*", "Label", true, false)[0].text == "Tie!", "two marbles with the same time are a tie")
+	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
+	mr._open_results()
+	await _frames(2)
+	var race_labels: Array = mr.menu_buttons().map(func(b): return b.text)
+	var race_rows: Array = []
+	for l in mr._menu_box.find_children("*", "Label", true, false):
+		race_rows.append(l.text)
+	_check(race_labels == ["Restart", "Choose track", "Back to menu"] and race_rows.size() == 3 and race_rows[0].ends_with("wins!")
+			and race_rows[1].begins_with("1st") and race_rows[2].begins_with("2nd") and race_rows[2].ends_with(" s"),
+			"the race results list both marbles with their times, and keep Choose track: %s %s" % [str(race_labels), str(race_rows)])
+	mr._racers[1].finish_time = -1.0   # The second marble did not reach the line.
+	mr._open_results()
+	await _frames(2)
+	var late_rows: Array = []
+	for l in mr._menu_box.find_children("*", "Label", true, false):
+		late_rows.append(l.text)
+	_check(late_rows.size() == 3 and late_rows[2].begins_with("2nd") and late_rows[2].ends_with("not finished"),
+			"a marble that did not finish is listed as not finished, after the finishers: %s" % str(late_rows))
+	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
+	mr._open_results()
+	await _frames(2)
+	var kept_players: Array[int] = mr.participants.duplicate()
+	mr.participants.clear()   # Everyone left after the finish. Choose track and Cancel must not show an empty list.
+	mr._open_results()
+	await _frames(2)
+	var left_buttons: Array = mr.menu_buttons().map(func(b): return b.text)
+	var left_title: String = mr._menu_box.find_children("*", "Label", true, false)[0].text
+	_check(left_buttons == ["Back to menu"] and left_title == "No players connected",
+			"results with nobody left say 'No players connected' and only offer Back to menu: %s" % str(left_buttons))
+	mr.participants.append_array(kept_players)
+	mr._open_results()
+	await _frames(2)
 	mr._open_picker()
 	await _frames(2)
 	_check(mr._picking and mr.menu_buttons().size() == MarbleTrack.IDS.size() + 1,
 			"track picker lists every track and Cancel")
 	mr.on_back()
 	await _frames(2)
-	_check(not mr._picking and mr._ended and mr.menu_buttons().size() == results_items,
+	_check(not mr._picking and mr.is_over and mr.menu_buttons().size() == results_items,
 			"Back from the picker returns to the results")
 	mr._open_picker()
 	mr._switch_track("sprint")
@@ -517,10 +606,14 @@ func _run() -> void:
 	var lr: Control = app.current_screen()
 	app.server.drop_player(1)
 	await _frames(3)
-	_check(lr.participants == [0] and lr._racers.size() == 1 and not lr._ended, "the race goes on when one player leaves")
+	_check(lr.participants == [0] and lr._racers.size() == 1 and not lr.is_over, "the race goes on when one player leaves")
 	app.server.drop_player(0)
 	await _frames(3)
-	_check(lr._ended and lr.is_paused() and lr._menu_box != null, "a menu opens when all players leave")
+	_check(lr.is_over and lr.is_paused() and lr._menu_box != null, "a menu opens when all players leave")
+	var empty_menu: Control = lr._menu_box
+	lr.end_no_players()
+	_check(lr._menu_box == empty_menu and not lr._can_open_menu() and lr.menu_buttons().size() == 1
+			and lr.menu_buttons()[0].text == "Back to menu", "the end with no players happens once, and the pause menu cannot open")
 
 	# The only player is lost: no pause message and no waiting for the hold, the game ends at once (REQ-GM-30a).
 	var solo := ControllerClient.new()   # No name: the TV shows "Player N".
@@ -558,7 +651,7 @@ func _run() -> void:
 	t5 = Time.get_ticks_msec()
 	while not solo_race.participants.is_empty() and Time.get_ticks_msec() - t5 < 3000:
 		await process_frame
-	_check(solo_race._ended and not solo_race._paused_lost and solo_race._menu_box != null,
+	_check(solo_race.is_over and not solo_race._paused_lost and solo_race._menu_box != null,
 			"marble race: the last player is lost, the race ends at once with a menu")
 	solo2.leave()
 

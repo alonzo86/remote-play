@@ -13,12 +13,18 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Scoreboard = preload("res://scripts/game/scoreboard.gd")
+const Medals = preload("res://scripts/game/medals.gd")
 
 ## Values the game was started with (App.go props). restart() uses them again.
 var start_props := {}
 
 ## Slots that joined when the game started.
 var participants: Array[int] = []
+
+## True when the game has ended: a winner, or nobody is left. A game sets it when it opens its result menu.
+## The pause menu cannot open and leaving does not ask (REQ-GM-31a) while it is true.
+var is_over := false
 
 var _menu_box: Control
 var _menu_open := false
@@ -30,6 +36,8 @@ func _ready() -> void:
 	participants = App.server.connected_slots()
 	App.server.set_phase("playing", participants)
 	_game_ready()
+	if participants.is_empty():
+		end_no_players()
 
 
 func player(slot: int) -> PlayerInput:
@@ -45,15 +53,32 @@ func lost_participants() -> Array[int]:
 	return r
 
 
-## Remove participants that left for good.
+## Remove participants that left for good. The game removes the objects of each one in `_on_player_left()`
+## (REQ-GM-21). When nobody is left, the game ends at once (REQ-GM-22).
 func _prune_participants() -> void:
 	var keep: Array[int] = []
+	var gone: Array[int] = []
 	for s in participants:
 		if player(s).is_present():
 			keep.append(s)
-	if keep.size() != participants.size():
-		participants = keep
-		_on_participants_changed()
+		else:
+			gone.append(s)
+	if gone.is_empty():
+		return
+	participants = keep
+	for s in gone:
+		_on_player_left(s)
+	if participants.is_empty():
+		end_no_players()
+	_on_participants_changed()
+
+
+## Ends the game with the "No players connected" menu (REQ-GM-22). It does nothing when the game is over already.
+func end_no_players() -> void:
+	if is_over:
+		return
+	is_over = true
+	open_menu("No players connected", [["Back to menu", App.go_menu]])
 
 
 func is_paused() -> bool:
@@ -118,7 +143,8 @@ func restart() -> void:
 	App.go(get_script(), start_props)
 
 
-func open_menu(title: String, entries: Array) -> void:
+## `rows` are optional lines under the title: `{text, color}` for each, with a dot in the color (the result ranking).
+func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	close_menu()
 	_menu_open = true
 	var center := CenterContainer.new()
@@ -133,6 +159,8 @@ func open_menu(title: String, entries: Array) -> void:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(l)
+	for r in rows:
+		box.add_child(_menu_row(String(r.text), r.color))
 	var first: Button = null
 	for e in entries:
 		var b := UiKit.button(String(e[0]), e[1], first == null, 40)
@@ -146,6 +174,54 @@ func open_menu(title: String, entries: Array) -> void:
 	add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	first.grab_focus()
+
+
+## One line of the result list: a dot in the player color, and the text.
+func _menu_row(text: String, color: Color) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 18)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	var dot := Panel.new()
+	dot.custom_minimum_size = Vector2(40, 40)
+	dot.add_theme_stylebox_override("panel", UiTheme.card(color, UiTheme.OUTLINE, 5, 20, false))
+	row.add_child(dot)
+	row.add_child(UiKit.label(text, 40, UiTheme.CARD_TEXT))
+	return row
+
+
+## Ends a round with scores (REQ-GM-34, 72, 73): sets `is_over` and opens the result menu. It lists the ranking, and its
+## buttons are Restart, then `extra_entries` (for example Choose track), then Back to menu.
+## - The title names the single winner, or says "Tie!", or says "Round over" when nobody has a score.
+##   With one player and `tiers` (see `Medals`) it is the medal. `title` replaces it.
+## - `score_text` turns a score into text for the list (default `Scoreboard.format`). A player without a score shows
+##   "not finished".
+func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entries: Array = [],
+		score_text := Callable()) -> void:
+	is_over = true
+	var ranking := board.ranking()
+	var rows: Array = []
+	for e in ranking:
+		var p := player(e.slot)
+		var text := "not finished"
+		if e.finished:
+			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
+		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color})
+	var winners := board.winners()
+	var heading := title
+	if heading == "":
+		heading = "Round over"
+		if ranking.size() == 1 and not tiers.is_empty():
+			# A player without a score gets no medal: the score 0 would beat every limit of a time.
+			var medal := Medals.medal(ranking[0].score, tiers, board.lower_is_better) if ranking[0].finished else Medals.NONE
+			heading = Medals.label(medal)
+		elif winners.size() == 1:
+			heading = "%s wins!" % player(winners[0]).player_name
+		elif winners.size() > 1:
+			heading = "Tie!"
+	var entries: Array = [["Restart", restart]]
+	entries.append_array(extra_entries)
+	entries.append(["Back to menu", App.go_menu])
+	open_menu(heading, entries, rows)
 
 
 ## The buttons of the open menu (tests use it).
@@ -209,8 +285,10 @@ func _game_draw() -> void:
 	pass
 
 
+## True when the pause menu may open. By default it may while the game is not over and a player is left.
+## A game adds its own limits (for example no pause menu in a countdown).
 func _can_open_menu() -> bool:
-	return true
+	return not is_over and not participants.is_empty()
 
 
 ## True while the game is in progress, so that leaving it asks first (REQ-GM-31a). It is not the same as
@@ -220,5 +298,11 @@ func _in_progress() -> bool:
 	return _can_open_menu()
 
 
+## A participant left for good. Remove the object of that slot (REQ-GM-21). `participants` has no `slot` any more.
+func _on_player_left(_slot: int) -> void:
+	pass
+
+
+## The list of participants changed (after `_on_player_left()` for each slot and the end check).
 func _on_participants_changed() -> void:
 	pass

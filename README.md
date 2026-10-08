@@ -8,7 +8,7 @@ Godot 4.7 and GDScript. One project makes two apps:
 
 The games are minigames that use the phone as a motion controller: a tilt maze and a 3D marble race (with several tracks). New minigames are added through the game registry (see below).
 
-Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [device test plan](docs/DEVICE_TEST.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md) | [design system](docs/design-system/README.md)
+Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [device test plan](docs/DEVICE_TEST.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md) | [games roadmap](docs/GAMES_ROADMAP.md) | [design system](docs/design-system/README.md)
 
 ## How it works
 
@@ -70,7 +70,9 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
 2. Extend `scripts/game/minigame.gd`. Override `_game_ready()`, `_game_tick(delta)`, `_game_draw()`.
    The base class is the game shell: the player list, the pause when a phone is lost, the D-pad pause menu
    (Resume, Restart, Back to menu), the result menu (`open_menu`), and the Back key. Draw titles, score chips, the
-   countdown and hints with `scripts/game/shell.gd`.
+   countdown and hints with `scripts/game/shell.gd`. The base class also ends the game when no player is left (`end_no_players()`) and calls
+   `_on_player_left(slot)` when a player leaves. Set `is_over = true` when the game ends. `round_clock.gd` (countdown and playing time) and
+   `haptics.gd` (buzz cool-down), `scoreboard.gd` (scores and ranking) and `medals.gd` (solo medals) are small helpers for games; `open_results()` shows the ranking.
 3. Add one entry for the game in `scripts/game/registry.gd` (with `doc`, `description` and `tile`). The Games screen is built
    from that list. Run `tools/make_tiles.gd` to make the tile screenshot (see the header of that file).
 

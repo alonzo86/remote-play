@@ -62,11 +62,11 @@ The lengths are measured (`MarbleTrack.length`). The winning times are targets, 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-MR-30 | The Games screen has one "Marble Race" tile. It opens the track list. A track starts the race. Back from the list returns to the grid with the tile in focus. | Done | smoke_tv |
-| REQ-MR-31 | The results menu has Restart, Choose track and Back to menu. Choose track opens the track list. The current track is marked. | Done | smoke_tv |
+| REQ-MR-31 | The results menu (`open_results()`, REQ-GM-72) names the winner and lists all marbles: the finish times first, then the marbles that did not finish (by distance). It has Restart, Choose track and Back to menu. Choose track opens the track list. The current track is marked. | Done | smoke_tv |
 | REQ-MR-32 | The pause menu has Resume, Restart and Back to menu. It has no Choose track. A player can leave a race at any time. | Done | smoke_tv (pause menu) |
 | REQ-MR-33 | Restart keeps the track. | Done | smoke_tv |
 | REQ-MR-34 | Back in the track list of the results returns to the results. Back in the results leaves the game. | Done | smoke_tv |
-| REQ-MR-14 | If all players leave during the race, a menu "No players connected" opens with "Back to menu". | Done | smoke_tv |
+| REQ-MR-14 | If all players leave during the race, a menu "No players connected" opens with "Back to menu". It is also what opens when the results are asked for (for example Cancel in the track list) after all players left. | Done | smoke_tv |
 | REQ-MR-15 | The Recenter button of the phone zeroes the tilt of that player in the race. | Done | smoke_tv |
 | REQ-MR-35 | The name of the track is shown on the screen during the race. | Done | Device |
 
@@ -97,4 +97,4 @@ In `scripts/game/marble_race/marble_race.gd` unless it says otherwise. Tune them
 - Is a dead zone (like the maze, 0.03) or a speed limit needed? Test on a device.
 - Are the target winning times right? Measure them in Test 9 and update the table.
 - Is the edge arrow (REQ-MR-42) clear enough on a TV? Other options: a smaller marble view, or pull the last marble forward.
-- Should the results show all finish times, and should the best time of each track be saved?
+- Should the best time of each track be saved? (The results show all finish times. Saving waits until players are identified.)

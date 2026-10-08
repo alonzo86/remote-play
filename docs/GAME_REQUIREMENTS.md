@@ -31,8 +31,8 @@ Architecture
 Players
 
 - REQ-GM-20: The registry entry gives `min_players` and `max_players`. A game works with the number of phones that are connected when it starts.
-- REQ-GM-21: A game must stay stable when a player leaves during play (the marker or object of that player is removed, no error).
-- REQ-GM-22: A game must stay stable when all players leave. It shows a menu with "Back to menu".
+- REQ-GM-21: A game must stay stable when a player leaves during play (the marker or object of that player is removed, no error). The base class calls `_on_player_left(slot)` once for each participant that left for good. The game removes the objects of that slot there.
+- REQ-GM-22: A game must stay stable when all players leave. It shows a menu with "Back to menu". The base class does this (`end_no_players()`), also when the game starts with no player. It sets `is_over`, and it does nothing when the game is over already.
 - REQ-GM-23: The color of a player in the game is the slot color (`PlayerInput.color`). The names are the phone names.
 - REQ-GM-24: All players use the same input mapping and the same sensitivity. No player has an advantage from the slot.
 - REQ-GM-25: A game that needs a fair start gives all players the same start state (same distance to the goal).
@@ -42,14 +42,14 @@ Flow
 - REQ-GM-30: The game pauses while a participant is lost and at least one other participant is still connected (the base class does this). OK continues without the lost players.
 - REQ-GM-30a: Every time a participant is lost or leaves, the base class checks whether any participant is still connected. When none is, nobody is left to continue with. The game ends at once (no wait): the base class removes the lost players and the game shows its "No players connected" menu (for example REQ-MR-14), not after the 30 s hold. The pause message has no "Press OK" line in this case. When at least one player is still connected, the game pauses as before (REQ-GM-30).
 - REQ-GM-31: OK opens the pause menu: Resume, Restart, Back to menu. Back closes the menu, or leaves the game (after the question of REQ-GM-31a).
-- REQ-GM-31a: Leaving a game that is in progress asks first. Back (or "Back to menu" in the pause menu) opens "End the game?" with two buttons: "Keep playing" (green, the default) and "✕  End game" (red). The game is paused while the question is open. Back on the question is "Keep playing". A game that is over (the result menu, "No players connected") leaves at once, without the question. The base class does this (`Minigame.request_leave()`). A game must not call `App.go_menu()` for a game in progress, and it overrides `_in_progress()` when a game is in progress at a time the pause menu is not allowed. By default `_in_progress()` is `_can_open_menu()`, so a game overrides `_can_open_menu()` to say when it is over.
+- REQ-GM-31a: Leaving a game that is in progress asks first. Back (or "Back to menu" in the pause menu) opens "End the game?" with two buttons: "Keep playing" (green, the default) and "✕  End game" (red). The game is paused while the question is open. Back on the question is "Keep playing". A game that is over (the result menu, "No players connected") leaves at once, without the question. The base class does this (`Minigame.request_leave()`). A game must not call `App.go_menu()` for a game in progress, and it overrides `_in_progress()` when a game is in progress at a time the pause menu is not allowed. By default `_in_progress()` is `_can_open_menu()`. By default `_can_open_menu()` is true while `is_over` is false and a participant is left. A game sets `is_over = true` when it opens its result menu, and it overrides `_can_open_menu()` only to add limits.
 - REQ-GM-32: Restart makes a new game with the same start values (`start_props`).
 - REQ-GM-33: Every menu and every screen works with the D-pad, OK and Back. No touch or mouse is needed on the TV.
-- REQ-GM-34: A game with a winner or a score ends on a result screen that shows the result and offers Restart and Back to menu.
-- REQ-GM-35: A game that needs equal readiness starts with a visible countdown (3 s). Input does not move the players during it.
+- REQ-GM-34: A game with a winner or a score ends on a result screen that shows the result and offers Restart and Back to menu. A game with scores uses `open_results()` (REQ-GM-72).
+- REQ-GM-35: A game that needs equal readiness starts with a visible countdown (3 s). Input does not move the players during it. `RoundClock` (`scripts/game/round_clock.gd`) keeps the countdown and the playing time.
 - REQ-GM-36: A game must not open a menu that lets the player change the game setup during play.
   Setup choices (level, track, mode) are made before the game starts and on the result screen.
-- REQ-GM-37: The Recenter button of the phone works in every game (`PlayerInput.recenter()`).
+- REQ-GM-37: The Recenter button of the phone works in every game (`PlayerInput.recenter()`). It is the only way to recenter during play: a game does not use A or B for it, so A and B are free for the actions of the game. A game may recenter all players at the start of play.
 
 Look and sound
 
@@ -57,13 +57,13 @@ Look and sound
 - REQ-GM-41: Text on the TV is 28 px or larger (all text, also hints and chips; the numbers on a player object are not text), and it has good contrast with the background (`UiTheme` colors).
 - REQ-GM-42: A game uses `UiTheme` colors, the shell fonts, and mostly shapes made in code. Image, model and font files are allowed when `docs/TV_FLOW.md` (FD-9, FD-13) allows them. A game states its own asset files in its requirements file.
 - REQ-GM-43: Important events give haptic feedback on the phone of the player: start, hit, goal.
-  Repeated events have a cool-down of 100 ms or more. Short pulses are 15 to 60 ms. A big event can be longer.
+  Repeated events have a cool-down of 100 ms or more. Short pulses are 15 to 60 ms. A big event can be longer. `Haptics.pulse()` (`scripts/game/haptics.gd`) keeps the cool-down for each slot.
 - REQ-GM-44: The meaning of colors is the same in all games: accent = title or number, OK = good, BAD = danger.
 
 Visual language (decision FD-14 in `docs/TV_FLOW.md`). Three tiers:
 
 - REQ-GM-45: Tier 1, the game shell (required). A game uses the shared shell for its pause menu, countdown, result screen, HUD text and score chips. It does not draw its own versions. The shell is part of `minigame.gd` and `minigame_3d.gd`, and it uses the Party Pop style (`UiTheme`, FD-13).
-- REQ-GM-46: Tier 1. Everything that belongs to a player (marble, ball, cursor, score) uses the slot color from `Protocol`. A name or score chip is a white pill with a dot in the slot color and dark text (`Shell.chip`), because white text on the light slot colors has too little contrast. A player object that is a ball or a marble shows the slot number on it (white digit, dark outline), so players do not depend on the color alone. Chips are in slot order (P1 first). The meaning of accent, OK and BAD is the same in all games (REQ-GM-44).
+- REQ-GM-46: Tier 1. Everything that belongs to a player (marble, ball, cursor, score) uses the slot color from `Protocol`. A name or score chip is a white pill with a dot in the slot color and dark text (`Shell.chip`), because white text on the light slot colors has too little contrast. A player object that is a ball or a marble shows the slot number on it (white digit, dark outline), so players do not depend on the color alone. A 2D ball is drawn with `Shell.ball()`, which does this. Chips are in slot order (P1 first). The meaning of accent, OK and BAD is the same in all games (REQ-GM-44).
 - REQ-GM-47: Tier 2, a toy-like world (required). A "key object" is a player object, a goal or a hazard. Values are for 1920x1080 and for the first version. The marble race trial (REQ-FL-47) checks them, and a change needs a change of this file in the same commit. The sub-requirements are 47a to 47h.
   - REQ-GM-47a: Outline color. Key objects have a dark outline in `#1a0b45` (`UiTheme.OUTLINE`).
   - REQ-GM-47b: Outline width in 2D. 6 px for key objects of 40 px or more, 4 px for smaller ones. Use `draw_*` with the outline drawn first, under the fill.
@@ -75,6 +75,13 @@ Visual language (decision FD-14 in `docs/TV_FLOW.md`). Three tiers:
   - REQ-GM-47h: Materials and light in 3D. `StandardMaterial3D` with `metallic` 0, `roughness` 1, no texture, no emission except for a goal (up to 0.3). One directional light, and an ambient light so that the shaded side of a key object is not darker than 60% of its lit side. The pattern of a finish line or a checker is made with geometry or vertex colors, not with a texture file.
 - REQ-GM-48: Tier 3, free. Setting, background, camera, lighting mood and theme colors are the choice of the game. The background colors come from the Party Pop set (purple `#3d1a9e`, blue `#1b3a8a`, teal `#0f6a78`, plum `#7a1f4a`, green `#145a3a`, amber `#8a4a00`), or from a set that the game's requirements file lists, and they follow REQ-GM-47e.
 - REQ-GM-49: Check for a new game: put a screenshot of the game next to the Games screen. They must look like the same toy box. The reviewer (the `review` skill) does this check. Hints at the bottom of the screen sit on a dark plate (`Shell.hint`), so a wall or a track behind them does not hide the text.
+
+Scores and solo play
+
+- REQ-GM-70: A game with a score keeps it in a `Scoreboard` (`scripts/game/scoreboard.gd`). A higher score is better, or a lower one with `lower_is_better` (a time). The ranking lists the best first. Equal scores share a rank (1, 1, 3), in slot order. A player who leaves is removed from the board.
+- REQ-GM-71: A round with a fixed length uses `RoundClock` with a `duration`. The clock shows `remaining()`, and `is_time_up()` ends the round. The length does not depend on the frame rate (REQ-GM-13).
+- REQ-GM-72: The result screen of a game with scores is `open_results(board, tiers)`. It sets `is_over`. It shows the ranking (rank, name, score, a dot in the slot color), Restart and Back to menu. The title names the single winner (also with one player), or says "Tie!" when two players or more share the first rank, or "Round over" when nobody has a score. A player without a score (`set_unfinished()`) is listed after the others as "not finished", the furthest first. A game may add buttons between Restart and Back to menu (`extra_entries`, for example Choose track), and give the text of a score (`score_text`, for example "4.22 s").
+- REQ-GM-73: A game that works with one player lists three medal tiers `[bronze, silver, gold]` in its requirements file (`Medals`). With one player, the title of the result screen is the medal ("Gold medal!") or "No medal this time". A player who did not finish (`set_unfinished()`) gets no medal. The tiers are open tuning values until a device test. Nothing is saved: the player is not identified yet.
 
 Performance
 

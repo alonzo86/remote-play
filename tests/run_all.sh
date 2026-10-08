@@ -8,6 +8,8 @@ echo "== unit and network tests"
 "$GODOT" --headless --path . --script tests/run_tests.gd -- --role=controller
 echo "== button states and the wait screen Leave"
 "$GODOT" --headless --path . --script tests/ui_states.gd -- --role=controller
+echo "== game helpers"
+"$GODOT" --headless --path . --script tests/game_helpers.gd -- --role=controller
 echo "== design tokens"
 "$GODOT" --headless --path . --script tests/design_tokens.gd -- --role=controller
 python3 tools/design_tokens_css.py --check
