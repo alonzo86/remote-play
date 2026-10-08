@@ -39,14 +39,14 @@ and 3D-only code (camera, meshes).
 
 | Helper | Where | Job |
 |--------|-------|-----|
-| Scoreboard | `scripts/game/scoreboard.gd` | Score for each slot, ranking, ties (1, 1, 3), `lower_is_better` for times, ordinals (REQ-GM-70). The race uses its ordinals. |
+| Scoreboard | `scripts/game/scoreboard.gd` | Score for each slot, ranking, ties (1, 1, 3), `lower_is_better` for times, players without a score (`set_unfinished()`), ordinals (REQ-GM-70). |
 | Round length | `RoundClock` (`duration`, `remaining()`, `is_time_up()`) | A round of fixed length. The visible clock is `Shell.timer()` with `remaining()` (REQ-GM-71). |
-| Ranked result | `Minigame.open_results(board, tiers)` | A result menu with the ranking (dot in the slot color), Restart and Back to menu. Sets `is_over` (REQ-GM-72). |
+| Ranked result | `Minigame.open_results(board, tiers, title, extra_entries, score_text)` | A result menu with the ranking (dot in the slot color), Restart, extra buttons and Back to menu. Sets `is_over` (REQ-GM-72). Used by both existing games. |
 | Medal tiers | `scripts/game/medals.gd` | Solo rule: `[bronze, silver, gold]` limits for one game. The result title is the medal. Not saved (REQ-GM-73). |
 | `Shell.ball` | `scripts/game/shell.gd` | The outlined 2D ball with shadow, shine and slot number, moved out of the maze draw code (REQ-GM-46, 47b). The maze uses it. |
 | `TiltBody` | Not built yet | Position, velocity, tilt acceleration, damping, bounce. It is built in the Paint Grab branch, with its first user, so that its parameters come from a real need. Maze and race may adopt it later, with a device test, because the damping models differ. |
 
-No existing game uses `open_results()` yet (the maze and the race keep their own result menus). The first game branch is the first user.
+Maze and Marble Race both use `open_results()`. Their result menus now list all players (times, and "not finished"), and the maze says "Restart" instead of "Play again".
 
 ## Branches
 

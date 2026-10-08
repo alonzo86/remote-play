@@ -119,6 +119,25 @@ func _scoreboard() -> void:
 	times.set_score(2, 40.0)
 	_check(times.ranking().map(func(e): return e.slot) == [1, 0, 2] and _ints(times.winners()) == [1],
 			"with lower_is_better the smallest time wins")
+	var race = board_script.new([0, 1, 2, 3], true)
+	race.set_score(2, 61.5)
+	race.set_unfinished(0, 120.0)
+	race.set_unfinished(1, 250.0)
+	race.set_unfinished(3, 120.0)
+	var rr: Array = race.ranking()
+	_check(rr.map(func(e): return e.slot) == [2, 1, 0, 3] and rr.map(func(e): return e.rank) == [1, 2, 3, 3]
+			and rr.map(func(e): return e.finished) == [true, false, false, false],
+			"unfinished players rank after the finished one, the furthest first, equal progress shares a rank: %s" % str(rr))
+	_check(_ints(race.winners()) == [2] and race.is_finished(2) and not race.is_finished(1) and race.size() == 4,
+			"only a player with a score can win")
+	race.set_score(1, 70.0)
+	race.remove(0)
+	_check(race.is_finished(1) and not race.has(0) and race.size() == 3, "set_score finishes a player, remove deletes either kind")
+	var nobody = board_script.new([0, 1])
+	nobody.set_unfinished(0, 1.0)
+	nobody.set_unfinished(1, 2.0)
+	_check(nobody.winners().is_empty() and nobody.ranking()[0].slot == 1 and nobody.ranking()[0].rank == 1,
+			"nobody has a score: no winner, but the furthest player is listed first")
 	var empty = board_script.new()
 	_check(empty.ranking().is_empty() and empty.winners().is_empty(), "no player, no ranking")
 	_check([1, 2, 3, 4].map(func(n): return board_script.ordinal(n)) == ["1st", "2nd", "3rd", "4th"], "ordinals")

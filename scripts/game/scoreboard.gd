@@ -2,12 +2,15 @@ extends RefCounted
 ## The score of each player in a round, and the ranking (REQ-GM-70). Pure logic: it does not draw.
 ## Higher is better. For a time that must be small, make it with `lower_is_better`.
 ## Equal scores share a rank: 1, 1, 3 (REQ-GM-72). Players with the same rank are in slot order.
+## A player who has not finished (a race that ended before the line) has no score. `set_unfinished()` gives only how far the
+## player got. Such players rank after all players with a score, the furthest first.
 
 const ORDINALS := ["1st", "2nd", "3rd", "4th"]
 
 var lower_is_better := false
 
-var _scores := {}   # slot -> float
+var _scores := {}     # slot -> float, for the players with a score
+var _progress := {}   # slot -> float, for the players without a score
 
 
 ## `slots` are the players of the round. Each starts with 0.
@@ -18,11 +21,16 @@ func _init(slots: Array = [], p_lower_is_better := false) -> void:
 
 
 func has(slot: int) -> bool:
-	return _scores.has(slot)
+	return _scores.has(slot) or _progress.has(slot)
 
 
 func size() -> int:
-	return _scores.size()
+	return _scores.size() + _progress.size()
+
+
+## True when the player has a score (not `set_unfinished()`).
+func is_finished(slot: int) -> bool:
+	return _scores.has(slot)
 
 
 func score(slot: int) -> float:
@@ -30,7 +38,14 @@ func score(slot: int) -> float:
 
 
 func set_score(slot: int, value: float) -> void:
+	_progress.erase(slot)
 	_scores[slot] = value
+
+
+## The player has no score. `progress` is how far the player got: a higher number is further.
+func set_unfinished(slot: int, progress: float) -> void:
+	_scores.erase(slot)
+	_progress[slot] = progress
 
 
 func add(slot: int, points: float) -> void:
@@ -40,31 +55,43 @@ func add(slot: int, points: float) -> void:
 ## A player that left the game does not count in the ranking any more.
 func remove(slot: int) -> void:
 	_scores.erase(slot)
+	_progress.erase(slot)
 
 
-## Entries `{slot, score, rank}` from the best to the worst.
+## Entries `{slot, score, rank, finished}` from the best to the worst. An unfinished player has `finished` false and
+## score 0. Its rank counts all players ahead, so 1st finished and two unfinished players give ranks 1, 2, 2.
 func ranking() -> Array:
-	var slots: Array = _scores.keys()
-	slots.sort_custom(func(a: int, b: int) -> bool:
+	var done: Array = _scores.keys()
+	done.sort_custom(func(a: int, b: int) -> bool:
 		if is_equal_approx(_scores[a], _scores[b]):
 			return a < b
 		return _better(_scores[a], _scores[b]))
 	var out: Array = []
-	for i in slots.size():
-		var s: int = slots[i]
+	for s in done:
 		var rank := 1
-		for other in slots:
+		for other in done:
 			if _better(_scores[other], _scores[s]) and not is_equal_approx(_scores[other], _scores[s]):
 				rank += 1
-		out.append({"slot": s, "score": _scores[s], "rank": rank})
+		out.append({"slot": s, "score": _scores[s], "rank": rank, "finished": true})
+	var rest: Array = _progress.keys()
+	rest.sort_custom(func(a: int, b: int) -> bool:
+		if is_equal_approx(_progress[a], _progress[b]):
+			return a < b
+		return _progress[a] > _progress[b])
+	for s in rest:
+		var rank := done.size() + 1
+		for other in rest:
+			if _progress[other] > _progress[s] and not is_equal_approx(_progress[other], _progress[s]):
+				rank += 1
+		out.append({"slot": s, "score": 0.0, "rank": rank, "finished": false})
 	return out
 
 
-## The slots with rank 1. More than one slot means a tie. Empty when there is no player.
+## The finished slots with rank 1. More than one slot means a tie. Empty when nobody has a score.
 func winners() -> Array[int]:
 	var out: Array[int] = []
 	for e in ranking():
-		if e.rank == 1:
+		if e.rank == 1 and e.finished:
 			out.append(e.slot)
 	return out
 

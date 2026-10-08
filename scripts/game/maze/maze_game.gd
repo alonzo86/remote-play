@@ -86,11 +86,15 @@ func _game_tick(delta: float) -> void:
 
 
 func _finish(slot: int) -> void:
-	is_over = true
 	_winner = slot
 	App.server.haptic(slot, 400)
-	open_menu("Player %d wins!   %.1f s" % [slot + 1, _round.time],
-			[["Play again", restart], ["Back to menu", App.go_menu]])
+	# Times: the winner has one. The balls still in the maze are ranked by their distance to the exit.
+	var board := Scoreboard.new([], true)
+	board.set_score(slot, _round.time)
+	for b in _balls:
+		if b.slot != slot:
+			board.set_unfinished(b.slot, -b.pos.distance_to(_exit_center()))
+	open_results(board, [], "", [], func(t: float) -> String: return "%.1f s" % t)
 
 
 func _exit_center() -> Vector2:

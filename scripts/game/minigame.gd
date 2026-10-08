@@ -189,25 +189,37 @@ func _menu_row(text: String, color: Color) -> Control:
 	return row
 
 
-## Ends a round with scores (REQ-GM-34, 72, 73): sets `is_over` and opens the result menu with the ranking, Restart and
-## Back to menu. The title names the winner, or says "Tie". With one player and `tiers` (see `Medals`) it shows the medal.
-func open_results(board: Scoreboard, tiers: Array = []) -> void:
+## Ends a round with scores (REQ-GM-34, 72, 73): sets `is_over` and opens the result menu. It lists the ranking, and its
+## buttons are Restart, then `extra_entries` (for example Choose track), then Back to menu.
+## - The title names the single winner, or says "Tie!", or says "Round over" when nobody has a score.
+##   With one player and `tiers` (see `Medals`) it is the medal. `title` replaces it.
+## - `score_text` turns a score into text for the list (default `Scoreboard.format`). A player without a score shows
+##   "not finished".
+func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entries: Array = [],
+		score_text := Callable()) -> void:
 	is_over = true
 	var ranking := board.ranking()
 	var rows: Array = []
 	for e in ranking:
 		var p := player(e.slot)
-		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, Scoreboard.format(e.score)],
-				"color": p.color})
-	var title := "Round over"
+		var text := "not finished"
+		if e.finished:
+			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
+		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color})
 	var winners := board.winners()
-	if ranking.size() == 1 and not tiers.is_empty():
-		title = Medals.label(Medals.medal(ranking[0].score, tiers, board.lower_is_better))
-	elif winners.size() == 1 and ranking.size() > 1:
-		title = "%s wins!" % player(winners[0]).player_name
-	elif winners.size() > 1:
-		title = "Tie!"
-	open_menu(title, [["Restart", restart], ["Back to menu", App.go_menu]], rows)
+	var heading := title
+	if heading == "":
+		heading = "Round over"
+		if ranking.size() == 1 and not tiers.is_empty():
+			heading = Medals.label(Medals.medal(ranking[0].score, tiers, board.lower_is_better))
+		elif winners.size() == 1:
+			heading = "%s wins!" % player(winners[0]).player_name
+		elif winners.size() > 1:
+			heading = "Tie!"
+	var entries: Array = [["Restart", restart]]
+	entries.append_array(extra_entries)
+	entries.append(["Back to menu", App.go_menu])
+	open_menu(heading, entries, rows)
 
 
 ## The buttons of the open menu (tests use it).

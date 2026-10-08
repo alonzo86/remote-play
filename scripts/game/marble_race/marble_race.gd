@@ -50,7 +50,6 @@ var _round := RoundClock.new()   # Race clock. Below 0 the marbles wait on the g
 var _haptics := Haptics.new()
 var _first_finish_time := -1.0
 var _winner := -1
-var _winner_name := ""
 var _picking := false   # True while the track picker is open on the results menu.
 var _cam_pos := Vector3.ZERO
 
@@ -121,7 +120,6 @@ func _step(dt: float) -> void:
 			if _first_finish_time < 0.0:
 				_first_finish_time = _round.time
 				_winner = r.slot
-				_winner_name = player(r.slot).player_name
 	for i in live.size():
 		for j in range(i + 1, live.size()):
 			_hit_marbles(live[i], live[j])
@@ -186,7 +184,6 @@ func _check_end() -> void:
 		if _racers[s].finish_time < 0.0:
 			all_done = false
 	if all_done or _round.time - _first_finish_time >= END_DELAY:
-		is_over = true
 		_open_results()
 
 
@@ -194,8 +191,15 @@ func _check_end() -> void:
 
 func _open_results() -> void:
 	_picking = false
-	open_menu("%s wins!" % _winner_name,
-			[["Restart", restart], ["Choose track", _open_picker], ["Back to menu", App.go_menu]])
+	# Finished marbles have their time. The others are ranked by how far they got.
+	var board := Scoreboard.new([], true)
+	for s in participants:
+		var r: Racer = _racers[s]
+		if r.finish_time >= 0.0:
+			board.set_score(s, r.finish_time)
+		else:
+			board.set_unfinished(s, r.arc)
+	open_results(board, [], "", [["Choose track", _open_picker]], func(t: float) -> String: return "%.2f s" % t)
 
 
 func _open_picker() -> void:

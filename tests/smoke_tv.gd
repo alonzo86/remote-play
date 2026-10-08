@@ -361,7 +361,13 @@ func _run() -> void:
 	mz._game_tick(0.016)
 	_check(mz.is_over and mz._winner == mz._balls[0].slot, "a ball in the exit wins")
 	var labels: Array = mz.menu_buttons().map(func(b): return b.text)
-	_check(labels == ["Play again", "Back to menu"] and mz.is_paused(), "the result menu opens: %s" % str(labels))
+	_check(labels == ["Restart", "Back to menu"] and mz.is_paused(), "the result menu opens: %s" % str(labels))
+	var maze_rows: Array = []
+	for l in mz._menu_box.find_children("*", "Label", true, false):
+		maze_rows.append(l.text)
+	_check(maze_rows.size() == 3 and maze_rows[0].ends_with("wins!") and maze_rows[1].begins_with("1st")
+			and maze_rows[1].ends_with(" s") and maze_rows[2].begins_with("2nd") and maze_rows[2].ends_with("not finished"),
+			"the maze result lists the winner with the time and the other ball as not finished: %s" % str(maze_rows))
 	_check(not mz._can_open_menu(), "the pause menu cannot open over the result menu")
 	mz._balls[1].pos = mz._exit_center()
 	mz._game_tick(0.016)
@@ -371,10 +377,10 @@ func _run() -> void:
 	mz.menu_buttons()[0].pressed.emit()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), MazeGame) and app.current_screen() != mz
-			and app.current_screen()._round.is_counting(), "Play again starts a new maze with a countdown")
+			and app.current_screen()._round.is_counting(), "Restart starts a new maze with a countdown")
 
 	# The result menu of a round with scores (REQ-GM-34, 72, 73) on the race screen, with its two players gone.
-	# (The fresh maze of "Play again" has both phones.)
+	# (The fresh maze of "Restart" has both phones.)
 	var Scoreboard = load("res://scripts/game/scoreboard.gd")
 	var rg: Control = app.current_screen()
 	var board = Scoreboard.new(rg.participants)
@@ -528,6 +534,28 @@ func _run() -> void:
 	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
 	_check(mr.is_over and mr.is_paused(), "race ends and the results menu opens")
 	var results_items: int = mr.menu_buttons().size()
+	_check(mr._menu_box.find_children("*", "Label", true, false)[0].text == "Tie!", "two marbles with the same time are a tie")
+	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
+	mr._open_results()
+	await _frames(2)
+	var race_labels: Array = mr.menu_buttons().map(func(b): return b.text)
+	var race_rows: Array = []
+	for l in mr._menu_box.find_children("*", "Label", true, false):
+		race_rows.append(l.text)
+	_check(race_labels == ["Restart", "Choose track", "Back to menu"] and race_rows.size() == 3 and race_rows[0].ends_with("wins!")
+			and race_rows[1].begins_with("1st") and race_rows[2].begins_with("2nd") and race_rows[2].ends_with(" s"),
+			"the race results list both marbles with their times, and keep Choose track: %s %s" % [str(race_labels), str(race_rows)])
+	mr._racers[1].finish_time = -1.0   # The second marble did not reach the line.
+	mr._open_results()
+	await _frames(2)
+	var late_rows: Array = []
+	for l in mr._menu_box.find_children("*", "Label", true, false):
+		late_rows.append(l.text)
+	_check(late_rows.size() == 3 and late_rows[2].begins_with("2nd") and late_rows[2].ends_with("not finished"),
+			"a marble that did not finish is listed as not finished, after the finishers: %s" % str(late_rows))
+	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
+	mr._open_results()
+	await _frames(2)
 	mr._open_picker()
 	await _frames(2)
 	_check(mr._picking and mr.menu_buttons().size() == MarbleTrack.IDS.size() + 1,
