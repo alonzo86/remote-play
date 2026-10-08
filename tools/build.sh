@@ -8,9 +8,12 @@ GODOT="${GODOT:-}"
 export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 
+# Run and test need the imported-asset cache (.godot/, not in git). Without it fonts and images fail to load.
+import_assets() { "$GODOT" --headless --path . --import >/dev/null 2>&1 || true; }
+
 case "${1:-}" in
-	run-tv)         exec caffeinate -dis "$GODOT" --path . -- --role=tv ;;  # caffeinate: no App Nap throttling
-	run-controller) exec "$GODOT" --path . -- --role=controller --auto-join ;;
+	run-tv)         import_assets; exec caffeinate -dis "$GODOT" --path . -- --role=tv ;;  # caffeinate: no App Nap throttling
+	run-controller) import_assets; exec "$GODOT" --path . -- --role=controller --auto-join ;;
 	test)           GODOT="$GODOT" exec tests/run_all.sh ;;
 	apk)
 		mkdir -p build

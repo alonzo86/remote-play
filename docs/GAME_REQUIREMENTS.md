@@ -39,7 +39,8 @@ Players
 
 Flow
 
-- REQ-GM-30: The game pauses while a participant is lost (the base class does this). OK continues without the lost players.
+- REQ-GM-30: The game pauses while a participant is lost and at least one other participant is still connected (the base class does this). OK continues without the lost players.
+- REQ-GM-30a: When every participant is lost, nobody is left to wait for. The base class removes them at once, with no pause message, and the game shows its "No players connected" menu (for example REQ-MR-14), not after the 30 s hold.
 - REQ-GM-31: OK opens the pause menu: Resume, Restart, Back to menu. Back closes the menu, or leaves the game.
 - REQ-GM-32: Restart makes a new game with the same start values (`start_props`).
 - REQ-GM-33: Every menu and every screen works with the D-pad, OK and Back. No touch or mouse is needed on the TV.

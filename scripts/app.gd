@@ -191,7 +191,7 @@ func _start_controller() -> void:
 	if not OS.has_feature("mobile"):
 		win.size = Vector2i(450, 800)
 	client = ControllerClient.new()
-	client.player_name = "Phone %d" % (randi() % 90 + 10)
+	client.player_name = "" # The TV shows "Player N" for a phone without a name.
 	add_child(client)
 	controller_discovery = ControllerDiscovery.new()
 	add_child(controller_discovery)

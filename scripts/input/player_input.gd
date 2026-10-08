@@ -80,7 +80,7 @@ func reset() -> void:
 
 ## Called when a phone (re)joins this slot.
 func on_join(p_name: String, p_token: String) -> void:
-	player_name = p_name
+	player_name = p_name if p_name != "" else "Player %d" % (slot + 1)
 	token = p_token
 	state = State.CONNECTED
 	_last_seq = -1 # Do not count the reconnect gap as packet loss.

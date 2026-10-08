@@ -122,7 +122,7 @@ Or copy the APK to the phone and open it (allow installs from this source).
 
 1. Connect the TV and the phone to the **same Wi-Fi network** (best: 5 GHz).
 2. Start the TV app. After the logo it shows the **Connect controllers** screen with the room code and the QR code.
-3. Start the controller app. Tap **Scan the QR code on the TV** and scan the code. (Or tap the TV in the list, or type the room code.)
+3. Start the controller app. Tap **Scan QR code** and scan the code. (Or tap the TV under **Detected TVs**; **Refresh** looks again.)
 4. On the TV, press **Continue**. Press the Menu key (or open **Settings**, the gear, and switch **Debug overlay** on) to see the latency numbers.
 5. Select **Tilt Maze**. Hold the phone flat during the countdown. Tilt to roll the ball.
    If the ball rolls the wrong way, select **Invert tilt axes** on the Settings screen.
@@ -142,9 +142,9 @@ The phone window has no sensors. The mouse position simulates the tilt and the m
 | Symptom | Likely cause and action |
 |---------|-------------------------|
 | App is not in the TV home row | Banner or leanback category is missing. Run the patch script, export again, check with `aapt`. |
-| "Scan QR" button says **Paste TV link** | The plugin is not in the build. Run the patch script and export again. |
+| "Scan QR code" button says **Paste TV link** | The plugin is not in the build. Run the patch script and export again. |
 | "QR scan failed" | Google Play services are missing or old, or the scanner module is still downloading. Try again, or use the list or the room code. |
-| Phone does not find the TV | Wi-Fi guest network or "AP isolation" blocks broadcast. Type the room code (it needs the beacon) or the TV IP. |
+| Phone does not find the TV | Wi-Fi guest network or "AP isolation" blocks broadcast. Scan the QR code on the TV (it does not need the beacon). |
 | Phone shows "Cannot reach the TV" | Different subnet, VPN on the phone, or a firewall. Use the TV IP from the TV screen. |
 | Tilt direction is wrong | Use the **Invert tilt axes** switch on the TV Settings screen. Report the raw values from the overlay. |
 | Phone starts in landscape, then turns | Expected. The app sets portrait at start. See `docs/RISKS.md`. |

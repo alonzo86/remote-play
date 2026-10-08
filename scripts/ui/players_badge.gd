@@ -22,7 +22,7 @@ func _ready() -> void:
 
 
 func _style(bw: int, col: Color) -> StyleBoxFlat:
-	var s := UiTheme.card(UiTheme.CARD, col, bw, 42)
+	var s := UiTheme.card(UiTheme.BUTTON, col, bw, 42)
 	s.content_margin_left = DOTS_W
 	s.content_margin_right = 28
 	return s

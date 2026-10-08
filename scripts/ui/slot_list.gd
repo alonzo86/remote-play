@@ -6,7 +6,6 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
-const Confetti = preload("res://scripts/ui/confetti.gd")
 
 signal remove_requested(slot: int)
 
@@ -76,7 +75,6 @@ func _pop(row: Control) -> void:
 	if not is_instance_valid(row):
 		return
 	UiTheme.bounce(row, 1.05)
-	Confetti.burst(row, Vector2(row.size.x * 0.5, row.size.y * 0.5))
 
 
 func _make_row(p: PlayerInput) -> Control:
@@ -102,7 +100,7 @@ func _make_row(p: PlayerInput) -> Control:
 	dot.draw.connect(func():
 		dot.draw_circle(dot.size * 0.5, 27.0, UiTheme.OUTLINE)
 		dot.draw_circle(dot.size * 0.5, 22.0, col)
-		dot.draw_string(UiTheme.title_font(), Vector2(0, 36), str(num), HORIZONTAL_ALIGNMENT_CENTER, 54, 30, Color.WHITE))
+		UiTheme.draw_centered(dot, UiTheme.title_font(), str(num), Rect2(Vector2.ZERO, dot.size), 30, Color.WHITE))
 	h.add_child(dot)
 
 	var name_text := p.player_name if present and p.player_name != "" else "Player %d" % num
@@ -128,10 +126,10 @@ func _make_row(p: PlayerInput) -> Control:
 	if removable and present:
 		var rb := UiKit.button("Remove", func(): remove_requested.emit(p.slot), false, 28)
 		rb.custom_minimum_size = Vector2(170, 0)
-		var s2 := UiTheme.card(UiTheme.BAD.lightened(0.55), UiTheme.OUTLINE, 4, 16, false)
+		var s2 := UiTheme.card(UiTheme.BAD.darkened(0.25), UiTheme.OUTLINE, 4, 16, false)
 		s2.set_content_margin_all(8)
 		rb.add_theme_stylebox_override("normal", s2)
-		var s3 := UiTheme.card(UiTheme.BAD.lightened(0.55), UiTheme.ACCENT, 8, 16, false)
+		var s3 := UiTheme.card(UiTheme.BAD.darkened(0.25), UiTheme.ACCENT, 8, 16, false)
 		s3.set_content_margin_all(8)
 		rb.add_theme_stylebox_override("focus", s3)
 		rb.add_theme_stylebox_override("hover", s3)

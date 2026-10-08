@@ -8,7 +8,7 @@ var _rows: Array[Button] = []
 
 
 func _ready() -> void:
-	var m := UiKit.margin(self, 0, 80, 0, 70)
+	var m := UiKit.margin(self, 0, 60, 0, 60)
 	var center := CenterContainer.new()
 	m.add_child(center)
 	var box := VBoxContainer.new()
@@ -21,7 +21,10 @@ func _ready() -> void:
 			func(): App.toggle_overlay())
 	_add_row(box, "Invert tilt axes", "Use this when a ball rolls the wrong way.", "invert_tilt", Callable())
 	box.add_child(UiKit.spacer(10))
-	box.add_child(UiKit.button("Back", on_back, true, 40))
+	var back := UiKit.button("Back", on_back, true, 40)
+	back.custom_minimum_size = Vector2(360, 0)
+	back.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(back)
 	UiKit.focus_later(_rows[0])
 
 
@@ -40,15 +43,15 @@ func _add_row(parent: Control, title: String, help: String, key: String, custom:
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	h.add_child(col)
-	col.add_child(UiKit.label(title, 38, UiTheme.CARD_TEXT, UiTheme.body_bold()))
-	col.add_child(UiKit.label(help, 24, UiTheme.CARD_DIM, UiTheme.body_font()))
-	var state := UiKit.title("", 44, UiTheme.CARD_TEXT)
+	col.add_child(UiKit.label(title, 38, UiTheme.TEXT, UiTheme.body_bold()))
+	col.add_child(UiKit.label(help, 24, UiTheme.TEXT_DIM, UiTheme.body_font()))
+	var state := UiKit.title("", 44, UiTheme.TEXT)
 	state.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	h.add_child(state)
 	var refresh := func():
 		var on := bool(App.settings[key])
 		state.text = "ON" if on else "OFF"
-		state.add_theme_color_override("font_color", Color("1f9d6b") if on else UiTheme.CARD_DIM)
+		state.add_theme_color_override("font_color", UiTheme.OK if on else UiTheme.TEXT_DIM)
 	b.pressed.connect(func():
 		if custom.is_valid():
 			custom.call()

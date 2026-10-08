@@ -6,7 +6,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 
-const SHOT_SIZE := Vector2(440, 248)
+const SHOT_SIZE := Vector2(520, 293)
 const TEXT_H := 84.0
 
 var game := {}

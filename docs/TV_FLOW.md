@@ -33,7 +33,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 | FD-11 | The Connect screen does not show the WebSocket address. The Continue button is in a footer bar, aligned to the right edge of the content. | 2026-10-07 |
 | FD-12 | The Games screen shows a players badge with the number of players, not the room code. OK on the badge opens a modal to manage the players (see the requirements). | 2026-10-07 |
 | FD-9 | Art is no longer limited to flat shapes (changes REQ-P6): the logo and the tile screenshots are image files. Menus and games stay in code. | 2026-10-07 |
-| FD-13 | Visual style: **Party Pop**. Chunky, saturated, sticker-like. Thick dark outlines, hard offset shadows, rounded shapes, bright player color tokens, confetti. The TV and the phone use the same style. Rejected: Arcade Neon (heavy glow, hard to read from a sofa) and Sticker Book (needs paper image assets). | 2026-10-07 |
+| FD-13 | Visual style: **Party Pop**. Chunky, saturated, sticker-like. Thick dark outlines, hard offset shadows, rounded shapes, bright player color tokens. The TV and the phone use the same style. Rejected: Arcade Neon (heavy glow, hard to read from a sofa) and Sticker Book (needs paper image assets). | 2026-10-07 |
 | FD-14 | Games share a visual language, not one look. Tier 1 (required): the game shell (pause menu, countdown, results, HUD), fonts, player colors. Tier 2 (required, trial rules): a toy-like world (rounded shapes, flat saturated colors, dark outline on key objects). Tier 3 (free): setting, background, camera, lighting mood. The exact tier 2 values are in `docs/GAME_REQUIREMENTS.md` (REQ-GM-47a to 47h). A trial on the marble race checks them. | 2026-10-07 |
 | FD-15 | The owner makes the logo image. The developer sets the exact tier 2 values. | 2026-10-07 |
 | FD-16 | The pointer test and the 3D demo were only for the first test of the prototype. They are removed: code, requirements files, tiles and tests. The marble race is the example of a 3D game. The pointer input of the phone (`PlayerInput.pointer()`, the yaw fusion) stays as an input for a later game, but it has no Settings switch now. | 2026-10-07 |
@@ -79,11 +79,12 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-38: Cards, slots, badges and buttons have a thick dark outline (6 px at 1080p, `UiTheme.OUTLINE_W`) and a hard shadow offset down and right, with no blur. Corners are rounded. Pills and the gear are fully round.
 - REQ-FL-39: Titles use the display font Lilita One. Other text uses Fredoka (medium and semibold). Both fonts are free (SIL OFL) TTF files in `assets/fonts/`, with their license files. The default Godot font is the fallback.
 - REQ-FL-40: Text on the TV is at least 28 px high at 1080p for titles and game names, and at least 22 px for help text (read from a sofa). Text on the purple background has a contrast ratio of at least 4.5:1. Text on a white card is dark (`UiTheme.CARD_TEXT`), also for the chips in the games.
-- REQ-FL-41: The focused item has a yellow outline and a yellow title. Focus never changes the size of an item or moves the layout. A selected tile may tilt by up to 2 degrees.
-- REQ-FL-42: Motion: a focused tile bounces once (about 150 ms). A slot pops in with a small overshoot when a phone joins, with a confetti burst (coin sound optional). Screen changes use a short slide or fade (up to 250 ms).
+- REQ-FL-41a: Buttons are mid purple (`UiTheme.BUTTON`) with white text, not white. The main action is yellow. "Back" on a choice screen is a quiet dark button (`SecondaryButton`), apart from the options, and never looks like one of them. Buttons are only as wide as their text needs (a minimum width, not the full row). Screen margins are as small as the 60 px safe area allows.
+- REQ-FL-41: The focused item has a yellow outline and a yellow title (a yellow button gets a thicker dark outline). No focus outline is white. Focus never changes the size of an item or moves the layout. A selected tile may tilt by up to 2 degrees.
+- REQ-FL-42: Motion: a focused tile bounces once (about 150 ms). A slot pops in with a small overshoot when a phone joins (no confetti; coin sound optional). The logo still ends with one confetti burst. Screen changes use a short slide or fade (up to 250 ms).
 - REQ-FL-43: Motion stops while a game is paused or a phone is lost, and no motion blocks input.
 - REQ-FL-44: The style uses only styled boxes, tweens, particles and fonts. It uses no shader. It must run at 60 fps on the weakest supported TV box (check in `docs/DEVICE_TEST.md`).
-- REQ-FL-45: Confetti and background dots are drawn in code. They are not image files.
+- REQ-FL-45: The background is plain purple, with no dots or bubbles. The confetti of the logo is drawn in code. It is not an image file.
 - REQ-FL-46: The phone app uses the same palette, fonts and card style (REQ-FL-28).
 
 ### Game shell and trial (FD-14)

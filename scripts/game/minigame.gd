@@ -59,7 +59,21 @@ func is_paused() -> bool:
 	return _menu_open or _paused_lost
 
 
+## True when every participant is lost: nobody is left to wait for or to continue with.
+func nobody_connected() -> bool:
+	if participants.is_empty():
+		return false
+	for s in participants:
+		if player(s).state == PlayerInput.State.CONNECTED:
+			return false
+	return true
+
+
 func _process(delta: float) -> void:
+	if nobody_connected():
+		# The last player left. Do not ask to continue without them: end the game now (REQ-GM-31).
+		for s in lost_participants():
+			App.server.drop_player(s)
 	_prune_participants()
 	var was_lost := _paused_lost
 	_paused_lost = not lost_participants().is_empty()
@@ -103,7 +117,6 @@ func open_menu(title: String, entries: Array) -> void:
 	center.add_child(card)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 18)
-	box.custom_minimum_size = Vector2(620, 0)
 	card.add_child(box)
 	var l := UiKit.title(title, 64, UiTheme.CARD_TEXT)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -112,7 +125,8 @@ func open_menu(title: String, entries: Array) -> void:
 	var first: Button = null
 	for e in entries:
 		var b := UiKit.button(String(e[0]), e[1], first == null, 40)
-		b.custom_minimum_size = Vector2(0, 82)
+		b.custom_minimum_size = Vector2(440, 82)
+		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		box.add_child(b)
 		if first == null:
 			first = b

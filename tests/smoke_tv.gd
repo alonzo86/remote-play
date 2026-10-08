@@ -449,6 +449,26 @@ func _run() -> void:
 	await _frames(3)
 	_check(lr._ended and lr.is_paused() and lr._menu_box != null, "a menu opens when all players leave")
 
+	# The only player is lost: no pause message and no waiting for the hold, the game ends at once (REQ-GM-30a).
+	var solo := ControllerClient.new()   # No name: the TV shows "Player N".
+	root.add_child(solo)
+	solo.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+	var t5 := Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 1 and Time.get_ticks_msec() - t5 < 4000:
+		await process_frame
+	_check(app.server.players[solo.slot].player_name == "Player %d" % (solo.slot + 1), "a phone without a name is Player N")
+	app.go(MazeGame)
+	await _frames(3)
+	var solo_game: Control = app.current_screen()
+	_check(solo_game.participants == [solo.slot], "the maze has the single player")
+	solo._ws.close()
+	t5 = Time.get_ticks_msec()
+	while not solo_game.participants.is_empty() and Time.get_ticks_msec() - t5 < 3000:
+		await process_frame
+	_check(solo_game.participants.is_empty() and not solo_game._paused_lost and solo_game._menu_box != null,
+			"the last player is lost: the game ends with a menu at once, without the pause message")
+	solo.leave()
+
 	app.go_menu()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), TvGames), "back to the Games screen")

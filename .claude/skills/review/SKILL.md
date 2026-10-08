@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review a change to the Remote Play Godot project against its architecture rules and known pitfalls. Use before a commit or PR, or when asked to review code, a diff or a branch.
+description: Review a change to the Remote Play Godot project (a diff, a branch or a GitHub pull request) against its architecture rules and known pitfalls, and write a structured report. Use before a commit or PR, after a PR is created, or when asked to review code.
 ---
 
 Review the current diff (`git diff main...HEAD` plus uncommitted changes), or the files or PR the user names.
@@ -46,3 +46,42 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
   Read the new tests: each must assert a behavior and fail when it breaks. Report a test that only runs lines, and a set-aside module
   that could be tested without extreme work.
 - User-visible changes update `README.md`, and test results go in `docs/DEVICE_TEST.md`.
+
+## Report
+
+Use these sections. Do not fill a section for the sake of it: write "No critical issues found", "No other potential improvements found" or
+"No tests to improve found". Comment only on changed code. Keep style nits to a minimum.
+
+1. **Summary**: the goal of the change (from the PR title and body, or the commits), the main strengths, the key findings.
+2. **Good practices observed** (🟢): what the change does well.
+3. **Issues and improvements**, with a count for each group. Each issue has a title, `file:line`, a description (the failing scenario), and a short fix.
+   - 🔴 **Critical issues**: wrong behavior or a crash, a security problem, a performance problem (leak, endless loop), or a broken requirement ID.
+   - 🟡 **Other potential improvements**: type safety, edge cases, maintainability. These can wait.
+4. **Tests**: are the new or changed tests enough to catch a break of the change? Flag an untested critical edge case or important function.
+   Skip trivial code (a getter). Say for each finding whether to improve the tests and how.
+
+Focus on: errors and exceptions, type safety, new and changed tests, edge cases, code quality.
+
+## Reviewing a pull request
+
+When the target is a PR (a number or a URL):
+- `gh auth status` first: use `alonzo86` for this repo, never another account.
+- Get the title, body, author, state, labels and the stats: `gh pr view <n> --json title,body,author,state,labels,additions,deletions,changedFiles,commits`.
+- Get the diff: `gh pr diff <n>`. Save it in the scratchpad. If a saved diff of this PR is less than an hour old, reuse it. Otherwise fetch it again.
+  Read it in chunks when it is large.
+- Review against the goals of the PR, then write the report. **Show the whole report to the user with every issue in full** before you post anything.
+
+### Posting
+
+Post only after the user says yes. Use temp files for the comment bodies (`gh pr comment <n> --body-file`) and delete them after.
+Every comment starts with "🤖 AI Code Review", so it is clear that an AI wrote it, and ends with the Claude Code footer.
+
+- **After the PR is created by `pr-submit`** (CLAUDE.md): post **one** comment with the Summary, Good practices, every issue in full, and Tests.
+  With no findings, post a short comment that says so and lists what you checked.
+- **When the user asks for a review of a PR**: post it in parts.
+  1. Summary, Good practices, and for Issues and improvements only the counts.
+  2. One comment for each issue, titled `🔴 🤖 AI Code Review - Issue #N` (critical) or `🟡 🤖 AI Code Review - Issue #N` (other).
+     Quote the body (`>`) with the file, the code, the issue and the fix. After the quote add a line `**Developer answer:**` for the author to reply.
+  3. The Tests comment.
+
+Do not fix the findings unless the user asks.

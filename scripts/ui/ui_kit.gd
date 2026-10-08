@@ -20,13 +20,15 @@ static func title(text: String, size := 76, color: Color = UiTheme.ACCENT) -> La
 	return label(text, size, color, UiTheme.title_font())
 
 
-static func button(text: String, cb: Callable, primary := false, size := 36) -> Button:
+static func button(text: String, cb: Callable, primary := false, size := 36, secondary := false) -> Button:
 	var b := Button.new()
 	b.text = text
 	b.focus_mode = Control.FOCUS_ALL
 	b.add_theme_font_size_override("font_size", size)
 	if primary:
 		b.theme_type_variation = "PrimaryButton"
+	elif secondary:
+		b.theme_type_variation = "SecondaryButton"
 	b.pressed.connect(cb)
 	return b
 
