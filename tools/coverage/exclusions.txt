@@ -1,0 +1,5 @@
+# Modules that are set aside from the 80% rule for now (CLAUDE.md, "Tests and coverage").
+# One module for each line:  path | reason
+# Use this only for a module that needs extremely hard work to test today (for example: it needs a real
+# device or an external service). Write what is missing. Remove the line when the module has tests.
+# Lines that start with # are comments. A line without a reason, or with an unknown path, fails the check.

@@ -25,8 +25,6 @@ const SETTINGS_FILE := "user://settings.cfg"
 ## Shared with every Orientation object. Changes apply at once.
 var settings := {
 	"invert_tilt": false,
-	"invert_yaw": false,
-	"pointer_range_deg": 25.0,
 	"overlay": false,
 }
 

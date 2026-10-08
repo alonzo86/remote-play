@@ -7,7 +7,7 @@ description: Add a new minigame to the Remote Play TV app. Use when asked to cre
    the general requirements (all games, plus 2D or 3D) apply, and the game file lists its gaps and its own `REQ-<XX>-n` requirements.
    Show the file to the user before you write code if a requirement is a design choice.
 1. Create `scripts/game/<name>/<name>_game.gd` that `extends "res://scripts/game/minigame.gd"`. Look at `maze/maze_game.gd` and
-   `pointer_test/pointer_test.gd` for the style.
+   `marble_race/marble_race.gd` (3D) for the style.
 2. Override `_game_ready()`, `_game_tick(delta)` and `_game_draw()`. Read input only through `player(slot)`:
    `tilt()`, `pointer()`, `is_down()`, `button_pressed`, and the raw values. Never import anything from `scripts/net/`.
    Use `participants` for the players, `is_paused()` to freeze logic, and `App.server.haptic(slot, ms)` for feedback.
@@ -18,5 +18,7 @@ description: Add a new minigame to the Remote Play TV app. Use when asked to cre
    Make the tile screenshot with `tools/make_tiles.gd` and check it next to the Games screen (REQ-GM-49).
 5. Add a check to `tests/smoke_tv.gd` (start the game with simulated phones, check one state change), and unit tests for pure logic.
    Put the requirement ID in the check text. Add a section to `docs/DEVICE_TEST.md`.
+   Every script of the game needs 80% line coverage (`tools/coverage.sh`, REQ-GM-63). Test the rules of the game (win, collision, leaving
+   players, buttons), not only that it starts.
 6. Run the `run-tests` skill and the `review` skill, then update the README project structure if needed.
    Set the status of each requirement (Done, Open, Device) so that the file matches the code.

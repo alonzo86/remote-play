@@ -18,10 +18,6 @@ const GAMES: Array[Dictionary] = [
 			"description": "Tilt your phone to roll your ball through the maze. The first ball in the exit wins.",
 			"tile": "res://assets/tiles/maze.png",
 			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4},
-	{"id": "pointer_test", "doc": "res://docs/games/pointer_test.md", "title": "Pointer Test", "dim": "2d",
-			"description": "Aim at the ring and press A. Shows how well your phone points at the TV.",
-			"tile": "res://assets/tiles/pointer_test.png",
-			"path": "res://scripts/game/pointer_test/pointer_test.gd", "min_players": 1, "max_players": 4},
 	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "Marble Race", "dim": "3d",
 			"description": "Tilt to roll your marble along the track. The first marble over the line wins.",
 			"tile": "res://assets/tiles/marble_race.png",
@@ -32,10 +28,6 @@ const GAMES: Array[Dictionary] = [
 				{"title": "Zigzag", "props": {"track_id": "zigzag"}},
 				{"title": "Gauntlet", "props": {"track_id": "gauntlet"}},
 			]},
-	{"id": "demo3d", "doc": "res://docs/games/demo3d.md", "title": "3D Demo", "dim": "3d",
-			"description": "Tilt your phone to roll a ball around a 3D floor. A template for new 3D games.",
-			"tile": "res://assets/tiles/demo3d.png",
-			"path": "res://scripts/game/demo3d/demo3d_game.gd", "min_players": 1, "max_players": 4},
 ]
 
 

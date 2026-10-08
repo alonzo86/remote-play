@@ -1,6 +1,7 @@
 extends "res://scripts/game/minigame.gd"
 ## Tilt maze. Each phone tilts its own ball. The first ball in the exit wins.
 ## Tilt comes from PlayerInput.tilt(). Press A on the phone to recenter fast.
+## Look (REQ-GM-47): a dark board, light rounded walls, outlined balls and an outlined exit.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
@@ -18,6 +19,13 @@ const RESTITUTION := 0.25
 const SUBSTEPS := 2
 const COUNTDOWN := 3.0
 
+# Colors (REQ-MZ-7). The floor is dark so that every player color has a contrast of 3:1 or more (REQ-GM-47e).
+const FLOOR_COLOR := Color("2a1070")
+const START_COLOR := Color("3a1c97")
+const WALL_COLOR := Color("8c78e6")
+const BOARD_PAD := 12.0
+const OUTLINE_BIG := 6.0     # Outline of a key object of 40 px or more (REQ-GM-47b).
+
 enum Phase { COUNTDOWN, PLAYING, DONE }
 
 class Ball:
@@ -33,9 +41,15 @@ var _phase: Phase = Phase.COUNTDOWN
 var _clock := COUNTDOWN
 var _race_time := 0.0
 var _winner := -1
+var _sb_board: StyleBoxFlat   # Made once. Drawing must not create objects every frame (REQ-GM-51).
+var _sb_start: StyleBoxFlat
+var _sb_exit: StyleBoxFlat
 
 
 func _game_ready() -> void:
+	_sb_board = UiTheme.card(FLOOR_COLOR, UiTheme.OUTLINE, UiTheme.OUTLINE_W, 30, true)
+	_sb_start = UiTheme.card(START_COLOR, START_COLOR, 0, 22, false)
+	_sb_exit = UiTheme.card(UiTheme.OK, UiTheme.OUTLINE, int(OUTLINE_BIG), 24, true)
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	_maze.generate(COLS, ROWS, rng)
@@ -162,25 +176,43 @@ func _collide(b: Ball) -> void:
 			b.vel -= (1.0 + RESTITUTION) * vn * n
 
 
+## A wall rectangle with round ends: a bar and a circle on each end.
+func _draw_wall(o: Vector2, r: Rect2) -> void:
+	var t := minf(r.size.x, r.size.y)
+	var half := t * 0.5
+	if r.size.x >= r.size.y:
+		draw_rect(Rect2(o + r.position + Vector2(half, 0), Vector2(maxf(r.size.x - t, 0.0), t)), WALL_COLOR)
+		draw_circle(o + r.position + Vector2(half, half), half, WALL_COLOR)
+		draw_circle(o + r.position + Vector2(r.size.x - half, half), half, WALL_COLOR)
+	else:
+		draw_rect(Rect2(o + r.position + Vector2(0, half), Vector2(t, maxf(r.size.y - t, 0.0))), WALL_COLOR)
+		draw_circle(o + r.position + Vector2(half, half), half, WALL_COLOR)
+		draw_circle(o + r.position + Vector2(half, r.size.y - half), half, WALL_COLOR)
+
+
 func _origin() -> Vector2:
-	return Vector2((size.x - COLS * CELL) * 0.5, (size.y - ROWS * CELL) * 0.5 + 50.0)
+	return Vector2((size.x - COLS * CELL) * 0.5, (size.y - ROWS * CELL) * 0.5 + 46.0)
 
 
 func _game_draw() -> void:
 	var o := _origin()
-	# Start and exit cells
-	draw_rect(Rect2(o, Vector2(CELL, CELL)), UiTheme.PANEL)
-	draw_rect(Rect2(o + Vector2((COLS - 1) * CELL, (ROWS - 1) * CELL), Vector2(CELL, CELL)), UiTheme.OK.darkened(0.35))
-	draw_arc(o + _exit_center(), CELL * 0.3, 0, TAU, 40, UiTheme.OK, 6.0)
-	# Walls
-	var wall_col := Color("c9d1e3")
+	# Board, start cell and exit (the goal has a dark outline and a hard shadow).
+	draw_style_box(_sb_board, Rect2(o, Vector2(COLS * CELL, ROWS * CELL)).grow(BOARD_PAD))
+	draw_style_box(_sb_start, Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(CELL, CELL) - Vector2(WALL, WALL)))
+	var exit_cell := Rect2(o + Vector2((COLS - 1) * CELL, (ROWS - 1) * CELL), Vector2(CELL, CELL)).grow(-WALL * 0.5 - 4.0)
+	draw_style_box(_sb_exit, exit_cell)
+	draw_arc(o + _exit_center(), CELL * 0.22, 0, TAU, 40, Color.WHITE, 6.0)
+	# Walls: rounded ends (REQ-GM-47f). The collision still uses the rectangles.
 	for r in _walls:
-		draw_rect(Rect2(o + r.position, r.size), wall_col)
-	# Balls
+		_draw_wall(o, r)
+	# Balls: a hard shadow, a dark outline, the player color and a small shine (REQ-GM-47a, 47b).
 	for b in _balls:
 		var col: Color = player(b.slot).color
-		draw_circle(o + b.pos, BALL_R, col)
-		draw_arc(o + b.pos, BALL_R, 0, TAU, 32, Color.WHITE, 3.0)
+		var c := o + b.pos
+		draw_circle(c + UiTheme.SHADOW * 0.6, BALL_R + OUTLINE_BIG, UiTheme.OUTLINE)
+		draw_circle(c, BALL_R + OUTLINE_BIG, UiTheme.OUTLINE)
+		draw_circle(c, BALL_R, col)
+		draw_circle(c + Vector2(-8, -9), 6.0, Color(1, 1, 1, 0.55))
 	# HUD
 	Shell.title(self, "TILT MAZE")
 	var x := size.x - 60.0
@@ -188,7 +220,7 @@ func _game_draw() -> void:
 		x -= 270.0
 		Shell.chip(self, Vector2(x, 36), "P%d  %s" % [s + 1, player(s).player_name], player(s).color, 250.0)
 	if _phase == Phase.PLAYING:
-		Shell.text(self, Vector2(0, 94), "%.1f s" % _race_time, 48, UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, size.x)
+		Shell.text(self, Vector2(440, 96), "%.1f s" % _race_time, 48, UiTheme.TEXT) # Next to the title: 4 chips use the right side.
 	if _phase == Phase.COUNTDOWN and not participants.is_empty():
 		var n := ceili(_clock)
 		Shell.countdown(self, size, str(n) if n > 0 else "GO", float(n) - _clock)

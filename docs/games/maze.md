@@ -6,6 +6,7 @@ General requirements: `docs/GAME_REQUIREMENTS.md`. System requirement: REQ-T1.
 ## Goal
 
 Each player tilts a phone to roll a ball through the same maze. The first ball in the exit wins.
+The collision uses the wall rectangles, so a wall end is square for the physics and round on the screen (the difference is 5 px).
 
 ## Gaps and exceptions
 
@@ -13,7 +14,6 @@ Each player tilts a phone to roll a ball through the same maze. The first ball i
 |------------|------|------|
 | REQ-GM-34 | Exception | The result menu shows the winner and time in its title. It has "Play again" and "Back to menu". |
 | REQ-GM-62 | Gap | Test 6 in `docs/DEVICE_TEST.md` covers the feel. The other device checks are not written. |
-| REQ-GM-47a, 47b, 47d, 47e, 47f, REQ-GM-49 | Gap | The world is not restyled yet: no dark outline on the balls and the exit, the walls are not rounded. The HUD, the countdown and the menus use the shell (REQ-GM-45). The restyle is planned for a later pull request (REQ-FL-49). The tile shows the old world. |
 
 ## Requirements
 
@@ -22,9 +22,11 @@ Each player tilts a phone to roll a ball through the same maze. The first ball i
 | REQ-MZ-1 | The maze is made new at each start (17 x 9 cells). Every maze can be solved. | Done | run_tests |
 | REQ-MZ-2 | All players have the same maze, and all balls start in the start cell. | Done | Review |
 | REQ-MZ-3 | A countdown of 3 s holds the balls still. | Done | smoke_tv |
-| REQ-MZ-4 | Tilt gives acceleration with a dead zone of 0.03 and a speed limit. Walls bounce the ball a little. | Done | smoke_tv |
-| REQ-MZ-5 | The first ball in the exit wins. The winner's phone buzzes 400 ms. | Done | Device |
-| REQ-MZ-6 | A ball that hits a wall hard buzzes the phone (20 ms, at most every 0.12 s). | Done | Device |
+| REQ-MZ-4 | Tilt gives acceleration with a dead zone of 0.03 and a speed limit. Walls bounce the ball a little (a quarter of the speed). A ball never stays inside a wall. | Done | smoke_tv |
+| REQ-MZ-5 | The first ball in the exit wins, once. The result menu has "Play again" and "Back to menu", and the pause menu cannot open over it. The winner's phone buzzes 400 ms. | Done | smoke_tv, Device |
+| REQ-MZ-6 | A ball that hits a wall hard buzzes the phone (20 ms, at most every 0.12 s). A soft hit does not buzz. | Done | smoke_tv, Device |
+| REQ-MZ-8 | A on the phone recenters during the race. B does nothing. A player who leaves takes the ball out and the game goes on. | Done | smoke_tv |
+| REQ-MZ-7 | Visual language (REQ-GM-45 to 49). Dark board `#2a1070` with the outline and a hard shadow. Light rounded walls `#8c78e6` (a bar with a circle on each end). Balls: hard shadow, dark outline of 6 px, the slot color, a small shine. Exit: a green rounded square with a dark outline and a white ring. Every player color has a contrast of 3:1 or more on the floor. The title, chips, timer, countdown and menus come from the shell. The tile screenshot looks like the same toy box as the Games screen. | Done | run_tests (visual rules), Screenshot (`tools/make_tiles.gd`) |
 
 ## Parameters
 

@@ -36,7 +36,7 @@ func _run() -> void:
 	await _frames(5)
 	var app: Node = root.get_node("App")
 	var MazeGame = load("res://scripts/game/maze/maze_game.gd")
-	var PointerTest = load("res://scripts/game/pointer_test/pointer_test.gd")
+	var MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
 	var clients := []
 	for i in 2:
 		var c := ControllerClient.new()
@@ -76,12 +76,10 @@ func _run() -> void:
 	await _stream(clients, 2.5, Vector3(0, 0, 9.81))
 	await _stream(clients, 1.2, Vector3(-0.3, 0.2, 9.8))
 	await _shot("maze_play")
-	app.go(PointerTest)
-	await _stream(clients, 0.5, Vector3(0, 0, 9.81))
-	clients[0].send_recenter()
-	await _stream(clients, 0.8, Vector3(0, 0, 9.81), Vector3(0, 0, 0.6))
-	await _shot("pointer")
-	app.toggle_overlay()
+	app.go(MarbleRace, {"track_id": "classic"})
+	await _stream(clients, 4.5, Vector3(0, 0, 9.81))
+	await _stream(clients, 1.5, Vector3(-0.3, 0.2, 9.8))
+	await _shot("marble_play")
 	for c in clients:
 		c.leave()
 	await _frames(20)

@@ -8,7 +8,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 ## 1. Goal
 
-- REQ-G1: The app must give a good phone-as-controller feel: low delay and stable tilt and pointer input.
+- REQ-G1: The app must give a good phone-as-controller feel: low delay and stable tilt input.
 - REQ-G2: The app is a collection of minigames. Each game has its own requirements file in `docs/games/`.
 
 ## 2. Platform and tools
@@ -54,8 +54,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 ## 6. TV application
 
-- REQ-T1: Minigame 1 is a tilt maze. Each phone tilts a ball through a maze. The first ball to reach the exit wins.
-- REQ-T2: A pointer-calibration scene shows a cursor that the phone orientation controls.
+- REQ-T1: The games are the tilt maze and the marble race. In the maze each phone tilts a ball through a maze. The first ball to reach the exit wins.
 - REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
 - REQ-T6: The TV app follows the flow in `docs/TV_FLOW.md`: logo, Connect controllers, Games, and a game. Settings and the Players modal open from the Games screen.
 - REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values.

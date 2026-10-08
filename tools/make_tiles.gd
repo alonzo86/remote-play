@@ -12,7 +12,7 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
-const WAIT := {"maze": 4.6, "pointer_test": 1.8, "marble_race": 5.4, "demo3d": 2.4}
+const WAIT := {"maze": 4.6, "marble_race": 5.4}
 
 var _seq := [0, 0]
 
