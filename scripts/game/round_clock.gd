@@ -1,14 +1,17 @@
 extends RefCounted
 ## The clock of a round: a countdown (REQ-GM-35), then the playing time. It uses `delta` only (REQ-GM-13).
 ## `time` is below 0 during the countdown (-3 to 0) and counts up from 0 when play starts.
+## A round can have a length (`duration`, REQ-GM-71). With 0 it has no limit.
 
 const COUNTDOWN := 3.0
 
 var time := 0.0
+var duration := 0.0
 
 
-func _init(countdown := COUNTDOWN) -> void:
+func _init(countdown := COUNTDOWN, p_duration := 0.0) -> void:
 	time = -countdown
+	duration = p_duration
 
 
 func is_counting() -> bool:
@@ -34,3 +37,14 @@ func count_number() -> int:
 ## Seconds since the number changed, from 0 to 1. It is the `elapsed` argument of `Shell.countdown()`.
 func count_elapsed() -> float:
 	return float(count_number()) + time
+
+
+## True when the round has a length and the playing time has used it.
+func is_time_up() -> bool:
+	return duration > 0.0 and time >= duration
+
+
+## Seconds left in the round, for the visible clock. It is the whole length during the countdown.
+## It is 0 when time is up, and also when the round has no length.
+func remaining() -> float:
+	return clampf(duration - maxf(time, 0.0), 0.0, duration)

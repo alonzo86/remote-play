@@ -373,6 +373,35 @@ func _run() -> void:
 	_check(is_instance_of(app.current_screen(), MazeGame) and app.current_screen() != mz
 			and app.current_screen()._round.is_counting(), "Play again starts a new maze with a countdown")
 
+	# The result menu of a round with scores (REQ-GM-34, 72, 73) on the race screen, with its two players gone.
+	# (The fresh maze of "Play again" has both phones.)
+	var Scoreboard = load("res://scripts/game/scoreboard.gd")
+	var rg: Control = app.current_screen()
+	var board = Scoreboard.new(rg.participants)
+	board.set_score(rg.participants[0], 3)
+	board.set_score(rg.participants[1], 9)
+	rg.open_results(board)
+	await _frames(2)
+	var row_labels: Array = []
+	for l in rg._menu_box.find_children("*", "Label", true, false):
+		row_labels.append(l.text)
+	var result_buttons: Array = rg.menu_buttons().map(func(b): return b.text)
+	_check(rg.is_over and result_buttons == ["Restart", "Back to menu"] and not rg._can_open_menu(),
+			"the result menu has Restart and Back to menu, and the game is over: %s" % str(result_buttons))
+	_check(row_labels.size() == 3 and row_labels[1].begins_with("1st") and row_labels[1].ends_with("9")
+			and row_labels[2].begins_with("2nd") and row_labels[0].ends_with("wins!"),
+			"the ranking lists the best first and the title names the winner: %s" % str(row_labels))
+	board.set_score(rg.participants[0], 9)
+	rg.open_results(board)
+	await _frames(2)
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Tie!", "equal scores give the title Tie!")
+	var one = Scoreboard.new([rg.participants[0]])
+	one.set_score(rg.participants[0], 25)
+	rg.open_results(one, [10, 20, 30])
+	await _frames(2)
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!",
+			"one player and tiers: the title is the medal")
+
 	# A player who leaves takes the ball out of the game (REQ-GM-21).
 	var third := ControllerClient.new()
 	third.player_name = "Third"

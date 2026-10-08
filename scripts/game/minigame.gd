@@ -13,6 +13,8 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Scoreboard = preload("res://scripts/game/scoreboard.gd")
+const Medals = preload("res://scripts/game/medals.gd")
 
 ## Values the game was started with (App.go props). restart() uses them again.
 var start_props := {}
@@ -141,7 +143,8 @@ func restart() -> void:
 	App.go(get_script(), start_props)
 
 
-func open_menu(title: String, entries: Array) -> void:
+## `rows` are optional lines under the title: `{text, color}` for each, with a dot in the color (the result ranking).
+func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	close_menu()
 	_menu_open = true
 	var center := CenterContainer.new()
@@ -156,6 +159,8 @@ func open_menu(title: String, entries: Array) -> void:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(l)
+	for r in rows:
+		box.add_child(_menu_row(String(r.text), r.color))
 	var first: Button = null
 	for e in entries:
 		var b := UiKit.button(String(e[0]), e[1], first == null, 40)
@@ -169,6 +174,40 @@ func open_menu(title: String, entries: Array) -> void:
 	add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	first.grab_focus()
+
+
+## One line of the result list: a dot in the player color, and the text.
+func _menu_row(text: String, color: Color) -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 18)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	var dot := Panel.new()
+	dot.custom_minimum_size = Vector2(40, 40)
+	dot.add_theme_stylebox_override("panel", UiTheme.card(color, UiTheme.OUTLINE, 5, 20, false))
+	row.add_child(dot)
+	row.add_child(UiKit.label(text, 40, UiTheme.CARD_TEXT))
+	return row
+
+
+## Ends a round with scores (REQ-GM-34, 72, 73): sets `is_over` and opens the result menu with the ranking, Restart and
+## Back to menu. The title names the winner, or says "Tie". With one player and `tiers` (see `Medals`) it shows the medal.
+func open_results(board: Scoreboard, tiers: Array = []) -> void:
+	is_over = true
+	var ranking := board.ranking()
+	var rows: Array = []
+	for e in ranking:
+		var p := player(e.slot)
+		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, Scoreboard.format(e.score)],
+				"color": p.color})
+	var title := "Round over"
+	var winners := board.winners()
+	if ranking.size() == 1 and not tiers.is_empty():
+		title = Medals.label(Medals.medal(ranking[0].score, tiers, board.lower_is_better))
+	elif winners.size() == 1 and ranking.size() > 1:
+		title = "%s wins!" % player(winners[0]).player_name
+	elif winners.size() > 1:
+		title = "Tie!"
+	open_menu(title, [["Restart", restart], ["Back to menu", App.go_menu]], rows)
 
 
 ## The buttons of the open menu (tests use it).

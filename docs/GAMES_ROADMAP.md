@@ -18,7 +18,7 @@ This file is a plan, not a requirements file. Each game gets its own `docs/games
 Every game below needs them. Maze and Marble Race also repeat code that the new games would copy a third to seventh time.
 Branch 0 has two steps.
 
-### Step 0a: extract from the two existing games (no change of behavior)
+### Step 0a: extract from the two existing games (no change of behavior). Done.
 
 The existing tests are the safety net. Each helper gets its own unit tests (80% rule). The only behavior change is the removal
 of the maze A shortcut, and it changes `docs/games/maze.md` (REQ-MZ-8) and `tests/smoke_tv.gd` in the same commit (REQ-GM-5).
@@ -28,23 +28,25 @@ of the maze A shortcut, and it changes `docs/games/maze.md` (REQ-MZ-8) and `test
 | No-players end | The "No players connected" menu and its guard flag, in `maze_game.gd` and `marble_race.gd` | One base-class method and one "over" flag (REQ-GM-22). |
 | Player-left hook | `_balls` filter in the maze, `_racers.erase` in the race | The base class calls `_on_player_left(slot)` once for each removed slot (REQ-GM-21). |
 | `RoundClock` | `Phase`/`_clock` in the maze, negative `_time` and `GO_SHOW` in the race | Countdown (3 s), playing time, ended state. `delta` only (REQ-GM-13, 35). |
-| `Haptics.throttled` | `haptic_cooldown` in the maze, `last_haptic_ms` in the race | A pulse with a minimum gap for each slot (REQ-GM-43). |
+| `Haptics.pulse` | `haptic_cooldown` in the maze, `last_haptic_ms` in the race | A pulse with a minimum gap for each slot (REQ-GM-43). |
 | Recenter cleanup | A button wiring in the maze (with `_exit_tree`), the stale "B recenters" comment in the race | Delete. The RECENTER button does the work. The maze keeps its recenter at GO. |
 | `Shell.player_chips` | Chip layout in the maze HUD | Chips in slot order for the plain case (REQ-GM-46). The race keeps its standings list. |
 
 Not extracted: collision code (different in each game), the two damping models (the feel would change and need a device test),
 and 3D-only code (camera, meshes).
 
-### Step 0b: new helpers
+### Step 0b: new helpers. Done, except `TiltBody`.
 
-| Helper | Job |
-|--------|-----|
-| Scoreboard | Score for each slot, ranking, ties, slot order (REQ-GM-46). Pure logic with unit tests (REQ-GM-61). |
-| Round timer | A round of fixed length on top of `RoundClock`, with a visible clock. |
-| Ranked result | A result menu with the ranking, slot-color chips, Restart and Back to menu (REQ-GM-34). |
-| Medal tiers | Solo rule: bronze, silver and gold score limits for one game. Shown on the result menu. Not saved. |
-| `TiltBody` | Position, velocity, tilt acceleration, damping, bounce. The damping model is a parameter, so maze and race can adopt it later without a change of feel. Added when the first new game needs it (Paint Grab). |
-| `Shell.ball` | The outlined 2D ball with shadow, shine and slot number, moved out of the maze draw code (REQ-GM-46, 47b). |
+| Helper | Where | Job |
+|--------|-------|-----|
+| Scoreboard | `scripts/game/scoreboard.gd` | Score for each slot, ranking, ties (1, 1, 3), `lower_is_better` for times, ordinals (REQ-GM-70). The race uses its ordinals. |
+| Round length | `RoundClock` (`duration`, `remaining()`, `is_time_up()`) | A round of fixed length. The visible clock is `Shell.timer()` with `remaining()` (REQ-GM-71). |
+| Ranked result | `Minigame.open_results(board, tiers)` | A result menu with the ranking (dot in the slot color), Restart and Back to menu. Sets `is_over` (REQ-GM-72). |
+| Medal tiers | `scripts/game/medals.gd` | Solo rule: `[bronze, silver, gold]` limits for one game. The result title is the medal. Not saved (REQ-GM-73). |
+| `Shell.ball` | `scripts/game/shell.gd` | The outlined 2D ball with shadow, shine and slot number, moved out of the maze draw code (REQ-GM-46, 47b). The maze uses it. |
+| `TiltBody` | Not built yet | Position, velocity, tilt acceleration, damping, bounce. It is built in the Paint Grab branch, with its first user, so that its parameters come from a real need. Maze and race may adopt it later, with a device test, because the damping models differ. |
+
+No existing game uses `open_results()` yet (the maze and the race keep their own result menus). The first game branch is the first user.
 
 ## Branches
 

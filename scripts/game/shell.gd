@@ -38,6 +38,22 @@ static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width 
 	return r
 
 
+## A player ball (REQ-GM-46, 47a, 47b): a hard shadow, a dark outline, the player color, a small shine and the
+## slot number in white, so that players do not depend on the color alone. `pos` is the center.
+## The outline is 6 px for a ball of 40 px or more and 4 px for a smaller one.
+static func ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int) -> void:
+	var outline := 6.0 if radius * 2.0 >= 40.0 else 4.0
+	ci.draw_circle(pos + UiTheme.SHADOW * 0.6, radius + outline, UiTheme.OUTLINE)
+	ci.draw_circle(pos, radius + outline, UiTheme.OUTLINE)
+	ci.draw_circle(pos, radius, color)
+	ci.draw_circle(pos + Vector2(-0.333, -0.375) * radius, radius * 0.25, Color(1, 1, 1, 0.55))
+	var f := UiTheme.title_font()
+	var font_size := roundi(radius * 1.08)
+	var base := pos + Vector2(-radius, radius * 0.375)
+	ci.draw_string_outline(f, base, str(slot + 1), HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, font_size, 8, UiTheme.OUTLINE)
+	ci.draw_string(f, base, str(slot + 1), HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, font_size, Color.WHITE)
+
+
 ## The players (PlayerInput objects) in slot order, P1 first (REQ-GM-46).
 static func in_slot_order(players: Array) -> Array:
 	var ordered := players.duplicate()

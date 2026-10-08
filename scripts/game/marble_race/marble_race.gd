@@ -22,7 +22,6 @@ const CAM_MIN_H := 9.0         # Lowest camera height. Lower means bigger marble
 const EDGE_MARGIN := 60.0      # Out-of-view markers stay inside the TV safe margin.
 const HAPTIC_MIN_SPEED := 3.0
 const HAPTIC_COOLDOWN_MS := 150
-const ORDINALS := ["1st", "2nd", "3rd", "4th"]
 
 const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
 const START_ARC := 2.0         # All marbles start on one line across the track.
@@ -378,7 +377,7 @@ func _hud_draw(canvas: Control) -> void:
 		var t := ""
 		if r.finish_time >= 0.0:
 			t = "  %.2f s" % r.finish_time
-		Shell.chip(canvas, Vector2(60, y), "%s  %s%s" % [ORDINALS[place], p.player_name, t], p.color, 400.0, 54.0)
+		Shell.chip(canvas, Vector2(60, y), "%s  %s%s" % [Scoreboard.ordinal(place + 1), p.player_name, t], p.color, 400.0, 54.0)
 		y += 68.0
 		place += 1
 	if _round.is_counting():

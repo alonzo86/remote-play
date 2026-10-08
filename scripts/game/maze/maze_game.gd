@@ -181,19 +181,9 @@ func _game_draw() -> void:
 	# Walls: rounded ends (REQ-GM-47f). The collision still uses the rectangles.
 	for r in _walls:
 		_draw_wall(o, r)
-	# Balls: a hard shadow, a dark outline, the player color and a small shine (REQ-GM-47a, 47b).
+	# Balls (REQ-GM-46, 47a, 47b).
 	for b in _balls:
-		var col: Color = player(b.slot).color
-		var c := o + b.pos
-		draw_circle(c + UiTheme.SHADOW * 0.6, BALL_R + OUTLINE_BIG, UiTheme.OUTLINE)
-		draw_circle(c, BALL_R + OUTLINE_BIG, UiTheme.OUTLINE)
-		draw_circle(c, BALL_R, col)
-		draw_circle(c + Vector2(-8, -9), 6.0, Color(1, 1, 1, 0.55))
-		# The slot number on the ball: players do not depend on the color alone (REQ-GM-46).
-		var f := UiTheme.title_font()
-		draw_string_outline(f, c + Vector2(-BALL_R, 9.0), str(b.slot + 1), HORIZONTAL_ALIGNMENT_CENTER, BALL_R * 2.0, 26, 8,
-				UiTheme.OUTLINE)
-		draw_string(f, c + Vector2(-BALL_R, 9.0), str(b.slot + 1), HORIZONTAL_ALIGNMENT_CENTER, BALL_R * 2.0, 26, Color.WHITE)
+		Shell.ball(self, o + b.pos, BALL_R, player(b.slot).color, b.slot)
 	# HUD
 	Shell.title(self, "TILT MAZE")
 	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)))
