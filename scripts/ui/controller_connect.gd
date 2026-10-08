@@ -35,7 +35,8 @@ func _ready() -> void:
 	_qr.failed.connect(_on_qr_failed)
 	# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
 	var scan_text := "Scan QR code" if _qr.is_available() else "Paste TV link"
-	var scan := UiKit.button(scan_text, _on_scan_pressed, true, 48)
+	var scan := UiKit.button(scan_text, _on_scan_pressed, false, 48)
+	scan.theme_type_variation = "LightButton" # White: it stands out from the green TV buttons and the yellow Refresh.
 	scan.custom_minimum_size = Vector2(0, 150)
 	box.add_child(scan)
 

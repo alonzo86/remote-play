@@ -363,7 +363,7 @@ func _test_visual_rules() -> void:
 	# (REQ-FL-41, 41a, 50).
 	var theme := UiTheme.make()
 	var fills := {"Button": UiTheme.ACCENT, "PrimaryButton": UiTheme.OK, "DangerButton": UiTheme.DANGER,
-			"RowButton": UiTheme.BUTTON}
+			"RowButton": UiTheme.BUTTON, "LightButton": UiTheme.CARD}
 	var btn_ok := true
 	for type in fills:
 		var n := theme.get_stylebox("normal", type) as StyleBoxFlat

@@ -174,6 +174,9 @@ static func make() -> Theme:
 	_button_type(t, "PrimaryButton", OK, CARD_TEXT)
 	t.set_type_variation("DangerButton", "Button")
 	_button_type(t, "DangerButton", DANGER, Color.WHITE)
+	# A white button: the one action that must stand out among the colored buttons (Scan QR code).
+	t.set_type_variation("LightButton", "Button")
+	_button_type(t, "LightButton", CARD, CARD_TEXT)
 	# A purple row (a settings row, the players badge): white text on the button purple.
 	t.set_type_variation("RowButton", "Button")
 	_button_type(t, "RowButton", BUTTON, TEXT)
