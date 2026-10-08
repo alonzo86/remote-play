@@ -8,7 +8,9 @@ This file is a plan, not a requirements file. Each game gets its own `docs/games
 
 - No saved scores. How users are identified is not decided, so nothing is stored. A solo game compares the score with fixed medal tiers. The tiers reset every run.
 - No bots. A game that needs opponents has `min_players` 2. Only Sumo Bumpers is like this.
-- Order of work: one branch for the common helpers, then one branch for each game. Each game branch starts from the merged helpers.
+- Order of work: one branch for the common helpers (PR 12), then one branch for each game. The helpers are merged into `main` first. Each game branch starts from the updated `main`, so its pull request shows only that game.
+- Game pull requests merge one at a time. All games touch the same few files (`registry.gd`, the status table in `GAME_REQUIREMENTS.md`, `DEVICE_TEST.md`, `smoke_tv.gd`, the `WAIT` table in `tools/make_tiles.gd`), so a branch updates from `main` before its pull request is ready. The conflicts are small.
+- Branch names: `games/<id>` (for example `games/target-shoot`). A session needs permission to create them.
 - Recenter is the RECENTER button of the phone only (REQ-GM-37). It already works in every game (`{"t":"recenter"}`, `tv_server.gd`). A and B are free for game actions. The maze shortcut "A recenters" is removed.
 - Pointer tuning (Target Shoot) is checked on a real phone and TV with the `device-test` skill.
 
@@ -50,17 +52,21 @@ Maze and Marble Race both use `open_results()`. Their result menus now list all 
 
 ## Branches
 
-| # | Branch content | Players | Input | Competitive mode | Solo mode |
-|---|----------------|---------|-------|------------------|-----------|
-| 0 | Common helpers (step 0a, then 0b) | | | | |
-| 1 | Target Shoot (`target_shoot`) | 1 to 4 | pointer, A | Same targets for all. Most points in 45 s wins. Some targets give more. | Score attack against medal tiers |
-| 2 | Paint Grab (`paint_grab`) | 1 to 4 | tilt | Roll over tiles to claim them. Others can take them back. Most area at 60 s wins. | Cover 80% of the board before time ends |
-| 3 | Dodge Storm (`dodge_storm`) | 1 to 4 | tilt | Hazards fall. The last player standing wins. | Survive as long as possible, against medal tiers |
-| 4 | Tilt Snake (`tilt_snake`) | 1 to 4 | tilt | Eat pickups to grow. A hit on any tail removes you. The last one alive wins. | High score against medal tiers |
-| 5 | Sumo Bumpers (`sumo_bumpers`) | 2 to 4 | tilt, A (dash) | Push others off a shrinking platform. Best of 3 rounds. | None (needs 2 players) |
+| # | Branch | Content | Players | Input | Competitive mode | Solo mode | Needs |
+|---|--------|---------|---------|-------|------------------|-----------|-------|
+| 0 | PR 12 | Common helpers (step 0a, then 0b) | | | | | none |
+| 1 | `games/target-shoot` | Target Shoot (`target_shoot`) | 1 to 4 | pointer, A | Same targets for all. Most points in 45 s wins. Some targets give more. | Score attack against medal tiers | 0 |
+| 2 | `games/paint-grab` | Paint Grab (`paint_grab`), builds `TiltBody` | 1 to 4 | tilt | Roll over tiles to claim them. Others can take them back. Most area at 60 s wins. | Cover 80% of the board before time ends | 0 |
+| 3 | `games/dodge-storm` | Dodge Storm (`dodge_storm`) | 1 to 4 | tilt | Hazards fall. The last player standing wins. | Survive as long as possible, against medal tiers | 2 (`TiltBody`) |
+| 4 | `games/tilt-snake` | Tilt Snake (`tilt_snake`) | 1 to 4 | tilt | Eat pickups to grow. A hit on any tail removes you. The last one alive wins. | High score against medal tiers | 2 (`TiltBody`) |
+| 5 | `games/sumo-bumpers` | Sumo Bumpers (`sumo_bumpers`) | 2 to 4 | tilt, A (dash) | Push others off a shrinking platform. Best of 3 rounds. | None (needs 2 players) | 2 (`TiltBody`) |
 
-Branches 1 to 5 depend only on branch 0. The order above puts the biggest unknown first: pointer drift and calibration.
-Tilt Snake needs extra tests for a player who leaves while the tail is on the board (REQ-GM-21).
+Order and dependencies:
+- Branch 0 is merged first. Branches 1 and 2 need only branch 0, so they do not wait for each other.
+- Target Shoot goes first because it has the biggest unknown: pointer drift and calibration. It reads `pointer()`, not tilt, so it does not use `TiltBody`.
+- `TiltBody` is built in the Paint Grab branch, with its first user. Dodge Storm, Tilt Snake and Sumo Bumpers reuse it, so they start after Paint Grab is merged.
+  (If one of them has to start earlier, `TiltBody` moves into its own small branch before all of them.)
+- Tilt Snake needs extra tests for a player who leaves while the tail is on the board (REQ-GM-21).
 
 ## Rules that apply to every game branch
 
