@@ -10,19 +10,19 @@ const DOTS_W := 150.0
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_ALL
-	theme_type_variation = "PlayersBadge"
+	theme_type_variation = "RowButton"
 	add_theme_font_size_override("font_size", 34)
 	custom_minimum_size = Vector2(DOTS_W + 250, 84)
-	for st in ["normal", "disabled"]:
-		add_theme_stylebox_override(st, _style(UiTheme.OUTLINE_W, UiTheme.OUTLINE))
+	add_theme_stylebox_override("normal", _style("normal"))
+	add_theme_stylebox_override("disabled", _style("disabled"))
 	for st in ["hover", "focus"]:
-		add_theme_stylebox_override(st, _style(10, UiTheme.ACCENT))
-	add_theme_stylebox_override("pressed", _style(10, UiTheme.ACCENT))
+		add_theme_stylebox_override(st, _style("focus"))
+	add_theme_stylebox_override("pressed", _style("pressed"))
 	alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 
-func _style(bw: int, col: Color) -> StyleBoxFlat:
-	var s := UiTheme.card(UiTheme.BUTTON, col, bw, 42)
+func _style(state: String) -> StyleBoxFlat:
+	var s := UiTheme.button_style(UiTheme.BUTTON, state, 42)
 	s.content_margin_left = DOTS_W
 	s.content_margin_right = 28
 	return s

@@ -19,7 +19,7 @@ Test numbers do not change. Test 5 (pointer drift) was removed with the pointer 
 2. Start the controller app on one phone. Check: the phone shows a **portrait** screen.
 3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "Ready!", and **Continue** is enabled and focused.
    Press OK on **Continue**. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
-4. Tap **Leave**, then tap the TV under **Detected TVs**. Check: it joins. Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds.
+4. Tap **Leave**, then tap the TV under **Discovered TVs**. Check: it joins. Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds.
 5. Tap **Leave**, then join with the **TV IP address**. Check: it joins.
 
 ## Test 2. QR scan (plugin, unverified)
@@ -67,14 +67,16 @@ A total below 100 ms feels good. Above 150 ms feels slow.
 
 ## Test 7. Disconnect and reconnect
 
-1. During the maze, switch the phone Wi-Fi off for 5 seconds, then on. Check: the TV pauses ("Waiting for P1 to reconnect"), the phone shows "Reconnecting...", and the game continues when the phone is back.
+1. With two phones joined, during the maze, switch one phone Wi-Fi off for 5 seconds, then on. Check: the TV pauses ("Waiting for P1 to reconnect"), the phone shows "Reconnecting...", and the game continues when the phone is back.
 2. Lock the phone screen for 10 seconds, then unlock. Check: the phone reconnects. (Android can stop the app in the background.)
 3. Switch the phone Wi-Fi off for 40 seconds. Check: the slot is freed. When the Wi-Fi is back, the phone joins again (maybe in a different slot).
 4. Press OK on the TV remote while a phone is lost. Check: the game continues without that player.
+5. With only one phone joined, switch its Wi-Fi off during the maze. Check: the game ends at once with "No players connected" (no waiting, no pause message). Do the same in the marble race.
+6. On the phone pad, tap **Leave** once. Check: it turns red ("Again") for 3 seconds and the phone does not leave. Tap again within 3 seconds: it leaves. Check the pad buttons: A is green and B is red, both sink when pressed.
 
 ## Test 8. TV remote
 
-1. Use only the remote. Check that the D-pad moves the focus on every screen (tiles, badge, gear, buttons) and OK selects. The focused item has a yellow outline and the layout does not move.
+1. Use only the remote. Check that the D-pad moves the focus on every screen (tiles, badge, gear, buttons) and OK selects. A focused button has a thick black border and lifts (a longer shadow); a focused game tile grows wide and shows its description. Check that the border is visible from the sofa on every button, also on the purple rows. Press and hold OK on a button: it sinks (no shadow). The layout of the buttons does not move.
 2. In a game, press OK. Check: the pause menu opens with Resume, Restart, and Back to menu.
 3. Press Back in a game: back to the Games screen. Press Back on the Games screen: the Connect screen (the players stay). Press Back on the Connect screen: the quit question opens, with **Stay** in focus.
 4. Check the Menu key. If the remote has no Menu key, open **Settings** (the gear on the Games screen) and use **Debug overlay**.
@@ -86,7 +88,7 @@ A total below 100 ms feels good. Above 150 ms feels slow.
 2. On the Games screen, with one phone joined, check that every tile shows its screenshot, title and player range, and that the text is readable from the sofa (REQ-FL-40).
 3. Open the **players badge** (OK). Check: the modal shows the slots, a QR code and the room code. Press **Remove** on a player. Check: the phone says that the host removed it and does not reconnect by itself. Join again with the QR code. Check: the slot fills again.
 4. Join a phone while a game runs. Check: the phone says "A round is running", it does not take part, and it joins the next round.
-5. Check the motion on the TV box: the logo (with its confetti), the focus bounce and the screen changes run at 60 frames per second (overlay FPS). Check that the Party Pop colors look right on your TV (not washed out, outlines visible).
+5. Check the motion on the TV box: the logo (with its confetti), the tile growing and shrinking and the screen changes run at 60 frames per second (overlay FPS). Check that the Party Pop colors look right on your TV (not washed out, outlines visible).
 6. Phone: check that the fonts and the colors match the TV on the connect, waiting and pad screens.
 
 ## Test 9. Marble race (3D)

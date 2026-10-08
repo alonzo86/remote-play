@@ -17,9 +17,6 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 ## Values the game was started with (App.go props). restart() uses them again.
 var start_props := {}
 
-## How long everybody may stay lost before the game ends (tests make it shorter).
-var last_player_grace_ms := Protocol.LAST_PLAYER_GRACE_MS
-
 ## Slots that joined when the game started.
 var participants: Array[int] = []
 
@@ -73,21 +70,10 @@ func nobody_connected() -> bool:
 	return true
 
 
-## True when everybody has been lost for longer than `Protocol.LAST_PLAYER_GRACE_MS`. A short Wi-Fi
-## drop of a single player does not end the game: the phone has this long to come back.
-func nobody_left() -> bool:
-	if not nobody_connected():
-		return false
-	var now := Time.get_ticks_msec()
-	for s in participants:
-		if now - player(s).lost_since_ms <= last_player_grace_ms:
-			return false
-	return true
-
-
 func _process(delta: float) -> void:
-	if nobody_left():
-		# The last player is gone. Do not ask to continue without them: end the game (REQ-GM-30a).
+	if nobody_connected():
+		# Every participant is lost, so nobody is left. Do not ask to continue without them: end the game
+		# at once (REQ-GM-30a).
 		for s in lost_participants():
 			App.server.drop_player(s)
 	_prune_participants()

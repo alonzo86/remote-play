@@ -11,6 +11,9 @@ var _sampler: Node
 var _fingers: Dictionary = {}   # finger index -> zone name
 var _touch_finger := -1
 var _flash := {"recenter": 0.0}
+var _leave_armed := 0.0   # Seconds left in which a second tap on Leave leaves (REQ-FL-52).
+
+const LEAVE_ARM_SECONDS := 3.0
 
 
 func _ready() -> void:
@@ -32,6 +35,7 @@ func _on_phase(_phase: String) -> void:
 
 func _process(delta: float) -> void:
 	_flash.recenter = maxf(_flash.recenter - delta * 3.0, 0.0)
+	_leave_armed = maxf(_leave_armed - delta, 0.0)
 	queue_redraw()
 
 
@@ -92,7 +96,10 @@ func _input(event: InputEvent) -> void:
 func _on_zone_down(zone: String, index: int, pos: Vector2) -> void:
 	match zone:
 		"leave":
-			App.client.leave()
+			if _leave_armed > 0.0:
+				App.client.leave()
+			else:
+				_leave_armed = LEAVE_ARM_SECONDS
 		"recenter":
 			App.client.send_recenter()
 			_flash.recenter = 1.0
@@ -135,10 +142,11 @@ func _draw() -> void:
 	draw_circle(dot + UiTheme.SHADOW * 0.5, 54.0, UiTheme.OUTLINE)
 	draw_circle(dot, 54.0, UiTheme.OUTLINE)
 	draw_circle(dot, 46.0, c.color if online else UiTheme.BAD)
-	draw_string(tf, dot + Vector2(-46, 20), str(c.slot + 1), HORIZONTAL_ALIGNMENT_CENTER, 92, 56, Color.WHITE)
+	draw_string(tf, dot + Vector2(-46, 20), str(c.slot + 1), HORIZONTAL_ALIGNMENT_CENTER, 92, 56,
+			UiTheme.text_on(c.color if online else UiTheme.BAD))
 	var status := "Player %d" % (c.slot + 1) if online else "Reconnecting..."
 	draw_string(tf, Vector2(190, 108), status, HORIZONTAL_ALIGNMENT_LEFT, size.x - 460, 56,
-			UiTheme.ACCENT if online else UiTheme.BAD)
+			UiTheme.ACCENT if online else UiTheme.BAD_TEXT)
 
 	var lat := "RTT -- ms" if c.rtt_ms < 0 else "RTT %d ms" % roundi(c.rtt_ms)
 	draw_string(tf, Vector2(60, 262), lat, HORIZONTAL_ALIGNMENT_LEFT, -1, 60, _lat_color(c.rtt_ms))
@@ -146,7 +154,10 @@ func _draw() -> void:
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 32, UiTheme.TEXT_DIM)
 
 	# Leave
-	_draw_box(_rect_leave(), UiTheme.CARD, "Leave", bf, 36, UiTheme.CARD_TEXT)
+	if _leave_armed > 0.0:
+		_draw_box(_rect_leave(), UiTheme.DANGER, "\u2715 Again", bf, 32, Color.WHITE)
+	else:
+		_draw_box(_rect_leave(), UiTheme.ACCENT, "Leave", bf, 36, UiTheme.CARD_TEXT)
 
 	# Recenter
 	var rr := _rect_recenter()
@@ -156,8 +167,9 @@ func _draw() -> void:
 			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, 34, UiTheme.CARD_TEXT)
 
 	# A and B
-	_draw_button(_center_a(), "A", Protocol.BTN_A, c.color)
-	_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.CARD)
+	# A is green and B is red (RECENTER above is yellow). The player color is only the badge at the top.
+	_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK, UiTheme.OK.darkened(0.15), UiTheme.CARD_TEXT)
+	_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.DANGER, UiTheme.DANGER.darkened(0.15), Color.WHITE)
 
 
 func _draw_box(r: Rect2, fill: Color, text: String, font: Font, fs: int, col: Color) -> void:
@@ -166,15 +178,17 @@ func _draw_box(r: Rect2, fill: Color, text: String, font: Font, fs: int, col: Co
 	draw_string(font, Vector2(r.position.x, ty), text, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, fs, col)
 
 
-func _draw_button(center: Vector2, label: String, bit: int, col: Color) -> void:
+func _draw_button(center: Vector2, label: String, bit: int, col: Color, col_down: Color, text_col: Color) -> void:
 	var down: bool = (_sampler.buttons & bit) != 0
 	var r := _radius()
-	var off := Vector2.ZERO if down else UiTheme.SHADOW
-	draw_circle(center + off, r + 8.0, UiTheme.OUTLINE)
-	draw_circle(center + (UiTheme.SHADOW if down else Vector2.ZERO) * 0.0, r + 8.0, UiTheme.OUTLINE)
-	draw_circle(center, r, col.lightened(0.25) if down else col)
-	draw_string(UiTheme.title_font(), center + Vector2(-r, 38), label, HORIZONTAL_ALIGNMENT_CENTER, r * 2, 112,
-			Color.WHITE if col != UiTheme.CARD else UiTheme.CARD_TEXT)
+	# Pressed: the button sinks onto its shadow and the shadow goes.
+	var c := center + (UiTheme.SHADOW if down else Vector2.ZERO)
+	if not down:
+		draw_circle(c + UiTheme.SHADOW, r + 8.0, UiTheme.OUTLINE)
+	draw_circle(c, r + 8.0, UiTheme.FOCUS_BORDER if down else UiTheme.OUTLINE)
+	draw_circle(c, r, col_down if down else col)
+	draw_string(UiTheme.title_font(), c + Vector2(-r, 38), label, HORIZONTAL_ALIGNMENT_CENTER, r * 2, 112,
+			text_col)
 
 
 func _lat_color(rtt: float) -> Color:
@@ -184,4 +198,4 @@ func _lat_color(rtt: float) -> Color:
 		return UiTheme.OK
 	if rtt < 60:
 		return UiTheme.ACCENT
-	return UiTheme.BAD
+	return UiTheme.BAD_TEXT

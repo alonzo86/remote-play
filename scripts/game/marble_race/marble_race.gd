@@ -17,6 +17,7 @@ const COUNTDOWN := 3.0
 const GO_SHOW := 0.8           # Seconds to show "GO!".
 const END_DELAY := 4.0         # Seconds the others have to finish after the first marble.
 const FINISH_BEFORE_END := 6.0 # Finish line distance from the end of the track.
+const CAM_MIN_H := 9.0         # Lowest camera height. Lower means bigger marbles on screen.
 const EDGE_MARGIN := 60.0      # Out-of-view markers stay inside the TV safe margin.
 const HAPTIC_MIN_SPEED := 3.0
 const HAPTIC_COOLDOWN_MS := 150
@@ -25,7 +26,7 @@ const ORDINALS := ["1st", "2nd", "3rd", "4th"]
 const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
 const START_ARC := 2.0         # All marbles start on one line across the track.
 const BUMPER_R := 0.9
-const POST_COLOR := Color("cfd3e0")   # Light grey: not a player color, not red (REQ-MR-43). A test checks it.
+const POST_COLOR := Color("3ddcff")   # Party Pop cyan: not a slot color, not red (REQ-MR-43). A test checks it.
 const FLOOR_COLOR := Color("472aa3")  # Purple. Darker than the marbles (REQ-GM-47e).
 const RIM_COLOR := Color("1a0b45")    # The dark edge of the track. It is the outline color.
 const BACKGROUND := Color("0f6a78")   # Teal from the Party Pop set (REQ-GM-48).
@@ -266,7 +267,7 @@ func _camera_target() -> Vector3:
 		return Vector3.ZERO
 	var mid := (lo + hi) * 0.5
 	var spread := maxf(hi.x - lo.x, hi.y - lo.y)
-	return Vector3(mid.x, clampf(16.0 + spread * 0.9, 16.0, 48.0), mid.y)
+	return Vector3(mid.x, clampf(CAM_MIN_H + spread * 0.9, CAM_MIN_H, 48.0), mid.y)
 
 
 func _place_camera(weight: float) -> void:
@@ -374,6 +375,8 @@ func _draw_edge_markers(canvas: Control) -> void:
 		var d: Vector2 = m.dir
 		var side := Vector2(-d.y, d.x)
 		var tip: Vector2 = m.pos
+		canvas.draw_colored_polygon(PackedVector2Array([tip + d * 34.0, tip - d * 18.0 + side * 26.0,
+				tip - d * 18.0 - side * 26.0]), UiTheme.OUTLINE) # A dark outline: readable on any ground.
 		canvas.draw_colored_polygon(PackedVector2Array([tip + d * 24.0, tip - d * 12.0 + side * 18.0,
 				tip - d * 12.0 - side * 18.0]), col)
 		var label_pos: Vector2 = tip - d * 40.0 - Vector2(60, -10)
@@ -397,6 +400,10 @@ func _hud_draw(canvas: Control) -> void:
 	elif _time < GO_SHOW:
 		Shell.countdown(canvas, canvas.size, "GO!", _time / GO_SHOW, UiTheme.OK)
 	elif not _ended:
+		var lead: Racer = standings()[0]
+		var to_go := maxf(finish_arc - lead.arc, 0.0)
+		Shell.text(canvas, Vector2(0, 90), "Finish in %d m" % roundi(to_go), 44, UiTheme.ACCENT,
+				HORIZONTAL_ALIGNMENT_CENTER, canvas.size.x)
 		Shell.text(canvas, Vector2(canvas.size.x - 360, 90), "%.1f s" % _time, 44, UiTheme.TEXT,
 				HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
 	_draw_edge_markers(canvas)

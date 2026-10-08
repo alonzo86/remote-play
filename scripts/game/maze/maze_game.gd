@@ -17,6 +17,7 @@ const MAX_SPEED := 760.0
 const RESTITUTION := 0.25
 const SUBSTEPS := 2
 const COUNTDOWN := 3.0
+const TIMER_X := 400.0       # The timer pill has a fixed place, between the title and the chips.
 
 # Colors (REQ-MZ-7). The floor is dark so that every player color has a contrast of 3:1 or more (REQ-GM-47e).
 const FLOOR_COLOR := Color("2a1070")
@@ -53,11 +54,12 @@ func _game_ready() -> void:
 	rng.randomize()
 	_maze.generate(COLS, ROWS, rng)
 	_walls = _maze.wall_rects(CELL, WALL)
-	var offsets := [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]
+	# Slot 1 starts on the diagonal from slot 0, so that two balls never touch at the start.
+	var offsets := [Vector2(-1, -1), Vector2(1, 1), Vector2(1, -1), Vector2(-1, 1)]
 	for s in participants:
 		var b := Ball.new()
 		b.slot = s
-		b.pos = Vector2(CELL, CELL) * 0.5 + offsets[s % 4] * CELL * 0.18
+		b.pos = Vector2(CELL, CELL) * 0.5 + offsets[s % 4] * CELL * 0.22
 		_balls.append(b)
 		player(s).button_pressed.connect(_on_button.bind(s))
 	if participants.is_empty():
@@ -203,7 +205,9 @@ func _game_draw() -> void:
 	draw_style_box(_sb_start, Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(CELL, CELL) - Vector2(WALL, WALL)))
 	var exit_cell := Rect2(o + Vector2((COLS - 1) * CELL, (ROWS - 1) * CELL), Vector2(CELL, CELL)).grow(-WALL * 0.5 - 4.0)
 	draw_style_box(_sb_exit, exit_cell)
-	draw_arc(o + _exit_center(), CELL * 0.22, 0, TAU, 40, Color.WHITE, 6.0)
+	var pulse := 1.0 + 0.08 * sin(Time.get_ticks_msec() * 0.006) # The exit pulses a little (easy to find).
+	draw_arc(o + _exit_center(), CELL * 0.30 * pulse, 0, TAU, 48, UiTheme.OUTLINE, 14.0)
+	draw_arc(o + _exit_center(), CELL * 0.30 * pulse, 0, TAU, 48, Color.WHITE, 8.0)
 	# Walls: rounded ends (REQ-GM-47f). The collision still uses the rectangles.
 	for r in _walls:
 		_draw_wall(o, r)
@@ -215,14 +219,21 @@ func _game_draw() -> void:
 		draw_circle(c, BALL_R + OUTLINE_BIG, UiTheme.OUTLINE)
 		draw_circle(c, BALL_R, col)
 		draw_circle(c + Vector2(-8, -9), 6.0, Color(1, 1, 1, 0.55))
+		# The slot number on the ball: players do not depend on the color alone (REQ-GM-46).
+		var f := UiTheme.title_font()
+		draw_string_outline(f, c + Vector2(-BALL_R, 9.0), str(b.slot + 1), HORIZONTAL_ALIGNMENT_CENTER, BALL_R * 2.0, 26, 8,
+				UiTheme.OUTLINE)
+		draw_string(f, c + Vector2(-BALL_R, 9.0), str(b.slot + 1), HORIZONTAL_ALIGNMENT_CENTER, BALL_R * 2.0, 26, Color.WHITE)
 	# HUD
 	Shell.title(self, "TILT MAZE")
-	var x := size.x - 60.0
-	for s in participants:
-		x -= 270.0
+	var order := participants.duplicate()
+	order.sort() # P1 first, left to right.
+	var x := size.x - 60.0 - 270.0 * order.size() + 20.0
+	for s in order:
 		Shell.chip(self, Vector2(x, 36), player(s).player_name, player(s).color, 250.0)
+		x += 270.0
 	if _phase == Phase.PLAYING:
-		Shell.text(self, Vector2(440, 96), "%.1f s" % _race_time, 48, UiTheme.TEXT) # Next to the title: 4 chips use the right side.
+		Shell.timer(self, Vector2(TIMER_X, 36.0), _race_time) # Next to the title: 4 chips use the right side.
 	if _phase == Phase.COUNTDOWN and not participants.is_empty():
 		var n := ceili(_clock)
 		Shell.countdown(self, size, str(n) if n > 0 else "GO", float(n) - _clock)

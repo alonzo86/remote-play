@@ -100,7 +100,6 @@ func _run() -> void:
 	_test_marble_track()
 	await _test_network()
 	await _test_phone_screens()
-	_test_chip_contrast()
 	_test_visual_rules()
 	_test_role()
 	await _test_sensor_sampler()
@@ -338,23 +337,6 @@ func _test_qr() -> void:
 
 ## The phone shows the pad for `playing` and `paused`, and the waiting screen for the other phases
 ## (REQ-FL-28). It goes back to the connect screen when it leaves.
-## The chip text never sits on the player color, and it is readable on the chip (REQ-GM-46, REQ-FL-40).
-func _test_chip_contrast() -> void:
-	print("chip contrast")
-	var ok := true
-	for c in Protocol.PLAYER_COLORS:
-		var ratio: float = Shell.contrast(UiTheme.CARD_TEXT, UiTheme.CARD)
-		if ratio < 4.5:
-			ok = false
-		# The player color is a dot, so it only has to stand out from the white chip.
-		if Shell.contrast(c, UiTheme.CARD) < 2.0:
-			ok = false
-			print("    player color too light for the chip: ", c)
-	_check(ok, "chip text and player-color dots are readable on the white chip")
-	_check(Shell.contrast(Color.WHITE, Color.BLACK) > 20.0 and Shell.contrast(Color.WHITE, Color.WHITE) < 1.01,
-			"the contrast function is right")
-
-
 ## The maze colors follow REQ-GM-47d and 47e (REQ-MZ-7). The player colors are checked for every game.
 func _test_visual_rules() -> void:
 	print("visual rules")
@@ -377,22 +359,33 @@ func _test_visual_rules() -> void:
 	_check(Shell.contrast(wall_c, floor_c) >= 3.0, "the maze walls can be seen on the floor")
 	_check(UiTheme.OUTLINE.v < 0.4, "the outline color is dark")
 
-	# Buttons are not white and no button focus outline is white (REQ-FL-41, 41a).
+	# Three button colors with a shadow, a black focus border, a sinking pressed state, a gray disabled state
+	# (REQ-FL-41, 41a, 50).
 	var theme := UiTheme.make()
+	var fills := {"Button": UiTheme.ACCENT, "PrimaryButton": UiTheme.OK, "DangerButton": UiTheme.DANGER,
+			"RowButton": UiTheme.BUTTON}
 	var btn_ok := true
-	for type in ["Button", "PrimaryButton", "SecondaryButton"]:
-		for st in ["normal", "focus", "hover", "pressed"]:
-			var sb := theme.get_stylebox(st, type) as StyleBoxFlat
-			if sb.bg_color.is_equal_approx(Color.WHITE) or sb.border_color.is_equal_approx(Color.WHITE):
-				btn_ok = false
-				print("    white button style: ", type, " ", st)
-	_check(btn_ok, "no button fill or focus outline is white")
-	_check(Shell.contrast(theme.get_color("font_color", "Button"), UiTheme.BUTTON) >= 4.5
-			and Shell.contrast(theme.get_color("font_focus_color", "Button"), UiTheme.BUTTON) >= 4.5,
-			"button text is readable on the button fill, also when focused")
-	_check(Shell.contrast(theme.get_color("font_disabled_color", "Button"), UiTheme.DISABLED) >= 3.0
-			and Shell.contrast(theme.get_color("font_disabled_color", "PrimaryButton"), UiTheme.DISABLED) >= 3.0,
-			"a disabled button's text can still be read")
+	for type in fills:
+		var n := theme.get_stylebox("normal", type) as StyleBoxFlat
+		var f := theme.get_stylebox("focus", type) as StyleBoxFlat
+		var pr := theme.get_stylebox("pressed", type) as StyleBoxFlat
+		var d := theme.get_stylebox("disabled", type) as StyleBoxFlat
+		btn_ok = btn_ok and n.bg_color.is_equal_approx(fills[type]) and n.shadow_offset == UiTheme.SHADOW
+		btn_ok = btn_ok and f.border_color == UiTheme.FOCUS_BORDER and f.border_width_left >= 10
+		btn_ok = btn_ok and f.shadow_offset.x > n.shadow_offset.x
+		btn_ok = btn_ok and f.bg_color.is_equal_approx(n.bg_color)
+		# Pressed: no shadow, and the box moved onto where the shadow was, with the same size.
+		btn_ok = btn_ok and pr.shadow_size == 0 and pr.expand_margin_left == -UiTheme.SHADOW.x \
+				and pr.expand_margin_right == UiTheme.SHADOW.x and pr.expand_margin_bottom == UiTheme.SHADOW.y
+		# Disabled: opaque, gray, no shadow.
+		btn_ok = btn_ok and d.bg_color.a == 1.0 and d.bg_color.s < 0.15 and d.shadow_size == 0
+		btn_ok = btn_ok and Shell.contrast(theme.get_color("font_color", type), fills[type]) >= 4.5
+		btn_ok = btn_ok and Shell.contrast(theme.get_color("font_disabled_color", type), UiTheme.DISABLED) >= 4.5
+		if not btn_ok:
+			print("    button style problem: ", type)
+			break
+	_check(btn_ok, "buttons: 3 colors, black focus border and lift, sunk pressed state, opaque gray disabled state")
+	_check(fills.Button != fills.PrimaryButton and fills.Button != fills.DangerButton, "yellow, green and red are three colors")
 	_check(UiTheme.SHADOW_COLOR.a < 1.0, "the shadow is see-through, so it is lighter than the outline")
 
 	# A name for a phone without one, and a digit centered in its circle.
@@ -445,9 +438,19 @@ func _test_phone_screens() -> void:
 	await process_frame
 	var leave_pad = app.current_screen()
 	leave_pad._input(_touch(5, true, leave_pad._rect_leave().get_center()))
+	leave_pad._input(_touch(5, false, leave_pad._rect_leave().get_center()))
+	await process_frame
+	_check(app.client.state == ControllerClient.State.CONNECTED and leave_pad._leave_armed > 0.0,
+			"the first tap on Leave only arms it (REQ-FL-52)")
+	leave_pad._leave_armed = 0.0 # The 3 s are over: a new tap arms again and does not leave.
+	leave_pad._input(_touch(5, true, leave_pad._rect_leave().get_center()))
+	leave_pad._input(_touch(5, false, leave_pad._rect_leave().get_center()))
+	await process_frame
+	_check(app.client.state == ControllerClient.State.CONNECTED, "a tap on Leave after the time is over arms it again")
+	leave_pad._input(_touch(6, true, leave_pad._rect_leave().get_center()))
 	await process_frame
 	await process_frame
-	_check(app.client.state == ControllerClient.State.IDLE, "tapping Leave on the pad leaves the TV")
+	_check(app.client.state == ControllerClient.State.IDLE, "the second tap on Leave leaves the TV (REQ-FL-52)")
 	_check(app.current_screen().get_script().resource_path == "res://scripts/ui/controller_connect.gd",
 			"leaving returns to the connect screen")
 	server.stop()
@@ -544,7 +547,7 @@ func _test_pad(app: Node, server: Node) -> void:
 	var lat: Control = pad_script.new()
 	_check(lat._lat_color(-1.0) == UiTheme.TEXT_DIM and lat._lat_color(10.0) == UiTheme.OK
 			and lat._lat_color(24.9) == UiTheme.OK and lat._lat_color(25.0) == UiTheme.ACCENT
-			and lat._lat_color(59.0) == UiTheme.ACCENT and lat._lat_color(60.0) == UiTheme.BAD,
+			and lat._lat_color(59.0) == UiTheme.ACCENT and lat._lat_color(60.0) == UiTheme.BAD_TEXT,
 			"the latency color is dim, green, yellow and red at 25 ms and 60 ms")
 	lat.free()
 

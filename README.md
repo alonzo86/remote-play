@@ -25,7 +25,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 ```
 
 - TV flow: Android splash, logo screen, **Connect controllers** (QR code, room code, 4 slots, Continue), **Games** (tiles with a
-  screenshot, the players badge, the Settings gear), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
+  screenshot, the players badge, the Settings gear; the focused tile grows and shows the description), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
   Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
 - The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`).
@@ -33,7 +33,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
 - A phone that loses the connection keeps its slot for 30 seconds and reconnects with a token.
-  The game pauses while a player is lost.
+  The game pauses while a player is lost. When no player is left connected, the game ends at once.
 - The debug overlay (Menu key, F3, or the switch on the Settings screen) shows per player: RTT, sensor age, packet rate,
   longest gap, lost packets, raw gyroscope and accelerometer, tilt and pointer.
 

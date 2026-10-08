@@ -41,7 +41,7 @@ func _ready() -> void:
 
 	var head := HBoxContainer.new()
 	box.add_child(head)
-	var tv_title := UiKit.label("Detected TVs", 40, UiTheme.TEXT_DIM, UiTheme.body_bold())
+	var tv_title := UiKit.label("Discovered TVs", 40, UiTheme.TEXT_DIM, UiTheme.body_bold())
 	tv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tv_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	head.add_child(tv_title)
@@ -76,7 +76,7 @@ func _on_state(state: int) -> void:
 		_:
 			if App.last_error != "":
 				_status.text = App.last_error
-				_status.add_theme_color_override("font_color", UiTheme.BAD)
+				_status.add_theme_color_override("font_color", UiTheme.BAD_TEXT)
 			else:
 				_status.text = "Looking for a TV..."
 				_status.add_theme_color_override("font_color", UiTheme.TEXT)

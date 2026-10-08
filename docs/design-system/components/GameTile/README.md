@@ -1,3 +1,3 @@
-A 16:9 game screenshot with title and player range underneath.
+A 16:9 game screenshot with title and player range underneath. The focused tile is wide.
 
-Provide a 640x360 screenshot, title and min/max players. Focus is a 10px `accent` outline and a yellow title; the tile bounces once (about 150 ms, scale 1.04) and never changes size. A tile that cannot start with the current players is dimmed to 50% and shows the reason in `accent`. A missing screenshot becomes a hue-from-id placeholder with the title.
+Provide a 640x360 screenshot (shown at 420x236), title, description and min/max players. The focused tile grows to the right in 180 ms (780px wide) and shows the description in a panel next to the screenshot; its title turns `accent` and its outline stays `outline` (no yellow border). The tiles after it move aside. Tiles sit in rows of 3. A tile that cannot start with the current players is dimmed to 50% and shows the reason in `accent`. A missing screenshot becomes a hue-from-id placeholder with the title.

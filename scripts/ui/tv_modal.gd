@@ -1,6 +1,7 @@
 extends Control
 ## A modal on top of a TV screen: dim layer plus a centered card. The screen sends Back to `on_back()`.
-## With `entries` it is a confirmation: [[label, callable], ...]. A subclass can override `_build()`.
+## With `entries` it is a confirmation: [[label, callable, role], ...] (role is "primary", "danger" or left out).
+## A subclass can override `_build()`.
 ## The focus goes back to the control that had it when the modal closes.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -59,7 +60,9 @@ func _build() -> void:
 	row.add_theme_constant_override("separation", 28)
 	body.add_child(row)
 	for e in entries:
-		var b := UiKit.button(String(e[0]), e[1])
+		var b := UiKit.button(String(e[0]), e[1], e.size() > 2 and e[2] == "primary")
+		if e.size() > 2 and e[2] == "danger":
+			b.theme_type_variation = "DangerButton"
 		b.custom_minimum_size = Vector2(260, 0)
 		row.add_child(b)
 		_buttons.append(b)

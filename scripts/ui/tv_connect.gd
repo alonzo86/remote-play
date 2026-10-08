@@ -59,10 +59,13 @@ func _ready() -> void:
 	# Footer: status on the left, Continue on the right.
 	var foot := HBoxContainer.new()
 	root.add_child(foot)
-	_status = UiKit.label("", 30, UiTheme.TEXT_DIM, UiTheme.body_font())
+	_status = UiKit.label("", 36, UiTheme.TEXT, UiTheme.body_bold())
 	_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT # Next to Continue, not at the far left.
 	_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	foot.add_child(_status)
+	foot.add_child(UiKit.spacer(0)) # A gap between the status and the button.
+	foot.get_child(foot.get_child_count() - 1).custom_minimum_size = Vector2(36, 0)
 	_continue = UiKit.button("Continue", App.go_games, true, 44)
 	_continue.custom_minimum_size = Vector2(380, 96)
 	foot.add_child(_continue)
@@ -81,9 +84,9 @@ func _refresh() -> void:
 	_continue.disabled = not ready
 	if ip == "":
 		_status.text = "No Wi-Fi address found. Connect the TV to your network."
-		_status.add_theme_color_override("font_color", UiTheme.BAD)
+		_status.add_theme_color_override("font_color", UiTheme.BAD_TEXT)
 	else:
-		_status.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		_status.add_theme_color_override("font_color", UiTheme.TEXT)
 		_status.text = ("%d of %d players connected" % [n, Protocol.MAX_PLAYERS]) if ready \
 				else "Waiting for the first player to join"
 	if ready and not _was_ready and _modal == null:
@@ -97,7 +100,7 @@ func on_back() -> void:
 		return
 	var d: Control = TvModal.new()
 	d.title_text = "Quit Remote Play?"
-	d.entries = [["Stay", Callable(self, "_close_dialog")], ["Quit", App._quit]]
+	d.entries = [["Stay", Callable(self, "_close_dialog"), "primary"], ["\u2715  Quit", App._quit, "danger"]]
 	d.default_index = 0
 	d.closed.connect(func(): _modal = null)
 	_modal = d
