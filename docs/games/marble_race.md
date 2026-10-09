@@ -12,7 +12,7 @@ Marbles bounce off the walls, the posts and each other.
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-62 | Gap | `docs/DEVICE_TEST.md` has a section for this game (Test 9). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a section for this game (Test 9). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 
 ## Requirements

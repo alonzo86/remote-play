@@ -8,7 +8,7 @@ Godot 4.7 and GDScript. One project makes two apps:
 
 The games are minigames that use the phone as a motion controller: a tilt maze, a 3D marble race (with several tracks) and a pointer shooting game (Target Shoot). New minigames are added through the game registry (see below).
 
-Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [device test plan](docs/DEVICE_TEST.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md) | [games roadmap](docs/GAMES_ROADMAP.md) | [design system](docs/design-system/README.md)
+Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [manual tests](docs/MANUAL_TESTS.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md) | [games roadmap](docs/GAMES_ROADMAP.md) | [design system](docs/design-system/README.md)
 
 ## How it works
 
@@ -115,7 +115,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 2. Put the TV and the phones on the same Wi-Fi network (5 GHz is best; Ethernet on the TV box is better).
 3. Start the TV app. Start the controller app. Scan the QR code on the TV (or tap the TV in the list).
 4. Open the debug overlay. Watch RTT, *Age ms*, *Gap ms*, and *Rx Hz*.
-   The full test plan with pass criteria is in [docs/DEVICE_TEST.md](docs/DEVICE_TEST.md).
+   The full test plan with pass criteria is in [docs/MANUAL_TESTS.md](docs/MANUAL_TESTS.md).
 5. Run **Tilt Maze** with 1 to 4 phones. If the ball rolls the wrong way, use **Invert tilt axes** on the TV Settings screen
    (the gear on the Games screen).
 6. Run **Marble Race** and check the frame rate with 4 phones.
@@ -170,4 +170,4 @@ Phone-only and Android-only code (`qr_scanner.gd`, `sensor_sampler.gd`) stays lo
 - **Not tested: real Android TV, real phone sensors, real Wi-Fi.** The first on-device run must check the
   items marked *unverified* in [docs/RISKS.md](docs/RISKS.md), mainly the sensor signs and the key mapping.
 - The QR scanner plugin compiled only against stubs (the real ML Kit and Godot libraries were not reachable
-  from the build sandbox). It needs Google Play services on the phone. Test it first: `docs/DEVICE_TEST.md`, test 2.
+  from the build sandbox). It needs Google Play services on the phone. Test it first: `docs/MANUAL_TESTS.md`, test 2.

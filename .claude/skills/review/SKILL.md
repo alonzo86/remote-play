@@ -45,7 +45,7 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 - Every module has 80% line coverage (`tools/coverage.sh`), or is set aside with a reason in `tools/coverage/exclusions.txt`.
   Read the new tests: each must assert a behavior and fail when it breaks. Report a test that only runs lines, and a set-aside module
   that could be tested without extreme work.
-- User-visible changes update `README.md`, and test results go in `docs/DEVICE_TEST.md`.
+- User-visible changes update `README.md`, and test results go in `docs/MANUAL_TESTS.md`.
 
 ## Report
 

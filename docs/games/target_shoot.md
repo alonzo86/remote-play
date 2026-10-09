@@ -18,7 +18,7 @@ Visual language: shell, player colors, toy-like world (REQ-GM-45 to 49). Check t
 | General ID | Kind | Note |
 |------------|------|------|
 | REQ-GM-37 | Note | Recenter is more important here than in the other games: the pointer uses the yaw of the gyroscope, and yaw drifts (RISKS A4). The hint says so (REQ-TS-12). |
-| REQ-GM-62 | Gap | `docs/DEVICE_TEST.md` has a section for this game (Test 10). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a section for this game (Test 10). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 
 ## Requirements

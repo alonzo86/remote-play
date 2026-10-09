@@ -30,3 +30,31 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
   End the comment with the Claude Code footer. If there are no findings, post a short comment that says so, and list what you checked.
 - Do not fix the findings of that review unless the user asks. Tell the user what you found.
 - The review comment is also required for later pull requests, not only for the first one.
+
+## Manual tests (for the user)
+
+- The tests that need real devices (phones, a TV or a TV box, a remote, a camera) are in `docs/MANUAL_TESTS.md`: the steps, a result for
+  every step, the run log, and the evidence (photos, videos, logs in `docs/evidence/`). Claude cannot run them.
+- Claude never marks a manual test as passed. When the user reports a result, Claude writes it in `docs/MANUAL_TESTS.md` (the result of the
+  step, the run ID, the evidence path, the measured values), then updates the Summary table there and the list below. Use the `device-test` skill.
+- A requirement with the status `Device` is not done until its test is Pass. Do not say that a feature is verified on a device before that.
+- A change that needs a device check adds or changes its test in the same commit (REQ-GM-62) and adds it to the list below.
+  Every pull request lists the manual tests that are still open for its change.
+
+Tests the user has to run now (status on 2026-10-09; the list is in the order to do them):
+
+| Test | What the user does | Why |
+|------|--------------------|-----|
+| 10 | Target Shoot with 1 to 4 phones: the pointer (range, drift in cm), shots, miss lock, medal tiers, 4-player frame rate | New game on branch `games/target-shoot`. Needed before it is merged. The first values (range 25 degrees, tiers 200/350/500, target sizes) are guesses |
+| 9 | Marble Race on a real TV, 2 to 4 phones: all 11 items. Item 11 is the check after the shared-code change | PR 12 (merged) changed the countdown, the buzz limit and the end of the race. Never run on a device |
+| 6 | Tilt Maze feel (items 1 to 4) and item 5: RECENTER recenters, A and B do nothing | PR 12 removed the A shortcut. The feel was never judged |
+| 11 | The result menus: maze (1 to 4 phones), race (4 phones, inside the screen edge, 'not finished'), Target Shoot (medal, winner, Tie) | PR 12 (merged) made the result menu generic. The 4-player list was never seen on a TV |
+| 7 | Disconnect and reconnect: items 1 to 6, with item 5 (the last phone leaves) in the maze, the race and Target Shoot | The R0 run needs a retest. PR 12 changed the end with no players |
+| 12 | Game tiles: compare each tile with the game. The Maze and Marble Race tiles are older than the chip style | REQ-GM-49. Claude makes the tiles again when they differ |
+| 1 | Start and join: all 5 steps | R0 failed on join by room code, which the plan does not have now |
+| 3 | Sensor directions: items 1 and 4 (the flat Accel value after the fix, Gyro z) | R0 did not check them after the fix |
+| 4 | Latency and packet rate on a real TV box, and the delay with a 240 fps camera | R0 ran on a desktop and failed (RTT, Gap). Not representative |
+| 8 | TV remote: all 5 items | Never run. The Back question changed |
+| 8b | The TV flow and the style: all 6 items | Never run |
+
+Test 2 (QR scan) passed in R0. Run it again only when the QR plugin or the connect screen changes.

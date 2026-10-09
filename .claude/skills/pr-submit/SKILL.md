@@ -53,7 +53,7 @@ Total line coverage and the lowest modules (from `tools/coverage.sh`). Name any 
 `tools/coverage/exclusions.txt`, with the reason.
 
 ## How to Test
-Steps for a reviewer, from the tests the user listed. Add the on-device steps from `docs/DEVICE_TEST.md` that apply.
+Steps for a reviewer, from the tests the user listed. Add the on-device steps from `docs/MANUAL_TESTS.md` that apply.
 ```
 
 How to compute the stats, from `git diff --numstat <target>...HEAD`:

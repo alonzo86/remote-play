@@ -84,7 +84,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-53: A destructive button (`DangerButton`) is dark red `#b3122f` with white text (6.9:1) and a "✕" before the label. It is used in confirmations only (Quit) and beside Remove. The default focus of a confirmation is the safe, main button (Stay, green). Focus follows REQ-FL-41. The text on every button state has a contrast of 4.5:1 or more (a test checks it).
 - REQ-FL-42: Motion: a focused tile grows to the right in about 180 ms and the description fades in; it shrinks again when the focus leaves. A button sinks when it is pressed. A slot pops in with a small overshoot when a phone joins (no confetti; coin sound optional). The logo still ends with one confetti burst. Screen changes use a short slide or fade (up to 250 ms).
 - REQ-FL-43: Motion stops while a game is paused or a phone is lost, and no motion blocks input.
-- REQ-FL-44: The style uses only styled boxes, tweens, particles and fonts. It uses no shader. It must run at 60 fps on the weakest supported TV box (check in `docs/DEVICE_TEST.md`).
+- REQ-FL-44: The style uses only styled boxes, tweens, particles and fonts. It uses no shader. It must run at 60 fps on the weakest supported TV box (check in `docs/MANUAL_TESTS.md`).
 - REQ-FL-45: The background is plain purple, with no dots or bubbles. The confetti of the logo is drawn in code. It is not an image file.
 - REQ-FL-46: The phone app uses the same palette, fonts and card style (REQ-FL-28).
 - REQ-FL-52: Phone buttons follow REQ-FL-41a and REQ-FL-53. On the pad, A is green and B is red (RECENTER is yellow, Leave is yellow). A pressed button sinks. The player color is only in the badge (the number dot) at the top, never a button fill. A number or letter on a color uses `UiTheme.text_on()` (white or dark, whichever has more contrast: dark on orange and teal, white on red and blue). Scan on the connect screen is white (`LightButton`); the discovered TVs below it are green and Refresh is yellow. Leave needs two taps: the first tap turns it red ("Tap again to leave") for 3 s. Error and offline text on the purple background uses `UiTheme.BAD_TEXT` (4.5:1 or more), not `BAD`.
@@ -122,7 +122,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 
 - `docs/REQUIREMENTS.md`: change REQ-P6 (FD-9), REQ-A9 and REQ-T3 to point to this file. Replace "main menu" with the new screens.
 - `docs/GAME_REQUIREMENTS.md`: the menu rules for the title, the description and the tile. REQ-GM-42 is changed and REQ-GM-45 to 49 (visual language, FD-14) are added.
-- `docs/DEVICE_TEST.md`: new tests for the flow (splash, connect, late join, Back).
+- `docs/MANUAL_TESTS.md`: new tests for the flow (splash, connect, late join, Back).
 - `README.md`: project structure (`assets/fonts`, `assets/tiles`) and controls.
 - `scripts/ui/ui_theme.gd`: new palette, outline and shadow helpers (the current colors are replaced).
 - `scripts/ui/tv_menu.gd` is split into the logo, connect, games and settings screens.

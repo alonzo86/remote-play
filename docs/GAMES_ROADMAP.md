@@ -9,7 +9,7 @@ This file is a plan, not a requirements file. Each game gets its own `docs/games
 - No saved scores. How users are identified is not decided, so nothing is stored. A solo game compares the score with fixed medal tiers. The tiers reset every run.
 - No bots. A game that needs opponents has `min_players` 2. Only Sumo Bumpers is like this.
 - Order of work: one branch for the common helpers (PR 12), then one branch for each game. The helpers are merged into `main` first. Each game branch starts from the updated `main`, so its pull request shows only that game.
-- Game pull requests merge one at a time. All games touch the same few files (`registry.gd`, the status table in `GAME_REQUIREMENTS.md`, `DEVICE_TEST.md`, `smoke_tv.gd`, the `WAIT` table in `tools/make_tiles.gd`), so a branch updates from `main` before its pull request is ready. The conflicts are small.
+- Game pull requests merge one at a time. All games touch the same few files (`registry.gd`, the status table in `GAME_REQUIREMENTS.md`, `MANUAL_TESTS.md`, `smoke_tv.gd`, the `WAIT` table in `tools/make_tiles.gd`), so a branch updates from `main` before its pull request is ready. The conflicts are small.
 - Branch names: `games/<id>` (for example `games/target-shoot`). A session needs permission to create them.
 - Recenter is the RECENTER button of the phone only (REQ-GM-37). It already works in every game (`{"t":"recenter"}`, `tv_server.gd`). A and B are free for game actions. The maze shortcut "A recenters" is removed.
 - Pointer tuning (Target Shoot) is checked on a real phone and TV with the `device-test` skill.
@@ -84,7 +84,7 @@ Checked against `main` on 2026-10-08.
 2. The game, the registry entry (`doc`, `description`, `tile`, `min_players`, `max_players`) and the tile (`tools/make_tiles.gd`).
 3. A check in `tests/smoke_tv.gd` and unit tests of the rules: score, collision, what wins, a player who leaves (REQ-GM-60, 61).
 4. At least 80% line coverage for each script (`GODOT=<path> tools/coverage.sh`), clean `gdlint`, passing tests.
-5. A section in `docs/DEVICE_TEST.md` (REQ-GM-62), and a row in the status table of `docs/GAME_REQUIREMENTS.md`.
+5. A section in `docs/MANUAL_TESTS.md` (REQ-GM-62), and a row in the status table of `docs/GAME_REQUIREMENTS.md`.
 6. A pull request only when the user asks. After it, the `review` skill runs and posts its findings as one comment.
 
 ## Later candidates

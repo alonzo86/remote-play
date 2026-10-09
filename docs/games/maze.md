@@ -12,7 +12,7 @@ The collision uses the wall rectangles, so a wall end is square for the physics 
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-62 | Gap | Test 6 in `docs/DEVICE_TEST.md` covers the feel. The other device checks are not written. |
+| REQ-GM-62 | Gap | Test 6 in `docs/MANUAL_TESTS.md` covers the feel. The other device checks are not written. |
 
 ## Requirements
 
