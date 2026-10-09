@@ -157,6 +157,8 @@ func _tick_play(delta: float) -> void:
 	for s in _alive:
 		if arena.is_off((_bodies[s] as TiltBody).pos):
 			fell.append(s)
+	if not fell.is_empty():
+		arena.speed_up()   # REQ-SB-6: the wait of a fallen bumper stays short (REQ-GM-83).
 	for s in fell:
 		_alive.erase(s)
 		_falling[s] = {"pos": (_bodies[s] as TiltBody).pos, "age": 0.0}

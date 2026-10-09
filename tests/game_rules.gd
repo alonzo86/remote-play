@@ -541,7 +541,8 @@ func _sumo_arena() -> void:
 			"the platform is smaller, shrinks faster and the dash comes back later with the difficulty")
 	var a := SumoArena.new()
 	a.setup("medium")
-	_check(a.radius() == 380.0 and a.danger() == 0.0, "a round starts with the full platform")
+	_check(a.radius() == 380.0 and a.danger() == 0.0 and a.speedup == 1.0,
+			"a round starts with the full platform at the normal rate")
 	a.tick(12.0)
 	_check(is_equal_approx(a.radius(), (380.0 + SumoArena.MIN_RADIUS) * 0.5) and is_equal_approx(a.danger(), 0.5),
 			"the radius falls in a straight line: half way after half the time")
@@ -551,6 +552,29 @@ func _sumo_arena() -> void:
 			"at the least radius two bumpers do not fit, so every round ends")
 	_check(a.is_off(Vector2(SumoArena.MIN_RADIUS + 1.0, 0.0)) and not a.is_off(Vector2(0.0, SumoArena.MIN_RADIUS - 1.0)),
 			"a bumper has fallen when its middle is outside the platform (REQ-SB-7)")
+	# The wait of a bumper that fell is short (REQ-GM-83, REQ-SB-9): the platform shrinks faster after the first fall.
+	var wait_ok := true
+	for d in ["easy", "medium", "hard"]:
+		var w := SumoArena.new()
+		w.setup(d)
+		w.speed_up()   # The worst case: the first fall is at the very start.
+		var seconds := 0.0
+		while w.radius() > SumoArena.MIN_RADIUS and seconds < 100.0:
+			w.tick(0.1)
+			seconds += 0.1
+		wait_ok = wait_ok and seconds <= SumoArena.MAX_WAIT and absf(seconds - w.longest_wait()) < 0.2
+		wait_ok = wait_ok and w.longest_wait() <= SumoArena.MAX_WAIT
+	_check(wait_ok, "after the first fall every round is over in 20 s or less, at every difficulty (REQ-GM-83)")
+	var fast := SumoArena.new()
+	fast.setup("easy")
+	fast.tick(1.0)
+	fast.speed_up()
+	fast.speed_up()
+	fast.tick(1.0)
+	_check(is_equal_approx(fast.time, 1.0 + SumoArena.FALL_SPEEDUP),
+			"the time of the shrinking runs faster after the first fall, once")
+	fast.setup("easy")
+	_check(fast.speedup == 1.0 and fast.time == 0.0, "a new round starts at the normal rate again")
 	a.setup("nonsense")
 	_check(a.radius() == 380.0, "an unknown difficulty is Medium")
 	var spread_ok := true

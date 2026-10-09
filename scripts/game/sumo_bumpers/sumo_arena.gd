@@ -9,6 +9,10 @@ const START_SHARE := 0.55        # The bumpers start at this part of the start r
 const DASH_SPEED := 700.0        # px/s (REQ-SB-10).
 const BUMP_RESTITUTION := 0.95   # Close to 1: a hit pushes the other bumper away (REQ-SB-8).
 const BUMP_BUZZ_SPEED := 300.0   # The speed between two bumpers that buzzes the phones (REQ-SB-8).
+## After the first fall of a round the platform shrinks this many times faster, so a bumper that fell waits at most
+## `shrink_time / FALL_SPEEDUP` seconds (REQ-SB-6, REQ-SB-9). REQ-GM-83 asks for about 20 s at most (MAX_WAIT).
+const FALL_SPEEDUP := 2.0
+const MAX_WAIT := 20.0
 ## Difficulty (REQ-SB-20): the start radius of the platform, the time it needs to shrink to MIN_RADIUS, and the time before the
 ## dash is ready again. First guesses (Test 15).
 const LEVELS := {
@@ -20,7 +24,8 @@ const LEVELS := {
 var start_radius := 380.0
 var shrink_time := 24.0
 var dash_time := 2.0
-var time := 0.0   # The seconds of this round since GO.
+var time := 0.0   # The time of the shrinking in this round: seconds since GO, but faster after the first fall.
+var speedup := 1.0
 
 
 ## Sets the difficulty (a key of `LEVELS`). An unknown one gives Medium.
@@ -30,10 +35,21 @@ func setup(difficulty: String) -> void:
 	shrink_time = float(level.shrink)
 	dash_time = float(level.dash)
 	time = 0.0
+	speedup = 1.0
 
 
 func tick(dt: float) -> void:
-	time += dt
+	time += dt * speedup
+
+
+## The first bumper of the round has fallen: from now on the platform shrinks faster (REQ-SB-6). It does it only once.
+func speed_up() -> void:
+	speedup = FALL_SPEEDUP
+
+
+## The longest time a bumper that fell has to wait for the end of the round (REQ-SB-9): the whole shrinking at the fast rate.
+func longest_wait() -> float:
+	return shrink_time / FALL_SPEEDUP
 
 
 ## The radius of the platform now: a straight line from the start radius to MIN_RADIUS.

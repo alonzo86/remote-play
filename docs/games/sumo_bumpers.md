@@ -42,10 +42,10 @@ Platform and movement
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SB-6 | The platform is a disk in the middle of the play area. Its radius falls in a straight line from its start radius to the least radius in the shrink time (REQ-SB-20). It does not stop before the round is over: at the least radius two bumpers do not fit, so every round ends. | Done | run_tests |
+| REQ-SB-6 | The platform is a disk in the middle of the play area. Its radius falls in a straight line from its start radius to the least radius in the shrink time (REQ-SB-20). It does not stop before the round is over: at the least radius two bumpers do not fit, so every round ends. After the first fall of a round the platform shrinks twice as fast (`FALL_SPEEDUP`), so that a bumper that fell waits at most half the shrink time: 15 s on Easy, 12 s on Medium, 9 s on Hard (REQ-GM-83, about 20 s at most). | Done | run_tests |
 | REQ-SB-7 | Tilt moves a bumper (`TiltBody`: acceleration, dead zone, damping, speed limit). All players have the same values (REQ-GM-24). A bumper is a disk. It falls when the middle of the disk is outside the platform. | Done | run_tests, smoke_sumo |
 | REQ-SB-8 | Bumpers bounce off each other (`TiltBody.collide` with a high restitution) so that a hit pushes the other one away. There is no damage. A hit that is fast enough (more than 300 px/s between the two) buzzes both phones (20 ms, at most every 150 ms for one slot). | Device | run_tests (the bounce), Device (the feel and the buzz) |
-| REQ-SB-9 | Children (REQ-GM-80 to 84): the bumpers are friendly made-up creatures; a fall is funny (the bumper spins and shrinks in 0.8 s, "Whee!"); there is no loss of points for a fall; a bumper that fell is back in the next round; the wait for the next round is at most the rest of the shrink time (REQ-SB-20), and the hint is one line ("Tilt to bump the others off the platform! A dashes."); all texts are positive. | Done | review |
+| REQ-SB-9 | Children (REQ-GM-80 to 84): the bumpers are friendly made-up creatures; a fall is funny (the bumper spins and shrinks in 0.8 s, "Whee!"); there is no loss of points for a fall; a bumper that fell is back in the next round; the wait for the next round is at most half the shrink time, 20 s at most (REQ-SB-6, REQ-SB-20), and the hint is one line ("Tilt to bump the others off the platform! A dashes."); all texts are positive. | Done | review |
 | REQ-SB-10 | A press on A is a dash: the bumper gets a speed of 700 px/s in the direction of the tilt (when there is no tilt: in the direction it moves; when it does not move, nothing happens). The dash is ready again after the dash time of the difficulty (REQ-SB-20). For 0.35 s after a dash the speed limit is the dash speed, so that the dash is not cut at once. A ring around the bumper shows when it is ready. B does nothing. | Done | run_tests, smoke_sumo |
 | REQ-SB-11 | A dash buzzes the phone (30 ms). A fall buzzes the phone that fell (80 ms). The winner of a round gets 120 ms, and the winner of the match 400 ms. GO buzzes every phone (60 ms). | Device | Device (the buzzes) |
 
@@ -87,6 +87,7 @@ Values that change how the game feels. Tune them on a device (Test 15). First va
 | `ACCEL`, `DAMPING`, `MAX_SPEED`, `DEADZONE` | `tilt_body.gd` | 2200 px/s2, 1.4 1/s, 560 px/s, 0.03 (the same as Paint Grab) |
 | `BUMP_RESTITUTION` | `sumo_arena.gd` | 0.95 |
 | `DASH_SPEED` | `sumo_arena.gd` | 700 px/s |
+| `FALL_SPEEDUP` | `sumo_arena.gd` | 2.0 (the shrinking is twice as fast after the first fall) |
 | `ROUNDS`, `COUNTDOWN`, `BANNER_TIME` | `sumo_bumpers_game.gd` | 3, 3 s, 2.5 s |
 | Levels | `sumo_arena.gd` | table above |
 

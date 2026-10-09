@@ -112,10 +112,15 @@ func _run() -> void:
 		game._bodies[s].pos = spots[s]
 		game._bodies[s].vel = Vector2.ZERO
 	var edge: float = game.arena.radius() + 60.0
+	_check(game.arena.speedup == 1.0, "before the first fall the platform shrinks at the normal rate")
 	game._bodies[1].pos = Vector2(edge, 0.0)
 	game._game_tick(0.016)
 	_check(not game._alive.has(1) and game._falling.has(1) and game.phase == game.Phase.PLAY,
 			"a bumper outside the platform falls and the round goes on with two")
+	var shrunk: float = game.arena.time
+	game._game_tick(0.1)
+	_check(game.arena.speedup == 2.0 and is_equal_approx(game.arena.time - shrunk, 0.2),
+			"after the first fall the platform shrinks twice as fast (REQ-SB-6)")
 	game._bodies[2].pos = Vector2(0.0, edge)
 	game._game_tick(0.016)
 	_check(game.phase == game.Phase.BANNER and game._board.score(0) == 1.0 and game.banner_text.ends_with("wins the round!"),
@@ -123,7 +128,7 @@ func _run() -> void:
 	game._banner_left = 0.01
 	game._game_tick(0.02)
 	_check(game.round_no == 2 and game.phase == game.Phase.COUNT and game._alive.size() == 3 and game.arena.time == 0.0
-			and game._bodies[1].pos.is_equal_approx(spots[1]) and game.arena.radius() == 380.0,
+			and game._bodies[1].pos.is_equal_approx(spots[1]) and game.arena.radius() == 380.0 and game.arena.speedup == 1.0,
 			"round 2 starts with all bumpers back, also the ones that fell, on a full platform (REQ-SB-2)")
 	game._game_tick(3.5)
 	for s in [0, 1, 2]:
