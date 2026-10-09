@@ -495,7 +495,7 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV. Covers: `tools/deploy-ios.sh`, RISKS A2
 **Steps**
 
 1. Follow `docs/EXPORT.md`, section *Controller on an iPhone*, and run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. Check: the export, the build, the install and the launch end without an error, and the app opens on the phone. Write down every error and the fix.
-2. Open the connect screen. Check: there is no scan and no paste button, only **Discovered TVs** and **Refresh**. The local network permission is asked once. The list shows the TV (tap it: the phone joins and the TV shows the player), or stays empty (write which, and tell Claude).
+2. Open the connect screen. Check: there is no scan and no paste button, only **Discovered TVs** and **Refresh**. The local network permission is asked once. The list shows the TV (tap it: the phone joins and the TV shows the player), or stays empty (write which, and tell Claude). With the list empty, a second line must say how to allow Local Network (REQ-FL-59). Turn Local Network off for the app in Settings to see it.
 3. Tilt the phone flat, left, right, forward, back (like Test 3, items 1 and 4). Check: the overlay Accel and Gyro values have the same directions as on Android. If they are inverted, tell Claude: the Android-only axis fix in `sensor_sampler.gd` needs a platform check.
 4. Play Tilt Maze for 2 minutes with the screen on. Check: no disconnect, no screen lock, and the ball follows the tilt.
 5. Lock the phone and unlock it. Check: the TV shows the lost-phone card and the game can resume (like Test 7, items 1 and 5).

@@ -687,6 +687,19 @@ func _test_connect_screen() -> void:
 	app.controller_discovery.forget_all()
 	screen._rebuild_list()
 	_check(_list_texts(screen) == ["No TVs found"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
+
+	# On an iPhone: no scan or paste button, and the empty list tells how to fix the Local Network permission (REQ-FL-58, 59).
+	var ios_screen = _script("res://scripts/ui/controller_connect.gd").new()
+	ios_screen.os_name = "iOS"
+	ios_screen.theme = app.theme_res
+	root.add_child(ios_screen)
+	await process_frame
+	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
+	_check(ios_buttons == ["Refresh"], "iPhone: the only button is Refresh: %s" % str(ios_buttons))
+	var ios_texts: Array = _list_texts(ios_screen)
+	_check(ios_texts.size() == 2 and ios_texts[0] == "No TVs found" and "Local Network" in ios_texts[1],
+			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))
+	ios_screen.queue_free()
 	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
 			"max": 4, "seen_ms": Time.get_ticks_msec()}
 	screen._rebuild_list()
