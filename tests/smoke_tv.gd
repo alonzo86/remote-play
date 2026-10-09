@@ -103,7 +103,14 @@ func _run() -> void:
 	await _frames(3)
 	var connect: Control = app.current_screen()
 	_check(is_instance_of(connect, TvConnect), "Back skips the logo screen and goes to Connect")
-	_check(connect._continue.disabled, "Continue is disabled with no phone (REQ-FL-6)")
+	_check(connect._hint.text != "Press OK to continue" and not connect.can_continue(),
+			"no phone: no 'Press OK' line, and OK does nothing (REQ-FL-6, 7)")
+	var ok_key := InputEventAction.new()
+	ok_key.action = "ui_accept"
+	ok_key.pressed = true
+	connect._unhandled_input(ok_key)
+	await _frames(2)
+	_check(app.current_screen() == connect, "OK with no phone stays on the Connect screen")
 	connect.on_back()
 	await _frames(2)
 	_check(connect._modal != null, "Back on Connect opens the quit confirmation (REQ-FL-10)")
@@ -126,13 +133,20 @@ func _run() -> void:
 	await _stream(clients[0], 0, 0.3, flat)
 	await _stream(clients[1], 1, 0.3, flat)
 	await _frames(3)
-	_check(not connect._continue.disabled and connect._continue.has_focus(),
-			"Continue is enabled and focused after a phone joins (REQ-FL-7)")
+	_check(connect._hint.text == "Press OK to continue" and connect.can_continue(),
+			"after a phone joins the screen says 'Press OK to continue' (REQ-FL-6)")
+	_check(connect.find_children("*", "Button", true, false).is_empty(), "the Connect screen has no button (REQ-FL-6)")
+	_check(not ("players connected" in connect._hint.text), "the screen does not count the players")
 	_check(clients[0].phase == "connect", "the phone sees the connect phase")
-	connect._continue.pressed.emit()
+	connect.on_back()   # The quit question is open: OK is for its buttons, not for Continue.
+	await _frames(2)
+	_check(not connect.can_continue(), "with the quit question open, OK does not continue")
+	connect.on_back()
+	await _frames(2)
+	connect._unhandled_input(ok_key)
 	await _frames(3)
 	var games: Control = app.current_screen()
-	_check(is_instance_of(games, TvGames) and app.server.phase == "menu", "Continue opens the Games screen")
+	_check(is_instance_of(games, TvGames) and app.server.phase == "menu", "OK opens the Games screen (REQ-FL-7)")
 	_check(games._tiles.size() == Registry.all().size(), "one tile for each game (REQ-FL-11)")
 	# The tile_focus tile is wide and shows the description. The others keep the screenshot width (REQ-FL-12, 13).
 	await create_timer(0.4).timeout

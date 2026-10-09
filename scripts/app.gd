@@ -42,6 +42,7 @@ var _last_back_ms := 0
 
 
 func _ready() -> void:
+	_force_english_ltr()
 	_load_settings()
 	theme_res = UiTheme.make()
 	var layer := CanvasLayer.new()
@@ -54,6 +55,13 @@ func _ready() -> void:
 		_start_tv()
 	else:
 		_start_controller()
+
+
+## The UI is English only for now and always left to right, whatever the language or the region of the device
+## (REQ-FL-54). Without this, a Hebrew or Arabic device mirrors every screen.
+func _force_english_ltr() -> void:
+	TranslationServer.set_locale("en")
+	get_tree().root.set_layout_direction(Window.LAYOUT_DIRECTION_LTR)
 
 
 func _notification(what: int) -> void:

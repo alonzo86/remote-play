@@ -18,6 +18,7 @@ config/name="Remote Play"
 config/description="Phone-as-motion-controller games for Android TV."
 run/main_scene="res://scenes/boot.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
+config/quit_on_go_back=false
 run/max_fps=60
 config/icon="res://icon.svg"
 boot_splash/bg_color=Color(0.239216, 0.101961, 0.619608, 1)
@@ -45,6 +46,10 @@ window/stretch/aspect="expand"
 sensors/enable_accelerometer=true
 sensors/enable_gyroscope=true
 pointing/emulate_touch_from_mouse=true
+
+[internationalization]
+
+rendering/root_node_layout_direction=1
 
 [rendering]
 
