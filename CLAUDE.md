@@ -6,7 +6,8 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 - Each game has a requirements file `docs/games/<id>.md`. All games also follow `docs/GAME_REQUIREMENTS.md`.
   Change the requirements file in the same commit as the behavior (REQ-GM-5). Use the `add-minigame` skill for new games.
-- Run the `run-tests` skill before a commit. Do not report a pass for a check that did not run.
+- Do not run the whole test suite after every change. Run the `run-tests` skill only before you submit a pull request, or when the user asks. Run a single test or check while you work only when it is needed. Do not report a pass for a check that did not run.
+- Do not decide on your own what the user sees (for example cutting or shortening text, hiding information). Ask the user first.
 - Work on the branch the session gives you. Create a pull request only when the user asks for one.
 
 ## Tests and coverage
@@ -49,7 +50,7 @@ Tests the user has to run now (status on 2026-10-09 after run R1; the list is in
 | 8 | **Retest after R1.** TV remote: items 2 and 3 (Back must go back one step and must not quit the app, REQ-FL-55). Then items 1, 4 and 5, never run | R1 found that Back quits the app on every screen. Fixed on `games/target-shoot` on 2026-10-09 |
 | 8b | **Retest after R1.** Item 2 (the game screenshots show on the Games screen) and item 7 (a TV set to Hebrew stays English and left to right). Items 1 and 3 to 6, never run | R1 found missing screenshots and a mirrored layout. Fixed on 2026-10-09. The cause of the missing screenshots is not confirmed: if they are still missing, save `adb logcat -d -s godot` and look for 'Tile image' |
 | 1 | **Retest after R1.** Start and join, all 5 steps. Step 3 is new: 'Press OK to continue' and no Continue button | The Connect screen changed after the owner's feedback (FD-17). R0 failed on join by room code, which the plan does not have now |
-| 10 | **Retest after R1 (new game).** Snowball Splat with 1 to 4 phones: the pointer (range, drift in cm), throws, the speed of the Puffs, medal tiers [150, 300, 450], 4-player frame rate, and item 9: a child of 5 to 8 years plays | The owner found Target Shoot not playable (R1). It was redesigned on 2026-10-09 as Snowball Splat on branch `games/target-shoot`. Needed before it is merged. The first values (range 25 degrees, speeds, sizes, tiers) are guesses |
+| 10 | **Retest after R1 (new game).** Snowball Splat with 1 to 4 phones: the pointer (range, drift in cm), throws, the speed of the Puffs, medal tiers [150, 300, 450], 4-player frame rate, and item 9: a child of 5 to 8 years plays. R2 found that the last digit of a score above 3 digits was cut: fixed, check scores of 4 and 5 digits and a long phone name | The owner found Target Shoot not playable (R1). It was redesigned on 2026-10-09 as Snowball Splat on branch `games/target-shoot`. Needed before it is merged. The first values (range 25 degrees, speeds, sizes, tiers) are guesses |
 | 9 | Marble Race on a real TV, 2 to 4 phones: all 11 items. Item 11 is the check after the shared-code change | PR 12 (merged) changed the countdown, the buzz limit and the end of the race. Never run on a device |
 | 6 | Tilt Maze, the rest: item 4 (2 to 4 phones) and item 5 (RECENTER recenters, A and B do nothing). Items 1 to 3 passed in R1 ('it works perfectly') | PR 12 removed the A shortcut |
 | 11 | The result menus: maze (1 to 4 phones), race (4 phones, inside the screen edge, 'not finished'), Snowball Splat (medal, winner, Tie) | PR 12 (merged) made the result menu generic. The 4-player list was never seen on a TV |

@@ -25,6 +25,7 @@ func _initialize() -> void:
 	_haptics()
 	_shell_order()
 	_shell_layout()
+	_score_chip()
 	_round_length()
 	_scoreboard()
 	_medals()
@@ -105,6 +106,49 @@ func _shell_layout() -> void:
 	_check(m.font_size == 26 and is_equal_approx(m.baseline, 9.0) and is_equal_approx(m.shine_radius, 6.0)
 			and m.shine_offset.x < 0.0 and m.shine_offset.y < 0.0,
 			"the slot number is 26 px at radius 24, and the shine is at the top left")
+
+
+## The chip with a score: the score always shows in full, also with 4 to 6 digits and a long name (REQ-GM-41, 46).
+func _score_chip() -> void:
+	print("score chip")
+	var f: Font = load("res://scripts/ui/ui_theme.gd").body_bold()
+	var height := 58.0
+	var all_fit := true
+	var name_ok := true
+	var widths_ok := true
+	for player_name in ["Phone 1", "Sim0", "Player 3", "A very long phone name"]:
+		for score in ["0", "85", "1000", "12345", "123456"]:
+			var width := Shell.score_chip_width(player_name, score)
+			widths_ok = widths_ok and width >= 200.0
+			var parts: Dictionary = Shell.score_chip_parts(player_name, score, width, height)
+			if parts.score_x + parts.score_w > width - height * 0.3 + 0.5 or parts.score_x < parts.name_x:
+				all_fit = false
+				print("    the score ", score, " does not fit with the name ", player_name)
+			var name_end: float = parts.name_x + f.get_string_size(parts.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x
+			if name_end > parts.score_x + 0.5:
+				name_ok = false
+				print("    the name ", player_name, " runs into the score ", score)
+	_check(widths_ok, "a chip is at least 200 px wide")
+	_check(all_fit, "a score of 1 to 6 digits ends inside the chip, with any name")
+	_check(name_ok, "the name never runs into the score")
+	var w4 := Shell.score_chip_width("Phone 1", "1000")
+	var short: Dictionary = Shell.score_chip_parts("Phone 1", "1000", w4, height)
+	_check(short.name == "Phone 1", "a short name and a score of 4 digits fit together without a cut (the bug of the first try)")
+	var w6 := Shell.score_chip_width("A very long phone name", "123456")
+	var long_part: Dictionary = Shell.score_chip_parts("A very long phone name", "123456", w6, height)
+	_check(long_part.name == "A very long phone name", "a long name is never cut: the chip gets wider")
+	_check(w6 > Shell.score_chip_width("Phone 1", "1000"), "a longer name makes a wider chip")
+	# The row of 4 chips of the worst size leaves room for the title and the timer on a 1920 wide screen.
+	var consts: Dictionary = load("res://scripts/game/snowball_splat/snowball_splat_game.gd").get_script_constant_map()
+	var room := 1920.0 - 60.0 - (float(consts["TIMER_X"]) + float(consts["TIMER_W"]) + 20.0)
+	var row := Shell.chip_row_positions(1920.0, [270.0, 270.0, 270.0, 270.0], 36.0, 10.0, room)
+	_check(is_equal_approx(row[3].x + 270.0, 1860.0) and row[0].x >= float(consts["TIMER_X"]) + float(consts["TIMER_W"]) + 20.0
+			and row[0].y == row[3].y, "4 chips that fit end at the 60 px margin, right of the timer, in one row")
+	var wide := Shell.chip_row_positions(1920.0, [480.0, 480.0, 480.0, 480.0], 36.0, 10.0, room)
+	_check(wide[0].y == 36.0 and wide[2].y > 36.0 and wide[1].x < wide[0].x + 480.0 + 11.0 and wide[0].x >= 740.0 - 0.5
+			and wide[3].y == wide[2].y, "chips that do not fit in a row go to a second row, none is cut")
+	_check(Shell.chip_row_positions(1920.0, []).is_empty() and Shell.chip_row_positions(1920.0, [200.0])[0].x == 1660.0,
+			"no players, no chips. One chip is at the right edge")
 
 
 func _round_length() -> void:

@@ -39,7 +39,8 @@ One row for each session with the devices. The *Run* ID is used in the result ta
 |-----|------|--------|-----------------|-----------|--------|---------|-------|
 | R0 | before 2026-10-08 | (not written down) | prototype, before `main` a599ca3 | TV app on a desktop (not a TV box) | 1 phone | same Wi-Fi | The first run. The date and the build were not written down. |
 | R1 | 2026-10-09 | the project owner | branch `games/target-shoot`, HEAD `091cacf` (the app code is the same as `5603ac1`), debug APK installed with `tools/deploy.sh` over `adb connect` | Android TV, Android 10, Ethernet. Language Hebrew, region Israel (IL). Model not written down | not written down (the maze was played) | TV on Ethernet. Same home network | Reported in chat. No photos, videos or logs yet. Found 4 problems (Tests 1, 8, 8b), all fixed in code on `games/target-shoot` and waiting for a retest. Run R2 is the retest. |
-| R2 | | | | | | | |
+| R2 | 2026-10-09 | the project owner | build with Snowball Splat. The commit was not written down | not written down | not written down | not written down | Reported in chat. Only the problem with the score chip was reported. Everything else of the new game is not reported yet. |
+| R3 | | | | | | | |
 
 ## Summary
 
@@ -56,7 +57,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (set to Hebrew for item 7) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
 | [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-50 | Not run |  | |
-| [10](#test-10) | Snowball Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned, retest) | R1 | |
+| [10](#test-10) | Snowball Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
 
@@ -395,7 +396,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 | 3 | Note: drift in cm after 40 s; video of RECENTER | Not run | | | |
 | 4 | Video: a hit, a miss with the poof, B does nothing; note the buzzes | Not run | | | |
 | 5 | Photo of the Puffs and the cursor from the sofa; note on the speed | Not run | | | |
-| 6 | Photo of the result menu with the medal; the score; note on the tiers | Not run | | | |
+| 6 | Photo of the result menu with the medal; the score; note on the tiers | Retest | R2 | Chat report 2026-10-09 (no file) | R2: while playing, 'when in the game and the score is above 3 digits, the last digit isn't visible'. The name-and-score chip at the top was a fixed 250 px wide and cut the text. Fixed on 2026-10-09 (REQ-GM-46): the chip is as wide as its content, and a long name is not cut (the chip gets wider, or goes to a second row). The rest of the round (feel, medal, tiers) was not reported. Retest, and check scores of 4 and 5 digits and a long phone name. |
 | 7 | Photo of two phones' cursors and the same Puffs; overlay FPS with 4 phones | Not run | | | |
 | 8 | Video: Wi-Fi off during a round, then the card | Not run | | | |
 | 9 | Short video of the child playing (only with the permission of the parent); the age and the words of the child | Not run | | | |
@@ -412,6 +413,7 @@ Values to write down (items 2, 3, 5 and 6). These decide the first tuning values
 
 History:
 
+- R2: the owner played the new game and reported one problem: the last digit of a score above 3 digits was not visible in the chip at the top. Fixed on 2026-10-09. Nothing else was reported, so the other items stay not run.
 - R1: **Fail**, then redesigned. The owner tried the first version ("Target Shoot", small fast targets, a lock after a miss, decoys) and said: "I don't think it's playable in its current definition." They asked for something like Duck Hunt with larger and slowly moving targets, no penalty for a miss, and a game that is also for kids, so not shooting but for example throwing snowballs at a made-up character. Changed on 2026-10-09: the game is now Snowball Splat (REQ-SS-*), and REQ-GM-80 to 84 are new for all games. Which steps failed was not reported. The whole test needs a run with the new game.
 
 ## Test 11

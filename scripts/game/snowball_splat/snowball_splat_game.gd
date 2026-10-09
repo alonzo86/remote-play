@@ -18,7 +18,8 @@ const MEDAL_TIERS := [150, 300, 450]   # Bronze, silver, gold for one player (RE
 # The play area is the screen inside the margin, under the HUD (REQ-SS-3).
 const AREA_TOP := 150.0
 const AREA_MARGIN := 60.0
-const TIMER_X := 600.0          # The timer pill has a fixed place, between the title and the chips.
+const TIMER_X := 560.0          # The timer pill has a fixed place, between the title and the chips.
+const TIMER_W := 160.0          # The chips of 4 players are at most 1110 px wide, so they start right of the timer.
 const HINT_TIME := 4.0          # Seconds of play with the hint on the screen.
 
 # Look (REQ-SS-12, REQ-GM-47). The board is dark so that every player color has a contrast of 3:1 or more.
@@ -340,12 +341,15 @@ func _draw_cursor(t: Thrower) -> void:
 func _draw_hud() -> void:
 	Shell.title(self, "SNOWBALL SPLAT")
 	var ordered := Shell.in_slot_order(participants.map(func(s: int) -> Object: return player(s)))
-	var spots := Shell.chip_positions(size.x, ordered.size())
+	var widths: Array = []
+	for p in ordered:
+		widths.append(Shell.score_chip_width(p.player_name, str(int(_board.score(p.slot)))))
+	var spots := Shell.chip_row_positions(size.x, widths, 36.0, 10.0, size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
 	for i in ordered.size():
 		var p: PlayerInput = ordered[i]
-		Shell.chip(self, spots[i], "%s  %d" % [p.player_name, int(_board.score(p.slot))], p.color)
+		Shell.score_chip(self, spots[i], p.player_name, str(int(_board.score(p.slot))), p.color, widths[i])
 	if _round.is_playing() and not is_over:
-		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining())
+		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
 		Shell.countdown(self, size, str(n) if n > 0 else "GO", _round.count_elapsed())
