@@ -12,7 +12,7 @@ This file is a plan, not a requirements file. Each game gets its own `docs/games
 - Game pull requests merge one at a time. All games touch the same few files (`registry.gd`, the status table in `GAME_REQUIREMENTS.md`, `MANUAL_TESTS.md`, `smoke_tv.gd`, the `WAIT` table in `tools/make_tiles.gd`), so a branch updates from `main` before its pull request is ready. The conflicts are small.
 - Branch names: `games/<id>` (for example `games/target-shoot`). A session needs permission to create them.
 - Recenter is the RECENTER button of the phone only (REQ-GM-37). It already works in every game (`{"t":"recenter"}`, `tv_server.gd`). A and B are free for game actions. The maze shortcut "A recenters" is removed.
-- Pointer tuning (Target Shoot) is checked on a real phone and TV with the `device-test` skill.
+- Pointer tuning (Snowball Splat) is checked on a real phone and TV with the `device-test` skill.
 
 ## Why helpers first
 
@@ -55,7 +55,7 @@ Maze and Marble Race both use `open_results()`. Their result menus now list all 
 | # | Branch | Content | Players | Input | Competitive mode | Solo mode | Needs |
 |---|--------|---------|---------|-------|------------------|-----------|-------|
 | 0 | PR 12 | Common helpers (step 0a, then 0b) | | | | | none |
-| 1 | `games/target-shoot` | Target Shoot (`target_shoot`) | 1 to 4 | pointer, A | Same targets for all. Most points in 45 s wins. Some targets give more. | Score attack against medal tiers | 0 |
+| 1 | `games/target-shoot` | Snowball Splat (`snowball_splat`, first made as "Target Shoot"; the branch name stayed) | 1 to 4 | pointer, A | Throw snowballs at big, slow, friendly Puffs. Same Puffs for all. Most points in 60 s wins. No penalty for a miss. | Score attack against medal tiers | 0 |
 | 2 | `games/paint-grab` | Paint Grab (`paint_grab`), builds `TiltBody` | 1 to 4 | tilt | Roll over tiles to claim them. Others can take them back. Most area at 60 s wins. | Cover 80% of the board before time ends | 0 |
 | 3 | `games/dodge-storm` | Dodge Storm (`dodge_storm`) | 1 to 4 | tilt | Hazards fall. The last player standing wins. | Survive as long as possible, against medal tiers | 2 (`TiltBody`) |
 | 4 | `games/tilt-snake` | Tilt Snake (`tilt_snake`) | 1 to 4 | tilt | Eat pickups to grow. A hit on any tail removes you. The last one alive wins. | High score against medal tiers | 2 (`TiltBody`) |
@@ -63,10 +63,23 @@ Maze and Marble Race both use `open_results()`. Their result menus now list all 
 
 Order and dependencies:
 - Branch 0 is merged first. Branches 1 and 2 need only branch 0, so they do not wait for each other.
-- Target Shoot goes first because it has the biggest unknown: pointer drift and calibration. It reads `pointer()`, not tilt, so it does not use `TiltBody`.
+- Snowball Splat goes first because it has the biggest unknown: pointer drift and calibration. It reads `pointer()`, not tilt, so it does not use `TiltBody`.
 - `TiltBody` is built in the Paint Grab branch, with its first user. Dodge Storm, Tilt Snake and Sumo Bumpers reuse it, so they start after Paint Grab is merged.
   (If one of them has to start earlier, `TiltBody` moves into its own small branch before all of them.)
 - Tilt Snake needs extra tests for a player who leaves while the tail is on the board (REQ-GM-21).
+
+## Games for children too
+
+Decision (2026-10-09, after the first try of "Target Shoot"): all games are also for children (REQ-GM-80 to 84 in `docs/GAME_REQUIREMENTS.md`).
+No shooting or fighting: made-up friendly characters, snowballs, bumpers, funny reactions. A miss or a fall costs nothing. Large and slow at the start.
+What this means for the games that are not built yet. The decision is made in the requirements file of each game:
+
+| Game | Check against REQ-GM-80 to 84 |
+|------|--------------------------------|
+| Paint Grab | Fine: roll and paint. Use bright, friendly colors. |
+| Dodge Storm | "The last player standing" means a player is out and waits (REQ-GM-83). A hit should be a funny bump, and the player is back in the game after a few seconds. The hazards are soft and funny (balloons, snowflakes, rubber ducks), not dangerous things. |
+| Tilt Snake | "A hit on a tail removes you" is too harsh. A hit makes the snake short again and it goes on. The snake is a friendly made-up creature. |
+| Sumo Bumpers | Cartoon bumpers that bounce each other off a platform. A player who falls off comes back in the next round (a round is short). No fighting words. |
 
 ## Rules that apply to every game branch
 

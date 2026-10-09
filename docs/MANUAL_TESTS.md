@@ -56,7 +56,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (set to Hebrew for item 7) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
 | [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-50 | Not run |  | |
-| [10](#test-10) | Target Shoot (pointer) | 1 to 4 phones, 1 TV | REQ-TS-*, RISKS A4, REQ-GM-37, REQ-GM-50 | Not run |  | |
+| [10](#test-10) | Snowball Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned, retest) | R1 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
 
@@ -227,7 +227,7 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 2. Lock the phone screen for 10 seconds, then unlock. Check: the phone reconnects. (Android can stop the app in the background.)
 3. Switch the phone Wi-Fi off for 40 seconds. Check: the slot is freed. When the Wi-Fi is back, the phone joins again (maybe in a different slot).
 4. Switch one phone Wi-Fi off again and wait for the card. Choose **Resume without P2**. Check: the game continues without that player. Switch the Wi-Fi on. Check: the phone joins again as a new player and waits for the next round.
-5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "P1 lost connection" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Target Shoot. Press Back on the card. Check: it asks "End the game?".
+5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "P1 lost connection" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Snowball Splat. Press Back on the card. Check: it asks "End the game?".
 6. On the phone pad, tap **Leave** once. Check: it turns red ("Again") for 3 seconds and the phone does not leave. Tap again within 3 seconds: it leaves. Check the pad buttons: A is green and B is red, both sink when pressed.
 7. Phone call: with one phone in a game, call that phone from another phone and answer. Check: the game pauses with the card. End the call and go back to the controller app. Check: the phone says "Reconnecting..." and then joins again, the card says "P1 reconnected" with **Resume**, and **Resume** goes on with the game. Try a call that lasts more than 1 minute (the slot is kept 5 minutes while the game is paused). Write down how long the phone needs to reconnect after the call. (REQ-GM-30, 30a)
 
@@ -239,7 +239,7 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 | 2 | Note: did the phone reconnect | Not run | | | |
 | 3 | Photo of the Connect or Games screen after 40 s and after the join again | Not run | | | |
 | 4 | Video: Resume without P2 with a lost phone, and the phone that joins again | Not run | | | |
-| 5 | Photo of the card of the only player lost (End game only), and of the card after the return (Resume); in the maze, the race and Target Shoot | Retest | R1 | Chat report 2026-10-09 (no file) | R1: a phone call stopped the game ('as expected') and the TV showed 'No players connected'. After the call there was no way to resume. The owner asked for a message that says which player disconnected, with Resume only when a player is still connected or the disconnected player is back. Changed on 2026-10-09 (REQ-GM-30, 30a): the game waits with a card, there is no Resume while nobody is connected, and Resume shows when the phone is back. The slot is kept 5 minutes while paused. The old check ('No players connected' at once) is gone. Retest. |
+| 5 | Photo of the card of the only player lost (End game only), and of the card after the return (Resume); in the maze, the race and Snowball Splat | Retest | R1 | Chat report 2026-10-09 (no file) | R1: a phone call stopped the game ('as expected') and the TV showed 'No players connected'. After the call there was no way to resume. The owner asked for a message that says which player disconnected, with Resume only when a player is still connected or the disconnected player is back. Changed on 2026-10-09 (REQ-GM-30, 30a): the game waits with a card, there is no Resume while nobody is connected, and Resume shows when the phone is back. The slot is kept 5 minutes while paused. The old check ('No players connected' at once) is gone. Retest. |
 | 6 | Photo of the red Leave button ('Again'), and of the pad buttons | Not run | | | |
 | 7 | Video of a phone call: the card, the return, Resume. Note how long the phone needs to reconnect | Not run | | | |
 
@@ -365,24 +365,26 @@ History:
 
 ## Test 10
 
-### Target Shoot (pointer)
+### Snowball Splat (pointer)
 
-Needs: 1 to 4 phones, 1 TV. Covers: REQ-TS-*, RISKS A4, REQ-GM-37, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50.
 
-Needs 1 to 4 phones. Hold each phone like a remote control, pointing at the TV, from the sofa. This is the first game that uses the
+Hold each phone like a remote control, pointing at the TV, from the sofa. This is the first game that uses the
 gyroscope pointer, so this test also checks the pointer itself (the old Test 5 for drift was removed).
+The game was "Target Shoot" until 2026-10-09: it was changed after the first try (see History).
 
 
 **Steps**
 
-1. Start **Target Shoot** with 1 phone. Hold the phone toward the TV during "3, 2, 1" and press nothing. Check: a cursor ring in the player color follows the phone, a shot in the countdown does nothing, and at "GO" the cursor is in the middle of the screen. (REQ-TS-1, 2)
-2. Move the phone left, right, up and down. Check: the cursor moves the same way on the screen. Write down if the cursor is too fast or too slow for the distance from the sofa, and if you need a big arm movement to reach the corners. (`pointer_range_deg` in `orientation.gd`, REQ-TS-3)
+1. Start **Snowball Splat** with 1 phone. Hold the phone toward the TV during "3, 2, 1" and press nothing. Check: a cursor ring in the player color follows the phone, a throw in the countdown does nothing, and at "GO" the cursor is in the middle of the screen. (REQ-SS-1, 2)
+2. Move the phone left, right, up and down. Check: the cursor moves the same way on the screen. Write down if the cursor is too fast or too slow for the distance from the sofa, and if you need a big arm movement to reach the corners. (`pointer_range_deg` in `orientation.gd`, REQ-SS-3)
 3. Hold the phone still for 40 seconds. Check: the cursor stays where it is. Write down how far it drifted (in cm on the screen). Tap **RECENTER**. Check: the cursor goes to the middle. (RISKS A4, REQ-GM-37)
-4. Press **A** on a target. Check: the target goes, the points show, the phone buzzes a little. Press A on empty space. Check: a short buzz, the cursor fades, and A does nothing for about half a second. Press B. Check: nothing happens. (REQ-TS-4 to 6)
-5. Check that the three target kinds are easy to tell apart from the sofa: cyan (10), small yellow (25) and the pink square with an X (-15). Check that the cursor and its number are easy to see on the dark board. (REQ-TS-12)
-6. Play a full round alone. Write down the score. Check the medal at the end and compare with the tiers [200, 350, 500]: are they too easy or too hard? (REQ-TS-15)
-7. Play with 2 to 4 phones. Check: both players see the same targets. Two players shoot the same target: only the first one scores. Check the frame rate in the debug overlay with 4 players (60 expected). (REQ-TS-11, REQ-GM-50)
-8. Switch one phone Wi-Fi off during a round. Check: the game pauses and then goes on, and the cursor and score of a phone that left are gone. (REQ-TS-16)
+4. Press **A**. Check: a snowball flies to the cursor. When it lands on a Puff, the Puff gets snow on top, closes its eyes happily and floats away, the points show, and the phone buzzes a little. When it lands on empty sky, a white poof shows, nothing is lost, and you can throw again after a moment. Press B. Check: nothing happens. (REQ-SS-4 to 6, 13)
+5. Check the Puffs from the sofa. Check: they are big and slow enough to hit with a pointer, they are easy to tell apart (pink, cyan and green Puffs for 10 points, the smaller yellow Little Puff for 25 points), and the cursor and its number are easy to see on the dark sky. Write down if the speed is right for an adult and for a child. (REQ-SS-7, 12)
+6. Play a full round of 60 seconds alone. Write down the score. Check the medal at the end and compare with the tiers [150, 300, 450]: are they too easy or too hard? (REQ-SS-16)
+7. Play with 2 to 4 phones. Check: all players see the same Puffs. Two players throw at the same Puff: the one who threw first gets it. Check the frame rate in the debug overlay with 4 players (60 expected). (REQ-SS-11, REQ-GM-50)
+8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "P2 lost connection". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
+9. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint and a few seconds of play, hits some Puffs, is not frustrated or scared, and wants to play again. Write down the age and what the child said or did. (REQ-GM-80 to 84, REQ-SS-17)
 
 **Results**
 
@@ -391,24 +393,26 @@ gyroscope pointer, so this test also checks the pointer itself (the old Test 5 f
 | 1 | Video of the countdown and GO: the cursor in the middle | Not run | | | |
 | 2 | Note: range too small or too big; video of the cursor in the four directions | Not run | | | |
 | 3 | Note: drift in cm after 40 s; video of RECENTER | Not run | | | |
-| 4 | Video: hit, miss with the fade and the lock, B does nothing; note the buzzes | Not run | | | |
-| 5 | Photo of the three target kinds and the cursor from the sofa | Not run | | | |
+| 4 | Video: a hit, a miss with the poof, B does nothing; note the buzzes | Not run | | | |
+| 5 | Photo of the Puffs and the cursor from the sofa; note on the speed | Not run | | | |
 | 6 | Photo of the result menu with the medal; the score; note on the tiers | Not run | | | |
-| 7 | Photo of two phones' cursors and the same targets; overlay FPS with 4 phones | Not run | | | |
-| 8 | Video: Wi-Fi off during a round, then the round goes on | Not run | | | |
+| 7 | Photo of two phones' cursors and the same Puffs; overlay FPS with 4 phones | Not run | | | |
+| 8 | Video: Wi-Fi off during a round, then the card | Not run | | | |
+| 9 | Short video of the child playing (only with the permission of the parent); the age and the words of the child | Not run | | | |
 
-Values to write down (items 2, 3 and 6). These decide the first tuning values of the game:
+Values to write down (items 2, 3, 5 and 6). These decide the first tuning values of the game:
 
 | Value | Result | Run | Notes |
 |-------|--------|-----|-------|
 | Pointer range: comfortable half range in degrees (now 25, `pointer_range_deg`) | | | |
 | Drift after 40 s still (cm on the screen) | | | |
-| Score of a full round alone, and the medal (tiers 200, 350, 500) | | | |
+| Speed of the Puffs for an adult and for a child (now 100 and 160 px/s) | | | |
+| Score of a full round alone, and the medal (tiers 150, 300, 450) | | | |
 | Frame rate with 4 phones (aim 60) | | | |
 
 History:
 
-- -: **Not run**. New. This is the first game with the gyroscope pointer. It also decides: the pointer range, the drift, the medal tiers [200, 350, 500] and the target sizes.
+- R1: **Fail**, then redesigned. The owner tried the first version ("Target Shoot", small fast targets, a lock after a miss, decoys) and said: "I don't think it's playable in its current definition." They asked for something like Duck Hunt with larger and slowly moving targets, no penalty for a miss, and a game that is also for kids, so not shooting but for example throwing snowballs at a made-up character. Changed on 2026-10-09: the game is now Snowball Splat (REQ-SS-*), and REQ-GM-80 to 84 are new for all games. Which steps failed was not reported. The whole test needs a run with the new game.
 
 ## Test 11
 
@@ -416,7 +420,7 @@ History:
 
 Needs: 1 to 4 phones, 1 TV. Covers: REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31.
 
-1 to 4 phones. Tests the ranked result menu that both games and Target Shoot use. New. Added with the shared game code (PR 12).
+1 to 4 phones. Tests the ranked result menu that both games and Snowball Splat use. New. Added with the shared game code (PR 12).
 
 **Steps**
 
@@ -426,7 +430,7 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, 
 4. Marble Race with 4 phones: let one marble finish and wait about 4 seconds for the end. Check: the marbles that did not finish are listed as 'not finished', the furthest first.
 5. Marble Race, at the results: choose **Choose track**, then **Cancel**. Check: the results come back with the same list.
 6. Marble Race: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **Choose track** and **Cancel**. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
-7. Target Shoot with 1 phone: play a full round. Check: the title is a medal ('Bronze medal!', 'Silver medal!', 'Gold medal!') or 'No medal this time', and the list has one row with the score. With 2 phones: the title names the winner, or says 'Tie!' for equal scores.
+7. Snowball Splat with 1 phone: play a full round. Check: the title is a medal ('Bronze medal!', 'Silver medal!', 'Gold medal!') or 'No medal this time', and the list has one row with the score. With 2 phones: the title names the winner, or says 'Tie!' for equal scores.
 
 **Results**
 
@@ -457,7 +461,7 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 1. Open the Games screen. Check: every game has a tile with its screenshot, title and player range, and the text is easy to read from the sofa.
 2. For each game, compare its tile with a photo of the game running. Check: the tile shows the same look (colors, outline, shapes) as the game, and the Games screen and the games look like one toy box.
 3. Check the tiles of **Tilt Maze** and **Marble Race**. They were made before the chip style changed: they may still show 'P1 Phone 1' on the chips. If the tile and the game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
-4. Check the tile of **Target Shoot**: it shows the blue board, targets, two cursors with their numbers and the hint. Check that the cursor and the targets can be seen at the small size of the tile.
+4. Check the tile of **Snowball Splat**: it shows the night sky, the Puffs, two cursors with their numbers and the hint. Check that the cursor and the targets can be seen at the small size of the tile.
 
 **Results**
 

@@ -12,9 +12,9 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
-const WAIT := {"maze": 4.6, "marble_race": 5.4, "target_shoot": 6.2}
+const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
-const AIM_GYRO := {"target_shoot": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55)]}
+const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55)]}
 
 var _seq := [0, 0]
 

@@ -504,161 +504,189 @@ func _run() -> void:
 	third.leave()
 	await _frames(3)
 
-	# Target Shoot (REQ-TS-1 to 16): aim, shots, points, the end. Each step sets up its own state, because the real game also
-	# ticks in the frames that are awaited. A step without an await is one tick of the game.
-	var ts_script: GDScript = Registry.load_script("target_shoot")
-	app.go(ts_script, {"seed": 7})
+	# Snowball Splat (REQ-SS-1 to 17): aim, throws, Puffs, points, the end. Each step sets up its own state, because the real
+	# game also ticks in the frames that are awaited. A step without an await is one tick of the game.
+	var ss_script: GDScript = Registry.load_script("snowball_splat")
+	app.go(ss_script, {"seed": 7})
 	await _frames(3)
-	var ts: Control = app.current_screen()
+	var ss: Control = app.current_screen()
 	var p0 = app.server.players[0]
 	var p1 = app.server.players[1]
-	var area: Rect2 = ts._area()
-	_check(is_instance_of(ts, ts_script) and ts.participants.size() == 2 and ts._shooters.size() == 2,
-			"target shoot starts with 2 players")
-	_check(ts._round.is_counting() and ts._field.targets.is_empty(), "the round starts with the countdown and no target (REQ-TS-1)")
+	var area: Rect2 = ss._area()
+	_check(is_instance_of(ss, ss_script) and ss.participants.size() == 2 and ss._throwers.size() == 2,
+			"snowball splat starts with 2 players")
+	_check(ss._round.is_counting() and ss._field.puffs.is_empty(), "the round starts with the countdown and no Puff (REQ-SS-1)")
 	p0.button_pressed.emit(Protocol.BTN_A)
-	_check(ts._presses.is_empty(), "a shot in the countdown does nothing (REQ-TS-1)")
-	var aim_x: float = ts._shooters[0].aim.x
+	_check(ss._presses.is_empty(), "a throw in the countdown does nothing (REQ-SS-1)")
+	var aim_x: float = ss._throwers[0].aim.x
 	p0.orientation.yaw += deg_to_rad(-12.5)   # Half of the 25 degree range, to the right.
 	await _frames(3)
-	_check(absf(ts._shooters[0].aim.x - aim_x - area.size.x * 0.25) < 1.0,
-			"the cursor follows the pointer during the countdown: 12.5 degrees is a quarter of the width (REQ-TS-3)")
+	_check(absf(ss._throwers[0].aim.x - aim_x - area.size.x * 0.25) < 1.0,
+			"the cursor follows the pointer during the countdown: 12.5 degrees is a quarter of the width (REQ-SS-3)")
 	haptics.clear()
-	ts._round.time = -0.005
-	ts._game_tick(0.01)   # The countdown ends: every phone recenters and buzzes.
-	ts._game_tick(0.01)
-	_check(ts._round.is_playing() and ts._shooters[0].aim.distance_to(area.get_center()) < 1.0,
-			"at GO the pose of the phone is the center of the screen (REQ-TS-2)")
-	_check(ts._field.targets.size() == 1, "the first target appears at once (REQ-TS-8)")
-	var first_uv: Vector2 = ts._field.targets[0].uv
+	ss._round.time = -0.005
+	ss._game_tick(0.01)   # The countdown ends: every phone recenters and buzzes.
+	ss._game_tick(0.01)
+	_check(ss._round.is_playing() and ss._throwers[0].aim.distance_to(area.get_center()) < 1.0,
+			"at GO the pose of the phone is the center of the screen (REQ-SS-2)")
+	_check(ss._field.puffs.size() == 1, "the first Puff comes at once (REQ-SS-9)")
+	var first_lane: int = ss._field.puffs[0].lane
+	var first_color: int = ss._field.puffs[0].color_index
 	await _frames(8)
 	_check(haptics.has(60), "GO buzzes the phone 60 ms: %s" % str(haptics))
 
-	var put := func(kind: String, uv: Vector2) -> void:
-		ts._field.targets.clear()
-		var t = ts.TargetField.Target.new()
-		t.kind = kind
-		t.uv = uv
-		t.radius = ts.TargetField.KINDS[kind].radius
-		t.points = ts.TargetField.KINDS[kind].points
-		t.life_left = 99.0
-		ts._field.targets.append(t)
+	# A Puff that stands still in the middle of the screen, in lane 1 (a Puff), or lane 0 (a Little Puff).
+	var put := func(lane: int, x: float, y: float) -> void:
+		ss._field.puffs.clear()
+		var pf = ss.PuffField.Puff.new()
+		pf.lane = lane
+		pf.kind = ss.PuffField.LANES[lane].kind
+		pf.dir = ss.PuffField.LANES[lane].dir
+		pf.lane_y = y
+		pf.x = x
+		pf.radius = ss.PuffField.KINDS[pf.kind].radius
+		pf.points = ss.PuffField.KINDS[pf.kind].points
+		pf.speed = 0.0
+		ss._field.puffs.append(pf)
 	var ready_all := func() -> void:
-		for sh in ts._shooters.values():
-			sh.reload_left = 0.0
-			sh.lock_left = 0.0
-		ts._haptics = ts.Haptics.new()
-	var center := Vector2(0.5, 0.5)
-	ts._board.set_score(0, 0.0)
-	ts._board.set_score(1, 0.0)
+		for t in ss._throwers.values():
+			t.reload_left = 0.0
+		for f in ss._flights:
+			f.age = -1.0
+		ss._presses.clear()
+		ss._haptics = ss.Haptics.new()
+	var in_air := func() -> int:
+		return ss._flights.filter(func(f): return f.age >= 0.0).size()
+	var mid_x: float = ss.PuffField.REF_AREA.x * 0.5
+	var mid_y: float = ss.PuffField.REF_AREA.y * 0.5
+	ss._board.set_score(0, 0.0)
+	ss._board.set_score(1, 0.0)
 	haptics.clear()
 	ready_all.call()
-	put.call("standard", center)
+	put.call(1, mid_x, mid_y)
 	p0.button_pressed.emit(Protocol.BTN_A)
-	ts._game_tick(0.01)
-	_check(ts._board.score(0) == 10.0 and ts._field.targets.is_empty(),
-			"a shot at a standard target takes it and gives 10 points (REQ-TS-10)")
+	ss._game_tick(0.01)
+	_check(in_air.call() == 1 and ss._board.score(0) == 0.0 and ss._field.puffs.size() == 1,
+			"a throw sends a snowball into the air first: nothing is hit yet (REQ-SS-6)")
+	ss._haptics = ss.Haptics.new()   # The gap between two buzzes is in real time. The ticks of this test are not.
+	ss._game_tick(0.2)
+	_check(ss._board.score(0) == 10.0 and ss._field.puffs.is_empty() and in_air.call() == 0,
+			"the snowball lands and takes the Puff: 10 points (REQ-SS-10)")
+	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "hit" and e.text == "+10"),
+			"the Puff floats away with its points (REQ-SS-13)")
 	await _frames(8)
-	_check(haptics == [30], "a hit buzzes the shooter 30 ms: %s" % str(haptics))
+	_check(haptics == [15, 40], "a throw buzzes 15 ms and a hit 40 ms: %s" % str(haptics))
 
-	# Reload, miss and lock (REQ-TS-5, 6).
+	# Reload (REQ-SS-4).
 	ready_all.call()
-	put.call("standard", center)
+	put.call(1, mid_x, mid_y)
 	p0.button_pressed.emit(Protocol.BTN_A)
-	ts._game_tick(0.01)
-	put.call("standard", center)
+	ss._game_tick(0.01)
 	p0.button_pressed.emit(Protocol.BTN_A)
-	ts._game_tick(0.01)
-	_check(ts._board.score(0) == 20.0 and ts._field.targets.size() == 1, "a press inside the 0.25 s reload does nothing (REQ-TS-5)")
+	ss._game_tick(0.01)
+	_check(in_air.call() == 1, "a press inside the 0.3 s reload does nothing")
+	ss._game_tick(0.2)
+	_check(ss._board.score(0) == 20.0, "the first snowball landed: 20 points")
+	ss._game_tick(0.2)
+	put.call(1, mid_x, mid_y)
 	p0.button_pressed.emit(Protocol.BTN_A)
-	ts._game_tick(0.3)
-	_check(ts._board.score(0) == 30.0, "after the reload the next shot works")
-	ts._game_tick(0.3)
+	ss._game_tick(0.01)
+	ss._game_tick(0.2)
+	_check(ss._board.score(0) == 30.0, "after the reload the next throw works")
+
+	# A miss costs nothing (REQ-SS-5).
+	await _frames(8)   # The buzzes of the throws before arrive first.
+	ready_all.call()
+	put.call(1, 300.0, mid_y)   # Far from the cursor, which is in the middle.
 	haptics.clear()
-	ready_all.call()
-	put.call("standard", Vector2(0.1, 0.1))
 	p0.button_pressed.emit(Protocol.BTN_A)
-	ts._game_tick(0.01)
-	var sh0: Object = ts._shooters[0]
-	_check(ts._board.score(0) == 30.0 and is_equal_approx(sh0.lock_left, ts.MISS_LOCK) and not sh0.can_fire(),
-			"a miss gives no points and locks the fire for 0.6 s (REQ-TS-6)")
-	put.call("standard", center)
-	p0.button_pressed.emit(Protocol.BTN_A)
-	ts._game_tick(0.3)
-	_check(ts._board.score(0) == 30.0 and ts._field.targets.size() == 1, "a press in the lock does nothing")
-	ts._game_tick(0.31)
-	p0.button_pressed.emit(Protocol.BTN_A)
-	ts._game_tick(0.01)
-	_check(ts._board.score(0) == 40.0, "after the lock the next shot works")
+	ss._game_tick(0.01)
+	ss._game_tick(0.2)
+	_check(ss._board.score(0) == 30.0 and ss._field.puffs.size() == 1,
+			"a snowball that misses takes nothing and loses nothing (REQ-SS-5)")
+	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "poof"), "a miss makes a poof of snow")
+	_check(ss._throwers[0].reload_left <= ss.RELOAD, "a miss does not make the player wait longer than the reload")
 	await _frames(8)
-	_check(haptics.has(15), "a miss buzzes the shooter 15 ms: %s" % str(haptics))
+	_check(haptics == [15],
+			"there is a short buzz for the throw. A miss has no buzz of its own, only a hit has one: %s" % str(haptics))
+	ss._game_tick(0.35)
+	put.call(1, mid_x, mid_y)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ss._game_tick(0.01)
+	ss._game_tick(0.2)
+	_check(ss._board.score(0) == 40.0, "after a miss and the reload the next throw works")
 
-	# Two players, one target: the first press wins (REQ-TS-11).
+	# Two players, one Puff: the snowball that was thrown first wins (REQ-SS-11).
 	ready_all.call()
-	put.call("small", center)
+	put.call(1, mid_x, mid_y)
 	p1.button_pressed.emit(Protocol.BTN_A)
 	p0.button_pressed.emit(Protocol.BTN_A)
-	ts._game_tick(0.01)
-	_check(ts._board.score(1) == 25.0 and ts._board.score(0) == 40.0 and ts._shooters[0].lock_left > 0.5,
-			"two shots at one target: the first press gets 25 points, the second is a miss (REQ-TS-11)")
-
-	# A decoy takes 15 points, and a score never goes below 0 (REQ-TS-7, 10).
-	await _frames(8)   # The buzz of the shot before arrives first.
+	ss._game_tick(0.01)
+	ss._game_tick(0.2)
+	_check(ss._board.score(1) == 10.0 and ss._board.score(0) == 40.0,
+			"two throws in one tick: the first press gets the Puff, in the order of the presses and not of the slots")
 	ready_all.call()
-	ts._board.set_score(0, 10.0)
-	haptics.clear()
-	put.call("decoy", center)
+	put.call(1, mid_x, mid_y)
 	p0.button_pressed.emit(Protocol.BTN_A)
-	ts._game_tick(0.01)
-	_check(ts._board.score(0) == 0.0, "a decoy takes 15 points but the score stops at 0 (REQ-TS-10)")
-	await _frames(8)
-	_check(haptics == [60], "a decoy buzzes the shooter 60 ms: %s" % str(haptics))
+	ss._game_tick(0.05)
+	p1.button_pressed.emit(Protocol.BTN_A)
+	ss._game_tick(0.2)
+	_check(ss._board.score(0) == 50.0 and ss._board.score(1) == 10.0,
+			"a snowball that was thrown earlier lands earlier and takes the Puff")
 
-	# B does nothing. Nothing is shot while the game is paused (REQ-TS-4).
+	# A Little Puff is worth more (REQ-SS-7). B does nothing. Nothing is thrown while the game is paused (REQ-SS-4).
+	ready_all.call()
+	put.call(0, mid_x, mid_y)
+	p1.button_pressed.emit(Protocol.BTN_A)
+	ss._game_tick(0.01)
+	ss._game_tick(0.2)
+	_check(ss._board.score(1) == 35.0, "a Little Puff gives 25 points")
 	ready_all.call()
 	p0.button_pressed.emit(Protocol.BTN_B)
-	_check(ts._presses.is_empty(), "B does nothing")
-	ts.open_menu("Paused", [["Resume", ts.close_menu]])
+	_check(ss._presses.is_empty(), "B does nothing")
+	ss.open_menu("Paused", [["Resume", ss.close_menu]])
 	p0.button_pressed.emit(Protocol.BTN_A)
-	_check(ts._presses.is_empty(), "a press in the pause menu does nothing")
-	ts.close_menu()
+	_check(ss._presses.is_empty(), "a press in the pause menu does nothing")
+	ss.close_menu()
 
-	# The end of the round: ranking, winner, long buzz (REQ-TS-1, 15).
-	ts._board.set_score(0, 30.0)
-	ts._board.set_score(1, 10.0)
+	# The end of the round: ranking, winner, long buzz (REQ-SS-1, 16).
+	await _frames(8)   # The buzzes of the steps before arrive first.
+	ss._board.set_score(0, 30.0)
+	ss._board.set_score(1, 10.0)
 	haptics.clear()
-	ts._round.time = ts.ROUND_TIME - 0.005
-	ts._game_tick(0.01)
+	ss._round.time = ss.ROUND_TIME - 0.005
+	ss._game_tick(0.01)
 	await _frames(8)
-	var ts_rows: Array = []
-	for l in ts._menu_box.find_children("*", "Label", true, false):
-		ts_rows.append(l.text)
-	var ts_buttons: Array = ts.menu_buttons().map(func(b): return b.text)
-	_check(ts.is_over and ts_buttons == ["Restart", "Back to menu"] and ts_rows.size() == 3
-			and ts_rows[0] == p0.player_name + " wins!" and ts_rows[1].begins_with("1st") and ts_rows[1].ends_with("30")
-			and ts_rows[2].begins_with("2nd") and ts_rows[2].ends_with("10"),
-			"time up opens the ranking with the winner: %s" % str(ts_rows))
+	var ss_rows: Array = []
+	for l in ss._menu_box.find_children("*", "Label", true, false):
+		ss_rows.append(l.text)
+	var ss_buttons: Array = ss.menu_buttons().map(func(b): return b.text)
+	_check(ss.is_over and ss_buttons == ["Restart", "Back to menu"] and ss_rows.size() == 3
+			and ss_rows[0] == p0.player_name + " wins!" and ss_rows[1].begins_with("1st") and ss_rows[1].ends_with("30")
+			and ss_rows[2].begins_with("2nd") and ss_rows[2].ends_with("10"),
+			"time up opens the ranking with the winner: %s" % str(ss_rows))
 	_check(haptics == [400], "the winner buzzes 400 ms: %s" % str(haptics))
-	ts.restart()
+	ss.restart()
 	await _frames(3)
-	var ts2: Control = app.current_screen()
-	_check(ts2 != ts and ts2.start_props.get("seed") == 7 and ts2._round.is_counting(),
+	var ss2: Control = app.current_screen()
+	_check(ss2 != ss and ss2.start_props.get("seed") == 7 and ss2._round.is_counting(),
 			"Restart starts a new round with the same seed (REQ-GM-32)")
-	ts2._round.time = -0.005
-	ts2._game_tick(0.01)
-	ts2._game_tick(0.01)
-	_check(ts2._field.targets.size() == 1 and ts2._field.targets[0].uv == first_uv,
-			"the same seed gives the same first target (REQ-TS-9)")
-	# One player: the score is compared with the medal tiers (REQ-TS-15).
-	ts2._board.remove(1)
-	ts2._board.set_score(0, 400.0)
-	ts2._round.time = ts2.ROUND_TIME - 0.005
-	ts2._game_tick(0.01)
+	ss2._round.time = -0.005
+	ss2._game_tick(0.01)
+	ss2._game_tick(0.01)
+	var again: Array = ss2._field.puffs
+	_check(again.size() == 1 and again[0].lane == first_lane and again[0].color_index == first_color,
+			"the same seed gives the same first Puff (REQ-SS-9)")
+	# One player: the score is compared with the medal tiers (REQ-SS-16).
+	ss2._board.remove(1)
+	ss2._board.set_score(0, 400.0)
+	ss2._round.time = ss2.ROUND_TIME - 0.005
+	ss2._game_tick(0.01)
 	await _frames(3)
-	_check(ts2._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!",
-			"400 points alone earn silver (REQ-TS-15)")
+	_check(ss2._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!",
+			"400 points alone earn silver (REQ-SS-16)")
 
-	# A player who leaves takes the cursor and the score out (REQ-TS-16).
+	# A player who leaves takes the cursor, the score and the snowballs out (REQ-SS-16).
 	var fourth := ControllerClient.new()
 	fourth.player_name = "Fourth"
 	root.add_child(fourth)
@@ -666,14 +694,15 @@ func _run() -> void:
 	var t6 := Time.get_ticks_msec()
 	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t6 < 4000:
 		await process_frame
-	app.go(ts_script)
+	app.go(ss_script)
 	await _frames(3)
-	var ts3: Control = app.current_screen()
-	_check(ts3.participants.size() == 3 and ts3._shooters.size() == 3 and ts3._board.size() == 3, "target shoot with 3 phones")
+	var ss3: Control = app.current_screen()
+	_check(ss3.participants.size() == 3 and ss3._throwers.size() == 3 and ss3._board.size() == 3,
+			"snowball splat with 3 phones")
 	app.server.drop_player(fourth.slot)
 	await _frames(3)
-	_check(ts3.participants.size() == 2 and ts3._shooters.size() == 2 and ts3._board.size() == 2 and not ts3.is_paused(),
-			"a player who leaves takes the cursor and the score out and the round goes on (REQ-TS-16)")
+	_check(ss3.participants.size() == 2 and ss3._throwers.size() == 2 and ss3._board.size() == 2 and not ss3.is_paused(),
+			"a player who leaves takes the cursor and the score out and the round goes on (REQ-SS-16)")
 	fourth.leave()
 	await _frames(3)
 

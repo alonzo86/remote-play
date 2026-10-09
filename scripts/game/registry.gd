@@ -28,10 +28,10 @@ const GAMES: Array[Dictionary] = [
 				{"title": "Zigzag", "props": {"track_id": "zigzag"}},
 				{"title": "Gauntlet", "props": {"track_id": "gauntlet"}},
 			]},
-	{"id": "target_shoot", "doc": "res://docs/games/target_shoot.md", "title": "Target Shoot", "dim": "2d",
-			"description": "Aim your phone at the screen and press A to shoot the targets. The most points in 45 seconds wins.",
-			"tile": "res://assets/tiles/target_shoot.png",
-			"path": "res://scripts/game/target_shoot/target_shoot_game.gd", "min_players": 1, "max_players": 4},
+	{"id": "snowball_splat", "doc": "res://docs/games/snowball_splat.md", "title": "Snowball Splat", "dim": "2d",
+			"description": "Point your phone at the screen and press A to throw snowballs at the silly Puffs. Most points in 60 s wins.",
+			"tile": "res://assets/tiles/snowball_splat.png",
+			"path": "res://scripts/game/snowball_splat/snowball_splat_game.gd", "min_players": 1, "max_players": 4},
 ]
 
 

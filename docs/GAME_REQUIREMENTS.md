@@ -83,6 +83,14 @@ Scores and solo play
 - REQ-GM-72: The result screen of a game with scores is `open_results(board, tiers)`. It sets `is_over`. It shows the ranking (rank, name, score, a dot in the slot color), Restart and Back to menu. The title names the single winner (also with one player), or says "Tie!" when two players or more share the first rank, or "Round over" when nobody has a score. A player without a score (`set_unfinished()`) is listed after the others as "not finished", the furthest first. A game may add buttons between Restart and Back to menu (`extra_entries`, for example Choose track), and give the text of a score (`score_text`, for example "4.22 s").
 - REQ-GM-73: A game that works with one player lists three medal tiers `[bronze, silver, gold]` in its requirements file (`Medals`). With one player, the title of the result screen is the medal ("Gold medal!") or "No medal this time". A player who did not finish (`set_unfinished()`) gets no medal. The tiers are open tuning values until a device test. Nothing is saved: the player is not identified yet.
 
+Audience: children too
+
+- REQ-GM-80: Games are for children as well as adults (from about 5 years), played together on a sofa. A game is checked against REQ-GM-81 to 84 when it is made and in its device test.
+- REQ-GM-81: Content is friendly. No violence against people or animals, no weapons, no blood, injury or death, no scary pictures or sounds. A game can be playful: throw snowballs, bump, race, roll. The characters are made up, kind and funny. When something is "hit", it reacts in a funny way (it is covered with snow, it spins, it floats away). Nobody cries or falls down hurt.
+- REQ-GM-82: A child understands the game from one hint line and a few seconds of play. A player needs the pointer or the tilt and at most one button (A). Targets and objects are large. The pace is slow at the start. The text on the screen is short and plain.
+- REQ-GM-83: Mistakes are cheap. A miss, a fall or a bump takes no points away and gives no wait. A game in which a player can be out of the round (last one standing) keeps that wait short (about 20 seconds at most) or lets the player take part in another way. This is "should" for the games that are built on being out; the game file says how it meets it.
+- REQ-GM-84: Words are kind. Titles and messages are positive ("Nice throw!", "Splat!", "X wins!"). No text says "You lose", "Game over" or "Failed". A ranking shows the winner and the others without mockery.
+
 Performance
 
 - REQ-GM-50: A game runs at 60 frames per second on the target TV box with 4 players. (Device)
@@ -125,4 +133,4 @@ Tests
 |------|-------------------|
 | Tilt Maze (2D) | `docs/games/maze.md` |
 | Marble Race (3D) | `docs/games/marble_race.md` |
-| Target Shoot (2D) | `docs/games/target_shoot.md` |
+| Snowball Splat (2D) | `docs/games/snowball_splat.md` |

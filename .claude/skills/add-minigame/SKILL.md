@@ -3,7 +3,8 @@ name: add-minigame
 description: Add a new minigame to the Remote Play TV app. Use when asked to create a game, mode or level type.
 ---
 
-0. Write the requirements first. Copy `docs/games/TEMPLATE.md` to `docs/games/<id>.md` and fill it in. Read `docs/GAME_REQUIREMENTS.md`:
+0. The game is also for children (REQ-GM-80 to 84): friendly made-up characters, no violence, weapons or scary things; a mistake costs nothing; one hint line; large and slow at the start; positive texts. Plan the game with that rule, and say in the requirements file how it is met.
+   Write the requirements first. Copy `docs/games/TEMPLATE.md` to `docs/games/<id>.md` and fill it in. Read `docs/GAME_REQUIREMENTS.md`:
    the general requirements (all games, plus 2D or 3D) apply, and the game file lists its gaps and its own `REQ-<XX>-n` requirements.
    Show the file to the user before you write code if a requirement is a design choice.
 1. Create `scripts/game/<name>/<name>_game.gd` that `extends "res://scripts/game/minigame.gd"`. Look at `maze/maze_game.gd` and
