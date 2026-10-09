@@ -28,6 +28,8 @@ export COVERAGE_OUT
 	"$GODOT" --headless --path . --script tests/ui_states.gd -- --role=controller
 	echo "== game rules"
 	"$GODOT" --headless --path . --script tests/game_rules.gd -- --role=controller
+	echo "== lost phones (network)"
+	"$GODOT" --headless --path . --script tests/net_loss.gd -- --role=controller
 	echo "== game helpers"
 	"$GODOT" --headless --path . --script tests/game_helpers.gd -- --role=controller
 	echo "== TV smoke test"

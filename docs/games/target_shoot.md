@@ -69,7 +69,7 @@ End and players
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-TS-15 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Restart, Back to menu. With one player it shows the medal for the tiers [200, 350, 500] (bronze, silver, gold, REQ-GM-73). The tiers are open tuning values. | Done | smoke_tv |
-| REQ-TS-16 | A player who leaves takes the cursor and the score out, and the round goes on. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_tv |
+| REQ-TS-16 | A player who leaves takes the cursor and the score out, and the round goes on. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). A lost phone first pauses the round with the card of REQ-GM-30. | Done | smoke_tv |
 
 ## Parameters
 

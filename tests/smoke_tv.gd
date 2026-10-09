@@ -5,6 +5,7 @@ extends SceneTree
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const PlayerInput = preload("res://scripts/input/player_input.gd")
 var MazeGame
 var MarbleRace
 var Registry
@@ -280,15 +281,60 @@ func _run() -> void:
 	_check(moved > 15.0, "ball 0 rolls right when the phone tilts right (moved %.0f px)" % moved)
 	_check(absf(game._balls[1].pos.x - start_x1) < 5.0, "ball 1 stays (flat phone)")
 
-	# Pause on lost player: kill phone 1's socket and look at the game state.
-	clients[1]._ws.close()
-	await _frames(30)
-	_check(game.is_paused() or game.lost_participants().size() == 1 or clients[1].state == ControllerClient.State.CONNECTED,
-			"game pauses (or phone already back) when a phone drops")
+	# A phone goes silent (like a phone that lost its Wi-Fi: its connection stays open but nothing arrives).
+	# The game pauses with a card. It goes on only when the TV user chooses (REQ-GM-30, 30a).
+	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
+	clients[1].set_process(false)
 	var t1 := Time.get_ticks_msec()
-	while not game.lost_participants().is_empty() and Time.get_ticks_msec() - t1 < 5000:
+	while not game._hold and Time.get_ticks_msec() - t1 < 8000:
 		await process_frame
-	_check(game.lost_participants().is_empty(), "game resumes after the phone reconnects")
+	await _frames(3)
+	_check(game._hold and game.is_paused() and game.lost_participants() == [1],
+			"a silent phone makes the TV pause the game, also when its connection does not close")
+	var card_title: String = game._menu_box.find_children("*", "Label", true, false)[0].text
+	var card_buttons: Array = game.menu_buttons().map(func(b): return b.text)
+	_check(card_title == "P2 lost connection" and card_buttons == ["Resume without P2", "\u2715  End game"],
+			"the card names the phone and offers Resume without it while a phone is connected: %s %s" % [card_title, str(card_buttons)])
+	_check(app.server.phase == "paused" and clients[0].phase == "paused", "the phones are told that the game is paused")
+	clients[1].set_process(true)   # The phone is back (the call is over).
+	t1 = Time.get_ticks_msec()
+	while not game.lost_participants().is_empty() and Time.get_ticks_msec() - t1 < 6000:
+		await process_frame
+	await _frames(5)
+	card_title = game._menu_box.find_children("*", "Label", true, false)[0].text
+	card_buttons = game.menu_buttons().map(func(b): return b.text)
+	_check(game.is_paused() and card_title == "P2 reconnected" and card_buttons == ["Resume", "\u2715  End game"],
+			"when the phone is back the game stays paused and the card offers Resume: %s %s" % [card_title, str(card_buttons)])
+	game.menu_buttons()[0].pressed.emit()
+	await _frames(3)
+	_check(not game.is_paused() and not game._hold and app.server.phase == "playing" and game.participants == [0, 1],
+			"Resume goes on with both players, and the phones are told")
+	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
+	# Back on the card asks to end the game, and Keep playing brings the card back.
+	clients[1].set_process(false)
+	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
+	t1 = Time.get_ticks_msec()
+	while not game._hold and Time.get_ticks_msec() - t1 < 8000:
+		await process_frame
+	await _frames(3)
+	game.on_back()
+	await _frames(3)
+	var ask: Array = game.menu_buttons().map(func(b): return b.text)
+	_check(ask == ["Keep playing", "\u2715  End game"], "Back on the card asks 'End the game?' (REQ-GM-31a): %s" % str(ask))
+	game.menu_buttons()[0].pressed.emit()
+	await _frames(4)
+	_check(game._hold and game.is_paused() and game._menu_kind == "hold", "Keep playing brings the card of the lost phone back")
+	# Resume without the lost phone: its slot is freed and the game goes on with the other player.
+	game.menu_buttons()[0].pressed.emit()
+	await _frames(4)
+	_check(not game.is_paused() and game.participants == [0] and app.server.players[1].state == PlayerInput.State.EMPTY,
+			"Resume without P2 goes on with one player and frees the slot of P2")
+	clients[1].set_process(true)
+	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
+	t1 = Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t1 < 6000:
+		await process_frame
+	await _frames(3)
 
 	# Pause menu with OK, then restart.
 	var ev := InputEventAction.new()
@@ -814,13 +860,48 @@ func _run() -> void:
 	await _frames(3)
 	var solo_game: Control = app.current_screen()
 	_check(solo_game.participants == [solo.slot], "the maze has the single player")
-	# The only player is lost: the game ends at once, with a menu and without the pause message (REQ-GM-30a).
-	solo._ws.close()
+	# The only player is lost (a phone call): the game pauses and waits. There is nobody to resume with, so the card has no
+	# Resume (REQ-GM-30a). When the phone is back, the card offers Resume.
+	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
+	solo.set_process(false)
 	t5 = Time.get_ticks_msec()
-	while not solo_game.participants.is_empty() and Time.get_ticks_msec() - t5 < 3000:
+	while not solo_game._hold and Time.get_ticks_msec() - t5 < 8000:
 		await process_frame
-	_check(solo_game.participants.is_empty() and not solo_game._paused_lost and solo_game._menu_box != null,
-			"the last player is lost: the game ends at once with a menu, without the pause message")
+	await _frames(3)
+	var solo_buttons: Array = solo_game.menu_buttons().map(func(b): return b.text)
+	_check(solo_game._hold and solo_game.is_paused() and not solo_game.is_over and solo_game.participants == [solo.slot],
+			"the only player is lost: the game waits, it does not end")
+	_check(solo_buttons == ["\u2715  End game"], "with nobody connected the card has no Resume: %s" % str(solo_buttons))
+	solo.set_process(true)
+	t5 = Time.get_ticks_msec()
+	while not solo_game.lost_participants().is_empty() and Time.get_ticks_msec() - t5 < 6000:
+		await process_frame
+	await _frames(5)
+	solo_buttons = solo_game.menu_buttons().map(func(b): return b.text)
+	_check(solo_buttons == ["Resume", "\u2715  End game"] and solo_game.is_paused(),
+			"the phone is back (the call is over): the card offers Resume and the game still waits: %s" % str(solo_buttons))
+	solo_game.menu_buttons()[0].pressed.emit()
+	await _frames(3)
+	_check(not solo_game.is_paused() and solo_game.participants == [solo.slot], "Resume goes on with the returned player")
+	# A phone that does not come back: the slot is kept while the game is paused, then it is freed and the game ends.
+	app.server.paused_slot_grace_ms = 1200
+	solo.set_process(false)
+	t5 = Time.get_ticks_msec()
+	while not solo_game._hold and Time.get_ticks_msec() - t5 < 8000:
+		await process_frame
+	await _frames(5)
+	_check(solo_game._hold and not solo_game.is_over and app.server.players[solo.slot].state == PlayerInput.State.LOST,
+			"the slot of the lost phone is kept for a while (the long wait of a paused game)")
+	t5 = Time.get_ticks_msec()
+	while not solo_game.is_over and Time.get_ticks_msec() - t5 < 8000:
+		await process_frame
+	await _frames(3)
+	_check(solo_game.is_over and solo_game.participants.is_empty()
+			and solo_game.menu_buttons().map(func(b): return b.text) == ["Back to menu"],
+			"the lost phone does not come back in time: the game ends with 'No players connected' (REQ-GM-22)")
+	app.server.paused_slot_grace_ms = Protocol.PAUSED_SLOT_GRACE_MS
+	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
+	solo.set_process(true)
 	solo.leave()
 	await _frames(3)
 
@@ -834,12 +915,25 @@ func _run() -> void:
 	app.go(MarbleRace, Registry.find("marble_race").variants[0].props)
 	await _frames(3)
 	var solo_race: Control = app.current_screen()
-	solo2._ws.close()
+	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
+	app.server.paused_slot_grace_ms = 1200
+	solo2.set_process(false)
 	t5 = Time.get_ticks_msec()
-	while not solo_race.participants.is_empty() and Time.get_ticks_msec() - t5 < 3000:
+	while not solo_race._hold and Time.get_ticks_msec() - t5 < 8000:
 		await process_frame
-	_check(solo_race.is_over and not solo_race._paused_lost and solo_race._menu_box != null,
-			"marble race: the last player is lost, the race ends at once with a menu")
+	await _frames(3)
+	_check(solo_race._hold and solo_race.is_paused() and not solo_race.is_over
+			and solo_race.menu_buttons().map(func(b): return b.text) == ["\u2715  End game"],
+			"marble race: the last player is lost, the race waits with a card that has no Resume")
+	t5 = Time.get_ticks_msec()
+	while not solo_race.is_over and Time.get_ticks_msec() - t5 < 8000:
+		await process_frame
+	await _frames(3)
+	_check(solo_race.is_over and solo_race.menu_buttons().map(func(b): return b.text) == ["Back to menu"],
+			"marble race: when the phone does not come back, 'No players connected' opens (REQ-MR-14)")
+	app.server.paused_slot_grace_ms = Protocol.PAUSED_SLOT_GRACE_MS
+	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
+	solo2.set_process(true)
 	solo2.leave()
 
 	app.go_menu()

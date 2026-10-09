@@ -10,6 +10,7 @@ const SENSOR_HZ := 60
 const SENSOR_PACKET_SIZE := 36
 const PKT_SENSOR := 1
 const SLOT_GRACE_MS := 30000
+const PAUSED_SLOT_GRACE_MS := 300000   # A lost slot is kept this long while the game is paused for it (a phone call).
 const HELLO_TIMEOUT_MS := 5000
 const PEER_TIMEOUT_MS := 5000
 const ROOM_ALPHABET := "ACDEFGHJKLMNPQRTUVWXYZ"

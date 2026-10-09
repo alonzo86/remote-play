@@ -28,7 +28,10 @@ var is_over := false
 
 var _menu_box: Control
 var _menu_open := false
-var _paused_lost := false
+var _menu_kind := ""             # "hold" for the card of a lost phone, "menu" for the other menus.
+var _hold := false               # A participant lost its connection: the game waits for a decision (REQ-GM-30).
+var _hold_info := {}             # slot -> {name, color} of the players lost in this hold.
+var _hold_sig := ""
 
 
 func _ready() -> void:
@@ -82,52 +85,116 @@ func end_no_players() -> void:
 
 
 func is_paused() -> bool:
-	return _menu_open or _paused_lost
-
-
-## True when every participant is lost: nobody is left to continue with.
-func nobody_connected() -> bool:
-	if participants.is_empty():
-		return false
-	for s in participants:
-		if player(s).state == PlayerInput.State.CONNECTED:
-			return false
-	return true
+	return _menu_open
 
 
 func _process(delta: float) -> void:
-	if nobody_connected():
-		# Every participant is lost, so nobody is left. Do not ask to continue without them: end the game
-		# at once (REQ-GM-30a).
-		for s in lost_participants():
-			App.server.drop_player(s)
 	_prune_participants()
-	var was_lost := _paused_lost
-	_paused_lost = not lost_participants().is_empty()
-	if _paused_lost != was_lost:
-		App.server.set_phase("paused" if _paused_lost else "playing", participants)
+	_update_hold()
 	if not is_paused():
 		_game_tick(delta)
 	_request_redraw()
 
 
+## While a participant is lost the game is paused and a card says so (REQ-GM-30). The game never goes on by itself:
+## the TV user chooses. "Resume without ..." is there only while another participant is still connected. "Resume" is
+## there when every participant is connected again. The card changes by itself when a phone comes back or leaves.
+func _update_hold() -> void:
+	if is_over:
+		if _hold:
+			_hold = false
+			_hold_info.clear()
+			App.server.set_phase("playing", participants)
+		return
+	var lost := lost_participants()
+	if not lost.is_empty() and not _hold:
+		_hold = true
+		App.server.set_phase("paused", participants)   # The slot of the lost phone is kept longer (a phone call).
+	for s in lost:
+		if not _hold_info.has(s):
+			_hold_info[s] = {"name": player(s).player_name, "color": player(s).color}
+	if not _hold:
+		return
+	if _menu_open and _menu_kind != "hold":
+		return   # Another menu is on top ("End the game?"). The card comes back when it closes.
+	var sig := "%s|%d|%s" % [str(lost), connected_participants().size(), str(participants)]
+	if _menu_kind != "hold" or sig != _hold_sig:
+		_hold_sig = sig
+		_show_hold_card(lost)
+
+
+## Slots of the participants that are connected now.
+func connected_participants() -> Array[int]:
+	var r: Array[int] = []
+	for s in participants:
+		if player(s).state == PlayerInput.State.CONNECTED:
+			r.append(s)
+	return r
+
+
+func _slot_labels(slots: Array) -> String:
+	var parts: Array[String] = []
+	for s in slots:
+		parts.append("P%d" % (int(s) + 1))
+	return " and ".join(parts)
+
+
+func _show_hold_card(lost: Array[int]) -> void:
+	var rows: Array = []
+	var gone: Array[int] = []
+	for s in _hold_info:
+		var info: Dictionary = _hold_info[s]
+		var state := "left the game"
+		if lost.has(s):
+			state = "waiting to reconnect"
+		elif participants.has(s):
+			state = "is back"
+		else:
+			gone.append(s)
+		rows.append({"text": "%s   %s" % [info.name, state], "color": info.color})
+	var title: String
+	var entries: Array = []
+	if not lost.is_empty():
+		title = "%s lost connection" % _slot_labels(lost)
+		if not connected_participants().is_empty():
+			entries.append(["Resume without %s" % _slot_labels(lost), _resume_without_lost])
+	else:
+		title = "%s left the game" % _slot_labels(gone) if not gone.is_empty() and gone.size() == _hold_info.size() \
+				else "%s reconnected" % _slot_labels(_hold_info.keys())
+		entries.append(["Resume", _resume_game])
+	entries.append(["\u2715  End game", request_leave, "danger"])
+	open_menu(title, entries, rows)
+	_menu_kind = "hold"
+
+
+## Goes on without the lost players: their slots are freed (the TV user chose "Resume without ...").
+func _resume_without_lost() -> void:
+	for s in lost_participants():
+		App.server.drop_player(s)
+	_prune_participants()
+	_resume_game()
+
+
+func _resume_game() -> void:
+	if is_over:
+		return   # Nobody was left: the "No players connected" menu stays.
+	_hold = false
+	_hold_info.clear()
+	close_menu()
+	App.server.set_phase("playing", participants)
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_accept") and not _menu_open:
-		if _paused_lost:
-			# Continue without the lost players.
-			for s in lost_participants():
-				App.server.drop_player(s)
-			get_viewport().set_input_as_handled()
-		elif _can_open_menu():
-			open_menu("Paused", [["Resume", close_menu], ["Restart", restart], ["Back to menu", request_leave]])
-			get_viewport().set_input_as_handled()
+	if event.is_action_pressed("ui_accept") and not _menu_open and _can_open_menu():
+		open_menu("Paused", [["Resume", close_menu], ["Restart", restart], ["Back to menu", request_leave]])
+		get_viewport().set_input_as_handled()
 
 
 func on_back() -> void:
-	if _menu_open:
+	if _menu_open and _menu_kind != "hold":
 		close_menu() # Also the "End the game?" question: Back is "Keep playing".
 	else:
-		request_leave()
+		request_leave() # On the card of a lost phone, Back asks to end the game.
 
 
 ## Leaves the game for the Games screen (REQ-GM-31a). While the game is in progress it asks first: a round
@@ -147,6 +214,7 @@ func restart() -> void:
 func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	close_menu()
 	_menu_open = true
+	_menu_kind = "menu"
 	var center := CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_menu_box = center
@@ -235,6 +303,7 @@ func menu_buttons() -> Array[Button]:
 
 func close_menu() -> void:
 	_menu_open = false
+	_menu_kind = ""
 	if _menu_box != null:
 		_menu_box.queue_free()
 		_menu_box = null
@@ -246,23 +315,10 @@ func _draw() -> void:
 	_draw_overlays(self)
 
 
-## Draws the "waiting for players" text and the dim layer of the pause menu on `ci`.
+## Draws the dim layer of a menu on `ci`.
 ## 2D games draw it on the game itself. 3D games draw it on the HUD layer above the 3D view.
 func _draw_overlays(ci: CanvasItem) -> void:
-	if _paused_lost:
-		ci.draw_rect(Rect2(Vector2.ZERO, size), Color(UiTheme.OUTLINE, 0.72))
-		var names := ""
-		for s in lost_participants():
-			names += "P%d " % (s + 1)
-		var r := Rect2(size.x * 0.5 - 520.0, size.y * 0.5 - 130.0, 1040.0, 260.0)
-		ci.draw_style_box(UiTheme.card(UiTheme.CARD), r)
-		var tf := UiTheme.title_font()
-		ci.draw_string(tf, Vector2(r.position.x, r.position.y + 112.0), "Waiting for %sto reconnect" % names,
-				HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 58, UiTheme.CARD_TEXT)
-		if not nobody_connected(): # With nobody connected there is nobody to continue with.
-			ci.draw_string(UiTheme.body_bold(), Vector2(r.position.x, r.position.y + 185.0),
-					"Press OK to continue without them", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 34, UiTheme.CARD_DIM)
-	elif _menu_open:
+	if _menu_open:
 		ci.draw_rect(Rect2(Vector2.ZERO, size), Color(UiTheme.OUTLINE, 0.72))
 
 

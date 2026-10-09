@@ -18,6 +18,10 @@ var round_slots: Array[int] = []   # Slots that take part in the running round (
 var round_limited := false         # True when the round has its own list. A freed slot leaves the list.
 var players: Array[PlayerInput] = []
 var listening := false
+## Silence that makes a phone lost, and how long a lost slot is kept. Tests make them short.
+var peer_timeout_ms := Protocol.PEER_TIMEOUT_MS
+var slot_grace_ms := Protocol.SLOT_GRACE_MS
+var paused_slot_grace_ms := Protocol.PAUSED_SLOT_GRACE_MS
 
 var _tcp := TCPServer.new()
 var _pending: Array = []             # [{ws, since_ms}]
@@ -239,8 +243,13 @@ func _poll_slot(i: int, now: int) -> void:
 					var pkt := Protocol.decode_sensor(data)
 					if not pkt.is_empty():
 						player.on_sensor(pkt, now)
-			if player.is_connected_now() and now - _last_rx_ms[i] > Protocol.PEER_TIMEOUT_MS:
-				ws.close() # Silent for too long. Treat as lost.
+			if player.is_connected_now() and now - _last_rx_ms[i] > peer_timeout_ms:
+				# Silent for too long (for example the phone lost its Wi-Fi). The slot is lost now. A close handshake
+				# would never end, because the phone cannot answer, so the TV would never notice.
+				_sockets[i] = null
+				_discard(ws)
+				_mark_lost(i)
+				return
 		elif st == WebSocketPeer.STATE_CLOSED:
 			while ws.get_available_packet_count() > 0: # Frames that came with the close.
 				var data2 := ws.get_packet()
@@ -249,8 +258,9 @@ func _poll_slot(i: int, now: int) -> void:
 			if _sockets[i] == ws: # A "bye" in those frames may have cleared the slot.
 				_sockets[i] = null
 				_mark_lost(i)
-	if player.state == PlayerInput.State.LOST \
-			and now - player.lost_since_ms > Protocol.SLOT_GRACE_MS:
+	# While the game is paused for a lost phone (a phone call), the slot is kept longer.
+	var grace := paused_slot_grace_ms if phase == "paused" else slot_grace_ms
+	if player.state == PlayerInput.State.LOST and now - player.lost_since_ms > grace:
 		player.reset()
 		player_removed.emit(i)
 

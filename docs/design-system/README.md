@@ -1,7 +1,7 @@
 Remote Play is a couch game for Android TV with phones as motion controllers. The look is **Party Pop**: chunky, saturated and sticker-like. The TV and the phone share it.
 
 ## Content fundamentals
-- Short, friendly, plain sentences for people on a sofa: "Ready!", "waiting", "Press OK to continue without them", "Choose a game on the TV". No jargon, no emoji, no exclamation marks except "Ready!".
+- Short, friendly, plain sentences for people on a sofa: "Ready!", "waiting", "Resume without P2", "Choose a game on the TV". No jargon, no emoji, no exclamation marks except "Ready!".
 - Titles are Title Case or short caps (REMOTE PLAY, Marble Race). Player names fall back to "Player 1" to "Player 4". Counts read "1 player", "2 players", "1-4 players".
 - A failing state always says why in words ("Lost", the reason a game cannot start); never color alone.
 

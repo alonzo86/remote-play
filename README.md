@@ -32,8 +32,9 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   The phone scans the QR code (Android plugin), or picks the TV from the list found by the UDP beacon (Refresh button). There is no typed room code or IP.
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
-- A phone that loses the connection keeps its slot for 30 seconds and reconnects with a token.
-  The game pauses while a player is lost. When no player is left connected, the game ends at once.
+- A phone that loses the connection (or is silent for 5 seconds) keeps its slot and reconnects with a token: 30 seconds, and
+  5 minutes while a game is paused for it. The game pauses with a card ("P2 lost connection") and goes on only when the TV user
+  chooses Resume (or Resume without the lost phone). When no player is left, the game ends with "No players connected".
 - The debug overlay (Menu key, F3, or the switch on the Settings screen) shows per player: RTT, sensor age, packet rate,
   longest gap, lost packets, raw gyroscope and accelerometer, tilt and pointer.
 
