@@ -57,44 +57,119 @@ func _segment_at(arc: float) -> int:
 	return points.size() - 2
 
 
-const IDS: Array[String] = ["classic", "sprint", "zigzag", "gauntlet"]
+## The 10 fixed tracks of the settings view are made from these seeds (REQ-MR-51, 53). A seed always gives the same track.
+const FIXED_SEEDS: Array[int] = [11, 23, 37, 42, 58, 64, 71, 85, 93, 107]
+## Posts for each 100 m of track, for each difficulty (REQ-MR-50).
+const POSTS_PER_100M := {"easy": 2.0, "medium": 6.0, "hard": 10.0}
+const POST_SIDES := [-1.2, -0.8, 0.0, 0.8, 1.2]
+const START_STRAIGHT := 20.0     # The first straight, toward -z (up on the screen). It must be 8 m or more.
+const POSTS_FROM := 14.0         # Posts start this far from the start and end 8 m before the end of the track.
+const POSTS_BEFORE_END := 8.0
+const LENGTH_MIN := 100.0        # The length of a generated track (REQ-MR-52). All are inside 90 to 170 m.
+const LENGTH_MAX := 165.0
+const HALF_WIDTH_MIN := 2.95     # Width 5.9 to 9.2 m.
+const HALF_WIDTH_MAX := 4.6
+const TURN_MIN := 15.0           # Degrees. A bend is never sharper than TURN_MAX, so a marble does not get stuck in a corner.
+const TURN_MAX := 55.0
+const HEADING_LIMIT := 65.0      # The track never turns more than this from "up", so it cannot curl back on itself.
+const CLEARANCE := 1.0           # Extra room between two far parts of the track, besides the two half-widths.
 
 
-## Builds one of the tracks in IDS. Every track starts with a straight, 8 m or longer, toward -z
-## (up on the screen), so the start grid works. Other bends are free but must not touch themselves.
-static func make(track_id: String) -> RefCounted:
-	var pts: Array[Vector2] = []
-	var hw := 3.4
-	var title := "Classic"
-	var bumpers := []
-	match track_id:
-		"sprint":
-			title = "Sprint"
-			hw = 4.0
-			pts = [Vector2(0, 8), Vector2(0, -10), Vector2(6, -20), Vector2(-6, -34),
-					Vector2(-6, -46), Vector2(0, -58), Vector2(0, -76)]
-			bumpers = [[14.0, -1.0], [30.0, 1.0], [46.0, -1.0], [62.0, 0.8]]
-		"zigzag":
-			title = "Zigzag"
-			hw = 2.9
-			pts = [Vector2(0, 8), Vector2(0, -14), Vector2(12, -26), Vector2(-12, -40),
-					Vector2(12, -54), Vector2(-12, -68), Vector2(12, -82), Vector2(0, -94),
-					Vector2(0, -116)]
-		"gauntlet":
-			title = "Gauntlet"
-			hw = 4.6
-			pts = [Vector2(0, 8), Vector2(0, -40), Vector2(5, -60), Vector2(5, -110),
-					Vector2(0, -130), Vector2(0, -150)]
-			for i in 15:
-				bumpers.append([14.0 + i * 8.5, [-1.4, 1.4, 0.0, 1.0, -1.0][i % 5]])
-		_:
-			track_id = "classic"
-			pts = [Vector2(0, 8), Vector2(0, -20), Vector2(9, -36), Vector2(9, -54),
-					Vector2(-7, -70), Vector2(-7, -88), Vector2(0, -102), Vector2(0, -124)]
-			bumpers = [[14.0, -1.0], [26.0, 0.8], [40.0, -0.7], [52.0, 1.0], [66.0, 0.0],
-					[78.0, -1.0], [90.0, 0.8], [102.0, 0.0], [112.0, -0.8]]
-	var t = load("res://scripts/game/marble_race/marble_track.gd").new(pts, hw)
-	t.id = track_id
-	t.title = title
-	t.bumpers = bumpers
+## The track of a fixed seed (index 0 to 9) or a seed that is not fixed (the "Random track").
+static func title_for(seed_value: int) -> String:
+	var i := FIXED_SEEDS.find(seed_value)
+	return "Track %d" % (i + 1) if i >= 0 else "Random track"
+
+
+## The seed of a choice of the track list: "1" to "10" is a fixed seed, "random" is a new seed that is not one of the fixed ones.
+static func seed_for(choice: String, rng: RandomNumberGenerator) -> int:
+	if choice.is_valid_int() and int(choice) >= 1 and int(choice) <= FIXED_SEEDS.size():
+		return FIXED_SEEDS[int(choice) - 1]
+	var v := rng.randi_range(1000, 999999)
+	while FIXED_SEEDS.has(v):
+		v = rng.randi_range(1000, 999999)
+	return v
+
+
+## A track with its posts for a difficulty (REQ-MR-50, 51). The line depends on the seed only, so every difficulty has the same
+## track. Every track starts with a straight, 8 m or longer, toward -z (up on the screen), so the start grid works.
+static func make(seed_value: int, difficulty := "medium") -> RefCounted:
+	var t = generate(seed_value)
+	t.id = "seed_%d" % seed_value
+	t.title = title_for(seed_value)
+	t.bumpers = posts(t.length, seed_value, difficulty)
 	return t
+
+
+## The line of a track from a seed. A walk of straight pieces with smooth bends. A walk that touches itself is dropped and the
+## next one is tried, so the result is always clear (REQ-MR-23). The same seed gives the same track.
+static func generate(seed_value: int) -> RefCounted:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var limit := deg_to_rad(HEADING_LIMIT)
+	for attempt in 80:
+		var hw := rng.randf_range(HALF_WIDTH_MIN, HALF_WIDTH_MAX)
+		var target := rng.randf_range(LENGTH_MIN, LENGTH_MAX)
+		var pts: Array[Vector2] = [Vector2(0, 8), Vector2(0, 8.0 - START_STRAIGHT)]
+		var dev := 0.0    # The heading, in radians from "up" (-z). Plus turns to the right.
+		var total := START_STRAIGHT
+		while total < target - 0.01:
+			var remaining := target - total
+			var seg := minf(rng.randf_range(14.0, 26.0), remaining)
+			if remaining - seg < 10.0:
+				seg = remaining
+			var turn := deg_to_rad(rng.randf_range(TURN_MIN, TURN_MAX)) * (1.0 if rng.randf() < 0.5 else -1.0)
+			if absf(dev + turn) > limit:
+				turn = -turn
+			dev += turn
+			pts.append(pts[-1] + Vector2(sin(dev), -cos(dev)) * seg)
+			total += seg
+		if _is_clear(pts, hw):
+			return _build(pts, hw)
+	var straight: Array[Vector2] = [Vector2(0, 8), Vector2(0, -130)]   # Not reached with the fixed seeds (a test checks).
+	return _build(straight, 3.6)
+
+
+## The posts of a track: [arc, side] pairs, `POSTS_PER_100M` of the difficulty for each 100 m, spread evenly between
+## POSTS_FROM and POSTS_BEFORE_END before the end. The sides change from post to post. They are made from the seed, apart from
+## the line, so that a difficulty never changes the line.
+static func posts(track_length: float, seed_value: int, difficulty: String) -> Array:
+	var out := []
+	var span := track_length - POSTS_BEFORE_END - POSTS_FROM
+	var count := roundi(float(POSTS_PER_100M.get(difficulty, POSTS_PER_100M.medium)) * span / 100.0)
+	if count <= 0 or span <= 0.0:
+		return out
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value * 7919 + 13
+	var step := span / count
+	var prev := 99.0
+	for i in count:
+		var side: float = POST_SIDES[rng.randi_range(0, POST_SIDES.size() - 1)]
+		while side == prev:
+			side = POST_SIDES[rng.randi_range(0, POST_SIDES.size() - 1)]
+		prev = side
+		out.append([POSTS_FROM + (i + 0.5) * step, side])
+	return out
+
+
+## True when no two parts of the line that are not neighbours are closer than two half-widths plus CLEARANCE.
+static func _is_clear(pts: Array[Vector2], hw: float) -> bool:
+	var need := hw * 2.0 + CLEARANCE
+	for i in pts.size() - 1:
+		for j in range(i + 2, pts.size() - 1):
+			if Geometry2D.segment_intersects_segment(pts[i], pts[i + 1], pts[j], pts[j + 1]) != null:
+				return false
+			var d := minf(minf(_point_seg(pts[i], pts[j], pts[j + 1]), _point_seg(pts[i + 1], pts[j], pts[j + 1])),
+					minf(_point_seg(pts[j], pts[i], pts[i + 1]), _point_seg(pts[j + 1], pts[i], pts[i + 1])))
+			if d < need:
+				return false
+	return true
+
+
+## A track of this class (a static function cannot call `new()` on its own class here).
+static func _build(pts: Array[Vector2], hw: float) -> RefCounted:
+	return load("res://scripts/game/marble_race/marble_track.gd").new(pts, hw)
+
+
+static func _point_seg(p: Vector2, a: Vector2, b: Vector2) -> float:
+	return p.distance_to(Geometry2D.get_closest_point_to_segment(p, a, b))

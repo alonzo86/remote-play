@@ -6,9 +6,9 @@ Godot 4.7 and GDScript. One project makes two apps:
 - **tv**: runs on Android TV or a streaming box. It shows the game.
 - **controller**: runs on up to 4 Android phones. It sends gyroscope, accelerometer, touch and button data.
 
-The games are minigames that use the phone as a motion controller: a tilt maze and a 3D marble race (with several tracks). New minigames are added through the game registry (see below).
+The games are minigames that use the phone as a motion controller: a tilt maze, a 3D marble race (with several tracks) and a pointer game for the whole family: throw snowballs at silly Puffs (Snowball Splat). New minigames are added through the game registry (see below).
 
-Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [device test plan](docs/DEVICE_TEST.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md) | [games roadmap](docs/GAMES_ROADMAP.md) | [design system](docs/design-system/README.md)
+Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [manual tests](docs/MANUAL_TESTS.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md) | [games roadmap](docs/GAMES_ROADMAP.md) | [design system](docs/design-system/README.md)
 
 ## How it works
 
@@ -24,7 +24,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
                                                └──────────────────────┘
 ```
 
-- TV flow: Android splash, logo screen, **Connect controllers** (QR code, room code, 4 slots, Continue), **Games** (tiles with a
+- TV flow: Android splash, logo screen, **Connect controllers** (QR code, room code, 4 slots, "Press OK to continue"), **Games** (tiles with a
   screenshot, the players badge, the Settings gear; the focused tile grows and shows the description), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
   Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
@@ -32,8 +32,9 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   The phone scans the QR code (Android plugin), or picks the TV from the list found by the UDP beacon (Refresh button). There is no typed room code or IP.
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
-- A phone that loses the connection keeps its slot for 30 seconds and reconnects with a token.
-  The game pauses while a player is lost. When no player is left connected, the game ends at once.
+- A phone that loses the connection (or is silent for 5 seconds) keeps its slot and reconnects with a token: 30 seconds, and
+  5 minutes while a game is paused for it. The game pauses with a card ("P2 lost connection") and goes on only when the TV user
+  chooses Resume (or Resume without the lost phone). When no player is left, the game ends with "No players connected".
 - The debug overlay (Menu key, F3, or the switch on the Settings screen) shows per player: RTT, sensor age, packet rate,
   longest gap, lost packets, raw gyroscope and accelerometer, tilt and pointer.
 
@@ -81,10 +82,10 @@ For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_re
 A key object (player, goal, hazard) gets an outline with `add_outlined_mesh()`.
 The 3D world is frozen while the game is paused.
 
-A registry entry may have `props`, set on the game before it starts (and kept for Restart). An entry with `variants`
-(a list of title and props) makes the menu ask which variant to start first. The marble race uses this to pick a track
-(`track_id`). The track can also be changed from its results menu, but not from the pause menu. Tracks are in `scripts/game/marble_race/marble_track.gd`:
-add an id to `IDS`, a case in `make()`, and one registry entry.
+A registry entry may have `props`, set on the game before it starts (and kept for Restart). An entry with a `settings`
+list has a settings view (Difficulty and the rows of the list) before the game: the choices become props of the game
+(`scripts/game/game_settings.gd`, `scripts/ui/tv_game_settings.gd`). The marble race has a `tracks` row: 10 fixed tracks and a random one,
+all made from seeds by `MarbleTrack.generate()` in `scripts/game/marble_race/marble_track.gd`. The pause menu does not change settings.
 
 ## Run on a PC
 
@@ -115,7 +116,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 2. Put the TV and the phones on the same Wi-Fi network (5 GHz is best; Ethernet on the TV box is better).
 3. Start the TV app. Start the controller app. Scan the QR code on the TV (or tap the TV in the list).
 4. Open the debug overlay. Watch RTT, *Age ms*, *Gap ms*, and *Rx Hz*.
-   The full test plan with pass criteria is in [docs/DEVICE_TEST.md](docs/DEVICE_TEST.md).
+   The full test plan with pass criteria is in [docs/MANUAL_TESTS.md](docs/MANUAL_TESTS.md).
 5. Run **Tilt Maze** with 1 to 4 phones. If the ball rolls the wrong way, use **Invert tilt axes** on the TV Settings screen
    (the gear on the Games screen).
 6. Run **Marble Race** and check the frame rate with 4 phones.
@@ -170,4 +171,4 @@ Phone-only and Android-only code (`qr_scanner.gd`, `sensor_sampler.gd`) stays lo
 - **Not tested: real Android TV, real phone sensors, real Wi-Fi.** The first on-device run must check the
   items marked *unverified* in [docs/RISKS.md](docs/RISKS.md), mainly the sensor signs and the key mapping.
 - The QR scanner plugin compiled only against stubs (the real ML Kit and Godot libraries were not reachable
-  from the build sandbox). It needs Google Play services on the phone. Test it first: `docs/DEVICE_TEST.md`, test 2.
+  from the build sandbox). It needs Google Play services on the phone. Test it first: `docs/MANUAL_TESTS.md`, test 2.

@@ -15,6 +15,7 @@ const TvLogo = preload("res://scripts/ui/tv_logo.gd")
 const TvConnect = preload("res://scripts/ui/tv_connect.gd")
 const TvGames = preload("res://scripts/ui/tv_games.gd")
 const TvSettings = preload("res://scripts/ui/tv_settings.gd")
+const TvGameSettings = preload("res://scripts/ui/tv_game_settings.gd")
 const ControllerConnect = preload("res://scripts/ui/controller_connect.gd")
 const ControllerPad = preload("res://scripts/ui/controller_pad.gd")
 const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
@@ -42,6 +43,7 @@ var _last_back_ms := 0
 
 
 func _ready() -> void:
+	_force_english_ltr()
 	_load_settings()
 	theme_res = UiTheme.make()
 	var layer := CanvasLayer.new()
@@ -54,6 +56,13 @@ func _ready() -> void:
 		_start_tv()
 	else:
 		_start_controller()
+
+
+## The UI is English only for now and always left to right, whatever the language or the region of the device
+## (REQ-FL-54). Without this, a Hebrew or Arabic device mirrors every screen.
+func _force_english_ltr() -> void:
+	TranslationServer.set_locale("en")
+	get_tree().root.set_layout_direction(Window.LAYOUT_DIRECTION_LTR)
 
 
 func _notification(what: int) -> void:
@@ -111,6 +120,13 @@ func go_connect() -> void:
 
 func go_games() -> void:
 	go(TvGames)
+	server.set_phase("menu")
+
+
+## The settings view of a game (REQ-GM-90). The Games screen focuses the tile of the game when Back returns to it.
+func go_game_settings(id: String) -> void:
+	last_game = id
+	go(TvGameSettings, {"game_id": id})
 	server.set_phase("menu")
 
 

@@ -33,9 +33,81 @@ static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width 
 	ci.draw_circle(c, height * 0.26, color)
 	var fs := 30
 	var x0 := height * 0.95
-	ci.draw_string(UiTheme.body_bold(), pos + Vector2(x0, height * 0.5 + fs * 0.34), msg,
-			HORIZONTAL_ALIGNMENT_LEFT, width - x0 - height * 0.3, fs, UiTheme.CARD_TEXT)
+	ci.draw_string(UiTheme.body_bold(), pos + Vector2(x0, height * 0.5 + fs * 0.34),
+			fit_text(msg, width - x0 - height * 0.3, fs), HORIZONTAL_ALIGNMENT_LEFT, -1, fs, UiTheme.CARD_TEXT)
 	return r
+
+
+## A chip with a name and a score (REQ-GM-46). Nothing is cut: `width` comes from `score_chip_width()`.
+static func score_chip(ci: CanvasItem, pos: Vector2, player_name: String, score: String, color: Color, width := 250.0,
+		height := 58.0) -> Rect2:
+	var r := chip(ci, pos, "", color, width, height)
+	var parts := score_chip_parts(player_name, score, width, height)
+	var base := height * 0.5 + 30 * 0.34
+	ci.draw_string(UiTheme.body_bold(), pos + Vector2(parts.name_x, base), parts.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 30,
+			UiTheme.CARD_TEXT)
+	ci.draw_string(UiTheme.body_bold(), pos + Vector2(parts.score_x, base), score, HORIZONTAL_ALIGNMENT_LEFT, -1, 30,
+			UiTheme.CARD_TEXT)
+	return r
+
+
+## The width of a score chip for this name and score: the whole content, at least `min_w`. The name is never cut.
+static func score_chip_width(player_name: String, score: String, height := 58.0, min_w := 200.0, font_size := 30) -> float:
+	var f := UiTheme.body_bold()
+	var content := height * 0.95 + f.get_string_size(player_name, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + 14.0 \
+			+ f.get_string_size(score, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x + height * 0.3
+	return maxf(content, min_w)
+
+
+## The top-left corners of chips of the widths `widths`, in order, from the left to the right. The last chip of a row ends at the
+## 60 px safe margin (REQ-GM-40). `area_w` is the width of the screen. A row is at most `max_row` px wide (`area_w` minus the
+## 60 px margin when 0): the chips that do not fit go to a new row below, so no name is cut.
+static func chip_row_positions(area_w: float, widths: Array, y := 36.0, gap := 10.0, max_row := 0.0,
+		row_h := 68.0) -> Array[Vector2]:
+	var limit := max_row if max_row > 0.0 else area_w - 120.0
+	var rows: Array = [[]]
+	var used := 0.0
+	for i in widths.size():
+		var w := float(widths[i])
+		if not rows[-1].is_empty() and used + gap + w > limit:
+			rows.append([])
+			used = 0.0
+		used += w + (gap if not rows[-1].is_empty() else 0.0)
+		rows[-1].append(i)
+	var out: Array[Vector2] = []
+	out.resize(widths.size())
+	for r in rows.size():
+		var total := gap * maxf(rows[r].size() - 1, 0)
+		for i in rows[r]:
+			total += float(widths[i])
+		var x := area_w - 60.0 - total
+		for i in rows[r]:
+			out[i] = Vector2(x, y + r * row_h)
+			x += float(widths[i]) + gap
+	return out
+
+
+## Where the parts of a score chip go (a test checks it): the name (whole), the x of the name and the x of the score.
+## The score ends at the right edge of the chip, inside the rounded end.
+static func score_chip_parts(player_name: String, score: String, width: float, height: float, font_size := 30) -> Dictionary:
+	var name_x := height * 0.95
+	var right := width - height * 0.3
+	var score_w := UiTheme.body_bold().get_string_size(score, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	return {"name": player_name, "name_x": name_x,
+			"score_x": right - score_w, "score_w": score_w}
+
+
+## `text` shortened with "..." (one character) so that it is at most `max_w` px wide. A short text stays as it is.
+static func fit_text(text: String, max_w: float, font_size := 30) -> String:
+	var f := UiTheme.body_bold()
+	if f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x <= max_w:
+		return text
+	var cut := text
+	while not cut.is_empty() and f.get_string_size(cut + "\u2026", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > max_w:
+		cut = cut.substr(0, cut.length() - 1)
+	if cut.is_empty() and f.get_string_size("\u2026", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > max_w:
+		return ""
+	return cut + "\u2026"
 
 
 ## A player ball (REQ-GM-46, 47a, 47b): a hard shadow, a dark outline, the player color, a small shine and the
@@ -67,22 +139,20 @@ static func in_slot_order(players: Array) -> Array:
 	return ordered
 
 
-## One chip for each player in a row at the right edge of the screen, P1 first (REQ-GM-46).
-## `area_w` is the width of the screen. `y` is the top of the chips.
-static func player_chips(ci: CanvasItem, area_w: float, players: Array, y := 36.0, width := 250.0, step := 270.0) -> void:
+## One chip for each player, P1 first (REQ-GM-46). The one place that draws the name chips of the games: a game only gives the
+## score of each slot in `scores` (slot -> text; a slot without a text has a name chip only) and calls this every frame.
+## `area_w` is the width of the screen. The chips end at the right 60 px margin. Each chip is as wide as its content, so no name
+## or score is cut. A row is at most `max_row` px wide (0 means the screen inside the margins), and the rest goes to a second row.
+static func player_chips(ci: CanvasItem, area_w: float, players: Array, scores := {}, max_row := 0.0, y := 36.0) -> void:
 	var ordered := in_slot_order(players)
-	var spots := chip_positions(area_w, ordered.size(), y, width, step)
+	var texts: Array[String] = []
+	var widths: Array = []
+	for p in ordered:
+		texts.append(String(scores.get(p.slot, "")))
+		widths.append(score_chip_width(p.player_name, texts[-1]))
+	var spots := chip_row_positions(area_w, widths, y, 10.0, max_row)
 	for i in ordered.size():
-		chip(ci, spots[i], ordered[i].player_name, ordered[i].color, width)
-
-
-## The top-left corner of each of `count` chips in a row. The last chip ends at the 60 px safe margin (REQ-GM-40).
-static func chip_positions(area_w: float, count: int, y := 36.0, width := 250.0, step := 270.0) -> Array[Vector2]:
-	var out: Array[Vector2] = []
-	var x := area_w - 60.0 - width - step * (count - 1)
-	for i in count:
-		out.append(Vector2(x + step * i, y))
-	return out
+		score_chip(ci, spots[i], ordered[i].player_name, texts[i], ordered[i].color, widths[i])
 
 
 ## The race timer: a pill with a dark outline, in a fixed place. `pos` is the top-left corner.

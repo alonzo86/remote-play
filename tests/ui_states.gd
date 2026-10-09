@@ -1,5 +1,6 @@
 extends SceneTree
-## Button states and the Leave button of the phone wait screen (REQ-FL-41, 41a, 52, 53).
+## Button states, the Leave button of the phone wait screen (REQ-FL-41, 41a, 52, 53), English and left to right (REQ-FL-54),
+## and the Back key (REQ-FL-55).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/ui_states.gd -- --role=controller
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -27,6 +28,9 @@ func _initialize() -> void:
 func _run() -> void:
 	_button_styles()
 	await _wait_screen_leave()
+	_english_ltr()
+	_back_key()
+	_tile_images()
 
 
 func _button_styles() -> void:
@@ -82,3 +86,58 @@ func _wait_screen_leave() -> void:
 	wait._leave.pressed.emit()
 	_check(app.client.state == ControllerClient.State.IDLE, "the second tap inside the time leaves the TV")
 	wait.queue_free()
+
+
+## A device in Hebrew (locale he_IL) must not mirror the UI. The app is English only and always left to right (REQ-FL-54).
+func _english_ltr() -> void:
+	print("english and left to right")
+	var app: Node = root.get_node("App")
+	TranslationServer.set_locale("he_IL")
+	root.set_layout_direction(Window.LAYOUT_DIRECTION_APPLICATION_LOCALE)   # What the engine does without the setting.
+	var probe := Control.new()
+	root.add_child(probe)
+	_check(probe.is_layout_rtl(), "on a Hebrew device the layout is right to left when nothing is done")
+	app._force_english_ltr()
+	_check(not probe.is_layout_rtl(), "after the app sets its own layout direction, it is left to right")
+	_check(TranslationServer.get_locale().begins_with("en"), "the locale is English: %s" % TranslationServer.get_locale())
+	TranslationServer.set_locale("ar_SA")
+	_check(not probe.is_layout_rtl(), "an Arabic device is also left to right: the direction does not follow the locale")
+	probe.queue_free()
+
+
+## The screenshots of the Games screen (REQ-FL-57): rounded in the image, no clipping, and a warning when one cannot load.
+func _tile_images() -> void:
+	print("game tile images")
+	var tile_script: GDScript = load("res://scripts/ui/game_tile.gd")
+	var registry: GDScript = load("res://scripts/game/registry.gd")
+	var white := Image.create(640, 360, false, Image.FORMAT_RGBA8)
+	white.fill(Color.WHITE)
+	var tex: Texture2D = tile_script.rounded(ImageTexture.create_from_image(white), 20)
+	var img := tex.get_image()
+	_check(img.get_width() == 640 and img.get_height() == 360, "rounding keeps the size of the image")
+	var corners_clear := true
+	for p in [Vector2i(0, 0), Vector2i(639, 0), Vector2i(0, 359), Vector2i(639, 359)]:
+		corners_clear = corners_clear and img.get_pixelv(p).a < 0.05
+	_check(corners_clear, "all four corner pixels are transparent")
+	_check(img.get_pixel(320, 0).a == 1.0 and img.get_pixel(0, 180).a == 1.0 and img.get_pixel(320, 180).a == 1.0,
+			"the middle of the edges and the center stay opaque")
+	# The radius in the pixels of the image is 20 * 640 / 420 = 30.5. The circle center is at (30.5, 30.5).
+	_check(img.get_pixel(3, 3).a < 0.05 and img.get_pixel(14, 14).a > 0.95 and img.get_pixel(636, 3).a < 0.05
+			and img.get_pixel(625, 14).a > 0.95,
+			"the cut follows a circle: (3, 3) is outside it, (14, 14) is inside it, and the right side is the same")
+	_check(tile_script.load_tile("") == null and tile_script.load_tile("res://assets/tiles/does_not_exist.png") == null,
+			"no path or a missing file gives no texture, so the tile shows its placeholder")
+	var all_load := true
+	for g in registry.GAMES:
+		var t: Texture2D = tile_script.load_tile(String(g.tile))
+		if t == null or t.get_width() != 640 or t.get_height() != 360 or t.get_image().get_pixel(0, 0).a > 0.05:
+			all_load = false
+			print("    the tile of ", g.id, " did not load with rounded corners")
+	_check(all_load, "the tile of every game in the registry loads, 640x360, with rounded corners")
+
+
+## The Back key goes back one step in the app. It must not quit the app by itself (REQ-FL-55).
+func _back_key() -> void:
+	print("back key")
+	_check(ProjectSettings.get_setting("application/config/quit_on_go_back", true) == false,
+			"the engine does not quit on the Back key: the app decides (project.godot, quit_on_go_back)")

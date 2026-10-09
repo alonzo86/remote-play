@@ -26,10 +26,16 @@ export COVERAGE_OUT
 	"$GODOT" --headless --path . --script tests/run_tests.gd -- --role=controller
 	echo "== button states and the wait screen Leave"
 	"$GODOT" --headless --path . --script tests/ui_states.gd -- --role=controller
+	echo "== game rules"
+	"$GODOT" --headless --path . --script tests/game_rules.gd -- --role=controller
+	echo "== lost phones (network)"
+	"$GODOT" --headless --path . --script tests/net_loss.gd -- --role=controller
 	echo "== game helpers"
 	"$GODOT" --headless --path . --script tests/game_helpers.gd -- --role=controller
 	echo "== TV smoke test"
 	"$GODOT" --headless --path . --script tests/smoke_tv.gd -- --role=tv
+	echo "== settings view"
+	"$GODOT" --headless --path . --script tests/smoke_settings.gd -- --role=tv
 )
 python3 tools/coverage/report.py "$WORK/coverage_manifest.json" "$COVERAGE_OUT" "$OUT" \
 	--min-file 80 --exclusions tools/coverage/exclusions.txt "$@"

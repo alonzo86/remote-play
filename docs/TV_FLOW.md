@@ -30,13 +30,14 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 | FD-7 | Games grid: 16:9 tiles (420 px wide), rows of 3, D-pad focus. The focused tile grows to the right and shows the description of the game (a Netflix menu); the tiles after it move aside. The title and the player range are under every tile. The grid scrolls down when there are more games. There is no info bar. (Changed 2026-10-08: tiles used to keep their size and a fixed info bar showed the description.) | 2026-10-07 |
 | FD-8 | The phone app shows the TV phase (waiting for the host, choose a game, game pad). Its connect screen stays as it is. | 2026-10-07 |
 | FD-10 | Only players in the same room and on the same Wi-Fi or LAN network as the TV can play. There is no online play and no relay server. | 2026-10-07 |
-| FD-11 | The Connect screen does not show the WebSocket address. The Continue button is in a footer bar, aligned to the right edge of the content. | 2026-10-07 |
+| FD-11 | The Connect screen does not show the WebSocket address. (The Continue button of this decision was removed, see FD-17.) | 2026-10-07 |
 | FD-12 | The Games screen shows a players badge with the number of players, not the room code. OK on the badge opens a modal to manage the players (see the requirements). | 2026-10-07 |
 | FD-9 | Art is no longer limited to flat shapes (changes REQ-P6): the logo and the tile screenshots are image files. Menus and games stay in code. | 2026-10-07 |
 | FD-13 | Visual style: **Party Pop**. Chunky, saturated, sticker-like. Thick dark outlines, hard offset shadows, rounded shapes, bright player color tokens. The TV and the phone use the same style. Rejected: Arcade Neon (heavy glow, hard to read from a sofa) and Sticker Book (needs paper image assets). | 2026-10-07 |
 | FD-14 | Games share a visual language, not one look. Tier 1 (required): the game shell (pause menu, countdown, results, HUD), fonts, player colors. Tier 2 (required, trial rules): a toy-like world (rounded shapes, flat saturated colors, dark outline on key objects). Tier 3 (free): setting, background, camera, lighting mood. The exact tier 2 values are in `docs/GAME_REQUIREMENTS.md` (REQ-GM-47a to 47h). A trial on the marble race checks them. | 2026-10-07 |
 | FD-15 | The owner makes the logo image. The developer sets the exact tier 2 values. | 2026-10-07 |
 | FD-16 | The pointer test and the 3D demo were only for the first test of the prototype. They are removed: code, requirements files, tiles and tests. The marble race is the example of a 3D game. The pointer input of the phone (`PlayerInput.pointer()`, the yaw fusion) stays as an input for a later game, but it has no Settings switch now. | 2026-10-07 |
+| FD-17 | The Connect screen has no Continue button and no player count. A line "Press OK to continue" shows when at least one phone has joined, and OK opens the Games screen. (Found in the first run on an Android TV: the button was the only focus target, so it was redundant, and the count repeated the slot list.) | 2026-10-09 |
 
 ## 3. Requirements
 
@@ -50,8 +51,8 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 
 ### Connect screen
 - REQ-FL-5: The screen has two columns of equal height. Left: a card with the QR code and the 4-letter room code below it. Right: the title, one line of help text, and 4 player slots with color and state (free, joined, lost). The screen does not show the WebSocket address (FD-11).
-- REQ-FL-6: A footer bar at the bottom shows a "Continue" button at the right edge of the content area, inside the safe area (60 px margins, RISKS D5). The button is disabled while no phone has joined, and the footer shows why next to the button (right-aligned, 36 px, white). The status text is "N of 4 players connected" or the reason.
-- REQ-FL-7: The focus starts on "Continue". OK on "Continue" opens the Games screen.
+- REQ-FL-6: The screen has no button and no player count (FD-17). A line at the bottom, centered, inside the safe area (60 px margins, RISKS D5), says "Press OK to continue" (yellow, 48 px) as soon as at least one phone has joined. Before that the line is empty, except when the TV has no network address: then it says so in `UiTheme.BAD_TEXT`. The slot list shows who has joined.
+- REQ-FL-7: OK opens the Games screen when at least one phone has joined. OK does nothing before that, and nothing while the quit question is open (REQ-FL-10).
 - REQ-FL-8: A phone that joins or leaves updates the slots at once. A joined phone shows its name or slot color. The state of a slot is a chip (a pill with a dark outline and dark text): green "Ready!", red "Lost". An empty slot shows "waiting" in plain muted text.
 - REQ-FL-9: A phone that is already joined stays joined when the host goes Back from the Games screen to this screen.
 - REQ-FL-10: Back on this screen opens a quit confirmation (Quit, Stay). The default focus is "Stay".
@@ -63,7 +64,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-14: A game that does not accept the current player count has a dimmed tile and a reason ("Needs 2 players"). OK on it does nothing except show the reason (uses `Registry.accepts()`).
 - REQ-FL-15: A players badge in the top right shows the number of joined players (for example "2 players"). It does not show the room code (FD-12). The badge is a focus target. OK on it opens the Players modal (REQ-FL-32).
 - REQ-FL-16: A gear icon next to the badge is the last focus target. OK on it opens the Settings screen (FD-4).
-- REQ-FL-17: A game with variants asks for the variant after OK on the tile (for example the marble race track). Back returns to the grid with the same tile in focus.
+- REQ-FL-17: A game with a settings view (REQ-GM-90) opens it after OK on the tile: a centered view with Difficulty, Start and Back at the bottom. Back returns to the grid with the same tile in focus. Every game has this view (the marble race adds its track list). Back returns to the grid with the same tile in focus.
 - REQ-FL-18: Back on this screen goes to the Connect screen (FD-6).
 - REQ-FL-19: The registry entry of a game has a `description` and a `tile` field (path of the screenshot). Both are required for a new game.
 
@@ -84,10 +85,14 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-53: A destructive button (`DangerButton`) is dark red `#b3122f` with white text (6.9:1) and a "✕" before the label. It is used in confirmations only (Quit) and beside Remove. The default focus of a confirmation is the safe, main button (Stay, green). Focus follows REQ-FL-41. The text on every button state has a contrast of 4.5:1 or more (a test checks it).
 - REQ-FL-42: Motion: a focused tile grows to the right in about 180 ms and the description fades in; it shrinks again when the focus leaves. A button sinks when it is pressed. A slot pops in with a small overshoot when a phone joins (no confetti; coin sound optional). The logo still ends with one confetti burst. Screen changes use a short slide or fade (up to 250 ms).
 - REQ-FL-43: Motion stops while a game is paused or a phone is lost, and no motion blocks input.
-- REQ-FL-44: The style uses only styled boxes, tweens, particles and fonts. It uses no shader. It must run at 60 fps on the weakest supported TV box (check in `docs/DEVICE_TEST.md`).
+- REQ-FL-44: The style uses only styled boxes, tweens, particles and fonts. It uses no shader. It must run at 60 fps on the weakest supported TV box (check in `docs/MANUAL_TESTS.md`).
 - REQ-FL-45: The background is plain purple, with no dots or bubbles. The confetti of the logo is drawn in code. It is not an image file.
 - REQ-FL-46: The phone app uses the same palette, fonts and card style (REQ-FL-28).
 - REQ-FL-52: Phone buttons follow REQ-FL-41a and REQ-FL-53. On the pad, A is green and B is red (RECENTER is yellow, Leave is yellow). A pressed button sinks. The player color is only in the badge (the number dot) at the top, never a button fill. A number or letter on a color uses `UiTheme.text_on()` (white or dark, whichever has more contrast: dark on orange and teal, white on red and blue). Scan on the connect screen is white (`LightButton`); the discovered TVs below it are green and Refresh is yellow. Leave needs two taps: the first tap turns it red ("Tap again to leave") for 3 s. Error and offline text on the purple background uses `UiTheme.BAD_TEXT` (4.5:1 or more), not `BAD`.
+- REQ-FL-54: The UI is always English and always left to right, whatever the language or the region of the device (a TV set to Hebrew must not mirror the screens). Until translations are added, `App` sets the locale "en" and the layout direction of the root window to left to right at start, on the TV and on the phone. The project setting `internationalization/rendering/root_node_layout_direction` is left to right too.
+- REQ-FL-55: The Back key of the remote and of the phone goes back one step in the app and never quits the app by itself. The project setting `application/config/quit_on_go_back` is false. The app quits only through the quit question of the Connect screen (REQ-FL-10).
+- REQ-FL-56: A tile whose image is missing or cannot be loaded shows a rounded placeholder (a color from the id) and writes a warning to the log (`adb logcat -s godot`). It never shows an empty box without a reason.
+- REQ-FL-57: The corners of the screenshot of a tile are rounded in the image itself (`GameTile.rounded()`, radius 20 px on the screen), once when the tile is made. The tile does not use `clip_children`. (Found in the first run on an Android 10 TV: the screenshots did not show. The cause is not confirmed: this change removes the clipping and adds the warning of REQ-FL-56. See Test 8b item 2 in `docs/MANUAL_TESTS.md`.)
 
 ### Game shell and trial (FD-14)
 - REQ-FL-47: The next pull request restyles the marble race as a trial of the tier 2 rules (REQ-GM-47). The result is judged with a screenshot of the game next to the Games screen (REQ-GM-49). The trial checks the tier 2 values (REQ-GM-47a to 47h) and they are corrected in `docs/GAME_REQUIREMENTS.md` if they are wrong. If the trial shows that games need more freedom, the rules are made looser before any other game is changed.
@@ -122,7 +127,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 
 - `docs/REQUIREMENTS.md`: change REQ-P6 (FD-9), REQ-A9 and REQ-T3 to point to this file. Replace "main menu" with the new screens.
 - `docs/GAME_REQUIREMENTS.md`: the menu rules for the title, the description and the tile. REQ-GM-42 is changed and REQ-GM-45 to 49 (visual language, FD-14) are added.
-- `docs/DEVICE_TEST.md`: new tests for the flow (splash, connect, late join, Back).
+- `docs/MANUAL_TESTS.md`: new tests for the flow (splash, connect, late join, Back).
 - `README.md`: project structure (`assets/fonts`, `assets/tiles`) and controls.
 - `scripts/ui/ui_theme.gd`: new palette, outline and shadow helpers (the current colors are replaced).
 - `scripts/ui/tv_menu.gd` is split into the logo, connect, games and settings screens.

@@ -3,7 +3,8 @@ name: add-minigame
 description: Add a new minigame to the Remote Play TV app. Use when asked to create a game, mode or level type.
 ---
 
-0. Write the requirements first. Copy `docs/games/TEMPLATE.md` to `docs/games/<id>.md` and fill it in. Read `docs/GAME_REQUIREMENTS.md`:
+0. The game is also for children (REQ-GM-80 to 84): friendly made-up characters, no violence, weapons or scary things; a mistake costs nothing; one hint line; large and slow at the start; positive texts. Plan the game with that rule, and say in the requirements file how it is met.
+   Write the requirements first. Copy `docs/games/TEMPLATE.md` to `docs/games/<id>.md` and fill it in. Read `docs/GAME_REQUIREMENTS.md`:
    the general requirements (all games, plus 2D or 3D) apply, and the game file lists its gaps and its own `REQ-<XX>-n` requirements.
    Show the file to the user before you write code if a requirement is a design choice.
 1. Create `scripts/game/<name>/<name>_game.gd` that `extends "res://scripts/game/minigame.gd"`. Look at `maze/maze_game.gd` and
@@ -18,7 +19,7 @@ description: Add a new minigame to the Remote Play TV app. Use when asked to cre
    in 3D use `add_outlined_mesh`). Keep text inside the 60 px TV safe margin, and all text at 28 px or more. A key object is at least 48 px high on screen (REQ-GM-47e). The base class handles the players that leave: remove the objects of a slot in `_on_player_left(slot)` (REQ-GM-21), and it shows the "No players connected" menu when nobody is left (REQ-GM-22, 30a). Set `is_over = true` when you open the result menu. Draw the chips with `Shell.player_chips()` and a 2D ball with `Shell.ball()`. For a score, keep a `Scoreboard` and end the round with `open_results(board, tiers)` (REQ-GM-70 to 73; it also takes extra buttons and a score formatter, and a player without a score goes in with `set_unfinished()`): a timed round uses `RoundClock.new(3.0, duration)`, and a game for one player lists its medal tiers in its requirements file. Pick the background from the Party Pop set.
    Make the tile screenshot with `tools/make_tiles.gd` and check it next to the Games screen (REQ-GM-49).
 5. Add a check to `tests/smoke_tv.gd` (start the game with simulated phones, check one state change), and unit tests for pure logic.
-   Put the requirement ID in the check text. Add a section to `docs/DEVICE_TEST.md`.
+   Put the requirement ID in the check text. Add a test to `docs/MANUAL_TESTS.md` for what only a device can check: the steps, a results table with "Evidence to capture" and a row in its Summary. Add the test to the list in `CLAUDE.md` (Manual tests).
    Every script of the game needs 80% line coverage (`tools/coverage.sh`, REQ-GM-63). Test the rules of the game (win, collision, leaving
    players, buttons), not only that it starts.
 6. Run the `run-tests` skill and the `review` skill, then update the README project structure if needed.

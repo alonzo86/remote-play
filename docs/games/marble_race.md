@@ -12,7 +12,7 @@ Marbles bounce off the walls, the posts and each other.
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-62 | Gap | `docs/DEVICE_TEST.md` has a section for this game (Test 9). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a section for this game (Test 9). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 
 ## Requirements
@@ -42,31 +42,37 @@ Status: Done, Open, or Device (needs a real TV and phones). "Check" names the te
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-MR-20 | A track is a line of points with one half-width. The drivable area is all points within the half-width of the line. | Done | run_tests |
-| REQ-MR-21 | The tracks are Classic, Sprint, Zigzag and Gauntlet. Each has a different character (see the table below). | Done | run_tests |
+| REQ-MR-21 | The tracks are made from a seed (REQ-MR-51). The four hand-made tracks (Classic, Sprint, Zigzag, Gauntlet) were removed on 2026-10-09. | Done | run_tests |
 | REQ-MR-22 | Each track starts with a straight of 8 m or more toward the top of the screen. | Done | run_tests |
 | REQ-MR-23 | A track does not touch itself. | Done | run_tests |
 | REQ-MR-24 | The finish line is 6 m before the end of the track. Posts end 8 m before the end of the track. | Done | run_tests |
-| REQ-MR-25 | A new track needs: an id in `MarbleTrack.IDS`, a case in `MarbleTrack.make()`, and a variant in the registry. A test checks all three agree. | Done | run_tests |
+| REQ-MR-25 | The track list in the registry has one value for each fixed seed in `MarbleTrack.FIXED_SEEDS` and the random track. A test checks that they agree. | Done | run_tests |
 
-| Track | Length | Width | Posts | Winning time (target) |
-|-------|--------|-------|-------|-----------------------|
-| Classic | about 143 m | 6.8 m | 9 | 20 to 30 s |
-| Sprint | about 92 m | 8.0 m | 4 | 12 to 20 s |
-| Zigzag | about 190 m | 5.8 m | 0 | 30 to 45 s |
-| Gauntlet | about 160 m | 9.2 m | 15 | 25 to 40 s |
+A generated track is 100 to 165 m long and 5.9 to 9.2 m wide (REQ-MR-52). The winning time depends on the track and is not measured on a device yet. See "Open questions".
 
-The lengths are measured (`MarbleTrack.length`). The winning times are targets, from a top speed of about 9 m/s. They are not measured on a device yet. See "Open questions".
+### Settings and generated tracks (built 2026-10-09)
+
+REQ-GM-90 to 96 apply. The settings view of the race has the Difficulty row and, under it, the track list. The tracks are made on the fly from a seed, so the four hand-made tracks (REQ-MR-21, 30) go away when this is built.
+
+| ID | Requirement | Status | Check |
+|----|-------------|--------|-------|
+| REQ-MR-50 | Difficulty is the number of posts on the track: Easy 2, Medium 6, Hard 10 posts for each 100 m of track (Classic today has about 6). The track, the marbles and the physics are the same at every difficulty. Posts keep REQ-MR-6 (a gap of one marble or more on one side) and REQ-MR-24 (they end 8 m before the end). | Done | run_tests |
+| REQ-MR-51 | A track is made from a seed (`MarbleTrack.generate(seed)`). The same seed gives the same track. Every generated track meets REQ-MR-20 to 24: a straight start of 8 m or more toward the top of the screen, no touching itself, the finish line 6 m before the end. A test makes many seeds and checks these rules for all of them. | Done | run_tests |
+| REQ-MR-52 | A generated track is 90 to 170 m long and 5.8 to 9.2 m wide (in practice 100 to 165 m and 5.9 to 9.2 m). Its turns are smooth: no turn is sharper than the half-width allows, so a marble never gets stuck in a corner. | Done | run_tests |
+| REQ-MR-53 | The settings view shows the tracks under the Difficulty row as a carousel (`scripts/ui/track_picker.gd`): the tracks in one line, the track in the middle is the selected one. It is bigger and has a yellow border (REQ-GM-97) and, when the carousel has the focus, the black focus frame; the tracks at the sides get smaller and fainter, and the line slides (0.16 s) when it moves. A dot for each track is under the line, and the dot of the selected one is bigger. A track has no name. Tracks 1 to 10 are line sketches of the middle line of a track made from one of 10 fixed seeds (`MarbleTrack.FIXED_SEEDS`). The 11th is the random track: a question mark. The race uses a new random seed that is not one of the 10 fixed ones. With the focus on the carousel, Left and Right on the remote move the line by one track (it stops at the ends, REQ-GM-92); no OK is needed. Up goes to Difficulty, Down to Start. Track 1 is in the middle when the view opens the first time; later the last choice is in the middle (REQ-GM-94). | Done | smoke_settings |
+| REQ-MR-54 | The track list is the only place where the track is chosen. The seed of the chosen track is part of `start_props`, so Restart (REQ-MR-33) plays the same track. The track name is shown during the race (REQ-MR-35). | Done | smoke_tv |
+| REQ-MR-55 | The results menu has "Settings" (REQ-GM-95) in place of "Choose track". | Done | smoke_tv |
 
 ### Menus and flow
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-MR-30 | The Games screen has one "Marble Race" tile. It opens the track list. A track starts the race. Back from the list returns to the grid with the tile in focus. | Done | smoke_tv |
-| REQ-MR-31 | The results menu (`open_results()`, REQ-GM-72) names the winner and lists all marbles: the finish times first, then the marbles that did not finish (by distance). It has Restart, Choose track and Back to menu. Choose track opens the track list. The current track is marked. | Done | smoke_tv |
-| REQ-MR-32 | The pause menu has Resume, Restart and Back to menu. It has no Choose track. A player can leave a race at any time. | Done | smoke_tv (pause menu) |
+| REQ-MR-30 | The Games screen has one "Marble Race" tile. It opens the settings view (REQ-GM-90): Difficulty, the track list, Start and Back. Back returns to the grid with the tile in focus. | Done | smoke_settings |
+| REQ-MR-31 | The results menu (`open_results()`, REQ-GM-72) names the winner and lists all marbles: the finish times first, then the marbles that did not finish (by distance). It has Restart, Settings and Back to menu. Settings opens the settings view with the last choices. | Done | smoke_tv |
+| REQ-MR-32 | The pause menu has Resume, Restart and Back to menu. A player can leave a race at any time. | Done | smoke_tv (pause menu) |
 | REQ-MR-33 | Restart keeps the track. | Done | smoke_tv |
-| REQ-MR-34 | Back in the track list of the results returns to the results. Back in the results leaves the game. | Done | smoke_tv |
-| REQ-MR-14 | If all players leave during the race, a menu "No players connected" opens with "Back to menu". It is also what opens when the results are asked for (for example Cancel in the track list) after all players left. | Done | smoke_tv |
+| REQ-MR-34 | Back in the results leaves the game. | Done | smoke_tv |
+| REQ-MR-14 | If all players leave during the race (their slots are freed: the hold of a paused game is over, REQ-GM-30a), a menu "No players connected" opens with "Back to menu". A lost phone first pauses the race with the card of REQ-GM-30. It is also what opens when the results are asked for after all players left. | Done | smoke_tv |
 | REQ-MR-15 | The Recenter button of the phone zeroes the tilt of that player in the race. | Done | smoke_tv |
 | REQ-MR-35 | The name of the track is shown on the screen during the race. | Done | Device |
 

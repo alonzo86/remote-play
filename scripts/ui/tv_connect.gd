@@ -1,6 +1,6 @@
 extends Control
 ## Connect controllers screen (REQ-FL-5 to 10). QR code, room code and the 4 slots.
-## Continue opens the Games screen once at least one phone has joined. Back asks to quit.
+## OK opens the Games screen once at least one phone has joined ("Press OK to continue"). Back asks to quit.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -10,10 +10,8 @@ const SlotList = preload("res://scripts/ui/slot_list.gd")
 const TvModal = preload("res://scripts/ui/tv_modal.gd")
 
 var _qr: Control
-var _status: Label
-var _continue: Button
+var _hint: Label
 var _modal: Control
-var _was_ready := false
 
 
 func _ready() -> void:
@@ -56,19 +54,11 @@ func _ready() -> void:
 	right.add_child(UiKit.spacer(10))
 	right.add_child(SlotList.new())
 
-	# Footer: status on the left, Continue on the right.
-	var foot := HBoxContainer.new()
-	root.add_child(foot)
-	_status = UiKit.label("", 36, UiTheme.TEXT, UiTheme.body_bold())
-	_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT # Next to Continue, not at the far left.
-	_status.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	foot.add_child(_status)
-	foot.add_child(UiKit.spacer(0)) # A gap between the status and the button.
-	foot.get_child(foot.get_child_count() - 1).custom_minimum_size = Vector2(36, 0)
-	_continue = UiKit.button("Continue", App.go_games, true, 44)
-	_continue.custom_minimum_size = Vector2(380, 96)
-	foot.add_child(_continue)
+	# Footer: one line. "Press OK to continue" once a phone has joined (REQ-FL-6). There is no button: OK is the only action.
+	_hint = UiKit.title("", 48)
+	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_hint.custom_minimum_size = Vector2(0, 72)   # The line keeps its place, so that the layout does not jump.
+	root.add_child(_hint)
 	_refresh()
 
 
@@ -76,22 +66,28 @@ func _process(_delta: float) -> void:
 	_refresh()
 
 
+## OK opens the Games screen once a phone has joined (REQ-FL-7). The quit question has its own buttons.
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_accept") and can_continue():
+		get_viewport().set_input_as_handled()
+		App.go_games()
+
+
+func can_continue() -> bool:
+	return _modal == null and App.server.connected_slots().size() >= 1
+
+
 func _refresh() -> void:
 	var ip: String = App.discovery.ip if App.discovery != null else ""
 	_qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code) if ip != "" else ""
-	var n: int = App.server.connected_slots().size()
-	var ready := n >= 1
-	_continue.disabled = not ready
-	if ip == "":
-		_status.text = "No Wi-Fi address found. Connect the TV to your network."
-		_status.add_theme_color_override("font_color", UiTheme.BAD_TEXT)
+	if App.server.connected_slots().size() >= 1:
+		_hint.add_theme_color_override("font_color", UiTheme.ACCENT)
+		_hint.text = "Press OK to continue"
+	elif ip == "":
+		_hint.add_theme_color_override("font_color", UiTheme.BAD_TEXT)
+		_hint.text = "No Wi-Fi address found. Connect the TV to your network."
 	else:
-		_status.add_theme_color_override("font_color", UiTheme.TEXT)
-		_status.text = ("%d of %d players connected" % [n, Protocol.MAX_PLAYERS]) if ready \
-				else "Waiting for the first player to join"
-	if ready and not _was_ready and _modal == null:
-		_continue.grab_focus() # Focus starts on Continue (REQ-FL-7).
-	_was_ready = ready
+		_hint.text = ""
 
 
 func on_back() -> void:

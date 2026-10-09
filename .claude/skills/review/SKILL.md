@@ -33,6 +33,7 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 - GDScript with tabs, typed variables where the surrounding code types them, `##` doc comments, short ASD-STE100 style in docs.
 - `gdlint scripts tests tools` must pass (`.gdlintrc`). Shell scripts pass `shellcheck`.
 - Screens are built in code in the Party Pop style (`docs/TV_FLOW.md`). Image files only where REQ-P6 allows them.
+- A new game is also for children (REQ-GM-80 to 84): friendly made-up characters, no violence or weapons or scary things, no point or wait penalty for a mistake, one hint line, large and slow at the start, positive texts. Report a broken rule by its ID.
 - A new game follows the visual language: shell (REQ-GM-45), player colors (REQ-GM-46), toy-like world (REQ-GM-47), and a tile screenshot that looks like the same toy box as the Games screen (REQ-GM-49).
 
 **Games**
@@ -45,7 +46,7 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 - Every module has 80% line coverage (`tools/coverage.sh`), or is set aside with a reason in `tools/coverage/exclusions.txt`.
   Read the new tests: each must assert a behavior and fail when it breaks. Report a test that only runs lines, and a set-aside module
   that could be tested without extreme work.
-- User-visible changes update `README.md`, and test results go in `docs/DEVICE_TEST.md`.
+- User-visible changes update `README.md`, and test results go in `docs/MANUAL_TESTS.md`.
 
 ## Report
 

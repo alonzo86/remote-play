@@ -19,6 +19,7 @@ const DISABLED := Color("c4c0cf")    # A disabled button: flat gray, no shadow (
 const DISABLED_EDGE := Color("7d7890") # Outline of a disabled button.
 const DISABLED_TEXT := Color("4d4863") # Label of a disabled button.
 const FOCUS_BORDER := Color("000000")  # The border of the focused button (REQ-FL-41).
+const SELECTED := ACCENT               # The chosen value in the settings view: a yellow border or yellow text (REQ-GM-97).
 const CARD := Color("ffffff")
 const CARD_TEXT := Color("24104f")
 const CARD_DIM := Color("6b5a9e")

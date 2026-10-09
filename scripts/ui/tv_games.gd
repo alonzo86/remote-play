@@ -1,12 +1,12 @@
 extends Control
 ## Games screen (REQ-FL-11 to 19): a grid of tiles (16:9 screenshot, title, player range), the
 ## players badge, the Settings gear, and an info bar with the description of the focused game.
-## A game with variants asks for the variant first (the marble race track).
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Registry = preload("res://scripts/game/registry.gd")
+const GameSettings = preload("res://scripts/game/game_settings.gd")
 const GameTile = preload("res://scripts/ui/game_tile.gd")
 const PlayersBadge = preload("res://scripts/ui/players_badge.gd")
 const GearButton = preload("res://scripts/ui/gear_button.gd")
@@ -17,13 +17,11 @@ const ROW_LEN := 3   # Tiles in a row: 2 normal tiles and 1 wide tile fit in CON
 
 var _root: VBoxContainer
 var _grid_view: Control
-var _variant_view: Control
 var _scroll: ScrollContainer
 var _tiles: Array[Button] = []
 var _badge: Button
 var _gear: Button
 var _modal: Control
-var _variants_of := ""
 var _players := -1
 
 
@@ -41,18 +39,16 @@ func _ready() -> void:
 
 
 func _clear_views() -> void:
-	for v in [_grid_view, _variant_view]:
+	for v in [_grid_view]:
 		if v != null:
 			_root.remove_child(v)
 			v.queue_free()
 	_grid_view = null
-	_variant_view = null
 	_tiles.clear()
 
 
 func _show_grid(focus_id := "") -> void:
 	_clear_views()
-	_variants_of = ""
 	var view := VBoxContainer.new()
 	view.add_theme_constant_override("separation", 22)
 	view.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -114,8 +110,7 @@ func _show_grid(focus_id := "") -> void:
 
 
 func _process(_delta: float) -> void:
-	if _variants_of == "":
-		_update_fit()
+	_update_fit()
 
 
 ## Dims the tiles of games that do not accept the number of players now (REQ-FL-14, 27).
@@ -133,8 +128,8 @@ func _on_tile(game: Dictionary) -> void:
 	if not Registry.accepts(game, n):
 		return # The tile shows the reason in yellow under its title (REQ-FL-14).
 	App.last_game = String(game.id)
-	if game.has("variants"):
-		_show_variants(game)
+	if GameSettings.has_view(game):
+		App.go_game_settings(String(game.id))
 	else:
 		_launch(String(game.id), game.get("props", {}))
 
@@ -143,34 +138,6 @@ func _launch(id: String, props: Dictionary) -> void:
 	var script := Registry.load_script(id)
 	if script != null:
 		App.go(script, props)
-
-
-## Second step for games with variants (REQ-FL-17).
-func _show_variants(game: Dictionary) -> void:
-	_clear_views()
-	_variants_of = String(game.id)
-	var view := VBoxContainer.new()
-	view.add_theme_constant_override("separation", 18)
-	view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	view.alignment = BoxContainer.ALIGNMENT_CENTER
-	_root.add_child(view)
-	_variant_view = view
-	view.add_child(UiKit.title("%s: choose a track" % String(game.title), 72))
-	view.add_child(UiKit.spacer(14))
-	var first: Button = null
-	for v in game.variants:
-		var b := UiKit.button(String(v.title), _launch.bind(String(game.id), v.props), false, 44)
-		b.custom_minimum_size = Vector2(640, 96)
-		b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		view.add_child(b)
-		if first == null:
-			first = b
-	view.add_child(UiKit.spacer(30)) # Back is apart from the options and looks different.
-	var back := UiKit.button("Back", func(): _show_grid(_variants_of), false, 32, true)
-	back.custom_minimum_size = Vector2(240, 72)
-	back.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	view.add_child(back)
-	UiKit.focus_later(first)
 
 
 func _open_players() -> void:
@@ -183,7 +150,5 @@ func _open_players() -> void:
 func on_back() -> void:
 	if _modal != null:
 		_modal.on_back()
-	elif _variants_of != "":
-		_show_grid(_variants_of)
 	else:
 		App.go_connect() # Back goes to the Connect screen. The players stay (REQ-FL-18).

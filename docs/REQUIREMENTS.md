@@ -39,7 +39,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-N2: Each sensor packet has a phone timestamp and a sequence number.
 - REQ-N3: Control messages are JSON text frames.
 - REQ-N4: The TV and phone measure RTT and clock offset with `ping` / `pong` once each second.
-- REQ-N5: A phone that loses its connection keeps its slot for 30 seconds.
+- REQ-N5: A phone that loses its connection keeps its slot for 30 seconds, and for 5 minutes while the game is paused for it.
 - REQ-N6: The phone reconnects automatically with a saved token (backoff 0.5 s, 1 s, 2 s, then every 2 s).
 - REQ-N7: Full message reference: `docs/PROTOCOL.md`.
 
@@ -58,7 +58,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
 - REQ-T6: The TV app follows the flow in `docs/TV_FLOW.md`: logo, Connect controllers, Games, and a game. Settings and the Players modal open from the Games screen.
 - REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values.
-- REQ-T5: The player can pause when a phone disconnects. The player can continue when it reconnects. When no player is left connected, the game ends at once, without a wait (REQ-GM-30a).
+- REQ-T5: The game pauses when a phone disconnects, also when the phone is only silent (no Wi-Fi, a phone call). A card tells which phone, and the player chooses: resume without it (while another phone is connected), resume when it is back, or end the game (REQ-GM-30, 30a). The game never goes on by itself.
 
 ## 7. Android export
 

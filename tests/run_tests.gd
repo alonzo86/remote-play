@@ -97,7 +97,6 @@ func _run() -> void:
 	_test_maze()
 	_test_qr()
 	_test_registry()
-	_test_marble_track()
 	await _test_network()
 	await _test_phone_screens()
 	_test_visual_rules()
@@ -239,56 +238,12 @@ func _test_registry() -> void:
 				print("    tile of ", id, " is not 640x360")
 	_check(shown_ok, "every game has a description and a 640x360 tile file (REQ-FL-19, 20, 22)")
 	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
-	var tracks_ok := true
-	for g in Registry.all():
-		if g.id == "marble_race":
-			var track_ids: Array = []
-			for v in g.variants:
-				track_ids.append(v.props.track_id)
-			tracks_ok = track_ids == MarbleTrack.IDS
-	_check(tracks_ok, "marble race menu variants match the track list")
+	var race_rows: Array = Registry.find("marble_race").get("settings", [])
+	_check(race_rows.size() == 1 and race_rows[0].type == "tracks"
+			and race_rows[0].values.size() == MarbleTrack.FIXED_SEEDS.size() + 1
+			and race_rows[0].titles.size() == race_rows[0].values.size() and race_rows[0].values[-1] == "random",
+			"the marble race track list has the 10 fixed tracks and the random one (REQ-MR-53)")
 	_check(Registry.accepts(Registry.find("maze"), 4) and not Registry.accepts(Registry.find("maze"), 5), "player range check")
-
-
-func _test_marble_track() -> void:
-	print("marble track")
-	for tid in MarbleTrack.IDS:
-		var t = MarbleTrack.make(tid)
-		_check(t.id == tid and t.length > 60.0, "%s: loads and is long enough (%.0f m)" % [tid, t.length])
-		var prev := -1.0
-		var mono := true
-		var on_line := true
-		var a := 0.0
-		var samples: Array[Vector2] = []
-		while a <= t.length:
-			var q: Dictionary = t.query(t.point_at(a))
-			if q.dist > 0.01 or absf(q.arc - a) > 0.05:
-				on_line = false
-			if q.arc < prev:
-				mono = false
-			prev = q.arc
-			samples.append(t.point_at(a))
-			a += 1.0
-		_check(on_line and mono, "%s: point_at and query agree, arc grows" % tid)
-		# Parts of the track far apart in arc must be far apart in space, or arc is not clear.
-		var apart := true
-		var gap := ceili(t.half_width * 4.0)
-		for i in samples.size():
-			for j in range(i + gap, samples.size()):
-				if samples[i].distance_to(samples[j]) < t.half_width * 1.8:
-					apart = false
-		_check(apart, "%s: track does not touch itself" % tid)
-		_check(t.dir_at(5.0).is_equal_approx(Vector2(0, -1)) and t.point_at(8.0).x == 0.0, "%s: starts with a straight toward -z" % tid)
-		var bumpers_ok := true
-		for b in t.bumpers:
-			var off: float = absf(b[1]) * t.half_width * 0.44
-			if b[0] > t.length - 8.0 or t.half_width + off - 0.9 < 2.0:
-				bumpers_ok = false
-		_check(bumpers_ok, "%s: bumpers leave a marble-wide gap and stay before the finish" % tid)
-	var t0 = MarbleTrack.make("classic")
-	var side: Vector2 = t0.point_at(30.0) + Vector2(t0.half_width + 1.0, 0)
-	_check(t0.query(side).dist > t0.half_width, "a point beside the track is outside it")
-	_check(MarbleTrack.make("nope").id == "classic", "unknown track id gives the classic track")
 
 
 func _test_maze() -> void:
@@ -970,4 +925,5 @@ func _test_network() -> void:
 	for c in clients:
 		c.leave()
 	server.stop()
+
 

@@ -76,8 +76,8 @@ The phone frame: x = right, y = top of the phone, z = out of the screen.
 ## Slots, loss and reconnect
 
 - The TV has 4 slots. A slot has the state `EMPTY`, `CONNECTED`, or `LOST`.
-- When the socket closes or is silent for 5 seconds, the slot becomes `LOST`. The TV keeps it for 30 seconds.
-- The game pauses while a participant is `LOST` and another participant is still connected. The TV user can press OK to continue without that player. When all participants are `LOST` for more than 5 seconds, the TV drops them and the game ends with "No players connected". A phone that comes back within those 5 seconds continues.
+- When the socket closes or is silent for 5 seconds, the slot becomes `LOST`. A silent phone is lost at once: the TV does not wait for a close handshake that the phone cannot answer (for example when its Wi-Fi is gone). The TV keeps a lost slot for 30 seconds. While the game is paused for it (phase `paused`), the TV keeps it for 5 minutes (`PAUSED_SLOT_GRACE_MS`), so that a phone call does not end the game.
+- The game pauses while a participant is `LOST`, and it does not go on by itself (REQ-GM-30). The TV user chooses: "Resume without P2" frees the slot of the lost phone (only while another participant is connected), "Resume" goes on when the phones are back, "End game" leaves. A phone that comes back with its token gets its slot again. When the slot is freed (time over, or "Resume without"), a phone that comes back is a new player and waits for the next round. When no participant is left, the game ends with "No players connected".
 - The phone reconnects after 0.5 s, 1 s, 2 s, and then every 2 s. It sends the saved `token`.
   The TV gives the same slot back.
 - A `hello` with an unknown token is a new player.

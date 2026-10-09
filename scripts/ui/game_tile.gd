@@ -7,6 +7,7 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 
 const SHOT := Vector2(420, 236)       # The screenshot (16:9). Every tile has this size.
+const CORNER := 20                    # The corner radius of the screenshot in screen pixels (REQ-FL-57).
 const INFO_W := 360.0                 # The extra width of the focused tile: the description of the game.
 const GAP := 24.0
 const TEXT_H := 84.0
@@ -48,14 +49,13 @@ func _ready() -> void:
 
 	var shot := Panel.new()
 	shot.add_theme_stylebox_override("panel", UiTheme.card(UiTheme.BG_DARK, UiTheme.OUTLINE, 0, 20, false))
-	shot.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
 	shot.size = SHOT
 	shot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shot)
-	var path := String(game.get("tile", ""))
-	if path != "" and ResourceLoader.exists(path):
+	var tile_tex := load_tile(String(game.get("tile", "")))
+	if tile_tex != null:
 		var tr := TextureRect.new()
-		tr.texture = load(path)
+		tr.texture = tile_tex
 		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		tr.size = SHOT
@@ -63,8 +63,9 @@ func _ready() -> void:
 		shot.add_child(tr)
 	else:
 		# Placeholder: a color from the id, and the title (REQ-FL-11).
-		var bg := ColorRect.new()
-		bg.color = Color.from_hsv(float(String(game.id).hash() % 360) / 360.0, 0.6, 0.65)
+		var bg := Panel.new()
+		var fill := Color.from_hsv(float(String(game.id).hash() % 360) / 360.0, 0.6, 0.65)
+		bg.add_theme_stylebox_override("panel", UiTheme.card(fill, UiTheme.OUTLINE, 0, CORNER, false))
 		bg.size = SHOT
 		bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		shot.add_child(bg)
@@ -97,6 +98,46 @@ func _ready() -> void:
 	focus_exited.connect(_grow.bind(false))
 	_set_width(SHOT.x)
 	_refresh()
+
+
+## The screenshot of a game as a texture with rounded corners, or null (then the tile shows a placeholder, REQ-FL-57).
+## A tile that fails to load writes a warning to the log (`adb logcat -s godot`).
+static func load_tile(path: String) -> Texture2D:
+	if path == "":
+		return null
+	if not ResourceLoader.exists(path):
+		push_warning("Tile image not found: %s" % path)
+		return null
+	var tex := load(path) as Texture2D
+	if tex == null:
+		push_warning("Tile image could not be loaded: %s" % path)
+		return null
+	return rounded(tex, CORNER)
+
+
+## `tex` with its four corners cut round. `corner` is the radius on the screen (a tile is shown at SHOT.x pixels wide).
+## The corners are made in the image once, so no clipping (`clip_children`) is needed when it is drawn.
+## The edge is smooth (one pixel of anti-aliasing). When the image cannot be read, `tex` is returned as it is.
+static func rounded(tex: Texture2D, corner: int) -> Texture2D:
+	var img := tex.get_image()
+	if img == null or img.is_empty():
+		return tex
+	img.convert(Image.FORMAT_RGBA8)
+	var w := img.get_width()
+	var h := img.get_height()
+	var r := float(corner) * float(w) / SHOT.x
+	var n := ceili(r)
+	for dy in n:
+		for dx in n:
+			var d := Vector2(r - dx - 0.5, r - dy - 0.5).length()   # Distance from the center of the corner circle.
+			var a := clampf(r - d + 0.5, 0.0, 1.0)
+			if a >= 1.0:
+				continue
+			for p in [Vector2i(dx, dy), Vector2i(w - 1 - dx, dy), Vector2i(dx, h - 1 - dy), Vector2i(w - 1 - dx, h - 1 - dy)]:
+				var c := img.get_pixelv(p)
+				c.a *= a
+				img.set_pixelv(p, c)
+	return ImageTexture.create_from_image(img)
 
 
 ## The width of the tile when it has the focus (the screenshot, a gap and the description).
