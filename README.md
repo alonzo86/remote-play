@@ -141,8 +141,10 @@ GODOT=/path/to/godot tests/run_all.sh
 ```
 
 The suites are listed once, in `tests/suites.txt` (script, role, title). `tests/run_suites.sh` runs them. A new suite is added to that file only.
-`tests/run_all.sh` is the quick local run (the suites and the check of `tokens.css`). CI runs one job, `test`, that runs the same
-suites with coverage (`tools/coverage.sh`) and fails when a module is below 80%.
+`tests/run_all.sh` is the quick local run (the suites and the check of `tokens.css`). CI has two jobs for this. `test` runs the suites
+on the instrumented copy of the project (`COVERAGE_STEP=run tools/coverage.sh`), so a failure there is a failed test, and it keeps the
+coverage hits. `coverage` (after `test`) reads those hits and fails when a module is below 80% (`COVERAGE_STEP=report tools/coverage.sh`).
+No test runs twice. `tools/coverage.sh` without `COVERAGE_STEP` does both parts, as a local check.
 
 - `tests/run_tests.gd`: packet codec, sensor fusion (tilt, yaw, bias, timestamp wrap), maze generator,
   QR encoder, and a network test with a real server and 4 clients (join, full room, wrong room, RTT,
