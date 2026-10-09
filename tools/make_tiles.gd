@@ -17,7 +17,12 @@ const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55)]}
 
-var _seq := [0, 0]
+## Games that need more phones for a good picture: the race shows 4 marbles close together.
+const EXTRA_PHONES := {"marble_race": 2}
+## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
+const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
+
+var _seq := [0, 0, 0, 0]
 
 
 func _initialize() -> void:
@@ -37,6 +42,19 @@ func _stream(c: Array, seconds: float, accel: Array, gyro := []) -> void:
 					accel[i], 0, 0, Vector2.ZERO))
 			_seq[i] += 1
 		await _frames(1)
+
+
+## The race picture: the marbles side by side before a post, so that the bend, the post and the others are in view.
+func _place_race(race: Node) -> void:
+	var track = race.track
+	var post_arc: float = track.bumpers[2][0] if track.bumpers.size() > 2 else 40.0
+	var slots: Array = race.participants
+	for i in slots.size():
+		var arc := post_arc - 7.0 + (i % 2) * 2.2
+		var side := (float(i) - (slots.size() - 1) * 0.5) * 1.5
+		var r = race._racers[slots[i]]
+		r.pos = track.point_at(arc) + race._perp(track.dir_at(arc)) * side
+		r.vel = Vector2.ZERO
 
 
 func _run() -> void:
@@ -62,12 +80,32 @@ func _run() -> void:
 		var props: Dictionary = g.get("props", {})
 		if g.has("settings"):
 			props = GameSettings.props_for(g)
+		if SCENE_PROPS.has(String(g.id)):
+			props = SCENE_PROPS[String(g.id)].duplicate()
+		var extra := []
+		for i in int(EXTRA_PHONES.get(String(g.id), 0)):
+			var e := ControllerClient.new()
+			e.player_name = "Phone %d" % (clients.size() + i + 1)
+			root.add_child(e)
+			e.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+			extra.append(e)
+		var t_join := Time.get_ticks_msec()
+		while app.server.connected_slots().size() < clients.size() + extra.size() and Time.get_ticks_msec() - t_join < 4000:
+			await _frames(1)
+		var pad: Array = clients + extra
+		var flats: Array = []
+		for c in pad:
+			flats.append(flat)
 		app.go(Registry.load_script(String(g.id)), props)
-		await _stream(clients, 3.2, [flat, flat]) # The countdown.
+		await _stream(pad, 3.2, flats) # The countdown.
 		var wait: float = float(WAIT.get(String(g.id), 3.0)) - 3.2
 		if AIM_GYRO.has(String(g.id)):
-			await _stream(clients, 0.5, [flat, flat], AIM_GYRO[String(g.id)])
+			await _stream(pad, 0.5, flats, AIM_GYRO[String(g.id)])
 			wait -= 0.5
+		if String(g.id) == "marble_race":
+			_place_race(app.current_screen())
+			await _stream(pad, 1.6, flats)
+			wait = 0.0
 		if wait > 0.0:
 			await _stream(clients, wait, [right, left])
 		await _frames(3)
@@ -76,6 +114,10 @@ func _run() -> void:
 		var path := OUT_DIR + String(g.id) + ".png"
 		var err := img.save_png(ProjectSettings.globalize_path(path))
 		print("%s: %s (%d)" % [g.id, path, err])
+		for e in extra:
+			e.leave()
+		if not extra.is_empty():
+			await _frames(30)
 	app.go_menu()
 	for c in clients:
 		c.leave()
