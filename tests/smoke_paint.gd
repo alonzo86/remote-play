@@ -1,0 +1,155 @@
+extends SceneTree
+## Smoke test of Paint Grab with two simulated phones (REQ-PG-*). Run:
+##   godot --headless --path . --script tests/smoke_paint.gd -- --role=tv
+
+const Protocol = preload("res://scripts/core/protocol.gd")
+const ControllerClient = preload("res://scripts/net/controller_client.gd")
+
+var _fails := 0
+var _checks := 0
+var _seq := [0, 0]
+
+
+func _initialize() -> void:
+	_run()
+
+
+func _check(cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what)
+	else:
+		_fails += 1
+		print("  FAIL ", what)
+
+
+func _frames(n: int) -> void:
+	for i in n:
+		await process_frame
+
+
+## Both phones send `accel` (a lean of the phone) for `seconds`.
+func _stream(clients: Array, seconds: float, accel: Array) -> void:
+	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
+	while Time.get_ticks_msec() < end:
+		for i in clients.size():
+			clients[i].send_sensor(Protocol.encode_sensor(_seq[i], Time.get_ticks_msec(), Vector3.ZERO, accel[i], 0, 0, Vector2.ZERO))
+			_seq[i] += 1
+		await _frames(1)
+
+
+func _run() -> void:
+	await _frames(5)
+	root.size = Vector2i(1920, 1080)
+	var PaintGame = load("res://scripts/game/paint_grab/paint_grab_game.gd")
+	var TvGameSettings = load("res://scripts/ui/tv_game_settings.gd")
+	var GameSettings = load("res://scripts/game/game_settings.gd")
+	var app: Node = root.get_node("App")
+	GameSettings.clear()
+	var clients: Array = []
+	for i in 2:
+		var c := ControllerClient.new()
+		c.player_name = "Sim%d" % i
+		root.add_child(c)
+		c.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+		clients.append(c)
+	var joined := Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - joined < 4000:
+		await process_frame
+	var flat := Vector3(0, 0, 9.81)
+	var lean := deg_to_rad(15.0)
+	var right := Vector3(-sin(lean), 0, cos(lean)) * 9.81
+	await _stream(clients, 0.5, [flat, flat])
+
+	# The settings view and the difficulty (REQ-PG-20).
+	app.go_game_settings("paint_grab")
+	await _frames(4)
+	var sv: Control = app.current_screen()
+	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 1 and sv.rows[0].value == "medium",
+			"Paint Grab opens the settings view with Difficulty on Medium")
+	var key := InputEventAction.new()
+	key.action = "ui_right"
+	key.pressed = true
+	sv.rows[0]._gui_input(key)
+	sv.start()
+	await _frames(4)
+	var hard: Control = app.current_screen()
+	_check(is_instance_of(hard, PaintGame) and hard.difficulty == "hard" and hard.floor_map.cols == 20 and hard.floor_map.rows == 11
+			and hard._bodies[0].max_speed > 560.0, "Hard gives a floor of 20 x 11 tiles and faster blobs (REQ-PG-20)")
+	GameSettings.clear()
+
+	# A round on Medium.
+	app.go(PaintGame, {"difficulty": "medium"})
+	await _frames(3)
+	var game: Control = app.current_screen()
+	_check(game.participants.size() == 2 and game.floor_map.cols == 16 and game.floor_map.rows == 9
+			and game.floor_map.count(0) == 0, "Medium starts with 2 blobs on an empty floor of 16 x 9 tiles (REQ-PG-2)")
+	var start0: Vector2 = game._bodies[0].pos
+	var start1: Vector2 = game._bodies[1].pos
+	var middle: Vector2 = game.floor_map.size() * 0.5
+	_check(is_equal_approx(start0.distance_to(middle), start1.distance_to(middle)) and start0.distance_to(start1) > 200.0,
+			"the blobs start apart and at the same distance from the middle (REQ-PG-3)")
+	await _stream(clients, 1.5, [right, right])
+	_check(game._round.is_counting() and game._bodies[0].pos == start0 and game.floor_map.count(0) == 0,
+			"during the countdown the blobs do not move and nothing is painted (REQ-PG-1)")
+	await _stream(clients, 2.2, [flat, flat])
+	_check(game._round.is_playing(), "the round plays after the countdown")
+	await _stream(clients, 2.5, [right, flat])
+	_check(game._bodies[0].pos.x > start0.x + 20.0 and game._bodies[1].pos.distance_to(start1) < 40.0,
+			"tilt moves only the blob of that phone")
+	_check(game.floor_map.count(0) >= 3 and game._board.score(0) == game.floor_map.count(0),
+			"the blob painted tiles on its way and the score is the number of tiles (REQ-PG-4, 5): %d" % game.floor_map.count(0))
+	# A blob of the other player takes a tile (REQ-PG-4).
+	var some := Vector2i(-1, -1)
+	for r in game.floor_map.rows:
+		for c in game.floor_map.cols:
+			var cell := Vector2i(c, r)
+			if some.x < 0 and game.floor_map.owner_of(cell) == 0 and cell != game.floor_map.cell_at(game._bodies[0].pos):
+				some = Vector2i(c, r)
+	game._bodies[1].pos = (Vector2(some) + Vector2(0.5, 0.5)) * 100.0
+	game._bodies[1].vel = Vector2.ZERO
+	var before0: int = game.floor_map.count(0)
+	game._game_tick(0.016)
+	_check(game.floor_map.owner_of(some) == 1 and game.floor_map.count(0) == before0 - 1
+			and game._board.score(0) == before0 - 1 and game._board.score(1) == game.floor_map.count(1),
+			"a blob that rolls over a tile of another player takes it, and both scores follow (REQ-PG-4)")
+	await _frames(3)
+	_check(game._pops[some.y * game.floor_map.cols + some.x] > 0.0, "a painted tile pops (REQ-PG-16)")
+
+	# A player leaves (REQ-PG-10).
+	var tiles1: int = game.floor_map.count(1)
+	app.server.kick(1)
+	await _frames(5)
+	_check(not game._bodies.has(1) and not game.is_over and game.floor_map.count(1) == tiles1,
+			"a player who leaves takes the blob out, the tiles stay and the round goes on")
+
+	# Time is up with one player left: a medal for the share of the floor (REQ-PG-5, 6, 21).
+	game._round.time = game.ROUND_TIME - 0.005
+	game._game_tick(0.01)
+	await _frames(3)
+	var buttons: Array = game.menu_buttons().map(func(b): return b.text)
+	var labels: Array = []
+	for l in game._menu_box.find_children("*", "Label", true, false):
+		labels.append(l.text)
+	_check(game.is_over and buttons == ["Restart", "Settings", "Back to menu"], "time up opens the result menu: %s" % str(buttons))
+	_check(labels[0].ends_with("(Medium)") and labels[1].contains(" tiles (") and labels[1].ends_with("%)"),
+			"one player gets a medal title with the difficulty and a list row with the tiles and the percent: %s" % str(labels))
+	# The layout comes from the size of the screen (REQ-PG-17): the floor stays inside the margin at 1280x720 and at 1920x1080.
+	var fits_ok := true
+	for res in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
+		root.size = res
+		await _frames(4)
+		var fit: Dictionary = game._fit()
+		var rect := Rect2(fit.origin, game.floor_map.size() * fit.k)
+		fits_ok = fits_ok and rect.position.x >= 59.0 and rect.end.x <= game.size.x - 59.0 and rect.position.y >= 149.0 \
+				and rect.end.y <= game.size.y - 59.0
+	_check(fits_ok, "the floor is inside the margin and under the HUD at 1280x720 and 1920x1080 (REQ-PG-17)")
+	game.restart()
+	await _frames(4)
+	_check(is_instance_of(app.current_screen(), PaintGame) and app.current_screen().difficulty == "medium"
+			and app.current_screen().floor_map.count(0) == 0, "Restart starts a new empty floor with the same difficulty")
+	for c in clients:
+		c.leave()
+	await _frames(10)
+	print("%d checks, %d failed" % [_checks, _fails])
+	quit(1 if _fails > 0 else 0)

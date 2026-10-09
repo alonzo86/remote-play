@@ -57,14 +57,14 @@ Maze and Marble Race both use `open_results()`. Their result menus now list all 
 |---|--------|---------|---------|-------|------------------|-----------|-------|
 | 0 | PR 12 | Common helpers (step 0a, then 0b) | | | | | none |
 | 1 | `games/target-shoot` (PR 13, merged) | Snowball Splat (`snowball_splat`, first made as "Target Shoot"; the branch name stayed) | 1 to 4 | pointer, A | Throw snowballs at big, slow, friendly Puffs. Same Puffs for all. Most points in 60 s wins. No penalty for a miss. | Score attack against medal tiers | 0 |
-| 2 | `games/paint-grab` | Paint Grab (`paint_grab`), builds `TiltBody` | 1 to 4 | tilt | Roll over tiles to claim them. Others can take them back. Most area at 60 s wins. | Cover 80% of the board before time ends | 0 |
+| 2 | `games/paint-grab` (in work) | Paint Grab (`paint_grab`), builds `TiltBody` | 1 to 4 | tilt | Roll over tiles to claim them. Others can take them back. Most area at 60 s wins. | Cover 80% of the board before time ends | 0 |
 | 3 | `games/dodge-storm` | Dodge Storm (`dodge_storm`) | 1 to 4 | tilt | Hazards fall. The last player standing wins. | Survive as long as possible, against medal tiers | 2 (`TiltBody`) |
 | 4 | `games/tilt-snake` | Tilt Snake (`tilt_snake`) | 1 to 4 | tilt | Eat pickups to grow. A hit on any tail removes you. The last one alive wins. | High score against medal tiers | 2 (`TiltBody`) |
 | 5 | `games/sumo-bumpers` | Sumo Bumpers (`sumo_bumpers`) | 2 to 4 | tilt, A (dash) | Push others off a shrinking platform. Best of 3 rounds. | None (needs 2 players) | 2 (`TiltBody`) |
 
 Status (2026-10-09): branch 1 is merged (PR 13). It also brought the settings view with Difficulty for the maze, Snowball Splat and
 Marble Race, generated Marble Race tracks, and the lost-phone hold card. All of it still needs the tests on a device (`docs/MANUAL_TESTS.md`).
-The values in the difficulty tables, the pointer range and the generated tracks are first guesses. Branches 2 to 5 are not started.
+The values in the difficulty tables, the pointer range and the generated tracks are first guesses. Branch 2 (Paint Grab, with `TiltBody`) is in work on `games/paint-grab`; branches 3 to 5 are not started.
 Each of them needs a settings view and a difficulty table (REQ-GM-90, 91) before it is done.
 
 Order and dependencies:

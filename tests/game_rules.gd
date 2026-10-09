@@ -6,6 +6,9 @@ const Shell = preload("res://scripts/game/shell.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
+const Medals = preload("res://scripts/game/medals.gd")
+const TiltBody = preload("res://scripts/game/tilt_body.gd")
+const PaintFloor = preload("res://scripts/game/paint_grab/paint_floor.gd")
 const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
 
 const AREA := Rect2(60.0, 150.0, 1800.0, 870.0)   # The play area at 1920x1080.
@@ -33,6 +36,9 @@ func _initialize() -> void:
 	_maze_levels()
 	_difficulty()
 	_test_marble_track()
+	_tilt_body()
+	_paint_floor()
+	_paint_levels()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -292,7 +298,6 @@ func _difficulty() -> void:
 			"new Puffs come less often with the difficulty")
 	_check(lv.medium.speed == 1.0 and lv.medium.max_base == PuffField.MAX_BASE and lv.medium.spawn_every == PuffField.SPAWN_EVERY
 			and lv.medium.tiers == [150, 300, 450], "Medium is the game from before")
-	var Medals = load("res://scripts/game/medals.gd")
 	_check(Medals.is_valid(lv.easy.tiers) and Medals.is_valid(lv.medium.tiers) and Medals.is_valid(lv.hard.tiers)
 			and lv.easy.tiers[2] > lv.medium.tiers[2] and lv.medium.tiers[2] > lv.hard.tiers[2],
 			"every difficulty has valid medal tiers (REQ-GM-73), harder levels have lower limits")
@@ -420,3 +425,105 @@ func _test_marble_track() -> void:
 	var t0 = MarbleTrack.make(MarbleTrack.FIXED_SEEDS[0])
 	var side: Vector2 = t0.point_at(30.0) + Vector2(t0.half_width + 1.0, 0)
 	_check(t0.query(side).dist > t0.half_width * 0.5, "a point beside the track is not on the line")
+
+
+## TiltBody (REQ-PG-7, 8, 30).
+func _tilt_body() -> void:
+	print("tilt body")
+	var field := Rect2(0, 0, 1000, 600)
+	var b := TiltBody.new()
+	b.pos = Vector2(500, 300)
+	b.step(0.1, Vector2(0.01, 0.0), field)
+	_check(b.vel == Vector2.ZERO, "a tilt inside the dead zone gives no speed")
+	b.step(0.1, Vector2(0.5, 0.0), field)
+	_check(b.vel.x > 0.0 and b.vel.y == 0.0 and b.pos.x > 500.0, "a tilt to the right rolls the body to the right")
+	var fast := TiltBody.new()
+	fast.pos = Vector2(500, 300)
+	for i in 200:
+		fast.step(0.02, Vector2(1.0, 1.0), field)
+		fast.pos = Vector2(500, 300)   # Keep it inside, so that only the speed limit is tested.
+	_check(fast.vel.length() <= fast.max_speed + 0.01 and fast.vel.length() > fast.max_speed * 0.9,
+			"a long tilt reaches the speed limit and does not pass it")
+	var slow := TiltBody.new()
+	slow.pos = Vector2(500, 300)
+	slow.vel = Vector2(400, 0)
+	slow.step(1.0, Vector2.ZERO, field)
+	_check(slow.vel.x < 400.0 * 0.3 and slow.vel.x > 0.0, "the body slows down by itself (damping)")
+	# The same result at 30 and 120 steps for each second (REQ-GM-13).
+	var a30 := TiltBody.new()
+	var a120 := TiltBody.new()
+	a30.pos = Vector2(100, 300)
+	a120.pos = Vector2(100, 300)
+	for i in 30:
+		a30.step(1.0 / 30.0, Vector2(0.3, 0.0), field)
+	for i in 120:
+		a120.step(1.0 / 120.0, Vector2(0.3, 0.0), field)
+	_check(absf(a30.vel.x - a120.vel.x) < 25.0 and absf(a30.pos.x - a120.pos.x) < 25.0,
+			"the speed hardly depends on the frame rate (%.0f, %.0f)" % [a30.vel.x, a120.vel.x])
+	# The edge.
+	var e := TiltBody.new()
+	e.pos = Vector2(40, 300)
+	e.vel = Vector2(-500, 0)
+	var hit := e.step(0.05, Vector2.ZERO, field)
+	_check(e.pos.x == e.radius and e.vel.x > 0.0 and e.vel.x < 500.0 * e.bounce + 1.0 and hit > 100.0,
+			"at the edge the body stays inside, bounces softly and reports the hit")
+	var corner := TiltBody.new()
+	corner.pos = Vector2(990, 590)
+	corner.vel = Vector2(300, 300)
+	corner.step(0.1, Vector2.ZERO, field)
+	_check(corner.pos.x <= 1000.0 - corner.radius and corner.pos.y <= 600.0 - corner.radius and corner.vel.x < 0.0
+			and corner.vel.y < 0.0, "in a corner the whole circle stays on the floor")
+	# Two bodies.
+	var p := TiltBody.new()
+	var q := TiltBody.new()
+	p.pos = Vector2(300, 300)
+	q.pos = Vector2(350, 300)
+	p.vel = Vector2(200, 0)
+	_check(TiltBody.collide(p, q), "two overlapping bodies touch")
+	_check(p.pos.distance_to(q.pos) >= p.radius + q.radius - 0.01 and q.vel.x > 0.0 and p.vel.x < 200.0,
+			"they are pushed apart and the moving body gives speed to the other")
+	var far := TiltBody.new()
+	far.pos = Vector2(900, 100)
+	_check(not TiltBody.collide(p, far), "two bodies that are apart do not touch")
+	var same_a := TiltBody.new()
+	var same_b := TiltBody.new()
+	same_a.pos = Vector2(100, 100)
+	same_b.pos = Vector2(100, 100)
+	TiltBody.collide(same_a, same_b)
+	_check(same_a.pos.distance_to(same_b.pos) >= same_a.radius * 2.0 - 0.01, "two bodies in the same place are pushed apart")
+
+
+## The floor (REQ-PG-2, 4, 5, 21).
+func _paint_floor() -> void:
+	print("paint floor")
+	var f := PaintFloor.new(4, 3, 100.0)
+	_check(f.total() == 12 and f.size() == Vector2(400, 300) and f.count(0) == 0, "an empty floor of 4 x 3 tiles")
+	_check(f.cell_at(Vector2(0, 0)) == Vector2i(0, 0) and f.cell_at(Vector2(399, 299)) == Vector2i(3, 2)
+			and f.cell_at(Vector2(150, 250)) == Vector2i(1, 2), "a point gives its tile")
+	_check(f.cell_at(Vector2(-1, 10)) == Vector2i(-1, -1) and f.cell_at(Vector2(400, 10)) == Vector2i(-1, -1),
+			"a point outside the floor gives no tile")
+	_check(f.paint(Vector2i(1, 1), 0) == PaintFloor.Result.NEW and f.owner_of(Vector2i(1, 1)) == 0 and f.count(0) == 1,
+			"a free tile is painted")
+	_check(f.paint(Vector2i(1, 1), 0) == PaintFloor.Result.SAME and f.count(0) == 1,
+			"the same player painting again changes nothing")
+	_check(f.paint(Vector2i(1, 1), 2) == PaintFloor.Result.TAKEN and f.owner_of(Vector2i(1, 1)) == 2
+			and f.count(0) == 0 and f.count(2) == 1, "the tile of another player is taken, and the counts follow (REQ-PG-4)")
+	f.paint(Vector2i(0, 0), 0)
+	f.paint(Vector2i(2, 0), 0)
+	f.paint(Vector2i(3, 0), 0)
+	_check(f.percent(0) == 25 and f.percent(2) == 8 and f.percent(3) == 0,
+			"the share of the floor in percent, rounded down (REQ-PG-21)")
+
+
+## The difficulty of Paint Grab (REQ-PG-20, 21).
+func _paint_levels() -> void:
+	print("paint grab difficulty")
+	var lv: Dictionary = load("res://scripts/game/paint_grab/paint_grab_game.gd").LEVELS
+	_check(lv.easy.cols < lv.medium.cols and lv.medium.cols < lv.hard.cols and lv.easy.rows < lv.medium.rows
+			and lv.medium.rows < lv.hard.rows, "the floor grows with the difficulty")
+	_check(lv.easy.speed < lv.medium.speed and lv.medium.speed < lv.hard.speed and lv.medium.speed == 1.0,
+			"the blobs are faster with the difficulty, Medium is the base")
+	_check(Medals.is_valid(lv.easy.tiers) and Medals.is_valid(lv.medium.tiers) and Medals.is_valid(lv.hard.tiers)
+			and lv.easy.tiers[2] > lv.medium.tiers[2] and lv.medium.tiers[2] > lv.hard.tiers[2],
+			"every difficulty has valid medal tiers, harder levels have lower limits")
+	_check(lv.hard.tiers[2] <= 100 and lv.easy.tiers[2] <= 100, "no medal needs more than the whole floor")

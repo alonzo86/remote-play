@@ -30,59 +30,59 @@ Round
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-PG-1 | A round has a countdown of 3 s and then 60 s of play (`RoundClock`). The blobs cannot move during the countdown (REQ-GM-35). The clock is visible (`Shell.timer`). | Open | smoke_tv |
-| REQ-PG-2 | The floor is a grid of square tiles (the size depends on the difficulty, REQ-PG-20). The floor is empty (no color) at the start. All players have the same floor. | Open | run_tests |
-| REQ-PG-3 | The blobs start in different places of the floor, apart from each other, at the same distance from the middle (REQ-GM-25). | Open | run_tests |
-| REQ-PG-4 | A blob paints the tile under its middle at every frame. A tile has one color at a time: the one of the blob that was on it last. A tile that is painted again by the same player stays as it is. | Open | run_tests |
-| REQ-PG-5 | The round ends when the time is up. The score of a player is the number of tiles in the color of that player at that moment (`Scoreboard`, higher is better). Players with the same score share the rank (a tie). | Open | run_tests, smoke_tv |
-| REQ-PG-6 | The result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Restart, Settings, Back to menu. The score text is the number of tiles. With one player it shows a medal (REQ-PG-21). | Open | smoke_tv |
+| REQ-PG-1 | A round has a countdown of 3 s and then 60 s of play (`RoundClock`). The blobs cannot move during the countdown (REQ-GM-35). The clock is visible (`Shell.timer`). | Done | smoke_paint |
+| REQ-PG-2 | The floor is a grid of square tiles (the size depends on the difficulty, REQ-PG-20). The floor is empty (no color) at the start. All players have the same floor. | Done | smoke_paint, run_tests |
+| REQ-PG-3 | The blobs start in different places of the floor, apart from each other, at the same distance from the middle (REQ-GM-25). | Done | smoke_paint |
+| REQ-PG-4 | A blob paints the tile under its middle at every frame. A tile has one color at a time: the one of the blob that was on it last. A tile that is painted again by the same player stays as it is. | Done | run_tests, smoke_paint |
+| REQ-PG-5 | The round ends when the time is up. The score of a player is the number of tiles in the color of that player at that moment (`Scoreboard`, higher is better). Players with the same score share the rank (a tie). | Done | run_tests, smoke_paint |
+| REQ-PG-6 | The result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Restart, Settings, Back to menu. The score text is the number of tiles. With one player it shows a medal (REQ-PG-21). | Done | smoke_paint |
 
 Movement
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-PG-7 | Tilt gives the acceleration of the blob (`TiltBody`): a dead zone, a damping so that the blob slows down by itself, a speed limit, and a soft bounce at the edge of the floor. All players have the same values (REQ-GM-24). The blob never leaves the floor. | Open | run_tests, Device (feel) |
-| REQ-PG-8 | Blobs bounce off each other softly (no one is pushed through a wall). A blob is at least 48 px high on the screen (REQ-GM-47e) and shows its slot number. | Open | run_tests |
-| REQ-PG-9 | Children (REQ-GM-80 to 84): the blobs are friendly made-up creatures, the paint is colorful and funny, a painted-over tile costs only that tile, no player is out or waits, the hint is one line ("Tilt your phone to roll and paint the tiles!"), the blobs are large and slow at the start, and all texts are positive. | Open | review |
+| REQ-PG-7 | Tilt gives the acceleration of the blob (`TiltBody`): a dead zone, a damping so that the blob slows down by itself, a speed limit, and a soft bounce at the edge of the floor. All players have the same values (REQ-GM-24). The blob never leaves the floor. | Device | run_tests (rules), Device (feel) |
+| REQ-PG-8 | Blobs bounce off each other softly (no one is pushed through a wall). A blob is at least 48 px high on the screen (REQ-GM-47e) and shows its slot number. | Done | run_tests |
+| REQ-PG-9 | Children (REQ-GM-80 to 84): the blobs are friendly made-up creatures, the paint is colorful and funny, a painted-over tile costs only that tile, no player is out or waits, the hint is one line ("Tilt your phone to roll and paint the tiles!"), the blobs are large and slow at the start, and all texts are positive. | Done | review |
 
 Players and feedback
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-PG-10 | A player who leaves takes the blob out. The tiles of that player stay on the floor and count for nobody. The round goes on with the others (REQ-GM-21). When nobody is left the "No players connected" menu opens (REQ-GM-22). | Open | smoke_tv |
-| REQ-PG-11 | A lost phone pauses the round with the card of REQ-GM-30. The clock does not run during the pause. | Open | smoke_tv |
-| REQ-PG-12 | Haptics (REQ-GM-43): GO buzzes every phone (60 ms). Painting a tile that had the color of another player buzzes the player that painted (20 ms, at most every 150 ms for one slot, `Haptics`). The end buzzes the winner (400 ms). | Open | smoke_tv |
-| REQ-PG-13 | The chips (`Shell.player_chips`, in slot order) show the number of tiles of each player and are updated at every change. | Open | smoke_tv |
-| REQ-PG-14 | The RECENTER button recenters the tilt of that player (REQ-GM-37). A and B do nothing, and the hint says so only if a player asks (it is not on the screen). | Open | smoke_tv |
+| REQ-PG-10 | A player who leaves takes the blob out. The tiles of that player stay on the floor and count for nobody. The round goes on with the others (REQ-GM-21). When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_paint |
+| REQ-PG-11 | A lost phone pauses the round with the card of REQ-GM-30. The clock does not run during the pause. | Done | smoke_tv (shared base class) |
+| REQ-PG-12 | Haptics (REQ-GM-43): GO buzzes every phone (60 ms). Painting a tile that had the color of another player buzzes the player that painted (20 ms, at most every 150 ms for one slot, `Haptics`). The end buzzes the winner (400 ms). | Device | Device (the buzz) |
+| REQ-PG-13 | The chips (`Shell.player_chips`, in slot order) show the number of tiles of each player and are updated at every change. | Done | smoke_paint (scores) |
+| REQ-PG-14 | The RECENTER button recenters the tilt of that player (REQ-GM-37). A and B do nothing, and the hint says so only if a player asks (it is not on the screen). | Device | Device (RECENTER) |
 
 Look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-PG-15 | Visual language (REQ-GM-45 to 49). Background from the Party Pop set, a dark floor board with the outline and a hard shadow, empty tiles in a quiet color, painted tiles in the slot color with a lighter top edge. All text is 28 px or larger. Everything stays inside the 60 px margin. | Open | review, Device |
-| REQ-PG-16 | A tile that is painted pops (grows 15% and goes back in 0.15 s), so the painting can be seen. A blob has eyes that look in the direction it rolls. | Open | Device |
-| REQ-PG-17 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080. | Open | smoke_tv |
+| REQ-PG-15 | Visual language (REQ-GM-45 to 49). Background from the Party Pop set, a dark floor board with the outline and a hard shadow, empty tiles in a quiet color, painted tiles in the slot color with a lighter top edge. All text is 28 px or larger. Everything stays inside the 60 px margin. | Device | review, Device |
+| REQ-PG-16 | A tile that is painted pops (grows 15% and goes back in 0.15 s), so the painting can be seen. A blob has eyes that look in the direction it rolls. | Device | smoke_paint (pop), Device |
+| REQ-PG-17 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080. | Done | smoke_paint |
 
 Settings (REQ-GM-90 to 97)
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-PG-20 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. | Open | smoke_settings |
-| REQ-PG-21 | One player: the score is the share of the floor that is painted at the end, in percent, rounded down. The medal tiers `[bronze, silver, gold]` belong to the difficulty (REQ-GM-73, 95); the title of the medal names the difficulty. | Open | run_tests, smoke_tv |
+| REQ-PG-20 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. | Done | smoke_paint |
+| REQ-PG-21 | One player: the score is the share of the floor that is painted at the end, in percent, rounded down. The medal tiers `[bronze, silver, gold]` belong to the difficulty (REQ-GM-73, 95); the title of the medal names the difficulty. | Done | smoke_paint, run_tests |
 
 | Difficulty | Floor (columns x rows) | Tile size | Blob speed limit | Medal tiers (percent, first guess) |
 |------------|------------------------|-----------|------------------|------------------------------------|
-| Easy | 12 x 7 | 130 px | 0.8 of Medium | [35, 55, 75] |
-| Medium | 16 x 9 | 100 px | 1.0 | [30, 50, 70] |
-| Hard | 20 x 11 | 80 px | 1.25 | [25, 40, 55] |
+| Easy | 12 x 7 | about 124 px | 0.8 of Medium | [35, 55, 75] |
+| Medium | 16 x 9 | about 96 px | 1.0 | [30, 50, 70] |
+| Hard | 20 x 11 | about 79 px | 1.25 | [25, 40, 55] |
 
-The brush is the blob itself: a bigger floor with smaller tiles and a faster blob is harder to cover, and every level has the same 60 s.
+The tile size is what fits inside the margin and under the HUD at 1920x1080. The brush is the blob itself: a bigger floor with smaller tiles and a faster blob is harder to cover, and every level has the same 60 s.
 
 Shared code
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-PG-30 | `scripts/game/tilt_body.gd` (`TiltBody`) is a helper without nodes: position, velocity, tilt acceleration, dead zone, damping, speed limit, bounce at a rectangle, and the bounce between two bodies. The Dodge Storm, Tilt Snake and Sumo Bumpers branches use it too. The maze and the race keep their own models for now (a device test is needed to change them). | Open | run_tests |
+| REQ-PG-30 | `scripts/game/tilt_body.gd` (`TiltBody`) is a helper without nodes: position, velocity, tilt acceleration, dead zone, damping, speed limit, bounce at a rectangle, and the bounce between two bodies. The Dodge Storm, Tilt Snake and Sumo Bumpers branches use it too. The maze and the race keep their own models for now (a device test is needed to change them). | Done | run_tests |
 
 ## Parameters
 

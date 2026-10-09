@@ -21,3 +21,5 @@ echo "== TV smoke test"
 "$GODOT" --headless --path . --script tests/smoke_tv.gd -- --role=tv
 echo "== settings view"
 "$GODOT" --headless --path . --script tests/smoke_settings.gd -- --role=tv
+echo "== Paint Grab"
+"$GODOT" --headless --path . --script tests/smoke_paint.gd -- --role=tv

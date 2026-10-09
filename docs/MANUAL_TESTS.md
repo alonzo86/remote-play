@@ -60,6 +60,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [10](#test-10) | Snowball Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
+| [13](#test-13) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -480,6 +481,45 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 | 2 | Photos: tile next to the game, for each game | Not run | | | |
 | 3 | Photos of the old and the new look, and a note | Not run | | | Marble Race and Maze tiles remade 2026-10-09 (4 marbles on a bend with posts; 4 balls on the way to the exit). |
 | 4 | Photo of the tile and of the running game | Not run | | | Snowball Splat tile remade 2026-10-09 (4 players, a hit, a snowball in the air). |
+
+History:
+
+- -: **Not run**. New.
+
+## Test 13
+
+### Paint Grab (tilt)
+
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 7. Covers: REQ-PG-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-50.
+
+Hold each phone flat like a tray. New game (2026-10-09). The blob feel (`TiltBody`: acceleration, damping, speed limit, bounce) and the
+difficulty values are first guesses.
+
+**Steps**
+
+1. Open the tile of **Paint Grab**. Check: the settings view has Difficulty on Medium, and Back (left) and Start (right) on one line. Start.
+2. Hold the phone level in "3, 2, 1". Check: the blob does not move and nothing is painted. At "GO!" every phone buzzes.
+3. Tilt the phone. Check: the blob rolls the same way, slows down by itself, bounces softly at the edge and never leaves the floor. Write down if it is too slow, too fast or too nervous (`ACCEL`, `DAMPING`, `MAX_SPEED` in `scripts/game/tilt_body.gd`).
+4. Roll over tiles. Check: each tile takes your color, pops a little, and the number on your chip goes up. Roll over a tile of another player: it changes color and your phone buzzes.
+5. Play a full round of 60 seconds alone on Easy, Medium and Hard. Write down the percent of the floor you painted and the medal. Check: the title names the difficulty ("Silver medal! (Hard)"), and the tiers [Easy 35, 55, 75; Medium 30, 50, 70; Hard 25, 40, 55] feel right.
+6. Play with 2 to 4 phones. Check: the blobs bounce off each other, the chips are in slot order, the winner is named at the end, and equal scores say "Tie!". Leave the game on one phone during a round: its blob goes, its tiles stay, and the round goes on.
+7. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint line, enjoys it, and is not upset when a tile is painted over.
+8. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
+9. Tap **RECENTER** with the phone tilted. Check: the blob stops creeping. A and B do nothing. (REQ-PG-14)
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the settings view | Not run | | | |
+| 2 | Video of the countdown and GO | Not run | | | |
+| 3 | Note: too slow, too fast or too nervous; short video | Not run | | | |
+| 4 | Video: painting a free tile and taking a tile; the chip number | Not run | | | |
+| 5 | Percent and medal for each difficulty; note on the tiers | Not run | | | |
+| 6 | Video or photo of 4 blobs; note on the bounce | Not run | | | |
+| 7 | Note: the child, the age, what happened | Not run | | | |
+| 8 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
+| 9 | Video: RECENTER, then A and B | Not run | | | |
 
 History:
 

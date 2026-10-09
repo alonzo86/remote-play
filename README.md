@@ -6,7 +6,7 @@ Godot 4.7 and GDScript. One project makes two apps:
 - **tv**: runs on Android TV or a streaming box. It shows the game.
 - **controller**: runs on up to 4 Android phones. It sends gyroscope, accelerometer, touch and button data.
 
-The games are minigames that use the phone as a motion controller: a tilt maze, a 3D marble race (with several tracks) and a pointer game for the whole family: throw snowballs at silly Puffs (Snowball Splat). New minigames are added through the game registry (see below).
+The games are minigames that use the phone as a motion controller: a tilt maze, a 3D marble race (with several tracks) a pointer game for the whole family: throw snowballs at silly Puffs (Snowball Splat), and a tilt game where paint blobs paint a floor (Paint Grab). New minigames are added through the game registry (see below).
 
 Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [manual tests](docs/MANUAL_TESTS.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md) | [games roadmap](docs/GAMES_ROADMAP.md) | [design system](docs/design-system/README.md)
 

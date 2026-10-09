@@ -36,6 +36,8 @@ export COVERAGE_OUT
 	"$GODOT" --headless --path . --script tests/smoke_tv.gd -- --role=tv
 	echo "== settings view"
 	"$GODOT" --headless --path . --script tests/smoke_settings.gd -- --role=tv
+	echo "== Paint Grab"
+	"$GODOT" --headless --path . --script tests/smoke_paint.gd -- --role=tv
 )
 python3 tools/coverage/report.py "$WORK/coverage_manifest.json" "$COVERAGE_OUT" "$OUT" \
 	--min-file 80 --exclusions tools/coverage/exclusions.txt "$@"

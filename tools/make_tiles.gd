@@ -13,13 +13,13 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
-const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0}
+const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
 		Vector3(0.18, 0.0, -0.6)]}
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
-const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2}
+const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 
@@ -56,6 +56,26 @@ func _place_race(race: Node) -> void:
 		var r = race._racers[slots[i]]
 		r.pos = track.point_at(arc) + race._perp(track.dir_at(arc)) * side
 		r.vel = Vector2.ZERO
+
+
+## The paint picture: each player owns a patch of the floor and the blobs sit at the edge of their patch.
+func _place_paint(game: Node) -> void:
+	var f = game.floor_map
+	game._round.time = 27.0
+	var slots: Array = game.participants
+	var corners := [Vector2i(0, 0), Vector2i(f.cols / 2, f.rows / 2), Vector2i(f.cols / 2, 0), Vector2i(0, f.rows / 2)]
+	for i in slots.size():
+		var from: Vector2i = corners[i % corners.size()]
+		for r in range(from.y, mini(from.y + (f.rows + 1) / 2, f.rows)):
+			for c in range(from.x, mini(from.x + (f.cols + 1) / 2, f.cols)):
+				# Ragged edges: some tiles of a patch are left out or belong to a neighbour.
+				if (c * 7 + r * 13 + i * 5) % 6 != 0:
+					f.paint(Vector2i(c, r), slots[i])
+		var body = game._bodies[slots[i]]
+		body.pos = (Vector2(from) + Vector2(2.5, 2.5) + Vector2(i % 2, i / 2) * 0.5) * 100.0
+		body.vel = Vector2(80.0, 40.0)
+	for s in slots:
+		game._board.set_score(s, f.count(s))
 
 
 ## The maze picture: four balls on the way to the exit, one behind the other, so that the way and the race can be seen.
@@ -166,6 +186,10 @@ func _run() -> void:
 			wait -= 0.5
 		if String(g.id) == "maze":
 			_place_maze(app.current_screen())
+			await _stream(pad, 0.5, flats)
+			wait = 0.0
+		if String(g.id) == "paint_grab":
+			_place_paint(app.current_screen())
 			await _stream(pad, 0.5, flats)
 			wait = 0.0
 		if String(g.id) == "marble_race":
