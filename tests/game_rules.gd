@@ -7,6 +7,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
 const Medals = preload("res://scripts/game/medals.gd")
+const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
 const TiltBody = preload("res://scripts/game/tilt_body.gd")
 const PaintFloor = preload("res://scripts/game/paint_grab/paint_floor.gd")
 const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
@@ -39,6 +40,7 @@ func _initialize() -> void:
 	_tilt_body()
 	_paint_floor()
 	_paint_levels()
+	_sumo_arena()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -527,3 +529,51 @@ func _paint_levels() -> void:
 			and lv.easy.tiers[2] > lv.medium.tiers[2] and lv.medium.tiers[2] > lv.hard.tiers[2],
 			"every difficulty has valid medal tiers, harder levels have lower limits")
 	_check(lv.hard.tiers[2] <= 100 and lv.easy.tiers[2] <= 100, "no medal needs more than the whole floor")
+
+
+## The platform and the rules of Sumo Bumpers (REQ-SB-2, 3, 6, 7, 10, 20).
+func _sumo_arena() -> void:
+	print("sumo arena")
+	var lv: Dictionary = SumoArena.LEVELS
+	_check(lv.easy.radius > lv.medium.radius and lv.medium.radius > lv.hard.radius
+			and lv.easy.shrink > lv.medium.shrink and lv.medium.shrink > lv.hard.shrink
+			and lv.easy.dash < lv.medium.dash and lv.medium.dash < lv.hard.dash,
+			"the platform is smaller, shrinks faster and the dash comes back later with the difficulty")
+	var a := SumoArena.new()
+	a.setup("medium")
+	_check(a.radius() == 380.0 and a.danger() == 0.0, "a round starts with the full platform")
+	a.tick(12.0)
+	_check(is_equal_approx(a.radius(), (380.0 + SumoArena.MIN_RADIUS) * 0.5) and is_equal_approx(a.danger(), 0.5),
+			"the radius falls in a straight line: half way after half the time")
+	a.tick(100.0)
+	_check(a.radius() == SumoArena.MIN_RADIUS and a.danger() == 1.0, "the platform stops at the least radius (REQ-SB-6)")
+	_check(SumoArena.MIN_RADIUS * 2.0 < SumoArena.BUMPER_R * 2.0,
+			"at the least radius two bumpers do not fit, so every round ends")
+	_check(a.is_off(Vector2(SumoArena.MIN_RADIUS + 1.0, 0.0)) and not a.is_off(Vector2(0.0, SumoArena.MIN_RADIUS - 1.0)),
+			"a bumper has fallen when its middle is outside the platform (REQ-SB-7)")
+	a.setup("nonsense")
+	_check(a.radius() == 380.0, "an unknown difficulty is Medium")
+	var spread_ok := true
+	var inside_ok := true
+	for d in ["easy", "medium", "hard"]:
+		a.setup(d)
+		for n in [2, 3, 4]:
+			var spots := a.start_spots(n)
+			for i in n:
+				spread_ok = spread_ok and is_equal_approx(spots[i].length(), spots[0].length())
+				if n > 2:   # Evenly spread: the angle between two neighbours is the same.
+					spread_ok = spread_ok and is_equal_approx(absf(spots[i].angle_to(spots[(i + 1) % n])), TAU / n)
+				inside_ok = inside_ok and spots[i].length() + SumoArena.BUMPER_R < a.radius()
+			if n > 1:
+				inside_ok = inside_ok and spots[0].distance_to(spots[1]) > SumoArena.BUMPER_R * 2.0
+	_check(spread_ok and inside_ok,
+			"2 to 4 bumpers start on a circle, at the same distance, apart and inside the platform (REQ-SB-2)")
+	_check(a.start_spots(4)[0].is_equal_approx(Vector2(0.0, -a.start_radius * SumoArena.START_SHARE)),
+			"the first bumper starts at the top")
+	_check(SumoArena.dash_velocity(Vector2(0.0, 0.5), Vector2(100, 0)).is_equal_approx(Vector2(0.0, SumoArena.DASH_SPEED)),
+			"a dash goes the way of the tilt, at the dash speed (REQ-SB-10)")
+	_check(SumoArena.dash_velocity(Vector2(0.01, 0.0), Vector2(0, -50)).is_equal_approx(Vector2(0.0, -SumoArena.DASH_SPEED)),
+			"a tilt in the dead zone does not steer: the dash goes the way the bumper moves")
+	_check(SumoArena.dash_velocity(Vector2.ZERO, Vector2.ZERO) == Vector2.ZERO, "no tilt and no movement: no dash")
+	_check(SumoArena.round_winners([2], [0, 1]) == [2] and SumoArena.round_winners([], [0, 3]) == [0, 3]
+			and SumoArena.round_winners([1, 2], []) == [], "the last bumper wins; when none is left all that fell last win (REQ-SB-3)")

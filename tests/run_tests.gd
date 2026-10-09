@@ -243,6 +243,10 @@ func _test_registry() -> void:
 			and race_rows[0].values.size() == MarbleTrack.FIXED_SEEDS.size() + 1
 			and race_rows[0].titles.size() == race_rows[0].values.size() and race_rows[0].values[-1] == "random",
 			"the marble race track list has the 10 fixed tracks and the random one (REQ-MR-53)")
+	var sumo: Dictionary = Registry.find("sumo_bumpers")
+	_check(not Registry.accepts(sumo, 1) and Registry.accepts(sumo, 2) and Registry.accepts(sumo, 4)
+			and not Registry.accepts(sumo, 5) and Registry.reason(sumo, 1) == "Needs 2 players",
+			"Sumo Bumpers needs 2 to 4 players (REQ-GM-20, REQ-SB-12)")
 	_check(Registry.accepts(Registry.find("maze"), 4) and not Registry.accepts(Registry.find("maze"), 5), "player range check")
 
 

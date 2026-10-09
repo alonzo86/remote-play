@@ -13,13 +13,13 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
-const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0}
+const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
 		Vector3(0.18, 0.0, -0.6)]}
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
-const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2}
+const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2, "sumo_bumpers": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 
@@ -56,6 +56,29 @@ func _place_race(race: Node) -> void:
 		var r = race._racers[slots[i]]
 		r.pos = track.point_at(arc) + race._perp(track.dir_at(arc)) * side
 		r.vel = Vector2.ZERO
+
+
+## The sumo picture: the platform has shrunk a little, two bumpers bump, one is on the edge and one has just fallen ("Whee!").
+func _place_sumo(game: Node) -> void:
+	game.phase = game.Phase.PLAY
+	game.round_no = 2
+	game.arena.time = 4.0
+	var r: float = game.arena.radius()
+	var slots: Array = game.participants
+	var places := [Vector2(-r * 0.35, -r * 0.1), Vector2(-r * 0.35 + 62.0, r * 0.05), Vector2(r * 0.55, r * 0.5),
+			Vector2(r * 0.15, -r * 1.12)]
+	for i in slots.size():
+		game._bodies[slots[i]].pos = places[i % places.size()]
+		game._bodies[slots[i]].vel = Vector2.ZERO
+	game._bodies[slots[0]].vel = Vector2(160.0, 40.0)
+	var fallen: int = slots[slots.size() - 1]
+	game._alive.erase(fallen)
+	game._falling[fallen] = {"pos": places[3], "age": 0.25}
+	for i in slots.size():
+		game._board.set_score(slots[i], [1, 0, 1, 0][i % 4])
+	game.set_process(false)   # Freeze the picture.
+	game.queue_redraw()
+	await _frames(3)
 
 
 ## The paint picture: each player owns a patch of the floor and the blobs sit at the edge of their patch.
@@ -187,6 +210,9 @@ func _run() -> void:
 		if String(g.id) == "maze":
 			_place_maze(app.current_screen())
 			await _stream(pad, 0.5, flats)
+			wait = 0.0
+		if String(g.id) == "sumo_bumpers":
+			await _place_sumo(app.current_screen())
 			wait = 0.0
 		if String(g.id) == "paint_grab":
 			_place_paint(app.current_screen())
