@@ -62,6 +62,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2 | Not run |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
+| [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -549,6 +550,46 @@ difficulty values are first guesses.
 | 7 | Note: the child, the age, what happened | Not run | | | |
 | 8 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
 | 9 | Video: RECENTER, then A and B | Not run | | | |
+
+History:
+
+- -: **Not run**. New.
+
+## Test 15
+
+### Sumo Bumpers (tilt and A)
+
+Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-50.
+
+Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody`), the bounce, the dash and the difficulty values are first guesses.
+
+**Steps**
+
+1. With 1 phone, open the tile of **Sumo Bumpers**. Check: the tile is dimmed and says "Needs 2 players". With 2 phones the settings view opens with Difficulty on Medium. Start.
+2. Hold the phones level in "3, 2, 1" with the title "Round 1 of 3". Check: the bumpers do not move. At "GO!" every phone buzzes.
+3. Tilt the phone. Check: the bumper rolls the same way, slows down by itself, and the platform shrinks all the time (the edge ring gets red). Write down if the bumper is too slow, too fast or too nervous (`tilt_body.gd`).
+4. Bump into another bumper. Check: both bounce away and both phones buzz at a fast hit, and nobody is hurt.
+5. Press **A** with a tilt. Check: a dash in the tilt direction, a ring around the bumper shows when it is ready again. Write down if the dash is too strong or too weak (`DASH_SPEED`, the dash time).
+6. Roll over the edge. Check: the bumper spins, gets small and says "Whee!", the phone buzzes, and the round goes on. When one bumper is left, a banner names the winner of the round and the next round starts after 2.5 s with all bumpers back.
+7. Play all 3 rounds with 2, 3 and 4 phones. Check: the points on the chips, the winner of the match, and "Tie!" for equal points. Write down how long a round is and if the wait after a fall is too long (REQ-SB-9). Play Easy, Medium and Hard.
+8. Let a child of about 5 to 8 years play a match, with a grown-up next to them. Check: the child understands what to do from the hint line, laughs at the fall and is not upset.
+9. Leave the game on one phone during a round. Check: its bumper goes and the match goes on. With 2 phones, leave on one: the match ends at once.
+10. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the dimmed tile and of the settings view | Not run | | | |
+| 2 | Video of the countdown and GO | Not run | | | |
+| 3 | Note: too slow, too fast or too nervous; photo of the red ring | Not run | | | |
+| 4 | Video of a bump; note on the buzz | Not run | | | |
+| 5 | Video of a dash; note on the strength and the ready ring | Not run | | | |
+| 6 | Video of a fall and the banner | Not run | | | |
+| 7 | Length of a round for each difficulty; note on the wait | Not run | | | |
+| 8 | Note: the child, the age, what happened | Not run | | | |
+| 9 | Note: what happened on each leave | Not run | | | |
+| 10 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
 
 History:
 
