@@ -127,6 +127,24 @@ Or copy the APK to the phone and open it (allow installs from this source).
 5. Select **Tilt Maze**. Hold the phone flat during the countdown. Tilt to roll the ball.
    If the ball rolls the wrong way, select **Invert tilt axes** on the Settings screen.
 
+## Controller on an iPhone (unverified)
+
+Only the controller runs on iOS. The TV app stays on Android TV. Status: written, never run (needs Manual test 13).
+
+1. Install Xcode, open it once, then run `sudo xcode-select -s /Applications/Xcode.app`.
+2. Sign in with your Apple ID under Xcode > Settings > Accounts. Find the 10-character **Team ID** in Xcode, Signing & Capabilities. It is not the e-mail address.
+3. Install the Godot 4.7.2 export templates (Editor > Manage Export Templates). They include iOS.
+4. Connect the iPhone by cable. Unlock it, tap Trust, and turn on Developer Mode (Settings > Privacy & Security).
+5. Run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. It exports the preset `controller-ios`, builds with `xcodebuild`, installs and launches the app.
+   `--no-build` reuses the last build. `-d <id>` picks a phone. `IOS_BUNDLE_ID=` changes the bundle ID when a free account says it is taken.
+6. On a free account, trust the developer on the phone (Settings > General > VPN & Device Management). The app stops working after 7 days: deploy again.
+
+Differences from Android:
+
+- No QR scan: the Android plugin does not exist on iOS, so the connect screen shows only the list of discovered TVs and Refresh. It has no scan and no **Paste TV link** button (REQ-FL-58).
+- The UDP beacon list may stay empty. iOS needs the local network permission (the app asks once), and broadcast may need an Apple multicast entitlement. If the list stays empty, the iPhone cannot join: tell Claude, the beacon or the entitlement needs work.
+- The sensor axis fix in `scripts/input/sensor_sampler.gd` was measured on Android only. Check the directions again (Manual test 13).
+
 ## Desktop tests (no Android)
 
 ```sh

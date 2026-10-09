@@ -407,6 +407,13 @@ func _test_sensor_sampler() -> void:
 	var flat: Dictionary = Protocol.decode_sensor(client.packets[-1])
 	_check(absf(flat.accel.length() - 9.81) < 0.05, "the simulated accelerometer has a length of 9.81 (%.2f)" % flat.accel.length())
 
+	# The sign fix: flat on Android, Godot reports z = -9.8 and the protocol needs +9.8. A desktop value is not changed.
+	var flat_raw := Vector3(0.1, -0.2, -9.8)
+	var flat_fixed := Vector3(-0.1, 0.2, 9.8)
+	_check(SensorSampler.accel_to_protocol(flat_raw, "Android") == flat_fixed, "Android: all accelerometer axes are flipped")
+	_check(SensorSampler.accel_to_protocol(flat_raw, "iOS") == flat_fixed, "iOS: flipped like Android until a device test says so")
+	_check(SensorSampler.accel_to_protocol(flat_raw, "macOS") == flat_raw, "other platforms: the value is not changed")
+
 	# A stall (the app was paused) must not make a burst of old packets.
 	sampler.set_process(false)
 	await create_timer(0.5).timeout
@@ -648,6 +655,11 @@ func _test_connect_screen() -> void:
 	for b in screen.find_children("*", "Button", true, false):
 		has_paste = has_paste or b.text == "Paste TV link"
 	_check(has_paste, "without the plugin the connect screen offers Paste TV link")
+	var connect_script: GDScript = _script("res://scripts/ui/controller_connect.gd")
+	_check(not connect_script.shows_scan_button("iOS"),
+			"on an iPhone or iPad the connect screen has no scan or paste button")
+	_check(connect_script.shows_scan_button("Android") and connect_script.shows_scan_button("macOS"),
+			"on Android and desktop (also a Mac) the connect screen keeps the scan or paste button")
 	app.last_error = ""
 	screen._on_state(ControllerClient.State.IDLE)
 	_check(screen._status.text == "Looking for a TV...", "idle: the screen says it looks for a TV")
@@ -675,6 +687,19 @@ func _test_connect_screen() -> void:
 	app.controller_discovery.forget_all()
 	screen._rebuild_list()
 	_check(_list_texts(screen) == ["No TVs found"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
+
+	# On an iPhone: no scan or paste button, and the empty list tells how to fix the Local Network permission (REQ-FL-58, 59).
+	var ios_screen = _script("res://scripts/ui/controller_connect.gd").new()
+	ios_screen.os_name = "iOS"
+	ios_screen.theme = app.theme_res
+	root.add_child(ios_screen)
+	await process_frame
+	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
+	_check(ios_buttons == ["Refresh"], "iPhone: the only button is Refresh: %s" % str(ios_buttons))
+	var ios_texts: Array = _list_texts(ios_screen)
+	_check(ios_texts.size() == 2 and ios_texts[0] == "No TVs found" and "Local Network" in ios_texts[1],
+			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))
+	ios_screen.queue_free()
 	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
 			"max": 4, "seen_ms": Time.get_ticks_msec()}
 	screen._rebuild_list()
