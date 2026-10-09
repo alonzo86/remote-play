@@ -64,7 +64,7 @@ static func load_script(id: String) -> GDScript:
 ## Why a game cannot start with `players` players (REQ-FL-14).
 static func reason(game: Dictionary, players: int) -> String:
 	if players < int(game.min_players):
-		return "Needs %d players" % int(game.min_players)
+		return "Needs %d player%s" % [int(game.min_players), "" if int(game.min_players) == 1 else "s"]
 	return "Up to %d players" % int(game.max_players)
 
 

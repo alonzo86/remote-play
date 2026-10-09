@@ -1,6 +1,8 @@
 extends SceneTree
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const Protocol = preload("res://scripts/core/protocol.gd")
+const ControllerClient = preload("res://scripts/net/controller_client.gd")
 ## Smoke test of the settings view (REQ-GM-90 to 95) with the maze. Run:
 ##   godot --headless --path . --script tests/smoke_settings.gd -- --role=tv
 ## No phone is needed: the view is opened with App.go_game_settings(). The rest of the flow is in smoke_tv.gd.
@@ -49,6 +51,14 @@ func _run() -> void:
 	var GameSettings = load("res://scripts/game/game_settings.gd")
 	var app: Node = root.get_node("App")
 	GameSettings.clear()
+	# One simulated phone: Start needs a player (REQ-GM-20).
+	var phone := ControllerClient.new()
+	phone.player_name = "Sim0"
+	root.add_child(phone)
+	phone.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+	var joined := Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 1 and Time.get_ticks_msec() - joined < 4000:
+		await process_frame
 	app.go_game_settings("maze")
 	await _frames(4)
 	var sv: Control = app.current_screen()
@@ -194,5 +204,23 @@ func _run() -> void:
 	await _frames(4)
 	_check(app.current_screen().track_seed == random_seed, "Restart plays the same random track (REQ-MR-54)")
 	GameSettings.clear()
+	# Focus wiring (REQ-GM-90): Down from the last row goes to Start, Up from Start and Back goes to that row.
+	app.go_game_settings("maze")
+	await _frames(4)
+	sv = app.current_screen()
+	var last_row: Control = sv.rows[-1]
+	_check(last_row.get_node(last_row.focus_neighbor_bottom) == sv.start_button
+			and sv.start_button.get_node(sv.start_button.focus_neighbor_top) == last_row
+			and sv.back_button.get_node(sv.back_button.focus_neighbor_top) == last_row,
+			"Down from the last row goes to Start; Up from Start and from Back goes to the row")
+	# Start needs phones that fit the game (REQ-GM-20): a phone can leave while the view is open.
+	_check(not sv.start_button.disabled and sv.reason_label.text == "", "with a phone the view has no reason line and Start works")
+	app.server.kick(0)
+	await _frames(4)
+	_check(sv.start_button.disabled and sv.reason_label.text == "Needs 1 player",
+			"with no phone Start is disabled and the line says why: %s" % sv.reason_label.text)
+	sv.start()
+	await _frames(3)
+	_check(app.current_screen() == sv, "Start does nothing when the phones do not fit the game")
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)

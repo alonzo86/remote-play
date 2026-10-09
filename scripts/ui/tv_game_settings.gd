@@ -17,6 +17,7 @@ var game := {}
 var rows: Array[Control] = []   # The row controls: a choice row or a track list.
 var start_button: Button
 var back_button: Button
+var reason_label: Label   # Why Start does not work now (REQ-GM-20): not enough phones. Empty when it works.
 
 
 func _ready() -> void:
@@ -58,10 +59,28 @@ func _ready() -> void:
 	last.focus_neighbor_bottom = last.get_path_to(start_button)
 	start_button.focus_neighbor_top = start_button.get_path_to(last)
 	back_button.focus_neighbor_top = back_button.get_path_to(last)
+	reason_label = UiKit.label("", 28, UiTheme.ACCENT)
+	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(reason_label)
+	_update_fit()
 	UiKit.focus_later(rows[0])
 
 
+func _process(_delta: float) -> void:
+	_update_fit()
+
+
+## Start works only when the connected phones fit the game (REQ-GM-20): a phone can leave while the view is open.
+func _update_fit() -> void:
+	var n: int = App.server.connected_slots().size()
+	var fits := Registry.accepts(game, n)
+	start_button.disabled = not fits
+	reason_label.text = "" if fits else Registry.reason(game, n)
+
+
 func start() -> void:
+	if not Registry.accepts(game, App.server.connected_slots().size()):
+		return
 	var script := Registry.load_script(game_id)
 	if script != null:
 		App.go(script, GameSettings.props_for(game))
