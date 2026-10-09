@@ -15,10 +15,11 @@ const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
 const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
-const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55)]}
+const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
+		Vector3(0.18, 0.0, -0.6)]}
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
-const EXTRA_PHONES := {"marble_race": 2}
+const EXTRA_PHONES := {"marble_race": 2, "snowball_splat": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 
@@ -55,6 +56,37 @@ func _place_race(race: Node) -> void:
 		var r = race._racers[slots[i]]
 		r.pos = track.point_at(arc) + race._perp(track.dir_at(arc)) * side
 		r.vel = Vector2.ZERO
+
+
+## The snowball picture: four scores, a Puff that was just hit (snow cap, "+10") and a snowball in the air for another one.
+func _place_snow(game: Node, pad: Array, flats: Array) -> void:
+	var PuffField = load("res://scripts/game/snowball_splat/puff_field.gd")
+	var area: Rect2 = game._area()
+	var scores := [120, 85, 60, 40]
+	for i in game.participants.size():
+		game._board.set_score(game.participants[i], scores[i % scores.size()])
+	var puffs: Array = game._field.puffs
+	if puffs.size() < 2:
+		return
+	var first = puffs[0]
+	game._throwers[game.participants[0]].aim = PuffField.center_of(first, area)
+	game._throw(game.participants[0], area)
+	await _stream(pad, 0.3, flats)
+	var second = null
+	for p in game._field.puffs:   # The one that is farthest from the first, so that the two actions are apart.
+		if second == null or p.x > second.x:
+			second = p
+	if second == null:
+		return
+	var slot: int = game.participants[1 % game.participants.size()]
+	game._throwers[slot].aim = PuffField.center_of(second, area)
+	game._throw(slot, area)
+	for f in game._flights:
+		if f.age >= 0.0:
+			f.age = game.FLIGHT_TIME * 0.55   # Half way: the snowball is in the air.
+	game.set_process(false)   # Freeze the picture.
+	game.queue_redraw()
+	await _frames(3)
 
 
 func _run() -> void:
@@ -105,6 +137,10 @@ func _run() -> void:
 		if String(g.id) == "marble_race":
 			_place_race(app.current_screen())
 			await _stream(pad, 1.6, flats)
+			wait = 0.0
+		if String(g.id) == "snowball_splat":
+			await _stream(pad, wait, flats, AIM_GYRO[String(g.id)])
+			await _place_snow(app.current_screen(), pad, flats)
 			wait = 0.0
 		if wait > 0.0:
 			await _stream(clients, wait, [right, left])
