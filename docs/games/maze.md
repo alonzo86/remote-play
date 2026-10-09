@@ -26,6 +26,18 @@ The collision uses the wall rectangles, so a wall end is square for the physics 
 | REQ-MZ-6 | A ball that hits a wall hard buzzes the phone (20 ms, at most every 0.12 s). A soft hit does not buzz. | Done | smoke_tv, Device |
 | REQ-MZ-8 | The RECENTER button of the phone recenters during the race (REQ-GM-37). A and B do nothing. A player who leaves takes the ball out and the game goes on. When the last player leaves, the menu "No players connected" opens with "Back to menu". | Done | smoke_tv |
 | REQ-MZ-7 | Visual language (REQ-GM-45 to 49). Dark board `#2a1070` with the outline and a hard shadow. Light rounded walls `#8c78e6` (a bar with a circle on each end). Balls: hard shadow, dark outline of 6 px, the slot color, a small shine. Balls show the slot number. Exit: a green rounded square with a dark outline and a big white ring that pulses a little. Every player color has a contrast of 3:1 or more on the floor. The title, chips (P1 first), timer (a pill at a fixed place, `Shell.timer`), countdown and menus come from the shell. The tile screenshot looks like the same toy box as the Games screen. | Done | run_tests (visual rules), Screenshot (`tools/make_tiles.gd`) |
+| REQ-MZ-9 | Settings (REQ-GM-90 to 96): Difficulty changes the size and the complexity of the maze, see the table below. The ball, the wall thickness and the tilt feel stay the same, so a bigger maze is a longer and more winding way, not a different game. The board always fits inside the safe margin (REQ-GM-40). The values in the table are the first guess and are tuned on a device (Test 6). | Open | run_tests (sizes, solvable), Device |
+
+### Difficulty (REQ-MZ-9)
+
+| Difficulty | Cells (columns x rows) | Cell size | Extra openings | What the player feels |
+|------------|------------------------|-----------|----------------|-----------------------|
+| Easy | 11 x 6 | 120 px | 20% | Small, wide corridors, many loops and short ways to the exit, few dead ends. |
+| Medium | 17 x 9 | 96 px | 8% | The maze of today. |
+| Hard | 21 x 11 | 80 px | 2% | Large, narrow corridors, almost one long way with many dead ends. |
+
+"Extra openings" is the share of inner walls that is removed after the maze is made (`extra_openings` in `maze_generator.gd`). Fewer openings
+mean fewer loops and a more complex maze. Every maze can be solved at every difficulty. The ball is 48 px wide and the gap in Hard is 70 px.
 
 ## Parameters
 

@@ -127,6 +127,18 @@ Tests
 - REQ-3D-9: The result of the game must not depend on the physics engine of Godot (`RigidBody3D`). Use fixed sub-steps in game code
   so that the same input gives the same result.
 
+## Settings and difficulty
+
+Status: **Open** for all games (decided 2026-10-09, not built). When it is built, `docs/TV_FLOW.md` (the Games screen flow) and the game requirement files change in the same commit (REQ-GM-5).
+
+- REQ-GM-90: Every game defines its own settings. A game with the tile OK opens the settings view first, not the game. The view is centered on the screen, has the game name as its title, one row for each setting, a Start button, and a Back button at the bottom. Back returns to the Games screen with the tile in focus. Start begins the game (the countdown, REQ-GM-35). Everything works with the D-pad, OK and Back (REQ-GM-33). (Open)
+- REQ-GM-91: Every game has the setting Difficulty with the values Easy, Medium and Hard. The game decides what each value means and lists it in its requirements file (a table of Easy, Medium, Hard). Medium is the value to start with. A game without a meaning for the three values is not allowed. (Open)
+- REQ-GM-92: The row of a choice setting looks like `Difficulty  <  Easy  >`: the name, then the value between two arrows. When the row has focus, the Left and Right keys of the remote change the value (at the last value the row stops, it does not wrap), and the arrows show it. Up and Down move the focus between the rows, the Start button and Back. OK on a row does nothing, or goes on to Start. One shared control (`scripts/ui/`) draws all choice rows, so all games look and work the same. (Open)
+- REQ-GM-93: A game may have more settings than Difficulty (for example a track). Each is a row of the same kind, or a picker that is described in the game file. The settings are part of `start_props`, so Restart (REQ-GM-32) keeps them. A game must not change them during play (REQ-GM-36). (Open)
+- REQ-GM-94: The values the user chose are kept while the app runs, for each game, so the view opens with the last choice. Nothing is saved to the disk (see `docs/GAMES_ROADMAP.md`, decisions). (Open)
+- REQ-GM-95: The result menu (REQ-GM-34) has an entry "Settings" that returns to the settings view of the game. The medal tiers and scores of a solo game belong to a difficulty: a result is judged by the tiers of the difficulty that was played (REQ-GM-73). (Open)
+- REQ-GM-96: Difficulty must not make a game unplayable for a child (REQ-GM-80 to 84): Easy is playable by a child of about 5 years. Hard is a challenge, but it has no penalty that Easy does not have (REQ-GM-83). All players of one game have the same difficulty (REQ-GM-24). (Open)
+
 ## Status of the games
 
 | Game | Requirements file |
