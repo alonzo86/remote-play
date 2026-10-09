@@ -38,7 +38,8 @@ One row for each session with the devices. The *Run* ID is used in the result ta
 | Run | Date | Tester | Commit or build | TV device | Phones | Network | Notes |
 |-----|------|--------|-----------------|-----------|--------|---------|-------|
 | R0 | before 2026-10-08 | (not written down) | prototype, before `main` a599ca3 | TV app on a desktop (not a TV box) | 1 phone | same Wi-Fi | The first run. The date and the build were not written down. |
-| R1 | | | | | | | |
+| R1 | 2026-10-09 | the project owner | branch `games/target-shoot`, HEAD `091cacf` (the app code is the same as `5603ac1`), debug APK installed with `tools/deploy.sh` over `adb connect` | Android TV, Android 10, Ethernet. Language Hebrew, region Israel (IL). Model not written down | not written down (the maze was played) | TV on Ethernet. Same home network | Reported in chat. No photos, videos or logs yet. Found 4 problems (Tests 1, 8, 8b), all fixed in code on `games/target-shoot` and waiting for a retest. Run R2 is the retest. |
+| R2 | | | | | | | |
 
 ## Summary
 
@@ -46,14 +47,14 @@ Update this table after every run. *Latest* is the newest result of the whole te
 
 | Test | Title | Needs | Covers | Latest | Run | Evidence |
 |------|-------|-------|--------|--------|-----|----------|
-| [1](#test-1) | Start and join | 1 phone, 1 TV | REQ-T1, REQ-FL-5 to 10 | Retest | R0 | |
+| [1](#test-1) | Start and join | 1 phone, 1 TV | REQ-T1, REQ-FL-5 to 10 | Retest (design change) | R1 | |
 | [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Pass | R0 | |
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A1, A3, B1, B2 | Fail | R0 | |
-| [6](#test-6) | Tilt maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-GM-37 | Retest | R0 | |
+| [6](#test-6) | Tilt maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-GM-37 | Partial (items 1 to 3 Pass, 4 and 5 not run) | R1 | |
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Retest | R0 | |
-| [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41 | Not run |  | |
-| [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV | REQ-FL-1 to 46, FD-1 to 16 | Not run |  | |
+| [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
+| [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (set to Hebrew for item 7) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
 | [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-50 | Not run |  | |
 | [10](#test-10) | Target Shoot (pointer) | 1 to 4 phones, 1 TV | REQ-TS-*, RISKS A4, REQ-GM-37, REQ-GM-50 | Not run |  | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
@@ -72,7 +73,7 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 
 1. Start the TV app. Check: the Android splash shows, then the logo screen with an animation (about 2.5 seconds), then the **Connect controllers** screen with a room code and a QR code. If the QR code is empty, the TV has no Wi-Fi address (the screen says so).
 2. Start the controller app on one phone. Check: the phone shows a **portrait** screen.
-3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "Ready!", and **Continue** is enabled and focused. Press OK on **Continue**. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
+3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "Ready!", and the line **Press OK to continue** shows at the bottom (there is no Continue button and no player count). Press OK. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
 4. Tap **Leave**, then tap the TV under **Discovered TVs**. Check: it joins (the button reads "<code> x/y", for example "KQZM 1/4", and it is green; **Refresh** is yellow). Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds.
 5. Tap **Leave**, then join with the **TV IP address**. Check: it joins.
 
@@ -82,12 +83,13 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the TV (splash, logo, Connect screen) and the phone (portrait) | Not run | | | |
 | 2 | Photo of the phone in portrait | Not run | | | |
-| 3 | Photo of TV and phone together: slot 1 'Ready!', Continue focused; then the Games screen | Not run | | | |
+| 3 | Photo of TV and phone together: slot 1 'Ready!' and the line 'Press OK to continue'; then the Games screen | Retest | R1 | Chat report 2026-10-09 (no file) | R1: the owner found the Continue button redundant (it was the only focus target) and the count of players repeated the slot list. Changed on 2026-10-09 (FD-17, REQ-FL-6, 7): the button and the count are gone, and 'Press OK to continue' shows once a phone has joined. The old check cannot pass any more. Retest the new screen. |
 | 4 | Photo of the phone list with the button '<code> x/y'; note the time Refresh takes | Not run | | | |
 | 5 | Phone screenshot after joining by IP | Not run | | | |
 
 History:
 
+- R1: **Retest** (step 3). Design change after the first run on a real Android TV. See the row of step 3.
 - R0: **Fail**. Join by room code failed with 'Room YCNW not found, is the tv on the same wi-fi?'. The list and the IP worked. TV app on a desktop, phone on the same Wi-Fi. The plan has no join by room code now, so every step needs a retest.
 
 ## Test 2
@@ -201,14 +203,15 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-GM-37.
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1 | Note: the phone is level in the countdown | Not run | | | |
-| 2 | Note: ball too light, too heavy or good; deadzone good or not. Short video | Not run | | | |
-| 3 | If constants changed: the commit or the diff | Not run | | | |
+| 1 | Note: the phone is level in the countdown | Pass | R1 | Chat report 2026-10-09 (no file) | R1: the owner played the maze and reported 'it works perfectly'. The steps of the countdown were not reported one by one. |
+| 2 | Note: ball too light, too heavy or good; deadzone good or not. Short video | Pass | R1 | Chat report 2026-10-09 (no file) | R1: 'i tested the maze game and it works perfectly'. The feel is good on the TV. The number of phones was not written down (step 4 is still open). |
+| 3 | If constants changed: the commit or the diff | N/A | R1 | Chat report 2026-10-09 (no file) | R1: no tuning is needed, because the owner reported no problem. The constants are unchanged. |
 | 4 | Screenshot of the debug overlay for every player during the race | Not run | | | |
 | 5 | Video of the ball: creeping, then RECENTER, then A and B | Not run | | | |
 
 History:
 
+- R1: items 1 to 3 **Pass** (the owner: 'it works perfectly'). Items 4 and 5 are not run: 2 to 4 phones, and RECENTER with A and B.
 - R0: **Retest**. First run: drift and inverted controls (caused by 'Invert tilt axes' being on). After the fix the maze looks good on the desk. The feel and the constants were not judged. Item 5 is new (RECENTER, and A and B do nothing).
 
 ## Test 7
@@ -262,20 +265,21 @@ Needs: 1 phone, 1 TV with its remote. Covers: REQ-GM-31, REQ-GM-31a, REQ-GM-33, 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Video of the remote moving the focus on every screen, with the focus border visible | Not run | | | |
-| 2 | Video of the pause menu and the 'End the game?' question | Not run | | | |
-| 3 | Video or photos of Back on the Games, Connect screens and the quit question | Not run | | | |
+| 2 | Video of the pause menu and the 'End the game?' question | Fail | R1 | Chat report 2026-10-09 (no file) | R1: pressing Back on the remote in the middle of a game quits the app completely. The 'End the game?' question was not seen. Cause: the engine setting `quit_on_go_back` was on, so the engine quit after the app had handled Back. Fixed on 2026-10-09 (REQ-FL-55). Retest. The OK key and the pause menu were not reported. |
+| 3 | Video or photos of Back on the Games, Connect screens and the quit question | Fail | R1 | Chat report 2026-10-09 (no file) | R1: Back quits the app on every screen. The owner saw the app go back to the previous view for a moment before it closed. Same cause and fix as item 2. Retest. |
 | 4 | Photo of the overlay after the Menu key, or of the Settings switch | Not run | | | |
 | 5 | Photo of the TV home row with the icon and banner | Not run | | | |
 
 History:
 
-- -: **Not run**. Not tested yet. Item 2 changed (the 'End the game?' question).
+- R1: **Fail** (items 2 and 3). Back quits the app on every screen. Fixed on 2026-10-09 (REQ-FL-55). Items 1, 4 and 5 are not run.
+- Item 2 changed before the first run (the 'End the game?' question).
 
 ## Test 8b
 
 ### The TV flow and the style
 
-Needs: 1 to 2 phones, 1 TV. Covers: REQ-FL-1 to 46, FD-1 to 16.
+Needs: 1 to 2 phones, 1 TV (set to Hebrew for item 7). Covers: REQ-FL-1 to 46, REQ-FL-54, REQ-FL-56, 57, FD-1 to 17.
 
 
 **Steps**
@@ -286,21 +290,23 @@ Needs: 1 to 2 phones, 1 TV. Covers: REQ-FL-1 to 46, FD-1 to 16.
 4. Join a phone while a game runs. Check: the phone says "A round is running", it does not take part, and it joins the next round.
 5. Check the motion on the TV box: the logo (with its confetti), the tile growing and shrinking and the screen changes run at 60 frames per second (overlay FPS). Check that the Party Pop colors look right on your TV (not washed out, outlines visible).
 6. Phone: check that the fonts and the colors match the TV on the connect, waiting and pad screens.
+7. Set the language of the TV to a language that is written from right to left (Hebrew, region Israel) and start the app. Check: every screen is in English and left to right (the QR card on the left, the title on the left, the buttons not mirrored). The phone app does the same with a phone set to Hebrew. (REQ-FL-54)
 
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Video from cold start: logo, then Connect | Not run | | | |
-| 2 | Photo of the Games screen with all tiles | Not run | | | |
+| 2 | Photo of the Games screen with all tiles | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the screenshots of the games are missing on the Games screen of the Android 10 TV. What the tiles showed instead (dark boxes, colors) was not written down. The same tiles show on a desktop with the OpenGL renderer. The cause is not confirmed. Changed on 2026-10-09 (REQ-FL-56, 57): the image is rounded in the file and not clipped, a placeholder shows when a tile does not load, and a warning goes to the log. Retest. If they are still missing, save `adb logcat -d -s godot` and look for 'Tile image'. |
 | 3 | Photos of the Players modal; of the phone after Remove; of the slot after the join again | Not run | | | |
 | 4 | Photo of the phone 'A round is running' | Not run | | | |
 | 5 | Overlay FPS screenshot during the logo, tile growth and screen changes; photo of the colors | Not run | | | |
 | 6 | Photos of the phone connect, waiting and pad screens next to the TV | Not run | | | |
+| 7 | Photos of the Connect and Games screens on a TV set to Hebrew; of the phone set to Hebrew | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the TV is set to the IL region and Hebrew. The text was English, but the layout was mirrored (right to left). Fixed on 2026-10-09 (REQ-FL-54): the app sets the locale to English and the layout to left to right. Retest on the TV. The phone was not tried. |
 
 History:
 
-- No run yet.
+- R1: **Fail** (items 2 and 7). The tile screenshots are missing, and the layout is mirrored on a TV set to Hebrew. Both changed on 2026-10-09 and wait for the retest. The other items are not run.
 
 ## Test 9
 

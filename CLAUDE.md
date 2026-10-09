@@ -41,20 +41,20 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 - A change that needs a device check adds or changes its test in the same commit (REQ-GM-62) and adds it to the list below.
   Every pull request lists the manual tests that are still open for its change.
 
-Tests the user has to run now (status on 2026-10-09; the list is in the order to do them):
+Tests the user has to run now (status on 2026-10-09 after run R1; the list is in the order to do them):
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
+| 8 | **Retest after R1.** TV remote: items 2 and 3 (Back must go back one step and must not quit the app, REQ-FL-55). Then items 1, 4 and 5, never run | R1 found that Back quits the app on every screen. Fixed on `games/target-shoot` on 2026-10-09 |
+| 8b | **Retest after R1.** Item 2 (the game screenshots show on the Games screen) and item 7 (a TV set to Hebrew stays English and left to right). Items 1 and 3 to 6, never run | R1 found missing screenshots and a mirrored layout. Fixed on 2026-10-09. The cause of the missing screenshots is not confirmed: if they are still missing, save `adb logcat -d -s godot` and look for 'Tile image' |
+| 1 | **Retest after R1.** Start and join, all 5 steps. Step 3 is new: 'Press OK to continue' and no Continue button | The Connect screen changed after the owner's feedback (FD-17). R0 failed on join by room code, which the plan does not have now |
 | 10 | Target Shoot with 1 to 4 phones: the pointer (range, drift in cm), shots, miss lock, medal tiers, 4-player frame rate | New game on branch `games/target-shoot`. Needed before it is merged. The first values (range 25 degrees, tiers 200/350/500, target sizes) are guesses |
 | 9 | Marble Race on a real TV, 2 to 4 phones: all 11 items. Item 11 is the check after the shared-code change | PR 12 (merged) changed the countdown, the buzz limit and the end of the race. Never run on a device |
-| 6 | Tilt Maze feel (items 1 to 4) and item 5: RECENTER recenters, A and B do nothing | PR 12 removed the A shortcut. The feel was never judged |
+| 6 | Tilt Maze, the rest: item 4 (2 to 4 phones) and item 5 (RECENTER recenters, A and B do nothing). Items 1 to 3 passed in R1 ('it works perfectly') | PR 12 removed the A shortcut |
 | 11 | The result menus: maze (1 to 4 phones), race (4 phones, inside the screen edge, 'not finished'), Target Shoot (medal, winner, Tie) | PR 12 (merged) made the result menu generic. The 4-player list was never seen on a TV |
 | 7 | Disconnect and reconnect: items 1 to 6, with item 5 (the last phone leaves) in the maze, the race and Target Shoot | The R0 run needs a retest. PR 12 changed the end with no players |
 | 12 | Game tiles: compare each tile with the game. The Maze and Marble Race tiles are older than the chip style | REQ-GM-49. Claude makes the tiles again when they differ |
-| 1 | Start and join: all 5 steps | R0 failed on join by room code, which the plan does not have now |
 | 3 | Sensor directions: items 1 and 4 (the flat Accel value after the fix, Gyro z) | R0 did not check them after the fix |
 | 4 | Latency and packet rate on a real TV box, and the delay with a 240 fps camera | R0 ran on a desktop and failed (RTT, Gap). Not representative |
-| 8 | TV remote: all 5 items | Never run. The Back question changed |
-| 8b | The TV flow and the style: all 6 items | Never run |
 
 Test 2 (QR scan) passed in R0. Run it again only when the QR plugin or the connect screen changes.
