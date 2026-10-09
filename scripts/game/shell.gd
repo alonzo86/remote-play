@@ -38,7 +38,7 @@ static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width 
 	return r
 
 
-## A chip with a name and a score (REQ-GM-46). Nothing is cut: `width` comes from `score_chip_width()`. `pos` is the top-left corner.
+## A chip with a name and a score (REQ-GM-46). Nothing is cut: `width` comes from `score_chip_width()`.
 static func score_chip(ci: CanvasItem, pos: Vector2, player_name: String, score: String, color: Color, width := 250.0,
 		height := 58.0) -> Rect2:
 	var r := chip(ci, pos, "", color, width, height)
