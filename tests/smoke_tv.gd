@@ -14,6 +14,7 @@ var TvLogo
 var TvConnect
 var TvGames
 var TvSettings
+var TvGameSettings
 
 var _fails := 0
 var _seq := [0, 0]
@@ -78,6 +79,7 @@ func _run() -> void:
 	TvConnect = load("res://scripts/ui/tv_connect.gd")
 	TvGames = load("res://scripts/ui/tv_games.gd")
 	TvSettings = load("res://scripts/ui/tv_settings.gd")
+	TvGameSettings = load("res://scripts/ui/tv_game_settings.gd")
 	var app: Node = root.get_node("App")
 	_check(is_instance_of(app.current_screen(), TvLogo), "TV starts on the logo screen (REQ-FL-2)")
 	_check(app.server.listening, "server is listening while the logo shows (REQ-FL-4)")
@@ -711,23 +713,12 @@ func _run() -> void:
 	await _frames(3)
 	var menu: Control = app.current_screen()
 	menu._on_tile(Registry.find("marble_race"))
-	await _frames(2)
-	var variant_buttons := 0
-	for ch in menu._variant_view.get_children():
-		if ch is Button:
-			variant_buttons += 1
-	_check(is_instance_of(app.current_screen(), TvGames) and menu._variants_of == "marble_race"
-			and variant_buttons == MarbleTrack.IDS.size() + 1, "Marble Race opens the track list before the race (REQ-FL-17)")
-	menu.on_back()
+	await _frames(4)
+	_check(is_instance_of(app.current_screen(), TvGameSettings) and app.current_screen().game_id == "marble_race",
+			"Marble Race opens its settings view (REQ-GM-90, REQ-MR-53)")
+	app.current_screen().start()
 	await _frames(3)
-	var focused = menu.get_viewport().gui_get_focus_owner()
-	_check(menu._variants_of == "" and focused != null and "game" in focused and focused.game.id == "marble_race",
-			"Back from the track list returns to the grid with the same tile in focus")
-	menu._on_tile(Registry.find("marble_race"))
-	await _frames(2)
-	menu._launch("marble_race", {})   # A variant with empty props must start the game, not reopen the list.
-	await _frames(3)
-	_check(is_instance_of(app.current_screen(), MarbleRace), "a variant with empty props starts the game")
+	_check(is_instance_of(app.current_screen(), MarbleRace), "Start begins the race")
 	# Leaving a game in progress asks first (REQ-GM-31a).
 	var lg: Control = app.current_screen()
 	lg.on_back()
@@ -768,11 +759,15 @@ func _run() -> void:
 	# Marble race: grid wait, tilt moves a marble, finish line ends the race.
 	root.size = Vector2i(1920, 1080)   # The headless window can have another shape. The TV is 16:9.
 	await _frames(3)
-	app.go(MarbleRace, Registry.find("marble_race").variants[2].props)
+	app.go(MarbleRace, {"track_choice": "3", "difficulty": "hard"})
 	await _frames(3)
 	var mr: Control = app.current_screen()
 	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")
-	_check(mr.track.id == "zigzag", "registry props choose the track")
+	_check(mr.track_seed == MarbleTrack.FIXED_SEEDS[2] and mr.track.title == "Track 3"
+			and mr.start_props.track_seed == mr.track_seed,
+			"the props choose the track and the seed is kept for Restart (REQ-MR-54)")
+	_check(mr.track.bumpers.size() > MarbleTrack.make(mr.track_seed, "easy").bumpers.size(),
+			"the difficulty gives the posts (REQ-MR-50)")
 	_check(mr.camera != null, "the 3D game has a camera")
 	mr.open_menu("Paused", [["Resume", mr.close_menu]])
 	await _frames(2)
@@ -802,13 +797,20 @@ func _run() -> void:
 	mr._racers[1].pos = mr.track.point_at(30.0)
 	await _stream(clients[0], 0, 1.5, flat)
 	_check(mr.edge_markers().is_empty(), "no edge marker when the marbles are close")
-	mr._racers[0].pos = mr.track.point_at(150.0)
+	var far_arc := 10.0   # The point of the track that is farthest from the start of marble 1 (a generated track can bend).
+	var from_start: Vector2 = mr.track.point_at(10.0)
+	for arc_i in range(10, int(mr.finish_arc) - 1):
+		if mr.track.point_at(float(arc_i)).distance_to(from_start) > mr.track.point_at(far_arc).distance_to(from_start):
+			far_arc = float(arc_i)
+	mr._racers[0].pos = mr.track.point_at(far_arc)
 	mr._racers[1].pos = mr.track.point_at(10.0)
 	await _stream(clients[0], 0, 1.5, flat)
 	var markers: Array = mr.edge_markers()
-	_check(not markers.is_empty() and markers[0].slot == 1, "an edge marker points to the marble that is out of view")
+	_check(not markers.is_empty() and markers[0].dir.length() > 0.99, "an edge marker points to a marble that is out of view")
+	var over_line: Vector2 = mr.track.point_at(mr.finish_arc + 0.5)
+	var across: Vector2 = mr._perp(mr.track.dir_at(mr.finish_arc + 0.5)) * 0.8   # Side by side: the marbles do not push each other.
 	for s in [0, 1]:
-		mr._racers[s].pos = mr.track.point_at(mr.finish_arc + 0.5)
+		mr._racers[s].pos = over_line + across * (1.0 if s == 0 else -1.0)
 	await _frames(5)
 	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
 	_check(mr.is_over and mr.is_paused(), "race ends and the results menu opens")
@@ -821,9 +823,9 @@ func _run() -> void:
 	var race_rows: Array = []
 	for l in mr._menu_box.find_children("*", "Label", true, false):
 		race_rows.append(l.text)
-	_check(race_labels == ["Restart", "Choose track", "Back to menu"] and race_rows.size() == 3 and race_rows[0].ends_with("wins!")
+	_check(race_labels == ["Restart", "Settings", "Back to menu"] and race_rows.size() == 3 and race_rows[0].ends_with("wins!")
 			and race_rows[1].begins_with("1st") and race_rows[2].begins_with("2nd") and race_rows[2].ends_with(" s"),
-			"the race results list both marbles with their times, and keep Choose track: %s %s" % [str(race_labels), str(race_rows)])
+			"the race results list both marbles with their times, and offer Settings: %s %s" % [str(race_labels), str(race_rows)])
 	mr._racers[1].finish_time = -1.0   # The second marble did not reach the line.
 	mr._open_results()
 	await _frames(2)
@@ -846,23 +848,14 @@ func _run() -> void:
 	mr.participants.append_array(kept_players)
 	mr._open_results()
 	await _frames(2)
-	mr._open_picker()
-	await _frames(2)
-	_check(mr._picking and mr.menu_buttons().size() == MarbleTrack.IDS.size() + 1,
-			"track picker lists every track and Cancel")
-	mr.on_back()
-	await _frames(2)
-	_check(not mr._picking and mr.is_over and mr.menu_buttons().size() == results_items,
-			"Back from the picker returns to the results")
-	mr._open_picker()
-	mr._switch_track("sprint")
+	var result_names: Array = mr.menu_buttons().map(func(b): return b.text)
+	_check(result_names == ["Restart", "Settings", "Back to menu"],
+			"the race results offer Settings, not Choose track: %s" % str(result_names))
+	var seed_before: int = mr.track_seed
+	mr.restart()
 	await _frames(3)
-	var sp: Control = app.current_screen()
-	_check(sp != mr and sp.track.id == "sprint" and sp.start_props.track_id == "sprint",
-			"picking a track starts that track")
-	sp.restart()
-	await _frames(3)
-	_check(app.current_screen().track.id == "sprint", "restart keeps the chosen track")
+	var again_race: Control = app.current_screen()
+	_check(again_race.track_seed == seed_before, "restart keeps the chosen track")
 
 	# A player leaves during the race, then the last player leaves (REQ-GM-21, REQ-GM-22).
 	var lr: Control = app.current_screen()
@@ -941,7 +934,7 @@ func _run() -> void:
 	t5 = Time.get_ticks_msec()
 	while app.server.connected_slots().size() < 1 and Time.get_ticks_msec() - t5 < 4000:
 		await process_frame
-	app.go(MarbleRace, Registry.find("marble_race").variants[0].props)
+	app.go(MarbleRace, {"track_choice": "1"})
 	await _frames(3)
 	var solo_race: Control = app.current_screen()
 	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.

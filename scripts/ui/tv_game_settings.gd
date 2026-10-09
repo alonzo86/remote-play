@@ -8,12 +8,13 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const ChoiceRow = preload("res://scripts/ui/choice_row.gd")
+const TrackPicker = preload("res://scripts/ui/track_picker.gd")
 
 ## Set by `App.go_game_settings()` before the screen enters the tree.
 var game_id := ""
 
 var game := {}
-var rows: Array[Button] = []
+var rows: Array[Control] = []   # The row controls: a choice row or a track list.
 var start_button: Button
 var back_button: Button
 
@@ -24,7 +25,7 @@ func _ready() -> void:
 	var center := CenterContainer.new()
 	m.add_child(center)
 	var box := VBoxContainer.new()
-	box.custom_minimum_size = Vector2(1000, 0)
+	box.custom_minimum_size = Vector2(1040, 0)
 	box.add_theme_constant_override("separation", 20)
 	center.add_child(box)
 	var title := UiKit.title(String(game.get("title", "")), 84)
@@ -32,7 +33,7 @@ func _ready() -> void:
 	box.add_child(title)
 	box.add_child(UiKit.spacer(12))
 	for r in GameSettings.rows_for(game):
-		var row: Button = ChoiceRow.new()
+		var row: Control = TrackPicker.new() if r.get("type", "") == "tracks" else ChoiceRow.new()
 		row.row = r
 		row.value = GameSettings.value(game, r)
 		row.changed.connect(func(v: String): GameSettings.set_value(game, r, v))

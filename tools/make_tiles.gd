@@ -8,6 +8,7 @@ extends SceneTree
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const GameSettings = preload("res://scripts/game/game_settings.gd")
 
 const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
@@ -59,8 +60,8 @@ func _run() -> void:
 	var left := Vector3(sin(lean_a), 0.0, cos(lean_a)) * 9.81
 	for g in Registry.all():
 		var props: Dictionary = g.get("props", {})
-		if g.has("variants"):
-			props = g.variants[0].props
+		if g.has("settings"):
+			props = GameSettings.props_for(g)
 		app.go(Registry.load_script(String(g.id)), props)
 		await _stream(clients, 3.2, [flat, flat]) # The countdown.
 		var wait: float = float(WAIT.get(String(g.id), 3.0)) - 3.2

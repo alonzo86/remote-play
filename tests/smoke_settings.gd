@@ -39,6 +39,8 @@ func _small_text(n: Node) -> Array:
 
 func _run() -> void:
 	await _frames(5)
+	root.size = Vector2i(1920, 1080)   # The TV is 16:9. The headless window can have another shape.
+	await _frames(3)
 	var MazeGame = load("res://scripts/game/maze/maze_game.gd")
 	var TvGames = load("res://scripts/ui/tv_games.gd")
 	var TvGameSettings = load("res://scripts/ui/tv_game_settings.gd")
@@ -97,6 +99,50 @@ func _run() -> void:
 	_check(is_instance_of(snow, Snow) and snow.difficulty == "hard" and snow._field._speed == 1.5
 			and snow.start_props.difficulty == "hard",
 			"Start begins a Hard Snowball Splat, and Restart keeps it")
+	# Marble Race: the track list under Difficulty (REQ-MR-53, 54).
+	var Race = load("res://scripts/game/marble_race/marble_race.gd")
+	var MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
+	app.go_game_settings("marble_race")
+	await _frames(4)
+	sv = app.current_screen()
+	var picker: Control = sv.rows[1]
+	_check(sv.rows.size() == 2 and sv.rows[0].row.key == "difficulty" and picker.tiles.size() == 11
+			and picker.tiles[10].sketch.is_empty() and picker.tiles[0].sketch.size() >= 3,
+			"the race view has Difficulty and 11 track tiles under it, the last one without a sketch (the random track)")
+	_check(picker.tiles[0].selected and not picker.tiles[1].selected and picker.value == "1", "Track 1 is selected at first")
+	_check(sv.rows[0].global_position.y < picker.global_position.y and picker.global_position.y < sv.start_button.global_position.y,
+			"the track list is under Difficulty and above Start")
+	var small_race: Array = _small_text(sv)
+	_check(small_race.is_empty(), "no text below 28 px in the race view " + str(small_race))
+	var bottom: float = sv.back_button.global_position.y + sv.back_button.size.y
+	_check(bottom <= 1080.0 - 20.0 and sv.get_viewport().get_visible_rect().size.y >= bottom,
+			"the race view fits the screen with Back at the bottom (%.0f)" % bottom)
+	picker.tiles[3].pressed.emit()
+	_check(picker.value == "4" and picker.tiles[3].selected and not picker.tiles[0].selected, "OK on a tile selects it")
+	sv.rows[0]._gui_input(right)
+	sv.rows[0]._gui_input(left)
+	sv.rows[0]._gui_input(left)
+	sv.start()
+	await _frames(4)
+	var race: Control = app.current_screen()
+	_check(is_instance_of(race, Race) and race.difficulty == "easy" and race.track_seed == MarbleTrack.FIXED_SEEDS[3]
+			and race.track.bumpers.size() == MarbleTrack.make(race.track_seed, "easy").bumpers.size(),
+			"Start begins an Easy race on Track 4")
+	app.go_game_settings("marble_race")
+	await _frames(4)
+	sv = app.current_screen()
+	_check(sv.rows[0].value == "easy" and sv.rows[1].value == "4" and sv.rows[1].tiles[3].selected,
+			"the view opens with the last choices (REQ-GM-94)")
+	sv.rows[1].tiles[10].pressed.emit()
+	sv.start()
+	await _frames(4)
+	race = app.current_screen()
+	var random_seed: int = race.track_seed
+	_check(not MarbleTrack.FIXED_SEEDS.has(random_seed) and race.track.title == "Random track",
+			"the random track has a seed that is not fixed (REQ-MR-53)")
+	race.restart()
+	await _frames(4)
+	_check(app.current_screen().track_seed == random_seed, "Restart plays the same random track (REQ-MR-54)")
 	GameSettings.clear()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)

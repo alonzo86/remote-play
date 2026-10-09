@@ -82,10 +82,10 @@ For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_re
 A key object (player, goal, hazard) gets an outline with `add_outlined_mesh()`.
 The 3D world is frozen while the game is paused.
 
-A registry entry may have `props`, set on the game before it starts (and kept for Restart). An entry with `variants`
-(a list of title and props) makes the menu ask which variant to start first. The marble race uses this to pick a track
-(`track_id`). The track can also be changed from its results menu, but not from the pause menu. Tracks are in `scripts/game/marble_race/marble_track.gd`:
-add an id to `IDS`, a case in `make()`, and one registry entry.
+A registry entry may have `props`, set on the game before it starts (and kept for Restart). An entry with a `settings`
+list has a settings view (Difficulty and the rows of the list) before the game: the choices become props of the game
+(`scripts/game/game_settings.gd`, `scripts/ui/tv_game_settings.gd`). The marble race has a `tracks` row: 10 fixed tracks and a random one,
+all made from seeds by `MarbleTrack.generate()` in `scripts/game/marble_race/marble_track.gd`. The pause menu does not change settings.
 
 ## Run on a PC
 

@@ -113,7 +113,7 @@ func _run() -> void:
 	await _stream(clients, 2.5, Vector3(0, 0, 9.81))
 	await _stream(clients, 1.2, Vector3(-0.3, 0.2, 9.8))
 	await _shot("maze_play")
-	app.go(MarbleRace, {"track_id": "classic"})
+	app.go(MarbleRace, {"track_choice": "1"})
 	await _stream(clients, 4.5, Vector3(0, 0, 9.81))
 	await _stream(clients, 1.5, Vector3(-0.3, 0.2, 9.8))
 	await _shot("marble_play")

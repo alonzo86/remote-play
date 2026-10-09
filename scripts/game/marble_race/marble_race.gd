@@ -39,8 +39,11 @@ class Racer:
 	var finish_time := -1.0
 	var node: MeshInstance3D
 
-## Set before the game starts (App.go props). See marble_track.gd for the ids.
-var track_id := "classic"
+## Set before the game starts (REQ-GM-93, REQ-MR-50 to 54). `track_choice` is a choice of the track list ("1" to "10" or
+## "random"). The seed it gives is kept in `start_props`, so Restart plays the same track also after "random".
+var track_choice := "1"
+var difficulty := "medium"
+var track_seed := 0
 var track
 var finish_arc := 0.0
 
@@ -50,12 +53,16 @@ var _round := RoundClock.new()   # Race clock. Below 0 the marbles wait on the g
 var _haptics := Haptics.new()
 var _first_finish_time := -1.0
 var _winner := -1
-var _picking := false   # True while the track picker is open on the results menu.
 var _cam_pos := Vector3.ZERO
 
 
 func _world_ready() -> void:
-	track = MarbleTrack.make(track_id)
+	if not start_props.has("track_seed"):
+		var rng := RandomNumberGenerator.new()
+		rng.randomize()
+		start_props["track_seed"] = MarbleTrack.seed_for(track_choice, rng)
+	track_seed = int(start_props.track_seed)
+	track = MarbleTrack.make(track_seed, difficulty)
 	finish_arc = track.length - FINISH_BEFORE_END
 	_build_track()
 	_build_bumpers()
@@ -190,7 +197,6 @@ func _check_end() -> void:
 # ---- Results menu ----
 
 func _open_results() -> void:
-	_picking = false
 	if participants.is_empty():   # Everyone left after the finish: nobody is left to read a list.
 		open_menu("No players connected", [["Back to menu", App.go_menu]])
 		return
@@ -202,30 +208,12 @@ func _open_results() -> void:
 			board.set_score(s, r.finish_time)
 		else:
 			board.set_unfinished(s, r.arc)
-	open_results(board, [], "", [["Choose track", _open_picker]], func(t: float) -> String: return "%.2f s" % t)
+	open_results(board, [], "", [], func(t: float) -> String: return "%.2f s" % t)
 
 
-func _open_picker() -> void:
-	_picking = true
-	var entries: Array = []
-	for id in MarbleTrack.IDS:
-		var title: String = MarbleTrack.make(id).title
-		entries.append([title + ("  (now)" if id == track_id else ""), _switch_track.bind(id)])
-	entries.append(["Cancel", _open_results])
-	open_menu("Choose a track", entries)
-
-
-func _switch_track(id: String) -> void:
-	var props := start_props.duplicate()
-	props["track_id"] = id
-	App.go(get_script(), props)
-
-
-## Back from the track picker returns to the results. Back from the results leaves the game.
+## The results menu leaves the game with Back (REQ-MR-34).
 func on_back() -> void:
-	if is_over and _picking:
-		_open_results()
-	elif is_over:
+	if is_over:
 		App.go_menu()
 	else:
 		super()

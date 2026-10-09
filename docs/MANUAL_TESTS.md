@@ -330,11 +330,11 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 3. Tilt right: the marble goes right on the screen. Tilt the top of the phone up: the marble goes down on the screen. (REQ-3D-6)
 4. Check the feel. Write down if the marble is too slow, too fast, or too nervous. (`ACCEL`, `DAMPING`)
 5. Hit a wall, a post and another marble at speed. Check: the phone buzzes, not more than 6 times a second. (REQ-MR-13)
-6. Check: the frame rate in the debug overlay is 60 (or close) with 4 phones on Gauntlet. (REQ-GM-50)
-7. Let one marble run far ahead on Gauntlet. Check: when the last marble leaves the view, an arrow in its color shows at the screen edge with a distance, and you can read it. (REQ-MR-42)
-8. Finish a race on each track. Write down the winning time. Compare with the targets in the table. (REQ-MR-21)
-9. At the results: use Choose track, pick another track, and check that the new race has that track. Press Back in the track list: it returns to the results.
-10. During a race, open the pause menu. Check: it has no Choose track. (REQ-MR-32)
+6. Check: the frame rate in the debug overlay is 60 (or close) with 4 phones on Hard. (REQ-GM-50)
+7. Let one marble run far ahead on a long track (Hard). Check: when the last marble leaves the view, an arrow in its color shows at the screen edge with a distance, and you can read it. (REQ-MR-42)
+8. Finish a race on 3 different tracks of the list and on the random track. Write down the winning time of each. (REQ-MR-51)
+9. Open the tile of **Marble Race**. Check: the settings view shows Difficulty (Left and Right) and, under it, 11 tiles (10 line sketches and a "?"). Choose a track with the D-pad and OK, then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many posts. Choose the "?" tile twice: the tracks are different. Restart: the same track again. (REQ-MR-50 to 54)
+10. During a race, open the pause menu. Check: it has Resume, Restart and Back to menu only. (REQ-MR-32)
 11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the marble stops drifting.
 
 **Results**
@@ -349,18 +349,18 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 | 6 | Overlay screenshot (FPS) with 4 phones on Gauntlet | Not run | | | |
 | 7 | Photo of an edge arrow with its distance | Not run | | | |
 | 8 | Winning time for each track (fill the table in the test) | Not run | | | |
-| 9 | Video: Choose track, new track, Back in the list | Not run | | | |
+| 9 | Photo of the settings view; video of choosing a track and of Easy, Medium and Hard; note on the generated tracks (any bad bends or corners where a marble gets stuck) | Not run | | | Changed 2026-10-09: the four hand-made tracks were replaced by generated tracks. |
 | 10 | Photo of the pause menu | Not run | | | |
 | 11 | Video of a full race on one track and notes for every check in the item | Not run | | | |
 
-Winning times (item 8). Compare with the targets in `docs/games/marble_race.md` (REQ-MR-21):
+Winning times (item 8):
 
-| Track | Winning time (s) | Run | Evidence |
-|-------|------------------|-----|----------|
-| Classic | | | |
-| Sprint | | | |
-| Zigzag | | | |
-| Gauntlet | | | |
+| Track | Difficulty | Winning time (s) | Run | Evidence |
+|-------|------------|------------------|-----|----------|
+| Track | | | | |
+| Track | | | | |
+| Track | | | | |
+| Random track | | | | |
 
 History:
 
@@ -432,10 +432,10 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, 
 
 1. Maze with 1 phone: finish the maze. Check: the title says '<name> wins!', the list has one row '1st  <name>  <time> s', and the buttons are **Restart** and **Back to menu**. The text is easy to read from the sofa.
 2. Maze with 2 to 4 phones: let one ball reach the exit first. Check: the winner is '1st' with a time, the other balls are listed as 'not finished' (nearest to the exit first), and the list and the buttons stay inside the screen edge (60 px).
-3. Marble Race with 4 phones on any track: let all marbles finish. Check: the list shows 4 rows with times, best first, and a title with the winner. The card with the list and the 3 buttons (Restart, Choose track, Back to menu) is inside the screen edge and can be read.
+3. Marble Race with 4 phones on any track: let all marbles finish. Check: the list shows 4 rows with times, best first, and a title with the winner. The card with the list and the 3 buttons (Restart, Settings, Back to menu) is inside the screen edge and can be read.
 4. Marble Race with 4 phones: let one marble finish and wait about 4 seconds for the end. Check: the marbles that did not finish are listed as 'not finished', the furthest first.
-5. Marble Race, at the results: choose **Choose track**, then **Cancel**. Check: the results come back with the same list.
-6. Marble Race: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **Choose track** and **Cancel**. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
+5. Marble Race, at the results: choose **Settings**. Check: the settings view opens with the last difficulty and track, and Back returns to the Games screen.
+6. Marble Race: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **Settings** and **Back**, then open the results again if they are gone. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
 7. Snowball Splat with 1 phone: play a full round. Check: the title is a medal ('Bronze medal!', 'Silver medal!', 'Gold medal!') or 'No medal this time', and the list has one row with the score. With 2 phones: the title names the winner, or says 'Tie!' for equal scores.
 
 **Results**

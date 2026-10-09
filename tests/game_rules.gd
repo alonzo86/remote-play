@@ -5,6 +5,7 @@ extends SceneTree
 const Shell = preload("res://scripts/game/shell.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
+const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
 const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
 
 const AREA := Rect2(60.0, 150.0, 1800.0, 870.0)   # The play area at 1920x1080.
@@ -31,6 +32,7 @@ func _initialize() -> void:
 	_visual_rules()
 	_maze_levels()
 	_difficulty()
+	_test_marble_track()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -328,3 +330,93 @@ func _difficulty() -> void:
 	var odd := PuffField.new()
 	odd.setup("nonsense")
 	_check(odd.spawn(_rng(1), 1) != null and odd.puffs[0].speed in [100.0, 160.0], "an unknown difficulty is Medium")
+
+
+func _test_marble_track() -> void:
+	print("marble track")
+	var seeds: Array = MarbleTrack.FIXED_SEEDS.duplicate()
+	for i in 150:
+		seeds.append(1000 + i * 37)
+	var all_clear := true
+	var all_long := true
+	var all_start := true
+	var all_posts := true
+	var apart_all := true
+	var smooth := true
+	var fallback := false
+	for sd in seeds:
+		var t = MarbleTrack.make(sd, "hard")
+		all_long = all_long and t.length >= 90.0 and t.length <= 170.0 and t.half_width >= 2.9 and t.half_width <= 4.6
+		fallback = fallback or t.points.size() == 2 and t.half_width == 3.6
+		all_start = all_start and t.dir_at(5.0).is_equal_approx(Vector2(0, -1)) and t.point_at(8.0).x == 0.0 \
+				and t.points[1].distance_to(t.points[0]) >= 8.0
+		# Parts of the track far apart in arc must be far apart in space, or arc is not clear (REQ-MR-23).
+		var samples: Array[Vector2] = []
+		var a := 0.0
+		while a <= t.length:
+			samples.append(t.point_at(a))
+			a += 1.0
+		var gap := ceili(t.half_width * 4.0)
+		for i in samples.size():
+			for j in range(i + gap, samples.size()):
+				if samples[i].distance_to(samples[j]) < t.half_width * 1.8:
+					apart_all = false
+		# A bend is never sharp (REQ-MR-52).
+		for i in range(1, t.points.size() - 1):
+			var d1: Vector2 = (t.points[i] - t.points[i - 1]).normalized()
+			var d2: Vector2 = (t.points[i + 1] - t.points[i]).normalized()
+			if rad_to_deg(d1.angle_to(d2)) > MarbleTrack.TURN_MAX + 0.5 or rad_to_deg(d1.angle_to(d2)) < -MarbleTrack.TURN_MAX - 0.5:
+				smooth = false
+		for b in t.bumpers:
+			var off: float = absf(b[1]) * t.half_width * 0.44
+			if b[0] > t.length - 8.0 or b[0] < 14.0 or t.half_width + off - 0.9 < 2.0:
+				all_posts = false
+		all_clear = all_clear and t.query(t.point_at(t.length * 0.5)).dist < 0.01
+	_check(not fallback, "no seed falls back to the plain track (%d seeds)" % seeds.size())
+	_check(all_long, "every track is 90 to 170 m long and 5.8 to 9.2 m wide (REQ-MR-52)")
+	_check(all_start, "every track starts with a straight of 8 m or more toward -z (REQ-MR-22)")
+	_check(apart_all, "no track touches itself (REQ-MR-23)")
+	_check(smooth, "no bend is sharper than %d degrees (REQ-MR-52)" % int(MarbleTrack.TURN_MAX))
+	_check(all_posts, "posts leave a marble-wide gap and stay between 14 m and 8 m before the end (REQ-MR-6, 24)")
+	_check(all_clear, "point_at and query agree")
+	# The same seed gives the same track, other seeds other tracks (REQ-MR-51).
+	var a1 = MarbleTrack.make(42, "medium")
+	var a2 = MarbleTrack.make(42, "medium")
+	var b1 = MarbleTrack.make(43, "medium")
+	_check(a1.points == a2.points and a1.bumpers == a2.bumpers and a1.half_width == a2.half_width,
+			"the same seed gives the same track")
+	_check(a1.points != b1.points, "another seed gives another track")
+	# Difficulty changes the posts only (REQ-MR-50).
+	var counts := {}
+	for d in ["easy", "medium", "hard"]:
+		var td = MarbleTrack.make(42, d)
+		counts[d] = td.bumpers.size()
+		_check(td.points == a1.points, "%s: the line of the track is the same at every difficulty" % d)
+		var per100: float = float(td.bumpers.size()) / ((td.length - 22.0) / 100.0)
+		_check(absf(per100 - MarbleTrack.POSTS_PER_100M[d]) < 0.8 * 100.0 / (td.length - 22.0) + 0.01,
+				"%s: about %d posts for each 100 m (%.1f)" % [d, int(MarbleTrack.POSTS_PER_100M[d]), per100])
+	_check(counts.easy < counts.medium and counts.medium < counts.hard, "more posts with the difficulty: %s" % str(counts))
+	var neighbours_differ := true
+	for i in range(1, a1.bumpers.size()):
+		neighbours_differ = neighbours_differ and a1.bumpers[i][1] != a1.bumpers[i - 1][1]
+	_check(neighbours_differ, "a post is never on the same side as the one before it")
+	_check(MarbleTrack.make(42, "nope").bumpers.size() == counts.medium, "an unknown difficulty is Medium")
+	# The list: 10 fixed seeds, a random seed is never one of them (REQ-MR-53).
+	var distinct := {}
+	for sd in MarbleTrack.FIXED_SEEDS:
+		distinct[sd] = true
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 3
+	var random_ok := true
+	for i in 300:
+		random_ok = random_ok and not MarbleTrack.FIXED_SEEDS.has(MarbleTrack.seed_for("random", rng))
+	_check(MarbleTrack.FIXED_SEEDS.size() == 10 and distinct.size() == 10, "there are 10 different fixed seeds")
+	_check(random_ok, "the random track never has a fixed seed")
+	_check(MarbleTrack.seed_for("3", rng) == MarbleTrack.FIXED_SEEDS[2]
+			and MarbleTrack.seed_for("10", rng) == MarbleTrack.FIXED_SEEDS[9],
+			"a choice of 1 to 10 gives the fixed seed")
+	_check(MarbleTrack.title_for(MarbleTrack.FIXED_SEEDS[4]) == "Track 5" and MarbleTrack.title_for(5) == "Random track",
+			"the names are Track 1 to 10 and Random track")
+	var t0 = MarbleTrack.make(MarbleTrack.FIXED_SEEDS[0])
+	var side: Vector2 = t0.point_at(30.0) + Vector2(t0.half_width + 1.0, 0)
+	_check(t0.query(side).dist > t0.half_width * 0.5, "a point beside the track is not on the line")
