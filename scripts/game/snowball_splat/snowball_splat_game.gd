@@ -340,14 +340,11 @@ func _draw_cursor(t: Thrower) -> void:
 
 func _draw_hud() -> void:
 	Shell.title(self, "SNOWBALL SPLAT")
-	var ordered := Shell.in_slot_order(participants.map(func(s: int) -> Object: return player(s)))
-	var widths: Array = []
-	for p in ordered:
-		widths.append(Shell.score_chip_width(p.player_name, str(int(_board.score(p.slot)))))
-	var spots := Shell.chip_row_positions(size.x, widths, 36.0, 10.0, size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
-	for i in ordered.size():
-		var p: PlayerInput = ordered[i]
-		Shell.score_chip(self, spots[i], p.player_name, str(int(_board.score(p.slot))), p.color, widths[i])
+	var scores := {}
+	for slot in participants:
+		scores[slot] = str(int(_board.score(slot)))
+	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)), scores,
+			size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
 	if _round.is_counting() and not participants.is_empty():

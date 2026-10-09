@@ -139,22 +139,20 @@ static func in_slot_order(players: Array) -> Array:
 	return ordered
 
 
-## One chip for each player in a row at the right edge of the screen, P1 first (REQ-GM-46).
-## `area_w` is the width of the screen. `y` is the top of the chips.
-static func player_chips(ci: CanvasItem, area_w: float, players: Array, y := 36.0, width := 250.0, step := 270.0) -> void:
+## One chip for each player, P1 first (REQ-GM-46). The one place that draws the name chips of the games: a game only gives the
+## score of each slot in `scores` (slot -> text; a slot without a text has a name chip only) and calls this every frame.
+## `area_w` is the width of the screen. The chips end at the right 60 px margin. Each chip is as wide as its content, so no name
+## or score is cut. A row is at most `max_row` px wide (0 means the screen inside the margins), and the rest goes to a second row.
+static func player_chips(ci: CanvasItem, area_w: float, players: Array, scores := {}, max_row := 0.0, y := 36.0) -> void:
 	var ordered := in_slot_order(players)
-	var spots := chip_positions(area_w, ordered.size(), y, width, step)
+	var texts: Array[String] = []
+	var widths: Array = []
+	for p in ordered:
+		texts.append(String(scores.get(p.slot, "")))
+		widths.append(score_chip_width(p.player_name, texts[-1]))
+	var spots := chip_row_positions(area_w, widths, y, 10.0, max_row)
 	for i in ordered.size():
-		chip(ci, spots[i], ordered[i].player_name, ordered[i].color, width)
-
-
-## The top-left corner of each of `count` chips in a row. The last chip ends at the 60 px safe margin (REQ-GM-40).
-static func chip_positions(area_w: float, count: int, y := 36.0, width := 250.0, step := 270.0) -> Array[Vector2]:
-	var out: Array[Vector2] = []
-	var x := area_w - 60.0 - width - step * (count - 1)
-	for i in count:
-		out.append(Vector2(x + step * i, y))
-	return out
+		score_chip(ci, spots[i], ordered[i].player_name, texts[i], ordered[i].color, widths[i])
 
 
 ## The race timer: a pill with a dark outline, in a fixed place. `pos` is the top-left corner.

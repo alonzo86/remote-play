@@ -89,17 +89,17 @@ func _shell_layout() -> void:
 	var inside_ok := true
 	for w in [1920.0, 1280.0]:
 		for n in [1, 2, 3, 4]:
-			var spots: Array = Shell.chip_positions(w, n)
+			var spots: Array = Shell.chip_row_positions(w, _widths(n, 250.0))
 			if not is_equal_approx(spots[n - 1].x + 250.0, w - 60.0):
 				edge_ok = false
 			if spots[0].x < 60.0:
 				inside_ok = false
 	_check(edge_ok, "the last chip ends at the 60 px safe margin on 1920 and 1280 wide screens (REQ-GM-40)")
 	_check(inside_ok, "4 chips fit inside the left margin too")
-	var four: Array = Shell.chip_positions(1920.0, 4)
-	_check(four.size() == 4 and is_equal_approx(four[1].x - four[0].x, 270.0) and four[0].y == 36.0 and four[3].x > four[0].x,
-			"chips go left to right, 270 px apart, in one row")
-	_check(Shell.chip_positions(1920.0, 0).is_empty(), "no players, no chip")
+	var four: Array = Shell.chip_row_positions(1920.0, _widths(4, 250.0))
+	_check(four.size() == 4 and is_equal_approx(four[1].x - four[0].x, 260.0) and four[0].y == 36.0 and four[3].x > four[0].x,
+			"chips go left to right, 260 px apart, in one row")
+	_check(Shell.chip_row_positions(1920.0, []).is_empty(), "no players, no chip")
 	_check(Shell.ball_metrics(24.0).outline == 6.0 and Shell.ball_metrics(20.0).outline == 6.0
 			and Shell.ball_metrics(19.0).outline == 4.0, "a ball of 40 px or more has a 6 px outline, a smaller one 4 px (REQ-GM-47b)")
 	var m: Dictionary = Shell.ball_metrics(24.0)
@@ -230,3 +230,10 @@ func _medals() -> void:
 			"equal, backward or missing tiers are not valid")
 	_check(not medals.is_valid(tiers, true), "tiers that get easier are not valid for a time")
 	_check(medals.label("gold") == "Gold medal!" and medals.label("") == "No medal this time", "the text of a medal")
+
+
+func _widths(count: int, w: float) -> Array:
+	var out: Array = []
+	for i in count:
+		out.append(w)
+	return out
