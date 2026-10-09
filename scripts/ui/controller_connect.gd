@@ -1,7 +1,7 @@
 extends Control
 ## Phone screen before a TV is joined. Two ways to join: scan the QR code on the TV, or pick a TV
-## from the list of TVs found by UDP beacon (with a Refresh button). Nothing else: when neither
-## works there is no TV to connect to.
+## from the list of TVs found by UDP beacon (with a Refresh button). On an iPhone or iPad (no scanner
+## plugin) only the list is shown. Nothing else: when neither works there is no TV to connect to.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -15,6 +15,20 @@ var _list: VBoxContainer
 var _status: Label
 var _qr: Node
 var _search_until_ms := 0
+var os_name := OS.get_name() # A test sets it to "iOS".
+
+
+## The scan / paste button is not shown on an iPhone or iPad (OS name "iOS"): there is no scanner plugin, so only the
+## TV list is used. A Mac keeps "Paste TV link" for development runs.
+static func shows_scan_button(os_name: String) -> bool:
+	return os_name != "iOS"
+
+
+## A line under "No TVs found" on an iPhone or iPad: the beacon needs the Local Network permission (REQ-FL-59).
+static func empty_list_hint(os_name: String) -> String:
+	if os_name == "iOS":
+		return "No TV? In Settings, allow Local Network for this app, and use the same Wi-Fi as the TV."
+	return ""
 
 
 func _ready() -> void:
@@ -33,12 +47,13 @@ func _ready() -> void:
 	add_child(_qr)
 	_qr.scanned.connect(_on_qr_text)
 	_qr.failed.connect(_on_qr_failed)
-	# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
-	var scan_text := "Scan QR code" if _qr.is_available() else "Paste TV link"
-	var scan := UiKit.button(scan_text, _on_scan_pressed, false, 48)
-	scan.theme_type_variation = "LightButton" # White: it stands out from the green TV buttons and the yellow Refresh.
-	scan.custom_minimum_size = Vector2(0, 150)
-	box.add_child(scan)
+	if shows_scan_button(os_name):
+		# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
+		var scan_text := "Scan QR code" if _qr.is_available() else "Paste TV link"
+		var scan := UiKit.button(scan_text, _on_scan_pressed, false, 48)
+		scan.theme_type_variation = "LightButton" # White: it stands out from the green TV buttons and the yellow Refresh.
+		scan.custom_minimum_size = Vector2(0, 150)
+		box.add_child(scan)
 
 	var head := HBoxContainer.new()
 	box.add_child(head)
@@ -98,6 +113,11 @@ func _rebuild_list() -> void:
 	if tvs.is_empty():
 		var searching := Time.get_ticks_msec() < _search_until_ms
 		_list.add_child(UiKit.label("Searching..." if searching else "No TVs found", 34, UiTheme.TEXT_DIM))
+		var hint := empty_list_hint(os_name)
+		if not searching and hint != "":
+			var hint_label := UiKit.label(hint, 34, UiTheme.TEXT_DIM)
+			hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+			_list.add_child(hint_label)
 		return
 	for tv in tvs:
 		# Green, so that the Refresh button above (yellow) is not the same color. Only "<code> x/y".

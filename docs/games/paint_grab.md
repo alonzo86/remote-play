@@ -18,7 +18,7 @@ Visual language: shell, player colors, toy-like world (REQ-GM-45 to 49). Check t
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 13). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 14). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | Content: friendly paint blobs and colorful tiles, no fighting. A painted-over tile costs only that tile (REQ-PG-9). Text is positive. |
 
@@ -86,7 +86,7 @@ Shared code
 
 ## Parameters
 
-Values that change how the game feels. Tune them on a device (Test 13). First values:
+Values that change how the game feels. Tune them on a device (Test 14). First values:
 
 | Name | File | First value |
 |------|------|-------------|
