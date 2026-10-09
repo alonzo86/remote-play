@@ -113,8 +113,47 @@ func _run() -> void:
 	_check(game.floor_map.owner_of(some) == 1 and game.floor_map.count(0) == before0 - 1
 			and game._board.score(0) == before0 - 1 and game._board.score(1) == game.floor_map.count(1),
 			"a blob that rolls over a tile of another player takes it, and both scores follow (REQ-PG-4)")
+	# The buzz of a take (REQ-PG-12): a free tile gives none, a take gives one, and a second take within 150 ms gives no second.
+	game._haptics = load("res://scripts/game/haptics.gd").new()   # Loaded here: it needs the App autoload.
+	var free := Vector2i(-1, -1)
+	var other := Vector2i(-1, -1)
+	for r in game.floor_map.rows:
+		for c in game.floor_map.cols:
+			var cell := Vector2i(c, r)
+			if free.x < 0 and game.floor_map.owner_of(cell) == -1:
+				free = cell
+			elif other.x < 0 and game.floor_map.owner_of(cell) == 0 and cell != game.floor_map.cell_at(game._bodies[0].pos):
+				other = cell
+	game._bodies[1].pos = (Vector2(free) + Vector2(0.5, 0.5)) * 100.0
+	game._paint_under(1)
+	var after_free: bool = game._haptics._last.has(1)
+	game._bodies[1].pos = (Vector2(other) + Vector2(0.5, 0.5)) * 100.0
+	game._paint_under(1)
+	var first_buzz: int = game._haptics._last.get(1, -1)
+	var again := Vector2i(-1, -1)
+	for r in game.floor_map.rows:
+		for c in game.floor_map.cols:
+			var cell2 := Vector2i(c, r)
+			if again.x < 0 and game.floor_map.owner_of(cell2) == 0 and cell2 != game.floor_map.cell_at(game._bodies[0].pos):
+				again = cell2
+	game._bodies[1].pos = (Vector2(again) + Vector2(0.5, 0.5)) * 100.0
+	game._paint_under(1)
+	_check(not after_free and first_buzz >= 0 and game._haptics._last[1] == first_buzz,
+			"a free tile does not buzz, a take buzzes, and a second take within 150 ms does not buzz again (REQ-PG-12)")
 	await _frames(3)
 	_check(game._pops[some.y * game.floor_map.cols + some.x] > 0.0, "a painted tile pops (REQ-PG-16)")
+
+	# A lost phone pauses the round and the clock does not run (REQ-PG-11): a phone that goes silent, like one without Wi-Fi.
+	app.server.peer_timeout_ms = 2500
+	clients[1].set_process(false)
+	var waited := Time.get_ticks_msec()
+	while not game.is_paused() and Time.get_ticks_msec() - waited < 8000:
+		await _stream([clients[0]], 0.2, [flat])
+	_check(game.is_paused() and not game.is_over, "a silent phone pauses the round")
+	var clock: float = game._round.time
+	await _stream([clients[0]], 1.0, [flat])
+	_check(is_equal_approx(game._round.time, clock), "the clock does not run while a phone is lost (REQ-PG-11)")
+	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
 
 	# A player leaves (REQ-PG-10).
 	var tiles1: int = game.floor_map.count(1)

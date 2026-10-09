@@ -61,4 +61,4 @@ func total() -> int:
 
 ## The share of the floor that has the color of a slot, in percent, rounded down (REQ-PG-21).
 func percent(slot: int) -> int:
-	return count(slot) * 100 / total()
+	return count(slot) * 100 / total()   # Integer division: rounded down on purpose, so 29.9% is not a medal of 30%.

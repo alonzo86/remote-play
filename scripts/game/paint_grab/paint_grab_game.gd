@@ -132,7 +132,7 @@ func _finish() -> void:
 
 ## "34 tiles (23%)" for the result list.
 func _score_text(tiles: float) -> String:
-	return "%d tiles (%d%%)" % [int(tiles), int(tiles) * 100 / floor_map.total()]
+	return "%d tiles (%d%%)" % [int(tiles), int(tiles) * 100 / floor_map.total()]   # The percent is rounded down (REQ-PG-21).
 
 
 # ---- Drawing ----
