@@ -8,6 +8,9 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 
 signal changed(value: String)
 
+## The row is not narrower than this. It gets wider when the settings view has a wider row.
+const MIN_W := 720.0
+
 var row := {}
 var value := ""
 
@@ -20,7 +23,7 @@ var _right: Label
 func _ready() -> void:
 	theme_type_variation = "RowButton"
 	focus_mode = Control.FOCUS_ALL
-	custom_minimum_size = Vector2(0, 104)
+	custom_minimum_size = Vector2(MIN_W, 104)
 	var h := HBoxContainer.new()
 	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	h.add_theme_constant_override("separation", 20)

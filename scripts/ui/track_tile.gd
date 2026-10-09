@@ -1,15 +1,13 @@
 extends Button
-## One tile of the track list (REQ-MR-53): a line sketch of the middle line of a track, and its name under it. The "Random
-## track" tile has a question mark instead of a sketch. The selected tile is green and has a check mark.
+## One tile of the track gallery (REQ-MR-53): a line sketch of the middle line of a track, without a name. The random track
+## has a question mark instead of a sketch. The selected tile is green and has a check mark.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
-const SIZE := Vector2(156.0, 150.0)
-const LABEL_H := 46.0
-const PAD := 12.0
+const SIZE := Vector2(130.0, 170.0)
+const PAD := 16.0
 
 var value := ""
-var title := ""
 var sketch: Array[Vector2] = []   # The points of the track (x, z). Empty for the random tile.
 var selected := false:
 	set(v):
@@ -51,10 +49,9 @@ static func fit(points: Array[Vector2], area: Rect2) -> Array[Vector2]:
 
 
 func _draw_art() -> void:
-	var area := Rect2(PAD, PAD, SIZE.x - PAD * 2.0, SIZE.y - LABEL_H - PAD)
-	var font := UiTheme.body_bold()
+	var area := Rect2(PAD, PAD, SIZE.x - PAD * 2.0, SIZE.y - PAD * 2.0)
 	if sketch.is_empty():
-		_art.draw_string(UiTheme.title_font(), Vector2(0.0, area.get_center().y + 28.0), "?", HORIZONTAL_ALIGNMENT_CENTER, SIZE.x, 84,
+		_art.draw_string(UiTheme.title_font(), Vector2(0.0, area.get_center().y + 34.0), "?", HORIZONTAL_ALIGNMENT_CENTER, SIZE.x, 100,
 				UiTheme.CARD_TEXT)
 	else:
 		var pts := PackedVector2Array(fit(sketch, area))
@@ -62,7 +59,6 @@ func _draw_art() -> void:
 		_art.draw_polyline(pts, Color.WHITE, 4.0, true)
 		_art.draw_circle(pts[0], 8.0, UiTheme.OUTLINE)
 		_art.draw_circle(pts[0], 5.0, UiTheme.OK)
-	_art.draw_string(font, Vector2(0.0, SIZE.y - 12.0), title, HORIZONTAL_ALIGNMENT_CENTER, SIZE.x, 28, UiTheme.CARD_TEXT)
 	if selected:   # A check mark in a white disc, top right.
 		var c := Vector2(SIZE.x - 22.0, 22.0)
 		_art.draw_circle(c, 15.0, UiTheme.OUTLINE)

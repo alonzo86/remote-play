@@ -53,6 +53,8 @@ func _run() -> void:
 	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 1 and sv.rows[0].value == "medium",
 			"the settings view of the maze has the row Difficulty on Medium")
 	_check(sv.rows[0].has_focus() and sv.rows[0]._value.text == "Medium", "the row has the focus and shows Medium")
+	_check(is_equal_approx(sv.start_button.size.x, sv.rows[0].size.x) and is_equal_approx(sv.rows[0].size.x, sv.rows[0].MIN_W),
+			"the maze view is as narrow as its widest row (REQ-GM-90): %.0f px" % sv.rows[0].size.x)
 	var right := InputEventAction.new()
 	right.action = "ui_right"
 	right.pressed = true
@@ -112,6 +114,18 @@ func _run() -> void:
 	_check(picker.tiles[0].selected and not picker.tiles[1].selected and picker.value == "1", "Track 1 is selected at first")
 	_check(sv.rows[0].global_position.y < picker.global_position.y and picker.global_position.y < sv.start_button.global_position.y,
 			"the track list is under Difficulty and above Start")
+	var line_ok := true
+	for t in picker.tiles:
+		line_ok = line_ok and is_equal_approx(t.global_position.y, picker.tiles[0].global_position.y) and t.text == ""
+	_check(line_ok, "the tracks are one line of tiles without names (REQ-MR-53)")
+	_check(is_equal_approx(sv.start_button.size.x, picker.size.x) and picker.size.x == picker.VIEW_W
+			and picker.tiles[10].global_position.x > picker.global_position.x + picker.size.x,
+			"the race view is as wide as the gallery, and the last tile is outside the view (%.0f px)" % picker.size.x)
+	picker.tiles[10].grab_focus()
+	await _frames(12)
+	var visible_x: float = picker.tiles[10].global_position.x + picker.tiles[10].size.x
+	_check(picker.scroll_horizontal > 0 and visible_x <= picker.global_position.x + picker.size.x + 1.0,
+			"the line scrolls to the focused tile (%d px)" % picker.scroll_horizontal)
 	var small_race: Array = _small_text(sv)
 	_check(small_race.is_empty(), "no text below 28 px in the race view " + str(small_race))
 	var bottom: float = sv.back_button.global_position.y + sv.back_button.size.y
