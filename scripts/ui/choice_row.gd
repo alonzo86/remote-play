@@ -8,8 +8,8 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 
 signal changed(value: String)
 
-## The row is not narrower than this. It gets wider when the settings view has a wider row.
-const MIN_W := 720.0
+## The width of the row. It is narrow: the view is as wide as its widest row, and a narrower row stays in the middle.
+const MIN_W := 560.0
 
 var row := {}
 var value := ""

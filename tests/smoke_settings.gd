@@ -110,29 +110,53 @@ func _run() -> void:
 	var picker: Control = sv.rows[1]
 	_check(sv.rows.size() == 2 and sv.rows[0].row.key == "difficulty" and picker.tiles.size() == 11
 			and picker.tiles[10].sketch.is_empty() and picker.tiles[0].sketch.size() >= 3,
-			"the race view has Difficulty and 11 track tiles under it, the last one without a sketch (the random track)")
-	_check(picker.tiles[0].selected and not picker.tiles[1].selected and picker.value == "1", "Track 1 is selected at first")
+			"the race view has Difficulty and 11 tracks under it, the last one without a sketch (the random track)")
+	_check(picker.index == 0 and picker.value == "1", "Track 1 is in the middle at first")
 	_check(sv.rows[0].global_position.y < picker.global_position.y and picker.global_position.y < sv.start_button.global_position.y,
-			"the track list is under Difficulty and above Start")
-	var line_ok := true
-	for t in picker.tiles:
-		line_ok = line_ok and is_equal_approx(t.global_position.y, picker.tiles[0].global_position.y) and t.text == ""
-	_check(line_ok, "the tracks are one line of tiles without names (REQ-MR-53)")
-	_check(is_equal_approx(sv.start_button.size.x, picker.size.x) and picker.size.x == picker.VIEW_W
-			and picker.tiles[10].global_position.x > picker.global_position.x + picker.size.x,
-			"the race view is as wide as the gallery, and the last tile is outside the view (%.0f px)" % picker.size.x)
-	picker.tiles[10].grab_focus()
-	await _frames(12)
-	var visible_x: float = picker.tiles[10].global_position.x + picker.tiles[10].size.x
-	_check(picker.scroll_horizontal > 0 and visible_x <= picker.global_position.x + picker.size.x + 1.0,
-			"the line scrolls to the focused tile (%d px)" % picker.scroll_horizontal)
+			"the carousel is under Difficulty and above Start")
+	var mid_x: float = picker.global_position.x + picker.size.x * 0.5
+	_check(picker.size.x == picker.VIEW.x and is_equal_approx(sv.start_button.size.x, picker.size.x)
+			and sv.rows[0].size.x < picker.size.x and absf(sv.rows[0].global_position.x + sv.rows[0].size.x * 0.5 - mid_x) < 1.0,
+			"the view is as wide as the carousel, and Difficulty is narrower and in the middle (%.0f, %.0f px)"
+			% [picker.size.x, sv.rows[0].size.x])
+	sv.rows[0].grab_focus()
+	await _frames(2)
+	picker.grab_focus()
+	var moved: Array = []
+	picker.changed.connect(func(v: String): moved.append(v))
+	picker._gui_input(right)
+	picker._gui_input(right)
+	_check(picker.value == "3" and picker.index == 2 and moved == ["2", "3"],
+			"Right moves the line one track at a time: %s" % str(moved))
+	picker._gui_input(left)
+	_check(picker.value == "2", "Left moves it back")
+	picker.set_value("random")
+	picker._gui_input(right)
+	_check(picker.value == "random" and picker.index == 10 and moved.size() == 3,
+			"the line stops at the last track (the random one)")
+	picker.set_value("1")
+	picker._gui_input(left)
+	_check(picker.value == "1" and moved.size() == 3, "and at the first track, and choosing by code is no user change")
+	await _frames(20)
+	_check(is_equal_approx(picker._pos, 0.0), "the line slides to the track in the middle")
+	var TrackPicker = load("res://scripts/ui/track_picker.gd")
+	var fitted: Array = TrackPicker.fit(picker.tiles[0].sketch, Rect2(0, 0, 100, 100))
+	var inside := true
+	for fp in fitted:
+		inside = inside and fp.x >= -0.01 and fp.x <= 100.01 and fp.y >= -0.01 and fp.y <= 100.01
+	_check(fitted.size() == picker.tiles[0].sketch.size() and inside and TrackPicker.fit([], Rect2(0, 0, 100, 100)).is_empty(),
+			"a sketch is scaled to fit its tile")
+	_check(TrackPicker.scale_at(0.0) == 1.0 and TrackPicker.scale_at(1.0) < 1.0
+			and TrackPicker.scale_at(2.0) < TrackPicker.scale_at(1.0)
+			and TrackPicker.x_at(0.0) == 0.0 and TrackPicker.x_at(-1.0) < 0.0 and TrackPicker.x_at(2.0) > TrackPicker.x_at(1.0),
+			"tiles get smaller and go to the sides with the distance from the middle")
 	var small_race: Array = _small_text(sv)
 	_check(small_race.is_empty(), "no text below 28 px in the race view " + str(small_race))
 	var bottom: float = sv.back_button.global_position.y + sv.back_button.size.y
 	_check(bottom <= 1080.0 - 20.0 and sv.get_viewport().get_visible_rect().size.y >= bottom,
 			"the race view fits the screen with Back at the bottom (%.0f)" % bottom)
-	picker.tiles[3].pressed.emit()
-	_check(picker.value == "4" and picker.tiles[3].selected and not picker.tiles[0].selected, "OK on a tile selects it")
+	for i in 3:
+		picker._gui_input(right)
 	sv.rows[0]._gui_input(right)
 	sv.rows[0]._gui_input(left)
 	sv.rows[0]._gui_input(left)
@@ -145,9 +169,9 @@ func _run() -> void:
 	app.go_game_settings("marble_race")
 	await _frames(4)
 	sv = app.current_screen()
-	_check(sv.rows[0].value == "easy" and sv.rows[1].value == "4" and sv.rows[1].tiles[3].selected,
+	_check(sv.rows[0].value == "easy" and sv.rows[1].value == "4" and sv.rows[1].index == 3,
 			"the view opens with the last choices (REQ-GM-94)")
-	sv.rows[1].tiles[10].pressed.emit()
+	sv.rows[1].set_value("random", true)
 	sv.start()
 	await _frames(4)
 	race = app.current_screen()
