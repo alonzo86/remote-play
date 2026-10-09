@@ -411,7 +411,7 @@ func _test_sensor_sampler() -> void:
 	var flat_raw := Vector3(0.1, -0.2, -9.8)
 	var flat_fixed := Vector3(-0.1, 0.2, 9.8)
 	_check(SensorSampler.accel_to_protocol(flat_raw, "Android") == flat_fixed, "Android: all accelerometer axes are flipped")
-	_check(SensorSampler.accel_to_protocol(flat_raw, "iOS") == flat_fixed, "iOS: flipped like Android until a device test says otherwise")
+	_check(SensorSampler.accel_to_protocol(flat_raw, "iOS") == flat_fixed, "iOS: flipped like Android until a device test says so")
 	_check(SensorSampler.accel_to_protocol(flat_raw, "macOS") == flat_raw, "other platforms: the value is not changed")
 
 	# A stall (the app was paused) must not make a burst of old packets.
