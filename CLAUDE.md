@@ -45,6 +45,7 @@ Tests the user has to run now (status on 2026-10-09 after run R1; the list is in
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
+| 7 | **Retest after R1.** Disconnect and reconnect: items 1 to 6 and the new item 7 (a phone call). Item 1: a phone without Wi-Fi must pause the game with the card 'P2 lost connection'. Item 5: with one phone, the card has only End game, then Resume after the return | R1 found that a phone without Wi-Fi did not pause the game, and that a phone call ended the game with no way to resume. Fixed and changed on 2026-10-09 (REQ-GM-30, 30a) |
 | 8 | **Retest after R1.** TV remote: items 2 and 3 (Back must go back one step and must not quit the app, REQ-FL-55). Then items 1, 4 and 5, never run | R1 found that Back quits the app on every screen. Fixed on `games/target-shoot` on 2026-10-09 |
 | 8b | **Retest after R1.** Item 2 (the game screenshots show on the Games screen) and item 7 (a TV set to Hebrew stays English and left to right). Items 1 and 3 to 6, never run | R1 found missing screenshots and a mirrored layout. Fixed on 2026-10-09. The cause of the missing screenshots is not confirmed: if they are still missing, save `adb logcat -d -s godot` and look for 'Tile image' |
 | 1 | **Retest after R1.** Start and join, all 5 steps. Step 3 is new: 'Press OK to continue' and no Continue button | The Connect screen changed after the owner's feedback (FD-17). R0 failed on join by room code, which the plan does not have now |
@@ -52,7 +53,6 @@ Tests the user has to run now (status on 2026-10-09 after run R1; the list is in
 | 9 | Marble Race on a real TV, 2 to 4 phones: all 11 items. Item 11 is the check after the shared-code change | PR 12 (merged) changed the countdown, the buzz limit and the end of the race. Never run on a device |
 | 6 | Tilt Maze, the rest: item 4 (2 to 4 phones) and item 5 (RECENTER recenters, A and B do nothing). Items 1 to 3 passed in R1 ('it works perfectly') | PR 12 removed the A shortcut |
 | 11 | The result menus: maze (1 to 4 phones), race (4 phones, inside the screen edge, 'not finished'), Target Shoot (medal, winner, Tie) | PR 12 (merged) made the result menu generic. The 4-player list was never seen on a TV |
-| 7 | Disconnect and reconnect: items 1 to 6, with item 5 (the last phone leaves) in the maze, the race and Target Shoot | The R0 run needs a retest. PR 12 changed the end with no players |
 | 12 | Game tiles: compare each tile with the game. The Maze and Marble Race tiles are older than the chip style | REQ-GM-49. Claude makes the tiles again when they differ |
 | 3 | Sensor directions: items 1 and 4 (the flat Accel value after the fix, Gyro z) | R0 did not check them after the fix |
 | 4 | Latency and packet rate on a real TV box, and the delay with a 240 fps camera | R0 ran on a desktop and failed (RTT, Gap). Not representative |

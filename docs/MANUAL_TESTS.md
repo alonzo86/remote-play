@@ -52,7 +52,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A1, A3, B1, B2 | Fail | R0 | |
 | [6](#test-6) | Tilt maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-GM-37 | Partial (items 1 to 3 Pass, 4 and 5 not run) | R1 | |
-| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Retest | R0 | |
+| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Fail (item 1, fixed, retest) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (set to Hebrew for item 7) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
 | [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-50 | Not run |  | |
@@ -223,26 +223,29 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 
 **Steps**
 
-1. With two phones joined, during the maze, switch one phone Wi-Fi off for 5 seconds, then on. Check: the TV pauses ("Waiting for P1 to reconnect"), the phone shows "Reconnecting...", and the game continues when the phone is back.
+1. With two phones joined, during the maze, switch one phone Wi-Fi off for 15 seconds, then on. Check: within about 5 seconds the TV pauses and shows the card "P2 lost connection" with **Resume without P2** and **End game**, and the phone shows "Reconnecting...". When the phone is back, the card says "P2 reconnected" with **Resume**. The game goes on only when you press **Resume**.
 2. Lock the phone screen for 10 seconds, then unlock. Check: the phone reconnects. (Android can stop the app in the background.)
 3. Switch the phone Wi-Fi off for 40 seconds. Check: the slot is freed. When the Wi-Fi is back, the phone joins again (maybe in a different slot).
-4. Press OK on the TV remote while a phone is lost. Check: the game continues without that player.
-5. With only one phone joined, switch its Wi-Fi off during the maze. Check: the game ends at once with "No players connected" (no waiting, no pause message). Do the same in the marble race.
+4. Switch one phone Wi-Fi off again and wait for the card. Choose **Resume without P2**. Check: the game continues without that player. Switch the Wi-Fi on. Check: the phone joins again as a new player and waits for the next round.
+5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "P1 lost connection" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Target Shoot. Press Back on the card. Check: it asks "End the game?".
 6. On the phone pad, tap **Leave** once. Check: it turns red ("Again") for 3 seconds and the phone does not leave. Tap again within 3 seconds: it leaves. Check the pad buttons: A is green and B is red, both sink when pressed.
+7. Phone call: with one phone in a game, call that phone from another phone and answer. Check: the game pauses with the card. End the call and go back to the controller app. Check: the phone says "Reconnecting..." and then joins again, the card says "P1 reconnected" with **Resume**, and **Resume** goes on with the game. Try a call that lasts more than 1 minute (the slot is kept 5 minutes while the game is paused). Write down how long the phone needs to reconnect after the call. (REQ-GM-30, 30a)
 
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1 | Video of TV and phone: pause text, 'Reconnecting...', game continues | Not run | | | |
+| 1 | Video of TV and phone: the card, 'Reconnecting...', then Resume | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the phone disconnected from the Wi-Fi and showed 'Reconnecting...', but on the TV the game kept going (no pause, no card). The off time was not written down (it must be more than 5 s). Cause (found on 2026-10-09): the TV waited for a close handshake that a phone with no Wi-Fi cannot answer, so it never marked the phone lost. The same failure was seen in R0. Fixed on 2026-10-09 (a silent phone is lost at once, PROTOCOL.md) and the pause changed (REQ-GM-30). A test now reproduces it. Retest. |
 | 2 | Note: did the phone reconnect | Not run | | | |
 | 3 | Photo of the Connect or Games screen after 40 s and after the join again | Not run | | | |
-| 4 | Video: OK on the TV remote with a lost phone | Not run | | | |
-| 5 | Photo of the 'No players connected' menu, in the maze and in the race | Not run | | | |
+| 4 | Video: Resume without P2 with a lost phone, and the phone that joins again | Not run | | | |
+| 5 | Photo of the card of the only player lost (End game only), and of the card after the return (Resume); in the maze, the race and Target Shoot | Retest | R1 | Chat report 2026-10-09 (no file) | R1: a phone call stopped the game ('as expected') and the TV showed 'No players connected'. After the call there was no way to resume. The owner asked for a message that says which player disconnected, with Resume only when a player is still connected or the disconnected player is back. Changed on 2026-10-09 (REQ-GM-30, 30a): the game waits with a card, there is no Resume while nobody is connected, and Resume shows when the phone is back. The slot is kept 5 minutes while paused. The old check ('No players connected' at once) is gone. Retest. |
 | 6 | Photo of the red Leave button ('Again'), and of the pad buttons | Not run | | | |
+| 7 | Video of a phone call: the card, the return, Resume. Note how long the phone needs to reconnect | Not run | | | |
 
 History:
 
+- R1: **Fail** (item 1) and **Retest** (item 5). A phone without Wi-Fi did not pause the game, and a phone call ended it with no way to resume. Both changed on 2026-10-09 and wait for the retest. Items 2, 3, 4 and 6 are not run.
 - R0: **Retest**. Wi-Fi off on the phone: the phone shows 'Reconnecting...'. The game kept running and the TV never showed 'Waiting for P1 to reconnect'. Wi-Fi on: the phone reconnected and the game went on. The off time was not measured (the TV pauses only after 5 s of silence). Item 6 (Leave twice, A green and B red) is new.
 
 ## Test 8
