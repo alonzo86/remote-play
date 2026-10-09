@@ -37,6 +37,11 @@ func _stream(clients: Array, seconds: float, accel: Array) -> void:
 		await _frames(1)
 
 
+## A new `Haptics` without a past: a test reads what it has noted (`_last`). It is loaded here because it needs the App autoload.
+func _new_haptics() -> RefCounted:
+	return load("res://scripts/game/haptics.gd").new()
+
+
 func _run() -> void:
 	await _frames(5)
 	root.size = Vector2i(1920, 1080)
@@ -96,16 +101,34 @@ func _run() -> void:
 	await _stream(clients, 1.5, [right, flat, flat])
 	game._bodies[0].vel = Vector2.ZERO
 	var tilt: Vector2 = game.player(0).tilt()
+	game._haptics = _new_haptics()
 	game._on_button(Protocol.BTN_A, 0)
 	game._game_tick(0.016)
 	_check(tilt.length() > 0.05 and game._bodies[0].vel.length() > 650.0 and game._dash_left[0] > 1.9,
 			"A dashes in the way of the tilt, and the dash needs time to be ready again")
+	_check(game._haptics._last.has(0) and not game._haptics._last.has(1), "a dash buzzes the phone that dashed (REQ-SB-11)")
 	var after: Vector2 = game._bodies[0].vel
 	game._bodies[0].vel = Vector2.ZERO
 	game._on_button(Protocol.BTN_A, 0)
 	game._game_tick(0.016)
 	_check(game._bodies[0].vel.length() < 100.0, "a dash that is not ready does nothing")
 	_check(after.length() > 0.0, "the first dash gave speed")
+
+	# A bump buzzes both phones when it is fast, and none when it is slow (REQ-SB-8).
+	game._haptics = _new_haptics()
+	game._bodies[0].pos = Vector2(0.0, 0.0)
+	game._bodies[1].pos = Vector2(50.0, 0.0)
+	game._bodies[0].vel = Vector2(400.0, 0.0)
+	game._bodies[1].vel = Vector2.ZERO
+	game._bump(0, 1)
+	var fast_buzz: bool = game._haptics._last.has(0) and game._haptics._last.has(1)
+	game._haptics = _new_haptics()
+	game._bodies[0].pos = Vector2(0.0, 0.0)
+	game._bodies[1].pos = Vector2(50.0, 0.0)
+	game._bodies[0].vel = Vector2(150.0, 0.0)
+	game._bodies[1].vel = Vector2.ZERO
+	game._bump(0, 1)
+	_check(fast_buzz and game._haptics._last.is_empty(), "a fast bump buzzes both phones and a slow bump buzzes none (REQ-SB-8)")
 
 	# Falls and the end of a round (REQ-SB-3, 4).
 	for s in [0, 1, 2]:
@@ -174,6 +197,19 @@ func _run() -> void:
 	game = app.current_screen()
 	_check(is_instance_of(game, Sumo) and game.round_no == 1 and game._board.score(0) == 0.0,
 			"Restart starts a new match with 0 points")
+	# A lost phone pauses the match and nothing runs during the pause (REQ-SB-13): a phone that goes silent, like one without Wi-Fi.
+	await _stream(clients, 3.4, [flat, flat, flat])
+	_check(game.phase == game.Phase.PLAY and game.arena.time > 0.0, "the new match plays")
+	app.server.peer_timeout_ms = 2500
+	clients[2].set_process(false)
+	var waited := Time.get_ticks_msec()
+	while not game.is_paused() and Time.get_ticks_msec() - waited < 8000:
+		await _stream([clients[0], clients[1]], 0.2, [flat, flat])
+	_check(game.is_paused() and not game.is_over, "a silent phone pauses the match")
+	var shrink_time: float = game.arena.time
+	await _stream([clients[0], clients[1]], 1.0, [flat, flat])
+	_check(is_equal_approx(game.arena.time, shrink_time), "the platform does not shrink while a phone is lost (REQ-SB-13)")
+	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
 	app.server.kick(2)
 	await _frames(5)
 	_check(game._bodies.size() == 2 and not game._bodies.has(2) and not game.is_over and game.participants.size() == 2,

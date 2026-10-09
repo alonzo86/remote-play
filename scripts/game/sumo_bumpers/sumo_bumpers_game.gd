@@ -22,6 +22,7 @@ const AREA_MARGIN := 60.0
 const TIMER_X := 560.0
 const TIMER_W := 160.0
 const FAR := 1.0e6
+const UNBOUNDED := Rect2(Vector2(-FAR, -FAR), Vector2(2.0 * FAR, 2.0 * FAR))   # No walls: the edge makes them fall.
 
 # Look (REQ-SB-15, REQ-GM-47). The platform is dark so that every player color has a contrast of 3:1 or more.
 const BACKGROUND := Color("0f6a78")
@@ -47,6 +48,7 @@ var _dash_left := {}            # slot -> seconds until the dash is ready
 var _boost_left := {}           # slot -> seconds that the dash speed limit lasts
 var _normal_speed := TiltBody.new().max_speed   # The speed limit without a dash.
 var _dashes: Array[int] = []    # The slots of the presses of A, kept until the next tick.
+var _fell: Array[int] = []      # The slots that fell in this tick (one array for all ticks: nothing is made in each frame).
 var _clock := RoundClock.new(COUNTDOWN, 0.0)
 var _banner_left := 0.0
 var _haptics := Haptics.new()
@@ -147,24 +149,23 @@ func _tick_play(delta: float) -> void:
 	for s in _dashes:
 		_dash(s)
 	_dashes.clear()
-	var far := Rect2(Vector2.ONE * -FAR, Vector2.ONE * FAR * 2.0)
 	for s in _alive:
-		(_bodies[s] as TiltBody).step(delta, player(s).tilt(), far)
+		(_bodies[s] as TiltBody).step(delta, player(s).tilt(), UNBOUNDED)
 	for i in _alive.size():
 		for j in range(i + 1, _alive.size()):
 			_bump(_alive[i], _alive[j])
-	var fell: Array[int] = []
+	_fell.clear()
 	for s in _alive:
 		if arena.is_off((_bodies[s] as TiltBody).pos):
-			fell.append(s)
-	if not fell.is_empty():
+			_fell.append(s)
+	if not _fell.is_empty():
 		arena.speed_up()   # REQ-SB-6: the wait of a fallen bumper stays short (REQ-GM-83).
-	for s in fell:
+	for s in _fell:
 		_alive.erase(s)
 		_falling[s] = {"pos": (_bodies[s] as TiltBody).pos, "age": 0.0}
 		_haptics.pulse(s, 80, BUZZ_GAP_MS)   # REQ-SB-11
 	if _alive.size() <= 1:
-		_end_round(fell)
+		_end_round(_fell)
 
 
 ## REQ-SB-10: a dash in the direction of the tilt, when it is ready.
