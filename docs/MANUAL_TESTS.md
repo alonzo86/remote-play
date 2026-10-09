@@ -199,7 +199,7 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-
 3. Tune the constants in `scripts/game/maze/maze_game.gd` (`TILT_ACCEL`, `FRICTION`, `DEADZONE`) if needed.
 4. Repeat with 2 to 4 phones. Check *Rx Hz* and *Gap ms* for all players during the race.
 5. Tilt the phone, then tap **RECENTER**. Check: the ball stops creeping. Tap **A** and **B**. Check: nothing changes (A and B do not recenter, REQ-MZ-8). At GO the phone recenters by itself.
-6. Open the tile of **Tilt Maze**. Check: the settings view opens with Difficulty on Medium, and Back (left) and Start (right) are on one line at the bottom. With the remote, press Left and Right on the Difficulty row (it must stop at Easy and at Hard). Play one round on each of Easy, Medium and Hard. Check: Easy is a small maze, Hard is big and winding, the whole board is on the screen, and the ball does not feel stuck in the narrow corridors of Hard. After the round, the result menu has **Settings**, and it returns to the view with the last choice.
+6. Open the tile of **Tilt Maze**. Check: the settings view opens with Difficulty on Medium, and Back (left) and Start (right) are on one line at the bottom. With the remote, press Left and Right on the Difficulty row (it must stop at Easy and at Hard). Play one round on each of Easy, Medium and Hard. Check: Easy is a small maze, Hard is big and winding, the whole board is on the screen, and the ball does not feel stuck in the narrow corridors of Hard. After the round, the result menu has **Settings**, and it returns to the view with the last choice. In the view, press Back on the remote: it returns to the Games screen (the app does not close). With the only phone connected, switch its Wi-Fi off while the view is open: after about 5 seconds Start is dimmed and a yellow line says "Needs 1 player". Switch Wi-Fi on again: Start works again.
 
 **Results**
 
@@ -214,6 +214,7 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-
 
 History:
 
+- 2026-10-09 (not run): item 6 is new (REQ-MZ-9, REQ-GM-90 to 97): the settings view, the three difficulties, the yellow chosen value, Back and Start on one line, and Start dimmed when no phone fits.
 - R1: items 1 to 3 **Pass** (the owner: 'it works perfectly'). Items 4 and 5 are not run: 2 to 4 phones, and RECENTER with A and B.
 - R0: **Retest**. First run: drift and inverted controls (caused by 'Invert tilt axes' being on). After the fix the maze looks good on the desk. The feel and the constants were not judged. Item 5 is new (RECENTER, and A and B do nothing).
 
@@ -364,6 +365,7 @@ Winning times (item 8):
 
 History:
 
+- 2026-10-09 (not run): the four hand-made tracks were replaced by generated tracks, and item 9 is new: the settings view with Difficulty and the track carousel (10 sketches and a '?', the middle one is chosen, yellow border), difficulty by the number of posts (Easy 2, Medium 6, Hard 10 for each 100 m). Look for a bend where a marble gets stuck, and for too many posts on Hard. The results menu has Settings, not Choose track.
 - -: **Not run**. Not run on a device yet. Item 11 is new: run it again after a change of the shared game code (PR 12 changed the countdown, the buzz limit and the end with no players).
 
 ## Test 10
@@ -417,6 +419,7 @@ Values to write down (items 2, 3, 5 and 6). These decide the first tuning values
 
 History:
 
+- 2026-10-09 (not run): item 10 is new: the settings view and Easy, Medium and Hard for Snowball Splat (faster and fewer Puffs as it grows, medal tiers for each level, the title names the difficulty).
 - R2: the owner played the new game and reported one problem: the last digit of a score above 3 digits was not visible in the chip at the top. Fixed on 2026-10-09. Nothing else was reported, so the other items stay not run.
 - R1: **Fail**, then redesigned. The owner tried the first version ("Target Shoot", small fast targets, a lock after a miss, decoys) and said: "I don't think it's playable in its current definition." They asked for something like Duck Hunt with larger and slowly moving targets, no penalty for a miss, and a game that is also for kids, so not shooting but for example throwing snowballs at a made-up character. Changed on 2026-10-09: the game is now Snowball Splat (REQ-SS-*), and REQ-GM-80 to 84 are new for all games. Which steps failed was not reported. The whole test needs a run with the new game.
 
@@ -466,8 +469,8 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 
 1. Open the Games screen. Check: every game has a tile with its screenshot, title and player range, and the text is easy to read from the sofa.
 2. For each game, compare its tile with a photo of the game running. Check: the tile shows the same look (colors, outline, shapes) as the game, and the Games screen and the games look like one toy box.
-3. Check the tiles of **Tilt Maze** and **Marble Race**. They were made before the chip style changed: they may still show 'P1 Phone 1' on the chips. If the tile and the game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
-4. Check the tile of **Snowball Splat**: it shows the night sky, the Puffs, two cursors with their numbers and the hint. Check that the cursor and the targets can be seen at the small size of the tile.
+3. Check the tiles of **Tilt Maze** and **Marble Race**. The Marble Race tile was made again on 2026-10-09: 4 marbles on a bend before a post (Track 1, Hard). The Maze tile is older than the chip style and may still show 'P1 Phone 1' on the chips. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
+4. Check the tile of **Snowball Splat** (made again on 2026-10-09): it shows the night sky, the Puffs, four players with scores, a Puff that was just hit ("+25", snow cap) and a snowball in the air. Check that the cursors, the hit Puff and the snowball can be seen at the small size of the tile.
 
 **Results**
 
@@ -475,8 +478,8 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the Games screen | Not run | | | |
 | 2 | Photos: tile next to the game, for each game | Not run | | | |
-| 3 | Photos of the old and the new look, and a note | Not run | | | |
-| 4 | Photo of the tile and of the running game | Not run | | | |
+| 3 | Photos of the old and the new look, and a note | Not run | | | Marble Race tile remade 2026-10-09 (4 marbles, bend, posts). |
+| 4 | Photo of the tile and of the running game | Not run | | | Snowball Splat tile remade 2026-10-09 (4 players, a hit, a snowball in the air). |
 
 History:
 
