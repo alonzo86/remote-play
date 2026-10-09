@@ -75,15 +75,15 @@ End and players
 | REQ-SS-16 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Restart, Back to menu. With one player it shows the medal for the tiers [150, 300, 450] (bronze, silver, gold, REQ-GM-73). The tiers are open tuning values. A player who leaves takes the cursor and the score out, and the round goes on. A lost phone pauses the round with the card of REQ-GM-30. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_tv |
 | REQ-SS-17 | Children (REQ-GM-80 to 84): the creatures are made up and friendly, the hit is funny, a miss costs nothing, no player is out of the round, the hint is one line, the Puffs are large and slow, and every text is positive. | Done | Review, Device (with a child, Test 10 item 9) |
 
-### Settings and difficulty (decided 2026-10-09, not built)
+### Settings and difficulty (built 2026-10-09)
 
 REQ-GM-90 to 96 apply. The settings view has one row: Difficulty. As it grows, the Puffs move faster and there are fewer of them. The size of the Puffs, the points, the hit rule, the pointer range and the 60 s round are the same at every difficulty, and a miss costs nothing at every difficulty (REQ-SS-5, REQ-GM-96).
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SS-20 | Difficulty changes three values, see the table below: the speed of the Puffs (a factor on the speed of each kind), the number of Puffs on the screen (`MAX_BASE`, plus the number of players as before), and the time between two new Puffs (`SPAWN_EVERY`). | Open | game_rules |
-| REQ-SS-21 | The medal tiers (REQ-GM-73) belong to the difficulty. A result is judged by the tiers of the difficulty that was played, and the medal text says which one. | Open | game_rules |
-| REQ-SS-22 | At every difficulty the lanes never overlap (REQ-SS-8), and at least one Puff is on the screen most of the time, also on Hard with 1 player. | Open | game_rules |
+| REQ-SS-20 | The game has the settings view with the row Difficulty (REQ-GM-90, 91; registry `settings: []`), and `difficulty` is a prop of the game. Difficulty changes three values, see the table below: the speed of the Puffs (a factor on the speed of each kind), the number of Puffs on the screen (`MAX_BASE`, plus the number of players as before), and the time between two new Puffs (`SPAWN_EVERY`). | Done | game_rules, smoke_settings |
+| REQ-SS-21 | The medal tiers (REQ-GM-73) belong to the difficulty. A result is judged by the tiers of the difficulty that was played, and the medal title of one player names it: "Silver medal! (Hard)". | Done | game_rules (tiers), smoke_tv |
+| REQ-SS-22 | At every difficulty the lanes never overlap (REQ-SS-8), and at least one Puff is on the screen most of the time, also on Hard with 1 player. | Done | game_rules |
 
 | Difficulty | Speed factor | Puffs on screen (`MAX_BASE`, + players) | New Puff every | Medal tiers (first guess) |
 |------------|--------------|------------------------------------------|----------------|---------------------------|
@@ -103,7 +103,7 @@ Values that change how the game feels. Tune them on a device (Test 10). First va
 | `RELOAD`, `FLIGHT_TIME` | `snowball_splat_game.gd` | 0.3 s, 0.12 s |
 | `SPAWN_EVERY`, `MAX_BASE`, `ENTRY_GAP`, `HIT_SLOP` | `puff_field.gd` | 1.5 s, 3 (+ players), 380 px, 12 px |
 | Kinds (points, radius, speed, weight) and the lanes | `puff_field.gd` | REQ-SS-7, 8, 9 |
-| `MEDAL_TIERS` | `snowball_splat_game.gd` | [150, 300, 450] |
+| `LEVELS` (speed factor, `max_base`, `spawn_every`, medal tiers for each difficulty) | `puff_field.gd` | REQ-SS-20 |
 | `pointer_range_deg` (sensitivity) | `scripts/input/orientation.gd` | 25 (half range of the pointer in degrees) |
 
 ## Open questions

@@ -661,7 +661,7 @@ func _run() -> void:
 	for l in ss._menu_box.find_children("*", "Label", true, false):
 		ss_rows.append(l.text)
 	var ss_buttons: Array = ss.menu_buttons().map(func(b): return b.text)
-	_check(ss.is_over and ss_buttons == ["Restart", "Back to menu"] and ss_rows.size() == 3
+	_check(ss.is_over and ss_buttons == ["Restart", "Settings", "Back to menu"] and ss_rows.size() == 3
 			and ss_rows[0] == p0.player_name + " wins!" and ss_rows[1].begins_with("1st") and ss_rows[1].ends_with("30")
 			and ss_rows[2].begins_with("2nd") and ss_rows[2].ends_with("10"),
 			"time up opens the ranking with the winner: %s" % str(ss_rows))
@@ -683,8 +683,8 @@ func _run() -> void:
 	ss2._round.time = ss2.ROUND_TIME - 0.005
 	ss2._game_tick(0.01)
 	await _frames(3)
-	_check(ss2._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!",
-			"400 points alone earn silver (REQ-SS-16)")
+	_check(ss2._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal! (Medium)",
+			"400 points alone earn silver, and the title names the difficulty (REQ-SS-16, 21)")
 
 	# A player who leaves takes the cursor, the score and the snowballs out (REQ-SS-16).
 	var fourth := ControllerClient.new()

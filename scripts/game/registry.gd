@@ -33,7 +33,8 @@ const GAMES: Array[Dictionary] = [
 	{"id": "snowball_splat", "doc": "res://docs/games/snowball_splat.md", "title": "Snowball Splat", "dim": "2d",
 			"description": "Point your phone at the screen and press A to throw snowballs at the silly Puffs. Most points in 60 s wins.",
 			"tile": "res://assets/tiles/snowball_splat.png",
-			"path": "res://scripts/game/snowball_splat/snowball_splat_game.gd", "min_players": 1, "max_players": 4},
+			"path": "res://scripts/game/snowball_splat/snowball_splat_game.gd", "min_players": 1, "max_players": 4,
+			"settings": []},
 ]
 
 

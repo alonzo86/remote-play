@@ -13,7 +13,6 @@ const ROUND_TIME := 60.0
 const COUNTDOWN := 3.0
 const RELOAD := 0.3             # Seconds before a player can throw again (REQ-SS-4).
 const FLIGHT_TIME := 0.12       # Seconds that a snowball flies (REQ-SS-6).
-const MEDAL_TIERS := [150, 300, 450]   # Bronze, silver, gold for one player (REQ-SS-16). First guesses.
 
 # The play area is the screen inside the margin, under the HUD (REQ-SS-3).
 const AREA_TOP := 150.0
@@ -66,6 +65,9 @@ class Effect:
 	var dir := 1
 	var age := -1.0   # Below 0: not in use.
 
+## Set before the game starts (REQ-GM-93). `start_props` keeps it for Restart.
+var difficulty := "medium"
+
 var _round := RoundClock.new(COUNTDOWN, ROUND_TIME)
 var _field := PuffField.new()
 var _board: Scoreboard
@@ -87,6 +89,7 @@ func _game_ready() -> void:
 		_rng.seed = int(start_props.seed)   # REQ-SS-9: a test fixes the Puffs. Restart keeps the seed.
 	else:
 		_rng.randomize()
+	_field.setup(difficulty)
 	_board = Scoreboard.new(participants)
 	for s in participants:
 		var t := Thrower.new()
@@ -228,7 +231,12 @@ func _effect(kind: String, pos: Vector2, text: String, slot: int, body: Color, r
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	open_results(_board, MEDAL_TIERS)
+	var tiers: Array = PuffField.LEVELS.get(difficulty, PuffField.LEVELS.medium).tiers
+	var heading := ""
+	if _board.ranking().size() == 1:   # The medal text says which difficulty was played (REQ-SS-21).
+		var medal := Medals.medal(_board.ranking()[0].score, tiers)
+		heading = "%s (%s)" % [Medals.label(medal), difficulty.capitalize()]
+	open_results(_board, tiers, heading)
 
 
 # ---- Drawing ----

@@ -30,6 +30,7 @@ func _initialize() -> void:
 	_hit_test()
 	_visual_rules()
 	_maze_levels()
+	_difficulty()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -276,3 +277,54 @@ func _maze_levels() -> void:
 			"fewer openings (more complex) with the difficulty")
 	_check(walls.easy < walls.medium and walls.medium < walls.hard, "more walls with the difficulty: %s" % str(walls))
 	_check(levels.medium.cols == 17 and levels.medium.rows == 9 and levels.medium.cell == 96.0, "Medium is the maze from before")
+
+
+## Snowball Splat difficulty (REQ-SS-20 to 22): faster Puffs and fewer of them as it grows.
+func _difficulty() -> void:
+	print("snowball difficulty")
+	var lv: Dictionary = PuffField.LEVELS
+	_check(lv.easy.speed < lv.medium.speed and lv.medium.speed < lv.hard.speed, "the Puffs are faster with the difficulty")
+	_check(lv.easy.max_base > lv.medium.max_base and lv.medium.max_base > lv.hard.max_base,
+			"there are fewer Puffs with the difficulty")
+	_check(lv.easy.spawn_every < lv.medium.spawn_every and lv.medium.spawn_every < lv.hard.spawn_every,
+			"new Puffs come less often with the difficulty")
+	_check(lv.medium.speed == 1.0 and lv.medium.max_base == PuffField.MAX_BASE and lv.medium.spawn_every == PuffField.SPAWN_EVERY
+			and lv.medium.tiers == [150, 300, 450], "Medium is the game from before")
+	var Medals = load("res://scripts/game/medals.gd")
+	_check(Medals.is_valid(lv.easy.tiers) and Medals.is_valid(lv.medium.tiers) and Medals.is_valid(lv.hard.tiers)
+			and lv.easy.tiers[2] > lv.medium.tiers[2] and lv.medium.tiers[2] > lv.hard.tiers[2],
+			"every difficulty has valid medal tiers (REQ-GM-73), harder levels have lower limits")
+	# The speed and the count of a real field.
+	for d in ["easy", "medium", "hard"]:
+		var f := PuffField.new()
+		f.setup(d)
+		var most := 0
+		var puff_speed := 0.0
+		var seen_little := 0.0
+		var rng := _rng(5)
+		for i in 1200:
+			f.tick(0.05, rng, 2)
+			most = maxi(most, f.puffs.size())
+			for p in f.puffs:
+				if p.kind == "puff":
+					puff_speed = p.speed
+				else:
+					seen_little = p.speed
+		_check(most <= PuffField.max_puffs(2, lv[d].max_base) and most >= lv[d].max_base,
+				"%s: at most %d Puffs on the screen at once (most seen: %d)" % [d, PuffField.max_puffs(2, lv[d].max_base), most])
+		_check(is_equal_approx(puff_speed, 100.0 * lv[d].speed) and is_equal_approx(seen_little, 160.0 * lv[d].speed),
+				"%s: the speed of both kinds is the factor %.1f" % [d, lv[d].speed])
+	_check(PuffField.new().puffs.is_empty(), "a field without setup is a Medium field")
+	# On Hard with one player there is a Puff on the screen nearly all the time (REQ-SS-22).
+	var hard := PuffField.new()
+	hard.setup("hard")
+	var rng2 := _rng(11)
+	var empty_time := 0.0
+	for i in 2400:
+		hard.tick(0.025, rng2, 1)
+		if i > 80 and hard.puffs.is_empty():
+			empty_time += 0.025
+	_check(empty_time < 3.0, "Hard with 1 player: the screen is empty for %.1f s of 60 s (less than 3 s)" % empty_time)
+	var odd := PuffField.new()
+	odd.setup("nonsense")
+	_check(odd.spawn(_rng(1), 1) != null and odd.puffs[0].speed in [100.0, 160.0], "an unknown difficulty is Medium")

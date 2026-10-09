@@ -23,6 +23,14 @@ const ENTRY_GAP := 380.0     # A new Puff comes only when the one before it in t
 const WAVE := 28.0           # The up and down wave of a flying Puff (px) and the time of one wave (s).
 const WAVE_TIME := 2.4
 const HIT_SLOP := 12.0
+## Difficulty (REQ-SS-20, 21): faster Puffs and fewer of them as it grows. `speed` is a factor on the speed of each kind,
+## `max_base` is MAX_BASE, `spawn_every` is SPAWN_EVERY and `tiers` are the medal tiers [bronze, silver, gold]. Medium is the
+## game as it was. First guesses (Test 10).
+const LEVELS := {
+	"easy": {"speed": 0.7, "max_base": 4, "spawn_every": 1.2, "tiers": [170, 340, 510]},
+	"medium": {"speed": 1.0, "max_base": MAX_BASE, "spawn_every": SPAWN_EVERY, "tiers": [150, 300, 450]},
+	"hard": {"speed": 1.5, "max_base": 2, "spawn_every": 2.0, "tiers": [120, 240, 360]},
+}
 
 class Puff:
 	var kind := ""
@@ -45,7 +53,19 @@ class Puff:
 
 var puffs: Array[Puff] = []
 
+var _speed := 1.0
+var _max_base := MAX_BASE
+var _spawn_every := SPAWN_EVERY
 var _spawn_timer := SPAWN_EVERY   # The first Puff comes at once.
+
+
+## Sets the difficulty (a value of `LEVELS`). An unknown id gives Medium.
+func setup(difficulty: String) -> void:
+	var level: Dictionary = LEVELS.get(difficulty, LEVELS.medium)
+	_speed = float(level.speed)
+	_max_base = int(level.max_base)
+	_spawn_every = float(level.spawn_every)
+	_spawn_timer = _spawn_every
 
 
 ## Where the cursor is on the screen: `pointer` (-1 to 1 on both axes) mapped to the play area `area` (REQ-SS-3).
@@ -59,8 +79,8 @@ static func scale_for(area: Rect2) -> float:
 	return minf(area.size.x / REF_AREA.x, area.size.y / REF_AREA.y)
 
 
-static func max_puffs(players: int) -> int:
-	return MAX_BASE + players
+static func max_puffs(players: int, base := MAX_BASE) -> int:
+	return base + players
 
 
 ## The center of a Puff on the screen.
@@ -69,7 +89,7 @@ static func center_of(p: Puff, area: Rect2) -> Vector2:
 
 
 ## Moves the Puffs, removes the ones that flew out of the other edge (no points, no loss), and brings a new one every
-## SPAWN_EVERY. Returns the number of Puffs that flew away.
+## `spawn_every` of the difficulty (SPAWN_EVERY at Medium). Returns the number of Puffs that flew away.
 func tick(dt: float, rng: RandomNumberGenerator, players: int) -> int:
 	var away := 0
 	for i in range(puffs.size() - 1, -1, -1):
@@ -80,15 +100,15 @@ func tick(dt: float, rng: RandomNumberGenerator, players: int) -> int:
 			puffs.remove_at(i)
 			away += 1
 	_spawn_timer += dt
-	while _spawn_timer >= SPAWN_EVERY:
-		_spawn_timer -= SPAWN_EVERY
+	while _spawn_timer >= _spawn_every:
+		_spawn_timer -= _spawn_every
 		spawn(rng, players)
 	return away
 
 
 ## Adds one Puff, or none when the screen is full or the lanes of the chosen kind are not free.
 func spawn(rng: RandomNumberGenerator, players: int) -> Puff:
-	if puffs.size() >= max_puffs(players):
+	if puffs.size() >= max_puffs(players, _max_base):
 		return null
 	var kind := _pick_kind(rng)
 	var free: Array[int] = []
@@ -105,7 +125,7 @@ func spawn(rng: RandomNumberGenerator, players: int) -> Puff:
 	p.dir = LANES[lane].dir
 	p.lane_y = LANES[lane].y
 	p.radius = info.radius
-	p.speed = info.speed
+	p.speed = float(info.speed) * _speed
 	p.points = info.points
 	p.color_index = rng.randi_range(0, COLOR_COUNT - 1)
 	p.x = -p.radius if p.dir > 0 else REF_AREA.x + p.radius

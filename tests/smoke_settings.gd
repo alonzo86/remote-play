@@ -83,6 +83,20 @@ func _run() -> void:
 	_check(is_instance_of(game, MazeGame) and game.difficulty == "hard" and game.cols == 21 and game.rows == 11,
 			"Start begins a Hard maze (21 x 11)")
 	_check(game.start_props.difficulty == "hard", "Restart keeps the difficulty (REQ-GM-93)")
+	# Snowball Splat has the same view, and Hard reaches the game and its field (REQ-SS-20).
+	var Snow = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
+	app.go_game_settings("snowball_splat")
+	await _frames(4)
+	sv = app.current_screen()
+	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 1 and sv.rows[0].value == "medium",
+			"Snowball Splat opens the settings view with Difficulty on Medium")
+	sv.rows[0]._gui_input(right)
+	sv.start()
+	await _frames(4)
+	var snow: Control = app.current_screen()
+	_check(is_instance_of(snow, Snow) and snow.difficulty == "hard" and snow._field._speed == 1.5
+			and snow.start_props.difficulty == "hard",
+			"Start begins a Hard Snowball Splat, and Restart keeps it")
 	GameSettings.clear()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)

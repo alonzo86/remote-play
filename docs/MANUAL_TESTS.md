@@ -370,7 +370,7 @@ History:
 
 ### Snowball Splat (pointer)
 
-Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-SS-*, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50.
 
 Hold each phone like a remote control, pointing at the TV, from the sofa. This is the first game that uses the
 gyroscope pointer, so this test also checks the pointer itself (the old Test 5 for drift was removed).
@@ -388,6 +388,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 7. Play with 2 to 4 phones. Check: all players see the same Puffs. Two players throw at the same Puff: the one who threw first gets it. Check the frame rate in the debug overlay with 4 players (60 expected). (REQ-SS-11, REQ-GM-50)
 8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "P2 lost connection". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
 9. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint and a few seconds of play, hits some Puffs, is not frustrated or scared, and wants to play again. Write down the age and what the child said or did. (REQ-GM-80 to 84, REQ-SS-17)
+10. Open the tile of **Snowball Splat**: the settings view opens. Play one round alone on each of Easy, Medium and Hard. Check: Easy has slow Puffs and more of them, Hard has fast Puffs and fewer, Hard is a challenge but not impossible, and the medal title names the difficulty ("Silver medal! (Hard)"). Write down the score of each round to tune the tiers (Easy [170, 340, 510], Medium [150, 300, 450], Hard [120, 240, 360]).
 
 **Results**
 
@@ -402,6 +403,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 | 7 | Photo of two phones' cursors and the same Puffs; overlay FPS with 4 phones | Not run | | | |
 | 8 | Video: Wi-Fi off during a round, then the card | Not run | | | |
 | 9 | Short video of the child playing (only with the permission of the parent); the age and the words of the child | Not run | | | |
+| 10 | Photos of the settings view and of a round on each difficulty; the scores; note on the speed and the number of Puffs | Not run | | | Added 2026-10-09 (REQ-SS-20 to 22). All values are first guesses. |
 
 Values to write down (items 2, 3, 5 and 6). These decide the first tuning values of the game:
 
