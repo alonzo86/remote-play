@@ -19,7 +19,7 @@ const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0
 		Vector3(0.18, 0.0, -0.6)]}
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
-const EXTRA_PHONES := {"marble_race": 2, "snowball_splat": 2}
+const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 
@@ -56,6 +56,36 @@ func _place_race(race: Node) -> void:
 		var r = race._racers[slots[i]]
 		r.pos = track.point_at(arc) + race._perp(track.dir_at(arc)) * side
 		r.vel = Vector2.ZERO
+
+
+## The maze picture: four balls on the way to the exit, one behind the other, so that the way and the race can be seen.
+func _place_maze(game: Node) -> void:
+	var m = game._maze
+	var cell: float = game.cell
+	# The shortest way from the start cell (0, 0) to the exit cell, by a search over the cells.
+	var came := {Vector2i(0, 0): Vector2i(-1, -1)}
+	var queue: Array[Vector2i] = [Vector2i(0, 0)]
+	var exit := Vector2i(m.cols - 1, m.rows - 1)
+	while not queue.is_empty() and not came.has(exit):
+		var c: Vector2i = queue.pop_front()
+		var moves := {Vector2i(0, -1): m.h[c.y][c.x], Vector2i(0, 1): m.h[c.y + 1][c.x],
+				Vector2i(-1, 0): m.v[c.y][c.x], Vector2i(1, 0): m.v[c.y][c.x + 1]}
+		for d in moves:
+			var n: Vector2i = c + d
+			if not moves[d] and not came.has(n) and n.x >= 0 and n.y >= 0 and n.x < m.cols and n.y < m.rows:
+				came[n] = c
+				queue.append(n)
+	var way: Array[Vector2i] = []
+	var at := exit
+	while at != Vector2i(-1, -1):
+		way.push_front(at)
+		at = came[at]
+	game._round.time = 12.4   # The clock agrees with the balls: they have been on the way for a while.
+	var shares := [0.78, 0.6, 0.42, 0.24]
+	for i in game._balls.size():
+		var c: Vector2i = way[int(float(way.size() - 1) * shares[i % shares.size()])]
+		game._balls[i].pos = Vector2(c.x + 0.5, c.y + 0.5) * cell
+		game._balls[i].vel = Vector2.ZERO
 
 
 ## The snowball picture: four scores, a Puff that was just hit (snow cap, "+10") and a snowball in the air for another one.
@@ -134,6 +164,10 @@ func _run() -> void:
 		if AIM_GYRO.has(String(g.id)):
 			await _stream(pad, 0.5, flats, AIM_GYRO[String(g.id)])
 			wait -= 0.5
+		if String(g.id) == "maze":
+			_place_maze(app.current_screen())
+			await _stream(pad, 0.5, flats)
+			wait = 0.0
 		if String(g.id) == "marble_race":
 			_place_race(app.current_screen())
 			await _stream(pad, 1.6, flats)

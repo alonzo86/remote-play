@@ -469,7 +469,7 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 
 1. Open the Games screen. Check: every game has a tile with its screenshot, title and player range, and the text is easy to read from the sofa.
 2. For each game, compare its tile with a photo of the game running. Check: the tile shows the same look (colors, outline, shapes) as the game, and the Games screen and the games look like one toy box.
-3. Check the tiles of **Tilt Maze** and **Marble Race**. The Marble Race tile was made again on 2026-10-09: 4 marbles on a bend before a post (Track 1, Hard). The Maze tile is older than the chip style and may still show 'P1 Phone 1' on the chips. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
+3. Check the tiles of **Tilt Maze** and **Marble Race**. The Marble Race tile was made again on 2026-10-09: 4 marbles on a bend before a post (Track 1, Hard). The Maze tile was made again too: 4 balls on the way to the exit, the new chip style. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
 4. Check the tile of **Snowball Splat** (made again on 2026-10-09): it shows the night sky, the Puffs, four players with scores, a Puff that was just hit ("+25", snow cap) and a snowball in the air. Check that the cursors, the hit Puff and the snowball can be seen at the small size of the tile.
 
 **Results**
@@ -478,7 +478,7 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the Games screen | Not run | | | |
 | 2 | Photos: tile next to the game, for each game | Not run | | | |
-| 3 | Photos of the old and the new look, and a note | Not run | | | Marble Race tile remade 2026-10-09 (4 marbles, bend, posts). |
+| 3 | Photos of the old and the new look, and a note | Not run | | | Marble Race and Maze tiles remade 2026-10-09 (4 marbles on a bend with posts; 4 balls on the way to the exit). |
 | 4 | Photo of the tile and of the running game | Not run | | | Snowball Splat tile remade 2026-10-09 (4 players, a hit, a snowball in the air). |
 
 History:

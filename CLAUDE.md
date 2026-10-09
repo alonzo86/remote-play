@@ -54,7 +54,7 @@ Tests the user has to run now (status on 2026-10-09 after run R1; the list is in
 | 9 | Marble Race on a real TV, 2 to 4 phones: all 11 items. Item 9 is new: the settings view, the 11 track tiles, Easy, Medium, Hard, and generated tracks (any bend where a marble gets stuck?). Item 11 is the check after the shared-code change | PR 12 (merged) changed the countdown, the buzz limit and the end of the race. On 2026-10-09 the four hand-made tracks were replaced by generated tracks (REQ-MR-50 to 55). Never run on a device |
 | 6 | Tilt Maze, the rest: item 4 (2 to 4 phones), item 5 (RECENTER recenters, A and B do nothing) and the new item 6 (the settings view and Easy, Medium, Hard). Items 1 to 3 passed in R1 ('it works perfectly') | PR 12 removed the A shortcut. The settings view and the maze difficulty were added on 2026-10-09 (REQ-GM-90 to 95, REQ-MZ-9) |
 | 11 | The result menus: maze (1 to 4 phones), race (4 phones, inside the screen edge, 'not finished'), Snowball Splat (medal, winner, Tie) | PR 12 (merged) made the result menu generic. The 4-player list was never seen on a TV |
-| 12 | Game tiles: compare each tile with the game. The Maze and Marble Race tiles are older than the chip style | REQ-GM-49. Claude makes the tiles again when they differ |
+| 12 | Game tiles: compare each tile with the game. All three tiles were remade on 2026-10-09 (4 players, action in the picture) | REQ-GM-49. Claude makes the tiles again when they differ |
 | 3 | Sensor directions: items 1 and 4 (the flat Accel value after the fix, Gyro z) | R0 did not check them after the fix |
 | 4 | Latency and packet rate on a real TV box, and the delay with a 240 fps camera | R0 ran on a desktop and failed (RTT, Gap). Not representative |
 
