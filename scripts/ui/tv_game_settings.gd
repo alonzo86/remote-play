@@ -41,14 +41,23 @@ func _ready() -> void:
 		box.add_child(row)
 		rows.append(row)
 	box.add_child(UiKit.spacer(10))
-	start_button = UiKit.button("Start", start, true, 44)
-	start_button.custom_minimum_size = Vector2(0, 100)
-	box.add_child(start_button)
-	box.add_child(UiKit.spacer(24)) # Back is apart from the options and at the bottom (REQ-GM-90).
+	# Back and Start are on one line at the bottom, spaced to the two edges of the view: Back on the left, Start on the right
+	# (REQ-GM-90). Start is wide and green, Back is smaller and plain.
+	var line := HBoxContainer.new()
+	box.add_child(line)
 	back_button = UiKit.button("Back", on_back, false, 32, true)
-	back_button.custom_minimum_size = Vector2(240, 72)
-	back_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	box.add_child(back_button)
+	back_button.custom_minimum_size = Vector2(200, 88)
+	back_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	line.add_child(back_button)
+	line.add_child(UiKit.spacer(0, true))
+	start_button = UiKit.button("Start", start, true, 44)
+	start_button.custom_minimum_size = Vector2(300, 100)
+	line.add_child(start_button)
+	# Down from the last row goes to Start, not to Back, and Up from both goes to that row.
+	var last: Control = rows[-1]
+	last.focus_neighbor_bottom = last.get_path_to(start_button)
+	start_button.focus_neighbor_top = start_button.get_path_to(last)
+	back_button.focus_neighbor_top = back_button.get_path_to(last)
 	UiKit.focus_later(rows[0])
 
 

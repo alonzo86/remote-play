@@ -53,8 +53,12 @@ func _run() -> void:
 	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 1 and sv.rows[0].value == "medium",
 			"the settings view of the maze has the row Difficulty on Medium")
 	_check(sv.rows[0].has_focus() and sv.rows[0]._value.text == "Medium", "the row has the focus and shows Medium")
-	_check(is_equal_approx(sv.start_button.size.x, sv.rows[0].size.x) and is_equal_approx(sv.rows[0].size.x, sv.rows[0].MIN_W),
-			"the maze view is as narrow as its widest row (REQ-GM-90): %.0f px" % sv.rows[0].size.x)
+	var row_left: float = sv.rows[0].global_position.x
+	var row_right: float = row_left + sv.rows[0].size.x
+	_check(is_equal_approx(sv.rows[0].size.x, sv.rows[0].MIN_W) and is_equal_approx(sv.back_button.global_position.x, row_left)
+			and is_equal_approx(sv.start_button.global_position.x + sv.start_button.size.x, row_right),
+			"the maze view is as narrow as its widest row, and Back and Start are at its two edges (REQ-GM-90): %.0f px"
+			% sv.rows[0].size.x)
 	var right := InputEventAction.new()
 	right.action = "ui_right"
 	right.pressed = true
@@ -73,7 +77,11 @@ func _run() -> void:
 	sv.rows[0]._gui_input(right)
 	var small: Array = _small_text(sv)
 	_check(small.is_empty(), "the settings view has no text below 28 px (REQ-GM-41) " + str(small))
-	_check(sv.back_button.global_position.y > sv.start_button.global_position.y, "Back is at the bottom, below Start (REQ-GM-90)")
+	_check(is_equal_approx(sv.back_button.global_position.y + sv.back_button.size.y * 0.5,
+			sv.start_button.global_position.y + sv.start_button.size.y * 0.5)
+			and sv.back_button.global_position.x < sv.start_button.global_position.x
+			and sv.start_button.global_position.y > sv.rows[-1].global_position.y,
+			"Back and Start are on one line below the rows, Back on the left (REQ-GM-90)")
 	sv.on_back()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), TvGames) and app.last_game == "maze", "Back returns to the Games screen")
@@ -115,8 +123,10 @@ func _run() -> void:
 	_check(sv.rows[0].global_position.y < picker.global_position.y and picker.global_position.y < sv.start_button.global_position.y,
 			"the carousel is under Difficulty and above Start")
 	var mid_x: float = picker.global_position.x + picker.size.x * 0.5
-	_check(picker.size.x == picker.VIEW.x and is_equal_approx(sv.start_button.size.x, picker.size.x)
-			and sv.rows[0].size.x < picker.size.x and absf(sv.rows[0].global_position.x + sv.rows[0].size.x * 0.5 - mid_x) < 1.0,
+	_check(picker.size.x == picker.VIEW.x
+			and is_equal_approx(sv.start_button.global_position.x + sv.start_button.size.x - sv.back_button.global_position.x,
+			picker.size.x) and sv.rows[0].size.x < picker.size.x
+			and absf(sv.rows[0].global_position.x + sv.rows[0].size.x * 0.5 - mid_x) < 1.0,
 			"the view is as wide as the carousel, and Difficulty is narrower and in the middle (%.0f, %.0f px)"
 			% [picker.size.x, sv.rows[0].size.x])
 	sv.rows[0].grab_focus()
