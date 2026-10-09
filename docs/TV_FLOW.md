@@ -64,7 +64,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-14: A game that does not accept the current player count has a dimmed tile and a reason ("Needs 2 players"). OK on it does nothing except show the reason (uses `Registry.accepts()`).
 - REQ-FL-15: A players badge in the top right shows the number of joined players (for example "2 players"). It does not show the room code (FD-12). The badge is a focus target. OK on it opens the Players modal (REQ-FL-32).
 - REQ-FL-16: A gear icon next to the badge is the last focus target. OK on it opens the Settings screen (FD-4).
-- REQ-FL-17: A game with variants asks for the variant after OK on the tile (for example the marble race track). Back returns to the grid with the same tile in focus.
+- REQ-FL-17: A game with a settings view (REQ-GM-90) opens it after OK on the tile: a centered view with Difficulty, Start and Back at the bottom. Back returns to the grid with the same tile in focus. A game with variants and no settings view yet asks for the variant after OK on the tile (for example the marble race track). Back returns to the grid with the same tile in focus.
 - REQ-FL-18: Back on this screen goes to the Connect screen (FD-6).
 - REQ-FL-19: The registry entry of a game has a `description` and a `tile` field (path of the screenshot). Both are required for a new game.
 

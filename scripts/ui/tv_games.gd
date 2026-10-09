@@ -7,6 +7,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Registry = preload("res://scripts/game/registry.gd")
+const GameSettings = preload("res://scripts/game/game_settings.gd")
 const GameTile = preload("res://scripts/ui/game_tile.gd")
 const PlayersBadge = preload("res://scripts/ui/players_badge.gd")
 const GearButton = preload("res://scripts/ui/gear_button.gd")
@@ -133,7 +134,9 @@ func _on_tile(game: Dictionary) -> void:
 	if not Registry.accepts(game, n):
 		return # The tile shows the reason in yellow under its title (REQ-FL-14).
 	App.last_game = String(game.id)
-	if game.has("variants"):
+	if GameSettings.has_view(game):
+		App.go_game_settings(String(game.id))
+	elif game.has("variants"):
 		_show_variants(game)
 	else:
 		_launch(String(game.id), game.get("props", {}))

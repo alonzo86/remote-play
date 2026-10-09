@@ -19,3 +19,5 @@ echo "== design tokens"
 python3 tools/design_tokens_css.py --check
 echo "== TV smoke test"
 "$GODOT" --headless --path . --script tests/smoke_tv.gd -- --role=tv
+echo "== settings view"
+"$GODOT" --headless --path . --script tests/smoke_settings.gd -- --role=tv

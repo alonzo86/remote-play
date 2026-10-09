@@ -11,13 +11,15 @@ extends RefCounted
 ##   props   optional. Values set on the game before it starts (for example the track of a race).
 ##   variants  optional. List of {title, props}. The menu asks which variant to start before the game
 ##             starts (for example the track of a race). The props of the variant are used.
+##   settings  optional. The game has a settings view (REQ-GM-90) when this list exists. It lists the rows after Difficulty
+##             (see game_settings.gd). An empty list means Difficulty only.
 ##   min_players / max_players  allowed player count (REQ-GM-20). The Games screen dims a game that does not fit.
 
 const GAMES: Array[Dictionary] = [
 	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "Tilt Maze", "dim": "2d",
 			"description": "Tilt your phone to roll your ball through the maze. The first ball in the exit wins.",
 			"tile": "res://assets/tiles/maze.png",
-			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4},
+			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4, "settings": []},
 	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "Marble Race", "dim": "3d",
 			"description": "Tilt to roll your marble along the track. The first marble over the line wins.",
 			"tile": "res://assets/tiles/marble_race.png",
@@ -44,6 +46,14 @@ static func find(id: String) -> Dictionary:
 		if g.id == id:
 			return g
 	return {}
+
+
+## The id of the game that has this script, or "".
+static func id_of_script(script: Script) -> String:
+	for g in GAMES:
+		if String(g.path) == script.resource_path:
+			return String(g.id)
+	return ""
 
 
 static func load_script(id: String) -> GDScript:

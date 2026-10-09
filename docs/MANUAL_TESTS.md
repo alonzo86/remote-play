@@ -52,7 +52,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Pass | R0 | |
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A1, A3, B1, B2 | Fail | R0 | |
-| [6](#test-6) | Tilt maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-GM-37 | Partial (items 1 to 3 Pass, 4 and 5 not run) | R1 | |
+| [6](#test-6) | Tilt maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95 | Partial (items 1 to 3 Pass, 4 to 6 not run) | R1 | |
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Fail (item 1, fixed, retest) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (set to Hebrew for item 7) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
@@ -189,7 +189,7 @@ History:
 
 ### Tilt maze feel
 
-Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-GM-37.
+Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95.
 
 
 **Steps**
@@ -199,6 +199,7 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-GM-37.
 3. Tune the constants in `scripts/game/maze/maze_game.gd` (`TILT_ACCEL`, `FRICTION`, `DEADZONE`) if needed.
 4. Repeat with 2 to 4 phones. Check *Rx Hz* and *Gap ms* for all players during the race.
 5. Tilt the phone, then tap **RECENTER**. Check: the ball stops creeping. Tap **A** and **B**. Check: nothing changes (A and B do not recenter, REQ-MZ-8). At GO the phone recenters by itself.
+6. Open the tile of **Tilt Maze**. Check: the settings view opens with Difficulty on Medium, and Back is at the bottom. With the remote, press Left and Right on the Difficulty row (it must stop at Easy and at Hard). Play one round on each of Easy, Medium and Hard. Check: Easy is a small maze, Hard is big and winding, the whole board is on the screen, and the ball does not feel stuck in the narrow corridors of Hard. After the round, the result menu has **Settings**, and it returns to the view with the last choice.
 
 **Results**
 
@@ -209,6 +210,7 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-GM-37.
 | 3 | If constants changed: the commit or the diff | N/A | R1 | Chat report 2026-10-09 (no file) | R1: no tuning is needed, because the owner reported no problem. The constants are unchanged. |
 | 4 | Screenshot of the debug overlay for every player during the race | Not run | | | |
 | 5 | Video of the ball: creeping, then RECENTER, then A and B | Not run | | | |
+| 6 | Photos of the settings view and of the maze on Easy, Medium and Hard; note on the sizes and the corridors | Not run | | | Added 2026-10-09 (REQ-MZ-9). The sizes in `LEVELS` are first guesses. |
 
 History:
 

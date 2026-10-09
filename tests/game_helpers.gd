@@ -5,6 +5,7 @@ extends SceneTree
 
 const Shell = preload("res://scripts/game/shell.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
+const GameSettings = preload("res://scripts/game/game_settings.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 
 var _checks := 0
@@ -29,6 +30,7 @@ func _initialize() -> void:
 	_round_length()
 	_scoreboard()
 	_medals()
+	_game_settings()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -237,3 +239,32 @@ func _widths(count: int, w: float) -> Array:
 	for i in count:
 		out.append(w)
 	return out
+
+
+func _game_settings() -> void:
+	print("game settings")
+	GameSettings.clear()
+	var game := {"id": "t", "settings": [{"key": "mode", "label": "Mode", "values": ["a", "b"], "titles": ["A", "B"]}]}
+	var rows := GameSettings.rows_for(game)
+	_check(rows.size() == 2 and rows[0].key == "difficulty" and rows[1].key == "mode", "Difficulty is the first row (REQ-GM-91)")
+	_check(GameSettings.has_view(game) and GameSettings.has_view({"settings": []}) and not GameSettings.has_view({"id": "x"}),
+			"a game has a settings view when its entry has a settings list")
+	_check(GameSettings.value(game, rows[0]) == "medium" and GameSettings.value(game, rows[1]) == "a",
+			"Medium and the first value are the start values")
+	var diff: Dictionary = GameSettings.DIFFICULTY
+	_check(GameSettings.step(diff, "easy", 1) == "medium" and GameSettings.step(diff, "medium", 1) == "hard",
+			"Right goes to the next value")
+	_check(GameSettings.step(diff, "hard", 1) == "hard" and GameSettings.step(diff, "easy", -1) == "easy",
+			"the row stops at the last and the first value (REQ-GM-92)")
+	GameSettings.set_value(game, rows[0], "hard")
+	GameSettings.set_value(game, rows[1], "nope")
+	_check(GameSettings.value(game, rows[0]) == "hard" and GameSettings.value(game, rows[1]) == "a",
+			"the choice is kept and a value that does not exist is refused (REQ-GM-94)")
+	_check(GameSettings.value({"id": "other"}, diff) == "medium", "the choice belongs to one game")
+	game["props"] = {"track": 3}
+	var props := GameSettings.props_for(game)
+	_check(props.difficulty == "hard" and props.mode == "a" and props.track == 3,
+			"the props of the game are its own props and the chosen values (REQ-GM-93)")
+	_check(GameSettings.title_of(diff, "hard") == "Hard", "the title of a value")
+	GameSettings.clear()
+	_check(GameSettings.value(game, diff) == "medium", "clear forgets the choices")

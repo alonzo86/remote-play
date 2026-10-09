@@ -7,9 +7,13 @@ const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
-const COLS := 17
-const ROWS := 9
-const CELL := 96.0
+## Difficulty (REQ-MZ-9): the size of the maze, the cell size (so that it fits the screen) and the share of inner walls that is
+## removed after the maze is made (fewer openings: fewer loops, more dead ends). Medium is the maze from before.
+const LEVELS := {
+	"easy": {"cols": 11, "rows": 6, "cell": 120.0, "openings": 0.20},
+	"medium": {"cols": 17, "rows": 9, "cell": 96.0, "openings": 0.08},
+	"hard": {"cols": 21, "rows": 11, "cell": 78.0, "openings": 0.02},
+}
 const WALL := 10.0
 const BALL_R := 24.0
 const TILT_ACCEL := 2600.0   # px/s^2 for tilt 1.0 (sin of angle). 15 degrees gives about 670.
@@ -34,6 +38,12 @@ class Ball:
 	var pos := Vector2.ZERO
 	var vel := Vector2.ZERO
 
+## Set before the game starts (REQ-GM-93). `start_props` keeps it for Restart.
+var difficulty := "medium"
+var cols := 17
+var rows := 9
+var cell := 96.0
+
 var _maze := MazeGenerator.new()
 var _walls: Array[Rect2] = []
 var _balls: Array[Ball] = []
@@ -49,16 +59,20 @@ func _game_ready() -> void:
 	_sb_board = UiTheme.card(FLOOR_COLOR, UiTheme.OUTLINE, UiTheme.OUTLINE_W, 30, true)
 	_sb_start = UiTheme.card(START_COLOR, START_COLOR, 0, 22, false)
 	_sb_exit = UiTheme.card(UiTheme.OK, UiTheme.OUTLINE, int(OUTLINE_BIG), 24, true)
+	var level: Dictionary = LEVELS.get(difficulty, LEVELS.medium)
+	cols = int(level.cols)
+	rows = int(level.rows)
+	cell = float(level.cell)
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
-	_maze.generate(COLS, ROWS, rng)
-	_walls = _maze.wall_rects(CELL, WALL)
+	_maze.generate(cols, rows, rng, float(level.openings))
+	_walls = _maze.wall_rects(cell, WALL)
 	# Slot 1 starts on the diagonal from slot 0, so that two balls never touch at the start.
 	var offsets := [Vector2(-1, -1), Vector2(1, 1), Vector2(1, -1), Vector2(-1, 1)]
 	for s in participants:
 		var b := Ball.new()
 		b.slot = s
-		b.pos = Vector2(CELL, CELL) * 0.5 + offsets[s % 4] * CELL * 0.22
+		b.pos = Vector2(cell, cell) * 0.5 + offsets[s % 4] * cell * 0.22
 		_balls.append(b)
 
 
@@ -80,7 +94,7 @@ func _game_tick(delta: float) -> void:
 	_round.tick(delta)
 	for b in _balls:
 		_step_ball(b, delta)
-		if b.pos.distance_to(_exit_center()) < CELL * 0.3:
+		if b.pos.distance_to(_exit_center()) < cell * 0.3:
 			_finish(b.slot)
 			return
 
@@ -98,7 +112,7 @@ func _finish(slot: int) -> void:
 
 
 func _exit_center() -> Vector2:
-	return Vector2((COLS - 0.5) * CELL, (ROWS - 0.5) * CELL)
+	return Vector2((cols - 0.5) * cell, (rows - 0.5) * cell)
 
 
 func _step_ball(b: Ball, dt: float) -> void:
@@ -169,19 +183,19 @@ func _draw_wall(o: Vector2, r: Rect2) -> void:
 
 
 func _origin() -> Vector2:
-	return Vector2((size.x - COLS * CELL) * 0.5, (size.y - ROWS * CELL) * 0.5 + 46.0)
+	return Vector2((size.x - cols * cell) * 0.5, (size.y - rows * cell) * 0.5 + 46.0)
 
 
 func _game_draw() -> void:
 	var o := _origin()
 	# Board, start cell and exit (the goal has a dark outline and a hard shadow).
-	draw_style_box(_sb_board, Rect2(o, Vector2(COLS * CELL, ROWS * CELL)).grow(BOARD_PAD))
-	draw_style_box(_sb_start, Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(CELL, CELL) - Vector2(WALL, WALL)))
-	var exit_cell := Rect2(o + Vector2((COLS - 1) * CELL, (ROWS - 1) * CELL), Vector2(CELL, CELL)).grow(-WALL * 0.5 - 4.0)
+	draw_style_box(_sb_board, Rect2(o, Vector2(cols * cell, rows * cell)).grow(BOARD_PAD))
+	draw_style_box(_sb_start, Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(cell, cell) - Vector2(WALL, WALL)))
+	var exit_cell := Rect2(o + Vector2((cols - 1) * cell, (rows - 1) * cell), Vector2(cell, cell)).grow(-WALL * 0.5 - 4.0)
 	draw_style_box(_sb_exit, exit_cell)
 	var pulse := 1.0 + 0.08 * sin(Time.get_ticks_msec() * 0.006) # The exit pulses a little (easy to find).
-	draw_arc(o + _exit_center(), CELL * 0.30 * pulse, 0, TAU, 48, UiTheme.OUTLINE, 14.0)
-	draw_arc(o + _exit_center(), CELL * 0.30 * pulse, 0, TAU, 48, Color.WHITE, 8.0)
+	draw_arc(o + _exit_center(), cell * 0.30 * pulse, 0, TAU, 48, UiTheme.OUTLINE, 14.0)
+	draw_arc(o + _exit_center(), cell * 0.30 * pulse, 0, TAU, 48, Color.WHITE, 8.0)
 	# Walls: rounded ends (REQ-GM-47f). The collision still uses the rectangles.
 	for r in _walls:
 		_draw_wall(o, r)

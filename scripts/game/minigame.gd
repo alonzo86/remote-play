@@ -15,6 +15,8 @@ const PlayerInput = preload("res://scripts/input/player_input.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const Medals = preload("res://scripts/game/medals.gd")
+const Registry = preload("res://scripts/game/registry.gd")
+const GameSettings = preload("res://scripts/game/game_settings.gd")
 
 ## Values the game was started with (App.go props). restart() uses them again.
 var start_props := {}
@@ -288,6 +290,9 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 			heading = "Tie!"
 	var entries: Array = [["Restart", restart]]
 	entries.append_array(extra_entries)
+	var id := Registry.id_of_script(get_script())
+	if GameSettings.has_view(Registry.find(id)):
+		entries.append(["Settings", App.go_game_settings.bind(id)])   # REQ-GM-95
 	entries.append(["Back to menu", App.go_menu])
 	open_menu(heading, entries, rows)
 

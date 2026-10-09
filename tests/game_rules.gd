@@ -4,6 +4,7 @@ extends SceneTree
 
 const Shell = preload("res://scripts/game/shell.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
+const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
 
 const AREA := Rect2(60.0, 150.0, 1800.0, 870.0)   # The play area at 1920x1080.
@@ -28,6 +29,7 @@ func _initialize() -> void:
 	_spawning()
 	_hit_test()
 	_visual_rules()
+	_maze_levels()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -245,3 +247,32 @@ func _visual_rules() -> void:
 	_check(not clash, "no Puff color is a player color")
 	_check(float(consts["RELOAD"]) <= 0.5 and float(consts["ROUND_TIME"]) >= 45.0,
 			"a quick reload (0.5 s or less) and a round of at least 45 s: a child is not stopped after a miss (REQ-GM-83)")
+
+
+## The maze difficulty (REQ-MZ-9).
+func _maze_levels() -> void:
+	print("maze difficulty")
+	var rng := _rng(7)
+	var levels: Dictionary = load("res://scripts/game/maze/maze_game.gd").LEVELS
+	var walls := {}
+	var solvable := true
+	var fits := true
+	for d in ["easy", "medium", "hard"]:
+		var lv: Dictionary = levels[d]
+		var total := 0
+		for i in 30:
+			var m := MazeGenerator.new()
+			m.generate(int(lv.cols), int(lv.rows), rng, float(lv.openings))
+			solvable = solvable and m.is_solvable()
+			total += m.wall_rects(float(lv.cell), 10.0).size()
+		walls[d] = total / 30.0
+		fits = fits and int(lv.cols) * float(lv.cell) <= 1800.0 and int(lv.rows) * float(lv.cell) + 46.0 + 24.0 <= 960.0 + 46.0
+	_check(solvable, "mazes of every difficulty are solvable")
+	_check(fits, "the board of every difficulty fits the screen under the HUD")
+	_check(levels.easy.cols < levels.medium.cols and levels.medium.cols < levels.hard.cols
+			and levels.easy.rows < levels.medium.rows and levels.medium.rows < levels.hard.rows,
+			"the maze grows with the difficulty")
+	_check(levels.easy.openings > levels.medium.openings and levels.medium.openings > levels.hard.openings,
+			"fewer openings (more complex) with the difficulty")
+	_check(walls.easy < walls.medium and walls.medium < walls.hard, "more walls with the difficulty: %s" % str(walls))
+	_check(levels.medium.cols == 17 and levels.medium.rows == 9 and levels.medium.cell == 96.0, "Medium is the maze from before")

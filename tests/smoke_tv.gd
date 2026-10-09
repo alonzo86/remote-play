@@ -390,7 +390,7 @@ func _run() -> void:
 	mz._collide(b0)
 	await _frames(10)
 	_check(haptics == [20] and b0.vel.y < 0.0, "a soft hit bounces without a buzz: %s" % str(haptics))
-	b0.pos = Vector2(mz.CELL * 0.5, mz.CELL * 0.5)
+	b0.pos = Vector2(mz.cell * 0.5, mz.cell * 0.5)
 	b0.vel = Vector2(5000.0, 0.0)
 	mz._step_ball(b0, 0.016)
 	_check(b0.vel.length() <= mz.MAX_SPEED + 0.5, "the speed of a ball is limited (%.0f px/s)" % b0.vel.length())
@@ -421,7 +421,7 @@ func _run() -> void:
 	mz._game_tick(0.016)
 	_check(mz.is_over and mz._winner == mz._balls[0].slot, "a ball in the exit wins")
 	var labels: Array = mz.menu_buttons().map(func(b): return b.text)
-	_check(labels == ["Restart", "Back to menu"] and mz.is_paused(), "the result menu opens: %s" % str(labels))
+	_check(labels == ["Restart", "Settings", "Back to menu"] and mz.is_paused(), "the result menu opens: %s" % str(labels))
 	var maze_rows: Array = []
 	for l in mz._menu_box.find_children("*", "Label", true, false):
 		maze_rows.append(l.text)
@@ -452,8 +452,8 @@ func _run() -> void:
 	for l in rg._menu_box.find_children("*", "Label", true, false):
 		row_labels.append(l.text)
 	var result_buttons: Array = rg.menu_buttons().map(func(b): return b.text)
-	_check(rg.is_over and result_buttons == ["Restart", "Back to menu"] and not rg._can_open_menu(),
-			"the result menu has Restart and Back to menu, and the game is over: %s" % str(result_buttons))
+	_check(rg.is_over and result_buttons == ["Restart", "Settings", "Back to menu"] and not rg._can_open_menu(),
+			"the result menu has Restart, Settings and Back to menu, and the game is over: %s" % str(result_buttons))
 	_check(row_labels.size() == 3 and row_labels[1].begins_with("1st") and row_labels[1].ends_with("9")
 			and row_labels[2].begins_with("2nd") and row_labels[0].ends_with("wins!"),
 			"the ranking lists the best first and the title names the winner: %s" % str(row_labels))
