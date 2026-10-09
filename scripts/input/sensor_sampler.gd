@@ -18,6 +18,16 @@ var _mouse_rel_x := 0.0
 var _simulate := false
 
 
+## Platforms where Godot reports the accelerometer with the opposite sign to the protocol (flat, screen up: z = -9.8).
+## Measured on Android. iOS is assumed to be the same until Manual test 13, item 3, measures it: remove "iOS" here
+## if the directions are wrong on the iPhone. The only place where the sign is fixed.
+const ACCEL_INVERTED_ON := ["Android", "iOS"]
+
+
+static func accel_to_protocol(raw: Vector3, os_name: String) -> Vector3:
+	return -raw if os_name in ACCEL_INVERTED_ON else raw
+
+
 func _ready() -> void:
 	_simulate = not OS.has_feature("mobile")
 
@@ -56,6 +66,5 @@ func _read_sensors() -> void:
 		_mouse_rel_x = 0.0
 	else:
 		last_gyro = Input.get_gyroscope()
-		# Measured on a real phone: Godot on Android reports every accelerometer axis inverted
-		# (flat, screen up: z = -9.8). The protocol uses +9.8 on z, so flip it here.
-		last_accel = -Input.get_accelerometer()
+		# The protocol uses +9.8 on z (flat, screen up). See ACCEL_INVERTED_ON.
+		last_accel = accel_to_protocol(Input.get_accelerometer(), OS.get_name())

@@ -4,7 +4,7 @@ A couch game for Android TV. A phone is the motion controller (Wii-remote style)
 Godot 4.7 and GDScript. One project makes two apps:
 
 - **tv**: runs on Android TV or a streaming box. It shows the game.
-- **controller**: runs on up to 4 Android phones. It sends gyroscope, accelerometer, touch and button data.
+- **controller**: runs on up to 4 phones: Android, or an iPhone (unverified, see [docs/EXPORT.md](docs/EXPORT.md)). It sends gyroscope, accelerometer, touch and button data.
 
 The games are minigames that use the phone as a motion controller: a tilt maze, a 3D marble race (with several tracks) and a pointer game for the whole family: throw snowballs at silly Puffs (Snowball Splat). New minigames are added through the game registry (see below).
 
@@ -29,7 +29,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
 - The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`).
-  The phone scans the QR code (Android plugin), or picks the TV from the list found by the UDP beacon (Refresh button). There is no typed room code or IP.
+  The Android phone scans the QR code (Android plugin), or picks the TV from the list found by the UDP beacon (Refresh button). An iPhone has no scanner: it shows only the list. There is no typed room code or IP.
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
 - A phone that loses the connection (or is silent for 5 seconds) keeps its slot and reconnects with a token: 30 seconds, and
@@ -169,7 +169,7 @@ Phone-only and Android-only code (`qr_scanner.gd`, `sensor_sampler.gd`) stays lo
 
 - Tested: headless tests above, and a two-process run (TV and phone) on one PC with real UDP discovery.
   The QR codes decode with an independent decoder (OpenCV).
-- **Not tested: real Android TV, real phone sensors, real Wi-Fi.** The first on-device run must check the
+- **Not tested: real Android TV, real phone sensors, real Wi-Fi.** The iPhone controller was deployed and joins a TV, but its sensor directions are not measured (Manual test 13). The first on-device run must check the
   items marked *unverified* in [docs/RISKS.md](docs/RISKS.md), mainly the sensor signs and the key mapping.
 - The QR scanner plugin compiled only against stubs (the real ML Kit and Godot libraries were not reachable
   from the build sandbox). It needs Google Play services on the phone. Test it first: `docs/MANUAL_TESTS.md`, test 2.
