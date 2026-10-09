@@ -26,22 +26,11 @@ jobs:
       - name: Shell scripts
         run: |
           sudo apt-get install -y shellcheck
-          shellcheck tests/run_all.sh tools/*.sh
+          shellcheck tests/*.sh tools/*.sh
 
   test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: chickensoft-games/setup-godot@v2
-        with:
-          version: ${{ env.GODOT_VERSION }}
-          use-dotnet: false
-      - name: Headless tests
-        run: GODOT="$(which godot)" tests/run_all.sh
-
-  coverage:
-    # Line coverage of scripts/ from the headless tests. It fails when a module is below 80%.
-    # Modules that are set aside (with a reason) are in tools/coverage/exclusions.txt.
+    # One job: the headless tests (the suites of tests/suites.txt), the line coverage of scripts/ from those tests, and the rule
+    # that every module has 80% or more. Modules that are set aside (with a reason) are in tools/coverage/exclusions.txt.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,6 +44,8 @@ jobs:
           use-dotnet: false
       - name: Tests with coverage
         run: GODOT="$(which godot)" tools/coverage.sh build/coverage
+      - name: Design tokens (CSS)
+        run: python3 tools/design_tokens_css.py --check
       - name: Coverage summary
         if: always()
         run: |

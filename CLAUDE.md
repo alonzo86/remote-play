@@ -13,7 +13,7 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 ## Tests and coverage
 
 - Every module (each script file in `scripts/`) needs at least 80% line coverage. Check it with `GODOT=<path> tools/coverage.sh`
-  before you create a pull request. The script fails when a module is below 80%. CI runs the same check (job `coverage`).
+  before you create a pull request. The script fails when a module is below 80%. CI runs the same check in its one test job (job `test`: the suites of `tests/suites.txt` with coverage). A new test suite is added to `tests/suites.txt` only.
   New or changed code comes with its tests in the same change. Say the total and the lowest modules in the pull request.
 - Write tests that matter. A test checks a behavior: an input and the result, an error case, a state change, a rule from a
   requirements file. It must fail when that behavior breaks. Do not write a test only to run lines or to raise the number

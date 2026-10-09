@@ -140,6 +140,10 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 GODOT=/path/to/godot tests/run_all.sh
 ```
 
+The suites are listed once, in `tests/suites.txt` (script, role, title). `tests/run_suites.sh` runs them. A new suite is added to that file only.
+`tests/run_all.sh` is the quick local run (the suites and the check of `tokens.css`). CI runs one job, `test`, that runs the same
+suites with coverage (`tools/coverage.sh`) and fails when a module is below 80%.
+
 - `tests/run_tests.gd`: packet codec, sensor fusion (tilt, yaw, bias, timestamp wrap), maze generator,
   QR encoder, and a network test with a real server and 4 clients (join, full room, wrong room, RTT,
   reconnect to the same slot, leave, phase message).
@@ -155,7 +159,7 @@ GODOT=/path/to/godot tools/coverage.sh        # needs python3 and gdtoolkit (pip
 ```
 
 Godot has no coverage switch, so `tools/coverage/instrument.py` makes a copy of the project and puts a hit call before each
-statement inside a function in `scripts/` (it uses the parser of gdtoolkit). The two test scripts run on the copy. The result is in
+statement inside a function in `scripts/` (it uses the parser of gdtoolkit). The suites of `tests/suites.txt` run on the copy. The result is in
 `build/coverage/`: `summary.md`, `summary.json` and `lcov.info`.
 **The rule: every module (script file) has at least 80% line coverage.** The script fails when one is lower, and the CI job
 `coverage` runs the same script, shows the table in the run summary and keeps the files for 14 days. A module that needs extremely hard
