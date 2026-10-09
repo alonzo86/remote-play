@@ -8,10 +8,10 @@ description: Run the Remote Play headless tests and lint. Use after any change t
    lsof -iTCP:47801 -sTCP:LISTEN
    ```
    If a Godot process shows up, it is probably the user's TV app. Ask the user to quit it. Do not kill it.
-2. Run the tests: `tools/build.sh test`. It runs `tests/run_all.sh` (unit and network tests, then the TV smoke test).
+2. Run the tests: `tools/build.sh test`. It runs `tests/run_all.sh`: all suites of `tests/suites.txt` (unit, network, game rules, TV smoke tests), then the check of `tokens.css`.
    Expect `178 checks, 0 failed` and `smoke test done, 0 failed`.
    The count changes when tests are added. A failure at "server listens on 47801" means the port is busy.
-3. Run lint: `gdlint scripts tests tools` and `shellcheck tests/run_all.sh tools/*.sh`.
+3. Run lint: `gdlint scripts tests tools` and `shellcheck tests/*.sh tools/*.sh`.
    Install `gdtoolkit` with `pip install "gdtoolkit==4.*"` if needed. If pip fails on a certificate path, check `pip config list`
    and pass `PIP_CERT=` for that one command. Do not edit the user's pip config.
 4. Report the real counts and any failures. Never report a pass for a step that did not run.

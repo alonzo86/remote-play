@@ -6,7 +6,7 @@ Godot 4.7 and GDScript. One project makes two apps:
 - **tv**: runs on Android TV or a streaming box. It shows the game.
 - **controller**: runs on up to 4 phones: Android, or an iPhone (unverified, see [docs/EXPORT.md](docs/EXPORT.md)). It sends gyroscope, accelerometer, touch and button data.
 
-The games are minigames that use the phone as a motion controller: a tilt maze, a 3D marble race (with several tracks) and a pointer game for the whole family: throw snowballs at silly Puffs (Snowball Splat). New minigames are added through the game registry (see below).
+The games are minigames that use the phone as a motion controller: a tilt maze, a 3D marble race (with several tracks) a pointer game for the whole family: throw snowballs at silly Puffs (Snowball Splat), and a tilt game where paint blobs paint a floor (Paint Grab). New minigames are added through the game registry (see below).
 
 Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [manual tests](docs/MANUAL_TESTS.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md) | [games roadmap](docs/GAMES_ROADMAP.md) | [design system](docs/design-system/README.md)
 
@@ -141,6 +141,12 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 GODOT=/path/to/godot tests/run_all.sh
 ```
 
+The suites are listed once, in `tests/suites.txt` (script, role, title). `tests/run_suites.sh` runs them. A new suite is added to that file only.
+`tests/run_all.sh` is the quick local run (the suites and the check of `tokens.css`). CI has two jobs for this. `test` runs the suites
+on the instrumented copy of the project (`COVERAGE_STEP=run tools/coverage.sh`), so a failure there is a failed test, and it keeps the
+coverage hits. `coverage` (after `test`) reads those hits and fails when a module is below 80% (`COVERAGE_STEP=report tools/coverage.sh`).
+No test runs twice. `tools/coverage.sh` without `COVERAGE_STEP` does both parts, as a local check.
+
 - `tests/run_tests.gd`: packet codec, sensor fusion (tilt, yaw, bias, timestamp wrap), maze generator,
   QR encoder, and a network test with a real server and 4 clients (join, full room, wrong room, RTT,
   reconnect to the same slot, leave, phase message).
@@ -156,7 +162,7 @@ GODOT=/path/to/godot tools/coverage.sh        # needs python3 and gdtoolkit (pip
 ```
 
 Godot has no coverage switch, so `tools/coverage/instrument.py` makes a copy of the project and puts a hit call before each
-statement inside a function in `scripts/` (it uses the parser of gdtoolkit). The two test scripts run on the copy. The result is in
+statement inside a function in `scripts/` (it uses the parser of gdtoolkit). The suites of `tests/suites.txt` run on the copy. The result is in
 `build/coverage/`: `summary.md`, `summary.json` and `lcov.info`.
 **The rule: every module (script file) has at least 80% line coverage.** The script fails when one is lower, and the CI job
 `coverage` runs the same script, shows the table in the run summary and keeps the files for 14 days. A module that needs extremely hard

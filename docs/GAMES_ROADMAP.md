@@ -13,6 +13,7 @@ This file is a plan, not a requirements file. Each game gets its own `docs/games
 - Branch names: `games/<id>` (for example `games/target-shoot`). A session needs permission to create them.
 - Recenter is the RECENTER button of the phone only (REQ-GM-37). It already works in every game (`{"t":"recenter"}`, `tv_server.gd`). A and B are free for game actions. The maze shortcut "A recenters" is removed.
 - Pointer tuning (Snowball Splat) is checked on a real phone and TV with the `device-test` skill.
+- Every game has a settings view before it starts, with the row Difficulty (Easy, Medium, Hard) and, when the game needs it, more rows (REQ-GM-90 to 97, `docs/GAME_REQUIREMENTS.md`). Its shared code is `game_settings.gd`, `tv_game_settings.gd` and `choice_row.gd`. A new game adds a `settings` entry to the registry and a difficulty table to its requirements file.
 
 ## Why helpers first
 
@@ -55,11 +56,16 @@ Maze and Marble Race both use `open_results()`. Their result menus now list all 
 | # | Branch | Content | Players | Input | Competitive mode | Solo mode | Needs |
 |---|--------|---------|---------|-------|------------------|-----------|-------|
 | 0 | PR 12 | Common helpers (step 0a, then 0b) | | | | | none |
-| 1 | `games/target-shoot` | Snowball Splat (`snowball_splat`, first made as "Target Shoot"; the branch name stayed) | 1 to 4 | pointer, A | Throw snowballs at big, slow, friendly Puffs. Same Puffs for all. Most points in 60 s wins. No penalty for a miss. | Score attack against medal tiers | 0 |
-| 2 | `games/paint-grab` | Paint Grab (`paint_grab`), builds `TiltBody` | 1 to 4 | tilt | Roll over tiles to claim them. Others can take them back. Most area at 60 s wins. | Cover 80% of the board before time ends | 0 |
+| 1 | `games/target-shoot` (PR 13, merged) | Snowball Splat (`snowball_splat`, first made as "Target Shoot"; the branch name stayed) | 1 to 4 | pointer, A | Throw snowballs at big, slow, friendly Puffs. Same Puffs for all. Most points in 60 s wins. No penalty for a miss. | Score attack against medal tiers | 0 |
+| 2 | `games/paint-grab` (in work) | Paint Grab (`paint_grab`), builds `TiltBody` | 1 to 4 | tilt | Roll over tiles to claim them. Others can take them back. Most area at 60 s wins. | Cover 80% of the board before time ends | 0 |
 | 3 | `games/dodge-storm` | Dodge Storm (`dodge_storm`) | 1 to 4 | tilt | Hazards fall. The last player standing wins. | Survive as long as possible, against medal tiers | 2 (`TiltBody`) |
 | 4 | `games/tilt-snake` | Tilt Snake (`tilt_snake`) | 1 to 4 | tilt | Eat pickups to grow. A hit on any tail removes you. The last one alive wins. | High score against medal tiers | 2 (`TiltBody`) |
 | 5 | `games/sumo-bumpers` | Sumo Bumpers (`sumo_bumpers`) | 2 to 4 | tilt, A (dash) | Push others off a shrinking platform. Best of 3 rounds. | None (needs 2 players) | 2 (`TiltBody`) |
+
+Status (2026-10-09): branch 1 is merged (PR 13). It also brought the settings view with Difficulty for the maze, Snowball Splat and
+Marble Race, generated Marble Race tracks, and the lost-phone hold card. All of it still needs the tests on a device (`docs/MANUAL_TESTS.md`).
+The values in the difficulty tables, the pointer range and the generated tracks are first guesses. Branch 2 (Paint Grab, with `TiltBody`) is in work on `games/paint-grab`; branches 3 to 5 are not started.
+Each of them needs a settings view and a difficulty table (REQ-GM-90, 91) before it is done.
 
 Order and dependencies:
 - Branch 0 is merged first. Branches 1 and 2 need only branch 0, so they do not wait for each other.
@@ -85,6 +91,7 @@ What this means for the games that are not built yet. The decision is made in th
 
 Checked against `main` on 2026-10-08.
 
+- A game has a settings view with Difficulty and a table of what Easy, Medium and Hard mean in its requirements file (REQ-GM-90, 91). The chosen value is yellow (REQ-GM-97). The game gets it as the prop `difficulty`; Restart keeps it. A solo game has medal tiers for each difficulty (REQ-GM-95).
 - Leaving a game in progress asks first (REQ-GM-31a). A game overrides `_can_open_menu()` (or `_in_progress()`) to say when it is over.
 - A ball-like player object shows the slot number, and chips are in slot order (REQ-GM-46).
 - Key objects are at least 48 px high and use no pale grey (REQ-GM-47d, 47e). All text is 28 px or larger (REQ-GM-41).
@@ -94,7 +101,7 @@ Checked against `main` on 2026-10-08.
 ## Cost of each game branch
 
 1. Requirements file `docs/games/<id>.md` (from `TEMPLATE.md`), written before the code. Medal tiers are listed as open tuning values.
-2. The game, the registry entry (`doc`, `description`, `tile`, `min_players`, `max_players`) and the tile (`tools/make_tiles.gd`).
+2. The game, the registry entry (`doc`, `description`, `tile`, `min_players`, `max_players`, `settings`) and the tile (`tools/make_tiles.gd`, with a scene that shows action, for example 4 players).
 3. A check in `tests/smoke_tv.gd` and unit tests of the rules: score, collision, what wins, a player who leaves (REQ-GM-60, 61).
 4. At least 80% line coverage for each script (`GODOT=<path> tools/coverage.sh`), clean `gdlint`, passing tests.
 5. A section in `docs/MANUAL_TESTS.md` (REQ-GM-62), and a row in the status table of `docs/GAME_REQUIREMENTS.md`.

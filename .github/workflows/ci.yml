@@ -26,22 +26,11 @@ jobs:
       - name: Shell scripts
         run: |
           sudo apt-get install -y shellcheck
-          shellcheck tests/run_all.sh tools/*.sh
+          shellcheck tests/*.sh tools/*.sh
 
   test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: chickensoft-games/setup-godot@v2
-        with:
-          version: ${{ env.GODOT_VERSION }}
-          use-dotnet: false
-      - name: Headless tests
-        run: GODOT="$(which godot)" tests/run_all.sh
-
-  coverage:
-    # Line coverage of scripts/ from the headless tests. It fails when a module is below 80%.
-    # Modules that are set aside (with a reason) are in tools/coverage/exclusions.txt.
+    # The headless tests (the suites of tests/suites.txt). They run on the instrumented copy of the project, so that the same run
+    # gives the coverage hits for the job `coverage`. A failure here is a failed test.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,8 +42,34 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
-      - name: Tests with coverage
-        run: GODOT="$(which godot)" tools/coverage.sh build/coverage
+      - name: Tests (instrumented for coverage)
+        run: COVERAGE_STEP=run GODOT="$(which godot)" tools/coverage.sh build/coverage
+      - name: Design tokens (CSS)
+        run: python3 tools/design_tokens_css.py --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-hits
+          path: |
+            build/coverage/hits
+            build/coverage/instrumented/coverage_manifest.json
+          retention-days: 7
+
+  coverage:
+    # The line coverage of scripts/ from the hits of the job `test`. No test runs here. A failure here is a module below 80%.
+    # Modules that are set aside (with a reason) are in tools/coverage/exclusions.txt.
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-hits
+          path: build/coverage
+      - name: Coverage and the 80% rule
+        run: COVERAGE_STEP=report tools/coverage.sh build/coverage
       - name: Coverage summary
         if: always()
         run: |
