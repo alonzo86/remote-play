@@ -60,6 +60,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [10](#test-10) | Snowball Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
+| [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2 | Not run |  | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -480,6 +481,34 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 | 2 | Photos: tile next to the game, for each game | Not run | | | |
 | 3 | Photos of the old and the new look, and a note | Not run | | | Marble Race and Maze tiles remade 2026-10-09 (4 marbles on a bend with posts; 4 balls on the way to the exit). |
 | 4 | Photo of the tile and of the running game | Not run | | | Snowball Splat tile remade 2026-10-09 (4 players, a hit, a snowball in the air). |
+
+History:
+
+- -: **Not run**. New.
+
+## Test 13
+
+### Controller on an iPhone
+
+Needs: 1 iPhone, 1 Mac with Xcode, 1 TV. Covers: `tools/deploy-ios.sh`, RISKS A2. New. Nothing in the iOS path has run yet.
+
+**Steps**
+
+1. Follow `docs/EXPORT.md`, section *Controller on an iPhone*, and run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. Check: the export, the build, the install and the launch end without an error, and the app opens on the phone. Write down every error and the fix.
+2. Open the connect screen. Check: there is no scan and no paste button, only **Discovered TVs** and **Refresh**. The local network permission is asked once. The list shows the TV (tap it: the phone joins and the TV shows the player), or stays empty (write which, and tell Claude).
+3. Tilt the phone flat, left, right, forward, back (like Test 3, items 1 and 4). Check: the overlay Accel and Gyro values have the same directions as on Android. If they are inverted, tell Claude: the Android-only axis fix in `sensor_sampler.gd` needs a platform check.
+4. Play Tilt Maze for 2 minutes with the screen on. Check: no disconnect, no screen lock, and the ball follows the tilt.
+5. Lock the phone and unlock it. Check: the TV shows the lost-phone card and the game can resume (like Test 7, items 1 and 5).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Terminal log of the deploy, photo of the app | Not run | | | |
+| 2 | Photo of the TV with the player joined | Not run | | | |
+| 3 | Photo of the overlay values for each tilt | Not run | | | |
+| 4 | Short video | Not run | | | |
+| 5 | Photo of the TV card | Not run | | | |
 
 History:
 

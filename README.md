@@ -106,8 +106,9 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
    and patches the manifest (TV banner, hardware flags, QR scanner plugin).
 3. Build the APKs: `tools/build.sh apk` (output: `build/remote-play-tv.apk`, `build/remote-play-controller.apk`).
 4. Deploy to a connected device: `tools/deploy.sh controller` or `tools/deploy.sh tv` (builds, installs, launches; `-s <serial>` picks a device).
-5. Other commands: `tools/build.sh run-tv`, `run-controller`, `test`.
-6. Install (or `tools/build.sh install`): `adb connect <tv-ip>:5555`, then `adb install -r build/remote-play-tv.apk`.
+5. iPhone (controller only, unverified): `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. Steps: [docs/EXPORT.md](docs/EXPORT.md), section *Controller on an iPhone*.
+6. Other commands: `tools/build.sh run-tv`, `run-controller`, `test`.
+7. Install (or `tools/build.sh install`): `adb connect <tv-ip>:5555`, then `adb install -r build/remote-play-tv.apk`.
    Install the controller APK on the phone.
 
 ## Test on a real Android TV or streaming box

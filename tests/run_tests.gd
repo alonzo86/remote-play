@@ -648,6 +648,11 @@ func _test_connect_screen() -> void:
 	for b in screen.find_children("*", "Button", true, false):
 		has_paste = has_paste or b.text == "Paste TV link"
 	_check(has_paste, "without the plugin the connect screen offers Paste TV link")
+	var connect_script: GDScript = _script("res://scripts/ui/controller_connect.gd")
+	_check(not connect_script.shows_scan_button("iOS"),
+			"on an iPhone or iPad the connect screen has no scan or paste button")
+	_check(connect_script.shows_scan_button("Android") and connect_script.shows_scan_button("macOS"),
+			"on Android and desktop (also a Mac) the connect screen keeps the scan or paste button")
 	app.last_error = ""
 	screen._on_state(ControllerClient.State.IDLE)
 	_check(screen._status.text == "Looking for a TV...", "idle: the screen says it looks for a TV")

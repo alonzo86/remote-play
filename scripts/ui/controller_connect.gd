@@ -1,7 +1,7 @@
 extends Control
 ## Phone screen before a TV is joined. Two ways to join: scan the QR code on the TV, or pick a TV
-## from the list of TVs found by UDP beacon (with a Refresh button). Nothing else: when neither
-## works there is no TV to connect to.
+## from the list of TVs found by UDP beacon (with a Refresh button). On an iPhone or iPad (no scanner
+## plugin) only the list is shown. Nothing else: when neither works there is no TV to connect to.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -15,6 +15,12 @@ var _list: VBoxContainer
 var _status: Label
 var _qr: Node
 var _search_until_ms := 0
+
+
+## The scan / paste button is not shown on an iPhone or iPad (OS name "iOS"): there is no scanner plugin, so only the
+## TV list is used. A Mac keeps "Paste TV link" for development runs.
+static func shows_scan_button(os_name: String) -> bool:
+	return os_name != "iOS"
 
 
 func _ready() -> void:
@@ -33,12 +39,13 @@ func _ready() -> void:
 	add_child(_qr)
 	_qr.scanned.connect(_on_qr_text)
 	_qr.failed.connect(_on_qr_failed)
-	# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
-	var scan_text := "Scan QR code" if _qr.is_available() else "Paste TV link"
-	var scan := UiKit.button(scan_text, _on_scan_pressed, false, 48)
-	scan.theme_type_variation = "LightButton" # White: it stands out from the green TV buttons and the yellow Refresh.
-	scan.custom_minimum_size = Vector2(0, 150)
-	box.add_child(scan)
+	if shows_scan_button(OS.get_name()):
+		# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
+		var scan_text := "Scan QR code" if _qr.is_available() else "Paste TV link"
+		var scan := UiKit.button(scan_text, _on_scan_pressed, false, 48)
+		scan.theme_type_variation = "LightButton" # White: it stands out from the green TV buttons and the yellow Refresh.
+		scan.custom_minimum_size = Vector2(0, 150)
+		box.add_child(scan)
 
 	var head := HBoxContainer.new()
 	box.add_child(head)

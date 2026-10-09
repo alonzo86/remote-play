@@ -57,5 +57,6 @@ Tests the user has to run now (status on 2026-10-09 after run R1; the list is in
 | 12 | Game tiles: compare each tile with the game. All three tiles were remade on 2026-10-09 (4 players, action in the picture) | REQ-GM-49. Claude makes the tiles again when they differ |
 | 3 | Sensor directions: items 1 and 4 (the flat Accel value after the fix, Gyro z) | R0 did not check them after the fix |
 | 4 | Latency and packet rate on a real TV box, and the delay with a 240 fps camera | R0 ran on a desktop and failed (RTT, Gap). Not representative |
+| 13 | Controller on an iPhone: deploy with `IOS_TEAM_ID=<id> tools/deploy-ios.sh`, join with Paste TV link, sensor directions, lock and unlock | New on 2026-10-09. Written on a Mac without Xcode, so never run |
 
 Test 2 (QR scan) passed in R0. Run it again only when the QR plugin or the connect screen changes.
