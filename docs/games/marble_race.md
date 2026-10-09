@@ -57,6 +57,19 @@ Status: Done, Open, or Device (needs a real TV and phones). "Check" names the te
 
 The lengths are measured (`MarbleTrack.length`). The winning times are targets, from a top speed of about 9 m/s. They are not measured on a device yet. See "Open questions".
 
+### Settings and generated tracks (decided 2026-10-09, not built)
+
+REQ-GM-90 to 96 apply. The settings view of the race has two rows: Difficulty and Track. The tracks are made on the fly from a seed, so the list of fixed tracks (REQ-MR-21, 30) goes away when this is built.
+
+| ID | Requirement | Status | Check |
+|----|-------------|--------|-------|
+| REQ-MR-50 | Difficulty is the number of posts on the track: Easy 2, Medium 6, Hard 10 posts for each 100 m of track (Classic today has about 6). The track, the marbles and the physics are the same at every difficulty. Posts keep REQ-MR-6 (a gap of one marble or more on one side) and REQ-MR-24 (they end 8 m before the end). | Open | run_tests |
+| REQ-MR-51 | A track is made from a seed (`MarbleTrack.generate(seed)`). The same seed gives the same track. Every generated track meets REQ-MR-20 to 24: a straight start of 8 m or more toward the top of the screen, no touching itself, the finish line 6 m before the end. A test makes many seeds and checks these rules for all of them. | Open | run_tests |
+| REQ-MR-52 | A generated track is 90 to 170 m long and 5.8 to 9.2 m wide (the range of the four tracks today). Its turns are smooth: no turn is sharper than the half-width allows, so a marble never gets stuck in a corner. | Open | run_tests |
+| REQ-MR-53 | The Track row shows a strip of 6 line sketches (the middle line of each track, outlined, in the slot-neutral accent color), with a name such as "Track 1". The focused sketch is bigger and has a thick frame. Left and Right move the focus along the strip. The last tile is "New tracks": OK on it makes 6 new tracks. The first track is selected when the view opens. | Open | smoke_tv |
+| REQ-MR-54 | The Track row is the only place where the track is chosen. The seed of the chosen track is part of `start_props`, so Restart (REQ-MR-33) plays the same track. The track name is shown during the race (REQ-MR-35). | Open | smoke_tv |
+| REQ-MR-55 | The results menu has "Settings" (REQ-GM-95) in place of "Choose track". | Open | smoke_tv |
+
 ### Menus and flow
 
 | ID | Requirement | Status | Check |
@@ -93,6 +106,9 @@ In `scripts/game/marble_race/marble_race.gd` unless it says otherwise. Tune them
 | Track half-widths | `marble_track.gd` | Narrow tracks are harder. |
 
 ## Open questions
+
+- Do the four named tracks (Classic, Sprint, Zigzag, Gauntlet) stay as the first four tiles of the strip, or are only generated tracks offered? (Decision pending with the user.)
+- Should the strip keep 6 tracks, and should "New tracks" exist or is a fixed list of seeds enough?
 
 - Is a dead zone (like the maze, 0.03) or a speed limit needed? Test on a device.
 - Are the target winning times right? Measure them in Test 9 and update the table.
