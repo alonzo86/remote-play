@@ -8,7 +8,7 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 
 signal changed(value: String)
 
-## The width of the row. It is narrow: the view is as wide as its widest row, and a narrower row stays in the middle.
+## The least width of the row. The view is as wide as its widest row, and every row gets that width.
 const MIN_W := 560.0
 
 var row := {}
@@ -37,7 +37,7 @@ func _ready() -> void:
 	h.add_child(_name)
 	_left = _arrow("<")
 	h.add_child(_left)
-	_value = UiKit.label("", 40, UiTheme.ACCENT, UiTheme.title_font())
+	_value = UiKit.label("", 40, UiTheme.SELECTED, UiTheme.title_font())   # REQ-GM-97: the chosen value is yellow.
 	_value.custom_minimum_size = Vector2(190, 0)
 	_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_value.size_flags_vertical = Control.SIZE_SHRINK_CENTER

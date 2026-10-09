@@ -1,9 +1,10 @@
 extends Control
 ## The track carousel of the marble race (REQ-MR-53): the tracks in one line like an image carousel. The track in the middle,
-## in focus and bigger, is the selected one; the others get smaller and fainter toward the sides. A tile is the line sketch of a
-## fixed track, the last one is a question mark (the random track). There are no names. With the focus, Left and Right on the
-## remote move the line by one track (it stops at the ends, REQ-GM-92). Like a `ChoiceRow` it has a `row` (the row of the
-## registry), a `value` and a signal. It draws everything itself, so the tiles are not buttons.
+## in focus and bigger, is the selected one and has a yellow border; the others get smaller and fainter toward the sides.
+## A tile is the line sketch of a fixed track, the last one is a question mark (the random track). There are no names.
+## With the focus, Left and Right on the remote move the line by one track (it stops at the ends, REQ-GM-92). Like a
+## `ChoiceRow` it has a `row` (the row of the registry), a `value` and a signal. It draws everything itself, so the tiles
+## are not buttons.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
@@ -34,7 +35,7 @@ func _ready() -> void:
 	custom_minimum_size = VIEW
 	focus_mode = Control.FOCUS_ALL
 	_sb_tile = UiTheme.card(Color.WHITE, UiTheme.OUTLINE, 5, 22, true)
-	_sb_selected = UiTheme.card(UiTheme.OK, UiTheme.OUTLINE, 5, 22, true)
+	_sb_selected = UiTheme.card(Color.WHITE, UiTheme.SELECTED, 8, 22, true)   # REQ-GM-97: the choice has a yellow border.
 	_sb_focus = UiTheme.card(Color(1, 1, 1, 0), UiTheme.FOCUS_BORDER, FOCUS_W, 26, false)
 	for i in row.values.size():
 		var sketch: Array = []
@@ -120,7 +121,7 @@ static func x_at(d: float) -> float:
 func _draw() -> void:
 	if tiles.is_empty():
 		return
-	var mid := VIEW * 0.5
+	var mid := Vector2(size.x * 0.5, VIEW.y * 0.5)   # The carousel can be wider than VIEW: the middle is the middle of the control.
 	# Far tiles first, so that the middle one is on top.
 	var order: Array[int] = []
 	for i in tiles.size():
@@ -131,13 +132,14 @@ func _draw() -> void:
 		_draw_tile(i, float(i) - _pos, mid)
 	if has_focus():
 		var sc := scale_at(0.0)
-		draw_style_box(_sb_focus, Rect2(mid - TILE * sc * 0.5, TILE * sc).grow(FOCUS_W))
+		draw_style_box(_sb_focus, Rect2(mid - Vector2(0.0, 14.0) - TILE * sc * 0.5, TILE * sc).grow(FOCUS_W))
 	# The dots under the line: one for each track, the selected one is big.
 	var dot_gap := 22.0
 	var x0 := mid.x - dot_gap * (tiles.size() - 1) * 0.5
 	for i in tiles.size():
 		var near := i == index
-		draw_circle(Vector2(x0 + dot_gap * i, VIEW.y - 14.0), 8.0 if near else 5.0, UiTheme.TEXT if near else Color(UiTheme.TEXT, 0.45))
+		var dot_color := UiTheme.SELECTED if near else Color(UiTheme.TEXT, 0.45)
+		draw_circle(Vector2(x0 + dot_gap * i, VIEW.y - 14.0), 8.0 if near else 5.0, dot_color)
 
 
 func _draw_tile(i: int, d: float, mid: Vector2) -> void:

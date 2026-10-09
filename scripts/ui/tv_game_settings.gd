@@ -25,7 +25,7 @@ func _ready() -> void:
 	var center := CenterContainer.new()
 	m.add_child(center)
 	var box := VBoxContainer.new()
-	# No fixed width: the column is as wide as its widest row (REQ-GM-90). A narrower row stays in the middle, Start fills the width.
+	# No fixed width: the column is as wide as its widest row. The rows and the Back and Start line have that width (REQ-GM-90).
 	box.add_theme_constant_override("separation", 20)
 	center.add_child(box)
 	var title := UiKit.title(String(game.get("title", "")), 84)
@@ -35,7 +35,7 @@ func _ready() -> void:
 	for r in GameSettings.rows_for(game):
 		var row: Control = TrackPicker.new() if r.get("type", "") == "tracks" else ChoiceRow.new()
 		row.row = r
-		row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		row.size_flags_horizontal = Control.SIZE_FILL
 		row.value = GameSettings.value(game, r)
 		row.changed.connect(func(v: String): GameSettings.set_value(game, r, v))
 		box.add_child(row)

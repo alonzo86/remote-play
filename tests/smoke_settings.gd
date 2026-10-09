@@ -1,4 +1,6 @@
 extends SceneTree
+
+const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 ## Smoke test of the settings view (REQ-GM-90 to 95) with the maze. Run:
 ##   godot --headless --path . --script tests/smoke_settings.gd -- --role=tv
 ## No phone is needed: the view is opened with App.go_game_settings(). The rest of the flow is in smoke_tv.gd.
@@ -122,13 +124,13 @@ func _run() -> void:
 	_check(picker.index == 0 and picker.value == "1", "Track 1 is in the middle at first")
 	_check(sv.rows[0].global_position.y < picker.global_position.y and picker.global_position.y < sv.start_button.global_position.y,
 			"the carousel is under Difficulty and above Start")
-	var mid_x: float = picker.global_position.x + picker.size.x * 0.5
-	_check(picker.size.x == picker.VIEW.x
-			and is_equal_approx(sv.start_button.global_position.x + sv.start_button.size.x - sv.back_button.global_position.x,
-			picker.size.x) and sv.rows[0].size.x < picker.size.x
-			and absf(sv.rows[0].global_position.x + sv.rows[0].size.x * 0.5 - mid_x) < 1.0,
-			"the view is as wide as the carousel, and Difficulty is narrower and in the middle (%.0f, %.0f px)"
-			% [picker.size.x, sv.rows[0].size.x])
+	_check(picker.size.x == picker.VIEW.x and is_equal_approx(sv.rows[0].size.x, picker.size.x)
+			and is_equal_approx(sv.rows[0].global_position.x, picker.global_position.x)
+			and is_equal_approx(sv.back_button.global_position.x, picker.global_position.x)
+			and is_equal_approx(sv.start_button.global_position.x + sv.start_button.size.x, picker.global_position.x + picker.size.x),
+			"Difficulty, the carousel and the line of Back and Start all have the same width (REQ-GM-90): %.0f px" % picker.size.x)
+	_check(picker._sb_selected.border_color == UiTheme.SELECTED and picker._sb_selected.bg_color == Color.WHITE
+			and picker._sb_tile.border_color != UiTheme.SELECTED, "the selected track has a yellow border, not a color fill (REQ-GM-97)")
 	sv.rows[0].grab_focus()
 	await _frames(2)
 	picker.grab_focus()
