@@ -42,3 +42,14 @@ mean fewer loops and a more complex maze. Every maze can be solved at every diff
 ## Parameters
 
 `TILT_ACCEL`, `FRICTION`, `MAX_SPEED`, `RESTITUTION`, `DEADZONE` in `scripts/game/maze/maze_game.gd`.
+
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `maze` plays from "GO": Calm and curious, 120 BPM, A minor. The countdown, pause and result sounds come from the base class.
+
+| ID | Effect | When | Sound | Status |
+|----|--------|------|-------|--------|
+| REQ-MZ-S1 | `maze_bump` | A ball touches a wall faster than the buzz limit (same gate as the haptic). | Short low tick | Device (test 18) |
+| REQ-MZ-S2 | `maze_exit` | A ball reaches the exit (haptic 400 ms). | Rising run | Device (test 18) |
+
+Haptics on the phone of the player: Countdown end: 60 ms (all phones); Wall hit: 20 ms with `HIT_BUZZ_MS` gap; Exit: 400 ms for the winner. `maze_exit_other` (a shorter run for later balls) is defined but not played yet.

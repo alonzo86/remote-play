@@ -51,4 +51,4 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 
 - Balls do not collide with each other.
 - Only one maze size and no level progress.
-- No sound.
+- Sound (FD-20): made in code, so no license and no file. Open risks: the taste of the songs, the render time of a song on a TV box (it is made in steps of 3 ms a frame; the first test measures it), the latency of the TV box, and many effects at once with 4 players. Manual test 18.

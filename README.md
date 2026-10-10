@@ -35,6 +35,9 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 - A phone that loses the connection (or is silent for 5 seconds) keeps its slot and reconnects with a token: 30 seconds, and
   5 minutes while a game is paused for it. The game pauses with a card ("P2 lost connection") and goes on only when the TV user
   chooses Resume (or Resume without the lost phone). When no player is left, the game ends with "No players connected".
+- Sound (FD-20, [docs/AUDIO_PLAN.md](docs/AUDIO_PLAN.md)): the TV plays an arcade-style song for the menus and one for each game, and sound
+  effects. It is made in code by a small chip synthesizer (`scripts/audio/`), so there is no audio file. The Settings screen has Music, Effects
+  and Mute. The phone makes no sound: it vibrates in games, and its Settings screen (a button on the waiting screen) has a Haptics ON/OFF switch.
 - The debug overlay (Menu key, F3, or the switch on the Settings screen) shows per player: RTT, sensor age, packet rate,
   longest gap, lost packets, raw gyroscope and accelerometer, tilt and pointer.
 
@@ -153,6 +156,8 @@ No test runs twice. `tools/coverage.sh` without `COVERAGE_STEP` does both parts,
 - `tests/smoke_tv.gd`: starts the whole TV app, runs the flow (logo, Connect, Games, Settings, Players modal, Remove, Back),
   joins 2 simulated phones, and runs the maze (tilt moves the ball, late phone waits, pause on lost phone, pause menu,
   restart) and the marble race.
+- `tests/audio.gd`: the synthesizer, the songs and effects (every effect the code plays exists), the `Sound` manager, the volume rows of the
+  Settings screen and the phone Haptics switch.
 - `tests/screenshots*.gd`: save screenshots (needs a display, for example `xvfb-run`).
 
 ### Coverage

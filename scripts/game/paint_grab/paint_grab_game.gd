@@ -111,6 +111,7 @@ func _paint_under(slot: int) -> void:
 	if result == PaintFloor.Result.SAME:
 		return
 	_pops[c.y * floor_map.cols + c.x] = POP_TIME
+	Sound.sfx("paint_tile" if result != PaintFloor.Result.TAKEN else "paint_steal")
 	_board.set_score(slot, floor_map.count(slot))
 	if result == PaintFloor.Result.TAKEN:
 		if _bodies.has(before):

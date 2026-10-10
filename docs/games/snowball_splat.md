@@ -112,3 +112,15 @@ Values that change how the game feels. Tune them on a device (Test 10). First va
 - Does the yaw drift (gyro only) stay small enough for a round of 60 s? If not, a short smoothing or a stronger bias learning is needed in `orientation.gd`.
 - Are the Puffs slow and big enough for a child of 5 to 6 years? Are they too slow for an adult? The speeds, sizes, medal tiers and the 60 s are first guesses.
 - The name of the game and of the creatures (Puff) is a first idea.
+
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `snowball_splat` plays from "GO": Light and playful with bell tones, 124 BPM, F major. The countdown, pause and result sounds come from the base class.
+
+| ID | Effect | When | Sound | Status |
+|----|--------|------|-------|--------|
+| REQ-SS-S1 | `snow_throw` | A press on A throws a snowball (haptic 15 ms). | Fwip | Device (test 18) |
+| REQ-SS-S2 | `snow_hit`, `snow_points` | A snowball takes a Puff (haptic 40 ms). | Splat and boing, then a ping. The ping pitch rises with the slot, so a player hears their own | Device (test 18) |
+| REQ-SS-S3 | `snow_miss` | A snowball misses. | A very quiet puff. No negative sound (REQ-GM-81) | Device (test 18) |
+
+Haptics on the phone of the player: Countdown end: 60 ms; Throw: 15 ms; Hit: 40 ms; Round end: 400 ms for the winners. `snow_puff` (a squeak when a Puff pops up) is defined but not played yet.

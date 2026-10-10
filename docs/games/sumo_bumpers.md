@@ -96,3 +96,16 @@ Values that change how the game feels. Tune them on a device (Test 15). First va
 - Is the shrink time right: is a round too long to wait for a bumper that fell first, and too short to play with 4 players?
 - Is a dash of 700 px/s too strong, so that a bumper can dash through the others?
 - Should a bumper that falls watch the round with a small ghost, or is the wait fine as it is?
+
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `sumo_bumpers` plays from "GO": Heavy and comic, a march at 132 BPM, D minor. The countdown, pause and result sounds come from the base class.
+
+| ID | Effect | When | Sound | Status |
+|----|--------|------|-------|--------|
+| REQ-SB-S1 | `sumo_bump` | Two bumpers bump above the buzz speed. | Bonk | Device (test 18) |
+| REQ-SB-S2 | `sumo_dash` | A bumper dashes. | Whoosh | Device (test 18) |
+| REQ-SB-S3 | `sumo_fall` | A bumper falls (haptic 80 ms). | A falling slide, funny, not sad | Device (test 18) |
+| REQ-SB-S4 | `sumo_round_win` | A round has a winner (haptic 120 ms). | Rising run | Device (test 18) |
+
+Haptics on the phone of the player: Countdown end: 60 ms; Bump: 20 ms; dash: 30 ms; fall: 80 ms; Round win: 120 ms; match end: 400 ms. The shrinking drone is not built.

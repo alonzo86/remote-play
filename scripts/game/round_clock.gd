@@ -25,8 +25,22 @@ func is_playing() -> bool:
 ## Adds `delta`. Returns true on the frame when the countdown ends.
 func tick(delta: float) -> bool:
 	var was_counting := time < 0.0
+	var before := count_number()
 	time += delta
-	return was_counting and time >= 0.0
+	if was_counting and time >= 0.0:
+		_sound("go")
+		return true
+	if was_counting and count_number() != before:
+		_sound("count")
+	return false
+
+
+## Plays an effect of the countdown (REQ-FL-65a). The clock is pure logic and tests load it without the autoloads, so the
+## `Sound` autoload is looked up here, and a missing one is ignored.
+static func _sound(id: String) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree != null and tree.root.has_node("Sound"):
+		tree.root.get_node("Sound").sfx(id)
 
 
 ## The number to show in the countdown: 3, 2, 1. It is 0 when the countdown is over.

@@ -20,6 +20,9 @@ func _ready() -> void:
 	_add_row(box, "Debug overlay", "Shows the link of each phone. The Menu key or F3 does the same.", "overlay",
 			func(): App.toggle_overlay())
 	_add_row(box, "Invert tilt axes", "Use this when a ball rolls the wrong way.", "invert_tilt", Callable())
+	_add_level_row(box, "Music", "Left and Right change the music volume.", "music_volume")
+	_add_level_row(box, "Effects", "Left and Right change the volume of the sound effects.", "sfx_volume")
+	_add_row(box, "Mute", "Turns off the music and the effects. The phones are not changed.", "mute", Callable())
 	box.add_child(UiKit.spacer(10))
 	var back := UiKit.button("Back", on_back, true, 40)
 	back.custom_minimum_size = Vector2(360, 0)
@@ -61,8 +64,52 @@ func _add_row(parent: Control, title: String, help: String, key: String, custom:
 		else:
 			App.settings[key] = not bool(App.settings[key])
 			App.save_settings()
+			Sound.apply_settings()   # The Mute row acts at once (REQ-FL-64).
 		refresh.call())
 	refresh.call()
+	parent.add_child(b)
+	_rows.append(b)
+
+
+## A volume row (REQ-FL-64): the value 0 to 10 at the right. Left and Right change it, OK adds one and goes back to 0 after 10.
+func _add_level_row(parent: Control, title: String, help: String, key: String) -> void:
+	var b := Button.new()
+	b.theme_type_variation = "RowButton"
+	b.focus_mode = Control.FOCUS_ALL
+	b.custom_minimum_size = Vector2(0, 128)
+	var h := HBoxContainer.new()
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(h)
+	h.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	h.offset_left = 32
+	h.offset_right = -32
+	var col := VBoxContainer.new()
+	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	col.alignment = BoxContainer.ALIGNMENT_CENTER
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	h.add_child(col)
+	col.add_child(UiKit.label(title, 38, UiTheme.TEXT, UiTheme.body_bold()))
+	col.add_child(UiKit.label(help, 28, UiTheme.TEXT_DIM, UiTheme.body_font()))
+	var value := UiKit.label("", 48, UiTheme.ACCENT, UiTheme.title_font())
+	value.custom_minimum_size = Vector2(190, 0)
+	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	h.add_child(value)
+	var set_level := func(v: int):
+		App.settings[key] = v
+		App.save_settings()
+		Sound.apply_settings()
+		value.text = "%d / 10" % v
+		Sound.sfx("select")   # The sample, so the new level is heard.
+	value.text = "%d / 10" % int(App.settings[key])
+	b.pressed.connect(func(): set_level.call((int(App.settings[key]) + 1) % 11))
+	b.gui_input.connect(func(e: InputEvent):
+		if e.is_action_pressed("ui_left"):
+			set_level.call(maxi(int(App.settings[key]) - 1, 0))
+			b.accept_event()
+		elif e.is_action_pressed("ui_right"):
+			set_level.call(mini(int(App.settings[key]) + 1, 10))
+			b.accept_event())
 	parent.add_child(b)
 	_rows.append(b)
 

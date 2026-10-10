@@ -1,6 +1,6 @@
 # Audio plan: arcade music and sound effects (FD-20)
 
-Status: **plan, nothing built.** The owner asked for music on the TV app: an arcade-style, MIDI-like loop, one clip for the menus and one for each game, and sound effects for each game. This file proposes how, lists the effects for each game, and lists the defaults chosen for the open questions. The owner confirms or changes the effect lists (section 4) before phase B.
+Status: **phase A and the effects of all five games are built (2026-10-10); manual test 18 is open.** The sections below are the plan; section 11 says what was built and what differs. The owner asked for music on the TV app: an arcade-style, MIDI-like loop, one clip for the menus and one for each game, and sound effects for each game. This file proposes how, lists the effects for each game, and lists the defaults chosen for the open questions. The owner confirms or changes the effect lists (section 4) before phase B.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
 
 Base: this plan is based on `main`. The arcade style PRs 18 to 24 are still stacked and unmerged, so some names here (the Hebrew texts of FD-19, the pixel worlds) exist only in that stack. When the stack reaches `main`, resolve conflicts in `docs/TV_FLOW.md`, `docs/GAME_REQUIREMENTS.md` and `docs/REQUIREMENTS.md`, and re-check the file names in this plan.
@@ -260,3 +260,16 @@ After phase A the owner can listen to the preview tool's `.wav` files on a compu
 1. The effect lists of section 4: add, remove, or change any row (especially the "option" rows).
 2. The default answers of section 9, if any is wrong.
 3. After phase A: listen to the menu song and say what to change (faster, calmer, more bass, other mood).
+
+## 11. What was built (2026-10-10)
+
+Built on `main`, in the Party Pop style of `main` (the arcade style stack is not merged; resolve conflicts later):
+- `scripts/audio/synth.gd`, `songs.gd`, `audio_manager.gd` (the autoload `Sound`), the volume rows and Mute on the Settings screen, the phone Settings screen with the Haptics switch, and the requirements REQ-FL-64 to 66, REQ-GM-49a to 49c (this PR). Manual test 18.
+- The menu song and one song for each game, the shared effects, and the effects of the five games, played where the games already have a haptic.
+- Differences from the plan:
+  - The sample rate is **16000 Hz** (not 22050), to make the songs faster on a TV box. A song is made in steps of 3 ms a frame on the main thread (a worker thread crashed the coverage run, which counts lines); on a desktop the menu song is ready after about 1.8 s. A TV box is not measured.
+  - The loops are **16 bars** (about 25 to 34 s), including the menu song (the plan said 32 bars).
+  - The game song starts 3 s after the game opens (the length of the countdown) and not from the clock of the game.
+  - `Sound` emits the signal `sfx_played(id)` that the test uses (no test-only log).
+  - Not wired yet (defined in `songs.gd`): `maze_exit_other`, `marble_post`, `paint_bounce`, `paint_edge`, `paint_lead`, `snow_puff`, `time_low`. Not built: the Sumo drone, rolling noise.
+  - The songs, effects and levels are first guesses. A tool to export them to `.wav` files for listening on a computer is not built yet.

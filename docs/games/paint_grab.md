@@ -100,3 +100,14 @@ Values that change how the game feels. Tune them on a device (Test 14). First va
 - Is a round of 60 s right for 4 players on a floor of 144 tiles? Is it too hard to cover 70% alone on Medium?
 - Does the blob feel good, or does it need a stronger damping so it is easy to steer for a child?
 - Should the blobs also paint a ring around them (a bigger brush) on Easy, so a child fills the floor faster?
+
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `paint_grab` plays from "GO": Cheerful and bouncy, 128 BPM, C major. The countdown, pause and result sounds come from the base class.
+
+| ID | Effect | When | Sound | Status |
+|----|--------|------|-------|--------|
+| REQ-PG-S1 | `paint_tile` | A blob paints a tile. | Soft plip | Device (test 18) |
+| REQ-PG-S2 | `paint_steal` | A blob takes a tile of another color (haptic 20 ms, REQ-PG-12). | Pop with a small fall | Device (test 18) |
+
+Haptics on the phone of the player: Countdown end: 60 ms; Taking a tile: 20 ms with a gap; Round end: 400 ms for the winners. `paint_bounce`, `paint_edge` and `paint_lead` are defined but not played yet.

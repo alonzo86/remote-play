@@ -46,6 +46,10 @@ func _ready() -> void:
 	_leave.custom_minimum_size = Vector2(440, 96)
 	_leave.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(_leave)
+	var settings := UiKit.button("Settings", func(): App.go(App.ControllerSettings), false, 40)
+	settings.custom_minimum_size = Vector2(440, 96)
+	settings.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(settings)
 	_leave_timer = Timer.new()
 	_leave_timer.one_shot = true
 	_leave_timer.wait_time = LEAVE_ARM_SECONDS

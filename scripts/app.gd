@@ -20,6 +20,7 @@ const ControllerConnect = preload("res://scripts/ui/controller_connect.gd")
 const ControllerPad = preload("res://scripts/ui/controller_pad.gd")
 const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
+const ControllerSettings = preload("res://scripts/ui/controller_settings.gd")
 
 const SETTINGS_FILE := "user://settings.cfg"
 
@@ -27,6 +28,10 @@ const SETTINGS_FILE := "user://settings.cfg"
 var settings := {
 	"invert_tilt": false,
 	"overlay": false,
+	"music_volume": 7,   # TV: 0 to 10 (REQ-FL-64)
+	"sfx_volume": 8,     # TV: 0 to 10
+	"mute": false,       # TV: mutes music and effects
+	"haptics": true,     # Phone: vibrate in games (REQ-FL-66)
 }
 
 var theme_res: Theme
@@ -45,6 +50,7 @@ var _last_back_ms := 0
 func _ready() -> void:
 	_force_english_ltr()
 	_load_settings()
+	Sound.apply_settings()
 	theme_res = UiTheme.make()
 	var layer := CanvasLayer.new()
 	layer.layer = -100
@@ -76,6 +82,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and not event.pressed:
 		# A click or a tap must not leave a focus outline on the button. The D-pad and the remote still focus.
 		get_viewport().gui_release_focus.call_deferred()
+	if Role.is_tv():
+		_menu_sound(event)
 	if event.is_action_pressed("ui_cancel"):
 		_back() # Escape on desktop. On Android the Back key comes as KEY_BACK.
 	elif event is InputEventKey and event.pressed and not event.echo:
@@ -83,6 +91,18 @@ func _input(event: InputEvent) -> void:
 			_back()
 		elif Role.is_tv() and (event.keycode == KEY_MENU or event.keycode == KEY_F3):
 			toggle_overlay()
+
+
+## The sound of the D-pad on the TV (docs/AUDIO_PLAN.md, section 2.2).
+func _menu_sound(event: InputEvent) -> void:
+	for a in ["ui_up", "ui_down", "ui_left", "ui_right"]:
+		if event.is_action_pressed(a):
+			Sound.sfx("move")
+			return
+	if event.is_action_pressed("ui_accept"):
+		Sound.sfx("select")
+	elif event.is_action_pressed("ui_cancel"):
+		Sound.sfx("back")
 
 
 # ---- Screens ----
@@ -137,6 +157,8 @@ func go_settings() -> void:
 
 ## Back to the Games screen. Minigames call this ("Back to menu").
 func go_menu() -> void:
+	Sound.duck(false)
+	Sound.music("menu")
 	go_games()
 
 
@@ -191,9 +213,13 @@ func _start_tv() -> void:
 	discovery = TvDiscovery.new()
 	discovery.server = server
 	add_child(discovery)
+	server.player_joined.connect(func(_s): Sound.sfx("join"))
+	server.player_lost.connect(func(_s): Sound.sfx("leave"))
+	server.player_removed.connect(func(_s): Sound.sfx("leave"))
 	overlay = DebugOverlay.new()
 	overlay.visible = bool(settings.overlay)
 	add_child(overlay)
+	Sound.music("menu")
 	go_logo()
 
 
@@ -256,7 +282,7 @@ func _show_phone_screen() -> void:
 	var playing: bool = client.phase in ["playing", "paused"]
 	if playing and not (_screen is ControllerPad):
 		go(ControllerPad)
-	elif not playing and not (_screen is ControllerWait):
+	elif not playing and not (_screen is ControllerWait) and not (_screen is ControllerSettings):
 		go(ControllerWait)
 
 

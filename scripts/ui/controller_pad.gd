@@ -27,7 +27,8 @@ func _ready() -> void:
 
 
 func _on_haptic(ms: int) -> void:
-	Input.vibrate_handheld(ms)
+	if bool(App.settings.get("haptics", true)):   # The HAPTICS switch of the phone Settings screen (REQ-FL-66).
+		Input.vibrate_handheld(ms)
 
 
 func _on_phase(_phase: String) -> void:

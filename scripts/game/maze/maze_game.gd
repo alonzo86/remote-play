@@ -102,6 +102,7 @@ func _game_tick(delta: float) -> void:
 func _finish(slot: int) -> void:
 	_winner = slot
 	App.server.haptic(slot, 400)
+	Sound.sfx("maze_exit")
 	# Times: the winner has one. The balls still in the maze are ranked by their distance to the exit.
 	var board := Scoreboard.new([], true)
 	board.set_score(slot, _round.time)
@@ -164,7 +165,8 @@ func _collide(b: Ball) -> void:
 		var vn := b.vel.dot(n)
 		if vn < 0.0:
 			if -vn > HIT_BUZZ_SPEED:
-				_haptics.pulse(b.slot, 20, HIT_BUZZ_MS)
+				if _haptics.pulse(b.slot, 20, HIT_BUZZ_MS):
+					Sound.sfx("maze_bump")
 			b.vel -= (1.0 + RESTITUTION) * vn * n
 
 
