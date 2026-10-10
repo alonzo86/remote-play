@@ -47,8 +47,11 @@ black. They show as a filled square next to the slot number, never as the only c
 - Sizes on the TV: body text and hints 32 px, menu items and slots 40 px, titles 64 px, the logo text 96 px, the
   countdown 256 px. The rule "all TV text is 28 px or more" (REQ-FL-40) stays; the smallest size is now 32 px.
 - All UI text is upper case ("PRESS OK TO CONTINUE", "1P ALON"). Player names show in upper case.
-- A character that the font does not have (for example a Hebrew name or an emoji) uses a fallback font. See open
-  question 2.
+- Hebrew player names use **Remote Play Pixel Hebrew** (`assets/fonts/RemotePlayPixelHebrew.ttf`, SIL OFL), a fallback
+  font made for this project on the same 8 px grid: 2 px vertical strokes, 1 px horizontal strokes, the cap height of
+  Press Start 2P, and final letters (and qof) that go 2 px lower than the other letters. It has the 27 letters, maqaf, geresh and
+  gershayim, no niqqud. `tools/make_hebrew_font.py` builds it (it needs fontTools). The UI text stays English
+  (REQ-FL-54); this font is only for names. Other characters (emoji) use the Godot default font.
 - The phone uses the same font, at 24 px or more on a phone screen.
 
 ### 2.3 Frames and shapes
@@ -116,8 +119,9 @@ tests, keeps every module at 80% coverage or more, and adds or changes its manua
 The menus and the shell change in the same pull request, so a game never shows an old pause menu next to new menus
 (the same rule as REQ-FL-48).
 
-1. Add `PressStart2P-Regular.ttf` and `OFL-PressStart2P.txt` to `assets/fonts/`. Import it with antialiasing off and
-   no hinting. Remove Lilita One and Fredoka.
+1. Add `PressStart2P-Regular.ttf` and `OFL-PressStart2P.txt` to `assets/fonts/`. Import it and
+   `RemotePlayPixelHebrew.ttf` with antialiasing off and no hinting, and set the Hebrew font as the fallback of Press
+   Start 2P. Remove Lilita One and Fredoka.
 2. `scripts/ui/ui_theme.gd`: the palette of section 2.1, the font of 2.2, the frame style of 2.3. Remove the Party Pop
    colors that have no use. Keep the role names (`BG`, `TEXT`, `ACCENT`, `OK`, `BAD`) so that the games keep working.
 3. `scripts/ui/ui_kit.gd`: a double-frame panel, a text menu with the pixel cursor (it replaces the button rows), the
@@ -160,12 +164,13 @@ REQ-MZ-7, REQ-PG-15, REQ-SS-12, REQ-SB-15, REQ-MR-44.
 
 ## 4. Open questions for the owner
 
-Each question has a default. Work on a phase continues with the default until the owner answers.
+Each question has a default. On 2026-10-10 the owner said to keep the defaults; question 2 got a project font.
 
 1. **Long text in a wide font.** Press Start 2P is wide: at 32 px about 11 characters fit in the description panel of a
    tile, and a game description has about 60. Options: (a) the description goes in a bar under the grid, (b) shorter
    descriptions, (c) a narrow second pixel font for long text only. Default: (a).
-2. **Names the font cannot show** (Hebrew, emoji). Default: the Godot default font as a fallback for those characters.
+2. **Names the font cannot show.** Decided 2026-10-10: Hebrew uses the project font Remote Play Pixel Hebrew (section
+   2.2); emoji and other scripts use the Godot default font.
 3. **Arcade flourishes in the mockup**: "CREDIT 02" for the player count, "PLAYER SELECT" and "SELECT GAME" as titles,
    "1P" instead of "P1". Default: use them as in the mockup.
 4. **Game resolution.** 480x270 (the default) keeps detail; 320x180 is chunkier and more "real 8-bit", but small
