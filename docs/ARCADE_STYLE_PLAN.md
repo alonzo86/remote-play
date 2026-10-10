@@ -1,6 +1,6 @@
 # Arcade style and localization plan (FD-18, FD-19)
 
-Status: **phases 1 to 3 built** (phase 1: menus, phone, game shell, manual test 16; phase 2: the pixel view and Sumo Bumpers, manual test 15; phase 3: the 3D pixel view and Marble Race, manual test 9). Phases 4 and 5 are planned. The style requirements are in
+Status: **phases 1 to 5 built** (phase 1: menus, phone, game shell, manual test 16; phase 2: the pixel view and Sumo Bumpers, manual test 15; phase 3: the 3D pixel view and Marble Race, manual test 9; phase 4: Tilt Maze, Paint Grab and Snowball Splat, manual tests 6, 14 and 10). Phase 5, English and Hebrew with a right to left UI, was built on 2026-10-10 (manual test 17). The style requirements are in
 `docs/TV_FLOW.md` (REQ-FL-37 to 46) and `docs/GAME_REQUIREMENTS.md` (REQ-GM-45, 46); REQ-GM-47 and 48 (the game worlds) still
 describe the toy-like tier 2 rules until phase 2.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
@@ -165,7 +165,9 @@ Decisions taken while building it: the 3D view is a `SubViewport` of 480x270 sho
 2. Restyle Marble Race: the outline meshes stay (REQ-GM-47c), the colors move to the world palette. Check that the
    marbles and the slot numbers stay readable, and the frame rate on the TV box (it should go up: fewer pixels).
 
-### Phase 4: the other games
+### Phase 4: the other games - built
+
+Decisions taken while building it: one pull request for each game, stacked. Tilt Maze got walls of 12 px and Hard cells of 76 px (the 4 px grid); Paint Grab tiles are a whole number of world pixels wide, a painted tile has no lighter edge, and its timer box is 240 px; Snowball Splat has pixel snowfall in game time and a poof in 3 hard steps. The star field, the eyes and the centered text are shared `Shell` helpers.
 
 Tilt Maze, Paint Grab, Snowball Splat, one pull request each, with their tile. Their visual requirements change:
 REQ-MZ-7, REQ-PG-15, REQ-SS-12, REQ-SB-15, REQ-MR-44.
@@ -262,13 +264,23 @@ step before every game night.
 
 ### 7.5 Phase 5 steps
 
+Built on 2026-10-10 (REQ-FL-54, 60 to 63, REQ-GM-47o, protocol message `lang`). How it differs from this text: the translation
+table is a GDScript file (`scripts/core/strings.gd`, the English text is the key) and not a `.csv` file, so that it needs no import
+step and no `.translation` file in the build; `TranslationServer` still translates labels and buttons by itself. The check that
+"a text without a key" fails is a static scan and a screen scan in `tests/smoke_lang.gd`. The project setting
+`internationalization/locale/include_text_server_data` is on, so the exports carry the text server data (the ICU data of the
+break iterator); the BiDi order itself comes from TextServerAdvanced, and a test checks the order of a mixed line. The device
+test 17 checks the Android and iOS builds.
+
 1. FD-19 in `docs/TV_FLOW.md`; replace REQ-FL-54 with the language and RTL requirements of this section; change
    REQ-FL-2, 3 (first start) and REQ-FL-23 (the Settings row).
 2. The translation file, `tr()` in every screen, the shell and the games; the key test.
 3. The language choice on the logo screen, the Settings row, saved in the user settings.
 4. The language message to the phones (`docs/PROTOCOL.md`, with the `change-protocol` skill).
 5. RTL: the layout direction, the hand-drawn HUD positions, the menu cursor; the BiDi export data.
-6. The Hebrew punctuation in the font.
+6. The Hebrew punctuation in the font. (Built without a change to the font: the Hebrew font is the fallback of Press Start 2P, so
+   `,` `.` `!` `?` `:` `-` `"` `'` come from Press Start 2P and no glyph needed to be added. The device test 17 checks that
+   they look right next to the Hebrew letters.)
 7. Manual test: the TV and two phones in Hebrew (first start, the choice, every screen mirrored and readable, the
    phones follow the TV, a change in Settings), and in English. Test 8b item 7 ("a TV set to Hebrew stays English")
    changes: the TV now offers Hebrew.

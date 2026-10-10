@@ -6,6 +6,7 @@ extends Button
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Registry = preload("res://scripts/game/registry.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 const SHOT := Vector2(480, 270)       # The screenshot (16:9). Every tile has this size.
 const TEXT_H := 150.0                 # The room under the screenshot: the title and the player range.
@@ -55,8 +56,9 @@ func _ready() -> void:
 	add_child(_frame)
 
 	_name = UiKit.label(String(game.title), UiTheme.SIZE_BODY)
-	_name.position = Vector2(UiTheme.CURSOR_UNIT * 4.0 + 16.0, SHOT.y + 16)
-	_name.size = Vector2(SHOT.x - _name.position.x, 40)
+	var cursor_room := UiTheme.CURSOR_UNIT * 4.0 + 16.0
+	_name.position = Vector2(0.0 if is_layout_rtl() else cursor_room, SHOT.y + 16)   # The cursor is at the right in Hebrew.
+	_name.size = Vector2(SHOT.x - cursor_room, 40)
 	add_child(_name)
 	_meta = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	_meta.position = Vector2(0, SHOT.y + 64)
@@ -87,7 +89,9 @@ static func load_tile(path: String) -> Texture2D:
 func players_text() -> String:
 	var lo := int(game.min_players)
 	var hi := int(game.max_players)
-	return "%d player%s" % [lo, "" if lo == 1 else "s"] if lo == hi else "%d-%d players" % [lo, hi]
+	if lo == hi:
+		return Lang.t("1 player") if lo == 1 else Lang.f("%d players", [lo])
+	return Lang.f("%d-%d players", [lo, hi])
 
 
 ## Why the game cannot start with the players now (REQ-FL-14).
@@ -97,7 +101,9 @@ func reason() -> String:
 
 func _draw() -> void:
 	if has_focus():
-		UiTheme.draw_cursor(self, Vector2(0.0, SHOT.y + 36.0), UiTheme.ACCENT)
+		var rtl := is_layout_rtl()
+		UiTheme.draw_cursor(self, Vector2(size.x - UiTheme.CURSOR_UNIT * 4.0 if rtl else 0.0, SHOT.y + 36.0), UiTheme.ACCENT,
+				UiTheme.CURSOR_UNIT, rtl)
 
 
 func _refresh() -> void:

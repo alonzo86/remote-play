@@ -3,9 +3,11 @@ extends RefCounted
 ## the countdown and hints, in the arcade style (docs/TV_FLOW.md, FD-18). Games call these instead of drawing their own.
 ## The pause menu, the result screen and the "waiting for players" card are in minigame.gd.
 ## All positions are for a 1920x1080 screen. `ci` is the CanvasItem to draw on. All text is upper case, in the arcade font,
-## in sizes of the 8 px grid.
+## in sizes of the 8 px grid. Texts go through `Lang.t()`; in Hebrew (right to left) the HUD is mirrored: the title is at the
+## top right, the chips start at the left, the timer is at the left of the title (REQ-GM-47o). The game worlds are not mirrored.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 const CHIP_FONT := 32          # The size of the text on a chip.
 const CHIP_PAD := 16.0         # The space between the chip edge and its content.
@@ -13,15 +15,36 @@ const CHIP_SQUARE := 24.0      # The slot color square of a chip.
 const CHIP_LINE := 4           # The frame of a chip.
 
 
-## Game title: yellow, in the arcade font.
+## The width of the screen a canvas item draws on (1920 for an item that has no size).
+static func area_width(ci: CanvasItem) -> float:
+	return (ci as Control).size.x if ci is Control else 1920.0
+
+
+## The left edge of a box that is `w` wide and sits at `x` on a left to right screen, for the current language: the same `x`
+## in English, the mirror image in Hebrew.
+static func mx(ci: CanvasItem, x: float, w: float) -> float:
+	return area_width(ci) - x - w if Lang.is_rtl() else x
+
+
+## Game title: yellow, in the arcade font. At the top left, and at the top right in Hebrew.
 static func title(ci: CanvasItem, text: String, pos := Vector2(60, 96), font_size := 32) -> void:
-	ci.draw_string(UiTheme.font(), pos, text.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, UiTheme.ACCENT)
+	var shown := Lang.t(text).to_upper()
+	var w := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	ci.draw_string(UiTheme.font(), Vector2(mx(ci, pos.x, w), pos.y), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
+			UiTheme.ACCENT)
 
 
 ## Text in the arcade font (upper case).
 static func text(ci: CanvasItem, pos: Vector2, msg: String, font_size := 32, color: Color = UiTheme.TEXT,
 		align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0) -> void:
-	ci.draw_string(UiTheme.font(), pos, msg.to_upper(), align, width, font_size, color)
+	ci.draw_string(UiTheme.font(), pos, Lang.t(msg).to_upper(), align, width, font_size, color)
+
+
+## `msg` in upper case, centered on `pos` (the start of the baseline is moved left by half the width of the text). Nothing is cut.
+static func text_centered(ci: CanvasItem, pos: Vector2, msg: String, font_size := 32, color: Color = UiTheme.TEXT) -> void:
+	var upper := Lang.t(msg).to_upper()
+	var w := UiTheme.font().get_string_size(upper, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	ci.draw_string(UiTheme.font(), pos - Vector2(w * 0.5, 0.0), upper, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 
 ## A name or score chip (REQ-GM-46): a black box with a 4 px frame, a square in the player color, and the text in the text
@@ -29,11 +52,15 @@ static func text(ci: CanvasItem, pos: Vector2, msg: String, font_size := 32, col
 static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width := 240.0, height := 64.0) -> Rect2:
 	var r := Rect2(pos, Vector2(width, height))
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), r)
-	ci.draw_rect(Rect2(pos + Vector2(CHIP_PAD, (height - CHIP_SQUARE) * 0.5), Vector2(CHIP_SQUARE, CHIP_SQUARE)), color)
+	var rtl := Lang.is_rtl()
+	var square_x := width - CHIP_PAD - CHIP_SQUARE if rtl else CHIP_PAD
+	ci.draw_rect(Rect2(pos + Vector2(square_x, (height - CHIP_SQUARE) * 0.5), Vector2(CHIP_SQUARE, CHIP_SQUARE)), color)
 	var x0 := name_x()
 	var base := UiTheme.centered_baseline(UiTheme.font(), Rect2(0, 0, 0, height), CHIP_FONT)
-	ci.draw_string(UiTheme.font(), pos + Vector2(x0, base), fit_text(msg.to_upper(), width - x0 - CHIP_PAD, CHIP_FONT),
-			HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT, UiTheme.TEXT)
+	var shown := fit_text(msg.to_upper(), width - x0 - CHIP_PAD, CHIP_FONT)
+	var text_w := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT).x
+	var text_x := pos.x + (width - x0 - text_w if rtl else x0)
+	ci.draw_string(UiTheme.font(), Vector2(text_x, pos.y + base), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT, UiTheme.TEXT)
 	return r
 
 
@@ -43,9 +70,12 @@ static func score_chip(ci: CanvasItem, pos: Vector2, player_name: String, score:
 	var r := chip(ci, pos, "", color, width, height)
 	var parts := score_chip_parts(player_name, score, width, height)
 	var base := UiTheme.centered_baseline(UiTheme.font(), Rect2(0, 0, 0, height), CHIP_FONT)
-	ci.draw_string(UiTheme.font(), pos + Vector2(parts.name_x, base), String(parts.name).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1,
+	var name_w := UiTheme.font().get_string_size(String(parts.name).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT).x
+	var name_x_now: float = width - parts.name_x - name_w if Lang.is_rtl() else parts.name_x   # The score sits at the other end.
+	var score_x_now: float = width - parts.score_x - parts.score_w if Lang.is_rtl() else parts.score_x
+	ci.draw_string(UiTheme.font(), pos + Vector2(name_x_now, base), String(parts.name).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1,
 			CHIP_FONT, UiTheme.TEXT)
-	ci.draw_string(UiTheme.font(), pos + Vector2(parts.score_x, base), score.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT,
+	ci.draw_string(UiTheme.font(), pos + Vector2(score_x_now, base), score.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT,
 			UiTheme.TEXT)
 	return r
 
@@ -89,6 +119,9 @@ static func chip_row_positions(area_w: float, widths: Array, y := 36.0, gap := 1
 		for i in rows[r]:
 			out[i] = Vector2(x, y + r * row_h)
 			x += float(widths[i]) + gap
+	if Lang.is_rtl():
+		for i in out.size():
+			out[i].x = area_w - out[i].x - float(widths[i])   # Mirrored: the row starts at the left margin, 1P is the rightmost.
 	return out
 
 
@@ -166,10 +199,27 @@ static func pixel_ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color
 	ci.draw_circle(c, radius, color)
 
 
-## The slot number of a ball, at full resolution, for a ball that is drawn in a pixel world.
-static func ball_number(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int) -> void:
-	UiTheme.draw_centered(ci, UiTheme.font(), str(slot + 1), Rect2(pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0),
+## The slot number of a ball, at full resolution, for a ball that is drawn in a pixel world. `drop` moves the number down by that
+## share of the radius (`NUMBER_DROP` for a creature with eyes).
+static func ball_number(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int, drop := 0.0) -> void:
+	var center := pos + Vector2(0.0, radius * drop)
+	UiTheme.draw_centered(ci, UiTheme.font(), str(slot + 1), Rect2(center - Vector2(radius, radius), Vector2(radius, radius) * 2.0),
 			ball_metrics(radius).font_size, UiTheme.text_on(color))
+
+
+## The number of a creature sits lower than the middle, under the eyes of `pixel_eyes()`.
+const NUMBER_DROP := 0.25
+
+
+## Two square eyes for a creature in a pixel world: a black frame of 16 px, a white eye of 8 px and a pupil of 4 px that steps
+## to the side the creature moves (`look` is its speed as a share of the speed limit).
+static func pixel_eyes(ci: CanvasItem, center: Vector2, radius: float, look: Vector2) -> void:
+	var step := look.limit_length(1.0).round()
+	for sign_x in [-1.0, 1.0]:
+		var e := snap(center + Vector2(sign_x * radius * 0.33, -radius * 0.55))
+		ci.draw_rect(Rect2(e - Vector2(8, 8), Vector2(16, 16)), UiTheme.OUTLINE)
+		ci.draw_rect(Rect2(e - Vector2(4, 4), Vector2(8, 8)), Color.WHITE)
+		ci.draw_rect(Rect2(e - Vector2(2, 2) + step * 2.0, Vector2(4, 4)), UiTheme.OUTLINE)
 
 
 ## The players (PlayerInput objects) in slot order, P1 first (REQ-GM-46).
@@ -197,9 +247,9 @@ static func player_chips(ci: CanvasItem, area_w: float, players: Array, scores :
 
 ## The race timer: a black box with a frame, in a fixed place. `pos` is the top-left corner.
 static func timer(ci: CanvasItem, pos: Vector2, seconds: float, width := 240.0) -> Rect2:
-	var r := Rect2(pos, Vector2(width, 64.0))
+	var r := Rect2(Vector2(mx(ci, pos.x, width), pos.y), Vector2(width, 64.0))
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), r)
-	UiTheme.draw_centered(ci, UiTheme.font(), "%.1f S" % seconds, r, CHIP_FONT, UiTheme.TEXT)
+	UiTheme.draw_centered(ci, UiTheme.font(), Lang.f("%.1f S", [seconds]).to_upper(), r, CHIP_FONT, UiTheme.TEXT)
 	return r
 
 
@@ -213,7 +263,7 @@ static func contrast(a: Color, b: Color) -> float:
 static func countdown(ci: CanvasItem, area: Vector2, label: String, elapsed := 1.0, color: Color = UiTheme.ACCENT) -> void:
 	var fs := countdown_size(elapsed)
 	var rect := Rect2(Vector2.ZERO, area)
-	ci.draw_string(UiTheme.font(), Vector2(0.0, UiTheme.centered_baseline(UiTheme.font(), rect, fs)), label.to_upper(),
+	ci.draw_string(UiTheme.font(), Vector2(0.0, UiTheme.centered_baseline(UiTheme.font(), rect, fs)), Lang.t(label).to_upper(),
 			HORIZONTAL_ALIGNMENT_CENTER, area.x, fs, color)
 
 
@@ -228,7 +278,7 @@ static func countdown_size(elapsed: float) -> int:
 static func hint(ci: CanvasItem, area: Vector2, msg: String) -> void:
 	var f := UiTheme.font()
 	var max_w := area.x - 240.0
-	var upper := msg.to_upper()
+	var upper := Lang.t(msg).to_upper()
 	var box := f.get_multiline_string_size(upper, HORIZONTAL_ALIGNMENT_LEFT, max_w, UiTheme.SIZE_BODY)
 	var w := box.x + 64.0
 	var h := box.y + 40.0
