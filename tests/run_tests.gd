@@ -488,6 +488,10 @@ func _test_pad(app: Node, server: Node) -> void:
 			and lat._lat_color(24.9) == UiTheme.OK and lat._lat_color(25.0) == UiTheme.ACCENT
 			and lat._lat_color(59.0) == UiTheme.ACCENT and lat._lat_color(60.0) == UiTheme.BAD_TEXT,
 			"the latency color is dim, green, yellow and red at 25 ms and 60 ms")
+	var info_top: float = lat.SCORE_Y + 32.0   # The score line at 64 px.
+	_check(lat.SCORE_Y - 32.0 > lat._rect_leave().end.y and info_top < 262.0 + lat.INFO_Y - 48.0
+			and lat._rect_recenter().position.y > 316.0 + lat.INFO_Y,
+			"the score line has its own row under the header and Leave, above the latency rows and the Recenter box")
 	lat.free()
 	var pad = app.current_screen()
 	var sampler = pad._sampler
@@ -527,13 +531,13 @@ func _test_pad(app: Node, server: Node) -> void:
 	await _wait_until(func(): return not got.is_empty())
 	_check(got == [33], "a haptic message from the TV reaches the pad: %s" % str(got))
 
-	# The header of the pad shows the place and the score during a game (REQ-FL-67).
-	_check(pad.status_text(1, 2, 4, "12") == "2P  2ND  12" and pad.status_text(0, 1, 3, "") == "1P  1ST"
-			and pad.status_text(2, 1, 1, "7") == "3P  7" and pad.status_text(3, 0, 0, "") == "4P",
-			"the header shows the place only with 2 or more players, and the score only when there is one")
-	_check(pad.status_font_size("1P", 620.0) == 48 and pad.status_font_size("4P  4TH  1234567890", 620.0) < 48
-			and pad.status_font_size("4P  4TH  12345678901234567890", 300.0) == 32,
-			"a long score makes the header text smaller; at least 32 px")
+	# The line under the header shows the place and the score during a game (REQ-FL-67).
+	_check(pad.score_line(2, 4, "12") == "2ND  12" and pad.score_line(1, 3, "") == "1ST"
+			and pad.score_line(1, 1, "7") == "7" and pad.score_line(0, 0, "") == "" and pad.score_line(0, 0, "0") == "0",
+			"the line shows the place only with 2 or more players, and the score only when there is one")
+	_check(pad.line_font_size("1ST  12", 960.0) == 64 and pad.line_font_size("4TH  1234567890", 600.0) < 64
+			and pad.line_font_size("4TH  12345678901234567890", 300.0) == 32,
+			"a long score makes the line smaller; at least 32 px")
 	sampler.set_process(true)
 
 

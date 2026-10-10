@@ -514,6 +514,7 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV. Covers: `tools/deploy-ios.sh`, RISKS A2
 3. Tilt the phone flat, left, right, forward, back (like Test 3, items 1 and 4). Check: the overlay Accel and Gyro values have the same directions as on Android. If they are inverted, tell Claude: the Android-only axis fix in `sensor_sampler.gd` needs a platform check.
 4. Play Tilt Maze for 2 minutes with the screen on. Check: no disconnect, no screen lock, and the ball follows the tilt.
 5. Lock the phone and unlock it. Check: the TV shows the lost-phone card and the game can resume (like Test 7, items 1 and 5).
+6. On an iPhone with a Dynamic Island or a notch, open every phone screen (Connect, waiting, Settings, the pad in a game), also turned to the side. Check: nothing is hidden by the island, the notch, the status bar or the home bar: the colored square, the player number, Leave, the texts and the A and B buttons are fully visible (REQ-FL-68). Write down which iPhone it is.
 
 **Results**
 
@@ -524,6 +525,7 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV. Covers: `tools/deploy-ios.sh`, RISKS A2
 | 3 | Photo of the overlay values for each tilt | Not run | | | |
 | 4 | Short video | Not run | | | |
 | 5 | Photo of the TV card | Not run | | | |
+| 6 | Photo of the pad and the waiting screen under the island, upright and turned | Not run | | | |
 
 History:
 
@@ -735,7 +737,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 
 1. Start Snowball Splat with 4 phones (two names of 16 letters). Check from the sofa: the top row has the title, the timer and one chip with the leader's name and score, all on one row; nothing covers the play area; the name and the score are easy to read. Write down if the leader chip is too small or too big.
 2. In the same game, before anybody scores: no chip shows and the phones show only `2P` and 0. Then score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
-3. Look at each phone during the game. Check: the header next to the colored square shows the player number, the place (1ST to 4TH) and the score (`2P  2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
+3. Look at each phone during the game. Check: the line under the header row (not next to Leave) shows the place (1ST to 4TH) and the score (`2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out): the colored square, the player number and Leave are fully visible below the island or the notch, nothing is hidden at the top, at the bottom (the home bar) or at the side when you turn the phone, and A and B are fully on the screen (REQ-FL-68). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
 4. Play Paint Grab and Sumo Bumpers with 2 to 4 phones. Check the same as items 1 to 3. In Sumo Bumpers the name tags show again in the countdown of every round.
 5. Play Marble Race with 3 or 4 phones. Check: the leader chip names the first marble (with its time after the finish); the phones show their place; a marble that has not finished shows no time. Check that the old list of names at the left is gone.
 6. Play Tilt Maze with 2 to 4 phones. Check: there is no chip during play (the maze has no score) and the phones show only `2P`.

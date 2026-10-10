@@ -17,6 +17,8 @@ var _leave_armed := 0.0   # Seconds left in which a second tap on Leave leaves (
 
 const LEAVE_ARM_SECONDS := 3.0
 const HEADER_Y := 110.0   # The vertical middle of the header row.
+const SCORE_Y := 205.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
+const INFO_Y := 50.0      # How far the latency rows and the Recenter box move down for the score row.
 const BUTTON_LIFT := 12.0        # How far the face of an arcade button stands above its lower edge.
 const BUTTON_LIFT_DOWN := 4.0    # The same while it is pressed: the button looks pressed in.
 
@@ -53,7 +55,7 @@ func _rect_leave() -> Rect2:
 
 
 func _rect_recenter() -> Rect2:
-	var top := 360.0
+	var top := 360.0 + INFO_Y
 	var h := minf(size.y * 0.30, 620.0)
 	return Rect2(60, top, size.x - 120, h)
 
@@ -148,15 +150,22 @@ func _draw() -> void:
 	var square_color: Color = c.color if online else UiTheme.BAD
 	draw_rect(square, square_color)
 	UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
-	var status := status_text(c.slot, c.score_rank, c.score_of, c.score_text) if online else Lang.t("Reconnecting...")
+	var status := "%dP" % (c.slot + 1) if online else Lang.t("Reconnecting...")
 	var name_rect := Rect2(190, HEADER_Y - 45.0, size.x - 460, 90)
-	var status_size := status_font_size(status, name_rect.size.x)
-	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, status_size)), status.to_upper(),
-			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, status_size, UiTheme.ACCENT if online else UiTheme.BAD)
+	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, 48)), status.to_upper(),
+			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, 48, UiTheme.ACCENT if online else UiTheme.BAD)
+
+	# The place and the score of this player, on a row of their own under the header (REQ-FL-67).
+	var line := score_line(c.score_rank, c.score_of, c.score_text) if online else ""
+	if line != "":
+		var line_rect := Rect2(60, SCORE_Y - 30.0, size.x - 120, 60)
+		var line_size := line_font_size(line, line_rect.size.x)
+		draw_string(f, Vector2(line_rect.position.x, UiTheme.centered_baseline(f, line_rect, line_size)), line,
+				HORIZONTAL_ALIGNMENT_LEFT, line_rect.size.x, line_size, UiTheme.TEXT)
 
 	var lat := "RTT -- ms" if c.rtt_ms < 0 else "RTT %d ms" % roundi(c.rtt_ms)
-	draw_string(f, Vector2(60, 262), lat.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 48, _lat_color(c.rtt_ms))
-	draw_string(f, Vector2(60, 316), ("%d Hz  -  TV: %s" % [roundi(c.tx_rate), c.phase]).to_upper(),
+	draw_string(f, Vector2(60, 262 + INFO_Y), lat.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 48, _lat_color(c.rtt_ms))
+	draw_string(f, Vector2(60, 316 + INFO_Y), ("%d Hz  -  TV: %s" % [roundi(c.tx_rate), c.phase]).to_upper(),
 			HORIZONTAL_ALIGNMENT_LEFT, size.x - 120, 24, UiTheme.TEXT_DIM)
 
 	# Leave: a framed text box. The first tap turns it red (REQ-FL-52).
@@ -197,21 +206,21 @@ func _draw_button(center: Vector2, label: String, bit: int, col: Color) -> void:
 			UiTheme.text_on(col))
 
 
-## The header text of a connected phone: the player number, and during a game the place and the score of this player
-## (REQ-FL-67): "2P  2ND  12". The place shows only with two or more ranked players; the score only when the TV sent one.
-static func status_text(slot: int, rank: int, of: int, score: String) -> String:
-	var out := "%dP" % (slot + 1)
+## The line under the header during a game (REQ-FL-67): the place and the score of this player, "2ND  12". The place shows
+## only with two or more ranked players; the score only when the TV sent one. Empty when there is nothing to say.
+static func score_line(rank: int, of: int, score: String) -> String:
+	var parts: Array[String] = []
 	if rank > 0 and of > 1:
-		out += "  " + Scoreboard.ordinal(rank)
+		parts.append(Scoreboard.ordinal(rank))
 	if score != "":
-		out += "  " + score
-	return out.to_upper()
+		parts.append(score)
+	return "  ".join(parts).to_upper()
 
 
-## The size of the header text: 48 px, and 40 or 32 px when a long score would not fit in `width`. Nothing is cut.
-static func status_font_size(text: String, width: float) -> int:
-	for fs in [48, 40, 32]:
-		if UiTheme.font().get_string_size(text.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x <= width:
+## The size of the score line: 64 px, and 48 or 32 px when a long score would not fit in `width`. Nothing is cut.
+static func line_font_size(text: String, width: float) -> int:
+	for fs in [64, 48, 32]:
+		if UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x <= width:
 			return fs
 	return 32
 
