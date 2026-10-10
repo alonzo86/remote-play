@@ -190,13 +190,13 @@ func _run() -> void:
 	app.go_settings()
 	await _frames(4)
 	var settings: Control = app.current_screen()
-	_check(is_instance_of(settings, TvSettings) and settings._rows.size() == 3, "Settings has the row Language")
-	settings._rows[2].pressed.emit()
+	_check(is_instance_of(settings, TvSettings) and settings._rows.size() == 6, "Settings has the row Language")
+	settings._rows[5].pressed.emit()
 	await _frames(10)
 	_check(Lang.current() == "he" and app.settings.language == "he" and app.server.language == "he" and heard == ["en", "he"],
 			"the Language row switches the UI at once and every phone follows: %s" % str(heard))
 	_check(_texts(settings).has("שפה") and _texts(settings).has("עברית"), "the Settings screen is in Hebrew at once")
-	settings._rows[2].pressed.emit()
+	settings._rows[5].pressed.emit()
 	await _frames(10)
 	_check(Lang.current() == "en" and heard == ["en", "he", "en"], "the row switches back to English")
 	# Every screen in Hebrew shows no English word (REQ-FL-63): the player name, the room code and the brand are the only Latin text.

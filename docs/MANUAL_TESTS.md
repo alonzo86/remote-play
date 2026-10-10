@@ -65,6 +65,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
 | [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-41a, 52, 53, REQ-GM-45, 46, FD-18 | Not run |  | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Not run |  | |
+| [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -674,6 +675,48 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 | 6 | Photos of the HUD of each game in Hebrew; the result menu | Not run | | | |
 | 7 | Photo of the Hebrew phone pad | Not run | | | |
 | 8 | Photos of the English TV | Not run | | | |
+
+History:
+
+- -: **Not run**. New.
+
+## Test 18
+
+### Sound and haptics
+
+Needs: 1 to 4 phones, 1 TV, a grown-up, and a child of about 5 to 8 years for item 9. Covers: REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43.
+
+New (2026-10-10). The songs, the effects and the levels are first guesses (`scripts/audio/songs.gd`). The headless tests check the data, not how it sounds. Write down what you hear.
+
+**Steps**
+
+1. Start the TV app. Check: the menu song starts by itself on the logo screen (a short wait is fine), without a click or a pop, and goes on across the Connect, Games and Settings screens without a restart.
+2. Move the cursor, press OK and Back on the remote. Check: a soft blip, a rising two-note sound, a falling two-note sound. Join and leave with a phone: a rising and a falling run. Write down if any sound is too loud, too sharp or too often.
+3. Open Settings. Check: the rows Music, Effects and Mute. Change Music with Left and Right: the song gets louder and quieter by 10 steps. Change Effects: a sample plays. Mute: everything is silent. Leave the app and start it again: the levels are kept.
+4. Change the volume of the TV and of the phone (media volume, silent mode). Check: the TV sound follows the TV only. The phone makes no sound at all and its settings change nothing.
+5. Start each game (5 games). Check: the countdown beeps at 2 and 1 and a higher beep at GO, and the game song starts at GO (write down how long after GO). The song of each game has its own mood and loops without a click. Write down which songs you like and which not.
+6. In each game, make each event of the *Sound and haptics* table of its game file (`docs/games/<id>.md`). Check: the effect plays and the phone of the player buzzes at the same time. Write down effects that are too loud, too quiet, too often or that do not fit. With 4 players, check that the effects do not turn into noise.
+7. Open the pause menu and the "phone lost" card (turn off Wi-Fi on one phone). Check: the music gets quieter and comes back with Resume, with no jump.
+8. Finish a game with a winner, with a medal (one player), and with a tie. Check: a short fanfare for a winner or a medal, a neutral phrase for a tie or "Round over", then silence on the result menu. Back to the menu: the menu song comes back.
+9. Let a child of about 5 to 8 years play a game with sound. Check: the sounds are friendly and not scary or too loud. Write down what the child says.
+10. On a phone, open **Settings** on the waiting screen and set **Haptics** to OFF. Check: the phone does not vibrate in a game, and the game plays the same. Set it to ON: it vibrates once and in games. Close the app and start it again: the choice is kept. Check that the Settings button is not in the way of Leave.
+11. Measure the delay between a picture event and its sound on the TV box (a camera at 60 fps or more): write down the value. Write down if the first song is late after the app starts (the song is made in small steps over some frames).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Note: when the song starts; clicks or pops | Not run | | | |
+| 2 | Note on each menu sound | Not run | | | |
+| 3 | Photo of the Settings rows; note on the levels | Not run | | | |
+| 4 | Note: the phone is silent | Not run | | | |
+| 5 | Note for each game: the song, how long after GO it starts | Not run | | | |
+| 6 | Note for each effect | Not run | | | |
+| 7 | Note: the music level in the pause menu | Not run | | | |
+| 8 | Note on the result sounds | Not run | | | |
+| 9 | Note: the child, the age, what happened | Not run | | | |
+| 10 | Video or note: the phone with Haptics ON and OFF | Not run | | | |
+| 11 | Value of the delay; note on the first song | Not run | | | |
 
 History:
 

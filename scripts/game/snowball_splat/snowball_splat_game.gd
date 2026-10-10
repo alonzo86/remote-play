@@ -176,6 +176,7 @@ func _throw(slot: int, area: Rect2) -> void:
 			_seq += 1
 			f.age = 0.0
 			_haptics.pulse(slot, 15, BUZZ_GAP_MS)
+			Sound.sfx("snow_throw")
 			return
 
 
@@ -202,10 +203,13 @@ func _land(f: Flight, area: Rect2) -> void:
 	var puff := _field.hit(f.to, area)
 	if puff == null:
 		_effect("poof", f.to, "", f.slot, Color.WHITE, 0.0, 1)
+		Sound.sfx("snow_miss")
 		return
 	_field.take(puff)
 	_board.add(f.slot, puff.points)
 	_haptics.pulse(f.slot, 40, BUZZ_GAP_MS)
+	Sound.sfx("snow_hit")
+	Sound.sfx("snow_points", 1.0 + 0.12 * float(f.slot))   # Each player has a pitch (docs/AUDIO_PLAN.md, section 9).
 	var k := PuffField.scale_for(area)
 	_effect("hit", PuffField.center_of(puff, area), "+%d" % puff.points, f.slot, _body_color(puff.kind, puff.color_index),
 			puff.radius * k, puff.dir)

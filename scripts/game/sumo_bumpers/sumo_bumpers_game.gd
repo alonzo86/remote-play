@@ -166,6 +166,7 @@ func _tick_play(delta: float) -> void:
 		_alive.erase(s)
 		_falling[s] = {"pos": (_bodies[s] as TiltBody).pos, "age": 0.0}
 		_haptics.pulse(s, 80, BUZZ_GAP_MS)   # REQ-SB-11
+		Sound.sfx("sumo_fall")
 	if _alive.size() <= 1:
 		_end_round(_fell)
 
@@ -183,6 +184,7 @@ func _dash(slot: int) -> void:
 	_boost_left[slot] = DASH_BOOST_TIME
 	_dash_left[slot] = arena.dash_time
 	_haptics.pulse(slot, 30, BUZZ_GAP_MS)
+	Sound.sfx("sumo_dash")
 
 
 ## REQ-SB-8: two bumpers bounce off each other. A fast hit buzzes both phones.
@@ -193,6 +195,7 @@ func _bump(a: int, b: int) -> void:
 	if TiltBody.collide(ba, bb, SumoArena.BUMP_RESTITUTION) and speed > SumoArena.BUMP_BUZZ_SPEED:
 		_haptics.pulse(a, 20, BUZZ_GAP_MS)
 		_haptics.pulse(b, 20, BUZZ_GAP_MS)
+		Sound.sfx("sumo_bump")
 
 
 ## REQ-SB-3, 4: the round is over. The last bumper (or all that fell last) gets the point.
@@ -201,6 +204,8 @@ func _end_round(fell_last: Array) -> void:
 	for s in winners:
 		_board.add(s, 1.0)
 		App.server.haptic(s, 120)
+	if not winners.is_empty():
+		Sound.sfx("sumo_round_win")
 	if winners.size() == 1:
 		banner_text = Lang.f("%s wins the round!", [player(winners[0]).player_name])
 	else:

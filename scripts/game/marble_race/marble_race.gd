@@ -125,6 +125,7 @@ func _step(dt: float) -> void:
 		if r.finish_time < 0.0 and r.arc >= finish_arc:
 			r.finish_time = _round.time
 			App.server.haptic(r.slot, 120)
+			Sound.sfx("marble_finish")
 			if _first_finish_time < 0.0:
 				_first_finish_time = _round.time
 				_winner = r.slot
@@ -143,7 +144,7 @@ func _hit_wall(r: Racer) -> void:
 	var vn := r.vel.dot(n)
 	if vn > 0.0:
 		r.vel -= n * vn * (1.0 + WALL_BOUNCE)
-		_buzz(r, vn)
+		_buzz(r, vn, "marble_wall_hard" if vn > 2.0 * HAPTIC_MIN_SPEED else "marble_wall")
 
 
 func _hit_bumpers(r: Racer) -> void:
@@ -158,7 +159,7 @@ func _hit_bumpers(r: Racer) -> void:
 		var vn := r.vel.dot(n)
 		if vn < 0.0:
 			r.vel -= n * vn * (1.0 + BUMPER_BOUNCE)
-			_buzz(r, -vn)
+			_buzz(r, -vn, "marble_bumper")
 
 
 func _hit_marbles(a: Racer, b: Racer) -> void:
@@ -175,13 +176,15 @@ func _hit_marbles(a: Racer, b: Racer) -> void:
 		var j := -(1.0 + MARBLE_BOUNCE) * rel * 0.5   # Equal mass.
 		a.vel -= n * j
 		b.vel += n * j
-		_buzz(a, -rel)
+		_buzz(a, -rel, "marble_marble")
 		_buzz(b, -rel)
 
 
-func _buzz(r: Racer, speed: float) -> void:
+func _buzz(r: Racer, speed: float, sound := "") -> void:
 	if speed >= HAPTIC_MIN_SPEED:
 		_haptics.pulse(r.slot, 20, HAPTIC_COOLDOWN_MS)
+		if sound != "":
+			Sound.sfx(sound)
 
 
 func _check_end() -> void:

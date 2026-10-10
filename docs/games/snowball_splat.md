@@ -113,6 +113,18 @@ Values that change how the game feels. Tune them on a device (Test 10). First va
 - Are the Puffs slow and big enough for a child of 5 to 6 years? Are they too slow for an adult? The speeds, sizes, medal tiers and the 60 s are first guesses.
 - The name of the game and of the creatures (Puff) is a first idea.
 
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `snowball_splat` plays from "GO": Light and playful with bell tones, 124 BPM, F major. The countdown, pause and result sounds come from the base class.
+
+| ID | Effect | When | Sound | Status |
+|----|--------|------|-------|--------|
+| REQ-SS-S1 | `snow_throw` | A press on A throws a snowball (haptic 15 ms). | Fwip | Device (test 18) |
+| REQ-SS-S2 | `snow_hit`, `snow_points` | A snowball takes a Puff (haptic 40 ms). | Splat and boing, then a ping. The ping pitch rises with the slot, so a player hears their own | Device (test 18) |
+| REQ-SS-S3 | `snow_miss` | A snowball misses. | A very quiet puff. No negative sound (REQ-GM-81) | Device (test 18) |
+
+Haptics on the phone of the player: Countdown end: 60 ms; Throw: 15 ms; Hit: 40 ms; Round end: 400 ms for the winners. A Puff makes no sound of its own.
+
 ## Languages (REQ-GM-47o)
 
 The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer). The game world is not mirrored.

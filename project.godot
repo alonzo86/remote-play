@@ -30,6 +30,7 @@ boot_splash/use_filter=true
 [autoload]
 
 Role="*res://scripts/core/role.gd"
+Sound="*res://scripts/audio/audio_manager.gd"
 App="*res://scripts/app.gd"
 
 [display]

@@ -56,8 +56,11 @@ Look and sound
 - REQ-GM-40: Text and important shapes stay inside the 60 px safe margin of the 1920x1080 screen.
 - REQ-GM-41: Text on the TV is 28 px or larger (all text, also hints and chips; the numbers on a player object are not text), and it has good contrast with the background (`UiTheme` colors).
 - REQ-GM-42: A game uses `UiTheme` colors, the shell fonts, and mostly shapes made in code. Image, model and font files are allowed when `docs/TV_FLOW.md` (FD-9, FD-13) allows them. A game states its own asset files in its requirements file.
-- REQ-GM-43: Important events give haptic feedback on the phone of the player: start, hit, goal.
+- REQ-GM-43: Important events give haptic feedback on the phone of the player: start, hit, goal. The game file lists the scenes with a haptic (a "Sound and haptics" section). A player can turn haptics off on the phone (REQ-FL-66), so a haptic never carries information alone.
   Repeated events have a cool-down of 100 ms or more. Short pulses are 15 to 60 ms. A big event can be longer. `Haptics.pulse()` (`scripts/game/haptics.gd`) keeps the cool-down for each slot.
+- REQ-GM-49a: A game makes sound only with `Sound.sfx(id)` of `scripts/audio/audio_manager.gd` (the effects are in `scripts/audio/songs.gd`). It does not make its own audio players. The song of the game has the id of the game and starts at "GO" (the base class does this). The base class plays the countdown, pause and result sounds (REQ-FL-65).
+- REQ-GM-49b: Every event with a haptic should also have a sound effect, and the game file lists them. No sound is scary or sad (REQ-GM-81): a miss, a fall and a loss are funny, soft or neutral. An effect is 0.5 s or shorter (a fanfare 2 s). A repeated event is quiet and has a gap (the manager drops the same effect inside 40 ms).
+- REQ-GM-49c: The sound is for the TV only. The phone gets haptics (REQ-GM-43), and the game works the same with sound muted or haptics off.
 - REQ-GM-44: The meaning of colors is the same in all games: accent = title or number, OK = good, BAD = danger.
 
 Visual language (decision FD-14 in `docs/TV_FLOW.md`). Three tiers:

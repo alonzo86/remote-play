@@ -101,6 +101,20 @@ Values that change how the game feels. Tune them on a device (Test 14). First va
 - Does the blob feel good, or does it need a stronger damping so it is easy to steer for a child?
 - Should the blobs also paint a ring around them (a bigger brush) on Easy, so a child fills the floor faster?
 
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `paint_grab` plays from "GO": Cheerful and bouncy, 128 BPM, C major. The countdown, pause and result sounds come from the base class.
+
+| ID | Effect | When | Sound | Status |
+|----|--------|------|-------|--------|
+| REQ-PG-S1 | `paint_tile` | A blob paints a tile. | Soft plip | Device (test 18) |
+| REQ-PG-S2 | `paint_steal` | A blob takes a tile of another color (haptic 20 ms, REQ-PG-12). | Pop with a small fall | Device (test 18) |
+| REQ-PG-S3 | `paint_bounce` | Two blobs touch (one sound for one touch). | Rubber bwop | Device (test 18) |
+| REQ-PG-S4 | `paint_edge` | A blob hits the edge faster than 250 px/s. | Quiet tok | Device (test 18) |
+| REQ-PG-S5 | `paint_lead` | In the last 10 s, another blob takes the lead. | Two-note alert | Device (test 18) |
+
+Haptics on the phone of the player: Countdown end: 60 ms; Taking a tile: 20 ms with a gap; Round end: 400 ms for the winners. Blobs that touch make one `paint_bounce`, a fast hit at the edge makes `paint_edge` and, in the last 10 s, another blob taking the lead makes `paint_lead`.
+
 ## Languages (REQ-GM-47o)
 
 The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer). The game world is not mirrored.

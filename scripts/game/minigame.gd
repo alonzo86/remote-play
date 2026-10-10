@@ -49,6 +49,8 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	participants = App.server.connected_slots()
 	App.server.set_phase("playing", participants)
+	Sound.duck(false)
+	Sound.music_at_go(Registry.id_of_script(get_script()))   # The song starts at GO (REQ-FL-65a).
 	if _pixel_world():
 		_build_pixel_view()
 	_game_ready()
@@ -228,6 +230,8 @@ func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	close_menu()
 	_menu_open = true
 	_menu_kind = "menu"
+	Sound.duck(true)
+	Sound.sfx("pause")
 	var center := CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_menu_box = center
@@ -301,6 +305,8 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 		entries.append(["Settings", App.go_game_settings.bind(id)])   # REQ-GM-95
 	entries.append(["Back to menu", App.go_menu])
 	open_menu(heading, entries, rows)
+	Sound.stop_music()
+	Sound.sfx("tie" if heading in ["Tie!", "Round over"] else "win")
 
 
 ## The buttons of the open menu (tests use it).
@@ -313,6 +319,9 @@ func menu_buttons() -> Array[Button]:
 
 
 func close_menu() -> void:
+	if _menu_open:
+		Sound.duck(false)
+		Sound.sfx("resume")
 	_menu_open = false
 	_menu_kind = ""
 	if _menu_box != null:

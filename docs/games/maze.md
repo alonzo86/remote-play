@@ -43,6 +43,17 @@ mean fewer loops and a more complex maze. Every maze can be solved at every diff
 
 `TILT_ACCEL`, `FRICTION`, `MAX_SPEED`, `RESTITUTION`, `DEADZONE` in `scripts/game/maze/maze_game.gd`.
 
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `maze` plays from "GO": Calm and curious, 120 BPM, A minor. The countdown, pause and result sounds come from the base class.
+
+| ID | Effect | When | Sound | Status |
+|----|--------|------|-------|--------|
+| REQ-MZ-S1 | `maze_bump` | A ball touches a wall faster than the buzz limit (same gate as the haptic). | Short low tick | Device (test 18) |
+| REQ-MZ-S2 | `maze_exit` | A ball reaches the exit (haptic 400 ms). | Rising run | Device (test 18) |
+
+Haptics on the phone of the player: Countdown end: 60 ms (all phones); Wall hit: 20 ms with `HIT_BUZZ_MS` gap; Exit: 400 ms for the winner. Later balls make no sound of their own: only the first ball in the exit ends the round.
+
 ## Languages (REQ-GM-47o)
 
 The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer). The game world is not mirrored.

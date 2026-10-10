@@ -15,6 +15,8 @@ const COUNTDOWN := 3.0
 const REF_TILE := 100.0         # The simulation runs on a floor of 100 px tiles; the drawing is scaled to the screen (REQ-GM-13).
 const BLOB_R := 34.0
 const BUZZ_GAP_MS := 150        # REQ-PG-12.
+const EDGE_SOUND_SPEED := 250.0   # px/s. A slower hit at the edge makes no sound.
+const LEAD_SOUND_TIME := 10.0     # s. The lead alert is in the last seconds.
 const POP_TIME := 0.15          # A painted tile grows and goes back in this time (REQ-PG-16).
 const HINT_TIME := 4.0
 const BOARD_TOP := 150.0        # The floor is the screen inside the margin, under the HUD.
@@ -43,6 +45,8 @@ var difficulty := "medium"
 
 var floor_map: PaintFloor
 var _round := RoundClock.new(COUNTDOWN, ROUND_TIME)
+var _touching := {}     # Pairs of blobs that touch now (one sound for one touch).
+var _leader := -1       # The blob that has the most tiles in the last seconds.
 var _board: Scoreboard
 var _bodies := {}                 # slot -> TiltBody
 var _haptics := Haptics.new()
@@ -87,18 +91,38 @@ func _game_tick(delta: float) -> void:
 	var bounds := Rect2(Vector2.ZERO, floor_map.size())
 	for s in _bodies:
 		var b: TiltBody = _bodies[s]
-		b.step(delta, player(s).tilt(), bounds)
-	var list: Array = _bodies.values()
-	for i in list.size():
-		for j in range(i + 1, list.size()):
-			TiltBody.collide(list[i], list[j])
+		if b.step(delta, player(s).tilt(), bounds) > EDGE_SOUND_SPEED:
+			Sound.sfx("paint_edge")
+	var slots: Array = _bodies.keys()
+	for i in slots.size():
+		for j in range(i + 1, slots.size()):
+			var pair: int = int(slots[i]) * 4 + int(slots[j])
+			if TiltBody.collide(_bodies[slots[i]], _bodies[slots[j]]):
+				if not _touching.has(pair):
+					_touching[pair] = true
+					Sound.sfx("paint_bounce")   # One sound for one touch, not one for every frame.
+			else:
+				_touching.erase(pair)
 	for s in _bodies:
 		_paint_under(s)
+	_lead_sound()
 	for i in _pops.size():
 		if _pops[i] > 0.0:
 			_pops[i] = maxf(_pops[i] - delta, 0.0)
 	if _round.is_time_up():
 		_finish()
+
+
+## In the last seconds of the round, a short alert when another blob takes the lead (docs/AUDIO_PLAN.md, section 4.3).
+func _lead_sound() -> void:
+	if _round.remaining() > LEAD_SOUND_TIME:
+		return
+	var w := _board.winners()
+	if w.size() != 1:
+		return
+	if _leader >= 0 and w[0] != _leader:
+		Sound.sfx("paint_lead")
+	_leader = w[0]
 
 
 ## REQ-PG-4: the blob paints the tile under its middle.
@@ -111,6 +135,7 @@ func _paint_under(slot: int) -> void:
 	if result == PaintFloor.Result.SAME:
 		return
 	_pops[c.y * floor_map.cols + c.x] = POP_TIME
+	Sound.sfx("paint_tile" if result != PaintFloor.Result.TAKEN else "paint_steal")
 	_board.set_score(slot, floor_map.count(slot))
 	if result == PaintFloor.Result.TAKEN:
 		if _bodies.has(before):

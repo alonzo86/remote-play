@@ -142,6 +142,7 @@ func _show_description(game: Dictionary) -> void:
 func _on_tile(game: Dictionary) -> void:
 	var n: int = App.server.connected_slots().size()
 	if not Registry.accepts(game, n):
+		Sound.sfx("denied")
 		return # The tile shows the reason in yellow under its title (REQ-FL-14).
 	App.last_game = String(game.id)
 	if GameSettings.has_view(game):

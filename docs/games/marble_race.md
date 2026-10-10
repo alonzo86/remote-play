@@ -105,6 +105,19 @@ In `scripts/game/marble_race/marble_race.gd` unless it says otherwise. Tune them
 - Is the edge arrow (REQ-MR-42) clear enough on a TV? Other options: a smaller marble view, or pull the last marble forward.
 - Should the best time of each track be saved? (The results show all finish times. Saving waits until players are identified.)
 
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `marble_race` plays from "GO": Fast and driving, 150 BPM, E minor. The countdown, pause and result sounds come from the base class.
+
+| ID | Effect | When | Sound | Status |
+|----|--------|------|-------|--------|
+| REQ-MR-S1 | `marble_wall`, `marble_wall_hard` | A marble hits a wall; the hard one above twice the buzz speed. | Clack, higher when harder | Device (test 18) |
+| REQ-MR-S2 | `marble_bumper` | A marble hits a post. | Boing (pitch slide up) | Device (test 18) |
+| REQ-MR-S3 | `marble_marble` | Two marbles touch. | Lower clack | Device (test 18) |
+| REQ-MR-S4 | `marble_finish` | A marble crosses the line (haptic 120 ms). | Rising run | Device (test 18) |
+
+Haptics on the phone of the player: Countdown end: 60 ms; Wall, post or marble hit above the buzz speed: 20 ms with a gap; Finish: 120 ms. A post is a bumper: it plays `marble_bumper`.
+
 ## Languages (REQ-GM-47o)
 
 The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer); the finish text, the timer and the track name use `Shell.mx()`. The game world is not mirrored.
