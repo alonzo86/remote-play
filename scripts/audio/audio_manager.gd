@@ -11,6 +11,7 @@ signal sfx_played(id: String)
 const POOL_SIZE := 8
 const MIN_GAP_MS := 40          # The same effect twice in this time is one sound.
 const DUCK := 0.3               # Music level under a menu (a share of the full level).
+const WAIT_FOR_GO := 3600.0      # Seconds: "until the countdown ends".
 const FADE := 0.5               # Seconds of a music fade in or out.
 const SILENT_DB := -60.0
 const STEP_USEC := 3000        # Time a frame may spend on making a song.
@@ -109,6 +110,18 @@ func music(id: String, delay := 0.0) -> void:
 		_job[id] = {"events": events, "buf": buf, "pcm": pcm, "mixed": 0, "converted": 0}
 
 
+## Prepares the song of a game: it is made now, and it starts at GO (`start_queued_music()`, called by `RoundClock`).
+## A song that plays already (a restart) goes on.
+func music_at_go(id: String) -> void:
+	music(id, WAIT_FOR_GO)
+
+
+## GO: the queued song starts now (REQ-FL-65a).
+func start_queued_music() -> void:
+	if _start_ms > Time.get_ticks_msec():
+		_start_ms = Time.get_ticks_msec()
+
+
 func stop_music() -> void:
 	wanted_music = ""
 	if enabled and _music.playing:
@@ -178,7 +191,7 @@ func sfx(id: String, pitch := 1.0) -> bool:
 	var now := Time.get_ticks_msec()
 	if _last_ms.has(id) and now - int(_last_ms[id]) < MIN_GAP_MS:
 		return false
-	var slot := _free_player(now)
+	var slot := _free_player()
 	if slot < 0:
 		return false
 	_last_ms[id] = now
@@ -195,7 +208,7 @@ func sfx(id: String, pitch := 1.0) -> bool:
 
 
 ## The index of a free player, or the oldest player with an effect that may be cut, or -1.
-func _free_player(_now: int) -> int:
+func _free_player() -> int:
 	var oldest := -1
 	for i in _pool.size():
 		if not _pool[i].playing:

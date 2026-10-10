@@ -142,6 +142,45 @@ func _run() -> void:
 			"a free tile does not buzz, a take buzzes, and a second take within 150 ms does not buzz again (REQ-PG-12)")
 	await _frames(3)
 	_check(game._pops[some.y * game.floor_map.cols + some.x] > 0.0, "a painted tile pops (REQ-PG-16)")
+	# The sounds of the blobs (docs/AUDIO_PLAN.md, section 4.3).
+	var sound: Node = root.get_node("Sound")
+	var heard: Array[String] = []
+	var listen := func(id: String): heard.append(id)
+	sound.sfx_played.connect(listen)
+	await create_timer(0.1).timeout   # The same effect twice in 40 ms is one sound.
+	game._bodies[0].pos = Vector2(-5.0, 300.0)
+	game._bodies[0].vel = Vector2(-800.0, 0.0)
+	game._game_tick(0.016)
+	_check(heard.has("paint_edge"), "a fast hit at the edge makes a sound: %s" % str(heard))
+	heard.clear()
+	game._bodies[0].pos = Vector2(600.0, 400.0)
+	game._bodies[1].pos = Vector2(620.0, 400.0)
+	game._bodies[0].vel = Vector2.ZERO
+	game._bodies[1].vel = Vector2.ZERO
+	game._game_tick(0.016)
+	_check(heard.count("paint_bounce") == 1, "two blobs that touch make one bounce sound: %s" % str(heard))
+	# The lead alert: only in the last 10 s, and only when the lead changes hands.
+	var saved_time: float = game._round.time
+	game._leader = -1
+	game._board.set_score(0, 10.0)
+	game._board.set_score(1, 5.0)
+	game._lead_sound()
+	heard.clear()
+	game._board.set_score(1, 20.0)
+	game._lead_sound()
+	_check(not heard.has("paint_lead"), "no lead alert before the last 10 s: %s" % str(heard))
+	game._round.time = game._round.duration - 5.0
+	game._leader = 0
+	game._lead_sound()
+	_check(heard.has("paint_lead") and game._leader == 1, "the lead changes hands in the last 10 s: an alert")
+	heard.clear()
+	game._lead_sound()
+	_check(heard.is_empty(), "the same leader again: no second alert")
+	game._round.time = saved_time
+	game._leader = -1
+	sound.sfx_played.disconnect(listen)
+	game._board.set_score(0, game.floor_map.count(0))
+	game._board.set_score(1, game.floor_map.count(1))
 
 	# A lost phone pauses the round and the clock does not run (REQ-PG-11): a phone that goes silent, like one without Wi-Fi.
 	app.server.peer_timeout_ms = 2500

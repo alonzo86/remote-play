@@ -52,4 +52,4 @@ The song `maze` plays from "GO": Calm and curious, 120 BPM, A minor. The countdo
 | REQ-MZ-S1 | `maze_bump` | A ball touches a wall faster than the buzz limit (same gate as the haptic). | Short low tick | Device (test 18) |
 | REQ-MZ-S2 | `maze_exit` | A ball reaches the exit (haptic 400 ms). | Rising run | Device (test 18) |
 
-Haptics on the phone of the player: Countdown end: 60 ms (all phones); Wall hit: 20 ms with `HIT_BUZZ_MS` gap; Exit: 400 ms for the winner. `maze_exit_other` (a shorter run for later balls) is defined but not played yet.
+Haptics on the phone of the player: Countdown end: 60 ms (all phones); Wall hit: 20 ms with `HIT_BUZZ_MS` gap; Exit: 400 ms for the winner. Later balls make no sound of their own: only the first ball in the exit ends the round.

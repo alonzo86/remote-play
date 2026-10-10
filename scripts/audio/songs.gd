@@ -156,13 +156,11 @@ static func effects() -> Dictionary:
 	# Tilt Maze.
 	fx["maze_bump"] = [_blip(180.0, 120.0, 0.04, 0.22, 0.25)]
 	fx["maze_exit"] = _run(["C5", "E5", "G5", "C6"], 0.09, 0.35)
-	fx["maze_exit_other"] = _run(["E5", "G5", "C6"], 0.09, 0.3)
 	# Marble Race.
 	fx["marble_wall"] = [_noise(5000.0, 3000.0, 0.03, 0.2), _blip(700.0, 500.0, 0.03, 0.15, 0.25)]
 	fx["marble_wall_hard"] = [_noise(6000.0, 3000.0, 0.04, 0.28), _blip(1000.0, 650.0, 0.04, 0.2, 0.25)]
 	fx["marble_bumper"] = [_blip(300.0, 900.0, 0.12, 0.33, 0.25)]
 	fx["marble_marble"] = [_noise(3000.0, 1800.0, 0.035, 0.2), _blip(400.0, 300.0, 0.035, 0.15, 0.25)]
-	fx["marble_post"] = [_blip(1760.0, 1760.0, 0.08, 0.28)]
 	fx["marble_finish"] = _run(["G5", "C6", "E6", "G6"], 0.1, 0.35)
 	# Paint Grab.
 	fx["paint_tile"] = [_blip(600.0, 900.0, 0.03, 0.22)]
@@ -179,7 +177,6 @@ static func effects() -> Dictionary:
 	fx["snow_throw"] = [_noise(6000.0, 12000.0, 0.07, 0.2)]
 	fx["snow_hit"] = [_noise(4000.0, 1500.0, 0.1, 0.28), _blip(300.0, 700.0, 0.1, 0.3, 0.25, 0.08)]
 	fx["snow_miss"] = [_noise(3000.0, 1500.0, 0.06, 0.1)]
-	fx["snow_puff"] = [_blip(900.0, 1500.0, 0.08, 0.25, 0.25)]
 	fx["snow_points"] = [_blip(1320.0, 1320.0, 0.05, 0.3), _blip(1760.0, 1760.0, 0.1, 0.3, 0.5, 0.05)]
 	return fx
 

@@ -25,7 +25,7 @@ Default: **A**, built so that C is possible (section 3.4). Music in "MIDI-like" 
 
 | Clip | Where | Mood | Length of the loop |
 |------|-------|------|--------------------|
-| `menu` | Logo (starts with the first key press or at once), Connect, Games, Settings, a game settings view | Bright, easy, slow to medium (about 112 BPM). Does not tire, because it plays for minutes | 32 bars of 4/4 (about 68 s) |
+| `menu` | Logo (starts at once; if the system blocks audio it starts at the first key), Connect, Games, Settings, a game settings view | Bright, easy, slow to medium (about 112 BPM). Does not tire, because it plays for minutes | 32 bars of 4/4 (about 68 s) |
 | `maze` | Tilt Maze | Calm and curious, a little sneaky (about 120 BPM) | 16 bars (32 s) |
 | `marble_race` | Marble Race | Fast and driving (about 150 BPM) | 16 bars (25 s) |
 | `paint_grab` | Paint Grab | Cheerful and bouncy (about 128 BPM) | 16 bars (30 s) |
@@ -135,7 +135,7 @@ Each row is one effect. "Where" names the event that the game already has (it ha
 
 | Id | When | Sound |
 |----|------|-------|
-| `maze_bump` | A ball touches a wall (with the same limit as the buzz, REQ-MZ) | A soft "tok" (40 ms, low pulse). Quiet, because it repeats |
+| `maze_bump` | A ball touches a wall (same limit as the haptic buzz, REQ-MZ-S1) | A soft "tok" (40 ms, low pulse). Quiet, because it repeats |
 | `maze_roll` | *Option*: a ball moves fast | A very quiet rolling noise. **Proposed: not built** (many balls make noise; it hides the music) |
 | `maze_exit` | One ball reaches the exit | A bright rising run (350 ms) |
 | `maze_exit_other` | The 2nd, 3rd and 4th ball reach the exit | The same run, one note shorter each time |
@@ -171,7 +171,7 @@ Each row is one effect. "Where" names the event that the game already has (it ha
 | `sumo_dash` | A bumper dashes | A "whoosh" (noise with a rising filter, 150 ms) |
 | `sumo_ready` | The dash is ready again | A tiny tick (only for the player, so it is very quiet; **proposed: not built**, 4 players make too many ticks) |
 | `sumo_shrink` | The platform shrinks | *Option*: a low rumble that grows as the platform gets small. **Proposed: built as one soft low drone**, volume by the platform size |
-| `sumo_fall` | A bumper falls over the edge | A long falling slide with a "wheee" (500 ms, pitch down), funny and not sad (REQ-SB, "WHEE!") |
+| `sumo_fall` | A bumper falls over the edge | A long falling slide with a "wheee" (500 ms, pitch down), funny and not sad (REQ-SB-S3, "WHEE!") |
 | `sumo_round_win` | A round ends with a last bumper | A short up-run (400 ms) |
 | `sumo_round_start` | A new round starts (the wait after a fall ends) | The `count`/`go` beeps |
 
@@ -207,7 +207,7 @@ Headless Godot uses the dummy audio driver: the nodes and buses work, nothing is
 | `tests/audio_songs.gd` (new) | Every registry game has a song and every effect id of its requirements file is in the effect table; no song is empty; every song has the same number of bars on each channel; no effect is longer than 2 s (fanfares) or 0.5 s (the others) |
 | `tests/smoke_tv.gd` | The buses `Music` and `SFX` exist; the Settings screen has the three rows, they change `App.settings`, and the values are saved and loaded; mute sets the bus mute; `Sound.music("menu")` starts a player and a second call with the same id does not restart it; a pause ducks and Resume restores; the result menu stops the music |
 | `tests/game_helpers.gd` | The effect pool: a 41st effect in the same 40 ms is dropped; the oldest player is taken when the pool is full; `win` is never cut |
-| `tests/smoke_*.gd` (the five games) | Each game plays its effects: the test emits the event (a hit, a fall, a throw) and checks `Sound.last_sfx` (a small log kept by the manager for tests, not used by the app) |
+| `tests/smoke_*.gd` (the five games) | Each game plays its effects: the test emits the event (a hit, a fall, a throw) and checks the signal `sfx_played` (a small log kept by the manager for tests, not used by the app) |
 | `tests/smoke_lang.gd` | The new Settings rows have Hebrew text |
 
 What a headless test cannot check, and Claude does not claim: whether it sounds good, the loudness balance, the latency, and the pops. These are manual test 18.
@@ -269,8 +269,8 @@ Built on `main`, in the Party Pop style of `main` (the arcade style stack is not
 - Differences from the plan:
   - The sample rate is **16000 Hz** (not 22050), to make the songs faster on a TV box. A song is made in steps of 3 ms a frame on the main thread (a worker thread crashed the coverage run, which counts lines); on a desktop the menu song is ready after about 1.8 s. A TV box is not measured.
   - The loops are **16 bars** (about 25 to 34 s), including the menu song (the plan said 32 bars).
-  - The game song starts 3 s after the game opens (the length of the countdown) and not from the clock of the game.
+  - The game song is made behind the countdown and starts when `RoundClock` reports GO (so a pause during the countdown moves it too).
   - `Sound` emits the signal `sfx_played(id)` that the test uses (no test-only log).
-  - Not wired yet (defined in `songs.gd`): `maze_exit_other`, `marble_post`, `paint_bounce`, `paint_edge`, `paint_lead`, `snow_puff`, `time_low`. Not built: the Sumo drone, rolling noise.
+  - Effects that are not built: `maze_exit_other`, `marble_post` and `snow_puff` (no event to hang them on), the Sumo drone and rolling noise. `paint_bounce`, `paint_edge`, `paint_lead`, `time_low` and `denied` are built.
   - The songs, effects and levels are first guesses.
   - `tools/export_audio.gd` writes every song and effect as a `.wav` file, for listening on a computer: `godot --headless --path . --script tools/export_audio.gd -- <folder>`.

@@ -100,7 +100,8 @@ func _menu_sound(event: InputEvent) -> void:
 			Sound.sfx("move")
 			return
 	if event.is_action_pressed("ui_accept"):
-		Sound.sfx("select")
+		if _screen == null or not ("start_props" in _screen):   # In a game, OK opens the pause menu, which has its own sound.
+			Sound.sfx("select")
 	elif event.is_action_pressed("ui_cancel"):
 		Sound.sfx("back")
 

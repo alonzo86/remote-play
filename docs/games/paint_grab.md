@@ -109,5 +109,8 @@ The song `paint_grab` plays from "GO": Cheerful and bouncy, 128 BPM, C major. Th
 |----|--------|------|-------|--------|
 | REQ-PG-S1 | `paint_tile` | A blob paints a tile. | Soft plip | Device (test 18) |
 | REQ-PG-S2 | `paint_steal` | A blob takes a tile of another color (haptic 20 ms, REQ-PG-12). | Pop with a small fall | Device (test 18) |
+| REQ-PG-S3 | `paint_bounce` | Two blobs touch (one sound for one touch). | Rubber bwop | Device (test 18) |
+| REQ-PG-S4 | `paint_edge` | A blob hits the edge faster than 250 px/s. | Quiet tok | Device (test 18) |
+| REQ-PG-S5 | `paint_lead` | In the last 10 s, another blob takes the lead. | Two-note alert | Device (test 18) |
 
-Haptics on the phone of the player: Countdown end: 60 ms; Taking a tile: 20 ms with a gap; Round end: 400 ms for the winners. `paint_bounce`, `paint_edge` and `paint_lead` are defined but not played yet.
+Haptics on the phone of the player: Countdown end: 60 ms; Taking a tile: 20 ms with a gap; Round end: 400 ms for the winners. Blobs that touch make one `paint_bounce`, a fast hit at the edge makes `paint_edge` and, in the last 10 s, another blob taking the lead makes `paint_lead`.

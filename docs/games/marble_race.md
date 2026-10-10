@@ -116,4 +116,4 @@ The song `marble_race` plays from "GO": Fast and driving, 150 BPM, E minor. The 
 | REQ-MR-S3 | `marble_marble` | Two marbles touch. | Lower clack | Device (test 18) |
 | REQ-MR-S4 | `marble_finish` | A marble crosses the line (haptic 120 ms). | Rising run | Device (test 18) |
 
-Haptics on the phone of the player: Countdown end: 60 ms; Wall, post or marble hit above the buzz speed: 20 ms with a gap; Finish: 120 ms. `marble_post` (a ping for passing a post) is defined but not played yet.
+Haptics on the phone of the player: Countdown end: 60 ms; Wall, post or marble hit above the buzz speed: 20 ms with a gap; Finish: 120 ms. A post is a bumper: it plays `marble_bumper`.

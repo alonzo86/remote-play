@@ -123,4 +123,4 @@ The song `snowball_splat` plays from "GO": Light and playful with bell tones, 12
 | REQ-SS-S2 | `snow_hit`, `snow_points` | A snowball takes a Puff (haptic 40 ms). | Splat and boing, then a ping. The ping pitch rises with the slot, so a player hears their own | Device (test 18) |
 | REQ-SS-S3 | `snow_miss` | A snowball misses. | A very quiet puff. No negative sound (REQ-GM-81) | Device (test 18) |
 
-Haptics on the phone of the player: Countdown end: 60 ms; Throw: 15 ms; Hit: 40 ms; Round end: 400 ms for the winners. `snow_puff` (a squeak when a Puff pops up) is defined but not played yet.
+Haptics on the phone of the player: Countdown end: 60 ms; Throw: 15 ms; Hit: 40 ms; Round end: 400 ms for the winners. A Puff makes no sound of its own.

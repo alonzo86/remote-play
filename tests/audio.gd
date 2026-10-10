@@ -48,6 +48,9 @@ func _run() -> void:
 	var app: Node = root.get_node("App")
 	await _manager(sound, app)
 	await _round_clock(sound)
+	await _time_low(sound)
+	await _game_song_at_go(sound)
+	await _denied(sound, app)
 	await _settings_rows(sound, app)
 	await _phone_haptics(app)
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -108,22 +111,28 @@ func _effects() -> void:
 		_check(fx.has(id), "the protected effect %s exists" % id)
 
 
-## Every id that the code plays exists (a typo would play nothing).
+## Every id that the code plays exists (a typo would play nothing), and every effect is played somewhere.
 func _code_uses_known_effects() -> void:
 	var known := Songs.effects()
-	var used := {}
-	var rx := RegEx.create_from_string('Sound\\.sfx\\("([a-z_0-9]+)"')
-	var rx2 := RegEx.create_from_string('"(maze|marble|paint|sumo|snow)_[a-z_0-9]+"')
+	var called := {}      # id -> file, from Sound.sfx("id") and _sound("id")
+	var named := {}       # id -> file, any string "id" outside songs.gd (an id in a condition or a parameter)
+	var rx := RegEx.create_from_string('(?:Sound\\.sfx|_sound)\\("([a-z_0-9]+)"')
 	for f in _gd_files("res://scripts"):
 		var text := FileAccess.get_file_as_string(f)
 		for m in rx.search_all(text):
-			used[m.get_string(1)] = f
-		if f.ends_with("marble_race.gd"):   # _buzz(r, v, "marble_wall") passes the id.
-			for m in rx2.search_all(text):
-				used[m.get_string(0).trim_prefix('"').trim_suffix('"')] = f
-	_check(used.size() >= 15, "the scan found the effects the games play (%d)" % used.size())
-	for id in used:
-		_check(known.has(id), "effect %s used in %s exists" % [id, String(used[id]).get_file()])
+			called[m.get_string(1)] = f
+		if not f.ends_with("songs.gd"):
+			for id in known:
+				if text.contains('"%s"' % id):
+					named[id] = f
+	_check(called.size() >= 15, "the scan found the effects the games play (%d)" % called.size())
+	for id in called:
+		_check(known.has(id), "effect %s played in %s exists" % [id, String(called[id]).get_file()])
+	var unused: Array[String] = []
+	for id in known:
+		if not named.has(id):
+			unused.append(id)
+	_check(unused.is_empty(), "every effect is played by the code: unused %s" % str(unused))
 
 
 func _gd_files(dir: String) -> Array[String]:
@@ -203,6 +212,60 @@ func _round_clock(sound: Node) -> void:
 		clock.tick(1.0)
 	sound.sfx_played.disconnect(cb)
 	_check(ids == ["count", "count", "go"], "the countdown beeps at 2, 1 and GO (got %s)" % str(ids))
+
+
+## A timed round ticks in each of the last 5 seconds, and only then.
+func _time_low(sound: Node) -> void:
+	var ids: Array[String] = []
+	var cb := func(id: String): ids.append(id)
+	sound.sfx_played.connect(cb)
+	var clock = RoundClock.new(0.0, 10.0)
+	for sec in 10:
+		await _wait(0.06)
+		clock.tick(1.0)
+	sound.sfx_played.disconnect(cb)
+	_check(ids.count("time_low") == 5, "a 10 s round ticks 5 times, in the last 5 s (got %d)" % ids.count("time_low"))
+	ids.clear()
+	sound.sfx_played.connect(cb)
+	var open = RoundClock.new(0.0, 0.0)
+	for sec in 8:
+		await _wait(0.06)
+		open.tick(1.0)
+	sound.sfx_played.disconnect(cb)
+	_check(not ids.has("time_low"), "a round with no length does not tick")
+
+
+## The song of a game is made behind the countdown and starts at GO (REQ-FL-65a), not before.
+func _game_song_at_go(sound: Node) -> void:
+	sound.stop_music()
+	await _wait(0.7)
+	sound.music_at_go("maze")
+	var t0 := Time.get_ticks_msec()
+	while not sound._streams.has("maze") and Time.get_ticks_msec() - t0 < 30000:
+		await _frames(1)
+	await _wait(0.3)
+	_check(sound._streams.has("maze") and not sound._music.playing, "the song is ready, but it waits for GO")
+	var clock = RoundClock.new(0.0, 0.0)
+	clock.time = -0.5
+	clock.tick(1.0)
+	await _frames(3)
+	_check(sound._music.playing and sound.wanted_music == "maze", "the song starts when the countdown ends")
+	sound.stop_music()
+	await _wait(0.7)
+
+
+## OK on a game that does not fit the phones plays `denied` and starts nothing.
+func _denied(sound: Node, app: Node) -> void:
+	app.go_games()
+	await _frames(3)
+	var ids: Array[String] = []
+	var cb := func(id: String): ids.append(id)
+	sound.sfx_played.connect(cb)
+	await _wait(0.1)
+	app.current_screen()._on_tile(Registry.find("sumo_bumpers"))   # It needs 2 players; none is connected.
+	sound.sfx_played.disconnect(cb)
+	_check(ids == ["denied"] and app.current_screen().get_script().resource_path.ends_with("tv_games.gd"),
+			"OK on a game that does not fit plays `denied` and stays on the Games screen")
 
 
 ## The Music and Effects rows change the setting, save it and apply it; Mute is a switch.

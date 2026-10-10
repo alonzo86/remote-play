@@ -4,6 +4,7 @@ extends RefCounted
 ## A round can have a length (`duration`, REQ-GM-71). With 0 it has no limit.
 
 const COUNTDOWN := 3.0
+const TIME_LOW_SECONDS := 5   # The last seconds of a timed round tick.
 
 var time := 0.0
 var duration := 0.0
@@ -26,12 +27,17 @@ func is_playing() -> bool:
 func tick(delta: float) -> bool:
 	var was_counting := time < 0.0
 	var before := count_number()
+	var left_before := ceili(duration - time)
 	time += delta
 	if was_counting and time >= 0.0:
 		_sound("go")
 		return true
 	if was_counting and count_number() != before:
 		_sound("count")
+	elif duration > 0.0 and not was_counting:
+		var left := ceili(duration - time)
+		if left != left_before and left >= 1 and left <= TIME_LOW_SECONDS:
+			_sound("time_low")   # A soft tick in each of the last seconds of a timed round.
 	return false
 
 
@@ -40,7 +46,10 @@ func tick(delta: float) -> bool:
 static func _sound(id: String) -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	if tree != null and tree.root.has_node("Sound"):
-		tree.root.get_node("Sound").sfx(id)
+		var sound: Node = tree.root.get_node("Sound")
+		sound.sfx(id)
+		if id == "go":
+			sound.start_queued_music()
 
 
 ## The number to show in the countdown: 3, 2, 1. It is 0 when the countdown is over.

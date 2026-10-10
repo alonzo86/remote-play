@@ -41,7 +41,7 @@ func _ready() -> void:
 	participants = App.server.connected_slots()
 	App.server.set_phase("playing", participants)
 	Sound.duck(false)
-	Sound.music(Registry.id_of_script(get_script()), 3.0)   # The song starts at GO (REQ-FL-65a).
+	Sound.music_at_go(Registry.id_of_script(get_script()))   # The song starts at GO (REQ-FL-65a).
 	_game_ready()
 	if participants.is_empty():
 		end_no_players()
