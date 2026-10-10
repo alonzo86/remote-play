@@ -82,6 +82,10 @@ func _run() -> void:
 	TvSettings = load("res://scripts/ui/tv_settings.gd")
 	TvGameSettings = load("res://scripts/ui/tv_game_settings.gd")
 	var app: Node = root.get_node("App")
+	# A saved language: the logo goes on by itself. The first start, which asks for the language, is tested in smoke_lang.gd.
+	app.settings.language = "en"
+	app.go_logo()
+	await _frames(2)
 	_check(is_instance_of(app.current_screen(), TvLogo), "TV starts on the logo screen (REQ-FL-2)")
 	_check(app.server.listening, "server is listening while the logo shows (REQ-FL-4)")
 	_check(app.server.phase == "connect", "phase is connect on the logo screen")
@@ -258,6 +262,8 @@ func _run() -> void:
 	await _frames(3)
 	var game: Control = app.current_screen()
 	_check(is_instance_of(game, MazeGame) and game.participants.size() == 2, "maze starts with 2 participants")
+	_check(game._pixel_world() and game._pixel_viewport.size == Vector2i(480, 270) and game._pixel_layer != null,
+			"the maze world is drawn in the 480x270 pixel view (REQ-MZ-7)")
 	# A phone that joins during the round waits for the next round (REQ-FL-25).
 	var late := ControllerClient.new()
 	late.player_name = "Late"
@@ -609,6 +615,13 @@ func _run() -> void:
 	_check(ss._board.score(0) == 30.0 and ss._field.puffs.size() == 1,
 			"a snowball that misses takes nothing and loses nothing (REQ-SS-5)")
 	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "poof"), "a miss makes a poof of snow")
+	_check(ss._pixel_world() and ss._pixel_viewport.size == Vector2i(480, 270),
+			"the sky is drawn in the 480x270 pixel view (REQ-SS-12)")
+	var snow_before: float = ss._snow_time
+	ss.open_menu("Paused", [["Resume", ss.close_menu]])
+	await _frames(4)
+	_check(is_equal_approx(ss._snow_time, snow_before), "the snowfall stands still while the game is paused (REQ-FL-43)")
+	ss.close_menu()
 	_check(ss._throwers[0].reload_left <= ss.RELOAD, "a miss does not make the player wait longer than the reload")
 	await _frames(8)
 	_check(haptics == [15],

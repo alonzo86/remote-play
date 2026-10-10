@@ -1,6 +1,7 @@
 extends "res://scripts/ui/menu_item.gd"
 ## A choice row of the settings view (REQ-GM-92): `Difficulty  <  Easy  >`. With the focus, Left and Right on the remote
-## change the value. The row stops at the first and last value. The arrow at an end is dim. OK does nothing.
+## change the value. The row stops at the first and last value. The arrow at an end is dim. OK does nothing. In Hebrew the row is
+## mirrored: the arrow of the previous value is at the right, so Right goes to the previous value.
 ## The focus shows as the pixel cursor in front of the row (REQ-FL-41).
 
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -29,7 +30,7 @@ func _ready() -> void:
 	add_child(h)
 	h.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	h.offset_left = UiTheme.CURSOR_UNIT * 4.0 + 24.0
-	h.offset_right = -24
+	h.offset_right = -(UiTheme.CURSOR_UNIT * 4.0 + 24.0)   # The same room at both sides: the cursor is at the right in Hebrew.
 	_name = UiKit.label(String(row.label), UiTheme.SIZE_ITEM)
 	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_name.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -76,9 +77,10 @@ func _refresh() -> void:
 
 
 func _gui_input(event: InputEvent) -> void:
+	var forward := -1 if is_layout_rtl() else 1   # The step of a press of Right.
 	if event.is_action_pressed("ui_left"):
-		move(-1)
+		move(-forward)
 		accept_event()
 	elif event.is_action_pressed("ui_right"):
-		move(1)
+		move(forward)
 		accept_event()

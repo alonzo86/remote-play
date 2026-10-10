@@ -10,6 +10,7 @@ const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
 
+var SnowGame: GDScript   # Loaded at run time: a game script needs the App autoload.
 var _checks := 0
 var _fails := 0
 
@@ -24,6 +25,7 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	SnowGame = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
 	_round_clock()
 	_haptics()
 	_shell_order()
@@ -55,6 +57,23 @@ func _pixel_world() -> void:
 	_check(Sumo.fall_scale(0.0) == 1.0 and Sumo.fall_scale(0.15) == 1.0 and Sumo.fall_scale(0.25) == 0.75
 			and Sumo.fall_scale(0.45) == 0.5 and Sumo.fall_scale(0.7) == 0.25 and Sumo.fall_scale(Sumo.FALL_TIME) == 0.0
 			and Sumo.fall_scale(5.0) == 0.0, "a fallen bumper shrinks in 4 steps and then is gone (REQ-SB-9)")
+	var life: float = SnowGame.POOF_LIFE
+	var steps := []
+	for share in [0.0, 0.4, 0.9, 5.0]:
+		steps.append(SnowGame.poof_step(life * share))
+	_check(steps == [0, 1, 2, 2], "the poof of a missed snowball grows in 3 hard steps: %s" % str(steps))
+	var peak := PI / 18.0   # sin(age * 9) is 1 here.
+	_check(SnowGame.wing_flap(20.0, peak) == Shell.WORLD_PIXEL and SnowGame.wing_flap(60.0, peak) == 8.0
+			and SnowGame.wing_flap(60.0, 0.0) == 0.0, "the wings of a small Puff still move by one world pixel (REQ-SS-12)")
+	_check(SnowGame.BADGE_R * 2.0 >= 12.0 * Shell.WORLD_PIXEL and SnowGame.CURSOR_R * 2.0 >= 12.0 * Shell.WORLD_PIXEL,
+			"the cursor and its badge are 12 world pixels or more across (REQ-GM-47m)")
+	var sky := Shell.star_field(48, 7)
+	var on_grid := true
+	for st in sky:
+		on_grid = on_grid and fmod(st.x, Shell.WORLD_PIXEL) == 0.0 and fmod(st.y, Shell.WORLD_PIXEL) == 0.0 \
+				and st.x >= 0.0 and st.x < 1920.0 and st.y >= 0.0 and st.y < 1080.0
+	_check(sky.size() == 48 and on_grid and sky == Shell.star_field(48, 7) and sky != Shell.star_field(48, 8),
+			"the star pixels are on the world pixel grid, inside the screen, and the same for the same seed")
 	var min_ball: float = SumoArena.BUMPER_R * 2.0
 	_check(min_ball >= 12.0 * Shell.WORLD_PIXEL, "a bumper is 12 world pixels or more across (REQ-GM-47m): %.0f px" % min_ball)
 	var worst := 99.0
@@ -164,7 +183,7 @@ func _score_chip() -> void:
 	_check(long_part.name == "A very long phone name", "a long name is never cut: the chip gets wider")
 	_check(w6 > Shell.score_chip_width("Phone 1", "1000"), "a longer name makes a wider chip")
 	# The row of 4 chips of the worst size leaves room for the title and the timer on a 1920 wide screen.
-	var consts: Dictionary = load("res://scripts/game/snowball_splat/snowball_splat_game.gd").get_script_constant_map()
+	var consts: Dictionary = SnowGame.get_script_constant_map()
 	var room := 1920.0 - 60.0 - (float(consts["TIMER_X"]) + float(consts["TIMER_W"]) + 20.0)
 	var row := Shell.chip_row_positions(1920.0, [270.0, 270.0, 270.0, 270.0], 36.0, 10.0, room)
 	_check(is_equal_approx(row[3].x + 270.0, 1860.0) and row[0].x >= float(consts["TIMER_X"]) + float(consts["TIMER_W"]) + 20.0

@@ -96,3 +96,7 @@ Values that change how the game feels. Tune them on a device (Test 15). First va
 - Is the shrink time right: is a round too long to wait for a bumper that fell first, and too short to play with 4 players?
 - Is a dash of 700 px/s too strong, so that a bumper can dash through the others?
 - Should a bumper that falls watch the round with a small ghost, or is the wait fine as it is?
+
+## Languages (REQ-GM-47o)
+
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer); the "Round x of y" text uses `Shell.mx()`. The game world is not mirrored.
