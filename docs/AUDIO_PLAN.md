@@ -273,3 +273,4 @@ Built on `main`, in the Party Pop style of `main` (the arcade style stack is not
   - `Sound` emits the signal `sfx_played(id)` that the test uses (no test-only log).
   - Not wired yet (defined in `songs.gd`): `maze_exit_other`, `marble_post`, `paint_bounce`, `paint_edge`, `paint_lead`, `snow_puff`, `time_low`. Not built: the Sumo drone, rolling noise.
   - The songs, effects and levels are first guesses. A tool to export them to `.wav` files for listening on a computer is not built yet.
+  - `tools/export_audio.gd` writes every song and effect as a `.wav` file, for listening on a computer: `godot --headless --path . --script tools/export_audio.gd -- <folder>`.
