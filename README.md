@@ -44,10 +44,11 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 ## Project structure
 
 ```
-project.godot            autoloads: Role, App. Main scene: scenes/boot.tscn (an empty node)
+project.godot            autoloads: Role, Sound, App. Main scene: scenes/boot.tscn (an empty node)
 export_presets.cfg       presets "tv" and "controller"
 scripts/
   app.gd                 autoload. Owns services, switches screens, settings
+  audio/                 synth.gd, songs.gd (songs and effects as data), audio_manager.gd (the Sound autoload)
   core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd
   net/                   tv_server, tv_discovery, controller_client, controller_discovery, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
