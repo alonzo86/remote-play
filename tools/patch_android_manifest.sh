@@ -18,6 +18,10 @@ if [ ! -f "$MANIFEST" ]; then
 	exit 1
 fi
 
+# A build template made before the rename to Wobble (FD-21) has the plugin under the old package. Remove it, so the
+# app cannot load an old copy of the plugin.
+rm -rf "$BUILD/src/main/java/com/example/remoteplay"
+
 # Banner image (320x180) for the Android TV home screen, and the plugin source.
 mkdir -p "$BUILD/res/drawable-xhdpi" "$BUILD/src/main/java/com/example/wobble"
 cp "$ROOT/assets/icons/banner.png" "$BUILD/res/drawable-xhdpi/banner.png"
@@ -53,6 +57,12 @@ patch(manifest, "android.software.leanback",
 patch(manifest, "CHANGE_WIFI_MULTICAST_STATE",
       lambda s: s.replace("    <application", '    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />\n\n    <application', 1),
       "multicast permission")
+
+# A manifest patched before the rename names the old plugin class: point it to the new one.
+s = open(manifest).read()
+if "com.example.remoteplay.QrScannerPlugin" in s:
+    open(manifest, "w").write(s.replace("com.example.remoteplay.QrScannerPlugin", "com.example.wobble.QrScannerPlugin"))
+    print("QR plugin class: renamed to com.example.wobble")
 
 meta = ('        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.wobble.QrScannerPlugin" />\n'
         '        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />\n')
