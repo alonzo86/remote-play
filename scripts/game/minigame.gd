@@ -137,7 +137,7 @@ func connected_participants() -> Array[int]:
 func _slot_labels(slots: Array) -> String:
 	var parts: Array[String] = []
 	for s in slots:
-		parts.append("P%d" % (int(s) + 1))
+		parts.append("%dP" % (int(s) + 1))
 	return " and ".join(parts)
 
 
@@ -164,7 +164,7 @@ func _show_hold_card(lost: Array[int]) -> void:
 		title = "%s left the game" % _slot_labels(gone) if not gone.is_empty() and gone.size() == _hold_info.size() \
 				else "%s reconnected" % _slot_labels(_hold_info.keys())
 		entries.append(["Resume", _resume_game])
-	entries.append(["\u2715  End game", request_leave, "danger"])
+	entries.append(["End game", request_leave, "danger"])
 	open_menu(title, entries, rows)
 	_menu_kind = "hold"
 
@@ -203,7 +203,7 @@ func on_back() -> void:
 ## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
 func request_leave() -> void:
 	if _in_progress():
-		open_menu("End the game?", [["Keep playing", close_menu], ["\u2715  End game", App.go_menu, "danger"]])
+		open_menu("End the game?", [["Keep playing", close_menu], ["End game", App.go_menu, "danger"]])
 	else:
 		App.go_menu()
 
@@ -220,42 +220,37 @@ func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	var center := CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_menu_box = center
-	var card := UiKit.card_panel(UiTheme.CARD, 40)
+	var card := UiKit.panel(32)
 	center.add_child(card)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 18)
 	card.add_child(box)
-	var l := UiKit.title(title, 64, UiTheme.CARD_TEXT)
+	var l := UiKit.title(title, 48)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(l)
 	for r in rows:
 		box.add_child(_menu_row(String(r.text), r.color))
-	var first: Button = null
-	for e in entries:
-		var b := UiKit.button(String(e[0]), e[1], first == null, 40)
-		if e.size() > 2 and e[2] == "danger":
-			b.theme_type_variation = "DangerButton"
-		b.custom_minimum_size = Vector2(440, 82)
-		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		box.add_child(b)
-		if first == null:
-			first = b
+	var items := UiKit.menu(entries)
+	items.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(items)
+	var first: Button = items.get_child(0)
 	add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	first.grab_focus()
 
 
-## One line of the result list: a dot in the player color, and the text.
+## One line of the result list: a square in the player color, and the text.
 func _menu_row(text: String, color: Color) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 18)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	var dot := Panel.new()
-	dot.custom_minimum_size = Vector2(40, 40)
-	dot.add_theme_stylebox_override("panel", UiTheme.card(color, UiTheme.OUTLINE, 5, 20, false))
-	row.add_child(dot)
-	row.add_child(UiKit.label(text, 40, UiTheme.CARD_TEXT))
+	var square := ColorRect.new()
+	square.color = color
+	square.custom_minimum_size = Vector2(24, 24)
+	square.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(square)
+	row.add_child(UiKit.label(text, UiTheme.SIZE_BODY))
 	return row
 
 
@@ -324,7 +319,7 @@ func _draw() -> void:
 ## 2D games draw it on the game itself. 3D games draw it on the HUD layer above the 3D view.
 func _draw_overlays(ci: CanvasItem) -> void:
 	if _menu_open:
-		ci.draw_rect(Rect2(Vector2.ZERO, size), Color(UiTheme.OUTLINE, 0.72))
+		ci.draw_rect(Rect2(Vector2.ZERO, size), Color(UiTheme.BG, 0.8))
 
 
 ## Called every frame. Subclasses with more canvas layers redraw them here.

@@ -1,5 +1,5 @@
 extends Control
-## The plain purple background (REQ-FL-45). Drawn in code.
+## The plain black background (REQ-FL-45). Drawn in code.
 ## App keeps one of these on a layer behind every screen.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")

@@ -37,9 +37,9 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 24)
 	margin.add_child(box)
 
-	box.add_child(UiKit.title("REMOTE PLAY", 92))
+	box.add_child(UiKit.title("REMOTE PLAY", 56))
 
-	_status = UiKit.label("", 38, UiTheme.TEXT, UiTheme.body_font())
+	_status = UiKit.label("", UiTheme.SIZE_BODY)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_status)
 
@@ -50,19 +50,18 @@ func _ready() -> void:
 	if shows_scan_button(os_name):
 		# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
 		var scan_text := "Scan QR code" if _qr.is_available() else "Paste TV link"
-		var scan := UiKit.button(scan_text, _on_scan_pressed, false, 48)
-		scan.theme_type_variation = "LightButton" # White: it stands out from the green TV buttons and the yellow Refresh.
+		var scan := UiKit.box_button(scan_text, _on_scan_pressed, 40)
 		scan.custom_minimum_size = Vector2(0, 150)
 		box.add_child(scan)
 
 	var head := HBoxContainer.new()
 	box.add_child(head)
-	var tv_title := UiKit.label("Discovered TVs", 40, UiTheme.TEXT_DIM, UiTheme.body_bold())
+	var tv_title := UiKit.label("Discovered TVs", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	tv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tv_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	head.add_child(tv_title)
-	var refresh := UiKit.button("Refresh", refresh_list, false, 36)
-	refresh.custom_minimum_size = Vector2(240, 96)
+	var refresh := UiKit.box_button("Refresh", refresh_list, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	refresh.custom_minimum_size = Vector2(0, 96)
 	head.add_child(refresh)
 
 	_list = VBoxContainer.new()
@@ -84,17 +83,17 @@ func _process(_delta: float) -> void:
 func _on_state(state: int) -> void:
 	match state:
 		ControllerClient.State.CONNECTING, ControllerClient.State.JOINING:
-			_status.text = "Connecting..."
+			_status.text = "CONNECTING..."
 			_status.add_theme_color_override("font_color", UiTheme.ACCENT)
 		ControllerClient.State.RECONNECTING:
-			_status.text = "Reconnecting..."
+			_status.text = "RECONNECTING..."
 			_status.add_theme_color_override("font_color", UiTheme.ACCENT)
 		_:
 			if App.last_error != "":
-				_status.text = App.last_error
-				_status.add_theme_color_override("font_color", UiTheme.BAD_TEXT)
+				_status.text = App.last_error.to_upper()
+				_status.add_theme_color_override("font_color", UiTheme.BAD)
 			else:
-				_status.text = "Looking for a TV..."
+				_status.text = "LOOKING FOR A TV..."
 				_status.add_theme_color_override("font_color", UiTheme.TEXT)
 
 
@@ -112,17 +111,17 @@ func _rebuild_list() -> void:
 	var tvs: Array = App.controller_discovery.sorted_list()
 	if tvs.is_empty():
 		var searching := Time.get_ticks_msec() < _search_until_ms
-		_list.add_child(UiKit.label("Searching..." if searching else "No TVs found", 34, UiTheme.TEXT_DIM))
+		_list.add_child(UiKit.label("Searching..." if searching else "No TVs found", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 		var hint := empty_list_hint(os_name)
 		if not searching and hint != "":
-			var hint_label := UiKit.label(hint, 34, UiTheme.TEXT_DIM)
+			var hint_label := UiKit.label(hint, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 			hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 			_list.add_child(hint_label)
 		return
 	for tv in tvs:
-		# Green, so that the Refresh button above (yellow) is not the same color. Only "<code> x/y".
-		var b := UiKit.button("%s %d/%d" % [tv.room, tv.players, tv.max],
-				func(): _join(tv.ip, tv.port, tv.room), true, 40)
+		# Only "<code> x/y".
+		var b := UiKit.box_button("%s %d/%d" % [tv.room, tv.players, tv.max],
+				func(): _join(tv.ip, tv.port, tv.room), UiTheme.SIZE_ITEM)
 		b.custom_minimum_size = Vector2(0, 130)
 		_list.add_child(b)
 

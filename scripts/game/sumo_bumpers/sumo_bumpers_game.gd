@@ -247,7 +247,6 @@ func _game_draw() -> void:
 
 func _draw_platform(c: Vector2, k: float) -> void:
 	var r := arena.radius() * k
-	draw_circle(c + UiTheme.SHADOW * 0.9, r + 12.0, UiTheme.OUTLINE)
 	draw_circle(c, r + 12.0, UiTheme.OUTLINE)
 	draw_circle(c, r, PLATFORM)
 	for f in [0.66, 0.33]:   # Rings on the platform, like a toy.

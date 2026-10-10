@@ -1,8 +1,8 @@
 # Arcade style and localization plan (FD-18, FD-19)
 
-Status: **planned**. Nothing is built yet. The code and the style requirements (`docs/TV_FLOW.md` REQ-FL-37 to 46,
-`docs/GAME_REQUIREMENTS.md` REQ-GM-45 to 48) still describe Party Pop (FD-13) until the pull request of each phase
-changes them.
+Status: **phase 1 built** (menus, phone, game shell; manual test 16 is open). Phases 2 to 5 are planned. The style requirements are in
+`docs/TV_FLOW.md` (REQ-FL-37 to 46) and `docs/GAME_REQUIREMENTS.md` (REQ-GM-45, 46); REQ-GM-47 and 48 (the game worlds) still
+describe the toy-like tier 2 rules until phase 2.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
 
 ## 1. Decision
@@ -114,7 +114,11 @@ tests, keeps every module at 80% coverage or more, and adds or changes its manua
   `docs/REQUIREMENTS.md`, `docs/GAME_REQUIREMENTS.md`, `docs/design-system/README.md`, the `review` and
   `add-minigame` skills and the `design-reviewer` agent.
 
-### Phase 1: arcade UI (TV menus, phone, game shell)
+### Phase 1: arcade UI (TV menus, phone, game shell) - built
+
+Decisions taken while building it: the description of the focused tile is in a bar under the grid and the tiles keep one size (question 1,
+default a); the gear is an OPTIONS box (as in the mockup); the in-game title is 32 px (the HUD must fit next to the timer and the chips);
+modal titles are 48 px; the slot color squares always get black text (`UiTheme.text_on()`, 4.5:1 or more on all four colors).
 
 The menus and the shell change in the same pull request, so a game never shows an old pause menu next to new menus
 (the same rule as REQ-FL-48).

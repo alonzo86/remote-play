@@ -174,8 +174,8 @@ func _run() -> void:
 	var labels: Array = []
 	for l in game._menu_box.find_children("*", "Label", true, false):
 		labels.append(l.text)
-	_check(game.is_over and buttons == ["Restart", "Settings", "Back to menu"] and labels[0] == "Sim0 wins!"
-			and labels[1].ends_with("3 points") and labels[2].ends_with("1 point"),
+	_check(game.is_over and buttons == ["RESTART", "SETTINGS", "BACK TO MENU"] and labels[0] == "SIM0 WINS!"
+			and labels[1].ends_with("3 POINTS") and labels[2].ends_with("1 POINT"),
 			"after round 3 the result menu names the winner and lists the points: %s %s" % [str(buttons), str(labels)])
 
 	# The layout (REQ-SB-16): the platform is inside the margin at two sizes, at every difficulty.
@@ -216,14 +216,14 @@ func _run() -> void:
 			"a player who leaves takes the bumper out and the match goes on with two")
 	app.server.kick(1)
 	await _frames(5)
-	_check(game.is_over and game.menu_buttons().map(func(b): return b.text).has("Back to menu"),
+	_check(game.is_over and game.menu_buttons().map(func(b): return b.text).has("BACK TO MENU"),
 			"with one player left the match is over at once")
 
 	# The game needs 2 players (REQ-GM-20): with one phone Start is dimmed and says why.
 	app.go_game_settings("sumo_bumpers")
 	await _frames(5)
 	sv = app.current_screen()
-	_check(sv.start_button.disabled and sv.reason_label.text == "Needs 2 players",
+	_check(sv.start_button.disabled and sv.reason_label.text == "NEEDS 2 PLAYERS",
 			"with one phone Start is disabled and the line says 'Needs 2 players': %s" % sv.reason_label.text)
 	for c in clients:
 		c.leave()

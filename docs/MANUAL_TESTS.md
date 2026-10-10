@@ -63,6 +63,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2 | Not run |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
 | [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
+| [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-41a, 52, 53, REQ-GM-45, 46, FD-18 | Not run |  | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -77,7 +78,7 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 
 1. Start the TV app. Check: the Android splash shows, then the logo screen with an animation (about 2.5 seconds), then the **Connect controllers** screen with a room code and a QR code. If the QR code is empty, the TV has no Wi-Fi address (the screen says so).
 2. Start the controller app on one phone. Check: the phone shows a **portrait** screen.
-3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "Ready!", and the line **Press OK to continue** shows at the bottom (there is no Continue button and no player count). Press OK. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
+3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "READY", and the line **Press OK to continue** shows at the bottom (there is no Continue button and no player count). Press OK. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
 4. Tap **Leave**, then tap the TV under **Discovered TVs**. Check: it joins (the button reads "<code> x/y", for example "KQZM 1/4", and it is green; **Refresh** is yellow). Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds.
 5. Tap **Leave**, then join with the **TV IP address**. Check: it joins.
 
@@ -87,7 +88,7 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the TV (splash, logo, Connect screen) and the phone (portrait) | Not run | | | |
 | 2 | Photo of the phone in portrait | Not run | | | |
-| 3 | Photo of TV and phone together: slot 1 'Ready!' and the line 'Press OK to continue'; then the Games screen | Retest | R1 | Chat report 2026-10-09 (no file) | R1: the owner found the Continue button redundant (it was the only focus target) and the count of players repeated the slot list. Changed on 2026-10-09 (FD-17, REQ-FL-6, 7): the button and the count are gone, and 'Press OK to continue' shows once a phone has joined. The old check cannot pass any more. Retest the new screen. |
+| 3 | Photo of TV and phone together: slot 1 'READY' and the line 'PRESS OK TO CONTINUE'; then the Games screen | Retest | R1 | Chat report 2026-10-09 (no file) | R1: the owner found the Continue button redundant (it was the only focus target) and the count of players repeated the slot list. Changed on 2026-10-09 (FD-17, REQ-FL-6, 7): the button and the count are gone, and 'PRESS OK TO CONTINUE' shows once a phone has joined. The old check cannot pass any more. Retest the new screen. |
 | 4 | Photo of the phone list with the button '<code> x/y'; note the time Refresh takes | Not run | | | |
 | 5 | Phone screenshot after joining by IP | Not run | | | |
 
@@ -230,12 +231,12 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 
 **Steps**
 
-1. With two phones joined, during the maze, switch one phone Wi-Fi off for 15 seconds, then on. Check: within about 5 seconds the TV pauses and shows the card "P2 lost connection" with **Resume without P2** and **End game**, and the phone shows "Reconnecting...". When the phone is back, the card says "P2 reconnected" with **Resume**. The game goes on only when you press **Resume**.
+1. With two phones joined, during the maze, switch one phone Wi-Fi off for 15 seconds, then on. Check: within about 5 seconds the TV pauses and shows the card "2P LOST CONNECTION" with **Resume without P2** and **End game**, and the phone shows "Reconnecting...". When the phone is back, the card says "P2 reconnected" with **Resume**. The game goes on only when you press **Resume**.
 2. Lock the phone screen for 10 seconds, then unlock. Check: the phone reconnects. (Android can stop the app in the background.)
 3. Switch the phone Wi-Fi off for 40 seconds. Check: the slot is freed. When the Wi-Fi is back, the phone joins again (maybe in a different slot).
 4. Switch one phone Wi-Fi off again and wait for the card. Choose **Resume without P2**. Check: the game continues without that player. Switch the Wi-Fi on. Check: the phone joins again as a new player and waits for the next round.
-5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "P1 lost connection" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Snowball Splat. Press Back on the card. Check: it asks "End the game?".
-6. On the phone pad, tap **Leave** once. Check: it turns red ("Again") for 3 seconds and the phone does not leave. Tap again within 3 seconds: it leaves. Check the pad buttons: A is green and B is red, both sink when pressed.
+5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "1P LOST CONNECTION" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Snowball Splat. Press Back on the card. Check: it asks "End the game?".
+6. On the phone pad, tap **Leave** once. Check: it turns red ("AGAIN") for 3 seconds and the phone does not leave. Tap again within 3 seconds: it leaves. Check the pad buttons: A is green and B is red, both sink when pressed.
 7. Phone call: with one phone in a game, call that phone from another phone and answer. Check: the game pauses with the card. End the call and go back to the controller app. Check: the phone says "Reconnecting..." and then joins again, the card says "P1 reconnected" with **Resume**, and **Resume** goes on with the game. Try a call that lasts more than 1 minute (the slot is kept 5 minutes while the game is paused). Write down how long the phone needs to reconnect after the call. (REQ-GM-30, 30a)
 
 **Results**
@@ -298,7 +299,7 @@ Needs: 1 to 2 phones, 1 TV (set to Hebrew for item 7). Covers: REQ-FL-1 to 46, R
 2. On the Games screen, with one phone joined, check that every tile shows its screenshot, title and player range, and that the text is readable from the sofa (REQ-FL-40).
 3. Open the **players badge** (OK). Check: the modal shows the slots, a QR code and the room code. Press **Remove** on a player. Check: the phone says that the host removed it and does not reconnect by itself. Join again with the QR code. Check: the slot fills again.
 4. Join a phone while a game runs. Check: the phone says "A round is running", it does not take part, and it joins the next round.
-5. Check the motion on the TV box: the logo (with its confetti), the tile growing and shrinking and the screen changes run at 60 frames per second (overlay FPS). Check that the Party Pop colors look right on your TV (not washed out, outlines visible).
+5. Check the motion on the TV box: the logo (with its confetti), the blinking prompts and the screen changes run at 60 frames per second (overlay FPS). Check that the arcade colors look right on your TV (black is black, yellow and blue are not washed out).
 6. Phone: check that the fonts and the colors match the TV on the connect, waiting and pad screens.
 7. Set the language of the TV to a language that is written from right to left (Hebrew, region Israel) and start the app. Check: every screen is in English and left to right (the QR card on the left, the title on the left, the buttons not mirrored). The phone app does the same with a phone set to Hebrew. (REQ-FL-54)
 
@@ -391,7 +392,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 5. Check the Puffs from the sofa. Check: they are big and slow enough to hit with a pointer, they are easy to tell apart (pink, cyan and green Puffs for 10 points, the smaller yellow Little Puff for 25 points), and the cursor and its number are easy to see on the dark sky. Write down if the speed is right for an adult and for a child. (REQ-SS-7, 12)
 6. Play a full round of 60 seconds alone. Write down the score. Check the medal at the end and compare with the tiers [150, 300, 450]: are they too easy or too hard? (REQ-SS-16)
 7. Play with 2 to 4 phones. Check: all players see the same Puffs. Two players throw at the same Puff: the one who threw first gets it. Check the frame rate in the debug overlay with 4 players (60 expected). (REQ-SS-11, REQ-GM-50)
-8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "P2 lost connection". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
+8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "2P LOST CONNECTION". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
 9. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint and a few seconds of play, hits some Puffs, is not frustrated or scared, and wants to play again. Write down the age and what the child said or did. (REQ-GM-80 to 84, REQ-SS-17)
 10. Open the tile of **Snowball Splat**: the settings view opens. Play one round alone on each of Easy, Medium and Hard. Check: Easy has slow Puffs and more of them, Hard has fast Puffs and fewer, Hard is a challenge but not impossible, and the medal title names the difficulty ("Silver medal! (Hard)"). Write down the score of each round to tune the tiers (Easy [170, 340, 510], Medium [150, 300, 450], Hard [120, 240, 360]).
 
@@ -590,6 +591,40 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 | 8 | Note: the child, the age, what happened | Not run | | | |
 | 9 | Note: what happened on each leave | Not run | | | |
 | 10 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
+
+History:
+
+- -: **Not run**. New.
+
+## Test 16
+
+### The arcade look (REQ-FL-37 to 46, FD-18)
+
+Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 to 8 years for item 8. Covers: REQ-FL-37 to 46, 41a, 52, 53, REQ-GM-45, 46. New, written on 2026-10-10 for phase 1 of `docs/ARCADE_STYLE_PLAN.md`. The games still draw their old worlds (phases 2 to 4): only the menus, the phone and the game shell (HUD, countdown, menus, hints) are new.
+
+**Steps**
+
+1. Sit on the sofa (about 3 m from the TV). Go through the logo, Connect, Games, Settings, a game settings view, the Players modal, the quit question, a pause menu and a result menu. Check: all text is easy to read (the smallest is 32 px), upper case, white, gray or yellow on black. Write down every text that is hard to read.
+2. Look at the text and the frames from 1 m. Check: the pixels are sharp, not blurred or smoothed, on 1080p. Do it on a 4K TV too, if you have one.
+3. Games screen with 1, 2 and 4 phones. Check: three tiles in a row, the focused tile has a yellow frame and a cursor, the description of the focused game shows in the bar under the grid, "SNOWBALL SPLAT" fits under its tile, and a game that needs more phones shows its reason in yellow.
+4. Check the menus: the cursor is in front of the focused item, a destructive item (END GAME, QUIT, REMOVE) is red with the focus, BACK is dim until it has the focus, and OK, Back and the D-pad work as before.
+5. Check the motion: PRESS OK TO CONTINUE and PRESS OK TO SKIP blink (about half a second on, half a second off), the logo drops in in steps, the confetti is square, the countdown number shrinks in steps. The overlay FPS stays at 60.
+6. Phone: connect, wait and pad screens. Check: the text is readable at arm's length, A (green) and B (red) feel like buttons, RECENTER flashes yellow, LEAVE needs two taps, and the slot color square with the slot number is at the top.
+7. Play each game with 4 phones that have long names (12 letters or more). Check: the chips of the players, the timer, the title and the hint do not hide each other or the play area. Write down which game has a problem and where. The games are restyled in phases 2 to 4: a problem here is a note for that phase.
+8. A child of 5 to 8 years joins and plays one game. Check: the child finds the focus (the cursor), reads or understands "PRESS OK", and does not say it looks scary or boring. Write down what the child says.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photos of each TV screen | Not run | | | |
+| 2 | Close photo of a title and a menu on 1080p (and 4K) | Not run | | | |
+| 3 | Photo of the Games screen with 1 and 4 phones | Not run | | | |
+| 4 | Photos of a menu with the cursor, a red item, a dim BACK | Not run | | | |
+| 5 | Video of the logo, a blinking prompt and a countdown; overlay FPS | Not run | | | |
+| 6 | Photos of the phone screens | Not run | | | |
+| 7 | Photos of the HUD of each game with 4 long names | Not run | | | |
+| 8 | Notes: what the child said | Not run | | | |
 
 History:
 

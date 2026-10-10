@@ -105,16 +105,15 @@ func _shell_layout() -> void:
 	_check(Shell.ball_metrics(24.0).outline == 6.0 and Shell.ball_metrics(20.0).outline == 6.0
 			and Shell.ball_metrics(19.0).outline == 4.0, "a ball of 40 px or more has a 6 px outline, a smaller one 4 px (REQ-GM-47b)")
 	var m: Dictionary = Shell.ball_metrics(24.0)
-	_check(m.font_size == 26 and is_equal_approx(m.baseline, 9.0) and is_equal_approx(m.shine_radius, 6.0)
-			and m.shine_offset.x < 0.0 and m.shine_offset.y < 0.0,
-			"the slot number is 26 px at radius 24, and the shine is at the top left")
+	_check(m.font_size == 24 and Shell.ball_metrics(40.0).font_size == 40 and Shell.ball_metrics(5.0).font_size == 8,
+			"the slot number is a size of the 8 px font grid: 24 px at radius 24, never under 8 px")
 
 
 ## The chip with a score: the score always shows in full, also with 4 to 6 digits and a long name (REQ-GM-41, 46).
 func _score_chip() -> void:
 	print("score chip")
-	var f: Font = load("res://scripts/ui/ui_theme.gd").body_bold()
-	var height := 58.0
+	var f: Font = load("res://scripts/ui/ui_theme.gd").font()
+	var height := 64.0
 	var all_fit := true
 	var name_ok := true
 	var widths_ok := true
@@ -123,10 +122,11 @@ func _score_chip() -> void:
 			var width := Shell.score_chip_width(player_name, score)
 			widths_ok = widths_ok and width >= 200.0
 			var parts: Dictionary = Shell.score_chip_parts(player_name, score, width, height)
-			if parts.score_x + parts.score_w > width - height * 0.3 + 0.5 or parts.score_x < parts.name_x:
+			if parts.score_x + parts.score_w > width - Shell.CHIP_PAD + 0.5 or parts.score_x < parts.name_x:
 				all_fit = false
 				print("    the score ", score, " does not fit with the name ", player_name)
-			var name_end: float = parts.name_x + f.get_string_size(parts.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x
+			var shown := String(parts.name).to_upper()
+			var name_end: float = parts.name_x + f.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, Shell.CHIP_FONT).x
 			if name_end > parts.score_x + 0.5:
 				name_ok = false
 				print("    the name ", player_name, " runs into the score ", score)

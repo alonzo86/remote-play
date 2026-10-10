@@ -57,17 +57,11 @@ func _run() -> void:
 			wanted.append_array(consts[k].filter(func(v): return v is Color))
 	wanted.append_array(Protocol.PLAYER_COLORS)
 	# Colors the theme derives in code.
-	wanted.append_array([Color(UiTheme.TEXT_DIM, 0.55), Color(UiTheme.OUTLINE, 0.72)])
+	wanted.append(Color(UiTheme.BG, 0.8))
 	# Each named token holds the value of its UiTheme constant (a swap of two values is caught).
-	var named := {"bg": UiTheme.BG, "bg-dark": UiTheme.BG_DARK, "panel-light": UiTheme.PANEL_LIGHT,
-			"button": UiTheme.BUTTON, "disabled": UiTheme.DISABLED, "disabled-edge": UiTheme.DISABLED_EDGE,
-			"disabled-text": UiTheme.DISABLED_TEXT,
-			"focus-border": UiTheme.FOCUS_BORDER, "danger": UiTheme.DANGER, "outline": UiTheme.OUTLINE, "text": UiTheme.TEXT,
-			"text-dim": UiTheme.TEXT_DIM, "accent": UiTheme.ACCENT, "ok": UiTheme.OK, "bad": UiTheme.BAD,
-			"card": UiTheme.CARD, "card-empty": UiTheme.CARD_EMPTY, "card-ready": UiTheme.CARD_READY, "slot-empty": UiTheme.SLOT_EMPTY,
-			"badge-empty": UiTheme.BADGE_EMPTY, "card-text": UiTheme.CARD_TEXT, "card-dim": UiTheme.CARD_DIM, "room": UiTheme.ROOM,
-			"shadow-ink": UiTheme.SHADOW_COLOR, "confetti-pink": UiTheme.CONFETTI[0],
-			"confetti-cyan": UiTheme.CONFETTI[1], "player-1": Protocol.PLAYER_COLORS[0],
+	var named := {"bg": UiTheme.BG, "text": UiTheme.TEXT, "text-dim": UiTheme.TEXT_DIM, "accent": UiTheme.ACCENT,
+			"frame": UiTheme.FRAME, "ok": UiTheme.OK, "bad": UiTheme.BAD, "slot-empty": UiTheme.SLOT_EMPTY,
+			"dim-layer": Color(UiTheme.BG, 0.8), "player-1": Protocol.PLAYER_COLORS[0],
 			"player-2": Protocol.PLAYER_COLORS[1], "player-3": Protocol.PLAYER_COLORS[2],
 			"player-4": Protocol.PLAYER_COLORS[3]}
 	var wrong: Array[String] = []
@@ -80,10 +74,9 @@ func _run() -> void:
 		if not known.has((c as Color).to_html(true)):
 			missing.append((c as Color).to_html(true))
 	_check(missing.is_empty(), "every UiTheme and player color is a design token (missing: %s)" % str(missing))
-	_check(_family(data, "border", "outline-w") == "%dpx" % UiTheme.OUTLINE_W, "outline width token matches UiTheme")
-	_check(_family(data, "radius", "radius-lg") == "%dpx" % UiTheme.RADIUS, "card radius token matches UiTheme")
-	_check(_family(data, "shadow", "shadow-hard").begins_with("%dpx %dpx" % [UiTheme.SHADOW.x, UiTheme.SHADOW.y]),
-			"shadow offset token matches UiTheme")
+	_check(_family(data, "border", "line-w") == "%dpx" % UiTheme.LINE, "frame line token matches UiTheme")
+	_check(data.has("color") and not data.has("radius") and not data.has("shadow"),
+			"the design system has no radius and no shadow tokens: the style has square corners and no shadows (REQ-FL-38)")
 
 	_check_outside_theme(data, by_name)
 
@@ -113,37 +106,39 @@ func _check_outside_theme(data: Dictionary, by_name: Dictionary) -> void:
 			sizes[st.name] = String(st.fontSize)
 	_check(sizes.get("body", "") == "%dpx" % theme.default_font_size, "body size token matches the theme default")
 	_check(sizes.get("button", "") == "%dpx" % theme.get_font_size("font_size", "Button"), "button size token matches the theme")
+	_check(sizes.get("title", "") == "%dpx" % UiTheme.SIZE_TITLE and sizes.get("logo", "") == "%dpx" % UiTheme.SIZE_LOGO
+			and sizes.get("countdown", "") == "%dpx" % UiTheme.SIZE_COUNTDOWN, "title, logo and countdown size tokens match the theme")
+	var on_grid := true
+	for size_name in sizes:
+		on_grid = on_grid and int(String(sizes[size_name]).trim_suffix("px")) % 8 == 0
+	_check(on_grid, "every type size is a multiple of 8, the grid of the font (REQ-FL-40)")
 	var box: StyleBoxFlat = UiTheme.card()
 	_check(_family(data, "spacing", "space-32") == "%dpx" % box.content_margin_left
 			and _family(data, "spacing", "space-14") == "%dpx" % box.content_margin_top, "card padding tokens match UiTheme.card()")
 
 
-## The chip text never sits on the player color, and it is readable on the chip (REQ-GM-46, REQ-FL-40).
+## The text colors are readable on black, and the text on a player color is readable (REQ-GM-46, REQ-FL-40).
 func _contrast_checks() -> void:
-	print("chip contrast")
-	var ok := true
+	print("contrast")
+	var palette := {"TEXT": UiTheme.TEXT, "TEXT_DIM": UiTheme.TEXT_DIM, "ACCENT": UiTheme.ACCENT, "OK": UiTheme.OK,
+			"BAD": UiTheme.BAD}
+	var low: Array[String] = []
+	for n in palette:
+		if UiTheme.contrast(palette[n], UiTheme.BG) < 4.5:
+			low.append(n)
+	_check(low.is_empty(), "every text color has a contrast of 4.5:1 or more on the black screen (low: %s)" % str(low))
+	var player_ok := true
 	for c in Protocol.PLAYER_COLORS:
-		var ratio: float = UiTheme.contrast(UiTheme.CARD_TEXT, UiTheme.CARD)
-		if ratio < 4.5:
-			ok = false
-		# The player color is a dot, so it only has to stand out from the white chip.
-		if UiTheme.contrast(c, UiTheme.CARD) < 2.0:
-			ok = false
-			print("    player color too light for the chip: ", c)
-	_check(ok, "chip text and player-color dots are readable on the white chip")
-	# An empty slot card is white at 82% over the purple background. Its text must stay readable (REQ-FL-40).
-	var dimmed := UiTheme.BG.lerp(UiTheme.CARD, 0.82)
-	_check(UiTheme.contrast(UiTheme.CARD_MUTED, dimmed) >= 4.5, "text on an empty slot card has a contrast of 4.5:1 or more")
-	_check(UiTheme.contrast(UiTheme.CARD_MUTED, UiTheme.CARD) >= 4.5,
-			"the OFF state has a contrast of 4.5:1 or more on a white card")
-	# Button roles (design review): the text of every state has 4.5:1 or more.
-	_check(UiTheme.contrast(Color.WHITE, UiTheme.DANGER) >= 4.5, "white text on the destructive button has 4.5:1 or more")
+		player_ok = player_ok and UiTheme.contrast(c, UiTheme.BG) >= 4.5
+	_check(player_ok, "every player color has a contrast of 4.5:1 or more on black (a square next to the slot number)")
 	var on_ok := true
+	var black_text := true
 	for c in Protocol.PLAYER_COLORS:
-		on_ok = on_ok and UiTheme.contrast(UiTheme.text_on(c), c) >= 3.0 # Large text needs 3:1.
-	_check(on_ok, "the number on every slot color has 3:1 or more (text_on)")
-	_check(UiTheme.text_on(Protocol.PLAYER_COLORS[2]) == UiTheme.CARD_TEXT
-			and UiTheme.text_on(Protocol.PLAYER_COLORS[0]) == Color.WHITE, "dark text on orange, white text on red")
-	_check(UiTheme.contrast(UiTheme.BAD_TEXT, UiTheme.BG) >= 4.5, "error text on the purple background has 4.5:1 or more")
+		on_ok = on_ok and UiTheme.contrast(UiTheme.text_on(c), c) >= 4.5
+		black_text = black_text and UiTheme.text_on(c) == UiTheme.BG
+	_check(on_ok, "the number on every slot color has 4.5:1 or more (text_on)")
+	_check(black_text and UiTheme.text_on(Color.BLACK) == UiTheme.TEXT, "black text on every player color, white text on black")
+	_check(UiTheme.contrast(UiTheme.BG, UiTheme.OK) >= 4.5 and UiTheme.contrast(UiTheme.BG, UiTheme.BAD) >= 4.5,
+			"black text on the A button (green) and the B button (red) has 4.5:1 or more")
 	_check(UiTheme.contrast(Color.WHITE, Color.BLACK) > 20.0 and UiTheme.contrast(Color.WHITE, Color.WHITE) < 1.01,
 			"the contrast function is right")

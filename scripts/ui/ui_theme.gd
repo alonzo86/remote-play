@@ -1,112 +1,96 @@
 extends RefCounted
-## Party Pop theme (docs/TV_FLOW.md, FD-13): chunky, saturated, sticker-like.
-## Thick dark outlines, hard shadows, rounded shapes. Fonts are in assets/fonts.
-## The old names (BG, PANEL, PANEL_LIGHT, TEXT, TEXT_DIM, ACCENT, OK, BAD) keep their roles
-## for games that draw on the dark background. The CARD colors are for white cards.
+## Arcade theme (docs/TV_FLOW.md, FD-18): "8-bit cabinet". A black screen, a small fixed palette from the NES palette,
+## one blocky pixel font, double frames, square corners, text menus with a pixel cursor. Sizes are for 1920x1080.
+## The font files are in assets/fonts. Game colors that are not in this file belong to the game (REQ-GM-48).
 
-const BG := Color("3d1a9e")          # Purple background.
-const BG_DARK := Color("2c1180")     # Info bars and dark panels.
-const PANEL := Color("2c1180")
-const PANEL_LIGHT := Color("4c2bbd")
-const TEXT := Color("ffffff")
-const TEXT_DIM := Color("d9c9ff")
-const ACCENT := Color("ffd23f")      # Yellow: titles, numbers, focus.
-const OK := Color("57cc99")
-const BAD := Color("ff4d6d")
-const OUTLINE := Color("1a0b45")     # Outline and hard shadow.
-const BUTTON := Color("7152e8")      # Button fill: lighter purple than the background, so a button stands out.
-const DISABLED := Color("c4c0cf")    # A disabled button: flat gray, no shadow (not see-through).
-const DISABLED_EDGE := Color("7d7890") # Outline of a disabled button.
-const DISABLED_TEXT := Color("4d4863") # Label of a disabled button.
-const FOCUS_BORDER := Color("000000")  # The border of the focused button (REQ-FL-41).
-const SELECTED := ACCENT               # The chosen value in the settings view: a yellow border or yellow text (REQ-GM-97).
-const CARD := Color("ffffff")
-const CARD_TEXT := Color("24104f")
-const CARD_DIM := Color("6b5a9e")
-const CHIP_OK := Color("b9f0d3")      # State chips on a card: light fill, dark text (4.5:1 or more).
-const CHIP_OK_TEXT := Color("0d5538")
-const CHIP_BAD := Color("ffd0d9")
-const CHIP_BAD_TEXT := Color("a1163a")
-const DANGER := Color("b3122f")       # Fill of a destructive button. White text: 6.9:1.
-const BAD_TEXT := Color("ff8296")     # Error and offline text on the purple background (4.5:1 or more). BAD is for shapes.
-const CARD_EMPTY := Color(1, 1, 1, 0.82)  # Fill of an empty player slot: its dark text stays readable on the purple.
-const CARD_MUTED := Color("463678")   # Text on an empty slot or an OFF switch: 4.5:1 or more on the dimmed card.
-const ROOM := Color("ff3d8b")        # Room code.
-const CARD_READY := Color("1f9d6b")  # The "Ready!" word on a card.
-const SLOT_EMPTY := Color("b9b0d6")  # Dot of an empty slot on a card.
-const BADGE_EMPTY := Color("d8d2ea") # Dot of an empty slot on the players badge.
-const CONFETTI: Array[Color] = [Color("ff5ea8"), Color("3ddcff"), Color("ffd23f")]
+const BG := Color("000000")          # Every screen background.
+const TEXT := Color("fcfcfc")        # Text and the outer frame line.
+const TEXT_DIM := Color("7c7c7c")    # Help text, WAIT, empty slots, a quiet menu item, a disabled item.
+const ACCENT := Color("f8b800")      # Titles, the room code, the focused item, PRESS OK.
+const FRAME := Color("0058f8")       # The inner frame line (not text).
+const OK := Color("00b800")          # READY, good.
+const BAD := Color("f83800")         # LOST, errors, danger.
+const DISABLED := TEXT_DIM           # A disabled item: dim text, no cursor.
+const SLOT_EMPTY := Color("3c3c3c")  # A square of an empty slot (not text).
+const CONFETTI: Array[Color] = [ACCENT, OK, FRAME]
 
-const OUTLINE_W := 6                 # Outline width in pixels at 1920x1080 (REQ-FL-38).
-const SHADOW := Vector2(6, 6)
-const SHADOW_COLOR := Color(0.10, 0.04, 0.27, 0.45)   # Lighter than the outline, so the shadow is not a second border.
-const RADIUS := 26
+# Names the games use until their own restyle (phases 2 to 4). They point to the arcade colors.
+const BG_DARK := BG
+const OUTLINE := BG                  # The dark outline of a game object.
+const CARD := BG
+const CARD_TEXT := TEXT
+const CARD_DIM := TEXT_DIM
+const CARD_MUTED := TEXT_DIM
+const SELECTED := ACCENT             # The chosen value in the settings view (REQ-GM-97).
+const FOCUS_BORDER := ACCENT
+const BAD_TEXT := BAD
+const DANGER := BAD
 
-const FONT_TITLE := "res://assets/fonts/LilitaOne-Regular.ttf"
-const FONT_BODY := "res://assets/fonts/Fredoka.ttf"
+const LINE := 6                      # The width of a frame line in pixels at 1920x1080 (REQ-FL-38).
+const OUTLINE_W := LINE
+# There are no shadows and no round corners (REQ-FL-38).
 
-static var _title_font: Font
-static var _body_font: Font
-static var _body_bold: Font
+const FONT_FILE := "res://assets/fonts/PressStart2P-Regular.ttf"
+const FONT_HEBREW := "res://assets/fonts/RemotePlayPixelHebrew.ttf"
+
+# Text sizes on the TV (REQ-FL-40): the font is an 8 px grid, so every size is a multiple of 8.
+const SIZE_BODY := 32
+const SIZE_ITEM := 40
+const SIZE_TITLE := 64
+const SIZE_LOGO := 96
+const SIZE_COUNTDOWN := 256
+
+const BLINK_S := 0.55                # A prompt is on for 0.55 s and off for 0.55 s (a hard step, REQ-FL-42).
+const CURSOR_UNIT := 5.0             # One pixel of the cursor on the TV. The cursor is 4 pixels wide and 7 high.
+
+static var _font: Font
 
 
-## Display font for titles (Lilita One). Falls back to the default font.
-static func title_font() -> Font:
-	if _title_font == null:
-		_title_font = _load_font(FONT_TITLE, 0)
-	return _title_font
+## The one font: Press Start 2P, with the project Hebrew pixel font as its fallback for Hebrew names.
+static func font() -> Font:
+	if _font == null:
+		_font = _load_font()
+	return _font
 
 
-## Body font (Fredoka medium).
-static func body_font() -> Font:
-	if _body_font == null:
-		_body_font = _load_font(FONT_BODY, 500)
-	return _body_font
-
-
-## Body font, semibold. For names and labels.
-static func body_bold() -> Font:
-	if _body_bold == null:
-		_body_bold = _load_font(FONT_BODY, 600)
-	return _body_bold
-
-
-static func _load_font(path: String, weight: int) -> Font:
-	if not ResourceLoader.exists(path):
+static func _load_font() -> Font:
+	if not ResourceLoader.exists(FONT_FILE):
 		return ThemeDB.fallback_font
-	var base: Font = load(path)
+	var base := load(FONT_FILE) as Font
 	if base == null:
 		return ThemeDB.fallback_font
-	if weight == 0:
-		return base
-	var v := FontVariation.new()
-	v.base_font = base
-	v.variation_opentype = {"weight": weight} # "wght" is ignored by Godot. The name is "weight".
-	return v
+	if ResourceLoader.exists(FONT_HEBREW):
+		var hebrew := load(FONT_HEBREW) as Font
+		if hebrew != null:
+			var chain: Array[Font] = [hebrew]
+			base.fallbacks = chain
+	return base
 
 
-## A card: fill, thick dark outline, rounded corners and a hard shadow (no blur).
-static func card(fill: Color = CARD, border: Color = OUTLINE, border_w := OUTLINE_W,
-		radius := RADIUS, shadow := true) -> StyleBoxFlat:
+## A panel: the double frame (REQ-FL-38). `padding` is the space inside the frame.
+static func frame(padding := 24, fill: Color = BG) -> StyleBox:
+	return (load("res://scripts/ui/arcade_frame.gd") as GDScript).new().setup(LINE, padding, fill, TEXT, FRAME)
+
+
+## A single frame line around a box (a game tile, a header box, a phone box). Square corners.
+static func line_box(color: Color, fill: Color = BG, width := LINE) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
 	s.bg_color = fill
-	s.set_border_width_all(border_w)
-	s.border_color = border
-	s.set_corner_radius_all(radius)
+	s.set_border_width_all(width)
+	s.border_color = color
+	s.set_content_margin_all(float(width + 8))
+	return s
+
+
+## A flat box with a border for the games (their boards and platforms). The corners stay square and there is no shadow:
+## `radius` and `shadow` stay in the signature so the games keep working until they are restyled.
+static func card(fill: Color = CARD, border: Color = OUTLINE, border_w := OUTLINE_W, _radius := 0,
+		_shadow := false) -> StyleBoxFlat:
+	var s := line_box(border, fill, border_w)
 	s.content_margin_left = 32
 	s.content_margin_right = 32
 	s.content_margin_top = 14
 	s.content_margin_bottom = 14
-	if shadow:
-		s.shadow_color = SHADOW_COLOR
-		s.shadow_size = 1
-		s.shadow_offset = SHADOW
-	return s
-
-
-## Old helper. Flat box without a shadow.
-static func box(fill: Color, border: Color = Color.TRANSPARENT, border_w := 0, radius := 8) -> StyleBoxFlat:
-	var s := card(fill, border, border_w, radius, false)
 	return s
 
 
@@ -122,94 +106,83 @@ static func _luminance(c: Color) -> float:
 	return 0.2126 * f.call(c.r) + 0.7152 * f.call(c.g) + 0.0722 * f.call(c.b)
 
 
-## The text color for a label on a fill (a slot number on a slot color): white or the dark card text,
-## whichever has more contrast. White on orange is 2.1:1, dark on orange is 8.1:1.
+## The text color for a label on a fill (a slot number on a slot color): the black screen color or the white text color,
+## whichever has more contrast.
 static func text_on(fill: Color) -> Color:
-	return Color.WHITE if contrast(Color.WHITE, fill) >= contrast(CARD_TEXT, fill) else CARD_TEXT
+	return TEXT if contrast(TEXT, fill) >= contrast(BG, fill) else BG
 
 
-## The style of one state of a button (`state`: normal, focus, pressed or disabled).
-## Focus: a thick black border and a longer shadow (the button lifts, its size stays). Pressed: the box moves onto
-## its shadow and the shadow goes (the button sinks). Disabled: flat gray.
-static func button_style(fill: Color, state := "normal", radius := RADIUS) -> StyleBoxFlat:
-	match state:
-		"focus":
-			var f := card(fill, FOCUS_BORDER, 10, radius, true)
-			f.shadow_offset = SHADOW * 1.8
-			return f
-		"pressed":
-			var p := card(fill.darkened(0.12), FOCUS_BORDER, 10, radius, false)
-			p.expand_margin_left = -SHADOW.x
-			p.expand_margin_top = -SHADOW.y
-			p.expand_margin_right = SHADOW.x
-			p.expand_margin_bottom = SHADOW.y
-			return p
-		"disabled":
-			return card(DISABLED, DISABLED_EDGE, 4, radius, false)
-	return card(fill, OUTLINE, OUTLINE_W, radius, true)
-
-
-static func _button_type(t: Theme, type: String, fill: Color, text: Color) -> void:
-	for c in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
-		t.set_color(c, type, text)
-	t.set_color("font_disabled_color", type, DISABLED_TEXT)
-	t.set_stylebox("normal", type, button_style(fill))
-	t.set_stylebox("hover", type, button_style(fill, "focus"))
-	t.set_stylebox("focus", type, button_style(fill, "focus"))
-	t.set_stylebox("pressed", type, button_style(fill, "pressed"))
-	t.set_stylebox("disabled", type, button_style(fill, "disabled"))
+## Settings of one kind of menu item: the colors of the label for each state, and the room for the cursor.
+static func _item_type(t: Theme, type: String, normal: Color, focus: Color) -> void:
+	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
+		t.set_color(c, type, normal)
+	t.set_color("font_focus_color", type, focus)
+	t.set_color("font_hover_pressed_color", type, focus)
+	t.set_color("font_disabled_color", type, DISABLED)
+	var s := StyleBoxEmpty.new()
+	s.content_margin_left = CURSOR_UNIT * 4.0 + 24.0
+	s.content_margin_right = 16.0
+	s.content_margin_top = 10.0
+	s.content_margin_bottom = 10.0
+	for st in ["normal", "hover", "focus", "pressed", "disabled"]:
+		t.set_stylebox(st, type, s)
 
 
 static func make() -> Theme:
 	var t := Theme.new()
-	t.default_font = body_font()
-	t.default_font_size = 34
-	t.set_font("font", "Label", body_font())
+	t.default_font = font()
+	t.default_font_size = SIZE_BODY
+	t.set_font("font", "Label", font())
+	t.set_font_size("font_size", "Label", SIZE_BODY)
 	t.set_color("font_color", "Label", TEXT)
-	t.set_font("font", "Button", body_bold())
-	t.set_font_size("font_size", "Button", 36)
-	# Three button colors, all with a hard shadow: yellow (default), green (the main action), red (destroys
-	# something). A focused button gets a thick black border and lifts (a longer shadow). A pressed button sinks
-	# onto its shadow. A disabled button is flat gray (REQ-FL-41, 41a, 50).
-	_button_type(t, "Button", ACCENT, CARD_TEXT)
-	t.set_type_variation("PrimaryButton", "Button")
-	_button_type(t, "PrimaryButton", OK, CARD_TEXT)
+	t.set_font("font", "Button", font())
+	t.set_font_size("font_size", "Button", SIZE_ITEM)
+	# A menu item is text with a cursor. The focused item is yellow (REQ-FL-41). A destructive item is red when it has
+	# the focus. A quiet item (Back) is dim until it has the focus.
+	_item_type(t, "Button", TEXT, ACCENT)
 	t.set_type_variation("DangerButton", "Button")
-	_button_type(t, "DangerButton", DANGER, Color.WHITE)
-	# A white button: the one action that must stand out among the colored buttons (Scan QR code).
-	t.set_type_variation("LightButton", "Button")
-	_button_type(t, "LightButton", CARD, CARD_TEXT)
-	# A purple row (a settings row, the players badge): white text on the button purple.
-	t.set_type_variation("RowButton", "Button")
-	_button_type(t, "RowButton", BUTTON, TEXT)
-	# A quiet button for "Back" on a choice screen: dark and flat. Focused, it turns light, so the black border shows.
-	t.set_type_variation("SecondaryButton", "Button")
-	_button_type(t, "SecondaryButton", Color("d8d2ea"), CARD_TEXT)
-	t.set_color("font_color", "SecondaryButton", TEXT_DIM)
-	t.set_stylebox("normal", "SecondaryButton", card(BG_DARK, Color(TEXT_DIM, 0.55), 4, RADIUS, false))
-	t.set_color("font_color", "LineEdit", CARD_TEXT)
-	t.set_color("font_placeholder_color", "LineEdit", CARD_DIM)
-	t.set_color("caret_color", "LineEdit", CARD_TEXT)
-	t.set_stylebox("normal", "LineEdit", card(CARD))
-	t.set_stylebox("focus", "LineEdit", card(CARD, ACCENT, 10))
+	_item_type(t, "DangerButton", TEXT, BAD)
+	t.set_type_variation("QuietButton", "Button")
+	_item_type(t, "QuietButton", TEXT_DIM, ACCENT)
+	t.set_color("font_color", "LineEdit", TEXT)
+	t.set_color("font_placeholder_color", "LineEdit", TEXT_DIM)
+	t.set_color("caret_color", "LineEdit", ACCENT)
+	t.set_stylebox("normal", "LineEdit", line_box(TEXT_DIM))
+	t.set_stylebox("focus", "LineEdit", line_box(ACCENT))
 	return t
 
 
 ## Draws `text` centered in `rect` on `ci`, horizontally and vertically (by the font's ascent and
-## descent, so a digit sits in the middle of a circle).
-static func draw_centered(ci: CanvasItem, font: Font, text: String, rect: Rect2, font_size: int, color: Color) -> void:
-	ci.draw_string(font, Vector2(rect.position.x, centered_baseline(font, rect, font_size)), text,
+## descent, so a digit sits in the middle of a box).
+static func draw_centered(ci: CanvasItem, f: Font, text: String, rect: Rect2, font_size: int, color: Color) -> void:
+	ci.draw_string(f, Vector2(rect.position.x, centered_baseline(f, rect, font_size)), text,
 			HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, font_size, color)
 
 
 ## The baseline y that puts the middle of a line of text (ascent to descent) at the middle of `rect`.
-static func centered_baseline(font: Font, rect: Rect2, font_size: int) -> float:
-	return rect.position.y + rect.size.y * 0.5 + (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5
+static func centered_baseline(f: Font, rect: Rect2, font_size: int) -> float:
+	return rect.position.y + rect.size.y * 0.5 + (f.get_ascent(font_size) - f.get_descent(font_size)) * 0.5
 
 
-## Scale pop for a node (a slot that fills, a button that is chosen). About 150 ms.
-static func bounce(node: Control, amount := 1.08) -> void:
-	node.pivot_offset = node.size * 0.5
-	var tw := node.create_tween()
-	tw.tween_property(node, "scale", Vector2.ONE * amount, 0.07).set_ease(Tween.EASE_OUT)
-	tw.tween_property(node, "scale", Vector2.ONE, 0.08).set_ease(Tween.EASE_IN)
+## The menu cursor, drawn as pixels (REQ-FL-41), not as a font glyph: 4 columns of `unit` px, 7, 5, 3 and 1 pixels high.
+## `at` is the middle of its left edge. With `flip` it points to the left (right to left layouts).
+static func draw_cursor(ci: CanvasItem, at: Vector2, color: Color, unit := CURSOR_UNIT, flip := false) -> void:
+	for r in cursor_rects(at, unit, flip):
+		ci.draw_rect(r, color)
+
+
+## The rectangles of the cursor (a test checks them).
+static func cursor_rects(at: Vector2, unit := CURSOR_UNIT, flip := false) -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	for col in 4:
+		var h := float(7 - 2 * col) * unit
+		var x := float(col) * unit
+		if flip:
+			x = float(3 - col) * unit
+		out.append(Rect2(at + Vector2(x, -h * 0.5), Vector2(unit, h)))
+	return out
+
+
+## Whether a blinking prompt shows at `seconds` (REQ-FL-42): on for BLINK_S, then off for BLINK_S, a hard step.
+static func blink_on(seconds: float) -> bool:
+	return fmod(maxf(seconds, 0.0), BLINK_S * 2.0) < BLINK_S

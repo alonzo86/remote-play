@@ -361,7 +361,7 @@ func _draw_edge_markers(canvas: Control) -> void:
 		canvas.draw_colored_polygon(PackedVector2Array([tip + d * 24.0, tip - d * 12.0 + side * 18.0,
 				tip - d * 12.0 - side * 18.0]), col)
 		var label_pos: Vector2 = tip - d * 40.0 - Vector2(60, -10)
-		Shell.text(canvas, label_pos, m.text, 28, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 120.0)
+		Shell.text(canvas, label_pos, m.text, 24, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 120.0)
 
 
 func _hud_draw(canvas: Control) -> void:
@@ -382,9 +382,9 @@ func _hud_draw(canvas: Control) -> void:
 	elif not is_over:
 		var lead: Racer = standings()[0]
 		var to_go := maxf(finish_arc - lead.arc, 0.0)
-		Shell.text(canvas, Vector2(0, 90), "Finish in %d m" % roundi(to_go), 44, UiTheme.ACCENT,
+		Shell.text(canvas, Vector2(0, 90), "Finish in %d m" % roundi(to_go), 40, UiTheme.ACCENT,
 				HORIZONTAL_ALIGNMENT_CENTER, canvas.size.x)
-		Shell.text(canvas, Vector2(canvas.size.x - 360, 90), "%.1f s" % _round.time, 44, UiTheme.TEXT,
+		Shell.text(canvas, Vector2(canvas.size.x - 360, 90), "%.1f s" % _round.time, 40, UiTheme.TEXT,
 				HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
 	_draw_edge_markers(canvas)
 	Shell.text(canvas, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title, 30, UiTheme.TEXT_DIM,

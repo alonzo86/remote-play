@@ -318,15 +318,13 @@ func _test_visual_rules() -> void:
 	_check(Shell.contrast(wall_c, floor_c) >= 3.0, "the maze walls can be seen on the floor")
 	_check(UiTheme.OUTLINE.v < 0.4, "the outline color is dark")
 
-	_check(UiTheme.SHADOW_COLOR.a < 1.0, "the shadow is see-through, so it is lighter than the outline")
-
 	# A name for a phone without one, and a digit centered in its circle.
 	var p := PlayerInput.new(2, {})
 	p.on_join("", "tok")
 	_check(p.player_name == "Player 3", "a phone without a name is Player N: %s" % p.player_name)
 	p.on_join("Ana", "tok")
 	_check(p.player_name == "Ana", "a given name is kept")
-	var f := UiTheme.title_font()
+	var f := UiTheme.font()
 	var base := UiTheme.centered_baseline(f, Rect2(0, 10, 54, 54), 30)
 	var mid := base - (f.get_ascent(30) - f.get_descent(30)) * 0.5
 	_check(absf(mid - 37.0) < 0.01 and base > 37.0, "the text middle is at the rect middle, the baseline below it (%.2f)" % base)
@@ -633,7 +631,7 @@ func _test_qr_scanner() -> void:
 	root.add_child(screen)
 	var scan_button: Button = null
 	for b in screen.find_children("*", "Button", true, false):
-		if b.text == "Scan QR code":
+		if b.text == "SCAN QR CODE":
 			scan_button = b
 	_check(scan_button != null, "the connect screen says Scan QR code when the plugin exists")
 	fake.calls.clear()
@@ -657,7 +655,7 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var has_paste := false
 	for b in screen.find_children("*", "Button", true, false):
-		has_paste = has_paste or b.text == "Paste TV link"
+		has_paste = has_paste or b.text == "PASTE TV LINK"
 	_check(has_paste, "without the plugin the connect screen offers Paste TV link")
 	var connect_script: GDScript = _script("res://scripts/ui/controller_connect.gd")
 	_check(not connect_script.shows_scan_button("iOS"),
@@ -666,20 +664,21 @@ func _test_connect_screen() -> void:
 			"on Android and desktop (also a Mac) the connect screen keeps the scan or paste button")
 	app.last_error = ""
 	screen._on_state(ControllerClient.State.IDLE)
-	_check(screen._status.text == "Looking for a TV...", "idle: the screen says it looks for a TV")
+	_check(screen._status.text == "LOOKING FOR A TV...", "idle: the screen says it looks for a TV")
 	screen._on_state(ControllerClient.State.CONNECTING)
-	_check(screen._status.text == "Connecting...", "connecting: the screen says so")
+	_check(screen._status.text == "CONNECTING...", "connecting: the screen says so")
 	screen._on_state(ControllerClient.State.RECONNECTING)
-	_check(screen._status.text == "Reconnecting...", "reconnecting: the screen says so")
+	_check(screen._status.text == "RECONNECTING...", "reconnecting: the screen says so")
 
 	screen._on_qr_text("hello")
-	_check(app.last_error == "This is not a Remote Play code." and screen._status.text == app.last_error,
+	_check(app.last_error == "This is not a Remote Play code." and screen._status.text == app.last_error.to_upper(),
 			"a QR code of something else is refused with a message")
 	app.last_error = ""
 	screen._on_qr_failed("cancelled")
 	_check(app.last_error == "", "cancelling the scan is not an error")
 	screen._on_qr_failed("no camera")
-	_check(app.last_error == "QR scan failed: no camera" and screen._status.text == app.last_error, "a failed scan shows the reason")
+	_check(app.last_error == "QR scan failed: no camera" and screen._status.text == app.last_error.to_upper(),
+			"a failed scan shows the reason")
 
 	screen._on_qr_text("ws://127.0.0.1:47801/kqzm")
 	_check(app.client.host == "127.0.0.1" and app.client.port == 47801 and app.client.room == "KQZM"
@@ -690,7 +689,7 @@ func _test_connect_screen() -> void:
 	_check(screen.find_children("*", "LineEdit", true, false).is_empty(), "the connect screen has no text input")
 	app.controller_discovery.forget_all()
 	screen._rebuild_list()
-	_check(_list_texts(screen) == ["No TVs found"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
+	_check(_list_texts(screen) == ["NO TVS FOUND"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
 
 	# On an iPhone: no scan or paste button, and the empty list tells how to fix the Local Network permission (REQ-FL-58, 59).
 	var ios_screen = _script("res://scripts/ui/controller_connect.gd").new()
@@ -699,9 +698,9 @@ func _test_connect_screen() -> void:
 	root.add_child(ios_screen)
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
-	_check(ios_buttons == ["Refresh"], "iPhone: the only button is Refresh: %s" % str(ios_buttons))
+	_check(ios_buttons == ["REFRESH"], "iPhone: the only button is Refresh: %s" % str(ios_buttons))
 	var ios_texts: Array = _list_texts(ios_screen)
-	_check(ios_texts.size() == 2 and ios_texts[0] == "No TVs found" and "Local Network" in ios_texts[1],
+	_check(ios_texts.size() == 2 and ios_texts[0] == "NO TVS FOUND" and "LOCAL NETWORK" in ios_texts[1],
 			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))
 	ios_screen.queue_free()
 	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
@@ -712,16 +711,16 @@ func _test_connect_screen() -> void:
 	for btn in screen._list.find_children("*", "Button", true, false):
 		tv_button = btn
 	_check(tv_button != null and tv_button.text == "QQQQ 1/4", "a detected TV is only '<code> x/y': %s" % tv_button.text)
-	var refresh_btn: Array = screen.find_children("*", "Button", true, false).filter(func(x): return x.text == "Refresh")
-	_check(refresh_btn.size() == 1 and tv_button.theme_type_variation != refresh_btn[0].theme_type_variation,
-			"the Refresh button is not the same color as the detected TVs")
+	var refresh_btn: Array = screen.find_children("*", "Button", true, false).filter(func(x): return x.text == "REFRESH")
+	_check(refresh_btn.size() == 1 and tv_button.get_theme_color("font_color") != refresh_btn[0].get_theme_color("font_color"),
+			"the Refresh button is dim and the detected TVs are white")
 	tv_button.pressed.emit()
 	_check(app.client.host == "127.0.0.9" and app.client.room == "QQQQ", "tapping a detected TV joins it")
 	app.client.leave()
 	# Refresh forgets the TVs and says it searches; a TV that beacons again comes back.
 	screen.refresh_list()
 	await process_frame
-	_check(app.controller_discovery.tvs.is_empty() and _list_texts(screen) == ["Searching..."],
+	_check(app.controller_discovery.tvs.is_empty() and _list_texts(screen) == ["SEARCHING..."],
 			"Refresh clears the list and shows Searching: %s" % str(_list_texts(screen)))
 	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
 			"max": 4, "seen_ms": Time.get_ticks_msec()}

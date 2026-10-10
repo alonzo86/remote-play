@@ -123,7 +123,7 @@ Or copy the APK to the phone and open it (allow installs from this source).
 1. Connect the TV and the phone to the **same Wi-Fi network** (best: 5 GHz).
 2. Start the TV app. After the logo it shows the **Connect controllers** screen with the room code and the QR code.
 3. Start the controller app. Tap **Scan QR code** and scan the code. (Or tap the TV under **Discovered TVs**; **Refresh** looks again.)
-4. On the TV, press OK on the Connect screen ("Press OK to continue"). Press the Menu key (or open **Settings**, the gear, and switch **Debug overlay** on) to see the latency numbers.
+4. On the TV, press OK on the Connect screen ("PRESS OK TO CONTINUE"). Press the Menu key (or open **Settings**, the OPTIONS button, and switch **Debug overlay** on) to see the latency numbers.
 5. Select **Tilt Maze**. Hold the phone flat during the countdown. Tilt to roll the ball.
    If the ball rolls the wrong way, select **Invert tilt axes** on the Settings screen.
 

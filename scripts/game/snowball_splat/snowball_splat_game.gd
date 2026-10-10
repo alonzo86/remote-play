@@ -342,7 +342,7 @@ func _draw_cursor(t: Thrower) -> void:
 	var b := c + Vector2(CURSOR_R, -CURSOR_R) * 0.95
 	draw_circle(b, BADGE_R + 4.0, UiTheme.OUTLINE)
 	draw_circle(b, BADGE_R, col)
-	draw_string(UiTheme.title_font(), b + Vector2(-BADGE_R, 8.0), str(t.slot + 1), HORIZONTAL_ALIGNMENT_CENTER,
+	draw_string(UiTheme.font(), b + Vector2(-BADGE_R, 8.0), str(t.slot + 1), HORIZONTAL_ALIGNMENT_CENTER,
 			BADGE_R * 2.0, 24, Color.WHITE)
 
 

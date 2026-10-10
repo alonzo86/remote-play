@@ -5,6 +5,7 @@ extends SceneTree
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 var _seq := [0, 0]
 
@@ -23,36 +24,31 @@ func _shot(name: String) -> void:
 	root.get_texture().get_image().save_png("user://shot_%s.png" % name)
 
 
-## One picture of every button state (normal, focused, pressed, disabled) for each color. The pressed
-## button is a toggle button that is "down", so that it draws its pressed style.
+## One picture of every menu item kind and state (normal, focused, disabled).
 func _shot_buttons() -> void:
 	var layer := ColorRect.new()
-	layer.color = Color("3d1a9e")
+	layer.color = UiTheme.BG
 	layer.size = Vector2(1920, 1080)
 	layer.theme = UiTheme.make()
 	root.add_child(layer)
-	var kinds := {"Button": "Yellow", "PrimaryButton": "Green", "DangerButton": "Red", "LightButton": "White", "RowButton": "Row"}
+	var kinds := {"": "Item", "danger": "Danger", "quiet": "Quiet"}
 	var y := 80.0
 	var focus_btn: Button = null
-	for type in kinds:
+	for role in kinds:
 		var x := 80.0
-		for state in ["normal", "focus", "pressed", "disabled"]:
-			var b := Button.new()
-			b.theme_type_variation = type
-			b.text = "%s %s" % [kinds[type], state]
-			b.toggle_mode = state == "pressed"
+		for state in ["normal", "focus", "disabled"]:
+			var b: Button = UiKit.item("%s %s" % [kinds[role], state], func(): pass, UiTheme.SIZE_ITEM, role)
 			b.disabled = state == "disabled"
 			b.position = Vector2(x, y)
-			b.custom_minimum_size = Vector2(420, 110)
-			b.size = Vector2(420, 110)
+			b.custom_minimum_size = Vector2(560, 90)
+			b.size = Vector2(560, 90)
 			layer.add_child(b)
-			if state == "pressed":
-				b.set_pressed_no_signal(true)
 			if state == "focus":
 				focus_btn = b
-				b.grab_focus()
-			x += 460.0
-		y += 190.0
+			x += 600.0
+		y += 140.0
+		if focus_btn != null:
+			focus_btn.grab_focus()
 	await _frames(5)
 	await _shot("buttons")
 	layer.queue_free()

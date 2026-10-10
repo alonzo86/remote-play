@@ -1,3 +1,3 @@
-One of the four player rows on the connect screen and in the players modal.
+One of the four player rows on the Connect screen and in the Players modal. A row has no box.
 
-Provide the slot number, color, name and state. The number on the dot is white or dark, whichever has more contrast on the slot color (dark on orange and teal). A joined row shows a green "Ready!" chip (`chip-ok`, `chip-ok-text`), a lost row has a `bad` border and a red "Lost" chip (`chip-bad`, `chip-bad-text`), an empty row is `card-empty` (82% white, no shadow) with "waiting" in `card-muted`. State is always a word as well as a color. The optional Remove button is a red `danger` button with a ✕.
+Provide the slot number, color, name and state: a 24px square in the slot color, "1P" to "4P", the name in upper case, and the state word at the right: READY in `ok`, LOST in `bad`, WAIT in `text-dim`. An empty slot has a `slot-empty` square and no name. The state is always a word as well as a color. The optional REMOVE item is a red-with-focus menu item.

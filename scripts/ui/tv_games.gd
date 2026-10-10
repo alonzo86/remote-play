@@ -1,6 +1,6 @@
 extends Control
 ## Games screen (REQ-FL-11 to 19): a grid of tiles (16:9 screenshot, title, player range), the
-## players badge, the Settings gear, and an info bar with the description of the focused game.
+## players badge, the OPTIONS button, and an info bar under the grid with the description of the focused game.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -13,7 +13,7 @@ const GearButton = preload("res://scripts/ui/gear_button.gd")
 const PlayersModal = preload("res://scripts/ui/players_modal.gd")
 
 const CONTENT_W := 1720
-const ROW_LEN := 3   # Tiles in a row: 2 normal tiles and 1 wide tile fit in CONTENT_W.
+const ROW_LEN := 3   # Tiles in a row (REQ-FL-12).
 
 var _root: VBoxContainer
 var _grid_view: Control
@@ -21,6 +21,7 @@ var _scroll: ScrollContainer
 var _tiles: Array[Button] = []
 var _badge: Button
 var _gear: Button
+var _info: Label   # The description of the focused game.
 var _modal: Control
 var _players := -1
 
@@ -56,9 +57,10 @@ func _show_grid(focus_id := "") -> void:
 	_grid_view = view
 
 	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 22)
+	head.add_theme_constant_override("separation", 32)
+	head.alignment = BoxContainer.ALIGNMENT_CENTER
 	view.add_child(head)
-	var title := UiKit.title("Choose a game", 80)
+	var title := UiKit.title("Select game")
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
 	_badge = PlayersBadge.new()
@@ -81,22 +83,32 @@ func _show_grid(focus_id := "") -> void:
 	for side in ["left", "right", "top", "bottom"]:
 		pad.add_theme_constant_override("margin_" + side, 16)
 	_scroll.add_child(pad)
-	# Rows of ROW_LEN tiles. The focused tile grows to the right and shows the description, and the tiles after it
-	# move aside (a Netflix menu, REQ-FL-12).
+	# Rows of ROW_LEN tiles (REQ-FL-12).
 	var rows := VBoxContainer.new()
-	rows.add_theme_constant_override("separation", 26)
+	rows.add_theme_constant_override("separation", 30)
 	pad.add_child(rows)
 	var row: HBoxContainer = null
 	for g in Registry.all():
 		if row == null or row.get_child_count() >= ROW_LEN:
 			row = HBoxContainer.new()
+			row.alignment = BoxContainer.ALIGNMENT_CENTER
 			row.add_theme_constant_override("separation", 30)
 			rows.add_child(row)
 		var t: Button = GameTile.new()
 		t.game = g
 		t.pressed.connect(_on_tile.bind(g))
+		t.focus_entered.connect(_show_description.bind(g))
 		row.add_child(t)
 		_tiles.append(t)
+
+	# The info bar: three lines of 32 px, so that the bar does not change its height from game to game.
+	var bar := PanelContainer.new()
+	bar.add_theme_stylebox_override("panel", UiTheme.line_box(UiTheme.TEXT_DIM))
+	view.add_child(bar)
+	_info = UiKit.label("", UiTheme.SIZE_BODY)
+	_info.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_info.custom_minimum_size = Vector2(0, 3.0 * 44.0)
+	bar.add_child(_info)
 
 	_players = -1
 	_update_fit()
@@ -121,6 +133,10 @@ func _update_fit() -> void:
 	_players = n
 	for t in _tiles:
 		t.fits = Registry.accepts(t.game, n)
+
+
+func _show_description(game: Dictionary) -> void:
+	_info.text = String(game.get("description", "")).to_upper()
 
 
 func _on_tile(game: Dictionary) -> void:
