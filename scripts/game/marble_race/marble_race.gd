@@ -372,7 +372,8 @@ func _hud_draw(canvas: Control) -> void:
 		var t := ""
 		if r.finish_time >= 0.0:
 			t = "  %.2f s" % r.finish_time
-		Shell.chip(canvas, Vector2(60, y), "%s  %s%s" % [Scoreboard.ordinal(place + 1), p.player_name, t], p.color, 400.0, 54.0)
+		var msg := "%s  %s%s" % [Scoreboard.ordinal(place + 1), p.player_name, t]
+		Shell.chip(canvas, Vector2(60, y), msg, p.color, Shell.score_chip_width(msg, "", 54.0, 400.0), 54.0)
 		y += 68.0
 		place += 1
 	if _round.is_counting():
@@ -387,5 +388,5 @@ func _hud_draw(canvas: Control) -> void:
 		Shell.text(canvas, Vector2(canvas.size.x - 360, 90), "%.1f s" % _round.time, 40, UiTheme.TEXT,
 				HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
 	_draw_edge_markers(canvas)
-	Shell.text(canvas, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title, 30, UiTheme.TEXT_DIM,
+	Shell.text(canvas, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title, 32, UiTheme.TEXT_DIM,
 			HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
