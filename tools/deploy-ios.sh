@@ -4,7 +4,7 @@
 #   Needs Xcode (xcode-select -s /Applications/Xcode.app), the Godot iOS export templates, Developer Mode on the phone,
 #   and an Apple ID signed in under Xcode > Settings > Accounts.
 #   IOS_TEAM_ID  your 10-character Apple Team ID (Xcode > Signing & Capabilities). Required for a build. It is not an e-mail address.
-#   IOS_BUNDLE_ID  optional. Change it when com.example.remoteplay.controller is taken (free accounts need a unique one).
+#   IOS_BUNDLE_ID  optional. Change it when com.example.wobble.controller is taken (free accounts need a unique one).
 #   Device: -d <id> or IOS_DEVICE. With one iPhone attached it is picked automatically (`xcrun devicectl list devices`).
 set -eu
 cd "$(dirname "$0")/.."
@@ -21,8 +21,8 @@ while [ $# -gt 0 ]; do
 done
 
 xcodebuild -version >/dev/null 2>&1 || { echo "Xcode is not active. Install Xcode, then: sudo xcode-select -s /Applications/Xcode.app" >&2; exit 1; }
-BUNDLE_ID="${IOS_BUNDLE_ID:-com.example.remoteplay.controller}"
-PROJECT=build/ios/remote-play-controller.xcodeproj
+BUNDLE_ID="${IOS_BUNDLE_ID:-com.example.wobble.controller}"
+PROJECT=build/ios/wobble-controller.xcodeproj
 DERIVED=build/ios/derived
 
 if [ -z "$DEVICE" ]; then
@@ -48,13 +48,13 @@ if [ "$BUILD" -eq 1 ]; then
 	"$GODOT" --headless --path . --export-debug controller-ios "$PROJECT"
 	# The controller is a portrait app. Godot writes landscape into Info.plist from the project setting, which the
 	# Android TV app needs, so patch only this export. Without it iOS blocks the portrait request in scripts/app.gd.
-	PLIST="$(find build/ios/remote-play-controller -maxdepth 1 -name '*-Info.plist' | head -n 1)"
+	PLIST="$(find build/ios/wobble-controller -maxdepth 1 -name '*-Info.plist' | head -n 1)"
 	[ -n "$PLIST" ] || { echo "Info.plist not found in the export." >&2; exit 1; }
 	for KEY in UISupportedInterfaceOrientations UISupportedInterfaceOrientations~ipad; do
 		/usr/libexec/PlistBuddy -c "Delete :$KEY" "$PLIST" 2>/dev/null || true
 		/usr/libexec/PlistBuddy -c "Add :$KEY array" -c "Add :$KEY:0 string UIInterfaceOrientationPortrait" "$PLIST"
 	done
-	xcodebuild -project "$PROJECT" -scheme remote-play-controller -configuration Debug \
+	xcodebuild -project "$PROJECT" -scheme wobble-controller -configuration Debug \
 		-destination "id=$DEVICE" -derivedDataPath "$DERIVED" -allowProvisioningUpdates \
 		DEVELOPMENT_TEAM="$IOS_TEAM_ID" PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" CODE_SIGN_STYLE=Automatic build
 fi

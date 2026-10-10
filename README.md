@@ -1,4 +1,4 @@
-# Remote Play
+# Wobble
 
 A couch game for Android TV. A phone is the motion controller (Wii-remote style).
 Godot 4.7 and GDScript. One project makes two apps:
@@ -108,12 +108,14 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 1. Install Godot 4.7 (with export templates), JDK 17 (`brew install openjdk@17`) and the Android SDK. JDK 26 does not work with the Gradle build.
 2. Run `tools/setup.sh`. It sets the JDK path in the editor settings, installs the Android build template,
    and patches the manifest (TV banner, hardware flags, QR scanner plugin).
-3. Build the APKs: `tools/build.sh apk` (output: `build/remote-play-tv.apk`, `build/remote-play-controller.apk`).
+3. Build the APKs: `tools/build.sh apk` (output: `build/wobble-tv.apk`, `build/wobble-controller.apk`).
 4. Deploy to a connected device: `tools/deploy.sh controller` or `tools/deploy.sh tv` (builds, installs, launches; `-s <serial>` picks a device).
 5. iPhone (controller only, unverified): `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. Steps: [docs/EXPORT.md](docs/EXPORT.md), section *Controller on an iPhone*.
 6. Other commands: `tools/build.sh run-tv`, `run-controller`, `test`.
-7. Install (or `tools/build.sh install`): `adb connect <tv-ip>:5555`, then `adb install -r build/remote-play-tv.apk`.
+7. Install (or `tools/build.sh install`): `adb connect <tv-ip>:5555`, then `adb install -r build/wobble-tv.apk`.
    Install the controller APK on the phone.
+   A device with the old Remote Play apps keeps them, because the package names changed (FD-21): remove them with
+   `adb uninstall com.example.remoteplay.tv` and `adb uninstall com.example.remoteplay.controller`.
 
 ## Test on a real Android TV or streaming box
 

@@ -31,7 +31,7 @@ const OUTLINE_W := LINE
 # There are no shadows and no round corners (REQ-FL-38).
 
 const FONT_FILE := "res://assets/fonts/PressStart2P-Regular.ttf"
-const FONT_HEBREW := "res://assets/fonts/RemotePlayPixelHebrew.ttf"
+const FONT_HEBREW := "res://assets/fonts/WobblePixelHebrew.ttf"
 
 # Text sizes on the TV (REQ-FL-40): the font is an 8 px grid, so every size is a multiple of 8.
 const SIZE_BODY := 32
