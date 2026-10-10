@@ -57,7 +57,7 @@ tools/                   make_icons.gd, patch_android_manifest.sh
 docs/                    requirements, protocol, export, risks
 ```
 
-All screens are built in code in the 8-bit arcade style (FD-18, docs/TV_FLOW.md, docs/ARCADE_STYLE_PLAN.md): the menus, the phone and the game shell since phase 1; the worlds of Sumo Bumpers (phase 2), Marble Race (phase 3) and Tilt Maze and Paint Grab (phase 4) are pixel worlds (a 480x270 view scaled up, REQ-GM-47i to 47n); Snowball Splat follows. Image files: the pixel font and the Hebrew fallback font (`assets/fonts`),
+All screens are built in code in the 8-bit arcade style (FD-18, docs/TV_FLOW.md, docs/ARCADE_STYLE_PLAN.md): the menus, the phone and the game shell since phase 1; the worlds of Sumo Bumpers (phase 2), Marble Race (phase 3) and Tilt Maze, Paint Grab and Snowball Splat (phase 4) are pixel worlds (a 480x270 view scaled up, REQ-GM-47i to 47n): all game worlds are pixel worlds now. Image files: the pixel font and the Hebrew fallback font (`assets/fonts`),
 the game tile screenshots (`assets/tiles`, made by `tools/make_tiles.gd`), the logo (`assets/logo`) and the icons.
 
 **Separation rule:** `net/` and `input/` never refer to `game/`.

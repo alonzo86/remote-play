@@ -28,7 +28,6 @@ const UNBOUNDED := Rect2(Vector2(-FAR, -FAR), Vector2(2.0 * FAR, 2.0 * FAR))   #
 # color has a contrast of 3:1 or more) with a light edge ring that gets red when the platform is small.
 const BACKGROUND := UiTheme.BG
 const STAR_COUNT := 48
-const WHEE_W := 200.0   # The width of "WHEE!" in the 32 px font is 160 px.
 const PLATFORM := Color("2a1070")
 const PLATFORM_RING := Color("8c78e6")
 const DANGER_COLOR := Color("ff5a4d")
@@ -302,8 +301,7 @@ func _game_draw() -> void:
 		var f: Dictionary = _falling[s]
 		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
 			var above := Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6 - clampf(float(f.age) / FALL_TIME, 0.0, 1.0) * 30.0)
-			Shell.text(self, c + (f.pos as Vector2) * k + above - Vector2(WHEE_W * 0.5, 0.0), "Whee!", 32, UiTheme.TEXT,
-					HORIZONTAL_ALIGNMENT_CENTER, WHEE_W)
+			Shell.text_centered(self, c + (f.pos as Vector2) * k + above, "Whee!", 32, UiTheme.TEXT)
 	_draw_hud()
 
 

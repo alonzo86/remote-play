@@ -19,8 +19,8 @@ const POP_TIME := 0.15          # A painted tile grows and goes back in this tim
 const HINT_TIME := 4.0
 const BOARD_TOP := 150.0        # The floor is the screen inside the margin, under the HUD.
 const BOARD_MARGIN := 60.0
-const TIMER_X := 560.0
-const TIMER_W := 240.0   # "60.0 S" in the 32 px font is 192 px wide.
+const TIMER_X := 520.0
+const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide. With 4 chips of 270 px the row still fits (a test).
 ## Difficulty (REQ-PG-20): the floor, the speed of the blobs (a factor on the Medium values) and the medal tiers in percent of the
 ## floor (first guesses, Test 13). A tile is `REF_TILE` in the simulation; on the screen it is as big as the floor fits.
 const LEVELS := {

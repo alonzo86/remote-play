@@ -24,6 +24,13 @@ static func text(ci: CanvasItem, pos: Vector2, msg: String, font_size := 32, col
 	ci.draw_string(UiTheme.font(), pos, msg.to_upper(), align, width, font_size, color)
 
 
+## `msg` in upper case, centered on `pos` (the start of the baseline is moved left by half the width of the text). Nothing is cut.
+static func text_centered(ci: CanvasItem, pos: Vector2, msg: String, font_size := 32, color: Color = UiTheme.TEXT) -> void:
+	var upper := msg.to_upper()
+	var w := UiTheme.font().get_string_size(upper, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	ci.draw_string(UiTheme.font(), pos - Vector2(w * 0.5, 0.0), upper, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
+
+
 ## A name or score chip (REQ-GM-46): a black box with a 4 px frame, a square in the player color, and the text in the text
 ## color. The text never sits on the player color. `pos` is the top-left corner.
 static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width := 240.0, height := 64.0) -> Rect2:

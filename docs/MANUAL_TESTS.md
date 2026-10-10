@@ -382,7 +382,7 @@ History:
 
 ### Snowball Splat (pointer)
 
-Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-SS-*, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50.
 
 Hold each phone like a remote control, pointing at the TV, from the sofa. This is the first game that uses the
 gyroscope pointer, so this test also checks the pointer itself (the old Test 5 for drift was removed).
@@ -401,6 +401,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "2P LOST CONNECTION". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
 9. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint and a few seconds of play, hits some Puffs, is not frustrated or scared, and wants to play again. Write down the age and what the child said or did. (REQ-GM-80 to 84, REQ-SS-17)
 10. Open the tile of **Snowball Splat**: the settings view opens. Play one round alone on each of Easy, Medium and Hard. Check: Easy has slow Puffs and more of them, Hard has fast Puffs and fewer, Hard is a challenge but not impossible, and the medal title names the difficulty ("Silver medal! (Hard)"). Write down the score of each round to tune the tiers (Easy [170, 340, 510], Medium [150, 300, 450], Hard [120, 240, 360]).
+11. **Pixel world (phase 4, REQ-SS-12).** From the sofa (about 3 m), look at the sky. Check: the Puffs, the cursors and the snowballs are sharp square pixels, a Puff is easy to see on the dark board, the number on each cursor badge is easy to read, the points "+10" are easy to read, and the white flakes do not hide the Puffs. Write down if the cursor and the snowball are easy to follow.
 
 **Results**
 
@@ -416,6 +417,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 | 8 | Video: Wi-Fi off during a round, then the card | Not run | | | |
 | 9 | Short video of the child playing (only with the permission of the parent); the age and the words of the child | Not run | | | |
 | 10 | Photos of the settings view and of a round on each difficulty; the scores; note on the speed and the number of Puffs | Not run | | | Added 2026-10-09 (REQ-SS-20 to 22). All values are first guesses. |
+| 11 | Photo of the sky from the sofa; note: sharp pixels, readable numbers and points | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). |
 
 Values to write down (items 2, 3, 5 and 6). These decide the first tuning values of the game:
 
@@ -429,6 +431,7 @@ Values to write down (items 2, 3, 5 and 6). These decide the first tuning values
 
 History:
 
+- 2026-10-10 (not run): item 11 is new: the sky is a pixel world (phase 4 of the arcade style).
 - 2026-10-09 (not run): item 10 is new: the settings view and Easy, Medium and Hard for Snowball Splat (faster and fewer Puffs as it grows, medal tiers for each level, the title names the difficulty).
 - R2: the owner played the new game and reported one problem: the last digit of a score above 3 digits was not visible in the chip at the top. Fixed on 2026-10-09. Nothing else was reported, so the other items stay not run.
 - R1: **Fail**, then redesigned. The owner tried the first version ("Target Shoot", small fast targets, a lock after a miss, decoys) and said: "I don't think it's playable in its current definition." They asked for something like Duck Hunt with larger and slowly moving targets, no penalty for a miss, and a game that is also for kids, so not shooting but for example throwing snowballs at a made-up character. Changed on 2026-10-09: the game is now Snowball Splat (REQ-SS-*), and REQ-GM-80 to 84 are new for all games. Which steps failed was not reported. The whole test needs a run with the new game.

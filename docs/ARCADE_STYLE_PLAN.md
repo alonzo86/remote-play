@@ -1,6 +1,6 @@
 # Arcade style and localization plan (FD-18, FD-19)
 
-Status: **phases 1 to 3 built** (phase 1: menus, phone, game shell, manual test 16; phase 2: the pixel view and Sumo Bumpers, manual test 15; phase 3: the 3D pixel view and Marble Race, manual test 9). Phases 4 and 5 are planned. The style requirements are in
+Status: **phases 1 to 4 built** (phase 1: menus, phone, game shell, manual test 16; phase 2: the pixel view and Sumo Bumpers, manual test 15; phase 3: the 3D pixel view and Marble Race, manual test 9; phase 4: Tilt Maze, Paint Grab and Snowball Splat, manual tests 6, 14 and 10). Phase 5 is planned. The style requirements are in
 `docs/TV_FLOW.md` (REQ-FL-37 to 46) and `docs/GAME_REQUIREMENTS.md` (REQ-GM-45, 46); REQ-GM-47 and 48 (the game worlds) still
 describe the toy-like tier 2 rules until phase 2.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
@@ -165,7 +165,9 @@ Decisions taken while building it: the 3D view is a `SubViewport` of 480x270 sho
 2. Restyle Marble Race: the outline meshes stay (REQ-GM-47c), the colors move to the world palette. Check that the
    marbles and the slot numbers stay readable, and the frame rate on the TV box (it should go up: fewer pixels).
 
-### Phase 4: the other games
+### Phase 4: the other games - built
+
+Decisions taken while building it: one pull request for each game, stacked. Tilt Maze got walls of 12 px and Hard cells of 76 px (the 4 px grid); Paint Grab tiles are a whole number of world pixels wide, a painted tile has no lighter edge, and its timer box is 240 px; Snowball Splat has pixel snowfall in game time and a poof in 3 hard steps. The star field, the eyes and the centered text are shared `Shell` helpers.
 
 Tilt Maze, Paint Grab, Snowball Splat, one pull request each, with their tile. Their visual requirements change:
 REQ-MZ-7, REQ-PG-15, REQ-SS-12, REQ-SB-15, REQ-MR-44.
