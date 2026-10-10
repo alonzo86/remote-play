@@ -13,6 +13,8 @@ const CHIP_FONT := 32          # The size of the text on a chip.
 const CHIP_PAD := 16.0         # The space between the chip edge and its content.
 const CHIP_SQUARE := 24.0      # The slot color square of a chip.
 const CHIP_LINE := 4           # The frame of a chip.
+const TAG_H := 56.0            # The height of a name tag in the countdown.
+const TAG_GAP := 8.0           # The space between two name tags.
 
 
 ## The width of the screen a canvas item draws on (1920 for an item that has no size).
@@ -94,35 +96,9 @@ static func score_chip_width(player_name: String, score: String, _height := 64.0
 	return maxf(content, min_w)
 
 
-## The top-left corners of chips of the widths `widths`, in order, from the left to the right. The last chip of a row ends at the
-## 60 px safe margin (REQ-GM-40). `area_w` is the width of the screen. A row is at most `max_row` px wide (`area_w` minus the
-## 60 px margin when 0): the chips that do not fit go to a new row below, so no name is cut.
-static func chip_row_positions(area_w: float, widths: Array, y := 36.0, gap := 10.0, max_row := 0.0,
-		row_h := 68.0) -> Array[Vector2]:
-	var limit := max_row if max_row > 0.0 else area_w - 120.0
-	var rows: Array = [[]]
-	var used := 0.0
-	for i in widths.size():
-		var w := float(widths[i])
-		if not rows[-1].is_empty() and used + gap + w > limit:
-			rows.append([])
-			used = 0.0
-		used += w + (gap if not rows[-1].is_empty() else 0.0)
-		rows[-1].append(i)
-	var out: Array[Vector2] = []
-	out.resize(widths.size())
-	for r in rows.size():
-		var total := gap * maxf(rows[r].size() - 1, 0)
-		for i in rows[r]:
-			total += float(widths[i])
-		var x := area_w - 60.0 - total
-		for i in rows[r]:
-			out[i] = Vector2(x, y + r * row_h)
-			x += float(widths[i]) + gap
-	if Lang.is_rtl():
-		for i in out.size():
-			out[i].x = area_w - out[i].x - float(widths[i])   # Mirrored: the row starts at the left margin, 1P is the rightmost.
-	return out
+## The left edge of the leader chip: it ends at the 60 px safe margin (REQ-GM-40). In a right to left language it starts there.
+static func leader_chip_x(area_w: float, width: float) -> float:
+	return 60.0 if Lang.is_rtl() else area_w - 60.0 - width
 
 
 ## Where the parts of a score chip go (a test checks it): the name (whole), the x of the name and the x of the score.
@@ -222,27 +198,48 @@ static func pixel_eyes(ci: CanvasItem, center: Vector2, radius: float, look: Vec
 		ci.draw_rect(Rect2(e - Vector2(2, 2) + step * 2.0, Vector2(4, 4)), UiTheme.OUTLINE)
 
 
-## The players (PlayerInput objects) in slot order, P1 first (REQ-GM-46).
-static func in_slot_order(players: Array) -> Array:
-	var ordered := players.duplicate()
-	ordered.sort_custom(func(a, b) -> bool: return a.slot < b.slot)
-	return ordered
+## The one score chip of the HUD (REQ-GM-46): the leader of the round with the score. `leaders` are the PlayerInput objects with
+## the best place: one player shows its name in its color, more than one shows "TIE" with a gray square. `score` is the text
+## (it can be empty). The chip is as wide as its content, so no name is cut, and a 16 letter name still fits next to the
+## timer. `area_w` is the width of the screen; the chip ends at the right 60 px margin (at the left margin in Hebrew).
+static func leader_chip(ci: CanvasItem, area_w: float, leaders: Array, score: String, y := 36.0) -> void:
+	if leaders.is_empty():
+		return
+	var tie := leaders.size() > 1
+	var label := Lang.t("TIE") if tie else String(leaders[0].player_name)
+	var w := score_chip_width(label, score)
+	score_chip(ci, Vector2(leader_chip_x(area_w, w), y), label, score, UiTheme.TEXT_DIM if tie else leaders[0].color, w)
 
 
-## One chip for each player, P1 first (REQ-GM-46). The one place that draws the name chips of the games: a game only gives the
-## score of each slot in `scores` (slot -> text; a slot without a text has a name chip only) and calls this every frame.
-## `area_w` is the width of the screen. The chips end at the right 60 px margin. Each chip is as wide as its content, so no name
-## or score is cut. A row is at most `max_row` px wide (0 means the screen inside the margins), and the rest goes to a second row.
-static func player_chips(ci: CanvasItem, area_w: float, players: Array, scores := {}, max_row := 0.0, y := 36.0) -> void:
-	var ordered := in_slot_order(players)
-	var texts: Array[String] = []
-	var widths: Array = []
-	for p in ordered:
-		texts.append(String(scores.get(p.slot, "")))
-		widths.append(score_chip_width(p.player_name, texts[-1]))
-	var spots := chip_row_positions(area_w, widths, y, 10.0, max_row)
-	for i in ordered.size():
-		score_chip(ci, spots[i], ordered[i].player_name, texts[i], ordered[i].color, widths[i])
+## The rectangles of the name tags that stand above the game objects in the countdown (REQ-GM-46a). `entries` are
+## `{pos, name}` with `pos` the middle of the object on the screen; `radius` is how far the tag stands above it. A tag is as wide
+## as its name, inside the 60 px margin, and a tag that would cover an earlier one moves down until it does not.
+static func name_tag_rects(area: Vector2, entries: Array, radius := 48.0) -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	for e in entries:
+		var w := name_x() + UiTheme.font().get_string_size(String(e.name).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1,
+				CHIP_FONT).x + CHIP_PAD
+		var r := Rect2(Vector2(clampf(e.pos.x - w * 0.5, 60.0, maxf(area.x - 60.0 - w, 60.0)),
+				clampf(e.pos.y - radius - TAG_H, 60.0, area.y - 60.0 - TAG_H)), Vector2(w, TAG_H))
+		for _try in 8:
+			var free := true
+			for o in out:
+				if o.intersects(r.grow(TAG_GAP)):
+					free = false
+					r.position.y += TAG_H + TAG_GAP
+					break
+			if free:
+				break
+		out.append(r)
+	return out
+
+
+## Name tags (REQ-GM-46a): each player's name next to its object, in the countdown only, so that nobody has to read a list.
+## `entries` are `{pos, name, color}` (see `name_tag_rects()`).
+static func name_tags(ci: CanvasItem, area: Vector2, entries: Array, radius := 48.0) -> void:
+	var rects := name_tag_rects(area, entries, radius)
+	for i in entries.size():
+		chip(ci, rects[i].position, String(entries[i].name), entries[i].color, rects[i].size.x, TAG_H)
 
 
 ## The race timer: a black box with a frame, in a fixed place. `pos` is the top-left corner.

@@ -167,6 +167,11 @@ func _run() -> void:
 	game._bodies[2].pos = Vector2(-edge, 0.0)
 	game._game_tick(0.016)
 	_check(game._board.score(0) == 3.0 and game.round_no == 3, "round 3 gives the third point to bumper 0")
+	await _frames(3)
+	_check(clients[0].score_rank == 1 and clients[0].score_text == "3" and clients[0].score_of == 3
+			and clients[1].score_rank == 2 and clients[2].score_rank == 2 and clients[1].score_text == "1",
+			"each phone gets its place and its points; equal points share a place (REQ-FL-67)")
+	_check(game.leader_text() == "3", "the leader chip shows the points of the leader (REQ-GM-46)")
 	game._banner_left = 0.01
 	game._game_tick(0.02)
 	await _frames(3)

@@ -238,14 +238,11 @@ func _run() -> void:
 	await _frames(5)
 
 	# The HUD is mirrored in Hebrew (REQ-GM-47o); the English HUD is as before.
-	var widths := [300.0, 300.0]
-	var ltr: Array[Vector2] = Shell.chip_row_positions(1920.0, widths)
+	var ltr_x: float = Shell.leader_chip_x(1920.0, 300.0)
 	Lang.set_language("he", root)
-	var rtl: Array[Vector2] = Shell.chip_row_positions(1920.0, widths)
-	_check(ltr[0].x < ltr[1].x and is_equal_approx(ltr[1].x + 300.0, 1860.0),
-			"English chips: 1P first, the row ends at the right margin")
-	_check(is_equal_approx(rtl[0].x, 370.0) and is_equal_approx(rtl[1].x, 60.0),
-			"Hebrew chips: 1P is the rightmost and the row starts at the left margin")
+	var rtl_x: float = Shell.leader_chip_x(1920.0, 300.0)
+	_check(is_equal_approx(ltr_x + 300.0, 1860.0), "English leader chip: it ends at the right margin")
+	_check(is_equal_approx(rtl_x, 60.0), "Hebrew leader chip: it starts at the left margin")
 	var probe := Control.new()
 	probe.size = Vector2(1920, 1080)
 	root.add_child(probe)

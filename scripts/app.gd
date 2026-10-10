@@ -21,6 +21,7 @@ const ControllerConnect = preload("res://scripts/ui/controller_connect.gd")
 const ControllerPad = preload("res://scripts/ui/controller_pad.gd")
 const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
+const SafeArea = preload("res://scripts/ui/safe_area.gd")
 const ControllerSettings = preload("res://scripts/ui/controller_settings.gd")
 
 const SETTINGS_FILE := "user://settings.cfg"
@@ -143,10 +144,24 @@ func go(script: GDScript, props := {}) -> void:
 	_screen.theme = theme_res
 	add_child(_screen)
 	_screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_apply_safe_area()
 	if not ("start_props" in _screen):
 		# Menu screens fade in (REQ-FL-42). Games do not: they start at once.
 		_screen.modulate.a = 0.0
 		_screen.create_tween().tween_property(_screen, "modulate:a", 1.0, 0.18)
+
+
+## A phone screen stays inside the safe area: a notch, a Dynamic Island, the status bar and the home bar cover nothing
+## (REQ-FL-68).
+## The TV uses the whole screen.
+func _apply_safe_area() -> void:
+	if _screen == null or not Role.is_controller():
+		return
+	var m := SafeArea.current(get_viewport().get_visible_rect().size)
+	_screen.offset_left = m.x
+	_screen.offset_top = m.y
+	_screen.offset_right = -m.z
+	_screen.offset_bottom = -m.w
 
 
 ## The TV flow: logo -> connect -> games (-> settings). See docs/TV_FLOW.md.
@@ -269,6 +284,7 @@ func _start_controller() -> void:
 	add_child(wifi_locks)
 	wifi_locks.acquire_wifi_locks() # Less jitter and no lost TV beacons on Android.
 	client.state_changed.connect(_on_client_state)
+	get_viewport().size_changed.connect(_apply_safe_area)   # A turn changes the safe area (REQ-FL-68).
 	client.phase_changed.connect(func(_p): _show_phone_screen())
 	client.language_changed.connect(func(code: String): set_language(code, false))
 	client.rejected.connect(_on_client_rejected)

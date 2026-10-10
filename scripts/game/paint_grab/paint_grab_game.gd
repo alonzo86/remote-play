@@ -22,7 +22,7 @@ const HINT_TIME := 4.0
 const BOARD_TOP := 150.0        # The floor is the screen inside the margin, under the HUD.
 const BOARD_MARGIN := 60.0
 const TIMER_X := 520.0
-const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide. With 4 chips of 270 px the row still fits (a test).
+const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide.
 ## Difficulty (REQ-PG-20): the floor, the speed of the blobs (a factor on the Medium values) and the medal tiers in percent of the
 ## floor (first guesses, Test 13). A tile is `REF_TILE` in the simulation; on the screen it is as big as the floor fits.
 const LEVELS := {
@@ -221,17 +221,22 @@ func _draw_blob(ci: CanvasItem, slot: int, origin: Vector2, k: float) -> void:
 	Shell.pixel_eyes(ci, center, radius, b.vel / b.max_speed)   # The pupils step to the side the blob rolls (REQ-PG-16).
 
 
+func _scoreboard() -> Scoreboard:
+	return _board
+
+
 func _draw_hud() -> void:
 	Shell.title(self, "PAINT GRAB")
-	var scores := {}
-	for slot in participants:
-		scores[slot] = str(floor_map.count(slot))
-	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)), scores,
-			size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
+	draw_leader_chip(self)
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
 		Shell.countdown(self, size, str(n) if n > 0 else "GO", _round.count_elapsed())
+		var fit := _fit()
+		var spots := {}
+		for s in _bodies:
+			spots[s] = Shell.snap(fit.origin + (_bodies[s] as TiltBody).pos * float(fit.k))
+		draw_name_tags(self, spots, BLOB_R * float(fit.k))
 	if _round.time < HINT_TIME and not is_over:
 		Shell.hint(self, size, "Tilt your phone to roll and paint the tiles!")

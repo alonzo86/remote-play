@@ -33,7 +33,7 @@ of the maze A shortcut, and it changes `docs/games/maze.md` (REQ-MZ-8) and `test
 | `RoundClock` | `Phase`/`_clock` in the maze, negative `_time` and `GO_SHOW` in the race | Countdown (3 s), playing time, round length. `delta` only (REQ-GM-13, 35). The end flag is `is_over` in the base class. |
 | `Haptics.pulse` | `haptic_cooldown` in the maze, `last_haptic_ms` in the race | A pulse with a minimum gap for each slot (REQ-GM-43). |
 | Recenter cleanup | A button wiring in the maze (with `_exit_tree`), the stale "B recenters" comment in the race | Delete. The RECENTER button does the work. The maze keeps its recenter at GO. |
-| `Shell.player_chips` | Chip layout in the maze HUD | Chips in slot order for the plain case (REQ-GM-46). The race keeps its standings list. |
+| `Shell.leader_chip`, `Minigame.draw_leader_chip()` | The leader chip in the HUD | One chip: the leader and the score, or TIE (REQ-GM-46, FD-21). A game returns its `Scoreboard` from `_scoreboard()`; the phones get the place and score (REQ-FL-67). |
 
 Not extracted: collision code (different in each game), the two damping models (the feel would change and need a device test),
 and 3D-only code (camera, meshes).
@@ -93,7 +93,7 @@ Checked against `main` on 2026-10-08.
 
 - A game has a settings view with Difficulty and a table of what Easy, Medium and Hard mean in its requirements file (REQ-GM-90, 91). The chosen value is yellow (REQ-GM-97). The game gets it as the prop `difficulty`; Restart keeps it. A solo game has medal tiers for each difficulty (REQ-GM-95).
 - Leaving a game in progress asks first (REQ-GM-31a). A game overrides `_can_open_menu()` (or `_in_progress()`) to say when it is over.
-- A ball-like player object shows the slot number, and chips are in slot order (REQ-GM-46).
+- A ball-like player object shows the slot number, the HUD has one leader chip and the name tags show in the countdown (REQ-GM-46, 46a, FD-21).
 - Key objects are at least 48 px high and use no pale grey (REQ-GM-47d, 47e). All text is 28 px or larger (REQ-GM-41).
 - On the phone, A is green and B is red (REQ-FL-52). A game states what A and B do, or that they do nothing. Recenter is not a game action: the RECENTER button does it (REQ-GM-37).
 - Hints use `Shell.hint` (dark plate).

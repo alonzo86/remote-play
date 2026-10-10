@@ -66,6 +66,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-41a, 52, 53, REQ-GM-45, 46, FD-18 | Not run |  | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Not run |  | |
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
+| [19](#test-19) | Leader chip, phone score and name tags | 2 to 4 phones (names of 12 letters or more), 1 TV, a child for item 8 | REQ-FL-67, REQ-GM-46, 46a, FD-21 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -513,6 +514,7 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV. Covers: `tools/deploy-ios.sh`, RISKS A2
 3. Tilt the phone flat, left, right, forward, back (like Test 3, items 1 and 4). Check: the overlay Accel and Gyro values have the same directions as on Android. If they are inverted, tell Claude: the Android-only axis fix in `sensor_sampler.gd` needs a platform check.
 4. Play Tilt Maze for 2 minutes with the screen on. Check: no disconnect, no screen lock, and the ball follows the tilt.
 5. Lock the phone and unlock it. Check: the TV shows the lost-phone card and the game can resume (like Test 7, items 1 and 5).
+6. On an iPhone with a Dynamic Island or a notch, open every phone screen (Connect, waiting, Settings, the pad in a game), also turned to the side. Check: nothing is hidden by the island, the notch, the status bar or the home bar: the colored square, the player number, Leave, the texts and the A and B buttons are fully visible (REQ-FL-68). Write down which iPhone it is.
 
 **Results**
 
@@ -523,6 +525,7 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV. Covers: `tools/deploy-ios.sh`, RISKS A2
 | 3 | Photo of the overlay values for each tilt | Not run | | | |
 | 4 | Short video | Not run | | | |
 | 5 | Photo of the TV card | Not run | | | |
+| 6 | Photo of the pad and the waiting screen under the island, upright and turned | Not run | | | |
 
 History:
 
@@ -542,9 +545,9 @@ difficulty values are first guesses.
 1. Open the tile of **Paint Grab**. Check: the settings view has Difficulty on Medium, and Back (left) and Start (right) on one line. Start.
 2. Hold the phone level in "3, 2, 1". Check: the blob does not move and nothing is painted. At "GO!" every phone buzzes.
 3. Tilt the phone. Check: the blob rolls the same way, slows down by itself, bounces softly at the edge and never leaves the floor. Write down if it is too slow, too fast or too nervous (`ACCEL`, `DAMPING`, `MAX_SPEED` in `scripts/game/tilt_body.gd`).
-4. Roll over tiles. Check: each tile takes your color, pops a little, and the number on your chip goes up. Roll over a tile of another player: it changes color and your phone buzzes.
+4. Roll over tiles. Check: each tile takes your color, pops a little, and your tile count on your phone goes up. Roll over a tile of another player: it changes color and your phone buzzes.
 5. Play a full round of 60 seconds alone on Easy, Medium and Hard. Write down the percent of the floor you painted and the medal. Check: the title names the difficulty ("Silver medal! (Hard)"), and the tiers [Easy 35, 55, 75; Medium 30, 50, 70; Hard 25, 40, 55] feel right.
-6. Play with 2 to 4 phones. Check: the blobs bounce off each other, the chips are in slot order, the winner is named at the end, and equal scores say "Tie!". Leave the game on one phone during a round: its blob goes, its tiles stay, and the round goes on.
+6. Play with 2 to 4 phones. Check: the blobs bounce off each other, the leader chip names the leader (or TIE), the winner is named at the end, and equal scores say "Tie!". Leave the game on one phone during a round: its blob goes, its tiles stay, and the round goes on.
 7. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint line, enjoys it, and is not upset when a tile is painted over.
 8. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
 9. Tap **RECENTER** with the phone tilted. Check: the blob stops creeping. A and B do nothing. (REQ-PG-14)
@@ -557,7 +560,7 @@ difficulty values are first guesses.
 | 1 | Photo of the settings view | Not run | | | |
 | 2 | Video of the countdown and GO | Not run | | | |
 | 3 | Note: too slow, too fast or too nervous; short video | Not run | | | |
-| 4 | Video: painting a free tile and taking a tile; the chip number | Not run | | | |
+| 4 | Video: painting a free tile and taking a tile; the tile count on the phone | Not run | | | |
 | 5 | Percent and medal for each difficulty; note on the tiers | Not run | | | |
 | 6 | Video or photo of 4 blobs; note on the bounce | Not run | | | |
 | 7 | Note: the child, the age, what happened | Not run | | | |
@@ -586,7 +589,7 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 4. Bump into another bumper. Check: both bounce away and both phones buzz at a fast hit, and nobody is hurt.
 5. Press **A** with a tilt. Check: a dash in the tilt direction, a ring around the bumper shows when it is ready again. Write down if the dash is too strong or too weak (`DASH_SPEED`, the dash time).
 6. Roll over the edge. Check: the bumper spins, gets small and says "Whee!", the phone buzzes, and the round goes on. When one bumper is left, a banner names the winner of the round and the next round starts after 2.5 s with all bumpers back.
-7. Play all 3 rounds with 2, 3 and 4 phones. Check: the points on the chips, the winner of the match, and "Tie!" for equal points. Write down how long a round is and if the wait after a fall is too long (REQ-SB-9). Play Easy, Medium and Hard.
+7. Play all 3 rounds with 2, 3 and 4 phones. Check: the points of the leader chip and on each phone, the winner of the match, and "Tie!" for equal points. Write down how long a round is and if the wait after a fall is too long (REQ-SB-9). Play Easy, Medium and Hard.
 8. Let a child of about 5 to 8 years play a match, with a grown-up next to them. Check: the child understands what to do from the hint line, laughs at the fall and is not upset.
 9. Leave the game on one phone during a round. Check: its bumper goes and the match goes on. With 2 phones, leave on one: the match ends at once.
 10. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
@@ -626,7 +629,7 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 4. Check the menus: the cursor is in front of the focused item, a destructive item (END GAME, QUIT, REMOVE) is red with the focus, BACK is dim until it has the focus, and OK, Back and the D-pad work as before.
 5. Check the motion: PRESS OK TO CONTINUE and PRESS OK TO SKIP blink (about half a second on, half a second off), the logo drops in in steps, the confetti is square, the countdown number shrinks in steps. The overlay FPS stays at 60.
 6. Phone: connect, wait and pad screens. Check: the text is readable at arm's length, A (green) and B (red) feel like buttons, RECENTER flashes yellow, LEAVE needs two taps, and the slot color square with the slot number is at the top.
-7. Play each game with 4 phones that have long names (12 letters or more). Check: the chips of the players, the timer, the title and the hint do not hide each other or the play area. Write down which game has a problem and where. The games are restyled in phases 2 to 4: a problem here is a note for that phase.
+7. Play each game with 4 phones that have long names (12 letters or more). Check: the leader chip (name and score), the timer, the title and the hint do not hide each other or the play area, and the HUD stays on one row. Write down which game has a problem and where. Test 19 covers the leader chip and the phone score in detail. The games are restyled in phases 2 to 4: a problem here is a note for that phase.
 8. A child of 5 to 8 years joins and plays one game. Check: the child finds the focus (the cursor), reads or understands "PRESS OK", and does not say it looks scary or boring. Write down what the child says.
 
 **Results**
@@ -659,7 +662,7 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 3. In Hebrew, the Left and Right keys of the remote in a choice row (Difficulty): Right goes to the previous value (the arrow at the right), Left to the next. Check that the D-pad moves the focus between rows by position as before.
 4. Join 2 phones: one with the system language Hebrew, one English, with player names in Latin letters and in Hebrew letters. Check: before the join the Hebrew phone shows its connect screen in Hebrew and the English phone in English; after the join both show the language of the TV (Hebrew); the player names show as typed (a Latin name in a Hebrew row is in the right place).
 5. In Settings, press OK on the Language row. Check: the TV switches to English at once (the layout turns left to right), the phones switch too, and the Settings screen stays open. Switch back to Hebrew. Leave the app and start it again: the language is the one that was last chosen.
-6. Start each game in Hebrew with 2 phones. Check: the title is at the top right, the chips start at the left with 1P at the right end, the timer is at the left of the title, the hint and the countdown ("קדימה") are readable, and the world is not mirrored (the maze start is at the top left, the track runs as in English). Open the pause menu and the result menu: the ranking list, the medal text and "תיקו!" read right.
+6. Start each game in Hebrew with 2 phones. Check: the title is at the top right, the leader chip is at the left, the timer is at the left of the title, the hint and the countdown ("קדימה") are readable, and the world is not mirrored (the maze start is at the top left, the track runs as in English). Open the pause menu and the result menu: the ranking list, the medal text and "תיקו!" read right.
 7. Phone in Hebrew, on the pad screen: the words RECENTER, LEAVE and the hint are Hebrew, and A and B are in the same places as in English (the pad is not mirrored).
 8. Run the English TV again with the same phones: nothing changed from before (compare with Test 16).
 
@@ -721,3 +724,42 @@ New (2026-10-10). The songs, the effects and the levels are first guesses (`scri
 History:
 
 - -: **Not run**. New.
+
+## Test 19
+
+### Leader chip, phone score and name tags (REQ-FL-67, REQ-GM-46, 46a, FD-21)
+
+Needs: 2 to 4 phones (give two of them names of 12 to 16 letters), 1 TV on 1080p, a grown-up, and a child of about 5 to 8 years for item 8. Covers: REQ-FL-67, REQ-GM-46, 46a, FD-21, issue #25.
+
+New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each player. Each phone shows its own place and score. The size of the header text on the phone and the place of the name tags are first values. The headless tests check the layout rules, not how it looks from the sofa.
+
+**Steps**
+
+1. Start Snowball Splat with 4 phones (two names of 16 letters). Check from the sofa: the top row has the title, the timer and one chip with the leader's name and score, all on one row; nothing covers the play area; the name and the score are easy to read. Write down if the leader chip is too small or too big.
+2. In the same game, before anybody scores: no chip shows and the phones show only `2P` and 0. Then score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
+3. Look at each phone during the game. Check: the line under the header row (not next to Leave) shows the place (1ST to 4TH) and the score (`2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out): the colored square, the player number and Leave are fully visible below the island or the notch, nothing is hidden at the top, at the bottom (the home bar) or at the side when you turn the phone, and A and B are fully on the screen (REQ-FL-68). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
+4. Play Paint Grab and Sumo Bumpers with 2 to 4 phones. Check the same as items 1 to 3. In Sumo Bumpers the name tags show again in the countdown of every round.
+5. Play Marble Race with 3 or 4 phones. Check: the leader chip names the first marble (with its time after the finish); the phones show their place; a marble that has not finished shows no time. Check that the old list of names at the left is gone.
+6. Play Tilt Maze with 2 to 4 phones. Check: there is no chip during play (the maze has no score) and the phones show only `2P`.
+7. In every game, look at the countdown. Check: each player's name stands next to its own ball, marble, cursor, bumper or blob, in its color; the names do not cover each other (start the maze and Sumo with 4 phones); every name is complete; the tags are gone at GO. Write down where a tag hides something important.
+8. A child of 5 to 8 years plays a game. Check: the child finds its own object by the name in the countdown and reads or understands the number on its phone. Write down what the child says.
+9. Set the TV to Hebrew and play one game with 2 phones. Check: the leader chip is at the left margin, the timer is at the left of the title, TIE reads "תיקו", and the phone header is readable.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the TV with 4 long names | Not run | | | |
+| 2 | Photo of TIE; photo of a 5-digit score | Not run | | | |
+| 3 | Photo of a phone header with place and score | Not run | | | |
+| 4 | Note for Paint Grab and Sumo Bumpers | Not run | | | |
+| 5 | Photo of the Marble Race HUD | Not run | | | |
+| 6 | Note: no chip in the maze | Not run | | | |
+| 7 | Photo of the countdown of each game | Not run | | | |
+| 8 | Note: the child, the age, what happened | Not run | | | |
+| 9 | Photo of the Hebrew HUD and phone | Not run | | | |
+
+History:
+
+- -: **Not run**. New.
+

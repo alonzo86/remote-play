@@ -30,6 +30,7 @@ var _pending: Array = []             # [{ws, since_ms}]
 var _sockets: Array[WebSocketPeer] = []
 var _last_rx_ms: Array[int] = []
 var _closing: Array = []             # Rejected sockets that finish their close handshake.
+var _score_sent := {}                # slot -> the last score message sent to that phone (it is not sent again, REQ-FL-67).
 
 
 func start(settings: Dictionary) -> Error:
@@ -85,6 +86,8 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	phase = p_phase
 	round_slots.clear()
 	round_limited = false
+	if not p_phase in ["playing", "paused"]:
+		_score_sent.clear()   # The phones clear their score at the phase message (REQ-FL-67); a pause keeps it.
 	if p_phase in ["playing", "paused"] and not slots.is_empty():
 		round_slots.append_array(slots)
 		round_limited = true
@@ -108,6 +111,18 @@ func phase_for(slot: int) -> String:
 	if phase in ["playing", "paused"] and round_limited and not (slot in round_slots):
 		return "waiting"
 	return phase
+
+
+## Tells one phone its place in the round and its score text (REQ-FL-67). `rank` is 1 for the leader, `of` the number of ranked
+## players, `text` the score as the leader chip shows it (it can be empty: a race has no score before the finish). The same
+## message is not sent twice in a row, so a game can call this every frame.
+func send_score(slot: int, rank: int, of: int, text: String) -> void:
+	var msg := {"t": "score", "rank": rank, "of": of, "v": text}
+	if _score_sent.get(slot, {}) == msg:
+		return
+	if slot >= 0 and slot < players.size() and players[slot].is_connected_now():
+		_score_sent[slot] = msg
+		_send_json(slot, msg)
 
 
 func haptic(slot: int, ms: int) -> void:
@@ -216,6 +231,7 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	if not resumed:
 		token = Protocol.make_token()
 	player.on_join(p_name, token)
+	_score_sent.erase(slot)   # A phone that joins or returns has no score yet.
 	_send_json(slot, {
 		"t": "welcome", "slot": slot, "token": token,
 		"color": "#" + player.color.to_html(false),

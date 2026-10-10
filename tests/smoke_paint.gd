@@ -113,6 +113,12 @@ func _run() -> void:
 	_check(game.floor_map.owner_of(some) == 1 and game.floor_map.count(0) == before0 - 1
 			and game._board.score(0) == before0 - 1 and game._board.score(1) == game.floor_map.count(1),
 			"a blob that rolls over a tile of another player takes it, and both scores follow (REQ-PG-4)")
+	await _frames(3)
+	var s0: int = game._board.score(0)
+	var s1: int = game._board.score(1)
+	_check(clients[0].score_text == str(s0) and clients[1].score_text == str(s1)
+			and clients[0].score_rank == (2 if s1 > s0 else 1) and clients[1].score_rank == (2 if s0 > s1 else 1),
+			"each phone gets its tiles and its place (REQ-FL-67): %d/%d" % [s0, s1])
 	# The buzz of a take (REQ-PG-12): a free tile gives none, a take gives one, and a second take within 150 ms gives no second.
 	game._haptics = load("res://scripts/game/haptics.gd").new()   # Loaded here: it needs the App autoload.
 	var free := Vector2i(-1, -1)

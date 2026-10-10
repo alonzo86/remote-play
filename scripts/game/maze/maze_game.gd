@@ -24,7 +24,7 @@ const RESTITUTION := 0.25
 const SUBSTEPS := 2
 const HIT_BUZZ_MS := 120    # Minimum gap between two wall buzzes of one ball.
 const HIT_BUZZ_SPEED := 320.0
-const TIMER_X := 400.0       # The timer box has a fixed place, between the title and the chips.
+const TIMER_X := 400.0       # The timer box has a fixed place, between the title and the leader chip.
 const TIMER_W := 240.0
 const STAR_COUNT := 48
 
@@ -219,13 +219,15 @@ func _game_draw() -> void:
 	for b in _balls:
 		Shell.ball_number(self, Shell.snap(o + b.pos), BALL_R, player(b.slot).color, b.slot)
 	Shell.title(self, "TILT MAZE")
-	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)), {},
-			size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
 	if _round.is_playing() and not is_over:
-		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time) # Next to the title: 4 chips use the right side.
+		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
 		Shell.countdown(self, size, str(n) if n > 0 else "GO", _round.count_elapsed())
+		var spots := {}
+		for b in _balls:
+			spots[b.slot] = Shell.snap(o + b.pos)
+		draw_name_tags(self, spots, BALL_R)
 		Shell.hint(self, size, "Hold the phone level. It recenters at GO.")
 	if participants.is_empty():
 		Shell.hint(self, size, "Join with the controller app, then start again.")

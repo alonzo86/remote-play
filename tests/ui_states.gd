@@ -33,6 +33,7 @@ func _run() -> void:
 	_english_ltr()
 	_back_key()
 	_tile_images()
+	_safe_area()
 
 
 func _button_styles() -> void:
@@ -153,3 +154,23 @@ func _back_key() -> void:
 	print("back key")
 	_check(ProjectSettings.get_setting("application/config/quit_on_go_back", true) == false,
 			"the engine does not quit on the Back key: the app decides (project.godot, quit_on_go_back)")
+
+
+## The safe area of a phone (REQ-FL-68): the margins that a notch, a Dynamic Island and the home bar need.
+func _safe_area() -> void:
+	print("safe area")
+	var safe_area := load("res://scripts/ui/safe_area.gd")
+	# An iPhone with a Dynamic Island: 1179x2556 px, a safe area from y 177 to y 2457, drawn in a viewport 1920 wide.
+	var m: Vector4 = safe_area.insets(Vector2(1179, 2556), Rect2(0, 177, 1179, 2280), Vector2(1920, 4162))
+	_check(is_equal_approx(m.x, 0.0) and is_equal_approx(m.z, 0.0) and is_equal_approx(m.y, 177.0 * 1920.0 / 1179.0)
+			and is_equal_approx(m.w, 99.0 * 1920.0 / 1179.0), "the top and the bottom margins are in viewport units: %s" % str(m))
+	_check(safe_area.insets(Vector2(1080, 1920), Rect2(0, 0, 1080, 1920), Vector2(1080, 1920)) == Vector4.ZERO,
+			"a screen with no cut-out has no margin")
+	_check(safe_area.insets(Vector2(1080, 1920), Rect2(), Vector2(1080, 1920)) == Vector4.ZERO
+			and safe_area.insets(Vector2.ZERO, Rect2(0, 0, 10, 10), Vector2(1080, 1920)) == Vector4.ZERO,
+			"an unknown safe area or window gives no margin")
+	_check(safe_area.insets(Vector2(1080, 1920), Rect2(-20, -20, 1400, 2400), Vector2(1080, 1920)) == Vector4.ZERO,
+			"a safe area larger than the window gives no negative margin")
+	var landscape: Vector4 = safe_area.insets(Vector2(2556, 1179), Rect2(177, 0, 2202, 1179), Vector2(1920, 886))
+	_check(landscape.x > 0.0 and landscape.z > 0.0 and landscape.y == 0.0, "a turned phone has the cut-out at the side")
+	_check(safe_area.current(Vector2(1920, 1080)) == Vector4.ZERO, "a desktop window has no margin")

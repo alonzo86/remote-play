@@ -52,7 +52,7 @@ Players and feedback
 | REQ-PG-10 | A player who leaves takes the blob out. The tiles of that player stay on the floor and count for nobody. The round goes on with the others (REQ-GM-21). When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_paint |
 | REQ-PG-11 | A lost phone pauses the round with the card of REQ-GM-30. The clock does not run during the pause. | Done | smoke_tv (shared base class) |
 | REQ-PG-12 | Haptics (REQ-GM-43): GO buzzes every phone (60 ms). Painting a tile that had the color of another player buzzes the player that painted (20 ms, at most every 150 ms for one slot, `Haptics`). The end buzzes the winner (400 ms). | Device | Device (the buzz) |
-| REQ-PG-13 | The chips (`Shell.player_chips`, in slot order) show the number of tiles of each player and are updated at every change. | Done | smoke_paint (scores) |
+| REQ-PG-13 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the number of tiles of the leader, or TIE, and is updated at every change. Each phone shows its own tiles and place (REQ-FL-67). In the countdown each blob has a name tag (REQ-GM-46a). | Done | smoke_paint (scores, phones), game_helpers (leader, tags) |
 | REQ-PG-14 | The RECENTER button recenters the tilt of that player (REQ-GM-37). A and B do nothing, and the hint says so only if a player asks (it is not on the screen). | Device | Device (RECENTER) |
 
 Look
@@ -117,4 +117,4 @@ Haptics on the phone of the player: Countdown end: 60 ms; Taking a tile: 20 ms w
 
 ## Languages (REQ-GM-47o)
 
-The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer). The game world is not mirrored.
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, leader chip, timer). The game world is not mirrored.

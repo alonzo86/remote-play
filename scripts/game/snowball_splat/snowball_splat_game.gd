@@ -17,8 +17,8 @@ const FLIGHT_TIME := 0.12       # Seconds that a snowball flies (REQ-SS-6).
 # The play area is the screen inside the margin, under the HUD (REQ-SS-3).
 const AREA_TOP := 150.0
 const AREA_MARGIN := 60.0
-const TIMER_X := 520.0          # The timer box has a fixed place, between the title and the chips.
-const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide. With 4 chips of 270 px the row still fits (a test).
+const TIMER_X := 520.0          # The timer box has a fixed place, between the title and the leader chip.
+const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide.
 const HINT_TIME := 4.0          # Seconds of play with the hint on the screen.
 
 # Look (REQ-SS-12, REQ-GM-47i to 47n). The board is dark so that every player color has a contrast of 3:1 or more.
@@ -385,17 +385,21 @@ func _draw_cursor(ci: CanvasItem, t: Thrower) -> void:
 	Shell.pixel_ball(ci, _badge_pos(t), BADGE_R, col)   # The slot number is on it, drawn by the HUD (REQ-GM-46).
 
 
+func _scoreboard() -> Scoreboard:
+	return _board
+
+
 func _draw_hud() -> void:
 	Shell.title(self, "SNOWBALL SPLAT")
-	var scores := {}
-	for slot in participants:
-		scores[slot] = str(int(_board.score(slot)))
-	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)), scores,
-			size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
+	draw_leader_chip(self)
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
 		Shell.countdown(self, size, str(n) if n > 0 else "GO", _round.count_elapsed())
+		var spots := {}
+		for s in _throwers:
+			spots[s] = Shell.snap((_throwers[s] as Thrower).aim)
+		draw_name_tags(self, spots, CURSOR_R)
 	if _round.time < HINT_TIME and not is_over:   # In the countdown the time is below 0.
 		Shell.hint(self, size, "Point at the TV and press A to throw a snowball. Recenter if the cursor drifts.")

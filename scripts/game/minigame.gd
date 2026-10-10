@@ -108,7 +108,58 @@ func _process(delta: float) -> void:
 	_update_hold()
 	if not is_paused():
 		_game_tick(delta)
+	_publish_scores()
 	_request_redraw()
+
+
+## The place and the score of every player, for the leader chip and the phones (REQ-GM-46, REQ-FL-67). A game with a score or a
+## ranking returns its `Scoreboard` here. The default is null: no chip, and the phones show no score.
+func _scoreboard() -> Scoreboard:
+	return null
+
+
+## The score of `slot` as text, for the chip and the phone. The default is the number of the `Scoreboard`; a ranking without
+## a score yet (a race before the finish) gives an empty text.
+func _score_label(entry: Dictionary) -> String:
+	return Scoreboard.format(entry.score) if entry.finished else ""
+
+
+## Sends each player its place and score (the server sends a changed message only).
+func _publish_scores() -> void:
+	var board := _scoreboard()
+	if board == null:
+		return
+	var ranking := board.ranking()
+	var lead := board.has_lead()   # Nobody has a place while everybody is level at 0 (REQ-FL-67).
+	for e in ranking:
+		App.server.send_score(e.slot, e.rank if lead else 0, ranking.size() if lead else 0, _score_label(e))
+
+
+## The score text on the leader chip: the score of the first leader, empty when there is no board or no player.
+func leader_text() -> String:
+	var board := _scoreboard()
+	if board == null or board.leaders().is_empty():
+		return ""
+	return _score_label(board.leaders()[0])
+
+
+## The leader chip (REQ-GM-46): the leader of the round, or TIE, with the score. A game without `_scoreboard()` has none, and
+## nobody shows while the best score is 0.
+func draw_leader_chip(ci: CanvasItem) -> void:
+	var board := _scoreboard()
+	if board == null or not board.has_lead():
+		return
+	var leaders := board.leaders()
+	Shell.leader_chip(ci, Shell.area_width(ci), leaders.map(func(e: Dictionary) -> Object: return player(e.slot)), leader_text())
+
+
+## The name tags of the countdown (REQ-GM-46a): `positions` is slot -> the middle of the object of that player on the screen.
+func draw_name_tags(ci: CanvasItem, positions: Dictionary, radius := 48.0) -> void:
+	var entries: Array = []
+	for s in participants:
+		if positions.has(s):
+			entries.append({"pos": positions[s], "name": player(s).player_name, "color": player(s).color})
+	Shell.name_tags(ci, Vector2(Shell.area_width(ci), (ci as Control).size.y if ci is Control else size.y), entries, radius)
 
 
 ## While a participant is lost the game is paused and a card says so (REQ-GM-30). The game never goes on by itself:

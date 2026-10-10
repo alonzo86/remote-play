@@ -116,6 +116,7 @@ const HE := {
 	"NO PLAYERS CONNECTED": "אין שחקנים מחוברים",
 	"ROUND OVER": "הסיבוב נגמר",
 	"TIE!": "תיקו!",
+	"TIE": "תיקו",
 	"NOT FINISHED": "לא סיים",
 	"LEFT THE GAME": "עזב את המשחק",
 	"WAITING TO RECONNECT": "ממתין לחיבור",

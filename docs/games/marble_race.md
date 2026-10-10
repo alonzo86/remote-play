@@ -32,7 +32,7 @@ Status: Done, Open, or Device (needs a real TV and phones). "Check" names the te
 | REQ-MR-7 | Marbles bounce off each other. A marble that finished does not collide with the others. | Done | Device |
 | REQ-MR-8 | The first marble that crosses the finish line wins. The other players have 4 s to finish. The race ends when all have finished or after 4 s. | Done | smoke_tv |
 | REQ-MR-9 | While the race runs, the screen shows the order (1st to 4th) and the race time. A finished player shows the finish time. | Done | Device (readability) |
-| REQ-MR-10 | The order is: finished marbles by time, then the others by distance along the track. | Done | smoke_tv (standings) |
+| REQ-MR-10 | The order is: finished marbles by time, then the others by distance along the track. The leader chip (REQ-GM-46) shows the first marble (with its time once it has finished), or TIE. Each phone shows its own place and, after the finish, its time (REQ-FL-67). In the countdown each marble has a name tag (REQ-GM-46a). | Done | smoke_tv (standings), game_helpers (leader, tags) |
 | REQ-MR-11 | A player who leaves is removed from the race. The race continues with the others. | Done | smoke_tv |
 | REQ-MR-12 | A phone that is lost pauses the race while another player is connected (general REQ-GM-30). | Done | smoke_tv (maze, same base class) |
 | REQ-MR-13 | The haptic events are: GO (60 ms), a hit at 3 m/s or faster (20 ms, at most every 150 ms), crossing the finish line (120 ms). | Done | Device |
@@ -120,4 +120,4 @@ Haptics on the phone of the player: Countdown end: 60 ms; Wall, post or marble h
 
 ## Languages (REQ-GM-47o)
 
-The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer); the finish text, the timer and the track name use `Shell.mx()`. The game world is not mirrored.
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, leader chip, timer); the finish text, the timer and the track name use `Shell.mx()`. The game world is not mirrored.
