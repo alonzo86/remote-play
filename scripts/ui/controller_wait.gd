@@ -29,21 +29,21 @@ func _ready() -> void:
 	_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dot.draw.connect(_draw_dot)
 	box.add_child(_dot)
-	_name = UiKit.label("", 46, UiTheme.TEXT, UiTheme.body_bold())
+	_name = UiKit.label("", UiTheme.SIZE_ITEM)
 	_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_name)
-	_title = UiKit.title("", 84)
+	_title = UiKit.title("", 56)
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_title)
-	_sub = UiKit.label("", 40, UiTheme.TEXT_DIM, UiTheme.body_font())
+	_sub = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sub.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_sub)
 	box.add_child(UiKit.spacer(60))
-	# Leave is a small secondary button. The first tap arms it, the second tap leaves (REQ-FL-52).
-	_leave = UiKit.button("Leave", _on_leave_pressed, false, 40)
-	_leave.custom_minimum_size = Vector2(440, 96)
+	# Leave is a framed text box. The first tap arms it, the second tap leaves (REQ-FL-52).
+	_leave = UiKit.box_button("Leave", _on_leave_pressed, UiTheme.SIZE_ITEM)
+	_leave.custom_minimum_size = Vector2(0, 96)
 	_leave.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(_leave)
 	_leave_timer = Timer.new()
@@ -61,16 +61,24 @@ func _ready() -> void:
 
 func _on_leave_pressed() -> void:
 	if _leave_timer.is_stopped():
-		_leave.text = "\u2715  Tap again to leave"
-		_leave.theme_type_variation = "DangerButton"
+		_leave.text = "TAP AGAIN TO LEAVE"
+		_set_leave_color(UiTheme.BAD)
 		_leave_timer.start()
 	else:
 		App.client.leave()
 
 
 func _disarm_leave() -> void:
-	_leave.text = "Leave"
-	_leave.theme_type_variation = ""
+	_leave.text = "LEAVE"
+	_set_leave_color(UiTheme.TEXT)
+
+
+## The color of the Leave box: white, or red while it is armed. The frame and the text have the same color.
+func _set_leave_color(color: Color) -> void:
+	_leave.add_theme_stylebox_override("normal", UiTheme.line_box(color))
+	_leave.add_theme_stylebox_override("hover", UiTheme.line_box(color))
+	_leave.add_theme_color_override("font_color", color)
+	_leave.add_theme_color_override("font_hover_color", color)
 
 
 func _on_phase(_phase: String) -> void:
@@ -95,20 +103,17 @@ static func texts_for(phase: String) -> Array:
 func _refresh() -> void:
 	var c: Node = App.client
 	var t := texts_for(c.phase)
-	_title.text = t[0]
-	_sub.text = t[1]
+	_title.text = String(t[0]).to_upper()
+	_sub.text = String(t[1]).to_upper()
 	if c.state != ControllerClient.State.CONNECTED:
-		_sub.text = "Reconnecting..."
-	_name.text = "Player %d" % (c.slot + 1)
+		_sub.text = "RECONNECTING..."
+	_name.text = "%dP" % (c.slot + 1)
 	_dot.queue_redraw()
 
 
 func _draw_dot() -> void:
 	var c: Node = App.client
-	var center := _dot.size * 0.5
-	var r := 150.0
-	_dot.draw_circle(center + UiTheme.SHADOW, r + 10.0, UiTheme.OUTLINE)
-	_dot.draw_circle(center, r + 10.0, UiTheme.OUTLINE)
-	_dot.draw_circle(center, r, c.color)
-	UiTheme.draw_centered(_dot, UiTheme.title_font(), str(c.slot + 1),
-			Rect2(center - Vector2(r, r), Vector2(r, r) * 2.0), 170, UiTheme.text_on(c.color))
+	var side := 280.0
+	var box := Rect2(_dot.size * 0.5 - Vector2(side, side) * 0.5, Vector2(side, side))
+	_dot.draw_rect(box, c.color)
+	UiTheme.draw_centered(_dot, UiTheme.font(), str(c.slot + 1), box, 160, UiTheme.text_on(c.color))

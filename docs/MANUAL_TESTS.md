@@ -55,14 +55,16 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [6](#test-6) | Tilt maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95 | Partial (items 1 to 3 Pass, 4 to 6 not run) | R1 | |
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Fail (item 1, fixed, retest) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
-| [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (set to Hebrew for item 7) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
-| [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-50 | Not run |  | |
+| [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
+| [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
 | [10](#test-10) | Snowball Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2 | Not run |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
 | [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
+| [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-41a, 52, 53, REQ-GM-45, 46, FD-18 | Not run |  | |
+| [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Not run |  | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -77,7 +79,7 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 
 1. Start the TV app. Check: the Android splash shows, then the logo screen with an animation (about 2.5 seconds), then the **Connect controllers** screen with a room code and a QR code. If the QR code is empty, the TV has no Wi-Fi address (the screen says so).
 2. Start the controller app on one phone. Check: the phone shows a **portrait** screen.
-3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "Ready!", and the line **Press OK to continue** shows at the bottom (there is no Continue button and no player count). Press OK. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
+3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "READY", and the line **Press OK to continue** shows at the bottom (there is no Continue button and no player count). Press OK. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
 4. Tap **Leave**, then tap the TV under **Discovered TVs**. Check: it joins (the button reads "<code> x/y", for example "KQZM 1/4", and it is green; **Refresh** is yellow). Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds.
 5. Tap **Leave**, then join with the **TV IP address**. Check: it joins.
 
@@ -87,7 +89,7 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the TV (splash, logo, Connect screen) and the phone (portrait) | Not run | | | |
 | 2 | Photo of the phone in portrait | Not run | | | |
-| 3 | Photo of TV and phone together: slot 1 'Ready!' and the line 'Press OK to continue'; then the Games screen | Retest | R1 | Chat report 2026-10-09 (no file) | R1: the owner found the Continue button redundant (it was the only focus target) and the count of players repeated the slot list. Changed on 2026-10-09 (FD-17, REQ-FL-6, 7): the button and the count are gone, and 'Press OK to continue' shows once a phone has joined. The old check cannot pass any more. Retest the new screen. |
+| 3 | Photo of TV and phone together: slot 1 'READY' and the line 'PRESS OK TO CONTINUE'; then the Games screen | Retest | R1 | Chat report 2026-10-09 (no file) | R1: the owner found the Continue button redundant (it was the only focus target) and the count of players repeated the slot list. Changed on 2026-10-09 (FD-17, REQ-FL-6, 7): the button and the count are gone, and 'PRESS OK TO CONTINUE' shows once a phone has joined. The old check cannot pass any more. Retest the new screen. |
 | 4 | Photo of the phone list with the button '<code> x/y'; note the time Refresh takes | Not run | | | |
 | 5 | Phone screenshot after joining by IP | Not run | | | |
 
@@ -192,7 +194,7 @@ History:
 
 ### Tilt maze feel
 
-Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95.
+Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-7, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95.
 
 
 **Steps**
@@ -203,6 +205,7 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-
 4. Repeat with 2 to 4 phones. Check *Rx Hz* and *Gap ms* for all players during the race.
 5. Tilt the phone, then tap **RECENTER**. Check: the ball stops creeping. Tap **A** and **B**. Check: nothing changes (A and B do not recenter, REQ-MZ-8). At GO the phone recenters by itself.
 6. Open the tile of **Tilt Maze**. Check: the settings view opens with Difficulty on Medium, and Back (left) and Start (right) are on one line at the bottom. With the remote, press Left and Right on the Difficulty row (it must stop at Easy and at Hard). Play one round on each of Easy, Medium and Hard. Check: Easy is a small maze, Hard is big and winding, the whole board is on the screen, and the ball does not feel stuck in the narrow corridors of Hard. After the round, the result menu has **Settings**, and it returns to the view with the last choice. In the view, press Back on the remote: it returns to the Games screen (the app does not close). With the only phone connected, switch its Wi-Fi off while the view is open: after about 5 seconds Start is dimmed and a yellow line says "Needs 1 player". Switch Wi-Fi on again: Start works again.
+7. **Pixel world (phase 4, REQ-MZ-7).** From the sofa (about 3 m), look at the maze on Medium and Hard. Check: the walls, the balls and the exit are sharp square pixels, the walls are easy to see on the board, the slot numbers on the balls are easy to read, and the white ring of the exit blinks in a hard step. The walls are 12 px now (before: 10 px) and Hard has cells of 76 px (before: 78 px): check that the ball does not feel stuck in the narrow corridors of Hard.
 
 **Results**
 
@@ -214,9 +217,11 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-
 | 4 | Screenshot of the debug overlay for every player during the race | Not run | | | |
 | 5 | Video of the ball: creeping, then RECENTER, then A and B | Not run | | | |
 | 6 | Photos of the settings view and of the maze on Easy, Medium and Hard; note on the sizes and the corridors | Not run | | | Added 2026-10-09 (REQ-MZ-9). The sizes in `LEVELS` are first guesses. |
+| 7 | Photo of the maze from the sofa; note: sharp pixels, readable numbers, the ball in the corridors of Hard | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). |
 
 History:
 
+- 2026-10-10 (not run): item 7 is new: the maze world is a pixel world (phase 4 of the arcade style), walls 12 px, Hard cells 76 px.
 - 2026-10-09 (not run): item 6 is new (REQ-MZ-9, REQ-GM-90 to 97): the settings view, the three difficulties, the yellow chosen value, Back and Start on one line, and Start dimmed when no phone fits.
 - R1: items 1 to 3 **Pass** (the owner: 'it works perfectly'). Items 4 and 5 are not run: 2 to 4 phones, and RECENTER with A and B.
 - R0: **Retest**. First run: drift and inverted controls (caused by 'Invert tilt axes' being on). After the fix the maze looks good on the desk. The feel and the constants were not judged. Item 5 is new (RECENTER, and A and B do nothing).
@@ -230,12 +235,12 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 
 **Steps**
 
-1. With two phones joined, during the maze, switch one phone Wi-Fi off for 15 seconds, then on. Check: within about 5 seconds the TV pauses and shows the card "P2 lost connection" with **Resume without P2** and **End game**, and the phone shows "Reconnecting...". When the phone is back, the card says "P2 reconnected" with **Resume**. The game goes on only when you press **Resume**.
+1. With two phones joined, during the maze, switch one phone Wi-Fi off for 15 seconds, then on. Check: within about 5 seconds the TV pauses and shows the card "2P LOST CONNECTION" with **Resume without P2** and **End game**, and the phone shows "Reconnecting...". When the phone is back, the card says "P2 reconnected" with **Resume**. The game goes on only when you press **Resume**.
 2. Lock the phone screen for 10 seconds, then unlock. Check: the phone reconnects. (Android can stop the app in the background.)
 3. Switch the phone Wi-Fi off for 40 seconds. Check: the slot is freed. When the Wi-Fi is back, the phone joins again (maybe in a different slot).
 4. Switch one phone Wi-Fi off again and wait for the card. Choose **Resume without P2**. Check: the game continues without that player. Switch the Wi-Fi on. Check: the phone joins again as a new player and waits for the next round.
-5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "P1 lost connection" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Snowball Splat. Press Back on the card. Check: it asks "End the game?".
-6. On the phone pad, tap **Leave** once. Check: it turns red ("Again") for 3 seconds and the phone does not leave. Tap again within 3 seconds: it leaves. Check the pad buttons: A is green and B is red, both sink when pressed.
+5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "1P LOST CONNECTION" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Snowball Splat. Press Back on the card. Check: it asks "End the game?".
+6. On the phone pad, tap **Leave** once. Check: it turns red ("AGAIN") for 3 seconds and the phone does not leave. Tap again within 3 seconds: it leaves. Check the pad buttons: A is green and B is red, both sink when pressed.
 7. Phone call: with one phone in a game, call that phone from another phone and answer. Check: the game pauses with the card. End the call and go back to the controller app. Check: the phone says "Reconnecting..." and then joins again, the card says "P1 reconnected" with **Resume**, and **Resume** goes on with the game. Try a call that lasts more than 1 minute (the slot is kept 5 minutes while the game is paused). Write down how long the phone needs to reconnect after the call. (REQ-GM-30, 30a)
 
 **Results**
@@ -289,7 +294,7 @@ History:
 
 ### The TV flow and the style
 
-Needs: 1 to 2 phones, 1 TV (set to Hebrew for item 7). Covers: REQ-FL-1 to 46, REQ-FL-54, REQ-FL-56, 57, FD-1 to 17.
+Needs: 1 to 2 phones, 1 TV. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, FD-1 to 17. Item 7 (a TV set to Hebrew) moved to Test 17 on 2026-10-10: FD-19 replaced REQ-FL-54, so the TV now offers Hebrew and no longer stays English.
 
 
 **Steps**
@@ -298,9 +303,9 @@ Needs: 1 to 2 phones, 1 TV (set to Hebrew for item 7). Covers: REQ-FL-1 to 46, R
 2. On the Games screen, with one phone joined, check that every tile shows its screenshot, title and player range, and that the text is readable from the sofa (REQ-FL-40).
 3. Open the **players badge** (OK). Check: the modal shows the slots, a QR code and the room code. Press **Remove** on a player. Check: the phone says that the host removed it and does not reconnect by itself. Join again with the QR code. Check: the slot fills again.
 4. Join a phone while a game runs. Check: the phone says "A round is running", it does not take part, and it joins the next round.
-5. Check the motion on the TV box: the logo (with its confetti), the tile growing and shrinking and the screen changes run at 60 frames per second (overlay FPS). Check that the Party Pop colors look right on your TV (not washed out, outlines visible).
+5. Check the motion on the TV box: the logo (with its confetti), the blinking prompts and the screen changes run at 60 frames per second (overlay FPS). Check that the arcade colors look right on your TV (black is black, yellow and blue are not washed out).
 6. Phone: check that the fonts and the colors match the TV on the connect, waiting and pad screens.
-7. Set the language of the TV to a language that is written from right to left (Hebrew, region Israel) and start the app. Check: every screen is in English and left to right (the QR card on the left, the title on the left, the buttons not mirrored). The phone app does the same with a phone set to Hebrew. (REQ-FL-54)
+7. (Moved to Test 17.) The old step was: set the TV to Hebrew, region Israel, and check that the app stays English and left to right. FD-19 replaced that rule on 2026-10-10: the app now has Hebrew, and the result of R1 (the mirrored English UI) is not a defect any more.
 
 **Results**
 
@@ -312,7 +317,7 @@ Needs: 1 to 2 phones, 1 TV (set to Hebrew for item 7). Covers: REQ-FL-1 to 46, R
 | 4 | Photo of the phone 'A round is running' | Not run | | | |
 | 5 | Overlay FPS screenshot during the logo, tile growth and screen changes; photo of the colors | Not run | | | |
 | 6 | Photos of the phone connect, waiting and pad screens next to the TV | Not run | | | |
-| 7 | Photos of the Connect and Games screens on a TV set to Hebrew; of the phone set to Hebrew | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the TV is set to the IL region and Hebrew. The text was English, but the layout was mirrored (right to left). Fixed on 2026-10-09 (REQ-FL-54): the app sets the locale to English and the layout to left to right. Retest on the TV. The phone was not tried. |
+| 7 | (Moved to Test 17.) Photos of the Connect and Games screens on a TV set to Hebrew; of the phone set to Hebrew | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the TV is set to the IL region and Hebrew. The text was English, but the layout was mirrored (right to left). Fixed on 2026-10-09 (REQ-FL-54): the app sets the locale to English and the layout to left to right. Retest on the TV. The phone was not tried. |
 
 History:
 
@@ -322,7 +327,7 @@ History:
 
 ### Marble race (3D)
 
-Needs: 2 to 4 phones, 1 TV. Covers: REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-50.
+Needs: 2 to 4 phones, 1 TV. Covers: REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
 Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Race" and pick a track.
 
@@ -340,6 +345,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 9. Open the tile of **Marble Race**. Check: the settings view shows Difficulty (Left and Right) and, under it, a carousel of tracks (10 line sketches and a "?", no names), wider than the Difficulty row, with the selected track in the middle. Move the carousel with Left and Right (the track in the middle is the one you get), then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many posts. Choose the "?" tile twice: the tracks are different. Restart: the same track again. (REQ-MR-50 to 54)
 10. During a race, open the pause menu. Check: it has Resume, Restart and Back to menu only. (REQ-MR-32)
 11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the marble stops drifting.
+12. **Pixel world (phase 3, REQ-MR-44, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the race. Check: the track, the posts and the marbles are made of sharp square pixels (not blurred), each marble has a black outline and its number is easy to read on it, and the posts and marbles are easy to tell apart on the purple track. Fly the camera high (let one marble run far ahead): the small marbles have no number, and you can still follow them by color. Write down the frame rate with 4 phones on Hard (it should be the same or better than before) and the TV (1080p or 4K).
 
 **Results**
 
@@ -356,6 +362,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 | 9 | Photo of the settings view; video of choosing a track and of Easy, Medium and Hard; note on the generated tracks (any bad bends or corners where a marble gets stuck) | Not run | | | Changed 2026-10-09: the four hand-made tracks were replaced by generated tracks. |
 | 10 | Photo of the pause menu | Not run | | | |
 | 11 | Video of a full race on one track and notes for every check in the item | Not run | | | |
+| 12 | Photo of the race from the sofa; note: sharp pixels, readable numbers, the frame rate and the TV | Not run | | | |
 
 Winning times (item 8):
 
@@ -369,13 +376,14 @@ Winning times (item 8):
 History:
 
 - 2026-10-09 (not run): the four hand-made tracks were replaced by generated tracks, and item 9 is new: the settings view with Difficulty and the track carousel (10 sketches and a '?', the middle one is chosen, yellow border), difficulty by the number of posts (Easy 2, Medium 6, Hard 10 for each 100 m). Look for a bend where a marble gets stuck, and for too many posts on Hard. The results menu has Settings, not Choose track.
+- 2026-10-10 (not run): item 12 is new: the 3D world is drawn in a 480x270 pixel view (phase 3 of the arcade style), and the marbles have their slot number on them.
 - -: **Not run**. Not run on a device yet. Item 11 is new: run it again after a change of the shared game code (PR 12 changed the countdown, the buzz limit and the end with no players).
 
 ## Test 10
 
 ### Snowball Splat (pointer)
 
-Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-SS-*, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50.
 
 Hold each phone like a remote control, pointing at the TV, from the sofa. This is the first game that uses the
 gyroscope pointer, so this test also checks the pointer itself (the old Test 5 for drift was removed).
@@ -391,9 +399,10 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 5. Check the Puffs from the sofa. Check: they are big and slow enough to hit with a pointer, they are easy to tell apart (pink, cyan and green Puffs for 10 points, the smaller yellow Little Puff for 25 points), and the cursor and its number are easy to see on the dark sky. Write down if the speed is right for an adult and for a child. (REQ-SS-7, 12)
 6. Play a full round of 60 seconds alone. Write down the score. Check the medal at the end and compare with the tiers [150, 300, 450]: are they too easy or too hard? (REQ-SS-16)
 7. Play with 2 to 4 phones. Check: all players see the same Puffs. Two players throw at the same Puff: the one who threw first gets it. Check the frame rate in the debug overlay with 4 players (60 expected). (REQ-SS-11, REQ-GM-50)
-8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "P2 lost connection". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
+8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "2P LOST CONNECTION". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
 9. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint and a few seconds of play, hits some Puffs, is not frustrated or scared, and wants to play again. Write down the age and what the child said or did. (REQ-GM-80 to 84, REQ-SS-17)
 10. Open the tile of **Snowball Splat**: the settings view opens. Play one round alone on each of Easy, Medium and Hard. Check: Easy has slow Puffs and more of them, Hard has fast Puffs and fewer, Hard is a challenge but not impossible, and the medal title names the difficulty ("Silver medal! (Hard)"). Write down the score of each round to tune the tiers (Easy [170, 340, 510], Medium [150, 300, 450], Hard [120, 240, 360]).
+11. **Pixel world (phase 4, REQ-SS-12).** From the sofa (about 3 m), look at the sky. Check: the Puffs, the cursors and the snowballs are sharp square pixels, a Puff is easy to see on the dark board, the number on each cursor badge is easy to read, the points "+10" are easy to read, and the white flakes do not hide the Puffs. Write down if the cursor and the snowball are easy to follow.
 
 **Results**
 
@@ -409,6 +418,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 | 8 | Video: Wi-Fi off during a round, then the card | Not run | | | |
 | 9 | Short video of the child playing (only with the permission of the parent); the age and the words of the child | Not run | | | |
 | 10 | Photos of the settings view and of a round on each difficulty; the scores; note on the speed and the number of Puffs | Not run | | | Added 2026-10-09 (REQ-SS-20 to 22). All values are first guesses. |
+| 11 | Photo of the sky from the sofa; note: sharp pixels, readable numbers and points | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). |
 
 Values to write down (items 2, 3, 5 and 6). These decide the first tuning values of the game:
 
@@ -422,6 +432,7 @@ Values to write down (items 2, 3, 5 and 6). These decide the first tuning values
 
 History:
 
+- 2026-10-10 (not run): item 11 is new: the sky is a pixel world (phase 4 of the arcade style).
 - 2026-10-09 (not run): item 10 is new: the settings view and Easy, Medium and Hard for Snowball Splat (faster and fewer Puffs as it grows, medal tiers for each level, the title names the difficulty).
 - R2: the owner played the new game and reported one problem: the last digit of a score above 3 digits was not visible in the chip at the top. Fixed on 2026-10-09. Nothing else was reported, so the other items stay not run.
 - R1: **Fail**, then redesigned. The owner tried the first version ("Target Shoot", small fast targets, a lock after a miss, decoys) and said: "I don't think it's playable in its current definition." They asked for something like Duck Hunt with larger and slowly moving targets, no penalty for a miss, and a game that is also for kids, so not shooting but for example throwing snowballs at a made-up character. Changed on 2026-10-09: the game is now Snowball Splat (REQ-SS-*), and REQ-GM-80 to 84 are new for all games. Which steps failed was not reported. The whole test needs a run with the new game.
@@ -520,7 +531,7 @@ History:
 
 ### Paint Grab (tilt)
 
-Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 7. Covers: REQ-PG-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 7. Covers: REQ-PG-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
 Hold each phone flat like a tray. New game (2026-10-09). The blob feel (`TiltBody`: acceleration, damping, speed limit, bounce) and the
 difficulty values are first guesses.
@@ -536,6 +547,7 @@ difficulty values are first guesses.
 7. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint line, enjoys it, and is not upset when a tile is painted over.
 8. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
 9. Tap **RECENTER** with the phone tilted. Check: the blob stops creeping. A and B do nothing. (REQ-PG-14)
+10. **Pixel world (phase 4, REQ-PG-15).** From the sofa (about 3 m), look at the floor on Medium and Hard. Check: the tiles are sharp squares with equal gaps (no uneven lines), you can tell the colors apart, the blob and its number are easy to see on a tile of its own color, and a painted tile pops (a hard step). Write down if the pop is easy to see.
 
 **Results**
 
@@ -550,16 +562,18 @@ difficulty values are first guesses.
 | 7 | Note: the child, the age, what happened | Not run | | | |
 | 8 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
 | 9 | Video: RECENTER, then A and B | Not run | | | |
+| 10 | Photo of the floor from the sofa; note: equal gaps, colors, the blob and the pop | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). |
 
 History:
 
+- 2026-10-10 (not run): item 10 is new: the floor is a pixel world (phase 4 of the arcade style).
 - -: **Not run**. New.
 
 ## Test 15
 
 ### Sumo Bumpers (tilt and A)
 
-Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-50.
+Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
 Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody`), the bounce, the dash and the difficulty values are first guesses.
 
@@ -575,6 +589,7 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 8. Let a child of about 5 to 8 years play a match, with a grown-up next to them. Check: the child understands what to do from the hint line, laughs at the fall and is not upset.
 9. Leave the game on one phone during a round. Check: its bumper goes and the match goes on. With 2 phones, leave on one: the match ends at once.
 10. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
+11. **Pixel world (phase 2, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the world. Check: the bumpers, the platform and the stars are made of sharp square pixels (not blurred), every bumper has a black outline, eyes, and its number is easy to read on it, "WHEE!" and the chips are sharp text, and the bumpers are easy to tell apart on the dark platform. Write down if a bumper is too small to follow in a fight, and the TV (1080p or 4K).
 
 **Results**
 
@@ -590,6 +605,75 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 | 8 | Note: the child, the age, what happened | Not run | | | |
 | 9 | Note: what happened on each leave | Not run | | | |
 | 10 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
+| 11 | Photo of the screen from the sofa; note: sharp pixels, readable numbers, the TV | Not run | | | |
+
+History:
+
+- -: **Not run**. New. Item 11 was added on 2026-10-10 (phase 2 of the arcade style).
+
+## Test 16
+
+### The arcade look (REQ-FL-37 to 46, FD-18)
+
+Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 to 8 years for item 8. Covers: REQ-FL-37 to 46, 41a, 52, 53, REQ-GM-45, 46. New, written on 2026-10-10 for phase 1 of `docs/ARCADE_STYLE_PLAN.md`. The games still draw their old worlds (phases 2 to 4): only the menus, the phone and the game shell (HUD, countdown, menus, hints) are new.
+
+**Steps**
+
+1. Sit on the sofa (about 3 m from the TV). Go through the logo, Connect, Games, Settings, a game settings view, the Players modal, the quit question, a pause menu and a result menu. Check: all text is easy to read (the smallest is 32 px), upper case, white, gray or yellow on black. Write down every text that is hard to read.
+2. Look at the text and the frames from 1 m. Check: the pixels are sharp, not blurred or smoothed, on 1080p. Do it on a 4K TV too, if you have one.
+3. Games screen with 1, 2 and 4 phones. Check: three tiles in a row, the focused tile has a yellow frame and a cursor, the description of the focused game shows in the bar under the grid, "SNOWBALL SPLAT" fits under its tile, and a game that needs more phones shows its reason in yellow.
+4. Check the menus: the cursor is in front of the focused item, a destructive item (END GAME, QUIT, REMOVE) is red with the focus, BACK is dim until it has the focus, and OK, Back and the D-pad work as before.
+5. Check the motion: PRESS OK TO CONTINUE and PRESS OK TO SKIP blink (about half a second on, half a second off), the logo drops in in steps, the confetti is square, the countdown number shrinks in steps. The overlay FPS stays at 60.
+6. Phone: connect, wait and pad screens. Check: the text is readable at arm's length, A (green) and B (red) feel like buttons, RECENTER flashes yellow, LEAVE needs two taps, and the slot color square with the slot number is at the top.
+7. Play each game with 4 phones that have long names (12 letters or more). Check: the chips of the players, the timer, the title and the hint do not hide each other or the play area. Write down which game has a problem and where. The games are restyled in phases 2 to 4: a problem here is a note for that phase.
+8. A child of 5 to 8 years joins and plays one game. Check: the child finds the focus (the cursor), reads or understands "PRESS OK", and does not say it looks scary or boring. Write down what the child says.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photos of each TV screen | Not run | | | |
+| 2 | Close photo of a title and a menu on 1080p (and 4K) | Not run | | | |
+| 3 | Photo of the Games screen with 1 and 4 phones | Not run | | | |
+| 4 | Photos of a menu with the cursor, a red item, a dim BACK | Not run | | | |
+| 5 | Video of the logo, a blinking prompt and a countdown; overlay FPS | Not run | | | |
+| 6 | Photos of the phone screens | Not run | | | |
+| 7 | Photos of the HUD of each game with 4 long names | Not run | | | |
+| 8 | Notes: what the child said | Not run | | | |
+
+History:
+
+- -: **Not run**. New.
+
+## Test 17
+
+### Hebrew and right to left (REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19)
+
+Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it with the TV set to Hebrew, region Israel, and again set to English), a person who reads Hebrew. Covers: REQ-FL-54, 60 to 63, REQ-GM-47o. New, written on 2026-10-10 for phase 5 of `docs/ARCADE_STYLE_PLAN.md`. The headless test `tests/smoke_lang.gd` checks the table, the layout positions and the protocol; it cannot check how the text looks on a TV.
+
+**Steps**
+
+1. Delete the app data of the TV app (or install fresh) and start it with the TV set to Hebrew. Check: the logo screen waits and shows "ENGLISH" and "עברית" side by side, the focus is on "עברית", and nothing moves on by itself. Press OK. Check: the app is in Hebrew and opens the Connect screen. Close the app and start it again: the logo goes on by itself (no choice) and the language is still Hebrew. Do it again with the TV set to English: the focus starts on "ENGLISH".
+2. In Hebrew, go through the logo, Connect, Games, Settings, a settings view, the Players modal, the quit question. Check: every screen is mirrored (QR card at the right, slot squares at the right, cursor at the right and pointing left, title at the right), no text is cut, no English word is left (except REMOTE PLAY, WI-FI, OK, the room code and the player names), and the Hebrew letters and the punctuation (`. , ! ? -`) look right next to each other. Write down any text that is cut or any word that looks wrong.
+3. In Hebrew, the Left and Right keys of the remote in a choice row (Difficulty): Right goes to the previous value (the arrow at the right), Left to the next. Check that the D-pad moves the focus between rows by position as before.
+4. Join 2 phones: one with the system language Hebrew, one English, with player names in Latin letters and in Hebrew letters. Check: before the join the Hebrew phone shows its connect screen in Hebrew and the English phone in English; after the join both show the language of the TV (Hebrew); the player names show as typed (a Latin name in a Hebrew row is in the right place).
+5. In Settings, press OK on the Language row. Check: the TV switches to English at once (the layout turns left to right), the phones switch too, and the Settings screen stays open. Switch back to Hebrew. Leave the app and start it again: the language is the one that was last chosen.
+6. Start each game in Hebrew with 2 phones. Check: the title is at the top right, the chips start at the left with 1P at the right end, the timer is at the left of the title, the hint and the countdown ("קדימה") are readable, and the world is not mirrored (the maze start is at the top left, the track runs as in English). Open the pause menu and the result menu: the ranking list, the medal text and "תיקו!" read right.
+7. Phone in Hebrew, on the pad screen: the words RECENTER, LEAVE and the hint are Hebrew, and A and B are in the same places as in English (the pad is not mirrored).
+8. Run the English TV again with the same phones: nothing changed from before (compare with Test 16).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Video of the first start with the choice and the second start; photo of the choice | Not run | | | |
+| 2 | Photos of each TV screen in Hebrew; a list of cut or wrong text | Not run | | | |
+| 3 | Video of a choice row with Left and Right | Not run | | | |
+| 4 | Photos of both phones before and after the join, and the Connect screen with the names | Not run | | | |
+| 5 | Video of the switch in Settings with the TV and a phone in the picture | Not run | | | |
+| 6 | Photos of the HUD of each game in Hebrew; the result menu | Not run | | | |
+| 7 | Photo of the Hebrew phone pad | Not run | | | |
+| 8 | Photos of the English TV | Not run | | | |
 
 History:
 

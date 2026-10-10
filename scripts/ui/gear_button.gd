@@ -1,28 +1,19 @@
 extends Button
-## A round button with a gear drawn in code. OK opens the Settings screen (REQ-FL-16).
+## The OPTIONS button of the Games screen: a framed text box (the frame is yellow with the focus). OK opens the Settings
+## screen (REQ-FL-16). The file keeps its old name, from the time it drew a gear.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_ALL
-	custom_minimum_size = Vector2(84, 84)
-	focus_entered.connect(queue_redraw)
-	focus_exited.connect(queue_redraw)
-	theme_type_variation = "RowButton"
-	add_theme_stylebox_override("normal", UiTheme.button_style(UiTheme.BUTTON, "normal", 42))
-	add_theme_stylebox_override("disabled", UiTheme.button_style(UiTheme.BUTTON, "disabled", 42))
+	text = "OPTIONS"
+	add_theme_font_size_override("font_size", UiTheme.SIZE_ITEM)
+	custom_minimum_size = Vector2(0, 84)
+	for st in ["normal", "pressed", "disabled"]:
+		add_theme_stylebox_override(st, UiTheme.line_box(UiTheme.TEXT_DIM))
 	for st in ["hover", "focus"]:
-		add_theme_stylebox_override(st, UiTheme.button_style(UiTheme.BUTTON, "focus", 42))
-	add_theme_stylebox_override("pressed", UiTheme.button_style(UiTheme.BUTTON, "pressed", 42))
-
-
-func _draw() -> void:
-	var c := size * 0.5
-	var col := UiTheme.ACCENT if has_focus() else UiTheme.TEXT # Yellow gear on focus: the border is black.
-	for i in 8:
-		var a := TAU * i / 8.0
-		var dir := Vector2.from_angle(a)
-		draw_line(c + dir * 20.0, c + dir * 29.0, col, 9.0)
-	draw_circle(c, 22.0, col)
-	draw_circle(c, 9.0, UiTheme.BUTTON)
+		add_theme_stylebox_override(st, UiTheme.line_box(UiTheme.ACCENT))
+	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
+		add_theme_color_override(c, UiTheme.TEXT)
+	add_theme_color_override("font_focus_color", UiTheme.ACCENT)

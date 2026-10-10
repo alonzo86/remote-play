@@ -1,8 +1,10 @@
 extends CPUParticles2D
-## One burst of confetti (REQ-FL-42, REQ-FL-45). Drawn by particles, no image files.
+## One burst of square pixel confetti (REQ-FL-42, REQ-FL-45). Drawn by particles, no image files.
 ## Use Confetti.burst(parent, position). It frees itself when it is done.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+
+const PIXEL := 16   # The size of one piece: two pixels of the 8 px grid.
 
 
 static func burst(parent: Node, pos: Vector2) -> void:
@@ -17,6 +19,8 @@ func _ready() -> void:
 	ramp.offsets = PackedFloat32Array([0.0, 0.34, 0.67])
 	ramp.colors = PackedColorArray(UiTheme.CONFETTI)
 	color_initial_ramp = ramp
+	texture = _square()
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	one_shot = true
 	explosiveness = 1.0
 	amount = 36
@@ -26,10 +30,13 @@ func _ready() -> void:
 	initial_velocity_min = 380.0
 	initial_velocity_max = 760.0
 	gravity = Vector2(0, 1500)
-	angular_velocity_min = -480.0
-	angular_velocity_max = 480.0
-	scale_amount_min = 10.0
-	scale_amount_max = 18.0
 	z_index = 100
 	emitting = true
 	finished.connect(queue_free)
+
+
+## A white square of one piece. The particle color tints it.
+static func _square() -> Texture2D:
+	var img := Image.create(PIXEL, PIXEL, false, Image.FORMAT_RGBA8)
+	img.fill(Color.WHITE)
+	return ImageTexture.create_from_image(img)

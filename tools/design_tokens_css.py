@@ -13,7 +13,7 @@ def build() -> str:
 	with open(os.path.join(DIR, "tokens.json"), encoding="utf-8") as f:
 		t = json.load(f)
 	out = ["/* Remote Play: generated from tokens.json by tools/design_tokens_css.py. Fonts live in assets/fonts. */", ":root{"]
-	for fam in ("color", "shadow", "spacing", "radius", "border"):
+	for fam in ("color", "spacing", "border"):
 		for k in t[fam]["tokens"]:
 			out.append("  --%s: %s;" % (k["name"], k["value"]))
 	for k, v in t["type"]["families"].items():

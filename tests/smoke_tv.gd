@@ -4,6 +4,7 @@ extends SceneTree
 ## It runs the TV flow, the maze and the marble race, and checks that tilt moves a ball.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 var MazeGame
@@ -30,7 +31,7 @@ func _small_text(n: Node) -> Array:
 	if n is Label or n is Button:
 		var fs: int = n.get_theme_font_size("font_size")
 		var txt: String = n.text
-		if txt != "" and fs < 28:
+		if txt != "" and fs < UiTheme.SIZE_BODY:
 			out.append("%s:%d" % [txt.left(20), fs])
 	for c in n.get_children():
 		out.append_array(_small_text(c))
@@ -81,6 +82,10 @@ func _run() -> void:
 	TvSettings = load("res://scripts/ui/tv_settings.gd")
 	TvGameSettings = load("res://scripts/ui/tv_game_settings.gd")
 	var app: Node = root.get_node("App")
+	# A saved language: the logo goes on by itself. The first start, which asks for the language, is tested in smoke_lang.gd.
+	app.settings.language = "en"
+	app.go_logo()
+	await _frames(2)
 	_check(is_instance_of(app.current_screen(), TvLogo), "TV starts on the logo screen (REQ-FL-2)")
 	_check(app.server.listening, "server is listening while the logo shows (REQ-FL-4)")
 	_check(app.server.phase == "connect", "phase is connect on the logo screen")
@@ -106,7 +111,7 @@ func _run() -> void:
 	await _frames(3)
 	var connect: Control = app.current_screen()
 	_check(is_instance_of(connect, TvConnect), "Back skips the logo screen and goes to Connect")
-	_check(connect._hint.text != "Press OK to continue" and not connect.can_continue(),
+	_check(connect._hint.text != "PRESS OK TO CONTINUE" and not connect.can_continue(),
 			"no phone: no 'Press OK' line, and OK does nothing (REQ-FL-6, 7)")
 	var ok_key := InputEventAction.new()
 	ok_key.action = "ui_accept"
@@ -136,8 +141,8 @@ func _run() -> void:
 	await _stream(clients[0], 0, 0.3, flat)
 	await _stream(clients[1], 1, 0.3, flat)
 	await _frames(3)
-	_check(connect._hint.text == "Press OK to continue" and connect.can_continue(),
-			"after a phone joins the screen says 'Press OK to continue' (REQ-FL-6)")
+	_check(connect._hint.text == "PRESS OK TO CONTINUE" and connect.can_continue(),
+			"after a phone joins the screen says 'PRESS OK TO CONTINUE' (REQ-FL-6)")
 	_check(connect.find_children("*", "Button", true, false).is_empty(), "the Connect screen has no button (REQ-FL-6)")
 	_check(not ("players connected" in connect._hint.text), "the screen does not count the players")
 	_check(clients[0].phase == "connect", "the phone sees the connect phase")
@@ -151,30 +156,31 @@ func _run() -> void:
 	var games: Control = app.current_screen()
 	_check(is_instance_of(games, TvGames) and app.server.phase == "menu", "OK opens the Games screen (REQ-FL-7)")
 	_check(games._tiles.size() == Registry.all().size(), "one tile for each game (REQ-FL-11)")
-	# The tile_focus tile is wide and shows the description. The others keep the screenshot width (REQ-FL-12, 13).
-	await create_timer(0.4).timeout
+	# Every tile keeps its size. The focused tile has a yellow frame, and the description is in the bar (REQ-FL-12, 13).
+	await create_timer(0.2).timeout
 	var tile_focus: Button = null
 	for t in games._tiles:
 		if t.has_focus():
 			tile_focus = t
-	_check(tile_focus != null and is_equal_approx(tile_focus.size.x, tile_focus.wide_width()) and tile_focus._desc.modulate.a > 0.99,
-			"the focused tile grows wide and shows the description (REQ-FL-12)")
-	_check(tile_focus._desc.size.x <= tile_focus.INFO_W and tile_focus._desc.get_line_count() >= 2,
-			"the description wraps inside the panel of the wide tile")
-	var others_small := true
+	var all_same := true
 	for t in games._tiles:
-		if t != tile_focus:
-			others_small = others_small and is_equal_approx(t.size.x, t.SHOT.x) and t._desc.modulate.a < 0.01
-	_check(others_small and games._tiles.size() >= 2, "the other tiles keep the screenshot width")
+		all_same = all_same and is_equal_approx(t.size.x, t.SHOT.x)
+	_check(tile_focus != null and all_same, "all tiles have the same size, focused or not (REQ-FL-12)")
+	_check(games._info.text == String(tile_focus.game.description).to_upper(),
+			"the info bar shows the description of the focused game (REQ-FL-13)")
+	var frame_of := func(t: Button) -> Color: return (t._frame.get_theme_stylebox("panel") as StyleBoxFlat).border_color
 	var next_tile: Button = games._tiles[(games._tiles.find(tile_focus) + 1) % games._tiles.size()]
+	_check(frame_of.call(tile_focus) == UiTheme.ACCENT and frame_of.call(next_tile) == UiTheme.TEXT_DIM,
+			"the focused tile has the yellow frame")
 	next_tile.grab_focus()
-	await create_timer(0.4).timeout
-	_check(is_equal_approx(next_tile.size.x, next_tile.wide_width()) and is_equal_approx(tile_focus.size.x, tile_focus.SHOT.x),
-			"the focus moves: the new tile grows and the old tile shrinks")
+	await create_timer(0.2).timeout
+	_check(frame_of.call(next_tile) == UiTheme.ACCENT and frame_of.call(tile_focus) == UiTheme.TEXT_DIM
+			and games._info.text == String(next_tile.game.description).to_upper(),
+			"the focus moves: the frame and the description move with it")
 	tile_focus.grab_focus()
-	await create_timer(0.4).timeout
-	_check(_small_text(games).is_empty(), "Games screen: no text below 28 px (REQ-FL-40) " + str(_small_text(games)))
-	_check(games._badge.text == "2 players", "the badge shows the number of players (REQ-FL-15)")
+	await create_timer(0.2).timeout
+	_check(_small_text(games).is_empty(), "Games screen: no text below 32 px (REQ-FL-40) " + str(_small_text(games)))
+	_check(games._badge.text == "2P", "the badge shows the number of players (REQ-FL-15)")
 	var nobody: bool = true
 	for t in games._tiles:
 		nobody = nobody and t.fits
@@ -217,19 +223,19 @@ func _run() -> void:
 	games = app.current_screen()
 	games._gear.pressed.emit()
 	await _frames(3)
-	_check(is_instance_of(app.current_screen(), TvSettings), "the gear opens Settings")
+	_check(is_instance_of(app.current_screen(), TvSettings), "OPTIONS opens Settings")
 	var small: Array = _small_text(app.current_screen())
-	_check(small.is_empty(), "Settings screen: no text below 28 px (REQ-FL-40) " + str(small))
+	_check(small.is_empty(), "Settings screen: no text below 32 px (REQ-FL-40) " + str(small))
 	app.current_screen().on_back()
 	await _frames(3)
 	games = app.current_screen()
-	_check(is_instance_of(games, TvGames) and games._gear.has_focus(), "Back from Settings returns to the gear (REQ-FL-24)")
+	_check(is_instance_of(games, TvGames) and games._gear.has_focus(), "Back from Settings returns to OPTIONS (REQ-FL-24)")
 	games._open_players()
 	await _frames(3)
 	_check(games._modal != null, "the badge opens the Players modal")
 	app.server.kick(1)
 	await _frames(3)
-	_check(games._badge.text == "1 player", "Remove updates the badge at once (REQ-FL-36)")
+	_check(games._badge.text == "1P", "Remove updates the badge at once (REQ-FL-36)")
 	_check(not app.server.players[1].is_present(), "Remove frees the slot (REQ-FL-33)")
 	games.on_back()
 	await _frames(2)
@@ -256,6 +262,8 @@ func _run() -> void:
 	await _frames(3)
 	var game: Control = app.current_screen()
 	_check(is_instance_of(game, MazeGame) and game.participants.size() == 2, "maze starts with 2 participants")
+	_check(game._pixel_world() and game._pixel_viewport.size == Vector2i(480, 270) and game._pixel_layer != null,
+			"the maze world is drawn in the 480x270 pixel view (REQ-MZ-7)")
 	# A phone that joins during the round waits for the next round (REQ-FL-25).
 	var late := ControllerClient.new()
 	late.player_name = "Late"
@@ -295,7 +303,7 @@ func _run() -> void:
 			"a silent phone makes the TV pause the game, also when its connection does not close")
 	var card_title: String = game._menu_box.find_children("*", "Label", true, false)[0].text
 	var card_buttons: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(card_title == "P2 lost connection" and card_buttons == ["Resume without P2", "\u2715  End game"],
+	_check(card_title == "2P LOST CONNECTION" and card_buttons == ["RESUME WITHOUT 2P", "END GAME"],
 			"the card names the phone and offers Resume without it while a phone is connected: %s %s" % [card_title, str(card_buttons)])
 	_check(app.server.phase == "paused" and clients[0].phase == "paused", "the phones are told that the game is paused")
 	clients[1].set_process(true)   # The phone is back (the call is over).
@@ -305,7 +313,7 @@ func _run() -> void:
 	await _frames(5)
 	card_title = game._menu_box.find_children("*", "Label", true, false)[0].text
 	card_buttons = game.menu_buttons().map(func(b): return b.text)
-	_check(game.is_paused() and card_title == "P2 reconnected" and card_buttons == ["Resume", "\u2715  End game"],
+	_check(game.is_paused() and card_title == "2P RECONNECTED" and card_buttons == ["RESUME", "END GAME"],
 			"when the phone is back the game stays paused and the card offers Resume: %s %s" % [card_title, str(card_buttons)])
 	game.menu_buttons()[0].pressed.emit()
 	await _frames(3)
@@ -322,7 +330,7 @@ func _run() -> void:
 	game.on_back()
 	await _frames(3)
 	var ask: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(ask == ["Keep playing", "\u2715  End game"], "Back on the card asks 'End the game?' (REQ-GM-31a): %s" % str(ask))
+	_check(ask == ["KEEP PLAYING", "END GAME"], "Back on the card asks 'End the game?' (REQ-GM-31a): %s" % str(ask))
 	game.menu_buttons()[0].pressed.emit()
 	await _frames(4)
 	_check(game._hold and game.is_paused() and game._menu_kind == "hold", "Keep playing brings the card of the lost phone back")
@@ -423,12 +431,12 @@ func _run() -> void:
 	mz._game_tick(0.016)
 	_check(mz.is_over and mz._winner == mz._balls[0].slot, "a ball in the exit wins")
 	var labels: Array = mz.menu_buttons().map(func(b): return b.text)
-	_check(labels == ["Restart", "Settings", "Back to menu"] and mz.is_paused(), "the result menu opens: %s" % str(labels))
+	_check(labels == ["RESTART", "SETTINGS", "BACK TO MENU"] and mz.is_paused(), "the result menu opens: %s" % str(labels))
 	var maze_rows: Array = []
 	for l in mz._menu_box.find_children("*", "Label", true, false):
 		maze_rows.append(l.text)
-	_check(maze_rows.size() == 3 and maze_rows[0].ends_with("wins!") and maze_rows[1].begins_with("1st")
-			and maze_rows[1].ends_with(" s") and maze_rows[2].begins_with("2nd") and maze_rows[2].ends_with("not finished"),
+	_check(maze_rows.size() == 3 and maze_rows[0].ends_with("WINS!") and maze_rows[1].begins_with("1ST")
+			and maze_rows[1].ends_with(" S") and maze_rows[2].begins_with("2ND") and maze_rows[2].ends_with("NOT FINISHED"),
 			"the maze result lists the winner with the time and the other ball as not finished: %s" % str(maze_rows))
 	_check(not mz._can_open_menu(), "the pause menu cannot open over the result menu")
 	mz._balls[1].pos = mz._exit_center()
@@ -454,24 +462,24 @@ func _run() -> void:
 	for l in rg._menu_box.find_children("*", "Label", true, false):
 		row_labels.append(l.text)
 	var result_buttons: Array = rg.menu_buttons().map(func(b): return b.text)
-	_check(rg.is_over and result_buttons == ["Restart", "Settings", "Back to menu"] and not rg._can_open_menu(),
+	_check(rg.is_over and result_buttons == ["RESTART", "SETTINGS", "BACK TO MENU"] and not rg._can_open_menu(),
 			"the result menu has Restart, Settings and Back to menu, and the game is over: %s" % str(result_buttons))
-	_check(row_labels.size() == 3 and row_labels[1].begins_with("1st") and row_labels[1].ends_with("9")
-			and row_labels[2].begins_with("2nd") and row_labels[0].ends_with("wins!"),
+	_check(row_labels.size() == 3 and row_labels[1].begins_with("1ST") and row_labels[1].ends_with("9")
+			and row_labels[2].begins_with("2ND") and row_labels[0].ends_with("WINS!"),
 			"the ranking lists the best first and the title names the winner: %s" % str(row_labels))
-	var dots: Array = rg._menu_box.find_children("*", "Panel", true, false)
-	var dot_colors: Array = dots.map(func(d): return d.get_theme_stylebox("panel").bg_color)
+	var dots: Array = rg._menu_box.find_children("*", "ColorRect", true, false)
+	var dot_colors: Array = dots.map(func(d): return d.color)
 	_check(dot_colors == [rg.player(rg.participants[1]).color, rg.player(rg.participants[0]).color],
-			"each row has a dot in the slot color of its player, best first")
+			"each row has a square in the slot color of its player, best first")
 	board.set_score(rg.participants[0], 9)
 	rg.open_results(board)
 	await _frames(2)
-	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Tie!", "equal scores give the title Tie!")
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "TIE!", "equal scores give the title Tie!")
 	var one = Scoreboard.new([rg.participants[0]])
 	one.set_score(rg.participants[0], 25)
 	rg.open_results(one, [10, 20, 30])
 	await _frames(2)
-	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!",
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "SILVER MEDAL!",
 			"one player and tiers: the title is the medal")
 	# A time that must be small: 25 s earns silver, and a player who did not finish earns nothing (REQ-GM-73).
 	var fast_tiers := [40.0, 30.0, 20.0]
@@ -479,12 +487,12 @@ func _run() -> void:
 	timed.set_score(rg.participants[0], 25.0)
 	rg.open_results(timed, fast_tiers)
 	await _frames(2)
-	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal!", "a time of 25 s earns silver")
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "SILVER MEDAL!", "a time of 25 s earns silver")
 	var lost = Scoreboard.new([], true)
 	lost.set_unfinished(rg.participants[0], 3.0)
 	rg.open_results(lost, fast_tiers)
 	await _frames(2)
-	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "No medal this time",
+	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "NO MEDAL THIS TIME",
 			"a solo player who did not finish gets no medal, although the score 0 is below every limit")
 
 	# A player who leaves takes the ball out of the game (REQ-GM-21).
@@ -607,6 +615,13 @@ func _run() -> void:
 	_check(ss._board.score(0) == 30.0 and ss._field.puffs.size() == 1,
 			"a snowball that misses takes nothing and loses nothing (REQ-SS-5)")
 	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "poof"), "a miss makes a poof of snow")
+	_check(ss._pixel_world() and ss._pixel_viewport.size == Vector2i(480, 270),
+			"the sky is drawn in the 480x270 pixel view (REQ-SS-12)")
+	var snow_before: float = ss._snow_time
+	ss.open_menu("Paused", [["Resume", ss.close_menu]])
+	await _frames(4)
+	_check(is_equal_approx(ss._snow_time, snow_before), "the snowfall stands still while the game is paused (REQ-FL-43)")
+	ss.close_menu()
 	_check(ss._throwers[0].reload_left <= ss.RELOAD, "a miss does not make the player wait longer than the reload")
 	await _frames(8)
 	_check(haptics == [15],
@@ -663,9 +678,9 @@ func _run() -> void:
 	for l in ss._menu_box.find_children("*", "Label", true, false):
 		ss_rows.append(l.text)
 	var ss_buttons: Array = ss.menu_buttons().map(func(b): return b.text)
-	_check(ss.is_over and ss_buttons == ["Restart", "Settings", "Back to menu"] and ss_rows.size() == 3
-			and ss_rows[0] == p0.player_name + " wins!" and ss_rows[1].begins_with("1st") and ss_rows[1].ends_with("30")
-			and ss_rows[2].begins_with("2nd") and ss_rows[2].ends_with("10"),
+	_check(ss.is_over and ss_buttons == ["RESTART", "SETTINGS", "BACK TO MENU"] and ss_rows.size() == 3
+			and ss_rows[0] == (p0.player_name + " wins!").to_upper() and ss_rows[1].begins_with("1ST") and ss_rows[1].ends_with("30")
+			and ss_rows[2].begins_with("2ND") and ss_rows[2].ends_with("10"),
 			"time up opens the ranking with the winner: %s" % str(ss_rows))
 	_check(haptics == [400], "the winner buzzes 400 ms: %s" % str(haptics))
 	ss.restart()
@@ -685,7 +700,7 @@ func _run() -> void:
 	ss2._round.time = ss2.ROUND_TIME - 0.005
 	ss2._game_tick(0.01)
 	await _frames(3)
-	_check(ss2._menu_box.find_children("*", "Label", true, false)[0].text == "Silver medal! (Medium)",
+	_check(ss2._menu_box.find_children("*", "Label", true, false)[0].text == "SILVER MEDAL! (MEDIUM)",
 			"400 points alone earn silver, and the title names the difficulty (REQ-SS-16, 21)")
 
 	# A player who leaves takes the cursor, the score and the snowballs out (REQ-SS-16).
@@ -726,7 +741,7 @@ func _run() -> void:
 	var leave_labels: Array = []
 	for b in lg.menu_buttons():
 		leave_labels.append(b.text)
-	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["Keep playing", "\u2715  End game"],
+	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["KEEP PLAYING", "END GAME"],
 			"Back in a game in progress asks 'End the game?' and pauses: %s" % str(leave_labels))
 	_check(lg._in_progress() == lg._can_open_menu() and lg._in_progress(), "a race in progress is in progress (REQ-GM-31a)")
 	_check(lg.menu_buttons()[1].theme_type_variation == "DangerButton", "End game is the red destructive button")
@@ -740,7 +755,7 @@ func _run() -> void:
 	await _frames(2)
 	lg.menu_buttons()[2].pressed.emit()
 	await _frames(2)
-	_check(app.current_screen() == lg and lg.menu_buttons().size() == 2 and lg.menu_buttons()[0].text == "Keep playing",
+	_check(app.current_screen() == lg and lg.menu_buttons().size() == 2 and lg.menu_buttons()[0].text == "KEEP PLAYING",
 			"Back to menu in the pause menu asks 'End the game?'")
 	lg.menu_buttons()[1].pressed.emit()
 	await _frames(3)
@@ -769,6 +784,18 @@ func _run() -> void:
 	_check(mr.track.bumpers.size() > MarbleTrack.make(mr.track_seed, "easy").bumpers.size(),
 			"the difficulty gives the posts (REQ-MR-50)")
 	_check(mr.camera != null, "the 3D game has a camera")
+	# The 3D world is drawn in a 480x270 view, and the HUD works in full-resolution positions (REQ-GM-47i, 47n).
+	var focus := Vector3(mr._cam_pos.x, 0.0, mr._cam_pos.z)
+	_check(mr._viewport.size == Vector2i(480, 270) and mr.world_to_hud(focus).distance_to(mr.hud.size * 0.5) < 2.0,
+			"the 3D view is 480x270 and the point the camera looks at is in the middle of the HUD")
+	var square := [mr.view_size_for(Vector2(1920, 1080)), mr.view_size_for(Vector2(1280, 720)),
+			mr.view_size_for(Vector2(1000, 1000)),
+			mr.view_size_for(Vector2.ZERO)]
+	_check(square == [Vector2i(480, 270), Vector2i(480, 270), Vector2i(270, 270), Vector2i(480, 270)],
+			"the 3D view keeps square pixels in a window that is not 16:9 (REQ-GM-47i): " + str(square))
+	var marble_p := Vector3(mr._racers[0].pos.x, MarbleRace.R, mr._racers[0].pos.y)
+	var marble_r: float = mr.radius_on_hud(marble_p, MarbleRace.R)
+	_check(marble_r > MarbleRace.NUMBER_MIN_R, "a marble is big enough for its slot number at the lowest camera: %.1f px" % marble_r)
 	mr.open_menu("Paused", [["Resume", mr.close_menu]])
 	await _frames(2)
 	_check(mr.world.process_mode == Node.PROCESS_MODE_DISABLED, "the 3D world freezes while paused")
@@ -815,7 +842,7 @@ func _run() -> void:
 	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
 	_check(mr.is_over and mr.is_paused(), "race ends and the results menu opens")
 	var results_items: int = mr.menu_buttons().size()
-	_check(mr._menu_box.find_children("*", "Label", true, false)[0].text == "Tie!", "two marbles with the same time are a tie")
+	_check(mr._menu_box.find_children("*", "Label", true, false)[0].text == "TIE!", "two marbles with the same time are a tie")
 	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
 	mr._open_results()
 	await _frames(2)
@@ -823,8 +850,8 @@ func _run() -> void:
 	var race_rows: Array = []
 	for l in mr._menu_box.find_children("*", "Label", true, false):
 		race_rows.append(l.text)
-	_check(race_labels == ["Restart", "Settings", "Back to menu"] and race_rows.size() == 3 and race_rows[0].ends_with("wins!")
-			and race_rows[1].begins_with("1st") and race_rows[2].begins_with("2nd") and race_rows[2].ends_with(" s"),
+	_check(race_labels == ["RESTART", "SETTINGS", "BACK TO MENU"] and race_rows.size() == 3 and race_rows[0].ends_with("WINS!")
+			and race_rows[1].begins_with("1ST") and race_rows[2].begins_with("2ND") and race_rows[2].ends_with(" S"),
 			"the race results list both marbles with their times, and offer Settings: %s %s" % [str(race_labels), str(race_rows)])
 	mr._racers[1].finish_time = -1.0   # The second marble did not reach the line.
 	mr._open_results()
@@ -832,7 +859,7 @@ func _run() -> void:
 	var late_rows: Array = []
 	for l in mr._menu_box.find_children("*", "Label", true, false):
 		late_rows.append(l.text)
-	_check(late_rows.size() == 3 and late_rows[2].begins_with("2nd") and late_rows[2].ends_with("not finished"),
+	_check(late_rows.size() == 3 and late_rows[2].begins_with("2ND") and late_rows[2].ends_with("NOT FINISHED"),
 			"a marble that did not finish is listed as not finished, after the finishers: %s" % str(late_rows))
 	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
 	mr._open_results()
@@ -843,13 +870,13 @@ func _run() -> void:
 	await _frames(2)
 	var left_buttons: Array = mr.menu_buttons().map(func(b): return b.text)
 	var left_title: String = mr._menu_box.find_children("*", "Label", true, false)[0].text
-	_check(left_buttons == ["Back to menu"] and left_title == "No players connected",
+	_check(left_buttons == ["BACK TO MENU"] and left_title == "NO PLAYERS CONNECTED",
 			"results with nobody left say 'No players connected' and only offer Back to menu: %s" % str(left_buttons))
 	mr.participants.append_array(kept_players)
 	mr._open_results()
 	await _frames(2)
 	var result_names: Array = mr.menu_buttons().map(func(b): return b.text)
-	_check(result_names == ["Restart", "Settings", "Back to menu"],
+	_check(result_names == ["RESTART", "SETTINGS", "BACK TO MENU"],
 			"the race results offer Settings, not Choose track: %s" % str(result_names))
 	var seed_before: int = mr.track_seed
 	mr.restart()
@@ -868,7 +895,7 @@ func _run() -> void:
 	var empty_menu: Control = lr._menu_box
 	lr.end_no_players()
 	_check(lr._menu_box == empty_menu and not lr._can_open_menu() and lr.menu_buttons().size() == 1
-			and lr.menu_buttons()[0].text == "Back to menu", "the end with no players happens once, and the pause menu cannot open")
+			and lr.menu_buttons()[0].text == "BACK TO MENU", "the end with no players happens once, and the pause menu cannot open")
 
 	# The only player is lost: no pause message and no waiting for the hold, the game ends at once (REQ-GM-30a).
 	var solo := ControllerClient.new()   # No name: the TV shows "Player N".
@@ -893,14 +920,14 @@ func _run() -> void:
 	var solo_buttons: Array = solo_game.menu_buttons().map(func(b): return b.text)
 	_check(solo_game._hold and solo_game.is_paused() and not solo_game.is_over and solo_game.participants == [solo.slot],
 			"the only player is lost: the game waits, it does not end")
-	_check(solo_buttons == ["\u2715  End game"], "with nobody connected the card has no Resume: %s" % str(solo_buttons))
+	_check(solo_buttons == ["END GAME"], "with nobody connected the card has no Resume: %s" % str(solo_buttons))
 	solo.set_process(true)
 	t5 = Time.get_ticks_msec()
 	while not solo_game.lost_participants().is_empty() and Time.get_ticks_msec() - t5 < 6000:
 		await process_frame
 	await _frames(5)
 	solo_buttons = solo_game.menu_buttons().map(func(b): return b.text)
-	_check(solo_buttons == ["Resume", "\u2715  End game"] and solo_game.is_paused(),
+	_check(solo_buttons == ["RESUME", "END GAME"] and solo_game.is_paused(),
 			"the phone is back (the call is over): the card offers Resume and the game still waits: %s" % str(solo_buttons))
 	solo_game.menu_buttons()[0].pressed.emit()
 	await _frames(3)
@@ -919,7 +946,7 @@ func _run() -> void:
 		await process_frame
 	await _frames(3)
 	_check(solo_game.is_over and solo_game.participants.is_empty()
-			and solo_game.menu_buttons().map(func(b): return b.text) == ["Back to menu"],
+			and solo_game.menu_buttons().map(func(b): return b.text) == ["BACK TO MENU"],
 			"the lost phone does not come back in time: the game ends with 'No players connected' (REQ-GM-22)")
 	app.server.paused_slot_grace_ms = Protocol.PAUSED_SLOT_GRACE_MS
 	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
@@ -945,13 +972,13 @@ func _run() -> void:
 		await process_frame
 	await _frames(3)
 	_check(solo_race._hold and solo_race.is_paused() and not solo_race.is_over
-			and solo_race.menu_buttons().map(func(b): return b.text) == ["\u2715  End game"],
+			and solo_race.menu_buttons().map(func(b): return b.text) == ["END GAME"],
 			"marble race: the last player is lost, the race waits with a card that has no Resume")
 	t5 = Time.get_ticks_msec()
 	while not solo_race.is_over and Time.get_ticks_msec() - t5 < 8000:
 		await process_frame
 	await _frames(3)
-	_check(solo_race.is_over and solo_race.menu_buttons().map(func(b): return b.text) == ["Back to menu"],
+	_check(solo_race.is_over and solo_race.menu_buttons().map(func(b): return b.text) == ["BACK TO MENU"],
 			"marble race: when the phone does not come back, 'No players connected' opens (REQ-MR-14)")
 	app.server.paused_slot_grace_ms = Protocol.PAUSED_SLOT_GRACE_MS
 	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS

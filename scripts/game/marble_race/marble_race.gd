@@ -26,10 +26,11 @@ const HAPTIC_COOLDOWN_MS := 150
 const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
 const START_ARC := 2.0         # All marbles start on one line across the track.
 const BUMPER_R := 0.9
-const POST_COLOR := Color("3ddcff")   # Party Pop cyan: not a slot color, not red (REQ-MR-43). A test checks it.
+const POST_COLOR := Color("3ddcff")   # Cyan: not a slot color, not red (REQ-MR-43). A test checks it.
 const FLOOR_COLOR := Color("472aa3")  # Purple. Darker than the marbles (REQ-GM-47e).
-const RIM_COLOR := Color("1a0b45")    # The dark edge of the track. It is the outline color.
-const BACKGROUND := Color("0f6a78")   # Teal from the Party Pop set (REQ-GM-48).
+const RIM_COLOR := UiTheme.OUTLINE    # The black edge of the track. It is the outline color.
+const BACKGROUND := Color("1b3a8a")   # Blue from the arcade set (REQ-GM-48).
+const NUMBER_MIN_R := 16.0            # A marble is drawn with its slot number from this radius on the HUD (REQ-MR-44).
 
 class Racer:
 	var slot := 0
@@ -338,7 +339,7 @@ func edge_markers() -> Array:
 	for s in participants:
 		var r: Racer = _racers[s]
 		var p3 := Vector3(r.pos.x, R, r.pos.y)
-		var sp := camera.unproject_position(p3)
+		var sp := world_to_hud(p3)
 		if camera.is_position_behind(p3):
 			sp = Vector2(center.x, hud.size.y * 2.0)
 		if rect.has_point(sp):
@@ -346,7 +347,7 @@ func edge_markers() -> Array:
 		var dir := (sp - center).normalized()
 		var t := minf(rect.size.x * 0.5 / maxf(absf(dir.x), 0.001), rect.size.y * 0.5 / maxf(absf(dir.y), 0.001))
 		out.append({"slot": s, "pos": center + dir * t, "dir": dir,
-				"text": "%d m" % roundi(r.arc - lead.arc)})
+				"text": Lang.f("%d m", [roundi(r.arc - lead.arc)])})
 	return out
 
 
@@ -360,19 +361,35 @@ func _draw_edge_markers(canvas: Control) -> void:
 				tip - d * 18.0 - side * 26.0]), UiTheme.OUTLINE) # A dark outline: readable on any ground.
 		canvas.draw_colored_polygon(PackedVector2Array([tip + d * 24.0, tip - d * 12.0 + side * 18.0,
 				tip - d * 12.0 - side * 18.0]), col)
-		var label_pos: Vector2 = tip - d * 40.0 - Vector2(60, -10)
-		Shell.text(canvas, label_pos, m.text, 28, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 120.0)
+		var label_pos: Vector2 = tip - d * 40.0 - Vector2(70, -10)
+		Shell.text(canvas, label_pos, m.text, 32, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 140.0)
+
+
+## The slot numbers of the marbles, at full resolution on top of the pixel view (REQ-GM-47n). A marble that is too small
+## on the screen has no number (the camera is high): its color and the edge arrow tell it.
+func _draw_marble_numbers(canvas: Control) -> void:
+	for s in _racers:
+		var p3 := Vector3(_racers[s].pos.x, R, _racers[s].pos.y)
+		if camera.is_position_behind(p3):
+			continue
+		var radius := radius_on_hud(p3, R)
+		var sp := world_to_hud(p3)
+		if radius >= NUMBER_MIN_R and Rect2(Vector2.ZERO, canvas.size).has_point(sp):
+			Shell.ball_number(canvas, sp, radius, player(s).color, s)
 
 
 func _hud_draw(canvas: Control) -> void:
+	_draw_marble_numbers(canvas)
 	var y := 36.0
 	var place := 0
 	for r in standings():
 		var p = player(r.slot)
 		var t := ""
 		if r.finish_time >= 0.0:
-			t = "  %.2f s" % r.finish_time
-		Shell.chip(canvas, Vector2(60, y), "%s  %s%s" % [Scoreboard.ordinal(place + 1), p.player_name, t], p.color, 400.0, 54.0)
+			t = "  " + Lang.f("%.2f s", [r.finish_time])
+		var msg := "%s  %s%s" % [Scoreboard.ordinal(place + 1), p.player_name, t]
+		var chip_w := Shell.score_chip_width(msg, "", 54.0, 400.0)
+		Shell.chip(canvas, Vector2(Shell.mx(canvas, 60.0, chip_w), y), msg, p.color, chip_w, 54.0)
 		y += 68.0
 		place += 1
 	if _round.is_counting():
@@ -382,10 +399,10 @@ func _hud_draw(canvas: Control) -> void:
 	elif not is_over:
 		var lead: Racer = standings()[0]
 		var to_go := maxf(finish_arc - lead.arc, 0.0)
-		Shell.text(canvas, Vector2(0, 90), "Finish in %d m" % roundi(to_go), 44, UiTheme.ACCENT,
+		Shell.text(canvas, Vector2(0, 90), Lang.f("Finish in %d m", [roundi(to_go)]), 40, UiTheme.ACCENT,
 				HORIZONTAL_ALIGNMENT_CENTER, canvas.size.x)
-		Shell.text(canvas, Vector2(canvas.size.x - 360, 90), "%.1f s" % _round.time, 44, UiTheme.TEXT,
-				HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
+		Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), 90), Lang.f("%.1f s", [_round.time]), 40,
+				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
 	_draw_edge_markers(canvas)
-	Shell.text(canvas, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title, 30, UiTheme.TEXT_DIM,
-			HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
+	Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), canvas.size.y - 70), track.title, 32,
+			UiTheme.TEXT_DIM, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)

@@ -7,7 +7,10 @@ const Shell = preload("res://scripts/game/shell.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
+const Protocol = preload("res://scripts/core/protocol.gd")
+const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
 
+var SnowGame: GDScript   # Loaded at run time: a game script needs the App autoload.
 var _checks := 0
 var _fails := 0
 
@@ -22,11 +25,13 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	SnowGame = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
 	_round_clock()
 	_haptics()
 	_shell_order()
 	_shell_layout()
 	_score_chip()
+	_pixel_world()
 	_round_length()
 	_scoreboard()
 	_medals()
@@ -38,6 +43,45 @@ func _initialize() -> void:
 ## A plain array copy, so that a typed Array[int] can be compared with a literal.
 func _ints(a: Array) -> Array:
 	return a.map(func(x): return x)
+
+
+## The helpers of a pixel world (REQ-GM-47i to 47n).
+func _pixel_world() -> void:
+	print("pixel world")
+	var Sumo = load("res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd")
+	var Minigame = load("res://scripts/game/minigame.gd")
+	_check(Minigame.PIXEL_VIEW * 4 == Minigame.DESIGN_SIZE and Shell.WORLD_PIXEL == 1920.0 / Minigame.PIXEL_VIEW.x,
+			"the view is 480x270 and one world pixel is 4 screen pixels at 1920x1080")
+	_check(Shell.snap(Vector2(9.0, 5.0)) == Vector2(8.0, 4.0) and Shell.snap(Vector2(10.0, 14.0)) == Vector2(12.0, 16.0)
+			and Shell.snap(Vector2(-3.0, 2.0)) == Vector2(-4.0, 4.0), "a position moves to the nearest world pixel")
+	_check(Sumo.fall_scale(0.0) == 1.0 and Sumo.fall_scale(0.15) == 1.0 and Sumo.fall_scale(0.25) == 0.75
+			and Sumo.fall_scale(0.45) == 0.5 and Sumo.fall_scale(0.7) == 0.25 and Sumo.fall_scale(Sumo.FALL_TIME) == 0.0
+			and Sumo.fall_scale(5.0) == 0.0, "a fallen bumper shrinks in 4 steps and then is gone (REQ-SB-9)")
+	_check(Sumo.danger_ring(0.0).is_equal_approx(Sumo.PLATFORM_RING) and Sumo.danger_ring(1.0).is_equal_approx(Sumo.DANGER_COLOR)
+			and Sumo.danger_ring(0.6).r > Sumo.PLATFORM_RING.r, "the platform ring turns red as the platform gets small (REQ-SB-15)")
+	var life: float = SnowGame.POOF_LIFE
+	var steps := []
+	for share in [0.0, 0.4, 0.9, 5.0]:
+		steps.append(SnowGame.poof_step(life * share))
+	_check(steps == [0, 1, 2, 2], "the poof of a missed snowball grows in 3 hard steps: %s" % str(steps))
+	var peak := PI / 18.0   # sin(age * 9) is 1 here.
+	_check(SnowGame.wing_flap(20.0, peak) == Shell.WORLD_PIXEL and SnowGame.wing_flap(60.0, peak) == 8.0
+			and SnowGame.wing_flap(60.0, 0.0) == 0.0, "the wings of a small Puff still move by one world pixel (REQ-SS-12)")
+	_check(SnowGame.BADGE_R * 2.0 >= 12.0 * Shell.WORLD_PIXEL and SnowGame.CURSOR_R * 2.0 >= 12.0 * Shell.WORLD_PIXEL,
+			"the cursor and its badge are 12 world pixels or more across (REQ-GM-47m)")
+	var sky := Shell.star_field(48, 7)
+	var on_grid := true
+	for st in sky:
+		on_grid = on_grid and fmod(st.x, Shell.WORLD_PIXEL) == 0.0 and fmod(st.y, Shell.WORLD_PIXEL) == 0.0 \
+				and st.x >= 0.0 and st.x < 1920.0 and st.y >= 0.0 and st.y < 1080.0
+	_check(sky.size() == 48 and on_grid and sky == Shell.star_field(48, 7) and sky != Shell.star_field(48, 8),
+			"the star pixels are on the world pixel grid, inside the screen, and the same for the same seed")
+	var min_ball: float = SumoArena.BUMPER_R * 2.0
+	_check(min_ball >= 12.0 * Shell.WORLD_PIXEL, "a bumper is 12 world pixels or more across (REQ-GM-47m): %.0f px" % min_ball)
+	var worst := 99.0
+	for col in Protocol.PLAYER_COLORS:
+		worst = minf(worst, Shell.contrast(col, Sumo.PLATFORM))
+	_check(worst >= 3.0, "every player color has a contrast of 3:1 or more on the platform (REQ-GM-47m): %.2f" % worst)
 
 
 func _round_clock() -> void:
@@ -105,16 +149,15 @@ func _shell_layout() -> void:
 	_check(Shell.ball_metrics(24.0).outline == 6.0 and Shell.ball_metrics(20.0).outline == 6.0
 			and Shell.ball_metrics(19.0).outline == 4.0, "a ball of 40 px or more has a 6 px outline, a smaller one 4 px (REQ-GM-47b)")
 	var m: Dictionary = Shell.ball_metrics(24.0)
-	_check(m.font_size == 26 and is_equal_approx(m.baseline, 9.0) and is_equal_approx(m.shine_radius, 6.0)
-			and m.shine_offset.x < 0.0 and m.shine_offset.y < 0.0,
-			"the slot number is 26 px at radius 24, and the shine is at the top left")
+	_check(m.font_size == 24 and Shell.ball_metrics(40.0).font_size == 40 and Shell.ball_metrics(5.0).font_size == 8,
+			"the slot number is a size of the 8 px font grid: 24 px at radius 24, never under 8 px")
 
 
 ## The chip with a score: the score always shows in full, also with 4 to 6 digits and a long name (REQ-GM-41, 46).
 func _score_chip() -> void:
 	print("score chip")
-	var f: Font = load("res://scripts/ui/ui_theme.gd").body_bold()
-	var height := 58.0
+	var f: Font = load("res://scripts/ui/ui_theme.gd").font()
+	var height := 64.0
 	var all_fit := true
 	var name_ok := true
 	var widths_ok := true
@@ -123,10 +166,11 @@ func _score_chip() -> void:
 			var width := Shell.score_chip_width(player_name, score)
 			widths_ok = widths_ok and width >= 200.0
 			var parts: Dictionary = Shell.score_chip_parts(player_name, score, width, height)
-			if parts.score_x + parts.score_w > width - height * 0.3 + 0.5 or parts.score_x < parts.name_x:
+			if parts.score_x + parts.score_w > width - Shell.CHIP_PAD + 0.5 or parts.score_x < parts.name_x:
 				all_fit = false
 				print("    the score ", score, " does not fit with the name ", player_name)
-			var name_end: float = parts.name_x + f.get_string_size(parts.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x
+			var shown := String(parts.name).to_upper()
+			var name_end: float = parts.name_x + f.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, Shell.CHIP_FONT).x
 			if name_end > parts.score_x + 0.5:
 				name_ok = false
 				print("    the name ", player_name, " runs into the score ", score)
@@ -141,7 +185,7 @@ func _score_chip() -> void:
 	_check(long_part.name == "A very long phone name", "a long name is never cut: the chip gets wider")
 	_check(w6 > Shell.score_chip_width("Phone 1", "1000"), "a longer name makes a wider chip")
 	# The row of 4 chips of the worst size leaves room for the title and the timer on a 1920 wide screen.
-	var consts: Dictionary = load("res://scripts/game/snowball_splat/snowball_splat_game.gd").get_script_constant_map()
+	var consts: Dictionary = SnowGame.get_script_constant_map()
 	var room := 1920.0 - 60.0 - (float(consts["TIMER_X"]) + float(consts["TIMER_W"]) + 20.0)
 	var row := Shell.chip_row_positions(1920.0, [270.0, 270.0, 270.0, 270.0], 36.0, 10.0, room)
 	_check(is_equal_approx(row[3].x + 270.0, 1860.0) and row[0].x >= float(consts["TIMER_X"]) + float(consts["TIMER_W"]) + 20.0

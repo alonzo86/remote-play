@@ -32,8 +32,8 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 **Style (matches the code)**
 - GDScript with tabs, typed variables where the surrounding code types them, `##` doc comments, short ASD-STE100 style in docs.
 - `gdlint scripts tests tools` must pass (`.gdlintrc`). Shell scripts pass `shellcheck`.
-- Screens are built in code in the Party Pop style (`docs/TV_FLOW.md`). Image files only where REQ-P6 allows them.
-- The style is moving to 8-bit arcade (FD-18, `docs/ARCADE_STYLE_PLAN.md`). A change that adds new Party Pop-only work (new rounded, shadowed widgets or art) outside the plan is a finding. A change that implements a phase of the plan follows section 2 of the plan.
+- Screens are built in code in the 8-bit arcade style (`docs/TV_FLOW.md`, REQ-FL-37 to 46). Image files only where REQ-P6 allows them.
+- The style is 8-bit arcade (FD-18, `docs/ARCADE_STYLE_PLAN.md`); phases 1 to 4 are built (menus, phone, shell, and the pixel worlds of all five games). A game that draws a pixel world follows REQ-GM-47i to 47n. A change that adds rounded or shadowed widgets, other fonts or art outside the plan is a finding. A change that implements a phase of the plan follows section 2 of the plan.
 - A new game is also for children (REQ-GM-80 to 84): friendly made-up characters, no violence or weapons or scary things, no point or wait penalty for a mistake, one hint line, large and slow at the start, positive texts. Report a broken rule by its ID.
 - A new game follows the visual language: shell (REQ-GM-45), player colors (REQ-GM-46), toy-like world (REQ-GM-47), and a tile screenshot that looks like the same toy box as the Games screen (REQ-GM-49).
 

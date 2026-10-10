@@ -77,7 +77,7 @@ func _place_sumo(game: Node) -> void:
 	for i in slots.size():
 		game._board.set_score(slots[i], [1, 0, 1, 0][i % 4])
 	game.set_process(false)   # Freeze the picture.
-	game.queue_redraw()
+	game._request_redraw()   # Also the pixel view of the world.
 	await _frames(3)
 
 
@@ -158,7 +158,7 @@ func _place_snow(game: Node, pad: Array, flats: Array) -> void:
 		if f.age >= 0.0:
 			f.age = game.FLIGHT_TIME * 0.55   # Half way: the snowball is in the air.
 	game.set_process(false)   # Freeze the picture.
-	game.queue_redraw()
+	game._request_redraw()
 	await _frames(3)
 
 

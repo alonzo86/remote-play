@@ -24,8 +24,10 @@ const TIMER_W := 160.0
 const FAR := 1.0e6
 const UNBOUNDED := Rect2(Vector2(-FAR, -FAR), Vector2(2.0 * FAR, 2.0 * FAR))   # No walls: the edge makes them fall.
 
-# Look (REQ-SB-15, REQ-GM-47). The platform is dark so that every player color has a contrast of 3:1 or more.
-const BACKGROUND := Color("0f6a78")
+# Look (REQ-SB-15, REQ-GM-47). The world palette is black, dark gray and blue stars, a dark purple platform (so that every player
+# color has a contrast of 3:1 or more) with a light edge ring that gets red when the platform is small.
+const BACKGROUND := UiTheme.BG
+const STAR_COUNT := 48
 const PLATFORM := Color("2a1070")
 const PLATFORM_RING := Color("8c78e6")
 const DANGER_COLOR := Color("ff5a4d")
@@ -52,13 +54,13 @@ var _fell: Array[int] = []      # The slots that fell in this tick (one array fo
 var _clock := RoundClock.new(COUNTDOWN, 0.0)
 var _banner_left := 0.0
 var _haptics := Haptics.new()
-var _sb_platform: StyleBoxFlat
+var _stars := PackedVector2Array()   # The star pixels of the background, on the world pixel grid.
 
 
 func _game_ready() -> void:
 	arena.setup(difficulty)
 	_board = Scoreboard.new(participants)
-	_sb_platform = UiTheme.card(PLATFORM, UiTheme.OUTLINE, UiTheme.OUTLINE_W, 24, true)
+	_stars = Shell.star_field(STAR_COUNT, 7)   # The same sky every time.
 	for s in participants:
 		var b: TiltBody = TiltBody.new()
 		b.radius = SumoArena.BUMPER_R
@@ -200,9 +202,9 @@ func _end_round(fell_last: Array) -> void:
 		_board.add(s, 1.0)
 		App.server.haptic(s, 120)
 	if winners.size() == 1:
-		banner_text = "%s wins the round!" % player(winners[0]).player_name
+		banner_text = Lang.f("%s wins the round!", [player(winners[0]).player_name])
 	else:
-		banner_text = "Round draw!"
+		banner_text = Lang.t("Round draw!")
 	phase = Phase.BANNER
 	_banner_left = BANNER_TIME
 
@@ -220,10 +222,15 @@ func _finish() -> void:
 
 ## "2 points" for the result list.
 func _points_text(points: float) -> String:
-	return "%d point%s" % [int(points), "" if int(points) == 1 else "s"]
+	return Lang.t("1 point") if int(points) == 1 else Lang.f("%d points", [int(points)])
 
 
 # ---- Drawing ----
+
+## The world is drawn in the low-resolution view (REQ-GM-47a); the HUD, the slot numbers and "Whee!" are at full resolution.
+func _pixel_world() -> bool:
+	return true
+
 
 ## The scale and the middle of the platform on the screen.
 func _fit() -> Dictionary:
@@ -232,60 +239,75 @@ func _fit() -> Dictionary:
 			"center": Vector2(AREA_MARGIN + avail.x * 0.5, AREA_TOP + avail.y * 0.5)}
 
 
+func _world_draw(ci: CanvasItem) -> void:
+	var fit := _fit()
+	var k: float = fit.k
+	var c: Vector2 = fit.center
+	ci.draw_rect(Rect2(Vector2.ZERO, size), BACKGROUND)
+	Shell.draw_stars(ci, _stars)
+	_draw_platform(ci, c, k)
+	for s in _falling:
+		_draw_fall(ci, s, c, k)
+	for s in _alive:
+		_draw_bumper(ci, s, c, k)
+
+
+func _draw_platform(ci: CanvasItem, c: Vector2, k: float) -> void:
+	var r := arena.radius() * k
+	ci.draw_circle(c, r + Shell.WORLD_PIXEL, UiTheme.OUTLINE)
+	ci.draw_circle(c, r, PLATFORM)
+	for f in [0.66, 0.33]:   # Rings on the platform, one world pixel wide.
+		ci.draw_arc(c, r * f, 0.0, TAU, 48, Color(PLATFORM_RING, 0.25), Shell.WORLD_PIXEL)
+	# The ring gets red when the platform is small.
+	var ring := danger_ring(arena.danger())
+	ci.draw_arc(c, r - Shell.WORLD_PIXEL * 2.0, 0.0, TAU, 96, ring, Shell.WORLD_PIXEL * 3.0)
+
+
+## The color of the platform ring for a danger level (0 full platform, 1 smallest): it turns red when the platform is small.
+static func danger_ring(danger: float) -> Color:
+	return PLATFORM_RING.lerp(DANGER_COLOR, clampf(danger * 1.6 - 0.3, 0.0, 1.0))
+
+
+func _draw_bumper(ci: CanvasItem, slot: int, c: Vector2, k: float) -> void:
+	var b: TiltBody = _bodies[slot]
+	var center := c + b.pos * k
+	var radius := SumoArena.BUMPER_R * k
+	Shell.pixel_ball(ci, center, radius, player(slot).color)
+	Shell.pixel_eyes(ci, center, radius, b.vel / b.max_speed)   # The pupils step to the side the bumper rolls.
+	var left: float = _dash_left.get(slot, 0.0)   # A ring: complete when the dash is ready.
+	var share := 1.0 - clampf(left / arena.dash_time, 0.0, 1.0)
+	var ring_color := Color.WHITE if share >= 1.0 else Color(1, 1, 1, 0.5)
+	ci.draw_arc(center, radius + Shell.WORLD_PIXEL * 4.0, -PI * 0.5, -PI * 0.5 + TAU * share, 32, ring_color, Shell.WORLD_PIXEL)
+
+
+## The size of a fallen bumper after `age` seconds: it shrinks in 4 steps (REQ-SB-9). 0 when the fall is over.
+static func fall_scale(age: float) -> float:
+	var t := clampf(age / FALL_TIME, 0.0, 1.0)
+	return 0.0 if t >= 1.0 else ceilf((1.0 - t) * 4.0) / 4.0
+
+
+## A fallen bumper gets smaller in steps (REQ-SB-9). "Whee!" is drawn by the HUD.
+func _draw_fall(ci: CanvasItem, slot: int, c: Vector2, k: float) -> void:
+	var f: Dictionary = _falling[slot]
+	var s := fall_scale(float(f.age))
+	if s == 0.0 or not _bodies.has(slot):
+		return
+	Shell.pixel_ball(ci, c + (f.pos as Vector2) * k, SumoArena.BUMPER_R * k * s, player(slot).color)
+
+
 func _game_draw() -> void:
 	var fit := _fit()
 	var k: float = fit.k
 	var c: Vector2 = fit.center
-	draw_rect(Rect2(Vector2.ZERO, size), BACKGROUND)
-	_draw_platform(c, k)
+	for s in _alive:   # The slot numbers: full resolution, on top of the pixel ball.
+		var p := Shell.snap(c + (_bodies[s] as TiltBody).pos * k)
+		Shell.ball_number(self, p, SumoArena.BUMPER_R * k, player(s).color, s, Shell.NUMBER_DROP)
 	for s in _falling:
-		_draw_fall(s, c, k)
-	for s in _alive:
-		_draw_bumper(s, c, k)
+		var f: Dictionary = _falling[s]
+		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
+			var above := Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6 - clampf(float(f.age) / FALL_TIME, 0.0, 1.0) * 30.0)
+			Shell.text_centered(self, c + (f.pos as Vector2) * k + above, Lang.t("Whee!"), 32, UiTheme.TEXT)
 	_draw_hud()
-
-
-func _draw_platform(c: Vector2, k: float) -> void:
-	var r := arena.radius() * k
-	draw_circle(c + UiTheme.SHADOW * 0.9, r + 12.0, UiTheme.OUTLINE)
-	draw_circle(c, r + 12.0, UiTheme.OUTLINE)
-	draw_circle(c, r, PLATFORM)
-	for f in [0.66, 0.33]:   # Rings on the platform, like a toy.
-		draw_arc(c, r * f, 0.0, TAU, 48, Color(PLATFORM_RING, 0.25), 4.0)
-	# The ring gets red when the platform is small.
-	var ring := PLATFORM_RING.lerp(DANGER_COLOR, clampf(arena.danger() * 1.6 - 0.3, 0.0, 1.0))
-	draw_arc(c, r - 6.0, 0.0, TAU, 96, ring, 12.0)
-
-
-func _draw_bumper(slot: int, c: Vector2, k: float) -> void:
-	var b: TiltBody = _bodies[slot]
-	var center := c + b.pos * k
-	var radius := SumoArena.BUMPER_R * k
-	Shell.ball(self, center, radius, player(slot).color, slot)
-	var look := b.vel.limit_length(b.max_speed) / b.max_speed
-	for sign_x in [-1.0, 1.0]:   # Two eyes that look the way the bumper rolls.
-		var e := center + Vector2(sign_x * radius * 0.42, -radius * 0.52)
-		draw_circle(e, radius * 0.24, UiTheme.OUTLINE)
-		draw_circle(e, radius * 0.19, Color.WHITE)
-		draw_circle(e + look * radius * 0.08, radius * 0.09, UiTheme.OUTLINE)
-	var left: float = _dash_left.get(slot, 0.0)   # A ring: complete when the dash is ready.
-	var share := 1.0 - clampf(left / arena.dash_time, 0.0, 1.0)
-	var ring_color := Color.WHITE if share >= 1.0 else Color(1, 1, 1, 0.5)
-	draw_arc(center, radius + 14.0, -PI * 0.5, -PI * 0.5 + TAU * share, 32, ring_color, 5.0)
-
-
-## A fallen bumper spins and gets smaller, and says "Whee!" (REQ-SB-9).
-func _draw_fall(slot: int, c: Vector2, k: float) -> void:
-	var f: Dictionary = _falling[slot]
-	var t := clampf(float(f.age) / FALL_TIME, 0.0, 1.0)
-	if t >= 1.0 or not _bodies.has(slot):
-		return
-	var s := 1.0 - t
-	draw_set_transform(c + (f.pos as Vector2) * k, t * 9.0, Vector2(s, s))
-	Shell.ball(self, Vector2.ZERO, SumoArena.BUMPER_R * k, player(slot).color, slot)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	var above := Vector2(-60.0, -SumoArena.BUMPER_R * k * 1.6 - t * 30.0)
-	Shell.text(self, c + (f.pos as Vector2) * k + above, "Whee!", 32, Color.WHITE, HORIZONTAL_ALIGNMENT_CENTER, 120.0)
 
 
 func _draw_hud() -> void:
@@ -296,8 +318,8 @@ func _draw_hud() -> void:
 	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)), scores,
 			size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
 	if not is_over:
-		Shell.text(self, Vector2(TIMER_X, 84.0), "Round %d of %d" % [round_no, ROUNDS], 30, UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER,
-				TIMER_W + 80.0)
+		Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("Round %d of %d", [round_no, ROUNDS]), 32,
+				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
 	if phase == Phase.COUNT and not participants.is_empty():
 		var n := _clock.count_number()
 		Shell.countdown(self, size, str(n) if n > 0 else "GO", _clock.count_elapsed())

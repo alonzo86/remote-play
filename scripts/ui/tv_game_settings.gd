@@ -29,7 +29,7 @@ func _ready() -> void:
 	# No fixed width: the column is as wide as its widest row. The rows and the Back and Start line have that width (REQ-GM-90).
 	box.add_theme_constant_override("separation", 20)
 	center.add_child(box)
-	var title := UiKit.title(String(game.get("title", "")), 84)
+	var title := UiKit.title(String(game.get("title", "")))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
 	box.add_child(UiKit.spacer(12))
@@ -43,23 +43,20 @@ func _ready() -> void:
 		rows.append(row)
 	box.add_child(UiKit.spacer(10))
 	# Back and Start are on one line at the bottom, spaced to the two edges of the view: Back on the left, Start on the right
-	# (REQ-GM-90). Start is wide and green, Back is smaller and plain.
+	# (REQ-GM-90). Back is a quiet item.
 	var line := HBoxContainer.new()
 	box.add_child(line)
-	back_button = UiKit.button("Back", on_back, false, 32, true)
-	back_button.custom_minimum_size = Vector2(200, 88)
-	back_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	back_button = UiKit.item("Back", on_back, UiTheme.SIZE_ITEM, "quiet")
 	line.add_child(back_button)
 	line.add_child(UiKit.spacer(0, true))
-	start_button = UiKit.button("Start", start, true, 44)
-	start_button.custom_minimum_size = Vector2(300, 100)
+	start_button = UiKit.item("Start", start)
 	line.add_child(start_button)
 	# Down from the last row goes to Start, not to Back, and Up from both goes to that row.
 	var last: Control = rows[-1]
 	last.focus_neighbor_bottom = last.get_path_to(start_button)
 	start_button.focus_neighbor_top = start_button.get_path_to(last)
 	back_button.focus_neighbor_top = back_button.get_path_to(last)
-	reason_label = UiKit.label("", 28, UiTheme.ACCENT)
+	reason_label = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
 	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(reason_label)
 	_update_fit()
@@ -75,7 +72,7 @@ func _update_fit() -> void:
 	var n: int = App.server.connected_slots().size()
 	var fits := Registry.accepts(game, n)
 	start_button.disabled = not fits
-	reason_label.text = "" if fits else Registry.reason(game, n)
+	reason_label.text = "" if fits else Registry.reason(game, n).to_upper()
 
 
 func start() -> void:

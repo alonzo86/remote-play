@@ -21,7 +21,7 @@ config/features=PackedStringArray("4.7", "Mobile")
 config/quit_on_go_back=false
 run/max_fps=60
 config/icon="res://icon.svg"
-boot_splash/bg_color=Color(0.239216, 0.101961, 0.619608, 1)
+boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/show_image=true
 boot_splash/image="res://assets/icons/icon_192.png"
 boot_splash/fullsize=false
@@ -50,10 +50,11 @@ pointing/emulate_touch_from_mouse=true
 [internationalization]
 
 rendering/root_node_layout_direction=1
+locale/include_text_server_data=true
 
 [rendering]
 
 renderer/rendering_method="mobile"
 renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
-environment/defaults/default_clear_color=Color(0.239216, 0.101961, 0.619608, 1)
+environment/defaults/default_clear_color=Color(0, 0, 0, 1)

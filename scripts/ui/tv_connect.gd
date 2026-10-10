@@ -8,9 +8,11 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const QrView = preload("res://scripts/ui/qr_view.gd")
 const SlotList = preload("res://scripts/ui/slot_list.gd")
 const TvModal = preload("res://scripts/ui/tv_modal.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 var _qr: Control
 var _hint: Label
+var _credit: Label   # CREDIT 02: the number of phones that have joined.
 var _modal: Control
 
 
@@ -25,10 +27,10 @@ func _ready() -> void:
 	cols.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(cols)
 
-	# Left: the QR card with the room code.
+	# Left: the QR code in a double frame, with the room code.
 	var left := CenterContainer.new()
 	cols.add_child(left)
-	var card := UiKit.card_panel(UiTheme.CARD, 28)
+	var card := UiKit.panel(24)
 	left.add_child(card)
 	var cv := VBoxContainer.new()
 	cv.add_theme_constant_override("separation", 14)
@@ -36,7 +38,8 @@ func _ready() -> void:
 	_qr = QrView.new()
 	_qr.custom_minimum_size = Vector2(420, 420)
 	cv.add_child(_qr)
-	var room := UiKit.title(App.server.room_code, 92, UiTheme.ROOM)
+	cv.add_child(UiKit.label("Room code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	var room := UiKit.title(App.server.room_code, UiTheme.SIZE_TITLE)
 	room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	cv.add_child(room)
 
@@ -46,16 +49,22 @@ func _ready() -> void:
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.alignment = BoxContainer.ALIGNMENT_CENTER
 	cols.add_child(right)
-	right.add_child(UiKit.title("Connect controllers", 80))
+	var head := HBoxContainer.new()
+	right.add_child(head)
+	var title := UiKit.title("Player select")
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(title)
+	_credit = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	head.add_child(_credit)
 	var help := UiKit.label("Be in the same room, on the same Wi-Fi. Open the Remote Play app on your phone and scan the code.",
-			32, UiTheme.TEXT_DIM, UiTheme.body_font())
+			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD
 	right.add_child(help)
 	right.add_child(UiKit.spacer(10))
 	right.add_child(SlotList.new())
 
-	# Footer: one line. "Press OK to continue" once a phone has joined (REQ-FL-6). There is no button: OK is the only action.
-	_hint = UiKit.title("", 48)
+	# Footer: one line. "Press OK to continue" blinks once a phone has joined (REQ-FL-6). There is no button: OK is the only action.
+	_hint = UiKit.blinking("", UiTheme.SIZE_ITEM)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_hint.custom_minimum_size = Vector2(0, 72)   # The line keeps its place, so that the layout does not jump.
 	root.add_child(_hint)
@@ -80,14 +89,19 @@ func can_continue() -> bool:
 func _refresh() -> void:
 	var ip: String = App.discovery.ip if App.discovery != null else ""
 	_qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code) if ip != "" else ""
+	_credit.text = Lang.f("CREDIT %02d", [App.server.connected_slots().size()])
 	if App.server.connected_slots().size() >= 1:
 		_hint.add_theme_color_override("font_color", UiTheme.ACCENT)
-		_hint.text = "Press OK to continue"
+		_hint.text = "PRESS OK TO CONTINUE"
+		_hint.set_process(true)
 	elif ip == "":
-		_hint.add_theme_color_override("font_color", UiTheme.BAD_TEXT)
-		_hint.text = "No Wi-Fi address found. Connect the TV to your network."
+		_hint.add_theme_color_override("font_color", UiTheme.BAD)
+		_hint.text = "NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK."
+		_hint.set_process(false)
+		_hint.modulate.a = 1.0
 	else:
 		_hint.text = ""
+		_hint.set_process(true)
 
 
 func on_back() -> void:
@@ -96,7 +110,7 @@ func on_back() -> void:
 		return
 	var d: Control = TvModal.new()
 	d.title_text = "Quit Remote Play?"
-	d.entries = [["Stay", Callable(self, "_close_dialog"), "primary"], ["\u2715  Quit", App._quit, "danger"]]
+	d.entries = [["Stay", Callable(self, "_close_dialog")], ["Quit", App._quit, "danger"]]
 	d.default_index = 0
 	d.closed.connect(func(): _modal = null)
 	_modal = d

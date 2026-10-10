@@ -1,3 +1,3 @@
-A centered white card over a 72% `outline` dim layer.
+A centered panel with the double frame over a black dim layer (80%).
 
-Provide a title (Lilita One, `card-text`), an optional message (`card-dim`) and up to a few buttons in a row; the default button is focused (the safe one, green; a destructive button is red with a ✕) and Back closes. The card is 760px wide. Fade in over 120 ms.
+Provide a title (`accent`, 48px), an optional message (`text-dim`) and a text menu; the safe item is focused first and Back closes. A destructive item is red with the focus. It appears at once (no fade).
