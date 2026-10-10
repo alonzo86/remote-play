@@ -59,8 +59,8 @@ Look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-PG-15 | Visual language (REQ-GM-45 to 49). Background from the Party Pop set, a dark floor board with the outline and a hard shadow, empty tiles in a quiet color, painted tiles in the slot color with a lighter top edge. All text is 28 px or larger. Everything stays inside the 60 px margin. | Device | review, Device |
-| REQ-PG-16 | A tile that is painted pops (grows 15% and goes back in 0.15 s), so the painting can be seen. A blob has eyes that look in the direction it rolls. | Device | smoke_paint (pop), Device |
+| REQ-PG-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn in the 480x270 view: a black sky with 48 star pixels, a dark floor board `#2a1070` with a one-pixel black outline, empty tiles `#3a1c97`, painted tiles in the flat slot color (no lighter edge). A tile is a whole number of world pixels wide, so all gaps are one world pixel (the floor is as big as fits, in steps of 4 px per tile). A blob has a one-pixel black outline, square eyes, and its slot number drawn by the HUD at full resolution on it (`Shell.ball_number`). All text is 32 px or larger. Everything stays inside the 60 px margin. | Device | review, smoke_paint (the view, the grid), Device |
+| REQ-PG-16 | A tile that is painted pops (it is one world pixel wider on each side for 0.15 s, a hard step), so the painting can be seen. A blob has square eyes with pupils that step to the side it rolls. | Device | smoke_paint (pop), Device |
 | REQ-PG-17 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080. | Done | smoke_paint |
 
 Settings (REQ-GM-90 to 97)

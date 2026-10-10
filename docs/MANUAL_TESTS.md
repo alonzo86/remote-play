@@ -527,7 +527,7 @@ History:
 
 ### Paint Grab (tilt)
 
-Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 7. Covers: REQ-PG-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 7. Covers: REQ-PG-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
 Hold each phone flat like a tray. New game (2026-10-09). The blob feel (`TiltBody`: acceleration, damping, speed limit, bounce) and the
 difficulty values are first guesses.
@@ -543,6 +543,7 @@ difficulty values are first guesses.
 7. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint line, enjoys it, and is not upset when a tile is painted over.
 8. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
 9. Tap **RECENTER** with the phone tilted. Check: the blob stops creeping. A and B do nothing. (REQ-PG-14)
+10. **Pixel world (phase 4, REQ-PG-15).** From the sofa (about 3 m), look at the floor on Medium and Hard. Check: the tiles are sharp squares with equal gaps (no uneven lines), you can tell the colors apart, the blob and its number are easy to see on a tile of its own color, and a painted tile pops (a hard step). Write down if the pop is easy to see.
 
 **Results**
 
@@ -557,9 +558,11 @@ difficulty values are first guesses.
 | 7 | Note: the child, the age, what happened | Not run | | | |
 | 8 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
 | 9 | Video: RECENTER, then A and B | Not run | | | |
+| 10 | Photo of the floor from the sofa; note: equal gaps, colors, the blob and the pop | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). |
 
 History:
 
+- 2026-10-10 (not run): item 10 is new: the floor is a pixel world (phase 4 of the arcade style).
 - -: **Not run**. New.
 
 ## Test 15

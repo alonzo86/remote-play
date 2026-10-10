@@ -166,10 +166,27 @@ static func pixel_ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color
 	ci.draw_circle(c, radius, color)
 
 
-## The slot number of a ball, at full resolution, for a ball that is drawn in a pixel world.
-static func ball_number(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int) -> void:
-	UiTheme.draw_centered(ci, UiTheme.font(), str(slot + 1), Rect2(pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0),
+## The slot number of a ball, at full resolution, for a ball that is drawn in a pixel world. `drop` moves the number down by that
+## share of the radius (`NUMBER_DROP` for a creature with eyes).
+static func ball_number(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int, drop := 0.0) -> void:
+	var center := pos + Vector2(0.0, radius * drop)
+	UiTheme.draw_centered(ci, UiTheme.font(), str(slot + 1), Rect2(center - Vector2(radius, radius), Vector2(radius, radius) * 2.0),
 			ball_metrics(radius).font_size, UiTheme.text_on(color))
+
+
+## The number of a creature sits lower than the middle, under the eyes of `pixel_eyes()`.
+const NUMBER_DROP := 0.25
+
+
+## Two square eyes for a creature in a pixel world: a black frame of 16 px, a white eye of 8 px and a pupil of 4 px that steps
+## to the side the creature moves (`look` is its speed as a share of the speed limit).
+static func pixel_eyes(ci: CanvasItem, center: Vector2, radius: float, look: Vector2) -> void:
+	var step := look.limit_length(1.0).round()
+	for sign_x in [-1.0, 1.0]:
+		var e := snap(center + Vector2(sign_x * radius * 0.33, -radius * 0.55))
+		ci.draw_rect(Rect2(e - Vector2(8, 8), Vector2(16, 16)), UiTheme.OUTLINE)
+		ci.draw_rect(Rect2(e - Vector2(4, 4), Vector2(8, 8)), Color.WHITE)
+		ci.draw_rect(Rect2(e - Vector2(2, 2) + step * 2.0, Vector2(4, 4)), UiTheme.OUTLINE)
 
 
 ## The players (PlayerInput objects) in slot order, P1 first (REQ-GM-46).

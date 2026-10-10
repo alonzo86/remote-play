@@ -28,7 +28,6 @@ const UNBOUNDED := Rect2(Vector2(-FAR, -FAR), Vector2(2.0 * FAR, 2.0 * FAR))   #
 # color has a contrast of 3:1 or more) with a light edge ring that gets red when the platform is small.
 const BACKGROUND := UiTheme.BG
 const STAR_COUNT := 48
-const NUMBER_DROP := 0.25   # The slot number sits lower than the middle, under the eyes.
 const WHEE_W := 200.0   # The width of "WHEE!" in the 32 px font is 160 px.
 const PLATFORM := Color("2a1070")
 const PLATFORM_RING := Color("8c78e6")
@@ -270,12 +269,7 @@ func _draw_bumper(ci: CanvasItem, slot: int, c: Vector2, k: float) -> void:
 	var center := c + b.pos * k
 	var radius := SumoArena.BUMPER_R * k
 	Shell.pixel_ball(ci, center, radius, player(slot).color)
-	var look := (b.vel.limit_length(b.max_speed) / b.max_speed).round()   # The pupils step to the side the bumper rolls.
-	for sign_x in [-1.0, 1.0]:   # Two square eyes: a black frame of 16 px, a white eye of 8 px and a pupil of 4 px.
-		var e := Shell.snap(center + Vector2(sign_x * radius * 0.33, -radius * 0.55))
-		ci.draw_rect(Rect2(e - Vector2(8, 8), Vector2(16, 16)), UiTheme.OUTLINE)
-		ci.draw_rect(Rect2(e - Vector2(4, 4), Vector2(8, 8)), Color.WHITE)
-		ci.draw_rect(Rect2(e - Vector2(2, 2) + look * 2.0, Vector2(4, 4)), UiTheme.OUTLINE)
+	Shell.pixel_eyes(ci, center, radius, b.vel / b.max_speed)   # The pupils step to the side the bumper rolls.
 	var left: float = _dash_left.get(slot, 0.0)   # A ring: complete when the dash is ready.
 	var share := 1.0 - clampf(left / arena.dash_time, 0.0, 1.0)
 	var ring_color := Color.WHITE if share >= 1.0 else Color(1, 1, 1, 0.5)
@@ -303,7 +297,7 @@ func _game_draw() -> void:
 	var c: Vector2 = fit.center
 	for s in _alive:   # The slot numbers: full resolution, on top of the pixel ball.
 		var p := Shell.snap(c + (_bodies[s] as TiltBody).pos * k)
-		Shell.ball_number(self, p + Vector2(0.0, SumoArena.BUMPER_R * k * NUMBER_DROP), SumoArena.BUMPER_R * k, player(s).color, s)
+		Shell.ball_number(self, p, SumoArena.BUMPER_R * k, player(s).color, s, Shell.NUMBER_DROP)
 	for s in _falling:
 		var f: Dictionary = _falling[s]
 		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
