@@ -1,4 +1,4 @@
-package com.example.remoteplay;
+package com.example.wobble;
 
 import android.app.Activity;
 import android.content.Context;
@@ -118,14 +118,14 @@ public class QrScannerPlugin extends GodotPlugin {
 				int mode = Build.VERSION.SDK_INT >= 29
 						? WifiManager.WIFI_MODE_FULL_LOW_LATENCY
 						: WifiManager.WIFI_MODE_FULL_HIGH_PERF;
-				wifiLock = wifi.createWifiLock(mode, "remoteplay:latency");
+				wifiLock = wifi.createWifiLock(mode, "wobble:latency");
 				wifiLock.setReferenceCounted(false);
 			}
 			if (!wifiLock.isHeld()) {
 				wifiLock.acquire();
 			}
 			if (multicastLock == null) {
-				multicastLock = wifi.createMulticastLock("remoteplay:beacon");
+				multicastLock = wifi.createMulticastLock("wobble:beacon");
 				multicastLock.setReferenceCounted(false);
 			}
 			if (!multicastLock.isHeld()) {

@@ -3,12 +3,12 @@
 importer="font_data_dynamic"
 type="FontFile"
 uid="uid://qf3db0xhubtu"
-path="res://.godot/imported/RemotePlayPixelHebrew.ttf-3f87099ea1583401ceda6d1caa810dc7.fontdata"
+path="res://.godot/imported/WobblePixelHebrew.ttf-cbfc9b1dd881aacd500e008543714e8b.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/RemotePlayPixelHebrew.ttf"
-dest_files=["res://.godot/imported/RemotePlayPixelHebrew.ttf-3f87099ea1583401ceda6d1caa810dc7.fontdata"]
+source_file="res://assets/fonts/WobblePixelHebrew.ttf"
+dest_files=["res://.godot/imported/WobblePixelHebrew.ttf-cbfc9b1dd881aacd500e008543714e8b.fontdata"]
 
 [params]
 

@@ -1,6 +1,6 @@
 ---
 name: add-minigame
-description: Add a new minigame to the Remote Play TV app. Use when asked to create a game, mode or level type.
+description: Add a new minigame to the Wobble TV app. Use when asked to create a game, mode or level type.
 ---
 
 0. The game is also for children (REQ-GM-80 to 84): friendly made-up characters, no violence, weapons or scary things; a mistake costs nothing; one hint line; large and slow at the start; positive texts. Plan the game with that rule, and say in the requirements file how it is met.

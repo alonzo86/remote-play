@@ -4,8 +4,8 @@ This document uses ASD-STE100 style. It shows how to make two Android apps from 
 
 | Preset | Feature tag | Package ID | Runs on |
 |--------|-------------|------------|---------|
-| `tv` | `tv` | `com.example.remoteplay.tv` | Android TV or streaming box |
-| `controller` | `controller` | `com.example.remoteplay.controller` | Android phone |
+| `tv` | `tv` | `com.example.wobble.tv` | Android TV or streaming box |
+| `controller` | `controller` | `com.example.wobble.controller` | Android phone |
 
 You can change the package IDs in `export_presets.cfg` (`package/unique_name`).
 The two IDs are different, so you can install both apps on one device.
@@ -36,7 +36,7 @@ because Godot adds the `LEANBACK_LAUNCHER` category only with Gradle.
 
 1. Open the project in the Godot editor.
 2. Select **Project > Install Android Build Template**.
-   On the command line, `godot --headless --install-android-build-template --export-debug "controller" build/remote-play-controller.apk`
+   On the command line, `godot --headless --install-android-build-template --export-debug "controller" build/wobble-controller.apk`
    installs the template and exports once. Run the patch script after it, then export again.
 3. Close the editor dialog. Then run this command in the project folder:
    ```sh
@@ -48,7 +48,7 @@ because Godot adds the `LEANBACK_LAUNCHER` category only with Gradle.
    - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer,
      all with `required="false"`;
    - installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
-     `android/build/src/main/java/com/example/remoteplay/`, adds the Gradle dependency
+     `android/build/src/main/java/com/example/wobble/`, adds the Gradle dependency
      `com.google.android.gms:play-services-code-scanner:16.1.0`, and adds the plugin entry
      (`org.godotengine.plugin.v2.QrScanner`) to the manifest.
 
@@ -76,8 +76,8 @@ On the command line (use the same Godot version):
 
 ```sh
 mkdir -p build
-godot --headless --path . --export-debug "tv"         build/remote-play-tv.apk
-godot --headless --path . --export-debug "controller" build/remote-play-controller.apk
+godot --headless --path . --export-debug "tv"         build/wobble-tv.apk
+godot --headless --path . --export-debug "controller" build/wobble-controller.apk
 ```
 
 For a release build, set a release keystore in the preset (`keystore/release*`) and use `--export-release`.
@@ -85,8 +85,8 @@ For a release build, set a release keystore in the preset (`keystore/release*`) 
 ## 4. Check the result
 
 ```sh
-aapt dump badging build/remote-play-tv.apk | grep -E "banner|package:"
-aapt dump xmltree build/remote-play-tv.apk AndroidManifest.xml | grep -E "LEANBACK_LAUNCHER|QrScanner"
+aapt dump badging build/wobble-tv.apk | grep -E "banner|package:"
+aapt dump xmltree build/wobble-tv.apk AndroidManifest.xml | grep -E "LEANBACK_LAUNCHER|QrScanner"
 ```
 
 You must see a `banner` entry, `android.intent.category.LEANBACK_LAUNCHER` and `org.godotengine.plugin.v2.QrScanner`.
@@ -103,19 +103,19 @@ If you do not see them, run `tools/patch_android_manifest.sh` again and export a
 4. On your computer (same network):
    ```sh
    adb connect 192.168.1.50:5555
-   adb install -r build/remote-play-tv.apk
+   adb install -r build/wobble-tv.apk
    ```
    The TV may ask you to allow the computer. Select **Always allow**.
 5. Start the app. Use the **Apps** row on the home screen, or run:
    ```sh
-   adb shell monkey -p com.example.remoteplay.tv -c android.intent.category.LEANBACK_LAUNCHER 1
+   adb shell monkey -p com.example.wobble.tv -c android.intent.category.LEANBACK_LAUNCHER 1
    ```
 6. Read the log:
    ```sh
    adb logcat -s godot
    ```
 
-For the phone: connect it with USB (or Wireless debugging), then `adb install -r build/remote-play-controller.apk`.
+For the phone: connect it with USB (or Wireless debugging), then `adb install -r build/wobble-controller.apk`.
 Or copy the APK to the phone and open it (allow installs from this source).
 
 ## 6. Run a test session

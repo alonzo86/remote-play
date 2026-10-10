@@ -1,18 +1,18 @@
 extends RefCounted
 ## The Hebrew text of the UI (FD-19, REQ-FL-54, 60 to 63). The key is the English text: a plain text in upper case,
 ## a format string as it is written in code (`Lang.f()`). English needs no table. Hebrew has no case. Latin words that stay
-## Latin (REMOTE PLAY, WI-FI, OK, A, QR, F3) are part of the Hebrew text, and the arcade font draws them. The font has no
+## Latin (WOBBLE, WI-FI, OK, A, QR, F3) are part of the Hebrew text, and the arcade font draws them. The font has no
 ## nikud, so none is used. `tests/smoke_lang.gd` fails when a text that the UI can show has no entry here.
 
 const HE := {
 	"ROOM CODE": "קוד חדר",
 	"PLAYER SELECT": "בחירת שחקנים",
-	"BE IN THE SAME ROOM, ON THE SAME WI-FI. OPEN THE REMOTE PLAY APP ON YOUR PHONE AND SCAN THE CODE.":
-		"היו באותו חדר ובאותה רשת WI-FI. פתחו את אפליקציית REMOTE PLAY בטלפון וסרקו את הקוד.",
+	"BE IN THE SAME ROOM, ON THE SAME WI-FI. OPEN THE WOBBLE APP ON YOUR PHONE AND SCAN THE CODE.":
+		"היו באותו חדר ובאותה רשת WI-FI. פתחו את אפליקציית WOBBLE בטלפון וסרקו את הקוד.",
 	"CREDIT %02d": "קרדיט %02d",
 	"PRESS OK TO CONTINUE": "לחצו OK להמשך",
 	"NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK.": "לא נמצאה כתובת WI-FI. חברו את הטלוויזיה לרשת.",
-	"QUIT REMOTE PLAY?": "לצאת מ־REMOTE PLAY?",
+	"QUIT WOBBLE?": "לצאת מ־WOBBLE?",
 	"STAY": "להישאר",
 	"QUIT": "יציאה",
 	"WAIT": "ממתין",
@@ -94,7 +94,7 @@ const HE := {
 	"THE TV CLOSED THE CONNECTION.": "הטלוויזיה סגרה את החיבור.",
 	"THE HOST REMOVED YOU. SCAN THE CODE TO JOIN AGAIN.": "המארח הסיר אתכם. סרקו את הקוד כדי להצטרף שוב.",
 	"Connection refused: %s": "החיבור נדחה: %s",
-	"THIS IS NOT A REMOTE PLAY CODE.": "זה לא קוד של REMOTE PLAY.",
+	"THIS IS NOT A WOBBLE CODE.": "זה לא קוד של WOBBLE.",
 	"QR scan failed: %s": "סריקת QR נכשלה: %s",
 	"CHOOSE A GAME ON THE TV": "בחרו משחק בטלוויזיה",
 	"USE THE TV REMOTE. YOUR PHONE IS READY.": "השתמשו בשלט הטלוויזיה. הטלפון שלכם מוכן.",

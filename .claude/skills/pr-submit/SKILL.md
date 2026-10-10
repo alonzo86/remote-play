@@ -1,6 +1,6 @@
 ---
 name: pr-submit
-description: Create or update a GitHub pull request for the Remote Play project with a structured description, after the repository gates pass. Use only when the user asks for a pull request (CLAUDE.md).
+description: Create or update a GitHub pull request for the Wobble project with a structured description, after the repository gates pass. Use only when the user asks for a pull request (CLAUDE.md).
 ---
 
 Create or update a pull request. Do it only when the user asks for one.

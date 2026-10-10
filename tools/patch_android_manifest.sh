@@ -19,9 +19,9 @@ if [ ! -f "$MANIFEST" ]; then
 fi
 
 # Banner image (320x180) for the Android TV home screen, and the plugin source.
-mkdir -p "$BUILD/res/drawable-xhdpi" "$BUILD/src/main/java/com/example/remoteplay"
+mkdir -p "$BUILD/res/drawable-xhdpi" "$BUILD/src/main/java/com/example/wobble"
 cp "$ROOT/assets/icons/banner.png" "$BUILD/res/drawable-xhdpi/banner.png"
-cp "$ROOT/android/plugin/QrScannerPlugin.java" "$BUILD/src/main/java/com/example/remoteplay/QrScannerPlugin.java"
+cp "$ROOT/android/plugin/QrScannerPlugin.java" "$BUILD/src/main/java/com/example/wobble/QrScannerPlugin.java"
 
 python3 - "$MANIFEST" "$GRADLE" <<'PY'
 import sys
@@ -54,7 +54,7 @@ patch(manifest, "CHANGE_WIFI_MULTICAST_STATE",
       lambda s: s.replace("    <application", '    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />\n\n    <application', 1),
       "multicast permission")
 
-meta = ('        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.remoteplay.QrScannerPlugin" />\n'
+meta = ('        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.wobble.QrScannerPlugin" />\n'
         '        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />\n')
 patch(manifest, "org.godotengine.plugin.v2.QrScanner",
       lambda s: s.replace("    </application>", meta + "    </application>", 1),

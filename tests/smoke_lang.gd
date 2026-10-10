@@ -8,7 +8,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Strings = preload("res://scripts/core/strings.gd")
 
 ## Texts that stay as they are in Hebrew: brand names and the room code are not words of a language.
-const KEEP := ["REMOTE PLAY", "1P", "2P", "3P", "4P", "A", "B", "OK", "%S %D/%D"]
+const KEEP := ["WOBBLE", "1P", "2P", "3P", "4P", "A", "B", "OK", "%S %D/%D"]
 
 var _fails := 0
 var _checks := 0
@@ -131,6 +131,15 @@ func _run() -> void:
 			"the first start shows the logo with the choice 'ENGLISH' and 'עברית'")
 	_check(logo.language_buttons.en.text == "ENGLISH" and logo.language_buttons.he.text == "עברית",
 			"each language is written in its own language")
+	var pictures := logo.find_children("*", "TextureRect", true, false)
+	var picture: TextureRect = pictures[0] if pictures.size() > 0 else null
+	_check(picture != null and picture.texture.get_size() == Vector2(1600, 600) and picture.custom_minimum_size == Vector2(1200, 450)
+			and picture.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
+			"the logo screen shows the logo file at 6 screen pixels per logo pixel, with sharp pixels (REQ-FL-50)")
+	var splash := str(ProjectSettings.get_setting("application/boot_splash/image"))
+	_check(splash == "res://assets/logo/splash.png" and ResourceLoader.exists(splash)
+			and not ProjectSettings.get_setting("application/boot_splash/use_filter"),
+			"the Android splash shows the square logo without a filter (REQ-FL-51)")
 	var started := Time.get_ticks_msec()
 	while Time.get_ticks_msec() - started < 3300:
 		await process_frame
@@ -212,7 +221,7 @@ func _run() -> void:
 		if screen.has_method("_open_players"):
 			screen._open_players()
 			await _frames(3)
-		var stays := ["SIM", app.server.room_code, "REMOTE PLAY", "OK", "WI-FI", "QR", "F3", "A", "B", "1P", "2P", "3P", "4P"]
+		var stays := ["SIM", app.server.room_code, "WOBBLE", "OK", "WI-FI", "QR", "F3", "A", "B", "1P", "2P", "3P", "4P"]
 		for t in _latin_texts(screen, stays):
 			shown_missing.append("%s: %s" % [screen.get_script().resource_path.get_file(), t])
 	app.go_connect()

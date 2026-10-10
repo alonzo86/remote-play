@@ -38,7 +38,7 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 24)
 	margin.add_child(box)
 
-	box.add_child(UiKit.title("REMOTE PLAY", 56))
+	box.add_child(UiKit.title("WOBBLE", 56))
 
 	_status = UiKit.label("", UiTheme.SIZE_BODY)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -137,7 +137,7 @@ func _on_scan_pressed() -> void:
 func _on_qr_text(text: String) -> void:
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():
-		App.last_error = Lang.t("This is not a Remote Play code.")
+		App.last_error = Lang.t("This is not a Wobble code.")
 		_on_state(ControllerClient.State.IDLE)
 		return
 	_join(pair.host, pair.port, pair.room)

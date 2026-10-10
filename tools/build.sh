@@ -17,11 +17,11 @@ case "${1:-}" in
 	test)           GODOT="$GODOT" exec tests/run_all.sh ;;
 	apk)
 		mkdir -p build
-		"$GODOT" --headless --path . --export-debug tv build/remote-play-tv.apk
-		"$GODOT" --headless --path . --export-debug controller build/remote-play-controller.apk
+		"$GODOT" --headless --path . --export-debug tv build/wobble-tv.apk
+		"$GODOT" --headless --path . --export-debug controller build/wobble-controller.apk
 		ls -l build/*.apk ;;
 	install)
-		adb install -r build/remote-play-controller.apk
-		[ -n "${TV_IP:-}" ] && adb connect "$TV_IP:5555" && adb -s "$TV_IP:5555" install -r build/remote-play-tv.apk ;;
+		adb install -r build/wobble-controller.apk
+		[ -n "${TV_IP:-}" ] && adb connect "$TV_IP:5555" && adb -s "$TV_IP:5555" install -r build/wobble-tv.apk ;;
 	*) echo "Usage: $0 run-tv|run-controller|test|apk|install (TV_IP=x.x.x.x to also install the TV app)" >&2; exit 1 ;;
 esac

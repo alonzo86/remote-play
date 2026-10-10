@@ -56,7 +56,7 @@ func _ready() -> void:
 	head.add_child(title)
 	_credit = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	head.add_child(_credit)
-	var help := UiKit.label("Be in the same room, on the same Wi-Fi. Open the Remote Play app on your phone and scan the code.",
+	var help := UiKit.label("Be in the same room, on the same Wi-Fi. Open the Wobble app on your phone and scan the code.",
 			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD
 	right.add_child(help)
@@ -109,7 +109,7 @@ func on_back() -> void:
 		_modal.on_back()
 		return
 	var d: Control = TvModal.new()
-	d.title_text = "Quit Remote Play?"
+	d.title_text = "Quit Wobble?"
 	d.entries = [["Stay", Callable(self, "_close_dialog")], ["Quit", App._quit, "danger"]]
 	d.default_index = 0
 	d.closed.connect(func(): _modal = null)

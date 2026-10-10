@@ -14,7 +14,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Remote Play"
+config/name="Wobble"
 config/description="Phone-as-motion-controller games for Android TV."
 run/main_scene="res://scenes/boot.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
@@ -23,9 +23,9 @@ run/max_fps=60
 config/icon="res://icon.svg"
 boot_splash/bg_color=Color(0, 0, 0, 1)
 boot_splash/show_image=true
-boot_splash/image="res://assets/icons/icon_192.png"
+boot_splash/image="res://assets/logo/splash.png"
 boot_splash/fullsize=false
-boot_splash/use_filter=true
+boot_splash/use_filter=false
 
 [autoload]
 
