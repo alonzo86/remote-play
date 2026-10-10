@@ -1,4 +1,4 @@
-# Arcade style plan (FD-18)
+# Arcade style and localization plan (FD-18, FD-19)
 
 Status: **planned**. Nothing is built yet. The code and the style requirements (`docs/TV_FLOW.md` REQ-FL-37 to 46,
 `docs/GAME_REQUIREMENTS.md` REQ-GM-45 to 48) still describe Party Pop (FD-13) until the pull request of each phase
@@ -179,6 +179,9 @@ Each question has a default. On 2026-10-10 the owner said to keep the defaults; 
    logo in the arcade font until then.
 6. **Phone A and B colors.** The mockup shows two red arcade buttons. The current rule is A green, B red (REQ-FL-52).
    Default: keep A green and B red.
+7. **Where to choose the language** (section 7.1). The owner suggested the splash (logo) screen, with no automatic
+   move on. Default: the choice on the logo screen at the first start only, then automatic as now, and a Language row
+   in Settings. The other option: the choice on the logo screen at every start.
 
 ## 5. Manual tests
 
@@ -197,3 +200,68 @@ Each question has a default. On 2026-10-10 the owner said to keep the defaults; 
   the window stretch mode stays `canvas_items` and the game view uses whole-number scaling.
 - **Size of phase 1.** It touches almost every UI file. It is one pull request because of the rule against mixed
   looks.
+
+## 7. Localization: English and Hebrew (phase 5)
+
+Decided on 2026-10-10 by the owner: the first localized version has two languages, English and Hebrew. Hebrew needs a
+right-to-left (RTL) UI. This replaces REQ-FL-54 ("the UI is always English and always left to right") in the phase 5
+pull request (FD-19 in `docs/TV_FLOW.md`). Phase 5 comes after phase 1, because it changes the same screens. It can run
+before or between phases 2 to 4.
+
+### 7.1 Where the player chooses the language
+
+Default (open question 7):
+- **First start of the TV app:** the logo screen does not move on by itself. It shows the logo and a language choice
+  under it: "ENGLISH" and "עברית", each in its own font. The focus starts on the language of the TV (Hebrew when the
+  system language is Hebrew, else English). OK chooses, the app saves it and goes to the Connect screen. This changes
+  REQ-FL-2 and REQ-FL-3 for the first start only.
+- **Every later start:** the logo screen moves on by itself as now (REQ-FL-2, 2 to 3 seconds).
+- **To change it later:** a "LANGUAGE" row on the Settings screen (FD-4) switches between English and Hebrew at once,
+  with no restart.
+- **The phone:** before it joins, the phone uses the language of the phone (Hebrew when the system language is Hebrew,
+  else English). After it joins, it uses the language of the TV, so that the TV and every phone in the room match. The
+  TV sends its language to the phones; a change on the Settings screen goes to all phones at once.
+
+Why not a choice on every start: the same family uses the same language every time, and a stop on every start adds a
+step before every game night.
+
+### 7.2 Strings
+
+- Every UI text goes through Godot translation (`tr()`, a `.csv` translation file in `translations/` with the columns
+  `keys,en,he`). Game names, descriptions, hints, result titles and medal names are translated too (the registry
+  stores keys, not text).
+- A test fails when a key has no English or no Hebrew text, or when code shows a text that is not a key.
+- Player names are never translated.
+- English stays upper case (section 2.2). Hebrew has no case.
+
+### 7.3 Right to left
+
+- In Hebrew, the root window uses `LAYOUT_DIRECTION_RTL`. Godot containers mirror by themselves: the QR card moves to
+  the right of the Connect screen, a slot row reads right to left, the menu cursor "▶" becomes "◀" on the right side of
+  the item.
+- Code that draws by hand (`shell.gd`, `_draw()` in the screens and games) must mirror its HUD positions: the chips
+  start at the right (1P is the rightmost), the title is at the top right, the timer at the top left.
+- The game worlds are **not** mirrored: a maze or a track is the same in both languages. Only text and HUD mirror.
+- Mixed text (a Hebrew sentence with a Latin name or a number) uses the Godot BiDi text server (TextServerAdvanced).
+  The Android and iOS exports must include its ICU data. A test shows a mixed line in the right order.
+- The D-pad moves the focus by position on the screen, so Left still moves left on a mirrored screen.
+
+### 7.4 Font
+
+- Hebrew UI text uses Remote Play Pixel Hebrew (section 2.2) as the main font, with Press Start 2P as its fallback for
+  digits and Latin letters. The Hebrew font then needs the punctuation used in Hebrew text (`,` `.` `!` `?` `:` `-`
+  `"` `'`); add them to `tools/make_hebrew_font.py` on the same grid.
+- Text must fit in both languages: the longest of the two decides the layout.
+
+### 7.5 Phase 5 steps
+
+1. FD-19 in `docs/TV_FLOW.md`; replace REQ-FL-54 with the language and RTL requirements of this section; change
+   REQ-FL-2, 3 (first start) and REQ-FL-23 (the Settings row).
+2. The translation file, `tr()` in every screen, the shell and the games; the key test.
+3. The language choice on the logo screen, the Settings row, saved in the user settings.
+4. The language message to the phones (`docs/PROTOCOL.md`, with the `change-protocol` skill).
+5. RTL: the layout direction, the hand-drawn HUD positions, the menu cursor; the BiDi export data.
+6. The Hebrew punctuation in the font.
+7. Manual test: the TV and two phones in Hebrew (first start, the choice, every screen mirrored and readable, the
+   phones follow the TV, a change in Settings), and in English. Test 8b item 7 ("a TV set to Hebrew stays English")
+   changes: the TV now offers Hebrew.
