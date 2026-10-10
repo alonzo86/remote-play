@@ -52,6 +52,7 @@ var _round := RoundClock.new()
 var _haptics := Haptics.new()
 var _winner := -1
 var _stars := PackedVector2Array()
+var _ring_time := 0.0   # Game time for the exit ring: it stands still while the game is paused (REQ-FL-43).
 
 
 func _game_ready() -> void:
@@ -81,6 +82,7 @@ func _on_player_left(slot: int) -> void:
 
 
 func _game_tick(delta: float) -> void:
+	_ring_time += delta
 	if is_over:
 		return
 	if _round.is_counting():
@@ -201,7 +203,7 @@ func _world_draw(ci: CanvasItem) -> void:
 ## The white square ring of the exit. It grows by one world pixel and shrinks again, in a hard step every 0.55 s (REQ-FL-42).
 func _draw_exit_ring(ci: CanvasItem, c: Vector2) -> void:
 	var half := Shell.snap(Vector2.ONE * cell * 0.30).x
-	if UiTheme.blink_on(Time.get_ticks_msec() * 0.001):
+	if UiTheme.blink_on(_ring_time):
 		half += Shell.WORLD_PIXEL
 	var edge := Shell.WORLD_PIXEL * 2.0
 	var outer := Rect2(Shell.snap(c) - Vector2.ONE * half, Vector2.ONE * half * 2.0)
