@@ -28,7 +28,6 @@ const UNBOUNDED := Rect2(Vector2(-FAR, -FAR), Vector2(2.0 * FAR, 2.0 * FAR))   #
 # color has a contrast of 3:1 or more) with a light edge ring that gets red when the platform is small.
 const BACKGROUND := UiTheme.BG
 const STAR_COUNT := 48
-const WHEE_W := 200.0   # The width of "WHEE!" in the 32 px font is 160 px.
 const PLATFORM := Color("2a1070")
 const PLATFORM_RING := Color("8c78e6")
 const DANGER_COLOR := Color("ff5a4d")
@@ -203,9 +202,9 @@ func _end_round(fell_last: Array) -> void:
 		_board.add(s, 1.0)
 		App.server.haptic(s, 120)
 	if winners.size() == 1:
-		banner_text = "%s wins the round!" % player(winners[0]).player_name
+		banner_text = Lang.f("%s wins the round!", [player(winners[0]).player_name])
 	else:
-		banner_text = "Round draw!"
+		banner_text = Lang.t("Round draw!")
 	phase = Phase.BANNER
 	_banner_left = BANNER_TIME
 
@@ -223,7 +222,7 @@ func _finish() -> void:
 
 ## "2 points" for the result list.
 func _points_text(points: float) -> String:
-	return "%d point%s" % [int(points), "" if int(points) == 1 else "s"]
+	return Lang.t("1 point") if int(points) == 1 else Lang.f("%d points", [int(points)])
 
 
 # ---- Drawing ----
@@ -302,8 +301,7 @@ func _game_draw() -> void:
 		var f: Dictionary = _falling[s]
 		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
 			var above := Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6 - clampf(float(f.age) / FALL_TIME, 0.0, 1.0) * 30.0)
-			Shell.text(self, c + (f.pos as Vector2) * k + above - Vector2(WHEE_W * 0.5, 0.0), "Whee!", 32, UiTheme.TEXT,
-					HORIZONTAL_ALIGNMENT_CENTER, WHEE_W)
+			Shell.text_centered(self, c + (f.pos as Vector2) * k + above, Lang.t("Whee!"), 32, UiTheme.TEXT)
 	_draw_hud()
 
 
@@ -315,8 +313,8 @@ func _draw_hud() -> void:
 	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)), scores,
 			size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
 	if not is_over:
-		Shell.text(self, Vector2(TIMER_X, 84.0), "Round %d of %d" % [round_no, ROUNDS], 32, UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER,
-				TIMER_W + 80.0)
+		Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("Round %d of %d", [round_no, ROUNDS]), 32,
+				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
 	if phase == Phase.COUNT and not participants.is_empty():
 		var n := _clock.count_number()
 		Shell.countdown(self, size, str(n) if n > 0 else "GO", _clock.count_elapsed())

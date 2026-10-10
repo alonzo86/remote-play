@@ -8,6 +8,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 const SEARCH_MS := 1500   # After Refresh the list says "Searching" this long (the beacon comes each second).
 
@@ -27,7 +28,7 @@ static func shows_scan_button(os_name: String) -> bool:
 ## A line under "No TVs found" on an iPhone or iPad: the beacon needs the Local Network permission (REQ-FL-59).
 static func empty_list_hint(os_name: String) -> String:
 	if os_name == "iOS":
-		return "No TV? In Settings, allow Local Network for this app, and use the same Wi-Fi as the TV."
+		return Lang.t("No TV? In Settings, allow Local Network for this app, and use the same Wi-Fi as the TV.")
 	return ""
 
 
@@ -136,7 +137,7 @@ func _on_scan_pressed() -> void:
 func _on_qr_text(text: String) -> void:
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():
-		App.last_error = "This is not a Remote Play code."
+		App.last_error = Lang.t("This is not a Remote Play code.")
 		_on_state(ControllerClient.State.IDLE)
 		return
 	_join(pair.host, pair.port, pair.room)
@@ -145,7 +146,7 @@ func _on_qr_text(text: String) -> void:
 func _on_qr_failed(reason: String) -> void:
 	if reason == "cancelled":
 		return
-	App.last_error = "QR scan failed: " + reason
+	App.last_error = Lang.f("QR scan failed: %s", [reason])
 	_on_state(ControllerClient.State.IDLE)
 
 

@@ -10,3 +10,4 @@ tests/smoke_tv.gd|tv|TV smoke test
 tests/smoke_settings.gd|tv|settings view
 tests/smoke_paint.gd|tv|Paint Grab
 tests/smoke_sumo.gd|tv|Sumo Bumpers
+tests/smoke_lang.gd|tv|languages and right to left

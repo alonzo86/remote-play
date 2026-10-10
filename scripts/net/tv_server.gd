@@ -18,6 +18,8 @@ var round_slots: Array[int] = []   # Slots that take part in the running round (
 var round_limited := false         # True when the round has its own list. A freed slot leaves the list.
 var players: Array[PlayerInput] = []
 var listening := false
+## The language of the TV, sent to every phone (REQ-FL-62): "en" or "he".
+var language := "en"
 ## Silence that makes a phone lost, and how long a lost slot is kept. Tests make them short.
 var peer_timeout_ms := Protocol.PEER_TIMEOUT_MS
 var slot_grace_ms := Protocol.SLOT_GRACE_MS
@@ -89,6 +91,16 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	for p in players:
 		if p.is_connected_now():
 			_send_json(p.slot, {"t": "phase", "v": phase_for(p.slot)})
+
+
+## Sets the language of the TV and tells every connected phone (REQ-FL-62).
+func set_language(code: String) -> void:
+	if code == language:
+		return
+	language = code
+	for p in players:
+		if p.is_connected_now():
+			_send_json(p.slot, {"t": "lang", "v": language})
 
 
 ## The phase that one slot sees.
@@ -207,7 +219,7 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	_send_json(slot, {
 		"t": "welcome", "slot": slot, "token": token,
 		"color": "#" + player.color.to_html(false),
-		"phase": phase_for(slot), "name": tv_name,
+		"phase": phase_for(slot), "name": tv_name, "lang": language,
 	})
 	if resumed:
 		player_resumed.emit(slot)

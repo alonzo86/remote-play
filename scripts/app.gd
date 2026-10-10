@@ -4,6 +4,7 @@ extends Node
 ## Controller role: client, discovery listener, connect screen and pad screen.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const TvDiscovery = preload("res://scripts/net/tv_discovery.gd")
@@ -27,6 +28,7 @@ const SETTINGS_FILE := "user://settings.cfg"
 var settings := {
 	"invert_tilt": false,
 	"overlay": false,
+	"language": "",   # "en" or "he". Empty until the owner chooses on the logo screen (TV) (REQ-FL-60).
 }
 
 var theme_res: Theme
@@ -43,8 +45,9 @@ var _last_back_ms := 0
 
 
 func _ready() -> void:
-	_force_english_ltr()
+	Lang.register()
 	_load_settings()
+	set_language(language_to_use(), false)
 	theme_res = UiTheme.make()
 	var layer := CanvasLayer.new()
 	layer.layer = -100
@@ -58,11 +61,29 @@ func _ready() -> void:
 		_start_controller()
 
 
-## The UI is English only for now and always left to right, whatever the language or the region of the device
-## (REQ-FL-54). Without this, a Hebrew or Arabic device mirrors every screen.
-func _force_english_ltr() -> void:
-	TranslationServer.set_locale("en")
-	get_tree().root.set_layout_direction(Window.LAYOUT_DIRECTION_LTR)
+## The language the app starts in: the saved one, else the language of the device (REQ-FL-60).
+func language_to_use() -> String:
+	var saved := String(settings.get("language", ""))
+	return saved if saved in Lang.CODES else Lang.system_language()
+
+
+## True when the TV has no saved language: the logo screen asks for it (REQ-FL-60).
+func needs_language_choice() -> bool:
+	return not (String(settings.get("language", "")) in Lang.CODES)
+
+
+## Switches the UI at once (REQ-FL-61). On the TV the choice is saved and goes to the phones; a phone follows the TV and
+## does not save it.
+func set_language(code: String, remember := true) -> void:
+	if not (code in Lang.CODES):
+		return
+	Lang.set_language(code, get_tree().root)
+	if Role.is_tv():
+		if remember:
+			settings.language = code
+			save_settings()
+		if server != null:
+			server.set_language(code)
 
 
 func _notification(what: int) -> void:
@@ -188,6 +209,7 @@ func _start_tv() -> void:
 	server = TvServer.new()
 	add_child(server)
 	server.start(settings)
+	server.language = Lang.current()
 	discovery = TvDiscovery.new()
 	discovery.server = server
 	add_child(discovery)
@@ -221,6 +243,7 @@ func _start_controller() -> void:
 	wifi_locks.acquire_wifi_locks() # Less jitter and no lost TV beacons on Android.
 	client.state_changed.connect(_on_client_state)
 	client.phase_changed.connect(func(_p): _show_phone_screen())
+	client.language_changed.connect(func(code: String): set_language(code, false))
 	client.rejected.connect(_on_client_rejected)
 	if "--auto-join" in OS.get_cmdline_user_args():
 		# For desktop tests: join the first TV that sends a beacon.
@@ -245,6 +268,7 @@ func _on_client_state(state: int) -> void:
 		last_error = ""
 		_show_phone_screen()
 	elif state == ControllerClient.State.IDLE:
+		set_language(Lang.system_language(), false)   # Away from the TV, the phone uses its own language (REQ-FL-62).
 		if not (_screen is ControllerConnect):
 			go(ControllerConnect)
 
@@ -262,10 +286,10 @@ func _show_phone_screen() -> void:
 
 func _on_client_rejected(reason: String) -> void:
 	last_error = {
-		"full": "The TV is full (4 players).",
-		"bad_room": "Wrong room code.",
-		"version": "App version does not match the TV.",
-		"unreachable": "Cannot reach the TV. Check the Wi-Fi.",
-		"tv_closed": "The TV closed the connection.",
-		"kicked": "The host removed you. Scan the code to join again.",
-	}.get(reason, "Connection refused: " + reason)
+		"full": Lang.t("The TV is full (4 players)."),
+		"bad_room": Lang.t("Wrong room code."),
+		"version": Lang.t("App version does not match the TV."),
+		"unreachable": Lang.t("Cannot reach the TV. Check the Wi-Fi."),
+		"tv_closed": Lang.t("The TV closed the connection."),
+		"kicked": Lang.t("The host removed you. Scan the code to join again."),
+	}.get(reason, Lang.f("Connection refused: %s", [reason]))
