@@ -79,7 +79,8 @@ Rules:
 - Only the phone of the player that the event is about vibrates, except the start, the end and a pause (all phones).
 - A repeated haptic has the 100 ms or longer cool-down of REQ-GM-43, and a game must not buzz all the time (a long tilt in a wall is not a long buzz).
 - A haptic never replaces information: a phone without a vibrator, or with vibration off, plays the same game. The TV shows everything that matters.
-- Sound and haptic are two separate outputs: the Mute setting of the TV app does not turn haptics off. *Open question 14:* does the owner want a Haptics ON/OFF switch (on the phone or in the TV Settings)? Default: no switch.
+- Sound and haptic are two separate outputs: the Mute setting of the TV app does not turn haptics off.
+- **Haptics switch (decided by the owner on 2026-10-10):** the phone app has a HAPTICS ON/OFF switch. It is a framed box (`UiKit.box_button()`) on the phone's wait screen, the screen the player sees between games, so the player can change it before a game starts. Default ON. The choice is saved on the phone (`user://`, with the other phone data) and applies to every TV the phone joins. When it is OFF, the phone ignores the `haptic` messages (`controller_pad.gd` does not call `Input.vibrate_handheld()`); the TV sends them as before, so the protocol does not change (`docs/PROTOCOL.md` stays as it is). The switch has Hebrew text (FD-19) when that is merged. A test checks that OFF stops the vibration call, that ON restores it, and that the choice is saved and loaded. Manual test 18 checks it on a phone, and that a phone with the switch OFF plays the game normally.
 - Test: for each game, a smoke test emits each scene and checks that `App.server.haptic()` (or `Haptics.pulse()`) was called for the right slot. A device check (manual test 18, haptic part) feels each scene on a real phone: is it too weak, too strong, or too often?
 
 ## 3. How it is built
@@ -192,7 +193,8 @@ Each row is one effect. "Where" names the event that the game already has (it ha
 - `docs/REQUIREMENTS.md` REQ-P6: add "sound that is made in code (`scripts/audio`)" and, when option C is used, "audio files in `assets/audio` with a license file".
 - `docs/games/<id>.md` (five files): a new "Haptics" section with the scenes of section 2.3, and a new "Sound" section with the table of section 4 (the final effect list) and the song mood.
 - `docs/RISKS.md`: remove "No sound."; add the risks of section 8.
-- `docs/PROTOCOL.md`: no change.
+- `docs/PROTOCOL.md`: no change (the phone decides whether to vibrate).
+- `docs/TV_FLOW.md` (phone app section): the HAPTICS switch of the wait screen, a new REQ-FL number.
 - `README.md`, the `add-minigame` skill and `docs/games/TEMPLATE.md`: a new game lists its music and effects.
 
 ## 6. Tests
@@ -216,7 +218,7 @@ Coverage: the new modules are pure data and a thin player manager; the 80% rule 
 
 | Phase | Content | PR |
 |-------|---------|----|
-| A | The synthesizer, the sound bank, `Sound`, the buses, the menu song, the shared effects, the Settings rows (volume, mute), FD-20 and the requirements, the tests, the preview tool, manual test 18 (menu part) | PR 1 |
+| A | The phone HAPTICS switch (small, and useful by itself), the synthesizer, the sound bank, `Sound`, the buses, the menu song, the shared effects, the Settings rows (volume, mute), FD-20 and the requirements, the tests, the preview tool, manual test 18 (menu part) | PR 1 |
 | B1 | Game music and effects for Sumo Bumpers (it has the most events: use it to tune the pool and the gap) | PR 2 |
 | B2 | Marble Race and Tilt Maze | PR 3 |
 | B3 | Paint Grab and Snowball Splat | PR 4 |
@@ -250,7 +252,7 @@ After phase A the owner can listen to the preview tool's `.wav` files on a compu
 | 10 | Rolling noise for balls and marbles? | Not built |
 | 11 | A different pitch for each player on the "scored" sounds? | Yes, in Snowball Splat and Paint Grab (so a player hears their own), 4 pitches |
 | 12 | Song names | Working titles are the clip ids. The owner can name them; no name shows in the app |
-| 14 | A haptics ON/OFF switch? | No switch. Haptics are always on; the phone's own vibration setting still applies |
+| 14 | A haptics ON/OFF switch? | Yes (owner's decision): on the phone wait screen, default ON, saved on the phone |
 | 13 | Audio in the screenshots/tile tool and the CI | No sound is needed there; the dummy driver is used |
 
 ## 10. What the owner decides next
