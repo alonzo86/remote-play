@@ -35,7 +35,7 @@ func _ready() -> void:
 		tr.texture = load(LOGO_FILE)
 		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tr.custom_minimum_size = Vector2(1200, 450) # 62.5% of the screen width: 6 screen pixels per logo pixel.
+		tr.custom_minimum_size = Vector2(1200, 450) # 62.5% of the screen width: 3 screen pixels per logo pixel.
 		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST # Sharp pixels (REQ-FL-50).
 		box.add_child(tr)
 	else:

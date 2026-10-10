@@ -135,7 +135,7 @@ func _run() -> void:
 	var picture: TextureRect = pictures[0] if pictures.size() > 0 else null
 	_check(picture != null and picture.texture.get_size() == Vector2(1600, 600) and picture.custom_minimum_size == Vector2(1200, 450)
 			and picture.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
-			"the logo screen shows the logo file at 6 screen pixels per logo pixel, with sharp pixels (REQ-FL-50)")
+			"the logo screen shows the logo file at 3 screen pixels per logo pixel, with sharp pixels (REQ-FL-50)")
 	var splash := str(ProjectSettings.get_setting("application/boot_splash/image"))
 	_check(splash == "res://assets/logo/splash.png" and ResourceLoader.exists(splash)
 			and not ProjectSettings.get_setting("application/boot_splash/use_filter"),
