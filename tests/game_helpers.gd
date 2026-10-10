@@ -62,6 +62,9 @@ func _pixel_world() -> void:
 	for share in [0.0, 0.4, 0.9, 5.0]:
 		steps.append(SnowGame.poof_step(life * share))
 	_check(steps == [0, 1, 2, 2], "the poof of a missed snowball grows in 3 hard steps: %s" % str(steps))
+	var peak := PI / 18.0   # sin(age * 9) is 1 here.
+	_check(SnowGame.wing_flap(20.0, peak) == Shell.WORLD_PIXEL and SnowGame.wing_flap(60.0, peak) == 8.0
+			and SnowGame.wing_flap(60.0, 0.0) == 0.0, "the wings of a small Puff still move by one world pixel (REQ-SS-12)")
 	_check(SnowGame.BADGE_R * 2.0 >= 12.0 * Shell.WORLD_PIXEL and SnowGame.CURSOR_R * 2.0 >= 12.0 * Shell.WORLD_PIXEL,
 			"the cursor and its badge are 12 world pixels or more across (REQ-GM-47m)")
 	var sky := Shell.star_field(48, 7)

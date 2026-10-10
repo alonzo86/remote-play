@@ -298,7 +298,7 @@ func _draw_snowfall(ci: CanvasItem, area: Rect2) -> void:
 func _draw_puff(ci: CanvasItem, c: Vector2, r: float, body: Color, dir: int, age: float, happy: bool, snow: float) -> void:
 	var ow := Shell.WORLD_PIXEL
 	c = Shell.snap(c)
-	var flap := snappedf(sin(age * 9.0) * r * 0.14, ow)
+	var flap := wing_flap(r, age)
 	var wing_l := c + Vector2(-r * 0.98, -r * 0.05 + flap)
 	var wing_r := c + Vector2(r * 0.98, -r * 0.05 - flap)
 	ci.draw_circle(wing_l, r * 0.3 + ow, UiTheme.OUTLINE)
@@ -337,6 +337,12 @@ func _draw_snowball(ci: CanvasItem, f: Flight) -> void:
 	var r := lerpf(20.0, 12.0, t)
 	ci.draw_circle(pos, r + Shell.WORLD_PIXEL, UiTheme.OUTLINE)
 	ci.draw_circle(pos, r, Color.WHITE)
+
+
+## How far the wings move up and down (REQ-SS-12). It is a whole number of world pixels, and a small Puff still moves its wings
+## by at least one.
+static func wing_flap(r: float, age: float) -> float:
+	return snappedf(sin(age * 9.0) * maxf(r * 0.14, Shell.WORLD_PIXEL), Shell.WORLD_PIXEL)
 
 
 ## The center and the radius of a hit Puff that floats away (REQ-SS-13).
