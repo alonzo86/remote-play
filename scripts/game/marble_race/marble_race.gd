@@ -361,8 +361,8 @@ func _draw_edge_markers(canvas: Control) -> void:
 				tip - d * 18.0 - side * 26.0]), UiTheme.OUTLINE) # A dark outline: readable on any ground.
 		canvas.draw_colored_polygon(PackedVector2Array([tip + d * 24.0, tip - d * 12.0 + side * 18.0,
 				tip - d * 12.0 - side * 18.0]), col)
-		var label_pos: Vector2 = tip - d * 40.0 - Vector2(60, -10)
-		Shell.text(canvas, label_pos, m.text, 24, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 120.0)
+		var label_pos: Vector2 = tip - d * 40.0 - Vector2(70, -10)
+		Shell.text(canvas, label_pos, m.text, 32, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 140.0)
 
 
 ## The slot numbers of the marbles, at full resolution on top of the pixel view (REQ-GM-47n). A marble that is too small

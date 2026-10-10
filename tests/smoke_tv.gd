@@ -788,6 +788,11 @@ func _run() -> void:
 	var focus := Vector3(mr._cam_pos.x, 0.0, mr._cam_pos.z)
 	_check(mr._viewport.size == Vector2i(480, 270) and mr.world_to_hud(focus).distance_to(mr.hud.size * 0.5) < 2.0,
 			"the 3D view is 480x270 and the point the camera looks at is in the middle of the HUD")
+	var square := [mr.view_size_for(Vector2(1920, 1080)), mr.view_size_for(Vector2(1280, 720)),
+			mr.view_size_for(Vector2(1000, 1000)),
+			mr.view_size_for(Vector2.ZERO)]
+	_check(square == [Vector2i(480, 270), Vector2i(480, 270), Vector2i(270, 270), Vector2i(480, 270)],
+			"the 3D view keeps square pixels in a window that is not 16:9 (REQ-GM-47i): " + str(square))
 	var marble_p := Vector3(mr._racers[0].pos.x, MarbleRace.R, mr._racers[0].pos.y)
 	var marble_r: float = mr.radius_on_hud(marble_p, MarbleRace.R)
 	_check(marble_r > MarbleRace.NUMBER_MIN_R, "a marble is big enough for its slot number at the lowest camera: %.1f px" % marble_r)
