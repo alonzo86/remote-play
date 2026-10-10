@@ -8,6 +8,7 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const QrView = preload("res://scripts/ui/qr_view.gd")
 const SlotList = preload("res://scripts/ui/slot_list.gd")
 const TvModal = preload("res://scripts/ui/tv_modal.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 var _qr: Control
 var _hint: Label
@@ -88,7 +89,7 @@ func can_continue() -> bool:
 func _refresh() -> void:
 	var ip: String = App.discovery.ip if App.discovery != null else ""
 	_qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code) if ip != "" else ""
-	_credit.text = "CREDIT %02d" % App.server.connected_slots().size()
+	_credit.text = Lang.f("CREDIT %02d", [App.server.connected_slots().size()])
 	if App.server.connected_slots().size() >= 1:
 		_hint.add_theme_color_override("font_color", UiTheme.ACCENT)
 		_hint.text = "PRESS OK TO CONTINUE"

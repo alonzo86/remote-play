@@ -180,9 +180,14 @@ func _run() -> void:
 		await _frames(4)
 		var fit: Dictionary = game._fit()
 		var rect := Rect2(fit.origin, game.floor_map.size() * fit.k)
-		fits_ok = fits_ok and rect.position.x >= 59.0 and rect.end.x <= game.size.x - 59.0 and rect.position.y >= 149.0 \
+		var pitch: float = fit.k * game.REF_TILE
+		fits_ok = fits_ok and fmod(pitch, 4.0) == 0.0 and fmod(fit.origin.x, 4.0) == 0.0 and fmod(fit.origin.y, 4.0) == 0.0 \
+				and rect.position.x >= 59.0 and rect.end.x <= game.size.x - 59.0 and rect.position.y >= 149.0 \
 				and rect.end.y <= game.size.y - 59.0
-	_check(fits_ok, "the floor is inside the margin and under the HUD at 1280x720 and 1920x1080 (REQ-PG-17)")
+	_check(fits_ok, "the floor is inside the margin and under the HUD at 1280x720 and 1920x1080, and a tile is a whole number of "
+			+ "world pixels (REQ-PG-17, REQ-PG-15)")
+	_check(game._pixel_world() and game._pixel_viewport.size == Vector2i(480, 270),
+			"the floor is drawn in the 480x270 pixel view (REQ-PG-15)")
 	game.restart()
 	await _frames(4)
 	_check(is_instance_of(app.current_screen(), PaintGame) and app.current_screen().difficulty == "medium"

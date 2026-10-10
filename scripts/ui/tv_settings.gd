@@ -1,9 +1,11 @@
 extends Control
-## Settings screen (REQ-FL-23, 24): the debug overlay and the invert tilt switch. Back returns to Games.
+## Settings screen (REQ-FL-23, 24): the debug overlay and the invert tilt switch, and the language (REQ-FL-61). Back returns to
+## Games.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const MenuItem = preload("res://scripts/ui/menu_item.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 var _rows: Array[Button] = []
 
@@ -21,6 +23,8 @@ func _ready() -> void:
 	_add_row(box, "Debug overlay", "Shows the link of each phone. The Menu key or F3 does the same.", "overlay",
 			func(): App.toggle_overlay())
 	_add_row(box, "Invert tilt axes", "Use this when a ball rolls the wrong way.", "invert_tilt", Callable())
+	_add_row(box, "Language", "English or Hebrew. The phones follow the TV.", "language",
+			func(): App.set_language(Lang.other(Lang.current())))
 	box.add_child(UiKit.spacer(10))
 	box.add_child(UiKit.item("Back", on_back, UiTheme.SIZE_ITEM, "quiet"))
 	UiKit.focus_later(_rows[0])
@@ -34,7 +38,7 @@ func _add_row(parent: Control, title: String, help: String, key: String, custom:
 	b.add_child(h)
 	h.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	h.offset_left = UiTheme.CURSOR_UNIT * 4.0 + 24.0
-	h.offset_right = -24
+	h.offset_right = -(UiTheme.CURSOR_UNIT * 4.0 + 24.0)
 	var col := VBoxContainer.new()
 	col.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -50,6 +54,11 @@ func _add_row(parent: Control, title: String, help: String, key: String, custom:
 	state.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(state)
 	var refresh := func():
+		if key == "language":
+			state.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # The name of a language is written in that language.
+			state.text = String(Lang.NAMES[Lang.current()]).to_upper()
+			state.add_theme_color_override("font_color", UiTheme.SELECTED)
+			return
 		var on := bool(App.settings[key])
 		state.text = "ON" if on else "OFF"
 		state.add_theme_color_override("font_color", UiTheme.OK if on else UiTheme.TEXT_DIM)
