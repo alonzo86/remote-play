@@ -1,6 +1,6 @@
 # TV app flow
 
-Status: **built** (the redesign pull request). Chosen visual style: Party Pop (FD-13). This file holds the decisions (FD-n)
+Status: **built** (the redesign pull request). Visual style: Party Pop (FD-13), which is being replaced by the 8-bit arcade style (FD-18, plan in `docs/ARCADE_STYLE_PLAN.md`). Until the arcade pull requests change them, the style requirements below still describe Party Pop. This file holds the decisions (FD-n)
 and the requirements (REQ-FL-n) of the TV app flow. Open items: the logo image (the owner makes it, FD-15) and the Android
 splash image, until then the app icon is used (REQ-FL-51).
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
@@ -33,11 +33,13 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 | FD-11 | The Connect screen does not show the WebSocket address. (The Continue button of this decision was removed, see FD-17.) | 2026-10-07 |
 | FD-12 | The Games screen shows a players badge with the number of players, not the room code. OK on the badge opens a modal to manage the players (see the requirements). | 2026-10-07 |
 | FD-9 | Art is no longer limited to flat shapes (changes REQ-P6): the logo and the tile screenshots are image files. Menus and games stay in code. | 2026-10-07 |
-| FD-13 | Visual style: **Party Pop**. Chunky, saturated, sticker-like. Thick dark outlines, hard offset shadows, rounded shapes, bright player color tokens. The TV and the phone use the same style. Rejected: Arcade Neon (heavy glow, hard to read from a sofa) and Sticker Book (needs paper image assets). | 2026-10-07 |
+| FD-13 | Visual style: **Party Pop**. Chunky, saturated, sticker-like. Thick dark outlines, hard offset shadows, rounded shapes, bright player color tokens. The TV and the phone use the same style. Rejected: Arcade Neon (heavy glow, hard to read from a sofa) and Sticker Book (needs paper image assets). **Replaced by FD-18 on 2026-10-10**; it stays in force for the code until the arcade pull requests change each part. | 2026-10-07 |
 | FD-14 | Games share a visual language, not one look. Tier 1 (required): the game shell (pause menu, countdown, results, HUD), fonts, player colors. Tier 2 (required, trial rules): a toy-like world (rounded shapes, flat saturated colors, dark outline on key objects). Tier 3 (free): setting, background, camera, lighting mood. The exact tier 2 values are in `docs/GAME_REQUIREMENTS.md` (REQ-GM-47a to 47h). A trial on the marble race checks them. | 2026-10-07 |
 | FD-15 | The owner makes the logo image. The developer sets the exact tier 2 values. | 2026-10-07 |
 | FD-16 | The pointer test and the 3D demo were only for the first test of the prototype. They are removed: code, requirements files, tiles and tests. The marble race is the example of a 3D game. The pointer input of the phone (`PlayerInput.pointer()`, the yaw fusion) stays as an input for a later game, but it has no Settings switch now. | 2026-10-07 |
 | FD-17 | The Connect screen has no Continue button and no player count. A line "Press OK to continue" shows when at least one phone has joined, and OK opens the Games screen. (Found in the first run on an Android TV: the button was the only focus target, so it was redundant, and the count repeated the slot list.) | 2026-10-09 |
+| FD-18 | Visual style: **8-bit arcade** (look A, "8-bit cabinet"). It replaces Party Pop (FD-13) on the TV, the phone and in the games. Black background, one pixel font (Press Start 2P, with the project font Remote Play Pixel Hebrew as the fallback for Hebrew names), a small NES-like palette, square panels with a double frame (white and blue), text menus with a "▶" cursor, blinking prompts. The game worlds draw at a low resolution and scale up with sharp pixels; the shell (HUD, menus) stays at full resolution. Rejected: Neon CRT (hard to read, as in FD-13), Pixel Pop (too soft), 16-bit arcade, Atari 2600. The owner chose it from the mockups in `docs/design-system/arcade/mockups.html`. The values, the phases and the open questions are in `docs/ARCADE_STYLE_PLAN.md`. Status: planned. | 2026-10-10 |
+| FD-19 | Languages: English and Hebrew in the first localized version. Hebrew uses a right-to-left UI (the game worlds are not mirrored). The player chooses the language on the logo screen at the first start (later in Settings); the phones follow the TV. It replaces REQ-FL-54 when it is built. Details: `docs/ARCADE_STYLE_PLAN.md` section 7 (phase 5). Status: planned. | 2026-10-10 |
 
 ## 3. Requirements
 
@@ -76,6 +78,9 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-36: The player count on the badge and the tile dimming (REQ-FL-14) update when the modal changes the players.
 
 ### Visual style (Party Pop, FD-13)
+
+These requirements change with FD-18 (8-bit arcade). The new values are in `docs/ARCADE_STYLE_PLAN.md` section 2. They move into this file in the phase 1 pull request, which replaces REQ-FL-37 to 46, 41a, 52, 53, 56 and 57.
+
 - REQ-FL-37: All screens use one palette, kept in `UiTheme` (`scripts/ui/ui_theme.gd`): background purple `#3d1a9e` (darker `#2c1180` for dark panels), card white `#ffffff`, text on card `#24104f`, outline and shadow `#1a0b45`, accent yellow `#ffd23f`, button colors yellow (`ACCENT`), green (`OK` `#57cc99`) and red (`DANGER` `#b3122f`), purple row button `#7152e8` (`UiTheme.BUTTON`), focus border black (`FOCUS_BORDER`), disabled gray `#c4c0cf` with edge `#7d7890` and text `#4d4863`, state chips (`CHIP_OK`, `CHIP_BAD` and their dark texts), muted text `#463678` (`CARD_MUTED`), error text on purple `#ff8296` (`BAD_TEXT`), room code pink `#ff3d8b`, confetti pink `#ff5ea8`, cyan `#3ddcff` and yellow. The player colors stay as they are in `Protocol`.
 - REQ-FL-38: Cards, slots, badges and buttons have a thick dark outline (6 px at 1080p, `UiTheme.OUTLINE_W`) and a hard shadow offset down and right, with no blur. Corners are rounded. Pills and the gear are fully round.
 - REQ-FL-39: Titles use the display font Lilita One. Other text uses Fredoka (medium and semibold). Both fonts are free (SIL OFL) TTF files in `assets/fonts/`, with their license files. The default Godot font is the fallback.
@@ -89,7 +94,7 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - REQ-FL-45: The background is plain purple, with no dots or bubbles. The confetti of the logo is drawn in code. It is not an image file.
 - REQ-FL-46: The phone app uses the same palette, fonts and card style (REQ-FL-28).
 - REQ-FL-52: Phone buttons follow REQ-FL-41a and REQ-FL-53. On the pad, A is green and B is red (RECENTER is yellow, Leave is yellow). A pressed button sinks. The player color is only in the badge (the number dot) at the top, never a button fill. A number or letter on a color uses `UiTheme.text_on()` (white or dark, whichever has more contrast: dark on orange and teal, white on red and blue). Scan on the connect screen is white (`LightButton`); the discovered TVs below it are green and Refresh is yellow. Leave needs two taps: the first tap turns it red ("Tap again to leave") for 3 s. Error and offline text on the purple background uses `UiTheme.BAD_TEXT` (4.5:1 or more), not `BAD`.
-- REQ-FL-54: The UI is always English and always left to right, whatever the language or the region of the device (a TV set to Hebrew must not mirror the screens). Until translations are added, `App` sets the locale "en" and the layout direction of the root window to left to right at start, on the TV and on the phone. The project setting `internationalization/rendering/root_node_layout_direction` is left to right too.
+- REQ-FL-54: (FD-19 replaces this requirement in phase 5 of `docs/ARCADE_STYLE_PLAN.md`: English and Hebrew, Hebrew right to left.) The UI is always English and always left to right, whatever the language or the region of the device (a TV set to Hebrew must not mirror the screens). Until translations are added, `App` sets the locale "en" and the layout direction of the root window to left to right at start, on the TV and on the phone. The project setting `internationalization/rendering/root_node_layout_direction` is left to right too.
 - REQ-FL-55: The Back key of the remote and of the phone goes back one step in the app and never quits the app by itself. The project setting `application/config/quit_on_go_back` is false. The app quits only through the quit question of the Connect screen (REQ-FL-10).
 - REQ-FL-56: A tile whose image is missing or cannot be loaded shows a rounded placeholder (a color from the id) and writes a warning to the log (`adb logcat -s godot`). It never shows an empty box without a reason.
 - REQ-FL-57: The corners of the screenshot of a tile are rounded in the image itself (`GameTile.rounded()`, radius 20 px on the screen), once when the tile is made. The tile does not use `clip_children`. (Found in the first run on an Android 10 TV: the screenshots did not show. The cause is not confirmed: this change removes the clipping and adds the warning of REQ-FL-56. See Test 8b item 2 in `docs/MANUAL_TESTS.md`.)
@@ -135,6 +140,8 @@ Settings: a gear icon on the Games screen opens the Settings screen. The players
 - `scripts/ui/tv_menu.gd` is split into the logo, connect, games and settings screens.
 
 ## 5. Open questions
+
+- The open questions of the arcade style (FD-18) are in `docs/ARCADE_STYLE_PLAN.md` section 4.
 
 - The tier 2 values are a first version. The marble race trial can change them (FD-14, REQ-FL-47).
 - Logo image: the owner makes it (FD-15). Until the file exists, the logo screen draws the text "REMOTE PLAY" in code.

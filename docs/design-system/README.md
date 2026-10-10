@@ -1,3 +1,5 @@
+> **Being replaced.** The owner chose the 8-bit arcade style on 2026-10-10 (FD-18 in `docs/TV_FLOW.md`). This folder still describes Party Pop, which is what the code draws today. It is redone from the new `UiTheme` in phase 1 of `docs/ARCADE_STYLE_PLAN.md`. The mockups of the new style are in `arcade/mockups.html`.
+
 Remote Play is a couch game for Android TV with phones as motion controllers. The look is **Party Pop**: chunky, saturated and sticker-like. The TV and the phone share it.
 
 ## Content fundamentals

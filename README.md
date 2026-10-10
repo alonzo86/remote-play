@@ -57,7 +57,7 @@ tools/                   make_icons.gd, patch_android_manifest.sh
 docs/                    requirements, protocol, export, risks
 ```
 
-All screens are built in code in the Party Pop style (docs/TV_FLOW.md). Image files: the two fonts (`assets/fonts`),
+All screens are built in code in the Party Pop style (docs/TV_FLOW.md). The style is moving to 8-bit arcade (FD-18, docs/ARCADE_STYLE_PLAN.md). Image files: the two fonts (`assets/fonts`),
 the game tile screenshots (`assets/tiles`, made by `tools/make_tiles.gd`), the logo (`assets/logo`) and the icons.
 
 **Separation rule:** `net/` and `input/` never refer to `game/`.
