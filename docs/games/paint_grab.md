@@ -100,3 +100,7 @@ Values that change how the game feels. Tune them on a device (Test 14). First va
 - Is a round of 60 s right for 4 players on a floor of 144 tiles? Is it too hard to cover 70% alone on Medium?
 - Does the blob feel good, or does it need a stronger damping so it is easy to steer for a child?
 - Should the blobs also paint a ring around them (a bigger brush) on Easy, so a child fills the floor faster?
+
+## Languages (REQ-GM-47o)
+
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer). The game world is not mirrored.

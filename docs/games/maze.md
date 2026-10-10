@@ -42,3 +42,7 @@ mean fewer loops and a more complex maze. Every maze can be solved at every diff
 ## Parameters
 
 `TILT_ACCEL`, `FRICTION`, `MAX_SPEED`, `RESTITUTION`, `DEADZONE` in `scripts/game/maze/maze_game.gd`.
+
+## Languages (REQ-GM-47o)
+
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer). The game world is not mirrored.

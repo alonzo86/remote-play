@@ -76,6 +76,7 @@ func _run() -> void:
 	var TvConnect = load("res://scripts/ui/tv_connect.gd")
 	var TvSettings = load("res://scripts/ui/tv_settings.gd")
 	var app: Node = root.get_node("App")
+	var saved_settings := FileAccess.get_file_as_string(app.SETTINGS_FILE) if FileAccess.file_exists(app.SETTINGS_FILE) else ""
 
 	# The table: nothing is empty, and every text that the UI can show is in it (REQ-FL-63).
 	var empty: Array = []
@@ -176,7 +177,7 @@ func _run() -> void:
 
 	# A phone follows the TV (REQ-FL-62).
 	var c := ControllerClient.new()
-	c.player_name = "Sim"
+	c.player_name = "Ready"   # A name that is also a word of the UI: it must stay as it is.
 	root.add_child(c)
 	var heard: Array = []
 	c.language_changed.connect(func(code: String): heard.append(code))
@@ -214,6 +215,23 @@ func _run() -> void:
 		var stays := ["SIM", app.server.room_code, "REMOTE PLAY", "OK", "WI-FI", "QR", "F3", "A", "B", "1P", "2P", "3P", "4P"]
 		for t in _latin_texts(screen, stays):
 			shown_missing.append("%s: %s" % [screen.get_script().resource_path.get_file(), t])
+	app.go_connect()
+	await _frames(4)
+	var names := _texts(_first(app.current_screen(), "SlotList"))
+	_check(names.has("READY") and names.has("מוכן"),
+		"a player named Ready stays Ready while the state word is translated: " + str(names))
+	app.go_settings()
+	await _frames(3)
+	var item: Button = _first_item(app.current_screen())
+	Lang.set_language("he", root)
+	await _frames(2)
+	var rtl_margins := _margins(item)
+	Lang.set_language("en", root)
+	await _frames(2)
+	var ltr_margins := _margins(item)
+	_check(item != null and rtl_margins.y > rtl_margins.x and ltr_margins.x > ltr_margins.y,
+		"a menu item keeps the room for its cursor at the side of the cursor, in both layouts")
+	Lang.set_language("he", root)
 	_check(shown_missing.is_empty(), "no screen shows an untranslated English text in Hebrew " + str(shown_missing))
 	Lang.set_language("en", root)
 	c.leave()
@@ -236,8 +254,11 @@ func _run() -> void:
 	_check(is_equal_approx(Shell.mx(probe, 60.0, 240.0), 60.0), "English leaves the box where it is")
 	probe.queue_free()
 
-	app.settings.language = "en"
-	app.save_settings()
+	# The test must not change the settings of the person who runs it.
+	if saved_settings == "":
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(app.SETTINGS_FILE))
+	else:
+		FileAccess.open(app.SETTINGS_FILE, FileAccess.WRITE).store_string(saved_settings)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -279,3 +300,19 @@ func _latin_texts(node: Node, allowed: Array) -> Array:
 		if foreign and not _has_he(t):
 			out.append(t)
 	return out
+
+
+## The first menu item (a button with the cursor) inside `node`.
+func _first_item(node: Node) -> Button:
+	for n in node.find_children("*", "Button", true, false):
+		if n.has_method("apply_margins"):
+			return n
+	return null
+
+
+## The left and right content margins of a menu item.
+func _margins(item: Button) -> Vector2:
+	if item == null:
+		return Vector2.ZERO
+	var sb := item.get_theme_stylebox("normal")
+	return Vector2(sb.content_margin_left, sb.content_margin_right)

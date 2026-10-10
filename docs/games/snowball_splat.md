@@ -112,3 +112,7 @@ Values that change how the game feels. Tune them on a device (Test 10). First va
 - Does the yaw drift (gyro only) stay small enough for a round of 60 s? If not, a short smoothing or a stronger bias learning is needed in `orientation.gd`.
 - Are the Puffs slow and big enough for a child of 5 to 6 years? Are they too slow for an adult? The speeds, sizes, medal tiers and the 60 s are first guesses.
 - The name of the game and of the creatures (Puff) is a first idea.
+
+## Languages (REQ-GM-47o)
+
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer). The game world is not mirrored.
