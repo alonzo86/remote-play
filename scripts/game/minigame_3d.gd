@@ -1,6 +1,8 @@
 extends "res://scripts/game/minigame.gd"
 ## Base class for 3D minigames. It keeps everything from minigame.gd (player list, pause while a
-## phone is lost, D-pad pause menu, Back key) and adds a 3D world inside a SubViewport.
+## phone is lost, D-pad pause menu, Back key) and adds a 3D world inside a SubViewport. The viewport is 480x270 and it is
+## scaled up with nearest filtering (REQ-GM-47i), so the world has the pixel look; the HUD is drawn at full resolution above it.
+## `world_to_hud()` gives the HUD position of a point of the world.
 ## To add a 3D minigame:
 ##   1. Make a folder under scripts/game/.
 ##   2. Extend this script. Override _world_ready(), _world_tick(), and optionally _hud_draw().
@@ -25,18 +27,22 @@ var _viewport: SubViewport
 
 
 func _game_ready() -> void:
-	var container := SubViewportContainer.new()
-	container.stretch = true
-	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(container)
-
 	_viewport = SubViewport.new()
+	_viewport.size = PIXEL_VIEW
 	_viewport.own_world_3d = true
 	_viewport.handle_input_locally = false
-	_viewport.msaa_3d = Viewport.MSAA_DISABLED # Cheap on weak TV boxes. Subclasses may raise it.
+	_viewport.msaa_3d = Viewport.MSAA_DISABLED   # No antialiasing: the pixels stay square. Cheap on weak TV boxes.
 	_viewport.audio_listener_enable_3d = true
-	container.add_child(_viewport)
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(_viewport)
+	var view := TextureRect.new()
+	view.texture = _viewport.get_texture()
+	view.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	view.stretch_mode = TextureRect.STRETCH_SCALE
+	view.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(view)
+	view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	world = Node3D.new()
 	world.name = "World"
@@ -56,6 +62,17 @@ func _game_ready() -> void:
 	add_child(hud)
 
 	_world_ready()
+
+
+## The position on the HUD (full resolution) of the point `p` of the world, as seen by the camera. The camera sees the 480x270
+## view, so the position is scaled to the size of the HUD.
+func world_to_hud(p: Vector3) -> Vector2:
+	return camera.unproject_position(p) * (hud.size / Vector2(PIXEL_VIEW))
+
+
+## The radius on the HUD of a sphere of radius `r` at `p`, in the view of the camera.
+func radius_on_hud(p: Vector3, r: float) -> float:
+	return world_to_hud(p).distance_to(world_to_hud(p + camera.global_transform.basis.x * r))
 
 
 func _make_environment() -> void:
@@ -142,7 +159,7 @@ static func add_outlined_mesh(parent: Node3D, mesh: Mesh, color: Color, pos := V
 
 # ---- Override in subclasses ----
 
-## The color behind the world. Pick one from the Party Pop set (REQ-GM-48).
+## The color behind the world. Pick one from the arcade set (REQ-GM-48).
 func _background_color() -> Color:
 	return UiTheme.BG
 

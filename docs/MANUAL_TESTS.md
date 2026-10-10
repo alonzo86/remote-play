@@ -56,7 +56,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Fail (item 1, fixed, retest) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (set to Hebrew for item 7) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
-| [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-50 | Not run |  | |
+| [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
 | [10](#test-10) | Snowball Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
@@ -323,7 +323,7 @@ History:
 
 ### Marble race (3D)
 
-Needs: 2 to 4 phones, 1 TV. Covers: REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-50.
+Needs: 2 to 4 phones, 1 TV. Covers: REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
 Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Race" and pick a track.
 
@@ -341,6 +341,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 9. Open the tile of **Marble Race**. Check: the settings view shows Difficulty (Left and Right) and, under it, a carousel of tracks (10 line sketches and a "?", no names), wider than the Difficulty row, with the selected track in the middle. Move the carousel with Left and Right (the track in the middle is the one you get), then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many posts. Choose the "?" tile twice: the tracks are different. Restart: the same track again. (REQ-MR-50 to 54)
 10. During a race, open the pause menu. Check: it has Resume, Restart and Back to menu only. (REQ-MR-32)
 11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the marble stops drifting.
+12. **Pixel world (phase 3, REQ-MR-44, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the race. Check: the track, the posts and the marbles are made of sharp square pixels (not blurred), each marble has a black outline and its number is easy to read on it, and the posts and marbles are easy to tell apart on the purple track. Fly the camera high (let one marble run far ahead): the small marbles have no number, and you can still follow them by color. Write down the frame rate with 4 phones on Hard (it should be the same or better than before) and the TV (1080p or 4K).
 
 **Results**
 
@@ -357,6 +358,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 | 9 | Photo of the settings view; video of choosing a track and of Easy, Medium and Hard; note on the generated tracks (any bad bends or corners where a marble gets stuck) | Not run | | | Changed 2026-10-09: the four hand-made tracks were replaced by generated tracks. |
 | 10 | Photo of the pause menu | Not run | | | |
 | 11 | Video of a full race on one track and notes for every check in the item | Not run | | | |
+| 12 | Photo of the race from the sofa; note: sharp pixels, readable numbers, the frame rate and the TV | Not run | | | |
 
 Winning times (item 8):
 
@@ -370,6 +372,7 @@ Winning times (item 8):
 History:
 
 - 2026-10-09 (not run): the four hand-made tracks were replaced by generated tracks, and item 9 is new: the settings view with Difficulty and the track carousel (10 sketches and a '?', the middle one is chosen, yellow border), difficulty by the number of posts (Easy 2, Medium 6, Hard 10 for each 100 m). Look for a bend where a marble gets stuck, and for too many posts on Hard. The results menu has Settings, not Choose track.
+- 2026-10-10 (not run): item 12 is new: the 3D world is drawn in a 480x270 pixel view (phase 3 of the arcade style), and the marbles have their slot number on them.
 - -: **Not run**. Not run on a device yet. Item 11 is new: run it again after a change of the shared game code (PR 12 changed the countdown, the buzz limit and the end with no players).
 
 ## Test 10

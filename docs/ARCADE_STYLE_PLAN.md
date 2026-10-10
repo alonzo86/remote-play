@@ -1,6 +1,6 @@
 # Arcade style and localization plan (FD-18, FD-19)
 
-Status: **phases 1 and 2 built** (phase 1: menus, phone, game shell, manual test 16; phase 2: the pixel view and Sumo Bumpers, manual test 15). Phases 3 to 5 are planned. The style requirements are in
+Status: **phases 1 to 3 built** (phase 1: menus, phone, game shell, manual test 16; phase 2: the pixel view and Sumo Bumpers, manual test 15; phase 3: the 3D pixel view and Marble Race, manual test 9). Phases 4 and 5 are planned. The style requirements are in
 `docs/TV_FLOW.md` (REQ-FL-37 to 46) and `docs/GAME_REQUIREMENTS.md` (REQ-GM-45, 46); REQ-GM-47 and 48 (the game worlds) still
 describe the toy-like tier 2 rules until phase 2.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
@@ -157,7 +157,9 @@ Decisions taken while building it: the view is a `SubViewport` of 480x270 with `
 3. Set the exact tier 2 values in `docs/GAME_REQUIREMENTS.md` (they replace REQ-GM-47a to 47h and REQ-GM-48) after the
    trial. Make the tile again (`tools/make_tiles.gd`).
 
-### Phase 3: 3D trial (Marble Race)
+### Phase 3: 3D trial (Marble Race) - built
+
+Decisions taken while building it: the 3D view is a `SubViewport` of 480x270 shown by a `TextureRect` with nearest filtering (`minigame_3d.gd`, for every 3D game); the HUD maps world points with `world_to_hud()`; the slot number of a marble is drawn by the HUD (a marble with a radius under 16 px on the HUD has none); the background is the arcade blue `#1b3a8a` and the rim is black. The frame rate gain on a TV box is not measured: Test 9 item 12.
 
 1. The low-res view in `minigame_3d.gd` (a 480x270 `SubViewport` for the camera, no antialiasing).
 2. Restyle Marble Race: the outline meshes stay (REQ-GM-47c), the colors move to the world palette. Check that the

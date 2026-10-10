@@ -26,10 +26,11 @@ const HAPTIC_COOLDOWN_MS := 150
 const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
 const START_ARC := 2.0         # All marbles start on one line across the track.
 const BUMPER_R := 0.9
-const POST_COLOR := Color("3ddcff")   # Party Pop cyan: not a slot color, not red (REQ-MR-43). A test checks it.
+const POST_COLOR := Color("3ddcff")   # Cyan: not a slot color, not red (REQ-MR-43). A test checks it.
 const FLOOR_COLOR := Color("472aa3")  # Purple. Darker than the marbles (REQ-GM-47e).
-const RIM_COLOR := Color("1a0b45")    # The dark edge of the track. It is the outline color.
-const BACKGROUND := Color("0f6a78")   # Teal from the Party Pop set (REQ-GM-48).
+const RIM_COLOR := UiTheme.OUTLINE    # The black edge of the track. It is the outline color.
+const BACKGROUND := Color("1b3a8a")   # Blue from the arcade set (REQ-GM-48).
+const NUMBER_MIN_R := 16.0            # A marble is drawn with its slot number from this radius on the HUD (REQ-MR-44).
 
 class Racer:
 	var slot := 0
@@ -338,7 +339,7 @@ func edge_markers() -> Array:
 	for s in participants:
 		var r: Racer = _racers[s]
 		var p3 := Vector3(r.pos.x, R, r.pos.y)
-		var sp := camera.unproject_position(p3)
+		var sp := world_to_hud(p3)
 		if camera.is_position_behind(p3):
 			sp = Vector2(center.x, hud.size.y * 2.0)
 		if rect.has_point(sp):
@@ -364,7 +365,21 @@ func _draw_edge_markers(canvas: Control) -> void:
 		Shell.text(canvas, label_pos, m.text, 24, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 120.0)
 
 
+## The slot numbers of the marbles, at full resolution on top of the pixel view (REQ-GM-47n). A marble that is too small
+## on the screen has no number (the camera is high): its color and the edge arrow tell it.
+func _draw_marble_numbers(canvas: Control) -> void:
+	for s in _racers:
+		var p3 := Vector3(_racers[s].pos.x, R, _racers[s].pos.y)
+		if camera.is_position_behind(p3):
+			continue
+		var radius := radius_on_hud(p3, R)
+		var sp := world_to_hud(p3)
+		if radius >= NUMBER_MIN_R and Rect2(Vector2.ZERO, canvas.size).has_point(sp):
+			Shell.ball_number(canvas, sp, radius, player(s).color, s)
+
+
 func _hud_draw(canvas: Control) -> void:
+	_draw_marble_numbers(canvas)
 	var y := 36.0
 	var place := 0
 	for r in standings():
