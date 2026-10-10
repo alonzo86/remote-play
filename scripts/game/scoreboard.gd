@@ -5,6 +5,8 @@ extends RefCounted
 ## A player who has not finished (a race that ended before the line) has no score. `set_unfinished()` gives only how far the
 ## player got. Such players rank after all players with a score, the furthest first.
 
+const Lang = preload("res://scripts/core/lang.gd")
+
 const ORDINALS := ["1st", "2nd", "3rd", "4th"]
 
 var lower_is_better := false
@@ -102,7 +104,7 @@ func _better(a: float, b: float) -> bool:
 
 ## "1st", "2nd", "3rd", "4th" for a rank from 1 to 4.
 static func ordinal(rank: int) -> String:
-	return ORDINALS[clampi(rank, 1, ORDINALS.size()) - 1]
+	return Lang.t(ORDINALS[clampi(rank, 1, ORDINALS.size()) - 1])
 
 
 ## A score for the screen: "12" for a whole number, "12.5" otherwise.

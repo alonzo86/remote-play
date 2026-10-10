@@ -8,6 +8,7 @@ signal state_changed(state: int)
 signal welcomed(slot: int, color: Color)
 signal rejected(reason: String)
 signal phase_changed(phase: String)
+signal language_changed(code: String)   # The TV language (REQ-FL-62).
 signal haptic_requested(ms: int)
 
 enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING }
@@ -171,6 +172,8 @@ func _handle(msg: Dictionary, now: int) -> void:
 			_set_state(State.CONNECTED)
 			_save_last(false)
 			welcomed.emit(slot, color)
+			if msg.has("lang"):
+				language_changed.emit(String(msg.lang))
 			phase_changed.emit(phase)
 		"reject":
 			var reason := String(msg.get("reason", "unknown"))
@@ -188,6 +191,8 @@ func _handle(msg: Dictionary, now: int) -> void:
 		"phase":
 			phase = String(msg.get("v", "connect"))
 			phase_changed.emit(phase)
+		"lang":
+			language_changed.emit(String(msg.get("v", "en")))
 		"haptic":
 			haptic_requested.emit(int(msg.get("ms", 50)))
 		"kicked":

@@ -347,7 +347,7 @@ func edge_markers() -> Array:
 		var dir := (sp - center).normalized()
 		var t := minf(rect.size.x * 0.5 / maxf(absf(dir.x), 0.001), rect.size.y * 0.5 / maxf(absf(dir.y), 0.001))
 		out.append({"slot": s, "pos": center + dir * t, "dir": dir,
-				"text": "%d m" % roundi(r.arc - lead.arc)})
+				"text": Lang.f("%d m", [roundi(r.arc - lead.arc)])})
 	return out
 
 
@@ -386,9 +386,10 @@ func _hud_draw(canvas: Control) -> void:
 		var p = player(r.slot)
 		var t := ""
 		if r.finish_time >= 0.0:
-			t = "  %.2f s" % r.finish_time
+			t = "  " + Lang.f("%.2f s", [r.finish_time])
 		var msg := "%s  %s%s" % [Scoreboard.ordinal(place + 1), p.player_name, t]
-		Shell.chip(canvas, Vector2(60, y), msg, p.color, Shell.score_chip_width(msg, "", 54.0, 400.0), 54.0)
+		var chip_w := Shell.score_chip_width(msg, "", 54.0, 400.0)
+		Shell.chip(canvas, Vector2(Shell.mx(canvas, 60.0, chip_w), y), msg, p.color, chip_w, 54.0)
 		y += 68.0
 		place += 1
 	if _round.is_counting():
@@ -398,10 +399,10 @@ func _hud_draw(canvas: Control) -> void:
 	elif not is_over:
 		var lead: Racer = standings()[0]
 		var to_go := maxf(finish_arc - lead.arc, 0.0)
-		Shell.text(canvas, Vector2(0, 90), "Finish in %d m" % roundi(to_go), 40, UiTheme.ACCENT,
+		Shell.text(canvas, Vector2(0, 90), Lang.f("Finish in %d m", [roundi(to_go)]), 40, UiTheme.ACCENT,
 				HORIZONTAL_ALIGNMENT_CENTER, canvas.size.x)
-		Shell.text(canvas, Vector2(canvas.size.x - 360, 90), "%.1f s" % _round.time, 40, UiTheme.TEXT,
-				HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
+		Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), 90), Lang.f("%.1f s", [_round.time]), 40,
+				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
 	_draw_edge_markers(canvas)
-	Shell.text(canvas, Vector2(canvas.size.x - 360, canvas.size.y - 70), track.title, 32, UiTheme.TEXT_DIM,
-			HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
+	Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), canvas.size.y - 70), track.title, 32,
+			UiTheme.TEXT_DIM, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)

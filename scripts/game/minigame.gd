@@ -19,6 +19,7 @@ const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const Medals = preload("res://scripts/game/medals.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 ## The size of the low-resolution world view and of the screen it stands for (REQ-GM-47a).
 const PIXEL_VIEW := Vector2i(480, 270)
@@ -148,7 +149,7 @@ func _slot_labels(slots: Array) -> String:
 	var parts: Array[String] = []
 	for s in slots:
 		parts.append("%dP" % (int(s) + 1))
-	return " and ".join(parts)
+	return Lang.t(" and ").join(parts)
 
 
 func _show_hold_card(lost: Array[int]) -> void:
@@ -156,23 +157,23 @@ func _show_hold_card(lost: Array[int]) -> void:
 	var gone: Array[int] = []
 	for s in _hold_info:
 		var info: Dictionary = _hold_info[s]
-		var state := "left the game"
+		var state := Lang.t("left the game")
 		if lost.has(s):
-			state = "waiting to reconnect"
+			state = Lang.t("waiting to reconnect")
 		elif participants.has(s):
-			state = "is back"
+			state = Lang.t("is back")
 		else:
 			gone.append(s)
 		rows.append({"text": "%s   %s" % [info.name, state], "color": info.color})
 	var title: String
 	var entries: Array = []
 	if not lost.is_empty():
-		title = "%s lost connection" % _slot_labels(lost)
+		title = Lang.f("%s lost connection", [_slot_labels(lost)])
 		if not connected_participants().is_empty():
-			entries.append(["Resume without %s" % _slot_labels(lost), _resume_without_lost])
+			entries.append([Lang.f("Resume without %s", [_slot_labels(lost)]), _resume_without_lost])
 	else:
-		title = "%s left the game" % _slot_labels(gone) if not gone.is_empty() and gone.size() == _hold_info.size() \
-				else "%s reconnected" % _slot_labels(_hold_info.keys())
+		title = Lang.f("%s left the game", [_slot_labels(gone)]) if not gone.is_empty() and gone.size() == _hold_info.size() \
+				else Lang.f("%s reconnected", [_slot_labels(_hold_info.keys())])
 		entries.append(["Resume", _resume_game])
 	entries.append(["End game", request_leave, "danger"])
 	open_menu(title, entries, rows)
@@ -277,22 +278,22 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	var rows: Array = []
 	for e in ranking:
 		var p := player(e.slot)
-		var text := "not finished"
+		var text := Lang.t("not finished")
 		if e.finished:
 			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color})
 	var winners := board.winners()
 	var heading := title
 	if heading == "":
-		heading = "Round over"
+		heading = Lang.t("Round over")
 		if ranking.size() == 1 and not tiers.is_empty():
 			# A player without a score gets no medal: the score 0 would beat every limit of a time.
 			var medal := Medals.medal(ranking[0].score, tiers, board.lower_is_better) if ranking[0].finished else Medals.NONE
 			heading = Medals.label(medal)
 		elif winners.size() == 1:
-			heading = "%s wins!" % player(winners[0]).player_name
+			heading = Lang.f("%s wins!", [player(winners[0]).player_name])
 		elif winners.size() > 1:
-			heading = "Tie!"
+			heading = Lang.t("Tie!")
 	var entries: Array = [["Restart", restart]]
 	entries.append_array(extra_entries)
 	var id := Registry.id_of_script(get_script())

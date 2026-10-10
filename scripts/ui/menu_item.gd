@@ -17,5 +17,6 @@ func _ready() -> void:
 
 func _draw() -> void:
 	if has_focus() and not disabled:
-		UiTheme.draw_cursor(self, Vector2(8.0, size.y * 0.5), get_theme_color("font_focus_color"), UiTheme.CURSOR_UNIT,
-				is_layout_rtl())
+		var rtl := is_layout_rtl()
+		var x := size.x - 8.0 - UiTheme.CURSOR_UNIT * 4.0 if rtl else 8.0   # In front of the text: at the right in Hebrew.
+		UiTheme.draw_cursor(self, Vector2(x, size.y * 0.5), get_theme_color("font_focus_color"), UiTheme.CURSOR_UNIT, rtl)

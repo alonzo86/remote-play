@@ -121,7 +121,7 @@ static func _item_type(t: Theme, type: String, normal: Color, focus: Color) -> v
 	t.set_color("font_disabled_color", type, DISABLED)
 	var s := StyleBoxEmpty.new()
 	s.content_margin_left = CURSOR_UNIT * 4.0 + 24.0
-	s.content_margin_right = 16.0
+	s.content_margin_right = CURSOR_UNIT * 4.0 + 24.0   # The cursor is at the right in Hebrew (right to left layout).
 	s.content_margin_top = 10.0
 	s.content_margin_bottom = 10.0
 	for st in ["normal", "hover", "focus", "pressed", "disabled"]:

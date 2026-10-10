@@ -3,6 +3,8 @@ extends RefCounted
 ## The drivable area is every point within half_width of the line. It has no holes and
 ## it has no overlap with itself, so "arc" (distance along the line) is always clear.
 
+const Lang = preload("res://scripts/core/lang.gd")
+
 var id := ""
 var title := ""
 var points: Array[Vector2] = []
@@ -78,7 +80,7 @@ const CLEARANCE := 1.0           # Extra room between two far parts of the track
 ## The track of a fixed seed (index 0 to 9) or a seed that is not fixed (the "Random track").
 static func title_for(seed_value: int) -> String:
 	var i := FIXED_SEEDS.find(seed_value)
-	return "Track %d" % (i + 1) if i >= 0 else "Random track"
+	return Lang.f("Track %d", [i + 1]) if i >= 0 else Lang.t("Random track")
 
 
 ## The seed of a choice of the track list: "1" to "10" is a fixed seed, "random" is a new seed that is not one of the fixed ones.
