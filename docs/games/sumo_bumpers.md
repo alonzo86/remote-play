@@ -55,7 +55,7 @@ Players and feedback
 |----|-------------|--------|-------|
 | REQ-SB-12 | A player who leaves takes the bumper out and keeps no points in the ranking (REQ-GM-21). When one player is left, the match ends at once with the result menu. When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sumo |
 | REQ-SB-13 | A lost phone pauses the match with the card of REQ-GM-30. Nothing runs during the pause (the shrink, the countdown). | Done | smoke_tv (shared base class) |
-| REQ-SB-14 | The chips (`Shell.player_chips`, in slot order) show the points of each player. A bumper has its slot number on it (`Shell.ball`, REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points), Device (RECENTER) |
+| REQ-SB-14 | The chips (`Shell.player_chips`, in slot order) show the points of each player. A bumper has its slot number on it (`Shell.ball_number`, REQ-GM-46, REQ-GM-47n). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points), Device (RECENTER) |
 
 Look
 
