@@ -6,6 +6,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const SensorSampler = preload("res://scripts/input/sensor_sampler.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 var _sampler: Node
 var _fingers: Dictionary = {}   # finger index -> zone name
@@ -145,7 +146,7 @@ func _draw() -> void:
 	var square_color: Color = c.color if online else UiTheme.BAD
 	draw_rect(square, square_color)
 	UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
-	var status := "%dP" % (c.slot + 1) if online else "Reconnecting..."
+	var status := "%dP" % (c.slot + 1) if online else Lang.t("Reconnecting...")
 	var name_rect := Rect2(190, HEADER_Y - 45.0, size.x - 460, 90)
 	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, 48)), status.to_upper(),
 			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, 48, UiTheme.ACCENT if online else UiTheme.BAD)
@@ -157,16 +158,16 @@ func _draw() -> void:
 
 	# Leave: a framed text box. The first tap turns it red (REQ-FL-52).
 	if _leave_armed > 0.0:
-		_draw_box(_rect_leave(), UiTheme.BAD, UiTheme.BG, "Again", 32, UiTheme.BAD)
+		_draw_box(_rect_leave(), UiTheme.BAD, UiTheme.BG, Lang.t("Again"), 32, UiTheme.BAD)
 	else:
-		_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BG, "Leave", 32, UiTheme.TEXT)
+		_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BG, Lang.t("Leave"), 32, UiTheme.TEXT)
 
 	# Recenter: a yellow framed box that fills with yellow for a moment when it is tapped.
 	var rr := _rect_recenter()
 	var flashing: bool = _flash.recenter > 0.0
-	_draw_box(rr, UiTheme.ACCENT, UiTheme.ACCENT if flashing else UiTheme.BG, "Recenter", 72,
+	_draw_box(rr, UiTheme.ACCENT, UiTheme.ACCENT if flashing else UiTheme.BG, Lang.t("Recenter"), 72,
 			UiTheme.BG if flashing else UiTheme.ACCENT)
-	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), "POINT AT THE TV, THEN TAP",
+	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("POINT AT THE TV, THEN TAP"),
 			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, 32, UiTheme.BG if flashing else UiTheme.TEXT)
 
 	# A and B are round arcade buttons. A is green and B is red (REQ-FL-52). The player color is only the square at the top.

@@ -82,6 +82,10 @@ func _run() -> void:
 	TvSettings = load("res://scripts/ui/tv_settings.gd")
 	TvGameSettings = load("res://scripts/ui/tv_game_settings.gd")
 	var app: Node = root.get_node("App")
+	# A saved language: the logo goes on by itself. The first start, which asks for the language, is tested in smoke_lang.gd.
+	app.settings.language = "en"
+	app.go_logo()
+	await _frames(2)
 	_check(is_instance_of(app.current_screen(), TvLogo), "TV starts on the logo screen (REQ-FL-2)")
 	_check(app.server.listening, "server is listening while the logo shows (REQ-FL-4)")
 	_check(app.server.phase == "connect", "phase is connect on the logo screen")
@@ -258,6 +262,8 @@ func _run() -> void:
 	await _frames(3)
 	var game: Control = app.current_screen()
 	_check(is_instance_of(game, MazeGame) and game.participants.size() == 2, "maze starts with 2 participants")
+	_check(game._pixel_world() and game._pixel_viewport.size == Vector2i(480, 270) and game._pixel_layer != null,
+			"the maze world is drawn in the 480x270 pixel view (REQ-MZ-7)")
 	# A phone that joins during the round waits for the next round (REQ-FL-25).
 	var late := ControllerClient.new()
 	late.player_name = "Late"
@@ -609,6 +615,13 @@ func _run() -> void:
 	_check(ss._board.score(0) == 30.0 and ss._field.puffs.size() == 1,
 			"a snowball that misses takes nothing and loses nothing (REQ-SS-5)")
 	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "poof"), "a miss makes a poof of snow")
+	_check(ss._pixel_world() and ss._pixel_viewport.size == Vector2i(480, 270),
+			"the sky is drawn in the 480x270 pixel view (REQ-SS-12)")
+	var snow_before: float = ss._snow_time
+	ss.open_menu("Paused", [["Resume", ss.close_menu]])
+	await _frames(4)
+	_check(is_equal_approx(ss._snow_time, snow_before), "the snowfall stands still while the game is paused (REQ-FL-43)")
+	ss.close_menu()
 	_check(ss._throwers[0].reload_left <= ss.RELOAD, "a miss does not make the player wait longer than the reload")
 	await _frames(8)
 	_check(haptics == [15],
@@ -771,6 +784,18 @@ func _run() -> void:
 	_check(mr.track.bumpers.size() > MarbleTrack.make(mr.track_seed, "easy").bumpers.size(),
 			"the difficulty gives the posts (REQ-MR-50)")
 	_check(mr.camera != null, "the 3D game has a camera")
+	# The 3D world is drawn in a 480x270 view, and the HUD works in full-resolution positions (REQ-GM-47i, 47n).
+	var focus := Vector3(mr._cam_pos.x, 0.0, mr._cam_pos.z)
+	_check(mr._viewport.size == Vector2i(480, 270) and mr.world_to_hud(focus).distance_to(mr.hud.size * 0.5) < 2.0,
+			"the 3D view is 480x270 and the point the camera looks at is in the middle of the HUD")
+	var square := [mr.view_size_for(Vector2(1920, 1080)), mr.view_size_for(Vector2(1280, 720)),
+			mr.view_size_for(Vector2(1000, 1000)),
+			mr.view_size_for(Vector2.ZERO)]
+	_check(square == [Vector2i(480, 270), Vector2i(480, 270), Vector2i(270, 270), Vector2i(480, 270)],
+			"the 3D view keeps square pixels in a window that is not 16:9 (REQ-GM-47i): " + str(square))
+	var marble_p := Vector3(mr._racers[0].pos.x, MarbleRace.R, mr._racers[0].pos.y)
+	var marble_r: float = mr.radius_on_hud(marble_p, MarbleRace.R)
+	_check(marble_r > MarbleRace.NUMBER_MIN_R, "a marble is big enough for its slot number at the lowest camera: %.1f px" % marble_r)
 	mr.open_menu("Paused", [["Resume", mr.close_menu]])
 	await _frames(2)
 	_check(mr.world.process_mode == Node.PROCESS_MODE_DISABLED, "the 3D world freezes while paused")

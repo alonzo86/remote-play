@@ -19,8 +19,8 @@ const POP_TIME := 0.15          # A painted tile grows and goes back in this tim
 const HINT_TIME := 4.0
 const BOARD_TOP := 150.0        # The floor is the screen inside the margin, under the HUD.
 const BOARD_MARGIN := 60.0
-const TIMER_X := 560.0
-const TIMER_W := 160.0
+const TIMER_X := 520.0
+const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide. With 4 chips of 270 px the row still fits (a test).
 ## Difficulty (REQ-PG-20): the floor, the speed of the blobs (a factor on the Medium values) and the medal tiers in percent of the
 ## floor (first guesses, Test 13). A tile is `REF_TILE` in the simulation; on the screen it is as big as the floor fits.
 const LEVELS := {
@@ -32,11 +32,11 @@ const LEVELS := {
 const START_SPOTS := [Vector2(-1, -1), Vector2(1, 1), Vector2(1, -1), Vector2(-1, 1)]
 const START_SHARE := 0.3
 
-# Look (REQ-PG-15, REQ-GM-47). The floor is dark so that every player color has a contrast of 3:1 or more.
-const BACKGROUND := Color("0f6a78")
+# Look (REQ-PG-15, REQ-GM-47i to 47n). The floor is dark so that every player color has a contrast of 3:1 or more.
+const STAR_COUNT := 48
 const FLOOR_COLOR := Color("2a1070")
 const EMPTY_TILE := Color("3a1c97")
-const TILE_GAP := 4.0
+const TILE_GAP := Shell.WORLD_PIXEL   # One world pixel between two tiles.
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps it for Restart.
 var difficulty := "medium"
@@ -48,7 +48,7 @@ var _bodies := {}                 # slot -> TiltBody
 var _haptics := Haptics.new()
 var _pops := PackedFloat32Array()  # The time left of the pop of each tile.
 var _level := {}
-var _sb_board: StyleBoxFlat
+var _stars := PackedVector2Array()
 
 
 func _game_ready() -> void:
@@ -56,7 +56,7 @@ func _game_ready() -> void:
 	floor_map = PaintFloor.new(int(_level.cols), int(_level.rows), REF_TILE)
 	_pops.resize(floor_map.cols * floor_map.rows)
 	_pops.fill(0.0)
-	_sb_board = UiTheme.card(FLOOR_COLOR, UiTheme.OUTLINE, UiTheme.OUTLINE_W, 30, true)
+	_stars = Shell.star_field(STAR_COUNT, 13)
 	_board = Scoreboard.new(participants)
 	var middle := floor_map.size() * 0.5
 	for i in participants.size():
@@ -126,66 +126,74 @@ func _finish() -> void:
 	if _board.ranking().size() == 1:   # One player: the share of the floor gives the medal (REQ-PG-21).
 		var slot: int = _board.ranking()[0].slot
 		var medal := Medals.medal(floor_map.percent(slot), tiers)
-		heading = "%s (%s)" % [Medals.label(medal), difficulty.capitalize()]
+		heading = "%s (%s)" % [Medals.label(medal), Lang.t(difficulty.capitalize())]
 	open_results(_board, [], heading, [], _score_text)
 
 
 ## "34 tiles (23%)" for the result list.
 func _score_text(tiles: float) -> String:
-	return "%d tiles (%d%%)" % [int(tiles), int(tiles) * 100 / floor_map.total()]   # The percent is rounded down (REQ-PG-21).
+	return Lang.f("%d tiles (%d%%)", [int(tiles), int(tiles) * 100 / floor_map.total()])   # The percent is rounded down (REQ-PG-21).
 
 
 # ---- Drawing ----
 
-## The scale and the corner of the floor on the screen: it is as big as it fits inside the margin and under the HUD.
+## The scale and the corner of the floor on the screen: it is as big as it fits inside the margin and under the HUD. A tile is a
+## whole number of world pixels wide (a multiple of 4 units), so that all gaps between the tiles are equal (REQ-GM-47l).
 func _fit() -> Dictionary:
 	var avail := Vector2(size.x - 2.0 * BOARD_MARGIN, size.y - BOARD_TOP - BOARD_MARGIN)
 	var fl := floor_map.size()
-	var k := minf(avail.x / fl.x, avail.y / fl.y)
-	return {"k": k, "origin": Vector2(BOARD_MARGIN + (avail.x - fl.x * k) * 0.5, BOARD_TOP + (avail.y - fl.y * k) * 0.5)}
+	var fit_k := minf(avail.x / fl.x, avail.y / fl.y)
+	var pitch := maxf(floorf(REF_TILE * fit_k / Shell.WORLD_PIXEL) * Shell.WORLD_PIXEL, Shell.WORLD_PIXEL)
+	var k := pitch / REF_TILE
+	return {"k": k, "origin": Shell.snap(Vector2(BOARD_MARGIN + (avail.x - fl.x * k) * 0.5, BOARD_TOP + (avail.y - fl.y * k) * 0.5))}
+
+
+func _pixel_world() -> bool:
+	return true
+
+
+func _world_draw(ci: CanvasItem) -> void:
+	var fit := _fit()
+	var k: float = fit.k
+	var origin: Vector2 = fit.origin
+	ci.draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
+	Shell.draw_stars(ci, _stars)
+	var board := Rect2(origin, floor_map.size() * k).grow(12.0)
+	ci.draw_rect(board.grow(Shell.WORLD_PIXEL), UiTheme.OUTLINE)
+	ci.draw_rect(board, FLOOR_COLOR)
+	for r in floor_map.rows:
+		for c in floor_map.cols:
+			_draw_tile(ci, Vector2i(c, r), origin, k)
+	for s in _bodies:
+		_draw_blob(ci, s, origin, k)
 
 
 func _game_draw() -> void:
 	var fit := _fit()
 	var k: float = fit.k
 	var origin: Vector2 = fit.origin
-	draw_rect(Rect2(Vector2.ZERO, size), BACKGROUND)
-	draw_style_box(_sb_board, Rect2(origin, floor_map.size() * k).grow(12.0))
-	for r in floor_map.rows:
-		for c in floor_map.cols:
-			_draw_tile(Vector2i(c, r), origin, k)
-	for s in _bodies:
-		_draw_blob(s, origin, k)
+	for s in _bodies:   # The slot numbers: full resolution, on top of the pixel blob (REQ-GM-47n).
+		Shell.ball_number(self, Shell.snap(origin + (_bodies[s] as TiltBody).pos * k), BLOB_R * k, player(s).color, s,
+				Shell.NUMBER_DROP)
 	_draw_hud()
 
 
-func _draw_tile(c: Vector2i, origin: Vector2, k: float) -> void:
+## A tile: flat, one world pixel apart from the next. A painted tile pops for a moment: it is one world pixel wider on each side
+## (REQ-PG-16, a hard step).
+func _draw_tile(ci: CanvasItem, c: Vector2i, origin: Vector2, k: float) -> void:
 	var owner_slot := floor_map.owner_of(c)
-	var pop := _pops[c.y * floor_map.cols + c.x] / POP_TIME
-	var grow := 1.0 + 0.15 * pop
-	var side := (REF_TILE - TILE_GAP) * k * grow
-	var middle := origin + (Vector2(c) + Vector2(0.5, 0.5)) * REF_TILE * k
-	var rect := Rect2(middle - Vector2(side, side) * 0.5, Vector2(side, side))
-	if owner_slot == PaintFloor.NONE:
-		draw_rect(rect, EMPTY_TILE)
-		return
-	var col: Color = player(owner_slot).color
-	draw_rect(rect, col)
-	draw_rect(Rect2(rect.position, Vector2(side, side * 0.22)), col.lightened(0.3))   # A lighter top edge.
+	var pop := _pops[c.y * floor_map.cols + c.x] > 0.0
+	var side := REF_TILE * k - TILE_GAP + (Shell.WORLD_PIXEL * 2.0 if pop else 0.0)
+	var rect := Rect2(origin + Vector2(c) * REF_TILE * k - Vector2.ONE * (Shell.WORLD_PIXEL if pop else 0.0), Vector2(side, side))
+	ci.draw_rect(rect, EMPTY_TILE if owner_slot == PaintFloor.NONE else player(owner_slot).color)
 
 
-func _draw_blob(slot: int, origin: Vector2, k: float) -> void:
+func _draw_blob(ci: CanvasItem, slot: int, origin: Vector2, k: float) -> void:
 	var b: TiltBody = _bodies[slot]
 	var center := origin + b.pos * k
 	var radius := BLOB_R * k
-	Shell.ball(self, center, radius, player(slot).color, slot)
-	# Two eyes that look the way the blob rolls (REQ-PG-16).
-	var look := b.vel.limit_length(b.max_speed) / b.max_speed
-	for sign_x in [-1.0, 1.0]:
-		var e := center + Vector2(sign_x * radius * 0.42, -radius * 0.52)
-		draw_circle(e, radius * 0.24, UiTheme.OUTLINE)
-		draw_circle(e, radius * 0.19, Color.WHITE)
-		draw_circle(e + look * radius * 0.08, radius * 0.09, UiTheme.OUTLINE)
+	Shell.pixel_ball(ci, center, radius, player(slot).color)
+	Shell.pixel_eyes(ci, center, radius, b.vel / b.max_speed)   # The pupils step to the side the blob rolls (REQ-PG-16).
 
 
 func _draw_hud() -> void:

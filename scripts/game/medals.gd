@@ -2,6 +2,8 @@ extends RefCounted
 ## Medals for a round with one player (REQ-GM-73). The tiers are `[bronze, silver, gold]`, from the easy limit to the
 ## hard one. A score at the limit or better earns the medal. Nothing is saved: the player is not identified yet.
 
+const Lang = preload("res://scripts/core/lang.gd")
+
 const NONE := ""
 const BRONZE := "bronze"
 const SILVER := "silver"
@@ -32,4 +34,11 @@ static func is_valid(tiers: Array, lower_is_better := false) -> bool:
 
 ## The text for the result screen.
 static func label(medal_name: String) -> String:
-	return "%s medal!" % medal_name.capitalize() if medal_name != NONE else "No medal this time"
+	match medal_name:
+		BRONZE:
+			return Lang.t("Bronze medal!")
+		SILVER:
+			return Lang.t("Silver medal!")
+		GOLD:
+			return Lang.t("Gold medal!")
+	return Lang.t("No medal this time")
