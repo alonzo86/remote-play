@@ -6,7 +6,7 @@ General requirements: `docs/GAME_REQUIREMENTS.md`. System requirement: REQ-T1.
 ## Goal
 
 Each player tilts a phone to roll a ball through the same maze. The first ball in the exit wins.
-The collision uses the wall rectangles, so a wall end is square for the physics and round on the screen (the difference is 5 px).
+The collision uses the wall rectangles, and the walls are drawn as the same square-ended bars (REQ-MZ-7).
 
 ## Gaps and exceptions
 
@@ -25,8 +25,8 @@ The collision uses the wall rectangles, so a wall end is square for the physics 
 | REQ-MZ-5 | The first ball in the exit wins, once. The result menu (`open_results()`, REQ-GM-72) names the winner and lists the ranking: the winner with the time, the other balls as "not finished", ordered by the distance to the exit. It has "Restart" and "Back to menu", and the pause menu cannot open over it. The winner's phone buzzes 400 ms. | Done | smoke_tv, Device |
 | REQ-MZ-6 | A ball that hits a wall hard buzzes the phone (20 ms, at most every 0.12 s). A soft hit does not buzz. | Done | smoke_tv, Device |
 | REQ-MZ-8 | The RECENTER button of the phone recenters during the race (REQ-GM-37). A and B do nothing. A player who leaves takes the ball out and the game goes on. When the last player leaves, the menu "No players connected" opens with "Back to menu". | Done | smoke_tv |
-| REQ-MZ-7 | Visual language (REQ-GM-45 to 49). Dark board `#2a1070` with the outline and a hard shadow. Light rounded walls `#8c78e6` (a bar with a circle on each end). Balls: hard shadow, dark outline of 6 px, the slot color, a small shine. Balls show the slot number. Exit: a green rounded square with a dark outline and a big white ring that pulses a little. Every player color has a contrast of 3:1 or more on the floor. The title, chips (P1 first), timer (a pill at a fixed place, `Shell.timer`), countdown and menus come from the shell. The tile screenshot looks like the same toy box as the Games screen. | Done | run_tests (visual rules), Screenshot (`tools/make_tiles.gd`) |
-| REQ-MZ-9 | Settings (REQ-GM-90 to 96): Difficulty changes the size and the complexity of the maze, see the table below. The ball, the wall thickness and the tilt feel stay the same, so a bigger maze is a longer and more winding way, not a different game. The board always fits inside the safe margin (REQ-GM-40). The values in the table are the first guess and are tuned on a device (Test 6). | Device | game_rules (sizes, solvable, more walls), smoke_settings |
+| REQ-MZ-7 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn in the 480x270 view: a black sky with 48 star pixels, a dark board `#2a1070` with a one-pixel black outline, and flat light walls `#8c78e6`. The walls are square-ended bars 12 px (3 world pixels) thick on the pixel grid; the cell sizes are multiples of 4 for that. Balls: a one-pixel black outline and the slot color; the slot number is drawn by the HUD at full resolution on the ball (`Shell.ball_number`). Exit: a green square with a black outline and a white square ring that grows by one world pixel and shrinks again in a hard step every 0.55 s. Every player color has a contrast of 3:1 or more on the floor. The title, chips (P1 first, in a row that ends before the timer, a second row when they do not fit), timer (a box at a fixed place, `Shell.timer`), countdown and menus come from the shell. The tile screenshot shows this look. | Done | run_tests (visual rules), game_rules (the sizes), Screenshot (`tools/make_tiles.gd`) |
+| REQ-MZ-9 | Settings (REQ-GM-90 to 96): Difficulty changes the size and the complexity of the maze, see the table below. The ball, the wall thickness (12 px) and the tilt feel stay the same, so a bigger maze is a longer and more winding way, not a different game. The board always fits inside the safe margin (REQ-GM-40). The values in the table are the first guess and are tuned on a device (Test 6). | Device | game_rules (sizes, solvable, more walls), smoke_settings |
 
 ### Difficulty (REQ-MZ-9)
 
@@ -34,7 +34,7 @@ The collision uses the wall rectangles, so a wall end is square for the physics 
 |------------|------------------------|-----------|----------------|-----------------------|
 | Easy | 11 x 6 | 120 px | 20% | Small, wide corridors, many loops and short ways to the exit, few dead ends. |
 | Medium | 17 x 9 | 96 px | 8% | The maze of today. |
-| Hard | 21 x 11 | 78 px | 2% | Large, narrow corridors, almost one long way with many dead ends. |
+| Hard | 21 x 11 | 76 px | 2% | Large, narrow corridors, almost one long way with many dead ends. |
 
 "Extra openings" is the share of inner walls that is removed after the maze is made (`extra_openings` in `maze_generator.gd`). Fewer openings
 mean fewer loops and a more complex maze. Every maze can be solved at every difficulty. The ball is 48 px wide and the gap in Hard is 68 px.

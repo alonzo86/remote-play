@@ -258,6 +258,8 @@ func _run() -> void:
 	await _frames(3)
 	var game: Control = app.current_screen()
 	_check(is_instance_of(game, MazeGame) and game.participants.size() == 2, "maze starts with 2 participants")
+	_check(game._pixel_world() and game._pixel_viewport.size == Vector2i(480, 270) and game._pixel_layer != null,
+			"the maze world is drawn in the 480x270 pixel view (REQ-MZ-7)")
 	# A phone that joins during the round waits for the next round (REQ-FL-25).
 	var late := ControllerClient.new()
 	late.player_name = "Late"

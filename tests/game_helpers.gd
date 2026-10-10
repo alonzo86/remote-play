@@ -55,6 +55,13 @@ func _pixel_world() -> void:
 	_check(Sumo.fall_scale(0.0) == 1.0 and Sumo.fall_scale(0.15) == 1.0 and Sumo.fall_scale(0.25) == 0.75
 			and Sumo.fall_scale(0.45) == 0.5 and Sumo.fall_scale(0.7) == 0.25 and Sumo.fall_scale(Sumo.FALL_TIME) == 0.0
 			and Sumo.fall_scale(5.0) == 0.0, "a fallen bumper shrinks in 4 steps and then is gone (REQ-SB-9)")
+	var sky := Shell.star_field(48, 7)
+	var on_grid := true
+	for st in sky:
+		on_grid = on_grid and fmod(st.x, Shell.WORLD_PIXEL) == 0.0 and fmod(st.y, Shell.WORLD_PIXEL) == 0.0 \
+				and st.x >= 0.0 and st.x < 1920.0 and st.y >= 0.0 and st.y < 1080.0
+	_check(sky.size() == 48 and on_grid and sky == Shell.star_field(48, 7) and sky != Shell.star_field(48, 8),
+			"the star pixels are on the world pixel grid, inside the screen, and the same for the same seed")
 	var min_ball: float = SumoArena.BUMPER_R * 2.0
 	_check(min_ball >= 12.0 * Shell.WORLD_PIXEL, "a bumper is 12 world pixels or more across (REQ-GM-47m): %.0f px" % min_ball)
 	var worst := 99.0

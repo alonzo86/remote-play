@@ -193,7 +193,7 @@ History:
 
 ### Tilt maze feel
 
-Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95.
+Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-7, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95.
 
 
 **Steps**
@@ -204,6 +204,7 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-
 4. Repeat with 2 to 4 phones. Check *Rx Hz* and *Gap ms* for all players during the race.
 5. Tilt the phone, then tap **RECENTER**. Check: the ball stops creeping. Tap **A** and **B**. Check: nothing changes (A and B do not recenter, REQ-MZ-8). At GO the phone recenters by itself.
 6. Open the tile of **Tilt Maze**. Check: the settings view opens with Difficulty on Medium, and Back (left) and Start (right) are on one line at the bottom. With the remote, press Left and Right on the Difficulty row (it must stop at Easy and at Hard). Play one round on each of Easy, Medium and Hard. Check: Easy is a small maze, Hard is big and winding, the whole board is on the screen, and the ball does not feel stuck in the narrow corridors of Hard. After the round, the result menu has **Settings**, and it returns to the view with the last choice. In the view, press Back on the remote: it returns to the Games screen (the app does not close). With the only phone connected, switch its Wi-Fi off while the view is open: after about 5 seconds Start is dimmed and a yellow line says "Needs 1 player". Switch Wi-Fi on again: Start works again.
+7. **Pixel world (phase 4, REQ-MZ-7).** From the sofa (about 3 m), look at the maze on Medium and Hard. Check: the walls, the balls and the exit are sharp square pixels, the walls are easy to see on the board, the slot numbers on the balls are easy to read, and the white ring of the exit blinks in a hard step. The walls are 12 px now (before: 10 px) and Hard has cells of 76 px (before: 78 px): check that the ball does not feel stuck in the narrow corridors of Hard.
 
 **Results**
 
@@ -215,9 +216,11 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-
 | 4 | Screenshot of the debug overlay for every player during the race | Not run | | | |
 | 5 | Video of the ball: creeping, then RECENTER, then A and B | Not run | | | |
 | 6 | Photos of the settings view and of the maze on Easy, Medium and Hard; note on the sizes and the corridors | Not run | | | Added 2026-10-09 (REQ-MZ-9). The sizes in `LEVELS` are first guesses. |
+| 7 | Photo of the maze from the sofa; note: sharp pixels, readable numbers, the ball in the corridors of Hard | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). |
 
 History:
 
+- 2026-10-10 (not run): item 7 is new: the maze world is a pixel world (phase 4 of the arcade style), walls 12 px, Hard cells 76 px.
 - 2026-10-09 (not run): item 6 is new (REQ-MZ-9, REQ-GM-90 to 97): the settings view, the three difficulties, the yellow chosen value, Back and Start on one line, and Start dimmed when no phone fits.
 - R1: items 1 to 3 **Pass** (the owner: 'it works perfectly'). Items 4 and 5 are not run: 2 to 4 phones, and RECENTER with A and B.
 - R0: **Retest**. First run: drift and inverted controls (caused by 'Invert tilt axes' being on). After the fix the maze looks good on the desk. The feel and the constants were not judged. Item 5 is new (RECENTER, and A and B do nothing).

@@ -140,6 +140,24 @@ static func snap(v: Vector2) -> Vector2:
 	return (v / WORLD_PIXEL).round() * WORLD_PIXEL
 
 
+## `count` star pixels on the world pixel grid of a screen of `area` units, always in the same places for the same `seed_value`.
+## Every third star is blue, the others dark gray (`draw_stars()`).
+static func star_field(count: int, seed_value: int, area := Vector2(1920.0, 1080.0)) -> PackedVector2Array:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value
+	var stars := PackedVector2Array()
+	for i in count:
+		stars.append(Vector2(rng.randi_range(0, int(area.x / WORLD_PIXEL) - 1), rng.randi_range(0, int(area.y / WORLD_PIXEL) - 1))
+				* WORLD_PIXEL)
+	return stars
+
+
+## The star pixels of `star_field()` on a pixel layer: a black sky with dark gray and blue stars.
+static func draw_stars(ci: CanvasItem, stars: PackedVector2Array) -> void:
+	for i in stars.size():
+		ci.draw_rect(Rect2(stars[i], Vector2.ONE * WORLD_PIXEL), UiTheme.FRAME if i % 3 == 0 else UiTheme.SLOT_EMPTY)
+
+
 ## A player ball in a pixel world (REQ-GM-47b): a black outline of one world pixel and a flat fill. It draws on the low-resolution
 ## layer, so it has no number: `ball_number()` draws that on the HUD at full resolution (REQ-GM-46).
 static func pixel_ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color) -> void:

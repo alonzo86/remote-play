@@ -1,7 +1,7 @@
 extends "res://scripts/game/minigame.gd"
 ## Tilt maze. Each phone tilts its own ball. The first ball in the exit wins.
 ## Tilt comes from PlayerInput.tilt(). The RECENTER button of the phone recenters (REQ-GM-37); GO recenters all.
-## Look (REQ-GM-47): a dark board, light rounded walls, outlined balls and an outlined exit.
+## Look (REQ-GM-47i to 47n, REQ-MZ-7): a pixel world with a dark board, light square walls, outlined balls and an outlined exit.
 
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
@@ -12,9 +12,9 @@ const Haptics = preload("res://scripts/game/haptics.gd")
 const LEVELS := {
 	"easy": {"cols": 11, "rows": 6, "cell": 120.0, "openings": 0.20},
 	"medium": {"cols": 17, "rows": 9, "cell": 96.0, "openings": 0.08},
-	"hard": {"cols": 21, "rows": 11, "cell": 78.0, "openings": 0.02},
+	"hard": {"cols": 21, "rows": 11, "cell": 76.0, "openings": 0.02},
 }
-const WALL := 10.0
+const WALL := 12.0           # Three world pixels (REQ-GM-47l). Cells are multiples of 4, so every wall is on the pixel grid.
 const BALL_R := 24.0
 const TILT_ACCEL := 2600.0   # px/s^2 for tilt 1.0 (sin of angle). 15 degrees gives about 670.
 const DEADZONE := 0.03
@@ -24,14 +24,15 @@ const RESTITUTION := 0.25
 const SUBSTEPS := 2
 const HIT_BUZZ_MS := 120    # Minimum gap between two wall buzzes of one ball.
 const HIT_BUZZ_SPEED := 320.0
-const TIMER_X := 400.0       # The timer pill has a fixed place, between the title and the chips.
+const TIMER_X := 400.0       # The timer box has a fixed place, between the title and the chips.
+const TIMER_W := 240.0
+const STAR_COUNT := 48
 
 # Colors (REQ-MZ-7). The floor is dark so that every player color has a contrast of 3:1 or more (REQ-GM-47e).
 const FLOOR_COLOR := Color("2a1070")
 const START_COLOR := Color("3a1c97")
 const WALL_COLOR := Color("8c78e6")
 const BOARD_PAD := 12.0
-const OUTLINE_BIG := 6.0     # Outline of a key object of 40 px or more (REQ-GM-47b).
 
 class Ball:
 	var slot := 0
@@ -50,15 +51,11 @@ var _balls: Array[Ball] = []
 var _round := RoundClock.new()
 var _haptics := Haptics.new()
 var _winner := -1
-var _sb_board: StyleBoxFlat   # Made once. Drawing must not create objects every frame (REQ-GM-51).
-var _sb_start: StyleBoxFlat
-var _sb_exit: StyleBoxFlat
+var _stars := PackedVector2Array()
 
 
 func _game_ready() -> void:
-	_sb_board = UiTheme.card(FLOOR_COLOR, UiTheme.OUTLINE, UiTheme.OUTLINE_W, 30, true)
-	_sb_start = UiTheme.card(START_COLOR, START_COLOR, 0, 22, false)
-	_sb_exit = UiTheme.card(UiTheme.OK, UiTheme.OUTLINE, int(OUTLINE_BIG), 24, true)
+	_stars = Shell.star_field(STAR_COUNT, 11)
 	var level: Dictionary = LEVELS.get(difficulty, LEVELS.medium)
 	cols = int(level.cols)
 	rows = int(level.rows)
@@ -168,43 +165,58 @@ func _collide(b: Ball) -> void:
 			b.vel -= (1.0 + RESTITUTION) * vn * n
 
 
-## A wall rectangle with round ends: a bar and a circle on each end.
-func _draw_wall(o: Vector2, r: Rect2) -> void:
-	var t := minf(r.size.x, r.size.y)
-	var half := t * 0.5
-	if r.size.x >= r.size.y:
-		draw_rect(Rect2(o + r.position + Vector2(half, 0), Vector2(maxf(r.size.x - t, 0.0), t)), WALL_COLOR)
-		draw_circle(o + r.position + Vector2(half, half), half, WALL_COLOR)
-		draw_circle(o + r.position + Vector2(r.size.x - half, half), half, WALL_COLOR)
-	else:
-		draw_rect(Rect2(o + r.position + Vector2(0, half), Vector2(t, maxf(r.size.y - t, 0.0))), WALL_COLOR)
-		draw_circle(o + r.position + Vector2(half, half), half, WALL_COLOR)
-		draw_circle(o + r.position + Vector2(half, r.size.y - half), half, WALL_COLOR)
+## A wall: a flat square-ended bar on the pixel grid. The collision uses the same rectangle.
+func _draw_wall(ci: CanvasItem, o: Vector2, r: Rect2) -> void:
+	ci.draw_rect(Rect2(Shell.snap(o + r.position), r.size), WALL_COLOR)
 
 
 func _origin() -> Vector2:
 	return Vector2((size.x - cols * cell) * 0.5, (size.y - rows * cell) * 0.5 + 46.0)
 
 
-func _game_draw() -> void:
-	var o := _origin()
-	# Board, start cell and exit (the goal has a dark outline and a hard shadow).
-	draw_style_box(_sb_board, Rect2(o, Vector2(cols * cell, rows * cell)).grow(BOARD_PAD))
-	draw_style_box(_sb_start, Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(cell, cell) - Vector2(WALL, WALL)))
-	var exit_cell := Rect2(o + Vector2((cols - 1) * cell, (rows - 1) * cell), Vector2(cell, cell)).grow(-WALL * 0.5 - 4.0)
-	draw_style_box(_sb_exit, exit_cell)
-	var pulse := 1.0 + 0.08 * sin(Time.get_ticks_msec() * 0.006) # The exit pulses a little (easy to find).
-	draw_arc(o + _exit_center(), cell * 0.30 * pulse, 0, TAU, 48, UiTheme.OUTLINE, 14.0)
-	draw_arc(o + _exit_center(), cell * 0.30 * pulse, 0, TAU, 48, Color.WHITE, 8.0)
-	# Walls: rounded ends (REQ-GM-47f). The collision still uses the rectangles.
+func _pixel_world() -> bool:
+	return true
+
+
+## The world (REQ-GM-47i): the sky, the board, the start cell, the exit with its square ring, the walls and the balls.
+func _world_draw(ci: CanvasItem) -> void:
+	var o := Shell.snap(_origin())
+	ci.draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
+	Shell.draw_stars(ci, _stars)
+	var board := Rect2(o, Vector2(cols * cell, rows * cell)).grow(BOARD_PAD)
+	ci.draw_rect(board.grow(Shell.WORLD_PIXEL), UiTheme.OUTLINE)
+	ci.draw_rect(board, FLOOR_COLOR)
+	ci.draw_rect(Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(cell, cell) - Vector2(WALL, WALL)), START_COLOR)
+	var exit_cell := Rect2(o + Vector2((cols - 1) * cell, (rows - 1) * cell), Vector2(cell, cell))
+	exit_cell = exit_cell.grow(-WALL * 0.5 - Shell.WORLD_PIXEL)
+	ci.draw_rect(exit_cell.grow(Shell.WORLD_PIXEL), UiTheme.OUTLINE)
+	ci.draw_rect(exit_cell, UiTheme.OK)
+	_draw_exit_ring(ci, o + _exit_center())
 	for r in _walls:
-		_draw_wall(o, r)
-	# Balls (REQ-GM-46, 47a, 47b).
+		_draw_wall(ci, o, r)
+	for b in _balls:   # The slot numbers are drawn by the HUD (REQ-GM-47n).
+		Shell.pixel_ball(ci, o + b.pos, BALL_R, player(b.slot).color)
+
+
+## The white square ring of the exit. It grows by one world pixel and shrinks again, in a hard step every 0.55 s (REQ-FL-42).
+func _draw_exit_ring(ci: CanvasItem, c: Vector2) -> void:
+	var half := Shell.snap(Vector2.ONE * cell * 0.30).x
+	if UiTheme.blink_on(Time.get_ticks_msec() * 0.001):
+		half += Shell.WORLD_PIXEL
+	var edge := Shell.WORLD_PIXEL * 2.0
+	var outer := Rect2(Shell.snap(c) - Vector2.ONE * half, Vector2.ONE * half * 2.0)
+	ci.draw_rect(outer.grow(Shell.WORLD_PIXEL), UiTheme.OUTLINE)
+	ci.draw_rect(outer, Color.WHITE)
+	ci.draw_rect(outer.grow(-edge), UiTheme.OK)
+
+
+func _game_draw() -> void:
+	var o := Shell.snap(_origin())
 	for b in _balls:
-		Shell.ball(self, o + b.pos, BALL_R, player(b.slot).color, b.slot)
-	# HUD
+		Shell.ball_number(self, Shell.snap(o + b.pos), BALL_R, player(b.slot).color, b.slot)
 	Shell.title(self, "TILT MAZE")
-	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)))
+	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)), {},
+			size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time) # Next to the title: 4 chips use the right side.
 	if _round.is_counting() and not participants.is_empty():

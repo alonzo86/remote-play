@@ -27,8 +27,6 @@ const UNBOUNDED := Rect2(Vector2(-FAR, -FAR), Vector2(2.0 * FAR, 2.0 * FAR))   #
 # Look (REQ-SB-15, REQ-GM-47). The world palette is black, dark gray and blue stars, a dark purple platform (so that every player
 # color has a contrast of 3:1 or more) with a light edge ring that gets red when the platform is small.
 const BACKGROUND := UiTheme.BG
-const STAR_DIM := Color("3c3c3c")
-const STAR_BLUE := UiTheme.FRAME
 const STAR_COUNT := 48
 const NUMBER_DROP := 0.25   # The slot number sits lower than the middle, under the eyes.
 const WHEE_W := 200.0   # The width of "WHEE!" in the 32 px font is 160 px.
@@ -64,10 +62,7 @@ var _stars := PackedVector2Array()   # The star pixels of the background, on the
 func _game_ready() -> void:
 	arena.setup(difficulty)
 	_board = Scoreboard.new(participants)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 7   # The same sky every time.
-	for i in STAR_COUNT:
-		_stars.append(Vector2(rng.randi_range(0, 479), rng.randi_range(0, 269)) * Shell.WORLD_PIXEL)
+	_stars = Shell.star_field(STAR_COUNT, 7)   # The same sky every time.
 	for s in participants:
 		var b: TiltBody = TiltBody.new()
 		b.radius = SumoArena.BUMPER_R
@@ -251,8 +246,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	var k: float = fit.k
 	var c: Vector2 = fit.center
 	ci.draw_rect(Rect2(Vector2.ZERO, size), BACKGROUND)
-	for i in _stars.size():
-		ci.draw_rect(Rect2(_stars[i], Vector2.ONE * Shell.WORLD_PIXEL), STAR_BLUE if i % 3 == 0 else STAR_DIM)
+	Shell.draw_stars(ci, _stars)
 	_draw_platform(ci, c, k)
 	for s in _falling:
 		_draw_fall(ci, s, c, k)
