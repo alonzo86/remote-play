@@ -179,9 +179,8 @@ Each question has a default. On 2026-10-10 the owner said to keep the defaults; 
    logo in the arcade font until then.
 6. **Phone A and B colors.** The mockup shows two red arcade buttons. The current rule is A green, B red (REQ-FL-52).
    Default: keep A green and B red.
-7. **Where to choose the language** (section 7.1). The owner suggested the splash (logo) screen, with no automatic
-   move on. Default: the choice on the logo screen at the first start only, then automatic as now, and a Language row
-   in Settings. The other option: the choice on the logo screen at every start.
+7. **Where to choose the language** (section 7.1). Decided 2026-10-10: on the logo screen at the first start only,
+   then automatic as now, and a Language row in Settings.
 
 ## 5. Manual tests
 
@@ -210,7 +209,7 @@ before or between phases 2 to 4.
 
 ### 7.1 Where the player chooses the language
 
-Default (open question 7):
+Decided on 2026-10-10 (open question 7):
 - **First start of the TV app:** the logo screen does not move on by itself. It shows the logo and a language choice
   under it: "ENGLISH" and "עברית", each in its own font. The focus starts on the language of the TV (Hebrew when the
   system language is Hebrew, else English). OK chooses, the app saves it and goes to the Connect screen. This changes
