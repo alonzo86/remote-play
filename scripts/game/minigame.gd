@@ -130,8 +130,9 @@ func _publish_scores() -> void:
 	if board == null:
 		return
 	var ranking := board.ranking()
+	var lead := board.has_lead()   # Nobody has a place while everybody is level at 0 (REQ-FL-67).
 	for e in ranking:
-		App.server.send_score(e.slot, e.rank, ranking.size(), _score_label(e))
+		App.server.send_score(e.slot, e.rank if lead else 0, ranking.size() if lead else 0, _score_label(e))
 
 
 ## The score text on the leader chip: the score of the first leader, empty when there is no board or no player.
@@ -142,14 +143,13 @@ func leader_text() -> String:
 	return _score_label(board.leaders()[0])
 
 
-## The leader chip (REQ-GM-46): the leader of the round, or TIE, with the score. A game without `_scoreboard()` has none.
+## The leader chip (REQ-GM-46): the leader of the round, or TIE, with the score. A game without `_scoreboard()` has none, and
+## nobody shows while the best score is 0.
 func draw_leader_chip(ci: CanvasItem) -> void:
 	var board := _scoreboard()
-	if board == null:
+	if board == null or not board.has_lead():
 		return
 	var leaders := board.leaders()
-	if leaders.is_empty():
-		return
 	Shell.leader_chip(ci, Shell.area_width(ci), leaders.map(func(e: Dictionary) -> Object: return player(e.slot)), leader_text())
 
 

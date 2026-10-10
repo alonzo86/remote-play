@@ -104,6 +104,17 @@ func leaders() -> Array:
 	return ranking().filter(func(e: Dictionary) -> bool: return e.rank == 1)
 
 
+## True when the leader chip has something to say (REQ-GM-46): a leader with a score above 0, a time, or one unfinished player
+## ahead of the others. False while everybody is level at 0 (or level before a race starts) and when nobody is ranked.
+func has_lead() -> bool:
+	var lead := leaders()
+	if lead.is_empty():
+		return false
+	if not lead[0].finished:
+		return lead.size() == 1
+	return lower_is_better or lead[0].score > 0.0
+
+
 func _better(a: float, b: float) -> bool:
 	return a < b if lower_is_better else a > b
 

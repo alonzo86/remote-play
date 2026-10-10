@@ -734,7 +734,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 **Steps**
 
 1. Start Snowball Splat with 4 phones (two names of 16 letters). Check from the sofa: the top row has the title, the timer and one chip with the leader's name and score, all on one row; nothing covers the play area; the name and the score are easy to read. Write down if the leader chip is too small or too big.
-2. In the same game, score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
+2. In the same game, before anybody scores: no chip shows and the phones show only `2P` and 0. Then score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
 3. Look at each phone during the game. Check: the header next to the colored square shows the player number, the place (1ST to 4TH) and the score (`2P  2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
 4. Play Paint Grab and Sumo Bumpers with 2 to 4 phones. Check the same as items 1 to 3. In Sumo Bumpers the name tags show again in the countdown of every round.
 5. Play Marble Race with 3 or 4 phones. Check: the leader chip names the first marble (with its time after the finish); the phones show their place; a marble that has not finished shows no time. Check that the old list of names at the left is gone.
