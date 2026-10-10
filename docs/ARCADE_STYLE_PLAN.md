@@ -50,7 +50,7 @@ black. They show as a filled square next to the slot number, never as the only c
 - Hebrew player names use **Remote Play Pixel Hebrew** (`assets/fonts/RemotePlayPixelHebrew.ttf`, SIL OFL), a fallback
   font made for this project on the same 8 px grid: 2 px vertical strokes, 1 px horizontal strokes, the cap height of
   Press Start 2P, and final letters (and qof) that go 2 px lower than the other letters. It has the 27 letters, maqaf, geresh and
-  gershayim, no niqqud. `tools/make_hebrew_font.py` builds it (it needs fontTools). The UI text stays English
+  gershayim, no niqqud. The TTF file is the source: change it with a font editor (the tool that drew it is not in the repository). The UI text stays English
   (REQ-FL-54); this font is only for names. Other characters (emoji) use the Godot default font.
 - The phone uses the same font, at 24 px or more on a phone screen.
 
@@ -249,7 +249,7 @@ step before every game night.
 
 - Hebrew UI text uses Remote Play Pixel Hebrew (section 2.2) as the main font, with Press Start 2P as its fallback for
   digits and Latin letters. The Hebrew font then needs the punctuation used in Hebrew text (`,` `.` `!` `?` `:` `-`
-  `"` `'`); add them to `tools/make_hebrew_font.py` on the same grid.
+  `"` `'`); add them to the font on the same grid.
 - Text must fit in both languages: the longest of the two decides the layout.
 
 ### 7.5 Phase 5 steps

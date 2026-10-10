@@ -1,9 +1,25 @@
 name: CI
 
+# CI runs only when a change can affect the build or the tests. A change that touches only documentation
+# (Markdown, docs/, .claude/) does not start it. The design tokens stay in: the test job checks them.
 on:
   push:
     branches: [main]
+    paths:
+      - "**"
+      - "!**.md"
+      - "!docs/**"
+      - "docs/design-system/tokens.json"
+      - "docs/design-system/tokens.css"
+      - "!.claude/**"
   pull_request:
+    paths:
+      - "**"
+      - "!**.md"
+      - "!docs/**"
+      - "docs/design-system/tokens.json"
+      - "docs/design-system/tokens.css"
+      - "!.claude/**"
 
 concurrency:
   group: ci-${{ github.ref }}
