@@ -55,7 +55,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [6](#test-6) | Tilt maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95 | Partial (items 1 to 3 Pass, 4 to 6 not run) | R1 | |
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Fail (item 1, fixed, retest) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
-| [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (set to Hebrew for item 7) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
+| [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
 | [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
 | [10](#test-10) | Snowball Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
@@ -64,6 +64,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [14](#test-14) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
 | [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-50 | Not run |  | |
 | [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-41a, 52, 53, REQ-GM-45, 46, FD-18 | Not run |  | |
+| [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Not run |  | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -293,7 +294,7 @@ History:
 
 ### The TV flow and the style
 
-Needs: 1 to 2 phones, 1 TV (set to Hebrew for item 7). Covers: REQ-FL-1 to 46, REQ-FL-54, REQ-FL-56, 57, FD-1 to 17.
+Needs: 1 to 2 phones, 1 TV. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, FD-1 to 17. Item 7 (a TV set to Hebrew) moved to Test 17 on 2026-10-10: FD-19 replaced REQ-FL-54, so the TV now offers Hebrew and no longer stays English.
 
 
 **Steps**
@@ -304,7 +305,7 @@ Needs: 1 to 2 phones, 1 TV (set to Hebrew for item 7). Covers: REQ-FL-1 to 46, R
 4. Join a phone while a game runs. Check: the phone says "A round is running", it does not take part, and it joins the next round.
 5. Check the motion on the TV box: the logo (with its confetti), the blinking prompts and the screen changes run at 60 frames per second (overlay FPS). Check that the arcade colors look right on your TV (black is black, yellow and blue are not washed out).
 6. Phone: check that the fonts and the colors match the TV on the connect, waiting and pad screens.
-7. Set the language of the TV to a language that is written from right to left (Hebrew, region Israel) and start the app. Check: every screen is in English and left to right (the QR card on the left, the title on the left, the buttons not mirrored). The phone app does the same with a phone set to Hebrew. (REQ-FL-54)
+7. (Moved to Test 17.) The old step was: set the TV to Hebrew, region Israel, and check that the app stays English and left to right. FD-19 replaced that rule on 2026-10-10: the app now has Hebrew, and the result of R1 (the mirrored English UI) is not a defect any more.
 
 **Results**
 
@@ -316,7 +317,7 @@ Needs: 1 to 2 phones, 1 TV (set to Hebrew for item 7). Covers: REQ-FL-1 to 46, R
 | 4 | Photo of the phone 'A round is running' | Not run | | | |
 | 5 | Overlay FPS screenshot during the logo, tile growth and screen changes; photo of the colors | Not run | | | |
 | 6 | Photos of the phone connect, waiting and pad screens next to the TV | Not run | | | |
-| 7 | Photos of the Connect and Games screens on a TV set to Hebrew; of the phone set to Hebrew | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the TV is set to the IL region and Hebrew. The text was English, but the layout was mirrored (right to left). Fixed on 2026-10-09 (REQ-FL-54): the app sets the locale to English and the layout to left to right. Retest on the TV. The phone was not tried. |
+| 7 | (Moved to Test 17.) Photos of the Connect and Games screens on a TV set to Hebrew; of the phone set to Hebrew | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the TV is set to the IL region and Hebrew. The text was English, but the layout was mirrored (right to left). Fixed on 2026-10-09 (REQ-FL-54): the app sets the locale to English and the layout to left to right. Retest on the TV. The phone was not tried. |
 
 History:
 
@@ -639,6 +640,40 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 | 6 | Photos of the phone screens | Not run | | | |
 | 7 | Photos of the HUD of each game with 4 long names | Not run | | | |
 | 8 | Notes: what the child said | Not run | | | |
+
+History:
+
+- -: **Not run**. New.
+
+## Test 17
+
+### Hebrew and right to left (REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19)
+
+Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it with the TV set to Hebrew, region Israel, and again set to English), a person who reads Hebrew. Covers: REQ-FL-54, 60 to 63, REQ-GM-47o. New, written on 2026-10-10 for phase 5 of `docs/ARCADE_STYLE_PLAN.md`. The headless test `tests/smoke_lang.gd` checks the table, the layout positions and the protocol; it cannot check how the text looks on a TV.
+
+**Steps**
+
+1. Delete the app data of the TV app (or install fresh) and start it with the TV set to Hebrew. Check: the logo screen waits and shows "ENGLISH" and "עברית" side by side, the focus is on "עברית", and nothing moves on by itself. Press OK. Check: the app is in Hebrew and opens the Connect screen. Close the app and start it again: the logo goes on by itself (no choice) and the language is still Hebrew. Do it again with the TV set to English: the focus starts on "ENGLISH".
+2. In Hebrew, go through the logo, Connect, Games, Settings, a settings view, the Players modal, the quit question. Check: every screen is mirrored (QR card at the right, slot squares at the right, cursor at the right and pointing left, title at the right), no text is cut, no English word is left (except REMOTE PLAY, WI-FI, OK, the room code and the player names), and the Hebrew letters and the punctuation (`. , ! ? -`) look right next to each other. Write down any text that is cut or any word that looks wrong.
+3. In Hebrew, the Left and Right keys of the remote in a choice row (Difficulty): Right goes to the previous value (the arrow at the right), Left to the next. Check that the D-pad moves the focus between rows by position as before.
+4. Join 2 phones: one with the system language Hebrew, one English, with player names in Latin letters and in Hebrew letters. Check: before the join the Hebrew phone shows its connect screen in Hebrew and the English phone in English; after the join both show the language of the TV (Hebrew); the player names show as typed (a Latin name in a Hebrew row is in the right place).
+5. In Settings, press OK on the Language row. Check: the TV switches to English at once (the layout turns left to right), the phones switch too, and the Settings screen stays open. Switch back to Hebrew. Leave the app and start it again: the language is the one that was last chosen.
+6. Start each game in Hebrew with 2 phones. Check: the title is at the top right, the chips start at the left with 1P at the right end, the timer is at the left of the title, the hint and the countdown ("קדימה") are readable, and the world is not mirrored (the maze start is at the top left, the track runs as in English). Open the pause menu and the result menu: the ranking list, the medal text and "תיקו!" read right.
+7. Phone in Hebrew, on the pad screen: the words RECENTER, LEAVE and the hint are Hebrew, and A and B are in the same places as in English (the pad is not mirrored).
+8. Run the English TV again with the same phones: nothing changed from before (compare with Test 16).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Video of the first start with the choice and the second start; photo of the choice | Not run | | | |
+| 2 | Photos of each TV screen in Hebrew; a list of cut or wrong text | Not run | | | |
+| 3 | Video of a choice row with Left and Right | Not run | | | |
+| 4 | Photos of both phones before and after the join, and the Connect screen with the names | Not run | | | |
+| 5 | Video of the switch in Settings with the TV and a phone in the picture | Not run | | | |
+| 6 | Photos of the HUD of each game in Hebrew; the result menu | Not run | | | |
+| 7 | Photo of the Hebrew phone pad | Not run | | | |
+| 8 | Photos of the English TV | Not run | | | |
 
 History:
 

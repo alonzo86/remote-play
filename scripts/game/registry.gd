@@ -14,6 +14,8 @@ extends RefCounted
 ##             of the marble race (`scripts/ui/track_picker.gd`).
 ##   min_players / max_players  allowed player count (REQ-GM-20). The Games screen dims a game that does not fit.
 
+const Lang = preload("res://scripts/core/lang.gd")
+
 const GAMES: Array[Dictionary] = [
 	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "Tilt Maze", "dim": "2d",
 			"description": "Tilt your phone to roll your ball through the maze. The first ball in the exit wins.",
@@ -72,8 +74,8 @@ static func load_script(id: String) -> GDScript:
 ## Why a game cannot start with `players` players (REQ-FL-14).
 static func reason(game: Dictionary, players: int) -> String:
 	if players < int(game.min_players):
-		return "Needs %d player%s" % [int(game.min_players), "" if int(game.min_players) == 1 else "s"]
-	return "Up to %d players" % int(game.max_players)
+		return Lang.t("Needs 1 player") if int(game.min_players) == 1 else Lang.f("Needs %d players", [int(game.min_players)])
+	return Lang.f("Up to %d players", [int(game.max_players)])
 
 
 ## True when `players` is inside the allowed range of the game.

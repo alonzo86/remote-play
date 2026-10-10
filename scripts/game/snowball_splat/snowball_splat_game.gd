@@ -236,7 +236,7 @@ func _finish() -> void:
 	var heading := ""
 	if _board.ranking().size() == 1:   # The medal text says which difficulty was played (REQ-SS-21).
 		var medal := Medals.medal(_board.ranking()[0].score, tiers)
-		heading = "%s (%s)" % [Medals.label(medal), difficulty.capitalize()]
+		heading = "%s (%s)" % [Medals.label(medal), Lang.t(difficulty.capitalize())]
 	open_results(_board, tiers, heading)
 
 

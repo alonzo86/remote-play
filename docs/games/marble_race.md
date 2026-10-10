@@ -104,3 +104,7 @@ In `scripts/game/marble_race/marble_race.gd` unless it says otherwise. Tune them
 - Are the target winning times right? Measure them in Test 9 and update the table.
 - Is the edge arrow (REQ-MR-42) clear enough on a TV? Other options: a smaller marble view, or pull the last marble forward.
 - Should the best time of each track be saved? (The results show all finish times. Saving waits until players are identified.)
+
+## Languages (REQ-GM-47o)
+
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer); the finish text, the timer and the track name use `Shell.mx()`. The game world is not mirrored.

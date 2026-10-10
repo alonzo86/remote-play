@@ -126,13 +126,13 @@ func _finish() -> void:
 	if _board.ranking().size() == 1:   # One player: the share of the floor gives the medal (REQ-PG-21).
 		var slot: int = _board.ranking()[0].slot
 		var medal := Medals.medal(floor_map.percent(slot), tiers)
-		heading = "%s (%s)" % [Medals.label(medal), difficulty.capitalize()]
+		heading = "%s (%s)" % [Medals.label(medal), Lang.t(difficulty.capitalize())]
 	open_results(_board, [], heading, [], _score_text)
 
 
 ## "34 tiles (23%)" for the result list.
 func _score_text(tiles: float) -> String:
-	return "%d tiles (%d%%)" % [int(tiles), int(tiles) * 100 / floor_map.total()]   # The percent is rounded down (REQ-PG-21).
+	return Lang.f("%d tiles (%d%%)", [int(tiles), int(tiles) * 100 / floor_map.total()])   # The percent is rounded down (REQ-PG-21).
 
 
 # ---- Drawing ----

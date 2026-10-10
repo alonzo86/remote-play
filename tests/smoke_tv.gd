@@ -82,6 +82,10 @@ func _run() -> void:
 	TvSettings = load("res://scripts/ui/tv_settings.gd")
 	TvGameSettings = load("res://scripts/ui/tv_game_settings.gd")
 	var app: Node = root.get_node("App")
+	# A saved language: the logo goes on by itself. The first start, which asks for the language, is tested in smoke_lang.gd.
+	app.settings.language = "en"
+	app.go_logo()
+	await _frames(2)
 	_check(is_instance_of(app.current_screen(), TvLogo), "TV starts on the logo screen (REQ-FL-2)")
 	_check(app.server.listening, "server is listening while the logo shows (REQ-FL-4)")
 	_check(app.server.phase == "connect", "phase is connect on the logo screen")
