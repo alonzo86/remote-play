@@ -16,6 +16,9 @@ Decided by the owner on 2026-10-10 (this thread):
 5. The avatar is picked from a sprite sheet of pixel avatars, and can be changed later. On the TV the avatar takes the place of the player number.
 6. The best score of the player is kept in the profile on the phone. Every round counts.
 7. A profile can be copied to another phone with a QR code, one profile at a time. The code contains the best scores.
+8. Tilt Maze has no personal best.
+9. A name has at most **10 characters**, on the phone, on the TV and in a code. A short limit removes most of the problems with long names (cards, chips, tags, codes).
+10. A 1-player round and a 4-player round share one best.
 
 What this plan does not do: no profile data on the TV (so no shared leaderboard on a TV), no sync between two phones after a copy, no protection against a changed app (a score on a phone is not proof of anything; this is a family game).
 
@@ -27,7 +30,7 @@ What this plan does not do: no profile data on the TV (so no shared leaderboard 
 |--------|---------|
 | Connect screen | A new row at the top shows the active profile (avatar and name, or `GUEST`). A tap opens the profile list. While the phone has no profile, the row says `MAKE A PLAYER`; it stays until the first profile exists. Nothing blocks joining. |
 | Profile list ("WHO IS PLAYING?") | One row for each profile: the avatar and the name. A tap on a row makes it the active profile. A row `GUEST` plays without a profile. The buttons are `NEW PLAYER`, `SCAN A PLAYER` and `PASTE A CODE` (see 2.3) and, on each row, `EDIT` and `SHARE`. When the list holds 8 profiles, `NEW PLAYER` is dim and a line says `8 PLAYERS IS THE MAXIMUM`. The list is reached from the Connect screen and from the waiting screen, only while the TV is in the phase `connect` or `menu`. When the phase changes to `playing`, `paused` or `waiting`, the phone closes the list, the edit, share and scan screens and hides any QR code. |
-| Edit | The name field (1 to 16 letters, the keyboard of the phone), the avatar picker (a 4 x 4 grid, 16 avatars, the picked one has a frame), `SAVE`, `DELETE`. `DELETE` asks `DELETE <name>?` first. The avatar can be changed here at any time. |
+| Edit | The name field (1 to 10 letters, the keyboard of the phone), the avatar picker (a 4 x 4 grid, 16 avatars, the picked one has a frame), `SAVE`, `DELETE`. `DELETE` asks `DELETE <name>?` first. The avatar can be changed here at any time. |
 | Share | A QR code of the profile, the text of the code with a `COPY CODE` button, and two lines: everybody who scans the code gets this player and the best scores; the two phones do not stay in sync after the copy. The QR code goes away after 60 seconds (section 6.3). |
 | Waiting screen and pad | The colored square at the top shows the avatar instead of the slot number. The text next to it shows the profile name. A guest sees the slot number and `2P` as now. While the phone reconnects, the text says `Reconnecting...` as now. |
 
@@ -45,7 +48,7 @@ The texts are English and Hebrew (REQ-FL-54).
 | Leader chip (REQ-GM-46) | the name and the score | no change: there is no number in it |
 | Debug overlay | `P2` | no change (it is a developer tool) |
 
-A guest keeps the slot number and the name `Player N`. Names that are the same on one TV get a number (section 4.3). A long name in the pause card title is decided in section 9 (item 8).
+A guest keeps the slot number and the name `Player N`. Names that are the same on one TV get a number (section 4.3). Two names of 10 letters fit in the pause card title on one line.
 
 ### 2.3 Copy a profile to another phone
 
@@ -62,7 +65,7 @@ The result is a **copy**, not a move. If the second phone already has a profile 
 | Field | Type | Rule |
 |-------|------|------|
 | `id` | 16 random bytes, written as 32 lower-case hex characters | Made once with `Crypto.generate_random_bytes(16)`. Never changes. It is the identity of the player. |
-| `name` | text, 1 to 16 characters | Same limit as the TV uses now (`tv_server.gd:209`). Trimmed. |
+| `name` | text, 1 to 10 characters | One constant `NAME_MAX` = 10 in `Protocol` is used by the phone field, the TV and the import. The TV now cuts at 16 (`tv_server.gd:209`); it changes to 10, also for an old phone that sends a longer name. Trimmed. |
 | `avatar` | integer, 0 to 15 | The index in the sprite sheet (section 7). An index the app does not know shows the slot number (a later sheet can add avatars; it never changes or removes one). |
 | `rev` | integer, 0 and up | Counts the edits of name and avatar. Used by the merge (section 6.5). |
 | `bests` | map of best key to integer | Section 5. Empty at the start. |
@@ -75,7 +78,7 @@ The phone also saves the ID of the **active** profile, or none for a guest. Afte
 
 ### 3.3 Names
 
-The pixel fonts draw only some characters (REQ-FL-39). The name field accepts the characters for which `Font.has_char()` is true in the two fonts, except control characters, direction marks and the nikud signs, and also digits and the space. A test derives the allowed set from the fonts, so a font change cannot make a name unreadable. A character that is not allowed is dropped as it is typed, and a short line under the field says `LETTERS, DIGITS AND SPACE ONLY`. A name that is empty after this is not saved. The TV applies the same whitelist and the 16-character cut to every name it receives (section 4.1).
+The pixel fonts draw only some characters (REQ-FL-39). The name field accepts the characters for which `Font.has_char()` is true in the two fonts, except control characters, direction marks and the nikud signs, and also digits and the space. A test derives the allowed set from the fonts, so a font change cannot make a name unreadable. A character that is not allowed is dropped as it is typed, and a short line under the field says `LETTERS, DIGITS AND SPACE ONLY`. A name that is empty after this is not saved. The TV applies the same whitelist and the 10-character cut to every name it receives (section 4.1).
 
 ## 4. Protocol (`docs/PROTOCOL.md`)
 
@@ -89,7 +92,7 @@ The protocol `VERSION` stays 2: every new field and message is optional, and an 
 {"t":"hello","v":2,"room":"KQZM","token":"","name":"Maya","pid":"9f2c...32 hex...","av":3}
 ```
 
-`pid` is the profile ID, `av` the avatar index. The TV checks them: `pid` is made lower case and must be 32 hex characters, `av` must be an integer from 0 to 255, and `name` goes through the whitelist and the 16-character cut. A `pid` that fails is ignored and the phone is a guest. **Any `hello` with no valid `pid` is a guest, also when `name` is not empty** (an old phone that sends a name shows that name as now, and has no avatar). A guest has the name `Player N` when the name is empty.
+`pid` is the profile ID, `av` the avatar index. The TV checks them: `pid` is made lower case and must be 32 hex characters, `av` must be an integer from 0 to 255, and `name` goes through the whitelist and the 10-character cut. A `pid` that fails is ignored and the phone is a guest. **Any `hello` with no valid `pid` is a guest, also when `name` is not empty** (an old phone that sends a name shows that name as now, and has no avatar). A guest has the name `Player N` when the name is empty.
 
 `welcome` gets the optional fields `pid`, `av` and `name` with the profile the TV accepted (they are empty for a guest). The phone compares them with its own profile and shows the TV answer as the truth.
 
@@ -105,7 +108,7 @@ A `hello` that resumes a slot with a token follows the same guard: outside `conn
 
 ### 4.3 Names on the TV
 
-`PlayerInput` gets `profile_id`, `avatar` and a `display_name`. The TV makes `display_name` from the profile name, and adds ` 2`, ` 3` to a name that is already used by a player in a lower slot. The comparison ignores case and spaces at the ends (the screens show upper case), and a guest `Player 2` is part of the comparison. The longest `display_name` is 18 characters; the layout tests of the chips, the tags and the cards use 18. `display_name` is frozen when a round starts and is made again only in the menus, so a name does not change in the middle of a round. Every TV text uses `display_name`. `PlayerInput.reset()` clears the profile fields.
+`PlayerInput` gets `profile_id`, `avatar` and a `display_name`. The TV makes `display_name` from the profile name, and adds ` 2`, ` 3` to a name that is already used by a player in a lower slot. The comparison ignores case and spaces at the ends (the screens show upper case), and a guest `Player 2` is part of the comparison. The longest `display_name` is 12 characters (10 and ` 2`); the chips and the tags were made for 16, so they fit; the layout tests use 12. `display_name` is frozen when a round starts and is made again only in the menus, so a name does not change in the middle of a round. Every TV text uses `display_name`. `PlayerInput.reset()` clears the profile fields.
 
 ### 4.4 Same profile on two phones
 
@@ -137,7 +140,7 @@ If the player deletes the active profile, or an import changes it, while the pho
 
 | Game | Key | Better | Why |
 |------|-----|--------|-----|
-| Tilt Maze | none (default; see item 9.1) | | The maze is random in every round (`maze_game.gd:64`), so a time is mostly the luck of the maze. Only the winner has a time (`maze_game.gd:100`). |
+| Tilt Maze | none (owner, item 9.1) | | The maze is random in every round (`maze_game.gd:64`), so a time is mostly the luck of the maze. Only the winner has a time (`maze_game.gd:100`). |
 | Marble Race | `marble_race|<difficulty>|<track 1 to 10>` | lower (time) | Only the 10 fixed tracks (`FIXED_SEEDS`, `marble_track.gd:63`). |
 | Snowball Splat | `snowball_splat|<difficulty>` | higher | |
 | Paint Grab | `paint_grab|<difficulty>` | higher (tiles) | The score of the `Scoreboard` is the number of tiles (`paint_grab_game.gd:139`). |
@@ -169,7 +172,7 @@ The text of the QR code is `WP1.` followed by base64url text (no padding) of thi
 | 16 | Profile ID |
 | 1 | Avatar |
 | 1 to 2 | `rev` (varint) |
-| 1 + n | Name: length n (0 to 32 bytes, UTF-8), then the bytes |
+| 1 + n | Name: length n (0 to 20 bytes, UTF-8; 10 characters, Hebrew letters take 2 bytes), then the bytes |
 | 1 | Number of bests, k (0 to 39) |
 | k times | Best key number (1 byte, from the table `ProfileKeys`), then the value as a varint (up to 5 bytes) |
 | 2 | Checksum (CRC-16) of all the bytes before it |
@@ -178,7 +181,7 @@ The text of the QR code is `WP1.` followed by base64url text (no padding) of thi
 
 ### 6.2 Size and the QR encoder
 
-The largest profile is 1+16+1+2+33+1+39*6+2 = 290 bytes, or about 390 characters of text with the prefix. A normal profile with a few bests is about 80 bytes, 110 characters. `scripts/core/qr_encoder.gd` now stops at version 6 (134 bytes). Phase B extends it to **version 14, error correction L** (458 bytes). The work is more than a bigger table:
+The largest profile is 1+16+1+2+21+1+39*6+2 = 278 bytes, or about 375 characters of text with the prefix. A normal profile with a few bests is about 80 bytes, 110 characters. `scripts/core/qr_encoder.gd` now stops at version 6 (134 bytes). Phase B extends it to **version 14, error correction L** (458 bytes). The work is more than a bigger table:
 
 - the character count field of byte mode is 16 bits from version 10 (now 8 bits, `qr_encoder.gd:41`, and the capacity check at `:29` changes with it);
 - the table of alignment pattern positions (`_ALIGN`, `:15`) for versions 7 to 14 (version 14 has 6, 26, 46, 66), and the skip of the patterns that touch a finder pattern;
@@ -191,7 +194,7 @@ The TV link keeps using the small versions. The Share screen draws the code with
 
 A profile code gives anybody who scans it the player. This is acceptable because the TV already trusts what the phone says. The Share screen opens only after a tap on `SHARE`, hides the code after 60 seconds, and never shows it on the TV.
 
-**Import rules.** The CRC finds typing errors only, so a decoded profile goes through the same rules as a typed one. The name goes through the whitelist and the 16-character cut (the format allows 32 bytes; a longer or unclean name is cut, not refused). The avatar is 0 to 255 and an unknown index shows the number. `k` is at most 39, a key that appears twice is refused, a value of 0 or above 4 000 000 000 is skipped, and the direction comes from `ProfileKeys`, not from the code. A code that breaks the format is refused with `THIS CODE DOES NOT WORK`. Every rule has a test.
+**Import rules.** The CRC finds typing errors only, so a decoded profile goes through the same rules as a typed one. The name goes through the whitelist and the 10-character cut (the format allows 20 bytes; a longer or unclean name is cut, not refused). The avatar is 0 to 255 and an unknown index shows the number. `k` is at most 39, a key that appears twice is refused, a value of 0 or above 4 000 000 000 is skipped, and the direction comes from `ProfileKeys`, not from the code. A code that breaks the format is refused with `THIS CODE DOES NOT WORK`. Every rule has a test.
 
 ### 6.4 Scanning
 
@@ -221,18 +224,20 @@ One pull request for each phase, stacked, with the code, the tests, the document
 
 Phase A is useful alone. Phase B needs A and gives the copy of a profile early (a child's profile can move to a new phone before bests exist). Phase C needs A and B.
 
-## 9. Defaults chosen for open questions (the owner confirms)
+## 9. Defaults and decisions
 
-1. **Tilt Maze has no personal best.** The maze is random in every round, and only the winner has a time. The other choice is a fixed maze for each difficulty, which changes how the game plays (the same maze every round), so the owner decides. Default: no key.
+Items 1, 8 and 10 are decided by the owner. The others are defaults that the owner confirms.
+
+1. **Tilt Maze has no personal best** (decided by the owner). The maze is random in every round, and only the winner has a time.
 2. **8 profiles** on one phone, and a `GUEST` row.
 3. A profile ID on two phones: **the newer phone wins** in a menu, and a phone never replaces another one during a round (section 4.4).
 4. The profile list **cannot be opened during a round**; a phone switches between rounds only.
 5. `NEW BEST!` shows on the **phone only**. The TV result menu does not change. This changes what the TV shows, so the owner decides: for example a `NEW BEST` tag on the row of the result list.
 6. Deleting a profile on the phone that is not the active one tells no TV. Deleting the active one makes the phone a guest on the TV.
 7. The avatar is **not** drawn on the leader chip or on the name tags, because those places have no number now.
-8. **Long names in the pause card.** Two names of 16 letters make a title wider than the screen. Default: the title wraps to two lines and no letter is cut (CLAUDE.md: no cutting without the owner). Hebrew names in an English sentence and the reverse need a text direction check (manual test 20 item 6).
+8. **Name length.** At most 10 characters (decided by the owner). Two names fit in the pause card title on one line. Hebrew names in an English sentence and the reverse need a text direction check (manual test 20 item 6).
 9. A name field **drops** characters the fonts cannot draw, with a hint under the field.
-10. Bests of rounds with 1 to 4 players share one key (an easier score with more players is possible; the owner may want a key per player count).
+10. Bests of rounds with 1 to 4 players share one key (decided by the owner).
 11. **Privacy.** The profile ID is the same on every TV, so a TV can see that it is the same child as at another house, and the ID is in the QR code. The TV holds it in memory only and clears it when the slot is freed; nothing is logged. The name of a child shows on a TV in a friend's house. The owner confirms that this is wanted; a child can always play as `GUEST`.
 12. 16 avatars, 4 x 4.
 
@@ -247,7 +252,7 @@ The documents are as important as the code (REQ-GM-5). Each item is done in the 
 | `docs/REQUIREMENTS.md` | REQ-P5: say that profiles are on the phone only and are not an account. REQ-P6: the allowed file `assets/avatars`. New REQ-N8 (profile fields in `hello`) and REQ-C7 to C9 (profiles on the phone, local storage, switch rule). REQ-T5: the pause card names the players. | A |
 | `docs/GAME_REQUIREMENTS.md` | REQ-GM-30 and 30a (names in the pause card), REQ-GM-46 (avatar in the place of the number on a ball), REQ-GM-72 (names in the result list), REQ-GM-73 (medals stay; personal best is separate). New REQ-GM-98 to 101: `best_key()`, what counts, the message, no best for a game with no key. The comment in `scripts/game/medals.gd` ("the player is not identified yet") is corrected. | A, C |
 | `docs/games/TEMPLATE.md` and the five game files | The template gets a requirement row "Personal best (REQ-GM-98): key and direction, or the exception" in its table. `marble_race.md`, `snowball_splat.md`, `paint_grab.md` get a row with the key; `maze.md` and `sumo_bumpers.md` get an exception row. The rows that say `2P` or `P2` are updated for profile players. | A, C |
-| `docs/MANUAL_TESTS.md` | New test 20 (section 11), the Summary table row, the list of covered requirements. The steps of test 7 (lines about `2P LOST CONNECTION`, `Resume without P2`, `P2 reconnected`) and test 19 (the phone shows `2P`) are edited so they are right for a guest and for a profile player; the old wording stays for a guest. | A, B, C |
+| `docs/MANUAL_TESTS.md` | New test 20 (section 11), the Summary table row, the list of covered requirements. The steps of test 7 (lines about `2P LOST CONNECTION`, `Resume without P2`, `P2 reconnected`) and test 19 (the phone shows `2P`) are edited so they are right for a guest and for a profile player; the old wording stays for a guest. Test 19 uses names of 12 to 16 letters: they become 10 letters. | A, B, C |
 | `CLAUDE.md` | The table "Tests the user has to run now": a row for test 20. | A |
 | `docs/design-system/` | The profile row, the avatar picker and the Share card in the phone mockups; `tests/screenshots_controller.gd` gets the new screens. | A, B |
 | `docs/GAMES_ROADMAP.md` | The shared code table gets `Minigame.best_key()` and `Avatar`. | A, C |
@@ -267,13 +272,13 @@ All new suites are added to `tests/suites.txt` only, with these lines: `tests/pr
 
 | Suite | What it checks |
 |-------|----------------|
-| `tests/profiles.gd` | Make, rename, change the avatar (and `rev` goes up), delete; the limit of 8; the name rules (16 characters, Hebrew, the allowed set derived from `Font.has_char()`, empty is refused); write and read back `profiles.cfg`; a failed write; a corrupt file with and without `.bak`; the active profile and the guest; the random ID is 32 hex characters and two IDs differ. |
+| `tests/profiles.gd` | Make, rename, change the avatar (and `rev` goes up), delete; the limit of 8; the name rules (10 characters, Hebrew, the allowed set derived from `Font.has_char()`, empty is refused); write and read back `profiles.cfg`; a failed write; a corrupt file with and without `.bak`; the active profile and the guest; the random ID is 32 hex characters and two IDs differ. |
 | same | Bests: a lower time is better, a higher score is better, a score of 0 and "not finished" are ignored, the merge rule, the direction comes from `ProfileKeys`. |
-| same | Code: encode and decode of a profile give the same profile; a Hebrew name of 16 letters; 39 bests; a wrong checksum, a truncated code, another version, a wrong prefix are rejected; an unknown key number is skipped; a duplicate key, a value of 0, a name of 32 letters, an avatar of 255 and k above 39 follow the import rules; the merge with `rev`; golden test: a fixed profile gives a fixed text (protects `ProfileKeys`). |
+| same | Code: encode and decode of a profile give the same profile; a Hebrew name of 10 letters; 39 bests; a wrong checksum, a truncated code, another version, a wrong prefix are rejected; an unknown key number is skipped; a duplicate key, a value of 0, a name of 20 bytes and one of 30 bytes, an avatar of 255 and k above 39 follow the import rules; the merge with `rev`; golden test: a fixed profile gives a fixed text (protects `ProfileKeys`). |
 | `tests/net_profiles.gd` (real sockets, like `net_loss.gd`) | `hello` with `pid` and `av` fills the player and `welcome` echoes it; an old `hello` without them is a guest; a bad `pid`, an `av` of 300 and a name with a newline are cleaned; `profile` changes name and avatar in `connect` and `menu`, is answered, and is ignored (but answered) in `playing`; a resume `hello` in `playing` does not change the profile; the duplicate ID rule frees the older slot with `kicked/replaced` in a menu, also on a full TV; the old phone with a stale token gets `kicked/replaced` and does not replace the new one; in `playing` the second phone is a guest; a token resume is not affected; `Sam`, `sam` and a guest named `Player 2` get distinct `display_name`; `display_name` does not change during a round; `result` carries the `pid` and reaches only a phone with one. |
 | `tests/game_rules.gd` | `open_results()` sends one `result` for each finished player with the key of the game; Maze, Sumo and a random track send none; a player who is "not finished" gets none. |
 | `tests/ui_states.gd` | The profile list, the edit screen (a name is needed to save, `DELETE` asks first, the full list dims `NEW PLAYER` and says why), the Share screen and its 60-second hide, the screens close on a phase change, the waiting screen shows the avatar, the guest and the reconnect case. |
-| `tests/smoke_tv.gd`, `smoke_lang.gd` | The pause card, the result list and the players list show the profile name (also 18 characters and Hebrew); every new string has Hebrew. |
+| `tests/smoke_tv.gd`, `smoke_lang.gd` | The pause card, the result list and the players list show the profile name (also 12 characters and Hebrew); every new string has Hebrew. |
 | QR encoder (in `run_tests.gd`) | Versions 7 to 14: size, finder, timing and alignment patterns, format and version bits, the capacity for each version, the 16-bit count, a text that is too long returns empty; versions 1 to 6 give the same modules as before; the fixed text with the hash of its modules. |
 | `tests/design_tokens.gd` | The import settings of the avatar sheet (no filter, no mipmaps). |
 
@@ -288,7 +293,7 @@ Needs: 2 to 4 phones (one an iPhone if possible), 1 TV, a grown-up and a child o
 3. A parent phone with 3 profiles: switch between rounds; check that the TV shows the new name and avatar, that the phone waits for the TV answer, and that the list closes when a round starts.
 4. Two phones with the same name (also `Sam` and `sam`): the TV shows `Sam` and `Sam 2`.
 5. A guest next to profile players: the guest keeps the number.
-6. Pause card with profile names (switch Wi-Fi off): two names of 16 letters, a Hebrew name in an English sentence and an English name in Hebrew; check that the text fits and reads right.
+6. Pause card with profile names (switch Wi-Fi off): two names of 10 letters, a Hebrew name in an English sentence and an English name in Hebrew; check that the text fits and reads right.
 7. All avatars on all four slot colors and on the smallest ball, from the sofa; a child names five of them.
 8. The same profile on a second phone joins the same TV in the menu: the older phone shows `YOUR PLAYER JOINED ANOTHER PHONE`. Then repeat during a round: the second phone waits as a guest and nobody is removed.
 9. Play Snowball Splat, Paint Grab and Marble Race (a fixed track) with a profile; check `NEW BEST!` and that a worse round does not change the best; one round with 2 phones.
