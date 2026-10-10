@@ -9,7 +9,7 @@ earlier design decisions and have no loyalty to them. Your job is to judge the s
 
 Method:
 1. Look at every screenshot first (Read the image files) and write down your own impressions BEFORE reading the docs.
-2. Then read the stated design intent: `docs/TV_FLOW.md` (FD-13, REQ-FL-37 to 46), `docs/GAME_REQUIREMENTS.md` (REQ-GM-45 to 49).
+2. Then read the stated design intent: `docs/TV_FLOW.md` (FD-13, FD-18, REQ-FL-37 to 46), `docs/ARCADE_STYLE_PLAN.md` (the target style; judge built phases against it), `docs/GAME_REQUIREMENTS.md` (REQ-GM-45 to 49).
 3. For each earlier design suggestion/decision, give a verdict: Holds up / Needs change / Wrong, with evidence from a
    specific screenshot. Do not defer to a rule because it is written down; say when the rule itself is the problem.
 4. Check: hierarchy, focus visibility from 3 m, text size and contrast, spacing/alignment, consistency TV vs phone vs games,

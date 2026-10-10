@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Remote Play Arcade Looks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600;700&family=VT323&family=Silkscreen:wght@400;700&family=Space+Mono:wght@400;700&family=Jersey+10&family=DotGothic16&family=Tiny5&display=swap">
+<style>
+/* Layout: a dark arcade "showroom" page. Three directions stacked, each a TV screen beside a phone, then notes. Deliberately single dark theme. */
+:root{
+  color-scheme: dark;
+  --page:#0d0b14;
+  --page-2:#16131f;
+  --ink:#ece8f5;
+  --ink-dim:#9a93ad;
+  --rule:#2a2538;
+  --coin:#ffcc33;
+  --f-page: "Space Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-head: "Silkscreen", "Press Start 2P", ui-monospace, monospace;
+
+  /* player colors, kept from the current tokens so each direction can be compared fairly */
+  --p1:#e63946; --p2:#2a9d8f; --p3:#f4a261; --p4:#457b9d;
+}
+*{box-sizing:border-box}
+html,body{background:var(--page);color:var(--ink)}
+body{font-family:var(--f-page);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:40px 80px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:72px}
+h1,h2,h3{font-family:var(--f-head);font-weight:700;text-wrap:balance;margin:0;letter-spacing:.02em}
+h1{font-size:clamp(28px,5vw,52px);line-height:1.05;color:var(--coin)}
+.lede{max-width:66ch;color:var(--ink-dim);margin:16px 0 0}
+.lede b{color:var(--ink);font-weight:700}
+.key{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:20px;font-size:13px;color:var(--ink-dim)}
+.key span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:8px;background:var(--coin);vertical-align:0}
+
+section.dir{display:flex;flex-direction:column;gap:22px}
+.dir-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;border-bottom:2px dashed var(--rule);padding-bottom:14px}
+.dir-head .tag{font-family:var(--f-head);font-size:12px;color:var(--page);background:var(--coin);padding:3px 8px}
+.dir-head .tag.alt{background:var(--ink-dim)}
+.dir-head h2{font-size:clamp(20px,3vw,30px)}
+.dir-head p{flex-basis:100%;margin:0;color:var(--ink-dim);max-width:72ch}
+
+.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,230px);gap:26px;align-items:end}
+@media (max-width:720px){.stage{grid-template-columns:1fr}.phone{max-width:240px;margin:0 auto}}
+.cap{font-size:12px;color:var(--ink-dim);margin-top:8px;text-transform:uppercase;letter-spacing:.08em}
+
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+@media (max-width:720px){.facts{grid-template-columns:1fr}}
+.facts div{min-width:0}
+.facts h3{font-size:12px;color:var(--coin);margin-bottom:6px}
+.facts ul{margin:0;padding-left:18px;color:var(--ink-dim)}
+.facts li{margin:2px 0}
+
+/* ---------- shared frames ---------- */
+.tv{position:relative;aspect-ratio:16/9;max-width:100%;container-type:inline-size;overflow:hidden;
+  border:10px solid #050407;border-radius:6px;box-shadow:0 0 0 2px #2b2833, 0 18px 40px #000a}
+.phone{position:relative;aspect-ratio:9/19;max-width:100%;container-type:inline-size;overflow:hidden;
+  border:8px solid #050407;border-radius:26px;box-shadow:0 0 0 2px #2b2833, 0 18px 40px #000a}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+canvas.qr{image-rendering:pixelated;display:block;width:100%;height:auto}
+@keyframes blink{50%{opacity:0}}
+.blink{animation:blink 1.1s steps(1) infinite}
+@media (prefers-reduced-motion:reduce){.blink{animation:none}}
+
+/* pixel stepped corner helper (4-step) */
+.px{clip-path:polygon(0 8px,4px 8px,4px 4px,8px 4px,8px 0,calc(100% - 8px) 0,calc(100% - 8px) 4px,calc(100% - 4px) 4px,calc(100% - 4px) 8px,100% 8px,100% calc(100% - 8px),calc(100% - 4px) calc(100% - 8px),calc(100% - 4px) calc(100% - 4px),calc(100% - 8px) calc(100% - 4px),calc(100% - 8px) 100%,8px 100%,8px calc(100% - 4px),4px calc(100% - 4px),4px calc(100% - 8px),0 calc(100% - 8px))}
+
+/* ================= A: 8-BIT CABINET ================= */
+.a{--bg:#000;--fg:#fcfcfc;--dim:#7c7c7c;--hi:#f8b800;--box:#0058f8;--ok:#00b800;--bad:#f83800;
+  background:var(--bg);color:var(--fg);font-family:"Press Start 2P",ui-monospace,monospace}
+.a .screen{padding:4cqw 5cqw;gap:3cqw}
+.a .top{display:flex;justify-content:space-between;font-size:2cqw;color:var(--hi)}
+.a .top span:last-child{color:var(--fg)}
+.a .body{flex:1;display:grid;grid-template-columns:34% 1fr;gap:5cqw;min-height:0}
+.a .frame{border:.6cqw solid var(--fg);box-shadow:inset 0 0 0 .6cqw var(--bg), inset 0 0 0 1.2cqw var(--box);padding:2.4cqw;display:flex;flex-direction:column;align-items:center;gap:2cqw;background:var(--bg)}
+.a .frame canvas{background:#fff;padding:.8cqw}
+.a .code{font-size:3.4cqw;color:var(--hi);letter-spacing:.4cqw}
+.a .lbl{font-size:1.5cqw;color:var(--dim)}
+.a .right{display:flex;flex-direction:column;gap:2.2cqw}
+.a .title{font-size:3.6cqw;line-height:1.2}
+.a .help{font-size:1.6cqw;color:var(--dim);line-height:1.6}
+.a .slots{display:flex;flex-direction:column;gap:1.4cqw}
+.a .slot{display:flex;align-items:center;gap:2cqw;font-size:1.9cqw}
+.a .slot i{width:3cqw;height:3cqw;display:block;background:var(--c);box-shadow:.5cqw .5cqw 0 #fff3}
+.a .slot b{font-weight:400;flex:1}
+.a .slot em{font-style:normal;font-size:1.6cqw}
+.a .slot em.ok{color:var(--ok)} .a .slot em.wait{color:var(--dim)} .a .slot em.bad{color:var(--bad)}
+.a .press{text-align:center;font-size:2.4cqw;color:var(--hi)}
+.a-phone .screen{padding:10cqw 8cqw;gap:6cqw;align-items:stretch}
+.a-phone .who{display:flex;align-items:center;gap:4cqw;font-size:5.4cqw}
+.a-phone .who i{width:9cqw;height:9cqw;background:var(--p2);display:block}
+.a-phone .state{font-size:4.2cqw;color:var(--dim);line-height:1.7}
+.a-phone .pad{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7cqw}
+.a-phone .btns{display:flex;gap:9cqw}
+.a-phone .btn{width:26cqw;height:26cqw;border-radius:50%;background:#c80000;border:1.4cqw solid #fff;display:grid;place-items:center;font-size:7cqw;box-shadow:0 2cqw 0 #600}
+.a-phone .wide{border:1.2cqw solid var(--fg);padding:4cqw 6cqw;font-size:4cqw;text-align:center;width:100%}
+.a-phone .foot{font-size:3.4cqw;text-align:center;color:var(--hi)}
+
+/* ================= B: NEON CRT ================= */
+.b{--bg:#120626;--bg2:#1d0a3d;--fg:#f4ecff;--dim:#a58fcf;--pink:#ff3fa4;--cyan:#3ff0ff;--yel:#ffe45c;
+  background:radial-gradient(120% 90% at 50% 40%, var(--bg2), var(--bg) 70%);color:var(--fg);font-family:"VT323",ui-monospace,monospace}
+.b::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg, #0000 0 2px, #0006 2px 3px);mix-blend-mode:multiply}
+.b .screen{padding:3.6cqw 5cqw;gap:2.6cqw}
+.b .marquee{font-family:"Press Start 2P",monospace;font-size:3.4cqw;color:var(--pink);text-shadow:0 0 .6cqw var(--pink);letter-spacing:.3cqw}
+.b .body{flex:1;display:grid;grid-template-columns:33% 1fr;gap:5cqw;min-height:0}
+.b .qrbox{border:.4cqw solid var(--cyan);box-shadow:0 0 1.4cqw #3ff0ff66, inset 0 0 1.2cqw #3ff0ff33;padding:2cqw;display:flex;flex-direction:column;align-items:center;gap:1.4cqw;border-radius:1cqw}
+.b .qrbox canvas{background:#fff;padding:.8cqw;border-radius:.4cqw}
+.b .code{font-size:6cqw;line-height:1;color:var(--yel);text-shadow:0 0 .6cqw #ffe45c88;letter-spacing:.8cqw}
+.b .lbl{font-size:2.4cqw;color:var(--dim)}
+.b .right{display:flex;flex-direction:column;gap:1.6cqw}
+.b .help{font-size:3.1cqw;color:var(--dim);line-height:1}
+.b .slot{display:flex;align-items:center;gap:2cqw;font-size:3.8cqw;line-height:1;padding:1.1cqw 1.8cqw;border:.3cqw solid #ffffff22;border-left:1.2cqw solid var(--c);background:#ffffff08}
+.b .slot b{font-weight:400;flex:1}
+.b .slot em{font-style:normal}
+.b .slot em.ok{color:var(--cyan);text-shadow:0 0 .5cqw var(--cyan)} .b .slot em.wait{color:var(--dim)}
+.b .press{text-align:center;font-family:"Press Start 2P",monospace;font-size:2.2cqw;color:var(--yel);text-shadow:0 0 .6cqw #ffe45c99}
+.b-phone .screen{padding:10cqw 8cqw;gap:5cqw}
+.b-phone .who{font-family:"Press Start 2P",monospace;font-size:5cqw;color:var(--p2);text-shadow:0 0 1.4cqw var(--p2)}
+.b-phone .state{font-size:8cqw;line-height:1;color:var(--dim)}
+.b-phone .pad{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7cqw}
+.b-phone .btns{display:flex;gap:9cqw}
+.b-phone .btn{width:26cqw;height:26cqw;border-radius:50%;border:1.2cqw solid var(--c);box-shadow:0 0 3cqw var(--c), inset 0 0 3cqw color-mix(in srgb,var(--c) 40%,transparent);display:grid;place-items:center;font-family:"Press Start 2P",monospace;font-size:7cqw;color:var(--c)}
+.b-phone .wide{border:.8cqw solid var(--cyan);box-shadow:0 0 2cqw #3ff0ff66;padding:3.6cqw;font-size:7.4cqw;line-height:1;text-align:center;width:100%;border-radius:2cqw;color:var(--cyan)}
+.b-phone .foot{font-size:6cqw;line-height:1;text-align:center;color:var(--yel)}
+
+/* ================= C: PIXEL POP (hybrid) ================= */
+.c{--bg:#1b1f3b;--bg2:#262b52;--fg:#ffffff;--dim:#b4b9e0;--out:#0b0d1f;--yel:#ffd23f;--ok:#57cc99;--card:#f5f3ff;--cardtxt:#1b1f3b;
+  background:var(--bg);color:var(--fg);font-family:"Pixelify Sans",ui-monospace,monospace;
+  background-image:linear-gradient(var(--bg2) 1px, transparent 1px),linear-gradient(90deg,var(--bg2) 1px, transparent 1px);background-size:4cqw 4cqw}
+.c .screen{padding:4cqw 5cqw;gap:2.6cqw}
+.c .top{display:flex;align-items:center;gap:2cqw}
+.c .logo{font-family:"Silkscreen",monospace;font-weight:700;font-size:3.2cqw;color:var(--yel);text-shadow:.4cqw .4cqw 0 var(--out)}
+.c .body{flex:1;display:grid;grid-template-columns:33% 1fr;gap:4cqw;min-height:0}
+.c .card{background:var(--card);color:var(--cardtxt);padding:2.4cqw;display:flex;flex-direction:column;align-items:center;gap:1.4cqw;
+  filter:drop-shadow(.8cqw .8cqw 0 var(--out))}
+.c .code{font-family:"Silkscreen",monospace;font-weight:700;font-size:4.4cqw;line-height:1;color:#ff3d8b;letter-spacing:.4cqw}
+.c .lbl{font-size:1.9cqw;color:#5b5f86}
+.c .right{display:flex;flex-direction:column;gap:1.6cqw}
+.c .title{font-family:"Silkscreen",monospace;font-weight:700;font-size:4cqw;line-height:1.05;text-shadow:.4cqw .4cqw 0 var(--out)}
+.c .help{font-size:2.3cqw;color:var(--dim)}
+.c .slot{display:flex;align-items:center;gap:2cqw;background:var(--card);color:var(--cardtxt);padding:1.1cqw 1.8cqw;font-size:2.6cqw;font-weight:600;filter:drop-shadow(.6cqw .6cqw 0 var(--out))}
+.c .slot i{width:3.4cqw;height:3.4cqw;background:var(--c);display:block;box-shadow:inset -.5cqw -.5cqw 0 #0003}
+.c .slot b{flex:1;font-weight:600}
+.c .slot em{font-style:normal;font-size:2cqw;padding:.3cqw 1.2cqw;background:#b9f0d3;color:#0d5538}
+.c .slot em.wait{background:none;color:#8a8db0}
+.c .slot.empty{background:#ffffff22;color:var(--dim);filter:none}
+.c .press{text-align:center;font-family:"Silkscreen",monospace;font-weight:700;font-size:2.6cqw;color:var(--yel);text-shadow:.3cqw .3cqw 0 var(--out)}
+.c-phone .screen{padding:10cqw 8cqw;gap:5cqw}
+.c-phone .who{display:flex;align-items:center;gap:4cqw;font-family:"Silkscreen",monospace;font-weight:700;font-size:7cqw;text-shadow:.8cqw .8cqw 0 var(--out)}
+.c-phone .who i{width:11cqw;height:11cqw;background:var(--p2);display:block;box-shadow:inset -1.4cqw -1.4cqw 0 #0003;filter:drop-shadow(1cqw 1cqw 0 var(--out))}
+.c-phone .state{font-size:5.4cqw;color:var(--dim)}
+.c-phone .pad{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7cqw}
+.c-phone .btns{display:flex;gap:8cqw}
+.c-phone .btn{width:28cqw;height:28cqw;background:var(--c);display:grid;place-items:center;font-family:"Silkscreen",monospace;font-weight:700;font-size:9cqw;color:var(--out);filter:drop-shadow(1.4cqw 1.4cqw 0 var(--out));box-shadow:inset -2cqw -2cqw 0 #0002}
+.c-phone .wide{background:var(--yel);color:var(--out);padding:4cqw;font-family:"Silkscreen",monospace;font-weight:700;font-size:5.4cqw;text-align:center;width:100%;filter:drop-shadow(1.2cqw 1.2cqw 0 var(--out))}
+.c-phone .foot{font-size:4.6cqw;text-align:center;color:var(--dim)}
+
+/* ---------- A vs C screen pairs ---------- */
+.pairs{display:flex;flex-direction:column;gap:44px}
+.pair h3{font-size:15px;margin-bottom:4px}
+.pair > p{margin:0 0 14px;color:var(--ink-dim);max-width:72ch}
+.pair-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.pair-grid.phones{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+@media (max-width:820px){.pair-grid{grid-template-columns:1fr}.pair-grid.phones{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.lbl-a,.lbl-c{display:inline-block;font-family:var(--f-head);font-size:11px;padding:2px 7px;margin-top:8px;color:var(--page);background:var(--coin)}
+.lbl-c{background:#8fa0ff}
+canvas.scene{display:block;width:100%;height:100%}
+.a canvas.scene{image-rendering:pixelated}
+.fill{position:absolute;inset:0}
+.dimmer{position:absolute;inset:0;background:#0009}
+
+/* games menu */
+.a .gm-top,.c .gm-top{display:flex;align-items:center;justify-content:space-between;gap:2cqw}
+.a .gm-title{font-size:3cqw;color:var(--hi)}
+.a .badge{display:flex;align-items:center;gap:1cqw;font-size:1.7cqw}
+.a .badge i{width:1.8cqw;height:1.8cqw;display:block;background:var(--c,#333);box-shadow:.3cqw .3cqw 0 #fff3}
+.a .opt{border:.4cqw solid var(--fg);padding:.8cqw 1.2cqw;font-size:1.5cqw;margin-left:2cqw}
+.tiles{display:flex;gap:2.4cqw;align-items:flex-start;flex:1;min-height:0}
+.tile{flex:0 0 21cqw;display:flex;flex-direction:column;gap:1.2cqw}
+.tile.on{flex-basis:44cqw}
+.tiles-wrap{flex:1;display:flex;flex-direction:column;gap:2.4cqw;min-height:0}
+.tile .thumb{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden}
+.tile.on .thumb{aspect-ratio:32/9;display:grid;grid-template-columns:50% 50%}
+.tile.on .thumb canvas{aspect-ratio:16/9}
+.tile .desc{padding:1.4cqw 1.6cqw;line-height:1.5}
+.a .tile .thumb{border:.4cqw solid var(--dim)}
+.a .tile.on .thumb{border:.6cqw solid var(--hi)}
+.a .tile .desc{font-size:1.25cqw;color:var(--fg)}
+.a .tile .name{font-size:1.7cqw}
+.a .tile.on .name{color:var(--hi)}
+.a .tile.on .name::before{content:"> "}
+.a .tile .range{font-size:1.25cqw;color:var(--dim)}
+.a .hint{display:flex;justify-content:center;gap:5cqw;font-size:1.5cqw;color:var(--dim)}
+.a .hint b{color:var(--fg);font-weight:400}
+
+.c .gm-title{font-family:"Silkscreen",monospace;font-weight:700;font-size:3.4cqw;text-shadow:.4cqw .4cqw 0 var(--out)}
+.c .badge{display:flex;align-items:center;gap:.8cqw;background:var(--card);padding:.9cqw 1.4cqw;filter:drop-shadow(.5cqw .5cqw 0 var(--out))}
+.c .badge i{width:1.8cqw;height:1.8cqw;display:block;background:var(--c,#d8d2ea);box-shadow:inset -.3cqw -.3cqw 0 #0003}
+.c .gear{width:5cqw;height:5cqw;background:var(--card);display:grid;place-items:center;color:var(--cardtxt);font-family:"Silkscreen",monospace;font-weight:700;font-size:2.4cqw;margin-left:1.6cqw;filter:drop-shadow(.5cqw .5cqw 0 var(--out))}
+.c .tile .thumb{background:var(--card);padding:.5cqw;filter:drop-shadow(.6cqw .6cqw 0 var(--out))}
+.c .tile.on .thumb{background:var(--yel)}
+.c .tile .desc{font-size:1.75cqw;color:var(--cardtxt);background:var(--card)}
+.c .tile .name{font-family:"Silkscreen",monospace;font-weight:700;font-size:2.2cqw;text-shadow:.3cqw .3cqw 0 var(--out)}
+.c .tile.on .name{color:var(--yel)}
+.c .tile .range{font-size:1.8cqw;color:var(--dim)}
+.c .hint{display:flex;justify-content:center;gap:3cqw;font-size:1.8cqw;color:var(--dim)}
+.c .hint b{background:var(--card);color:var(--cardtxt);padding:0 .8cqw;font-weight:600}
+
+/* HUD */
+.hud{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:2cqw;padding:2.4cqw 3cqw}
+.a .hud{font-size:1.6cqw}
+.a .hud .t{color:var(--hi);font-size:2.2cqw}
+.a .hud .scores{display:flex;gap:2cqw}
+.a .hud .scores span{display:flex;align-items:center;gap:.8cqw}
+.a .hud .scores i{width:1.6cqw;height:1.6cqw;background:var(--c);display:block}
+.c .hud .t{font-family:"Silkscreen",monospace;font-weight:700;font-size:2.6cqw;color:var(--yel);text-shadow:.3cqw .3cqw 0 var(--out)}
+.c .hud .r{font-size:1.9cqw;font-weight:600}
+.c .hud .scores{display:flex;gap:1cqw}
+.c .hud .scores span{display:flex;align-items:center;gap:.6cqw;background:var(--card);color:var(--cardtxt);padding:.4cqw 1cqw;font-size:1.6cqw;font-weight:600;filter:drop-shadow(.35cqw .35cqw 0 var(--out))}
+.c .hud .scores i{width:1.5cqw;height:1.5cqw;background:var(--c);display:block}
+.count{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.a .count span{font-size:16cqw;color:var(--hi);text-shadow:1.2cqw 1.2cqw 0 #c84c0c}
+.c .count span{font-family:"Silkscreen",monospace;font-weight:700;font-size:17cqw;color:var(--yel);text-shadow:1cqw 1cqw 0 var(--out), -.4cqw -.4cqw 0 var(--out), .4cqw -.4cqw 0 var(--out), -.4cqw .4cqw 0 var(--out)}
+
+/* results + pause */
+.center{position:absolute;inset:0;display:grid;place-items:center;padding:3cqw}
+.a .box{background:#000;border:.6cqw solid var(--fg);box-shadow:inset 0 0 0 .6cqw #000, inset 0 0 0 1.2cqw var(--box);padding:3.4cqw 4.6cqw;display:flex;flex-direction:column;gap:2cqw;min-width:56cqw}
+.a .box h4{margin:0;font-weight:400;font-size:3.4cqw;color:var(--hi);text-align:center}
+.a .box .sub{font-size:1.6cqw;text-align:center;color:var(--bad)}
+.a .rank{display:grid;grid-template-columns:7cqw 3cqw 1fr auto;align-items:center;gap:1.6cqw;font-size:2cqw}
+.a .rank i{width:2.4cqw;height:2.4cqw;background:var(--c);display:block}
+.a .rank:first-of-type{color:var(--hi)}
+.a .rank .dim{color:var(--dim)}
+.a .menu{display:flex;flex-direction:column;gap:1.4cqw;font-size:2cqw;padding-left:6cqw;margin-top:1cqw}
+.a .menu div::before{content:"\00A0\00A0 "}
+.a .menu .sel{color:var(--hi)}
+.a .menu .sel::before{content:"> "}
+
+.c .box{background:var(--card);color:var(--cardtxt);padding:3.4cqw 4.4cqw;display:flex;flex-direction:column;gap:1.6cqw;min-width:54cqw;filter:drop-shadow(1cqw 1cqw 0 var(--out))}
+.c .box h4{margin:0;font-family:"Silkscreen",monospace;font-weight:700;font-size:3.8cqw;text-align:center;line-height:1}
+.c .box .sub{font-size:2cqw;text-align:center;color:#a1163a;font-weight:600}
+.c .rank{display:grid;grid-template-columns:6.4cqw 3cqw 1fr auto;align-items:center;gap:1.4cqw;font-size:2.3cqw;font-weight:600;padding:.6cqw 1.2cqw;background:#ebe7fb}
+.c .rank i{width:2.6cqw;height:2.6cqw;background:var(--c);display:block;box-shadow:inset -.4cqw -.4cqw 0 #0003}
+.c .rank .medal{font-family:"Silkscreen",monospace;font-weight:700;font-size:1.8cqw;padding:.2cqw .6cqw;text-align:center;color:var(--out)}
+.c .rank .dim{color:#6b6f96}
+.c .btnrow{display:flex;justify-content:center;gap:2cqw;margin-top:1cqw}
+.c .pbtn{font-family:"Silkscreen",monospace;font-weight:700;font-size:1.9cqw;padding:1.2cqw 2.4cqw;background:var(--yel);color:var(--out);filter:drop-shadow(.5cqw .5cqw 0 var(--out))}
+.c .pbtn.go{background:var(--ok);outline:.6cqw solid #000;outline-offset:0}
+.c .pbtn.quiet{background:#d9d6ea}
+
+/* phone extras */
+.a-phone .field{border-bottom:1cqw solid var(--fg);font-size:5.4cqw;padding:2cqw 0}
+.a-phone .field .cur{color:var(--hi)}
+.a-phone .opt-list{display:flex;flex-direction:column;gap:4cqw;font-size:4.4cqw;margin-top:4cqw}
+.a-phone .opt-list div::before{content:"\00A0\00A0 "}
+.a-phone .opt-list .sel{color:var(--hi)}
+.a-phone .opt-list .sel::before{content:"> "}
+.a-phone .logo{font-size:7.4cqw;line-height:1.3;color:var(--hi);text-align:center}
+.a-phone .big{font-size:6cqw;line-height:1.6;text-align:center}
+.c-phone .logo{font-family:"Silkscreen",monospace;font-weight:700;font-size:9cqw;line-height:1;color:var(--yel);text-align:center;text-shadow:.9cqw .9cqw 0 var(--out)}
+.c-phone .field{background:var(--card);color:var(--cardtxt);padding:3.4cqw 4cqw;font-size:5.4cqw;font-weight:600;filter:drop-shadow(1cqw 1cqw 0 var(--out))}
+.c-phone .field small{display:block;font-size:3.8cqw;color:#6b6f96;font-weight:400}
+.c-phone .wide.alt{background:var(--card)}
+.c-phone .big{font-family:"Silkscreen",monospace;font-weight:700;font-size:7.4cqw;line-height:1.15;text-align:center;text-shadow:.8cqw .8cqw 0 var(--out)}
+.c-phone .chip{align-self:center;background:#b9f0d3;color:#0d5538;padding:1.4cqw 4cqw;font-size:5cqw;font-weight:600;filter:drop-shadow(.8cqw .8cqw 0 var(--out))}
+.mid{flex:1;display:flex;flex-direction:column;justify-content:center;gap:5cqw}
+
+
+/* ================= D: 16-BIT ARCADE ================= */
+.d{--sky1:#0e1640;--sky2:#15246a;--sky3:#1d3992;--sky4:#2a55b8;--fg:#ffffff;--dim:#a9b8ff;--gold:#ffc832;--gold2:#ff7a1a;--cyan:#5ef2ff;--pan:#24306e;--hiE:#7d9bff;--loE:#080d2c;
+  background:linear-gradient(180deg,var(--sky1) 0 30%,var(--sky2) 30% 55%,var(--sky3) 55% 78%,var(--sky4) 78%);color:var(--fg);font-family:"DotGothic16",ui-monospace,monospace}
+.d canvas.scene,.e canvas.scene{image-rendering:pixelated}
+.d .screen{padding:3.4cqw 4.4cqw;gap:2.2cqw}
+.d .logo,.d .title,.d h4{font-family:"Jersey 10","Press Start 2P",monospace;font-weight:400;line-height:.9;letter-spacing:.2cqw;
+  color:var(--gold);text-shadow:0 .5cqw 0 var(--gold2),.35cqw .35cqw 0 #000,-.35cqw -.35cqw 0 #000,.35cqw -.35cqw 0 #000,-.35cqw .35cqw 0 #000,0 .9cqw 0 #000}
+.d .logo{font-size:5.4cqw}
+.d .title{font-size:4.6cqw}
+.d .panel{background:var(--pan);border:.55cqw solid;border-color:var(--hiE) var(--loE) var(--loE) var(--hiE);box-shadow:0 0 0 .4cqw #000}
+.d .body{flex:1;display:grid;grid-template-columns:33% 1fr;gap:4cqw;min-height:0}
+.d .qr{padding:2cqw;display:flex;flex-direction:column;align-items:center;gap:1.4cqw}
+.d .qr canvas{background:#fff;padding:.8cqw}
+.d .code{font-family:"Jersey 10",monospace;font-size:6cqw;line-height:.9;color:var(--cyan);letter-spacing:.6cqw;text-shadow:.35cqw .35cqw 0 #000}
+.d .lbl{font-size:1.9cqw;color:var(--dim)}
+.d .right{display:flex;flex-direction:column;gap:1.5cqw}
+.d .help{font-size:2.2cqw;color:var(--dim)}
+.d .slot{display:flex;align-items:center;gap:1.8cqw;padding:.9cqw 1.6cqw;font-size:2.5cqw}
+.d .slot i{width:3cqw;height:3cqw;display:block;background:var(--c);border:.4cqw solid;border-color:#ffffff88 #0006 #0006 #ffffff88}
+.d .slot b{flex:1;font-weight:400}
+.d .slot em{font-style:normal;font-size:2.1cqw}
+.d .slot em.ok{color:var(--gold)} .d .slot em.wait{color:var(--dim)}
+.d .slot.empty{opacity:.6}
+.d .press{text-align:center;font-family:"Jersey 10",monospace;font-size:4.2cqw;line-height:1;color:var(--fg);text-shadow:.35cqw .35cqw 0 #000}
+.d .tile .thumb{box-shadow:0 0 0 .4cqw #000;border:.5cqw solid;border-color:var(--hiE) var(--loE) var(--loE) var(--hiE)}
+.d .tile.on .thumb{border-color:#fff3a0 #b85a00 #b85a00 #fff3a0;background:var(--gold)}
+.d .tile .desc{font-size:1.6cqw;background:var(--pan);color:var(--fg)}
+.d .tile .name{font-family:"Jersey 10",monospace;font-size:3cqw;line-height:1;text-shadow:.3cqw .3cqw 0 #000}
+.d .tile.on .name{color:var(--gold)}
+.d .tile .range{font-size:1.6cqw;color:var(--dim)}
+.d .hint{display:flex;justify-content:center;gap:4cqw;font-size:1.8cqw;color:var(--dim)}
+.d .hint b{color:var(--gold);font-weight:400}
+.d .box{padding:3cqw 4.4cqw;display:flex;flex-direction:column;gap:1.4cqw;min-width:56cqw}
+.d .box h4{font-size:6cqw;text-align:center}
+.d .rank{display:grid;grid-template-columns:7cqw 3cqw 1fr auto;align-items:center;gap:1.4cqw;font-size:2.4cqw}
+.d .rank i{width:2.6cqw;height:2.6cqw;display:block;background:var(--c);border:.35cqw solid;border-color:#ffffff88 #0006 #0006 #ffffff88}
+.d .rank:first-of-type span{color:var(--gold)}
+.d .menu{display:flex;justify-content:center;gap:3cqw;font-size:2.3cqw;margin-top:1cqw}
+.d .menu div{padding:.8cqw 2cqw}
+.d .menu .sel{background:var(--gold);color:#2a1300;box-shadow:0 0 0 .4cqw #000}
+.d-phone .screen{padding:10cqw 8cqw;gap:5cqw}
+.d-phone .who{display:flex;align-items:center;gap:4cqw;font-family:"Jersey 10",monospace;font-size:11cqw;line-height:1;text-shadow:.8cqw .8cqw 0 #000}
+.d-phone .who i{width:11cqw;height:11cqw;display:block;background:var(--p2);border:1.2cqw solid;border-color:#ffffff88 #0006 #0006 #ffffff88;box-shadow:0 0 0 .8cqw #000}
+.d-phone .state{font-size:5.4cqw;color:var(--dim)}
+.d-phone .pad{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8cqw}
+.d-phone .btns{display:flex;gap:8cqw}
+.d-phone .btn{width:28cqw;height:28cqw;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff8 0 12%,transparent 13%),var(--c);box-shadow:0 0 0 1.2cqw #000,0 2.4cqw 0 1.2cqw #000;display:grid;place-items:center;font-family:"Jersey 10",monospace;font-size:12cqw;color:#fff;text-shadow:.8cqw .8cqw 0 #000}
+.d-phone .wide{width:100%;text-align:center;padding:3.6cqw;font-family:"Jersey 10",monospace;font-size:8cqw;line-height:1;color:var(--gold);text-shadow:.6cqw .6cqw 0 #000}
+.d-phone .foot{font-size:4.6cqw;text-align:center;color:var(--dim)}
+
+/* ================= E: ATARI 2600 ================= */
+.e{--bg:#141210;--fg:#f2e6c8;--dim:#9c8f72;--s1:#c8381c;--s2:#e0782c;--s3:#e8b83c;--s4:#5c9c3c;--s5:#3c6cb4;--blk:#2a2620;
+  background:var(--bg);color:var(--fg);font-family:"Tiny5","Silkscreen",ui-monospace,monospace}
+.e .stripes{display:flex;flex-direction:column;gap:.5cqw}
+.e .stripes i{display:block;height:.8cqw}
+.e .stripes i:nth-child(1){background:var(--s1)} .e .stripes i:nth-child(2){background:var(--s2)} .e .stripes i:nth-child(3){background:var(--s3)} .e .stripes i:nth-child(4){background:var(--s4)} .e .stripes i:nth-child(5){background:var(--s5)}
+.e .screen{padding:3cqw 4.4cqw;gap:2cqw}
+.e .logo{font-size:5cqw;line-height:1;letter-spacing:.6cqw;color:var(--s3)}
+.e .title{font-size:4.6cqw;line-height:1;letter-spacing:.4cqw}
+.e .body{flex:1;display:grid;grid-template-columns:30% 1fr;gap:4cqw;min-height:0}
+.e .panel{background:var(--blk)}
+.e .qr{padding:2cqw;display:flex;flex-direction:column;align-items:center;gap:1.4cqw}
+.e .qr canvas{background:#fff;padding:.8cqw}
+.e .code{font-size:5.6cqw;line-height:1;color:var(--s2);letter-spacing:.8cqw}
+.e .lbl{font-size:2cqw;color:var(--dim)}
+.e .right{display:flex;flex-direction:column;gap:1.4cqw}
+.e .help{font-size:2.4cqw;color:var(--dim)}
+.e .slot{display:flex;align-items:center;gap:2cqw;font-size:3cqw;line-height:1;padding:1cqw 1.6cqw;background:var(--c);color:#141210}
+.e .slot b{flex:1;font-weight:400}
+.e .slot em{font-style:normal;font-size:2.4cqw}
+.e .slot.empty{background:var(--blk);color:var(--dim);box-shadow:inset 1.2cqw 0 0 var(--c)}
+.e .press{text-align:center;font-size:3.4cqw;line-height:1;color:var(--s3);letter-spacing:.3cqw}
+.e .tile .thumb{background:var(--blk)}
+.e .tile.on .thumb{box-shadow:0 0 0 .8cqw var(--s3)}
+.e .tile .desc{font-size:1.9cqw;background:var(--blk);color:var(--fg)}
+.e .tile .name{font-size:2.6cqw;line-height:1;letter-spacing:.2cqw}
+.e .tile.on .name{color:var(--s3)}
+.e .tile .range{font-size:1.8cqw;color:var(--dim)}
+.e .hint{display:flex;justify-content:center;gap:4cqw;font-size:2.2cqw;color:var(--dim)}
+.e .hint b{color:var(--fg);font-weight:400}
+.e .box{background:var(--bg);padding:3cqw 4.4cqw;display:flex;flex-direction:column;gap:1.4cqw;min-width:56cqw;box-shadow:0 0 0 1cqw var(--s5)}
+.e .box h4{margin:0;font-weight:400;font-size:5.4cqw;line-height:1;text-align:center;letter-spacing:.6cqw;color:var(--s3)}
+.e .rank{display:grid;grid-template-columns:7cqw 1fr auto;align-items:center;gap:1.6cqw;font-size:3cqw;line-height:1;padding:.8cqw 1.4cqw;background:var(--c);color:#141210}
+.e .rank i{display:none}
+.e .menu{display:flex;justify-content:center;gap:3cqw;font-size:2.8cqw;line-height:1;margin-top:1cqw}
+.e .menu div{padding:1cqw 2cqw;color:var(--dim)}
+.e .menu .sel{background:var(--fg);color:var(--bg)}
+.e-phone .screen{padding:10cqw 8cqw;gap:5cqw}
+.e-phone .who{display:flex;align-items:center;gap:4cqw;font-size:10cqw;line-height:1}
+.e-phone .who i{width:12cqw;height:12cqw;display:block;background:var(--p2)}
+.e-phone .state{font-size:6cqw;line-height:1.1;color:var(--dim)}
+.e-phone .pad{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8cqw}
+.e-phone .btns{display:flex;gap:8cqw}
+.e-phone .btn{width:28cqw;height:28cqw;background:var(--c);display:grid;place-items:center;font-size:13cqw;color:#141210}
+.e-phone .wide{width:100%;text-align:center;padding:4cqw;font-size:7.4cqw;line-height:1;background:var(--fg);color:var(--bg)}
+.e-phone .foot{font-size:5.4cqw;text-align:center;color:var(--s3)}
+.de-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+@media (max-width:820px){.de-grid{grid-template-columns:1fr}}
+
+
+/* D/E fit fixes */
+.d .body,.e .body{align-items:start}
+.d .logo{font-size:4.4cqw}.d .title{font-size:3.8cqw}.d .code{font-size:5cqw}
+.d .right{gap:1.1cqw}.d .slot{font-size:2.1cqw;padding:.6cqw 1.4cqw}.d .slot i{width:2.4cqw;height:2.4cqw}.d .slot em{font-size:1.8cqw}
+.d .press{font-size:3.4cqw}
+.d .box{padding:2.2cqw 4cqw;gap:1cqw}.d .box h4{font-size:4.6cqw}.d .rank{font-size:2.1cqw}
+.e .stripes{gap:.3cqw}.e .stripes i{height:.5cqw}
+.e .screen{padding:2.4cqw 4.4cqw;gap:1.6cqw}
+.e .logo{font-size:4cqw}.e .title{font-size:3.4cqw}.e .code{font-size:4.4cqw}.e .help{font-size:2cqw}
+.e .right{gap:1cqw}.e .slot{font-size:2.3cqw;padding:.7cqw 1.4cqw}.e .slot em{font-size:1.9cqw}
+.e .press{font-size:2.8cqw}
+.d .tile,.e .tile{flex-basis:18cqw}.d .tile.on,.e .tile.on{flex-basis:37cqw}
+.d .tiles,.e .tiles{gap:2cqw;flex:0 0 auto}
+.d .tile .name{font-size:2.4cqw}.e .tile .name{font-size:1.9cqw}
+.d .tile .desc{font-size:1.35cqw;padding:1cqw 1.2cqw}.e .tile .desc{font-size:1.5cqw;padding:1cqw 1.2cqw}
+.d .tile .range,.e .tile .range{font-size:1.4cqw}
+.d .tiles-wrap,.e .tiles-wrap{gap:1.6cqw}
+.d .hint,.e .hint{font-size:1.6cqw}
+.e .tile{flex-basis:15.5cqw}.e .tile.on{flex-basis:32cqw}.e .tile .name{white-space:nowrap}
+/* ---------- notes ---------- */
+.notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
+@media (max-width:720px){.notes{grid-template-columns:1fr}}
+.note{background:var(--page-2);border:2px solid var(--rule);padding:20px 22px;min-width:0}
+.note h3{font-size:14px;color:var(--coin);margin-bottom:10px}
+.note p,.note li{color:var(--ink-dim);margin:0}
+.note ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.note b{color:var(--ink)}
+table.cmp{width:100%;border-collapse:collapse;font-size:13px;min-width:820px}
+.cmp th,.cmp td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+.cmp th{font-family:var(--f-head);font-size:11px;color:var(--coin);font-weight:700}
+.cmp td:first-child{color:var(--ink)}
+.cmp td{color:var(--ink-dim)}
+.scroll{overflow-x:auto}
+</style>
+
+</head><body>
+<div class="wrap">
+
+<header>
+  <h1>Remote Play,<br>arcade edition</h1>
+  <p class="lede">Five ways to take the TV app and the phone controller toward an old arcade, pixel-art feel. Each one shows at least the TV <b>Connect</b> screen and the phone during a game. A and C are also compared screen by screen, and D and E add the Games menu and the results. These are mockups to react to, not final designs. The player colors are your current ones so the comparison stays fair.</p>
+  <div class="key"><span>TV mock is 1080p scaled down</span><span>Phone mock is the in-game pad</span><span>Nothing in the repo has changed</span></div>
+</header>
+
+<!-- ============ A ============ -->
+<section class="dir" id="cabinet">
+  <div class="dir-head">
+    <span class="tag">A</span>
+    <h2>8-bit cabinet</h2>
+    <p>Pure NES-era: black screen, one blocky font, a small fixed palette, square boxes with double borders, blinking prompts. It feels the most like an actual 1985 arcade machine.</p>
+  </div>
+  <div class="stage">
+    <div>
+      <div class="tv a"><div class="screen">
+        <div class="top"><span>REMOTE PLAY</span><span>CREDIT 02</span></div>
+        <div class="body">
+          <div class="frame"><canvas class="qr" data-seed="7"></canvas><div class="code">KQZT</div><div class="lbl">ROOM CODE</div></div>
+          <div class="right">
+            <div class="title">PLAYER<br>SELECT</div>
+            <div class="help">SCAN THE CODE WITH YOUR PHONE</div>
+            <div class="slots">
+              <div class="slot" style="--c:var(--p1)"><i></i><b>1P ALON</b><em class="ok">READY</em></div>
+              <div class="slot" style="--c:var(--p2)"><i></i><b>2P MAYA</b><em class="ok">READY</em></div>
+              <div class="slot" style="--c:var(--p3)"><i></i><b>3P ---</b><em class="wait">WAIT</em></div>
+              <div class="slot" style="--c:var(--p4)"><i></i><b>4P ---</b><em class="wait">WAIT</em></div>
+            </div>
+          </div>
+        </div>
+        <div class="press blink">PRESS OK TO START</div>
+      </div></div>
+      <div class="cap">TV · Connect</div>
+    </div>
+    <div>
+      <div class="phone a a-phone"><div class="screen">
+        <div class="who"><i></i>2P</div>
+        <div class="state">TILT TO ROLL<br>MARBLE RACE</div>
+        <div class="pad">
+          <div class="btns"><div class="btn">B</div><div class="btn">A</div></div>
+          <div class="wide">RECENTER</div>
+        </div>
+        <div class="foot blink">GOOD LUCK</div>
+      </div></div>
+      <div class="cap">Phone · In game</div>
+    </div>
+  </div>
+  <div class="facts">
+    <div><h3>Feels like</h3><ul><li>Pac-Man, Donkey Kong cabinets</li><li>High-score tables, "1P / 2P"</li></ul></div>
+    <div><h3>Good</h3><ul><li>Instantly reads as "arcade"</li><li>Very cheap to build: one font, flat colors</li></ul></div>
+    <div><h3>Watch out</h3><ul><li>Press Start 2P is wide; long names and help text get cramped</li><li>Can feel cold and harsh for kids 5 to 8</li><li>Games look out of place unless they go pixel too</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ B ============ -->
+<section class="dir" id="neon">
+  <div class="dir-head">
+    <span class="tag alt">B</span>
+    <h2>Neon CRT</h2>
+    <p>The 80s arcade hall at night: deep purple, glowing pink and cyan outlines, scanlines over everything, a marquee title. Closer to synthwave than to pixel art.</p>
+  </div>
+  <div class="stage">
+    <div>
+      <div class="tv b"><div class="screen">
+        <div class="marquee">REMOTE PLAY</div>
+        <div class="body">
+          <div class="qrbox"><canvas class="qr" data-seed="7"></canvas><div class="code">KQZT</div><div class="lbl">room code</div></div>
+          <div class="right">
+            <div class="help">Scan the code with your phone to join</div>
+            <div class="slot" style="--c:var(--p1)"><b>P1 Alon</b><em class="ok">READY</em></div>
+            <div class="slot" style="--c:var(--p2)"><b>P2 Maya</b><em class="ok">READY</em></div>
+            <div class="slot" style="--c:var(--p3)"><b>P3</b><em class="wait">waiting</em></div>
+            <div class="slot" style="--c:var(--p4)"><b>P4</b><em class="wait">waiting</em></div>
+          </div>
+        </div>
+        <div class="press blink">PRESS OK TO CONTINUE</div>
+      </div></div>
+      <div class="cap">TV · Connect</div>
+    </div>
+    <div>
+      <div class="phone b b-phone"><div class="screen">
+        <div class="who">P2 MAYA</div>
+        <div class="state">Tilt to roll</div>
+        <div class="pad">
+          <div class="btns"><div class="btn" style="--c:var(--pink, #ff3fa4)">B</div><div class="btn" style="--c:#3ff0ff">A</div></div>
+          <div class="wide">RECENTER</div>
+        </div>
+        <div class="foot">Marble Race</div>
+      </div></div>
+      <div class="cap">Phone · In game</div>
+    </div>
+  </div>
+  <div class="facts">
+    <div><h3>Feels like</h3><ul><li>An arcade hall at night, Tron, Outrun</li><li>Glowing marquee signs</li></ul></div>
+    <div><h3>Good</h3><ul><li>Moody and striking on a dark living-room TV</li><li>VT323 is narrow, so text fits well</li></ul></div>
+    <div><h3>Watch out</h3><ul><li>This is close to "Arcade Neon", which was rejected before as hard to read from a sofa (FD-13)</li><li>Glow and scanlines cost GPU on cheap TV boxes</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ C ============ -->
+<section class="dir" id="pixelpop">
+  <div class="dir-head">
+    <span class="tag">C</span>
+    <h2>Pixel Pop</h2>
+    <p>A hybrid: keep what already works (chunky cards, hard offset shadows, bright player colors, white cards) but make it pixel. Square stepped corners instead of round ones, pixel fonts, a faint grid background, navy instead of purple.</p>
+  </div>
+  <div class="stage">
+    <div>
+      <div class="tv c"><div class="screen">
+        <div class="top"><span class="logo">REMOTE PLAY</span></div>
+        <div class="body">
+          <div class="card px"><canvas class="qr" data-seed="7"></canvas><div class="code">KQZT</div><div class="lbl">Room code</div></div>
+          <div class="right">
+            <div class="title">JOIN THE GAME</div>
+            <div class="help">Scan the code with your phone camera</div>
+            <div class="slot px" style="--c:var(--p1)"><i></i><b>Alon</b><em>Ready!</em></div>
+            <div class="slot px" style="--c:var(--p2)"><i></i><b>Maya</b><em>Ready!</em></div>
+            <div class="slot empty px" style="--c:var(--p3)"><i></i><b>Player 3</b><em class="wait">waiting</em></div>
+            <div class="slot empty px" style="--c:var(--p4)"><i></i><b>Player 4</b><em class="wait">waiting</em></div>
+          </div>
+        </div>
+        <div class="press blink">PRESS OK TO CONTINUE</div>
+      </div></div>
+      <div class="cap">TV · Connect</div>
+    </div>
+    <div>
+      <div class="phone c c-phone"><div class="screen">
+        <div class="who"><i class="px"></i>MAYA</div>
+        <div class="state">Tilt to roll your marble</div>
+        <div class="pad">
+          <div class="btns"><div class="btn px" style="--c:#ff5ea8">B</div><div class="btn px" style="--c:#57cc99">A</div></div>
+          <div class="wide px">RECENTER</div>
+        </div>
+        <div class="foot">Marble Race</div>
+      </div></div>
+      <div class="cap">Phone · In game</div>
+    </div>
+  </div>
+  <div class="facts">
+    <div><h3>Feels like</h3><ul><li>Modern indie pixel games: Celeste menus, Stardew, Shovel Knight</li><li>Retro, but warm and friendly</li></ul></div>
+    <div><h3>Good</h3><ul><li>Readable on a TV: Pixelify Sans is legible at body sizes</li><li>Smallest change: same layout, same components, new font, corners and palette</li><li>Works for kids</li></ul></div>
+    <div><h3>Watch out</h3><ul><li>Less "authentic" than A</li><li>Mixing pixel UI with smooth 3D games needs a rule (see below)</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ A vs C ============ -->
+<section class="dir" id="a-vs-c">
+  <div class="dir-head">
+    <span class="tag">A</span><span class="tag" style="background:#8fa0ff">C</span>
+    <h2>A and C, screen by screen</h2>
+    <p>The same screens in both looks, A on the left and C on the right. In A the game pictures are drawn at a low resolution and scaled up, the way a full pixel-art version of the games would look. In C the games stay smooth and only the menus and the HUD are pixel.</p>
+  </div>
+
+  <div class="pairs">
+    <div class="pair">
+      <h3>Games menu</h3>
+      <p>The focused tile grows and shows the description (FD-7). The players badge and the settings button sit top right.</p>
+      <div class="pair-grid">
+        <div>
+          <div class="tv a"><div class="screen" style="padding:3.4cqw 4cqw;gap:2.4cqw">
+            <div class="gm-top"><span class="gm-title">SELECT GAME</span>
+              <span class="badge"><i style="--c:var(--p1)"></i><i style="--c:var(--p2)"></i><i></i><i></i>&nbsp;2P<span class="opt">OPTIONS</span></span></div>
+            <div class="tiles">
+              <div class="tile on"><div class="thumb"><canvas class="scene" data-scene="sumo" data-res="low"></canvas><div class="desc">BUMP THE OTHERS OUT OF THE RING. LAST ONE IN WINS THE ROUND.</div></div><div class="name">SUMO BUMPERS</div><div class="range">2-4 PLAYERS</div></div>
+              <div class="tile"><div class="thumb"><canvas class="scene" data-scene="maze" data-res="low"></canvas></div><div class="name">TILT MAZE</div><div class="range">1-4 PLAYERS</div></div>
+              <div class="tile"><div class="thumb"><canvas class="scene" data-scene="race" data-res="low"></canvas></div><div class="name">MARBLE RACE</div><div class="range">1-4 PLAYERS</div></div>
+            </div>
+            <div class="tiles">
+              <div class="tile"><div class="thumb"><canvas class="scene" data-scene="paint" data-res="low"></canvas></div><div class="name">PAINT GRAB</div><div class="range">1-4 PLAYERS</div></div>
+              <div class="tile"><div class="thumb"><canvas class="scene" data-scene="snow" data-res="low"></canvas></div><div class="name">SNOWBALL SPLAT</div><div class="range">1-4 PLAYERS</div></div>
+            </div>
+            <div class="hint"><span><b>OK</b> PLAY</span><span><b>BACK</b> PLAYERS</span></div>
+          </div></div>
+          <span class="lbl-a">A</span>
+        </div>
+        <div>
+          <div class="tv c"><div class="screen" style="padding:3.4cqw 4cqw;gap:2.4cqw">
+            <div class="gm-top"><span class="gm-title">CHOOSE A GAME</span>
+              <span style="display:flex;align-items:center"><span class="badge px"><i style="--c:var(--p1)"></i><i style="--c:var(--p2)"></i><i></i><i></i></span><span class="gear px">*</span></span></div>
+            <div class="tiles">
+              <div class="tile on"><div class="thumb px"><canvas class="scene" data-scene="sumo" data-res="high"></canvas><div class="desc">Bump the others out of the ring. The last one in wins the round.</div></div><div class="name">Sumo Bumpers</div><div class="range">2-4 players</div></div>
+              <div class="tile"><div class="thumb px"><canvas class="scene" data-scene="maze" data-res="high"></canvas></div><div class="name">Tilt Maze</div><div class="range">1-4 players</div></div>
+              <div class="tile"><div class="thumb px"><canvas class="scene" data-scene="race" data-res="high"></canvas></div><div class="name">Marble Race</div><div class="range">1-4 players</div></div>
+            </div>
+            <div class="tiles">
+              <div class="tile"><div class="thumb px"><canvas class="scene" data-scene="paint" data-res="high"></canvas></div><div class="name">Paint Grab</div><div class="range">1-4 players</div></div>
+              <div class="tile"><div class="thumb px"><canvas class="scene" data-scene="snow" data-res="high"></canvas></div><div class="name">Snowball Splat</div><div class="range">1-4 players</div></div>
+            </div>
+            <div class="hint"><span><b>OK</b> Play</span><span><b>Back</b> Players</span></div>
+          </div></div>
+          <span class="lbl-c">C</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pair">
+      <h3>In game: countdown</h3>
+      <p>Sumo Bumpers, round 2, the shared HUD on top and the countdown in the middle.</p>
+      <div class="pair-grid">
+        <div>
+          <div class="tv a"><div class="fill"><canvas class="scene" data-scene="sumo" data-res="low"></canvas></div>
+            <div class="hud"><span class="t">SUMO</span><span>ROUND 2/3</span><span class="scores"><span style="--c:var(--p1)"><i></i>1</span><span style="--c:var(--p2)"><i></i>0</span><span style="--c:var(--p3)"><i></i>1</span><span style="--c:var(--p4)"><i></i>0</span></span></div>
+            <div class="count"><span>3</span></div></div>
+          <span class="lbl-a">A</span>
+        </div>
+        <div>
+          <div class="tv c"><div class="fill"><canvas class="scene" data-scene="sumo" data-res="high"></canvas></div>
+            <div class="hud"><span class="t">SUMO BUMPERS</span><span class="r">Round 2 of 3</span><span class="scores"><span class="px" style="--c:var(--p1)"><i></i>Alon 1</span><span class="px" style="--c:var(--p2)"><i></i>Maya 0</span><span class="px" style="--c:var(--p3)"><i></i>Noa 1</span></span></div>
+            <div class="count"><span>3</span></div></div>
+          <span class="lbl-c">C</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pair">
+      <h3>Results</h3>
+      <p>The shared result menu. A uses a high-score table with a > cursor; C uses a card with medals and buttons.</p>
+      <div class="pair-grid">
+        <div>
+          <div class="tv a"><div class="fill"><canvas class="scene" data-scene="sumo" data-res="low"></canvas></div><div class="dimmer"></div>
+            <div class="center"><div class="box">
+              <h4>RESULTS</h4>
+              <div class="rank" style="--c:var(--p3)"><span>1ST</span><i></i><span>NOA</span><span>3</span></div>
+              <div class="rank" style="--c:var(--p1)"><span>2ND</span><i></i><span>ALON</span><span>2</span></div>
+              <div class="rank" style="--c:var(--p2)"><span class="dim">3RD</span><i></i><span class="dim">MAYA</span><span class="dim">0</span></div>
+              <div class="menu"><div class="sel">PLAY AGAIN</div><div>CHOOSE GAME</div></div>
+            </div></div></div>
+          <span class="lbl-a">A</span>
+        </div>
+        <div>
+          <div class="tv c"><div class="fill"><canvas class="scene" data-scene="sumo" data-res="high"></canvas></div><div class="dimmer"></div>
+            <div class="center"><div class="box px">
+              <h4>NOA WINS!</h4>
+              <div class="rank px" style="--c:var(--p3)"><span class="medal" style="background:#ffd23f">1ST</span><i></i><span>Noa</span><span>3</span></div>
+              <div class="rank px" style="--c:var(--p1)"><span class="medal" style="background:#cfd3e6">2ND</span><i></i><span>Alon</span><span>2</span></div>
+              <div class="rank px" style="--c:var(--p2)"><span class="medal" style="background:#e9a46a">3RD</span><i></i><span class="dim">Maya</span><span class="dim">0</span></div>
+              <div class="btnrow"><span class="pbtn go px">PLAY AGAIN</span><span class="pbtn px">CHOOSE GAME</span></div>
+            </div></div></div>
+          <span class="lbl-c">C</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pair">
+      <h3>Pause: a phone lost connection</h3>
+      <p>The game pauses when a phone drops (REQ-GM-30). Focus starts on Resume.</p>
+      <div class="pair-grid">
+        <div>
+          <div class="tv a"><div class="fill"><canvas class="scene" data-scene="race" data-res="low"></canvas></div><div class="dimmer"></div>
+            <div class="center"><div class="box">
+              <h4>PAUSED</h4>
+              <div class="sub">2P LOST CONNECTION</div>
+              <div class="menu"><div class="sel">RESUME WITHOUT 2P</div><div>END GAME</div></div>
+            </div></div></div>
+          <span class="lbl-a">A</span>
+        </div>
+        <div>
+          <div class="tv c"><div class="fill"><canvas class="scene" data-scene="race" data-res="high"></canvas></div><div class="dimmer"></div>
+            <div class="center"><div class="box px">
+              <h4>PAUSED</h4>
+              <div class="sub">Maya lost connection</div>
+              <div class="btnrow"><span class="pbtn go px">RESUME WITHOUT MAYA</span><span class="pbtn quiet px">END GAME</span></div>
+            </div></div></div>
+          <span class="lbl-c">C</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pair">
+      <h3>Phone: join and waiting</h3>
+      <p>The phone's first screen, and what it shows while the host picks a game on the TV.</p>
+      <div class="pair-grid phones">
+        <div>
+          <div class="phone a a-phone"><div class="screen">
+            <div class="logo">REMOTE<br>PLAY</div>
+            <div class="mid">
+              <div class="field">NAME: MAYA<span class="cur blink">_</span></div>
+              <div class="opt-list"><div class="sel">SCAN QR CODE</div><div>PASTE TV LINK</div></div>
+            </div>
+            <div class="foot blink">LOOKING FOR TV...</div>
+          </div></div>
+          <span class="lbl-a">A</span> <span class="cap">Join</span>
+        </div>
+        <div>
+          <div class="phone a a-phone"><div class="screen">
+            <div class="who"><i></i>2P</div>
+            <div class="mid">
+              <div class="big" style="color:var(--ok)">READY</div>
+              <div class="state" style="text-align:center">THE HOST IS CHOOSING A GAME ON THE TV</div>
+            </div>
+            <div class="foot blink">PLEASE WAIT</div>
+          </div></div>
+          <span class="lbl-a">A</span> <span class="cap">Waiting</span>
+        </div>
+        <div>
+          <div class="phone c c-phone"><div class="screen">
+            <div class="logo">REMOTE PLAY</div>
+            <div class="mid">
+              <div class="field px"><small>Your name</small>Maya</div>
+              <div class="wide px">SCAN QR CODE</div>
+              <div class="wide alt px">PASTE TV LINK</div>
+            </div>
+            <div class="foot">Looking for a TV on this Wi-Fi</div>
+          </div></div>
+          <span class="lbl-c">C</span> <span class="cap">Join</span>
+        </div>
+        <div>
+          <div class="phone c c-phone"><div class="screen">
+            <div class="who"><i class="px"></i>MAYA</div>
+            <div class="mid">
+              <div class="chip px">Ready!</div>
+              <div class="big">CHOOSE A GAME ON THE TV</div>
+            </div>
+            <div class="foot">Player 2</div>
+          </div></div>
+          <span class="lbl-c">C</span> <span class="cap">Waiting</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="dir" id="dir-d">
+  <div class="dir-head"><span class="tag">D</span><h2>16-bit arcade</h2><p>The early 90s: Street Fighter II, Metal Slug, SNES. Still pixel art, but with more colors: a banded sky, chunky beveled panels like buttons, big gold title letters with a dark outline, round glossy buttons on the phone. The games draw at 320x180, twice the detail of A.</p></div>
+  <div class="stage"><div><div class="tv d"><div class="screen">
+        <div class="logo">REMOTE PLAY</div>
+        <div class="body">
+          <div class="qr panel"><canvas class="qr" data-seed="7"></canvas><div class="code">KQZT</div><div class="lbl">Room code</div></div>
+          <div class="right"><div class="title">Join the game</div><div class="help">Scan the code with your phone</div><div class="slot panel" style="--c:var(--p1)"><i></i><b>Alon</b><em class="ok">Ready!</em></div><div class="slot panel" style="--c:var(--p2)"><i></i><b>Maya</b><em class="ok">Ready!</em></div><div class="slot panel empty" style="--c:var(--p3)"><i></i><b>Player 3</b><em class="wait">waiting</em></div><div class="slot panel empty" style="--c:var(--p4)"><i></i><b>Player 4</b><em class="wait">waiting</em></div></div>
+        </div>
+        <div class="press blink">Press OK to continue</div>
+      </div></div><div class="cap">TV · Connect</div></div><div><div class="phone d d-phone"><div class="screen">
+        <div class="who"><i></i>Maya</div>
+        <div class="state">Tilt to roll your marble</div>
+        <div class="pad"><div class="btns"><div class="btn" style="--c:#ff4fa0">B</div><div class="btn" style="--c:#2fbf71">A</div></div>
+          <div class="wide panel">Recenter</div></div>
+        <div class="foot">Marble Race</div>
+      </div></div><div class="cap">Phone · In game</div></div></div>
+  <div class="de-grid"><div><div class="tv d"><div class="screen" style="gap:2.2cqw">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="title">Choose a game</span><span class="help">2 players</span></div>
+        <div class="tiles-wrap">
+        <div class="tiles"><div class="tile on"><div class="thumb"><canvas class="scene" data-scene="sumo" data-res="mid"></canvas><div class=desc>Bump the others out of the ring. The last one in wins the round.</div></div><div class="name">Sumo Bumpers</div><div class="range">2-4 players</div></div><div class="tile"><div class="thumb"><canvas class="scene" data-scene="maze" data-res="mid"></canvas></div><div class="name">Tilt Maze</div><div class="range">1-4 players</div></div><div class="tile"><div class="thumb"><canvas class="scene" data-scene="race" data-res="mid"></canvas></div><div class="name">Marble Race</div><div class="range">1-4 players</div></div></div>
+        <div class="tiles"><div class="tile"><div class="thumb"><canvas class="scene" data-scene="paint" data-res="mid"></canvas></div><div class="name">Paint Grab</div><div class="range">1-4 players</div></div><div class="tile"><div class="thumb"><canvas class="scene" data-scene="snow" data-res="mid"></canvas></div><div class="name">Snowball Splat</div><div class="range">1-4 players</div></div></div>
+        </div>
+        <div class="hint"><span><b>OK</b> Play</span><span><b>Back</b> Players</span></div>
+      </div></div><div class="cap">TV · Games menu</div></div><div><div class="tv d"><div class="fill"><canvas class="scene" data-scene="sumo" data-res="mid"></canvas></div><div class="dimmer"></div>
+        <div class="center"><div class="box panel"><h4>Noa wins!</h4><div class="rank panel" style="--c:var(--p3)"><span>1ST</span><i></i><span>Noa</span><span>3</span></div><div class="rank panel" style="--c:var(--p1)"><span>2ND</span><i></i><span>Alon</span><span>2</span></div><div class="rank panel" style="--c:var(--p2)"><span>3RD</span><i></i><span>Maya</span><span>0</span></div>
+          <div class="menu"><div class="sel">Play again</div><div>Choose game</div></div></div></div></div><div class="cap">TV · Results</div></div></div>
+  <div class="facts"><div><h3>Feels like</h3><ul><li>Neo Geo and SNES title screens</li><li>A Saturday arcade, warmer than A</li></ul></div><div><h3>Good</h3><ul><li>As "arcade" as A, but friendlier and more colorful</li><li>The games keep more detail, so small objects stay readable</li><li>Mixed case text is easy to read</li></ul></div><div><h3>Watch out</h3><ul><li>More pieces to build: bevels, the banded sky, the outlined title font</li><li>Easy to make busy; it needs discipline on how many colors one screen uses</li></ul></div></div>
+</section>
+
+<section class="dir" id="dir-e">
+  <div class="dir-head"><span class="tag">E</span><h2>Atari 2600</h2><p>The late 70s, before arcade games had outlines: huge square pixels, solid color blocks with no borders, rainbow stripes, warm brown and orange colors. The games draw at only 64x36, so everything is big chunky blocks.</p></div>
+  <div class="stage"><div><div class="tv e"><div class="screen"><div class="stripes"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="logo">REMOTE PLAY</div>
+        <div class="body">
+          <div class="qr panel"><canvas class="qr" data-seed="7"></canvas><div class="code">KQZT</div><div class="lbl">ROOM CODE</div></div>
+          <div class="right"><div class="title">JOIN THE GAME</div><div class="help">SCAN THE CODE WITH YOUR PHONE</div><div class="slot panel" style="--c:var(--p1)"><i></i><b>ALON</b><em class="ok">READY!</em></div><div class="slot panel" style="--c:var(--p2)"><i></i><b>MAYA</b><em class="ok">READY!</em></div><div class="slot panel empty" style="--c:var(--p3)"><i></i><b>PLAYER 3</b><em class="wait">WAITING</em></div><div class="slot panel empty" style="--c:var(--p4)"><i></i><b>PLAYER 4</b><em class="wait">WAITING</em></div></div>
+        </div>
+        <div class="press blink">PRESS OK TO CONTINUE</div><div class="stripes"><i></i><i></i><i></i><i></i><i></i></div>
+      </div></div><div class="cap">TV · Connect</div></div><div><div class="phone e e-phone"><div class="screen"><div class="stripes"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="who"><i></i>MAYA</div>
+        <div class="state">TILT TO ROLL YOUR MARBLE</div>
+        <div class="pad"><div class="btns"><div class="btn" style="--c:var(--s1)">B</div><div class="btn" style="--c:var(--s4)">A</div></div>
+          <div class="wide panel">RECENTER</div></div>
+        <div class="foot">MARBLE RACE</div><div class="stripes"><i></i><i></i><i></i><i></i><i></i></div>
+      </div></div><div class="cap">Phone · In game</div></div></div>
+  <div class="de-grid"><div><div class="tv e"><div class="screen" style="gap:2.2cqw"><div class="stripes"><i></i><i></i><i></i><i></i><i></i></div>
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="title">CHOOSE A GAME</span><span class="help">2 PLAYERS</span></div>
+        <div class="tiles-wrap">
+        <div class="tiles"><div class="tile on"><div class="thumb"><canvas class="scene" data-scene="sumo" data-res="tiny"></canvas><div class=desc>BUMP THE OTHERS OUT OF THE RING. THE LAST ONE IN WINS THE ROUND.</div></div><div class="name">SUMO BUMPERS</div><div class="range">2-4 PLAYERS</div></div><div class="tile"><div class="thumb"><canvas class="scene" data-scene="maze" data-res="tiny"></canvas></div><div class="name">TILT MAZE</div><div class="range">1-4 PLAYERS</div></div><div class="tile"><div class="thumb"><canvas class="scene" data-scene="race" data-res="tiny"></canvas></div><div class="name">MARBLE RACE</div><div class="range">1-4 PLAYERS</div></div></div>
+        <div class="tiles"><div class="tile"><div class="thumb"><canvas class="scene" data-scene="paint" data-res="tiny"></canvas></div><div class="name">PAINT GRAB</div><div class="range">1-4 PLAYERS</div></div><div class="tile"><div class="thumb"><canvas class="scene" data-scene="snow" data-res="tiny"></canvas></div><div class="name">SNOWBALL SPLAT</div><div class="range">1-4 PLAYERS</div></div></div>
+        </div>
+        <div class="hint"><span><b>OK</b> PLAY</span><span><b>BACK</b> PLAYERS</span></div><div class="stripes"><i></i><i></i><i></i><i></i><i></i></div>
+      </div></div><div class="cap">TV · Games menu</div></div><div><div class="tv e"><div class="fill"><canvas class="scene" data-scene="sumo" data-res="tiny"></canvas></div><div class="dimmer"></div>
+        <div class="center"><div class="box "><h4>NOA WINS!</h4><div class="rank " style="--c:var(--p3)"><span>1ST</span><i></i><span>NOA</span><span>3</span></div><div class="rank " style="--c:var(--p1)"><span>2ND</span><i></i><span>ALON</span><span>2</span></div><div class="rank " style="--c:var(--p2)"><span>3RD</span><i></i><span>MAYA</span><span>0</span></div>
+          <div class="menu"><div class="sel">PLAY AGAIN</div><div>CHOOSE GAME</div></div></div></div></div><div class="cap">TV · Results</div></div></div>
+  <div class="facts"><div><h3>Feels like</h3><ul><li>Atari 2600 and early Pong-era cabinets</li><li>Very retro, almost a poster</li></ul></div><div><h3>Good</h3><ul><li>The most distinctive of the five, nobody else looks like this</li><li>Very easy to read: big blocks, big letters, few colors</li><li>Simplest to build</li></ul></div><div><h3>Watch out</h3><ul><li>Games lose almost all detail at this resolution; Marble Race and Paint Grab need care</li><li>Can look "too simple" to some people</li></ul></div></div>
+</section>
+
+<!-- ============ compare + practical ============ -->
+<section class="dir" id="compare">
+  <div class="dir-head"><h2>Side by side</h2></div>
+  <div class="scroll">
+    <table class="cmp">
+      <thead><tr><th></th><th>A · 8-bit cabinet</th><th>B · Neon CRT</th><th>C · Pixel Pop</th><th>D · 16-bit</th><th>E · Atari 2600</th></tr></thead>
+      <tbody>
+        <tr><td>Arcade feel</td><td>Strongest</td><td>Strong, more 80s mood than pixel</td><td>Clear, but softer</td><td>Strong, warm</td><td>Strong, very old school</td></tr>
+        <tr><td>Readable from a sofa</td><td>OK if text stays short and big</td><td>Weakest (glow, scanlines)</td><td>Best</td><td>Good</td><td>Very good</td></tr>
+        <tr><td>Kids 5 to 8</td><td>Can feel harsh</td><td>Fine</td><td>Best fit</td><td>Good fit</td><td>Fine</td></tr>
+        <tr><td>Menu rebuild work</td><td>Medium</td><td>Medium, plus a shader</td><td>Small</td><td>Medium to large</td><td>Small</td></tr>
+        <tr><td>Do the games need to change?</td><td>Yes, or they clash</td><td>Partly (palette, glow)</td><td>Optional, can go gradually</td><td>Yes, at 320x180 they keep detail</td><td>Yes, and they lose a lot of detail</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="dir" id="notes">
+  <div class="dir-head"><h2>What it would mean in Godot</h2></div>
+  <div class="notes">
+    <div class="note">
+      <h3>Pixel fonts on a TV</h3>
+      <ul>
+        <li>Pixel fonts look sharp only at whole-number multiples of their grid. At 1080p that means sizes like 32, 40, 48 px, with antialiasing off and nearest filtering.</li>
+        <li>The current rule (all TV text at least 28 px) still holds. Pixel fonts need a little more, so body text would move to about 32 px.</li>
+        <li>All the fonts shown are free (OFL) and can sit in <b>assets/fonts</b> like Lilita One and Fredoka do now.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>Pixel UI with 3D games</h3>
+      <ul>
+        <li>Option 1: games render at a low resolution (for example 480x270) and scale up with nearest filtering. Marble Race and the others become pixel-art for free, but fine detail is lost.</li>
+        <li>Option 2: games keep smooth rendering and only the shell (HUD, countdown, results, pause) goes pixel. This is cheaper, and the tier rules (FD-14) already allow it.</li>
+        <li>A per-game choice is possible too: tier 3 is free.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>What changes in code</h3>
+      <ul>
+        <li><b>UiTheme</b> colors and fonts, and the <b>ui_kit</b> styleboxes (corner radius to 0, a stepped border or a 9-patch pixel frame).</li>
+        <li>FD-13 (Party Pop) would be replaced by a new decision, and <b>tokens.json</b> regenerated.</li>
+        <li>The game tiles would need new art to match. Pixel tiles could be drawn in code or as small PNGs scaled up.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>My suggestion</h3>
+      <p>Start with <b>C, Pixel Pop</b> for the menus and the phone, and keep the games smooth for now. It gets you the arcade feel with the least risk to readability, and you can push further toward A later, one screen at a time, if C feels too soft. If you want the real thing from day one, A is the honest arcade look, but plan on making the games pixel-art too.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+// Fake QR-like pixel grid, seeded so every mock shows the same code.
+document.querySelectorAll('canvas.qr').forEach(c=>{
+  const n=25, ctx=c.getContext('2d'); c.width=n; c.height=n;
+  let s=+c.dataset.seed||1; const r=()=>((s=(s*16807)%2147483647)/2147483647);
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,n,n); ctx.fillStyle='#000';
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++) if(r()<.48) ctx.fillRect(x,y,1,1);
+  const finder=(x,y)=>{ctx.fillStyle='#000';ctx.fillRect(x,y,7,7);ctx.fillStyle='#fff';ctx.fillRect(x+1,y+1,5,5);ctx.fillStyle='#000';ctx.fillRect(x+2,y+2,3,3);
+    ctx.fillStyle='#fff';ctx.fillRect(x-1<0?x+7:x-1,y,1,8);};
+  [[0,0],[n-7,0],[0,n-7]].forEach(([x,y])=>{ctx.fillStyle='#fff';ctx.fillRect(Math.max(0,x-1),Math.max(0,y-1),8,8);finder(x,y)});
+});
+
+// Small game scenes. "low" draws at 160x90 and is scaled up with pixelated rendering (look A);
+// "high" draws at 960x540 with smooth edges (look C).
+const P=['#e63946','#2a9d8f','#f4a261','#457b9d'];
+const scenes={
+  sumo(x,w,h,low){
+    x.fillStyle=low?'#008888':'#0f6a78';x.fillRect(0,0,w,h);
+    const cx=w/2,cy=h*.56,R=h*.4,o=Math.max(1,Math.round(h/90));
+    x.fillStyle=low?'#000':'#0b0d1f';x.beginPath();x.arc(cx,cy,R+o*2,0,7);x.fill();
+    x.fillStyle=low?'#6844fc':'#7152e8';x.beginPath();x.arc(cx,cy,R,0,7);x.fill();
+    x.fillStyle=low?'#2c1180':'#261a6b';x.beginPath();x.arc(cx,cy,R-o*2,0,7);x.fill();
+    x.strokeStyle='#ffffff22';x.lineWidth=o;[.66,.33].forEach(k=>{x.beginPath();x.arc(cx,cy,R*k,0,7);x.stroke()});
+    [[-.35,-.15,0],[-.18,0,1],[.42,.32,2]].forEach(([dx,dy,i])=>{
+      const bx=cx+dx*R,by=cy+dy*R,r=R*.17;
+      x.fillStyle=low?'#fff':'#0b0d1f';x.beginPath();x.arc(bx,by,r+o,0,7);x.fill();
+      x.fillStyle=P[i];x.beginPath();x.arc(bx,by,r,0,7);x.fill();
+      x.fillStyle='#fff';x.fillRect(bx-r*.45,by-r*.4,r*.3,r*.3);x.fillRect(bx+r*.15,by-r*.4,r*.3,r*.3);
+    });
+  },
+  maze(x,w,h,low){
+    x.fillStyle=low?'#000':'#2c1180';x.fillRect(0,0,w,h);
+    const cols=16,rows=9,cw=w/cols,ch=h/rows,lw=Math.max(1,Math.round(h/90));
+    let s=11;const r=()=>((s=(s*16807)%2147483647)/2147483647);
+    x.fillStyle=low?'#2038ec':'#9b8cff';
+    for(let j=0;j<=rows;j++)for(let i=0;i<cols;i++) if(j===0||j===rows||r()<.38) x.fillRect(i*cw,j*ch,cw+lw,lw);
+    for(let i=0;i<=cols;i++)for(let j=0;j<rows;j++) if(i===0||i===cols||r()<.38) x.fillRect(i*cw,j*ch,lw,ch+lw);
+    [[2,1],[9,3],[13,6],[5,7]].forEach(([i,j],k)=>{x.fillStyle=P[k];x.beginPath();x.arc((i+.5)*cw,(j+.5)*ch,ch*.28,0,7);x.fill()});
+    x.fillStyle=low?'#f8b800':'#ffd23f';x.fillRect((cols-1)*cw+lw*2,(rows-1)*ch+lw*2,cw-lw*3,ch-lw*3);
+  },
+  paint(x,w,h,low){
+    const n=16,m=9,cw=w/n,ch=h/m;let s=5;const r=()=>((s=(s*16807)%2147483647)/2147483647);
+    for(let j=0;j<m;j++)for(let i=0;i<n;i++){const v=r();x.fillStyle=v<.62?P[Math.floor(((i/n)*2+(j/m)*2+r())%4)]:(low?'#bcbcbc':'#e7e3f5');x.fillRect(i*cw,j*ch,cw,ch)}
+    x.strokeStyle=low?'#000':'#0b0d1f';x.lineWidth=Math.max(1,Math.round(h/180));
+    for(let i=0;i<=n;i++){x.beginPath();x.moveTo(i*cw,0);x.lineTo(i*cw,h);x.stroke()}
+    for(let j=0;j<=m;j++){x.beginPath();x.moveTo(0,j*ch);x.lineTo(w,j*ch);x.stroke()}
+  },
+  snow(x,w,h,low){
+    x.fillStyle=low?'#3cbcfc':'#1b3a8a';x.fillRect(0,0,w,h);
+    x.fillStyle=low?'#fcfcfc':'#e8f0ff';x.fillRect(0,h*.72,w,h*.28);
+    [[.2,.4,.09],[.5,.3,.11],[.78,.45,.08]].forEach(([px,py,rr])=>{x.fillStyle=low?'#f8b800':'#ffd23f';x.beginPath();x.arc(w*px,h*py,h*rr,0,7);x.fill();
+      x.fillStyle='#000';x.fillRect(w*px-h*rr*.4,h*py-h*rr*.3,h*rr*.25,h*rr*.25);x.fillRect(w*px+h*rr*.15,h*py-h*rr*.3,h*rr*.25,h*rr*.25)});
+    [[.35,.55,0],[.62,.6,1],[.5,.4,3]].forEach(([px,py,k])=>{x.fillStyle=P[k];x.beginPath();x.arc(w*px,h*py,h*.03,0,7);x.fill();x.strokeStyle='#fff';x.lineWidth=Math.max(1,h/180);x.stroke()});
+  },
+  race(x,w,h,low){
+    x.fillStyle=low?'#00a800':'#145a3a';x.fillRect(0,0,w,h);
+    x.fillStyle=low?'#7c7c7c':'#4c2bbd';x.beginPath();
+    x.moveTo(w*.32,0);x.lineTo(w*.58,0);x.lineTo(w*.66,h*.5);x.lineTo(w*.6,h);x.lineTo(w*.36,h);x.lineTo(w*.42,h*.5);x.closePath();x.fill();
+    x.strokeStyle=low?'#fcfcfc':'#0b0d1f';x.lineWidth=Math.max(1,Math.round(h/90))*2;x.stroke();
+    if(low){x.fillStyle='#fcfcfc';for(let y=0;y<h;y+=h/6)x.fillRect(w*.5-1,y,2,h/14)}
+    [[.47,.3],[.53,.42],[.5,.6],[.55,.75]].forEach(([px,py],k)=>{x.fillStyle=P[k];x.beginPath();x.arc(w*px,h*py,h*.045,0,7);x.fill()});
+  }
+};
+document.querySelectorAll('canvas.scene').forEach(c=>{
+  const res=c.dataset.res,dims={tiny:[64,36],low:[160,90],mid:[320,180],high:[960,540]}[res],w=dims[0],h=dims[1];
+  const low=res==='low'||res==='tiny';
+  c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingEnabled=res==='high';
+  scenes[c.dataset.scene](x,w,h,low);
+  if(low||res==='mid'){ // snap to hard pixels: remove the antialiasing canvas adds to arcs
+    const d=x.getImageData(0,0,w,h),a=d.data;
+    if(low)for(let i=0;i<a.length;i+=4){a[i]=a[i]>>5<<5|a[i]>>5<<2;a[i+1]=a[i+1]>>5<<5|a[i+1]>>5<<2;a[i+2]=a[i+2]>>6<<6|a[i+2]>>6<<4;a[i+3]=255}else for(let i=0;i<a.length;i+=4){a[i]=a[i]>>4<<4;a[i+1]=a[i+1]>>4<<4;a[i+2]=a[i+2]>>4<<4;a[i+3]=255}
+    x.putImageData(d,0,0);
+  }
+});
+</script>
+
+</body></html>
