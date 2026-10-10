@@ -20,6 +20,7 @@ func _check(cond: bool, what: String) -> void:
 
 func _initialize() -> void:
 	_run()
+	_avatar_sheet()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -29,6 +30,16 @@ func _family(data: Dictionary, family: String, name: String) -> String:
 		if t.name == name:
 			return String(t.value)
 	return ""
+
+
+## The avatar sheet is a 4 x 4 grid of 16 px cells and is imported without mipmaps, so a 16 px picture stays sharp (FD-22).
+func _avatar_sheet() -> void:
+	print("avatar sheet")
+	var img: Image = load("res://assets/avatars/avatars.png").get_image()
+	_check(img.get_width() == 64 and img.get_height() == 64, "the avatar sheet is 64 x 64 pixels (16 avatars of 16 x 16)")
+	var imp := FileAccess.get_file_as_string("res://assets/avatars/avatars.png.import")
+	_check(imp.contains("mipmaps/generate=false") and imp.contains("compress/mode=0"),
+			"the sheet is imported lossless and without mipmaps")
 
 
 func _run() -> void:

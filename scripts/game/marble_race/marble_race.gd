@@ -371,7 +371,7 @@ func _draw_marble_numbers(canvas: Control) -> void:
 		var radius := radius_on_hud(p3, R)
 		var sp := world_to_hud(p3)
 		if radius >= NUMBER_MIN_R and Rect2(Vector2.ZERO, canvas.size).has_point(sp):
-			Shell.ball_number(canvas, sp, radius, player(s).color, s)
+			Shell.ball_number(canvas, sp, radius, player(s).color, s, 0.0, player(s).avatar)
 
 
 ## The HUD position of each marble that is in front of the camera (the name tags of the countdown, REQ-GM-46a).

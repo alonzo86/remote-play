@@ -23,6 +23,9 @@ const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const SafeArea = preload("res://scripts/ui/safe_area.gd")
 const ControllerSettings = preload("res://scripts/ui/controller_settings.gd")
+const ControllerProfiles = preload("res://scripts/ui/controller_profiles.gd")
+const ControllerProfileEdit = preload("res://scripts/ui/controller_profile_edit.gd")
+const ProfileStore = preload("res://scripts/core/profile_store.gd")
 
 const SETTINGS_FILE := "user://settings.cfg"
 
@@ -42,6 +45,7 @@ var server: Node            # TV only
 var discovery: Node         # TV only
 var overlay: CanvasLayer    # TV only
 var client: Node            # Controller only
+var profiles: ProfileStore  # Controller only. The profiles of this phone (FD-22).
 var controller_discovery: Node
 var last_error := ""        # Controller only. Shown on the connect screen.
 var last_game := ""         # TV only. The Games screen focuses this tile again.
@@ -276,8 +280,10 @@ func _start_controller() -> void:
 	if not OS.has_feature("mobile"):
 		win.size = Vector2i(450, 800)
 	client = ControllerClient.new()
-	client.player_name = "" # The TV shows "Player N" for a phone without a name.
 	add_child(client)
+	profiles = ProfileStore.new()
+	profiles.load_from_disk()
+	apply_profile()
 	controller_discovery = ControllerDiscovery.new()
 	add_child(controller_discovery)
 	var wifi_locks := QrScanner.new()
@@ -316,9 +322,29 @@ func _on_client_state(state: int) -> void:
 			go(ControllerConnect)
 
 
-## The pad while a game runs, the waiting screen otherwise (REQ-FL-28).
+## Gives the active profile (or the guest) to the client. It goes to the TV at the next join, and at once in a menu phase.
+func apply_profile() -> void:
+	var p = profiles.active()
+	if p == null:
+		client.set_profile("", "", -1)
+	else:
+		client.set_profile(p.id, p.player_name, p.avatar)
+
+
+## Leaves the profile screens: back to the waiting screen when a TV is joined, else to the Connect screen.
+func leave_profile_screens() -> void:
+	if client.state == ControllerClient.State.IDLE:
+		go(ControllerConnect)
+	else:
+		go(ControllerWait)
+
+
+## The pad while a game runs, the waiting screen otherwise (REQ-FL-28). The profile screens stay open while the TV is in a menu
+## phase; a round (or a late join) closes them (REQ-FL-71).
 func _show_phone_screen() -> void:
 	if client.state == ControllerClient.State.IDLE:
+		return
+	if (_screen is ControllerProfiles or _screen is ControllerProfileEdit) and client.phase in ["connect", "menu"]:
 		return
 	var playing: bool = client.phase in ["playing", "paused"]
 	if playing and not (_screen is ControllerPad):
@@ -335,4 +361,5 @@ func _on_client_rejected(reason: String) -> void:
 		"unreachable": Lang.t("Cannot reach the TV. Check the Wi-Fi."),
 		"tv_closed": Lang.t("The TV closed the connection."),
 		"kicked": Lang.t("The host removed you. Scan the code to join again."),
+		"replaced": Lang.t("Your player joined another phone."),
 	}.get(reason, Lang.f("Connection refused: %s", [reason]))

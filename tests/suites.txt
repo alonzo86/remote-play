@@ -3,6 +3,8 @@
 tests/run_tests.gd|controller|unit and network tests
 tests/ui_states.gd|controller|button states and the wait screen Leave
 tests/net_loss.gd|controller|lost phones (network)
+tests/profiles.gd|controller|profiles: model, store, avatars
+tests/net_profiles.gd|controller|profiles over the network
 tests/game_helpers.gd|controller|game helpers
 tests/game_rules.gd|controller|game rules
 tests/design_tokens.gd|controller|design tokens

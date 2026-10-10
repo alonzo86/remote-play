@@ -6,6 +6,7 @@ extends Control
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Avatar = preload("res://scripts/ui/avatar.gd")
 
 var _title: Label
 var _sub: Label
@@ -13,6 +14,7 @@ var _dot: Control
 var _name: Label
 var _leave: Button
 var _leave_timer: Timer
+var _profile_button: Button
 
 const LEAVE_ARM_SECONDS := 3.0
 
@@ -30,6 +32,7 @@ func _ready() -> void:
 	_dot.draw.connect(_draw_dot)
 	box.add_child(_dot)
 	_name = UiKit.label("", UiTheme.SIZE_ITEM)
+	_name.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # A player name is never translated (REQ-FL-63).
 	_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_name)
 	_title = UiKit.title("", 56)
@@ -46,6 +49,10 @@ func _ready() -> void:
 	_leave.custom_minimum_size = Vector2(0, 96)
 	_leave.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(_leave)
+	_profile_button = UiKit.box_button("Player", func(): App.go(App.ControllerProfiles), UiTheme.SIZE_ITEM)
+	_profile_button.custom_minimum_size = Vector2(440, 96)
+	_profile_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(_profile_button)
 	var settings := UiKit.box_button("Settings", func(): App.go(App.ControllerSettings), UiTheme.SIZE_ITEM)
 	settings.custom_minimum_size = Vector2(440, 96)
 	settings.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -60,6 +67,7 @@ func _ready() -> void:
 	# when its node is freed.
 	App.client.phase_changed.connect(_on_phase)
 	App.client.state_changed.connect(_on_state)
+	App.client.profile_answered.connect(_refresh)
 	_refresh()
 
 
@@ -111,7 +119,8 @@ func _refresh() -> void:
 	_sub.text = String(t[1]).to_upper()
 	if c.state != ControllerClient.State.CONNECTED:
 		_sub.text = "RECONNECTING..."
-	_name.text = "%dP" % (c.slot + 1)
+	_name.text = c.tv_player_name.to_upper() if c.tv_pid != "" else "%dP" % (c.slot + 1)
+	_profile_button.visible = c.can_change_profile()   # A round has started: the player cannot be changed now (REQ-FL-71).
 	_dot.queue_redraw()
 
 
@@ -120,4 +129,6 @@ func _draw_dot() -> void:
 	var side := 280.0
 	var box := Rect2(_dot.size * 0.5 - Vector2(side, side) * 0.5, Vector2(side, side))
 	_dot.draw_rect(box, c.color)
+	if c.tv_pid != "" and Avatar.draw(_dot, box.grow(-20.0), c.tv_avatar):
+		return   # The avatar takes the place of the number (REQ-FL-69).
 	UiTheme.draw_centered(_dot, UiTheme.font(), str(c.slot + 1), box, 160, UiTheme.text_on(c.color))

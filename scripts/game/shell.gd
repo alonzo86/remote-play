@@ -8,6 +8,7 @@ extends RefCounted
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const Avatar = preload("res://scripts/ui/avatar.gd")
 
 const CHIP_FONT := 32          # The size of the text on a chip.
 const CHIP_PAD := 16.0         # The space between the chip edge and its content.
@@ -126,12 +127,29 @@ static func fit_text(text: String, max_w: float, font_size := CHIP_FONT) -> Stri
 
 ## A player ball: a dark outline, the player color, and the slot number in the text color of most contrast, so that players do
 ## not depend on the color alone. `pos` is the center. The outline is 6 px for a ball of 40 px or more and 4 px for a smaller one.
-static func ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int) -> void:
+static func ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int, avatar := -1) -> void:
 	var m := ball_metrics(radius)
 	ci.draw_circle(pos, radius + m.outline, UiTheme.OUTLINE)
 	ci.draw_circle(pos, radius, color)
-	UiTheme.draw_centered(ci, UiTheme.font(), str(slot + 1), Rect2(pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0),
-			m.font_size, UiTheme.text_on(color))
+	mark(ci, pos, radius, color, slot, avatar)
+
+
+## The sign of a player on its ball: the avatar when the player has one and the ball is large enough, else the slot number in the
+## text color of most contrast (REQ-GM-46). `drop` moves it down by that share of the radius. Returns true for the avatar.
+static func mark(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int, avatar := -1,
+		drop := 0.0) -> bool:
+	var center := pos + Vector2(0.0, radius * drop)
+	if avatar >= 0 and radius >= AVATAR_MIN_RADIUS:
+		var side := radius * 1.45
+		if Avatar.draw(ci, Rect2(center - Vector2(side, side) * 0.5, Vector2(side, side)), avatar):
+			return true
+	UiTheme.draw_centered(ci, UiTheme.font(), str(slot + 1), Rect2(center - Vector2(radius, radius), Vector2(radius, radius) * 2.0),
+			ball_metrics(radius).font_size, UiTheme.text_on(color))
+	return false
+
+
+## The smallest ball that shows an avatar: a 16 px picture fits in a square of 1.45 radius from a radius of 11.
+const AVATAR_MIN_RADIUS := 11.0
 
 
 ## The sizes `ball()` draws with, for a ball of `radius` (a test checks them): the outline width (REQ-GM-47b) and the size of
@@ -177,10 +195,9 @@ static func pixel_ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color
 
 ## The slot number of a ball, at full resolution, for a ball that is drawn in a pixel world. `drop` moves the number down by that
 ## share of the radius (`NUMBER_DROP` for a creature with eyes).
-static func ball_number(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int, drop := 0.0) -> void:
-	var center := pos + Vector2(0.0, radius * drop)
-	UiTheme.draw_centered(ci, UiTheme.font(), str(slot + 1), Rect2(center - Vector2(radius, radius), Vector2(radius, radius) * 2.0),
-			ball_metrics(radius).font_size, UiTheme.text_on(color))
+static func ball_number(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int, drop := 0.0,
+		avatar := -1) -> void:
+	mark(ci, pos, radius, color, slot, avatar, drop)
 
 
 ## The number of a creature sits lower than the middle, under the eyes of `pixel_eyes()`.

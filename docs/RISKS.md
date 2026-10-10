@@ -49,6 +49,8 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 
 ## E. Known limits
 
+- Profiles (FD-22): a reinstall or "clear data" deletes the profiles of a phone (a copy by QR, phase B, is the only backup). A name can use only letters of the two alphabets, digits and the space, because the pixel fonts have no other glyph. An avatar may be hard to tell apart at the size of the small ball (a 16 px picture at a whole-number scale; below a radius of 11 px the number is shown). The same profile on two phones: the newer phone wins in a menu (REQ-FL-74). The Hebrew texts of the profile screens are written by Claude and need a native reader (test 20 and test 17).
+
 - Balls do not collide with each other.
 - Only one maze size and no level progress.
 - Sound (FD-20): made in code, so no license and no file. Open risks: the taste of the songs, the render time of a song on a TV box (it is made in steps of 3 ms a frame; the first test measures it), the latency of the TV box, and many effects at once with 4 players. Manual test 18.

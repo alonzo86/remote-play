@@ -1,6 +1,6 @@
 # Player profiles plan: names, avatars, QR transfer, personal bests (FD-22)
 
-Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). Nothing is built.** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
+Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). Phase A (profiles and names) is built; phases B and C are not.** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files. The requirement IDs in this plan (REQ-FL-69 to 78, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C9) are proposed: they are given in the pull request of each phase.
 
 ## 1. Decision proposed (FD-22)
@@ -94,7 +94,7 @@ The protocol `VERSION` stays 2: every new field and message is optional, and an 
 
 `pid` is the profile ID, `av` the avatar index. The TV checks them: `pid` is made lower case and must be 32 hex characters, `av` must be an integer from 0 to 255, and `name` goes through the whitelist and the 10-character cut. A `pid` that fails is ignored and the phone is a guest. **Any `hello` with no valid `pid` is a guest, also when `name` is not empty** (an old phone that sends a name shows that name as now, and has no avatar). A guest has the name `Player N` when the name is empty.
 
-`welcome` gets the optional fields `pid`, `av` and `name` with the profile the TV accepted (they are empty for a guest). The phone compares them with its own profile and shows the TV answer as the truth.
+`welcome` gets the optional fields `pid`, `av` and `pname` (`name` in `welcome` is already the name of the TV) with the profile the TV accepted (they are empty for a guest). The phone compares them with its own profile and shows the TV answer as the truth.
 
 ### 4.2 Change of profile
 
@@ -318,3 +318,14 @@ Needs: 2 to 4 phones (one an iPhone if possible), 1 TV, a grown-up and a child o
 ## 13. Review
 
 On 2026-10-10 an independent reviewer read this plan against the code and the documents. Its report had 25 findings. They are applied here: no personal best for the random maze (9.1), the duplicate ID rule with a token memory and a rule for rounds (4.4), the profile answer and the resume guard (4.2), the validation of `hello` and of imported codes (4.1, 6.3), the `rev` in the merge (6.5), the real cost of the QR encoder (6.2), the wrong references to RISKS and the missing iPhone paste UI (2.3), the keys of Paint Grab and Marble Race (5.1, 5.3), the rules for equal names (4.3), the text edits in manual tests 7 and 19 and the other documents (10, 11), the places of the avatar in the pixel worlds (2.2, 7), and the share phase before the bests phase (8). Open points that need the owner are in section 9.
+
+## 14. Phase A: what was built, what differs
+
+Built on 2026-10-10 on branch `claude/profiles-a-names`.
+
+- New modules: `Profile` (ID, name rules), `ProfileStore` (`user://profiles.cfg`, `.bak`, the limit of 8), `Avatar` and `AvatarView` (the sheet and its drawing), the phone screens `controller_profiles.gd` and `controller_profile_edit.gd`. `Protocol` has `NAME_MAX`, `AVATAR_COUNT` and `REPLACED_TOKEN_MS`.
+- The `welcome` field for the player name is `pname`, because `name` in `welcome` is the name of the TV.
+- The name whitelist is a fixed set (Latin letters, digits, the space and the Hebrew letters) and a test checks that the pixel fonts have a glyph for every character of it. The plan said the set is derived from `Font.has_char()` at run time; a fixed set is the same for the phone and the TV and does not depend on a font being loaded on the TV.
+- `PlayerInput.player_name` stays the display name that every TV text uses (the plan called it `display_name`); `raw_name` is the name that the phone sent.
+- The avatar is drawn by `Shell.mark()` from a ball radius of 11 px; a smaller object keeps the number. The result menu rows and the leader chip keep the slot color square (they show the name, not the avatar).
+- Not in phase A: `SHARE` and the scan or paste buttons (phase B), the bests (phase C), the design-system mockups and `tests/screenshots_controller.gd` for the new screens (open, see the doubts in the pull request).

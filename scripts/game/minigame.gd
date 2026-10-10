@@ -178,7 +178,7 @@ func _update_hold() -> void:
 		App.server.set_phase("paused", participants)   # The slot of the lost phone is kept longer (a phone call).
 	for s in lost:
 		if not _hold_info.has(s):
-			_hold_info[s] = {"name": player(s).player_name, "color": player(s).color}
+			_hold_info[s] = {"name": player(s).player_name, "color": player(s).color, "label": slot_label(s)}
 	if not _hold:
 		return
 	if _menu_open and _menu_kind != "hold":
@@ -198,10 +198,16 @@ func connected_participants() -> Array[int]:
 	return r
 
 
+## How the cards name a player: the profile name, or "2P" for a phone without a profile (FD-22, REQ-GM-30).
+func slot_label(slot: int) -> String:
+	var p := player(slot)
+	return p.player_name if p.has_profile() else "%dP" % (slot + 1)
+
+
 func _slot_labels(slots: Array) -> String:
 	var parts: Array[String] = []
 	for s in slots:
-		parts.append("%dP" % (int(s) + 1))
+		parts.append(String(_hold_info[s].label) if _hold_info.has(s) and _hold_info[s].has("label") else slot_label(int(s)))
 	return Lang.t(" and ").join(parts)
 
 

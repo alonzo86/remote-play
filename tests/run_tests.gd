@@ -710,7 +710,8 @@ func _test_connect_screen() -> void:
 	root.add_child(ios_screen)
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
-	_check(ios_buttons == ["REFRESH"], "iPhone: the only button is Refresh: %s" % str(ios_buttons))
+	# The first button is the profile row (FD-22): it is not a scan or paste button.
+	_check(ios_buttons == ["MAKE A PLAYER", "REFRESH"], "iPhone: no scan or paste button: %s" % str(ios_buttons))
 	var ios_texts: Array = _list_texts(ios_screen)
 	_check(ios_texts.size() == 2 and ios_texts[0] == "NO TVS FOUND" and "LOCAL NETWORK" in ios_texts[1],
 			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))

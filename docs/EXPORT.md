@@ -38,6 +38,7 @@ because Godot adds the `LEANBACK_LAUNCHER` category only with Gradle.
 2. Select **Project > Install Android Build Template**.
    On the command line, `godot --headless --install-android-build-template --export-debug "controller" build/wobble-controller.apk`
    installs the template and exports once. Run the patch script after it, then export again.
+The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so it is in the export of both apps with the other `assets/` files; no export filter change is needed.
 3. Close the editor dialog. Then run this command in the project folder:
    ```sh
    tools/patch_android_manifest.sh

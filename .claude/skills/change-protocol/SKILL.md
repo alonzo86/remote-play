@@ -8,7 +8,7 @@ The protocol is shared by the TV and the controller, which can be different buil
 1. Edit `scripts/core/protocol.gd` first. Keep the encoder and the decoder together.
 2. Update `docs/PROTOCOL.md` in the same change: the tables, the JSON examples and the byte layout of the sensor packet.
 3. Compatibility:
-   - Adding an optional JSON field is compatible. Old peers ignore it.
+   - Adding an optional JSON field or message is compatible. Old peers ignore it (`lang`, `score`, `profile`, `pid`, `av`). The messages are listed in `docs/PROTOCOL.md`.
    - Changing the binary packet layout, a field meaning, or a required message is not compatible. Bump `VERSION`. The beacon and
      `hello` carry `v`, and a mismatched peer is rejected.
    - Keep `SENSOR_PACKET_SIZE` equal to the real size.

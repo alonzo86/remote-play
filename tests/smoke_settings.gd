@@ -260,6 +260,18 @@ func _slot_list(app: Node) -> void:
 	await process_frame
 	_check(list.remove_button(1) == null and list.first_remove_button() == list.remove_button(0)
 			and list.remove_button(0).has_focus(), "after a rebuild the focus stays on a Remove item")
+	# A player with a profile has the avatar in the place of the number; a guest keeps the number (REQ-FL-69).
+	players[0].set_profile("cd".repeat(16), 4, "Ann")
+	await process_frame
+	await process_frame
+	var avatars := list.find_children("*", "Control", true, false).filter(
+			func(n: Node) -> bool: return n.get_script() == load("res://scripts/ui/avatar_view.gd"))
+	var numbers := 0
+	for l in list.find_children("*", "Label", true, false):
+		if (l as Label).text in ["1P", "2P", "3P", "4P"]:
+			numbers += 1
+	_check(avatars.size() == 1 and numbers == 3,
+			"a profile shows its avatar in place of 1P; the other rows keep their numbers: %d %d" % [avatars.size(), numbers])
 	for p in players:
 		p.reset()
 	list.queue_free()

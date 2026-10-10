@@ -199,7 +199,7 @@ func _game_draw() -> void:
 	var origin: Vector2 = fit.origin
 	for s in _bodies:   # The slot numbers: full resolution, on top of the pixel blob (REQ-GM-47n).
 		Shell.ball_number(self, Shell.snap(origin + (_bodies[s] as TiltBody).pos * k), BLOB_R * k, player(s).color, s,
-				Shell.NUMBER_DROP)
+				Shell.NUMBER_DROP, player(s).avatar)
 	_draw_hud()
 
 

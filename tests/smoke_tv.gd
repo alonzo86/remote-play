@@ -334,6 +334,11 @@ func _run() -> void:
 	game.menu_buttons()[0].pressed.emit()
 	await _frames(4)
 	_check(game._hold and game.is_paused() and game._menu_kind == "hold", "Keep playing brings the card of the lost phone back")
+	var named: Object = app.server.players[1]
+	var guest: String = game.slot_label(1)
+	named.set_profile("ab".repeat(16), 3, "Maya"); named.player_name = "Maya"
+	_check(guest == "2P" and game.slot_label(1) == "Maya" and game._slot_labels([1]) == "2P", "FD-22: card names")
+	named.set_profile("", -1, ""); named.player_name = "Player 2"
 	# Resume without the lost phone: its slot is freed and the game goes on with the other player.
 	game.menu_buttons()[0].pressed.emit()
 	await _frames(4)

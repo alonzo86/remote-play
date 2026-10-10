@@ -280,7 +280,7 @@ func _game_draw() -> void:
 	var area := _area()
 	for s in _throwers:   # The slot number on the badge of each cursor.
 		var t: Thrower = _throwers[s]
-		Shell.ball_number(self, _badge_pos(t), BADGE_R, player(s).color, s)
+		Shell.ball_number(self, _badge_pos(t), BADGE_R, player(s).color, s, 0.0, player(s).avatar)
 	var k := PuffField.scale_for(area)
 	for e in _effects:   # The points of a hit Puff float up with it.
 		if e.age >= 0.0 and e.kind == "hit":
