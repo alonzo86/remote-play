@@ -130,6 +130,13 @@ func send_score(slot: int, rank: int, of: int, text: String) -> void:
 		_send_json(slot, msg)
 
 
+## Tells one phone the result of the round for its profile (FD-22, REQ-GM-99). Only a phone with a profile gets it, and only
+## while it is connected: a lost phone does not get it and the score is not kept.
+func send_result(slot: int, key: String, value: int) -> void:
+	if slot >= 0 and slot < players.size() and players[slot].is_connected_now() and players[slot].has_profile():
+		_send_json(slot, {"t": "result", "pid": players[slot].profile_id, "key": key, "v": value})
+
+
 func haptic(slot: int, ms: int) -> void:
 	if slot >= 0 and slot < players.size() and players[slot].is_connected_now():
 		_send_json(slot, {"t": "haptic", "ms": ms})

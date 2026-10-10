@@ -418,3 +418,14 @@ func _hud_draw(canvas: Control) -> void:
 	_draw_edge_markers(canvas)
 	Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), canvas.size.y - 70), track.title, 32,
 			UiTheme.TEXT_DIM, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
+
+
+## Only the 10 fixed tracks have a personal best; a random track has none (REQ-MR-56).
+func best_key() -> String:
+	var i := MarbleTrack.FIXED_SEEDS.find(track_seed)
+	return "marble_race|%s|%d" % [difficulty, i + 1] if i >= 0 else ""
+
+
+## The time of a finish in milliseconds.
+func best_value(score: float) -> int:
+	return roundi(score * 1000.0)

@@ -183,4 +183,6 @@ const HE := {
 	"PLAYER UPDATED.": "השחקן עודכן.",
 	"THIS CODE DOES NOT WORK.": "הקוד הזה לא עובד.",
 	"THIS IS A TV LINK.": "זה קישור של טלוויזיה.",
+	"NEW BEST!": "שיא חדש!",
+	"Before: %s": "קודם: %s",
 }

@@ -69,6 +69,7 @@ Settings (REQ-GM-90 to 97)
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SB-20 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. | Done | smoke_sumo, run_tests |
+| REQ-SB-21 | Personal best (REQ-GM-98): exception. The result is a win, not a number, so the game has no key and sends no result. | Done | smoke_bests |
 
 | Difficulty | Start radius of the platform | Shrink time of a round | Dash ready again after |
 |------------|------------------------------|------------------------|------------------------|

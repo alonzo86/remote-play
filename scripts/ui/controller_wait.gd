@@ -7,9 +7,13 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
+const Lang = preload("res://scripts/core/lang.gd")
+const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
 
 var _title: Label
 var _sub: Label
+var _best: Label
+var _best_detail: Label
 var _dot: Control
 var _name: Label
 var _leave: Button
@@ -43,6 +47,13 @@ func _ready() -> void:
 	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sub.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_sub)
+	_best = UiKit.title("", 56, UiTheme.OK)   # NEW BEST! after a round that set a personal best (REQ-GM-100).
+	_best.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(_best)
+	_best_detail = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_best_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_best_detail.autowrap_mode = TextServer.AUTOWRAP_WORD
+	box.add_child(_best_detail)
 	box.add_child(UiKit.spacer(60))
 	# Leave is a framed text box. The first tap arms it, the second tap leaves (REQ-FL-52).
 	_leave = UiKit.box_button("Leave", _on_leave_pressed, UiTheme.SIZE_ITEM)
@@ -121,6 +132,13 @@ func _refresh() -> void:
 		_sub.text = "RECONNECTING..."
 	_name.text = c.tv_player_name.to_upper() if c.tv_pid != "" else "%dP" % (c.slot + 1)
 	_profile_button.visible = c.can_change_profile()   # A round has started: the player cannot be changed now (REQ-FL-71).
+	var best: Dictionary = App.last_best
+	_best.text = Lang.t("New best!").to_upper() if not best.is_empty() else ""
+	_best_detail.text = ""
+	if not best.is_empty():
+		_best_detail.text = ProfileKeys.format(best.key, best.value)
+		if best.old > 0:
+			_best_detail.text += "   " + Lang.f("Before: %s", [ProfileKeys.format(best.key, best.old)]).to_upper()
 	_dot.queue_redraw()
 
 

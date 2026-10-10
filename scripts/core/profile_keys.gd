@@ -49,3 +49,8 @@ static func is_better(key: String, a: int, b: int) -> bool:
 	if b <= 0:
 		return true
 	return a < b if lower_is_better(key) else a > b
+
+
+## A best as text for the phone: a race time in seconds ("12.35 s"), a score as it is.
+static func format(key: String, value: int) -> String:
+	return "%.2f s" % (float(value) / 1000.0) if lower_is_better(key) else str(value)

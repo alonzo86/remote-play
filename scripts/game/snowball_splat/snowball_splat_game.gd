@@ -403,3 +403,7 @@ func _draw_hud() -> void:
 		draw_name_tags(self, spots, CURSOR_R)
 	if _round.time < HINT_TIME and not is_over:   # In the countdown the time is below 0.
 		Shell.hint(self, size, "Point at the TV and press A to throw a snowball. Recenter if the cursor drifts.")
+
+
+func best_key() -> String:
+	return "snowball_splat|%s" % difficulty
