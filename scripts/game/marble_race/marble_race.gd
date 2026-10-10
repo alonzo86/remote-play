@@ -205,14 +205,7 @@ func _open_results() -> void:
 		open_menu("No players connected", [["Back to menu", App.go_menu]])
 		return
 	# Finished marbles have their time. The others are ranked by how far they got.
-	var board := Scoreboard.new([], true)
-	for s in participants:
-		var r: Racer = _racers[s]
-		if r.finish_time >= 0.0:
-			board.set_score(s, r.finish_time)
-		else:
-			board.set_unfinished(s, r.arc)
-	open_results(board, [], "", [], func(t: float) -> String: return "%.2f s" % t)
+	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return "%.2f s" % t)
 
 
 ## The results menu leaves the game with Back (REQ-MR-34).
@@ -381,22 +374,38 @@ func _draw_marble_numbers(canvas: Control) -> void:
 			Shell.ball_number(canvas, sp, radius, player(s).color, s)
 
 
+## The HUD position of each marble that is in front of the camera (the name tags of the countdown, REQ-GM-46a).
+func _marble_spots() -> Dictionary:
+	var spots := {}
+	for s in _racers:
+		var p3 := Vector3(_racers[s].pos.x, R, _racers[s].pos.y)
+		if not camera.is_position_behind(p3):
+			spots[s] = world_to_hud(p3)
+	return spots
+
+
+## The place of each marble: the finish times first, then how far the others got (REQ-FL-67).
+func _scoreboard() -> Scoreboard:
+	var board := Scoreboard.new([], true)
+	for s in participants:
+		var r: Racer = _racers[s]
+		if r.finish_time >= 0.0:
+			board.set_score(s, r.finish_time)
+		else:
+			board.set_unfinished(s, r.arc)
+	return board
+
+
+func _score_label(entry: Dictionary) -> String:
+	return Lang.f("%.2f s", [entry.score]) if entry.finished else ""
+
+
 func _hud_draw(canvas: Control) -> void:
 	_draw_marble_numbers(canvas)
-	var y := 36.0
-	var place := 0
-	for r in standings():
-		var p = player(r.slot)
-		var t := ""
-		if r.finish_time >= 0.0:
-			t = "  " + Lang.f("%.2f s", [r.finish_time])
-		var msg := "%s  %s%s" % [Scoreboard.ordinal(place + 1), p.player_name, t]
-		var chip_w := Shell.score_chip_width(msg, "", 54.0, 400.0)
-		Shell.chip(canvas, Vector2(Shell.mx(canvas, 60.0, chip_w), y), msg, p.color, chip_w, 54.0)
-		y += 68.0
-		place += 1
+	draw_leader_chip(canvas)
 	if _round.is_counting():
 		Shell.countdown(canvas, canvas.size, str(_round.count_number()), _round.count_elapsed())
+		draw_name_tags(canvas, _marble_spots(), 40.0)
 	elif _round.time < GO_SHOW:
 		Shell.countdown(canvas, canvas.size, "GO!", _round.time / GO_SHOW, UiTheme.OK)
 	elif not is_over:

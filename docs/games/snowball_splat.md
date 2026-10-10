@@ -84,6 +84,7 @@ REQ-GM-90 to 96 apply. The settings view has one row: Difficulty. As it grows, t
 | REQ-SS-20 | The game has the settings view with the row Difficulty (REQ-GM-90, 91; registry `settings: []`), and `difficulty` is a prop of the game. Difficulty changes three values, see the table below: the speed of the Puffs (a factor on the speed of each kind), the number of Puffs on the screen (`MAX_BASE`, plus the number of players as before), and the time between two new Puffs (`SPAWN_EVERY`). | Done | game_rules, smoke_settings |
 | REQ-SS-21 | The medal tiers (REQ-GM-73) belong to the difficulty. A result is judged by the tiers of the difficulty that was played, and the medal title of one player names it: "Silver medal! (Hard)". | Done | game_rules (tiers), smoke_tv |
 | REQ-SS-22 | At every difficulty the lanes never overlap (REQ-SS-8), and at least one Puff is on the screen most of the time, also on Hard with 1 player. | Done | game_rules |
+| REQ-SS-23 | The HUD shows the leader chip (leader and points, or TIE; REQ-GM-46) next to the title and the timer. Each phone shows its own points and place (REQ-FL-67). In the countdown each cursor has a name tag (REQ-GM-46a). | Done | game_helpers (leader, tags), run_tests (score message) |
 
 | Difficulty | Speed factor | Puffs on screen (`MAX_BASE`, + players) | New Puff every | Medal tiers (first guess) |
 |------------|--------------|------------------------------------------|----------------|---------------------------|
@@ -127,4 +128,4 @@ Haptics on the phone of the player: Countdown end: 60 ms; Throw: 15 ms; Hit: 40 
 
 ## Languages (REQ-GM-47o)
 
-The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer). The game world is not mirrored.
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, leader chip, timer). The game world is not mirrored.

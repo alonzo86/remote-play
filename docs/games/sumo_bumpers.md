@@ -55,7 +55,7 @@ Players and feedback
 |----|-------------|--------|-------|
 | REQ-SB-12 | A player who leaves takes the bumper out and keeps no points in the ranking (REQ-GM-21). When one player is left, the match ends at once with the result menu. When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sumo |
 | REQ-SB-13 | A lost phone pauses the match with the card of REQ-GM-30. Nothing runs during the pause (the shrink, the countdown). | Done | smoke_tv (shared base class) |
-| REQ-SB-14 | The chips (`Shell.player_chips`, in slot order) show the points of each player. A bumper has its slot number on it (`Shell.ball_number`, REQ-GM-46, REQ-GM-47n). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points), Device (RECENTER) |
+| REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). In the countdown of each round every bumper has a name tag (REQ-GM-46a). A bumper has its slot number on it (`Shell.ball_number`, REQ-GM-46, REQ-GM-47n). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points, phones), game_helpers (leader, tags), Device (RECENTER) |
 
 Look
 
@@ -112,4 +112,4 @@ Haptics on the phone of the player: Countdown end: 60 ms; Bump: 20 ms; dash: 30 
 
 ## Languages (REQ-GM-47o)
 
-The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer); the "Round x of y" text uses `Shell.mx()`. The game world is not mirrored.
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, leader chip, timer); the "Round x of y" text uses `Shell.mx()`. The game world is not mirrored.

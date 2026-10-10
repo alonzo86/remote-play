@@ -10,6 +10,7 @@ signal rejected(reason: String)
 signal phase_changed(phase: String)
 signal language_changed(code: String)   # The TV language (REQ-FL-62).
 signal haptic_requested(ms: int)
+signal score_changed()   # The place or the score of this phone changed (REQ-FL-67).
 
 enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING }
 
@@ -27,6 +28,9 @@ var rtt_ms := -1.0
 var clock_offset_ms := 0.0   # TV clock minus phone clock.
 var tx_rate := 0.0           # Sensor packets sent per second.
 var player_name := ""
+var score_rank := 0          # The place of this phone in the round, 1 for the leader. 0 when the TV sent no score (REQ-FL-67).
+var score_of := 0            # The number of ranked players.
+var score_text := ""         # The score as the TV shows it. Empty when there is no score yet.
 
 var host := ""
 var port := Protocol.WS_PORT
@@ -164,6 +168,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			_token = String(msg.get("token", ""))
 			tv_name = String(msg.get("name", "TV"))
 			phase = String(msg.get("phase", "connect"))
+			clear_score()   # The score comes again with the next frame of the game (REQ-FL-67).
 			_was_connected = true
 			_attempt = 0
 			_tx_window_ms = now
@@ -190,11 +195,18 @@ func _handle(msg: Dictionary, now: int) -> void:
 					"off": snappedf(clock_offset_ms, 0.1), "hz": snappedf(tx_rate, 0.1)})
 		"phase":
 			phase = String(msg.get("v", "connect"))
+			if not phase in ["playing", "paused"]:
+				clear_score()   # A pause keeps the score on the phone (REQ-FL-67).
 			phase_changed.emit(phase)
 		"lang":
 			language_changed.emit(String(msg.get("v", "en")))
 		"haptic":
 			haptic_requested.emit(int(msg.get("ms", 50)))
+		"score":
+			score_rank = clampi(int(msg.get("rank", 0)), 0, Protocol.MAX_PLAYERS)
+			score_of = clampi(int(msg.get("of", 0)), 0, Protocol.MAX_PLAYERS)
+			score_text = String(msg.get("v", "")).substr(0, 12)
+			score_changed.emit()
 		"kicked":
 			# The host removed this phone. Forget the token. Do not reconnect (REQ-FL-33).
 			_close_socket()
@@ -251,6 +263,15 @@ func _close_socket() -> void:
 func _send_json(d: Dictionary) -> void:
 	if _ws != null and _ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
 		_ws.send_text(Protocol.to_json(d))
+
+
+## Forgets the score: the phase changed or the TV is gone (REQ-FL-67).
+func clear_score() -> void:
+	if score_rank != 0 or score_of != 0 or score_text != "":
+		score_rank = 0
+		score_of = 0
+		score_text = ""
+		score_changed.emit()
 
 
 func _set_state(s: State) -> void:

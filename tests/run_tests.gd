@@ -526,6 +526,14 @@ func _test_pad(app: Node, server: Node) -> void:
 	server.haptic(app.client.slot, 33)
 	await _wait_until(func(): return not got.is_empty())
 	_check(got == [33], "a haptic message from the TV reaches the pad: %s" % str(got))
+
+	# The header of the pad shows the place and the score during a game (REQ-FL-67).
+	_check(pad.status_text(1, 2, 4, "12") == "2P  2ND  12" and pad.status_text(0, 1, 3, "") == "1P  1ST"
+			and pad.status_text(2, 1, 1, "7") == "3P  7" and pad.status_text(3, 0, 0, "") == "4P",
+			"the header shows the place only with 2 or more players, and the score only when there is one")
+	_check(pad.status_font_size("1P", 620.0) == 48 and pad.status_font_size("4P  4TH  1234567890", 620.0) < 48
+			and pad.status_font_size("4P  4TH  12345678901234567890", 300.0) == 32,
+			"a long score makes the header text smaller; at least 32 px")
 	sampler.set_process(true)
 
 
@@ -924,6 +932,16 @@ func _test_network() -> void:
 	await _wait_until(func(): return not phases.is_empty())
 	_check(phases == ["playing"], "phase message reaches the phone")
 
+	# The place and score of a player reach its phone once per change, and a phase other than a pause clears them (REQ-FL-67).
+	var score_events := []
+	clients[0].score_changed.connect(func(): score_events.append(clients[0].score_text))
+	server.send_score(clients[0].slot, 2, 4, "12")
+	server.send_score(clients[0].slot, 2, 4, "12")   # The same message is not sent again.
+	server.send_score(clients[0].slot, 1, 4, "15")
+	await _wait_until(func(): return clients[0].score_text == "15")
+	_check(score_events == ["12", "15"] and clients[0].score_rank == 1 and clients[0].score_of == 4,
+			"the score reaches the phone once for each change: %s" % str(score_events))
+
 	# A phone that joined late gets "waiting" during a round (REQ-FL-25).
 	var late_phases := []
 	clients[3].phase_changed.connect(func(p): late_phases.append(p))
@@ -932,11 +950,13 @@ func _test_network() -> void:
 	server.set_phase("paused", in_round)
 	await _wait_until(func(): return not phases.is_empty() and not late_phases.is_empty())
 	_check(phases == ["paused"] and late_phases == ["waiting"], "late phone gets waiting: %s %s" % [str(phases), str(late_phases)])
+	_check(clients[0].score_text == "15", "a pause keeps the score on the phone (REQ-FL-67)")
 	server.set_phase("menu")
 	phases.clear()
 	late_phases.clear()
 	await _wait_until(func(): return not late_phases.is_empty())
 	_check(late_phases == ["menu"], "the next phase reaches the late phone")
+	_check(clients[0].score_rank == 0 and clients[0].score_text == "", "the menu clears the score on the phone (REQ-FL-67)")
 
 	# A slot that is freed during a round leaves the round. A new phone in it must wait (REQ-FL-25).
 	var slot4: int = clients[3].slot

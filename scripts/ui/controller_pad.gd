@@ -7,6 +7,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const SensorSampler = preload("res://scripts/input/sensor_sampler.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 
 var _sampler: Node
 var _fingers: Dictionary = {}   # finger index -> zone name
@@ -147,10 +148,11 @@ func _draw() -> void:
 	var square_color: Color = c.color if online else UiTheme.BAD
 	draw_rect(square, square_color)
 	UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
-	var status := "%dP" % (c.slot + 1) if online else Lang.t("Reconnecting...")
+	var status := status_text(c.slot, c.score_rank, c.score_of, c.score_text) if online else Lang.t("Reconnecting...")
 	var name_rect := Rect2(190, HEADER_Y - 45.0, size.x - 460, 90)
-	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, 48)), status.to_upper(),
-			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, 48, UiTheme.ACCENT if online else UiTheme.BAD)
+	var status_size := status_font_size(status, name_rect.size.x)
+	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, status_size)), status.to_upper(),
+			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, status_size, UiTheme.ACCENT if online else UiTheme.BAD)
 
 	var lat := "RTT -- ms" if c.rtt_ms < 0 else "RTT %d ms" % roundi(c.rtt_ms)
 	draw_string(f, Vector2(60, 262), lat.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 48, _lat_color(c.rtt_ms))
@@ -193,6 +195,25 @@ func _draw_button(center: Vector2, label: String, bit: int, col: Color) -> void:
 	draw_circle(face, r - BUTTON_LIFT, col)
 	UiTheme.draw_centered(self, UiTheme.font(), label, Rect2(face - Vector2(r, r), Vector2(r, r) * 2.0), 96,
 			UiTheme.text_on(col))
+
+
+## The header text of a connected phone: the player number, and during a game the place and the score of this player
+## (REQ-FL-67): "2P  2ND  12". The place shows only with two or more ranked players; the score only when the TV sent one.
+static func status_text(slot: int, rank: int, of: int, score: String) -> String:
+	var out := "%dP" % (slot + 1)
+	if rank > 0 and of > 1:
+		out += "  " + Scoreboard.ordinal(rank)
+	if score != "":
+		out += "  " + score
+	return out.to_upper()
+
+
+## The size of the header text: 48 px, and 40 or 32 px when a long score would not fit in `width`. Nothing is cut.
+static func status_font_size(text: String, width: float) -> int:
+	for fs in [48, 40, 32]:
+		if UiTheme.font().get_string_size(text.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x <= width:
+			return fs
+	return 32
 
 
 func _lat_color(rtt: float) -> Color:

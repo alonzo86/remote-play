@@ -315,19 +315,24 @@ func _game_draw() -> void:
 	_draw_hud()
 
 
+func _scoreboard() -> Scoreboard:
+	return _board
+
+
 func _draw_hud() -> void:
 	Shell.title(self, "SUMO BUMPERS")
-	var scores := {}
-	for slot in participants:
-		scores[slot] = str(int(_board.score(slot)))
-	Shell.player_chips(self, size.x, participants.map(func(s: int) -> Object: return player(s)), scores,
-			size.x - 60.0 - (TIMER_X + TIMER_W + 20.0))
+	draw_leader_chip(self)
 	if not is_over:
 		Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("Round %d of %d", [round_no, ROUNDS]), 32,
 				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
 	if phase == Phase.COUNT and not participants.is_empty():
 		var n := _clock.count_number()
 		Shell.countdown(self, size, str(n) if n > 0 else "GO", _clock.count_elapsed())
+		var fit := _fit()
+		var spots := {}
+		for s in _bodies:
+			spots[s] = Shell.snap(fit.center + (_bodies[s] as TiltBody).pos * float(fit.k))
+		draw_name_tags(self, spots, SumoArena.BUMPER_R * float(fit.k))
 	if phase == Phase.BANNER and not is_over:
 		Shell.text(self, Vector2(0.0, size.y * 0.5 - 20.0), banner_text, 72, UiTheme.ACCENT, HORIZONTAL_ALIGNMENT_CENTER, size.x)
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:

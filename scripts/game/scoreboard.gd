@@ -98,6 +98,12 @@ func winners() -> Array[int]:
 	return out
 
 
+## The entries of `ranking()` with rank 1. More than one means a tie. A player without a score counts, so a race shows who leads
+## before anyone finishes. Empty when there is no player.
+func leaders() -> Array:
+	return ranking().filter(func(e: Dictionary) -> bool: return e.rank == 1)
+
+
 func _better(a: float, b: float) -> bool:
 	return a < b if lower_is_better else a > b
 

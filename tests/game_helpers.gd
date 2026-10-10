@@ -1,9 +1,10 @@
 extends SceneTree
-## Helpers shared by the minigames: RoundClock (REQ-GM-35, 71), Haptics (REQ-GM-43), the chip order (REQ-GM-46),
+## Helpers shared by the minigames: RoundClock (REQ-GM-35, 71), Haptics (REQ-GM-43), the leader chip and name tags (REQ-GM-46),
 ## Scoreboard (REQ-GM-70, 72) and Medals (REQ-GM-73).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/game_helpers.gd -- --role=controller
 
 const Shell = preload("res://scripts/game/shell.gd")
+const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
@@ -28,7 +29,7 @@ func _initialize() -> void:
 	SnowGame = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
 	_round_clock()
 	_haptics()
-	_shell_order()
+	_shell_leader()
 	_shell_layout()
 	_score_chip()
 	_pixel_world()
@@ -118,34 +119,54 @@ func _haptics() -> void:
 	_check(h.allow(0, 150, 1300), "and 150 ms after the pulse at 1150 is allowed")
 
 
-func _shell_order() -> void:
-	print("chips in slot order")
-	var players: Array = []
-	for slot in [2, 0, 3, 1]:
-		players.append(PlayerInput.new(slot, {}))
-	var slots: Array = Shell.in_slot_order(players).map(func(p): return p.slot)
-	_check(slots == [0, 1, 2, 3], "the chips are in slot order, P1 first (REQ-GM-46): %s" % str(slots))
-	_check(players[0].slot == 2, "the order is a copy: the list of the caller stays as it was")
-	_check(Shell.in_slot_order([]).is_empty(), "no players, no chips")
+func _shell_leader() -> void:
+	print("leader chip and name tags")
+	var board = Scoreboard.new([0, 1, 2])
+	_check(board.leaders().size() == 3, "before anybody scores all players lead: a tie (REQ-GM-46)")
+	board.add(1, 5.0)
+	var lead: Array = board.leaders()
+	_check(lead.size() == 1 and lead[0].slot == 1 and lead[0].score == 5.0, "one leader: the slot with the best score")
+	board.add(2, 5.0)
+	_check(board.leaders().map(func(e): return e.slot) == [1, 2], "equal best scores are a tie, in slot order")
+	board.remove(1)
+	board.remove(2)
+	_check(board.leaders().map(func(e): return e.slot) == [0], "a player that left does not lead; the last one leads alone")
+	_check(Scoreboard.new([]).leaders().is_empty(), "no player, no leader")
+	var race = Scoreboard.new([], true)
+	race.set_unfinished(0, 40.0)
+	race.set_unfinished(1, 55.0)
+	_check(race.leaders()[0].slot == 1 and not race.leaders()[0].finished,
+			"in a race the furthest marble leads before anybody finishes")
+	race.set_score(2, 31.2)
+	_check(race.leaders()[0].slot == 2 and race.leaders()[0].finished, "a finished marble leads over the others")
+	# The name tags of the countdown stay inside the margin and never cover each other (REQ-GM-46a).
+	var area := Vector2(1920.0, 1080.0)
+	var same: Array = []
+	for i in 4:
+		same.append({"pos": Vector2(960.0, 540.0), "name": "ABCDEFGHIJKLMNOP"})
+	var rects: Array = Shell.name_tag_rects(area, same)
+	var apart := true
+	var inside := true
+	for i in rects.size():
+		inside = inside and rects[i].position.x >= 60.0 and rects[i].end.x <= 1860.0 and rects[i].position.y >= 60.0 \
+				and rects[i].end.y <= 1020.0
+		for k in range(i + 1, rects.size()):
+			apart = apart and not rects[i].intersects(rects[k])
+	_check(rects.size() == 4 and apart, "4 tags at the same place are moved apart")
+	_check(inside, "the tags are inside the 60 px safe margin")
+	var edge: Array = Shell.name_tag_rects(area, [{"pos": Vector2(1900.0, 20.0), "name": "ABCDEFGHIJKLMNOP"}])
+	_check(edge[0].end.x <= 1860.0 and edge[0].position.y >= 60.0,
+			"a tag for an object at the screen edge is moved inside the margin")
+	var short: Array = Shell.name_tag_rects(area, [{"pos": Vector2(960.0, 540.0), "name": "AB"}])
+	_check(short[0].size.x < edge[0].size.x and is_equal_approx(short[0].get_center().x, 960.0) and short[0].end.y < 540.0,
+			"a tag is as wide as its name, centered over the object and above it")
 
 
 func _shell_layout() -> void:
 	print("chip and ball layout")
-	var edge_ok := true
-	var inside_ok := true
-	for w in [1920.0, 1280.0]:
-		for n in [1, 2, 3, 4]:
-			var spots: Array = Shell.chip_row_positions(w, _widths(n, 250.0))
-			if not is_equal_approx(spots[n - 1].x + 250.0, w - 60.0):
-				edge_ok = false
-			if spots[0].x < 60.0:
-				inside_ok = false
-	_check(edge_ok, "the last chip ends at the 60 px safe margin on 1920 and 1280 wide screens (REQ-GM-40)")
-	_check(inside_ok, "4 chips fit inside the left margin too")
-	var four: Array = Shell.chip_row_positions(1920.0, _widths(4, 250.0))
-	_check(four.size() == 4 and is_equal_approx(four[1].x - four[0].x, 260.0) and four[0].y == 36.0 and four[3].x > four[0].x,
-			"chips go left to right, 260 px apart, in one row")
-	_check(Shell.chip_row_positions(1920.0, []).is_empty(), "no players, no chip")
+	_check(is_equal_approx(Shell.leader_chip_x(1920.0, 300.0), 1560.0)
+			and is_equal_approx(Shell.leader_chip_x(1280.0, 300.0), 920.0),
+			"the leader chip ends at the 60 px safe margin on 1920 and 1280 wide screens (REQ-GM-40)")
 	_check(Shell.ball_metrics(24.0).outline == 6.0 and Shell.ball_metrics(20.0).outline == 6.0
 			and Shell.ball_metrics(19.0).outline == 4.0, "a ball of 40 px or more has a 6 px outline, a smaller one 4 px (REQ-GM-47b)")
 	var m: Dictionary = Shell.ball_metrics(24.0)
@@ -184,17 +205,19 @@ func _score_chip() -> void:
 	var long_part: Dictionary = Shell.score_chip_parts("A very long phone name", "123456", w6, height)
 	_check(long_part.name == "A very long phone name", "a long name is never cut: the chip gets wider")
 	_check(w6 > Shell.score_chip_width("Phone 1", "1000"), "a longer name makes a wider chip")
-	# The row of 4 chips of the worst size leaves room for the title and the timer on a 1920 wide screen.
-	var consts: Dictionary = SnowGame.get_script_constant_map()
-	var room := 1920.0 - 60.0 - (float(consts["TIMER_X"]) + float(consts["TIMER_W"]) + 20.0)
-	var row := Shell.chip_row_positions(1920.0, [270.0, 270.0, 270.0, 270.0], 36.0, 10.0, room)
-	_check(is_equal_approx(row[3].x + 270.0, 1860.0) and row[0].x >= float(consts["TIMER_X"]) + float(consts["TIMER_W"]) + 20.0
-			and row[0].y == row[3].y, "4 chips that fit end at the 60 px margin, right of the timer, in one row")
-	var wide := Shell.chip_row_positions(1920.0, [480.0, 480.0, 480.0, 480.0], 36.0, 10.0, room)
-	_check(wide[0].y == 36.0 and wide[2].y > 36.0 and wide[1].x < wide[0].x + 480.0 + 11.0 and wide[0].x >= 740.0 - 0.5
-			and wide[3].y == wide[2].y, "chips that do not fit in a row go to a second row, none is cut")
-	_check(Shell.chip_row_positions(1920.0, []).is_empty() and Shell.chip_row_positions(1920.0, [200.0])[0].x == 1660.0,
-			"no players, no chips. One chip is at the right edge")
+	# The leader chip of the worst size (a name of 16 letters, a score of 5 digits) leaves room for the title and the timer of
+	# each game on a 1920 wide screen.
+	var worst := Shell.score_chip_width("ABCDEFGHIJKLMNOP", "12345")
+	var left := Shell.leader_chip_x(1920.0, worst)
+	var room_ok := true
+	for path in ["snowball_splat/snowball_splat_game", "paint_grab/paint_grab_game", "sumo_bumpers/sumo_bumpers_game",
+			"maze/maze_game"]:
+		var consts: Dictionary = load("res://scripts/game/%s.gd" % path).get_script_constant_map()
+		if left < float(consts["TIMER_X"]) + float(consts["TIMER_W"]) + 80.0:
+			room_ok = false
+			print("    no room in ", path)
+	_check(room_ok and is_equal_approx(left + worst, 1860.0),
+			"the widest leader chip ends at the margin and clears the timer of every game, in one row")
 
 
 func _round_length() -> void:
@@ -215,7 +238,7 @@ func _round_length() -> void:
 
 func _scoreboard() -> void:
 	print("scoreboard")
-	var board_script: GDScript = load("res://scripts/game/scoreboard.gd")
+	var board_script: GDScript = Scoreboard
 	var b = board_script.new([2, 0, 1])
 	_check(b.size() == 3 and b.score(1) == 0.0 and b.winners().size() == 3, "all players start at 0 and tie for first place")
 	b.add(0, 5)
@@ -276,13 +299,6 @@ func _medals() -> void:
 			"equal, backward or missing tiers are not valid")
 	_check(not medals.is_valid(tiers, true), "tiers that get easier are not valid for a time")
 	_check(medals.label("gold") == "Gold medal!" and medals.label("") == "No medal this time", "the text of a medal")
-
-
-func _widths(count: int, w: float) -> Array:
-	var out: Array = []
-	for i in count:
-		out.append(w)
-	return out
 
 
 func _game_settings() -> void:
