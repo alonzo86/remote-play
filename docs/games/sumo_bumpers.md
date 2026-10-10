@@ -13,7 +13,7 @@ the platform wins the round and gets a point. A match has 3 rounds. The player w
 a bumper that falls is back in the next round. The game needs 2 players or more.
 
 Registry entry: `description` (one line) and `tile` (`assets/tiles/sumo_bumpers.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
-Visual language: shell, player colors, toy-like world (REQ-GM-45 to 49). Check the tile next to the Games screen.
+Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 48, 49). Check the tile next to the Games screen.
 
 ## Gaps and exceptions
 
@@ -61,7 +61,7 @@ Look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The platform is a round, dark disk (so that every player color has a contrast of 3:1 or more, REQ-GM-47e) with a dark outline and a hard shadow, and a light edge ring that gets red when the platform is small (a warning without text). The background is from the Party Pop set. All text is 28 px or larger and inside the 60 px margin. | Device | review, Device |
+| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n): it is drawn in the 480x270 view. The world palette is black (`UiTheme.BG`), dark gray `#3c3c3c` and blue `#0058f8` star pixels (48 of them, always in the same places), the platform `#2a1070`, its ring `#8c78e6` that turns to `#ff5a4d` when the platform is small, and white for the eyes and the dash ring; the bumpers use the slot colors. The platform is a dark disk (every player color has a contrast of 3:1 or more, REQ-GM-47m) with a one-pixel black outline. A bumper has a one-pixel black outline, square eyes with pupils that step to the side it rolls, and its slot number at full resolution on it, a little under the middle (`Shell.ball_number()`). A fallen bumper shrinks in 4 steps in 0.8 s, and "WHEE!" is drawn at full resolution above it. All text is 32 px or larger and inside the 60 px margin. | Device | review, smoke_sumo (the view), Device |
 | REQ-SB-16 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080: the simulation runs in 1920x1080 units and only the drawing is scaled. | Done | smoke_sumo |
 
 Settings (REQ-GM-90 to 97)

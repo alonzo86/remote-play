@@ -1,6 +1,6 @@
 # Arcade style and localization plan (FD-18, FD-19)
 
-Status: **phase 1 built** (menus, phone, game shell; manual test 16 is open). Phases 2 to 5 are planned. The style requirements are in
+Status: **phases 1 and 2 built** (phase 1: menus, phone, game shell, manual test 16; phase 2: the pixel view and Sumo Bumpers, manual test 15). Phases 3 to 5 are planned. The style requirements are in
 `docs/TV_FLOW.md` (REQ-FL-37 to 46) and `docs/GAME_REQUIREMENTS.md` (REQ-GM-45, 46); REQ-GM-47 and 48 (the game worlds) still
 describe the toy-like tier 2 rules until phase 2.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
@@ -147,7 +147,9 @@ The menus and the shell change in the same pull request, so a game never shows a
     the new values.
 11. Manual test: a new device test for the arcade look (see section 5).
 
-### Phase 2: pixel world trial (Sumo Bumpers)
+### Phase 2: pixel world trial (Sumo Bumpers) - built
+
+Decisions taken while building it: the view is a `SubViewport` of 480x270 with `size_2d_override` set to the size of the game node, so a game keeps its 1920x1080 drawing code (REQ-GM-47i); the HUD, the slot numbers and "WHEE!" are drawn on the game node at full resolution (the view is behind it, `z_index` -1); the new rules are REQ-GM-47i to 47n and they sit next to the old tier 2 rules until each game is restyled (a game that is not restyled keeps 47a to 47h). The values are first guesses until test 15.
 
 1. A low-res game view in `minigame.gd`: the world draws into a 480x270 `SubViewport` with nearest filtering, and the
    shell draws on top at full resolution.

@@ -7,6 +7,8 @@ const Shell = preload("res://scripts/game/shell.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
+const Protocol = preload("res://scripts/core/protocol.gd")
+const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
 
 var _checks := 0
 var _fails := 0
@@ -27,6 +29,7 @@ func _initialize() -> void:
 	_shell_order()
 	_shell_layout()
 	_score_chip()
+	_pixel_world()
 	_round_length()
 	_scoreboard()
 	_medals()
@@ -38,6 +41,26 @@ func _initialize() -> void:
 ## A plain array copy, so that a typed Array[int] can be compared with a literal.
 func _ints(a: Array) -> Array:
 	return a.map(func(x): return x)
+
+
+## The helpers of a pixel world (REQ-GM-47i to 47n).
+func _pixel_world() -> void:
+	print("pixel world")
+	var Sumo = load("res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd")
+	var Minigame = load("res://scripts/game/minigame.gd")
+	_check(Minigame.PIXEL_VIEW * 4 == Minigame.DESIGN_SIZE and Shell.WORLD_PIXEL == 1920.0 / Minigame.PIXEL_VIEW.x,
+			"the view is 480x270 and one world pixel is 4 screen pixels at 1920x1080")
+	_check(Shell.snap(Vector2(9.0, 5.0)) == Vector2(8.0, 4.0) and Shell.snap(Vector2(10.0, 14.0)) == Vector2(12.0, 16.0)
+			and Shell.snap(Vector2(-3.0, 2.0)) == Vector2(-4.0, 4.0), "a position moves to the nearest world pixel")
+	_check(Sumo.fall_scale(0.0) == 1.0 and Sumo.fall_scale(0.15) == 1.0 and Sumo.fall_scale(0.25) == 0.75
+			and Sumo.fall_scale(0.45) == 0.5 and Sumo.fall_scale(0.7) == 0.25 and Sumo.fall_scale(Sumo.FALL_TIME) == 0.0
+			and Sumo.fall_scale(5.0) == 0.0, "a fallen bumper shrinks in 4 steps and then is gone (REQ-SB-9)")
+	var min_ball: float = SumoArena.BUMPER_R * 2.0
+	_check(min_ball >= 12.0 * Shell.WORLD_PIXEL, "a bumper is 12 world pixels or more across (REQ-GM-47m): %.0f px" % min_ball)
+	var worst := 99.0
+	for col in Protocol.PLAYER_COLORS:
+		worst = minf(worst, Shell.contrast(col, Sumo.PLATFORM))
+	_check(worst >= 3.0, "every player color has a contrast of 3:1 or more on the platform (REQ-GM-47m): %.2f" % worst)
 
 
 func _round_clock() -> void:

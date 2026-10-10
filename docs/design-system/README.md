@@ -11,7 +11,7 @@ Remote Play is a couch game for Android TV with phones as motion controllers. Th
 - **Menus and focus.** A list of choices is a text menu. The focused item is `accent` with a cursor drawn as pixels in front of it; a destructive item is `bad` with the focus. A focused tile has an `accent` frame and a cursor before its title; its description is in a bar under the grid.
 - **Spacing.** Frames pad 24px or more; keep the TV `safe-area` of 60px.
 - **Motion.** Hard steps, no fades: prompts blink (0.55s on, 0.55s off), the logo drops in in steps, the confetti is square, the countdown settles in 4 steps. Motion stops while paused. No shaders.
-- **Games.** The shell (HUD, chips, timer, countdown, hints, menus) follows this style now. The game worlds still follow the toy-like tier 2 rules until phases 2 to 4 make them pixel worlds.
+- **Games.** The shell (HUD, chips, timer, countdown, hints, menus) follows this style now. A pixel world is drawn in a 480x270 view that is scaled up with nearest filtering (one world pixel is 4x4 screen pixels), with a one-pixel black outline on key objects, and the HUD and the slot numbers at full resolution on top (REQ-GM-47i to 47n). Sumo Bumpers is the first one. The other game worlds still follow the toy-like tier 2 rules until phases 3 and 4.
 
 ## Iconography
 No icon font. Everything is drawn in code from rectangles and the pixel font (the cursor is four columns of pixels, the players badge four squares). The app icon is a yellow phone on `brand-dark` (`assets/Icons`). The logo file `assets/logo/logo.png` does not exist yet, so the screen sets REMOTE PLAY in the pixel font.

@@ -77,7 +77,7 @@ func _place_sumo(game: Node) -> void:
 	for i in slots.size():
 		game._board.set_score(slots[i], [1, 0, 1, 0][i % 4])
 	game.set_process(false)   # Freeze the picture.
-	game.queue_redraw()
+	game._request_redraw()   # Also the pixel view of the world.
 	await _frames(3)
 
 

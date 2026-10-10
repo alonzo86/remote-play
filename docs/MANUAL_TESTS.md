@@ -560,7 +560,7 @@ History:
 
 ### Sumo Bumpers (tilt and A)
 
-Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-50.
+Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
 Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody`), the bounce, the dash and the difficulty values are first guesses.
 
@@ -576,6 +576,7 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 8. Let a child of about 5 to 8 years play a match, with a grown-up next to them. Check: the child understands what to do from the hint line, laughs at the fall and is not upset.
 9. Leave the game on one phone during a round. Check: its bumper goes and the match goes on. With 2 phones, leave on one: the match ends at once.
 10. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
+11. **Pixel world (phase 2, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the world. Check: the bumpers, the platform and the stars are made of sharp square pixels (not blurred), every bumper has a black outline, eyes, and its number is easy to read on it, "WHEE!" and the chips are sharp text, and the bumpers are easy to tell apart on the dark platform. Write down if a bumper is too small to follow in a fight, and the TV (1080p or 4K).
 
 **Results**
 
@@ -591,10 +592,11 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 | 8 | Note: the child, the age, what happened | Not run | | | |
 | 9 | Note: what happened on each leave | Not run | | | |
 | 10 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
+| 11 | Photo of the screen from the sofa; note: sharp pixels, readable numbers, the TV | Not run | | | |
 
 History:
 
-- -: **Not run**. New.
+- -: **Not run**. New. Item 11 was added on 2026-10-10 (phase 2 of the arcade style).
 
 ## Test 16
 

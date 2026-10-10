@@ -131,6 +131,29 @@ static func ball_metrics(radius: float) -> Dictionary:
 	return {"outline": 6.0 if radius * 2.0 >= 40.0 else 4.0, "font_size": maxi(8, roundi(radius / 8.0) * 8)}
 
 
+## One world pixel in 1920x1080 units: the world view is 480x270 (REQ-GM-47a, `Minigame.PIXEL_VIEW`).
+const WORLD_PIXEL := 4.0
+
+
+## `v` moved to the grid of world pixels, so that a shape does not shimmer between two pixels while it moves.
+static func snap(v: Vector2) -> Vector2:
+	return (v / WORLD_PIXEL).round() * WORLD_PIXEL
+
+
+## A player ball in a pixel world (REQ-GM-47b): a black outline of one world pixel and a flat fill. It draws on the low-resolution
+## layer, so it has no number: `ball_number()` draws that on the HUD at full resolution (REQ-GM-46).
+static func pixel_ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color) -> void:
+	var c := snap(pos)
+	ci.draw_circle(c, radius + WORLD_PIXEL, UiTheme.OUTLINE)
+	ci.draw_circle(c, radius, color)
+
+
+## The slot number of a ball, at full resolution, for a ball that is drawn in a pixel world.
+static func ball_number(ci: CanvasItem, pos: Vector2, radius: float, color: Color, slot: int) -> void:
+	UiTheme.draw_centered(ci, UiTheme.font(), str(slot + 1), Rect2(pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0),
+			ball_metrics(radius).font_size, UiTheme.text_on(color))
+
+
 ## The players (PlayerInput objects) in slot order, P1 first (REQ-GM-46).
 static func in_slot_order(players: Array) -> Array:
 	var ordered := players.duplicate()

@@ -190,6 +190,18 @@ func _run() -> void:
 					and fit.center.y - d >= 149.0 and fit.center.y + d <= game.size.y - 59.0
 	_check(fits_ok, "the platform is inside the margin and under the HUD at 1280x720 and 1920x1080 (REQ-SB-16)")
 	root.size = Vector2i(1920, 1080)
+	await _frames(3)
+	# The world is drawn in a 480x270 view that stands for the whole screen, behind the HUD (REQ-GM-47i).
+	var view: SubViewport = game._pixel_viewport
+	_check(game._pixel_world() and view != null and view.size == Vector2i(480, 270) and view.size_2d_override_stretch
+			and view.size_2d_override == Vector2i(game.size) and game._pixel_layer.size == game.size,
+			"the world is drawn in a 480x270 view that follows the size of the game (REQ-GM-47i)")
+	root.size = Vector2i(1280, 720)
+	await _frames(3)
+	_check(view.size == Vector2i(480, 270) and view.size_2d_override == Vector2i(game.size),
+			"the view still stands for the whole screen at 1280x720, and stays 480x270")
+	root.size = Vector2i(1920, 1080)
+	await _frames(3)
 
 	# Players leave (REQ-SB-12).
 	game.restart()
