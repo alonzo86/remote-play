@@ -275,7 +275,7 @@ func _settings_rows(sound: Node, app: Node) -> void:
 	await _frames(3)
 	var screen: Control = app.current_screen()
 	var rows: Array = screen._rows
-	_check(rows.size() == 5, "the Settings screen has 5 rows (debug, invert, music, effects, mute)")
+	_check(rows.size() == 6, "the Settings screen has 6 rows (debug, invert, music, effects, mute, language)")
 	app.settings.music_volume = 10
 	rows[2].pressed.emit()
 	_check(app.settings.music_volume == 0, "OK on Music after 10 goes back to 0")
@@ -314,9 +314,9 @@ func _phone_haptics(app: Node) -> void:
 	var screen: Control = app.current_screen()
 	app.settings.haptics = true
 	screen._refresh()
-	_check(screen._haptics.text == "Haptics: ON", "the switch shows ON")
+	_check(screen._haptics.text == "HAPTICS: ON", "the switch shows ON")
 	screen._haptics.pressed.emit()
-	_check(app.settings.haptics == false and screen._haptics.text == "Haptics: OFF", "OK turns haptics off")
+	_check(app.settings.haptics == false and screen._haptics.text == "HAPTICS: OFF", "OK turns haptics off")
 	var cfg := ConfigFile.new()
 	cfg.load(app.SETTINGS_FILE)
 	_check(cfg.get_value("settings", "haptics", true) == false, "the choice is saved")

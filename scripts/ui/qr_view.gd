@@ -1,9 +1,8 @@
 extends Control
-## Draws a QR code on a white rounded card. Set `text`. The TV shows it on the Connect screen
+## Draws a QR code on a white square. Set `text`. The TV shows it on the Connect screen
 ## and in the Players modal.
 
 const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
-const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 var text := "":
 	set(v):
@@ -22,7 +21,7 @@ func _init() -> void:
 func _draw() -> void:
 	var side := minf(size.x, size.y)
 	var box := Rect2(Vector2.ZERO, Vector2(side, side))
-	draw_style_box(UiTheme.card(Color.WHITE, UiTheme.OUTLINE, UiTheme.OUTLINE_W, 22, false), box)
+	draw_rect(box, Color.WHITE)
 	if _qr.is_empty():
 		return
 	var n := _qr.size()

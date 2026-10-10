@@ -11,3 +11,4 @@ tests/smoke_settings.gd|tv|settings view
 tests/smoke_paint.gd|tv|Paint Grab
 tests/smoke_sumo.gd|tv|Sumo Bumpers
 tests/audio.gd|tv|audio: synth, songs, effects, volume and haptics switch
+tests/smoke_lang.gd|tv|languages and right to left

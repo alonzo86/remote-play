@@ -1,34 +1,76 @@
 extends RefCounted
-## Small builders for the Party Pop screens (docs/TV_FLOW.md). Screens are built in code.
+## Small builders for the arcade screens (docs/TV_FLOW.md). Screens are built in code. All UI text is upper case (REQ-FL-39).
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const MenuItem = preload("res://scripts/ui/menu_item.gd")
+const BlinkLabel = preload("res://scripts/ui/blink_label.gd")
 
 
-static func label(text: String, size := 34, color: Color = UiTheme.TEXT, font: Font = null) -> Label:
+static func label(text: String, size := UiTheme.SIZE_BODY, color: Color = UiTheme.TEXT) -> Label:
 	var l := Label.new()
-	l.text = text
+	l.text = text.to_upper()
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
-	if font != null:
-		l.add_theme_font_override("font", font)
+	l.add_theme_constant_override("line_spacing", size / 4)   # The pixel font has no leading: wrapped lines would touch.
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return l
 
 
-## A title in the display font, yellow.
-static func title(text: String, size := 76, color: Color = UiTheme.ACCENT) -> Label:
-	return label(text, size, color, UiTheme.title_font())
+## A title: yellow, in the arcade font.
+static func title(text: String, size := UiTheme.SIZE_TITLE, color: Color = UiTheme.ACCENT) -> Label:
+	return label(text, size, color)
 
 
-static func button(text: String, cb: Callable, primary := false, size := 36, secondary := false) -> Button:
+## A prompt that blinks (PRESS OK).
+static func blinking(text: String, size := UiTheme.SIZE_ITEM, color: Color = UiTheme.ACCENT) -> Label:
+	var l: Label = BlinkLabel.new()
+	l.text = text.to_upper()
+	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_color_override("font_color", color)
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return l
+
+
+## A menu item: text with a cursor when it has the focus. `role` is "" (a normal item), "danger" (red with the focus) or
+## "quiet" (dim until it has the focus).
+static func item(text: String, cb: Callable, size := UiTheme.SIZE_ITEM, role := "") -> Button:
+	var b: Button = MenuItem.new()
+	b.text = text.to_upper()
+	b.add_theme_font_size_override("font_size", size)
+	match role:
+		"danger":
+			b.theme_type_variation = "DangerButton"
+		"quiet":
+			b.theme_type_variation = "QuietButton"
+	b.pressed.connect(cb)
+	return b
+
+
+## A text menu: one column of items. Each entry is `[label, callable, role]` (the role can be left out).
+static func menu(entries: Array, size := UiTheme.SIZE_ITEM) -> VBoxContainer:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	for e in entries:
+		box.add_child(item(String(e[0]), e[1], size, String(e[2]) if e.size() > 2 else ""))
+	return box
+
+
+## A framed text box for the phone (REQ-FL-52): a touch screen has no cursor, so the button shows its edge. The frame is
+## `color`. With the focus (a keyboard on a desktop run) it is yellow; pressed, the box fills with the frame color.
+static func box_button(text: String, cb: Callable, size := UiTheme.SIZE_ITEM, color: Color = UiTheme.TEXT) -> Button:
 	var b := Button.new()
-	b.text = text
+	b.text = text.to_upper()
 	b.focus_mode = Control.FOCUS_ALL
 	b.add_theme_font_size_override("font_size", size)
-	if primary:
-		b.theme_type_variation = "PrimaryButton"
-	elif secondary:
-		b.theme_type_variation = "SecondaryButton"
+	b.add_theme_stylebox_override("normal", UiTheme.line_box(color))
+	b.add_theme_stylebox_override("hover", UiTheme.line_box(color))
+	b.add_theme_stylebox_override("focus", UiTheme.line_box(UiTheme.ACCENT))
+	b.add_theme_stylebox_override("pressed", UiTheme.line_box(color, color))
+	b.add_theme_stylebox_override("disabled", UiTheme.line_box(UiTheme.TEXT_DIM))
+	b.add_theme_color_override("font_color", color)
+	b.add_theme_color_override("font_hover_color", color)
+	b.add_theme_color_override("font_focus_color", UiTheme.ACCENT)
+	b.add_theme_color_override("font_pressed_color", UiTheme.BG)
 	b.pressed.connect(cb)
 	return b
 
@@ -54,12 +96,10 @@ static func margin(parent: Control, left: int, top: int, right: int, bottom: int
 	return m
 
 
-## A card container with the Party Pop outline and shadow.
-static func card_panel(fill: Color = UiTheme.CARD, margin_px := 32) -> PanelContainer:
+## A panel container with the double frame (REQ-FL-38). `padding` is the space inside the frame.
+static func panel(padding := 24) -> PanelContainer:
 	var p := PanelContainer.new()
-	var s := UiTheme.card(fill)
-	s.set_content_margin_all(margin_px)
-	p.add_theme_stylebox_override("panel", s)
+	p.add_theme_stylebox_override("panel", UiTheme.frame(padding))
 	return p
 
 

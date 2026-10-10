@@ -6,7 +6,9 @@ extends Control
 ##   3. Add one entry for it in scripts/game/registry.gd.
 ## This base class handles: player list, pause while a phone is lost,
 ## the D-pad pause menu (Resume / Restart / Menu), and the back key.
-## It is the game shell (REQ-GM-45): the menus here and the helpers in shell.gd have the Party Pop style.
+## It is the game shell (REQ-GM-45): the menus here and the helpers in shell.gd have the arcade style.
+## A 2D game may draw its world at a low resolution (REQ-GM-47a): it returns true from `_pixel_world()` and draws the world in
+## `_world_draw()`. The HUD stays in `_game_draw()`, at full resolution.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -17,6 +19,11 @@ const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const Medals = preload("res://scripts/game/medals.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
+const Lang = preload("res://scripts/core/lang.gd")
+
+## The size of the low-resolution world view and of the screen it stands for (REQ-GM-47a).
+const PIXEL_VIEW := Vector2i(480, 270)
+const DESIGN_SIZE := Vector2i(1920, 1080)
 
 ## Values the game was started with (App.go props). restart() uses them again.
 var start_props := {}
@@ -34,6 +41,8 @@ var _menu_kind := ""             # "hold" for the card of a lost phone, "menu" f
 var _hold := false               # A participant lost its connection: the game waits for a decision (REQ-GM-30).
 var _hold_info := {}             # slot -> {name, color} of the players lost in this hold.
 var _hold_sig := ""
+var _pixel_viewport: SubViewport
+var _pixel_layer: Control        # Draws the world of a pixel game, inside the low-resolution view.
 
 
 func _ready() -> void:
@@ -42,6 +51,8 @@ func _ready() -> void:
 	App.server.set_phase("playing", participants)
 	Sound.duck(false)
 	Sound.music_at_go(Registry.id_of_script(get_script()))   # The song starts at GO (REQ-FL-65a).
+	if _pixel_world():
+		_build_pixel_view()
 	_game_ready()
 	if participants.is_empty():
 		end_no_players()
@@ -139,8 +150,8 @@ func connected_participants() -> Array[int]:
 func _slot_labels(slots: Array) -> String:
 	var parts: Array[String] = []
 	for s in slots:
-		parts.append("P%d" % (int(s) + 1))
-	return " and ".join(parts)
+		parts.append("%dP" % (int(s) + 1))
+	return Lang.t(" and ").join(parts)
 
 
 func _show_hold_card(lost: Array[int]) -> void:
@@ -148,25 +159,25 @@ func _show_hold_card(lost: Array[int]) -> void:
 	var gone: Array[int] = []
 	for s in _hold_info:
 		var info: Dictionary = _hold_info[s]
-		var state := "left the game"
+		var state := Lang.t("left the game")
 		if lost.has(s):
-			state = "waiting to reconnect"
+			state = Lang.t("waiting to reconnect")
 		elif participants.has(s):
-			state = "is back"
+			state = Lang.t("is back")
 		else:
 			gone.append(s)
 		rows.append({"text": "%s   %s" % [info.name, state], "color": info.color})
 	var title: String
 	var entries: Array = []
 	if not lost.is_empty():
-		title = "%s lost connection" % _slot_labels(lost)
+		title = Lang.f("%s lost connection", [_slot_labels(lost)])
 		if not connected_participants().is_empty():
-			entries.append(["Resume without %s" % _slot_labels(lost), _resume_without_lost])
+			entries.append([Lang.f("Resume without %s", [_slot_labels(lost)]), _resume_without_lost])
 	else:
-		title = "%s left the game" % _slot_labels(gone) if not gone.is_empty() and gone.size() == _hold_info.size() \
-				else "%s reconnected" % _slot_labels(_hold_info.keys())
+		title = Lang.f("%s left the game", [_slot_labels(gone)]) if not gone.is_empty() and gone.size() == _hold_info.size() \
+				else Lang.f("%s reconnected", [_slot_labels(_hold_info.keys())])
 		entries.append(["Resume", _resume_game])
-	entries.append(["\u2715  End game", request_leave, "danger"])
+	entries.append(["End game", request_leave, "danger"])
 	open_menu(title, entries, rows)
 	_menu_kind = "hold"
 
@@ -205,7 +216,7 @@ func on_back() -> void:
 ## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
 func request_leave() -> void:
 	if _in_progress():
-		open_menu("End the game?", [["Keep playing", close_menu], ["\u2715  End game", App.go_menu, "danger"]])
+		open_menu("End the game?", [["Keep playing", close_menu], ["End game", App.go_menu, "danger"]])
 	else:
 		App.go_menu()
 
@@ -224,42 +235,37 @@ func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	var center := CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_menu_box = center
-	var card := UiKit.card_panel(UiTheme.CARD, 40)
+	var card := UiKit.panel(32)
 	center.add_child(card)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 18)
 	card.add_child(box)
-	var l := UiKit.title(title, 64, UiTheme.CARD_TEXT)
+	var l := UiKit.title(title, 48)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(l)
 	for r in rows:
 		box.add_child(_menu_row(String(r.text), r.color))
-	var first: Button = null
-	for e in entries:
-		var b := UiKit.button(String(e[0]), e[1], first == null, 40)
-		if e.size() > 2 and e[2] == "danger":
-			b.theme_type_variation = "DangerButton"
-		b.custom_minimum_size = Vector2(440, 82)
-		b.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		box.add_child(b)
-		if first == null:
-			first = b
+	var items := UiKit.menu(entries)
+	items.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(items)
+	var first: Button = items.get_child(0)
 	add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	first.grab_focus()
 
 
-## One line of the result list: a dot in the player color, and the text.
+## One line of the result list: a square in the player color, and the text.
 func _menu_row(text: String, color: Color) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 18)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	var dot := Panel.new()
-	dot.custom_minimum_size = Vector2(40, 40)
-	dot.add_theme_stylebox_override("panel", UiTheme.card(color, UiTheme.OUTLINE, 5, 20, false))
-	row.add_child(dot)
-	row.add_child(UiKit.label(text, 40, UiTheme.CARD_TEXT))
+	var square := ColorRect.new()
+	square.color = color
+	square.custom_minimum_size = Vector2(24, 24)
+	square.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(square)
+	row.add_child(UiKit.label(text, UiTheme.SIZE_BODY))
 	return row
 
 
@@ -276,22 +282,22 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	var rows: Array = []
 	for e in ranking:
 		var p := player(e.slot)
-		var text := "not finished"
+		var text := Lang.t("not finished")
 		if e.finished:
 			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color})
 	var winners := board.winners()
 	var heading := title
 	if heading == "":
-		heading = "Round over"
+		heading = Lang.t("Round over")
 		if ranking.size() == 1 and not tiers.is_empty():
 			# A player without a score gets no medal: the score 0 would beat every limit of a time.
 			var medal := Medals.medal(ranking[0].score, tiers, board.lower_is_better) if ranking[0].finished else Medals.NONE
 			heading = Medals.label(medal)
 		elif winners.size() == 1:
-			heading = "%s wins!" % player(winners[0]).player_name
+			heading = Lang.f("%s wins!", [player(winners[0]).player_name])
 		elif winners.size() > 1:
-			heading = "Tie!"
+			heading = Lang.t("Tie!")
 	var entries: Array = [["Restart", restart]]
 	entries.append_array(extra_entries)
 	var id := Registry.id_of_script(get_script())
@@ -324,7 +330,8 @@ func close_menu() -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
+	if _pixel_layer == null:
+		draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
 	_game_draw()
 	_draw_overlays(self)
 
@@ -333,12 +340,44 @@ func _draw() -> void:
 ## 2D games draw it on the game itself. 3D games draw it on the HUD layer above the 3D view.
 func _draw_overlays(ci: CanvasItem) -> void:
 	if _menu_open:
-		ci.draw_rect(Rect2(Vector2.ZERO, size), Color(UiTheme.OUTLINE, 0.72))
+		ci.draw_rect(Rect2(Vector2.ZERO, size), Color(UiTheme.BG, 0.8))
 
 
 ## Called every frame. Subclasses with more canvas layers redraw them here.
 func _request_redraw() -> void:
 	queue_redraw()
+	if _pixel_layer != null:
+		_pixel_layer.queue_redraw()
+
+
+## The world of a pixel game is drawn into a 480x270 view that stands for the 1920x1080 screen (the drawing code keeps its
+## 1920x1080 units), and the view is scaled up with nearest filtering, so that one world pixel is 4x4 screen pixels. It is
+## drawn behind the game node, so the HUD, the menus and the dim layer stay at full resolution on top (REQ-GM-47a).
+func _build_pixel_view() -> void:
+	_pixel_viewport = SubViewport.new()
+	_pixel_viewport.size = PIXEL_VIEW
+	_pixel_viewport.size_2d_override = DESIGN_SIZE
+	_pixel_viewport.size_2d_override_stretch = true
+	_pixel_viewport.disable_3d = true
+	_pixel_viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	_pixel_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(_pixel_viewport)
+	_pixel_layer = Control.new()
+	_pixel_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pixel_layer.size = Vector2(DESIGN_SIZE)
+	_pixel_layer.draw.connect(func(): _world_draw(_pixel_layer))
+	_pixel_viewport.add_child(_pixel_layer)
+	resized.connect(_fit_pixel_view)   # The view stands for the whole screen, whatever its size.
+	var view := TextureRect.new()
+	view.texture = _pixel_viewport.get_texture()
+	view.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	view.stretch_mode = TextureRect.STRETCH_SCALE
+	view.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	view.z_index = -1
+	add_child(view)
+	view.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_fit_pixel_view()
 
 
 # ---- Override in subclasses ----
@@ -352,6 +391,22 @@ func _game_tick(_delta: float) -> void:
 
 
 func _game_draw() -> void:
+	pass
+
+
+func _fit_pixel_view() -> void:
+	if size.x > 0.0 and size.y > 0.0:
+		_pixel_viewport.size_2d_override = Vector2i(size)
+		_pixel_layer.size = size
+
+
+## True when the world of the game is drawn in the low-resolution view (REQ-GM-47a).
+func _pixel_world() -> bool:
+	return false
+
+
+## Draws the world of a pixel game on `ci`, in 1920x1080 units. It fills the whole view itself.
+func _world_draw(_ci: CanvasItem) -> void:
 	pass
 
 

@@ -264,7 +264,8 @@ func _visual_rules() -> void:
 func _maze_levels() -> void:
 	print("maze difficulty")
 	var rng := _rng(7)
-	var levels: Dictionary = load("res://scripts/game/maze/maze_game.gd").LEVELS
+	var Maze = load("res://scripts/game/maze/maze_game.gd")
+	var levels: Dictionary = Maze.LEVELS
 	var walls := {}
 	var solvable := true
 	var fits := true
@@ -275,7 +276,7 @@ func _maze_levels() -> void:
 			var m := MazeGenerator.new()
 			m.generate(int(lv.cols), int(lv.rows), rng, float(lv.openings))
 			solvable = solvable and m.is_solvable()
-			total += m.wall_rects(float(lv.cell), 10.0).size()
+			total += m.wall_rects(float(lv.cell), 12.0).size()
 		walls[d] = total / 30.0
 		fits = fits and int(lv.cols) * float(lv.cell) <= 1800.0 and int(lv.rows) * float(lv.cell) + 46.0 + 24.0 <= 960.0 + 46.0
 	_check(solvable, "mazes of every difficulty are solvable")
@@ -287,6 +288,15 @@ func _maze_levels() -> void:
 			"fewer openings (more complex) with the difficulty")
 	_check(walls.easy < walls.medium and walls.medium < walls.hard, "more walls with the difficulty: %s" % str(walls))
 	_check(levels.medium.cols == 17 and levels.medium.rows == 9 and levels.medium.cell == 96.0, "Medium is the maze from before")
+	var on_grid := fmod(Maze.WALL, Shell.WORLD_PIXEL) == 0.0
+	for d in levels:
+		on_grid = on_grid and fmod(float(levels[d].cell), Shell.WORLD_PIXEL) == 0.0
+	_check(on_grid and Maze.WALL == 12.0, "the walls and the cells are on the pixel grid (REQ-MZ-7)")
+	# A corridor is wide enough for the ball in every difficulty (the wall is thicker than before).
+	var corridors_ok := true
+	for d in levels:
+		corridors_ok = corridors_ok and float(levels[d].cell) - Maze.WALL >= Maze.BALL_R * 2.0 + 16.0
+	_check(corridors_ok, "a corridor of every difficulty is at least 16 px wider than the ball")
 
 
 ## Snowball Splat difficulty (REQ-SS-20 to 22): faster Puffs and fewer of them as it grows.

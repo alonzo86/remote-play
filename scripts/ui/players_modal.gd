@@ -10,14 +10,13 @@ var _close_button: Button
 
 
 func _init() -> void:
-	card_width = 1240
+	card_width = 1400
 
 
 func _build() -> void:
 	body.add_theme_constant_override("separation", 18)
-	var t := UiKit.title("Players", 56, UiTheme.CARD_TEXT)
-	body.add_child(t)
-	body.add_child(UiKit.label("Only phones in this room, on this Wi-Fi, can join.", 28, UiTheme.CARD_DIM))
+	body.add_child(UiKit.title("Players", 48))
+	body.add_child(UiKit.label("Only phones in this room, on this Wi-Fi, can join.", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 
 	var cols := HBoxContainer.new()
 	cols.add_theme_constant_override("separation", 40)
@@ -25,7 +24,7 @@ func _build() -> void:
 
 	var list: VBoxContainer = SlotList.new()
 	list.removable = true
-	list.row_height = 78
+	list.row_height = 64
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.remove_requested.connect(func(slot): App.server.kick(slot))
 	cols.add_child(list)
@@ -39,14 +38,13 @@ func _build() -> void:
 	var ip: String = App.discovery.ip if App.discovery != null else ""
 	qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code)
 	side.add_child(qr)
-	var room := UiKit.title(App.server.room_code, 64, UiTheme.ROOM)
+	var room := UiKit.title(App.server.room_code, 48)
 	room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	side.add_child(room)
 
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_END
 	body.add_child(row)
-	_close_button = UiKit.button("Close", close, true)
-	_close_button.custom_minimum_size = Vector2(260, 0)
+	_close_button = UiKit.item("Close", close)
 	row.add_child(_close_button)
 	UiKit.focus_later(_close_button)

@@ -3,6 +3,7 @@ extends SceneTree
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const PlayerInput = preload("res://scripts/input/player_input.gd")
 ## Smoke test of the settings view (REQ-GM-90 to 95) with the maze. Run:
 ##   godot --headless --path . --script tests/smoke_settings.gd -- --role=tv
 ## No phone is needed: the view is opened with App.go_game_settings(). The rest of the flow is in smoke_tv.gd.
@@ -64,7 +65,7 @@ func _run() -> void:
 	var sv: Control = app.current_screen()
 	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 1 and sv.rows[0].value == "medium",
 			"the settings view of the maze has the row Difficulty on Medium")
-	_check(sv.rows[0].has_focus() and sv.rows[0]._value.text == "Medium", "the row has the focus and shows Medium")
+	_check(sv.rows[0].has_focus() and sv.rows[0]._value.text == "MEDIUM", "the row has the focus and shows Medium")
 	var row_left: float = sv.rows[0].global_position.x
 	var row_right: float = row_left + sv.rows[0].size.x
 	_check(is_equal_approx(sv.rows[0].size.x, sv.rows[0].MIN_W) and is_equal_approx(sv.back_button.global_position.x, row_left)
@@ -78,7 +79,7 @@ func _run() -> void:
 	left.action = "ui_left"
 	left.pressed = true
 	sv.rows[0]._gui_input(right)
-	_check(sv.rows[0].value == "hard" and sv.rows[0]._value.text == "Hard", "Right gives Hard")
+	_check(sv.rows[0].value == "hard" and sv.rows[0]._value.text == "HARD", "Right gives Hard")
 	sv.rows[0]._gui_input(right)
 	_check(sv.rows[0].value == "hard", "Right at the last value stops")
 	sv.rows[0]._gui_input(left)
@@ -134,7 +135,7 @@ func _run() -> void:
 	_check(picker.index == 0 and picker.value == "1", "Track 1 is in the middle at first")
 	_check(sv.rows[0].global_position.y < picker.global_position.y and picker.global_position.y < sv.start_button.global_position.y,
 			"the carousel is under Difficulty and above Start")
-	_check(picker.size.x == picker.VIEW.x and is_equal_approx(sv.rows[0].size.x, picker.size.x)
+	_check(picker.size.x == sv.rows[0].MIN_W and is_equal_approx(sv.rows[0].size.x, picker.size.x)
 			and is_equal_approx(sv.rows[0].global_position.x, picker.global_position.x)
 			and is_equal_approx(sv.back_button.global_position.x, picker.global_position.x)
 			and is_equal_approx(sv.start_button.global_position.x + sv.start_button.size.x, picker.global_position.x + picker.size.x),
@@ -217,10 +218,48 @@ func _run() -> void:
 	_check(not sv.start_button.disabled and sv.reason_label.text == "", "with a phone the view has no reason line and Start works")
 	app.server.kick(0)
 	await _frames(4)
-	_check(sv.start_button.disabled and sv.reason_label.text == "Needs 1 player",
+	_check(sv.start_button.disabled and sv.reason_label.text == "NEEDS 1 PLAYER",
 			"with no phone Start is disabled and the line says why: %s" % sv.reason_label.text)
 	sv.start()
 	await _frames(3)
 	_check(app.current_screen() == sv, "Start does nothing when the phones do not fit the game")
+	await _slot_list(app)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
+
+
+## The slot rows: a state word for each slot, a Remove item for a joined or lost slot, and the focus stays on a Remove item when
+## the list is rebuilt (REQ-FL-8, 33).
+func _slot_list(app: Node) -> void:
+	print("slot list")
+	var players: Array = app.server.players
+	players[0].state = PlayerInput.State.CONNECTED
+	players[0].player_name = "Ann"
+	players[1].state = PlayerInput.State.LOST
+	players[1].player_name = "Bo"
+	players[2].state = PlayerInput.State.EMPTY
+	var list: VBoxContainer = load("res://scripts/ui/slot_list.gd").new()
+	list.removable = true
+	var removed: Array[int] = []
+	list.remove_requested.connect(func(slot: int): removed.append(slot))
+	root.add_child(list)
+	await process_frame
+	var words: Array[String] = []
+	for row in list.get_children():
+		var labels := row.get_children().filter(func(n: Node) -> bool: return n is Label)
+		words.append((labels[-1] as Label).text)
+	_check(words == ["READY", "LOST", "WAIT", "WAIT"], "each slot shows a state word: %s" % str(words))
+	_check(list.remove_button(0) != null and list.remove_button(1) != null and list.remove_button(2) == null,
+			"a joined or lost slot has a Remove item, an empty slot has none")
+	list.remove_button(1).pressed.emit()
+	_check(removed == [1], "Remove reports the slot")
+	list.remove_button(1).grab_focus()
+	players[1].state = PlayerInput.State.EMPTY   # The phone is removed: the list rebuilds and the focus moves to the first Remove.
+	await process_frame
+	await process_frame
+	await process_frame
+	_check(list.remove_button(1) == null and list.first_remove_button() == list.remove_button(0)
+			and list.remove_button(0).has_focus(), "after a rebuild the focus stays on a Remove item")
+	for p in players:
+		p.reset()
+	list.queue_free()

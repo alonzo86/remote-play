@@ -13,7 +13,7 @@ the platform wins the round and gets a point. A match has 3 rounds. The player w
 a bumper that falls is back in the next round. The game needs 2 players or more.
 
 Registry entry: `description` (one line) and `tile` (`assets/tiles/sumo_bumpers.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
-Visual language: shell, player colors, toy-like world (REQ-GM-45 to 49). Check the tile next to the Games screen.
+Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 48, 49). Check the tile next to the Games screen.
 
 ## Gaps and exceptions
 
@@ -55,13 +55,13 @@ Players and feedback
 |----|-------------|--------|-------|
 | REQ-SB-12 | A player who leaves takes the bumper out and keeps no points in the ranking (REQ-GM-21). When one player is left, the match ends at once with the result menu. When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sumo |
 | REQ-SB-13 | A lost phone pauses the match with the card of REQ-GM-30. Nothing runs during the pause (the shrink, the countdown). | Done | smoke_tv (shared base class) |
-| REQ-SB-14 | The chips (`Shell.player_chips`, in slot order) show the points of each player. A bumper has its slot number on it (`Shell.ball`, REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points), Device (RECENTER) |
+| REQ-SB-14 | The chips (`Shell.player_chips`, in slot order) show the points of each player. A bumper has its slot number on it (`Shell.ball_number`, REQ-GM-46, REQ-GM-47n). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points), Device (RECENTER) |
 
 Look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The platform is a round, dark disk (so that every player color has a contrast of 3:1 or more, REQ-GM-47e) with a dark outline and a hard shadow, and a light edge ring that gets red when the platform is small (a warning without text). The background is from the Party Pop set. All text is 28 px or larger and inside the 60 px margin. | Device | review, Device |
+| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n): it is drawn in the 480x270 view. The world palette is black (`UiTheme.BG`), dark gray `#3c3c3c` and blue `#0058f8` star pixels (48 of them, always in the same places), the platform `#2a1070`, its ring `#8c78e6` that turns to `#ff5a4d` when the platform is small, and white for the eyes and the dash ring; the bumpers use the slot colors. The platform is a dark disk (every player color has a contrast of 3:1 or more, REQ-GM-47m) with a one-pixel black outline. A bumper has a one-pixel black outline, square eyes with pupils that step to the side it rolls, and its slot number at full resolution on it, a little under the middle (`Shell.ball_number()`). A fallen bumper shrinks in 4 steps in 0.8 s, and "WHEE!" is drawn at full resolution above it. All text is 32 px or larger and inside the 60 px margin. | Device | review, smoke_sumo (the view), Device |
 | REQ-SB-16 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080: the simulation runs in 1920x1080 units and only the drawing is scaled. | Done | smoke_sumo |
 
 Settings (REQ-GM-90 to 97)
@@ -109,3 +109,7 @@ The song `sumo_bumpers` plays from "GO": Heavy and comic, a march at 132 BPM, D 
 | REQ-SB-S4 | `sumo_round_win` | A round has a winner (haptic 120 ms). | Rising run | Device (test 18) |
 
 Haptics on the phone of the player: Countdown end: 60 ms; Bump: 20 ms; dash: 30 ms; fall: 80 ms; Round win: 120 ms; match end: 400 ms. The shrinking drone is not built.
+
+## Languages (REQ-GM-47o)
+
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, chips, timer); the "Round x of y" text uses `Shell.mx()`. The game world is not mirrored.

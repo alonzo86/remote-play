@@ -16,7 +16,7 @@ const TILE := Vector2(150.0, 170.0)    # The tile in the middle.
 const SPACING := 140.0                 # The distance between the middle of two tiles (the first neighbours, before the scale).
 const SHRINK := 0.28                   # The size lost by a tile one place away from the middle. Two places: twice that.
 const SLIDE_S := 0.16
-const FOCUS_W := 8
+const FOCUS_W := 6
 
 var row := {}
 var value := ""
@@ -34,9 +34,9 @@ var _veils := {}        # The veil style for each fade step (made once, not in e
 func _ready() -> void:
 	custom_minimum_size = VIEW
 	focus_mode = Control.FOCUS_ALL
-	_sb_tile = UiTheme.card(Color.WHITE, UiTheme.OUTLINE, 5, 22, true)
-	_sb_selected = UiTheme.card(Color.WHITE, UiTheme.SELECTED, 8, 22, true)   # REQ-GM-97: the choice has a yellow border.
-	_sb_focus = UiTheme.card(Color(1, 1, 1, 0), UiTheme.FOCUS_BORDER, FOCUS_W, 26, false)
+	_sb_tile = UiTheme.card(Color.WHITE, UiTheme.TEXT_DIM, 6)
+	_sb_selected = UiTheme.card(Color.WHITE, UiTheme.SELECTED, 6)   # REQ-GM-97: the choice has a yellow border.
+	_sb_focus = UiTheme.card(Color(1, 1, 1, 0), UiTheme.TEXT, FOCUS_W)   # The focus: a white frame around the yellow one.
 	for i in row.values.size():
 		var sketch: Array = []
 		if i < MarbleTrack.FIXED_SEEDS.size():
@@ -138,8 +138,9 @@ func _draw() -> void:
 	var x0 := mid.x - dot_gap * (tiles.size() - 1) * 0.5
 	for i in tiles.size():
 		var near := i == index
-		var dot_color := UiTheme.SELECTED if near else Color(UiTheme.TEXT, 0.45)
-		draw_circle(Vector2(x0 + dot_gap * i, VIEW.y - 14.0), 8.0 if near else 5.0, dot_color)
+		var dot_color := UiTheme.SELECTED if near else UiTheme.TEXT_DIM
+		var half := 8.0 if near else 5.0
+		draw_rect(Rect2(Vector2(x0 + dot_gap * i, VIEW.y - 14.0) - Vector2(half, half), Vector2(half, half) * 2.0), dot_color)
 
 
 func _draw_tile(i: int, d: float, mid: Vector2) -> void:
@@ -154,14 +155,14 @@ func _draw_tile(i: int, d: float, mid: Vector2) -> void:
 	var sketch: Array = tiles[i].sketch
 	var line_color := Color(UiTheme.OUTLINE, fade)
 	if sketch.is_empty():
-		draw_string(UiTheme.title_font(), Vector2(rect.position.x, center.y + 36.0 * sc), "?", HORIZONTAL_ALIGNMENT_CENTER, size.x,
-				int(100.0 * sc), line_color)
+		draw_string(UiTheme.font(), Vector2(rect.position.x, center.y + 36.0 * sc), "?", HORIZONTAL_ALIGNMENT_CENTER, size.x,
+				int(96.0 * sc / 8.0) * 8, line_color)
 	else:
 		var pts := PackedVector2Array(fit(sketch, rect.grow(-16.0 * sc)))
-		draw_polyline(pts, line_color, 9.0 * sc, true)
-		draw_polyline(pts, Color(Color.WHITE, fade), 4.0 * sc, true)
-		draw_circle(pts[0], 8.0 * sc, line_color)
-		draw_circle(pts[0], 5.0 * sc, Color(UiTheme.OK, fade))
+		draw_polyline(pts, line_color, 9.0 * sc, false)
+		draw_polyline(pts, Color(Color.WHITE, fade), 4.0 * sc, false)
+		draw_rect(Rect2(pts[0] - Vector2(8.0, 8.0) * sc, Vector2(16.0, 16.0) * sc), line_color)
+		draw_rect(Rect2(pts[0] - Vector2(5.0, 5.0) * sc, Vector2(10.0, 10.0) * sc), Color(UiTheme.OK, fade))
 	if fade < 1.0:   # A veil of the background color: the tiles at the sides are fainter.
 		draw_style_box(_veil(1.0 - fade), rect)
 
@@ -169,5 +170,5 @@ func _draw_tile(i: int, d: float, mid: Vector2) -> void:
 func _veil(a: float) -> StyleBoxFlat:
 	var step := roundi(a * 20.0)
 	if not _veils.has(step):
-		_veils[step] = UiTheme.card(Color(UiTheme.BG, step / 20.0), Color(0, 0, 0, 0), 0, 22, false)
+		_veils[step] = UiTheme.card(Color(UiTheme.BG, step / 20.0), Color(0, 0, 0, 0), 0)
 	return _veils[step]

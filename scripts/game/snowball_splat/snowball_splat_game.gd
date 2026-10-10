@@ -17,20 +17,21 @@ const FLIGHT_TIME := 0.12       # Seconds that a snowball flies (REQ-SS-6).
 # The play area is the screen inside the margin, under the HUD (REQ-SS-3).
 const AREA_TOP := 150.0
 const AREA_MARGIN := 60.0
-const TIMER_X := 560.0          # The timer pill has a fixed place, between the title and the chips.
-const TIMER_W := 160.0          # The chips of 4 players are at most 1110 px wide, so they start right of the timer.
+const TIMER_X := 520.0          # The timer box has a fixed place, between the title and the chips.
+const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide. With 4 chips of 270 px the row still fits (a test).
 const HINT_TIME := 4.0          # Seconds of play with the hint on the screen.
 
-# Look (REQ-SS-12, REQ-GM-47). The board is dark so that every player color has a contrast of 3:1 or more.
+# Look (REQ-SS-12, REQ-GM-47i to 47n). The board is dark so that every player color has a contrast of 3:1 or more.
 const BACKGROUND := Color("1b3a8a")
 const BOARD_COLOR := Color("12205a")
-const PUFF_COLORS := [Color("3ddcff"), Color("ff3d8b"), Color("57cc99")]   # Party Pop cyan, pink and OK green.
-const LITTLE_COLOR := Color("ffd23f")                                      # Party Pop yellow.
-const OUTLINE_BIG := 6.0
+const PUFF_COLORS := [Color("3ddcff"), Color("ff3d8b"), Color("57cc99")]   # Cyan, pink and green.
+const LITTLE_COLOR := Color("ffd23f")                                      # Yellow.
 const CURSOR_R := 40.0
-const BADGE_R := 17.0
+const BADGE_R := 24.0           # 12 world pixels across: the slot number on it is drawn by the HUD (REQ-GM-47n).
 const GROUND_H := 64.0          # The strip of snow at the bottom of the board.
 const FLAKES := 28
+const STAR_COUNT := 48
+const POOF_STEPS := 3           # The poof of a snowball that missed grows in 3 hard steps.
 
 const BUZZ_GAP_MS := 100        # REQ-GM-43.
 const FLIGHT_COUNT := 12
@@ -78,13 +79,12 @@ var _presses: Array[int] = []    # Slots of the A presses, in the order they arr
 var _flights: Array[Flight] = []
 var _effects: Array[Effect] = []
 var _seq := 0
-var _sb_board: StyleBoxFlat      # Made once. Drawing must not create objects every frame (REQ-GM-51).
-var _sb_snow: StyleBoxFlat
+var _stars := PackedVector2Array()
+var _snow_time := 0.0            # Game time of the snowfall: it stands still while the game is paused (REQ-FL-43).
 
 
 func _game_ready() -> void:
-	_sb_board = UiTheme.card(BOARD_COLOR, UiTheme.OUTLINE, UiTheme.OUTLINE_W, 30, true)
-	_sb_snow = UiTheme.card(Color.WHITE, UiTheme.OUTLINE, int(OUTLINE_BIG) - 1, 28, false)
+	_stars = Shell.star_field(STAR_COUNT, 17)
 	if start_props.has("seed"):
 		_rng.seed = int(start_props.seed)   # REQ-SS-9: a test fixes the Puffs. Restart keeps the seed.
 	else:
@@ -130,6 +130,7 @@ func _area() -> Rect2:
 
 
 func _game_tick(delta: float) -> void:
+	_snow_time += delta
 	if is_over:
 		return
 	var area := _area()
@@ -239,115 +240,149 @@ func _finish() -> void:
 	var heading := ""
 	if _board.ranking().size() == 1:   # The medal text says which difficulty was played (REQ-SS-21).
 		var medal := Medals.medal(_board.ranking()[0].score, tiers)
-		heading = "%s (%s)" % [Medals.label(medal), difficulty.capitalize()]
+		heading = "%s (%s)" % [Medals.label(medal), Lang.t(difficulty.capitalize())]
 	open_results(_board, tiers, heading)
 
 
 # ---- Drawing ----
 
-func _game_draw() -> void:
+func _pixel_world() -> bool:
+	return true
+
+
+## The world: the sky, the board, the snowfall, the ground, the Puffs, the snowballs, the effects and the cursors. All text
+## and the slot numbers are drawn by the HUD (REQ-GM-47n).
+func _world_draw(ci: CanvasItem) -> void:
 	var area := _area()
 	var k := PuffField.scale_for(area)
-	draw_rect(Rect2(Vector2.ZERO, size), BACKGROUND)
-	draw_style_box(_sb_board, area.grow(12.0))
-	_draw_snowfall(area)
-	draw_style_box(_sb_snow, Rect2(area.position.x + 6.0, area.end.y - GROUND_H - 4.0, area.size.x - 12.0, GROUND_H))
+	ci.draw_rect(Rect2(Vector2.ZERO, size), BACKGROUND)
+	Shell.draw_stars(ci, _stars)
+	ci.draw_rect(area.grow(12.0 + Shell.WORLD_PIXEL), UiTheme.OUTLINE)
+	ci.draw_rect(area.grow(12.0), BOARD_COLOR)
+	_draw_snowfall(ci, area)
+	var ground := Rect2(Shell.snap(Vector2(area.position.x + 8.0, area.end.y - GROUND_H - 4.0)),
+			Vector2(area.size.x - 16.0, GROUND_H))
+	ci.draw_rect(ground.grow(Shell.WORLD_PIXEL), UiTheme.OUTLINE)
+	ci.draw_rect(ground, Color.WHITE)
 	for p in _field.puffs:
-		_draw_puff(PuffField.center_of(p, area), p.radius * k, _body_color(p.kind, p.color_index), p.dir, p.age, false, 0.0)
+		_draw_puff(ci, PuffField.center_of(p, area), p.radius * k, _body_color(p.kind, p.color_index), p.dir, p.age, false, 0.0)
 	for f in _flights:
 		if f.age >= 0.0:
-			_draw_snowball(f)
+			_draw_snowball(ci, f)
 	for e in _effects:
 		if e.age >= 0.0:
-			_draw_effect(e)
+			_draw_effect(ci, e)
 	for s in _throwers:
-		_draw_cursor(_throwers[s])
+		_draw_cursor(ci, _throwers[s])
+
+
+func _game_draw() -> void:
+	var area := _area()
+	for s in _throwers:   # The slot number on the badge of each cursor.
+		var t: Thrower = _throwers[s]
+		Shell.ball_number(self, _badge_pos(t), BADGE_R, player(s).color, s)
+	var k := PuffField.scale_for(area)
+	for e in _effects:   # The points of a hit Puff float up with it.
+		if e.age >= 0.0 and e.kind == "hit":
+			var state := _hit_state(e)
+			Shell.text_centered(self, state.center + Vector2(0.0, -state.radius - 20.0), e.text, 48, e.color)
 	_draw_hud()
 
 
-## A slow snowfall for the mood. It only depends on the clock, and it makes no objects.
-func _draw_snowfall(area: Rect2) -> void:
-	var t := Time.get_ticks_msec() * 0.001
+## A slow snowfall for the mood: square flakes of one or two world pixels. It depends on the game time only and makes no objects.
+func _draw_snowfall(ci: CanvasItem, area: Rect2) -> void:
 	for i in FLAKES:
 		var x := area.position.x + fposmod(i * 211.3 + sin(i * 1.7) * 40.0, area.size.x)
-		var y := area.position.y + fposmod(t * (28.0 + (i % 5) * 9.0) + i * 97.7, area.size.y - GROUND_H)
-		draw_circle(Vector2(x, y), 3.0 + (i % 3) * 1.5, Color(1, 1, 1, 0.8))
+		var y := area.position.y + fposmod(_snow_time * (28.0 + (i % 5) * 9.0) + i * 97.7, area.size.y - GROUND_H)
+		ci.draw_rect(Rect2(Shell.snap(Vector2(x, y)), Vector2.ONE * Shell.WORLD_PIXEL * (1.0 + (i % 2))), Color.WHITE)
 
 
-## A Puff: a round fuzzy body with tufts and small wings, big eyes that look the way it flies, and a smile (REQ-SS-12).
-## `happy` closes the eyes with a smile. `snow` from 0 to 1 covers the top with snow (REQ-SS-13).
-func _draw_puff(c: Vector2, r: float, body: Color, dir: int, age: float, happy: bool, snow: float) -> void:
-	var ow := maxf(OUTLINE_BIG * (r / 100.0), 3.0)
-	var flap := sin(age * 9.0) * r * 0.14
+## A Puff: a round fuzzy body with tufts and small wings, big eyes that look the way it flies, and a smile (REQ-SS-12). One
+## world pixel of outline, flat colors. `happy` closes the eyes with a smile. `snow` (0 to 1) puts snow on top (REQ-SS-13).
+func _draw_puff(ci: CanvasItem, c: Vector2, r: float, body: Color, dir: int, age: float, happy: bool, snow: float) -> void:
+	var ow := Shell.WORLD_PIXEL
+	c = Shell.snap(c)
+	var flap := wing_flap(r, age)
 	var wing_l := c + Vector2(-r * 0.98, -r * 0.05 + flap)
 	var wing_r := c + Vector2(r * 0.98, -r * 0.05 - flap)
-	var wing := body.lightened(0.25)
-	draw_circle(wing_l, r * 0.3 + ow, UiTheme.OUTLINE)
-	draw_circle(wing_r, r * 0.3 + ow, UiTheme.OUTLINE)
+	ci.draw_circle(wing_l, r * 0.3 + ow, UiTheme.OUTLINE)
+	ci.draw_circle(wing_r, r * 0.3 + ow, UiTheme.OUTLINE)
 	for i in 8:
 		var a := i * TAU / 8.0
-		draw_circle(c + Vector2(cos(a), sin(a)) * r * 0.82, r * 0.34 + ow, UiTheme.OUTLINE)
-	draw_circle(c, r + ow * 0.4, UiTheme.OUTLINE)
-	draw_circle(wing_l, r * 0.3, wing)
-	draw_circle(wing_r, r * 0.3, wing)
+		ci.draw_circle(c + Vector2(cos(a), sin(a)) * r * 0.82, r * 0.34 + ow, UiTheme.OUTLINE)
+	ci.draw_circle(c, r + ow, UiTheme.OUTLINE)
+	ci.draw_circle(wing_l, r * 0.3, body)
+	ci.draw_circle(wing_r, r * 0.3, body)
 	for i in 8:
 		var a2 := i * TAU / 8.0
-		draw_circle(c + Vector2(cos(a2), sin(a2)) * r * 0.82, r * 0.34, body)
-	draw_circle(c, r * 0.96, body)
+		ci.draw_circle(c + Vector2(cos(a2), sin(a2)) * r * 0.82, r * 0.34, body)
+	ci.draw_circle(c, r, body)
 	if snow > 0.0:
 		for cap in [[Vector2(0, -0.78), 0.4], [Vector2(-0.4, -0.6), 0.27], [Vector2(0.4, -0.62), 0.25]]:
 			var cc: Vector2 = c + cap[0] * r
-			draw_circle(cc, r * cap[1] + ow * 0.5, UiTheme.OUTLINE)
-			draw_circle(cc, r * cap[1], Color.WHITE)
+			ci.draw_circle(cc, r * cap[1] + ow, UiTheme.OUTLINE)
+			ci.draw_circle(cc, r * cap[1], Color.WHITE)
 	var eye_l := c + Vector2(-r * 0.3, -r * 0.1)
 	var eye_r := c + Vector2(r * 0.3, -r * 0.1)
 	if happy:
-		draw_arc(eye_l, r * 0.16, PI, TAU, 12, UiTheme.OUTLINE, ow)
-		draw_arc(eye_r, r * 0.16, PI, TAU, 12, UiTheme.OUTLINE, ow)
+		ci.draw_arc(eye_l, r * 0.16, PI, TAU, 12, UiTheme.OUTLINE, ow)
+		ci.draw_arc(eye_r, r * 0.16, PI, TAU, 12, UiTheme.OUTLINE, ow)
 	else:
 		for eye in [eye_l, eye_r]:
-			draw_circle(eye, r * 0.23 + ow * 0.5, UiTheme.OUTLINE)
-			draw_circle(eye, r * 0.23, Color.WHITE)
-			draw_circle(eye + Vector2(dir * r * 0.08, r * 0.02), r * 0.11, UiTheme.OUTLINE)
-	draw_arc(c + Vector2(0, r * 0.1), r * 0.3, PI * 0.2, PI * 0.8, 16, UiTheme.OUTLINE, ow)
+			ci.draw_circle(eye, r * 0.23 + ow, UiTheme.OUTLINE)
+			ci.draw_circle(eye, r * 0.23, Color.WHITE)
+			ci.draw_circle(eye + Vector2(dir * r * 0.08, r * 0.02), r * 0.11, UiTheme.OUTLINE)
+	ci.draw_arc(c + Vector2(0, r * 0.1), r * 0.3, PI * 0.2, PI * 0.8, 16, UiTheme.OUTLINE, ow)
 
 
-func _draw_snowball(f: Flight) -> void:
+func _draw_snowball(ci: CanvasItem, f: Flight) -> void:
 	var t := clampf(f.age / FLIGHT_TIME, 0.0, 1.0)
-	var pos := f.from.lerp(f.to, t) + Vector2(0.0, -sin(t * PI) * 60.0)
-	var r := lerpf(18.0, 11.0, t)
-	draw_circle(pos, r + 4.0, UiTheme.OUTLINE)
-	draw_circle(pos, r, Color.WHITE)
+	var pos := Shell.snap(f.from.lerp(f.to, t) + Vector2(0.0, -sin(t * PI) * 60.0))
+	var r := lerpf(20.0, 12.0, t)
+	ci.draw_circle(pos, r + Shell.WORLD_PIXEL, UiTheme.OUTLINE)
+	ci.draw_circle(pos, r, Color.WHITE)
 
 
-func _draw_effect(e: Effect) -> void:
-	if e.kind == "poof":
-		var life := e.age / POOF_LIFE
-		var a := 1.0 - life
-		draw_circle(e.pos, 14.0 + life * 30.0, Color(1, 1, 1, a * 0.8))
-		draw_arc(e.pos, 20.0 + life * 44.0, 0.0, TAU, 24, Color(UiTheme.OUTLINE, a * 0.6), 4.0)
-		return
+## How far the wings move up and down (REQ-SS-12). It is a whole number of world pixels, and a small Puff still moves its wings
+## by at least one.
+static func wing_flap(r: float, age: float) -> float:
+	return snappedf(sin(age * 9.0) * maxf(r * 0.14, Shell.WORLD_PIXEL), Shell.WORLD_PIXEL)
+
+
+## The center and the radius of a hit Puff that floats away (REQ-SS-13).
+func _hit_state(e: Effect) -> Dictionary:
 	var t := e.age / HIT_LIFE
-	var c := e.pos + Vector2(0.0, -t * 150.0)
-	_draw_puff(c, e.radius * (1.0 - 0.45 * t), e.body, e.dir, e.age, true, 1.0)
-	var top := c + Vector2(-70.0, -e.radius * (1.0 - 0.45 * t) - 20.0)
-	Shell.text(self, top, e.text, 48, e.color, HORIZONTAL_ALIGNMENT_CENTER, 140.0)
+	return {"center": e.pos + Vector2(0.0, -t * 150.0), "radius": e.radius * (1.0 - 0.45 * t)}
 
 
-func _draw_cursor(t: Thrower) -> void:
+## The size step (0 to 2) of the poof of a missed snowball after `age` seconds.
+static func poof_step(age: float) -> int:
+	return clampi(floori(age / POOF_LIFE * POOF_STEPS), 0, POOF_STEPS - 1)
+
+
+func _draw_effect(ci: CanvasItem, e: Effect) -> void:
+	if e.kind == "poof":
+		var step := poof_step(e.age)   # A white ring of snow in 3 hard steps, no fade.
+		ci.draw_arc(Shell.snap(e.pos), 20.0 + step * 20.0, 0.0, TAU, 24, UiTheme.OUTLINE, Shell.WORLD_PIXEL * 3.0)
+		ci.draw_arc(Shell.snap(e.pos), 20.0 + step * 20.0, 0.0, TAU, 24, Color.WHITE, Shell.WORLD_PIXEL)
+		return
+	var state := _hit_state(e)
+	_draw_puff(ci, state.center, state.radius, e.body, e.dir, e.age, true, 1.0)
+
+
+func _badge_pos(t: Thrower) -> Vector2:
+	return Shell.snap(t.aim + Vector2(CURSOR_R, -CURSOR_R) * 0.95)
+
+
+func _draw_cursor(ci: CanvasItem, t: Thrower) -> void:
 	var col: Color = player(t.slot).color
-	var c := t.aim
-	draw_arc(c, CURSOR_R, 0.0, TAU, 48, UiTheme.OUTLINE, 14.0)
-	draw_arc(c, CURSOR_R, 0.0, TAU, 48, col, 8.0)
+	var c := Shell.snap(t.aim)
+	ci.draw_arc(c, CURSOR_R, 0.0, TAU, 48, UiTheme.OUTLINE, Shell.WORLD_PIXEL * 4.0)
+	ci.draw_arc(c, CURSOR_R, 0.0, TAU, 48, col, Shell.WORLD_PIXEL * 2.0)
 	if t.can_throw():   # A snowball in the middle: ready to throw.
-		draw_circle(c, 12.0, UiTheme.OUTLINE)
-		draw_circle(c, 9.0, Color.WHITE)
-	# The slot number on a badge, so that players do not depend on the color alone (REQ-GM-46).
-	var b := c + Vector2(CURSOR_R, -CURSOR_R) * 0.95
-	draw_circle(b, BADGE_R + 4.0, UiTheme.OUTLINE)
-	draw_circle(b, BADGE_R, col)
-	draw_string(UiTheme.title_font(), b + Vector2(-BADGE_R, 8.0), str(t.slot + 1), HORIZONTAL_ALIGNMENT_CENTER,
-			BADGE_R * 2.0, 24, Color.WHITE)
+		ci.draw_circle(c, 12.0 + Shell.WORLD_PIXEL, UiTheme.OUTLINE)
+		ci.draw_circle(c, 12.0, Color.WHITE)
+	Shell.pixel_ball(ci, _badge_pos(t), BADGE_R, col)   # The slot number is on it, drawn by the HUD (REQ-GM-46).
 
 
 func _draw_hud() -> void:

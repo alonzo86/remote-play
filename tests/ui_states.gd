@@ -1,9 +1,11 @@
 extends SceneTree
-## Button states, the Leave button of the phone wait screen (REQ-FL-41, 41a, 52, 53), English and left to right (REQ-FL-54),
-## and the Back key (REQ-FL-55).
+## Menu item states and the pixel cursor, the double frame, blinking prompts (REQ-FL-38, 41, 42, 53), the Leave box of the phone
+## wait screen (REQ-FL-52), English and left to right (REQ-FL-54), the game tile images and the Back key (REQ-FL-55).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/ui_states.gd -- --role=controller
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const UiKit = preload("res://scripts/ui/ui_kit.gd")
+const Shell = preload("res://scripts/game/shell.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
 var _checks := 0
@@ -34,34 +36,60 @@ func _run() -> void:
 
 
 func _button_styles() -> void:
-	print("button states")
-	# Three button colors with a shadow, a black focus border, a sinking pressed state, a gray disabled state
-	# (REQ-FL-41, 41a, 50).
+	print("menu items")
+	# A menu item is text: no box. The focused item is yellow, a destructive one is red, a quiet one is dim. A disabled
+	# one is dim. The text of every state has a contrast of 4.5:1 or more on the black screen (REQ-FL-41, 53).
 	var theme := UiTheme.make()
-	var fills := {"Button": UiTheme.ACCENT, "PrimaryButton": UiTheme.OK, "DangerButton": UiTheme.DANGER,
-			"RowButton": UiTheme.BUTTON, "LightButton": UiTheme.CARD}
-	var btn_ok := true
-	for type in fills:
-		var n := theme.get_stylebox("normal", type) as StyleBoxFlat
-		var f := theme.get_stylebox("focus", type) as StyleBoxFlat
-		var pr := theme.get_stylebox("pressed", type) as StyleBoxFlat
-		var d := theme.get_stylebox("disabled", type) as StyleBoxFlat
-		btn_ok = btn_ok and n.bg_color.is_equal_approx(fills[type]) and n.shadow_offset == UiTheme.SHADOW
-		btn_ok = btn_ok and f.border_color == UiTheme.FOCUS_BORDER and f.border_width_left >= 10
-		btn_ok = btn_ok and f.shadow_offset.x > n.shadow_offset.x
-		btn_ok = btn_ok and f.bg_color.is_equal_approx(n.bg_color)
-		# Pressed: no shadow, and the box moved onto where the shadow was, with the same size.
-		btn_ok = btn_ok and pr.shadow_size == 0 and pr.expand_margin_left == -UiTheme.SHADOW.x \
-				and pr.expand_margin_right == UiTheme.SHADOW.x and pr.expand_margin_bottom == UiTheme.SHADOW.y
-		# Disabled: opaque, gray, no shadow.
-		btn_ok = btn_ok and d.bg_color.a == 1.0 and d.bg_color.s < 0.15 and d.shadow_size == 0
-		btn_ok = btn_ok and UiTheme.contrast(theme.get_color("font_color", type), fills[type]) >= 4.5
-		btn_ok = btn_ok and UiTheme.contrast(theme.get_color("font_disabled_color", type), UiTheme.DISABLED) >= 4.5
-		if not btn_ok:
-			print("    button style problem: ", type)
-			break
-	_check(btn_ok, "buttons: 3 colors, black focus border and lift, sunk pressed state, opaque gray disabled state")
-	_check(fills.Button != fills.PrimaryButton and fills.Button != fills.DangerButton, "yellow, green and red are three colors")
+	var focus_colors := {"Button": UiTheme.ACCENT, "DangerButton": UiTheme.BAD, "QuietButton": UiTheme.ACCENT}
+	var item_ok := true
+	for type in focus_colors:
+		item_ok = item_ok and theme.get_color("font_focus_color", type) == focus_colors[type]
+		for c in ["font_color", "font_focus_color", "font_disabled_color", "font_pressed_color"]:
+			item_ok = item_ok and UiTheme.contrast(theme.get_color(c, type), UiTheme.BG) >= 4.5
+		for st in ["normal", "focus", "pressed", "disabled"]:
+			item_ok = item_ok and theme.get_stylebox(st, type) is StyleBoxEmpty   # No box, no shadow, no outline.
+	_check(item_ok, "menu items: no box, yellow with the focus, red for a destructive item, 4.5:1 or more in every state")
+	_check(theme.get_color("font_color", "QuietButton") == UiTheme.TEXT_DIM and theme.get_color("font_disabled_color", "Button")
+			== UiTheme.DISABLED, "a quiet item and a disabled item are dim")
+	# The cursor is made of pixels: 4 columns of 7, 5, 3 and 1 pixels, tall in the middle (REQ-FL-41).
+	var rects := UiTheme.cursor_rects(Vector2(0, 100), 5.0)
+	_check(rects.size() == 4 and rects[0].size == Vector2(5, 35) and rects[1].size == Vector2(5, 25)
+			and rects[3].size == Vector2(5, 5) and rects[0].position.y == 100.0 - 17.5 and rects[3].position.x == 15.0,
+			"the cursor is a stepped triangle that points right")
+	var flipped := UiTheme.cursor_rects(Vector2(0, 100), 5.0, true)
+	_check(flipped[0].position.x == 15.0 and flipped[3].position.x == 0.0, "a flipped cursor points left (right to left layouts)")
+	var item: Button = UiKit.item("Quit", func(): pass, 40, "danger")
+	root.add_child(item)
+	_check(item.text == "QUIT" and item.theme_type_variation == "DangerButton" and item.focus_mode == Control.FOCUS_ALL,
+			"a menu item shows upper case text and keeps its role")
+	item.queue_free()
+	# The double frame: a 6 px line, 6 px of black, a 6 px line, and the content margin covers all three.
+	var fr := UiTheme.frame(24)
+	_check(fr.rings() == [6, 6, 6] and fr.get_margin(SIDE_LEFT) == 42.0 and fr.outer_color == UiTheme.TEXT
+			and fr.inner_color == UiTheme.FRAME,
+			"a panel has a double frame: white line, black gap, blue line")
+	var box := UiTheme.card(UiTheme.BG, UiTheme.TEXT, 6, 30, true)
+	_check(box.corner_radius_top_left == 0 and box.shadow_size == 0,
+			"boxes have square corners and no shadow, whatever the game asks for")
+	# A prompt blinks with a hard step: 0.55 s on, 0.55 s off.
+	_check(UiTheme.blink_on(0.0) and UiTheme.blink_on(0.54) and not UiTheme.blink_on(0.56) and not UiTheme.blink_on(1.09)
+			and UiTheme.blink_on(1.11), "a prompt is on for 0.55 s and off for 0.55 s")
+	var blink: Label = UiKit.blinking("Press OK")
+	root.add_child(blink)
+	blink._process(0.6)
+	_check(blink.text == "PRESS OK" and blink.modulate.a == 0.0, "the blinking label is hidden in the off half")
+	blink._process(0.55)
+	_check(blink.modulate.a == 1.0, "and shows again in the next on half")
+	blink.queue_free()
+	_check(Shell.countdown_size(0.0) == 352 and Shell.countdown_size(0.1) == 320 and Shell.countdown_size(0.2) == 288
+			and Shell.countdown_size(1.0) == 256, "the countdown number settles in 4 steps of the font grid")
+	var fonts_ok := true
+	for path in [UiTheme.FONT_FILE, UiTheme.FONT_HEBREW]:
+		var imp := FileAccess.get_file_as_string(path + ".import")
+		fonts_ok = fonts_ok and imp.contains("antialiasing=0") and imp.contains("hinting=0") and imp.contains("subpixel_positioning=0")
+	_check(fonts_ok, "both pixel fonts are imported with no smoothing and no hinting, so the pixels stay sharp (REQ-FL-39)")
+	_check(UiTheme.font().fallbacks.size() == 1 and UiTheme.font().has_char("A".unicode_at(0)),
+			"the Hebrew pixel font is the fallback of the arcade font")
 
 
 ## The first tap on Leave arms it (red, "Tap again to leave"), a tap after the time is over arms it again, and
@@ -72,16 +100,15 @@ func _wait_screen_leave() -> void:
 	var wait: Control = load("res://scripts/ui/controller_wait.gd").new()
 	root.add_child(wait)
 	await process_frame
-	_check(wait._leave.text == "Leave" and wait._leave.theme_type_variation == "" and wait._leave_timer.is_stopped(),
-			"Leave starts as a plain button")
+	_check(wait._leave.text == "LEAVE" and wait._leave_timer.is_stopped(), "Leave starts as a white box")
 	app.client._set_state(ControllerClient.State.CONNECTED)
 	wait._leave.pressed.emit()
 	_check(app.client.state == ControllerClient.State.CONNECTED and not wait._leave_timer.is_stopped()
-			and wait._leave.theme_type_variation == "DangerButton" and wait._leave.text.contains("Tap again"),
-			"the first tap arms Leave and does not leave")
+			and wait._leave.get_theme_color("font_color") == UiTheme.BAD and wait._leave.text.contains("TAP AGAIN"),
+			"the first tap arms Leave (red) and does not leave")
 	wait._leave_timer.timeout.emit() # The 3 s are over.
-	_check(wait._leave.text == "Leave" and wait._leave.theme_type_variation == "",
-			"Leave goes back to a plain button when the time is over")
+	_check(wait._leave.text == "LEAVE" and wait._leave.get_theme_color("font_color") == UiTheme.TEXT,
+			"Leave goes back to a white box when the time is over")
 	wait._leave.pressed.emit()
 	wait._leave.pressed.emit()
 	_check(app.client.state == ControllerClient.State.IDLE, "the second tap inside the time leaves the TV")
@@ -105,35 +132,20 @@ func _english_ltr() -> void:
 	probe.queue_free()
 
 
-## The screenshots of the Games screen (REQ-FL-57): rounded in the image, no clipping, and a warning when one cannot load.
+## The screenshots of the Games screen: loaded as they are (square corners, REQ-FL-57), and a warning when one cannot load.
 func _tile_images() -> void:
 	print("game tile images")
 	var tile_script: GDScript = load("res://scripts/ui/game_tile.gd")
 	var registry: GDScript = load("res://scripts/game/registry.gd")
-	var white := Image.create(640, 360, false, Image.FORMAT_RGBA8)
-	white.fill(Color.WHITE)
-	var tex: Texture2D = tile_script.rounded(ImageTexture.create_from_image(white), 20)
-	var img := tex.get_image()
-	_check(img.get_width() == 640 and img.get_height() == 360, "rounding keeps the size of the image")
-	var corners_clear := true
-	for p in [Vector2i(0, 0), Vector2i(639, 0), Vector2i(0, 359), Vector2i(639, 359)]:
-		corners_clear = corners_clear and img.get_pixelv(p).a < 0.05
-	_check(corners_clear, "all four corner pixels are transparent")
-	_check(img.get_pixel(320, 0).a == 1.0 and img.get_pixel(0, 180).a == 1.0 and img.get_pixel(320, 180).a == 1.0,
-			"the middle of the edges and the center stay opaque")
-	# The radius in the pixels of the image is 20 * 640 / 420 = 30.5. The circle center is at (30.5, 30.5).
-	_check(img.get_pixel(3, 3).a < 0.05 and img.get_pixel(14, 14).a > 0.95 and img.get_pixel(636, 3).a < 0.05
-			and img.get_pixel(625, 14).a > 0.95,
-			"the cut follows a circle: (3, 3) is outside it, (14, 14) is inside it, and the right side is the same")
 	_check(tile_script.load_tile("") == null and tile_script.load_tile("res://assets/tiles/does_not_exist.png") == null,
 			"no path or a missing file gives no texture, so the tile shows its placeholder")
 	var all_load := true
 	for g in registry.GAMES:
 		var t: Texture2D = tile_script.load_tile(String(g.tile))
-		if t == null or t.get_width() != 640 or t.get_height() != 360 or t.get_image().get_pixel(0, 0).a > 0.05:
+		if t == null or t.get_width() != 640 or t.get_height() != 360:
 			all_load = false
-			print("    the tile of ", g.id, " did not load with rounded corners")
-	_check(all_load, "the tile of every game in the registry loads, 640x360, with rounded corners")
+			print("    the tile of ", g.id, " did not load")
+	_check(all_load, "the tile of every game in the registry loads, 640x360")
 
 
 ## The Back key goes back one step in the app. It must not quit the app by itself (REQ-FL-55).

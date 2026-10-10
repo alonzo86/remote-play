@@ -209,8 +209,8 @@ func _run() -> void:
 	var labels: Array = []
 	for l in game._menu_box.find_children("*", "Label", true, false):
 		labels.append(l.text)
-	_check(game.is_over and buttons == ["Restart", "Settings", "Back to menu"], "time up opens the result menu: %s" % str(buttons))
-	_check(labels[0].ends_with("(Medium)") and labels[1].contains(" tiles (") and labels[1].ends_with("%)"),
+	_check(game.is_over and buttons == ["RESTART", "SETTINGS", "BACK TO MENU"], "time up opens the result menu: %s" % str(buttons))
+	_check(labels[0].ends_with("(MEDIUM)") and labels[1].contains(" TILES (") and labels[1].ends_with("%)"),
 			"one player gets a medal title with the difficulty and a list row with the tiles and the percent: %s" % str(labels))
 	# The layout comes from the size of the screen (REQ-PG-17): the floor stays inside the margin at 1280x720 and at 1920x1080.
 	var fits_ok := true
@@ -219,9 +219,14 @@ func _run() -> void:
 		await _frames(4)
 		var fit: Dictionary = game._fit()
 		var rect := Rect2(fit.origin, game.floor_map.size() * fit.k)
-		fits_ok = fits_ok and rect.position.x >= 59.0 and rect.end.x <= game.size.x - 59.0 and rect.position.y >= 149.0 \
+		var pitch: float = fit.k * game.REF_TILE
+		fits_ok = fits_ok and fmod(pitch, 4.0) == 0.0 and fmod(fit.origin.x, 4.0) == 0.0 and fmod(fit.origin.y, 4.0) == 0.0 \
+				and rect.position.x >= 59.0 and rect.end.x <= game.size.x - 59.0 and rect.position.y >= 149.0 \
 				and rect.end.y <= game.size.y - 59.0
-	_check(fits_ok, "the floor is inside the margin and under the HUD at 1280x720 and 1920x1080 (REQ-PG-17)")
+	_check(fits_ok, "the floor is inside the margin and under the HUD at 1280x720 and 1920x1080, and a tile is a whole number of "
+			+ "world pixels (REQ-PG-17, REQ-PG-15)")
+	_check(game._pixel_world() and game._pixel_viewport.size == Vector2i(480, 270),
+			"the floor is drawn in the 480x270 pixel view (REQ-PG-15)")
 	game.restart()
 	await _frames(4)
 	_check(is_instance_of(app.current_screen(), PaintGame) and app.current_screen().difficulty == "medium"

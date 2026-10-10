@@ -24,8 +24,8 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
                                                └──────────────────────┘
 ```
 
-- TV flow: Android splash, logo screen, **Connect controllers** (QR code, room code, 4 slots, "Press OK to continue"), **Games** (tiles with a
-  screenshot, the players badge, the Settings gear; the focused tile grows and shows the description), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
+- TV flow: Android splash, logo screen, **Connect controllers** (QR code, room code, 4 slots, "PRESS OK TO CONTINUE"), **Games** (tiles with a
+  screenshot, the players badge, the OPTIONS button; the description of the focused game is in a bar under the grid), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
   Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
 - The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`).
@@ -33,7 +33,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
 - A phone that loses the connection (or is silent for 5 seconds) keeps its slot and reconnects with a token: 30 seconds, and
-  5 minutes while a game is paused for it. The game pauses with a card ("P2 lost connection") and goes on only when the TV user
+  5 minutes while a game is paused for it. The game pauses with a card ("2P LOST CONNECTION") and goes on only when the TV user
   chooses Resume (or Resume without the lost phone). When no player is left, the game ends with "No players connected".
 - Sound (FD-20, [docs/AUDIO_PLAN.md](docs/AUDIO_PLAN.md)): the TV plays an arcade-style song for the menus and one for each game, and sound
   effects. It is made in code by a small chip synthesizer (`scripts/audio/`), so there is no audio file. The Settings screen has Music, Effects
@@ -61,7 +61,7 @@ tools/                   make_icons.gd, patch_android_manifest.sh
 docs/                    requirements, protocol, export, risks
 ```
 
-All screens are built in code in the Party Pop style (docs/TV_FLOW.md). The style is moving to 8-bit arcade (FD-18, docs/ARCADE_STYLE_PLAN.md). Image files: the two fonts (`assets/fonts`),
+All screens are built in code in the 8-bit arcade style (FD-18, docs/TV_FLOW.md, docs/ARCADE_STYLE_PLAN.md): the menus, the phone and the game shell since phase 1; the worlds of Sumo Bumpers (phase 2), Marble Race (phase 3) and Tilt Maze, Paint Grab and Snowball Splat (phase 4) are pixel worlds (a 480x270 view scaled up, REQ-GM-47i to 47n): all game worlds are pixel worlds now. The UI has two languages, English and Hebrew (right to left), chosen on the first start and in Settings (FD-19): `scripts/core/lang.gd` and `scripts/core/strings.gd` (the Hebrew text; the English text is the key). Image files: the pixel font and the Hebrew fallback font (`assets/fonts`),
 the game tile screenshots (`assets/tiles`, made by `tools/make_tiles.gd`), the logo (`assets/logo`) and the icons.
 
 **Separation rule:** `net/` and `input/` never refer to `game/`.
