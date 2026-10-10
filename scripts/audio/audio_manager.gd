@@ -14,6 +14,7 @@ const DUCK := 0.3               # Music level under a menu (a share of the full 
 const WAIT_FOR_GO := 3600.0      # Seconds: "until the countdown ends".
 const FADE := 0.5               # Seconds of a music fade in or out.
 const SILENT_DB := -60.0
+const MUSIC_TRIM_DB := -6.0     # The songs peak near full scale; this keeps them under the effects and avoids clipping.
 const STEP_USEC := 3000        # Time a frame may spend on making a song.
 const CHUNK := 4000            # Samples converted before the time is checked.
 const MUSIC_BUS := "Music"
@@ -76,7 +77,7 @@ func apply_settings() -> void:
 	if not enabled:
 		return
 	var s: Dictionary = App.settings
-	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(MUSIC_BUS), step_db(int(s.get("music_volume", 7))))
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(MUSIC_BUS), step_db(int(s.get("music_volume", 7))) + MUSIC_TRIM_DB)
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(SFX_BUS), step_db(int(s.get("sfx_volume", 8))))
 	AudioServer.set_bus_mute(AudioServer.get_bus_index(MUSIC_BUS), bool(s.get("mute", false)))
 	AudioServer.set_bus_mute(AudioServer.get_bus_index(SFX_BUS), bool(s.get("mute", false)))

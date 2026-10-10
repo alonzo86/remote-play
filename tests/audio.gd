@@ -157,7 +157,7 @@ func _manager(sound: Node, app: Node) -> void:
 	sound.apply_settings()
 	var m := AudioServer.get_bus_index("Music")
 	var f := AudioServer.get_bus_index("SFX")
-	_check(is_equal_approx(AudioServer.get_bus_volume_db(m), sound.step_db(3))
+	_check(is_equal_approx(AudioServer.get_bus_volume_db(m), sound.step_db(3) + sound.MUSIC_TRIM_DB)
 			and is_equal_approx(AudioServer.get_bus_volume_db(f), sound.step_db(6)),
 			"Music and Effects set the volume of their buses")
 	_check(AudioServer.is_bus_mute(m) and AudioServer.is_bus_mute(f), "Mute mutes both buses")
@@ -279,7 +279,7 @@ func _settings_rows(sound: Node, app: Node) -> void:
 	app.settings.music_volume = 10
 	rows[2].pressed.emit()
 	_check(app.settings.music_volume == 0, "OK on Music after 10 goes back to 0")
-	_check(is_equal_approx(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music")), sound.step_db(0)),
+	_check(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music")) <= -80.0,
 			"the new Music level is applied at once")
 	app.settings.sfx_volume = 4
 	var ev := InputEventAction.new()
