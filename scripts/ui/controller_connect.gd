@@ -163,6 +163,9 @@ func _on_scan_pressed() -> void:
 
 
 func _on_qr_text(text: String) -> void:
+	if text.strip_edges().begins_with("WP1."):   # A player code, not a TV link (FD-22).
+		App.go(App.ControllerProfiles, {"note": App.import_profile_text(text)})
+		return
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():
 		App.last_error = Lang.t("This is not a Wobble code.")

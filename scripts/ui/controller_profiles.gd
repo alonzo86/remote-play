@@ -9,8 +9,13 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
+const QrScanner = preload("res://scripts/net/qr_scanner.gd")
+
+## A sentence about the last scan or paste ("PLAYER ADDED"). The Connect screen sets it when it took a player code.
+var note := ""
 
 var _list: VBoxContainer
+var _qr: QrScanner
 var _note: Label
 var _new_button: Button
 
@@ -39,6 +44,22 @@ func _ready() -> void:
 	_new_button = UiKit.box_button("New player", _on_new, UiTheme.SIZE_ITEM)
 	_new_button.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_new_button)
+	var more := HBoxContainer.new()
+	more.add_theme_constant_override("separation", 16)
+	box.add_child(more)
+	_qr = QrScanner.new()
+	add_child(_qr)
+	_qr.scanned.connect(_on_code)
+	_qr.failed.connect(_on_scan_failed)
+	if _qr.is_available():   # An iPhone and a desktop have no scanner: they paste the code.
+		var scan := UiKit.box_button("Scan a player", _qr.scan, UiTheme.SIZE_BODY)
+		scan.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scan.custom_minimum_size = Vector2(0, 110)
+		more.add_child(scan)
+	var paste := UiKit.box_button("Paste a code", func(): _on_code(DisplayServer.clipboard_get()), UiTheme.SIZE_BODY)
+	paste.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	paste.custom_minimum_size = Vector2(0, 110)
+	more.add_child(paste)
 	var back := UiKit.box_button("Back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
 	back.custom_minimum_size = Vector2(0, 96)
 	box.add_child(back)
@@ -67,6 +88,9 @@ func _rebuild() -> void:
 		var edit := UiKit.box_button("Edit", _on_edit.bind(p.id), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 		edit.custom_minimum_size = Vector2(0, 110)
 		row.add_child(edit)
+		var share := UiKit.box_button("Share", _on_share.bind(p.id), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		share.custom_minimum_size = Vector2(0, 110)
+		row.add_child(share)
 		_list.add_child(row)
 	var guest := UiKit.box_button("Guest", _on_pick.bind(""), UiTheme.SIZE_ITEM,
 			UiTheme.ACCENT if store.active_id == "" else UiTheme.TEXT)
@@ -74,6 +98,8 @@ func _rebuild() -> void:
 	_list.add_child(guest)
 	_new_button.disabled = store.is_full()
 	_note.text = Lang.f("%d players is the maximum", [ProfileStore.MAX_PROFILES]).to_upper() if store.is_full() else ""
+	if note != "":
+		_note.text = note.to_upper()
 	if not store.last_save_ok:
 		_note.text = Lang.t("Could not save").to_upper()
 
@@ -82,6 +108,22 @@ func _on_pick(id: String) -> void:
 	App.profiles.set_active(id)
 	App.apply_profile()
 	_rebuild()
+
+
+func _on_share(id: String) -> void:
+	App.go(App.ControllerProfileShare, {"profile_id": id})
+
+
+## The text of a scan or of the clipboard (REQ-FL-76).
+func _on_code(text: String) -> void:
+	note = App.import_profile_text(text)
+	_rebuild()
+
+
+func _on_scan_failed(reason: String) -> void:
+	if reason != "cancelled":
+		note = Lang.f("QR scan failed: %s", [reason])
+		_rebuild()
 
 
 func _on_edit(id: String) -> void:

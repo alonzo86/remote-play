@@ -1,6 +1,6 @@
 # Player profiles plan: names, avatars, QR transfer, personal bests (FD-22)
 
-Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). Phase A (profiles and names) is built; phases B and C are not.** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
+Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). Phases A (profiles and names) and B (copy by QR) are built; phase C is not.** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files. The requirement IDs in this plan (REQ-FL-69 to 78, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C9) are proposed: they are given in the pull request of each phase.
 
 ## 1. Decision proposed (FD-22)
@@ -329,3 +329,15 @@ Built on 2026-10-10 on branch `claude/profiles-a-names`.
 - `PlayerInput.player_name` stays the display name that every TV text uses (the plan called it `display_name`); `raw_name` is the name that the phone sent.
 - The avatar is drawn by `Shell.mark()` from a ball radius of 11 px; a smaller object keeps the number. The result menu rows and the leader chip keep the slot color square (they show the name, not the avatar).
 - Not in phase A: `SHARE` and the scan or paste buttons (phase B), the bests (phase C), the design-system mockups and `tests/screenshots_controller.gd` for the new screens (open, see the doubts in the pull request).
+
+## 15. Phase B: what was built, what differs
+
+Built on 2026-10-10 on branch `claude/profiles-b-share`.
+
+- `QrEncoder` goes up to version 14 (L). It was checked with an outside decoder (zxing-cpp): 66 texts of 1 to 458 bytes, every version, all read back. `tests/qr.gd` checks the structure and the hash of a fixed text. The code is drawn by `QrView` with `quiet = 4` and whole-pixel modules.
+- `ProfileKeys` (the key table, numbers 1 to 36 and the direction) was moved from phase C to this phase, because the code format needs the numbers. Phase C adds `best_key()`, the `result` message and the update rule. `Profile.bests` already existed in phase A.
+- `ProfileCode` (`encode`, `decode`, the CRC-16) and `ProfileStore.import_profile()` (add or merge). `App.import_profile_text()` is the one entry for a scan, a paste and the Connect screen.
+- A new player from a code becomes the active one only when the phone had no profile. Otherwise the active profile stays.
+- Screens: `controller_profile_share.gd`, SHARE on each row, SCAN A PLAYER (only where the QR plugin exists) and PASTE A CODE on the list.
+- The Share screen has no countdown number; it goes back to the list after 60 seconds.
+- Not in phase B: the time to make a version 14 code on a phone is not measured (test 20 item 12).

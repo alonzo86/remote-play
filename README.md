@@ -35,7 +35,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 - A phone that loses the connection (or is silent for 5 seconds) keeps its slot and reconnects with a token: 30 seconds, and
   5 minutes while a game is paused for it. The game pauses with a card ("2P LOST CONNECTION") and goes on only when the TV user
   chooses Resume (or Resume without the lost phone). When no player is left, the game ends with "No players connected".
-- Player profiles (FD-22, [docs/PROFILES_PLAN.md](docs/PROFILES_PLAN.md)): a phone keeps up to 8 profiles (name of at most 10 characters, one of 16 pixel avatars) in `user://profiles.cfg`. The TV shows the name and the avatar in place of "Player N" and the slot number. The profile changes only in a menu. Copy by QR and personal bests follow in phases B and C.
+- Player profiles (FD-22, [docs/PROFILES_PLAN.md](docs/PROFILES_PLAN.md)): a phone keeps up to 8 profiles (name of at most 10 characters, one of 16 pixel avatars) in `user://profiles.cfg`. The TV shows the name and the avatar in place of "Player N" and the slot number. The profile changes only in a menu. A player can be copied to another phone with a QR code or a text (SHARE, SCAN A PLAYER, PASTE A CODE). Personal bests follow in phase C.
 - Sound (FD-20, [docs/AUDIO_PLAN.md](docs/AUDIO_PLAN.md)): the TV plays an arcade-style song for the menus and one for each game, and sound
   effects. It is made in code by a small chip synthesizer (`scripts/audio/`), so there is no audio file. The Settings screen has Music, Effects
   and Mute. The phone makes no sound: it vibrates in games, and its Settings screen (a button on the waiting screen) has a Haptics ON/OFF switch.
@@ -50,7 +50,7 @@ export_presets.cfg       presets "tv" and "controller"
 scripts/
   app.gd                 autoload. Owns services, switches screens, settings
   audio/                 synth.gd, songs.gd (songs and effects as data), audio_manager.gd (the Sound autoload)
-  core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd, profile.gd, profile_store.gd
+  core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd, profile.gd, profile_store.gd, profile_keys.gd, profile_code.gd
   net/                   tv_server, tv_discovery, controller_client, controller_discovery, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
   game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), maze/, marble_race/

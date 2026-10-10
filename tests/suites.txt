@@ -2,7 +2,10 @@
 # tests/run_all.sh (local run) and tools/coverage.sh (CI, with coverage) both use this list, so a new suite is added here only.
 tests/run_tests.gd|controller|unit and network tests
 tests/ui_states.gd|controller|button states and the wait screen Leave
+tests/ui_share.gd|controller|copy a player: share, paste, scan
 tests/net_loss.gd|controller|lost phones (network)
+tests/qr.gd|controller|QR encoder versions 7 to 14
+tests/profile_code.gd|controller|profile code, keys and merge
 tests/profiles.gd|controller|profiles: model, store, avatars
 tests/net_profiles.gd|controller|profiles over the network
 tests/game_helpers.gd|controller|game helpers

@@ -271,7 +271,8 @@ func _test_qr() -> void:
 	var m := QrEncoder.encode("ws://192.168.100.100:47801/KQZM")
 	_check(m.size() == 25, "31 byte URL gives version 2 (25 modules), got %d" % m.size())
 	_check(m[0][0] and m[0][6] and m[6][0] and not m[1][1] and m[2][2], "finder pattern top-left")
-	_check(QrEncoder.encode("x".repeat(200)).is_empty(), "too long text returns empty")
+	_check(QrEncoder.encode("x".repeat(459)).is_empty() and not QrEncoder.encode("x".repeat(458)).is_empty(),
+			"458 bytes is the most (version 14); 459 returns empty")
 	# Save for an external decoder check.
 	var n := m.size()
 	var img := Image.create(n * 8 + 64, n * 8 + 64, false, Image.FORMAT_L8)
@@ -661,6 +662,8 @@ func _test_qr_scanner() -> void:
 func _test_connect_screen() -> void:
 	print("connect screen")
 	var app: Node = root.get_node("App")
+	# No profile of a real run:
+	app.profiles = _script("res://scripts/core/profile_store.gd").new("user://test_connect_profiles.cfg")
 	var screen = _script("res://scripts/ui/controller_connect.gd").new()
 	screen.theme = app.theme_res
 	root.add_child(screen)

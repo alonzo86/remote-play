@@ -88,6 +88,8 @@ A profile lives on the phone (`docs/PROFILES_PLAN.md`). The TV keeps it in memor
 - **The same `pid` on two phones.** In the phases `connect` and `menu` the newer phone wins, also on a full TV: the TV frees the older slot and sends `kicked` with `reason` `replaced` to that phone. The TV remembers the token of the freed slot for 10 minutes (`REPLACED_TOKEN_MS`) and answers a `hello` with that token with the same `kicked`, so a phone that was offline does not come back and replace the newer one. In the phases `playing`, `paused` and `waiting` no slot is freed: the newer phone joins as a guest and can send `profile` in the next menu.
 - A phone that comes back with its token keeps the profile that the TV has for that slot; `pid`, `av` and `name` of that `hello` are ignored outside `connect` and `menu`.
 
+**Copy of a profile.** A profile is copied to another phone with a text that starts with `WP1.`, shown as a QR code or copied to the clipboard. It never goes over the network of the game and the TV never sees it. The format is in `docs/PROFILES_PLAN.md` section 6.1 (`scripts/core/profile_code.gd`). The QR encoder (`scripts/core/qr_encoder.gd`) goes up to version 14, error correction L, 458 bytes.
+
 All these fields and messages are optional, so `VERSION` stays 2: an old TV or an old phone ignores them.
 
 ## Slots, loss and reconnect

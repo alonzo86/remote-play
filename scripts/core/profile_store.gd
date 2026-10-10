@@ -3,6 +3,7 @@ extends RefCounted
 ## copied to `<path>.bak`; a file that cannot be read is replaced by the copy.
 
 const Profile = preload("res://scripts/core/profile.gd")
+const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
 
 const MAX_PROFILES := 8
 
@@ -69,6 +70,32 @@ func update(id: String, p_name: String, avatar: int) -> bool:
 		p.rev += 1
 		save()
 	return true
+
+
+## Takes a profile that was read from a code (`ProfileCode.decode`). A profile with a new ID is added (it becomes the active one
+## when the phone had no profile). A profile with an ID that the phone has is merged (docs/PROFILES_PLAN.md 6.5): the higher
+## `rev` gives the name and the avatar (equal: the local one stays), and each best is the better value, a key in one profile
+## only is kept. Returns {"status": "added" | "merged" | "full", "id": the ID}; "full" means 8 profiles and nothing changed.
+func import_profile(imp: RefCounted) -> Dictionary:
+	var local = find(imp.id)
+	if local == null:
+		if is_full():
+			return {"status": "full", "id": imp.id}
+		var first := profiles.is_empty()
+		profiles.append(imp)
+		if first:
+			active_id = imp.id
+		save()
+		return {"status": "added", "id": imp.id}
+	if imp.rev > local.rev:
+		local.player_name = imp.player_name
+		local.avatar = imp.avatar
+		local.rev = imp.rev
+	for key in imp.bests:
+		if not local.bests.has(key) or ProfileKeys.is_better(String(key), int(imp.bests[key]), int(local.bests[key])):
+			local.bests[key] = imp.bests[key]
+	save()
+	return {"status": "merged", "id": imp.id}
 
 
 ## Removes a profile. The guest becomes active when it was the active one.

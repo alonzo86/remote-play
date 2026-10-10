@@ -25,6 +25,8 @@ const SafeArea = preload("res://scripts/ui/safe_area.gd")
 const ControllerSettings = preload("res://scripts/ui/controller_settings.gd")
 const ControllerProfiles = preload("res://scripts/ui/controller_profiles.gd")
 const ControllerProfileEdit = preload("res://scripts/ui/controller_profile_edit.gd")
+const ControllerProfileShare = preload("res://scripts/ui/controller_profile_share.gd")
+const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
 
 const SETTINGS_FILE := "user://settings.cfg"
@@ -331,6 +333,22 @@ func apply_profile() -> void:
 		client.set_profile(p.id, p.player_name, p.avatar)
 
 
+## Takes the text of a scan or of the clipboard that should be a player code (FD-22, REQ-FL-76). Returns the sentence for the
+## player: the player was added or updated, or why the text does not work. A change of the active profile goes to the TV.
+func import_profile_text(text: String) -> String:
+	if not text.strip_edges().begins_with(ProfileCode.PREFIX):
+		return Lang.t("This is a TV link.") if not Protocol.parse_pair_url(text).is_empty() else Lang.t("This code does not work.")
+	var r := ProfileCode.decode(text)
+	if not r.ok:
+		return Lang.t("This code does not work.")
+	var done: Dictionary = profiles.import_profile(r.profile)
+	if done.status == "full":
+		return Lang.f("%d players is the maximum", [ProfileStore.MAX_PROFILES])
+	if done.id == profiles.active_id:
+		apply_profile()
+	return Lang.t("Player added.") if done.status == "added" else Lang.t("Player updated.")
+
+
 ## Leaves the profile screens: back to the waiting screen when a TV is joined, else to the Connect screen.
 func leave_profile_screens() -> void:
 	if client.state == ControllerClient.State.IDLE:
@@ -344,7 +362,8 @@ func leave_profile_screens() -> void:
 func _show_phone_screen() -> void:
 	if client.state == ControllerClient.State.IDLE:
 		return
-	if (_screen is ControllerProfiles or _screen is ControllerProfileEdit) and client.phase in ["connect", "menu"]:
+	if (_screen is ControllerProfiles or _screen is ControllerProfileEdit or _screen is ControllerProfileShare) \
+			and client.phase in ["connect", "menu"]:
 		return
 	var playing: bool = client.phase in ["playing", "paused"]
 	if playing and not (_screen is ControllerPad):
