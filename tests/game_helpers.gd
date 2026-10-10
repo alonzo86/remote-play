@@ -57,6 +57,8 @@ func _pixel_world() -> void:
 	_check(Sumo.fall_scale(0.0) == 1.0 and Sumo.fall_scale(0.15) == 1.0 and Sumo.fall_scale(0.25) == 0.75
 			and Sumo.fall_scale(0.45) == 0.5 and Sumo.fall_scale(0.7) == 0.25 and Sumo.fall_scale(Sumo.FALL_TIME) == 0.0
 			and Sumo.fall_scale(5.0) == 0.0, "a fallen bumper shrinks in 4 steps and then is gone (REQ-SB-9)")
+	_check(Sumo.danger_ring(0.0).is_equal_approx(Sumo.PLATFORM_RING) and Sumo.danger_ring(1.0).is_equal_approx(Sumo.DANGER_COLOR)
+			and Sumo.danger_ring(0.6).r > Sumo.PLATFORM_RING.r, "the platform ring turns red as the platform gets small (REQ-SB-15)")
 	var life: float = SnowGame.POOF_LIFE
 	var steps := []
 	for share in [0.0, 0.4, 0.9, 5.0]:

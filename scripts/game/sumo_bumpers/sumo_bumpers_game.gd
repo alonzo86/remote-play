@@ -259,8 +259,13 @@ func _draw_platform(ci: CanvasItem, c: Vector2, k: float) -> void:
 	for f in [0.66, 0.33]:   # Rings on the platform, one world pixel wide.
 		ci.draw_arc(c, r * f, 0.0, TAU, 48, Color(PLATFORM_RING, 0.25), Shell.WORLD_PIXEL)
 	# The ring gets red when the platform is small.
-	var ring := PLATFORM_RING.lerp(DANGER_COLOR, clampf(arena.danger() * 1.6 - 0.3, 0.0, 1.0))
+	var ring := danger_ring(arena.danger())
 	ci.draw_arc(c, r - Shell.WORLD_PIXEL * 2.0, 0.0, TAU, 96, ring, Shell.WORLD_PIXEL * 3.0)
+
+
+## The color of the platform ring for a danger level (0 full platform, 1 smallest): it turns red when the platform is small.
+static func danger_ring(danger: float) -> Color:
+	return PLATFORM_RING.lerp(DANGER_COLOR, clampf(danger * 1.6 - 0.3, 0.0, 1.0))
 
 
 func _draw_bumper(ci: CanvasItem, slot: int, c: Vector2, k: float) -> void:
