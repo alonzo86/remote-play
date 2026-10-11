@@ -432,7 +432,7 @@ func _test_marble_track() -> void:
 	_check(MarbleTrack.seed_for("3", rng) == MarbleTrack.FIXED_SEEDS[2]
 			and MarbleTrack.seed_for("10", rng) == MarbleTrack.FIXED_SEEDS[9],
 			"a choice of 1 to 10 gives the fixed seed")
-	_check(MarbleTrack.title_for(MarbleTrack.FIXED_SEEDS[4]) == "Track 5" and MarbleTrack.title_for(5) == "Random track",
+	_check(MarbleTrack.title_for(MarbleTrack.FIXED_SEEDS[4]) == "Track 5" and MarbleTrack.title_for(5) == "RANDOM TRACK",
 			"the names are Track 1 to 10 and Random track")
 	var t0 = MarbleTrack.make(MarbleTrack.FIXED_SEEDS[0])
 	var side: Vector2 = t0.point_at(30.0) + Vector2(t0.half_width + 1.0, 0)

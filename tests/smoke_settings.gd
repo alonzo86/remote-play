@@ -199,7 +199,7 @@ func _run() -> void:
 	await _frames(4)
 	race = app.current_screen()
 	var random_seed: int = race.track_seed
-	_check(not MarbleTrack.FIXED_SEEDS.has(random_seed) and race.track.title == "Random track",
+	_check(not MarbleTrack.FIXED_SEEDS.has(random_seed) and race.track.title == "RANDOM TRACK",
 			"the random track has a seed that is not fixed (REQ-MR-53)")
 	race.restart()
 	await _frames(4)
@@ -248,7 +248,8 @@ func _slot_list(app: Node) -> void:
 	for row in list.get_children():
 		var labels := row.get_children().filter(func(n: Node) -> bool: return n is Label)
 		words.append((labels[-1] as Label).text)
-	_check(words == ["READY", "LOST", "WAIT", "WAIT"], "each slot shows a state word: %s" % str(words))
+	_check(words == ["slot_list.ready", "slot_list.lost", "slot_list.wait", "slot_list.wait"],
+			"each slot shows a state word: %s" % str(words))
 	_check(list.remove_button(0) != null and list.remove_button(1) != null and list.remove_button(2) == null,
 			"a joined or lost slot has a Remove item, an empty slot has none")
 	list.remove_button(1).pressed.emit()

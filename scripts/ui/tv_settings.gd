@@ -18,19 +18,20 @@ func _ready() -> void:
 	box.custom_minimum_size = Vector2(1440, 0)
 	box.add_theme_constant_override("separation", 22)
 	center.add_child(box)
-	box.add_child(UiKit.title("Settings"))
+	box.add_child(UiKit.title("common.settings"))
 	box.add_child(UiKit.spacer(10))
-	_add_row(box, "Debug overlay", "Shows the link of each phone. The Menu key or F3 does the same.", "overlay",
+	_add_row(box, "settings.debug_overlay", "settings.shows_link_each_phone", "overlay",
 			func(): App.toggle_overlay())
-	_add_row(box, "Invert tilt axes", "Use this when a ball rolls the wrong way.", "invert_tilt", Callable())
-	_add_level_row(box, "Music", "Left and Right change the music volume.", "music_volume")
-	_add_level_row(box, "Effects", "Left and Right change the volume of the sound effects.", "sfx_volume")
-	_add_row(box, "Mute", "Turns off the music and the effects. The phones are not changed.", "mute", Callable())
-	_add_row(box, "Language", "English or Hebrew. The phones follow the TV.", "language",
+	_add_row(box, "settings.invert_tilt_axes", "settings.use_when_ball_rolls", "invert_tilt", Callable())
+	_add_level_row(box, "settings.music", "settings.left_right_change_music", "music_volume")
+	_add_level_row(box, "settings.effects", "settings.left_right_change_volume", "sfx_volume")
+	_add_row(box, "settings.mute", "settings.turns_off_music_effects", "mute", Callable())
+	_add_row(box, "settings.language", "settings.english_or_hebrew_phones", "language",
 			func(): App.set_language(Lang.other(Lang.current())))
 	box.add_child(UiKit.spacer(10))
-	box.add_child(UiKit.item("About", func(): App.go(App.AboutScreen, {"back_screen": App.TvSettings}), UiTheme.SIZE_ITEM, "quiet"))
-	box.add_child(UiKit.item("Back", on_back, UiTheme.SIZE_ITEM, "quiet"))
+	box.add_child(UiKit.item("common.about", func(): App.go(App.AboutScreen, {"back_screen": App.TvSettings}),
+			UiTheme.SIZE_ITEM, "quiet"))
+	box.add_child(UiKit.item("common.back", on_back, UiTheme.SIZE_ITEM, "quiet"))
 	UiKit.focus_later(_rows[0])
 
 
@@ -64,7 +65,7 @@ func _add_row(parent: Control, title: String, help: String, key: String, custom:
 			state.add_theme_color_override("font_color", UiTheme.SELECTED)
 			return
 		var on := bool(App.settings[key])
-		state.text = "ON" if on else "OFF"
+		state.text = "common.on" if on else "common.off"
 		state.add_theme_color_override("font_color", UiTheme.OK if on else UiTheme.TEXT_DIM)
 	var tint := func():
 		name_l.add_theme_color_override("font_color", UiTheme.ACCENT if b.has_focus() else UiTheme.TEXT)

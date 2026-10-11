@@ -2,6 +2,7 @@ extends Control
 ## Games screen (REQ-FL-11 to 19): a grid of tiles (16:9 screenshot, title, player range), the
 ## players badge, the OPTIONS button, and an info bar under the grid with the description of the focused game.
 
+const Lang = preload("res://scripts/core/lang.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -60,7 +61,7 @@ func _show_grid(focus_id := "") -> void:
 	head.add_theme_constant_override("separation", 32)
 	head.alignment = BoxContainer.ALIGNMENT_CENTER
 	view.add_child(head)
-	var title := UiKit.title("Select game")
+	var title := UiKit.title("games.select_game")
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
 	_badge = PlayersBadge.new()
@@ -136,7 +137,7 @@ func _update_fit() -> void:
 
 
 func _show_description(game: Dictionary) -> void:
-	_info.text = String(game.get("description", "")).to_upper()
+	_info.text = Lang.t(String(game.get("description", ""))).to_upper()
 
 
 func _on_tile(game: Dictionary) -> void:

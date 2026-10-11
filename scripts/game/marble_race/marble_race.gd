@@ -202,7 +202,7 @@ func _check_end() -> void:
 
 func _open_results() -> void:
 	if participants.is_empty():   # Everyone left after the finish: nobody is left to read a list.
-		open_menu("No players connected", [["Back to menu", App.go_menu]])
+		open_menu("minigame.no_players_connected", [["minigame.back_to_menu", App.go_menu]])
 		return
 	# Finished marbles have their time. The others are ranked by how far they got.
 	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return "%.2f s" % t)
@@ -343,7 +343,7 @@ func edge_markers() -> Array:
 		var dir := (sp - center).normalized()
 		var t := minf(rect.size.x * 0.5 / maxf(absf(dir.x), 0.001), rect.size.y * 0.5 / maxf(absf(dir.y), 0.001))
 		out.append({"slot": s, "pos": center + dir * t, "dir": dir,
-				"text": Lang.f("%d m", [roundi(r.arc - lead.arc)])})
+				"text": Lang.f("marble_race.meters", [roundi(r.arc - lead.arc)])})
 	return out
 
 
@@ -397,7 +397,7 @@ func _scoreboard() -> Scoreboard:
 
 
 func _score_label(entry: Dictionary) -> String:
-	return Lang.f("%.2f s", [entry.score]) if entry.finished else ""
+	return Lang.f("result.seconds_2", [entry.score]) if entry.finished else ""
 
 
 func _hud_draw(canvas: Control) -> void:
@@ -407,13 +407,13 @@ func _hud_draw(canvas: Control) -> void:
 		Shell.countdown(canvas, canvas.size, str(_round.count_number()), _round.count_elapsed())
 		draw_name_tags(canvas, _marble_spots(), 40.0)
 	elif _round.time < GO_SHOW:
-		Shell.countdown(canvas, canvas.size, "GO!", _round.time / GO_SHOW, UiTheme.OK)
+		Shell.countdown(canvas, canvas.size, "marble_race.go", _round.time / GO_SHOW, UiTheme.OK)
 	elif not is_over:
 		var lead: Racer = standings()[0]
 		var to_go := maxf(finish_arc - lead.arc, 0.0)
-		Shell.text(canvas, Vector2(0, 90), Lang.f("Finish in %d m", [roundi(to_go)]), 40, UiTheme.ACCENT,
+		Shell.text(canvas, Vector2(0, 90), Lang.f("marble_race.finish_in", [roundi(to_go)]), 40, UiTheme.ACCENT,
 				HORIZONTAL_ALIGNMENT_CENTER, canvas.size.x)
-		Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), 90), Lang.f("%.1f s", [_round.time]), 40,
+		Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), 90), Lang.f("result.seconds_1", [_round.time]), 40,
 				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
 	_draw_edge_markers(canvas)
 	Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), canvas.size.y - 70), track.title, 32,

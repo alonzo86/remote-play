@@ -26,7 +26,7 @@ func _ready() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 24)
 	m.add_child(box)
-	var title := UiKit.title("Share player", 48)
+	var title := UiKit.title("profile_share.share_player", 48)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
 	if p == null:
@@ -49,18 +49,18 @@ func _ready() -> void:
 	qr.text = code
 	box.add_child(qr)
 	var lines: Array[Label] = []
-	lines.append(UiKit.label("Everyone who scans this code gets this player and the best scores.", UiTheme.SIZE_BODY,
+	lines.append(UiKit.label("profile_share.everyone_who_scans_code", UiTheme.SIZE_BODY,
 			UiTheme.TEXT_DIM))
-	lines.append(UiKit.label("The two phones do not stay in sync after the copy.", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
-	lines.append(UiKit.label("The code goes away after 60 seconds.", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	lines.append(UiKit.label("profile_share.two_phones_do_not", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	lines.append(UiKit.label("profile_share.code_goes_away_after", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 	for line in lines:
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD
 		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		box.add_child(line)
-	_copy = UiKit.box_button("Copy code", _on_copy, UiTheme.SIZE_ITEM)
+	_copy = UiKit.box_button("profile_share.copy_code", _on_copy, UiTheme.SIZE_ITEM)
 	_copy.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_copy)
-	var back := UiKit.box_button("Back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
+	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
 	back.custom_minimum_size = Vector2(0, 96)
 	box.add_child(back)
 	_timer = Timer.new()
@@ -73,7 +73,7 @@ func _ready() -> void:
 
 func _on_copy() -> void:
 	DisplayServer.clipboard_set(code)
-	_copy.text = Lang.t("Code copied").to_upper()
+	_copy.text = Lang.t("profile_share.code_copied").to_upper()
 
 
 func on_back() -> void:

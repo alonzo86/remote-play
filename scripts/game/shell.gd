@@ -223,7 +223,7 @@ static func leader_chip(ci: CanvasItem, area_w: float, leaders: Array, score: St
 	if leaders.is_empty():
 		return
 	var tie := leaders.size() > 1
-	var label := Lang.t("TIE") if tie else String(leaders[0].player_name)
+	var label := Lang.t("shell.tie") if tie else String(leaders[0].player_name)
 	var w := score_chip_width(label, score)
 	score_chip(ci, Vector2(leader_chip_x(area_w, w), y), label, score, UiTheme.TEXT_DIM if tie else leaders[0].color, w)
 
@@ -263,7 +263,7 @@ static func name_tags(ci: CanvasItem, area: Vector2, entries: Array, radius := 4
 static func timer(ci: CanvasItem, pos: Vector2, seconds: float, width := 240.0) -> Rect2:
 	var r := Rect2(Vector2(mx(ci, pos.x, width), pos.y), Vector2(width, 64.0))
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), r)
-	UiTheme.draw_centered(ci, UiTheme.font(), Lang.f("%.1f S", [seconds]).to_upper(), r, CHIP_FONT, UiTheme.TEXT)
+	UiTheme.draw_centered(ci, UiTheme.font(), Lang.f("shell.seconds", [seconds]).to_upper(), r, CHIP_FONT, UiTheme.TEXT)
 	return r
 
 

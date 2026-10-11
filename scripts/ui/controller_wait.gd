@@ -56,15 +56,15 @@ func _ready() -> void:
 	box.add_child(_best_detail)
 	box.add_child(UiKit.spacer(60))
 	# Leave is a framed text box. The first tap arms it, the second tap leaves (REQ-FL-52).
-	_leave = UiKit.box_button("Leave", _on_leave_pressed, UiTheme.SIZE_ITEM)
+	_leave = UiKit.box_button("pad.leave", _on_leave_pressed, UiTheme.SIZE_ITEM)
 	_leave.custom_minimum_size = Vector2(0, 96)
 	_leave.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(_leave)
-	_profile_button = UiKit.box_button("Player", func(): App.go(App.ControllerProfiles), UiTheme.SIZE_ITEM)
+	_profile_button = UiKit.box_button("wait.player", func(): App.go(App.ControllerProfiles), UiTheme.SIZE_ITEM)
 	_profile_button.custom_minimum_size = Vector2(440, 96)
 	_profile_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(_profile_button)
-	var settings := UiKit.box_button("Settings", func(): App.go(App.ControllerSettings), UiTheme.SIZE_ITEM)
+	var settings := UiKit.box_button("common.settings", func(): App.go(App.ControllerSettings), UiTheme.SIZE_ITEM)
 	settings.custom_minimum_size = Vector2(440, 96)
 	settings.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(settings)
@@ -84,7 +84,7 @@ func _ready() -> void:
 
 func _on_leave_pressed() -> void:
 	if _leave_timer.is_stopped():
-		_leave.text = "TAP AGAIN TO LEAVE"
+		_leave.text = "wait.tap_again_leave"
 		_set_leave_color(UiTheme.BAD)
 		_leave_timer.start()
 	else:
@@ -92,7 +92,7 @@ func _on_leave_pressed() -> void:
 
 
 func _disarm_leave() -> void:
-	_leave.text = "LEAVE"
+	_leave.text = "pad.leave"
 	_set_leave_color(UiTheme.TEXT)
 
 
@@ -116,29 +116,29 @@ func _on_state(_state: int) -> void:
 static func texts_for(phase: String) -> Array:
 	match phase:
 		"menu":
-			return ["Choose a game on the TV", "Use the TV remote. Your phone is ready."]
+			return ["wait.choose_game_tv", "wait.use_tv_remote_phone"]
 		"waiting":
-			return ["A round is running", "You join the next round."]
+			return ["wait.round_running", "wait.join_next_round"]
 		_:
-			return ["Waiting for the host", ""]
+			return ["wait.waiting_host", ""]
 
 
 func _refresh() -> void:
 	var c: Node = App.client
 	var t := texts_for(c.phase)
-	_title.text = String(t[0]).to_upper()
-	_sub.text = String(t[1]).to_upper()
+	_title.text = Lang.t(String(t[0])).to_upper()
+	_sub.text = Lang.t(String(t[1])).to_upper()
 	if c.state != ControllerClient.State.CONNECTED:
-		_sub.text = "RECONNECTING..."
+		_sub.text = "connect.reconnecting"
 	_name.text = c.tv_player_name.to_upper() if c.tv_pid != "" else "%dP" % (c.slot + 1)
 	_profile_button.visible = c.can_change_profile()   # A round has started: the player cannot be changed now (REQ-FL-71).
 	var best: Dictionary = App.current_best()
-	_best.text = Lang.t("New best!").to_upper() if not best.is_empty() else ""
+	_best.text = Lang.t("pad.new_best").to_upper() if not best.is_empty() else ""
 	_best_detail.text = ""
 	if not best.is_empty():
 		_best_detail.text = ProfileKeys.format(best.key, best.value)
 		if best.old > 0:
-			_best_detail.text += "   " + Lang.f("Before: %s", [ProfileKeys.format(best.key, best.old)]).to_upper()
+			_best_detail.text += "   " + Lang.f("pad.before", [ProfileKeys.format(best.key, best.old)]).to_upper()
 	_dot.queue_redraw()
 
 

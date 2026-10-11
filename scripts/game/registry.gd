@@ -17,28 +17,28 @@ extends RefCounted
 const Lang = preload("res://scripts/core/lang.gd")
 
 const GAMES: Array[Dictionary] = [
-	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "Tilt Maze", "dim": "2d",
-			"description": "Tilt your phone to roll your ball through the maze. The first ball in the exit wins.",
+	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "registry.tilt_maze", "dim": "2d",
+			"description": "registry.tilt_phone_roll_ball",
 			"tile": "res://assets/tiles/maze.png",
 			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4, "settings": []},
-	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "Marble Race", "dim": "3d",
-			"description": "Tilt to roll your marble along the track. The first marble over the line wins.",
+	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "registry.marble_race", "dim": "3d",
+			"description": "registry.tilt_roll_marble_along",
 			"tile": "res://assets/tiles/marble_race.png",
 			"path": "res://scripts/game/marble_race/marble_race.gd", "min_players": 1, "max_players": 4,
-			"settings": [{"key": "track_choice", "label": "Track", "type": "tracks",
+			"settings": [{"key": "track_choice", "label": "registry.track", "type": "tracks",
 					"values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "random"],
 					"titles": ["Track 1", "Track 2", "Track 3", "Track 4", "Track 5", "Track 6", "Track 7", "Track 8", "Track 9",
-							"Track 10", "Random"]}]},
-	{"id": "paint_grab", "doc": "res://docs/games/paint_grab.md", "title": "Paint Grab", "dim": "2d",
-			"description": "Tilt your phone to roll your paint blob over the floor. The most painted tiles in 60 s wins.",
+							"Track 10", "registry.random"]}]},
+	{"id": "paint_grab", "doc": "res://docs/games/paint_grab.md", "title": "registry.paint_grab", "dim": "2d",
+			"description": "registry.tilt_phone_roll_paint",
 			"tile": "res://assets/tiles/paint_grab.png",
 			"path": "res://scripts/game/paint_grab/paint_grab_game.gd", "min_players": 1, "max_players": 4, "settings": []},
-	{"id": "sumo_bumpers", "doc": "res://docs/games/sumo_bumpers.md", "title": "Sumo Bumpers", "dim": "2d",
-			"description": "Tilt to roll your bumper and push the others off the shrinking platform. Most points in 3 rounds wins.",
+	{"id": "sumo_bumpers", "doc": "res://docs/games/sumo_bumpers.md", "title": "registry.sumo_bumpers", "dim": "2d",
+			"description": "registry.tilt_roll_bumper_push",
 			"tile": "res://assets/tiles/sumo_bumpers.png",
 			"path": "res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd", "min_players": 2, "max_players": 4, "settings": []},
-	{"id": "snowball_splat", "doc": "res://docs/games/snowball_splat.md", "title": "Snowball Splat", "dim": "2d",
-			"description": "Point your phone at the screen and press A to throw snowballs at the silly Puffs. Most points in 60 s wins.",
+	{"id": "snowball_splat", "doc": "res://docs/games/snowball_splat.md", "title": "registry.snowball_splat", "dim": "2d",
+			"description": "registry.point_phone_at_screen",
 			"tile": "res://assets/tiles/snowball_splat.png",
 			"path": "res://scripts/game/snowball_splat/snowball_splat_game.gd", "min_players": 1, "max_players": 4,
 			"settings": []},
@@ -74,8 +74,9 @@ static func load_script(id: String) -> GDScript:
 ## Why a game cannot start with `players` players (REQ-FL-14).
 static func reason(game: Dictionary, players: int) -> String:
 	if players < int(game.min_players):
-		return Lang.t("Needs 1 player") if int(game.min_players) == 1 else Lang.f("Needs %d players", [int(game.min_players)])
-	return Lang.f("Up to %d players", [int(game.max_players)])
+		return Lang.t("games.needs_one_player") if int(game.min_players) == 1 else Lang.f("games.needs_players",
+				[int(game.min_players)])
+	return Lang.f("games.up_to_players", [int(game.max_players)])
 
 
 ## True when `players` is inside the allowed range of the game.

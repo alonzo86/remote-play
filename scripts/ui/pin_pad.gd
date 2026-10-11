@@ -15,7 +15,7 @@ var _shown: Label
 
 func _ready() -> void:
 	add_theme_constant_override("separation", 20)
-	var ask := UiKit.label("Type the PIN that the TV shows", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	var ask := UiKit.label("pin.type_prompt", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	ask.autowrap_mode = TextServer.AUTOWRAP_WORD
 	ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(ask)

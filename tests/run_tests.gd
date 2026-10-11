@@ -339,9 +339,9 @@ func _test_phone_screens() -> void:
 	var app: Node = root.get_node("App")
 	var wait_script: GDScript = _script("res://scripts/ui/controller_wait.gd")
 	var pad_script: GDScript = _script("res://scripts/ui/controller_pad.gd")
-	_check(wait_script.texts_for("connect")[0] == "Waiting for the host"
-			and wait_script.texts_for("menu")[0] == "Choose a game on the TV"
-			and wait_script.texts_for("waiting")[0] == "A round is running", "the waiting screen has a text for each phase")
+	_check(wait_script.texts_for("connect")[0] == "wait.waiting_host"
+			and wait_script.texts_for("menu")[0] == "wait.choose_game_tv"
+			and wait_script.texts_for("waiting")[0] == "wait.round_running", "the waiting screen has a text for each phase")
 	var server := TvServer.new()
 	root.add_child(server)
 	server.start({})
@@ -647,7 +647,7 @@ func _test_qr_scanner() -> void:
 	root.add_child(screen)
 	var scan_button: Button = null
 	for b in screen.find_children("*", "Button", true, false):
-		if b.text == "SCAN QR CODE":
+		if b.text == "connect.scan_qr_code":
 			scan_button = b
 	_check(scan_button != null, "the connect screen says Scan QR code when the plugin exists")
 	fake.calls.clear()
@@ -673,7 +673,7 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var has_paste := false
 	for b in screen.find_children("*", "Button", true, false):
-		has_paste = has_paste or b.text == "PASTE TV LINK"
+		has_paste = has_paste or b.text == "qr_scanner.paste_tv_link"
 	_check(has_paste, "without the plugin the connect screen offers Paste TV link")
 	var connect_script: GDScript = _script("res://scripts/ui/controller_connect.gd")
 	_check(not connect_script.shows_scan_button("iOS"),
@@ -682,14 +682,14 @@ func _test_connect_screen() -> void:
 			"on Android and desktop (also a Mac) the connect screen keeps the scan or paste button")
 	app.last_error = ""
 	screen._on_state(ControllerClient.State.IDLE)
-	_check(screen._status.text == "LOOKING FOR A TV...", "idle: the screen says it looks for a TV")
+	_check(screen._status.text == "connect.looking_tv", "idle: the screen says it looks for a TV")
 	screen._on_state(ControllerClient.State.CONNECTING)
-	_check(screen._status.text == "CONNECTING...", "connecting: the screen says so")
+	_check(screen._status.text == "connect.connecting", "connecting: the screen says so")
 	screen._on_state(ControllerClient.State.RECONNECTING)
-	_check(screen._status.text == "RECONNECTING...", "reconnecting: the screen says so")
+	_check(screen._status.text == "connect.reconnecting", "reconnecting: the screen says so")
 
 	screen._on_qr_text("hello")
-	_check(app.last_error == "This is not a Wobble code." and screen._status.text == app.last_error.to_upper(),
+	_check(app.last_error == "THIS IS NOT A WOBBLE CODE." and screen._status.text == app.last_error.to_upper(),
 			"a QR code of something else is refused with a message")
 	app.last_error = ""
 	screen._on_qr_failed("cancelled")
@@ -713,7 +713,7 @@ func _test_connect_screen() -> void:
 	_check(screen.find_children("*", "LineEdit", true, false).is_empty(), "the connect screen has no text input")
 	app.controller_discovery.forget_all()
 	screen._rebuild_list()
-	_check(_list_texts(screen) == ["NO TVS FOUND"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
+	_check(_list_texts(screen) == ["connect.no_tvs_found"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
 
 	# On an iPhone: no scan or paste button, and the empty list tells how to fix the Local Network permission (REQ-FL-58, 59).
 	var ios_screen = _script("res://scripts/ui/controller_connect.gd").new()
@@ -723,9 +723,9 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
 	# The first button is the profile row (FD-22): it is not a scan or paste button.
-	_check(ios_buttons == ["MAKE A PLAYER", "REFRESH", "ABOUT"], "iPhone: no scan or paste button: %s" % str(ios_buttons))
+	_check(ios_buttons == ["connect.make_player", "connect.refresh", "common.about"], "iPhone: no scan or paste button")
 	var ios_texts: Array = _list_texts(ios_screen)
-	_check(ios_texts.size() == 2 and ios_texts[0] == "NO TVS FOUND" and "LOCAL NETWORK" in ios_texts[1],
+	_check(ios_texts.size() == 2 and ios_texts[0] == "connect.no_tvs_found" and "LOCAL NETWORK" in ios_texts[1],
 			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))
 	ios_screen.queue_free()
 	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
@@ -736,7 +736,7 @@ func _test_connect_screen() -> void:
 	for btn in screen._list.find_children("*", "Button", true, false):
 		tv_button = btn
 	_check(tv_button != null and tv_button.text == "QQQQ 1/4", "a detected TV is only '<code> x/y': %s" % tv_button.text)
-	var refresh_btn: Array = screen.find_children("*", "Button", true, false).filter(func(x): return x.text == "REFRESH")
+	var refresh_btn: Array = screen.find_children("*", "Button", true, false).filter(func(x): return x.text == "connect.refresh")
 	_check(refresh_btn.size() == 1 and tv_button.get_theme_color("font_color") != refresh_btn[0].get_theme_color("font_color"),
 			"the Refresh button is dim and the detected TVs are white")
 	tv_button.pressed.emit()
@@ -750,7 +750,7 @@ func _test_connect_screen() -> void:
 	# Refresh forgets the TVs and says it searches; a TV that beacons again comes back.
 	screen.refresh_list()
 	await process_frame
-	_check(app.controller_discovery.tvs.is_empty() and _list_texts(screen) == ["SEARCHING..."],
+	_check(app.controller_discovery.tvs.is_empty() and _list_texts(screen) == ["connect.searching"],
 			"Refresh clears the list and shows Searching: %s" % str(_list_texts(screen)))
 	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
 			"max": 4, "seen_ms": Time.get_ticks_msec()}

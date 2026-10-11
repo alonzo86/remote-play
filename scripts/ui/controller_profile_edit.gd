@@ -30,10 +30,10 @@ func _ready() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 24)
 	m.add_child(box)
-	var title := UiKit.title("Edit player" if existing != null else "New player", 48)
+	var title := UiKit.title("profile_edit.edit_player" if existing != null else "profile_edit.new_player", 48)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
-	box.add_child(UiKit.label("Name", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	box.add_child(UiKit.label("profile_edit.name", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 	_name = LineEdit.new()
 	_name.max_length = Protocol.NAME_MAX
 	_name.add_theme_font_size_override("font_size", 56)
@@ -64,11 +64,11 @@ func _ready() -> void:
 		v.pressed.connect(_on_avatar.bind(i))
 		grid.add_child(v)
 		_views.append(v)
-	_save = UiKit.box_button("Save", _on_save, UiTheme.SIZE_ITEM, UiTheme.OK)
+	_save = UiKit.box_button("profile_edit.save", _on_save, UiTheme.SIZE_ITEM, UiTheme.OK)
 	_save.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_save)
 	if existing != null:
-		_delete = UiKit.box_button("Delete", _on_delete, UiTheme.SIZE_ITEM, UiTheme.BAD)
+		_delete = UiKit.box_button("profile_edit.delete", _on_delete, UiTheme.SIZE_ITEM, UiTheme.BAD)
 		_delete.custom_minimum_size = Vector2(0, 110)
 		box.add_child(_delete)
 		_delete_timer = Timer.new()
@@ -76,7 +76,7 @@ func _ready() -> void:
 		_delete_timer.wait_time = DELETE_ARM_SECONDS
 		_delete_timer.timeout.connect(_disarm_delete)
 		add_child(_delete_timer)
-	var back := UiKit.box_button("Back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
+	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
 	back.custom_minimum_size = Vector2(0, 96)
 	box.add_child(back)
 	_refresh()
@@ -88,7 +88,7 @@ func _on_text(text: String) -> void:
 	if kept != text:
 		_name.text = kept
 		_name.caret_column = kept.length()
-		_hint.text = Lang.t("Letters, digits and space only").to_upper()
+		_hint.text = Lang.t("profile_edit.letters_digits_space_only").to_upper()
 	else:
 		_hint.text = ""
 	_refresh()
@@ -119,7 +119,7 @@ func _on_save() -> void:
 func _on_delete() -> void:
 	if _delete_timer.is_stopped():
 		var p = App.profiles.find(profile_id)
-		_delete.text = Lang.f("Delete %s?", [p.player_name if p != null else ""]).to_upper()
+		_delete.text = Lang.f("profile_edit.delete_ask", [p.player_name if p != null else ""]).to_upper()
 		_delete_timer.start()
 	else:
 		App.profiles.delete(profile_id)
@@ -128,7 +128,7 @@ func _on_delete() -> void:
 
 
 func _disarm_delete() -> void:
-	_delete.text = Lang.t("Delete").to_upper()
+	_delete.text = Lang.t("profile_edit.delete").to_upper()
 
 
 func on_back() -> void:

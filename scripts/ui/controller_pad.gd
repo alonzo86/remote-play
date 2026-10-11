@@ -143,9 +143,9 @@ func _update_touch(pos: Vector2) -> void:
 
 ## The text of a new best on the pad: "NEW BEST! 340", with the old best when there was one.
 static func best_line(best: Dictionary) -> String:
-	var text := Lang.t("New best!").to_upper() + " " + ProfileKeys.format(best.key, best.value)
+	var text := Lang.t("pad.new_best").to_upper() + " " + ProfileKeys.format(best.key, best.value)
 	if best.old > 0:
-		text += "  " + Lang.f("Before: %s", [ProfileKeys.format(best.key, best.old)]).to_upper()
+		text += "  " + Lang.f("pad.before", [ProfileKeys.format(best.key, best.old)]).to_upper()
 	return text
 
 
@@ -162,7 +162,7 @@ func _draw() -> void:
 	if not (c.tv_pid != "" and Avatar.draw(self, square.grow(-5.0), c.tv_avatar)):   # The avatar takes the place of the number.
 		UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
 	var own: String = c.tv_player_name if c.tv_pid != "" else "%dP" % (c.slot + 1)
-	var status := own if online else Lang.t("Reconnecting...")
+	var status := own if online else Lang.t("connect.reconnecting")
 	var name_rect := Rect2(190, HEADER_Y - 45.0, size.x - 460, 90)
 	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, 48)), status.to_upper(),
 			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, 48, UiTheme.ACCENT if online else UiTheme.BAD)
@@ -189,16 +189,16 @@ func _draw() -> void:
 
 	# Leave: a framed text box. The first tap turns it red (REQ-FL-52).
 	if _leave_armed > 0.0:
-		_draw_box(_rect_leave(), UiTheme.BAD, UiTheme.BG, Lang.t("Again"), 32, UiTheme.BAD)
+		_draw_box(_rect_leave(), UiTheme.BAD, UiTheme.BG, Lang.t("pad.again"), 32, UiTheme.BAD)
 	else:
-		_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BG, Lang.t("Leave"), 32, UiTheme.TEXT)
+		_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BG, Lang.t("pad.leave"), 32, UiTheme.TEXT)
 
 	# Recenter: a yellow framed box that fills with yellow for a moment when it is tapped.
 	var rr := _rect_recenter()
 	var flashing: bool = _flash.recenter > 0.0
-	_draw_box(rr, UiTheme.ACCENT, UiTheme.ACCENT if flashing else UiTheme.BG, Lang.t("Recenter"), 72,
+	_draw_box(rr, UiTheme.ACCENT, UiTheme.ACCENT if flashing else UiTheme.BG, Lang.t("pad.recenter"), 72,
 			UiTheme.BG if flashing else UiTheme.ACCENT)
-	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("POINT AT THE TV, THEN TAP"),
+	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("pad.point_at_tv_then"),
 			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, 32, UiTheme.BG if flashing else UiTheme.TEXT)
 
 	# A and B are round arcade buttons. A is green and B is red (REQ-FL-52). The player color is only the square at the top.

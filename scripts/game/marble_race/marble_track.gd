@@ -80,7 +80,7 @@ const CLEARANCE := 1.0           # Extra room between two far parts of the track
 ## The track of a fixed seed (index 0 to 9) or a seed that is not fixed (the "Random track").
 static func title_for(seed_value: int) -> String:
 	var i := FIXED_SEEDS.find(seed_value)
-	return Lang.f("Track %d", [i + 1]) if i >= 0 else Lang.t("Random track")
+	return Lang.f("settings.track_n", [i + 1]) if i >= 0 else Lang.t("marble_race.random_track")
 
 
 ## The seed of a choice of the track list: "1" to "10" is a fixed seed, "random" is a new seed that is not one of the fixed ones.

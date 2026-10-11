@@ -16,8 +16,8 @@ func _init() -> void:
 
 func _build() -> void:
 	body.add_theme_constant_override("separation", 18)
-	body.add_child(UiKit.title("Players", 48))
-	body.add_child(UiKit.label("Only phones in this room, on this Wi-Fi, can join.", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	body.add_child(UiKit.title("players_modal.players", 48))
+	body.add_child(UiKit.label("players_modal.only_phones_room_wi", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 
 	var cols := HBoxContainer.new()
 	cols.add_theme_constant_override("separation", 40)
@@ -42,13 +42,13 @@ func _build() -> void:
 	var room := UiKit.title(App.server.room_code, 48)
 	room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	side.add_child(room)
-	var pin := UiKit.title(Lang.f("PIN %s", [App.server.pin]), 32, UiTheme.TEXT)
+	var pin := UiKit.title(Lang.f("pin.shown", [App.server.pin]), 32, UiTheme.TEXT)
 	pin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	side.add_child(pin)
 
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_END
 	body.add_child(row)
-	_close_button = UiKit.item("Close", close)
+	_close_button = UiKit.item("players_modal.close", close)
 	row.add_child(_close_button)
 	UiKit.focus_later(_close_button)

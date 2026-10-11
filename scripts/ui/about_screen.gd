@@ -40,7 +40,7 @@ func _clear() -> void:
 func _show_list() -> void:
 	_clear()
 	open_page = -1
-	_box.add_child(UiKit.title("About", 56))
+	_box.add_child(UiKit.title("common.about", 56))
 	_scroll = ScrollContainer.new()
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -57,7 +57,7 @@ func _show_list() -> void:
 		list.add_child(b)
 		if _first == null:
 			_first = b
-	_box.add_child(_button("Back", on_back))
+	_box.add_child(_button("common.back", on_back))
 	UiKit.focus_later(_first)
 
 
@@ -78,7 +78,7 @@ func show_page(i: int) -> void:
 	_scroll.add_child(body)
 	for chunk in chunks(About.text(page)):
 		body.add_child(_text_label(chunk))
-	var back := _button("Back", on_back)
+	var back := _button("common.back", on_back)
 	_box.add_child(back)
 	UiKit.focus_later(back)
 

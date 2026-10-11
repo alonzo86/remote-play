@@ -362,16 +362,16 @@ func current_best() -> Dictionary:
 ## player: the player was added or updated, or why the text does not work. A change of the active profile goes to the TV.
 func import_profile_text(text: String) -> String:
 	if not text.strip_edges().begins_with(ProfileCode.PREFIX):
-		return Lang.t("This is a TV link.") if not Protocol.parse_pair_url(text).is_empty() else Lang.t("This code does not work.")
+		return Lang.t("app.tv_link") if not Protocol.parse_pair_url(text).is_empty() else Lang.t("app.code_does_not_work")
 	var r := ProfileCode.decode(text)
 	if not r.ok:
-		return Lang.t("This code does not work.")
+		return Lang.t("app.code_does_not_work")
 	var done: Dictionary = profiles.import_profile(r.profile)
 	if done.status == "full":
-		return Lang.f("%d players is the maximum", [ProfileStore.MAX_PROFILES])
+		return Lang.f("profiles.maximum", [ProfileStore.MAX_PROFILES])
 	if done.id == profiles.active_id:
 		apply_profile()
-	return Lang.t("Player added.") if done.status == "added" else Lang.t("Player updated.")
+	return Lang.t("app.player_added") if done.status == "added" else Lang.t("app.player_updated")
 
 
 ## Leaves the profile screens: back to the waiting screen when a TV is joined, else to the Connect screen.
@@ -400,15 +400,15 @@ func _show_phone_screen() -> void:
 
 func _on_client_rejected(reason: String) -> void:
 	last_error = {
-		"full": Lang.t("The TV is full (4 players)."),
-		"bad_room": Lang.t("Wrong room code."),
-		"bad_pin": Lang.t("Wrong PIN. Look at the PIN on the TV."),
-		"pin_locked": Lang.t("Too many wrong PINs. Wait a little and try again."),
-		"version": Lang.t("App version does not match the TV."),
-		"unreachable": Lang.t("Cannot reach the TV. Check the Wi-Fi."),
-		"tv_closed": Lang.t("The TV closed the connection."),
-		"kicked": Lang.t("The host removed you. Scan the code to join again."),
-		"replaced": Lang.t("Your player joined another phone."),
-	}.get(reason, Lang.f("Connection refused: %s", [reason]))
+		"full": Lang.t("app.tv_full_4_players"),
+		"bad_room": Lang.t("app.wrong_room_code"),
+		"bad_pin": Lang.t("pin.wrong"),
+		"pin_locked": Lang.t("pin.locked"),
+		"version": Lang.t("app.app_version_does_not"),
+		"unreachable": Lang.t("app.cannot_reach_tv_check"),
+		"tv_closed": Lang.t("app.tv_closed_connection"),
+		"kicked": Lang.t("app.host_removed_scan_code"),
+		"replaced": Lang.t("app.player_joined_another_phone"),
+	}.get(reason, Lang.f("connect.refused", [reason]))
 	if reason == "bad_pin" and client.pin == "":
 		last_error = ""   # The phone sent no PIN (an old token): the connect screen asks for it.

@@ -61,9 +61,9 @@ func _button_styles() -> void:
 			"the cursor is a stepped triangle that points right")
 	var flipped := UiTheme.cursor_rects(Vector2(0, 100), 5.0, true)
 	_check(flipped[0].position.x == 15.0 and flipped[3].position.x == 0.0, "a flipped cursor points left (right to left layouts)")
-	var item: Button = UiKit.item("Quit", func(): pass, 40, "danger")
+	var item: Button = UiKit.item("connect.quit", func(): pass, 40, "danger")
 	root.add_child(item)
-	_check(item.text == "QUIT" and item.theme_type_variation == "DangerButton" and item.focus_mode == Control.FOCUS_ALL,
+	_check(item.text == "connect.quit" and item.theme_type_variation == "DangerButton" and item.focus_mode == Control.FOCUS_ALL,
 			"a menu item shows upper case text and keeps its role")
 	item.queue_free()
 	# The double frame: a 6 px line, 6 px of black, a 6 px line, and the content margin covers all three.
@@ -103,14 +103,14 @@ func _wait_screen_leave() -> void:
 	var wait: Control = load("res://scripts/ui/controller_wait.gd").new()
 	root.add_child(wait)
 	await process_frame
-	_check(wait._leave.text == "LEAVE" and wait._leave_timer.is_stopped(), "Leave starts as a white box")
+	_check(wait._leave.text == "pad.leave" and wait._leave_timer.is_stopped(), "Leave starts as a white box")
 	app.client._set_state(ControllerClient.State.CONNECTED)
 	wait._leave.pressed.emit()
 	_check(app.client.state == ControllerClient.State.CONNECTED and not wait._leave_timer.is_stopped()
-			and wait._leave.get_theme_color("font_color") == UiTheme.BAD and wait._leave.text.contains("TAP AGAIN"),
+			and wait._leave.get_theme_color("font_color") == UiTheme.BAD and wait._leave.text == "wait.tap_again_leave",
 			"the first tap arms Leave (red) and does not leave")
 	wait._leave_timer.timeout.emit() # The 3 s are over.
-	_check(wait._leave.text == "LEAVE" and wait._leave.get_theme_color("font_color") == UiTheme.TEXT,
+	_check(wait._leave.text == "pad.leave" and wait._leave.get_theme_color("font_color") == UiTheme.TEXT,
 			"Leave goes back to a white box when the time is over")
 	wait._leave.pressed.emit()
 	wait._leave.pressed.emit()
@@ -203,7 +203,7 @@ func _profile_screens() -> void:
 	app.go(app.ControllerConnect)
 	await process_frame
 	var connect: Control = app.current_screen()
-	var row_button: Button = _find_button(connect, "MAKE A PLAYER")
+	var row_button: Button = _find_button(connect, "connect.make_player")
 	_check(row_button != null, "a phone with no profile says MAKE A PLAYER on the Connect screen")
 	row_button.pressed.emit()
 	await process_frame

@@ -90,8 +90,8 @@ func players_text() -> String:
 	var lo := int(game.min_players)
 	var hi := int(game.max_players)
 	if lo == hi:
-		return Lang.t("1 player") if lo == 1 else Lang.f("%d players", [lo])
-	return Lang.f("%d-%d players", [lo, hi])
+		return Lang.t("games.one_player") if lo == 1 else Lang.f("games.n_players", [lo])
+	return Lang.f("games.range_players", [lo, hi])
 
 
 ## Why the game cannot start with the players now (REQ-FL-14).

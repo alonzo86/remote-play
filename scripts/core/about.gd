@@ -33,12 +33,12 @@ static func pages(scanner := false) -> Array:
 static func text(page: Dictionary) -> String:
 	match String(page.kind):
 		"summary":
-			return Lang.t("Wobble is a party game for the TV. The phones are the controllers.") + "\n\n" \
-					+ Lang.t("Wobble has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.") \
-					+ "\n\n" + Lang.t("The phones and the TV talk over your Wi-Fi. The link is not encrypted, so play on a network you trust.") \
-					+ "\n\n" + Lang.t("The pages below list the parts of other makers that Wobble uses, and their licenses.")
+			return Lang.t("about.wobble_party_game_tv") + "\n\n" \
+					+ Lang.t("about.wobble_has_no_account") \
+					+ "\n\n" + Lang.t("about.phones_tv_talk_over") \
+					+ "\n\n" + Lang.t("about.pages_below_list_parts")
 		"scanner":
-			return Lang.t("The Android phone scans with the Google code scanner (Play services). Wobble gets only the text.")
+			return Lang.t("about.android_phone_scans_with")
 		"godot":
 			return safe(Engine.get_license_text())
 		"components":
