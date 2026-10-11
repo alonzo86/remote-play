@@ -67,7 +67,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Not run |  | |
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip, phone score and name tags | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-GM-46, 46a, FD-21 | Not run | | |
-| [20](#test-20) | Player profiles (phase A: names and avatars) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 75, REQ-N8, REQ-C7 to C9, FD-22 | Not run | | |
+| [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -768,7 +768,7 @@ History:
 
 ### Player profiles (REQ-FL-69 to 75, REQ-N8, REQ-C7 to C9, FD-22)
 
-Needs: 2 to 4 phones (one an iPhone if possible), 1 TV on 1080p, a grown-up, and a child of about 5 to 8 years for item 7. Covers: REQ-FL-69 to 75, REQ-N8, REQ-C7 to C9, FD-22. Items 1 to 8 are phase A (names and avatars). The items for the copy by QR and for the personal bests are added by phases B and C (`docs/PROFILES_PLAN.md`, section 11.2).
+Needs: 2 to 4 phones (one an iPhone if possible), 1 TV on 1080p, a grown-up, and a child of about 5 to 8 years for item 7. Covers: REQ-FL-69 to 75, REQ-N8, REQ-C7 to C9, FD-22. Items 1 to 8 are phase A (names and avatars), items 12 to 15 are phase B (copy by QR). The items 9 to 11 for the personal bests are added by phase C (`docs/PROFILES_PLAN.md`, section 11.2).
 
 New (2026-10-10). The headless tests check the rules and the drawing. They do not show how an avatar looks from the sofa, or how the profile screens feel to a child.
 
@@ -783,6 +783,14 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 7. All 16 avatars on the four slot colors and on the smallest ball, from the sofa. A child of 5 to 8 years names five of them and finds its own avatar. Write down which avatars look alike.
 8. The same profile on a second phone joins the same TV while the TV is in a menu. Check: the older phone shows `YOUR PLAYER JOINED ANOTHER PHONE.` and goes to the Connect screen. Then repeat during a round: the second phone waits as a guest and nobody is removed.
 
+9. Play Snowball Splat, Paint Grab and Marble Race (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
+10. Close the app and open it again, then join another TV. Check: the profile and the bests are still there (play the same game and see that "BEFORE" is the old score).
+11. Play Tilt Maze, Sumo Bumpers and a random Marble Race track with a profile. Check: no NEW BEST! on the phone.
+12. Share a profile to a second phone by QR: on the first phone open the list, tap SHARE on a row; on the second phone tap SCAN A PLAYER. Check: the second phone shows PLAYER ADDED. with the same name and avatar. Time how long the code takes to appear and to scan; try it from 30 cm and from 60 cm, with the screen at full and at low brightness.
+13. Share a player that the second phone already has, after a rename on the first phone (the name is newer there): the second phone shows PLAYER UPDATED. and has the newer name and avatar. Then rename on the second phone and scan the old copy again: the newer name stays.
+14. An iPhone: COPY CODE on one phone and PASTE A CODE on the iPhone (the iPhone has no scan button). Check the same result as item 12.
+15. A broken code (change one letter of a copied code, then paste), a TV link (scan the QR code of the TV on the list), and a player code scanned on the Connect screen: the messages THIS CODE DOES NOT WORK., THIS IS A TV LINK., and the player is added.
+
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
@@ -795,6 +803,13 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 | 6 | Photo of the pause card in English and in Hebrew | Not run | | | |
 | 7 | Photo of the 16 avatars on the TV; note: the child, the age, what the child said | Not run | | | |
 | 8 | Photo of the message on the older phone | Not run | | | |
+| 9 | Photo of NEW BEST! and BEFORE on a phone | Not run | | | |
+| 10 | Note: the bests after a restart of the app | Not run | | | |
+| 11 | Note: no message in these games | Not run | | | |
+| 12 | Video: the scan; time to show and to scan; the distances | Not run | | | |
+| 13 | Note: the names on both phones | Not run | | | |
+| 14 | Note: the iPhone model and what happened | Not run | | | |
+| 15 | Photo of each message | Not run | | | |
 
 History:
 

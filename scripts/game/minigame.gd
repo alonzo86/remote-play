@@ -343,6 +343,7 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 		if e.finished:
 			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color})
+	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title
 	if heading == "":
@@ -364,6 +365,29 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	open_menu(heading, entries, rows)
 	Sound.stop_music()
 	Sound.sfx("tie" if heading in ["Tie!", "Round over"] else "win")
+
+
+## The key of the personal best of this game and its settings (REQ-GM-98), for example `snowball_splat|medium`; a key of
+## `ProfileKeys`. An empty text means the game has no personal best (Tilt Maze, Sumo Bumpers, a random Marble Race track).
+func best_key() -> String:
+	return ""
+
+
+## A score of the `Scoreboard` as the whole number that is saved in a profile: a score as it is, a time in milliseconds.
+func best_value(score: float) -> int:
+	return roundi(score)
+
+
+## Sends each finished player with a profile its result for the personal best (REQ-GM-99). A player without a score (not
+## finished), a score of 0 and a game without a key send nothing. A restart is a new round and sends again.
+func _send_best_results(ranking: Array) -> void:
+	var key := best_key()
+	if key == "":
+		return
+	for e in ranking:
+		var v := best_value(e.score)
+		if e.finished and v > 0:
+			App.server.send_result(e.slot, key, v)
 
 
 ## The buttons of the open menu (tests use it).

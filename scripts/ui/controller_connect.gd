@@ -10,6 +10,7 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
+const ProfileCode = preload("res://scripts/core/profile_code.gd")
 
 const SEARCH_MS := 1500   # After Refresh the list says "Searching" this long (the beacon comes each second).
 
@@ -163,6 +164,9 @@ func _on_scan_pressed() -> void:
 
 
 func _on_qr_text(text: String) -> void:
+	if text.strip_edges().begins_with(ProfileCode.PREFIX):   # A player code, not a TV link (FD-22).
+		App.go(App.ControllerProfiles, {"note": App.import_profile_text(text)})
+		return
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():
 		App.last_error = Lang.t("This is not a Wobble code.")

@@ -25,6 +25,7 @@ Use the prefix REQ-<XX>-n. Status: Done, Open, or Device. "Check" says how it is
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-XX-1 | | Open | smoke_tv / run_tests / device |
+| REQ-XX-n | Personal best (REQ-GM-98): the key and the direction (`best_key()`, `best_value()`), or the exception ("no key", and why). | Open | smoke_bests |
 
 ## Parameters
 

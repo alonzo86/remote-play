@@ -3,6 +3,8 @@ extends RefCounted
 ## copied to `<path>.bak`; a file that cannot be read is replaced by the copy.
 
 const Profile = preload("res://scripts/core/profile.gd")
+const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
+const ProfileCode = preload("res://scripts/core/profile_code.gd")
 
 const MAX_PROFILES := 8
 
@@ -69,6 +71,48 @@ func update(id: String, p_name: String, avatar: int) -> bool:
 		p.rev += 1
 		save()
 	return true
+
+
+## Takes a profile that was read from a code (`ProfileCode.decode`). A profile with a new ID is added (it becomes the active one
+## when the phone had no profile). A profile with an ID that the phone has is merged (docs/PROFILES_PLAN.md 6.5): the higher
+## `rev` gives the name and the avatar (equal: the local one stays), and each best is the better value, a key in one profile
+## only is kept. Returns {"status": "added" | "merged" | "full", "id": the ID}; "full" means 8 profiles and nothing changed.
+func import_profile(imp: RefCounted) -> Dictionary:
+	var local = find(imp.id)
+	if local == null:
+		if is_full():
+			return {"status": "full", "id": imp.id}
+		var first := profiles.is_empty()
+		profiles.append(imp)
+		if first:
+			active_id = imp.id
+		save()
+		return {"status": "added", "id": imp.id}
+	if imp.rev > local.rev:
+		local.player_name = imp.player_name
+		local.avatar = imp.avatar
+		local.rev = imp.rev
+	for key in imp.bests:
+		if not local.bests.has(key) or ProfileKeys.is_better(String(key), int(imp.bests[key]), int(local.bests[key])):
+			local.bests[key] = imp.bests[key]
+	save()
+	return {"status": "merged", "id": imp.id}
+
+
+## Counts the result of a round for a profile (FD-22, REQ-GM-98): `value` becomes the best of that profile for `key` when it is
+## better than the saved one (a lower time or a higher score, by `ProfileKeys`). A key that is not in the table, a value of 0 or
+## less and a value above `ProfileCode.VALUE_MAX` change nothing.
+## Returns {"new_best": bool, "old": the best before, 0 when there was none}.
+func record_best(id: String, key: String, value: int) -> Dictionary:
+	var p = find(id)
+	if p == null or ProfileKeys.number_of(key) == 0 or value <= 0 or value > ProfileCode.VALUE_MAX:
+		return {"new_best": false, "old": 0}
+	var old := int(p.bests.get(key, 0))
+	if not ProfileKeys.is_better(key, value, old):
+		return {"new_best": false, "old": old}
+	p.bests[key] = value
+	save()
+	return {"new_best": true, "old": old}
 
 
 ## Removes a profile. The guest becomes active when it was the active one.
