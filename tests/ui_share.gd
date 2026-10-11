@@ -183,6 +183,15 @@ func _new_best() -> void:
 			"the waiting screen says NEW BEST! with the score and the old best: %s" % wait._best_detail.text)
 	c.result_received.emit("paint_grab|easy", 100)
 	_check(_app.last_best.value == 340 and who.bests["paint_grab|easy"] == 340, "a worse result changes nothing")
+	_check(_app.current_best().value == 340, "the pad can show the best of this player while the result menu is open")
+	var line: String = _app.ControllerPad.best_line(_app.current_best())
+	_check(line == "NEW BEST! 340  BEFORE: 300", "the pad line: %s" % line)
+	var other_pid: String = c.pid
+	c.pid = "f".repeat(32)   # The phone switched to another profile: the best is not theirs.
+	_check(_app.current_best().is_empty(), "a best is not shown for another profile")
+	wait._refresh()
+	_check(wait._best.text == "", "and the waiting screen shows nothing for it")
+	c.pid = other_pid
 	c.phase_changed.emit("playing")
 	_check(_app.last_best.is_empty(), "the next round clears the message")
 	wait._refresh()

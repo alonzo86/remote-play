@@ -132,7 +132,7 @@ func _refresh() -> void:
 		_sub.text = "RECONNECTING..."
 	_name.text = c.tv_player_name.to_upper() if c.tv_pid != "" else "%dP" % (c.slot + 1)
 	_profile_button.visible = c.can_change_profile()   # A round has started: the player cannot be changed now (REQ-FL-71).
-	var best: Dictionary = App.last_best
+	var best: Dictionary = App.current_best()
 	_best.text = Lang.t("New best!").to_upper() if not best.is_empty() else ""
 	_best_detail.text = ""
 	if not best.is_empty():

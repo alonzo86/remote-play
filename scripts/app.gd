@@ -347,7 +347,13 @@ func _on_client_phase(phase: String) -> void:
 func _on_result(key: String, value: int) -> void:
 	var done := profiles.record_best(client.pid, key, value)
 	if done.new_best:
-		last_best = {"key": key, "value": value, "old": done.old}
+		last_best = {"pid": client.pid, "key": key, "value": value, "old": done.old}
+
+
+## The NEW BEST! of the player on this phone, or an empty dictionary. A best that belongs to another profile is not shown after
+## a switch of the player (REQ-GM-100).
+func current_best() -> Dictionary:
+	return last_best if not last_best.is_empty() and last_best.pid == client.pid else {}
 
 
 ## Takes the text of a scan or of the clipboard that should be a player code (FD-22, REQ-FL-76). Returns the sentence for the
