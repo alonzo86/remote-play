@@ -171,7 +171,7 @@ The text of the QR code is `WP1.` followed by base64url text (no padding) of thi
 | 1 | Format version, 1 |
 | 16 | Profile ID |
 | 1 | Avatar |
-| 1 to 2 | `rev` (varint) |
+| 1 to 5 | `rev` (varint; the decoder accepts up to 5 bytes) |
 | 1 + n | Name: length n (0 to 20 bytes, UTF-8; 10 characters, Hebrew letters take 2 bytes), then the bytes |
 | 1 | Number of bests, k (0 to 39) |
 | k times | Best key number (1 byte, from the table `ProfileKeys`), then the value as a varint (up to 5 bytes) |

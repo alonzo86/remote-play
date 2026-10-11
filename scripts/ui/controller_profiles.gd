@@ -9,6 +9,7 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
+const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 
 ## A sentence about the last scan or paste ("PLAYER ADDED"). The Connect screen sets it when it took a player code.
@@ -105,6 +106,7 @@ func _rebuild() -> void:
 
 
 func _on_pick(id: String) -> void:
+	note = ""
 	App.profiles.set_active(id)
 	App.apply_profile()
 	_rebuild()
@@ -116,6 +118,8 @@ func _on_share(id: String) -> void:
 
 ## The text of a scan or of the clipboard (REQ-FL-76).
 func _on_code(text: String) -> void:
+	if App.client.state == ControllerClient.State.CONNECTED and not App.client.can_change_profile():
+		return   # A round has started: a scan that comes late changes nothing (REQ-FL-71, plan 6.4).
 	note = App.import_profile_text(text)
 	_rebuild()
 
@@ -127,10 +131,12 @@ func _on_scan_failed(reason: String) -> void:
 
 
 func _on_edit(id: String) -> void:
+	note = ""
 	App.go(App.ControllerProfileEdit, {"profile_id": id})
 
 
 func _on_new() -> void:
+	note = ""
 	App.go(App.ControllerProfileEdit, {"profile_id": ""})
 
 

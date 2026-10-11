@@ -115,10 +115,22 @@ func _import() -> void:
 	_check(list._note.text == "THIS IS A TV LINK.", "a TV link on this screen is said to be a TV link")
 	list._on_code("hello")
 	_check(list._note.text == "THIS CODE DOES NOT WORK.", "other text is refused")
+	list._note.text = "SENTINEL"
 	list._on_scan_failed("cancelled")
-	_check(list._note.text == "THIS CODE DOES NOT WORK.", "a cancelled scan changes nothing")
+	_check(list._note.text == "SENTINEL", "a cancelled scan changes nothing")
 	list._on_scan_failed("camera")
 	_check(list._note.text.contains("CAMERA"), "a failed scan says why")
+	list._on_pick(ID_B)
+	_check(list._note.text == "" and list.note == "", "a tap on a row clears the old note")
+	# A scan that comes late, when a round has started, changes nothing (plan 6.4).
+	var late: Node = _app.client
+	late._set_state(ControllerClient.State.CONNECTED)
+	late.phase = "playing"
+	var count: int = _app.profiles.profiles.size()
+	list._on_code(_code("ef".repeat(16), "Late", 3))
+	_check(_app.profiles.profiles.size() == count and _app.profiles.find("ef".repeat(16)) == null, "a code in a round is ignored")
+	late.phase = "menu"
+	late._set_state(ControllerClient.State.IDLE)
 	# The active profile is merged: the new name goes to the TV at once.
 	var c: Node = _app.client
 	_app.profiles.set_active(ID_B)

@@ -27,6 +27,7 @@ func _init() -> void:
 
 func _draw() -> void:
 	var side := minf(size.x, size.y)
+	draw_set_transform(((size - Vector2(side, side)) * 0.5).floor())   # The square sits in the middle of a larger area.
 	var box := Rect2(Vector2.ZERO, Vector2(side, side))
 	draw_rect(box, Color.WHITE)
 	if _qr.is_empty():

@@ -43,8 +43,9 @@ func _ready() -> void:
 	box.add_child(who)
 	var qr := QrView.new()
 	qr.quiet = QUIET_MODULES
-	qr.custom_minimum_size = Vector2(900, 900)
-	qr.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	qr.custom_minimum_size = Vector2(486, 486)   # The code takes the room that is left on a small screen (at least 486 px).
+	qr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	qr.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	qr.text = code
 	box.add_child(qr)
 	var lines: Array[Label] = []
@@ -56,7 +57,6 @@ func _ready() -> void:
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD
 		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		box.add_child(line)
-	box.add_child(UiKit.spacer(0, true))
 	_copy = UiKit.box_button("Copy code", _on_copy, UiTheme.SIZE_ITEM)
 	_copy.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_copy)

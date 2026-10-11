@@ -178,6 +178,8 @@ func _merge() -> void:
 			"each best is the better value (higher score, lower time) and a key in one profile only stays")
 	s.import_profile(_profile(ID_A, "Old", 1, 2, {"paint_grab|easy": 3}))
 	_check(a.player_name == "Mia" and a.avatar == 7 and a.rev == 6, "an old copy never replaces a newer rename")
+	s.import_profile(_profile(ID_A, "Old", 1, 2, {"marble_race|easy|1": 40000}))
+	_check(a.bests["marble_race|easy|1"] == 25000, "a slower imported time does not replace the local one")
 	s.import_profile(_profile(ID_A, "Same", 9, 6))
 	_check(a.player_name == "Mia", "with the same rev the local name stays")
 	var s2 := ProfileStore.new(TEMP)
