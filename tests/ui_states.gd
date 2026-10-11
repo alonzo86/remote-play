@@ -7,6 +7,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const ProfileStore = preload("res://scripts/core/profile_store.gd")
 
 var _checks := 0
 var _fails := 0
@@ -30,6 +31,7 @@ func _initialize() -> void:
 func _run() -> void:
 	_button_styles()
 	await _wait_screen_leave()
+	await _profile_screens()
 	_english_ltr()
 	_back_key()
 	_tile_images()
@@ -174,3 +176,149 @@ func _safe_area() -> void:
 	var landscape: Vector4 = safe_area.insets(Vector2(2556, 1179), Rect2(177, 0, 2202, 1179), Vector2(1920, 886))
 	_check(landscape.x > 0.0 and landscape.z > 0.0 and landscape.y == 0.0, "a turned phone has the cut-out at the side")
 	_check(safe_area.current(Vector2(1920, 1080)) == Vector4.ZERO, "a desktop window has no margin")
+
+
+func _find_button(node: Node, text: String) -> Button:
+	if node is Button and (node as Button).text == text:
+		return node
+	for c in node.get_children():
+		var f := _find_button(c, text)
+		if f != null:
+			return f
+	return null
+
+
+## The phone screens of the profiles (FD-22, REQ-FL-71, 72): the row on the Connect screen, the list, the edit screen, the avatar
+## on the waiting screen, and the screens that close when a round starts.
+func _profile_screens() -> void:
+	print("profile screens")
+	var app: Node = root.get_node("App")
+	var real_store = app.profiles
+	var path := "user://test_ui_profiles.cfg"
+	for f in [path, path + ".bak"]:
+		if FileAccess.file_exists(f):
+			DirAccess.remove_absolute(f)
+	app.profiles = ProfileStore.new(path)
+	app.apply_profile()
+	app.go(app.ControllerConnect)
+	await process_frame
+	var connect: Control = app.current_screen()
+	var row_button: Button = _find_button(connect, "MAKE A PLAYER")
+	_check(row_button != null, "a phone with no profile says MAKE A PLAYER on the Connect screen")
+	row_button.pressed.emit()
+	await process_frame
+	var edit: Control = app.current_screen()
+	_check(edit.get_script() == app.ControllerProfileEdit and edit.profile_id == "" and edit._save.disabled,
+			"it opens the new player screen, and SAVE waits for a name")
+	edit._on_text("Ma ya!@#")
+	_check(edit._name.text == "Ma ya" and edit._hint.text != "" and not edit._save.disabled,
+			"the name field keeps only letters, digits and spaces, and says so")
+	edit._on_text("Ma ya12345678901")
+	_check(edit._name.text == "Ma ya12345", "the name field keeps at most 10 characters")
+	edit._name.text = "Maya"
+	edit._name.text_changed.emit("Maya")
+	_check(edit._hint.text == "", "the hint goes when the name is right")
+	edit._views[5].pressed.emit()
+	_check(edit._views[5].selected and not edit._views[4].selected, "a tap on an avatar picks it")
+	edit._save.pressed.emit()
+	await process_frame
+	var made = app.profiles.profiles[0]
+	_check(app.profiles.profiles.size() == 1 and made.player_name == "Maya" and made.avatar == 5
+			and app.profiles.active_id == made.id and app.client.pid == made.id and app.client.avatar == 5
+			and app.client.player_name == "Maya",
+			"SAVE makes the profile, makes it active and gives it to the client")
+	var list: Control = app.current_screen()
+	_check(list.get_script() == app.ControllerProfiles, "SAVE goes back to the list")
+	# The list: rows for the profiles and the guest, the active one in yellow; a tap changes the active profile.
+	list._on_pick("")
+	_check(app.profiles.active_id == "" and app.client.pid == "" and app.client.avatar == -1,
+			"the guest row makes the phone a guest")
+	list._on_pick(made.id)
+	_check(app.client.pid == made.id, "a profile row makes it the active one again")
+	# The edit screen of a profile: a change of the name raises the edit number; DELETE asks first.
+	list._on_edit(made.id)
+	await process_frame
+	edit = app.current_screen()
+	_check(edit._name.text == "Maya" and edit._views[5].selected and edit._delete != null, "the edit screen shows the profile")
+	edit._name.text = "Mia"
+	edit._on_text("Mia")
+	edit._views[2].pressed.emit()
+	edit._save.pressed.emit()
+	await process_frame
+	_check(made.player_name == "Mia" and made.avatar == 2 and made.rev == 1 and app.client.player_name == "Mia",
+			"an edit changes the profile and the client")
+	app.go(app.ControllerProfileEdit, {"profile_id": made.id})
+	await process_frame
+	edit = app.current_screen()
+	edit._delete.pressed.emit()
+	_check(app.profiles.profiles.size() == 1 and edit._delete.text == "DELETE MIA?", "the first tap on DELETE asks for the name")
+	edit._delete_timer.timeout.emit()
+	_check(edit._delete.text == "DELETE", "DELETE goes back to its text when the time is over")
+	edit._delete.pressed.emit()
+	edit._delete.pressed.emit()
+	await process_frame
+	_check(app.profiles.profiles.is_empty() and app.client.pid == ""
+			and app.current_screen().get_script() == app.ControllerProfiles,
+			"the second tap deletes the profile, the phone is a guest")
+	# A full list.
+	for i in ProfileStore.MAX_PROFILES:
+		app.profiles.create("P%d" % i, i)
+	app.go(app.ControllerProfiles)
+	await process_frame
+	list = app.current_screen()
+	_check(list._new_button.disabled and list._note.text.contains("8"), "8 profiles: NEW PLAYER is dim and a line says why")
+	app.profiles.delete(app.profiles.profiles[0].id)
+	list._rebuild()
+	_check(not list._new_button.disabled and list._note.text == "", "with room again NEW PLAYER works")
+
+	# The waiting screen shows the avatar and the name that the TV has, and the PLAYER button only in a menu phase.
+	var c: Node = app.client
+	c._set_state(ControllerClient.State.CONNECTED)
+	c.phase = "menu"
+	c.tv_pid = "ab".repeat(16)
+	c.tv_avatar = 3
+	c.tv_player_name = "Maya"
+	app.go(app.ControllerWait)
+	await process_frame
+	var wait: Control = app.current_screen()
+	_check(wait._name.text == "MAYA" and wait._profile_button.visible,
+			"the waiting screen shows the profile name and the PLAYER button")
+	c.tv_pid = ""
+	wait._refresh()
+	_check(wait._name.text == "%dP" % (c.slot + 1), "a guest sees the slot number")
+	c.phase = "waiting"
+	wait._refresh()
+	_check(not wait._profile_button.visible, "the PLAYER button is hidden while a round runs")
+	# The profile screens close when a round starts, and stay in a menu phase.
+	c.phase = "menu"
+	app.go(app.ControllerProfiles)
+	await process_frame
+	app._show_phone_screen()
+	_check(app.current_screen().get_script() == app.ControllerProfiles, "the list stays open in a menu phase")
+	c.phase = "waiting"
+	app._show_phone_screen()
+	_check(app.current_screen().get_script() == app.ControllerWait, "a round that this phone joined late closes the list")
+	c.phase = "menu"
+	app.go(app.ControllerProfileEdit, {"profile_id": ""})
+	await process_frame
+	c.phase = "playing"
+	app._show_phone_screen()
+	_check(app.current_screen().get_script() == app.ControllerPad, "a round closes the edit screen")
+	c.phase = "menu"
+	app.leave_profile_screens()
+	await process_frame
+	_check(app.current_screen().get_script() == app.ControllerWait,
+			"leaving the profile screens goes to the waiting screen when joined")
+	app.go(app.ControllerProfileEdit, {"profile_id": ""})
+	await process_frame
+	c._set_state(ControllerClient.State.IDLE)
+	await process_frame
+	_check(app.current_screen().get_script() == app.ControllerProfileEdit, "a lost connection does not close the edit screen")
+	app.leave_profile_screens()
+	await process_frame
+	_check(app.current_screen().get_script() == app.ControllerConnect, "and to the Connect screen when not joined")
+	app.profiles = real_store
+	app.apply_profile()
+	for f in [path, path + ".bak"]:
+		if FileAccess.file_exists(f):
+			DirAccess.remove_absolute(f)

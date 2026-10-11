@@ -217,7 +217,7 @@ func _draw_exit_ring(ci: CanvasItem, c: Vector2) -> void:
 func _game_draw() -> void:
 	var o := Shell.snap(_origin())
 	for b in _balls:
-		Shell.ball_number(self, Shell.snap(o + b.pos), BALL_R, player(b.slot).color, b.slot)
+		Shell.ball_number(self, Shell.snap(o + b.pos), BALL_R, player(b.slot).color, b.slot, 0.0, player(b.slot).avatar)
 	Shell.title(self, "TILT MAZE")
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time)

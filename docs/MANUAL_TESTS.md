@@ -66,7 +66,8 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-41a, 52, 53, REQ-GM-45, 46, FD-18 | Not run |  | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Not run |  | |
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
-| [19](#test-19) | Leader chip, phone score and name tags | 2 to 4 phones (names of 12 letters or more), 1 TV, a child for item 8 | REQ-FL-67, REQ-GM-46, 46a, FD-21 | Not run | | |
+| [19](#test-19) | Leader chip, phone score and name tags | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-GM-46, 46a, FD-21 | Not run | | |
+| [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -240,7 +241,7 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 1. With two phones joined, during the maze, switch one phone Wi-Fi off for 15 seconds, then on. Check: within about 5 seconds the TV pauses and shows the card "2P LOST CONNECTION" with **Resume without P2** and **End game**, and the phone shows "Reconnecting...". When the phone is back, the card says "P2 reconnected" with **Resume**. The game goes on only when you press **Resume**.
 2. Lock the phone screen for 10 seconds, then unlock. Check: the phone reconnects. (Android can stop the app in the background.)
 3. Switch the phone Wi-Fi off for 40 seconds. Check: the slot is freed. When the Wi-Fi is back, the phone joins again (maybe in a different slot).
-4. Switch one phone Wi-Fi off again and wait for the card. Choose **Resume without P2**. Check: the game continues without that player. Switch the Wi-Fi on. Check: the phone joins again as a new player and waits for the next round.
+4. Switch one phone Wi-Fi off again and wait for the card. Choose **Resume without P2** (for a player with a profile the card says its name, test 20 item 6). Check: the game continues without that player. Switch the Wi-Fi on. Check: the phone joins again as a new player and waits for the next round.
 5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "1P LOST CONNECTION" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Snowball Splat. Press Back on the card. Check: it asks "End the game?".
 6. On the phone pad, tap **Leave** once. Check: it turns red ("AGAIN") for 3 seconds and the phone does not leave. Tap again within 3 seconds: it leaves. Check the pad buttons: A is green and B is red, both sink when pressed.
 7. Phone call: with one phone in a game, call that phone from another phone and answer. Check: the game pauses with the card. End the call and go back to the controller app. Check: the phone says "Reconnecting..." and then joins again, the card says "P1 reconnected" with **Resume**, and **Resume** goes on with the game. Try a call that lasts more than 1 minute (the slot is kept 5 minutes while the game is paused). Write down how long the phone needs to reconnect after the call. (REQ-GM-30, 30a)
@@ -729,14 +730,14 @@ History:
 
 ### Leader chip, phone score and name tags (REQ-FL-67, REQ-GM-46, 46a, FD-21)
 
-Needs: 2 to 4 phones (give two of them names of 12 to 16 letters), 1 TV on 1080p, a grown-up, and a child of about 5 to 8 years for item 8. Covers: REQ-FL-67, REQ-GM-46, 46a, FD-21, issue #25.
+Needs: 2 to 4 phones (give two of them names of 10 letters, the most since FD-22), 1 TV on 1080p, a grown-up, and a child of about 5 to 8 years for item 8. Covers: REQ-FL-67, REQ-GM-46, 46a, FD-21, issue #25.
 
 New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each player. Each phone shows its own place and score. The size of the header text on the phone and the place of the name tags are first values. The headless tests check the layout rules, not how it looks from the sofa.
 
 **Steps**
 
-1. Start Snowball Splat with 4 phones (two names of 16 letters). Check from the sofa: the top row has the title, the timer and one chip with the leader's name and score, all on one row; nothing covers the play area; the name and the score are easy to read. Write down if the leader chip is too small or too big.
-2. In the same game, before anybody scores: no chip shows and the phones show only `2P` and 0. Then score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
+1. Start Snowball Splat with 4 phones (two names of 10 letters, the most a name can have since FD-22). Check from the sofa: the top row has the title, the timer and one chip with the leader's name and score, all on one row; nothing covers the play area; the name and the score are easy to read. Write down if the leader chip is too small or too big.
+2. In the same game, before anybody scores: no chip shows and the phones show only `2P` (or the profile name) and 0. Then score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
 3. Look at each phone during the game. Check: the line under the header row (not next to Leave) shows the place (1ST to 4TH) and the score (`2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out): the colored square, the player number and Leave are fully visible below the island or the notch, nothing is hidden at the top, at the bottom (the home bar) or at the side when you turn the phone, and A and B are fully on the screen (REQ-FL-68). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
 4. Play Paint Grab and Sumo Bumpers with 2 to 4 phones. Check the same as items 1 to 3. In Sumo Bumpers the name tags show again in the countdown of every round.
 5. Play Marble Race with 3 or 4 phones. Check: the leader chip names the first marble (with its time after the finish); the phones show their place; a marble that has not finished shows no time. Check that the old list of names at the left is gone.
@@ -763,3 +764,53 @@ History:
 
 - -: **Not run**. New.
 
+## Test 20
+
+### Player profiles (REQ-FL-69 to 75, REQ-N8, REQ-C7 to C9, FD-22)
+
+Needs: 2 to 4 phones (one an iPhone if possible), 1 TV on 1080p, a grown-up, and a child of about 5 to 8 years for item 7. Covers: REQ-FL-69 to 75, REQ-N8, REQ-C7 to C9, FD-22. Items 1 to 8 are phase A (names and avatars), items 12 to 15 are phase B (copy by QR). The items 9 to 11 for the personal bests are added by phase C (`docs/PROFILES_PLAN.md`, section 11.2).
+
+New (2026-10-10). The headless tests check the rules and the drawing. They do not show how an avatar looks from the sofa, or how the profile screens feel to a child.
+
+**Steps**
+
+1. Make a profile on a phone (name, avatar) and join a TV. Check: the TV shows the name and the avatar in the Players list, on the ball or blob in each game, in the countdown tags and in the result list; no "Player N" for that phone.
+2. Change the avatar and the name on the phone (in a menu) and look at the TV. Check: the TV shows the new values after the phone answers; the phone shows what the TV accepted.
+3. A parent phone with 3 profiles: switch between rounds. Check: the TV shows the new name and avatar; the profile button is gone when a round starts; the list closes if it was open.
+4. Two phones with the names `Sam` and `sam`. Check: the TV shows `Sam` and `Sam 2`. A name of 10 letters and a Hebrew name of 10 letters fit on the cards and in the lists.
+5. A guest next to profile players. Check: the guest keeps the number and `Player N`.
+6. Pause card with profile names (switch the Wi-Fi of a phone off). Check: `MAYA LOST CONNECTION`, `Resume without Maya`, `Maya reconnected`; two names of 10 letters fit; a Hebrew name in the English sentence and an English name in the Hebrew sentence read right.
+7. All 32 avatars on the four slot colors and on the smallest ball, from the sofa. A child of 5 to 8 years names five of them and finds its own avatar. Write down which avatars look alike.
+8. The same profile on a second phone joins the same TV while the TV is in a menu. Check: the older phone shows `YOUR PLAYER JOINED ANOTHER PHONE.` and goes to the Connect screen. Then repeat during a round: the second phone waits as a guest and nobody is removed.
+
+9. Play Snowball Splat, Paint Grab and Marble Race (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
+10. Close the app and open it again, then join another TV. Check: the profile and the bests are still there (play the same game and see that "BEFORE" is the old score).
+11. Play Tilt Maze, Sumo Bumpers and a random Marble Race track with a profile. Check: no NEW BEST! on the phone.
+12. Share a profile to a second phone by QR: on the first phone open the list, tap SHARE on a row; on the second phone tap SCAN A PLAYER. Check: the second phone shows PLAYER ADDED. with the same name and avatar. Time how long the code takes to appear and to scan; try it from 30 cm and from 60 cm, with the screen at full and at low brightness.
+13. Share a player that the second phone already has, after a rename on the first phone (the name is newer there): the second phone shows PLAYER UPDATED. and has the newer name and avatar. Then rename on the second phone and scan the old copy again: the newer name stays.
+14. An iPhone: COPY CODE on one phone and PASTE A CODE on the iPhone (the iPhone has no scan button). Check the same result as item 12.
+15. A broken code (change one letter of a copied code, then paste), a TV link (scan the QR code of the TV on the list), and a player code scanned on the Connect screen: the messages THIS CODE DOES NOT WORK., THIS IS A TV LINK., and the player is added.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the TV with 2 profile players in a game | Not run | | | |
+| 2 | Note: the new name and avatar on the TV | Not run | | | |
+| 3 | Video of a switch between rounds | Not run | | | |
+| 4 | Photo of `Sam` and `Sam 2` | Not run | | | |
+| 5 | Photo: a guest next to a profile player | Not run | | | |
+| 6 | Photo of the pause card in English and in Hebrew | Not run | | | |
+| 7 | Photo of the 32 avatars on the TV; note: the child, the age, what the child said | Not run | | | |
+| 8 | Photo of the message on the older phone | Not run | | | |
+| 9 | Photo of NEW BEST! and BEFORE on a phone | Not run | | | |
+| 10 | Note: the bests after a restart of the app | Not run | | | |
+| 11 | Note: no message in these games | Not run | | | |
+| 12 | Video: the scan; time to show and to scan; the distances | Not run | | | |
+| 13 | Note: the names on both phones | Not run | | | |
+| 14 | Note: the iPhone model and what happened | Not run | | | |
+| 15 | Photo of each message | Not run | | | |
+
+History:
+
+- -: **Not run**. New.

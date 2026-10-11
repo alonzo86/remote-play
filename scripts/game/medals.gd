@@ -1,6 +1,7 @@
 extends RefCounted
 ## Medals for a round with one player (REQ-GM-73). The tiers are `[bronze, silver, gold]`, from the easy limit to the
-## hard one. A score at the limit or better earns the medal. Nothing is saved: the player is not identified yet.
+## hard one. A score at the limit or better earns the medal. A medal is not saved; the personal best of a profile is separate
+## (REQ-GM-98).
 
 const Lang = preload("res://scripts/core/lang.gd")
 

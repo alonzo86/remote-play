@@ -33,6 +33,8 @@ of the maze A shortcut, and it changes `docs/games/maze.md` (REQ-MZ-8) and `test
 | `RoundClock` | `Phase`/`_clock` in the maze, negative `_time` and `GO_SHOW` in the race | Countdown (3 s), playing time, round length. `delta` only (REQ-GM-13, 35). The end flag is `is_over` in the base class. |
 | `Haptics.pulse` | `haptic_cooldown` in the maze, `last_haptic_ms` in the race | A pulse with a minimum gap for each slot (REQ-GM-43). |
 | Recenter cleanup | A button wiring in the maze (with `_exit_tree`), the stale "B recenters" comment in the race | Delete. The RECENTER button does the work. The maze keeps its recenter at GO. |
+| `Avatar`, `Shell.mark()`, `Minigame.slot_label()` | The picture or the number on a ball; the name of a player in a card | The avatar of a profile instead of the slot number (REQ-FL-70); a guest keeps the number. A game passes `player(s).avatar` to `Shell.ball()` or `Shell.ball_number()`. |
+| `Minigame.best_key()`, `best_value()` | Nothing (new) | The key and the saved number of the personal best of a game (REQ-GM-98); an empty key means no best. `open_results()` sends the result to the phones (REQ-GM-99). |
 | `Shell.leader_chip`, `Minigame.draw_leader_chip()` | The leader chip in the HUD | One chip: the leader and the score, or TIE (REQ-GM-46, FD-21). A game returns its `Scoreboard` from `_scoreboard()`; the phones get the place and score (REQ-FL-67). |
 
 Not extracted: collision code (different in each game), the two damping models (the feel would change and need a device test),

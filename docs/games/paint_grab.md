@@ -83,6 +83,7 @@ Shared code
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-PG-30 | `scripts/game/tilt_body.gd` (`TiltBody`) is a helper without nodes: position, velocity, tilt acceleration, dead zone, damping, speed limit, bounce at a rectangle, and the bounce between two bodies. The Dodge Storm, Tilt Snake and Sumo Bumpers branches use it too. The maze and the race keep their own models for now (a device test is needed to change them). | Done | run_tests |
+| REQ-PG-31 | Personal best (REQ-GM-98): the key is `paint_grab|<difficulty>`, the value is the number of tiles, higher is better. All player counts share one key. | Done | smoke_bests |
 
 ## Parameters
 

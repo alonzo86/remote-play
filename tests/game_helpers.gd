@@ -30,6 +30,7 @@ func _initialize() -> void:
 	_round_clock()
 	_haptics()
 	_shell_leader()
+	await _shell_mark()
 	_shell_layout()
 	_score_chip()
 	_pixel_world()
@@ -167,6 +168,25 @@ func _shell_leader() -> void:
 	var short: Array = Shell.name_tag_rects(area, [{"pos": Vector2(960.0, 540.0), "name": "AB"}])
 	_check(short[0].size.x < edge[0].size.x and is_equal_approx(short[0].get_center().x, 960.0) and short[0].end.y < 540.0,
 			"a tag is as wide as its name, centered over the object and above it")
+
+
+## Shell.mark draws the avatar of a player when the ball is big enough and the avatar is known, else the slot number (FD-22).
+func _shell_mark() -> void:
+	print("ball mark")
+	var canvas := Control.new()
+	root.add_child(canvas)
+	var got: Array = []
+	canvas.draw.connect(func():
+			got.append(Shell.mark(canvas, Vector2(100, 100), 24.0, Color.RED, 0, 5))
+			got.append(Shell.mark(canvas, Vector2(100, 100), 8.0, Color.RED, 0, 5))
+			got.append(Shell.mark(canvas, Vector2(100, 100), 24.0, Color.RED, 0))
+			got.append(Shell.mark(canvas, Vector2(100, 100), 24.0, Color.RED, 0, 40)))
+	canvas.queue_redraw()
+	await process_frame
+	await process_frame
+	_check(got == [true, false, false, false],
+			"a ball draws the avatar from radius 11; a small ball, no avatar, or an unknown avatar shows the number: %s" % str(got))
+	canvas.queue_free()
 
 
 func _shell_layout() -> void:

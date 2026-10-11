@@ -5,6 +5,7 @@ extends Node
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
+const Profile = preload("res://scripts/core/profile.gd")
 
 signal player_joined(slot: int)
 signal player_lost(slot: int)
@@ -30,6 +31,7 @@ var _pending: Array = []             # [{ws, since_ms}]
 var _sockets: Array[WebSocketPeer] = []
 var _last_rx_ms: Array[int] = []
 var _closing: Array = []             # Rejected sockets that finish their close handshake.
+var _replaced_tokens := {}           # token -> time (ms) until which the TV remembers it (a phone that was replaced, FD-22).
 var _score_sent := {}                # slot -> the last score message sent to that phone (it is not sent again, REQ-FL-67).
 
 
@@ -51,6 +53,8 @@ func start(settings: Dictionary) -> Error:
 ## is not in the round any more. A new phone in that slot waits for the next round (REQ-FL-25).
 func _on_player_removed(slot: int) -> void:
 	round_slots.erase(slot)
+	if not in_round():
+		_assign_names()
 
 
 func stop() -> void:
@@ -61,6 +65,7 @@ func stop() -> void:
 			_sockets[i].close()
 			_sockets[i].poll()
 	_tcp.stop()
+	_replaced_tokens.clear()
 	listening = false
 
 
@@ -87,6 +92,7 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	round_slots.clear()
 	round_limited = false
 	if not p_phase in ["playing", "paused"]:
+		_assign_names()   # The names are made again in the menus only, so they do not change in a round (docs/PROFILES_PLAN.md 4.3).
 		_score_sent.clear()   # The phones clear their score at the phase message (REQ-FL-67); a pause keeps it.
 	if p_phase in ["playing", "paused"] and not slots.is_empty():
 		round_slots.append_array(slots)
@@ -123,6 +129,13 @@ func send_score(slot: int, rank: int, of: int, text: String) -> void:
 	if slot >= 0 and slot < players.size() and players[slot].is_connected_now():
 		_score_sent[slot] = msg
 		_send_json(slot, msg)
+
+
+## Tells one phone the result of the round for its profile (FD-22, REQ-GM-99). Only a phone with a profile gets it, and only
+## while it is connected: a lost phone does not get it and the score is not kept.
+func send_result(slot: int, key: String, value: int) -> void:
+	if slot >= 0 and slot < players.size() and players[slot].is_connected_now() and players[slot].has_profile():
+		_send_json(slot, {"t": "result", "pid": players[slot].profile_id, "key": key, "v": value})
 
 
 func haptic(slot: int, ms: int) -> void:
@@ -206,7 +219,18 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		_reject(ws, "bad_room")
 		return
 	var token := String(msg.get("token", ""))
-	var p_name := String(msg.get("name", "")).strip_edges().substr(0, 16)
+	if token != "" and _replaced_tokens.has(token):
+		if now < int(_replaced_tokens[token]):
+			_send_kicked(ws, "replaced")   # This phone was replaced by another phone with its profile.
+			return
+		_replaced_tokens.erase(token)
+	var in_menu := in_menu_phase()
+	# The profile of the phone. It counts only in the menu phases: in a round the new phone is a guest (PROFILES_PLAN.md 4.4).
+	var pid := Profile.clean_id(String(msg.get("pid", ""))) if in_menu else ""
+	var av := Profile.clean_avatar(msg.get("av", -1)) if pid != "" else -1
+	var p_name := Profile.clean_name(String(msg.get("name", "")))
+	if not in_menu and Profile.clean_id(String(msg.get("pid", ""))) != "":
+		p_name = ""   # A new phone with a profile joins a round as a guest.
 	var slot := -1
 	var resumed := false
 	if token != "":
@@ -215,6 +239,10 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 				slot = p.slot
 				resumed = true
 				break
+	if pid != "":
+		var dup := _slot_with_pid(pid)
+		if dup >= 0 and dup != slot:
+			_replace_slot(dup, now)   # The newer phone wins. This is before the "full" check, so a full TV still takes it.
 	if slot < 0:
 		for p in players:
 			if not p.is_present():
@@ -230,17 +258,107 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	var player := players[slot]
 	if not resumed:
 		token = Protocol.make_token()
+	var keep := resumed and not in_menu   # A phone that returns in a round keeps the profile that the TV has.
+	var old_pid := player.profile_id
+	var old_av := player.avatar
+	var old_raw := player.raw_name
+	var old_shown := player.player_name
 	player.on_join(p_name, token)
+	if keep:
+		player.set_profile(old_pid, old_av, old_raw)
+		player.player_name = old_shown   # A phone that returns in a round keeps the name the TV showed (REQ-FL-69).
+	else:
+		player.set_profile(pid, av, p_name)
+		_assign_names(slot if in_round() else -1)
 	_score_sent.erase(slot)   # A phone that joins or returns has no score yet.
 	_send_json(slot, {
 		"t": "welcome", "slot": slot, "token": token,
 		"color": "#" + player.color.to_html(false),
 		"phase": phase_for(slot), "name": tv_name, "lang": language,
+		"pid": player.profile_id, "av": player.avatar, "pname": player.player_name if player.has_profile() else "",
 	})
 	if resumed:
 		player_resumed.emit(slot)
 	else:
 		player_joined.emit(slot)
+
+
+## True in a phase where a phone can change its profile: the logo and Connect screens and the menus.
+func in_menu_phase() -> bool:
+	return phase in ["connect", "menu"]
+
+
+## True while a round runs (the game plays or is paused).
+func in_round() -> bool:
+	return phase in ["playing", "paused"]
+
+
+## The slot of the player with this profile ID, or -1.
+func _slot_with_pid(pid: String) -> int:
+	for p in players:
+		if p.is_present() and p.profile_id == pid:
+			return p.slot
+	return -1
+
+
+## Frees the slot of a phone that was replaced by another phone with the same profile. The old phone gets `kicked` with the
+## reason `replaced`, and the TV remembers its token, so that the phone does not come back and replace the new one.
+func _replace_slot(slot: int, now: int) -> void:
+	if _sockets[slot] != null:
+		_send_json(slot, {"t": "kicked", "reason": "replaced"})
+		_discard(_sockets[slot])
+		_sockets[slot] = null
+	for token in _replaced_tokens.keys():
+		if now >= int(_replaced_tokens[token]):
+			_replaced_tokens.erase(token)   # Only a token that is still remembered counts.
+	if players[slot].token != "":
+		_replaced_tokens[players[slot].token] = now + Protocol.REPLACED_TOKEN_MS
+	players[slot].reset()
+	player_removed.emit(slot)
+
+
+func _send_kicked(ws: WebSocketPeer, reason: String) -> void:
+	ws.send_text(Protocol.to_json({"t": "kicked", "reason": reason}))
+	_discard(ws)
+
+
+## The names that the TV shows (docs/PROFILES_PLAN.md 4.3): the profile name, or "Player N" for a phone without a name. A
+## name that another player has already gets a number (`Sam`, `Sam 2`); case and spaces at the ends do not count. With `only`
+## set, only that slot is made again (a phone that joins in a round), against the names of the others.
+func _assign_names(only := -1) -> void:
+	var used: Array[String] = []
+	if only >= 0:
+		for p in players:
+			if p.is_present() and p.slot != only:
+				used.append(p.player_name.strip_edges().to_upper())
+	for p in players:
+		if not p.is_present() or (only >= 0 and p.slot != only):
+			continue
+		var base: String = p.raw_name if p.raw_name != "" else "Player %d" % (p.slot + 1)
+		var shown := base
+		var n := 2
+		while used.has(shown.strip_edges().to_upper()):
+			shown = "%s %d" % [base, n]
+			n += 1
+		p.player_name = shown
+		used.append(shown.strip_edges().to_upper())
+
+
+## A `profile` message from a phone (docs/PROTOCOL.md): it changes the profile of its slot in the menu phases. The answer says
+## what the TV has now, so the phone shows the truth.
+func _handle_profile(i: int, msg: Dictionary, now: int) -> void:
+	if in_menu_phase():
+		var pid := Profile.clean_id(String(msg.get("pid", "")))
+		var av := Profile.clean_avatar(msg.get("av", -1)) if pid != "" else -1
+		var p_name := Profile.clean_name(String(msg.get("name", ""))) if pid != "" else ""
+		if pid != "":
+			var dup := _slot_with_pid(pid)
+			if dup >= 0 and dup != i:
+				_replace_slot(dup, now)
+		players[i].set_profile(pid, av, p_name)
+		_assign_names()
+	var p := players[i]
+	_send_json(i, {"t": "profile", "pid": p.profile_id, "name": p.player_name if p.has_profile() else "", "av": p.avatar})
 
 
 func _reject(ws: WebSocketPeer, reason: String) -> void:
@@ -308,6 +426,8 @@ func _handle_control(i: int, msg: Dictionary, now: int) -> void:
 			players[i].on_stat(float(msg.get("rtt", -1)), float(msg.get("off", 0)))
 		"recenter":
 			players[i].recenter()
+		"profile":
+			_handle_profile(i, msg, now)
 		"bye":
 			if _sockets[i] != null:
 				_discard(_sockets[i])

@@ -199,7 +199,7 @@ func _game_draw() -> void:
 	var origin: Vector2 = fit.origin
 	for s in _bodies:   # The slot numbers: full resolution, on top of the pixel blob (REQ-GM-47n).
 		Shell.ball_number(self, Shell.snap(origin + (_bodies[s] as TiltBody).pos * k), BLOB_R * k, player(s).color, s,
-				Shell.NUMBER_DROP)
+				Shell.NUMBER_DROP, player(s).avatar)
 	_draw_hud()
 
 
@@ -240,3 +240,7 @@ func _draw_hud() -> void:
 		draw_name_tags(self, spots, BLOB_R * float(fit.k))
 	if _round.time < HINT_TIME and not is_over:
 		Shell.hint(self, size, "Tilt your phone to roll and paint the tiles!")
+
+
+func best_key() -> String:
+	return "paint_grab|%s" % difficulty

@@ -14,6 +14,9 @@ const PAUSED_SLOT_GRACE_MS := 300000   # A lost slot is kept this long while the
 const HELLO_TIMEOUT_MS := 5000
 const PEER_TIMEOUT_MS := 5000
 const ROOM_ALPHABET := "ACDEFGHJKLMNPQRTUVWXYZ"
+const NAME_MAX := 10                   # The longest player name, on the phone, on the TV and in a code (FD-22).
+const AVATAR_COUNT := 32               # Avatars in the sprite sheet (assets/avatars/avatars.png).
+const REPLACED_TOKEN_MS := 600000      # The TV remembers the token of a replaced phone this long (docs/PROTOCOL.md).
 
 const BTN_A := 1
 const BTN_B := 2

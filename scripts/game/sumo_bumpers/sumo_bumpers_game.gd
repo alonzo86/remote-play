@@ -306,7 +306,7 @@ func _game_draw() -> void:
 	var c: Vector2 = fit.center
 	for s in _alive:   # The slot numbers: full resolution, on top of the pixel ball.
 		var p := Shell.snap(c + (_bodies[s] as TiltBody).pos * k)
-		Shell.ball_number(self, p, SumoArena.BUMPER_R * k, player(s).color, s, Shell.NUMBER_DROP)
+		Shell.ball_number(self, p, SumoArena.BUMPER_R * k, player(s).color, s, Shell.NUMBER_DROP, player(s).avatar)
 	for s in _falling:
 		var f: Dictionary = _falling[s]
 		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
