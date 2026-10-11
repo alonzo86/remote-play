@@ -58,9 +58,11 @@ func _font_licences() -> void:
 		if line.begins_with("include_filter=") and line.contains("assets/lang/strings.csv"):
 			csv_filters += 1
 	_check(presets_count > 0 and filters == presets_count, "every export preset packs the font licence files")
-	_check(presets_count > 0 and csv_filters == presets_count, "every export preset packs the table of texts (assets/lang/strings.csv)")
+	_check(presets_count > 0 and csv_filters == presets_count,
+			"every export preset packs the table of texts (assets/lang/strings.csv)")
 	var imp := FileAccess.get_file_as_string("res://assets/lang/strings.csv.import")
-	_check(imp.contains('importer="keep"'), "the table of texts is not imported as a Godot translation: the app reads the file itself")
+	_check(imp.contains('importer="keep"'),
+			"the table of texts is not imported as a Godot translation: the app reads the file itself")
 	for f in ["OFL-PressStart2P.txt", "OFL-WobblePixelHebrew.txt"]:
 		_check(FileAccess.file_exists("res://assets/fonts/" + f), f + " exists")
 
