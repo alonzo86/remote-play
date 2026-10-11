@@ -15,9 +15,7 @@ var _sampler: Node
 var _fingers: Dictionary = {}   # finger index -> zone name
 var _touch_finger := -1
 var _flash := {"recenter": 0.0}
-var _leave_armed := 0.0   # Seconds left in which a second tap on Leave leaves (REQ-FL-52).
 
-const LEAVE_ARM_SECONDS := 3.0
 const HEADER_Y := 110.0   # The vertical middle of the header row.
 const SCORE_Y := 205.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
 const INFO_Y := 50.0      # How far the latency rows and the Recenter box move down for the score row.
@@ -45,15 +43,14 @@ func _on_phase(_phase: String) -> void:
 
 func _process(delta: float) -> void:
 	_flash.recenter = maxf(_flash.recenter - delta * 3.0, 0.0)
-	_leave_armed = maxf(_leave_armed - delta, 0.0)
 	queue_redraw()
 
 
 # ---- Layout (all in viewport coordinates) ----
 
-## The header (player badge, name and Leave) is one row: all three are centered on HEADER_Y.
+## The header (player badge, name and Disconnect) is one row: all three are centered on HEADER_Y.
 func _rect_leave() -> Rect2:
-	return Rect2(size.x - 260, HEADER_Y - 45.0, 230, 90)
+	return Rect2(size.x - 300, HEADER_Y - 45.0, 270, 90)
 
 
 func _rect_recenter() -> Rect2:
@@ -107,10 +104,7 @@ func _input(event: InputEvent) -> void:
 func _on_zone_down(zone: String, index: int, pos: Vector2) -> void:
 	match zone:
 		"leave":
-			if _leave_armed > 0.0:
-				App.client.leave()
-			else:
-				_leave_armed = LEAVE_ARM_SECONDS
+			App.client.leave()
 		"recenter":
 			App.client.send_recenter()
 			_flash.recenter = 1.0
@@ -159,11 +153,17 @@ func _draw() -> void:
 	var square := Rect2(Vector2(60, HEADER_Y - 45.0), Vector2(90, 90))
 	var square_color: Color = c.color if online else UiTheme.BAD
 	draw_rect(square, square_color)
-	if not (c.tv_pid != "" and Avatar.draw(self, square.grow(-5.0), c.tv_avatar)):   # The avatar takes the place of the number.
-		UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
+	UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
+	# The avatar is next to the color square, not on it (REQ-FL-70).
+	var has_avatar: bool = c.tv_pid != "" and Avatar.is_known(c.tv_avatar)
+	if has_avatar:
+		var av := Rect2(Vector2(square.end.x + 10.0, square.position.y), square.size)
+		draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM, UiTheme.BG, 4), av)
+		Avatar.draw(self, av.grow(-5.0), c.tv_avatar)
 	var own: String = c.tv_player_name if c.tv_pid != "" else "%dP" % (c.slot + 1)
 	var status := own if online else Lang.t("Reconnecting...")
-	var name_rect := Rect2(190, HEADER_Y - 45.0, size.x - 460, 90)
+	var name_x := 270.0 if has_avatar else 190.0
+	var name_rect := Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 320.0, 90)
 	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, 48)), status.to_upper(),
 			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, 48, UiTheme.ACCENT if online else UiTheme.BAD)
 
@@ -187,11 +187,8 @@ func _draw() -> void:
 	draw_string(f, Vector2(60, 316 + INFO_Y), ("%d Hz  -  TV: %s" % [roundi(c.tx_rate), c.phase]).to_upper(),
 			HORIZONTAL_ALIGNMENT_LEFT, size.x - 120, 24, UiTheme.TEXT_DIM)
 
-	# Leave: a framed text box. The first tap turns it red (REQ-FL-52).
-	if _leave_armed > 0.0:
-		_draw_box(_rect_leave(), UiTheme.BAD, UiTheme.BG, Lang.t("Again"), 32, UiTheme.BAD)
-	else:
-		_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BG, Lang.t("Leave"), 32, UiTheme.TEXT)
+	# Disconnect: a framed text box. One tap leaves the TV (REQ-FL-52).
+	_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BG, Lang.t("Disconnect"), 24, UiTheme.TEXT)
 
 	# Recenter: a yellow framed box that fills with yellow for a moment when it is tapped.
 	var rr := _rect_recenter()

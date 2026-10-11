@@ -6,10 +6,8 @@ extends RefCounted
 
 const HE := {
 	"ROOM CODE": "קוד חדר",
-	"PLAYER SELECT": "בחירת שחקנים",
 	"BE IN THE SAME ROOM, ON THE SAME WI-FI. OPEN THE WOBBLE APP ON YOUR PHONE AND SCAN THE CODE.":
 		"היו באותו חדר ובאותה רשת WI-FI. פתחו את אפליקציית WOBBLE בטלפון וסרקו את הקוד.",
-	"CREDIT %02d": "קרדיט %02d",
 	"PRESS OK TO CONTINUE": "לחצו OK להמשך",
 	"NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK.": "לא נמצאה כתובת WI-FI. חברו את הטלוויזיה לרשת.",
 	"QUIT WOBBLE?": "לצאת מ־WOBBLE?",
@@ -42,7 +40,7 @@ const HE := {
 	"MUTE": "השתקה",
 	"TURNS OFF THE MUSIC AND THE EFFECTS. THE PHONES ARE NOT CHANGED.": "מכבה את המוזיקה ואת האפקטים. הטלפונים לא משתנים.",
 	"THE PHONE VIBRATES IN GAMES: WHEN YOU SCORE, BUMP OR START. THE TV IS NOT CHANGED.":
-		"הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים. הטלוויזיה לא משתנה.",
+		"הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים.",
 	"LANGUAGE": "שפה",
 	"ENGLISH OR HEBREW. THE PHONES FOLLOW THE TV.": "אנגלית או עברית. הטלפונים עוקבים אחרי הטלוויזיה.",
 	"ON": "פועל",
@@ -101,14 +99,13 @@ const HE := {
 	"A ROUND IS RUNNING": "סיבוב מתנהל",
 	"YOU JOIN THE NEXT ROUND.": "תצטרפו לסיבוב הבא.",
 	"WAITING FOR THE HOST": "ממתינים למארח",
-	"LEAVE": "עזיבה",
-	"TAP AGAIN TO LEAVE": "הקישו שוב כדי לעזוב",
-	"AGAIN": "שוב",
+	"DISCONNECT": "התנתק",
 	"RECENTER": "מרכוז",
 	"POINT AT THE TV, THEN TAP": "כוונו אל הטלוויזיה והקישו",
 	"PAUSED": "הפסקה",
 	"RESUME": "המשך",
-	"RESTART": "התחלה מחדש",
+	"TRY AGAIN": "נסו שוב",
+	"NEW GAME": "משחק חדש",
 	"BACK TO MENU": "חזרה לתפריט",
 	"END THE GAME?": "לסיים את המשחק?",
 	"KEEP PLAYING": "להמשיך לשחק",

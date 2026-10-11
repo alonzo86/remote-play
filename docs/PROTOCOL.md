@@ -20,6 +20,16 @@ The TV sends the beacon to `255.255.255.255`, to the `/24` subnet broadcast addr
 The phone uses the sender IP address of the UDP packet as the TV address.
 A TV that is silent for 4 seconds is removed from the phone list.
 
+### Probe (finding a TV when the beacon does not arrive)
+
+A router can drop broadcast packets, and a computer can refuse to send them (for example macOS without the Local Network permission
+for the app), while a direct connection works (the QR code joins). Then the phone looks for the TV itself (REQ-FL-83): it opens a
+WebSocket to port 47801 of every address of its `/24` network (the other 253 addresses of each private IPv4 address of the phone),
+32 at a time with a timeout of 1.5 s, and sends `{"t":"hello","v":2,"room":"-"}`. `-` is not in the room alphabet, so the TV answers
+`{"t":"reject","reason":"bad_room","room":"KQZM","name":"Living Room TV","players":2,"max":4}` and closes: the phone has the room code,
+the name and the player count, and joins nothing. A TV found this way is listed like a beacon TV, and stays in the list for 20 s after
+the last answer (a TV with a beacon stays 4 s). The phone scans only when the user taps Refresh (a scan that starts by itself looks like a port scan to some routers, which can then block the phone), and a join stops a scan that runs. A TV of an older build answers `bad_room` without `room`; it is not listed by the scan.
+
 The room code has 4 letters from `ACDEFGHJKLMNPQRTUVWXYZ`. It is not a password.
 It only tells two TVs apart on one network.
 
@@ -29,7 +39,7 @@ It only tells two TVs apart on one network.
 |------|---------|---------|
 | Phone | `{"t":"hello","v":2,"room":"KQZM","token":"","name":"","pid":"","av":-1}` | First message. `room` can be empty (join by IP). `token` is empty for a new player. `name` can be empty: the TV then shows "Player N". `pid` and `av` are optional: the profile ID (32 lower-case hex characters) and the avatar index (0 to 255) of the profile that plays (FD-22, "Profiles" below). |
 | TV | `{"t":"welcome","slot":0,"token":"…","color":"#e63946","phase":"connect","name":"Living Room TV","lang":"en","pid":"","av":-1,"pname":""}` | Accepted. The phone saves `token`. `pid`, `av` and `pname` are the profile that the TV accepted (empty or -1 for a guest). `name` here is the name of the TV; the player name is `pname`, the name that the TV shows (with a number when another player has the same name, for example `Sam 2`). `lang` is the language of the TV, `en` or `he`; the field is optional (a TV of an older build does not send it) and the phone keeps its own language then (REQ-FL-62). |
-| TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `version`. |
+| TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `version`. A `bad_room` answer also has `room` (the room code of the TV), `name`, `players` and `max`, the same values as the beacon: see "Probe". The fields are optional; a phone ignores them when they are not there. |
 
 The TV closes a connection that sends no `hello` in 5 seconds.
 
@@ -102,7 +112,7 @@ All these fields and messages are optional, so `VERSION` stays 2: an old TV or a
   The TV gives the same slot back.
 - A `hello` with an unknown token is a new player.
 - The phone gives up and shows an error only when the first connection fails 3 times, or when the TV sends `reject`.
-- The phone also gives up (and returns to the connect screen) when the user taps "Leave".
+- The phone also gives up (and returns to the connect screen) when the user taps "Disconnect".
 
 ## Version change
 

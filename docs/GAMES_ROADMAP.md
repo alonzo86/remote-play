@@ -33,7 +33,7 @@ of the maze A shortcut, and it changes `docs/games/maze.md` (REQ-MZ-8) and `test
 | `RoundClock` | `Phase`/`_clock` in the maze, negative `_time` and `GO_SHOW` in the race | Countdown (3 s), playing time, round length. `delta` only (REQ-GM-13, 35). The end flag is `is_over` in the base class. |
 | `Haptics.pulse` | `haptic_cooldown` in the maze, `last_haptic_ms` in the race | A pulse with a minimum gap for each slot (REQ-GM-43). |
 | Recenter cleanup | A button wiring in the maze (with `_exit_tree`), the stale "B recenters" comment in the race | Delete. The RECENTER button does the work. The maze keeps its recenter at GO. |
-| `Avatar`, `Shell.mark()`, `Minigame.slot_label()` | The picture or the number on a ball; the name of a player in a card | The avatar of a profile instead of the slot number (REQ-FL-70); a guest keeps the number. A game passes `player(s).avatar` to `Shell.ball()` or `Shell.ball_number()`. |
+| `Avatar`, `Minigame.slot_label()` | The picture of a profile; the name of a player in a card | The avatar of a profile on the chips (`Shell.chip()`, REQ-GM-46b) and in the Players list. A game does not draw an avatar or a number on its objects (REQ-GM-46): the slot color alone. |
 | `Minigame.best_key()`, `best_value()` | Nothing (new) | The key and the saved number of the personal best of a game (REQ-GM-98); an empty key means no best. `open_results()` sends the result to the phones (REQ-GM-99). |
 | `Shell.leader_chip`, `Minigame.draw_leader_chip()` | The leader chip in the HUD | One chip: the leader and the score, or TIE (REQ-GM-46, FD-21). A game returns its `Scoreboard` from `_scoreboard()`; the phones get the place and score (REQ-FL-67). |
 
@@ -46,12 +46,12 @@ and 3D-only code (camera, meshes).
 |--------|-------|-----|
 | Scoreboard | `scripts/game/scoreboard.gd` | Score for each slot, ranking, ties (1, 1, 3), `lower_is_better` for times, players without a score (`set_unfinished()`), ordinals (REQ-GM-70). |
 | Round length | `RoundClock` (`duration`, `remaining()`, `is_time_up()`) | A round of fixed length. The visible clock is `Shell.timer()` with `remaining()` (REQ-GM-71). |
-| Ranked result | `Minigame.open_results(board, tiers, title, extra_entries, score_text)` | A result menu with the ranking (dot in the slot color), Restart, extra buttons and Back to menu. Sets `is_over` (REQ-GM-72). Used by both existing games. |
+| Ranked result | `Minigame.open_results(board, tiers, title, extra_entries, score_text)` | A result menu with the ranking (dot in the slot color), Try again, extra buttons and Back to menu. Sets `is_over` (REQ-GM-72). Used by both existing games. |
 | Medal tiers | `scripts/game/medals.gd` | Solo rule: `[bronze, silver, gold]` limits for one game. The result title is the medal. Not saved (REQ-GM-73). |
-| `Shell.ball` | `scripts/game/shell.gd` | The outlined 2D ball with slot number, moved out of the maze draw code (REQ-GM-46, 47b). It still has the old shadow and shine and is used by no game now: every game draws `Shell.pixel_ball()` (flat colors, REQ-GM-47k) and the HUD draws the number. |
+| `Shell.ball` | `scripts/game/shell.gd` | The outlined 2D ball (no number since 2026-10-11), moved out of the maze draw code (REQ-GM-46, 47b). It still has the old shadow and shine and is used by no game now: every game draws `Shell.pixel_ball()` (flat colors, REQ-GM-47k) and a ball has no number. |
 | `TiltBody` | Not built yet | Position, velocity, tilt acceleration, damping, bounce. It is built in the Paint Grab branch, with its first user, so that its parameters come from a real need. Maze and race may adopt it later, with a device test, because the damping models differ. |
 
-Maze and Marble Race both use `open_results()`. Their result menus now list all players (times, and "not finished"), and the maze says "Restart" instead of "Play again".
+Maze and Marble Race both use `open_results()`. Their result menus now list all players (times, and "not finished"), and the maze says "Try again" instead of "Play again".
 
 ## Branches
 
@@ -93,9 +93,9 @@ What this means for the games that are not built yet. The decision is made in th
 
 Checked against `main` on 2026-10-08.
 
-- A game has a settings view with Difficulty and a table of what Easy, Medium and Hard mean in its requirements file (REQ-GM-90, 91). The chosen value is yellow (REQ-GM-97). The game gets it as the prop `difficulty`; Restart keeps it. A solo game has medal tiers for each difficulty (REQ-GM-95).
+- A game has a settings view with Difficulty and a table of what Easy, Medium and Hard mean in its requirements file (REQ-GM-90, 91). The chosen value is yellow (REQ-GM-97). The game gets it as the prop `difficulty`; Try again keeps it. A solo game has medal tiers for each difficulty (REQ-GM-95).
 - Leaving a game in progress asks first (REQ-GM-31a). A game overrides `_can_open_menu()` (or `_in_progress()`) to say when it is over.
-- A ball-like player object shows the slot number, the HUD has one leader chip and the name tags show in the countdown (REQ-GM-46, 46a, FD-21).
+- A ball-like player object has only the slot color (no number, no avatar), the HUD has one leader chip and the name tags show in the countdown (REQ-GM-46, 46a, FD-21).
 - Key objects are at least 48 px high and use no pale grey (REQ-GM-47d, 47e). All text is 28 px or larger (REQ-GM-41).
 - On the phone, A is green and B is red (REQ-FL-52). A game states what A and B do, or that they do nothing. Recenter is not a game action: the RECENTER button does it (REQ-GM-37).
 - Hints use `Shell.hint` (dark plate).

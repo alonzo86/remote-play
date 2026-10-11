@@ -10,8 +10,11 @@ const Profile = preload("res://scripts/core/profile.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 
 const DELETE_ARM_SECONDS := 3.0
+const AVATAR_SIDE := 144.0
+const AVATAR_STEP := AVATAR_SIDE + 12.0   # One avatar and the gap after it.
 
 var profile_id := ""
+var from_list := false   # Opened from the list "WHO IS PLAYING?": Back goes there. Otherwise Back goes to the main screen.
 
 var _name: LineEdit
 var _hint: Label
@@ -19,6 +22,9 @@ var _save: Button
 var _delete: Button
 var _delete_timer: Timer
 var _views: Array = []
+var _scroll: ScrollContainer
+var _arrow_left: Button
+var _arrow_right: Button
 var _avatar := 0
 
 
@@ -45,25 +51,35 @@ func _ready() -> void:
 	_hint = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_hint)
-	# 32 avatars do not fit under the name field: the picker scrolls by dragging (no bar), 6 in a row.
-	var scroll := ScrollContainer.new()
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.custom_minimum_size = Vector2(0, 460)
-	box.add_child(scroll)
-	var grid := GridContainer.new()
-	grid.columns = 6
-	grid.add_theme_constant_override("h_separation", 12)
-	grid.add_theme_constant_override("v_separation", 12)
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(grid)
+	# 32 avatars in one line: drag the line, or use the arrows (REQ-FL-72). The line keeps its direction in Hebrew too.
+	var carousel := HBoxContainer.new()
+	carousel.layout_direction = Control.LAYOUT_DIRECTION_LTR
+	carousel.add_theme_constant_override("separation", 12)
+	box.add_child(carousel)
+	_arrow_left = _arrow("<", -1)
+	carousel.add_child(_arrow_left)
+	_scroll = ScrollContainer.new()
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scroll.custom_minimum_size = Vector2(0, AVATAR_SIDE + 8)
+	carousel.add_child(_scroll)
+	var strip := HBoxContainer.new()
+	strip.add_theme_constant_override("separation", 12)
+	_scroll.add_child(strip)
 	for i in Protocol.AVATAR_COUNT:
-		var v := AvatarView.new(i, 144.0)
+		var v := AvatarView.new(i, AVATAR_SIDE)
 		v.set_selected(i == _avatar)
 		v.pressed.connect(_on_avatar.bind(i))
-		grid.add_child(v)
+		strip.add_child(v)
 		_views.append(v)
+	_arrow_right = _arrow(">", 1)
+	carousel.add_child(_arrow_right)
+	var bar := _scroll.get_h_scroll_bar()
+	bar.value_changed.connect(func(_v): _update_arrows())
+	bar.changed.connect(_update_arrows)
+	_show_picked.call_deferred()
+	box.add_child(UiKit.spacer(0, true))   # Save, Delete and Back sit at the bottom of the screen.
 	_save = UiKit.box_button("Save", _on_save, UiTheme.SIZE_ITEM, UiTheme.OK)
 	_save.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_save)
@@ -96,6 +112,40 @@ func _on_text(text: String) -> void:
 
 func _refresh() -> void:
 	_save.disabled = Profile.clean_name(_name.text) == ""
+
+
+## An arrow of the carousel: moves the line by three avatars.
+func _arrow(text: String, dir: int) -> Button:
+	var b := UiKit.box_button(text, _scroll_by.bind(dir), UiTheme.SIZE_ITEM)
+	b.custom_minimum_size = Vector2(90, AVATAR_SIDE + 8)
+	b.text_direction = Control.TEXT_DIRECTION_LTR   # Hebrew would mirror the "<" and ">" glyphs.
+	return b
+
+
+func _scroll_by(dir: int) -> void:
+	var to := clampi(_scroll.scroll_horizontal + dir * int(AVATAR_STEP) * 3, 0, max_scroll())
+	create_tween().tween_property(_scroll, "scroll_horizontal", to, 0.15)
+
+
+## The farthest the line can scroll: the length of the content minus what is in view.
+func max_scroll() -> int:
+	var bar := _scroll.get_h_scroll_bar()
+	return maxi(0, int(bar.max_value - bar.page))
+
+
+## An arrow is dim and does nothing when the line is at that end.
+func _update_arrows() -> void:
+	if _arrow_left == null or _arrow_right == null:
+		return
+	_arrow_left.disabled = _scroll.scroll_horizontal <= 0
+	_arrow_right.disabled = _scroll.scroll_horizontal >= max_scroll()
+
+
+## Scrolls the line so the chosen avatar is in the middle (after the layout is done).
+func _show_picked() -> void:
+	if _scroll != null and is_instance_valid(_scroll):
+		_scroll.scroll_horizontal = maxi(0, int(_avatar * AVATAR_STEP - (_scroll.size.x - AVATAR_SIDE) * 0.5))
+	_update_arrows()
 
 
 func _on_avatar(i: int) -> void:
@@ -131,5 +181,9 @@ func _disarm_delete() -> void:
 	_delete.text = Lang.t("Delete").to_upper()
 
 
+## Back goes to the main screen, or to the list when the screen was opened from the list (REQ-FL-72).
 func on_back() -> void:
-	App.go(App.ControllerProfiles)
+	if from_list:
+		App.go(App.ControllerProfiles)
+	else:
+		App.leave_profile_screens()

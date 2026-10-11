@@ -30,9 +30,10 @@ func _initialize() -> void:
 	_round_clock()
 	_haptics()
 	_shell_leader()
-	await _shell_mark()
 	_shell_layout()
 	_score_chip()
+	_chip_avatar()
+	_medal_icon()
 	_pixel_world()
 	_round_length()
 	_scoreboard()
@@ -170,25 +171,6 @@ func _shell_leader() -> void:
 			"a tag is as wide as its name, centered over the object and above it")
 
 
-## Shell.mark draws the avatar of a player when the ball is big enough and the avatar is known, else the slot number (FD-22).
-func _shell_mark() -> void:
-	print("ball mark")
-	var canvas := Control.new()
-	root.add_child(canvas)
-	var got: Array = []
-	canvas.draw.connect(func():
-			got.append(Shell.mark(canvas, Vector2(100, 100), 24.0, Color.RED, 0, 5))
-			got.append(Shell.mark(canvas, Vector2(100, 100), 8.0, Color.RED, 0, 5))
-			got.append(Shell.mark(canvas, Vector2(100, 100), 24.0, Color.RED, 0))
-			got.append(Shell.mark(canvas, Vector2(100, 100), 24.0, Color.RED, 0, 40)))
-	canvas.queue_redraw()
-	await process_frame
-	await process_frame
-	_check(got == [true, false, false, false],
-			"a ball draws the avatar from radius 11; a small ball, no avatar, or an unknown avatar shows the number: %s" % str(got))
-	canvas.queue_free()
-
-
 func _shell_layout() -> void:
 	print("chip and ball layout")
 	_check(is_equal_approx(Shell.leader_chip_x(1920.0, 300.0), 1560.0)
@@ -196,9 +178,6 @@ func _shell_layout() -> void:
 			"the leader chip ends at the 60 px safe margin on 1920 and 1280 wide screens (REQ-GM-40)")
 	_check(Shell.ball_metrics(24.0).outline == 6.0 and Shell.ball_metrics(20.0).outline == 6.0
 			and Shell.ball_metrics(19.0).outline == 4.0, "a ball of 40 px or more has a 6 px outline, a smaller one 4 px (REQ-GM-47b)")
-	var m: Dictionary = Shell.ball_metrics(24.0)
-	_check(m.font_size == 24 and Shell.ball_metrics(40.0).font_size == 40 and Shell.ball_metrics(5.0).font_size == 8,
-			"the slot number is a size of the 8 px font grid: 24 px at radius 24, never under 8 px")
 
 
 ## The chip with a score: the score always shows in full, also with 4 to 6 digits and a long name (REQ-GM-41, 46).
@@ -315,6 +294,8 @@ func _medals() -> void:
 	print("medals")
 	var medals: GDScript = load("res://scripts/game/medals.gd")
 	var tiers := [10, 20, 30]
+	_check([1, 2, 3, 4, 0, -1].map(func(p): return medals.for_place(p)) == ["gold", "silver", "bronze", "", "", ""],
+			"the medal of a place: 1st gold, 2nd silver, 3rd bronze and nobody else (REQ-GM-73)")
 	_check(medals.medal(9, tiers) == "" and medals.medal(10, tiers) == "bronze" and medals.medal(25, tiers) == "silver"
 			and medals.medal(30, tiers) == "gold" and medals.medal(99, tiers) == "gold",
 			"a score at the limit or better earns the medal of that tier")
@@ -355,3 +336,52 @@ func _game_settings() -> void:
 	_check(GameSettings.title_of(diff, "hard") == "Hard", "the title of a value")
 	GameSettings.clear()
 	_check(GameSettings.value(game, diff) == "medium", "clear forgets the choices")
+
+
+## A chip shows the avatar next to the color square, and a chip is laid out left to right in both languages (REQ-GM-46b).
+func _chip_avatar() -> void:
+	print("chip avatar")
+	var plain := Shell.name_x()
+	var with_avatar := Shell.name_x(3)
+	_check(is_equal_approx(with_avatar - plain, Shell.CHIP_AVATAR + Shell.CHIP_GAP),
+			"the text of a chip with an avatar starts one picture later")
+	_check(is_equal_approx(Shell.name_x(-1), plain) and is_equal_approx(Shell.name_x(999), plain),
+			"a guest and an avatar that the sheet does not have leave the chip as it was")
+	_check(Shell.score_chip_width("Maya", "120", 64.0, 200.0, Shell.CHIP_FONT, 3) > Shell.score_chip_width("Maya", "120"),
+			"a chip with an avatar is wider, so the name is not cut")
+	var parts: Dictionary = Shell.score_chip_parts("Maya", "120", 400.0, 64.0, Shell.CHIP_FONT, 3)
+	_check(is_equal_approx(parts.name_x, with_avatar) and parts.score_x > parts.name_x,
+			"the name is after the avatar, the score at the end")
+	var rects: Array = Shell.name_tag_rects(Vector2(1920, 1080), [{"pos": Vector2(960, 540), "name": "AB", "avatar": 3},
+			{"pos": Vector2(300, 540), "name": "AB"}])
+	_check(rects[0].size.x - rects[1].size.x == Shell.CHIP_AVATAR + Shell.CHIP_GAP,
+			"a name tag with an avatar is wider by the picture")
+
+
+## The medal sheet and the medal of a place (REQ-GM-73): 1st gold, 2nd silver, 3rd bronze, ties share, nothing after the 3rd.
+func _medal_icon() -> void:
+	print("medals")
+	var Medal = load("res://scripts/ui/medal.gd")
+	var sheet: Image = Medal.texture().get_image()
+	_check(sheet.get_width() == Medal.CELL * 3 and sheet.get_height() == Medal.CELL, "the sheet is three medals of 16 x 16 px")
+	var middles := []
+	var all_drawn := true
+	for tier in Medal.TIERS:
+		var r: Rect2 = Medal.region(tier)
+		middles.append(sheet.get_pixel(int(r.position.x) + 10, 11))   # A pixel of the base color of the medal.
+		var opaque := 0
+		for y in Medal.CELL:
+			for x in Medal.CELL:
+				opaque += 1 if sheet.get_pixel(int(r.position.x) + x, y).a > 0.0 else 0
+		all_drawn = all_drawn and opaque > 100 and opaque < 200 and sheet.get_pixel(int(r.position.x), 0).a == 0.0
+	_check(all_drawn, "each medal is a round picture on a transparent background")
+	_check(middles[0] != middles[1] and middles[1] != middles[2] and middles[0] != middles[2],
+			"gold, silver and bronze have different colors")
+	_check(middles[0].r > 0.9 and middles[0].b < 0.4 and absf(middles[1].r - middles[1].b) < 0.05 and middles[2].r > middles[2].b,
+			"gold is yellow, silver is gray and bronze is brown: %s" % str(middles))
+	_check(Medal.is_known("gold") and not Medal.is_known("") and not Medal.is_known("wood"), "only the three tiers are on the sheet")
+	var canvas := Control.new()
+	root.add_child(canvas)
+	_check(Medal.draw(canvas, Rect2(0, 0, 48, 48), "silver") and not Medal.draw(canvas, Rect2(0, 0, 48, 48), "wood"),
+			"a known tier is drawn, an unknown one is not")
+	canvas.queue_free()

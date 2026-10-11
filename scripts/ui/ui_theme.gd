@@ -155,8 +155,11 @@ static func make() -> Theme:
 ## Draws `text` centered in `rect` on `ci`, horizontally and vertically (by the font's ascent and
 ## descent, so a digit sits in the middle of a box).
 static func draw_centered(ci: CanvasItem, f: Font, text: String, rect: Rect2, font_size: int, color: Color) -> void:
-	ci.draw_string(f, Vector2(rect.position.x, centered_baseline(f, rect, font_size)), text,
-			HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, font_size, color)
+	# Left aligned from a computed x: the centered alignment of draw_string loses a right to left text (Hebrew).
+	# No width is given to draw_string: a text that is wider than the box would be cut to its last letters.
+	var w := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	ci.draw_string(f, Vector2(rect.position.x + (rect.size.x - w) * 0.5, centered_baseline(f, rect, font_size)), text,
+			HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 
 ## The baseline y that puts the middle of a line of text (ascent to descent) at the middle of `rect`.

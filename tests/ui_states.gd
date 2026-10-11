@@ -7,6 +7,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Protocol = preload("res://scripts/core/protocol.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
 
 var _checks := 0
@@ -32,6 +33,8 @@ func _run() -> void:
 	_button_styles()
 	await _wait_screen_leave()
 	await _profile_screens()
+	await _keyboard_focus()
+	await _modal_focus()
 	_english_ltr()
 	_back_key()
 	_tile_images()
@@ -95,26 +98,21 @@ func _button_styles() -> void:
 			"the Hebrew pixel font is the fallback of the arcade font")
 
 
-## The first tap on Leave arms it (red, "Tap again to leave"), a tap after the time is over arms it again, and
-## a second tap inside the time leaves (REQ-FL-52).
+## Disconnect on the waiting screen leaves the TV with one tap, and sits at the top (REQ-FL-52).
 func _wait_screen_leave() -> void:
-	print("wait screen Leave")
+	print("wait screen Disconnect")
 	var app: Node = root.get_node("App")
 	var wait: Control = load("res://scripts/ui/controller_wait.gd").new()
 	root.add_child(wait)
 	await process_frame
-	_check(wait._leave.text == "LEAVE" and wait._leave_timer.is_stopped(), "Leave starts as a white box")
+	_check(wait._leave.text == "DISCONNECT", "the button says DISCONNECT")
+	_check(wait._leave.get_global_rect().position.y < wait._name.get_global_rect().position.y,
+			"Disconnect is above the content of the waiting screen")
 	app.client._set_state(ControllerClient.State.CONNECTED)
 	wait._leave.pressed.emit()
-	_check(app.client.state == ControllerClient.State.CONNECTED and not wait._leave_timer.is_stopped()
-			and wait._leave.get_theme_color("font_color") == UiTheme.BAD and wait._leave.text.contains("TAP AGAIN"),
-			"the first tap arms Leave (red) and does not leave")
-	wait._leave_timer.timeout.emit() # The 3 s are over.
-	_check(wait._leave.text == "LEAVE" and wait._leave.get_theme_color("font_color") == UiTheme.TEXT,
-			"Leave goes back to a white box when the time is over")
-	wait._leave.pressed.emit()
-	wait._leave.pressed.emit()
-	_check(app.client.state == ControllerClient.State.IDLE, "the second tap inside the time leaves the TV")
+	_check(app.client.state == ControllerClient.State.IDLE, "one tap leaves the TV")
+	_check(wait.find_children("*", "Button", true, false).all(func(b): return b.text != "PLAYER"),
+			"there is no PLAYER button while joined (REQ-FL-71)")
 	wait.queue_free()
 
 
@@ -178,6 +176,13 @@ func _safe_area() -> void:
 	_check(safe_area.current(Vector2(1920, 1080)) == Vector4.ZERO, "a desktop window has no margin")
 
 
+func _dropdown(screen: Node) -> Control:
+	for n in screen.find_children("*", "VBoxContainer", true, false):
+		if n.get_script() != null and n.get_script().resource_path.ends_with("profile_dropdown.gd"):
+			return n
+	return null
+
+
 func _find_button(node: Node, text: String) -> Button:
 	if node is Button and (node as Button).text == text:
 		return node
@@ -203,11 +208,33 @@ func _profile_screens() -> void:
 	app.go(app.ControllerConnect)
 	await process_frame
 	var connect: Control = app.current_screen()
-	var row_button: Button = _find_button(connect, "MAKE A PLAYER")
-	_check(row_button != null, "a phone with no profile says MAKE A PLAYER on the Connect screen")
-	row_button.pressed.emit()
+	var dropdown: Control = _dropdown(connect)
+	_check(dropdown._head.get_child(0).get_child(1).text == "GUEST" and not dropdown.open,
+			"a phone with no profile shows GUEST in a closed dropdown on the Connect screen")
+	_find_button(connect, "+").pressed.emit()
 	await process_frame
 	var edit: Control = app.current_screen()
+	_check(edit.get_script() == app.ControllerProfileEdit and edit.profile_id == "", "the + opens the new player screen")
+	edit.on_back()
+	await process_frame
+	_check(app.current_screen().get_script() == app.ControllerConnect, "Back from a new player goes to the main screen")
+	app.go(app.ControllerProfileEdit, {"profile_id": ""})
+	await process_frame
+	await process_frame
+	edit = app.current_screen()
+	_check(edit._arrow_left.disabled and not edit._arrow_right.disabled,
+			"at the start the left arrow is dim and the right one works")
+	edit._scroll.scroll_horizontal = edit.max_scroll()
+	await process_frame
+	_check(edit._arrow_right.disabled and not edit._arrow_left.disabled,
+			"at the end the right arrow is dim and the left one works")
+	edit._scroll.scroll_horizontal = 200
+	await process_frame
+	_check(not edit._arrow_left.disabled and not edit._arrow_right.disabled,
+			"in the middle both arrows work")
+	_check(edit._scroll.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_SHOW_NEVER
+			and edit._scroll.get_child(0).get_child_count() == Protocol.AVATAR_COUNT
+			and edit._scroll.get_child(0) is HBoxContainer, "the avatars are in one line")
 	_check(edit.get_script() == app.ControllerProfileEdit and edit.profile_id == "" and edit._save.disabled,
 			"it opens the new player screen, and SAVE waits for a name")
 	edit._on_text("Ma ya!@#")
@@ -227,8 +254,48 @@ func _profile_screens() -> void:
 			and app.profiles.active_id == made.id and app.client.pid == made.id and app.client.avatar == 5
 			and app.client.player_name == "Maya",
 			"SAVE makes the profile, makes it active and gives it to the client")
+	_check(app.current_screen().get_script() == app.ControllerConnect, "SAVE of a new player goes to the main screen")
+	app.go(app.ControllerConnect)
+	await process_frame
+	dropdown = _dropdown(app.current_screen())
+	_check(dropdown._head.get_child(0).get_child(1).text == "MAYA", "the dropdown head shows the active player")
+	dropdown.toggle()
+	_check(dropdown.open and dropdown._list.get_child_count() == 3, "it opens a row for the player, one for the guest and PLAYERS")
+	dropdown._pick("")
+	await process_frame
+	_check(app.profiles.active_id == "" and app.client.pid == "", "a tap on GUEST in the dropdown makes the phone a guest")
+	dropdown = _dropdown(app.current_screen())
+	dropdown._pick(made.id)
+	await process_frame
+	_check(app.client.pid == made.id, "a tap on a player in the dropdown makes it active")
+	await process_frame
+	var rev_before: int = made.rev
+	var edit_button := _find_button(app.current_screen(), "EDIT")
+	_check(edit_button != null, "the Connect screen has an EDIT button for the active player")
+	edit_button.pressed.emit()
+	await process_frame
+	edit = app.current_screen()
+	_check(edit.get_script() == app.ControllerProfileEdit and edit.profile_id == made.id and edit._name.text == "Maya",
+			"EDIT opens the active player with its name")
+	edit._name.text = "Mayo"
+	edit._on_text("Mayo")
+	edit._views[9].pressed.emit()
+	edit._save.pressed.emit()
+	await process_frame
+	_check(made.player_name == "Mayo" and made.avatar == 9 and app.client.player_name == "Mayo" and app.client.avatar == 9,
+			"a new name and a new avatar are saved and go to the TV")
+	_check(app.current_screen().get_script() == app.ControllerConnect, "Save goes back to the main screen")
+	app.go(app.ControllerProfileEdit, {"profile_id": made.id})
+	await process_frame
+	app.current_screen().on_back()
+	await process_frame
+	_check(app.current_screen().get_script() == app.ControllerConnect, "Back from EDIT goes to the main screen")
+	app.profiles.update(made.id, "Maya", 5)   # The tests below go on with the first name and avatar and the first edit number.
+	made.rev = rev_before
+	app.apply_profile()
+	app.go(app.ControllerProfiles)
+	await process_frame
 	var list: Control = app.current_screen()
-	_check(list.get_script() == app.ControllerProfiles, "SAVE goes back to the list")
 	# The list: rows for the profiles and the guest, the active one in yellow; a tap changes the active profile.
 	list._on_pick("")
 	_check(app.profiles.active_id == "" and app.client.pid == "" and app.client.avatar == -1,
@@ -247,7 +314,7 @@ func _profile_screens() -> void:
 	await process_frame
 	_check(made.player_name == "Mia" and made.avatar == 2 and made.rev == 1 and app.client.player_name == "Mia",
 			"an edit changes the profile and the client")
-	app.go(app.ControllerProfileEdit, {"profile_id": made.id})
+	app.go(app.ControllerProfileEdit, {"profile_id": made.id, "from_list": true})
 	await process_frame
 	edit = app.current_screen()
 	edit._delete.pressed.emit()
@@ -281,14 +348,10 @@ func _profile_screens() -> void:
 	app.go(app.ControllerWait)
 	await process_frame
 	var wait: Control = app.current_screen()
-	_check(wait._name.text == "MAYA" and wait._profile_button.visible,
-			"the waiting screen shows the profile name and the PLAYER button")
+	_check(wait._name.text == "MAYA", "the waiting screen shows the profile name")
 	c.tv_pid = ""
 	wait._refresh()
 	_check(wait._name.text == "%dP" % (c.slot + 1), "a guest sees the slot number")
-	c.phase = "waiting"
-	wait._refresh()
-	_check(not wait._profile_button.visible, "the PLAYER button is hidden while a round runs")
 	# The profile screens close when a round starts, and stay in a menu phase.
 	c.phase = "menu"
 	app.go(app.ControllerProfiles)
@@ -322,3 +385,51 @@ func _profile_screens() -> void:
 	for f in [path, path + ".bak"]:
 		if FileAccess.file_exists(f):
 			DirAccess.remove_absolute(f)
+
+
+## A tap does not drop the focus of a text field (it closes the keyboard).
+func _keyboard_focus() -> void:
+	print("keyboard focus")
+	var app: Node = root.get_node("App")
+	app.go(app.ControllerConnect)
+	await process_frame
+	var field := LineEdit.new()
+	app.current_screen().add_child(field)
+	field.position = Vector2(100, 100)
+	field.size = Vector2(300, 80)
+	field.grab_focus()
+	app._release_focus(field.get_global_rect().get_center())
+	_check(field.has_focus(), "a tap on a text field keeps its focus")
+	app._release_focus(Vector2(900, 900))
+	_check(not field.has_focus(), "a tap outside the text field drops its focus, and the keyboard closes (REQ-FL-72)")
+	var button := Button.new()
+	app.current_screen().add_child(button)
+	button.grab_focus()
+	app._release_focus()
+	_check(not button.has_focus(), "a tap drops the focus of a button")
+	field.queue_free()
+	button.queue_free()
+
+
+## A modal holds the focus: the controls under the dim layer cannot take it while the modal is open, and they can again after
+## it closes (TV-2: the arrow keys selected the games under the Players modal).
+func _modal_focus() -> void:
+	print("modal focus")
+	var app: Node = root.get_node("App")
+	var below := Button.new()
+	below.focus_mode = Control.FOCUS_ALL
+	app.add_child(below)
+	var Modal: GDScript = load("res://scripts/ui/tv_modal.gd")
+	var modal: Control = Modal.new()
+	modal.entries = [["One", func(): pass], ["Two", func(): pass]]
+	app.add_child(modal)
+	await process_frame
+	await process_frame
+	_check(below.focus_mode == Control.FOCUS_NONE, "a control under the modal cannot take the focus")
+	var first: Control = modal.first_focusable()
+	_check(first != null and first.has_focus(), "the first item of the modal has the focus")
+	var down := first.find_valid_focus_neighbor(SIDE_BOTTOM)
+	_check(down != null and modal.is_ancestor_of(down), "an arrow key from the modal goes to another item of the modal")
+	modal.close()
+	_check(below.focus_mode == Control.FOCUS_ALL, "the control can take the focus again when the modal closes")
+	below.queue_free()

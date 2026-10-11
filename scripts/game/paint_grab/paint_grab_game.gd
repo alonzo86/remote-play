@@ -148,11 +148,12 @@ func _finish() -> void:
 		App.server.haptic(s, 400)
 	var tiers: Array = _level.tiers
 	var heading := ""
+	var medal: Variant = null
 	if _board.ranking().size() == 1:   # One player: the share of the floor gives the medal (REQ-PG-21).
 		var slot: int = _board.ranking()[0].slot
-		var medal := Medals.medal(floor_map.percent(slot), tiers)
-		heading = "%s (%s)" % [Medals.label(medal), Lang.t(difficulty.capitalize())]
-	open_results(_board, [], heading, [], _score_text)
+		medal = Medals.medal(floor_map.percent(slot), tiers)
+		heading = Lang.t(difficulty.capitalize())
+	open_results(_board, [], heading, [], _score_text, medal)
 
 
 ## "34 tiles (23%)" for the result list.
@@ -197,9 +198,6 @@ func _game_draw() -> void:
 	var fit := _fit()
 	var k: float = fit.k
 	var origin: Vector2 = fit.origin
-	for s in _bodies:   # The slot numbers: full resolution, on top of the pixel blob (REQ-GM-47n).
-		Shell.ball_number(self, Shell.snap(origin + (_bodies[s] as TiltBody).pos * k), BLOB_R * k, player(s).color, s,
-				Shell.NUMBER_DROP, player(s).avatar)
 	_draw_hud()
 
 

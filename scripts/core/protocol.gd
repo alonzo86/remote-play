@@ -118,6 +118,19 @@ static func local_ipv4() -> String:
 	return best
 
 
+## Every private IPv4 address of this device (a phone can have a Wi-Fi address and a mobile one that look alike).
+static func private_ipv4s() -> Array[String]:
+	var out: Array[String] = []
+	for a in IP.get_local_addresses():
+		var parts := String(a).split(".")
+		if parts.size() != 4:
+			continue
+		var second := int(parts[1])
+		if a.begins_with("192.168.") or a.begins_with("10.") or (parts[0] == "172" and second >= 16 and second <= 31):
+			out.append(String(a))
+	return out
+
+
 ## Assume a /24 network. Good enough for home Wi-Fi.
 static func subnet_broadcast(ip: String) -> String:
 	var parts := ip.split(".")
