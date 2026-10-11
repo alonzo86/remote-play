@@ -240,3 +240,7 @@ func _draw_hud() -> void:
 		draw_name_tags(self, spots, BLOB_R * float(fit.k))
 	if _round.time < HINT_TIME and not is_over:
 		Shell.hint(self, size, "Tilt your phone to roll and paint the tiles!")
+
+
+func best_key() -> String:
+	return "paint_grab|%s" % difficulty

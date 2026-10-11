@@ -1,6 +1,6 @@
 # Player profiles plan: names, avatars, QR transfer, personal bests (FD-22)
 
-Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). Phases A (profiles and names) and B (copy by QR) are built; phase C is not.** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
+Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). All three phases are built (A: profiles and names, B: copy by QR, C: personal bests).** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files. The requirement IDs in this plan (REQ-FL-69 to 78, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C9) are proposed: they are given in the pull request of each phase.
 
 ## 1. Decision proposed (FD-22)
@@ -341,3 +341,12 @@ Built on 2026-10-10 on branch `claude/profiles-b-share`.
 - Screens: `controller_profile_share.gd`, SHARE on each row, SCAN A PLAYER (only where the QR plugin exists) and PASTE A CODE on the list.
 - The Share screen has no countdown number; it goes back to the list after 60 seconds.
 - Not in phase B: the time to make a version 14 code on a phone is not measured (test 20 item 12).
+
+## 16. Phase C: what was built, what differs
+
+Built on 2026-10-10 on branch `claude/profiles-c-bests`.
+
+- `Minigame.best_key()` and `best_value()`. The default key is empty (no best), so Tilt Maze and Sumo Bumpers needed no change; Snowball Splat and Paint Grab give `<game>|<difficulty>`; Marble Race gives the key only for the 10 fixed tracks and saves the time in milliseconds. The plan said the default key is the game and the difficulty; an empty default is safer for a new game (the `add-minigame` skill asks for a decision).
+- `open_results()` sends the `result` message (`TvServer.send_result()`). The phone checks the `pid`, and `App` records the best with `ProfileStore.record_best()`.
+- The waiting screen shows NEW BEST! and the old best. The old best shows only when there was one. The first score of a key is also a new best.
+- `ProfileKeys` was built in phase B.

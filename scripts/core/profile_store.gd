@@ -4,6 +4,7 @@ extends RefCounted
 
 const Profile = preload("res://scripts/core/profile.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
+const ProfileCode = preload("res://scripts/core/profile_code.gd")
 
 const MAX_PROFILES := 8
 
@@ -96,6 +97,22 @@ func import_profile(imp: RefCounted) -> Dictionary:
 			local.bests[key] = imp.bests[key]
 	save()
 	return {"status": "merged", "id": imp.id}
+
+
+## Counts the result of a round for a profile (FD-22, REQ-GM-98): `value` becomes the best of that profile for `key` when it is
+## better than the saved one (a lower time or a higher score, by `ProfileKeys`). A key that is not in the table, a value of 0 or
+## less and a value above `ProfileCode.VALUE_MAX` change nothing.
+## Returns {"new_best": bool, "old": the best before, 0 when there was none}.
+func record_best(id: String, key: String, value: int) -> Dictionary:
+	var p = find(id)
+	if p == null or ProfileKeys.number_of(key) == 0 or value <= 0 or value > ProfileCode.VALUE_MAX:
+		return {"new_best": false, "old": 0}
+	var old := int(p.bests.get(key, 0))
+	if not ProfileKeys.is_better(key, value, old):
+		return {"new_best": false, "old": old}
+	p.bests[key] = value
+	save()
+	return {"new_best": true, "old": old}
 
 
 ## Removes a profile. The guest becomes active when it was the active one.

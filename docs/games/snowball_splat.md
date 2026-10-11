@@ -85,6 +85,7 @@ REQ-GM-90 to 96 apply. The settings view has one row: Difficulty. As it grows, t
 | REQ-SS-21 | The medal tiers (REQ-GM-73) belong to the difficulty. A result is judged by the tiers of the difficulty that was played, and the medal title of one player names it: "Silver medal! (Hard)". | Done | game_rules (tiers), smoke_tv |
 | REQ-SS-22 | At every difficulty the lanes never overlap (REQ-SS-8), and at least one Puff is on the screen most of the time, also on Hard with 1 player. | Done | game_rules |
 | REQ-SS-23 | The HUD shows the leader chip (leader and points, or TIE; REQ-GM-46) next to the title and the timer. Each phone shows its own points and place (REQ-FL-67). In the countdown each cursor has a name tag (REQ-GM-46a). | Done | game_helpers (leader, tags), run_tests (score message) |
+| REQ-SS-24 | Personal best (REQ-GM-98): the key is `snowball_splat|<difficulty>`, the value is the score, higher is better. All player counts share one key. | Done | smoke_bests |
 
 | Difficulty | Speed factor | Puffs on screen (`MAX_BASE`, + players) | New Puff every | Medal tiers (first guess) |
 |------------|--------------|------------------------------------------|----------------|---------------------------|

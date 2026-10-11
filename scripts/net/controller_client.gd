@@ -11,6 +11,7 @@ signal phase_changed(phase: String)
 signal language_changed(code: String)   # The TV language (REQ-FL-62).
 signal haptic_requested(ms: int)
 signal score_changed()   # The place or the score of this phone changed (REQ-FL-67).
+signal result_received(key: String, value: int)   # A round result for the active profile (REQ-GM-99).
 signal profile_answered()   # The TV told which profile this phone has now (REQ-FL-70).
 
 enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING }
@@ -247,6 +248,12 @@ func _handle(msg: Dictionary, now: int) -> void:
 			score_of = clampi(int(msg.get("of", 0)), 0, Protocol.MAX_PLAYERS)
 			score_text = String(msg.get("v", "")).substr(0, 12)
 			score_changed.emit()
+		"result":
+			# Only the profile that plays on this phone counts (the TV sends the ID of the slot).
+			var key := String(msg.get("key", ""))
+			var v: Variant = msg.get("v", 0)
+			if pid != "" and String(msg.get("pid", "")) == pid and key != "" and (v is int or v is float):
+				result_received.emit(key, int(v))
 		"profile":
 			tv_pid = String(msg.get("pid", ""))
 			tv_avatar = int(msg.get("av", -1)) if tv_pid != "" else -1

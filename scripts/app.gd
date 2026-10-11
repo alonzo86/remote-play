@@ -47,6 +47,8 @@ var server: Node            # TV only
 var discovery: Node         # TV only
 var overlay: CanvasLayer    # TV only
 var client: Node            # Controller only
+## The last personal best of this phone: {"key", "value", "old"} or empty (REQ-GM-100). Cleared when the next round starts.
+var last_best := {}
 var profiles: ProfileStore  # Controller only. The profiles of this phone (FD-22).
 var controller_discovery: Node
 var last_error := ""        # Controller only. Shown on the connect screen.
@@ -293,7 +295,8 @@ func _start_controller() -> void:
 	wifi_locks.acquire_wifi_locks() # Less jitter and no lost TV beacons on Android.
 	client.state_changed.connect(_on_client_state)
 	get_viewport().size_changed.connect(_apply_safe_area)   # A turn changes the safe area (REQ-FL-68).
-	client.phase_changed.connect(func(_p): _show_phone_screen())
+	client.phase_changed.connect(_on_client_phase)
+	client.result_received.connect(_on_result)
 	client.language_changed.connect(func(code: String): set_language(code, false))
 	client.rejected.connect(_on_client_rejected)
 	if "--auto-join" in OS.get_cmdline_user_args():
@@ -331,6 +334,26 @@ func apply_profile() -> void:
 		client.set_profile("", "", -1)
 	else:
 		client.set_profile(p.id, p.player_name, p.avatar)
+
+
+func _on_client_phase(phase: String) -> void:
+	if phase == "playing":
+		last_best = {}
+	_show_phone_screen()
+
+
+## The result of a round for the active profile (REQ-GM-99, 100): the profile keeps the best, and the waiting screen says
+## NEW BEST! when this was one.
+func _on_result(key: String, value: int) -> void:
+	var done := profiles.record_best(client.pid, key, value)
+	if done.new_best:
+		last_best = {"pid": client.pid, "key": key, "value": value, "old": done.old}
+
+
+## The NEW BEST! of the player on this phone, or an empty dictionary. A best that belongs to another profile is not shown after
+## a switch of the player (REQ-GM-100).
+func current_best() -> Dictionary:
+	return last_best if not last_best.is_empty() and last_best.pid == client.pid else {}
 
 
 ## Takes the text of a scan or of the clipboard that should be a player code (FD-22, REQ-FL-76). Returns the sentence for the

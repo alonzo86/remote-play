@@ -55,6 +55,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-C7: The phone keeps up to 8 player profiles (ID, name, avatar) in a file and sends the active one to the TV (FD-22, REQ-FL-69 to 75).
 - REQ-C8: A profile is saved at once after each change, with a backup copy of the file.
 - REQ-C9: The profile changes only while the TV is in a menu phase, never during a round.
+- REQ-C11: The phone keeps the personal best of each profile for each game setting and saves it at once (FD-22, REQ-GM-98 to 101).
 - REQ-C10: A profile can be copied to another phone with a QR code or a text (`WP1.`); the copy has no server (FD-22, REQ-FL-76 to 78).
 
 ## 6. TV application
