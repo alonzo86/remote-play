@@ -111,9 +111,21 @@ func can_change_profile() -> bool:
 	return state == State.CONNECTED and phase in ["connect", "menu"]
 
 
+## True when the TV has the same profile with another avatar or name (an edit while the phone was away or in a round). The TV
+## may add a number to a name that another player has (`Sam 2`).
+func _tv_differs() -> bool:
+	if tv_avatar != avatar:
+		return true
+	var shown := tv_player_name.strip_edges().to_upper()
+	var mine := player_name.strip_edges().to_upper()
+	if shown == mine:
+		return false
+	return not (shown.begins_with(mine + " ") and shown.substr(mine.length() + 1).is_valid_int())
+
+
 ## Sends the profile when the TV has another one (or `force`), in a phase where the TV takes it.
 func _sync_profile(force := false) -> void:
-	if can_change_profile() and (force or tv_pid != pid):
+	if can_change_profile() and (force or tv_pid != pid or (pid != "" and _tv_differs())):
 		var msg := {"t": "profile"}
 		if pid != "":
 			msg = {"t": "profile", "pid": pid, "name": player_name, "av": avatar}

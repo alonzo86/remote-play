@@ -45,18 +45,25 @@ func _ready() -> void:
 	_hint = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
 	_hint.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_hint)
+	# 32 avatars do not fit under the name field: the picker scrolls by dragging (no bar), 6 in a row.
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(0, 460)
+	box.add_child(scroll)
 	var grid := GridContainer.new()
-	grid.columns = 4
-	grid.add_theme_constant_override("h_separation", 16)
-	grid.add_theme_constant_override("v_separation", 16)
-	box.add_child(grid)
+	grid.columns = 6
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 12)
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(grid)
 	for i in Protocol.AVATAR_COUNT:
-		var v := AvatarView.new(i, 220.0)
+		var v := AvatarView.new(i, 144.0)
 		v.set_selected(i == _avatar)
 		v.pressed.connect(_on_avatar.bind(i))
 		grid.add_child(v)
 		_views.append(v)
-	box.add_child(UiKit.spacer(0, true))
 	_save = UiKit.box_button("Save", _on_save, UiTheme.SIZE_ITEM, UiTheme.OK)
 	_save.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_save)

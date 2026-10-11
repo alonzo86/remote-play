@@ -154,6 +154,18 @@ func _switch_profile() -> void:
 	var p := _server.players[0]
 	_check(p.profile_id == ID_A and p.player_name == "Noam" and p.avatar == 7 and answers == [ID_A] and c.tv_avatar == 7,
 			"in a menu the TV takes the new profile and answers with it")
+	var twin := await _phone(ID_B, "Noam", 3)
+	_check(_server.players[1].player_name == "Noam 2" and twin.tv_player_name == "Noam 2",
+			"the phone is told the name that the TV shows, with the number")
+	twin.player_name = "Noam"
+	twin.avatar = 3
+	_check(not twin._tv_differs(), "a number added by the TV is not a different name")
+	twin.player_name = "Noama"
+	_check(twin._tv_differs(), "another name is sent again")
+	twin.player_name = "Noam"
+	twin.avatar = 4
+	_check(twin._tv_differs(), "another avatar is sent again")
+	await _leave(twin)
 	c.set_profile("", "", -1)
 	await _wait_until(func(): return answers.size() == 2)
 	_check(not p.has_profile() and p.player_name == "Player 1" and answers[1] == "", "the guest is a profile change too")
@@ -251,7 +263,15 @@ func _round_rules() -> void:
 	var same := await _raw_hello({"name": "Sam"})
 	_check(_server.players[3].player_name == "Sam 2" and _server.players[0].player_name == "Sam",
 			"a name that joins in a round gets a number and nobody else changes name")
+	await _leave(a)   # The first Sam leaves in the round: the other Sam keeps its number until the menu.
+	await process_frame
+	_check(_server.players[3].player_name == "Sam 2", "in a round no name changes, also when the other player left")
+	var again := await _raw_hello({"name": "Sam", "token": String(same.reply.get("token", ""))})
+	_check(again.reply.get("slot", -1) == 3 and _server.players[3].player_name == "Sam 2"
+			and String(again.reply.get("pname", "")) == "" and _server.players[0].is_present() == false,
+			"a phone that returns in a round keeps the name it had, also when the first Sam is gone")
 	same.ws.close()
+	again.ws.close()
 	# A phone that comes back in a round keeps the profile that the TV has.
 	b.set_process(false)
 	await _wait_until(func(): return _server.players[1].state == PlayerInput.State.LOST, 8000)
@@ -260,9 +280,6 @@ func _round_rules() -> void:
 	var back := await _wait_until(func(): return _server.players[1].state == PlayerInput.State.CONNECTED, 8000)
 	_check(back and _server.players[1].profile_id == ID_B and _server.players[1].player_name == "Lea",
 			"a phone that returns in a round keeps its profile, whatever it sends")
-	await _leave(a)   # The first Sam leaves in the round: the other Sam keeps its number until the menu.
-	await process_frame
-	_check(_server.players[3].player_name == "Sam 2", "in a round no name changes, also when the other player left")
 	_server.set_phase("menu")
 	_check(_server.players[3].player_name == "Sam", "in the menu the names are made again, so the number goes")
 	for c in [b, late]:

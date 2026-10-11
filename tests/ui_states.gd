@@ -309,7 +309,11 @@ func _profile_screens() -> void:
 	await process_frame
 	_check(app.current_screen().get_script() == app.ControllerWait,
 			"leaving the profile screens goes to the waiting screen when joined")
+	app.go(app.ControllerProfileEdit, {"profile_id": ""})
+	await process_frame
 	c._set_state(ControllerClient.State.IDLE)
+	await process_frame
+	_check(app.current_screen().get_script() == app.ControllerProfileEdit, "a lost connection does not close the edit screen")
 	app.leave_profile_screens()
 	await process_frame
 	_check(app.current_screen().get_script() == app.ControllerConnect, "and to the Connect screen when not joined")

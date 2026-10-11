@@ -20,8 +20,11 @@ static func make_id() -> String:
 ## `s` in lower case when it is a profile ID (32 hex characters), else an empty text.
 static func clean_id(s: String) -> String:
 	var t := s.strip_edges().to_lower()
-	if t.length() != 32 or not t.is_valid_hex_number(false):
+	if t.length() != 32:
 		return ""
+	for i in t.length():
+		if not "0123456789abcdef".contains(t[i]):   # No sign and no prefix, which a hex parser may accept.
+			return ""
 	return t
 
 

@@ -65,6 +65,7 @@ func stop() -> void:
 			_sockets[i].close()
 			_sockets[i].poll()
 	_tcp.stop()
+	_replaced_tokens.clear()
 	listening = false
 
 
@@ -261,18 +262,20 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	var old_pid := player.profile_id
 	var old_av := player.avatar
 	var old_raw := player.raw_name
+	var old_shown := player.player_name
 	player.on_join(p_name, token)
 	if keep:
 		player.set_profile(old_pid, old_av, old_raw)
+		player.player_name = old_shown   # A phone that returns in a round keeps the name the TV showed (REQ-FL-69).
 	else:
 		player.set_profile(pid, av, p_name)
-	_assign_names(slot if in_round() else -1)
+		_assign_names(slot if in_round() else -1)
 	_score_sent.erase(slot)   # A phone that joins or returns has no score yet.
 	_send_json(slot, {
 		"t": "welcome", "slot": slot, "token": token,
 		"color": "#" + player.color.to_html(false),
 		"phase": phase_for(slot), "name": tv_name, "lang": language,
-		"pid": player.profile_id, "av": player.avatar, "pname": player.raw_name if player.has_profile() else "",
+		"pid": player.profile_id, "av": player.avatar, "pname": player.player_name if player.has_profile() else "",
 	})
 	if resumed:
 		player_resumed.emit(slot)
@@ -305,6 +308,9 @@ func _replace_slot(slot: int, now: int) -> void:
 		_send_json(slot, {"t": "kicked", "reason": "replaced"})
 		_discard(_sockets[slot])
 		_sockets[slot] = null
+	for token in _replaced_tokens.keys():
+		if now >= int(_replaced_tokens[token]):
+			_replaced_tokens.erase(token)   # Only a token that is still remembered counts.
 	if players[slot].token != "":
 		_replaced_tokens[players[slot].token] = now + Protocol.REPLACED_TOKEN_MS
 	players[slot].reset()
@@ -352,7 +358,7 @@ func _handle_profile(i: int, msg: Dictionary, now: int) -> void:
 		players[i].set_profile(pid, av, p_name)
 		_assign_names()
 	var p := players[i]
-	_send_json(i, {"t": "profile", "pid": p.profile_id, "name": p.raw_name if p.has_profile() else "", "av": p.avatar})
+	_send_json(i, {"t": "profile", "pid": p.profile_id, "name": p.player_name if p.has_profile() else "", "av": p.avatar})
 
 
 func _reject(ws: WebSocketPeer, reason: String) -> void:

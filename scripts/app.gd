@@ -323,7 +323,8 @@ func _on_client_state(state: int) -> void:
 		_show_phone_screen()
 	elif state == ControllerClient.State.IDLE:
 		set_language(Lang.system_language(), false)   # Away from the TV, the phone uses its own language (REQ-FL-62).
-		if not (_screen is ControllerConnect):
+		# A failed connection does not close the profile screens: a typed name stays (the phone works without the TV).
+		if not (_screen is ControllerConnect or _screen is ControllerProfiles or _screen is ControllerProfileEdit):
 			go(ControllerConnect)
 
 

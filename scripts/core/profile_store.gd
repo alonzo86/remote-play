@@ -129,7 +129,8 @@ func delete(id: String) -> bool:
 
 ## Writes the file. `last_save_ok` is false when it failed; the changes stay in memory.
 func save() -> void:
-	if FileAccess.file_exists(path):
+	var current := ConfigFile.new()
+	if current.load(path) == OK and current.has_section("meta"):   # A broken file never replaces the good copy.
 		DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path(path + ".bak"))
 	var cfg := ConfigFile.new()
 	cfg.set_value("meta", "active", active_id)

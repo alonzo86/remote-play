@@ -32,11 +32,11 @@ func _family(data: Dictionary, family: String, name: String) -> String:
 	return ""
 
 
-## The avatar sheet is a 4 x 4 grid of 16 px cells and is imported without mipmaps, so a 16 px picture stays sharp (FD-22).
+## The avatar sheet is 4 columns by 8 rows of 16 px cells and is imported without mipmaps, so a 16 px picture stays sharp (FD-22).
 func _avatar_sheet() -> void:
 	print("avatar sheet")
 	var img: Image = load("res://assets/avatars/avatars.png").get_image()
-	_check(img.get_width() == 64 and img.get_height() == 64, "the avatar sheet is 64 x 64 pixels (16 avatars of 16 x 16)")
+	_check(img.get_width() == 64 and img.get_height() == 128, "the avatar sheet is 64 x 128 pixels (32 avatars of 16 x 16)")
 	var imp := FileAccess.get_file_as_string("res://assets/avatars/avatars.png.import")
 	_check(imp.contains("mipmaps/generate=false") and imp.contains("compress/mode=0"),
 			"the sheet is imported lossless and without mipmaps")

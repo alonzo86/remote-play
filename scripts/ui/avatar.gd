@@ -1,5 +1,5 @@
 extends RefCounted
-## The avatar sprite sheet (FD-22, docs/PROFILES_PLAN.md section 7): 16 avatars of 16 x 16 px in a 4 x 4 grid, in
+## The avatar sprite sheet (FD-22, docs/PROFILES_PLAN.md section 7): 32 avatars of 16 x 16 px in 4 columns and 8 rows, in
 ## `assets/avatars/avatars.png`. An avatar takes the place of the player number (REQ-FL-69). It is drawn at a whole-number scale
 ## with sharp pixels.
 

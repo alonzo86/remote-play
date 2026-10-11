@@ -76,6 +76,8 @@ func _ids() -> void:
 	var b := Profile.make_id()
 	_check(a.length() == 32 and Profile.clean_id(a) == a and a != b, "an ID is 32 hex characters and two IDs differ")
 	_check(Profile.clean_id(a.to_upper()) == a, "an ID in upper case is made lower case")
+	_check(Profile.clean_id("-" + "a".repeat(31)) == "" and Profile.clean_id("+" + "a".repeat(31)) == ""
+			and Profile.clean_id("0x" + "a".repeat(30)) == "", "an ID with a sign or a 0x prefix is empty")
 	_check(Profile.clean_id("abc") == "" and Profile.clean_id("z".repeat(32)) == "" and Profile.clean_id("") == ""
 			and Profile.clean_id(a + "0") == "", "a text that is not an ID is empty")
 	_check(Profile.from_dict({"id": a, "name": "Maya", "avatar": 5, "rev": 2, "bests": {"x": 1}}).avatar == 5
@@ -130,6 +132,9 @@ func _store_files() -> void:
 	var b := ProfileStore.new(TEMP)
 	b.load_from_disk()
 	_check(b.profiles.size() == 2, "a file that cannot be read is replaced by the .bak copy")
+	b.set_active(maya.id)   # The next write must not copy the broken file over the good copy.
+	var kept := ConfigFile.new()
+	_check(kept.load(TEMP + ".bak") == OK and kept.has_section("meta"), "a broken file never replaces the good .bak copy")
 	_clean_files()
 	var e := ProfileStore.new(TEMP)
 	e.load_from_disk()
@@ -142,12 +147,13 @@ func _store_files() -> void:
 
 func _avatars() -> void:
 	print("the avatar sheet")
-	_check(Avatar.texture() != null and Avatar.texture().get_width() == 64 and Avatar.texture().get_height() == 64,
-			"the sheet is 64 x 64 px: 16 avatars of 16 px in a 4 x 4 grid")
-	_check(Avatar.is_known(0) and Avatar.is_known(15) and not Avatar.is_known(16) and not Avatar.is_known(-1),
-			"avatars 0 to 15 exist; an index of a later sheet is unknown")
+	_check(Avatar.texture() != null and Avatar.texture().get_width() == 64 and Avatar.texture().get_height() == 128,
+			"the sheet is 64 x 128 px: 32 avatars of 16 px in 4 columns and 8 rows")
+	_check(Avatar.is_known(0) and Avatar.is_known(31) and not Avatar.is_known(32) and not Avatar.is_known(-1),
+			"avatars 0 to 31 exist; an index of a later sheet is unknown")
 	_check(Avatar.region(0) == Rect2(0, 0, 16, 16) and Avatar.region(5) == Rect2(16, 16, 16, 16)
-			and Avatar.region(15) == Rect2(48, 48, 16, 16), "an index maps to its cell, row by row")
+			and Avatar.region(15) == Rect2(48, 48, 16, 16) and Avatar.region(31) == Rect2(48, 112, 16, 16),
+			"an index maps to its cell, row by row")
 	_check(Avatar.scale_for(15.0) == 1 and Avatar.scale_for(16.0) == 1 and Avatar.scale_for(47.0) == 2
 			and Avatar.scale_for(280.0) == 17, "an avatar is drawn at a whole-number scale, 1 at the least")
 	# Every avatar has pixels, a black outline and a different picture (an empty cell would be an empty avatar).
@@ -163,7 +169,7 @@ func _avatars() -> void:
 					opaque += 1
 		all_ok = all_ok and opaque > 60 and cell.get_pixel(8, 8).a > 0.0
 		seen[cell.get_data().hex_encode()] = true
-	_check(all_ok and seen.size() == Protocol.AVATAR_COUNT, "all 16 avatars are drawn and no two are the same")
+	_check(all_ok and seen.size() == Protocol.AVATAR_COUNT, "all 32 avatars are drawn and no two are the same")
 	var canvas := Control.new()
 	root.add_child(canvas)
 	var drew := []
@@ -186,11 +192,20 @@ func _avatar_view() -> void:
 	view.pressed.connect(func(): taps.append(view.index))
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
-	click.pressed = true
-	view._gui_input(click)
+	var tap := func(down_at: Vector2, up_at: Vector2) -> void:
+		click.pressed = true
+		click.position = down_at
+		view._gui_input(click)
+		click.pressed = false
+		click.position = up_at
+		view._gui_input(click)
+	tap.call(Vector2(40, 40), Vector2(44, 41))
+	_check(taps == [2], "a tap (the finger goes down and up in the same place) sends pressed with the avatar")
+	tap.call(Vector2(40, 10), Vector2(40, 70))
+	_check(taps == [2], "a drag that scrolls the picker does not pick")
 	view.tappable = false
-	view._gui_input(click)
-	_check(taps == [2], "a tap sends pressed with the avatar, unless the control is not tappable")
+	tap.call(Vector2(40, 40), Vector2(40, 40))
+	_check(taps == [2], "a control that is not tappable sends nothing")
 	view.set_index(7)
 	view.set_selected(true)
 	await process_frame

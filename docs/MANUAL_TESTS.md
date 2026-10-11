@@ -780,7 +780,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 4. Two phones with the names `Sam` and `sam`. Check: the TV shows `Sam` and `Sam 2`. A name of 10 letters and a Hebrew name of 10 letters fit on the cards and in the lists.
 5. A guest next to profile players. Check: the guest keeps the number and `Player N`.
 6. Pause card with profile names (switch the Wi-Fi of a phone off). Check: `MAYA LOST CONNECTION`, `Resume without Maya`, `Maya reconnected`; two names of 10 letters fit; a Hebrew name in the English sentence and an English name in the Hebrew sentence read right.
-7. All 16 avatars on the four slot colors and on the smallest ball, from the sofa. A child of 5 to 8 years names five of them and finds its own avatar. Write down which avatars look alike.
+7. All 32 avatars on the four slot colors and on the smallest ball, from the sofa. A child of 5 to 8 years names five of them and finds its own avatar. Write down which avatars look alike.
 8. The same profile on a second phone joins the same TV while the TV is in a menu. Check: the older phone shows `YOUR PLAYER JOINED ANOTHER PHONE.` and goes to the Connect screen. Then repeat during a round: the second phone waits as a guest and nobody is removed.
 
 9. Play Snowball Splat, Paint Grab and Marble Race (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
@@ -801,7 +801,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 | 4 | Photo of `Sam` and `Sam 2` | Not run | | | |
 | 5 | Photo: a guest next to a profile player | Not run | | | |
 | 6 | Photo of the pause card in English and in Hebrew | Not run | | | |
-| 7 | Photo of the 16 avatars on the TV; note: the child, the age, what the child said | Not run | | | |
+| 7 | Photo of the 32 avatars on the TV; note: the child, the age, what the child said | Not run | | | |
 | 8 | Photo of the message on the older phone | Not run | | | |
 | 9 | Photo of NEW BEST! and BEFORE on a phone | Not run | | | |
 | 10 | Note: the bests after a restart of the app | Not run | | | |
