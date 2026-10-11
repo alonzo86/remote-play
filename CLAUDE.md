@@ -10,6 +10,18 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 - Do not decide on your own what the user sees (for example cutting or shortening text, hiding information). Ask the user first.
 - Work on the branch the session gives you. Create a pull request only when the user asks for one.
 
+## Third-party libraries and resources
+
+- Any library, plugin, addon, font, sound, image, model or other resource that another maker owns needs, in the same commit that adds it:
+  1. a row in `docs/THIRD_PARTY.md` (name, version, where it is used, license, owner, what the license asks, status);
+  2. its license text next to the file (`assets/<kind>/LICENSE-<name>.txt` or `OFL-<name>.txt`), packed in every export preset
+     (`include_filter` in `export_presets.cfg`, checked by `tests/design_tokens.gd`);
+  3. a page for it on the About screen when the license asks for a notice (`scripts/core/about.gd`), with the Hebrew text that the page needs;
+  4. a line in `docs/REQUIREMENTS.md` REQ-P6 (allowed files) or in the matching decision in `docs/TV_FLOW.md`;
+  5. the privacy notice, when it sends or collects data (also tell the user, so the notice and the store forms can change).
+- Check the license before you add the resource, and say in the commit or pull request which license it has. Do not add a resource
+  with no license, or with a license that does not allow a free app that is shipped in a store. Ask the user when you are not sure.
+
 ## Tests and coverage
 
 - Every module (each script file in `scripts/`) needs at least 80% line coverage. Check it with `GODOT=<path> tools/coverage.sh`
