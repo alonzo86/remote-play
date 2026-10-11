@@ -24,6 +24,7 @@ func _ready() -> void:
 	add_child(_shown)
 	var grid := GridContainer.new()
 	grid.columns = 3
+	grid.layout_direction = Control.LAYOUT_DIRECTION_LTR   # A keypad has the same order in every language.
 	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 16)
 	add_child(grid)

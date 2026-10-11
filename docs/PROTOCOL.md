@@ -30,7 +30,7 @@ It only tells two TVs apart on one network.
 |------|---------|---------|
 | Phone | `{"t":"hello","v":3,"room":"KQZM","token":"","pin":"0427","name":"","pid":"","av":-1}` | First message. `room` can be empty (join by IP). `token` is empty for a new player. `pin` is the join PIN of the TV (4 digits). It is needed for a new player and not for a phone that returns with a token the TV knows. `name` can be empty: the TV then shows "Player N". `pid` and `av` are optional: the profile ID (32 lower-case hex characters) and the avatar index (0 to 255) of the profile that plays (FD-22, "Profiles" below). |
 | TV | `{"t":"welcome","slot":0,"token":"…","color":"#e63946","phase":"connect","name":"Living Room TV","lang":"en","pid":"","av":-1,"pname":""}` | Accepted. The phone saves `token`. `pid`, `av` and `pname` are the profile that the TV accepted (empty or -1 for a guest). `name` here is the name of the TV; the player name is `pname`, the name that the TV shows (with a number when another player has the same name, for example `Sam 2`). `lang` is the language of the TV, `en` or `he`; the field is optional (a TV of an older build does not send it) and the phone keeps its own language then (REQ-FL-62). |
-| TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `bad_pin`, `version`. `bad_pin`: a new phone sent no PIN or a wrong one. |
+| TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `bad_pin`, `pin_locked`, `version`. `bad_pin`: a new phone sent no PIN or a wrong one. `pin_locked`: too many wrong PINs, try again later. |
 
 The TV closes a connection that sends no `hello` in 5 seconds.
 
@@ -41,7 +41,7 @@ The TV makes a PIN of 4 digits when it starts and shows it on the Connect screen
 - A `hello` that has to take a new slot (no token, or a token that the TV does not know) must carry the PIN of the TV. Without it, or with a wrong one, the TV answers `reject` with `reason` `bad_pin`.
 - A `hello` with a token of a player who is in a slot (also a lost one) needs no PIN: that phone joined before.
 - A phone on the same device as the TV (the address is the loopback address) needs no PIN. This is for a development run and for the tests. (`TvServer.pin_exempt_loopback`)
-- After `PIN_TRIES` (5) wrong PINs the TV makes a new PIN, so that guessing 10000 PINs does not work. Phones that are in a slot are not affected.
+- After `PIN_TRIES` (5) wrong PINs the TV refuses every new phone for `PIN_LOCK_MS` (30 s), also one with the right PIN, and answers `reject` with `reason` `pin_locked`. The PIN stays. Guessing 10000 PINs then takes many hours. A device can still lock the join for others by guessing wrong; phones that are in a slot are not affected.
 - The traffic is still not encrypted. The PIN keeps a device that only sees the beacon from joining. It does not stop a device that reads the traffic of a phone that joins.
 - `VERSION` is 3 since FD-23: a new phone sends `pin`, and a TV of version 2 does not ask for it. An old and a new build see no beacon from each other and reject each other with `version`.
 

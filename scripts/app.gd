@@ -393,7 +393,8 @@ func _show_phone_screen() -> void:
 	var playing: bool = client.phase in ["playing", "paused"]
 	if playing and not (_screen is ControllerPad):
 		go(ControllerPad)
-	elif not playing and not (_screen is ControllerWait) and not (_screen is ControllerSettings):
+	elif not playing and not (_screen is ControllerWait) and not (_screen is ControllerSettings) \
+			and not (_screen is AboutScreen):
 		go(ControllerWait)
 
 
@@ -402,9 +403,12 @@ func _on_client_rejected(reason: String) -> void:
 		"full": Lang.t("The TV is full (4 players)."),
 		"bad_room": Lang.t("Wrong room code."),
 		"bad_pin": Lang.t("Wrong PIN. Look at the PIN on the TV."),
+		"pin_locked": Lang.t("Too many wrong PINs. Wait a little and try again."),
 		"version": Lang.t("App version does not match the TV."),
 		"unreachable": Lang.t("Cannot reach the TV. Check the Wi-Fi."),
 		"tv_closed": Lang.t("The TV closed the connection."),
 		"kicked": Lang.t("The host removed you. Scan the code to join again."),
 		"replaced": Lang.t("Your player joined another phone."),
 	}.get(reason, Lang.f("Connection refused: %s", [reason]))
+	if reason == "bad_pin" and client.pin == "":
+		last_error = ""   # The phone sent no PIN (an old token): the connect screen asks for it.

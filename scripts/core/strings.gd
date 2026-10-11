@@ -9,6 +9,7 @@ const HE := {
 	"PIN %s": "קוד PIN %s",
 	"WRONG PIN. LOOK AT THE PIN ON THE TV.": "קוד PIN שגוי. הסתכלו על קוד ה־PIN בטלוויזיה.",
 	"TYPE THE PIN THAT THE TV SHOWS": "הקלידו את קוד ה־PIN שמוצג בטלוויזיה",
+	"TOO MANY WRONG PINS. WAIT A LITTLE AND TRY AGAIN.": "יותר מדי קודי PIN שגויים. המתינו מעט ונסו שוב.",
 	"ABOUT": "אודות",
 	"WOBBLE IS A PARTY GAME FOR THE TV. THE PHONES ARE THE CONTROLLERS.": "WOBBLE הוא משחק מסיבה לטלוויזיה. הטלפונים הם השלטים.",
 	"WOBBLE HAS NO ACCOUNT, NO ADS AND NO ANALYTICS. YOUR NAME, AVATAR AND BEST SCORES STAY ON YOUR PHONE.":

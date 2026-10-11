@@ -13,6 +13,9 @@ const About = preload("res://scripts/core/about.gd")
 var _checks := 0
 var _fails := 0
 var _server: TvServer
+var _about_script: GDScript   # The screens use the autoloads (App, Role): load them when the test runs, not at compile time.
+var _pad_script: GDScript
+var _connect_script: GDScript
 
 
 func _check(cond: bool, what: String) -> void:
@@ -59,6 +62,9 @@ func _free_all() -> void:
 
 
 func _run() -> void:
+	_about_script = load("res://scripts/ui/about_screen.gd")
+	_pad_script = load("res://scripts/ui/controller_pad.gd")
+	_connect_script = load("res://scripts/ui/controller_connect.gd")
 	_check(Protocol.is_pin("0427") and not Protocol.is_pin("427") and not Protocol.is_pin("04a7") and not Protocol.is_pin("04271"),
 			"a PIN is exactly 4 digits")
 	var pin := Protocol.make_pin()
@@ -111,16 +117,27 @@ func _join_rules() -> void:
 
 func _wrong_pins() -> void:
 	print("too many wrong PINs")
-	for i in Protocol.PIN_TRIES:
-		var guess := "0000" if _server.pin != "0000" else "1111"
-		await _raw_hello({"pin": guess})
-	_check(_server._bad_pins == 0 and Protocol.is_pin(_server.pin),
-			"after %d wrong PINs the TV counts again with a valid PIN" % Protocol.PIN_TRIES)
 	_server.pin = "1234"
 	for i in Protocol.PIN_TRIES - 1:
 		await _raw_hello({"pin": "0000"})
 	var right := await _raw_hello({"pin": "1234"})
 	_check(right.reply.get("t", "") == "welcome", "a right PIN after fewer wrong ones than the limit still joins")
+	_free_all()
+	for i in Protocol.PIN_TRIES:
+		var wrong := await _raw_hello({"pin": "0000"})
+		_check(wrong.reply.get("reason", "") == "bad_pin", "wrong PIN %d is bad_pin" % (i + 1))
+	var locked := await _raw_hello({"pin": "1234"})
+	_check(locked.reply.get("reason", "") == "pin_locked" and _server.pin == "1234",
+			"after %d wrong PINs even the right PIN is turned away, and the PIN stays" % Protocol.PIN_TRIES)
+	_server._pin_locked_until_ms = 0   # The lock time is over.
+	var after := await _raw_hello({"pin": "1234"})
+	_check(after.reply.get("t", "") == "welcome", "after the lock time the right PIN joins again")
+	var token := String(after.reply.get("token", ""))
+	for i in Protocol.PIN_TRIES:
+		await _raw_hello({"pin": "0000"})
+	var kept := await _raw_hello({"token": token})
+	_check(kept.reply.get("t", "") == "welcome", "a phone with its token is not turned away by the lock")
+	_server._pin_locked_until_ms = 0
 	_free_all()
 
 
@@ -144,9 +161,10 @@ func _pad() -> void:
 	for k in ["0", "4", "2", "7", "9"]:
 		pad2._key(k)
 	_check(got2 == ["0427"], "the fourth digit sends the PIN once: " + str(got2))
-	pad2._key("X")
-	pad.cancelled.emit()
-	_check(cancelled[0], "cancel is announced")
+	pad._key("X")
+	_check(cancelled[0], "the X key cancels")
+	_check(pad.find_children("*", "GridContainer", true, false)[0].layout_direction == Control.LAYOUT_DIRECTION_LTR,
+			"the keypad keeps its digit order in every language")
 	pad.queue_free()
 	pad2.queue_free()
 
@@ -176,11 +194,15 @@ func _about() -> void:
 
 func _about_screen() -> void:
 	print("About screen")
-	var screen: Control = load("res://scripts/ui/about_screen.gd").new()
+	var screen: Control = _about_script.new()
 	screen.theme = root.get_node("App").theme_res
 	root.add_child(screen)
 	await process_frame
 	await process_frame
+	_check(About.pages(false).size() > 0 and screen.chunks("a\nb").size() == 1, "a short text is one part")
+	var long_text := "\n".join(range(100).map(func(n): return str(n)))
+	_check(screen.chunks(long_text).size() == 3 and "\n".join(screen.chunks(long_text)) == long_text,
+			"a long text is split in parts of 40 lines and nothing is lost")
 	var buttons: Array = screen.find_children("*", "Button", true, false)
 	_check(buttons.size() == About.pages(false).size() + 1 and screen.open_page == -1,
 			"the list has a button for each page and Back")
@@ -204,3 +226,43 @@ func _about_screen() -> void:
 	await process_frame
 	_check(screen.open_page == -1, "Back from a page returns to the list")
 	screen.queue_free()
+	await _about_stays_open()
+
+
+## A phase message of the TV does not close the About screen of the phone (it closes Settings only to show the pad in a round).
+func _about_stays_open() -> void:
+	var app: Node = root.get_node("App")
+	app.go(_about_script, {"back_screen": app.ControllerSettings})
+	await process_frame
+	app.client.state = ControllerClient.State.CONNECTED
+	app.client.phase = "menu"
+	app._show_phone_screen()
+	await process_frame
+	_check(app.current_screen().get_script() == _about_script, "a menu phase of the TV leaves the About screen open")
+	app.client.phase = "playing"
+	app._show_phone_screen()
+	var on_pad: bool = app.current_screen().get_script() == _pad_script
+	app.client.state = ControllerClient.State.IDLE   # Before the pad runs: there is no socket behind this state.
+	await process_frame
+	_check(on_pad, "a round still opens the pad")
+	app.client.phase = "connect"
+	await _missing_pin()
+
+
+## A refusal for a missing PIN (the phone joined with a saved token that the TV does not know) opens the pad and shows no text.
+func _missing_pin() -> void:
+	var app: Node = root.get_node("App")
+	app.go(_connect_script)
+	await process_frame
+	var screen: Control = app.current_screen()
+	app.client.pin = ""
+	app._on_client_rejected("bad_pin")
+	_check(app.last_error == "", "a refusal for a missing PIN shows no error text")
+	screen._on_rejected("bad_pin")
+	_check(screen._pad != null, "a refusal for a missing PIN opens the pad")
+	screen._close_pad()
+	app.client.pin = "0000"
+	screen._on_rejected("bad_pin")
+	_check(screen._pad == null, "a refusal after a PIN was sent does not open the pad again")
+	app.client.pin = ""
+	app.last_error = ""

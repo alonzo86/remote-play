@@ -707,6 +707,7 @@ func _test_connect_screen() -> void:
 	screen._close_pad()
 	await process_frame
 	_check(screen._pad == null, "closing the pad leaves the screen as it was")
+
 	app.last_error = ""
 	# Only two ways to join: the QR code and the list of detected TVs (no typed room code or IP).
 	_check(screen.find_children("*", "LineEdit", true, false).is_empty(), "the connect screen has no text input")
@@ -824,12 +825,13 @@ func _test_app_input() -> void:
 	_check(probe.calls == 4, "another key is not a Back")
 
 	var texts := {}
-	for reason in ["full", "bad_room", "version", "unreachable", "tv_closed", "kicked"]:
+	app.client.pin = "0000"
+	for reason in ["full", "bad_room", "version", "unreachable", "tv_closed", "kicked", "bad_pin", "pin_locked"]:
 		app._on_client_rejected(reason)
 		texts[reason] = app.last_error
 	_check(texts.values().all(func(t): return t != "" and not t.begins_with("Connection refused")),
 			"every known rejection has its own message")
-	_check(texts.values().size() == 6 and texts["full"] != texts["bad_room"] and texts["version"] != texts["unreachable"],
+	_check(texts.values().size() == 8 and texts["full"] != texts["bad_room"] and texts["version"] != texts["unreachable"],
 			"the messages are different")
 	_check(String(texts["full"]).contains("4"), "the full message says how many players fit")
 	app._on_client_rejected("weird")

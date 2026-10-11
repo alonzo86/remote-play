@@ -16,6 +16,7 @@ var room_code := ""
 var pin := ""                        # The join PIN. Shown on the TV only. A new phone must send it (FD-23).
 var pin_exempt_loopback := true      # A phone on the same device (a development run, the tests) needs no PIN.
 var _bad_pins := 0
+var _pin_locked_until_ms := 0        # New joins are refused until this time (after too many wrong PINs).
 var tv_name := "Living Room TV"
 var phase := "connect"   # connect, menu, playing, paused. See docs/PROTOCOL.md.
 var round_slots: Array[int] = []   # Slots that take part in the running round (when `round_limited`).
@@ -243,9 +244,11 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 				slot = p.slot
 				resumed = true
 				break
-	if slot < 0 and not _pin_ok(ws, String(msg.get("pin", ""))):
-		_reject(ws, "bad_pin")   # A phone that returns with its token has joined before and needs no PIN.
-		return
+	if slot < 0:
+		var pin_reason := _pin_check(ws, String(msg.get("pin", "")), now)   # A phone with a known token needs no PIN.
+		if pin_reason != "":
+			_reject(ws, pin_reason)
+			return
 	if pid != "":
 		var dup := _slot_with_pid(pid)
 		if dup >= 0 and dup != slot:
@@ -290,19 +293,22 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		player_joined.emit(slot)
 
 
-## True when a new phone may join: it sends the PIN of this TV, or it is on this device. After PIN_TRIES wrong PINs the TV makes
-## a new PIN, so that a guess does not work for long (docs/PROTOCOL.md).
-func _pin_ok(ws: WebSocketPeer, sent: String) -> bool:
+## "" when a new phone may join: it sends the PIN of this TV, or it is on this device. Else the reason to reject it: `bad_pin`, or
+## `pin_locked` while the TV refuses new phones. After PIN_TRIES wrong PINs the TV refuses all new phones (also with the right
+## PIN) for PIN_LOCK_MS, so that guessing a PIN of 10000 takes hours (docs/PROTOCOL.md).
+func _pin_check(ws: WebSocketPeer, sent: String, now: int) -> String:
 	if pin_exempt_loopback and ws.get_connected_host() in ["127.0.0.1", "::1", "::ffff:127.0.0.1"]:
-		return true
+		return ""
+	if now < _pin_locked_until_ms:
+		return "pin_locked"
 	if sent == pin and pin != "":
 		_bad_pins = 0
-		return true
+		return ""
 	_bad_pins += 1
 	if _bad_pins >= Protocol.PIN_TRIES:
-		pin = Protocol.make_pin()
 		_bad_pins = 0
-	return false
+		_pin_locked_until_ms = now + Protocol.PIN_LOCK_MS
+	return "bad_pin"
 
 
 ## True in a phase where a phone can change its profile: the logo and Connect screens and the menus.

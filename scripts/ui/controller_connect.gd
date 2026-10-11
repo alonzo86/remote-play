@@ -82,6 +82,7 @@ func _ready() -> void:
 
 	App.controller_discovery.list_changed.connect(_rebuild_list)
 	App.client.state_changed.connect(_on_state)
+	App.client.rejected.connect(_on_rejected)
 	_rebuild_list()
 	_on_state(App.client.state)
 
@@ -191,6 +192,12 @@ func _on_qr_failed(reason: String) -> void:
 		return
 	App.last_error = Lang.f("QR scan failed: %s", [reason])
 	_on_state(ControllerClient.State.IDLE)
+
+
+## A TV that does not know the saved token needs the PIN: the pad opens (a phone that sent a PIN and was refused shows the text).
+func _on_rejected(reason: String) -> void:
+	if reason == "bad_pin" and App.client.pin == "":
+		_ask_pin(App.client.host, App.client.port, App.client.room)
 
 
 ## Shows the PIN pad over the screen. The player reads the PIN on the TV (FD-23).

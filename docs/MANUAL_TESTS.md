@@ -829,8 +829,8 @@ New (2026-10-11). The headless tests check the rules and the pages. They do not 
 1. Open the Wobble TV app. Check: the Connect screen shows the room code and, under it, a PIN of 4 digits, readable from the sofa.
 2. Scan the QR code of the TV with an Android phone. Check: the phone joins at once and shows no PIN pad.
 3. On a second phone, leave and tap the TV in the list of found TVs. Check: the PIN pad opens; type a wrong PIN: the phone says WRONG PIN. LOOK AT THE PIN ON THE TV.; tap the TV again and type the right PIN: the phone joins. Time how long this takes a grown-up. Check that Back closes the pad.
-4. Type 6 wrong PINs in a row on the second phone. Check: the PIN on the TV changes after the fifth. The first phone stays in its slot.
-5. Close the phone app and open it again while the TV stays on. Check: the phone comes back to its slot without a PIN.
+4. Type 5 wrong PINs in a row on the second phone. Check: the sixth try, also with the right PIN, says TOO MANY WRONG PINS. WAIT A LITTLE AND TRY AGAIN.; after 30 seconds the right PIN joins. The PIN on the TV does not change. The first phone stays in its slot.
+5. Close the phone app and open it again while the TV stays on. Check: the phone comes back to its slot without a PIN. Then restart the TV app and open the phone app: the PIN pad opens by itself (no error text).
 6. An iPhone: join from the list with the PIN (the iPhone has no scan button). Check: the pad is easy to use with one hand.
 7. Open the Players modal on the TV (from the Games screen). Check: it shows the room code and the PIN; a late phone joins with them.
 8. On the TV: Settings, About. Check: the list opens; open "Godot Engine", "Godot parts" and "Licence Apache-2.0". Check: the text is readable from the sofa, Up and Down of the remote scroll it, Back goes to the list, then to Settings. Write down how long the "Godot parts" page takes to open on the TV box.

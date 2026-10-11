@@ -9,6 +9,7 @@ const About = preload("res://scripts/core/about.gd")
 
 const TEXT_SIZE := 24
 const SCROLL_STEP := 240
+const CHUNK_LINES := 40
 
 var back_screen: GDScript   # The screen that opened this one. App sets it when it switches here.
 var scanner_note := false   # The Android phone adds the note about the Google code scanner.
@@ -72,18 +73,36 @@ func show_page(i: int) -> void:
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_box.add_child(_scroll)
-	var body := Label.new()   # Not UiKit.label: a license is shown as it is written, in lower case too.
-	body.text = About.text(page)
-	body.autowrap_mode = TextServer.AUTOWRAP_WORD
-	body.text_direction = Control.TEXT_DIRECTION_LTR
-	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	var body := VBoxContainer.new()   # Labels of CHUNK_LINES lines: a long text is shaped in parts, not in one piece.
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_theme_font_size_override("font_size", TEXT_SIZE)
-	body.add_theme_constant_override("line_spacing", TEXT_SIZE / 4)
 	_scroll.add_child(body)
+	for chunk in chunks(About.text(page)):
+		body.add_child(_text_label(chunk))
 	var back := _button("Back", on_back)
 	_box.add_child(back)
 	UiKit.focus_later(back)
+
+
+## A label for a part of a text. Not UiKit.label: a license is shown as it is written, in lower case too.
+func _text_label(text: String) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD
+	l.text_direction = Control.TEXT_DIRECTION_LTR
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	l.add_theme_font_size_override("font_size", TEXT_SIZE)
+	l.add_theme_constant_override("line_spacing", TEXT_SIZE / 4)
+	return l
+
+
+## The text in parts of at most CHUNK_LINES lines (the lines of the source text, before the wrap).
+static func chunks(text: String) -> Array:
+	var lines := text.split("\n")
+	var out: Array = []
+	for i in range(0, lines.size(), CHUNK_LINES):
+		out.append("\n".join(lines.slice(i, i + CHUNK_LINES)))
+	return out
 
 
 ## A TV button has the cursor and takes the remote; a phone button is a box.
