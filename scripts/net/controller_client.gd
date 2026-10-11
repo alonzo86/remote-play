@@ -42,6 +42,7 @@ var score_text := ""         # The score as the TV shows it. Empty when there is
 var host := ""
 var port := Protocol.WS_PORT
 var room := ""
+var pin := ""   # The PIN of the TV for the next join. Not saved. It is cleared when the TV accepts this phone.
 
 var _ws: WebSocketPeer
 var _closing: Array = []     # Closed sockets that still flush their last frames.
@@ -57,11 +58,12 @@ var _tx_count := 0
 var _tx_window_ms := 0
 
 
-func connect_to(p_host: String, p_port: int, p_room: String) -> void:
+func connect_to(p_host: String, p_port: int, p_room: String, p_pin := "") -> void:
 	_close_socket()
 	host = p_host
 	port = p_port
 	room = p_room.to_upper()
+	pin = p_pin
 	_attempt = 0
 	_was_connected = false
 	_open()
@@ -169,6 +171,8 @@ func _process(_delta: float) -> void:
 				_set_state(State.JOINING)
 				_last_rx_ms = now
 				var hello := {"t": "hello", "v": Protocol.VERSION, "room": room, "token": _token, "name": player_name}
+				if pin != "":
+					hello["pin"] = pin
 				if pid != "":
 					hello["pid"] = pid
 					hello["av"] = avatar
@@ -220,6 +224,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			tv_avatar = int(msg.get("av", -1)) if tv_pid != "" else -1
 			tv_player_name = String(msg.get("pname", ""))
 			clear_score()   # The score comes again with the next frame of the game (REQ-FL-67).
+			pin = ""
 			_was_connected = true
 			_attempt = 0
 			_tx_window_ms = now

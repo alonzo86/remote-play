@@ -68,6 +68,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip, phone score and name tags | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-GM-46, 46a, FD-21 | Not run | | |
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
+| [21](#test-21) | Join PIN and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-80, REQ-FL-81, REQ-N9, FD-23 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -810,6 +811,46 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 | 13 | Note: the names on both phones | Not run | | | |
 | 14 | Note: the iPhone model and what happened | Not run | | | |
 | 15 | Photo of each message | Not run | | | |
+
+History:
+
+- -: **Not run**. New.
+
+## Test 21
+
+### Join PIN and About screens (REQ-FL-80, 81, REQ-N9, FD-23)
+
+Needs: 2 phones (an Android phone and, if possible, an iPhone), 1 TV on 1080p, a grown-up. Covers: REQ-FL-80, REQ-FL-81, REQ-N9, FD-23.
+
+New (2026-10-11). The headless tests check the rules and the pages. They do not show how the PIN pad feels, how the About text reads from the sofa, or how long the Godot pages take to open on a TV box.
+
+**Steps**
+
+1. Open the Wobble TV app. Check: the Connect screen shows the room code and, under it, a PIN of 4 digits, readable from the sofa.
+2. Scan the QR code of the TV with an Android phone. Check: the phone joins at once and shows no PIN pad.
+3. On a second phone, leave and tap the TV in the list of found TVs. Check: the PIN pad opens; type a wrong PIN: the phone says WRONG PIN. LOOK AT THE PIN ON THE TV.; tap the TV again and type the right PIN: the phone joins. Time how long this takes a grown-up. Check that Back closes the pad.
+4. Type 6 wrong PINs in a row on the second phone. Check: the PIN on the TV changes after the fifth. The first phone stays in its slot.
+5. Close the phone app and open it again while the TV stays on. Check: the phone comes back to its slot without a PIN.
+6. An iPhone: join from the list with the PIN (the iPhone has no scan button). Check: the pad is easy to use with one hand.
+7. Open the Players modal on the TV (from the Games screen). Check: it shows the room code and the PIN; a late phone joins with them.
+8. On the TV: Settings, About. Check: the list opens; open "Godot Engine", "Godot parts" and "Licence Apache-2.0". Check: the text is readable from the sofa, Up and Down of the remote scroll it, Back goes to the list, then to Settings. Write down how long the "Godot parts" page takes to open on the TV box.
+9. On a phone: Settings (from the waiting screen), About, and also About at the bottom of the Connect screen. Check: the pages scroll by touch; on Android the list has the page "QR scanner". Check that the Connect screen still fits with the new button.
+10. Set the TV to Hebrew. Check: the About list and the pages "Wobble" read right (a Hebrew reader checks the wording); the license pages stay in English; the PIN pad and the PIN line read right to left where they should.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the Connect screen with the PIN | Not run | | | |
+| 2 | Note: joined at once | Not run | | | |
+| 3 | Photo of the PIN pad; note: the time | Not run | | | |
+| 4 | Note: the PIN before and after | Not run | | | |
+| 5 | Note: the phone came back without a PIN | Not run | | | |
+| 6 | Note: the iPhone model | Not run | | | |
+| 7 | Photo of the Players modal | Not run | | | |
+| 8 | Photo of the About list and a page; note: the time of the Godot parts page | Not run | | | |
+| 9 | Photo of the phone About list and the Connect screen | Not run | | | |
+| 10 | Photo of the Hebrew About screen; note from the Hebrew reader | Not run | | | |
 
 History:
 

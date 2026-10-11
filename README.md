@@ -28,7 +28,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   screenshot, the players badge, the OPTIONS button; the description of the focused game is in a bar under the grid), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
   Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
-- The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`).
+- The TV shows a 4-letter room code, a 4-digit join PIN and a QR code (`ws://IP:47801/ROOM?pin=0427`).
   The Android phone scans the QR code (Android plugin), or picks the TV from the list found by the UDP beacon (Refresh button). An iPhone has no scanner: it shows only the list. There is no typed room code or IP.
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.

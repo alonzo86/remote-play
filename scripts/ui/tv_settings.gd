@@ -29,6 +29,7 @@ func _ready() -> void:
 	_add_row(box, "Language", "English or Hebrew. The phones follow the TV.", "language",
 			func(): App.set_language(Lang.other(Lang.current())))
 	box.add_child(UiKit.spacer(10))
+	box.add_child(UiKit.item("About", func(): App.go(App.AboutScreen, {"back_screen": App.TvSettings}), UiTheme.SIZE_ITEM, "quiet"))
 	box.add_child(UiKit.item("Back", on_back, UiTheme.SIZE_ITEM, "quiet"))
 	UiKit.focus_later(_rows[0])
 

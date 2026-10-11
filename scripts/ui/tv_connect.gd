@@ -12,6 +12,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 
 var _qr: Control
 var _hint: Label
+var _pin: Label   # The join PIN (FD-23). It changes after too many wrong tries, so it is read again each frame.
 var _credit: Label   # CREDIT 02: the number of phones that have joined.
 var _modal: Control
 
@@ -42,6 +43,10 @@ func _ready() -> void:
 	var room := UiKit.title(App.server.room_code, UiTheme.SIZE_TITLE)
 	room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	cv.add_child(room)
+	cv.add_child(UiKit.label("PIN", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	_pin = UiKit.title(App.server.pin, UiTheme.SIZE_TITLE)
+	_pin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cv.add_child(_pin)
 
 	# Right: title, help text and the slots.
 	var right := VBoxContainer.new()
@@ -88,7 +93,8 @@ func can_continue() -> bool:
 
 func _refresh() -> void:
 	var ip: String = App.discovery.ip if App.discovery != null else ""
-	_qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code) if ip != "" else ""
+	_pin.text = App.server.pin
+	_qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code, App.server.pin) if ip != "" else ""
 	_credit.text = Lang.f("CREDIT %02d", [App.server.connected_slots().size()])
 	if App.server.connected_slots().size() >= 1:
 		_hint.add_theme_color_override("font_color", UiTheme.ACCENT)

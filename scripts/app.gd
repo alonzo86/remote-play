@@ -22,6 +22,7 @@ const ControllerPad = preload("res://scripts/ui/controller_pad.gd")
 const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const SafeArea = preload("res://scripts/ui/safe_area.gd")
+const AboutScreen = preload("res://scripts/ui/about_screen.gd")
 const ControllerSettings = preload("res://scripts/ui/controller_settings.gd")
 const ControllerProfiles = preload("res://scripts/ui/controller_profiles.gd")
 const ControllerProfileEdit = preload("res://scripts/ui/controller_profile_edit.gd")
@@ -400,6 +401,7 @@ func _on_client_rejected(reason: String) -> void:
 	last_error = {
 		"full": Lang.t("The TV is full (4 players)."),
 		"bad_room": Lang.t("Wrong room code."),
+		"bad_pin": Lang.t("Wrong PIN. Look at the PIN on the TV."),
 		"version": Lang.t("App version does not match the TV."),
 		"unreachable": Lang.t("Cannot reach the TV. Check the Wi-Fi."),
 		"tv_closed": Lang.t("The TV closed the connection."),

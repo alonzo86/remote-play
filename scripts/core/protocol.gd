@@ -2,7 +2,7 @@ extends RefCounted
 ## Shared constants and packet codec for the TV and the controller.
 ## Message reference: docs/PROTOCOL.md
 
-const VERSION := 2
+const VERSION := 3
 const UDP_PORT := 47800
 const WS_PORT := 47801
 const MAX_PLAYERS := 4
@@ -13,6 +13,8 @@ const SLOT_GRACE_MS := 30000
 const PAUSED_SLOT_GRACE_MS := 300000   # A lost slot is kept this long while the game is paused for it (a phone call).
 const HELLO_TIMEOUT_MS := 5000
 const PEER_TIMEOUT_MS := 5000
+const PIN_LENGTH := 4                    # The join PIN: digits, shown on the TV only (docs/PROTOCOL.md, FD-23).
+const PIN_TRIES := 5                   # Wrong PINs the TV accepts before it makes a new PIN.
 const ROOM_ALPHABET := "ACDEFGHJKLMNPQRTUVWXYZ"
 const NAME_MAX := 10                   # The longest player name, on the phone, on the TV and in a code (FD-22).
 const AVATAR_COUNT := 32               # Avatars in the sprite sheet (assets/avatars/avatars.png).
@@ -35,6 +37,23 @@ static func make_room_code() -> String:
 	for i in 4:
 		code += ROOM_ALPHABET[randi() % ROOM_ALPHABET.length()]
 	return code
+
+
+## A new join PIN: PIN_LENGTH digits.
+static func make_pin() -> String:
+	var pin := ""
+	for i in PIN_LENGTH:
+		pin += str(randi() % 10)
+	return pin
+
+
+static func is_pin(s: String) -> bool:
+	if s.length() != PIN_LENGTH:
+		return false
+	for ch in s:
+		if not "0123456789".contains(ch):
+			return false
+	return true
 
 
 static func make_token() -> String:
@@ -126,17 +145,28 @@ static func subnet_broadcast(ip: String) -> String:
 	return "%s.%s.%s.255" % [parts[0], parts[1], parts[2]]
 
 
-static func pair_url(ip: String, room: String) -> String:
-	return "ws://%s:%d/%s" % [ip, WS_PORT, room]
+static func pair_url(ip: String, room: String, pin := "") -> String:
+	var url := "ws://%s:%d/%s" % [ip, WS_PORT, room]
+	return url + "?pin=" + pin if pin != "" else url
 
 
-## Parse the text of the TV QR code: ws://IP:PORT/ROOM.
-## Returns {host, port, room}, or an empty Dictionary when the text is not valid.
+## Parse the text of the TV QR code: ws://IP:PORT/ROOM, with an optional ?pin=1234.
+## Returns {host, port, room, pin}, or an empty Dictionary when the text is not valid. `pin` is empty when the link has none.
 static func parse_pair_url(text: String) -> Dictionary:
 	var t := text.strip_edges()
 	if not t.begins_with("ws://"):
 		return {}
 	var rest := t.substr(5)
+	var pin := ""
+	var query := rest.find("?")
+	if query >= 0:
+		var q := rest.substr(query + 1)
+		rest = rest.substr(0, query)
+		if not q.begins_with("pin="):
+			return {}
+		pin = q.substr(4)
+		if not is_pin(pin):
+			return {}
 	var slash := rest.find("/")
 	var hostport := rest if slash < 0 else rest.substr(0, slash)
 	var room := "" if slash < 0 else rest.substr(slash + 1).to_upper()
@@ -151,7 +181,7 @@ static func parse_pair_url(text: String) -> Dictionary:
 	for ch in room:
 		if not ROOM_ALPHABET.contains(ch):
 			return {}
-	return {"host": parts[0], "port": port, "room": room}
+	return {"host": parts[0], "port": port, "room": room, "pin": pin}
 
 
 static func is_ipv4(s: String) -> bool:

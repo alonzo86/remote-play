@@ -13,6 +13,9 @@ signal player_resumed(slot: int)
 signal player_removed(slot: int)
 
 var room_code := ""
+var pin := ""                        # The join PIN. Shown on the TV only. A new phone must send it (FD-23).
+var pin_exempt_loopback := true      # A phone on the same device (a development run, the tests) needs no PIN.
+var _bad_pins := 0
 var tv_name := "Living Room TV"
 var phase := "connect"   # connect, menu, playing, paused. See docs/PROTOCOL.md.
 var round_slots: Array[int] = []   # Slots that take part in the running round (when `round_limited`).
@@ -37,6 +40,7 @@ var _score_sent := {}                # slot -> the last score message sent to th
 
 func start(settings: Dictionary) -> Error:
 	room_code = Protocol.make_room_code()
+	pin = Protocol.make_pin()
 	for i in Protocol.MAX_PLAYERS:
 		players.append(PlayerInput.new(i, settings))
 		_sockets.append(null)
@@ -239,6 +243,9 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 				slot = p.slot
 				resumed = true
 				break
+	if slot < 0 and not _pin_ok(ws, String(msg.get("pin", ""))):
+		_reject(ws, "bad_pin")   # A phone that returns with its token has joined before and needs no PIN.
+		return
 	if pid != "":
 		var dup := _slot_with_pid(pid)
 		if dup >= 0 and dup != slot:
@@ -281,6 +288,21 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		player_resumed.emit(slot)
 	else:
 		player_joined.emit(slot)
+
+
+## True when a new phone may join: it sends the PIN of this TV, or it is on this device. After PIN_TRIES wrong PINs the TV makes
+## a new PIN, so that a guess does not work for long (docs/PROTOCOL.md).
+func _pin_ok(ws: WebSocketPeer, sent: String) -> bool:
+	if pin_exempt_loopback and ws.get_connected_host() in ["127.0.0.1", "::1", "::ffff:127.0.0.1"]:
+		return true
+	if sent == pin and pin != "":
+		_bad_pins = 0
+		return true
+	_bad_pins += 1
+	if _bad_pins >= Protocol.PIN_TRIES:
+		pin = Protocol.make_pin()
+		_bad_pins = 0
+	return false
 
 
 ## True in a phase where a phone can change its profile: the logo and Connect screens and the menus.

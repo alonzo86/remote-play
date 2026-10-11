@@ -8,6 +8,7 @@ tests/qr.gd|controller|QR encoder versions 7 to 14
 tests/profile_code.gd|controller|profile code, keys and merge
 tests/profiles.gd|controller|profiles: model, store, avatars
 tests/net_profiles.gd|controller|profiles over the network
+tests/net_pin.gd|controller|join PIN, PIN pad and About page
 tests/game_helpers.gd|controller|game helpers
 tests/game_rules.gd|controller|game rules
 tests/design_tokens.gd|controller|design tokens

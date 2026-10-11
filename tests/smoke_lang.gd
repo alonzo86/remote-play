@@ -8,7 +8,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Strings = preload("res://scripts/core/strings.gd")
 
 ## Texts that stay as they are in Hebrew: brand names and the room code are not words of a language.
-const KEEP := ["WOBBLE", "1P", "2P", "3P", "4P", "A", "B", "OK", "%S %D/%D"]
+const KEEP := ["PIN", "WOBBLE", "1P", "2P", "3P", "4P", "A", "B", "OK", "%S %D/%D"]
 
 var _fails := 0
 var _checks := 0
@@ -221,7 +221,7 @@ func _run() -> void:
 		if screen.has_method("_open_players"):
 			screen._open_players()
 			await _frames(3)
-		var stays := ["SIM", app.server.room_code, "WOBBLE", "OK", "WI-FI", "QR", "F3", "A", "B", "1P", "2P", "3P", "4P"]
+		var stays := ["SIM", app.server.room_code, "WOBBLE", "OK", "WI-FI", "QR", "PIN", "F3", "A", "B", "1P", "2P", "3P", "4P"]
 		for t in _latin_texts(screen, stays):
 			shown_missing.append("%s: %s" % [screen.get_script().resource_path.get_file(), t])
 	app.go_connect()

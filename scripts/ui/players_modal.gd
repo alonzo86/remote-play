@@ -3,6 +3,7 @@ extends "res://scripts/ui/tv_modal.gd"
 ## It lists the slots with Remove, and shows the QR code and the room code for late phones.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const SlotList = preload("res://scripts/ui/slot_list.gd")
 const QrView = preload("res://scripts/ui/qr_view.gd")
 
@@ -36,11 +37,14 @@ func _build() -> void:
 	var qr: Control = QrView.new()
 	qr.custom_minimum_size = Vector2(300, 300)
 	var ip: String = App.discovery.ip if App.discovery != null else ""
-	qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code)
+	qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code, App.server.pin)
 	side.add_child(qr)
 	var room := UiKit.title(App.server.room_code, 48)
 	room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	side.add_child(room)
+	var pin := UiKit.title(Lang.f("PIN %s", [App.server.pin]), 32, UiTheme.TEXT)
+	pin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	side.add_child(pin)
 
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_END

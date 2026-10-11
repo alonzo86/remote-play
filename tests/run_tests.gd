@@ -128,11 +128,14 @@ func _test_protocol() -> void:
 	_check(Protocol.is_ipv4("192.168.1.20") and not Protocol.is_ipv4("KQZM"), "ipv4 check")
 	_check(Protocol.subnet_broadcast("192.168.1.20") == "192.168.1.255", "subnet broadcast")
 	var pair := Protocol.parse_pair_url(Protocol.pair_url("192.168.1.20", "kqzm"))
-	_check(pair == {"host": "192.168.1.20", "port": 47801, "room": "KQZM"}, "QR text parses: %s" % str(pair))
+	_check(pair == {"host": "192.168.1.20", "port": 47801, "room": "KQZM", "pin": ""}, "QR text parses: %s" % str(pair))
+	var with_pin := Protocol.parse_pair_url(Protocol.pair_url("192.168.1.20", "kqzm", "0427"))
+	_check(with_pin.pin == "0427" and with_pin.room == "KQZM", "the TV link carries the PIN: %s" % str(with_pin))
 	_check(Protocol.parse_pair_url("ws://10.0.0.5:47801").room == "", "QR text without room is accepted")
 	var bad := ["", "http://192.168.1.20:47801/KQZM", "ws://?:47801/KQZM", "ws://192.168.1.20/KQZM",
 			"ws://192.168.1.20:99999/KQZM", "ws://192.168.1.20:47801/KQ", "ws://192.168.1.20:47801/KQZI",
-			"ws://999.1.1.1:47801/KQZM"]
+			"ws://999.1.1.1:47801/KQZM", "ws://192.168.1.20:47801/KQZM?pin=12", "ws://192.168.1.20:47801/KQZM?pin=12ab",
+			"ws://192.168.1.20:47801/KQZM?x=1234"]
 	var all_bad := true
 	for b in bad:
 		if not Protocol.parse_pair_url(b).is_empty():
@@ -695,10 +698,15 @@ func _test_connect_screen() -> void:
 	_check(app.last_error == "QR scan failed: no camera" and screen._status.text == app.last_error.to_upper(),
 			"a failed scan shows the reason")
 
-	screen._on_qr_text("ws://127.0.0.1:47801/kqzm")
-	_check(app.client.host == "127.0.0.1" and app.client.port == 47801 and app.client.room == "KQZM"
-			and app.client.state != ControllerClient.State.IDLE, "a TV code joins that TV and room")
+	screen._on_qr_text("ws://127.0.0.1:47801/kqzm?pin=0427")
+	_check(app.client.host == "127.0.0.1" and app.client.port == 47801 and app.client.room == "KQZM" and app.client.pin == "0427"
+			and app.client.state != ControllerClient.State.IDLE and screen._pad == null, "a TV code joins that TV and room with its PIN")
 	app.client.leave()
+	screen._on_qr_text("ws://127.0.0.1:47801/kqzm")
+	_check(screen._pad != null and app.client.state == ControllerClient.State.IDLE, "a TV code without a PIN asks for the PIN")
+	screen._close_pad()
+	await process_frame
+	_check(screen._pad == null, "closing the pad leaves the screen as it was")
 	app.last_error = ""
 	# Only two ways to join: the QR code and the list of detected TVs (no typed room code or IP).
 	_check(screen.find_children("*", "LineEdit", true, false).is_empty(), "the connect screen has no text input")
@@ -714,7 +722,7 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
 	# The first button is the profile row (FD-22): it is not a scan or paste button.
-	_check(ios_buttons == ["MAKE A PLAYER", "REFRESH"], "iPhone: no scan or paste button: %s" % str(ios_buttons))
+	_check(ios_buttons == ["MAKE A PLAYER", "REFRESH", "ABOUT"], "iPhone: no scan or paste button: %s" % str(ios_buttons))
 	var ios_texts: Array = _list_texts(ios_screen)
 	_check(ios_texts.size() == 2 and ios_texts[0] == "NO TVS FOUND" and "LOCAL NETWORK" in ios_texts[1],
 			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))
@@ -731,7 +739,12 @@ func _test_connect_screen() -> void:
 	_check(refresh_btn.size() == 1 and tv_button.get_theme_color("font_color") != refresh_btn[0].get_theme_color("font_color"),
 			"the Refresh button is dim and the detected TVs are white")
 	tv_button.pressed.emit()
-	_check(app.client.host == "127.0.0.9" and app.client.room == "QQQQ", "tapping a detected TV joins it")
+	_check(screen._pad != null and app.client.state == ControllerClient.State.IDLE, "tapping a detected TV asks for the PIN first")
+	var pad = screen._pad.find_children("*", "VBoxContainer", true, false)[0]
+	for k in ["0", "4", "2", "7"]:
+		pad._key(k)
+	_check(app.client.host == "127.0.0.9" and app.client.room == "QQQQ" and app.client.pin == "0427",
+			"the PIN from the pad joins the TV")
 	app.client.leave()
 	# Refresh forgets the TVs and says it searches; a TV that beacons again comes back.
 	screen.refresh_list()

@@ -1,4 +1,4 @@
-# Network protocol, version 2
+# Network protocol, version 3
 
 This document uses ASD-STE100 style. Code: `scripts/core/protocol.gd`.
 
@@ -14,24 +14,36 @@ This document uses ASD-STE100 style. Code: `scripts/core/protocol.gd`.
 The TV sends the beacon to `255.255.255.255`, to the `/24` subnet broadcast address, and to `127.0.0.1`.
 
 ```json
-{"t":"beacon","v":2,"room":"KQZM","port":47801,"name":"Living Room TV","players":2,"max":4}
+{"t":"beacon","v":3,"room":"KQZM","port":47801,"name":"Living Room TV","players":2,"max":4}
 ```
 
 The phone uses the sender IP address of the UDP packet as the TV address.
 A TV that is silent for 4 seconds is removed from the phone list.
 
-The room code has 4 letters from `ACDEFGHJKLMNPQRTUVWXYZ`. It is not a password.
+The room code has 4 letters from `ACDEFGHJKLMNPQRTUVWXYZ`. It is not a password: the beacon carries it, so every device on the network sees it.
+The join PIN (see "Join PIN" below) is a password of a kind, and the beacon never carries it.
 It only tells two TVs apart on one network.
 
 ## Join (WebSocket, JSON text frames)
 
 | From | Message | Meaning |
 |------|---------|---------|
-| Phone | `{"t":"hello","v":2,"room":"KQZM","token":"","name":"","pid":"","av":-1}` | First message. `room` can be empty (join by IP). `token` is empty for a new player. `name` can be empty: the TV then shows "Player N". `pid` and `av` are optional: the profile ID (32 lower-case hex characters) and the avatar index (0 to 255) of the profile that plays (FD-22, "Profiles" below). |
+| Phone | `{"t":"hello","v":3,"room":"KQZM","token":"","pin":"0427","name":"","pid":"","av":-1}` | First message. `room` can be empty (join by IP). `token` is empty for a new player. `pin` is the join PIN of the TV (4 digits). It is needed for a new player and not for a phone that returns with a token the TV knows. `name` can be empty: the TV then shows "Player N". `pid` and `av` are optional: the profile ID (32 lower-case hex characters) and the avatar index (0 to 255) of the profile that plays (FD-22, "Profiles" below). |
 | TV | `{"t":"welcome","slot":0,"token":"…","color":"#e63946","phase":"connect","name":"Living Room TV","lang":"en","pid":"","av":-1,"pname":""}` | Accepted. The phone saves `token`. `pid`, `av` and `pname` are the profile that the TV accepted (empty or -1 for a guest). `name` here is the name of the TV; the player name is `pname`, the name that the TV shows (with a number when another player has the same name, for example `Sam 2`). `lang` is the language of the TV, `en` or `he`; the field is optional (a TV of an older build does not send it) and the phone keeps its own language then (REQ-FL-62). |
-| TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `version`. |
+| TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `bad_pin`, `version`. `bad_pin`: a new phone sent no PIN or a wrong one. |
 
 The TV closes a connection that sends no `hello` in 5 seconds.
+
+## Join PIN (FD-23)
+
+The TV makes a PIN of 4 digits when it starts and shows it on the Connect screen and in the Players modal. It is never sent over the network by the TV. The QR code of the TV holds it: `ws://IP:PORT/ROOM?pin=0427`. A phone that scans the code sends the PIN in `hello`; a phone that joins from the list of found TVs asks the player to type it.
+
+- A `hello` that has to take a new slot (no token, or a token that the TV does not know) must carry the PIN of the TV. Without it, or with a wrong one, the TV answers `reject` with `reason` `bad_pin`.
+- A `hello` with a token of a player who is in a slot (also a lost one) needs no PIN: that phone joined before.
+- A phone on the same device as the TV (the address is the loopback address) needs no PIN. This is for a development run and for the tests. (`TvServer.pin_exempt_loopback`)
+- After `PIN_TRIES` (5) wrong PINs the TV makes a new PIN, so that guessing 10000 PINs does not work. Phones that are in a slot are not affected.
+- The traffic is still not encrypted. The PIN keeps a device that only sees the beacon from joining. It does not stop a device that reads the traffic of a phone that joins.
+- `VERSION` is 3 since FD-23: a new phone sends `pin`, and a TV of version 2 does not ask for it. An old and a new build see no beacon from each other and reject each other with `version`.
 
 ## Messages after the join
 
@@ -91,7 +103,7 @@ A profile lives on the phone (`docs/PROFILES_PLAN.md`). The TV keeps it in memor
 
 **Copy of a profile.** A profile is copied to another phone with a text that starts with `WP1.`, shown as a QR code or copied to the clipboard. It never goes over the network of the game and the TV never sees it. The format is in `docs/PROFILES_PLAN.md` section 6.1 (`scripts/core/profile_code.gd`). The QR encoder (`scripts/core/qr_encoder.gd`) goes up to version 14, error correction L, 458 bytes.
 
-All these fields and messages are optional, so `VERSION` stays 2: an old TV or an old phone ignores them.
+All these fields and messages are optional: an old TV or an old phone ignores them. (They were added at `VERSION` 2. The join PIN raised it to 3.)
 
 ## Slots, loss and reconnect
 

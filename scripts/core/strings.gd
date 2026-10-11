@@ -5,6 +5,20 @@ extends RefCounted
 ## nikud, so none is used. `tests/smoke_lang.gd` fails when a text that the UI can show has no entry here.
 
 const HE := {
+	"PIN": "PIN",
+	"PIN %s": "קוד PIN %s",
+	"WRONG PIN. LOOK AT THE PIN ON THE TV.": "קוד PIN שגוי. הסתכלו על קוד ה־PIN בטלוויזיה.",
+	"TYPE THE PIN THAT THE TV SHOWS": "הקלידו את קוד ה־PIN שמוצג בטלוויזיה",
+	"ABOUT": "אודות",
+	"WOBBLE IS A PARTY GAME FOR THE TV. THE PHONES ARE THE CONTROLLERS.": "WOBBLE הוא משחק מסיבה לטלוויזיה. הטלפונים הם השלטים.",
+	"WOBBLE HAS NO ACCOUNT, NO ADS AND NO ANALYTICS. YOUR NAME, AVATAR AND BEST SCORES STAY ON YOUR PHONE.":
+		"ב־WOBBLE אין חשבון, אין פרסומות ואין ניתוח נתונים. השם, הדמות והשיאים שלכם נשארים בטלפון.",
+	"THE PHONES AND THE TV TALK OVER YOUR WI-FI. THE LINK IS NOT ENCRYPTED, SO PLAY ON A NETWORK YOU TRUST.":
+		"הטלפונים והטלוויזיה מדברים דרך ה־WI-FI שלכם. הקשר אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.",
+	"THE PAGES BELOW LIST THE PARTS OF OTHER MAKERS THAT WOBBLE USES, AND THEIR LICENSES.":
+		"הדפים שלמטה מפרטים את החלקים של יוצרים אחרים ש־WOBBLE משתמש בהם, ואת הרישיונות שלהם.",
+	"THE ANDROID PHONE SCANS WITH THE GOOGLE CODE SCANNER (PLAY SERVICES). WOBBLE GETS ONLY THE TEXT.":
+		"טלפון אנדרואיד סורק עם סורק הקודים של GOOGLE (שירותי PLAY). WOBBLE מקבל רק את הטקסט.",
 	"ROOM CODE": "קוד חדר",
 	"PLAYER SELECT": "בחירת שחקנים",
 	"BE IN THE SAME ROOM, ON THE SAME WI-FI. OPEN THE WOBBLE APP ON YOUR PHONE AND SCAN THE CODE.":

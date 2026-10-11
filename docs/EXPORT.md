@@ -66,7 +66,7 @@ The controller app scans the QR code on the TV screen with the Google code scann
   The manifest entry `com.google.mlkit.vision.DEPENDENCIES = barcode_ui` asks Play services to download it at install time.
 - The first build needs internet access for Gradle (to get the dependency from Google Maven).
 - GDScript side: `scripts/net/qr_scanner.gd`. Without the plugin (PC, or a build where you skipped the patch script)
-  the button on the connect screen is **Paste TV link**. It reads `ws://IP:47801/ROOM` from the clipboard.
+  the button on the connect screen is **Paste TV link**. It reads `ws://IP:47801/ROOM?pin=0427` from the clipboard.
 
 ## 3. Export
 

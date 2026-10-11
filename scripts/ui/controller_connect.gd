@@ -10,6 +10,7 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
+const PinPad = preload("res://scripts/ui/pin_pad.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
 
 const SEARCH_MS := 1500   # After Refresh the list says "Searching" this long (the beacon comes each second).
@@ -18,6 +19,7 @@ var _list: VBoxContainer
 var _status: Label
 var _qr: Node
 var _search_until_ms := 0
+var _pad: Control   # The PIN pad over the screen, while the player joins from the list.
 var os_name := OS.get_name() # A test sets it to "iOS".
 
 
@@ -71,6 +73,12 @@ func _ready() -> void:
 	_list = VBoxContainer.new()
 	_list.add_theme_constant_override("separation", 16)
 	box.add_child(_list)
+
+	var about := UiKit.box_button("About", func():
+		App.go(App.AboutScreen, {"back_screen": App.ControllerConnect, "scanner_note": os_name == "Android"}),
+			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	about.custom_minimum_size = Vector2(0, 96)
+	box.add_child(about)
 
 	App.controller_discovery.list_changed.connect(_rebuild_list)
 	App.client.state_changed.connect(_on_state)
@@ -151,7 +159,7 @@ func _rebuild_list() -> void:
 	for tv in tvs:
 		# Only "<code> x/y".
 		var b := UiKit.box_button("%s %d/%d" % [tv.room, tv.players, tv.max],
-				func(): _join(tv.ip, tv.port, tv.room), UiTheme.SIZE_ITEM)
+				func(): _ask_pin(tv.ip, tv.port, tv.room), UiTheme.SIZE_ITEM)
 		b.custom_minimum_size = Vector2(0, 130)
 		_list.add_child(b)
 
@@ -172,7 +180,10 @@ func _on_qr_text(text: String) -> void:
 		App.last_error = Lang.t("This is not a Wobble code.")
 		_on_state(ControllerClient.State.IDLE)
 		return
-	_join(pair.host, pair.port, pair.room)
+	if pair.pin == "":
+		_ask_pin(pair.host, pair.port, pair.room)   # An old link has no PIN.
+	else:
+		_join(pair.host, pair.port, pair.room, pair.pin)
 
 
 func _on_qr_failed(reason: String) -> void:
@@ -182,7 +193,39 @@ func _on_qr_failed(reason: String) -> void:
 	_on_state(ControllerClient.State.IDLE)
 
 
-func _join(host: String, port: int, room: String) -> void:
+## Shows the PIN pad over the screen. The player reads the PIN on the TV (FD-23).
+func _ask_pin(host: String, port: int, room: String) -> void:
+	if _pad != null:
+		return
+	var cover := ColorRect.new()
+	cover.color = UiTheme.BG
+	cover.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(cover)
+	var m := UiKit.margin(cover, 40, 120, 40, 60)
+	var pad: Control = PinPad.new()
+	m.add_child(pad)
+	_pad = cover
+	pad.entered.connect(func(pin: String):
+		_close_pad()
+		_join(host, port, room, pin))
+	pad.cancelled.connect(_close_pad)
+
+
+func _close_pad() -> void:
+	if _pad != null:
+		_pad.queue_free()
+		_pad = null
+
+
+## Back closes the PIN pad. Without a pad it leaves the app, as before.
+func on_back() -> void:
+	if _pad != null:
+		_close_pad()
+	else:
+		App._quit()
+
+
+func _join(host: String, port: int, room: String, pin := "") -> void:
 	App.last_error = ""
 	App.client.use_saved_token("")
-	App.client.connect_to(host, port, room)
+	App.client.connect_to(host, port, room, pin)
