@@ -1,7 +1,8 @@
 extends RefCounted
-## Minimal QR code encoder. Byte mode, error correction level L, versions 1 to 6.
+## Minimal QR code encoder. Byte mode, error correction level L, versions 1 to 14.
 ## Use: var m := QrEncoder.encode("text"); m[y][x] is true for a dark module.
-## Returns an empty Array when the text is too long (max 134 bytes).
+## Returns an empty Array when the text is too long (max 458 bytes). The TV link is small and uses the first versions;
+## a player profile code (FD-22) uses up to version 14.
 
 # Per version: [data codewords total, ecc codewords per block, block count]
 const _L_TABLE := {
@@ -11,9 +12,21 @@ const _L_TABLE := {
 	4: [80, 20, 1],
 	5: [108, 26, 1],
 	6: [136, 18, 2],
+	7: [156, 20, 2],
+	8: [194, 24, 2],
+	9: [232, 30, 2],
+	10: [274, 18, 4],
+	11: [324, 20, 4],
+	12: [370, 24, 4],
+	13: [428, 26, 4],
+	14: [461, 30, 4],
 }
+
+const MAX_VERSION := 14
 const _ALIGN := {
 	1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30], 6: [6, 34],
+	7: [6, 22, 38], 8: [6, 24, 42], 9: [6, 26, 46], 10: [6, 28, 50], 11: [6, 30, 54], 12: [6, 32, 58], 13: [6, 34, 62],
+	14: [6, 26, 46, 66],
 }
 
 var _size := 0
@@ -23,13 +36,18 @@ var _is_func: Array = []
 
 static func encode(text: String) -> Array:
 	var data := text.to_utf8_buffer()
-	for ver in range(1, 7):
+	for ver in range(1, MAX_VERSION + 1):
 		var info: Array = _L_TABLE[ver]
-		# 4 bits mode + 8 bits count + data bits must fit
-		if 12 + data.size() * 8 <= info[0] * 8:
+		# 4 bits mode + the count (8 bits, 16 bits from version 10) + data bits must fit
+		if 4 + _count_bits(ver) + data.size() * 8 <= info[0] * 8:
 			var q = load("res://scripts/core/qr_encoder.gd").new()
 			return q._build(data, ver)
 	return []
+
+
+## The bits of the character count field in byte mode.
+static func _count_bits(ver: int) -> int:
+	return 8 if ver < 10 else 16
 
 
 func _build(data: PackedByteArray, ver: int) -> Array:
@@ -38,7 +56,7 @@ func _build(data: PackedByteArray, ver: int) -> Array:
 	# Bit stream
 	var bits: Array = []
 	_put(bits, 0x4, 4)
-	_put(bits, data.size(), 8)
+	_put(bits, data.size(), _count_bits(ver))
 	for b in data:
 		_put(bits, b, 8)
 	_put(bits, 0, mini(4, capacity * 8 - bits.size()))
@@ -163,6 +181,8 @@ static func _raw_codewords(ver: int) -> int:
 		var n := ver / 7 + 2
 		result -= (n - 1) * (n - 1) * 25
 		result -= (n - 2) * 2 * 20
+	if ver >= 7:
+		result -= 36   # The two blocks of version information.
 	return result / 8
 
 
@@ -188,6 +208,8 @@ func _draw_function_patterns(ver: int) -> void:
 			if not skip:
 				_draw_align(pos[i], pos[j])
 	_draw_format(0)
+	if ver >= 7:
+		_draw_version(ver)
 
 
 func _draw_finder(cx: int, cy: int) -> void:
@@ -204,6 +226,20 @@ func _draw_align(cx: int, cy: int) -> void:
 	for dy in range(-2, 3):
 		for dx in range(-2, 3):
 			_set_func(cx + dx, cy + dy, maxi(absi(dx), absi(dy)) != 1)
+
+
+## The 18 bits of version information (BCH code), in two blocks of 6 x 3 modules, for version 7 and higher.
+func _draw_version(ver: int) -> void:
+	var rem := ver
+	for i in 12:
+		rem = (rem << 1) ^ ((rem >> 11) * 0x1F25)
+	var bits := (ver << 12) | rem
+	for i in 18:
+		var dark := _bit(bits, i)
+		var a := _size - 11 + i % 3
+		var b := i / 3
+		_set_func(a, b, dark)
+		_set_func(b, a, dark)
 
 
 func _draw_format(mask: int) -> void:

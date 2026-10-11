@@ -8,6 +8,8 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const SensorSampler = preload("res://scripts/input/sensor_sampler.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
+const Avatar = preload("res://scripts/ui/avatar.gd")
+const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
 
 var _sampler: Node
 var _fingers: Dictionary = {}   # finger index -> zone name
@@ -139,6 +141,14 @@ func _update_touch(pos: Vector2) -> void:
 
 # ---- Drawing ----
 
+## The text of a new best on the pad: "NEW BEST! 340", with the old best when there was one.
+static func best_line(best: Dictionary) -> String:
+	var text := Lang.t("New best!").to_upper() + " " + ProfileKeys.format(best.key, best.value)
+	if best.old > 0:
+		text += "  " + Lang.f("Before: %s", [ProfileKeys.format(best.key, best.old)]).to_upper()
+	return text
+
+
 func _draw() -> void:
 	var f := UiTheme.font()
 	var c: Node = App.client
@@ -149,8 +159,10 @@ func _draw() -> void:
 	var square := Rect2(Vector2(60, HEADER_Y - 45.0), Vector2(90, 90))
 	var square_color: Color = c.color if online else UiTheme.BAD
 	draw_rect(square, square_color)
-	UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
-	var status := "%dP" % (c.slot + 1) if online else Lang.t("Reconnecting...")
+	if not (c.tv_pid != "" and Avatar.draw(self, square.grow(-5.0), c.tv_avatar)):   # The avatar takes the place of the number.
+		UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
+	var own: String = c.tv_player_name if c.tv_pid != "" else "%dP" % (c.slot + 1)
+	var status := own if online else Lang.t("Reconnecting...")
 	var name_rect := Rect2(190, HEADER_Y - 45.0, size.x - 460, 90)
 	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, 48)), status.to_upper(),
 			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, 48, UiTheme.ACCENT if online else UiTheme.BAD)
@@ -162,6 +174,13 @@ func _draw() -> void:
 		var line_size := line_font_size(line, line_rect.size.x)
 		draw_string(f, Vector2(line_rect.position.x, UiTheme.centered_baseline(f, line_rect, line_size)), line,
 				HORIZONTAL_ALIGNMENT_LEFT, line_rect.size.x, line_size, UiTheme.TEXT)
+
+	# NEW BEST! while the result menu is open, until the next round starts (REQ-GM-100).
+	var best: Dictionary = App.current_best()
+	if not best.is_empty() and c.state == ControllerClient.State.CONNECTED:
+		var best_rect := Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
+		draw_string(f, Vector2(best_rect.position.x, UiTheme.centered_baseline(f, best_rect, 32)), best_line(best),
+				HORIZONTAL_ALIGNMENT_LEFT, best_rect.size.x, 32, UiTheme.OK)
 
 	var lat := "RTT -- ms" if c.rtt_ms < 0 else "RTT %d ms" % roundi(c.rtt_ms)
 	draw_string(f, Vector2(60, 262 + INFO_Y), lat.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 48, _lat_color(c.rtt_ms))

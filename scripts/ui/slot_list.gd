@@ -6,6 +6,8 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
+const AvatarView = preload("res://scripts/ui/avatar_view.gd")
+const Avatar = preload("res://scripts/ui/avatar.gd")
 
 const SQUARE := 24.0   # The slot color square.
 
@@ -42,7 +44,7 @@ func first_remove_button() -> Button:
 func _signature() -> String:
 	var s := ""
 	for p in App.server.players:
-		s += "%d:%d:%s;" % [p.slot, p.state, p.player_name]
+		s += "%d:%d:%s:%d;" % [p.slot, p.state, p.player_name, p.avatar if p.has_profile() else -1]
 	return s
 
 
@@ -67,7 +69,7 @@ func _rebuild() -> void:
 
 
 ## One row (REQ-FL-8): a square in the slot color, "1P" to "4P", the name, and the state word. The state is always a word,
-## so it never depends on the color alone.
+## so it never depends on the color alone. A player with a profile has the avatar in the place of "1P" to "4P" (REQ-FL-69).
 func _make_row(p: PlayerInput) -> Control:
 	var present := p.is_present()
 	var h := HBoxContainer.new()
@@ -82,7 +84,13 @@ func _make_row(p: PlayerInput) -> Control:
 	square.draw.connect(func(): square.draw_rect(Rect2(Vector2.ZERO, square.size), col))
 	h.add_child(square)
 
-	h.add_child(_cell("%dP" % (p.slot + 1), UiTheme.TEXT if present else UiTheme.TEXT_DIM))
+	if present and p.has_profile() and Avatar.is_known(p.avatar):
+		var av := AvatarView.new(p.avatar, 64.0)
+		av.tappable = false
+		av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		h.add_child(av)
+	else:
+		h.add_child(_cell("%dP" % (p.slot + 1), UiTheme.TEXT if present else UiTheme.TEXT_DIM))
 	var name_l := _cell(p.player_name if present else "", UiTheme.TEXT)
 	name_l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # A player name is never translated (REQ-FL-63).
 	name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL

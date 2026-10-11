@@ -11,7 +11,10 @@ signal button_pressed(bit: int)
 
 var slot := 0
 var state: State = State.EMPTY
-var player_name := ""
+var player_name := ""   # The name that the TV shows: the profile name, or "Player N"; a second equal name gets a number.
+var raw_name := ""      # The name that the phone sent (empty for a guest that sent none).
+var profile_id := ""    # The profile ID of the phone, or empty for a guest (FD-22).
+var avatar := -1        # The avatar index, or -1 for none: the slot number is shown then.
 var color := Color.WHITE
 var token := ""
 var lost_since_ms := 0
@@ -60,6 +63,9 @@ func is_present() -> bool:
 func reset() -> void:
 	state = State.EMPTY
 	player_name = ""
+	raw_name = ""
+	profile_id = ""
+	avatar = -1
 	token = ""
 	gyro = Vector3.ZERO
 	accel = Vector3.ZERO
@@ -80,12 +86,25 @@ func reset() -> void:
 
 ## Called when a phone (re)joins this slot.
 func on_join(p_name: String, p_token: String) -> void:
+	raw_name = p_name
 	player_name = p_name if p_name != "" else "Player %d" % (slot + 1)
 	token = p_token
 	state = State.CONNECTED
 	_last_seq = -1 # Do not count the reconnect gap as packet loss.
 	_window_start_ms = Time.get_ticks_msec()
 	_window_count = 0
+
+
+## Sets the profile of this slot. An empty `pid` is a guest: it has no avatar and no profile name.
+func set_profile(pid: String, av: int, p_name: String) -> void:
+	profile_id = pid
+	avatar = av if pid != "" else -1
+	raw_name = p_name
+
+
+## True when this player has a profile (the TV shows the avatar and the name, FD-22).
+func has_profile() -> bool:
+	return profile_id != ""
 
 
 func on_lost() -> void:

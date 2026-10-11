@@ -23,6 +23,11 @@ const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const SafeArea = preload("res://scripts/ui/safe_area.gd")
 const ControllerSettings = preload("res://scripts/ui/controller_settings.gd")
+const ControllerProfiles = preload("res://scripts/ui/controller_profiles.gd")
+const ControllerProfileEdit = preload("res://scripts/ui/controller_profile_edit.gd")
+const ControllerProfileShare = preload("res://scripts/ui/controller_profile_share.gd")
+const ProfileCode = preload("res://scripts/core/profile_code.gd")
+const ProfileStore = preload("res://scripts/core/profile_store.gd")
 
 const SETTINGS_FILE := "user://settings.cfg"
 
@@ -42,6 +47,9 @@ var server: Node            # TV only
 var discovery: Node         # TV only
 var overlay: CanvasLayer    # TV only
 var client: Node            # Controller only
+## The last personal best of this phone: {"key", "value", "old"} or empty (REQ-GM-100). Cleared when the next round starts.
+var last_best := {}
+var profiles: ProfileStore  # Controller only. The profiles of this phone (FD-22).
 var controller_discovery: Node
 var last_error := ""        # Controller only. Shown on the connect screen.
 var last_game := ""         # TV only. The Games screen focuses this tile again.
@@ -276,8 +284,10 @@ func _start_controller() -> void:
 	if not OS.has_feature("mobile"):
 		win.size = Vector2i(450, 800)
 	client = ControllerClient.new()
-	client.player_name = "" # The TV shows "Player N" for a phone without a name.
 	add_child(client)
+	profiles = ProfileStore.new()
+	profiles.load_from_disk()
+	apply_profile()
 	controller_discovery = ControllerDiscovery.new()
 	add_child(controller_discovery)
 	var wifi_locks := QrScanner.new()
@@ -285,7 +295,8 @@ func _start_controller() -> void:
 	wifi_locks.acquire_wifi_locks() # Less jitter and no lost TV beacons on Android.
 	client.state_changed.connect(_on_client_state)
 	get_viewport().size_changed.connect(_apply_safe_area)   # A turn changes the safe area (REQ-FL-68).
-	client.phase_changed.connect(func(_p): _show_phone_screen())
+	client.phase_changed.connect(_on_client_phase)
+	client.result_received.connect(_on_result)
 	client.language_changed.connect(func(code: String): set_language(code, false))
 	client.rejected.connect(_on_client_rejected)
 	if "--auto-join" in OS.get_cmdline_user_args():
@@ -312,13 +323,71 @@ func _on_client_state(state: int) -> void:
 		_show_phone_screen()
 	elif state == ControllerClient.State.IDLE:
 		set_language(Lang.system_language(), false)   # Away from the TV, the phone uses its own language (REQ-FL-62).
-		if not (_screen is ControllerConnect):
+		# A failed connection does not close the profile screens: a typed name stays (the phone works without the TV).
+		if not (_screen is ControllerConnect or _screen is ControllerProfiles or _screen is ControllerProfileEdit):
 			go(ControllerConnect)
 
 
-## The pad while a game runs, the waiting screen otherwise (REQ-FL-28).
+## Gives the active profile (or the guest) to the client. It goes to the TV at the next join, and at once in a menu phase.
+func apply_profile() -> void:
+	var p = profiles.active()
+	if p == null:
+		client.set_profile("", "", -1)
+	else:
+		client.set_profile(p.id, p.player_name, p.avatar)
+
+
+func _on_client_phase(phase: String) -> void:
+	if phase == "playing":
+		last_best = {}
+	_show_phone_screen()
+
+
+## The result of a round for the active profile (REQ-GM-99, 100): the profile keeps the best, and the waiting screen says
+## NEW BEST! when this was one.
+func _on_result(key: String, value: int) -> void:
+	var done := profiles.record_best(client.pid, key, value)
+	if done.new_best:
+		last_best = {"pid": client.pid, "key": key, "value": value, "old": done.old}
+
+
+## The NEW BEST! of the player on this phone, or an empty dictionary. A best that belongs to another profile is not shown after
+## a switch of the player (REQ-GM-100).
+func current_best() -> Dictionary:
+	return last_best if not last_best.is_empty() and last_best.pid == client.pid else {}
+
+
+## Takes the text of a scan or of the clipboard that should be a player code (FD-22, REQ-FL-76). Returns the sentence for the
+## player: the player was added or updated, or why the text does not work. A change of the active profile goes to the TV.
+func import_profile_text(text: String) -> String:
+	if not text.strip_edges().begins_with(ProfileCode.PREFIX):
+		return Lang.t("This is a TV link.") if not Protocol.parse_pair_url(text).is_empty() else Lang.t("This code does not work.")
+	var r := ProfileCode.decode(text)
+	if not r.ok:
+		return Lang.t("This code does not work.")
+	var done: Dictionary = profiles.import_profile(r.profile)
+	if done.status == "full":
+		return Lang.f("%d players is the maximum", [ProfileStore.MAX_PROFILES])
+	if done.id == profiles.active_id:
+		apply_profile()
+	return Lang.t("Player added.") if done.status == "added" else Lang.t("Player updated.")
+
+
+## Leaves the profile screens: back to the waiting screen when a TV is joined, else to the Connect screen.
+func leave_profile_screens() -> void:
+	if client.state == ControllerClient.State.IDLE:
+		go(ControllerConnect)
+	else:
+		go(ControllerWait)
+
+
+## The pad while a game runs, the waiting screen otherwise (REQ-FL-28). The profile screens stay open while the TV is in a menu
+## phase; a round (or a late join) closes them (REQ-FL-71).
 func _show_phone_screen() -> void:
 	if client.state == ControllerClient.State.IDLE:
+		return
+	if (_screen is ControllerProfiles or _screen is ControllerProfileEdit or _screen is ControllerProfileShare) \
+			and client.phase in ["connect", "menu"]:
 		return
 	var playing: bool = client.phase in ["playing", "paused"]
 	if playing and not (_screen is ControllerPad):
@@ -335,4 +404,5 @@ func _on_client_rejected(reason: String) -> void:
 		"unreachable": Lang.t("Cannot reach the TV. Check the Wi-Fi."),
 		"tv_closed": Lang.t("The TV closed the connection."),
 		"kicked": Lang.t("The host removed you. Scan the code to join again."),
+		"replaced": Lang.t("Your player joined another phone."),
 	}.get(reason, Lang.f("Connection refused: %s", [reason]))

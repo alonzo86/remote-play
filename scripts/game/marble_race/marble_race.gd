@@ -371,7 +371,7 @@ func _draw_marble_numbers(canvas: Control) -> void:
 		var radius := radius_on_hud(p3, R)
 		var sp := world_to_hud(p3)
 		if radius >= NUMBER_MIN_R and Rect2(Vector2.ZERO, canvas.size).has_point(sp):
-			Shell.ball_number(canvas, sp, radius, player(s).color, s)
+			Shell.ball_number(canvas, sp, radius, player(s).color, s, 0.0, player(s).avatar)
 
 
 ## The HUD position of each marble that is in front of the camera (the name tags of the countdown, REQ-GM-46a).
@@ -418,3 +418,14 @@ func _hud_draw(canvas: Control) -> void:
 	_draw_edge_markers(canvas)
 	Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), canvas.size.y - 70), track.title, 32,
 			UiTheme.TEXT_DIM, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
+
+
+## Only the 10 fixed tracks have a personal best; a random track has none (REQ-MR-56).
+func best_key() -> String:
+	var i := MarbleTrack.FIXED_SEEDS.find(track_seed)
+	return "marble_race|%s|%d" % [difficulty, i + 1] if i >= 0 else ""
+
+
+## The time of a finish in milliseconds.
+func best_value(score: float) -> int:
+	return roundi(score * 1000.0)

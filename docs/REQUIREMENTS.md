@@ -17,8 +17,8 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-P2: Use one project with two export targets: `tv` (Android TV) and `controller` (Android phone).
 - REQ-P3: The role is chosen by the feature tag `tv` or `controller`.
 - REQ-P4: On desktop, the argument `-- --role=tv` or `-- --role=controller` replaces the feature tag.
-- REQ-P5: Do not use servers, accounts, subscriptions, analytics, or paid services. Use the LAN only.
-- REQ-P6: Menus and games are built in code from shapes, with the 8-bit arcade style (`docs/TV_FLOW.md`, FD-18). Allowed files: the pixel font Press Start 2P and the Hebrew fallback font Wobble Pixel Hebrew (`assets/fonts`, each with its license file), the game tile screenshots (`assets/tiles`), the logo (`assets/logo`), and the app icons. No other image, sound or model files without a decision in `docs/TV_FLOW.md`.
+- REQ-P5: Do not use servers, accounts, subscriptions, analytics, or paid services. Use the LAN only. A player profile (FD-22) is a file on the phone; it is not an account and nothing leaves the LAN.
+- REQ-P6: Menus and games are built in code from shapes, with the 8-bit arcade style (`docs/TV_FLOW.md`, FD-18). Allowed files: the pixel font Press Start 2P and the Hebrew fallback font Wobble Pixel Hebrew (`assets/fonts`, each with its license file), the game tile screenshots (`assets/tiles`), the player avatar sheet (`assets/avatars`), the logo (`assets/logo`), and the app icons. No other image, sound or model files without a decision in `docs/TV_FLOW.md`.
 
 ## 3. Architecture
 
@@ -42,6 +42,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-N5: A phone that loses its connection keeps its slot for 30 seconds, and for 5 minutes while the game is paused for it.
 - REQ-N6: The phone reconnects automatically with a saved token (backoff 0.5 s, 1 s, 2 s, then every 2 s).
 - REQ-N7: Full message reference: `docs/PROTOCOL.md`.
+- REQ-N8: `hello` and `welcome` carry an optional profile (`pid`, `av`, and the name); a `profile` message changes it in a menu. The TV checks every field. The protocol `VERSION` stays 2 (FD-22, `docs/PROTOCOL.md`).
 
 ## 5. Phone controller
 
@@ -51,6 +52,11 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-C4: Show connection status and a latency readout.
 - REQ-C5: Keep the screen awake.
 - REQ-C6: Lock the screen to portrait.
+- REQ-C7: The phone keeps up to 8 player profiles (ID, name, avatar) in a file and sends the active one to the TV (FD-22, REQ-FL-69 to 75).
+- REQ-C8: A profile is saved at once after each change, with a backup copy of the file.
+- REQ-C9: The profile changes only while the TV is in a menu phase, never during a round.
+- REQ-C11: The phone keeps the personal best of each profile for each game setting and saves it at once (FD-22, REQ-GM-98 to 101).
+- REQ-C10: A profile can be copied to another phone with a QR code or a text (`WP1.`); the copy has no server (FD-22, REQ-FL-76 to 78).
 
 ## 6. TV application
 
@@ -58,7 +64,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
 - REQ-T6: The TV app follows the flow in `docs/TV_FLOW.md`: logo, Connect controllers, Games, and a game. Settings and the Players modal open from the Games screen.
 - REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values.
-- REQ-T5: The game pauses when a phone disconnects, also when the phone is only silent (no Wi-Fi, a phone call). A card tells which phone, and the player chooses: resume without it (while another phone is connected), resume when it is back, or end the game (REQ-GM-30, 30a). The game never goes on by itself.
+- REQ-T5: The game pauses when a phone disconnects, also when the phone is only silent (no Wi-Fi, a phone call). A card tells which player (by the profile name, or "2P" for a guest), and the player chooses: resume without it (while another phone is connected), resume when it is back, or end the game (REQ-GM-30, 30a). The game never goes on by itself.
 
 ## 7. Android export
 

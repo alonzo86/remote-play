@@ -9,6 +9,8 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const AvatarView = preload("res://scripts/ui/avatar_view.gd")
+const ProfileCode = preload("res://scripts/core/profile_code.gd")
 
 const SEARCH_MS := 1500   # After Refresh the list says "Searching" this long (the beacon comes each second).
 
@@ -39,6 +41,7 @@ func _ready() -> void:
 	margin.add_child(box)
 
 	box.add_child(UiKit.title("WOBBLE", 56))
+	box.add_child(_profile_row())
 
 	_status = UiKit.label("", UiTheme.SIZE_BODY)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -73,6 +76,32 @@ func _ready() -> void:
 	App.client.state_changed.connect(_on_state)
 	_rebuild_list()
 	_on_state(App.client.state)
+
+
+## The row for the player of this phone (REQ-FL-71): the avatar and the name of the active profile, GUEST, or MAKE A PLAYER while
+## the phone has no profile. A tap opens the list, or the new player screen when there is no profile yet.
+func _profile_row() -> Control:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+	var store = App.profiles
+	var active = store.active()
+	var av := AvatarView.new(active.avatar if active != null else -1, 110.0)
+	av.tappable = false
+	row.add_child(av)
+	var text: String = active.player_name if active != null else ("Guest" if not store.profiles.is_empty() else "Make a player")
+	var b := UiKit.box_button(text, _on_profile_pressed, UiTheme.SIZE_ITEM)
+	b.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED if active != null else Node.AUTO_TRANSLATE_MODE_INHERIT
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.custom_minimum_size = Vector2(0, 110)
+	row.add_child(b)
+	return row
+
+
+func _on_profile_pressed() -> void:
+	if App.profiles.profiles.is_empty():
+		App.go(App.ControllerProfileEdit, {"profile_id": ""})
+	else:
+		App.go(App.ControllerProfiles)
 
 
 func _process(_delta: float) -> void:
@@ -135,6 +164,9 @@ func _on_scan_pressed() -> void:
 
 
 func _on_qr_text(text: String) -> void:
+	if text.strip_edges().begins_with(ProfileCode.PREFIX):   # A player code, not a TV link (FD-22).
+		App.go(App.ControllerProfiles, {"note": App.import_profile_text(text)})
+		return
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():
 		App.last_error = Lang.t("This is not a Wobble code.")

@@ -11,6 +11,8 @@ signal phase_changed(phase: String)
 signal language_changed(code: String)   # The TV language (REQ-FL-62).
 signal haptic_requested(ms: int)
 signal score_changed()   # The place or the score of this phone changed (REQ-FL-67).
+signal result_received(key: String, value: int)   # A round result for the active profile (REQ-GM-99).
+signal profile_answered()   # The TV told which profile this phone has now (REQ-FL-70).
 
 enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING }
 
@@ -27,7 +29,12 @@ var tv_name := ""
 var rtt_ms := -1.0
 var clock_offset_ms := 0.0   # TV clock minus phone clock.
 var tx_rate := 0.0           # Sensor packets sent per second.
-var player_name := ""
+var player_name := ""        # The profile name that goes to the TV. Empty for a guest.
+var pid := ""                # The profile ID that goes to the TV. Empty for a guest (FD-22).
+var avatar := -1             # The avatar index of the profile, or -1.
+var tv_pid := ""             # The profile that the TV has for this phone now. It can differ from `pid` during a round.
+var tv_avatar := -1
+var tv_player_name := ""
 var score_rank := 0          # The place of this phone in the round, 1 for the leader. 0 when the TV sent no score (REQ-FL-67).
 var score_of := 0            # The number of ranked players.
 var score_text := ""         # The score as the TV shows it. Empty when there is no score yet.
@@ -67,6 +74,9 @@ func leave() -> void:
 	_close_socket()
 	_token = ""
 	slot = -1
+	tv_pid = ""
+	tv_avatar = -1
+	tv_player_name = ""
 	_was_connected = false
 	_set_state(State.IDLE)
 	_save_last(true)
@@ -85,6 +95,41 @@ func send_sensor(packet: PackedByteArray) -> void:
 
 func send_recenter() -> void:
 	_send_json({"t": "recenter"})
+
+
+## Sets the profile of this phone (FD-22). An empty `p_pid` is the guest. It goes to the TV at the next `hello` and, when the
+## phone is in a menu phase of the TV, at once as a `profile` message. The TV answer (`profile_answered`) says what it accepted.
+func set_profile(p_pid: String, p_name: String, p_avatar: int) -> void:
+	pid = p_pid
+	player_name = p_name if p_pid != "" else ""
+	avatar = p_avatar if p_pid != "" else -1
+	_sync_profile(true)
+
+
+## True in a phase where the TV takes a profile change.
+func can_change_profile() -> bool:
+	return state == State.CONNECTED and phase in ["connect", "menu"]
+
+
+## True when the TV has the same profile with another avatar or name (an edit while the phone was away or in a round). The TV
+## may add a number to a name that another player has (`Sam 2`).
+func _tv_differs() -> bool:
+	if tv_avatar != avatar:
+		return true
+	var shown := tv_player_name.strip_edges().to_upper()
+	var mine := player_name.strip_edges().to_upper()
+	if shown == mine:
+		return false
+	return not (shown.begins_with(mine + " ") and shown.substr(mine.length() + 1).is_valid_int())
+
+
+## Sends the profile when the TV has another one (or `force`), in a phase where the TV takes it.
+func _sync_profile(force := false) -> void:
+	if can_change_profile() and (force or tv_pid != pid or (pid != "" and _tv_differs())):
+		var msg := {"t": "profile"}
+		if pid != "":
+			msg = {"t": "profile", "pid": pid, "name": player_name, "av": avatar}
+		_send_json(msg)
 
 
 func load_last() -> Dictionary:
@@ -123,8 +168,11 @@ func _process(_delta: float) -> void:
 			if state == State.CONNECTING or (state == State.RECONNECTING):
 				_set_state(State.JOINING)
 				_last_rx_ms = now
-				_send_json({"t": "hello", "v": Protocol.VERSION, "room": room,
-						"token": _token, "name": player_name})
+				var hello := {"t": "hello", "v": Protocol.VERSION, "room": room, "token": _token, "name": player_name}
+				if pid != "":
+					hello["pid"] = pid
+					hello["av"] = avatar
+				_send_json(hello)
 			while _ws.get_available_packet_count() > 0:
 				var data := _ws.get_packet()
 				_last_rx_ms = now
@@ -168,6 +216,9 @@ func _handle(msg: Dictionary, now: int) -> void:
 			_token = String(msg.get("token", ""))
 			tv_name = String(msg.get("name", "TV"))
 			phase = String(msg.get("phase", "connect"))
+			tv_pid = String(msg.get("pid", ""))
+			tv_avatar = int(msg.get("av", -1)) if tv_pid != "" else -1
+			tv_player_name = String(msg.get("pname", ""))
 			clear_score()   # The score comes again with the next frame of the game (REQ-FL-67).
 			_was_connected = true
 			_attempt = 0
@@ -180,6 +231,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			if msg.has("lang"):
 				language_changed.emit(String(msg.lang))
 			phase_changed.emit(phase)
+			_sync_profile()   # The TV may have ignored the profile (a round was running): send it again in a menu.
 		"reject":
 			var reason := String(msg.get("reason", "unknown"))
 			_close_socket()
@@ -198,6 +250,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			if not phase in ["playing", "paused"]:
 				clear_score()   # A pause keeps the score on the phone (REQ-FL-67).
 			phase_changed.emit(phase)
+			_sync_profile()
 		"lang":
 			language_changed.emit(String(msg.get("v", "en")))
 		"haptic":
@@ -207,15 +260,28 @@ func _handle(msg: Dictionary, now: int) -> void:
 			score_of = clampi(int(msg.get("of", 0)), 0, Protocol.MAX_PLAYERS)
 			score_text = String(msg.get("v", "")).substr(0, 12)
 			score_changed.emit()
+		"result":
+			# Only the profile that plays on this phone counts (the TV sends the ID of the slot).
+			var key := String(msg.get("key", ""))
+			var v: Variant = msg.get("v", 0)
+			if pid != "" and String(msg.get("pid", "")) == pid and key != "" and (v is int or v is float):
+				result_received.emit(key, int(v))
+		"profile":
+			tv_pid = String(msg.get("pid", ""))
+			tv_avatar = int(msg.get("av", -1)) if tv_pid != "" else -1
+			tv_player_name = String(msg.get("name", "")) if tv_pid != "" else ""
+			profile_answered.emit()
 		"kicked":
-			# The host removed this phone. Forget the token. Do not reconnect (REQ-FL-33).
+			# The host removed this phone, or another phone took its profile (`reason` "replaced"). Forget the token. Do not
+			# reconnect (REQ-FL-33).
+			var kicked_reason := "replaced" if String(msg.get("reason", "")) == "replaced" else "kicked"
 			_close_socket()
 			_token = ""
 			slot = -1
 			_was_connected = false
 			_set_state(State.IDLE)
 			_save_last(true)
-			rejected.emit("kicked")
+			rejected.emit(kicked_reason)
 		"bye":
 			_close_socket()
 			_set_state(State.IDLE)

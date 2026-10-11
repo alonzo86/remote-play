@@ -1,6 +1,6 @@
 # Player profiles plan: names, avatars, QR transfer, personal bests (FD-22)
 
-Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). Nothing is built.** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
+Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). All three phases are built (A: profiles and names, B: copy by QR, C: personal bests).** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files. The requirement IDs in this plan (REQ-FL-69 to 78, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C9) are proposed: they are given in the pull request of each phase.
 
 ## 1. Decision proposed (FD-22)
@@ -30,7 +30,7 @@ What this plan does not do: no profile data on the TV (so no shared leaderboard 
 |--------|---------|
 | Connect screen | A new row at the top shows the active profile (avatar and name, or `GUEST`). A tap opens the profile list. While the phone has no profile, the row says `MAKE A PLAYER`; it stays until the first profile exists. Nothing blocks joining. |
 | Profile list ("WHO IS PLAYING?") | One row for each profile: the avatar and the name. A tap on a row makes it the active profile. A row `GUEST` plays without a profile. The buttons are `NEW PLAYER`, `SCAN A PLAYER` and `PASTE A CODE` (see 2.3) and, on each row, `EDIT` and `SHARE`. When the list holds 8 profiles, `NEW PLAYER` is dim and a line says `8 PLAYERS IS THE MAXIMUM`. The list is reached from the Connect screen and from the waiting screen, only while the TV is in the phase `connect` or `menu`. When the phase changes to `playing`, `paused` or `waiting`, the phone closes the list, the edit, share and scan screens and hides any QR code. |
-| Edit | The name field (1 to 10 letters, the keyboard of the phone), the avatar picker (a 4 x 4 grid, 16 avatars, the picked one has a frame), `SAVE`, `DELETE`. `DELETE` asks `DELETE <name>?` first. The avatar can be changed here at any time. |
+| Edit | The name field (1 to 10 letters, the keyboard of the phone), the avatar picker (32 avatars, 6 in a row, the list scrolls by dragging, the picked one has a frame), `SAVE`, `DELETE`. `DELETE` asks `DELETE <name>?` first. The avatar can be changed here at any time. |
 | Share | A QR code of the profile, the text of the code with a `COPY CODE` button, and two lines: everybody who scans the code gets this player and the best scores; the two phones do not stay in sync after the copy. The QR code goes away after 60 seconds (section 6.3). |
 | Waiting screen and pad | The colored square at the top shows the avatar instead of the slot number. The text next to it shows the profile name. A guest sees the slot number and `2P` as now. While the phone reconnects, the text says `Reconnecting...` as now. |
 
@@ -66,7 +66,7 @@ The result is a **copy**, not a move. If the second phone already has a profile 
 |-------|------|------|
 | `id` | 16 random bytes, written as 32 lower-case hex characters | Made once with `Crypto.generate_random_bytes(16)`. Never changes. It is the identity of the player. |
 | `name` | text, 1 to 10 characters | One constant `NAME_MAX` = 10 in `Protocol` is used by the phone field, the TV and the import. The TV now cuts at 16 (`tv_server.gd:209`); it changes to 10, also for an old phone that sends a longer name. Trimmed. |
-| `avatar` | integer, 0 to 15 | The index in the sprite sheet (section 7). An index the app does not know shows the slot number (a later sheet can add avatars; it never changes or removes one). |
+| `avatar` | integer, 0 to 31 | The index in the sprite sheet (section 7). An index the app does not know shows the slot number (a later sheet can add avatars; it never changes or removes one). |
 | `rev` | integer, 0 and up | Counts the edits of name and avatar. Used by the merge (section 6.5). |
 | `bests` | map of best key to integer | Section 5. Empty at the start. |
 
@@ -94,7 +94,7 @@ The protocol `VERSION` stays 2: every new field and message is optional, and an 
 
 `pid` is the profile ID, `av` the avatar index. The TV checks them: `pid` is made lower case and must be 32 hex characters, `av` must be an integer from 0 to 255, and `name` goes through the whitelist and the 10-character cut. A `pid` that fails is ignored and the phone is a guest. **Any `hello` with no valid `pid` is a guest, also when `name` is not empty** (an old phone that sends a name shows that name as now, and has no avatar). A guest has the name `Player N` when the name is empty.
 
-`welcome` gets the optional fields `pid`, `av` and `name` with the profile the TV accepted (they are empty for a guest). The phone compares them with its own profile and shows the TV answer as the truth.
+`welcome` gets the optional fields `pid`, `av` and `pname` (`name` in `welcome` is already the name of the TV) with the profile the TV accepted (they are empty for a guest). The phone compares them with its own profile and shows the TV answer as the truth.
 
 ### 4.2 Change of profile
 
@@ -171,7 +171,7 @@ The text of the QR code is `WP1.` followed by base64url text (no padding) of thi
 | 1 | Format version, 1 |
 | 16 | Profile ID |
 | 1 | Avatar |
-| 1 to 2 | `rev` (varint) |
+| 1 to 5 | `rev` (varint; the decoder accepts up to 5 bytes) |
 | 1 + n | Name: length n (0 to 20 bytes, UTF-8; 10 characters, Hebrew letters take 2 bytes), then the bytes |
 | 1 | Number of bests, k (0 to 39) |
 | k times | Best key number (1 byte, from the table `ProfileKeys`), then the value as a varint (up to 5 bytes) |
@@ -206,8 +206,8 @@ If the phone has a profile with the same ID: the profile with the higher `rev` g
 
 ## 7. Avatar sprite sheet
 
-- File: `assets/avatars/avatars.png`, 64 x 64 px, 16 cells of 16 x 16 px in a 4 x 4 grid, transparent background, the colors of the NES palette of `UiTheme` (REQ-FL-37), a 1 px dark outline on each avatar, no antialiasing. The index is row by row from the top left.
-- 16 friendly characters that a child of 5 years knows at once and that are different in their shape, not only in their color (animals and a robot, an alien, a ghost, a star). The first version is drawn by Claude with a script that is kept in the project files, as for the logo; the owner changes the list if a picture does not work.
+- File: `assets/avatars/avatars.png`, 64 x 128 px, 32 cells of 16 x 16 px in 4 columns and 8 rows (decided by the owner on 2026-10-11: 32 avatars in the same style; the first 16 are unchanged), transparent background, the colors of the NES palette of `UiTheme` (REQ-FL-37), a 1 px dark outline on each avatar, no antialiasing. The index is row by row from the top left.
+- 32 friendly characters that a child of 5 years knows at once and that are different in their shape, not only in their color (animals and a robot, an alien, a ghost, a star; 16 to 31: lion, mouse, koala, cow, monkey, tiger, duck, turtle, bat, octopus, bee, dino, unicorn, ladybug, crab, wizard). The first version is drawn by Claude with a script that is kept in the project files, as for the logo; the owner changes the list if a picture does not work.
 - Rule: the avatar is drawn at a whole-number scale with the nearest filter, in the place of the number, centered in the colored square. It must be readable on all four slot colors and from the sofa. The pixel-world games draw the ball in the low-resolution layer and the number later on the HUD (`Shell.ball_number()`, `shell.gd:171`), and the 3D marble has its own number (`marble_race.gd:404`). Phase A lists every place and sets the size for each; a 16 x 16 sprite at 2x is 32 px, so the smallest ball radius is checked first.
 - REQ-P6 gets the new allowed file. The file is imported without a filter and without mipmaps, like the logo, and `tests/design_tokens.gd` checks the import settings. A license line in `assets/avatars/README.md` says that the art is made for the project.
 - Both apps load the same sheet (the export presets export all resources, `export_presets.cfg`). The index stays valid for ever (section 3.1).
@@ -239,7 +239,7 @@ Items 1, 8 and 10 are decided by the owner. The others are defaults that the own
 9. A name field **drops** characters the fonts cannot draw, with a hint under the field.
 10. Bests of rounds with 1 to 4 players share one key (decided by the owner).
 11. **Privacy.** The profile ID is the same on every TV, so a TV can see that it is the same child as at another house, and the ID is in the QR code. The TV holds it in memory only and clears it when the slot is freed; nothing is logged. The name of a child shows on a TV in a friend's house. The owner confirms that this is wanted; a child can always play as `GUEST`.
-12. 16 avatars, 4 x 4.
+12. 32 avatars, 4 columns by 8 rows (first 16 were decided at the plan; the owner asked for at least 32 in the same style after the phase A review).
 
 ## 10. Documents that change
 
@@ -318,3 +318,45 @@ Needs: 2 to 4 phones (one an iPhone if possible), 1 TV, a grown-up and a child o
 ## 13. Review
 
 On 2026-10-10 an independent reviewer read this plan against the code and the documents. Its report had 25 findings. They are applied here: no personal best for the random maze (9.1), the duplicate ID rule with a token memory and a rule for rounds (4.4), the profile answer and the resume guard (4.2), the validation of `hello` and of imported codes (4.1, 6.3), the `rev` in the merge (6.5), the real cost of the QR encoder (6.2), the wrong references to RISKS and the missing iPhone paste UI (2.3), the keys of Paint Grab and Marble Race (5.1, 5.3), the rules for equal names (4.3), the text edits in manual tests 7 and 19 and the other documents (10, 11), the places of the avatar in the pixel worlds (2.2, 7), and the share phase before the bests phase (8). Open points that need the owner are in section 9.
+
+## 14. Phase A: what was built, what differs
+
+Built on 2026-10-10 on branch `claude/profiles-a-names`.
+
+- New modules: `Profile` (ID, name rules), `ProfileStore` (`user://profiles.cfg`, `.bak`, the limit of 8), `Avatar` and `AvatarView` (the sheet and its drawing), the phone screens `controller_profiles.gd` and `controller_profile_edit.gd`. `Protocol` has `NAME_MAX`, `AVATAR_COUNT` and `REPLACED_TOKEN_MS`.
+- The `welcome` field for the player name is `pname`, because `name` in `welcome` is the name of the TV.
+- The name whitelist is a fixed set (Latin letters, digits, the space and the Hebrew letters) and a test checks that the pixel fonts have a glyph for every character of it. The plan said the set is derived from `Font.has_char()` at run time; a fixed set is the same for the phone and the TV and does not depend on a font being loaded on the TV.
+- `PlayerInput.player_name` stays the display name that every TV text uses (the plan called it `display_name`); `raw_name` is the name that the phone sent.
+- The avatar is drawn by `Shell.mark()` from a ball radius of 11 px; a smaller object keeps the number. The result menu rows and the leader chip keep the slot color square (they show the name, not the avatar).
+- Not in phase A: `SHARE` and the scan or paste buttons (phase B), the bests (phase C), the design-system mockups and `tests/screenshots_controller.gd` for the new screens (open, see the doubts in the pull request).
+
+Changes after the phase A review (2026-10-11):
+
+- A phone that returns in a round keeps the name the TV showed it (`Sam 2` stays `Sam 2`, also when the first `Sam` left); before, the name was made again.
+- `pname` in `welcome` and `name` in the `profile` answer are the name that the TV shows (with the number), so the phone header and the TV agree.
+- The phone sends its profile again at the next menu also when only the name or the avatar differs from what the TV has (a number that the TV added to a name does not count).
+- A lost connection no longer closes the profile list and the edit screen, so a typed name is not lost.
+- `ProfileStore.save()` copies the file to `.bak` only when the file is a good one; `Profile.clean_id` accepts only the characters 0 to 9 and a to f; the TV forgets replaced tokens that are past their time.
+- Not changed: review item 4 (a late phone with the same profile removes the player who just played at the next menu) waits for the decision of the owner.
+- The sheet has 32 avatars (4 columns by 8 rows, the first 16 unchanged), made with the same script and style. The picker shows 6 in a row and scrolls by dragging; a tap picks only when the finger does not move (`AvatarView.TAP_SLOP`).
+
+## 15. Phase B: what was built, what differs
+
+Built on 2026-10-10 on branch `claude/profiles-b-share`.
+
+- `QrEncoder` goes up to version 14 (L). It was checked with an outside decoder (zxing-cpp): 66 texts of 1 to 458 bytes, every version, all read back. `tests/qr.gd` checks the structure and the hash of a fixed text. The code is drawn by `QrView` with `quiet = 4` and whole-pixel modules.
+- `ProfileKeys` (the key table, numbers 1 to 36 and the direction) was moved from phase C to this phase, because the code format needs the numbers. Phase C adds `best_key()`, the `result` message and the update rule. `Profile.bests` already existed in phase A.
+- `ProfileCode` (`encode`, `decode`, the CRC-16) and `ProfileStore.import_profile()` (add or merge). `App.import_profile_text()` is the one entry for a scan, a paste and the Connect screen.
+- A new player from a code becomes the active one only when the phone had no profile. Otherwise the active profile stays.
+- Screens: `controller_profile_share.gd`, SHARE on each row, SCAN A PLAYER (only where the QR plugin exists) and PASTE A CODE on the list.
+- The Share screen has no countdown number; it goes back to the list after 60 seconds.
+- Not in phase B: the time to make a version 14 code on a phone is not measured (test 20 item 12).
+
+## 16. Phase C: what was built, what differs
+
+Built on 2026-10-10 on branch `claude/profiles-c-bests`.
+
+- `Minigame.best_key()` and `best_value()`. The default key is empty (no best), so Tilt Maze and Sumo Bumpers needed no change; Snowball Splat and Paint Grab give `<game>|<difficulty>`; Marble Race gives the key only for the 10 fixed tracks and saves the time in milliseconds. The plan said the default key is the game and the difficulty; an empty default is safer for a new game (the `add-minigame` skill asks for a decision).
+- `open_results()` sends the `result` message (`TvServer.send_result()`). The phone checks the `pid`, and `App` records the best with `ProfileStore.record_best()`.
+- The waiting screen shows NEW BEST! and the old best. The old best shows only when there was one. The first score of a key is also a new best.
+- `ProfileKeys` was built in phase B.
