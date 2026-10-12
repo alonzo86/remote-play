@@ -37,6 +37,7 @@ static func text(page: Dictionary) -> String:
 					+ Lang.t("about.wobble_has_no_account") \
 					+ "\n\n" + Lang.t("about.phones_tv_talk_over") \
 					+ " " + Lang.t("about.refresh_tries_addresses") \
+					+ " " + Lang.t("about.nothing_leaves_network") \
 					+ "\n\n" + Lang.t("about.pages_below_list_parts")
 		"scanner":
 			return Lang.t("about.android_phone_scans_with")
