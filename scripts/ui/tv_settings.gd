@@ -8,27 +8,37 @@ const MenuItem = preload("res://scripts/ui/menu_item.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 
 var _rows: Array[Button] = []
+var scroll_box: ScrollContainer
 
 
 func _ready() -> void:
 	var m := UiKit.margin(self, 0, 60, 0, 60)
-	var center := CenterContainer.new()
-	m.add_child(center)
 	var box := VBoxContainer.new()
 	box.custom_minimum_size = Vector2(1440, 0)
+	box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_theme_constant_override("separation", 22)
-	center.add_child(box)
+	m.add_child(box)
 	box.add_child(UiKit.title("Settings"))
-	box.add_child(UiKit.spacer(10))
-	_add_row(box, "Debug overlay", "Shows the link of each phone. The Menu key or F3 does the same.", "overlay",
+	# The rows scroll with the focus (REQ-FL-23); the title above and Back below stay in view.
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	scroll.follow_focus = true
+	scroll_box = scroll
+	box.add_child(scroll)
+	var rows := VBoxContainer.new()
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows.add_theme_constant_override("separation", 22)
+	scroll.add_child(rows)
+	_add_row(rows, "Debug overlay", "Shows the link of each phone. The Menu key or F3 does the same.", "overlay",
 			func(): App.toggle_overlay())
-	_add_row(box, "Invert tilt axes", "Use this when a ball rolls the wrong way.", "invert_tilt", Callable())
-	_add_level_row(box, "Music", "Left and Right change the music volume.", "music_volume")
-	_add_level_row(box, "Effects", "Left and Right change the volume of the sound effects.", "sfx_volume")
-	_add_row(box, "Mute", "Turns off the music and the effects. The phones are not changed.", "mute", Callable())
-	_add_row(box, "Language", "English or Hebrew. The phones follow the TV.", "language",
+	_add_row(rows, "Invert tilt axes", "Use this when a ball rolls the wrong way.", "invert_tilt", Callable())
+	_add_level_row(rows, "Music", "Left and Right change the music volume.", "music_volume")
+	_add_level_row(rows, "Effects", "Left and Right change the volume of the sound effects.", "sfx_volume")
+	_add_row(rows, "Mute", "Turns off the music and the effects. The phones are not changed.", "mute", Callable())
+	_add_row(rows, "Language", "English or Hebrew. The phones follow the TV.", "language",
 			func(): App.set_language(Lang.other(Lang.current())))
-	box.add_child(UiKit.spacer(10))
 	box.add_child(UiKit.item("Back", on_back, UiTheme.SIZE_ITEM, "quiet"))
 	UiKit.focus_later(_rows[0])
 

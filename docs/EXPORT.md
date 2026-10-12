@@ -44,7 +44,7 @@ The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so i
    tools/patch_android_manifest.sh
    ```
    The script does these things (you can run it again without harm):
-   - copies `assets/icons/banner.png` (320 x 180) to `android/build/res/drawable-xhdpi/banner.png`;
+   - copies `assets/icons/banner.png` (320 x 180, the logo; `tools/make_icons.gd` makes it and the icons from `assets/logo`) to `android/build/res/drawable-xhdpi/banner.png`;
    - adds `android:banner="@drawable/banner"` to the `<application>` tag in `android/build/src/main/AndroidManifest.xml`;
    - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer,
      all with `required="false"`;

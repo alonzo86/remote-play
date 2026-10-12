@@ -83,8 +83,9 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 1. Start the TV app. Check: the app is named **Wobble TV** in the launcher (uninstall the old Remote Play apps first: the package names changed, FD-21). The Android splash shows the pixel phone mascot on black, then the logo screen with the mascot and the word WOBBLE (sharp pixels, not blurred) and an animation (about 2.5 seconds), then the **Connect controllers** screen with a room code and a QR code. If the QR code is empty, the TV has no Wi-Fi address (the screen says so).
 2. Start the controller app on one phone. Check: it is named **Wobble Controller**, and the phone shows a **portrait** screen with the title WOBBLE.
 3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "READY", and the line **Press OK to continue** shows at the bottom (there is no Continue button and no player count). Press OK. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
-4. Tap **Leave**, then tap the TV under **Discovered TVs**. Check: it joins (the button reads "<code> x/y", for example "KQZM 1/4", and it is green; **Refresh** is yellow). Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds.
-5. Tap **Leave**, then join with the **TV IP address**. Check: it joins.
+4. Tap **Disconnect**, then tap the TV under **Discovered TVs**. Check: it joins (the button reads "<code> x/y", for example "KQZM 1/4", and it is green; **Refresh** is white). Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds. New (REQ-FL-83): with the TV app on a Mac, where the list stays empty, tap Refresh and check that the TV shows up in the list within about 15 seconds (the scan; it never starts by itself). If the Mac asks for the Local Network permission, answer with the app that runs the TV; the scan works without it.
+5. Tap **Disconnect**, then join with the **TV IP address**. Check: it joins.
+6. New (REQ-FL-80). Close the controller app and start it again. Check: the Android splash (the mascot on black) is already in portrait (the phone does not turn), and it is the only splash: the Connect screen follows at once, with no logo screen. "Discovered TVs" and **Refresh** are white.
 
 **Results**
 
@@ -95,6 +96,7 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 | 3 | Photo of TV and phone together: slot 1 'READY' and the line 'PRESS OK TO CONTINUE'; then the Games screen | Retest | R1 | Chat report 2026-10-09 (no file) | R1: the owner found the Continue button redundant (it was the only focus target) and the count of players repeated the slot list. Changed on 2026-10-09 (FD-17, REQ-FL-6, 7): the button and the count are gone, and 'PRESS OK TO CONTINUE' shows once a phone has joined. The old check cannot pass any more. Retest the new screen. |
 | 4 | Photo of the phone list with the button '<code> x/y'; note the time Refresh takes | Not run | | | |
 | 5 | Phone screenshot after joining by IP | Not run | | | |
+| 6 | Video of the app start in portrait: splash, then the Connect screen | Not run | | | |
 
 History:
 
@@ -110,7 +112,7 @@ Needs: 1 phone, 1 TV. Covers: RISKS C5.
 
 **Steps**
 
-1. Tap **Leave**. On the connect screen, the button must say **Scan QR code**. If it says **Paste TV link**, the plugin is not in the build. Run `tools/patch_android_manifest.sh` and export again.
+1. Tap **Disconnect**. On the connect screen, the button must say **Scan QR code**. If it says **Paste TV link**, the plugin is not in the build. Run `tools/patch_android_manifest.sh` and export again.
 2. Tap the button and scan the QR code on the TV. Check: the phone joins in less than 5 seconds.
 3. Scan again and press Back in the scanner. Check: no error message and the app does not crash.
 4. Optional: put a different QR code in front of the phone (for example a web link). Check: the message "This is not a Wobble code".
@@ -243,7 +245,7 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 3. Switch the phone Wi-Fi off for 40 seconds. Check: the slot is freed. When the Wi-Fi is back, the phone joins again (maybe in a different slot).
 4. Switch one phone Wi-Fi off again and wait for the card. Choose **Resume without P2** (for a player with a profile the card says its name, test 20 item 6). Check: the game continues without that player. Switch the Wi-Fi on. Check: the phone joins again as a new player and waits for the next round.
 5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "1P LOST CONNECTION" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Snowball Splat. Press Back on the card. Check: it asks "End the game?".
-6. On the phone pad, tap **Leave** once. Check: it turns red ("AGAIN") for 3 seconds and the phone does not leave. Tap again within 3 seconds: it leaves. Check the pad buttons: A is green and B is red, both sink when pressed.
+6. On the phone pad, tap **Disconnect** once. Check: the phone leaves the TV at once (no second tap). The word fits the box. Check the pad buttons: A is green and B is red, both sink when pressed.
 7. Phone call: with one phone in a game, call that phone from another phone and answer. Check: the game pauses with the card. End the call and go back to the controller app. Check: the phone says "Reconnecting..." and then joins again, the card says "P1 reconnected" with **Resume**, and **Resume** goes on with the game. Try a call that lasts more than 1 minute (the slot is kept 5 minutes while the game is paused). Write down how long the phone needs to reconnect after the call. (REQ-GM-30, 30a)
 
 **Results**
@@ -255,7 +257,7 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 | 3 | Photo of the Connect or Games screen after 40 s and after the join again | Not run | | | |
 | 4 | Video: Resume without P2 with a lost phone, and the phone that joins again | Not run | | | |
 | 5 | Photo of the card of the only player lost (End game only), and of the card after the return (Resume); in the maze, the race and Snowball Splat | Retest | R1 | Chat report 2026-10-09 (no file) | R1: a phone call stopped the game ('as expected') and the TV showed 'No players connected'. After the call there was no way to resume. The owner asked for a message that says which player disconnected, with Resume only when a player is still connected or the disconnected player is back. Changed on 2026-10-09 (REQ-GM-30, 30a): the game waits with a card, there is no Resume while nobody is connected, and Resume shows when the phone is back. The slot is kept 5 minutes while paused. The old check ('No players connected' at once) is gone. Retest. |
-| 6 | Photo of the red Leave button ('Again'), and of the pad buttons | Not run | | | |
+| 6 | Photo of the Disconnect button on the pad (and on the waiting screen, at the top right), and of the pad buttons | Not run | | | |
 | 7 | Video of a phone call: the card, the return, Resume. Note how long the phone needs to reconnect | Not run | | | |
 
 History:
@@ -273,10 +275,10 @@ Needs: 1 phone, 1 TV with its remote. Covers: REQ-GM-31, REQ-GM-31a, REQ-GM-33, 
 **Steps**
 
 1. Use only the remote. Check that the D-pad moves the focus on every screen (tiles, badge, gear, buttons) and OK selects. A focused button has a thick black border and lifts (a longer shadow); a focused game tile grows wide and shows its description. Check that the border is visible from the sofa on every button, also on the purple rows. Press and hold OK on a button: it sinks (no shadow). The layout of the buttons does not move.
-2. In a game, press OK. Check: the pause menu opens with Resume, Restart, and Back to menu. Choose Back to menu, and also press Back during play. Check: both ask "End the game?" with **Keep playing** (green, in focus) and **End game** (red). The game is paused. Back on the question keeps playing. **End game** goes to the Games screen. After the game is over (result menu), Back leaves at once.
+2. In a game, press OK. Check: the pause menu opens with Resume, Try again, and Back to menu. Choose Back to menu, and also press Back during play. Check: both ask "End the game?" with **Keep playing** (green, in focus) and **End game** (red). The game is paused. Back on the question keeps playing. **End game** goes to the Games screen. After the game is over (result menu), Back leaves at once.
 3. Press Back in a game and choose **End game**: back to the Games screen. Press Back on the Games screen: the Connect screen (the players stay). Press Back on the Connect screen: the quit question opens, with **Stay** in focus.
 4. Check the Menu key. If the remote has no Menu key, open **Settings** (the gear on the Games screen) and use **Debug overlay**.
-5. Check: the app icon and banner show in the Android TV home row (the banner is the TV, the maze and the phone).
+5. Check: the app icon and banner show in the Android TV home row (the icon is the Wobble mascot on black, the banner is the mascot and the word WOBBLE).
 
 **Results**
 
@@ -309,6 +311,9 @@ Needs: 1 to 2 phones, 1 TV. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, FD-1 to 17. I
 5. Check the motion on the TV box: the logo (with its confetti), the blinking prompts and the screen changes run at 60 frames per second (overlay FPS). Check that the arcade colors look right on your TV (black is black, yellow and blue are not washed out).
 6. Phone: check that the fonts and the colors match the TV on the connect, waiting and pad screens.
 7. (Moved to Test 17.) The old step was: set the TV to Hebrew, region Israel, and check that the app stays English and left to right. FD-19 replaced that rule on 2026-10-10: the app now has Hebrew, and the result of R1 (the mirrored English UI) is not a defect any more.
+8. New. On the Games screen with the remote: from a tile press Up, then Left or Right, and reach **OPTIONS** (write down the keys you needed; if it is not reachable, say where the focus goes). Open the players badge and press all four arrow keys. Check: the focus stays on the buttons of the modal and never moves to a game tile under it. In Hebrew, check that the yellow triangle of the focused tile does not touch its title.
+9. New (REQ-FL-81). In a game, end it by switching the only phone off (NO PLAYERS CONNECTED), open the pause menu and the quit question, in English and in Hebrew. Check: the message is white, the items below are yellow only with the focus, and the Hebrew message is on one line.
+10. New (2026-10-11). Settings: press Down through all rows with the remote. Check: the focused row is always in view and Back stays visible at the bottom. Games screen: only the focused tile has its title moved in (the cursor does not touch the text, also in Hebrew). A game in Hebrew with a leader: the timer box and the leader chip are at opposite sides and do not overlap (Marble Race too). The result menu: the time says ש׳ in Hebrew, each row has the avatar next to the colour, and the buttons are TRY AGAIN, NEW GAME and BACK TO MENU. On the phone, the avatar is beside the colour square on the waiting screen and on the pad. The result menu shows a medal next to the name of each player: 1st gold, 2nd silver, 3rd bronze (a tie has the same medal), none after the 3rd; a solo round shows the medal of the score next to the name, and the difficulty as the title. Games screen: scroll down to the second row of games, move up to the first row and on to the players badge, then to OPTIONS: it must always be reachable (also in Hebrew).
 
 **Results**
 
@@ -321,6 +326,9 @@ Needs: 1 to 2 phones, 1 TV. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, FD-1 to 17. I
 | 5 | Overlay FPS screenshot during the logo, tile growth and screen changes; photo of the colors | Not run | | | |
 | 6 | Photos of the phone connect, waiting and pad screens next to the TV | Not run | | | |
 | 7 | (Moved to Test 17.) Photos of the Connect and Games screens on a TV set to Hebrew; of the phone set to Hebrew | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the TV is set to the IL region and Hebrew. The text was English, but the layout was mirrored (right to left). Fixed on 2026-10-09 (REQ-FL-54): the app sets the locale to English and the layout to left to right. Retest on the TV. The phone was not tried. |
+| 8 | Video of the arrow keys to OPTIONS and in the Players modal; photo of a focused tile in Hebrew | Not run | | | |
+| 9 | Photos of the messages in English and Hebrew | Not run | | | |
+| 10 | Photos of Settings scrolled, a focused tile in Hebrew, the HUD of Marble Race in Hebrew, the result menu, the phone header | Not run | | | |
 
 History:
 
@@ -345,8 +353,8 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Ra
 6. Check: the frame rate in the debug overlay is 60 (or close) with 4 phones on Hard. (REQ-GM-50)
 7. Let one marble run far ahead on a long track (Hard). Check: when the last marble leaves the view, an arrow in its color shows at the screen edge with a distance, and you can read it. (REQ-MR-42)
 8. Finish a race on 3 different tracks of the list and on the random track. Write down the winning time of each. (REQ-MR-51)
-9. Open the tile of **Marble Race**. Check: the settings view shows Difficulty (Left and Right) and, under it, a carousel of tracks (10 line sketches and a "?", no names), wider than the Difficulty row, with the selected track in the middle. Move the carousel with Left and Right (the track in the middle is the one you get), then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many posts. Choose the "?" tile twice: the tracks are different. Restart: the same track again. (REQ-MR-50 to 54)
-10. During a race, open the pause menu. Check: it has Resume, Restart and Back to menu only. (REQ-MR-32)
+9. Open the tile of **Marble Race**. Check: the settings view shows Difficulty (Left and Right) and, under it, a carousel of tracks (10 line sketches and a "?", no names), wider than the Difficulty row, with the selected track in the middle. Move the carousel with Left and Right (the track in the middle is the one you get), then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many posts. Choose the "?" tile twice: the tracks are different. Try again: the same track again. (REQ-MR-50 to 54)
+10. During a race, open the pause menu. Check: it has Resume, Try again and Back to menu only. (REQ-MR-32)
 11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the marble stops drifting.
 12. **Pixel world (phase 3, REQ-MR-44, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the race. Check: the track, the posts and the marbles are made of sharp square pixels (not blurred), each marble has a black outline and its number is easy to read on it, and the posts and marbles are easy to tell apart on the purple track. Fly the camera high (let one marble run far ahead): the small marbles have no number, and you can still follow them by color. Write down the frame rate with 4 phones on Hard (it should be the same or better than before) and the TV (1080p or 4K).
 
@@ -450,12 +458,12 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, 
 
 **Steps**
 
-1. Maze with 1 phone: finish the maze. Check: the title says '<name> wins!', the list has one row '1st  <name>  <time> s', and the buttons are **Restart** and **Back to menu**. The text is easy to read from the sofa.
+1. Maze with 1 phone: finish the maze. Check: the title says '<name> wins!', the list has one row '1st  <name>  <time> s', and the buttons are Try again and **Back to menu**. The text is easy to read from the sofa.
 2. Maze with 2 to 4 phones: let one ball reach the exit first. Check: the winner is '1st' with a time, the other balls are listed as 'not finished' (nearest to the exit first), and the list and the buttons stay inside the screen edge (60 px).
-3. Marble Race with 4 phones on any track: let all marbles finish. Check: the list shows 4 rows with times, best first, and a title with the winner. The card with the list and the 3 buttons (Restart, Settings, Back to menu) is inside the screen edge and can be read.
+3. Marble Race with 4 phones on any track: let all marbles finish. Check: the list shows 4 rows with times, best first, and a title with the winner. The card with the list and the 3 buttons (Try again, New game, Back to menu) is inside the screen edge and can be read.
 4. Marble Race with 4 phones: let one marble finish and wait about 4 seconds for the end. Check: the marbles that did not finish are listed as 'not finished', the furthest first.
-5. Marble Race, at the results: choose **Settings**. Check: the settings view opens with the last difficulty and track, and Back returns to the Games screen.
-6. Marble Race: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **Settings** and **Back**, then open the results again if they are gone. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
+5. Marble Race, at the results: choose **New game**. Check: the settings view opens with the last difficulty and track, and Back returns to the Games screen.
+6. Marble Race: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **New game** and **Back**, then open the results again if they are gone. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
 7. Snowball Splat with 1 phone: play a full round. Check: the title is a medal ('Bronze medal!', 'Silver medal!', 'Gold medal!') or 'No medal this time', and the list has one row with the score. With 2 phones: the title names the winner, or says 'Tie!' for equal scores.
 
 **Results**
@@ -629,7 +637,7 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 3. Games screen with 1, 2 and 4 phones. Check: three tiles in a row, the focused tile has a yellow frame and a cursor, the description of the focused game shows in the bar under the grid, "SNOWBALL SPLAT" fits under its tile, and a game that needs more phones shows its reason in yellow.
 4. Check the menus: the cursor is in front of the focused item, a destructive item (END GAME, QUIT, REMOVE) is red with the focus, BACK is dim until it has the focus, and OK, Back and the D-pad work as before.
 5. Check the motion: PRESS OK TO CONTINUE and PRESS OK TO SKIP blink (about half a second on, half a second off), the logo drops in in steps, the confetti is square, the countdown number shrinks in steps. The overlay FPS stays at 60.
-6. Phone: connect, wait and pad screens. Check: the text is readable at arm's length, A (green) and B (red) feel like buttons, RECENTER flashes yellow, LEAVE needs two taps, and the slot color square with the slot number is at the top.
+6. Phone: connect, wait and pad screens. Check: the text is readable at arm's length, A (green) and B (red) feel like buttons, RECENTER flashes yellow, DISCONNECT is at the top right and needs one tap, and the slot color square with the slot number is at the top.
 7. Play each game with 4 phones that have long names (12 letters or more). Check: the leader chip (name and score), the timer, the title and the hint do not hide each other or the play area, and the HUD stays on one row. Write down which game has a problem and where. Test 19 covers the leader chip and the phone score in detail. The games are restyled in phases 2 to 4: a problem here is a note for that phase.
 8. A child of 5 to 8 years joins and plays one game. Check: the child finds the focus (the cursor), reads or understands "PRESS OK", and does not say it looks scary or boring. Write down what the child says.
 
@@ -664,7 +672,7 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 4. Join 2 phones: one with the system language Hebrew, one English, with player names in Latin letters and in Hebrew letters. Check: before the join the Hebrew phone shows its connect screen in Hebrew and the English phone in English; after the join both show the language of the TV (Hebrew); the player names show as typed (a Latin name in a Hebrew row is in the right place).
 5. In Settings, press OK on the Language row. Check: the TV switches to English at once (the layout turns left to right), the phones switch too, and the Settings screen stays open. Switch back to Hebrew. Leave the app and start it again: the language is the one that was last chosen.
 6. Start each game in Hebrew with 2 phones. Check: the title is at the top right, the leader chip is at the left, the timer is at the left of the title, the hint and the countdown ("קדימה") are readable, and the world is not mirrored (the maze start is at the top left, the track runs as in English). Open the pause menu and the result menu: the ranking list, the medal text and "תיקו!" read right.
-7. Phone in Hebrew, on the pad screen: the words RECENTER, LEAVE and the hint are Hebrew, and A and B are in the same places as in English (the pad is not mirrored).
+7. Phone in Hebrew, on the pad screen: the words RECENTER, DISCONNECT and the hint are Hebrew, and A and B are in the same places as in English (the pad is not mirrored).
 8. Run the English TV again with the same phones: nothing changed from before (compare with Test 16).
 
 **Results**
@@ -738,7 +746,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 
 1. Start Snowball Splat with 4 phones (two names of 10 letters, the most a name can have since FD-22). Check from the sofa: the top row has the title, the timer and one chip with the leader's name and score, all on one row; nothing covers the play area; the name and the score are easy to read. Write down if the leader chip is too small or too big.
 2. In the same game, before anybody scores: no chip shows and the phones show only `2P` (or the profile name) and 0. Then score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
-3. Look at each phone during the game. Check: the line under the header row (not next to Leave) shows the place (1ST to 4TH) and the score (`2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out): the colored square, the player number and Leave are fully visible below the island or the notch, nothing is hidden at the top, at the bottom (the home bar) or at the side when you turn the phone, and A and B are fully on the screen (REQ-FL-68). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
+3. Look at each phone during the game. Check: the line under the header row (not next to Disconnect) shows the place (1ST to 4TH) and the score (`2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out): the colored square, the player number and Leave are fully visible below the island or the notch, nothing is hidden at the top, at the bottom (the home bar) or at the side when you turn the phone, and A and B are fully on the screen (REQ-FL-68). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
 4. Play Paint Grab and Sumo Bumpers with 2 to 4 phones. Check the same as items 1 to 3. In Sumo Bumpers the name tags show again in the countdown of every round.
 5. Play Marble Race with 3 or 4 phones. Check: the leader chip names the first marble (with its time after the finish); the phones show their place; a marble that has not finished shows no time. Check that the old list of names at the left is gone.
 6. Play Tilt Maze with 2 to 4 phones. Check: there is no chip during play (the maze has no score) and the phones show only `2P`.
@@ -790,6 +798,8 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 13. Share a player that the second phone already has, after a rename on the first phone (the name is newer there): the second phone shows PLAYER UPDATED. and has the newer name and avatar. Then rename on the second phone and scan the old copy again: the newer name stays.
 14. An iPhone: COPY CODE on one phone and PASTE A CODE on the iPhone (the iPhone has no scan button). Check the same result as item 12.
 15. A broken code (change one letter of a copied code, then paste), a TV link (scan the QR code of the TV on the list), and a player code scanned on the Connect screen: the messages THIS CODE DOES NOT WORK., THIS IS A TV LINK., and the player is added.
+16. New (REQ-FL-71, 72). On the Connect screen: the dropdown shows the avatar and the name together; open it, pick another player, pick GUEST; tap **+** and make a player (the keyboard must stay open when you tap the name field); the avatars are one line that scrolls by dragging and by the arrows, and the picked one is in view; **Back** from the new player goes to the Connect screen, not to the list; **PLAYERS** in the dropdown opens the list. In Hebrew the arrows still point the right way. After typing, tap outside the field: the keyboard closes. At the first and the last avatar the arrow of that side is dim and does nothing. Tap EDIT next to the dropdown: change the name and the avatar, Save: both show on the TV after the phone joins; Back from EDIT goes to the Connect screen.
+17. New (REQ-FL-71, REQ-GM-46b, 70). Join a TV: the waiting screen has only DISCONNECT (top right), the text and SETTINGS, no PLAYER button; to change the player, tap DISCONNECT and choose on the Connect screen. On the TV, in every game, the leader chip and the name tags in the countdown show the color square, then the avatar, then the name, also in Hebrew (left to right inside the chip). No ball, marble, blob, bumper or cursor in any game shows a number or an avatar: only its color (a child of 5 to 8 years still finds their own object, with the name tags in the countdown).
 
 **Results**
 
@@ -810,6 +820,8 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 | 13 | Note: the names on both phones | Not run | | | |
 | 14 | Note: the iPhone model and what happened | Not run | | | |
 | 15 | Photo of each message | Not run | | | |
+| 16 | Video of the dropdown, the +, the avatar line and Back | Not run | | | |
+| 17 | Photos of the waiting screen, the leader chip and the name tags (English and Hebrew), the marbles | Not run | | | |
 
 History:
 

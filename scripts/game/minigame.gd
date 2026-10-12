@@ -5,7 +5,7 @@ extends Control
 ##   2. Extend this script. Override _game_ready(), _game_tick(), _game_draw().
 ##   3. Add one entry for it in scripts/game/registry.gd.
 ## This base class handles: player list, pause while a phone is lost,
-## the D-pad pause menu (Resume / Restart / Menu), and the back key.
+## the D-pad pause menu (Resume / Try again / Menu), and the back key.
 ## It is the game shell (REQ-GM-45): the menus here and the helpers in shell.gd have the arcade style.
 ## A 2D game may draw its world at a low resolution (REQ-GM-47a): it returns true from `_pixel_world()` and draws the world in
 ## `_world_draw()`. The HUD stays in `_game_draw()`, at full resolution.
@@ -13,6 +13,8 @@ extends Control
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
+const AvatarView = preload("res://scripts/ui/avatar_view.gd")
+const MedalView = preload("res://scripts/ui/medal_view.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
@@ -158,7 +160,8 @@ func draw_name_tags(ci: CanvasItem, positions: Dictionary, radius := 48.0) -> vo
 	var entries: Array = []
 	for s in participants:
 		if positions.has(s):
-			entries.append({"pos": positions[s], "name": player(s).player_name, "color": player(s).color})
+			entries.append({"pos": positions[s], "name": player(s).player_name, "color": player(s).color,
+					"avatar": player(s).avatar})
 	Shell.name_tags(ci, Vector2(Shell.area_width(ci), (ci as Control).size.y if ci is Control else size.y), entries, radius)
 
 
@@ -178,7 +181,8 @@ func _update_hold() -> void:
 		App.server.set_phase("paused", participants)   # The slot of the lost phone is kept longer (a phone call).
 	for s in lost:
 		if not _hold_info.has(s):
-			_hold_info[s] = {"name": player(s).player_name, "color": player(s).color, "label": slot_label(s)}
+			_hold_info[s] = {"name": player(s).player_name, "color": player(s).color, "label": slot_label(s),
+					"avatar": player(s).avatar}
 	if not _hold:
 		return
 	if _menu_open and _menu_kind != "hold":
@@ -223,7 +227,7 @@ func _show_hold_card(lost: Array[int]) -> void:
 			state = Lang.t("is back")
 		else:
 			gone.append(s)
-		rows.append({"text": "%s   %s" % [info.name, state], "color": info.color})
+		rows.append({"text": "%s   %s" % [info.name, state], "color": info.color, "avatar": info.get("avatar", -1)})
 	var title: String
 	var entries: Array = []
 	if not lost.is_empty():
@@ -258,7 +262,7 @@ func _resume_game() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and not _menu_open and _can_open_menu():
-		open_menu("Paused", [["Resume", close_menu], ["Restart", restart], ["Back to menu", request_leave]])
+		open_menu("Paused", [["Resume", close_menu], ["Try again", restart], ["Back to menu", request_leave]])
 		get_viewport().set_input_as_handled()
 
 
@@ -282,6 +286,9 @@ func restart() -> void:
 	App.go(get_script(), start_props)
 
 
+const MENU_CARD_W := 1200
+
+
 ## `rows` are optional lines under the title: `{text, color}` for each, with a dot in the color (the result ranking).
 func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	close_menu()
@@ -293,16 +300,17 @@ func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_menu_box = center
 	var card := UiKit.panel(32)
+	card.custom_minimum_size = Vector2(MENU_CARD_W, 0)   # Wide enough that a Hebrew message is not one word to a line.
 	center.add_child(card)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 18)
 	card.add_child(box)
-	var l := UiKit.title(title, 48)
+	var l := UiKit.title(title, 48, UiTheme.TEXT)   # A message is white: yellow is the color of the focused item.
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(l)
 	for r in rows:
-		box.add_child(_menu_row(String(r.text), r.color))
+		box.add_child(_menu_row(String(r.text), r.color, int(r.get("avatar", -1)), String(r.get("medal", ""))))
 	var items := UiKit.menu(entries)
 	items.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(items)
@@ -312,8 +320,9 @@ func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	first.grab_focus()
 
 
-## One line of the result list: a square in the player color, and the text.
-func _menu_row(text: String, color: Color) -> Control:
+## One line of the result list: a square in the player color, the avatar of the player when there is one (REQ-GM-46b), the medal
+## of the place (REQ-GM-73), and the text.
+func _menu_row(text: String, color: Color, avatar := -1, medal_tier := "") -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 18)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -322,18 +331,28 @@ func _menu_row(text: String, color: Color) -> Control:
 	square.custom_minimum_size = Vector2(24, 24)
 	square.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(square)
+	if Shell.has_chip_avatar(avatar):
+		var av := AvatarView.new(avatar, 48.0)
+		av.tappable = false
+		av.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(av)
+	if medal_tier != "":
+		row.add_child(MedalView.new(medal_tier))
 	row.add_child(UiKit.label(text, UiTheme.SIZE_BODY))
 	return row
 
 
 ## Ends a round with scores (REQ-GM-34, 72, 73): sets `is_over` and opens the result menu. It lists the ranking, and its
-## buttons are Restart, then `extra_entries` (for example Choose track), then Back to menu.
+## buttons are Try again, then `extra_entries` (for example Choose track), then Back to menu.
 ## - The title names the single winner, or says "Tie!", or says "Round over" when nobody has a score.
-##   With one player and `tiers` (see `Medals`) it is the medal. `title` replaces it.
+##   `title` replaces it (a game puts the difficulty there).
+## - Every row has the medal of its place next to the name: 1st gold, 2nd silver, 3rd bronze (`Medals.for_place()`). With one
+##   player and `tiers` (see `Medals`) the medal is the one of the score; "No medal this time" is the title when there is none.
+##   A game with its own score for a medal passes `medal` (a tier of `Medals`, or `Medals.NONE`); `null` means it does not say.
 ## - `score_text` turns a score into text for the list (default `Scoreboard.format`). A player without a score shows
 ##   "not finished".
 func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entries: Array = [],
-		score_text := Callable()) -> void:
+		score_text := Callable(), medal: Variant = null) -> void:
 	is_over = true
 	var ranking := board.ranking()
 	var rows: Array = []
@@ -342,25 +361,39 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 		var text := Lang.t("not finished")
 		if e.finished:
 			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
-		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color})
+		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color,
+				"avatar": p.avatar})
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title
-	if heading == "":
-		heading = Lang.t("Round over")
-		if ranking.size() == 1 and not tiers.is_empty():
-			# A player without a score gets no medal: the score 0 would beat every limit of a time.
-			var medal := Medals.medal(ranking[0].score, tiers, board.lower_is_better) if ranking[0].finished else Medals.NONE
-			heading = Medals.label(medal)
-		elif winners.size() == 1:
-			heading = Lang.f("%s wins!", [player(winners[0]).player_name])
-		elif winners.size() > 1:
-			heading = Lang.t("Tie!")
-	var entries: Array = [["Restart", restart]]
+	var has_medal := medal != null
+	var tier := String(medal) if has_medal else Medals.NONE
+	if not has_medal and heading == "" and ranking.size() == 1 and not tiers.is_empty():
+		# A player without a score gets no medal: the score 0 would beat every limit of a time.
+		has_medal = true
+		tier = Medals.medal(ranking[0].score, tiers, board.lower_is_better) if ranking[0].finished else Medals.NONE
+	if has_medal and rows.size() == 1:
+		# One player: the medal of the score, next to the name (REQ-GM-73). `title` (the difficulty) stays as the title.
+		rows[0]["medal"] = tier
+		if tier == Medals.NONE:
+			heading = Medals.label(tier) if title == "" else "%s (%s)" % [Medals.label(tier), title]
+		elif heading == "":
+			heading = Lang.t("Round over")
+	else:
+		for i in ranking.size():   # More than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
+			if ranking[i].finished:
+				rows[i]["medal"] = Medals.for_place(ranking[i].rank)
+		if heading == "":
+			heading = Lang.t("Round over")
+			if winners.size() == 1:
+				heading = Lang.f("%s wins!", [player(winners[0]).player_name])
+			elif winners.size() > 1:
+				heading = Lang.t("Tie!")
+	var entries: Array = [["Try again", restart]]
 	entries.append_array(extra_entries)
 	var id := Registry.id_of_script(get_script())
 	if GameSettings.has_view(Registry.find(id)):
-		entries.append(["Settings", App.go_game_settings.bind(id)])   # REQ-GM-95
+		entries.append(["New game", App.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
 	entries.append(["Back to menu", App.go_menu])
 	open_menu(heading, entries, rows)
 	Sound.stop_music()

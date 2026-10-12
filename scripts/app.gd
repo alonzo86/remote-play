@@ -111,7 +111,7 @@ func _notification(what: int) -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and not event.pressed:
 		# A click or a tap must not leave a focus outline on the button. The D-pad and the remote still focus.
-		get_viewport().gui_release_focus.call_deferred()
+		_release_focus.call_deferred(event.position)
 	if Role.is_tv():
 		_menu_sound(event)
 	if event.is_action_pressed("ui_cancel"):
@@ -121,6 +121,17 @@ func _input(event: InputEvent) -> void:
 			_back()
 		elif Role.is_tv() and (event.keycode == KEY_MENU or event.keycode == KEY_F3):
 			toggle_overlay()
+
+
+## Drops the focus after a tap. A text field keeps it when the tap is on the field (the phone keyboard stays open); a tap anywhere
+## else drops it and closes the keyboard (REQ-FL-72).
+func _release_focus(at := Vector2.INF) -> void:
+	var owner := get_viewport().gui_get_focus_owner()
+	if (owner is LineEdit or owner is TextEdit) and (owner as Control).get_global_rect().has_point(at):
+		return
+	get_viewport().gui_release_focus()
+	if owner is LineEdit or owner is TextEdit:
+		DisplayServer.virtual_keyboard_hide()
 
 
 ## The sound of the D-pad on the TV (docs/AUDIO_PLAN.md, section 2.2).

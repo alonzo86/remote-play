@@ -216,7 +216,8 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		return
 	var room := String(msg.get("room", "")).to_upper()
 	if room != "" and room != room_code:
-		_reject(ws, "bad_room")
+		# The answer says which TV this is, so a phone can find the TV without the UDP beacon (docs/PROTOCOL.md, "Probe").
+		_reject(ws, "bad_room", {"room": room_code, "name": tv_name, "players": player_count(), "max": Protocol.MAX_PLAYERS})
 		return
 	var token := String(msg.get("token", ""))
 	if token != "" and _replaced_tokens.has(token):
@@ -361,8 +362,10 @@ func _handle_profile(i: int, msg: Dictionary, now: int) -> void:
 	_send_json(i, {"t": "profile", "pid": p.profile_id, "name": p.player_name if p.has_profile() else "", "av": p.avatar})
 
 
-func _reject(ws: WebSocketPeer, reason: String) -> void:
-	ws.send_text(Protocol.to_json({"t": "reject", "reason": reason}))
+func _reject(ws: WebSocketPeer, reason: String, extra := {}) -> void:
+	var msg := {"t": "reject", "reason": reason}
+	msg.merge(extra)
+	ws.send_text(Protocol.to_json(msg))
 	_discard(ws)
 
 
