@@ -12,21 +12,44 @@ const FONT_LICENSES := {
 
 
 ## The pages of the About list, in order. Each is {"title": text, "kind": text, "arg": text}. `scanner` adds the note about the
-## Google code scanner (the Android phone).
+## Google code scanner (the Android phone). "3rd Party Libraries" opens the list of `libraries()`.
 static func pages(scanner := false) -> Array:
 	var out: Array = [{"title": "Wobble", "kind": "summary", "arg": ""}]
 	if scanner:
 		out.append({"title": "QR scanner", "kind": "scanner", "arg": ""})
 	out.append({"title": "Godot Engine", "kind": "godot", "arg": ""})
-	out.append({"title": "Godot parts", "kind": "components", "arg": ""})
-	for f in FONT_LICENSES:
-		out.append({"title": f, "kind": "file", "arg": FONT_LICENSES[f]})
-	var info := Engine.get_license_info()
-	var names := info.keys()
-	names.sort()
-	for n in names:
-		out.append({"title": "Licence " + String(n), "kind": "license", "arg": String(n)})
+	out.append({"title": "about.third_party_libraries", "kind": "libraries", "arg": ""})
 	return out
+
+
+## The libraries of other makers, as pages: {"title": name, "kind": "library" or "file", "arg": name or file, "license": types}.
+## The fonts of Wobble first, then the parts that are inside Godot (the list of the running engine, without Godot itself).
+## Each page shows the copyright lines and the text of the license.
+static func libraries() -> Array:
+	var out: Array = []
+	for f in FONT_LICENSES:
+		out.append({"title": f, "kind": "file", "arg": FONT_LICENSES[f], "license": "OFL-1.1"})
+	for c in Engine.get_copyright_info():
+		if String(c.name) == "Godot Engine":
+			continue
+		out.append({"title": String(c.name), "kind": "library", "arg": String(c.name), "license": license_label(_licenses_of(c))})
+	return out
+
+
+## The names of the licenses of a part of Godot, once each: "Expat and Zlib" gives ["Expat", "Zlib"].
+static func _licenses_of(component: Dictionary) -> Array:
+	var out: Array = []
+	for p in component.parts:
+		for l in String(p.license).replace(" or ", " and ").split(" and "):
+			var name := l.strip_edges()
+			if name != "" and not (name in out):
+				out.append(name)
+	return out
+
+
+## The license types for a row: "Expat" is the MIT license, and it is written as MIT.
+static func license_label(names: Array) -> String:
+	return ", ".join(names.map(func(n): return "MIT" if n == "Expat" else String(n)))
 
 
 ## The text of one page.
@@ -43,25 +66,30 @@ static func text(page: Dictionary) -> String:
 			return Lang.t("about.android_phone_scans_with")
 		"godot":
 			return safe(Engine.get_license_text())
-		"components":
-			return safe(godot_components())
 		"file":
 			return safe(FileAccess.get_file_as_string(String(page.arg)))
-		"license":
-			return safe(String(Engine.get_license_info().get(String(page.arg), "")))
+		"library":
+			return safe(library_text(String(page.arg)))
 	return ""
 
 
-## The parts of Godot with their copyright lines and the name of their license.
-static func godot_components() -> String:
+## The page of a part of Godot: its copyright lines, then the text of each license it comes with.
+static func library_text(component_name: String) -> String:
+	var info := Engine.get_license_info()
 	var out := PackedStringArray()
 	for c in Engine.get_copyright_info():
-		out.append(String(c.name))
+		if String(c.name) != component_name:
+			continue
 		for p in c.parts:
 			for line in p.copyright:
-				out.append("  (c) " + String(line))
-			out.append("  License: " + String(p.license))
+				out.append("(c) " + String(line))
+			out.append("License: " + String(p.license))
 		out.append("")
+		for l in _licenses_of(c):
+			out.append("== " + ("MIT" if l == "Expat" else l) + " ==")
+			out.append(String(info.get(l, "")))
+			out.append("")
+		break
 	return "\n".join(out)
 
 
