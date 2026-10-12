@@ -39,6 +39,12 @@ func _run() -> void:
 		await _frames(20)
 		await _reach(app.current_screen(), code)
 	app.set_language("en", false)
+	app.go_games()
+	await _frames(5)
+	var screen: Control = app.current_screen()
+	screen._tiles.clear()
+	screen._wire_focus()   # A Games screen without a game must not crash.
+	_check(screen._badge.focus_neighbor_right != NodePath(), "the header is still linked when there are no tiles")
 
 
 ## From every tile, in the scrolled and in the unscrolled grid: Up reaches the badge, and the badge reaches OPTIONS and back.

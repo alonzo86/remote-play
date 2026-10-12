@@ -156,10 +156,20 @@ static func make() -> Theme:
 ## descent, so a digit sits in the middle of a box).
 static func draw_centered(ci: CanvasItem, f: Font, text: String, rect: Rect2, font_size: int, color: Color) -> void:
 	# Left aligned from a computed x: the centered alignment of draw_string loses a right to left text (Hebrew).
-	# No width is given to draw_string: a text that is wider than the box would be cut to its last letters.
-	var w := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	ci.draw_string(f, Vector2(rect.position.x + (rect.size.x - w) * 0.5, centered_baseline(f, rect, font_size)), text,
-			HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
+	# No width is given to draw_string (a text wider than the box would be cut to its last letters); a text that does not fit is
+	# drawn smaller, in steps of the 8 px grid, so it stays inside the box.
+	var size := fit_size(f, text, rect.size.x, font_size)
+	var w := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	ci.draw_string(f, Vector2(rect.position.x + (rect.size.x - w) * 0.5, centered_baseline(f, rect, size)), text,
+			HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
+
+
+## The largest size of `font_size`, `font_size - 8`, ... (at least 16) at which `text` is at most `max_w` wide.
+static func fit_size(f: Font, text: String, max_w: float, font_size: int) -> int:
+	var size := font_size
+	while size > 16 and f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > max_w:
+		size -= 8
+	return size
 
 
 ## The baseline y that puts the middle of a line of text (ascent to descent) at the middle of `rect`.

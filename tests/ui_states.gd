@@ -35,6 +35,7 @@ func _run() -> void:
 	await _profile_screens()
 	await _keyboard_focus()
 	await _modal_focus()
+	await _connect_scan()
 	_english_ltr()
 	_back_key()
 	_tile_images()
@@ -116,20 +117,21 @@ func _wait_screen_leave() -> void:
 	wait.queue_free()
 
 
-## A device in Hebrew (locale he_IL) must not mirror the UI. The app is English only and always left to right (REQ-FL-54).
+## The layout direction follows the language of the app and not the locale of the device (REQ-FL-54, 60): Hebrew is right to left,
+## English is left to right, also on a device whose locale says otherwise.
 func _english_ltr() -> void:
-	print("english and left to right")
+	print("language and layout direction")
 	var app: Node = root.get_node("App")
-	TranslationServer.set_locale("he_IL")
-	root.set_layout_direction(Window.LAYOUT_DIRECTION_APPLICATION_LOCALE)   # What the engine does without the setting.
 	var probe := Control.new()
 	root.add_child(probe)
-	_check(probe.is_layout_rtl(), "on a Hebrew device the layout is right to left when nothing is done")
-	app._force_english_ltr()
-	_check(not probe.is_layout_rtl(), "after the app sets its own layout direction, it is left to right")
-	_check(TranslationServer.get_locale().begins_with("en"), "the locale is English: %s" % TranslationServer.get_locale())
+	app.set_language("he", false)
+	_check(probe.is_layout_rtl(), "the Hebrew language makes the layout right to left")
+	app.set_language("en", false)
+	_check(not probe.is_layout_rtl(), "the English language makes it left to right")
 	TranslationServer.set_locale("ar_SA")
-	_check(not probe.is_layout_rtl(), "an Arabic device is also left to right: the direction does not follow the locale")
+	_check(not probe.is_layout_rtl(), "an Arabic locale of the device does not change the direction")
+	app.set_language("en", false)   # The locale goes back to English.
+	_check(TranslationServer.get_locale().begins_with("en"), "the locale is English again: %s" % TranslationServer.get_locale())
 	probe.queue_free()
 
 
@@ -454,3 +456,22 @@ func _arrow(action: String) -> InputEventAction:
 	e.action = action
 	e.pressed = true
 	return e
+
+
+## The Connect screen asks the network for a TV when Refresh is tapped (REQ-FL-83), says "SEARCHING..." meanwhile, and a join
+## stops the scan.
+func _connect_scan() -> void:
+	print("connect screen scan")
+	var app: Node = root.get_node("App")
+	app.go(app.ControllerConnect)
+	await process_frame
+	var screen: Control = app.current_screen()
+	_check(not screen._prober.running, "the scan does not start by itself")
+	screen._prober.start(["10.9.9.9"], 30)
+	await process_frame
+	screen._rebuild_list()
+	var texts: Array = screen._list.find_children("*", "Label", true, false).map(func(l): return l.text)
+	_check(screen._prober.running and "SEARCHING..." in texts, "while the scan runs the list says SEARCHING...")
+	screen._join("127.0.0.1", 1, "ABCD")
+	_check(not screen._prober.running, "a join stops the scan")
+	app.client.leave()

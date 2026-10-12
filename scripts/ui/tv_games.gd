@@ -128,6 +128,8 @@ func _show_grid(focus_id := "") -> void:
 ## badge was a tile, so OPTIONS could not be reached. The header order is the one on the screen (OPTIONS is at the left in
 ## Hebrew). Up and Down at the edges stay where they are, so the focus does not jump to the other end.
 func _wire_focus() -> void:
+	if _tiles.is_empty():
+		return
 	var rtl := Lang.is_rtl()
 	var order: Array[Control] = [_badge, _gear]
 	if rtl:

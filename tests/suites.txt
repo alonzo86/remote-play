@@ -15,6 +15,7 @@ tests/design_tokens.gd|controller|design tokens
 tests/smoke_tv.gd|tv|TV smoke test
 tests/smoke_settings.gd|tv|settings view
 tests/games_focus.gd|tv|Games screen arrow keys
+tests/results_medals.gd|tv|medals in the result menu
 tests/smoke_paint.gd|tv|Paint Grab
 tests/smoke_sumo.gd|tv|Sumo Bumpers
 tests/smoke_bests.gd|tv|personal bests

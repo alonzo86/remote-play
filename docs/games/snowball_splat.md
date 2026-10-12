@@ -72,7 +72,7 @@ End and players
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SS-16 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, Back to menu. With one player it shows the medal for the tiers [150, 300, 450] (bronze, silver, gold, REQ-GM-73). The tiers are open tuning values. A player who leaves takes the cursor and the score out, and the round goes on. A lost phone pauses the round with the card of REQ-GM-30. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_tv |
+| REQ-SS-16 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. With one player the row shows the medal for the tiers [150, 300, 450] (bronze, silver, gold, REQ-GM-73); with more players each row has the medal of its place. The tiers are open tuning values. A player who leaves takes the cursor and the score out, and the round goes on. A lost phone pauses the round with the card of REQ-GM-30. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_tv |
 | REQ-SS-17 | Children (REQ-GM-80 to 84): the creatures are made up and friendly, the hit is funny, a miss costs nothing, no player is out of the round, the hint is one line, the Puffs are large and slow, and every text is positive. | Done | Review, Device (with a child, Test 10 item 9) |
 
 ### Settings and difficulty (built 2026-10-09)
@@ -82,7 +82,7 @@ REQ-GM-90 to 96 apply. The settings view has one row: Difficulty. As it grows, t
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SS-20 | The game has the settings view with the row Difficulty (REQ-GM-90, 91; registry `settings: []`), and `difficulty` is a prop of the game. Difficulty changes three values, see the table below: the speed of the Puffs (a factor on the speed of each kind), the number of Puffs on the screen (`MAX_BASE`, plus the number of players as before), and the time between two new Puffs (`SPAWN_EVERY`). | Done | game_rules, smoke_settings |
-| REQ-SS-21 | The medal tiers (REQ-GM-73) belong to the difficulty. A result is judged by the tiers of the difficulty that was played, and the medal title of one player names it: "Silver medal! (Hard)". | Done | game_rules (tiers), smoke_tv |
+| REQ-SS-21 | The medal tiers (REQ-GM-73) belong to the difficulty. A result is judged by the tiers of the difficulty that was played, and the title of the result of one player is the difficulty that was played ("Hard"), under the medal of the row (REQ-GM-73). | Done | game_rules (tiers), smoke_tv |
 | REQ-SS-22 | At every difficulty the lanes never overlap (REQ-SS-8), and at least one Puff is on the screen most of the time, also on Hard with 1 player. | Done | game_rules |
 | REQ-SS-23 | The HUD shows the leader chip (leader and points, or TIE; REQ-GM-46) next to the title and the timer. Each phone shows its own points and place (REQ-FL-67). In the countdown each cursor has a name tag (REQ-GM-46a). | Done | game_helpers (leader, tags), run_tests (score message) |
 | REQ-SS-24 | Personal best (REQ-GM-98): the key is `snowball_splat|<difficulty>`, the value is the score, higher is better. All player counts share one key. | Done | smoke_bests |

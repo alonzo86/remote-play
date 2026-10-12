@@ -35,7 +35,7 @@ Round
 | REQ-PG-3 | The blobs start in different places of the floor, apart from each other, at the same distance from the middle (REQ-GM-25). | Done | smoke_paint |
 | REQ-PG-4 | A blob paints the tile under its middle at every frame. A tile has one color at a time: the one of the blob that was on it last. A tile that is painted again by the same player stays as it is. | Done | run_tests, smoke_paint |
 | REQ-PG-5 | The round ends when the time is up. The score of a player is the number of tiles in the color of that player at that moment (`Scoreboard`, higher is better). Players with the same score share the rank (a tie). | Done | run_tests, smoke_paint |
-| REQ-PG-6 | The result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. The score text is the number of tiles. With one player it shows a medal (REQ-PG-21). | Done | smoke_paint |
+| REQ-PG-6 | The result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. The score text is the number of tiles. With one player the row shows the medal of the score (REQ-PG-21); with more players each row has the medal of its place (REQ-GM-73). | Done | smoke_paint |
 
 Movement
 
@@ -68,7 +68,7 @@ Settings (REQ-GM-90 to 97)
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-PG-20 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. | Done | smoke_paint |
-| REQ-PG-21 | One player: the score is the share of the floor that is painted at the end, in percent, rounded down. The medal tiers `[bronze, silver, gold]` belong to the difficulty (REQ-GM-73, 95); the title of the medal names the difficulty. | Done | smoke_paint, run_tests |
+| REQ-PG-21 | One player: the score is the share of the floor that is painted at the end, in percent, rounded down. The medal tiers `[bronze, silver, gold]` belong to the difficulty (REQ-GM-73, 95); the medal is the picture of the tier next to the name of the player in the result row, and the title of the result is the difficulty. | Done | smoke_paint, run_tests |
 
 | Difficulty | Floor (columns x rows) | Tile size | Blob speed limit | Medal tiers (percent, first guess) |
 |------------|------------------------|-----------|------------------|------------------------------------|

@@ -24,11 +24,9 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	if not listening:
-		return
 	var now := Time.get_ticks_msec()
 	var changed := false
-	while _udp.get_available_packet_count() > 0:
+	while listening and _udp.get_available_packet_count() > 0:
 		var data := _udp.get_packet()
 		var from_ip := _udp.get_packet_ip()
 		var msg := Protocol.parse_json(data.get_string_from_utf8())
@@ -44,6 +42,7 @@ func _process(_delta: float) -> void:
 			"name": String(msg.get("name", "TV")), "players": int(msg.get("players", 0)),
 			"max": int(msg.get("max", Protocol.MAX_PLAYERS)), "seen_ms": now,
 		}
+	# Also without the beacon port (the bind failed): a TV that a scan found must still go when it is not found again.
 	for room in tvs.keys():
 		if now - int(tvs[room].seen_ms) > (PROBED_EXPIRE_MS if tvs[room].get("probed", false) else EXPIRE_MS):
 			tvs.erase(room)

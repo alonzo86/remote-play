@@ -20,22 +20,23 @@ var _active: Array = []   # {ws, ip, since, sent}
 
 
 ## Starts a scan of the /24 network of each address of `local_ips` (the phone's addresses). It does nothing while a scan runs.
-func start(local_ips: Array) -> void:
+func start(local_ips: Array, last_host := 254) -> void:
 	if running:
 		return
-	_queue = hosts_to_probe(local_ips)
+	_queue = hosts_to_probe(local_ips, last_host)
 	_active.clear()
 	running = not _queue.is_empty()
 
 
-## The addresses to ask: 1 to 254 of the /24 network of each address, without the address of the phone, each only once.
-static func hosts_to_probe(local_ips: Array) -> Array[String]:
+## The addresses to ask: 1 to `last_host` (254, a test uses fewer) of the /24 network of each address, without the address of the
+## phone, each only once.
+static func hosts_to_probe(local_ips: Array, last_host := 254) -> Array[String]:
 	var out: Array[String] = []
 	for local_ip in local_ips:
 		var parts := String(local_ip).split(".")
 		if parts.size() != 4:
 			continue
-		for host in range(1, 255):
+		for host in range(1, last_host + 1):
 			var ip := "%s.%s.%s.%d" % [parts[0], parts[1], parts[2], host]
 			if ip not in local_ips and ip not in out:
 				out.append(ip)

@@ -24,7 +24,7 @@ A TV that is silent for 4 seconds is removed from the phone list.
 
 A router can drop broadcast packets, and a computer can refuse to send them (for example macOS without the Local Network permission
 for the app), while a direct connection works (the QR code joins). Then the phone looks for the TV itself (REQ-FL-83): it opens a
-WebSocket to port 47801 of every address of its `/24` network (the other 253 addresses of each private IPv4 address of the phone),
+WebSocket to port 47801 of every address of its `/24` network (the other 253 addresses of each private IPv4 address of the phone, of the best kind only: `192.168.x.x`, else `10.x.x.x`, else `172.16.x.x` to `172.31.x.x`; a mobile-data address of another kind is not scanned),
 32 at a time with a timeout of 1.5 s, and sends `{"t":"hello","v":2,"room":"-"}`. `-` is not in the room alphabet, so the TV answers
 `{"t":"reject","reason":"bad_room","room":"KQZM","name":"Living Room TV","players":2,"max":4}` and closes: the phone has the room code,
 the name and the player count, and joins nothing. A TV found this way is listed like a beacon TV, and stays in the list for 20 s after

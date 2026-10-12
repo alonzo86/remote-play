@@ -3,6 +3,7 @@ extends SceneTree
 ## Scoreboard (REQ-GM-70, 72) and Medals (REQ-GM-73).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/game_helpers.gd -- --role=controller
 
+const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
@@ -34,6 +35,7 @@ func _initialize() -> void:
 	_score_chip()
 	_chip_avatar()
 	_medal_icon()
+	_fit_size()
 	_pixel_world()
 	_round_length()
 	_scoreboard()
@@ -183,7 +185,7 @@ func _shell_layout() -> void:
 ## The chip with a score: the score always shows in full, also with 4 to 6 digits and a long name (REQ-GM-41, 46).
 func _score_chip() -> void:
 	print("score chip")
-	var f: Font = load("res://scripts/ui/ui_theme.gd").font()
+	var f: Font = UiTheme.font()
 	var height := 64.0
 	var all_fit := true
 	var name_ok := true
@@ -385,3 +387,14 @@ func _medal_icon() -> void:
 	_check(Medal.draw(canvas, Rect2(0, 0, 48, 48), "silver") and not Medal.draw(canvas, Rect2(0, 0, 48, 48), "wood"),
 			"a known tier is drawn, an unknown one is not")
 	canvas.queue_free()
+
+
+## A text that does not fit its box is drawn smaller, in steps of 8, never under 16 (`UiTheme.fit_size`).
+func _fit_size() -> void:
+	print("text fit")
+	var f: Font = UiTheme.font()
+	var w32: float = f.get_string_size("HELLO WORLD", HORIZONTAL_ALIGNMENT_LEFT, -1, 32).x
+	_check(UiTheme.fit_size(f, "HELLO WORLD", w32 + 1.0, 32) == 32, "a text that fits keeps its size")
+	_check(UiTheme.fit_size(f, "HELLO WORLD", w32 * 0.8, 32) == 24, "a text that is a little too wide is one step smaller")
+	_check(UiTheme.fit_size(f, "HELLO WORLD", 10.0, 32) == 16, "it never goes under 16 px")
+	_check(UiTheme.fit_size(f, "HELLO WORLD", 10.0, 8) == 8, "a size that is already small is kept")

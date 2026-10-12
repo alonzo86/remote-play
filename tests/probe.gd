@@ -47,12 +47,22 @@ func _run() -> void:
 func _addresses() -> void:
 	print("addresses")
 	var hosts := TvProber.hosts_to_probe(["192.168.1.20", "10.0.0.11", "192.168.1.30"])
-	_check(hosts.size() == 254 * 2 - 3 and "192.168.1.20" not in hosts and "10.0.0.11" not in hosts and "192.168.1.30" not in hosts
-			and "192.168.1.1" in hosts and "10.0.0.254" in hosts and hosts.count("192.168.1.1") == 1 and "10.0.1.1" not in hosts,
+	_check(hosts.size() == 254 * 2 - 3 and "192.168.1.20" not in hosts and "10.0.0.11" not in hosts
+			and "192.168.1.30" not in hosts and "192.168.1.1" in hosts and "10.0.0.254" in hosts
+			and hosts.count("192.168.1.1") == 1 and "10.0.1.1" not in hosts,
 			"a scan asks the other addresses of each /24 network once: %d" % hosts.size())
 	_check(TvProber.hosts_to_probe(["garbage", "1.2.3"]).is_empty(), "a scan of a bad address asks nothing")
 	_check(Protocol.private_ipv4s().all(func(a): return a.begins_with("192.168.") or a.begins_with("10.") or a.begins_with("172.")),
 			"private_ipv4s gives only private addresses")
+	var wifi_and_mobile := ["10.45.3.7", "192.168.1.20", "fe80::1", "127.0.0.1", "192.168.1.21", "8.8.8.8"]
+	_check(Protocol.best_private(wifi_and_mobile) == ["192.168.1.20", "192.168.1.21"],
+			"only the best kind of private address is scanned, not the mobile one (10.x next to 192.168.x)")
+	_check(Protocol.best_private(["10.0.0.5", "172.20.1.1"]) == ["10.0.0.5"]
+			and Protocol.best_private(["172.31.0.2", "172.32.0.2"]) == ["172.31.0.2"]
+			and Protocol.best_private(["127.0.0.1", "169.254.1.1", "garbage"]).is_empty(),
+			"10.x comes before 172.16 to 172.31, and other addresses are not private")
+	_check(TvProber.hosts_to_probe(["192.168.1.20"], 3) == ["192.168.1.1", "192.168.1.2", "192.168.1.3"],
+			"a scan can be limited to the first hosts")
 
 
 ## What an answer of a TV must have to be a TV.
@@ -71,6 +81,7 @@ func _answers() -> void:
 ## A TV that a scan found is in the list of the phone, lives longer than a beacon TV, and a beacon replaces it.
 func _list() -> void:
 	print("list")
+	await _expiry_without_port()
 	var disc: Node = root.get_node("App").controller_discovery   # The one that listens on the beacon port.
 	disc.tvs.clear()
 	await process_frame
@@ -95,6 +106,20 @@ func _list() -> void:
 	disc.tvs.clear()
 
 
+## A listener that could not bind the beacon port (another listener has it) still removes a found TV that is not found again.
+func _expiry_without_port() -> void:
+	var disc: Node = load("res://scripts/net/controller_discovery.gd").new()
+	root.add_child(disc)   # The App already listens on the port, so this one cannot bind.
+	await process_frame
+	var answer := {"t": "reject", "reason": "bad_room", "room": "ZZZZ", "name": "Den", "players": 0, "max": 4}
+	var tv := TvProber.tv_from_reject(answer, "10.0.0.9")
+	disc.add_probed(tv)
+	disc.tvs["ZZZZ"].seen_ms = Time.get_ticks_msec() - disc.PROBED_EXPIRE_MS - 500
+	disc._process(0.0)
+	_check(not disc.listening and not disc.tvs.has("ZZZZ"), "without the beacon port a found TV still expires")
+	disc.queue_free()
+
+
 ## A real TV on this machine: the scan finds it with its room code, name and player count, and joins nothing.
 func _scan() -> void:
 	print("scan")
@@ -106,7 +131,7 @@ func _scan() -> void:
 	root.add_child(prober)
 	var seen := []
 	prober.found.connect(func(tv): seen.append(tv))
-	prober.start(["127.0.0.200"])   # It asks 127.0.0.1 to 127.0.0.254; the TV listens on 127.0.0.1.
+	prober.start(["127.0.0.200"], 4)   # It asks 127.0.0.1 to 127.0.0.4; the TV listens on 127.0.0.1.
 	await _wait_until(func(): return not prober.running)
 	_check(not seen.is_empty() and seen[0].room == server.room_code and seen[0].port == Protocol.WS_PORT
 			and seen[0].players == 0 and seen[0].max == Protocol.MAX_PLAYERS and seen[0].name == server.tv_name,
