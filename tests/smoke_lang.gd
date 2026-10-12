@@ -80,6 +80,14 @@ func _csv_checks() -> void:
 			"the CSV reader handles commas, quotes and a byte order mark")
 	_check(t["c.d"].en == "Line\nbreak" and t["c.d"].he == "Line\nbreak",
 			"a line break stays in a cell, and a missing Hebrew text falls back to English")
+	var file_rows: Array = Lang.parse_csv(FileAccess.get_file_as_string(Lang.TABLE_FILE))
+	var no_where: Array = []
+	for i in range(1, file_rows.size()):
+		var row: Array = file_rows[i]
+		if row.size() > 0 and row[0] != "" and (row.size() < 4 or String(row[3]).strip_edges() == ""):
+			no_where.append(row[0])
+	_check(file_rows[0].slice(0, 4) == ["key", "en", "he", "where"] and no_where.is_empty(),
+			"the file has the column 'where' and every row says where its text is used " + str(no_where))
 	_check(Lang.parse_table("a,b,c\nx,y,z").is_empty() and Lang.parse_table("").is_empty(),
 			"a text without the header 'key,en,he' gives an empty table")
 

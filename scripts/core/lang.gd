@@ -4,7 +4,7 @@ extends RefCounted
 ## language changes (their text is the key). Text that code draws (`Shell`) or builds (a format with a name or a number) goes
 ## through `t()` and `f()`. Player names are never translated.
 
-## The table of texts: `assets/lang/strings.csv` has a row for each text (key, English, Hebrew, notes).
+## The table of texts: `assets/lang/strings.csv` has a row for each text (key, English, Hebrew, where, notes).
 const TABLE_FILE := "res://assets/lang/strings.csv"
 
 const EN := "en"
@@ -32,7 +32,7 @@ static func register() -> void:
 		TranslationServer.add_translation(tr)
 
 
-## The rows of a CSV text (first line: key, en, he, notes) as {key: {"en": ..., "he": ...}}. A Hebrew cell that is empty
+## The rows of a CSV text (first line: key, en, he, where, notes) as {key: {"en": ..., "he": ...}}. A Hebrew cell that is empty
 ## falls back to the English text. The file may start with a byte order mark (Excel adds one). A text without the header row
 ## gives an empty table.
 static func parse_table(text: String) -> Dictionary:
