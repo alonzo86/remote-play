@@ -173,22 +173,34 @@ func _about() -> void:
 	print("About pages")
 	var pages := About.pages(false)
 	var titles := pages.map(func(p): return p.title)
-	_check("Wobble" in titles and "Godot Engine" in titles and "Press Start 2P" in titles and "Wobble Pixel Hebrew" in titles,
-			"the About list names Wobble, Godot and both fonts")
+	_check(titles == ["Wobble", "Godot Engine", "3rd Party Libraries"], "the About list: Wobble, Godot, 3rd Party Libraries")
 	_check(not ("QR scanner" in titles) and "QR scanner" in About.pages(true).map(func(p): return p.title),
 			"the scanner note is only for the Android phone")
 	var by := {}
 	for p in pages:
 		by[p.title] = p
 	_check(About.text(by["Godot Engine"]).contains("Permission is hereby granted"), "the Godot page has the MIT license text")
-	var press := About.text(by["Press Start 2P"])
+	var libs := About.libraries()
+	var lib := {}
+	for l in libs:
+		lib[l.title] = l
+	_check(lib.has("Press Start 2P") and lib.has("Wobble Pixel Hebrew") and lib["Press Start 2P"].license == "OFL-1.1",
+			"the libraries list has both fonts with their license type")
+	var press := About.text(lib["Press Start 2P"])
 	_check(press.contains("SIL OPEN FONT LICENSE") and press.contains("cody@zone38.net"),
 			"the Press Start 2P page has its copyright and the OFL text")
-	_check(About.text(by["Wobble Pixel Hebrew"]).contains("SIL OPEN FONT LICENSE"), "the Wobble Pixel Hebrew page has the OFL text")
-	_check(About.text(by["Godot parts"]).contains("FreeType"), "the Godot parts page lists FreeType")
-	var license_pages := pages.filter(func(p): return p.kind == "license")
-	_check(license_pages.size() >= 5 and license_pages.all(func(p): return About.text(p) != ""),
-			"every Godot license page has a text")
+	_check(About.text(lib["Wobble Pixel Hebrew"]).contains("SIL OPEN FONT LICENSE"), "the Wobble Pixel Hebrew page has the OFL text")
+	var ft: Dictionary = libs.filter(func(l): return String(l.title).contains("FreeType")).front()
+	_check(ft.license == "FTL" and About.text(ft).contains("FreeType") and About.text(ft).contains("License: FTL"),
+			"a part of Godot shows its name, its license type and its copyright lines")
+	_check(libs.size() > 50 and not libs.any(func(l): return l.title == "Godot Engine"),
+			"the list has the parts of Godot but not Godot itself, which has its own page")
+	var bullet: Dictionary = libs.filter(func(l): return String(l.title).begins_with("Bullet")).front()
+	_check(bullet.license == "MIT, Zlib" and About.text(bullet).contains("== Zlib =="),
+			"a part with two licenses lists both, and Expat is written as MIT: %s" % bullet.license)
+	_check(libs.all(func(l): return About.text(l).strip_edges() != "" and String(l.license) != ""),
+			"every library has a license type and a text")
+	_check(About.license_label(["Expat", "Zlib"]) == "MIT, Zlib", "Expat is the MIT license")
 	_check(About.safe("© Café") == "(c) Caf?", "characters outside ASCII are made safe for the pixel font")
 
 
@@ -204,7 +216,7 @@ func _about_screen() -> void:
 	_check(screen.chunks(long_text).size() == 3 and "\n".join(screen.chunks(long_text)) == long_text,
 			"a long text is split in parts of 40 lines and nothing is lost")
 	var buttons: Array = screen.find_children("*", "Button", true, false)
-	_check(buttons.size() == About.pages(false).size() + 1 and screen.open_page == -1,
+	_check(buttons.size() == About.pages(false).size() + 1 and screen.open_page == -1 and not screen.in_libraries,
 			"the list has a button for each page and Back")
 	screen.show_page(1)
 	await process_frame
@@ -224,7 +236,26 @@ func _about_screen() -> void:
 	_check(screen._scroll.scroll_vertical == 0, "Up scrolls back")
 	screen.on_back()
 	await process_frame
-	_check(screen.open_page == -1, "Back from a page returns to the list")
+	_check(screen.open_page == -1 and not screen.in_libraries, "Back from a page returns to the list")
+	screen._show_libraries()
+	await process_frame
+	buttons = screen.find_children("*", "Button", true, false)
+	_check(screen.in_libraries and buttons.size() == About.libraries().size() + 1,
+			"3rd Party Libraries has a row for each library and Back")
+	_check(buttons.any(func(b): return String(b.text).contains("FREETYPE") and String(b.text).contains("(FTL)")),
+			"a row has the name of the library and the type of its license")
+	var long_row: Button = buttons.filter(func(b): return String(b.text).begins_with("BULLET CONTINUOUS")).front()
+	_check(long_row.get_minimum_size().y > 84.0 and long_row.get_minimum_size().x < 100.0,
+			"a long library name wraps to more lines, and the row does not force the screen wider")
+	screen.show_page(0)
+	await process_frame
+	_check(screen.open_page == 0 and screen.in_libraries, "a library row opens its page")
+	screen.on_back()
+	await process_frame
+	_check(screen.in_libraries and screen.open_page == -1, "Back from a library page returns to the list of libraries")
+	screen.on_back()
+	await process_frame
+	_check(not screen.in_libraries and screen.open_page == -1, "Back from the list of libraries returns to the About list")
 	screen.queue_free()
 	await _about_stays_open()
 

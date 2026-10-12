@@ -18,6 +18,7 @@ const HE := {
 		"הטלפונים והטלוויזיה מדברים דרך ה־WI-FI שלכם. הקשר אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.",
 	"WHEN YOU TAP REFRESH, THE PHONE ALSO TRIES THE OTHER ADDRESSES OF YOUR WI-FI NETWORK.":
 		"כשמקישים על רענון, הטלפון מנסה גם את שאר הכתובות ברשת ה־WI-FI שלכם.",
+	"3RD PARTY LIBRARIES": "ספריות צד שלישי",
 	"NOTHING LEAVES YOUR NETWORK.": "שום דבר לא יוצא מהרשת שלכם.",
 	"THE PAGES BELOW LIST THE PARTS OF OTHER MAKERS THAT WOBBLE USES, AND THEIR LICENSES.":
 		"הדפים שלמטה מפרטים את החלקים של יוצרים אחרים ש־WOBBLE משתמש בהם, ואת הרישיונות שלהם.",
