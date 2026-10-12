@@ -88,6 +88,8 @@ func _csv_checks() -> void:
 			no_where.append(row[0])
 	_check(file_rows[0].slice(0, 4) == ["key", "en", "he", "where"] and no_where.is_empty(),
 			"the file has the column 'where' and every row says where its text is used " + str(no_where))
+	_check(FileAccess.get_file_as_bytes(Lang.TABLE_FILE).slice(0, 3) == PackedByteArray([0xEF, 0xBB, 0xBF]),
+			"the file starts with a byte order mark, so that Excel shows the Hebrew correctly")
 	_check(Lang.parse_table("a,b,c\nx,y,z").is_empty() and Lang.parse_table("").is_empty(),
 			"a text without the header 'key,en,he' gives an empty table")
 

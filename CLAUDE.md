@@ -9,7 +9,7 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 - Do not run the whole test suite after every change. Run the `run-tests` skill only before you submit a pull request, or when the user asks. Run a single test or check while you work only when it is needed. Do not report a pass for a check that did not run.
 - Every text the user sees is a row of `assets/lang/strings.csv` (key, English, Hebrew, where, notes). The code uses the key (`pin.wrong`),
   never the English text. A new text adds its row in the same commit (FD-24, REQ-FL-63), with a short `where` (the screen and the place
-  where the text shows). When the use of a text changes, change its `where` in the same commit.
+  where the text shows). When the use of a text changes, change its `where` in the same commit. The file is UTF-8 with a byte order mark (Excel needs it for the Hebrew): keep the mark when you write the file.
 - Every new or changed string needs a review by the user (a new row, or a change in the English, the Hebrew or the key). Do not change the
   text of a row on your own: ask first. A pull request that adds or changes strings lists each row (key, old text, new text, in both
   languages) in its description and asks the user to review them. Claude does not merge such a pull request, and the `review` skill

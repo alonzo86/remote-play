@@ -1,4 +1,4 @@
-key,en,he,where,notes
+﻿key,en,he,where,notes
 about.android_phone_scans_with,The Android phone scans with the Google code scanner (Play services). Wobble gets only the text.,טלפון אנדרואיד סורק עם סורק הקודים של GOOGLE (שירותי PLAY). WOBBLE מקבל רק את הטקסט.,"About screen, Android phone only: note about the Google code scanner",
 about.pages_below_list_parts,"The pages below list the parts of other makers that Wobble uses, and their licenses.","הדפים שלמטה מפרטים את החלקים של יוצרים אחרים ש־WOBBLE משתמש בהם, ואת הרישיונות שלהם.","About screen, first page: line before the list of other makers' parts",
 about.phones_tv_talk_over,"The phones and the TV talk over your Wi-Fi. The link is not encrypted, so play on a network you trust.","הטלפונים והטלוויזיה מדברים דרך ה־WI-FI שלכם. הקשר אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.","About screen, first page: the link is not encrypted, play on a trusted network",
