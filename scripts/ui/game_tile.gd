@@ -9,6 +9,7 @@ const Registry = preload("res://scripts/game/registry.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 
 const SHOT := Vector2(480, 270)       # The screenshot (16:9). Every tile has this size.
+const CURSOR_ROOM := UiTheme.CURSOR_UNIT * 4.0 + 16.0   # The room of the cursor before the title of the focused tile.
 const TEXT_H := 150.0                 # The room under the screenshot: the title and the player range.
 
 var game := {}
@@ -56,9 +57,8 @@ func _ready() -> void:
 	add_child(_frame)
 
 	_name = UiKit.label(String(game.title), UiTheme.SIZE_BODY)
-	var cursor_room := UiTheme.CURSOR_UNIT * 4.0 + 16.0
-	_name.position = Vector2(0.0 if is_layout_rtl() else cursor_room, SHOT.y + 16)   # The cursor is at the right in Hebrew.
-	_name.size = Vector2(SHOT.x - cursor_room, 40)
+	_name.position = Vector2(0.0, SHOT.y + 16)
+	_name.size = Vector2(SHOT.x, 40)
 	add_child(_name)
 	_meta = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	_meta.position = Vector2(0, SHOT.y + 64)
@@ -101,7 +101,7 @@ func reason() -> String:
 
 func _draw() -> void:
 	if has_focus():
-		var rtl := is_layout_rtl()
+		var rtl := Lang.is_rtl()
 		UiTheme.draw_cursor(self, Vector2(size.x - UiTheme.CURSOR_UNIT * 4.0 if rtl else 0.0, SHOT.y + 36.0), UiTheme.ACCENT,
 				UiTheme.CURSOR_UNIT, rtl)
 
@@ -112,6 +112,11 @@ func _refresh() -> void:
 	var f := has_focus()
 	_frame.add_theme_stylebox_override("panel", UiTheme.line_box(UiTheme.ACCENT if f else UiTheme.TEXT_DIM, Color.TRANSPARENT))
 	_name.add_theme_color_override("font_color", UiTheme.ACCENT if f else UiTheme.TEXT)
+	# Only the focused tile has the cursor, so only its title is moved in to make room for it: at the left of the title, and at the
+	# right of it in Hebrew.
+	var room := CURSOR_ROOM if f else 0.0
+	_name.size = Vector2(SHOT.x - room, _name.size.y)
+	_name.position = Vector2(0.0 if Lang.is_rtl() else room, _name.position.y)
 	if fits:
 		_meta.text = players_text().to_upper()
 		_meta.add_theme_color_override("font_color", UiTheme.TEXT_DIM)

@@ -108,7 +108,7 @@ func _finish(slot: int) -> void:
 	for b in _balls:
 		if b.slot != slot:
 			board.set_unfinished(b.slot, -b.pos.distance_to(_exit_center()))
-	open_results(board, [], "", [], func(t: float) -> String: return "%.1f s" % t)
+	open_results(board, [], "", [], func(t: float) -> String: return Lang.f("result.seconds_1", [t]))
 
 
 func _exit_center() -> Vector2:
@@ -216,8 +216,6 @@ func _draw_exit_ring(ci: CanvasItem, c: Vector2) -> void:
 
 func _game_draw() -> void:
 	var o := Shell.snap(_origin())
-	for b in _balls:
-		Shell.ball_number(self, Shell.snap(o + b.pos), BALL_R, player(b.slot).color, b.slot, 0.0, player(b.slot).avatar)
 	Shell.title(self, "registry.tilt_maze")
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time)

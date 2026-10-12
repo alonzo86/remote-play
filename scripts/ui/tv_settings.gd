@@ -8,25 +8,36 @@ const MenuItem = preload("res://scripts/ui/menu_item.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 
 var _rows: Array[Button] = []
+var scroll_box: ScrollContainer
 
 
 func _ready() -> void:
 	var m := UiKit.margin(self, 0, 60, 0, 60)
-	var center := CenterContainer.new()
-	m.add_child(center)
 	var box := VBoxContainer.new()
 	box.custom_minimum_size = Vector2(1440, 0)
+	box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_theme_constant_override("separation", 22)
-	center.add_child(box)
+	m.add_child(box)
 	box.add_child(UiKit.title("common.settings"))
-	box.add_child(UiKit.spacer(10))
-	_add_row(box, "settings.debug_overlay", "settings.shows_link_each_phone", "overlay",
+	# The rows scroll with the focus (REQ-FL-23); the title above and Back below stay in view.
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+	scroll.follow_focus = true
+	scroll_box = scroll
+	box.add_child(scroll)
+	var rows := VBoxContainer.new()
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows.add_theme_constant_override("separation", 22)
+	scroll.add_child(rows)
+	_add_row(rows, "settings.debug_overlay", "settings.shows_link_each_phone", "overlay",
 			func(): App.toggle_overlay())
-	_add_row(box, "settings.invert_tilt_axes", "settings.use_when_ball_rolls", "invert_tilt", Callable())
-	_add_level_row(box, "settings.music", "settings.left_right_change_music", "music_volume")
-	_add_level_row(box, "settings.effects", "settings.left_right_change_volume", "sfx_volume")
-	_add_row(box, "settings.mute", "settings.turns_off_music_effects", "mute", Callable())
-	_add_row(box, "settings.language", "settings.english_or_hebrew_phones", "language",
+	_add_row(rows, "settings.invert_tilt_axes", "settings.use_when_ball_rolls", "invert_tilt", Callable())
+	_add_level_row(rows, "settings.music", "settings.left_right_change_music", "music_volume")
+	_add_level_row(rows, "settings.effects", "settings.left_right_change_volume", "sfx_volume")
+	_add_row(rows, "settings.mute", "settings.turns_off_music_effects", "mute", Callable())
+	_add_row(rows, "settings.language", "settings.english_or_hebrew_phones", "language",
 			func(): App.set_language(Lang.other(Lang.current())))
 	box.add_child(UiKit.spacer(10))
 	box.add_child(UiKit.item("common.about", func(): App.go(App.AboutScreen, {"back_screen": App.TvSettings}),

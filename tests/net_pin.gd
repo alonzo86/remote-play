@@ -1,5 +1,5 @@
 extends SceneTree
-## The join PIN (FD-23): a new phone must send the PIN that the TV shows, a phone that returns with its token needs none,
+## The join PIN (FD-25): a new phone must send the PIN that the TV shows, a phone that returns with its token needs none,
 ## a phone on the same device needs none, and the TV makes a new PIN after too many wrong ones. Also the PIN pad of the phone
 ## and the pages of the About screen. Real sockets on the local machine, like tests/net_profiles.gd.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/net_pin.gd -- --role=controller

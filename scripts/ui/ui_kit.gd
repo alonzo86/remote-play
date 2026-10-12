@@ -78,6 +78,7 @@ static func box_button(text: String, cb: Callable, size := UiTheme.SIZE_ITEM, co
 	b.add_theme_color_override("font_hover_color", color)
 	b.add_theme_color_override("font_focus_color", UiTheme.ACCENT)
 	b.add_theme_color_override("font_pressed_color", UiTheme.BG)
+	b.add_theme_color_override("font_disabled_color", UiTheme.TEXT_DIM)
 	b.pressed.connect(cb)
 	return b
 

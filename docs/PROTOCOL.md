@@ -20,6 +20,16 @@ The TV sends the beacon to `255.255.255.255`, to the `/24` subnet broadcast addr
 The phone uses the sender IP address of the UDP packet as the TV address.
 A TV that is silent for 4 seconds is removed from the phone list.
 
+### Probe (finding a TV when the beacon does not arrive)
+
+A router can drop broadcast packets, and a computer can refuse to send them (for example macOS without the Local Network permission
+for the app), while a direct connection works (the QR code joins). Then the phone looks for the TV itself (REQ-FL-83): it opens a
+WebSocket to port 47801 of every address of its `/24` network (the other 253 addresses of each private IPv4 address of the phone, of the best kind only: `192.168.x.x`, else `10.x.x.x`, else `172.16.x.x` to `172.31.x.x`; a mobile-data address of another kind is not scanned),
+32 at a time with a timeout of 1.5 s, and sends `{"t":"hello","v":3,"room":"-"}`. `-` is not in the room alphabet, so the TV answers
+`{"t":"reject","reason":"bad_room","room":"KQZM","name":"Living Room TV","players":2,"max":4}` and closes: the phone has the room code,
+the name and the player count, and joins nothing. A TV found this way is listed like a beacon TV, and stays in the list for 20 s after
+the last answer (a TV with a beacon stays 4 s). The phone scans only when the user taps Refresh (a scan that starts by itself looks like a port scan to some routers, which can then block the phone), and a join stops a scan that runs. A TV of an older build answers `bad_room` without `room`; it is not listed by the scan.
+
 The room code has 4 letters from `ACDEFGHJKLMNPQRTUVWXYZ`. It is not a password: the beacon carries it, so every device on the network sees it.
 The join PIN (see "Join PIN" below) is a password of a kind, and the beacon never carries it.
 It only tells two TVs apart on one network.
@@ -30,20 +40,21 @@ It only tells two TVs apart on one network.
 |------|---------|---------|
 | Phone | `{"t":"hello","v":3,"room":"KQZM","token":"","pin":"0427","name":"","pid":"","av":-1}` | First message. `room` can be empty (join by IP). `token` is empty for a new player. `pin` is the join PIN of the TV (4 digits). It is needed for a new player and not for a phone that returns with a token the TV knows. `name` can be empty: the TV then shows "Player N". `pid` and `av` are optional: the profile ID (32 lower-case hex characters) and the avatar index (0 to 255) of the profile that plays (FD-22, "Profiles" below). |
 | TV | `{"t":"welcome","slot":0,"token":"…","color":"#e63946","phase":"connect","name":"Living Room TV","lang":"en","pid":"","av":-1,"pname":""}` | Accepted. The phone saves `token`. `pid`, `av` and `pname` are the profile that the TV accepted (empty or -1 for a guest). `name` here is the name of the TV; the player name is `pname`, the name that the TV shows (with a number when another player has the same name, for example `Sam 2`). `lang` is the language of the TV, `en` or `he`; the field is optional (a TV of an older build does not send it) and the phone keeps its own language then (REQ-FL-62). |
-| TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `bad_pin`, `pin_locked`, `version`. `bad_pin`: a new phone sent no PIN or a wrong one. `pin_locked`: too many wrong PINs, try again later. |
+| TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `bad_pin`, `pin_locked`, `version`. `bad_pin`: a new phone sent no PIN or a wrong one. `pin_locked`: too many wrong PINs, try again later. A `bad_room` answer also has `room` (the room code of the TV), `name`, `players` and `max`, the same values as the beacon: see "Probe". The fields are optional; a phone ignores them when they are not there. |
 
 The TV closes a connection that sends no `hello` in 5 seconds.
 
-## Join PIN (FD-23)
+## Join PIN (FD-25)
 
 The TV makes a PIN of 4 digits when it starts and shows it on the Connect screen and in the Players modal. It is never sent over the network by the TV. The QR code of the TV holds it: `ws://IP:PORT/ROOM?pin=0427`. A phone that scans the code sends the PIN in `hello`; a phone that joins from the list of found TVs asks the player to type it.
 
 - A `hello` that has to take a new slot (no token, or a token that the TV does not know) must carry the PIN of the TV. Without it, or with a wrong one, the TV answers `reject` with `reason` `bad_pin`.
 - A `hello` with a token of a player who is in a slot (also a lost one) needs no PIN: that phone joined before.
+- The probe (see "Probe") needs no PIN: the TV answers `bad_room` before it checks the PIN, and that answer has no PIN. The probe `hello` carries `"v":3`, like every `hello`.
 - A phone on the same device as the TV (the address is the loopback address) needs no PIN. This is for a development run and for the tests. (`TvServer.pin_exempt_loopback`)
 - After `PIN_TRIES` (5) wrong PINs the TV refuses every new phone for `PIN_LOCK_MS` (30 s), also one with the right PIN, and answers `reject` with `reason` `pin_locked`. The PIN stays. Guessing 10000 PINs then takes many hours. A device can still lock the join for others by guessing wrong; phones that are in a slot are not affected.
 - The traffic is still not encrypted. The PIN keeps a device that only sees the beacon from joining. It does not stop a device that reads the traffic of a phone that joins.
-- `VERSION` is 3 since FD-23: a new phone sends `pin`, and a TV of version 2 does not ask for it. An old and a new build see no beacon from each other and reject each other with `version`.
+- `VERSION` is 3 since FD-25: a new phone sends `pin`, and a TV of version 2 does not ask for it. An old and a new build see no beacon from each other and reject each other with `version`.
 
 ## Messages after the join
 
@@ -114,7 +125,7 @@ All these fields and messages are optional: an old TV or an old phone ignores th
   The TV gives the same slot back.
 - A `hello` with an unknown token is a new player.
 - The phone gives up and shows an error only when the first connection fails 3 times, or when the TV sends `reject`.
-- The phone also gives up (and returns to the connect screen) when the user taps "Leave".
+- The phone also gives up (and returns to the connect screen) when the user taps "Disconnect".
 
 ## Version change
 

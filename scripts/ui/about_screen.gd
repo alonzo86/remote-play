@@ -1,5 +1,5 @@
 extends Control
-## The About screen of the TV and of the phone (FD-23). A list of pages (what Wobble does with data, the Godot notice, the font
+## The About screen of the TV and of the phone (FD-25). A list of pages (what Wobble does with data, the Godot notice, the font
 ## licenses, the parts of Godot) and one page of text at a time. The licenses must travel with the app (MIT, OFL), so they are
 ## shown here. Back goes to the list, and from the list to `back_screen`.
 

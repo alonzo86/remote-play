@@ -28,7 +28,7 @@ What this plan does not do: no profile data on the TV (so no shared leaderboard 
 
 | Screen | Content |
 |--------|---------|
-| Connect screen | A new row at the top shows the active profile (avatar and name, or `GUEST`). A tap opens the profile list. While the phone has no profile, the row says `MAKE A PLAYER`; it stays until the first profile exists. Nothing blocks joining. |
+| Connect screen | A dropdown at the top shows the active profile (avatar and name together, or `GUEST`), with a `+` next to it for a new player (REQ-FL-71, built on 2026-10-11). The dropdown lists the profiles, `GUEST` and `PLAYERS` (the list screen with EDIT, SHARE and the paste and scan of a code). Nothing blocks joining. After the phone has joined a TV the player cannot be changed: the player taps `DISCONNECT` and chooses again. |
 | Profile list ("WHO IS PLAYING?") | One row for each profile: the avatar and the name. A tap on a row makes it the active profile. A row `GUEST` plays without a profile. The buttons are `NEW PLAYER`, `SCAN A PLAYER` and `PASTE A CODE` (see 2.3) and, on each row, `EDIT` and `SHARE`. When the list holds 8 profiles, `NEW PLAYER` is dim and a line says `8 PLAYERS IS THE MAXIMUM`. The list is reached from the Connect screen and from the waiting screen, only while the TV is in the phase `connect` or `menu`. When the phase changes to `playing`, `paused` or `waiting`, the phone closes the list, the edit, share and scan screens and hides any QR code. |
 | Edit | The name field (1 to 10 letters, the keyboard of the phone), the avatar picker (32 avatars, 6 in a row, the list scrolls by dragging, the picked one has a frame), `SAVE`, `DELETE`. `DELETE` asks `DELETE <name>?` first. The avatar can be changed here at any time. |
 | Share | A QR code of the profile, the text of the code with a `COPY CODE` button, and two lines: everybody who scans the code gets this player and the best scores; the two phones do not stay in sync after the copy. The QR code goes away after 60 seconds (section 6.3). |
@@ -41,7 +41,8 @@ The texts are English and Hebrew (REQ-FL-54).
 | Place | Today | With a profile |
 |-------|-------|----------------|
 | Players list (Connect screen, Players modal), `slot_list.gd` | slot color square, `2P`, the name | the square holds the avatar, then the profile name |
-| Ball or blob of a player (`Shell.ball()`, `Shell.ball_number()`, the 3D marble numbers, the Paint Grab and Sumo blob numbers, REQ-GM-46) | the slot number | the avatar |
+| Ball, marble, blob, bumper or cursor of a player (REQ-GM-46) | the slot number | nothing: since 2026-10-11 an object has neither a number nor an avatar, only the slot color |
+| Leader chip and name tags (`Shell.chip()`, REQ-GM-46b) | the color square and the name | the color square, the avatar (32 px) and the name |
 | Result menu and the ranking (REQ-GM-72) | `1st  Player 2  12` | `1st  Maya  12` |
 | Pause card (REQ-GM-30), `Minigame._slot_labels()` | `2P LOST CONNECTION`, `Resume without P2`, `P2 reconnected` | `MAYA LOST CONNECTION`, `Resume without Maya`, `Maya reconnected` |
 | Name tags in the countdown (REQ-GM-46a) | the name | the name (no change: there is no number there) |
@@ -327,7 +328,7 @@ Built on 2026-10-10 on branch `claude/profiles-a-names`.
 - The `welcome` field for the player name is `pname`, because `name` in `welcome` is the name of the TV.
 - The name whitelist is a fixed set (Latin letters, digits, the space and the Hebrew letters) and a test checks that the pixel fonts have a glyph for every character of it. The plan said the set is derived from `Font.has_char()` at run time; a fixed set is the same for the phone and the TV and does not depend on a font being loaded on the TV.
 - `PlayerInput.player_name` stays the display name that every TV text uses (the plan called it `display_name`); `raw_name` is the name that the phone sent.
-- The avatar is drawn by `Shell.mark()` from a ball radius of 11 px; a smaller object keeps the number. The result menu rows and the leader chip keep the slot color square (they show the name, not the avatar).
+- Changed on 2026-10-11: the avatar is no longer drawn on the objects of a game (`Shell.mark()` and `Shell.ball_number()` are gone). The leader chip and the name tags show it next to the color square (`Shell.chip()`). The result menu rows keep the slot color square.
 - Not in phase A: `SHARE` and the scan or paste buttons (phase B), the bests (phase C), the design-system mockups and `tests/screenshots_controller.gd` for the new screens (open, see the doubts in the pull request).
 
 Changes after the phase A review (2026-10-11):

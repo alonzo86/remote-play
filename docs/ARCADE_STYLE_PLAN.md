@@ -76,7 +76,7 @@ black. They show as a filled square next to the slot number, never as the only c
 
 - A and B are round arcade buttons with a 6 px white ring and a darker lower edge (the button looks pressed in when
   it is down). The colors are open question 6.
-- RECENTER and LEAVE are framed text boxes. LEAVE still needs two taps (REQ-FL-52).
+- RECENTER and DISCONNECT are framed text boxes. DISCONNECT leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
 - The slot color square and "2P" are at the top. The text under them says what to do ("TILT TO ROLL").
 
 ### 2.6 Motion

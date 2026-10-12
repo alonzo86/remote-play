@@ -13,7 +13,7 @@ const SLOT_GRACE_MS := 30000
 const PAUSED_SLOT_GRACE_MS := 300000   # A lost slot is kept this long while the game is paused for it (a phone call).
 const HELLO_TIMEOUT_MS := 5000
 const PEER_TIMEOUT_MS := 5000
-const PIN_LENGTH := 4                    # The join PIN: digits, shown on the TV only (docs/PROTOCOL.md, FD-23).
+const PIN_LENGTH := 4                    # The join PIN: digits, shown on the TV only (docs/PROTOCOL.md, FD-25).
 const PIN_TRIES := 5                   # Wrong PINs the TV accepts before it locks new joins.
 const PIN_LOCK_MS := 30000             # New phones are turned away this long after PIN_TRIES wrong PINs (the PIN stays).
 const ROOM_ALPHABET := "ACDEFGHJKLMNPQRTUVWXYZ"
@@ -120,22 +120,44 @@ static func local_ipv4() -> String:
 	var best := ""
 	var best_rank := 99
 	for a in IP.get_local_addresses():
-		var parts := String(a).split(".")
-		if parts.size() != 4:
-			continue
-		var rank := 99
-		if a.begins_with("192.168."):
-			rank = 0
-		elif a.begins_with("10."):
-			rank = 1
-		else:
-			var second := int(parts[1])
-			if parts[0] == "172" and second >= 16 and second <= 31:
-				rank = 2
+		var rank := _private_rank(String(a))
 		if rank < best_rank:
 			best_rank = rank
 			best = a
 	return best
+
+
+## The private IPv4 addresses of this device that are of the best kind (`192.168.x.x`, else `10.x.x.x`, else `172.16.x.x` to
+## `172.31.x.x`, the order of `local_ipv4()`). A phone can have a Wi-Fi address and a mobile-data address of another kind: only
+## the best kind is used, so a scan does not go into the network of the mobile provider.
+static func private_ipv4s() -> Array[String]:
+	return best_private(IP.get_local_addresses())
+
+
+## The addresses of `addresses` of the best private kind (a test gives its own list).
+static func best_private(addresses: Array) -> Array[String]:
+	var best_rank := 99
+	var out: Array[String] = []
+	for a in addresses:
+		var rank := _private_rank(String(a))
+		if rank < best_rank:
+			best_rank = rank
+			out.clear()
+		if rank == best_rank and rank < 99:
+			out.append(String(a))
+	return out
+
+
+## 0 for `192.168.x.x`, 1 for `10.x.x.x`, 2 for `172.16.x.x` to `172.31.x.x`, else 99.
+static func _private_rank(a: String) -> int:
+	var parts := a.split(".")
+	if parts.size() != 4:
+		return 99
+	if a.begins_with("192.168."):
+		return 0
+	if a.begins_with("10."):
+		return 1
+	return 2 if parts[0] == "172" and int(parts[1]) >= 16 and int(parts[1]) <= 31 else 99
 
 
 ## Assume a /24 network. Good enough for home Wi-Fi.

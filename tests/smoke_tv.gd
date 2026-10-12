@@ -3,8 +3,9 @@ extends SceneTree
 ##   godot --headless --path . --script tests/smoke_tv.gd -- --role=tv
 ## It runs the TV flow, the maze and the marble race, and checks that tilt moves a ball.
 
-const RESULT_MENU := ["minigame.restart", "common.settings", "minigame.back_to_menu"]
+const RESULT_MENU := ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"]
 const Protocol = preload("res://scripts/core/protocol.gd")
+const MedalView = preload("res://scripts/ui/medal_view.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
@@ -36,7 +37,6 @@ func _small_text(n: Node) -> Array:
 	for c in n.get_children():
 		out.append_array(_small_text(c))
 	return out
-
 
 func _check(cond: bool, what: String) -> void:
 	if cond:
@@ -484,20 +484,20 @@ func _run() -> void:
 	one.set_score(rg.participants[0], 25)
 	rg.open_results(one, [10, 20, 30])
 	await _frames(2)
-	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "SILVER MEDAL!",
-			"one player and tiers: the title is the medal")
+	_check(MedalView.tiers_in(rg._menu_box) == ["silver"], "one player and tiers: the row has the silver medal next to the name")
 	# A time that must be small: 25 s earns silver, and a player who did not finish earns nothing (REQ-GM-73).
 	var fast_tiers := [40.0, 30.0, 20.0]
 	var timed = Scoreboard.new([], true)
 	timed.set_score(rg.participants[0], 25.0)
 	rg.open_results(timed, fast_tiers)
 	await _frames(2)
-	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "SILVER MEDAL!", "a time of 25 s earns silver")
+	_check(MedalView.tiers_in(rg._menu_box) == ["silver"], "a time of 25 s earns silver")
 	var lost = Scoreboard.new([], true)
 	lost.set_unfinished(rg.participants[0], 3.0)
 	rg.open_results(lost, fast_tiers)
 	await _frames(2)
-	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "NO MEDAL THIS TIME",
+	_check(MedalView.tiers_in(rg._menu_box).is_empty()
+			and rg._menu_box.find_children("*", "Label", true, false)[0].text == "NO MEDAL THIS TIME",
 			"a solo player who did not finish gets no medal, although the score 0 is below every limit")
 
 	# A player who leaves takes the ball out of the game (REQ-GM-21).
@@ -705,8 +705,9 @@ func _run() -> void:
 	ss2._round.time = ss2.ROUND_TIME - 0.005
 	ss2._game_tick(0.01)
 	await _frames(3)
-	_check(ss2._menu_box.find_children("*", "Label", true, false)[0].text == "SILVER MEDAL! (MEDIUM)",
-			"400 points alone earn silver, and the title names the difficulty (REQ-SS-16, 21)")
+	_check(MedalView.tiers_in(ss2._menu_box) == ["silver"]
+			and ss2._menu_box.find_children("*", "Label", true, false)[0].text == "MEDIUM",
+			"400 points alone earn silver next to the name, and the difficulty is the title (REQ-SS-16, 21)")
 
 	# A player who leaves takes the cursor, the score and the snowballs out (REQ-SS-16).
 	var fourth := ControllerClient.new()
@@ -800,7 +801,7 @@ func _run() -> void:
 			"the 3D view keeps square pixels in a window that is not 16:9 (REQ-GM-47i): " + str(square))
 	var marble_p := Vector3(mr._racers[0].pos.x, MarbleRace.R, mr._racers[0].pos.y)
 	var marble_r: float = mr.radius_on_hud(marble_p, MarbleRace.R)
-	_check(marble_r > MarbleRace.NUMBER_MIN_R, "a marble is big enough for its slot number at the lowest camera: %.1f px" % marble_r)
+	_check(marble_r > 8.0, "a marble is still a clear color dot at the lowest camera: %.1f px" % marble_r)
 	mr.open_menu("minigame.paused", [["minigame.resume", mr.close_menu]])
 	await _frames(2)
 	_check(mr.world.process_mode == Node.PROCESS_MODE_DISABLED, "the 3D world freezes while paused")
@@ -989,7 +990,6 @@ func _run() -> void:
 	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
 	solo2.set_process(true)
 	solo2.leave()
-
 	app.go_menu()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), TvGames), "back to the Games screen")

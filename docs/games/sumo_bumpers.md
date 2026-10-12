@@ -36,7 +36,7 @@ Match and rounds
 | REQ-SB-2 | The bumpers start on a circle around the middle of the platform, spread evenly, at the same distance from the middle (REQ-GM-25). Every round starts again like this, and all bumpers are back, also the ones that fell. | Done | run_tests, smoke_sumo |
 | REQ-SB-3 | A round ends when one bumper is left, or when none is left in the same moment. The last bumper gets 1 point. When the last bumpers fall in the same frame, all of them get the point. | Done | run_tests, smoke_sumo |
 | REQ-SB-4 | After a round, a banner names the player that won it (or says "Round draw!"), for 2.5 s. Then the next round starts, or the match ends. | Done | smoke_sumo |
-| REQ-SB-5 | After round 3 the result menu is `open_results()` (REQ-GM-72) with the points: ranking, "X wins!" or "Tie!", Restart, Settings, Back to menu. The score text is "N points". | Done | smoke_sumo |
+| REQ-SB-5 | After round 3 the result menu is `open_results()` (REQ-GM-72) with the points: ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. The score text is "N points". | Done | smoke_sumo |
 
 Platform and movement
 
@@ -55,13 +55,13 @@ Players and feedback
 |----|-------------|--------|-------|
 | REQ-SB-12 | A player who leaves takes the bumper out and keeps no points in the ranking (REQ-GM-21). When one player is left, the match ends at once with the result menu. When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sumo |
 | REQ-SB-13 | A lost phone pauses the match with the card of REQ-GM-30. Nothing runs during the pause (the shrink, the countdown). | Done | smoke_tv (shared base class) |
-| REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). In the countdown of each round every bumper has a name tag (REQ-GM-46a). A bumper has its slot number on it (`Shell.ball_number`, REQ-GM-46, REQ-GM-47n). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points, phones), game_helpers (leader, tags), Device (RECENTER) |
+| REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). In the countdown of each round every bumper has a name tag (REQ-GM-46a). A bumper has no number on it (REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points, phones), game_helpers (leader, tags), Device (RECENTER) |
 
 Look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n): it is drawn in the 480x270 view. The world palette is black (`UiTheme.BG`), dark gray `#3c3c3c` and blue `#0058f8` star pixels (48 of them, always in the same places), the platform `#2a1070`, its ring `#8c78e6` that turns to `#ff5a4d` when the platform is small, and white for the eyes and the dash ring; the bumpers use the slot colors. The platform is a dark disk (every player color has a contrast of 3:1 or more, REQ-GM-47m) with a one-pixel black outline. A bumper has a one-pixel black outline, square eyes with pupils that step to the side it rolls, and its slot number at full resolution on it, a little under the middle (`Shell.ball_number()`). A fallen bumper shrinks in 4 steps in 0.8 s, and "WHEE!" is drawn at full resolution above it. All text is 32 px or larger and inside the 60 px margin. | Device | review, smoke_sumo (the view), Device |
+| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n): it is drawn in the 480x270 view. The world palette is black (`UiTheme.BG`), dark gray `#3c3c3c` and blue `#0058f8` star pixels (48 of them, always in the same places), the platform `#2a1070`, its ring `#8c78e6` that turns to `#ff5a4d` when the platform is small, and white for the eyes and the dash ring; the bumpers use the slot colors. The platform is a dark disk (every player color has a contrast of 3:1 or more, REQ-GM-47m) with a one-pixel black outline. A bumper has a one-pixel black outline, square eyes with pupils that step to the side it rolls (no number on it, REQ-GM-46). A fallen bumper shrinks in 4 steps in 0.8 s, and "WHEE!" is drawn at full resolution above it. All text is 32 px or larger and inside the 60 px margin. | Device | review, smoke_sumo (the view), Device |
 | REQ-SB-16 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080: the simulation runs in 1920x1080 units and only the drawing is scaled. | Done | smoke_sumo |
 
 Settings (REQ-GM-90 to 97)

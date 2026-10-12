@@ -13,6 +13,6 @@ Every library, plugin, font, sound, image or other resource that Wobble ships an
 | gdtoolkit (gdlint) | 4.x | CI | no | MIT | Scony and contributors | No | Done |
 | setup-godot GitHub Action | v2 | CI | no | MIT | Chickensoft | No | Done |
 
-Our own work needs no row: the sounds (made in code), the QR encoder, the avatars, icons, tiles and the logo. For the art made with an AI tool (the Gemini mascot, the scripted avatars) see the open questions in the legal drafts of the project.
+Our own work needs no row: the sounds (made in code), the QR encoder, the avatars, icons, tiles, medals and the logo. For the art made with an AI tool (the Gemini mascot, the scripted avatars) see the open questions in the legal drafts of the project.
 
 The longer notes and the questions for a lawyer are in the project files (`legal/`), not in the repository.

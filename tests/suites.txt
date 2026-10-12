@@ -9,11 +9,14 @@ tests/profile_code.gd|controller|profile code, keys and merge
 tests/profiles.gd|controller|profiles: model, store, avatars
 tests/net_profiles.gd|controller|profiles over the network
 tests/net_pin.gd|controller|join PIN, PIN pad and About page
+tests/probe.gd|controller|finding a TV without the beacon
 tests/game_helpers.gd|controller|game helpers
 tests/game_rules.gd|controller|game rules
 tests/design_tokens.gd|controller|design tokens
 tests/smoke_tv.gd|tv|TV smoke test
 tests/smoke_settings.gd|tv|settings view
+tests/games_focus.gd|tv|Games screen arrow keys
+tests/results_medals.gd|tv|medals in the result menu
 tests/smoke_paint.gd|tv|Paint Grab
 tests/smoke_sumo.gd|tv|Sumo Bumpers
 tests/smoke_bests.gd|tv|personal bests

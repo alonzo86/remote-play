@@ -30,7 +30,6 @@ const POST_COLOR := Color("3ddcff")   # Cyan: not a slot color, not red (REQ-MR-
 const FLOOR_COLOR := Color("472aa3")  # Purple. Darker than the marbles (REQ-GM-47e).
 const RIM_COLOR := UiTheme.OUTLINE    # The black edge of the track. It is the outline color.
 const BACKGROUND := Color("1b3a8a")   # Blue from the arcade set (REQ-GM-48).
-const NUMBER_MIN_R := 16.0            # A marble is drawn with its slot number from this radius on the HUD (REQ-MR-44).
 
 class Racer:
 	var slot := 0
@@ -205,7 +204,7 @@ func _open_results() -> void:
 		open_menu("minigame.no_players_connected", [["minigame.back_to_menu", App.go_menu]])
 		return
 	# Finished marbles have their time. The others are ranked by how far they got.
-	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return "%.2f s" % t)
+	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
 
 
 ## The results menu leaves the game with Back (REQ-MR-34).
@@ -361,19 +360,6 @@ func _draw_edge_markers(canvas: Control) -> void:
 		Shell.text(canvas, label_pos, m.text, 32, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 140.0)
 
 
-## The slot numbers of the marbles, at full resolution on top of the pixel view (REQ-GM-47n). A marble that is too small
-## on the screen has no number (the camera is high): its color and the edge arrow tell it.
-func _draw_marble_numbers(canvas: Control) -> void:
-	for s in _racers:
-		var p3 := Vector3(_racers[s].pos.x, R, _racers[s].pos.y)
-		if camera.is_position_behind(p3):
-			continue
-		var radius := radius_on_hud(p3, R)
-		var sp := world_to_hud(p3)
-		if radius >= NUMBER_MIN_R and Rect2(Vector2.ZERO, canvas.size).has_point(sp):
-			Shell.ball_number(canvas, sp, radius, player(s).color, s, 0.0, player(s).avatar)
-
-
 ## The HUD position of each marble that is in front of the camera (the name tags of the countdown, REQ-GM-46a).
 func _marble_spots() -> Dictionary:
 	var spots := {}
@@ -401,7 +387,6 @@ func _score_label(entry: Dictionary) -> String:
 
 
 func _hud_draw(canvas: Control) -> void:
-	_draw_marble_numbers(canvas)
 	draw_leader_chip(canvas)
 	if _round.is_counting():
 		Shell.countdown(canvas, canvas.size, str(_round.count_number()), _round.count_elapsed())
@@ -413,8 +398,8 @@ func _hud_draw(canvas: Control) -> void:
 		var to_go := maxf(finish_arc - lead.arc, 0.0)
 		Shell.text(canvas, Vector2(0, 90), Lang.f("marble_race.finish_in", [roundi(to_go)]), 40, UiTheme.ACCENT,
 				HORIZONTAL_ALIGNMENT_CENTER, canvas.size.x)
-		Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), 90), Lang.f("result.seconds_1", [_round.time]), 40,
-				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
+		# The timer box is at the left margin (the right one in Hebrew) and the leader chip is at the other side, like in every game.
+		Shell.timer(canvas, Vector2(60.0, 36.0), _round.time)
 	_draw_edge_markers(canvas)
 	Shell.text(canvas, Vector2(Shell.mx(canvas, canvas.size.x - 360.0, 300.0), canvas.size.y - 70), track.title, 32,
 			UiTheme.TEXT_DIM, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)

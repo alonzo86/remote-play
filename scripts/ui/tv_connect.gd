@@ -12,8 +12,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 
 var _qr: Control
 var _hint: Label
-var _pin: Label   # The join PIN (FD-23). It changes after too many wrong tries, so it is read again each frame.
-var _credit: Label   # CREDIT 02: the number of phones that have joined.
+var _pin: Label   # The join PIN (FD-25). It changes after too many wrong tries, so it is read again each frame.
 var _modal: Control
 
 
@@ -23,13 +22,14 @@ func _ready() -> void:
 	root.add_theme_constant_override("separation", 26)
 	m.add_child(root)
 
+	# The two columns start at the same top edge, and together they sit in the middle of the screen.
 	var cols := HBoxContainer.new()
 	cols.add_theme_constant_override("separation", 90)
-	cols.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	cols.size_flags_vertical = Control.SIZE_EXPAND | Control.SIZE_SHRINK_CENTER
 	root.add_child(cols)
 
 	# Left: the QR code in a double frame, with the room code.
-	var left := CenterContainer.new()
+	var left := VBoxContainer.new()
 	cols.add_child(left)
 	var card := UiKit.panel(24)
 	left.add_child(card)
@@ -52,15 +52,9 @@ func _ready() -> void:
 	var right := VBoxContainer.new()
 	right.add_theme_constant_override("separation", 14)
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.alignment = BoxContainer.ALIGNMENT_CENTER
+	right.alignment = BoxContainer.ALIGNMENT_BEGIN
 	cols.add_child(right)
-	var head := HBoxContainer.new()
-	right.add_child(head)
-	var title := UiKit.title("connect.player_select")
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(title)
-	_credit = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
-	head.add_child(_credit)
+	right.add_child(UiKit.title("connect.players"))
 	var help := UiKit.label("connect.be_same_room_same",
 			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -95,7 +89,6 @@ func _refresh() -> void:
 	var ip: String = App.discovery.ip if App.discovery != null else ""
 	_pin.text = App.server.pin
 	_qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code, App.server.pin) if ip != "" else ""
-	_credit.text = Lang.f("connect.credit", [App.server.connected_slots().size()])
 	if App.server.connected_slots().size() >= 1:
 		_hint.add_theme_color_override("font_color", UiTheme.ACCENT)
 		_hint.text = "connect.press_ok_continue"

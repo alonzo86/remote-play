@@ -12,6 +12,7 @@ const TAP_SLOP := 24.0   # A finger that moved farther than this scrolled the li
 var index := 0
 var selected := false
 var tappable := true
+var framed := true   # False draws the picture alone: no frame and no background (the Connect screen dropdown).
 var _press_at := Vector2.INF   # Where the finger went down; a tap is a release near it (the picker scrolls by dragging).
 
 
@@ -33,6 +34,9 @@ func set_selected(v: bool) -> void:
 
 func _draw() -> void:
 	var r := Rect2(Vector2.ZERO, size)
+	if not framed:
+		Avatar.draw(self, r, index)
+		return
 	draw_rect(r, UiTheme.BG)
 	draw_style_box(UiTheme.line_box(UiTheme.ACCENT if selected else UiTheme.TEXT_DIM, UiTheme.BG, 4), r)
 	Avatar.draw(self, r.grow(-8.0), index)

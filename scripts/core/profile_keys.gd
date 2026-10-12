@@ -7,6 +7,8 @@ extends RefCounted
 ## Numbers: 1 to 3 Snowball Splat (easy, medium, hard), 4 to 6 Paint Grab, 7 to 36 Marble Race: 7 + 10 * difficulty + (track - 1).
 ## Tilt Maze, Sumo Bumpers and a random Marble Race track have no key (the owner, 2026-10-10).
 
+const Lang = preload("res://scripts/core/lang.gd")
+
 const DIFFICULTIES: Array[String] = ["easy", "medium", "hard"]
 const TRACKS := 10
 const MAX_KEYS := 39   # What a code can hold (plan 6.1). The table has 36.
@@ -53,4 +55,4 @@ static func is_better(key: String, a: int, b: int) -> bool:
 
 ## A best as text for the phone: a race time in seconds ("12.35 s"), a score as it is.
 static func format(key: String, value: int) -> String:
-	return "%.2f s" % (float(value) / 1000.0) if lower_is_better(key) else str(value)
+	return Lang.f("result.seconds_2", [float(value) / 1000.0]) if lower_is_better(key) else str(value)

@@ -111,6 +111,7 @@ func _show_grid(focus_id := "") -> void:
 	_info.custom_minimum_size = Vector2(0, 3.0 * 44.0)
 	bar.add_child(_info)
 
+	_wire_focus()
 	_players = -1
 	_update_fit()
 	var first: Button = _tiles[0] if not _tiles.is_empty() else _badge
@@ -120,6 +121,37 @@ func _show_grid(focus_id := "") -> void:
 	if focus_id == "@gear":
 		first = _gear
 	UiKit.focus_later(first)
+
+
+## The arrow keys between the header (the players badge and OPTIONS) and the tiles are set here, not left to the position of the
+## controls: when the grid has scrolled, the first row of tiles is under the header and the nearest control to the right of the
+## badge was a tile, so OPTIONS could not be reached. The header order is the one on the screen (OPTIONS is at the left in
+## Hebrew). Up and Down at the edges stay where they are, so the focus does not jump to the other end.
+func _wire_focus() -> void:
+	if _tiles.is_empty():
+		return
+	var rtl := Lang.is_rtl()
+	var order: Array[Control] = [_badge, _gear]
+	if rtl:
+		order = [_gear, _badge]
+	var over_a: Control = _tiles[0] if rtl else _tiles[mini(ROW_LEN, _tiles.size()) - 1]   # The tile under the badge.
+	var over_b: Control = _tiles[mini(ROW_LEN, _tiles.size()) - 1] if rtl else over_a        # The tile under OPTIONS.
+	for i in order.size():
+		var c := order[i]
+		_link(c, SIDE_LEFT, order[i - 1] if i > 0 else c)
+		_link(c, SIDE_RIGHT, order[i + 1] if i < order.size() - 1 else c)
+		_link(c, SIDE_TOP, c)
+	_link(_badge, SIDE_BOTTOM, over_a)
+	_link(_gear, SIDE_BOTTOM, over_b)
+	for i in mini(ROW_LEN, _tiles.size()):
+		_link(_tiles[i], SIDE_TOP, _badge)
+	var last_row := (_tiles.size() - 1) / ROW_LEN * ROW_LEN   # The index of the first tile of the last row.
+	for i in range(last_row, _tiles.size()):
+		_link(_tiles[i], SIDE_BOTTOM, _tiles[i])
+
+
+func _link(from: Control, side: Side, to: Control) -> void:
+	from.set_focus_neighbor(side, from.get_path_to(to))
 
 
 func _process(_delta: float) -> void:

@@ -9,9 +9,10 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const Lang = preload("res://scripts/core/lang.gd")
-const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 const PinPad = preload("res://scripts/ui/pin_pad.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
+const TvProber = preload("res://scripts/net/tv_prober.gd")
+const ProfileDropdown = preload("res://scripts/ui/profile_dropdown.gd")
 
 const SEARCH_MS := 1500   # After Refresh the list says "Searching" this long (the beacon comes each second).
 
@@ -20,6 +21,7 @@ var _status: Label
 var _qr: Node
 var _search_until_ms := 0
 var _pad: Control   # The PIN pad over the screen, while the player joins from the list.
+var _prober: TvProber
 var os_name := OS.get_name() # A test sets it to "iOS".
 
 
@@ -43,7 +45,7 @@ func _ready() -> void:
 	margin.add_child(box)
 
 	box.add_child(UiKit.title("WOBBLE", 56))
-	box.add_child(_profile_row())
+	box.add_child(ProfileDropdown.new())
 
 	_status = UiKit.label("", UiTheme.SIZE_BODY)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -62,11 +64,11 @@ func _ready() -> void:
 
 	var head := HBoxContainer.new()
 	box.add_child(head)
-	var tv_title := UiKit.label("connect.discovered_tvs", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	var tv_title := UiKit.label("connect.discovered_tvs", UiTheme.SIZE_BODY)
 	tv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tv_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	head.add_child(tv_title)
-	var refresh := UiKit.box_button("connect.refresh", refresh_list, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	var refresh := UiKit.box_button("connect.refresh", refresh_list, UiTheme.SIZE_BODY)
 	refresh.custom_minimum_size = Vector2(0, 96)
 	head.add_child(refresh)
 
@@ -74,6 +76,9 @@ func _ready() -> void:
 	_list.add_theme_constant_override("separation", 16)
 	box.add_child(_list)
 
+	_prober = TvProber.new()
+	add_child(_prober)
+	_prober.found.connect(App.controller_discovery.add_probed)
 	var about := UiKit.box_button("common.about", func():
 		App.go(App.AboutScreen, {"back_screen": App.ControllerConnect, "scanner_note": os_name == "Android"}),
 			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
@@ -85,33 +90,6 @@ func _ready() -> void:
 	App.client.rejected.connect(_on_rejected)
 	_rebuild_list()
 	_on_state(App.client.state)
-
-
-## The row for the player of this phone (REQ-FL-71): the avatar and the name of the active profile, GUEST, or MAKE A PLAYER while
-## the phone has no profile. A tap opens the list, or the new player screen when there is no profile yet.
-func _profile_row() -> Control:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 16)
-	var store = App.profiles
-	var active = store.active()
-	var av := AvatarView.new(active.avatar if active != null else -1, 110.0)
-	av.tappable = false
-	row.add_child(av)
-	var text: String = active.player_name if active != null else ("connect.guest" if not store.profiles.is_empty()
-			else "connect.make_player")
-	var b := UiKit.box_button(text, _on_profile_pressed, UiTheme.SIZE_ITEM)
-	b.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED if active != null else Node.AUTO_TRANSLATE_MODE_INHERIT
-	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.custom_minimum_size = Vector2(0, 110)
-	row.add_child(b)
-	return row
-
-
-func _on_profile_pressed() -> void:
-	if App.profiles.profiles.is_empty():
-		App.go(App.ControllerProfileEdit, {"profile_id": ""})
-	else:
-		App.go(App.ControllerProfiles)
 
 
 func _process(_delta: float) -> void:
@@ -140,6 +118,8 @@ func _on_state(state: int) -> void:
 ## Forget the TVs seen so far and listen again. A TV that is on shows up with its next beacon.
 func refresh_list() -> void:
 	App.controller_discovery.forget_all()
+	_prober.stop()
+	_prober.start(Protocol.private_ipv4s())
 	_search_until_ms = Time.get_ticks_msec() + SEARCH_MS
 	_rebuild_list()
 
@@ -150,7 +130,7 @@ func _rebuild_list() -> void:
 		c.queue_free()
 	var tvs: Array = App.controller_discovery.sorted_list()
 	if tvs.is_empty():
-		var searching := Time.get_ticks_msec() < _search_until_ms
+		var searching := Time.get_ticks_msec() < _search_until_ms or _prober.running
 		_list.add_child(UiKit.label("connect.searching" if searching else "connect.no_tvs_found", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 		var hint := empty_list_hint(os_name)
 		if not searching and hint != "":
@@ -201,7 +181,7 @@ func _on_rejected(reason: String) -> void:
 		_ask_pin(App.client.host, App.client.port, App.client.room)
 
 
-## Shows the PIN pad over the screen. The player reads the PIN on the TV (FD-23).
+## Shows the PIN pad over the screen. The player reads the PIN on the TV (FD-25).
 func _ask_pin(host: String, port: int, room: String) -> void:
 	if _pad != null:
 		return
@@ -234,6 +214,7 @@ func on_back() -> void:
 
 
 func _join(host: String, port: int, room: String, pin := "") -> void:
+	_prober.stop()   # A scan and a join must not run together.
 	App.last_error = ""
 	App.client.use_saved_token("")
 	App.client.connect_to(host, port, room, pin)
