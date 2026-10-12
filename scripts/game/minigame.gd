@@ -238,7 +238,7 @@ func _show_hold_card(lost: Array[int]) -> void:
 		title = Lang.f("pause.left", [_slot_labels(gone)]) if not gone.is_empty() and gone.size() == _hold_info.size() \
 				else Lang.f("pause.reconnected", [_slot_labels(_hold_info.keys())])
 		entries.append(["minigame.resume", _resume_game])
-	entries.append(["minigame.end_game_2", request_leave, "danger"])
+	entries.append(["minigame.end_game", request_leave, "danger"])
 	open_menu(title, entries, rows)
 	_menu_kind = "hold"
 
@@ -278,7 +278,7 @@ func on_back() -> void:
 ## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
 func request_leave() -> void:
 	if _in_progress():
-		open_menu("minigame.end_game", [["minigame.keep_playing", close_menu], ["minigame.end_game_2", App.go_menu, "danger"]])
+		open_menu("minigame.end_game_ask", [["minigame.resume_play", close_menu], ["minigame.end_game", App.go_menu, "danger"]])
 	else:
 		App.go_menu()
 

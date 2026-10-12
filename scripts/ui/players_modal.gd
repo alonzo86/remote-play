@@ -16,7 +16,7 @@ func _init() -> void:
 
 func _build() -> void:
 	body.add_theme_constant_override("separation", 18)
-	body.add_child(UiKit.title("players_modal.players", 48))
+	body.add_child(UiKit.title("common.players", 48))
 	body.add_child(UiKit.label("players_modal.only_phones_room_wi", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 
 	var cols := HBoxContainer.new()

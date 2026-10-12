@@ -228,4 +228,4 @@ func _game_draw() -> void:
 		draw_name_tags(self, spots, BALL_R)
 		Shell.hint(self, size, "maze.hold_phone_level_it")
 	if participants.is_empty():
-		Shell.hint(self, size, "maze.join_with_controller_app")
+		Shell.hint(self, size, "maze.join_with_wobble_app")

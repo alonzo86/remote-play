@@ -373,7 +373,7 @@ func current_best() -> Dictionary:
 ## player: the player was added or updated, or why the text does not work. A change of the active profile goes to the TV.
 func import_profile_text(text: String) -> String:
 	if not text.strip_edges().begins_with(ProfileCode.PREFIX):
-		return Lang.t("app.tv_link") if not Protocol.parse_pair_url(text).is_empty() else Lang.t("app.code_does_not_work")
+		return Lang.t("app.room_link") if not Protocol.parse_pair_url(text).is_empty() else Lang.t("app.code_does_not_work")
 	var r := ProfileCode.decode(text)
 	if not r.ok:
 		return Lang.t("app.code_does_not_work")
@@ -411,15 +411,15 @@ func _show_phone_screen() -> void:
 
 func _on_client_rejected(reason: String) -> void:
 	last_error = {
-		"full": Lang.t("app.tv_full_4_players"),
+		"full": Lang.t("app.room_full_4_players"),
 		"bad_room": Lang.t("app.wrong_room_code"),
 		"bad_pin": Lang.t("pin.wrong"),
 		"pin_locked": Lang.t("pin.locked"),
 		"version": Lang.t("app.app_version_does_not"),
-		"unreachable": Lang.t("app.cannot_reach_tv_check"),
+		"unreachable": Lang.t("app.cannot_connect_room"),
 		"tv_closed": Lang.t("app.tv_closed_connection"),
 		"kicked": Lang.t("app.host_removed_scan_code"),
-		"replaced": Lang.t("app.player_joined_another_phone"),
+		"replaced": Lang.t("app.player_already_in_room"),
 	}.get(reason, Lang.f("connect.refused", [reason]))
 	if reason == "bad_pin" and client.pin == "":
 		last_error = ""   # The phone sent no PIN (an old token): the connect screen asks for it.

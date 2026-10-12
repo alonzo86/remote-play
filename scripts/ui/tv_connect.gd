@@ -54,8 +54,8 @@ func _ready() -> void:
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.alignment = BoxContainer.ALIGNMENT_BEGIN
 	cols.add_child(right)
-	right.add_child(UiKit.title("connect.players"))
-	var help := UiKit.label("connect.be_same_room_same",
+	right.add_child(UiKit.title("common.players"))
+	var help := UiKit.label("connect.same_wi_fi_scan_code",
 			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD
 	right.add_child(help)
