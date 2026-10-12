@@ -3,6 +3,7 @@ extends SceneTree
 ## wait screen (REQ-FL-52), English and left to right (REQ-FL-54), the game tile images and the Back key (REQ-FL-55).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/ui_states.gd -- --role=controller
 
+const PencilIcon = preload("res://scripts/ui/pencil_icon.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
@@ -114,6 +115,8 @@ func _wait_screen_leave() -> void:
 	_check(app.client.state == ControllerClient.State.IDLE, "one tap leaves the TV")
 	_check(wait.find_children("*", "Button", true, false).all(func(b): return b.text != "wait.player"),
 			"there is no PLAYER button while joined (REQ-FL-71)")
+	var wait_buttons: Array = wait.find_children("*", "Button", true, false).map(func(b): return b.text)
+	_check(wait_buttons.slice(-2) == ["common.settings", "common.about"], "About is the button after Settings")
 	wait.queue_free()
 
 
@@ -272,8 +275,11 @@ func _profile_screens() -> void:
 	_check(app.client.pid == made.id, "a tap on a player in the dropdown makes it active")
 	await process_frame
 	var rev_before: int = made.rev
-	var edit_button := _find_button(app.current_screen(), "profiles.edit")
-	_check(edit_button != null, "the Connect screen has an EDIT button for the active player")
+	var edit_button: Button = _dropdown(app.current_screen()).find_children("*", "Button", true, false).filter(
+			func(b): return b.get_child_count() > 0 and b.get_child(0).get_script() == PencilIcon).front()
+	_check(edit_button != null and edit_button.text == "", "the Connect screen has a pencil button, no word, for the active player")
+	_check(PencilIcon.cells().size() > 20 and PencilIcon.cells().all(func(c): return c.x < 8 and c.y < 8),
+			"the pencil is drawn with cells inside the 8 x 8 grid")
 	edit_button.pressed.emit()
 	await process_frame
 	edit = app.current_screen()

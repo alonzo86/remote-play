@@ -26,11 +26,6 @@ func _ready() -> void:
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(help)
-	var about := UiKit.box_button("common.about", func():
-		App.go(App.AboutScreen, {"back_screen": App.ControllerSettings, "scanner_note": OS.get_name() == "Android"}),
-			UiTheme.SIZE_ITEM)
-	about.custom_minimum_size = Vector2(0, 110)
-	box.add_child(about)
 	box.add_child(UiKit.spacer(60))
 	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM)
 	back.custom_minimum_size = Vector2(440, 96)

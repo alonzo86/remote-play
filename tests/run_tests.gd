@@ -712,8 +712,18 @@ func _test_connect_screen() -> void:
 	root.add_child(ios_screen)
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
-	# The first two buttons are the profile dropdown and its + (FD-22): they are not a scan or paste button.
-	_check(ios_buttons == ["", "+", "connect.refresh", "common.about"], "iPhone: no scan or paste button")
+	# About is in the top row; then the profile dropdown and its + (FD-22). None of them is a scan or paste button.
+	_check(ios_buttons == ["common.about", "", "+", "connect.refresh"], "iPhone: no scan or paste button")
+	var about_btn: Button = ios_screen.find_children("*", "Button", true, false).front()
+	ios_screen.size = Vector2(1080, 1920)
+	await process_frame
+	root.set_layout_direction(Window.LAYOUT_DIRECTION_RTL)
+	await process_frame
+	await process_frame
+	_check(about_btn.get_global_rect().position.x < 200.0, "in Hebrew About is in the top-left corner (right in English)")
+	root.set_layout_direction(Window.LAYOUT_DIRECTION_LTR)
+	await process_frame
+	_check(about_btn.get_global_rect().end.x > ios_screen.size.x - 200.0, "in English About is in the top-right corner")
 	var ios_texts: Array = _list_texts(ios_screen)
 	_check(ios_texts.size() == 2 and ios_texts[0] == "connect.no_tvs_found" and "LOCAL NETWORK" in ios_texts[1],
 			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))

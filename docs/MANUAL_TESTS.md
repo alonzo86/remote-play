@@ -846,7 +846,7 @@ New (2026-10-11). The headless tests check the rules and the pages. They do not 
 6. An iPhone: join from the list with the PIN (the iPhone has no scan button). Check: the pad is easy to use with one hand.
 7. Open the Players modal on the TV (from the Games screen). Check: it shows the room code and the PIN; a late phone joins with them.
 8. On the TV: Settings, About. Check: the list opens; open "Godot Engine", "Godot parts" and "Licence Apache-2.0". Check: the text is readable from the sofa, Up and Down of the remote scroll it, Back goes to the list, then to Settings. Write down how long the "Godot parts" page takes to open on the TV box.
-9. On a phone: Settings (from the waiting screen), About, and also About at the bottom of the Connect screen. Check: the pages scroll by touch; on Android the list has the page "QR scanner". Check that the Connect screen still fits with the new button.
+9. On a phone: About on the waiting screen (the button after Settings), and About in the top corner of the Connect screen (right in English, left in Hebrew). Check: the pages scroll by touch; on Android the list has the page "QR scanner". Check that the Connect screen still fits with the new button. Check: the pencil button next to the player reads as Edit.
 10. Set the TV to Hebrew. Check: the About list and the pages "Wobble" read right (a Hebrew reader checks the wording); the license pages stay in English; the PIN pad and the PIN line read right to left where they should.
 
 **Results**

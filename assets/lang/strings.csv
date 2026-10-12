@@ -4,7 +4,7 @@ about.pages_below_list_parts,"The pages below list the parts of other makers tha
 about.phones_tv_talk_over,"The phones and the TV talk over your Wi-Fi. The link is not encrypted, so play on a network you trust.","הטלפונים והטלוויזיה מדברים דרך ה־WI-FI שלכם. הקשר אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.","About screen, first page: the link is not encrypted, play on a trusted network",
 about.refresh_tries_addresses,"When you tap Refresh, the phone also tries the other addresses of your Wi-Fi network.","כשמקישים על רענון, הטלפון מנסה גם את שאר הכתובות ברשת ה־WI-FI שלכם.","About screen, first page: sentence after the Wi-Fi sentence",
 about.nothing_leaves_network,Nothing leaves your network.,שום דבר לא יוצא מהרשת שלכם.,"About screen, first page: last sentence of the Wi-Fi paragraph",
-common.about,ABOUT,אודות,"Button About: phone Connect and Settings screens, TV Settings screen; title of the About screen",
+common.about,ABOUT,אודות,"Button About: phone waiting screen (after Settings) and top corner of the phone Connect screen, TV Settings screen; title of the About screen",
 about.wobble_has_no_account,"Wobble has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.","ב־WOBBLE אין חשבון, אין פרסומות ואין ניתוח נתונים. השם, הדמות והשיאים שלכם נשארים בטלפון.","About screen, first page: what data Wobble keeps",
 about.wobble_party_game_tv,Wobble is a party game for the TV. The phones are the controllers.,WOBBLE הוא משחק מסיבה לטלוויזיה. הטלפונים הם השלטים.,"About screen, first page: what Wobble is",
 app.app_version_does_not,APP VERSION DOES NOT MATCH THE TV.,גרסת האפליקציה אינה תואמת לטלוויזיה.,"Phone, Connect screen: error when the app and the TV versions differ",
@@ -120,7 +120,7 @@ profile_share.everyone_who_scans_code,EVERYONE WHO SCANS THIS CODE GETS THIS PLA
 profile_share.share_player,SHARE PLAYER,שיתוף שחקן,"Phone, share player: title",
 profile_share.two_phones_do_not,THE TWO PHONES DO NOT STAY IN SYNC AFTER THE COPY.,שני הטלפונים לא מסתנכרנים אחרי ההעתקה.,"Phone, share player: help line",
 profiles.could_not_save,COULD NOT SAVE,השמירה נכשלה,"Phone, player list: message when saving fails",
-profiles.edit,EDIT,עריכה,"Phone, player list: Edit button of a player; Edit button of the player dropdown on the Connect screen",
+profiles.edit,EDIT,עריכה,"Phone, player list: Edit button of a player",
 profiles.maximum,%d players is the maximum,%d שחקנים זה המקסימום,"Phone, player list: message when the list is full, %d is the limit","the number sign (%d, %.1f ...) is replaced by a number"
 profiles.paste_code,PASTE A CODE,הדבקת קוד,"Phone, player list: Paste a code button",
 profiles.scan_player,SCAN A PLAYER,סריקת שחקן,"Phone, player list: Scan a player button",

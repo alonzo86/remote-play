@@ -6,6 +6,7 @@ extends VBoxContainer
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
+const PencilIcon = preload("res://scripts/ui/pencil_icon.gd")
 
 const ROW_H := 110.0
 const AVATAR_SIDE := 80.0
@@ -26,8 +27,11 @@ func _ready() -> void:
 	_head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_head)
 	if active != null:   # Rename the player, change the avatar, or delete it.
-		var edit := UiKit.box_button("profiles.edit", _on_edit, UiTheme.SIZE_BODY, UiTheme.ACCENT)
-		edit.custom_minimum_size = Vector2(0, ROW_H)
+		var edit := UiKit.box_button("", _on_edit, UiTheme.SIZE_BODY, UiTheme.ACCENT)
+		edit.custom_minimum_size = Vector2(ROW_H, ROW_H)
+		var pencil := PencilIcon.new()
+		pencil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 20)
+		edit.add_child(pencil)
 		row.add_child(edit)
 	var plus := UiKit.box_button("+", _on_new, UiTheme.SIZE_TITLE, UiTheme.ACCENT)
 	plus.custom_minimum_size = Vector2(ROW_H, ROW_H)

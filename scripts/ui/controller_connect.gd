@@ -44,7 +44,17 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 24)
 	margin.add_child(box)
 
-	box.add_child(UiKit.title("WOBBLE", 56))
+	# The title and About share the top row. The row mirrors in Hebrew: About is at the right in English, at the left in Hebrew.
+	var top := HBoxContainer.new()
+	box.add_child(top)
+	var title := UiKit.title("WOBBLE", 56)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(title)
+	var about := UiKit.box_button("common.about", func():
+		App.go(App.AboutScreen, {"back_screen": App.ControllerConnect, "scanner_note": os_name == "Android"}),
+			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	about.custom_minimum_size = Vector2(0, 80)
+	top.add_child(about)
 	box.add_child(ProfileDropdown.new())
 
 	_status = UiKit.label("", UiTheme.SIZE_BODY)
@@ -79,11 +89,6 @@ func _ready() -> void:
 	_prober = TvProber.new()
 	add_child(_prober)
 	_prober.found.connect(App.controller_discovery.add_probed)
-	var about := UiKit.box_button("common.about", func():
-		App.go(App.AboutScreen, {"back_screen": App.ControllerConnect, "scanner_note": os_name == "Android"}),
-			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
-	about.custom_minimum_size = Vector2(0, 96)
-	box.add_child(about)
 
 	App.controller_discovery.list_changed.connect(_rebuild_list)
 	App.client.state_changed.connect(_on_state)
