@@ -65,6 +65,12 @@ func _ready() -> void:
 	settings.custom_minimum_size = Vector2(440, 96)
 	settings.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(settings)
+	var about := UiKit.box_button("About", func():
+		App.go(App.AboutScreen, {"back_screen": App.ControllerWait, "scanner_note": OS.get_name() == "Android"}),
+			UiTheme.SIZE_ITEM)
+	about.custom_minimum_size = Vector2(440, 96)
+	about.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(about)
 
 	# Connect methods, not lambdas: App.client outlives this screen, and Godot disconnects a method
 	# when its node is freed.
