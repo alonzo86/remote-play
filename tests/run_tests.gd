@@ -663,7 +663,7 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var has_paste := false
 	for b in screen.find_children("*", "Button", true, false):
-		has_paste = has_paste or b.text == "qr_scanner.paste_tv_link"
+		has_paste = has_paste or b.text == "qr_scanner.paste_room_link"
 	_check(has_paste, "without the plugin the connect screen offers Paste TV link")
 	var connect_script: GDScript = _script("res://scripts/ui/controller_connect.gd")
 	_check(not connect_script.shows_scan_button("iOS"),
@@ -833,7 +833,7 @@ func _test_app_input() -> void:
 			"every known rejection has its own message")
 	_check(texts.values().size() == 8 and texts["full"] != texts["bad_room"] and texts["version"] != texts["unreachable"],
 			"the messages are different")
-	_check(String(texts["full"]).contains("4"), "the full message says how many players fit")
+	_check("4" in texts["full"] and "30 SECONDS" in texts["pin_locked"], "the messages say the players that fit and the lock wait")
 	app._on_client_rejected("weird")
 	_check(app.last_error == "Connection refused: weird", "an unknown rejection shows its reason")
 

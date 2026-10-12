@@ -414,7 +414,7 @@ func _on_client_rejected(reason: String) -> void:
 		"full": Lang.t("app.room_full_4_players"),
 		"bad_room": Lang.t("app.wrong_room_code"),
 		"bad_pin": Lang.t("pin.wrong"),
-		"pin_locked": Lang.t("pin.locked"),
+		"pin_locked": Lang.f("pin.locked", [Protocol.PIN_LOCK_MS / 1000]),
 		"version": Lang.t("app.app_version_does_not"),
 		"unreachable": Lang.t("app.cannot_connect_room"),
 		"tv_closed": Lang.t("app.tv_closed_connection"),

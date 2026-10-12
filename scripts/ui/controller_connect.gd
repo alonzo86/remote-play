@@ -67,7 +67,7 @@ func _ready() -> void:
 	_qr.failed.connect(_on_qr_failed)
 	if shows_scan_button(os_name):
 		# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
-		var scan_text := "connect.scan_qr_code" if _qr.is_available() else "qr_scanner.paste_tv_link"
+		var scan_text := "connect.scan_qr_code" if _qr.is_available() else "qr_scanner.paste_room_link"
 		var scan := UiKit.box_button(scan_text, _on_scan_pressed, 40)
 		scan.custom_minimum_size = Vector2(0, 150)
 		box.add_child(scan)
