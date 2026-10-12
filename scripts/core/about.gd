@@ -36,8 +36,8 @@ static func text(page: Dictionary) -> String:
 			return Lang.t("Wobble is a party game for the TV. The phones are the controllers.") + "\n\n" \
 					+ Lang.t("Wobble has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.") \
 					+ "\n\n" + Lang.t("The phones and the TV talk over your Wi-Fi. The link is not encrypted, so play on a network you trust.") \
-					+ " " + Lang.t("When you tap Refresh, the phone also tries the other addresses of your Wi-Fi network to find the TV. "
-							+ "Nothing leaves your network.") \
+					+ " " + Lang.t("When you tap Refresh, the phone also tries the other addresses of your Wi-Fi network.") \
+					+ " " + Lang.t("Nothing leaves your network.") \
 					+ "\n\n" + Lang.t("The pages below list the parts of other makers that Wobble uses, and their licenses.")
 		"scanner":
 			return Lang.t("The Android phone scans with the Google code scanner (Play services). Wobble gets only the text.")

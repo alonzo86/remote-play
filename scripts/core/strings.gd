@@ -16,6 +16,9 @@ const HE := {
 		"ב־WOBBLE אין חשבון, אין פרסומות ואין ניתוח נתונים. השם, הדמות והשיאים שלכם נשארים בטלפון.",
 	"THE PHONES AND THE TV TALK OVER YOUR WI-FI. THE LINK IS NOT ENCRYPTED, SO PLAY ON A NETWORK YOU TRUST.":
 		"הטלפונים והטלוויזיה מדברים דרך ה־WI-FI שלכם. הקשר אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.",
+	"WHEN YOU TAP REFRESH, THE PHONE ALSO TRIES THE OTHER ADDRESSES OF YOUR WI-FI NETWORK.":
+		"כשמקישים על רענון, הטלפון מנסה גם את שאר הכתובות ברשת ה־WI-FI שלכם.",
+	"NOTHING LEAVES YOUR NETWORK.": "שום דבר לא יוצא מהרשת שלכם.",
 	"THE PAGES BELOW LIST THE PARTS OF OTHER MAKERS THAT WOBBLE USES, AND THEIR LICENSES.":
 		"הדפים שלמטה מפרטים את החלקים של יוצרים אחרים ש־WOBBLE משתמש בהם, ואת הרישיונות שלהם.",
 	"THE ANDROID PHONE SCANS WITH THE GOOGLE CODE SCANNER (PLAY SERVICES). WOBBLE GETS ONLY THE TEXT.":
