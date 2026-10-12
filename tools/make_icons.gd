@@ -1,19 +1,20 @@
 extends SceneTree
-## Draws the launcher icons and the Android TV banner from flat shapes. No external assets.
+## Makes the launcher icons and the Android TV banner from the Wobble mascot and logo (`assets/logo/splash.png`, `logo.png`,
+## FD-21).
 ## Run:  godot --headless --path . --script tools/make_icons.gd
-## Output: assets/icons/*.png  (the files are committed, so this is only needed after a design change)
+## Output: assets/icons/*.png  (the files are committed, so this is only needed after a change of the logo)
+## The mascot is cut out of the splash picture and enlarged by a whole number (nearest filter), so its pixels stay sharp.
 
-const BG := Color("14161c")
-const YELLOW := Color("ffd166")
-const RED := Color("e63946")
-const TEAL := Color("2a9d8f")
-const PANEL := Color("2b3140")
+const BG := Color("000000")   # UiTheme.BG: the black of every screen.
 
 
 func _initialize() -> void:
 	DirAccess.make_dir_recursive_absolute("res://assets/icons")
-	_save(_phone_icon(192, true), "icon_192")
-	_save(_phone_icon(432, false), "adaptive_foreground_432", true)
+	var mascot := _mascot()
+	_save(_icon(mascot, 192, 0.7), "icon_192")
+	_save(_icon(mascot, 1024, 0.7), "icon_1024")   # The project icon (iOS builds it down to every size).
+	# The adaptive icon: Android crops it to a circle or a rounded square, so the mascot stays inside the middle 66 percent.
+	_save(_icon(mascot, 432, 0.5, Color(0, 0, 0, 0)), "adaptive_foreground_432")
 	var bg := Image.create(432, 432, false, Image.FORMAT_RGBA8)
 	bg.fill(BG)
 	_save(bg, "adaptive_background_432")
@@ -21,56 +22,39 @@ func _initialize() -> void:
 	quit()
 
 
-func _save(img: Image, name: String, _transparent := false) -> void:
+func _save(img: Image, name: String) -> void:
 	var path := "res://assets/icons/%s.png" % name
 	img.save_png(ProjectSettings.globalize_path(path))
 	print("wrote ", path)
 
 
-func _rect(img: Image, x: float, y: float, w: float, h: float, c: Color, r := 0.0) -> void:
-	# Filled rounded rectangle.
-	for py in range(int(y), int(y + h)):
-		for px in range(int(x), int(x + w)):
-			var dx := maxf(maxf(x + r - px, px - (x + w - r)), 0.0)
-			var dy := maxf(maxf(y + r - py, py - (y + h - r)), 0.0)
-			if dx * dx + dy * dy <= r * r and px >= 0 and py >= 0 and px < img.get_width() and py < img.get_height():
-				img.set_pixel(px, py, c)
+## The mascot of the splash picture, cut to its own box.
+func _mascot() -> Image:
+	var img: Image = (load("res://assets/logo/splash.png") as Texture2D).get_image()
+	img.convert(Image.FORMAT_RGBA8)
+	return img.get_region(img.get_used_rect())
 
 
-func _disc(img: Image, cx: float, cy: float, rad: float, c: Color) -> void:
-	_rect(img, cx - rad, cy - rad, rad * 2.0, rad * 2.0, c, rad)
-
-
-func _phone_icon(size: int, with_bg: bool) -> Image:
-	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
-	img.fill(BG if with_bg else Color(0, 0, 0, 0))
-	var s := float(size)
-	# For the adaptive icon keep the artwork inside the central 66 percent.
-	var k := 0.7 if not with_bg else 0.9
-	var w := s * 0.34 * k
-	var h := s * 0.76 * k
-	var x := (s - w) * 0.5
-	var y := (s - h) * 0.5
-	_rect(img, x, y, w, h, YELLOW, w * 0.16)
-	_rect(img, x + w * 0.12, y + h * 0.07, w * 0.76, h * 0.06, BG, w * 0.03)
-	_disc(img, s * 0.5, y + h * 0.68, w * 0.22, BG)
+## A square icon: the mascot in the middle, as large as a whole-number scale allows inside `share` of the side.
+func _icon(mascot: Image, side: int, share: float, fill := BG) -> Image:
+	var img := Image.create(side, side, false, Image.FORMAT_RGBA8)
+	img.fill(fill)
+	var k := maxi(1, floori(float(side) * share / float(maxi(mascot.get_width(), mascot.get_height()))))
+	var m := mascot.duplicate() as Image
+	m.resize(mascot.get_width() * k, mascot.get_height() * k, Image.INTERPOLATE_NEAREST)
+	img.blend_rect(m, Rect2i(Vector2i.ZERO, m.get_size()), (Vector2i(side, side) - m.get_size()) / 2)
 	return img
 
 
+## The Android TV banner: the logo (mascot and word) in the middle of black. It is much smaller than the logo file, so it is
+## smoothed.
 func _banner(w: int, h: int) -> Image:
 	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
 	img.fill(BG)
-	# A TV with a ball and a maze corner, and a phone beside it.
-	_rect(img, 28, 34, 170, 112, PANEL, 10)
-	_rect(img, 38, 44, 150, 92, BG, 6)
-	_rect(img, 58, 60, 70, 8, YELLOW)
-	_rect(img, 58, 60, 8, 56, YELLOW)
-	_rect(img, 58, 108, 110, 8, YELLOW)
-	_disc(img, 96, 88, 9, RED)
-	_rect(img, 100, 146, 22, 12, PANEL)
-	_rect(img, 80, 156, 62, 6, PANEL, 3)
-	_rect(img, 232, 40, 60, 100, YELLOW, 10)
-	_rect(img, 242, 48, 40, 5, BG, 2)
-	_disc(img, 262, 112, 11, BG)
-	_disc(img, 262, 72, 8, TEAL)
+	var logo: Image = (load("res://assets/logo/logo.png") as Texture2D).get_image()
+	logo.convert(Image.FORMAT_RGBA8)
+	logo = logo.get_region(logo.get_used_rect())
+	var k := minf(float(w) * 0.85 / logo.get_width(), float(h) * 0.8 / logo.get_height())
+	logo.resize(roundi(logo.get_width() * k), roundi(logo.get_height() * k), Image.INTERPOLATE_LANCZOS)
+	img.blend_rect(logo, Rect2i(Vector2i.ZERO, logo.get_size()), (Vector2i(w, h) - logo.get_size()) / 2)
 	return img

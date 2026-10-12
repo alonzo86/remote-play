@@ -132,7 +132,7 @@ func _on_scan_failed(reason: String) -> void:
 
 func _on_edit(id: String) -> void:
 	note = ""
-	App.go(App.ControllerProfileEdit, {"profile_id": id})
+	App.go(App.ControllerProfileEdit, {"profile_id": id, "from_list": true})
 
 
 func _on_new() -> void:

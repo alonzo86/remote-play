@@ -167,7 +167,7 @@ func _run() -> void:
 	_check(qr_x > slots_x, "in Hebrew the QR card is at the right of the slots (%d > %d)" % [qr_x, slots_x])
 	_check(connect._hint.get_theme_font_size("font_size") == 40, "the Hebrew screen keeps the text sizes")
 	var texts := _texts(connect)
-	_check(texts.has("קוד חדר") and texts.has("בחירת שחקנים"), "Connect shows Hebrew text: " + str(texts.slice(0, 4)))
+	_check(texts.has("קוד חדר") and texts.has("שחקנים"), "Connect shows Hebrew text: " + str(texts.slice(0, 4)))
 
 	# Back at the first start takes the language that has the focus.
 	app.settings.language = ""

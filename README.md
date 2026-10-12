@@ -35,7 +35,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 - A phone that loses the connection (or is silent for 5 seconds) keeps its slot and reconnects with a token: 30 seconds, and
   5 minutes while a game is paused for it. The game pauses with a card ("2P LOST CONNECTION") and goes on only when the TV user
   chooses Resume (or Resume without the lost phone). When no player is left, the game ends with "No players connected".
-- Player profiles (FD-22, [docs/PROFILES_PLAN.md](docs/PROFILES_PLAN.md)): a phone keeps up to 8 profiles (name of at most 10 characters, one of 16 pixel avatars) in `user://profiles.cfg`. The TV shows the name and the avatar in place of "Player N" and the slot number. The profile changes only in a menu. A player can be copied to another phone with a QR code or a text (SHARE, SCAN A PLAYER, PASTE A CODE). A profile keeps its best score for each game and difficulty (Snowball Splat, Paint Grab, the 10 Marble Race tracks); the phone says NEW BEST! after a round.
+- Player profiles (FD-22, [docs/PROFILES_PLAN.md](docs/PROFILES_PLAN.md)): a phone keeps up to 8 profiles (name of at most 10 characters, one of 32 pixel avatars) in `user://profiles.cfg`. The TV shows the name and the avatar in place of "Player N" and the slot number. The player is chosen on the Connect screen (a dropdown and a + for a new player) and cannot change while the phone is joined: DISCONNECT first. The avatar shows next to the colour on the chips of the game HUD; the objects in a game have only the colour. A player can be copied to another phone with a QR code or a text (SHARE, SCAN A PLAYER, PASTE A CODE). A profile keeps its best score for each game and difficulty (Snowball Splat, Paint Grab, the 10 Marble Race tracks); the phone says NEW BEST! after a round.
 - Sound (FD-20, [docs/AUDIO_PLAN.md](docs/AUDIO_PLAN.md)): the TV plays an arcade-style song for the menus and one for each game, and sound
   effects. It is made in code by a small chip synthesizer (`scripts/audio/`), so there is no audio file. The Settings screen has Music, Effects
   and Mute. The phone makes no sound: it vibrates in games, and its Settings screen (a button on the waiting screen) has a Haptics ON/OFF switch.
@@ -75,7 +75,7 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
 1. Make a folder under `scripts/game/`.
 2. Extend `scripts/game/minigame.gd`. Override `_game_ready()`, `_game_tick(delta)`, `_game_draw()`.
    The base class is the game shell: the player list, the pause when a phone is lost, the D-pad pause menu
-   (Resume, Restart, Back to menu), the result menu (`open_menu`), and the Back key. Draw titles, score chips, the
+   (Resume, Try again, Back to menu), the result menu (`open_menu`), and the Back key. Draw titles, score chips, the
    countdown and hints with `scripts/game/shell.gd`. The base class also ends the game when no player is left (`end_no_players()`) and calls
    `_on_player_left(slot)` when a player leaves. Set `is_over = true` when the game ends. `round_clock.gd` (countdown and playing time) and
    `haptics.gd` (buzz cool-down), `scoreboard.gd` (scores and ranking) and `medals.gd` (solo medals) are small helpers for games; `open_results()` shows the ranking.
@@ -87,7 +87,7 @@ For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_re
 A key object (player, goal, hazard) gets an outline with `add_outlined_mesh()`.
 The 3D world is frozen while the game is paused.
 
-A registry entry may have `props`, set on the game before it starts (and kept for Restart). An entry with a `settings`
+A registry entry may have `props`, set on the game before it starts (and kept for Try again). An entry with a `settings`
 list has a settings view (Difficulty and the rows of the list) before the game: the choices become props of the game
 (`scripts/game/game_settings.gd`, `scripts/ui/tv_game_settings.gd`). The marble race has a `tracks` row: 10 fixed tracks and a random one,
 all made from seeds by `MarbleTrack.generate()` in `scripts/game/marble_race/marble_track.gd`. The pause menu does not change settings.
@@ -136,7 +136,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 | Phone | RECENTER | Set the neutral pose and zero the yaw |
 | Phone | A / B | Buttons. In the maze, A recenters. In the marble race, B recenters |
 | Phone | Scan / Paste TV link | Join by the QR code on the TV (or by the link in the clipboard on a PC) |
-| Phone | Leave | Leave the TV and return to the connect screen |
+| Phone | Disconnect | Leave the TV at once (one tap) and return to the connect screen |
 | TV remote | D-pad | Move the focus |
 | TV remote | OK | Select. In a game: open the pause menu |
 | TV remote | Back | Back one level. Games: Connect screen (players stay). Connect: quit question |

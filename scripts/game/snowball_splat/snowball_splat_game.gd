@@ -238,10 +238,11 @@ func _finish() -> void:
 		App.server.haptic(s, 400)
 	var tiers: Array = PuffField.LEVELS.get(difficulty, PuffField.LEVELS.medium).tiers
 	var heading := ""
-	if _board.ranking().size() == 1:   # The medal text says which difficulty was played (REQ-SS-21).
-		var medal := Medals.medal(_board.ranking()[0].score, tiers)
-		heading = "%s (%s)" % [Medals.label(medal), Lang.t(difficulty.capitalize())]
-	open_results(_board, tiers, heading)
+	var medal: Variant = null
+	if _board.ranking().size() == 1:   # The medal picture has the difficulty that was played under it (REQ-SS-21).
+		medal = Medals.medal(_board.ranking()[0].score, tiers)
+		heading = Lang.t(difficulty.capitalize())
+	open_results(_board, tiers, heading, [], Callable(), medal)
 
 
 # ---- Drawing ----
@@ -278,9 +279,6 @@ func _world_draw(ci: CanvasItem) -> void:
 
 func _game_draw() -> void:
 	var area := _area()
-	for s in _throwers:   # The slot number on the badge of each cursor.
-		var t: Thrower = _throwers[s]
-		Shell.ball_number(self, _badge_pos(t), BADGE_R, player(s).color, s, 0.0, player(s).avatar)
 	var k := PuffField.scale_for(area)
 	for e in _effects:   # The points of a hit Puff float up with it.
 		if e.age >= 0.0 and e.kind == "hit":

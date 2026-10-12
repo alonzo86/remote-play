@@ -1,5 +1,5 @@
 extends RefCounted
-## The content of the About screen (FD-23): what Wobble does with data, and the notices that the licences of the parts of Wobble
+## The content of the About screen (FD-25): what Wobble does with data, and the notices that the licences of the parts of Wobble
 ## ask for. The texts of the licences stay in English: they are legal texts. The Godot texts come from the engine itself
 ## (`Engine.get_license_text()`, `get_copyright_info()`, `get_license_info()`), so they are always those of the running version.
 
@@ -36,6 +36,8 @@ static func text(page: Dictionary) -> String:
 			return Lang.t("Wobble is a party game for the TV. The phones are the controllers.") + "\n\n" \
 					+ Lang.t("Wobble has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.") \
 					+ "\n\n" + Lang.t("The phones and the TV talk over your Wi-Fi. The link is not encrypted, so play on a network you trust.") \
+					+ " " + Lang.t("When you tap Refresh, the phone also tries the other addresses of your Wi-Fi network to find the TV. "
+							+ "Nothing leaves your network.") \
 					+ "\n\n" + Lang.t("The pages below list the parts of other makers that Wobble uses, and their licenses.")
 		"scanner":
 			return Lang.t("The Android phone scans with the Google code scanner (Play services). Wobble gets only the text.")

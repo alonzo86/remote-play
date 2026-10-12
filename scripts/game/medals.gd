@@ -22,6 +22,12 @@ static func medal(score: float, tiers: Array, lower_is_better := false) -> Strin
 	return best
 
 
+## The medal of a place in a round with more than one player: 1st gold, 2nd silver, 3rd bronze, nothing after that. Players that
+## share a place (a tie) have the same medal.
+static func for_place(place: int) -> String:
+	return NAMES[NAMES.size() - place] if place >= 1 and place <= NAMES.size() else NONE
+
+
 ## True when the tiers are three numbers and each one is harder than the one before.
 static func is_valid(tiers: Array, lower_is_better := false) -> bool:
 	if tiers.size() != NAMES.size():

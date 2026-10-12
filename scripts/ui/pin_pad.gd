@@ -1,5 +1,5 @@
 extends VBoxContainer
-## The PIN pad of the phone (FD-23). The player reads the PIN on the TV and types it here when the phone joins a TV from the list.
+## The PIN pad of the phone (FD-25). The player reads the PIN on the TV and types it here when the phone joins a TV from the list.
 ## `entered(pin)` comes when the last digit is typed. A scan of the QR code needs no pad: the link carries the PIN.
 
 const Protocol = preload("res://scripts/core/protocol.gd")

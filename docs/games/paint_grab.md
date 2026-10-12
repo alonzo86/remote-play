@@ -35,14 +35,14 @@ Round
 | REQ-PG-3 | The blobs start in different places of the floor, apart from each other, at the same distance from the middle (REQ-GM-25). | Done | smoke_paint |
 | REQ-PG-4 | A blob paints the tile under its middle at every frame. A tile has one color at a time: the one of the blob that was on it last. A tile that is painted again by the same player stays as it is. | Done | run_tests, smoke_paint |
 | REQ-PG-5 | The round ends when the time is up. The score of a player is the number of tiles in the color of that player at that moment (`Scoreboard`, higher is better). Players with the same score share the rank (a tie). | Done | run_tests, smoke_paint |
-| REQ-PG-6 | The result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Restart, Settings, Back to menu. The score text is the number of tiles. With one player it shows a medal (REQ-PG-21). | Done | smoke_paint |
+| REQ-PG-6 | The result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. The score text is the number of tiles. With one player the row shows the medal of the score (REQ-PG-21); with more players each row has the medal of its place (REQ-GM-73). | Done | smoke_paint |
 
 Movement
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-PG-7 | Tilt gives the acceleration of the blob (`TiltBody`): a dead zone, a damping so that the blob slows down by itself, a speed limit, and a soft bounce at the edge of the floor. All players have the same values (REQ-GM-24). The blob never leaves the floor. | Device | run_tests (rules), Device (feel) |
-| REQ-PG-8 | Blobs bounce off each other softly (no one is pushed through a wall). A blob is at least 48 px high on the screen (REQ-GM-47e) and shows its slot number. | Done | run_tests |
+| REQ-PG-8 | Blobs bounce off each other softly (no one is pushed through a wall). A blob is at least 48 px high on the screen (REQ-GM-47e) and shows no number (REQ-GM-46). | Done | run_tests |
 | REQ-PG-9 | Children (REQ-GM-80 to 84): the blobs are friendly made-up creatures, the paint is colorful and funny, a painted-over tile costs only that tile, no player is out or waits, the hint is one line ("Tilt your phone to roll and paint the tiles!"), the blobs are large and slow at the start, and all texts are positive. | Done | review |
 
 Players and feedback
@@ -59,7 +59,7 @@ Look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-PG-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn in the 480x270 view: a black sky with 48 star pixels, a dark floor board `#2a1070` with a one-pixel black outline, empty tiles `#3a1c97`, painted tiles in the flat slot color (no lighter edge). A tile is a whole number of world pixels wide, so all gaps are one world pixel (the floor is as big as fits, in steps of 4 px per tile). A blob has a one-pixel black outline, square eyes, and its slot number drawn by the HUD at full resolution on it (`Shell.ball_number`). All text is 32 px or larger. Everything stays inside the 60 px margin. | Device | review, smoke_paint (the view, the grid), Device |
+| REQ-PG-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn in the 480x270 view: a black sky with 48 star pixels, a dark floor board `#2a1070` with a one-pixel black outline, empty tiles `#3a1c97`, painted tiles in the flat slot color (no lighter edge). A tile is a whole number of world pixels wide, so all gaps are one world pixel (the floor is as big as fits, in steps of 4 px per tile). A blob has a one-pixel black outline, square eyes (no number on it, REQ-GM-46). All text is 32 px or larger. Everything stays inside the 60 px margin. | Device | review, smoke_paint (the view, the grid), Device |
 | REQ-PG-16 | A tile that is painted pops (it is one world pixel wider on each side for 0.15 s, a hard step), so the painting can be seen. A blob has square eyes with pupils that step to the side it rolls. | Device | smoke_paint (pop), Device |
 | REQ-PG-17 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080. | Done | smoke_paint |
 
@@ -68,7 +68,7 @@ Settings (REQ-GM-90 to 97)
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-PG-20 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. | Done | smoke_paint |
-| REQ-PG-21 | One player: the score is the share of the floor that is painted at the end, in percent, rounded down. The medal tiers `[bronze, silver, gold]` belong to the difficulty (REQ-GM-73, 95); the title of the medal names the difficulty. | Done | smoke_paint, run_tests |
+| REQ-PG-21 | One player: the score is the share of the floor that is painted at the end, in percent, rounded down. The medal tiers `[bronze, silver, gold]` belong to the difficulty (REQ-GM-73, 95); the medal is the picture of the tier next to the name of the player in the result row, and the title of the result is the difficulty. | Done | smoke_paint, run_tests |
 
 | Difficulty | Floor (columns x rows) | Tile size | Blob speed limit | Medal tiers (percent, first guess) |
 |------------|------------------------|-----------|------------------|------------------------------------|

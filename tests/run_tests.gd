@@ -372,19 +372,9 @@ func _test_phone_screens() -> void:
 	await process_frame
 	var leave_pad = app.current_screen()
 	leave_pad._input(_touch(5, true, leave_pad._rect_leave().get_center()))
-	leave_pad._input(_touch(5, false, leave_pad._rect_leave().get_center()))
-	await process_frame
-	_check(app.client.state == ControllerClient.State.CONNECTED and leave_pad._leave_armed > 0.0,
-			"the first tap on Leave only arms it (REQ-FL-52)")
-	leave_pad._leave_armed = 0.0 # The 3 s are over: a new tap arms again and does not leave.
-	leave_pad._input(_touch(5, true, leave_pad._rect_leave().get_center()))
-	leave_pad._input(_touch(5, false, leave_pad._rect_leave().get_center()))
-	await process_frame
-	_check(app.client.state == ControllerClient.State.CONNECTED, "a tap on Leave after the time is over arms it again")
-	leave_pad._input(_touch(6, true, leave_pad._rect_leave().get_center()))
 	await process_frame
 	await process_frame
-	_check(app.client.state == ControllerClient.State.IDLE, "the second tap on Leave leaves the TV (REQ-FL-52)")
+	_check(app.client.state == ControllerClient.State.IDLE, "one tap on Disconnect leaves the TV (REQ-FL-52)")
 	_check(app.current_screen().get_script().resource_path == "res://scripts/ui/controller_connect.gd",
 			"leaving returns to the connect screen")
 	server.stop()
@@ -722,8 +712,8 @@ func _test_connect_screen() -> void:
 	root.add_child(ios_screen)
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
-	# The first button is the profile row (FD-22): it is not a scan or paste button.
-	_check(ios_buttons == ["MAKE A PLAYER", "REFRESH", "ABOUT"], "iPhone: no scan or paste button: %s" % str(ios_buttons))
+	# The first two buttons are the profile dropdown and its + (FD-22): they are not a scan or paste button.
+	_check(ios_buttons == ["", "+", "REFRESH", "ABOUT"], "iPhone: no scan or paste button: %s" % str(ios_buttons))
 	var ios_texts: Array = _list_texts(ios_screen)
 	_check(ios_texts.size() == 2 and ios_texts[0] == "NO TVS FOUND" and "LOCAL NETWORK" in ios_texts[1],
 			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))
@@ -737,8 +727,8 @@ func _test_connect_screen() -> void:
 		tv_button = btn
 	_check(tv_button != null and tv_button.text == "QQQQ 1/4", "a detected TV is only '<code> x/y': %s" % tv_button.text)
 	var refresh_btn: Array = screen.find_children("*", "Button", true, false).filter(func(x): return x.text == "REFRESH")
-	_check(refresh_btn.size() == 1 and tv_button.get_theme_color("font_color") != refresh_btn[0].get_theme_color("font_color"),
-			"the Refresh button is dim and the detected TVs are white")
+	_check(refresh_btn.size() == 1 and tv_button.get_theme_color("font_color") == refresh_btn[0].get_theme_color("font_color"),
+			"the Refresh button and the detected TVs are both white")
 	tv_button.pressed.emit()
 	_check(screen._pad != null and app.client.state == ControllerClient.State.IDLE, "tapping a detected TV asks for the PIN first")
 	var pad = screen._pad.find_children("*", "VBoxContainer", true, false)[0]
