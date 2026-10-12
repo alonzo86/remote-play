@@ -74,19 +74,23 @@ func _input(event: InputEvent) -> void:
 	if is_queued_for_deletion():
 		return
 	for action in MOVES:
-		if not event.is_action_pressed(action, true):
-			continue
-		var owner := get_viewport().gui_get_focus_owner()
-		if owner == null or not is_ancestor_of(owner):
-			var first := first_focusable()
-			if first != null:
-				first.grab_focus()
-		else:
-			var next := owner.find_valid_focus_neighbor(MOVES[action])
-			if next != null and is_ancestor_of(next):
-				return   # Inside the modal: the normal move.
-		get_viewport().set_input_as_handled()
-		return
+		if event.is_action_pressed(action, true):
+			if blocks_move(action):
+				get_viewport().set_input_as_handled()
+			return
+
+
+## True when the arrow key `action` must not reach the controls under the modal. A focus that is outside the modal is brought back
+## to its first control first.
+func blocks_move(action: String) -> bool:
+	var owner := get_viewport().gui_get_focus_owner()
+	if owner == null or not is_ancestor_of(owner):
+		var first := first_focusable()
+		if first != null:
+			first.grab_focus()
+		return true
+	var next := owner.find_valid_focus_neighbor(MOVES[action])
+	return next == null or not is_ancestor_of(next)   # Inside the modal the move goes on.
 
 
 ## The first control of the modal that can take the focus, or null.

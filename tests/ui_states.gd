@@ -430,6 +430,27 @@ func _modal_focus() -> void:
 	_check(first != null and first.has_focus(), "the first item of the modal has the focus")
 	var down := first.find_valid_focus_neighbor(SIDE_BOTTOM)
 	_check(down != null and modal.is_ancestor_of(down), "an arrow key from the modal goes to another item of the modal")
+	# The arrow keys: a move inside the modal goes on, a move that would leave it is stopped, and a focus that is outside comes back.
+	var second: Control = first.find_valid_focus_neighbor(SIDE_BOTTOM)
+	first.grab_focus()
+	_check(not modal.blocks_move("ui_down"), "an arrow key between two items of the modal is not stopped")
+	_check(modal.blocks_move("ui_up") and first.has_focus(), "an arrow key that would leave the modal is stopped, the focus stays")
+	below.focus_mode = Control.FOCUS_ALL
+	below.grab_focus()
+	_check(modal.blocks_move("ui_left") and modal.is_ancestor_of(root.gui_get_focus_owner()),
+			"a focus that is outside the modal is stopped and comes back into it")
+	below.focus_mode = Control.FOCUS_NONE
+	modal._input(_arrow("ui_down"))   # The event path calls the same check.
+	modal._input(InputEventKey.new())   # Not an arrow key: nothing happens.
 	modal.close()
 	_check(below.focus_mode == Control.FOCUS_ALL, "the control can take the focus again when the modal closes")
+	_check(second != null and modal.is_queued_for_deletion(), "the modal is closed after Back")
 	below.queue_free()
+
+
+## An input event of a UI action (an arrow key of the remote).
+func _arrow(action: String) -> InputEventAction:
+	var e := InputEventAction.new()
+	e.action = action
+	e.pressed = true
+	return e
