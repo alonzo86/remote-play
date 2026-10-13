@@ -218,7 +218,7 @@ func _run() -> void:
 	_check(not sv.start_button.disabled and sv.reason_label.text == "", "with a phone the view has no reason line and Start works")
 	app.server.kick(0)
 	await _frames(4)
-	_check(sv.start_button.disabled and sv.reason_label.text == "NEEDS 1 PLAYER",
+	_check(sv.start_button.disabled and sv.reason_label.text == "NO PLAYERS CONNECTED",
 			"with no phone Start is disabled and the line says why: %s" % sv.reason_label.text)
 	sv.start()
 	await _frames(3)

@@ -112,7 +112,7 @@ func _import() -> void:
 	list._on_code("WP1.not-a-code")
 	_check(list._note.text == "THIS CODE DOES NOT WORK.", "a broken code is refused with a message")
 	list._on_code("ws://192.168.1.5:47801/KQZM")
-	_check(list._note.text == "THIS IS A TV LINK.", "a TV link on this screen is said to be a TV link")
+	_check(list._note.text == "THIS IS A ROOM LINK.", "a room link on this screen is said to be a room link")
 	list._on_code("hello")
 	_check(list._note.text == "THIS CODE DOES NOT WORK.", "other text is refused")
 	list._note.text = "SENTINEL"

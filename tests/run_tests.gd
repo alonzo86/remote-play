@@ -663,7 +663,7 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var has_paste := false
 	for b in screen.find_children("*", "Button", true, false):
-		has_paste = has_paste or b.text == "qr_scanner.paste_tv_link"
+		has_paste = has_paste or b.text == "qr_scanner.paste_room_link"
 	_check(has_paste, "without the plugin the connect screen offers Paste TV link")
 	var connect_script: GDScript = _script("res://scripts/ui/controller_connect.gd")
 	_check(not connect_script.shows_scan_button("iOS"),
@@ -672,7 +672,7 @@ func _test_connect_screen() -> void:
 			"on Android and desktop (also a Mac) the connect screen keeps the scan or paste button")
 	app.last_error = ""
 	screen._on_state(ControllerClient.State.IDLE)
-	_check(screen._status.text == "connect.looking_tv", "idle: the screen says it looks for a TV")
+	_check(screen._status.text == "connect.looking_for_rooms", "idle: the screen says it looks for a TV")
 	screen._on_state(ControllerClient.State.CONNECTING)
 	_check(screen._status.text == "connect.connecting", "connecting: the screen says so")
 	screen._on_state(ControllerClient.State.RECONNECTING)
@@ -703,7 +703,7 @@ func _test_connect_screen() -> void:
 	_check(screen.find_children("*", "LineEdit", true, false).is_empty(), "the connect screen has no text input")
 	app.controller_discovery.forget_all()
 	screen._rebuild_list()
-	_check(_list_texts(screen) == ["connect.no_tvs_found"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
+	_check(_list_texts(screen) == ["connect.no_rooms_found"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
 
 	# On an iPhone: no scan or paste button, and the empty list tells how to fix the Local Network permission (REQ-FL-58, 59).
 	var ios_screen = _script("res://scripts/ui/controller_connect.gd").new()
@@ -725,7 +725,7 @@ func _test_connect_screen() -> void:
 	await process_frame
 	_check(about_btn.get_global_rect().end.x > ios_screen.size.x - 200.0, "in English About is in the top-right corner")
 	var ios_texts: Array = _list_texts(ios_screen)
-	_check(ios_texts.size() == 2 and ios_texts[0] == "connect.no_tvs_found" and "LOCAL NETWORK" in ios_texts[1],
+	_check(ios_texts.size() == 2 and ios_texts[0] == "connect.no_rooms_found" and "LOCAL NETWORK" in ios_texts[1],
 			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))
 	ios_screen.queue_free()
 	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
@@ -833,7 +833,7 @@ func _test_app_input() -> void:
 			"every known rejection has its own message")
 	_check(texts.values().size() == 8 and texts["full"] != texts["bad_room"] and texts["version"] != texts["unreachable"],
 			"the messages are different")
-	_check(String(texts["full"]).contains("4"), "the full message says how many players fit")
+	_check("4" in texts["full"] and "30 SECONDS" in texts["pin_locked"], "the messages say the players that fit and the lock wait")
 	app._on_client_rejected("weird")
 	_check(app.last_error == "Connection refused: weird", "an unknown rejection shows its reason")
 

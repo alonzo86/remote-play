@@ -303,7 +303,7 @@ func _run() -> void:
 			"a silent phone makes the TV pause the game, also when its connection does not close")
 	var card_title: String = game._menu_box.find_children("*", "Label", true, false)[0].text
 	var card_buttons: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(card_title == "2P LOST CONNECTION" and card_buttons == ["RESUME WITHOUT 2P", "minigame.end_game_2"],
+	_check(card_title == "2P LOST CONNECTION" and card_buttons == ["RESUME WITHOUT 2P", "minigame.end_game"],
 			"the card names the phone and offers Resume without it while a phone is connected: %s %s" % [card_title, str(card_buttons)])
 	_check(app.server.phase == "paused" and clients[0].phase == "paused", "the phones are told that the game is paused")
 	clients[1].set_process(true)   # The phone is back (the call is over).
@@ -313,7 +313,7 @@ func _run() -> void:
 	await _frames(5)
 	card_title = game._menu_box.find_children("*", "Label", true, false)[0].text
 	card_buttons = game.menu_buttons().map(func(b): return b.text)
-	_check(game.is_paused() and card_title == "2P RECONNECTED" and card_buttons == ["minigame.resume", "minigame.end_game_2"],
+	_check(game.is_paused() and card_title == "2P RECONNECTED" and card_buttons == ["minigame.resume", "minigame.end_game"],
 			"when the phone is back the game stays paused and the card offers Resume: %s %s" % [card_title, str(card_buttons)])
 	game.menu_buttons()[0].pressed.emit()
 	await _frames(3)
@@ -330,7 +330,7 @@ func _run() -> void:
 	game.on_back()
 	await _frames(3)
 	var ask: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(ask == ["minigame.keep_playing", "minigame.end_game_2"], "Back asks 'End the game?' (REQ-GM-31a): %s" % str(ask))
+	_check(ask == ["minigame.resume_play", "minigame.end_game"], "Back asks 'End the game?' (REQ-GM-31a): %s" % str(ask))
 	game.menu_buttons()[0].pressed.emit()
 	await _frames(4)
 	_check(game._hold and game.is_paused() and game._menu_kind == "hold", "Keep playing brings the card of the lost phone back")
@@ -747,7 +747,7 @@ func _run() -> void:
 	var leave_labels: Array = []
 	for b in lg.menu_buttons():
 		leave_labels.append(b.text)
-	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["minigame.keep_playing", "minigame.end_game_2"],
+	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["minigame.resume_play", "minigame.end_game"],
 			"Back in a game in progress asks 'End the game?' and pauses: %s" % str(leave_labels))
 	_check(lg._in_progress() == lg._can_open_menu() and lg._in_progress(), "a race in progress is in progress (REQ-GM-31a)")
 	_check(lg.menu_buttons()[1].theme_type_variation == "DangerButton", "End game is the red destructive button")
@@ -761,7 +761,7 @@ func _run() -> void:
 	await _frames(2)
 	lg.menu_buttons()[2].pressed.emit()
 	await _frames(2)
-	_check(app.current_screen() == lg and lg.menu_buttons().size() == 2 and lg.menu_buttons()[0].text == "minigame.keep_playing",
+	_check(app.current_screen() == lg and lg.menu_buttons().size() == 2 and lg.menu_buttons()[0].text == "minigame.resume_play",
 			"Back to menu in the pause menu asks 'End the game?'")
 	lg.menu_buttons()[1].pressed.emit()
 	await _frames(3)
@@ -926,14 +926,14 @@ func _run() -> void:
 	var solo_buttons: Array = solo_game.menu_buttons().map(func(b): return b.text)
 	_check(solo_game._hold and solo_game.is_paused() and not solo_game.is_over and solo_game.participants == [solo.slot],
 			"the only player is lost: the game waits, it does not end")
-	_check(solo_buttons == ["minigame.end_game_2"], "with nobody connected the card has no Resume: %s" % str(solo_buttons))
+	_check(solo_buttons == ["minigame.end_game"], "with nobody connected the card has no Resume: %s" % str(solo_buttons))
 	solo.set_process(true)
 	t5 = Time.get_ticks_msec()
 	while not solo_game.lost_participants().is_empty() and Time.get_ticks_msec() - t5 < 6000:
 		await process_frame
 	await _frames(5)
 	solo_buttons = solo_game.menu_buttons().map(func(b): return b.text)
-	_check(solo_buttons == ["minigame.resume", "minigame.end_game_2"] and solo_game.is_paused(),
+	_check(solo_buttons == ["minigame.resume", "minigame.end_game"] and solo_game.is_paused(),
 			"the phone is back (the call is over): the card offers Resume and the game still waits: %s" % str(solo_buttons))
 	solo_game.menu_buttons()[0].pressed.emit()
 	await _frames(3)
@@ -978,7 +978,7 @@ func _run() -> void:
 		await process_frame
 	await _frames(3)
 	_check(solo_race._hold and solo_race.is_paused() and not solo_race.is_over
-			and solo_race.menu_buttons().map(func(b): return b.text) == ["minigame.end_game_2"],
+			and solo_race.menu_buttons().map(func(b): return b.text) == ["minigame.end_game"],
 			"marble race: the last player is lost, the race waits with a card that has no Resume")
 	t5 = Time.get_ticks_msec()
 	while not solo_race.is_over and Time.get_ticks_msec() - t5 < 8000:

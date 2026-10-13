@@ -35,7 +35,7 @@ func _ready() -> void:
 			func(): App.toggle_overlay())
 	_add_row(rows, "settings.invert_tilt_axes", "settings.use_when_ball_rolls", "invert_tilt", Callable())
 	_add_level_row(rows, "settings.music", "settings.left_right_change_music", "music_volume")
-	_add_level_row(rows, "settings.effects", "settings.left_right_change_volume", "sfx_volume")
+	_add_level_row(rows, "settings.effects", "settings.left_right_change_effects", "sfx_volume")
 	_add_row(rows, "settings.mute", "settings.turns_off_music_effects", "mute", Callable())
 	_add_row(rows, "settings.language", "settings.english_or_hebrew_phones", "language",
 			func(): App.set_language(Lang.other(Lang.current())))

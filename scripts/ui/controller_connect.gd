@@ -34,7 +34,7 @@ static func shows_scan_button(os_name: String) -> bool:
 ## A line under "No TVs found" on an iPhone or iPad: the beacon needs the Local Network permission (REQ-FL-59).
 static func empty_list_hint(os_name: String) -> String:
 	if os_name == "iOS":
-		return Lang.t("connect.no_tv_settings_allow")
+		return Lang.t("connect.no_rooms_settings_allow")
 	return ""
 
 
@@ -67,14 +67,14 @@ func _ready() -> void:
 	_qr.failed.connect(_on_qr_failed)
 	if shows_scan_button(os_name):
 		# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
-		var scan_text := "connect.scan_qr_code" if _qr.is_available() else "qr_scanner.paste_tv_link"
+		var scan_text := "connect.scan_qr_code" if _qr.is_available() else "qr_scanner.paste_room_link"
 		var scan := UiKit.box_button(scan_text, _on_scan_pressed, 40)
 		scan.custom_minimum_size = Vector2(0, 150)
 		box.add_child(scan)
 
 	var head := HBoxContainer.new()
 	box.add_child(head)
-	var tv_title := UiKit.label("connect.discovered_tvs", UiTheme.SIZE_BODY)
+	var tv_title := UiKit.label("connect.rooms_found", UiTheme.SIZE_BODY)
 	tv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tv_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	head.add_child(tv_title)
@@ -116,7 +116,7 @@ func _on_state(state: int) -> void:
 				_status.text = App.last_error.to_upper()
 				_status.add_theme_color_override("font_color", UiTheme.BAD)
 			else:
-				_status.text = "connect.looking_tv"
+				_status.text = "connect.looking_for_rooms"
 				_status.add_theme_color_override("font_color", UiTheme.TEXT)
 
 
@@ -136,7 +136,8 @@ func _rebuild_list() -> void:
 	var tvs: Array = App.controller_discovery.sorted_list()
 	if tvs.is_empty():
 		var searching := Time.get_ticks_msec() < _search_until_ms or _prober.running
-		_list.add_child(UiKit.label("connect.searching" if searching else "connect.no_tvs_found", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+		var empty_key := "connect.searching" if searching else "connect.no_rooms_found"
+		_list.add_child(UiKit.label(empty_key, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 		var hint := empty_list_hint(os_name)
 		if not searching and hint != "":
 			var hint_label := UiKit.label(hint, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)

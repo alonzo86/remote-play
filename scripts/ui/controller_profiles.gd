@@ -53,7 +53,7 @@ func _ready() -> void:
 	_qr.scanned.connect(_on_code)
 	_qr.failed.connect(_on_scan_failed)
 	if _qr.is_available():   # An iPhone and a desktop have no scanner: they paste the code.
-		var scan := UiKit.box_button("profiles.scan_player", _qr.scan, UiTheme.SIZE_BODY)
+		var scan := UiKit.box_button("profiles.scan_profile", _qr.scan, UiTheme.SIZE_BODY)
 		scan.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		scan.custom_minimum_size = Vector2(0, 110)
 		more.add_child(scan)

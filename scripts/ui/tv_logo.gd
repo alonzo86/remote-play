@@ -49,7 +49,7 @@ func _ready() -> void:
 	if asks_language:
 		box.add_child(UiKit.spacer(24))
 		box.add_child(_language_choice())
-	_hint = UiKit.blinking("logo.press_ok_choose" if asks_language else "logo.press_ok_skip", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_hint = UiKit.blinking("logo.press_ok_start" if asks_language else "logo.press_ok_skip", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_hint)
 	_hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)

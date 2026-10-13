@@ -54,11 +54,11 @@ func _ready() -> void:
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.alignment = BoxContainer.ALIGNMENT_BEGIN
 	cols.add_child(right)
-	right.add_child(UiKit.title("connect.players"))
-	var help := UiKit.label("connect.be_same_room_same",
-			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
-	help.autowrap_mode = TextServer.AUTOWRAP_WORD
-	right.add_child(help)
+	right.add_child(UiKit.title("common.players"))
+	for help_key in ["connect.same_wi_fi", "connect.open_app_scan_code"]:
+		var help := UiKit.label(help_key, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		help.autowrap_mode = TextServer.AUTOWRAP_WORD
+		right.add_child(help)
 	right.add_child(UiKit.spacer(10))
 	right.add_child(SlotList.new())
 

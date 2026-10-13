@@ -59,7 +59,7 @@ func _fill() -> void:
 		_list.add_child(_row(p.avatar, p.player_name, true, _pick.bind(p.id),
 				UiTheme.ACCENT if p.id == store.active_id else UiTheme.TEXT))
 	_list.add_child(_row(-1, "connect.guest", false, _pick.bind(""), UiTheme.ACCENT if store.active_id == "" else UiTheme.TEXT))
-	var manage := UiKit.box_button("connect.players", _on_manage, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	var manage := UiKit.box_button("common.players", _on_manage, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	manage.custom_minimum_size = Vector2(0, 96)
 	_list.add_child(manage)
 
