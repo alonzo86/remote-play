@@ -52,7 +52,6 @@ game_settings.hard,HARD,קשה,TV game settings: Hard value of the difficulty ro
 game_settings.medium,MEDIUM,בינוני,TV game settings: Medium value of the difficulty row; also in the medal title after a round,
 game_settings.start,START,התחל,TV game settings: Start button,
 games.n_players,%d players,%d שחקנים,"TV Games screen: game tile, a game for exactly this many players","the number sign (%d, %.1f ...) is replaced by a number"
-games.no_players_connected,No players connected,אין שחקנים מחוברים,TV game settings and game tile: why a game cannot start when no phone has joined,
 games.needs_players,Needs %d players,דרושים %d שחקנים,"TV game settings and game tile: why a game cannot start when too few phones have joined, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
 games.one_player,1 player,שחקן אחד,"TV Games screen: game tile, a game for 1 player",
 games.range_players,%d-%d players,%d-%d שחקנים,"TV Games screen: game tile, a game for a range of players","the number sign (%d, %.1f ...) is replaced by a number"
@@ -124,7 +123,7 @@ profiles.edit,EDIT,ערוך,"Phone, player list: Edit button of a player",
 profiles.maximum,%d players is the maximum,%d שחקנים זה המקסימום,"Phone, player list: message when the list is full, %d is the limit","the number sign (%d, %.1f ...) is replaced by a number"
 profiles.paste_code,PASTE A CODE,הדבק קוד,"Phone, player list: Paste a code button",
 profiles.scan_profile,SCAN A PROFILE,סרוק פרופיל,"Phone, player list: Scan a player button",
-profiles.share,SHARE,שתוף,"Phone, player list: Share button of a player",
+profiles.share,SHARE,שתף,"Phone, player list: Share button of a player",
 profiles.who_playing,WHO IS PLAYING?,מי משחק?,"Phone, player list: title",
 qr_scanner.paste_room_link,PASTE ROOM LINK,הדבק קישור לחדר,"Phone, Connect screen: button when the phone has no QR scanner",
 registry.marble_race,MARBLE RACE,מרוץ גולות,"Name of the game Marble Race: Games screen, game settings, result",
@@ -160,7 +159,7 @@ settings.mute,MUTE,השתק,TV Settings: name of the Mute row,
 common.off,OFF,כבוי,"TV Settings: state of a switch that is off (Debug overlay, Mute, Invert tilt axes)",
 common.on,ON,פועל,TV Settings: state of a switch that is on,
 settings.phone_vibrates_games_when,"THE PHONE VIBRATES IN GAMES: WHEN YOU SCORE, BUMP OR START.","הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים.",Phone Settings screen: help line under the haptics switch,
-settings.shows_link_each_phone,SHOWS THE LINK OF EACH PHONE. THE MENU KEY OR F3 DOES THE SAME.,מציג את מצב החיבור של כל טלפון. מקש התפריט או F3 עושים אותו דבר.,TV Settings: help line of the Debug overlay row,
+settings.shows_link_each_phone,SHOWS THE LINK OF EACH PHONE. THE MENU KEY OR F3 DOES THE SAME.,מציג את הקישור של כל טלפון. מקש התפריט או F3 עושים אותו דבר.,TV Settings: help line of the Debug overlay row,
 settings.track_n,Track %d,מסלול %d,"Marble Race: name of a fixed track, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 settings.turns_off_music_effects,TURNS OFF THE MUSIC AND THE EFFECTS.,מכבה את המוזיקה ואת האפקטים.,TV Settings: help line of the Mute row,
 settings.use_when_ball_rolls,USE THIS WHEN A BALL ROLLS THE WRONG WAY.,השתמשו בזה כשכדור מתגלגל לכיוון הלא נכון.,TV Settings: help line of the Invert tilt axes row,
@@ -168,7 +167,7 @@ shell.go,GO,קדימה,"Countdown of Tilt Maze, Paint Grab, Snowball Splat and S
 shell.seconds,%.1f S,%.1f ש׳,"Game HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 shell.tie,TIE,תיקו,Game HUD: leader chip when two or more players share first place,
 snowball_splat.point_at_tv_press,POINT AT THE TV AND PRESS A TO THROW A SNOWBALL. RECENTER IF THE CURSOR DRIFTS.,כוונו אל הטלוויזיה ולחצו A כדי לזרוק כדור שלג. מרכזו אם הסמן סוטה.,Snowball Splat: hint during the countdown,
-sumo_bumpers.whee,Whee!,וויי!,Sumo Bumpers: small word above a bumper that falls,
+sumo_bumpers.whee,WHEE!,וויי!,Sumo Bumpers: small word above a bumper that falls,
 sumo_bumpers.round_draw,ROUND DRAW!,תיקו בסיבוב!,Sumo Bumpers: banner when nobody wins the round,
 sumo_bumpers.round_n_of,Round %d of %d,סיבוב %d מתוך %d,"Sumo Bumpers HUD: round counter, first %d is the round, second is the total","the number sign (%d, %.1f ...) is replaced by a number"
 sumo_bumpers.round_winner,%s wins the round!,%s ניצח בסיבוב!,"Sumo Bumpers: banner after a round, %s is the name of the winner",%s is replaced by a name or a value

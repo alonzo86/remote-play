@@ -90,8 +90,28 @@ func _csv_checks() -> void:
 			"the file has the column 'where' and every row says where its text is used " + str(no_where))
 	_check(FileAccess.get_file_as_bytes(Lang.TABLE_FILE).slice(0, 3) == PackedByteArray([0xEF, 0xBB, 0xBF]),
 			"the file starts with a byte order mark, so that Excel shows the Hebrew correctly")
+	var rx := RegEx.create_from_string("%[-+ 0#]*[0-9]*(?:\\.[0-9]+)?[a-zA-Z%]")
+	var mismatched: Array = []
+	for i in range(1, file_rows.size()):
+		var row: Array = file_rows[i]
+		if row.size() < 3 or row[0] == "":
+			continue
+		if _placeholders(rx, row[1]) != _placeholders(rx, row[2]):
+			mismatched.append(row[0])
+	_check(mismatched.is_empty(), "English and Hebrew use the same placeholders in every row " + str(mismatched))
+	_check(_placeholders(rx, "%d of %s, 50%%") == ["%%", "%d", "%s"] and
+			_placeholders(rx, "%d") != _placeholders(rx, "%s"),
+			"the placeholder check sorts the placeholders and tells %d from %s")
 	_check(Lang.parse_table("a,b,c\nx,y,z").is_empty() and Lang.parse_table("").is_empty(),
 			"a text without the header 'key,en,he' gives an empty table")
+
+
+func _placeholders(rx: RegEx, text: String) -> Array:
+	var found: Array = []
+	for m in rx.search_all(text):
+		found.append(m.get_string())
+	found.sort()
+	return found
 
 
 func _script_files(dir: String) -> Array:
