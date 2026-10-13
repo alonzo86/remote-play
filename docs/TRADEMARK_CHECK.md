@@ -20,6 +20,21 @@ First pass for checklist item B5 of pull request 33 (the name half). Done on 202
 | WOBBLE (three marks) | Get Wobbled Ltd | UK, UK00004031246, UK00004031276, UK00004375264 | 9, 41, 42, 44 | Registered 2024-06-28 and 2026-07-24 | Class 44 (health): probably wellness or fitness. Goods not read |
 | WIBBLE WOBBLE | Amrit Dhaliwal | Canada, TMA1271488 | 9, 28, 41 | Registered 2024-11-22 | Other spelling, same sound. Goods not read |
 
+## Owner's findings on the hits (2026-10-13)
+
+The owner read these records or the websites of the owners. Claude could not confirm the goods from public sources (a web search found no record of the numbers, only that Indkal sells a Wobble-branded smartphone and smart TVs). "Owner-reported" means that the goods were not checked by Claude.
+
+| # | Mark | Owner-reported use | Status of the check |
+|---|------|--------------------|---------------------|
+| 1 | WOBBLE GAMES (Germany) | A card game, not an app | Owner-reported. Class 28 fits. Not a software or app mark, but a card game and an app can be close: the goods list in DPMAregister was not read by Claude |
+| 2 | WOBBLE (India, class 9) | Consumer electronics | Owner-reported. Matches the Wobble smartphones and TVs of Indkal Technologies |
+| 3 | WOBBLE (Peru) | The owner found a registered brand name and logo of Corval Pharmaceutical S.A.C. (pharmaceutical), which was also named "WOBELE" in the owner's first note | **Open.** WIPO lists the Peruvian WOBBLE (T00017979, class 41) under Maria Bianca Zuazo Drago, not Corval. The owner may have read another record, or the mark changed hands. The record number and the goods of what the owner read are needed |
+| 4 | Wobble (UK, class 41) | A seated exercise class with the option to stand | Owner-reported. Fits class 41 (fitness classes) |
+| 5 | Get Wobbled Ltd (UK, 9, 41, 42, 44) | Personal video messages | Owner-reported. Not a game. Class 44 is unexplained |
+| 6 | WIBBLE WOBBLE (Canada, 9, 28, 41) | A learning centre, based in Canada, by its website | Owner-reported. Fits class 41. Class 9 and 28 in the same registration were not explained |
+
+Reading after the owner's findings: none of the hits reported so far is a game app. #1 (a card game) is the nearest. #3 is open until the record is identified.
+
 ## Hits judged low risk (different field or different title)
 
 - WOBBLE, Core 3 Physician Technologies LLC (USA), classes 9 and 42, pending since 2026-07-29.
@@ -32,12 +47,12 @@ First pass for checklist item B5 of pull request 33 (the name half). Done on 202
 ## Reading
 
 - No registered plain "Wobble" mark for games was found in the US, the UK or the EU in this data.
-- Three marks to read in detail before a worldwide release: WOBBLE GAMES (Germany), WOBBLE (India, class 9) and WOBBLE (Peru, class 41). If the goods of one of them cover games or apps, the country can be left out of the store listing, or the name changed.
+- The owner's findings (above) clear #2 and #4 to #6 as not games, and #1 as a card game. Open: #3 (Peru), which record the owner read. If the goods of a mark cover games or apps, the country can be left out of the store listing, or the name changed.
 - Not yet checked: the stores, the web, domain names and social handles (next step).
 
 ## Next steps (owner)
 
-1. Read the goods and services of the three marks above: DPMAregister (Germany), the Indian trademark search, INDECOPI (Peru). Or paste the text and ask Claude to assess it.
+1. Identify the Peruvian record that the owner read (Corval, WOBBLE or WOBELE) and compare it with T00017979 (INDECOPI). Optional: read the goods of #1 in DPMAregister to see if a card game could cover digital games.
 2. Search the App Store, Google Play and Steam for apps and games named Wobble, and the web for "Wobble game".
 3. Check the domain and the social handles that the project needs.
 4. Decide: keep the name, leave out a country, or change the name. A change of name touches the app names, the package IDs, the logo and splash, the Hebrew texts and the docs.
