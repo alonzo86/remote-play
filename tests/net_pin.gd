@@ -181,6 +181,14 @@ func _about() -> void:
 		by[p.title] = p
 	_check(About.text(by["Godot Engine"]).contains("Permission is hereby granted"), "the Godot page has the MIT license text")
 	var libs := About.libraries()
+	var has_android := func(list: Array): return list.any(func(l): return l.title == "Android libraries")
+	_check(not has_android.call(libs) and has_android.call(About.libraries(true)),
+			"the Android libraries page is only in the Android apps")
+	var android_page: Dictionary = About.libraries(true).filter(func(l): return l.title == "Android libraries").front()
+	var android_text := About.text(android_page)
+	_check(android_page.license == "Apache-2.0" and android_text.contains("Apache License") and android_text.contains("Version 2.0")
+			and android_text.contains("play-services-code-scanner") and android_text.contains("Kotlin standard library"),
+			"the Android libraries page has the list and the Apache 2.0 text")
 	var lib := {}
 	for l in libs:
 		lib[l.title] = l

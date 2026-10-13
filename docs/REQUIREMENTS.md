@@ -18,7 +18,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-P3: The role is chosen by the feature tag `tv` or `controller`.
 - REQ-P4: On desktop, the argument `-- --role=tv` or `-- --role=controller` replaces the feature tag.
 - REQ-P5: Do not use servers, accounts, subscriptions, analytics, or paid services. Use the LAN only. A player profile (FD-22) is a file on the phone; it is not an account and nothing leaves the LAN.
-- REQ-P6: Menus and games are built in code from shapes, with the 8-bit arcade style (`docs/TV_FLOW.md`, FD-18). Allowed files: the pixel font Press Start 2P and the Hebrew fallback font Wobble Pixel Hebrew (`assets/fonts`, each with its license file), the game tile screenshots (`assets/tiles`), the player avatar sheet (`assets/avatars`), the logo (`assets/logo`), and the app icons. No other image, sound or model files without a decision in `docs/TV_FLOW.md`.
+- REQ-P6: Menus and games are built in code from shapes, with the 8-bit arcade style (`docs/TV_FLOW.md`, FD-18). Allowed files: the pixel font Press Start 2P and the Hebrew fallback font Wobble Pixel Hebrew (`assets/fonts`, each with its license file), the game tile screenshots (`assets/tiles`), the player avatar sheet (`assets/avatars`), the licence text of the Android libraries (`assets/licenses`), the logo (`assets/logo`), and the app icons. No other image, sound or model files without a decision in `docs/TV_FLOW.md`.
 
 ## 3. Architecture
 

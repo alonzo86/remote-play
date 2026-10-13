@@ -28,7 +28,7 @@ var _first: Control
 
 func _ready() -> void:
 	_pages = About.pages(scanner_note)
-	_libs = About.libraries()
+	_libs = About.libraries(OS.get_name() == "Android")
 	var m := UiKit.margin(self, 60, 60, 60, 60)
 	_box = VBoxContainer.new()
 	_box.add_theme_constant_override("separation", 20)

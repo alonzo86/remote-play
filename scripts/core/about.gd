@@ -5,6 +5,8 @@ extends RefCounted
 
 const Lang = preload("res://scripts/core/lang.gd")
 
+const ANDROID_LIBRARIES := "res://assets/licenses/android-libraries.txt"
+
 const FONT_LICENSES := {
 	"Press Start 2P": "res://assets/fonts/OFL-PressStart2P.txt",
 	"Wobble Pixel Hebrew": "res://assets/fonts/OFL-WobblePixelHebrew.txt",
@@ -23,12 +25,14 @@ static func pages(scanner := false) -> Array:
 
 
 ## The libraries of other makers, as pages: {"title": name, "kind": "library" or "file", "arg": name or file, "license": types}.
-## The fonts of Wobble first, then the parts that are inside Godot (the list of the running engine, without Godot itself).
-## Each page shows the copyright lines and the text of the license.
-static func libraries() -> Array:
+## The fonts of Wobble first, then (`android`, an Android app) the page of the Android libraries, then the parts that are inside
+## Godot (the list of the running engine, without Godot itself). Each page shows the copyright lines and the text of the license.
+static func libraries(android := false) -> Array:
 	var out: Array = []
 	for f in FONT_LICENSES:
 		out.append({"title": f, "kind": "file", "arg": FONT_LICENSES[f], "license": "OFL-1.1"})
+	if android:
+		out.append({"title": "Android libraries", "kind": "file", "arg": ANDROID_LIBRARIES, "license": "Apache-2.0"})
 	for c in Engine.get_copyright_info():
 		if String(c.name) == "Godot Engine":
 			continue
