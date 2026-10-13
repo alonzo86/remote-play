@@ -1,5 +1,7 @@
 Libraries of other makers in the Android apps of Wobble
 
+The phone app has all of them. The TV app has only the AndroidX, Kotlin, JetBrains annotations and JSpecify libraries under the Apache License 2.0: it has no Google Play services, Firebase, datatransport or ML Kit libraries.
+
 Apache License 2.0 (text below). Copyright belongs to the makers: Google (AndroidX, Firebase, datatransport), JetBrains (Kotlin, kotlinx-coroutines, annotations) and the other authors of the libraries.
 - AndroidX: activity 1.8.1, annotation 1.8.1, annotation-experimental 1.4.0, annotation-jvm 1.8.1, arch.core common and runtime 2.2.0, collection 1.1.0, concurrent-futures 1.1.0, core 1.8.0, core-ktx 1.2.0, core-splashscreen 1.0.1, customview 1.0.0, documentfile 1.1.0, exifinterface 1.0.0, fragment 1.8.6, lifecycle common, livedata, livedata-core, runtime, viewmodel and viewmodel-savedstate 2.6.1, loader 1.0.0, profileinstaller 1.3.1, savedstate 1.2.1, startup-runtime 1.1.1, tracing 1.0.0, versionedparcelable 1.1.1, viewpager 1.0.0
 - Google datatransport: transport-api 2.2.1, transport-backend-cct 2.3.3, transport-runtime 2.2.6

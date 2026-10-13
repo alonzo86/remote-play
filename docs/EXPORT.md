@@ -35,7 +35,7 @@ The presets use the Gradle build. The Gradle build is necessary for Android TV,
 because Godot adds the `LEANBACK_LAUNCHER` category only with Gradle.
 
 1. Open the project in the Godot editor.
-2. Select **Project > Install Android Build Template**.
+2. Select **Project > Install Android Build Template**. It makes `android/build`, the project of the `controller` preset. The `tv` preset uses its own project, `android-tv/build` (`gradle_build/gradle_build_directory="android-tv"`), so that the TV app has no Google code scanner and no ML Kit. `tools/setup.sh` installs both. By hand: copy `android/build` to `android-tv/build`, add `android-tv/.build_version` with the same version, and run the patch script in step 3.
    On the command line, `godot --headless --install-android-build-template --export-debug "controller" build/wobble-controller.apk`
    installs the template and exports once. Run the patch script after it, then export again.
 The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so it is in the export of both apps with the other `assets/` files; no export filter change is needed.
@@ -43,12 +43,12 @@ The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so i
    ```sh
    tools/patch_android_manifest.sh
    ```
-   The script does these things (you can run it again without harm):
+   The script patches both projects (`tools/patch_android_manifest.sh controller` or `tv` for one). It does these things (you can run it again without harm):
    - copies `assets/icons/banner.png` (320 x 180, the logo; `tools/make_icons.gd` makes it and the icons from `assets/logo`) to `android/build/res/drawable-xhdpi/banner.png`;
    - adds `android:banner="@drawable/banner"` to the `<application>` tag in `android/build/src/main/AndroidManifest.xml`;
    - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer,
      all with `required="false"`;
-   - installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
+   - in `android/build` only (the controller): installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
      `android/build/src/main/java/com/example/wobble/`, adds the Gradle dependency
      `com.google.android.gms:play-services-code-scanner:16.1.0`, and adds the plugin entry
      (`org.godotengine.plugin.v2.QrScanner`) to the manifest.

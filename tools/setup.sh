@@ -3,7 +3,7 @@
 # Usage: tools/setup.sh
 #   - finds Godot (GODOT env var, /Applications/Godot.app, or PATH)
 #   - sets the JDK 17 path in the Godot editor settings
-#   - installs the Android build template (same as "Project > Install Android Build Template")
+#   - installs the Android build templates, one for the controller and one for the TV (see tools/patch_android_manifest.sh)
 #   - runs tools/patch_android_manifest.sh
 set -eu
 
@@ -34,16 +34,19 @@ fi
 
 TEMPLATES="$HOME/Library/Application Support/Godot/export_templates/${VERSION}"
 [ -f "$TEMPLATES/android_source.zip" ] || { echo "Export templates for $VERSION missing. Editor > Manage Export Templates." >&2; exit 1; }
-if [ "$(cat android/.build_version 2>/dev/null || true)" != "$VERSION" ]; then
-	rm -rf android/build
-	mkdir -p android/build
-	unzip -q "$TEMPLATES/android_source.zip" -d android/build
-	touch android/build/.gdignore
-	printf '%s' "$VERSION" > android/.build_version
-	echo "android build template: installed"
-else
-	echo "android build template: already installed"
-fi
+# Two projects: android (preset "controller", with the QR scanner) and android-tv (preset "tv", without it).
+for DIR in android android-tv; do
+	if [ "$(cat $DIR/.build_version 2>/dev/null || true)" != "$VERSION" ]; then
+		rm -rf $DIR/build
+		mkdir -p $DIR/build
+		unzip -q "$TEMPLATES/android_source.zip" -d $DIR/build
+		touch $DIR/build/.gdignore
+		printf '%s' "$VERSION" > $DIR/.build_version
+		echo "$DIR build template: installed"
+	else
+		echo "$DIR build template: already installed"
+	fi
+done
 
 tools/patch_android_manifest.sh
 "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
