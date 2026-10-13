@@ -48,7 +48,7 @@ func _show_list() -> void:
 	open_page = -1
 	in_libraries = false
 	_current = _pages
-	_list_screen("About", func(idx: int) -> void:
+	_list_screen("common.about", func(idx: int) -> void:
 		if String(_pages[idx].kind) == "libraries":
 			_show_libraries()
 		else:
@@ -61,7 +61,7 @@ func _show_libraries() -> void:
 	open_page = -1
 	in_libraries = true
 	_current = _libs
-	_list_screen("3rd Party Libraries", show_page, true)
+	_list_screen("about.third_party_libraries", show_page, true)
 
 
 ## A title, a scrolling list of buttons (one for each page of `_current`) and Back.
@@ -88,7 +88,7 @@ func _list_screen(title: String, on_pick: Callable, with_license: bool) -> void:
 		list.add_child(b)
 		if _first == null:
 			_first = b
-	_box.add_child(_button("Back", on_back))
+	_box.add_child(_button("common.back", on_back))
 	UiKit.focus_later(_first)
 
 
@@ -109,7 +109,7 @@ func show_page(i: int) -> void:
 	_scroll.add_child(body)
 	for chunk in chunks(About.text(page)):
 		body.add_child(_text_label(chunk))
-	var back := _button("Back", on_back)
+	var back := _button("common.back", on_back)
 	_box.add_child(back)
 	UiKit.focus_later(back)
 

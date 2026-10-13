@@ -28,7 +28,7 @@ func _ready() -> void:
 	top.layout_direction = Control.LAYOUT_DIRECTION_LTR   # The pad is not mirrored in Hebrew, so this is not either.
 	top.alignment = BoxContainer.ALIGNMENT_END
 	page.add_child(top)
-	_leave = UiKit.box_button("Disconnect", App.client.leave, 32)
+	_leave = UiKit.box_button("pad.disconnect", App.client.leave, 32)
 	_leave.custom_minimum_size = Vector2(0, 90)
 	top.add_child(_leave)
 	var box := VBoxContainer.new()
@@ -61,11 +61,11 @@ func _ready() -> void:
 	_best_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_best_detail.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_best_detail)
-	var settings := UiKit.box_button("Settings", func(): App.go(App.ControllerSettings), UiTheme.SIZE_ITEM)
+	var settings := UiKit.box_button("common.settings", func(): App.go(App.ControllerSettings), UiTheme.SIZE_ITEM)
 	settings.custom_minimum_size = Vector2(440, 96)
 	settings.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(settings)
-	var about := UiKit.box_button("About", func():
+	var about := UiKit.box_button("common.about", func():
 		App.go(App.AboutScreen, {"back_screen": App.ControllerWait, "scanner_note": OS.get_name() == "Android"}),
 			UiTheme.SIZE_ITEM)
 	about.custom_minimum_size = Vector2(440, 96)
@@ -92,28 +92,28 @@ func _on_state(_state: int) -> void:
 static func texts_for(phase: String) -> Array:
 	match phase:
 		"menu":
-			return ["Choose a game on the TV", "Use the TV remote. Your phone is ready."]
+			return ["wait.choose_game_tv", "wait.use_tv_remote_phone"]
 		"waiting":
-			return ["A round is running", "You join the next round."]
+			return ["wait.round_running", "wait.join_next_round"]
 		_:
-			return ["Waiting for the host", ""]
+			return ["wait.waiting_host", ""]
 
 
 func _refresh() -> void:
 	var c: Node = App.client
 	var t := texts_for(c.phase)
-	_title.text = String(t[0]).to_upper()
-	_sub.text = String(t[1]).to_upper()
+	_title.text = Lang.t(String(t[0])).to_upper()
+	_sub.text = Lang.t(String(t[1])).to_upper()
 	if c.state != ControllerClient.State.CONNECTED:
-		_sub.text = "RECONNECTING..."
+		_sub.text = "connect.reconnecting"
 	_name.text = c.tv_player_name.to_upper() if c.tv_pid != "" else "%dP" % (c.slot + 1)
 	var best: Dictionary = App.current_best()
-	_best.text = Lang.t("New best!").to_upper() if not best.is_empty() else ""
+	_best.text = Lang.t("pad.new_best").to_upper() if not best.is_empty() else ""
 	_best_detail.text = ""
 	if not best.is_empty():
 		_best_detail.text = ProfileKeys.format(best.key, best.value)
 		if best.old > 0:
-			_best_detail.text += "   " + Lang.f("Before: %s", [ProfileKeys.format(best.key, best.old)]).to_upper()
+			_best_detail.text += "   " + Lang.f("pad.before", [ProfileKeys.format(best.key, best.old)]).to_upper()
 	_dot.queue_redraw()
 
 

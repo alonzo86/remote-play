@@ -114,7 +114,7 @@ Rendering at 22050 Hz mono keeps memory small: a 68 s loop is 22050 x 2 bytes x 
 - The values are saved in `user://settings.cfg` (`App.settings`: `music_volume`, `sfx_volume`, `mute`), like `invert_tilt`.
 - Changing a value acts at once. When the owner changes **Effects**, one `select` sound plays as the sample; when the owner changes **Music**, the menu music is already playing, so the change is heard at once.
 - The volume steps use a curve (`linear_to_db(v / 10.0)` squared), not a straight line, so the steps sound even.
-- Hebrew: the three rows have Hebrew text in `strings.gd` (FD-19); the test `smoke_lang` fails when one is missing.
+- Hebrew: the three rows have Hebrew text in `assets/lang/strings.csv` (FD-19, FD-24); the test `smoke_lang` fails when one is missing.
 - The phone is not touched: no setting, and it plays no sound (the media volume of the phone has no effect).
 
 ### 3.4 Replacing a clip with a file later

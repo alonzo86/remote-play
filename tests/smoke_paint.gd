@@ -215,7 +215,8 @@ func _run() -> void:
 	var labels: Array = []
 	for l in game._menu_box.find_children("*", "Label", true, false):
 		labels.append(l.text)
-	_check(game.is_over and buttons == ["TRY AGAIN", "NEW GAME", "BACK TO MENU"], "time up opens the result menu: %s" % str(buttons))
+	_check(game.is_over and buttons == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"],
+			"time up opens the result menu: %s" % str(buttons))
 	_check(labels[0].ends_with("(MEDIUM)") and labels[1].contains(" TILES (") and labels[1].ends_with("%)"),
 			"one player gets a medal title with the difficulty and a list row with the tiles and the percent: %s" % str(labels))
 	# The layout comes from the size of the screen (REQ-PG-17): the floor stays inside the margin at 1280x720 and at 1920x1080.

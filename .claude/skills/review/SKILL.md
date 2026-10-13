@@ -42,6 +42,11 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 - Check the change against `docs/GAME_REQUIREMENTS.md` (general, plus 2D or 3D) and the game file. Report a broken requirement by its ID.
 - Statuses in the game file match the code. A requirement marked Done has a check, or says why it has none.
 
+**Strings**
+- A new or changed row of `assets/lang/strings.csv` is listed in the pull request description (key, old and new text, English and Hebrew) and
+  waits for the user's review (CLAUDE.md). Report a change of strings that is not listed. Every row has a `where`; a changed use changes it.
+- The code has keys, never English text (REQ-FL-63).
+
 **Tests and docs**
 - Behaviour changes in `scripts/` need a check in `tests/run_tests.gd` or `tests/smoke_tv.gd`.
 - Every module has 80% line coverage (`tools/coverage.sh`), or is set aside with a reason in `tools/coverage/exclusions.txt`.

@@ -97,19 +97,19 @@ func _make_row(p: PlayerInput) -> Control:
 	name_l.clip_text = true
 	h.add_child(name_l)
 
-	var state_text := "wait"
+	var state_text := "slot_list.wait"
 	var state_col := UiTheme.TEXT_DIM
 	match p.state:
 		PlayerInput.State.CONNECTED:
-			state_text = "ready"
+			state_text = "slot_list.ready"
 			state_col = UiTheme.OK
 		PlayerInput.State.LOST:
-			state_text = "lost"
+			state_text = "slot_list.lost"
 			state_col = UiTheme.BAD
 	h.add_child(_cell(state_text, state_col))
 
 	if removable and present:
-		var rb := UiKit.item("Remove", func(): remove_requested.emit(p.slot), UiTheme.SIZE_BODY, "danger")
+		var rb := UiKit.item("players.remove", func(): remove_requested.emit(p.slot), UiTheme.SIZE_BODY, "danger")
 		h.add_child(rb)
 		_remove_buttons[p.slot] = rb
 	return h

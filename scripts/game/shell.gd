@@ -196,7 +196,7 @@ static func leader_chip(ci: CanvasItem, area_w: float, leaders: Array, score: St
 	if leaders.is_empty():
 		return
 	var tie := leaders.size() > 1
-	var label := Lang.t("TIE") if tie else String(leaders[0].player_name)
+	var label := Lang.t("shell.tie") if tie else String(leaders[0].player_name)
 	var avatar: int = -1 if tie else int(leaders[0].avatar)   # A tie has no one player to show.
 	var color: Color = UiTheme.TEXT_DIM if tie else leaders[0].color
 	var w := score_chip_width(label, score, 64.0, 200.0, CHIP_FONT, avatar)
@@ -238,7 +238,7 @@ static func name_tags(ci: CanvasItem, area: Vector2, entries: Array, radius := 4
 ## The race timer: a black box with a frame, in a fixed place. `pos` is the top-left corner.
 ## The box is at least `width` wide and as wide as its text needs: the Hebrew unit ("56.0 ש׳") is wider than "56.0 S".
 static func timer(ci: CanvasItem, pos: Vector2, seconds: float, width := 240.0) -> Rect2:
-	var shown := Lang.f("%.1f S", [seconds]).to_upper()
+	var shown := Lang.f("shell.seconds", [seconds]).to_upper()
 	var box_w := timer_width(shown, width)
 	var r := Rect2(Vector2(mx(ci, pos.x, box_w), pos.y), Vector2(box_w, 64.0))
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), r)

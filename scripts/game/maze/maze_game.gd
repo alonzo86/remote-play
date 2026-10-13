@@ -108,7 +108,7 @@ func _finish(slot: int) -> void:
 	for b in _balls:
 		if b.slot != slot:
 			board.set_unfinished(b.slot, -b.pos.distance_to(_exit_center()))
-	open_results(board, [], "", [], func(t: float) -> String: return Lang.f("%.1f s", [t]))
+	open_results(board, [], "", [], func(t: float) -> String: return Lang.f("result.seconds_1", [t]))
 
 
 func _exit_center() -> Vector2:
@@ -216,16 +216,16 @@ func _draw_exit_ring(ci: CanvasItem, c: Vector2) -> void:
 
 func _game_draw() -> void:
 	var o := Shell.snap(_origin())
-	Shell.title(self, "TILT MAZE")
+	Shell.title(self, "registry.tilt_maze")
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
-		Shell.countdown(self, size, str(n) if n > 0 else "GO", _round.count_elapsed())
+		Shell.countdown(self, size, str(n) if n > 0 else "shell.go", _round.count_elapsed())
 		var spots := {}
 		for b in _balls:
 			spots[b.slot] = Shell.snap(o + b.pos)
 		draw_name_tags(self, spots, BALL_R)
-		Shell.hint(self, size, "Hold the phone level. It recenters at GO.")
+		Shell.hint(self, size, "maze.hold_phone_level_it")
 	if participants.is_empty():
-		Shell.hint(self, size, "Join with the controller app, then start again.")
+		Shell.hint(self, size, "maze.join_with_wobble_app")

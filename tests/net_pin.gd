@@ -173,7 +173,7 @@ func _about() -> void:
 	print("About pages")
 	var pages := About.pages(false)
 	var titles := pages.map(func(p): return p.title)
-	_check(titles == ["Wobble", "Godot Engine", "3rd Party Libraries"], "the About list: Wobble, Godot, 3rd Party Libraries")
+	_check(titles == ["Wobble", "Godot Engine", "about.third_party_libraries"], "the About list: Wobble, Godot, 3rd Party Libraries")
 	_check(not ("QR scanner" in titles) and "QR scanner" in About.pages(true).map(func(p): return p.title),
 			"the scanner note is only for the Android phone")
 	var by := {}

@@ -26,7 +26,7 @@ func _ready() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 24)
 	m.add_child(box)
-	var title := UiKit.title("Who is playing?", 48)
+	var title := UiKit.title("profiles.who_playing", 48)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(title)
@@ -42,7 +42,7 @@ func _ready() -> void:
 	_note.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_note)
-	_new_button = UiKit.box_button("New player", _on_new, UiTheme.SIZE_ITEM)
+	_new_button = UiKit.box_button("profile_edit.new_player", _on_new, UiTheme.SIZE_ITEM)
 	_new_button.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_new_button)
 	var more := HBoxContainer.new()
@@ -53,15 +53,15 @@ func _ready() -> void:
 	_qr.scanned.connect(_on_code)
 	_qr.failed.connect(_on_scan_failed)
 	if _qr.is_available():   # An iPhone and a desktop have no scanner: they paste the code.
-		var scan := UiKit.box_button("Scan a player", _qr.scan, UiTheme.SIZE_BODY)
+		var scan := UiKit.box_button("profiles.scan_profile", _qr.scan, UiTheme.SIZE_BODY)
 		scan.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		scan.custom_minimum_size = Vector2(0, 110)
 		more.add_child(scan)
-	var paste := UiKit.box_button("Paste a code", func(): _on_code(DisplayServer.clipboard_get()), UiTheme.SIZE_BODY)
+	var paste := UiKit.box_button("profiles.paste_code", func(): _on_code(DisplayServer.clipboard_get()), UiTheme.SIZE_BODY)
 	paste.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	paste.custom_minimum_size = Vector2(0, 110)
 	more.add_child(paste)
-	var back := UiKit.box_button("Back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
+	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
 	back.custom_minimum_size = Vector2(0, 96)
 	box.add_child(back)
 	_rebuild()
@@ -86,23 +86,23 @@ func _rebuild() -> void:
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.custom_minimum_size = Vector2(0, 110)
 		row.add_child(b)
-		var edit := UiKit.box_button("Edit", _on_edit.bind(p.id), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		var edit := UiKit.box_button("profiles.edit", _on_edit.bind(p.id), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 		edit.custom_minimum_size = Vector2(0, 110)
 		row.add_child(edit)
-		var share := UiKit.box_button("Share", _on_share.bind(p.id), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		var share := UiKit.box_button("profiles.share", _on_share.bind(p.id), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 		share.custom_minimum_size = Vector2(0, 110)
 		row.add_child(share)
 		_list.add_child(row)
-	var guest := UiKit.box_button("Guest", _on_pick.bind(""), UiTheme.SIZE_ITEM,
+	var guest := UiKit.box_button("connect.guest", _on_pick.bind(""), UiTheme.SIZE_ITEM,
 			UiTheme.ACCENT if store.active_id == "" else UiTheme.TEXT)
 	guest.custom_minimum_size = Vector2(0, 110)
 	_list.add_child(guest)
 	_new_button.disabled = store.is_full()
-	_note.text = Lang.f("%d players is the maximum", [ProfileStore.MAX_PROFILES]).to_upper() if store.is_full() else ""
+	_note.text = Lang.f("profiles.maximum", [ProfileStore.MAX_PROFILES]).to_upper() if store.is_full() else ""
 	if note != "":
 		_note.text = note.to_upper()
 	if not store.last_save_ok:
-		_note.text = Lang.t("Could not save").to_upper()
+		_note.text = Lang.t("profiles.could_not_save").to_upper()
 
 
 func _on_pick(id: String) -> void:
@@ -126,7 +126,7 @@ func _on_code(text: String) -> void:
 
 func _on_scan_failed(reason: String) -> void:
 	if reason != "cancelled":
-		note = Lang.f("QR scan failed: %s", [reason])
+		note = Lang.f("connect.qr_failed", [reason])
 		_rebuild()
 
 

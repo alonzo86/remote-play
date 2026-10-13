@@ -43,9 +43,9 @@ static func is_valid(tiers: Array, lower_is_better := false) -> bool:
 static func label(medal_name: String) -> String:
 	match medal_name:
 		BRONZE:
-			return Lang.t("Bronze medal!")
+			return Lang.t("medals.bronze_medal")
 		SILVER:
-			return Lang.t("Silver medal!")
+			return Lang.t("medals.silver_medal")
 		GOLD:
-			return Lang.t("Gold medal!")
-	return Lang.t("No medal this time")
+			return Lang.t("medals.gold_medal")
+	return Lang.t("medals.no_medal_time")

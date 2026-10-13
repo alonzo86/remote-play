@@ -66,9 +66,9 @@ func _button_styles() -> void:
 			"the cursor is a stepped triangle that points right")
 	var flipped := UiTheme.cursor_rects(Vector2(0, 100), 5.0, true)
 	_check(flipped[0].position.x == 15.0 and flipped[3].position.x == 0.0, "a flipped cursor points left (right to left layouts)")
-	var item: Button = UiKit.item("Quit", func(): pass, 40, "danger")
+	var item: Button = UiKit.item("connect.quit", func(): pass, 40, "danger")
 	root.add_child(item)
-	_check(item.text == "QUIT" and item.theme_type_variation == "DangerButton" and item.focus_mode == Control.FOCUS_ALL,
+	_check(item.text == "connect.quit" and item.theme_type_variation == "DangerButton" and item.focus_mode == Control.FOCUS_ALL,
 			"a menu item shows upper case text and keeps its role")
 	item.queue_free()
 	# The double frame: a 6 px line, 6 px of black, a 6 px line, and the content margin covers all three.
@@ -107,16 +107,16 @@ func _wait_screen_leave() -> void:
 	var wait: Control = load("res://scripts/ui/controller_wait.gd").new()
 	root.add_child(wait)
 	await process_frame
-	_check(wait._leave.text == "DISCONNECT", "the button says DISCONNECT")
+	_check(wait._leave.text == "pad.disconnect", "the button says DISCONNECT (pad.disconnect)")
 	_check(wait._leave.get_global_rect().position.y < wait._name.get_global_rect().position.y,
 			"Disconnect is above the content of the waiting screen")
 	app.client._set_state(ControllerClient.State.CONNECTED)
 	wait._leave.pressed.emit()
 	_check(app.client.state == ControllerClient.State.IDLE, "one tap leaves the TV")
-	_check(wait.find_children("*", "Button", true, false).all(func(b): return b.text != "PLAYER"),
+	_check(wait.find_children("*", "Button", true, false).all(func(b): return b.text != "wait.player"),
 			"there is no PLAYER button while joined (REQ-FL-71)")
 	var wait_buttons: Array = wait.find_children("*", "Button", true, false).map(func(b): return b.text)
-	_check(wait_buttons.slice(-2) == ["SETTINGS", "ABOUT"], "About is the button after Settings: %s" % str(wait_buttons))
+	_check(wait_buttons.slice(-2) == ["common.settings", "common.about"], "About is the button after Settings")
 	wait.queue_free()
 
 
@@ -214,7 +214,7 @@ func _profile_screens() -> void:
 	await process_frame
 	var connect: Control = app.current_screen()
 	var dropdown: Control = _dropdown(connect)
-	_check(dropdown._head.get_child(0).get_child(1).text == "GUEST" and not dropdown.open,
+	_check(dropdown._head.get_child(0).get_child(1).text == "connect.guest" and not dropdown.open,
 			"a phone with no profile shows GUEST in a closed dropdown on the Connect screen")
 	_find_button(connect, "+").pressed.emit()
 	await process_frame
@@ -477,7 +477,7 @@ func _connect_scan() -> void:
 	await process_frame
 	screen._rebuild_list()
 	var texts: Array = screen._list.find_children("*", "Label", true, false).map(func(l): return l.text)
-	_check(screen._prober.running and "SEARCHING..." in texts, "while the scan runs the list says SEARCHING...")
+	_check(screen._prober.running and "connect.searching" in texts, "while the scan runs the list says SEARCHING...")
 	screen._join("127.0.0.1", 1, "ABCD")
 	_check(not screen._prober.running, "a join stops the scan")
 	app.client.leave()

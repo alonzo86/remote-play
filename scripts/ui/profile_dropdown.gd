@@ -22,7 +22,7 @@ func _ready() -> void:
 	row.add_theme_constant_override("separation", 16)
 	add_child(row)
 	var active = App.profiles.active()
-	_head = _row(active.avatar if active != null else -1, active.player_name if active != null else "Guest",
+	_head = _row(active.avatar if active != null else -1, active.player_name if active != null else "connect.guest",
 			active != null, toggle, UiTheme.TEXT, true)
 	_head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_head)
@@ -58,8 +58,8 @@ func _fill() -> void:
 	for p in store.profiles:
 		_list.add_child(_row(p.avatar, p.player_name, true, _pick.bind(p.id),
 				UiTheme.ACCENT if p.id == store.active_id else UiTheme.TEXT))
-	_list.add_child(_row(-1, "Guest", false, _pick.bind(""), UiTheme.ACCENT if store.active_id == "" else UiTheme.TEXT))
-	var manage := UiKit.box_button("Players", _on_manage, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_list.add_child(_row(-1, "connect.guest", false, _pick.bind(""), UiTheme.ACCENT if store.active_id == "" else UiTheme.TEXT))
+	var manage := UiKit.box_button("common.players", _on_manage, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	manage.custom_minimum_size = Vector2(0, 96)
 	_list.add_child(manage)
 

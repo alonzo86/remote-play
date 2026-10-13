@@ -263,7 +263,7 @@ The documents are as important as the code (REQ-GM-5). Each item is done in the 
 | `docs/EXPORT.md` | One line: `assets/avatars` is in the export of both apps. | A |
 | `README.md` | The feature list gets profiles; the docs index gets this file. | A |
 | `docs/PROFILES_PLAN.md` (this file) | Status line and a "what was built, what differs" section at the end of each phase, as in `docs/AUDIO_PLAN.md`. | each |
-| `scripts/core/strings.gd` | English and Hebrew texts for every new screen, button and message; `tests/smoke_lang.gd` fails when one is missing. The Hebrew text is written by Claude and checked by a native reader (manual test 17 style). | A, B, C |
+| `assets/lang/strings.csv` | English and Hebrew texts for every new screen, button and message; `tests/smoke_lang.gd` fails when one is missing. The Hebrew text is written by Claude and checked by a native reader (manual test 17 style). | A, B, C |
 
 ## 11. Tests
 

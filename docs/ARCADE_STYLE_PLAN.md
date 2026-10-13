@@ -265,8 +265,8 @@ step before every game night.
 ### 7.5 Phase 5 steps
 
 Built on 2026-10-10 (REQ-FL-54, 60 to 63, REQ-GM-47o, protocol message `lang`). How it differs from this text: the translation
-table is a GDScript file (`scripts/core/strings.gd`, the English text is the key) and not a `.csv` file, so that it needs no import
-step and no `.translation` file in the build; `TranslationServer` still translates labels and buttons by itself. The check that
+table was a GDScript file (`scripts/core/strings.gd`, the English text was the key) and not a `.csv` file, so that it needed no import
+step and no `.translation` file in the build. On 2026-10-11 it became `assets/lang/strings.csv` with real keys (FD-24), which the app reads itself, so there is still no import step; `TranslationServer` still translates labels and buttons by itself. The check that
 "a text without a key" fails is a static scan and a screen scan in `tests/smoke_lang.gd`. The project setting
 `internationalization/locale/include_text_server_data` is on, so the exports carry the text server data (the ICU data of the
 break iterator); the BiDi order itself comes from TextServerAdvanced, and a test checks the order of a mixed line. The device
