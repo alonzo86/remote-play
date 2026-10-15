@@ -1,14 +1,14 @@
 # Sababi Privacy Notice
 
-**Draft, not published.** Sababi TV and Sababi Controller. Last updated: 2026-10-15.
+**Draft, not published.** Sababi: TV Games and Sababi: Remote. Last updated: 2026-10-15.
 Provider: Alon Yampolski, Israel. Contact: sababi.play@gmail.com
 
 Sababi does not collect your personal data. We run no server, no account system and no analytics, so we never receive your name, your scores or your sensor readings. Everything below describes what stays on your own devices and your own Wi-Fi.
 
 ## 1. What the apps are
 
-- **Sababi TV** runs on a TV or TV box and shows the games.
-- **Sababi Controller** runs on a phone and is the game controller. It uses the motion sensors of the phone.
+- **Sababi: TV Games** runs on a TV or TV box and shows the games.
+- **Sababi: Remote** runs on a phone and is the game controller. It uses the motion sensors of the phone.
 
 The two apps talk to each other over the Wi-Fi network you are both on. They do not need the internet to play.
 

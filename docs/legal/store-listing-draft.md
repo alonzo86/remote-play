@@ -109,5 +109,5 @@ Sababa and Sababy: the owner decided on 2026-10-15 not to add the other spelling
 ## Still open
 
 1. "Made for family and friends" matches your answer on the audience. Google's target-audience form (issue #36) may still ask about children: decide your answer there.
-2. The store titles differ from the names on the device ("Sababi TV" and "Sababi Controller" in `export_presets.cfg`, and in the legal drafts). Play allows this. Tell me if you want the device names to change too (the app name is a string for your review).
+2. Decided: the names on the device are the same as the store titles (`export_presets.cfg`, FD-27). The iPhone app name comes from the project name ("Sababi"); it is not changed.
 3. Screenshots, the feature graphic (1024x500) and the icon are not drafted here.

@@ -81,8 +81,8 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 
 **Steps**
 
-1. Start the TV app. Check: the app is named **Sababi TV** in the launcher (uninstall the old Wobble and Remote Play apps first: the package names changed, FD-26). The Android splash shows the pixel mascot (a yellow face with sunglasses) on black, then the logo screen with the mascot and the word SABABI (sharp pixels, not blurred) and an animation (about 2.5 seconds), then the **Connect controllers** screen with a room code and a QR code. If the QR code is empty, the TV has no Wi-Fi address (the screen says so).
-2. Start the controller app on one phone. Check: it is named **Sababi Controller**, and the phone shows a **portrait** screen with the title SABABI.
+1. Start the TV app. Check: the app is named **Sababi: TV Games** in the launcher (uninstall the old Wobble and Remote Play apps first: the package names changed, FD-26). The Android splash shows the pixel mascot (a yellow face with sunglasses) on black, then the logo screen with the mascot and the word SABABI (sharp pixels, not blurred) and an animation (about 2.5 seconds), then the **Connect controllers** screen with a room code and a QR code. If the QR code is empty, the TV has no Wi-Fi address (the screen says so).
+2. Start the controller app on one phone. Check: it is named **Sababi: Remote**, and the phone shows a **portrait** screen with the title SABABI.
 3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "READY", and the line **Press OK to continue** shows at the bottom (there is no Continue button and no player count). Press OK. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
 4. Tap **Disconnect**, then tap the TV under **Discovered TVs**. Check: it joins (the button reads "<code> x/y", for example "KQZM 1/4", and it is green; **Refresh** is white). Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds. New (REQ-FL-83): with the TV app on a Mac, where the list stays empty, tap Refresh and check that the TV shows up in the list within about 15 seconds (the scan; it never starts by itself). If the Mac asks for the Local Network permission, answer with the app that runs the TV; the scan works without it.
 5. Tap **Disconnect**, then join with the **TV IP address**. Check: it joins.
@@ -838,7 +838,7 @@ New (2026-10-11). The headless tests check the rules and the pages. They do not 
 
 **Steps**
 
-1. Open the Sababi TV app. Check: the Connect screen shows the room code and, under it, a PIN of 4 digits, readable from the sofa.
+1. Open the Sababi: TV Games app. Check: the Connect screen shows the room code and, under it, a PIN of 4 digits, readable from the sofa.
 2. Scan the QR code of the TV with an Android phone. Check: the phone joins at once and shows no PIN pad.
 3. On a second phone, leave and tap the TV in the list of found TVs. Check: the PIN pad opens; type a wrong PIN: the phone says WRONG PIN. LOOK AT THE PIN ON THE TV.; tap the TV again and type the right PIN: the phone joins. Time how long this takes a grown-up. Check that Back closes the pad.
 4. Type 5 wrong PINs in a row on the second phone. Check: the sixth try, also with the right PIN, says TOO MANY WRONG PINS. WAIT A LITTLE AND TRY AGAIN.; after 30 seconds the right PIN joins. The PIN on the TV does not change. The first phone stays in its slot.
