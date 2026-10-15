@@ -63,8 +63,8 @@ func _run() -> void:
 	app.go_game_settings("maze")
 	await _frames(4)
 	var sv: Control = app.current_screen()
-	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 1 and sv.rows[0].value == "medium",
-			"the settings view of the maze has the row Difficulty on Medium")
+	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 2 and sv.rows[0].value == "medium" and sv.rows[1].value == "garden",
+			"the settings view of the maze has the rows Difficulty on Medium and Style on Garden (REQ-MZ-12)")
 	_check(sv.rows[0].has_focus() and sv.rows[0]._value.text == "MEDIUM", "the row has the focus and shows Medium")
 	var row_left: float = sv.rows[0].global_position.x
 	var row_right: float = row_left + sv.rows[0].size.x
@@ -102,12 +102,15 @@ func _run() -> void:
 	await _frames(4)
 	sv = app.current_screen()
 	_check(sv.rows[0].value == "hard", "the view opens with the last choice (REQ-GM-94)")
+	sv.rows[1]._gui_input(right)
+	_check(sv.rows[1].value == "castle" and sv.rows[1]._value.text == "CASTLE", "Right on the Style row gives Castle")
 	sv.start()
 	await _frames(4)
 	var game: Control = app.current_screen()
 	_check(is_instance_of(game, MazeGame) and game.difficulty == "hard" and game.cols == 21 and game.rows == 11,
 			"Start begins a Hard maze (21 x 11)")
 	_check(game.start_props.difficulty == "hard", "Restart keeps the difficulty (REQ-GM-93)")
+	_check(game.style == "castle" and game.start_props.style == "castle", "Start and Restart keep the style (REQ-MZ-12)")
 	# Snowball Splat has the same view, and Hard reaches the game and its field (REQ-SS-20).
 	var Snow = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
 	app.go_game_settings("snowball_splat")

@@ -288,6 +288,24 @@ func _maze_levels() -> void:
 			"fewer openings (more complex) with the difficulty")
 	_check(walls.easy < walls.medium and walls.medium < walls.hard, "more walls with the difficulty: %s" % str(walls))
 	_check(levels.medium.cols == 17 and levels.medium.rows == 9 and levels.medium.cell == 96.0, "Medium is the maze from before")
+	# The styles (REQ-MZ-12): the registry row lists exactly the styles the game draws, and the same place gets the same mark.
+	var style_row: Dictionary = {}
+	for g in load("res://scripts/game/registry.gd").GAMES:
+		if g.id == "maze":
+			style_row = g.settings[0]
+	var style_keys: Array = Maze.STYLES.keys()
+	var row_keys: Array = style_row.get("values", [])
+	style_keys.sort()
+	row_keys = row_keys.duplicate()
+	row_keys.sort()
+	_check(style_row.get("key", "") == "style" and style_keys == row_keys and Maze.STYLES.has(Maze.DEFAULT_STYLE),
+			"the Style row of the maze lists the styles of the game and the default is one of them")
+	var maze_node = Maze.new()
+	maze_node.style = "nothing"
+	_check(maze_node._look() == Maze.STYLES[Maze.DEFAULT_STYLE], "an unknown style gives the default look")
+	maze_node.free()
+	_check(Maze.scatter(3, 4, 1) == Maze.scatter(3, 4, 1) and Maze.scatter(3, 4, 1) != Maze.scatter(4, 3, 1),
+			"the marks of the floor come from the cell, so they stay in place")
 	var on_grid := fmod(Maze.WALL, Shell.WORLD_PIXEL) == 0.0
 	for d in levels:
 		on_grid = on_grid and fmod(float(levels[d].cell), Shell.WORLD_PIXEL) == 0.0
