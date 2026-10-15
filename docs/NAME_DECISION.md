@@ -100,7 +100,7 @@ Web search, the owner's register search and Claude's verification (above) were u
 ## Before the name is used
 
 1. ~~Open the two SABABA hits and write in this file the owner, the classes, the goods and the status.~~ Done by Claude (see "Verification by Claude").
-2. Partly done on 2026-10-15 by the owner: the Israel IPO and EUIPO's own search showed no similar marks, and Google Play has no app that uses the name SABABI. The owner did not write down which spellings he searched at the two registers or the exact results, so this is not clearance. Still open: SABABA and SABABY at both registers (if not searched), and the Apple App Store search for UK and Israel storefronts if needed.
+2. Done by the owner on 2026-10-15 (Israel IPO, EUIPO's own search, Google Play): no similar marks for SABABI and SABABY. SABABA has some listings; these are the SABABA marks already reviewed in "Verification by Claude". The owner did not write down the exact results, so this is not clearance. Still open: the Apple App Store search for UK and Israel storefronts, if needed.
 3. Search the social handles. The domain search is done (see above); decide whether sababi.com is worth acquiring or a fallback is used.
 4. Ask a trademark attorney.
 5. Set the store title and keywords (Sababa, Sababy and the Hebrew spelling).
