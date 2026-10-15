@@ -11,7 +11,7 @@ extends RefCounted
 ##   props   optional. Values set on the game before it starts.
 ##   settings  optional. The game has a settings view (REQ-GM-90) when this list exists. It lists the rows after Difficulty
 ##             (see game_settings.gd). An empty list means Difficulty only. A row with `"type": "tracks"` is the track list
-##             of the marble race (`scripts/ui/track_picker.gd`).
+##             of The Amazing Race (`scripts/ui/track_picker.gd`).
 ##   min_players / max_players  allowed player count (REQ-GM-20). The Games screen dims a game that does not fit.
 
 const Lang = preload("res://scripts/core/lang.gd")
@@ -23,11 +23,13 @@ const GAMES: Array[Dictionary] = [
 			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4,
 			"settings": [{"key": "maze_theme", "label": "Theme", "values": ["castle", "garden", "ice"],
 					"titles": ["Castle", "Garden", "Ice"], "default": "garden"}]},
-	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "Marble Race", "dim": "3d",
-			"description": "Tilt to roll your marble along the track. The first marble over the line wins.",
+	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "The Amazing Race", "dim": "2d",
+			"description": "Tilt to steer your car along the road. The first car over the line wins.",
 			"tile": "res://assets/tiles/marble_race.png",
 			"path": "res://scripts/game/marble_race/marble_race.gd", "min_players": 1, "max_players": 4,
-			"settings": [{"key": "track_choice", "label": "Track", "type": "tracks",
+			"settings": [{"key": "race_theme", "label": "Theme", "values": ["candy", "space", "jungle"],
+					"titles": ["Candy Road", "Space Rally", "Jungle Run"], "default": "candy"},
+					{"key": "track_choice", "label": "Track", "type": "tracks",
 					"values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "random"],
 					"titles": ["Track 1", "Track 2", "Track 3", "Track 4", "Track 5", "Track 6", "Track 7", "Track 8", "Track 9",
 							"Track 10", "Random"]}]},

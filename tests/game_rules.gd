@@ -7,6 +7,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
+const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
 const Medals = preload("res://scripts/game/medals.gd")
 const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
 const TiltBody = preload("res://scripts/game/tilt_body.gd")
@@ -38,6 +39,7 @@ func _initialize() -> void:
 	_maze_levels()
 	_difficulty()
 	_test_marble_track()
+	_test_race_look()
 	_tilt_body()
 	_paint_floor()
 	_paint_levels()
@@ -301,7 +303,9 @@ func _maze_levels() -> void:
 	_check(theme_row.get("key", "") == "maze_theme" and theme_keys == row_keys and MazeBoard.THEMES.has(MazeBoard.DEFAULT_THEME),
 			"the Theme row of the maze lists the styles of the board and the default is one of them")
 	_check(MazeBoard.look("nothing") == MazeBoard.THEMES[MazeBoard.DEFAULT_THEME], "an unknown theme gives the default look")
-	_check(MazeBoard.scatter(3, 4, 1) == MazeBoard.scatter(3, 4, 1) and MazeBoard.scatter(3, 4, 1) != MazeBoard.scatter(4, 3, 1),
+	var mark_a := MazeBoard.scatter(3, 4, 1)
+	var mark_b := MazeBoard.scatter(3, 4, 1)
+	_check(mark_a == mark_b and mark_a != MazeBoard.scatter(4, 3, 1),
 			"the marks of the ground come from the place, so they stay in place")
 	_test_maze_board()
 	var on_grid := fmod(Maze.WALL, Shell.WORLD_PIXEL) == 0.0
@@ -319,7 +323,8 @@ func _maze_levels() -> void:
 	for d in levels:
 		start_node.cell = float(levels[d].cell)
 		var o: float = start_node._start_offset()
-		starts_ok = starts_ok and o * 2.0 * sqrt(2.0) > Maze.BALL_R * 2.0 + 2.0 and (start_node.cell - Maze.WALL) * 0.5 - o >= Maze.BALL_R
+		starts_ok = starts_ok and o * 2.0 * sqrt(2.0) > Maze.BALL_R * 2.0 + 2.0
+		starts_ok = starts_ok and (start_node.cell - Maze.WALL) * 0.5 - o >= Maze.BALL_R
 	start_node.free()
 	_check(starts_ok, "the balls of slot 0 and 1 start apart and clear of the walls in every difficulty")
 
@@ -690,3 +695,102 @@ func _sumo_arena() -> void:
 	_check(SumoArena.dash_velocity(Vector2.ZERO, Vector2.ZERO) == Vector2.ZERO, "no tilt and no movement: no dash")
 	_check(SumoArena.round_winners([2], [0, 1]) == [2] and SumoArena.round_winners([], [0, 3]) == [0, 3]
 			and SumoArena.round_winners([1, 2], []) == [], "the last bumper wins; when none is left all that fell last win (REQ-SB-3)")
+
+
+func _test_race_look() -> void:
+	print("race look")
+	# The row of a capsule (REQ-MR-44): the span of a row agrees with the distance to the segment, for some segments and rows.
+	var segs := [[Vector2(10, 10), Vector2(50, 10)], [Vector2(10, 10), Vector2(40, 60)], [Vector2(60, 5), Vector2(20, 50)],
+			[Vector2(30, 30), Vector2(30, 30)]]
+	var span_ok := true
+	for sg in segs:
+		for py in [4.5, 10.5, 17.5, 29.5, 38.5, 52.5, 60.5, 70.5]:
+			var span: Vector2 = RaceLook.row_span(sg[0], sg[1], 6.0, py)
+			var lo := INF
+			var hi := -INF
+			for xi in 1900:
+				var x := -10.0 + xi * 0.05
+				var q := Vector2(x, py)
+				if q.distance_to(Geometry2D.get_closest_point_to_segment(q, sg[0], sg[1])) <= 6.0:
+					lo = minf(lo, x)
+					hi = maxf(hi, x)
+			if lo == INF:
+				span_ok = span_ok and span.x > span.y
+			else:
+				span_ok = span_ok and absf(span.x - lo) < 0.06 and absf(span.y - hi) < 0.06
+	_check(span_ok, "the span of a row of a road piece is the row of the points within its radius")
+	# The board of a straight road: the road, the walls, the outline, the finish line, and nothing outside (REQ-MR-44).
+	var line: Array[Vector2] = [Vector2(0, 8), Vector2(0, -30)]
+	var hw := 3.0
+	for key in RaceLook.THEMES:
+		var c: Dictionary = RaceLook.THEMES[key]
+		var board: Dictionary = RaceLook.render(key, line, hw, Vector2(0, -20), Vector2(0, -1))
+		var img: Image = board.image
+		var org: Vector2i = board.origin
+		var cx := -org.x
+		var y := -5 * RaceLook.PX - org.y
+		var road := img.get_pixel(cx + 2, y)
+		_check([c.road_a, c.road_b, c.mark].has(road), "%s: the middle of the road is road" % key)
+		var edge := int(hw * RaceLook.PX)
+		_check(img.get_pixel(cx + edge - 1, y) == c.outline and img.get_pixel(cx + edge + RaceLook.WALL_PX, y) == c.outline,
+				"%s: the wall has an outline on both sides" % key)
+		var wall := img.get_pixel(cx + edge + 3, y)
+		_check(wall == c.wall_a or wall == c.wall_b or wall == Color("145418"), "%s: the wall is between the outlines" % key)
+		_check(img.get_pixel(cx + edge + RaceLook.WALL_PX + 5, y).a == 0.0 and img.get_pixel(2, 2).a == 0.0,
+				"%s: the ground is empty in the board picture (the game draws it)" % key)
+		var whites := 0
+		var darks := 0
+		var fy := -20 * RaceLook.PX - org.y
+		for fx in range(cx - edge, cx + edge):
+			for dy in range(-3, 3):
+				whites += int(img.get_pixel(fx, fy + dy) == Color("fcfcfc"))
+				darks += int(img.get_pixel(fx, fy + dy) == RaceLook.OUTLINE)
+		_check(whites > 40 and darks > 40, "%s: the finish line is a band of white and black cells" % key)
+		_check(img.get_pixel(cx + 2, y + RaceLook.PX * 4) != c.ground_a, "%s: the road is not ground" % key)
+	var again: Dictionary = RaceLook.render("candy", line, hw, Vector2(0, -20), Vector2(0, -1))
+	var first: Dictionary = RaceLook.render("candy", line, hw, Vector2(0, -20), Vector2(0, -1))
+	_check(again.image.get_data() == first.image.get_data(), "the same track gives the same picture")
+	# A bend is filled too: the corner of two pieces has no hole (a point on the line is road at every pixel along it).
+	var bent: Array[Vector2] = [Vector2(0, 8), Vector2(0, -10), Vector2(14, -22)]
+	var bb: Dictionary = RaceLook.render("space", bent, hw, Vector2(14, -22), Vector2(1, -1))
+	var holes := 0
+	for i in 80:
+		var p := (Vector2(0, -10) + Vector2(14, -12) * (i / 79.0)) * RaceLook.PX - Vector2(bb.origin)
+		holes += int(bb.image.get_pixel(int(p.x), int(p.y)).a == 0.0)
+	_check(holes == 0, "the road has no hole along a bend")
+	# Cars and obstacles.
+	var car: Image = RaceLook.car_image(Color("e63946"))
+	_check(car.get_width() == 7 and car.get_height() == 12 and car.get_pixel(3, 1) == Color("e63946")
+			and car.get_pixel(3, 3) == RaceLook.CAR_GLASS and car.get_pixel(0, 0).a == 0.0 and car.get_pixel(3, 0) == RaceLook.OUTLINE,
+			"a car is 7x12 world pixels in the player color with a windscreen and an outline")
+	var pics_ok := true
+	var contrast_ok := true
+	for key in RaceLook.THEMES:
+		var c: Dictionary = RaceLook.THEMES[key]
+		_check(c.obstacles.size() == 3, "%s has three obstacles" % key)
+		for kind in c.obstacles:
+			var pic: Image = RaceLook.obstacle_image(key, kind)
+			var mine := 0
+			for yy in pic.get_height():
+				for xx in pic.get_width():
+					mine += int(pic.get_pixel(xx, yy) == c.outline)
+			pics_ok = pics_ok and pic.get_height() >= 12 and pic.get_width() >= 11 and mine >= 20 and pic.get_pixel(0, 0).a == 0.0
+			var top_row := false
+			for xx in pic.get_width():
+				top_row = top_row or pic.get_pixel(xx, 0) == c.outline
+			pics_ok = pics_ok and top_row
+		for road_color in [c.road_a, c.road_b]:
+			contrast_ok = contrast_ok and Shell.contrast(RaceLook.OUTLINE, road_color) >= 3.0
+			contrast_ok = contrast_ok and Shell.contrast(c.outline, road_color) >= 3.0
+		var g: Color = c.ground_a
+		var wall_best := maxf(Shell.contrast(c.wall_a, g), maxf(Shell.contrast(c.wall_b, g), Shell.contrast(c.outline, g)))
+		contrast_ok = contrast_ok and wall_best >= 3.0
+	_check(pics_ok, "every obstacle is 12 pixels high or more, with the outline of its theme around it (REQ-GM-47m)")
+	_check(contrast_ok, "car and obstacle outlines stand out from the road (3:1), the wall from the ground (REQ-MR-43, 47)")
+	var plain: Image = RaceLook.obstacle_image("candy", "nope")
+	_check(plain.get_width() >= 11 and plain.get_pixel(6, 6).a > 0.0, "an unknown obstacle name gives a plain disc")
+	_check(RaceLook.theme_or_default("space") == "space" and RaceLook.theme_or_default("nope") == RaceLook.DEFAULT_THEME
+			and RaceLook.look("nope") == RaceLook.THEMES[RaceLook.DEFAULT_THEME], "an unknown theme gives the default")
+	for key in RaceLook.THEMES:
+		_check(RaceLook.ground_tile(key).get_size() == Vector2i(120, 120) and RaceLook.road_tile(key).get_size() == Vector2i(120, 120)
+				and RaceLook.wall_tile(key).get_size() == Vector2i(120, 120), "%s: the pattern tiles are 120x120" % key)

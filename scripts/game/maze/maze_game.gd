@@ -1,8 +1,8 @@
 extends "res://scripts/game/minigame.gd"
 ## Tilt maze. Each phone tilts its own ball. The first ball in the exit wins.
 ## Tilt comes from PlayerInput.tilt(). The RECENTER button of the phone recenters (REQ-GM-37); GO recenters all.
-## Look (REQ-GM-47i to 47n, REQ-MZ-7, REQ-MZ-12): a pixel world in one of three themes (garden, castle, ice) that the player picks in the
-## settings view. The balls with eyes and the treasure chest of the exit look the same in every theme.
+## Look (REQ-GM-47i to 47n, REQ-MZ-7, REQ-MZ-12): a pixel world in one of three themes (garden, castle, ice) that the player
+## picks in the settings view. The balls with eyes and the treasure chest of the exit look the same in every theme.
 
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
@@ -75,7 +75,8 @@ func _game_ready() -> void:
 		_balls.append(b)
 
 
-## How far a ball starts from the middle of the start cell, on each axis: 0.22 of a cell, but not so far that the ball touches a wall.
+## How far a ball starts from the middle of the start cell, on each axis: 0.22 of a cell, but not so far that the ball touches
+## a wall.
 func _start_offset() -> float:
 	return minf(cell * 0.22, (cell - WALL) * 0.5 - BALL_R - 2.0)
 
@@ -185,8 +186,8 @@ func _collide(b: Ball) -> void:
 			b.vel -= (1.0 + RESTITUTION) * vn * n
 
 
-## Two small square eyes on a ball (the ball is too small for `Shell.pixel_eyes`): a white square of 8 px with a pupil of 4 px that
-## steps to the side the ball rolls.
+## Two small square eyes on a ball (the ball is too small for `Shell.pixel_eyes`): a white square of 8 px with a pupil of 4 px
+## that steps to the side the ball rolls.
 func _draw_eyes(ci: CanvasItem, c: Vector2, look: Vector2) -> void:
 	var step := (look * 2.0).limit_length(1.0).round() * Shell.WORLD_PIXEL * 0.5
 	for sx in [-1.0, 1.0]:

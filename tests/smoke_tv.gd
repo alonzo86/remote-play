@@ -12,6 +12,7 @@ var MazeGame
 var MarbleRace
 var Registry
 var MarbleTrack
+var RaceLook
 var TvLogo
 var TvConnect
 var TvGames
@@ -73,6 +74,7 @@ func _run() -> void:
 	# Load now, not at parse time: the App autoload must exist first.
 	MazeGame = load("res://scripts/game/maze/maze_game.gd")
 	MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
+	RaceLook = load("res://scripts/game/marble_race/race_look.gd")
 	Registry = load("res://scripts/game/registry.gd")
 	MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
 	TvLogo = load("res://scripts/ui/tv_logo.gd")
@@ -735,7 +737,7 @@ func _run() -> void:
 	menu._on_tile(Registry.find("marble_race"))
 	await _frames(4)
 	_check(is_instance_of(app.current_screen(), TvGameSettings) and app.current_screen().game_id == "marble_race",
-			"Marble Race opens its settings view (REQ-GM-90, REQ-MR-53)")
+			"The Amazing Race opens its settings view (REQ-GM-90, REQ-MR-53)")
 	app.current_screen().start()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), MarbleRace), "Start begins the race")
@@ -776,60 +778,51 @@ func _run() -> void:
 	await _frames(3)
 	menu = app.current_screen()
 
-	# Marble race: grid wait, tilt moves a marble, finish line ends the race.
+	# Race: grid wait, tilt moves a car, finish line ends the race.
 	root.size = Vector2i(1920, 1080)   # The headless window can have another shape. The TV is 16:9.
 	await _frames(3)
 	app.go(MarbleRace, {"track_choice": "3", "difficulty": "hard"})
 	await _frames(3)
 	var mr: Control = app.current_screen()
-	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")
+	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "car race starts with 2 participants")
 	_check(mr.track_seed == MarbleTrack.FIXED_SEEDS[2] and mr.track.title == "Track 3"
 			and mr.start_props.track_seed == mr.track_seed,
 			"the props choose the track and the seed is kept for Restart (REQ-MR-54)")
 	_check(mr.track.bumpers.size() > MarbleTrack.make(mr.track_seed, "easy").bumpers.size(),
 			"the difficulty gives the posts (REQ-MR-50)")
-	_check(mr.camera != null, "the 3D game has a camera")
-	# The 3D world is drawn in a 480x270 view, and the HUD works in full-resolution positions (REQ-GM-47i, 47n).
-	var focus := Vector3(mr._cam_pos.x, 0.0, mr._cam_pos.z)
-	_check(mr._viewport.size == Vector2i(480, 270) and mr.world_to_hud(focus).distance_to(mr.hud.size * 0.5) < 2.0,
-			"the 3D view is 480x270 and the point the camera looks at is in the middle of the HUD")
-	var square := [mr.view_size_for(Vector2(1920, 1080)), mr.view_size_for(Vector2(1280, 720)),
-			mr.view_size_for(Vector2(1000, 1000)),
-			mr.view_size_for(Vector2.ZERO)]
-	_check(square == [Vector2i(480, 270), Vector2i(480, 270), Vector2i(270, 270), Vector2i(480, 270)],
-			"the 3D view keeps square pixels in a window that is not 16:9 (REQ-GM-47i): " + str(square))
-	var marble_p := Vector3(mr._racers[0].pos.x, MarbleRace.R, mr._racers[0].pos.y)
-	var marble_r: float = mr.radius_on_hud(marble_p, MarbleRace.R)
-	_check(marble_r > 8.0, "a marble is still a clear color dot at the lowest camera: %.1f px" % marble_r)
-	mr.open_menu("Paused", [["Resume", mr.close_menu]])
-	await _frames(2)
-	_check(mr.world.process_mode == Node.PROCESS_MODE_DISABLED, "the 3D world freezes while paused")
-	mr.close_menu()
-	await _frames(2)
-	var post_color: Color = MarbleRace.get_script_constant_map()["POST_COLOR"]
-	var clash := false
-	for c in Protocol.PLAYER_COLORS:
-		if c.is_equal_approx(post_color):
-			clash = true
-	_check(not clash and not post_color.is_equal_approx(Color("e63946")), "post color is not a player color (REQ-MR-43)")
+	_check(mr._pixel_viewport != null and mr._pixel_viewport.size == Vector2i(480, 270) and mr.race_theme == "candy",
+			"the race is drawn in the 480x270 pixel view, in the Candy theme by default (REQ-MR-44, 45)")
+	var spots_ok := true
+	for s_i in mr.participants:
+		var spot: Vector2 = mr._screen(mr._racers[s_i].pos)
+		spots_ok = spots_ok and Rect2(Vector2(60, 112), Vector2(1800, 960)).has_point(spot) and fmod(spot.x, 4.0) == 0.0
+	_check(spots_ok, "at the start every car is on the screen, under the black bar, on the world pixel grid (REQ-MR-41)")
+	_check(RaceLook.CAR.size() * 4 >= 48 and RaceLook.CAR[0].length() * 4 >= 28,
+			"a car is 48 px high or more (REQ-GM-47m)")
+	var kinds_ok: bool = mr._bumper_kinds.size() == mr.track.bumpers.size()
+	for k in mr._bumper_kinds:
+		kinds_ok = kinds_ok and RaceLook.THEMES.candy.obstacles.has(k)
+	_check(kinds_ok, "every obstacle of the Candy theme is a lolly, a gumdrop or a cupcake (REQ-MR-46)")
 	_check(is_equal_approx(mr._racers[0].arc, mr._racers[1].arc) and absf(mr._racers[0].pos.distance_to(mr._racers[1].pos)) >= 1.0,
-			"marbles start on one line and do not touch (REQ-MR-4)")
+			"cars start on one line and do not touch (REQ-MR-4)")
 	var mx0: float = mr._racers[0].pos.x
 	await _stream(clients[0], 0, 1.0, tilt)
-	_check(absf(mr._racers[0].pos.x - mx0) < 0.01, "marbles wait on the grid during the countdown")
+	_check(absf(mr._racers[0].pos.x - mx0) < 0.01, "cars wait on the grid during the countdown")
 	await _stream(clients[0], 0, 2.6, tilt)
-	_check(mr._racers[0].pos.x > mx0 + 0.3, "marble 0 rolls right when the phone tilts right")
+	_check(mr._racers[0].pos.x > mx0 + 0.3, "car 0 rolls right when the phone tilts right")
+	_check(absf(mr._racers[0].angle - PI * 0.5) < deg_to_rad(40.0),
+			"a car that rolls right faces right, in steps of 15 degrees (REQ-MR-48)")
 	_check(mr.standings().size() == 2, "standings list both players")
 	clients[0].send_recenter()
 	await _stream(clients[0], 0, 0.5, tilt)
 	_check(mr.player(0).tilt().length() < 0.05, "the Recenter button zeroes the tilt in the race (REQ-GM-37)")
 
-	# Camera: all marbles in view at a small spread. Beyond the camera limit (about 55 m), edge markers point to them (REQ-MR-42).
+	# Camera: all cars in view at a small spread. Beyond what the screen shows, edge markers point to them (REQ-MR-42).
 	mr._racers[0].pos = mr.track.point_at(60.0)
-	mr._racers[1].pos = mr.track.point_at(30.0)
-	await _stream(clients[0], 0, 1.5, flat)
-	_check(mr.edge_markers().is_empty(), "no edge marker when the marbles are close")
-	var far_arc := 10.0   # The point of the track that is farthest from the start of marble 1 (a generated track can bend).
+	mr._racers[1].pos = mr.track.point_at(52.0)
+	await _stream(clients[0], 0, 2.0, flat)
+	_check(mr.edge_markers().is_empty(), "no edge marker when the cars are close")
+	var far_arc := 10.0   # The point of the track that is farthest from the start of car 1 (a generated track can bend).
 	var from_start: Vector2 = mr.track.point_at(10.0)
 	for arc_i in range(10, int(mr.finish_arc) - 1):
 		if mr.track.point_at(float(arc_i)).distance_to(from_start) > mr.track.point_at(far_arc).distance_to(from_start):
@@ -838,16 +831,16 @@ func _run() -> void:
 	mr._racers[1].pos = mr.track.point_at(10.0)
 	await _stream(clients[0], 0, 1.5, flat)
 	var markers: Array = mr.edge_markers()
-	_check(not markers.is_empty() and markers[0].dir.length() > 0.99, "an edge marker points to a marble that is out of view")
+	_check(not markers.is_empty() and markers[0].dir.length() > 0.99, "an edge marker points to a car that is out of view")
 	var over_line: Vector2 = mr.track.point_at(mr.finish_arc + 0.5)
-	var across: Vector2 = mr._perp(mr.track.dir_at(mr.finish_arc + 0.5)) * 0.8   # Side by side: the marbles do not push each other.
+	var across: Vector2 = mr._perp(mr.track.dir_at(mr.finish_arc + 0.5)) * 0.8   # Side by side: the cars do not push each other.
 	for s in [0, 1]:
 		mr._racers[s].pos = over_line + across * (1.0 if s == 0 else -1.0)
 	await _frames(5)
-	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
+	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "cars past the line finish")
 	_check(mr.is_over and mr.is_paused(), "race ends and the results menu opens")
 	var results_items: int = mr.menu_buttons().size()
-	_check(mr._menu_box.find_children("*", "Label", true, false)[0].text == "TIE!", "two marbles with the same time are a tie")
+	_check(mr._menu_box.find_children("*", "Label", true, false)[0].text == "TIE!", "two cars with the same time are a tie")
 	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
 	mr._open_results()
 	await _frames(2)
@@ -857,15 +850,15 @@ func _run() -> void:
 		race_rows.append(l.text)
 	_check(race_labels == ["TRY AGAIN", "NEW GAME", "BACK TO MENU"] and race_rows.size() == 3 and race_rows[0].ends_with("WINS!")
 			and race_rows[1].begins_with("1ST") and race_rows[2].begins_with("2ND") and race_rows[2].ends_with(" S"),
-			"the race results list both marbles with their times, and offer Settings: %s %s" % [str(race_labels), str(race_rows)])
-	mr._racers[1].finish_time = -1.0   # The second marble did not reach the line.
+			"the race results list both cars with their times, and offer Settings: %s %s" % [str(race_labels), str(race_rows)])
+	mr._racers[1].finish_time = -1.0   # The second car did not reach the line.
 	mr._open_results()
 	await _frames(2)
 	var late_rows: Array = []
 	for l in mr._menu_box.find_children("*", "Label", true, false):
 		late_rows.append(l.text)
 	_check(late_rows.size() == 3 and late_rows[2].begins_with("2ND") and late_rows[2].ends_with("NOT FINISHED"),
-			"a marble that did not finish is listed as not finished, after the finishers: %s" % str(late_rows))
+			"a car that did not finish is listed as not finished, after the finishers: %s" % str(late_rows))
 	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
 	mr._open_results()
 	await _frames(2)

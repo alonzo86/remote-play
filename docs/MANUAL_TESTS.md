@@ -56,7 +56,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Fail (item 1, fixed, retest) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
-| [9](#test-9) | Marble race (3D) | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
+| [9](#test-9) | The Amazing Race | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
 | [10](#test-10) | Snowball Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
@@ -336,44 +336,46 @@ History:
 
 ## Test 9
 
-### Marble race (3D)
+### The Amazing Race (car race before 2026-10-15)
 
-Needs: 2 to 4 phones, 1 TV. Covers: REQ-MR-*, REQ-3D-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 2 to 4 phones, 1 TV. Covers: REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
-Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Marble Race" and pick a track.
+Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "The Amazing Race" and pick a track.
 
 
 **Steps**
 
 1. Check: the TV shows the track from above, the order list at the top left, and the track name at the bottom right. All text is inside the screen edge and can be read from the sofa. (REQ-MR-9, REQ-MR-35)
-2. Check: during "3, 2, 1" the marbles do not move when you tilt. At "GO!" every phone buzzes. (REQ-MR-3)
-3. Tilt right: the marble goes right on the screen. Tilt the top of the phone up: the marble goes down on the screen. (REQ-3D-6)
-4. Check the feel. Write down if the marble is too slow, too fast, or too nervous. (`ACCEL`, `DAMPING`)
-5. Hit a wall, a post and another marble at speed. Check: the phone buzzes, not more than 6 times a second. (REQ-MR-13)
+2. Check: during "3, 2, 1" the cars do not move when you tilt. At "GO!" every phone buzzes. (REQ-MR-3)
+3. Tilt right: the car goes right on the screen. Tilt the top of the phone up: the car goes down on the screen. (REQ-3D-6)
+4. Check the feel. Write down if the car is too slow, too fast, or too nervous. (`ACCEL`, `DAMPING`)
+5. Hit a wall, a obstacle and another car at speed. Check: the phone buzzes, not more than 6 times a second. (REQ-MR-13)
 6. Check: the frame rate in the debug overlay is 60 (or close) with 4 phones on Hard. (REQ-GM-50)
-7. Let one marble run far ahead on a long track (Hard). Check: when the last marble leaves the view, an arrow in its color shows at the screen edge with a distance, and you can read it. (REQ-MR-42)
+7. Let one car run far ahead on a long track (Hard). Check: when the last car leaves the view, an arrow in its color shows at the screen edge with a distance, and you can read it. (REQ-MR-42)
 8. Finish a race on 3 different tracks of the list and on the random track. Write down the winning time of each. (REQ-MR-51)
-9. Open the tile of **Marble Race**. Check: the settings view shows Difficulty (Left and Right) and, under it, a carousel of tracks (10 line sketches and a "?", no names), wider than the Difficulty row, with the selected track in the middle. Move the carousel with Left and Right (the track in the middle is the one you get), then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many posts. Choose the "?" tile twice: the tracks are different. Try again: the same track again. (REQ-MR-50 to 54)
+9. Open the tile of **The Amazing Race**. Check: the settings view shows Difficulty (Left and Right) and, under it, a carousel of tracks (10 line sketches and a "?", no names), wider than the Difficulty row, with the selected track in the middle. Move the carousel with Left and Right (the track in the middle is the one you get), then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many obstacles. Choose the "?" tile twice: the tracks are different. Try again: the same track again. (REQ-MR-50 to 54)
 10. During a race, open the pause menu. Check: it has Resume, Try again and Back to menu only. (REQ-MR-32)
-11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the marble stops drifting.
-12. **Pixel world (phase 3, REQ-MR-44, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the race. Check: the track, the posts and the marbles are made of sharp square pixels (not blurred), each marble has a black outline and its number is easy to read on it, and the posts and marbles are easy to tell apart on the purple track. Fly the camera high (let one marble run far ahead): the small marbles have no number, and you can still follow them by color. Write down the frame rate with 4 phones on Hard (it should be the same or better than before) and the TV (1080p or 4K).
+11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the car stops drifting.
+12. **Pixel world (REQ-MR-44, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the race in each theme. Check: the road, the walls, the obstacles and the cars are made of sharp square pixels (not blurred), each car has a black outline and is easy to tell from the road and from the obstacles, and the finish line is a clear black and white band. Let one car run far ahead: the small car stays readable and the edge arrow (item 7) shows. Check the frame rate and that the race starts at once (the road picture is made in the first frame).
+13. **Themes (REQ-MR-45, 46, 47, 48).** In the settings view the row **Theme** shows Candy Road, Space Rally and Jungle Run. Play one race in each theme. Check: the ground, the road, the walls and the three obstacles match the theme (candy: lollipops, gumdrops, cupcakes; space: asteroids, satellites, craters; jungle: logs, boulders, tiki masks); the obstacles are the same on Try again; the cars look the same in every theme and turn to face the way they move; the walls stand out from the ground in all three. Press Try again and Settings: the theme you chose is still chosen. Switch the TV to Hebrew: the title and the theme names are readable (a Hebrew reader checks the wording). Check with a child of 5 to 8 years: is a car easy to follow and are the obstacles easy to see?
 
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the race screen (order list, track name) | Not run | | | |
-| 2 | Video: marbles still in the countdown, GO buzz noted | Not run | | | |
+| 2 | Video: cars still in the countdown, GO buzz noted | Not run | | | |
 | 3 | Video: tilt right and tilt up | Not run | | | |
 | 4 | Note: too slow, too fast or too nervous | Not run | | | |
-| 5 | Note: count the buzzes in one second at a wall, a post and a marble | Not run | | | |
+| 5 | Note: count the buzzes in one second at a wall, a obstacle and a car | Not run | | | |
 | 6 | Overlay screenshot (FPS) with 4 phones on Gauntlet | Not run | | | |
 | 7 | Photo of an edge arrow with its distance | Not run | | | |
 | 8 | Winning time for each track (fill the table in the test) | Not run | | | |
-| 9 | Photo of the settings view; video of choosing a track and of Easy, Medium and Hard; note on the generated tracks (any bad bends or corners where a marble gets stuck) | Not run | | | Changed 2026-10-09: the four hand-made tracks were replaced by generated tracks. |
+| 9 | Photo of the settings view; video of choosing a track and of Easy, Medium and Hard; note on the generated tracks (any bad bends or corners where a car gets stuck) | Not run | | | Changed 2026-10-09: the four hand-made tracks were replaced by generated tracks. |
 | 10 | Photo of the pause menu | Not run | | | |
 | 11 | Video of a full race on one track and notes for every check in the item | Not run | | | |
-| 12 | Photo of the race from the sofa; note: sharp pixels, readable numbers, the frame rate and the TV | Not run | | | |
+| 12 | Photo of the race from the sofa in each theme; note: sharp pixels, the outline of the cars, the frame rate and the TV | Not run | | | |
+| 13 | Photo of each theme; the settings view with the Theme row; note on the Hebrew texts and on the child | Not run | | | Added 2026-10-15: the race became The Amazing Race (flat pixel world, 3 themes). |
 
 Winning times (item 8):
 
@@ -386,8 +388,8 @@ Winning times (item 8):
 
 History:
 
-- 2026-10-09 (not run): the four hand-made tracks were replaced by generated tracks, and item 9 is new: the settings view with Difficulty and the track carousel (10 sketches and a '?', the middle one is chosen, yellow border), difficulty by the number of posts (Easy 2, Medium 6, Hard 10 for each 100 m). Look for a bend where a marble gets stuck, and for too many posts on Hard. The results menu has Settings, not Choose track.
-- 2026-10-10 (not run): item 12 is new: the 3D world is drawn in a 480x270 pixel view (phase 3 of the arcade style), and the marbles have their slot number on them.
+- 2026-10-09 (not run): the four hand-made tracks were replaced by generated tracks, and item 9 is new: the settings view with Difficulty and the track carousel (10 sketches and a '?', the middle one is chosen, yellow border), difficulty by the number of obstacles (Easy 2, Medium 6, Hard 10 for each 100 m). Look for a bend where a car gets stuck, and for too many obstacles on Hard. The results menu has Settings, not Choose track.
+- 2026-10-10 (not run): item 12 is new: the 3D world is drawn in a 480x270 pixel view (phase 3 of the arcade style), and the cars have their slot number on them.
 - -: **Not run**. Not run on a device yet. Item 11 is new: run it again after a change of the shared game code (PR 12 changed the countdown, the buzz limit and the end with no players).
 
 ## Test 10

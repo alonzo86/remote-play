@@ -54,18 +54,21 @@ const HE := {
 	"GARDEN": "גינה",
 	"CASTLE": "טירה",
 	"ICE": "קרח",
+	"CANDY ROAD": "כביש הממתקים",
+	"SPACE RALLY": "ראלי בחלל",
+	"JUNGLE RUN": "ריצה בג׳ונגל",
 	"Track %d": "מסלול %d",
 	"RANDOM TRACK": "מסלול אקראי",
 	"RANDOM": "אקראי",
 	"TREASURE MAZE": "מבוך האוצר",
-	"MARBLE RACE": "מרוץ גולות",
+	"THE AMAZING RACE": "המרוץ המופלא",
 	"PAINT GRAB": "חטיפת צבע",
 	"SUMO BUMPERS": "סומו מתנגשים",
 	"SNOWBALL SPLAT": "קרב כדורי שלג",
 	"TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.":
 		"הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.",
-	"TILT TO ROLL YOUR MARBLE ALONG THE TRACK. THE FIRST MARBLE OVER THE LINE WINS.":
-		"הטו כדי לגלגל את הגולה לאורך המסלול. הגולה הראשונה מעל הקו מנצחת.",
+	"TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.":
+		"הטו כדי להוביל את המכונית לאורך הכביש. המכונית הראשונה מעל הקו מנצחת.",
 	"TILT YOUR PHONE TO ROLL YOUR PAINT BLOB OVER THE FLOOR. THE MOST PAINTED TILES IN 60 S WINS.":
 		"הטו את הטלפון כדי לגלגל את כתם הצבע על הרצפה. מי שצבע הכי הרבה אריחים תוך 60 שניות מנצח.",
 	"TILT TO ROLL YOUR BUMPER AND PUSH THE OTHERS OFF THE SHRINKING PLATFORM. MOST POINTS IN 3 ROUNDS WINS.":

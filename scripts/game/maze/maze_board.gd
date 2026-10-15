@@ -166,9 +166,9 @@ static func _start(img: Image, c: Dictionary, start: Rect2) -> void:
 	img.fill_rect(Rect2i(r.position + Vector2i(r.size.x - 1, 0), Vector2i(1, r.size.y)), edge)
 
 
-## Two small pictures in the margin on each side of the maze (REQ-MZ-13): the first picture of the theme on top at the left and at the
-## bottom at the right, the second one the other way round. They are centered in the free space beside the walls, at a quarter and
-## at three quarters of the height of the maze. A picture that does not fit in the margin is not drawn.
+## Two small pictures in the margin on each side of the maze (REQ-MZ-13): the first picture of the theme on top at the left and
+## at the bottom at the right, the second one the other way round. They are centered in the free space beside the walls, at a
+## quarter and at three quarters of the height of the maze. A picture that does not fit in the margin is not drawn.
 static func _decorations(img: Image, c: Dictionary, walls: Array[Rect2]) -> void:
 	if walls.is_empty():
 		return

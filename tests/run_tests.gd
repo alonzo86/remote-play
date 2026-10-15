@@ -10,6 +10,7 @@ const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
+const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
 const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
@@ -239,10 +240,15 @@ func _test_registry() -> void:
 	_check(shown_ok, "every game has a description and a 640x360 tile file (REQ-FL-19, 20, 22)")
 	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
 	var race_rows: Array = Registry.find("marble_race").get("settings", [])
-	_check(race_rows.size() == 1 and race_rows[0].type == "tracks"
-			and race_rows[0].values.size() == MarbleTrack.FIXED_SEEDS.size() + 1
-			and race_rows[0].titles.size() == race_rows[0].values.size() and race_rows[0].values[-1] == "random",
-			"the marble race track list has the 10 fixed tracks and the random one (REQ-MR-53)")
+	_check(race_rows.size() == 2 and race_rows[1].type == "tracks"
+			and race_rows[1].values.size() == MarbleTrack.FIXED_SEEDS.size() + 1
+			and race_rows[1].titles.size() == race_rows[1].values.size() and race_rows[1].values[-1] == "random",
+			"the race track list has the 10 fixed tracks and the random one (REQ-MR-53)")
+	var race_theme_row: Dictionary = race_rows[0]
+	_check(race_theme_row.key == "race_theme" and race_theme_row.label == "Theme"
+			and race_theme_row.values == RaceLook.THEMES.keys() and race_theme_row.titles.size() == 3
+			and race_theme_row.values.has(race_theme_row.default) and race_theme_row.default == RaceLook.DEFAULT_THEME,
+			"the race has a Theme row with one value for each look, and a default (REQ-MR-45)")
 	var sumo: Dictionary = Registry.find("sumo_bumpers")
 	_check(not Registry.accepts(sumo, 1) and Registry.accepts(sumo, 2) and Registry.accepts(sumo, 4)
 			and not Registry.accepts(sumo, 5) and Registry.reason(sumo, 1) == "Needs 2 players",
