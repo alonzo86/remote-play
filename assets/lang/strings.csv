@@ -1,5 +1,5 @@
 ﻿key,en,he,where,notes
-about.app_scans_with_google,"The app scans the QR code with the Google code scanner (Play services). The picture stays on your phone and Sababi gets only the text. Google receives technical data about how the scanner works, such as the phone model and the app version.",האפליקציה סורקת את קוד ה־QR באמצעות סורק הקודים של GOOGLE (שירותי PLAY). התמונה נשארת בטלפון ו־SABABI מקבל רק את הטקסט. GOOGLE מקבלת נתונים טכניים על פעולת הסורק, כמו דגם הטלפון וגרסת האפליקציה.,"About screen, Android phone only: note about the Google code scanner",
+about.app_scans_with_google,"The app scans the QR code with the Google code scanner (Play services). The picture stays on your phone and Sababi gets only the text. Google receives technical data about how the scanner works, such as the phone model and the app version.",האפליקציה סורקת את קוד ה־QR באמצעות סורק הקודים של GOOGLE (שירותי PLAY). התמונה נשארת בטלפון ו־SABABI מקבל רק את הטקסט. GOOGLE מקבלת נתונים טכניים על פעולת הסורק, כמו דגם הטלפון וגרסת האפליקציה.,"About screen, Android phone only: note about the Google code scanner"
 about.pages_below_list_parts,"The pages below list the parts of other makers that Sababi uses, and their licenses.","הדפים שלמטה מפרטים את החלקים של יוצרים אחרים ש־SABABI משתמש בהם, ואת הרישיונות שלהם.","About screen, first page: line before the list of other makers' parts",
 about.phones_tv_communicate_over,"The phones and the TV communicate over your Wi-Fi. The link is not encrypted, so play on a network you trust.","הטלפונים והטלוויזיה מתקשרים דרך ה־WI-FI שלכם. החיבור אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.","About screen, first page: the link is not encrypted, play on a trusted network",
 about.refresh_scans_addresses,"When you tap Refresh, the phone also scans the other addresses of your Wi-Fi network.","בלחיצה על רענון, הטלפון סורק גם את שאר הכתובות ברשת ה־WI-FI שלכם.","About screen, first page: sentence after the Wi-Fi sentence",
@@ -36,7 +36,7 @@ connect.no_wi_fi_address,NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK.
 connect.not_sababi_code,THIS IS NOT A SABABI CODE.,זה לא קוד של SABABI.,"Phone, Connect screen: message when the scanned or pasted text is not a Sababi code",
 connect.press_ok_continue,PRESS OK TO CONTINUE,לחצו OK להמשך,TV Connect screen: blinking prompt once a phone has joined,
 connect.qr_failed,QR scan failed: %s,סריקת QR נכשלה: %s,"Phone: message when the QR scan fails, %s is the reason",%s is replaced by a name or a value
-connect.quit,QUIT,יציאה,TV Connect screen: Quit button of the 'Quit Sababi?' dialog,
+connect.quit,QUIT,יציאה,TV Connect screen: Quit button of the 'Quit?' dialog,
 connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen: title of the quit dialog,
 connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens)",
 connect.refresh,REFRESH,רענן,"Phone, Connect screen: button that searches for TVs again",
