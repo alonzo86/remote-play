@@ -19,13 +19,16 @@ const OUTLINE := Color("101018")   # The outline of a car.
 const THEMES := {
 	"candy": {"ground_a": Color("f8a8d0"), "ground_b": Color("f090c0"), "road_a": Color("fff0d8"), "road_b": Color("f8e4c8"),
 			"mark": Color("f8b8d8"), "wall_a": Color("fcfcfc"), "wall_b": Color("e8286c"), "outline": Color("8c1c50"),
-			"obstacles": ["lolly", "gumdrop", "cupcake"]},
+			"obstacles": ["lolly", "gumdrop", "cupcake"],
+			"decor": ["lolly_big", "cane", "icecream", "donut", "cookie", "wrapped"]},
 	"space": {"ground_a": Color("0c0c28"), "ground_b": Color("080820"), "road_a": Color("6c7488"), "road_b": Color("646c80"),
 			"mark": Color("4c5468"), "wall_a": Color("3ddcff"), "wall_b": Color("1c88b0"), "outline": Color("101040"),
-			"obstacles": ["asteroid", "satellite", "crater"]},
+			"obstacles": ["asteroid", "satellite", "crater"],
+			"decor": ["rocket", "ringed", "ufo", "planet", "star"]},
 	"jungle": {"ground_a": Color("145820"), "ground_b": Color("10501c"), "road_a": Color("b88048"), "road_b": Color("b07844"),
 			"mark": Color("8c5c30"), "wall_a": Color("2c8c30"), "wall_b": Color("58b848"), "outline": Color("06280c"),
-			"obstacles": ["log", "boulder", "tiki"]},
+			"obstacles": ["log", "boulder", "tiki"],
+			"decor": ["palm", "palm", "bush", "hibiscus", "mushroom", "fern"]},
 }
 
 ## A car: 11x16 world pixels, pointing up. `K` outline, `B` the player color with its light `L` and shade `S`, `F` the white
@@ -171,12 +174,13 @@ static func _outlined(src: Image, color: Color) -> Image:
 	var h := src.get_height()
 	var out := Image.create(w + 2, h + 2, false, Image.FORMAT_RGBA8)
 	out.blit_rect(src, Rect2i(0, 0, w, h), Vector2i(1, 1))
+	var painted := out.duplicate() as Image   # The outline pixels do not count as painted: it is one pixel wide.
 	for y in h + 2:
 		for x in w + 2:
-			if out.get_pixel(x, y).a > 0.0:
+			if painted.get_pixel(x, y).a > 0.0:
 				continue
 			for n in [Vector2i(x - 1, y), Vector2i(x + 1, y), Vector2i(x, y - 1), Vector2i(x, y + 1)]:
-				if n.x >= 1 and n.y >= 1 and n.x <= w and n.y <= h and out.get_pixelv(n).a > 0.0:
+				if n.x >= 1 and n.y >= 1 and n.x <= w and n.y <= h and painted.get_pixelv(n).a > 0.0:
 					out.set_pixel(x, y, color)
 					break
 	return out
@@ -391,3 +395,222 @@ static func _finish_line(img: Image, at: Vector2, dir: Vector2, half_road: float
 				continue
 			var cell := floori((u + FINISH_CELL) / FINISH_CELL) + floori((v + half_road) / FINISH_CELL)
 			img.set_pixel(x, y, Color("fcfcfc") if cell % 2 == 0 else OUTLINE)
+
+
+# ---- Scenery beside the road ----
+
+const DECOR_GAP_MIN := 1.2     # Meters from the outer edge of the wall to the scenery, at the least.
+const DECOR_GAP_MAX := 5.0
+const DECOR_STEP_MIN := 2.2    # Meters along the road between two pieces of scenery on one side.
+const DECOR_STEP_MAX := 4.5
+
+
+## The picture of a piece of scenery of `theme` with its outline: a lollipop, a rocket, a palm tree. `kind` is one of the `decor`
+## names of the theme. They are bigger than the obstacles (16 to 28 world pixels).
+static func decor_image(theme: String, kind: String) -> Image:
+	var img := Image.create(36, 36, false, Image.FORMAT_RGBA8)
+	var area := _paint_decor(img, kind)
+	return _outlined(img.get_region(area), look(theme).outline)
+
+
+static func _paint_decor(img: Image, kind: String) -> Rect2i:
+	var red := Color("e8286c")
+	var white := Color("fcfcfc")
+	match kind:
+		"lolly_big":
+			for ring in [[10.0, red], [8.0, white], [6.0, red], [4.0, white], [2.0, red]]:
+				_disc(img, 10.0, 10.0, ring[0], ring[0], ring[1])
+			_box(img, 9, 20, 3, 10, white)
+			_box(img, 11, 20, 1, 10, Color("f8b8d8"))
+			return Rect2i(0, 0, 21, 30)
+		"cane":
+			for y in 28:
+				for x in 22:
+					var shaft := x >= 8 and x <= 11 and y >= 8
+					var hook := false
+					var d := Vector2(x + 0.5, y + 0.5).distance_to(Vector2(14.0, 8.0))
+					if y <= 8 and d <= 7.0 and d >= 3.0:
+						hook = true
+					if shaft or hook:
+						img.set_pixel(x, y, red if ((x + y) / 3) % 2 == 0 else white)
+			return Rect2i(0, 0, 22, 28)
+		"icecream":
+			_poly(img, [Vector2(3, 13), Vector2(19, 13), Vector2(11, 30)], Color("d89850"))
+			for k in range(0, 14, 4):
+				_box(img, 5 + k / 3, 15 + k, 12 - k * 2 / 3, 1, Color("a0702c"))
+			_disc(img, 11.0, 10.0, 8.0, 7.0, Color("f8a0c8"))
+			_disc(img, 8.0, 7.0, 2.0, 2.0, Color("fcd0e4"))
+			_disc(img, 11.0, 2.0, 2.0, 2.0, Color("e83838"))
+			return Rect2i(0, 0, 22, 31)
+		"donut":
+			_disc(img, 10.0, 10.0, 10.0, 10.0, Color("e8a050"))
+			_disc(img, 10.0, 10.0, 8.5, 8.5, Color("f8a0c8"))
+			_disc(img, 10.0, 10.0, 3.0, 3.0, Color(0, 0, 0, 0))
+			var sprinkles := [Color("48c838"), Color("3ddcff"), Color("f8e060"), Color("fcfcfc")]
+			for p in [Vector2i(4, 6), Vector2i(8, 3), Vector2i(14, 5), Vector2i(16, 11), Vector2i(13, 15), Vector2i(6, 14),
+					Vector2i(3, 10)]:
+				_box(img, p.x, p.y, 2, 1, sprinkles[(p.x + p.y) % 4])
+			return Rect2i(0, 0, 20, 20)
+		"cookie":
+			_disc(img, 9.0, 9.0, 9.0, 9.0, Color("d8a060"))
+			_disc(img, 7.0, 6.0, 3.0, 2.0, Color("e8b878"))
+			for p in [Vector2i(5, 8), Vector2i(10, 4), Vector2i(12, 10), Vector2i(7, 13), Vector2i(13, 14)]:
+				_box(img, p.x, p.y, 2, 2, Color("5c3410"))
+			return Rect2i(0, 0, 18, 18)
+		"wrapped":
+			_poly(img, [Vector2(7, 8), Vector2(0, 2), Vector2(0, 14)], Color("70c8f8"))
+			_poly(img, [Vector2(19, 8), Vector2(26, 2), Vector2(26, 14)], Color("70c8f8"))
+			_disc(img, 13.0, 8.0, 8.0, 6.0, red)
+			for k in range(-6, 7, 4):
+				_box(img, 13 + k, 3, 2, 10, white)
+			return Rect2i(0, 0, 27, 17)
+		"rocket":
+			_poly(img, [Vector2(4, 22), Vector2(0, 28), Vector2(7, 24)], red)
+			_poly(img, [Vector2(16, 22), Vector2(20, 28), Vector2(13, 24)], red)
+			_poly(img, [Vector2(7, 26), Vector2(13, 26), Vector2(10, 33)], Color("f8a000"))
+			_disc(img, 10.0, 14.0, 5.5, 12.0, Color("e0e8f0"))
+			_poly(img, [Vector2(4.5, 8), Vector2(15.5, 8), Vector2(10, 0)], red)
+			_disc(img, 10.0, 14.0, 2.6, 2.6, Color("3ddcff"))
+			_box(img, 5, 21, 10, 2, Color("8890a8"))
+			return Rect2i(0, 0, 21, 33)
+		"ringed":
+			for y in 22:
+				for x in 25:
+					var q := Vector2((x + 0.5 - 12.0) / 12.0, (y + 0.5 - 11.0) / 4.0)
+					var l := q.length_squared()
+					if l <= 1.0 and l >= 0.55 and y < 11:
+						img.set_pixel(x, y, Color("f8d880"))
+			_disc(img, 12.0, 11.0, 7.0, 7.0, Color("f8a000"))
+			for y in [8, 11, 13]:
+				for x in range(6, 19):
+					if img.get_pixel(x, y).a > 0.0 and img.get_pixel(x, y) == Color("f8a000"):
+						img.set_pixel(x, y, Color("c87800"))
+			for y in 22:
+				for x in 25:
+					var q2 := Vector2((x + 0.5 - 12.0) / 12.0, (y + 0.5 - 11.0) / 4.0)
+					var l2 := q2.length_squared()
+					if l2 <= 1.0 and l2 >= 0.55 and y >= 11:
+						img.set_pixel(x, y, Color("f8d880"))
+			return Rect2i(0, 0, 25, 22)
+		"ufo":
+			_disc(img, 13.0, 11.0, 13.0, 5.0, Color("a0a8b8"))
+			_disc(img, 13.0, 7.0, 5.0, 5.0, Color("3ddcff"))
+			_disc(img, 11.5, 5.5, 1.5, 1.5, Color("c8f4ff"))
+			_box(img, 0, 9, 26, 1, Color("c0c8d8"))
+			for x in [4, 9, 14, 19, 22]:
+				img.set_pixel(x, 12, Color("f8e060"))
+			return Rect2i(0, 0, 26, 17)
+		"planet":
+			_disc(img, 9.0, 9.0, 9.0, 9.0, Color("3070e0"))
+			_disc(img, 6.0, 6.0, 3.5, 3.0, Color("48c838"))
+			_disc(img, 12.5, 11.5, 3.0, 4.0, Color("48c838"))
+			_disc(img, 5.0, 5.0, 1.5, 1.0, Color("a0e090"))
+			return Rect2i(0, 0, 18, 18)
+		"star":
+			_poly(img, [Vector2(8, 0), Vector2(10, 6), Vector2(16, 8), Vector2(10, 10), Vector2(8, 16), Vector2(6, 10), Vector2(0, 8),
+					Vector2(6, 6)], Color("f8e060"))
+			return Rect2i(0, 0, 17, 17)
+		"palm":
+			var c := Vector2(14, 14)
+			for k in 8:
+				var a := deg_to_rad(k * 45.0 + 22.0)
+				var dir := Vector2(sin(a), -cos(a))
+				var side := Vector2(-dir.y, dir.x)
+				_poly(img, [c, c + dir * 7.0 + side * 3.5, c + dir * 13.5, c + dir * 7.0 - side * 3.5],
+						Color("2c8c30") if k % 2 == 0 else Color("58b848"))
+			_disc(img, 14.0, 14.0, 3.0, 3.0, Color("7c4a1c"))
+			for p in [Vector2i(12, 12), Vector2i(15, 12), Vector2i(14, 15)]:
+				_box(img, p.x, p.y, 2, 2, Color("301808"))
+			return Rect2i(0, 0, 28, 28)
+		"bush":
+			_disc(img, 6.0, 9.0, 6.0, 5.5, Color("2c8c30"))
+			_disc(img, 14.0, 9.0, 7.0, 6.0, Color("2c8c30"))
+			_disc(img, 10.0, 6.0, 7.0, 6.0, Color("3c9c3c"))
+			for p in [Vector2i(8, 3), Vector2i(9, 3), Vector2i(4, 7), Vector2i(15, 6), Vector2i(12, 9)]:
+				img.set_pixelv(p, Color("70d060"))
+			_box(img, 2, 12, 16, 2, Color("145418"))
+			return Rect2i(0, 0, 21, 14)
+		"hibiscus":
+			_disc(img, 4.0, 15.0, 4.0, 2.5, Color("2c8c30"))
+			_disc(img, 16.0, 15.0, 4.0, 2.5, Color("2c8c30"))
+			for k in 5:
+				var a2 := deg_to_rad(k * 72.0)
+				_disc(img, 10.0 + sin(a2) * 5.0, 9.0 - cos(a2) * 5.0, 4.0, 4.0, Color("e83838"))
+			_disc(img, 10.0, 9.0, 2.5, 2.5, Color("f8e060"))
+			return Rect2i(0, 0, 20, 19)
+		"mushroom":
+			_box(img, 6, 9, 6, 8, Color("f8ecd0"))
+			_disc(img, 9.0, 7.0, 9.0, 6.5, Color("e83838"))
+			_box(img, 0, 9, 18, 1, Color("e83838"))
+			for p in [Vector2i(5, 4), Vector2i(10, 3), Vector2i(13, 6), Vector2i(8, 7)]:
+				_box(img, p.x, p.y, 2, 2, Color("fcfcfc"))
+			return Rect2i(0, 0, 18, 17)
+		"fern":
+			var f := Vector2(10, 10)
+			for k in 7:
+				var a3 := deg_to_rad(k * 51.4 + 10.0)
+				var d3 := Vector2(sin(a3), -cos(a3))
+				var s3 := Vector2(-d3.y, d3.x)
+				_poly(img, [f, f + d3 * 5.0 + s3 * 2.0, f + d3 * 9.5, f + d3 * 5.0 - s3 * 2.0],
+						Color("58b848") if k % 2 == 0 else Color("3c9c3c"))
+			_disc(img, 10.0, 10.0, 1.6, 1.6, Color("145418"))
+			return Rect2i(0, 0, 20, 20)
+	_disc(img, 8.0, 8.0, 8.0, 8.0, Color("fcfcfc"))   # An unknown name: a plain disc.
+	return Rect2i(0, 0, 16, 16)
+
+
+static func _poly(img: Image, pts: Array, color: Color) -> void:
+	var poly := PackedVector2Array()
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	for p in pts:
+		poly.append(p)
+		lo = lo.min(p)
+		hi = hi.max(p)
+	for y in range(maxi(0, floori(lo.y)), mini(img.get_height(), ceili(hi.y) + 1)):
+		for x in range(maxi(0, floori(lo.x)), mini(img.get_width(), ceili(hi.x) + 1)):
+			if Geometry2D.is_point_in_polygon(Vector2(x + 0.5, y + 0.5), poly):
+				img.set_pixel(x, y, color)
+
+
+## The scenery of a track: [{kind, pos}] with `pos` in meters, on both sides of the road, in the order to draw (top of the screen
+## first). The same track and theme always give the same list. A piece stands clear of the wall and of the pieces drawn before it.
+static func decorations(theme: String, points: Array[Vector2], half_width: float, seed_value: int) -> Array:
+	var kinds: Array = look(theme).decor
+	var radii := {}
+	for kind in kinds:
+		var pic := decor_image(theme, String(kind))
+		radii[kind] = maxf(pic.get_width(), pic.get_height()) * 0.5 / PX
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_value * 31 + 7
+	var out: Array = []
+	var clear_wall := half_width + float(WALL_PX + 1) / PX
+	for i in points.size() - 1:
+		var a := points[i]
+		var b := points[i + 1]
+		var seg := b - a
+		var dir := seg.normalized()
+		var perp := Vector2(-dir.y, dir.x)
+		var t := rng.randf_range(0.0, DECOR_STEP_MIN)
+		while t < seg.length():
+			for side in [-1.0, 1.0]:
+				var kind: String = kinds[rng.randi() % kinds.size()]
+				var gap := rng.randf_range(DECOR_GAP_MIN, DECOR_GAP_MAX)
+				var pos: Vector2 = a + dir * (t + rng.randf_range(-1.0, 1.0)) + perp * side * (clear_wall + gap + radii[kind])
+				if _scenery_fits(pos, float(radii[kind]), points, clear_wall, out, radii):
+					out.append({"kind": kind, "pos": pos})
+			t += rng.randf_range(DECOR_STEP_MIN, DECOR_STEP_MAX)
+	out.sort_custom(func(p: Dictionary, q: Dictionary) -> bool: return p.pos.y < q.pos.y)
+	return out
+
+
+static func _scenery_fits(pos: Vector2, radius: float, points: Array[Vector2], clear_wall: float, placed: Array,
+		radii: Dictionary) -> bool:
+	for j in points.size() - 1:
+		var d := pos.distance_to(Geometry2D.get_closest_point_to_segment(pos, points[j], points[j + 1]))
+		if d < clear_wall + radius + 0.4:
+			return false
+	for q in placed:
+		if pos.distance_to(q.pos) < radius + float(radii[q.kind]) + 0.3:
+			return false
+	return true

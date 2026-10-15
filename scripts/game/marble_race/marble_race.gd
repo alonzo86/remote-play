@@ -56,6 +56,8 @@ var finish_arc := 0.0
 var _racers := {}          # slot -> Racer
 var _bumpers: Array[Vector2] = []
 var _bumper_kinds: Array[String] = []   # The obstacle picture of each bumper, from the theme.
+var _decor: Array = []     # The scenery beside the road, [{kind, pos}] (REQ-MR-50).
+var _decor_tex := {}       # kind -> ImageTexture
 var _round := RoundClock.new()   # Race clock. Below 0 the cars wait on the grid.
 var _haptics := Haptics.new()
 var _first_finish_time := -1.0
@@ -79,6 +81,7 @@ func _game_ready() -> void:
 	track = MarbleTrack.make(track_seed, difficulty)
 	finish_arc = track.length - FINISH_BEFORE_END
 	_build_bumpers()
+	_decor = RaceLook.decorations(race_theme, track.points, track.half_width, track_seed)
 	var n := participants.size()
 	for i in n:
 		var s: int = participants[i]
@@ -307,6 +310,12 @@ func _obstacle_texture(kind: String) -> ImageTexture:
 	return _obstacle_tex[kind]
 
 
+func _decor_texture(kind: String) -> ImageTexture:
+	if not _decor_tex.has(kind):
+		_decor_tex[kind] = ImageTexture.create_from_image(RaceLook.decor_image(race_theme, kind))
+	return _decor_tex[kind]
+
+
 func _car_texture(slot: int) -> ImageTexture:
 	if not _car_tex.has(slot):
 		_car_tex[slot] = ImageTexture.create_from_image(RaceLook.car_image(player(slot).color))
@@ -331,6 +340,13 @@ func _world_draw(ci: CanvasItem) -> void:
 	if shown.has_area():
 		ci.draw_texture_rect_region(_board_tex, Rect2((shown.position + Vector2(board_origin) - Vector2(origin)) * px, shown.size * px),
 				shown)
+	for item in _decor:
+		var at := _screen(item.pos)
+		if at.x < -200.0 or at.x > size.x + 200.0 or at.y < -200.0 or at.y > size.y + 200.0:
+			continue
+		var pic := _decor_texture(item.kind)
+		var pic_size := Vector2(pic.get_size()) * px
+		ci.draw_texture_rect(pic, Rect2(Shell.snap(at - pic_size * 0.5), pic_size), false)
 	for i in _bumpers.size():
 		var tex := _obstacle_texture(_bumper_kinds[i])
 		var sz := Vector2(tex.get_size()) * px

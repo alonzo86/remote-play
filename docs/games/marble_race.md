@@ -63,6 +63,7 @@ REQ-GM-90 to 96 apply. The settings view of the race has the Difficulty row, the
 | REQ-MR-54 | The track list is the only place where the track is chosen. The seed of the chosen track is part of `start_props`, so Try again (REQ-MR-33) plays the same track. The track name is shown during the race (REQ-MR-35). | Done | smoke_tv |
 | REQ-MR-55 | The results menu has "Settings" (REQ-GM-95) in place of "Choose track". | Done | smoke_tv |
 | REQ-MR-56 | Personal best (REQ-GM-98): the key is `marble_race|<difficulty>|<track 1 to 10>`, the value is the finish time in milliseconds, lower is better. A random track has no key and no best. | Done | smoke_bests |
+| REQ-MR-57 | Each theme has scenery beside the road, made of pixel pictures with an outline: candy has big lollipops, candy canes, ice creams, donuts, cookies and wrapped sweets; space has rockets, ringed planets, UFOs, planets and stars; jungle has palm trees, bushes, hibiscus flowers, mushrooms and ferns. The pieces are placed from the track seed (the same track and theme always give the same scenery), on both sides, clear of the wall and of each other, and drawn under the obstacles and the cars. The scenery has no physics. | Done | game_rules (race look), Screenshot |
 
 ### Menus and flow
 

@@ -812,3 +812,23 @@ func _test_race_look() -> void:
 			and RaceLook.look("nope") == RaceLook.THEMES[RaceLook.DEFAULT_THEME], "an unknown theme gives the default")
 	for key in RaceLook.THEMES:
 		_check(RaceLook.ground_tile(key).get_size() == Vector2i(120, 120), "%s: the ground tile is 120x120" % key)
+		# Scenery (REQ-MR-57): a picture for every kind, placed from the seed, clear of the road and of each other.
+		var dec_ok := true
+		for kind in RaceLook.look(key).decor:
+			var pic: Image = RaceLook.decor_image(key, String(kind))
+			dec_ok = dec_ok and pic.get_width() > 0 and not pic.get_used_rect().size.x <= 0
+		_check(dec_ok, "%s: every piece of scenery has a picture" % key)
+		var track = MarbleTrack.make(42, "medium")
+		var d1: Array = RaceLook.decorations(key, track.points, track.half_width, 42)
+		var d2: Array = RaceLook.decorations(key, track.points, track.half_width, 42)
+		var d3: Array = RaceLook.decorations(key, track.points, track.half_width, 43)
+		_check(d1.size() > 20 and str(d1) == str(d2) and str(d1) != str(d3), "%s: the scenery is made from the seed" % key)
+		var clear := true
+		var sorted := true
+		for i in d1.size():
+			var q: Dictionary = track.query(d1[i].pos)
+			clear = clear and q.dist > track.half_width + float(RaceLook.WALL_PX) / RaceLook.PX
+			if i > 0:
+				sorted = sorted and d1[i].pos.y >= d1[i - 1].pos.y
+		_check(clear, "%s: scenery stands clear of the road and the wall" % key)
+		_check(sorted, "%s: the scenery is in drawing order" % key)
