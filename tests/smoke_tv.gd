@@ -797,7 +797,7 @@ func _run() -> void:
 		var spot: Vector2 = mr._screen(mr._racers[s_i].pos)
 		spots_ok = spots_ok and Rect2(Vector2(60, 112), Vector2(1800, 960)).has_point(spot) and fmod(spot.x, 4.0) == 0.0
 	_check(spots_ok, "at the start every car is on the screen, under the black bar, on the world pixel grid (REQ-MR-41)")
-	_check(RaceLook.CAR.size() * 4 >= 48 and RaceLook.CAR[0].length() * 4 >= 28,
+	_check(RaceLook.CAR.size() * 4 >= 48 and RaceLook.CAR[0].length() * 4 >= 44,
 			"a car is 48 px high or more (REQ-GM-47m)")
 	var kinds_ok: bool = mr._bumper_kinds.size() == mr.track.bumpers.size()
 	for k in mr._bumper_kinds:

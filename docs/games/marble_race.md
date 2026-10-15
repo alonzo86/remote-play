@@ -89,7 +89,8 @@ REQ-GM-90 to 96 apply. The settings view of the race has the Difficulty row, the
 | REQ-MR-45 | Theme. The settings view has a row "Theme" with Candy Road, Space Rally and Jungle Run (values `candy`, `space`, `jungle`; the prop `race_theme`; default `candy`). The choice is kept for the next race (REQ-GM-94) and for Try again. An unknown value gives the default. The cars, the HUD and the physics are the same in every theme. | Done | run_tests, smoke_settings, smoke_tv |
 | REQ-MR-46 | The theme gives the ground, the road, the walls and the three obstacles. Candy Road: pink chess ground with sprinkles, a cream road with pink dashes, candy cane walls, lollipops, gumdrops and cupcakes. Space Rally: a starry sky, a metal road of panels, glowing cyan walls, asteroids, satellites and craters. Jungle Run: dark green ground with grass, a dirt road with specks, leafy hedges, logs, boulders and tiki masks. An obstacle is 12 world pixels high or more (REQ-GM-47m), 1.8 m wide like the collision circle (`BUMPER_R`), and has a dark outline of its theme. The obstacles follow the track in turn, from a number made from the seed of the track, so a track has the same obstacles every time. | Done | game_rules (race look), smoke_tv, smoke_settings, Device |
 | REQ-MR-47 | A wall stands out from the ground of its theme: the wall color or its outline differ from the ground by 3:1 or more. | Done | game_rules (race look) |
-| REQ-MR-48 | A car is a picture of 7x12 world pixels (28x48 screen units) that points up. It faces the way it moves, in steps of 15 degrees, and keeps its direction when it moves slower than 0.8 m/s. The physics circle is 0.5 m (`R`). | Done | smoke_tv, game_rules (race look) |
+| REQ-MR-48 | A car is a picture of 11x16 world pixels (44x64 screen units) that points up, with the player color on the body (with a light and a shade), a white stripe, a windscreen, a rear window, headlights, tail lights and tires. It faces the way it moves, in steps of 15 degrees, and keeps its direction when it moves slower than 0.8 m/s. The physics circle is 0.6 m (`R`), a little narrower than the picture of the car, which has tires at its sides. | Done | smoke_tv, game_rules (race look) |
+| REQ-MR-49 | The road and the walls are colored in the frame of the road, `u` along it and `v` across it (`RaceLook.pattern()`), so that a pattern turns with the road and is not cut in the same direction on the screen at every angle. The pattern goes on along the road across the pieces of the track. | Done | game_rules (race look), Screenshot |
 
 ## Parameters
 
@@ -108,7 +109,7 @@ In `scripts/game/marble_race/marble_race.gd` unless it says otherwise. Tune them
 - Is a dead zone (like the maze, 0.03) or a speed limit needed? Test on a device.
 - Are the target winning times right? Measure them in Test 9 and update the table.
 - Is the edge arrow (REQ-MR-42) clear enough on a TV? Other options: a smaller car view, or pull the last car forward.
-- Are the cars (48 px high) and the obstacles (about 52 px) big enough from the sofa? They are first guesses.
+- Are the cars (64 px high) and the obstacles (about 52 px) big enough from the sofa? They are first guesses.
 - The Hebrew title "המרוץ המופלא" and the three theme names in Hebrew are first guesses (`scripts/core/strings.gd`): a Hebrew reader must check them.
 - Should the best time of each track be saved? (The results show all finish times. Saving waits until players are identified.)
 

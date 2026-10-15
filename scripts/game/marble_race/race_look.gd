@@ -3,11 +3,11 @@ extends RefCounted
 ## jungle) that the player picks in the settings view. The cars look the same in every theme; the road, the walls, the ground
 ## and the obstacles are the theme.
 ## The board (the road with its walls and the finish line) is drawn once into an image of world pixels (`render()`); the game
-## draws a window of it every frame. One meter is `PX` world pixels. The road is filled with pattern tiles in runs, row by row,
-## so that no pixel is tested one by one (a long track is about 1400x1300 world pixels).
+## draws a window of it every frame. One meter is `PX` world pixels. The outlines are filled in runs, row by row; the road and the
+## walls are colored pixel by pixel in the frame of the road, so that their patterns turn with the road.
 
 const PX := 8                 # World pixels in one meter (32 screen units).
-const TILE := 120             # The pattern tiles are 120x120 world pixels: 10, 12 and 24 all divide it.
+const TILE := 120             # The ground tile is 120x120 world pixels: its chess squares of 12 divide it.
 const WALL_PX := 7            # The thickness of a wall: seven world pixels (REQ-GM-47l).
 const MARGIN_M := 3.0         # Space around the track in the board image, in meters.
 const FINISH_CELL := 4        # A cell of the finish line, in world pixels.
@@ -28,23 +28,29 @@ const THEMES := {
 			"obstacles": ["log", "boulder", "tiki"]},
 }
 
-## A car: 7x12 world pixels, pointing up. `K` outline, `B` the player color, `W` the windscreen, `D` the engine cover.
+## A car: 11x16 world pixels, pointing up. `K` outline, `B` the player color with its light `L` and shade `S`, `F` the white
+## stripe, `W` the windscreen with a glint `G`, `D` the rear window, `Y` headlights, `R` tail lights, `T` tires.
 const CAR := [
-	"..KKK..",
-	".KBBBK.",
-	"KKBBBKK",
-	"KWWWWWK",
-	"KWWWWWK",
-	"KBBBBBK",
-	"KBBBBBK",
-	"KBBBBBK",
-	"KKBBBKK",
-	"KKDDDKK",
-	".KDDDK.",
-	"..KKK..",
+	"....KKK....",
+	"...KYBYK...",
+	"..KBBLBBK..",
+	"TTKBBFBBKTT",
+	"TTKBLFBBKTT",
+	".KWWWWWWWK.",
+	".KWGWWWWWK.",
+	".KBBBFBBBK.",
+	".KBBBFBBBK.",
+	".KBLBFBBBK.",
+	".KSSSFSSSK.",
+	"TTKSSSSSKTT",
+	"TTKDDGDDKTT",
+	"TKKDDDDDKKT",
+	".KRBBBBBRK.",
+	"..KKKKKKK..",
 ]
 const CAR_GLASS := Color("bfe8ff")
 const CAR_COVER := Color("303040")
+const CAR_TIRE := Color("404050")
 
 
 static func look(theme: String) -> Dictionary:
@@ -59,19 +65,14 @@ static func theme_or_default(theme: String) -> String:
 # ---- Cars and obstacles ----
 
 static func car_image(color: Color) -> Image:
+	var colors := {"K": OUTLINE, "B": color, "L": color.lightened(0.35), "S": color.darkened(0.3), "F": Color("fcfcfc"),
+			"W": CAR_GLASS, "G": Color("fcfcfc"), "D": CAR_COVER, "Y": Color("f8e060"), "R": Color("e83838"), "T": CAR_TIRE}
 	var img := Image.create(CAR[0].length(), CAR.size(), false, Image.FORMAT_RGBA8)
 	for y in CAR.size():
 		for x in CAR[y].length():
 			var c: String = CAR[y][x]
-			match c:
-				"K":
-					img.set_pixel(x, y, OUTLINE)
-				"B":
-					img.set_pixel(x, y, color)
-				"W":
-					img.set_pixel(x, y, CAR_GLASS)
-				"D":
-					img.set_pixel(x, y, CAR_COVER)
+			if colors.has(c):
+				img.set_pixel(x, y, colors[c])
 	return img
 
 
@@ -194,7 +195,7 @@ static func _box(img: Image, x: int, y: int, w: int, h: int, color: Color) -> vo
 	img.fill_rect(Rect2i(x, y, w, h), color)
 
 
-# ---- Pattern tiles ----
+# ---- The ground ----
 
 ## The ground of the theme: a chess board of 12 world pixel squares. Space has stars on it.
 static func ground_tile(theme: String) -> Image:
@@ -220,50 +221,6 @@ static func ground_tile(theme: String) -> Image:
 	return img
 
 
-## The road: two tones in 10 pixel squares, and the marks of the theme (pink dashes, metal panels, dirt specks).
-static func road_tile(theme: String) -> Image:
-	var c := look(theme)
-	var img := Image.create(TILE, TILE, false, Image.FORMAT_RGBA8)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 9
-	for y in TILE:
-		for x in TILE:
-			img.set_pixel(x, y, c.road_a if ((x / 10) + (y / 10)) % 2 == 0 else c.road_b)
-	match theme:
-		"space":
-			for y in TILE:
-				for x in TILE:
-					if y % 6 == 0 or (x + ((y / 6) % 2) * 5) % 10 == 0:
-						img.set_pixel(x, y, c.mark)
-		"jungle":
-			for i in 260:
-				img.set_pixel(rng.randi_range(0, TILE - 1), rng.randi_range(0, TILE - 1), c.mark)
-		_:
-			for y in range(0, TILE, 20):
-				for x in TILE:
-					if (x / 6) % 2 == 0:
-						img.set_pixel(x, y, c.mark)
-						img.set_pixel(x, y + 1, c.mark)
-	return img
-
-
-## The wall: diagonal stripes of two colors (candy and space), leaves and dark gaps (jungle).
-static func wall_tile(theme: String) -> Image:
-	var c := look(theme)
-	var img := Image.create(TILE, TILE, false, Image.FORMAT_RGBA8)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 13
-	for y in TILE:
-		for x in TILE:
-			if theme == "jungle":
-				var n := rng.randf()
-				img.set_pixel(x, y, c.wall_b if n < 0.18 else (Color("145418") if n > 0.9 else c.wall_a))
-			else:
-				var period := 5 if theme == "candy" else 4
-				img.set_pixel(x, y, c.wall_a if ((x + y) / period) % 2 == 0 else c.wall_b)
-	return img
-
-
 # ---- The board ----
 
 ## The board of a track as {image, origin}: `image` has the outline, the walls, the road and the finish line on a transparent
@@ -285,21 +242,28 @@ static func render(theme: String, points: Array[Vector2], half_width: float, fin
 	for p in points:
 		line.append(p * PX - Vector2(origin))
 	var hw := half_width * PX
-	_fill_line(img, line, hw + WALL_PX + 1, null, c.outline)
-	_fill_line(img, line, hw + WALL_PX, wall_tile(theme), Color.BLACK)
-	_fill_line(img, line, hw, null, c.outline)
-	_fill_line(img, line, hw - 1.0, road_tile(theme), Color.BLACK)
+	_fill_line(img, line, hw + WALL_PX + 1, c.outline)
+	var base := 0.0   # The arc length at the start of a piece, so that a pattern goes on along the road.
+	var bases: Array[float] = []
+	for i in line.size() - 1:
+		bases.append(base)
+		base += line[i].distance_to(line[i + 1])
+	for i in line.size() - 1:
+		_shade_piece(img, line[i], line[i + 1], hw + WALL_PX, hw, bases[i], theme, hw)
+	_fill_line(img, line, hw, c.outline)
+	for i in line.size() - 1:
+		_shade_piece(img, line[i], line[i + 1], hw - 1.0, 0.0, bases[i], theme, hw)
 	_finish_line(img, finish_at * PX - Vector2(origin), finish_dir, hw - 1.0)
 	return {"image": img, "origin": origin}
 
 
-## Every point within `radius` of the line `pts`, in a color or from a pattern tile.
-static func _fill_line(img: Image, pts: Array[Vector2], radius: float, tile: Image, color: Color) -> void:
+## Every point within `radius` of the line `pts`, in one color.
+static func _fill_line(img: Image, pts: Array[Vector2], radius: float, color: Color) -> void:
 	for i in pts.size() - 1:
-		_fill_capsule(img, pts[i], pts[i + 1], radius, tile, color)
+		_fill_capsule(img, pts[i], pts[i + 1], radius, color)
 
 
-static func _fill_capsule(img: Image, a: Vector2, b: Vector2, r: float, tile: Image, color: Color) -> void:
+static func _fill_capsule(img: Image, a: Vector2, b: Vector2, r: float, color: Color) -> void:
 	var w := img.get_width()
 	var y0 := maxi(0, floori(minf(a.y, b.y) - r))
 	var y1 := mini(img.get_height() - 1, ceili(maxf(a.y, b.y) + r))
@@ -309,17 +273,72 @@ static func _fill_capsule(img: Image, a: Vector2, b: Vector2, r: float, tile: Im
 			continue
 		var x0 := maxi(0, ceili(span.x - 0.5))
 		var x1 := mini(w - 1, floori(span.y - 0.5))
-		if x1 < x0:
-			continue
-		if tile == null:
+		if x1 >= x0:
 			img.fill_rect(Rect2i(x0, y, x1 - x0 + 1, 1), color)
+
+
+## The points within `r_out` of the piece a-b and not within `r_in` of it (`r_in` 0: all of them), colored by the pattern of the
+## theme (`pattern()`). The pattern is cut in the frame of the road: `u` along the piece and `v` across it, so that it turns
+## with the road and looks the same at every angle and direction. `half_road` tells the wall (outside it) from the road.
+static func _shade_piece(img: Image, a: Vector2, b: Vector2, r_out: float, r_in: float, base: float, theme: String,
+		half_road: float) -> void:
+	var w := img.get_width()
+	var ab := b - a
+	var piece_len := ab.length()
+	var d := ab / piece_len if piece_len > 0.0001 else Vector2(0, -1)
+	var c := look(theme)
+	var y0 := maxi(0, floori(minf(a.y, b.y) - r_out))
+	var y1 := mini(img.get_height() - 1, ceili(maxf(a.y, b.y) + r_out))
+	for y in range(y0, y1 + 1):
+		var out_span := row_span(a, b, r_out, y + 0.5)
+		if out_span.x > out_span.y:
 			continue
-		var x := x0
-		while x <= x1:
-			var tx := x % TILE
-			var n := mini(TILE - tx, x1 - x + 1)
-			img.blit_rect(tile, Rect2i(tx, y % TILE, n, 1), Vector2i(x, y))
-			x += n
+		var x0 := maxi(0, ceili(out_span.x - 0.5))
+		var x1 := mini(w - 1, floori(out_span.y - 0.5))
+		var runs: Array[Vector2i] = [Vector2i(x0, x1)]
+		if r_in > 0.0:
+			var in_span := row_span(a, b, r_in, y + 0.5)
+			var i0 := ceili(in_span.x - 0.5)
+			var i1 := floori(in_span.y - 0.5)
+			if in_span.x <= in_span.y and i1 >= i0:
+				runs = [Vector2i(x0, mini(x1, i0 - 1)), Vector2i(maxi(x0, i1 + 1), x1)]
+		for run in runs:
+			for x in range(run.x, run.y + 1):
+				var rel := Vector2(x + 0.5, y + 0.5) - a
+				var u := rel.dot(d)
+				var v := rel.x * -d.y + rel.y * d.x
+				var dist := absf(v) if (u >= 0.0 and u <= piece_len) else rel.distance_to(d * clampf(u, 0.0, piece_len))
+				img.set_pixel(x, y, pattern(theme, c, x, y, base + u, v, dist - half_road))
+
+
+## The color of the road (`wall` is the depth in the wall, 0 to WALL_PX, or below 0 on the road) at the world pixel (x, y), at `u`
+## along the road and `v` across it (both in world pixels). Candy Road: a chess road with pink dashes across it and candy
+## cane stripes on the walls. Space Rally: metal panels and glowing stripes. Jungle Run: a dirt road with specks and leafy walls.
+static func pattern(theme: String, c: Dictionary, x: int, y: int, u: float, v: float, wall: float) -> Color:
+	var ui := floori(u)
+	var vi := floori(v)
+	if wall >= 0.0:
+		if theme == "jungle":
+			var n := _hash(x, y) % 100
+			return c.wall_b if n < 18 else (Color("145418") if n > 90 else c.wall_a)
+		var period := 5 if theme == "candy" else 4
+		return c.wall_a if floori((u + wall) / period) % 2 == 0 else c.wall_b
+	var tone: Color = c.road_a if (floori(u / 10.0) + floori(v / 10.0)) % 2 == 0 else c.road_b
+	match theme:
+		"space":
+			if posmod(ui, 6) == 0 or posmod(vi + posmod(floori(u / 6.0), 2) * 5, 10) == 0:
+				return c.mark
+		"jungle":
+			if _hash(x, y) % 100 < 4:
+				return c.mark
+		_:
+			if posmod(ui, 20) < 2 and posmod(floori(v / 6.0), 2) == 0:
+				return c.mark
+	return tone
+
+
+static func _hash(x: int, y: int) -> int:
+	return ((x * 73856093) ^ (y * 19349663)) & 0xffff
 
 
 ## The x range (x = start, y = end; start > end when it is empty) of the row at height `py` that is within `r` of the segment

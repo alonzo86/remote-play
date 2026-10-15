@@ -758,11 +758,30 @@ func _test_race_look() -> void:
 		var p := (Vector2(0, -10) + Vector2(14, -12) * (i / 79.0)) * RaceLook.PX - Vector2(bb.origin)
 		holes += int(bb.image.get_pixel(int(p.x), int(p.y)).a == 0.0)
 	_check(holes == 0, "the road has no hole along a bend")
+	# The patterns turn with the road (REQ-MR-49): across a road that runs up and across one that runs right, at the same distance
+	# along it, the road and the wall have the same colors from the middle outwards.
+	for key in ["candy", "space"]:
+		var up: Array[Vector2] = [Vector2(0, 0), Vector2(0, -30)]
+		var right: Array[Vector2] = [Vector2(0, 0), Vector2(30, 0)]
+		var pu: Dictionary = RaceLook.render(key, up, hw, Vector2(0, -25), Vector2(0, -1))
+		var pr: Dictionary = RaceLook.render(key, right, hw, Vector2(25, 0), Vector2(1, 0))
+		var au := Vector2(0, 0) - Vector2(pu.origin)
+		var ar := Vector2(0, 0) - Vector2(pr.origin)
+		var seq_up: Array[Color] = []
+		var seq_right: Array[Color] = []
+		for k in range(0, int(hw * RaceLook.PX) + RaceLook.WALL_PX):
+			seq_up.append(pu.image.get_pixel(int(au.x) + k, int(au.y) - 101))
+			seq_right.append(pr.image.get_pixel(int(ar.x) + 100, int(ar.y) + k))
+		_check(seq_up == seq_right, "%s: the road and the wall look the same across a road that runs up and one that runs right" % key)
 	# Cars and obstacles.
 	var car: Image = RaceLook.car_image(Color("e63946"))
-	_check(car.get_width() == 7 and car.get_height() == 12 and car.get_pixel(3, 1) == Color("e63946")
-			and car.get_pixel(3, 3) == RaceLook.CAR_GLASS and car.get_pixel(0, 0).a == 0.0 and car.get_pixel(3, 0) == RaceLook.OUTLINE,
-			"a car is 7x12 world pixels in the player color with a windscreen and an outline")
+	_check(car.get_width() == 11 and car.get_height() == 16 and car.get_pixel(3, 7) == Color("e63946")
+			and car.get_pixel(3, 5) == RaceLook.CAR_GLASS and car.get_pixel(0, 0).a == 0.0 and car.get_pixel(5, 0) == RaceLook.OUTLINE
+			and car.get_pixel(5, 8) == Color("fcfcfc") and car.get_pixel(0, 3) == RaceLook.CAR_TIRE,
+			"a car is 11x16 world pixels: player color, stripe, windscreen, tires and an outline")
+	var other: Image = RaceLook.car_image(Color("2a9d8f"))
+	_check(other.get_pixel(3, 7) == Color("2a9d8f") and other.get_pixel(3, 10) != car.get_pixel(3, 10)
+			and other.get_pixel(3, 5) == car.get_pixel(3, 5), "only the body of a car takes the player color")
 	var pics_ok := true
 	var contrast_ok := true
 	for key in RaceLook.THEMES:
@@ -792,5 +811,4 @@ func _test_race_look() -> void:
 	_check(RaceLook.theme_or_default("space") == "space" and RaceLook.theme_or_default("nope") == RaceLook.DEFAULT_THEME
 			and RaceLook.look("nope") == RaceLook.THEMES[RaceLook.DEFAULT_THEME], "an unknown theme gives the default")
 	for key in RaceLook.THEMES:
-		_check(RaceLook.ground_tile(key).get_size() == Vector2i(120, 120) and RaceLook.road_tile(key).get_size() == Vector2i(120, 120)
-				and RaceLook.wall_tile(key).get_size() == Vector2i(120, 120), "%s: the pattern tiles are 120x120" % key)
+		_check(RaceLook.ground_tile(key).get_size() == Vector2i(120, 120), "%s: the ground tile is 120x120" % key)

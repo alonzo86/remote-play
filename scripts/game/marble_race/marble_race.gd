@@ -10,7 +10,7 @@ const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
-const R := 0.5                 # Car radius for the physics.
+const R := 0.6                 # Car radius for the physics.
 const ACCEL := 36.0            # m/s^2 for tilt 1.0. 15 degrees gives about 9.
 const DAMPING := 1.0           # 1/s. With 15 degrees, top speed is about 9 m/s.
 const WALL_BOUNCE := 0.45
@@ -84,7 +84,7 @@ func _game_ready() -> void:
 		var s: int = participants[i]
 		var r := Racer.new()
 		r.slot = s
-		var side := (float(i) - (n - 1) * 0.5) * 1.3
+		var side := (float(i) - (n - 1) * 0.5) * 1.4
 		r.pos = track.point_at(START_ARC) + _perp(track.dir_at(START_ARC)) * side   # REQ-MR-4
 		r.arc = START_ARC
 		_racers[s] = r
@@ -345,7 +345,7 @@ func _draw_car(ci: CanvasItem, r: Racer) -> void:
 	var tex := _car_texture(r.slot)
 	var sz := Vector2(tex.get_size()) * Shell.WORLD_PIXEL
 	ci.draw_set_transform(_screen(r.pos), r.angle, Vector2.ONE)
-	ci.draw_texture_rect(tex, Rect2(-sz * 0.5, sz), false)
+	ci.draw_texture_rect(tex, Rect2(-Shell.snap(sz * 0.5), sz), false)   # On the world pixel grid: no column is lost.
 	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
