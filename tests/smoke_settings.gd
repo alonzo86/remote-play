@@ -107,8 +107,8 @@ func _run() -> void:
 	sv.start()
 	await _frames(4)
 	var game: Control = app.current_screen()
-	_check(is_instance_of(game, MazeGame) and game.difficulty == "hard" and game.cols == 17 and game.rows == 9,
-			"Start begins a Hard maze (17 x 9)")
+	_check(is_instance_of(game, MazeGame) and game.difficulty == "hard" and game.cols == 18 and game.rows == 9,
+			"Start begins a Hard maze (18 x 9)")
 	_check(game.start_props.difficulty == "hard", "Restart keeps the difficulty (REQ-GM-93)")
 	_check(game.style == "castle" and game.start_props.style == "castle", "Start and Restart keep the style (REQ-MZ-12)")
 	# Snowball Splat has the same view, and Hard reaches the game and its field (REQ-SS-20).

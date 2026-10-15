@@ -300,28 +300,24 @@ func _test_qr() -> void:
 ## The maze colors follow REQ-GM-47d and 47e (REQ-MZ-7). The player colors are checked for every game.
 func _test_visual_rules() -> void:
 	print("visual rules")
-	var Maze = load("res://scripts/game/maze/maze_game.gd")
-	var consts: Dictionary = Maze.get_script_constant_map()
-	var styles: Dictionary = consts["STYLES"]
+	var styles: Dictionary = load("res://scripts/game/maze/maze_board.gd").STYLES
 	var players_ok := true
 	for c in Protocol.PLAYER_COLORS:
 		if c.s < 0.55 or c.v < 0.60:
 			players_ok = false
 			print("    player color not saturated or bright enough: ", c)
 	_check(players_ok, "player colors have saturation 0.55+ and value 0.60+ (REQ-GM-47d)")
+	# A ball has a white ring, so the ring must stand out from the ground, and the black outline of the ball must too
+	# (REQ-MZ-7). A wall must stand out from both tones of the ground by its face or by its outline.
 	for key in styles:
 		var st: Dictionary = styles[key]
-		var floor_ok := true
-		for c in Protocol.PLAYER_COLORS:
-			for f in [st.floor_a, st.floor_b, st.start]:
-				if Shell.contrast(c, f) < 3.0:
-					floor_ok = false
-					print("    player color too close to a floor tone of %s: %s" % [key, c])
-		_check(floor_ok, "every player color has a contrast of 3:1 on the floor of the %s maze (REQ-GM-47e)" % key)
-		var fc: Color = st.floor_a
-		_check(fc.s >= 0.35 and fc.v >= 0.18 and fc.v <= 0.65, "the %s floor is dark and saturated (REQ-GM-47e)" % key)
-		_check(Shell.contrast(st.wall, st.floor_a) >= 3.0 and Shell.contrast(st.wall, st.floor_b) >= 3.0,
-				"the %s walls can be seen on both floor tones" % key)
+		var ring_ok := true
+		var wall_ok := true
+		for g in [st.ground_a, st.ground_b]:
+			ring_ok = ring_ok and Shell.contrast(Color.WHITE, g) >= 3.0
+			wall_ok = wall_ok and maxf(Shell.contrast(st.face, g), Shell.contrast(st.outline, g)) >= 3.0
+		_check(ring_ok, "the white ring of a ball stands out from the ground of the %s maze (REQ-MZ-7)" % key)
+		_check(wall_ok, "the walls of the %s maze stand out from both tones of the ground" % key)
 	_check(UiTheme.OUTLINE.v < 0.4, "the outline color is dark")
 
 	# A name for a phone without one, and a digit centered in its circle.

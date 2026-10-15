@@ -5,6 +5,7 @@ extends SceneTree
 const Shell = preload("res://scripts/game/shell.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
+const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
 const Medals = preload("res://scripts/game/medals.gd")
 const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
@@ -278,7 +279,7 @@ func _maze_levels() -> void:
 			solvable = solvable and m.is_solvable()
 			total += m.wall_rects(float(lv.cell), 12.0).size()
 		walls[d] = total / 30.0
-		fits = fits and int(lv.cols) * float(lv.cell) <= 1800.0 and int(lv.rows) * float(lv.cell) + 46.0 + 24.0 <= 960.0 + 46.0
+		fits = fits and int(lv.cols) * float(lv.cell) + Maze.WALL <= 1800.0 and int(lv.rows) * float(lv.cell) + Maze.WALL <= 892.0
 	_check(solvable, "mazes of every difficulty are solvable")
 	_check(fits, "the board of every difficulty fits the screen under the HUD")
 	_check(levels.easy.cols < levels.medium.cols and levels.medium.cols < levels.hard.cols
@@ -287,30 +288,27 @@ func _maze_levels() -> void:
 	_check(levels.easy.openings > levels.medium.openings and levels.medium.openings > levels.hard.openings,
 			"fewer openings (more complex) with the difficulty")
 	_check(walls.easy < walls.medium and walls.medium < walls.hard, "more walls with the difficulty: %s" % str(walls))
-	_check(levels.medium.cols == 15 and levels.medium.rows == 8 and levels.medium.cell == 108.0, "Medium is 15 x 8 cells of 108 px")
-	# The styles (REQ-MZ-12): the registry row lists exactly the styles the game draws, and the same place gets the same mark.
+	_check(levels.medium.cols == 16 and levels.medium.rows == 8 and levels.medium.cell == 108.0, "Medium is 16 x 8 cells of 108 px")
+	# The styles (REQ-MZ-12): the registry row lists exactly the styles the board draws, and an unknown one gives the default.
 	var style_row: Dictionary = {}
 	for g in load("res://scripts/game/registry.gd").GAMES:
 		if g.id == "maze":
 			style_row = g.settings[0]
-	var style_keys: Array = Maze.STYLES.keys()
-	var row_keys: Array = style_row.get("values", [])
+	var style_keys: Array = MazeBoard.STYLES.keys()
+	var row_keys: Array = style_row.get("values", []).duplicate()
 	style_keys.sort()
-	row_keys = row_keys.duplicate()
 	row_keys.sort()
-	_check(style_row.get("key", "") == "style" and style_keys == row_keys and Maze.STYLES.has(Maze.DEFAULT_STYLE),
-			"the Style row of the maze lists the styles of the game and the default is one of them")
-	var maze_node = Maze.new()
-	maze_node.style = "nothing"
-	_check(maze_node._look() == Maze.STYLES[Maze.DEFAULT_STYLE], "an unknown style gives the default look")
-	maze_node.free()
-	_check(Maze.scatter(3, 4, 1) == Maze.scatter(3, 4, 1) and Maze.scatter(3, 4, 1) != Maze.scatter(4, 3, 1),
-			"the marks of the floor come from the cell, so they stay in place")
+	_check(style_row.get("key", "") == "style" and style_keys == row_keys and MazeBoard.STYLES.has(MazeBoard.DEFAULT_STYLE),
+			"the Style row of the maze lists the styles of the board and the default is one of them")
+	_check(MazeBoard.look("nothing") == MazeBoard.STYLES[MazeBoard.DEFAULT_STYLE], "an unknown style gives the default look")
+	_check(MazeBoard.scatter(3, 4, 1) == MazeBoard.scatter(3, 4, 1) and MazeBoard.scatter(3, 4, 1) != MazeBoard.scatter(4, 3, 1),
+			"the marks of the ground come from the place, so they stay in place")
+	_test_maze_board()
 	var on_grid := fmod(Maze.WALL, Shell.WORLD_PIXEL) == 0.0
 	for d in levels:
 		on_grid = on_grid and fmod(float(levels[d].cell), Shell.WORLD_PIXEL) == 0.0
 	_check(on_grid and Maze.WALL == 28.0, "the walls and the cells are on the pixel grid (REQ-MZ-7)")
-	# A corridor is wide enough for the ball in every difficulty (the wall is thicker than before).
+	# A corridor is wide enough for the ball in every difficulty .
 	var corridors_ok := true
 	for d in levels:
 		corridors_ok = corridors_ok and float(levels[d].cell) - Maze.WALL >= Maze.BALL_R * 2.0 + 16.0
@@ -324,6 +322,33 @@ func _maze_levels() -> void:
 		starts_ok = starts_ok and o * 2.0 * sqrt(2.0) > Maze.BALL_R * 2.0 + 2.0 and (start_node.cell - Maze.WALL) * 0.5 - o >= Maze.BALL_R
 	start_node.free()
 	_check(starts_ok, "the balls of slot 0 and 1 start apart and clear of the walls in every difficulty")
+
+
+## The picture of the board (REQ-MZ-7, REQ-MZ-12): a wall pixel, an outline, a front band and the ground are where they should be,
+## and the same input gives the same picture.
+func _test_maze_board() -> void:
+	var wall := [Rect2(100.0, 100.0, 120.0, 28.0)]   # Screen units: 30 x 7 world pixels at (25, 25).
+	var typed: Array[Rect2] = []
+	typed.append_array(wall)
+	var view := Vector2i(80, 60)
+	for key in MazeBoard.STYLES:
+		var st: Dictionary = MazeBoard.STYLES[key]
+		var img: Image = MazeBoard.render(key, typed, Rect2(8.0, 8.0, 40.0, 40.0), view)
+		_check(img.get_width() == 80 and img.get_height() == 60, "the %s board picture has the size of the view" % key)
+		_check(img.get_pixel(40, 25) == st.light, "the top of a %s wall is the lit edge" % key)
+		var outlines := 0
+		var fronts := 0
+		for x in range(30, 50):   # A hedge has a rough edge, so most of the pixels of a row count.
+			outlines += int(img.get_pixel(x, 24) == st.outline)
+			fronts += int(img.get_pixel(x, 32) == st.front)
+		_check(outlines >= 10, "the %s wall has an outline above it" % key)
+		_check(fronts >= 10, "the %s wall has a front band under it" % key)
+		var ground := img.get_pixel(70, 50)
+		_check(ground == st.ground_a or ground == st.ground_b or ground == st.tuft or ground == st.flower
+				or ground == Color("f8b800"), "a pixel far from the walls is ground in the %s style" % key)
+	var a: Image = MazeBoard.render("garden", typed, Rect2(8.0, 8.0, 40.0, 40.0), view)
+	var b: Image = MazeBoard.render("garden", typed, Rect2(8.0, 8.0, 40.0, 40.0), view)
+	_check(a.get_data() == b.get_data(), "the same board is drawn the same way every time")
 
 
 ## Snowball Splat difficulty (REQ-SS-20 to 22): faster Puffs and fewer of them as it grows.

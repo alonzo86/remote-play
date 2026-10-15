@@ -5,15 +5,16 @@ extends "res://scripts/game/minigame.gd"
 ## settings view. The balls with eyes and the treasure chest of the exit look the same in every style.
 
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
+const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
 ## Difficulty (REQ-MZ-9): the size of the maze, the cell size (so that it fits the screen) and the share of inner walls that is
 ## removed after the maze is made (fewer openings: fewer loops, more dead ends). Medium is the maze from before.
 const LEVELS := {
-	"easy": {"cols": 11, "rows": 6, "cell": 120.0, "openings": 0.20},
-	"medium": {"cols": 15, "rows": 8, "cell": 108.0, "openings": 0.08},
-	"hard": {"cols": 17, "rows": 9, "cell": 96.0, "openings": 0.02},
+	"easy": {"cols": 13, "rows": 6, "cell": 132.0, "openings": 0.20},
+	"medium": {"cols": 16, "rows": 8, "cell": 108.0, "openings": 0.08},
+	"hard": {"cols": 18, "rows": 9, "cell": 96.0, "openings": 0.02},
 }
 const WALL := 28.0           # Seven world pixels (REQ-GM-47l). Cells are multiples of 4, so every wall is on the pixel grid.
 const BALL_R := 18.0
@@ -27,31 +28,12 @@ const HIT_BUZZ_MS := 120    # Minimum gap between two wall buzzes of one ball.
 const HIT_BUZZ_SPEED := 320.0
 const TIMER_X := 500.0       # The timer box has a fixed place, between the title and the leader chip.
 const TIMER_W := 240.0
-const STAR_COUNT := 48
 
-# The styles (REQ-MZ-12). `floor_a` and `floor_b` are the two tones of the checkered floor: they are dark so that every player color
-# has a contrast of 3:1 or more on them (REQ-GM-47e). `wall` is the face of a wall, `light` its lit top and left edge, `shade` its
-# bottom and right edge. `detail` is the mark on the walls and the floor, `deco` the four objects beside the board.
-const STYLES := {
-	"garden": {"floor_a": Color("0a3010"), "floor_b": Color("08280e"), "start": Color("0a3010"), "start_edge": Color("2a8a30"),
-			"wall": Color("58b830"), "light": Color("a0e060"), "shade": Color("2c7a20"), "detail": "leaf", "deco": "tree",
-			"mark": Color("14501c"), "flower": Color("fcfcfc")},
-	"castle": {"floor_a": Color("2a1070"), "floor_b": Color("230e60"), "start": Color("2e1478"), "start_edge": Color("5a3cc0"),
-			"wall": Color("b8a890"), "light": Color("e0d4b8"), "shade": Color("6c5a48"), "detail": "mortar", "deco": "torch",
-			"mark": Color("2a1070"), "flower": Color("2a1070")},
-	"ice": {"floor_a": Color("0e2458"), "floor_b": Color("0a1c4a"), "start": Color("0e2458"), "start_edge": Color("3a68c0"),
-			"wall": Color("a8d8f0"), "light": Color("e8f8ff"), "shade": Color("5a90c0"), "detail": "frost", "deco": "crystal",
-			"mark": Color("1c3c7c"), "flower": Color("fcfcfc")},
-}
 const DEFAULT_STYLE := "garden"
-const BOARD_PAD := 12.0
-const BRICK := 32.0           # The distance between two marks on a wall (a multiple of the world pixel).
+const RING_W := 4.0           # The white ring around a ball: one world pixel outside the black outline (REQ-MZ-7).
 const CHEST_WOOD := Color("a0521c")
 const CHEST_DARK := Color("6c3410")
 const CHEST_GOLD := Color("f8b800")
-const TORCH_POST := Color("7c4a1c")
-const FLAME_OUTER := Color("f83800")
-const FLAME_INNER := Color("f8b800")
 
 class Ball:
 	var slot := 0
@@ -60,7 +42,7 @@ class Ball:
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps it for Restart.
 var difficulty := "medium"
-var style := DEFAULT_STYLE   # A key of `STYLES` (REQ-MZ-12). An unknown one gives the default.
+var style := DEFAULT_STYLE   # A key of `MazeBoard.STYLES` (REQ-MZ-12). An unknown one gives the default.
 var cols := 17
 var rows := 9
 var cell := 96.0
@@ -71,12 +53,11 @@ var _balls: Array[Ball] = []
 var _round := RoundClock.new()
 var _haptics := Haptics.new()
 var _winner := -1
-var _stars := PackedVector2Array()
+var _board_tex: ImageTexture   # The picture of the ground and the walls, made once (`MazeBoard`).
 var _ring_time := 0.0   # Game time for the exit ring: it stands still while the game is paused (REQ-FL-43).
 
 
 func _game_ready() -> void:
-	_stars = Shell.star_field(STAR_COUNT, 11)
 	var level: Dictionary = LEVELS.get(difficulty, LEVELS.medium)
 	cols = int(level.cols)
 	rows = int(level.rows)
@@ -97,6 +78,16 @@ func _game_ready() -> void:
 ## How far a ball starts from the middle of the start cell, on each axis: 0.22 of a cell, but not so far that the ball touches a wall.
 func _start_offset() -> float:
 	return minf(cell * 0.22, (cell - WALL) * 0.5 - BALL_R - 2.0)
+
+
+## The ground and the walls of the style of this round as one texture (REQ-MZ-12). The walls are the collision rectangles.
+func _make_board_texture() -> ImageTexture:
+	var o := Shell.snap(_origin())
+	var rects: Array[Rect2] = []
+	for r in _walls:
+		rects.append(Rect2(o + r.position, r.size))
+	var start := Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(cell, cell) - Vector2(WALL, WALL))
+	return ImageTexture.create_from_image(MazeBoard.render(style, rects, start, PIXEL_VIEW))
 
 
 func _on_player_left(slot: int) -> void:
@@ -194,97 +185,6 @@ func _collide(b: Ball) -> void:
 			b.vel -= (1.0 + RESTITUTION) * vn * n
 
 
-## The colors of the style of this round.
-func _look() -> Dictionary:
-	return STYLES.get(style, STYLES[DEFAULT_STYLE])
-
-
-## A number from the place (`a`, `b`) and a `salt`, the same every time: it places the marks of a style in the same spots.
-static func scatter(a: int, b: int, salt: int) -> int:
-	return ((a * 73856093) ^ (b * 19349663) ^ (salt * 83492791)) & 0xffff
-
-
-## All walls on the pixel grid (REQ-MZ-7, REQ-MZ-12): the shade of every bar first, then the face, then the lit top and left edge,
-## then a mark every `BRICK` px (mortar, a leaf or frost). The collision uses the same rectangles. One pass for each color, so that
-## two bars that meet look like one piece of wall.
-func _draw_walls(ci: CanvasItem, o: Vector2) -> void:
-	var px := Shell.WORLD_PIXEL
-	var look := _look()
-	var rects: Array[Rect2] = []
-	for r in _walls:
-		rects.append(Rect2(Shell.snap(o + r.position), r.size))
-	for r in rects:
-		ci.draw_rect(r, look.shade)
-	for r in rects:
-		ci.draw_rect(Rect2(r.position, r.size - Vector2(px, px) * 2.0), look.wall)
-	for r in rects:
-		ci.draw_rect(Rect2(r.position, Vector2(r.size.x, px)), look.light)
-		ci.draw_rect(Rect2(r.position, Vector2(px, r.size.y)), look.light)
-	for r in rects:
-		_draw_wall_marks(ci, r, look)
-
-
-## The marks of a bar on its face, at fixed places of the screen. A mortar mark is a dark joint across the bar, a leaf is a light or a
-## dark square, and frost is a white square on every other mark. The mark moves across the bar with its number, so the wall does not
-## look like a ruler.
-func _draw_wall_marks(ci: CanvasItem, r: Rect2, look: Dictionary) -> void:
-	var px := Shell.WORLD_PIXEL
-	var horizontal := r.size.x >= r.size.y
-	var from := (r.position.x if horizontal else r.position.y) + px
-	var to := (r.end.x if horizontal else r.end.y) - px * 2.0
-	var t := ceilf(from / BRICK) * BRICK
-	while t < to:
-		var n := int(t / BRICK)
-		var across := px * (1.0 + float(n % 3))   # 4, 8 or 12 px from the lit edge: the face is 20 px
-		var color: Color = look.shade
-		var size := Vector2(px, px)
-		var skip := false
-		match String(look.detail):
-			"mortar":
-				across = px
-				size = Vector2(px, px * 4.0) if horizontal else Vector2(px * 4.0, px)
-			"leaf":
-				color = look.light if n % 2 == 0 else look.shade
-				size = Vector2(px * 2.0, px) if horizontal else Vector2(px, px * 2.0)
-			"frost":
-				color = Color.WHITE
-				skip = n % 2 == 1
-		if not skip:
-			var at := Vector2(t, r.position.y + across) if horizontal else Vector2(r.position.x + across, t)
-			ci.draw_rect(Rect2(at, size), color)
-		t += BRICK
-
-
-## The floor: cells in two tones like a chess board, the start cell with a lighter edge, and small marks on the cells (grass and
-## daisies, snow flecks) at places that come from the cell, so that they do not change.
-func _draw_floor(ci: CanvasItem, o: Vector2) -> void:
-	var px := Shell.WORLD_PIXEL
-	var look := _look()
-	var steps := int(cell / px)
-	for cy in rows:
-		for cx in cols:
-			var at := o + Vector2(cx, cy) * cell
-			if (cx + cy) % 2 == 1:
-				ci.draw_rect(Rect2(at, Vector2(cell, cell)), look.floor_b)
-			match String(look.detail):
-				"leaf":
-					var h := scatter(cx, cy, 1)
-					ci.draw_rect(Rect2(at + Vector2(h % steps, (h >> 4) % steps) * px, Vector2(px * 2.0, px)), look.mark)
-					if h % 5 == 0:
-						var d := at + Vector2((h >> 2) % steps, (h >> 6) % steps) * px
-						ci.draw_rect(Rect2(d - Vector2(px, 0), Vector2(px * 3.0, px)), look.flower)
-						ci.draw_rect(Rect2(d - Vector2(0, px), Vector2(px, px * 3.0)), look.flower)
-						ci.draw_rect(Rect2(d, Vector2(px, px)), CHEST_GOLD)
-				"frost":
-					var h := scatter(cx, cy, 2)
-					ci.draw_rect(Rect2(at + Vector2(h % steps, (h >> 4) % steps) * px, Vector2(px, px)), look.mark)
-					if h % 4 == 0:
-						ci.draw_rect(Rect2(at + Vector2((h >> 3) % steps, (h >> 7) % steps) * px, Vector2(px, px)), look.flower)
-	var start := Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(cell, cell) - Vector2(WALL, WALL))
-	ci.draw_rect(start, look.start_edge)
-	ci.draw_rect(start.grow(-px), look.start)
-
-
 ## Two small square eyes on a ball (the ball is too small for `Shell.pixel_eyes`): a white square of 8 px with a pupil of 4 px that
 ## steps to the side the ball rolls.
 func _draw_eyes(ci: CanvasItem, c: Vector2, look: Vector2) -> void:
@@ -295,46 +195,14 @@ func _draw_eyes(ci: CanvasItem, c: Vector2, look: Vector2) -> void:
 		ci.draw_rect(Rect2(e + Vector2(2, 2) + step, Vector2(4, 4)), UiTheme.OUTLINE)
 
 
-## One of the four objects beside the board: a torch (castle), a tree (garden) or an ice crystal (ice).
-func _draw_deco(ci: CanvasItem, base: Vector2) -> void:
-	var look := _look()
-	var blink := UiTheme.blink_on(_ring_time)
-	match String(look.deco):
-		"tree":
-			ci.draw_rect(Rect2(base + Vector2(-12, 20), Vector2(24, 52)), UiTheme.OUTLINE)
-			ci.draw_rect(Rect2(base + Vector2(-8, 20), Vector2(16, 48)), TORCH_POST)
-			ci.draw_rect(Rect2(base + Vector2(-40, -48), Vector2(80, 80)), UiTheme.OUTLINE)
-			ci.draw_rect(Rect2(base + Vector2(-36, -44), Vector2(72, 72)), look.wall)
-			ci.draw_rect(Rect2(base + Vector2(-36, -44), Vector2(72, 12)), look.light)
-			ci.draw_rect(Rect2(base + Vector2(-36, 16), Vector2(72, 12)), look.shade)
-			var spot := Vector2(-12, -8) if blink else Vector2(12, -8)
-			ci.draw_rect(Rect2(base + spot, Vector2(8, 8)), Color("f83800"))
-		"crystal":
-			var rows_w := [16.0, 40.0, 64.0, 40.0, 16.0]
-			var y := -40.0
-			for i in rows_w.size():
-				var w: float = rows_w[i]
-				ci.draw_rect(Rect2(base + Vector2(-w * 0.5 - 4.0, y - 4.0), Vector2(w + 8.0, 28.0)), UiTheme.OUTLINE)
-				y += 20.0
-			y = -40.0
-			for i in rows_w.size():
-				var w: float = rows_w[i]
-				ci.draw_rect(Rect2(base + Vector2(-w * 0.5, y), Vector2(w, 20.0)), look.wall)
-				y += 20.0
-			ci.draw_rect(Rect2(base + Vector2(-8, -32), Vector2(16, 12)), look.light)
-			ci.draw_rect(Rect2(base + Vector2(-4 if blink else 4, -8), Vector2(8, 8)), Color.WHITE)
-		_:
-			_draw_torch(ci, base, blink)
-
-
-## A torch on a post. The flame has two shapes that change in a hard step every 0.55 s of game time.
-func _draw_torch(ci: CanvasItem, base: Vector2, tall: bool) -> void:
-	ci.draw_rect(Rect2(base + Vector2(-16, -4), Vector2(32, 76)), UiTheme.OUTLINE)
-	ci.draw_rect(Rect2(base + Vector2(-12, 0), Vector2(24, 68)), TORCH_POST)
-	var h := 48.0 if tall else 36.0
-	ci.draw_rect(Rect2(base + Vector2(-24, -h - 4.0), Vector2(48, h + 8.0)), UiTheme.OUTLINE)
-	ci.draw_rect(Rect2(base + Vector2(-20, -h), Vector2(40, h + 4.0)), FLAME_OUTER)
-	ci.draw_rect(Rect2(base + Vector2(-8, -h * 0.6), Vector2(16, h * 0.6 + 4.0)), FLAME_INNER)
+## A ball: a white ring, a black outline and the slot color, with two eyes. The ring keeps every player color easy to see
+## on a bright ground (REQ-MZ-7).
+func _draw_ball(ci: CanvasItem, pos: Vector2, color: Color, vel: Vector2) -> void:
+	var c := Shell.snap(pos)
+	ci.draw_circle(c, BALL_R + Shell.WORLD_PIXEL + RING_W, Color.WHITE)
+	ci.draw_circle(c, BALL_R + Shell.WORLD_PIXEL, UiTheme.OUTLINE)
+	ci.draw_circle(c, BALL_R, color)
+	_draw_eyes(ci, c, vel / MAX_SPEED)
 
 
 ## The treasure chest of the exit (REQ-MZ-7): a closed chest with a lock and two sparkles that blink; the lid is open and the gold
@@ -372,30 +240,23 @@ func _draw_chest(ci: CanvasItem, c: Vector2) -> void:
 
 
 func _origin() -> Vector2:
-	return Vector2((size.x - cols * cell) * 0.5, (size.y - rows * cell) * 0.5 + 46.0)
+	# The middle of the space under the HUD (y 128 to 1020 at 1080p): the outer edge of the walls is 14 px outside the cells.
+	return Vector2((size.x - cols * cell) * 0.5, size.y * 0.5 + 34.0 - rows * cell * 0.5)
 
 
 func _pixel_world() -> bool:
 	return true
 
 
-## The world (REQ-GM-47i): the sky, the board with its floor, the four objects beside it, the chest, the walls and the balls.
+## The world (REQ-GM-47i): the picture of the board (ground, walls, start cell), the chest and the balls.
 func _world_draw(ci: CanvasItem) -> void:
+	if _board_tex == null:
+		_board_tex = _make_board_texture()   # At the first frame, when the size of the screen is known.
+	ci.draw_texture_rect(_board_tex, Rect2(Vector2.ZERO, size), false)
 	var o := Shell.snap(_origin())
-	ci.draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
-	Shell.draw_stars(ci, _stars)
-	var board := Rect2(o, Vector2(cols * cell, rows * cell)).grow(BOARD_PAD)
-	ci.draw_rect(board.grow(Shell.WORLD_PIXEL), UiTheme.OUTLINE)
-	ci.draw_rect(board, _look().floor_a)
-	_draw_floor(ci, o)
-	for x in [board.position.x - 44.0, board.end.x + 44.0]:
-		for y in [board.position.y + board.size.y * 0.22, board.position.y + board.size.y * 0.72]:
-			_draw_deco(ci, Shell.snap(Vector2(x, y)))
 	_draw_chest(ci, o + _exit_center())
-	_draw_walls(ci, o)
 	for b in _balls:   # The slot numbers are drawn by the HUD (REQ-GM-47n).
-		Shell.pixel_ball(ci, o + b.pos, BALL_R, player(b.slot).color)
-		_draw_eyes(ci, Shell.snap(o + b.pos), b.vel / MAX_SPEED)
+		_draw_ball(ci, o + b.pos, player(b.slot).color, b.vel)
 
 
 func _game_draw() -> void:
