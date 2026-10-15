@@ -1,5 +1,5 @@
 extends RefCounted
-## The picture of the maze board (REQ-MZ-7, REQ-MZ-12): the ground, the walls and the start cell of one style, drawn once into an
+## The picture of the maze board (REQ-MZ-7, REQ-MZ-12): the ground, the walls and the start cell of one theme, drawn once into an
 ## image of world pixels (480x270). The game draws this image every frame and puts the balls and the chest on top of it.
 ## The walls are given as rectangles in screen units (1 world pixel = 4 units). Everything is flat color on the pixel grid:
 ## a wall has a dark outline, a lit top edge, a face with marks, and a front band below it (the wall stands up from the ground).
@@ -8,10 +8,10 @@ const FRONT := 4      # The front band under a wall, in world pixels.
 const TILE := 12      # The ground is a chess board of tiles this many world pixels wide.
 const HUD_ROWS := 28  # The black bar for the title and the timer: 112 screen units.
 
-## The colors of the styles. `kind` says how the wall is drawn: a hedge (leafy edge and leaf marks), stone (a pattern of bricks)
+## The colors of the themes. `kind` says how the wall is drawn: a hedge (leafy edge and leaf marks), stone (a pattern of bricks)
 ## or ice (snow marks and a shine). `outline`, `face`, `light` and `front` are the colors of the wall. `ground_a` and `ground_b`
 ## are the two tones of the ground, `tuft` and `flower` the marks on it.
-const STYLES := {
+const THEMES := {
 	"garden": {"kind": "hedge", "ground_a": Color("4c9e3c"), "ground_b": Color("46943a"), "tuft": Color("2e7a2c"),
 			"flower": Color("fcfcfc"), "outline": Color("083010"), "face": Color("247024"), "light": Color("70c448"),
 			"front": Color("145418"), "start": Color("8ad06a")},
@@ -22,22 +22,22 @@ const STYLES := {
 			"flower": Color("fcfcfc"), "outline": Color("061030"), "face": Color("a8d8f0"), "light": Color("e8f8ff"),
 			"front": Color("5a90c0"), "start": Color("3a68c0")},
 }
-const DEFAULT_STYLE := "garden"
+const DEFAULT_THEME := "garden"
 
 
-## A number from the place (`a`, `b`) and a `salt`, the same every time: it places the marks of a style in the same spots.
+## A number from the place (`a`, `b`) and a `salt`, the same every time: it places the marks of a theme in the same spots.
 static func scatter(a: int, b: int, salt: int) -> int:
 	return ((a * 73856093) ^ (b * 19349663) ^ (salt * 83492791)) & 0xffff
 
 
-static func look(style: String) -> Dictionary:
-	return STYLES.get(style, STYLES[DEFAULT_STYLE])
+static func look(theme: String) -> Dictionary:
+	return THEMES.get(theme, THEMES[DEFAULT_THEME])
 
 
 ## The picture of the board. `walls` are rectangles in screen units, `start` is the start cell as a rectangle in screen units,
 ## `view` is the size of the picture in world pixels.
-static func render(style: String, walls: Array[Rect2], start: Rect2, view: Vector2i) -> Image:
-	var c := look(style)
+static func render(theme: String, walls: Array[Rect2], start: Rect2, view: Vector2i) -> Image:
+	var c := look(theme)
 	var img := Image.create(view.x, view.y, false, Image.FORMAT_RGBA8)
 	_ground(img, c)
 	_hud_bar(img)
@@ -67,7 +67,7 @@ static func _ground(img: Image, c: Dictionary) -> void:
 				img.set_pixel(x, y, Color("f8b800"))
 
 
-## The black bar under the title and the timer (the same in every style), drawn after the ground.
+## The black bar under the title and the timer (the same in every theme), drawn after the ground.
 static func _hud_bar(img: Image) -> void:
 	img.fill_rect(Rect2i(0, 0, img.get_width(), HUD_ROWS), Color.BLACK)
 
@@ -124,7 +124,7 @@ static func _walls(img: Image, c: Dictionary, mask: PackedByteArray, view: Vecto
 				img.set_pixel(x, y, c.outline)
 
 
-## The color of one wall pixel: the lit top edge (two rows), then the face with the marks of the style.
+## The color of one wall pixel: the lit top edge (two rows), then the face with the marks of the theme.
 static func _wall_pixel(c: Dictionary, m: PackedByteArray, w: int, x: int, y: int, kind: String) -> Color:
 	var lit := m[(y - 1) * w + x] == 0 or (y > 1 and m[(y - 2) * w + x] == 0)
 	if lit:

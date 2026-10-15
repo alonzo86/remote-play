@@ -300,7 +300,7 @@ func _test_qr() -> void:
 ## The maze colors follow REQ-GM-47d and 47e (REQ-MZ-7). The player colors are checked for every game.
 func _test_visual_rules() -> void:
 	print("visual rules")
-	var styles: Dictionary = load("res://scripts/game/maze/maze_board.gd").STYLES
+	var themes: Dictionary = load("res://scripts/game/maze/maze_board.gd").THEMES
 	var players_ok := true
 	for c in Protocol.PLAYER_COLORS:
 		if c.s < 0.55 or c.v < 0.60:
@@ -309,8 +309,8 @@ func _test_visual_rules() -> void:
 	_check(players_ok, "player colors have saturation 0.55+ and value 0.60+ (REQ-GM-47d)")
 	# A ball has a white ring, so the ring must stand out from the ground, and the black outline of the ball must too
 	# (REQ-MZ-7). A wall must stand out from both tones of the ground by its face or by its outline.
-	for key in styles:
-		var st: Dictionary = styles[key]
+	for key in themes:
+		var st: Dictionary = themes[key]
 		var ring_ok := true
 		var wall_ok := true
 		for g in [st.ground_a, st.ground_b]:

@@ -2,7 +2,8 @@ extends RefCounted
 ## The settings of a game (REQ-GM-90 to 94): the rows of the settings view, the value of each row, and the props that
 ## the game gets. Pure logic: the view (`scripts/ui/tv_game_settings.gd`) only draws it.
 ## A game has a settings view when its registry entry has a `settings` list (it may be empty). Every such game has the row
-## Difficulty first (REQ-GM-91). `settings` lists more rows: {key, label, values: [...], titles: [...]} (a choice row).
+## Difficulty first (REQ-GM-91). `settings` lists more rows: {key, label, values: [...], titles: [...], default: "..."} (a choice row;
+## `default` is the value when nothing was chosen, the first value when it is missing).
 
 const DIFFICULTY := {
 	"key": "difficulty", "label": "Difficulty", "values": ["easy", "medium", "hard"], "titles": ["Easy", "Medium", "Hard"],
@@ -32,7 +33,7 @@ static func value(game: Dictionary, row: Dictionary) -> String:
 		return String(chosen[key])
 	if key == "difficulty":
 		return DEFAULT_DIFFICULTY
-	return String(row.values[0])
+	return String(row.get("default", row.values[0]))
 
 
 static func set_value(game: Dictionary, row: Dictionary, v: String) -> void:

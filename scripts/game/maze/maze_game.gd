@@ -1,8 +1,8 @@
 extends "res://scripts/game/minigame.gd"
 ## Tilt maze. Each phone tilts its own ball. The first ball in the exit wins.
 ## Tilt comes from PlayerInput.tilt(). The RECENTER button of the phone recenters (REQ-GM-37); GO recenters all.
-## Look (REQ-GM-47i to 47n, REQ-MZ-7, REQ-MZ-12): a pixel world in one of three styles (garden, castle, ice) that the player picks in the
-## settings view. The balls with eyes and the treasure chest of the exit look the same in every style.
+## Look (REQ-GM-47i to 47n, REQ-MZ-7, REQ-MZ-12): a pixel world in one of three themes (garden, castle, ice) that the player picks in the
+## settings view. The balls with eyes and the treasure chest of the exit look the same in every theme.
 
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
@@ -29,7 +29,7 @@ const HIT_BUZZ_SPEED := 320.0
 const TIMER_X := 500.0       # The timer box has a fixed place, between the title and the leader chip.
 const TIMER_W := 240.0
 
-const DEFAULT_STYLE := "garden"
+const DEFAULT_THEME := "garden"
 const RING_W := 4.0           # The white ring around a ball: one world pixel outside the black outline (REQ-MZ-7).
 const CHEST_WOOD := Color("a0521c")
 const CHEST_DARK := Color("6c3410")
@@ -42,7 +42,7 @@ class Ball:
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps it for Restart.
 var difficulty := "medium"
-var style := DEFAULT_STYLE   # A key of `MazeBoard.STYLES` (REQ-MZ-12). An unknown one gives the default.
+var maze_theme := DEFAULT_THEME   # A key of `MazeBoard.THEMES` (REQ-MZ-12). An unknown one gives the default.
 var cols := 17
 var rows := 9
 var cell := 96.0
@@ -80,14 +80,14 @@ func _start_offset() -> float:
 	return minf(cell * 0.22, (cell - WALL) * 0.5 - BALL_R - 2.0)
 
 
-## The ground and the walls of the style of this round as one texture (REQ-MZ-12). The walls are the collision rectangles.
+## The ground and the walls of the theme of this round as one texture (REQ-MZ-12). The walls are the collision rectangles.
 func _make_board_texture() -> ImageTexture:
 	var o := Shell.snap(_origin())
 	var rects: Array[Rect2] = []
 	for r in _walls:
 		rects.append(Rect2(o + r.position, r.size))
 	var start := Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(cell, cell) - Vector2(WALL, WALL))
-	return ImageTexture.create_from_image(MazeBoard.render(style, rects, start, PIXEL_VIEW))
+	return ImageTexture.create_from_image(MazeBoard.render(maze_theme, rects, start, PIXEL_VIEW))
 
 
 func _on_player_left(slot: int) -> void:

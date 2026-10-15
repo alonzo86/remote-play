@@ -50,7 +50,7 @@ const HE := {
 	"MEDIUM": "בינוני",
 	"HARD": "קשה",
 	"TRACK": "מסלול",
-	"STYLE": "סגנון",
+	"THEME": "ערכת נושא",
 	"GARDEN": "גינה",
 	"CASTLE": "טירה",
 	"ICE": "קרח",

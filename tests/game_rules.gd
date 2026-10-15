@@ -289,18 +289,18 @@ func _maze_levels() -> void:
 			"fewer openings (more complex) with the difficulty")
 	_check(walls.easy < walls.medium and walls.medium < walls.hard, "more walls with the difficulty: %s" % str(walls))
 	_check(levels.medium.cols == 16 and levels.medium.rows == 8 and levels.medium.cell == 108.0, "Medium is 16 x 8 cells of 108 px")
-	# The styles (REQ-MZ-12): the registry row lists exactly the styles the board draws, and an unknown one gives the default.
-	var style_row: Dictionary = {}
+	# The themes (REQ-MZ-12): the registry row lists exactly the styles the board draws, and an unknown one gives the default.
+	var theme_row: Dictionary = {}
 	for g in load("res://scripts/game/registry.gd").GAMES:
 		if g.id == "maze":
-			style_row = g.settings[0]
-	var style_keys: Array = MazeBoard.STYLES.keys()
-	var row_keys: Array = style_row.get("values", []).duplicate()
-	style_keys.sort()
+			theme_row = g.settings[0]
+	var theme_keys: Array = MazeBoard.THEMES.keys()
+	var row_keys: Array = theme_row.get("values", []).duplicate()
+	theme_keys.sort()
 	row_keys.sort()
-	_check(style_row.get("key", "") == "style" and style_keys == row_keys and MazeBoard.STYLES.has(MazeBoard.DEFAULT_STYLE),
-			"the Style row of the maze lists the styles of the board and the default is one of them")
-	_check(MazeBoard.look("nothing") == MazeBoard.STYLES[MazeBoard.DEFAULT_STYLE], "an unknown style gives the default look")
+	_check(theme_row.get("key", "") == "maze_theme" and theme_keys == row_keys and MazeBoard.THEMES.has(MazeBoard.DEFAULT_THEME),
+			"the Theme row of the maze lists the styles of the board and the default is one of them")
+	_check(MazeBoard.look("nothing") == MazeBoard.THEMES[MazeBoard.DEFAULT_THEME], "an unknown theme gives the default look")
 	_check(MazeBoard.scatter(3, 4, 1) == MazeBoard.scatter(3, 4, 1) and MazeBoard.scatter(3, 4, 1) != MazeBoard.scatter(4, 3, 1),
 			"the marks of the ground come from the place, so they stay in place")
 	_test_maze_board()
@@ -331,8 +331,8 @@ func _test_maze_board() -> void:
 	var typed: Array[Rect2] = []
 	typed.append_array(wall)
 	var view := Vector2i(80, 60)
-	for key in MazeBoard.STYLES:
-		var st: Dictionary = MazeBoard.STYLES[key]
+	for key in MazeBoard.THEMES:
+		var st: Dictionary = MazeBoard.THEMES[key]
 		var img: Image = MazeBoard.render(key, typed, Rect2(8.0, 8.0, 40.0, 40.0), view)
 		_check(img.get_width() == 80 and img.get_height() == 60, "the %s board picture has the size of the view" % key)
 		_check(img.get_pixel(40, 25) == st.light, "the top of a %s wall is the lit edge" % key)
@@ -345,7 +345,7 @@ func _test_maze_board() -> void:
 		_check(fronts >= 10, "the %s wall has a front band under it" % key)
 		var ground := img.get_pixel(70, 50)
 		_check(ground == st.ground_a or ground == st.ground_b or ground == st.tuft or ground == st.flower
-				or ground == Color("f8b800"), "a pixel far from the walls is ground in the %s style" % key)
+				or ground == Color("f8b800"), "a pixel far from the walls is ground in the %s theme" % key)
 	var a: Image = MazeBoard.render("garden", typed, Rect2(8.0, 8.0, 40.0, 40.0), view)
 	var b: Image = MazeBoard.render("garden", typed, Rect2(8.0, 8.0, 40.0, 40.0), view)
 	_check(a.get_data() == b.get_data(), "the same board is drawn the same way every time")
