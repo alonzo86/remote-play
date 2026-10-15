@@ -1,6 +1,6 @@
 # Name decision: Sababi
 
-Date: 2026-10-15. Status: chosen by the owner, not yet checked in the official registers. This is not legal advice.
+Date: 2026-10-15. Status: chosen by the owner. A first register search by the owner is recorded below. This is not legal advice.
 
 ## Decision
 
@@ -22,19 +22,42 @@ Three reviewers looked at both names. They first disagreed and then agreed on Sa
 
 ## Known risks
 
-- **Sababa marks.** Search results showed Sababa Toys, Sababa Group and a SABABA card-game mark (US serial 90784499) in class 28. The owner and status of each mark are not known. A live SABABA mark in class 9 or 28 is a risk for the name, and "Play" does not remove it.
+- **Sababa marks.** The owner found two SABABA marks (see "Register search by the owner"). Their owner, classes and status are not recorded yet. Web search also showed Sababa Toys and Sababa Group with US toy and game marks, from old pages; their status is not known. A live SABABA mark in class 9, 28 or 41 is a risk for the name, and "Play" does not remove it.
 - **Spelling and search.** People type Sababa or Sababy. Autocorrect can change the name. Sababa food and restaurant results will appear in a search.
 - **Meaning.** The name has no game meaning. The game clue is in the store title.
 - **Not tested:** voice assistants, the Hebrew spelling (סבבי or סבבה), and the meaning in Arabic, Spanish, German and French. Native readers must check.
 
+## Register search by the owner (2026-10-15)
+
+The owner searched the registers for the relevant classes. Claude could not open the registers or the links from its environment, so none of this is checked by Claude. The owner did not record the owner, classes, goods or status of the two hits.
+
+| Source | Result | Link |
+|--------|--------|------|
+| USPTO | One hit: SABABA, serial 90784499 | <https://tmsearch.uspto.gov/search/search-results/90784499> |
+| UK IPO | One hit: SABABA, UK00918145174 | <https://trademarks.ipo.gov.uk/ipo-tmcase/page/Results/1/UK00918145174> |
+| EUIPO | No results | |
+| WIPO | No results | |
+| Israel IPO | No results | |
+| Google Play | Names that are not the same: Sabasi, swabi, Sabai, saba | |
+| Apple App Store | Empty; the owner is not sure the search worked | |
+
+What this means:
+
+- Both hits are for the word SABABA, not SABABI. A SABABA mark in the same classes (9, 28, 41, 42) can still be a conflict because the names sound almost the same. Whether it is one depends on the goods and the status, which are not recorded.
+- A web search by Claude did not show serial 90784499. A page for that number was not found, so the class and the owner are not confirmed. An earlier note that it was a class 28 card-game mark came from a search snippet and is **not confirmed**.
+- "No results" in EUIPO, WIPO and the Israel IPO means no result for the search words that were used. If only the exact word SABABI was searched, sounds-like names (SABABA, SABABY) were not covered.
+- The Google Play names are different names. They are not conflicts; they show how the store matches near names.
+- The App Store result is not reliable.
+
 ## What was and was not checked
 
-Only web search was used. The official registers (WIPO, USPTO, EUIPO, UK IPO, Israel IPO), the app stores and the domain registers could not be reached. Nothing here is clearance.
+Web search and the owner's register search were used. Claude could not reach the registers, the app stores or the domain registers. Nothing here is clearance.
 
 ## Before the name is used
 
-1. Search SABABI, SABABA and sounds-like names in classes 9, 28, 41 and 42 at USPTO, EUIPO, UK IPO and Israel IPO. Read the owner and status of the SABABA marks first.
-2. Search the app stores, the domains (sababi.com and fallbacks) and the social handles.
-3. Ask a trademark attorney.
-4. Set the store title and keywords (Sababa, Sababy and the Hebrew spelling).
-5. Then rename the app (a separate change, like FD-21): app IDs, names, texts and the logo.
+1. Open the two SABABA hits and write in this file the owner, the classes, the goods and the status. These decide the risk.
+2. Repeat the search for SABABI, SABABA, SABABY and sounds-like names in classes 9, 28, 41 and 42 at EUIPO, WIPO and Israel IPO (if only the exact word was searched), and search the Apple App Store again.
+3. Search the domains (sababi.com and fallbacks) and the social handles.
+4. Ask a trademark attorney.
+5. Set the store title and keywords (Sababa, Sababy and the Hebrew spelling).
+6. Then rename the app (a separate change, like FD-21): app IDs, names, texts and the logo.
