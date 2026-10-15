@@ -12,11 +12,11 @@ const Haptics = preload("res://scripts/game/haptics.gd")
 ## removed after the maze is made (fewer openings: fewer loops, more dead ends). Medium is the maze from before.
 const LEVELS := {
 	"easy": {"cols": 11, "rows": 6, "cell": 120.0, "openings": 0.20},
-	"medium": {"cols": 17, "rows": 9, "cell": 96.0, "openings": 0.08},
-	"hard": {"cols": 21, "rows": 11, "cell": 76.0, "openings": 0.02},
+	"medium": {"cols": 15, "rows": 8, "cell": 108.0, "openings": 0.08},
+	"hard": {"cols": 17, "rows": 9, "cell": 96.0, "openings": 0.02},
 }
-const WALL := 12.0           # Three world pixels (REQ-GM-47l). Cells are multiples of 4, so every wall is on the pixel grid.
-const BALL_R := 24.0
+const WALL := 28.0           # Seven world pixels (REQ-GM-47l). Cells are multiples of 4, so every wall is on the pixel grid.
+const BALL_R := 18.0
 const TILT_ACCEL := 2600.0   # px/s^2 for tilt 1.0 (sin of angle). 15 degrees gives about 670.
 const DEADZONE := 0.03
 const FRICTION := 1.6        # 1/s
@@ -90,8 +90,13 @@ func _game_ready() -> void:
 	for s in participants:
 		var b := Ball.new()
 		b.slot = s
-		b.pos = Vector2(cell, cell) * 0.5 + offsets[s % 4] * cell * 0.22
+		b.pos = Vector2(cell, cell) * 0.5 + offsets[s % 4] * _start_offset()
 		_balls.append(b)
+
+
+## How far a ball starts from the middle of the start cell, on each axis: 0.22 of a cell, but not so far that the ball touches a wall.
+func _start_offset() -> float:
+	return minf(cell * 0.22, (cell - WALL) * 0.5 - BALL_R - 2.0)
 
 
 func _on_player_left(slot: int) -> void:
@@ -211,7 +216,7 @@ func _draw_walls(ci: CanvasItem, o: Vector2) -> void:
 	for r in rects:
 		ci.draw_rect(r, look.shade)
 	for r in rects:
-		ci.draw_rect(Rect2(r.position, r.size - Vector2(px, px)), look.wall)
+		ci.draw_rect(Rect2(r.position, r.size - Vector2(px, px) * 2.0), look.wall)
 	for r in rects:
 		ci.draw_rect(Rect2(r.position, Vector2(r.size.x, px)), look.light)
 		ci.draw_rect(Rect2(r.position, Vector2(px, r.size.y)), look.light)
@@ -219,8 +224,9 @@ func _draw_walls(ci: CanvasItem, o: Vector2) -> void:
 		_draw_wall_marks(ci, r, look)
 
 
-## The marks of a bar in its middle band, at fixed places of the screen. Mortar is a dark square, a leaf a light one on the odd marks
-## and a dark one on the even marks, frost a white square on every other mark.
+## The marks of a bar on its face, at fixed places of the screen. A mortar mark is a dark joint across the bar, a leaf is a light or a
+## dark square, and frost is a white square on every other mark. The mark moves across the bar with its number, so the wall does not
+## look like a ruler.
 func _draw_wall_marks(ci: CanvasItem, r: Rect2, look: Dictionary) -> void:
 	var px := Shell.WORLD_PIXEL
 	var horizontal := r.size.x >= r.size.y
@@ -229,17 +235,23 @@ func _draw_wall_marks(ci: CanvasItem, r: Rect2, look: Dictionary) -> void:
 	var t := ceilf(from / BRICK) * BRICK
 	while t < to:
 		var n := int(t / BRICK)
+		var across := px * (1.0 + float(n % 3))   # 4, 8 or 12 px from the lit edge: the face is 20 px
 		var color: Color = look.shade
+		var size := Vector2(px, px)
 		var skip := false
 		match String(look.detail):
+			"mortar":
+				across = px
+				size = Vector2(px, px * 4.0) if horizontal else Vector2(px * 4.0, px)
 			"leaf":
 				color = look.light if n % 2 == 0 else look.shade
+				size = Vector2(px * 2.0, px) if horizontal else Vector2(px, px * 2.0)
 			"frost":
 				color = Color.WHITE
 				skip = n % 2 == 1
 		if not skip:
-			var at := Vector2(t, r.position.y + px) if horizontal else Vector2(r.position.x + px, t)
-			ci.draw_rect(Rect2(at, Vector2(px, px)), color)
+			var at := Vector2(t, r.position.y + across) if horizontal else Vector2(r.position.x + across, t)
+			ci.draw_rect(Rect2(at, size), color)
 		t += BRICK
 
 
@@ -329,7 +341,7 @@ func _draw_torch(ci: CanvasItem, base: Vector2, tall: bool) -> void:
 ## shows once a ball has reached it.
 func _draw_chest(ci: CanvasItem, c: Vector2) -> void:
 	var px := Shell.WORLD_PIXEL
-	var w := Shell.snap(Vector2.ONE * cell * 0.7).x
+	var w := Shell.snap(Vector2.ONE * cell * 0.5).x
 	var body := Rect2(Shell.snap(c) - Vector2(w * 0.5, 0.0) + Vector2(0, px), Vector2(w, w * 0.4))
 	var lid_h := Shell.snap(Vector2.ONE * w * 0.3).x
 	ci.draw_rect(body.grow(px), UiTheme.OUTLINE)

@@ -287,7 +287,7 @@ func _maze_levels() -> void:
 	_check(levels.easy.openings > levels.medium.openings and levels.medium.openings > levels.hard.openings,
 			"fewer openings (more complex) with the difficulty")
 	_check(walls.easy < walls.medium and walls.medium < walls.hard, "more walls with the difficulty: %s" % str(walls))
-	_check(levels.medium.cols == 17 and levels.medium.rows == 9 and levels.medium.cell == 96.0, "Medium is the maze from before")
+	_check(levels.medium.cols == 15 and levels.medium.rows == 8 and levels.medium.cell == 108.0, "Medium is 15 x 8 cells of 108 px")
 	# The styles (REQ-MZ-12): the registry row lists exactly the styles the game draws, and the same place gets the same mark.
 	var style_row: Dictionary = {}
 	for g in load("res://scripts/game/registry.gd").GAMES:
@@ -309,12 +309,21 @@ func _maze_levels() -> void:
 	var on_grid := fmod(Maze.WALL, Shell.WORLD_PIXEL) == 0.0
 	for d in levels:
 		on_grid = on_grid and fmod(float(levels[d].cell), Shell.WORLD_PIXEL) == 0.0
-	_check(on_grid and Maze.WALL == 12.0, "the walls and the cells are on the pixel grid (REQ-MZ-7)")
+	_check(on_grid and Maze.WALL == 28.0, "the walls and the cells are on the pixel grid (REQ-MZ-7)")
 	# A corridor is wide enough for the ball in every difficulty (the wall is thicker than before).
 	var corridors_ok := true
 	for d in levels:
 		corridors_ok = corridors_ok and float(levels[d].cell) - Maze.WALL >= Maze.BALL_R * 2.0 + 16.0
 	_check(corridors_ok, "a corridor of every difficulty is at least 16 px wider than the ball")
+	# The balls start apart and clear of the walls in every difficulty (REQ-MZ-2).
+	var starts_ok := true
+	var start_node = Maze.new()
+	for d in levels:
+		start_node.cell = float(levels[d].cell)
+		var o: float = start_node._start_offset()
+		starts_ok = starts_ok and o * 2.0 * sqrt(2.0) > Maze.BALL_R * 2.0 + 2.0 and (start_node.cell - Maze.WALL) * 0.5 - o >= Maze.BALL_R
+	start_node.free()
+	_check(starts_ok, "the balls of slot 0 and 1 start apart and clear of the walls in every difficulty")
 
 
 ## Snowball Splat difficulty (REQ-SS-20 to 22): faster Puffs and fewer of them as it grows.
