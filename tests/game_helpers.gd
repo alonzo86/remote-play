@@ -11,6 +11,7 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
+const SumoLook = preload("res://scripts/game/sumo_bumpers/sumo_look.gd")
 
 var SnowGame: GDScript   # Loaded at run time: a game script needs the App autoload.
 var _checks := 0
@@ -62,8 +63,8 @@ func _pixel_world() -> void:
 	_check(Sumo.fall_scale(0.0) == 1.0 and Sumo.fall_scale(0.15) == 1.0 and Sumo.fall_scale(0.25) == 0.75
 			and Sumo.fall_scale(0.45) == 0.5 and Sumo.fall_scale(0.7) == 0.25 and Sumo.fall_scale(Sumo.FALL_TIME) == 0.0
 			and Sumo.fall_scale(5.0) == 0.0, "a fallen bumper shrinks in 4 steps and then is gone (REQ-SB-9)")
-	_check(Sumo.danger_ring(0.0).is_equal_approx(Sumo.PLATFORM_RING) and Sumo.danger_ring(1.0).is_equal_approx(Sumo.DANGER_COLOR)
-			and Sumo.danger_ring(0.6).r > Sumo.PLATFORM_RING.r, "the platform ring turns red as the platform gets small (REQ-SB-15)")
+	_check(Sumo.danger_ring(0.0).is_equal_approx(SumoLook.RIM) and Sumo.danger_ring(1.0).is_equal_approx(SumoLook.DANGER)
+			and Sumo.danger_ring(0.6).r > SumoLook.RIM.r, "the island edge turns red as the island gets small (REQ-SB-15)")
 	var life: float = SnowGame.POOF_LIFE
 	var steps := []
 	for share in [0.0, 0.4, 0.9, 5.0]:
@@ -84,9 +85,36 @@ func _pixel_world() -> void:
 	var min_ball: float = SumoArena.BUMPER_R * 2.0
 	_check(min_ball >= 12.0 * Shell.WORLD_PIXEL, "a bumper is 12 world pixels or more across (REQ-GM-47m): %.0f px" % min_ball)
 	var worst := 99.0
-	for col in Protocol.PLAYER_COLORS:
-		worst = minf(worst, Shell.contrast(col, Sumo.PLATFORM))
-	_check(worst >= 3.0, "every player color has a contrast of 3:1 or more on the platform (REQ-GM-47m): %.2f" % worst)
+	for col in Protocol.PLAYER_COLORS:   # A penguin is cut out of the grass by its black outline (like REQ-MR-43).
+		worst = minf(worst, Shell.contrast(col, SumoLook.OUTLINE))
+	_check(worst >= 3.0, "every player color has a contrast of 3:1 or more on the black outline of a penguin (REQ-GM-47m): %.2f" % worst)
+	_check(Shell.contrast(SumoLook.OUTLINE, SumoLook.GRASS_A) >= 3.0 and Shell.contrast(SumoLook.OUTLINE, SumoLook.GRASS_B) >= 3.0
+			and Shell.contrast(SumoLook.OUTLINE, SumoLook.SKY_BOTTOM) >= 3.0,
+			"the outline of a penguin differs from both grass tones and from the sky by 3:1 or more (REQ-SB-15)")
+	_sumo_look()
+
+
+func _sumo_look() -> void:
+	var a: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[0], 0)
+	_check(a.get_width() == 18 and a.get_height() == 18, "a penguin is 16x16 world pixels plus a one pixel outline")
+	_check(a.get_pixel(0, 0).a == 0.0 and a.get_pixel(9, 0).is_equal_approx(SumoLook.OUTLINE),
+			"the corners are empty and the top of the head has the outline")
+	var left: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[0], -1)
+	var right: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[0], 1)
+	_check(left.get_data() != right.get_data() and left.get_data() != a.get_data(), "the pupils look to the side the penguin rolls")
+	var green: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[1], 0)
+	_check(green.get_pixel(2, 10).is_equal_approx(Protocol.PLAYER_COLORS[1]) and a.get_pixel(2, 10).is_equal_approx(Protocol.PLAYER_COLORS[0]),
+			"the body of a penguin has the player color")
+	var wrapped := true
+	for i in SumoLook.CLOUDS.size():
+		for t in [0.0, 50.0, 400.0, 5000.0]:
+			var x: float = SumoLook.cloud_x(i, t)
+			wrapped = wrapped and x >= -float(SumoLook.CLOUDS[i][2]) and x <= SumoLook.VIEW_W + float(SumoLook.CLOUDS[i][2])
+	_check(wrapped and SumoLook.cloud_x(0, 10.0) > SumoLook.cloud_x(0, 0.0), "the clouds drift to the right and come back on the left")
+	_check(SumoLook.rim_color(0.0).is_equal_approx(SumoLook.RIM) and SumoLook.rim_color(1.0).is_equal_approx(SumoLook.DANGER),
+			"the rim of the island goes from brown to red")
+	_check(SumoLook._inside(Rect2(-5, -5, 10, 10), Vector2.ZERO, 8.0) and not SumoLook._inside(Rect2(-5, -5, 10, 10), Vector2.ZERO, 6.0),
+			"a grass square is drawn only when all of it is inside the island")
 
 
 func _round_clock() -> void:

@@ -604,7 +604,7 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 8. Let a child of about 5 to 8 years play a match, with a grown-up next to them. Check: the child understands what to do from the hint line, laughs at the fall and is not upset.
 9. Leave the game on one phone during a round. Check: its bumper goes and the match goes on. With 2 phones, leave on one: the match ends at once.
 10. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
-11. **Pixel world (phase 2, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the world. Check: the bumpers, the platform and the stars are made of sharp square pixels (not blurred), every bumper has a black outline, eyes, and its number is easy to read on it, "WHEE!" and the chips are sharp text, and the bumpers are easy to tell apart on the dark platform. Write down if a bumper is too small to follow in a fight, and the TV (1080p or 4K).
+11. **Pixel world and Sky Island (REQ-GM-47i to 47n, REQ-SB-15).** From the sofa (about 3 m), look at the world. Check: the sky, the clouds, the island and the penguins are made of sharp square pixels (not blurred), every penguin has a black outline and is easy to tell from the others by its body color on the green, the island edge turns red as it shrinks, the cliff and the clouds look right, "WHEE!", the round banner and the countdown are easy to read on the sky, and the chips are sharp text. Write down if a penguin is too small to follow in a fight, and the TV (1080p or 4K).
 
 **Results**
 
@@ -624,7 +624,7 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 
 History:
 
-- -: **Not run**. New. Item 11 was added on 2026-10-10 (phase 2 of the arcade style).
+- -: **Not run**. New. Item 11 was added on 2026-10-10 (phase 2 of the arcade style) and changed on 2026-10-15 for the Sky Island and the penguins.
 
 ## Test 16
 
