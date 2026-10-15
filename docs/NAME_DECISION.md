@@ -101,7 +101,7 @@ Web search, the owner's register search and Claude's verification (above) were u
 
 1. ~~Open the two SABABA hits and write in this file the owner, the classes, the goods and the status.~~ Done by Claude (see "Verification by Claude").
 2. Done by the owner on 2026-10-15 (Israel IPO, EUIPO's own search, Google Play): no similar marks for SABABI and SABABY. SABABA has some listings; these are the SABABA marks already reviewed in "Verification by Claude". The owner did not write down the exact results, so this is not clearance. Still open: the Apple App Store search for UK and Israel storefronts, if needed.
-3. Search the social handles. The domain search is done (see above); decide whether sababi.com is worth acquiring or a fallback is used.
-4. Ask a trademark attorney.
-5. Set the store title and keywords (Sababa, Sababy and the Hebrew spelling).
+3. Skipped by the owner on 2026-10-15: no social handles (not needed). The domain search is done (see above); the owner did not choose a domain.
+4. Skipped by the owner on 2026-10-15: no trademark attorney. The owner accepts the risk that nobody with legal training has checked the name.
+5. Done on 2026-10-15: the store titles are "Sababi: TV Games" and "Sababi: Remote" (`docs/legal/store-listing-draft.md`). The other spellings are not in the texts.
 6. Done on 2026-10-15: the app was renamed (FD-26). If the register search finds a blocking SABABA mark, the name changes again. The `com.example.*` package names were replaced on 2026-10-15 by `io.github.alonzo86.sababi.*` (FD-27).
