@@ -12,7 +12,7 @@ Facts these texts use (checked in `README.md` and `docs/games/`): 5 games; 1 to 
 
 | Field | English | Hebrew |
 |---|---|---|
-| Title (30) | Sababi: TV Party Games | Sababi: משחקי מסיבה לטלוויזיה |
+| Title (30) | Sababi: TV Games | Sababi: משחקים לטלוויזיה |
 | Short description (80) | Party games on your Android TV. Your phone is the motion controller. | משחקי מסיבה בטלוויזיה. הטלפון שלכם הוא השלט עם חיישני התנועה. |
 
 ### Full description, English
@@ -98,11 +98,14 @@ Sababi Controller הופך את הטלפון לשלט תנועה למשחקי ה
 
 Play reads these words from the texts above, so each is in them once or twice: party games, TV, Android TV, motion controller, phone controller, family, couch, multiplayer, tilt, local multiplayer.
 
-Sababa and Sababy: they are not in the title. If you want them in the description (for people who spell the name differently), add one natural line at the end, for example: "Sababi (also spelled Sababa or Sababy)". This is your decision (the risk is in `docs/NAME_DECISION.md`: SABABA marks exist).
+Sababa and Sababy: the owner decided on 2026-10-15 not to add the other spellings to the texts.
 
-## Open questions for the owner
+## Decided by the owner on 2026-10-15
 
-1. The two TV store titles: keep "Sababi: TV Party Games", or only "Sababi"?
-2. Add the line about the other spellings, or not?
-3. "Made for family and friends" matches your answer on the audience. Google's target-audience form (issue #36) may still ask about children: decide your answer there.
-4. Screenshots, the feature graphic (1024x500) and the icon are not drafted here.
+- TV title: "Sababi: TV Games" (the Hebrew title follows it).
+- No line about the spellings Sababa and Sababy.
+
+## Still open
+
+1. "Made for family and friends" matches your answer on the audience. Google's target-audience form (issue #36) may still ask about children: decide your answer there.
+2. Screenshots, the feature graphic (1024x500) and the icon are not drafted here.
