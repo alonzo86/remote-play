@@ -54,9 +54,11 @@ if [ "$BUILD" -eq 1 ]; then
 		/usr/libexec/PlistBuddy -c "Delete :$KEY" "$PLIST" 2>/dev/null || true
 		/usr/libexec/PlistBuddy -c "Add :$KEY array" -c "Add :$KEY:0 string UIInterfaceOrientationPortrait" "$PLIST"
 	done
+	# Godot writes the project name ("Sababi") as the name on the home screen. The phone app is named like the Android one.
 	xcodebuild -project "$PROJECT" -scheme sababi-controller -configuration Debug \
 		-destination "id=$DEVICE" -derivedDataPath "$DERIVED" -allowProvisioningUpdates \
-		DEVELOPMENT_TEAM="$IOS_TEAM_ID" PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" CODE_SIGN_STYLE=Automatic build
+		DEVELOPMENT_TEAM="$IOS_TEAM_ID" PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" CODE_SIGN_STYLE=Automatic \
+		INFOPLIST_KEY_CFBundleDisplayName="Sababi: Remote" build
 fi
 
 APP="$(find "$DERIVED/Build/Products/Debug-iphoneos" -maxdepth 1 -name '*.app' 2>/dev/null | head -n 1)"

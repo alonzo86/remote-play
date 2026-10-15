@@ -109,5 +109,5 @@ Sababa and Sababy: the owner decided on 2026-10-15 not to add the other spelling
 ## Still open
 
 1. "Made for family and friends" matches your answer on the audience. Google's target-audience form (issue #36) may still ask about children: decide your answer there.
-2. Decided: the names on the device are the same as the store titles (`export_presets.cfg`, FD-27). The iPhone app name comes from the project name ("Sababi"); it is not changed.
+2. Decided: the names on the device are the same as the store titles (`export_presets.cfg`, FD-27). The iPhone app has the same name (`tools/deploy-ios.sh`).
 3. Screenshots, the feature graphic (1024x500) and the icon are not drafted here.
