@@ -399,10 +399,10 @@ static func _finish_line(img: Image, at: Vector2, dir: Vector2, half_road: float
 
 # ---- Scenery beside the road ----
 
-const DECOR_GAP_MIN := 1.2     # Meters from the outer edge of the wall to the scenery, at the least.
-const DECOR_GAP_MAX := 12.0
-const DECOR_STEP_MIN := 7.5    # Meters along the road between two pieces of scenery on one side.
-const DECOR_STEP_MAX := 12.0
+const DECOR_GAP_MIN := 2.0     # Meters from the outer edge of the wall to the scenery, at the least.
+const DECOR_GAP_MAX := 24.0
+const DECOR_STEP_MIN := 5.0    # Meters along the road between two pieces of scenery on one side.
+const DECOR_STEP_MAX := 9.0
 
 
 ## The picture of a piece of scenery of `theme` with its outline: a lollipop, a rocket, a palm tree. `kind` is one of the `decor`
