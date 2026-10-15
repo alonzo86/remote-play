@@ -1,5 +1,5 @@
 extends SceneTree
-## Makes the launcher icons and the Android TV banner from the Wobble mascot and logo (`assets/logo/splash.png`, `logo.png`,
+## Makes the launcher icons and the Android TV banner from the Sababi mascot and logo (`assets/logo/splash.png`, `logo.png`,
 ## FD-21).
 ## Run:  godot --headless --path . --script tools/make_icons.gd
 ## Output: assets/icons/*.png  (the files are committed, so this is only needed after a change of the logo)

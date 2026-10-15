@@ -1,4 +1,4 @@
-package com.example.wobble;
+package com.example.sababi;
 
 import android.app.Activity;
 import android.content.Context;
@@ -118,14 +118,14 @@ public class QrScannerPlugin extends GodotPlugin {
 				int mode = Build.VERSION.SDK_INT >= 29
 						? WifiManager.WIFI_MODE_FULL_LOW_LATENCY
 						: WifiManager.WIFI_MODE_FULL_HIGH_PERF;
-				wifiLock = wifi.createWifiLock(mode, "wobble:latency");
+				wifiLock = wifi.createWifiLock(mode, "sababi:latency");
 				wifiLock.setReferenceCounted(false);
 			}
 			if (!wifiLock.isHeld()) {
 				wifiLock.acquire();
 			}
 			if (multicastLock == null) {
-				multicastLock = wifi.createMulticastLock("wobble:beacon");
+				multicastLock = wifi.createMulticastLock("sababi:beacon");
 				multicastLock.setReferenceCounted(false);
 			}
 			if (!multicastLock.isHeld()) {

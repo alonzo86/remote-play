@@ -1,5 +1,5 @@
 extends Control
-## The About screen of the TV and of the phone (FD-25). A list of pages (what Wobble does with data, the Godot notice, 3rd Party
+## The About screen of the TV and of the phone (FD-25). A list of pages (what Sababi does with data, the Godot notice, 3rd Party
 ## Libraries) and one page of text at a time. "3rd Party Libraries" is a second list: a row for each library with its name and the
 ## type of its license, and a tap opens the copyright lines and the license text. The licenses must travel with the app (MIT,
 ## OFL and others), so they are shown here. Back goes up one step, and from the main list to `back_screen`.

@@ -39,7 +39,7 @@ func _ready() -> void:
 		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST # Sharp pixels (REQ-FL-50).
 		box.add_child(tr)
 	else:
-		var t := UiKit.title("WOBBLE", UiTheme.SIZE_LOGO)
+		var t := UiKit.title("SABABI", UiTheme.SIZE_LOGO)
 		t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		box.add_child(t)
 		var sub := UiKit.label("logo.phone_motion_controller_games", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)

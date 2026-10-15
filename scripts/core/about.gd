@@ -1,5 +1,5 @@
 extends RefCounted
-## The content of the About screen (FD-25): what Wobble does with data, and the notices that the licences of the parts of Wobble
+## The content of the About screen (FD-25): what Sababi does with data, and the notices that the licences of the parts of Sababi
 ## ask for. The texts of the licences stay in English: they are legal texts. The Godot texts come from the engine itself
 ## (`Engine.get_license_text()`, `get_copyright_info()`, `get_license_info()`), so they are always those of the running version.
 
@@ -9,14 +9,14 @@ const ANDROID_LIBRARIES := "res://assets/licenses/android-libraries.txt"
 
 const FONT_LICENSES := {
 	"Press Start 2P": "res://assets/fonts/OFL-PressStart2P.txt",
-	"Wobble Pixel Hebrew": "res://assets/fonts/OFL-WobblePixelHebrew.txt",
+	"Sababi Pixel Hebrew": "res://assets/fonts/OFL-SababiPixelHebrew.txt",
 }
 
 
 ## The pages of the About list, in order. Each is {"title": text, "kind": text, "arg": text}. `scanner` adds the note about the
 ## Google code scanner (the Android phone). "3rd Party Libraries" opens the list of `libraries()`.
 static func pages(scanner := false) -> Array:
-	var out: Array = [{"title": "Wobble", "kind": "summary", "arg": ""}]
+	var out: Array = [{"title": "Sababi", "kind": "summary", "arg": ""}]
 	if scanner:
 		out.append({"title": "QR scanner", "kind": "scanner", "arg": ""})
 	out.append({"title": "Godot Engine", "kind": "godot", "arg": ""})
@@ -25,7 +25,7 @@ static func pages(scanner := false) -> Array:
 
 
 ## The libraries of other makers, as pages: {"title": name, "kind": "library" or "file", "arg": name or file, "license": types}.
-## The fonts of Wobble first, then (`android`, an Android app) the page of the Android libraries, then the parts that are inside
+## The fonts of Sababi first, then (`android`, an Android app) the page of the Android libraries, then the parts that are inside
 ## Godot (the list of the running engine, without Godot itself). Each page shows the copyright lines and the text of the license.
 static func libraries(android := false) -> Array:
 	var out: Array = []
@@ -60,8 +60,8 @@ static func license_label(names: Array) -> String:
 static func text(page: Dictionary) -> String:
 	match String(page.kind):
 		"summary":
-			return Lang.t("about.wobble_party_game_tv") + "\n\n" \
-					+ Lang.t("about.wobble_has_no_account") \
+			return Lang.t("about.sababi_party_game_tv") + "\n\n" \
+					+ Lang.t("about.sababi_has_no_account") \
 					+ "\n\n" + Lang.t("about.phones_tv_communicate_over") \
 					+ " " + Lang.t("about.refresh_scans_addresses") \
 					+ " " + Lang.t("about.nothing_leaves_network") \

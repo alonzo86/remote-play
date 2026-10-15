@@ -108,7 +108,7 @@ func on_back() -> void:
 		_modal.on_back()
 		return
 	var d: Control = TvModal.new()
-	d.title_text = "connect.quit_wobble"
+	d.title_text = "connect.quit_sababi"
 	d.entries = [["connect.stay", Callable(self, "_close_dialog")], ["connect.quit", App._quit, "danger"]]
 	d.default_index = 0
 	d.closed.connect(func(): _modal = null)

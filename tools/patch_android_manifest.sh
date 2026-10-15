@@ -30,17 +30,17 @@ if [ ! -f "$MANIFEST" ]; then
 	exit 1
 fi
 
-# A build template made before the rename to Wobble (FD-21) has the plugin under the old package. Remove it, so the
-# app cannot load an old copy of the plugin.
-rm -rf "$BUILD/src/main/java/com/example/remoteplay"
+# A build template made before the rename to Sababi (FD-26) has the plugin under an old package (Remote Play, Wobble).
+# Remove it, so the app cannot load an old copy of the plugin.
+rm -rf "$BUILD/src/main/java/com/example/remoteplay" "$BUILD/src/main/java/com/example/wobble"
 
 # Banner image (320x180) for the Android TV home screen, and the plugin source.
-mkdir -p "$BUILD/res/drawable-xhdpi" "$BUILD/src/main/java/com/example/wobble"
+mkdir -p "$BUILD/res/drawable-xhdpi" "$BUILD/src/main/java/com/example/sababi"
 cp "$ROOT/assets/icons/banner.png" "$BUILD/res/drawable-xhdpi/banner.png"
 if [ "$WITH_QR" = 1 ]; then
-	cp "$ROOT/android/plugin/QrScannerPlugin.java" "$BUILD/src/main/java/com/example/wobble/QrScannerPlugin.java"
+	cp "$ROOT/android/plugin/QrScannerPlugin.java" "$BUILD/src/main/java/com/example/sababi/QrScannerPlugin.java"
 else
-	rm -f "$BUILD/src/main/java/com/example/wobble/QrScannerPlugin.java"
+	rm -f "$BUILD/src/main/java/com/example/sababi/QrScannerPlugin.java"
 fi
 
 python3 - "$MANIFEST" "$GRADLE" "$WITH_QR" <<'PY'
@@ -75,13 +75,15 @@ patch(manifest, "CHANGE_WIFI_MULTICAST_STATE",
       "multicast permission")
 
 if with_qr:
-    # A manifest patched before the rename names the old plugin class: point it to the new one.
+    # A manifest patched before the rename names an old plugin class: point it to the new one.
     s = open(manifest).read()
-    if "com.example.remoteplay.QrScannerPlugin" in s:
-        open(manifest, "w").write(s.replace("com.example.remoteplay.QrScannerPlugin", "com.example.wobble.QrScannerPlugin"))
-        print("QR plugin class: renamed to com.example.wobble")
+    for old in ("com.example.remoteplay.QrScannerPlugin", "com.example.wobble.QrScannerPlugin"):
+        if old in s:
+            s = s.replace(old, "com.example.sababi.QrScannerPlugin")
+            open(manifest, "w").write(s)
+            print("QR plugin class: renamed to com.example.sababi")
 
-    meta = ('        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.wobble.QrScannerPlugin" />\n'
+    meta = ('        <meta-data android:name="org.godotengine.plugin.v2.QrScanner" android:value="com.example.sababi.QrScannerPlugin" />\n'
             '        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />\n')
     patch(manifest, "org.godotengine.plugin.v2.QrScanner",
           lambda s: s.replace("    </application>", meta + "    </application>", 1),

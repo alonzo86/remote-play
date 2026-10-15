@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review a change to the Wobble Godot project (a diff, a branch or a GitHub pull request) against its architecture rules and known pitfalls, and write a structured report. Use before a commit or PR, after a PR is created, or when asked to review code.
+description: Review a change to the Sababi Godot project (a diff, a branch or a GitHub pull request) against its architecture rules and known pitfalls, and write a structured report. Use before a commit or PR, after a PR is created, or when asked to review code.
 ---
 
 Review the current diff (`git diff main...HEAD` plus uncommitted changes), or the files or PR the user names.

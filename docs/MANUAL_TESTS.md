@@ -81,8 +81,8 @@ Needs: 1 phone, 1 TV. Covers: REQ-T1, REQ-FL-5 to 10.
 
 **Steps**
 
-1. Start the TV app. Check: the app is named **Wobble TV** in the launcher (uninstall the old Remote Play apps first: the package names changed, FD-21). The Android splash shows the pixel phone mascot on black, then the logo screen with the mascot and the word WOBBLE (sharp pixels, not blurred) and an animation (about 2.5 seconds), then the **Connect controllers** screen with a room code and a QR code. If the QR code is empty, the TV has no Wi-Fi address (the screen says so).
-2. Start the controller app on one phone. Check: it is named **Wobble Controller**, and the phone shows a **portrait** screen with the title WOBBLE.
+1. Start the TV app. Check: the app is named **Sababi TV** in the launcher (uninstall the old Wobble and Remote Play apps first: the package names changed, FD-26). The Android splash shows the pixel mascot (a yellow face with sunglasses) on black, then the logo screen with the mascot and the word SABABI (sharp pixels, not blurred) and an animation (about 2.5 seconds), then the **Connect controllers** screen with a room code and a QR code. If the QR code is empty, the TV has no Wi-Fi address (the screen says so).
+2. Start the controller app on one phone. Check: it is named **Sababi Controller**, and the phone shows a **portrait** screen with the title SABABI.
 3. Join with the **TV list** (tap the TV). Check: the phone shows "Waiting for the host" with a colored player circle, the TV shows the phone in slot 1 as "READY", and the line **Press OK to continue** shows at the bottom (there is no Continue button and no player count). Press OK. Check: the TV shows the Games screen and the phone says "Choose a game on the TV".
 4. Tap **Disconnect**, then tap the TV under **Discovered TVs**. Check: it joins (the button reads "<code> x/y", for example "KQZM 1/4", and it is green; **Refresh** is white). Tap **Refresh**. Check: the list shows "Searching..." and the TV is back within 2 seconds. New (REQ-FL-83): with the TV app on a Mac, where the list stays empty, tap Refresh and check that the TV shows up in the list within about 15 seconds (the scan; it never starts by itself). If the Mac asks for the Local Network permission, answer with the app that runs the TV; the scan works without it.
 5. Tap **Disconnect**, then join with the **TV IP address**. Check: it joins.
@@ -116,7 +116,7 @@ Needs: 1 phone, 1 TV. Covers: RISKS C5.
 1. Tap **Disconnect**. On the connect screen, the button must say **Scan QR code**. If it says **Paste TV link**, the plugin is not in the build. Run `tools/patch_android_manifest.sh` and export again.
 2. Tap the button and scan the QR code on the TV. Check: the phone joins in less than 5 seconds.
 3. Scan again and press Back in the scanner. Check: no error message and the app does not crash.
-4. Optional: put a different QR code in front of the phone (for example a web link). Check: the message "This is not a Wobble code".
+4. Optional: put a different QR code in front of the phone (for example a web link). Check: the message "This is not a Sababi code".
 
 **Results**
 
@@ -279,7 +279,7 @@ Needs: 1 phone, 1 TV with its remote. Covers: REQ-GM-31, REQ-GM-31a, REQ-GM-33, 
 2. In a game, press OK. Check: the pause menu opens with Resume, Try again, and Back to menu. Choose Back to menu, and also press Back during play. Check: both ask "End the game?" with **Keep playing** (green, in focus) and **End game** (red). The game is paused. Back on the question keeps playing. **End game** goes to the Games screen. After the game is over (result menu), Back leaves at once.
 3. Press Back in a game and choose **End game**: back to the Games screen. Press Back on the Games screen: the Connect screen (the players stay). Press Back on the Connect screen: the quit question opens, with **Stay** in focus.
 4. Check the Menu key. If the remote has no Menu key, open **Settings** (the gear on the Games screen) and use **Debug overlay**.
-5. Check: the app icon and banner show in the Android TV home row (the icon is the Wobble mascot on black, the banner is the mascot and the word WOBBLE).
+5. Check: the app icon and banner show in the Android TV home row (the icon is the Sababi mascot on black, the banner is the mascot and the word SABABI).
 
 **Results**
 
@@ -668,7 +668,7 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 **Steps**
 
 1. Delete the app data of the TV app (or install fresh) and start it with the TV set to Hebrew. Check: the logo screen waits and shows "ENGLISH" and "עברית" side by side, the focus is on "עברית", and nothing moves on by itself. Press OK. Check: the app is in Hebrew and opens the Connect screen. Close the app and start it again: the logo goes on by itself (no choice) and the language is still Hebrew. Do it again with the TV set to English: the focus starts on "ENGLISH".
-2. In Hebrew, go through the logo, Connect, Games, Settings, a settings view, the Players modal, the quit question. Check: every screen is mirrored (QR card at the right, slot squares at the right, cursor at the right and pointing left, title at the right), no text is cut, no English word is left (except WOBBLE, WI-FI, OK, the room code and the player names), and the Hebrew letters and the punctuation (`. , ! ? -`) look right next to each other. Write down any text that is cut or any word that looks wrong.
+2. In Hebrew, go through the logo, Connect, Games, Settings, a settings view, the Players modal, the quit question. Check: every screen is mirrored (QR card at the right, slot squares at the right, cursor at the right and pointing left, title at the right), no text is cut, no English word is left (except SABABI, WI-FI, OK, the room code and the player names), and the Hebrew letters and the punctuation (`. , ! ? -`) look right next to each other. Write down any text that is cut or any word that looks wrong.
 3. In Hebrew, the Left and Right keys of the remote in a choice row (Difficulty): Right goes to the previous value (the arrow at the right), Left to the next. Check that the D-pad moves the focus between rows by position as before.
 4. Join 2 phones: one with the system language Hebrew, one English, with player names in Latin letters and in Hebrew letters. Check: before the join the Hebrew phone shows its connect screen in Hebrew and the English phone in English; after the join both show the language of the TV (Hebrew); the player names show as typed (a Latin name in a Hebrew row is in the right place).
 5. In Settings, press OK on the Language row. Check: the TV switches to English at once (the layout turns left to right), the phones switch too, and the Settings screen stays open. Switch back to Hebrew. Leave the app and start it again: the language is the one that was last chosen.
@@ -838,7 +838,7 @@ New (2026-10-11). The headless tests check the rules and the pages. They do not 
 
 **Steps**
 
-1. Open the Wobble TV app. Check: the Connect screen shows the room code and, under it, a PIN of 4 digits, readable from the sofa.
+1. Open the Sababi TV app. Check: the Connect screen shows the room code and, under it, a PIN of 4 digits, readable from the sofa.
 2. Scan the QR code of the TV with an Android phone. Check: the phone joins at once and shows no PIN pad.
 3. On a second phone, leave and tap the TV in the list of found TVs. Check: the PIN pad opens; type a wrong PIN: the phone says WRONG PIN. LOOK AT THE PIN ON THE TV.; tap the TV again and type the right PIN: the phone joins. Time how long this takes a grown-up. Check that Back closes the pad.
 4. Type 5 wrong PINs in a row on the second phone. Check: the sixth try, also with the right PIN, says TOO MANY WRONG PINS. WAIT A LITTLE AND TRY AGAIN.; after 30 seconds the right PIN joins. The PIN on the TV does not change. The first phone stays in its slot.
@@ -847,7 +847,7 @@ New (2026-10-11). The headless tests check the rules and the pages. They do not 
 7. Open the Players modal on the TV (from the Games screen). Check: it shows the room code and the PIN; a late phone joins with them.
 8. On the TV: Settings, About. Check: the list opens; open "Godot Engine", then "3rd Party Libraries" and one library (for example FreeType) and one with two licenses. Check: every row shows the name and the license type, a long name wraps and is not cut, the text is readable from the sofa, Up and Down of the remote scroll it, Back goes up one step and at the end to Settings. Write down how long the "Godot parts" page takes to open on the TV box.
 9. On a phone: About on the waiting screen (the button after Settings), and About in the top corner of the Connect screen (right in English, left in Hebrew). Check: the pages scroll by touch; on Android the list has the page "QR scanner" (it tells that Google receives technical data) and, in 3rd Party Libraries (also on the Android TV), the page "Android libraries" with the Apache 2.0 text; check that it opens and scrolls to the end in a reasonable time. Check that the Connect screen still fits with the new button. Check: the pencil button next to the player reads as Edit.
-10. Set the TV to Hebrew. Check: the About list and the pages "Wobble" read right (a Hebrew reader checks the wording); the license pages stay in English; the PIN pad and the PIN line read right to left where they should.
+10. Set the TV to Hebrew. Check: the About list and the pages "Sababi" read right (a Hebrew reader checks the wording); the license pages stay in English; the PIN pad and the PIN line read right to left where they should.
 
 **Results**
 

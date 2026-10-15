@@ -68,7 +68,7 @@ func _font_licences() -> void:
 	var imp := FileAccess.get_file_as_string("res://assets/lang/strings.csv.import")
 	_check(imp.contains('importer="keep"'),
 			"the table of texts is not imported as a Godot translation: the app reads the file itself")
-	for f in ["OFL-PressStart2P.txt", "OFL-WobblePixelHebrew.txt"]:
+	for f in ["OFL-PressStart2P.txt", "OFL-SababiPixelHebrew.txt"]:
 		_check(FileAccess.file_exists("res://assets/fonts/" + f), f + " exists")
 	_check(FileAccess.file_exists("res://assets/licenses/android-libraries.txt"), "android-libraries.txt exists")
 

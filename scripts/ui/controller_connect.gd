@@ -47,7 +47,7 @@ func _ready() -> void:
 	# The title and About share the top row. The row mirrors in Hebrew: About is at the right in English, at the left in Hebrew.
 	var top := HBoxContainer.new()
 	box.add_child(top)
-	var title := UiKit.title("WOBBLE", 56)
+	var title := UiKit.title("SABABI", 56)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(title)
 	var about := UiKit.box_button("common.about", func():
@@ -165,7 +165,7 @@ func _on_qr_text(text: String) -> void:
 		return
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():
-		App.last_error = Lang.t("connect.not_wobble_code")
+		App.last_error = Lang.t("connect.not_sababi_code")
 		_on_state(ControllerClient.State.IDLE)
 		return
 	if pair.pin == "":

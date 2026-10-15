@@ -42,12 +42,12 @@ if [ "$BUILD" -eq 1 ]; then
 	export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 	export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 	mkdir -p build
-	"$GODOT" --headless --path . --export-debug "$ROLE" "build/wobble-$ROLE.apk"
+	"$GODOT" --headless --path . --export-debug "$ROLE" "build/sababi-$ROLE.apk"
 fi
 
-APK="build/wobble-$ROLE.apk"
+APK="build/sababi-$ROLE.apk"
 [ -f "$APK" ] || { echo "Missing $APK. Run without --no-build." >&2; exit 1; }
-PKG="com.example.wobble.$ROLE"
+PKG="com.example.sababi.$ROLE"
 
 "$ADB" -s "$SERIAL" install -r "$APK"
 "$ADB" -s "$SERIAL" shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 \

@@ -1,4 +1,4 @@
-/* Wobble: generated from tokens.json by tools/design_tokens_css.py. Fonts live in assets/fonts. */
+/* Sababi: generated from tokens.json by tools/design_tokens_css.py. Fonts live in assets/fonts. */
 :root{
   --bg: #000000;
   --text: #fcfcfc;
@@ -28,7 +28,7 @@
   --safe-area: 60px;
   --line-w: 6px;
   --chip-line-w: 4px;
-  --font-pixel: "Press Start 2P", "Wobble Pixel Hebrew", monospace;
+  --font-pixel: "Press Start 2P", "Sababi Pixel Hebrew", monospace;
 }
 @font-face{font-family:"Press Start 2P";src:url(../../assets/fonts/PressStart2P-Regular.ttf) format("truetype");font-weight:400}
-@font-face{font-family:"Wobble Pixel Hebrew";src:url(../../assets/fonts/WobblePixelHebrew.ttf) format("truetype");font-weight:400}
+@font-face{font-family:"Sababi Pixel Hebrew";src:url(../../assets/fonts/SababiPixelHebrew.ttf) format("truetype");font-weight:400}

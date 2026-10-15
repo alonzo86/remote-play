@@ -173,7 +173,7 @@ func _about() -> void:
 	print("About pages")
 	var pages := About.pages(false)
 	var titles := pages.map(func(p): return p.title)
-	_check(titles == ["Wobble", "Godot Engine", "about.third_party_libraries"], "the About list: Wobble, Godot, 3rd Party Libraries")
+	_check(titles == ["Sababi", "Godot Engine", "about.third_party_libraries"], "the About list: Sababi, Godot, 3rd Party Libraries")
 	_check(not ("QR scanner" in titles) and "QR scanner" in About.pages(true).map(func(p): return p.title),
 			"the scanner note is only for the Android phone")
 	var by := {}
@@ -192,12 +192,12 @@ func _about() -> void:
 	var lib := {}
 	for l in libs:
 		lib[l.title] = l
-	_check(lib.has("Press Start 2P") and lib.has("Wobble Pixel Hebrew") and lib["Press Start 2P"].license == "OFL-1.1",
+	_check(lib.has("Press Start 2P") and lib.has("Sababi Pixel Hebrew") and lib["Press Start 2P"].license == "OFL-1.1",
 			"the libraries list has both fonts with their license type")
 	var press := About.text(lib["Press Start 2P"])
 	_check(press.contains("SIL OPEN FONT LICENSE") and press.contains("cody@zone38.net"),
 			"the Press Start 2P page has its copyright and the OFL text")
-	_check(About.text(lib["Wobble Pixel Hebrew"]).contains("SIL OPEN FONT LICENSE"), "the Wobble Pixel Hebrew page has the OFL text")
+	_check(About.text(lib["Sababi Pixel Hebrew"]).contains("SIL OPEN FONT LICENSE"), "the Sababi Pixel Hebrew page has the OFL text")
 	var ft: Dictionary = libs.filter(func(l): return String(l.title).contains("FreeType")).front()
 	_check(ft.license == "FTL" and About.text(ft).contains("FreeType") and About.text(ft).contains("License: FTL"),
 			"a part of Godot shows its name, its license type and its copyright lines")

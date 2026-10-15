@@ -1,4 +1,4 @@
-Libraries of other makers in the Android apps of Wobble
+Libraries of other makers in the Android apps of Sababi
 
 The phone app has all of them. The TV app has only the AndroidX, Kotlin, JetBrains annotations and JSpecify libraries under the Apache License 2.0: it has no Google Play services, Firebase, datatransport or ML Kit libraries.
 

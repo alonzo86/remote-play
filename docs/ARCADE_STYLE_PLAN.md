@@ -47,7 +47,7 @@ black. They show as a filled square next to the slot number, never as the only c
 - Sizes on the TV: body text and hints 32 px, menu items and slots 40 px, titles 64 px, the logo text 96 px, the
   countdown 256 px. The rule "all TV text is 28 px or more" (REQ-FL-40) stays; the smallest size is now 32 px.
 - All UI text is upper case ("PRESS OK TO CONTINUE", "1P ALON"). Player names show in upper case.
-- Hebrew player names use **Wobble Pixel Hebrew** (`assets/fonts/WobblePixelHebrew.ttf`, SIL OFL), a fallback
+- Hebrew player names use **Sababi Pixel Hebrew** (`assets/fonts/SababiPixelHebrew.ttf`, SIL OFL), a fallback
   font made for this project on the same 8 px grid: 2 px vertical strokes, 1 px horizontal strokes, the cap height of
   Press Start 2P, and final letters (and qof) that go 2 px lower than the other letters. It has the 27 letters, maqaf, geresh and
   gershayim, no niqqud. The TTF file is the source: change it with a font editor (the tool that drew it is not in the repository). The UI text stays English
@@ -124,7 +124,7 @@ The menus and the shell change in the same pull request, so a game never shows a
 (the same rule as REQ-FL-48).
 
 1. Add `PressStart2P-Regular.ttf` and `OFL-PressStart2P.txt` to `assets/fonts/`. Import it and
-   `WobblePixelHebrew.ttf` with antialiasing off and no hinting, and set the Hebrew font as the fallback of Press
+   `SababiPixelHebrew.ttf` with antialiasing off and no hinting, and set the Hebrew font as the fallback of Press
    Start 2P. Remove Lilita One and Fredoka.
 2. `scripts/ui/ui_theme.gd`: the palette of section 2.1, the font of 2.2, the frame style of 2.3. Remove the Party Pop
    colors that have no use. Keep the role names (`BG`, `TEXT`, `ACCENT`, `OK`, `BAD`) so that the games keep working.
@@ -136,7 +136,7 @@ The menus and the shell change in the same pull request, so a game never shows a
 5. Phone screens: `controller_connect.gd`, `controller_wait.gd`, `controller_pad.gd`.
 6. Game shell: `scripts/game/shell.gd`, `minigame.gd`, `minigame_3d.gd` (HUD, chips, timer, countdown, hint, pause and
    result menus).
-7. The Android splash color (REQ-FL-51) becomes black. The logo screen draws "WOBBLE" in the arcade font until
+7. The Android splash color (REQ-FL-51) becomes black. The logo screen draws "SABABI" in the arcade font until
    the logo file exists (FD-15, open question 5). The logo file exists since 2026-10-10 (FD-21).
 8. Requirements: replace REQ-FL-37 to 46, 41a, 52, 53, 56, 57 in `docs/TV_FLOW.md`; change REQ-P6 in
    `docs/REQUIREMENTS.md` (the font file); change REQ-GM-45, 46 in `docs/GAME_REQUIREMENTS.md` (chips and balls in the
@@ -179,7 +179,7 @@ Each question has a default. On 2026-10-10 the owner said to keep the defaults; 
 1. **Long text in a wide font.** Press Start 2P is wide: at 32 px about 11 characters fit in the description panel of a
    tile, and a game description has about 60. Options: (a) the description goes in a bar under the grid, (b) shorter
    descriptions, (c) a narrow second pixel font for long text only. Default: (a).
-2. **Names the font cannot show.** Decided 2026-10-10: Hebrew uses the project font Wobble Pixel Hebrew (section
+2. **Names the font cannot show.** Decided 2026-10-10: Hebrew uses the project font Sababi Pixel Hebrew (section
    2.2); emoji and other scripts use the Godot default font.
 3. **Arcade flourishes in the mockup**: "CREDIT 02" for the player count, "PLAYER SELECT" and "SELECT GAME" as titles,
    "1P" instead of "P1". Default: use them as in the mockup.
@@ -257,7 +257,7 @@ step before every game night.
 
 ### 7.4 Font
 
-- Hebrew UI text uses Wobble Pixel Hebrew (section 2.2) as the main font, with Press Start 2P as its fallback for
+- Hebrew UI text uses Sababi Pixel Hebrew (section 2.2) as the main font, with Press Start 2P as its fallback for
   digits and Latin letters. The Hebrew font then needs the punctuation used in Hebrew text (`,` `.` `!` `?` `:` `-`
   `"` `'`); add them to the font on the same grid.
 - Text must fit in both languages: the longest of the two decides the layout.

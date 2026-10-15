@@ -679,7 +679,7 @@ func _test_connect_screen() -> void:
 	_check(screen._status.text == "connect.reconnecting", "reconnecting: the screen says so")
 
 	screen._on_qr_text("hello")
-	_check(app.last_error == "THIS IS NOT A WOBBLE CODE." and screen._status.text == app.last_error.to_upper(),
+	_check(app.last_error == "THIS IS NOT A SABABI CODE." and screen._status.text == app.last_error.to_upper(),
 			"a QR code of something else is refused with a message")
 	app.last_error = ""
 	screen._on_qr_failed("cancelled")

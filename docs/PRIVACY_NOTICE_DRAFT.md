@@ -4,7 +4,7 @@ Draft, not legal advice. Written on 2026-10-13 for checklist item B2 of pull req
 
 ## English
 
-**QR code scanner (Android).** To join a game, the Android phone app can scan a QR code from the TV. The scan uses the Google code scanner, which is part of Google Play services. The camera picture stays on your phone and is not sent to us or to Google. Wobble receives only the text of the code. Google receives technical data about how the scanner works, such as the phone model, the operating system version, the app version and performance information, and uses it to run and improve the scanner. See Google's ML Kit terms: https://developers.google.com/ml-kit/terms.
+**QR code scanner (Android).** To join a game, the Android phone app can scan a QR code from the TV. The scan uses the Google code scanner, which is part of Google Play services. The camera picture stays on your phone and is not sent to us or to Google. Sababi receives only the text of the code. Google receives technical data about how the scanner works, such as the phone model, the operating system version, the app version and performance information, and uses it to run and improve the scanner. See Google's ML Kit terms: https://developers.google.com/ml-kit/terms.
 
 ## Hebrew
 

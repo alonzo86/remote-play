@@ -6,8 +6,9 @@ Date: 2026-10-15. Status: chosen by the owner. A first register search by the ow
 
 The name of the app is **Sababi**. "Sababi Play" is not used as the name.
 "Play" is allowed only in store text, for example the store title "Sababi: TV Party Games".
-This replaces the name Wobble (FD-21). The check of the name Wobble was removed from the repository.
-No name in code, texts or app IDs was changed by this decision.
+This replaces the name Wobble (FD-26 in `docs/TV_FLOW.md`). The check of the name Wobble was removed from the repository.
+The app was renamed on 2026-10-15: code, texts, app IDs, package names, APK names, the Hebrew font and the docs. The logo is a pixel face with sunglasses (option 1 of the logo review) with the word SABABI.
+The Hebrew texts write the name in Latin letters (SABABI). A Hebrew spelling (סבבי or סבבה) is not chosen yet.
 
 ## Why Sababi and not Sababi Play
 
@@ -60,4 +61,4 @@ Web search and the owner's register search were used. Claude could not reach the
 3. Search the domains (sababi.com and fallbacks) and the social handles.
 4. Ask a trademark attorney.
 5. Set the store title and keywords (Sababa, Sababy and the Hebrew spelling).
-6. Then rename the app (a separate change, like FD-21): app IDs, names, texts and the logo.
+6. Done on 2026-10-15: the app was renamed (FD-26). If the register search finds a blocking SABABA mark, the name changes again. The `com.example.*` package names are placeholders that change before a store release anyway.
