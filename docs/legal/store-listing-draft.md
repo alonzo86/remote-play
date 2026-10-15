@@ -12,18 +12,18 @@ Facts these texts use (checked in `README.md` and `docs/games/`): 5 games; 1 to 
 
 | Field | English | Hebrew |
 |---|---|---|
-| Title (30) | Sababi: TV Games | Sababi: משחקים לטלוויזיה |
+| Title (30) | Sababi: TV Games | Sababi: TV Games |
 | Short description (80) | Party games on your Android TV. Your phone is the motion controller. | משחקי מסיבה בטלוויזיה. הטלפון שלכם הוא השלט עם חיישני התנועה. |
 
 ### Full description, English
 
 Sababi turns your living room into a game night. Play on your Android TV. Use your phone as the controller: tilt it, point it, and play.
 
-You need the free Sababi Controller app on each phone (1 to 4 players). Phones and TV must be on the same Wi-Fi.
+You need the free Sababi: Remote app on each phone (1 to 4 players). Phones and TV must be on the same Wi-Fi.
 
 HOW TO START
 1. Open Sababi on your TV. It shows a QR code and a 4-digit PIN.
-2. Open Sababi Controller on your phone and scan the code, or pick your TV from the list and type the PIN.
+2. Open Sababi: Remote on your phone and scan the code, or pick your TV from the list and type the PIN.
 3. Choose a game with the TV remote and play.
 
 THE GAMES
@@ -41,11 +41,11 @@ No account. No sign-up. Made for family and friends.
 
 Sababi הופך את הסלון שלכם לערב משחקים. משחקים על הטלוויזיה עם Android, והטלפון הוא השלט: מטים אותו, מכוונים אותו, ומשחקים.
 
-צריך את אפליקציית Sababi Controller החינמית בכל טלפון (1 עד 4 שחקנים). הטלפונים והטלוויזיה צריכים להיות באותה רשת Wi-Fi.
+צריך את אפליקציית Sababi: Remote החינמית בכל טלפון (1 עד 4 שחקנים). הטלפונים והטלוויזיה צריכים להיות באותה רשת Wi-Fi.
 
 איך מתחילים
 1. פותחים את Sababi בטלוויזיה. מוצגים קוד QR וקוד PIN בן 4 ספרות.
-2. פותחים את Sababi Controller בטלפון וסורקים את הקוד, או בוחרים את הטלוויזיה מהרשימה ומקלידים את ה־PIN.
+2. פותחים את Sababi: Remote בטלפון וסורקים את הקוד, או בוחרים את הטלוויזיה מהרשימה ומקלידים את ה־PIN.
 3. בוחרים משחק בשלט של הטלוויזיה ומשחקים.
 
 המשחקים
@@ -59,18 +59,18 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 
 בלי חשבון ובלי הרשמה. נעשה למשפחה ולחברים.
 
-## 2. Controller app
+## 2. Controller app (phone)
 
 | Field | English | Hebrew |
 |---|---|---|
-| Title (30) | Sababi Controller | Sababi Controller |
+| Title (30) | Sababi: Remote | Sababi: Remote |
 | Short description (80) | Use your phone as a motion controller for Sababi party games on your TV. | הפכו את הטלפון לשלט תנועה למשחקי Sababi בטלוויזיה. |
 
 ### Full description, English
 
-Sababi Controller turns your phone into a motion controller for the Sababi party games on your Android TV.
+Sababi: Remote turns your phone into a motion controller for the Sababi party games on your Android TV.
 
-This app needs the free Sababi TV app on your Android TV or streaming box. Phone and TV must be on the same Wi-Fi.
+This app needs the free Sababi: TV Games app on your Android TV or streaming box. Phone and TV must be on the same Wi-Fi.
 
 • Scan the QR code on the TV, or pick your TV from the list and type the 4-digit PIN.
 • Up to 4 phones play together.
@@ -82,9 +82,9 @@ No account. No sign-up.
 
 ### Full description, Hebrew
 
-Sababi Controller הופך את הטלפון לשלט תנועה למשחקי המסיבה של Sababi בטלוויזיה עם Android.
+Sababi: Remote הופך את הטלפון לשלט תנועה למשחקי המסיבה של Sababi בטלוויזיה עם Android.
 
-האפליקציה דורשת את אפליקציית Sababi TV החינמית בטלוויזיה עם Android או במנגן סטרימינג. הטלפון והטלוויזיה צריכים להיות באותה רשת Wi-Fi.
+האפליקציה דורשת את אפליקציית Sababi: TV Games החינמית בטלוויזיה עם Android או במנגן סטרימינג. הטלפון והטלוויזיה צריכים להיות באותה רשת Wi-Fi.
 
 • סורקים את קוד ה־QR בטלוויזיה, או בוחרים את הטלוויזיה מהרשימה ומקלידים את קוד ה־PIN בן 4 הספרות.
 • עד 4 טלפונים משחקים יחד.
@@ -102,10 +102,12 @@ Sababa and Sababy: the owner decided on 2026-10-15 not to add the other spelling
 
 ## Decided by the owner on 2026-10-15
 
-- TV title: "Sababi: TV Games" (the Hebrew title follows it).
+- TV title: "Sababi: TV Games". Titles are not translated: the Hebrew listing uses the same English titles.
+- Phone app title: "Sababi: Remote".
 - No line about the spellings Sababa and Sababy.
 
 ## Still open
 
 1. "Made for family and friends" matches your answer on the audience. Google's target-audience form (issue #36) may still ask about children: decide your answer there.
-2. Screenshots, the feature graphic (1024x500) and the icon are not drafted here.
+2. The store titles differ from the names on the device ("Sababi TV" and "Sababi Controller" in `export_presets.cfg`, and in the legal drafts). Play allows this. Tell me if you want the device names to change too (the app name is a string for your review).
+3. Screenshots, the feature graphic (1024x500) and the icon are not drafted here.
