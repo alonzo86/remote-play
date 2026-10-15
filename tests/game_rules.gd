@@ -346,6 +346,33 @@ func _test_maze_board() -> void:
 		var ground := img.get_pixel(70, 50)
 		_check(ground == st.ground_a or ground == st.ground_b or ground == st.tuft or ground == st.flower
 				or ground == Color("f8b800"), "a pixel far from the walls is ground in the %s theme" % key)
+	# The pictures in the margins (REQ-MZ-13): every row of a picture is as wide as the first, every letter has a color, every
+	# theme has two pictures, and each of them shows on both sides of the maze.
+	var sprites_ok := true
+	for name in MazeBoard.SPRITES:
+		var sp: Dictionary = MazeBoard.SPRITES[name]
+		for row in sp.rows:
+			sprites_ok = sprites_ok and String(row).length() == String(sp.rows[0]).length()
+			for ch in String(row):
+				sprites_ok = sprites_ok and (ch == "." or sp.colors.has(ch))
+	_check(sprites_ok, "every row of a margin picture has the same width and every letter has a color")
+	var two_walls: Array[Rect2] = [Rect2(240.0, 100.0, 320.0, 28.0), Rect2(240.0, 300.0, 320.0, 28.0)]
+	var marks := {"garden": Color("7c4a1c"), "castle": Color("d02838"), "ice": Color("f8a000")}
+	for key in MazeBoard.THEMES:
+		var pics: Array = MazeBoard.THEMES[key].deco
+		var big: Image = MazeBoard.render(key, two_walls, Rect2(60.0, 100.0, 60.0, 60.0), Vector2i(200, 120))
+		var left := 0
+		var right := 0
+		for y in 120:
+			for x in 200:
+				if big.get_pixel(x, y) == marks[key]:
+					if x < 60:
+						left += 1
+					elif x > 140:
+						right += 1
+		_check(pics.size() == 2 and MazeBoard.SPRITES.has(pics[0]) and MazeBoard.SPRITES.has(pics[1]),
+				"the %s theme has two margin pictures" % key)
+		_check(left > 0 and right > 0, "the pictures of the %s theme show at the left and at the right of the maze" % key)
 	var a: Image = MazeBoard.render("garden", typed, Rect2(8.0, 8.0, 40.0, 40.0), view)
 	var b: Image = MazeBoard.render("garden", typed, Rect2(8.0, 8.0, 40.0, 40.0), view)
 	_check(a.get_data() == b.get_data(), "the same board is drawn the same way every time")

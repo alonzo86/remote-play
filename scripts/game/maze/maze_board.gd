@@ -14,15 +14,98 @@ const HUD_ROWS := 28  # The black bar for the title and the timer: 112 screen un
 const THEMES := {
 	"garden": {"kind": "hedge", "ground_a": Color("4c9e3c"), "ground_b": Color("46943a"), "tuft": Color("2e7a2c"),
 			"flower": Color("fcfcfc"), "outline": Color("083010"), "face": Color("247024"), "light": Color("70c448"),
-			"front": Color("145418"), "start": Color("8ad06a")},
+			"front": Color("145418"), "start": Color("8ad06a"), "deco": ["tree", "bush"]},
 	"castle": {"kind": "stone", "ground_a": Color("2a1070"), "ground_b": Color("230e60"), "tuft": Color("34188a"),
 			"flower": Color("5a3cc0"), "outline": Color("140840"), "face": Color("b8a890"), "light": Color("e0d4b8"),
-			"front": Color("6c5a48"), "start": Color("5a3cc0")},
+			"front": Color("6c5a48"), "start": Color("5a3cc0"), "deco": ["torch", "shield"]},
 	"ice": {"kind": "ice", "ground_a": Color("0e2458"), "ground_b": Color("0a1c4a"), "tuft": Color("1c3c7c"),
 			"flower": Color("fcfcfc"), "outline": Color("061030"), "face": Color("a8d8f0"), "light": Color("e8f8ff"),
-			"front": Color("5a90c0"), "start": Color("3a68c0")},
+			"front": Color("5a90c0"), "start": Color("3a68c0"), "deco": ["penguin", "iceberg"]},
 }
 const DEFAULT_THEME := "garden"
+
+## Small pictures for the side margins (REQ-MZ-13). One character is one world pixel; `.` is empty. The letters name a color:
+## the theme colors `outline`, `face`, `light` and `front` come from the theme, the others are written here.
+const SPRITES := {
+	"tree": {"rows": ["....KKKK....",
+				"..KKGGGGKK..",
+				".KGGLGGGGGK.",
+				".KGLLGGGGGK.",
+				"KGGLGGGGGGGK",
+				"KGGGGGGGGGDK",
+				"KGGGGGGGGDDK",
+				".KGGGGGGDDK.",
+				".KKGGGDDDKK.",
+				"...KKKKKK...",
+				".....KTK....",
+				".....KTK....",
+				".....KTK....",
+				"....KKTKK...",
+				"....KKKKK..."],
+			"colors": {"K": "outline", "G": "face", "L": "light", "D": "front", "T": Color("7c4a1c")}},
+	"bush": {"rows": ["...KKKKKK...",
+				".KKGGGGGGKK.",
+				"KGGRGGGGRGGK",
+				"KGGGGPGGGGGK",
+				"KGRGGGGGRGGK",
+				"KGGGGRGGGGDK",
+				".KDDDDDDDDK.",
+				"..KKKKKKKK.."],
+			"colors": {"K": "outline", "G": "face", "D": "front", "R": Color("f83800"), "P": Color("f8a0b8")}},
+	"torch": {"rows": ["...YY...",
+				"..YOOY..",
+				"..YOOY..",
+				".YOYYOY.",
+				".YOYYOY.",
+				"..OOOO..",
+				"...KK...",
+				"..KTTK..",
+				"..KTTK..",
+				"...TT...",
+				"...TT...",
+				"...TT...",
+				"...TT...",
+				"...TT...",
+				"..KKKK.."],
+			"colors": {"K": "outline", "Y": Color("f8b800"), "O": Color("f83800"), "T": Color("7c4a1c")}},
+	"shield": {"rows": ["KKKKKKKKKK",
+				"KRRRRRRRRK",
+				"KRRRYYRRRK",
+				"KRRRYYRRRK",
+				"KYYYYYYYYK",
+				"KYYYYYYYYK",
+				"KRRRYYRRRK",
+				"KRRRYYRRRK",
+				".KRRYYRRK.",
+				"..KRYYRK..",
+				"...KRRK...",
+				"....KK...."],
+			"colors": {"K": Color("140840"), "R": Color("d02838"), "Y": Color("f8b800")}},
+	"penguin": {"rows": ["..HHHHH..",
+				".HNNNNNH.",
+				".HNWNWNH.",
+				".HNNONNH.",
+				"HNWWWWWNH",
+				"HNWWWWWNH",
+				"HNWWWWWNH",
+				"HNWWWWWNH",
+				".HNWWWNH.",
+				"..HHHHH..",
+				"..OO.OO..",
+				".OOO.OOO."],
+			"colors": {"H": Color("e8f8ff"), "N": Color("303860"), "W": Color("fcfcfc"), "O": Color("f8a000")}},
+	"iceberg": {"rows": [".....H......",
+				"....HLH.....",
+				"...HLLLH....",
+				"..HLLWLLH...",
+				"..HLWLLLLH..",
+				".HLLLLLLLLH.",
+				"HLLLLLLLDDLH",
+				"HLLLLLDDDDLH",
+				".HDDDDDDDDH.",
+				"..HHHHHHHH.."],
+			"colors": {"H": Color("e8f8ff"), "L": Color("a8d8f0"), "W": Color.WHITE, "D": Color("5a90c0")}},
+}
 
 
 ## A number from the place (`a`, `b`) and a `salt`, the same every time: it places the marks of a theme in the same spots.
@@ -44,6 +127,7 @@ static func render(theme: String, walls: Array[Rect2], start: Rect2, view: Vecto
 	_start(img, c, start)
 	var mask := _mask(walls, view)
 	_walls(img, c, mask, view, String(c.kind))
+	_decorations(img, c, walls)
 	return img
 
 
@@ -80,6 +164,45 @@ static func _start(img: Image, c: Dictionary, start: Rect2) -> void:
 	img.fill_rect(Rect2i(r.position + Vector2i(0, r.size.y - 1), Vector2i(r.size.x, 1)), edge)
 	img.fill_rect(Rect2i(r.position, Vector2i(1, r.size.y)), edge)
 	img.fill_rect(Rect2i(r.position + Vector2i(r.size.x - 1, 0), Vector2i(1, r.size.y)), edge)
+
+
+## Two small pictures in the margin on each side of the maze (REQ-MZ-13): the first picture of the theme on top at the left and at the
+## bottom at the right, the second one the other way round. They are centered in the free space beside the walls, at a quarter and
+## at three quarters of the height of the maze. A picture that does not fit in the margin is not drawn.
+static func _decorations(img: Image, c: Dictionary, walls: Array[Rect2]) -> void:
+	if walls.is_empty():
+		return
+	var box := walls[0]
+	for r in walls:
+		box = box.merge(r)
+	var left_edge := int(box.position.x / 4.0)
+	var right_edge := int(box.end.x / 4.0)
+	var names: Array = c.deco
+	var tops := [int((box.position.y + box.size.y * 0.25) / 4.0), int((box.position.y + box.size.y * 0.72) / 4.0)]
+	for i in 2:
+		_sprite(img, c, names[i], Vector2i(left_edge / 2, tops[i]))
+		_sprite(img, c, names[1 - i], Vector2i((right_edge + img.get_width()) / 2, tops[i]))
+
+
+## One small picture with its middle at `center` (world pixels). Pixels outside the image are left out.
+static func _sprite(img: Image, c: Dictionary, name: String, center: Vector2i) -> void:
+	var sprite: Dictionary = SPRITES[name]
+	var rows: Array = sprite.rows
+	var colors: Dictionary = sprite.colors
+	var origin := center - Vector2i(String(rows[0]).length() / 2, rows.size() / 2)
+	for y in rows.size():
+		var row := String(rows[y])
+		for x in row.length():
+			var ch := row[x]
+			if ch == ".":
+				continue
+			var spot := origin + Vector2i(x, y)
+			if spot.x < 0 or spot.y < 0 or spot.x >= img.get_width() or spot.y >= img.get_height():
+				continue
+			var color = colors.get(ch)
+			if color is String:
+				color = c[color]   # A color of the theme: outline, face, light or front.
+			img.set_pixel(spot.x, spot.y, color)
 
 
 ## The walls as a grid of 0 and 1 (one byte for each world pixel), with a rough edge on a hedge.
