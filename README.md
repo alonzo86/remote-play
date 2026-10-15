@@ -125,7 +125,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 3. Start the TV app. Start the controller app. Scan the QR code on the TV (or tap the TV in the list).
 4. Open the debug overlay. Watch RTT, *Age ms*, *Gap ms*, and *Rx Hz*.
    The full test plan with pass criteria is in [docs/MANUAL_TESTS.md](docs/MANUAL_TESTS.md).
-5. Run **Tilt Maze** with 1 to 4 phones. If the ball rolls the wrong way, use **Invert tilt axes** on the TV Settings screen
+5. Run **Treasure Maze** with 1 to 4 phones. If the ball rolls the wrong way, use **Invert tilt axes** on the TV Settings screen
    (the gear on the Games screen).
 6. Run **Marble Race** and check the frame rate with 4 phones.
 

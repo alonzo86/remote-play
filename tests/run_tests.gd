@@ -304,6 +304,7 @@ func _test_visual_rules() -> void:
 	var consts: Dictionary = Maze.get_script_constant_map()
 	var floor_c: Color = consts["FLOOR_COLOR"]
 	var wall_c: Color = consts["WALL_COLOR"]
+	var alt_c: Color = consts["FLOOR_ALT"]
 	var players_ok := true
 	var floor_ok := true
 	for c in Protocol.PLAYER_COLORS:
@@ -313,10 +314,14 @@ func _test_visual_rules() -> void:
 		if Shell.contrast(c, floor_c) < 3.0:
 			floor_ok = false
 			print("    player color too close to the maze floor: ", c)
+		if Shell.contrast(c, alt_c) < 3.0:
+			floor_ok = false
+			print("    player color too close to the second floor tone: ", c)
 	_check(players_ok, "player colors have saturation 0.55+ and value 0.60+ (REQ-GM-47d)")
 	_check(floor_ok, "every player color has a contrast of 3:1 on the maze floor (REQ-GM-47e)")
 	_check(floor_c.s >= 0.35 and floor_c.v >= 0.25 and floor_c.v <= 0.65, "the maze floor is dark and saturated (REQ-GM-47e)")
 	_check(Shell.contrast(wall_c, floor_c) >= 3.0, "the maze walls can be seen on the floor")
+	_check(Shell.contrast(wall_c, alt_c) >= 3.0, "the maze walls can be seen on the second floor tone")
 	_check(UiTheme.OUTLINE.v < 0.4, "the outline color is dark")
 
 	# A name for a phone without one, and a digit centered in its circle.

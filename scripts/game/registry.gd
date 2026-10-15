@@ -17,7 +17,7 @@ extends RefCounted
 const Lang = preload("res://scripts/core/lang.gd")
 
 const GAMES: Array[Dictionary] = [
-	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "Tilt Maze", "dim": "2d",
+	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "Treasure Maze", "dim": "2d",
 			"description": "Tilt your phone to roll your ball through the maze. The first ball in the exit wins.",
 			"tile": "res://assets/tiles/maze.png",
 			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4, "settings": []},

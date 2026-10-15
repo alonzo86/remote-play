@@ -53,7 +53,7 @@ const HE := {
 	"Track %d": "מסלול %d",
 	"RANDOM TRACK": "מסלול אקראי",
 	"RANDOM": "אקראי",
-	"TILT MAZE": "מבוך הטיה",
+	"TREASURE MAZE": "מבוך האוצר",
 	"MARBLE RACE": "מרוץ גולות",
 	"PAINT GRAB": "חטיפת צבע",
 	"SUMO BUMPERS": "סומו מתנגשים",

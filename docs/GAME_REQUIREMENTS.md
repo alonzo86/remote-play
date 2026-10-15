@@ -164,7 +164,7 @@ Status (2026-10-09): the shared view, the choice row and the Difficulty row are 
 
 | Game | Requirements file |
 |------|-------------------|
-| Tilt Maze (2D) | `docs/games/maze.md` |
+| Treasure Maze (2D) | `docs/games/maze.md` |
 | Marble Race (3D) | `docs/games/marble_race.md` |
 | Snowball Splat (2D) | `docs/games/snowball_splat.md` |
 | Paint Grab (2D) | `docs/games/paint_grab.md` |

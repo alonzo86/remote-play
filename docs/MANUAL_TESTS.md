@@ -52,7 +52,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Pass | R0 | |
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A1, A3, B1, B2 | Fail | R0 | |
-| [6](#test-6) | Tilt maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95 | Partial (items 1 to 3 Pass, 4 to 6 not run) | R1 | |
+| [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95 | Partial (items 1 to 3 Pass, 4 to 6 not run) | R1 | |
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Fail (item 1, fixed, retest) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
@@ -197,20 +197,20 @@ History:
 
 ## Test 6
 
-### Tilt maze feel
+### Treasure Maze feel
 
 Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-7, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95.
 
 
 **Steps**
 
-1. Start **Tilt Maze** with 1 phone. Hold the phone level in the countdown.
+1. Start **Treasure Maze** with 1 phone. Hold the phone level in the countdown.
 2. Finish the maze. Write down: does the ball feel too light, too heavy, or good? Is the deadzone good (the ball does not creep when the phone is level)?
 3. Tune the constants in `scripts/game/maze/maze_game.gd` (`TILT_ACCEL`, `FRICTION`, `DEADZONE`) if needed.
 4. Repeat with 2 to 4 phones. Check *Rx Hz* and *Gap ms* for all players during the race.
 5. Tilt the phone, then tap **RECENTER**. Check: the ball stops creeping. Tap **A** and **B**. Check: nothing changes (A and B do not recenter, REQ-MZ-8). At GO the phone recenters by itself.
-6. Open the tile of **Tilt Maze**. Check: the settings view opens with Difficulty on Medium, and Back (left) and Start (right) are on one line at the bottom. With the remote, press Left and Right on the Difficulty row (it must stop at Easy and at Hard). Play one round on each of Easy, Medium and Hard. Check: Easy is a small maze, Hard is big and winding, the whole board is on the screen, and the ball does not feel stuck in the narrow corridors of Hard. After the round, the result menu has **Settings**, and it returns to the view with the last choice. In the view, press Back on the remote: it returns to the Games screen (the app does not close). With the only phone connected, switch its Wi-Fi off while the view is open: after about 5 seconds Start is dimmed and a yellow line says "Needs 1 player". Switch Wi-Fi on again: Start works again.
-7. **Pixel world (phase 4, REQ-MZ-7).** From the sofa (about 3 m), look at the maze on Medium and Hard. Check: the walls, the balls and the exit are sharp square pixels, the walls are easy to see on the board, the slot numbers on the balls are easy to read, and the white ring of the exit blinks in a hard step. The walls are 12 px now (before: 10 px) and Hard has cells of 76 px (before: 78 px): check that the ball does not feel stuck in the narrow corridors of Hard.
+6. Open the tile of **Treasure Maze**. Check: the settings view opens with Difficulty on Medium, and Back (left) and Start (right) are on one line at the bottom. With the remote, press Left and Right on the Difficulty row (it must stop at Easy and at Hard). Play one round on each of Easy, Medium and Hard. Check: Easy is a small maze, Hard is big and winding, the whole board is on the screen, and the ball does not feel stuck in the narrow corridors of Hard. After the round, the result menu has **Settings**, and it returns to the view with the last choice. In the view, press Back on the remote: it returns to the Games screen (the app does not close). With the only phone connected, switch its Wi-Fi off while the view is open: after about 5 seconds Start is dimmed and a yellow line says "Needs 1 player". Switch Wi-Fi on again: Start works again.
+7. **Pixel world (phase 4, REQ-MZ-7).** From the sofa (about 3 m), look at the maze on Medium and Hard. Check: the walls, the balls and the chest are sharp square pixels, the stone walls are easy to see on the checkered floor, the balls with their eyes are easy to tell apart by color, the torch flames and the sparkle of the chest change in a hard step, and the title does not touch the timer. **Look of 2026-10-15 (Treasure Maze, REQ-MZ-7):** when a ball reaches the chest, the lid opens and the gold shows. A child of 5 to 8 years: is the chest easy to find as the goal? The title and its Hebrew text (מבוך האוצר) need the owner's check. The walls are 12 px now (before: 10 px) and Hard has cells of 76 px (before: 78 px): check that the ball does not feel stuck in the narrow corridors of Hard.
 
 **Results**
 
@@ -222,7 +222,7 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-MZ-4, REQ-MZ-6, REQ-MZ-7, REQ-MZ-8, REQ-
 | 4 | Screenshot of the debug overlay for every player during the race | Not run | | | |
 | 5 | Video of the ball: creeping, then RECENTER, then A and B | Not run | | | |
 | 6 | Photos of the settings view and of the maze on Easy, Medium and Hard; note on the sizes and the corridors | Not run | | | Added 2026-10-09 (REQ-MZ-9). The sizes in `LEVELS` are first guesses. |
-| 7 | Photo of the maze from the sofa; note: sharp pixels, readable numbers, the ball in the corridors of Hard | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). |
+| 7 | Photo of the maze from the sofa; note: sharp pixels, readable numbers, the ball in the corridors of Hard | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). Look changed on 2026-10-15 (Treasure Maze). |
 
 History:
 
@@ -429,7 +429,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 | 8 | Video: Wi-Fi off during a round, then the card | Not run | | | |
 | 9 | Short video of the child playing (only with the permission of the parent); the age and the words of the child | Not run | | | |
 | 10 | Photos of the settings view and of a round on each difficulty; the scores; note on the speed and the number of Puffs | Not run | | | Added 2026-10-09 (REQ-SS-20 to 22). All values are first guesses. |
-| 11 | Photo of the sky from the sofa; note: sharp pixels, readable numbers and points | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). |
+| 11 | Photo of the sky from the sofa; note: sharp pixels, readable numbers and points | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). Look changed on 2026-10-15 (Treasure Maze). |
 
 Values to write down (items 2, 3, 5 and 6). These decide the first tuning values of the game:
 
@@ -494,7 +494,7 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 
 1. Open the Games screen. Check: every game has a tile with its screenshot, title and player range, and the text is easy to read from the sofa.
 2. For each game, compare its tile with a photo of the game running. Check: the tile shows the same look (colors, outline, shapes) as the game, and the Games screen and the games look like one toy box.
-3. Check the tiles of **Tilt Maze** and **Marble Race**. The Marble Race tile was made again on 2026-10-09: 4 marbles on a bend before a post (Track 1, Hard). The Maze tile was made again too: 4 balls on the way to the exit, the new chip style. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
+3. Check the tiles of **Treasure Maze** and **Marble Race**. The Marble Race tile was made again on 2026-10-09: 4 marbles on a bend before a post (Track 1, Hard). The Maze tile was made again too: 4 balls on the way to the exit, the new chip style. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
 4. Check the tile of **Snowball Splat** (made again on 2026-10-09): it shows the night sky, the Puffs, four players with scores, a Puff that was just hit ("+25", snow cap) and a snowball in the air. Check that the cursors, the hit Puff and the snowball can be seen at the small size of the tile.
 
 **Results**
@@ -521,7 +521,7 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV. Covers: `tools/deploy-ios.sh`, RISKS A2
 1. Follow `docs/EXPORT.md`, section *Controller on an iPhone*, and run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. Check: the export, the build, the install and the launch end without an error, and the app opens on the phone. Write down every error and the fix.
 2. Open the connect screen. Check: there is no scan and no paste button, only **Discovered TVs** and **Refresh**. The local network permission is asked once. The list shows the TV (tap it: the phone joins and the TV shows the player), or stays empty (write which, and tell Claude). With the list empty, a second line must say how to allow Local Network (REQ-FL-59). Turn Local Network off for the app in Settings to see it.
 3. Tilt the phone flat, left, right, forward, back (like Test 3, items 1 and 4). Check: the overlay Accel and Gyro values have the same directions as on Android. If they are inverted, tell Claude: the Android-only axis fix in `sensor_sampler.gd` needs a platform check.
-4. Play Tilt Maze for 2 minutes with the screen on. Check: no disconnect, no screen lock, and the ball follows the tilt.
+4. Play Treasure Maze for 2 minutes with the screen on. Check: no disconnect, no screen lock, and the ball follows the tilt.
 5. Lock the phone and unlock it. Check: the TV shows the lost-phone card and the game can resume (like Test 7, items 1 and 5).
 6. On an iPhone with a Dynamic Island or a notch, open every phone screen (Connect, waiting, Settings, the pad in a game), also turned to the side. Check: nothing is hidden by the island, the notch, the status bar or the home bar: the colored square, the player number, Leave, the texts and the A and B buttons are fully visible (REQ-FL-68). Write down which iPhone it is.
 
@@ -575,7 +575,7 @@ difficulty values are first guesses.
 | 7 | Note: the child, the age, what happened | Not run | | | |
 | 8 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
 | 9 | Video: RECENTER, then A and B | Not run | | | |
-| 10 | Photo of the floor from the sofa; note: equal gaps, colors, the blob and the pop | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). |
+| 10 | Photo of the floor from the sofa; note: equal gaps, colors, the blob and the pop | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). Look changed on 2026-10-15 (Treasure Maze). |
 
 History:
 
@@ -749,7 +749,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 3. Look at each phone during the game. Check: the line under the header row (not next to Disconnect) shows the place (1ST to 4TH) and the score (`2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out): the colored square, the player number and Leave are fully visible below the island or the notch, nothing is hidden at the top, at the bottom (the home bar) or at the side when you turn the phone, and A and B are fully on the screen (REQ-FL-68). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
 4. Play Paint Grab and Sumo Bumpers with 2 to 4 phones. Check the same as items 1 to 3. In Sumo Bumpers the name tags show again in the countdown of every round.
 5. Play Marble Race with 3 or 4 phones. Check: the leader chip names the first marble (with its time after the finish); the phones show their place; a marble that has not finished shows no time. Check that the old list of names at the left is gone.
-6. Play Tilt Maze with 2 to 4 phones. Check: there is no chip during play (the maze has no score) and the phones show only `2P`.
+6. Play Treasure Maze with 2 to 4 phones. Check: there is no chip during play (the maze has no score) and the phones show only `2P`.
 7. In every game, look at the countdown. Check: each player's name stands next to its own ball, marble, cursor, bumper or blob, in its color; the names do not cover each other (start the maze and Sumo with 4 phones); every name is complete; the tags are gone at GO. Write down where a tag hides something important.
 8. A child of 5 to 8 years plays a game. Check: the child finds its own object by the name in the countdown and reads or understands the number on its phone. Write down what the child says.
 9. Set the TV to Hebrew and play one game with 2 phones. Check: the leader chip is at the left margin, the timer is at the left of the title, TIE reads "תיקו", and the phone header is readable.
@@ -793,7 +793,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 
 9. Play Snowball Splat, Paint Grab and Marble Race (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
 10. Close the app and open it again, then join another TV. Check: the profile and the bests are still there (play the same game and see that "BEFORE" is the old score).
-11. Play Tilt Maze, Sumo Bumpers and a random Marble Race track with a profile. Check: no NEW BEST! on the phone.
+11. Play Treasure Maze, Sumo Bumpers and a random Marble Race track with a profile. Check: no NEW BEST! on the phone.
 12. Share a profile to a second phone by QR: on the first phone open the list, tap SHARE on a row; on the second phone tap SCAN A PLAYER. Check: the second phone shows PLAYER ADDED. with the same name and avatar. Time how long the code takes to appear and to scan; try it from 30 cm and from 60 cm, with the screen at full and at low brightness.
 13. Share a player that the second phone already has, after a rename on the first phone (the name is newer there): the second phone shows PLAYER UPDATED. and has the newer name and avatar. Then rename on the second phone and scan the old copy again: the newer name stays.
 14. An iPhone: COPY CODE on one phone and PASTE A CODE on the iPhone (the iPhone has no scan button). Check the same result as item 12.

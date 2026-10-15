@@ -82,7 +82,7 @@ func _keys() -> void:
 	var maze_key: String = _app.current_screen().best_key()
 	_app.go(Sumo, {})
 	await _frames(2)
-	_check(maze_key == "" and _app.current_screen().best_key() == "", "Tilt Maze and Sumo Bumpers have no personal best")
+	_check(maze_key == "" and _app.current_screen().best_key() == "", "Treasure Maze and Sumo Bumpers have no personal best")
 	var all_known := true
 	for k in [keys.snow, keys.paint, keys.race]:
 		all_known = all_known and ProfileKeys.number_of(k) > 0
