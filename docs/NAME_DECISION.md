@@ -104,4 +104,4 @@ Web search, the owner's register search and Claude's verification (above) were u
 3. Search the social handles. The domain search is done (see above); decide whether sababi.com is worth acquiring or a fallback is used.
 4. Ask a trademark attorney.
 5. Set the store title and keywords (Sababa, Sababy and the Hebrew spelling).
-6. Done on 2026-10-15: the app was renamed (FD-26). If the register search finds a blocking SABABA mark, the name changes again. The `com.example.*` package names are placeholders that change before a store release anyway.
+6. Done on 2026-10-15: the app was renamed (FD-26). If the register search finds a blocking SABABA mark, the name changes again. The `com.example.*` package names were replaced on 2026-10-15 by `io.github.alonzo86.sababi.*` (FD-27).

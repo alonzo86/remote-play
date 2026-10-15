@@ -4,8 +4,8 @@ This document uses ASD-STE100 style. It shows how to make two Android apps from 
 
 | Preset | Feature tag | Package ID | Runs on |
 |--------|-------------|------------|---------|
-| `tv` | `tv` | `com.example.sababi.tv` | Android TV or streaming box |
-| `controller` | `controller` | `com.example.sababi.controller` | Android phone |
+| `tv` | `tv` | `io.github.alonzo86.sababi.tv` | Android TV or streaming box |
+| `controller` | `controller` | `io.github.alonzo86.sababi.controller` | Android phone |
 
 You can change the package IDs in `export_presets.cfg` (`package/unique_name`).
 The two IDs are different, so you can install both apps on one device.
@@ -49,7 +49,7 @@ The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so i
    - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer,
      all with `required="false"`;
    - in `android/build` only (the controller): installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
-     `android/build/src/main/java/com/example/sababi/`, adds the Gradle dependency
+     `android/build/src/main/java/io/github/alonzo86/sababi/`, adds the Gradle dependency
      `com.google.android.gms:play-services-code-scanner:16.1.0`, and adds the plugin entry
      (`org.godotengine.plugin.v2.QrScanner`) to the manifest.
 
@@ -109,7 +109,7 @@ If you do not see them, run `tools/patch_android_manifest.sh` again and export a
    The TV may ask you to allow the computer. Select **Always allow**.
 5. Start the app. Use the **Apps** row on the home screen, or run:
    ```sh
-   adb shell monkey -p com.example.sababi.tv -c android.intent.category.LEANBACK_LAUNCHER 1
+   adb shell monkey -p io.github.alonzo86.sababi.tv -c android.intent.category.LEANBACK_LAUNCHER 1
    ```
 6. Read the log:
    ```sh

@@ -4,7 +4,7 @@
 #   Needs Xcode (xcode-select -s /Applications/Xcode.app), the Godot iOS export templates, Developer Mode on the phone,
 #   and an Apple ID signed in under Xcode > Settings > Accounts.
 #   IOS_TEAM_ID  your 10-character Apple Team ID (Xcode > Signing & Capabilities). Required for a build. It is not an e-mail address.
-#   IOS_BUNDLE_ID  optional. Change it when com.example.sababi.controller is taken (free accounts need a unique one).
+#   IOS_BUNDLE_ID  optional. Change it when io.github.alonzo86.sababi.controller is taken (free accounts need a unique one).
 #   Device: -d <id> or IOS_DEVICE. With one iPhone attached it is picked automatically (`xcrun devicectl list devices`).
 set -eu
 cd "$(dirname "$0")/.."
@@ -21,7 +21,7 @@ while [ $# -gt 0 ]; do
 done
 
 xcodebuild -version >/dev/null 2>&1 || { echo "Xcode is not active. Install Xcode, then: sudo xcode-select -s /Applications/Xcode.app" >&2; exit 1; }
-BUNDLE_ID="${IOS_BUNDLE_ID:-com.example.sababi.controller}"
+BUNDLE_ID="${IOS_BUNDLE_ID:-io.github.alonzo86.sababi.controller}"
 PROJECT=build/ios/sababi-controller.xcodeproj
 DERIVED=build/ios/derived
 

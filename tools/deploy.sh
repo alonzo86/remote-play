@@ -47,7 +47,7 @@ fi
 
 APK="build/sababi-$ROLE.apk"
 [ -f "$APK" ] || { echo "Missing $APK. Run without --no-build." >&2; exit 1; }
-PKG="com.example.sababi.$ROLE"
+PKG="io.github.alonzo86.sababi.$ROLE"
 
 "$ADB" -s "$SERIAL" install -r "$APK"
 "$ADB" -s "$SERIAL" shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 \

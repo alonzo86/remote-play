@@ -1,4 +1,4 @@
-package com.example.sababi;
+package io.github.alonzo86.sababi;
 
 import android.app.Activity;
 import android.content.Context;
