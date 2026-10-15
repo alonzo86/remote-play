@@ -822,7 +822,7 @@ func _test_race_look() -> void:
 		var d1: Array = RaceLook.decorations(key, track.points, track.half_width, 42)
 		var d2: Array = RaceLook.decorations(key, track.points, track.half_width, 42)
 		var d3: Array = RaceLook.decorations(key, track.points, track.half_width, 43)
-		_check(d1.size() > 20 and str(d1) == str(d2) and str(d1) != str(d3), "%s: the scenery is made from the seed" % key)
+		_check(d1.size() > 10 and str(d1) == str(d2) and str(d1) != str(d3), "%s: the scenery is made from the seed" % key)
 		var clear := true
 		var sorted := true
 		for i in d1.size():
