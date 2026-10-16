@@ -1,6 +1,7 @@
 extends RefCounted
 ## The bonus pots of Paint Grab (REQ-PG-23): now and then a pot lands on a tile. The first blob that rolls over it paints a whole
-## patch for its player: the gold pot a 3 x 3 patch around the tile, the rainbow roller the whole row. One pot is on the floor at a
+## patch for its player: the gold pot a 3 x 3 patch around the
+## tile, the rainbow roller the whole row. One pot is on the floor at a
 ## time. Pure logic: it draws nothing and uses no nodes.
 
 const GOLD := "gold"
@@ -32,7 +33,8 @@ func reset() -> void:
 	_timer = FIRST
 
 
-## Moves the time. `blob_cells` are the tiles under the blobs, a pot does not land near them (REQ-PG-23). Returns the new pot or null.
+## Moves the time. `blob_cells` are the tiles under the blobs, a pot
+## does not land near them (REQ-PG-23). Returns the new pot or null.
 func tick(dt: float, rng: RandomNumberGenerator, cols: int, rows: int, blob_cells: Array) -> Pot:
 	for i in range(pots.size() - 1, -1, -1):
 		pots[i].age += dt

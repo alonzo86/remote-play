@@ -83,7 +83,8 @@ func _pixel_world() -> void:
 	var worst := 99.0
 	for col in Protocol.PLAYER_COLORS:   # A penguin is cut out of the grass by its black outline (like REQ-MR-43).
 		worst = minf(worst, Shell.contrast(col, SumoLook.OUTLINE))
-	_check(worst >= 3.0, "every player color has a contrast of 3:1 or more on the black outline of a penguin (REQ-GM-47m): %.2f" % worst)
+	_check(worst >= 3.0,
+			"every player color has a contrast of 3:1 or more on the black outline of a penguin (REQ-GM-47m): %.2f" % worst)
 	_check(Shell.contrast(SumoLook.OUTLINE, SumoLook.GRASS_A) >= 3.0 and Shell.contrast(SumoLook.OUTLINE, SumoLook.GRASS_B) >= 3.0
 			and Shell.contrast(SumoLook.OUTLINE, SumoLook.SKY_BOTTOM) >= 3.0,
 			"the outline of a penguin differs from both grass tones and from the sky by 3:1 or more (REQ-SB-15)")
@@ -97,19 +98,23 @@ func _sumo_look() -> void:
 			"the corners are empty and the top of the head has the outline")
 	var left: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[0], -1)
 	var right: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[0], 1)
-	_check(left.get_data() != right.get_data() and left.get_data() != a.get_data(), "the pupils look to the side the penguin rolls")
+	_check(left.get_data() != right.get_data() and left.get_data() != a.get_data(),
+			"the pupils look to the side the penguin rolls")
 	var green: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[1], 0)
-	_check(green.get_pixel(2, 10).is_equal_approx(Protocol.PLAYER_COLORS[1]) and a.get_pixel(2, 10).is_equal_approx(Protocol.PLAYER_COLORS[0]),
+	_check(green.get_pixel(2, 10).is_equal_approx(Protocol.PLAYER_COLORS[1])
+			and a.get_pixel(2, 10).is_equal_approx(Protocol.PLAYER_COLORS[0]),
 			"the body of a penguin has the player color")
 	var wrapped := true
 	for i in SumoLook.CLOUDS.size():
 		for t in [0.0, 50.0, 400.0, 5000.0]:
 			var x: float = SumoLook.cloud_x(i, t)
 			wrapped = wrapped and x >= -float(SumoLook.CLOUDS[i][2]) and x <= SumoLook.VIEW_W + float(SumoLook.CLOUDS[i][2])
-	_check(wrapped and SumoLook.cloud_x(0, 10.0) > SumoLook.cloud_x(0, 0.0), "the clouds drift to the right and come back on the left")
+	_check(wrapped and SumoLook.cloud_x(0, 10.0) > SumoLook.cloud_x(0, 0.0),
+			"the clouds drift to the right and come back on the left")
 	_check(SumoLook.rim_color(0.0).is_equal_approx(SumoLook.RIM) and SumoLook.rim_color(1.0).is_equal_approx(SumoLook.DANGER),
 			"the rim of the island goes from brown to red")
-	_check(SumoLook._inside(Rect2(-5, -5, 10, 10), Vector2.ZERO, 8.0) and not SumoLook._inside(Rect2(-5, -5, 10, 10), Vector2.ZERO, 6.0),
+	_check(SumoLook._inside(Rect2(-5, -5, 10, 10), Vector2.ZERO, 8.0)
+			and not SumoLook._inside(Rect2(-5, -5, 10, 10), Vector2.ZERO, 6.0),
 			"a grass square is drawn only when all of it is inside the island")
 
 
@@ -303,7 +308,8 @@ func _scoreboard() -> void:
 			"only a player with a score can win")
 	race.set_score(1, 70.0)
 	race.remove(0)
-	_check(race.is_finished(1) and not race.has(0) and race.size() == 3, "set_score finishes a player, remove deletes either kind")
+	_check(race.is_finished(1) and not race.has(0) and race.size() == 3,
+			"set_score finishes a player, remove deletes either kind")
 	var nobody = board_script.new([0, 1])
 	nobody.set_unfinished(0, 1.0)
 	nobody.set_unfinished(1, 2.0)
@@ -405,7 +411,8 @@ func _medal_icon() -> void:
 			"gold, silver and bronze have different colors")
 	_check(middles[0].r > 0.9 and middles[0].b < 0.4 and absf(middles[1].r - middles[1].b) < 0.05 and middles[2].r > middles[2].b,
 			"gold is yellow, silver is gray and bronze is brown: %s" % str(middles))
-	_check(Medal.is_known("gold") and not Medal.is_known("") and not Medal.is_known("wood"), "only the three tiers are on the sheet")
+	_check(Medal.is_known("gold") and not Medal.is_known("") and not Medal.is_known("wood"),
+			"only the three tiers are on the sheet")
 	var canvas := Control.new()
 	root.add_child(canvas)
 	_check(Medal.draw(canvas, Rect2(0, 0, 48, 48), "silver") and not Medal.draw(canvas, Rect2(0, 0, 48, 48), "wood"),

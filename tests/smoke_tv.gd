@@ -51,6 +51,13 @@ func _frames(n: int) -> void:
 		await process_frame
 
 
+
+## Waits (at most `ms`) while `cond` is true.
+func _wait_until(cond: Callable, ms: int) -> void:
+	var start := Time.get_ticks_msec()
+	while cond.call() and Time.get_ticks_msec() - start < ms:
+		await process_frame
+
 func _stream(c: Node, idx: int, seconds: float, accel: Vector3, gyro := Vector3.ZERO, buttons := 0) -> void:
 	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
 	while Time.get_ticks_msec() < end:
@@ -134,9 +141,7 @@ func _run() -> void:
 		root.add_child(c)
 		c.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
 		clients.append(c)
-	var t0 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t0 < 4000:
-		await process_frame
+	await _wait_until(func() -> bool: return app.server.connected_slots().size() < 2, 4000)
 	_check(app.server.connected_slots().size() == 2, "two simulated phones joined")
 	var flat := Vector3(0, 0, 9.81)
 	await _stream(clients[0], 0, 0.3, flat)
@@ -245,9 +250,7 @@ func _run() -> void:
 	_check(clients[1].state == ControllerClient.State.IDLE and not app.server.players[1].is_present(),
 			"the removed phone stays out until it connects again")
 	clients[1].connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	var t2 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t2 < 4000:
-		await process_frame
+	await _wait_until(func() -> bool: return app.server.connected_slots().size() < 2, 4000)
 	_check(app.server.connected_slots().size() == 2, "a removed player can join again")
 	await _stream(clients[0], 0, 0.2, flat)
 	await _stream(clients[1], 1, 0.2, flat)
@@ -270,9 +273,7 @@ func _run() -> void:
 	late.player_name = "Late"
 	root.add_child(late)
 	late.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	var t3 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t3 < 4000:
-		await process_frame
+	await _wait_until(func() -> bool: return app.server.connected_slots().size() < 3, 4000)
 	await _frames(5)
 	_check(app.server.connected_slots().size() == 3 and game.participants.size() == 2,
 			"a late phone joins but does not take part in the round")
@@ -296,9 +297,7 @@ func _run() -> void:
 	# The game pauses with a card. It goes on only when the TV user chooses (REQ-GM-30, 30a).
 	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
 	clients[1].set_process(false)
-	var t1 := Time.get_ticks_msec()
-	while not game._hold and Time.get_ticks_msec() - t1 < 8000:
-		await process_frame
+	await _wait_until(func() -> bool: return not game._hold, 8000)
 	await _frames(3)
 	_check(game._hold and game.is_paused() and game.lost_participants() == [1],
 			"a silent phone makes the TV pause the game, also when its connection does not close")
@@ -308,9 +307,7 @@ func _run() -> void:
 			"the card names the phone and offers Resume without it while a phone is connected: %s %s" % [card_title, str(card_buttons)])
 	_check(app.server.phase == "paused" and clients[0].phase == "paused", "the phones are told that the game is paused")
 	clients[1].set_process(true)   # The phone is back (the call is over).
-	t1 = Time.get_ticks_msec()
-	while not game.lost_participants().is_empty() and Time.get_ticks_msec() - t1 < 6000:
-		await process_frame
+	await _wait_until(func() -> bool: return not game.lost_participants().is_empty(), 6000)
 	await _frames(5)
 	card_title = game._menu_box.find_children("*", "Label", true, false)[0].text
 	card_buttons = game.menu_buttons().map(func(b): return b.text)
@@ -324,9 +321,7 @@ func _run() -> void:
 	# Back on the card asks to end the game, and Keep playing brings the card back.
 	clients[1].set_process(false)
 	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
-	t1 = Time.get_ticks_msec()
-	while not game._hold and Time.get_ticks_msec() - t1 < 8000:
-		await process_frame
+	await _wait_until(func() -> bool: return not game._hold, 8000)
 	await _frames(3)
 	game.on_back()
 	await _frames(3)
@@ -347,9 +342,7 @@ func _run() -> void:
 			"Resume without P2 goes on with one player and frees the slot of P2")
 	clients[1].set_process(true)
 	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
-	t1 = Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t1 < 6000:
-		await process_frame
+	await _wait_until(func() -> bool: return app.server.connected_slots().size() < 2, 6000)
 	await _frames(3)
 
 	# Pause menu with OK, then restart.
@@ -506,9 +499,7 @@ func _run() -> void:
 	third.player_name = "Third"
 	root.add_child(third)
 	third.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	var t4 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t4 < 4000:
-		await process_frame
+	await _wait_until(func() -> bool: return app.server.connected_slots().size() < 3, 4000)
 	app.go(MazeGame)
 	await _frames(3)
 	var mz3: Control = app.current_screen()
@@ -733,9 +724,7 @@ func _run() -> void:
 	fourth.player_name = "Fourth"
 	root.add_child(fourth)
 	fourth.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	var t6 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t6 < 4000:
-		await process_frame
+	await _wait_until(func() -> bool: return app.server.connected_slots().size() < 3, 4000)
 	app.go(ss_script)
 	await _frames(3)
 	var ss3: Control = app.current_screen()
@@ -810,17 +799,15 @@ func _run() -> void:
 			"the difficulty gives the posts (REQ-MR-50)")
 	_check(mr._pixel_viewport != null and mr._pixel_viewport.size == Vector2i(480, 270) and mr.race_theme == "candy",
 			"the race is drawn in the 480x270 pixel view, in the Candy theme by default (REQ-MR-44, 45)")
-	var spots_ok := true
-	for s_i in mr.participants:
+	var on_grid := func(s_i: int) -> bool:
 		var spot: Vector2 = mr._screen(mr._racers[s_i].pos)
-		spots_ok = spots_ok and Rect2(Vector2(60, 112), Vector2(1800, 960)).has_point(spot) and fmod(spot.x, 4.0) == 0.0
-	_check(spots_ok, "at the start every car is on the screen, under the black bar, on the world pixel grid (REQ-MR-41)")
+		return Rect2(Vector2(60, 112), Vector2(1800, 960)).has_point(spot) and fmod(spot.x, 4.0) == 0.0
+	_check(mr.participants.all(on_grid),
+			"at the start every car is on the screen, under the black bar, on the world pixel grid (REQ-MR-41)")
 	_check(RaceLook.CAR.size() * 4 >= 48 and RaceLook.CAR[0].length() * 4 >= 44,
 			"a car is 48 px high or more (REQ-GM-47m)")
-	var kinds_ok: bool = mr._bumper_kinds.size() == mr.track.bumpers.size()
-	for k in mr._bumper_kinds:
-		kinds_ok = kinds_ok and RaceLook.THEMES.candy.obstacles.has(k)
-	_check(kinds_ok, "every obstacle of the Candy theme is a lolly, a gumdrop or a cupcake (REQ-MR-46)")
+	_check(mr._bumper_kinds.size() == mr.track.bumpers.size() and mr._bumper_kinds.all(RaceLook.THEMES.candy.obstacles.has),
+			"every obstacle of the Candy theme is a lolly, a gumdrop or a cupcake (REQ-MR-46)")
 	_check(is_equal_approx(mr._racers[0].arc, mr._racers[1].arc) and absf(mr._racers[0].pos.distance_to(mr._racers[1].pos)) >= 1.0,
 			"cars start on one line and do not touch (REQ-MR-4)")
 	var mx0: float = mr._racers[0].pos.x
@@ -929,18 +916,14 @@ func _run() -> void:
 	# Resume (REQ-GM-30a). When the phone is back, the card offers Resume.
 	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
 	solo.set_process(false)
-	t5 = Time.get_ticks_msec()
-	while not solo_game._hold and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+	await _wait_until(func() -> bool: return not solo_game._hold, 8000)
 	await _frames(3)
 	var solo_buttons: Array = solo_game.menu_buttons().map(func(b): return b.text)
 	_check(solo_game._hold and solo_game.is_paused() and not solo_game.is_over and solo_game.participants == [solo.slot],
 			"the only player is lost: the game waits, it does not end")
 	_check(solo_buttons == ["END GAME"], "with nobody connected the card has no Resume: %s" % str(solo_buttons))
 	solo.set_process(true)
-	t5 = Time.get_ticks_msec()
-	while not solo_game.lost_participants().is_empty() and Time.get_ticks_msec() - t5 < 6000:
-		await process_frame
+	await _wait_until(func() -> bool: return not solo_game.lost_participants().is_empty(), 6000)
 	await _frames(5)
 	solo_buttons = solo_game.menu_buttons().map(func(b): return b.text)
 	_check(solo_buttons == ["RESUME", "END GAME"] and solo_game.is_paused(),
@@ -951,15 +934,11 @@ func _run() -> void:
 	# A phone that does not come back: the slot is kept while the game is paused, then it is freed and the game ends.
 	app.server.paused_slot_grace_ms = 1200
 	solo.set_process(false)
-	t5 = Time.get_ticks_msec()
-	while not solo_game._hold and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+	await _wait_until(func() -> bool: return not solo_game._hold, 8000)
 	await _frames(5)
 	_check(solo_game._hold and not solo_game.is_over and app.server.players[solo.slot].state == PlayerInput.State.LOST,
 			"the slot of the lost phone is kept for a while (the long wait of a paused game)")
-	t5 = Time.get_ticks_msec()
-	while not solo_game.is_over and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+	await _wait_until(func() -> bool: return not solo_game.is_over, 8000)
 	await _frames(3)
 	_check(solo_game.is_over and solo_game.participants.is_empty()
 			and solo_game.menu_buttons().map(func(b): return b.text) == ["BACK TO MENU"],
@@ -974,25 +953,19 @@ func _run() -> void:
 	var solo2 := ControllerClient.new()
 	root.add_child(solo2)
 	solo2.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	t5 = Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 1 and Time.get_ticks_msec() - t5 < 4000:
-		await process_frame
+	await _wait_until(func() -> bool: return app.server.connected_slots().size() < 1, 4000)
 	app.go(MarbleRace, {"track_choice": "1"})
 	await _frames(3)
 	var solo_race: Control = app.current_screen()
 	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
 	app.server.paused_slot_grace_ms = 1200
 	solo2.set_process(false)
-	t5 = Time.get_ticks_msec()
-	while not solo_race._hold and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+	await _wait_until(func() -> bool: return not solo_race._hold, 8000)
 	await _frames(3)
 	_check(solo_race._hold and solo_race.is_paused() and not solo_race.is_over
 			and solo_race.menu_buttons().map(func(b): return b.text) == ["END GAME"],
 			"marble race: the last player is lost, the race waits with a card that has no Resume")
-	t5 = Time.get_ticks_msec()
-	while not solo_race.is_over and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+	await _wait_until(func() -> bool: return not solo_race.is_over, 8000)
 	await _frames(3)
 	_check(solo_race.is_over and solo_race.menu_buttons().map(func(b): return b.text) == ["BACK TO MENU"],
 			"marble race: when the phone does not come back, 'No players connected' opens (REQ-MR-14)")

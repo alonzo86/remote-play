@@ -1,6 +1,7 @@
 extends RefCounted
 ## The look of the picture and the pots of Paint Grab (REQ-PG-22, 23): the colors of a tile and the pictures of the pots. A tile
-## that has no owner shows a faint ghost of its part of the picture; a painted tile keeps the shade of that part in the color of its
+## that has no owner shows a faint ghost of its part of the picture;
+## a painted tile keeps the shade of that part in the color of its
 ## owner, so the picture appears in the colors of the players as the floor fills.
 
 const PaintPicture = preload("res://scripts/game/paint_grab/paint_picture.gd")

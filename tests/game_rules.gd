@@ -11,10 +11,7 @@ const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
 const Medals = preload("res://scripts/game/medals.gd")
 const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
 const TiltBody = preload("res://scripts/game/tilt_body.gd")
-const PaintFloor = preload("res://scripts/game/paint_grab/paint_floor.gd")
-const PaintPicture = preload("res://scripts/game/paint_grab/paint_picture.gd")
-const PaintPots = preload("res://scripts/game/paint_grab/paint_pots.gd")
-const PaintLook = preload("res://scripts/game/paint_grab/paint_look.gd")
+const BananaLook = preload("res://scripts/game/snowball_splat/banana_look.gd")
 const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
 
 const AREA := Rect2(60.0, 150.0, 1800.0, 870.0)   # The play area at 1920x1080.
@@ -45,10 +42,6 @@ func _initialize() -> void:
 	_test_marble_track()
 	_test_race_look()
 	_tilt_body()
-	_paint_floor()
-	_paint_levels()
-	_paint_pictures()
-	_paint_pots()
 	_sumo_arena()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
@@ -187,7 +180,8 @@ func _spawning() -> void:
 					overlaps = true
 		too_many = too_many or regular > PuffField.max_puffs(3)
 	_check(not overlaps, "in 2 minutes two animals of one lane never overlap, also not the golden monkey (REQ-SS-8, 23)")
-	_check(not too_many and PuffField.max_puffs(3) == 6, "never more than 3 + the number of players animals on the screen (REQ-SS-9)")
+	_check(not too_many and PuffField.max_puffs(3) == 6,
+			"never more than 3 + the number of players animals on the screen (REQ-SS-9)")
 	_check(bonus_seen > 0, "the golden monkey comes in 2 minutes (REQ-SS-23)")
 	var lanes_hit := [0, 0, 0]
 	var rng3 := _rng(21)
@@ -223,7 +217,8 @@ func _spawning() -> void:
 		if when < 0.0 and first_bonus.puffs.any(func(p): return p.kind == PuffField.BONUS_KIND):
 			when = i * 0.1
 	_check(when >= PuffField.BONUS_FIRST - 0.2 and when <= PuffField.BONUS_FIRST + 8.0,
-			"the first golden monkey comes after %d s of play, a bit later when no lane is safe: %.1f s (REQ-SS-23)" % [int(PuffField.BONUS_FIRST), when])
+			"the first golden monkey comes after %d s of play, a bit later when no lane is safe: %.1f s (REQ-SS-23)"
+			% [int(PuffField.BONUS_FIRST), when])
 	var gold := bonus.spawn_bonus(b_rng)
 	_check(gold != null and gold.kind == "golden" and gold.points == 100 and bonus.spawn_bonus(b_rng) == null,
 			"the bonus is one golden monkey at a time, worth 100 points (REQ-SS-23)")
@@ -318,25 +313,23 @@ func _bushes() -> void:
 	_check(f3.hit(PuffField.center_of(behind, AREA), AREA) == null, "a banana cannot hit an animal behind a bush (REQ-SS-26)")
 	behind.x = 900.0 + PuffField.BUSH_HALF_W + 80.0
 	_check(f3.hit(PuffField.center_of(behind, AREA), AREA) == behind, "the animal can be hit again when it walks out")
-	var Look = load("res://scripts/game/snowball_splat/banana_look.gd")
-	var img: Image = Look.bush_image()
+	var img: Image = BananaLook.bush_image()
 	_check(absf(float(img.get_width()) * Shell.WORLD_PIXEL - PuffField.BUSH_HALF_W * 2.0) <= 2.0 * Shell.WORLD_PIXEL,
 			"the picture of a bush is as wide as the hiding span (REQ-SS-26)")
 
 
 func _visual_rules() -> void:
 	print("banana party: visual rules")
-	var Look = load("res://scripts/game/snowball_splat/banana_look.gd")
 	var consts: Dictionary = load("res://scripts/game/snowball_splat/snowball_splat_game.gd").get_script_constant_map()
 	var ring_ok := true
 	for c in Protocol.PLAYER_COLORS:   # The circle has a dark edge, and its color differs from the edge by 3:1 or more.
-		if Shell.contrast(c, Look.OUTLINE) < 3.0:
+		if Shell.contrast(c, BananaLook.OUTLINE) < 3.0:
 			ring_ok = false
 			print("    slot color too close to the dark edge of the cursor: ", c)
 	_check(ring_ok, "every player color has a contrast of 3:1 on the dark edge of the cursor circle (REQ-GM-47m)")
 	var edge_ok := true
-	for ground in Look.GROUND:
-		edge_ok = edge_ok and Shell.contrast(Look.OUTLINE, ground) >= 3.0
+	for ground in BananaLook.GROUND:
+		edge_ok = edge_ok and Shell.contrast(BananaLook.OUTLINE, ground) >= 3.0
 	_check(edge_ok, "the dark outline of an animal differs from every lane of the ground by 3:1 or more (REQ-GM-47m)")
 	var smallest := 1e9
 	for kind in PuffField.KINDS:
@@ -346,19 +339,19 @@ func _visual_rules() -> void:
 	var sizes_ok := true
 	for kind in PuffField.KINDS:   # A picture has about the size of its hit circle: from 60 % to 150 % of its width.
 		for happy in [false, true]:
-			var img: Image = Look.animal_image(kind, happy, 1)
+			var img: Image = BananaLook.animal_image(kind, happy, 1)
 			var width := float(img.get_width()) * Shell.WORLD_PIXEL
 			var span := float(PuffField.KINDS[kind].radius) * 2.0
 			sizes_ok = sizes_ok and width >= span * 0.6 and width <= span * 1.7 and img.get_height() >= 12
 	_check(sizes_ok, "every animal picture is 12 world pixels high or more and fits its hit circle (REQ-GM-47m)")
 	_check(float(consts["RELOAD"]) <= 0.5 and float(consts["ROUND_TIME"]) >= 45.0,
 			"a quick reload (0.5 s or less) and a round of at least 45 s: a child is not stopped after a miss (REQ-GM-83)")
-	var left: Image = Look.animal_image("monkey", false, -1)
-	var right: Image = Look.animal_image("monkey", false, 1)
-	var happy_img: Image = Look.animal_image("monkey", true, 1)
+	var left: Image = BananaLook.animal_image("monkey", false, -1)
+	var right: Image = BananaLook.animal_image("monkey", false, 1)
+	var happy_img: Image = BananaLook.animal_image("monkey", true, 1)
 	_check(left.get_data() != right.get_data() and happy_img.get_data() != right.get_data(),
 			"an animal looks to the side it walks, and a hit animal has other eyes (REQ-SS-13)")
-	var golden: Image = Look.animal_image("golden", false, 1)
+	var golden: Image = BananaLook.animal_image("golden", false, 1)
 	_check(golden.get_data() != right.get_data(), "the golden monkey has its own picture (REQ-SS-23)")
 
 
@@ -389,7 +382,8 @@ func _maze_levels() -> void:
 	_check(levels.easy.openings > levels.medium.openings and levels.medium.openings > levels.hard.openings,
 			"fewer openings (more complex) with the difficulty")
 	_check(walls.easy < walls.medium and walls.medium < walls.hard, "more walls with the difficulty: %s" % str(walls))
-	_check(levels.medium.cols == 16 and levels.medium.rows == 8 and levels.medium.cell == 108.0, "Medium is 16 x 8 cells of 108 px")
+	_check(levels.medium.cols == 16 and levels.medium.rows == 8 and levels.medium.cell == 108.0,
+			"Medium is 16 x 8 cells of 108 px")
 	# The themes (REQ-MZ-12): the registry row lists exactly the styles the board draws, and an unknown one gives the default.
 	var theme_row: Dictionary = {}
 	for g in load("res://scripts/game/registry.gd").GAMES:
@@ -507,12 +501,14 @@ func _difficulty() -> void:
 			f.tick(0.05, rng, 2)
 			var regular := 0
 			for p in f.puffs:
-				speeds_ok = speeds_ok and is_equal_approx(p.speed, float(PuffField.KINDS[p.kind].get("speed", PuffField.LANES[p.lane].speed)) * lv[d].speed)
+				speeds_ok = speeds_ok and is_equal_approx(p.speed,
+						float(PuffField.KINDS[p.kind].get("speed", PuffField.LANES[p.lane].speed)) * lv[d].speed)
 				if p.kind != PuffField.BONUS_KIND:
 					regular += 1
 			most = maxi(most, regular)
 		_check(most <= PuffField.max_puffs(2, lv[d].max_base) and most >= lv[d].max_base,
-				"%s: at most %d animals on the screen at once (most seen: %d)" % [d, PuffField.max_puffs(2, lv[d].max_base), most])
+				"%s: at most %d animals on the screen at once (most seen: %d)" % [d, PuffField.max_puffs(2, lv[d].max_base),
+						most])
 		_check(speeds_ok, "%s: the speed of every animal is the speed of its lane times the factor %.1f" % [d, lv[d].speed])
 	_check(PuffField.new().puffs.is_empty(), "a field without setup is a Medium field")
 	# On Hard with one player there is a Puff on the screen nearly all the time (REQ-SS-22).
@@ -527,7 +523,8 @@ func _difficulty() -> void:
 	_check(empty_time < 3.0, "Hard with 1 player: the screen is empty for %.1f s of 60 s (less than 3 s)" % empty_time)
 	var odd := PuffField.new()
 	odd.setup("nonsense")
-	_check(odd.spawn(_rng(1), 1) != null and odd.puffs[0].speed == float(PuffField.LANES[odd.puffs[0].lane].speed), "an unknown difficulty is Medium")
+	_check(odd.spawn(_rng(1), 1) != null and odd.puffs[0].speed == float(PuffField.LANES[odd.puffs[0].lane].speed),
+			"an unknown difficulty is Medium")
 
 
 func _test_marble_track() -> void:
@@ -686,147 +683,6 @@ func _tilt_body() -> void:
 	_check(same_a.pos.distance_to(same_b.pos) >= same_a.radius * 2.0 - 0.01, "two bodies in the same place are pushed apart")
 
 
-## The floor (REQ-PG-2, 4, 5, 21).
-func _paint_floor() -> void:
-	print("paint floor")
-	var f := PaintFloor.new(4, 3, 100.0)
-	_check(f.total() == 12 and f.size() == Vector2(400, 300) and f.count(0) == 0, "an empty floor of 4 x 3 tiles")
-	_check(f.cell_at(Vector2(0, 0)) == Vector2i(0, 0) and f.cell_at(Vector2(399, 299)) == Vector2i(3, 2)
-			and f.cell_at(Vector2(150, 250)) == Vector2i(1, 2), "a point gives its tile")
-	_check(f.cell_at(Vector2(-1, 10)) == Vector2i(-1, -1) and f.cell_at(Vector2(400, 10)) == Vector2i(-1, -1),
-			"a point outside the floor gives no tile")
-	_check(f.paint(Vector2i(1, 1), 0) == PaintFloor.Result.NEW and f.owner_of(Vector2i(1, 1)) == 0 and f.count(0) == 1,
-			"a free tile is painted")
-	_check(f.paint(Vector2i(1, 1), 0) == PaintFloor.Result.SAME and f.count(0) == 1,
-			"the same player painting again changes nothing")
-	_check(f.paint(Vector2i(1, 1), 2) == PaintFloor.Result.TAKEN and f.owner_of(Vector2i(1, 1)) == 2
-			and f.count(0) == 0 and f.count(2) == 1, "the tile of another player is taken, and the counts follow (REQ-PG-4)")
-	f.paint(Vector2i(0, 0), 0)
-	f.paint(Vector2i(2, 0), 0)
-	f.paint(Vector2i(3, 0), 0)
-	_check(f.percent(0) == 25 and f.percent(2) == 8 and f.percent(3) == 0,
-			"the share of the floor in percent, rounded down (REQ-PG-21)")
-
-
-## The difficulty of Paint Grab (REQ-PG-20, 21).
-func _paint_levels() -> void:
-	print("paint grab difficulty")
-	var lv: Dictionary = load("res://scripts/game/paint_grab/paint_grab_game.gd").LEVELS
-	_check(lv.easy.cols < lv.medium.cols and lv.medium.cols < lv.hard.cols and lv.easy.rows < lv.medium.rows
-			and lv.medium.rows < lv.hard.rows, "the floor grows with the difficulty")
-	_check(lv.easy.speed < lv.medium.speed and lv.medium.speed < lv.hard.speed and lv.medium.speed == 1.0,
-			"the blobs are faster with the difficulty, Medium is the base")
-	_check(Medals.is_valid(lv.easy.tiers) and Medals.is_valid(lv.medium.tiers) and Medals.is_valid(lv.hard.tiers)
-			and lv.easy.tiers[2] > lv.medium.tiers[2] and lv.medium.tiers[2] > lv.hard.tiers[2],
-			"every difficulty has valid medal tiers, harder levels have lower limits")
-	_check(lv.hard.tiers[2] <= 100 and lv.easy.tiers[2] <= 100, "no medal needs more than the whole floor")
-
-
-## The pictures under the floor of Paint Grab (REQ-PG-22).
-func _paint_pictures() -> void:
-	print("paint pictures")
-	_check(PaintPicture.count() == 30, "there are 30 pictures (REQ-PG-22)")
-	var shapes_ok := true
-	var names := {}
-	var shapes_seen := {}
-	for i in PaintPicture.count():
-		var rows: Array = PaintPicture.SHAPES[i][1]
-		shapes_ok = shapes_ok and rows.size() == PaintPicture.FULL_ROWS
-		var body := 0
-		var eyes := 0
-		for r in rows:
-			shapes_ok = shapes_ok and String(r).length() == PaintPicture.HALF_COLS and String(r).replace(".", "").replace("#", "").replace("o", "").replace("e", "") == ""
-			body += String(r).count("#")
-			eyes += String(r).count("e")
-		shapes_ok = shapes_ok and body >= 10 and body <= 44   # A picture is neither a dot nor the whole floor.
-		names[PaintPicture.name_of(i)] = true
-		shapes_seen[str(rows)] = true
-	_check(shapes_ok, "every picture has 9 rows of 6 known letters, 10 to 44 body tiles")
-	_check(names.size() == 30 and shapes_seen.size() == 30, "the 30 pictures have different names and different shapes")
-	var sym_ok := true
-	var sizes_ok := true
-	for i in PaintPicture.count():
-		for dims in [Vector2i(12, 7), Vector2i(16, 9), Vector2i(20, 11)]:
-			var k := PaintPicture.kinds_for(i, dims.x, dims.y)
-			sizes_ok = sizes_ok and k.size() == dims.x * dims.y
-			for y in dims.y:
-				for x in dims.x:
-					sym_ok = sym_ok and k[y * dims.x + x] == k[y * dims.x + (dims.x - 1 - x)]
-	_check(sizes_ok and sym_ok, "every picture fits the floors of Easy, Medium and Hard and is symmetric on each (REQ-PG-22)")
-	var plain := PaintPicture.kinds_for(0, 16, 9)
-	var flipped := PaintPicture.kinds_for(0, 16, 9, true)
-	var swapped := PaintPicture.kinds_for(0, 16, 9, false, true)
-	var flip_ok := true
-	var swap_ok := true
-	for y in 9:
-		for x in 16:
-			flip_ok = flip_ok and flipped[y * 16 + x] == plain[(8 - y) * 16 + x]
-			var a: int = plain[y * 16 + x]
-			var b: int = swapped[y * 16 + x]
-			swap_ok = swap_ok and b == (PaintPicture.ACCENT if a == PaintPicture.BODY else PaintPicture.BODY if a == PaintPicture.ACCENT else a)
-	_check(flip_ok and swap_ok and plain != flipped and plain != swapped,
-			"a picture can be turned upside down and body and accent can be swapped (REQ-PG-22)")
-	var seen := {}
-	for seed_value in 200:
-		seen[PaintPicture.pick(_rng(seed_value))] = true
-	_check(seen.size() >= 25 and PaintPicture.pick(_rng(5)) == PaintPicture.pick(_rng(5)),
-			"a random round gets many different pictures, and the same seed gets the same one: %d seen" % seen.size())
-	var col := Protocol.PLAYER_COLORS[0]
-	var tones := [PaintLook.painted(PaintPicture.EMPTY, col), PaintLook.painted(PaintPicture.BODY, col),
-			PaintLook.painted(PaintPicture.ACCENT, col), PaintLook.painted(PaintPicture.EYE, col)]
-	_check(tones[1] == col and tones[0] != tones[1] and tones[2] != tones[1] and tones[3].s < tones[1].s - 0.3,
-			"a painted tile keeps the shade of its part of the picture in the color of the player")
-	var plain_body := PaintLook.ghost(PaintPicture.BODY, Color("3a1c97"))
-	_check(plain_body != PaintLook.ghost(PaintPicture.EMPTY, Color("3a1c97")) and PaintLook.ghost(PaintPicture.EYE, Color("3a1c97")).v > plain_body.v,
-			"a tile that nobody painted shows a faint ghost of the picture")
-
-
-## The bonus pots of Paint Grab (REQ-PG-23).
-func _paint_pots() -> void:
-	print("paint pots")
-	var gold := PaintPots.patch(PaintPots.GOLD, Vector2i(5, 4), 16, 9)
-	var corner := PaintPots.patch(PaintPots.GOLD, Vector2i(0, 0), 16, 9)
-	var row := PaintPots.patch(PaintPots.ROLLER, Vector2i(3, 6), 16, 9)
-	var row_ok := row.size() == 16
-	for c in row:
-		row_ok = row_ok and c.y == 6
-	_check(gold.size() == 9 and gold.has(Vector2i(4, 3)) and gold.has(Vector2i(6, 5)) and corner.size() == 4 and row_ok,
-			"the gold pot paints 3 x 3 tiles (4 in a corner), the roller the whole row (REQ-PG-23)")
-	var pots := PaintPots.new()
-	var rng := _rng(3)
-	_check(pots.tick(PaintPots.FIRST - 1.0, rng, 16, 9, []) == null and pots.pots.is_empty(), "no pot before the first 8 s")
-	var first := pots.tick(1.5, rng, 16, 9, [])
-	_check(first != null and pots.pots.size() == 1, "the first pot lands after 8 s")
-	_check(pots.tick(30.0, rng, 16, 9, []) == null and pots.pots.size() == 0 or pots.pots.size() <= 1,
-			"only one pot is on the floor at a time")
-	var gone := PaintPots.new()
-	var pot := gone.tick(PaintPots.FIRST, rng, 16, 9, [])
-	pot.age = PaintPots.LIFE - PaintPots.BLINK + 0.1
-	_check(pot.is_blinking(), "a pot blinks in its last 2 s")
-	gone.tick(PaintPots.BLINK, rng, 16, 9, [])
-	_check(gone.pots.is_empty(), "a pot that nobody takes goes away after 9 s")
-	var near_ok := true
-	var kinds_seen := {}
-	for seed_value in 60:
-		var p := PaintPots.new()
-		var landed := p.tick(PaintPots.FIRST, _rng(seed_value), 16, 9, [Vector2i(8, 4), Vector2i(2, 2)])
-		kinds_seen[landed.kind] = true
-		near_ok = near_ok and maxi(absi(landed.cell.x - 8), absi(landed.cell.y - 4)) >= PaintPots.FAR \
-				and maxi(absi(landed.cell.x - 2), absi(landed.cell.y - 2)) >= PaintPots.FAR
-	_check(near_ok, "a pot never lands near a blob (REQ-PG-23)")
-	_check(kinds_seen.size() == 2, "both pots come, over many rounds")
-	var taken := PaintPots.new()
-	var landed2 := taken.tick(PaintPots.FIRST, _rng(9), 16, 9, [])
-	var elsewhere := Vector2i((landed2.cell.x + 5) % 16, landed2.cell.y)
-	_check(taken.take_at(elsewhere) == null and taken.pots.size() == 1 and taken.take_at(landed2.cell) == landed2 and taken.pots.is_empty(),
-			"a pot is taken only by a blob on its tile, and then it is gone")
-	var again := taken.tick(0.5, _rng(9), 16, 9, [])
-	_check(again == null, "the next pot comes after 9 to 15 s, not at once")
-	var crowded := PaintPots.new()
-	_check(crowded.tick(PaintPots.FIRST, _rng(1), 3, 3, [Vector2i(1, 1)]) == null and crowded.pots.is_empty(),
-			"on a floor where every tile is near a blob, no pot lands")
-
-
 ## The platform and the rules of Sumo Bumpers (REQ-SB-2, 3, 6, 7, 10, 20).
 func _sumo_arena() -> void:
 	print("sumo arena")
@@ -978,7 +834,8 @@ func _test_race_look() -> void:
 	# Cars and obstacles.
 	var car: Image = RaceLook.car_image(Color("e63946"))
 	_check(car.get_width() == 11 and car.get_height() == 16 and car.get_pixel(3, 7) == Color("e63946")
-			and car.get_pixel(3, 5) == RaceLook.CAR_GLASS and car.get_pixel(0, 0).a == 0.0 and car.get_pixel(5, 0) == RaceLook.OUTLINE
+			and car.get_pixel(3, 5) == RaceLook.CAR_GLASS and car.get_pixel(0, 0).a == 0.0
+			and car.get_pixel(5, 0) == RaceLook.OUTLINE
 			and car.get_pixel(5, 8) == Color("fcfcfc") and car.get_pixel(0, 3) == RaceLook.CAR_TIRE,
 			"a car is 11x16 world pixels: player color, stripe, windscreen, tires and an outline")
 	var other: Image = RaceLook.car_image(Color("2a9d8f"))

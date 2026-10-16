@@ -80,7 +80,8 @@ static func cell(index: int, x: int, y: int) -> int:
 
 
 ## The picture on a floor of `cols` x `rows` tiles, row after row: every tile takes the nearest cell of the 16 x 9 picture, so a
-## bigger or a smaller floor shows the same picture, still symmetric. `flip` turns it upside down and `swap` swaps body and accent,
+## bigger or a smaller floor shows the same picture, still symmetric.
+## `flip` turns it upside down and `swap` swaps body and accent,
 ## so one shape has four looks.
 static func kinds_for(index: int, cols: int, rows: int, flip := false, swap := false) -> PackedInt32Array:
 	var out := PackedInt32Array()

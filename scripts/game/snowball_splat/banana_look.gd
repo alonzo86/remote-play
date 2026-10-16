@@ -37,7 +37,8 @@ const FUR := {
 # ---- Scene ----
 
 ## The jungle: the sky with the sun, two rows of hills, trunks with vines, leaves in the corners, the ground in three lanes, and
-## a few leaves that drift down. `t` is the game time (the leaves stand still while the game is paused). `bar` is the height of the
+## a few leaves that drift down. `t` is the game time (the leaves
+## stand still while the game is paused). `bar` is the height of the
 ## HUD bar that covers the top of the screen: the sky, the vines and the treetops are drawn under it, so they can be seen.
 static func draw_scene(ci: CanvasItem, area: Vector2, t: float, bar := 0.0) -> void:
 	var px := Shell.WORLD_PIXEL
@@ -75,7 +76,8 @@ static func draw_scene(ci: CanvasItem, area: Vector2, t: float, bar := 0.0) -> v
 	for share in [0.12, 0.28, 0.45, 0.62, 0.84]:
 		var vx := snappedf(area.x * float(share), px)
 		ci.draw_rect(Rect2(vx, bar, 2.0 * px, 38.0 * px + 10.0 * px * fmod(share * 13.0, 3.0)), VINE)
-	# The treetops (every one sits on a trunk): a cluster of round leaf blobs on every trunk, with a black outline, so the whole tree can be seen. Each is
+	# The treetops (every one sits on a trunk): a cluster of round leaf blobs
+	# on every trunk, with a black outline, so the whole tree can be seen. Each is
 	# [share of the width, blob radius in world pixels, height under the bar in world pixels].
 	for tree in [[0.0, 22.0, 6.0], [0.055, 18.0, 10.0], [0.117, 20.0, 5.0], [0.78, 24.0, 7.0], [0.953, 22.0, 6.0]]:
 		var c := Vector2(snappedf(area.x * float(tree[0]) + px, px), bar + float(tree[2]) * px)
@@ -89,7 +91,8 @@ static func draw_scene(ci: CanvasItem, area: Vector2, t: float, bar := 0.0) -> v
 		for i in int(LEAVES[layer]):
 			var lx := fposmod(n * 211.3 + sin(n * 1.7) * 50.0 + t * 6.0, area.x)
 			var ly := fposmod(t * (22.0 + layer * 10.0) + n * 97.7, area.y)
-			ci.draw_rect(Rect2(Shell.snap(Vector2(lx, ly)), Vector2.ONE * px * (1.0 + (layer % 2))), LEAF if n % 2 == 0 else Color("e0842c"))
+			ci.draw_rect(Rect2(Shell.snap(Vector2(lx, ly)), Vector2.ONE * px * (1.0 + (layer % 2))), LEAF if n % 2 == 0
+					else Color("e0842c"))
 			n += 1
 
 

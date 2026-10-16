@@ -74,7 +74,8 @@ func _game_ready() -> void:
 		_rng.seed = int(start_props.seed)   # A test fixes the picture and the pots. Restart keeps the seed.
 	else:
 		_rng.randomize()
-	_picture = PaintPicture.kinds_for(PaintPicture.pick(_rng), floor_map.cols, floor_map.rows, _rng.randf() < 0.5, _rng.randf() < 0.5)
+	_picture = PaintPicture.kinds_for(PaintPicture.pick(_rng), floor_map.cols, floor_map.rows, _rng.randf() < 0.5,
+			_rng.randf() < 0.5)
 	_board = Scoreboard.new(participants)
 	var middle := floor_map.size() * 0.5
 	for i in participants.size():
@@ -209,7 +210,8 @@ func _fit() -> Dictionary:
 	var fit_k := minf(avail.x / fl.x, avail.y / fl.y)
 	var pitch := maxf(floorf(REF_TILE * fit_k / Shell.WORLD_PIXEL) * Shell.WORLD_PIXEL, Shell.WORLD_PIXEL)
 	var k := pitch / REF_TILE
-	return {"k": k, "origin": Shell.snap(Vector2(BOARD_MARGIN + (avail.x - fl.x * k) * 0.5, BOARD_TOP + (avail.y - fl.y * k) * 0.5))}
+	var origin := Vector2(BOARD_MARGIN + (avail.x - fl.x * k) * 0.5, BOARD_TOP + (avail.y - fl.y * k) * 0.5)
+	return {"k": k, "origin": Shell.snap(origin)}
 
 
 func _pixel_world() -> bool:
@@ -249,11 +251,12 @@ func _draw_tile(ci: CanvasItem, c: Vector2i, origin: Vector2, k: float) -> void:
 	var side := REF_TILE * k - TILE_GAP + (Shell.WORLD_PIXEL * 2.0 if pop else 0.0)
 	var rect := Rect2(origin + Vector2(c) * REF_TILE * k - Vector2.ONE * (Shell.WORLD_PIXEL if pop else 0.0), Vector2(side, side))
 	var part: int = _picture[c.y * floor_map.cols + c.x]
-	ci.draw_rect(rect, PaintLook.ghost(part, EMPTY_TILE) if owner_slot == PaintFloor.NONE else PaintLook.painted(part, player(owner_slot).color))
+	ci.draw_rect(rect, PaintLook.ghost(part, EMPTY_TILE) if owner_slot == PaintFloor.NONE
+			else PaintLook.painted(part, player(owner_slot).color))
 
 
-## A pot with a frame around the tiles it will paint: a patch of 3 x 3 for the gold pot, the row for the roller. A pot that is about to
-## go away blinks (REQ-PG-23).
+## A pot with a frame around the tiles it will paint: a patch of 3 x 3 for
+## the gold pot, the row for the roller. A pot that is about to go away blinks (REQ-PG-23).
 func _draw_pot(ci: CanvasItem, pot: PaintPots.Pot, origin: Vector2, k: float) -> void:
 	if pot.is_blinking() and int(pot.age * 4.0) % 2 == 0:
 		return
@@ -263,7 +266,8 @@ func _draw_pot(ci: CanvasItem, pot: PaintPots.Pot, origin: Vector2, k: float) ->
 	for c in tiles:
 		lo = Vector2i(mini(lo.x, c.x), mini(lo.y, c.y))
 		hi = Vector2i(maxi(hi.x, c.x), maxi(hi.y, c.y))
-	var frame := Rect2(origin + Vector2(lo) * REF_TILE * k, Vector2(hi - lo + Vector2i.ONE) * REF_TILE * k - Vector2.ONE * TILE_GAP)
+	var frame := Rect2(origin + Vector2(lo) * REF_TILE * k, Vector2(hi - lo + Vector2i.ONE) * REF_TILE * k
+			- Vector2.ONE * TILE_GAP)
 	var color := PaintLook.GOLD_FRAME if pot.kind == PaintPots.GOLD else PaintLook.ROLLER_FRAME
 	ci.draw_rect(frame, color, false, Shell.WORLD_PIXEL)
 	if not _pot_textures.has(pot.kind):
