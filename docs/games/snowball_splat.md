@@ -74,7 +74,7 @@ End and players
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SS-16 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. With one player the row shows the medal for the tiers [150, 300, 450] (bronze, silver, gold, REQ-GM-73); with more players each row has the medal of its place. The tiers are open tuning values. A player who leaves takes the cursor and the score out, and the round goes on. A lost phone pauses the round with the card of REQ-GM-30. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_tv |
+| REQ-SS-16 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. With one player the row shows the medal for the tiers of the difficulty ([150, 300, 450] at Medium; bronze, silver, gold, REQ-GM-73); with more players each row has the medal of its place. The tiers depend on the difficulty (REQ-SS-21); the values are open tuning values. A player who leaves takes the cursor and the score out, and the round goes on. A lost phone pauses the round with the card of REQ-GM-30. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_tv |
 | REQ-SS-17 | Children (REQ-GM-80 to 84): the animals are friendly and eat bananas, the hit is funny, a miss costs nothing, no player is out of the round, the hint is one line, the animals are large and slow, and every text is positive. | Device | Review, Device (with a child, Test 10 item 9) |
 
 ### Settings and difficulty (built 2026-10-09)

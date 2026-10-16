@@ -307,7 +307,7 @@ func _game_draw() -> void:
 		var f: Dictionary = _falling[s]
 		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
 			var above := Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6 - clampf(float(f.age) / FALL_TIME, 0.0, 1.0) * 30.0)
-			Shell.label_plate(self, c + (f.pos as Vector2) * k + above, Lang.t("sumo_bumpers.whee"), 32, UiTheme.TEXT)
+			Shell.label_plate(self, c + (f.pos as Vector2) * k + above, "sumo_bumpers.whee", 32, UiTheme.TEXT)
 	_draw_hud()
 
 

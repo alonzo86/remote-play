@@ -3,6 +3,8 @@ extends SceneTree
 ## Scoreboard (REQ-GM-70, 72) and Medals (REQ-GM-73).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/game_helpers.gd -- --role=controller
 
+const Lang = preload("res://scripts/core/lang.gd")
+const Registry = preload("res://scripts/game/registry.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
@@ -33,6 +35,7 @@ func _initialize() -> void:
 	_haptics()
 	_shell_leader()
 	_shell_layout()
+	_label_plate()
 	_score_chip()
 	_chip_avatar()
 	_medal_icon()
@@ -211,6 +214,21 @@ func _shell_layout() -> void:
 			and Shell.ball_metrics(19.0).outline == 4.0, "a ball of 40 px or more has a 6 px outline, a smaller one 4 px (REQ-GM-47b)")
 
 
+## The black plate behind a banner (REQ-AB-16): as wide as the text of the language, centered on the given x.
+func _label_plate() -> void:
+	print("label plate")
+	var at := Vector2(960.0, 400.0)
+	for code in ["en", "he"]:
+		Lang.set_language(code, root)
+		var short := Shell.label_plate_rect(at, "shell.go", 72)
+		var long := Shell.label_plate_rect(at, "asteroid_blast.all_ships_gone", 72)
+		_check(long.size.x > short.size.x and is_equal_approx(short.get_center().x, 960.0)
+				and is_equal_approx(long.get_center().x, 960.0)
+				and short.position.y < at.y and short.end.y > at.y,
+				"the plate of a banner is as wide as its text, centered, and holds the baseline (%s)" % code)
+	Lang.set_language("en", root)
+
+
 ## The chip with a score: the score always shows in full, also with 4 to 6 digits and a long name (REQ-GM-41, 46).
 func _score_chip() -> void:
 	print("score chip")
@@ -366,6 +384,15 @@ func _game_settings() -> void:
 	_check(props.difficulty == "hard" and props.mode == "a" and props.track == 3,
 			"the props of the game are its own props and the chosen values (REQ-GM-93)")
 	_check(GameSettings.title_of(diff, "hard") == "game_settings.hard", "the title of a value")
+	var tracks: Dictionary = {}
+	for r in GameSettings.rows_for(Registry.find("marble_race")):
+		if r.key == "track_choice":
+			tracks = r
+	Lang.set_language("he", root)
+	_check(GameSettings.title_text(tracks, "3") == "מסלול 3"
+			and GameSettings.title_text(tracks, "random") == Lang.t("registry.random"),
+			"a numbered track title is written in the TV language, not left in English (REQ-FL-63)")
+	Lang.set_language("en", root)
 	GameSettings.clear()
 	_check(GameSettings.value(game, diff) == "medium", "clear forgets the choices")
 

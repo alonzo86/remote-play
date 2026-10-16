@@ -77,7 +77,7 @@ func _space_field() -> void:
 	f.tick(0.25, rng, {0: 0.0})
 	_check(after_200 == 1 and f.beams.size() == 2, "it fires again every 0.4 s (REQ-AB-4)")
 	f.tick(0.1, rng, {0: 0.0})
-	_check(f.events.is_empty() or not f.events.any(func(e: Dictionary) -> bool: return e.t == "shot"),
+	_check(not f.events.any(func(e: Dictionary) -> bool: return e.t == "shot"),
 			"the events are those of the last tick only")
 
 	var offs := SpaceField.laser_offsets(1)
@@ -198,6 +198,15 @@ func _space_field() -> void:
 	_check(f.upgrades.size() == 1 and dropped.y < 0.0 and (dropped.kind == SpaceField.SHIELD or dropped.kind == SpaceField.WEAPON)
 			and f._upgrade_timer >= SpaceField.UPGRADE_MIN,
 			"an upgrade falls from the top and the next one comes after 12 to 20 s (REQ-AB-10)")
+	var timed := _field([900.0])
+	timed._tick_upgrades(SpaceField.UPGRADE_FIRST - 0.1, rng)
+	_check(timed.upgrades.is_empty(), "no upgrade falls in the first 10 s (REQ-AB-10)")
+	timed._tick_upgrades(0.2, rng)
+	_check(timed.upgrades.size() == 1, "the first upgrade falls after 10 s of play (REQ-AB-10)")
+	for i in 4:
+		timed._upgrade_timer = 0.0
+		timed._tick_upgrades(0.0, rng)
+	_check(timed.upgrades.size() == SpaceField.UPGRADE_MAX_ON_SCREEN, "there are at most 2 upgrades on the screen (REQ-AB-10)")
 	dropped.x = 900.0
 	dropped.y = SpaceField.SHIP_Y
 	f.tick(0.016, rng, {0: 0.0})
@@ -221,6 +230,9 @@ func _space_waves() -> void:
 	var before := f.asteroids.size()
 	f._tick_waves(4.0, rng)
 	_check(f.asteroids.size() == before and f.phase == SpaceField.Phase.REST, "no asteroid comes during the rest")
+	f.beams.clear()
+	f.tick(0.5, rng, {0: 0.0, 1: 0.0})
+	_check(f.phase == SpaceField.Phase.REST and not f.beams.is_empty(), "the lasers go on firing during the rest (REQ-AB-8)")
 	f._tick_waves(1.1, rng)
 	_check(f.wave == 2 and f.phase == SpaceField.Phase.WAVE
 			and f.events.any(func(e: Dictionary) -> bool: return e.t == "wave_start"),
@@ -253,11 +265,9 @@ func _space_waves() -> void:
 			"Easy is slower, Hard faster than Medium; an unknown level is Medium (REQ-AB-20)")
 	var rate_ok := true
 	for g in [easy, hard]:
-		var count := 0
 		g._tick_waves(0.0, rng)
 		g._tick_waves(10.0, rng)
-		count = g.asteroids.size()
-		rate_ok = rate_ok and count > 0
+		rate_ok = rate_ok and g.asteroids.size() > 0
 	_check(easy.asteroids.size() < hard.asteroids.size() and rate_ok,
 			"Hard brings more asteroids than Easy in the same time (REQ-AB-20)")
 	var tiers_ok := true

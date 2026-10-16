@@ -54,6 +54,7 @@ var track
 var finish_arc := 0.0
 
 var _racers := {}          # slot -> Racer
+var _order: Array = []     # The racers from first to last, made once for each tick
 var _bumpers: Array[Vector2] = []
 var _bumper_kinds: Array[String] = []   # The obstacle picture of each bumper, from the theme.
 var _decor: Array = []     # The scenery beside the road, [{kind, pos}] (REQ-MR-50).
@@ -108,9 +109,15 @@ func _game_tick(delta: float) -> void:
 			_step(delta / steps)
 	for s in _racers:
 		_turn(_racers[s])
+	_order = standings()   # Once for each tick: the camera, the HUD and the arrows read it.
 	_cam = _cam.lerp(_camera_target(), clampf(delta * 4.0, 0.0, 1.0) if _cam_set else 1.0)
 	_cam_set = size.x > 0.0   # The first frame with a screen size puts the camera on the pack, with no slide.
 	_check_end()
+
+
+## The leader of the last tick (the order is made once for each tick).
+func _lead() -> Racer:
+	return _order[0] if not _order.is_empty() else standings()[0]
 
 
 func _step(dt: float) -> void:
@@ -125,9 +132,9 @@ func _step(dt: float) -> void:
 			r.vel += t * ACCEL * dt
 		r.vel *= exp(-(DAMPING if r.finish_time < 0.0 else 4.0) * dt)
 		r.pos += r.vel * dt
-		_hit_wall(r)
-		_hit_bumpers(r)
-		var q: Dictionary = track.query(r.pos)
+		var q: Dictionary = _hit_wall(r)
+		if _hit_bumpers(r):
+			q = track.query(r.pos)
 		r.arc = q.arc
 		if r.finish_time < 0.0 and r.arc >= finish_arc:
 			r.finish_time = _round.time
@@ -147,20 +154,24 @@ func _turn(r: Racer) -> void:
 		r.angle = snappedf(atan2(r.vel.x, -r.vel.y), deg_to_rad(TURN_STEP))
 
 
-func _hit_wall(r: Racer) -> void:
+## Keeps the car inside the track. Returns the track query of the car's final position.
+func _hit_wall(r: Racer) -> Dictionary:
 	var q: Dictionary = track.query(r.pos)
 	var limit: float = track.half_width - R
 	if q.dist <= limit:
-		return
+		return q
 	var n: Vector2 = (r.pos - q.closest) / q.dist
 	r.pos = q.closest + n * limit
 	var vn := r.vel.dot(n)
 	if vn > 0.0:
 		r.vel -= n * vn * (1.0 + WALL_BOUNCE)
 		_buzz(r, vn, "marble_wall_hard" if vn > 2.0 * HAPTIC_MIN_SPEED else "marble_wall")
+	return track.query(r.pos)
 
 
-func _hit_bumpers(r: Racer) -> void:
+## Pushes the car out of the bumpers. Returns true when the car moved.
+func _hit_bumpers(r: Racer) -> bool:
+	var moved := false
 	for b in _bumpers:
 		var d := r.pos - b
 		var dist := d.length()
@@ -169,10 +180,12 @@ func _hit_bumpers(r: Racer) -> void:
 			continue
 		var n := d / dist if dist > 0.0001 else Vector2.RIGHT
 		r.pos = b + n * min_d
+		moved = true
 		var vn := r.vel.dot(n)
 		if vn < 0.0:
 			r.vel -= n * vn * (1.0 + BUMPER_BOUNCE)
 			_buzz(r, -vn, "marble_bumper")
+	return moved
 
 
 func _hit_cars(a: Racer, b: Racer) -> void:
@@ -258,7 +271,7 @@ func _camera_target() -> Vector2:
 	if lo.x == INF:
 		return Vector2.ZERO
 	var mid := (lo + hi) * 0.5
-	var lead: Vector2 = standings()[0].pos
+	var lead: Vector2 = _lead().pos
 	var ahead := (ANCHOR_Y - BAR_H - 160.0) / SCALE
 	var behind := (size.y - ANCHOR_Y - 160.0) / SCALE
 	var across := (size.x * 0.5 - 220.0) / SCALE
@@ -381,9 +394,11 @@ func edge_markers() -> Array:
 		return out
 	var rect := Rect2(Vector2(EDGE_MARGIN, BAR_H + 24.0), Vector2(size.x - EDGE_MARGIN * 2.0, size.y - BAR_H - 24.0 - EDGE_MARGIN))
 	var center := rect.get_center()
-	var lead: Racer = standings()[0]
+	var lead: Racer = _lead()
 	for s in participants:
 		var r: Racer = _racers[s]
+		if r == lead:
+			continue # The leader is never "0 m behind".
 		var sp := (r.pos - _cam) * SCALE + Vector2(size.x * 0.5, ANCHOR_Y)
 		if rect.has_point(sp):
 			continue
@@ -440,7 +455,7 @@ func _game_draw() -> void:
 	elif _round.time < GO_SHOW:
 		Shell.countdown(self, size, "marble_race.go", _round.time / GO_SHOW, UiTheme.OK)
 	elif not is_over:
-		var lead: Racer = standings()[0]
+		var lead: Racer = _lead()
 		var to_go := maxf(finish_arc - lead.arc, 0.0)
 		Shell.text(self, Vector2(Shell.mx(self, 960.0, 480.0), 80.0), Lang.f("marble_race.finish_in", [roundi(to_go)]), 32,
 				UiTheme.ACCENT, HORIZONTAL_ALIGNMENT_LEFT if not Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 480.0)

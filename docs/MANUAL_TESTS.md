@@ -417,7 +417,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "2P LOST CONNECTION". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
 9. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint and a few seconds of play, hits some animals, is not frustrated or scared, and wants to play again. Write down the age and what the child said or did. (REQ-GM-80 to 84, REQ-SS-17)
 10. Open the tile of **Banana Party**: the settings view opens. Play one round alone on each of Easy, Medium and Hard. Check: Easy has slow animals and more of them, Hard has fast animals and fewer, Hard is a challenge but not impossible, and the medal title names the difficulty ("Silver medal! (Hard)"). Write down the score of each round to tune the tiers (Easy [170, 340, 510], Medium [150, 300, 450], Hard [120, 240, 360]).
-11. **Jungle look (2026-10-16, REQ-SS-12).** From the sofa (about 3 m), look at the jungle. Check: the animals, the bananas and the cursor rings are sharp pixels, each animal can be named (monkey, lemur, orangutan, sloth, gorilla, elephant), the player colors of the rings are easy to tell apart on the green ground, the points "+10" are easy to read, and the leaves and vines do not hide the animals. Does the walk (a bob, no legs) look alive enough? Check the bushes (REQ-SS-26): an animal that walks behind a bush is covered and a banana at it does nothing; Easy has 3 bushes, Medium 5, Hard 8; are they too many or too few? Write down if the cursor and the banana are easy to follow. Also check the bushes (REQ-SS-26): an animal is hidden, and cannot be hit, while its middle is behind a bush. Write down if a child finds it unfair that a visible part of an animal cannot be hit.
+11. **Jungle look (2026-10-16, REQ-SS-12).** From the sofa (about 3 m), look at the jungle. Check: the animals, the bananas and the cursor rings are sharp pixels, each animal can be named (monkey, lemur, orangutan, sloth, gorilla, elephant), the player colors of the rings are easy to tell apart on the green ground, the points "+10" are easy to read, and the leaves and vines do not hide the animals. Does the walk (a bob, no legs) look alive enough? Check the bushes (REQ-SS-26): an animal that walks behind a bush is covered and a banana at it does nothing; Easy has 3 bushes, Medium 5, Hard 8; are they too many or too few? Write down if the cursor and the banana are easy to follow. An animal is hidden, and cannot be hit, while its middle is behind a bush: write down if a child finds it unfair that a visible part of an animal cannot be hit.
 
 **Results**
 
@@ -499,8 +499,11 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 
 1. Open the Games screen. Check: every game has a tile with its screenshot, title and player range, and the text is easy to read from the sofa.
 2. For each game, compare its tile with a photo of the game running. Check: the tile shows the same look (colors, outline, shapes) as the game, and the Games screen and the games look like one toy box.
-3. Check the tiles of **Treasure Maze** and **Road Rally**. Road Rally tile was made again on 2026-10-09: 4 cars on a bend before a post (Track 1, Hard). The Maze tile was made again too: 4 balls on the way to the exit, the new chip style. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
-4. Check the tile of **Banana Party** (made again on 2026-10-09): it shows the jungle, the animals, four players with scores, an animal that was just hit ("+10") and a banana in the air. Check that the cursors, the hit animal and the banana can be seen at the small size of the tile.
+3. Check the tiles of **Treasure Maze** and **Road Rally**. Both were made again on 2026-10-09: 4 cars on a bend before a post (Track 1, Hard), and 4 balls on the way to the exit in the new chip style. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
+4. Check the tile of **Banana Party** (made again on 2026-10-16): it shows the jungle, the animals, four players with scores, an animal that was just hit ("+10") and a banana in the air. Check that the cursors, the hit animal and the banana can be seen at the small size of the tile.
+5. Check the tile of **Paint Grab** (made again on 2026-10-16): the floor with the hidden picture and the bonus pots, and four blobs. Check that the blobs and a pot can be seen at the small size of the tile.
+6. Check the tile of **Sumo Bumpers**: the island and the penguins. Check that the penguins and the edge of the island can be seen at the small size of the tile.
+7. Check the tile of **Galaxy Protector** (new on 2026-10-16): the night sky, the ships, the asteroids and a beam. Check that the ships and the asteroids of three sizes can be seen at the small size of the tile.
 
 **Results**
 
@@ -509,7 +512,10 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 | 1 | Photo of the Games screen | Not run | | | |
 | 2 | Photos: tile next to the game, for each game | Not run | | | |
 | 3 | Photos of the old and the new look, and a note | Not run | | | Road Rally and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
-| 4 | Photo of the tile and of the running game | Not run | | | Banana Party tile remade 2026-10-09 (4 players, a hit, a snowball in the air). |
+| 4 | Photo of the tile and of the running game | Not run | | | Banana Party tile remade 2026-10-16 (a jungle, 4 players, a hit, a banana in the air). |
+| 5 | Photo of the tile and of the running game | Not run | | | Paint Grab tile remade 2026-10-16. |
+| 6 | Photo of the tile and of the running game | Not run | | | Sumo Bumpers tile. |
+| 7 | Photo of the tile and of the running game | Not run | | | Galaxy Protector tile, new 2026-10-16. |
 
 History:
 

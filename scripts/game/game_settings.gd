@@ -5,6 +5,8 @@ extends RefCounted
 ## Difficulty first (REQ-GM-91). `settings` lists more rows: {key, label, values: [...], titles: [...], default: "..."} (a choice
 ## row; `default` is the value when nothing was chosen, the first value when it is missing).
 
+const Lang = preload("res://scripts/core/lang.gd")
+
 const DIFFICULTY := {
 	"key": "difficulty", "label": "game_settings.difficulty", "values": ["easy", "medium", "hard"], \
 			"titles": ["game_settings.easy", "game_settings.medium", "game_settings.hard"],
@@ -55,6 +57,14 @@ static func step(row: Dictionary, current: String, delta: int) -> String:
 static func title_of(row: Dictionary, v: String) -> String:
 	var i: int = row.values.find(v)
 	return String(row.titles[i]) if i >= 0 else v
+
+
+## The text of a value for the screen. A row with `format_number` writes a numeric value into its title (a "Track %d" key).
+static func title_text(row: Dictionary, v: String) -> String:
+	var title := title_of(row, v)
+	if row.get("format_number", false) and v.is_valid_int():
+		return Lang.f(title, [int(v)])
+	return Lang.t(title)
 
 
 ## The props the game gets: the props of its registry entry and the chosen value of each row (REQ-GM-93).

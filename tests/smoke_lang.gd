@@ -167,7 +167,7 @@ func _run() -> void:
 		for r in GameSettings.rows_for(g):
 			games_ok = games_ok and _has_he(String(r.label))
 			for t in r.titles:
-				games_ok = games_ok and (_has_he(String(t)) or String(t).begins_with("Track "))
+				games_ok = games_ok and _has_he(String(t))
 	_check(games_ok, "every game title, description, setting row and value is a key with a Hebrew text")
 	var medals_ok := true
 	for m in ["bronze", "silver", "gold", ""]:

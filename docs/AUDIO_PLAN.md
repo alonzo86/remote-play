@@ -23,6 +23,8 @@ Default: **A**, built so that C is possible (section 3.4). Music in "MIDI-like" 
 
 ### 2.1 Music
 
+The clip ids are the game ids. The games were renamed later: `maze` is Treasure Maze (was Tilt Maze), `marble_race` is Road Rally (was Marble Race), `snowball_splat` is Banana Party (was Snowball Splat); the names in this plan are the names of the time it was written.
+
 | Clip | Where | Mood | Length of the loop |
 |------|-------|------|--------------------|
 | `menu` | Logo (starts at once; if the system blocks audio it starts at the first key), Connect, Games, Settings, a game settings view | Bright, easy, slow to medium (about 112 BPM). Does not tire, because it plays for minutes | 32 bars of 4/4 (about 68 s) |

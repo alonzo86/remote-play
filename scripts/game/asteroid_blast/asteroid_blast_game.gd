@@ -206,17 +206,36 @@ func _game_draw() -> void:
 	Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("asteroid_blast.wave_n", [field.wave]), 32,
 			UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
 	_draw_wave_line()
-	if field.phase == SpaceField.Phase.REST:
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("asteroid_blast.wave_clear", [field.wave]), 72,
-				UiTheme.ACCENT)
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36 + 110.0),
-				Lang.f("asteroid_blast.next_wave_in", [ceili(field.phase_left())]), 48, UiTheme.TEXT)
-	elif field.phase_time < BANNER_TIME and _end_left < 0.0:
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("asteroid_blast.wave_n", [field.wave]), 72, UiTheme.ACCENT)
-	if _end_left >= 0.0:
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("asteroid_blast.all_ships_gone"), 72, UiTheme.ACCENT)
-	elif _time < COUNTDOWN + HINT_TIME:
+	match banner():
+		"wave_clear":
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("asteroid_blast.wave_clear", [field.wave]), 72,
+					UiTheme.ACCENT)
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36 + 110.0),
+					Lang.f("asteroid_blast.next_wave_in", [ceili(field.phase_left())]), 48, UiTheme.TEXT)
+		"wave_n":
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("asteroid_blast.wave_n", [field.wave]), 72,
+					UiTheme.ACCENT)
+		"all_ships_gone":
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("asteroid_blast.all_ships_gone"), 72, UiTheme.ACCENT)
+	if hint_shown():
 		Shell.hint(self, size, "asteroid_blast.tilt_steer_ship_shoots")
+
+
+## The big banner in the middle (REQ-AB-16): "all_ships_gone" once the last ship is out, "wave_clear" in the rest, "wave_n" for
+## BANNER_TIME at the start of a wave, else "". Only one at a time, so two plates never share a spot.
+func banner() -> String:
+	if _end_left >= 0.0:
+		return "all_ships_gone"
+	if field.phase == SpaceField.Phase.REST:
+		return "wave_clear"
+	if field.phase_time < BANNER_TIME:
+		return "wave_n"
+	return ""
+
+
+## True while the hint line shows: in the countdown and for HINT_TIME after GO, never after the last ship is out (REQ-AB-16).
+func hint_shown() -> bool:
+	return _end_left < 0.0 and _time < COUNTDOWN + HINT_TIME
 
 
 ## The line at the bottom of the bar: how much of the wave (or of the rest) is left.

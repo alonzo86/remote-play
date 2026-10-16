@@ -92,7 +92,39 @@ func _run() -> void:
 	await _stream(clients, 2.5, [flat, flat, flat])
 	_check(not game._clock.is_counting() and game.field.phase_time > 0.0, "the wave begins after the countdown (REQ-AB-8)")
 	await _stream(clients, 1.0, [flat, flat, flat])
-	_check(game.field.beams.size() > 0 or game.field.scores[0] > 0, "the ships fire by themselves (REQ-AB-4)")
+	_check(game.field.beams.size() > 0, "the ships fire by themselves (REQ-AB-4)")
+
+	# Banners and the hint (REQ-AB-16): one banner at a time, the hint only at the start.
+	var phase_was: int = game.field.phase
+	var phase_time_was: float = game.field.phase_time
+	var time_was: float = game._time
+	game.field.phase = Field.Phase.WAVE
+	game.field.phase_time = 0.5
+	var start_banner: String = game.banner()
+	game.field.phase_time = 3.0
+	var no_banner: String = game.banner()
+	game.field.phase = Field.Phase.REST
+	game.field.phase_time = 0.5
+	var rest_banner: String = game.banner()
+	game._end_left = 1.0
+	var end_banner: String = game.banner()
+	_check(start_banner == "wave_n" and no_banner == "" and rest_banner == "wave_clear" and end_banner == "all_ships_gone",
+			"one banner at a time: Wave N, none, Wave clear, All ships are gone: %s %s %s %s"
+			% [start_banner, no_banner, rest_banner, end_banner])
+	game._end_left = -1.0
+	game._time = 1.0
+	var hint_early: bool = game.hint_shown()
+	game._time = game.COUNTDOWN + game.HINT_TIME + 0.1
+	var hint_late: bool = game.hint_shown()
+	game._time = 1.0
+	game._end_left = 1.0
+	var hint_end: bool = game.hint_shown()
+	_check(hint_early and not hint_late and not hint_end,
+			"the hint shows in the countdown and 5 s after GO, not later and not at the end")
+	game._end_left = -1.0
+	game.field.phase = phase_was
+	game.field.phase_time = phase_time_was
+	game._time = time_was
 
 	# Events: sounds, haptics and explosions (REQ-AB-15).
 	game._booms.clear()
@@ -155,16 +187,34 @@ func _run() -> void:
 		solo_labels.append(l.text)
 	_check(solo.is_over and solo_labels.has("REACHED WAVE 4"), "one player sees the wave that was reached: %s" % str(solo_labels))
 
+	# Equal points: the title says Tie (REQ-AB-14).
+	app.go(Blast, {"difficulty": "medium"})
+	await _frames(3)
+	var tie: Control = app.current_screen()
+	tie._on_player_left(2)
+	tie._clock.time = 0.0
+	tie.field.scores[0] = 80
+	tie.field.scores[1] = 80
+	tie.field.ships[0].alive = false
+	tie.field.ships[1].alive = false
+	tie._game_tick(0.016)
+	tie._game_tick(2.1)
+	await _frames(3)
+	var tie_labels: Array = []
+	for l in tie._menu_box.find_children("*", "Label", true, false):
+		tie_labels.append(l.text)
+	_check(tie.is_over and tie_labels.has("TIE!"), "equal points end with a Tie title: %s" % str(tie_labels))
+
 	# The layout (REQ-AB-16): the play area is inside the margin at two sizes.
 	var fits_ok := true
 	for res in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
 		root.size = res
 		await _frames(4)
-		var fit: Dictionary = solo._fit()
+		var fit: Dictionary = tie._fit()
 		var area_end: Vector2 = fit.origin + Field.REF_AREA * float(fit.k)
-		var unit: float = solo.size.y / 1080.0
-		fits_ok = fits_ok and fit.origin.x >= 59.0 and area_end.x <= solo.size.x - 59.0 and fit.origin.y >= 149.0 * unit - 1.0 \
-				and area_end.y <= solo.size.y - 59.0 * unit + 1.0
+		var unit: float = tie.size.y / 1080.0
+		fits_ok = fits_ok and fit.origin.x >= 59.0 and area_end.x <= tie.size.x - 59.0 and fit.origin.y >= 149.0 * unit - 1.0 \
+				and area_end.y <= tie.size.y - 59.0 * unit + 1.0
 	_check(fits_ok, "the play area is inside the margin and under the HUD at 1280x720 and 1920x1080 (REQ-AB-16)")
 	root.size = Vector2i(1920, 1080)
 	await _frames(3)

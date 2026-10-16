@@ -143,7 +143,7 @@ static func wave_speed(n: int) -> float:
 ## The time between two asteroids in wave `n` with `ships_alive` living ships at the factor `spawn` (REQ-AB-9).
 static func spawn_every(n: int, ships_alive: int, spawn := 1.0) -> float:
 	var every := SPAWN_BASE / (1.0 + SPAWN_PER_WAVE * float(n - 1)) / (1.0 + SPAWN_PER_PLAYER * float(maxi(ships_alive, 1) - 1))
-	return maxf(every, SPAWN_MIN) / spawn
+	return maxf(every / spawn, SPAWN_MIN)
 
 
 ## The chance weights of the three sizes in wave `n`: [small, medium, large]. Big asteroids come more often in later waves.
