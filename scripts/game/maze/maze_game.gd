@@ -43,9 +43,9 @@ class Ball:
 ## Set before the game starts (REQ-GM-93). `start_props` keeps it for Restart.
 var difficulty := "medium"
 var maze_theme := DEFAULT_THEME   # A key of `MazeBoard.THEMES` (REQ-MZ-12). An unknown one gives the default.
-var cols := 17
-var rows := 9
-var cell := 96.0
+var cols := 16
+var rows := 8
+var cell := 108.0
 
 var _maze := MazeGenerator.new()
 var _walls: Array[Rect2] = []
@@ -53,7 +53,8 @@ var _balls: Array[Ball] = []
 var _round := RoundClock.new()
 var _haptics := Haptics.new()
 var _winner := -1
-var _board_tex: ImageTexture   # The picture of the ground and the walls, made once (`MazeBoard`).
+var _board_tex: ImageTexture   # The picture of the ground and the walls (`MazeBoard`), made again when `size` changes.
+var _board_size := Vector2.ZERO   # The `size` the picture was made for: the walls and the balls share one origin.
 var _ring_time := 0.0   # Game time for the exit ring: it stands still while the game is paused (REQ-FL-43).
 
 
@@ -251,8 +252,9 @@ func _pixel_world() -> bool:
 
 ## The world (REQ-GM-47i): the picture of the board (ground, walls, start cell), the chest and the balls.
 func _world_draw(ci: CanvasItem) -> void:
-	if _board_tex == null:
-		_board_tex = _make_board_texture()   # At the first frame, when the size of the screen is known.
+	if _board_tex == null or _board_size != size:
+		_board_tex = _make_board_texture()   # At the first frame, and again when the size of the screen changes.
+		_board_size = size
 	ci.draw_texture_rect(_board_tex, Rect2(Vector2.ZERO, size), false)
 	var o := Shell.snap(_origin())
 	_draw_chest(ci, o + _exit_center())

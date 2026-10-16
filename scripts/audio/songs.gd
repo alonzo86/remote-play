@@ -158,10 +158,10 @@ static func effects() -> Dictionary:
 	fx["time_low"] = [_blip(1000.0, 1000.0, 0.025, 0.15)]
 	fx["win"] = _run(["C5", "E5", "G5", "C6", "G5", "C6"], 0.15, 0.33, 0.5, 1.0)
 	fx["tie"] = _run(["E5", "G5", "E5"], 0.2, 0.3, 0.5, 1.0)
-	# Tilt Maze.
+	# Treasure Maze.
 	fx["maze_bump"] = [_blip(180.0, 120.0, 0.04, 0.22, 0.25)]
 	fx["maze_exit"] = _run(["C5", "E5", "G5", "C6"], 0.09, 0.35)
-	# Marble Race.
+	# The Amazing Race.
 	fx["marble_wall"] = [_noise(5000.0, 3000.0, 0.03, 0.2), _blip(700.0, 500.0, 0.03, 0.15, 0.25)]
 	fx["marble_wall_hard"] = [_noise(6000.0, 3000.0, 0.04, 0.28), _blip(1000.0, 650.0, 0.04, 0.2, 0.25)]
 	fx["marble_bumper"] = [_blip(300.0, 900.0, 0.12, 0.33, 0.25)]
@@ -178,7 +178,7 @@ static func effects() -> Dictionary:
 	fx["sumo_dash"] = [_noise(2000.0, 9000.0, 0.15, 0.25)]
 	fx["sumo_fall"] = [_blip(1200.0, 180.0, 0.5, 0.3)]
 	fx["sumo_round_win"] = _run(["C5", "E5", "G5", "C6"], 0.1, 0.35)
-	# Snowball Splat.
+	# Banana Party.
 	fx["snow_throw"] = [_noise(6000.0, 12000.0, 0.07, 0.2)]
 	fx["snow_hit"] = [_noise(4000.0, 1500.0, 0.1, 0.28), _blip(300.0, 700.0, 0.1, 0.3, 0.25, 0.08)]
 	fx["snow_miss"] = [_noise(3000.0, 1500.0, 0.06, 0.1)]

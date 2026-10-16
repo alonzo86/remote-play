@@ -161,6 +161,16 @@ func _space_field() -> void:
 	f._ship_contacts()
 	_check(f.all_lost() and not SpaceField.new().all_lost(), "when the last ship is gone every ship is lost (REQ-AB-14)")
 
+	# Two asteroids touch a shielded ship in one tick: one force field, the ship lives.
+	f = _field([900.0])
+	f.ships[0].shield = true
+	var twin1 := f._make(0, 890.0, SpaceField.SHIP_Y - 20.0, rng)
+	var twin2 := f._make(0, 910.0, SpaceField.SHIP_Y - 20.0, rng)
+	f._ship_contacts()
+	_check(f.ships[0].alive and not f.ships[0].shield and not f.asteroids.has(twin1) and not f.asteroids.has(twin2)
+			and f.events.filter(func(e: Dictionary) -> bool: return e.t == "shield_pop").size() == 1,
+			"two asteroids in one tick cost one force field, not the ship (REQ-AB-12)")
+
 	# Upgrades (REQ-AB-10, 11).
 	f = _field([900.0])
 	var ship: SpaceField.Ship = f.ships[0]

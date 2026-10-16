@@ -13,15 +13,17 @@ const GOLD_LIGHT := Color("ffe66e")
 const GOLD_FRAME := Color("ffd73c")
 const ROLLER_FRAME := Color("ffffff")
 const POT_SIZE := 11   # World pixels, with the outline.
+const GHOST_BODY := Color("9678ff")   # The tints of the hidden picture, as constants: they are used for every tile of a frame.
+const GHOST_ACCENT := Color("46dcbe")
 
 
 ## The color of a tile that nobody has painted, for the part `kind` of the picture. `empty` is the color of an empty tile.
 static func ghost(kind: int, empty: Color) -> Color:
 	match kind:
 		PaintPicture.BODY:
-			return empty.lerp(Color("9678ff"), 0.45)
+			return empty.lerp(GHOST_BODY, 0.45)
 		PaintPicture.ACCENT:
-			return empty.lerp(Color("46dcbe"), 0.5)
+			return empty.lerp(GHOST_ACCENT, 0.5)
 		PaintPicture.EYE:
 			return empty.lerp(Color.WHITE, 0.7)
 	return empty.lerp(Color.BLACK, 0.25)

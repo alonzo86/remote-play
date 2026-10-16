@@ -107,7 +107,11 @@ func _round_trip() -> void:
 	var big := ProfileCode.encode(_profile(ID_A, "אבגדהוזחטי", 15, 300, all))
 	var back = ProfileCode.decode(big).get("profile")
 	_check(back != null and back.bests == all and not QrEncoder.encode(big).is_empty(),
-			"the largest profile (36 bests, a name of 20 bytes) is read back and fits in a QR code: %d characters" % big.length())
+			"the largest profile (39 bests, a name of 20 bytes) is read back and fits in a QR code: %d characters" % big.length())
+	var blast := {"asteroid_blast|easy": 800, "asteroid_blast|medium": 1800, "asteroid_blast|hard": 3200}
+	var blast_back = ProfileCode.decode(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, blast))).get("profile")
+	_check(blast_back != null and blast_back.bests == blast,
+			"the bests of keys 37 to 39 (Galaxy Protector) survive a code (REQ-AB-18)")
 	var small := ProfileCode.encode(_profile(ID_A, "Maya", 1))
 	_check(small.length() < 70 and not QrEncoder.encode(small).is_empty(),
 			"a profile with no bests is short: %d characters" % small.length())

@@ -4,7 +4,7 @@ extends RefCounted
 ## Positions are in pixels of the play area at 1920x1080 (`REF_AREA`). `center_of()` turns them into screen pixels.
 
 ## The kinds, one for each animal. `radius` is the hit circle. The speed of an animal is the speed of its lane, so a fast animal
-## never catches a slow one (REQ-SS-8). The golden monkey is the bonus: it has its own speed (REQ-SS-23).
+## never catches a slow one (REQ-SS-8). The golden monkey is the bonus: it has its own speed (REQ-SS-25).
 const KINDS := {
 	"monkey": {"points": 25, "radius": 72.0},
 	"lemur": {"points": 25, "radius": 72.0},
@@ -144,7 +144,7 @@ static func center_of(p: Puff, area: Rect2) -> Vector2:
 
 ## Moves the animals, removes the ones that walked out of the other edge (no points, no loss), and brings a new one every
 ## `spawn_every` of the difficulty (SPAWN_EVERY at Medium). The bonus comes by itself, first after BONUS_FIRST seconds and then
-## after BONUS_MIN to BONUS_MAX (REQ-SS-23). Returns the number of animals that walked away.
+## after BONUS_MIN to BONUS_MAX (REQ-SS-25). Returns the number of animals that walked away.
 func tick(dt: float, rng: RandomNumberGenerator, players: int) -> int:
 	var away := 0
 	for i in range(puffs.size() - 1, -1, -1):
@@ -192,7 +192,7 @@ func spawn(rng: RandomNumberGenerator, players: int) -> Puff:
 
 
 ## Adds the golden monkey in a lane where it cannot run into an animal, or none when one is on the screen already or no lane
-## is safe (REQ-SS-23). The bonus is faster than the others, so a lane is safe when every animal in it will be out of the screen
+## is safe (REQ-SS-25). The bonus is faster than the others, so a lane is safe when every animal in it will be out of the screen
 ## before the bonus can reach it.
 func spawn_bonus(rng: RandomNumberGenerator) -> Puff:
 	for p in puffs:

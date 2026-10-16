@@ -152,8 +152,11 @@ func _paint_pots() -> void:
 	_check(pots.tick(PaintPots.FIRST - 1.0, rng, 16, 9, []) == null and pots.pots.is_empty(), "no pot before the first 8 s")
 	var first := pots.tick(1.5, rng, 16, 9, [])
 	_check(first != null and pots.pots.size() == 1, "the first pot lands after 8 s")
-	_check(pots.tick(30.0, rng, 16, 9, []) == null and pots.pots.size() == 0 or pots.pots.size() <= 1,
-			"only one pot is on the floor at a time")
+	var most := pots.pots.size()
+	for i in 240:   # Two minutes in half seconds: pots land, wait and go away.
+		pots.tick(0.5, rng, 16, 9, [])
+		most = maxi(most, pots.pots.size())
+	_check(most == 1, "only one pot is on the floor at a time, and more land later: most at once = %d" % most)
 	var gone := PaintPots.new()
 	var pot := gone.tick(PaintPots.FIRST, rng, 16, 9, [])
 	pot.age = PaintPots.LIFE - PaintPots.BLINK + 0.1

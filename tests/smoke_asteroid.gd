@@ -101,7 +101,8 @@ func _run() -> void:
 			{"t": "ship_lost", "x": 5.0, "y": 5.0, "slot": 2}, {"t": "upgrade_taken",
 					"slot": 0}, {"t": "wave_end"}, {"t": "wave_start"}]:
 		game._on_event(e)
-	_check(game._booms.size() == 3 and game._booms[0].scale > game._booms[1].scale - 0.5,
+	_check(game._booms.size() == 3 and is_equal_approx(game._booms[0].scale, game.BOOM_SCALE[2])
+			and is_equal_approx(game._booms[1].scale, 0.8) and is_equal_approx(game._booms[2].scale, 1.6),
 			"kills, shield pops and lost ships make explosions (REQ-AB-15)")
 
 	# The score goes to the board, the phones and the leader chip (REQ-GM-46).

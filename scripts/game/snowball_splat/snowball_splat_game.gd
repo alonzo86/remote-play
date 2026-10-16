@@ -38,6 +38,10 @@ const HIT_LIFE := 1.0           # Seconds of the hit animation of an animal (REQ
 const HIT_HOP := 0.5            # The jump at the start of it.
 const HIT_HEIGHT := 72.0        # How high the animal jumps (px).
 const POOF_LIFE := 0.35
+const CHEER_GOLD := Color("ffd23f")   # The colors of the cheer effects, as constants (no parsing in a frame).
+const CHEER_YELLOW := Color("ffe878")
+const CHEER_WATER := Color("78c8ff")
+const CHEER_HEART := Color("ff6ea0")
 
 class Thrower:
 	var slot := 0
@@ -387,7 +391,7 @@ func _draw_cheer(ci: CanvasItem, e: Effect, center: Vector2, t: float) -> void:
 	for i in 4 + (6 if gold else 0):   # Sparkles in a ring that turns in 4 steps.
 		var a := float(i) / float(4 + (6 if gold else 0)) * TAU + floorf(t * 8.0) * 0.4
 		var pos := Shell.snap(center + Vector2(cos(a), sin(a) * 0.8) * reach * (1.0 + 0.12 * float(i % 3)))
-		var color := Color.WHITE if i % 2 == 0 else (Color("ffd23f") if gold else Color("ffe878"))
+		var color := Color.WHITE if i % 2 == 0 else (CHEER_GOLD if gold else CHEER_YELLOW)
 		ci.draw_rect(Rect2(pos - Vector2(px, 0.0), Vector2(3.0 * px, px)), color)
 		ci.draw_rect(Rect2(pos - Vector2(0.0, px), Vector2(px, 3.0 * px)), color)
 	match e.species:
@@ -397,15 +401,15 @@ func _draw_cheer(ci: CanvasItem, e: Effect, center: Vector2, t: float) -> void:
 				for i in 6:
 					var v := Vector2(e.dir * (60.0 + 40.0 * float(i % 3)), -260.0 + 30.0 * float(i))
 					var p := Shell.snap(origin + v * e.age + Vector2(0.0, 520.0) * e.age * e.age)
-					ci.draw_rect(Rect2(p, Vector2.ONE * 2.0 * px), Color("78c8ff"))
+					ci.draw_rect(Rect2(p, Vector2.ONE * 2.0 * px), CHEER_WATER)
 		"orangutan":   # Hearts that float up.
 			for i in 3:
 				var h := Shell.snap(center + Vector2((float(i) - 1.0) * e.radius * 0.7, -e.radius * 0.9 - e.age * 70.0 - float(i) * 12.0))
 				if e.age > 0.2:
-					ci.draw_rect(Rect2(h, Vector2(px, px)), Color("ff6ea0"))
-					ci.draw_rect(Rect2(h + Vector2(2.0 * px, 0.0), Vector2(px, px)), Color("ff6ea0"))
-					ci.draw_rect(Rect2(h + Vector2(0.0, px), Vector2(3.0 * px, px)), Color("ff6ea0"))
-					ci.draw_rect(Rect2(h + Vector2(px, 2.0 * px), Vector2(px, px)), Color("ff6ea0"))
+					ci.draw_rect(Rect2(h, Vector2(px, px)), CHEER_HEART)
+					ci.draw_rect(Rect2(h + Vector2(2.0 * px, 0.0), Vector2(px, px)), CHEER_HEART)
+					ci.draw_rect(Rect2(h + Vector2(0.0, px), Vector2(3.0 * px, px)), CHEER_HEART)
+					ci.draw_rect(Rect2(h + Vector2(px, 2.0 * px), Vector2(px, px)), CHEER_HEART)
 
 
 func _draw_cursor(ci: CanvasItem, t: Thrower) -> void:

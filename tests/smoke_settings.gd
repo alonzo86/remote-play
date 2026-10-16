@@ -112,21 +112,21 @@ func _run() -> void:
 			"Start begins a Hard maze (18 x 9)")
 	_check(game.start_props.difficulty == "hard", "Restart keeps the difficulty (REQ-GM-93)")
 	_check(game.maze_theme == "ice" and game.start_props.maze_theme == "ice", "Start and Restart keep the theme (REQ-MZ-12)")
-	# Snowball Splat has the same view, and Hard reaches the game and its field (REQ-SS-20).
+	# Banana Party has the same view, and Hard reaches the game and its field (REQ-SS-20).
 	var Snow = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
 	app.go_game_settings("snowball_splat")
 	await _frames(4)
 	sv = app.current_screen()
 	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 1 and sv.rows[0].value == "medium",
-			"Snowball Splat opens the settings view with Difficulty on Medium")
+			"Banana Party opens the settings view with Difficulty on Medium")
 	sv.rows[0]._gui_input(right)
 	sv.start()
 	await _frames(4)
 	var snow: Control = app.current_screen()
 	_check(is_instance_of(snow, Snow) and snow.difficulty == "hard" and snow._field._speed == 1.5
 			and snow.start_props.difficulty == "hard",
-			"Start begins a Hard Snowball Splat, and Restart keeps it")
-	# Marble Race: the track list under Difficulty (REQ-MR-53, 54).
+			"Start begins a Hard Banana Party, and Restart keeps it")
+	# The Amazing Race: the track list under Difficulty (REQ-MR-53, 54).
 	var Race = load("res://scripts/game/marble_race/marble_race.gd")
 	var MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
 	app.go_game_settings("marble_race")

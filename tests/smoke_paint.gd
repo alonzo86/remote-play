@@ -168,6 +168,19 @@ func _run() -> void:
 	_check(patch_ok and game._pots.pots.is_empty() and game._board.score(1) == game.floor_map.count(1)
 			and game._board.score(0) == game.floor_map.count(0),
 			"a blob on the gold pot paints the 3 x 3 patch, takes tiles of the other player, and the scores follow (REQ-PG-23)")
+	# A player leaves while a pot lies on the floor: the pot stays for the others (REQ-GM-21, REQ-PG-23).
+	var left_body = game._bodies[0]
+	game._bodies.erase(0)
+	var lone = PaintPots.Pot.new()
+	lone.kind = PaintPots.ROLLER
+	lone.cell = Vector2i(2, 2)
+	game._pots.pots.append(lone)
+	game._bodies[1].pos = Vector2(1500.0, 800.0)
+	game._tick_pots(0.016)
+	_check(game._pots.pots.size() == 1 and game._pots.pots[0] == lone and game.floor_map.owner_of(Vector2i(2, 2)) != 1,
+			"a pot stays on the floor when a player leaves and nobody stands on it (REQ-PG-23)")
+	game._pots.pots.clear()
+	game._bodies[0] = left_body
 	# The sounds of the blobs (docs/AUDIO_PLAN.md, section 4.3).
 	var sound: Node = root.get_node("Sound")
 	var heard: Array[String] = []

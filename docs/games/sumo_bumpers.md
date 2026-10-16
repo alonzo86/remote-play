@@ -55,7 +55,7 @@ Players and feedback
 |----|-------------|--------|-------|
 | REQ-SB-12 | A player who leaves takes the bumper out and keeps no points in the ranking (REQ-GM-21). When one player is left, the match ends at once with the result menu. When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sumo |
 | REQ-SB-13 | A lost phone pauses the match with the card of REQ-GM-30. Nothing runs during the pause (the shrink, the countdown). | Done | smoke_tv (shared base class) |
-| REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). In the countdown of each round every bumper has a name tag (REQ-GM-46a). A bumper has no number on it (REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points, phones), game_helpers (leader, tags), Device (RECENTER) |
+| REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). In the countdown of each round every bumper has a name tag (REQ-GM-46a). A bumper has no number on it (REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Device | smoke_sumo (points, phones), game_helpers (leader, tags), Device (RECENTER) |
 
 Look
 

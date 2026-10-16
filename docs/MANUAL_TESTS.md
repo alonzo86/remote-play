@@ -52,7 +52,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Pass | R0 | |
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A1, A3, B1, B2 | Fail | R0 | |
-| [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95 | Partial (items 1 to 3 Pass, 4 to 6 not run) | R1 | |
+| [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, REQ-MZ-6, REQ-MZ-8, REQ-MZ-9, REQ-GM-37, REQ-GM-90 to 95 | Partial (items 1 to 3 Pass, 4 to 7 not run) | R1 | |
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Fail (item 1, fixed, retest) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
@@ -329,7 +329,7 @@ Needs: 1 to 2 phones, 1 TV. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, FD-1 to 17. I
 | 7 | (Moved to Test 17.) Photos of the Connect and Games screens on a TV set to Hebrew; of the phone set to Hebrew | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the TV is set to the IL region and Hebrew. The text was English, but the layout was mirrored (right to left). Fixed on 2026-10-09 (REQ-FL-54): the app sets the locale to English and the layout to left to right. Retest on the TV. The phone was not tried. |
 | 8 | Video of the arrow keys to OPTIONS and in the Players modal; photo of a focused tile in Hebrew | Not run | | | |
 | 9 | Photos of the messages in English and Hebrew | Not run | | | |
-| 10 | Photos of Settings scrolled, a focused tile in Hebrew, the HUD of Marble Race in Hebrew, the result menu, the phone header | Not run | | | |
+| 10 | Photos of Settings scrolled, a focused tile in Hebrew, the HUD of The Amazing Race in Hebrew, the result menu, the phone header | Not run | | | |
 
 History:
 
@@ -406,7 +406,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 
 **Steps**
 
-1. Start **Snowball Splat** with 1 phone. Hold the phone toward the TV during "3, 2, 1" and press nothing. Check: a cursor ring in the player color follows the phone, a throw in the countdown does nothing, and at "GO" the cursor is in the middle of the screen. (REQ-SS-1, 2)
+1. Start **Banana Party** with 1 phone. Hold the phone toward the TV during "3, 2, 1" and press nothing. Check: a cursor ring in the player color follows the phone, a throw in the countdown does nothing, and at "GO" the cursor is in the middle of the screen. (REQ-SS-1, 2)
 2. Move the phone left, right, up and down. Check: the cursor moves the same way on the screen. Write down if the cursor is too fast or too slow for the distance from the sofa, and if you need a big arm movement to reach the corners. (`pointer_range_deg` in `orientation.gd`, REQ-SS-3)
 3. Hold the phone still for 40 seconds. Check: the cursor stays where it is. Write down how far it drifted (in cm on the screen). Tap **RECENTER**. Check: the cursor goes to the middle. (RISKS A4, REQ-GM-37)
 4. Press **A**. Check: a banana flies to the cursor. When it lands on an animal, the animal jumps, closes its eyes happily, shows its own cheer (gorilla shakes, sloth wiggles, lemur turns, elephant sprays water, orangutan has hearts, monkey has sparkles), the points show, and the phone buzzes a little. When it lands on empty ground, a poof shows, nothing is lost, and you can throw again after a moment. Press B. Check: nothing happens. (REQ-SS-4 to 6, 13)
@@ -415,8 +415,8 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 7. Play with 2 to 4 phones. Check: all players see the same animals. Two players throw at the same Puff: the one who threw first gets it. Check the frame rate in the debug overlay with 4 players (60 expected). (REQ-SS-11, REQ-GM-50)
 8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "2P LOST CONNECTION". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
 9. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint and a few seconds of play, hits some animals, is not frustrated or scared, and wants to play again. Write down the age and what the child said or did. (REQ-GM-80 to 84, REQ-SS-17)
-10. Open the tile of **Snowball Splat**: the settings view opens. Play one round alone on each of Easy, Medium and Hard. Check: Easy has slow animals and more of them, Hard has fast animals and fewer, Hard is a challenge but not impossible, and the medal title names the difficulty ("Silver medal! (Hard)"). Write down the score of each round to tune the tiers (Easy [170, 340, 510], Medium [150, 300, 450], Hard [120, 240, 360]).
-11. **Jungle look (2026-10-16, REQ-SS-12).** From the sofa (about 3 m), look at the jungle. Check: the animals, the bananas and the cursor rings are sharp pixels, each animal can be named (monkey, lemur, orangutan, sloth, gorilla, elephant), the player colors of the rings are easy to tell apart on the green ground, the points "+10" are easy to read, and the leaves and vines do not hide the animals. Does the walk (a bob, no legs) look alive enough? Check the bushes (REQ-SS-26): an animal that walks behind a bush is covered and a banana at it does nothing; Easy has 3 bushes, Medium 5, Hard 8; are they too many or too few? Write down if the cursor and the banana are easy to follow.
+10. Open the tile of **Banana Party**: the settings view opens. Play one round alone on each of Easy, Medium and Hard. Check: Easy has slow animals and more of them, Hard has fast animals and fewer, Hard is a challenge but not impossible, and the medal title names the difficulty ("Silver medal! (Hard)"). Write down the score of each round to tune the tiers (Easy [170, 340, 510], Medium [150, 300, 450], Hard [120, 240, 360]).
+11. **Jungle look (2026-10-16, REQ-SS-12).** From the sofa (about 3 m), look at the jungle. Check: the animals, the bananas and the cursor rings are sharp pixels, each animal can be named (monkey, lemur, orangutan, sloth, gorilla, elephant), the player colors of the rings are easy to tell apart on the green ground, the points "+10" are easy to read, and the leaves and vines do not hide the animals. Does the walk (a bob, no legs) look alive enough? Check the bushes (REQ-SS-26): an animal that walks behind a bush is covered and a banana at it does nothing; Easy has 3 bushes, Medium 5, Hard 8; are they too many or too few? Write down if the cursor and the banana are easy to follow. Also check the bushes (REQ-SS-26): an animal is hidden, and cannot be hit, while its middle is behind a bush. Write down if a child finds it unfair that a visible part of an animal cannot be hit.
 
 **Results**
 
@@ -458,16 +458,16 @@ History:
 
 Needs: 1 to 4 phones, 1 TV. Covers: REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31.
 
-1 to 4 phones. Tests the ranked result menu that both games and Snowball Splat use. New. Added with the shared game code (PR 12).
+1 to 4 phones. Tests the ranked result menu that both games and Banana Party use. New. Added with the shared game code (PR 12).
 
 **Steps**
 
 1. Maze with 1 phone: finish the maze. Check: the title says '<name> wins!', the list has one row '1st  <name>  <time> s', and the buttons are Try again and **Back to menu**. The text is easy to read from the sofa.
 2. Maze with 2 to 4 phones: let one ball reach the exit first. Check: the winner is '1st' with a time, the other balls are listed as 'not finished' (nearest to the exit first), and the list and the buttons stay inside the screen edge (60 px).
-3. Marble Race with 4 phones on any track: let all marbles finish. Check: the list shows 4 rows with times, best first, and a title with the winner. The card with the list and the 3 buttons (Try again, New game, Back to menu) is inside the screen edge and can be read.
-4. Marble Race with 4 phones: let one marble finish and wait about 4 seconds for the end. Check: the marbles that did not finish are listed as 'not finished', the furthest first.
-5. Marble Race, at the results: choose **New game**. Check: the settings view opens with the last difficulty and track, and Back returns to the Games screen.
-6. Marble Race: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **New game** and **Back**, then open the results again if they are gone. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
+3. The Amazing Race with 4 phones on any track: let all cars finish. Check: the list shows 4 rows with times, best first, and a title with the winner. The card with the list and the 3 buttons (Try again, New game, Back to menu) is inside the screen edge and can be read.
+4. The Amazing Race with 4 phones: let one car finish and wait about 4 seconds for the end. Check: the cars that did not finish are listed as 'not finished', the furthest first.
+5. The Amazing Race, at the results: choose **New game**. Check: the settings view opens with the last difficulty and track, and Back returns to the Games screen.
+6. The Amazing Race: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **New game** and **Back**, then open the results again if they are gone. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
 7. Banana Party with 1 phone: play a full round. Check: the title is a medal ('Bronze medal!', 'Silver medal!', 'Gold medal!') or 'No medal this time', and the list has one row with the score. With 2 phones: the title names the winner, or says 'Tie!' for equal scores.
 
 **Results**
@@ -498,8 +498,8 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 
 1. Open the Games screen. Check: every game has a tile with its screenshot, title and player range, and the text is easy to read from the sofa.
 2. For each game, compare its tile with a photo of the game running. Check: the tile shows the same look (colors, outline, shapes) as the game, and the Games screen and the games look like one toy box.
-3. Check the tiles of **Treasure Maze** and **Marble Race**. The Marble Race tile was made again on 2026-10-09: 4 marbles on a bend before a post (Track 1, Hard). The Maze tile was made again too: 4 balls on the way to the exit, the new chip style. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
-4. Check the tile of **Snowball Splat** (made again on 2026-10-09): it shows the jungle, the animals, four players with scores, an animal that was just hit ("+10") and a banana in the air. Check that the cursors, the hit animal and the banana can be seen at the small size of the tile.
+3. Check the tiles of **Treasure Maze** and **The Amazing Race**. The The Amazing Race tile was made again on 2026-10-09: 4 cars on a bend before a post (Track 1, Hard). The Maze tile was made again too: 4 balls on the way to the exit, the new chip style. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
+4. Check the tile of **Banana Party** (made again on 2026-10-09): it shows the jungle, the animals, four players with scores, an animal that was just hit ("+10") and a banana in the air. Check that the cursors, the hit animal and the banana can be seen at the small size of the tile.
 
 **Results**
 
@@ -507,8 +507,8 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the Games screen | Not run | | | |
 | 2 | Photos: tile next to the game, for each game | Not run | | | |
-| 3 | Photos of the old and the new look, and a note | Not run | | | Marble Race and Maze tiles remade 2026-10-09 (4 marbles on a bend with posts; 4 balls on the way to the exit). |
-| 4 | Photo of the tile and of the running game | Not run | | | Snowball Splat tile remade 2026-10-09 (4 players, a hit, a snowball in the air). |
+| 3 | Photos of the old and the new look, and a note | Not run | | | The Amazing Race and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
+| 4 | Photo of the tile and of the running game | Not run | | | Banana Party tile remade 2026-10-09 (4 players, a hit, a snowball in the air). |
 
 History:
 
@@ -755,9 +755,9 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 2. In the same game, before anybody scores: no chip shows and the phones show only `2P` (or the profile name) and 0. Then score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
 3. Look at each phone during the game. Check: the line under the header row (not next to Disconnect) shows the place (1ST to 4TH) and the score (`2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out): the colored square, the player number and Leave are fully visible below the island or the notch, nothing is hidden at the top, at the bottom (the home bar) or at the side when you turn the phone, and A and B are fully on the screen (REQ-FL-68). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
 4. Play Paint Grab and Sumo Bumpers with 2 to 4 phones. Check the same as items 1 to 3. In Sumo Bumpers the name tags show again in the countdown of every round.
-5. Play Marble Race with 3 or 4 phones. Check: the leader chip names the first marble (with its time after the finish); the phones show their place; a marble that has not finished shows no time. Check that the old list of names at the left is gone.
+5. Play The Amazing Race with 3 or 4 phones. Check: the leader chip names the first car (with its time after the finish); the phones show their place; a car that has not finished shows no time. Check that the old list of names at the left is gone.
 6. Play Treasure Maze with 2 to 4 phones. Check: there is no chip during play (the maze has no score) and the phones show only `2P`.
-7. In every game, look at the countdown. Check: each player's name stands next to its own ball, marble, cursor, bumper or blob, in its color; the names do not cover each other (start the maze and Sumo with 4 phones); every name is complete; the tags are gone at GO. Write down where a tag hides something important.
+7. In every game, look at the countdown. Check: each player's name stands next to its own ball, car, cursor, bumper or blob, in its color; the names do not cover each other (start the maze and Sumo with 4 phones); every name is complete; the tags are gone at GO. Write down where a tag hides something important.
 8. A child of 5 to 8 years plays a game. Check: the child finds its own object by the name in the countdown and reads or understands the number on its phone. Write down what the child says.
 9. Set the TV to Hebrew and play one game with 2 phones. Check: the leader chip is at the left margin, the timer is at the left of the title, TIE reads "תיקו", and the phone header is readable.
 
@@ -769,7 +769,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 | 2 | Photo of TIE; photo of a 5-digit score | Not run | | | |
 | 3 | Photo of a phone header with place and score | Not run | | | |
 | 4 | Note for Paint Grab and Sumo Bumpers | Not run | | | |
-| 5 | Photo of the Marble Race HUD | Not run | | | |
+| 5 | Photo of the The Amazing Race HUD | Not run | | | |
 | 6 | Note: no chip in the maze | Not run | | | |
 | 7 | Photo of the countdown of each game | Not run | | | |
 | 8 | Note: the child, the age, what happened | Not run | | | |
@@ -798,9 +798,9 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 7. All 32 avatars on the four slot colors and on the smallest ball, from the sofa. A child of 5 to 8 years names five of them and finds its own avatar. Write down which avatars look alike.
 8. The same profile on a second phone joins the same TV while the TV is in a menu. Check: the older phone shows `YOUR PLAYER JOINED ANOTHER PHONE.` and goes to the Connect screen. Then repeat during a round: the second phone waits as a guest and nobody is removed.
 
-9. Play Banana Party, Paint Grab and Marble Race (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
+9. Play Banana Party, Paint Grab and The Amazing Race (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
 10. Close the app and open it again, then join another TV. Check: the profile and the bests are still there (play the same game and see that "BEFORE" is the old score).
-11. Play Treasure Maze, Sumo Bumpers and a random Marble Race track with a profile. Check: no NEW BEST! on the phone.
+11. Play Treasure Maze, Sumo Bumpers and a random The Amazing Race track with a profile. Check: no NEW BEST! on the phone.
 12. Share a profile to a second phone by QR: on the first phone open the list, tap SHARE on a row; on the second phone tap SCAN A PLAYER. Check: the second phone shows PLAYER ADDED. with the same name and avatar. Time how long the code takes to appear and to scan; try it from 30 cm and from 60 cm, with the screen at full and at low brightness.
 13. Share a player that the second phone already has, after a rename on the first phone (the name is newer there): the second phone shows PLAYER UPDATED. and has the newer name and avatar. Then rename on the second phone and scan the old copy again: the newer name stays.
 14. An iPhone: COPY CODE on one phone and PASTE A CODE on the iPhone (the iPhone has no scan button). Check the same result as item 12.
@@ -828,7 +828,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 | 14 | Note: the iPhone model and what happened | Not run | | | |
 | 15 | Photo of each message | Not run | | | |
 | 16 | Video of the dropdown, the +, the avatar line and Back | Not run | | | |
-| 17 | Photos of the waiting screen, the leader chip and the name tags (English and Hebrew), the marbles | Not run | | | |
+| 17 | Photos of the waiting screen, the leader chip and the name tags (English and Hebrew), the cars | Not run | | | |
 
 History:
 

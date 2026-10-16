@@ -85,7 +85,7 @@ What this means for the games that are not built yet. The decision is made in th
 | Game | Check against REQ-GM-80 to 84 |
 |------|--------------------------------|
 | Paint Grab | Fine: roll and paint. Use bright, friendly colors. |
-| Dodge Storm | "The last player standing" means a player is out and waits (REQ-GM-83). A hit should be a funny bump, and the player is back in the game after a few seconds. The hazards are soft and funny (balloons, snowflakes, rubber ducks), not dangerous things. |
+| Dodge Storm | "The last player standing" means a player is out and waits (REQ-GM-83). A hit should be a funny bump, and the player is back in the game after a few seconds (or keeps the points and waits only until the team game ends, REQ-GM-83). The hazards are soft and funny (balloons, snowflakes, rubber ducks), not dangerous things. |
 | Tilt Snake | "A hit on a tail removes you" is too harsh. A hit makes the snake short again and it goes on. The snake is a friendly made-up creature. |
 | Sumo Bumpers | Cartoon bumpers that bounce each other off a platform. A player who falls off comes back in the next round (a round is short). No fighting words. |
 

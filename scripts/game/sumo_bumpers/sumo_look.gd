@@ -5,7 +5,7 @@ extends RefCounted
 
 const Shell = preload("res://scripts/game/shell.gd")
 
-const PX := 4.0               # One world pixel in screen units (`Shell.WORLD_PIXEL`).
+const PX := Shell.WORLD_PIXEL   # One world pixel in screen units.
 const CELL := 24.0            # A square of the grass chess pattern: 6 world pixels.
 const OUTLINE := Color("101018")
 const SKY_TOP := Color("5eb8f0")

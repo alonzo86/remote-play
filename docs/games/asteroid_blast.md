@@ -1,7 +1,7 @@
 # Galaxy Protector (`asteroid_blast`)
 
 Type: 2D. Players: 1 to 4. Input: tilt (`PlayerInput.tilt()`, left and right), Recenter.
-General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84). Exceptions are in the first section.
+General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84).
 Code: `scripts/game/asteroid_blast/` (`space_field.gd` the rules, `blast_look.gd` the pictures, `asteroid_blast_game.gd` the screen).
 
 ## Goal
@@ -16,15 +16,13 @@ two waves, and every wave is harder than the one before.
 Registry entry: `description` (one line) and `tile` (`assets/tiles/asteroid_blast.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
 Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 48, 49). Check the tile next to the Games screen.
 
-## Gaps and exceptions
+## Gaps
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-81 | Exception | The ships shoot toy beams at lifeless rocks. There are no people, animals or creatures to hurt, no blood and no scary look. The ship "explodes" in a burst of colored pixels (REQ-AB-13) and nobody is shown hurt. |
-| REQ-GM-83 | Exception | A mistake costs nothing: here a hit ends the round of that player (the owner's decision). It stays gentle: a force field takes the first hit, a hit costs no points, the player keeps the points, and the wait is as long as the others fly, which is the game. The last ship ends the game, so nobody waits for long after the others are out (REQ-AB-14). |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 21). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
-| REQ-GM-80 to 84 | Note | Content: friendly little ships, gray rocks, round pickups, bright toy beams. The hint is one line. Texts are positive ("Wave 3 clear!"). |
+| REQ-GM-80 to 84 | Note | REQ-GM-81: the ships shoot toy beams at lifeless gray rocks; no person, animal or creature is hurt, and a ship that is hit bursts into colored pixels. REQ-GM-83: a hit costs no points; a player who is out keeps the points and watches, and the game ends when the last ship is out, so the wait lasts only as long as the others fly (REQ-AB-14). The hint is one line. Texts are positive ("Wave 3 clear!"). |
 
 ## Requirements
 

@@ -155,7 +155,8 @@ func _world_draw(ci: CanvasItem) -> void:
 	BlastLook.draw_stars(ci, _time)
 	BlastLook.draw_planet(ci, Vector2(size.x - 260.0, 300.0), 90.0)
 	for a in field.asteroids:
-		var tex := _picture("rock%d_%d" % [a.size, a.look], BlastLook.asteroid_image.bind(a.size, a.look, a.radius * k))
+		var tex := _picture("rock%d_%d_%d" % [a.size, a.look, roundi(k * 100.0)],
+				BlastLook.asteroid_image.bind(a.size, a.look, a.radius * k))
 		_draw_picture(ci, tex, o + Vector2(a.x, a.y) * k)
 	for u in field.upgrades:
 		_draw_picture(ci, _picture("up_" + u.kind, BlastLook.pickup_image.bind(u.kind)), o + Vector2(u.x, u.y) * k)
@@ -206,13 +207,13 @@ func _game_draw() -> void:
 			HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
 	_draw_wave_line()
 	if field.phase == SpaceField.Phase.REST:
-		_label(Vector2(size.x * 0.5, size.y * 0.36), Lang.f("Wave %d clear!", [field.wave]), 72, UiTheme.ACCENT)
-		_label(Vector2(size.x * 0.5, size.y * 0.36 + 110.0), Lang.f("Next wave in %d", [ceili(field.phase_left())]), 48,
-				UiTheme.TEXT)
+		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("Wave %d clear!", [field.wave]), 72, UiTheme.ACCENT)
+		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36 + 110.0),
+				Lang.f("Next wave in %d", [ceili(field.phase_left())]), 48, UiTheme.TEXT)
 	elif field.phase_time < BANNER_TIME and _end_left < 0.0:
-		_label(Vector2(size.x * 0.5, size.y * 0.36), Lang.f("Wave %d", [field.wave]), 72, UiTheme.ACCENT)
+		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("Wave %d", [field.wave]), 72, UiTheme.ACCENT)
 	if _end_left >= 0.0:
-		_label(Vector2(size.x * 0.5, size.y * 0.36), Lang.t("All ships are gone!"), 72, UiTheme.ACCENT)
+		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("All ships are gone!"), 72, UiTheme.ACCENT)
 	elif _time < COUNTDOWN + HINT_TIME:
 		Shell.hint(self, size, "Tilt to steer. Your ship shoots by itself. Grab the upgrades!")
 
@@ -224,13 +225,3 @@ func _draw_wave_line() -> void:
 	var w := full * clampf(field.phase_left() / total, 0.0, 1.0)
 	var color := UiTheme.ACCENT if field.phase == SpaceField.Phase.WAVE else SHIELD_LINE
 	draw_rect(Rect2(Shell.mx(self, AREA_MARGIN, w), BAR_LINE_Y, w, BAR_LINE_H), color)
-
-
-
-## A text on a black plate with a frame, centered at `at` (`at.y` is the baseline), so the stars behind it never hide it.
-func _label(at: Vector2, msg: String, font_size: int, color: Color) -> void:
-	var f := UiTheme.font()
-	var w := f.get_string_size(msg.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var plate := Rect2(at.x - w * 0.5 - 24.0, at.y - f.get_ascent(font_size) - 20.0, w + 48.0, f.get_height(font_size) + 40.0)
-	draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, Shell.CHIP_LINE), plate)
-	Shell.text_centered(self, at, msg, font_size, color)

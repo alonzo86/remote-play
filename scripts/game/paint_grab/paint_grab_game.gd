@@ -22,6 +22,7 @@ const EDGE_SOUND_SPEED := 250.0   # px/s. A slower hit at the edge makes no soun
 const LEAD_SOUND_TIME := 10.0     # s. The lead alert is in the last seconds.
 const POT_POP_TIME := 0.4      # The tiles that a pot paints pop for a longer time (REQ-PG-23).
 const POT_BUZZ_MS := 40
+const POT_BUZZ_GAP_MS := 150
 const POP_TIME := 0.15          # A painted tile grows and goes back in this time (REQ-PG-16).
 const HINT_TIME := 4.0
 const BOARD_TOP := 150.0        # The floor is the screen inside the margin, under the HUD.
@@ -148,8 +149,8 @@ func _apply_pot(slot: int, pot: PaintPots.Pot) -> void:
 			_pops[c.y * floor_map.cols + c.x] = POT_POP_TIME
 	for s in _bodies:
 		_board.set_score(s, floor_map.count(s))
-	Sound.sfx("paint_lead")
-	App.server.haptic(slot, POT_BUZZ_MS)
+	Sound.sfx("paint_tile")   # Not "paint_lead": that one says that someone took the lead.
+	_haptics.pulse(slot, POT_BUZZ_MS, POT_BUZZ_GAP_MS)   # REQ-GM-43
 
 
 ## In the last seconds of the round, a short alert when another blob takes the lead (docs/AUDIO_PLAN.md, section 4.3).

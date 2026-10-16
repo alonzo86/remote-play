@@ -182,7 +182,7 @@ func _spawning() -> void:
 	_check(not overlaps, "in 2 minutes two animals of one lane never overlap, also not the golden monkey (REQ-SS-8, 23)")
 	_check(not too_many and PuffField.max_puffs(3) == 6,
 			"never more than 3 + the number of players animals on the screen (REQ-SS-9)")
-	_check(bonus_seen > 0, "the golden monkey comes in 2 minutes (REQ-SS-23)")
+	_check(bonus_seen > 0, "the golden monkey comes in 2 minutes (REQ-SS-25)")
 	var lanes_hit := [0, 0, 0]
 	var rng3 := _rng(21)
 	for i in 3000:
@@ -217,11 +217,11 @@ func _spawning() -> void:
 		if when < 0.0 and first_bonus.puffs.any(func(p): return p.kind == PuffField.BONUS_KIND):
 			when = i * 0.1
 	_check(when >= PuffField.BONUS_FIRST - 0.2 and when <= PuffField.BONUS_FIRST + 8.0,
-			"the first golden monkey comes after %d s of play, a bit later when no lane is safe: %.1f s (REQ-SS-23)"
+			"the first golden monkey comes after %d s of play, a bit later when no lane is safe: %.1f s (REQ-SS-25)"
 			% [int(PuffField.BONUS_FIRST), when])
 	var gold := bonus.spawn_bonus(b_rng)
 	_check(gold != null and gold.kind == "golden" and gold.points == 100 and bonus.spawn_bonus(b_rng) == null,
-			"the bonus is one golden monkey at a time, worth 100 points (REQ-SS-23)")
+			"the bonus is one golden monkey at a time, worth 100 points (REQ-SS-25)")
 	var crowded := PuffField.new()
 	for lane in 3:
 		crowded.puffs.append(_puff(lane, 900.0 if PuffField.LANES[lane].dir > 0 else 900.0 - 300.0))
@@ -308,6 +308,11 @@ func _bushes() -> void:
 	var other_lane := _puff(0, 900.0, "monkey")
 	_check(f3.is_hidden(behind) and not f3.is_hidden(on_edge) and not f3.is_hidden(other_lane),
 			"an animal is hidden only behind a bush of its own lane, and not when it is mostly out (REQ-SS-26)")
+	var at_edge := _puff(1, 900.0, "elephant")
+	at_edge.x = 900.0 + PuffField.BUSH_HALF_W - at_edge.radius * 0.5
+	var past_edge := _puff(1, at_edge.x + 1.0, "elephant")
+	_check(f3.is_hidden(at_edge) and not f3.is_hidden(past_edge),
+			"an elephant is hidden up to the point where half of its radius is out of the bush, and not one pixel further (REQ-SS-26)")
 	f3.puffs.append(behind)
 	f3.puffs.append(other_lane)
 	_check(f3.hit(PuffField.center_of(behind, AREA), AREA) == null, "a banana cannot hit an animal behind a bush (REQ-SS-26)")
@@ -352,7 +357,7 @@ func _visual_rules() -> void:
 	_check(left.get_data() != right.get_data() and happy_img.get_data() != right.get_data(),
 			"an animal looks to the side it walks, and a hit animal has other eyes (REQ-SS-13)")
 	var golden: Image = BananaLook.animal_image("golden", false, 1)
-	_check(golden.get_data() != right.get_data(), "the golden monkey has its own picture (REQ-SS-23)")
+	_check(golden.get_data() != right.get_data(), "the golden monkey has its own picture (REQ-SS-25)")
 
 
 ## The maze difficulty (REQ-MZ-9).
@@ -371,11 +376,16 @@ func _maze_levels() -> void:
 			var m := MazeGenerator.new()
 			m.generate(int(lv.cols), int(lv.rows), rng, float(lv.openings))
 			solvable = solvable and m.is_solvable()
-			total += m.wall_rects(float(lv.cell), 12.0).size()
+			total += m.wall_rects(float(lv.cell), Maze.WALL).size()
 		walls[d] = total / 30.0
 		fits = fits and int(lv.cols) * float(lv.cell) + Maze.WALL <= 1800.0 and int(lv.rows) * float(lv.cell) + Maze.WALL <= 892.0
 	_check(solvable, "mazes of every difficulty are solvable")
 	_check(fits, "the board of every difficulty fits the screen under the HUD")
+	var gaps := {}   # The space between the HUD bar (112 px) and the outer edge of the walls at 1080p (REQ-MZ-7).
+	for d in ["easy", "medium", "hard"]:
+		gaps[d] = 540.0 + 34.0 - int(levels[d].rows) * float(levels[d].cell) * 0.5 - Maze.WALL * 0.5 - 112.0
+	_check(is_equal_approx(gaps.easy, 52.0) and is_equal_approx(gaps.medium, 16.0) and is_equal_approx(gaps.hard, 16.0),
+			"the walls stand 52 px (Easy) or 16 px (Medium, Hard) under the HUD bar (REQ-MZ-7): %s" % str(gaps))
 	_check(levels.easy.cols < levels.medium.cols and levels.medium.cols < levels.hard.cols
 			and levels.easy.rows < levels.medium.rows and levels.medium.rows < levels.hard.rows,
 			"the maze grows with the difficulty")

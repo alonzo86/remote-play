@@ -68,7 +68,7 @@ func _keys() -> void:
 	await _frames(2)
 	keys.paint = _app.current_screen().best_key()
 	_check(keys.snow == "snowball_splat|hard" and keys.paint == "paint_grab|easy",
-			"Snowball Splat and Paint Grab use the game and the difficulty")
+			"Banana Party and Paint Grab use the game and the difficulty")
 	_app.go(Blast, {"difficulty": "hard"})
 	await _frames(2)
 	keys.blast = _app.current_screen().best_key()

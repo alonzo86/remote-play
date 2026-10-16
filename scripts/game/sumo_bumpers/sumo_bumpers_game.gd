@@ -307,7 +307,7 @@ func _game_draw() -> void:
 		var f: Dictionary = _falling[s]
 		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
 			var above := Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6 - clampf(float(f.age) / FALL_TIME, 0.0, 1.0) * 30.0)
-			_label(c + (f.pos as Vector2) * k + above, Lang.t("Whee!"), 32, UiTheme.TEXT)
+			Shell.label_plate(self, c + (f.pos as Vector2) * k + above, Lang.t("Whee!"), 32, UiTheme.TEXT)
 	_draw_hud()
 
 
@@ -334,15 +334,6 @@ func _draw_hud() -> void:
 			spots[s] = Shell.snap(fit.center + (_bodies[s] as TiltBody).pos * float(fit.k))
 		draw_name_tags(self, spots, SumoArena.BUMPER_R * float(fit.k))
 	if phase == Phase.BANNER and not is_over:
-		_label(Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, 72, UiTheme.ACCENT)
+		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, 72, UiTheme.ACCENT)
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:
 		Shell.hint(self, size, "Tilt to bump the others off the platform! A dashes.")
-
-
-## A text on a black plate with a frame, centered at `at` (`at.y` is the baseline), so the sky behind it never hides it.
-func _label(at: Vector2, msg: String, font_size: int, color: Color) -> void:
-	var f := UiTheme.font()
-	var w := f.get_string_size(Lang.t(msg).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	var plate := Rect2(at.x - w * 0.5 - 24.0, at.y - f.get_ascent(font_size) - 20.0, w + 48.0, f.get_height(font_size) + 40.0)
-	draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, Shell.CHIP_LINE), plate)
-	Shell.text_centered(self, at, msg, font_size, color)

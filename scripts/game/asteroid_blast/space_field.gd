@@ -348,18 +348,22 @@ func _apply(s: Ship, u: Upgrade) -> void:
 
 
 ## An asteroid that touches a ship (REQ-AB-12, 13): a force field takes the hit and goes away, and the asteroid breaks into dust
-## (no points, no pieces). Without a force field the ship is lost.
+## (no points, no pieces). Without a force field the ship is lost. A force field that popped in this tick also takes the other
+## asteroids that touch the ship in the same tick (the two pieces of a large asteroid cost one force field, not the ship).
 func _ship_contacts() -> void:
 	var gone: Array[Asteroid] = []
+	var popped := {}
 	for a in asteroids:
 		for s in ships.values():
 			if not s.alive:
 				continue
 			if Vector2(a.x - s.x, a.y - SHIP_Y).length() <= a.radius + SHIP_R * 0.8:
-				if s.shield:
+				if s.shield or popped.has(s.slot):
+					if s.shield:
+						events.append({"t": "shield_pop", "slot": s.slot, "x": a.x, "y": a.y})
 					s.shield = false
+					popped[s.slot] = true
 					gone.append(a)
-					events.append({"t": "shield_pop", "slot": s.slot, "x": a.x, "y": a.y})
 				else:
 					s.alive = false
 					s.shield = false

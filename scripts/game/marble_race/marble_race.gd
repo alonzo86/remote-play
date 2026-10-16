@@ -302,6 +302,13 @@ func _make_board() -> void:
 	_board = RaceLook.render(race_theme, line, track.half_width, track.point_at(finish_arc), track.dir_at(finish_arc))
 	_board_tex = ImageTexture.create_from_image(_board.image)
 	_ground_tex = ImageTexture.create_from_image(RaceLook.ground_tile(race_theme))
+	var look: Dictionary = RaceLook.look(race_theme)   # All pictures now, so that nothing is built in the middle of the race.
+	for kind in look.obstacles:
+		_obstacle_texture(String(kind))
+	for kind in look.decor:
+		_decor_texture(String(kind))
+	for s in participants:
+		_car_texture(s)
 
 
 func _obstacle_texture(kind: String) -> ImageTexture:
@@ -382,7 +389,7 @@ func edge_markers() -> Array:
 			continue
 		var dir := (sp - center).normalized()
 		var t := minf(rect.size.x * 0.5 / maxf(absf(dir.x), 0.001), rect.size.y * 0.5 / maxf(absf(dir.y), 0.001))
-		out.append({"slot": s, "pos": center + dir * t, "dir": dir, "text": Lang.f("%d m", [roundi(r.arc - lead.arc)])})
+		out.append({"slot": s, "pos": center + dir * t, "dir": dir, "text": Lang.f("%d m behind", [roundi(lead.arc - r.arc)])})
 	return out
 
 
