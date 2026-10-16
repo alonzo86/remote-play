@@ -68,6 +68,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip, phone score and name tags | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-GM-46, 46a, FD-21 | Not run | | |
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
+| [21](#test-21) | Asteroid Blast (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-50 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -832,3 +833,48 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 History:
 
 - -: **Not run**. New.
+
+
+## Test 21
+
+### Asteroid Blast (tilt, waves, upgrades)
+
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+
+Hold each phone upright or flat as you do for the other tilt games. New game (2026-10-16). Every number (ship speed, the rate of fire, the asteroid speeds, the waves, the upgrade times, the medal tiers) is a first guess.
+
+**Steps**
+
+1. Open the tile of **Asteroid Blast** with 1 phone. Check: the settings view opens with Difficulty on Medium. Start. Check the tile against the game.
+2. Hold the phone steady in "3, 2, 1". Check: you can already move the ship, nothing falls and nothing fires, the name tags are over the ships, the hint line is readable, and at "GO!" the phone buzzes.
+3. Tilt left and right. Check: the ship moves the same way, smoothly, and stops at the sides. Write down if it is too slow, too fast or too nervous (`SHIP_SPEED`, `SHIP_SMOOTH`). Press **RECENTER** and check that the ship stays still while the phone is held at the new rest pose.
+4. Look at the shooting. Check: the ship fires by itself, the beams are easy to see in the color of the ship, the three sizes of asteroids are easy to tell apart, a large one needs 4 hits and breaks into two medium ones, a medium one into two small ones. Write down if the rate of fire feels too slow.
+5. Wait for an upgrade. Check: it comes after about 10 s, it is easy to tell the shield (blue) from the weapon (orange), a shield makes a ring around the ship, a weapon adds a beam (up to 4). Take a 5th weapon: check that you get points. Write down if upgrades come too often or too rarely.
+6. Let an asteroid hit the ship with the ring. Check: the ring goes away, the asteroid is gone, the ship flies on, the phone buzzes. Let one hit the ship without a ring. Check: the ship blows up, the phone buzzes, and the other ships go on.
+7. Play waves 1 to 6. Check: a wave is 30 s, then there is a rest of 5 s with "Wave N clear!" and "Next wave in N", the bar line shows the time left, each wave is harder (faster, more asteroids, more large ones) and the bonus points come at the end of a wave. Write down from which wave it is too hard for you, and if the first waves are too slow (Easy, Medium and Hard).
+8. Play with 2, 3 and 4 phones. Check: the leader chip and every phone show the points and the place, the player with most points wins, and "Tie!" for equal points. When one player is out, the others go on and the game ends 2 s after the last ship is gone. With one player check the medal and "Reached wave N". Write down if it is too hard or too easy with 4 players, and how long a player waits after being out.
+9. Let a child of about 5 to 8 years play, with a grown-up next to them. Check: the child understands what to do from the hint line, is not upset when the ship blows up, and wants to play again.
+10. Leave the game on one phone during a wave. Check: its ship goes and the game goes on. With 1 phone left, leave: the "No players connected" menu opens.
+11. Check the frame rate in the debug overlay with 4 phones on Hard in wave 8 or later (60 or close). (REQ-GM-50)
+12. **Pixel world (REQ-GM-47i to 47n, REQ-AB-17).** From the sofa (about 3 m), look at the world. Check: the stars, the planet, the asteroids, the ships, the beams, the pickups and the explosions are made of sharp square pixels, the ships are easy to tell apart by color, a ship is not too small to follow, the banners are easy to read, and the music and the effects are fine (Test 18).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the settings view and of the tile | Not run | | | |
+| 2 | Video of the countdown and GO | Not run | | | |
+| 3 | Note: too slow, too fast or too nervous | Not run | | | |
+| 4 | Video of the shooting; note on the rate of fire | Not run | | | |
+| 5 | Video of an upgrade; note on how often they come | Not run | | | |
+| 6 | Video of a hit with and without a ring; note on the buzz | Not run | | | |
+| 7 | Note: the wave from which it is too hard, for each difficulty | Not run | | | |
+| 8 | Photo of the result menu; note on 1, 2, 3 and 4 players | Not run | | | |
+| 9 | Note: the child, the age, what happened | Not run | | | |
+| 10 | Note: what happened on each leave | Not run | | | |
+| 11 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
+| 12 | Photo of the screen from the sofa; note: sharp pixels, readable banners, the TV | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-16).

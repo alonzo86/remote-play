@@ -13,13 +13,14 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
-const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0}
+const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0,
+		"asteroid_blast": 4.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
 		Vector3(0.18, 0.0, -0.6)]}
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
-const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2, "sumo_bumpers": 2}
+const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2, "sumo_bumpers": 2, "asteroid_blast": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 
@@ -39,10 +40,53 @@ func _stream(c: Array, seconds: float, accel: Array, gyro := []) -> void:
 	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
 	while Time.get_ticks_msec() < end:
 		for i in c.size():
-			c[i].send_sensor(Protocol.encode_sensor(_seq[i], Time.get_ticks_msec(), gyro[i] if not gyro.is_empty() else Vector3.ZERO,
+			c[i].send_sensor(Protocol.encode_sensor(_seq[i], Time.get_ticks_msec(),
+					gyro[i] if not gyro.is_empty() else Vector3.ZERO,
 					accel[i], 0, 0, Vector2.ZERO))
 			_seq[i] += 1
 		await _frames(1)
+
+
+## The Asteroid Blast picture: rocks of all sizes, beams in the air, two pickups, a force field, 3 lasers and an explosion.
+func _place_blast(game: Node) -> void:
+	var f = game.field
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4
+	f.asteroids.clear()
+	f.beams.clear()
+	f.upgrades.clear()
+	f.phase_time = 14.0
+	game._time = 30.0   # Past the hint of the first seconds.
+	f._upgrade_timer = 100.0
+	for a in [[2, 420.0, 250.0], [1, 1000.0, 140.0], [0, 700.0, 430.0], [1, 1420.0, 390.0], [0, 1660.0, 180.0], [2, 1160.0,
+			560.0], [0, 230.0, 90.0]]:
+		f._make(a[0], a[1], a[2], rng)
+	f.ships[1].shield = true
+	f.ships[2].lasers = 3
+	f.ships[3].lasers = 2
+	for s in f.ships.values():
+		for dy in [150.0, 420.0]:
+			for dx in f.laser_offsets(s.lasers):
+				var b = f.Beam.new()
+				b.x = s.x + dx
+				b.y = f.SHIP_Y - dy
+				b.owner = s.slot
+				f.beams.append(b)
+	var u1 = f.Upgrade.new()
+	u1.kind = f.SHIELD
+	u1.x = 900.0
+	u1.y = 470.0
+	var u2 = f.Upgrade.new()
+	u2.kind = f.WEAPON
+	u2.x = 1550.0
+	u2.y = 250.0
+	f.upgrades.append(u1)
+	f.upgrades.append(u2)
+	f.scores[0] = 1250
+	f.scores[1] = 980
+	f.scores[2] = 640
+	f.scores[3] = 310
+	game._booms.append({"x": 560.0, "y": 330.0, "age": 0.2, "scale": 1.0})
 
 
 ## The race picture: the marbles side by side before a post, so that the bend, the post and the others are in view.
@@ -217,6 +261,10 @@ func _run() -> void:
 			wait = 0.0
 		if String(g.id) == "sumo_bumpers":
 			await _place_sumo(app.current_screen())
+			wait = 0.0
+		if String(g.id) == "asteroid_blast":
+			_place_blast(app.current_screen())
+			await _frames(2)
 			wait = 0.0
 		if String(g.id) == "paint_grab":
 			_place_paint(app.current_screen())

@@ -4,14 +4,16 @@ extends RefCounted
 ## game or a changed track set adds numbers at the end. The direction (a lower time or a higher score is better) belongs to
 ## the key and is never sent: a code or a message cannot change it.
 ##
-## Numbers: 1 to 3 Banana Party, id snowball_splat (easy, medium, hard), 4 to 6 Paint Grab, 7 to 36 Marble Race: 7 + 10 * difficulty + (track - 1).
+## Numbers: 1 to 3 Banana Party, id snowball_splat (easy, medium, hard), 4 to 6 Paint Grab, 7 to 36 Marble Race: 7 + 10 *
+## difficulty + (track - 1).
+## 37 to 39 Asteroid Blast (easy, medium, hard).
 ## Tilt Maze, Sumo Bumpers and a random Marble Race track have no key (the owner, 2026-10-10).
 
 const Lang = preload("res://scripts/core/lang.gd")
 
 const DIFFICULTIES: Array[String] = ["easy", "medium", "hard"]
 const TRACKS := 10
-const MAX_KEYS := 39   # What a code can hold (plan 6.1). The table has 36.
+const MAX_KEYS := 39   # What a code can hold (plan 6.1). The table has 39.
 
 static var _keys: Array[String] = []
 
@@ -25,6 +27,8 @@ static func all_keys() -> Array[String]:
 		for d in DIFFICULTIES:
 			for t in range(1, TRACKS + 1):
 				_keys.append("marble_race|%s|%d" % [d, t])
+		for d in DIFFICULTIES:
+			_keys.append("asteroid_blast|%s" % d)
 	return _keys
 
 

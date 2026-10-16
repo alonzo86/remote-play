@@ -11,13 +11,17 @@ tests/net_profiles.gd|controller|profiles over the network
 tests/probe.gd|controller|finding a TV without the beacon
 tests/game_helpers.gd|controller|game helpers
 tests/game_rules.gd|controller|game rules
+tests/paint_rules.gd|controller|Paint Grab rules
+tests/asteroid_rules.gd|controller|Asteroid Blast rules and pictures
 tests/design_tokens.gd|controller|design tokens
 tests/smoke_tv.gd|tv|TV smoke test
 tests/smoke_settings.gd|tv|settings view
 tests/games_focus.gd|tv|Games screen arrow keys
 tests/results_medals.gd|tv|medals in the result menu
 tests/smoke_paint.gd|tv|Paint Grab
+tests/smoke_3d.gd|tv|3D game base class
 tests/smoke_sumo.gd|tv|Sumo Bumpers
+tests/smoke_asteroid.gd|tv|Asteroid Blast
 tests/smoke_bests.gd|tv|personal bests
 tests/audio.gd|tv|audio: synth, songs, effects, volume and haptics switch
 tests/smoke_lang.gd|tv|languages and right to left

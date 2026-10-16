@@ -65,6 +65,7 @@ const HE := {
 	"PAINT GRAB": "חטיפת צבע",
 	"SUMO BUMPERS": "סומו מתנגשים",
 	"BANANA PARTY": "מסיבת בננות",
+	"ASTEROID BLAST": "פיצוץ אסטרואידים",
 	"TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.":
 		"הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.",
 	"TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.":
@@ -137,6 +138,8 @@ const HE := {
 	"NO MEDAL THIS TIME": "אין מדליה הפעם",
 	"1ST": "1",
 	"2ND": "2",
+	"TILT TO FLY YOUR SPACESHIP AND BLAST THE ASTEROIDS. THE GAME GOES ON UNTIL EVERY SHIP IS GONE.":
+		"הטו כדי להטיס את החללית ולפוצץ אסטרואידים. המשחק נמשך עד שכל החלליות נעלמו.",
 	"3RD": "3",
 	"4TH": "4",
 	"GO": "קדימה",
@@ -147,6 +150,12 @@ const HE := {
 		"כוונו אל הטלוויזיה ולחצו A כדי לזרוק בננה. מרכזו אם הסמן סוטה.",
 	"TILT TO BUMP THE OTHERS OFF THE PLATFORM! A DASHES.": "הטו כדי לדחוף את האחרים מהפלטפורמה! A מזנק.",
 	"TILT YOUR PHONE TO ROLL AND PAINT THE TILES!": "הטו את הטלפון כדי להתגלגל ולצבוע את האריחים!",
+	"TILT TO STEER. YOUR SHIP SHOOTS BY ITSELF. GRAB THE UPGRADES!": "הטו כדי לנווט. החללית יורה בעצמה. אספו שדרוגים!",
+	"ALL SHIPS ARE GONE!": "כל החלליות נעלמו!",
+	"Wave %d": "גל %d",
+	"Wave %d clear!": "גל %d הסתיים!",
+	"Next wave in %d": "הגל הבא בעוד %d",
+	"Reached wave %d": "הגעתם לגל %d",
 	"Whee!": "וואו!",
 	"ROUND DRAW!": "תיקו בסיבוב!",
 	"%s wins the round!": "%s ניצח בסיבוב!",
