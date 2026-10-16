@@ -4,10 +4,12 @@ extends RefCounted
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
+const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 
 enum State { EMPTY, CONNECTED, LOST }
 
 signal button_pressed(bit: int)
+signal swung(info: Dictionary)   # A swing was found (`SwingDetector.feed()`); the hit is `info.latency_ms` ms old.
 
 var slot := 0
 var state: State = State.EMPTY
@@ -20,6 +22,8 @@ var token := ""
 var lost_since_ms := 0
 
 var orientation: OrientationFusion
+var swing := SwingDetector.new()
+var last_swing_ms := 0   # TV time of the last swing, for the debug overlay.
 
 # Latest raw values
 var gyro := Vector3.ZERO
@@ -82,6 +86,7 @@ func reset() -> void:
 	_last_seq = -1
 	_window_count = 0
 	orientation = OrientationFusion.new(orientation.settings)
+	swing = SwingDetector.new()
 
 
 ## Called when a phone (re)joins this slot.
@@ -138,6 +143,10 @@ func on_sensor(pkt: Dictionary, now_ms: int) -> void:
 	if has_clock:
 		sensor_age_ms = now_ms - (pkt.ts + clock_offset_ms)
 	orientation.update(pkt.ts, pkt.gyro, pkt.accel)
+	var found := swing.feed(pkt.ts, pkt.gyro, pkt.accel, orientation.up)
+	if not found.is_empty():
+		last_swing_ms = now_ms
+		swung.emit(found)
 	for bit in [Protocol.BTN_A, Protocol.BTN_B]:
 		if pressed_bits & bit:
 			button_pressed.emit(bit)

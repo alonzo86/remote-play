@@ -70,6 +70,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 | [21](#test-21) | Join PIN and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-84, REQ-FL-85, REQ-N9, FD-25 | Not run | | |
 | [22](#test-22) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-50 | Not run | | |
+| [23](#test-23) | Swing detector (debug overlay, for Tennis) | 1 to 4 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -921,6 +922,46 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 | 10 | Note: what happened on each leave | Not run | | | |
 | 11 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
 | 12 | Photo of the screen from the sofa; note: sharp pixels, readable banners, the TV | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-16).
+
+## Test 23
+
+### Swing detector (debug overlay, for Tennis)
+
+Needs: 1 to 4 phones, 1 TV with its remote. Covers: REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4. New (2026-10-16). The Tennis game is not built yet:
+this test checks only the detector (`scripts/input/swing_detector.gd`) in the debug overlay. Every threshold (`START_SPEED` 4, `MIN_PEAK` 7,
+`MAX_PEAK` 20 rad/s, `FALL_RATIO`, `COOLDOWN_MS`, `VERTICAL_MIN`) is a first guess, and you tune them from this test.
+
+**Steps**
+
+1. Join with 1 phone. Open the debug overlay (Menu key, or Settings, Debug overlay). Check: under the table there is a line "P1 swing: none yet".
+2. Hold the phone in your hand like a racket handle, still. Check: no swing appears. Walk around the room with the phone in your hand. Check: no swing appears.
+3. Make a forehand swing, about as hard as a tennis stroke. Check: the line shows `swing 1` with a power, a peak in rad/s, and the text goes bright for about 1.5 s. Do 10 swings. Write down how many were found and the typical power and peak.
+4. Make a soft swing, a medium swing and a hard swing. Check: the power grows from soft to hard (it is 0 at a peak of 7 and 1 at a peak of 20). Write down the peak of each.
+5. Make a **serve**: toss, then swing the phone from top to bottom. Check: the line says `DOWN`. Do 10 serves and write down how many say `DOWN`. Then swing from bottom to top, and from left to right. Check: these do not say `DOWN`.
+6. Swing and bring the arm back at once. Check: one swing is found, not two (the arm coming back inside 0.4 s is ignored). Swing, wait 1 s, swing again. Check: two swings.
+7. Shake the phone a little, or tap the table with it. Check: no swing is found.
+8. Look at "hit N ms before this report". Check: it is 30 to 80 ms. Write down the values and the "Age ms" of the table (the delay of the phone, Test 4).
+9. Repeat items 3 and 5 with 2 phones at the same time. Check: each phone has its own line and the swings do not mix.
+10. (iPhone, if you have one) Repeat items 3 and 5. Check: the same results. Write down if `DOWN` is wrong on the iPhone (the sign of the accelerometer, Test 13 item 3).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the overlay | Not run | | | |
+| 2 | Note: any swing found by walking | Not run | | | |
+| 3 | Note: swings found of 10, the power and the peak | Not run | | | |
+| 4 | Note: the peak of a soft, medium and hard swing | Not run | | | |
+| 5 | Note: serves with `DOWN` of 10; the other directions | Not run | | | |
+| 6 | Note: one swing or two | Not run | | | |
+| 7 | Note: any swing found by a shake or a tap | Not run | | | |
+| 8 | Note: the values in ms, the Age ms | Not run | | | |
+| 9 | Photo of the overlay with 2 phones | Not run | | | |
+| 10 | Note: the iPhone result | Not run | | | |
 
 History:
 

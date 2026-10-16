@@ -78,7 +78,7 @@ tuned on a device (`docs/MANUAL_TESTS.md`, to be added with the code).
 
 ## Open questions
 
-- How the swing is found: in the sensor stream on the TV or on the phone, and whether the protocol needs a new message (`change-protocol` skill, protocol version). Decide before the code.
+- The swing is found on the TV, in the sensor stream, with `scripts/input/swing_detector.gd` (built 2026-10-16, no protocol change, Manual test 23). Its thresholds are first guesses and are tuned on a device. If the delay is too large, the detection moves to the phone, which needs a new message (`change-protocol` skill).
 - The hit window and the green part depend on the real delay of the phone (Test 4, never run on a TV box). Tune on a device.
 - Sounds and music for Tennis (the ball, the net, the crowd) and the Hebrew texts are written with the code, and the user reviews them (CLAUDE.md rules for strings).
 - Names: "Tennis" is a generic word; the Hebrew name and the texts are checked by a Hebrew reader.
