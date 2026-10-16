@@ -6,8 +6,8 @@ Code: `scripts/game/sumo_bumpers/`, with the shared helper `scripts/game/tilt_bo
 
 ## Goal
 
-Each player tilts a phone to roll a round, friendly **bumper** (a made-up cartoon creature with big eyes, in the player color) on a
-round platform that floats in the sky. The bumpers bounce off each other. The platform shrinks all the time, so the bumpers come
+Each player tilts a phone to roll a round, friendly **bumper** (a penguin in the player color) on a
+round grass island that floats in the sky. The bumpers bounce off each other. The platform shrinks all the time, so the bumpers come
 closer to the edge. A bumper that rolls over the edge falls with a funny spin ("Whee!") and waits for the next round. The last bumper on
 the platform wins the round and gets a point. A match has 3 rounds. The player with the most points after 3 rounds wins. Nobody is hurt:
 a bumper that falls is back in the next round. The game needs 2 players or more.
@@ -55,13 +55,13 @@ Players and feedback
 |----|-------------|--------|-------|
 | REQ-SB-12 | A player who leaves takes the bumper out and keeps no points in the ranking (REQ-GM-21). When one player is left, the match ends at once with the result menu. When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sumo |
 | REQ-SB-13 | A lost phone pauses the match with the card of REQ-GM-30. Nothing runs during the pause (the shrink, the countdown). | Done | smoke_tv (shared base class) |
-| REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). In the countdown of each round every bumper has a name tag (REQ-GM-46a). A bumper has no number on it (REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Done | smoke_sumo (points, phones), game_helpers (leader, tags), Device (RECENTER) |
+| REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). In the countdown of each round every bumper has a name tag (REQ-GM-46a). A bumper has no number on it (REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Device | smoke_sumo (points, phones), game_helpers (leader, tags), Device (RECENTER) |
 
 Look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n): it is drawn in the 480x270 view. The world palette is black (`UiTheme.BG`), dark gray `#3c3c3c` and blue `#0058f8` star pixels (48 of them, always in the same places), the platform `#2a1070`, its ring `#8c78e6` that turns to `#ff5a4d` when the platform is small, and white for the eyes and the dash ring; the bumpers use the slot colors. The platform is a dark disk (every player color has a contrast of 3:1 or more, REQ-GM-47m) with a one-pixel black outline. A bumper has a one-pixel black outline, square eyes with pupils that step to the side it rolls (no number on it, REQ-GM-46). A fallen bumper shrinks in 4 steps in 0.8 s, and "WHEE!" is drawn at full resolution above it. All text is 32 px or larger and inside the 60 px margin. | Device | review, smoke_sumo (the view), Device |
+| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n): it is drawn in the 480x270 view, in `sumo_look.gd`, as the **Sky Island**: a sky of 8 bands of blue (`#5eb8f0` to `#b4e4f8`) with 8 white pixel clouds that drift to the right (2 to 3 world pixels per second) under the black bar of the HUD (112 px). The platform is a round grass island with a chess pattern of two greens (`#58b838`, `#4eaa30`, squares of 6 world pixels on the grid of the screen, so the edge eats them as the island shrinks), two rings, a few flowers, an edge ring that is brown (`#b0804e`) and turns to red (`#ff5a4d`) as the island shrinks, and a brown cliff that hangs below it. Island, cliff and bumpers have a one-pixel black outline (`#101018`). A bumper is a **penguin**: 16x16 world pixels plus the outline, body in the slot color, a white belly, an orange beak and feet, eyes with pupils that step to the side it rolls (no number on it, REQ-GM-46); a ring around it shows the dash. The outline of a penguin differs from both greens and from the sky by 3:1 or more, and every slot color differs from the outline by 3:1 or more (REQ-GM-47m). A fallen penguin shrinks in 4 steps in 0.8 s, and "WHEE!" is drawn at full resolution above it on a black plate. The round banner and "WHEE!" sit on a black plate, and the countdown digits have a black shadow, because the sky is light. All text is 32 px or larger and inside the 60 px margin. | Device | review, game_helpers (colors, penguin, clouds), smoke_sumo (the view), Device |
 | REQ-SB-16 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080: the simulation runs in 1920x1080 units and only the drawing is scaled. | Done | smoke_sumo |
 
 Settings (REQ-GM-90 to 97)

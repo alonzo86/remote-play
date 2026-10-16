@@ -3,6 +3,8 @@ extends SceneTree
 ## Scoreboard (REQ-GM-70, 72) and Medals (REQ-GM-73).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/game_helpers.gd -- --role=controller
 
+const Lang = preload("res://scripts/core/lang.gd")
+const Registry = preload("res://scripts/game/registry.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
@@ -11,6 +13,7 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
+const SumoLook = preload("res://scripts/game/sumo_bumpers/sumo_look.gd")
 
 var SnowGame: GDScript   # Loaded at run time: a game script needs the App autoload.
 var _checks := 0
@@ -32,6 +35,7 @@ func _initialize() -> void:
 	_haptics()
 	_shell_leader()
 	_shell_layout()
+	_label_plate()
 	_score_chip()
 	_chip_avatar()
 	_medal_icon()
@@ -62,18 +66,14 @@ func _pixel_world() -> void:
 	_check(Sumo.fall_scale(0.0) == 1.0 and Sumo.fall_scale(0.15) == 1.0 and Sumo.fall_scale(0.25) == 0.75
 			and Sumo.fall_scale(0.45) == 0.5 and Sumo.fall_scale(0.7) == 0.25 and Sumo.fall_scale(Sumo.FALL_TIME) == 0.0
 			and Sumo.fall_scale(5.0) == 0.0, "a fallen bumper shrinks in 4 steps and then is gone (REQ-SB-9)")
-	_check(Sumo.danger_ring(0.0).is_equal_approx(Sumo.PLATFORM_RING) and Sumo.danger_ring(1.0).is_equal_approx(Sumo.DANGER_COLOR)
-			and Sumo.danger_ring(0.6).r > Sumo.PLATFORM_RING.r, "the platform ring turns red as the platform gets small (REQ-SB-15)")
+	_check(Sumo.danger_ring(0.0).is_equal_approx(SumoLook.RIM) and Sumo.danger_ring(1.0).is_equal_approx(SumoLook.DANGER)
+			and Sumo.danger_ring(0.6).r > SumoLook.RIM.r, "the island edge turns red as the island gets small (REQ-SB-15)")
 	var life: float = SnowGame.POOF_LIFE
 	var steps := []
 	for share in [0.0, 0.4, 0.9, 5.0]:
 		steps.append(SnowGame.poof_step(life * share))
-	_check(steps == [0, 1, 2, 2], "the poof of a missed snowball grows in 3 hard steps: %s" % str(steps))
-	var peak := PI / 18.0   # sin(age * 9) is 1 here.
-	_check(SnowGame.wing_flap(20.0, peak) == Shell.WORLD_PIXEL and SnowGame.wing_flap(60.0, peak) == 8.0
-			and SnowGame.wing_flap(60.0, 0.0) == 0.0, "the wings of a small Puff still move by one world pixel (REQ-SS-12)")
-	_check(SnowGame.BADGE_R * 2.0 >= 12.0 * Shell.WORLD_PIXEL and SnowGame.CURSOR_R * 2.0 >= 12.0 * Shell.WORLD_PIXEL,
-			"the cursor and its badge are 12 world pixels or more across (REQ-GM-47m)")
+	_check(steps == [0, 1, 2, 2], "the poof of a missed banana grows in 3 hard steps: %s" % str(steps))
+	_check(SnowGame.CURSOR_R * 2.0 >= 12.0 * Shell.WORLD_PIXEL, "the cursor ring is 12 world pixels or more across (REQ-GM-47m)")
 	var sky := Shell.star_field(48, 7)
 	var on_grid := true
 	for st in sky:
@@ -84,9 +84,41 @@ func _pixel_world() -> void:
 	var min_ball: float = SumoArena.BUMPER_R * 2.0
 	_check(min_ball >= 12.0 * Shell.WORLD_PIXEL, "a bumper is 12 world pixels or more across (REQ-GM-47m): %.0f px" % min_ball)
 	var worst := 99.0
-	for col in Protocol.PLAYER_COLORS:
-		worst = minf(worst, Shell.contrast(col, Sumo.PLATFORM))
-	_check(worst >= 3.0, "every player color has a contrast of 3:1 or more on the platform (REQ-GM-47m): %.2f" % worst)
+	for col in Protocol.PLAYER_COLORS:   # A penguin is cut out of the grass by its black outline (like REQ-MR-43).
+		worst = minf(worst, Shell.contrast(col, SumoLook.OUTLINE))
+	_check(worst >= 3.0,
+			"every player color has a contrast of 3:1 or more on the black outline of a penguin (REQ-GM-47m): %.2f" % worst)
+	_check(Shell.contrast(SumoLook.OUTLINE, SumoLook.GRASS_A) >= 3.0 and Shell.contrast(SumoLook.OUTLINE, SumoLook.GRASS_B) >= 3.0
+			and Shell.contrast(SumoLook.OUTLINE, SumoLook.SKY_BOTTOM) >= 3.0,
+			"the outline of a penguin differs from both grass tones and from the sky by 3:1 or more (REQ-SB-15)")
+	_sumo_look()
+
+
+func _sumo_look() -> void:
+	var a: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[0], 0)
+	_check(a.get_width() == 18 and a.get_height() == 18, "a penguin is 16x16 world pixels plus a one pixel outline")
+	_check(a.get_pixel(0, 0).a == 0.0 and a.get_pixel(9, 0).is_equal_approx(SumoLook.OUTLINE),
+			"the corners are empty and the top of the head has the outline")
+	var left: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[0], -1)
+	var right: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[0], 1)
+	_check(left.get_data() != right.get_data() and left.get_data() != a.get_data(),
+			"the pupils look to the side the penguin rolls")
+	var green: Image = SumoLook.penguin_image(Protocol.PLAYER_COLORS[1], 0)
+	_check(green.get_pixel(2, 10).is_equal_approx(Protocol.PLAYER_COLORS[1])
+			and a.get_pixel(2, 10).is_equal_approx(Protocol.PLAYER_COLORS[0]),
+			"the body of a penguin has the player color")
+	var wrapped := true
+	for i in SumoLook.CLOUDS.size():
+		for t in [0.0, 50.0, 400.0, 5000.0]:
+			var x: float = SumoLook.cloud_x(i, t)
+			wrapped = wrapped and x >= -float(SumoLook.CLOUDS[i][2]) and x <= SumoLook.VIEW_W + float(SumoLook.CLOUDS[i][2])
+	_check(wrapped and SumoLook.cloud_x(0, 10.0) > SumoLook.cloud_x(0, 0.0),
+			"the clouds drift to the right and come back on the left")
+	_check(SumoLook.rim_color(0.0).is_equal_approx(SumoLook.RIM) and SumoLook.rim_color(1.0).is_equal_approx(SumoLook.DANGER),
+			"the rim of the island goes from brown to red")
+	_check(SumoLook._inside(Rect2(-5, -5, 10, 10), Vector2.ZERO, 8.0)
+			and not SumoLook._inside(Rect2(-5, -5, 10, 10), Vector2.ZERO, 6.0),
+			"a grass square is drawn only when all of it is inside the island")
 
 
 func _round_clock() -> void:
@@ -180,6 +212,21 @@ func _shell_layout() -> void:
 			"the leader chip ends at the 60 px safe margin on 1920 and 1280 wide screens (REQ-GM-40)")
 	_check(Shell.ball_metrics(24.0).outline == 6.0 and Shell.ball_metrics(20.0).outline == 6.0
 			and Shell.ball_metrics(19.0).outline == 4.0, "a ball of 40 px or more has a 6 px outline, a smaller one 4 px (REQ-GM-47b)")
+
+
+## The black plate behind a banner (REQ-AB-16): as wide as the text of the language, centered on the given x.
+func _label_plate() -> void:
+	print("label plate")
+	var at := Vector2(960.0, 400.0)
+	for code in ["en", "he"]:
+		Lang.set_language(code, root)
+		var short := Shell.label_plate_rect(at, "shell.go", 72)
+		var long := Shell.label_plate_rect(at, "asteroid_blast.all_ships_gone", 72)
+		_check(long.size.x > short.size.x and is_equal_approx(short.get_center().x, 960.0)
+				and is_equal_approx(long.get_center().x, 960.0)
+				and short.position.y < at.y and short.end.y > at.y,
+				"the plate of a banner is as wide as its text, centered, and holds the baseline (%s)" % code)
+	Lang.set_language("en", root)
 
 
 ## The chip with a score: the score always shows in full, also with 4 to 6 digits and a long name (REQ-GM-41, 46).
@@ -279,7 +326,8 @@ func _scoreboard() -> void:
 			"only a player with a score can win")
 	race.set_score(1, 70.0)
 	race.remove(0)
-	_check(race.is_finished(1) and not race.has(0) and race.size() == 3, "set_score finishes a player, remove deletes either kind")
+	_check(race.is_finished(1) and not race.has(0) and race.size() == 3,
+			"set_score finishes a player, remove deletes either kind")
 	var nobody = board_script.new([0, 1])
 	nobody.set_unfinished(0, 1.0)
 	nobody.set_unfinished(1, 2.0)
@@ -336,6 +384,15 @@ func _game_settings() -> void:
 	_check(props.difficulty == "hard" and props.mode == "a" and props.track == 3,
 			"the props of the game are its own props and the chosen values (REQ-GM-93)")
 	_check(GameSettings.title_of(diff, "hard") == "game_settings.hard", "the title of a value")
+	var tracks: Dictionary = {}
+	for r in GameSettings.rows_for(Registry.find("marble_race")):
+		if r.key == "track_choice":
+			tracks = r
+	Lang.set_language("he", root)
+	_check(GameSettings.title_text(tracks, "3") == "מסלול 3"
+			and GameSettings.title_text(tracks, "random") == Lang.t("registry.random"),
+			"a numbered track title is written in the TV language, not left in English (REQ-FL-63)")
+	Lang.set_language("en", root)
 	GameSettings.clear()
 	_check(GameSettings.value(game, diff) == "medium", "clear forgets the choices")
 
@@ -381,7 +438,8 @@ func _medal_icon() -> void:
 			"gold, silver and bronze have different colors")
 	_check(middles[0].r > 0.9 and middles[0].b < 0.4 and absf(middles[1].r - middles[1].b) < 0.05 and middles[2].r > middles[2].b,
 			"gold is yellow, silver is gray and bronze is brown: %s" % str(middles))
-	_check(Medal.is_known("gold") and not Medal.is_known("") and not Medal.is_known("wood"), "only the three tiers are on the sheet")
+	_check(Medal.is_known("gold") and not Medal.is_known("") and not Medal.is_known("wood"),
+			"only the three tiers are on the sheet")
 	var canvas := Control.new()
 	root.add_child(canvas)
 	_check(Medal.draw(canvas, Rect2(0, 0, 48, 48), "silver") and not Medal.draw(canvas, Rect2(0, 0, 48, 48), "wood"),

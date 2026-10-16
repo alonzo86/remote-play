@@ -178,7 +178,7 @@ The text of the QR code is `WP1.` followed by base64url text (no padding) of thi
 | k times | Best key number (1 byte, from the table `ProfileKeys`), then the value as a varint (up to 5 bytes) |
 | 2 | Checksum (CRC-16) of all the bytes before it |
 
-`ProfileKeys` is a fixed table in code: for each key the key text, its number (1 to 39 at the start: Maze none, Snowball Splat 3, Paint Grab 3, Marble Race 3 difficulties x 10 tracks = 30) and its direction. A number is never reused or changed; a new game or a changed track set adds numbers at the end. A code with a key number the app does not know is read, and that key is skipped. The prefix `WP1.` tells the scanner that this is not a TV link (`ws://`); the Connect screen scan routes a `WP1.` code to the import and the profile scan gives `THIS IS A TV LINK` for a TV link.
+`ProfileKeys` is a fixed table in code: for each key the key text, its number (1 to 39 at the start: Maze none, Snowball Splat 3, Paint Grab 3, Marble Race 3 difficulties x 10 tracks = 30, Galaxy Protector 3 = numbers 37 to 39; the table is full: the next game with a best needs a new `FORMAT_VERSION` of the code and a higher `MAX_KEYS`, and the old version must still be read) and its direction. A number is never reused or changed; a new game or a changed track set adds numbers at the end. A code with a key number the app does not know is read, and that key is skipped. The prefix `WP1.` tells the scanner that this is not a TV link (`ws://`); the Connect screen scan routes a `WP1.` code to the import and the profile scan gives `THIS IS A TV LINK` for a TV link.
 
 ### 6.2 Size and the QR encoder
 

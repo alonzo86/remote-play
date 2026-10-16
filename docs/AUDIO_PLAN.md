@@ -1,6 +1,6 @@
 # Audio plan: arcade music and sound effects (FD-20)
 
-Status: **phase A and the effects of all five games are built (2026-10-10); manual test 18 is open.** The sections below are the plan; section 11 says what was built and what differs. The owner asked for music on the TV app: an arcade-style, MIDI-like loop, one clip for the menus and one for each game, and sound effects for each game. This file proposes how, lists the effects for each game, and lists the defaults chosen for the open questions. The owner confirms or changes the effect lists (section 4) before phase B.
+Status: **phase A and the effects of the first five games are built (2026-10-10); Galaxy Protector, the sixth game, has a song and five effects (2026-10-16); manual test 18 is open.** The sections below are the plan; section 11 says what was built and what differs. The owner asked for music on the TV app: an arcade-style, MIDI-like loop, one clip for the menus and one for each game, and sound effects for each game. This file proposes how, lists the effects for each game, and lists the defaults chosen for the open questions. The owner confirms or changes the effect lists (section 4) before phase B.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
 
 Base: this plan is based on `main`. The arcade style PRs 18 to 24 are still stacked and unmerged, so some names here (the Hebrew texts of FD-19, the pixel worlds) exist only in that stack. When the stack reaches `main`, resolve conflicts in `docs/TV_FLOW.md`, `docs/GAME_REQUIREMENTS.md` and `docs/REQUIREMENTS.md`, and re-check the file names in this plan.
@@ -23,6 +23,8 @@ Default: **A**, built so that C is possible (section 3.4). Music in "MIDI-like" 
 
 ### 2.1 Music
 
+The clip ids are the game ids. The games were renamed later: `maze` is Treasure Maze (was Tilt Maze), `marble_race` is Road Rally (was Marble Race), `snowball_splat` is Banana Party (was Snowball Splat); the names in this plan are the names of the time it was written.
+
 | Clip | Where | Mood | Length of the loop |
 |------|-------|------|--------------------|
 | `menu` | Logo (starts at once; if the system blocks audio it starts at the first key), Connect, Games, Settings, a game settings view | Bright, easy, slow to medium (about 112 BPM). Does not tire, because it plays for minutes | 32 bars of 4/4 (about 68 s) |
@@ -31,6 +33,7 @@ Default: **A**, built so that C is possible (section 3.4). Music in "MIDI-like" 
 | `paint_grab` | Paint Grab | Cheerful and bouncy (about 128 BPM) | 16 bars (30 s) |
 | `sumo_bumpers` | Sumo Bumpers | Heavy and comic, a march with a strong beat (about 132 BPM) | 16 bars (29 s) |
 | `snowball_splat` | Snowball Splat | Light and playful, bell-like (about 124 BPM) | 16 bars (31 s) |
+| `asteroid_blast` | Galaxy Protector | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
 
 Rules:
 - Game music starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1).

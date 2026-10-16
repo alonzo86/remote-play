@@ -12,9 +12,8 @@ On 2026-10-10 the owner chose look **A, "8-bit cabinet"** for the TV app, the ph
 scanlines are hard to read from a sofa, the same reason as for Arcade Neon in FD-13), C Pixel Pop (too soft), D 16-bit
 arcade, and E Atari 2600.
 
-The mockups of all five looks are in `docs/design-system/arcade/mockups.html` (open it in a browser). Look A is the
-first section, and the "A and C, screen by screen" section shows A on the Games menu, a countdown, the results, the
-pause menu and the phone screens. The mockups are a direction, not exact pixels. This file gives the values.
+The mockups of all five looks (look A was chosen) were in `docs/design-system/arcade/mockups.html`; the file was removed on
+2026-10-16, because the games and the screens look different now. They were a direction, not exact pixels. This file gives the values.
 
 ## 2. Target style
 
@@ -109,7 +108,7 @@ tests, keeps every module at 80% coverage or more, and adds or changes its manua
 
 ### Phase 0: decision and plan (this change)
 
-- FD-18 in `docs/TV_FLOW.md`, this plan, the mockups in `docs/design-system/arcade/`.
+- FD-18 in `docs/TV_FLOW.md`, this plan.
 - Notes in the files that describe Party Pop, so that nobody builds new Party Pop work: `README.md`,
   `docs/REQUIREMENTS.md`, `docs/GAME_REQUIREMENTS.md`, `docs/design-system/README.md`, the `review` and
   `add-minigame` skills and the `design-reviewer` agent.

@@ -1,5 +1,5 @@
 extends RefCounted
-## Track for the marble race. A track is a polyline (x, z points) with one half-width.
+## Track for Road Rally. A track is a polyline (x, y points, in meters) with one half-width.
 ## The drivable area is every point within half_width of the line. It has no holes and
 ## it has no overlap with itself, so "arc" (distance along the line) is always clear.
 

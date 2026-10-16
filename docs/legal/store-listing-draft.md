@@ -6,7 +6,7 @@ Limits of Google Play: title 30 characters, short description 80, full descripti
 
 Two listings (the recommended plan): the TV app and the controller app. Each says that it needs the other one.
 
-Facts these texts use (checked in `README.md` and `docs/games/`): 5 games; 1 to 4 players (Sumo Bumpers needs 2); the phone is the controller; same Wi-Fi; no account; Android phones only for now (the iPhone is unverified, so the texts do not mention it).
+Facts these texts use (checked in `README.md` and `docs/games/`): 6 games; 1 to 4 players (Sumo Bumpers needs 2); the phone is the controller; same Wi-Fi; no account; Android phones only for now (the iPhone is unverified, so the texts do not mention it).
 
 ## 1. TV app
 
@@ -27,11 +27,12 @@ HOW TO START
 3. Choose a game with the TV remote and play.
 
 THE GAMES
-• Tilt Maze: tilt your phone to roll your ball through the maze.
-• Marble Race: steer your marble along the track and be first to the finish.
-• Snowball Splat: point your phone and throw snowballs at silly Puffs.
+• Treasure Maze: tilt your phone to roll your ball through the maze to the treasure.
+• Road Rally: steer your car along the road and be first over the line.
+• Banana Party: point your phone and throw bananas at the hungry animals.
 • Paint Grab: tilt to move your paint blob and cover the floor with your color.
 • Sumo Bumpers: bump your friends off the platform (2 to 4 players).
+• Galaxy Protector: fly your spaceship, blast the asteroids and grab upgrades.
 
 Easy, Medium and Hard levels in the games, big pixel graphics you can read from the sofa, and arcade-style music. English and Hebrew.
 
@@ -49,11 +50,12 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 3. בוחרים משחק בשלט של הטלוויזיה ומשחקים.
 
 המשחקים
-• Tilt Maze: מטים את הטלפון כדי לגלגל את הכדור במבוך.
-• Marble Race: מנווטים את הגולה במסלול ומגיעים ראשונים לקו הסיום.
-• Snowball Splat: מכוונים את הטלפון וזורקים כדורי שלג על פאפים מצחיקים.
+• Treasure Maze: מטים את הטלפון כדי לגלגל את הכדור במבוך אל האוצר.
+• Road Rally: מנווטים את המכונית בכביש ומגיעים ראשונים לקו הסיום.
+• Banana Party: מכוונים את הטלפון וזורקים בננות על חיות רעבות.
 • Paint Grab: מטים כדי להזיז את כתם הצבע ולכסות את הרצפה בצבע שלכם.
 • Sumo Bumpers: דוחפים את החברים מהפלטפורמה (2 עד 4 שחקנים).
+• Galaxy Protector: מטיסים חללית, מפוצצים אסטרואידים ואוספים שדרוגים.
 
 רמות קל, בינוני וקשה, גרפיקת פיקסלים גדולה שאפשר לקרוא מהספה, ומוזיקה בסגנון משחקי ארקייד. באנגלית ובעברית.
 

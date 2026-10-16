@@ -1,7 +1,7 @@
 extends SceneTree
 ## Smoke test of the whole TV app with two simulated phones. Run:
 ##   godot --headless --path . --script tests/smoke_tv.gd -- --role=tv
-## It runs the TV flow, the maze and the marble race, and checks that tilt moves a ball.
+## It runs the TV flow, the maze and the race, and checks that tilt moves a ball.
 
 const RESULT_MENU := ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"]
 const Protocol = preload("res://scripts/core/protocol.gd")
@@ -13,6 +13,7 @@ var MazeGame
 var MarbleRace
 var Registry
 var MarbleTrack
+var RaceLook
 var TvLogo
 var TvConnect
 var TvGames
@@ -51,6 +52,13 @@ func _frames(n: int) -> void:
 		await process_frame
 
 
+## Waits (at most `ms`) while `cond` is true.
+func _wait_while(cond: Callable, ms: int) -> void:
+	var start := Time.get_ticks_msec()
+	while cond.call() and Time.get_ticks_msec() - start < ms:
+		await process_frame
+
+
 func _stream(c: Node, idx: int, seconds: float, accel: Vector3, gyro := Vector3.ZERO, buttons := 0) -> void:
 	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
 	while Time.get_ticks_msec() < end:
@@ -74,6 +82,7 @@ func _run() -> void:
 	# Load now, not at parse time: the App autoload must exist first.
 	MazeGame = load("res://scripts/game/maze/maze_game.gd")
 	MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
+	RaceLook = load("res://scripts/game/marble_race/race_look.gd")
 	Registry = load("res://scripts/game/registry.gd")
 	MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
 	TvLogo = load("res://scripts/ui/tv_logo.gd")
@@ -133,9 +142,7 @@ func _run() -> void:
 		root.add_child(c)
 		c.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
 		clients.append(c)
-	var t0 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t0 < 4000:
-		await process_frame
+	await _wait_while(func() -> bool: return app.server.connected_slots().size() < 2, 4000)
 	_check(app.server.connected_slots().size() == 2, "two simulated phones joined")
 	var flat := Vector3(0, 0, 9.81)
 	await _stream(clients[0], 0, 0.3, flat)
@@ -244,9 +251,7 @@ func _run() -> void:
 	_check(clients[1].state == ControllerClient.State.IDLE and not app.server.players[1].is_present(),
 			"the removed phone stays out until it connects again")
 	clients[1].connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	var t2 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t2 < 4000:
-		await process_frame
+	await _wait_while(func() -> bool: return app.server.connected_slots().size() < 2, 4000)
 	_check(app.server.connected_slots().size() == 2, "a removed player can join again")
 	await _stream(clients[0], 0, 0.2, flat)
 	await _stream(clients[1], 1, 0.2, flat)
@@ -269,9 +274,7 @@ func _run() -> void:
 	late.player_name = "Late"
 	root.add_child(late)
 	late.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	var t3 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t3 < 4000:
-		await process_frame
+	await _wait_while(func() -> bool: return app.server.connected_slots().size() < 3, 4000)
 	await _frames(5)
 	_check(app.server.connected_slots().size() == 3 and game.participants.size() == 2,
 			"a late phone joins but does not take part in the round")
@@ -295,9 +298,7 @@ func _run() -> void:
 	# The game pauses with a card. It goes on only when the TV user chooses (REQ-GM-30, 30a).
 	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
 	clients[1].set_process(false)
-	var t1 := Time.get_ticks_msec()
-	while not game._hold and Time.get_ticks_msec() - t1 < 8000:
-		await process_frame
+	await _wait_while(func() -> bool: return not game._hold, 8000)
 	await _frames(3)
 	_check(game._hold and game.is_paused() and game.lost_participants() == [1],
 			"a silent phone makes the TV pause the game, also when its connection does not close")
@@ -307,9 +308,7 @@ func _run() -> void:
 			"the card names the phone and offers Resume without it while a phone is connected: %s %s" % [card_title, str(card_buttons)])
 	_check(app.server.phase == "paused" and clients[0].phase == "paused", "the phones are told that the game is paused")
 	clients[1].set_process(true)   # The phone is back (the call is over).
-	t1 = Time.get_ticks_msec()
-	while not game.lost_participants().is_empty() and Time.get_ticks_msec() - t1 < 6000:
-		await process_frame
+	await _wait_while(func() -> bool: return not game.lost_participants().is_empty(), 6000)
 	await _frames(5)
 	card_title = game._menu_box.find_children("*", "Label", true, false)[0].text
 	card_buttons = game.menu_buttons().map(func(b): return b.text)
@@ -323,9 +322,7 @@ func _run() -> void:
 	# Back on the card asks to end the game, and Keep playing brings the card back.
 	clients[1].set_process(false)
 	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
-	t1 = Time.get_ticks_msec()
-	while not game._hold and Time.get_ticks_msec() - t1 < 8000:
-		await process_frame
+	await _wait_while(func() -> bool: return not game._hold, 8000)
 	await _frames(3)
 	game.on_back()
 	await _frames(3)
@@ -346,9 +343,7 @@ func _run() -> void:
 			"Resume without P2 goes on with one player and frees the slot of P2")
 	clients[1].set_process(true)
 	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
-	t1 = Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t1 < 6000:
-		await process_frame
+	await _wait_while(func() -> bool: return app.server.connected_slots().size() < 2, 6000)
 	await _frames(3)
 
 	# Pause menu with OK, then restart.
@@ -505,13 +500,17 @@ func _run() -> void:
 	third.player_name = "Third"
 	root.add_child(third)
 	third.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	var t4 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t4 < 4000:
-		await process_frame
+	await _wait_while(func() -> bool: return app.server.connected_slots().size() < 3, 4000)
 	app.go(MazeGame)
 	await _frames(3)
 	var mz3: Control = app.current_screen()
 	_check(mz3.participants.size() == 3 and mz3._balls.size() == 3, "a maze with 3 phones has 3 balls")
+	var mid3 := Vector2(mz3.cell, mz3.cell) * 0.5
+	var off3: float = mz3._start_offset()
+	_check(mz3._balls[2].pos.is_equal_approx(mid3 + Vector2(1, -1) * off3)
+			and mz3._balls[0].pos.is_equal_approx(mid3 - Vector2(1, 1) * off3)
+			and mz3._balls[2].pos.distance_to(mz3._balls[0].pos) >= off3 * 2.0 - 0.01,
+			"the third ball starts on the third corner of the start cell, away from the first (REQ-MZ-2)")
 	app.server.drop_player(third.slot)
 	await _frames(3)
 	_check(mz3.participants.size() == 2 and mz3._balls.size() == 2 and not mz3.is_paused(),
@@ -519,7 +518,7 @@ func _run() -> void:
 	third.leave()
 	await _frames(3)
 
-	# Snowball Splat (REQ-SS-1 to 17): aim, throws, Puffs, points, the end. Each step sets up its own state, because the real
+	# Banana Party (REQ-SS-1 to 23): aim, throws, animals, points, the end. Each step sets up its own state, because the real
 	# game also ticks in the frames that are awaited. A step without an await is one tick of the game.
 	var ss_script: GDScript = Registry.load_script("snowball_splat")
 	app.go(ss_script, {"seed": 7})
@@ -529,8 +528,8 @@ func _run() -> void:
 	var p1 = app.server.players[1]
 	var area: Rect2 = ss._area()
 	_check(is_instance_of(ss, ss_script) and ss.participants.size() == 2 and ss._throwers.size() == 2,
-			"snowball splat starts with 2 players")
-	_check(ss._round.is_counting() and ss._field.puffs.is_empty(), "the round starts with the countdown and no Puff (REQ-SS-1)")
+			"banana party starts with 2 players")
+	_check(ss._round.is_counting() and ss._field.puffs.is_empty(), "the round starts with the countdown and no animal (REQ-SS-1)")
 	p0.button_pressed.emit(Protocol.BTN_A)
 	_check(ss._presses.is_empty(), "a throw in the countdown does nothing (REQ-SS-1)")
 	var aim_x: float = ss._throwers[0].aim.x
@@ -544,18 +543,19 @@ func _run() -> void:
 	ss._game_tick(0.01)
 	_check(ss._round.is_playing() and ss._throwers[0].aim.distance_to(area.get_center()) < 1.0,
 			"at GO the pose of the phone is the center of the screen (REQ-SS-2)")
-	_check(ss._field.puffs.size() == 1, "the first Puff comes at once (REQ-SS-9)")
+	_check(ss._field.puffs.size() == 1, "the first animal comes at once (REQ-SS-9)")
 	var first_lane: int = ss._field.puffs[0].lane
-	var first_color: int = ss._field.puffs[0].color_index
+	var first_kind: String = ss._field.puffs[0].kind
 	await _frames(8)
 	_check(haptics.has(60), "GO buzzes the phone 60 ms: %s" % str(haptics))
 
-	# A Puff that stands still in the middle of the screen, in lane 1 (a Puff), or lane 0 (a Little Puff).
+	# A animal that stands still in the middle of the screen, in lane 1 (an orangutan, 10 points), or lane 0 (a monkey, 25 points).
 	var put := func(lane: int, x: float, y: float) -> void:
 		ss._field.puffs.clear()
+		ss._field.bushes.clear()   # A bush could hide the animal that the test sets up.
 		var pf = ss.PuffField.Puff.new()
 		pf.lane = lane
-		pf.kind = ss.PuffField.LANES[lane].kind
+		pf.kind = ss.PuffField.LANES[lane].kinds[0]
 		pf.dir = ss.PuffField.LANES[lane].dir
 		pf.lane_y = y
 		pf.x = x
@@ -582,15 +582,32 @@ func _run() -> void:
 	p0.button_pressed.emit(Protocol.BTN_A)
 	ss._game_tick(0.01)
 	_check(in_air.call() == 1 and ss._board.score(0) == 0.0 and ss._field.puffs.size() == 1,
-			"a throw sends a snowball into the air first: nothing is hit yet (REQ-SS-6)")
+			"a throw sends a banana into the air first: nothing is hit yet (REQ-SS-6)")
 	ss._haptics = ss.Haptics.new()   # The gap between two buzzes is in real time. The ticks of this test are not.
 	ss._game_tick(0.2)
 	_check(ss._board.score(0) == 10.0 and ss._field.puffs.is_empty() and in_air.call() == 0,
-			"the snowball lands and takes the Puff: 10 points (REQ-SS-10)")
+			"the banana lands and takes the animal: 10 points (REQ-SS-10)")
 	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "hit" and e.text == "+10"),
-			"the Puff floats away with its points (REQ-SS-13)")
+			"the animal hops and shows with its points (REQ-SS-13)")
 	await _frames(8)
 	_check(haptics == [15, 40], "a throw buzzes 15 ms and a hit 40 ms: %s" % str(haptics))
+
+	# A bush hides the animal behind it, and the banana is a miss (REQ-SS-26).
+	ready_all.call()
+	put.call(1, mid_x, mid_y)
+	var hide_bush = ss.PuffField.Bush.new()
+	hide_bush.lane = 1
+	hide_bush.x = mid_x
+	ss._field.bushes.append(hide_bush)
+	var before_hidden: float = ss._board.score(0)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ss._game_tick(0.01)
+	ss._game_tick(0.2)
+	_check(ss._board.score(0) == before_hidden and ss._field.puffs.size() == 1,
+			"a banana at an animal behind a bush takes nothing (REQ-SS-26)")
+	await _frames(8)
+	haptics.clear()
+	ss._field.bushes.clear()
 
 	# Reload (REQ-SS-4).
 	ready_all.call()
@@ -601,7 +618,7 @@ func _run() -> void:
 	ss._game_tick(0.01)
 	_check(in_air.call() == 1, "a press inside the 0.3 s reload does nothing")
 	ss._game_tick(0.2)
-	_check(ss._board.score(0) == 20.0, "the first snowball landed: 20 points")
+	_check(ss._board.score(0) == 20.0, "the first banana landed: 20 points")
 	ss._game_tick(0.2)
 	put.call(1, mid_x, mid_y)
 	p0.button_pressed.emit(Protocol.BTN_A)
@@ -618,14 +635,14 @@ func _run() -> void:
 	ss._game_tick(0.01)
 	ss._game_tick(0.2)
 	_check(ss._board.score(0) == 30.0 and ss._field.puffs.size() == 1,
-			"a snowball that misses takes nothing and loses nothing (REQ-SS-5)")
-	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "poof"), "a miss makes a poof of snow")
+			"a banana that misses takes nothing and loses nothing (REQ-SS-5)")
+	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "poof"), "a miss makes a poof")
 	_check(ss._pixel_world() and ss._pixel_viewport.size == Vector2i(480, 270),
-			"the sky is drawn in the 480x270 pixel view (REQ-SS-12)")
-	var snow_before: float = ss._snow_time
+			"the jungle is drawn in the 480x270 pixel view (REQ-SS-12)")
+	var snow_before: float = ss._scene_time
 	ss.open_menu("minigame.paused", [["minigame.resume", ss.close_menu]])
 	await _frames(4)
-	_check(is_equal_approx(ss._snow_time, snow_before), "the snowfall stands still while the game is paused (REQ-FL-43)")
+	_check(is_equal_approx(ss._scene_time, snow_before), "the jungle stands still while the game is paused (REQ-FL-43)")
 	ss.close_menu()
 	_check(ss._throwers[0].reload_left <= ss.RELOAD, "a miss does not make the player wait longer than the reload")
 	await _frames(8)
@@ -638,7 +655,7 @@ func _run() -> void:
 	ss._game_tick(0.2)
 	_check(ss._board.score(0) == 40.0, "after a miss and the reload the next throw works")
 
-	# Two players, one Puff: the snowball that was thrown first wins (REQ-SS-11).
+	# Two players, one animal: the banana that was thrown first wins (REQ-SS-11).
 	ready_all.call()
 	put.call(1, mid_x, mid_y)
 	p1.button_pressed.emit(Protocol.BTN_A)
@@ -646,7 +663,7 @@ func _run() -> void:
 	ss._game_tick(0.01)
 	ss._game_tick(0.2)
 	_check(ss._board.score(1) == 10.0 and ss._board.score(0) == 40.0,
-			"two throws in one tick: the first press gets the Puff, in the order of the presses and not of the slots")
+			"two throws in one tick: the first press gets the animal, in the order of the presses and not of the slots")
 	ready_all.call()
 	put.call(1, mid_x, mid_y)
 	p0.button_pressed.emit(Protocol.BTN_A)
@@ -654,15 +671,15 @@ func _run() -> void:
 	p1.button_pressed.emit(Protocol.BTN_A)
 	ss._game_tick(0.2)
 	_check(ss._board.score(0) == 50.0 and ss._board.score(1) == 10.0,
-			"a snowball that was thrown earlier lands earlier and takes the Puff")
+			"a banana that was thrown earlier lands earlier and takes the animal")
 
-	# A Little Puff is worth more (REQ-SS-7). B does nothing. Nothing is thrown while the game is paused (REQ-SS-4).
+	# A monkey is worth more (REQ-SS-7). B does nothing. Nothing is thrown while the game is paused (REQ-SS-4).
 	ready_all.call()
 	put.call(0, mid_x, mid_y)
 	p1.button_pressed.emit(Protocol.BTN_A)
 	ss._game_tick(0.01)
 	ss._game_tick(0.2)
-	_check(ss._board.score(1) == 35.0, "a Little Puff gives 25 points")
+	_check(ss._board.score(1) == 35.0, "a monkey gives 25 points")
 	ready_all.call()
 	p0.button_pressed.emit(Protocol.BTN_B)
 	_check(ss._presses.is_empty(), "B does nothing")
@@ -697,8 +714,8 @@ func _run() -> void:
 	ss2._game_tick(0.01)
 	ss2._game_tick(0.01)
 	var again: Array = ss2._field.puffs
-	_check(again.size() == 1 and again[0].lane == first_lane and again[0].color_index == first_color,
-			"the same seed gives the same first Puff (REQ-SS-9)")
+	_check(again.size() == 1 and again[0].lane == first_lane and again[0].kind == first_kind,
+			"the same seed gives the same first animal (REQ-SS-9)")
 	# One player: the score is compared with the medal tiers (REQ-SS-16).
 	ss2._board.remove(1)
 	ss2._board.set_score(0, 400.0)
@@ -709,34 +726,32 @@ func _run() -> void:
 			and ss2._menu_box.find_children("*", "Label", true, false)[0].text == "MEDIUM",
 			"400 points alone earn silver next to the name, and the difficulty is the title (REQ-SS-16, 21)")
 
-	# A player who leaves takes the cursor, the score and the snowballs out (REQ-SS-16).
+	# A player who leaves takes the cursor, the score and the bananas out (REQ-GM-21).
 	var fourth := ControllerClient.new()
 	fourth.player_name = "Fourth"
 	root.add_child(fourth)
 	fourth.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	var t6 := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 3 and Time.get_ticks_msec() - t6 < 4000:
-		await process_frame
+	await _wait_while(func() -> bool: return app.server.connected_slots().size() < 3, 4000)
 	app.go(ss_script)
 	await _frames(3)
 	var ss3: Control = app.current_screen()
 	_check(ss3.participants.size() == 3 and ss3._throwers.size() == 3 and ss3._board.size() == 3,
-			"snowball splat with 3 phones")
+			"banana party with 3 phones")
 	app.server.drop_player(fourth.slot)
 	await _frames(3)
 	_check(ss3.participants.size() == 2 and ss3._throwers.size() == 2 and ss3._board.size() == 2 and not ss3.is_paused(),
-			"a player who leaves takes the cursor and the score out and the round goes on (REQ-SS-16)")
+			"a player who leaves takes the cursor and the score out and the round goes on (REQ-GM-21)")
 	fourth.leave()
 	await _frames(3)
 
-	# Marble race menu: one entry, then a track list, then the race.
+	# Race menu: one entry, then a track list, then the race.
 	app.go_menu()
 	await _frames(3)
 	var menu: Control = app.current_screen()
 	menu._on_tile(Registry.find("marble_race"))
 	await _frames(4)
 	_check(is_instance_of(app.current_screen(), TvGameSettings) and app.current_screen().game_id == "marble_race",
-			"Marble Race opens its settings view (REQ-GM-90, REQ-MR-53)")
+			"Road Rally opens its settings view (REQ-GM-90, REQ-MR-53)")
 	app.current_screen().start()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), MarbleRace), "Start begins the race")
@@ -777,60 +792,50 @@ func _run() -> void:
 	await _frames(3)
 	menu = app.current_screen()
 
-	# Marble race: grid wait, tilt moves a marble, finish line ends the race.
+	# Race: grid wait, tilt moves a car, finish line ends the race.
 	root.size = Vector2i(1920, 1080)   # The headless window can have another shape. The TV is 16:9.
 	await _frames(3)
 	app.go(MarbleRace, {"track_choice": "3", "difficulty": "hard"})
 	await _frames(3)
 	var mr: Control = app.current_screen()
-	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "marble race starts with 2 participants")
+	_check(is_instance_of(mr, MarbleRace) and mr.participants.size() == 2, "car race starts with 2 participants")
 	_check(mr.track_seed == MarbleTrack.FIXED_SEEDS[2] and mr.track.title == "Track 3"
 			and mr.start_props.track_seed == mr.track_seed,
 			"the props choose the track and the seed is kept for Restart (REQ-MR-54)")
 	_check(mr.track.bumpers.size() > MarbleTrack.make(mr.track_seed, "easy").bumpers.size(),
 			"the difficulty gives the posts (REQ-MR-50)")
-	_check(mr.camera != null, "the 3D game has a camera")
-	# The 3D world is drawn in a 480x270 view, and the HUD works in full-resolution positions (REQ-GM-47i, 47n).
-	var focus := Vector3(mr._cam_pos.x, 0.0, mr._cam_pos.z)
-	_check(mr._viewport.size == Vector2i(480, 270) and mr.world_to_hud(focus).distance_to(mr.hud.size * 0.5) < 2.0,
-			"the 3D view is 480x270 and the point the camera looks at is in the middle of the HUD")
-	var square := [mr.view_size_for(Vector2(1920, 1080)), mr.view_size_for(Vector2(1280, 720)),
-			mr.view_size_for(Vector2(1000, 1000)),
-			mr.view_size_for(Vector2.ZERO)]
-	_check(square == [Vector2i(480, 270), Vector2i(480, 270), Vector2i(270, 270), Vector2i(480, 270)],
-			"the 3D view keeps square pixels in a window that is not 16:9 (REQ-GM-47i): " + str(square))
-	var marble_p := Vector3(mr._racers[0].pos.x, MarbleRace.R, mr._racers[0].pos.y)
-	var marble_r: float = mr.radius_on_hud(marble_p, MarbleRace.R)
-	_check(marble_r > 8.0, "a marble is still a clear color dot at the lowest camera: %.1f px" % marble_r)
-	mr.open_menu("minigame.paused", [["minigame.resume", mr.close_menu]])
-	await _frames(2)
-	_check(mr.world.process_mode == Node.PROCESS_MODE_DISABLED, "the 3D world freezes while paused")
-	mr.close_menu()
-	await _frames(2)
-	var post_color: Color = MarbleRace.get_script_constant_map()["POST_COLOR"]
-	var clash := false
-	for c in Protocol.PLAYER_COLORS:
-		if c.is_equal_approx(post_color):
-			clash = true
-	_check(not clash and not post_color.is_equal_approx(Color("e63946")), "post color is not a player color (REQ-MR-43)")
-	_check(is_equal_approx(mr._racers[0].arc, mr._racers[1].arc) and absf(mr._racers[0].pos.distance_to(mr._racers[1].pos)) >= 1.0,
-			"marbles start on one line and do not touch (REQ-MR-4)")
+	_check(mr._pixel_viewport != null and mr._pixel_viewport.size == Vector2i(480, 270) and mr.race_theme == "candy",
+			"the race is drawn in the 480x270 pixel view, in the Candy theme by default (REQ-MR-44, 45)")
+	var on_grid := func(s_i: int) -> bool:
+		var spot: Vector2 = mr._screen(mr._racers[s_i].pos)
+		return Rect2(Vector2(60, 112), Vector2(1800, 960)).has_point(spot) and fmod(spot.x, 4.0) == 0.0
+	_check(mr.participants.all(on_grid),
+			"at the start every car is on the screen, under the black bar, on the world pixel grid (REQ-MR-41)")
+	_check(RaceLook.CAR.size() * 4 >= 48 and RaceLook.CAR[0].length() * 4 >= 44,
+			"a car is 48 px high or more (REQ-GM-47m)")
+	_check(mr._bumper_kinds.size() == mr.track.bumpers.size() and mr._bumper_kinds.all(RaceLook.THEMES.candy.obstacles.has),
+			"every obstacle of the Candy theme is a lolly, a gumdrop or a cupcake (REQ-MR-46)")
+	_check(is_equal_approx(mr._racers[0].arc, mr._racers[1].arc)
+			and absf(mr._racers[0].pos.distance_to(mr._racers[1].pos)) >= 2.0 * mr.R,
+			"cars start on one line and do not touch (REQ-MR-4)")
 	var mx0: float = mr._racers[0].pos.x
 	await _stream(clients[0], 0, 1.0, tilt)
-	_check(absf(mr._racers[0].pos.x - mx0) < 0.01, "marbles wait on the grid during the countdown")
+	_check(absf(mr._racers[0].pos.x - mx0) < 0.01, "cars wait on the grid during the countdown")
 	await _stream(clients[0], 0, 2.6, tilt)
-	_check(mr._racers[0].pos.x > mx0 + 0.3, "marble 0 rolls right when the phone tilts right")
+	_check(mr._racers[0].pos.x > mx0 + 0.3, "car 0 rolls right when the phone tilts right")
+	_check(absf(mr._racers[0].angle - PI * 0.5) < deg_to_rad(40.0),
+			"a car that rolls right faces right, in steps of 15 degrees (REQ-MR-48)")
 	_check(mr.standings().size() == 2, "standings list both players")
 	clients[0].send_recenter()
 	await _stream(clients[0], 0, 0.5, tilt)
 	_check(mr.player(0).tilt().length() < 0.05, "the Recenter button zeroes the tilt in the race (REQ-GM-37)")
 
-	# Camera: all marbles in view at a small spread. Beyond the camera limit (about 55 m), edge markers point to them (REQ-MR-42).
+	# Camera: all cars in view at a small spread. Beyond what the screen shows, edge markers point to them (REQ-MR-42).
 	mr._racers[0].pos = mr.track.point_at(60.0)
-	mr._racers[1].pos = mr.track.point_at(30.0)
-	await _stream(clients[0], 0, 1.5, flat)
-	_check(mr.edge_markers().is_empty(), "no edge marker when the marbles are close")
-	var far_arc := 10.0   # The point of the track that is farthest from the start of marble 1 (a generated track can bend).
+	mr._racers[1].pos = mr.track.point_at(52.0)
+	await _stream(clients[0], 0, 2.0, flat)
+	_check(mr.edge_markers().is_empty(), "no edge marker when the cars are close")
+	var far_arc := 10.0   # The point of the track that is farthest from the start of car 1 (a generated track can bend).
 	var from_start: Vector2 = mr.track.point_at(10.0)
 	for arc_i in range(10, int(mr.finish_arc) - 1):
 		if mr.track.point_at(float(arc_i)).distance_to(from_start) > mr.track.point_at(far_arc).distance_to(from_start):
@@ -839,16 +844,16 @@ func _run() -> void:
 	mr._racers[1].pos = mr.track.point_at(10.0)
 	await _stream(clients[0], 0, 1.5, flat)
 	var markers: Array = mr.edge_markers()
-	_check(not markers.is_empty() and markers[0].dir.length() > 0.99, "an edge marker points to a marble that is out of view")
+	_check(not markers.is_empty() and markers[0].dir.length() > 0.99, "an edge marker points to a car that is out of view")
 	var over_line: Vector2 = mr.track.point_at(mr.finish_arc + 0.5)
-	var across: Vector2 = mr._perp(mr.track.dir_at(mr.finish_arc + 0.5)) * 0.8   # Side by side: the marbles do not push each other.
+	var across: Vector2 = mr._perp(mr.track.dir_at(mr.finish_arc + 0.5)) * 0.8   # Side by side: the cars do not push each other.
 	for s in [0, 1]:
 		mr._racers[s].pos = over_line + across * (1.0 if s == 0 else -1.0)
 	await _frames(5)
-	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "marbles past the line finish")
+	_check(mr._racers[0].finish_time >= 0.0 and mr._racers[1].finish_time >= 0.0, "cars past the line finish")
 	_check(mr.is_over and mr.is_paused(), "race ends and the results menu opens")
 	var results_items: int = mr.menu_buttons().size()
-	_check(mr._menu_box.find_children("*", "Label", true, false)[0].text == "TIE!", "two marbles with the same time are a tie")
+	_check(mr._menu_box.find_children("*", "Label", true, false)[0].text == "TIE!", "two cars with the same time are a tie")
 	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
 	mr._open_results()
 	await _frames(2)
@@ -858,15 +863,15 @@ func _run() -> void:
 		race_rows.append(l.text)
 	_check(race_labels == RESULT_MENU and race_rows.size() == 3 and race_rows[0].ends_with("WINS!")
 			and race_rows[1].begins_with("1ST") and race_rows[2].begins_with("2ND") and race_rows[2].ends_with(" S"),
-			"the race results list both marbles with their times, and offer Settings: %s %s" % [str(race_labels), str(race_rows)])
-	mr._racers[1].finish_time = -1.0   # The second marble did not reach the line.
+			"the race results list both cars with their times, and offer Settings: %s %s" % [str(race_labels), str(race_rows)])
+	mr._racers[1].finish_time = -1.0   # The second car did not reach the line.
 	mr._open_results()
 	await _frames(2)
 	var late_rows: Array = []
 	for l in mr._menu_box.find_children("*", "Label", true, false):
 		late_rows.append(l.text)
 	_check(late_rows.size() == 3 and late_rows[2].begins_with("2ND") and late_rows[2].ends_with("NOT FINISHED"),
-			"a marble that did not finish is listed as not finished, after the finishers: %s" % str(late_rows))
+			"a car that did not finish is listed as not finished, after the finishers: %s" % str(late_rows))
 	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
 	mr._open_results()
 	await _frames(2)
@@ -919,18 +924,14 @@ func _run() -> void:
 	# Resume (REQ-GM-30a). When the phone is back, the card offers Resume.
 	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
 	solo.set_process(false)
-	t5 = Time.get_ticks_msec()
-	while not solo_game._hold and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+	await _wait_while(func() -> bool: return not solo_game._hold, 8000)
 	await _frames(3)
 	var solo_buttons: Array = solo_game.menu_buttons().map(func(b): return b.text)
 	_check(solo_game._hold and solo_game.is_paused() and not solo_game.is_over and solo_game.participants == [solo.slot],
 			"the only player is lost: the game waits, it does not end")
 	_check(solo_buttons == ["minigame.end_game"], "with nobody connected the card has no Resume: %s" % str(solo_buttons))
 	solo.set_process(true)
-	t5 = Time.get_ticks_msec()
-	while not solo_game.lost_participants().is_empty() and Time.get_ticks_msec() - t5 < 6000:
-		await process_frame
+	await _wait_while(func() -> bool: return not solo_game.lost_participants().is_empty(), 6000)
 	await _frames(5)
 	solo_buttons = solo_game.menu_buttons().map(func(b): return b.text)
 	_check(solo_buttons == ["minigame.resume", "minigame.end_game"] and solo_game.is_paused(),
@@ -941,15 +942,11 @@ func _run() -> void:
 	# A phone that does not come back: the slot is kept while the game is paused, then it is freed and the game ends.
 	app.server.paused_slot_grace_ms = 1200
 	solo.set_process(false)
-	t5 = Time.get_ticks_msec()
-	while not solo_game._hold and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+	await _wait_while(func() -> bool: return not solo_game._hold, 8000)
 	await _frames(5)
 	_check(solo_game._hold and not solo_game.is_over and app.server.players[solo.slot].state == PlayerInput.State.LOST,
 			"the slot of the lost phone is kept for a while (the long wait of a paused game)")
-	t5 = Time.get_ticks_msec()
-	while not solo_game.is_over and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+	await _wait_while(func() -> bool: return not solo_game.is_over, 8000)
 	await _frames(3)
 	_check(solo_game.is_over and solo_game.participants.is_empty()
 			and solo_game.menu_buttons().map(func(b): return b.text) == ["minigame.back_to_menu"],
@@ -960,32 +957,26 @@ func _run() -> void:
 	solo.leave()
 	await _frames(3)
 
-	# The same in the marble race, which has its own branch for "no players" (REQ-MR-14).
+	# The same in the race, which has its own branch for "no players" (REQ-MR-14).
 	var solo2 := ControllerClient.new()
 	root.add_child(solo2)
 	solo2.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
-	t5 = Time.get_ticks_msec()
-	while app.server.connected_slots().size() < 1 and Time.get_ticks_msec() - t5 < 4000:
-		await process_frame
+	await _wait_while(func() -> bool: return app.server.connected_slots().size() < 1, 4000)
 	app.go(MarbleRace, {"track_choice": "1"})
 	await _frames(3)
 	var solo_race: Control = app.current_screen()
 	app.server.peer_timeout_ms = 2500   # More than two heartbeats (1 s) of the phone.
 	app.server.paused_slot_grace_ms = 1200
 	solo2.set_process(false)
-	t5 = Time.get_ticks_msec()
-	while not solo_race._hold and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+	await _wait_while(func() -> bool: return not solo_race._hold, 8000)
 	await _frames(3)
 	_check(solo_race._hold and solo_race.is_paused() and not solo_race.is_over
 			and solo_race.menu_buttons().map(func(b): return b.text) == ["minigame.end_game"],
-			"marble race: the last player is lost, the race waits with a card that has no Resume")
-	t5 = Time.get_ticks_msec()
-	while not solo_race.is_over and Time.get_ticks_msec() - t5 < 8000:
-		await process_frame
+			"race: the last player is lost, the race waits with a card that has no Resume")
+	await _wait_while(func() -> bool: return not solo_race.is_over, 8000)
 	await _frames(3)
 	_check(solo_race.is_over and solo_race.menu_buttons().map(func(b): return b.text) == ["minigame.back_to_menu"],
-			"marble race: when the phone does not come back, 'No players connected' opens (REQ-MR-14)")
+			"race: when the phone does not come back, 'No players connected' opens (REQ-MR-14)")
 	app.server.paused_slot_grace_ms = Protocol.PAUSED_SLOT_GRACE_MS
 	app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
 	solo2.set_process(true)

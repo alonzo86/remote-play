@@ -63,8 +63,9 @@ func _run() -> void:
 	app.go_game_settings("maze")
 	await _frames(4)
 	var sv: Control = app.current_screen()
-	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 1 and sv.rows[0].value == "medium",
-			"the settings view of the maze has the row Difficulty on Medium")
+	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 2 and sv.rows[0].value == "medium"
+			and sv.rows[1].value == "garden",
+			"the settings view of the maze has the rows Difficulty on Medium and Theme on Garden (REQ-MZ-12)")
 	_check(sv.rows[0].has_focus() and sv.rows[0]._value.text == "MEDIUM", "the row has the focus and shows Medium")
 	var row_left: float = sv.rows[0].global_position.x
 	var row_right: float = row_left + sv.rows[0].size.x
@@ -102,40 +103,48 @@ func _run() -> void:
 	await _frames(4)
 	sv = app.current_screen()
 	_check(sv.rows[0].value == "hard", "the view opens with the last choice (REQ-GM-94)")
+	sv.rows[1]._gui_input(right)
+	_check(sv.rows[1].value == "ice" and sv.rows[1]._value.text == "ICE", "Right on the Theme row gives Ice")
 	sv.start()
 	await _frames(4)
 	var game: Control = app.current_screen()
-	_check(is_instance_of(game, MazeGame) and game.difficulty == "hard" and game.cols == 21 and game.rows == 11,
-			"Start begins a Hard maze (21 x 11)")
+	_check(is_instance_of(game, MazeGame) and game.difficulty == "hard" and game.cols == 18 and game.rows == 9,
+			"Start begins a Hard maze (18 x 9)")
 	_check(game.start_props.difficulty == "hard", "Restart keeps the difficulty (REQ-GM-93)")
-	# Snowball Splat has the same view, and Hard reaches the game and its field (REQ-SS-20).
+	_check(game.maze_theme == "ice" and game.start_props.maze_theme == "ice", "Start and Restart keep the theme (REQ-MZ-12)")
+	# Banana Party has the same view, and Hard reaches the game and its field (REQ-SS-20).
 	var Snow = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
 	app.go_game_settings("snowball_splat")
 	await _frames(4)
 	sv = app.current_screen()
 	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 1 and sv.rows[0].value == "medium",
-			"Snowball Splat opens the settings view with Difficulty on Medium")
+			"Banana Party opens the settings view with Difficulty on Medium")
 	sv.rows[0]._gui_input(right)
 	sv.start()
 	await _frames(4)
 	var snow: Control = app.current_screen()
 	_check(is_instance_of(snow, Snow) and snow.difficulty == "hard" and snow._field._speed == 1.5
 			and snow.start_props.difficulty == "hard",
-			"Start begins a Hard Snowball Splat, and Restart keeps it")
-	# Marble Race: the track list under Difficulty (REQ-MR-53, 54).
+			"Start begins a Hard Banana Party, and Restart keeps it")
+	# Road Rally: the track list under Difficulty (REQ-MR-53, 54).
 	var Race = load("res://scripts/game/marble_race/marble_race.gd")
 	var MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
 	app.go_game_settings("marble_race")
 	await _frames(4)
 	sv = app.current_screen()
-	var picker: Control = sv.rows[1]
-	_check(sv.rows.size() == 2 and sv.rows[0].row.key == "difficulty" and picker.tiles.size() == 11
+	var picker: Control = sv.rows[2]
+	_check(sv.rows.size() == 3 and sv.rows[0].row.key == "difficulty" and sv.rows[1].row.key == "race_theme"
+			and sv.rows[1].value == "candy"
+			and sv.rows[1].row.titles == ["registry.candy_road", "registry.space_rally", "registry.jungle_run"]
+			and picker.tiles.size() == 11
 			and picker.tiles[10].sketch.is_empty() and picker.tiles[0].sketch.size() >= 3,
-			"the race view has Difficulty and 11 tracks under it, the last one without a sketch (the random track)")
+			"the race view has Difficulty, Theme and 11 tracks under them, the last one without a sketch (the random track)")
 	_check(picker.index == 0 and picker.value == "1", "Track 1 is in the middle at first")
-	_check(sv.rows[0].global_position.y < picker.global_position.y and picker.global_position.y < sv.start_button.global_position.y,
-			"the carousel is under Difficulty and above Start")
-	_check(picker.size.x == sv.rows[0].MIN_W and is_equal_approx(sv.rows[0].size.x, picker.size.x)
+	_check(sv.rows[0].global_position.y < sv.rows[1].global_position.y and sv.rows[1].global_position.y < picker.global_position.y
+			and picker.global_position.y < sv.start_button.global_position.y,
+			"the carousel is under Difficulty and Theme and above Start")
+	_check(picker.size.x >= sv.rows[0].MIN_W and is_equal_approx(sv.rows[0].size.x, picker.size.x)
+			and is_equal_approx(sv.rows[1].size.x, picker.size.x)
 			and is_equal_approx(sv.rows[0].global_position.x, picker.global_position.x)
 			and is_equal_approx(sv.back_button.global_position.x, picker.global_position.x)
 			and is_equal_approx(sv.start_button.global_position.x + sv.start_button.size.x, picker.global_position.x + picker.size.x),
@@ -183,18 +192,24 @@ func _run() -> void:
 	sv.rows[0]._gui_input(right)
 	sv.rows[0]._gui_input(left)
 	sv.rows[0]._gui_input(left)
+	sv.rows[1]._gui_input(right)
 	sv.start()
 	await _frames(4)
 	var race: Control = app.current_screen()
 	_check(is_instance_of(race, Race) and race.difficulty == "easy" and race.track_seed == MarbleTrack.FIXED_SEEDS[3]
-			and race.track.bumpers.size() == MarbleTrack.make(race.track_seed, "easy").bumpers.size(),
-			"Start begins an Easy race on Track 4")
+			and race.track.bumpers.size() == MarbleTrack.make(race.track_seed, "easy").bumpers.size()
+			and race.race_theme == "space" and race.start_props.race_theme == "space",
+			"Start begins an Easy race on Track 4 in the Space theme, and Restart keeps the theme")
+	var space_ok: bool = race._bumper_kinds.size() == race.track.bumpers.size() and not race._bumper_kinds.is_empty()
+	for kind in race._bumper_kinds:
+		space_ok = space_ok and ["asteroid", "satellite", "crater"].has(kind)
+	_check(space_ok, "the obstacles of the Space theme are asteroids, satellites and craters (REQ-MR-46)")
 	app.go_game_settings("marble_race")
 	await _frames(4)
 	sv = app.current_screen()
-	_check(sv.rows[0].value == "easy" and sv.rows[1].value == "4" and sv.rows[1].index == 3,
+	_check(sv.rows[0].value == "easy" and sv.rows[1].value == "space" and sv.rows[2].value == "4" and sv.rows[2].index == 3,
 			"the view opens with the last choices (REQ-GM-94)")
-	sv.rows[1].set_value("random", true)
+	sv.rows[2].set_value("random", true)
 	sv.start()
 	await _frames(4)
 	race = app.current_screen()

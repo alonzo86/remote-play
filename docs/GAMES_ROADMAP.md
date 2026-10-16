@@ -79,13 +79,13 @@ Order and dependencies:
 ## Games for children too
 
 Decision (2026-10-09, after the first try of "Target Shoot"): all games are also for children (REQ-GM-80 to 84 in `docs/GAME_REQUIREMENTS.md`).
-No shooting or fighting: made-up friendly characters, snowballs, bumpers, funny reactions. A miss or a fall costs nothing. Large and slow at the start.
+No violence against anything alive, no blood and nothing scary (REQ-GM-81): made-up friendly characters, bananas, bumpers, funny reactions. Toy beams at lifeless things (rocks) are fine (Galaxy Protector). A miss or a fall costs nothing. Large and slow at the start.
 What this means for the games that are not built yet. The decision is made in the requirements file of each game:
 
 | Game | Check against REQ-GM-80 to 84 |
 |------|--------------------------------|
 | Paint Grab | Fine: roll and paint. Use bright, friendly colors. |
-| Dodge Storm | "The last player standing" means a player is out and waits (REQ-GM-83). A hit should be a funny bump, and the player is back in the game after a few seconds. The hazards are soft and funny (balloons, snowflakes, rubber ducks), not dangerous things. |
+| Dodge Storm | "The last player standing" means a player is out and waits (REQ-GM-83). A hit should be a funny bump, and the player is back in the game after a few seconds (or keeps the points and waits only until the team game ends, REQ-GM-83). The hazards are soft and funny (balloons, snowflakes, rubber ducks), not dangerous things. |
 | Tilt Snake | "A hit on a tail removes you" is too harsh. A hit makes the snake short again and it goes on. The snake is a friendly made-up creature. |
 | Sumo Bumpers | Cartoon bumpers that bounce each other off a platform. A player who falls off comes back in the next round (a round is short). No fighting words. |
 

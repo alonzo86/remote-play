@@ -11,24 +11,29 @@ extends RefCounted
 ##   props   optional. Values set on the game before it starts.
 ##   settings  optional. The game has a settings view (REQ-GM-90) when this list exists. It lists the rows after Difficulty
 ##             (see game_settings.gd). An empty list means Difficulty only. A row with `"type": "tracks"` is the track list
-##             of the marble race (`scripts/ui/track_picker.gd`).
+##             of Road Rally (`scripts/ui/track_picker.gd`).
 ##   min_players / max_players  allowed player count (REQ-GM-20). The Games screen dims a game that does not fit.
 
 const Lang = preload("res://scripts/core/lang.gd")
 
 const GAMES: Array[Dictionary] = [
-	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "registry.tilt_maze", "dim": "2d",
+	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "registry.treasure_maze", "dim": "2d",
 			"description": "registry.tilt_phone_roll_ball",
 			"tile": "res://assets/tiles/maze.png",
-			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4, "settings": []},
-	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "registry.marble_race", "dim": "3d",
+			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4,
+			"settings": [{"key": "maze_theme", "label": "registry.theme", "values": ["castle", "garden", "ice"],
+					"titles": ["registry.castle", "registry.garden", "registry.ice"], "default": "garden"}]},
+	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "registry.marble_race", "dim": "2d",
 			"description": "registry.tilt_roll_marble_along",
 			"tile": "res://assets/tiles/marble_race.png",
 			"path": "res://scripts/game/marble_race/marble_race.gd", "min_players": 1, "max_players": 4,
-			"settings": [{"key": "track_choice", "label": "registry.track", "type": "tracks",
+			"settings": [{"key": "race_theme", "label": "registry.theme", "values": ["candy", "space", "jungle"],
+					"titles": ["registry.candy_road", "registry.space_rally", "registry.jungle_run"], "default": "candy"},
+					{"key": "track_choice", "label": "registry.track", "type": "tracks",
 					"values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "random"],
-					"titles": ["Track 1", "Track 2", "Track 3", "Track 4", "Track 5", "Track 6", "Track 7", "Track 8", "Track 9",
-							"Track 10", "registry.random"]}]},
+					"titles": ["settings.track_n", "settings.track_n", "settings.track_n", "settings.track_n", "settings.track_n",
+							"settings.track_n", "settings.track_n", "settings.track_n", "settings.track_n", "settings.track_n",
+							"registry.random"], "format_number": true}]},
 	{"id": "paint_grab", "doc": "res://docs/games/paint_grab.md", "title": "registry.paint_grab", "dim": "2d",
 			"description": "registry.tilt_phone_roll_paint",
 			"tile": "res://assets/tiles/paint_grab.png",
@@ -42,6 +47,10 @@ const GAMES: Array[Dictionary] = [
 			"tile": "res://assets/tiles/snowball_splat.png",
 			"path": "res://scripts/game/snowball_splat/snowball_splat_game.gd", "min_players": 1, "max_players": 4,
 			"settings": []},
+	{"id": "asteroid_blast", "doc": "res://docs/games/asteroid_blast.md", "title": "registry.galaxy_protector", "dim": "2d",
+			"description": "registry.tilt_fly_spaceship_blast",
+			"tile": "res://assets/tiles/asteroid_blast.png",
+			"path": "res://scripts/game/asteroid_blast/asteroid_blast_game.gd", "min_players": 1, "max_players": 4, "settings": []},
 ]
 
 

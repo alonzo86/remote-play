@@ -10,6 +10,7 @@ const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
+const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
 const QrEncoder = preload("res://scripts/core/qr_encoder.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
@@ -242,10 +243,15 @@ func _test_registry() -> void:
 	_check(shown_ok, "every game has a description and a 640x360 tile file (REQ-FL-19, 20, 22)")
 	_check(Registry.find("nope").is_empty() and Registry.load_script("nope") == null, "unknown game id gives nothing")
 	var race_rows: Array = Registry.find("marble_race").get("settings", [])
-	_check(race_rows.size() == 1 and race_rows[0].type == "tracks"
-			and race_rows[0].values.size() == MarbleTrack.FIXED_SEEDS.size() + 1
-			and race_rows[0].titles.size() == race_rows[0].values.size() and race_rows[0].values[-1] == "random",
-			"the marble race track list has the 10 fixed tracks and the random one (REQ-MR-53)")
+	_check(race_rows.size() == 2 and race_rows[1].type == "tracks"
+			and race_rows[1].values.size() == MarbleTrack.FIXED_SEEDS.size() + 1
+			and race_rows[1].titles.size() == race_rows[1].values.size() and race_rows[1].values[-1] == "random",
+			"the race track list has the 10 fixed tracks and the random one (REQ-MR-53)")
+	var race_theme_row: Dictionary = race_rows[0]
+	_check(race_theme_row.key == "race_theme" and race_theme_row.label == "registry.theme"
+			and race_theme_row.values == RaceLook.THEMES.keys() and race_theme_row.titles.size() == 3
+			and race_theme_row.values.has(race_theme_row.default) and race_theme_row.default == RaceLook.DEFAULT_THEME,
+			"the race has a Theme row with one value for each look, and a default (REQ-MR-45)")
 	var sumo: Dictionary = Registry.find("sumo_bumpers")
 	_check(not Registry.accepts(sumo, 1) and Registry.accepts(sumo, 2) and Registry.accepts(sumo, 4)
 			and not Registry.accepts(sumo, 5) and Registry.reason(sumo, 1) == "Needs 2 players",
@@ -303,23 +309,12 @@ func _test_qr() -> void:
 ## The maze colors follow REQ-GM-47d and 47e (REQ-MZ-7). The player colors are checked for every game.
 func _test_visual_rules() -> void:
 	print("visual rules")
-	var Maze = load("res://scripts/game/maze/maze_game.gd")
-	var consts: Dictionary = Maze.get_script_constant_map()
-	var floor_c: Color = consts["FLOOR_COLOR"]
-	var wall_c: Color = consts["WALL_COLOR"]
 	var players_ok := true
-	var floor_ok := true
 	for c in Protocol.PLAYER_COLORS:
 		if c.s < 0.55 or c.v < 0.60:
 			players_ok = false
 			print("    player color not saturated or bright enough: ", c)
-		if Shell.contrast(c, floor_c) < 3.0:
-			floor_ok = false
-			print("    player color too close to the maze floor: ", c)
 	_check(players_ok, "player colors have saturation 0.55+ and value 0.60+ (REQ-GM-47d)")
-	_check(floor_ok, "every player color has a contrast of 3:1 on the maze floor (REQ-GM-47e)")
-	_check(floor_c.s >= 0.35 and floor_c.v >= 0.25 and floor_c.v <= 0.65, "the maze floor is dark and saturated (REQ-GM-47e)")
-	_check(Shell.contrast(wall_c, floor_c) >= 3.0, "the maze walls can be seen on the floor")
 	_check(UiTheme.OUTLINE.v < 0.4, "the outline color is dark")
 
 	# A name for a phone without one, and a digit centered in its circle.

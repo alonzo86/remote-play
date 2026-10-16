@@ -52,6 +52,20 @@ static func text_centered(ci: CanvasItem, pos: Vector2, msg: String, font_size :
 	ci.draw_string(UiTheme.font(), pos - Vector2(w * 0.5, 0.0), upper, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 
+## A line of text on a black plate with a frame, centered on `at` (`at.y` is the baseline), so the world behind it never hides it.
+## The plate is as wide as the text in the current language.
+static func label_plate(ci: CanvasItem, at: Vector2, msg: String, font_size: int, color: Color) -> void:
+	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), label_plate_rect(at, msg, font_size))
+	text_centered(ci, at, msg, font_size, color)
+
+
+## The black plate of `label_plate()`: 24 px wider than the text on each side, centered on `at.x`.
+static func label_plate_rect(at: Vector2, msg: String, font_size: int) -> Rect2:
+	var f := UiTheme.font()
+	var w := f.get_string_size(Lang.t(msg).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	return Rect2(at.x - w * 0.5 - 24.0, at.y - f.get_ascent(font_size) - 20.0, w + 48.0, f.get_height(font_size) + 40.0)
+
+
 ## A name or score chip (REQ-GM-46): a black box with a 4 px frame, a square in the player color, the avatar of the player when
 ## there is one (REQ-GM-46b), and the text in the text color. The text never sits on the player color. `pos` is the top-left
 ## corner. A chip is always laid out left to right, also in Hebrew: the square, the avatar, the name, the score at the end.

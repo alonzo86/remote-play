@@ -71,7 +71,7 @@ func move(delta: int) -> void:
 
 
 func _refresh() -> void:
-	_value.text = Lang.t(GameSettings.title_of(row, value)).to_upper()
+	_value.text = GameSettings.title_text(row, value).to_upper()
 	var i: int = row.values.find(value)
 	_left.modulate.a = 1.0 if i > 0 else 0.3
 	_right.modulate.a = 1.0 if i < row.values.size() - 1 else 0.3

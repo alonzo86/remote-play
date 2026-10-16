@@ -41,6 +41,11 @@ const SONGS := {
 		"a": ("C6:0.5 A5:0.5 F5:0.5 A5:0.5 C6:2  D6:0.5 A5:0.5 F5:0.5 A5:0.5 D6:2  " +
 				"D6:0.5 Bb5:0.5 F5:0.5 Bb5:0.5 D6:2  E6:0.5 C6:0.5 G5:0.5 C6:0.5 E6:1 -:1"),
 		"b": "A5:1 C6:1 F6:2  F6:1 D6:1 A5:2  Bb5:1 D6:1 F6:2  E6:1 C6:1 G5:2"},
+	"asteroid_blast": {"bpm": 140, "lead_duty": 0.125, "drums": "march",
+		"prog": [["A2", "C3", "E3"], ["F2", "A2", "C3"], ["G2", "B2", "D3"], ["E2", "G#2", "B2"]],
+		"a": ("A4:0.5 C5:0.5 E5:0.5 C5:0.5 A5:1 E5:1  F4:0.5 A4:0.5 C5:0.5 A4:0.5 F5:1 C5:1  " +
+				"G4:0.5 B4:0.5 D5:0.5 B4:0.5 G5:1 D5:1  E5:0.5 G#5:0.5 B5:0.5 G#5:0.5 E5:2"),
+		"b": "E5:1 A5:1 C6:2  C6:1 A5:1 F5:2  D5:1 G5:1 B5:2  B5:1 G#5:1 E5:2"},
 }
 
 
@@ -153,10 +158,10 @@ static func effects() -> Dictionary:
 	fx["time_low"] = [_blip(1000.0, 1000.0, 0.025, 0.15)]
 	fx["win"] = _run(["C5", "E5", "G5", "C6", "G5", "C6"], 0.15, 0.33, 0.5, 1.0)
 	fx["tie"] = _run(["E5", "G5", "E5"], 0.2, 0.3, 0.5, 1.0)
-	# Tilt Maze.
+	# Treasure Maze.
 	fx["maze_bump"] = [_blip(180.0, 120.0, 0.04, 0.22, 0.25)]
 	fx["maze_exit"] = _run(["C5", "E5", "G5", "C6"], 0.09, 0.35)
-	# Marble Race.
+	# Road Rally.
 	fx["marble_wall"] = [_noise(5000.0, 3000.0, 0.03, 0.2), _blip(700.0, 500.0, 0.03, 0.15, 0.25)]
 	fx["marble_wall_hard"] = [_noise(6000.0, 3000.0, 0.04, 0.28), _blip(1000.0, 650.0, 0.04, 0.2, 0.25)]
 	fx["marble_bumper"] = [_blip(300.0, 900.0, 0.12, 0.33, 0.25)]
@@ -173,11 +178,17 @@ static func effects() -> Dictionary:
 	fx["sumo_dash"] = [_noise(2000.0, 9000.0, 0.15, 0.25)]
 	fx["sumo_fall"] = [_blip(1200.0, 180.0, 0.5, 0.3)]
 	fx["sumo_round_win"] = _run(["C5", "E5", "G5", "C6"], 0.1, 0.35)
-	# Snowball Splat.
+	# Banana Party.
 	fx["snow_throw"] = [_noise(6000.0, 12000.0, 0.07, 0.2)]
 	fx["snow_hit"] = [_noise(4000.0, 1500.0, 0.1, 0.28), _blip(300.0, 700.0, 0.1, 0.3, 0.25, 0.08)]
 	fx["snow_miss"] = [_noise(3000.0, 1500.0, 0.06, 0.1)]
 	fx["snow_points"] = [_blip(1320.0, 1320.0, 0.05, 0.3), _blip(1760.0, 1760.0, 0.1, 0.3, 0.5, 0.05)]
+	# Galaxy Protector.
+	fx["blast_boom"] = [_noise(3500.0, 500.0, 0.18, 0.3), _blip(160.0, 60.0, 0.18, 0.3, 0.25)]
+	fx["blast_pickup"] = _run(["E5", "A5", "E6"], 0.06, 0.3)
+	fx["blast_shield"] = [_blip(900.0, 300.0, 0.2, 0.3), _noise(2500.0, 800.0, 0.1, 0.2)]
+	fx["blast_lost"] = [_noise(2500.0, 200.0, 0.45, 0.38), _blip(300.0, 40.0, 0.45, 0.35, 0.25)]
+	fx["blast_wave"] = _run(["A4", "E5", "A5"], 0.1, 0.3)
 	return fx
 
 

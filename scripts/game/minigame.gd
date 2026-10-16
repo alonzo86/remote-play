@@ -402,7 +402,7 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 
 
 ## The key of the personal best of this game and its settings (REQ-GM-98), for example `snowball_splat|medium`; a key of
-## `ProfileKeys`. An empty text means the game has no personal best (Tilt Maze, Sumo Bumpers, a random Marble Race track).
+## `ProfileKeys`. An empty text means the game has no personal best (Treasure Maze, Sumo Bumpers, a random track of the race).
 func best_key() -> String:
 	return ""
 

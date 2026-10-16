@@ -74,12 +74,13 @@ func _keys() -> void:
 	var round_ok := true
 	for i in keys.size():
 		round_ok = round_ok and ProfileKeys.number_of(keys[i]) == i + 1 and ProfileKeys.key_of(i + 1) == keys[i]
-	_check(keys.size() == 36 and round_ok and keys.size() <= ProfileKeys.MAX_KEYS, "36 keys, each with its own number from 1")
+	_check(keys.size() == 39 and round_ok and keys.size() <= ProfileKeys.MAX_KEYS, "39 keys, each with its own number from 1")
 	_check(ProfileKeys.number_of("snowball_splat|easy") == 1 and ProfileKeys.number_of("paint_grab|hard") == 6
-			and ProfileKeys.number_of("marble_race|easy|1") == 7 and ProfileKeys.number_of("marble_race|hard|10") == 36,
+			and ProfileKeys.number_of("marble_race|easy|1") == 7 and ProfileKeys.number_of("marble_race|hard|10") == 36
+			and ProfileKeys.number_of("asteroid_blast|easy") == 37 and ProfileKeys.number_of("asteroid_blast|hard") == 39,
 			"the numbers are fixed (a saved code depends on them)")
 	_check(ProfileKeys.number_of("maze|easy") == 0 and ProfileKeys.number_of("sumo_bumpers|easy") == 0
-			and ProfileKeys.key_of(0) == "" and ProfileKeys.key_of(37) == "", "maze, sumo and an unknown number have no key")
+			and ProfileKeys.key_of(0) == "" and ProfileKeys.key_of(40) == "", "maze, sumo and an unknown number have no key")
 	_check(ProfileKeys.lower_is_better("marble_race|easy|2") and not ProfileKeys.lower_is_better("paint_grab|easy"),
 			"a race time is better when lower, a score when higher")
 	_check(ProfileKeys.is_better("paint_grab|easy", 9, 5) and not ProfileKeys.is_better("paint_grab|easy", 5, 9)
@@ -106,7 +107,11 @@ func _round_trip() -> void:
 	var big := ProfileCode.encode(_profile(ID_A, "אבגדהוזחטי", 15, 300, all))
 	var back = ProfileCode.decode(big).get("profile")
 	_check(back != null and back.bests == all and not QrEncoder.encode(big).is_empty(),
-			"the largest profile (36 bests, a name of 20 bytes) is read back and fits in a QR code: %d characters" % big.length())
+			"the largest profile (39 bests, a name of 20 bytes) is read back and fits in a QR code: %d characters" % big.length())
+	var blast := {"asteroid_blast|easy": 800, "asteroid_blast|medium": 1800, "asteroid_blast|hard": 3200}
+	var blast_back = ProfileCode.decode(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, blast))).get("profile")
+	_check(blast_back != null and blast_back.bests == blast,
+			"the bests of keys 37 to 39 (Galaxy Protector) survive a code (REQ-AB-18)")
 	var small := ProfileCode.encode(_profile(ID_A, "Maya", 1))
 	_check(small.length() < 70 and not QrEncoder.encode(small).is_empty(),
 			"a profile with no bests is short: %d characters" % small.length())
