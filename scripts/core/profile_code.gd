@@ -7,7 +7,11 @@ const Profile = preload("res://scripts/core/profile.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
 
 const PREFIX := "WP1."
+## Version 1 carries up to 39 bests (numbers 1 to 39). Version 2 carries up to 42 (Pin Pals, numbers 40 to 42). A profile with no
+## best above 39 is still written as version 1, so an older app reads it. Both versions have the same layout.
 const FORMAT_VERSION := 1
+const FORMAT_VERSION_2 := 2
+const MAX_KEYS_V1 := 39
 const NAME_BYTES_MAX := 20
 const VALUE_MAX := 4000000000
 const REASON_BAD := "This code does not work"
@@ -16,7 +20,7 @@ const REASON_BAD := "This code does not work"
 ## The code of a profile. Bests with a key that the table does not know, or a value out of range, are left out.
 static func encode(p: RefCounted) -> String:
 	var b := PackedByteArray()
-	b.append(FORMAT_VERSION)
+	b.append(FORMAT_VERSION)   # Set to FORMAT_VERSION_2 below when a best has a number above 39.
 	b.append_array(p.id.hex_decode())
 	b.append(clampi(p.avatar, 0, 255))
 	_put_varint(b, p.rev)
@@ -30,6 +34,8 @@ static func encode(p: RefCounted) -> String:
 		if n > 0 and v > 0 and v <= VALUE_MAX:
 			numbers.append(n)
 	numbers.sort()
+	if not numbers.is_empty() and numbers[numbers.size() - 1] > MAX_KEYS_V1:
+		b[0] = FORMAT_VERSION_2
 	b.append(numbers.size())
 	for n in numbers:
 		b.append(n)
@@ -60,7 +66,7 @@ static func decode(text: String) -> Dictionary:
 	if b[b.size() - 2] != (crc >> 8) or b[b.size() - 1] != (crc & 0xFF):
 		return _fail()
 	var body := b.slice(0, b.size() - 2)
-	if body[0] != FORMAT_VERSION:
+	if body[0] != FORMAT_VERSION and body[0] != FORMAT_VERSION_2:
 		return _fail()
 	var pos := [17]   # A position that the readers move.
 	var p = Profile.new()
@@ -81,7 +87,7 @@ static func decode(text: String) -> Dictionary:
 	pos[0] += name_len
 	var k: int = body[pos[0]]
 	pos[0] += 1
-	if k > ProfileKeys.MAX_KEYS:
+	if k > ProfileKeys.MAX_KEYS or (body[0] == FORMAT_VERSION and k > MAX_KEYS_V1):
 		return _fail()
 	var seen := {}
 	for i in k:

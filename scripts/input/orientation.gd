@@ -97,3 +97,18 @@ func pointer() -> Vector2:
 	return Vector2(
 		clampf(-yaw_rel / range_rad, -1.0, 1.0),
 		clampf(-elev_rel / range_rad, -1.0, 1.0))
+
+
+## The turn of the phone since the last recenter, in radians. Positive = the phone turned left (the same yaw as `pointer()`,
+## before
+## its range is applied). Bowling uses it with its own range (REQ-BW-4).
+func yaw_offset() -> float:
+	return wrapf(yaw - _ref_yaw, -PI, PI)
+
+
+## The acceleration of the phone without gravity (m/s2, phone frame) for a raw accelerometer reading: the reading minus gravity
+## along
+## `up`. A phone that lies still gives about zero. Bowling finds its swing in it (REQ-BW-5).
+func linear_accel(raw: Vector3) -> Vector3:
+	var sign_a := -1.0 if settings.get("invert_tilt", false) else 1.0
+	return raw * sign_a - up * G

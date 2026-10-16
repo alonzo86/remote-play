@@ -191,3 +191,21 @@ asteroid_blast.wave_n,Wave %d,גל %d,"Galaxy Protector: wave number in the HUD 
 asteroid_blast.wave_clear,Wave %d clear!,גל %d הסתיים!,"Galaxy Protector: banner when a wave is over, %d is the wave",
 asteroid_blast.next_wave_in,Next wave in %d,הגל הבא בעוד %d,"Galaxy Protector: banner in the rest between two waves, %d is seconds",
 asteroid_blast.reached_wave,Reached wave %d,הגעתם לגל %d,"Galaxy Protector: title of the result menu for one player, %d is the wave",
+registry.pin_pals,PIN PALS,באולינג חברים,"Name of the game Pin Pals: Games screen, game settings, in-game title",
+registry.move_phone_aim_swing,MOVE YOUR PHONE TO AIM. SWING IT TO ROLL THE BALL!,הזיזו את הטלפון כדי לכוון. הניפו אותו כדי לגלגל את הכדור!,Description of Pin Pals: Games screen and game settings,
+bowling.rails,RAILS,מעקות,Pin Pals settings view: name of the Rails row,
+bowling.on,ON,פועל,Pin Pals settings view: On value of the Rails row,
+bowling.off,OFF,כבוי,Pin Pals settings view: Off value of the Rails row,
+bowling.turn,"%s, your turn!","%s, תורך!","Pin Pals: plate in the top bar while a player bowls, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
+bowling.frame,Frame %d/%d  Ball %d,פריים %d/%d  כדור %d,"Pin Pals: top bar, right side: the frame (of 10) and the ball (1 to 3) that is bowled now","the number sign (%d, %.1f ...) is replaced by a number"
+bowling.hint_aim,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD!",הזיזו את הטלפון כדי לכוון. הניפו אחורה ואז קדימה!,Pin Pals: hint on a plate over the lane at the start of a turn,
+bowling.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Pin Pals: hint on a plate after a swing that was too weak,
+bowling.strike,STRIKE!,סטרייק!,Pin Pals: banner after a strike (all 10 pins with the first ball),
+bowling.spare,SPARE!,ספייר!,Pin Pals: banner after a spare (all 10 pins with 2 balls),
+bowling.gutter,OOPS! OFF THE SIDE,אופס! יצא לצד,Pin Pals: banner after a ball that knocked no pin or went into the gutter,
+bowling.nice_roll,NICE ROLL!,גלגול יפה!,"Pin Pals: banner after a ball that knocked 7 or more pins, but no strike or spare",
+bowling.nice_try,NICE TRY!,ניסיון יפה!,Pin Pals: banner after a ball that knocked 1 to 6 pins,
+bowling.pins_left,%d pins left. One more ball!,נשארו %d פינים. עוד כדור!,"Pin Pals: line under the banner before the second ball, %d is the pins that stand","the number sign (%d, %.1f ...) is replaced by a number"
+bowling.pin_left,1 pin left. One more ball!,נשאר פין אחד. עוד כדור!,Pin Pals: line under the banner before the second ball when 1 pin stands,
+bowling.phone_turn,YOUR TURN,התור שלך,"Pin Pals: phone screen, line under the player and score rows while it is the turn of this phone",
+bowling.phone_wait,%s IS BOWLING,%s משחק/ת,"Pin Pals: phone screen, same line while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
