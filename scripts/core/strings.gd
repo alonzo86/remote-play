@@ -65,7 +65,7 @@ const HE := {
 	"PAINT GRAB": "חטיפת צבע",
 	"SUMO BUMPERS": "סומו מתנגשים",
 	"BANANA PARTY": "מסיבת בננות",
-	"ASTEROID BLAST": "פיצוץ אסטרואידים",
+	"GALAXY PROTECTOR": "מגן הגלקסיה",
 	"TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.":
 		"הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.",
 	"TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.":

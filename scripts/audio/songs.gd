@@ -183,7 +183,7 @@ static func effects() -> Dictionary:
 	fx["snow_hit"] = [_noise(4000.0, 1500.0, 0.1, 0.28), _blip(300.0, 700.0, 0.1, 0.3, 0.25, 0.08)]
 	fx["snow_miss"] = [_noise(3000.0, 1500.0, 0.06, 0.1)]
 	fx["snow_points"] = [_blip(1320.0, 1320.0, 0.05, 0.3), _blip(1760.0, 1760.0, 0.1, 0.3, 0.5, 0.05)]
-	# Asteroid Blast.
+	# Galaxy Protector.
 	fx["blast_boom"] = [_noise(3500.0, 500.0, 0.18, 0.3), _blip(160.0, 60.0, 0.18, 0.3, 0.25)]
 	fx["blast_pickup"] = _run(["E5", "A5", "E6"], 0.06, 0.3)
 	fx["blast_shield"] = [_blip(900.0, 300.0, 0.2, 0.3), _noise(2500.0, 800.0, 0.1, 0.2)]

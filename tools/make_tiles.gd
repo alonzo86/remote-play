@@ -47,7 +47,7 @@ func _stream(c: Array, seconds: float, accel: Array, gyro := []) -> void:
 		await _frames(1)
 
 
-## The Asteroid Blast picture: rocks of all sizes, beams in the air, two pickups, a force field, 3 lasers and an explosion.
+## The Galaxy Protector picture: rocks of all sizes, beams in the air, two pickups, a force field, 3 lasers and an explosion.
 func _place_blast(game: Node) -> void:
 	var f = game.field
 	var rng := RandomNumberGenerator.new()

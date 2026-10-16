@@ -31,7 +31,7 @@ Default: **A**, built so that C is possible (section 3.4). Music in "MIDI-like" 
 | `paint_grab` | Paint Grab | Cheerful and bouncy (about 128 BPM) | 16 bars (30 s) |
 | `sumo_bumpers` | Sumo Bumpers | Heavy and comic, a march with a strong beat (about 132 BPM) | 16 bars (29 s) |
 | `snowball_splat` | Snowball Splat | Light and playful, bell-like (about 124 BPM) | 16 bars (31 s) |
-| `asteroid_blast` | Asteroid Blast | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
+| `asteroid_blast` | Galaxy Protector | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
 
 Rules:
 - Game music starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1).

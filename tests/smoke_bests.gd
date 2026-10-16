@@ -72,7 +72,7 @@ func _keys() -> void:
 	_app.go(Blast, {"difficulty": "hard"})
 	await _frames(2)
 	keys.blast = _app.current_screen().best_key()
-	_check(keys.blast == "asteroid_blast|hard", "Asteroid Blast uses the game and the difficulty (REQ-AB-18)")
+	_check(keys.blast == "asteroid_blast|hard", "Galaxy Protector uses the game and the difficulty (REQ-AB-18)")
 	_app.go(Race, {"difficulty": "medium", "track_seed": 42})
 	await _frames(2)
 	var race: Control = _app.current_screen()

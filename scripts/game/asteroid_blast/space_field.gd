@@ -1,6 +1,6 @@
 extends RefCounted
-## The rules of Asteroid Blast (REQ-AB-*): the ships, their beams, the asteroids, the upgrades and the waves. Pure logic: it draws
-## nothing and uses no nodes, so the rules can be tested without a screen. Positions are in px of the play area at 1920x1080
+## The rules of Galaxy Protector (REQ-AB-*): the ships, their beams, the asteroids, the upgrades and the waves. Pure logic: it
+## draws nothing and uses no nodes, so the rules can be tested without a screen. Positions are in px of the play area at 1920x1080
 ## (`REF_AREA`); y grows downward and the ships are at the bottom.
 
 const REF_AREA := Vector2(1800.0, 870.0)

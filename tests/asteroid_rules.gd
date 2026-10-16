@@ -1,5 +1,5 @@
 extends SceneTree
-## The rules and the pictures of Asteroid Blast (REQ-AB-*), pure logic. Run:
+## The rules and the pictures of Galaxy Protector (REQ-AB-*), pure logic. Run:
 ##   godot --headless --path . --script tests/asteroid_rules.gd -- --role=controller
 
 const Shell = preload("res://scripts/game/shell.gd")
@@ -43,7 +43,7 @@ func _field(xs: Array, difficulty := "medium") -> SpaceField:
 	return f
 
 
-## The ships, the beams, the asteroids and the upgrades of Asteroid Blast (REQ-AB-2, 4 to 7, 10 to 13).
+## The ships, the beams, the asteroids and the upgrades of Galaxy Protector (REQ-AB-2, 4 to 7, 10 to 13).
 func _space_field() -> void:
 	print("space field")
 	var f := _field([900.0])
@@ -267,7 +267,7 @@ func _has_pixel(img: Image, color: Color) -> bool:
 	return false
 
 
-## The pictures of Asteroid Blast (REQ-AB-17).
+## The pictures of Galaxy Protector (REQ-AB-17).
 func _blast_look() -> void:
 	print("blast look")
 	var a := BlastLook.asteroid_image(1, 2, 48.0)

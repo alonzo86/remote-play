@@ -169,4 +169,4 @@ Status (2026-10-09): the shared view, the choice row and the Difficulty row are 
 | Banana Party (2D) | `docs/games/snowball_splat.md` |
 | Paint Grab (2D) | `docs/games/paint_grab.md` |
 | Sumo Bumpers (2D) | `docs/games/sumo_bumpers.md` |
-| Asteroid Blast (2D) | `docs/games/asteroid_blast.md` |
+| Galaxy Protector (2D) | `docs/games/asteroid_blast.md` |

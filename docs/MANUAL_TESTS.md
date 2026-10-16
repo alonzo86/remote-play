@@ -68,7 +68,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip, phone score and name tags | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-GM-46, 46a, FD-21 | Not run | | |
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
-| [21](#test-21) | Asteroid Blast (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-50 | Not run | | |
+| [21](#test-21) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-50 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -837,7 +837,7 @@ History:
 
 ## Test 21
 
-### Asteroid Blast (tilt, waves, upgrades)
+### Galaxy Protector (tilt, waves, upgrades)
 
 Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
@@ -845,7 +845,7 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 
 **Steps**
 
-1. Open the tile of **Asteroid Blast** with 1 phone. Check: the settings view opens with Difficulty on Medium. Start. Check the tile against the game.
+1. Open the tile of **Galaxy Protector** with 1 phone. Check: the settings view opens with Difficulty on Medium. Start. Check the tile against the game.
 2. Hold the phone steady in "3, 2, 1". Check: you can already move the ship, nothing falls and nothing fires, the name tags are over the ships, the hint line is readable, and at "GO!" the phone buzzes.
 3. Tilt left and right. Check: the ship moves the same way, smoothly, and stops at the sides. Write down if it is too slow, too fast or too nervous (`SHIP_SPEED`, `SHIP_SMOOTH`). Press **RECENTER** and check that the ship stays still while the phone is held at the new rest pose.
 4. Look at the shooting. Check: the ship fires by itself, the beams are easy to see in the color of the ship, the three sizes of asteroids are easy to tell apart, a large one needs 4 hits and breaks into two medium ones, a medium one into two small ones. Write down if the rate of fire feels too slow.

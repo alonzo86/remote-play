@@ -1,5 +1,5 @@
 extends RefCounted
-## The look of Asteroid Blast (REQ-AB-17): a pixel night sky with stars that drift down, round gray asteroids with craters in
+## The look of Galaxy Protector (REQ-AB-17): a pixel night sky with stars that drift down, round gray asteroids with craters in
 ## three
 ## sizes, small ships in the player colors, round pickups and bright beams. Everything is drawn in screen units on the pixel layer
 ## (one world pixel is `Shell.WORLD_PIXEL` units). The pictures are built from code.

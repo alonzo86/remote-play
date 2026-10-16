@@ -1,5 +1,5 @@
 extends "res://scripts/game/minigame.gd"
-## Asteroid Blast. Each phone tilts a little spaceship along the bottom of the screen. The ships shoot by themselves at the
+## Galaxy Protector. Each phone tilts a little spaceship along the bottom of the screen. The ships shoot by themselves at the
 ## asteroids that fall from above. A pickup gives a force field or one more laser. A ship that is hit without a force field
 ## blows up. The waves last 30 s with 5 s of rest between them and get harder. It is a team game with a winner: the most points
 ## win. It is endless and ends when every ship is gone (REQ-AB-1 to 20). The game is for children too (REQ-GM-80 to 84).
@@ -184,7 +184,7 @@ func _draw_ship(ci: CanvasItem, s: SpaceField.Ship, o: Vector2, k: float) -> voi
 
 
 func _game_draw() -> void:
-	Shell.title(self, "ASTEROID BLAST")
+	Shell.title(self, "GALAXY PROTECTOR")
 	draw_leader_chip(self)
 	var fit := _fit()
 	if _clock.is_counting():
