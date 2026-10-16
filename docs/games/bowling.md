@@ -55,9 +55,9 @@ A swing that is too weak does nothing and the hint says "Swing a bit more!"; the
 2. Aim, swing back, swing forward. The ball rolls (about 2 s). The pins fall (about 1.5 s). The score sheet updates.
 3. Pins left: the same player bowls ball 2 ("2 pins left. One more ball!"). Then the sweep takes the fallen pins (1 s) and the next player starts.
 4. Strike: "STRIKE!" banner and a burst of colored pixels. Spare: "SPARE!". Off the side: "OOPS! OFF THE SIDE" (no point is taken, no mockery, REQ-GM-84).
-5. A game of 4 players with 10 frames is about 10 minutes. A turn is about 10 s, so the longest wait is about 30 s: a gap
-   against REQ-GM-83 ("about 20 seconds"). The mitigation is a **Length** setting: Full (10 frames) and Quick (5 frames) (REQ-BW-17),
-   and a fast 1 s sweep. See the open questions.
+5. A turn has **no time limit**: it takes as long as the player needs (decision of 2026-10-16). A game of 4 players is about 10 minutes
+   and the longest wait for the others is about 30 s, more than the "about 20 seconds" of REQ-GM-83 (see the gaps). The sweep is fast (1 s)
+   and OK speeds up the animations (REQ-BW-11). There is no short game: the game always has 10 frames.
 
 The phones: the player on turn gets a short buzz and the pad shows "YOUR TURN". The others show "NOA IS BOWLING" (REQ-BW-14, it needs a
 new message on the protocol, see the open questions).
@@ -70,8 +70,9 @@ new message on the protocol, see the open questions).
 | REQ-GM-35, 71 | Exception | There is a countdown (3 s) but no round clock: the game ends after the 10th frame of the last player (REQ-BW-1). |
 | REQ-GM-37 | Note | The center of the aim is set again at each turn (REQ-BW-4). RECENTER still works. A and B are not used. |
 | REQ-GM-81 | Note | The pins are plain lifeless pins with no face. Knocked pins spin and burst into colored pixels. No living thing is hit. |
-| REQ-GM-83 | Gap (open) | A player waits for the other players (up to about 30 s with 4 players). Mitigation: Quick length, short animations. To decide with the user. |
-| REQ-GM-98 | Note | A personal best only for the Full length (REQ-BW-19). |
+| REQ-GM-83 | Gap (open) | A player waits for the other players (about 30 s with 4 players) and a turn has no time limit. The user decided this on 2026-10-16 (no Length setting). Mitigation: short animations. |
+| REQ-GM-47k | Exception | The disco light grid on the back wall (REQ-BW-13) uses 7 bright light colors besides the 8 colors of the world palette. It is decoration only. To confirm with the user. |
+| REQ-GM-98 | Note | A personal best only with Rails off (REQ-BW-19). |
 | REQ-GM-46 | Exception | No leader chip in the HUD: the score sheet at the bottom shows all scores (REQ-BW-12). The phones still show their own place and score (REQ-FL-67) unless the user says otherwise. |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has no test for this game yet. It is added with the code. |
 
@@ -83,8 +84,8 @@ Rules and score
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-BW-1 | A game is 10 frames for each player (5 with the Quick length). It ends when the last player has bowled the last ball of the last frame. The result menu opens after 2 s (`open_results()`, REQ-GM-72) with the totals, "X wins!" or "Tie!", Try again, New game, Back to menu. | Open | bowling_rules, smoke_bowling |
-| REQ-BW-2 | The score follows the standard rules above: strike (10 + next 2 balls), spare (10 + next ball), open frame, the 10th frame with 2 or 3 balls and a fresh rack after a strike. The rules module is pure code (no nodes). Known games are tests: 12 strikes = 300, 21 balls of 5 pins (all spares of 5) = 150, all gutters = 0, ten frames of 9 / and a last 9 = 190, the 10th frame cases X X X, X 7 / and 9 / 5 A Quick game uses the same rules with 5 frames (best 150). | Open | bowling_rules |
+| REQ-BW-1 | A game is 10 frames for each player . It ends when the last player has bowled the last ball of the last frame. The result menu opens after 2 s (`open_results()`, REQ-GM-72) with the totals, "X wins!" or "Tie!", Try again, New game, Back to menu. | Open | bowling_rules, smoke_bowling |
+| REQ-BW-2 | The score follows the standard rules above: strike (10 + next 2 balls), spare (10 + next ball), open frame, the 10th frame with 2 or 3 balls and a fresh rack after a strike. The rules module is pure code (no nodes). Known games are tests: 12 strikes = 300, 21 balls of 5 pins (all spares of 5) = 150, all gutters = 0, ten frames of 9 / and a last 9 = 190, the 10th frame cases X X X, X 7 / and 9 / 5.| Open | bowling_rules |
 | REQ-BW-3 | The turn order is frame by frame: slot order inside each frame. A player who leaves is skipped (REQ-GM-21) and the score sheet row is removed from the ranking. When one player is left the game goes on for that player. When nobody is left, "No players connected" opens (REQ-GM-22). | Open | bowling_rules, smoke_bowling |
 
 Aim and throw
@@ -110,7 +111,7 @@ Feedback and screen
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-BW-12 | HUD: the title and "FRAME 4/10  BALL 1" (at the right). There is **no leader chip** and no player stats in the bar (decision of 2026-10-16): the game returns no `_scoreboard()` during play (as the maze). The **score sheet** (the headboard) of all players is at the bottom (one row each, 10 cells, the marks X, / and digits, the running total, the active cell has the accent frame), 28 px text, inside the 60 px margin (REQ-GM-40, 41). In the countdown each player has a name tag at the ball position (REQ-GM-46a). The layout comes from `size` (REQ-2D-2). | Open | smoke_bowling, game_helpers |
-| REQ-BW-13 | Look (REQ-GM-47i to 47n): a pixel bowling hall. The own lane is **narrow** (150 world pixels wide at the foul line, 86 at the pins) and shown in perspective (wood planks, dark gutters, arrows, a red foul line). **Two more lanes on each side**, darker, with their own racks of pins (some pins down, they do not move or play), so the sides are never empty. A colorful wall behind the pins: a string of bunting flags and six colored picture boards (a plus sign, in the slot colors and others) under the HUD row. The strip of wall right above the pins (about 130 screen pixels wide, in the middle) stays plain dark blue, so the falling pins and the "STRIKE!" burst are easy to see. No decoration is drawn in the HUD row (y under 120). A ball in the slot color with a white shine, detailed pins: a 7 x 14 pixel picture with a round head, a thin neck with a red stripe, a shaded right side and a red band on the belly (the first mock had flat pins). World palette (8 colors): `#1b3a8a` wall, `#7a1f4a` curtain, `#0f6a78` floor, `#d8a058` and `#cc944c` planks, `#3c3c3c` gutter, `#fcfcfc` pins, `#e63946` bands. One-pixel black outline on pins and ball. A pin is 12 pixels high or more at the far end. The ball gets smaller with distance in steps of a quarter. Banners sit on a black plate. | Open | game_rules (pictures), Device |
+| REQ-BW-13 | Look (REQ-GM-47i to 47n): a pixel bowling hall. The own lane is **narrow** (110 world pixels wide at the foul line, 74 at the pins) and shown in perspective (long wood planks that run along the lane, with no cross lines or grid, dark gutters, arrows, a red foul line). **Two more lanes on each side**, darker, with their own racks of pins (some pins down, they do not move or play), so the sides are never empty. A **disco light grid** on the wall behind the pins: rows of small colored light tiles (7 bright colors, 4 rows, under the HUD row, none in the HUD row). Behind the pins (a strip about 480 screen pixels wide in the middle) the tiles are dim dark blue, so the falling pins and the "STRIKE!" burst are easy to see. In a later version the tiles may blink (in steps, with game time, REQ-GM-47l; never faster than 3 times a second). A ball in the slot color with a white shine, detailed pins: a 7 x 14 pixel picture with a round head, a thin neck with a red stripe, a shaded right side and a red band on the belly (the first mock had flat pins). World palette (8 colors): `#1b3a8a` wall, `#0f6a78` floor, `#d8a058` and `#cc944c` planks, `#3c3c3c` gutter, `#fcfcfc` pins, `#e63946` bands. One-pixel black outline on pins and ball. A pin is 12 pixels high or more at the far end. The ball gets smaller with distance in steps of a quarter. Banners sit on a black plate. | Open | game_rules (pictures), Device |
 | REQ-BW-14 | The phone: a short "YOUR TURN" with a buzz, and "NAME IS BOWLING" while another player bowls, plus the own score and place (REQ-FL-67). This needs a way to send a short line to one phone (see the open questions and `change-protocol`). | Open | smoke_bowling |
 | REQ-BW-15 | Texts are positive: "Strike!", "Spare!", "Nice roll!", "Oops! Off the side", "Nice try!" (REQ-GM-84). The hint is one line at a time (REQ-GM-82): "Move the phone to aim. Swing back, then forward!". | Open | smoke_lang |
 
@@ -118,10 +119,10 @@ Settings and difficulty (REQ-GM-90 to 97)
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-BW-16 | Settings rows: **Difficulty** (Easy, Medium, Hard), **Rails** (Off, On; default Off) and **Length** (Full 10 frames, Quick 5 frames; default Full). The rails are a setting of their own, not part of the difficulty. The mock is `screens/bowling/v2-5-settings.png`. Both are part of `start_props` (REQ-GM-93). | Open | smoke_settings |
+| REQ-BW-16 | Settings rows: **Difficulty** (Easy, Medium, Hard) and **Rails** (Off, On; default Off) only (no Length row: every turn takes as long as it takes, and the game is always 10 frames). The rails are a setting of their own, not part of the difficulty. The mock is `screens/bowling/v2-5-settings.png`. Both rows are part of `start_props` (REQ-GM-93). | Open | smoke_settings |
 | REQ-BW-17 | The table below shows what Difficulty means. Easy plus Rails must be playable by a child of about 5 years (REQ-GM-96): the child can only swing and score. | Open | lane_sim, game_rules |
-| REQ-BW-18 | Medals for one player (REQ-GM-73): bronze, silver, gold from the table, for the Full length. For Quick the tiers are half (rounded). | Open | game_rules |
-| REQ-BW-19 | Personal best (REQ-GM-98): the key is `bowling|<difficulty>` for the Full length and Rails Off only, higher is better (`best_key()`; new keys at the end of `ProfileKeys`, 3 keys). Quick games and games with rails have no best (exception, they are not comparable scores). | Open | smoke_bests, profile_code |
+| REQ-BW-18 | Medals for one player (REQ-GM-73): bronze, silver, gold from the table. | Open | game_rules |
+| REQ-BW-19 | Personal best (REQ-GM-98): the key is `bowling|<difficulty>` with Rails Off only, higher is better (`best_key()`; new keys at the end of `ProfileKeys`, 3 keys). A game with rails has no best (exception, the scores are not comparable). | Open | smoke_bests, profile_code |
 | REQ-BW-20 | A player who leaves takes the row out of the ranking. A lost phone pauses the game (REQ-GM-30). Nothing runs in the pause, and the swing state of the player on turn is reset when the pause closes. | Open | smoke_bowling |
 
 | Difficulty | Ball speed | Aim range | Swing threshold | Medal tiers (points) |
@@ -154,8 +155,6 @@ Values that change the feel. Tune them with the swing lab and a device test (REQ
   left or right (roll, no drift, like Galaxy Protector). Which one feels like bowling?
 - **Does the swing work with any grip?** The plan finds the swing axis from the back swing. This is never tried with a real phone: the sensor
   directions test (Test 3) is still open. Step one of the build should be the swing lab (REQ-BW-8) and a short session with real swings before the game is built.
-- **Waiting.** With 4 players a turn comes every 30 s or so (REQ-GM-83 says about 20 s). Is the Quick length (5 frames) enough, or should the players
-  also be able to throw at the same time (not standard rules)?
 - **Spin (hook).** A twist of the wrist at the release could curve the ball and make splits (7-10) possible. It is not in the first version (straight balls only).
 - **Phone line "YOUR TURN".** The phone needs to show whose turn it is. This may need a new message (a protocol change, version 4).
   The other way is a buzz only, with the info on the TV.
@@ -200,9 +199,6 @@ The Hebrew is a first guess by Claude and needs a native reader.
 | `bowling.rails` | Rails | מעקות | Settings view, row name |
 | `bowling.on` | On | פועל | Settings view, Rails value |
 | `bowling.off` | Off | כבוי | Settings view, Rails value |
-| `bowling.length` | Length | אורך | Settings view, row name |
-| `bowling.full` | Full (10) | מלא (10) | Settings view, Length value |
-| `bowling.quick` | Quick (5) | מהיר (5) | Settings view, Length value |
 
 In Hebrew the HUD is mirrored by the shell. The lane and the score sheet are the same in both languages (the game world is not mirrored, and a score sheet reads
 left to right as the frames go left to right).
