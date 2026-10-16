@@ -63,6 +63,7 @@ Maze and Marble Race both use `open_results()`. Their result menus now list all 
 | 3 | `games/dodge-storm` | Dodge Storm (`dodge_storm`) | 1 to 4 | tilt | Hazards fall. The last player standing wins. | Survive as long as possible, against medal tiers | 2 (`TiltBody`) |
 | 4 | `games/tilt-snake` | Tilt Snake (`tilt_snake`) | 1 to 4 | tilt | Eat pickups to grow. A hit on any tail removes you. The last one alive wins. | High score against medal tiers | 2 (`TiltBody`) |
 | 5 | `games/sumo-bumpers` (in work) | Sumo Bumpers (`sumo_bumpers`) | 2 to 4 | tilt, A (dash) | Push others off a shrinking platform. Best of 3 rounds. | None (needs 2 players) | 2 (`TiltBody`) |
+| 6 | `games/wobbly-tower` (idea, 2026-10-16) | Wobbly Tower (`wobbly_tower`) | 1 to 4 | A (drop a block) | Turn-based. A block swings over the tower; A drops it. The tallest tower after 3 turns wins. A tower that falls wobbles, giggles and starts again, and the points stay (REQ-GM-83). | Stack as high as possible against medal tiers | 0 |
 
 Status (2026-10-09): branch 1 is merged (PR 13). It also brought the settings view with Difficulty for the maze, Snowball Splat and
 Marble Race, generated Marble Race tracks, and the lost-phone hold card. All of it still needs the tests on a device (`docs/MANUAL_TESTS.md`).
@@ -87,6 +88,7 @@ What this means for the games that are not built yet. The decision is made in th
 | Paint Grab | Fine: roll and paint. Use bright, friendly colors. |
 | Dodge Storm | "The last player standing" means a player is out and waits (REQ-GM-83). A hit should be a funny bump, and the player is back in the game after a few seconds (or keeps the points and waits only until the team game ends, REQ-GM-83). The hazards are soft and funny (balloons, snowflakes, rubber ducks), not dangerous things. |
 | Tilt Snake | "A hit on a tail removes you" is too harsh. A hit makes the snake short again and it goes on. The snake is a friendly made-up creature. |
+| Wobbly Tower | Fine: soft, colorful blocks. A fall is funny, not a loss. It is the first turn-based game, so each player's wait is short (one drop) and the TV shows whose turn it is. |
 | Sumo Bumpers | Cartoon bumpers that bounce each other off a platform. A player who falls off comes back in the next round (a round is short). No fighting words. |
 
 ## Rules that apply to every game branch
