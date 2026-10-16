@@ -117,6 +117,7 @@ func _game_tick(delta: float) -> void:
 				App.server.haptic(s, 60)
 			_start_turn()
 		return
+	_publish_turn()
 	_phase_time += delta
 	_weak_left = maxf(0.0, _weak_left - delta)
 	match phase:
@@ -132,6 +133,18 @@ func _game_tick(delta: float) -> void:
 			if _end_left <= 0.0:
 				_finish()
 	_last_tick_ms = Time.get_ticks_msec()
+
+
+## Tells each phone whose turn it is (REQ-BW-14). The server sends a changed message only.
+func _publish_turn() -> void:
+	var on := rules.current_slot() if phase != Phase.END else -1
+	for s in participants:
+		if on < 0:
+			App.server.send_turn(s, 0, "")
+		elif s == on:
+			App.server.send_turn(s, 1, "")
+		else:
+			App.server.send_turn(s, 2, player(on).player_name)
 
 
 ## True when a press on A starts on any phone this tick: it skips the banner (REQ-BW-11).

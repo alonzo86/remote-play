@@ -99,6 +99,10 @@ func _run() -> void:
 	_check(not game._clock.is_counting() and game.phase == game.Phase.AIM and game.sim.standing_count() == 10,
 			"after the countdown the first phone aims at 10 pins (REQ-BW-4)")
 
+	# The phones know whose turn it is (REQ-BW-14).
+	_check(clients[0].turn_state == 1 and clients[1].turn_state == 2 and clients[1].turn_who == game.player(0).player_name,
+			"the phone on turn gets YOUR TURN and the other phone gets the name of the player on turn (REQ-BW-14)")
+
 	# Turning the phone does not move the aim of the phone that is not on turn; a swing of the wrong phone does nothing.
 	await _stream(clients, 0.4, [flat, flat + Vector3(0, 9, 0)])
 	await _stream(clients, 0.4, [flat, flat + Vector3(0, -15, 0)])
@@ -124,10 +128,12 @@ func _run() -> void:
 	_check(game._banner != "" and game._board.score(0) == float(game.rules.score_of(0)),
 			"the banner shows and the score goes to the board (REQ-BW-15)")
 	game._after_result()
-	await _frames(2)
+	await _stream(clients, 0.2, [flat, flat])
 	var expect_next: int = 0 if first_pins < 10 and game.rules.current_ball() == 2 else 1
 	_check(game.rules.current_slot() == expect_next and game.phase == game.Phase.AIM,
 			"after the ball the same phone bowls again, or the next phone after a strike (REQ-BW-1)")
+
+	_check(clients[0].turn_state == (1 if game.rules.current_slot() == 0 else 2), "the turn line follows the turn (REQ-BW-14)")
 
 	# A whole game, phone 2 leaves in frame 1 (REQ-GM-21).
 	game._on_player_left(1)

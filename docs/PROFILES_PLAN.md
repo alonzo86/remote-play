@@ -169,16 +169,16 @@ The text of the QR code is `WP1.` followed by base64url text (no padding) of thi
 
 | Bytes | Field |
 |-------|-------|
-| 1 | Format version, 1 |
+| 1 | Format version: 1, or 2 when a best has a number above 39 |
 | 16 | Profile ID |
 | 1 | Avatar |
 | 1 to 5 | `rev` (varint; the decoder accepts up to 5 bytes) |
 | 1 + n | Name: length n (0 to 20 bytes, UTF-8; 10 characters, Hebrew letters take 2 bytes), then the bytes |
-| 1 | Number of bests, k (0 to 42) |
+| 1 | Number of bests, k (0 to 39 in version 1, 0 to 42 in version 2) |
 | k times | Best key number (1 byte, from the table `ProfileKeys`), then the value as a varint (up to 5 bytes) |
 | 2 | Checksum (CRC-16) of all the bytes before it |
 
-`ProfileKeys` is a fixed table in code: for each key the key text, its number (1 to 42: Maze none, Snowball Splat 3, Paint Grab 3, Marble Race 3 difficulties x 10 tracks = 30, Galaxy Protector 3 = numbers 37 to 39, Pin Pals 3 = numbers 40 to 42. Pin Pals raised `MAX_KEYS` from 39 to 42 without a new `FORMAT_VERSION`: an older app refuses a code that has more than 39 bests, so a profile with a Pin Pals best cannot be shared with an app from before this change. The next game with a best should decide again whether to bump `FORMAT_VERSION`) and its direction. A number is never reused or changed; a new game or a changed track set adds numbers at the end. A code with a key number the app does not know is read, and that key is skipped. The prefix `WP1.` tells the scanner that this is not a TV link (`ws://`); the Connect screen scan routes a `WP1.` code to the import and the profile scan gives `THIS IS A TV LINK` for a TV link.
+`ProfileKeys` is a fixed table in code: for each key the key text, its number (1 to 42: Maze none, Snowball Splat 3, Paint Grab 3, Marble Race 3 difficulties x 10 tracks = 30, Galaxy Protector 3 = numbers 37 to 39, Pin Pals 3 = numbers 40 to 42. Pin Pals raised `MAX_KEYS` from 39 to 42 and added a second format version: a code with a best above number 39 is written as `FORMAT_VERSION` 2, any other code stays version 1 (same layout; version 1 allows k up to 39, version 2 up to 42), so an app from before Pin Pals reads every code except one that has a Pin Pals best. The next game with a best adds numbers at the end and decides again whether a version 3 is needed) and its direction. A number is never reused or changed; a new game or a changed track set adds numbers at the end. A code with a key number the app does not know is read, and that key is skipped. The prefix `WP1.` tells the scanner that this is not a TV link (`ws://`); the Connect screen scan routes a `WP1.` code to the import and the profile scan gives `THIS IS A TV LINK` for a TV link.
 
 ### 6.2 Size and the QR encoder
 

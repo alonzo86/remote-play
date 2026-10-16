@@ -70,7 +70,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 | [21](#test-21) | Join PIN and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-84, REQ-FL-85, REQ-N9, FD-25 | Not run | | |
 | [22](#test-22) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-50 | Not run | | |
-| [23](#test-23) | Pin Pals (bowling: aim with a turn, swing to throw) | 1 to 4 phones, 1 TV, a child for item 10 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [23](#test-23) | Pin Pals (bowling: aim with a turn, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -931,7 +931,7 @@ History:
 
 ### Pin Pals (bowling: aim with a turn, swing to throw)
 
-Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 10. Covers: REQ-BW-*, REQ-GM-80 to 84, REQ-GM-90 to 98, REQ-GM-37, REQ-GM-47i to 47n.
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 11. Covers: REQ-BW-*, REQ-GM-80 to 84, REQ-GM-90 to 98, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-16). It was only tested with made-up sensor values. Every number (the swing thresholds 4, 8 and 30 m/s2, the aim ranges, the ball speeds, the lane, the pins, the medal tiers) is a first guess. Hold the phone in one hand like a ball, arm down at the side.
 
@@ -945,11 +945,12 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 6. Play a whole game (10 frames) with 1 phone. Check: the rules are the standard ones (strike, spare, the 10th frame with 3 balls), the score sheet agrees with what you count, and the banners (Strike, Spare, Nice roll, Nice try, Oops) match what happened. Check the medal tiers on each difficulty.
 7. **Rails** On. Check: a ball that is far to the side stays on the lane, there is no gutter ball, and the result menu has no personal best.
 8. Play with 2, 3 and 4 phones. Check: the turns go frame by frame, a phone that is not on turn cannot throw, the name of the player on turn is on the plate, the score and place show on each phone, the winner and "Tie!" are right, and the wait for the other players is not too long (about 30 s with 4 players).
-9. Leave the game on the phone that is on turn. Check: the game goes on with the next player. With 1 phone left, leave: the "No players connected" menu opens. Lock a phone during its turn: the game pauses and the swing starts again when you return (REQ-BW-20).
-10. Let a child of about 5 to 8 years play on Easy with Rails, with a grown-up next to them. Check: the child understands the hint line, can throw, is not upset by a gutter ball or few pins, and wants to play again.
-11. Check the frame rate in the debug overlay with 4 phones (60 or close). (REQ-GM-50)
-12. **Pixel world (REQ-GM-47i to 47n).** From the sofa (about 3 m) check: the pins are easy to tell apart from the lane, the ball is easy to follow to the pins, the score sheet and the banners are easy to read, the disco wall is not too bright or too busy, and the music and the effects are fine (Test 18).
-13. A personal best (Rails Off): play twice and check "NEW BEST!" on the phone and the best after a restart. Check that Easy, Medium and Hard have their own bests.
+9. Look at the phones. Check: the phone on turn shows "YOUR TURN" and buzzes, the others show the name of the player on turn, and the line goes away in the result menu. (REQ-BW-14)
+10. Leave the game on the phone that is on turn. Check: the game goes on with the next player. With 1 phone left, leave: the "No players connected" menu opens. Lock a phone during its turn: the game pauses and the swing starts again when you return (REQ-BW-20).
+11. Let a child of about 5 to 8 years play on Easy with Rails, with a grown-up next to them. Check: the child understands the hint line, can throw, is not upset by a gutter ball or few pins, and wants to play again.
+12. Check the frame rate in the debug overlay with 4 phones (60 or close). (REQ-GM-50)
+13. **Pixel world (REQ-GM-47i to 47n).** From the sofa (about 3 m) check: the pins are easy to tell apart from the lane, the ball is easy to follow to the pins, the score sheet and the banners are easy to read, the disco wall is not too bright or too busy, and the music and the effects are fine (Test 18).
+14. A personal best (Rails Off): play twice and check "NEW BEST!" on the phone and the best after a restart. Check that Easy, Medium and Hard have their own bests.
 
 **Results**
 
@@ -963,11 +964,12 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 | 6 | Photo of the score sheet after the game; note on the rules and the medal tiers | Not run | | | |
 | 7 | Video of a ball with rails | Not run | | | |
 | 8 | Photo of the result menu; note on 2, 3 and 4 phones and the wait | Not run | | | |
-| 9 | Note: what happened on each leave and on the lock | Not run | | | |
-| 10 | Note: the child, the age, what happened | Not run | | | |
-| 11 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
-| 12 | Photo of the screen from the sofa; note | Not run | | | |
-| 13 | Photo of NEW BEST! and note | Not run | | | |
+| 9 | Photo of the phones on turn and waiting | Not run | | | |
+| 10 | Note: what happened on each leave and on the lock | Not run | | | |
+| 11 | Note: the child, the age, what happened | Not run | | | |
+| 12 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 13 | Photo of the screen from the sofa; note | Not run | | | |
+| 14 | Photo of NEW BEST! and note | Not run | | | |
 
 History:
 

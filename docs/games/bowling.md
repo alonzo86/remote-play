@@ -57,8 +57,7 @@ A swing that is too weak does nothing and the hint says "Swing a bit more!"; the
 5. A turn has **no time limit**: it takes as long as the player needs (decision of 2026-10-16). A game of 4 players is about 10 minutes
    and the longest wait for the others is about 30 s, more than the "about 20 seconds" of REQ-GM-83 (see the gaps). The banner after a ball shows 1.8 s, and a press on A of any phone skips it (REQ-BW-11). There is no short game: the game always has 10 frames.
 
-The phones: the player on turn gets a short buzz (60 ms). The "YOUR TURN" and "NOA IS BOWLING" lines on the pad are **not built** (REQ-BW-14, it needs a
-new message on the protocol, see the open questions); the TV shows whose turn it is.
+The phones: the player on turn gets a short buzz (60 ms). The pad shows "YOUR TURN" on the phone on turn and "NOA IS BOWLING" on the others (REQ-BW-14, the optional `turn` message of `docs/PROTOCOL.md`).
 
 ## Gaps and exceptions
 
@@ -69,7 +68,7 @@ new message on the protocol, see the open questions); the TV shows whose turn it
 | REQ-GM-37 | Note | The center of the aim is set again at each turn (REQ-BW-4). RECENTER still works. A is used by every phone only to skip the banner of a ball. B is not used. |
 | REQ-GM-81 | Note | The pins are plain lifeless pins with no face. Knocked pins spin and burst into colored pixels. No living thing is hit. |
 | REQ-GM-83 | Gap (open) | A player waits for the other players (about 30 s with 4 players) and a turn has no time limit. The user decided this on 2026-10-16 (no Length setting). Mitigation: short animations. |
-| REQ-GM-47k | Exception | The disco light grid on the back wall (REQ-BW-13) uses 7 bright light colors besides the 8 colors of the world palette. It is decoration only. To confirm with the user. |
+| REQ-GM-47k | Note | The disco light grid on the back wall (REQ-BW-13) uses 7 bright light colors besides the 8 colors of the world palette (`DISCO` in `bowling_look.gd`). The user allowed a few more colors when the general theme is kept (2026-10-16). It is decoration only. |
 | REQ-GM-98 | Note | A personal best only with Rails off (REQ-BW-19). |
 | REQ-GM-46 | Exception | No leader chip in the HUD: the score sheet at the bottom shows all scores (REQ-BW-12). The phones still show their own place and score (REQ-FL-67) unless the user says otherwise. |
 | REQ-GM-62 | Note | Test 23 in `docs/MANUAL_TESTS.md`. |
@@ -110,7 +109,7 @@ Feedback and screen
 |----|-------------|--------|-------|
 | REQ-BW-12 | HUD: the title and "FRAME 4/10  BALL 1" (at the right). There is **no leader chip** and no player stats in the bar (decision of 2026-10-16): the game draws no leader chip (the phones still get their own score and place from the board). The **score sheet** (the headboard) of all players is at the bottom (one row each, 10 cells, the marks X, / and digits, the running total, the active cell has the accent frame), 28 px text, inside the 60 px margin (REQ-GM-40, 41). In the countdown each player has a name tag at the ball position (REQ-GM-46a). The layout comes from `size` (REQ-2D-2). | Device | smoke_bowling, game_helpers |
 | REQ-BW-13 | Look (REQ-GM-47i to 47n): a pixel bowling hall. The own lane is **narrow and long** (112 world pixels wide at the foul line, 52 at the pins; the strong narrowing makes it look long) and shown in perspective (long wood planks that run along the lane, with no cross lines or grid, dark gray gutters, arrows, a red foul line). **Three more lanes on each side**, darker, with their own racks of pins (some pins down, they do not move or play), so the sides are never empty. The **floor** around and between the lanes is **gray** (`#5a5a64`). At the **far end of all lanes** there is one wall across the whole width: its top two thirds are a **disco light grid** (rows of small colored light tiles, 7 bright colors) and its bottom third is **plain black**, so the white pins stand in front of black and the strike burst is easy to see. The HUD row above (y under 112) is black and has no grid. Three more lanes each side are drawn on the gray floor. In a later version the tiles may blink (in steps, with game time, REQ-GM-47l; never faster than 3 times a second). A ball in the slot color with a white shine, detailed pins: a 7 x 14 pixel picture with a round head, a thin neck with a red stripe, a shaded right side and a red band on the belly (the first mock had flat pins). World palette (8 colors): `#1b3a8a` wall, `#0f6a78` floor, `#d8a058` and `#cc944c` planks, `#3c3c3c` gutter, `#fcfcfc` pins, `#e63946` bands. One-pixel black outline on pins and ball. A pin is 12 pixels high or more at the far end. The ball gets smaller with distance in steps of a quarter. Banners sit on a black plate. | Device | game_rules (pictures), Device |
-| REQ-BW-14 | The phone: a short "YOUR TURN" with a buzz, and "NAME IS BOWLING" while another player bowls, plus the own score and place (REQ-FL-67). This needs a way to send a short line to one phone (see the open questions and `change-protocol`). | Open | smoke_bowling |
+| REQ-BW-14 | The phone: a short "YOUR TURN" with a buzz, and "NAME IS BOWLING" while another player bowls, plus the own score and place (REQ-FL-67). The TV sends the optional `turn` message (`s` 0, 1 or 2, and `who`) once for each change; the phone draws it under its score row. `VERSION` stays 3. | Device | smoke_bowling |
 | REQ-BW-15 | Texts are positive: "Strike!", "Spare!", "Nice roll!", "Oops! Off the side", "Nice try!" (REQ-GM-84). The hint is one line at a time (REQ-GM-82): "Move the phone to aim. Swing back, then forward!". | Done | smoke_lang |
 
 Settings and difficulty (REQ-GM-90 to 97)
@@ -153,9 +152,7 @@ Values that change the feel. Tune them with the swing lab and a device test (REQ
   left or right (roll, no drift, like Galaxy Protector). Which one feels like bowling?
 - **Does the swing work with any grip?** The detector finds the swing axis from the back swing. This is never tried with a real phone (Test 23; the sensor directions test, Test 3, is still open).
 - **Spin (hook).** A twist of the wrist at the release could curve the ball and make splits (7-10) possible. It is not in the first version (straight balls only).
-- **Phone line "YOUR TURN".** Not built. It needs a new message (a protocol change, version 4). For now: a buzz and the TV.
-- **The code of the profile.** Pin Pals raised `MAX_KEYS` from 39 to 42 and did not change `FORMAT_VERSION`: an app from before this change refuses a code that has a Pin Pals best.
-- **The disco colors.** The 7 light colors (`DISCO` in `bowling_look.gd`) are outside the world palette (REQ-GM-47k): to confirm.
+- **The code of the profile.** Pin Pals added keys 40 to 42. A code with a Pin Pals best is format version 2; any other code stays version 1, so an old app reads it and refuses only a version 2 code (`docs/PROFILES_PLAN.md`).
 - **Name.** "Pin Pals" or something else? The Hebrew name is "באולינג חברים" (first guess).
 - Medal tiers and the sizes of the lane and the pins are guesses.
 
@@ -174,6 +171,6 @@ The song `bowling`: a light, bouncy loop (about 110 BPM, C major) that plays fro
 
 ## Languages and texts (REQ-GM-47o)
 
-The rows are in `assets/lang/strings.csv` and need a review by the user. The Hebrew is a first guess by Claude and needs a native reader. The full texts and the `where` of each row are in that file; the keys are `registry.pin_pals`, `registry.move_phone_aim_swing`, `bowling.rails`, `bowling.on`, `bowling.off`, `bowling.turn`, `bowling.frame`, `bowling.hint_aim`, `bowling.hint_weak`, `bowling.strike`, `bowling.spare`, `bowling.gutter`, `bowling.nice_roll`, `bowling.nice_try`, `bowling.pins_left`, `bowling.pin_left`. The two phone lines (`bowling.phone_turn`, `bowling.phone_wait`) are not built and have no rows yet.
+The rows are in `assets/lang/strings.csv` and need a review by the user. The Hebrew is a first guess by Claude and needs a native reader. The full texts and the `where` of each row are in that file; the keys are `registry.pin_pals`, `registry.move_phone_aim_swing`, `bowling.rails`, `bowling.on`, `bowling.off`, `bowling.turn`, `bowling.frame`, `bowling.hint_aim`, `bowling.hint_weak`, `bowling.strike`, `bowling.spare`, `bowling.gutter`, `bowling.nice_roll`, `bowling.nice_try`, `bowling.pins_left`, `bowling.pin_left`. The phone lines are `bowling.phone_turn` and `bowling.phone_wait`.
 
 In Hebrew the HUD is mirrored by the shell. The lane and the score sheet are the same in both languages (the game world is not mirrored, and a score sheet reads left to right as the frames go left to right).

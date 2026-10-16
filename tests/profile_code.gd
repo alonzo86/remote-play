@@ -57,6 +57,14 @@ func _raw(body: PackedByteArray) -> String:
 
 
 ## The bytes of a valid code up to the name, then `rest` (the number of bests and the bests).
+## The bytes of a code (the prefix and the base64url text taken off).
+func _raw_of(code: String) -> PackedByteArray:
+	var t := code.substr(4).replace("-", "+").replace("_", "/")
+	while t.length() % 4 != 0:
+		t += "="
+	return Marshalls.base64_to_raw(t)
+
+
 func _body(p_name: String, rest: Array) -> PackedByteArray:
 	var b := PackedByteArray([1])
 	b.append_array(ID_A.hex_decode())
@@ -117,6 +125,10 @@ func _round_trip() -> void:
 	var bowl_back = ProfileCode.decode(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, bowl))).get("profile")
 	_check(bowl_back != null and bowl_back.bests == bowl and not ProfileKeys.lower_is_better("bowling|hard"),
 			"the bests of keys 40 to 42 (Pin Pals) survive a code (REQ-BW-19)")
+	var bowl_raw := _raw_of(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, bowl)))
+	var old_raw := _raw_of(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, blast)))
+	_check(bowl_raw[0] == 2 and old_raw[0] == 1,
+			"a code with a Pin Pals best is version 2; a code without one stays version 1, so an old app reads it")
 	var small := ProfileCode.encode(_profile(ID_A, "Maya", 1))
 	_check(small.length() < 70 and not QrEncoder.encode(small).is_empty(),
 			"a profile with no bests is short: %d characters" % small.length())
@@ -140,7 +152,8 @@ func _refused() -> void:
 		"one changed letter (the checksum)": broken,
 		"a cut code": good.substr(0, good.length() - 8),
 		"a sign that base64url does not have": good.substr(0, 10) + "!" + good.substr(11),
-		"another format version": _raw(PackedByteArray([2]) + _body("Maya", [0]).slice(1)),
+		"another format version": _raw(PackedByteArray([3]) + _body("Maya", [0]).slice(1)),
+		"40 bests in version 1": _raw(_body("Maya", [40])),
 		"a name of 21 bytes": _raw(_body("a".repeat(21), [0])),
 		"an empty name": _raw(_body("", [0])),
 		"a name with no allowed letter": _raw(_body("!!!", [0])),
