@@ -72,6 +72,7 @@ new message on the protocol, see the open questions).
 | REQ-GM-81 | Note | The pins are plain lifeless pins with no face. Knocked pins spin and burst into colored pixels. No living thing is hit. |
 | REQ-GM-83 | Gap (open) | A player waits for the other players (up to about 30 s with 4 players). Mitigation: Quick length, short animations. To decide with the user. |
 | REQ-GM-98 | Note | A personal best only for the Full length (REQ-BW-19). |
+| REQ-GM-46 | Exception | No leader chip in the HUD: the score sheet at the bottom shows all scores (REQ-BW-12). The phones still show their own place and score (REQ-FL-67) unless the user says otherwise. |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has no test for this game yet. It is added with the code. |
 
 ## Requirements
@@ -101,15 +102,15 @@ Lane and pins
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-BW-9 | The lane is a fixed 2D simulation (top view numbers, drawn in perspective): the lane is 1.05 m wide, the ball radius 0.11 m, a pin radius 0.06 m, in the standard triangle of 10 pins (numbered 1 to 10, 0.305 m apart). Sub-steps of 1/120 s (REQ-GM-13). Pins and ball are circles. A ball that hits a pin passes on momentum with a fixed restitution; a pin hit above a speed limit falls and goes on as a moving circle for 0.8 s, so it can knock others (pin action). The same aim and speed always give the same result (REQ-3D-9 spirit): no random number in the physics. | Open | lane_sim |
-| REQ-BW-10 | A ball that leaves the lane (the line of the gutter) is in the gutter: it rolls to the end with no pin hit and the player sees "OOPS! OFF THE SIDE". The result of the ball is 0 pins. On Easy the lane has **bumpers** (REQ-BW-16). | Open | lane_sim |
+| REQ-BW-10 | A ball that leaves the lane (the line of the gutter) is in the gutter: it rolls to the end with no pin hit and the player sees "OOPS! OFF THE SIDE". The result of the ball is 0 pins. With the setting **Rails** on, the gutters are covered by rails (bumpers): a ball that touches a rail rolls back into the lane, so there is no gutter ball (REQ-BW-16). | Open | lane_sim |
 | REQ-BW-11 | After a ball, the fallen pins are taken away (a sweep, 1 s) and the standing pins stay for ball 2. After the last ball of a frame, a fresh rack is set (0.8 s). All animations are skipped faster with OK (REQ-GM-33): OK during the rolling speeds it up 3 times. | Open | smoke_bowling |
 
 Feedback and screen
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-BW-12 | HUD (`draw_leader_chip()`, REQ-GM-46): the title, "FRAME 4/10  BALL 1", and the leader chip (the best total, or TIE). A **score sheet** of all players is at the bottom (one row each, 10 cells, the marks X, / and digits, the running total, the active cell has the accent frame), 28 px text, inside the 60 px margin (REQ-GM-40, 41). In the countdown each player has a name tag at the ball position (REQ-GM-46a). The layout comes from `size` (REQ-2D-2). | Open | smoke_bowling, game_helpers |
-| REQ-BW-13 | Look (REQ-GM-47i to 47n): a pixel bowling hall with a lane in perspective (wood planks, dark gutters, arrows, a red foul line), a back wall with a curtain, a ball in the slot color with a white shine, white pins with a red band. World palette (8 colors): `#1b3a8a` wall, `#7a1f4a` curtain, `#0f6a78` floor, `#d8a058` and `#cc944c` planks, `#3c3c3c` gutter, `#fcfcfc` pins, `#e63946` bands. One-pixel black outline on pins and ball. A pin is 12 pixels high or more at the far end. The ball gets smaller with distance in steps of a quarter. Banners sit on a black plate. | Open | game_rules (pictures), Device |
+| REQ-BW-12 | HUD: the title and "FRAME 4/10  BALL 1" (at the right). There is **no leader chip** and no player stats in the bar (decision of 2026-10-16): the game returns no `_scoreboard()` during play (as the maze). The **score sheet** (the headboard) of all players is at the bottom (one row each, 10 cells, the marks X, / and digits, the running total, the active cell has the accent frame), 28 px text, inside the 60 px margin (REQ-GM-40, 41). In the countdown each player has a name tag at the ball position (REQ-GM-46a). The layout comes from `size` (REQ-2D-2). | Open | smoke_bowling, game_helpers |
+| REQ-BW-13 | Look (REQ-GM-47i to 47n): a pixel bowling hall. The own lane is **narrow** (150 world pixels wide at the foul line, 86 at the pins) and shown in perspective (wood planks, dark gutters, arrows, a red foul line). **Two more lanes on each side**, darker, with their own racks of pins (some pins down, they do not move or play), so the sides are never empty. A plain wall behind the pins (no curtain). A ball in the slot color with a white shine, detailed pins: a 7 x 14 pixel picture with a round head, a thin neck with a red stripe, a shaded right side and a red band on the belly (the first mock had flat pins). World palette (8 colors): `#1b3a8a` wall, `#7a1f4a` curtain, `#0f6a78` floor, `#d8a058` and `#cc944c` planks, `#3c3c3c` gutter, `#fcfcfc` pins, `#e63946` bands. One-pixel black outline on pins and ball. A pin is 12 pixels high or more at the far end. The ball gets smaller with distance in steps of a quarter. Banners sit on a black plate. | Open | game_rules (pictures), Device |
 | REQ-BW-14 | The phone: a short "YOUR TURN" with a buzz, and "NAME IS BOWLING" while another player bowls, plus the own score and place (REQ-FL-67). This needs a way to send a short line to one phone (see the open questions and `change-protocol`). | Open | smoke_bowling |
 | REQ-BW-15 | Texts are positive: "Strike!", "Spare!", "Nice roll!", "Oops! Off the side", "Nice try!" (REQ-GM-84). The hint is one line at a time (REQ-GM-82): "Move the phone to aim. Swing back, then forward!". | Open | smoke_lang |
 
@@ -117,17 +118,19 @@ Settings and difficulty (REQ-GM-90 to 97)
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-BW-16 | Settings rows: **Difficulty** (Easy, Medium, Hard) and **Length** (Full 10 frames, Quick 5 frames; default Full). Both are part of `start_props` (REQ-GM-93). | Open | smoke_settings |
-| REQ-BW-17 | The table below shows what Difficulty means. Easy must be playable by a child of about 5 years (REQ-GM-96): the child can only swing and score. | Open | lane_sim, game_rules |
+| REQ-BW-16 | Settings rows: **Difficulty** (Easy, Medium, Hard), **Rails** (Off, On; default Off) and **Length** (Full 10 frames, Quick 5 frames; default Full). The rails are a setting of their own, not part of the difficulty. The mock is `screens/bowling/v2-5-settings.png`. Both are part of `start_props` (REQ-GM-93). | Open | smoke_settings |
+| REQ-BW-17 | The table below shows what Difficulty means. Easy plus Rails must be playable by a child of about 5 years (REQ-GM-96): the child can only swing and score. | Open | lane_sim, game_rules |
 | REQ-BW-18 | Medals for one player (REQ-GM-73): bronze, silver, gold from the table, for the Full length. For Quick the tiers are half (rounded). | Open | game_rules |
-| REQ-BW-19 | Personal best (REQ-GM-98): the key is `bowling|<difficulty>` for the Full length only, higher is better (`best_key()`; new keys at the end of `ProfileKeys`, 3 keys). Quick games have no best (exception, a short game is not a comparable score). | Open | smoke_bests, profile_code |
+| REQ-BW-19 | Personal best (REQ-GM-98): the key is `bowling|<difficulty>` for the Full length and Rails Off only, higher is better (`best_key()`; new keys at the end of `ProfileKeys`, 3 keys). Quick games and games with rails have no best (exception, they are not comparable scores). | Open | smoke_bests, profile_code |
 | REQ-BW-20 | A player who leaves takes the row out of the ranking. A lost phone pauses the game (REQ-GM-30). Nothing runs in the pause, and the swing state of the player on turn is reset when the pause closes. | Open | smoke_bowling |
 
-| Difficulty | Bumpers | Ball speed | Aim range | Swing threshold | Medal tiers (points) |
-|------------|---------|------------|-----------|-----------------|----------------------|
-| Easy | yes (no gutter ball) | always the middle value | 18 degrees | low (`FWD_ACCEL` x 0.7) | 70, 110, 150 |
-| Medium | no | 0.7 to 1.0 of the top speed | 14 degrees | normal | 60, 100, 150 |
-| Hard | no | 0.5 to 1.0 (a slow ball leaves pins) | 11 degrees (finer aim) | normal | 80, 130, 180 |
+| Difficulty | Ball speed | Aim range | Swing threshold | Medal tiers (points) |
+|------------|------------|-----------|-----------------|----------------------|
+| Easy | always the middle value | 18 degrees | low (`FWD_ACCEL` x 0.7) | 70, 110, 150 |
+| Medium | 0.7 to 1.0 of the top speed | 14 degrees | normal | 60, 100, 150 |
+| Hard | 0.5 to 1.0 (a slow ball leaves pins) | 11 degrees (finer aim) | normal | 80, 130, 180 |
+
+Rails do not change the medal tiers (open question: should a game with rails count for a personal best? In the plan it does not: REQ-BW-19).
 
 All numbers are first guesses.
 
@@ -194,6 +197,9 @@ The Hebrew is a first guess by Claude and needs a native reader.
 | `bowling.nice_roll` | Nice roll! | גלגול יפה! | Game, banner after 7 or more pins |
 | `bowling.phone_turn` | YOUR TURN | התור שלך | Phone, pad (needs a protocol message) |
 | `bowling.phone_wait` | %s is bowling | %s מגלגל/ת | Phone, pad |
+| `bowling.rails` | Rails | מעקות | Settings view, row name |
+| `bowling.on` | On | פועל | Settings view, Rails value |
+| `bowling.off` | Off | כבוי | Settings view, Rails value |
 | `bowling.length` | Length | אורך | Settings view, row name |
 | `bowling.full` | Full (10) | מלא (10) | Settings view, Length value |
 | `bowling.quick` | Quick (5) | מהיר (5) | Settings view, Length value |
