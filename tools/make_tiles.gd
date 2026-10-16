@@ -92,11 +92,15 @@ func _place_paint(game: Node) -> void:
 		for r in range(from.y, mini(from.y + (f.rows + 1) / 2, f.rows)):
 			for c in range(from.x, mini(from.x + (f.cols + 1) / 2, f.cols)):
 				# Ragged edges: some tiles of a patch are left out or belong to a neighbour.
-				if (c * 7 + r * 13 + i * 5) % 6 != 0:
+				if (c * 7 + r * 13 + i * 5) % 5 < 3:
 					f.paint(Vector2i(c, r), slots[i])
 		var body = game._bodies[slots[i]]
 		body.pos = (Vector2(from) + Vector2(2.5, 2.5) + Vector2(i % 2, i / 2) * 0.5) * 100.0
 		body.vel = Vector2(80.0, 40.0)
+	var pot = game.PaintPots.Pot.new()   # A gold pot is waiting in the middle of the floor.
+	pot.kind = "gold"
+	pot.cell = Vector2i(f.cols / 2, f.rows / 2)
+	game._pots.pots.append(pot)
 	for s in slots:
 		game._board.set_score(s, f.count(s))
 

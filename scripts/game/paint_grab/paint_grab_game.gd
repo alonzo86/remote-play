@@ -9,6 +9,9 @@ const PaintFloor = preload("res://scripts/game/paint_grab/paint_floor.gd")
 const TiltBody = preload("res://scripts/game/tilt_body.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
+const PaintPicture = preload("res://scripts/game/paint_grab/paint_picture.gd")
+const PaintPots = preload("res://scripts/game/paint_grab/paint_pots.gd")
+const PaintLook = preload("res://scripts/game/paint_grab/paint_look.gd")
 
 const ROUND_TIME := 60.0
 const COUNTDOWN := 3.0
@@ -17,6 +20,8 @@ const BLOB_R := 34.0
 const BUZZ_GAP_MS := 150        # REQ-PG-12.
 const EDGE_SOUND_SPEED := 250.0   # px/s. A slower hit at the edge makes no sound.
 const LEAD_SOUND_TIME := 10.0     # s. The lead alert is in the last seconds.
+const POT_POP_TIME := 0.4      # The tiles that a pot paints pop for a longer time (REQ-PG-23).
+const POT_BUZZ_MS := 40
 const POP_TIME := 0.15          # A painted tile grows and goes back in this time (REQ-PG-16).
 const HINT_TIME := 4.0
 const BOARD_TOP := 150.0        # The floor is the screen inside the margin, under the HUD.
@@ -53,6 +58,10 @@ var _haptics := Haptics.new()
 var _pops := PackedFloat32Array()  # The time left of the pop of each tile.
 var _level := {}
 var _stars := PackedVector2Array()
+var _rng := RandomNumberGenerator.new()
+var _pots := PaintPots.new()
+var _picture := PackedInt32Array()   # The part of the picture on each tile (PaintPicture), row after row (REQ-PG-22).
+var _pot_textures := {}
 
 
 func _game_ready() -> void:
@@ -61,6 +70,11 @@ func _game_ready() -> void:
 	_pops.resize(floor_map.cols * floor_map.rows)
 	_pops.fill(0.0)
 	_stars = Shell.star_field(STAR_COUNT, 13)
+	if start_props.has("seed"):
+		_rng.seed = int(start_props.seed)   # A test fixes the picture and the pots. Restart keeps the seed.
+	else:
+		_rng.randomize()
+	_picture = PaintPicture.kinds_for(PaintPicture.pick(_rng), floor_map.cols, floor_map.rows, _rng.randf() < 0.5, _rng.randf() < 0.5)
 	_board = Scoreboard.new(participants)
 	var middle := floor_map.size() * 0.5
 	for i in participants.size():
@@ -105,12 +119,36 @@ func _game_tick(delta: float) -> void:
 				_touching.erase(pair)
 	for s in _bodies:
 		_paint_under(s)
+	_tick_pots(delta)
 	_lead_sound()
 	for i in _pops.size():
 		if _pops[i] > 0.0:
 			_pops[i] = maxf(_pops[i] - delta, 0.0)
 	if _round.is_time_up():
 		_finish()
+
+
+## The pots (REQ-PG-23): one lands now and then, and the first blob that rolls over it paints its patch.
+func _tick_pots(delta: float) -> void:
+	var cells := []
+	for s in _bodies:
+		cells.append(floor_map.cell_at(_bodies[s].pos))
+	_pots.tick(delta, _rng, floor_map.cols, floor_map.rows, cells)
+	for s in _bodies:
+		var c: Vector2i = floor_map.cell_at(_bodies[s].pos)
+		var pot := _pots.take_at(c) if c.x >= 0 else null
+		if pot != null:
+			_apply_pot(s, pot)
+
+
+func _apply_pot(slot: int, pot: PaintPots.Pot) -> void:
+	for c in PaintPots.patch(pot.kind, pot.cell, floor_map.cols, floor_map.rows):
+		if floor_map.paint(c, slot) != PaintFloor.Result.SAME:
+			_pops[c.y * floor_map.cols + c.x] = POT_POP_TIME
+	for s in _bodies:
+		_board.set_score(s, floor_map.count(s))
+	Sound.sfx("paint_lead")
+	App.server.haptic(slot, POT_BUZZ_MS)
 
 
 ## In the last seconds of the round, a short alert when another blob takes the lead (docs/AUDIO_PLAN.md, section 4.3).
@@ -190,6 +228,8 @@ func _world_draw(ci: CanvasItem) -> void:
 	for r in floor_map.rows:
 		for c in floor_map.cols:
 			_draw_tile(ci, Vector2i(c, r), origin, k)
+	for pot in _pots.pots:
+		_draw_pot(ci, pot, origin, k)
 	for s in _bodies:
 		_draw_blob(ci, s, origin, k)
 
@@ -208,7 +248,30 @@ func _draw_tile(ci: CanvasItem, c: Vector2i, origin: Vector2, k: float) -> void:
 	var pop := _pops[c.y * floor_map.cols + c.x] > 0.0
 	var side := REF_TILE * k - TILE_GAP + (Shell.WORLD_PIXEL * 2.0 if pop else 0.0)
 	var rect := Rect2(origin + Vector2(c) * REF_TILE * k - Vector2.ONE * (Shell.WORLD_PIXEL if pop else 0.0), Vector2(side, side))
-	ci.draw_rect(rect, EMPTY_TILE if owner_slot == PaintFloor.NONE else player(owner_slot).color)
+	var part: int = _picture[c.y * floor_map.cols + c.x]
+	ci.draw_rect(rect, PaintLook.ghost(part, EMPTY_TILE) if owner_slot == PaintFloor.NONE else PaintLook.painted(part, player(owner_slot).color))
+
+
+## A pot with a frame around the tiles it will paint: a patch of 3 x 3 for the gold pot, the row for the roller. A pot that is about to
+## go away blinks (REQ-PG-23).
+func _draw_pot(ci: CanvasItem, pot: PaintPots.Pot, origin: Vector2, k: float) -> void:
+	if pot.is_blinking() and int(pot.age * 4.0) % 2 == 0:
+		return
+	var tiles := PaintPots.patch(pot.kind, pot.cell, floor_map.cols, floor_map.rows)
+	var lo := Vector2i(floor_map.cols, floor_map.rows)
+	var hi := Vector2i.ZERO
+	for c in tiles:
+		lo = Vector2i(mini(lo.x, c.x), mini(lo.y, c.y))
+		hi = Vector2i(maxi(hi.x, c.x), maxi(hi.y, c.y))
+	var frame := Rect2(origin + Vector2(lo) * REF_TILE * k, Vector2(hi - lo + Vector2i.ONE) * REF_TILE * k - Vector2.ONE * TILE_GAP)
+	var color := PaintLook.GOLD_FRAME if pot.kind == PaintPots.GOLD else PaintLook.ROLLER_FRAME
+	ci.draw_rect(frame, color, false, Shell.WORLD_PIXEL)
+	if not _pot_textures.has(pot.kind):
+		_pot_textures[pot.kind] = ImageTexture.create_from_image(PaintLook.pot_image(pot.kind))
+	var tex: ImageTexture = _pot_textures[pot.kind]
+	var sz := Vector2(tex.get_size()) * Shell.WORLD_PIXEL
+	var center := origin + (Vector2(pot.cell) + Vector2(0.5, 0.5)) * REF_TILE * k
+	ci.draw_texture_rect(tex, Rect2(Shell.snap(center - sz * 0.5), sz), false)
 
 
 func _draw_blob(ci: CanvasItem, slot: int, origin: Vector2, k: float) -> void:

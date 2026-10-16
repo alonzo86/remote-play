@@ -11,6 +11,9 @@ floor of square tiles. A tile that a blob rolls over turns into the color of tha
 player. After 60 seconds the player with the most tiles wins. With one player, the score (the share of the floor that is painted)
 is compared with medal tiers. A tile that is painted over costs nothing but the tile: nobody is out and nobody waits.
 
+Since 2026-10-16 the floor hides a picture (a different one in each round, REQ-PG-22) and now and then a bonus pot lands on it:
+the first blob that rolls over it paints a whole patch (REQ-PG-23). The score is still the number of tiles.
+
 Registry entry: `description` (one line) and `tile` (`assets/tiles/paint_grab.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
 Visual language: shell, player colors, toy-like world (REQ-GM-45 to 49). Check the tile next to the Games screen.
 
@@ -62,6 +65,8 @@ Look
 | REQ-PG-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn in the 480x270 view: a black sky with 48 star pixels, a dark floor board `#2a1070` with a one-pixel black outline, empty tiles `#3a1c97`, painted tiles in the flat slot color (no lighter edge). A tile is a whole number of world pixels wide, so all gaps are one world pixel (the floor is as big as fits, in steps of 4 px per tile). A blob has a one-pixel black outline, square eyes (no number on it, REQ-GM-46). All text is 32 px or larger. Everything stays inside the 60 px margin. | Device | review, smoke_paint (the view, the grid), Device |
 | REQ-PG-16 | A tile that is painted pops (it is one world pixel wider on each side for 0.15 s, a hard step), so the painting can be seen. A blob has square eyes with pupils that step to the side it rolls. | Device | smoke_paint (pop), Device |
 | REQ-PG-17 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080. | Done | smoke_paint |
+| REQ-PG-22 | The floor hides a picture (`paint_picture.gd`). There are 30 pictures. A picture is the left half of a symmetric shape, 6 columns by 9 rows of text (`.` nothing, `#` body, `o` accent, `e` eye), mirrored and centered on a 16 x 9 grid; a floor of any size takes the nearest cell, and stays symmetric. A round picks one at random from the seed (`start_props.seed`; Restart keeps it), and also turns it upside down or swaps body and accent at random (4 looks of a shape). A tile that nobody painted shows a faint ghost of its part: body lighter violet, accent green, eye almost white, the background of the picture darker than an empty tile. A painted tile keeps the shade of its part in the color of its owner: the body is the color, the accent is 28 % darker, the eye is almost white, the background is very dark (72 % darker). The picture has no effect on the score or the rules. The pictures are text in the code, not image files. | Done | game_rules (the shapes, the floors, the flip, the seed), smoke_paint, Device (can the pictures be recognized?) |
+| REQ-PG-23 | Bonus pots. A pot lands on a random tile of the floor the first time after 8 s of play and then after 9 to 15 s; the tile is at least 3 tiles (in a line or diagonal) from every blob, and one pot is on the floor at a time. It is the gold pot (3 x 3 tiles around its tile, clipped at the edge; chance 60 %) or the rainbow roller (the whole row of its tile; chance 40 %). A pot that nobody takes goes away after 9 s and blinks in the last 2 s. The first blob that rolls over the tile of a pot paints the whole patch in its color (also tiles of other players), the painted tiles pop for 0.4 s, the pot goes away, the scores follow, the phone buzzes 40 ms and the sound `paint_lead` plays. A frame shows the tiles that the pot will paint (gold or white, 1 world pixel). A pot is a picture of 11 x 11 world pixels. It costs nobody anything (REQ-GM-81). | Done | game_rules (the patch, the timing, the distance), smoke_paint, Device (feel) |
 
 Settings (REQ-GM-90 to 97)
 
@@ -95,11 +100,15 @@ Values that change how the game feels. Tune them on a device (Test 14). First va
 | `ACCEL`, `DAMPING`, `MAX_SPEED`, `DEADZONE`, `BOUNCE` | `tilt_body.gd` / game | 2200 px/s2 for tilt 1.0, 1.4 1/s, 560 px/s, 0.03, 0.35 |
 | Blob radius | `paint_grab_game.gd` | 34 px (68 px wide) |
 | Levels | `paint_grab_game.gd` | table above |
+| `FIRST`, `GAP_MIN`, `GAP_MAX`, `LIFE`, `BLINK`, `FAR`, `WEIGHTS` | `paint_pots.gd` | 8 s, 9 s, 15 s, 9 s, 2 s, 3 tiles, 60/40 |
+| The 30 shapes of `SHAPES` | `paint_picture.gd` | first drawings (Test 14 item 11) |
 
 ## Open questions
 
 - Is a round of 60 s right for 4 players on a floor of 144 tiles? Is it too hard to cover 70% alone on Medium?
 - Does the blob feel good, or does it need a stronger damping so it is easy to steer for a child?
+- Can the players recognize the pictures (an invader, a heart, a fish, a ghost ...) while the floor fills up, or do the four colors hide them? Are 30 enough, or does it feel like the same pictures?
+- Are the pots too rare or too strong? Does the gold patch (up to 9 tiles) decide a round?
 - Should the blobs also paint a ring around them (a bigger brush) on Easy, so a child fills the floor faster?
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)

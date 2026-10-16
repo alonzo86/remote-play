@@ -42,6 +42,7 @@ func _run() -> void:
 	await _frames(5)
 	root.size = Vector2i(1920, 1080)
 	var PaintGame = load("res://scripts/game/paint_grab/paint_grab_game.gd")
+	var PaintPots = load("res://scripts/game/paint_grab/paint_pots.gd")
 	var TvGameSettings = load("res://scripts/ui/tv_game_settings.gd")
 	var GameSettings = load("res://scripts/game/game_settings.gd")
 	var app: Node = root.get_node("App")
@@ -148,6 +149,25 @@ func _run() -> void:
 			"a free tile does not buzz, a take buzzes, and a second take within 150 ms does not buzz again (REQ-PG-12)")
 	await _frames(3)
 	_check(game._pops[some.y * game.floor_map.cols + some.x] > 0.0, "a painted tile pops (REQ-PG-16)")
+	# A pot: the first blob on its tile paints the patch for its player (REQ-PG-23).
+	_check(game._picture.size() == game.floor_map.cols * game.floor_map.rows and game._picture.size() - game._picture.count(0) > 10,
+			"the floor hides a picture that fits it (REQ-PG-22)")
+	game._pots.pots.clear()
+	var pot = PaintPots.Pot.new()
+	pot.kind = PaintPots.GOLD
+	pot.cell = Vector2i(8, 4)
+	game._pots.pots.append(pot)
+	game._bodies[0].pos = Vector2(100.0, 100.0)
+	game._bodies[1].pos = (Vector2(pot.cell) + Vector2(0.5, 0.5)) * 100.0
+	game._bodies[1].vel = Vector2.ZERO
+	game._tick_pots(0.016)
+	var patch_ok := true
+	for dy in range(-1, 2):
+		for dx in range(-1, 2):
+			patch_ok = patch_ok and game.floor_map.owner_of(Vector2i(8 + dx, 4 + dy)) == 1
+	_check(patch_ok and game._pots.pots.is_empty() and game._board.score(1) == game.floor_map.count(1)
+			and game._board.score(0) == game.floor_map.count(0),
+			"a blob on the gold pot paints the 3 x 3 patch, takes tiles of the other player, and the scores follow (REQ-PG-23)")
 	# The sounds of the blobs (docs/AUDIO_PLAN.md, section 4.3).
 	var sound: Node = root.get_node("Sound")
 	var heard: Array[String] = []

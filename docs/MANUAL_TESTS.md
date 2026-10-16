@@ -564,6 +564,7 @@ difficulty values are first guesses.
 8. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
 9. Tap **RECENTER** with the phone tilted. Check: the blob stops creeping. A and B do nothing. (REQ-PG-14)
 10. **Pixel world (phase 4, REQ-PG-15).** From the sofa (about 3 m), look at the floor on Medium and Hard. Check: the tiles are sharp squares with equal gaps (no uneven lines), you can tell the colors apart, the blob and its number are easy to see on a tile of its own color, and a painted tile pops (a hard step). Write down if the pop is easy to see.
+11. **Pictures and pots (2026-10-16, REQ-PG-22, 23).** Play 5 rounds in a row. Check: each round has a different faint picture under the empty floor, you can see what it is (an invader, a heart, a ghost ...) before the floor fills, and in the end the painted tiles still show it. Write down which pictures you could not recognize and if any came twice in a row. Then check the pots: a gold pot (3 x 3 patch) or a rainbow roller (the whole row) lands every 9 to 15 s, a frame shows the tiles it will paint, the first blob on it paints the patch and the phone buzzes, and a pot that nobody takes blinks and goes away. Write down if the pots are too rare or too strong, and if a child understands them without a hint.
 
 **Results**
 
@@ -578,10 +579,12 @@ difficulty values are first guesses.
 | 7 | Note: the child, the age, what happened | Not run | | | |
 | 8 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
 | 9 | Video: RECENTER, then A and B | Not run | | | |
+| 11 | Photos of 3 rounds with the picture visible and after the pots; list of pictures that were not recognized; note on the pots | Not run | | | Added 2026-10-16 (REQ-PG-22, 23). The shapes, the colors and the pot values are first guesses. |
 | 10 | Photo of the floor from the sofa; note: equal gaps, colors, the blob and the pop | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). Look changed on 2026-10-15 (Treasure Maze). |
 
 History:
 
+- 2026-10-16 (not run): item 11 is new: a hidden picture under the floor (30 shapes, a new one each round) and bonus pots (gold 3 x 3, rainbow roller), REQ-PG-22 and 23.
 - 2026-10-10 (not run): item 10 is new: the floor is a pixel world (phase 4 of the arcade style).
 - -: **Not run**. New.
 
