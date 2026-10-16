@@ -1,5 +1,5 @@
 extends SceneTree
-## The pure rules of the minigames, without a screen: the Puffs of Snowball Splat (REQ-SS-3, 7 to 10, 12).
+## The pure rules of the minigames, without a screen: the animals of Banana Splat (REQ-SS-3, 7 to 10, 12, 23).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/game_rules.gd -- --role=controller
 
 const Shell = preload("res://scripts/game/shell.gd")
@@ -54,16 +54,16 @@ func _rng(seed_value: int) -> RandomNumberGenerator:
 	return r
 
 
-## A Puff in lane `lane` (0 top: Little Puffs to the right, 1 middle: Puffs to the left, 2 bottom: Puffs to the right) at `x`
-## (px of the play area), at the start of its wave.
-func _puff(lane: int, x: float) -> PuffField.Puff:
+## An animal in lane `lane` (0 far: monkeys and lemurs to the right, 1 middle: to the left, 2 near: to the right) at `x`
+## (px of the play area), at the start of its step. `kind` is the first animal of the lane unless it is given.
+func _puff(lane: int, x: float, kind := "") -> PuffField.Puff:
 	var p := PuffField.Puff.new()
 	p.lane = lane
-	p.kind = PuffField.LANES[lane].kind
+	p.kind = kind if kind != "" else PuffField.LANES[lane].kinds[0]
 	p.dir = PuffField.LANES[lane].dir
 	p.lane_y = PuffField.LANES[lane].y
 	p.radius = PuffField.KINDS[p.kind].radius
-	p.speed = PuffField.KINDS[p.kind].speed
+	p.speed = PuffField.LANES[lane].speed
 	p.points = PuffField.KINDS[p.kind].points
 	p.x = x
 	return p
@@ -85,31 +85,36 @@ func _aim() -> void:
 
 
 func _kinds_and_lanes() -> void:
-	print("snowball splat: kinds and lanes")
+	print("banana splat: kinds and lanes")
 	var kinds: Dictionary = PuffField.KINDS
-	_check(kinds.puff.points == 10 and kinds.puff.radius == 100.0 and kinds.puff.speed == 100.0
-			and kinds.little.points == 25 and kinds.little.radius == 72.0 and kinds.little.speed == 160.0,
-			"Puff: 10 points, radius 100, 100 px/s. Little Puff: 25 points, radius 72, 160 px/s (REQ-SS-7)")
+	_check(kinds.monkey.points == 25 and kinds.lemur.points == 25 and kinds.orangutan.points == 10 and kinds.sloth.points == 10
+			and kinds.gorilla.points == 10 and kinds.elephant.points == 10 and kinds.golden.points == 100
+			and PuffField.LANES[0].speed == 160.0 and PuffField.LANES[2].speed == 80.0 and kinds.elephant.radius == 96.0,
+			"the small animals give 25 points, the others 10, the golden monkey 100 (REQ-SS-7, 23)")
 	var slow := true
 	var big := true
+	for lane in PuffField.LANES:
+		slow = slow and float(lane.speed) <= 200.0
 	for k in kinds:
-		slow = slow and float(kinds[k].speed) <= 200.0
 		big = big and float(kinds[k].radius) >= 72.0
-	_check(slow and big, "no Puff is faster than 200 px/s, and every Puff is at least 144 px wide (REQ-SS-7, REQ-GM-82)")
+	_check(slow and big and float(kinds.golden.speed) > 200.0,
+			"no animal but the bonus is faster than 200 px/s, and every animal is at least 144 px wide (REQ-SS-7, 23, REQ-GM-82)")
 	var inside := true
 	var kinds_ok := true
 	for lane in PuffField.LANES:
-		var r: float = kinds[lane.kind].radius
-		inside = inside and lane.y - r - PuffField.WAVE >= 0.0 and lane.y + r + PuffField.WAVE <= PuffField.REF_AREA.y - 70.0
-		kinds_ok = kinds_ok and kinds.has(lane.kind) and (lane.dir == 1 or lane.dir == -1)
-	_check(inside and kinds_ok, "every lane, with its wave, is inside the play area and above the snow (REQ-SS-8)")
+		for k in lane.kinds:
+			var r: float = kinds[k].radius
+			inside = inside and lane.y - r - PuffField.WAVE >= 0.0 and lane.y + r <= PuffField.REF_AREA.y
+			kinds_ok = kinds_ok and kinds.has(k)
+		kinds_ok = kinds_ok and (lane.dir == 1 or lane.dir == -1) and int(lane.weight) > 0
+	_check(inside and kinds_ok, "every lane, with the bob of the steps, is inside the play area (REQ-SS-8)")
 	_check(PuffField.LANES.size() == 3, "there are 3 lanes")
 	var p := _puff(1, 500.0)
-	p.age = PuffField.WAVE_TIME * 0.25
+	p.age = PuffField.WAVE_TIME * 0.5
 	var top := p.y()
-	p.age = PuffField.WAVE_TIME * 0.75
-	_check(is_equal_approx(top, p.lane_y + PuffField.WAVE) and is_equal_approx(p.y(), p.lane_y - PuffField.WAVE),
-			"a Puff goes up and down 28 px around its lane")
+	p.age = 0.0
+	_check(is_equal_approx(top, p.lane_y - PuffField.WAVE) and is_equal_approx(p.y(), p.lane_y),
+			"an animal bobs up by 8 px in each step and never goes below its lane")
 
 
 func _flying() -> void:
@@ -118,12 +123,12 @@ func _flying() -> void:
 	var p := _puff(1, 500.0)   # The middle lane flies to the left.
 	f.puffs.append(p)
 	f.tick(1.0, _rng(1), 99)
-	_check(p.dir == -1 and is_equal_approx(p.x, 400.0), "a Puff of the middle lane flies left at 100 px/s: x = %.1f" % p.x)
-	var q := _puff(0, 0.0)   # The top lane flies to the right.
+	_check(p.dir == -1 and is_equal_approx(p.x, 410.0), "an animal of the middle lane walks left at 90 px/s: x = %.1f" % p.x)
+	var q := _puff(0, 0.0)   # The far lane walks to the right.
 	var g := PuffField.new()
 	g.puffs.append(q)
 	g.tick(0.5, _rng(1), 99)
-	_check(q.dir == 1 and is_equal_approx(q.x, 80.0), "a Little Puff of the top lane flies right at 160 px/s: x = %.1f" % q.x)
+	_check(q.dir == 1 and is_equal_approx(q.x, 80.0), "a monkey of the far lane walks right at 160 px/s: x = %.1f" % q.x)
 	var once := _puff(1, 1200.0)
 	var split := _puff(1, 1200.0)
 	var fa := PuffField.new()
@@ -134,13 +139,13 @@ func _flying() -> void:
 	for i in 200:
 		fb.tick(0.01, _rng(2), 0)
 	_check(absf(once.x - split.x) < 0.01 and absf(once.age - split.age) < 0.0001,
-			"the flight does not depend on the frame time (REQ-GM-13): %.3f and %.3f" % [once.x, split.x])
+			"the walk does not depend on the frame time (REQ-GM-13): %.3f and %.3f" % [once.x, split.x])
 	var leaving := _puff(1, 150.0)
 	var h := PuffField.new()
 	h.puffs.append(leaving)
-	var away := h.tick(2.0, _rng(3), 0)   # 150 - 200 = -50: still inside the edge zone (radius 100).
+	var away := h.tick(2.0, _rng(3), 0)   # 150 - 200 = -50: still inside the edge zone (radius 80).
 	away += h.tick(1.0, _rng(3), 0)       # -150 is beyond -radius - 2.
-	_check(away == 1 and not h.puffs.has(leaving), "a Puff that flew out of the other edge is gone and nothing else happens")
+	_check(away == 1 and not h.puffs.has(leaving), "an animal that walked out of the other edge is gone and nothing else happens")
 
 
 func _spawning() -> void:
@@ -148,44 +153,48 @@ func _spawning() -> void:
 	var rng := _rng(11)
 	var f := PuffField.new()
 	f.tick(0.01, rng, 2)
-	_check(f.puffs.size() == 1, "the first Puff comes at once (REQ-SS-9)")
+	_check(f.puffs.size() == 1, "the first animal comes at once (REQ-SS-9)")
 	var first := f.puffs[0]
 	var right_edge: float = PuffField.REF_AREA.x + first.radius
 	var edge_ok := (first.dir > 0 and first.x <= -first.radius + 0.5) or (first.dir < 0 and first.x >= right_edge - 0.5)
-	_check(edge_ok and first.kind == PuffField.LANES[first.lane].kind,
-			"a Puff comes in at the edge of its lane, with the kind of the lane")
+	_check(edge_ok and PuffField.LANES[first.lane].kinds.has(first.kind),
+			"an animal comes in at the edge of its lane, and it is one of the animals of the lane")
 	f.tick(1.0, rng, 2)
-	_check(f.puffs.size() == 1, "the next Puff waits for the 1.5 s")
+	_check(f.puffs.size() == 1, "the next animal waits for the 1.5 s")
 	f.tick(0.6, rng, 2)
-	_check(f.puffs.size() == 2, "a new Puff every 1.5 s")
+	_check(f.puffs.size() == 2, "a new animal every 1.5 s")
 	var overlaps := false
 	var too_many := false
-	var colors_ok := true
 	var run := PuffField.new()
 	var rng2 := _rng(5)
+	var bonus_seen := 0
 	for i in 3600:   # 2 minutes at 30 frames per second, 3 players.
 		run.tick(1.0 / 30.0, rng2, 3)
-		too_many = too_many or run.puffs.size() > PuffField.max_puffs(3)
+		var regular := 0
 		for a in run.puffs:
-			colors_ok = colors_ok and a.color_index >= 0 and a.color_index < PuffField.COLOR_COUNT
+			if a.kind != PuffField.BONUS_KIND:
+				regular += 1
+			else:
+				bonus_seen += 1
 			for b in run.puffs:
 				if a != b and a.lane == b.lane and absf(a.x - b.x) < a.radius + b.radius:
 					overlaps = true
-	_check(not overlaps, "in 2 minutes two Puffs of one lane never overlap (REQ-SS-8)")
-	_check(not too_many and PuffField.max_puffs(3) == 6, "never more than 3 + the number of players Puffs on the screen (REQ-SS-9)")
-	_check(colors_ok, "every Puff has one of the colors")
-	var counts := {"puff": 0, "little": 0}
+		too_many = too_many or regular > PuffField.max_puffs(3)
+	_check(not overlaps, "in 2 minutes two animals of one lane never overlap, also not the golden monkey (REQ-SS-8, 23)")
+	_check(not too_many and PuffField.max_puffs(3) == 6, "never more than 3 + the number of players animals on the screen (REQ-SS-9)")
+	_check(bonus_seen > 0, "the golden monkey comes in 2 minutes (REQ-SS-23)")
+	var lanes_hit := [0, 0, 0]
 	var rng3 := _rng(21)
 	for i in 3000:
 		var one := PuffField.new()
 		var p := one.spawn(rng3, 99)
-		counts[p.kind] += 1
-	_check(absf(counts.puff / 3000.0 - 0.70) < 0.04 and absf(counts.little / 3000.0 - 0.30) < 0.04,
-			"Puffs and Little Puffs come in the ratio 70 : 30: %s" % str(counts))
+		lanes_hit[p.lane] += 1
+	_check(absf(lanes_hit[0] / 3000.0 - 0.30) < 0.04 and absf(lanes_hit[1] / 3000.0 - 0.35) < 0.04
+			and absf(lanes_hit[2] / 3000.0 - 0.35) < 0.04, "the lanes come in the ratio 30 : 35 : 35: %s" % str(lanes_hit))
 	var full := PuffField.new()
 	for i in 12:
 		full.spawn(rng3, 0)
-	_check(full.puffs.size() <= PuffField.max_puffs(0) and full.puffs.size() <= 3, "a full screen (or full lanes) adds no Puff")
+	_check(full.puffs.size() <= PuffField.max_puffs(0) and full.puffs.size() <= 3, "a full screen (or full lanes) adds no animal")
 	var a1 := PuffField.new()
 	var a2 := PuffField.new()
 	var s1 := _rng(8)
@@ -196,9 +205,33 @@ func _spawning() -> void:
 		a2.tick(0.5, s2, 2)
 		same = same and a1.puffs.size() == a2.puffs.size()
 		for j in a1.puffs.size():
-			same = same and a1.puffs[j].lane == a2.puffs[j].lane and a1.puffs[j].color_index == a2.puffs[j].color_index \
+			same = same and a1.puffs[j].lane == a2.puffs[j].lane and a1.puffs[j].kind == a2.puffs[j].kind \
 					and is_equal_approx(a1.puffs[j].x, a2.puffs[j].x)
-	_check(same, "the same seed gives the same Puffs (REQ-SS-9)")
+	_check(same, "the same seed gives the same animals (REQ-SS-9)")
+	var bonus := PuffField.new()
+	var b_rng := _rng(3)
+	var first_bonus := PuffField.new()
+	var when := -1.0
+	for i in 400:
+		first_bonus.tick(0.1, b_rng, 2)
+		if when < 0.0 and first_bonus.puffs.any(func(p): return p.kind == PuffField.BONUS_KIND):
+			when = i * 0.1
+	_check(when >= PuffField.BONUS_FIRST - 0.2 and when <= PuffField.BONUS_FIRST + 8.0,
+			"the first golden monkey comes after %d s of play, a bit later when no lane is safe: %.1f s (REQ-SS-23)" % [int(PuffField.BONUS_FIRST), when])
+	var gold := bonus.spawn_bonus(b_rng)
+	_check(gold != null and gold.kind == "golden" and gold.points == 100 and bonus.spawn_bonus(b_rng) == null,
+			"the bonus is one golden monkey at a time, worth 100 points (REQ-SS-23)")
+	var crowded := PuffField.new()
+	for lane in 3:
+		crowded.puffs.append(_puff(lane, 900.0 if PuffField.LANES[lane].dir > 0 else 900.0 - 300.0))
+	_check(crowded.spawn_bonus(_rng(4)) == null, "no lane is safe when every lane has an animal that the bonus would catch")
+	var late := PuffField.new()
+	var walker := _puff(0, 1700.0)   # A monkey almost at the far edge: the bonus is out of its way before it can catch up.
+	late.puffs.append(walker)
+	late.puffs.append(_puff(1, 400.0))
+	late.puffs.append(_puff(2, 400.0))
+	var fits: PuffField.Puff = late.spawn_bonus(_rng(4))
+	_check(fits != null and fits.lane != 2, "the golden monkey comes in a lane whose animal will be gone before it can reach it")
 
 
 func _hit_test() -> void:
@@ -207,60 +240,64 @@ func _hit_test() -> void:
 	var a := _puff(2, 900.0)
 	f.puffs.append(a)
 	var c := PuffField.center_of(a, AREA)
-	_check(f.hit(c, AREA) == a, "a snowball in the middle hits")
-	_check(f.hit(c + Vector2(100.0, 0.0), AREA) == a, "a snowball at the edge of the radius hits")
-	_check(f.hit(c + Vector2(100.0 + PuffField.HIT_SLOP, 0.0), AREA) == a, "a snowball inside the 12 px slop hits (REQ-SS-10)")
-	_check(f.hit(c + Vector2(100.0 + PuffField.HIT_SLOP + 1.0, 0.0), AREA) == null, "a snowball just outside the slop misses")
-	var b := _puff(0, 940.0)   # A Little Puff that is moved down, so that it touches the first Puff in this test.
-	b.lane_y = a.lane_y + 60.0
+	var r: float = a.radius
+	_check(f.hit(c, AREA) == a, "a banana in the middle hits")
+	_check(f.hit(c + Vector2(r, 0.0), AREA) == a, "a banana at the edge of the radius hits")
+	_check(f.hit(c + Vector2(r + PuffField.HIT_SLOP, 0.0), AREA) == a, "a banana inside the 12 px slop hits (REQ-SS-10)")
+	_check(f.hit(c + Vector2(r + PuffField.HIT_SLOP + 1.0, 0.0), AREA) == null, "a banana just outside the slop misses")
+	var b := _puff(0, 940.0)   # A monkey that is moved down, so that it touches the first animal in this test.
+	b.lane_y = a.lane_y - 60.0
 	f.puffs.append(b)
 	var between := PuffField.center_of(b, AREA) + Vector2(-20.0, 0.0)
-	_check(f.hit(between, AREA) == b, "inside two Puffs, the nearer center is hit")
+	_check(f.hit(between, AREA) == b, "inside two animals, the nearer center is hit")
 	f.take(b)
-	_check(f.hit(between, AREA) == a and f.puffs.size() == 1, "a taken Puff is gone")
-	f.tick(2.0, _rng(4), 0)   # The Puff moves 200 px to the left.
+	_check(f.hit(between, AREA) == a and f.puffs.size() == 1, "a taken animal is gone")
+	f.tick(2.0, _rng(4), 0)   # The animal moves 160 px to the right (an elephant at 80 px/s).
 	_check(f.hit(c, AREA) == null and f.hit(PuffField.center_of(a, AREA), AREA) == a,
-			"the hit follows the Puff where it is when the snowball lands")
+			"the hit follows the animal where it is when the banana lands")
 	var small := Rect2(60.0, 150.0, 1160.0, 510.0)
 	var k := PuffField.scale_for(small)
 	var sc := PuffField.center_of(a, small)
-	_check(f.hit(sc + Vector2(100.0 * k, 0.0), small) == a and f.hit(sc + Vector2(120.0, 0.0), small) == null,
+	_check(f.hit(sc + Vector2(r * k, 0.0), small) == a and f.hit(sc + Vector2(r * k + 40.0, 0.0), small) == null,
 			"the radius scales with the screen")
 
 
 func _visual_rules() -> void:
-	print("snowball splat: visual rules")
+	print("banana splat: visual rules")
+	var Look = load("res://scripts/game/snowball_splat/banana_look.gd")
 	var consts: Dictionary = load("res://scripts/game/snowball_splat/snowball_splat_game.gd").get_script_constant_map()
-	var board: Color = consts["BOARD_COLOR"]
-	var bg: Color = consts["BACKGROUND"]
-	var slots_ok := true
-	for c in Protocol.PLAYER_COLORS:
-		if Shell.contrast(c, board) < 3.0:
-			slots_ok = false
-			print("    slot color too close to the board: ", c)
-	_check(slots_ok, "every player color has a contrast of 3:1 on the board (REQ-GM-47e)")
-	var puff_colors: Array = consts["PUFF_COLORS"] + [consts["LITTLE_COLOR"]]
-	var colors_ok := puff_colors.size() == PuffField.COLOR_COUNT + 1
-	for c in puff_colors:
-		if Shell.contrast(c, board) < 3.0 or c.s < 0.55 or c.v < 0.60:
-			colors_ok = false
-			print("    Puff color not bright enough or not saturated: ", c)
-	_check(colors_ok, "Puff colors have a contrast of 3:1 on the board, saturation 0.55+ and value 0.60+ (REQ-GM-47d, 47e)")
-	_check(board.s >= 0.35 and board.v >= 0.25 and board.v <= 0.65 and bg.s >= 0.35 and bg.v >= 0.25 and bg.v <= 0.65,
-			"the board and the background are dark and saturated (REQ-GM-47e)")
+	var ring_ok := true
+	for c in Protocol.PLAYER_COLORS:   # The circle has a dark edge, and its color differs from the edge by 3:1 or more.
+		if Shell.contrast(c, Look.OUTLINE) < 3.0:
+			ring_ok = false
+			print("    slot color too close to the dark edge of the cursor: ", c)
+	_check(ring_ok, "every player color has a contrast of 3:1 on the dark edge of the cursor circle (REQ-GM-47m)")
+	var edge_ok := true
+	for ground in Look.GROUND:
+		edge_ok = edge_ok and Shell.contrast(Look.OUTLINE, ground) >= 3.0
+	_check(edge_ok, "the dark outline of an animal differs from every lane of the ground by 3:1 or more (REQ-GM-47m)")
 	var smallest := 1e9
 	for kind in PuffField.KINDS:
 		smallest = minf(smallest, float(PuffField.KINDS[kind].radius) * 2.0)
 	_check(smallest >= 48.0 and float(consts["CURSOR_R"]) * 2.0 >= 48.0,
 			"every key object is 48 px high or more at 1080p (REQ-GM-47e)")
-	var clash := false
-	for c in Protocol.PLAYER_COLORS:
-		for t in puff_colors:
-			if c.is_equal_approx(t):
-				clash = true
-	_check(not clash, "no Puff color is a player color")
+	var sizes_ok := true
+	for kind in PuffField.KINDS:   # A picture has about the size of its hit circle: from 60 % to 150 % of its width.
+		for happy in [false, true]:
+			var img: Image = Look.animal_image(kind, happy, 1)
+			var width := float(img.get_width()) * Shell.WORLD_PIXEL
+			var span := float(PuffField.KINDS[kind].radius) * 2.0
+			sizes_ok = sizes_ok and width >= span * 0.6 and width <= span * 1.7 and img.get_height() >= 12
+	_check(sizes_ok, "every animal picture is 12 world pixels high or more and fits its hit circle (REQ-GM-47m)")
 	_check(float(consts["RELOAD"]) <= 0.5 and float(consts["ROUND_TIME"]) >= 45.0,
 			"a quick reload (0.5 s or less) and a round of at least 45 s: a child is not stopped after a miss (REQ-GM-83)")
+	var left: Image = Look.animal_image("monkey", false, -1)
+	var right: Image = Look.animal_image("monkey", false, 1)
+	var happy_img: Image = Look.animal_image("monkey", true, 1)
+	_check(left.get_data() != right.get_data() and happy_img.get_data() != right.get_data(),
+			"an animal looks to the side it walks, and a hit animal has other eyes (REQ-SS-13)")
+	var golden: Image = Look.animal_image("golden", false, 1)
+	_check(golden.get_data() != right.get_data(), "the golden monkey has its own picture (REQ-SS-23)")
 
 
 ## The maze difficulty (REQ-MZ-9).
@@ -383,15 +420,15 @@ func _test_maze_board() -> void:
 	_check(a.get_data() == b.get_data(), "the same board is drawn the same way every time")
 
 
-## Snowball Splat difficulty (REQ-SS-20 to 22): faster Puffs and fewer of them as it grows.
+## Banana Splat difficulty (REQ-SS-20 to 22): faster animals and fewer of them as it grows.
 func _difficulty() -> void:
 	print("snowball difficulty")
 	var lv: Dictionary = PuffField.LEVELS
-	_check(lv.easy.speed < lv.medium.speed and lv.medium.speed < lv.hard.speed, "the Puffs are faster with the difficulty")
+	_check(lv.easy.speed < lv.medium.speed and lv.medium.speed < lv.hard.speed, "the animals are faster with the difficulty")
 	_check(lv.easy.max_base > lv.medium.max_base and lv.medium.max_base > lv.hard.max_base,
-			"there are fewer Puffs with the difficulty")
+			"there are fewer animals with the difficulty")
 	_check(lv.easy.spawn_every < lv.medium.spawn_every and lv.medium.spawn_every < lv.hard.spawn_every,
-			"new Puffs come less often with the difficulty")
+			"new animals come less often with the difficulty")
 	_check(lv.medium.speed == 1.0 and lv.medium.max_base == PuffField.MAX_BASE and lv.medium.spawn_every == PuffField.SPAWN_EVERY
 			and lv.medium.tiers == [150, 300, 450], "Medium is the game from before")
 	_check(Medals.is_valid(lv.easy.tiers) and Medals.is_valid(lv.medium.tiers) and Medals.is_valid(lv.hard.tiers)
@@ -402,21 +439,19 @@ func _difficulty() -> void:
 		var f := PuffField.new()
 		f.setup(d)
 		var most := 0
-		var puff_speed := 0.0
-		var seen_little := 0.0
+		var speeds_ok := true
 		var rng := _rng(5)
 		for i in 1200:
 			f.tick(0.05, rng, 2)
-			most = maxi(most, f.puffs.size())
+			var regular := 0
 			for p in f.puffs:
-				if p.kind == "puff":
-					puff_speed = p.speed
-				else:
-					seen_little = p.speed
+				speeds_ok = speeds_ok and is_equal_approx(p.speed, float(PuffField.KINDS[p.kind].get("speed", PuffField.LANES[p.lane].speed)) * lv[d].speed)
+				if p.kind != PuffField.BONUS_KIND:
+					regular += 1
+			most = maxi(most, regular)
 		_check(most <= PuffField.max_puffs(2, lv[d].max_base) and most >= lv[d].max_base,
-				"%s: at most %d Puffs on the screen at once (most seen: %d)" % [d, PuffField.max_puffs(2, lv[d].max_base), most])
-		_check(is_equal_approx(puff_speed, 100.0 * lv[d].speed) and is_equal_approx(seen_little, 160.0 * lv[d].speed),
-				"%s: the speed of both kinds is the factor %.1f" % [d, lv[d].speed])
+				"%s: at most %d animals on the screen at once (most seen: %d)" % [d, PuffField.max_puffs(2, lv[d].max_base), most])
+		_check(speeds_ok, "%s: the speed of every animal is the speed of its lane times the factor %.1f" % [d, lv[d].speed])
 	_check(PuffField.new().puffs.is_empty(), "a field without setup is a Medium field")
 	# On Hard with one player there is a Puff on the screen nearly all the time (REQ-SS-22).
 	var hard := PuffField.new()
@@ -430,7 +465,7 @@ func _difficulty() -> void:
 	_check(empty_time < 3.0, "Hard with 1 player: the screen is empty for %.1f s of 60 s (less than 3 s)" % empty_time)
 	var odd := PuffField.new()
 	odd.setup("nonsense")
-	_check(odd.spawn(_rng(1), 1) != null and odd.puffs[0].speed in [100.0, 160.0], "an unknown difficulty is Medium")
+	_check(odd.spawn(_rng(1), 1) != null and odd.puffs[0].speed == float(PuffField.LANES[odd.puffs[0].lane].speed), "an unknown difficulty is Medium")
 
 
 func _test_marble_track() -> void:

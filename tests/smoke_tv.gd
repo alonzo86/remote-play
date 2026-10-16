@@ -520,7 +520,7 @@ func _run() -> void:
 	third.leave()
 	await _frames(3)
 
-	# Snowball Splat (REQ-SS-1 to 17): aim, throws, Puffs, points, the end. Each step sets up its own state, because the real
+	# Banana Splat (REQ-SS-1 to 23): aim, throws, animals, points, the end. Each step sets up its own state, because the real
 	# game also ticks in the frames that are awaited. A step without an await is one tick of the game.
 	var ss_script: GDScript = Registry.load_script("snowball_splat")
 	app.go(ss_script, {"seed": 7})
@@ -530,8 +530,8 @@ func _run() -> void:
 	var p1 = app.server.players[1]
 	var area: Rect2 = ss._area()
 	_check(is_instance_of(ss, ss_script) and ss.participants.size() == 2 and ss._throwers.size() == 2,
-			"snowball splat starts with 2 players")
-	_check(ss._round.is_counting() and ss._field.puffs.is_empty(), "the round starts with the countdown and no Puff (REQ-SS-1)")
+			"banana splat starts with 2 players")
+	_check(ss._round.is_counting() and ss._field.puffs.is_empty(), "the round starts with the countdown and no animal (REQ-SS-1)")
 	p0.button_pressed.emit(Protocol.BTN_A)
 	_check(ss._presses.is_empty(), "a throw in the countdown does nothing (REQ-SS-1)")
 	var aim_x: float = ss._throwers[0].aim.x
@@ -545,18 +545,18 @@ func _run() -> void:
 	ss._game_tick(0.01)
 	_check(ss._round.is_playing() and ss._throwers[0].aim.distance_to(area.get_center()) < 1.0,
 			"at GO the pose of the phone is the center of the screen (REQ-SS-2)")
-	_check(ss._field.puffs.size() == 1, "the first Puff comes at once (REQ-SS-9)")
+	_check(ss._field.puffs.size() == 1, "the first animal comes at once (REQ-SS-9)")
 	var first_lane: int = ss._field.puffs[0].lane
-	var first_color: int = ss._field.puffs[0].color_index
+	var first_kind: String = ss._field.puffs[0].kind
 	await _frames(8)
 	_check(haptics.has(60), "GO buzzes the phone 60 ms: %s" % str(haptics))
 
-	# A Puff that stands still in the middle of the screen, in lane 1 (a Puff), or lane 0 (a Little Puff).
+	# A animal that stands still in the middle of the screen, in lane 1 (an orangutan, 10 points), or lane 0 (a monkey, 25 points).
 	var put := func(lane: int, x: float, y: float) -> void:
 		ss._field.puffs.clear()
 		var pf = ss.PuffField.Puff.new()
 		pf.lane = lane
-		pf.kind = ss.PuffField.LANES[lane].kind
+		pf.kind = ss.PuffField.LANES[lane].kinds[0]
 		pf.dir = ss.PuffField.LANES[lane].dir
 		pf.lane_y = y
 		pf.x = x
@@ -583,13 +583,13 @@ func _run() -> void:
 	p0.button_pressed.emit(Protocol.BTN_A)
 	ss._game_tick(0.01)
 	_check(in_air.call() == 1 and ss._board.score(0) == 0.0 and ss._field.puffs.size() == 1,
-			"a throw sends a snowball into the air first: nothing is hit yet (REQ-SS-6)")
+			"a throw sends a banana into the air first: nothing is hit yet (REQ-SS-6)")
 	ss._haptics = ss.Haptics.new()   # The gap between two buzzes is in real time. The ticks of this test are not.
 	ss._game_tick(0.2)
 	_check(ss._board.score(0) == 10.0 and ss._field.puffs.is_empty() and in_air.call() == 0,
-			"the snowball lands and takes the Puff: 10 points (REQ-SS-10)")
+			"the banana lands and takes the animal: 10 points (REQ-SS-10)")
 	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "hit" and e.text == "+10"),
-			"the Puff floats away with its points (REQ-SS-13)")
+			"the animal hops and shows with its points (REQ-SS-13)")
 	await _frames(8)
 	_check(haptics == [15, 40], "a throw buzzes 15 ms and a hit 40 ms: %s" % str(haptics))
 
@@ -602,7 +602,7 @@ func _run() -> void:
 	ss._game_tick(0.01)
 	_check(in_air.call() == 1, "a press inside the 0.3 s reload does nothing")
 	ss._game_tick(0.2)
-	_check(ss._board.score(0) == 20.0, "the first snowball landed: 20 points")
+	_check(ss._board.score(0) == 20.0, "the first banana landed: 20 points")
 	ss._game_tick(0.2)
 	put.call(1, mid_x, mid_y)
 	p0.button_pressed.emit(Protocol.BTN_A)
@@ -619,14 +619,14 @@ func _run() -> void:
 	ss._game_tick(0.01)
 	ss._game_tick(0.2)
 	_check(ss._board.score(0) == 30.0 and ss._field.puffs.size() == 1,
-			"a snowball that misses takes nothing and loses nothing (REQ-SS-5)")
-	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "poof"), "a miss makes a poof of snow")
+			"a banana that misses takes nothing and loses nothing (REQ-SS-5)")
+	_check(ss._effects.any(func(e): return e.age >= 0.0 and e.kind == "poof"), "a miss makes a poof")
 	_check(ss._pixel_world() and ss._pixel_viewport.size == Vector2i(480, 270),
-			"the sky is drawn in the 480x270 pixel view (REQ-SS-12)")
-	var snow_before: float = ss._snow_time
+			"the jungle is drawn in the 480x270 pixel view (REQ-SS-12)")
+	var snow_before: float = ss._scene_time
 	ss.open_menu("Paused", [["Resume", ss.close_menu]])
 	await _frames(4)
-	_check(is_equal_approx(ss._snow_time, snow_before), "the snowfall stands still while the game is paused (REQ-FL-43)")
+	_check(is_equal_approx(ss._scene_time, snow_before), "the jungle stands still while the game is paused (REQ-FL-43)")
 	ss.close_menu()
 	_check(ss._throwers[0].reload_left <= ss.RELOAD, "a miss does not make the player wait longer than the reload")
 	await _frames(8)
@@ -639,7 +639,7 @@ func _run() -> void:
 	ss._game_tick(0.2)
 	_check(ss._board.score(0) == 40.0, "after a miss and the reload the next throw works")
 
-	# Two players, one Puff: the snowball that was thrown first wins (REQ-SS-11).
+	# Two players, one animal: the banana that was thrown first wins (REQ-SS-11).
 	ready_all.call()
 	put.call(1, mid_x, mid_y)
 	p1.button_pressed.emit(Protocol.BTN_A)
@@ -647,7 +647,7 @@ func _run() -> void:
 	ss._game_tick(0.01)
 	ss._game_tick(0.2)
 	_check(ss._board.score(1) == 10.0 and ss._board.score(0) == 40.0,
-			"two throws in one tick: the first press gets the Puff, in the order of the presses and not of the slots")
+			"two throws in one tick: the first press gets the animal, in the order of the presses and not of the slots")
 	ready_all.call()
 	put.call(1, mid_x, mid_y)
 	p0.button_pressed.emit(Protocol.BTN_A)
@@ -655,15 +655,15 @@ func _run() -> void:
 	p1.button_pressed.emit(Protocol.BTN_A)
 	ss._game_tick(0.2)
 	_check(ss._board.score(0) == 50.0 and ss._board.score(1) == 10.0,
-			"a snowball that was thrown earlier lands earlier and takes the Puff")
+			"a banana that was thrown earlier lands earlier and takes the animal")
 
-	# A Little Puff is worth more (REQ-SS-7). B does nothing. Nothing is thrown while the game is paused (REQ-SS-4).
+	# A monkey is worth more (REQ-SS-7). B does nothing. Nothing is thrown while the game is paused (REQ-SS-4).
 	ready_all.call()
 	put.call(0, mid_x, mid_y)
 	p1.button_pressed.emit(Protocol.BTN_A)
 	ss._game_tick(0.01)
 	ss._game_tick(0.2)
-	_check(ss._board.score(1) == 35.0, "a Little Puff gives 25 points")
+	_check(ss._board.score(1) == 35.0, "a monkey gives 25 points")
 	ready_all.call()
 	p0.button_pressed.emit(Protocol.BTN_B)
 	_check(ss._presses.is_empty(), "B does nothing")
@@ -698,8 +698,8 @@ func _run() -> void:
 	ss2._game_tick(0.01)
 	ss2._game_tick(0.01)
 	var again: Array = ss2._field.puffs
-	_check(again.size() == 1 and again[0].lane == first_lane and again[0].color_index == first_color,
-			"the same seed gives the same first Puff (REQ-SS-9)")
+	_check(again.size() == 1 and again[0].lane == first_lane and again[0].kind == first_kind,
+			"the same seed gives the same first animal (REQ-SS-9)")
 	# One player: the score is compared with the medal tiers (REQ-SS-16).
 	ss2._board.remove(1)
 	ss2._board.set_score(0, 400.0)
@@ -710,7 +710,7 @@ func _run() -> void:
 			and ss2._menu_box.find_children("*", "Label", true, false)[0].text == "MEDIUM",
 			"400 points alone earn silver next to the name, and the difficulty is the title (REQ-SS-16, 21)")
 
-	# A player who leaves takes the cursor, the score and the snowballs out (REQ-SS-16).
+	# A player who leaves takes the cursor, the score and the bananas out (REQ-SS-16).
 	var fourth := ControllerClient.new()
 	fourth.player_name = "Fourth"
 	root.add_child(fourth)
@@ -722,7 +722,7 @@ func _run() -> void:
 	await _frames(3)
 	var ss3: Control = app.current_screen()
 	_check(ss3.participants.size() == 3 and ss3._throwers.size() == 3 and ss3._board.size() == 3,
-			"snowball splat with 3 phones")
+			"banana splat with 3 phones")
 	app.server.drop_player(fourth.slot)
 	await _frames(3)
 	_check(ss3.participants.size() == 2 and ss3._throwers.size() == 2 and ss3._board.size() == 2 and not ss3.is_paused(),

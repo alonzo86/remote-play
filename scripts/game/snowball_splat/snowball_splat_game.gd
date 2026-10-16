@@ -1,18 +1,21 @@
 extends "res://scripts/game/minigame.gd"
-## Snowball Splat. Each phone is a pointer: a cursor in the player color follows `PlayerInput.pointer()`. A press on A throws a
-## snowball at the cursor. Big, friendly Puffs float slowly across the sky. The first snowball that lands on a Puff takes its
-## points. A miss costs nothing (REQ-SS-1 to 17). The game is for children too (REQ-GM-80 to 84).
+## Banana Splat (the id and the folder are still `snowball_splat`: they were the first name of the game). Each phone is a
+## pointer: a circle in the player color follows `PlayerInput.pointer()`. A press on A throws a banana at the circle. Hungry
+## animals walk across a jungle. The first banana that lands on an animal takes its points. A miss costs nothing
+## (REQ-SS-1 to 17, 23). The game is for children too (REQ-GM-80 to 84).
 ## The RECENTER button of the phone recenters (REQ-GM-37); GO recenters all. B does nothing.
-## The rules of the Puffs are in puff_field.gd. This script has the input, the round and the drawing.
+## The rules of the animals are in puff_field.gd, the pictures in banana_look.gd. This script has the input, the round and the
+## drawing.
 
 const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
+const BananaLook = preload("res://scripts/game/snowball_splat/banana_look.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
 const ROUND_TIME := 60.0
 const COUNTDOWN := 3.0
 const RELOAD := 0.3             # Seconds before a player can throw again (REQ-SS-4).
-const FLIGHT_TIME := 0.12       # Seconds that a snowball flies (REQ-SS-6).
+const FLIGHT_TIME := 0.12       # Seconds that a banana flies (REQ-SS-6).
 
 # The play area is the screen inside the margin, under the HUD (REQ-SS-3).
 const AREA_TOP := 150.0
@@ -21,22 +24,18 @@ const TIMER_X := 520.0          # The timer box has a fixed place, between the t
 const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide.
 const HINT_TIME := 4.0          # Seconds of play with the hint on the screen.
 
-# Look (REQ-SS-12, REQ-GM-47i to 47n). The board is dark so that every player color has a contrast of 3:1 or more.
-const BACKGROUND := Color("1b3a8a")
-const BOARD_COLOR := Color("12205a")
-const PUFF_COLORS := [Color("3ddcff"), Color("ff3d8b"), Color("57cc99")]   # Cyan, pink and green.
-const LITTLE_COLOR := Color("ffd23f")                                      # Yellow.
+# Look (REQ-SS-12, REQ-GM-47i to 47n): the jungle and the animals are in banana_look.gd. The black bar on top is for the HUD.
+const BAR_H := 112.0
 const CURSOR_R := 40.0
-const BADGE_R := 24.0           # 12 world pixels across: the slot number on it is drawn by the HUD (REQ-GM-47n).
-const GROUND_H := 64.0          # The strip of snow at the bottom of the board.
-const FLAKES := 28
-const STAR_COUNT := 48
-const POOF_STEPS := 3           # The poof of a snowball that missed grows in 3 hard steps.
+const POOF_STEPS := 3           # The poof of a banana that missed grows in 3 hard steps.
+const POOF_COLOR := Color("ffe040")
 
 const BUZZ_GAP_MS := 100        # REQ-GM-43.
 const FLIGHT_COUNT := 12
 const EFFECT_COUNT := 16
-const HIT_LIFE := 0.8           # Seconds that a hit Puff floats away (REQ-SS-13).
+const HIT_LIFE := 1.0           # Seconds of the hit animation of an animal (REQ-SS-13).
+const HIT_HOP := 0.5            # The jump at the start of it.
+const HIT_HEIGHT := 72.0        # How high the animal jumps (px).
 const POOF_LIFE := 0.35
 
 class Thrower:
@@ -47,7 +46,7 @@ class Thrower:
 	func can_throw() -> bool:
 		return reload_left <= 0.0
 
-## A snowball in the air. The pool is made once (REQ-GM-51).
+## A banana in the air. The pool is made once (REQ-GM-51).
 class Flight:
 	var from := Vector2.ZERO
 	var to := Vector2.ZERO
@@ -55,13 +54,13 @@ class Flight:
 	var seq := 0       # The order of the throws.
 	var age := -1.0    # Below 0: not in use.
 
-## What stays after a snowball landed: a hit Puff that floats away with its points, or a small poof of snow.
+## What stays after a banana landed: a hit animal that cheers with its points, or a small poof.
 class Effect:
 	var kind := "poof"
 	var pos := Vector2.ZERO
 	var text := ""
 	var color := Color.WHITE      # The color of the player.
-	var body := Color.WHITE       # The color of the Puff.
+	var species := ""             # The animal that was hit (a key of `PuffField.KINDS`).
 	var radius := 0.0
 	var dir := 1
 	var age := -1.0   # Below 0: not in use.
@@ -79,14 +78,15 @@ var _presses: Array[int] = []    # Slots of the A presses, in the order they arr
 var _flights: Array[Flight] = []
 var _effects: Array[Effect] = []
 var _seq := 0
-var _stars := PackedVector2Array()
-var _snow_time := 0.0            # Game time of the snowfall: it stands still while the game is paused (REQ-FL-43).
+var _scene_time := 0.0           # Game time of the drifting leaves: they stand still while the game is paused (REQ-FL-43).
+var _tex := {}                   # "kind|happy|facing" -> the ImageTexture of an animal.
+var _banana_tex: Array[ImageTexture] = []
+var _peel_tex: ImageTexture
 
 
 func _game_ready() -> void:
-	_stars = Shell.star_field(STAR_COUNT, 17)
 	if start_props.has("seed"):
-		_rng.seed = int(start_props.seed)   # REQ-SS-9: a test fixes the Puffs. Restart keeps the seed.
+		_rng.seed = int(start_props.seed)   # REQ-SS-9: a test fixes the animals. Restart keeps the seed.
 	else:
 		_rng.randomize()
 	_field.setup(difficulty)
@@ -122,7 +122,7 @@ func _on_player_left(slot: int) -> void:
 	_presses = _presses.filter(func(s: int) -> bool: return s != slot)
 	for f in _flights:
 		if f.slot == slot:
-			f.age = -1.0   # The snowball of a player who left is gone.
+			f.age = -1.0   # The banana of a player who left is gone.
 
 
 func _area() -> Rect2:
@@ -130,7 +130,7 @@ func _area() -> Rect2:
 
 
 func _game_tick(delta: float) -> void:
-	_snow_time += delta
+	_scene_time += delta
 	if is_over:
 		return
 	var area := _area()
@@ -159,7 +159,7 @@ func _game_tick(delta: float) -> void:
 		_finish()
 
 
-## One throw of `slot` (REQ-SS-4): the snowball starts to fly to the place of the cursor.
+## One throw of `slot` (REQ-SS-4): the banana starts to fly to the place of the cursor.
 func _throw(slot: int, area: Rect2) -> void:
 	if not _throwers.has(slot):
 		return
@@ -176,11 +176,11 @@ func _throw(slot: int, area: Rect2) -> void:
 			_seq += 1
 			f.age = 0.0
 			_haptics.pulse(slot, 15, BUZZ_GAP_MS)
-			Sound.sfx("snow_throw")
+			Sound.sfx("snow_throw")   # The sound names are the first ones of the game.
 			return
 
 
-## The snowballs fly. The ones that land are handled in the order they were thrown (REQ-SS-6, 11).
+## The bananas fly. The ones that land are handled in the order they were thrown (REQ-SS-6, 11).
 func _fly(delta: float, area: Rect2) -> void:
 	for f in _flights:
 		if f.age >= 0.0:
@@ -196,13 +196,13 @@ func _fly(delta: float, area: Rect2) -> void:
 		_land(next, area)
 
 
-## A snowball lands at `f.to` (REQ-SS-5, 10): it takes the Puff there, or it makes a poof. A miss costs nothing.
+## A banana lands at `f.to` (REQ-SS-5, 10): it takes the animal there, or it makes a poof. A miss costs nothing.
 func _land(f: Flight, area: Rect2) -> void:
 	if not _throwers.has(f.slot):
 		return
 	var puff := _field.hit(f.to, area)
 	if puff == null:
-		_effect("poof", f.to, "", f.slot, Color.WHITE, 0.0, 1)
+		_effect("poof", f.to, "", f.slot, "", 0.0, 1)
 		Sound.sfx("snow_miss")
 		return
 	_field.take(puff)
@@ -211,22 +211,17 @@ func _land(f: Flight, area: Rect2) -> void:
 	Sound.sfx("snow_hit")
 	Sound.sfx("snow_points", 1.0 + 0.12 * float(f.slot))   # Each player has a pitch (docs/AUDIO_PLAN.md, section 9).
 	var k := PuffField.scale_for(area)
-	_effect("hit", PuffField.center_of(puff, area), "+%d" % puff.points, f.slot, _body_color(puff.kind, puff.color_index),
-			puff.radius * k, puff.dir)
+	_effect("hit", PuffField.center_of(puff, area), "+%d" % puff.points, f.slot, puff.kind, puff.radius * k, puff.dir)
 
 
-func _body_color(kind: String, color_index: int) -> Color:
-	return LITTLE_COLOR if kind == "little" else PUFF_COLORS[color_index]
-
-
-func _effect(kind: String, pos: Vector2, text: String, slot: int, body: Color, radius: float, dir: int) -> void:
+func _effect(kind: String, pos: Vector2, text: String, slot: int, species: String, radius: float, dir: int) -> void:
 	for e in _effects:
 		if e.age < 0.0:
 			e.kind = kind
 			e.pos = pos
 			e.text = text
 			e.color = player(slot).color
-			e.body = body
+			e.species = species
 			e.radius = radius
 			e.dir = dir
 			e.age = 0.0
@@ -251,136 +246,154 @@ func _pixel_world() -> bool:
 	return true
 
 
-## The world: the sky, the board, the snowfall, the ground, the Puffs, the snowballs, the effects and the cursors. All text
-## and the slot numbers are drawn by the HUD (REQ-GM-47n).
+## The world: the jungle, the animals, the bananas, the effects and the cursors. All text is drawn by the HUD (REQ-GM-47n).
 func _world_draw(ci: CanvasItem) -> void:
 	var area := _area()
-	var k := PuffField.scale_for(area)
-	ci.draw_rect(Rect2(Vector2.ZERO, size), BACKGROUND)
-	Shell.draw_stars(ci, _stars)
-	ci.draw_rect(area.grow(12.0 + Shell.WORLD_PIXEL), UiTheme.OUTLINE)
-	ci.draw_rect(area.grow(12.0), BOARD_COLOR)
-	_draw_snowfall(ci, area)
-	var ground := Rect2(Shell.snap(Vector2(area.position.x + 8.0, area.end.y - GROUND_H - 4.0)),
-			Vector2(area.size.x - 16.0, GROUND_H))
-	ci.draw_rect(ground.grow(Shell.WORLD_PIXEL), UiTheme.OUTLINE)
-	ci.draw_rect(ground, Color.WHITE)
+	BananaLook.draw_scene(ci, size, _scene_time)
 	for p in _field.puffs:
-		_draw_puff(ci, PuffField.center_of(p, area), p.radius * k, _body_color(p.kind, p.color_index), p.dir, p.age, false, 0.0)
-	for f in _flights:
-		if f.age >= 0.0:
-			_draw_snowball(ci, f)
+		_draw_animal(ci, PuffField.center_of(p, area), p.kind, false, p.dir, 1.0)
+	for e in _effects:
+		if e.age >= 0.0 and e.kind == "hit":
+			_draw_peel(ci, e)
 	for e in _effects:
 		if e.age >= 0.0:
 			_draw_effect(ci, e)
+	for f in _flights:
+		if f.age >= 0.0:
+			_draw_banana(ci, f)
 	for s in _throwers:
 		_draw_cursor(ci, _throwers[s])
+	ci.draw_rect(Rect2(0, 0, size.x, BAR_H), UiTheme.BG)
 
 
 func _game_draw() -> void:
-	var area := _area()
-	var k := PuffField.scale_for(area)
-	for e in _effects:   # The points of a hit Puff float up with it.
+	for e in _effects:   # The points of a hit animal float up with it.
 		if e.age >= 0.0 and e.kind == "hit":
 			var state := _hit_state(e)
-			Shell.text_centered(self, state.center + Vector2(0.0, -state.radius - 20.0), e.text, 48, e.color)
+			var big := e.species == PuffField.BONUS_KIND
+			Shell.text_centered(self, state.center + Vector2(0.0, -state.radius - 20.0 - e.age * 30.0), e.text, 64 if big else 48,
+					UiTheme.ACCENT if big else e.color)
 	_draw_hud()
 
 
-## A slow snowfall for the mood: square flakes of one or two world pixels. It depends on the game time only and makes no objects.
-func _draw_snowfall(ci: CanvasItem, area: Rect2) -> void:
-	for i in FLAKES:
-		var x := area.position.x + fposmod(i * 211.3 + sin(i * 1.7) * 40.0, area.size.x)
-		var y := area.position.y + fposmod(_snow_time * (28.0 + (i % 5) * 9.0) + i * 97.7, area.size.y - GROUND_H)
-		ci.draw_rect(Rect2(Shell.snap(Vector2(x, y)), Vector2.ONE * Shell.WORLD_PIXEL * (1.0 + (i % 2))), Color.WHITE)
+## The texture of an animal, made when it is needed (REQ-GM-51: nothing is made in each frame).
+func _animal_texture(kind: String, happy: bool, facing: int) -> ImageTexture:
+	var key := "%s|%s|%d" % [kind, happy, facing]
+	if not _tex.has(key):
+		_tex[key] = ImageTexture.create_from_image(BananaLook.animal_image(kind, happy, facing))
+	return _tex[key]
 
 
-## A Puff: a round fuzzy body with tufts and small wings, big eyes that look the way it flies, and a smile (REQ-SS-12). One
-## world pixel of outline, flat colors. `happy` closes the eyes with a smile. `snow` (0 to 1) puts snow on top (REQ-SS-13).
-func _draw_puff(ci: CanvasItem, c: Vector2, r: float, body: Color, dir: int, age: float, happy: bool, snow: float) -> void:
-	var ow := Shell.WORLD_PIXEL
-	c = Shell.snap(c)
-	var flap := wing_flap(r, age)
-	var wing_l := c + Vector2(-r * 0.98, -r * 0.05 + flap)
-	var wing_r := c + Vector2(r * 0.98, -r * 0.05 - flap)
-	ci.draw_circle(wing_l, r * 0.3 + ow, UiTheme.OUTLINE)
-	ci.draw_circle(wing_r, r * 0.3 + ow, UiTheme.OUTLINE)
-	for i in 8:
-		var a := i * TAU / 8.0
-		ci.draw_circle(c + Vector2(cos(a), sin(a)) * r * 0.82, r * 0.34 + ow, UiTheme.OUTLINE)
-	ci.draw_circle(c, r + ow, UiTheme.OUTLINE)
-	ci.draw_circle(wing_l, r * 0.3, body)
-	ci.draw_circle(wing_r, r * 0.3, body)
-	for i in 8:
-		var a2 := i * TAU / 8.0
-		ci.draw_circle(c + Vector2(cos(a2), sin(a2)) * r * 0.82, r * 0.34, body)
-	ci.draw_circle(c, r, body)
-	if snow > 0.0:
-		for cap in [[Vector2(0, -0.78), 0.4], [Vector2(-0.4, -0.6), 0.27], [Vector2(0.4, -0.62), 0.25]]:
-			var cc: Vector2 = c + cap[0] * r
-			ci.draw_circle(cc, r * cap[1] + ow, UiTheme.OUTLINE)
-			ci.draw_circle(cc, r * cap[1], Color.WHITE)
-	var eye_l := c + Vector2(-r * 0.3, -r * 0.1)
-	var eye_r := c + Vector2(r * 0.3, -r * 0.1)
-	if happy:
-		ci.draw_arc(eye_l, r * 0.16, PI, TAU, 12, UiTheme.OUTLINE, ow)
-		ci.draw_arc(eye_r, r * 0.16, PI, TAU, 12, UiTheme.OUTLINE, ow)
-	else:
-		for eye in [eye_l, eye_r]:
-			ci.draw_circle(eye, r * 0.23 + ow, UiTheme.OUTLINE)
-			ci.draw_circle(eye, r * 0.23, Color.WHITE)
-			ci.draw_circle(eye + Vector2(dir * r * 0.08, r * 0.02), r * 0.11, UiTheme.OUTLINE)
-	ci.draw_arc(c + Vector2(0, r * 0.1), r * 0.3, PI * 0.2, PI * 0.8, 16, UiTheme.OUTLINE, ow)
+## An animal at the screen position `c`: `scale` 1 is one picture pixel for one world pixel.
+func _draw_animal(ci: CanvasItem, c: Vector2, kind: String, happy: bool, dir: int, scale: float) -> void:
+	var tex := _animal_texture(kind, happy, dir)
+	var sz := Vector2(tex.get_size()) * Shell.WORLD_PIXEL * scale
+	ci.draw_texture_rect(tex, Rect2(Shell.snap(c - sz * 0.5), sz), false)
 
 
-func _draw_snowball(ci: CanvasItem, f: Flight) -> void:
-	var t := clampf(f.age / FLIGHT_TIME, 0.0, 1.0)
-	var pos := Shell.snap(f.from.lerp(f.to, t) + Vector2(0.0, -sin(t * PI) * 60.0))
-	var r := lerpf(20.0, 12.0, t)
-	ci.draw_circle(pos, r + Shell.WORLD_PIXEL, UiTheme.OUTLINE)
-	ci.draw_circle(pos, r, Color.WHITE)
+## The size of a hit animal at the end of its animation: it shrinks in 4 steps in the last fifth, and then it is gone.
+static func leave_scale(t: float) -> float:
+	var u := clampf((t - 0.8) / 0.2, 0.0, 1.0)
+	return 1.0 if u <= 0.0 else ceilf((1.0 - u) * 4.0) / 4.0
 
 
-## How far the wings move up and down (REQ-SS-12). It is a whole number of world pixels, and a small Puff still moves its wings
-## by at least one.
-static func wing_flap(r: float, age: float) -> float:
-	return snappedf(sin(age * 9.0) * maxf(r * 0.14, Shell.WORLD_PIXEL), Shell.WORLD_PIXEL)
-
-
-## The center and the radius of a hit Puff that floats away (REQ-SS-13).
+## The center and the radius of a hit animal (REQ-SS-13): it jumps once and then stands and cheers.
 func _hit_state(e: Effect) -> Dictionary:
-	var t := e.age / HIT_LIFE
-	return {"center": e.pos + Vector2(0.0, -t * 150.0), "radius": e.radius * (1.0 - 0.45 * t)}
+	var hop := sin(clampf(e.age / HIT_HOP, 0.0, 1.0) * PI) * HIT_HEIGHT
+	return {"center": e.pos + Vector2(0.0, -hop), "radius": e.radius}
 
 
-## The size step (0 to 2) of the poof of a missed snowball after `age` seconds.
+## The banana peel that an animal leaves where it was hit.
+func _draw_peel(ci: CanvasItem, e: Effect) -> void:
+	if e.age < HIT_HOP:
+		return
+	if _peel_tex == null:
+		_peel_tex = ImageTexture.create_from_image(BananaLook.peel_image())
+	var sz := Vector2(_peel_tex.get_size()) * Shell.WORLD_PIXEL
+	var feet := e.pos + Vector2(-e.dir * e.radius * 0.3, e.radius * 0.7)
+	ci.draw_texture_rect(_peel_tex, Rect2(Shell.snap(feet - sz * 0.5), sz), false)
+
+
+## The size step (0 to 2) of the poof of a missed banana after `age` seconds.
 static func poof_step(age: float) -> int:
 	return clampi(floori(age / POOF_LIFE * POOF_STEPS), 0, POOF_STEPS - 1)
 
 
+func _banana_texture(turn: int) -> ImageTexture:
+	if _banana_tex.is_empty():
+		for i in 4:
+			_banana_tex.append(ImageTexture.create_from_image(BananaLook.banana_image(i)))
+	return _banana_tex[posmod(turn, 4)]
+
+
+## A banana in the air: it turns a quarter every 15 ms of flight and flies in a small arc.
+func _draw_banana(ci: CanvasItem, f: Flight) -> void:
+	var t := clampf(f.age / FLIGHT_TIME, 0.0, 1.0)
+	var pos := f.from.lerp(f.to, t) + Vector2(0.0, -sin(t * PI) * 60.0)
+	var tex := _banana_texture(int(f.age / 0.03))
+	var sz := Vector2(tex.get_size()) * Shell.WORLD_PIXEL * lerpf(1.4, 1.0, t)
+	ci.draw_texture_rect(tex, Rect2(Shell.snap(pos - sz * 0.5), sz), false)
+
+
 func _draw_effect(ci: CanvasItem, e: Effect) -> void:
 	if e.kind == "poof":
-		var step := poof_step(e.age)   # A white ring of snow in 3 hard steps, no fade.
+		var step := poof_step(e.age)   # A ring in 3 hard steps, no fade.
 		ci.draw_arc(Shell.snap(e.pos), 20.0 + step * 20.0, 0.0, TAU, 24, UiTheme.OUTLINE, Shell.WORLD_PIXEL * 3.0)
-		ci.draw_arc(Shell.snap(e.pos), 20.0 + step * 20.0, 0.0, TAU, 24, Color.WHITE, Shell.WORLD_PIXEL)
+		ci.draw_arc(Shell.snap(e.pos), 20.0 + step * 20.0, 0.0, TAU, 24, POOF_COLOR, Shell.WORLD_PIXEL)
 		return
 	var state := _hit_state(e)
-	_draw_puff(ci, state.center, state.radius, e.body, e.dir, e.age, true, 1.0)
+	var t := e.age / HIT_LIFE
+	var center: Vector2 = state.center
+	var dir := e.dir
+	match e.species:   # Each animal cheers in its own way (REQ-SS-13).
+		"gorilla":   # It beats its chest: a shake.
+			if t > 0.4 and t < 0.8:
+				center.x += 8.0 * signf(sin(e.age * 40.0))
+		"sloth":   # A slow wiggle.
+			center.x += 10.0 * sin(e.age * 9.0)
+		"lemur":   # It spins around: it turns to the other side every 0.1 s.
+			if t > 0.4:
+				dir = e.dir if int(e.age * 10.0) % 2 == 0 else -e.dir
+	var scale := leave_scale(t)
+	if scale > 0.0:
+		_draw_animal(ci, center, e.species, true, dir, scale)
+	_draw_cheer(ci, e, center, t)
 
 
-func _badge_pos(t: Thrower) -> Vector2:
-	return Shell.snap(t.aim + Vector2(CURSOR_R, -CURSOR_R) * 0.95)
+## The sparkles around a hit animal, and the extras of some animals: water from the elephant, hearts from the orangutan, gold
+## from the golden monkey. Squares of one or two world pixels that move with the age; nothing is made in the frame.
+func _draw_cheer(ci: CanvasItem, e: Effect, center: Vector2, t: float) -> void:
+	var px := Shell.WORLD_PIXEL
+	var gold := e.species == PuffField.BONUS_KIND
+	var reach := e.radius * 1.15
+	for i in 4 + (6 if gold else 0):   # Sparkles in a ring that turns in 4 steps.
+		var a := float(i) / float(4 + (6 if gold else 0)) * TAU + floorf(t * 8.0) * 0.4
+		var pos := Shell.snap(center + Vector2(cos(a), sin(a) * 0.8) * reach * (1.0 + 0.12 * float(i % 3)))
+		var color := Color.WHITE if i % 2 == 0 else (Color("ffd23f") if gold else Color("ffe878"))
+		ci.draw_rect(Rect2(pos - Vector2(px, 0.0), Vector2(3.0 * px, px)), color)
+		ci.draw_rect(Rect2(pos - Vector2(0.0, px), Vector2(px, 3.0 * px)), color)
+	match e.species:
+		"elephant":   # Water from the trunk: drops in arcs.
+			if e.age < 0.7:
+				var origin := center + Vector2(e.dir * e.radius * 0.95, -e.radius * 0.1)
+				for i in 6:
+					var v := Vector2(e.dir * (60.0 + 40.0 * float(i % 3)), -260.0 + 30.0 * float(i))
+					var p := Shell.snap(origin + v * e.age + Vector2(0.0, 520.0) * e.age * e.age)
+					ci.draw_rect(Rect2(p, Vector2.ONE * 2.0 * px), Color("78c8ff"))
+		"orangutan":   # Hearts that float up.
+			for i in 3:
+				var h := Shell.snap(center + Vector2((float(i) - 1.0) * e.radius * 0.7, -e.radius * 0.9 - e.age * 70.0 - float(i) * 12.0))
+				if e.age > 0.2:
+					ci.draw_rect(Rect2(h, Vector2(px, px)), Color("ff6ea0"))
+					ci.draw_rect(Rect2(h + Vector2(2.0 * px, 0.0), Vector2(px, px)), Color("ff6ea0"))
+					ci.draw_rect(Rect2(h + Vector2(0.0, px), Vector2(3.0 * px, px)), Color("ff6ea0"))
+					ci.draw_rect(Rect2(h + Vector2(px, 2.0 * px), Vector2(px, px)), Color("ff6ea0"))
 
 
 func _draw_cursor(ci: CanvasItem, t: Thrower) -> void:
-	var col: Color = player(t.slot).color
-	var c := Shell.snap(t.aim)
+	var c := Shell.snap(t.aim)   # A plain circle in the color of the player, with a dark edge so it shows on the green.
 	ci.draw_arc(c, CURSOR_R, 0.0, TAU, 48, UiTheme.OUTLINE, Shell.WORLD_PIXEL * 4.0)
-	ci.draw_arc(c, CURSOR_R, 0.0, TAU, 48, col, Shell.WORLD_PIXEL * 2.0)
-	if t.can_throw():   # A snowball in the middle: ready to throw.
-		ci.draw_circle(c, 12.0 + Shell.WORLD_PIXEL, UiTheme.OUTLINE)
-		ci.draw_circle(c, 12.0, Color.WHITE)
-	Shell.pixel_ball(ci, _badge_pos(t), BADGE_R, col)   # The slot number is on it, drawn by the HUD (REQ-GM-46).
+	ci.draw_arc(c, CURSOR_R, 0.0, TAU, 48, player(t.slot).color, Shell.WORLD_PIXEL * 2.0)
 
 
 func _scoreboard() -> Scoreboard:
@@ -388,7 +401,7 @@ func _scoreboard() -> Scoreboard:
 
 
 func _draw_hud() -> void:
-	Shell.title(self, "SNOWBALL SPLAT")
+	Shell.title(self, "BANANA SPLAT")
 	draw_leader_chip(self)
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
@@ -400,7 +413,7 @@ func _draw_hud() -> void:
 			spots[s] = Shell.snap((_throwers[s] as Thrower).aim)
 		draw_name_tags(self, spots, CURSOR_R)
 	if _round.time < HINT_TIME and not is_over:   # In the countdown the time is below 0.
-		Shell.hint(self, size, "Point at the TV and press A to throw a snowball. Recenter if the cursor drifts.")
+		Shell.hint(self, size, "Point at the TV and press A to throw a banana. Recenter if the cursor drifts.")
 
 
 func best_key() -> String:

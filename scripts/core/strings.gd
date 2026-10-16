@@ -64,7 +64,7 @@ const HE := {
 	"THE AMAZING RACE": "המרוץ המופלא",
 	"PAINT GRAB": "חטיפת צבע",
 	"SUMO BUMPERS": "סומו מתנגשים",
-	"SNOWBALL SPLAT": "קרב כדורי שלג",
+	"BANANA SPLAT": "קרב בננות",
 	"TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.":
 		"הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.",
 	"TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.":
@@ -73,8 +73,8 @@ const HE := {
 		"הטו את הטלפון כדי לגלגל את כתם הצבע על הרצפה. מי שצבע הכי הרבה אריחים תוך 60 שניות מנצח.",
 	"TILT TO ROLL YOUR BUMPER AND PUSH THE OTHERS OFF THE SHRINKING PLATFORM. MOST POINTS IN 3 ROUNDS WINS.":
 		"הטו כדי לגלגל את הפגוש שלכם ולדחוף את האחרים מהפלטפורמה המצטמקת. מי שצבר הכי הרבה נקודות ב־3 סיבובים מנצח.",
-	"POINT YOUR PHONE AT THE SCREEN AND PRESS A TO THROW SNOWBALLS AT THE SILLY PUFFS. MOST POINTS IN 60 S WINS.":
-		"כוונו את הטלפון אל המסך ולחצו A כדי לזרוק כדורי שלג על הפאפים המצחיקים. מי שצבר הכי הרבה נקודות תוך 60 שניות מנצח.",
+	"POINT YOUR PHONE AT THE SCREEN AND PRESS A TO THROW BANANAS AT THE HUNGRY ANIMALS. MOST POINTS IN 60 S WINS.":
+		"כוונו את הטלפון אל המסך ולחצו A כדי לזרוק בננות על החיות הרעבות. מי שצבר הכי הרבה נקודות תוך 60 שניות מנצח.",
 	"1 player": "שחקן אחד",
 	"%d players": "%d שחקנים",
 	"%d-%d players": "%d-%d שחקנים",
@@ -143,8 +143,8 @@ const HE := {
 	"GO!": "קדימה!",
 	"HOLD THE PHONE LEVEL. IT RECENTERS AT GO.": "החזיקו את הטלפון ישר. הוא מתמרכז ב־קדימה.",
 	"JOIN WITH THE CONTROLLER APP, THEN START AGAIN.": "הצטרפו דרך אפליקציית השלט ואז התחילו שוב.",
-	"POINT AT THE TV AND PRESS A TO THROW A SNOWBALL. RECENTER IF THE CURSOR DRIFTS.":
-		"כוונו אל הטלוויזיה ולחצו A כדי לזרוק כדור שלג. מרכזו אם הסמן סוטה.",
+	"POINT AT THE TV AND PRESS A TO THROW A BANANA. RECENTER IF THE CURSOR DRIFTS.":
+		"כוונו אל הטלוויזיה ולחצו A כדי לזרוק בננה. מרכזו אם הסמן סוטה.",
 	"TILT TO BUMP THE OTHERS OFF THE PLATFORM! A DASHES.": "הטו כדי לדחוף את האחרים מהפלטפורמה! A מזנק.",
 	"TILT YOUR PHONE TO ROLL AND PAINT THE TILES!": "הטו את הטלפון כדי להתגלגל ולצבוע את האריחים!",
 	"Whee!": "וואו!",
