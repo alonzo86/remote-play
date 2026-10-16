@@ -1,5 +1,5 @@
 extends RefCounted
-## The look of Banana Splat (REQ-SS-12): a jungle at sunset and the animals that walk in it. The world is drawn in screen units
+## The look of Banana Party (REQ-SS-12): a jungle at sunset and the animals that walk in it. The world is drawn in screen units
 ## on the pixel layer; one pixel of a picture is one world pixel (`Shell.WORLD_PIXEL` units). The pictures of the animals are
 ## made from shapes when the game starts (`animal_image()`): they face right, and have a black outline of one pixel.
 
@@ -23,6 +23,10 @@ const BANANA_STEM := Color("6e501e")
 const GROUND_TOP := 0.555       # The ground starts at this share of the screen height.
 const LANE_EDGES := [0.555, 0.667, 0.787]   # Where the lanes of the ground start, as shares of the screen height.
 const TRUNKS := [0.0, 0.055, 0.117, 0.78, 0.953]   # Shares of the width, there is one trunk at each.
+const BUSH := [Color("2e8a3e"), Color("3fa84a"), Color("63c45a")]   # Dark, middle and light leaves of a bush.
+const BUSH_FLOWER := Color("ff6e8c")
+const TUFT := Color("2c7a34")
+const TUFTS := 9                 # Tufts of tall grass in each lane band.
 const LEAVES := [8, 5, 3]       # The number of drifting leaves in each layer.
 
 const FUR := {
@@ -42,7 +46,7 @@ static func draw_scene(ci: CanvasItem, area: Vector2, t: float, bar := 0.0) -> v
 	var band := ceilf(sky_h / float(SKY_BANDS))
 	for i in SKY_BANDS:
 		ci.draw_rect(Rect2(0.0, bar + band * i, area.x, band + 1.0), SKY_TOP.lerp(SKY_BOTTOM, float(i) / float(SKY_BANDS - 1)))
-	var sun := Vector2(snappedf(area.x * 0.78, px), snappedf(ground_y - 150.0, px))
+	var sun := Vector2(snappedf(area.x * 0.62, px), snappedf(bar + sky_h * 0.3, px))
 	ci.draw_circle(sun, 60.0, SUN)
 	for layer in 2:   # The far hills are lighter and higher, the near hills are darker and 8 world pixels lower.
 		var color: Color = HILL_FAR if layer == 0 else HILL_NEAR
@@ -71,9 +75,9 @@ static func draw_scene(ci: CanvasItem, area: Vector2, t: float, bar := 0.0) -> v
 	for share in [0.12, 0.28, 0.45, 0.62, 0.84]:
 		var vx := snappedf(area.x * float(share), px)
 		ci.draw_rect(Rect2(vx, bar, 2.0 * px, 38.0 * px + 10.0 * px * fmod(share * 13.0, 3.0)), VINE)
-	# The treetops: a cluster of round leaf blobs on every trunk, with a black outline, so the whole tree can be seen. Each is
+	# The treetops (every one sits on a trunk): a cluster of round leaf blobs on every trunk, with a black outline, so the whole tree can be seen. Each is
 	# [share of the width, blob radius in world pixels, height under the bar in world pixels].
-	for tree in [[0.0, 22.0, 6.0], [0.055, 18.0, 10.0], [0.117, 20.0, 5.0], [0.78, 24.0, 7.0], [0.953, 22.0, 6.0], [0.5, 14.0, 4.0]]:
+	for tree in [[0.0, 22.0, 6.0], [0.055, 18.0, 10.0], [0.117, 20.0, 5.0], [0.78, 24.0, 7.0], [0.953, 22.0, 6.0]]:
 		var c := Vector2(snappedf(area.x * float(tree[0]) + px, px), bar + float(tree[2]) * px)
 		var r: float = float(tree[1]) * px
 		for blob in [Vector2(-0.7, 0.35), Vector2(0.7, 0.35), Vector2(0.0, -0.1)]:
@@ -133,6 +137,19 @@ static func peel_image() -> Image:
 	var img := Image.create(9, 4, false, Image.FORMAT_RGBA8)
 	_ell(img, 0, 1, 8, 3, BANANA)
 	_ell(img, 2, 0, 5, 1, BANANA.lightened(0.3))
+	return _outlined(img)
+
+
+## A bush (REQ-SS-26): `BUSH_HALF_W * 2` px wide, round, in three greens with a few flowers, a one pixel black outline.
+static func bush_image() -> Image:
+	var img := _canvas(75, 34)
+	_ell(img, 0, 12, 74, 33, BUSH[0])
+	for lobe in [[2, 4, 26, 28], [20, 0, 54, 26], [46, 5, 72, 29]]:
+		_ell(img, lobe[0], lobe[1], lobe[2], lobe[3], BUSH[1])
+	for lobe in [[8, 6, 20, 16], [28, 2, 44, 12], [52, 8, 64, 18]]:
+		_ell(img, lobe[0], lobe[1], lobe[2], lobe[3], BUSH[2])
+	for f in [Vector2(14, 20), Vector2(36, 16), Vector2(58, 22), Vector2(26, 26)]:
+		_rect(img, int(f.x), int(f.y), int(f.x) + 1, int(f.y) + 1, BUSH_FLOWER)
 	return _outlined(img)
 
 

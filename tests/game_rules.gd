@@ -1,5 +1,5 @@
 extends SceneTree
-## The pure rules of the minigames, without a screen: the animals of Banana Splat (REQ-SS-3, 7 to 10, 12, 23).
+## The pure rules of the minigames, without a screen: the animals of Banana Party (REQ-SS-3, 7 to 10, 12, 23).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/game_rules.gd -- --role=controller
 
 const Shell = preload("res://scripts/game/shell.gd")
@@ -35,6 +35,7 @@ func _initialize() -> void:
 	_flying()
 	_spawning()
 	_hit_test()
+	_bushes()
 	_visual_rules()
 	_maze_levels()
 	_difficulty()
@@ -85,7 +86,7 @@ func _aim() -> void:
 
 
 func _kinds_and_lanes() -> void:
-	print("banana splat: kinds and lanes")
+	print("banana party: kinds and lanes")
 	var kinds: Dictionary = PuffField.KINDS
 	_check(kinds.monkey.points == 25 and kinds.lemur.points == 25 and kinds.orangutan.points == 10 and kinds.sloth.points == 10
 			and kinds.gorilla.points == 10 and kinds.elephant.points == 10 and kinds.golden.points == 100
@@ -262,8 +263,64 @@ func _hit_test() -> void:
 			"the radius scales with the screen")
 
 
+func _bushes() -> void:
+	print("banana party: bushes")
+	var counts := []
+	var spread_ok := true
+	var deterministic := true
+	for level in ["easy", "medium", "hard"]:
+		var f := PuffField.new()
+		f.setup(level)
+		f.place_bushes(_rng(5))
+		counts.append(f.bushes.size())
+		var g := PuffField.new()
+		g.setup(level)
+		g.place_bushes(_rng(5))
+		for i in f.bushes.size():
+			deterministic = deterministic and f.bushes[i].x == g.bushes[i].x and f.bushes[i].lane == g.bushes[i].lane
+		for lane in 3:
+			var xs := []
+			for b in f.bushes:
+				if b.lane == lane:
+					xs.append(b.x)
+					spread_ok = spread_ok and b.x >= PuffField.BUSH_MARGIN - 1.0 and b.x <= PuffField.REF_AREA.x - PuffField.BUSH_MARGIN + 1.0
+			xs.sort()
+			for i in range(1, xs.size()):
+				spread_ok = spread_ok and xs[i] - xs[i - 1] >= PuffField.BUSH_MIN_GAP
+	_check(counts == [3, 5, 8], "Easy has 3 bushes, Medium 5 and Hard 8 (REQ-SS-26): %s" % str(counts))
+	_check(spread_ok, "bushes stay away from the edges and from each other in a lane, for every seed (REQ-SS-26)")
+	_check(deterministic, "the same seed places the same bushes")
+	var f2 := PuffField.new()
+	f2.setup("hard")
+	var lanes := {}
+	for seed_value in 20:
+		f2.place_bushes(_rng(seed_value))
+		for b in f2.bushes:
+			lanes[b.lane] = true
+	_check(lanes.size() == 3, "bushes stand in all three lanes")
+	var f3 := PuffField.new()
+	var bush := PuffField.Bush.new()
+	bush.lane = 1
+	bush.x = 900.0
+	f3.bushes.append(bush)
+	var behind := _puff(1, 900.0 + 60.0, "orangutan")
+	var on_edge := _puff(1, 900.0 + PuffField.BUSH_HALF_W, "orangutan")
+	var other_lane := _puff(0, 900.0, "monkey")
+	_check(f3.is_hidden(behind) and not f3.is_hidden(on_edge) and not f3.is_hidden(other_lane),
+			"an animal is hidden only behind a bush of its own lane, and not when it is mostly out (REQ-SS-26)")
+	f3.puffs.append(behind)
+	f3.puffs.append(other_lane)
+	_check(f3.hit(PuffField.center_of(behind, AREA), AREA) == null, "a banana cannot hit an animal behind a bush (REQ-SS-26)")
+	behind.x = 900.0 + PuffField.BUSH_HALF_W + 80.0
+	_check(f3.hit(PuffField.center_of(behind, AREA), AREA) == behind, "the animal can be hit again when it walks out")
+	var Look = load("res://scripts/game/snowball_splat/banana_look.gd")
+	var img: Image = Look.bush_image()
+	_check(absf(float(img.get_width()) * Shell.WORLD_PIXEL - PuffField.BUSH_HALF_W * 2.0) <= 2.0 * Shell.WORLD_PIXEL,
+			"the picture of a bush is as wide as the hiding span (REQ-SS-26)")
+
+
 func _visual_rules() -> void:
-	print("banana splat: visual rules")
+	print("banana party: visual rules")
 	var Look = load("res://scripts/game/snowball_splat/banana_look.gd")
 	var consts: Dictionary = load("res://scripts/game/snowball_splat/snowball_splat_game.gd").get_script_constant_map()
 	var ring_ok := true
@@ -420,7 +477,7 @@ func _test_maze_board() -> void:
 	_check(a.get_data() == b.get_data(), "the same board is drawn the same way every time")
 
 
-## Banana Splat difficulty (REQ-SS-20 to 22): faster animals and fewer of them as it grows.
+## Banana Party difficulty (REQ-SS-20 to 22): faster animals and fewer of them as it grows.
 func _difficulty() -> void:
 	print("snowball difficulty")
 	var lv: Dictionary = PuffField.LEVELS

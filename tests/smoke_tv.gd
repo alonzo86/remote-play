@@ -520,7 +520,7 @@ func _run() -> void:
 	third.leave()
 	await _frames(3)
 
-	# Banana Splat (REQ-SS-1 to 23): aim, throws, animals, points, the end. Each step sets up its own state, because the real
+	# Banana Party (REQ-SS-1 to 23): aim, throws, animals, points, the end. Each step sets up its own state, because the real
 	# game also ticks in the frames that are awaited. A step without an await is one tick of the game.
 	var ss_script: GDScript = Registry.load_script("snowball_splat")
 	app.go(ss_script, {"seed": 7})
@@ -530,7 +530,7 @@ func _run() -> void:
 	var p1 = app.server.players[1]
 	var area: Rect2 = ss._area()
 	_check(is_instance_of(ss, ss_script) and ss.participants.size() == 2 and ss._throwers.size() == 2,
-			"banana splat starts with 2 players")
+			"banana party starts with 2 players")
 	_check(ss._round.is_counting() and ss._field.puffs.is_empty(), "the round starts with the countdown and no animal (REQ-SS-1)")
 	p0.button_pressed.emit(Protocol.BTN_A)
 	_check(ss._presses.is_empty(), "a throw in the countdown does nothing (REQ-SS-1)")
@@ -554,6 +554,7 @@ func _run() -> void:
 	# A animal that stands still in the middle of the screen, in lane 1 (an orangutan, 10 points), or lane 0 (a monkey, 25 points).
 	var put := func(lane: int, x: float, y: float) -> void:
 		ss._field.puffs.clear()
+		ss._field.bushes.clear()   # A bush could hide the animal that the test sets up.
 		var pf = ss.PuffField.Puff.new()
 		pf.lane = lane
 		pf.kind = ss.PuffField.LANES[lane].kinds[0]
@@ -592,6 +593,23 @@ func _run() -> void:
 			"the animal hops and shows with its points (REQ-SS-13)")
 	await _frames(8)
 	_check(haptics == [15, 40], "a throw buzzes 15 ms and a hit 40 ms: %s" % str(haptics))
+
+	# A bush hides the animal behind it, and the banana is a miss (REQ-SS-26).
+	ready_all.call()
+	put.call(1, mid_x, mid_y)
+	var hide_bush = ss.PuffField.Bush.new()
+	hide_bush.lane = 1
+	hide_bush.x = mid_x
+	ss._field.bushes.append(hide_bush)
+	var before_hidden: float = ss._board.score(0)
+	p0.button_pressed.emit(Protocol.BTN_A)
+	ss._game_tick(0.01)
+	ss._game_tick(0.2)
+	_check(ss._board.score(0) == before_hidden and ss._field.puffs.size() == 1,
+			"a banana at an animal behind a bush takes nothing (REQ-SS-26)")
+	await _frames(8)
+	haptics.clear()
+	ss._field.bushes.clear()
 
 	# Reload (REQ-SS-4).
 	ready_all.call()
@@ -722,7 +740,7 @@ func _run() -> void:
 	await _frames(3)
 	var ss3: Control = app.current_screen()
 	_check(ss3.participants.size() == 3 and ss3._throwers.size() == 3 and ss3._board.size() == 3,
-			"banana splat with 3 phones")
+			"banana party with 3 phones")
 	app.server.drop_player(fourth.slot)
 	await _frames(3)
 	_check(ss3.participants.size() == 2 and ss3._throwers.size() == 2 and ss3._board.size() == 2 and not ss3.is_paused(),

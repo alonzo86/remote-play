@@ -143,7 +143,7 @@ Tests
 
 ## Settings and difficulty
 
-Status (2026-10-09): the shared view, the choice row and the Difficulty row are **Done** and used by the maze, Banana Splat and Marble Race (the race adds the track list), so REQ-GM-90, 91 and 95 are Done only for games with a `settings` entry in the registry. When the others are built, `docs/TV_FLOW.md` (the Games screen flow) and the game requirement files change in the same commit (REQ-GM-5).
+Status (2026-10-09): the shared view, the choice row and the Difficulty row are **Done** and used by the maze, Banana Party and Marble Race (the race adds the track list), so REQ-GM-90, 91 and 95 are Done only for games with a `settings` entry in the registry. When the others are built, `docs/TV_FLOW.md` (the Games screen flow) and the game requirement files change in the same commit (REQ-GM-5).
 
 - REQ-GM-90: Every game defines its own settings. OK on the tile of a game opens the settings view first, not the game. The view is centered on the screen and is as narrow as its widest row (all rows and the Back and Start line have that same width), has the game name as its title, one row for each setting, and under the rows one line with the Back item at the left edge and the Start item at the right edge of the view. Both are menu items (REQ-FL-41); Back is quiet (dim until it has the focus). Down from the last row goes to Start. Start works only while the connected phones fit the game (REQ-GM-20): a phone can leave while the view is open. When they do not fit, Start is disabled and a line under the buttons says why ("Needs 2 players"). Back returns to the Games screen with the tile in focus. Start begins the game (the countdown, REQ-GM-35). Everything works with the D-pad, OK and Back (REQ-GM-33). (Done: `scripts/game/game_settings.gd`, `scripts/ui/tv_game_settings.gd`, `scripts/ui/choice_row.gd`; check smoke_settings, game_helpers)
 - REQ-GM-91: Every game has the setting Difficulty with the values Easy, Medium and Hard. The game decides what each value means and lists it in its requirements file (a table of Easy, Medium, Hard). Medium is the value to start with. A game without a meaning for the three values is not allowed. (Done: `scripts/game/game_settings.gd`, `scripts/ui/tv_game_settings.gd`, `scripts/ui/choice_row.gd`; check smoke_settings, game_helpers)
@@ -166,6 +166,6 @@ Status (2026-10-09): the shared view, the choice row and the Difficulty row are 
 |------|-------------------|
 | Treasure Maze (2D) | `docs/games/maze.md` |
 | Marble Race (3D) | `docs/games/marble_race.md` |
-| Banana Splat (2D) | `docs/games/snowball_splat.md` |
+| Banana Party (2D) | `docs/games/snowball_splat.md` |
 | Paint Grab (2D) | `docs/games/paint_grab.md` |
 | Sumo Bumpers (2D) | `docs/games/sumo_bumpers.md` |

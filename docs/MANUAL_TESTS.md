@@ -57,7 +57,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
 | [9](#test-9) | The Amazing Race | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
-| [10](#test-10) | Banana Splat (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
+| [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2 | Not run |  | |
@@ -244,7 +244,7 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 2. Lock the phone screen for 10 seconds, then unlock. Check: the phone reconnects. (Android can stop the app in the background.)
 3. Switch the phone Wi-Fi off for 40 seconds. Check: the slot is freed. When the Wi-Fi is back, the phone joins again (maybe in a different slot).
 4. Switch one phone Wi-Fi off again and wait for the card. Choose **Resume without P2** (for a player with a profile the card says its name, test 20 item 6). Check: the game continues without that player. Switch the Wi-Fi on. Check: the phone joins again as a new player and waits for the next round.
-5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "1P LOST CONNECTION" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Banana Splat. Press Back on the card. Check: it asks "End the game?".
+5. With only one phone joined, switch its Wi-Fi off during the maze. Check: within about 5 seconds the game pauses with the card "1P LOST CONNECTION" that has only **End game** (no Resume, because nobody is connected). Switch the Wi-Fi on. Check: the card says "P1 reconnected" and offers **Resume**. Do the same in the marble race and in Banana Party. Press Back on the card. Check: it asks "End the game?".
 6. On the phone pad, tap **Disconnect** once. Check: the phone leaves the TV at once (no second tap). The word fits the box. Check the pad buttons: A is green and B is red, both sink when pressed.
 7. Phone call: with one phone in a game, call that phone from another phone and answer. Check: the game pauses with the card. End the call and go back to the controller app. Check: the phone says "Reconnecting..." and then joins again, the card says "P1 reconnected" with **Resume**, and **Resume** goes on with the game. Try a call that lasts more than 1 minute (the slot is kept 5 minutes while the game is paused). Write down how long the phone needs to reconnect after the call. (REQ-GM-30, 30a)
 
@@ -256,7 +256,7 @@ Needs: 2 phones, 1 TV. Covers: REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-
 | 2 | Note: did the phone reconnect | Not run | | | |
 | 3 | Photo of the Connect or Games screen after 40 s and after the join again | Not run | | | |
 | 4 | Video: Resume without P2 with a lost phone, and the phone that joins again | Not run | | | |
-| 5 | Photo of the card of the only player lost (End game only), and of the card after the return (Resume); in the maze, the race and Banana Splat | Retest | R1 | Chat report 2026-10-09 (no file) | R1: a phone call stopped the game ('as expected') and the TV showed 'No players connected'. After the call there was no way to resume. The owner asked for a message that says which player disconnected, with Resume only when a player is still connected or the disconnected player is back. Changed on 2026-10-09 (REQ-GM-30, 30a): the game waits with a card, there is no Resume while nobody is connected, and Resume shows when the phone is back. The slot is kept 5 minutes while paused. The old check ('No players connected' at once) is gone. Retest. |
+| 5 | Photo of the card of the only player lost (End game only), and of the card after the return (Resume); in the maze, the race and Banana Party | Retest | R1 | Chat report 2026-10-09 (no file) | R1: a phone call stopped the game ('as expected') and the TV showed 'No players connected'. After the call there was no way to resume. The owner asked for a message that says which player disconnected, with Resume only when a player is still connected or the disconnected player is back. Changed on 2026-10-09 (REQ-GM-30, 30a): the game waits with a card, there is no Resume while nobody is connected, and Resume shows when the phone is back. The slot is kept 5 minutes while paused. The old check ('No players connected' at once) is gone. Retest. |
 | 6 | Photo of the Disconnect button on the pad (and on the waiting screen, at the top right), and of the pad buttons | Not run | | | |
 | 7 | Video of a phone call: the card, the return, Resume. Note how long the phone needs to reconnect | Not run | | | |
 
@@ -394,7 +394,7 @@ History:
 
 ## Test 10
 
-### Banana Splat (pointer)
+### Banana Party (pointer)
 
 Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 9. Covers: REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50.
 
@@ -415,7 +415,7 @@ The game was "Target Shoot" until 2026-10-09: it was changed after the first try
 8. Switch one phone Wi-Fi off during a round. Check: within about 5 seconds the game pauses with the card "2P LOST CONNECTION". The cursor and score of a phone that left are gone. (REQ-GM-30, REQ-SS-16)
 9. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint and a few seconds of play, hits some animals, is not frustrated or scared, and wants to play again. Write down the age and what the child said or did. (REQ-GM-80 to 84, REQ-SS-17)
 10. Open the tile of **Snowball Splat**: the settings view opens. Play one round alone on each of Easy, Medium and Hard. Check: Easy has slow animals and more of them, Hard has fast animals and fewer, Hard is a challenge but not impossible, and the medal title names the difficulty ("Silver medal! (Hard)"). Write down the score of each round to tune the tiers (Easy [170, 340, 510], Medium [150, 300, 450], Hard [120, 240, 360]).
-11. **Jungle look (2026-10-16, REQ-SS-12).** From the sofa (about 3 m), look at the jungle. Check: the animals, the bananas and the cursor rings are sharp pixels, each animal can be named (monkey, lemur, orangutan, sloth, gorilla, elephant), the player colors of the rings are easy to tell apart on the green ground, the points "+10" are easy to read, and the leaves and vines do not hide the animals. Does the walk (a bob, no legs) look alive enough? Write down if the cursor and the banana are easy to follow.
+11. **Jungle look (2026-10-16, REQ-SS-12).** From the sofa (about 3 m), look at the jungle. Check: the animals, the bananas and the cursor rings are sharp pixels, each animal can be named (monkey, lemur, orangutan, sloth, gorilla, elephant), the player colors of the rings are easy to tell apart on the green ground, the points "+10" are easy to read, and the leaves and vines do not hide the animals. Does the walk (a bob, no legs) look alive enough? Check the bushes (REQ-SS-26): an animal that walks behind a bush is covered and a banana at it does nothing; Easy has 3 bushes, Medium 5, Hard 8; are they too many or too few? Write down if the cursor and the banana are easy to follow.
 
 **Results**
 
@@ -446,7 +446,7 @@ Values to write down (items 2, 3, 5 and 6). These decide the first tuning values
 History:
 
 - 2026-10-10 (not run): item 11 is new: the sky is a pixel world (phase 4 of the arcade style).
-- 2026-10-16 (not run): Snowball Splat became **Banana Splat**: a jungle at sunset, six animals that eat bananas in three depth lanes, a hit animation for each, plain ring pointers and the golden monkey king (100 points). Items 4, 5 and 11 changed (REQ-SS-7 to 13, 25). All values are first guesses.
+- 2026-10-16 (not run): Snowball Splat became **Banana Party** (first Banana Splat; "קרב" means fight in Hebrew, so the owner chose Party): bushes that hide animals (REQ-SS-26, 3, 5 or 8 by difficulty), a jungle at sunset, six animals that eat bananas in three depth lanes, a hit animation for each, plain ring pointers and the golden monkey king (100 points). Items 4, 5 and 11 changed (REQ-SS-7 to 13, 25). All values are first guesses.
 - 2026-10-09 (not run): item 10 is new: the settings view and Easy, Medium and Hard for Snowball Splat (faster and fewer Puffs as it grows, medal tiers for each level, the title names the difficulty).
 - R2: the owner played the new game and reported one problem: the last digit of a score above 3 digits was not visible in the chip at the top. Fixed on 2026-10-09. Nothing else was reported, so the other items stay not run.
 - R1: **Fail**, then redesigned. The owner tried the first version ("Target Shoot", small fast targets, a lock after a miss, decoys) and said: "I don't think it's playable in its current definition." They asked for something like Duck Hunt with larger and slowly moving targets, no penalty for a miss, and a game that is also for kids, so not shooting but for example throwing snowballs at a made-up character. Changed on 2026-10-09: the game is now Snowball Splat (REQ-SS-*), and REQ-GM-80 to 84 are new for all games. Which steps failed was not reported. The whole test needs a run with the new game.
@@ -467,7 +467,7 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, 
 4. Marble Race with 4 phones: let one marble finish and wait about 4 seconds for the end. Check: the marbles that did not finish are listed as 'not finished', the furthest first.
 5. Marble Race, at the results: choose **New game**. Check: the settings view opens with the last difficulty and track, and Back returns to the Games screen.
 6. Marble Race: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **New game** and **Back**, then open the results again if they are gone. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
-7. Banana Splat with 1 phone: play a full round. Check: the title is a medal ('Bronze medal!', 'Silver medal!', 'Gold medal!') or 'No medal this time', and the list has one row with the score. With 2 phones: the title names the winner, or says 'Tie!' for equal scores.
+7. Banana Party with 1 phone: play a full round. Check: the title is a medal ('Bronze medal!', 'Silver medal!', 'Gold medal!') or 'No medal this time', and the list has one row with the score. With 2 phones: the title names the winner, or says 'Tie!' for equal scores.
 
 **Results**
 
@@ -637,7 +637,7 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 
 1. Sit on the sofa (about 3 m from the TV). Go through the logo, Connect, Games, Settings, a game settings view, the Players modal, the quit question, a pause menu and a result menu. Check: all text is easy to read (the smallest is 32 px), upper case, white, gray or yellow on black. Write down every text that is hard to read.
 2. Look at the text and the frames from 1 m. Check: the pixels are sharp, not blurred or smoothed, on 1080p. Do it on a 4K TV too, if you have one.
-3. Games screen with 1, 2 and 4 phones. Check: three tiles in a row, the focused tile has a yellow frame and a cursor, the description of the focused game shows in the bar under the grid, "BANANA SPLAT" fits under its tile, and a game that needs more phones shows its reason in yellow.
+3. Games screen with 1, 2 and 4 phones. Check: three tiles in a row, the focused tile has a yellow frame and a cursor, the description of the focused game shows in the bar under the grid, "BANANA PARTY" fits under its tile, and a game that needs more phones shows its reason in yellow.
 4. Check the menus: the cursor is in front of the focused item, a destructive item (END GAME, QUIT, REMOVE) is red with the focus, BACK is dim until it has the focus, and OK, Back and the D-pad work as before.
 5. Check the motion: PRESS OK TO CONTINUE and PRESS OK TO SKIP blink (about half a second on, half a second off), the logo drops in in steps, the confetti is square, the countdown number shrinks in steps. The overlay FPS stays at 60.
 6. Phone: connect, wait and pad screens. Check: the text is readable at arm's length, A (green) and B (red) feel like buttons, RECENTER flashes yellow, DISCONNECT is at the top right and needs one tap, and the slot color square with the slot number is at the top.
@@ -747,7 +747,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 
 **Steps**
 
-1. Start Banana Splat with 4 phones (two names of 10 letters, the most a name can have since FD-22). Check from the sofa: the top row has the title, the timer and one chip with the leader's name and score, all on one row; nothing covers the play area; the name and the score are easy to read. Write down if the leader chip is too small or too big.
+1. Start Banana Party with 4 phones (two names of 10 letters, the most a name can have since FD-22). Check from the sofa: the top row has the title, the timer and one chip with the leader's name and score, all on one row; nothing covers the play area; the name and the score are easy to read. Write down if the leader chip is too small or too big.
 2. In the same game, before anybody scores: no chip shows and the phones show only `2P` (or the profile name) and 0. Then score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
 3. Look at each phone during the game. Check: the line under the header row (not next to Disconnect) shows the place (1ST to 4TH) and the score (`2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out): the colored square, the player number and Leave are fully visible below the island or the notch, nothing is hidden at the top, at the bottom (the home bar) or at the side when you turn the phone, and A and B are fully on the screen (REQ-FL-68). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
 4. Play Paint Grab and Sumo Bumpers with 2 to 4 phones. Check the same as items 1 to 3. In Sumo Bumpers the name tags show again in the countdown of every round.
@@ -794,7 +794,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 7. All 32 avatars on the four slot colors and on the smallest ball, from the sofa. A child of 5 to 8 years names five of them and finds its own avatar. Write down which avatars look alike.
 8. The same profile on a second phone joins the same TV while the TV is in a menu. Check: the older phone shows `YOUR PLAYER JOINED ANOTHER PHONE.` and goes to the Connect screen. Then repeat during a round: the second phone waits as a guest and nobody is removed.
 
-9. Play Banana Splat, Paint Grab and Marble Race (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
+9. Play Banana Party, Paint Grab and Marble Race (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
 10. Close the app and open it again, then join another TV. Check: the profile and the bests are still there (play the same game and see that "BEFORE" is the old score).
 11. Play Treasure Maze, Sumo Bumpers and a random Marble Race track with a profile. Check: no NEW BEST! on the phone.
 12. Share a profile to a second phone by QR: on the first phone open the list, tap SHARE on a row; on the second phone tap SCAN A PLAYER. Check: the second phone shows PLAYER ADDED. with the same name and avatar. Time how long the code takes to appear and to scan; try it from 30 cm and from 60 cm, with the screen at full and at low brightness.

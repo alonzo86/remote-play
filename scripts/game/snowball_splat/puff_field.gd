@@ -1,5 +1,5 @@
 extends RefCounted
-## The animals of Banana Splat (the class is still called `Puff`): the kinds, the lanes, spawning, walking and the hit test
+## The animals of Banana Party (the class is still called `Puff`): the kinds, the lanes, spawning, walking and the hit test
 ## (REQ-SS-7 to 10). Pure logic: it draws nothing and uses no nodes, so the rules can be tested without a screen.
 ## Positions are in pixels of the play area at 1920x1080 (`REF_AREA`). `center_of()` turns them into screen pixels.
 
@@ -35,13 +35,16 @@ const BONUS_FIRST := 10.0    # The first bonus comes after this many seconds of 
 const BONUS_MIN := 14.0
 const BONUS_MAX := 22.0
 const BONUS_GAP := 200.0     # The bonus keeps this far behind an animal of its lane (px).
+const BUSH_HALF_W := 150.0   # A bush hides the animals that walk behind it (REQ-SS-26). Half of its width (px).
+const BUSH_MARGIN := 200.0   # The middle of a bush is at least this far from the edges of the play area ...
+const BUSH_MIN_GAP := 420.0  # ... and the middles of two bushes of one lane are at least this far from each other.
 ## Difficulty (REQ-SS-20, 21): faster animals and fewer of them as it grows. `speed` is a factor on the speed of each kind,
-## `max_base` is MAX_BASE, `spawn_every` is SPAWN_EVERY and `tiers` are the medal tiers [bronze, silver, gold]. Medium is the
+## `max_base` is MAX_BASE, `spawn_every` is SPAWN_EVERY, `bushes` is the number of bushes (REQ-SS-26) and `tiers` are the medal tiers [bronze, silver, gold]. Medium is the
 ## game as it was. First guesses (Test 10).
 const LEVELS := {
-	"easy": {"speed": 0.7, "max_base": 4, "spawn_every": 1.2, "tiers": [170, 340, 510]},
-	"medium": {"speed": 1.0, "max_base": MAX_BASE, "spawn_every": SPAWN_EVERY, "tiers": [150, 300, 450]},
-	"hard": {"speed": 1.5, "max_base": 2, "spawn_every": 2.0, "tiers": [120, 240, 360]},
+	"easy": {"speed": 0.7, "max_base": 4, "spawn_every": 1.2, "bushes": 3, "tiers": [170, 340, 510]},
+	"medium": {"speed": 1.0, "max_base": MAX_BASE, "spawn_every": SPAWN_EVERY, "bushes": 5, "tiers": [150, 300, 450]},
+	"hard": {"speed": 1.5, "max_base": 2, "spawn_every": 2.0, "bushes": 8, "tiers": [120, 240, 360]},
 }
 
 class Puff:
@@ -62,7 +65,14 @@ class Puff:
 	func is_gone() -> bool:
 		return x > REF_AREA.x + radius + 2.0 if dir > 0 else x < -radius - 2.0
 
+## A bush stands in a lane. An animal that walks behind it is hidden and a banana cannot reach it (REQ-SS-26).
+class Bush:
+	var lane := 0
+	var x := 0.0   # The middle of the bush in px of the play area.
+
 var puffs: Array[Puff] = []
+var bushes: Array[Bush] = []
+var _bush_count := 5
 
 var _speed := 1.0
 var _max_base := MAX_BASE
@@ -77,8 +87,38 @@ func setup(difficulty: String) -> void:
 	_speed = float(level.speed)
 	_max_base = int(level.max_base)
 	_spawn_every = float(level.spawn_every)
+	_bush_count = int(level.bushes)
 	_spawn_timer = _spawn_every
 	_bonus_timer = BONUS_FIRST
+
+
+## Places the bushes of a round: the number of the difficulty, spread over the lanes (the middle lane first, then far, then near),
+## and over the width of each lane with a little random shift, never closer than BUSH_MIN_GAP in one lane (REQ-SS-26).
+func place_bushes(rng: RandomNumberGenerator) -> void:
+	bushes.clear()
+	var order := [1, 0, 2]
+	var per_lane := [0, 0, 0]
+	for i in _bush_count:
+		per_lane[order[i % 3]] += 1
+	for lane in 3:
+		var n: int = per_lane[lane]
+		var span := REF_AREA.x - 2.0 * BUSH_MARGIN
+		for k in n:
+			var step := span / float(n)
+			var slot := step * (float(k) + 0.5)
+			var shift := rng.randf_range(-0.2, 0.2) * maxf(step - BUSH_MIN_GAP, 0.0)   # Never closer than BUSH_MIN_GAP.
+			var b := Bush.new()
+			b.lane = lane
+			b.x = BUSH_MARGIN + slot + (shift if n > 1 else rng.randf_range(-0.25, 0.25) * span)
+			bushes.append(b)
+
+
+## True when the animal walks behind a bush of its lane: its middle is inside the bush, less half of its own radius.
+func is_hidden(p: Puff) -> bool:
+	for b in bushes:
+		if b.lane == p.lane and absf(p.x - b.x) <= BUSH_HALF_W - p.radius * 0.5:
+			return true
+	return false
 
 
 ## Where the cursor is on the screen: `pointer` (-1 to 1 on both axes) mapped to the play area `area` (REQ-SS-3).
@@ -207,12 +247,14 @@ func _regular_count() -> int:
 
 
 ## The animal hit by a banana that lands at `point` (screen pixels), or null (REQ-SS-10). The point must be inside the radius
-## plus HIT_SLOP. When it is inside two, the nearer center is hit.
+## plus HIT_SLOP. An animal behind a bush is not hit. When it is inside two, the nearer center is hit.
 func hit(point: Vector2, area: Rect2) -> Puff:
 	var k := scale_for(area)
 	var best: Puff = null
 	var best_d := INF
 	for p in puffs:
+		if is_hidden(p):
+			continue
 		var d := point.distance_to(center_of(p, area))
 		if d <= (p.radius + HIT_SLOP) * k and d < best_d:
 			best = p

@@ -64,7 +64,7 @@ const HE := {
 	"THE AMAZING RACE": "המרוץ המופלא",
 	"PAINT GRAB": "חטיפת צבע",
 	"SUMO BUMPERS": "סומו מתנגשים",
-	"BANANA SPLAT": "קרב בננות",
+	"BANANA PARTY": "מסיבת בננות",
 	"TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.":
 		"הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.",
 	"TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.":

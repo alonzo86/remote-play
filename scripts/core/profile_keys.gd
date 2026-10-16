@@ -4,7 +4,7 @@ extends RefCounted
 ## game or a changed track set adds numbers at the end. The direction (a lower time or a higher score is better) belongs to
 ## the key and is never sent: a code or a message cannot change it.
 ##
-## Numbers: 1 to 3 Banana Splat, id snowball_splat (easy, medium, hard), 4 to 6 Paint Grab, 7 to 36 Marble Race: 7 + 10 * difficulty + (track - 1).
+## Numbers: 1 to 3 Banana Party, id snowball_splat (easy, medium, hard), 4 to 6 Paint Grab, 7 to 36 Marble Race: 7 + 10 * difficulty + (track - 1).
 ## Tilt Maze, Sumo Bumpers and a random Marble Race track have no key (the owner, 2026-10-10).
 
 const Lang = preload("res://scripts/core/lang.gd")

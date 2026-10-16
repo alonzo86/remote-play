@@ -1,5 +1,5 @@
 extends "res://scripts/game/minigame.gd"
-## Banana Splat (the id and the folder are still `snowball_splat`: they were the first name of the game). Each phone is a
+## Banana Party (the id and the folder are still `snowball_splat`: they were the first name of the game). Each phone is a
 ## pointer: a circle in the player color follows `PlayerInput.pointer()`. A press on A throws a banana at the circle. Hungry
 ## animals walk across a jungle. The first banana that lands on an animal takes its points. A miss costs nothing
 ## (REQ-SS-1 to 17, 23). The game is for children too (REQ-GM-80 to 84).
@@ -26,6 +26,7 @@ const HINT_TIME := 4.0          # Seconds of play with the hint on the screen.
 
 # Look (REQ-SS-12, REQ-GM-47i to 47n): the jungle and the animals are in banana_look.gd. The black bar on top is for the HUD.
 const BAR_H := 112.0
+const BUSH_DROP := 16.0         # A bush stands this much lower than the middle of its lane (px).
 const CURSOR_R := 40.0
 const POOF_STEPS := 3           # The poof of a banana that missed grows in 3 hard steps.
 const POOF_COLOR := Color("ffe040")
@@ -90,6 +91,7 @@ func _game_ready() -> void:
 	else:
 		_rng.randomize()
 	_field.setup(difficulty)
+	_field.place_bushes(_rng)
 	_board = Scoreboard.new(participants)
 	for s in participants:
 		var t := Thrower.new()
@@ -250,8 +252,13 @@ func _pixel_world() -> bool:
 func _world_draw(ci: CanvasItem) -> void:
 	var area := _area()
 	BananaLook.draw_scene(ci, size, _scene_time, BAR_H)
-	for p in _field.puffs:
-		_draw_animal(ci, PuffField.center_of(p, area), p.kind, false, p.dir, 1.0)
+	for lane in PuffField.LANES.size():   # Far to near, so that a bush covers the animal that walks behind it.
+		for p in _field.puffs:
+			if p.lane == lane:
+				_draw_animal(ci, PuffField.center_of(p, area), p.kind, false, p.dir, 1.0)
+		for b in _field.bushes:
+			if b.lane == lane:
+				_draw_bush(ci, b, area)
 	for e in _effects:
 		if e.age >= 0.0 and e.kind == "hit":
 			_draw_peel(ci, e)
@@ -288,6 +295,17 @@ func _animal_texture(kind: String, happy: bool, facing: int) -> ImageTexture:
 func _draw_animal(ci: CanvasItem, c: Vector2, kind: String, happy: bool, dir: int, scale: float) -> void:
 	var tex := _animal_texture(kind, happy, dir)
 	var sz := Vector2(tex.get_size()) * Shell.WORLD_PIXEL * scale
+	ci.draw_texture_rect(tex, Rect2(Shell.snap(c - sz * 0.5), sz), false)
+
+
+## A bush: its middle is at the middle of the lane, a little lower, so that the animals of the lane are covered (REQ-SS-26).
+func _draw_bush(ci: CanvasItem, b: PuffField.Bush, area: Rect2) -> void:
+	if not _tex.has("bush"):
+		_tex["bush"] = ImageTexture.create_from_image(BananaLook.bush_image())
+	var tex: ImageTexture = _tex["bush"]
+	var k := area.size / PuffField.REF_AREA
+	var c := area.position + Vector2(b.x, float(PuffField.LANES[b.lane].y) + BUSH_DROP) * k
+	var sz := Vector2(tex.get_size()) * Shell.WORLD_PIXEL
 	ci.draw_texture_rect(tex, Rect2(Shell.snap(c - sz * 0.5), sz), false)
 
 
@@ -401,7 +419,7 @@ func _scoreboard() -> Scoreboard:
 
 
 func _draw_hud() -> void:
-	Shell.title(self, "BANANA SPLAT")
+	Shell.title(self, "BANANA PARTY")
 	draw_leader_chip(self)
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
