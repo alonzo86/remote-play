@@ -134,7 +134,8 @@ func _run() -> void:
 	sv = app.current_screen()
 	var picker: Control = sv.rows[2]
 	_check(sv.rows.size() == 3 and sv.rows[0].row.key == "difficulty" and sv.rows[1].row.key == "race_theme"
-			and sv.rows[1].value == "candy" and sv.rows[1].row.titles == ["registry.candy_road", "registry.space_rally", "registry.jungle_run"]
+			and sv.rows[1].value == "candy"
+			and sv.rows[1].row.titles == ["registry.candy_road", "registry.space_rally", "registry.jungle_run"]
 			and picker.tiles.size() == 11
 			and picker.tiles[10].sketch.is_empty() and picker.tiles[0].sketch.size() >= 3,
 			"the race view has Difficulty, Theme and 11 tracks under them, the last one without a sketch (the random track)")
