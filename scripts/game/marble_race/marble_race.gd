@@ -215,10 +215,10 @@ func _check_end() -> void:
 
 func _open_results() -> void:
 	if participants.is_empty():   # Everyone left after the finish: nobody is left to read a list.
-		open_menu("No players connected", [["Back to menu", App.go_menu]])
+		open_menu("minigame.no_players_connected", [["minigame.back_to_menu", App.go_menu]])
 		return
 	# Finished cars have their time. The others are ranked by how far they got.
-	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return Lang.f("%.2f s", [t]))
+	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
 
 
 ## The results menu leaves the game with Back (REQ-MR-34).
@@ -389,7 +389,7 @@ func edge_markers() -> Array:
 			continue
 		var dir := (sp - center).normalized()
 		var t := minf(rect.size.x * 0.5 / maxf(absf(dir.x), 0.001), rect.size.y * 0.5 / maxf(absf(dir.y), 0.001))
-		out.append({"slot": s, "pos": center + dir * t, "dir": dir, "text": Lang.f("%d m behind", [roundi(lead.arc - r.arc)])})
+		out.append({"slot": s, "pos": center + dir * t, "dir": dir, "text": Lang.f("marble_race.meters", [roundi(lead.arc - r.arc)])})
 	return out
 
 
@@ -428,21 +428,21 @@ func _scoreboard() -> Scoreboard:
 
 
 func _score_label(entry: Dictionary) -> String:
-	return Lang.f("%.2f s", [entry.score]) if entry.finished else ""
+	return Lang.f("result.seconds_2", [entry.score]) if entry.finished else ""
 
 
 func _game_draw() -> void:
-	Shell.title(self, "THE AMAZING RACE")
+	Shell.title(self, "registry.marble_race")
 	draw_leader_chip(self)
 	if _round.is_counting():
 		Shell.countdown(self, size, str(_round.count_number()), _round.count_elapsed())
 		draw_name_tags(self, _car_spots(), CAR_TAG_RADIUS)
 	elif _round.time < GO_SHOW:
-		Shell.countdown(self, size, "GO!", _round.time / GO_SHOW, UiTheme.OK)
+		Shell.countdown(self, size, "marble_race.go", _round.time / GO_SHOW, UiTheme.OK)
 	elif not is_over:
 		var lead: Racer = standings()[0]
 		var to_go := maxf(finish_arc - lead.arc, 0.0)
-		Shell.text(self, Vector2(Shell.mx(self, 960.0, 480.0), 80.0), Lang.f("Finish in %d m", [roundi(to_go)]), 32,
+		Shell.text(self, Vector2(Shell.mx(self, 960.0, 480.0), 80.0), Lang.f("marble_race.finish_in", [roundi(to_go)]), 32,
 				UiTheme.ACCENT, HORIZONTAL_ALIGNMENT_LEFT if not Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 480.0)
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time, 240.0)
 	_draw_edge_markers()

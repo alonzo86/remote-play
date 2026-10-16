@@ -109,7 +109,7 @@ func _on_event(e: Dictionary) -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	var title := Lang.f("Reached wave %d", [field.wave]) if participants.size() == 1 else ""
+	var title := Lang.f("asteroid_blast.reached_wave", [field.wave]) if participants.size() == 1 else ""
 	open_results(_board, SpaceField.LEVELS.get(difficulty, SpaceField.LEVELS.medium).tiers, title)
 
 
@@ -185,12 +185,12 @@ func _draw_ship(ci: CanvasItem, s: SpaceField.Ship, o: Vector2, k: float) -> voi
 
 
 func _game_draw() -> void:
-	Shell.title(self, "GALAXY PROTECTOR")
+	Shell.title(self, "registry.galaxy_protector")
 	draw_leader_chip(self)
 	var fit := _fit()
 	if _clock.is_counting():
 		var n := _clock.count_number()
-		var label := str(n) if n > 0 else "GO"
+		var label := str(n) if n > 0 else "shell.go"
 		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)   # A black shadow: the stars must not hide the digits.
 		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -199,23 +199,24 @@ func _game_draw() -> void:
 		for s in field.ships:
 			spots[s] = Shell.snap(fit.origin + Vector2(field.ships[s].x, SpaceField.SHIP_Y) * float(fit.k))
 		draw_name_tags(self, spots, SpaceField.SHIP_R * float(fit.k) + 24.0)
-		Shell.hint(self, size, "Tilt to steer. Your ship shoots by itself. Grab the upgrades!")
+		Shell.hint(self, size, "asteroid_blast.tilt_steer_ship_shoots")
 		return
 	if is_over:
 		return
-	Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("Wave %d", [field.wave]), 32, UiTheme.TEXT,
-			HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
+	Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("asteroid_blast.wave_n", [field.wave]), 32,
+			UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
 	_draw_wave_line()
 	if field.phase == SpaceField.Phase.REST:
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("Wave %d clear!", [field.wave]), 72, UiTheme.ACCENT)
+		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("asteroid_blast.wave_clear", [field.wave]), 72,
+				UiTheme.ACCENT)
 		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36 + 110.0),
-				Lang.f("Next wave in %d", [ceili(field.phase_left())]), 48, UiTheme.TEXT)
+				Lang.f("asteroid_blast.next_wave_in", [ceili(field.phase_left())]), 48, UiTheme.TEXT)
 	elif field.phase_time < BANNER_TIME and _end_left < 0.0:
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("Wave %d", [field.wave]), 72, UiTheme.ACCENT)
+		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("asteroid_blast.wave_n", [field.wave]), 72, UiTheme.ACCENT)
 	if _end_left >= 0.0:
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("All ships are gone!"), 72, UiTheme.ACCENT)
+		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("asteroid_blast.all_ships_gone"), 72, UiTheme.ACCENT)
 	elif _time < COUNTDOWN + HINT_TIME:
-		Shell.hint(self, size, "Tilt to steer. Your ship shoots by itself. Grab the upgrades!")
+		Shell.hint(self, size, "asteroid_blast.tilt_steer_ship_shoots")
 
 
 ## The line at the bottom of the bar: how much of the wave (or of the rest) is left.

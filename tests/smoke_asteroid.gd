@@ -131,7 +131,7 @@ func _run() -> void:
 	var labels: Array = []
 	for l in game._menu_box.find_children("*", "Label", true, false):
 		labels.append(l.text)
-	_check(game.is_over and buttons == ["TRY AGAIN", "NEW GAME", "BACK TO MENU"] and labels[0] == "SIM0 WINS!",
+	_check(game.is_over and buttons == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"] and labels[0] == "SIM0 WINS!",
 			"the result menu names the player with most points: %s %s" % [str(buttons), str(labels)])
 
 	# One player: a medal for the score and the wave in the title (REQ-AB-14, REQ-GM-73).

@@ -204,9 +204,9 @@ func _end_round(fell_last: Array) -> void:
 	if not winners.is_empty():
 		Sound.sfx("sumo_round_win")
 	if winners.size() == 1:
-		banner_text = Lang.f("%s wins the round!", [player(winners[0]).player_name])
+		banner_text = Lang.f("sumo_bumpers.round_winner", [player(winners[0]).player_name])
 	else:
-		banner_text = Lang.t("Round draw!")
+		banner_text = Lang.t("sumo_bumpers.round_draw")
 	phase = Phase.BANNER
 	_banner_left = BANNER_TIME
 
@@ -224,7 +224,7 @@ func _finish() -> void:
 
 ## "2 points" for the result list.
 func _points_text(points: float) -> String:
-	return Lang.t("1 point") if int(points) == 1 else Lang.f("%d points", [int(points)])
+	return Lang.t("result.one_point") if int(points) == 1 else Lang.f("result.points", [int(points)])
 
 
 # ---- Drawing ----
@@ -307,7 +307,7 @@ func _game_draw() -> void:
 		var f: Dictionary = _falling[s]
 		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
 			var above := Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6 - clampf(float(f.age) / FALL_TIME, 0.0, 1.0) * 30.0)
-			Shell.label_plate(self, c + (f.pos as Vector2) * k + above, Lang.t("Whee!"), 32, UiTheme.TEXT)
+			Shell.label_plate(self, c + (f.pos as Vector2) * k + above, Lang.t("sumo_bumpers.whee"), 32, UiTheme.TEXT)
 	_draw_hud()
 
 
@@ -316,14 +316,15 @@ func _scoreboard() -> Scoreboard:
 
 
 func _draw_hud() -> void:
-	Shell.title(self, "SUMO BUMPERS")
+	Shell.title(self, "registry.sumo_bumpers")
 	draw_leader_chip(self)
 	if not is_over:
-		Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("Round %d of %d", [round_no, ROUNDS]), 32,
+		Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("sumo_bumpers.round_n_of",
+				[round_no, ROUNDS]), 32,
 				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
 	if phase == Phase.COUNT and not participants.is_empty():
 		var n := _clock.count_number()
-		var label := str(n) if n > 0 else "GO"
+		var label := str(n) if n > 0 else "shell.go"
 		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)   # A black shadow: yellow digits are hard to read on the sky.
 		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -336,4 +337,4 @@ func _draw_hud() -> void:
 	if phase == Phase.BANNER and not is_over:
 		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, 72, UiTheme.ACCENT)
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:
-		Shell.hint(self, size, "Tilt to bump the others off the platform! A dashes.")
+		Shell.hint(self, size, "sumo_bumpers.tilt_bump_others_off")

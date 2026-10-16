@@ -76,7 +76,7 @@ func _share(maya: RefCounted) -> void:
 	print("the Share screen")
 	_app.go(_app.ControllerProfiles)
 	await process_frame
-	var share_button := _find_button(_app.current_screen(), "SHARE")
+	var share_button := _find_button(_app.current_screen(), "profiles.share")
 	_check(share_button != null, "each profile row has a SHARE item")
 	share_button.pressed.emit()
 	await process_frame
@@ -89,7 +89,7 @@ func _share(maya: RefCounted) -> void:
 	var decoded := ProfileCode.decode(screen.code)
 	_check(decoded.ok and decoded.profile.id == maya.id and decoded.profile.player_name == "Maya" and decoded.profile.avatar == 4,
 			"the text is the profile of that row")
-	_find_button(screen, "COPY CODE").pressed.emit()
+	_find_button(screen, "profile_share.copy_code").pressed.emit()
 	_check(_find_button(screen, "CODE COPIED") != null, "COPY CODE says the code was copied")
 	_check(screen._timer.wait_time == 60.0 and not screen._timer.is_stopped(), "the code goes away after 60 seconds")
 	screen._timer.timeout.emit()
@@ -102,7 +102,7 @@ func _import() -> void:
 	_app.go(_app.ControllerProfiles)
 	await process_frame
 	var list: Control = _app.current_screen()
-	_check(_find_button(list, "PASTE A CODE") != null, "the list has PASTE A CODE")
+	_check(_find_button(list, "profiles.paste_code") != null, "the list has PASTE A CODE")
 	list._on_code(_code(ID_B, "Noam", 6, 1, {"paint_grab|easy": 12}))
 	_check(list._note.text == "PLAYER ADDED." and _app.profiles.find(ID_B) != null and _app.profiles.profiles.size() == 2,
 			"a good code adds the player and the screen says so")
@@ -112,7 +112,7 @@ func _import() -> void:
 	list._on_code("WP1.not-a-code")
 	_check(list._note.text == "THIS CODE DOES NOT WORK.", "a broken code is refused with a message")
 	list._on_code("ws://192.168.1.5:47801/KQZM")
-	_check(list._note.text == "THIS IS A TV LINK.", "a TV link on this screen is said to be a TV link")
+	_check(list._note.text == "THIS IS A ROOM LINK.", "a room link on this screen is said to be a room link")
 	list._on_code("hello")
 	_check(list._note.text == "THIS CODE DOES NOT WORK.", "other text is refused")
 	list._note.text = "SENTINEL"

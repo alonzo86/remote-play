@@ -61,7 +61,7 @@ func _run() -> void:
 	_check(radius > 8.0, "a sphere of 1 m has a clear size on the HUD: %.1f px" % radius)
 
 	# Pause: the world stops (REQ-FL-43), then it runs again.
-	game.open_menu("Paused", [["Resume", game.close_menu]])
+	game.open_menu("minigame.paused", [["minigame.resume", game.close_menu]])
 	await _frames(2)
 	var ticks_paused: int = game.ticks
 	await _frames(3)

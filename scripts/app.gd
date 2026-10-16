@@ -22,6 +22,7 @@ const ControllerPad = preload("res://scripts/ui/controller_pad.gd")
 const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const SafeArea = preload("res://scripts/ui/safe_area.gd")
+const AboutScreen = preload("res://scripts/ui/about_screen.gd")
 const ControllerSettings = preload("res://scripts/ui/controller_settings.gd")
 const ControllerProfiles = preload("res://scripts/ui/controller_profiles.gd")
 const ControllerProfileEdit = preload("res://scripts/ui/controller_profile_edit.gd")
@@ -372,16 +373,16 @@ func current_best() -> Dictionary:
 ## player: the player was added or updated, or why the text does not work. A change of the active profile goes to the TV.
 func import_profile_text(text: String) -> String:
 	if not text.strip_edges().begins_with(ProfileCode.PREFIX):
-		return Lang.t("This is a TV link.") if not Protocol.parse_pair_url(text).is_empty() else Lang.t("This code does not work.")
+		return Lang.t("app.room_link") if not Protocol.parse_pair_url(text).is_empty() else Lang.t("app.code_does_not_work")
 	var r := ProfileCode.decode(text)
 	if not r.ok:
-		return Lang.t("This code does not work.")
+		return Lang.t("app.code_does_not_work")
 	var done: Dictionary = profiles.import_profile(r.profile)
 	if done.status == "full":
-		return Lang.f("%d players is the maximum", [ProfileStore.MAX_PROFILES])
+		return Lang.f("profiles.maximum", [ProfileStore.MAX_PROFILES])
 	if done.id == profiles.active_id:
 		apply_profile()
-	return Lang.t("Player added.") if done.status == "added" else Lang.t("Player updated.")
+	return Lang.t("app.player_added") if done.status == "added" else Lang.t("app.player_updated")
 
 
 ## Leaves the profile screens: back to the waiting screen when a TV is joined, else to the Connect screen.
@@ -403,17 +404,22 @@ func _show_phone_screen() -> void:
 	var playing: bool = client.phase in ["playing", "paused"]
 	if playing and not (_screen is ControllerPad):
 		go(ControllerPad)
-	elif not playing and not (_screen is ControllerWait) and not (_screen is ControllerSettings):
+	elif not playing and not (_screen is ControllerWait) and not (_screen is ControllerSettings) \
+			and not (_screen is AboutScreen):
 		go(ControllerWait)
 
 
 func _on_client_rejected(reason: String) -> void:
 	last_error = {
-		"full": Lang.t("The TV is full (4 players)."),
-		"bad_room": Lang.t("Wrong room code."),
-		"version": Lang.t("App version does not match the TV."),
-		"unreachable": Lang.t("Cannot reach the TV. Check the Wi-Fi."),
-		"tv_closed": Lang.t("The TV closed the connection."),
-		"kicked": Lang.t("The host removed you. Scan the code to join again."),
-		"replaced": Lang.t("Your player joined another phone."),
-	}.get(reason, Lang.f("Connection refused: %s", [reason]))
+		"full": Lang.t("app.room_full_4_players"),
+		"bad_room": Lang.t("app.wrong_room_code"),
+		"bad_pin": Lang.t("pin.wrong"),
+		"pin_locked": Lang.f("pin.locked", [Protocol.PIN_LOCK_MS / 1000]),
+		"version": Lang.t("app.app_version_does_not"),
+		"unreachable": Lang.t("app.cannot_connect_room"),
+		"tv_closed": Lang.t("app.tv_closed_connection"),
+		"kicked": Lang.t("app.host_removed_scan_code"),
+		"replaced": Lang.t("app.player_already_in_room"),
+	}.get(reason, Lang.f("connect.refused", [reason]))
+	if reason == "bad_pin" and client.pin == "":
+		last_error = ""   # The phone sent no PIN (an old token): the connect screen asks for it.

@@ -242,7 +242,7 @@ func _finish() -> void:
 	var medal: Variant = null
 	if _board.ranking().size() == 1:   # The medal picture has the difficulty that was played under it (REQ-SS-21).
 		medal = Medals.medal(_board.ranking()[0].score, tiers)
-		heading = Lang.t(difficulty.capitalize())
+		heading = Lang.t("game_settings." + difficulty)
 	open_results(_board, tiers, heading, [], Callable(), medal)
 
 
@@ -423,19 +423,19 @@ func _scoreboard() -> Scoreboard:
 
 
 func _draw_hud() -> void:
-	Shell.title(self, "BANANA PARTY")
+	Shell.title(self, "registry.snowball_splat")
 	draw_leader_chip(self)
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
-		Shell.countdown(self, size, str(n) if n > 0 else "GO", _round.count_elapsed())
+		Shell.countdown(self, size, str(n) if n > 0 else "shell.go", _round.count_elapsed())
 		var spots := {}
 		for s in _throwers:
 			spots[s] = Shell.snap((_throwers[s] as Thrower).aim)
 		draw_name_tags(self, spots, CURSOR_R)
 	if _round.time < HINT_TIME and not is_over:   # In the countdown the time is below 0.
-		Shell.hint(self, size, "Point at the TV and press A to throw a banana. Recenter if the cursor drifts.")
+		Shell.hint(self, size, "snowball_splat.point_at_tv_press")
 
 
 func best_key() -> String:

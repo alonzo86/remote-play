@@ -98,7 +98,7 @@ func end_no_players() -> void:
 	if is_over:
 		return
 	is_over = true
-	open_menu("No players connected", [["Back to menu", App.go_menu]])
+	open_menu("minigame.no_players_connected", [["minigame.back_to_menu", App.go_menu]])
 
 
 func is_paused() -> bool:
@@ -212,7 +212,7 @@ func _slot_labels(slots: Array) -> String:
 	var parts: Array[String] = []
 	for s in slots:
 		parts.append(String(_hold_info[s].label) if _hold_info.has(s) and _hold_info[s].has("label") else slot_label(int(s)))
-	return Lang.t(" and ").join(parts)
+	return Lang.t("pause.and").join(parts)
 
 
 func _show_hold_card(lost: Array[int]) -> void:
@@ -220,25 +220,25 @@ func _show_hold_card(lost: Array[int]) -> void:
 	var gone: Array[int] = []
 	for s in _hold_info:
 		var info: Dictionary = _hold_info[s]
-		var state := Lang.t("left the game")
+		var state := Lang.t("pause.left_game")
 		if lost.has(s):
-			state = Lang.t("waiting to reconnect")
+			state = Lang.t("pause.waiting_reconnect")
 		elif participants.has(s):
-			state = Lang.t("is back")
+			state = Lang.t("pause.is_back")
 		else:
 			gone.append(s)
 		rows.append({"text": "%s   %s" % [info.name, state], "color": info.color, "avatar": info.get("avatar", -1)})
 	var title: String
 	var entries: Array = []
 	if not lost.is_empty():
-		title = Lang.f("%s lost connection", [_slot_labels(lost)])
+		title = Lang.f("pause.lost_connection", [_slot_labels(lost)])
 		if not connected_participants().is_empty():
-			entries.append([Lang.f("Resume without %s", [_slot_labels(lost)]), _resume_without_lost])
+			entries.append([Lang.f("pause.resume_without", [_slot_labels(lost)]), _resume_without_lost])
 	else:
-		title = Lang.f("%s left the game", [_slot_labels(gone)]) if not gone.is_empty() and gone.size() == _hold_info.size() \
-				else Lang.f("%s reconnected", [_slot_labels(_hold_info.keys())])
-		entries.append(["Resume", _resume_game])
-	entries.append(["End game", request_leave, "danger"])
+		title = Lang.f("pause.left", [_slot_labels(gone)]) if not gone.is_empty() and gone.size() == _hold_info.size() \
+				else Lang.f("pause.reconnected", [_slot_labels(_hold_info.keys())])
+		entries.append(["minigame.resume", _resume_game])
+	entries.append(["minigame.end_game", request_leave, "danger"])
 	open_menu(title, entries, rows)
 	_menu_kind = "hold"
 
@@ -262,7 +262,8 @@ func _resume_game() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and not _menu_open and _can_open_menu():
-		open_menu("Paused", [["Resume", close_menu], ["Try again", restart], ["Back to menu", request_leave]])
+		open_menu("minigame.paused", [["minigame.resume", close_menu], ["minigame.restart", restart],
+				["minigame.back_to_menu", request_leave]])
 		get_viewport().set_input_as_handled()
 
 
@@ -277,7 +278,7 @@ func on_back() -> void:
 ## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
 func request_leave() -> void:
 	if _in_progress():
-		open_menu("End the game?", [["Keep playing", close_menu], ["End game", App.go_menu, "danger"]])
+		open_menu("minigame.end_game_ask", [["minigame.resume_play", close_menu], ["minigame.end_game", App.go_menu, "danger"]])
 	else:
 		App.go_menu()
 
@@ -358,7 +359,7 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	var rows: Array = []
 	for e in ranking:
 		var p := player(e.slot)
-		var text := Lang.t("not finished")
+		var text := Lang.t("result.not_finished")
 		if e.finished:
 			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color,
@@ -378,26 +379,26 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 		if tier == Medals.NONE:
 			heading = Medals.label(tier) if title == "" else "%s (%s)" % [Medals.label(tier), title]
 		elif heading == "":
-			heading = Lang.t("Round over")
+			heading = Lang.t("minigame.round_over")
 	else:
 		for i in ranking.size():   # More than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
 			if ranking[i].finished:
 				rows[i]["medal"] = Medals.for_place(ranking[i].rank)
 		if heading == "":
-			heading = Lang.t("Round over")
+			heading = Lang.t("minigame.round_over")
 			if winners.size() == 1:
-				heading = Lang.f("%s wins!", [player(winners[0]).player_name])
+				heading = Lang.f("result.winner", [player(winners[0]).player_name])
 			elif winners.size() > 1:
-				heading = Lang.t("Tie!")
-	var entries: Array = [["Try again", restart]]
+				heading = Lang.t("minigame.tie")
+	var entries: Array = [["minigame.restart", restart]]
 	entries.append_array(extra_entries)
 	var id := Registry.id_of_script(get_script())
 	if GameSettings.has_view(Registry.find(id)):
-		entries.append(["New game", App.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
-	entries.append(["Back to menu", App.go_menu])
+		entries.append(["minigame.new_game", App.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
+	entries.append(["minigame.back_to_menu", App.go_menu])
 	open_menu(heading, entries, rows)
 	Sound.stop_music()
-	Sound.sfx("tie" if heading in ["Tie!", "Round over"] else "win")
+	Sound.sfx("tie" if heading in [Lang.t("minigame.tie"), Lang.t("minigame.round_over")] else "win")
 
 
 ## The key of the personal best of this game and its settings (REQ-GM-98), for example `snowball_splat|medium`; a key of

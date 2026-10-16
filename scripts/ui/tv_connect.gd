@@ -12,6 +12,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 
 var _qr: Control
 var _hint: Label
+var _pin: Label   # The join PIN (FD-25). It changes after too many wrong tries, so it is read again each frame.
 var _modal: Control
 
 
@@ -38,10 +39,14 @@ func _ready() -> void:
 	_qr = QrView.new()
 	_qr.custom_minimum_size = Vector2(420, 420)
 	cv.add_child(_qr)
-	cv.add_child(UiKit.label("Room code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	cv.add_child(UiKit.label("connect.room_code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 	var room := UiKit.title(App.server.room_code, UiTheme.SIZE_TITLE)
 	room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	cv.add_child(room)
+	cv.add_child(UiKit.label("pin.name", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	_pin = UiKit.title(App.server.pin, UiTheme.SIZE_TITLE)
+	_pin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cv.add_child(_pin)
 
 	# Right: title, help text and the slots.
 	var right := VBoxContainer.new()
@@ -49,11 +54,11 @@ func _ready() -> void:
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.alignment = BoxContainer.ALIGNMENT_BEGIN
 	cols.add_child(right)
-	right.add_child(UiKit.title("Players"))
-	var help := UiKit.label("Be in the same room, on the same Wi-Fi. Open the Wobble app on your phone and scan the code.",
-			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
-	help.autowrap_mode = TextServer.AUTOWRAP_WORD
-	right.add_child(help)
+	right.add_child(UiKit.title("common.players"))
+	for help_key in ["connect.same_wi_fi", "connect.open_app_scan_code"]:
+		var help := UiKit.label(help_key, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		help.autowrap_mode = TextServer.AUTOWRAP_WORD
+		right.add_child(help)
 	right.add_child(UiKit.spacer(10))
 	right.add_child(SlotList.new())
 
@@ -82,14 +87,15 @@ func can_continue() -> bool:
 
 func _refresh() -> void:
 	var ip: String = App.discovery.ip if App.discovery != null else ""
-	_qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code) if ip != "" else ""
+	_pin.text = App.server.pin
+	_qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code, App.server.pin) if ip != "" else ""
 	if App.server.connected_slots().size() >= 1:
 		_hint.add_theme_color_override("font_color", UiTheme.ACCENT)
-		_hint.text = "PRESS OK TO CONTINUE"
+		_hint.text = "connect.press_ok_continue"
 		_hint.set_process(true)
 	elif ip == "":
 		_hint.add_theme_color_override("font_color", UiTheme.BAD)
-		_hint.text = "NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK."
+		_hint.text = "connect.no_wi_fi_address"
 		_hint.set_process(false)
 		_hint.modulate.a = 1.0
 	else:
@@ -102,8 +108,8 @@ func on_back() -> void:
 		_modal.on_back()
 		return
 	var d: Control = TvModal.new()
-	d.title_text = "Quit Wobble?"
-	d.entries = [["Stay", Callable(self, "_close_dialog")], ["Quit", App._quit, "danger"]]
+	d.title_text = "connect.quit_sababi"
+	d.entries = [["connect.stay", Callable(self, "_close_dialog")], ["connect.quit", App._quit, "danger"]]
 	d.default_index = 0
 	d.closed.connect(func(): _modal = null)
 	_modal = d

@@ -39,17 +39,17 @@ func _ready() -> void:
 		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST # Sharp pixels (REQ-FL-50).
 		box.add_child(tr)
 	else:
-		var t := UiKit.title("WOBBLE", UiTheme.SIZE_LOGO)
+		var t := UiKit.title("SABABI", UiTheme.SIZE_LOGO)
 		t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		box.add_child(t)
-		var sub := UiKit.label("Phone motion controller games", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		var sub := UiKit.label("logo.phone_motion_controller_games", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		box.add_child(sub)
 	asks_language = App.needs_language_choice()
 	if asks_language:
 		box.add_child(UiKit.spacer(24))
 		box.add_child(_language_choice())
-	_hint = UiKit.blinking("Press OK to choose" if asks_language else "Press OK to skip", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_hint = UiKit.blinking("logo.press_ok_start" if asks_language else "logo.press_ok_skip", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_hint)
 	_hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)

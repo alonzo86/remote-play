@@ -381,6 +381,18 @@ func _maze_levels() -> void:
 		fits = fits and int(lv.cols) * float(lv.cell) + Maze.WALL <= 1800.0 and int(lv.rows) * float(lv.cell) + Maze.WALL <= 892.0
 	_check(solvable, "mazes of every difficulty are solvable")
 	_check(fits, "the board of every difficulty fits the screen under the HUD")
+	var themes: Dictionary = MazeBoard.THEMES
+	# A ball has a white ring, so the ring must stand out from the ground, and the black outline of the ball must too
+	# (REQ-MZ-7). A wall must stand out from both tones of the ground by its face or by its outline.
+	for key in themes:
+		var st: Dictionary = themes[key]
+		var ring_ok := true
+		var wall_ok := true
+		for g in [st.ground_a, st.ground_b]:
+			ring_ok = ring_ok and Shell.contrast(Color.WHITE, g) >= 3.0
+			wall_ok = wall_ok and maxf(Shell.contrast(st.face, g), Shell.contrast(st.outline, g)) >= 3.0
+		_check(ring_ok, "the white ring of a ball stands out from the ground of the %s maze (REQ-MZ-7)" % key)
+		_check(wall_ok, "the walls of the %s maze stand out from both tones of the ground" % key)
 	var gaps := {}   # The space between the HUD bar (112 px) and the outer edge of the walls at 1080p (REQ-MZ-7).
 	for d in ["easy", "medium", "hard"]:
 		gaps[d] = 540.0 + 34.0 - int(levels[d].rows) * float(levels[d].cell) * 0.5 - Maze.WALL * 0.5 - 112.0
@@ -620,7 +632,7 @@ func _test_marble_track() -> void:
 	_check(MarbleTrack.seed_for("3", rng) == MarbleTrack.FIXED_SEEDS[2]
 			and MarbleTrack.seed_for("10", rng) == MarbleTrack.FIXED_SEEDS[9],
 			"a choice of 1 to 10 gives the fixed seed")
-	_check(MarbleTrack.title_for(MarbleTrack.FIXED_SEEDS[4]) == "Track 5" and MarbleTrack.title_for(5) == "Random track",
+	_check(MarbleTrack.title_for(MarbleTrack.FIXED_SEEDS[4]) == "Track 5" and MarbleTrack.title_for(5) == "RANDOM TRACK",
 			"the names are Track 1 to 10 and Random track")
 	var t0 = MarbleTrack.make(MarbleTrack.FIXED_SEEDS[0])
 	var side: Vector2 = t0.point_at(30.0) + Vector2(t0.half_width + 1.0, 0)

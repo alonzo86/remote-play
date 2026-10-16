@@ -119,4 +119,4 @@ The beams have no sound: with 4 ships firing, a sound for every shot would be no
 
 ## Languages (REQ-GM-47o)
 
-The texts of this game are English and Hebrew: the title, the description, the hint, the banners ("Wave %d", "Wave %d clear!", "Next wave in %d", "All ships are gone!") and "Reached wave %d" have a Hebrew text in `scripts/core/strings.gd`. The Hebrew text was written by Claude and needs a native reader. In Hebrew the HUD is mirrored by the shell (title, leader chip, the wave text and the line); the game world is not mirrored.
+The texts of this game are English and Hebrew: the title, the description, the hint, the banners ("Wave %d", "Wave %d clear!", "Next wave in %d", "All ships are gone!") and "Reached wave %d" have a Hebrew text in `assets/lang/strings.csv` (keys `registry.galaxy_protector`, `asteroid_blast.*`). The Hebrew text was written by Claude and needs a native reader. In Hebrew the HUD is mirrored by the shell (title, leader chip, the wave text and the line); the game world is not mirrored.

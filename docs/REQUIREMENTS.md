@@ -1,6 +1,6 @@
 # Requirements
 
-Project: Wobble. A couch game for Android TV.
+Project: Sababi. A couch game for Android TV.
 A phone is the motion controller (Wii-remote style).
 
 Style: this text uses ASD-STE100 Simplified Technical English.
@@ -18,7 +18,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-P3: The role is chosen by the feature tag `tv` or `controller`.
 - REQ-P4: On desktop, the argument `-- --role=tv` or `-- --role=controller` replaces the feature tag.
 - REQ-P5: Do not use servers, accounts, subscriptions, analytics, or paid services. Use the LAN only. A player profile (FD-22) is a file on the phone; it is not an account and nothing leaves the LAN.
-- REQ-P6: Menus and games are built in code from shapes, with the 8-bit arcade style (`docs/TV_FLOW.md`, FD-18). Allowed files: the pixel font Press Start 2P and the Hebrew fallback font Wobble Pixel Hebrew (`assets/fonts`, each with its license file), the game tile screenshots (`assets/tiles`), the player avatar sheet (`assets/avatars`), the logo (`assets/logo`), and the app icons. No other image, sound or model files without a decision in `docs/TV_FLOW.md`.
+- REQ-P6: Menus and games are built in code from shapes, with the 8-bit arcade style (`docs/TV_FLOW.md`, FD-18). Allowed files: the pixel font Press Start 2P and the Hebrew fallback font Sababi Pixel Hebrew (`assets/fonts`, each with its license file), the game tile screenshots (`assets/tiles`), the player avatar sheet (`assets/avatars`), the licence text of the Android libraries (`assets/licenses`), the logo (`assets/logo`), and the app icons. No other image, sound or model files without a decision in `docs/TV_FLOW.md`.
 
 ## 3. Architecture
 
@@ -43,6 +43,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-N6: The phone reconnects automatically with a saved token (backoff 0.5 s, 1 s, 2 s, then every 2 s).
 - REQ-N7: Full message reference: `docs/PROTOCOL.md`.
 - REQ-N8: `hello` and `welcome` carry an optional profile (`pid`, `av`, and the name); a `profile` message changes it in a menu. The TV checks every field. The protocol `VERSION` stays 2 (FD-22, `docs/PROTOCOL.md`).
+- REQ-N9: A new phone must send the join PIN of the TV (4 digits, `hello.pin`). A phone with a known token and a phone on the same device need none. After 5 wrong PINs the TV refuses new phones for 30 s. Protocol `VERSION` 3. See `docs/PROTOCOL.md`, "Join PIN".
 
 ## 5. Phone controller
 

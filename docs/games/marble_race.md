@@ -111,7 +111,7 @@ In `scripts/game/marble_race/marble_race.gd` unless it says otherwise. Tune them
 - Are the target winning times right? Measure them in Test 9 and update the table.
 - Is the edge arrow (REQ-MR-42) clear enough on a TV? Other options: a smaller car view, or pull the last car forward.
 - Are the cars (64 px high) and the obstacles (about 52 px) big enough from the sofa? They are first guesses.
-- The Hebrew title "המרוץ המופלא" and the three theme names in Hebrew are first guesses (`scripts/core/strings.gd`): a Hebrew reader must check them.
+- The Hebrew title "המרוץ המופלא" and the three theme names in Hebrew are first guesses (`assets/lang/strings.csv`): a Hebrew reader must check them.
 - Should the best time of each track be saved? (The results show all finish times. Saving waits until players are identified.)
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
@@ -129,4 +129,4 @@ Haptics on the phone of the player: Countdown end: 60 ms; Wall, obstacle or car 
 
 ## Languages (REQ-GM-47o)
 
-The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, leader chip, timer); the finish text, the timer and the track name use `Shell.mx()`. The game world is not mirrored.
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a key and a Hebrew text in `assets/lang/strings.csv`. In Hebrew the HUD is mirrored by the shell (title, leader chip, timer); the finish text, the timer and the track name use `Shell.mx()`. The game world is not mirrored.

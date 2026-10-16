@@ -1,0 +1,7 @@
+Copyright (c) 2026 Alon Yampolski. All rights reserved.
+
+This repository holds the source code, art and documents of Sababi. No licence is granted to use, copy, modify, merge, publish, distribute, sublicense or sell them, in whole or in part, without the written permission of the copyright holder.
+
+Parts of other makers keep their own licences. They are listed in docs/THIRD_PARTY.md, and their licence texts are in the files named there (for example assets/fonts/OFL-*.txt and assets/licenses/android-libraries.txt). This notice does not change them.
+
+The Sababi Pixel Hebrew font (assets/fonts/SababiPixelHebrew.ttf) is also by Alon Yampolski, and is licensed under the SIL Open Font License 1.1 (assets/fonts/OFL-SababiPixelHebrew.txt), not under this notice.

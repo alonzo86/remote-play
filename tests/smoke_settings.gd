@@ -134,7 +134,7 @@ func _run() -> void:
 	sv = app.current_screen()
 	var picker: Control = sv.rows[2]
 	_check(sv.rows.size() == 3 and sv.rows[0].row.key == "difficulty" and sv.rows[1].row.key == "race_theme"
-			and sv.rows[1].value == "candy" and sv.rows[1].row.titles == ["Candy Road", "Space Rally", "Jungle Run"]
+			and sv.rows[1].value == "candy" and sv.rows[1].row.titles == ["registry.candy_road", "registry.space_rally", "registry.jungle_run"]
 			and picker.tiles.size() == 11
 			and picker.tiles[10].sketch.is_empty() and picker.tiles[0].sketch.size() >= 3,
 			"the race view has Difficulty, Theme and 11 tracks under them, the last one without a sketch (the random track)")
@@ -213,7 +213,7 @@ func _run() -> void:
 	await _frames(4)
 	race = app.current_screen()
 	var random_seed: int = race.track_seed
-	_check(not MarbleTrack.FIXED_SEEDS.has(random_seed) and race.track.title == "Random track",
+	_check(not MarbleTrack.FIXED_SEEDS.has(random_seed) and race.track.title == "RANDOM TRACK",
 			"the random track has a seed that is not fixed (REQ-MR-53)")
 	race.restart()
 	await _frames(4)
@@ -232,7 +232,7 @@ func _run() -> void:
 	_check(not sv.start_button.disabled and sv.reason_label.text == "", "with a phone the view has no reason line and Start works")
 	app.server.kick(0)
 	await _frames(4)
-	_check(sv.start_button.disabled and sv.reason_label.text == "NEEDS 1 PLAYER",
+	_check(sv.start_button.disabled and sv.reason_label.text == "NO PLAYERS CONNECTED",
 			"with no phone Start is disabled and the line says why: %s" % sv.reason_label.text)
 	sv.start()
 	await _frames(3)
@@ -262,7 +262,8 @@ func _slot_list(app: Node) -> void:
 	for row in list.get_children():
 		var labels := row.get_children().filter(func(n: Node) -> bool: return n is Label)
 		words.append((labels[-1] as Label).text)
-	_check(words == ["READY", "LOST", "WAIT", "WAIT"], "each slot shows a state word: %s" % str(words))
+	_check(words == ["slot_list.ready", "slot_list.lost", "slot_list.wait", "slot_list.wait"],
+			"each slot shows a state word: %s" % str(words))
 	_check(list.remove_button(0) != null and list.remove_button(1) != null and list.remove_button(2) == null,
 			"a joined or lost slot has a Remove item, an empty slot has none")
 	list.remove_button(1).pressed.emit()

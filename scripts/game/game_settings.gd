@@ -6,7 +6,8 @@ extends RefCounted
 ## row; `default` is the value when nothing was chosen, the first value when it is missing).
 
 const DIFFICULTY := {
-	"key": "difficulty", "label": "Difficulty", "values": ["easy", "medium", "hard"], "titles": ["Easy", "Medium", "Hard"],
+	"key": "difficulty", "label": "game_settings.difficulty", "values": ["easy", "medium", "hard"], \
+			"titles": ["game_settings.easy", "game_settings.medium", "game_settings.hard"],
 }
 const DEFAULT_DIFFICULTY := "medium"
 

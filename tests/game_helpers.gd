@@ -317,8 +317,8 @@ func _scoreboard() -> void:
 			"nobody has a score: no winner, but the furthest player is listed first")
 	var empty = board_script.new()
 	_check(empty.ranking().is_empty() and empty.winners().is_empty(), "no player, no ranking")
-	_check([1, 2, 3, 4].map(func(n): return board_script.ordinal(n)) == ["1st", "2nd", "3rd", "4th"], "ordinals")
-	_check(board_script.ordinal(0) == "1st" and board_script.ordinal(9) == "4th", "an ordinal outside 1 to 4 stays in range")
+	_check([1, 2, 3, 4].map(func(n): return board_script.ordinal(n)) == ["1ST", "2ND", "3RD", "4TH"], "ordinals")
+	_check(board_script.ordinal(0) == "1ST" and board_script.ordinal(9) == "4TH", "an ordinal outside 1 to 4 stays in range")
 	_check(board_script.format(12.0) == "12" and board_script.format(12.5) == "12.5", "a whole score has no decimals")
 
 
@@ -338,7 +338,7 @@ func _medals() -> void:
 	_check(not medals.is_valid([10, 10, 30]) and not medals.is_valid([30, 20, 10]) and not medals.is_valid([10, 20]),
 			"equal, backward or missing tiers are not valid")
 	_check(not medals.is_valid(tiers, true), "tiers that get easier are not valid for a time")
-	_check(medals.label("gold") == "Gold medal!" and medals.label("") == "No medal this time", "the text of a medal")
+	_check(medals.label("gold") == "GOLD MEDAL!" and medals.label("") == "NO MEDAL THIS TIME", "the text of a medal")
 
 
 func _game_settings() -> void:
@@ -365,7 +365,7 @@ func _game_settings() -> void:
 	var props := GameSettings.props_for(game)
 	_check(props.difficulty == "hard" and props.mode == "a" and props.track == 3,
 			"the props of the game are its own props and the chosen values (REQ-GM-93)")
-	_check(GameSettings.title_of(diff, "hard") == "Hard", "the title of a value")
+	_check(GameSettings.title_of(diff, "hard") == "game_settings.hard", "the title of a value")
 	GameSettings.clear()
 	_check(GameSettings.value(game, diff) == "medium", "clear forgets the choices")
 

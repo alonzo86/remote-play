@@ -192,13 +192,14 @@ func _finish() -> void:
 	if _board.ranking().size() == 1:   # One player: the share of the floor gives the medal (REQ-PG-21).
 		var slot: int = _board.ranking()[0].slot
 		medal = Medals.medal(floor_map.percent(slot), tiers)
-		heading = Lang.t(difficulty.capitalize())
+		heading = Lang.t("game_settings." + difficulty)
 	open_results(_board, [], heading, [], _score_text, medal)
 
 
 ## "34 tiles (23%)" for the result list.
 func _score_text(tiles: float) -> String:
-	return Lang.f("%d tiles (%d%%)", [int(tiles), int(tiles) * 100 / floor_map.total()])   # The percent is rounded down (REQ-PG-21).
+	return Lang.f("paint_grab.tiles", [int(tiles),
+			int(tiles) * 100 / floor_map.total()])   # The percent is rounded down (REQ-PG-21).
 
 
 # ---- Drawing ----
@@ -292,20 +293,20 @@ func _scoreboard() -> Scoreboard:
 
 
 func _draw_hud() -> void:
-	Shell.title(self, "PAINT GRAB")
+	Shell.title(self, "registry.paint_grab")
 	draw_leader_chip(self)
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
-		Shell.countdown(self, size, str(n) if n > 0 else "GO", _round.count_elapsed())
+		Shell.countdown(self, size, str(n) if n > 0 else "shell.go", _round.count_elapsed())
 		var fit := _fit()
 		var spots := {}
 		for s in _bodies:
 			spots[s] = Shell.snap(fit.origin + (_bodies[s] as TiltBody).pos * float(fit.k))
 		draw_name_tags(self, spots, BLOB_R * float(fit.k))
 	if _round.time < HINT_TIME and not is_over:
-		Shell.hint(self, size, "Tilt your phone to roll and paint the tiles!")
+		Shell.hint(self, size, "paint_grab.tilt_phone_roll_paint")
 
 
 func best_key() -> String:

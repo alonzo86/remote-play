@@ -7,7 +7,7 @@ extends RefCounted
 
 const Lang = preload("res://scripts/core/lang.gd")
 
-const ORDINALS := ["1st", "2nd", "3rd", "4th"]
+const ORDINALS := ["result.place_1", "result.place_2", "result.place_3", "result.place_4"]
 
 var lower_is_better := false
 

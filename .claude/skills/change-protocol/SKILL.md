@@ -1,6 +1,6 @@
 ---
 name: change-protocol
-description: Change the Wobble network protocol (packets, messages, ports, timeouts). Use when a request touches scripts/core/protocol.gd, the sensor packet, the WebSocket messages or the discovery beacon.
+description: Change the Sababi network protocol (packets, messages, ports, timeouts). Use when a request touches scripts/core/protocol.gd, the sensor packet, the WebSocket messages or the discovery beacon.
 ---
 
 The protocol is shared by the TV and the controller, which can be different builds on the same network.

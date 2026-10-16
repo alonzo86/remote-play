@@ -137,4 +137,4 @@ Haptics on the phone of the player: Countdown end: 60 ms; Throw: 15 ms; Hit: 40 
 
 ## Languages (REQ-GM-47o)
 
-The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a Hebrew text in `scripts/core/strings.gd`. In Hebrew the HUD is mirrored by the shell (title, leader chip, timer). The game world is not mirrored.
+The texts of this game are English and Hebrew: the title, the description, the hint and the result texts have a key and a Hebrew text in `assets/lang/strings.csv`. In Hebrew the HUD is mirrored by the shell (title, leader chip, timer). The game world is not mirrored.

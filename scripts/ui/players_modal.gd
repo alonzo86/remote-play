@@ -3,6 +3,7 @@ extends "res://scripts/ui/tv_modal.gd"
 ## It lists the slots with Remove, and shows the QR code and the room code for late phones.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const SlotList = preload("res://scripts/ui/slot_list.gd")
 const QrView = preload("res://scripts/ui/qr_view.gd")
 
@@ -15,8 +16,8 @@ func _init() -> void:
 
 func _build() -> void:
 	body.add_theme_constant_override("separation", 18)
-	body.add_child(UiKit.title("Players", 48))
-	body.add_child(UiKit.label("Only phones in this room, on this Wi-Fi, can join.", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	body.add_child(UiKit.title("common.players", 48))
+	body.add_child(UiKit.label("connect.same_wi_fi", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 
 	var cols := HBoxContainer.new()
 	cols.add_theme_constant_override("separation", 40)
@@ -36,15 +37,18 @@ func _build() -> void:
 	var qr: Control = QrView.new()
 	qr.custom_minimum_size = Vector2(300, 300)
 	var ip: String = App.discovery.ip if App.discovery != null else ""
-	qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code)
+	qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code, App.server.pin)
 	side.add_child(qr)
 	var room := UiKit.title(App.server.room_code, 48)
 	room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	side.add_child(room)
+	var pin := UiKit.title(Lang.f("pin.shown", [App.server.pin]), 32, UiTheme.TEXT)
+	pin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	side.add_child(pin)
 
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_END
 	body.add_child(row)
-	_close_button = UiKit.item("Close", close)
+	_close_button = UiKit.item("players_modal.close", close)
 	row.add_child(_close_button)
 	UiKit.focus_later(_close_button)

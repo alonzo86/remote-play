@@ -21,6 +21,7 @@ func _check(cond: bool, what: String) -> void:
 func _initialize() -> void:
 	_run()
 	_avatar_sheet()
+	_font_licences()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -40,6 +41,36 @@ func _avatar_sheet() -> void:
 	var imp := FileAccess.get_file_as_string("res://assets/avatars/avatars.png.import")
 	_check(imp.contains("mipmaps/generate=false") and imp.contains("compress/mode=0"),
 			"the sheet is imported lossless and without mipmaps")
+
+
+## The OFL requires the licence text to travel with the font, so every export preset packs the OFL files (REQ-FL-39).
+func _font_licences() -> void:
+	print("font licences")
+	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
+	var filters := 0
+	var csv_filters := 0
+	var licence_filters := 0
+	var presets_count := 0
+	for line in presets.split("\n"):
+		if line.begins_with("[preset.") and not line.contains(".options"):
+			presets_count += 1
+		if line.begins_with("include_filter=") and line.contains("assets/fonts/OFL-*.txt"):
+			filters += 1
+		if line.begins_with("include_filter=") and line.contains("assets/licenses/*.txt"):
+			licence_filters += 1
+		if line.begins_with("include_filter=") and line.contains("assets/lang/strings.csv"):
+			csv_filters += 1
+	_check(presets_count > 0 and filters == presets_count, "every export preset packs the font licence files")
+	_check(presets_count > 0 and licence_filters == presets_count,
+			"every export preset packs the licence files of the Android libraries")
+	_check(presets_count > 0 and csv_filters == presets_count,
+			"every export preset packs the table of texts (assets/lang/strings.csv)")
+	var imp := FileAccess.get_file_as_string("res://assets/lang/strings.csv.import")
+	_check(imp.contains('importer="keep"'),
+			"the table of texts is not imported as a Godot translation: the app reads the file itself")
+	for f in ["OFL-PressStart2P.txt", "OFL-SababiPixelHebrew.txt"]:
+		_check(FileAccess.file_exists("res://assets/fonts/" + f), f + " exists")
+	_check(FileAccess.file_exists("res://assets/licenses/android-libraries.txt"), "android-libraries.txt exists")
 
 
 func _run() -> void:

@@ -1,4 +1,4 @@
-# Wobble
+# Sababi
 
 A couch game for Android TV. A phone is the motion controller (Wii-remote style).
 Godot 4.7 and GDScript. One project makes two apps:
@@ -28,7 +28,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   screenshot, the players badge, the OPTIONS button; the description of the focused game is in a bar under the grid), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
   Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
-- The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`).
+- The TV shows a 4-letter room code, a 4-digit join PIN and a QR code (`ws://IP:47801/ROOM?pin=0427`).
   The Android phone scans the QR code (Android plugin), or picks the TV from the list found by the UDP beacon (Refresh button). An iPhone has no scanner: it shows only the list. There is no typed room code or IP.
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
@@ -62,7 +62,7 @@ tools/                   make_icons.gd, patch_android_manifest.sh
 docs/                    requirements, protocol, export, risks
 ```
 
-All screens are built in code in the 8-bit arcade style (FD-18, docs/TV_FLOW.md, docs/ARCADE_STYLE_PLAN.md): the menus, the phone and the game shell since phase 1; the worlds of Sumo Bumpers (phase 2), The Amazing Race (phase 3, a flat pixel world since 2026-10-15) and Tilt Maze, Paint Grab and Banana Party (phase 4) and Galaxy Protector (2026-10-16) are pixel worlds (a 480x270 view scaled up, REQ-GM-47i to 47n): all game worlds are pixel worlds now. The UI has two languages, English and Hebrew (right to left), chosen on the first start and in Settings (FD-19): `scripts/core/lang.gd` and `scripts/core/strings.gd` (the Hebrew text; the English text is the key). Image files: the pixel font and the Hebrew fallback font (`assets/fonts`),
+All screens are built in code in the 8-bit arcade style (FD-18, docs/TV_FLOW.md, docs/ARCADE_STYLE_PLAN.md): the menus, the phone and the game shell since phase 1; the worlds of Sumo Bumpers (phase 2), The Amazing Race (phase 3, a flat pixel world since 2026-10-15) and Tilt Maze, Paint Grab and Banana Party (phase 4) and Galaxy Protector (2026-10-16) are pixel worlds (a 480x270 view scaled up, REQ-GM-47i to 47n): all game worlds are pixel worlds now. The UI has two languages, English and Hebrew (right to left), chosen on the first start and in Settings (FD-19): `scripts/core/lang.gd` and `assets/lang/strings.csv` (the key, the English and the Hebrew text of each UI text). Image files: the pixel font and the Hebrew fallback font (`assets/fonts`),
 the game tile screenshots (`assets/tiles`, made by `tools/make_tiles.gd`), the logo (`assets/logo`) and the icons.
 
 **Separation rule:** `net/` and `input/` never refer to `game/`.
@@ -109,14 +109,16 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 1. Install Godot 4.7 (with export templates), JDK 17 (`brew install openjdk@17`) and the Android SDK. JDK 26 does not work with the Gradle build.
 2. Run `tools/setup.sh`. It sets the JDK path in the editor settings, installs the Android build template,
    and patches the manifest (TV banner, hardware flags, QR scanner plugin).
-3. Build the APKs: `tools/build.sh apk` (output: `build/wobble-tv.apk`, `build/wobble-controller.apk`).
+3. Build the APKs: `tools/build.sh apk` (output: `build/sababi-tv.apk`, `build/sababi-controller.apk`).
 4. Deploy to a connected device: `tools/deploy.sh controller` or `tools/deploy.sh tv` (builds, installs, launches; `-s <serial>` picks a device).
 5. iPhone (controller only, unverified): `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. Steps: [docs/EXPORT.md](docs/EXPORT.md), section *Controller on an iPhone*.
 6. Other commands: `tools/build.sh run-tv`, `run-controller`, `test`.
-7. Install (or `tools/build.sh install`): `adb connect <tv-ip>:5555`, then `adb install -r build/wobble-tv.apk`.
+7. Install (or `tools/build.sh install`): `adb connect <tv-ip>:5555`, then `adb install -r build/sababi-tv.apk`.
    Install the controller APK on the phone.
-   A device with the old Remote Play apps keeps them, because the package names changed (FD-21): remove them with
-   `adb uninstall com.example.remoteplay.tv` and `adb uninstall com.example.remoteplay.controller`.
+   A device with an older build (Remote Play, Wobble, or Sababi with the test package names) keeps it, because the package names
+   changed (FD-21, FD-26, FD-27): remove it with `adb uninstall com.example.remoteplay.tv`, `adb uninstall com.example.remoteplay.controller`,
+   `adb uninstall com.example.wobble.tv`, `adb uninstall com.example.wobble.controller`,
+   `adb uninstall com.example.sababi.tv` and `adb uninstall com.example.sababi.controller`.
 
 ## Test on a real Android TV or streaming box
 
