@@ -6,6 +6,7 @@ extends VBoxContainer
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
+const PencilIcon = preload("res://scripts/ui/pencil_icon.gd")
 
 const ROW_H := 110.0
 const AVATAR_SIDE := 80.0
@@ -21,13 +22,16 @@ func _ready() -> void:
 	row.add_theme_constant_override("separation", 16)
 	add_child(row)
 	var active = App.profiles.active()
-	_head = _row(active.avatar if active != null else -1, active.player_name if active != null else "Guest",
+	_head = _row(active.avatar if active != null else -1, active.player_name if active != null else "connect.guest",
 			active != null, toggle, UiTheme.TEXT, true)
 	_head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_head)
 	if active != null:   # Rename the player, change the avatar, or delete it.
-		var edit := UiKit.box_button("Edit", _on_edit, UiTheme.SIZE_BODY, UiTheme.ACCENT)
-		edit.custom_minimum_size = Vector2(0, ROW_H)
+		var edit := UiKit.box_button("", _on_edit, UiTheme.SIZE_BODY, UiTheme.ACCENT)
+		edit.custom_minimum_size = Vector2(ROW_H, ROW_H)
+		var pencil := PencilIcon.new()
+		pencil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 20)
+		edit.add_child(pencil)
 		row.add_child(edit)
 	var plus := UiKit.box_button("+", _on_new, UiTheme.SIZE_TITLE, UiTheme.ACCENT)
 	plus.custom_minimum_size = Vector2(ROW_H, ROW_H)
@@ -54,8 +58,8 @@ func _fill() -> void:
 	for p in store.profiles:
 		_list.add_child(_row(p.avatar, p.player_name, true, _pick.bind(p.id),
 				UiTheme.ACCENT if p.id == store.active_id else UiTheme.TEXT))
-	_list.add_child(_row(-1, "Guest", false, _pick.bind(""), UiTheme.ACCENT if store.active_id == "" else UiTheme.TEXT))
-	var manage := UiKit.box_button("Players", _on_manage, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_list.add_child(_row(-1, "connect.guest", false, _pick.bind(""), UiTheme.ACCENT if store.active_id == "" else UiTheme.TEXT))
+	var manage := UiKit.box_button("common.players", _on_manage, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	manage.custom_minimum_size = Vector2(0, 96)
 	_list.add_child(manage)
 

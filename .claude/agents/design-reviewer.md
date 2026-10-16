@@ -1,6 +1,6 @@
 ---
 name: design-reviewer
-description: Independent UI/visual design reviewer for Wobble. Judges real screenshots against the design decisions and living-room usability, with no stake in the earlier design choices. Use for visual design reviews.
+description: Independent UI/visual design reviewer for Sababi. Judges real screenshots against the design decisions and living-room usability, with no stake in the earlier design choices. Use for visual design reviews.
 tools: Read, Bash, Grep, Glob
 ---
 

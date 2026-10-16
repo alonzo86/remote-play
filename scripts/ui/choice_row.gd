@@ -4,6 +4,7 @@ extends "res://scripts/ui/menu_item.gd"
 ## mirrored: the arrow of the previous value is at the right, so Right goes to the previous value.
 ## The focus shows as the pixel cursor in front of the row (REQ-FL-41).
 
+const Lang = preload("res://scripts/core/lang.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 
@@ -70,7 +71,7 @@ func move(delta: int) -> void:
 
 
 func _refresh() -> void:
-	_value.text = GameSettings.title_of(row, value).to_upper()
+	_value.text = Lang.t(GameSettings.title_of(row, value)).to_upper()
 	var i: int = row.values.find(value)
 	_left.modulate.a = 1.0 if i > 0 else 0.3
 	_right.modulate.a = 1.0 if i < row.values.size() - 1 else 0.3

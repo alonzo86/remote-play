@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://qf3db0xhubtu"
-path="res://.godot/imported/WobblePixelHebrew.ttf-cbfc9b1dd881aacd500e008543714e8b.fontdata"
+uid="uid://bovx8ui0b8ue8"
+path="res://.godot/imported/SababiPixelHebrew.ttf-f5c12de240e6a82fa686ab5a233a32cf.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/WobblePixelHebrew.ttf"
-dest_files=["res://.godot/imported/WobblePixelHebrew.ttf-cbfc9b1dd881aacd500e008543714e8b.fontdata"]
+source_file="res://assets/fonts/SababiPixelHebrew.ttf"
+dest_files=["res://.godot/imported/SababiPixelHebrew.ttf-f5c12de240e6a82fa686ab5a233a32cf.fontdata"]
 
 [params]
 

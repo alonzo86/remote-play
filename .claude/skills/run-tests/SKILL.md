@@ -1,6 +1,6 @@
 ---
 name: run-tests
-description: Run the Wobble headless tests and lint. Use after any change to scripts, tests or the Android plugin, or when asked to run tests, lint or check the build.
+description: Run the Sababi headless tests and lint. Use after any change to scripts, tests or the Android plugin, or when asked to run tests, lint or check the build.
 ---
 
 1. Make sure nothing holds the network ports. The tests start a real TV server on TCP 47801 and UDP 47800.

@@ -1,14 +1,21 @@
 extends RefCounted
 ## Small builders for the arcade screens (docs/TV_FLOW.md). Screens are built in code. All UI text is upper case (REQ-FL-39).
 
+const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const MenuItem = preload("res://scripts/ui/menu_item.gd")
 const BlinkLabel = preload("res://scripts/ui/blink_label.gd")
 
 
+## The text of a label or button. A key of the table stays as it is: the node translates it by itself (the table has the text
+## in upper case, REQ-FL-39). Any other text (a name, a number) is set in upper case here.
+static func shown(text: String) -> String:
+	return text if Lang.has(text) else text.to_upper()
+
+
 static func label(text: String, size := UiTheme.SIZE_BODY, color: Color = UiTheme.TEXT) -> Label:
 	var l := Label.new()
-	l.text = text.to_upper()
+	l.text = shown(text)
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
 	l.add_theme_constant_override("line_spacing", size / 4)   # The pixel font has no leading: wrapped lines would touch.
@@ -24,7 +31,7 @@ static func title(text: String, size := UiTheme.SIZE_TITLE, color: Color = UiThe
 ## A prompt that blinks (PRESS OK).
 static func blinking(text: String, size := UiTheme.SIZE_ITEM, color: Color = UiTheme.ACCENT) -> Label:
 	var l: Label = BlinkLabel.new()
-	l.text = text.to_upper()
+	l.text = shown(text)
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -35,7 +42,7 @@ static func blinking(text: String, size := UiTheme.SIZE_ITEM, color: Color = UiT
 ## "quiet" (dim until it has the focus).
 static func item(text: String, cb: Callable, size := UiTheme.SIZE_ITEM, role := "") -> Button:
 	var b: Button = MenuItem.new()
-	b.text = text.to_upper()
+	b.text = shown(text)
 	b.add_theme_font_size_override("font_size", size)
 	match role:
 		"danger":
@@ -59,7 +66,7 @@ static func menu(entries: Array, size := UiTheme.SIZE_ITEM) -> VBoxContainer:
 ## `color`. With the focus (a keyboard on a desktop run) it is yellow; pressed, the box fills with the frame color.
 static func box_button(text: String, cb: Callable, size := UiTheme.SIZE_ITEM, color: Color = UiTheme.TEXT) -> Button:
 	var b := Button.new()
-	b.text = text.to_upper()
+	b.text = shown(text)
 	b.focus_mode = Control.FOCUS_ALL
 	b.add_theme_font_size_override("font_size", size)
 	b.add_theme_stylebox_override("normal", UiTheme.line_box(color))

@@ -4,8 +4,8 @@ This document uses ASD-STE100 style. It shows how to make two Android apps from 
 
 | Preset | Feature tag | Package ID | Runs on |
 |--------|-------------|------------|---------|
-| `tv` | `tv` | `com.example.wobble.tv` | Android TV or streaming box |
-| `controller` | `controller` | `com.example.wobble.controller` | Android phone |
+| `tv` | `tv` | `io.github.alonzo86.sababi.tv` | Android TV or streaming box |
+| `controller` | `controller` | `io.github.alonzo86.sababi.controller` | Android phone |
 
 You can change the package IDs in `export_presets.cfg` (`package/unique_name`).
 The two IDs are different, so you can install both apps on one device.
@@ -35,21 +35,21 @@ The presets use the Gradle build. The Gradle build is necessary for Android TV,
 because Godot adds the `LEANBACK_LAUNCHER` category only with Gradle.
 
 1. Open the project in the Godot editor.
-2. Select **Project > Install Android Build Template**.
-   On the command line, `godot --headless --install-android-build-template --export-debug "controller" build/wobble-controller.apk`
+2. Select **Project > Install Android Build Template**. It makes `android/build`, the project of the `controller` preset. The `tv` preset uses its own project, `android-tv/build` (`gradle_build/gradle_build_directory="android-tv"`), so that the TV app has no Google code scanner and no ML Kit. `tools/setup.sh` installs both. By hand: copy `android/build` to `android-tv/build`, add `android-tv/.build_version` with the same version, and run the patch script in step 3.
+   On the command line, `godot --headless --install-android-build-template --export-debug "controller" build/sababi-controller.apk`
    installs the template and exports once. Run the patch script after it, then export again.
 The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so it is in the export of both apps with the other `assets/` files; no export filter change is needed.
 3. Close the editor dialog. Then run this command in the project folder:
    ```sh
    tools/patch_android_manifest.sh
    ```
-   The script does these things (you can run it again without harm):
+   The script patches both projects (`tools/patch_android_manifest.sh controller` or `tv` for one). It does these things (you can run it again without harm):
    - copies `assets/icons/banner.png` (320 x 180, the logo; `tools/make_icons.gd` makes it and the icons from `assets/logo`) to `android/build/res/drawable-xhdpi/banner.png`;
    - adds `android:banner="@drawable/banner"` to the `<application>` tag in `android/build/src/main/AndroidManifest.xml`;
    - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer,
      all with `required="false"`;
-   - installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
-     `android/build/src/main/java/com/example/wobble/`, adds the Gradle dependency
+   - in `android/build` only (the controller): installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
+     `android/build/src/main/java/io/github/alonzo86/sababi/`, adds the Gradle dependency
      `com.google.android.gms:play-services-code-scanner:16.1.0`, and adds the plugin entry
      (`org.godotengine.plugin.v2.QrScanner`) to the manifest.
 
@@ -66,7 +66,7 @@ The controller app scans the QR code on the TV screen with the Google code scann
   The manifest entry `com.google.mlkit.vision.DEPENDENCIES = barcode_ui` asks Play services to download it at install time.
 - The first build needs internet access for Gradle (to get the dependency from Google Maven).
 - GDScript side: `scripts/net/qr_scanner.gd`. Without the plugin (PC, or a build where you skipped the patch script)
-  the button on the connect screen is **Paste TV link**. It reads `ws://IP:47801/ROOM` from the clipboard.
+  the button on the connect screen is **Paste TV link**. It reads `ws://IP:47801/ROOM?pin=0427` from the clipboard.
 
 ## 3. Export
 
@@ -77,8 +77,8 @@ On the command line (use the same Godot version):
 
 ```sh
 mkdir -p build
-godot --headless --path . --export-debug "tv"         build/wobble-tv.apk
-godot --headless --path . --export-debug "controller" build/wobble-controller.apk
+godot --headless --path . --export-debug "tv"         build/sababi-tv.apk
+godot --headless --path . --export-debug "controller" build/sababi-controller.apk
 ```
 
 For a release build, set a release keystore in the preset (`keystore/release*`) and use `--export-release`.
@@ -86,8 +86,8 @@ For a release build, set a release keystore in the preset (`keystore/release*`) 
 ## 4. Check the result
 
 ```sh
-aapt dump badging build/wobble-tv.apk | grep -E "banner|package:"
-aapt dump xmltree build/wobble-tv.apk AndroidManifest.xml | grep -E "LEANBACK_LAUNCHER|QrScanner"
+aapt dump badging build/sababi-tv.apk | grep -E "banner|package:"
+aapt dump xmltree build/sababi-tv.apk AndroidManifest.xml | grep -E "LEANBACK_LAUNCHER|QrScanner"
 ```
 
 You must see a `banner` entry, `android.intent.category.LEANBACK_LAUNCHER` and `org.godotengine.plugin.v2.QrScanner`.
@@ -104,19 +104,19 @@ If you do not see them, run `tools/patch_android_manifest.sh` again and export a
 4. On your computer (same network):
    ```sh
    adb connect 192.168.1.50:5555
-   adb install -r build/wobble-tv.apk
+   adb install -r build/sababi-tv.apk
    ```
    The TV may ask you to allow the computer. Select **Always allow**.
 5. Start the app. Use the **Apps** row on the home screen, or run:
    ```sh
-   adb shell monkey -p com.example.wobble.tv -c android.intent.category.LEANBACK_LAUNCHER 1
+   adb shell monkey -p io.github.alonzo86.sababi.tv -c android.intent.category.LEANBACK_LAUNCHER 1
    ```
 6. Read the log:
    ```sh
    adb logcat -s godot
    ```
 
-For the phone: connect it with USB (or Wireless debugging), then `adb install -r build/wobble-controller.apk`.
+For the phone: connect it with USB (or Wireless debugging), then `adb install -r build/sababi-controller.apk`.
 Or copy the APK to the phone and open it (allow installs from this source).
 
 ## 6. Run a test session
@@ -137,6 +137,7 @@ Only the controller runs on iOS. The TV app stays on Android TV. Status: written
 3. Install the Godot 4.7.2 export templates (Editor > Manage Export Templates). They include iOS.
 4. Connect the iPhone by cable. Unlock it, tap Trust, and turn on Developer Mode (Settings > Privacy & Security).
 5. Run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. It exports the preset `controller-ios`, builds with `xcodebuild`, installs and launches the app.
+   The app is named "Sababi: Remote" on the home screen, as on Android (FD-27): the script sets it with `INFOPLIST_KEY_CFBundleDisplayName`, because Godot writes the project name. An App Store build needs the same setting.
    `--no-build` reuses the last build. `-d <id>` picks a phone. `IOS_BUNDLE_ID=` changes the bundle ID when a free account says it is taken.
 6. On a free account, trust the developer on the phone (Settings > General > VPN & Device Management). The app stops working after 7 days: deploy again.
 

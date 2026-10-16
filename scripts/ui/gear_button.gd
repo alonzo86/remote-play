@@ -7,7 +7,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_ALL
-	text = "OPTIONS"
+	text = "gear_button.options"
 	add_theme_font_size_override("font_size", UiTheme.SIZE_ITEM)
 	custom_minimum_size = Vector2(0, 84)
 	for st in ["normal", "pressed", "disabled"]:

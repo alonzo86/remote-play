@@ -12,7 +12,7 @@ DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs", "de
 def build() -> str:
 	with open(os.path.join(DIR, "tokens.json"), encoding="utf-8") as f:
 		t = json.load(f)
-	out = ["/* Wobble: generated from tokens.json by tools/design_tokens_css.py. Fonts live in assets/fonts. */", ":root{"]
+	out = ["/* Sababi: generated from tokens.json by tools/design_tokens_css.py. Fonts live in assets/fonts. */", ":root{"]
 	for fam in ("color", "spacing", "border"):
 		for k in t[fam]["tokens"]:
 			out.append("  --%s: %s;" % (k["name"], k["value"]))

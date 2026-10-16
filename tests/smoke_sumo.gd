@@ -157,7 +157,7 @@ func _run() -> void:
 	for s in [0, 1, 2]:
 		game._bodies[s].pos = Vector2.from_angle(2.1 * s) * edge   # Apart, so that the bumps do not push one back in.
 	game._game_tick(0.016)
-	_check(game.phase == game.Phase.BANNER and game.banner_text == "Round draw!" and game._board.score(0) == 2.0
+	_check(game.phase == game.Phase.BANNER and game.banner_text == "ROUND DRAW!" and game._board.score(0) == 2.0
 			and game._board.score(1) == 1.0 and game._board.score(2) == 1.0,
 			"bumpers that fall in the same moment all get the point (REQ-SB-3)")
 	game._banner_left = 0.01
@@ -179,7 +179,8 @@ func _run() -> void:
 	var labels: Array = []
 	for l in game._menu_box.find_children("*", "Label", true, false):
 		labels.append(l.text)
-	_check(game.is_over and buttons == ["TRY AGAIN", "NEW GAME", "BACK TO MENU"] and labels[0] == "SIM0 WINS!"
+	var menu := ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"]
+	_check(game.is_over and buttons == menu and labels[0] == "SIM0 WINS!"
 			and labels[1].ends_with("3 POINTS") and labels[2].ends_with("1 POINT"),
 			"after round 3 the result menu names the winner and lists the points: %s %s" % [str(buttons), str(labels)])
 
@@ -233,7 +234,7 @@ func _run() -> void:
 			"a player who leaves takes the bumper out and the match goes on with two")
 	app.server.kick(1)
 	await _frames(5)
-	_check(game.is_over and game.menu_buttons().map(func(b): return b.text).has("BACK TO MENU"),
+	_check(game.is_over and game.menu_buttons().map(func(b): return b.text).has("minigame.back_to_menu"),
 			"with one player left the match is over at once")
 
 	# The game needs 2 players (REQ-GM-20): with one phone Start is dimmed and says why.

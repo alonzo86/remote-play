@@ -1,3 +1,5 @@
+.DS_Store
+
 # Godot 4.2+ specific ignores
 ~*.dll
 
@@ -28,5 +30,7 @@ mono_crash.*.json
 build/
 android/build/
 android/.build_version
+android-tv/build/
+android-tv/.build_version
 *.apk
 *.aab

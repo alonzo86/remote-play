@@ -46,10 +46,10 @@ func _ready() -> void:
 	# (REQ-GM-90). Back is a quiet item.
 	var line := HBoxContainer.new()
 	box.add_child(line)
-	back_button = UiKit.item("Back", on_back, UiTheme.SIZE_ITEM, "quiet")
+	back_button = UiKit.item("common.back", on_back, UiTheme.SIZE_ITEM, "quiet")
 	line.add_child(back_button)
 	line.add_child(UiKit.spacer(0, true))
-	start_button = UiKit.item("Start", start)
+	start_button = UiKit.item("game_settings.start", start)
 	line.add_child(start_button)
 	# Down from the last row goes to Start, not to Back, and Up from both goes to that row.
 	var last: Control = rows[-1]

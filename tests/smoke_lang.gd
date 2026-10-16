@@ -5,10 +5,12 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
-const Strings = preload("res://scripts/core/strings.gd")
 
 ## Texts that stay as they are in Hebrew: brand names and the room code are not words of a language.
-const KEEP := ["WOBBLE", "1P", "2P", "3P", "4P", "A", "B", "OK", "%S %D/%D"]
+## Keys that code builds from a prefix and a word, so that no script has them as a whole.
+const DYNAMIC_KEYS := ["game_settings.easy", "game_settings.medium", "game_settings.hard"]
+
+const KEEP := ["PIN", "SABABI", "1P", "2P", "3P", "4P", "A", "B", "OK", "%S %D/%D"]
 
 var _fails := 0
 var _checks := 0
@@ -32,13 +34,13 @@ func _frames(n: int) -> void:
 		await process_frame
 
 
-## The Hebrew text of `msg` exists (a plain text in upper case, a format string as it is written).
-func _has_he(msg: String) -> bool:
-	return Strings.HE.has(msg) or Strings.HE.has(msg.to_upper())
+## `key` is a key of the table, and the table has a Hebrew text for it.
+func _has_he(key: String) -> bool:
+	return Lang.has(key) and String(Lang.table()[key].he).strip_edges() != ""
 
 
-## Every literal text that the code gives to the UI has a Hebrew text (REQ-FL-63). A text that code builds from parts is covered
-## by its format string, which `Lang.f()` looks up.
+## Every literal text that the code gives to the UI is a key of the table (REQ-FL-63), so it has a Hebrew text. A text that code
+## builds from parts is covered by its format key, which `Lang.f()` looks up.
 func _untranslated_literals() -> Array:
 	var missing: Array = []
 	var re := RegEx.new()
@@ -49,10 +51,67 @@ func _untranslated_literals() -> Array:
 		var src := FileAccess.get_file_as_string(path)
 		for m in re.search_all(src):
 			var t := m.get_string(1)
-			if t == "" or _has_he(t) or t.to_upper() in KEEP or t.to_upper() == t.to_lower():
+			if t == "" or _has_he(t) or t.to_upper() in KEEP or t.to_upper() == t.to_lower() or t.ends_with("."):
 				continue   # Empty, translated, a brand, or without letters.
 			missing.append("%s: %s" % [path.get_file(), t])
 	return missing
+
+
+## The keys of the table that no script uses. A key that code builds from a prefix ("game_settings." + difficulty) is used by
+## its prefix.
+func _unused_keys(table: Dictionary) -> Array:
+	var src := ""
+	for path in _script_files("res://scripts"):
+		src += FileAccess.get_file_as_string(path)
+	var out: Array = []
+	for k in table:
+		if not src.contains('"' + k + '"') and not (k in DYNAMIC_KEYS):
+			out.append(k)
+	return out
+
+
+## The CSV reader: quotes, commas, line breaks inside a cell, a byte order mark, a missing Hebrew text, a file without the header.
+func _csv_checks() -> void:
+	var csv := "\ufeffkey,en,he,notes\r\n"
+	csv += 'a.b,"One, two","Say ""hi""",x\r\n'
+	csv += 'c.d,"Line\nbreak",,\n\n'
+	var t: Dictionary = Lang.parse_table(csv)
+	_check(t.size() == 2 and t["a.b"].en == "One, two" and t["a.b"].he == 'Say "hi"',
+			"the CSV reader handles commas, quotes and a byte order mark")
+	_check(t["c.d"].en == "Line\nbreak" and t["c.d"].he == "Line\nbreak",
+			"a line break stays in a cell, and a missing Hebrew text falls back to English")
+	var file_rows: Array = Lang.parse_csv(FileAccess.get_file_as_string(Lang.TABLE_FILE))
+	var no_where: Array = []
+	for i in range(1, file_rows.size()):
+		var row: Array = file_rows[i]
+		if row.size() > 0 and row[0] != "" and (row.size() < 4 or String(row[3]).strip_edges() == ""):
+			no_where.append(row[0])
+	_check(file_rows[0].slice(0, 4) == ["key", "en", "he", "where"] and no_where.is_empty(),
+			"the file has the column 'where' and every row says where its text is used " + str(no_where))
+	_check(FileAccess.get_file_as_bytes(Lang.TABLE_FILE).slice(0, 3) == PackedByteArray([0xEF, 0xBB, 0xBF]),
+			"the file starts with a byte order mark, so that Excel shows the Hebrew correctly")
+	var rx := RegEx.create_from_string("%[-+ 0#]*[0-9]*(?:\\.[0-9]+)?[a-zA-Z%]")
+	var mismatched: Array = []
+	for i in range(1, file_rows.size()):
+		var row: Array = file_rows[i]
+		if row.size() < 3 or row[0] == "":
+			continue
+		if _placeholders(rx, row[1]) != _placeholders(rx, row[2]):
+			mismatched.append(row[0])
+	_check(mismatched.is_empty(), "English and Hebrew use the same placeholders in every row " + str(mismatched))
+	_check(_placeholders(rx, "%d of %s, 50%%") == ["%%", "%d", "%s"] and
+			_placeholders(rx, "%d") != _placeholders(rx, "%s"),
+			"the placeholder check sorts the placeholders and tells %d from %s")
+	_check(Lang.parse_table("a,b,c\nx,y,z").is_empty() and Lang.parse_table("").is_empty(),
+			"a text without the header 'key,en,he' gives an empty table")
+
+
+func _placeholders(rx: RegEx, text: String) -> Array:
+	var found: Array = []
+	for m in rx.search_all(text):
+		found.append(m.get_string())
+	found.sort()
+	return found
 
 
 func _script_files(dir: String) -> Array:
@@ -78,14 +137,30 @@ func _run() -> void:
 	var app: Node = root.get_node("App")
 	var saved_settings := FileAccess.get_file_as_string(app.SETTINGS_FILE) if FileAccess.file_exists(app.SETTINGS_FILE) else ""
 
-	# The table: nothing is empty, and every text that the UI can show is in it (REQ-FL-63).
-	var empty: Array = []
-	for k in Strings.HE:
-		if String(Strings.HE[k]).strip_edges() == "":
-			empty.append(k)
-	_check(empty.is_empty(), "no Hebrew text is empty " + str(empty))
+	# The table (assets/lang/strings.csv): every row is complete, and every text that the UI can show is in it (REQ-FL-63).
+	var table: Dictionary = Lang.table()
+	var bad_rows: Array = []
+	var keyre := RegEx.create_from_string("^[a-z0-9_]+\\.[a-z0-9_]+$")
+	var fmtre := RegEx.create_from_string("%[-+0-9.]*[sdf]")
+	for k in table:
+		var en := String(table[k].en)
+		var he := String(table[k].he)
+		if keyre.search(k) == null or en.strip_edges() == "" or he.strip_edges() == "":
+			bad_rows.append(k)
+		elif fmtre.search_all(en).size() != fmtre.search_all(he).size():
+			bad_rows.append(k + " (the values differ)")   # A format key must take the same values in both languages.
+	_check(table.size() > 150 and bad_rows.is_empty(),
+			"every row has a key like 'area.name', an English and a Hebrew text " + str(bad_rows))
+	var same: Array = []
+	for k in table:
+		var en2 := String(table[k].en)
+		if table[k].he == en2 and en2.to_upper() != en2.to_lower() and not (en2.to_upper() in KEEP):
+			same.append(k)
+	_check(same.is_empty(), "no Hebrew text is the English text, except the brands " + str(same))
 	var missing := _untranslated_literals()
-	_check(missing.is_empty(), "every literal text in the code has a Hebrew text " + str(missing))
+	_check(missing.is_empty(), "every literal text in the code is a key of the table " + str(missing))
+	var unused := _unused_keys(table)
+	_check(unused.is_empty(), "every key of the table is used in the code " + str(unused))
 	var games_ok := true
 	for g in Registry.all():
 		games_ok = games_ok and _has_he(String(g.title)) and _has_he(String(g.description))
@@ -93,21 +168,26 @@ func _run() -> void:
 			games_ok = games_ok and _has_he(String(r.label))
 			for t in r.titles:
 				games_ok = games_ok and (_has_he(String(t)) or String(t).begins_with("Track "))
-	_check(games_ok, "every game title, description, setting row and value has a Hebrew text")
+	_check(games_ok, "every game title, description, setting row and value is a key with a Hebrew text")
 	var medals_ok := true
 	for m in ["bronze", "silver", "gold", ""]:
-		medals_ok = medals_ok and _has_he(Medals.label(m))
-	_check(medals_ok, "every medal text has a Hebrew text")
+		Lang.set_language("en", root)
+		var en_label: String = Medals.label(m)
+		Lang.set_language("he", root)
+		medals_ok = medals_ok and Medals.label(m) != en_label
+	_check(medals_ok, "every medal text is different in Hebrew")
+	_csv_checks()
 
 	# The helper.
 	Lang.set_language("en", root)
-	_check(Lang.t("Room code") == "Room code" and Lang.f("Up to %d players", [4]) == "Up to 4 players" and not Lang.is_rtl(),
-			"English text is left as it is, and the layout is left to right")
+	_check(Lang.t("connect.room_code") == "ROOM CODE" and Lang.f("games.up_to_players", [4]) == "Up to 4 players"
+			and not Lang.is_rtl(),
+			"English text comes from the table, and the layout is left to right")
 	Lang.set_language("he", root)
-	_check(Lang.t("Room code") == "קוד חדר" and Lang.f("Up to %d players", [4]) == "עד 4 שחקנים" and Lang.is_rtl(),
-			"Hebrew text is found for a plain text and for a format string")
-	_check(Lang.t("Some new text") == "Some new text" and Lang.t("Alon") == "Alon",
-			"a text without a translation (a name) stays as it is")
+	_check(Lang.t("connect.room_code") == "קוד חדר" and Lang.f("games.up_to_players", [4]) == "עד 4 שחקנים" and Lang.is_rtl(),
+			"Hebrew text is found for a plain text and for a format key")
+	_check(Lang.t("Some new text") == "Some new text" and Lang.t("Alon") == "Alon" and not Lang.has("Alon"),
+			"a text that is not a key (a name) stays as it is")
 	_check(root.get_layout_direction() == Window.LAYOUT_DIRECTION_RTL,
 			"Hebrew sets the layout direction of the window to right to left")
 	Lang.set_language("fr", root)
@@ -221,7 +301,7 @@ func _run() -> void:
 		if screen.has_method("_open_players"):
 			screen._open_players()
 			await _frames(3)
-		var stays := ["SIM", app.server.room_code, "WOBBLE", "OK", "WI-FI", "QR", "F3", "A", "B", "1P", "2P", "3P", "4P"]
+		var stays := ["SIM", app.server.room_code, "SABABI", "OK", "WI-FI", "QR", "PIN", "F3", "A", "B", "1P", "2P", "3P", "4P"]
 		for t in _latin_texts(screen, stays):
 			shown_missing.append("%s: %s" % [screen.get_script().resource_path.get_file(), t])
 	app.go_connect()

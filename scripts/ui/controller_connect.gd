@@ -9,6 +9,7 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const PinPad = preload("res://scripts/ui/pin_pad.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const TvProber = preload("res://scripts/net/tv_prober.gd")
 const ProfileDropdown = preload("res://scripts/ui/profile_dropdown.gd")
@@ -19,6 +20,7 @@ var _list: VBoxContainer
 var _status: Label
 var _qr: Node
 var _search_until_ms := 0
+var _pad: Control   # The PIN pad over the screen, while the player joins from the list.
 var _prober: TvProber
 var os_name := OS.get_name() # A test sets it to "iOS".
 
@@ -32,7 +34,7 @@ static func shows_scan_button(os_name: String) -> bool:
 ## A line under "No TVs found" on an iPhone or iPad: the beacon needs the Local Network permission (REQ-FL-59).
 static func empty_list_hint(os_name: String) -> String:
 	if os_name == "iOS":
-		return Lang.t("No TV? In Settings, allow Local Network for this app, and use the same Wi-Fi as the TV.")
+		return Lang.t("connect.no_rooms_settings_allow")
 	return ""
 
 
@@ -42,7 +44,17 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 24)
 	margin.add_child(box)
 
-	box.add_child(UiKit.title("WOBBLE", 56))
+	# The title and About share the top row. The row mirrors in Hebrew: About is at the right in English, at the left in Hebrew.
+	var top := HBoxContainer.new()
+	box.add_child(top)
+	var title := UiKit.title("SABABI", 56)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(title)
+	var about := UiKit.box_button("common.about", func():
+		App.go(App.AboutScreen, {"back_screen": App.ControllerConnect, "scanner_note": os_name == "Android"}),
+			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	about.custom_minimum_size = Vector2(0, 80)
+	top.add_child(about)
 	box.add_child(ProfileDropdown.new())
 
 	_status = UiKit.label("", UiTheme.SIZE_BODY)
@@ -55,18 +67,18 @@ func _ready() -> void:
 	_qr.failed.connect(_on_qr_failed)
 	if shows_scan_button(os_name):
 		# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
-		var scan_text := "Scan QR code" if _qr.is_available() else "Paste TV link"
+		var scan_text := "connect.scan_qr_code" if _qr.is_available() else "qr_scanner.paste_room_link"
 		var scan := UiKit.box_button(scan_text, _on_scan_pressed, 40)
 		scan.custom_minimum_size = Vector2(0, 150)
 		box.add_child(scan)
 
 	var head := HBoxContainer.new()
 	box.add_child(head)
-	var tv_title := UiKit.label("Discovered TVs", UiTheme.SIZE_BODY)
+	var tv_title := UiKit.label("connect.rooms_found", UiTheme.SIZE_BODY)
 	tv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tv_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	head.add_child(tv_title)
-	var refresh := UiKit.box_button("Refresh", refresh_list, UiTheme.SIZE_BODY)
+	var refresh := UiKit.box_button("connect.refresh", refresh_list, UiTheme.SIZE_BODY)
 	refresh.custom_minimum_size = Vector2(0, 96)
 	head.add_child(refresh)
 
@@ -77,8 +89,10 @@ func _ready() -> void:
 	_prober = TvProber.new()
 	add_child(_prober)
 	_prober.found.connect(App.controller_discovery.add_probed)
+
 	App.controller_discovery.list_changed.connect(_rebuild_list)
 	App.client.state_changed.connect(_on_state)
+	App.client.rejected.connect(_on_rejected)
 	_rebuild_list()
 	_on_state(App.client.state)
 
@@ -92,17 +106,17 @@ func _process(_delta: float) -> void:
 func _on_state(state: int) -> void:
 	match state:
 		ControllerClient.State.CONNECTING, ControllerClient.State.JOINING:
-			_status.text = "CONNECTING..."
+			_status.text = "connect.connecting"
 			_status.add_theme_color_override("font_color", UiTheme.ACCENT)
 		ControllerClient.State.RECONNECTING:
-			_status.text = "RECONNECTING..."
+			_status.text = "connect.reconnecting"
 			_status.add_theme_color_override("font_color", UiTheme.ACCENT)
 		_:
 			if App.last_error != "":
 				_status.text = App.last_error.to_upper()
 				_status.add_theme_color_override("font_color", UiTheme.BAD)
 			else:
-				_status.text = "LOOKING FOR A TV..."
+				_status.text = "connect.looking_for_rooms"
 				_status.add_theme_color_override("font_color", UiTheme.TEXT)
 
 
@@ -122,7 +136,8 @@ func _rebuild_list() -> void:
 	var tvs: Array = App.controller_discovery.sorted_list()
 	if tvs.is_empty():
 		var searching := Time.get_ticks_msec() < _search_until_ms or _prober.running
-		_list.add_child(UiKit.label("Searching..." if searching else "No TVs found", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+		var empty_key := "connect.searching" if searching else "connect.no_rooms_found"
+		_list.add_child(UiKit.label(empty_key, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 		var hint := empty_list_hint(os_name)
 		if not searching and hint != "":
 			var hint_label := UiKit.label(hint, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
@@ -132,7 +147,7 @@ func _rebuild_list() -> void:
 	for tv in tvs:
 		# Only "<code> x/y".
 		var b := UiKit.box_button("%s %d/%d" % [tv.room, tv.players, tv.max],
-				func(): _join(tv.ip, tv.port, tv.room), UiTheme.SIZE_ITEM)
+				func(): _ask_pin(tv.ip, tv.port, tv.room), UiTheme.SIZE_ITEM)
 		b.custom_minimum_size = Vector2(0, 130)
 		_list.add_child(b)
 
@@ -150,21 +165,62 @@ func _on_qr_text(text: String) -> void:
 		return
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():
-		App.last_error = Lang.t("This is not a Wobble code.")
+		App.last_error = Lang.t("connect.not_sababi_code")
 		_on_state(ControllerClient.State.IDLE)
 		return
-	_join(pair.host, pair.port, pair.room)
+	if pair.pin == "":
+		_ask_pin(pair.host, pair.port, pair.room)   # An old link has no PIN.
+	else:
+		_join(pair.host, pair.port, pair.room, pair.pin)
 
 
 func _on_qr_failed(reason: String) -> void:
 	if reason == "cancelled":
 		return
-	App.last_error = Lang.f("QR scan failed: %s", [reason])
+	App.last_error = Lang.f("connect.qr_failed", [reason])
 	_on_state(ControllerClient.State.IDLE)
 
 
-func _join(host: String, port: int, room: String) -> void:
+## A TV that does not know the saved token needs the PIN: the pad opens (a phone that sent a PIN and was refused shows the text).
+func _on_rejected(reason: String) -> void:
+	if reason == "bad_pin" and App.client.pin == "":
+		_ask_pin(App.client.host, App.client.port, App.client.room)
+
+
+## Shows the PIN pad over the screen. The player reads the PIN on the TV (FD-25).
+func _ask_pin(host: String, port: int, room: String) -> void:
+	if _pad != null:
+		return
+	var cover := ColorRect.new()
+	cover.color = UiTheme.BG
+	cover.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(cover)
+	var m := UiKit.margin(cover, 40, 120, 40, 60)
+	var pad: Control = PinPad.new()
+	m.add_child(pad)
+	_pad = cover
+	pad.entered.connect(func(pin: String):
+		_close_pad()
+		_join(host, port, room, pin))
+	pad.cancelled.connect(_close_pad)
+
+
+func _close_pad() -> void:
+	if _pad != null:
+		_pad.queue_free()
+		_pad = null
+
+
+## Back closes the PIN pad. Without a pad it leaves the app, as before.
+func on_back() -> void:
+	if _pad != null:
+		_close_pad()
+	else:
+		App._quit()
+
+
+func _join(host: String, port: int, room: String, pin := "") -> void:
 	_prober.stop()   # A scan and a join must not run together.
 	App.last_error = ""
 	App.client.use_saved_token("")
-	App.client.connect_to(host, port, room)
+	App.client.connect_to(host, port, room, pin)
