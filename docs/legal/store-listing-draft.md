@@ -28,7 +28,7 @@ HOW TO START
 
 THE GAMES
 • Treasure Maze: tilt your phone to roll your ball through the maze to the treasure.
-• The Amazing Race: steer your car along the road and be first over the line.
+• Road Rally: steer your car along the road and be first over the line.
 • Banana Party: point your phone and throw bananas at the hungry animals.
 • Paint Grab: tilt to move your paint blob and cover the floor with your color.
 • Sumo Bumpers: bump your friends off the platform (2 to 4 players).
@@ -51,7 +51,7 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 
 המשחקים
 • Treasure Maze: מטים את הטלפון כדי לגלגל את הכדור במבוך אל האוצר.
-• The Amazing Race: מנווטים את המכונית בכביש ומגיעים ראשונים לקו הסיום.
+• Road Rally: מנווטים את המכונית בכביש ומגיעים ראשונים לקו הסיום.
 • Banana Party: מכוונים את הטלפון וזורקים בננות על חיות רעבות.
 • Paint Grab: מטים כדי להזיז את כתם הצבע ולכסות את הרצפה בצבע שלכם.
 • Sumo Bumpers: דוחפים את החברים מהפלטפורמה (2 עד 4 שחקנים).

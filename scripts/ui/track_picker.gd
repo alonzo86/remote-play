@@ -1,5 +1,5 @@
 extends Control
-## The track carousel of The Amazing Race (REQ-MR-53): the tracks in one line like an image carousel. The track in the middle,
+## The track carousel of Road Rally (REQ-MR-53): the tracks in one line like an image carousel. The track in the middle,
 ## in focus and bigger, is the selected one and has a yellow border; the others get smaller and fainter toward the sides.
 ## A tile is the line sketch of a fixed track, the last one is a question mark (the random track). There are no names.
 ## With the focus, Left and Right on the remote move the line by one track (it stops at the ends, REQ-GM-92). Like a

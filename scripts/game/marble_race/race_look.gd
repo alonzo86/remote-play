@@ -1,5 +1,5 @@
 extends RefCounted
-## The look of The Amazing Race (REQ-MR-44 to 47): a flat pixel world seen from above, in one of three themes (candy, space,
+## The look of Road Rally (REQ-MR-44 to 47): a flat pixel world seen from above, in one of three themes (candy, space,
 ## jungle) that the player picks in the settings view. The cars look the same in every theme; the road, the walls, the ground
 ## and the obstacles are the theme.
 ## The board (the road with its walls and the finish line) is drawn once into an image of world pixels (`render()`); the game

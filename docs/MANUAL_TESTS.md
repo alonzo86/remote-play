@@ -56,7 +56,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-FL-25, REQ-MR-14, REQ-MZ-8 | Fail (item 1, fixed, retest) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (items 2 and 3, fixed, retest) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-54, 56, 57, FD-1 to 17 | Fail (items 2 and 7, fixed, retest) | R1 | |
-| [9](#test-9) | The Amazing Race | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
+| [9](#test-9) | Road Rally | 2 to 4 phones, 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
 | [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-80 to 84, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
@@ -330,7 +330,7 @@ Needs: 1 to 2 phones, 1 TV. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, FD-1 to 17. I
 | 7 | (Moved to Test 17.) Photos of the Connect and Games screens on a TV set to Hebrew; of the phone set to Hebrew | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the TV is set to the IL region and Hebrew. The text was English, but the layout was mirrored (right to left). Fixed on 2026-10-09 (REQ-FL-54): the app sets the locale to English and the layout to left to right. Retest on the TV. The phone was not tried. |
 | 8 | Video of the arrow keys to OPTIONS and in the Players modal; photo of a focused tile in Hebrew | Not run | | | |
 | 9 | Photos of the messages in English and Hebrew | Not run | | | |
-| 10 | Photos of Settings scrolled, a focused tile in Hebrew, the HUD of The Amazing Race in Hebrew, the result menu, the phone header | Not run | | | |
+| 10 | Photos of Settings scrolled, a focused tile in Hebrew, the HUD of Road Rally in Hebrew, the result menu, the phone header | Not run | | | |
 
 History:
 
@@ -338,11 +338,11 @@ History:
 
 ## Test 9
 
-### The Amazing Race (car race before 2026-10-15)
+### Road Rally (car race before 2026-10-15)
 
 Needs: 2 to 4 phones, 1 TV. Covers: REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
-Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "The Amazing Race" and pick a track.
+Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Road Rally" and pick a track.
 
 
 **Steps**
@@ -355,7 +355,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "The Amazi
 6. Check: the frame rate in the debug overlay is 60 (or close) with 4 phones on Hard. (REQ-GM-50)
 7. Let one car run far ahead on a long track (Hard). Check: when the last car leaves the view, an arrow in its color shows at the screen edge with a distance, and you can read it. (REQ-MR-42)
 8. Finish a race on 3 different tracks of the list and on the random track. Write down the winning time of each. (REQ-MR-51)
-9. Open the tile of **The Amazing Race**. Check: the settings view shows Difficulty (Left and Right) and, under it, a carousel of tracks (10 line sketches and a "?", no names), wider than the Difficulty row, with the selected track in the middle. Move the carousel with Left and Right (the track in the middle is the one you get), then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many obstacles. Choose the "?" tile twice: the tracks are different. Try again: the same track again. (REQ-MR-50 to 54)
+9. Open the tile of **Road Rally**. Check: the settings view shows Difficulty (Left and Right) and, under it, a carousel of tracks (10 line sketches and a "?", no names), wider than the Difficulty row, with the selected track in the middle. Move the carousel with Left and Right (the track in the middle is the one you get), then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many obstacles. Choose the "?" tile twice: the tracks are different. Try again: the same track again. (REQ-MR-50 to 54)
 10. During a race, open the pause menu. Check: it has Resume, Try again and Back to menu only. (REQ-MR-32)
 11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the car stops drifting.
 12. **Pixel world (REQ-MR-44, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the race in each theme. Check: the road, the walls, the obstacles and the cars are made of sharp square pixels (not blurred), each car has a black outline and is easy to tell from the road and from the obstacles, and the finish line is a clear black and white band. Let one car run far ahead: the small car stays readable and the edge arrow (item 7) shows. Check the frame rate and that the race starts at once (the road picture is made in the first frame).
@@ -377,7 +377,7 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "The Amazi
 | 10 | Photo of the pause menu | Not run | | | |
 | 11 | Video of a full race on one track and notes for every check in the item | Not run | | | |
 | 12 | Photo of the race from the sofa in each theme; note: sharp pixels, the outline of the cars, the frame rate and the TV | Not run | | | |
-| 13 | Photo of each theme; the settings view with the Theme row; note on the Hebrew texts and on the child | Not run | | | Added 2026-10-15: the race became The Amazing Race (flat pixel world, 3 themes). |
+| 13 | Photo of each theme; the settings view with the Theme row; note on the Hebrew texts and on the child | Not run | | | Added 2026-10-15: the race became Road Rally (flat pixel world, 3 themes). |
 
 Winning times (item 8):
 
@@ -465,10 +465,10 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, 
 
 1. Maze with 1 phone: finish the maze. Check: the title says '<name> wins!', the list has one row '1st  <name>  <time> s', and the buttons are Try again and **Back to menu**. The text is easy to read from the sofa.
 2. Maze with 2 to 4 phones: let one ball reach the exit first. Check: the winner is '1st' with a time, the other balls are listed as 'not finished' (nearest to the exit first), and the list and the buttons stay inside the screen edge (60 px).
-3. The Amazing Race with 4 phones on any track: let all cars finish. Check: the list shows 4 rows with times, best first, and a title with the winner. The card with the list and the 3 buttons (Try again, New game, Back to menu) is inside the screen edge and can be read.
-4. The Amazing Race with 4 phones: let one car finish and wait about 4 seconds for the end. Check: the cars that did not finish are listed as 'not finished', the furthest first.
-5. The Amazing Race, at the results: choose **New game**. Check: the settings view opens with the last difficulty and track, and Back returns to the Games screen.
-6. The Amazing Race: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **New game** and **Back**, then open the results again if they are gone. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
+3. Road Rally with 4 phones on any track: let all cars finish. Check: the list shows 4 rows with times, best first, and a title with the winner. The card with the list and the 3 buttons (Try again, New game, Back to menu) is inside the screen edge and can be read.
+4. Road Rally with 4 phones: let one car finish and wait about 4 seconds for the end. Check: the cars that did not finish are listed as 'not finished', the furthest first.
+5. Road Rally, at the results: choose **New game**. Check: the settings view opens with the last difficulty and track, and Back returns to the Games screen.
+6. Road Rally: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **New game** and **Back**, then open the results again if they are gone. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
 7. Banana Party with 1 phone: play a full round. Check: the title is a medal ('Bronze medal!', 'Silver medal!', 'Gold medal!') or 'No medal this time', and the list has one row with the score. With 2 phones: the title names the winner, or says 'Tie!' for equal scores.
 
 **Results**
@@ -499,7 +499,7 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 
 1. Open the Games screen. Check: every game has a tile with its screenshot, title and player range, and the text is easy to read from the sofa.
 2. For each game, compare its tile with a photo of the game running. Check: the tile shows the same look (colors, outline, shapes) as the game, and the Games screen and the games look like one toy box.
-3. Check the tiles of **Treasure Maze** and **The Amazing Race**. The The Amazing Race tile was made again on 2026-10-09: 4 cars on a bend before a post (Track 1, Hard). The Maze tile was made again too: 4 balls on the way to the exit, the new chip style. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
+3. Check the tiles of **Treasure Maze** and **Road Rally**. Road Rally tile was made again on 2026-10-09: 4 cars on a bend before a post (Track 1, Hard). The Maze tile was made again too: 4 balls on the way to the exit, the new chip style. If a tile and its game differ, tell Claude: the tiles are made again with `tools/make_tiles.gd`.
 4. Check the tile of **Banana Party** (made again on 2026-10-09): it shows the jungle, the animals, four players with scores, an animal that was just hit ("+10") and a banana in the air. Check that the cursors, the hit animal and the banana can be seen at the small size of the tile.
 
 **Results**
@@ -508,7 +508,7 @@ No phones are needed. Needs the TV and the Games screen. New. This is the visual
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the Games screen | Not run | | | |
 | 2 | Photos: tile next to the game, for each game | Not run | | | |
-| 3 | Photos of the old and the new look, and a note | Not run | | | The Amazing Race and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
+| 3 | Photos of the old and the new look, and a note | Not run | | | Road Rally and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
 | 4 | Photo of the tile and of the running game | Not run | | | Banana Party tile remade 2026-10-09 (4 players, a hit, a snowball in the air). |
 
 History:
@@ -756,7 +756,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 2. In the same game, before anybody scores: no chip shows and the phones show only `2P` (or the profile name) and 0. Then score with different phones. Check: the chip changes to the new leader at once; when two phones have the same score it says TIE with a gray square and the score; a score of 4 and 5 digits still fits.
 3. Look at each phone during the game. Check: the line under the header row (not next to Disconnect) shows the place (1ST to 4TH) and the score (`2ND  120`), and it changes when the score changes; it is readable at arm's length; with one phone only the score shows (no place). On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out): the colored square, the player number and Leave are fully visible below the island or the notch, nothing is hidden at the top, at the bottom (the home bar) or at the side when you turn the phone, and A and B are fully on the screen (REQ-FL-68). Open the pause menu: the phone keeps its score. Go back to the menu: the score is gone.
 4. Play Paint Grab and Sumo Bumpers with 2 to 4 phones. Check the same as items 1 to 3. In Sumo Bumpers the name tags show again in the countdown of every round.
-5. Play The Amazing Race with 3 or 4 phones. Check: the leader chip names the first car (with its time after the finish); the phones show their place; a car that has not finished shows no time. Check that the old list of names at the left is gone.
+5. Play Road Rally with 3 or 4 phones. Check: the leader chip names the first car (with its time after the finish); the phones show their place; a car that has not finished shows no time. Check that the old list of names at the left is gone.
 6. Play Treasure Maze with 2 to 4 phones. Check: there is no chip during play (the maze has no score) and the phones show only `2P`.
 7. In every game, look at the countdown. Check: each player's name stands next to its own ball, car, cursor, bumper or blob, in its color; the names do not cover each other (start the maze and Sumo with 4 phones); every name is complete; the tags are gone at GO. Write down where a tag hides something important.
 8. A child of 5 to 8 years plays a game. Check: the child finds its own object by the name in the countdown and reads or understands the number on its phone. Write down what the child says.
@@ -770,7 +770,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 | 2 | Photo of TIE; photo of a 5-digit score | Not run | | | |
 | 3 | Photo of a phone header with place and score | Not run | | | |
 | 4 | Note for Paint Grab and Sumo Bumpers | Not run | | | |
-| 5 | Photo of the The Amazing Race HUD | Not run | | | |
+| 5 | Photo of the Road Rally HUD | Not run | | | |
 | 6 | Note: no chip in the maze | Not run | | | |
 | 7 | Photo of the countdown of each game | Not run | | | |
 | 8 | Note: the child, the age, what happened | Not run | | | |
@@ -799,9 +799,9 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 7. All 32 avatars on the four slot colors and on the smallest ball, from the sofa. A child of 5 to 8 years names five of them and finds its own avatar. Write down which avatars look alike.
 8. The same profile on a second phone joins the same TV while the TV is in a menu. Check: the older phone shows `YOUR PLAYER JOINED ANOTHER PHONE.` and goes to the Connect screen. Then repeat during a round: the second phone waits as a guest and nobody is removed.
 
-9. Play Banana Party, Paint Grab and The Amazing Race (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
+9. Play Banana Party, Paint Grab and Road Rally (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
 10. Close the app and open it again, then join another TV. Check: the profile and the bests are still there (play the same game and see that "BEFORE" is the old score).
-11. Play Treasure Maze, Sumo Bumpers and a random The Amazing Race track with a profile. Check: no NEW BEST! on the phone.
+11. Play Treasure Maze, Sumo Bumpers and a random Road Rally track with a profile. Check: no NEW BEST! on the phone.
 12. Share a profile to a second phone by QR: on the first phone open the list, tap SHARE on a row; on the second phone tap SCAN A PLAYER. Check: the second phone shows PLAYER ADDED. with the same name and avatar. Time how long the code takes to appear and to scan; try it from 30 cm and from 60 cm, with the screen at full and at low brightness.
 13. Share a player that the second phone already has, after a rename on the first phone (the name is newer there): the second phone shows PLAYER UPDATED. and has the newer name and avatar. Then rename on the second phone and scan the old copy again: the newer name stays.
 14. An iPhone: COPY CODE on one phone and PASTE A CODE on the iPhone (the iPhone has no scan button). Check the same result as item 12.

@@ -751,7 +751,7 @@ func _run() -> void:
 	menu._on_tile(Registry.find("marble_race"))
 	await _frames(4)
 	_check(is_instance_of(app.current_screen(), TvGameSettings) and app.current_screen().game_id == "marble_race",
-			"The Amazing Race opens its settings view (REQ-GM-90, REQ-MR-53)")
+			"Road Rally opens its settings view (REQ-GM-90, REQ-MR-53)")
 	app.current_screen().start()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), MarbleRace), "Start begins the race")

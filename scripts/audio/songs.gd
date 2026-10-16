@@ -161,7 +161,7 @@ static func effects() -> Dictionary:
 	# Treasure Maze.
 	fx["maze_bump"] = [_blip(180.0, 120.0, 0.04, 0.22, 0.25)]
 	fx["maze_exit"] = _run(["C5", "E5", "G5", "C6"], 0.09, 0.35)
-	# The Amazing Race.
+	# Road Rally.
 	fx["marble_wall"] = [_noise(5000.0, 3000.0, 0.03, 0.2), _blip(700.0, 500.0, 0.03, 0.15, 0.25)]
 	fx["marble_wall_hard"] = [_noise(6000.0, 3000.0, 0.04, 0.28), _blip(1000.0, 650.0, 0.04, 0.2, 0.25)]
 	fx["marble_bumper"] = [_blip(300.0, 900.0, 0.12, 0.33, 0.25)]

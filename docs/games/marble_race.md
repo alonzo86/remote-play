@@ -1,4 +1,4 @@
-# The Amazing Race (`marble_race`)
+# Road Rally (`marble_race`)
 
 Type: 2D, a pixel world seen from above. Players: 1 to 4. Input: tilt (`PlayerInput.tilt()`), Recenter.
 General requirements: `docs/GAME_REQUIREMENTS.md`. Code: `scripts/game/marble_race/`.
@@ -69,7 +69,7 @@ REQ-GM-90 to 96 apply. The settings view of the race has the Difficulty row, the
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-MR-30 | The Games screen has one "The Amazing Race" tile. It opens the settings view (REQ-GM-90): Difficulty, Theme, the track list, Start and Back. Back returns to the grid with the tile in focus. | Done | smoke_settings |
+| REQ-MR-30 | The Games screen has one "Road Rally" tile. It opens the settings view (REQ-GM-90): Difficulty, Theme, the track list, Start and Back. Back returns to the grid with the tile in focus. | Done | smoke_settings |
 | REQ-MR-31 | The results menu (`open_results()`, REQ-GM-72) names the winner and lists all cars: the finish times first, then the cars that did not finish (by distance). It has Try again, New game and Back to menu. Settings opens the settings view with the last choices. | Done | smoke_tv |
 | REQ-MR-32 | The pause menu has Resume, Try again and Back to menu. A player can leave a race at any time. | Done | smoke_tv (pause menu) |
 | REQ-MR-33 | Try again keeps the track. | Done | smoke_tv |
@@ -111,7 +111,7 @@ In `scripts/game/marble_race/marble_race.gd` unless it says otherwise. Tune them
 - Are the target winning times right? Measure them in Test 9 and update the table.
 - Is the edge arrow (REQ-MR-42) clear enough on a TV? Other options: a smaller car view, or pull the last car forward.
 - Are the cars (64 px high) and the obstacles (about 52 px) big enough from the sofa? They are first guesses.
-- The Hebrew title "המרוץ המופלא" and the three theme names in Hebrew are first guesses (`assets/lang/strings.csv`): a Hebrew reader must check them.
+- The Hebrew title "ראלי כבישים" and the three theme names in Hebrew are first guesses (`assets/lang/strings.csv`): a Hebrew reader must check them.
 - Should the best time of each track be saved? (The results show all finish times. Saving waits until players are identified.)
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)

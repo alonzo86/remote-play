@@ -6,7 +6,7 @@ Godot 4.7 and GDScript. One project makes two apps:
 - **tv**: runs on Android TV or a streaming box. It shows the game.
 - **controller**: runs on up to 4 phones: Android, or an iPhone (unverified, see [docs/EXPORT.md](docs/EXPORT.md)). It sends gyroscope, accelerometer, touch and button data.
 
-The games are minigames that use the phone as a motion controller: a tilt maze, a car race (The Amazing Race, with three themes and several tracks) a pointer game for the whole family: throw bananas at hungry jungle animals (Banana Party), a tilt game where paint blobs paint a floor with a hidden picture and bonus pots (Paint Grab), and a party game where bumpers push each other off a shrinking platform (Sumo Bumpers, 2 to 4 players), and an endless team shooter where tilted spaceships blast waves of falling asteroids and grab upgrades (Galaxy Protector, 1 to 4 players). New minigames are added through the game registry (see below).
+The games are minigames that use the phone as a motion controller: a tilt maze, a car race (Road Rally, with three themes and several tracks) a pointer game for the whole family: throw bananas at hungry jungle animals (Banana Party), a tilt game where paint blobs paint a floor with a hidden picture and bonus pots (Paint Grab), and a party game where bumpers push each other off a shrinking platform (Sumo Bumpers, 2 to 4 players), and an endless team shooter where tilted spaceships blast waves of falling asteroids and grab upgrades (Galaxy Protector, 1 to 4 players). New minigames are added through the game registry (see below).
 
 Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUIREMENTS.md) (per game: `docs/games/`) | [TV flow](docs/TV_FLOW.md) | [manual tests](docs/MANUAL_TESTS.md) | [protocol](docs/PROTOCOL.md) | [export steps](docs/EXPORT.md) | [risks](docs/RISKS.md) | [games roadmap](docs/GAMES_ROADMAP.md) | [design system](docs/design-system/README.md)
 
@@ -35,7 +35,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 - A phone that loses the connection (or is silent for 5 seconds) keeps its slot and reconnects with a token: 30 seconds, and
   5 minutes while a game is paused for it. The game pauses with a card ("2P LOST CONNECTION") and goes on only when the TV user
   chooses Resume (or Resume without the lost phone). When no player is left, the game ends with "No players connected".
-- Player profiles (FD-22, [docs/PROFILES_PLAN.md](docs/PROFILES_PLAN.md)): a phone keeps up to 8 profiles (name of at most 10 characters, one of 32 pixel avatars) in `user://profiles.cfg`. The TV shows the name and the avatar in place of "Player N" and the slot number. The player is chosen on the Connect screen (a dropdown and a + for a new player) and cannot change while the phone is joined: DISCONNECT first. The avatar shows next to the colour on the chips of the game HUD; the objects in a game have only the colour. A player can be copied to another phone with a QR code or a text (SHARE, SCAN A PLAYER, PASTE A CODE). A profile keeps its best score for each game and difficulty (Banana Party, Paint Grab, the 10 tracks of The Amazing Race); the phone says NEW BEST! after a round.
+- Player profiles (FD-22, [docs/PROFILES_PLAN.md](docs/PROFILES_PLAN.md)): a phone keeps up to 8 profiles (name of at most 10 characters, one of 32 pixel avatars) in `user://profiles.cfg`. The TV shows the name and the avatar in place of "Player N" and the slot number. The player is chosen on the Connect screen (a dropdown and a + for a new player) and cannot change while the phone is joined: DISCONNECT first. The avatar shows next to the colour on the chips of the game HUD; the objects in a game have only the colour. A player can be copied to another phone with a QR code or a text (SHARE, SCAN A PLAYER, PASTE A CODE). A profile keeps its best score for each game and difficulty (Banana Party, Paint Grab, the 10 tracks of Road Rally); the phone says NEW BEST! after a round.
 - Sound (FD-20, [docs/AUDIO_PLAN.md](docs/AUDIO_PLAN.md)): the TV plays an arcade-style song for the menus and one for each game, and sound
   effects. It is made in code by a small chip synthesizer (`scripts/audio/`), so there is no audio file. The Settings screen has Music, Effects
   and Mute. The phone makes no sound: it vibrates in games, and its Settings screen (a button on the waiting screen) has a Haptics ON/OFF switch.
@@ -62,7 +62,7 @@ tools/                   make_icons.gd, patch_android_manifest.sh
 docs/                    requirements, protocol, export, risks
 ```
 
-All screens are built in code in the 8-bit arcade style (FD-18, docs/TV_FLOW.md, docs/ARCADE_STYLE_PLAN.md): the menus, the phone and the game shell since phase 1; the worlds of Sumo Bumpers (phase 2), The Amazing Race (phase 3, a flat pixel world since 2026-10-15) and Tilt Maze, Paint Grab and Banana Party (phase 4) and Galaxy Protector (2026-10-16) are pixel worlds (a 480x270 view scaled up, REQ-GM-47i to 47n): all game worlds are pixel worlds now. The UI has two languages, English and Hebrew (right to left), chosen on the first start and in Settings (FD-19): `scripts/core/lang.gd` and `assets/lang/strings.csv` (the key, the English and the Hebrew text of each UI text). Image files: the pixel font and the Hebrew fallback font (`assets/fonts`),
+All screens are built in code in the 8-bit arcade style (FD-18, docs/TV_FLOW.md, docs/ARCADE_STYLE_PLAN.md): the menus, the phone and the game shell since phase 1; the worlds of Sumo Bumpers (phase 2), Road Rally (phase 3, a flat pixel world since 2026-10-15) and Tilt Maze, Paint Grab and Banana Party (phase 4) and Galaxy Protector (2026-10-16) are pixel worlds (a 480x270 view scaled up, REQ-GM-47i to 47n): all game worlds are pixel worlds now. The UI has two languages, English and Hebrew (right to left), chosen on the first start and in Settings (FD-19): `scripts/core/lang.gd` and `assets/lang/strings.csv` (the key, the English and the Hebrew text of each UI text). Image files: the pixel font and the Hebrew fallback font (`assets/fonts`),
 the game tile screenshots (`assets/tiles`, made by `tools/make_tiles.gd`), the logo (`assets/logo`) and the icons.
 
 **Separation rule:** `net/` and `input/` never refer to `game/`.
@@ -83,13 +83,13 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
    from that list. Run `tools/make_tiles.gd` to make the tile screenshot (see the header of that file).
 
 For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_ready()` (build the scene under `world`),
-`_world_tick(delta)` and optionally `_hud_draw(canvas)`. No game uses it now: The Amazing Race (`scripts/game/marble_race/`) was a 3D game until 2026-10-15 and is a flat pixel world now.
+`_world_tick(delta)` and optionally `_hud_draw(canvas)`. No game uses it now: Road Rally (`scripts/game/marble_race/`) was a 3D game until 2026-10-15 and is a flat pixel world now.
 A key object (player, goal, hazard) gets an outline with `add_outlined_mesh()`.
 The 3D world is frozen while the game is paused.
 
 A registry entry may have `props`, set on the game before it starts (and kept for Try again). An entry with a `settings`
 list has a settings view (Difficulty and the rows of the list) before the game: the choices become props of the game
-(`scripts/game/game_settings.gd`, `scripts/ui/tv_game_settings.gd`). The Amazing Race has a Theme row (Candy Road, Space Rally, Jungle Run) and a `tracks` row: 10 fixed tracks and a random one,
+(`scripts/game/game_settings.gd`, `scripts/ui/tv_game_settings.gd`). Road Rally has a Theme row (Candy Road, Space Rally, Jungle Run) and a `tracks` row: 10 fixed tracks and a random one,
 all made from seeds by `MarbleTrack.generate()` in `scripts/game/marble_race/marble_track.gd`. The pause menu does not change settings.
 
 ## Run on a PC
@@ -129,7 +129,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
    The full test plan with pass criteria is in [docs/MANUAL_TESTS.md](docs/MANUAL_TESTS.md).
 5. Run **Treasure Maze** with 1 to 4 phones. If the ball rolls the wrong way, use **Invert tilt axes** on the TV Settings screen
    (the gear on the Games screen).
-6. Run **The Amazing Race** and check the frame rate with 4 phones.
+6. Run **Road Rally** and check the frame rate with 4 phones.
 
 ## Controls
 

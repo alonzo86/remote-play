@@ -11,7 +11,7 @@ extends RefCounted
 ##   props   optional. Values set on the game before it starts.
 ##   settings  optional. The game has a settings view (REQ-GM-90) when this list exists. It lists the rows after Difficulty
 ##             (see game_settings.gd). An empty list means Difficulty only. A row with `"type": "tracks"` is the track list
-##             of The Amazing Race (`scripts/ui/track_picker.gd`).
+##             of Road Rally (`scripts/ui/track_picker.gd`).
 ##   min_players / max_players  allowed player count (REQ-GM-20). The Games screen dims a game that does not fit.
 
 const Lang = preload("res://scripts/core/lang.gd")
