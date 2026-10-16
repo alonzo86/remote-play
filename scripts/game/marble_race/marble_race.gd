@@ -453,7 +453,7 @@ func _game_draw() -> void:
 		Shell.countdown(self, size, str(_round.count_number()), _round.count_elapsed())
 		draw_name_tags(self, _car_spots(), CAR_TAG_RADIUS)
 	elif _round.time < GO_SHOW:
-		Shell.countdown(self, size, "marble_race.go", _round.time / GO_SHOW, UiTheme.OK)
+		Shell.countdown(self, size, "shell.go", _round.time / GO_SHOW, UiTheme.OK)
 	elif not is_over:
 		var lead: Racer = _lead()
 		var to_go := maxf(finish_arc - lead.arc, 0.0)

@@ -25,7 +25,7 @@ Status: Done, Open, or Device (needs a real TV and phones). "Check" names the te
 |----|-------------|--------|-------|
 | REQ-MR-1 | 1 to 4 players. Each phone controls one car. One player is a time trial. | Done | smoke_tv |
 | REQ-MR-2 | Tilt gives acceleration. The car keeps its speed and slows by damping (it slides like the marble did; it turns to face the way it moves, REQ-MR-48). There is no dead zone and no speed limit. | Done | smoke_tv (tilt moves car) |
-| REQ-MR-3 | A countdown of 3 s holds all cars still. At "GO!" every phone buzzes. | Done | smoke_tv (grid wait) |
+| REQ-MR-3 | A countdown of 3 s holds all cars still. At "GO" (the shared countdown text, `shell.go`) every phone buzzes. | Done | smoke_tv (grid wait) |
 | REQ-MR-4 | All cars start on one line across the track, with the same distance to the finish. They do not touch. | Done | smoke_tv |
 | REQ-MR-5 | The car stays on the track. At the edge it bounces back and loses part of its speed. | Done | run_tests (track maths) |
 | REQ-MR-6 | Obstacles are fixed. A car bounces off them with little loss of speed. Each obstacle leaves a gap of one car or more on one side. | Done | run_tests (gap check) |

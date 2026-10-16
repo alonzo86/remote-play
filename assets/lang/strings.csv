@@ -62,7 +62,6 @@ logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים ע
 logo.press_ok_start,PRESS OK TO START,לחצו OK להתחלה,"TV logo screen, first start: prompt to choose a language",
 logo.press_ok_skip,PRESS OK TO SKIP,לחצו OK לדילוג,TV logo screen: prompt to skip the logo,
 marble_race.finish_in,Finish in %d m,%d מ׳ לסיום,"Road Rally HUD: distance to the finish line, %d is meters","the number sign (%d, %.1f ...) is replaced by a number"
-marble_race.go,GO!,קדימה!,Road Rally: GO! after the countdown,
 marble_race.meters,%d m behind,%d מ׳ מאחור,"Road Rally: marker at the screen edge for a car that is out of view, %d is meters behind the leader","the number sign (%d, %.1f ...) is replaced by a number"
 marble_race.random_track,RANDOM TRACK,מסלול אקראי,"Road Rally: name of the random track, HUD and track choice",
 maze.hold_phone_level_it,HOLD THE PHONE LEVEL. IT RECENTERS AT GO.,החזיקו את הטלפון ישר. הוא מתמרכז כשהמשחק מתחיל.,Treasure Maze: hint during the countdown,
@@ -163,7 +162,7 @@ settings.shows_link_each_phone,SHOWS THE LINK OF EACH PHONE. THE MENU KEY OR F3 
 settings.track_n,Track %d,מסלול %d,"Road Rally: name of a fixed track, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 settings.turns_off_music_effects,TURNS OFF THE MUSIC AND THE EFFECTS.,מכבה את המוזיקה ואת האפקטים.,TV Settings: help line of the Mute row,
 settings.use_when_ball_rolls,USE THIS WHEN A BALL ROLLS THE WRONG WAY.,השתמשו בזה כשכדור מתגלגל לכיוון הלא נכון.,TV Settings: help line of the Invert tilt axes row,
-shell.go,GO,קדימה,"Countdown of every game: GO (Treasure Maze, Banana Party, Paint Grab, Sumo Bumpers, Galaxy Protector)",
+shell.go,GO,קדימה,"Countdown of every game: GO (Treasure Maze, Road Rally, Banana Party, Paint Grab, Sumo Bumpers, Galaxy Protector)",
 shell.seconds,%.1f S,%.1f ש׳,"Game HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 shell.tie,TIE,תיקו,Game HUD: leader chip when two or more players share first place,
 snowball_splat.point_at_tv_press,POINT AT THE TV AND PRESS A TO THROW A BANANA. RECENTER IF THE CURSOR DRIFTS.,כוונו אל הטלוויזיה ולחצו A כדי לזרוק בננה. מרכזו אם הסמן סוטה.,Banana Party: hint during the countdown,
