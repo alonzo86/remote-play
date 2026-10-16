@@ -33,21 +33,24 @@ const FUR := {
 # ---- Scene ----
 
 ## The jungle: the sky with the sun, two rows of hills, trunks with vines, leaves in the corners, the ground in three lanes, and
-## a few leaves that drift down. `t` is the game time (the leaves stand still while the game is paused).
-static func draw_scene(ci: CanvasItem, area: Vector2, t: float) -> void:
+## a few leaves that drift down. `t` is the game time (the leaves stand still while the game is paused). `bar` is the height of the
+## HUD bar that covers the top of the screen: the sky, the vines and the treetops are drawn under it, so they can be seen.
+static func draw_scene(ci: CanvasItem, area: Vector2, t: float, bar := 0.0) -> void:
 	var px := Shell.WORLD_PIXEL
 	var ground_y := snappedf(area.y * GROUND_TOP, px)
-	var band := ceilf(ground_y / float(SKY_BANDS))
+	var sky_h := ground_y - bar
+	var band := ceilf(sky_h / float(SKY_BANDS))
 	for i in SKY_BANDS:
-		ci.draw_rect(Rect2(0.0, band * i, area.x, band + 1.0), SKY_TOP.lerp(SKY_BOTTOM, float(i) / float(SKY_BANDS - 1)))
+		ci.draw_rect(Rect2(0.0, bar + band * i, area.x, band + 1.0), SKY_TOP.lerp(SKY_BOTTOM, float(i) / float(SKY_BANDS - 1)))
 	var sun := Vector2(snappedf(area.x * 0.78, px), snappedf(ground_y - 150.0, px))
 	ci.draw_circle(sun, 60.0, SUN)
-	for layer in 2:
+	for layer in 2:   # The far hills are lighter and higher, the near hills are darker and 8 world pixels lower.
 		var color: Color = HILL_FAR if layer == 0 else HILL_NEAR
 		for col in int(area.x / (5.0 * px)) + 1:
 			var x := col * 5.0 * px
-			var h := 72.0 + 32.0 * sin(col / 17.0 + layer) + 24.0 * sin(col / 6.0 + layer * 2.0) + layer * 32.0
-			ci.draw_rect(Rect2(x, ground_y - snappedf(h, px) - 10.0 * px, 5.0 * px, snappedf(h, px) + 10.0 * px), color)
+			var h := 72.0 + 32.0 * sin(col / 17.0 + layer) + 24.0 * sin(col / 6.0 + layer * 2.0)
+			var y0 := ground_y - snappedf(h, px) - 10.0 * px + layer * 8.0 * px
+			ci.draw_rect(Rect2(x, y0, 5.0 * px, ground_y - y0), color)
 	for i in LANE_EDGES.size():
 		var top := snappedf(area.y * float(LANE_EDGES[i]), px)
 		var bottom := area.y if i == LANE_EDGES.size() - 1 else snappedf(area.y * float(LANE_EDGES[i + 1]), px)
@@ -63,15 +66,20 @@ static func draw_scene(ci: CanvasItem, area: Vector2, t: float) -> void:
 			k += 1
 	for share in TRUNKS:
 		var tx := snappedf(area.x * float(share), px)
-		ci.draw_rect(Rect2(tx - px, 0.0, 5.0 * px, ground_y + 2.0 * px), OUTLINE)
-		ci.draw_rect(Rect2(tx, 0.0, 3.0 * px, ground_y + 2.0 * px), TRUNK)
+		ci.draw_rect(Rect2(tx - px, bar, 5.0 * px, ground_y + 2.0 * px - bar), OUTLINE)
+		ci.draw_rect(Rect2(tx, bar, 3.0 * px, ground_y + 2.0 * px - bar), TRUNK)
 	for share in [0.12, 0.28, 0.45, 0.62, 0.84]:
 		var vx := snappedf(area.x * float(share), px)
-		ci.draw_rect(Rect2(vx, 0.0, 2.0 * px, 38.0 * px + 10.0 * px * fmod(share * 13.0, 3.0)), VINE)
-	for corner in [[0.0, 0.0, 130.0], [0.12, 0.0, 80.0], [1.0, 0.0, 140.0], [0.85, 0.0, 80.0], [0.5, 0.0, 60.0]]:
-		var c := Vector2(snappedf(area.x * float(corner[0]), px), 0.0)
-		ci.draw_circle(c, float(corner[2]) + px, OUTLINE)
-		ci.draw_circle(c, float(corner[2]), LEAF)
+		ci.draw_rect(Rect2(vx, bar, 2.0 * px, 38.0 * px + 10.0 * px * fmod(share * 13.0, 3.0)), VINE)
+	# The treetops: a cluster of round leaf blobs on every trunk, with a black outline, so the whole tree can be seen. Each is
+	# [share of the width, blob radius in world pixels, height under the bar in world pixels].
+	for tree in [[0.0, 22.0, 6.0], [0.055, 18.0, 10.0], [0.117, 20.0, 5.0], [0.78, 24.0, 7.0], [0.953, 22.0, 6.0], [0.5, 14.0, 4.0]]:
+		var c := Vector2(snappedf(area.x * float(tree[0]) + px, px), bar + float(tree[2]) * px)
+		var r: float = float(tree[1]) * px
+		for blob in [Vector2(-0.7, 0.35), Vector2(0.7, 0.35), Vector2(0.0, -0.1)]:
+			ci.draw_circle(c + blob * r, r * 0.8 + px, OUTLINE)
+		for blob in [Vector2(-0.7, 0.35), Vector2(0.7, 0.35), Vector2(0.0, -0.1)]:
+			ci.draw_circle(c + blob * r, r * 0.8, LEAF)
 	var n := 0
 	for layer in LEAVES.size():   # Drifting leaves: small squares that fall slowly, in three speeds.
 		for i in int(LEAVES[layer]):

@@ -249,7 +249,7 @@ func _pixel_world() -> bool:
 ## The world: the jungle, the animals, the bananas, the effects and the cursors. All text is drawn by the HUD (REQ-GM-47n).
 func _world_draw(ci: CanvasItem) -> void:
 	var area := _area()
-	BananaLook.draw_scene(ci, size, _scene_time)
+	BananaLook.draw_scene(ci, size, _scene_time, BAR_H)
 	for p in _field.puffs:
 		_draw_animal(ci, PuffField.center_of(p, area), p.kind, false, p.dir, 1.0)
 	for e in _effects:
