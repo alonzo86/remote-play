@@ -175,5 +175,15 @@ func pointer() -> Vector2:
 	return orientation.pointer()
 
 
+## The turn of the phone since the last recenter in radians, positive to the left (REQ-BW-4).
+func yaw_offset() -> float:
+	return orientation.yaw_offset()
+
+
+## The acceleration of the phone without gravity, in the phone frame (REQ-BW-5).
+func linear_accel() -> Vector3:
+	return orientation.linear_accel(accel)
+
+
 func is_down(bit: int) -> bool:
 	return (buttons & bit) != 0

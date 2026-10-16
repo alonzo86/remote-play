@@ -7,13 +7,14 @@ extends RefCounted
 ## Numbers: 1 to 3 Banana Party, id snowball_splat (easy, medium, hard), 4 to 6 Paint Grab, 7 to 36 Marble Race: 7 + 10 *
 ## difficulty + (track - 1).
 ## 37 to 39 Galaxy Protector (easy, medium, hard).
+## 40 to 42 Pin Pals, id bowling (easy, medium, hard), only without rails.
 ## Treasure Maze, Sumo Bumpers and a random Road Rally track have no key (the owner, 2026-10-10).
 
 const Lang = preload("res://scripts/core/lang.gd")
 
 const DIFFICULTIES: Array[String] = ["easy", "medium", "hard"]
 const TRACKS := 10
-const MAX_KEYS := 39   # What a code can hold (plan 6.1). The table has 39.
+const MAX_KEYS := 42   # What a code can hold (plan 6.1). The table has 42.
 
 static var _keys: Array[String] = []
 
@@ -29,6 +30,8 @@ static func all_keys() -> Array[String]:
 				_keys.append("marble_race|%s|%d" % [d, t])
 		for d in DIFFICULTIES:
 			_keys.append("asteroid_blast|%s" % d)
+		for d in DIFFICULTIES:
+			_keys.append("bowling|%s" % d)
 	return _keys
 
 
