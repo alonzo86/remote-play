@@ -103,6 +103,14 @@ func _run() -> void:
 	_check(clients[0].turn_state == 1 and clients[1].turn_state == 2 and clients[1].turn_who == game.player(0).player_name,
 			"the phone on turn gets YOUR TURN and the other phone gets the name of the player on turn (REQ-BW-14)")
 
+	# The same turn message is not sent again (REQ-BW-14).
+	var turn_events := []
+	clients[1].score_changed.connect(func(): turn_events.append(clients[1].turn_state))
+	app.server.send_turn(1, 2, game.player(0).player_name)
+	app.server.send_turn(1, 2, game.player(0).player_name)
+	await _stream(clients, 0.2, [flat, flat])
+	_check(turn_events.is_empty() and clients[1].turn_state == 2, "a turn message that was sent already is not sent again")
+
 	# Turning the phone does not move the aim of the phone that is not on turn; a swing of the wrong phone does nothing.
 	await _stream(clients, 0.4, [flat, flat + Vector3(0, 9, 0)])
 	await _stream(clients, 0.4, [flat, flat + Vector3(0, -15, 0)])
@@ -190,6 +198,10 @@ func _run() -> void:
 	_check(fits_ok, "the score sheet sits under the lane at 1280x720 and 1920x1080 (REQ-BW-12)")
 	root.size = Vector2i(1920, 1080)
 	await _frames(3)
+	app.go_menu()
+	await _stream(clients, 0.3, [flat, flat])
+	_check(clients[0].turn_state == 0 and clients[1].turn_state == 0 and clients[1].turn_who == "",
+			"the menu clears the turn line on the phones (REQ-BW-14)")
 
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
