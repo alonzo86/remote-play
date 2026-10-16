@@ -20,7 +20,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 4
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 21). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 22). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | REQ-GM-81: the ships shoot toy beams at lifeless gray rocks; no person, animal or creature is hurt, and a ship that is hit bursts into colored pixels. REQ-GM-83: a hit costs no points; a player who is out keeps the points and watches, and the game ends when the last ship is out, so the wait lasts only as long as the others fly (REQ-AB-14). The hint is one line. Texts are positive ("Wave 3 clear!"). |
 
@@ -81,7 +81,7 @@ Settings (REQ-GM-90 to 97)
 
 ## Parameters
 
-Values that change how the game feels. Tune them on a device (Test 21). First values, all in `space_field.gd`:
+Values that change how the game feels. Tune them on a device (Test 22). First values, all in `space_field.gd`:
 
 | Name | First value |
 |------|-------------|
@@ -109,11 +109,11 @@ The song `asteroid_blast` plays from "GO": a bright, driving march at 140 BPM, A
 
 | ID | Effect | When | Sound | Status |
 |----|--------|------|-------|--------|
-| REQ-AB-S1 | `blast_boom` | An asteroid is destroyed. | A short pop and a low thud | Device (test 18, 21) |
-| REQ-AB-S2 | `blast_pickup` | A ship takes an upgrade (haptic 30 ms). | Rising three-note run | Device (test 18, 21) |
-| REQ-AB-S3 | `blast_shield` | A force field takes a hit (haptic 80 ms). | A falling blip with a puff | Device (test 18, 21) |
-| REQ-AB-S4 | `blast_lost` | A ship is lost (haptic 400 ms). | A long falling boom, not scary | Device (test 18, 21) |
-| REQ-AB-S5 | `blast_wave` | A wave ends, and the next wave starts. | Short rising run | Device (test 18, 21) |
+| REQ-AB-S1 | `blast_boom` | An asteroid is destroyed. | A short pop and a low thud | Device (test 18, 22) |
+| REQ-AB-S2 | `blast_pickup` | A ship takes an upgrade (haptic 30 ms). | Rising three-note run | Device (test 18, 22) |
+| REQ-AB-S3 | `blast_shield` | A force field takes a hit (haptic 80 ms). | A falling blip with a puff | Device (test 18, 22) |
+| REQ-AB-S4 | `blast_lost` | A ship is lost (haptic 400 ms). | A long falling boom, not scary | Device (test 18, 22) |
+| REQ-AB-S5 | `blast_wave` | A wave ends, and the next wave starts. | Short rising run | Device (test 18, 22) |
 
 The beams have no sound: with 4 ships firing, a sound for every shot would be noise.
 
