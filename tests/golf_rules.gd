@@ -48,7 +48,7 @@ func _roll(sim: Sim, heading: float, speed: float) -> void:
 
 func _flat_hole() -> Dictionary:
 	return {"par": 2, "tee": Vector2(0.0, 1.0), "cup": Vector2(0.0, 5.0), "fairway": [Rect2(-1.0, 0.75, 2.0, 5.0)],
-			"water": [], "bridges": [], "bumpers": [], "blocks": [], "rocks": [], "movers": []}
+			"water": [], "bridges": [], "spinners": [], "blocks": [], "rocks": [], "movers": []}
 
 
 ## REQ-MG-12: five holes with a par of 2 to 4, and a tee and a cup on the ground, away from the things on the course.
@@ -72,7 +72,7 @@ func _holes() -> void:
 			for tt in [0.0, 1.0, 2.0, 3.0, 4.0]:
 				var mr: Rect2 = Holes.mover_rect(m, tt)
 				clear = clear and not mr.grow(0.3).has_point(h.tee) and not mr.grow(0.3).has_point(h.cup)
-		_check(clear, "hole %d: no water, bumper, rock or barrier on the tee or the cup" % n)
+		_check(clear, "hole %d: no water, blade, rock or barrier on the tee or the cup" % n)
 	_check(Holes.hole(0) == Holes.hole(1) and Holes.hole(9) == Holes.hole(5), "a hole number outside 1 to 5 gives the nearest hole")
 	_check(Holes.par_total(3) == 8 and Holes.par_total(5) == 15 and Holes.par_total(0) == 0, "the par of the first holes together")
 
@@ -110,9 +110,9 @@ func _ball() -> void:
 			and Sim.heading_to_cup(_flat_hole(), Vector2(-1.0, 5.0)) > 1.4, "the heading to the cup")
 
 
-## REQ-MG-9, 10: water sends the ball back, a bridge lets it over, a bumper and a block bounce it.
+## REQ-MG-9, 10: water sends the ball back, a bridge lets it over, a blade and a block bounce it.
 func _obstacles() -> void:
-	print("water, bridges, bumpers")
+	print("water, bridges, blades")
 	var h := _flat_hole()
 	h.water = [Rect2(-1.0, 2.8, 2.0, 0.6)]
 	var wet := Sim.new()
@@ -158,17 +158,17 @@ func _obstacles() -> void:
 	_check(not Holes.mover_rect(h.movers[0], squeezed.clock).grow(Holes.BALL_R).has_point(squeezed.pos),
 			"a barrier that slides into the ball pushes it out")
 	h = _flat_hole()
-	h.bumpers = [Vector3(0.0, 3.0, 0.2)]
-	var bump := Sim.new()
-	bump.start(h, Vector2(0.0, 1.0))
+	h.spinners = [{"c": Vector2(0.0, 3.0), "len": 0.5, "speed": 0.0}]
+	var blade := Sim.new()
+	blade.start(h, Vector2(0.0, 1.0))
 	var hit := false
 	var back := false
-	bump.putt(0.0, 3.0)
-	while not bump.finished:
-		bump.tick(DT)
-		hit = hit or not bump.events.filter(func(e: Dictionary) -> bool: return e.t == "bumper").is_empty()
-		back = back or bump.vel.y < -0.1
-	_check(hit and back, "a bumper bounces the ball back (REQ-MG-10)")
+	blade.putt(0.0, 3.0)
+	while not blade.finished:
+		blade.tick(DT)
+		hit = hit or not blade.events.filter(func(e: Dictionary) -> bool: return e.t == "blade").is_empty()
+		back = back or blade.vel.y < -0.1
+	_check(hit and back, "a turning blade bounces the ball (REQ-MG-10)")
 	h = _flat_hole()
 	h.blocks = [Rect2(-0.3, 3.0, 0.6, 0.3)]
 	var blocked := Sim.new()

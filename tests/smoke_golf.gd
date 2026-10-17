@@ -143,7 +143,7 @@ func _run() -> void:
 	game._after_hole()
 	_check(game.rules.hole_number() == 2 and game.phase == game.Phase.AIM and game.sim.pos == Vector2(game._hole.tee)
 			and game._balls.is_empty(), "the next hole starts from its tee with new balls (REQ-MG-12)")
-	await _frames(3)   # The second hole has a windmill, bumpers and water.
+	await _frames(3)   # The second hole has a windmill, a blade and water.
 
 	# A player that leaves is taken out of the rules and the board (REQ-MG-11).
 	game._on_player_left(0)

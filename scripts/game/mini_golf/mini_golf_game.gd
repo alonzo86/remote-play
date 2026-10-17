@@ -67,7 +67,6 @@ var _a_down := {}
 var _splash_at := Vector2.ZERO
 var _splash_age := 99.0
 var _spark_age := 99.0
-var _pulse := 0.0
 var _last_event := {}
 var _putter := -1               # The slot of the golfer who is drawn.
 var _balls := {}                # slot -> where the ball of that player lies on this hole.
@@ -137,7 +136,6 @@ func _start_turn() -> void:
 
 func _game_tick(delta: float) -> void:
 	_time += delta
-	_pulse = maxf(0.0, _pulse - delta * 4.0)
 	_splash_age += delta
 	_spark_age += delta
 	_swing_age += delta
@@ -230,9 +228,8 @@ func _tick_roll(delta: float) -> void:
 		match String(e.t):
 			"wall", "rock", "mover":
 				Sound.sfx("golf_wall")
-			"bumper":
-				Sound.sfx("golf_bumper")
-				_pulse = 1.0
+			"blade":
+				Sound.sfx("golf_blade")
 	if sim.finished:
 		_putt_done()
 
@@ -346,15 +343,20 @@ func _world_draw(ci: CanvasItem) -> void:
 	var geo := _geo()
 	GolfLook.draw_ground(ci, size, rules.hole_number())
 	var blocks: Array = _hole.blocks
-	if not blocks.is_empty():
-		GolfLook.draw_windmill(ci, geo, blocks[0], _time)
+	var windmill: bool = _hole.get("windmill", false)
 	var things: Array = []
-	for b in _hole.bumpers:
-		things.append([float(Vector3(b).y), func() -> void: GolfLook.draw_bumper(ci, geo, b, _pulse)])
+	for i in blocks.size():
+		var block: Rect2 = blocks[i]
+		if windmill and i == 0:
+			things.append([block.end.y, func() -> void: GolfLook.draw_windmill(ci, geo, block, _time)])
+		else:
+			things.append([block.end.y, func() -> void: GolfLook.draw_box(ci, geo, block, true)])
 	for r in _hole.rocks:
 		things.append([float(Vector3(r).y), func() -> void: GolfLook.draw_rock(ci, geo, r)])
 	for m in _hole.movers:
-		things.append([Holes.mover_rect(m, _time).end.y, func() -> void: GolfLook.draw_mover(ci, geo, Holes.mover_rect(m, _time))])
+		things.append([Holes.mover_rect(m, _time).end.y, func() -> void: GolfLook.draw_box(ci, geo, Holes.mover_rect(m, _time), false)])
+	for sp in _hole.spinners:
+		things.append([Vector2(sp.c).y + float(sp.len), func() -> void: GolfLook.draw_spinner(ci, geo, sp, _time)])
 	things.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
 	for th in things:
 		th[1].call()

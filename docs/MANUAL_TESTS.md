@@ -1082,7 +1082,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 4. **Aim.** Turn the phone left and right. Check: the aim mark follows the direction smoothly and not too fast or slow, RECENTER sets straight ahead, and the direction locks when you swing back (the mark turns gold). Write down if the turn range feels right.
 5. **Power.** Putt with a soft, a medium and a hard swing. Check: the ball goes short, medium and far, the golfer swings through at the hit, the phone buzzes, and a small movement is not a putt. Write down the delay between the swing and the ball moving, and if a normal putt goes too far or too short.
 6. **Turn order.** With 2 and 4 phones check: each player putts once, in slot order, and the balls stay where they stopped. A player who is in the hole is skipped.
-7. **Obstacles.** On holes 2 to 5 check: walls bounce the ball, bumpers push it, the windmill block bounces the ball, rocks (holes 1, 2, 4 and 5) bounce it, the sliding barriers (holes 3 and 5) can be timed and never block the whole course, and the lake (holes 2 and 4) gives a splash unless the ball crosses the bridge and sends the ball back to the last spot (no extra stroke is counted besides the putt). Write down any hole that is too hard or too easy.
+7. **Obstacles.** On holes 2 to 5 check: walls bounce the ball, the brick walls and the windmill block bounce it, rocks bounce it, the turning blades (holes 2, 4 and 5) push it, the sliding barriers (holes 3 and 5) can be timed and never block the whole course, and the lake (holes 2 and 4) gives a splash unless the ball crosses the bridge and sends the ball back to the last spot (no extra stroke is counted besides the putt). Write down any hole that is too hard or too easy.
 8. **Holes and words.** Play 5 holes (set Holes to 5). Check: BIRDIE, PAR, BOGEY, HOLE IN ONE and "Picked up after 6 strokes" show at the right strokes, the card at the end of each hole has the strokes of the hole and the total, A skips it, and the bar counts the strokes.
 9. **Difficulty.** Play a hole on Easy, Medium and Hard. Check: Easy has a long aim line and the hint about the swing and a weak swing still moves the ball far, Medium a short line, Hard only the marker. The courses are the same.
 10. **Result.** Finish a match with 2 phones, then alone. Check: the result menu has the winner (or TIE) and, alone, a medal (gold at par or better, silver at most 1 over par per hole, bronze at most 2 over). Try again, New game and Back to menu work. Write down how long a 3 hole match took.
@@ -1101,7 +1101,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 | 4 | Note: the turn range of the aim, RECENTER | Not run | | | |
 | 5 | Video of soft, medium and hard putts; note: the delay in ms | Not run | | | |
 | 6 | Note: the order with 2 and 4 phones | Not run | | | |
-| 7 | Video of the windmill, a bumper, a rock, a sliding barrier, the lake and the bridge; note on the holes | Not run | | | |
+| 7 | Video of the windmill, a brick wall, a turning blade, a rock, a sliding barrier, the lake and the bridge; note on the holes | Not run | | | |
 | 8 | Photo of the card of a hole and of each banner | Not run | | | |
 | 9 | Photo of the aim on each difficulty | Not run | | | |
 | 10 | Photo of the result menu and the medal; note: the time of a match | Not run | | | |
