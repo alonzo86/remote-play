@@ -6,10 +6,12 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 
+const SWING_LOCK_S := 0.4   # After a swing the next one can be found after this time (a bowling throw waits 1.5 s).
+
 enum State { EMPTY, CONNECTED, LOST }
 
 signal button_pressed(bit: int)
-signal swung(info: Dictionary)   # A swing was found (`SwingDetector.feed()`); the hit is `info.latency_ms` ms old.
+signal swung(info: Dictionary)   # A swing was thrown (see `_feed_swing()`): the power, the direction and how old the hit is.
 
 var slot := 0
 var state: State = State.EMPTY
@@ -22,8 +24,11 @@ var token := ""
 var lost_since_ms := 0
 
 var orientation: OrientationFusion
-var swing := SwingDetector.new()
-var last_swing_ms := 0   # TV time of the last swing, for the debug overlay.
+var swing := SwingDetector.new()   # Fed here for every phone, so that the debug overlay can show swings. Tennis reads `swung`.
+var last_swing: Dictionary = {}    # The last `swung` info, empty before the first.
+var last_swing_ms := 0             # TV time of the last swing, for the debug overlay.
+var swing_count := 0
+
 
 # Latest raw values
 var gyro := Vector3.ZERO
@@ -48,10 +53,12 @@ var _window_start_ms := 0
 var _window_count := 0
 var _window_max_gap := 0
 var _prev_buttons := 0
+var _swing_ts := -1
 
 
 func _init(p_slot: int, settings: Dictionary) -> void:
 	slot = p_slot
+	_new_swing_detector()
 	color = Protocol.PLAYER_COLORS[p_slot % Protocol.PLAYER_COLORS.size()]
 	orientation = OrientationFusion.new(settings)
 
@@ -86,7 +93,7 @@ func reset() -> void:
 	_last_seq = -1
 	_window_count = 0
 	orientation = OrientationFusion.new(orientation.settings)
-	swing = SwingDetector.new()
+	_new_swing_detector()
 
 
 ## Called when a phone (re)joins this slot.
@@ -143,10 +150,7 @@ func on_sensor(pkt: Dictionary, now_ms: int) -> void:
 	if has_clock:
 		sensor_age_ms = now_ms - (pkt.ts + clock_offset_ms)
 	orientation.update(pkt.ts, pkt.gyro, pkt.accel)
-	var found := swing.feed(pkt.ts, pkt.gyro, pkt.accel, orientation.up)
-	if not found.is_empty():
-		last_swing_ms = now_ms
-		swung.emit(found)
+	_feed_swing(pkt, now_ms)
 	for bit in [Protocol.BTN_A, Protocol.BTN_B]:
 		if pressed_bits & bit:
 			button_pressed.emit(bit)
@@ -184,5 +188,48 @@ func pointer() -> Vector2:
 	return orientation.pointer()
 
 
+## The turn of the phone since the last recenter in radians, positive to the left (REQ-BW-4).
+func yaw_offset() -> float:
+	return orientation.yaw_offset()
+
+
+## The acceleration of the phone without gravity, in the phone frame (REQ-BW-5).
+func linear_accel() -> Vector3:
+	return orientation.linear_accel(accel)
+
+
 func is_down(bit: int) -> bool:
 	return (buttons & bit) != 0
+
+
+# ---- swing (for the games that hit a ball with a swing) ----
+
+func _new_swing_detector() -> void:
+	swing = SwingDetector.new()
+	swing.lock_after = SWING_LOCK_S
+	last_swing = {}
+	swing_count = 0
+	_swing_ts = -1
+
+
+## Feeds the swing detector with one sensor packet. When a swing is thrown, `swung` is emitted with: `power` (0 to 1),
+## `down` (a swing from top to bottom, like a serve), `forward_dir` (the direction in the phone frame), `hit_age_ms`
+## (the hit was this long ago) and `tilt` (the tilt of the phone, for left or right).
+func _feed_swing(pkt: Dictionary, now_ms: int) -> void:
+	var dt := 0.0
+	if _swing_ts >= 0:
+		dt = clampf(((pkt.ts - _swing_ts) & 0xFFFFFFFF) / 1000.0, 0.0, 0.1)
+	_swing_ts = pkt.ts
+	swing.update(dt, orientation.linear_accel(pkt.accel))
+	if not swing.released:
+		return
+	last_swing = {
+		"power": swing.power,
+		"down": SwingDetector.is_down(swing.forward_dir, orientation.up),
+		"forward_dir": swing.forward_dir,
+		"hit_age_ms": swing.hit_age * 1000.0,
+		"tilt": orientation.tilt(),
+	}
+	last_swing_ms = now_ms
+	swing_count += 1
+	swung.emit(last_swing)

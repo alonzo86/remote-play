@@ -60,6 +60,7 @@ func _keys() -> void:
 	var Maze = load("res://scripts/game/maze/maze_game.gd")
 	var Sumo = load("res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd")
 	var Blast = load("res://scripts/game/asteroid_blast/asteroid_blast_game.gd")
+	var Bowling = load("res://scripts/game/bowling/bowling_game.gd")
 	var keys := {}
 	_app.go(Snow, {"difficulty": "hard"})
 	await _frames(2)
@@ -73,6 +74,13 @@ func _keys() -> void:
 	await _frames(2)
 	keys.blast = _app.current_screen().best_key()
 	_check(keys.blast == "asteroid_blast|hard", "Galaxy Protector uses the game and the difficulty (REQ-AB-18)")
+	_app.go(Bowling, {"difficulty": "easy"})
+	await _frames(2)
+	keys.bowling = _app.current_screen().best_key()
+	_app.go(Bowling, {"difficulty": "easy", "rails": "on"})
+	await _frames(2)
+	_check(keys.bowling == "bowling|easy" and _app.current_screen().best_key() == "",
+			"Pin Pals uses the game and the difficulty, and rails give no best (REQ-BW-19)")
 	_app.go(Race, {"difficulty": "medium", "track_seed": 42})
 	await _frames(2)
 	var race: Control = _app.current_screen()
@@ -89,7 +97,7 @@ func _keys() -> void:
 	await _frames(2)
 	_check(maze_key == "" and _app.current_screen().best_key() == "", "Treasure Maze and Sumo Bumpers have no personal best")
 	var all_known := true
-	for k in [keys.snow, keys.paint, keys.race, keys.blast]:
+	for k in [keys.snow, keys.paint, keys.race, keys.blast, keys.bowling]:
 		all_known = all_known and ProfileKeys.number_of(k) > 0
 	_check(all_known, "every key that a game gives is in the table of the profile code")
 

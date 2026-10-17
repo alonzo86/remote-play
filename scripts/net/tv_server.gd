@@ -36,6 +36,7 @@ var _sockets: Array[WebSocketPeer] = []
 var _last_rx_ms: Array[int] = []
 var _closing: Array = []             # Rejected sockets that finish their close handshake.
 var _replaced_tokens := {}           # token -> time (ms) until which the TV remembers it (a phone that was replaced, FD-22).
+var _turn_sent := {}                 # slot -> the last turn message sent to that phone.
 var _score_sent := {}                # slot -> the last score message sent to that phone (it is not sent again, REQ-FL-67).
 
 
@@ -98,6 +99,7 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	round_limited = false
 	if not p_phase in ["playing", "paused"]:
 		_assign_names()   # The names are made again in the menus only, so they do not change in a round (docs/PROFILES_PLAN.md 4.3).
+		_turn_sent.clear()
 		_score_sent.clear()   # The phones clear their score at the phase message (REQ-FL-67); a pause keeps it.
 	if p_phase in ["playing", "paused"] and not slots.is_empty():
 		round_slots.append_array(slots)
@@ -133,6 +135,17 @@ func send_score(slot: int, rank: int, of: int, text: String) -> void:
 		return
 	if slot >= 0 and slot < players.size() and players[slot].is_connected_now():
 		_score_sent[slot] = msg
+		_send_json(slot, msg)
+
+
+## Tells one phone whose turn it is in a game with turns (REQ-BW-14): `state` 0 for no turn line, 1 when it is the turn of this
+## phone, 2 when another player is on turn (`who` is the name of that player). The same message is not sent twice in a row.
+func send_turn(slot: int, state: int, who: String) -> void:
+	var msg := {"t": "turn", "s": state, "who": who if state == 2 else ""}
+	if _turn_sent.get(slot, {"s": 0, "who": ""}) == msg:
+		return
+	if slot >= 0 and slot < players.size() and players[slot].is_connected_now():
+		_turn_sent[slot] = msg
 		_send_json(slot, msg)
 
 
@@ -281,6 +294,7 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	else:
 		player.set_profile(pid, av, p_name)
 		_assign_names(slot if in_round() else -1)
+	_turn_sent.erase(slot)
 	_score_sent.erase(slot)   # A phone that joins or returns has no score yet.
 	_send_json(slot, {
 		"t": "welcome", "slot": slot, "token": token,

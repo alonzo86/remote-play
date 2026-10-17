@@ -57,6 +57,14 @@ func _raw(body: PackedByteArray) -> String:
 
 
 ## The bytes of a valid code up to the name, then `rest` (the number of bests and the bests).
+## The bytes of a code (the prefix and the base64url text taken off).
+func _raw_of(code: String) -> PackedByteArray:
+	var t := code.substr(4).replace("-", "+").replace("_", "/")
+	while t.length() % 4 != 0:
+		t += "="
+	return Marshalls.base64_to_raw(t)
+
+
 func _body(p_name: String, rest: Array) -> PackedByteArray:
 	var b := PackedByteArray([1])
 	b.append_array(ID_A.hex_decode())
@@ -74,13 +82,14 @@ func _keys() -> void:
 	var round_ok := true
 	for i in keys.size():
 		round_ok = round_ok and ProfileKeys.number_of(keys[i]) == i + 1 and ProfileKeys.key_of(i + 1) == keys[i]
-	_check(keys.size() == 39 and round_ok and keys.size() <= ProfileKeys.MAX_KEYS, "39 keys, each with its own number from 1")
+	_check(keys.size() == 42 and round_ok and keys.size() <= ProfileKeys.MAX_KEYS, "42 keys, each with its own number from 1")
 	_check(ProfileKeys.number_of("snowball_splat|easy") == 1 and ProfileKeys.number_of("paint_grab|hard") == 6
 			and ProfileKeys.number_of("marble_race|easy|1") == 7 and ProfileKeys.number_of("marble_race|hard|10") == 36
-			and ProfileKeys.number_of("asteroid_blast|easy") == 37 and ProfileKeys.number_of("asteroid_blast|hard") == 39,
+			and ProfileKeys.number_of("asteroid_blast|easy") == 37 and ProfileKeys.number_of("asteroid_blast|hard") == 39
+			and ProfileKeys.number_of("bowling|easy") == 40 and ProfileKeys.number_of("bowling|hard") == 42,
 			"the numbers are fixed (a saved code depends on them)")
 	_check(ProfileKeys.number_of("maze|easy") == 0 and ProfileKeys.number_of("sumo_bumpers|easy") == 0
-			and ProfileKeys.key_of(0) == "" and ProfileKeys.key_of(40) == "", "maze, sumo and an unknown number have no key")
+			and ProfileKeys.key_of(0) == "" and ProfileKeys.key_of(43) == "", "maze, sumo and an unknown number have no key")
 	_check(ProfileKeys.lower_is_better("marble_race|easy|2") and not ProfileKeys.lower_is_better("paint_grab|easy"),
 			"a race time is better when lower, a score when higher")
 	_check(ProfileKeys.is_better("paint_grab|easy", 9, 5) and not ProfileKeys.is_better("paint_grab|easy", 5, 9)
@@ -107,11 +116,19 @@ func _round_trip() -> void:
 	var big := ProfileCode.encode(_profile(ID_A, "אבגדהוזחטי", 15, 300, all))
 	var back = ProfileCode.decode(big).get("profile")
 	_check(back != null and back.bests == all and not QrEncoder.encode(big).is_empty(),
-			"the largest profile (39 bests, a name of 20 bytes) is read back and fits in a QR code: %d characters" % big.length())
+			"the largest profile (42 bests, a name of 20 bytes) is read back and fits in a QR code: %d characters" % big.length())
 	var blast := {"asteroid_blast|easy": 800, "asteroid_blast|medium": 1800, "asteroid_blast|hard": 3200}
 	var blast_back = ProfileCode.decode(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, blast))).get("profile")
 	_check(blast_back != null and blast_back.bests == blast,
 			"the bests of keys 37 to 39 (Galaxy Protector) survive a code (REQ-AB-18)")
+	var bowl := {"bowling|easy": 150, "bowling|medium": 190, "bowling|hard": 240}
+	var bowl_back = ProfileCode.decode(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, bowl))).get("profile")
+	_check(bowl_back != null and bowl_back.bests == bowl and not ProfileKeys.lower_is_better("bowling|hard"),
+			"the bests of keys 40 to 42 (Pin Pals) survive a code (REQ-BW-19)")
+	var bowl_raw := _raw_of(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, bowl)))
+	var old_raw := _raw_of(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, blast)))
+	_check(bowl_raw[0] == 2 and old_raw[0] == 1,
+			"a code with a Pin Pals best is version 2; a code without one stays version 1, so an old app reads it")
 	var small := ProfileCode.encode(_profile(ID_A, "Maya", 1))
 	_check(small.length() < 70 and not QrEncoder.encode(small).is_empty(),
 			"a profile with no bests is short: %d characters" % small.length())
@@ -135,11 +152,12 @@ func _refused() -> void:
 		"one changed letter (the checksum)": broken,
 		"a cut code": good.substr(0, good.length() - 8),
 		"a sign that base64url does not have": good.substr(0, 10) + "!" + good.substr(11),
-		"another format version": _raw(PackedByteArray([2]) + _body("Maya", [0]).slice(1)),
+		"another format version": _raw(PackedByteArray([3]) + _body("Maya", [0]).slice(1)),
+		"40 bests in version 1": _raw(_body("Maya", [40])),
 		"a name of 21 bytes": _raw(_body("a".repeat(21), [0])),
 		"an empty name": _raw(_body("", [0])),
 		"a name with no allowed letter": _raw(_body("!!!", [0])),
-		"40 bests": _raw(_body("Maya", [40])),
+		"43 bests": _raw(_body("Maya", [43])),
 		"the same key twice": _raw(_body("Maya", [2, 1, 5, 1, 6])),
 		"bytes after the last best": _raw(_body("Maya", [0, 9])),
 		"a best that is cut": _raw(_body("Maya", [1, 1])),

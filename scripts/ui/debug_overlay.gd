@@ -66,9 +66,9 @@ class _Canvas extends Control:
 					p.color if Time.get_ticks_msec() - p.last_swing_ms < 1500 else UiTheme.TEXT_DIM)
 
 	func _swing_text(p: PlayerInput) -> String:
-		if p.swing.count == 0:
+		if p.swing_count == 0:
 			return "P%d  swing: none yet" % (p.slot + 1)
-		var s: Dictionary = p.swing.last
-		return "P%d  swing %d: power %.2f  peak %.1f rad/s  %s %.1f m/s  hit %d ms before this report  %.1f s ago" % [
-				p.slot + 1, p.swing.count, s.power, s.peak, "DOWN" if s.down else "flat/up", absf(s.vertical),
-				s.latency_ms, (Time.get_ticks_msec() - p.last_swing_ms) / 1000.0]
+		var s: Dictionary = p.last_swing
+		return "P%d  swing %d: power %.2f  %s  hit %d ms before this report  %.1f s ago" % [
+				p.slot + 1, p.swing_count, s.power, "DOWN" if s.down else "not down", s.hit_age_ms,
+				(Time.get_ticks_msec() - p.last_swing_ms) / 1000.0]

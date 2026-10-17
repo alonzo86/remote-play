@@ -27,3 +27,5 @@ tests/smoke_asteroid.gd|tv|Galaxy Protector
 tests/smoke_bests.gd|tv|personal bests
 tests/audio.gd|tv|audio: synth, songs, effects, volume and haptics switch
 tests/smoke_lang.gd|tv|languages and right to left
+tests/bowling_rules.gd|controller|Pin Pals rules, lane and swing
+tests/smoke_bowling.gd|tv|Pin Pals

@@ -39,7 +39,7 @@ Hits and serve
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-TN-5 | The ball glows when it is the turn of a team to hit. The player of that team who is nearest to the ball is the hitter. A swing counts when it happens while the ball is near that character (the hit window). A swing while the ball is not near does nothing and costs nothing. | Open | run_tests |
+| REQ-TN-5 | The ball glows when it is the turn of a team to hit. The player of that team who is nearest to the ball is the hitter. A swing counts (the shared swing detector: a back swing, then a forward swing) when the hit, `hit_age` before the report, falls while the ball is near that character (the hit window). A swing while the ball is not near does nothing and costs nothing. | Open | run_tests |
 | REQ-TN-6 | The hit zone has 3 parts by time: early, green and late. A swing in the green part is a fast shot with sparks. An early or a late swing is a slow, high lob that stays in play (REQ-GM-83). The width of the green part comes from the difficulty (REQ-TN-18). | Open | run_tests |
 | REQ-TN-7 | Swing speed sets the power. The tilt of the phone at the moment of the hit sets left or right. A weak swing gives a short slow ball, a strong swing a long fast ball. A ball can be too long (out): a strong swing with a bad tilt may land out, a weak one never does on Easy. | Open | run_tests, Device |
 | REQ-TN-9 | Serve: the server presses A to toss the ball up and then swings the phone **from top to bottom**, like a real serve. The swing counts when the ball is high (the serve window). When the server does not swing within 5 s after the toss, the ball falls and the toss is made again (no fault, no point lost). A serve must land in the service box across the net. A serve that lands out is repeated once, then the point goes to the other team. | Open | run_tests, Device |
@@ -78,7 +78,7 @@ tuned on a device (`docs/MANUAL_TESTS.md`, to be added with the code).
 
 ## Open questions
 
-- The swing is found on the TV, in the sensor stream, with `scripts/input/swing_detector.gd` (built 2026-10-16, no protocol change, Manual test 23). Its thresholds are first guesses and are tuned on a device. If the delay is too large, the detection moves to the phone, which needs a new message (`change-protocol` skill).
+- The swing is found on the TV, in the sensor stream, with the shared `scripts/input/swing_detector.gd` (the Pin Pals detector, moved there on 2026-10-17: a back swing and then a forward swing, no protocol change). Tennis adds `lock_after` (0.4 s), `forward_dir` (a serve is a forward swing that goes down) and `hit_age`, and every slot finds its swings in `PlayerInput` (the `swung` signal). The thresholds are first guesses and are tuned on a device (Manual test 24). A hit needs a back swing first. If the delay is too large, the detection moves to the phone, which needs a new message (`change-protocol` skill).
 - The hit window and the green part depend on the real delay of the phone (Test 4, never run on a TV box). Tune on a device.
 - Sounds and music for Tennis (the ball, the net, the crowd) and the Hebrew texts are written with the code, and the user reviews them (CLAUDE.md rules for strings).
 - Names: "Tennis" is a generic word; the Hebrew name and the texts are checked by a Hebrew reader.
