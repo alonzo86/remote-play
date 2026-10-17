@@ -48,6 +48,12 @@ const RED := Color("f83800")
 const GOLD := Color("f8b800")
 const BRICK := Color("d48430")
 const OL := Color("181818")
+const ROCK := Color("887868")
+const ROCK_HI := Color("b8a898")
+const ROCK_LO := Color("504438")
+const STEEL := Color("a8b4c8")
+const STEEL_LO := Color("5c6880")
+const GRIP := Color("383838")
 const SKIN := Color("fcbc94")
 const HAIR := Color("784818")
 const SHOE := Color("fcfcfc")
@@ -378,6 +384,56 @@ static func draw_bumper(ci: CanvasItem, geo: Geo, b: Vector3, pulse: float) -> v
 	ci.draw_circle(c, r * 0.4, GOLD)
 
 
+## A boulder with a green patch of moss: the ball bounces off it.
+static func draw_rock(ci: CanvasItem, geo: Geo, r: Vector3) -> void:
+	var foot := geo.at(Vector2(r.x, r.y))
+	var sc := geo.scale_at(r.y) * geo.m
+	var rad := maxf(r.z * sc, 12.0)
+	ci.draw_circle(foot, rad * 0.9, Color(0.0, 0.2, 0.0, 0.45))
+	var c := foot - Vector2(0.0, rad * 0.65)
+	var pts := PackedVector2Array()
+	for i in 14:
+		var a := TAU * float(i) / 14.0
+		var wob := 1.0 + 0.08 * sin(float(i) * 2.3)
+		pts.append(c + Vector2(cos(a) * rad * 1.05 * wob, sin(a) * rad * 0.8 * wob))
+	ci.draw_colored_polygon(pts, ROCK)
+	pts.append(pts[0])
+	ci.draw_polyline(pts, OL, 4.0)
+	ci.draw_circle(c + Vector2(rad * 0.3, rad * 0.2), rad * 0.4, ROCK_LO)
+	ci.draw_circle(c + Vector2(-rad * 0.25, -rad * 0.2), rad * 0.45, ROCK_HI)
+	ci.draw_circle(c + Vector2(-rad * 0.3, -rad * 0.55), rad * 0.2, BUSH_HI)
+	ci.draw_circle(c + Vector2(-rad * 0.1, -rad * 0.6), rad * 0.15, BUSH)
+
+
+## A wooden barrier with red and gold stripes that slides along the course: `rect` is its place now. It is a box: the top, the
+## front and the side that faces the middle of the view.
+static func draw_mover(ci: CanvasItem, geo: Geo, rect: Rect2) -> void:
+	var h := 0.32
+	var nl := geo.at(Vector2(rect.position.x, rect.position.y))
+	var nr := geo.at(Vector2(rect.end.x, rect.position.y))
+	var fl := geo.at(Vector2(rect.position.x, rect.end.y))
+	var fr := geo.at(Vector2(rect.end.x, rect.end.y))
+	var hn := Vector2(0.0, h * geo.scale_at(rect.position.y) * geo.m)
+	var hf := Vector2(0.0, h * geo.scale_at(rect.end.y) * geo.m)
+	ci.draw_colored_polygon(PackedVector2Array([nl, nr, fr, fl]), Color(0.0, 0.2, 0.0, 0.45))
+	var left_side := rect.position.x + rect.size.x * 0.5 > 0.0
+	var side := PackedVector2Array([nl, fl, fl - hf, nl - hn]) if left_side else PackedVector2Array([nr, fr, fr - hf, nr - hn])
+	ci.draw_colored_polygon(side, WOOD_LO)
+	ci.draw_polyline(side + PackedVector2Array([side[0]]), OL, 4.0)
+	var front := PackedVector2Array([nl, nr, nr - hn, nl - hn])
+	ci.draw_colored_polygon(front, RED)
+	var stripes := maxi(2, int(rect.size.x * 6.0))
+	for i in stripes:
+		if i % 2 == 0:
+			var a := float(i) / float(stripes)
+			var b := float(i + 1) / float(stripes)
+			ci.draw_colored_polygon(PackedVector2Array([nl.lerp(nr, a), nl.lerp(nr, b), nl.lerp(nr, b) - hn, nl.lerp(nr, a) - hn]), GOLD)
+	ci.draw_polyline(front + PackedVector2Array([front[0]]), OL, 4.0)
+	var top := PackedVector2Array([nl - hn, nr - hn, fr - hf, fl - hf])
+	ci.draw_colored_polygon(top, WOOD_HI)
+	ci.draw_polyline(top + PackedVector2Array([top[0]]), OL, 4.0)
+
+
 ## The windmill stands on the first block of a hole that has one: a brown tower, a red roof and four gold blades that turn.
 static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float) -> void:
 	var mid := Vector2(block.position.x + block.size.x * 0.5, block.position.y + block.size.y * 0.5)
@@ -563,12 +619,29 @@ static func draw_golfer(ci: CanvasItem, geo: Geo, feet: Vector2, ball: Vector2, 
 	poly.call([head + Vector2(6.0, -4.0) * k, head + Vector2(21.0, -2.0) * k, head + Vector2(21.0, 1.0) * k,
 			head + Vector2(6.0, -1.0) * k], WHITE)
 	ci.draw_line(head + Vector2(7.0, -0.5) * k, head + Vector2(20.5, 0.5) * k, Color("a8a8a8"), 3.0)
-	# The club: a grey shaft and a gold putter head; at the ball the head touches it.
+	# The putter: a dark grip, a steel shaft with a shine, a small neck and a steel head with a gold top line. At the ball the head
+	# lies flat on the ground and touches it.
 	var ang := deg_to_rad(float(pose.a))
 	var tip: Vector2 = hand + Vector2(cos(ang), -sin(ang)) * CLUB * k
 	var br := geo.ball_r(ball.y)
 	var at_ball: Vector2 = geo.at(ball) - Vector2(br + 8.0, br)
 	tip = tip.lerp(at_ball, float(pose.ab))
+	var dir := (tip - hand).normalized()
+	var grip_end := hand + dir * (tip - hand).length() * 0.3
 	ci.draw_line(hand, tip, OL, maxf(8.0, 5.0 * k))
-	ci.draw_line(hand, tip, Color("e0e0e0"), maxf(4.0, 3.0 * k))
-	ci.draw_rect(Rect2(tip - Vector2(5.0, 2.0) * k, Vector2(10.0, 4.0) * k), GOLD)
+	ci.draw_line(hand, tip, STEEL, maxf(4.0, 3.0 * k))
+	ci.draw_line(hand + dir * 8.0, tip - dir * 2.0, ROCK_HI, maxf(2.0, 1.0 * k))
+	ci.draw_line(hand - dir * 6.0, grip_end, OL, maxf(10.0, 7.0 * k))
+	ci.draw_line(hand - dir * 6.0, grip_end, GRIP, maxf(6.0, 5.0 * k))
+	for i in 3:
+		var g := hand + dir * (float(i) * 0.08 * (tip - hand).length())
+		ci.draw_line(g - dir.orthogonal() * 3.0 * k, g + dir.orthogonal() * 3.0 * k, RED, 2.0)
+	var flat := Vector2(1.0, 0.0)
+	var neck := tip - dir * 3.0 * k
+	ci.draw_line(neck, tip + Vector2(-2.0, 0.0) * k, OL, maxf(6.0, 3.0 * k))
+	var body := PackedVector2Array([tip + Vector2(-6.0, -4.0) * k, tip + Vector2(7.0, -4.0) * k, tip + Vector2(8.0, 1.0) * k,
+			tip + Vector2(-7.0, 1.0) * k])
+	ci.draw_colored_polygon(body, STEEL)
+	ci.draw_polyline(body + PackedVector2Array([body[0]]), OL, 4.0)
+	ci.draw_rect(Rect2(tip + Vector2(-6.0, -4.0) * k, Vector2(13.0, 1.5) * k), GOLD)
+	ci.draw_rect(Rect2(tip + (Vector2(-7.0, 0.0) * k) * flat.x, Vector2(15.0, 1.0) * k), STEEL_LO)

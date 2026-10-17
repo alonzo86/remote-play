@@ -9,6 +9,7 @@ const Rules = preload("res://scripts/game/mini_golf/golf_rules.gd")
 const DT := 1.0 / 60.0
 
 var _checks := 0
+var _clock := 0.0
 var _fails := 0
 
 
@@ -47,7 +48,7 @@ func _roll(sim: Sim, heading: float, speed: float) -> void:
 
 func _flat_hole() -> Dictionary:
 	return {"par": 2, "tee": Vector2(0.0, 1.0), "cup": Vector2(0.0, 5.0), "fairway": [Rect2(-1.0, 0.75, 2.0, 5.0)],
-			"water": [], "bridges": [], "bumpers": [], "blocks": []}
+			"water": [], "bridges": [], "bumpers": [], "blocks": [], "rocks": [], "movers": []}
 
 
 ## REQ-MG-12: five holes with a par of 2 to 4, and a tee and a cup on the ground, away from the things on the course.
@@ -63,7 +64,15 @@ func _holes() -> void:
 			var bv: Vector3 = b
 			clear = clear and (Vector2(bv.x, bv.y) - Vector2(h.tee)).length() > bv.z + 0.3 \
 					and (Vector2(bv.x, bv.y) - Vector2(h.cup)).length() > bv.z + 0.3
-		_check(clear, "hole %d: no water or bumper on the tee or the cup" % n)
+		for rk in h.rocks:
+			var rv: Vector3 = rk
+			clear = clear and (Vector2(rv.x, rv.y) - Vector2(h.tee)).length() > rv.z + 0.3 \
+					and (Vector2(rv.x, rv.y) - Vector2(h.cup)).length() > rv.z + 0.3
+		for m in h.movers:
+			for tt in [0.0, 1.0, 2.0, 3.0, 4.0]:
+				var mr: Rect2 = Holes.mover_rect(m, tt)
+				clear = clear and not mr.grow(0.3).has_point(h.tee) and not mr.grow(0.3).has_point(h.cup)
+		_check(clear, "hole %d: no water, bumper, rock or barrier on the tee or the cup" % n)
 	_check(Holes.hole(0) == Holes.hole(1) and Holes.hole(9) == Holes.hole(5), "a hole number outside 1 to 5 gives the nearest hole")
 	_check(Holes.par_total(3) == 8 and Holes.par_total(5) == 15 and Holes.par_total(0) == 0, "the par of the first holes together")
 
@@ -123,6 +132,32 @@ func _obstacles() -> void:
 	_roll(dry, 0.0, 3.0)
 	_check(not dry.in_water and dry.pos.y > 3.5, "a ball that rolls over the bridge crosses the lake (REQ-MG-9)")
 	h = _flat_hole()
+	h.rocks = [Vector3(0.0, 3.0, 0.2)]
+	var rock := Sim.new()
+	rock.start(h, Vector2(0.0, 1.0))
+	var bounced := false
+	rock.putt(0.0, 3.0)
+	while not rock.finished:
+		rock.tick(DT)
+		for e in rock.events:
+			bounced = bounced or e.t == "rock"
+	_check(bounced and rock.pos.y < 3.0, "a ball that hits a rock bounces back (REQ-MG-10)")
+	h = _flat_hole()
+	h.movers = [{"rect": Rect2(-1.0, 3.0, 2.0, 0.2), "axis": "z", "amp": 1.0, "speed": 1.0}]
+	_check(absf(Holes.mover_rect(h.movers[0], -PI / 2.0).position.y - 3.0) < 0.001
+			and absf(Holes.mover_rect(h.movers[0], PI / 2.0).position.y - 4.0) < 0.001, "a sliding barrier moves along its axis")
+	var gate := Sim.new()
+	gate.start(h, Vector2(0.0, 1.0))
+	_roll(gate, 0.0, 3.0)
+	_check(gate.pos.y < 3.0, "a ball cannot pass a barrier that stands across the course (REQ-MG-10)")
+	var squeezed := Sim.new()
+	squeezed.start(h, Vector2(0.0, 3.1))
+	squeezed.clock = 0.0
+	squeezed.putt(0.0, 0.5)
+	squeezed.tick(DT)
+	_check(not Holes.mover_rect(h.movers[0], squeezed.clock).grow(Holes.BALL_R).has_point(squeezed.pos),
+			"a barrier that slides into the ball pushes it out")
+	h = _flat_hole()
 	h.bumpers = [Vector3(0.0, 3.0, 0.2)]
 	var bump := Sim.new()
 	bump.start(h, Vector2(0.0, 1.0))
@@ -173,8 +208,11 @@ func _solvable() -> void:
 	print("every hole can be played")
 	for n in range(1, Holes.COUNT + 1):
 		var h := Holes.hole(n)
-		var best := _search(h, Vector2(h.tee), 0, int(h.par) + 1)
-		_check(best > 0 and best <= int(h.par) + 1, "hole %d: the cup is reachable in %d strokes (par %d)" % [n, best, h.par])
+		for clock in [0.0, 1.3, 2.9]:
+			_clock = clock
+			var best := _search(h, Vector2(h.tee), 0, int(h.par) + 1)
+			_check(best > 0 and best <= int(h.par) + 1, "hole %d at time %.1f: the cup is reachable in %d strokes (par %d)"
+					% [n, clock, best, h.par])
 
 
 ## Returns the number of strokes of the shortest way found, or 0.
@@ -187,6 +225,7 @@ func _search(h: Dictionary, from: Vector2, used: int, limit: int) -> int:
 	for i in range(-12, 13):
 		for p in [0.15, 0.3, 0.5, 0.7, 0.9]:
 			sim.start(h, from)
+			sim.clock = _clock
 			_roll(sim, base + deg_to_rad(float(i) * 5.0), Sim.speed_for(p, 0.8))
 			if sim.in_cup:
 				return used + 1

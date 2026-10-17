@@ -224,10 +224,11 @@ func _putt(slot: int) -> void:
 
 
 func _tick_roll(delta: float) -> void:
+	sim.clock = _time - delta
 	sim.tick(delta)
 	for e in sim.events:
 		match String(e.t):
-			"wall":
+			"wall", "rock", "mover":
 				Sound.sfx("golf_wall")
 			"bumper":
 				Sound.sfx("golf_bumper")
@@ -347,8 +348,16 @@ func _world_draw(ci: CanvasItem) -> void:
 	var blocks: Array = _hole.blocks
 	if not blocks.is_empty():
 		GolfLook.draw_windmill(ci, geo, blocks[0], _time)
+	var things: Array = []
 	for b in _hole.bumpers:
-		GolfLook.draw_bumper(ci, geo, b, _pulse)
+		things.append([float(Vector3(b).y), func() -> void: GolfLook.draw_bumper(ci, geo, b, _pulse)])
+	for r in _hole.rocks:
+		things.append([float(Vector3(r).y), func() -> void: GolfLook.draw_rock(ci, geo, r)])
+	for m in _hole.movers:
+		things.append([Holes.mover_rect(m, _time).end.y, func() -> void: GolfLook.draw_mover(ci, geo, Holes.mover_rect(m, _time))])
+	things.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
+	for th in things:
+		th[1].call()
 	GolfLook.draw_flag(ci, geo, _hole, _time)
 	if _clock.is_counting():
 		GolfLook.draw_ball(ci, geo, _hole.tee)
