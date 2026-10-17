@@ -39,7 +39,7 @@ var _banner_left := 0.0
 var _banner_color := UiTheme.ACCENT
 var _great: Dictionary = {}     # slot -> seconds left of the GREAT! text over the player.
 var _tick_ms := 0
-var _shown_rally := 0
+var _wired: Array[int] = []     # The slots whose signals are connected, also the ones that left later.
 
 
 func _game_ready() -> void:
@@ -50,10 +50,11 @@ func _game_ready() -> void:
 	for s in participants:
 		player(s).button_pressed.connect(_on_button.bind(s))
 		player(s).swung.connect(_on_swing.bind(s))
+		_wired.append(s)
 
 
 func _exit_tree() -> void:
-	for s in participants:
+	for s in _wired:
 		var pl := player(s)
 		if pl == null:
 			continue
@@ -155,7 +156,7 @@ func _handle_events(events: Array) -> void:
 func _on_hit(e: Dictionary) -> void:
 	var slot := int(e.slot)
 	var great: bool = e.green
-	Sound.sfx("tennis_great" if great and float(e.power) > 0.0 else "tennis_hit")
+	Sound.sfx("tennis_great" if great and slot >= 0 else "tennis_hit")   # The machine never gets the great sound.
 	if slot < 0 or not participants.has(slot):
 		return
 	_haptics.pulse(slot, BUZZ_GREAT_MS if great else BUZZ_HIT_MS, 80)

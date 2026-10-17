@@ -88,6 +88,9 @@ func _scoring_quick() -> void:
 	_check(not r.match_over(), "4 points are not enough")
 	var last := r.score_point(0)
 	_check(last.match and r.winners() == [0] and r.tally[0] == 5, "the first to 5 points wins")
+	var fresh := Rules.new()
+	fresh.setup([0, 1], true)
+	_check(not fresh.score_point(0).game, "Quick has no games: a point never ends a game")
 
 
 ## The teams and the servers (REQ-TN-1, 11).

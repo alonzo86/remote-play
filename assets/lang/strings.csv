@@ -219,7 +219,7 @@ tennis.hint_hit,SWING WHEN THE BALL ARRIVES! TILT TO AIM.,הניפו כשהכד�
 tennis.hint_solo,HIT EVERY BALL BACK TO KEEP THE RALLY GOING!,הדפו כל כדור כדי להמשיך את הרצף!,Tennis with 1 player: hint line at the bottom (first 16 seconds of the match),
 tennis.serves,%s SERVES,%s מגיש/ה,"Tennis: plate in the middle of the screen before a serve, %s is the name of the server",%s is replaced by a name or a value
 tennis.point_to,POINT: %s,נקודה: %s,"Tennis: banner after a point, %s is the name of the player or team that won it",%s is replaced by a name or a value
-tennis.game_to,GAME: %s,משחקון: %s,"Tennis: banner after a game (Real scoring) or a pair of points (Quick), %s is the name of the player or team that won it",%s is replaced by a name or a value
+tennis.game_to,GAME: %s,משחקון: %s,"Tennis: banner after a game (Real scoring only), %s is the name of the player or team that won it",%s is replaced by a name or a value
 tennis.deuce,DEUCE,שוויון,Tennis: line under the point banner when both teams have 40,
 tennis.advantage,ADVANTAGE: %s,יתרון: %s,"Tennis: line under the point banner when a team is ahead after deuce, %s is the name of the team",%s is replaced by a name or a value
 tennis.fault,FAULT,הגשה פסולה,Tennis: banner when a serve is out or in the net,

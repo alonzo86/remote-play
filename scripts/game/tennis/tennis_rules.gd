@@ -90,7 +90,6 @@ func score_point(team: int) -> Dictionary:
 		if (points[0] + points[1]) % QUICK_SERVE_POINTS == 0:
 			_next_chunk()
 			out.chunk = true
-		out.game = true
 		out.match = match_over()
 		return out
 	if points[team] >= 4 and points[team] - points[other(team)] >= 2:

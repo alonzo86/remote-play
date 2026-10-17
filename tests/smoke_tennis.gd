@@ -89,6 +89,9 @@ func _run() -> void:
 	var apex := 4.6 / 9.81
 	for i in int(apex / 0.016):
 		game._game_tick(0.016)
+	game._tick_ms = 0   # The game was paused a moment ago: a swing now is ignored.
+	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0, "tilt": Vector2.ZERO}, server)
+	_check(game.play.phase == game.Match.Phase.TOSS, "a swing right after a pause does nothing")
 	game._tick_ms = Time.get_ticks_msec()
 	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0, "tilt": Vector2.ZERO}, server)
 	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down at the top of the toss serves")
@@ -104,6 +107,7 @@ func _run() -> void:
 	game._handle_events(game.play.take_events())
 	game._sync_board()
 	_check(game._banner_left > 0.0 and game._banner.begins_with("POINT"), "a point shows a banner: %s" % game._banner)
+	_check(game._wired == [0, 1], "the game remembers the slots it connected")
 	await _frames(2)
 
 	# The match ends: the winners are named (REQ-TN-17).
@@ -127,6 +131,10 @@ func _run() -> void:
 	var quick: Control = app.current_screen()
 	_check(quick.play.rules.quick, "Quick scoring is passed to the rules")
 	_go(quick)
+	quick.play._award(0, "test")
+	quick._handle_events(quick.play.take_events())
+	_check(quick._banner.begins_with("POINT") and quick.play._wait == quick.Match.POINT_PAUSE,
+			"with Quick scoring a point shows POINT and the short pause, not GAME")
 	quick._on_player_left(1)
 	_check(not quick._board.has(1) and not quick.play.chars.has(1), "a player that leaves is taken out of the match")
 	quick._game_tick(0.016)
