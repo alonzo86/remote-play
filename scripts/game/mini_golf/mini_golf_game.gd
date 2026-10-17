@@ -20,7 +20,6 @@ const HOLE_TIME := 4.0          # The card at the end of a hole.
 const END_DELAY := 1.2
 const HINT_TIME := 12.0
 const WEAK_HINT_TIME := 3.0
-const SWING_TIME := 0.45        # The golfer swings through in this time (REQ-MG-16).
 const BUZZ_GAP_MS := 150
 const MAX_HEADING := 1.2        # The aim can turn this far to each side (radians).
 const PAUSE_GAP_MS := 400
@@ -59,6 +58,7 @@ var _heading := 0.0
 var _spot := Vector2.ZERO       # Where the last putt started: the ball goes back here from the water.
 var _feet := Vector2.ZERO
 var _swing_age := 99.0
+var _lock_age := 0.0            # How long the direction is locked.
 var _banner := ""
 var _banner_color := UiTheme.ACCENT
 var _weak_left := 0.0
@@ -141,6 +141,7 @@ func _game_tick(delta: float) -> void:
 	_splash_age += delta
 	_spark_age += delta
 	_swing_age += delta
+	_lock_age = _lock_age + delta if detector.aim_locked else 0.0
 	if is_over:
 		return
 	if _clock.is_counting():
@@ -231,8 +232,6 @@ func _tick_roll(delta: float) -> void:
 			"bumper":
 				Sound.sfx("golf_bumper")
 				_pulse = 1.0
-			"sand":
-				Sound.sfx("golf_sand")
 	if sim.finished:
 		_putt_done()
 
@@ -328,16 +327,10 @@ func _line_length() -> float:
 
 
 ## The pose of the golfer: at the ball, the back swing once the direction is locked, then the swing through (REQ-MG-16).
-func _pose() -> int:
+func _pose() -> Dictionary:
 	if phase == Phase.AIM:
-		return GolfLook.Pose.BACK if detector.aim_locked else GolfLook.Pose.ADDRESS
-	if _swing_age < 0.12:
-		return GolfLook.Pose.DOWN
-	if _swing_age < 0.25:
-		return GolfLook.Pose.HIT
-	if _swing_age < SWING_TIME:
-		return GolfLook.Pose.FOLLOW
-	return GolfLook.Pose.ADDRESS
+		return GolfLook.aim_pose(detector.aim_locked, _lock_age)
+	return GolfLook.swing_pose(_swing_age)
 
 
 func _countdown_spots(geo: GolfLook.Geo) -> Dictionary:

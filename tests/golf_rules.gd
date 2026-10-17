@@ -47,7 +47,7 @@ func _roll(sim: Sim, heading: float, speed: float) -> void:
 
 func _flat_hole() -> Dictionary:
 	return {"par": 2, "tee": Vector2(0.0, 1.0), "cup": Vector2(0.0, 5.0), "fairway": [Rect2(-1.0, 0.75, 2.0, 5.0)],
-			"sand": [], "water": [], "bumpers": [], "blocks": []}
+			"water": [], "bridges": [], "bumpers": [], "blocks": []}
 
 
 ## REQ-MG-12: five holes with a par of 2 to 4, and a tee and a cup on the ground, away from the things on the course.
@@ -58,7 +58,7 @@ func _holes() -> void:
 		var h := Holes.hole(n)
 		_check(int(h.par) >= 2 and int(h.par) <= 4, "hole %d has a par of 2 to 4" % n)
 		_check(Sim.walkable(h, h.tee) and Sim.walkable(h, h.cup), "hole %d: the tee and the cup are on the ground" % n)
-		var clear := not Holes.in_ellipse(h.water, h.tee) and not Holes.in_ellipse(h.water, h.cup)
+		var clear := not Holes.is_water(h, h.tee) and not Holes.is_water(h, h.cup)
 		for b in h.bumpers:
 			var bv: Vector3 = b
 			clear = clear and (Vector2(bv.x, bv.y) - Vector2(h.tee)).length() > bv.z + 0.3 \
@@ -101,26 +101,11 @@ func _ball() -> void:
 			and Sim.heading_to_cup(_flat_hole(), Vector2(-1.0, 5.0)) > 1.4, "the heading to the cup")
 
 
-## REQ-MG-9, 10: sand slows the ball, water sends it back, a bumper and a block bounce it.
+## REQ-MG-9, 10: water sends the ball back, a bridge lets it over, a bumper and a block bounce it.
 func _obstacles() -> void:
-	print("sand, water, bumpers")
-	var grass := Sim.new()
-	grass.start(_flat_hole(), Vector2(0.0, 1.0))
-	_roll(grass, 0.0, 2.0)
+	print("water, bridges, bumpers")
 	var h := _flat_hole()
-	h.sand = [Vector4(0.0, 2.0, 0.8, 0.6)]
-	var sand := Sim.new()
-	sand.start(h, Vector2(0.0, 1.0))
-	var saw_sand := false
-	sand.putt(0.0, 2.0)
-	while not sand.finished:
-		sand.tick(DT)
-		for e in sand.events:
-			saw_sand = saw_sand or e.t == "sand"
-	var shown := [sand.pos.y - 1.0, grass.pos.y - 1.0]
-	_check(saw_sand and sand.pos.y < grass.pos.y - 0.3, "sand makes the ball stop sooner (%.2f m against %.2f m)" % shown)
-	h = _flat_hole()
-	h.water = [Vector4(0.0, 3.0, 0.6, 0.4)]
+	h.water = [Rect2(-1.0, 2.8, 2.0, 0.6)]
 	var wet := Sim.new()
 	wet.start(h, Vector2(0.0, 1.0))
 	var splash := false
@@ -129,7 +114,14 @@ func _obstacles() -> void:
 		wet.tick(DT)
 		for e in wet.events:
 			splash = splash or e.t == "water"
-	_check(wet.in_water and splash and not wet.in_cup, "a ball that touches water stops with a splash (REQ-MG-9)")
+	_check(wet.in_water and splash and not wet.in_cup, "a ball that touches the lake stops with a splash (REQ-MG-9)")
+	h.bridges = [Rect2(-0.3, 2.8, 0.6, 0.6)]
+	_check(not Holes.is_water(h, Vector2(0.0, 3.0)) and Holes.is_water(h, Vector2(0.6, 3.0)),
+			"a bridge is not water, the lake next to it is")
+	var dry := Sim.new()
+	dry.start(h, Vector2(0.0, 1.0))
+	_roll(dry, 0.0, 3.0)
+	_check(not dry.in_water and dry.pos.y > 3.5, "a ball that rolls over the bridge crosses the lake (REQ-MG-9)")
 	h = _flat_hole()
 	h.bumpers = [Vector3(0.0, 3.0, 0.2)]
 	var bump := Sim.new()

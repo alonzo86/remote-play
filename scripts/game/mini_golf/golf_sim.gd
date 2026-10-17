@@ -1,13 +1,12 @@
 extends RefCounted
 ## The ball of Mini Golf on one hole (REQ-MG-5, 9, 10): a ball that rolls on the ground of a hole, slows down, bounces from the
-## walls, the bumpers and the blocks, rolls slowly on sand, falls into water and into the cup. Pure logic: it draws nothing.
+## walls, the bumpers and the blocks, falls into water and into the cup. Pure logic: it draws nothing.
 ## The ball is a point with a radius that moves in small steps, one axis at a time, so that it bounces from straight walls.
 
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 
 const STEP := 1.0 / 120.0
 const ROLL_DECEL := 0.9          # m/s2 on grass.
-const SAND_DECEL := 3.2          # m/s2 on sand.
 const WALL_KEEP := 0.7           # The speed that stays after a wall.
 const BUMPER_KEEP := 1.05        # A bumper gives a little push.
 const STOP_SPEED := 0.04         # Under this speed (m/s) the ball stops.
@@ -22,9 +21,8 @@ var finished := true             # True while the ball stands still.
 var in_cup := false
 var in_water := false
 var time := 0.0
-## What happened in the last `tick()`: dictionaries `{"t": "wall" | "bumper" | "sand" | "water" | "cup"}`.
+## What happened in the last `tick()`: dictionaries `{"t": "wall" | "bumper" | "water" | "cup"}`.
 var events: Array[Dictionary] = []
-var _in_sand := false
 
 
 ## Puts the ball of the hole at `at` (the tee, the place of the last putt) and stops it.
@@ -37,7 +35,6 @@ func start(h: Dictionary, at: Vector2) -> void:
 	in_water = false
 	time = 0.0
 	events.clear()
-	_in_sand = false
 
 
 ## The ball starts rolling in `heading` (radians from the +z axis towards +x) with `speed` (m/s).
@@ -88,12 +85,8 @@ func tick(delta: float) -> void:
 
 func _step(dt: float) -> void:
 	time += dt
-	var sand := Holes.in_ellipse(hole.sand, pos)
-	if sand and not _in_sand:
-		events.append({"t": "sand"})
-	_in_sand = sand
 	var speed := vel.length()
-	speed = maxf(0.0, speed - (SAND_DECEL if sand else ROLL_DECEL) * dt)
+	speed = maxf(0.0, speed - ROLL_DECEL * dt)
 	vel = vel.normalized() * speed if speed > 0.0 else Vector2.ZERO
 	if speed < STOP_SPEED or time > MAX_TIME:
 		vel = Vector2.ZERO
@@ -121,7 +114,7 @@ func _step(dt: float) -> void:
 			vel = (vel - 2.0 * vel.dot(n) * n) * BUMPER_KEEP
 			pos = Vector2(bv.x, bv.y) + n * (reach + 0.002)
 			events.append({"t": "bumper"})
-	if Holes.in_ellipse(hole.water, pos):
+	if Holes.is_water(hole, pos):
 		vel = Vector2.ZERO
 		finished = true
 		in_water = true
