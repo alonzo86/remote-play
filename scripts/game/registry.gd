@@ -51,6 +51,18 @@ const GAMES: Array[Dictionary] = [
 			"description": "registry.tilt_fly_spaceship_blast",
 			"tile": "res://assets/tiles/asteroid_blast.png",
 			"path": "res://scripts/game/asteroid_blast/asteroid_blast_game.gd", "min_players": 1, "max_players": 4, "settings": []},
+	{"id": "bowling", "doc": "res://docs/games/bowling.md", "title": "registry.pin_pals", "dim": "2d",
+			"description": "registry.move_phone_aim_swing",
+			"tile": "res://assets/tiles/bowling.png",
+			"path": "res://scripts/game/bowling/bowling_game.gd", "min_players": 1, "max_players": 4,
+			"settings": [{"key": "rails", "label": "bowling.rails", "values": ["off", "on"],
+					"titles": ["bowling.off", "bowling.on"], "default": "off"}]},
+	{"id": "tennis", "doc": "res://docs/games/tennis.md", "title": "registry.tennis", "dim": "2d",
+			"description": "registry.swing_phone_hit_ball",
+			"tile": "res://assets/tiles/tennis.png",
+			"path": "res://scripts/game/tennis/tennis_game.gd", "min_players": 1, "max_players": 4,
+			"settings": [{"key": "scoring", "label": "tennis.scoring", "values": ["real", "quick"],
+					"titles": ["tennis.real", "tennis.quick"], "default": "real"}]},
 ]
 
 

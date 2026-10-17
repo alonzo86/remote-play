@@ -1,11 +1,14 @@
 extends SceneTree
-## The swing detector, without a phone: a swing is made from a gyroscope and accelerometer stream at 60 Hz
-## (docs/games/tennis.md, REQ-TN-5 to 9). Run: godot --headless --path . --script tests/swing_detector.gd -- --role=controller
+## What Tennis adds to the swing detector (docs/games/tennis.md, REQ-TN-5 to 9): the wait after a swing, the direction
+## and the age of the hit, and the swing of a phone slot on the TV. The back and forward swing itself is tested in
+## tests/bowling_rules.gd.
+## Run: godot --headless --path . --script tests/swing_detector.gd -- --role=controller
 
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 
-const STEP_MS := 17
+const DT := 1.0 / 60.0
+const G := 9.81
 const UP := Vector3(0, 0, 1)
 
 var _checks := 0
@@ -22,125 +25,98 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
-	_still_and_weak()
-	_strong_swing()
-	_direction()
-	_cooldown()
-	_stream_edges()
-	_player_input()
+	_detector_additions()
+	_player_slot()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
 
-## One swing as samples: the turning speed is a bell `peak * sin(pi * x)` over `dur_ms`, and the vertical acceleration
-## is `vert_acc * sin(2 pi x)` (a positive `vert_acc` pushes up first, then down). Returns the swings that were found
-## and the time of the true peak. `t0` is the first timestamp (it may be near the u32 wrap).
-func _swing(d: SwingDetector, t0: int, peak: float, dur_ms: int, vert_acc: float, tail_ms: int = 300) -> Dictionary:
-	var found: Array = []
-	var t := 0
-	while t <= dur_ms + tail_ms:
-		var x := float(t) / dur_ms
-		var inside := t <= dur_ms
-		var gyro := Vector3(0, 0, peak * sin(PI * x)) if inside else Vector3.ZERO
-		var acc := vert_acc * sin(2.0 * PI * x) if inside else 0.0
-		var r := d.feed((t0 + t) & 0xFFFFFFFF, gyro, UP * (SwingDetector.G + acc), UP)
-		if not r.is_empty():
-			found.append(r)
-		t += STEP_MS
-	return {"found": found, "peak_ts": (t0 + dur_ms / 2) & 0xFFFFFFFF, "end": t0 + dur_ms + tail_ms}
+## A made-up swing along `axis`: a back swing, a forward swing that peaks and fades, then rest.
+func _run(d: SwingDetector, axis: Vector3, rest_s: float = 0.0) -> void:
+	for i in 6:
+		d.update(DT, axis * 6.0)
+	for f in [10.0, 30.0, 30.0, 10.0]:
+		d.update(DT, -axis * f)
+	for i in int(rest_s / DT):
+		d.update(DT, Vector3.ZERO)
 
 
-func _still_and_weak() -> void:
-	print("rest and weak movements")
+func _detector_additions() -> void:
+	print("detector: direction, age of the hit, wait")
 	var d := SwingDetector.new()
-	var found := 0
-	for i in 120:
-		if not d.feed(i * STEP_MS, Vector3(0.05, 0, 0.1), UP * SwingDetector.G, UP).is_empty():
-			found += 1
-	_check(found == 0 and d.count == 0 and d.last.is_empty(), "a phone at rest gives no swing")
-	var weak := _swing(SwingDetector.new(), 0, 5.0, 300, 0.0)
-	_check(weak.found.is_empty(), "a movement with a low peak (5 rad/s) is not a swing")
-	var knock := _swing(SwingDetector.new(), 0, 15.0, 30, 0.0)
-	_check(knock.found.is_empty(), "a very short knock (30 ms) is not a swing")
+	_run(d, Vector3(0, 0, 1))
+	_check(d.released and d.forward_dir.is_equal_approx(Vector3(0, 0, -1)),
+			"the forward direction is the opposite of the back swing")
+	_check(is_equal_approx(d.hit_age, DT), "the hit was one tick before the release (the peak was the tick before the fade)")
+	_check(not d.released or d.power > 0.5, "a swing of 30 m/s2 has power (%.2f)" % d.power)
+	d.reset()
+	_check(d.forward_dir == Vector3.ZERO and d.hit_age == 0.0, "reset() clears the direction and the age")
+
+	_check(SwingDetector.is_down(Vector3(0, 0, -1), UP) and SwingDetector.is_down(Vector3(0.6, 0, -0.8), UP),
+			"a swing that points 30 degrees or more below the horizon is down")
+	_check(not SwingDetector.is_down(Vector3(1, 0, 0), UP) and not SwingDetector.is_down(Vector3(0, 0, 1), UP)
+			and not SwingDetector.is_down(Vector3(0.9, 0, -0.3), UP),
+			"a sideways, an upward and a flat swing (less than 30 degrees down) are not down")
+
+	var quick := SwingDetector.new()
+	quick.lock_after = 0.4
+	_run(quick, Vector3(1, 0, 0), 0.45)
+	var slow := SwingDetector.new()
+	_run(slow, Vector3(1, 0, 0), 0.45)
+	_check(quick.state == SwingDetector.State.READY and slow.state == SwingDetector.State.LOCKED,
+			"`lock_after` sets the wait after a swing (0.4 s for Tennis, 1.5 s is the bowling default)")
 
 
-func _strong_swing() -> void:
-	print("a strong swing")
-	var d := SwingDetector.new()
-	var r := _swing(d, 1000, 14.0, 240, 0.0)
-	_check(r.found.size() == 1 and d.count == 1, "one swing is found")
-	var s: Dictionary = r.found[0]
-	_check(absi(int(s.ts) - int(r.peak_ts)) <= STEP_MS,
-			"the hit time is the time of the highest speed (%d vs %d)" % [s.ts, r.peak_ts])
-	_check(is_equal_approx(float(s.peak), 14.0) or absf(float(s.peak) - 14.0) < 0.2, "the peak speed is kept")
-	_check(absf(float(s.power) - (14.0 - SwingDetector.MIN_PEAK) / (SwingDetector.MAX_PEAK - SwingDetector.MIN_PEAK)) < 0.03,
-			"the power follows the peak (14 rad/s gives about 0.54)")
-	_check(int(s.latency_ms) > 0 and int(s.latency_ms) < 150, "the report comes a little after the hit (%d ms)" % s.latency_ms)
-	_check(s.up_dir == UP and d.last == s, "the report holds the tilt at the hit and is kept as `last`")
-	var soft := _swing(SwingDetector.new(), 0, 8.0, 240, 0.0)
-	var hard := _swing(SwingDetector.new(), 0, 30.0, 240, 0.0)
-	_check(soft.found.size() == 1 and hard.found.size() == 1
-			and soft.found[0].power < 0.2 and hard.found[0].power == 1.0, "a soft swing has little power, a hard one is capped at 1")
+## A packet at `ts` with the extra acceleration `extra` (m/s2, phone frame) on top of gravity.
+func _packet(ts: int, extra: Vector3) -> Dictionary:
+	return {"ts": ts, "seq": 0, "gyro": Vector3.ZERO, "accel": UP * G + extra, "buttons": 0,
+			"touching": false, "touch": Vector2.ZERO}
 
 
-func _direction() -> void:
-	print("direction: a serve goes from top to bottom")
-	# Pushing down first (negative vertical acceleration), then up: the vertical speed at the peak is below zero.
-	var down := _swing(SwingDetector.new(), 0, 14.0, 240, -25.0)
-	var up := _swing(SwingDetector.new(), 0, 14.0, 240, 25.0)
-	var flat := _swing(SwingDetector.new(), 0, 14.0, 240, 0.0)
-	_check(down.found.size() == 1 and down.found[0].down and down.found[0].vertical < -SwingDetector.VERTICAL_MIN,
-			"a downward swing is `down` (vertical %.2f m/s)" % down.found[0].vertical)
-	_check(up.found.size() == 1 and not up.found[0].down and up.found[0].vertical > 0.0, "an upward swing is not `down`")
-	_check(flat.found.size() == 1 and not flat.found[0].down and absf(flat.found[0].vertical) < SwingDetector.VERTICAL_MIN,
-			"a sideways swing is not `down`")
+## Sends a made-up swing along `axis` to a slot, starting at the timestamp `t0`. Returns the timestamp after it.
+func _send(p: PlayerInput, t0: int, axis: Vector3, rest_ms: int) -> int:
+	var t := t0
+	var seq: Array = []
+	for i in 6:
+		seq.append(axis * 6.0)
+	for f in [10.0, 30.0, 30.0, 10.0]:
+		seq.append(-axis * f)
+	for i in int(rest_ms / 17.0):
+		seq.append(Vector3.ZERO)
+	for extra in seq:
+		p.on_sensor(_packet(t & 0xFFFFFFFF, extra), 100000 + t)
+		t += 17
+	return t
 
 
-func _cooldown() -> void:
-	print("one swing, one report")
-	var d := SwingDetector.new()
-	var first := _swing(d, 0, 14.0, 240, 0.0, 100)
-	# The next swing starts 100 ms after the first one ended: the arm coming back, inside the cooldown of 400 ms.
-	var back := _swing(d, int(first.end), 14.0, 240, 0.0, 100)
-	_check(first.found.size() == 1 and back.found.is_empty(), "a second movement inside 400 ms of the hit is ignored")
-	var later := _swing(d, int(back.end) + 600, 14.0, 240, 0.0)
-	_check(later.found.size() == 1 and d.count == 2, "a swing after the cooldown is found")
-	# A slow long turn that never falls below 80% of its peak is closed after 600 ms.
-	var e := SwingDetector.new()
-	var found := 0
-	for i in 60:
-		if not e.feed(i * STEP_MS, Vector3(0, 0, 9.0), UP * SwingDetector.G, UP).is_empty():
-			found += 1
-	_check(found == 1 and e.last.peak == 9.0, "a swing that does not end is closed after 600 ms")
-
-
-func _stream_edges() -> void:
-	print("timestamps and gaps")
-	# The timestamp is a u32: the swing runs over the wrap at 2^32.
-	var wrap := _swing(SwingDetector.new(), 0xFFFFFFFF - 100, 14.0, 240, 0.0)
-	_check(wrap.found.size() == 1 and int(wrap.found[0].latency_ms) < 150, "a swing over the u32 wrap of the timestamp is found")
-	# A gap of 2 s inside a swing (a lost phone) drops the swing.
-	var d := SwingDetector.new()
-	var found := 0
-	for t in [0, 17, 34, 51]:
-		found += 0 if d.feed(t, Vector3(0, 0, 12.0), UP * SwingDetector.G, UP).is_empty() else 1
-	found += 0 if d.feed(2051, Vector3.ZERO, UP * SwingDetector.G, UP).is_empty() else 1
-	_check(found == 0 and d.count == 0, "a swing that is cut by a 2 s gap is dropped")
-
-
-func _player_input() -> void:
+func _player_slot() -> void:
 	print("PlayerInput")
 	var p := PlayerInput.new(0, {})
 	var got: Array = []
 	p.swung.connect(func(info): got.append(info))
 	var t := 0
-	while t <= 700:
-		var x := float(t) / 240.0
-		var gyro := Vector3(0, 0, 14.0 * sin(PI * x)) if t <= 240 else Vector3.ZERO
-		p.on_sensor({"ts": t, "seq": t / STEP_MS, "gyro": gyro, "accel": UP * SwingDetector.G,
-				"buttons": 0, "touching": false, "touch": Vector2.ZERO}, 5000 + t)
-		t += STEP_MS
-	_check(got.size() == 1 and p.swing.count == 1 and p.last_swing_ms > 5000,
-			"the slot reports a swing with `swung` and keeps its time")
+	for i in 20:   # The phone lies still: the sensor fusion starts and nothing is found.
+		p.on_sensor(_packet(t, Vector3.ZERO), 100000 + t)
+		t += 17
+	_check(got.is_empty() and p.swing_count == 0 and p.last_swing.is_empty(), "a phone that lies still gives no swing")
+	t = _send(p, t, UP, 500)
+	_check(got.size() == 1 and p.swing_count == 1 and p.last_swing_ms > 0, "a swing along the up axis is reported once")
+	var s: Dictionary = got[0]
+	_check(s.down and s.power > 0.5 and s.power <= 1.0 and s.hit_age_ms > 0.0 and s.has("tilt"),
+			"it is a down swing with power (%.2f), the age of the hit (%.0f ms) and the tilt" % [s.power, s.hit_age_ms])
+	t = _send(p, t, Vector3(1, 0, 0), 100)
+	_check(got.size() == 2 and not got[1].down, "a second swing after the wait is found, and a sideways swing is not down")
+	t = _send(p, t, UP, 100)
+	_check(got.size() == 2, "a swing inside the wait of 0.4 s after the last one is ignored")
+	# The timestamp runs over the u32 wrap: the time step must stay 17 ms, not a huge number.
+	var w := PlayerInput.new(1, {})
+	var wrapped: Array = []
+	w.swung.connect(func(info): wrapped.append(info))
+	var tw := 0xFFFFFFFF - 300
+	for i in 20:
+		w.on_sensor(_packet(tw & 0xFFFFFFFF, Vector3.ZERO), 100000 + i * 17)
+		tw += 17
+	_send(w, tw, UP, 100)
+	_check(wrapped.size() == 1, "a swing over the u32 wrap of the timestamp is found")
 	p.reset()
-	_check(p.swing.count == 0 and p.swing.last.is_empty(), "a slot that is reset starts again without swings")
+	_check(p.swing_count == 0 and p.last_swing.is_empty(), "a slot that is reset starts again without swings")

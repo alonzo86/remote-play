@@ -13,6 +13,7 @@ tests/probe.gd|controller|finding a TV without the beacon
 tests/game_helpers.gd|controller|game helpers
 tests/game_rules.gd|controller|game rules
 tests/swing_detector.gd|controller|swing detector
+tests/tennis_rules.gd|controller|Tennis rules, ball and match
 tests/paint_rules.gd|controller|Paint Grab rules
 tests/asteroid_rules.gd|controller|Galaxy Protector rules and pictures
 tests/design_tokens.gd|controller|design tokens
@@ -27,3 +28,6 @@ tests/smoke_asteroid.gd|tv|Galaxy Protector
 tests/smoke_bests.gd|tv|personal bests
 tests/audio.gd|tv|audio: synth, songs, effects, volume and haptics switch
 tests/smoke_lang.gd|tv|languages and right to left
+tests/bowling_rules.gd|controller|Pin Pals rules, lane and swing
+tests/smoke_bowling.gd|tv|Pin Pals
+tests/smoke_tennis.gd|tv|Tennis
