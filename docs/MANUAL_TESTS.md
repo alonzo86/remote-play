@@ -73,6 +73,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [23](#test-23) | Pin Pals (bowling: aim with a turn, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -1056,6 +1057,54 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 | 8 | Note: Quick scoring | Not run | | | |
 | 9 | Photo of the scoreboard with 3 and 4 phones | Not run | | | |
 | 10 | Photo of the solo screen and the medal; note on the tiers | Not run | | | |
+| 11 | Note: what happened on each leave and on the lock | Not run | | | |
+| 12 | Note: the child, the age, what happened | Not run | | | |
+| 13 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 14 | Photo of the screen from the sofa; note | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-17).
+
+## Test 26
+
+### Mini Golf (aim, putt power, turns, 5 holes)
+
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 12. Covers: REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+
+New game (2026-10-17). It was only tested with made-up sensor values. Every number (the swing thresholds of Test 24, the putt speeds, the friction of grass and sand, the 5 course designs, the aim line lengths, the medal tiers) is a first guess. Do Test 24 first: Mini Golf uses the same swing detector. Hold the phone like a putter, with the screen toward you: turn it left and right to aim, swing it back and then forward to putt.
+
+**Steps**
+
+1. Open the tile of **Mini Golf** with 2 phones. Check: the settings view has Difficulty (Medium) and Holes (3 HOLES). Start. Check the tile against the game.
+2. In "3, 2, 1" check the name tags, the course (lawn, fence, clubhouse, bushes, the walls of the hole), the bar with all players at the bottom and the hole line (HOLE 1/3 PAR 2) at the top right.
+3. **Turn.** Check: only the golfer of the player on turn and a white ball are on the course, the shirt has the color of the player (hat, trousers and shoes white), "<NAME>'S TURN!" shows for about 1.5 s, the other phone shows "<NAME> IS PUTTING" and the phone on turn shows YOUR TURN.
+4. **Aim.** Turn the phone left and right. Check: the aim mark follows the direction smoothly and not too fast or slow, RECENTER sets straight ahead, and the direction locks when you swing back (the mark turns gold). Write down if the turn range feels right.
+5. **Power.** Putt with a soft, a medium and a hard swing. Check: the ball goes short, medium and far, the golfer swings through at the hit, the phone buzzes, and a small movement is not a putt. Write down the delay between the swing and the ball moving, and if a normal putt goes too far or too short.
+6. **Turn order.** With 2 and 4 phones check: each player putts once, in slot order, and the balls stay where they stopped. A player who is in the hole is skipped.
+7. **Obstacles.** On holes 2 to 5 check: walls bounce the ball, bumpers push it, sand slows it down, the windmill block bounces the ball, and the pond gives a splash and sends the ball back to the last spot (no extra stroke is counted besides the putt). Write down any hole that is too hard or too easy.
+8. **Holes and words.** Play 5 holes (set Holes to 5). Check: BIRDIE, PAR, BOGEY, HOLE IN ONE and "Picked up after 6 strokes" show at the right strokes, the card at the end of each hole has the strokes of the hole and the total, A skips it, and the bar counts the strokes.
+9. **Difficulty.** Play a hole on Easy, Medium and Hard. Check: Easy has a long aim line and the hint about the swing and a weak swing still moves the ball far, Medium a short line, Hard only the marker. The courses are the same.
+10. **Result.** Finish a match with 2 phones, then alone. Check: the result menu has the winner (or TIE) and, alone, a medal (gold at par or better, silver at most 1 over par per hole, bronze at most 2 over). Try again, New game and Back to menu work. Write down how long a 3 hole match took.
+11. Leave on one phone during a hole (4 phones, then 2 phones). Check: the turn goes on to the next player. Lock a phone: the game pauses with the card, and a swing under way starts again after the pause.
+12. Let a child of about 5 to 8 years play on Easy with a grown-up next to them. Check: the child understands the hint line, can aim and putt, is not upset by water or by a long hole, and wants to play again.
+13. Check the frame rate in the debug overlay with 4 phones (60 or close). (REQ-GM-50)
+14. **Pixel world (REQ-GM-47i to 47n).** From the sofa (about 3 m) check: the ball is easy to follow also far away, the golfer and the windmill are easy to tell apart, the bar and the banners are easy to read.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the settings view and of the tile | Not run | | | |
+| 2 | Photo of the countdown screen | Not run | | | |
+| 3 | Photo of a turn on the TV and on both phones | Not run | | | |
+| 4 | Note: the turn range of the aim, RECENTER | Not run | | | |
+| 5 | Video of soft, medium and hard putts; note: the delay in ms | Not run | | | |
+| 6 | Note: the order with 2 and 4 phones | Not run | | | |
+| 7 | Video of the windmill, a bumper, sand and the pond; note on the holes | Not run | | | |
+| 8 | Photo of the card of a hole and of each banner | Not run | | | |
+| 9 | Photo of the aim on each difficulty | Not run | | | |
+| 10 | Photo of the result menu and the medal; note: the time of a match | Not run | | | |
 | 11 | Note: what happened on each leave and on the lock | Not run | | | |
 | 12 | Note: the child, the age, what happened | Not run | | | |
 | 13 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
