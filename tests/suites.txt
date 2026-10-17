@@ -13,6 +13,7 @@ tests/probe.gd|controller|finding a TV without the beacon
 tests/game_helpers.gd|controller|game helpers
 tests/game_rules.gd|controller|game rules
 tests/swing_detector.gd|controller|swing detector
+tests/tennis_rules.gd|controller|Tennis rules, ball and match
 tests/paint_rules.gd|controller|Paint Grab rules
 tests/asteroid_rules.gd|controller|Galaxy Protector rules and pictures
 tests/design_tokens.gd|controller|design tokens
