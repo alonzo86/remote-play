@@ -57,6 +57,12 @@ const GAMES: Array[Dictionary] = [
 			"path": "res://scripts/game/bowling/bowling_game.gd", "min_players": 1, "max_players": 4,
 			"settings": [{"key": "rails", "label": "bowling.rails", "values": ["off", "on"],
 					"titles": ["bowling.off", "bowling.on"], "default": "off"}]},
+	{"id": "tennis", "doc": "res://docs/games/tennis.md", "title": "registry.tennis", "dim": "2d",
+			"description": "registry.swing_phone_hit_ball",
+			"tile": "res://assets/tiles/tennis.png",
+			"path": "res://scripts/game/tennis/tennis_game.gd", "min_players": 1, "max_players": 4,
+			"settings": [{"key": "scoring", "label": "tennis.scoring", "values": ["real", "quick"],
+					"titles": ["tennis.real", "tennis.quick"], "default": "real"}]},
 ]
 
 

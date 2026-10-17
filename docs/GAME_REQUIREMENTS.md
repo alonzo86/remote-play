@@ -171,3 +171,4 @@ Status (2026-10-09): the shared view, the choice row and the Difficulty row are 
 | Sumo Bumpers (2D) | `docs/games/sumo_bumpers.md` |
 | Galaxy Protector (2D) | `docs/games/asteroid_blast.md` |
 | Pin Pals (2D) | `docs/games/bowling.md` |
+| Tennis (2D) | `docs/games/tennis.md` |

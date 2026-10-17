@@ -39,7 +39,7 @@ func _rebuild() -> void:
 	var n := slots.size()
 	if n <= 1:
 		teams = [slots.duplicate(), []]
-		_order = [0] if n == 1 else []
+		_order.assign([0] if n == 1 else [])
 		return
 	if n == 2:
 		teams = [[slots[0]], [slots[1]]]

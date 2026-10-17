@@ -72,6 +72,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [22](#test-22) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-50 | Not run | | |
 | [23](#test-23) | Pin Pals (bowling: aim with a turn, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
+| [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -980,7 +981,7 @@ History:
 
 ### Swing detector for Tennis (debug overlay)
 
-Needs: 1 to 2 phones, 1 TV with its remote. Covers: REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4. New (2026-10-17). Tennis is not built yet: this test checks only the
+Needs: 1 to 2 phones, 1 TV with its remote. Covers: REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4. New (2026-10-17). Tennis was built after this test (Test 25). This test checks only the
 swing detector (`scripts/input/swing_detector.gd`, the one of Pin Pals) with the line that the debug overlay shows for each player. It is a swing back and then a swing
 forward. Every threshold (`BACK_ACCEL` 4, `FWD_ACCEL` 8, `FWD_FULL` 30 m/s2, the wait of 0.4 s) is a first guess, and you tune them from this test.
 
@@ -1011,6 +1012,54 @@ forward. Every threshold (`BACK_ACCEL` 4, `FWD_ACCEL` 8, `FWD_FULL` 30 m/s2, the
 | 8 | Note: the values in ms, the Age ms | Not run | | | |
 | 9 | Photo of the overlay with 2 phones | Not run | | | |
 | 10 | Note: the iPhone result | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-17).
+
+## Test 25
+
+### Tennis (swing, toss, serve, rally, scoring)
+
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 12. Covers: REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+
+New game (2026-10-17). It was only tested with made-up sensor values. Every number (the swing thresholds of Test 24, the hit window of 0.55 s, the green half width of 0.30, 0.21 and 0.15 s, the ball speeds, the medal tiers) is a first guess. Do Test 24 first: Tennis uses the same swing detector. Hold the phone like a racket handle, with the screen toward you. The tilt of the phone at the hit (right side down) sends the ball to the right.
+
+**Steps**
+
+1. Open the tile of **Tennis** with 2 phones. Check: the settings view has Difficulty (Medium) and Scoring (Real). Start. Check the tile against the game.
+2. In "3, 2, 1" check the name tags above the characters, the court (the real lines, the net, the umpire chair, the ball kid at the left net post, the stands, the blank ad boards) and that there is no leader chip.
+3. **Serve.** Check: the hint "Press A to toss. Then swing down to serve!" shows, A of the server tosses the ball, a swing from top to bottom at the top of the toss serves, and the phone buzzes. Try a swing too early, too late and from left to right. Check: a swing that is not a serve does nothing, and when the ball falls the server tosses again.
+4. **Return.** Check: the ball glows when it is your turn, the ring on the court shows the place of the hit (yellow, green in the green part), the character runs by itself, and a swing near the ring returns the ball. Write down the real delay between the swing and the hit.
+5. **Timing.** Swing in the green part, too early and too late. Check: green gives a fast shot with "GREAT!", too early and too late give a slow high lob that stays in play. Write down if the green part is too short or too long for each difficulty.
+6. **Power and aim.** Swing soft and hard, and tilt the phone to the left and to the right at the hit. Check: a hard swing is faster and longer, a soft swing is short, the tilt sends the ball to the matching side (also for the far team, mirrored), and a strong swing may go out on Medium and Hard but not on Easy.
+7. **Real scoring.** Play a whole match with 2 phones. Check: 0, 15, 30, 40, deuce and advantage, the first to 3 games wins, the server changes after every game, the banners (point, game, fault, out, net) match what happened, and the result menu names the winner. Write down how long the match took.
+8. **Quick scoring.** Set Scoring to Quick and play. Check: the first to 5 points wins, the server changes every 2 points.
+9. Play with 3 phones (2 against 1 on the regular court, the single player changes after every game) and with 4 phones (2 against 2, the pairs take turns). Check: the court size is the same, the names and colors on the scoreboard are right, and each phone shows its own place.
+10. Play with 1 phone (the pink ball machine). Check: the machine sends a ball, the rally and the best rally count, the 90 s timer runs, and the result menu shows a medal (Easy 4, 8, 14, Medium 5, 10, 20, Hard 6, 14, 28 hits in a row).
+11. Leave on one phone during a match (4 phones, then 2 phones). Check: with 4 phones the match goes on with 3 players; with 2 phones the other player wins at once. Lock a phone during a rally: the game pauses with the card, and swings do not count right after the return.
+12. Let a child of about 5 to 8 years play on Easy with a grown-up next to them. Check: the child understands the hint line, can serve and return, is not upset by a missed ball, and wants to play again.
+13. Check the frame rate in the debug overlay with 4 phones (60 or close). (REQ-GM-50)
+14. **Pixel world (REQ-GM-47i to 47n).** From the sofa (about 3 m) check: the ball and its shadow are easy to follow, the far characters can be told apart, the scoreboard and banners are easy to read, and the stands are not too busy.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the settings view and of the tile | Not run | | | |
+| 2 | Photo of the countdown screen | Not run | | | |
+| 3 | Video of a toss and a serve; note on swings that did nothing | Not run | | | |
+| 4 | Note: the delay swing to hit in ms | Not run | | | |
+| 5 | Video of a green, an early and a late swing; note on the green part | Not run | | | |
+| 6 | Video of soft, hard, left and right shots; note on the tilt | Not run | | | |
+| 7 | Photo of the result menu; note: the time of the match | Not run | | | |
+| 8 | Note: Quick scoring | Not run | | | |
+| 9 | Photo of the scoreboard with 3 and 4 phones | Not run | | | |
+| 10 | Photo of the solo screen and the medal; note on the tiers | Not run | | | |
+| 11 | Note: what happened on each leave and on the lock | Not run | | | |
+| 12 | Note: the child, the age, what happened | Not run | | | |
+| 13 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 14 | Photo of the screen from the sofa; note | Not run | | | |
 
 History:
 
