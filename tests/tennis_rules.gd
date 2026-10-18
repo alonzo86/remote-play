@@ -324,20 +324,19 @@ func _rally() -> void:
 	_until_contact(mid)
 	mid.swing(1, 0.6, false, -1.0, 0.0)
 	_check(right_x < mid.sim.vel.x, "the far team has its right hand at negative x: the aim is mirrored")
-	# The aim line shows the same x that the hit uses (REQ-TN-21).
+	# The side of the swing (-1 left to 1 right) decides where along the court the ball goes (REQ-TN-7).
 	var aim := _match([0, 1])
 	_serve_now(aim, 0.5)
 	_until_contact(aim)
-	_check(aim.aim_slot() == aim.hitter and aim.hitter >= 0, "the aim line belongs to the player who has to hit")
-	_check(aim.aim_x(1, 1.0, false) < aim.aim_x(1, -1.0, false), "far team: a tilt to the right is a smaller x (mirrored)")
+	_check(aim.hitter >= 0, "a player has to hit")
+	_check(aim.aim_x(1, 1.0, false) < aim.aim_x(1, -1.0, false), "far team: a swing to the right is a smaller x (mirrored)")
 	_check(absf(aim.aim_x(0, 1.0, false, 0.0)) <= aim.half_width() * 1.12 + 0.001,
-			"the aim of a full tilt stays within the aim range")
+			"the aim of a full side stays within the aim range")
 	var ez := _match([0, 1], false, "easy")
-	_check(absf(ez.aim_x(0, 1.0, false)) <= ez.half_width() - 0.4 + 0.001, "on Easy the aim line stays inside the lines")
+	_check(absf(ez.aim_x(0, 1.0, false)) <= ez.half_width() - 0.4 + 0.001, "on Easy the aim stays inside the lines")
 	var sv := _match([0, 1])
-	_check(sv.aim_slot() == sv.server_slot(), "before the serve the aim line belongs to the server")
 	var sx: float = sv.chars[sv.server_slot()].pos.x
-	_check(sv.aim_x(sv.server_slot(), 0.0, true) * sx < 0.0, "the serve aim with no tilt is in the box across the net")
+	_check(sv.aim_x(sv.server_slot(), 0.0, true) * sx < 0.0, "the serve aim with no side is in the box across the net")
 
 
 ## A character never runs out of the picture (REQ-TN-4).

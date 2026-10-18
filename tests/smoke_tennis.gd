@@ -91,10 +91,10 @@ func _run() -> void:
 	for i in int(apex / 0.016):
 		game._game_tick(0.016)
 	game._tick_ms = 0   # The game was paused a moment ago: a swing now is ignored.
-	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0, "tilt": Vector2.ZERO}, server)
+	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
 	_check(game.play.phase == game.Match.Phase.TOSS, "a swing right after a pause does nothing")
 	game._tick_ms = Time.get_ticks_msec()
-	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0, "tilt": Vector2.ZERO}, server)
+	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
 	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down at the top of the toss serves")
 
 	# The ball in play shows the target ring and the people draw (REQ-TN-5).

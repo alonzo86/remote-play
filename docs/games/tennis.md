@@ -51,7 +51,7 @@ Aim
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-TN-21 | **Removed 2026-10-18** (the swing direction decides the shot, REQ-TN-7, so a line from the tilt would be wrong; the hint texts were rewritten). Old text: The aim is shown on the TV before the swing: while a player is about to serve (from the start of the serve) or is the hitter of a ball that arrives (from 1.2 s before the contact), a line of dots in the color of that player goes from the net to a diamond on the other side of the court, at the place where the ball will go left or right. It moves live with the tilt of the phone (right side down moves it to the player's right) and it uses the same calculation as the hit (`aim_x()`), so the ball goes where the diamond was at the swing (a lob that is not green adds a random shift). The serve line ends at the service line, a rally line near the far baseline. On Easy it stays inside the lines. Power sets how deep the ball goes and is not shown. The phone shows nothing for it (a phone line would need a protocol change). | Device | tennis_rules, Test 25 |
+| REQ-TN-21 | **Removed 2026-10-18.** The aim line on the TV followed the tilt of the phone. The swing direction now decides the shot (REQ-TN-7), so the line would be wrong, and it is not built. The hint texts were rewritten. | Removed | - |
 
 Scoring
 

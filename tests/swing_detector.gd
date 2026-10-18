@@ -174,14 +174,10 @@ func _player_slot() -> void:
 	t = _send(p, t, UP, 500)
 	_check(got.size() == 1 and p.swing_count == 1 and p.last_swing_ms > 0, "a swing along the up axis is reported once")
 	var s: Dictionary = got[0]
-	_check(s.down and s.power > 0.5 and s.power <= 1.0 and s.hit_age_ms > 0.0 and s.has("tilt"),
-			"it is a down swing with power (%.2f), the age of the hit (%.0f ms) and the tilt" % [s.power, s.hit_age_ms])
-	var before_tilt := p.aim_tilt()
+	_check(s.down and s.power > 0.5 and s.power <= 1.0 and s.hit_age_ms > 0.0 and s.has("side"),
+			"it is a down swing with power (%.2f), the age of the hit (%.0f ms) and the side" % [s.power, s.hit_age_ms])
 	t = _send(p, t, Vector3(1, 0, 0), 100)   # A sideways swing also shakes the tilt of the sensor fusion.
 	_check(got.size() == 2 and not got[1].down, "a second swing after the wait is found, and a sideways swing is not down")
-	var at_hit: Vector2 = p.orientation.tilt()
-	_check((got[1].tilt as Vector2).is_equal_approx(before_tilt) and not at_hit.is_equal_approx(before_tilt),
-			"the tilt of a swing is the one from before the swing, not the one at the hit (REQ-TN-7)")
 	_check(absf(float(got[0].side)) < 0.01 and float(got[1].side) < -0.9,
 			"the side of a swing follows its direction: straight down gives 0, a forward swing to the left gives -1 (REQ-TN-7)")
 	var o := OrientationFusion.new({})
@@ -195,27 +191,16 @@ func _player_slot() -> void:
 	var cal_side := OrientationFusion.swing_side(Vector3(1, 1, 0), full, PI / 4.0)
 	_check(absf(cal_side) < 0.01 and OrientationFusion.swing_side(Vector3(0, 1, 0), full, PI / 4.0) < -0.99,
 			"a swing is measured from the calibrated heading: the calibrated one is straight, the old straight is now left")
-	var cal := PlayerInput.new(2, {})
-	_check(cal.calibrate_heading() == 0 and not cal.heading_set, "no swing, no calibration")
-	for az in [0.4, 0.6, 0.5]:
-		cal.last_swing = {"azimuth": az}
-		cal.calibrate_heading()
-	_check(cal.heading_set and is_equal_approx(cal.heading, 0.5), "three swings set the heading to their mean direction")
-	var wrap := PlayerInput.new(3, {})
-	for az in [PI - 0.1, -PI + 0.1, PI]:
-		wrap.last_swing = {"azimuth": az}
-		wrap.calibrate_heading()
-	_check(absf(absf(wrap.heading) - PI) < 0.01, "the mean of directions behind the player wraps round correctly")
 	var auto := PlayerInput.new(4, {})
 	for i in 12:   # A player whose swings all go 20 degrees (0.35 rad) to the side: that becomes "straight".
 		auto.last_swing = {"azimuth": 0.35}
 		auto._follow_heading(0.35)
-	_check(absf(auto.heading - 0.35) < 0.05 and not auto.heading_set, "the heading follows the swings of the player by itself")
+	_check(absf(auto.heading - 0.35) < 0.05, "the heading follows the swings of the player by itself")
 	var first := PlayerInput.new(5, {})
 	first._follow_heading(0.35)
 	_check(first.heading > 0.05 and first.heading < 0.3, "the first swing moves the heading only part of the way")
-	cal.recenter()
-	_check(not cal.heading_set and cal.heading == 0.0, "a recenter clears the heading")
+	auto.recenter()
+	_check(auto.heading == 0.0, "a recenter clears the heading")
 	var u := OrientationFusion.new({})   # Held upright like a racket grip, the screen to the player: the TV is away from the screen.
 	u.update(0, Vector3.ZERO, Vector3(0, 9.81, 0))
 	_check(u.to_world(Vector3(0, 0, -1)).is_equal_approx(Vector3(0, 1, 0)) and u.to_world(Vector3(1, 0, 0)).x > 0.99,

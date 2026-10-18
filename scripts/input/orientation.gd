@@ -143,8 +143,8 @@ static func azimuth(world: Vector3) -> float:
 
 
 ## Left or right of a swing, from -1 (to the left of the TV) to 1 (to the right), for a world vector `world`: its `azimuth()`
-## minus `heading` (the azimuth that the player calibrated as "straight at the TV"), full at `full_rad`. A swing that goes
-## straight up or down has no side and gives 0. The wrist turn and the tilt of the phone do not matter (REQ-TN-7).
+## minus `heading` (the azimuth that counts as "straight", see `PlayerInput`), full at `full_rad`. A swing that goes straight up
+## or down has no side and gives 0. The wrist turn and the tilt of the phone do not matter (REQ-TN-7).
 static func swing_side(world: Vector3, full_rad: float, heading := 0.0) -> float:
 	var az := azimuth(world)
 	if is_nan(az):

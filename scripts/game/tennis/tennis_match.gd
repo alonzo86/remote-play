@@ -234,8 +234,8 @@ func _rally_hit(slot: int, power: float, tilt_x: float, green: bool) -> void:
 	_after_hit(slot, team, green, power)
 
 
-## Where along the court (x, m) a hit of `slot` with the phone tilt `tilt_x` (-1 left to 1 right) sends the ball: a serve goes
-## into the service box across the net, a rally shot anywhere. The TV draws this live as the aim line (REQ-TN-21). `noise` is
+## Where along the court (x, m) a hit of `slot` with the side `tilt_x` of the swing (-1 left to 1 right) sends the ball: a serve
+## goes into the service box across the net, a rally shot anywhere. `noise` is
 ## added by a hit that is not green (a lob). Easy keeps the ball inside the lines (REQ-TN-18).
 func aim_x(slot: int, tilt_x: float, serving: bool, noise := 0.0) -> float:
 	var team := team_of(slot)
@@ -251,15 +251,6 @@ func aim_x(slot: int, tilt_x: float, serving: bool, noise := 0.0) -> float:
 	if level.inside:
 		tx2 = clampf(tx2, -(hw2 - 0.4), hw2 - 0.4)
 	return tx2
-
-
-## The slot whose aim the TV shows now, or -1: the server from the press of A until the serve, the hitter while the ball comes.
-func aim_slot() -> int:
-	if phase == Phase.TOSS or (phase == Phase.SERVE and not solo):
-		return server_slot()
-	if phase == Phase.RALLY and hitter >= 0 and not contact.is_empty() and float(contact.t) - time < 1.2:
-		return hitter
-	return -1
 
 
 ## A running place moved into the part of the court that the screen shows, so no character leaves the picture (REQ-TN-4).
