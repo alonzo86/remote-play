@@ -14,14 +14,14 @@ const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
 const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0,
-		"asteroid_blast": 4.0, "bowling": 4.0}
+		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
 		Vector3(0.18, 0.0, -0.6)]}
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
 const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2, "sumo_bumpers": 2, "asteroid_blast": 2,
-		"bowling": 2}
+		"bowling": 2, "tennis": 2, "mini_golf": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 
@@ -58,6 +58,33 @@ func _place_bowling(game: Control) -> void:
 	game.phase = game.Phase.ROLL
 	while game.sim.ball_pos.y < 17.6:
 		game.sim.tick(1.0 / 60.0)
+
+
+## The Tennis picture: a doubles serve just hit, the ball high over the near half of the court.
+func _place_tennis(game: Control) -> void:
+	var server: int = game.play.server_slot()
+	game.play.press_a(server)
+	for i in 36:
+		game._game_tick(0.016)
+	game._tick_ms = Time.get_ticks_msec()
+	game.play.swing(server, 0.9, true, 0.2, 0.0)
+	for i in 30:
+		game._game_tick(0.016)
+	game.set_process(false)
+	game._request_redraw()
+
+
+## The Mini Golf picture: the second hole (windmill, blade, lake), the ball of the first golfer on its way.
+func _place_mini_golf(game: Control) -> void:
+	game.rules.next_hole()
+	game._load_hole()
+	game._start_turn()
+	game.detector.aim_locked = true
+	game._putt(game.rules.current_slot())
+	for i in 22:
+		game._game_tick(0.016)
+	game.set_process(false)
+	game._request_redraw()
 
 
 ## The Galaxy Protector picture: rocks of all sizes, beams in the air, two pickups, a force field, 3 lasers and an explosion.
@@ -277,6 +304,14 @@ func _run() -> void:
 			wait = 0.0
 		if String(g.id) == "bowling":
 			_place_bowling(app.current_screen())
+			await _frames(2)
+			wait = 0.0
+		if String(g.id) == "tennis":
+			_place_tennis(app.current_screen())
+			await _frames(2)
+			wait = 0.0
+		if String(g.id) == "mini_golf":
+			_place_mini_golf(app.current_screen())
 			await _frames(2)
 			wait = 0.0
 		if String(g.id) == "asteroid_blast":

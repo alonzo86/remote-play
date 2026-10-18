@@ -4,7 +4,7 @@ Status: **built** (2026-10-16), not yet tried on a device (manual test 23). The 
 Type: 2D (pixel world). Players: 1 to 4. Input: phone motion (aim with a turn, throw with a swing), Recenter.
 General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84).
 Code: `scripts/game/bowling/` (`bowling_rules.gd` the score sheet and the turn order, `lane_sim.gd` the ball and the pins,
-`swing_detector.gd` the throw from the sensor values, `bowling_look.gd` the pictures, `bowling_game.gd` the screen).
+`scripts/input/swing_detector.gd` (shared with Tennis since 2026-10-17) the throw from the sensor values, `bowling_look.gd` the pictures, `bowling_game.gd` the screen).
 
 The name is a first idea (friendly, no trademark). Other names: "Strike Party", "Lane Bash". A trademark search was not done.
 

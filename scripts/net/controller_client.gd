@@ -38,6 +38,7 @@ var tv_player_name := ""
 var score_rank := 0          # The place of this phone in the round, 1 for the leader. 0 when the TV sent no score (REQ-FL-67).
 var score_of := 0            # The number of ranked players.
 var turn_state := 0           # 0 no turn line, 1 this phone is on turn, 2 another player is on turn (REQ-BW-14).
+var turn_kind := ""           # "" for the words of Pin Pals, "golf" for Mini Golf.
 var turn_who := ""            # The name of the player on turn when turn_state is 2.
 var score_text := ""         # The score as the TV shows it. Empty when there is no score yet.
 
@@ -270,6 +271,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 		"turn":
 			turn_state = clampi(int(msg.get("s", 0)), 0, 2)
 			turn_who = String(msg.get("who", "")).substr(0, 20) if turn_state == 2 else ""
+			turn_kind = "golf" if String(msg.get("k", "")) == "golf" else ""
 			score_changed.emit()
 		"result":
 			# Only the profile that plays on this phone counts (the TV sends the ID of the slot).
@@ -347,6 +349,7 @@ func clear_score() -> void:
 	if score_rank != 0 or score_of != 0 or score_text != "" or turn_state != 0:
 		turn_state = 0
 		turn_who = ""
+		turn_kind = ""
 		score_rank = 0
 		score_of = 0
 		score_text = ""

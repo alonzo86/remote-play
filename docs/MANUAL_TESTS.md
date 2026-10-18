@@ -71,6 +71,9 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [21](#test-21) | Join PIN and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-84, REQ-FL-85, REQ-N9, FD-25 | Not run | | |
 | [22](#test-22) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-50 | Not run | | |
 | [23](#test-23) | Pin Pals (bowling: aim with a turn, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
+| [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -974,3 +977,139 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 History:
 
 - -: **Not run**. New (2026-10-16).
+
+## Test 24
+
+### Swing detector for Tennis (debug overlay)
+
+Needs: 1 to 2 phones, 1 TV with its remote. Covers: REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4. New (2026-10-17). Tennis was built after this test (Test 25). This test checks only the
+swing detector (`scripts/input/swing_detector.gd`, the one of Pin Pals) with the line that the debug overlay shows for each player. It is a swing back and then a swing
+forward. Every threshold (`BACK_ACCEL` 4, `FWD_ACCEL` 8, `FWD_FULL` 30 m/s2, the wait of 0.4 s) is a first guess, and you tune them from this test.
+
+**Steps**
+
+1. Join with 1 phone. Open the debug overlay (Menu key, or Settings, Debug overlay). Check: under the table there is a line "P1 swing: none yet".
+2. Hold the phone in your hand like a racket handle, still. Check: no swing appears. Walk around the room with the phone in your hand. Check: no swing appears.
+3. Make a forehand: swing back, then forward, about as hard as a tennis stroke. Do 10 strokes. Check: the line shows `swing N` with a power and lights up for 1.5 s. Write down how many of 10 were found.
+4. Make a soft, a medium and a hard stroke. Check: the power grows from soft to hard. Write down the powers. A very soft move must not be a swing.
+5. Make a **serve**: toss, swing the phone back (up) and then forward from top to bottom. Check: the line says `DOWN`. Do 10 serves and write down how many say `DOWN`. Then a forehand from left to right. Check: it does not say `DOWN`.
+6. Swing back and forward, then at once back again. Check: one swing is found, and the next stroke 0.5 s later is found too.
+7. Shake the phone a little, or tap the table with it. Check: no swing is found.
+8. Look at "hit N ms before this report". Write down the values and the "Age ms" of the table (the delay of the phone, Test 4).
+9. Repeat items 3 and 5 with 2 phones at the same time. Check: each phone has its own line and the swings do not mix.
+10. (iPhone, if you have one) Repeat items 3 and 5. Check: the same results. Write down if `DOWN` is wrong on the iPhone (the sign of the accelerometer, Test 13 item 3).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the overlay | Not run | | | |
+| 2 | Note: any swing found by walking | Not run | | | |
+| 3 | Note: strokes found of 10, the power | Not run | | | |
+| 4 | Note: the power of a soft, medium and hard stroke | Not run | | | |
+| 5 | Note: serves with `DOWN` of 10; the other direction | Not run | | | |
+| 6 | Note: one swing or two; the stroke after 0.5 s | Not run | | | |
+| 7 | Note: any swing found by a shake or a tap | Not run | | | |
+| 8 | Note: the values in ms, the Age ms | Not run | | | |
+| 9 | Photo of the overlay with 2 phones | Not run | | | |
+| 10 | Note: the iPhone result | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-17).
+
+## Test 25
+
+### Tennis (swing, toss, serve, rally, scoring)
+
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 12. Covers: REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+
+New game (2026-10-17). It was only tested with made-up sensor values. Every number (the swing thresholds of Test 24, the hit window of 0.55 s, the green half width of 0.30, 0.21 and 0.15 s, the ball speeds, the medal tiers) is a first guess. Do Test 24 first: Tennis uses the same swing detector. Hold the phone like a racket handle, with the screen toward you. The tilt of the phone at the hit (right side down) sends the ball to the right.
+
+**Steps**
+
+1. Open the tile of **Tennis** with 2 phones. Check: the settings view has Difficulty (Medium) and Scoring (Real). Start. Check the tile against the game.
+2. In "3, 2, 1" check the name tags above the characters, the court (the real lines, the net, the umpire chair, the ball kid at the left net post, the stands, the blank ad boards) and that there is no leader chip.
+3. **Serve.** Check: the hint "Press A to toss. Then swing down to serve!" shows, A of the server tosses the ball, a swing from top to bottom at the top of the toss serves, and the phone buzzes. Try a swing too early, too late and from left to right. Check: a swing that is not a serve does nothing, and when the ball falls the server tosses again.
+4. **Return.** Check: the ball glows when it is your turn, the ring on the court shows the place of the hit (yellow, green in the green part), the character runs by itself, and a swing near the ring returns the ball. Write down the real delay between the swing and the hit.
+5. **Timing.** Swing in the green part, too early and too late. Check: green gives a fast shot with "GREAT!", too early and too late give a slow high lob that stays in play. Write down if the green part is too short or too long for each difficulty.
+6. **Power and aim.** Swing soft and hard, and tilt the phone to the left and to the right at the hit. Check: a hard swing is faster and longer, a soft swing is short, the tilt sends the ball to the matching side (also for the far team, mirrored), and a strong swing may go out on Medium and Hard but not on Easy.
+7. **Real scoring.** Play a whole match with 2 phones. Check: 0, 15, 30, 40, deuce and advantage, the first to 3 games wins, the server changes after every game, the banners (point, game, fault, out, net) match what happened, and the result menu names the winner. Write down how long the match took.
+8. **Quick scoring.** Set Scoring to Quick and play. Check: the first to 5 points wins, the server changes every 2 points.
+9. Play with 3 phones (2 against 1 on the regular court, the single player changes after every game) and with 4 phones (2 against 2, the pairs take turns). Check: the court size is the same, the names and colors on the scoreboard are right, and each phone shows its own place.
+10. Play with 1 phone (the pink ball machine). Check: the machine sends a ball, the rally and the best rally count, the 90 s timer runs, and the result menu shows a medal (Easy 4, 8, 14, Medium 5, 10, 20, Hard 6, 14, 28 hits in a row).
+11. Leave on one phone during a match (4 phones, then 2 phones). Check: with 4 phones the match goes on with 3 players; with 2 phones the other player wins at once. Lock a phone during a rally: the game pauses with the card, and swings do not count right after the return.
+12. Let a child of about 5 to 8 years play on Easy with a grown-up next to them. Check: the child understands the hint line, can serve and return, is not upset by a missed ball, and wants to play again.
+13. Check the frame rate in the debug overlay with 4 phones (60 or close). (REQ-GM-50)
+14. **Pixel world (REQ-GM-47i to 47n).** From the sofa (about 3 m) check: the ball and its shadow are easy to follow, the far characters can be told apart, the scoreboard and banners are easy to read, and the stands are not too busy.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the settings view and of the tile | Not run | | | |
+| 2 | Photo of the countdown screen | Not run | | | |
+| 3 | Video of a toss and a serve; note on swings that did nothing | Not run | | | |
+| 4 | Note: the delay swing to hit in ms | Not run | | | |
+| 5 | Video of a green, an early and a late swing; note on the green part | Not run | | | |
+| 6 | Video of soft, hard, left and right shots; note on the tilt | Not run | | | |
+| 7 | Photo of the result menu; note: the time of the match | Not run | | | |
+| 8 | Note: Quick scoring | Not run | | | |
+| 9 | Photo of the scoreboard with 3 and 4 phones | Not run | | | |
+| 10 | Photo of the solo screen and the medal; note on the tiers | Not run | | | |
+| 11 | Note: what happened on each leave and on the lock | Not run | | | |
+| 12 | Note: the child, the age, what happened | Not run | | | |
+| 13 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 14 | Photo of the screen from the sofa; note | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-17).
+
+## Test 26
+
+### Mini Golf (aim, putt power, turns, 5 holes)
+
+Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 12. Covers: REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+
+New game (2026-10-17). It was only tested with made-up sensor values. Every number (the swing thresholds of Test 24, the putt speeds, the friction of the grass, the 5 course designs, the aim line lengths, the medal tiers) is a first guess. Do Test 24 first: Mini Golf uses the same swing detector. Hold the phone like a putter, with the screen toward you: turn it left and right to aim, swing it back and then forward to putt.
+
+**Steps**
+
+1. Open the tile of **Mini Golf** with 2 phones. Check: the settings view has Difficulty (Medium) and Holes (3 HOLES). Start. Check the tile against the game.
+2. In "3, 2, 1" check the name tags, the course (lawn, fence, clubhouse, bushes, the walls of the hole), the bar with all players at the bottom and the hole line (HOLE 1/3 PAR 2) at the top right.
+3. **Turn.** Check: only the golfer of the player on turn and a white ball are on the course, the shirt has the color of the player (hat, trousers and shoes white), "<NAME>'S TURN!" shows for about 1.5 s, the other phone shows "<NAME> IS PUTTING" and the phone on turn shows YOUR TURN.
+4. **Aim.** Turn the phone left and right. Check: the aim mark follows the direction smoothly and not too fast or slow, RECENTER sets straight ahead, and the direction locks when you swing back (the mark turns gold). Write down if the turn range feels right.
+5. **Power.** Putt with a soft, a medium and a hard swing. Check: the ball goes short, medium and far, the golfer swings through at the hit, the phone buzzes, and a small movement is not a putt. Write down the delay between the swing and the ball moving, and if a normal putt goes too far or too short.
+6. **Turn order.** With 2 and 4 phones check: each player putts once, in slot order, and the balls stay where they stopped. A player who is in the hole is skipped.
+7. **Obstacles.** On holes 2 to 5 check: walls bounce the ball, the brick walls and the windmill block bounce it, rocks bounce it, the turning blades (holes 2, 4 and 5) push it, the sliding barriers (holes 3 and 5) can be timed and never block the whole course, and the lake (holes 2 and 4) gives a splash unless the ball crosses the bridge and sends the ball back to the last spot (no extra stroke is counted besides the putt). Write down any hole that is too hard or too easy.
+8. **Holes and words.** Play 5 holes (set Holes to 5). Check: BIRDIE, PAR, BOGEY, HOLE IN ONE and "Picked up after 6 strokes" show at the right strokes, the card at the end of each hole has the strokes of the hole and the total, A skips it, and the bar counts the strokes.
+9. **Difficulty.** Play a hole on Easy, Medium and Hard. Check: Easy has a long aim line and the hint about the swing and a weak swing still moves the ball far, Medium a short line, Hard only the marker. The courses are the same.
+10. **Result.** Finish a match with 2 phones, then alone. Check: the result menu has the winner (or TIE) and, alone, a medal (gold at par or better, silver at most 1 over par per hole, bronze at most 2 over). Try again, New game and Back to menu work. Write down how long a 3 hole match took.
+11. Leave on one phone during a hole (4 phones, then 2 phones). Check: the turn goes on to the next player. Lock a phone: the game pauses with the card, and a swing under way starts again after the pause.
+12. Let a child of about 5 to 8 years play on Easy with a grown-up next to them. Check: the child understands the hint line, can aim and putt, is not upset by water or by a long hole, and wants to play again.
+13. Check the frame rate in the debug overlay with 4 phones (60 or close). (REQ-GM-50)
+14. **Pixel world (REQ-GM-47i to 47n).** From the sofa (about 3 m) check: the ball is easy to follow also far away, the golfer and the windmill are easy to tell apart, the bar and the banners are easy to read.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the settings view and of the tile | Not run | | | |
+| 2 | Photo of the countdown screen | Not run | | | |
+| 3 | Photo of a turn on the TV and on both phones | Not run | | | |
+| 4 | Note: the turn range of the aim, RECENTER | Not run | | | |
+| 5 | Video of soft, medium and hard putts; note: the delay in ms | Not run | | | |
+| 6 | Note: the order with 2 and 4 phones | Not run | | | |
+| 7 | Video of the windmill, a brick wall, a turning blade, a rock, a sliding barrier, the lake and the bridge; note on the holes | Not run | | | |
+| 8 | Photo of the card of a hole and of each banner | Not run | | | |
+| 9 | Photo of the aim on each difficulty | Not run | | | |
+| 10 | Photo of the result menu and the medal; note: the time of a match | Not run | | | |
+| 11 | Note: what happened on each leave and on the lock | Not run | | | |
+| 12 | Note: the child, the age, what happened | Not run | | | |
+| 13 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 14 | Photo of the screen from the sofa; note | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-17).

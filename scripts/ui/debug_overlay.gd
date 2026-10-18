@@ -30,7 +30,7 @@ class _Canvas extends Control:
 		var line := 30.0
 		var w := 1500.0
 		var rows: Array = App.server.players.filter(func(p): return p.is_present())
-		var h: float = 56.0 + line * (2 + maxi(rows.size(), 1))
+		var h: float = 56.0 + line * (3 + maxi(rows.size(), 1) * 2)
 		var o := Vector2(40, 40)
 		draw_rect(Rect2(o, Vector2(w, h)), Color(0, 0, 0, 0.78))
 		var ip: String = App.discovery.ip if App.discovery != null else "?"
@@ -59,3 +59,16 @@ class _Canvas extends Control:
 			]
 			for c in cells.size():
 				draw_string(font, Vector2(o.x + 16 + COLS[c], y), cells[c], HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+		y += line
+		for p in rows:
+			y += line
+			draw_string(font, Vector2(o.x + 16, y), _swing_text(p), HORIZONTAL_ALIGNMENT_LEFT, -1, fs,
+					p.color if Time.get_ticks_msec() - p.last_swing_ms < 1500 else UiTheme.TEXT_DIM)
+
+	func _swing_text(p: PlayerInput) -> String:
+		if p.swing_count == 0:
+			return "P%d  swing: none yet" % (p.slot + 1)
+		var s: Dictionary = p.last_swing
+		return "P%d  swing %d: power %.2f  %s  hit %d ms before this report  %.1f s ago" % [
+				p.slot + 1, p.swing_count, s.power, "DOWN" if s.down else "not down", s.hit_age_ms,
+				(Time.get_ticks_msec() - p.last_swing_ms) / 1000.0]

@@ -139,9 +139,12 @@ func send_score(slot: int, rank: int, of: int, text: String) -> void:
 
 
 ## Tells one phone whose turn it is in a game with turns (REQ-BW-14): `state` 0 for no turn line, 1 when it is the turn of this
-## phone, 2 when another player is on turn (`who` is the name of that player). The same message is not sent twice in a row.
-func send_turn(slot: int, state: int, who: String) -> void:
+## phone, 2 when another player is on turn (`who` is the name of that player). `kind` names the words of the waiting line ("" for
+## bowling, "golf" for Mini Golf). The same message is not sent twice in a row.
+func send_turn(slot: int, state: int, who: String, kind := "") -> void:
 	var msg := {"t": "turn", "s": state, "who": who if state == 2 else ""}
+	if kind != "":
+		msg["k"] = kind
 	if _turn_sent.get(slot, {"s": 0, "who": ""}) == msg:
 		return
 	if slot >= 0 and slot < players.size() and players[slot].is_connected_now():

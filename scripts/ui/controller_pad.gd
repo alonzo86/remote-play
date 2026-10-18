@@ -178,7 +178,9 @@ func _draw() -> void:
 	# Whose turn it is, in a game with turns, on the row of NEW BEST! (the two never show together, REQ-BW-14).
 	if online and c.turn_state != 0:
 		var turn_rect := Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
-		var turn_text := Lang.t("bowling.phone_turn") if c.turn_state == 1 else Lang.f("bowling.phone_wait", [c.turn_who])
+		var golf: bool = c.turn_kind == "golf"
+		var turn_text := Lang.t("bowling.phone_turn") if c.turn_state == 1 else Lang.f(
+				"mini_golf.phone_wait" if golf else "bowling.phone_wait", [c.turn_who])
 		draw_string(f, Vector2(turn_rect.position.x, UiTheme.centered_baseline(f, turn_rect, 32)), turn_text.to_upper(),
 				HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_DIM)
 

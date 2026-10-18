@@ -8,7 +8,7 @@ extends "res://scripts/game/minigame.gd"
 
 const BowlingRules = preload("res://scripts/game/bowling/bowling_rules.gd")
 const LaneSim = preload("res://scripts/game/bowling/lane_sim.gd")
-const SwingDetector = preload("res://scripts/game/bowling/swing_detector.gd")
+const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
