@@ -33,6 +33,9 @@ var power := 0.0
 var threshold := 1.0
 ## The wait after a throw (s). Tennis uses a shorter one than bowling, so that the next ball can be hit.
 var lock_after := LOCK_AFTER
+## How long (s) a back swing waits for its forward swing. Tennis waits longer, because a player draws back early while the
+## ball is still coming.
+var window := SWING_WINDOW
 ## The direction of the forward swing in the phone frame (a unit vector), valid after `released`. With the world "up" of the
 ## sensor fusion a game finds out if it went down (a serve): `forward_dir.dot(orientation.up) < 0`.
 var forward_dir := Vector3.ZERO
@@ -101,7 +104,7 @@ func _update_back(delta: float, lin: Vector3) -> void:
 		_peak = f
 		_since_peak = 0.0
 		_time = 0.0
-	elif _time > SWING_WINDOW:
+	elif _time > window:
 		weak = true
 		reset()
 		weak = true   # reset() clears the flag; the game shows "Swing a bit more!".

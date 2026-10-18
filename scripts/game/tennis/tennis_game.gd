@@ -332,7 +332,7 @@ func _draw_aim(ci: CanvasItem, p: Look.Proj) -> void:
 	if slot < 0 or not participants.has(slot):
 		return
 	var serving := play.phase != Match.Phase.RALLY
-	var tilt_x := clampf(player(slot).tilt().x / TILT_FULL, -1.0, 1.0)
+	var tilt_x := clampf(player(slot).aim_tilt().x / TILT_FULL, -1.0, 1.0)
 	var team := play.team_of(slot)
 	var toward := -Match.side(team)
 	var length := Sim.SERVICE if serving else Sim.HALF_L * 0.9

@@ -66,6 +66,20 @@ func _detector_additions() -> void:
 	_check(quick.state == SwingDetector.State.READY and slow.state == SwingDetector.State.LOCKED,
 			"`lock_after` sets the wait after a swing (0.4 s for Tennis, 1.5 s is the bowling default)")
 
+	# A player who draws back early still gets the hit when the forward swing comes 2 s later (Tennis waits 3 s).
+	var early := SwingDetector.new()
+	early.window = 3.0
+	var plain := SwingDetector.new()
+	for d2 in [early, plain]:
+		for i in 6:
+			d2.update(DT, Vector3(1, 0, 0) * 6.0)
+		for i in 120:
+			d2.update(DT, Vector3.ZERO)
+		for f in [10.0, 30.0, 30.0, 10.0]:
+			d2.update(DT, Vector3(-1, 0, 0) * f)
+	_check(early.released and not plain.released,
+			"`window` sets how long a back swing waits for the forward swing (1.5 s is the default)")
+
 
 ## A packet at `ts` with the extra acceleration `extra` (m/s2, phone frame) on top of gravity.
 func _packet(ts: int, extra: Vector3) -> Dictionary:
@@ -104,8 +118,12 @@ func _player_slot() -> void:
 	var s: Dictionary = got[0]
 	_check(s.down and s.power > 0.5 and s.power <= 1.0 and s.hit_age_ms > 0.0 and s.has("tilt"),
 			"it is a down swing with power (%.2f), the age of the hit (%.0f ms) and the tilt" % [s.power, s.hit_age_ms])
-	t = _send(p, t, Vector3(1, 0, 0), 100)
+	var before_tilt := p.aim_tilt()
+	t = _send(p, t, Vector3(1, 0, 0), 100)   # A sideways swing also shakes the tilt of the sensor fusion.
 	_check(got.size() == 2 and not got[1].down, "a second swing after the wait is found, and a sideways swing is not down")
+	var at_hit: Vector2 = p.orientation.tilt()
+	_check((got[1].tilt as Vector2).is_equal_approx(before_tilt) and not at_hit.is_equal_approx(before_tilt),
+			"the tilt of a swing is the one from before the swing, not the one at the hit (REQ-TN-7)")
 	t = _send(p, t, UP, 100)
 	_check(got.size() == 2, "a swing inside the wait of 0.4 s after the last one is ignored")
 	# The timestamp runs over the u32 wrap: the time step must stay 17 ms, not a huge number.

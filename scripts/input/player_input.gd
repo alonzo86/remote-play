@@ -6,6 +6,8 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 
+const SWING_THRESHOLD := 0.75   # Tennis counts a lighter swing than Pin Pals (the factor on the thresholds of the detector).
+const SWING_WINDOW_S := 3.0     # A player draws back early: a back swing waits this long (s) for the forward swing.
 const SWING_LOCK_S := 0.4   # After a swing the next one can be found after this time (a bowling throw waits 1.5 s).
 
 enum State { EMPTY, CONNECTED, LOST }
@@ -54,6 +56,7 @@ var _window_count := 0
 var _window_max_gap := 0
 var _prev_buttons := 0
 var _swing_ts := -1
+var _aim_tilt := Vector2.ZERO    # The tilt while the phone was still before the swing (see `aim_tilt()`).
 
 
 func _init(p_slot: int, settings: Dictionary) -> void:
@@ -184,6 +187,12 @@ func tilt() -> Vector2:
 	return orientation.tilt()
 
 
+## The tilt that a swing would use: the live tilt while the phone waits, and the tilt from before the swing from the start of
+## a back swing on (REQ-TN-7, 21).
+func aim_tilt() -> Vector2:
+	return orientation.tilt() if swing.state == SwingDetector.State.READY else _aim_tilt
+
+
 func pointer() -> Vector2:
 	return orientation.pointer()
 
@@ -207,6 +216,9 @@ func is_down(bit: int) -> bool:
 func _new_swing_detector() -> void:
 	swing = SwingDetector.new()
 	swing.lock_after = SWING_LOCK_S
+	swing.threshold = SWING_THRESHOLD
+	swing.window = SWING_WINDOW_S
+	_aim_tilt = Vector2.ZERO
 	last_swing = {}
 	swing_count = 0
 	_swing_ts = -1
@@ -220,7 +232,10 @@ func _feed_swing(pkt: Dictionary, now_ms: int) -> void:
 	if _swing_ts >= 0:
 		dt = clampf(((pkt.ts - _swing_ts) & 0xFFFFFFFF) / 1000.0, 0.0, 0.1)
 	_swing_ts = pkt.ts
-	swing.update(dt, orientation.linear_accel(pkt.accel))
+	var lin := orientation.linear_accel(pkt.accel)
+	if swing.state == SwingDetector.State.READY and lin.length() <= SwingDetector.BACK_ACCEL * swing.threshold:
+		_aim_tilt = orientation.tilt()   # The aim is the pose before the swing: the swing itself turns the wrist.
+	swing.update(dt, lin)
 	if not swing.released:
 		return
 	last_swing = {
@@ -228,7 +243,7 @@ func _feed_swing(pkt: Dictionary, now_ms: int) -> void:
 		"down": SwingDetector.is_down(swing.forward_dir, orientation.up),
 		"forward_dir": swing.forward_dir,
 		"hit_age_ms": swing.hit_age * 1000.0,
-		"tilt": orientation.tilt(),
+		"tilt": _aim_tilt,
 	}
 	last_swing_ms = now_ms
 	swing_count += 1
