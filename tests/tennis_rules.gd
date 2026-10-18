@@ -289,6 +289,10 @@ func _rally() -> void:
 	var c: Dictionary = m.contact
 	_check(m.swing(1, 0.5, false, 0.0, 1.0) == "none", "a swing whose hit was 1 s before the contact does nothing")
 	_check(m.swing(1, 0.5, false, 0.0, -1.0) == "none", "and one whose hit is 1 s after it does nothing")
+	m.chars[1].anim = 5.0
+	var miss := m.swing(1, 0.5, false, 0.0, 1.0)
+	_check(miss == "none" and m.chars[1].anim == 0.0 and m.contact == c and m.hitter == 1,
+			"a missed swing still plays the swing of the character, and the ball and the turn stay as they were")
 	var back := m.swing(1, 0.7, false, 0.0, 0.0)
 	_check(back == "hit" and m.hit_team == 1 and m.expect_team == 0 and m.hitter == 0,
 			"a swing at the contact time returns the ball")

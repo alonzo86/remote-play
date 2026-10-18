@@ -69,6 +69,7 @@ class _Canvas extends Control:
 		if p.swing_count == 0:
 			return "P%d  swing: none yet" % (p.slot + 1)
 		var s: Dictionary = p.last_swing
-		return "P%d  swing %d: power %.2f  %s  hit %d ms before this report  %.1f s ago" % [
-				p.slot + 1, p.swing_count, s.power, "DOWN" if s.down else "not down", s.hit_age_ms,
+		var w: Vector3 = s.world_dir
+		return "P%d  swing %d: power %.2f  %s  side %.2f (x %.2f, to TV %.2f, up %.2f)  hit %d ms ago  %.1f s ago" % [
+				p.slot + 1, p.swing_count, s.power, "DOWN" if s.down else "not down", s.side, w.x, w.y, w.z, s.hit_age_ms,
 				(Time.get_ticks_msec() - p.last_swing_ms) / 1000.0]

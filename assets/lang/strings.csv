@@ -214,8 +214,8 @@ registry.swing_phone_hit_ball,SWING YOUR PHONE TO HIT THE BALL BACK!,הניפו 
 tennis.scoring,SCORING,ניקוד,Tennis settings view: name of the Scoring row,
 tennis.real,REAL,אמיתי,"Tennis settings view: Real value of the Scoring row (15, 30, 40, deuce, first to 3 games)",
 tennis.quick,QUICK,מהיר,Tennis settings view: Quick value of the Scoring row (first to 5 points),
-tennis.hint_serve,PRESS A TO TOSS. TILT TO MOVE THE DOTS. SWING DOWN TO SERVE!,לחצו A כדי לזרוק. הטו כדי להזיז את הנקודות. הניפו מלמעלה למטה כדי להגיש!,Tennis: hint line at the bottom while a player serves (first 16 seconds of the match),
-tennis.hint_hit,TILT THE PHONE TO MOVE THE DOTS. SWING WHEN THE BALL ARRIVES!,הטו את הטלפון כדי להזיז את הנקודות. הניפו כשהכדור מגיע!,Tennis: hint line at the bottom during a rally (first 16 seconds of the match),
+tennis.hint_serve,PRESS A TO TOSS. SWING DOWN TO SERVE! SWING TO A SIDE TO AIM.,לחצו A כדי לזרוק. הניפו מלמעלה למטה כדי להגיש! הניפו לצד כדי לכוון.,Tennis: hint line at the bottom while a player serves (first 16 seconds of the match),
+tennis.hint_hit,SWING WHEN THE BALL ARRIVES! SWING TO A SIDE TO AIM.,הניפו כשהכדור מגיע! הניפו לצד כדי לכוון.,Tennis: hint line at the bottom during a rally (first 16 seconds of the match),
 tennis.hint_solo,HIT EVERY BALL BACK TO KEEP THE RALLY GOING!,הדפו כל כדור כדי להמשיך את הרצף!,Tennis with 1 player: hint line at the bottom (first 16 seconds of the match),
 tennis.serves,%s SERVES,%s מגיש/ה,"Tennis: plate in the middle of the screen before a serve, %s is the name of the server",%s is replaced by a name or a value
 tennis.point_to,POINT: %s,נקודה: %s,"Tennis: banner after a point, %s is the name of the player or team that won it",%s is replaced by a name or a value

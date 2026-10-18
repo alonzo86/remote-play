@@ -180,6 +180,13 @@ func press_a(slot: int) -> void:
 func swing(slot: int, power: float, down: bool, tilt_x: float, hit_age: float) -> String:
 	if not chars.has(slot):
 		return "none"
+	var result := _swing_result(slot, power, down, tilt_x, hit_age)
+	if result == "none":
+		chars[slot].anim = 0.0   # The character still swings its racket, it only misses the ball.
+	return result
+
+
+func _swing_result(slot: int, power: float, down: bool, tilt_x: float, hit_age: float) -> String:
 	var t := time - hit_age
 	match phase:
 		Phase.TOSS:

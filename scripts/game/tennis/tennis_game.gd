@@ -15,7 +15,6 @@ const END_DELAY := 2.2          # After the last point the court stays this long
 const HINT_TIME := 16.0         # The hint lines show this long at the start of the match.
 const BANNER_TIME := 1.6
 const GREAT_TIME := 0.8
-const TILT_FULL := 0.5          # A tilt of this size (sine of the angle, about 30 degrees) aims all the way to the side.
 const BUZZ_HIT_MS := 30
 const BUZZ_GREAT_MS := 60
 const PAUSE_GAP_MS := 400       # A gap between two ticks longer than this means the game was paused: swings are ignored.
@@ -84,8 +83,8 @@ func _on_button(bit: int, slot: int) -> void:
 func _on_swing(info: Dictionary, slot: int) -> void:
 	if not _live() or Time.get_ticks_msec() - _tick_ms > PAUSE_GAP_MS:
 		return
-	var tilt_x := clampf((info.tilt as Vector2).x / TILT_FULL, -1.0, 1.0)
-	play.swing(slot, float(info.power), bool(info.down), tilt_x, float(info.hit_age_ms) / 1000.0)
+	var side := clampf(float(info.get("side", 0.0)), -1.0, 1.0)   # The side of the swing, not the tilt (REQ-TN-7).
+	play.swing(slot, float(info.power), bool(info.down), side, float(info.hit_age_ms) / 1000.0)
 
 
 ## True while the match is on: not in the countdown, not over, not paused.
@@ -266,7 +265,6 @@ func _world_draw(ci: CanvasItem) -> void:
 	Look.draw_court(ci, p)
 	if play.phase == Match.Phase.RALLY:
 		_draw_target(ci, p)
-	_draw_aim(ci, p)
 	Look.draw_tower(ci, p)
 	var things: Array = [{"y": 0.0, "k": "net"}, {"y": -0.5, "k": "kid"}]
 	if play.sim.active:
@@ -324,19 +322,6 @@ func _draw_target(ci: CanvasItem, p: Look.Proj) -> void:
 		var a := TAU * float(i) / 16.0
 		pts.append(p.at(cp.x + cos(a) * 0.8, cp.y + sin(a) * 0.8))
 	ci.draw_polyline(pts, color, 6.0 if green else 4.0)
-
-
-## The aim line of the player who is about to serve or hit: it follows the tilt of the phone (REQ-TN-21).
-func _draw_aim(ci: CanvasItem, p: Look.Proj) -> void:
-	var slot := play.aim_slot()
-	if slot < 0 or not participants.has(slot):
-		return
-	var serving := play.phase != Match.Phase.RALLY
-	var tilt_x := clampf(player(slot).aim_tilt().x / TILT_FULL, -1.0, 1.0)
-	var team := play.team_of(slot)
-	var toward := -Match.side(team)
-	var length := Sim.SERVICE if serving else Sim.HALF_L * 0.9
-	Look.draw_aim(ci, p, play.aim_x(slot, tilt_x, serving), toward, length, player(slot).color)
 
 
 func _game_draw() -> void:

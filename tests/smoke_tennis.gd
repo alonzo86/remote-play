@@ -61,6 +61,7 @@ func _run() -> void:
 	var Tennis = load("res://scripts/game/tennis/tennis_game.gd")
 	var GameSettings = load("res://scripts/game/game_settings.gd")
 	var app: Node = root.get_node("App")
+	app.set_language("en", false)   # The texts are checked in English, whatever language this machine saved.
 	GameSettings.clear()
 	var clients: Array = await _join(app, 2)
 

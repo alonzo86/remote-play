@@ -8,7 +8,12 @@ const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 
 const SWING_THRESHOLD := 0.75   # Tennis counts a lighter swing than Pin Pals (the factor on the thresholds of the detector).
 const SWING_WINDOW_S := 3.0     # A player draws back early: a back swing waits this long (s) for the forward swing.
-const SWING_LOCK_S := 0.4   # After a swing the next one can be found after this time (a bowling throw waits 1.5 s).
+const SWING_SIDE_FULL := 0.7854   # A swing 45 degrees (rad) to the side of the TV aims all the way to the side (REQ-TN-7).
+const HEADING_PRIOR := 1.0       # The weight of the guess "the TV is where the phone pointed at GO" (azimuth 0).
+const HEADING_KEEP := 0.9        # The share of the old swings that stays when a new swing comes (the last ~10 count).
+const SWING_HOLD_S := 0.5       # A back swing does not correct gravity from the accelerometer for this long (s).
+const CALIBRATION_SWINGS := 3    # Swings straight at the TV that set the heading.
+const SWING_LOCK_S := 0.6   # After a swing the next one can be found after this time (a bowling throw waits 1.5 s).
 
 enum State { EMPTY, CONNECTED, LOST }
 
@@ -56,6 +61,14 @@ var _window_count := 0
 var _window_max_gap := 0
 var _prev_buttons := 0
 var _swing_ts := -1
+## The azimuth of a swing at the TV (rad, in the world frame of the sensor fusion), and if the player calibrated it.
+var heading := 0.0
+var heading_set := false
+var _calib_az: Array[float] = []
+var _head_x := 0.0               # The weighted mean direction of the swings so far, as a vector (sin, cos).
+var _head_y := HEADING_PRIOR
+var _hold_s := 0.0
+var _fwd_world := Vector3.ZERO   # The forward swing as it happened in the world (x right of the TV, y to the TV, z up).
 var _aim_tilt := Vector2.ZERO    # The tilt while the phone was still before the swing (see `aim_tilt()`).
 
 
@@ -179,6 +192,42 @@ func tick(now_ms: int) -> void:
 
 func recenter() -> void:
 	orientation.recenter()
+	heading = 0.0
+	heading_set = false
+	_calib_az.clear()
+	_head_x = 0.0
+	_head_y = HEADING_PRIOR
+
+
+## "Straight at the TV" without a setup step: the mean direction of the player's own swings (a player hits around the middle of
+## the court), started from the guess that the TV is where the phone pointed at GO. The swing that is being reported is measured
+## against the mean from before it. An explicit calibration (`calibrate_heading()`) replaces it.
+func _follow_heading(az: float) -> void:
+	if heading_set or is_nan(az):
+		return
+	_head_x = _head_x * HEADING_KEEP + sin(az)
+	_head_y = _head_y * HEADING_KEEP + cos(az)
+	heading = atan2(_head_x, _head_y)
+
+
+## Adds the last swing to the calibration of "straight at the TV": the phone has no compass and the grip differs, so the player
+## swings straight a few times and the heading is the mean direction (a single swing can be a mistake). Returns the number of
+## swings taken so far (CALIBRATION_SWINGS or more: `heading_set`). A swing that went up or down has no direction and is
+## not taken.
+func calibrate_heading() -> int:
+	var az := float(last_swing.get("azimuth", NAN))
+	if is_nan(az):
+		return _calib_az.size()
+	_calib_az.append(az)
+	if _calib_az.size() >= CALIBRATION_SWINGS:
+		var sx := 0.0
+		var sy := 0.0
+		for a in _calib_az:
+			sx += sin(a)
+			sy += cos(a)
+		heading = atan2(sx, sy)
+		heading_set = true
+	return _calib_az.size()
 
 
 # ---- API for games ----
@@ -218,6 +267,7 @@ func _new_swing_detector() -> void:
 	swing.lock_after = SWING_LOCK_S
 	swing.threshold = SWING_THRESHOLD
 	swing.window = SWING_WINDOW_S
+	swing.hand_speed = true
 	_aim_tilt = Vector2.ZERO
 	last_swing = {}
 	swing_count = 0
@@ -235,16 +285,35 @@ func _feed_swing(pkt: Dictionary, now_ms: int) -> void:
 	var lin := orientation.linear_accel(pkt.accel)
 	if swing.state == SwingDetector.State.READY and lin.length() <= SwingDetector.BACK_ACCEL * swing.threshold:
 		_aim_tilt = orientation.tilt()   # The aim is the pose before the swing: the swing itself turns the wrist.
+	var was_forward := swing.state == SwingDetector.State.FORWARD
 	swing.update(dt, lin)
+	# The accelerometer is not trusted for gravity while a swing starts and runs, but only briefly: a wrong gravity direction
+	# looks like movement, which starts a new back swing at once and would never end.
+	if swing.state == SwingDetector.State.BACK:
+		_hold_s += dt
+	elif swing.state != SwingDetector.State.FORWARD:
+		_hold_s = 0.0
+	orientation.hold_accel = swing.state == SwingDetector.State.FORWARD or (
+			swing.state == SwingDetector.State.BACK and _hold_s < SWING_HOLD_S)
+	if swing.state == SwingDetector.State.FORWARD or (was_forward and swing.released):
+		# The phone turns in the swing: sum the push in the world frame, not in the phone frame.
+		_fwd_world += orientation.to_world(lin) * maxf(dt, 0.001)
+	elif swing.state == SwingDetector.State.READY or swing.state == SwingDetector.State.BACK:
+		_fwd_world = Vector3.ZERO
 	if not swing.released:
 		return
+	var world := _fwd_world
 	last_swing = {
 		"power": swing.power,
 		"down": SwingDetector.is_down(swing.forward_dir, orientation.up),
 		"forward_dir": swing.forward_dir,
 		"hit_age_ms": swing.hit_age * 1000.0,
 		"tilt": _aim_tilt,
+		"side": OrientationFusion.swing_side(world, SWING_SIDE_FULL, heading),
+		"azimuth": OrientationFusion.azimuth(world),
+		"world_dir": world.normalized(),
 	}
+	_follow_heading(last_swing.azimuth)
 	last_swing_ms = now_ms
 	swing_count += 1
 	swung.emit(last_swing)
