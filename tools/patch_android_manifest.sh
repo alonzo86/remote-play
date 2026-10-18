@@ -70,6 +70,12 @@ patch(manifest, "android.software.leanback",
       lambda s: s.replace("    <application", feat + "\n    <application", 1),
       "uses-feature flags")
 
+# Android TV lists only apps with the leanback launcher category, and `monkey` needs it to find the activity.
+patch(manifest, "category.LEANBACK_LAUNCHER",
+      lambda s: s.replace('<category android:name="android.intent.category.LAUNCHER" />',
+                          '<category android:name="android.intent.category.LAUNCHER" />\n                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />', 1),
+      "leanback launcher category")
+
 patch(manifest, "CHANGE_WIFI_MULTICAST_STATE",
       lambda s: s.replace("    <application", '    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />\n\n    <application', 1),
       "multicast permission")

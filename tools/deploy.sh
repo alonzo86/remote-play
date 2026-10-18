@@ -49,7 +49,14 @@ APK="build/sababi-$ROLE.apk"
 [ -f "$APK" ] || { echo "Missing $APK. Run without --no-build." >&2; exit 1; }
 PKG="io.github.alonzo86.sababi.$ROLE"
 
+# The export takes a while and adb may have stopped meanwhile (a Wi-Fi TV is then gone): connect again.
+case "$SERIAL" in *:*) "$ADB" connect "$SERIAL" >/dev/null ;; esac
+
 "$ADB" -s "$SERIAL" install -r "$APK"
-"$ADB" -s "$SERIAL" shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1 \
-	|| "$ADB" -s "$SERIAL" shell monkey -p "$PKG" -c android.intent.category.LEANBACK_LAUNCHER 1 >/dev/null
-echo "Installed and launched $PKG."
+# Ask the device for the launcher activity (the TV one has the leanback category), then start it.
+ACTIVITY="$("$ADB" -s "$SERIAL" shell cmd package resolve-activity --brief -c android.intent.category.LEANBACK_LAUNCHER "$PKG" | tr -d '\r' | tail -1)"
+case "$ACTIVITY" in */*) ;; *) ACTIVITY="$("$ADB" -s "$SERIAL" shell cmd package resolve-activity --brief -c android.intent.category.LAUNCHER "$PKG" | tr -d '\r' | tail -1)" ;; esac
+case "$ACTIVITY" in
+	*/*) "$ADB" -s "$SERIAL" shell am start -n "$ACTIVITY" >/dev/null && echo "Installed and launched $PKG." ;;
+	*) echo "Installed $PKG, but no launcher activity was found. Open it from the TV's app list." >&2; exit 1 ;;
+esac
