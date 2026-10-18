@@ -172,3 +172,4 @@ Status (2026-10-09): the shared view, the choice row and the Difficulty row are 
 | Galaxy Protector (2D) | `docs/games/asteroid_blast.md` |
 | Pin Pals (2D) | `docs/games/bowling.md` |
 | Tennis (2D) | `docs/games/tennis.md` |
+| Mini Golf (2D) | `docs/games/mini_golf.md` |

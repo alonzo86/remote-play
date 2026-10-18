@@ -63,6 +63,13 @@ const GAMES: Array[Dictionary] = [
 			"path": "res://scripts/game/tennis/tennis_game.gd", "min_players": 1, "max_players": 4,
 			"settings": [{"key": "scoring", "label": "tennis.scoring", "values": ["real", "quick"],
 					"titles": ["tennis.real", "tennis.quick"], "default": "real"}]},
+	{"id": "mini_golf", "doc": "res://docs/games/mini_golf.md", "title": "registry.mini_golf", "dim": "2d",
+			"description": "registry.swing_phone_putt",
+			"tile": "res://assets/tiles/mini_golf.png",
+			"path": "res://scripts/game/mini_golf/mini_golf_game.gd", "min_players": 1, "max_players": 4,
+			"settings": [{"key": "holes", "label": "mini_golf.holes", "values": ["1", "2", "3", "4", "5"],
+					"titles": ["mini_golf.holes_1", "mini_golf.holes_2", "mini_golf.holes_3", "mini_golf.holes_4",
+					"mini_golf.holes_5"], "default": "3"}]},
 ]
 
 

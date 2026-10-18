@@ -31,3 +31,5 @@ tests/smoke_lang.gd|tv|languages and right to left
 tests/bowling_rules.gd|controller|Pin Pals rules, lane and swing
 tests/smoke_bowling.gd|tv|Pin Pals
 tests/smoke_tennis.gd|tv|Tennis
+tests/golf_rules.gd|controller|Mini Golf rules, ball and holes
+tests/smoke_golf.gd|tv|Mini Golf

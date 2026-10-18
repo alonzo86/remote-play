@@ -228,3 +228,28 @@ tennis.net,NET,רשת,Tennis: banner when the ball hits the net,
 tennis.great,GREAT!,מעולה!,Tennis: text over a player after a swing at the perfect time,
 tennis.rally,RALLY %d,רצף %d,"Tennis with 1 player: score panel and banner, %d is the balls hit back in a row","the number sign (%d, %.1f ...) is replaced by a number"
 tennis.best,BEST %d,שיא %d,"Tennis with 1 player: score panel, %d is the longest rally of the round","the number sign (%d, %.1f ...) is replaced by a number"
+registry.mini_golf,MINI GOLF,מיני גולף,"Name of the game Mini Golf: Games screen, game settings, in-game title",
+registry.swing_phone_putt,SWING YOUR PHONE TO PUTT THE BALL INTO THE HOLE!,הניפו את הטלפון כדי לדחוף את הכדור לגומה!,Description of Mini Golf on the Games screen,
+mini_golf.holes,HOLES,גומות,Mini Golf settings view: name of the Holes row,
+mini_golf.holes_1,1 HOLE,גומה אחת,Mini Golf settings view: value 1 of the Holes row,
+mini_golf.holes_2,2 HOLES,2 גומות,Mini Golf settings view: value 2 of the Holes row,
+mini_golf.holes_3,3 HOLES,3 גומות,Mini Golf settings view: value 3 of the Holes row,
+mini_golf.holes_4,4 HOLES,4 גומות,Mini Golf settings view: value 4 of the Holes row,
+mini_golf.holes_5,5 HOLES,5 גומות,Mini Golf settings view: value 5 of the Holes row,
+mini_golf.hole,Hole %d/%d  Par %d,גומה %d/%d  פר %d,"Mini Golf: top bar, right side: the hole that is played, the holes of the match and the par of the hole","the number sign (%d, %.1f ...) is replaced by a number"
+mini_golf.turn,%s's turn!,התור של %s!,"Mini Golf: plate over the course for 1.5 seconds at the start of a turn, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
+mini_golf.chip,%s  %d,%s: %d,"Mini Golf: chip of a player in the bar at the bottom, the name and the strokes on this hole","the number sign (%d, %.1f ...) is replaced by a number"
+mini_golf.hint_aim,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT!",הזיזו את הטלפון כדי לכוון. הניפו אחורה ואז קדימה כדי לדחוף!,Mini Golf: hint on a plate over the course at the start of a turn,
+mini_golf.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Mini Golf: hint on a plate after a swing that was too weak,
+mini_golf.hint_power,SWING FORWARD. A BIGGER SWING GOES FARTHER!,הניפו קדימה. תנופה גדולה יותר מגיעה רחוק יותר!,Mini Golf on Easy: hint on a plate after the aim is locked,
+mini_golf.strokes,%d strokes,%d מכות,"Mini Golf: banner after a ball went in with more strokes than par plus one, %d is the strokes on the hole","the number sign (%d, %.1f ...) is replaced by a number"
+mini_golf.hole_in_one,HOLE IN ONE!,גומה במכה אחת!,Mini Golf: banner after a ball went in with the first stroke,
+mini_golf.birdie,BIRDIE!,ברדי!,Mini Golf: banner after a ball went in with fewer strokes than par,
+mini_golf.par,PAR!,פר!,Mini Golf: banner after a ball went in with the strokes of par,
+mini_golf.bogey,BOGEY,בוגי,Mini Golf: banner after a ball went in with one stroke more than par,
+mini_golf.picked,Picked up after %d strokes,הכדור הורם אחרי %d מכות,"Mini Golf: banner when the ball is picked up after the most strokes of a hole, %d is that number","the number sign (%d, %.1f ...) is replaced by a number"
+mini_golf.splash,SPLASH! TRY AGAIN FROM HERE,ספלאש! מנסים שוב מכאן,Mini Golf: banner when the ball touched the water and goes back to the last spot,
+mini_golf.hole_done,Hole %d done!,גומה %d הסתיימה!,"Mini Golf: title of the card at the end of a hole, %d is the number of the hole","the number sign (%d, %.1f ...) is replaced by a number"
+mini_golf.col_strokes,Strokes,מכות,"Mini Golf: card at the end of a hole, title of the column with the strokes on the hole",
+mini_golf.col_total,Total,סה״כ,"Mini Golf: card at the end of a hole, title of the column with the strokes of the whole match",
+mini_golf.phone_wait,%s IS PUTTING,%s מבצע/ת מכה,"Mini Golf: phone screen, line under the player and score rows while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
