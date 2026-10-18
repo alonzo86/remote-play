@@ -6,6 +6,7 @@ extends "res://scripts/game/minigame.gd"
 const Match = preload("res://scripts/game/tennis/tennis_match.gd")
 const Look = preload("res://scripts/game/tennis/tennis_look.gd")
 const Rules = preload("res://scripts/game/tennis/tennis_rules.gd")
+const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
@@ -265,6 +266,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	Look.draw_court(ci, p)
 	if play.phase == Match.Phase.RALLY:
 		_draw_target(ci, p)
+	_draw_aim(ci, p)
 	Look.draw_tower(ci, p)
 	var things: Array = [{"y": 0.0, "k": "net"}, {"y": -0.5, "k": "kid"}]
 	if play.sim.active:
@@ -322,6 +324,19 @@ func _draw_target(ci: CanvasItem, p: Look.Proj) -> void:
 		var a := TAU * float(i) / 16.0
 		pts.append(p.at(cp.x + cos(a) * 0.8, cp.y + sin(a) * 0.8))
 	ci.draw_polyline(pts, color, 6.0 if green else 4.0)
+
+
+## The aim line of the player who is about to serve or hit: it follows the tilt of the phone (REQ-TN-21).
+func _draw_aim(ci: CanvasItem, p: Look.Proj) -> void:
+	var slot := play.aim_slot()
+	if slot < 0 or not participants.has(slot):
+		return
+	var serving := play.phase != Match.Phase.RALLY
+	var tilt_x := clampf(player(slot).tilt().x / TILT_FULL, -1.0, 1.0)
+	var team := play.team_of(slot)
+	var toward := -Match.side(team)
+	var length := Sim.SERVICE if serving else Sim.HALF_L * 0.9
+	Look.draw_aim(ci, p, play.aim_x(slot, tilt_x, serving), toward, length, player(slot).color)
 
 
 func _game_draw() -> void:

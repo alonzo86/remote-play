@@ -23,6 +23,8 @@ const SOLO_ROUND := 90.0
 const RUN_SPEED := 6.5
 const BEHIND := 0.6             # A player hits the ball from this far behind it.
 const FAULTS_FOR_POINT := 2
+const RUN_MAX_X := 5.6          # A player never runs further out than this (m), so the whole character stays on the screen.
+const RUN_MAX_BEHIND := 2.2     # ... or further behind the near baseline than this (m).
 
 var rules := Rules.new()
 var sim := Sim.new()
@@ -196,15 +198,10 @@ func swing(slot: int, power: float, down: bool, tilt_x: float, hit_age: float) -
 func _serve_hit(slot: int, power: float, tilt_x: float, green: bool) -> void:
 	var team := team_of(slot)
 	var from := sim.pos
-	var box := -signf(chars[slot].pos.x)
-	var hw := Sim.HALF_W_SINGLES
-	var aim := tilt_x * mirror(team)
-	var tx := box * hw * 0.5 + aim * hw * 0.65
 	var depth := lerpf(2.6, 6.9, power) if green else lerpf(3.0, 5.0, power)
-	if not green:
-		tx += rng.randf_range(-1.0, 1.0) * 0.8
+	var noise := 0.0 if green else rng.randf_range(-1.0, 1.0) * 0.8
+	var tx := aim_x(slot, tilt_x, true, noise)
 	if level.inside:
-		tx = clampf(tx, minf(box * 0.3, box * (hw - 0.3)), maxf(box * 0.3, box * (hw - 0.3)))
 		depth = minf(depth, Sim.SERVICE - 0.5)
 	var flight: float = (lerpf(1.0, 0.75, power) if green else 1.35) * float(level.flight)
 	sim.launch(from, Vector2(tx, -side(team) * depth), flight)
@@ -215,22 +212,52 @@ func _serve_hit(slot: int, power: float, tilt_x: float, green: bool) -> void:
 func _rally_hit(slot: int, power: float, tilt_x: float, green: bool) -> void:
 	var team := team_of(slot)
 	var other := rules.other(team) if not solo else 1
-	var hw := half_width()
-	var tx := tilt_x * mirror(team) * hw * 1.12
 	var frac := lerpf(0.40, 0.97, power) if green else 0.82
-	if not green:
-		tx += rng.randf_range(-1.0, 1.0) * 1.2
+	var noise := 0.0 if green else rng.randf_range(-1.0, 1.0) * 1.2
+	var tx := aim_x(slot, tilt_x, false, noise)
 	var ty := side(other) * frac * Sim.HALF_L
 	if level.inside:
-		tx = clampf(tx, -(hw - 0.4), hw - 0.4)
 		ty = clampf(ty, -(Sim.HALF_L - 0.6), Sim.HALF_L - 0.6)
 	var flight: float = (lerpf(1.1, 0.72, power) if green else 1.7) * float(level.flight)
 	var from := Vector3(sim.pos.x, sim.pos.y, maxf(sim.pos.z, 0.5))
 	var c = chars[slot]
-	c.pos = Vector2(sim.pos.x, sim.pos.y + side(team) * BEHIND)
+	c.pos = _on_screen(Vector2(sim.pos.x, sim.pos.y + side(team) * BEHIND))
 	c.target = c.pos
 	sim.launch(from, Vector2(tx, ty), flight)
 	_after_hit(slot, team, green, power)
+
+
+## Where along the court (x, m) a hit of `slot` with the phone tilt `tilt_x` (-1 left to 1 right) sends the ball: a serve goes
+## into the service box across the net, a rally shot anywhere. The TV draws this live as the aim line (REQ-TN-21). `noise` is
+## added by a hit that is not green (a lob). Easy keeps the ball inside the lines (REQ-TN-18).
+func aim_x(slot: int, tilt_x: float, serving: bool, noise := 0.0) -> float:
+	var team := team_of(slot)
+	if serving:
+		var box := -signf(chars[slot].pos.x)
+		var hw := Sim.HALF_W_SINGLES
+		var tx := box * hw * 0.5 + tilt_x * mirror(team) * hw * 0.65 + noise
+		if level.inside:
+			tx = clampf(tx, minf(box * 0.3, box * (hw - 0.3)), maxf(box * 0.3, box * (hw - 0.3)))
+		return tx
+	var hw2 := half_width()
+	var tx2 := tilt_x * mirror(team) * hw2 * 1.12 + noise
+	if level.inside:
+		tx2 = clampf(tx2, -(hw2 - 0.4), hw2 - 0.4)
+	return tx2
+
+
+## The slot whose aim the TV shows now, or -1: the server from the press of A until the serve, the hitter while the ball comes.
+func aim_slot() -> int:
+	if phase == Phase.TOSS or (phase == Phase.SERVE and not solo):
+		return server_slot()
+	if phase == Phase.RALLY and hitter >= 0 and not contact.is_empty() and float(contact.t) - time < 1.2:
+		return hitter
+	return -1
+
+
+## A running place moved into the part of the court that the screen shows, so no character leaves the picture (REQ-TN-4).
+static func _on_screen(v: Vector2) -> Vector2:
+	return Vector2(clampf(v.x, -RUN_MAX_X, RUN_MAX_X), clampf(v.y, -(Sim.HALF_L + RUN_MAX_BEHIND), Sim.HALF_L + RUN_MAX_BEHIND))
 
 
 ## The ball was hit by `team` (`slot`, or -1 for the machine): the other team has to return it.
@@ -270,7 +297,7 @@ func _choose_hitter() -> void:
 			best = d
 			hitter = s
 	var t_c := side(expect_team)
-	chars[hitter].target = Vector2(cp.x, cp.y + t_c * BEHIND)
+	chars[hitter].target = _on_screen(Vector2(cp.x, cp.y + t_c * BEHIND))
 	for s in members:
 		if s != hitter:
 			chars[s].target = Vector2(-cp.x * 0.5, t_c * 3.0)

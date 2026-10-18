@@ -9,10 +9,10 @@ const Shell = preload("res://scripts/game/shell.gd")
 const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
 
 const HUD_H := 112.0              # The black bar on top (the title and the leader chip).
-const DEPTH_C := 12.0             # The eye is this far (m) behind the near baseline.
-const K_DEPTH := 10475.0          # Screen y of a point on the floor: HORIZON + K_DEPTH / z (units at 1920 x 1080).
-const HORIZON := 87.0
-const K_SIDE := 1838.0            # Units per meter at z = 1.
+const DEPTH_C := 16.0             # The eye is this far (m) behind the near baseline.
+const K_DEPTH := 13370.0          # Screen y of a point on the floor: HORIZON + K_DEPTH / z (units at 1920 x 1080).
+const HORIZON := 44.0
+const K_SIDE := 2200.0            # Units per meter at z = 1.
 const BOARD_BACK := 3.0           # The ad boards stand this far (m) behind the far baseline.
 const BOARD_H := 1.0
 const STANDS_Y0 := 112.0
@@ -297,3 +297,20 @@ static func draw_ball(ci: CanvasItem, p: Proj, pos: Vector3) -> void:
 	var c := p.at(pos.x, pos.y, maxf(pos.z, 0.0) + 0.1)
 	var r := maxf(12.0, 0.11 * p.scale(pos.y))
 	Shell.pixel_ball(ci, c, r, BALL)
+
+
+## The aim line of a player (REQ-TN-21): dots from the net toward the far end at the court position `x`, in the color of the
+## player, with a bigger diamond at the end. `toward` is +1 for the far end and -1 for the near end, `length` is how far (m) the
+## line goes. It moves with the tilt of the phone, so the player sees where the ball will go before the swing.
+static func draw_aim(ci: CanvasItem, p: Proj, x: float, toward: float, length: float, color: Color) -> void:
+	for i in range(1, 7):
+		var y := toward * length * float(i) / 7.0
+		var at := p.at(x, y)
+		var r := maxf(9.0, 0.13 * p.scale(y))
+		ci.draw_rect(Rect2(Shell.snap(at - Vector2(r, r * 0.5)), Vector2(r * 2.0, r)), LINE if i % 2 == 1 else color)
+	var end := p.at(x, toward * length)
+	var d := maxf(14.0, 0.28 * p.scale(toward * length))
+	ci.draw_colored_polygon(PackedVector2Array([end + Vector2(0.0, -d), end + Vector2(d * 1.4, 0.0), end + Vector2(0.0, d),
+			end + Vector2(-d * 1.4, 0.0)]), color)
+	ci.draw_polyline(PackedVector2Array([end + Vector2(0.0, -d), end + Vector2(d * 1.4, 0.0), end + Vector2(0.0, d),
+			end + Vector2(-d * 1.4, 0.0), end + Vector2(0.0, -d)]), LINE, 3.0)

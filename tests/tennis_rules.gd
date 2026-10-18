@@ -29,6 +29,7 @@ func _initialize() -> void:
 	_serve()
 	_rally()
 	_points()
+	_on_screen()
 	_matches()
 	_solo()
 	_leaving()
@@ -319,6 +320,39 @@ func _rally() -> void:
 	_until_contact(mid)
 	mid.swing(1, 0.6, false, -1.0, 0.0)
 	_check(right_x < mid.sim.vel.x, "the far team has its right hand at negative x: the aim is mirrored")
+	# The aim line shows the same x that the hit uses (REQ-TN-21).
+	var aim := _match([0, 1])
+	_serve_now(aim, 0.5)
+	_until_contact(aim)
+	_check(aim.aim_slot() == aim.hitter and aim.hitter >= 0, "the aim line belongs to the player who has to hit")
+	_check(aim.aim_x(1, 1.0, false) < aim.aim_x(1, -1.0, false), "far team: a tilt to the right is a smaller x (mirrored)")
+	_check(absf(aim.aim_x(0, 1.0, false, 0.0)) <= aim.half_width() * 1.12 + 0.001,
+			"the aim of a full tilt stays within the aim range")
+	var ez := _match([0, 1], false, "easy")
+	_check(absf(ez.aim_x(0, 1.0, false)) <= ez.half_width() - 0.4 + 0.001, "on Easy the aim line stays inside the lines")
+	var sv := _match([0, 1])
+	_check(sv.aim_slot() == sv.server_slot(), "before the serve the aim line belongs to the server")
+	var sx: float = sv.chars[sv.server_slot()].pos.x
+	_check(sv.aim_x(sv.server_slot(), 0.0, true) * sx < 0.0, "the serve aim with no tilt is in the box across the net")
+
+
+## A character never runs out of the picture (REQ-TN-4).
+func _on_screen() -> void:
+	print("characters stay on the screen")
+	var m := _match([0, 1])
+	var v: Vector2 = Match._on_screen(Vector2(9.0, -20.0))
+	_check(is_equal_approx(v.x, Match.RUN_MAX_X) and is_equal_approx(v.y, -(Sim.HALF_L + Match.RUN_MAX_BEHIND)),
+			"a place far out and far behind is moved back")
+	_check(Match._on_screen(Vector2(1.0, -5.0)) == Vector2(1.0, -5.0), "a place on the court stays")
+	_serve_now(m, 0.9, 1.0)
+	for i in 6:
+		_until_contact(m)
+		if m.phase != Match.Phase.RALLY or m.hitter < 0:
+			break
+		var tg: Vector2 = m.chars[m.hitter].target
+		_check(absf(tg.x) <= Match.RUN_MAX_X + 0.001 and tg.y >= -(Sim.HALF_L + Match.RUN_MAX_BEHIND) - 0.001,
+				"the hitter runs to a place that the screen shows")
+		m.swing(m.hitter, 1.0, false, 1.0 if i % 2 == 0 else -1.0, 0.0)
 
 
 ## How a point is won (REQ-TN-12).

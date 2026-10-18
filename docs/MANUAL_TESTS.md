@@ -1033,7 +1033,8 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 3. **Serve.** Check: the hint "Press A to toss. Then swing down to serve!" shows, A of the server tosses the ball, a swing from top to bottom at the top of the toss serves, and the phone buzzes. Try a swing too early, too late and from left to right. Check: a swing that is not a serve does nothing, and when the ball falls the server tosses again.
 4. **Return.** Check: the ball glows when it is your turn, the ring on the court shows the place of the hit (yellow, green in the green part), the character runs by itself, and a swing near the ring returns the ball. Write down the real delay between the swing and the hit.
 5. **Timing.** Swing in the green part, too early and too late. Check: green gives a fast shot with "GREAT!", too early and too late give a slow high lob that stays in play. Write down if the green part is too short or too long for each difficulty.
-6. **Power and aim.** Swing soft and hard, and tilt the phone to the left and to the right at the hit. Check: a hard swing is faster and longer, a soft swing is short, the tilt sends the ball to the matching side (also for the far team, mirrored), and a strong swing may go out on Medium and Hard but not on Easy.
+6. **Power and aim.** Swing soft and hard, and tilt the phone to the left and to the right at the hit. Check: a hard swing is faster and longer, a soft swing is short, the tilt sends the ball to the matching side (also for the far team, mirrored), and a strong swing may go out on Medium and Hard but not on Easy. **New (2026-10-18, REQ-TN-21):** the line of dots in your color moves left and right with the tilt before you swing (for the serve and for every return), the ball goes where the diamond was, and a player can tell what the dots mean from the hint line alone.
+6b. **Far out and far behind (REQ-TN-4).** Aim wide and long with a hard swing so the other player has to run to the side line and behind the baseline (also with 4 phones). Check: the character stays fully on the screen (not cut at the side or the bottom) and the swing still counts. Write down any ball or character that still leaves the picture.
 7. **Real scoring.** Play a whole match with 2 phones. Check: 0, 15, 30, 40, deuce and advantage, the first to 3 games wins, the server changes after every game, the banners (point, game, fault, out, net) match what happened, and the result menu names the winner. Write down how long the match took.
 8. **Quick scoring.** Set Scoring to Quick and play. Check: the first to 5 points wins, the server changes every 2 points.
 9. Play with 3 phones (2 against 1 on the regular court, the single player changes after every game) and with 4 phones (2 against 2, the pairs take turns). Check: the court size is the same, the names and colors on the scoreboard are right, and each phone shows its own place.
@@ -1052,7 +1053,8 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 | 3 | Video of a toss and a serve; note on swings that did nothing | Not run | | | |
 | 4 | Note: the delay swing to hit in ms | Not run | | | |
 | 5 | Video of a green, an early and a late swing; note on the green part | Not run | | | |
-| 6 | Video of soft, hard, left and right shots; note on the tilt | Not run | | | |
+| 6 | Video of soft, hard, left and right shots; note on the tilt and on the line of dots | Not run | | | |
+| 6b | Video of a player who runs far out and far behind the baseline | Not run | | | |
 | 7 | Photo of the result menu; note: the time of the match | Not run | | | |
 | 8 | Note: Quick scoring | Not run | | | |
 | 9 | Photo of the scoreboard with 3 and 4 phones | Not run | | | |
