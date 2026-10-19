@@ -21,7 +21,7 @@ minutes and opens no window (`--headless`). Screenshots for a look at the screen
 
 | ID | Replaces | The checks that do it (suite: check) |
 |----|----------|---------------------------------------|
-| A-11-1 | Test 11 item 1, rows, title, buttons | `smoke_tv`: "the result menu has Restart, Settings and Back to menu", "each row has a square in the slot color of its player, best first", the `WINS!` title; `layout_menus`: maze results fit. The reading from the sofa stays in item 1 |
+| A-11-1 | Test 11 item 1, rows, title, buttons | `smoke_tv`: "the result menu has the restart, new game and back to menu buttons", "each row has a square in the slot color of its player, best first", the `WINS!` title; `layout_menus`: maze results fit. The reading from the sofa stays in item 1 |
 | A-11-2 | Test 11 item 2, winner, 'not finished', 60 px edge | `smoke_tv`: maze rows `1ST ... S` and `2ND ... NOT FINISHED`; `layout_menus`: with 4 long names (English and Hebrew) every text and button of the result menu is inside the 60 px edge, no text is below 28 px, buttons do not overlap. The check fails when the edge is made smaller |
 | A-11-3 | Test 11 item 3, race results with 4 rows | `smoke_tv`: race rows and buttons; `layout_menus`: race results and the pause menu fit in English and Hebrew |
 | A-11-4 | Test 11 item 4, 'not finished', furthest first | `smoke_tv`: "a car that did not finish is listed as not finished, after the finishers" |
