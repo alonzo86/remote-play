@@ -31,6 +31,14 @@ minutes and opens no window (`--headless`). Screenshots for a look at the screen
 | A-17-5 | Test 17 item 5, the Language row switches at once and is kept | `smoke_lang`: "the row switches back to English", "the Settings screen is in Hebrew at once", the phones are told (`heard == ["en", "he", "en"]`), the language is saved in the settings file and the choice is not asked again, the layout turns (QR card left or right of the slots) |
 | A-20-5 | Test 20 item 5, a guest keeps the number and `Player N` | `smoke_tv`: "FD-22: card names" (guest `2P`, profile name `Maya`), "a phone without a name is Player N"; `net_profiles` |
 | A-20-11 | Test 20 item 11, no NEW BEST in the maze, Sumo and a random race track | `smoke_bests`: "Treasure Maze and Sumo Bumpers have no personal best", "a random track has no key (REQ-MR-56)", "a guest gets nothing" |
+| A-9-10 | Test 9 item 10, the pause menu of a race | `smoke_tv`: the pause menu of a race has three items (Resume, Restart, Back to menu), and Back to menu asks 'End the game?' |
+| A-14-1 | Test 14 item 1, the Paint Grab settings view | `smoke_paint`: "Paint Grab opens the settings view with Difficulty on Medium", Hard gives a 20 x 11 floor; `smoke_settings`: Back and Start on one line |
+| A-14-2 | Test 14 item 2, nothing moves in 3, 2, 1, a buzz at GO | `smoke_paint`: "during the countdown the blobs do not move and nothing is painted"; `device_mocks`: no buzz in the countdown, a 60 ms buzz on every phone at GO |
+| A-14-9 | Test 14 item 9, RECENTER and A, B | `device_mocks`: A and B do not recenter, RECENTER makes the tilt zero (a simulated phone sends the real messages over loopback) |
+| A-15-2 | Test 15 item 2, bumpers still in the countdown, a buzz at GO | `smoke_sumo`: "during the countdown the bumpers do not move"; `device_mocks`: the GO buzz |
+| A-15-9 | Test 15 item 9, a player leaves | `smoke_sumo`: "a player who leaves takes the bumper out and the match goes on with two", "with one player left the match is over at once" |
+| A-23-14 | Test 23 item 14, personal best of Pin Pals | `smoke_bests`: the key per difficulty, NEW BEST only for a better score, saved to the file; `ui_share`: the NEW BEST line on the phone; `smoke_bowling`: no best with Rails |
+| A-23-10, A-25-11, A-26-11 | The lock part of Tests 23, 25 and 26 | `device_mocks`: a phone that goes silent pauses Pin Pals, Tennis and Mini Golf, and the card offers Resume when it is back; `smoke_tennis`: a swing right after the pause does nothing. What a real lock does to a real phone stays in Test 7 |
 
 ## Everything else that is automated (and stays in `tests/`)
 
@@ -45,6 +53,7 @@ a real device, but they make a regression show in CI before a person sees it.
 | `net_profiles`, `profiles`, `profile_code`, `ui_share`, `smoke_bests` | profiles: names, `Sam` and `sam`, bests, copy codes, share, NEW BEST |
 | `smoke_tv`, `games_focus`, `smoke_settings`, `ui_states`, `results_medals`, `layout_menus` | TV flow, Back and the quit question, the Players modal, arrow keys, settings views, medals, result and pause menus |
 | `smoke_lang` | the strings table, Hebrew, right to left, the language choice |
+| `device_mocks` | simulated phones on loopback: the 60 ms buzz at GO in 8 games and none before it, the pose of the countdown is the center (maze, Paint Grab, Galaxy Protector), RECENTER and A, B in Paint Grab, a silent phone pauses the turn games. It fails when the buzz or the recenter is removed from a game |
 | `audio` | the synth, songs, effects, volume, the Haptics switch and its saving |
 | `game_helpers`, `game_rules`, `*_rules`, `smoke_*` | the rules of every game, the leader chip and name tag sizes, medal tiers, the tilt body, the swing detector |
 | `design_tokens` | sizes, colors, license files packed in the export presets |
@@ -53,12 +62,18 @@ a real device, but they make a regression show in CI before a person sees it.
 
 | Kind of step | Tests | Why a machine cannot do it |
 |--------------|-------|-----------------------------|
-| Real Wi-Fi off, screen lock, a phone call, a returning app | 1, 7, 8b.4, 13.5 | The phone and Android decide what happens. The timing rules are tested in `net_loss` and `smoke_tv`, but not what the phone really does |
+| Real Wi-Fi off, screen lock, a phone call, a returning app | 1, 7, 8b.4, 13.5 (the TV side is simulated in `net_loss`, `smoke_tv` and `device_mocks`) | The phone and Android decide what happens. The timing rules are tested in `net_loss` and `smoke_tv`, but not what the phone really does |
 | The Android Back key, the remote, the Menu key, the launcher icon | 8, 8b.1 | R1 failed on a real TV because of an engine setting. It needs the real key events |
 | Camera, QR, iPhone | 2, 13, 20.12 to 20.15, 21.2, 21.6 | Real camera, plugin and iOS |
 | Real sensor axes and drift, swing thresholds with a real arm, latency, packet rate, frame rate on a TV box | 3, 4, 6, 9 to 15, 22 to 26, 24 | Needs the phone sensors and the TV box. The code is tested with made-up values |
 | Feel (too light, too fast, too nervous), difficulty, a child of 5 to 8 years | most game tests | A person judges it |
 | Look from the sofa, sharp pixels, readable text, Hebrew wording, sound, the animal and tile pictures | 12, 16, 17, 18, 19 and the "pixel world" items | A person looks and listens. The sizes and the 60 px edge are tested where they can be (`layout_menus`, `game_helpers`, `smoke_tv`) |
+
+## Why some mockable steps stay
+
+A step that failed on a real device is not removed, although its rule is tested. Test 6 item 5 (RECENTER, the ball still drifts) and Test 8 items 2 and 3
+(Back quits the app) must be retested on the device, because the mock passed while the device failed. Test 3 (sensor axes) and Test 4 (RTT, Hz, gaps) measure
+the real phone and the real Wi-Fi, so a simulated phone cannot answer them.
 
 ## Findings of the cleanup
 

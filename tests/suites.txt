@@ -22,6 +22,7 @@ tests/smoke_settings.gd|tv|settings view
 tests/games_focus.gd|tv|Games screen arrow keys
 tests/results_medals.gd|tv|medals in the result menu
 tests/layout_menus.gd|tv|result and pause menus with long names, English and Hebrew
+tests/device_mocks.gd|tv|simulated phones: the buzz at GO, recenter, a silent phone pauses
 tests/smoke_paint.gd|tv|Paint Grab
 tests/smoke_3d.gd|tv|3D game base class
 tests/smoke_sumo.gd|tv|Sumo Bumpers

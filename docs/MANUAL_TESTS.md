@@ -360,10 +360,11 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Road Rall
 7. Let one car run far ahead on a long track (Hard). Check: when the last car leaves the view, an arrow in its color shows at the screen edge with a distance, and you can read it. (REQ-MR-42)
 8. Finish a race on 3 different tracks of the list and on the random track. Write down the winning time of each. (REQ-MR-51)
 9. Open the tile of **Road Rally**. Check: the settings view shows Difficulty (Left and Right) and, under it, a carousel of tracks (10 line sketches and a "?", no names), wider than the Difficulty row, with the selected track in the middle. Move the carousel with Left and Right (the track in the middle is the one you get), then Start. Check: the race has the track of the sketch. Play Easy, Medium and Hard on one track. Check: the line is the same and there are few, some and many obstacles. Choose the "?" tile twice: the tracks are different. Try again: the same track again. (REQ-MR-50 to 54)
-10. During a race, open the pause menu. Check: it has Resume, Try again and Back to menu only. (REQ-MR-32)
 11. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 phones on each track. Check: the countdown, the buzz at GO, the buzz limit (item 5), a player who leaves (the race goes on) and the last player who leaves (the menu "No players connected") all work as before. Tap **RECENTER** during a race: the car stops drifting.
 12. **Pixel world (REQ-MR-44, REQ-GM-47i to 47n).** From the sofa (about 3 m), look at the race in each theme. Check: the road, the walls, the obstacles and the cars are made of sharp square pixels (not blurred), each car has a black outline and is easy to tell from the road and from the obstacles, and the finish line is a clear black and white band. Let one car run far ahead: the small car stays readable and the edge arrow (item 7) shows. Check the frame rate and that the race starts at once (the road picture is made in the first frame).
 13. **Themes (REQ-MR-45, 46, 47, 48).** In the settings view the row **Theme** shows Candy Road, Space Rally and Jungle Run. Play one race in each theme. Check: the ground, the road, the walls and the three obstacles match the theme (candy: lollipops, gumdrops, cupcakes; space: asteroids, satellites, craters; jungle: logs, boulders, tiki masks); the obstacles are the same on Try again; the cars look the same in every theme and turn to face the way they move; the walls stand out from the ground in all three; the scenery beside the road matches the theme (REQ-MR-57: candy lollipops, canes, ice creams, donuts, cookies; space rockets, planets, UFOs, stars; jungle palms, bushes, flowers, mushrooms) and does not hide the road or the cars. Press Try again and Settings: the theme you chose is still chosen. Switch the TV to Hebrew: the title and the theme names are readable (a Hebrew reader checks the wording). Check with a child of 5 to 8 years: is a car easy to follow and are the obstacles easy to see?
+
+Item 10 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-9-10). The numbers of the other items do not change.
 
 **Results**
 
@@ -378,7 +379,6 @@ Needs 2 to 4 phones. Requirements: `docs/games/marble_race.md`. Start "Road Rall
 | 7 | Photo of an edge arrow with its distance | Not run | | | |
 | 8 | Winning time for each track (fill the table in the test) | Not run | | | |
 | 9 | Photo of the settings view; video of choosing a track and of Easy, Medium and Hard; note on the generated tracks (any bad bends or corners where a car gets stuck) | Not run | | | Changed 2026-10-09: the four hand-made tracks were replaced by generated tracks. |
-| 10 | Photo of the pause menu | Not run | | | |
 | 11 | Video of a full race on one track and notes for every check in the item | Not run | | | |
 | 12 | Photo of the race from the sofa in each theme; note: sharp pixels, the outline of the cars, the frame rate and the TV | Not run | | | |
 | 13 | Photo of each theme; the settings view with the Theme row; note on the Hebrew texts and on the child | Not run | | | Added 2026-10-15: the race became Road Rally (flat pixel world, 3 themes). |
@@ -560,31 +560,27 @@ difficulty values are first guesses.
 
 **Steps**
 
-1. Open the tile of **Paint Grab**. Check: the settings view has Difficulty on Medium, and Back (left) and Start (right) on one line. Start.
-2. Hold the phone level in "3, 2, 1". Check: the blob does not move and nothing is painted. At "GO!" every phone buzzes.
 3. Tilt the phone. Check: the blob rolls the same way, slows down by itself, bounces softly at the edge and never leaves the floor. Write down if it is too slow, too fast or too nervous (`ACCEL`, `DAMPING`, `MAX_SPEED` in `scripts/game/tilt_body.gd`).
 4. Roll over tiles. Check: each tile takes your color, pops a little, and your tile count on your phone goes up. Roll over a tile of another player: it changes color and your phone buzzes.
 5. Play a full round of 60 seconds alone on Easy, Medium and Hard. Write down the percent of the floor you painted and the medal. Check: the title names the difficulty ("Silver medal! (Hard)"), and the tiers [Easy 35, 55, 75; Medium 30, 50, 70; Hard 25, 40, 55] feel right.
 6. Play with 2 to 4 phones. Check: the blobs bounce off each other, the leader chip names the leader (or TIE), the winner is named at the end, and equal scores say "Tie!". Leave the game on one phone during a round: its blob goes, its tiles stay, and the round goes on.
 7. Let a child of about 5 to 8 years play 2 rounds, with a grown-up next to them. Check: the child understands what to do from the hint line, enjoys it, and is not upset when a tile is painted over.
 8. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
-9. Tap **RECENTER** with the phone tilted. Check: the blob stops creeping. A and B do nothing. (REQ-PG-14)
 10. **Pixel world (phase 4, REQ-PG-15).** From the sofa (about 3 m), look at the floor on Medium and Hard. Check: the tiles are sharp squares with equal gaps (no uneven lines), you can tell the colors apart, the blob and its number are easy to see on a tile of its own color, and a painted tile pops (a hard step). Write down if the pop is easy to see.
 11. **Pictures and pots (2026-10-16, REQ-PG-22, 23).** Play 5 rounds in a row. Check: each round has a different faint picture under the empty floor, you can see what it is (an invader, a heart, a ghost ...) before the floor fills, and in the end the painted tiles still show it. Write down which pictures you could not recognize and if any came twice in a row. Then check the pots: a gold pot (3 x 3 patch) or a rainbow roller (the whole row) lands every 9 to 15 s, a frame shows the tiles it will paint, the first blob on it paints the patch and the phone buzzes, and a pot that nobody takes blinks and goes away. Write down if the pots are too rare or too strong, and if a child understands them without a hint.
+
+Items 1, 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-14-1, A-14-2, A-14-9). The numbers of the other items do not change.
 
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1 | Photo of the settings view | Not run | | | |
-| 2 | Video of the countdown and GO | Not run | | | |
 | 3 | Note: too slow, too fast or too nervous; short video | Not run | | | |
 | 4 | Video: painting a free tile and taking a tile; the tile count on the phone | Not run | | | |
 | 5 | Percent and medal for each difficulty; note on the tiers | Not run | | | |
 | 6 | Video or photo of 4 blobs; note on the bounce | Not run | | | |
 | 7 | Note: the child, the age, what happened | Not run | | | |
 | 8 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
-| 9 | Video: RECENTER, then A and B | Not run | | | |
 | 11 | Photos of 3 rounds with the picture visible and after the pots; list of pictures that were not recognized; note on the pots | Not run | | | Added 2026-10-16 (REQ-PG-22, 23). The shapes, the colors and the pot values are first guesses. |
 | 10 | Photo of the floor from the sofa; note: equal gaps, colors, the blob and the pop | Not run | | | Added 2026-10-10 (phase 4 of the arcade style). Look changed on 2026-10-15 (Treasure Maze). |
 
@@ -605,30 +601,28 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 **Steps**
 
 1. With 1 phone, open the tile of **Sumo Bumpers**. Check: the tile is dimmed and says "Needs 2 players". With 2 phones the settings view opens with Difficulty on Medium. Start.
-2. Hold the phones level in "3, 2, 1" with the title "Round 1 of 3". Check: the bumpers do not move. At "GO!" every phone buzzes.
 3. Tilt the phone. Check: the bumper rolls the same way, slows down by itself, and the platform shrinks all the time (the edge ring gets red). Write down if the bumper is too slow, too fast or too nervous (`tilt_body.gd`).
 4. Bump into another bumper. Check: both bounce away and both phones buzz at a fast hit, and nobody is hurt.
 5. Press **A** with a tilt. Check: a dash in the tilt direction, a ring around the bumper shows when it is ready again. Write down if the dash is too strong or too weak (`DASH_SPEED`, the dash time).
 6. Roll over the edge. Check: the bumper spins, gets small and says "Whee!", the phone buzzes, and the round goes on. When one bumper is left, a banner names the winner of the round and the next round starts after 2.5 s with all bumpers back.
 7. Play all 3 rounds with 2, 3 and 4 phones. Check: the points of the leader chip and on each phone, the winner of the match, and "Tie!" for equal points. Write down how long a round is and if the wait after a fall is too long (REQ-SB-9). Play Easy, Medium and Hard.
 8. Let a child of about 5 to 8 years play a match, with a grown-up next to them. Check: the child understands what to do from the hint line, laughs at the fall and is not upset.
-9. Leave the game on one phone during a round. Check: its bumper goes and the match goes on. With 2 phones, leave on one: the match ends at once.
 10. Check the frame rate in the debug overlay with 4 phones on Hard (60 or close). (REQ-GM-50)
 11. **Pixel world and Sky Island (REQ-GM-47i to 47n, REQ-SB-15).** From the sofa (about 3 m), look at the world. Check: the sky, the clouds, the island and the penguins are made of sharp square pixels (not blurred), every penguin has a black outline and is easy to tell from the others by its body color on the green, the island edge turns red as it shrinks, the cliff and the clouds look right, "WHEE!", the round banner and the countdown are easy to read on the sky, and the chips are sharp text. Write down if a penguin is too small to follow in a fight, and the TV (1080p or 4K).
+
+Items 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-15-2, A-15-9). The numbers of the other items do not change.
 
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the dimmed tile and of the settings view | Not run | | | |
-| 2 | Video of the countdown and GO | Not run | | | |
 | 3 | Note: too slow, too fast or too nervous; photo of the red ring | Not run | | | |
 | 4 | Video of a bump; note on the buzz | Not run | | | |
 | 5 | Video of a dash; note on the strength and the ready ring | Not run | | | |
 | 6 | Video of a fall and the banner | Not run | | | |
 | 7 | Length of a round for each difficulty; note on the wait | Not run | | | |
 | 8 | Note: the child, the age, what happened | Not run | | | |
-| 9 | Note: what happened on each leave | Not run | | | |
 | 10 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
 | 11 | Photo of the screen from the sofa; note: sharp pixels, readable numbers, the TV | Not run | | | |
 
@@ -941,11 +935,12 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 7. **Rails** On. Check: a ball that is far to the side stays on the lane, there is no gutter ball, and the result menu has no personal best.
 8. Play with 2, 3 and 4 phones. Check: the turns go frame by frame, a phone that is not on turn cannot throw, the name of the player on turn is on the plate, the score and place show on each phone, the winner and "Tie!" are right, and the wait for the other players is not too long (about 30 s with 4 players).
 9. Look at the phones. Check: the phone on turn shows "YOUR TURN" and buzzes, the others show the name of the player on turn, and the line goes away in the result menu. (REQ-BW-14)
-10. Leave the game on the phone that is on turn. Check: the game goes on with the next player. With 1 phone left, leave: the "No players connected" menu opens. Lock a phone during its turn: the game pauses and the swing starts again when you return (REQ-BW-20).
+10. Leave the game on the phone that is on turn. Check: the game goes on with the next player. With 1 phone left, leave: the "No players connected" menu opens. (The pause of a lost phone is checked by A-23-10. Check on a real phone only that the swing starts again after the pause, REQ-BW-20.)
 11. Let a child of about 5 to 8 years play on Easy with Rails, with a grown-up next to them. Check: the child understands the hint line, can throw, is not upset by a gutter ball or few pins, and wants to play again.
 12. Check the frame rate in the debug overlay with 4 phones (60 or close). (REQ-GM-50)
 13. **Pixel world (REQ-GM-47i to 47n).** From the sofa (about 3 m) check: the pins are easy to tell apart from the lane, the ball is easy to follow to the pins, the score sheet and the banners are easy to read, the disco wall is not too bright or too busy, and the music and the effects are fine (Test 18).
-14. A personal best (Rails Off): play twice and check "NEW BEST!" on the phone and the best after a restart. Check that Easy, Medium and Hard have their own bests.
+
+Item 14 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-23-14). The numbers of the other items do not change.
 
 **Results**
 
@@ -964,7 +959,6 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 | 11 | Note: the child, the age, what happened | Not run | | | |
 | 12 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
 | 13 | Photo of the screen from the sofa; note | Not run | | | |
-| 14 | Photo of NEW BEST! and note | Not run | | | |
 
 History:
 
@@ -1031,7 +1025,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 8. **Quick scoring.** Set Scoring to Quick and play. Check: the first to 5 points wins, the server changes every 2 points.
 9. Play with 3 phones (2 against 1 on the regular court, the single player changes after every game) and with 4 phones (2 against 2, the pairs take turns). Check: the court size is the same, the names and colors on the scoreboard are right, and each phone shows its own place.
 10. Play with 1 phone (the pink ball machine). Check: the machine sends a ball, the rally and the best rally count, the 90 s timer runs, and the result menu shows a medal (Easy 4, 8, 14, Medium 5, 10, 20, Hard 6, 14, 28 hits in a row).
-11. Leave on one phone during a match (4 phones, then 2 phones). Check: with 4 phones the match goes on with 3 players; with 2 phones the other player wins at once. Lock a phone during a rally: the game pauses with the card, and swings do not count right after the return.
+11. Leave on one phone during a match (4 phones, then 2 phones). Check: with 4 phones the match goes on with 3 players; with 2 phones the other player wins at once. (The pause with the card and the ignored swing after it are checked by A-25-11.)
 12. Let a child of about 5 to 8 years play on Easy with a grown-up next to them. Check: the child understands the hint line, can serve and return, is not upset by a missed ball, and wants to play again.
 13. Check the frame rate in the debug overlay with 4 phones (60 or close). (REQ-GM-50)
 14. **Pixel world (REQ-GM-47i to 47n).** From the sofa (about 3 m) check: the ball and its shadow are easy to follow, the far characters can be told apart, the scoreboard and banners are easy to read, and the stands are not too busy.
@@ -1080,7 +1074,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 8. **Holes and words.** Play 5 holes (set Holes to 5). Check: BIRDIE, PAR, BOGEY, HOLE IN ONE and "Picked up after 6 strokes" show at the right strokes, the card at the end of each hole has the strokes of the hole and the total, A skips it, and the bar counts the strokes.
 9. **Difficulty.** Play a hole on Easy, Medium and Hard. Check: Easy has a long aim line and the hint about the swing and a weak swing still moves the ball far, Medium a short line, Hard only the marker. The courses are the same.
 10. **Result.** Finish a match with 2 phones, then alone. Check: the result menu has the winner (or TIE) and, alone, a medal (gold at par or better, silver at most 1 over par per hole, bronze at most 2 over). Try again, New game and Back to menu work. Write down how long a 3 hole match took.
-11. Leave on one phone during a hole (4 phones, then 2 phones). Check: the turn goes on to the next player. Lock a phone: the game pauses with the card, and a swing under way starts again after the pause.
+11. Leave on one phone during a hole (4 phones, then 2 phones). Check: the turn goes on to the next player. (The pause with the card is checked by A-26-11. Check on a real phone only that a swing under way starts again after the pause.)
 12. Let a child of about 5 to 8 years play on Easy with a grown-up next to them. Check: the child understands the hint line, can aim and putt, is not upset by water or by a long hole, and wants to play again.
 13. Check the frame rate in the debug overlay with 4 phones (60 or close). (REQ-GM-50)
 14. **Pixel world (REQ-GM-47i to 47n).** From the sofa (about 3 m) check: the ball is easy to follow also far away, the golfer and the windmill are easy to tell apart, the bar and the banners are easy to read.
