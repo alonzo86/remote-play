@@ -53,6 +53,9 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 ## Manual tests (for the user)
 
+- What a machine can check is in `docs/AUTOMATED_TESTS.md` (how to run it on the Mac, and which manual steps it replaced). When a manual step can be
+  done by a headless test, write the test, add it to `tests/suites.txt`, and move the step: remove it from `docs/MANUAL_TESTS.md`, keep the numbers of the other steps, and add an `A-<test>-<item>` row there.
+
 - The tests that need real devices (phones, a TV or a TV box, a remote, a camera) are in `docs/MANUAL_TESTS.md`: the steps, a result for
   every step, the run log, and the evidence (photos, videos, logs in `docs/evidence/`). Claude cannot run them.
 - Claude never marks a manual test as passed. When the user reports a result, Claude writes it in `docs/MANUAL_TESTS.md` (the result of the
@@ -85,7 +88,7 @@ Tests the user has to run now (status on 2026-10-10 after run R1; the list is in
 | 6 | Treasure Maze (was Tilt Maze, new dungeon look 2026-10-15), the rest: item 4 (2 to 4 phones), item 5 (RECENTER recenters, A and B do nothing) and the new item 6 (the settings view and Easy, Medium, Hard) and the new item 7 (the pixel look of the maze from the sofa, thicker walls). Items 1 to 3 passed in R1 ('it works perfectly') | PR 12 removed the A shortcut. The settings view and the maze difficulty were added on 2026-10-09 (REQ-GM-90 to 95, REQ-MZ-9) |
 | 14 | **New game.** Paint Grab with 1 to 4 phones: the blob feel (too slow, fast or nervous), painting and taking tiles, Easy, Medium, Hard (floor size, speed, medal tiers in percent), the result menu, a child of 5 to 8 years. New item 10: the pixel look of the floor from the sofa. New item 11 (2026-10-16): the hidden picture under the floor and the bonus pots | Paint Grab and `TiltBody` were added on 2026-10-09 on branch `games/paint-grab`. On 2026-10-10 the floor became a pixel world (phase 4 of the arcade style). All values are first guesses |
 | 15 | **New game.** Sumo Bumpers with 2 to 4 phones: the bump and the dash (too strong or weak), the fall and the banner, the length of a round and the wait after a fall, Easy, Medium, Hard, a child of 5 to 8 years. New item 11: the pixel world from the sofa (sharp pixels, readable numbers) | Sumo Bumpers was added on 2026-10-09 on branch `games/sumo-bumpers`. On 2026-10-10 its world became the first pixel world (phase 2 of the arcade style, REQ-GM-47i to 47n). All values are first guesses |
-| 11 | The result menus: maze (1 to 4 phones), race (4 phones, inside the screen edge, 'not finished'), Banana Party (medal, winner, Tie) | PR 12 (merged) made the result menu generic. The 4-player list was never seen on a TV |
+| 11 | The result menus on a real TV: maze (1 to 4 phones) and race (4 phones): readable from the sofa and inside the screen edge. The rows, the titles, the medals and the 'No players connected' menu are automated (`docs/AUTOMATED_TESTS.md`, A-11-1 to A-11-7) | PR 12 (merged) made the result menu generic. The 4-player list was never seen on a TV |
 | 12 | Game tiles: compare each tile with the game. All six games have a tile: Treasure Maze and Road Rally were remade on 2026-10-09; Banana Party and Paint Grab were remade and Galaxy Protector is new on 2026-10-16; Sumo Bumpers is unchanged | REQ-GM-49. Claude makes the tiles again when they differ |
 | 3 | Sensor directions: items 1 and 4 (the flat Accel value after the fix, Gyro z) | R0 did not check them after the fix |
 | 4 | Latency and packet rate on a real TV box, and the delay with a 240 fps camera | R0 ran on a desktop and failed (RTT, Gap). Not representative |

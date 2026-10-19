@@ -1,7 +1,7 @@
 # Manual tests
 
 The tests that only a person with real devices can do: phones, a TV or a TV box, a remote control, a camera.
-This file holds **all** of them: the steps, the result of every step, and the evidence. The headless tests (`tests/`) do not replace them.
+This file holds **all** of them: the steps, the result of every step, and the evidence. The headless tests (`tests/`, listed in `docs/AUTOMATED_TESTS.md`) do not replace them; a step that a headless test covers fully was moved there.
 Style: ASD-STE100 Simplified Technical English. It replaces `docs/MANUAL_TESTS.md` (that file now points here). Test numbers do not change.
 
 ## How to use this file
@@ -467,13 +467,11 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, 
 
 **Steps**
 
-1. Maze with 1 phone: finish the maze. Check: the title says '<name> wins!', the list has one row '1st  <name>  <time> s', and the buttons are Try again and **Back to menu**. The text is easy to read from the sofa.
-2. Maze with 2 to 4 phones: let one ball reach the exit first. Check: the winner is '1st' with a time, the other balls are listed as 'not finished' (nearest to the exit first), and the list and the buttons stay inside the screen edge (60 px).
-3. Road Rally with 4 phones on any track: let all cars finish. Check: the list shows 4 rows with times, best first, and a title with the winner. The card with the list and the 3 buttons (Try again, New game, Back to menu) is inside the screen edge and can be read.
-4. Road Rally with 4 phones: let one car finish and wait about 4 seconds for the end. Check: the cars that did not finish are listed as 'not finished', the furthest first.
-5. Road Rally, at the results: choose **New game**. Check: the settings view opens with the last difficulty and track, and Back returns to the Games screen.
-6. Road Rally: when the race is over and the results show, switch off the Wi-Fi of all phones (or leave the game on every phone). Then choose **New game** and **Back**, then open the results again if they are gone. Check: the menu says 'No players connected' and has only **Back to menu**. (REQ-MR-14)
-7. Banana Party with 1 phone: play a full round. Check: the title is a medal ('Bronze medal!', 'Silver medal!', 'Gold medal!') or 'No medal this time', and the list has one row with the score. With 2 phones: the title names the winner, or says 'Tie!' for equal scores.
+1. Maze with 1 phone: finish the maze. Check: the result menu is easy to read from the sofa. (The rows, the title and the buttons are checked by `docs/AUTOMATED_TESTS.md`, A-11-1.)
+2. Maze with 2 to 4 phones: let one ball reach the exit first. Check: the list and the buttons are inside the screen edge of your TV (look at the photo) and easy to read. (The rows and the 60 px edge are checked by A-11-2.)
+3. Road Rally with 4 phones on any track: let all cars finish. Check: the card with the list and the 3 buttons is inside the screen edge of your TV and can be read from the sofa. (The rows, the order and the 60 px edge are checked by A-11-3.)
+
+Items 4, 5, 6, 7 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-11-4 to A-11-7). The numbers of the other items do not change.
 
 **Results**
 
@@ -482,10 +480,6 @@ Needs: 1 to 4 phones, 1 TV. Covers: REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, 
 | 1 | Photo of the result menu (1 phone) from the sofa | Not run | | | |
 | 2 | Photo of the result menu with 'not finished' rows; check the edge | Not run | | | |
 | 3 | Photo of the race results with 4 rows, with the screen edge visible | Not run | | | |
-| 4 | Photo of the 'not finished' rows | Not run | | | |
-| 5 | Photo or short video of Cancel returning to the results | Not run | | | |
-| 6 | Photo of the 'No players connected' menu | Not run | | | |
-| 7 | Photos of the medal title and of the winner or Tie title | Not run | | | |
 
 History:
 
@@ -688,10 +682,11 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 2. In Hebrew, go through the logo, Connect, Games, Settings, a settings view, the Players modal, the quit question. Check: every screen is mirrored (QR card at the right, slot squares at the right, cursor at the right and pointing left, title at the right), no text is cut, no English word is left (except SABABI, WI-FI, OK, the room code and the player names), and the Hebrew letters and the punctuation (`. , ! ? -`) look right next to each other. Write down any text that is cut or any word that looks wrong.
 3. In Hebrew, the Left and Right keys of the remote in a choice row (Difficulty): Right goes to the previous value (the arrow at the right), Left to the next. Check that the D-pad moves the focus between rows by position as before.
 4. Join 2 phones: one with the system language Hebrew, one English, with player names in Latin letters and in Hebrew letters. Check: before the join the Hebrew phone shows its connect screen in Hebrew and the English phone in English; after the join both show the language of the TV (Hebrew); the player names show as typed (a Latin name in a Hebrew row is in the right place).
-5. In Settings, press OK on the Language row. Check: the TV switches to English at once (the layout turns left to right), the phones switch too, and the Settings screen stays open. Switch back to Hebrew. Leave the app and start it again: the language is the one that was last chosen.
 6. Start each game in Hebrew with 2 phones. Check: the title is at the top right, the leader chip is at the left, the timer is at the left of the title, the hint and the countdown ("קדימה") are readable, and the world is not mirrored (the maze start is at the top left, the track runs as in English). Open the pause menu and the result menu: the ranking list, the medal text and "תיקו!" read right.
 7. Phone in Hebrew, on the pad screen: the words RECENTER, DISCONNECT and the hint are Hebrew, and A and B are in the same places as in English (the pad is not mirrored).
 8. Run the English TV again with the same phones: nothing changed from before (compare with Test 16).
+
+Item 5 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-17-5). The numbers of the other items do not change.
 
 **Results**
 
@@ -701,7 +696,6 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 | 2 | Photos of each TV screen in Hebrew; a list of cut or wrong text | Not run | | | |
 | 3 | Video of a choice row with Left and Right | Not run | | | |
 | 4 | Photos of both phones before and after the join, and the Connect screen with the names | Not run | | | |
-| 5 | Video of the switch in Settings with the TV and a phone in the picture | Not run | | | |
 | 6 | Photos of the HUD of each game in Hebrew; the result menu | Not run | | | |
 | 7 | Photo of the Hebrew phone pad | Not run | | | |
 | 8 | Photos of the English TV | Not run | | | |
@@ -804,20 +798,20 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 2. Change the avatar and the name on the phone (in a menu) and look at the TV. Check: the TV shows the new values after the phone answers; the phone shows what the TV accepted.
 3. A parent phone with 3 profiles: switch between rounds. Check: the TV shows the new name and avatar; the profile button is gone when a round starts; the list closes if it was open.
 4. Two phones with the names `Sam` and `sam`. Check: the TV shows `Sam` and `Sam 2`. A name of 10 letters and a Hebrew name of 10 letters fit on the cards and in the lists.
-5. A guest next to profile players. Check: the guest keeps the number and `Player N`.
 6. Pause card with profile names (switch the Wi-Fi of a phone off). Check: `MAYA LOST CONNECTION`, `Resume without Maya`, `Maya reconnected`; two names of 10 letters fit; a Hebrew name in the English sentence and an English name in the Hebrew sentence read right.
 7. All 32 avatars on the four slot colors and on the smallest ball, from the sofa. A child of 5 to 8 years names five of them and finds its own avatar. Write down which avatars look alike.
 8. The same profile on a second phone joins the same TV while the TV is in a menu. Check: the older phone shows `YOUR PLAYER JOINED ANOTHER PHONE.` and goes to the Connect screen. Then repeat during a round: the second phone waits as a guest and nobody is removed.
 
 9. Play Banana Party, Paint Grab and Road Rally (a fixed track) with a profile on 2 phones. Check: the phone of a player who scores says NEW BEST! on the waiting screen when the round is over; a worse round does not change the best; the second round shows "BEFORE: x" with the old score (a race time in seconds); the phone of a guest shows nothing.
 10. Close the app and open it again, then join another TV. Check: the profile and the bests are still there (play the same game and see that "BEFORE" is the old score).
-11. Play Treasure Maze, Sumo Bumpers and a random Road Rally track with a profile. Check: no NEW BEST! on the phone.
 12. Share a profile to a second phone by QR: on the first phone open the list, tap SHARE on a row; on the second phone tap SCAN A PLAYER. Check: the second phone shows PLAYER ADDED. with the same name and avatar. Time how long the code takes to appear and to scan; try it from 30 cm and from 60 cm, with the screen at full and at low brightness.
 13. Share a player that the second phone already has, after a rename on the first phone (the name is newer there): the second phone shows PLAYER UPDATED. and has the newer name and avatar. Then rename on the second phone and scan the old copy again: the newer name stays.
 14. An iPhone: COPY CODE on one phone and PASTE A CODE on the iPhone (the iPhone has no scan button). Check the same result as item 12.
 15. A broken code (change one letter of a copied code, then paste), a TV link (scan the QR code of the TV on the list), and a player code scanned on the Connect screen: the messages THIS CODE DOES NOT WORK., THIS IS A TV LINK., and the player is added.
 16. New (REQ-FL-71, 72). On the Connect screen: the dropdown shows the avatar and the name together; open it, pick another player, pick GUEST; tap **+** and make a player (the keyboard must stay open when you tap the name field); the avatars are one line that scrolls by dragging and by the arrows, and the picked one is in view; **Back** from the new player goes to the Connect screen, not to the list; **PLAYERS** in the dropdown opens the list. In Hebrew the arrows still point the right way. After typing, tap outside the field: the keyboard closes. At the first and the last avatar the arrow of that side is dim and does nothing. Tap EDIT next to the dropdown: change the name and the avatar, Save: both show on the TV after the phone joins; Back from EDIT goes to the Connect screen.
 17. New (REQ-FL-71, REQ-GM-46b, 70). Join a TV: the waiting screen has only DISCONNECT (top right), the text and SETTINGS, no PLAYER button; to change the player, tap DISCONNECT and choose on the Connect screen. On the TV, in every game, the leader chip and the name tags in the countdown show the color square, then the avatar, then the name, also in Hebrew (left to right inside the chip). No ball, marble, blob, bumper or cursor in any game shows a number or an avatar: only its color (a child of 5 to 8 years still finds their own object, with the name tags in the countdown).
+
+Items 5, 11 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-20-5 and A-20-11). The numbers of the other items do not change.
 
 **Results**
 
@@ -827,13 +821,11 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 | 2 | Note: the new name and avatar on the TV | Not run | | | |
 | 3 | Video of a switch between rounds | Not run | | | |
 | 4 | Photo of `Sam` and `Sam 2` | Not run | | | |
-| 5 | Photo: a guest next to a profile player | Not run | | | |
 | 6 | Photo of the pause card in English and in Hebrew | Not run | | | |
 | 7 | Photo of the 32 avatars on the TV; note: the child, the age, what the child said | Not run | | | |
 | 8 | Photo of the message on the older phone | Not run | | | |
 | 9 | Photo of NEW BEST! and BEFORE on a phone | Not run | | | |
 | 10 | Note: the bests after a restart of the app | Not run | | | |
-| 11 | Note: no message in these games | Not run | | | |
 | 12 | Video: the scan; time to show and to scan; the distances | Not run | | | |
 | 13 | Note: the names on both phones | Not run | | | |
 | 14 | Note: the iPhone model and what happened | Not run | | | |
