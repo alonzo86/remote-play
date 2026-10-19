@@ -45,7 +45,7 @@ Hits and serve
 | REQ-TN-6 | The hit zone has 3 parts by time: early, green and late. A swing in the green part is a fast shot with sparks. An early or a late swing is a slow, high lob that stays in play (REQ-GM-83). The width of the green part comes from the difficulty (REQ-TN-18). | Device | tennis_rules, Test 25 |
 | REQ-TN-7 | Swing speed sets the power. The **direction of the forward swing** sets left or right: the angle of its horizontal part from the direction of the TV (the heading of the last recenter, followed with the gyroscope), full to the side at 45 degrees; "straight" is the mean direction of the player's own last swings (no setup step), started from the pose at GO; a swing that is nearly vertical aims to the middle. The tilt of the phone is not used any more, because the wrist turn of the swing pushed most shots to the left (found on 2026-10-18; the tilt from before the swing was tried first and was worse). A weak swing gives a short slow ball, a strong swing a long fast ball. A ball can be too long (out): a strong swing with a bad tilt may land out, a weak one never does on Easy. | Device | tennis_rules, Test 25 |
 | REQ-TN-9 | Serve: the server presses A to toss the ball up and then swings the phone **from top to bottom**, like a real serve. The swing counts when the ball is high (the serve window). The serve window is the time around the top of the toss (0.45 s each side). When the server does not swing in it, the ball falls (about 1 s after the toss) and the server tosses again (no fault, no point lost). A serve must land in the service box across the net. A serve that lands out is repeated once, then the point goes to the other team. | Device | tennis_rules, smoke_tennis, Test 25 |
-| REQ-TN-8 | Phone: the swing is the only action to hit. A tosses the ball (serve only). B does nothing. RECENTER recenters the tilt (REQ-GM-37). A hit buzzes the phone (30 ms, a fast shot 60 ms). The hint is one line at the bottom for the first 16 s: `tennis.hint_serve` while a serve is due, `tennis.hint_hit` in a rally (both tell the player to tilt to move the dots, REQ-TN-21), `tennis.hint_solo` with 1 player (rows of `strings.csv`, to be reviewed by the user). A hit buzzes the phone. | Device | smoke_tennis, Test 25 |
+| REQ-TN-8 | Phone: the swing is the only action to hit. A tosses the ball (serve only). B does nothing. RECENTER recenters the tilt (REQ-GM-37). A hit buzzes the phone (30 ms, a fast shot 60 ms). The hint is one line at the bottom for the first 16 s: `tennis.hint_serve` while a serve is due (press A to toss, swing down to serve, swing to a side to aim), `tennis.hint_hit` in a rally (swing when the ball arrives, swing to a side to aim; REQ-TN-7, REQ-TN-21 is removed), `tennis.hint_solo` with 1 player (rows of `strings.csv`, to be reviewed by the user). | Device | smoke_tennis, Test 25 |
 
 Aim
 
@@ -84,6 +84,24 @@ Solo, players and feedback
 
 REQ-TN-19: games to win a match on `Real`: 3 (about 8 minutes with 4 players, a first guess); points on `Quick`: 5. All values are first guesses and are
 tuned on a device (`docs/MANUAL_TESTS.md`, Test 25). The values are in `Rules.level()` and the constants of `tennis_match.gd`.
+
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `tennis` plays from "GO": a light, springy loop (118 BPM, G major). The countdown, pause and result sounds come from the base class. All values are first guesses (Test 25, Test 18).
+
+| ID | Effect | When | Sound | Haptic |
+|----|--------|------|-------|--------|
+| REQ-TN-S1 | `tennis_toss` | The server tosses the ball. | Short rising blip | none |
+| REQ-TN-S2 | `tennis_hit` | A swing hits the ball (also the machine). | Soft "pok" | 30 ms for the player, 80 ms gap |
+| REQ-TN-S3 | `tennis_great` | A hit inside the green part of the window (never for the machine). | Brighter "pok" with a ring | 60 ms for the player |
+| REQ-TN-S4 | `tennis_bounce` | The ball bounces. | Quiet low tok | none |
+| REQ-TN-S5 | `tennis_net` | The ball hits the net. | Soft thud | none |
+| REQ-TN-S6 | `tennis_out` | The ball lands out, or a rally with the machine ends. | Short falling "bwoop" | none |
+| REQ-TN-S7 | `tennis_fault` | A serve fault. | Longer falling "bwoop", soft | none |
+| REQ-TN-S8 | `tennis_point` | A point is won. | Rising three notes | 80 ms for the players of the team |
+| REQ-TN-S9 | `tennis_game` | A game is won, the time is up, or the match is over. | Rising five notes | 80 ms for the players of the team that won the game; 400 ms for the winners at the end |
+
+Haptics on the phone of the player: Countdown end: 60 ms. No sound is scary or sad (REQ-GM-81): a miss, a fault and an out are funny and soft.
 
 ## Open questions
 

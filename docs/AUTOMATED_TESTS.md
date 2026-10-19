@@ -51,7 +51,7 @@ a real device, but they make a regression show in CI before a person sees it.
 | `net_loss` | a silent phone: when it is lost, when its slot is freed (grace times, paused game) |
 | `net_pin` | the join PIN rules, 5 wrong PINs and the 30 s lock, the PIN pad, the About pages |
 | `net_profiles`, `profiles`, `profile_code`, `ui_share`, `smoke_bests` | profiles: names, `Sam` and `sam`, bests, copy codes, share, NEW BEST |
-| `smoke_tv`, `games_focus`, `smoke_settings`, `ui_states`, `results_medals`, `layout_menus` | TV flow, Back and the quit question, the Players modal, arrow keys, settings views, medals, result and pause menus |
+| `smoke_tv`, `games_focus`, `smoke_settings`, `ui_states`, `results_medals`, `layout_menus` | TV flow, Back and the quit question (TV, and the phone waiting and pad screens, REQ-FL-55), the Players modal, arrow keys, settings views (the maze Theme order Garden, Castle, Ice), medals, the win or tie sound of the result menu, result and pause menus |
 | `smoke_lang` | the strings table, Hebrew, right to left, the language choice |
 | `device_mocks` | simulated phones on loopback: the 60 ms buzz at GO in 8 games and none before it, the pose of the countdown is the center (maze, Paint Grab, Galaxy Protector), RECENTER and A, B in Paint Grab, a silent phone pauses the turn games. It fails when the buzz or the recenter is removed from a game |
 | `audio` | the synth, songs, effects, volume, the Haptics switch and its saving |
@@ -72,7 +72,7 @@ a real device, but they make a regression show in CI before a person sees it.
 ## Why some mockable steps stay
 
 A step that failed on a real device is not removed, although its rule is tested. Test 6 item 5 (RECENTER, the ball still drifts) and Test 8 items 2 and 3
-(Back quits the app) must be retested on the device, because the mock passed while the device failed. Test 3 (sensor axes) and Test 4 (RTT, Hz, gaps) measure
+(Back quits the app; the new item 6, Back on the phone, has the same real-key risk) must be retested on the device, because the mock passed while the device failed. Test 3 (sensor axes) and Test 4 (RTT, Hz, gaps) measure
 the real phone and the real Wi-Fi, so a simulated phone cannot answer them.
 
 ## Findings of the cleanup

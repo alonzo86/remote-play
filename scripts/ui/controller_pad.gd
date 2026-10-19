@@ -10,10 +10,12 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
+const QuitDialog = preload("res://scripts/ui/controller_quit_dialog.gd")
 
 var _sampler: Node
 var _fingers: Dictionary = {}   # finger index -> zone name
 var _touch_finger := -1
+var _quit_dialog: Control
 var _flash := {"recenter": 0.0}
 
 const HEADER_Y := 110.0   # The vertical middle of the header row.
@@ -85,7 +87,21 @@ func _zone_at(pos: Vector2) -> String:
 
 # ---- Input ----
 
+## Back asks whether to quit the app (REQ-FL-55); Back again answers "stay". The pad ignores touches while the question shows.
+func on_back() -> void:
+	if is_instance_valid(_quit_dialog):
+		_quit_dialog.close()
+		return
+	for index in _fingers.keys():
+		_on_zone_up(_fingers[index], index)
+	_fingers.clear()
+	_quit_dialog = QuitDialog.new()
+	add_child(_quit_dialog)
+
+
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(_quit_dialog):
+		return
 	if event is InputEventScreenTouch:
 		var pos: Vector2 = get_global_transform().affine_inverse() * event.position
 		if event.pressed:
