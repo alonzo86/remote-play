@@ -6,6 +6,7 @@ extends SceneTree
 
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
+const OrientationFusion = preload("res://scripts/input/orientation.gd")
 
 const DT := 1.0 / 60.0
 const G := 9.81
@@ -66,6 +67,77 @@ func _detector_additions() -> void:
 	_check(quick.state == SwingDetector.State.READY and slow.state == SwingDetector.State.LOCKED,
 			"`lock_after` sets the wait after a swing (0.4 s for Tennis, 1.5 s is the bowling default)")
 
+	# Stopping the back swing pushes the other way, but the hand is only slowing down: it is not a forward swing.
+	var stop := SwingDetector.new()
+	stop.hand_speed = true
+	for i in 6:
+		stop.update(DT, Vector3(6, 0, 0))
+	for i in 3:
+		stop.update(DT, Vector3(-12, 0, 0))   # A hard stop: -12 m/s2 is over the forward threshold, but the speed never turns.
+	_check(stop.state == SwingDetector.State.BACK and not stop.released, "the stop of the back swing is not a forward swing")
+	for f in [10.0, 30.0, 30.0, 30.0, 10.0]:
+		stop.update(DT, Vector3(-f, 0, 0))
+	_check(stop.released, "the real forward swing after the stop is found")
+
+	# The hit is a sharp strong push in any direction, after a small first move and a gentle slow pull back (found 2026-10-18).
+	var strike := SwingDetector.new()
+	strike.hand_speed = true
+	for i in 12:
+		strike.update(DT, Vector3(-8, 0, 0))   # A small first move to the left.
+	for i in 30:
+		strike.update(DT, Vector3(4, 0, 0))   # A slow gentle pull back to the right.
+	_check(not strike.released and strike.state != SwingDetector.State.FORWARD, "a gentle move is not the hit")
+	for f in [-30.0, -50.0, -35.0, -20.0, -8.0]:
+		strike.update(DT, Vector3(f, 0, 0))   # The sharp push to the left: the hit.
+	_check(strike.state == SwingDetector.State.LOCKED and strike.forward_dir.is_equal_approx(Vector3(-1, 0, 0))
+			and strike.power > 0.5,
+			"a sharp strong push is the hit, in the direction it pushed (power %.2f)" % strike.power)
+	var fresh := SwingDetector.new()
+	fresh.hand_speed = true
+	for f in [30.0, 50.0, 35.0, 20.0, 8.0]:
+		fresh.update(DT, Vector3(0, f, 0))
+	_check(fresh.state == SwingDetector.State.LOCKED and fresh.forward_dir.is_equal_approx(Vector3(0, 1, 0)),
+			"a sharp push alone is the hit too")
+
+	var smooth_back := SwingDetector.new()   # A back swing is gentle: 10 m/s2 is not the hit.
+	for i in 12:
+		smooth_back.update(DT, Vector3(10, 0, 0))
+	_check(not smooth_back.released and smooth_back.state == SwingDetector.State.BACK, "a firm back swing is not the hit")
+
+	var held := SwingDetector.new()   # A slow back swing that is held while the ball comes is not a hit.
+	for i in 12:
+		held.update(DT, Vector3(6, 0, 0))
+	for i in int(1.0 / DT):
+		held.update(DT, Vector3.ZERO)
+	_check(not held.released and held.state == SwingDetector.State.BACK, "a slow back swing that waits is not the hit")
+
+	# A smooth, wide swing never has a sharp push (5 m/s2 is under the forward threshold) but the hand gets fast.
+	var smooth := SwingDetector.new()
+	smooth.hand_speed = true
+	for i in 6:
+		smooth.update(DT, Vector3(6, 0, 0))
+	for i in int(0.6 / DT):
+		smooth.update(DT, Vector3(-5, 0, 0))
+	smooth.update(DT, Vector3.ZERO)
+	_check(smooth.released and smooth.forward_dir.is_equal_approx(Vector3(-1, 0, 0)) and smooth.power > 0.0,
+			"a smooth fast forward move without a sharp push is a swing (power %.2f)" % smooth.power)
+
+	# A player who draws back early still gets the hit when the forward swing comes 2 s later (Tennis waits 3 s).
+	var early := SwingDetector.new()
+	early.window = 3.0
+	early.hand_speed = true
+	var plain := SwingDetector.new()
+	plain.hand_speed = true
+	for d2 in [early, plain]:
+		for i in 6:
+			d2.update(DT, Vector3(1, 0, 0) * 6.0)
+		for i in 120:
+			d2.update(DT, Vector3.ZERO)
+		for f in [10.0, 12.0, 12.0, 3.0]:   # A forward swing under the strike push (20).
+			d2.update(DT, Vector3(-1, 0, 0) * f)
+	_check(early.released and not plain.released,
+			"`window` sets how long a back swing waits for the forward swing (1.5 s is the default)")
+
 
 ## A packet at `ts` with the extra acceleration `extra` (m/s2, phone frame) on top of gravity.
 func _packet(ts: int, extra: Vector3) -> Dictionary:
@@ -102,10 +174,37 @@ func _player_slot() -> void:
 	t = _send(p, t, UP, 500)
 	_check(got.size() == 1 and p.swing_count == 1 and p.last_swing_ms > 0, "a swing along the up axis is reported once")
 	var s: Dictionary = got[0]
-	_check(s.down and s.power > 0.5 and s.power <= 1.0 and s.hit_age_ms > 0.0 and s.has("tilt"),
-			"it is a down swing with power (%.2f), the age of the hit (%.0f ms) and the tilt" % [s.power, s.hit_age_ms])
-	t = _send(p, t, Vector3(1, 0, 0), 100)
+	_check(s.down and s.power > 0.5 and s.power <= 1.0 and s.hit_age_ms > 0.0 and s.has("side"),
+			"it is a down swing with power (%.2f), the age of the hit (%.0f ms) and the side" % [s.power, s.hit_age_ms])
+	t = _send(p, t, Vector3(1, 0, 0), 100)   # A sideways swing also shakes the tilt of the sensor fusion.
 	_check(got.size() == 2 and not got[1].down, "a second swing after the wait is found, and a sideways swing is not down")
+	_check(absf(float(got[0].side)) < 0.01 and float(got[1].side) < -0.9,
+			"the side of a swing follows its direction: straight down gives 0, a forward swing to the left gives -1 (REQ-TN-7)")
+	var o := OrientationFusion.new({})
+	o.update(0, Vector3.ZERO, Vector3(0, 0, 9.81))   # Flat on a table, the top of the phone points at the TV.
+	var full := 0.7854
+	_check(o.to_world(Vector3(1, 2, 3)).is_equal_approx(Vector3(1, 2, 3)), "flat, the phone x is right of the TV, y at the TV, z up")
+	_check(is_equal_approx(OrientationFusion.swing_side(Vector3(0, 1, 0), full), 0.0), "a swing at the TV aims to the middle")
+	_check(OrientationFusion.swing_side(Vector3(1, 1, 0), full) > 0.99, "a swing 45 degrees to the right aims all the way right")
+	_check(OrientationFusion.swing_side(Vector3(-0.5, 1, 0), full) < -0.5, "a swing to the left of the TV aims left")
+	_check(OrientationFusion.swing_side(Vector3(0.2, 0.1, -1), full) == 0.0, "a swing that is nearly vertical has no side")
+	var cal_side := OrientationFusion.swing_side(Vector3(1, 1, 0), full, PI / 4.0)
+	_check(absf(cal_side) < 0.01 and OrientationFusion.swing_side(Vector3(0, 1, 0), full, PI / 4.0) < -0.99,
+			"a swing is measured from the calibrated heading: the calibrated one is straight, the old straight is now left")
+	var auto := PlayerInput.new(4, {})
+	for i in 12:   # A player whose swings all go 20 degrees (0.35 rad) to the side: that becomes "straight".
+		auto.last_swing = {"azimuth": 0.35}
+		auto._follow_heading(0.35)
+	_check(absf(auto.heading - 0.35) < 0.05, "the heading follows the swings of the player by itself")
+	var first := PlayerInput.new(5, {})
+	first._follow_heading(0.35)
+	_check(first.heading > 0.05 and first.heading < 0.3, "the first swing moves the heading only part of the way")
+	auto.recenter()
+	_check(auto.heading == 0.0, "a recenter clears the heading")
+	var u := OrientationFusion.new({})   # Held upright like a racket grip, the screen to the player: the TV is away from the screen.
+	u.update(0, Vector3.ZERO, Vector3(0, 9.81, 0))
+	_check(u.to_world(Vector3(0, 0, -1)).is_equal_approx(Vector3(0, 1, 0)) and u.to_world(Vector3(1, 0, 0)).x > 0.99,
+			"upright, away from the screen is toward the TV and the phone x is still right")
 	t = _send(p, t, UP, 100)
 	_check(got.size() == 2, "a swing inside the wait of 0.4 s after the last one is ignored")
 	# The timestamp runs over the u32 wrap: the time step must stay 17 ms, not a huge number.

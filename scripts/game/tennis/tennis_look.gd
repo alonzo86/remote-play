@@ -9,10 +9,10 @@ const Shell = preload("res://scripts/game/shell.gd")
 const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
 
 const HUD_H := 112.0              # The black bar on top (the title and the leader chip).
-const DEPTH_C := 12.0             # The eye is this far (m) behind the near baseline.
-const K_DEPTH := 10475.0          # Screen y of a point on the floor: HORIZON + K_DEPTH / z (units at 1920 x 1080).
-const HORIZON := 87.0
-const K_SIDE := 1838.0            # Units per meter at z = 1.
+const DEPTH_C := 16.0             # The eye is this far (m) behind the near baseline.
+const K_DEPTH := 13370.0          # Screen y of a point on the floor: HORIZON + K_DEPTH / z (units at 1920 x 1080).
+const HORIZON := 44.0
+const K_SIDE := 2200.0            # Units per meter at z = 1.
 const BOARD_BACK := 3.0           # The ad boards stand this far (m) behind the far baseline.
 const BOARD_H := 1.0
 const STANDS_Y0 := 112.0

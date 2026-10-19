@@ -6,6 +6,7 @@ extends "res://scripts/game/minigame.gd"
 const Match = preload("res://scripts/game/tennis/tennis_match.gd")
 const Look = preload("res://scripts/game/tennis/tennis_look.gd")
 const Rules = preload("res://scripts/game/tennis/tennis_rules.gd")
+const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
@@ -14,7 +15,6 @@ const END_DELAY := 2.2          # After the last point the court stays this long
 const HINT_TIME := 16.0         # The hint lines show this long at the start of the match.
 const BANNER_TIME := 1.6
 const GREAT_TIME := 0.8
-const TILT_FULL := 0.5          # A tilt of this size (sine of the angle, about 30 degrees) aims all the way to the side.
 const BUZZ_HIT_MS := 30
 const BUZZ_GREAT_MS := 60
 const PAUSE_GAP_MS := 400       # A gap between two ticks longer than this means the game was paused: swings are ignored.
@@ -83,8 +83,8 @@ func _on_button(bit: int, slot: int) -> void:
 func _on_swing(info: Dictionary, slot: int) -> void:
 	if not _live() or Time.get_ticks_msec() - _tick_ms > PAUSE_GAP_MS:
 		return
-	var tilt_x := clampf((info.tilt as Vector2).x / TILT_FULL, -1.0, 1.0)
-	play.swing(slot, float(info.power), bool(info.down), tilt_x, float(info.hit_age_ms) / 1000.0)
+	var side := clampf(float(info.get("side", 0.0)), -1.0, 1.0)   # The side of the swing, not the tilt (REQ-TN-7).
+	play.swing(slot, float(info.power), bool(info.down), side, float(info.hit_age_ms) / 1000.0)
 
 
 ## True while the match is on: not in the countdown, not over, not paused.

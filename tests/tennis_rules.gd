@@ -29,6 +29,7 @@ func _initialize() -> void:
 	_serve()
 	_rally()
 	_points()
+	_on_screen()
 	_matches()
 	_solo()
 	_leaving()
@@ -288,6 +289,10 @@ func _rally() -> void:
 	var c: Dictionary = m.contact
 	_check(m.swing(1, 0.5, false, 0.0, 1.0) == "none", "a swing whose hit was 1 s before the contact does nothing")
 	_check(m.swing(1, 0.5, false, 0.0, -1.0) == "none", "and one whose hit is 1 s after it does nothing")
+	m.chars[1].anim = 5.0
+	var miss := m.swing(1, 0.5, false, 0.0, 1.0)
+	_check(miss == "none" and m.chars[1].anim == 0.0 and m.contact == c and m.hitter == 1,
+			"a missed swing still plays the swing of the character, and the ball and the turn stay as they were")
 	var back := m.swing(1, 0.7, false, 0.0, 0.0)
 	_check(back == "hit" and m.hit_team == 1 and m.expect_team == 0 and m.hitter == 0,
 			"a swing at the contact time returns the ball")
@@ -319,6 +324,38 @@ func _rally() -> void:
 	_until_contact(mid)
 	mid.swing(1, 0.6, false, -1.0, 0.0)
 	_check(right_x < mid.sim.vel.x, "the far team has its right hand at negative x: the aim is mirrored")
+	# The side of the swing (-1 left to 1 right) decides where along the court the ball goes (REQ-TN-7).
+	var aim := _match([0, 1])
+	_serve_now(aim, 0.5)
+	_until_contact(aim)
+	_check(aim.hitter >= 0, "a player has to hit")
+	_check(aim.aim_x(1, 1.0, false) < aim.aim_x(1, -1.0, false), "far team: a swing to the right is a smaller x (mirrored)")
+	_check(absf(aim.aim_x(0, 1.0, false, 0.0)) <= aim.half_width() * 1.12 + 0.001,
+			"the aim of a full side stays within the aim range")
+	var ez := _match([0, 1], false, "easy")
+	_check(absf(ez.aim_x(0, 1.0, false)) <= ez.half_width() - 0.4 + 0.001, "on Easy the aim stays inside the lines")
+	var sv := _match([0, 1])
+	var sx: float = sv.chars[sv.server_slot()].pos.x
+	_check(sv.aim_x(sv.server_slot(), 0.0, true) * sx < 0.0, "the serve aim with no side is in the box across the net")
+
+
+## A character never runs out of the picture (REQ-TN-4).
+func _on_screen() -> void:
+	print("characters stay on the screen")
+	var m := _match([0, 1])
+	var v: Vector2 = Match._on_screen(Vector2(9.0, -20.0))
+	_check(is_equal_approx(v.x, Match.RUN_MAX_X) and is_equal_approx(v.y, -(Sim.HALF_L + Match.RUN_MAX_BEHIND)),
+			"a place far out and far behind is moved back")
+	_check(Match._on_screen(Vector2(1.0, -5.0)) == Vector2(1.0, -5.0), "a place on the court stays")
+	_serve_now(m, 0.9, 1.0)
+	for i in 6:
+		_until_contact(m)
+		if m.phase != Match.Phase.RALLY or m.hitter < 0:
+			break
+		var tg: Vector2 = m.chars[m.hitter].target
+		_check(absf(tg.x) <= Match.RUN_MAX_X + 0.001 and tg.y >= -(Sim.HALF_L + Match.RUN_MAX_BEHIND) - 0.001,
+				"the hitter runs to a place that the screen shows")
+		m.swing(m.hitter, 1.0, false, 1.0 if i % 2 == 0 else -1.0, 0.0)
 
 
 ## How a point is won (REQ-TN-12).
