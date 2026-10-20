@@ -6,6 +6,8 @@ const Shell = preload("res://scripts/game/shell.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const SpaceField = preload("res://scripts/game/asteroid_blast/space_field.gd")
 const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
+const Medals = preload("res://scripts/game/medals.gd")
+const SimInput = preload("res://tests/sim_input.gd")
 
 var _checks := 0
 var _fails := 0
@@ -24,6 +26,9 @@ func _initialize() -> void:
 	_space_field()
 	_space_waves()
 	_blast_look()
+	_ship_speed_and_fire()
+	_waves_and_medals()
+	_pictures()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -318,3 +323,146 @@ func _blast_look() -> void:
 			BlastLook.ROCK_LIGHT) >= 3.0,
 			"the asteroids stand out from the sky and from their outline")
 
+
+
+## 22.3b, 3c, 3d, 4a, 5a, 5e, 6a, 6c: the speed of the ship, the rate of fire and the upgrades with numbers.
+func _ship_speed_and_fire() -> void:
+	print("ship speed and fire")
+	var f := _field([SpaceField.EDGE])
+	var s: SpaceField.Ship = f.ships[0]
+	var t := 0.0
+	while s.x < SpaceField.REF_AREA.x - SpaceField.EDGE and t < 20.0:
+		f.steer(s, 0.71, 1.0 / 60.0)
+		t += 1.0 / 60.0
+	_check(t > 2.5 and t < 4.2, "at a tilt of 0.71 the ship needs %.2f s from the left stop to the right stop (2.5 to 4.2 s)" % t)
+	var held := true
+	for i in 120:
+		f.steer(s, 0.71, 1.0 / 60.0)
+		held = held and s.x == SpaceField.REF_AREA.x - SpaceField.EDGE
+	_check(held and s.x - SpaceField.SHIP_R >= 0.0 and s.x + SpaceField.SHIP_R <= SpaceField.REF_AREA.x
+			and SpaceField.EDGE >= SpaceField.SHIP_R and SpaceField.EDGE / 1920.0 > 0.02 and SpaceField.EDGE / 1920.0 < 0.04,
+			"kept against the right stop for 2 s the ship stays there, fully on the screen, 60 px (3 %) from the side of the play area")
+	var noise := _rng(11)
+	var still := s.x
+	for i in 600:   # 10 s of a phone that lies on a table: the readings wobble below the dead zone.
+		f.steer(s, noise.randf_range(-0.039, 0.039), 1.0 / 60.0)
+	_check(is_equal_approx(s.x, still), "10 s of noise below the dead zone does not move the ship")
+	var one := _field([900.0])
+	for i in 600:   # 10 s in steps of 1/60 s.
+		one._fire(1.0 / 60.0)
+	var shots := one.events.filter(func(e: Dictionary) -> bool: return e.t == "shot").size()
+	_check(shots >= 22 and shots <= 28, "one ship fires %d times in 10 s on Medium (22 to 28)" % shots)
+	var timed := _field([900.0])
+	timed._tick_upgrades(SpaceField.UPGRADE_FIRST - 1.0, _rng(2))
+	var none_before_9 := timed.upgrades.is_empty()
+	timed._tick_upgrades(2.1, _rng(2))
+	_check(none_before_9 and timed.upgrades.size() == 1, "the first upgrade falls between 9 s and 11 s of play (REQ-AB-10)")
+	var f2 := _field([900.0])
+	var weapon := SpaceField.Upgrade.new()
+	weapon.kind = SpaceField.WEAPON
+	for i in 3:
+		f2._apply(f2.ships[0], weapon)
+	f2._apply(f2.ships[0], weapon)
+	_check(f2.scores[0] == 50 and f2.ships[0].lasers == 4, "the 5th weapon upgrade gives exactly 50 points")
+	var f3 := _field([900.0])
+	f3.ships[0].shield = true
+	f3._make(2, 900.0, SpaceField.SHIP_Y - 40.0, _rng(3))
+	f3._ship_contacts()
+	_check(f3.asteroids.is_empty() and f3.ships[0].alive, "a large asteroid that hits the ring is gone with no pieces")
+	var f4 := _field([900.0, 1500.0])
+	f4._make(0, 900.0, SpaceField.SHIP_Y, _rng(4))
+	f4._ship_contacts()
+	var dead_x: float = f4.ships[0].x
+	for i in 1800:   # 30 s
+		f4.tick(1.0 / 60.0, _rng(5), {0: 1.0, 1: 0.0})
+		f4.asteroids.clear()
+	_check(not f4.ships[0].alive and f4.ships[0].x == dead_x and f4.alive_count() == 1, "a ship that is out stays out for 30 s")
+
+
+## 22.7d, 7e, 8e: the waves get faster and fuller; the medal tiers.
+func _waves_and_medals() -> void:
+	print("waves and medals")
+	_check(1.0 / SpaceField.wave_speed(6) <= 0.75, "an asteroid of wave 6 needs at most 0.75 of the fall time of wave 1: %.2f"
+			% (1.0 / SpaceField.wave_speed(6)))
+	var counts := []
+	for wave_no in [1, 6]:
+		var f := _field([900.0])
+		f.wave = wave_no
+		var r := _rng(21)
+		for i in 100:
+			f._tick_waves(0.1, r)
+		counts.append(f.asteroids.size())
+	_check(counts[1] >= int(1.5 * counts[0]) and counts[0] >= 5,
+			"wave 6 brings %d asteroids in 10 s, wave 1 brings %d (1.5 times or more)"
+			% [counts[1], counts[0]])
+	_check(SpaceField.LEVELS.medium.tiers == [600, 1800, 4000] and SpaceField.LEVELS.easy.tiers == [800, 2400, 5000]
+			and SpaceField.LEVELS.hard.tiers == [500, 1500,
+					3200], "the medal tiers are 600/1800/4000, 800/2400/5000 and 500/1500/3200")
+	var t: Array = SpaceField.LEVELS.medium.tiers
+	_check(Medals.medal(599, t) == "" and Medals.medal(600, t) == "bronze" and Medals.medal(1799, t) == "bronze"
+			and Medals.medal(1800, t) == "silver" and Medals.medal(3999, t) == "silver" and Medals.medal(4000, t) == "gold",
+			"the score at a limit gets the medal, one point less the one before")
+
+
+## 22.4c, 5b, 12a, 12c, 12d: the pictures are made of a few known colors, in sizes that can be seen.
+func _pictures() -> void:
+	print("pictures")
+	var sm := BlastLook.asteroid_image(0, 0, SpaceField.SIZES[0].radius)
+	var me := BlastLook.asteroid_image(1, 0, SpaceField.SIZES[1].radius)
+	var lg := BlastLook.asteroid_image(2, 0, SpaceField.SIZES[2].radius)
+	_check(float(lg.get_width()) / float(sm.get_width()) > 2.0 and me.get_width() > sm.get_width()
+			and me.get_width() < lg.get_width()
+			and sm.get_width() == 2 * 8 + 1 + 2 and me.get_width() == 2 * 12 + 1 + 2 and lg.get_width() == 2 * 19 + 1 + 2,
+			"the large asteroid is more than 2 times as wide as the small one: %d, %d, %d px" % [sm.get_width(), me.get_width(),
+					lg.get_width()])
+	var rock_colors := [BlastLook.ROCK_LIGHT, BlastLook.ROCK_MID, BlastLook.ROCK_DARK, BlastLook.ROCK_CRATER, BlastLook.OUTLINE]
+	var rocks_ok := true
+	for size_no in 3:
+		for look in 4:
+			rocks_ok = rocks_ok and _only_colors(BlastLook.asteroid_image(size_no, look, SpaceField.SIZES[size_no].radius),
+					rock_colors)
+	_check(rocks_ok, "every asteroid picture has whole pixels in 5 colors only (no gradient)")
+	var ships_ok := true
+	for col in Protocol.PLAYER_COLORS:
+		for frame in 2:
+			ships_ok = ships_ok and _only_colors(BlastLook.ship_image(col, frame), [col, Color("fcfcfc"), Color("5ad2ff"),
+					BlastLook.FLAME_A,
+					BlastLook.FLAME_B, BlastLook.OUTLINE])
+	_check(ships_ok, "every ship picture has whole pixels in the color of the player and 5 fixed colors")
+	var h: int = BlastLook.ship_image(Protocol.PLAYER_COLORS[0], 0).get_height()
+	_check(float(h) * BlastLook.PX / 1080.0 >= 0.044,
+			"a ship is %.1f %% of the screen height (4.4 %% or more) at 1080p and at 720p"
+			% (float(h) * BlastLook.PX / 10.8))
+	var counts := {}
+	for kind in ["shield", "weapon"]:
+		var img := BlastLook.pickup_image(kind)
+		var c := {"base": 0, "white": 0, "outline": 0, "other": 0}
+		var base: Color = BlastLook.SHIELD_COLOR if kind == "shield" else BlastLook.WEAPON_COLOR
+		for y in img.get_height():
+			for x in img.get_width():
+				var px := img.get_pixel(x, y)
+				if px.a == 0.0:
+					continue
+				if px.is_equal_approx(base):
+					c.base += 1
+				elif px.is_equal_approx(Color.WHITE):
+					c.white += 1
+				elif px.is_equal_approx(BlastLook.OUTLINE):
+					c.outline += 1
+				else:
+					c.other += 1
+		counts[kind] = c
+	_check(counts.shield.other == 0 and counts.weapon.other == 0 and counts.shield.base > counts.shield.white
+			and counts.weapon.base > counts.weapon.white and counts.shield.white > 0 and counts.weapon.white > 0
+			and counts.shield.outline > 0,
+			"a shield pickup is mostly blue and a weapon pickup mostly orange, each with white and a black outline")
+
+
+## True when every visible pixel of `img` has one of `colors` and no pixel is half transparent.
+func _only_colors(img: Image, colors: Array) -> bool:
+	for y in img.get_height():
+		for x in img.get_width():
+			var px := img.get_pixel(x, y)
+			if px.a != 0.0 and (px.a != 1.0 or not colors.any(func(c: Color) -> bool: return c.is_equal_approx(px))):
+				return false
+	return true
