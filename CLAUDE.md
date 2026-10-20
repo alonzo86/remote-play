@@ -53,6 +53,8 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 ## Manual tests (for the user)
 
+- Every note in a test result that describes a problem or a change request (also on a step that passes) triggers, in the same turn: a change of the requirements (marked "Planned (issue #N)" until the code is built) and a GitHub issue, unless an issue for it exists. Look in the open issues first. Do not fix the issue unless the user asks. When a note is unclear or conflicts with a requirement or another test, ask the user and put the question in the issue.
+
 - What a machine can check is in `docs/AUTOMATED_TESTS.md` (how to run it on the Mac, and which manual steps it replaced). When a manual step can be
   done by a headless test, write the test, add it to `tests/suites.txt`, and move the step: remove it from `docs/MANUAL_TESTS.md`, keep the numbers of the other steps, and add an `A-<test>-<item>` row there.
 
