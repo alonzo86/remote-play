@@ -5,6 +5,8 @@ extends SceneTree
 const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
 const Rules = preload("res://scripts/game/tennis/tennis_rules.gd")
 const Match = preload("res://scripts/game/tennis/tennis_match.gd")
+const Trace = preload("res://tests/golf_tennis_trace.gd")
+const PlayerInput = preload("res://scripts/input/player_input.gd")
 
 const DT := 1.0 / 60.0
 
@@ -33,6 +35,13 @@ func _initialize() -> void:
 	_matches()
 	_solo()
 	_leaving()
+	_green_window()
+	_power_and_distance()
+	_easy_stays_in()
+	_court_width()
+	_solo_clock()
+	_medal_tiers()
+	_swing_chain()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -473,3 +482,260 @@ func _leaving() -> void:
 	var solo := _match([2])
 	solo.remove_player(2)
 	_check(solo.is_over(), "with 1 player that leaves the game ends")
+
+
+# ---- Added for the automated half of Manual test 25 ----
+
+## One phone for the chain tests: a `PlayerInput` that gets a trace, and the swings that it found.
+class Rig:
+	var pi: PlayerInput
+	var tick := 0
+	var infos: Array = []
+
+	func _init(slot: int) -> void:
+		pi = PlayerInput.new(slot, {})
+		pi.on_join("Rig%d" % slot, "t")
+		pi.swung.connect(func(i: Dictionary) -> void: infos.append(i))
+		tick = Trace.feed(pi, Trace.rest(0.5), 0)
+
+
+## Plays `samples` (a trace) on `rig` while the match runs: the first sample goes in at the match time `peak - lead`, where
+## `lead` is the time from the start of the trace to the peak of its forward swing. A swing that is found is given to the
+## match at once, as the game does. Returns the result of the swing ("none" when no swing was found).
+func _play(m: Match, rig: Rig, samples: Array, peak: float, lead := 0.375) -> String:
+	var start := peak - lead
+	var idx := 0
+	var result := "none"
+	rig.infos.clear()
+	var guard := 0
+	while (idx < samples.size() or rig.infos.is_empty()) and guard < 1200:
+		guard += 1
+		if m.time >= start and idx < samples.size():
+			rig.pi.on_sensor(Trace.packet(samples[idx], rig.tick), int(round(float(rig.tick) * Trace.DT * 1000.0)))
+			rig.tick += 1
+			idx += 1
+		elif idx >= samples.size():
+			rig.pi.on_sensor(Trace.packet(Vector3.ZERO, rig.tick), int(round(float(rig.tick) * Trace.DT * 1000.0)))
+			rig.tick += 1
+		m.tick(DT)
+		if not rig.infos.is_empty():
+			var i: Dictionary = rig.infos[0]
+			result = m.swing(rig.pi.slot, float(i.power), bool(i.down), float(i.side), float(i.hit_age_ms) / 1000.0)
+			break
+	# The rest of the trace and a quiet second, so that the detector is ready for the next swing.
+	for k in range(idx, samples.size()):
+		rig.pi.on_sensor(Trace.packet(samples[k], rig.tick), int(round(float(rig.tick) * Trace.DT * 1000.0)))
+		rig.tick += 1
+	rig.tick = Trace.feed(rig.pi, Trace.rest(1.0), rig.tick)
+	return result
+
+
+## A 2 player match in which slot 1 has to hit (after the serve of slot 0), seed `seed_value`.
+func _ready_to_return(difficulty := "medium", seed_value := 5, wait := true) -> Match:
+	var m := Match.new()
+	m.setup([0, 1], false, difficulty, seed_value)
+	_serve_now(m, 0.5)
+	if wait:
+		_until_contact(m)
+	return m
+
+
+## REQ-TN-6, 18: the width of the green part of the hit window is twice the half width of the level.
+func _green_window() -> void:
+	print("the green part of the hit window")
+	for d in ["easy", "medium", "hard"]:
+		var greens := 0
+		var any := 0
+		for i in range(-30, 31):
+			var m := _ready_to_return(d)
+			var age := float(i) * 0.02   # The hit was `age` s before the contact (negative: after it).
+			var r := m.swing(1, 0.5, false, 0.0, age)
+			if r == "hit":
+				any += 1
+				if m.take_events().filter(func(e: Dictionary) -> bool: return e.t == "hit")[-1].green:
+					greens += 1
+		var w := float(greens) * 0.02
+		var want: float = 2.0 * float(Rules.level(d).green)
+		_check(absf(w - want) <= 0.05, "%s: the green part is %.2f s wide (wanted %.2f s)" % [d, w, want])
+		_check(absf(float(any) * 0.02 - 2.0 * Match.HIT_W) <= 0.05, "%s: the whole hit window is %.2f s wide" % [d, float(any) * 0.02])
+	var wm: float = 2.0 * float(Rules.level("medium").green)
+	var we: float = 2.0 * float(Rules.level("easy").green)
+	var wh: float = 2.0 * float(Rules.level("hard").green)
+	_check(absf(wm - 0.42) < 0.001 and absf(we - 0.60) < 0.001 and absf(wh - 0.30) < 0.001,
+			"the widths of the green part are 0.60 s (Easy), 0.42 s (Medium) and 0.30 s (Hard) (REQ-TN-18)")
+
+
+## The first bounce of the ball in play: `{pos, t}` (seconds after now), or an empty Dictionary.
+func _first_bounce(m: Match) -> Dictionary:
+	var t0 := m.time
+	m.take_events()   # The events of the serve and of the hit itself do not count.
+	for i in 400:
+		m.tick(DT)
+		for e in m.take_events():
+			if e.t == "bounce" or e.t == "out":
+				return {"pos": e.pos, "t": m.time - t0, "out": e.t == "out"}
+			if e.t == "net":
+				return {}
+	return {}
+
+
+## REQ-TN-7: a stronger swing is a longer and faster ball.
+func _power_and_distance() -> void:
+	print("power: distance and flight time")
+	var longer := 0
+	var faster := 0
+	for seed_value in range(1, 6):
+		var soft := _ready_to_return("medium", seed_value)
+		soft.swing(1, 0.2 + 0.05 * float(seed_value), false, 0.0, 0.0)
+		var sb := _first_bounce(soft)
+		var hard := _ready_to_return("medium", seed_value)
+		hard.swing(1, 0.7 + 0.06 * float(seed_value), false, 0.0, 0.0)
+		var hb := _first_bounce(hard)
+		if not sb.is_empty() and not hb.is_empty():
+			longer += 1 if absf(float(hb.pos.y)) > absf(float(sb.pos.y)) + 2.0 else 0
+			faster += 1 if float(hb.t) < float(sb.t) - 0.1 else 0
+	_check(longer == 5, "a hard swing (0.76 to 1.0) lands deeper than a soft one (0.25 to 0.45) in 5 of 5 pairs (%d)" % longer)
+	_check(faster == 5, "and the ball is in the air a shorter time in 5 of 5 pairs (%d)" % faster)
+
+
+## REQ-TN-4, 18: on Easy the ball stays inside the lines, also with the hardest swing and any side.
+func _easy_stays_in() -> void:
+	print("Easy: 10 hardest swings stay in")
+	var outs := 0
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	for k in 10:
+		var m := _ready_to_return("easy", 20 + k)
+		m.swing(1, 1.0, false, rng.randf_range(-1.0, 1.0), 0.0)
+		var b := _first_bounce(m)
+		outs += 1 if b.is_empty() or bool(b.out) else 0
+	_check(outs == 0, "no out event in 10 hits with power 1.0 and a random side (%d out)" % outs)
+
+
+## REQ-TN-1: 3 and 4 players play on the same doubles court; 2 players and the rally use the singles lines.
+func _court_width() -> void:
+	print("the court is the same for 3 and 4 players")
+	var w3 := _match([0, 1, 2]).half_width()
+	var w4 := _match([0, 1, 2, 3]).half_width()
+	_check(w3 == w4 and is_equal_approx(w3, Sim.HALF_W_DOUBLES), "3 and 4 players: the doubles court, the same sidelines")
+	_check(is_equal_approx(_match([0, 1]).half_width(), Sim.HALF_W_SINGLES), "2 players: the singles lines")
+
+
+## REQ-TN-15: with 1 player the first ball comes soon, and the round lasts 90 s.
+func _solo_clock() -> void:
+	print("1 player: the first ball and the 90 s")
+	var m := _match([0])
+	var t_first := -1.0
+	var t_end := -1.0
+	for i in int(95.0 / DT):
+		m.tick(DT)
+		if t_first < 0.0 and m.sim.active:
+			t_first = m.time
+		if m.is_over():
+			t_end = m.time
+			break
+	_check(t_first > 0.0 and t_first <= 5.0, "the machine sends the first ball after %.1f s (at most 5 s)" % t_first)
+	_check(absf(t_end - 90.0) <= 0.1, "the round is over after %.1f s (90 s, REQ-TN-15)" % t_end)
+
+
+## REQ-TN-16, 18: the medal of the longest rally on each difficulty.
+func _medal_tiers() -> void:
+	print("medals of the longest rally")
+	const Medals = preload("res://scripts/game/medals.gd")
+	var table := {"easy": [[3, Medals.NONE], [4, Medals.BRONZE], [8, Medals.SILVER], [14, Medals.GOLD]],
+			"medium": [[4, Medals.NONE], [5, Medals.BRONZE], [10, Medals.SILVER], [20, Medals.GOLD]],
+			"hard": [[5, Medals.NONE], [6, Medals.BRONZE], [14, Medals.SILVER], [28, Medals.GOLD]]}
+	var ok := true
+	for d in table:
+		for row in table[d]:
+			var got: String = Medals.medal(float(row[0]), Rules.level(d).tiers, false)
+			if got != row[1]:
+				ok = false
+				print("    %s rally %d: %s, wanted %s" % [d, row[0], got, row[1]])
+	_check(ok, "the tiers [4, 8, 14], [5, 10, 20] and [6, 14, 28] give none, bronze, silver and gold at their limits")
+
+
+## The chain from a trace of the phone to the ball: the swing detector of a slot, the match, the landing place (REQ-TN-5 to 9).
+func _swing_chain() -> void:
+	print("traces: serve, hit, aim")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	# 3c: the serve swing around the top of the toss, with a jitter of +/- 0.1 s.
+	var served := 0
+	for k in 10:
+		var m := _match([0, 1])
+		var rig := Rig.new(0)
+		m.press_a(0)
+		var peak: float = m._toss_apex + rng.randf_range(-0.1, 0.1)
+		var res := _play(m, rig, Trace.stroke(Vector3(0, 0, -1), 10.0, 25.0), peak)
+		served += 1 if res == "serve" else 0
+	_check(served >= 8, "a swing from top to bottom around the top of the toss serves: %d of 10 (3c)" % served)
+	# 3e: forehands (not down) around the top of the toss do nothing.
+	var wrong := 0
+	for k in 5:
+		var m2 := _match([0, 1])
+		var rig2 := Rig.new(0)
+		m2.press_a(0)
+		wrong += 1 if _play(m2, rig2, Trace.stroke(Vector3(1, 0, 0), 10.0, 25.0), m2._toss_apex) != "none" else 0
+	_check(wrong == 0, "a forehand at the top of the toss never serves (0 of 5)")
+	# 4d: swings with the hit inside the green part come back, green.
+	var returned := 0
+	var green := 0
+	for k in 10:
+		var m3 := _ready_to_return("medium", 30 + k, false)
+		var rig3 := Rig.new(1)
+		var at: float = float(m3.contact.t) + rng.randf_range(-0.15, 0.15)
+		var res3 := _play(m3, rig3, Trace.stroke(Vector3(1, 0, 0), 10.0, 25.0), at)
+		if res3 == "hit":
+			returned += 1
+			green += 1 if m3.take_events().filter(func(e: Dictionary) -> bool: return e.t == "hit")[-1].green else 0
+	_check(returned >= 8 and green >= 7,
+			"swings with the hit inside the green part return the ball: %d of 10, %d green (4d)" % [returned, green])
+	# 4f: a back swing and a sharp push, and a slow wide swing, are both found (the hand moves differently).
+	var push := 0
+	var wide := 0
+	for k in 5:
+		var m4 := _ready_to_return("medium", 50 + k, false)
+		var back := Trace.stroke(Vector3(1, 0, 0), 8.0, 0.0, 0.3, 0.1)
+		var strike: Array = [Vector3(30, 0, 0), Vector3(30, 0, 0), Vector3(30, 0, 0), Vector3(15, 0, 0)]
+		var res4 := _play(m4, Rig.new(1), back + strike, float(m4.contact.t), 0.3)
+		push += 1 if res4 == "hit" else 0
+		var m5 := _ready_to_return("medium", 60 + k, false)
+		var res5 := _play(m5, Rig.new(1), Trace.stroke(Vector3(1, 0, 0), 4.0, 8.0, 0.5, 0.5), float(m5.contact.t), 0.75)
+		wide += 1 if res5 == "hit" else 0
+	_check(push >= 4, "a back swing and a sharp push return the ball: %d of 5 (4f)" % push)
+	_check(wide >= 4, "a slow, wide swing returns the ball: %d of 5 (4f)" % wide)
+	# 6c, 6d, 6e: the side of the swing decides where the ball lands. The mean direction of the player's own swings is
+	# "straight" (REQ-TN-7), so right and left swings alternate, as in a game.
+	var dirs := {"right": Vector3(0.5, 0.866, 0), "left": Vector3(-0.5, 0.866, 0), "straight": Vector3(0, 1, 0)}
+	var counts := {"right": 0, "left": 0, "straight": 0}
+	var rig6 := Rig.new(0)   # One phone swings both ways, so its heading stays about straight.
+	for k in 10:
+		for name in ["right", "left"]:
+			var m6 := _ready_to_return("medium", 70 + k, false)
+			_until_contact(m6)
+			m6.swing(1, 0.5, false, 0.0, 0.0)
+			if m6.hitter != 0:
+				continue
+			_play(m6, rig6, Trace.stroke(dirs[name], 10.0, 25.0), float(m6.contact.t))
+			var b := _first_bounce(m6)
+			if b.is_empty():
+				continue
+			if name == "right" and float(b.pos.x) > 0.0:
+				counts.right += 1
+			if name == "left" and float(b.pos.x) < 0.0:
+				counts.left += 1
+	_check(counts.right >= 8, "a swing 30 degrees to the right lands in the right half: %d of 10 (6c)" % counts.right)
+	_check(counts.left >= 8, "a swing 30 degrees to the left lands in the left half: %d of 10 (6d)" % counts.left)
+	var mid := 0
+	var rig_s := Rig.new(0)
+	for k in 10:
+		var m7 := _ready_to_return("medium", 90 + k)
+		m7.swing(1, 0.5, false, 0.0, 0.0)
+		if m7.hitter != 0:
+			continue
+		_play(m7, rig_s, Trace.stroke(dirs.straight if k % 2 == 0 else Vector3(0, 0, 1), 10.0, 25.0), float(m7.contact.t))
+		var b2 := _first_bounce(m7)
+		if not b2.is_empty() and absf(float(b2.pos.x)) < m7.half_width() / 3.0:
+			mid += 1
+	_check(mid >= 8, "a straight swing and a nearly vertical swing land in the middle third: %d of 10 (6e)" % mid)
