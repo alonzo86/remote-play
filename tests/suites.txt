@@ -36,3 +36,28 @@ tests/smoke_tennis.gd|tv|Tennis
 tests/golf_rules.gd|controller|Mini Golf rules, ball and holes
 tests/smoke_golf.gd|tv|Mini Golf
 tests/multi_phone.gd|tv|games with 3 and 4 simulated phones: GO buzz, places, tie, leaving, frame cost
+tests/swing_replay.gd|tv|swing detector replay (Test 24)
+tests/bowling_replay.gd|tv|Pin Pals replay (Test 23)
+tests/smoke_tennis_phones.gd|tv|Tennis with sensor traces and 4 phones
+tests/smoke_golf_phones.gd|tv|Mini Golf with sensor traces
+tests/auto_paint.gd|tv|Paint Grab: tilt, levels, medals, grid (fixed step)
+tests/auto_sumo.gd|tv|Sumo Bumpers: tilt, shrink, bump, dash, rounds (fixed step)
+tests/auto_asteroid.gd|tv|Galaxy Protector: tags, RECENTER, buzzes, wave line, medals (fixed step)
+tests/layout_hud_fonts.gd|tv|Sumo and Galaxy Protector HUD fonts and 60 px edge
+tests/hud_layout.gd|tv|HUD of all games (4 phones, English and Hebrew)
+tests/screens_sweep.gd|tv|every TV screen in English and Hebrew
+tests/audio_phones.gd|tv|audio with simulated phones: join/leave, pause duck, results, haptics
+tests/audio_controller.gd|controller|the phone makes no sound
+tests/game_rules_b.gd|controller|Banana Party times and Road Rally pictures
+tests/tiles.gd|controller|game tile pictures
+tests/smoke_maze.gd|tv|Treasure Maze
+tests/smoke_race.gd|tv|Road Rally
+tests/race_bot.gd|tv|Road Rally bot (33 races)
+tests/smoke_banana.gd|tv|Banana Party
+tests/device_mocks_b.gd|tv|buzzes, RECENTER, silent phone (maze, race, banana)
+tests/join_flow.gd|controller|join flow on the loopback, Wi-Fi cut relay, QR scan, list of TVs
+tests/ui_states_a.gd|controller|phone screens: Disconnect, A and B, Back, safe area
+tests/net_rate.gd|tv|network numbers: RTT, Hz, gap, loss
+tests/focus_walk.gd|tv|TV remote: focus, Back, quit, overlay, tiles
+tests/ui_profile_extra.gd|controller|profile screens: joined, edit line, Connect layout
+tests/tv_profiles.gd|tv|profiles on the TV: list, results, pause card
