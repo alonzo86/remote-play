@@ -20,7 +20,8 @@ const TAG_H := 56.0            # The height of a name tag in the countdown.
 const TAG_GAP := 8.0           # The space between two name tags.
 
 ## A test sets this to see the boxes the HUD draws (the game draws with `draw_*`, so there is no node to look at). Called as
-## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "tag", "hint" or "countdown".
+## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "tag", "hint", "countdown" or "plate" (a
+## `label_plate()`: info has the text `msg` and the `color`).
 static var recorder := Callable()
 
 
@@ -67,7 +68,9 @@ static func text_centered(ci: CanvasItem, pos: Vector2, msg: String, font_size :
 ## A line of text on a black plate with a frame, centered on `at` (`at.y` is the baseline), so the world behind it never hides it.
 ## The plate is as wide as the text in the current language.
 static func label_plate(ci: CanvasItem, at: Vector2, msg: String, font_size: int, color: Color) -> void:
-	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), label_plate_rect(at, msg, font_size))
+	var rect := label_plate_rect(at, msg, font_size)
+	_note("plate", ci, rect, {"msg": msg, "color": color})
+	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), rect)
 	text_centered(ci, at, msg, font_size, color)
 
 
