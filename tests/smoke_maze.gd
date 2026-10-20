@@ -109,14 +109,16 @@ func _countdown_and_recenter() -> void:
 	# Test 6.5b: A and B do not recenter.
 	sim.settle(1, Sim.FLAT)
 	sim.app.server.players[1].recenter()
-	sim.settle(1, Sim.lean(15.0))
+	sim.settle(1, Sim.lean(-15.0))
 	sim.app.server.players[1].button_pressed.emit(Protocol.BTN_A)
 	sim.app.server.players[1].button_pressed.emit(Protocol.BTN_B)
 	_check(sim.app.server.players[1].tilt().length() > 0.2, "A and B do not recenter in the maze (REQ-MZ-8)")
 	var b1: Object = game._balls[1]
 	b1.vel = Vector2.ZERO
-	sim.step(game, 0.5, {1: Sim.lean(15.0)})
-	_check(b1.vel.length() > 50.0, "the ball still follows the tilt after 5 presses of A and B: %.0f px/s" % b1.vel.length())
+	var before: Vector2 = b1.pos
+	sim.step(game, 0.2, {1: Sim.lean(-15.0)})   # Short: the ball has room to the left and meets no wall.
+	_check(b1.pos.x < before.x - 5.0, "the ball still follows the tilt after 5 presses of A and B: %.1f px to the left" %
+			(before.x - b1.pos.x))
 
 
 ## Test 6.2a: a phone that lies flat on a table with sensor noise does not move the ball (dead zone, REQ-MZ-4).

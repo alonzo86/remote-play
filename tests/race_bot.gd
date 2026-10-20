@@ -40,7 +40,8 @@ func _run() -> void:
 	var all_ok := true
 	var report: Array = []
 	for d in ["easy", "medium", "hard"]:
-		for choice in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "random"]:
+		for choice in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+				"r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "r152"]:
 			var r: Dictionary = await _drive(choice, d)
 			all_ok = all_ok and r.ok
 			slowest_overall = maxf(slowest_overall, r.time)
@@ -48,7 +49,7 @@ func _run() -> void:
 				print("    FAILED: track ", choice, " ", d, " ", r)
 			report.append("%s/%s %.0f s" % [choice, d[0], r.time])
 	_check(all_ok,
-			"the bot wins all 33 races (10 fixed tracks and a random one, 3 difficulties): result menu, a winner, a time > 0, "
+			"the bot wins all races (10 fixed tracks and 13 random seeds, 3 difficulties): result menu, a winner, a time > 0, "
 			+ "in under %.0f s, the car never stops (slowest race %.0f s)" % [LIMIT_S, slowest_overall])
 	print("    ", ", ".join(report))
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -56,7 +57,10 @@ func _run() -> void:
 
 
 func _drive(choice: String, difficulty: String) -> Dictionary:
-	var game: Control = await sim.start(Race, {"track_choice": choice, "difficulty": difficulty})
+	var props := {"track_choice": choice, "difficulty": difficulty}
+	if choice.begins_with("r"):   # A random track with a fixed seed, so that the test is the same every run.
+		props = {"track_choice": "random", "difficulty": difficulty, "track_seed": 1000 + int(choice.substr(1)) * 7919}
+	var game: Control = await sim.start(Race, props)
 	var p = sim.app.server.players[0]
 	sim.settle(0, Sim.FLAT)
 	p.recenter()
@@ -64,11 +68,17 @@ func _drive(choice: String, difficulty: String) -> Dictionary:
 	var car = game._racers[0]
 	var tr = game.track
 	var stalled := 0.0
+	var reverse := 0.0
 	var worst_stall := 0.0
 	var ticks := 0
 	while not game.is_over and ticks < LIMIT_S * 60.0:
 		var target: Vector2 = tr.point_at(minf(car.arc + 4.0, tr.length))
 		var dir: Vector2 = (target - car.pos).normalized()
+		if stalled > 0.5:
+			reverse = 0.6   # Wedged between a post and the wall: back off a moment, like a hand does.
+		if reverse > 0.0:
+			reverse -= Sim.DT
+			dir = -dir
 		p.orientation.up = Vector3(-dir.x * TILT, dir.y * TILT, 0.0)
 		p.orientation.up.z = sqrt(1.0 - p.orientation.up.x * p.orientation.up.x - p.orientation.up.y * p.orientation.up.y)
 		game._game_tick(Sim.DT)
