@@ -35,7 +35,7 @@ func join(n: int) -> void:
 		c.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
 		clients.append(c)
 	var start := Time.get_ticks_msec()
-	while app.server.connected_slots().size() < n and Time.get_ticks_msec() - start < 5000:
+	while app.server.connected_slots().size() < clients.size() and Time.get_ticks_msec() - start < 5000:
 		await tree.process_frame
 	await frames(2)
 
@@ -53,6 +53,13 @@ static func lean(right_deg := 0.0, up_deg := 0.0) -> Vector3:
 	var r := deg_to_rad(right_deg)
 	var u := deg_to_rad(up_deg)
 	return Vector3(-sin(r), sin(u), sqrt(maxf(0.0, 1.0 - sin(r) * sin(r) - sin(u) * sin(u)))) * 9.81
+
+
+## `lean()` that is reached in `ticks` ticks (a hand does not jump: a sudden step looks like a swing to the swing detector, which then
+## stops following the accelerometer). For `Sim.step()` as `func(t): return Sim.ramp(t, 0.0, 20.0)`.
+static func ramp(tick: int, right_deg: float, up_deg := 0.0, ticks := 20) -> Vector3:
+	var k := clampf(float(tick) / ticks, 0.0, 1.0)
+	return lean(right_deg * k, up_deg * k)
 
 
 ## One sensor packet for `slot` (the fake clock moves by 16 ms), straight into the player like the server does it.
