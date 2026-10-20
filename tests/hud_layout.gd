@@ -1,6 +1,7 @@
 extends SceneTree
 ## The HUD of every game with 4 simulated phones (real clients on loopback, as in tests/multi_phone.gd), in English and in Hebrew:
-## where the title, the timer box, the leader chip, the name tags, the hint and the countdown stand (REQ-GM-46, 46a, 47o), read from
+## where the title, the timer box, the leader chip, the name tags, the hint and the countdown stand (REQ-GM-46, 46a, 47o),
+## read from
 ## the boxes the game really draws (`Shell.recorder`, because the HUD is drawn with draw_* and has no node). It replaces the
 ## "look at the screen with 4 long names" parts of manual tests 16 (item 7), 17 (item 6) and 19. Run:
 ##   godot --headless --path . --script tests/hud_layout.gd -- --role=tv
@@ -11,7 +12,8 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
-## id -> [script, props, has leader chip, has timer in this run, has name tags]. A game with its own score card (Mini Golf, Pin Pals)
+## id -> [script, props, has leader chip, has timer in this run, has name tags]. A game with its own score card (Mini Golf,
+## Pin Pals)
 ## and the maze (no score) have no leader chip.
 const GAMES := {
 	"snowball_splat": ["res://scripts/game/snowball_splat/snowball_splat_game.gd", {"difficulty": "medium"}, true, true],
@@ -40,7 +42,8 @@ var _clients: Array = []
 var _log: Array = []          # Every box the shell drew on the game: {kind, rect, info, frame, lang}
 var _game: Control
 var _app: Node
-var _countdown_pos := {}      # id -> {"en": slot -> pos, "he": ...} of the objects at the start (REQ-GM-47o: the world is not mirrored)
+## id -> {"en": positions, "he": ...} of the objects at the start (REQ-GM-47o: the world is not mirrored)
+var _countdown_pos := {}
 
 
 func _check(cond: bool, what: String) -> void:
@@ -384,7 +387,8 @@ func _wait_leader(accept: Callable) -> Dictionary:
 func _chip_fits(l: Dictionary) -> bool:
 	var r: Rect2 = l.rect
 	var f := UiTheme.font()
-	var need := Shell.name_x(-1) + f.get_string_size(String(l.info.name).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, Shell.CHIP_FONT).x \
+	var need := Shell.name_x(-1) + f.get_string_size(String(l.info.name).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1,
+			Shell.CHIP_FONT).x \
 			+ f.get_string_size(String(l.info.score).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, Shell.CHIP_FONT).x + Shell.CHIP_PAD
 	return r.size.x >= need and r.position.x >= MARGIN - 0.01 and r.end.x <= 1920.0 - MARGIN + 0.01
 
@@ -394,9 +398,11 @@ func _chip_edge_checks(state: String, snap: Dictionary, lang: String) -> void:
 	if l.is_empty():
 		return
 	if lang == "he":
-		_check(is_equal_approx(l.rect.position.x, MARGIN), "%s: the leader chip starts at the left margin (x %.0f)" % [state, l.rect.position.x])
+		_check(is_equal_approx(l.rect.position.x, MARGIN), "%s: the leader chip starts at the left margin (x %.0f)" % [state,
+				l.rect.position.x])
 	else:
-		_check(is_equal_approx(l.rect.end.x, 1920.0 - MARGIN), "%s: the leader chip ends at the right margin (x %.0f)" % [state, l.rect.end.x])
+		_check(is_equal_approx(l.rect.end.x, 1920.0 - MARGIN),
+				"%s: the leader chip ends at the right margin (x %.0f)" % [state, l.rect.end.x])
 	_check(_chip_fits(l), "%s: the whole name and score fit inside the chip, inside the margin (%s)" % [state, str(l.rect)])
 
 
@@ -455,7 +461,8 @@ func _race_places() -> void:
 		_game._racers[slots[k]].arc = 50.0 + float(k) * 10.0
 		_game._racers[slots[k]].finish_time = -1.0
 	var lead := await _wait_leader(func(e: Dictionary) -> bool: return e.info.name == NAMES[3])
-	_check(not lead.is_empty() and lead.info.score == "", "Road Rally: before the finish the chip shows the car in front (%s) and no time"
+	_check(not lead.is_empty() and lead.info.score == "",
+			"Road Rally: before the finish the chip shows the car in front (%s) and no time"
 			% str(lead.get("info", {}).get("name", "-")))
 	var unfinished_label_empty := true
 	for e in _game._scoreboard().ranking():

@@ -192,7 +192,8 @@ func _sweep(name: String, code: String) -> void:
 		var text_w := font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 		if not wrap and text_w > r.size.x + 1.0 and not (n is Label and n.clip_text):
 			wide.append("%s %d>%d" % [t, text_w, r.size.x])
-		if r.position.x < MARGIN - 1.0 or r.end.x > 1920.0 - MARGIN + 1.0 or r.position.y < MARGIN - 1.0 or r.end.y > 1080.0 - MARGIN + 1.0:
+		var safe := Rect2(MARGIN, MARGIN, 1920.0 - 2.0 * MARGIN, 1080.0 - 2.0 * MARGIN).grow(1.0)
+		if not safe.encloses(r):
 			outside.append("%s %s" % [t, str(r)])
 		if code == "en" and t != t.to_upper():
 			lower.append(t)
@@ -203,17 +204,19 @@ func _sweep(name: String, code: String) -> void:
 	_check(small.is_empty(), "%s: every text is %d px or larger %s" % [state, MIN_FONT, str(small.slice(0, 4))])
 	_check(wide.is_empty(), "%s: no text is wider than its box %s" % [state, str(wide.slice(0, 4))])
 	if name == "games, players":
-		_known_bug("issue-needed: the Players modal is 1824 px wide, its text starts at x 54 and ends at 1878 (REQ-GM-40)", outside.is_empty(),
+		_known_bug("issue-needed: the Players modal is 1824 px wide, its text starts at x 54 and ends at 1878 (REQ-GM-40)",
+				outside.is_empty(),
 				"%s: no visible text box is outside the 60 px margin %s" % [state, str(outside.slice(0, 3))])
 	else:
-		_check(outside.is_empty(), "%s: no visible text box is outside the 60 px margin (REQ-GM-40) %s" % [state, str(outside.slice(0, 3))])
+		_check(outside.is_empty(), "%s: no visible text box is outside the 60 px margin (REQ-GM-40) %s" % [state,
+				str(outside.slice(0, 3))])
 	_check(lower.is_empty(), "%s: all English text is upper case %s" % [state, str(lower.slice(0, 4))])
 	_check(odd.is_empty(), "%s: every label color is white, gray, yellow, green or red %s" % [state, str(odd.slice(0, 4))])
 	# The title of the screen: yellow, and at the right half in Hebrew (the first label of 64 px).
 	var title: Label = null
 	for n in nodes:
-		if n is Label and n.get_theme_font_size("font_size") == UiTheme.SIZE_TITLE and n.get_theme_color("font_color") == UiTheme.ACCENT \
-				and not n.has_meta("room"):
+		if n is Label and n.get_theme_font_size("font_size") == UiTheme.SIZE_TITLE \
+				and n.get_theme_color("font_color") == UiTheme.ACCENT:
 			title = n
 			break
 	if title != null and name in ["connect", "games", "settings", "about"]:

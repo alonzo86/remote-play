@@ -46,7 +46,8 @@ static func title(ci: CanvasItem, text: String, pos := Vector2(60, 96), font_siz
 	var w := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	ci.draw_string(UiTheme.font(), Vector2(mx(ci, pos.x, w), pos.y), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
 			UiTheme.ACCENT)
-	_note("title", ci, Rect2(mx(ci, pos.x, w), pos.y - UiTheme.font().get_ascent(font_size), w, UiTheme.font().get_height(font_size)),
+	_note("title", ci, Rect2(mx(ci, pos.x, w), pos.y - UiTheme.font().get_ascent(font_size), w,
+			UiTheme.font().get_height(font_size)),
 			{"text": shown})
 
 
@@ -293,7 +294,8 @@ static func countdown(ci: CanvasItem, area: Vector2, label: String, elapsed := 1
 			HORIZONTAL_ALIGNMENT_CENTER, area.x, fs, color)
 	var shown := Lang.t(label).to_upper()
 	var cw := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-	_note("countdown", ci, Rect2((area.x - cw) * 0.5, (area.y - UiTheme.font().get_height(fs)) * 0.5, cw, UiTheme.font().get_height(fs)),
+	_note("countdown", ci, Rect2((area.x - cw) * 0.5, (area.y - UiTheme.font().get_height(fs)) * 0.5, cw,
+			UiTheme.font().get_height(fs)),
 			{"text": shown, "size": fs})
 
 

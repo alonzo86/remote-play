@@ -329,7 +329,7 @@ func _hebrew_rows(app: Node) -> void:
 		else:
 			_check(after_right == order[2] and after_left == order[0],
 					"in English Right goes to the next value (%s) and Left to the previous (%s)" % [after_right, after_left])
-		_check(row._left.get_global_rect().get_center().x < row._right.get_global_rect().get_center().x == (code == "en"),
+		_check((row._left.get_global_rect().get_center().x < row._right.get_global_rect().get_center().x) == (code == "en"),
 				"%s: the arrow of the previous value is at the %s of the next" % [code, "left" if code == "en" else "right"])
 		row.set_value("medium")
 		var chain: Array = []

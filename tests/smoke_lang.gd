@@ -429,7 +429,7 @@ func _margins(item: Button) -> Vector2:
 
 ## The first start follows the language of the device (REQ-FL-60): the choice on the logo screen has English at the left in both
 ## layouts and the focus on the language of the device; a saved language needs no question and is read again at the next start.
-func _device_language_checks(app: Node, TvLogo: GDScript, TvConnect: GDScript) -> void:
+func _device_language_checks(app: Node, tv_logo: GDScript, tv_connect: GDScript) -> void:
 	for pair in [["he", "he"], ["iw", "he"], ["en", "en"], ["fr", "en"]]:
 		Lang.device_locale = pair[0]
 		app.settings.language = ""
@@ -437,7 +437,7 @@ func _device_language_checks(app: Node, TvLogo: GDScript, TvConnect: GDScript) -
 		await _frames(6)
 		var logo: Control = app.current_screen()
 		var b: Dictionary = logo.language_buttons
-		_check(is_instance_of(logo, TvLogo) and b.en.get_global_position().x < b.he.get_global_position().x,
+		_check(is_instance_of(logo, tv_logo) and b.en.get_global_position().x < b.he.get_global_position().x,
 				"device language %s: ENGLISH is at the left of עברית" % pair[0])
 		_check(root.gui_get_focus_owner() == b[pair[1]],
 				"device language %s: the focus is on the %s button" % [pair[0], "Hebrew" if pair[1] == "he" else "English"])
@@ -459,7 +459,7 @@ func _device_language_checks(app: Node, TvLogo: GDScript, TvConnect: GDScript) -
 	var started := Time.get_ticks_msec()
 	while app.current_screen() == logo2 and Time.get_ticks_msec() - started < 5000:
 		await process_frame
-	_check(is_instance_of(app.current_screen(), TvConnect) and Time.get_ticks_msec() - started < 5000 and Lang.current() == "he",
+	_check(is_instance_of(app.current_screen(), tv_connect) and Time.get_ticks_msec() - started < 5000 and Lang.current() == "he",
 			"the logo goes on to Connect by itself within 5 s, in Hebrew (%d ms)" % (Time.get_ticks_msec() - started))
 	Lang.device_locale = ""
 	app.set_language("en", false)
