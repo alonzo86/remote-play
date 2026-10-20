@@ -30,6 +30,12 @@ static func _note(kind: String, ci: CanvasItem, rect: Rect2, info := {}) -> void
 		recorder.call(kind, ci, rect, info)
 
 
+## The same note for the picture functions of a game (the golfer, the ball and the aim mark of Mini Golf, kinds "golfer", "ball"
+## and "aim"), so that a test sees what is drawn. It changes nothing on the screen.
+static func record(kind: String, ci: CanvasItem, rect: Rect2, info := {}) -> void:
+	_note(kind, ci, rect, info)
+
+
 ## The width of the screen a canvas item draws on (1920 for an item that has no size).
 static func area_width(ci: CanvasItem) -> float:
 	return (ci as Control).size.x if ci is Control else 1920.0
