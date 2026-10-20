@@ -98,7 +98,7 @@ Little-endian. Size: 36 bytes.
 | 20 | f32 x3 | Accelerometer x, y, z in m/s2 (`Input.get_accelerometer()`) |
 | 32 | u8 | Button bits. Bit 0 = A, bit 1 = B |
 | 33 | u8 | Reserved. Send 0 |
-| 34 | u8 | Touch x, 0 to 255 over the screen width |
+| 34 | u8 | Touch x, 0 to 255 over the screen width. While it is the turn of the phone in Pin Pals (`turn` with `s` 1 and no `k`), the phone sends the place on its aim strip instead, 0 (left end) to 255 (right end), and only for the finger on the strip |
 | 35 | u8 | Touch y, 0 to 255 over the screen height |
 
 The phone frame: x = right, y = top of the phone, z = out of the screen.

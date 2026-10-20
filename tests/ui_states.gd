@@ -41,6 +41,7 @@ func _run() -> void:
 	_back_key()
 	_tile_images()
 	_safe_area()
+	await _pad_aim_strip()
 
 
 func _button_styles() -> void:
@@ -481,3 +482,47 @@ func _connect_scan() -> void:
 	screen._join("127.0.0.1", 1, "ABCD")
 	_check(not screen._prober.running, "a join stops the scan")
 	app.client.leave()
+
+
+func _touch(index: int, pressed: bool, pos: Vector2) -> InputEventScreenTouch:
+	var e := InputEventScreenTouch.new()
+	e.index = index
+	e.pressed = pressed
+	e.position = pos
+	return e
+
+
+## Pin Pals, the turn of this phone: the Recenter box is the aim strip (REQ-BW-4).
+func _pad_aim_strip() -> void:
+	print("pad aim strip")
+	var app: Node = root.get_node("App")
+	var pad: Control = load("res://scripts/ui/controller_pad.gd").new()
+	pad.size = Vector2(1080, 2160)
+	root.add_child(pad)
+	await process_frame
+	pad._sampler.set_process(false)
+	app.client.state = ControllerClient.State.CONNECTED
+	var strip: Rect2 = pad._rect_recenter()
+	var a_at: Vector2 = pad._center_a()
+	_check(pad._zone_at(strip.get_center()) == "recenter", "outside a Pin Pals turn the box is Recenter")
+	app.client.turn_state = 1
+	app.client.turn_kind = ""
+	_check(pad._zone_at(strip.get_center()) == "aim", "on the turn of this phone in Pin Pals the box is the aim strip")
+	pad._input(_touch(5, true, a_at))
+	_check((pad._sampler.buttons & Protocol.BTN_A) != 0 and not pad._sampler.touching,
+			"a finger on A during the aim is not the touch point the TV reads")
+	var at := Vector2(strip.position.x + strip.size.x * 0.25, strip.get_center().y)
+	pad._input(_touch(6, true, at))
+	_check(pad._sampler.touching and absf(pad._sampler.touch.x - 0.25) < 0.01 and absf(pad._aim_frac - 0.25) < 0.01,
+			"a finger on the strip gives its place on the strip, not on the screen")
+	pad._input(_touch(6, false, at))
+	pad._input(_touch(5, false, a_at))
+	_check(not pad._sampler.touching and absf(pad._aim_frac - 0.25) < 0.01, "the mark stays where the finger lifted")
+	app.client.turn_kind = "golf"
+	_check(pad._zone_at(strip.get_center()) == "recenter", "Mini Golf keeps the Recenter box")
+	app.client.turn_state = 0
+	app.client.turn_kind = ""
+	pad._process(0.0)
+	_check(is_equal_approx(pad._aim_frac, 0.5), "the mark is back in the middle when the turn is over")
+	app.client.state = ControllerClient.State.IDLE
+	pad.queue_free()

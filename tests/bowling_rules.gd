@@ -369,14 +369,14 @@ func _shake() -> void:
 	print("shake")
 	var axis := Vector3(0, 1, 0)
 	var shake := SwingDetector.new()
-	shake.min_back = 0.15
+	shake.min_back = _game().MIN_BACK
 	var plain := SwingDetector.new()
 	var wind := SwingDetector.new()
-	wind.min_back = 0.15
+	wind.min_back = _game().MIN_BACK
 	for d in [shake, plain]:
-		_swing_run(d, axis, 9.0, 0.08, 18.0, 0.1)   # Back and forth in 0.1 s each way: a shake.
+		_swing_run(d, axis, 9.0, 0.08, 18.0, 0.08)   # Back and forth in 0.1 s each way: a shake.
 	_check(shake.state != SwingDetector.State.LOCKED and plain.state == SwingDetector.State.LOCKED,
-			"a shake (0.08 s back, then forth) does not throw when the back swing must last 0.15 s (REQ-BW-5)")
+			"a shake (0.08 s back, then forth) does not throw when the back swing must last MIN_BACK (REQ-BW-5)")
 	_swing_run(wind, axis, 9.0, 0.3, 18.0, 0.15)
 	_check(wind.state == SwingDetector.State.LOCKED and wind.power > 0.0, "a real wind-up of 0.3 s still throws (REQ-BW-5)")
 
@@ -465,11 +465,15 @@ func _swing_axes() -> void:
 	_check(mixed.state == SwingDetector.State.BACK, "a move across the swing axis is not the forward swing")
 
 
+## The game script is loaded when a test runs: it needs the autoloads, so a preload cannot compile it.
+func _game() -> GDScript:
+	return load("res://scripts/game/bowling/bowling_game.gd")
+
+
 func _aim_from_touch() -> void:
 	print("aim from touch")
-	var Game = load("res://scripts/game/bowling/bowling_game.gd")
-	_check(is_equal_approx(Game.aim_from_touch(0.0), -1.0) and is_equal_approx(Game.aim_from_touch(0.5), 0.0)
-			and is_equal_approx(Game.aim_from_touch(1.0), 1.0) and is_equal_approx(Game.aim_from_touch(2.0), 1.0),
+	_check(is_equal_approx(_game().aim_from_touch(0.0), -1.0) and is_equal_approx(_game().aim_from_touch(0.5), 0.0)
+			and is_equal_approx(_game().aim_from_touch(1.0), 1.0) and is_equal_approx(_game().aim_from_touch(2.0), 1.0),
 			"the place on the aim strip gives the aim from -1 to 1 (REQ-BW-4)")
 
 

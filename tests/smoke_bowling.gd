@@ -4,6 +4,7 @@ extends SceneTree
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 var _fails := 0
 var _checks := 0
@@ -129,6 +130,23 @@ func _run() -> void:
 	await _stream(clients, 0.2, [flat, flat])
 	_check(not p0.touching and is_equal_approx(game._aim, 1.0), "the aim stays where the finger lifted (REQ-BW-4)")
 
+	# A swing with a finger on the strip throws nothing and shows the hint to lift the finger (REQ-BW-5).
+	var swing_back := flat + Vector3(0, 9, 0)
+	var swing_fwd := flat + Vector3(0, -18, 0)
+	var seq := [[swing_back, 0.3], [swing_fwd, 0.35], [flat, 0.3]]
+	for step in seq:
+		var end := Time.get_ticks_msec() + int(step[1] * 1000.0)
+		while Time.get_ticks_msec() < end:
+			clients[0].send_sensor(Protocol.encode_sensor(_seq[0], Time.get_ticks_msec(), Vector3.ZERO, step[0], 0,
+					Protocol.FLAG_TOUCH, Vector2(1.0, 0.5)))
+			_seq[0] += 1
+			clients[1].send_sensor(Protocol.encode_sensor(_seq[1], Time.get_ticks_msec(), Vector3.ZERO, flat, 0, 0, Vector2.ZERO))
+			_seq[1] += 1
+			await _frames(1)
+	_check(game.phase == game.Phase.AIM and not game.detector.aim_locked and game._lift_left > 0.0,
+			"a swing with a finger on the strip does not throw and shows the hint (REQ-BW-5)")
+	await _stream(clients, 0.2, [flat, flat])
+
 	# A swing of the phone on turn throws the ball (REQ-BW-5).
 	await _stream(clients, 0.3, [flat + Vector3(0, 9, 0), flat])
 	_check(game.detector.aim_locked, "the back swing locks the aim (REQ-BW-5)")
@@ -154,10 +172,26 @@ func _run() -> void:
 
 	_check(clients[0].turn_state == (1 if game.rules.current_slot() == 0 else 2), "the turn line follows the turn (REQ-BW-14)")
 
+	# The same player keeps the aim for ball 2; a new player starts in the middle (REQ-BW-4).
+	if game.rules.current_slot() == 0:
+		_check(is_equal_approx(game._aim, 1.0), "the same player keeps the aim for ball 2 (REQ-BW-4)")
+	else:
+		_check(is_equal_approx(game._aim, 0.0), "the next player starts in the middle (REQ-BW-4)")
+
 	# A whole game, phone 2 leaves in frame 1 (REQ-GM-21).
 	game._on_player_left(1)
 	_check(not game._board.has(1) and not game.rules.slots().has(1),
 			"a player that leaves is taken out of the rules and the board (REQ-GM-21)")
+
+	# One pin left: the line under the banner has no number to format (the error of 2026-10-20).
+	app.go(Bowling, {"difficulty": "medium"})
+	await _frames(3)
+	var one: Control = app.current_screen()
+	_to_turn(one)
+	one.sim.set_rack([true, false, false, false, false, false, false, false, false, false])
+	one._before = one.sim.standing_mask()
+	one._roll_done()
+	_check(one._pins_left_line == Lang.t("bowling.pin_left"), "one pin left gives the one pin line: %s" % one._pins_left_line)
 
 	# The end: 12 strikes of one player give 300 and the result menu says so (REQ-BW-1, REQ-GM-73).
 	app.go(Bowling, {"difficulty": "easy"})

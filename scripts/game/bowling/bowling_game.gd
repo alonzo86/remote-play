@@ -17,7 +17,8 @@ const RESULT_TIME := 1.8        # How long the banner of a ball shows. A press o
 const END_DELAY := 2.0          # After the last ball the lane stays this long, then the result menu opens (REQ-BW-1).
 const HINT_TIME := 12.0         # The hint shows this long at the start of a turn, then again after a weak swing.
 const WEAK_HINT_TIME := 3.0
-const MIN_BACK := 0.15         # A back swing shorter than this (s) is a shake, not a wind-up (REQ-BW-5).
+const LIFT_HINT_TIME := 3.0     # The hint "lift your finger" shows this long after a swing with a finger on the strip.
+const MIN_BACK := 0.1          # A back swing shorter than this (s) is a shake, not a wind-up (REQ-BW-5).
 const BUZZ_GAP_MS := 150
 # The aim at its end is this far from the middle of the lane (m): past the lane edge, in the gutter.
 const AIM_X := 0.60
@@ -52,6 +53,9 @@ var _banner := ""               # The text of the banner after a ball, "" for no
 var _banner_color := UiTheme.ACCENT
 var _pins_left_line := ""
 var _weak_left := 0.0
+var _lift_left := 0.0
+var _aim_slot := -1             # The player whose aim is in `_aim`: the same player keeps it for ball 2 (REQ-BW-4).
+var _probe := SwingDetector.new()   # Sees a swing made with a finger on the strip, to show the hint.
 var _last_tick_ms := 0
 var _a_down := {}               # slot -> A was down at the last tick.
 var _last_event := {}
@@ -93,7 +97,11 @@ func _start_turn() -> void:
 	_banner = ""
 	_pins_left_line = ""
 	_weak_left = 0.0
-	_aim = 0.0
+	_lift_left = 0.0
+	if slot != _aim_slot:
+		_aim = 0.0   # A new player starts in the middle. The same player keeps the aim (the phone keeps its mark).
+		_aim_slot = slot
+	_probe.reset()
 	detector.reset()
 	detector.threshold = float(BowlingRules.level(difficulty).threshold)
 	Sound.sfx("bowl_turn")
@@ -120,6 +128,7 @@ func _game_tick(delta: float) -> void:
 	_publish_turn()
 	_phase_time += delta
 	_weak_left = maxf(0.0, _weak_left - delta)
+	_lift_left = maxf(0.0, _lift_left - delta)
 	match phase:
 		Phase.AIM:
 			_tick_aim(delta)
@@ -169,8 +178,16 @@ func _tick_aim(delta: float) -> void:
 	if not detector.aim_locked and p.touching:
 		_aim = aim_from_touch(p.touch.x)   # The aim stays when the finger lifts (REQ-BW-4).
 	if p.touching:
-		detector.reset()   # A finger on the aim strip means the player is aiming: moves of the phone do not throw (REQ-BW-5).
+		# A finger on the aim strip means the player is aiming: moves of the phone do not throw (REQ-BW-5). A swing that
+		# would have thrown shows the hint to lift the finger.
+		detector.reset()
+		_probe.threshold = detector.threshold
+		_probe.min_back = detector.min_back
+		_probe.update(delta, p.linear_accel())
+		if _probe.released:
+			_lift_left = LIFT_HINT_TIME
 	else:
+		_probe.reset()
 		detector.update(delta, p.linear_accel())
 	if detector.weak:
 		_weak_left = WEAK_HINT_TIME
@@ -341,7 +358,9 @@ func _game_draw() -> void:
 		if _pins_left_line != "":
 			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36 + 110.0), _pins_left_line, 32, UiTheme.TEXT)
 	elif phase == Phase.AIM:
-		if _weak_left > 0.0:
+		if _lift_left > 0.0:
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_lift"), 48, UiTheme.ACCENT)
+		elif _weak_left > 0.0:
 			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_weak"), 48, UiTheme.ACCENT)
 		elif _phase_time < HINT_TIME and not detector.aim_locked:
 			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_slide"), 32, UiTheme.TEXT)

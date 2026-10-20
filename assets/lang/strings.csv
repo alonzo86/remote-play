@@ -201,6 +201,7 @@ bowling.turn,"%s, your turn!","%s, תורך!","Pin Pals: plate in the top bar wh
 bowling.frame,Frame %d/%d  Ball %d,פריים %d/%d  כדור %d,"Pin Pals: top bar, right side: the frame (of 10) and the ball (1 to 3) that is bowled now","the number sign (%d, %.1f ...) is replaced by a number"
 bowling.hint_slide,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD!",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה!,Pin Pals: hint on a plate over the lane at the start of a turn,
 bowling.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Pin Pals: hint on a plate after a swing that was too weak,
+bowling.hint_lift,"LIFT YOUR FINGER, THEN SWING!",הרימו את האצבע ואז הניפו!,Pin Pals: hint on a plate after a swing with a finger on the aim strip,
 bowling.strike,STRIKE!,סטרייק!,Pin Pals: banner after a strike (all 10 pins with the first ball),
 bowling.spare,SPARE!,ספייר!,Pin Pals: banner after a spare (all 10 pins with 2 balls),
 bowling.gutter,OOPS! OFF THE SIDE,אופס! יצא לצד,Pin Pals: banner after a ball that knocked no pin or went into the gutter,
