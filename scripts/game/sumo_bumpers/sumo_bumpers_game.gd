@@ -27,6 +27,9 @@ const UNBOUNDED := Rect2(Vector2(-FAR, -FAR), Vector2(2.0 * FAR, 2.0 * FAR))   #
 
 # Look (REQ-SB-15, REQ-GM-47): Sky Island. The pictures are in sumo_look.gd. The black bar on top is for the title and the round.
 const BAR_H := 112.0
+const WHEE_FONT := 32       # "Whee!" over a fallen bumper (REQ-SB-15: all text is 32 px or larger).
+const ROUND_FONT := 32      # "Round 2 of 3" in the bar.
+const BANNER_FONT := 72     # The banner at the end of a round.
 
 enum Phase { COUNT, PLAY, BANNER }
 
@@ -299,15 +302,25 @@ func _draw_fall(ci: CanvasItem, slot: int, c: Vector2, k: float) -> void:
 	ci.draw_texture_rect(tex, Rect2(Shell.snap(c + (f.pos as Vector2) * k - sz * 0.5), sz), false)
 
 
-func _game_draw() -> void:
+## Where "Whee!" is drawn (the baseline, in the middle of its plate) for a bumper that fell at `fall_pos` (platform units) `age`
+## seconds ago: above the bumper, and it rises while the bumper shrinks.
+func whee_at(fall_pos: Vector2, age: float) -> Vector2:
 	var fit := _fit()
 	var k: float = fit.k
-	var c: Vector2 = fit.center
+	return (fit.center as Vector2) + fall_pos * k + Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6
+			- clampf(age / FALL_TIME, 0.0, 1.0) * 30.0)
+
+
+## Where the banner at the end of a round is drawn (the baseline, in the middle of its plate).
+func banner_at() -> Vector2:
+	return Vector2(size.x * 0.5, size.y * 0.5 + 24.0)
+
+
+func _game_draw() -> void:
 	for s in _falling:
 		var f: Dictionary = _falling[s]
 		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
-			var above := Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6 - clampf(float(f.age) / FALL_TIME, 0.0, 1.0) * 30.0)
-			Shell.label_plate(self, c + (f.pos as Vector2) * k + above, "sumo_bumpers.whee", 32, UiTheme.TEXT)
+			Shell.label_plate(self, whee_at(f.pos, float(f.age)), "sumo_bumpers.whee", WHEE_FONT, UiTheme.TEXT)
 	_draw_hud()
 
 
@@ -320,7 +333,7 @@ func _draw_hud() -> void:
 	draw_leader_chip(self)
 	if not is_over:
 		Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("sumo_bumpers.round_n_of",
-				[round_no, ROUNDS]), 32,
+				[round_no, ROUNDS]), ROUND_FONT,
 				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
 	if phase == Phase.COUNT and not participants.is_empty():
 		var n := _clock.count_number()
@@ -335,6 +348,6 @@ func _draw_hud() -> void:
 			spots[s] = Shell.snap(fit.center + (_bodies[s] as TiltBody).pos * float(fit.k))
 		draw_name_tags(self, spots, SumoArena.BUMPER_R * float(fit.k))
 	if phase == Phase.BANNER and not is_over:
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, 72, UiTheme.ACCENT)
+		Shell.label_plate(self, banner_at(), banner_text, BANNER_FONT, UiTheme.ACCENT)
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:
 		Shell.hint(self, size, "sumo_bumpers.tilt_bump_others_off")

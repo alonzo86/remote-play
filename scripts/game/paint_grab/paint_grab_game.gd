@@ -245,13 +245,17 @@ func _game_draw() -> void:
 	_draw_hud()
 
 
-## A tile: flat, one world pixel apart from the next. A painted tile pops for a moment: it is one world pixel wider on each side
-## (REQ-PG-16, a hard step).
+## The rectangle of the tile `c` on the screen: one world pixel less than the pitch, so the gap between two tiles is one world
+## pixel. A tile that pops is one world pixel wider on each side (REQ-PG-16, a hard step).
+func _tile_rect(c: Vector2i, origin: Vector2, k: float, pop: bool) -> Rect2:
+	var side := REF_TILE * k - TILE_GAP + (Shell.WORLD_PIXEL * 2.0 if pop else 0.0)
+	return Rect2(origin + Vector2(c) * REF_TILE * k - Vector2.ONE * (Shell.WORLD_PIXEL if pop else 0.0), Vector2(side, side))
+
+
+## A tile: flat, one world pixel apart from the next. A painted tile pops for a moment (REQ-PG-16).
 func _draw_tile(ci: CanvasItem, c: Vector2i, origin: Vector2, k: float) -> void:
 	var owner_slot := floor_map.owner_of(c)
-	var pop := _pops[c.y * floor_map.cols + c.x] > 0.0
-	var side := REF_TILE * k - TILE_GAP + (Shell.WORLD_PIXEL * 2.0 if pop else 0.0)
-	var rect := Rect2(origin + Vector2(c) * REF_TILE * k - Vector2.ONE * (Shell.WORLD_PIXEL if pop else 0.0), Vector2(side, side))
+	var rect := _tile_rect(c, origin, k, _pops[c.y * floor_map.cols + c.x] > 0.0)
 	var part: int = _picture[c.y * floor_map.cols + c.x]
 	ci.draw_rect(rect, PaintLook.ghost(part, EMPTY_TILE) if owner_slot == PaintFloor.NONE
 			else PaintLook.painted(part, player(owner_slot).color))
@@ -262,13 +266,8 @@ func _draw_tile(ci: CanvasItem, c: Vector2i, origin: Vector2, k: float) -> void:
 func _draw_pot(ci: CanvasItem, pot: PaintPots.Pot, origin: Vector2, k: float) -> void:
 	if pot.is_blinking() and int(pot.age * 4.0) % 2 == 0:
 		return
-	var tiles := PaintPots.patch(pot.kind, pot.cell, floor_map.cols, floor_map.rows)
-	var lo := Vector2i(floor_map.cols, floor_map.rows)
-	var hi := Vector2i.ZERO
-	for c in tiles:
-		lo = Vector2i(mini(lo.x, c.x), mini(lo.y, c.y))
-		hi = Vector2i(maxi(hi.x, c.x), maxi(hi.y, c.y))
-	var frame := Rect2(origin + Vector2(lo) * REF_TILE * k, Vector2(hi - lo + Vector2i.ONE) * REF_TILE * k
+	var cells := PaintPots.bounds(pot.kind, pot.cell, floor_map.cols, floor_map.rows)
+	var frame := Rect2(origin + Vector2(cells.position) * REF_TILE * k, Vector2(cells.size) * REF_TILE * k
 			- Vector2.ONE * TILE_GAP)
 	var color := PaintLook.GOLD_FRAME if pot.kind == PaintPots.GOLD else PaintLook.ROLLER_FRAME
 	ci.draw_rect(frame, color, false, Shell.WORLD_PIXEL)
