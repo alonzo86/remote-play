@@ -67,6 +67,22 @@ Values in code (first guesses): aim range 1.2 rad to each side; weakest putt 1.5
 
 The rows are in `assets/lang/strings.csv` (keys `registry.mini_golf`, `registry.swing_phone_putt` and `mini_golf.*`). The Hebrew texts are written by Claude and need a Hebrew reader. English: "MINI GOLF", "SWING YOUR PHONE TO PUTT THE BALL INTO THE HOLE!", "HOLES" with "1 HOLE" to "5 HOLES", "Hole 2/3  Par 3", "Maya's turn!", "MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT!", "SWING A BIT MORE!", "SWING FORWARD. A BIGGER SWING GOES FARTHER!" (Easy), "HOLE IN ONE!", "BIRDIE!", "PAR!", "BOGEY", "4 strokes", "Picked up after 6 strokes", "SPLASH! TRY AGAIN FROM HERE", "Hole 2 done!", "Strokes", "Total", and on the phone "MAYA IS PUTTING" (the turn message has the optional field `k` = `golf`, `docs/PROTOCOL.md`).
 
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `mini_golf` plays from "GO": a relaxed, light loop (104 BPM, F major). The countdown, pause and result sounds come from the base class. All values are first guesses (Test 26, Test 18).
+
+| ID | Effect | When | Sound | Haptic |
+|----|--------|------|-------|--------|
+| REQ-MG-S1 | `golf_turn` | A turn starts. | Two soft notes | 60 ms for the player on turn |
+| REQ-MG-S2 | `golf_putt` | The ball is hit. | Soft "tok" | 60 ms for a hard putt (power above 0.6), 30 ms for a soft one |
+| REQ-MG-S3 | `golf_wall` | The ball touches a wall, a rock or a moving barrier. | Quiet tok | none |
+| REQ-MG-S4 | `golf_blade` | The ball touches a turning blade. | Short rising blip | none |
+| REQ-MG-S5 | `golf_splash` | The ball falls in the lake. | Funny splash | none |
+| REQ-MG-S6 | `golf_hole` | The ball goes in the cup. | Rising three notes | 80 ms |
+| REQ-MG-S7 | `golf_ace` | A hole in one. | Rising six notes, brighter | 200 ms |
+
+Haptics on the phone of the player: Countdown end: 60 ms; Round end: 400 ms for the winners. Two buzzes of one player are at least 150 ms apart. No sound is scary or sad (REQ-GM-81): the lake is a funny splash and a picked up ball is silent.
+
 ## Open questions
 
 - The shared detector (`scripts/input/swing_detector.gd`, from Pin Pals, used by Tennis since 2026-10-17) gives `aim_locked` from the start of the back swing and `power` at the release. Mini Golf needs only these two. It needs `lock_after` and `threshold` set for putts (a putt swing is slower than a throw or a stroke); the first values are guesses and are tuned on a device (Manual test 25 for Tennis, a new test for Mini Golf with the code).

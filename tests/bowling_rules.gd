@@ -8,6 +8,8 @@ const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const Shell = preload("res://scripts/game/shell.gd")
+const Medals = preload("res://scripts/game/medals.gd")
+const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 var _checks := 0
 var _fails := 0
@@ -34,6 +36,9 @@ func _initialize() -> void:
 	_swing_axes()
 	_orientation()
 	_look()
+	_aim_map()
+	_hall()
+	_medals()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -520,3 +525,86 @@ func _look() -> void:
 	_check(states.has(LaneSim.State.FALLEN) or states.has(LaneSim.State.GONE),
 			"a throw makes pins fall for the picture of the fallen pins")
 	canvas.queue_free()
+
+
+# ---- The aim (REQ-BW-4, Test 23 items 3b, 3c) ----
+
+func _aim_map() -> void:
+	print("aim range")
+	for d in [["easy", 18.0], ["medium", 14.0], ["hard", 11.0]]:
+		var deg: float = d[1]
+		var name: String = d[0]
+		_check(is_equal_approx(BowlingRules.aim_of(deg_to_rad(-deg), name), 1.0)
+				and is_equal_approx(BowlingRules.aim_of(deg_to_rad(deg), name), -1.0),
+				"%s: a turn of %.0f degrees to the right is the right end of the aim, to the left the left end" % [name, deg])
+		var half := BowlingRules.aim_of(deg_to_rad(-deg / 2.0), name)
+		_check(half > 0.35 and half < 0.65, "%s: half the range is about half way (%.2f)" % [name, half])
+		_check(BowlingRules.aim_of(deg_to_rad(deg * 2.0), name) == -1.0 and BowlingRules.aim_of(0.0, name) == 0.0,
+				"%s: a bigger turn stops at the end, no turn is the middle" % name)
+	var last := 2.0
+	var smooth := true
+	for i in range(0, 141):
+		var a := BowlingRules.aim_of(deg_to_rad(-14.0 + 0.2 * i), "medium")   # From 14 degrees right to 14 degrees left.
+		smooth = smooth and a <= last + 1e-9
+		last = a
+	_check(smooth and last == -1.0, "the aim moves one way only when the phone turns one way")
+
+
+# ---- The hall (REQ-BW-13, Test 23 items 2b, 2c, 13a) ----
+
+func _hall() -> void:
+	print("the hall")
+	var order: Array = BowlingLook.SIDE_ORDER
+	var left := order.filter(func(n): return n < 0)
+	var right := order.filter(func(n): return n > 0)
+	_check(order.size() == 6 and left.size() == 3 and right.size() == 3 and not order.has(0) and BowlingLook.SIDE_LANES == 3,
+			"3 dimmer lanes on each side of the own lane (7 lanes in all)")
+	var all_racks := true
+	var down_somewhere := false
+	for n in order:
+		var standing := BowlingLook._neighbor_mask(n).filter(func(b): return b).size()
+		all_racks = all_racks and standing >= 1
+		down_somewhere = down_somewhere or standing < 10
+	_check(all_racks and down_somewhere, "each side lane has a rack, and some pins are down in some of them")
+	for res: Vector2 in [Vector2(1920, 1080), Vector2(1280, 720)]:
+		var geo := BowlingLook.Geo.new(res, res.y - 60.0 - 72.0)
+		var tiles := BowlingLook.wall_tiles(res, geo)
+		var y0 := BowlingLook.WALL_TOP * res.y / 1080.0
+		var third := (geo.top - y0) / 3.0
+		var top_ok := not tiles.is_empty()
+		var colors := {}
+		for t in tiles:
+			top_ok = top_ok and t.rect.position.y >= y0 - 0.01 and t.rect.end.y <= y0 + 2.0 * third + 0.01
+			colors[t.color] = true
+		_check(top_ok, "%dx%d: the light tiles are in the top two thirds of the wall, the bottom third has none" % [res.x, res.y])
+		var all_disco := true
+		for c in colors:
+			all_disco = all_disco and BowlingLook.DISCO.has(c)
+		_check(all_disco and colors.size() == BowlingLook.DISCO.size(), "the tiles use the 7 disco colors and no other")
+	var img := BowlingLook.pin_image(false)
+	var white := 0
+	var open_edge := false
+	for y in img.get_height():
+		for x in img.get_width():
+			if img.get_pixel(x, y).is_equal_approx(BowlingLook.PIN_COLORS["W"]):
+				white += 1
+	for y in img.get_height():
+		for x in img.get_width():
+			if img.get_pixel(x, y).a > 0.0 and (x == 0 or x == img.get_width() - 1 or y == 0 or y == img.get_height() - 1):
+				open_edge = open_edge or not img.get_pixel(x, y).is_equal_approx(BowlingLook.PIN_COLORS["K"])
+	_check(white >= 20 and not open_edge and UiTheme.BG == Color.BLACK
+			and Shell.contrast(BowlingLook.PIN_COLORS["W"], UiTheme.BG) > 15.0,
+			"the pins are white (%d pixels) with a black outline, and the wall behind them is black" % white)
+
+
+# ---- The medal (REQ-BW-18, Test 23 item 6d) ----
+
+func _medals() -> void:
+	print("medals")
+	var cases := {"easy": [69, 70, 109, 110, 149, 150], "medium": [59, 60, 99, 100, 149, 150], "hard": [79, 80, 129, 130, 179, 180]}
+	for d in cases:
+		var got := []
+		for score in cases[d]:
+			got.append(Medals.medal(float(score), BowlingRules.level(d).tiers))
+		_check(got == ["", "bronze", "bronze", "silver", "silver", "gold"],
+				"%s: %s give none, bronze, bronze, silver, silver, gold: %s" % [d, str(cases[d]), str(got)])
