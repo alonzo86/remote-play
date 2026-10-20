@@ -42,6 +42,8 @@ func _run() -> void:
 	app.go_games()
 	await _frames(5)
 	var screen: Control = app.current_screen()
+	await _grid_checks(app)
+	screen = app.current_screen()
 	screen._tiles.clear()
 	screen._wire_focus()   # A Games screen without a game must not crash.
 	_check(screen._badge.focus_neighbor_right != NodePath(), "the header is still linked when there are no tiles")
@@ -74,3 +76,57 @@ func _reach(screen: Control, code: String) -> void:
 	_check(ok_gear, "from the badge the arrow key toward OPTIONS reaches it, also when the grid has scrolled")
 	_check(ok_back, "and from OPTIONS the other way goes back to the badge")
 	_check(ok_stay, "up from the header stays in the header")
+
+
+## The grid has 3 tiles in a row with 1, 2 and 4 phones, and the focused tile is always on the screen, also the last one and the
+## one with the longest title (REQ-FL-12, 16).
+func _grid_checks(app: Node) -> void:
+	root.size = Vector2i(1920, 1080)   # The real TV screen.
+	await _frames(3)
+	for n in [1, 2, 4]:
+		for i in 4:
+			app.server.players[i].state = 1 if i < n else 0
+		app.go_games()
+		await _frames(20)
+		var tiles: Array = app.current_screen()._tiles
+		var per_row := {}
+		for t in tiles:
+			var y := snappedf(t.get_parent().get_global_rect().position.y, 1.0)
+			per_row[y] = int(per_row.get(y, 0)) + 1
+		var counts: Array = per_row.values()
+		_check(counts.size() == ceili(float(tiles.size()) / 3.0) and counts.slice(0, counts.size() - 1).all(func(c): return c == 3),
+				"%d phones: the Games grid has 3 tiles in each row (%s)" % [n, str(counts)])
+	for i in 3:
+		app.server.players[i].state = 1
+	app.go_games()
+	await _frames(20)
+	var screen: Control = app.current_screen()
+	var view := Rect2(Vector2.ZERO, Vector2(root.size))
+	var always_visible := true
+	var one_cursor := true
+	var order: Array = range(screen._tiles.size()) + range(screen._tiles.size() - 2, -1, -1)
+	for i in order:
+		screen._tiles[i].grab_focus()
+		await _frames(25)
+		var r: Rect2 = screen._tiles[i].get_global_rect()
+		always_visible = always_visible and view.encloses(r)
+		var focused: Array = screen._tiles.filter(func(t: Button) -> bool: return t.has_focus())
+		one_cursor = one_cursor and focused.size() == 1
+	_check(always_visible, "walking to the last tile and back, the focused tile is always inside the screen")
+	_check(one_cursor, "exactly one tile has the focus (the yellow frame) at each step")
+	var asteroid := -1
+	for i in screen._tiles.size():
+		if String(screen._tiles[i].game.id) == "asteroid_blast":
+			asteroid = i
+	screen._tiles[asteroid].grab_focus()
+	await _frames(25)
+	var tile: Control = screen._tiles[asteroid]
+	var labels := tile.find_children("*", "Label", true, false)
+	var fits := not labels.is_empty()
+	for l in labels:
+		var w: float = l.get_theme_font("font").get_string_size(l.tr(l.text), HORIZONTAL_ALIGNMENT_LEFT, -1,
+				l.get_theme_font_size("font_size")).x
+		fits = fits and (l.autowrap_mode != TextServer.AUTOWRAP_OFF or w <= l.size.x + 1.0)
+	_check(fits and view.grow(-60.0).encloses(tile.get_global_rect()),
+			"the focused Galaxy Protector tile (longest title) fits and is inside the 60 px margin")
+	root.size = Vector2i(1280, 720)

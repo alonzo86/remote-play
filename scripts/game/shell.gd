@@ -19,6 +19,15 @@ const CHIP_LINE := 4           # The frame of a chip.
 const TAG_H := 56.0            # The height of a name tag in the countdown.
 const TAG_GAP := 8.0           # The space between two name tags.
 
+## A test sets this to see the boxes the HUD draws (the game draws with `draw_*`, so there is no node to look at). Called as
+## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "tag", "hint" or "countdown".
+static var recorder := Callable()
+
+
+static func _note(kind: String, ci: CanvasItem, rect: Rect2, info := {}) -> void:
+	if recorder.is_valid():
+		recorder.call(kind, ci, rect, info)
+
 
 ## The width of the screen a canvas item draws on (1920 for an item that has no size).
 static func area_width(ci: CanvasItem) -> float:
@@ -37,6 +46,9 @@ static func title(ci: CanvasItem, text: String, pos := Vector2(60, 96), font_siz
 	var w := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	ci.draw_string(UiTheme.font(), Vector2(mx(ci, pos.x, w), pos.y), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
 			UiTheme.ACCENT)
+	_note("title", ci, Rect2(mx(ci, pos.x, w), pos.y - UiTheme.font().get_ascent(font_size), w,
+			UiTheme.font().get_height(font_size)),
+			{"text": shown})
 
 
 ## Text in the arcade font (upper case).
@@ -214,7 +226,8 @@ static func leader_chip(ci: CanvasItem, area_w: float, leaders: Array, score: St
 	var avatar: int = -1 if tie else int(leaders[0].avatar)   # A tie has no one player to show.
 	var color: Color = UiTheme.TEXT_DIM if tie else leaders[0].color
 	var w := score_chip_width(label, score, 64.0, 200.0, CHIP_FONT, avatar)
-	score_chip(ci, Vector2(leader_chip_x(area_w, w), y), label, score, color, w, 64.0, avatar)
+	var r := score_chip(ci, Vector2(leader_chip_x(area_w, w), y), label, score, color, w, 64.0, avatar)
+	_note("leader", ci, r, {"name": label, "score": score, "color": color, "tie": tie})
 
 
 ## The rectangles of the name tags that stand above the game objects in the countdown (REQ-GM-46a). `entries` are
@@ -247,6 +260,7 @@ static func name_tags(ci: CanvasItem, area: Vector2, entries: Array, radius := 4
 	for i in entries.size():
 		var avatar := int(entries[i].get("avatar", -1))
 		chip(ci, rects[i].position, String(entries[i].name), entries[i].color, rects[i].size.x, TAG_H, avatar)
+		_note("tag", ci, rects[i], {"name": String(entries[i].name), "color": entries[i].color, "pos": entries[i].pos})
 
 
 ## The race timer: a black box with a frame, in a fixed place. `pos` is the top-left corner.
@@ -257,6 +271,7 @@ static func timer(ci: CanvasItem, pos: Vector2, seconds: float, width := 240.0) 
 	var r := Rect2(Vector2(mx(ci, pos.x, box_w), pos.y), Vector2(box_w, 64.0))
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), r)
 	UiTheme.draw_centered(ci, UiTheme.font(), shown, r, CHIP_FONT, UiTheme.TEXT)
+	_note("timer", ci, r, {"text": shown})
 	return r
 
 
@@ -277,6 +292,11 @@ static func countdown(ci: CanvasItem, area: Vector2, label: String, elapsed := 1
 	var rect := Rect2(Vector2.ZERO, area)
 	ci.draw_string(UiTheme.font(), Vector2(0.0, UiTheme.centered_baseline(UiTheme.font(), rect, fs)), Lang.t(label).to_upper(),
 			HORIZONTAL_ALIGNMENT_CENTER, area.x, fs, color)
+	var shown := Lang.t(label).to_upper()
+	var cw := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	_note("countdown", ci, Rect2((area.x - cw) * 0.5, (area.y - UiTheme.font().get_height(fs)) * 0.5, cw,
+			UiTheme.font().get_height(fs)),
+			{"text": shown, "size": fs})
 
 
 ## The font size of the countdown number `elapsed` (0 to 1) into its second: 352, 320, 288, then 256 px.
@@ -298,3 +318,4 @@ static func hint(ci: CanvasItem, area: Vector2, msg: String) -> void:
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM, UiTheme.BG, CHIP_LINE), plate)
 	ci.draw_multiline_string(f, Vector2(plate.position.x, plate.position.y + 20.0 + f.get_ascent(UiTheme.SIZE_BODY)), upper,
 			HORIZONTAL_ALIGNMENT_CENTER, w, UiTheme.SIZE_BODY, -1, UiTheme.TEXT)
+	_note("hint", ci, plate, {"text": upper, "text_w": box.x, "max_w": max_w})
