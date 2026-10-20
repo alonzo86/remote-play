@@ -100,6 +100,37 @@ jobs:
             build/coverage/lcov.info
           retention-days: 14
 
+  pixels:
+    # The render lane: pixel checks on real frames, drawn by the software GL driver (llvmpipe) under xvfb. It is not part of
+    # tests/suites.txt, it has no coverage, and no other job needs it. It runs tests/pixel_render.gd at 1920x1080 and at 3840x2160.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: ${{ env.GODOT_VERSION }}
+          use-dotnet: false
+      - name: Xvfb and the software GL driver
+        run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libglx-mesa0 libegl1
+      - name: Import the project
+        run: godot --headless --path . --import || true
+      - name: Pixels at 1920x1080
+        run: |
+          xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 \
+            --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-1080.log
+          test "${PIPESTATUS[0]}" -eq 0
+      - name: Pixels at 3840x2160
+        run: |
+          xvfb-run -a -s "-screen 0 3840x2160x24" godot --path . --rendering-driver opengl3 --resolution 3840x2160 \
+            --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-4k.log
+          test "${PIPESTATUS[0]}" -eq 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pixels-log
+          path: pixels-*.log
+          retention-days: 7
+
   build-android:
     runs-on: ubuntu-latest
     needs: [lint, test]

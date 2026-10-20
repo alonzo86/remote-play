@@ -9,6 +9,7 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
+const QuitDialog = preload("res://scripts/ui/controller_quit_dialog.gd")
 
 var _title: Label
 var _sub: Label
@@ -17,6 +18,7 @@ var _best_detail: Label
 var _dot: Control
 var _name: Label
 var _leave: Button
+var _quit_dialog: Control
 
 
 func _ready() -> void:
@@ -130,3 +132,12 @@ func _draw_dot() -> void:
 		var av := Rect2(box.position + Vector2(side + 20.0, 0.0), box.size)
 		_dot.draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM, UiTheme.BG, 6), av)
 		Avatar.draw(_dot, av.grow(-20.0), c.tv_avatar)
+
+
+## Back asks whether to quit the app (REQ-FL-55); Back again answers "stay".
+func on_back() -> void:
+	if is_instance_valid(_quit_dialog):
+		_quit_dialog.close()
+		return
+	_quit_dialog = QuitDialog.new()
+	add_child(_quit_dialog)

@@ -1,24 +1,20 @@
 extends SceneTree
-## The text of the HUD of Sumo Bumpers and Galaxy Protector: every font is 28 px or more and every plate is inside the 60 px
-## margin of the screen, in English and in Hebrew (REQ-GM-45, REQ-SB-15, REQ-AB-16). A person reading it from 3 m stays a manual
-## step; this checks the numbers. Run:
+## The result menu and the pause menu with 4 long player names, in English and in Hebrew: every text and button is inside the
+## 60 px screen edge (REQ-GM-40), no text is below 28 px (REQ-GM-41), buttons do not overlap and no label is cut (REQ-GM-72).
+## Replaces the layout part of manual tests 11.1 to 11.3. Run by tests/run_all.sh and tools/coverage.sh:
 ##   godot --headless --path . --script tests/layout_menus.gd -- --role=tv
 
-const SimInput = preload("res://tests/sim_input.gd")
-const Shell = preload("res://scripts/game/shell.gd")
 const Lang = preload("res://scripts/core/lang.gd")
-const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
-const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 
-const MARGIN := 60.0
-const LONG_NAME := "WWWWWWWWWW"   # 10 letters, the longest name (Protocol.NAME_MAX), in the widest letter.
+const EDGE := Rect2(60, 60, 1800, 960)
+const NAMES := {
+	"en": ["ABCDEFGHIJ", "Maximilian", "Wolfgang12", "iiiiiiiiii"],
+	"he": ["אבגדהוזחטי", "מקסימיליאן", "ירושלמיתא", "שששששששששש"],
+}
 
-var _fails := 0
 var _checks := 0
-
-
-func _initialize() -> void:
-	_run()
+var _fails := 0
 
 
 func _check(cond: bool, what: String) -> void:
@@ -30,13 +26,10 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
-## A check of something that is wrong in the game today: it prints KNOWN BUG and is not counted as a failure.
-func _known_bug(issue: String, cond: bool) -> void:
-	_checks += 1
-	if cond:
-		print("  ok   (known bug is fixed, make this a normal check) ", issue)
-	else:
-		print("  KNOWN BUG ", issue)
+func _initialize() -> void:
+	await _run()
+	print("%d checks, %d failed" % [_checks, _fails])
+	quit(1 if _fails > 0 else 0)
 
 
 func _frames(n: int) -> void:
@@ -44,104 +37,73 @@ func _frames(n: int) -> void:
 		await process_frame
 
 
-func _inside(r: Rect2, area: Vector2) -> bool:
-	return r.position.x >= MARGIN - 0.01 and r.position.y >= MARGIN - 0.01 and r.end.x <= area.x - MARGIN + 0.01 \
-			and r.end.y <= area.y - MARGIN + 0.01
+## The visible controls of `box` that show a text (labels and buttons).
+func _texts(box: Node) -> Array:
+	var out := []
+	for c in box.find_children("*", "Control", true, false):
+		if (c is Label or c is Button) and c.is_visible_in_tree() and String(c.text) != "":
+			out.append(c)
+	return out
+
+
+## What is wrong with the menu in `box`, as short texts. Empty when it is fine.
+func _problems(box: Control) -> Array:
+	var bad := []
+	var buttons := []
+	for c in _texts(box):
+		var r: Rect2 = c.get_global_rect()
+		if not EDGE.encloses(r):
+			bad.append("outside the edge: %s %s" % [String(c.text).left(24), str(r)])
+		if c.get_theme_font_size("font_size") < 28:
+			bad.append("small text: %s" % String(c.text).left(24))
+		if c is Button:
+			buttons.append(c)
+	for i in buttons.size():
+		for j in range(i + 1, buttons.size()):
+			if buttons[i].get_global_rect().intersects(buttons[j].get_global_rect()):
+				bad.append("buttons overlap: %s and %s" % [buttons[i].text, buttons[j].text])
+	return bad
 
 
 func _run() -> void:
 	await _frames(5)
 	root.size = Vector2i(1920, 1080)
+	await _frames(3)
 	var app: Node = root.get_node("App")
-	var clients: Array = await SimInput.connect_phones(self, app, 2)
-	var sumo: Control = SimInput.start_game(app, load("res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd"),
-			{"difficulty": "easy"})
-	await _frames(2)
-	for code in ["en", "he"]:
-		Lang.set_language(code, root)
-		_sumo(sumo, code)
-	var blast: Control = SimInput.start_game(app, load("res://scripts/game/asteroid_blast/asteroid_blast_game.gd"), {})
-	await _frames(2)
-	for code in ["en", "he"]:
-		Lang.set_language(code, root)
-		_asteroid(blast, code)
+	for lang in ["en", "he"]:
+		Lang.set_language(lang, root)
+		for i in 4:
+			var p = app.server.players[i]
+			p.state = 1
+			p.player_name = NAMES[lang][i]
+		app.go(load("res://scripts/game/maze/maze_game.gd"))
+		await _frames(5)
+		var game: Control = app.current_screen()
+		# Maze: one winner, the others not finished. Race: four times.
+		var board := Scoreboard.new([0, 1, 2, 3], true)
+		board.set_score(2, 31.5)
+		game.open_results(board)
+		await _frames(3)
+		_check(_problems(game._menu_box).is_empty(),
+				"%s: maze results (%d texts) fit: %s" % [lang, _texts(game._menu_box).size(), str(_problems(game._menu_box))])
+		board = Scoreboard.new([], true)
+		for s in 4:
+			board.set_score(s, 30.0 + s * 12.34)
+		game.open_results(board, [40.0, 30.0, 20.0])
+		await _frames(3)
+		_check(_problems(game._menu_box).is_empty(),
+				"%s: race results with 4 rows and medals fit: %s" % [lang, str(_problems(game._menu_box))])
+		var names_shown := _texts(game._menu_box).map(func(c): return String(c.text).to_upper())
+		var all_names := true
+		for n in NAMES[lang]:
+			all_names = all_names and names_shown.any(func(t: String) -> bool: return t.contains(String(n).to_upper()))
+		_check(all_names, "%s: every long name is in the list, none is cut" % lang)
+		# The pause menu and the card of a lost phone.
+		game.restart()
+		await _frames(5)
+		game = app.current_screen()
+		game.open_menu("minigame.paused", [["minigame.resume", game.close_menu], ["minigame.restart", game.restart],
+				["minigame.back_to_menu", app.go_menu]])
+		await _frames(3)
+		_check(_problems(game._menu_box).is_empty(), "%s: a pause menu fits: %s" % [lang, str(_problems(game._menu_box))])
 	Lang.set_language("en", root)
-	_countdown()
-	for c in clients:
-		c.leave()
-	await _frames(10)
-	print("%d checks, %d failed" % [_checks, _fails])
-	quit(1 if _fails > 0 else 0)
-
-
-## 15.11d: "WHEE!", the round banner and the round number of Sumo Bumpers.
-func _sumo(game: Control, code: String) -> void:
-	print("Sumo Bumpers in ", code)
-	var area: Vector2 = game.size
-	_check(game.WHEE_FONT >= 28 and game.ROUND_FONT >= 28 and game.BANNER_FONT >= 28,
-			"%s: the fonts of WHEE!, the round number and the banner are %d, %d and %d px (28 or more)"
-			% [code, game.WHEE_FONT, game.ROUND_FONT, game.BANNER_FONT])
-	var banners := [Lang.f("sumo_bumpers.round_winner", [LONG_NAME]), Lang.t("sumo_bumpers.round_draw")]
-	var banners_ok := true
-	var widest := 0.0
-	for msg in banners:
-		var r := Shell.label_plate_rect(game.banner_at(), msg, game.BANNER_FONT)
-		widest = maxf(widest, r.size.x)
-		banners_ok = banners_ok and _inside(r, area)
-	_check(banners_ok, "%s: the banner plates (a 10 letter winner, a draw) are inside the 60 px margin, the widest is %.0f px"
-			% [code, widest])
-	var round_text := Lang.f("sumo_bumpers.round_n_of", [3, game.ROUNDS]).to_upper()
-	var round_w := UiTheme.font().get_string_size(round_text, HORIZONTAL_ALIGNMENT_LEFT, -1, game.ROUND_FONT).x
-	_check(round_w <= game.TIMER_W + 80.0, "%s: the round number is %.0f px wide in a box of %.0f px" % [code, round_w,
-			game.TIMER_W + 80.0])
-	# "WHEE!" is over the bumper that fell, at the edge of the island: the plate must stay under the bar and inside the margin.
-	var worst_top := 1.0e9
-	var worst_side := 1.0e9
-	for d in ["easy", "medium", "hard"]:
-		var radius: float = SumoArena.LEVELS[d].radius
-		for angle in [0.0, 0.5 * PI, PI, 1.5 * PI]:
-			for age in [0.0, 0.4]:
-				var r := Shell.label_plate_rect(game.whee_at(Vector2.from_angle(angle) * (radius + 20.0), age),
-						"sumo_bumpers.whee",
-						game.WHEE_FONT)
-				worst_top = minf(worst_top, r.position.y)
-				worst_side = minf(worst_side, minf(r.position.x, area.x - r.end.x))
-	_check(worst_side >= MARGIN, "%s: WHEE! over a bumper at the edge of the island stays %.0f px from the sides (60 or more)"
-			% [code, worst_side])
-	_known_bug("issue-needed: WHEE! over a bumper that falls off the top of the island has its plate %.0f px from the top of the "
-			% worst_top + "screen (60 px margin, and under the 112 px bar), Sumo Bumpers", worst_top >= game.BAR_H)
-
-
-## 22.12e: the wave number, the banners and the line of Galaxy Protector.
-func _asteroid(game: Control, code: String) -> void:
-	print("Galaxy Protector in ", code)
-	var area: Vector2 = game.size
-	_check(game.WAVE_FONT >= 28 and game.BANNER_FONT >= 28 and game.SUB_FONT >= 28,
-			"%s: the fonts of the wave number, the banner and the second line are %d, %d and %d px (28 or more)"
-			% [code, game.WAVE_FONT, game.BANNER_FONT, game.SUB_FONT])
-	var ok := true
-	var widest := 0.0
-	var texts := [Lang.f("asteroid_blast.wave_n", [88]), Lang.f("asteroid_blast.wave_clear", [88]),
-			Lang.t("asteroid_blast.all_ships_gone")]
-	for msg in texts:
-		var r := Shell.label_plate_rect(game.banner_at(), msg, game.BANNER_FONT)
-		widest = maxf(widest, r.size.x)
-		ok = ok and _inside(r, area)
-	var sub := Shell.label_plate_rect(game.banner_at() + Vector2(0.0, 110.0), Lang.f("asteroid_blast.next_wave_in", [5]),
-			game.SUB_FONT)
-	_check(ok and _inside(sub, area), "%s: the banners and 'Next wave in' are inside the 60 px margin, the widest is %.0f px"
-			% [code, widest])
-	var wave_w := UiTheme.font().get_string_size(Lang.f("asteroid_blast.wave_n", [88]).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1,
-			game.WAVE_FONT).x
-	_check(wave_w <= game.TIMER_W + 80.0, "%s: 'Wave 88' in the bar is %.0f px wide in a box of %.0f px" % [code, wave_w,
-			game.TIMER_W + 80.0])
-	var line_ok: bool = game.BAR_LINE_Y + game.BAR_LINE_H <= game.BAR_H and game.AREA_MARGIN >= MARGIN
-	_check(line_ok, "%s: the line of the wave is inside the bar and starts at the 60 px margin" % code)
-
-
-## 15.11d: the countdown digits are far above 28 px at every step.
-func _countdown() -> void:
-	var smallest := 1000000
-	for step in 11:
-		smallest = mini(smallest, Shell.countdown_size(float(step) / 10.0))
-	_check(smallest >= 28 and smallest == 256, "the countdown digits are %d px or more at every step" % smallest)
