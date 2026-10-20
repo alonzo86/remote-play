@@ -9,6 +9,7 @@ extends RefCounted
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
+const Shell = preload("res://scripts/game/shell.gd")
 
 const W := 480
 const H := 270
@@ -471,6 +472,7 @@ static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float) -
 static func draw_ball(ci: CanvasItem, geo: Geo, p: Vector2, lift := 0.0) -> void:
 	var foot := geo.at(p)
 	var r := geo.ball_r(p.y)
+	Shell.record("ball", ci, Rect2(foot - Vector2(r, 2.0 * r), Vector2(2.0 * r, 2.0 * r)), {"color": WHITE})
 	ci.draw_circle(foot, r * 0.9, Color(0.0, 0.2, 0.0, 0.5))
 	var c := foot - Vector2(0.0, r + lift)
 	ci.draw_circle(c, r + 4.0, OL)
@@ -494,6 +496,8 @@ static func draw_aim(ci: CanvasItem, geo: Geo, from: Vector2, heading: float, le
 	var end := from + dir * maxf(length, 0.6)
 	var e := geo.at(end)
 	var sz2 := maxf(16.0, 0.12 * geo.scale_at(end.y) * geo.m)
+	Shell.record("aim", ci, Rect2(e - Vector2(sz2 * 0.5, sz2 * 1.4), Vector2(sz2, sz2)),
+			{"locked": locked, "color": GOLD if locked else UiTheme.TEXT})
 	ci.draw_colored_polygon(PackedVector2Array([e + Vector2(0.0, -sz2 * 0.4), e + Vector2(-sz2 * 0.5, -sz2 * 1.4),
 			e + Vector2(sz2 * 0.5, -sz2 * 1.4)]), GOLD if locked else UiTheme.TEXT)
 	ci.draw_polyline(PackedVector2Array([e + Vector2(0.0, -sz2 * 0.4), e + Vector2(-sz2 * 0.5, -sz2 * 1.4),
@@ -580,6 +584,8 @@ static func feet_for(ball: Vector2) -> Vector2:
 static func draw_golfer(ci: CanvasItem, geo: Geo, feet: Vector2, ball: Vector2, pose: Dictionary, shirt: Color) -> void:
 	var foot := geo.at(feet)
 	var k := maxf(geo.scale_at(feet.y) / 131.0 * 1.35, GOLFER_MIN) * geo.m
+	Shell.record("golfer", ci, Rect2(foot - Vector2(30.0, 70.0) * k, Vector2(60.0, 70.0) * k),
+			{"shirt": shirt, "pose": pose})
 	var lean := float(pose.lean)
 	var pt := func(dx: float, dy: float) -> Vector2: return foot + Vector2(dx, dy) * k
 	var up := func(dx: float, dy: float) -> Vector2: return foot + Vector2(dx + lean * clampf(-dy / 60.0, 0.0, 1.0), dy) * k
