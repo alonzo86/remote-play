@@ -55,6 +55,8 @@ var controller_discovery: Node
 var last_error := ""        # Controller only. Shown on the connect screen.
 var last_game := ""         # TV only. The Games screen focuses this tile again.
 
+## A test sets it to see that Quit was chosen without closing the test. It replaces `get_tree().quit()`.
+var quit_hook := Callable()
 var _screen: Control
 var _last_back_ms := 0
 
@@ -239,6 +241,9 @@ func _quit() -> void:
 		server.stop()
 	if client != null:
 		client.leave()
+	if quit_hook.is_valid():
+		quit_hook.call()
+		return
 	get_tree().quit()
 
 
