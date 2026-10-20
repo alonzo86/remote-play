@@ -1,0 +1,84 @@
+# Automated tests
+
+The tests that run by themselves, with no person and no device. `docs/MANUAL_TESTS.md` holds the rest: what needs a phone, a TV, a
+remote, a camera, or a person who looks and judges. When a manual step is covered here, it is removed from there (the numbers of the
+other steps do not change) and it gets an ID `A-<test>-<item>` in the table below.
+
+## Run them on the Mac
+
+```sh
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh        # all suites, stops at the first failure
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tools/coverage.sh       # same suites with the 80% line coverage check (CI)
+/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tests/smoke_settings.gd -- --role=tv   # one suite (the role is in suites.txt)
+```
+
+The suites are listed in `tests/suites.txt` (`script|role|title`). A new suite is added there only. Each suite prints `ok` or `FAIL`
+for every check and ends with `N checks, M failed` (the TV smoke test ends with `smoke test done, M failed`). The whole run takes a few
+minutes and opens no window (`--headless`). Screenshots for a look at the screens need a display and are not part of the run:
+`godot --path . --rendering-driver opengl3 --script tests/screenshots.gd -- --role=tv`.
+
+## What replaced a manual step
+
+| ID | Replaces | The checks that do it (suite: check) |
+|----|----------|---------------------------------------|
+| A-11-1 | Test 11 item 1, rows, title, buttons | `smoke_tv`: "the result menu has the restart, new game and back to menu buttons", "each row has a square in the slot color of its player, best first", the `WINS!` title; `layout_menus`: maze results fit. The reading from the sofa stays in item 1 |
+| A-11-2 | Test 11 item 2, winner, 'not finished', 60 px edge | `smoke_tv`: maze rows `1ST ... S` and `2ND ... NOT FINISHED`; `layout_menus`: with 4 long names (English and Hebrew) every text and button of the result menu is inside the 60 px edge, no text is below 28 px, buttons do not overlap. The check fails when the edge is made smaller |
+| A-11-3 | Test 11 item 3, race results with 4 rows | `smoke_tv`: race rows and buttons; `layout_menus`: race results and the pause menu fit in English and Hebrew |
+| A-11-4 | Test 11 item 4, 'not finished', furthest first | `smoke_tv`: "a car that did not finish is listed as not finished, after the finishers" |
+| A-11-5 | Test 11 item 5, New game opens the settings with the last choice, Back returns | `smoke_settings`: "the view opens with the last choice (REQ-GM-94)", "Back returns to the Games screen"; `smoke_tv`: "restart keeps the chosen track", "the race results offer Settings" |
+| A-11-6 | Test 11 item 6, 'No players connected' with only Back to menu | `smoke_tv`: "results with nobody left say 'No players connected' and only offer Back to menu", "race: when the phone does not come back, 'No players connected' opens (REQ-MR-14)" |
+| A-11-7 | Test 11 item 7, medal title, winner, Tie | `smoke_tv`: "equal scores give the title Tie!", "one player and tiers: the row has the silver medal", "a solo player who did not finish gets no medal"; `results_medals` (all medal and tie rules); `game_helpers`: the text of a medal |
+| A-17-5 | Test 17 item 5, the Language row switches at once and is kept | `smoke_lang`: "the row switches back to English", "the Settings screen is in Hebrew at once", the phones are told (`heard == ["en", "he", "en"]`), the language is saved in the settings file and the choice is not asked again, the layout turns (QR card left or right of the slots) |
+| A-20-5 | Test 20 item 5, a guest keeps the number and `Player N` | `smoke_tv`: "FD-22: card names" (guest `2P`, profile name `Maya`), "a phone without a name is Player N"; `net_profiles` |
+| A-20-11 | Test 20 item 11, no NEW BEST in the maze, Sumo and a random race track | `smoke_bests`: "Treasure Maze and Sumo Bumpers have no personal best", "a random track has no key (REQ-MR-56)", "a guest gets nothing" |
+| A-9-10 | Test 9 item 10, the pause menu of a race | `smoke_tv`: the pause menu of a race has three items (Resume, Restart, Back to menu), and Back to menu asks 'End the game?' |
+| A-14-1 | Test 14 item 1, the Paint Grab settings view | `smoke_paint`: "Paint Grab opens the settings view with Difficulty on Medium", Hard gives a 20 x 11 floor; `smoke_settings`: Back and Start on one line |
+| A-14-2 | Test 14 item 2, nothing moves in 3, 2, 1, a buzz at GO | `smoke_paint`: "during the countdown the blobs do not move and nothing is painted"; `device_mocks`: no buzz in the countdown, a 60 ms buzz on every phone at GO |
+| A-14-9 | Test 14 item 9, RECENTER and A, B | `device_mocks`: A and B do not recenter, RECENTER makes the tilt zero (a simulated phone sends the real messages over loopback) |
+| A-15-2 | Test 15 item 2, bumpers still in the countdown, a buzz at GO | `smoke_sumo`: "during the countdown the bumpers do not move"; `device_mocks`: the GO buzz |
+| A-15-9 | Test 15 item 9, a player leaves | `smoke_sumo`: "a player who leaves takes the bumper out and the match goes on with two", "with one player left the match is over at once" |
+| A-23-14 | Test 23 item 14, personal best of Pin Pals | `smoke_bests`: the key per difficulty, NEW BEST only for a better score, saved to the file; `ui_share`: the NEW BEST line on the phone; `smoke_bowling`: no best with Rails |
+| A-23-10, A-25-11, A-26-11 | The lock part of Tests 23, 25 and 26 | `device_mocks`: a phone that goes silent pauses Pin Pals, Tennis and Mini Golf, and the card offers Resume when it is back; `smoke_tennis`: a swing right after the pause does nothing. What a real lock does to a real phone stays in Test 7 |
+
+## Everything else that is automated (and stays in `tests/`)
+
+These suites guard the rules and the screens. They do not remove a manual step, because the step also asks for a look, a feeling or
+a real device, but they make a regression show in CI before a person sees it.
+
+| Suite | What it checks |
+|-------|----------------|
+| `run_tests` | protocol, server, slots, the controller client, remove and kick, sensors, tilt and recenter |
+| `net_loss` | a silent phone: when it is lost, when its slot is freed (grace times, paused game) |
+| `net_pin` | the join PIN rules, 5 wrong PINs and the 30 s lock, the PIN pad, the About pages |
+| `net_profiles`, `profiles`, `profile_code`, `ui_share`, `smoke_bests` | profiles: names, `Sam` and `sam`, bests, copy codes, share, NEW BEST |
+| `smoke_tv`, `games_focus`, `smoke_settings`, `ui_states`, `results_medals`, `layout_menus` | TV flow, Back and the quit question (TV, and the phone waiting and pad screens, REQ-FL-55), the Players modal, arrow keys, settings views (the maze Theme order Garden, Castle, Ice), medals, the win or tie sound of the result menu, result and pause menus |
+| `smoke_lang` | the strings table, Hebrew, right to left, the language choice |
+| `device_mocks` | simulated phones on loopback: the 60 ms buzz at GO in 8 games and none before it, the pose of the countdown is the center (maze, Paint Grab, Galaxy Protector), RECENTER and A, B in Paint Grab, a silent phone pauses the turn games. It fails when the buzz or the recenter is removed from a game |
+| `multi_phone` | 4 simulated phones (3 for Tennis, Sumo Bumpers, Mini Golf and Pin Pals) in every game: no buzz in 3, 2, 1 and one 60 ms buzz at GO (not in the maze, issue #58), every phone is told its own place and the number of players, players with the same best score share place 1, a phone that leaves takes its player out and the round goes on or ends below the minimum, and the logic of one frame with 4 players stays under 12 ms (headless, no drawing). It fails when the places or the leave handling break. It does not measure the frame rate on a TV box (Test 4) |
+| `audio` | the synth, songs, effects, volume, the Haptics switch and its saving |
+| `game_helpers`, `game_rules`, `*_rules`, `smoke_*` | the rules of every game, the leader chip and name tag sizes, medal tiers, the tilt body, the swing detector |
+| `design_tokens` | sizes, colors, license files packed in the export presets |
+
+## What stays manual, and why
+
+| Kind of step | Tests | Why a machine cannot do it |
+|--------------|-------|-----------------------------|
+| Real Wi-Fi off, screen lock, a phone call, a returning app | 1, 7, 8b.4, 13.5 (the TV side is simulated in `net_loss`, `smoke_tv` and `device_mocks`) | The phone and Android decide what happens. The timing rules are tested in `net_loss` and `smoke_tv`, but not what the phone really does |
+| The Android Back key, the remote, the Menu key, the launcher icon | 8, 8b.1 | R1 failed on a real TV because of an engine setting. It needs the real key events |
+| Camera, QR, iPhone | 2, 13, 20.12 to 20.15, 21.2, 21.6 | Real camera, plugin and iOS |
+| Real sensor axes and drift, swing thresholds with a real arm, latency, packet rate, frame rate on a TV box | 3, 4, 6, 9 to 15, 22 to 26, 24 | Needs the phone sensors and the TV box. The code is tested with made-up values |
+| Feel (too light, too fast, too nervous), difficulty, a child of 5 to 8 years | most game tests | A person judges it |
+| Look from the sofa, sharp pixels, readable text, Hebrew wording, sound, the animal and tile pictures | 12, 16, 17, 18, 19 and the "pixel world" items | A person looks and listens. The sizes and the 60 px edge are tested where they can be (`layout_menus`, `game_helpers`, `smoke_tv`) |
+
+## Why some mockable steps stay
+
+A step that failed on a real device is not removed, although its rule is tested. Test 6 item 5 (RECENTER, the ball still drifts) and Test 8 items 2 and 3
+(Back quits the app; the new item 6, Back on the phone, has the same real-key risk) must be retested on the device, because the mock passed while the device failed. Test 3 (sensor axes) and Test 4 (RTT, Hz, gaps) measure
+the real phone and the real Wi-Fi, so a simulated phone cannot answer them.
+
+## Findings of the cleanup
+
+- `tests/golf_rules.gd` stopped at hole 1 with a script error (`h.bumpers` does not exist on every hole), so the checks of holes 2 to 5
+  never ran, and the suite still said "0 failed". It reads the optional lists with `get()` now.
+- With the checks running: on Mini Golf hole 5 the sliding barrier passes 0.25 m from the cup (the other things keep 0.3 m, REQ-MG-12).
+  The test checks that the barrier never covers the tee or the cup, and leaves the 0.3 m margin to a decision of the owner. Nothing in the game was changed.
