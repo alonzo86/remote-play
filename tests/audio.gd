@@ -83,7 +83,8 @@ func _synth() -> void:
 	_check(absf(buf[end_idx - 1]) < 0.02, "the event ends near zero, so there is no click")
 	_check(buf.size() == int(0.2 * Synth.RATE), "the buffer has the length that was asked")
 	var pcm := Synth.to_pcm16(PackedFloat32Array([2.0, -2.0, 0.0]))
-	_check(pcm.decode_s16(0) == 32767 and pcm.decode_s16(2) == -32767 and pcm.decode_s16(4) == 0, "samples are clipped to 16 bits")
+	_check(pcm.decode_s16(0) == 32767 and pcm.decode_s16(2) == -32767 and pcm.decode_s16(4) == 0,
+			"samples are clipped to 16 bits")
 	var ev := [Synth.event(0.0, Synth.NOISE, 8000.0, 4000.0, 0.05, 0.3)]
 	var first := Synth.to_pcm16(Synth.mix(ev, 0.05))
 	_check(first == Synth.to_pcm16(Synth.mix(ev, 0.05)), "the same events give the same bytes (noise too)")
@@ -305,7 +306,8 @@ func _settings_rows(sound: Node, app: Node) -> void:
 	rows[4].pressed.emit()
 	_check(app.settings.mute == true and AudioServer.is_bus_mute(AudioServer.get_bus_index("SFX")), "the Mute row mutes at once")
 	rows[4].pressed.emit()
-	_check(app.settings.mute == false and not AudioServer.is_bus_mute(AudioServer.get_bus_index("SFX")), "the Mute row again plays")
+	_check(app.settings.mute == false and not AudioServer.is_bus_mute(AudioServer.get_bus_index("SFX")),
+			"the Mute row again plays")
 	var cfg := ConfigFile.new()
 	cfg.load(app.SETTINGS_FILE)
 	_check(cfg.get_value("settings", "music_volume", -1) == 0 and cfg.get_value("settings", "sfx_volume", -1) == 3,
@@ -520,7 +522,8 @@ func _menu_keys(sound: Node, app: Node) -> void:
 	for i in 5:
 		await _key("ui_down")
 		await _wait(0.06)
-	_check(ids.count("move") == 5 and ids.size() == 5, "5 presses of Down make 5 `move` blips and nothing else (got %s)" % str(ids))
+	_check(ids.count("move") == 5 and ids.size() == 5,
+			"5 presses of Down make 5 `move` blips and nothing else (got %s)" % str(ids))
 	# OK on a row: `select`. The row 'invert tilt' is a switch; the setting is put back.
 	var screen: Control = app.current_screen()
 	var old_invert = app.settings.invert_tilt
@@ -559,7 +562,8 @@ func _settings_sweep(sound: Node, app: Node) -> void:
 	var rows: Array = screen._rows
 	var lang = load("res://scripts/core/lang.gd")
 	var titles := rows.map(func(r: Control) -> String: return String(_row_texts(r)[0]))
-	_check(titles[2] in ["settings.music", lang.t("settings.music")] and titles[3] in ["settings.effects", lang.t("settings.effects")],
+	_check(titles[2] in ["settings.music", lang.t("settings.music")] and titles[3] in ["settings.effects",
+			lang.t("settings.effects")],
 			"the Settings rows 3 and 4 are Music and Effects (%s)" % str(titles))
 	# [issue #49] The Mute row is still there today; when it is removed this becomes: 5 rows and no row named Mute.
 	_check(rows.size() == 6 and titles[4] in ["settings.mute", lang.t("settings.mute")], "[issue #49] the Mute row is row 5 of 6")
@@ -619,8 +623,10 @@ func _settings_reload(sound: Node, app: Node) -> void:
 	app.settings.sfx_volume = 1
 	app._load_settings()
 	sound.apply_settings()
-	_check(int(app.settings.music_volume) == 4 and int(app.settings.sfx_volume) == 6, "the next start reads Music 4 and Effects 6")
-	_check(is_equal_approx(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music")), sound.step_db(4) + sound.MUSIC_TRIM_DB)
+	_check(int(app.settings.music_volume) == 4 and int(app.settings.sfx_volume) == 6,
+			"the next start reads Music 4 and Effects 6")
+	_check(is_equal_approx(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music")),
+			sound.step_db(4) + sound.MUSIC_TRIM_DB)
 			and is_equal_approx(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("SFX")), sound.step_db(6)),
 			"and the buses are at the volumes of Music 4 and Effects 6")
 	app.settings.merge(old, true)
