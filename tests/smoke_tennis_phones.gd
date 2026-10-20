@@ -272,6 +272,7 @@ func _run() -> void:
 			break
 	_check(t_first > 0.0 and t_first <= 5.0, "alone, the machine sends the first ball %.1f s after GO (10a)" % t_first)
 	_player_hits = 0
+	await _frames(5)   # The buzz of GO has arrived.
 	var buzzes_before := int(_buzzes[0])
 	for k in 5:
 		solo._haptics._last.clear()
