@@ -35,3 +35,4 @@ tests/smoke_bowling.gd|tv|Pin Pals
 tests/smoke_tennis.gd|tv|Tennis
 tests/golf_rules.gd|controller|Mini Golf rules, ball and holes
 tests/smoke_golf.gd|tv|Mini Golf
+tests/multi_phone.gd|tv|games with 3 and 4 simulated phones: GO buzz, places, tie, leaving, frame cost
