@@ -142,7 +142,8 @@ func _check_outside_theme(data: Dictionary, by_name: Dictionary) -> void:
 	_check(worlds.size() == 6 and worlds.keys().all(func(k): return k == by_name["bg"] or tokens_worlds.has(k)),
 			"the game background tokens are the REQ-GM-48 colors")
 	var icon := FileAccess.get_file_as_string("res://icon.svg")
-	_check(icon.contains(String(by_name["brand-dark"]).substr(0, 6)) and icon.contains(String(by_name["brand-yellow"]).substr(0, 6)),
+	_check(icon.contains(String(by_name["brand-dark"]).substr(0,
+			6)) and icon.contains(String(by_name["brand-yellow"]).substr(0, 6)),
 			"the brand tokens are the colors in icon.svg")
 	var theme: Theme = UiTheme.make()
 	var sizes := {}
@@ -152,14 +153,16 @@ func _check_outside_theme(data: Dictionary, by_name: Dictionary) -> void:
 	_check(sizes.get("body", "") == "%dpx" % theme.default_font_size, "body size token matches the theme default")
 	_check(sizes.get("button", "") == "%dpx" % theme.get_font_size("font_size", "Button"), "button size token matches the theme")
 	_check(sizes.get("title", "") == "%dpx" % UiTheme.SIZE_TITLE and sizes.get("logo", "") == "%dpx" % UiTheme.SIZE_LOGO
-			and sizes.get("countdown", "") == "%dpx" % UiTheme.SIZE_COUNTDOWN, "title, logo and countdown size tokens match the theme")
+			and sizes.get("countdown",
+					"") == "%dpx" % UiTheme.SIZE_COUNTDOWN, "title, logo and countdown size tokens match the theme")
 	var on_grid := true
 	for size_name in sizes:
 		on_grid = on_grid and int(String(sizes[size_name]).trim_suffix("px")) % 8 == 0
 	_check(on_grid, "every type size is a multiple of 8, the grid of the font (REQ-FL-40)")
 	var box: StyleBoxFlat = UiTheme.card()
 	_check(_family(data, "spacing", "space-32") == "%dpx" % box.content_margin_left
-			and _family(data, "spacing", "space-14") == "%dpx" % box.content_margin_top, "card padding tokens match UiTheme.card()")
+			and _family(data, "spacing",
+					"space-14") == "%dpx" % box.content_margin_top, "card padding tokens match UiTheme.card()")
 
 
 ## The text colors are readable on black, and the text on a player color is readable (REQ-GM-46, REQ-FL-40).
@@ -236,7 +239,8 @@ func _app_identity() -> void:
 			"the phone app starts in portrait (orientation.controller = 1)")
 	_check(ios.get("application/bundle_identifier", "") != "" and ios.get("application/targeted_device_family", "") == "0",
 			"the iOS preset is for iPhone and iPad and has a bundle id")
-	_check(String(ios.get("application/additional_plist_content", "")).contains("<key>NSLocalNetworkUsageDescription</key><string>Sababi"),
+	_check(String(ios.get("application/additional_plist_content",
+			"")).contains("<key>NSLocalNetworkUsageDescription</key><string>Sababi"),
 			"the iOS preset has the Local Network usage text (NSLocalNetworkUsageDescription)")
 	_check(String(ios.get("privacy/camera_usage_description", "")) != "", "the iOS preset has the camera usage text")
 	var main_scene := String(ProjectSettings.get_setting("application/run/main_scene", ""))
@@ -247,7 +251,8 @@ func _app_identity() -> void:
 	_check(not ctrl.contains("go(TvLogo)") and ctrl.contains("go(ControllerConnect)")
 			and ctrl.contains("screen_set_orientation(DisplayServer.SCREEN_PORTRAIT)"),
 			"the phone app starts straight on Connect, with no logo screen, and sets portrait in code too")
-	_check(boot != "" and app_src.contains("DisplayServer.screen_set_keep_on(true)"), "the app keeps the screen on (no idle lock)")
+	_check(boot != "" and app_src.contains("DisplayServer.screen_set_keep_on(true)"),
+			"the app keeps the screen on (no idle lock)")
 	_check(ProjectSettings.get_setting("application/boot_splash/bg_color") == Color(0, 0, 0, 1)
 			and ProjectSettings.get_setting("application/boot_splash/show_image") == true
 			and ProjectSettings.get_setting("application/boot_splash/use_filter") == false
@@ -260,7 +265,8 @@ func _images() -> void:
 	print("pictures")
 	var splash: Image = load("res://assets/logo/splash.png").get_image()
 	var counts := _color_counts(splash)
-	_check(counts.yellow > counts.other_color and counts.yellow > 200, "the splash has yellow as its main color on black (yellow %d, other %d)" % [counts.yellow, counts.other_color])
+	_check(counts.yellow > counts.other_color and counts.yellow > 200,
+			"the splash has yellow as its main color on black (yellow %d, other %d)" % [counts.yellow, counts.other_color])
 	var sizes := {"res://assets/icons/icon_192.png": Vector2i(192, 192),
 			"res://assets/icons/adaptive_foreground_432.png": Vector2i(432, 432),
 			"res://assets/icons/adaptive_background_432.png": Vector2i(432, 432),
@@ -275,7 +281,8 @@ func _images() -> void:
 	var icon_counts := _color_counts((load("res://assets/icons/icon_192.png") as Texture2D).get_image())
 	_check(icon_counts.yellow > icon_counts.other_color, "the 192 icon is mostly yellow")
 	var banner_counts := _color_counts((load("res://assets/icons/banner.png") as Texture2D).get_image())
-	_check(banner_counts.yellow > 100 and banner_counts.black > banner_counts.yellow * 0.2, "the banner has yellow on a dark ground")
+	_check(banner_counts.yellow > 100 and banner_counts.black > banner_counts.yellow * 0.2,
+			"the banner has yellow on a dark ground")
 	# The logo: only fully opaque or fully clear pixels, no blend (sharp pixels, REQ-FL-50).
 	var logo: Image = load("res://assets/logo/logo.png").get_image()
 	var partial := 0

@@ -13,6 +13,7 @@ const SafeArea = preload("res://scripts/ui/safe_area.gd")
 var _checks := 0
 var _fails := 0
 var _app: Node
+var _pad_script: GDScript
 
 
 func _known_bug(issue: String, cond: bool, what: String) -> void:
@@ -42,6 +43,7 @@ func _run() -> void:
 	for i in 3:
 		await process_frame
 	_app = root.get_node("App")
+	_pad_script = load("res://scripts/ui/controller_pad.gd")
 	_app.client.slot = 1
 	_app.client.color = Protocol.PLAYER_COLORS[1]
 	_app.client.phase = "menu"
@@ -89,10 +91,11 @@ func _disconnect_button() -> void:
 		var sb := b.get_theme_stylebox("normal")
 		var room := b.size.x - sb.get_margin(SIDE_LEFT) - sb.get_margin(SIDE_RIGHT)
 		_check(b.get_minimum_size().x <= b.size.x + 0.5 and text_w <= room + 0.5,
-				"[%s] the Disconnect text fits in its button (text %.0f px, room %.0f px, button %.0f px)" % [lang, text_w, room, b.size.x])
+				"[%s] the Disconnect text fits in its button (text %.0f px, room %.0f px, button %.0f px)" % [lang,
+						text_w, room, b.size.x])
 		var r := b.get_global_rect()
 		_check(r.end.x > viewport.x * 0.8 and r.position.y < viewport.y * 0.15,
-				"[%s] Disconnect is in the top right corner of the waiting screen (right edge %.0f, top %.0f)" % [lang, r.end.x, r.position.y])
+				"[%s] Disconnect is in the top right corner of the waiting screen (right %.0f, top %.0f)" % [lang, r.end.x, r.position.y])
 		_check(b.size.y >= 80.0, "[%s] and it is at least 80 px high (%.0f)" % [lang, b.size.y])
 		var pressed := b.get_theme_stylebox("pressed") as StyleBoxFlat
 		var normal := b.get_theme_stylebox("normal") as StyleBoxFlat
@@ -103,7 +106,7 @@ func _disconnect_button() -> void:
 		holder.queue_free()
 	_app.set_language("en", false)
 	# The Disconnect box of the pad: the rect is the top right of the pad.
-	var pad_script: GDScript = load("res://scripts/ui/controller_pad.gd")
+	var pad_script: GDScript = _pad_script
 	var holder2 := Control.new()
 	holder2.size = viewport
 	root.add_child(holder2)
@@ -123,12 +126,14 @@ func _pad_buttons() -> void:
 	_check(_hue(UiTheme.OK) >= 90.0 and _hue(UiTheme.OK) <= 150.0, "A is green (hue %.0f degrees)" % _hue(UiTheme.OK))
 	var bad_hue := _hue(UiTheme.BAD)
 	_check(bad_hue < 20.0 or bad_hue > 340.0, "B is red (hue %.0f degrees)" % bad_hue)
-	var pad_script: GDScript = load("res://scripts/ui/controller_pad.gd")
+	var pad_script: GDScript = _pad_script
 	_check(pad_script.BUTTON_LIFT - pad_script.BUTTON_LIFT_DOWN > 0.0 and pad_script.BUTTON_LIFT_DOWN < pad_script.BUTTON_LIFT,
-			"a pressed arcade button sits lower than a free one (%.0f px against %.0f px)" % [pad_script.BUTTON_LIFT_DOWN, pad_script.BUTTON_LIFT])
+			"a pressed arcade button sits lower than a free one (%.0f against %.0f px)"
+			% [pad_script.BUTTON_LIFT_DOWN, pad_script.BUTTON_LIFT])
 	var src := FileAccess.get_file_as_string("res://scripts/ui/controller_pad.gd")
-	_check(src.contains('_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)')
-			and src.contains('_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)'), "the pad draws A with the green and B with the red")
+	var draws_a: bool = src.contains('_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)')
+	var draws_b: bool = src.contains('_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)')
+	_check(draws_a and draws_b, "the pad draws A with the green and B with the red")
 
 
 ## Test 8b.6a: the phone screens are black with the pixel font. Every text uses the font of the theme.
@@ -239,7 +244,8 @@ func _safe_layout() -> void:
 				var a_r: float = screen._radius()
 				for center in [screen._center_a(), screen._center_b()]:
 					count += 1
-					if not Rect2(Vector2.ZERO, screen.size).grow(0.5).encloses(Rect2(center - Vector2(a_r, a_r), Vector2(a_r, a_r) * 2.0)):
+					if not Rect2(Vector2.ZERO, screen.size).grow(0.5).encloses(Rect2(center - Vector2(a_r, a_r),
+							Vector2(a_r, a_r) * 2.0)):
 						outside.append("pad button " + str(center))
 			screen.queue_free()
 		var fits := outside.is_empty() and count > 20

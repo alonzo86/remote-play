@@ -1,7 +1,8 @@
 extends SceneTree
 ## The numbers of the network test (docs/MANUAL_TESTS.md test 4) on the loopback, with simulated phones that send 60 packets a
 ## second: the round trip time, the packet rate, the longest gap and the lost packets that the TV overlay shows, with 1 phone and
-## with 4 phones while the maze runs. The loopback guards the code of the TV (a stall in the main thread, the ping answer, the rate
+## with 4 phones while the maze runs. The loopback guards the code of the TV (a stall in the main
+## thread, the ping answer, the rate
 ## and gap arithmetic); the real radio is the manual part.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/net_rate.gd -- --role=tv
 
@@ -51,7 +52,8 @@ func _stream(phones: Array, seconds: float, tilt: Vector3) -> void:
 		var due := int((Time.get_ticks_msec() - t0) / step_ms) + 1
 		while sent < due:
 			for i in phones.size():
-				phones[i].send_sensor(Protocol.encode_sensor(_seq[i], Time.get_ticks_msec(), Vector3.ZERO, tilt, 0, 0, Vector2.ZERO))
+				phones[i].send_sensor(Protocol.encode_sensor(_seq[i], Time.get_ticks_msec(), Vector3.ZERO, tilt, 0, 0,
+						Vector2.ZERO))
 				_seq[i] += 1
 			sent += 1
 		await process_frame
@@ -100,7 +102,8 @@ func _one_phone() -> void:
 		min_hz = minf(min_hz, p.rx_rate)
 		max_hz = maxf(max_hz, p.rx_rate)
 	print("    rtt %.1f ms, rx %.1f..%.1f Hz, gap %d ms, lost %d" % [worst_rtt, min_hz, max_hz, worst_gap, p.lost_packets])
-	_check(p.rtt_ms >= 0.0 and worst_rtt < 25.0, "the round trip time is below 25 ms (a frame of the headless loop is 17 ms) (%.1f ms)" % worst_rtt)
+	_check(p.rtt_ms >= 0.0 and worst_rtt < 25.0,
+			"the round trip time is below 25 ms (a frame of the headless loop is 17 ms) (%.1f ms)" % worst_rtt)
 	_check(min_hz >= 58.0 and max_hz <= 62.0, "the TV counts 58 to 60 packets a second (%.1f to %.1f Hz)" % [min_hz, max_hz])
 	_check(worst_gap < 50, "the longest gap between packets is below 50 ms (%d ms)" % worst_gap)
 	_check(p.lost_packets == 0, "no packet is lost (sequence gaps: %d)" % p.lost_packets)
@@ -143,7 +146,8 @@ func _four_phones(maze: GDScript) -> void:
 		gap_ok = gap_ok and stats[i].gap < 50
 		lost_ok = lost_ok and p.lost_packets == 0
 	_check(rtt_ok, "the round trip time of all 4 phones is below 45 ms")
-	_check(hz_ok, "the TV counts 56 to 62 packets a second from each of the 4 phones (the window of a busy frame loop moves it by 2 or 3)")
+	_check(hz_ok,
+			"the TV counts 56 to 62 packets a second from each of the 4 phones (the window of a busy frame loop moves it by 2 or 3)")
 	_check(gap_ok, "the longest gap of each phone is below 50 ms")
 	_check(lost_ok, "no phone lost a packet")
 	for c in phones:
@@ -179,7 +183,8 @@ func _frame_delay(maze: GDScript) -> void:
 		changed = ball.vel.x > before.x + 0.5
 	var ms := Time.get_ticks_msec() - sent_at
 	print("    %d frames, %d ms" % [frames, ms])
-	_check(changed and frames <= 8, "the ball speeds up to the right within 8 frames (133 ms at 60 fps) of the tilt (%d frames; 5 measured)" % frames)
+	_check(changed and frames <= 8,
+			"the ball speeds up to the right within 8 frames (133 ms at 60 fps) of the tilt (%d frames; 5 measured)" % frames)
 	_check(ball.pos.x >= start_pos.x, "and the ball moves to the right side (tilt right)")
 	for c in phones:
 		c.leave()

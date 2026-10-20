@@ -206,7 +206,8 @@ func _tv_ok_to_games() -> void:
 	await _frames(3)
 	_check(got and _app.current_screen().get_script() == _wait_script, "the phone is back on its waiting screen")
 	var wait: Control = _app.current_screen()
-	_check(wait._title.text == Lang.t("wait.choose_game_tv").to_upper() and wait._sub.text == Lang.t("wait.use_tv_remote_phone").to_upper(),
+	_check(wait._title.text == Lang.t("wait.choose_game_tv").to_upper()
+			and wait._sub.text == Lang.t("wait.use_tv_remote_phone").to_upper(),
 			"the phone says CHOOSE A GAME ON THE TV: '%s'" % wait._title.text)
 	tv_connect.queue_free()
 	await _leave_all()
@@ -306,11 +307,13 @@ func _join_in_round() -> void:
 	await process_frame
 	var ok := await _join_with_pin()
 	await _frames(5)
-	_check(ok and _app.client.phase == "waiting" and player.phase == "playing", "the late phone gets the phase waiting, the player gets playing")
+	_check(ok and _app.client.phase == "waiting" and player.phase == "playing",
+			"the late phone gets the phase waiting, the player gets playing")
 	var wait: Control = _app.current_screen()
 	_check(wait.get_script() == _wait_script and _app.current_screen().get_script() != _pad_script,
 			"the late phone shows the waiting screen, not the pad (it has no object in the round)")
-	_check(wait._title.text == Lang.t("wait.round_running").to_upper() and wait._sub.text == Lang.t("wait.join_next_round").to_upper(),
+	_check(wait._title.text == Lang.t("wait.round_running").to_upper()
+			and wait._sub.text == Lang.t("wait.join_next_round").to_upper(),
 			"it says A ROUND IS IN PROGRESS and YOU JOIN NEXT ROUND: '%s' / '%s'" % [wait._title.text, wait._sub.text])
 	_server.set_phase("menu")
 	await _wait_until(func(): return _app.client.phase == "menu", 2000)
@@ -378,14 +381,15 @@ func _wifi_cut() -> void:
 	await _leave_all()
 
 
-## The phone must notice that the TV is silent. KNOWN BUG: the client calls `_ws.close()` after PEER_TIMEOUT_MS of silence, but the
+## The phone must notice that the TV is silent. KNOWN BUG: the client calls `_ws.close()` after
+## PEER_TIMEOUT_MS of silence, but the
 ## close handshake of a half-open link never ends, the socket stays in CLOSING and the state stays CONNECTED. The test then does
 ## by hand what the client should do (drop the socket and retry), so that the rest of the scenario is still tested.
 func _phone_notices_cut(t0: int) -> int:
 	var c: ControllerClient = _app.client
 	var noticed := await _wait_until(func(): return c.state == ControllerClient.State.RECONNECTING, 9000)
 	var ms := Time.get_ticks_msec() - t0
-	_known_bug("issue-needed: a phone does not notice a silent TV (half-open link): the state stays CONNECTED with the socket in CLOSING",
+	_known_bug("issue-needed: a phone does not notice a silent TV (half-open link): state stays CONNECTED, socket CLOSING",
 			noticed and ms <= 8000, "the phone shows RECONNECTING within 8 s of the cut (%d ms)" % ms)
 	if not noticed:
 		c._close_socket()
@@ -460,8 +464,8 @@ func _qr_scan() -> void:
 	scan.pressed.emit()
 	fake.failed.emit("cancelled")
 	await _frames(2)
-	_check(not _labels(screen).any(func(t): return String(t).begins_with("QR scan failed") or String(t).begins_with("connect.qr_failed")),
-			"a cancelled scan shows no QR SCAN FAILED text")
+	var failed_text := _labels(screen).any(func(t): return String(t).to_lower().contains("qr_failed"))
+	_check(not failed_text, "a cancelled scan shows no QR SCAN FAILED text")
 	_check(not scan.disabled and fake.calls == ["scan"], "after the cancel the scan button is enabled")
 	scan.pressed.emit()
 	_check(fake.calls == ["scan", "scan"], "and it starts a second scan (%d calls)" % fake.calls.size())
@@ -471,7 +475,8 @@ func _qr_scan() -> void:
 			"a failed scan shows the reason: '%s'" % screen._status.text)
 	# A text that is not a Sababi code.
 	fake.scanned.emit("https://example.com")
-	_check(screen._status.text == Lang.t("connect.not_sababi_code").to_upper() and screen._status.get_theme_color("font_color") == UiTheme.BAD,
+	_check(screen._status.text == Lang.t("connect.not_sababi_code").to_upper()
+			and screen._status.get_theme_color("font_color") == UiTheme.BAD,
 			"a scan of https://example.com says THIS IS NOT A SABABI CODE: '%s'" % screen._status.text)
 	_check(_app.client.state == ControllerClient.State.IDLE and _server.player_count() == 0, "and nothing is joined")
 	# A good code (with the PIN): joined in less than 5 s, and the PIN pad never opens (#52).
@@ -523,17 +528,21 @@ func _list_of_tvs() -> void:
 			"the TV button is white")
 	# 6c: the heading and Refresh are white too (not the dim gray).
 	var refresh := _button(screen, "connect.refresh")
-	var heading: Label = screen.find_children("*", "Label", true, false).filter(func(l): return l.text == "connect.rooms_found")[0]
-	_check(refresh != null and refresh.get_theme_color("font_color") == UiTheme.TEXT and heading.get_theme_color("font_color") == UiTheme.TEXT
+	var heading: Label = screen.find_children("*", "Label", true,
+			false).filter(func(l): return l.text == "connect.rooms_found")[0]
+	_check(refresh != null and refresh.get_theme_color("font_color") == UiTheme.TEXT
+			and heading.get_theme_color("font_color") == UiTheme.TEXT
 			and not refresh.has_focus(), "the ROOMS FOUND heading and the Refresh button are white, and nothing has the focus")
 	# 4d: the scan does not run by itself (REQ-FL-83); Refresh starts it.
 	await create_timer(2.0).timeout
-	_check(not screen._prober.running and screen._prober._active.is_empty(), "no scan runs by itself after 2 s on the Connect screen")
+	_check(not screen._prober.running and screen._prober._active.is_empty(),
+			"no scan runs by itself after 2 s on the Connect screen")
 	refresh.pressed.emit()
 	_check(screen._prober.running, "Refresh starts the scan of the network")
 	# 4c: Refresh says SEARCHING in the same frame, and the beacon of the real TV is listed in less than 2 s.
 	var texts := _labels(screen._list)
-	_check("connect.searching" in texts and _button(screen, "KQZM 0/4") == null, "Refresh empties the list and says SEARCHING...: %s" % str(texts))
+	_check("connect.searching" in texts and _button(screen, "KQZM 0/4") == null,
+			"Refresh empties the list and says SEARCHING...: %s" % str(texts))
 	screen._prober.stop()
 	var beacon := TvDiscovery.new()
 	beacon.server = _server
@@ -541,7 +550,8 @@ func _list_of_tvs() -> void:
 	var t0 := Time.get_ticks_msec()
 	var room_button := "%s 0/4" % _server.room_code
 	var found := await _wait_until(func(): return _button(screen, room_button) != null, 2500)
-	_check(found and Time.get_ticks_msec() - t0 < 2500, "the beacon of a TV on the loopback is listed in %d ms (less than 2 s)" % (Time.get_ticks_msec() - t0))
+	_check(found and Time.get_ticks_msec() - t0 < 2500,
+			"the beacon of a TV on the loopback is listed in %d ms (less than 2 s)" % (Time.get_ticks_msec() - t0))
 	# 1.4b: a tap on the room opens the pad and the right PIN joins.
 	if found:
 		_button(screen, room_button).pressed.emit()
