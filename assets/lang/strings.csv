@@ -36,15 +36,15 @@ connect.no_wi_fi_address,NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK.
 connect.not_sababi_code,THIS IS NOT A SABABI CODE.,זה לא קוד של SABABI.,"Phone, Connect screen: message when the scanned or pasted text is not a Sababi code",
 connect.press_ok_continue,PRESS OK TO CONTINUE,לחצו OK להמשך,TV Connect screen: blinking prompt once a phone has joined,
 connect.qr_failed,QR scan failed: %s,סריקת QR נכשלה: %s,"Phone: message when the QR scan fails, %s is the reason",%s is replaced by a name or a value
-connect.quit,QUIT,יציאה,TV Connect screen: Quit button of the 'Quit?' dialog,
-connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen: title of the quit dialog,
+connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens (Back key): Quit button of the quit dialog,
+connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen and phone waiting and pad screens (Back key): title of the quit dialog,
 connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens)",
 connect.refresh,REFRESH,רענן,"Phone, Connect screen: button that searches for TVs again",
 connect.refused,Connection refused: %s,החיבור נדחה: %s,"Phone, Connect screen: error when the TV refuses for another reason, %s is the reason code",%s is replaced by a name or a value
 connect.room_code,ROOM CODE,קוד חדר,TV Connect screen: label above the room code,
 connect.scan_qr_code,SCAN QR CODE,סרקו קוד QR,"Phone, Connect screen: button that opens the QR scanner",
 connect.searching,SEARCHING...,מחפש...,"Phone, Connect screen: list text right after Refresh",
-connect.stay,STAY,להישאר,TV Connect screen: Stay button of the quit dialog,
+connect.stay,STAY,להישאר,TV Connect screen and phone waiting and pad screens (Back key): Stay button of the quit dialog,
 slot_list.lost,LOST,אבד,TV Connect screen and Players modal: state of a phone that lost the connection,
 game_settings.difficulty,DIFFICULTY,רמת קושי,TV game settings: name of the Difficulty row,
 game_settings.easy,EASY,קל,TV game settings: Easy value of the difficulty row; also in the medal title after a round,

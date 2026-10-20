@@ -79,5 +79,20 @@ func _run() -> void:
 	await _frames(2)
 	_check(MedalView.tiers_in(game._menu_box) == ["silver"],
 			"one player gets the medal of the score (silver for 25 s), not gold for the 1st place")
+	# The sound of the result menu: a medal is a win, a solo round without a medal is not (REQ-FL-65).
+	var played: Array[String] = []
+	var cb := func(id: String) -> void: played.append(id)
+	var sound: Node = root.get_node("Sound")
+	sound.sfx_played.connect(cb)
+	await _frames(3)   # The same effect twice in 40 ms is one sound.
+	played.clear()
+	game.open_results(solo, [40.0, 30.0, 20.0])
+	_check(played.has("win") and not played.has("tie"), "a solo round with a medal plays the win fanfare: %s" % str(played))
+	await _frames(5)
+	played.clear()
+	solo.set_score(0, 99.0)
+	game.open_results(solo, [40.0, 30.0, 20.0])
+	_check(played.has("tie") and not played.has("win"), "a solo round with no medal plays the neutral sound: %s" % str(played))
+	sound.sfx_played.disconnect(cb)
 	for i in 4:
 		app.server.players[i].state = 0

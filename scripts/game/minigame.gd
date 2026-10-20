@@ -398,7 +398,9 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	entries.append(["minigame.back_to_menu", App.go_menu])
 	open_menu(heading, entries, rows)
 	Sound.stop_music()
-	Sound.sfx("tie" if heading in [Lang.t("minigame.tie"), Lang.t("minigame.round_over")] else "win")
+	# `win` for a winner or a solo medal; `tie` for a tie, for "Round over" and for a solo round with no medal (REQ-FL-65).
+	var won := (tier != Medals.NONE) if has_medal and rows.size() == 1 else winners.size() == 1
+	Sound.sfx("win" if won else "tie")
 
 
 ## The key of the personal best of this game and its settings (REQ-GM-98), for example `snowball_splat|medium`; a key of

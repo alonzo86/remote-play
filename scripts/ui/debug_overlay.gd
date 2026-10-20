@@ -5,6 +5,8 @@ extends CanvasLayer
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
+const SWING_LIT_MS := 1500
+
 var _canvas: Control
 
 
@@ -70,7 +72,11 @@ class _Canvas extends Control:
 		for p in rows:
 			y += line
 			draw_string(font, Vector2(o.x + 16, y), _swing_text(p), HORIZONTAL_ALIGNMENT_LEFT, -1, fs,
-					p.color if Time.get_ticks_msec() - p.last_swing_ms < 1500 else UiTheme.TEXT_DIM)
+					_swing_color(p, Time.get_ticks_msec()))
+
+	## The line of a swing is in the color of the player for `SWING_LIT_MS` after the swing, then dim (Test 24 item 3).
+	func _swing_color(p: PlayerInput, now_ms: int) -> Color:
+		return p.color if now_ms - p.last_swing_ms < SWING_LIT_MS else UiTheme.TEXT_DIM
 
 	func _swing_text(p: PlayerInput) -> String:
 		if p.swing_count == 0:
