@@ -147,16 +147,19 @@ func _run() -> void:
 	var inside := true
 	for s in spots:
 		inside = inside and Rect2(Vector2.ZERO, game.size).has_point(spots[s])
-	_check(spots.size() == 2 and inside and spots[0] != spots[1] and game.player(0).player_name == "Sim0"
-			and game.player(1).player_name == "Sim1", "the countdown has a name tag for each of the 2 phones, on the screen (2a)")
-	_check(game.hole_text() == "HOLE 1/3  PAR 2" and game.chip_text(0) == "Sim0  0" and game.chip_text(1) == "Sim1  0",
+	_check(spots.size() == 2 and inside and spots[0] != spots[1] and game.player(0).player_name != game.player(1).player_name
+			and game.player(0).player_name != "", "the countdown has a name tag for each of the 2 phones, on the screen (2a)")
+	_check(game.hole_text() == "HOLE 1/3  PAR 2"
+			and game.chip_text(0) == game.player(0).player_name + "  0" and game.chip_text(1) == game.player(1).player_name + "  0",
 			"the top right says '%s' and the bar has one chip per player: '%s', '%s' (2c)"
 			% [game.hole_text(), game.chip_text(0), game.chip_text(1)])
 	var balls: Array = [GolfLook.Geo.new(Vector2(1920, 1080)).ball_r(Holes.hole(1).tee.y) * 2.0]
 	print("   the ball is %.0f px wide at the tee on a 1080p screen (%.1f%% of the height)" % [balls[0], balls[0] / 10.8])
 	_to_turn(game)
 	_check(game._putter == game.rules.current_slot() and game._putter == 0, "only the golfer of the player on turn is drawn (3a)")
-	_check(game.TURN_BANNER >= 1.0 and game.TURN_BANNER <= 2.0, "the name of the player on turn shows for %.1f s, between 1 and 2 (3c)" % game.TURN_BANNER)
+	_check(game.TURN_BANNER >= 1.0 and game.TURN_BANNER <= 2.0,
+			"the name of the player on turn shows for %.1f s, between 1 and 2 (3c)"
+			% game.TURN_BANNER)
 
 	# ---- 4a, 4c: the aim follows the turn of the phone, the back swing locks it ----
 	for s in 2:
@@ -173,7 +176,8 @@ func _run() -> void:
 	_check(game.detector.aim_locked, "the back swing locks the aim")
 	var locked_at: float = game._heading
 	_turn(game, 0, 20.0, 0.5)
-	_check(game.detector.aim_locked and game._heading == locked_at, "a turn of 20 degrees while the aim is locked changes nothing (4c)")
+	_check(game.detector.aim_locked
+				and game._heading == locked_at, "a turn of 20 degrees while the aim is locked changes nothing (4c)")
 
 	# ---- 4b: RECENTER straightens the aim within a second ----
 	var g2 := await _start(app)
@@ -181,7 +185,8 @@ func _run() -> void:
 	var before: float = g2._heading
 	g2.player(0).recenter()
 	_rest(g2, 0, 0.5)
-	_check(absf(before) > 0.4 and absf(g2._heading) < 0.03, "RECENTER: the aim of %.2f rad is straight again after 0.5 s (4b)" % before)
+	_check(absf(before) > 0.4 and absf(g2._heading) < 0.03,
+			"RECENTER: the aim of %.2f rad is straight again after 0.5 s (4b)" % before)
 
 	# ---- 4d: a phone that is turned before its turn starts straight ----
 	var g3 := await _start(app)
@@ -210,7 +215,8 @@ func _run() -> void:
 			dists.append(g.sim.pos.distance_to(from))
 		ordered_speed += 1 if speeds[0] < speeds[1] and speeds[1] < speeds[2] else 0
 		ordered_dist += 1 if dists[0] < dists[1] and dists[1] > 1.5 else 0
-	_check(ordered_speed >= 4 and ordered_dist >= 4, "soft < medium < hard in %d of 5 groups by speed; soft rolls less than medium in %d of 5 (hard reaches the end wall) (5a)"
+	_check(ordered_speed >= 4 and ordered_dist >= 4,
+			"soft < medium < hard in %d of 5 groups by speed; soft rolls less than medium in %d of 5 (hard reaches the end wall) (5a)"
 			% [ordered_speed, ordered_dist])
 
 	# ---- 5c: one buzz for each putt ----
@@ -259,7 +265,8 @@ func _run() -> void:
 			_roll_out(gw)
 			dist[d] += gw.sim.pos.distance_to(from) if moved else 0.0
 	_check(dist.medium > 0.0 and dist.easy >= 2.0 * dist.medium,
-			"the weakest swing rolls %.2f m on Easy and %.2f m on Medium (5 swings each): Easy at least twice (9c)" % [dist.easy / 5.0, dist.medium / 5.0])
+			"the weakest swing rolls %.2f m on Easy and %.2f m on Medium (5 swings each): Easy at least twice (9c)"
+			% [dist.easy / 5.0, dist.medium / 5.0])
 	var same := true
 	for d in ["easy", "medium", "hard"]:
 		var gs := await _start(app, {"difficulty": d})

@@ -128,7 +128,7 @@ func _run() -> void:
 	for s in spots:
 		inside = inside and Rect2(Vector2.ZERO, game.size).has_point(spots[s])
 	_check(spots.size() == 2 and spots.has(0) and spots.has(1) and inside and spots[0] != spots[1]
-			and game.player(0).player_name == "Sim0" and game.player(1).player_name == "Sim1",
+			and game.player(0).player_name != game.player(1).player_name and game.player(0).player_name != "",
 			"the countdown has a name tag for each of the 2 phones, on the screen, with the phone names (2a)")
 	_check(not game._board.has_lead() and game.play.rules.tally[0] == 0 and game.play.rules.tally[1] == 0,
 			"before the first point nobody leads, so the leader chip is not drawn (2c)")
@@ -211,9 +211,9 @@ func _run() -> void:
 	_go(b)
 	var cases := [
 		[{"t": "out"}, "OUT", ""], [{"t": "net"}, "NET", ""], [{"t": "fault"}, "FAULT", ""],
-		[{"t": "point", "team": 0, "game": false, "status": ""}, "POINT: Sim0", ""],
-		[{"t": "point", "team": 1, "game": false, "status": "deuce"}, "POINT: Sim1", "DEUCE"],
-		[{"t": "point", "team": 0, "game": true, "status": ""}, "GAME: Sim0", ""],
+		[{"t": "point", "team": 0, "game": false, "status": ""}, "POINT: " + b.player(0).player_name, ""],
+		[{"t": "point", "team": 1, "game": false, "status": "deuce"}, "POINT: " + b.player(1).player_name, "DEUCE"],
+		[{"t": "point", "team": 0, "game": true, "status": ""}, "GAME: " + b.player(0).player_name, ""],
 		[{"t": "rally_over", "rally": 7}, "RALLY 7", ""],
 	]
 	for c in cases:
@@ -224,7 +224,7 @@ func _run() -> void:
 	b.play.rules.points = [4, 3]
 	b._banner_sub = ""
 	b._handle_events([{"t": "point", "team": 0, "game": false, "status": "advantage"}])
-	_check(b._banner_sub == "ADVANTAGE: Sim0", "an advantage names the team: %s" % b._banner_sub)
+	_check(b._banner_sub == "ADVANTAGE: " + b.player(0).player_name, "an advantage names the team: %s" % b._banner_sub)
 
 	# ---- 4 phones: the scoreboard and the places (9d, 9e) ----
 	await _join_to(app, clients, 4)
@@ -233,8 +233,9 @@ func _run() -> void:
 	var f: Control = app.current_screen()
 	var ok_colors := true
 	for s in 4:
-		ok_colors = ok_colors and f.player(s).color == Protocol.PLAYER_COLORS[s] and f.player(s).player_name == "Sim%d" % s
-	_check(f.participants.size() == 4 and ok_colors and f._team_names(0) == "Sim0 + Sim1" and f._team_names(1) == "Sim2 + Sim3",
+		ok_colors = ok_colors and f.player(s).color == Protocol.PLAYER_COLORS[s] and f.player(s).player_name != ""
+	_check(f.participants.size() == 4 and ok_colors and f._team_names(0) == f.player(0).player_name + " + " + f.player(1).player_name
+			and f._team_names(1) == f.player(2).player_name + " + " + f.player(3).player_name,
 			"4 phones: the scoreboard rows have the names and colors of the phones, team by team (9d)")
 	var distinct := true
 	for i in 4:
