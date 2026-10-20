@@ -307,15 +307,22 @@ func _hits_pending() -> bool:
 	return play.hitter >= 0
 
 
-## The ring on the court where the next hit happens. It is yellow, and green when a swing now is a great one (REQ-TN-6).
-func _draw_target(ci: CanvasItem, p: Look.Proj) -> void:
+## The ring on the court where the next hit happens: `{show, green, left}`. It shows when a player has to hit and the contact is
+## less than 1.2 s away (or at most HIT_W past). It is green when a swing now is a great one (REQ-TN-6), else yellow.
+func ring_state() -> Dictionary:
 	if play.hitter < 0 or play.contact.is_empty():
-		return
+		return {"show": false, "green": false, "left": 0.0}
 	var left := float(play.contact.t) - play.time
-	if left > 1.2 or left < -Match.HIT_W:
+	var show := not (left > 1.2 or left < -Match.HIT_W)
+	return {"show": show, "green": absf(left) <= float(play.level.green), "left": left}
+
+
+func _draw_target(ci: CanvasItem, p: Look.Proj) -> void:
+	var ring := ring_state()
+	if not ring.show:
 		return
 	var cp: Vector3 = play.contact.pos
-	var green := absf(left) <= float(play.level.green)
+	var green: bool = ring.green
 	var color := Color("5cf070") if green else Color("f4e04a")
 	var pts := PackedVector2Array()
 	for i in 17:
@@ -364,6 +371,16 @@ func _hint() -> String:
 	return ""
 
 
+## The middle of the name tag of every player in the countdown: over the head of its character (REQ-GM-46a).
+func countdown_spots(p: Look.Proj) -> Dictionary:
+	var spots := {}
+	for s in participants:
+		if play.chars.has(s):
+			var c = play.chars[s]
+			spots[s] = Shell.snap(Look.head_pos(_foot(p, c), p.scale(c.pos.y)))
+	return spots
+
+
 func _draw_countdown(p: Look.Proj) -> void:
 	var n := _clock.count_number()
 	var label := str(n) if n > 0 else "shell.go"
@@ -371,11 +388,7 @@ func _draw_countdown(p: Look.Proj) -> void:
 	Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	Shell.countdown(self, size, label, _clock.count_elapsed())
-	var spots := {}
-	for s in participants:
-		if play.chars.has(s):
-			var c = play.chars[s]
-			spots[s] = Shell.snap(Look.head_pos(_foot(p, c), p.scale(c.pos.y)))
+	var spots := countdown_spots(p)
 	draw_name_tags(self, spots, 48.0)
 
 

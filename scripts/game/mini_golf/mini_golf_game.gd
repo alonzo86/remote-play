@@ -413,9 +413,30 @@ func _game_draw() -> void:
 			Shell.label_plate(self, Vector2(mid, size.y * 0.3), Lang.t("mini_golf.hint_power"), 32, UiTheme.TEXT)
 
 
+## The hint line of a turn after the name banner (REQ-MG-13): the key of a text row, or "" for none. "Swing a bit more" after a
+## swing that was too weak, the aim hint before the back swing, the power hint on Easy once the aim is locked.
+func aim_hint_key() -> String:
+	if _weak_left > 0.0:
+		return "mini_golf.hint_weak"
+	if _phase_time < HINT_TIME and not detector.aim_locked:
+		return "mini_golf.hint_aim"
+	if detector.aim_locked and bool(level(difficulty).power_hint):
+		return "mini_golf.hint_power"
+	return ""
+
+
 ## The hole number, the holes of the match and the par, top right (REQ-MG-3).
+func hole_text() -> String:
+	return Lang.f("mini_golf.hole", [rules.hole_number(), rules.holes, rules.par()]).to_upper()
+
+
+## The text of the chip of a player in the bar at the bottom: the name and the strokes on this hole (REQ-MG-3).
+func chip_text(slot: int) -> String:
+	return Lang.f("mini_golf.chip", [player(slot).player_name, rules.strokes_on_hole(slot)])
+
+
 func _draw_hole_text() -> void:
-	var text := Lang.f("mini_golf.hole", [rules.hole_number(), rules.holes, rules.par()]).to_upper()
+	var text := hole_text()
 	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 28).x
 	var at := Vector2(Shell.mx(self, size.x - 60.0 - w, w), 96.0)
 	draw_string(UiTheme.font(), at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.TEXT)
