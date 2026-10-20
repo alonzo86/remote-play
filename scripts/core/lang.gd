@@ -14,6 +14,8 @@ const CODES: Array[String] = [EN, HE]
 const NAMES := {EN: "English", HE: "עברית"}
 
 static var _code := EN
+## The language code of the device. Empty means ask the operating system. A test sets it to pretend a device with that locale.
+static var device_locale := ""
 static var _registered := false
 static var _table: Dictionary = {}   # key -> {"en": text, "he": text}
 
@@ -107,7 +109,7 @@ static func is_rtl() -> bool:
 
 ## The language of the device when the app supports it, else English (Hebrew has two codes, "he" and the old "iw").
 static func system_language() -> String:
-	var l := OS.get_locale_language()
+	var l := device_locale if device_locale != "" else OS.get_locale_language()
 	return HE if l == HE or l == "iw" else EN
 
 

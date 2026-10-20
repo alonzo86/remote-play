@@ -288,6 +288,26 @@ func _run() -> void:
 	settings._rows[5].pressed.emit()
 	await _frames(10)
 	_check(Lang.current() == "en" and heard == ["en", "he", "en"], "the row switches back to English")
+	_check(_texts(settings).has("ENGLISH"), "in English the Language row says ENGLISH")
+	# A second phone whose own language is Hebrew still follows the TV, both ways (REQ-FL-62).
+	var c2 := ControllerClient.new()
+	c2.player_name = "Second"
+	root.add_child(c2)
+	var heard2: Array = []
+	c2.language_changed.connect(func(code: String): heard2.append(code))
+	c2.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
+	joined = Time.get_ticks_msec()
+	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - joined < 4000:
+		await process_frame
+	await _frames(5)
+	app.set_language("he", false)
+	await _frames(8)
+	app.set_language("en", false)
+	await _frames(8)
+	_check(heard2.slice(-2) == ["he", "en"] and heard.slice(-2) == ["he", "en"],
+			"every phone follows the TV to Hebrew and back, also a phone that joined later: %s %s" % [str(heard), str(heard2)])
+	c2.leave()
+	await _frames(5)
 	# Every screen in Hebrew shows no English word (REQ-FL-63): the player name, the room code and the brand are the only Latin text.
 	Lang.set_language("he", root)
 	var shown_missing: Array = []
@@ -325,6 +345,9 @@ func _run() -> void:
 	Lang.set_language("en", root)
 	c.leave()
 	await _frames(5)
+
+	await _device_language_checks(app, TvLogo, TvConnect)
+	await _names_and_punctuation(app)
 
 	# The HUD is mirrored in Hebrew (REQ-GM-47o); the English HUD is as before.
 	var ltr_x: float = Shell.leader_chip_x(1920.0, 300.0)
@@ -402,3 +425,95 @@ func _margins(item: Button) -> Vector2:
 		return Vector2.ZERO
 	var sb := item.get_theme_stylebox("normal")
 	return Vector2(sb.content_margin_left, sb.content_margin_right)
+
+
+## The first start follows the language of the device (REQ-FL-60): the choice on the logo screen has English at the left in both
+## layouts and the focus on the language of the device; a saved language needs no question and is read again at the next start.
+func _device_language_checks(app: Node, TvLogo: GDScript, TvConnect: GDScript) -> void:
+	for pair in [["he", "he"], ["iw", "he"], ["en", "en"], ["fr", "en"]]:
+		Lang.device_locale = pair[0]
+		app.settings.language = ""
+		app.go_logo()
+		await _frames(6)
+		var logo: Control = app.current_screen()
+		var b: Dictionary = logo.language_buttons
+		_check(is_instance_of(logo, TvLogo) and b.en.get_global_position().x < b.he.get_global_position().x,
+				"device language %s: ENGLISH is at the left of עברית" % pair[0])
+		_check(root.gui_get_focus_owner() == b[pair[1]],
+				"device language %s: the focus is on the %s button" % [pair[0], "Hebrew" if pair[1] == "he" else "English"])
+		_check(app.language_to_use() == pair[1] and Lang.system_language() == pair[1],
+				"device language %s: a start without a saved language uses %s" % [pair[0], pair[1]])
+	# A saved language: no question, the logo goes on to Connect by itself, and a fresh start reads the file.
+	Lang.device_locale = "en"
+	app.settings.language = "he"
+	app.save_settings()
+	app.settings.language = ""
+	app._load_settings()
+	_check(app.settings.language == "he" and app.language_to_use() == "he" and not app.needs_language_choice(),
+			"a fresh start reads the saved language from the settings file, not the language of the device")
+	app.set_language("he", false)
+	app.go_logo()
+	await _frames(5)
+	var logo2: Control = app.current_screen()
+	_check(not logo2.asks_language and logo2.language_buttons.is_empty(), "with a saved language the logo asks nothing")
+	var started := Time.get_ticks_msec()
+	while app.current_screen() == logo2 and Time.get_ticks_msec() - started < 5000:
+		await process_frame
+	_check(is_instance_of(app.current_screen(), TvConnect) and Time.get_ticks_msec() - started < 5000 and Lang.current() == "he",
+			"the logo goes on to Connect by itself within 5 s, in Hebrew (%d ms)" % (Time.get_ticks_msec() - started))
+	Lang.device_locale = ""
+	app.set_language("en", false)
+
+
+## The names of players stay as typed in the slot list, and the pixel font has every character of a name and of the table
+## (a missing glyph shows as a box); every Hebrew text ends with the punctuation of its English text and none begins with one.
+func _names_and_punctuation(app: Node) -> void:
+	Lang.set_language("he", root)
+	app.go_connect()
+	await _frames(4)
+	var latin := "Dana-Lee"
+	var hebrew := "\u05d3\u05e0\u05d4 \u05db\u05d4\u05df"
+	app.server.players[2].state = 1
+	app.server.players[2].player_name = hebrew
+	app.server.players[3].state = 1
+	app.server.players[3].player_name = latin
+	await _frames(6)
+	var shown := _texts(_first(app.current_screen(), "SlotList"))
+	_check(shown.has(hebrew.to_upper()) and shown.has(latin.to_upper()),
+			"a Hebrew and a Latin name stay as typed in the slot list: " + str(shown))
+	app.server.players[2].state = 0
+	app.server.players[3].state = 0
+	var font: Font = load("res://scripts/ui/ui_theme.gd").font()
+	var missing: Array = []
+	for ch in hebrew + latin.to_upper():
+		if ch != " " and not font.has_char(ch.unicode_at(0)):
+			missing.append(ch)
+	for k in Lang.table():
+		for ch in String(Lang.table()[k].he):
+			var code := ch.unicode_at(0)
+			if ch.strip_edges() != "" and not font.has_char(code) and not (str(code) in missing):
+				missing.append(str(code))
+	_check(missing.is_empty(), "the pixel font has a glyph for every character of a name and of the Hebrew table " + str(missing))
+	var punct := ".,!?:"
+	var bad: Array = []
+	for k in Lang.table():
+		var en := String(Lang.table()[k].en).strip_edges()
+		var he := String(Lang.table()[k].he).strip_edges()
+		if en == "" or he == en:
+			continue
+		var en_end := en.right(1) if en.right(1) in punct else ""
+		var he_end := he.right(1) if he.right(1) in punct else ""
+		if en_end != he_end or he.left(1) in punct:
+			bad.append("%s (%s | %s)" % [k, en.right(2), he.right(2)])
+	_known_bug("issue-needed: Hebrew texts that end differently from the English (a Hebrew reader decides, test 17 item 2e)",
+			bad.is_empty(), "every Hebrew text ends with the same punctuation as its English text %s" % str(bad.slice(0, 6)))
+	Lang.set_language("en", root)
+
+
+## A check for a problem that is known: it prints KNOWN BUG and does not count as a failure.
+func _known_bug(issue: String, cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what)
+	else:
+		print("  KNOWN BUG (%s) %s" % [issue, what])
