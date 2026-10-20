@@ -5,6 +5,8 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 
 var server: Node          # TvServer. Only used to read room code and player count.
 var ip := ""
+## Finds the address of this device. A test sets another one (an empty text is a device with no network).
+var address_lookup: Callable = Protocol.local_ipv4
 
 var _udp := PacketPeerUDP.new()
 var _timer := 0.0
@@ -12,7 +14,7 @@ var _timer := 0.0
 
 func _ready() -> void:
 	_udp.set_broadcast_enabled(true)
-	ip = Protocol.local_ipv4()
+	ip = address_lookup.call()
 
 
 func _process(delta: float) -> void:
@@ -20,10 +22,10 @@ func _process(delta: float) -> void:
 	if _timer > 0.0 or server == null or not server.listening:
 		return
 	_timer = 1.0
-	ip = Protocol.local_ipv4()
+	ip = address_lookup.call()
 	var beacon := Protocol.to_json({
 		"t": "beacon", "v": Protocol.VERSION, "room": server.room_code,
-		"port": Protocol.WS_PORT, "name": server.tv_name,
+		"port": server.port, "name": server.tv_name,
 		"players": server.player_count(), "max": Protocol.MAX_PLAYERS,
 	}).to_utf8_buffer()
 	var targets: Array[String] = ["255.255.255.255", "127.0.0.1"]

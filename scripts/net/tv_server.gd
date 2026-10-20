@@ -23,6 +23,7 @@ var round_slots: Array[int] = []   # Slots that take part in the running round (
 var round_limited := false         # True when the round has its own list. A freed slot leaves the list.
 var players: Array[PlayerInput] = []
 var listening := false
+var port := Protocol.WS_PORT          # The TCP port. Tests that run beside a TV app use another one.
 ## The language of the TV, sent to every phone (REQ-FL-62): "en" or "he".
 var language := "en"
 ## Silence that makes a phone lost, and how long a lost slot is kept. Tests make them short.
@@ -48,10 +49,10 @@ func start(settings: Dictionary) -> Error:
 		_sockets.append(null)
 		_last_rx_ms.append(0)
 	player_removed.connect(_on_player_removed)
-	var err := _tcp.listen(Protocol.WS_PORT)
+	var err := _tcp.listen(port)
 	listening = (err == OK)
 	if err != OK:
-		push_error("TvServer: cannot listen on port %d (error %d)" % [Protocol.WS_PORT, err])
+		push_error("TvServer: cannot listen on port %d (error %d)" % [port, err])
 	return err
 
 

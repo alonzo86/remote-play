@@ -22,6 +22,9 @@ func _initialize() -> void:
 	_run()
 	_avatar_sheet()
 	_font_licences()
+	_app_identity()
+	_images()
+	_export_pack()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -184,3 +187,155 @@ func _contrast_checks() -> void:
 			"black text on the A button (green) and the B button (red) has 4.5:1 or more")
 	_check(UiTheme.contrast(Color.WHITE, Color.BLACK) > 20.0 and UiTheme.contrast(Color.WHITE, Color.WHITE) < 1.01,
 			"the contrast function is right")
+
+
+## The text of one `[preset.N.options]` block of export_presets.cfg as {key: value (raw text)}, by the name of its preset.
+func _preset_options(preset_name: String) -> Dictionary:
+	var lines := FileAccess.get_file_as_string("res://export_presets.cfg").split("\n")
+	var index := ""
+	for i in lines.size():
+		if lines[i] == 'name="%s"' % preset_name:
+			for j in range(i, -1, -1):
+				if lines[j].begins_with("[preset."):
+					index = lines[j].trim_prefix("[preset.").trim_suffix("]")
+					break
+			break
+	var out := {}
+	if index == "":
+		return out
+	var inside := false
+	for line in lines:
+		if line == "[preset.%s.options]" % index:
+			inside = true
+		elif line.begins_with("["):
+			inside = false
+		elif inside and line.contains("="):
+			var eq := line.find("=")
+			out[line.substr(0, eq)] = line.substr(eq + 1)
+	return out
+
+
+## Names, launcher, orientation and the iPhone keys (docs/MANUAL_TESTS.md tests 1, 2, 8, 13: the part a machine can read).
+func _app_identity() -> void:
+	print("app identity")
+	var tv := _preset_options("tv")
+	var phone := _preset_options("controller")
+	var ios := _preset_options("controller-ios")
+	_check(tv.get("package/name", "") == '"Sababi: TV Games"', "the TV app is called 'Sababi: TV Games'")
+	_check(phone.get("package/name", "") == '"Sababi: Remote"', "the Android phone app is called 'Sababi: Remote'")
+	_check(tv.get("package/show_in_android_tv", "") == "true", "the TV preset shows the app in the Android TV launcher")
+	_check(tv.get("launcher_icons/main_192x192", "") == '"res://assets/icons/icon_192.png"'
+			and tv.get("launcher_icons/adaptive_foreground_432x432", "") == '"res://assets/icons/adaptive_foreground_432.png"'
+			and tv.get("launcher_icons/adaptive_background_432x432", "") == '"res://assets/icons/adaptive_background_432.png"',
+			"the TV preset names the 192 icon and the two 432 adaptive icon layers")
+	var patch := FileAccess.get_file_as_string("res://tools/patch_android_manifest.sh")
+	_check(patch.contains("assets/icons/banner.png") and patch.contains('android:banner="@drawable/banner"')
+			and patch.contains("LEANBACK_LAUNCHER") and patch.contains("android.software.leanback"),
+			"the manifest patch gives the TV build a banner and the leanback launcher")
+	_check(ProjectSettings.get_setting("display/window/handheld/orientation.controller", -1) == 1,
+			"the phone app starts in portrait (orientation.controller = 1)")
+	_check(ios.get("application/bundle_identifier", "") != "" and ios.get("application/targeted_device_family", "") == "0",
+			"the iOS preset is for iPhone and iPad and has a bundle id")
+	_check(String(ios.get("application/additional_plist_content", "")).contains("<key>NSLocalNetworkUsageDescription</key><string>Sababi"),
+			"the iOS preset has the Local Network usage text (NSLocalNetworkUsageDescription)")
+	_check(String(ios.get("privacy/camera_usage_description", "")) != "", "the iOS preset has the camera usage text")
+	var main_scene := String(ProjectSettings.get_setting("application/run/main_scene", ""))
+	_check(main_scene == "res://scenes/boot.tscn", "one start scene")
+	var boot := FileAccess.get_file_as_string("res://scenes/boot.tscn") + FileAccess.get_file_as_string("res://scripts/app.gd")
+	var app_src := FileAccess.get_file_as_string("res://scripts/app.gd")
+	var ctrl := app_src.substr(app_src.find("func _start_controller"))
+	_check(not ctrl.contains("go(TvLogo)") and ctrl.contains("go(ControllerConnect)")
+			and ctrl.contains("screen_set_orientation(DisplayServer.SCREEN_PORTRAIT)"),
+			"the phone app starts straight on Connect, with no logo screen, and sets portrait in code too")
+	_check(boot != "" and app_src.contains("DisplayServer.screen_set_keep_on(true)"), "the app keeps the screen on (no idle lock)")
+	_check(ProjectSettings.get_setting("application/boot_splash/bg_color") == Color(0, 0, 0, 1)
+			and ProjectSettings.get_setting("application/boot_splash/show_image") == true
+			and ProjectSettings.get_setting("application/boot_splash/use_filter") == false
+			and ProjectSettings.get_setting("application/boot_splash/image") == "res://assets/logo/splash.png",
+			"one splash: black, the splash picture, sharp pixels (no filter)")
+
+
+## The pictures: the splash and the icons have the sizes and the colors of the mascot, the logo has hard pixels.
+func _images() -> void:
+	print("pictures")
+	var splash: Image = load("res://assets/logo/splash.png").get_image()
+	var counts := _color_counts(splash)
+	_check(counts.yellow > counts.other_color and counts.yellow > 200, "the splash has yellow as its main color on black (yellow %d, other %d)" % [counts.yellow, counts.other_color])
+	var sizes := {"res://assets/icons/icon_192.png": Vector2i(192, 192),
+			"res://assets/icons/adaptive_foreground_432.png": Vector2i(432, 432),
+			"res://assets/icons/adaptive_background_432.png": Vector2i(432, 432),
+			"res://assets/icons/banner.png": Vector2i(320, 180),
+			"res://assets/icons/icon_1024.png": Vector2i(1024, 1024)}
+	var wrong: Array[String] = []
+	for path in sizes:
+		var img: Image = load(path).get_image()
+		if Vector2i(img.get_width(), img.get_height()) != sizes[path]:
+			wrong.append("%s %dx%d" % [path.get_file(), img.get_width(), img.get_height()])
+	_check(wrong.is_empty(), "the icons, the adaptive layers and the banner have their sizes (wrong: %s)" % str(wrong))
+	var icon_counts := _color_counts((load("res://assets/icons/icon_192.png") as Texture2D).get_image())
+	_check(icon_counts.yellow > icon_counts.other_color, "the 192 icon is mostly yellow")
+	var banner_counts := _color_counts((load("res://assets/icons/banner.png") as Texture2D).get_image())
+	_check(banner_counts.yellow > 100 and banner_counts.black > banner_counts.yellow * 0.2, "the banner has yellow on a dark ground")
+	# The logo: only fully opaque or fully clear pixels, no blend (sharp pixels, REQ-FL-50).
+	var logo: Image = load("res://assets/logo/logo.png").get_image()
+	var partial := 0
+	for y in logo.get_height():
+		for x in logo.get_width():
+			var a := logo.get_pixel(x, y).a
+			if a > 0.02 and a < 0.98:
+				partial += 1
+	_check(partial == 0, "the logo has no half-clear pixel (%d found)" % partial)
+	var logo_src := FileAccess.get_file_as_string("res://scripts/ui/tv_logo.gd")
+	_check(logo_src.contains("texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST"), "the logo is drawn with the nearest filter")
+	var imp := FileAccess.get_file_as_string("res://assets/logo/logo.png.import")
+	_check(imp.contains("mipmaps/generate=false"), "the logo is imported without mipmaps")
+
+
+## Counts of pixels: yellow (hue 40..65 degrees, saturated), black, and other colors.
+func _color_counts(img: Image) -> Dictionary:
+	var yellow := 0
+	var black := 0
+	var other := 0
+	for y in range(0, img.get_height(), 2):
+		for x in range(0, img.get_width(), 2):
+			var c := img.get_pixel(x, y)
+			if c.a < 0.5:
+				continue
+			if c.v < 0.12:
+				black += 1
+			elif c.s > 0.5 and c.h * 360.0 >= 38.0 and c.h * 360.0 <= 65.0:
+				yellow += 1
+			else:
+				other += 1
+	return {"yellow": yellow, "black": black, "other_color": other}
+
+
+## An exported build holds the picture of every game tile (the cause candidate of "missing screenshots" on the TV): export the
+## pack of the TV preset with a second Godot process and read the names of the files in it.
+func _export_pack() -> void:
+	print("export pack")
+	var out := ProjectSettings.globalize_path("user://design_tokens_tv.pck")
+	if FileAccess.file_exists(out):
+		DirAccess.remove_absolute(out)
+	var log: Array = []
+	var code := OS.execute(OS.get_executable_path(), ["--headless", "--path", ProjectSettings.globalize_path("res://"),
+			"--export-pack", "tv", out], log, true)
+	_check(code == 0 and FileAccess.file_exists(out), "the TV preset exports its pack headless (exit %d)" % code)
+	if not FileAccess.file_exists(out):
+		return
+	var hex := FileAccess.get_file_as_bytes(out).hex_encode()
+	var registry: GDScript = load("res://scripts/game/registry.gd")
+	var missing: Array[String] = []
+	for g in registry.GAMES:
+		var tile := String(g.tile)
+		var base := tile.get_file()
+		# The import file and the imported texture are in the pack: the picture loads in an exported build.
+		if not hex.contains(tile.to_utf8_buffer().hex_encode()):
+			missing.append(tile)
+		elif not hex.contains((".godot/imported/" + base + "-").to_utf8_buffer().hex_encode()):
+			missing.append(tile + " (not imported)")
+	_check(missing.is_empty(), "every game tile picture is in the exported pack (missing: %s)" % str(missing))
+	_check(hex.contains("assets/lang/strings.csv".to_utf8_buffer().hex_encode())
+			and hex.contains("assets/logo/logo.png".to_utf8_buffer().hex_encode()), "the pack holds the table of texts and the logo")
+	_check(not hex.contains("res://tests/".to_utf8_buffer().hex_encode()), "the pack holds no test file")
+	DirAccess.remove_absolute(out)

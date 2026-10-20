@@ -23,6 +23,7 @@ var _search_until_ms := 0
 var _pad: Control   # The PIN pad over the screen, while the player joins from the list.
 var _prober: TvProber
 var os_name := OS.get_name() # A test sets it to "iOS".
+var local_ips_lookup: Callable = Protocol.private_ipv4s   # The addresses of this phone that Refresh scans. A test gives its own.
 
 
 ## The scan / paste button is not shown on an iPhone or iPad (OS name "iOS"): there is no scanner plugin, so only the
@@ -124,7 +125,7 @@ func _on_state(state: int) -> void:
 func refresh_list() -> void:
 	App.controller_discovery.forget_all()
 	_prober.stop()
-	_prober.start(Protocol.private_ipv4s())
+	_prober.start(local_ips_lookup.call())
 	_search_until_ms = Time.get_ticks_msec() + SEARCH_MS
 	_rebuild_list()
 
