@@ -785,9 +785,9 @@ Needs: 1 to 4 phones, 1 TV, a camera for photos. Covers: REQ-GM-34, REQ-GM-40, R
 **Steps**
 
 1a. Maze with 1 phone: finish the maze. Check: the tester reads aloud the title and the first row (name and score text) of the result menu from 3 m, without error. (The rows, the title and the buttons are checked by `docs/AUTOMATED_TESTS.md`, A-11-1.)
-1b. Look at the same result menu. Check: the tester points to the avatar picture and to the square in the slot color next to the name. If a medal picture shows, the tester names its color (gold, silver or bronze) and it fits the score. (REQ-GM-72, 73. A-11-1 covers the rows.)
+1b. Look at the same result menu. Check: the tester points to the avatar picture and to the square in the slot color next to the name. If a medal picture shows, the tester names its color (gold, silver or bronze) and it fits the score (one player: the tiers). (REQ-GM-72, 73. A-11-1 covers the rows.)
 2a. Maze with 2 to 4 phones: let one ball reach the exit first. Take a photo of the whole TV. Check: the distance from the card, the list and the buttons to every screen edge is 3.1% of the screen width or more. (The rows and the 60 px edge are checked by A-11-2.)
-2b. Look at the same result menu from 3 m. Check: the tester reads aloud the winner row and the row "NOT FINISHED" without error, and the buttons Try again and Back to menu are all visible. (A-11-2.)
+2b. Look at the same result menu from 3 m. Check: the winner row has a gold medal (a player with a place has the medal of the place in a round with more than one player, REQ-GM-73a), the tester reads aloud the winner row and the row "NOT FINISHED" without error, and the buttons Try again and Back to menu are all visible. (A-11-2.)
 3a. Road Rally with 4 phones on any track: let all cars finish. Take a photo of the whole TV. Check: the card with the list and the 3 buttons (Try again, New game, Back to menu) is 3.1% of the screen width or more from every screen edge. (The rows, the order and the 60 px edge are checked by A-11-3.)
 3b. Look at the same card from 3 m. Check: the tester reads aloud the 3 button names and the names of the 4 players without error. (A-11-3.)
 3c. Look at the medals of 1st, 2nd and 3rd place. Check: the tester names the colors in order gold, silver, bronze without error. (REQ-GM-73. A-11-3 covers the order.)
@@ -1180,7 +1180,7 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 4b. After the join, check: both phones show their screens in Hebrew (the language of the TV).
 4c. On the TV, check: each player name shows as typed. A reader reads the Latin name and the Hebrew name aloud, and each one equals what was typed (the letters are in the same order).
 6a. Start every game in Hebrew with 2 phones. Check: the title is at the top right.
-6b. In the same games, check: the leader chip is at the left margin (Pin Pals has no leader chip), and the timer is at the left of the title.
+6b. In the same games, check: the title is at the top right, the leader chip is at the left margin (Pin Pals has no leader chip), and the timer box is at the right (Road Rally: the timer box is at the left margin). (REQ-GM-47o)
 6c. In the same games, check: the hint and the countdown word "קדימה" show complete.
 6d. In the same games, check: the world is not mirrored (the maze start is at the top left, the track runs as in English).
 6e. Open the pause menu and the result menu. Check: the ranking list, the medal text and "תיקו!" show complete, and the Hebrew reader says that the text reads right.
@@ -1242,10 +1242,10 @@ New (2026-10-10). The songs, the effects and the levels are first guesses (`scri
 2c. Press Back. Check: you hear a two-note falling sound.
 2d. Join a phone and then leave with it. Check: a rising run of 3 notes on the join, a falling run of 3 notes on the leave.
 2e. Press OK on a dimmed tile (Sumo Bumpers with 1 phone). Check: you hear one low short sound, and the game does not start.
-3a. Open Settings. Check: the rows Music, Effects and Mute show. (Changes with issue #49: the Mute row goes away, Music or Effects at 0 covers it.)
+3a. Open Settings. Check: the rows Music and Effects show, and there is no Mute row. (Music or Effects at 0 covers it, issue #49.)
 3b. Focus Music. Press Left until the value is 0, then press Right 10 times. Check: the value goes up by 1 for each press, from 0 to 10; at 0 you hear no music; the meter reading at 2 is lower than at 5, and the reading at 5 is lower than at 10.
 3c. Focus Effects and change the value by one with Left and Right. Check: a sample plays at each change.
-3d. Set Mute to ON (before issue #49). Check: you hear no music and no effect. Set it to OFF: both come back.
+3d. Set Effects to 0. Check: you hear no effect in the menu. Set Effects to 6: the effects come back.
 3e. Set Music to 4 and Effects to 6. Leave the app and start it again. Check: Settings shows Music 4 and Effects 6.
 4a. Change the volume of the TV. Check: the TV sound changes, and the phone is silent.
 4b. Set the media volume of the phone to the maximum, with silent mode off, and play one game for 1 minute. Check: the phone makes no sound at all.
@@ -1291,7 +1291,7 @@ Measurements: write down the seconds of step 5b, the meter readings of steps 6c,
 | 3a | Photo of the Settings rows | Not run | | | |
 | 3b | Photo of the value at 0 and 10; the three meter readings | Not run | | | |
 | 3c | Note: a sample at each change | Not run | | | |
-| 3d | Note: silent with Mute ON | Not run | | | |
+| 3d | Note: silent with Effects at 0 | Not run | | | |
 | 3e | Photo of Settings after the restart | Not run | | | |
 | 4a | Note: TV and phone | Not run | | | |
 | 4b | Note: the phone is silent | Not run | | | |
@@ -1359,7 +1359,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 7c. Check: all the tags are gone when GO shows. No tag covers the object of another player. Write down the game and the place of each problem.
 8a. A child of 5 to 8 years plays a game. In the countdown, ask the child to point to its own object. Check: the child points to the right object within 10 s and without help.
 8b. After one minute of play, ask the child to read aloud the number on its phone. Check: the child says the number that the phone shows.
-9a. Set the TV to Hebrew and play one game with 2 phones. Check: the leader chip is at the left margin and the timer is at the left of the title.
+9a. Set the TV to Hebrew and play one game with 2 phones. Check: the title is at the top right, the leader chip is at the left margin, and the timer box is at the right (Road Rally: the timer box is at the left margin in English and at the right in Hebrew). (REQ-GM-47o)
 9b. Make a tie. Check: the chip says "תיקו".
 9c. The person who reads Hebrew reads the header of a phone. Check: the place and the score are read without a mistake.
 
