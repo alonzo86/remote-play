@@ -136,7 +136,8 @@ func _flat_phone_stays() -> void:
 		game._game_tick(Sim.DT)
 		worst_speed = maxf(worst_speed, game._balls[0].vel.length())
 	var moved: float = game._balls[0].pos.distance_to(start)
-	_check(moved < 2.0 and worst_speed < 1.0, "a flat phone with noise: the ball moved %.2f px, top speed %.2f px/s" % [moved, worst_speed])
+	_check(moved < 2.0 and worst_speed < 1.0, "a flat phone with noise: the ball moved %.2f px, top speed %.2f px/s" % [moved,
+			worst_speed])
 
 
 ## Test 6.4b: each phone moves its own ball and no other (REQ-GM-24).
@@ -206,9 +207,9 @@ func _balls_never_in_walls() -> void:
 ## Test 6.6c: the size of each difficulty (REQ-MZ-9).
 func _levels() -> void:
 	print("maze: levels")
-	var L: Dictionary = MazeGame.LEVELS
-	_check(L.easy.cols == 13 and L.easy.rows == 6 and L.medium.cols == 16 and L.medium.rows == 8
-			and L.hard.cols == 18 and L.hard.rows == 9, "Easy is 13 x 6, Medium 16 x 8, Hard 18 x 9 cells (REQ-MZ-9)")
+	var levels: Dictionary = MazeGame.LEVELS
+	_check(levels.easy.cols == 13 and levels.easy.rows == 6 and levels.medium.cols == 16 and levels.medium.rows == 8
+			and levels.hard.cols == 18 and levels.hard.rows == 9, "Easy is 13 x 6, Medium 16 x 8, Hard 18 x 9 cells (REQ-MZ-9)")
 
 
 func _fit_of(game: Control) -> Dictionary:
@@ -274,7 +275,8 @@ func _size_margin_corridor() -> void:
 				slowest = minf(slowest, b.vel.length())
 		print("    %s: the longest straight corridor is %d cells, crossed in %.2f s" % [d, best.len, t * Sim.DT])
 		_check(b.pos.x >= target_x - 2.0 and (best.len < 3 or slowest > 50.0),
-				"%s: a ball crosses the straight corridor of %d cells; its slowest speed is %.0f px/s (> 50)" % [d, best.len, slowest])
+				"%s: a ball crosses the straight corridor of %d cells; its slowest speed is %.0f px/s (> 50)" % [d, best.len,
+						slowest])
 
 
 ## Test 6.7a, d: the picture of the board has only palette colors, the pixel layer has the right size and filter.
@@ -354,7 +356,8 @@ func _torch_flames() -> void:
 	for i in range(1, seq.size()):
 		changes += 1 if seq[i] != seq[i - 1] else 0
 	_check(changes == 11 and seq.slice(0, 4) == [0, 1, 2, 0] and MazeBoard.flame_frame(0.19) == 0
-			and MazeBoard.flame_frame(0.21) == 1, "the frame changes every %.1f s and goes round: %s" % [MazeBoard.FLAME_S, str(seq)])
+			and MazeBoard.flame_frame(0.21) == 1, "the frame changes every %.1f s and goes round: %s" % [MazeBoard.FLAME_S,
+					str(seq)])
 	var garden: Control = await sim.start(MazeGame, {"difficulty": "medium", "maze_theme": "garden"})
 	garden._make_board_texture()
 	var garden_torches: int = garden._torches.size()

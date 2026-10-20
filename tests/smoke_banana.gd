@@ -101,7 +101,8 @@ func _drift() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 11
 	var worst := 0.0
-	for bias in [Vector3(0.03, 0.03, 0.03), Vector3(-0.03, 0.03, -0.03), Vector3(0.03, -0.03, 0.03), Vector3(-0.03, -0.03, -0.03)]:
+	for bias in [Vector3(0.03, 0.03, 0.03), Vector3(-0.03, 0.03, -0.03), Vector3(0.03, -0.03, 0.03), Vector3(-0.03, -0.03,
+			-0.03)]:
 		sim.settle(0, Sim.FLAT)
 		p.recenter()
 		game._game_tick(Sim.DT)
@@ -112,7 +113,8 @@ func _drift() -> void:
 			if i % 6 == 0:
 				game._game_tick(Sim.DT * 6.0 / 6.0)
 		worst = maxf(worst, game._throwers[0].aim.distance_to(start))
-	_check(worst < 96.0, "a still phone with a gyro bias of 0.03 rad/s and noise: the cursor drifted %.0f px in 40 s (< 96 px = 5 %% of 1920)" % worst)
+	_check(worst < 96.0,
+			"a still phone with a gyro bias of 0.03 rad/s and noise: the cursor drifted %.0f px in 40 s (< 96 px = 5 %% of 1920)" % worst)
 
 
 ## Test 10.4c (data part), 10.5e: every animal that is hit leaves its own effect, the golden monkey gives +100.
@@ -146,8 +148,10 @@ func _golden_and_species() -> void:
 			if e.age >= 0.0 and e.kind == "hit" and e.species == kind:
 				effect = e
 		seen[kind] = effect != null
-		_check(effect != null and gain == float(PuffField.KINDS[kind].points) and effect.text == "+%d" % PuffField.KINDS[kind].points,
-				"a hit on a %s gives +%d points and an effect of its own species (REQ-SS-7, 13, 25)" % [kind, PuffField.KINDS[kind].points])
+		_check(effect != null and gain == float(PuffField.KINDS[kind].points) and effect.text == "+%d"
+				% PuffField.KINDS[kind].points,
+				"a hit on a %s gives +%d points and an effect of its own species (REQ-SS-7, 13, 25)" % [kind,
+						PuffField.KINDS[kind].points])
 		for e in game._effects:
 			e.age = -1.0
 
@@ -182,8 +186,10 @@ func _round_and_medals() -> void:
 			titles_ok = titles_ok and title == want
 			if title != want:
 				print("    ", d, " ", case[0], ": '", title, "' instead of '", want, "'")
-		_check(ok, "%s: scores around the tiers %s give none, bronze, bronze, silver, silver, gold" % [d, str(PuffField.LEVELS[d].tiers)])
-		_check(titles_ok, "%s: the result title is the difficulty, or NO MEDAL THIS TIME (%s) under the first tier" % [d, d.to_upper()])
+		_check(ok, "%s: scores around the tiers %s give none, bronze, bronze, silver, silver, gold" % [d,
+				str(PuffField.LEVELS[d].tiers)])
+		_check(titles_ok, "%s: the result title is the difficulty, or NO MEDAL THIS TIME (%s) under the first tier" % [d,
+				d.to_upper()])
 
 
 ## Test 10.7a: the cursor of each of 4 phones has the color of the square on that phone.
@@ -195,4 +201,5 @@ func _cursor_colors() -> void:
 	for s in 4:
 		ok = ok and sim.clients[s].color == pc[s] and sim.app.server.players[s].color == pc[s]
 		distinct[pc[s].to_html()] = true
-	_check(ok and distinct.size() == 4, "4 phones: the color of each phone is the color of its cursor, all four different (REQ-GM-24)")
+	_check(ok and distinct.size() == 4,
+			"4 phones: the color of each phone is the color of its cursor, all four different (REQ-GM-24)")

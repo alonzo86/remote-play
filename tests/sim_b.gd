@@ -55,8 +55,8 @@ static func lean(right_deg := 0.0, up_deg := 0.0) -> Vector3:
 	return Vector3(-sin(r), sin(u), sqrt(maxf(0.0, 1.0 - sin(r) * sin(r) - sin(u) * sin(u)))) * 9.81
 
 
-## `lean()` that is reached in `ticks` ticks (a hand does not jump: a sudden step looks like a swing to the swing detector, which then
-## stops following the accelerometer). For `Sim.step()` as `func(t): return Sim.ramp(t, 0.0, 20.0)`.
+## `lean()` that is reached in `ticks` ticks (a hand does not jump: a sudden step looks like a swing to the swing detector,
+## which then stops following the accelerometer). For `Sim.step()` as `func(t): return Sim.ramp(t, 0.0, 20.0)`.
 static func ramp(tick: int, right_deg: float, up_deg := 0.0, ticks := 20) -> Vector3:
 	var k := clampf(float(tick) / ticks, 0.0, 1.0)
 	return lean(right_deg * k, up_deg * k)

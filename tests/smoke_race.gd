@@ -72,22 +72,27 @@ func _grid_and_directions() -> void:
 		if game._round.is_counting():
 			for s in 4:
 				worst = maxf(worst, game._racers[s].pos.distance_to(start[s]))
-	_check(worst < 0.01, "4 cars stay on the grid in '3, 2, 1' with all phones leaned 30 degrees: %.4f m < 0.01 (REQ-MR-4)" % worst)
+	_check(worst < 0.01, "4 cars stay on the grid in '3, 2, 1' with all phones leaned 30 degrees: %.4f m < 0.01 (REQ-MR-4)"
+			% worst)
 	_flat_all()
 	sim.step(game, 0.5, {0: Sim.FLAT, 1: Sim.FLAT, 2: Sim.FLAT, 3: Sim.FLAT})
 	var p0: Vector2 = game._racers[0].pos
 	var p1: Vector2 = game._racers[1].pos
-	sim.step(game, 1.0, {0: func(t): return Sim.ramp(t, 0.0, 20.0), 1: func(t): return Sim.ramp(t, 0.0, -20.0), 2: Sim.FLAT, 3: Sim.FLAT})
+	sim.step(game, 1.0, {0: func(t): return Sim.ramp(t, 0.0, 20.0), 1: func(t): return Sim.ramp(t, 0.0, -20.0), 2: Sim.FLAT,
+			3: Sim.FLAT})
 	var d0: Vector2 = game._racers[0].pos - p0
 	var d1: Vector2 = game._racers[1].pos - p1
-	_check(d0.y > 1.0 and absf(d0.x) < 0.2, "top of the phone up: the car goes down the screen (%.2f m) and not sideways (%.3f m, REQ-3D-6)" % [d0.y, d0.x])
-	_check(d1.y < -1.0 and absf(d1.x) < 0.2, "top of the phone down: the car goes up the screen (%.2f m) and not sideways (%.3f m)" % [d1.y, d1.x])
+	_check(d0.y > 1.0 and absf(d0.x) < 0.2,
+			"top of the phone up: the car goes down the screen (%.2f m) and not sideways (%.3f m, REQ-3D-6)" % [d0.y, d0.x])
+	_check(d1.y < -1.0 and absf(d1.x) < 0.2,
+			"top of the phone down: the car goes up the screen (%.2f m) and not sideways (%.3f m)" % [d1.y, d1.x])
 	_flat_all()
 	game._racers[2].vel = Vector2.ZERO
 	sim.step(game, 0.7, {0: Sim.FLAT, 1: Sim.FLAT, 2: func(t): return Sim.ramp(t, -20.0), 3: Sim.FLAT})
 	var r2 = game._racers[2]
 	var off := absf(wrapf(r2.angle + PI * 0.5, -PI, PI))
-	_check(r2.vel.x < -1.0 and off <= deg_to_rad(15.0) + 0.001, "a car driven to the left faces left, within 15 degrees: %.0f degrees off" % rad_to_deg(off))
+	_check(r2.vel.x < -1.0 and off <= deg_to_rad(15.0) + 0.001,
+			"a car driven to the left faces left, within 15 degrees: %.0f degrees off" % rad_to_deg(off))
 
 
 ## Test 9.7a, 9.7b: the arrow for a car that is out of view stays in the safe margin and names the distance.
@@ -111,9 +116,11 @@ func _edge_markers() -> void:
 	var rect := Rect2(60.0, 136.0, 1800.0, 884.0).grow(0.01)
 	var m: Dictionary = markers[0] if not markers.is_empty() else {}
 	var gap := roundi(game._lead().arc - game._racers[1].arc)
-	_check(markers.size() >= 1 and m.slot == 1 and rect.has_point(m.pos), "the arrow of a car 100 m behind is inside the 60 px margin and under the bar: %s" % str(m.get("pos")))
+	_check(markers.size() >= 1 and m.slot == 1 and rect.has_point(m.pos),
+			"the arrow of a car 100 m behind is inside the 60 px margin and under the bar: %s" % str(m.get("pos")))
 	_check(not markers.is_empty() and is_equal_approx((m.dir as Vector2).length(), 1.0), "the arrow direction is a unit vector")
-	_check(not markers.is_empty() and m.text == "%d m behind" % gap and gap >= 95, "the arrow says '%d m behind' (the lead minus the car, rounded)" % gap)
+	_check(not markers.is_empty() and m.text == "%d m behind" % gap and gap >= 95,
+			"the arrow says '%d m behind' (the lead minus the car, rounded)" % gap)
 	_check(game.player(1).color == Protocol.PLAYER_COLORS[1], "the arrow is drawn in the color of its car (slot 1)")
 	# The leader goes on for 5 s: the gap grows.
 	game._racers[0].vel = Vector2.ZERO
@@ -121,7 +128,8 @@ func _edge_markers() -> void:
 	sim.step(game, 5.0, {0: func(t): return Sim.ramp(t, 0.0, -25.0), 1: Sim.FLAT, 2: Sim.FLAT, 3: Sim.FLAT})
 	var after := roundi(game._lead().arc - game._racers[1].arc)
 	var m2: Array = game.edge_markers()
-	_check(after > before and not m2.is_empty() and m2[0].text == "%d m behind" % after, "5 s later the gap grew from %d m to %d m and the text follows" % [before, after])
+	_check(after > before and not m2.is_empty() and m2[0].text == "%d m behind" % after,
+			"5 s later the gap grew from %d m to %d m and the text follows" % [before, after])
 	game._racers[1].pos = game._racers[0].pos + Vector2(1.0, 1.0)
 	game._racers[1].arc = game._racers[0].arc
 	game._racers[2].pos = game._racers[0].pos + Vector2(-1.0, 1.0)
@@ -131,7 +139,8 @@ func _edge_markers() -> void:
 	game._cam_set = false
 	for i in 120:
 		game._game_tick(Sim.DT)
-	_check(game.edge_markers().is_empty() or lead_arc_now > 0.0 and game.edge_markers().size() < 3, "cars that are in view get no arrow")
+	_check(game.edge_markers().is_empty() or lead_arc_now > 0.0 and game.edge_markers().size() < 3,
+			"cars that are in view get no arrow")
 
 
 ## Test 9.8b: the others have 4 s after the first car finishes, then the result menu opens.

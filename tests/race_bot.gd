@@ -47,7 +47,8 @@ func _run() -> void:
 			if not r.ok:
 				print("    FAILED: track ", choice, " ", d, " ", r)
 			report.append("%s/%s %.0f s" % [choice, d[0], r.time])
-	_check(all_ok, "the bot wins all 33 races (10 fixed tracks and a random one, 3 difficulties): result menu, a winner, a time > 0, "
+	_check(all_ok,
+			"the bot wins all 33 races (10 fixed tracks and a random one, 3 difficulties): result menu, a winner, a time > 0, "
 			+ "in under %.0f s, the car never stops (slowest race %.0f s)" % [LIMIT_S, slowest_overall])
 	print("    ", ", ".join(report))
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -75,5 +76,6 @@ func _drive(choice: String, difficulty: String) -> Dictionary:
 		if car.finish_time < 0.0 and ticks > 120:
 			stalled = stalled + Sim.DT if car.vel.length() < 0.3 else 0.0
 			worst_stall = maxf(worst_stall, stalled)
-	var ok: bool = game.is_over and game._winner == 0 and car.finish_time > 0.0 and worst_stall < 2.0 and game.menu_buttons().size() >= 3
+	var ok: bool = game.is_over and game._winner == 0 and car.finish_time > 0.0 and worst_stall < 2.0 \
+			and game.menu_buttons().size() >= 3
 	return {"ok": ok, "time": ticks * Sim.DT, "stall": worst_stall, "winner": game._winner}

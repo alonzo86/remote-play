@@ -1,5 +1,5 @@
 extends SceneTree
-## Real-time checks with simulated phones on the loopback network for Treasure Maze, Road Rally and Banana Party (tests 6, 9 and
+## Real-time checks with simulated phones on the loopback network for Treasure Maze, Road Rally and banana Party (tests 6, 9 and
 ## 10 of docs/MANUAL_TESTS.md): a silent phone, the buzzes of the phone, RECENTER, and two throws in one frame. Run:
 ##   godot --headless --path . --script tests/device_mocks_b.gd -- --role=tv
 ## The sensor values are written with a fake clock (tests/sim_b.gd). The things that need real time (the network, the cool-down of
@@ -52,6 +52,14 @@ func _run() -> void:
 	quit(1 if _fails > 0 else 0)
 
 
+func _race() -> GDScript:
+	return load("res://scripts/game/marble_race/marble_race.gd")
+
+
+func _banana() -> GDScript:
+	return load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
+
+
 func _ms_list(i: int) -> Array:
 	return _buzz[i].map(func(b): return b[0])
 
@@ -59,8 +67,8 @@ func _ms_list(i: int) -> Array:
 ## Test 9.5a: a hit on a wall, a post and a car buzzes the phone 20 ms; a soft hit does not.
 func _buzzes() -> void:
 	print("device: buzzes in Road Rally")
-	var Race = load("res://scripts/game/marble_race/marble_race.gd")
-	var game: Control = await sim.start(Race, {"track_choice": "1", "difficulty": "medium"})
+	var race = _race()
+	var game: Control = await sim.start(race, {"track_choice": "1", "difficulty": "medium"})
 	for s in 2:
 		sim.settle(s, Sim.FLAT)
 		sim.app.server.players[s].recenter()
@@ -81,14 +89,14 @@ func _buzzes() -> void:
 	var tr = game.track
 	var wall_setup := func() -> void:
 		var side: Vector2 = Vector2(1, 0)
-		r0.pos = tr.point_at(10.0) + side * (tr.half_width - Race.R - 0.01)
+		r0.pos = tr.point_at(10.0) + side * (tr.half_width - race.R - 0.01)
 		r0.vel = side * 8.0
 		r0.arc = 10.0
 	var wall: Array = await hit.call(wall_setup, 0)
 	_check(wall == [20], "a hard hit on a wall buzzes the phone 20 ms: %s" % str(wall))
 	var soft_setup := func() -> void:
 		var side: Vector2 = Vector2(1, 0)
-		r0.pos = tr.point_at(10.0) + side * (tr.half_width - Race.R - 0.01)
+		r0.pos = tr.point_at(10.0) + side * (tr.half_width - race.R - 0.01)
 		r0.vel = side * 2.0
 		r0.arc = 10.0
 	var soft: Array = await hit.call(soft_setup, 0)
@@ -98,13 +106,13 @@ func _buzzes() -> void:
 	else:
 		var b: Vector2 = game._bumpers[0]
 		var post_setup := func() -> void:
-			r0.pos = b + Vector2(0.0, Race.R + Race.BUMPER_R - 0.01)
+			r0.pos = b + Vector2(0.0, race.R + race.BUMPER_R - 0.01)
 			r0.vel = Vector2(0.0, -8.0)
 		var post: Array = await hit.call(post_setup, 0)
 		_check(post == [20], "a hit on a post buzzes the phone 20 ms: %s" % str(post))
 	var car_setup := func() -> void:
 		r0.pos = tr.point_at(8.0)
-		r1.pos = r0.pos + Vector2(0.0, -(Race.R * 2.0 - 0.02))
+		r1.pos = r0.pos + Vector2(0.0, -(race.R * 2.0 - 0.02))
 		r0.vel = Vector2(0.0, -6.0)
 		r1.vel = Vector2.ZERO
 	var car: Array = await hit.call(car_setup, 0)
@@ -116,8 +124,8 @@ func _buzzes() -> void:
 ## Test 9.5b: a car that is pushed into a wall for 5 s gives a buzz at most every 150 ms and not more than 7 in any second.
 func _continuous_wall() -> void:
 	print("device: a car against a wall for 5 s")
-	var Race = load("res://scripts/game/marble_race/marble_race.gd")
-	var game: Control = await sim.start(Race, {"track_choice": "1", "difficulty": "easy"})
+	var race = _race()
+	var game: Control = await sim.start(race, {"track_choice": "1", "difficulty": "easy"})
 	game.set_process(true)
 	for s in 2:
 		sim.settle(s, Sim.FLAT)
@@ -155,8 +163,8 @@ func _continuous_wall() -> void:
 ## Test 9.11b: the RECENTER button while the car runs: the car then slides on for at most 20 px in seconds 3 to 5.
 func _recenter_distance() -> void:
 	print("device: RECENTER while a car runs")
-	var Race = load("res://scripts/game/marble_race/marble_race.gd")
-	var game: Control = await sim.start(Race, {"track_choice": "1", "difficulty": "easy"})
+	var race = _race()
+	var game: Control = await sim.start(race, {"track_choice": "1", "difficulty": "easy"})
 	for s in 2:
 		sim.settle(s, Sim.FLAT)
 		sim.app.server.players[s].recenter()
@@ -179,15 +187,16 @@ func _recenter_distance() -> void:
 	var p5: Vector2 = game._racers[0].pos
 	var px: float = p5.distance_to(p3) * 32.0
 	_check(tilt_before > 0.1 and speed > 2.0 and px < 20.0,
-			"RECENTER at %.1f m/s: the car moved %.1f px between seconds 3 and 5 after the tap (< 20 px; REQ-GM-37)" % [speed, px])
+			"RECENTER at %.1f m/s: the car moved %.1f px between seconds 3 and 5 after the tap (< 20 px; REQ-GM-37)" % [speed,
+					px])
 	_check(t0.distance_to(p3) > 0.0, "the car slid on after the tap (%.1f m in 3 s)" % t0.distance_to(p3))
 
 
 ## Test 10.7b: two phones press A in the same frame on the same animal; the throw that arrived first scores, the other not.
 func _same_frame_throws() -> void:
 	print("device: two throws in one frame")
-	var Banana = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
-	var game: Control = await sim.start(Banana, {"seed": 4})
+	var banana = _banana()
+	var game: Control = await sim.start(banana, {"seed": 4})
 	for s in 2:
 		sim.settle(s, Sim.FLAT)
 		sim.app.server.players[s].recenter()
@@ -199,7 +208,6 @@ func _same_frame_throws() -> void:
 		game._field.bushes.clear()
 		for s in 2:
 			game._throwers[s].reload_left = 0.0
-			game._board.set_score(s, 0.0) if game._board.has_method("set_score") else null
 		var puff: PuffField.Puff = game._field._add(1, "orangutan")
 		puff.x = 900.0 - rep
 		var center: Vector2 = PuffField.center_of(puff, area)
@@ -248,7 +256,8 @@ func _silent_phone() -> void:
 	var dt := Time.get_ticks_msec() - t0
 	_check(sv.start_button.disabled and dt <= limit and sv.reason_label.text == "NO PLAYERS CONNECTED"
 			and sv.reason_label.get_theme_color("font_color") == UiTheme.ACCENT,
-			"both phones silent: Start is off and the reason is NO PLAYERS CONNECTED in yellow after %d ms (<= %d, REQ-GM-20)" % [dt, limit])
+			"both phones silent: Start is off and the reason is NO PLAYERS CONNECTED in yellow after %d ms (<= %d, REQ-GM-20)" % [dt,
+					limit])
 	sim.clients[0].set_process(true)
 	sim.clients[1].set_process(true)
 	var t1 := Time.get_ticks_msec()
@@ -256,9 +265,9 @@ func _silent_phone() -> void:
 		await process_frame
 	_check(not sv.start_button.disabled and Time.get_ticks_msec() - t1 < 5000,
 			"the phones talk again: Start works after %d ms (< 5000)" % (Time.get_ticks_msec() - t1))
-	# Banana Party with two phones, one goes silent: the card names it.
-	var Banana = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
-	sim.app.go(Banana, {"seed": 4})
+	# banana Party with two phones, one goes silent: the card names it.
+	var banana = _banana()
+	sim.app.go(banana, {"seed": 4})
 	await sim.frames(3)
 	var game: Control = sim.app.current_screen()
 	sim.clients[1].set_process(false)
@@ -270,5 +279,6 @@ func _silent_phone() -> void:
 	if game._menu_box != null:
 		title = (game._menu_box.find_children("*", "Label", true, false)[0] as Label).text
 	_check(game.is_paused() and title == "2P LOST CONNECTION" and dt2 <= limit,
-			"Banana Party: a silent phone pauses the game with the card '%s' after %d ms (<= %d, REQ-GM-30)" % [title, dt2, limit])
+			"banana Party: a silent phone pauses the game with the card '%s' after %d ms (<= %d, REQ-GM-30)" % [title, dt2,
+					limit])
 	sim.clients[1].set_process(true)
