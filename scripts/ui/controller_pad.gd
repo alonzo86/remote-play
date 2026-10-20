@@ -7,6 +7,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const SensorSampler = preload("res://scripts/input/sensor_sampler.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const Haptics = preload("res://scripts/game/haptics.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
@@ -35,8 +36,7 @@ func _ready() -> void:
 
 
 func _on_haptic(ms: int) -> void:
-	if bool(App.settings.get("haptics", true)):   # The HAPTICS switch of the phone Settings screen (REQ-FL-66).
-		Input.vibrate_handheld(ms)
+	Haptics.on_message(ms)   # It vibrates when the HAPTICS switch of the phone Settings screen is on (REQ-FL-66).
 
 
 func _on_phase(_phase: String) -> void:

@@ -28,6 +28,12 @@ var _fails := 0
 var _seq := [0, 0, 0, 0]
 var _clients: Array = []
 var _buzzes: Array = [[], [], [], []]
+var _buzz_at: Array = [[], [], [], []]   # [ms, tick] of each buzz
+var _sounds: Array = []                  # [id, tick] of each effect that started on the TV
+var _watch_song := ""                    # The song id that _stream() waits for
+var _song_ms := -1                       # Tick when that song was first playing
+## Games with a round time: the last 5 seconds tick (REQ-FL-65).
+const TIMED := ["paint_grab", "snowball_splat"]
 
 
 func _check(cond: bool, what: String) -> void:
@@ -59,6 +65,10 @@ func _stream(seconds: float, n: int) -> void:
 				_clients[i].send_sensor(Protocol.encode_sensor(_seq[i], Time.get_ticks_msec(), Vector3.ZERO,
 						Vector3(0, 0, 9.81), 0, 0, Vector2.ZERO))
 				_seq[i] += 1
+		if _watch_song != "" and _song_ms < 0:
+			var sound: Node = root.get_node("Sound")
+			if sound._music.playing and String(sound._music.get_meta("id", "")) == _watch_song:
+				_song_ms = Time.get_ticks_msec()
 		await _frames(1)
 
 
@@ -67,7 +77,9 @@ func _join(app: Node, n: int) -> void:
 		var c := ControllerClient.new()
 		c.player_name = "Sim%d" % i
 		root.add_child(c)
-		c.haptic_requested.connect(func(ms: int) -> void: _buzzes[i].append(ms))
+		c.haptic_requested.connect(func(ms: int) -> void:
+			_buzzes[i].append(ms)
+			_buzz_at[i].append([ms, Time.get_ticks_msec()]))
 		c.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
 		_clients.append(c)
 		var joined := Time.get_ticks_msec()
@@ -80,6 +92,9 @@ func _run() -> void:
 	root.size = Vector2i(1920, 1080)
 	var app: Node = root.get_node("App")
 	load("res://scripts/game/game_settings.gd").clear()
+	var sound: Node = root.get_node("Sound")
+	sound.skip_without_output = false   # The headless run has no audio device; the songs are made anyway (18.5b).
+	sound.sfx_played.connect(func(id: String) -> void: _sounds.append([id, Time.get_ticks_msec()]))
 	await _join(app, 4)
 	_check(app.server.connected_slots().size() == 4, "4 simulated phones joined")
 	for id in GAMES:
@@ -97,6 +112,11 @@ func _round(app: Node, id: String, n: int) -> void:
 	# Phones that left an earlier round come back.
 	await _rejoin(app, 4)
 	_buzzes = [[], [], [], []]
+	_buzz_at = [[], [], [], []]
+	_sounds.clear()
+	_song_ms = -1
+	_watch_song = id
+	root.get_node("Sound")._streams.erase(id)   # A cold start: the song is made behind the countdown (REQ-FL-65a).
 	var spec: Array = GAMES[id]
 	var state := "%s with %d phones" % [id, n]
 	# Only the first n phones play: the others leave first.
@@ -109,13 +129,15 @@ func _round(app: Node, id: String, n: int) -> void:
 	var before := 0
 	for i in n:
 		before += _buzzes[i].size()
-	await _stream(2.5, n)
+	await _stream(3.2, n)
+	_watch_song = ""
 	_check(before == 0, "%s: no buzz in 3, 2, 1" % state)
 	var all_buzzed := true
 	for i in n:
 		all_buzzed = all_buzzed and _buzzes[i].count(60) >= 1
 	if id != "maze":   # The maze sends no buzz at GO, although its game file says so (issue #58).
 		_check(all_buzzed, "%s: every phone gets the 60 ms buzz at GO" % state)
+	_countdown_sounds(id, state, n)
 	var game: Control = app.current_screen()
 	_check(game.participants.size() == n, "%s: %d players take part" % [state, n])
 	# The cost of one frame (logic only, nothing is drawn in --headless).
@@ -127,6 +149,8 @@ func _round(app: Node, id: String, n: int) -> void:
 		print("  info %s: logic of one frame %.2f ms" % [id, per_frame])
 		_check(per_frame < FRAME_BUDGET_MS, "%s: the logic of a frame with 4 players is under %.0f ms (%.2f ms)"
 				% [id, FRAME_BUDGET_MS, per_frame])
+	if n == 4 and id in TIMED:
+		await _time_ticks(game, state)
 	await _places(game, state, n)
 	# One phone leaves: its player goes. The round goes on, or ends when fewer than the minimum are left (REQ-GM-20, 21).
 	if game.is_paused():
@@ -180,3 +204,38 @@ func _rejoin(app: Node, n: int) -> void:
 	var waited := Time.get_ticks_msec()
 	while app.server.connected_slots().size() < n and Time.get_ticks_msec() - waited < 8000:
 		await process_frame
+
+
+## 18.5a, 5b, 6b: the countdown sounds, the start of the song and the buzz that goes with the GO sound.
+func _countdown_sounds(id: String, state: String, n: int) -> void:
+	var sound: Node = root.get_node("Sound")
+	var beeps: Array = _sounds.filter(func(x): return x[0] == "count" or x[0] == "go").map(func(x): return x[0])
+	_check(beeps == ["count", "count", "go"], "%s: the countdown sounds are 2 count beeps, then GO (got %s)" % [state, str(beeps)])
+	var go_ms := -1
+	for x in _sounds:
+		if x[0] == "go":
+			go_ms = x[1]
+	_check(_song_ms >= 0 and go_ms > 0 and _song_ms - go_ms <= 1000 and sound.wanted_music == id and id != "menu",
+			"%s: the song of the game starts %d ms after GO (1000 or less)" % [state, _song_ms - go_ms])
+	if id != "maze":   # The maze sends no buzz at GO (issue #58).
+		var worst := 0
+		for i in n:
+			for b in _buzz_at[i]:
+				if b[0] == 60:
+					worst = maxi(worst, absi(int(b[1]) - go_ms))
+		_check(go_ms > 0 and worst <= 100, "%s: the GO buzz comes within 100 ms of the GO sound (%d ms on loopback)" % [state, worst])
+
+
+## 18.5e: a timed round ticks once in each of the last 5 seconds. The clock is moved to 6.5 s before the end and runs 6 seconds.
+func _time_ticks(game: Control, state: String) -> void:
+	var clock = game.get("_round")
+	if game.is_paused():
+		game.close_menu()
+	_sounds.clear()
+	clock.time = clock.duration - 6.5
+	for k in 6:
+		game._process(1.0)
+		await create_timer(0.06).timeout   # The same effect twice in 40 ms is one sound.
+	clock.time = 1.0   # Back near the start, so that the round does not end in the checks that follow.
+	var ticks: int = _sounds.filter(func(x): return x[0] == "time_low").size()
+	_check(ticks == 5 and not game.is_over, "%s: the last 5 s tick 5 times, once each second (got %d)" % [state, ticks])
