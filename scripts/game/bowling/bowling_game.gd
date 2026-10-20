@@ -167,7 +167,7 @@ func _tick_aim(delta: float) -> void:
 	if _last_tick_ms > 0 and Time.get_ticks_msec() - _last_tick_ms > PAUSE_GAP_MS:
 		detector.reset()   # The game was paused: a swing that was under way starts again (REQ-BW-20).
 	if not detector.aim_locked:
-		_aim = clampf(-p.yaw_offset() / deg_to_rad(float(BowlingRules.level(difficulty).aim_deg)), -1.0, 1.0)
+		_aim = BowlingRules.aim_of(p.yaw_offset(), difficulty)
 	detector.update(delta, p.linear_accel())
 	if detector.weak:
 		_weak_left = WEAK_HINT_TIME
@@ -284,8 +284,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	if _clock.is_counting():
 		BowlingLook.draw_pins(ci, geo, sim, colors)
 		for i in participants.size():
-			var x := (float(i + 1) / float(participants.size() + 1) * 2.0 - 1.0) * 0.4
-			BowlingLook.draw_ball(ci, geo, Vector2(x, 0.0), player(participants[i]).color)
+			BowlingLook.draw_ball(ci, geo, Vector2(_wait_x(i), 0.0), player(participants[i]).color)
 		return
 	var slot := rules.current_slot()
 	if phase == Phase.ROLL and sim.ball_active and sim.ball_pos.y > LaneSim.HEAD_Y + 0.15:
@@ -301,6 +300,20 @@ func _world_draw(ci: CanvasItem) -> void:
 		BowlingLook.draw_ball(ci, geo, Vector2(_aim * AIM_X, 0.0), color)
 	elif phase == Phase.ROLL and sim.ball_active and not ball_first:
 		BowlingLook.draw_ball(ci, geo, sim.ball_pos, color)
+
+
+## Where the balls wait in the countdown (screen places, slot -> point above the ball): the name tags stand there (REQ-GM-46a).
+func countdown_spots() -> Dictionary:
+	var geo := _geo()
+	var spots := {}
+	for i in participants.size():
+		spots[participants[i]] = Shell.snap(geo.at(Vector2(_wait_x(i), 0.0)) - Vector2(0.0, 2.0 * geo.ball_radius(0.0)))
+	return spots
+
+
+## The place across the lane (m) of the ball of the i-th player in the countdown.
+func _wait_x(i: int) -> float:
+	return (float(i + 1) / float(participants.size() + 1) * 2.0 - 1.0) * 0.4
 
 
 func _game_draw() -> void:

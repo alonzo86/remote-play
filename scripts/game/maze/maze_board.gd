@@ -24,6 +24,16 @@ const THEMES := {
 }
 const DEFAULT_THEME := "garden"
 
+## The flame of a torch (REQ-MZ-14): the top 5 rows of the torch picture are not in the board picture. The game draws one of these
+## frames there, and the frame changes every FLAME_S seconds of game time. One character is one world pixel, as in SPRITES.
+const FLAME_COLORS := {"Y": Color("f8b800"), "O": Color("f83800")}
+const FLAME_FRAMES := [
+	["...YY...", "..YOOY..", "..YOOY..", ".YOYYOY.", ".YOYYOY."],
+	["........", "...YY...", "..YOOY..", ".YOYYOY.", ".YOYYOY."],
+	["..Y.....", "..YY.Y..", "..YOYY..", ".YOOYOY.", ".YOYYOY."],
+]
+const FLAME_S := 0.2
+
 ## Small pictures for the side margins (REQ-MZ-13). One character is one world pixel; `.` is empty. The letters name a color:
 ## the theme colors `outline`, `face`, `light` and `front` come from the theme, the others are written here.
 const SPRITES := {
@@ -52,11 +62,11 @@ const SPRITES := {
 				".KDDDDDDDDK.",
 				"..KKKKKKKK.."],
 			"colors": {"K": "outline", "G": "face", "D": "front", "R": Color("f83800"), "P": Color("f8a0b8")}},
-	"torch": {"rows": ["...YY...",
-				"..YOOY..",
-				"..YOOY..",
-				".YOYYOY.",
-				".YOYYOY.",
+	"torch": {"rows": ["........",
+				"........",
+				"........",
+				"........",
+				"........",
 				"..OOOO..",
 				"...KK...",
 				"..KTTK..",
@@ -67,7 +77,7 @@ const SPRITES := {
 				"...TT...",
 				"...TT...",
 				"..KKKK.."],
-			"colors": {"K": "outline", "Y": Color("f8b800"), "O": Color("f83800"), "T": Color("7c4a1c")}},
+			"colors": {"K": "outline", "O": Color("f83800"), "T": Color("7c4a1c")}},
 	"shield": {"rows": ["KKKKKKKKKK",
 				"KRRRRRRRRK",
 				"KRRRYYRRRK",
@@ -170,8 +180,16 @@ static func _start(img: Image, c: Dictionary, start: Rect2) -> void:
 ## at the bottom at the right, the second one the other way round. They are centered in the free space beside the walls, at a
 ## quarter and at three quarters of the height of the maze. A picture that does not fit in the margin is not drawn.
 static func _decorations(img: Image, c: Dictionary, walls: Array[Rect2]) -> void:
+	for place in deco_places(c, walls, img.get_width()):
+		_sprite(img, c, place.name, place.center)
+
+
+## Where the pictures of the margins stand: [{name, center}] with the middle in world pixels. `width` is the width of the board
+## picture in world pixels.
+static func deco_places(c: Dictionary, walls: Array[Rect2], width: int) -> Array:
+	var out := []
 	if walls.is_empty():
-		return
+		return out
 	var box := walls[0]
 	for r in walls:
 		box = box.merge(r)
@@ -180,8 +198,42 @@ static func _decorations(img: Image, c: Dictionary, walls: Array[Rect2]) -> void
 	var names: Array = c.deco
 	var tops := [int((box.position.y + box.size.y * 0.25) / 4.0), int((box.position.y + box.size.y * 0.72) / 4.0)]
 	for i in 2:
-		_sprite(img, c, names[i], Vector2i(left_edge / 2, tops[i]))
-		_sprite(img, c, names[1 - i], Vector2i((right_edge + img.get_width()) / 2, tops[i]))
+		out.append({"name": names[i], "center": Vector2i(left_edge / 2, tops[i])})
+		out.append({"name": names[1 - i], "center": Vector2i((right_edge + width) / 2, tops[i])})
+	return out
+
+
+## The top left corner (world pixels) of the flame of each torch of a theme, for the same walls as `render`.
+static func torch_places(theme: String, walls: Array[Rect2], width: int) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	var rows: Array = SPRITES.torch.rows
+	for place in deco_places(look(theme), walls, width):
+		if place.name == "torch":
+			out.append(place.center - Vector2i(String(rows[0]).length() / 2, rows.size() / 2))
+	return out
+
+
+## The frame of the flame at game time `t` seconds.
+static func flame_frame(t: float) -> int:
+	return int(maxf(t, 0.0) / FLAME_S) % FLAME_FRAMES.size()
+
+
+## The squares of one frame of the flame with its top left corner at `spot` (world pixels): [[Rect2 in screen units, Color]].
+static func flame_squares(spot: Vector2i, frame: int) -> Array:
+	var out := []
+	var rows: Array = FLAME_FRAMES[frame % FLAME_FRAMES.size()]
+	for y in rows.size():
+		var row := String(rows[y])
+		for x in row.length():
+			if row[x] != ".":
+				out.append([Rect2(Vector2(spot + Vector2i(x, y)) * 4.0, Vector2(4, 4)), FLAME_COLORS[row[x]]])
+	return out
+
+
+## Draws one frame of the flame on `ci`, which draws in screen units.
+static func draw_flame(ci: CanvasItem, spot: Vector2i, frame: int) -> void:
+	for sq in flame_squares(spot, frame):
+		ci.draw_rect(sq[0], sq[1])
 
 
 ## One small picture with its middle at `center` (world pixels). Pixels outside the image are left out.
