@@ -55,6 +55,27 @@ func _rect_leave() -> Rect2:
 	return Rect2(size.x - 300, HEADER_Y - 45.0, 270, 90)
 
 
+## The square in the slot color with the slot number, at the top left of the pad on the header row (REQ-FL-52).
+func _rect_slot_square() -> Rect2:
+	return Rect2(Vector2(60, HEADER_Y - 45.0), Vector2(90, 90))
+
+
+## The color of that square: the slot color, and red when the link to the TV is lost.
+func _slot_square_color() -> Color:
+	var c: Node = App.client
+	return c.color if c.state == ControllerClient.State.CONNECTED else UiTheme.BAD
+
+
+## The fill of the Recenter box: yellow for a moment after a tap (REQ-FL-52), else black.
+func _recenter_fill() -> Color:
+	return UiTheme.ACCENT if _flash.recenter > 0.0 else UiTheme.BG
+
+
+## The middle of the face of the arcade button `bit` at `center`: it sits lower while the button is down.
+func _button_face(center: Vector2, bit: int) -> Vector2:
+	return center - Vector2(0, BUTTON_LIFT_DOWN if (_sampler.buttons & bit) != 0 else BUTTON_LIFT)
+
+
 func _rect_recenter() -> Rect2:
 	var top := 360.0 + INFO_Y
 	var h := minf(size.y * 0.30, 620.0)
@@ -166,8 +187,8 @@ func _draw() -> void:
 
 	# The slot color square with the slot number, and the state word. The square is red when the link is lost.
 	var online: bool = c.state == ControllerClient.State.CONNECTED
-	var square := Rect2(Vector2(60, HEADER_Y - 45.0), Vector2(90, 90))
-	var square_color: Color = c.color if online else UiTheme.BAD
+	var square := _rect_slot_square()
+	var square_color: Color = _slot_square_color()
 	draw_rect(square, square_color)
 	UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
 	# The avatar is next to the color square, not on it (REQ-FL-70).
@@ -218,7 +239,7 @@ func _draw() -> void:
 	# Recenter: a yellow framed box that fills with yellow for a moment when it is tapped.
 	var rr := _rect_recenter()
 	var flashing: bool = _flash.recenter > 0.0
-	_draw_box(rr, UiTheme.ACCENT, UiTheme.ACCENT if flashing else UiTheme.BG, Lang.t("pad.recenter"), 72,
+	_draw_box(rr, UiTheme.ACCENT, _recenter_fill(), Lang.t("pad.recenter"), 72,
 			UiTheme.BG if flashing else UiTheme.ACCENT)
 	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("pad.point_at_tv_then"),
 			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, 32, UiTheme.BG if flashing else UiTheme.TEXT)
@@ -236,12 +257,10 @@ func _draw_box(r: Rect2, frame: Color, fill: Color, text: String, fs: int, col: 
 
 ## An arcade button: a 6 px white ring, a dark lower edge, and a face that sits in when the button is down.
 func _draw_button(center: Vector2, label: String, bit: int, col: Color) -> void:
-	var down: bool = (_sampler.buttons & bit) != 0
 	var r := _radius()
-	var lift := BUTTON_LIFT_DOWN if down else BUTTON_LIFT
 	draw_circle(center, r + UiTheme.LINE, UiTheme.TEXT)
 	draw_circle(center, r, col.darkened(0.45))
-	var face := center - Vector2(0, lift)
+	var face := _button_face(center, bit)
 	draw_circle(face, r - BUTTON_LIFT, col)
 	UiTheme.draw_centered(self, UiTheme.font(), label, Rect2(face - Vector2(r, r), Vector2(r, r) * 2.0), 96,
 			UiTheme.text_on(col))

@@ -254,6 +254,17 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String) -> void:
 		near = near and (clamped or absf(r.get_center().x - p.x) < 0.01 or absf(r.get_center().y - p.y) < 400.0)
 		near = near and r.get_center().distance_to(p) < 500.0
 	_check(near, "%s: each tag stands near the object of its player" % state)
+	var nearest := true   # The object closest to a tag's centre is the object of its own player.
+	for i in tags.size():
+		var c: Vector2 = tags[i].rect.get_center()
+		for j in tags.size():
+			if j != i and c.distance_to(tags[j].info.pos) < c.distance_to(tags[i].info.pos):
+				nearest = false
+	if id in TAGS_COVER:
+		_known_bug("issue-needed: a name tag is nearer to the object of another player", nearest,
+				"%s: the object nearest to each tag is the object of its own player" % state)
+	else:
+		_check(nearest, "%s: the object nearest to each tag is the object of its own player" % state)
 	var hint := _one(snap, "hint")
 	if not hint.is_empty():
 		var text_box: Rect2 = hint.rect.grow_individual(-32.0, -20.0, -32.0, -20.0)
