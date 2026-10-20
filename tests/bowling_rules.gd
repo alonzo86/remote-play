@@ -31,8 +31,10 @@ func _initialize() -> void:
 	_lane()
 	_lane_rails_and_gutter()
 	_swing()
+	_shake()
 	_swing_axes()
 	_orientation()
+	_aim_from_touch()
 	_look()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
@@ -224,9 +226,8 @@ func _levels() -> void:
 			and is_equal_approx(BowlingRules.ball_speed("hard", 2.0, 9.0), 9.0),
 			"Hard: a gentle swing gives a slow ball, and the power is limited to 1")
 	_check(BowlingRules.level("nope") == BowlingRules.LEVELS.medium
-			and BowlingRules.level("easy").aim_deg > BowlingRules.level("hard").aim_deg
 			and BowlingRules.level("easy").threshold < BowlingRules.level("medium").threshold,
-			"an unknown level is Medium; Easy aims wider and counts a lighter swing")
+			"an unknown level is Medium; Easy counts a lighter swing")
 	for d in ["easy", "medium", "hard"]:
 		var t: Array = BowlingRules.level(d).tiers
 		_check(t[0] < t[1] and t[1] < t[2], "the medal tiers of %s rise" % d)
@@ -364,6 +365,22 @@ func _swing_run(d: SwingDetector, axis: Vector3, back: float, back_s: float, fwd
 		d.update(dt, Vector3.ZERO)
 
 
+func _shake() -> void:
+	print("shake")
+	var axis := Vector3(0, 1, 0)
+	var shake := SwingDetector.new()
+	shake.min_back = 0.15
+	var plain := SwingDetector.new()
+	var wind := SwingDetector.new()
+	wind.min_back = 0.15
+	for d in [shake, plain]:
+		_swing_run(d, axis, 9.0, 0.08, 18.0, 0.1)   # Back and forth in 0.1 s each way: a shake.
+	_check(shake.state != SwingDetector.State.LOCKED and plain.state == SwingDetector.State.LOCKED,
+			"a shake (0.08 s back, then forth) does not throw when the back swing must last 0.15 s (REQ-BW-5)")
+	_swing_run(wind, axis, 9.0, 0.3, 18.0, 0.15)
+	_check(wind.state == SwingDetector.State.LOCKED and wind.power > 0.0, "a real wind-up of 0.3 s still throws (REQ-BW-5)")
+
+
 func _swing() -> void:
 	print("swing")
 	var d := SwingDetector.new()
@@ -446,6 +463,14 @@ func _swing_axes() -> void:
 	for i in 12:
 		mixed.update(dt, Vector3(0.0, -25.0, 0.0))
 	_check(mixed.state == SwingDetector.State.BACK, "a move across the swing axis is not the forward swing")
+
+
+func _aim_from_touch() -> void:
+	print("aim from touch")
+	var Game = load("res://scripts/game/bowling/bowling_game.gd")
+	_check(is_equal_approx(Game.aim_from_touch(0.0), -1.0) and is_equal_approx(Game.aim_from_touch(0.5), 0.0)
+			and is_equal_approx(Game.aim_from_touch(1.0), 1.0) and is_equal_approx(Game.aim_from_touch(2.0), 1.0),
+			"the place on the aim strip gives the aim from -1 to 1 (REQ-BW-4)")
 
 
 func _orientation() -> void:

@@ -70,7 +70,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 | [21](#test-21) | Join PIN and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-84, REQ-FL-85, REQ-N9, FD-25 | Not run | | |
 | [22](#test-22) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-50 | Not run | | |
-| [23](#test-23) | Pin Pals (bowling: aim with a turn, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [23](#test-23) | Pin Pals (bowling: aim with a finger, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
@@ -932,7 +932,7 @@ History:
 
 ## Test 23
 
-### Pin Pals (bowling: aim with a turn, swing to throw)
+### Pin Pals (bowling: aim with a finger, swing to throw)
 
 Needs: 1 to 4 phones, 1 TV, and a child of about 5 to 8 years for item 11. Covers: REQ-BW-*, REQ-GM-80 to 84, REQ-GM-90 to 98, REQ-GM-37, REQ-GM-47i to 47n.
 
@@ -942,8 +942,9 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 
 1. Open the tile of **Pin Pals** with 1 phone. Check: the settings view has Difficulty (Medium) and Rails (Off). Start. Check the tile against the game.
 2. In "3, 2, 1" check the name tag, the hall (the lane, the 3 dimmer lanes on each side, the disco wall) and the score sheet at the bottom. Check that there is no leader chip. At the start of the turn the aim is in the middle of the lane, wherever the phone points.
-3. **Aim.** Turn the phone left and right without a swing. Check: the aim mark follows, in the right direction, smoothly and without drift. Write down if the turn range is too small or too large for each difficulty (Easy 18, Medium 14, Hard 11 degrees) and if "turn" or "tilt" feels better for bowling.
+3. **Aim.** On the phone on turn the Recenter box is the aim strip (changed 2026-10-20: the aim is a finger now, not the turn of the phone). Slide a finger left and right on the strip, then lift it. Check: the ball on the TV follows the finger in the right direction with no lag, stays where the finger lifted, reaches the gutters at the two ends, and starts in the middle at each turn. The help line on the strip is readable. Touch A, B and the rest of the screen: the aim does not move. On a phone that is not on turn the Recenter box is back. Write down if the strip is too small or too large, and if it is hard to slide with the thumb while the other fingers hold the phone.
 4. **Swing.** Swing back, then forward. Check: the first back swing locks the aim (the mark stops), the ball goes at the end of the forward swing, the phone buzzes, and a hard swing gives a faster ball than a soft one. Try different grips (screen up, screen to the side) and the other hand. Write down every swing that did not throw, or threw when you did not mean to (first guesses: `BACK_ACCEL` 4, `FWD_ACCEL` 8, `FWD_FULL` 30 m/s2).
+4b. **Shake (added 2026-10-20).** Shake the phone fast, back and forth, with no wind-up, and shake it with a finger on the aim strip. Check: no ball is thrown. Then swing normally: the ball still goes. Write down if a real swing is now missed (then `MIN_BACK` is too long) or a shake still throws.
 5. A very soft swing. Check: nothing is thrown, the hint "Swing a bit more!" shows, and you can try again with no time limit.
 6. Play a whole game (10 frames) with 1 phone. Check: the rules are the standard ones (strike, spare, the 10th frame with 3 balls), the score sheet agrees with what you count, and the banners (Strike, Spare, Nice roll, Nice try, Oops) match what happened. Check the medal tiers on each difficulty.
 7. **Rails** On. Check: a ball that is far to the side stays on the lane, there is no gutter ball, and the result menu has no personal best.

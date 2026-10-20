@@ -15,6 +15,7 @@ var _sampler: Node
 var _fingers: Dictionary = {}   # finger index -> zone name
 var _touch_finger := -1
 var _flash := {"recenter": 0.0}
+var _aim_frac := 0.5   # Where the finger left the aim strip (0 left, 1 right) in Pin Pals.
 
 const HEADER_Y := 110.0   # The vertical middle of the header row.
 const SCORE_Y := 205.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
@@ -43,6 +44,8 @@ func _on_phase(_phase: String) -> void:
 
 func _process(delta: float) -> void:
 	_flash.recenter = maxf(_flash.recenter - delta * 3.0, 0.0)
+	if not _aim_mode():
+		_aim_frac = 0.5   # Each turn starts in the middle of the lane.
 	queue_redraw()
 
 
@@ -57,6 +60,12 @@ func _rect_recenter() -> Rect2:
 	var top := 360.0 + INFO_Y
 	var h := minf(size.y * 0.30, 620.0)
 	return Rect2(60, top, size.x - 120, h)
+
+
+## True while this phone is on turn in Pin Pals: the Recenter box becomes the aim strip (REQ-BW-4).
+func _aim_mode() -> bool:
+	var c: Node = App.client
+	return c.state == ControllerClient.State.CONNECTED and c.turn_state == 1 and c.turn_kind == ""
 
 
 func _center_a() -> Vector2:
@@ -75,7 +84,7 @@ func _zone_at(pos: Vector2) -> String:
 	if _rect_leave().has_point(pos):
 		return "leave"
 	if _rect_recenter().has_point(pos):
-		return "recenter"
+		return "aim" if _aim_mode() else "recenter"
 	if pos.distance_to(_center_a()) <= _radius() * 1.25:
 		return "a"
 	if pos.distance_to(_center_b()) <= _radius() * 1.25:
@@ -112,7 +121,8 @@ func _on_zone_down(zone: String, index: int, pos: Vector2) -> void:
 			_sampler.buttons |= Protocol.BTN_A
 		"b":
 			_sampler.buttons |= Protocol.BTN_B
-	if _touch_finger < 0:
+	# On the aim strip only the finger on the strip is the touch that the TV reads (REQ-BW-4).
+	if _touch_finger < 0 and (zone == "aim" or not _aim_mode()):
 		_touch_finger = index
 		_sampler.touching = true
 		_update_touch(pos)
@@ -131,6 +141,11 @@ func _on_zone_up(zone: String, index: int) -> void:
 
 func _update_touch(pos: Vector2) -> void:
 	_sampler.touch = Vector2(clampf(pos.x / size.x, 0.0, 1.0), clampf(pos.y / size.y, 0.0, 1.0))
+	if _aim_mode():
+		# On the aim strip x is the place on the strip, not on the screen.
+		var strip := _rect_recenter()
+		_aim_frac = clampf((pos.x - strip.position.x) / strip.size.x, 0.0, 1.0)
+		_sampler.touch.x = _aim_frac
 
 
 # ---- Drawing ----
@@ -199,17 +214,40 @@ func _draw() -> void:
 	# Disconnect: a framed text box. One tap leaves the TV (REQ-FL-52).
 	_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BG, Lang.t("pad.disconnect"), 24, UiTheme.TEXT)
 
-	# Recenter: a yellow framed box that fills with yellow for a moment when it is tapped.
 	var rr := _rect_recenter()
+	if _aim_mode():
+		_draw_aim_strip(rr, f)
+	else:
+		_draw_recenter(rr, f)
+
+	# A and B are round arcade buttons. A is green and B is red (REQ-FL-52). The player color is only the square at the top.
+	_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)
+	_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)
+
+
+## Recenter: a yellow framed box that fills with yellow for a moment when it is tapped.
+func _draw_recenter(rr: Rect2, f: Font) -> void:
 	var flashing: bool = _flash.recenter > 0.0
 	_draw_box(rr, UiTheme.ACCENT, UiTheme.ACCENT if flashing else UiTheme.BG, Lang.t("pad.recenter"), 72,
 			UiTheme.BG if flashing else UiTheme.ACCENT)
 	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("pad.point_at_tv_then"),
 			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, 32, UiTheme.BG if flashing else UiTheme.TEXT)
 
-	# A and B are round arcade buttons. A is green and B is red (REQ-FL-52). The player color is only the square at the top.
-	_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)
-	_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)
+
+## The aim strip of Pin Pals (REQ-BW-4): a finger slides the ball left or right along the foul line. The mark stays where the
+## finger left it. The word is the help line; the lane lines are drawn as a plain row of ticks.
+func _draw_aim_strip(rr: Rect2, f: Font) -> void:
+	var col: Color = App.client.color
+	draw_style_box(UiTheme.line_box(UiTheme.ACCENT, UiTheme.BG), rr)
+	var mid_y := rr.position.y + rr.size.y * 0.45
+	for i in 9:
+		var tx := rr.position.x + rr.size.x * float(i) / 8.0
+		draw_rect(Rect2(tx - 3.0, mid_y - (40.0 if i == 4 else 20.0), 6.0, 80.0 if i == 4 else 40.0), UiTheme.TEXT_DIM)
+	var bx := rr.position.x + rr.size.x * _aim_frac
+	draw_circle(Vector2(bx, mid_y), 56.0 + UiTheme.LINE, UiTheme.TEXT)
+	draw_circle(Vector2(bx, mid_y), 56.0, col)
+	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("pad.slide_to_aim"), HORIZONTAL_ALIGNMENT_CENTER,
+			rr.size.x, 32, UiTheme.TEXT)
 
 
 func _draw_box(r: Rect2, frame: Color, fill: Color, text: String, fs: int, col: Color) -> void:

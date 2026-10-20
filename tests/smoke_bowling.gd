@@ -118,6 +118,17 @@ func _run() -> void:
 	_check(game.phase == game.Phase.AIM and game.rules.current_slot() == 0,
 			"a swing of the phone that is not on turn does nothing (REQ-BW-3)")
 
+	# A finger on the aim strip moves the ball and the aim stays when the finger lifts (REQ-BW-4).
+	var p0 = game.player(0)
+	for i in 3:
+		clients[0].send_sensor(Protocol.encode_sensor(_seq[0], Time.get_ticks_msec(), Vector3.ZERO, flat, 0, Protocol.FLAG_TOUCH,
+				Vector2(1.0, 0.5)))
+		_seq[0] += 1
+		await _frames(2)
+	_check(p0.touching and is_equal_approx(game._aim, 1.0), "a finger at the right end of the strip aims to the right (REQ-BW-4)")
+	await _stream(clients, 0.2, [flat, flat])
+	_check(not p0.touching and is_equal_approx(game._aim, 1.0), "the aim stays where the finger lifted (REQ-BW-4)")
+
 	# A swing of the phone on turn throws the ball (REQ-BW-5).
 	await _stream(clients, 0.3, [flat + Vector3(0, 9, 0), flat])
 	_check(game.detector.aim_locked, "the back swing locks the aim (REQ-BW-5)")

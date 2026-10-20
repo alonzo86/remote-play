@@ -1,10 +1,9 @@
 extends "res://scripts/game/minigame.gd"
-## Pin Pals: ten-pin bowling for 1 to 4 phones (REQ-BW-1 to 20). The players bowl in turns, 10 frames each. Turning the phone
-## moves
-## the aim, swinging it back and then forward throws the ball. The rules are in bowling_rules.gd, the ball and the pins in
-## lane_sim.gd, the swing in swing_detector.gd and the pictures in bowling_look.gd. The game is for children too (REQ-GM-80 to
-## 84):
-## a turn has no time limit, the pins are plain pins, and a ball in the gutter takes no points away.
+## Pin Pals: ten-pin bowling for 1 to 4 phones (REQ-BW-1 to 20). The players bowl in turns, 10 frames each. A finger on the
+## phone slides the ball along the foul line to aim, swinging the phone back and then forward throws the ball. The rules are in
+## bowling_rules.gd, the ball and the pins in lane_sim.gd, the swing in swing_detector.gd and the pictures in bowling_look.gd.
+## The game is for children too (REQ-GM-80 to 84): a turn has no time limit,
+## the pins are plain pins, and a ball in the gutter takes no points away.
 
 const BowlingRules = preload("res://scripts/game/bowling/bowling_rules.gd")
 const LaneSim = preload("res://scripts/game/bowling/lane_sim.gd")
@@ -18,6 +17,7 @@ const RESULT_TIME := 1.8        # How long the banner of a ball shows. A press o
 const END_DELAY := 2.0          # After the last ball the lane stays this long, then the result menu opens (REQ-BW-1).
 const HINT_TIME := 12.0         # The hint shows this long at the start of a turn, then again after a weak swing.
 const WEAK_HINT_TIME := 3.0
+const MIN_BACK := 0.15         # A back swing shorter than this (s) is a shake, not a wind-up (REQ-BW-5).
 const BUZZ_GAP_MS := 150
 # The aim at its end is this far from the middle of the lane (m): past the lane edge, in the gutter.
 const AIM_X := 0.60
@@ -64,6 +64,7 @@ func _game_ready() -> void:
 	_rows_at_start = maxi(1, participants.size())
 	_board = Scoreboard.new(participants)
 	detector.threshold = float(BowlingRules.level(difficulty).threshold)
+	detector.min_back = MIN_BACK
 
 
 func _on_player_left(slot: int) -> void:
@@ -95,7 +96,6 @@ func _start_turn() -> void:
 	_aim = 0.0
 	detector.reset()
 	detector.threshold = float(BowlingRules.level(difficulty).threshold)
-	player(slot).recenter()   # The pose at the start of the turn is the middle of the aim (REQ-BW-4).
 	Sound.sfx("bowl_turn")
 	_haptics.pulse(slot, 60, BUZZ_GAP_MS)
 
@@ -166,13 +166,21 @@ func _tick_aim(delta: float) -> void:
 	var p := player(slot)
 	if _last_tick_ms > 0 and Time.get_ticks_msec() - _last_tick_ms > PAUSE_GAP_MS:
 		detector.reset()   # The game was paused: a swing that was under way starts again (REQ-BW-20).
-	if not detector.aim_locked:
-		_aim = clampf(-p.yaw_offset() / deg_to_rad(float(BowlingRules.level(difficulty).aim_deg)), -1.0, 1.0)
-	detector.update(delta, p.linear_accel())
+	if not detector.aim_locked and p.touching:
+		_aim = aim_from_touch(p.touch.x)   # The aim stays when the finger lifts (REQ-BW-4).
+	if p.touching:
+		detector.reset()   # A finger on the aim strip means the player is aiming: moves of the phone do not throw (REQ-BW-5).
+	else:
+		detector.update(delta, p.linear_accel())
 	if detector.weak:
 		_weak_left = WEAK_HINT_TIME
 	if detector.released:
 		_throw(slot)
+
+
+## The aim (-1 left, 1 right) from the place of the finger on the aim strip (0 to 1). The ball rolls straight.
+static func aim_from_touch(x: float) -> float:
+	return clampf(x * 2.0 - 1.0, -1.0, 1.0)
 
 
 func _throw(slot: int) -> void:
@@ -226,7 +234,7 @@ func _roll_done() -> void:
 		_banner_color = UiTheme.TEXT
 	var left := sim.standing_count()
 	if not ev.frame_done and not ev.fresh_rack and left > 0:
-		_pins_left_line = Lang.f("bowling.pin_left" if left == 1 else "bowling.pins_left", [left])
+		_pins_left_line = Lang.t("bowling.pin_left") if left == 1 else Lang.f("bowling.pins_left", [left])
 	phase = Phase.RESULT
 	_phase_time = 0.0
 
@@ -336,7 +344,7 @@ func _game_draw() -> void:
 		if _weak_left > 0.0:
 			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_weak"), 48, UiTheme.ACCENT)
 		elif _phase_time < HINT_TIME and not detector.aim_locked:
-			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_aim"), 32, UiTheme.TEXT)
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_slide"), 32, UiTheme.TEXT)
 
 
 ## The title of the turn is in the slot color when that color reads on black (REQ-GM-46 is about chips; text stays white
