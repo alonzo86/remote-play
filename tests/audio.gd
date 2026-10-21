@@ -19,6 +19,15 @@ func _initialize() -> void:
 	_run()
 
 
+func _known_bug(issue: String, cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what, " (the bug is fixed: use _check)")
+	else:
+		_fails += 1
+		print("  FAIL (known bug) ", issue, ": ", what)
+
+
 func _check(cond: bool, what: String) -> void:
 	_checks += 1
 	if cond:
@@ -467,7 +476,11 @@ func _loudness_and_songs(sound: Node, app: Node) -> void:
 		var above: float = _db(_rms(b)) + sound.step_db(DEFAULT_SFX_STEP) - music_db
 		if above < 3.0 or above > 9.0:
 			out_of_range += " %s %.1f;" % [id, above]
-	print("  info effects outside 3 to 9 dB above the music (RMS):%s" % out_of_range)
+	print("  effects outside 3 to 9 dB above the music (RMS):%s" % out_of_range)
+	# AUDIO_PLAN "Mix": music is quieter than effects (about 6 dB), so a hit is always heard. Every effect follows it, not only
+	# select, count and win (align.md: go is about +9.7 dB and time_low about -2.6 dB, measured by the earlier run).
+	_known_bug("issue-needed: AUDIO_PLAN.md says effects are about 6 dB above the music (3 to 9 here); these are not (dB above):%s"
+			% out_of_range, out_of_range == "", "every effect is 3 to 9 dB above the music at the default levels")
 	# The default levels are the ones that the checks above assume.
 	_check(int(app.settings.music_volume) == DEFAULT_MUSIC_STEP and int(app.settings.sfx_volume) == DEFAULT_SFX_STEP,
 			"the test ran at the default levels (Music %d, Effects %d)" % [DEFAULT_MUSIC_STEP, DEFAULT_SFX_STEP])

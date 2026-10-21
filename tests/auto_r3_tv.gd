@@ -180,7 +180,7 @@ func _logo_drop() -> void:
 		ys.append(logo._center.offset_top)
 		if confetti.is_empty():
 			confetti = logo.find_children("*", "CPUParticles2D", true, false)
-	var step: float = logo.STEP
+	var step := 16.0   # REQ-FL-42: steps of 16 px (the number comes from the requirement, not from logo.STEP).
 	var on_grid := true
 	var down_only := true
 	var distinct := {}

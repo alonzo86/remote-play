@@ -22,6 +22,15 @@ func _initialize() -> void:
 	_run()
 
 
+func _known_bug(issue: String, cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what, " (the bug is fixed: use _check)")
+	else:
+		_fails += 1
+		print("  FAIL (known bug) ", issue, ": ", what)
+
+
 func _check(cond: bool, what: String) -> void:
 	_checks += 1
 	if cond:
@@ -248,11 +257,18 @@ func _run() -> void:
 	f._sync_board()
 	f._game_tick(0.016)
 	await _frames(4)
-	_check(clients[0].score_rank == 1 and clients[1].score_rank == 1 and clients[2].score_rank == 3 and clients[3].score_rank == 3,
-			"the team in front has place 1 on both of its phones, the other team shares place 3 "
-			+ "(REQ-GM-72: equal scores share a place) (9e): %s"
-			% [[clients[0].score_rank, clients[1].score_rank, clients[2].score_rank, clients[3].score_rank]])
-	_check(f.leader_text() == "1" and f._board.leaders().size() == 2, "the leader chip shows the 1 game of the team in front")
+	_check(clients[0].score_rank == 1 and clients[1].score_rank == 1,
+			"the team in front has place 1 on both of its phones (9e): %s" % [[clients[0].score_rank, clients[1].score_rank]])
+	# REQ-TN-13: each phone shows its own team's place, so the other team (2 teams) is in place 2, not 3 (GM-70 ranks players).
+	_known_bug("issue-needed: REQ-TN-13 says each phone shows its own team's place (2 for the other team); the board ranks "
+			+ "the 4 players and the other team shows place %d" % clients[2].score_rank,
+			clients[2].score_rank == 2 and clients[3].score_rank == 2, "the phones of the other team show place 2 (9e)")
+	# REQ-TN-13: the leader chip shows the TEAM in front and its games. Two players of one team share first place in the
+	# board, so the chip would show TIE.
+	_check(f.leader_text() == "1", "the leader chip shows the 1 game of the team in front")
+	_known_bug("issue-needed: REQ-TN-13 says the leader chip shows the team in front; the 2 players of that team share first "
+			+ "place in the board (%d leaders), so the chip shows TIE" % f._board.leaders().size(),
+			f._board.leaders().size() == 1, "the leader chip does not show TIE when one team is in front (2 against 2)")
 
 	# ---- 1 phone: the machine, the buzz of every hit (4d, 10a, 10c) ----
 	for i in [3, 2, 1]:

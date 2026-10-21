@@ -190,10 +190,9 @@ func _last_frame() -> void:
 		game._process(DT)
 		t += DT
 	_check(game.is_over and game.rules.game_over(), "6c: the result menu opens after the last ball")
-	_check(t >= 1.0 and t <= 4.0, "6c: it opens %.2f s after the last ball stopped (the banner %.1f s, then the lane %.1f s)"
-			% [t, game.RESULT_TIME, game.END_DELAY])
-	_known_bug("step 6c asks for 1 to 3 s after the last ball; the banner (1.8 s) and the wait of the lane (2.0 s) make 3.8 s "
-			+ "(REQ-BW-1 says 2 s)", t >= 1.0 and t <= 3.0, "6c: the menu opens 1 to 3 s after the last ball (%.2f s)" % t)
+	# bowling.md "Parameters": the banner of a ball shows 1.8 s and the result menu opens 2 s after the banner (REQ-BW-1), so
+	# 3.8 s after the last ball stopped. (The manual step said 1 to 3 s: the requirement wins, align.md.)
+	_check(absf(t - 3.8) <= 0.3, "6c: REQ-BW-1: the menu opens 1.8 s (banner) + 2 s after the last ball: %.2f s (3.5 to 4.1)" % t)
 
 
 ## 7a: with Rails on, 5 balls aimed at the end of the path (both sides, slow to fast) touch a rail, are never in the gutter and
@@ -256,16 +255,18 @@ func _turn_order() -> void:
 		for k in 2 * n:
 			want.append(Lang.f("bowling.turn", ["Sim%d" % (k % n)]))
 		_check(seen == want, "8a: %d phones, two frames of strikes: the plate names %s" % [n, str(seen)])
-	# How long the plate stays: the whole turn (the step says 1 to 2 s).
+	# How long the plate stays: bowling.md "Turn flow" 1: the plate shows for 1.5 s.
 	var game := await _new_game(2)
+	SimInput.run(game, 1.0)
 	await _draw_once(game)
-	var first := _plate_text()
-	SimInput.run(game, 3.0)
+	var early := _plate_text()
+	SimInput.run(game, 1.0)   # 2.0 s into the turn.
 	await _draw_once(game)
 	var later := _plate_text()
-	_check(first == Lang.f("bowling.turn", ["Sim0"]), "8a: the plate shows the name of the first player at the start of the turn")
-	_known_bug("step 23.8a says the plate shows 1 to 2 s; the game draws it for the whole turn (strings.csv: 'plate in the top bar "
-			+ "while a player bowls')", later == "", "8a: after 3 s of the turn the plate is gone ('%s')" % later)
+	_check(early == Lang.f("bowling.turn", ["Sim0"]), "8a: the plate shows the name of the first player 1.0 s into the turn")
+	_known_bug("issue-needed: bowling.md Turn flow 1 says the plate 'NAME, YOUR TURN!' shows for 1.5 s; the game draws it for "
+			+ "the whole turn (strings.csv: 'plate in the top bar while a player bowls')", later == "",
+			"8a: 2.0 s into the turn (1.5 s plate) the plate is gone ('%s')" % later)
 
 
 ## 9a to 9c, 8c: the phones are told whose turn it is, buzz once, and show their own score and place.

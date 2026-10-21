@@ -450,7 +450,15 @@ func _timer_side(state: String, t: Dictionary, lang: String) -> void:
 	var key := "timer_" + state.split(" ")[0]
 	if lang == "en":
 		_countdown_pos[key] = t.rect
+		if key == "timer_marble_race":
+			# REQ-GM-47o: Road Rally's timer box is at the left margin in English (and at the right in Hebrew).
+			_known_bug("issue-needed: REQ-GM-47o says the Road Rally timer box is at the left margin (x 60) in English; the game "
+					+ "puts it at TIMER_X 640 (x %.0f)" % t.rect.position.x, is_equal_approx(t.rect.position.x, MARGIN),
+					"%s: the timer box is at the left margin in English" % state)
 		return
+	if key == "timer_marble_race":
+		_known_bug("issue-needed: REQ-GM-47o says the Road Rally timer box is at the right margin in Hebrew; it ends at x %.0f"
+				% t.rect.end.x, is_equal_approx(t.rect.end.x, 1920.0 - MARGIN), "%s: the timer box is at the right margin in Hebrew" % state)
 	var en: Rect2 = _countdown_pos.get(key, Rect2())
 	if en.size == Vector2.ZERO:
 		return

@@ -90,11 +90,10 @@ func _edges() -> void:
 		var from_edge := screen_x if side < 0.0 else game.size.x - screen_x
 		_check(screen_x - 30.0 >= 0.0 and screen_x + 30.0 <= game.size.x,
 				"%s: the ship (60 px wide) is fully on the screen: its middle is at %.0f of %.0f" % [label, screen_x, game.size.x])
-		_known_bug("issue-needed: step 22.3c wants the middle 60 px (2 to 4 %) from the edge of the SCREEN; REQ-AB-2 and the code "
-				+ "keep it 60 px from the side of the play area, which is itself 60 px from the screen: %.0f px" % from_edge,
-				from_edge >= 0.02 * game.size.x - 1.0 and from_edge <= 0.04 * game.size.x + 1.0,
-				"%s: the middle of the ship is 2 to 4 %% of the screen width from the edge (%.1f %%)"
-				% [label, 100.0 * from_edge / game.size.x])
+		# REQ-AB-2 says "60 px from both sides" (of the play area, checked above). The step text said 2 to 4 % of the screen
+		# width from the edge of the screen: the requirement wins (align.md: the middle of the ship is about 120 px from the edge).
+		print("   %s: the middle of the ship is %.0f px (%.1f %%) from the edge of the screen"
+				% [label, from_edge, 100.0 * from_edge / game.size.x])
 	SimInput.set_tilt(p, Vector2.ZERO)
 
 

@@ -27,6 +27,15 @@ func _initialize() -> void:
 	_run()
 
 
+func _known_bug(issue: String, cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what, " (the bug is fixed: use _check)")
+	else:
+		_fails += 1
+		print("  FAIL (known bug) ", issue, ": ", what)
+
+
 func _check(cond: bool, what: String) -> void:
 	_checks += 1
 	if cond:
@@ -155,6 +164,14 @@ func _run() -> void:
 			% [game.hole_text(), game.chip_text(0), game.chip_text(1)])
 	var balls: Array = [GolfLook.Geo.new(Vector2(1920, 1080)).ball_r(Holes.hole(1).tee.y) * 2.0]
 	print("   the ball is %.0f px wide at the tee on a 1080p screen (%.1f%% of the height)" % [balls[0], balls[0] / 10.8])
+	# REQ-GM-47e / 47m: a key object (the ball) is 48 px (4.4 % of 1080) or more on the screen, also at the far end.
+	var smallest := 9999.0
+	for n in [1, 2, 3, 4, 5]:
+		var hh: Dictionary = Holes.hole(n)
+		smallest = minf(smallest, GolfLook.Geo.new(Vector2(1920, 1080)).ball_r(hh.cup.y) * 2.0)
+	_known_bug("issue-needed: REQ-GM-47e and 47m want a key object of 48 px or more at 1080p (4.4 %); the golf ball is "
+			+ "%.0f px (%.1f %%) at the tee and %.0f px at the cup of the farthest hole" % [balls[0], balls[0] / 10.8, smallest],
+			balls[0] >= 48.0 and smallest >= 48.0, "the golf ball is 48 px or more at 1080p, at the tee and at every cup")
 	_to_turn(game)
 	_check(game._putter == game.rules.current_slot() and game._putter == 0, "only the golfer of the player on turn is drawn (3a)")
 	_check(game.TURN_BANNER >= 1.0 and game.TURN_BANNER <= 2.0,

@@ -278,10 +278,10 @@ func _swing_and_ball() -> void:
 		game._game_tick(DT)
 	_check(hit_at >= 0.9, "5b: at %.2f s after the putt the club touches the ball (ab %.2f)" % [GolfLook.SWING_DOWN, hit_at])
 	_check(through_a > 60.0, "5b: and the club goes through to the front (angle %.0f at 0.3 s)" % through_a)
-	_known_bug("issue-needed: step 26.5b wants the ball to start at the hit; the ball moves from the first tick after the putt "
-			+ "(%.3f m) while the club is still at the back swing (ab %.2f); the club reaches the ball only %.2f s later" %
-			[moved, early.ab, GolfLook.SWING_DOWN], moved == 0.0 or float(early.ab) >= 0.5,
-			"5b: the ball does not move before the club reaches it")
+	# REQ-MG-16: "The ball starts at once" (the animation is played by the TV when the swing is found, and the detector reports a
+	# swing a few samples after the hit). The manual step 26.5b said "at the hit": the requirement wins (align.md).
+	_check(moved > 0.0, "5b: REQ-MG-16: the ball starts at once, it moved %.3f m in the first tick (the club is at ab %.2f)"
+			% [moved, float(early.ab)])
 
 
 # ---- 7d ----
