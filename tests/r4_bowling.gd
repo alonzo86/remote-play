@@ -7,6 +7,7 @@ extends SceneTree
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_bowling.gd -- --role=tv
 
 const SimInput = preload("res://tests/sim_input.gd")
+const Protocol = preload("res://scripts/core/protocol.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
@@ -64,6 +65,7 @@ func _run() -> void:
 	await _totals()
 	await _last_frame()
 	await _rails()
+	await _held_a()
 	await _turn_order()
 	await _phones_and_scores()
 	await _winner_and_menu()
@@ -269,9 +271,24 @@ func _turn_order() -> void:
 	await _draw_once(game)
 	var later := _plate_text()
 	_check(early == Lang.f("bowling.turn", ["Sim0"]), "8a: the plate shows the name of the first player 1.0 s into the turn")
-	_known_bug("issue-needed: bowling.md Turn flow 1 says the plate 'NAME, YOUR TURN!' shows for 1.5 s; the game draws it for "
-			+ "the whole turn (strings.csv: 'plate in the top bar while a player bowls')", later == "",
-			"8a: 2.0 s into the turn (1.5 s plate) the plate is gone ('%s')" % later)
+	_check(later == "", "8a: 2.0 s into the turn (1.5 s plate) the plate is gone ('%s')" % later)
+
+
+## A held A does not skip the banner of a ball: the button is polled in every phase, so only a new press counts (REQ-BW-11).
+func _held_a() -> void:
+	print("held A")
+	var game := await _new_game(2)
+	game.player(0).buttons = Protocol.BTN_A
+	game._game_tick(DT)   # In the AIM phase: A goes down.
+	game._before = game.sim.standing_mask()
+	game._roll_done()
+	game._game_tick(DT)
+	_check(game.phase == game.Phase.RESULT, "11: A held since the aim does not skip the banner of the ball")
+	game.player(0).buttons = 0
+	game._game_tick(DT)
+	game.player(0).buttons = Protocol.BTN_A
+	game._game_tick(DT)
+	_check(game.phase == game.Phase.AIM, "11: a new press on A skips the banner")
 
 
 ## 9a to 9c, 8c: the phones are told whose turn it is, buzz once, and show their own score and place.
@@ -284,8 +301,7 @@ func _phones_and_scores() -> void:
 	var first_buzzes: Array = _buzzes[0].duplicate()
 	_check(_clients[0].turn_state == 1 and _clients[1].turn_state == 2 and _clients[1].turn_who == "Sim0"
 			and _clients[0].turn_who == "", "9a, 9b: the phone on turn is told YOUR TURN and the other one gets the name Sim0")
-	_known_bug("issue-needed: the first turn buzzes twice (the GO buzz to every phone and the buzz of the turn)",
-			first_buzzes.count(60) == 1, "9a: the phone of the first turn buzzed once for 60 ms: %s" % str(first_buzzes))
+	_check(first_buzzes.count(60) == 1, "9a: the phone of the first turn buzzed once for 60 ms: %s" % str(first_buzzes))
 	# A strike moves the turn to phone 2: it gets one buzz, phone 1 gets the name.
 	_buzzes = [[], [], [], []]
 	await create_timer(0.2).timeout   # The cool-down of the pulses is real time.

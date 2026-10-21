@@ -20,7 +20,7 @@ const GROUND_END := 230           # The ground goes to the bar of the players at
 const HUD_TOP := 28
 const WALL_W := 0.14              # The width of a wall, in course units.
 const WALL_H := 0.16
-const BALL_MIN_R := 3.0           # The ball is at least this big (picture pixels), also far away.
+const BALL_MIN_R := 6.0           # The ball is at least this big (picture pixels), also far away (48 px across at 1080p).
 const GOLFER_MIN := 0.42          # The golfer is at least this share of the near size, also far away.
 
 const SKY := [Color("3cbcfc"), Color("68d0fc"), Color("a4e4fc")]

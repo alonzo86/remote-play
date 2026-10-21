@@ -278,9 +278,7 @@ func _finger_and_shake() -> void:
 				thrown_by.append("%d Hz %d m/s2" % [int(hz), int(amp)])
 				_again(game)
 	_check(threw_soft == 0, "4 shakes of 5 m/s2 (6 to 12 Hz) throw nothing (%d thrown)" % threw_soft)
-	_known_bug("issue-needed: Pin Pals throws a ball on a hard shake, REQ-BW-5 says a shake throws nothing "
-			+ "(MIN_BACK 0.1 s is passed by a shake of 6 to 8 Hz at 12 m/s2 or more, and by 12 Hz at 25 m/s2)", threw == 0,
-			"12 shakes (6 to 12 Hz, 5 to 25 m/s2) throw nothing (%d thrown: %s)" % [threw, ", ".join(thrown_by)])
+	_check(threw == 0, "12 shakes (6 to 12 Hz, 5 to 25 m/s2) throw nothing (%d thrown: %s)" % [threw, ", ".join(thrown_by)])
 	_again(game)
 	_wait(game, f, 0.3)
 	_finger(f, 0.5)

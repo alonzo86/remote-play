@@ -169,9 +169,9 @@ func _run() -> void:
 	for n in [1, 2, 3, 4, 5]:
 		var hh: Dictionary = Holes.hole(n)
 		smallest = minf(smallest, GolfLook.Geo.new(Vector2(1920, 1080)).ball_r(hh.cup.y) * 2.0)
-	_known_bug("issue-needed: REQ-GM-47e and 47m want a key object of 48 px or more at 1080p (4.4 %); the golf ball is "
-			+ "%.0f px (%.1f %%) at the tee and %.0f px at the cup of the farthest hole" % [balls[0], balls[0] / 10.8, smallest],
-			balls[0] >= 48.0 and smallest >= 48.0, "the golf ball is 48 px or more at 1080p, at the tee and at every cup")
+	_check(balls[0] >= 48.0 and smallest >= 48.0,
+			"the golf ball is 48 px or more at 1080p at the tee and at every cup (%.0f, %.0f px)"
+			% [balls[0], smallest])
 	_to_turn(game)
 	_check(game._putter == game.rules.current_slot() and game._putter == 0, "only the golfer of the player on turn is drawn (3a)")
 	_check(game.TURN_BANNER >= 1.0 and game.TURN_BANNER <= 2.0,
@@ -320,6 +320,22 @@ func _run() -> void:
 	_check(g6.phase == g6.Phase.AIM and g6.rules.hole_number() == 2 and g6._phase_time < 0.2,
 			"A on a phone starts the next hole at once (8e)")
 	_check(g6.rules.total(0) == 1 and g6.rules.total(1) == 2, "the totals go on to hole 2: 1 and 2 strokes")
+
+	# A held A does not skip the banner of a putt: the button is read in every phase, so only a new press counts (REQ-MG-3).
+	var g7 := await _start(app, {"holes": "3"})
+	g7.player(0).buttons = Protocol.BTN_A
+	g7.player(1).buttons = Protocol.BTN_A
+	g7._game_tick(DT)   # In the AIM phase: A goes down.
+	g7.sim.in_cup = true   # A putt that holes out has a banner.
+	g7._putt_done()
+	g7._game_tick(DT)
+	_check(g7.phase == g7.Phase.RESULT and g7._banner != "", "A held since the aim does not skip the putt banner")
+	g7.player(0).buttons = 0
+	g7.player(1).buttons = 0
+	g7._game_tick(DT)
+	g7.player(0).buttons = Protocol.BTN_A
+	g7._game_tick(DT)
+	_check(g7.phase != g7.Phase.RESULT, "a new press on A skips the putt banner")
 
 	# ---- 10b: the medal of 3 holes alone ----
 	var medals_ok := true
