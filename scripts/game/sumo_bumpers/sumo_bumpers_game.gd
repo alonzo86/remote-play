@@ -6,12 +6,10 @@ extends "res://scripts/game/minigame.gd"
 
 const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
 const TiltBody = preload("res://scripts/game/tilt_body.gd")
-const RoundClock = preload("res://scripts/game/round_clock.gd")
 const SumoLook = preload("res://scripts/game/sumo_bumpers/sumo_look.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
 const ROUNDS := 3
-const COUNTDOWN := 3.0
 const BANNER_TIME := 2.5
 const DASH_BOOST_TIME := 0.35   # While a dash is fresh the speed limit is the dash speed, so the dash is not cut at once.
 const FALL_TIME := 0.8          # A fallen bumper spins and shrinks in this time (REQ-SB-9).
@@ -31,14 +29,14 @@ const WHEE_FONT := 32       # "Whee!" over a fallen bumper (REQ-SB-15: all text 
 const ROUND_FONT := 32      # "Round 2 of 3" in the bar.
 const BANNER_FONT := 72     # The banner at the end of a round.
 
-enum Phase { COUNT, PLAY, BANNER }
+enum Phase { PLAY, BANNER }
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps it for Restart.
 var difficulty := "medium"
 
 var arena := SumoArena.new()
 var round_no := 1
-var phase := Phase.COUNT
+var phase := Phase.PLAY
 var banner_text := ""
 
 var _board: Scoreboard
@@ -50,11 +48,14 @@ var _boost_left := {}           # slot -> seconds that the dash speed limit last
 var _normal_speed := TiltBody.new().max_speed   # The speed limit without a dash.
 var _dashes: Array[int] = []    # The slots of the presses of A, kept until the next tick.
 var _fell: Array[int] = []      # The slots that fell in this tick (one array for all ticks: nothing is made in each frame).
-var _clock := RoundClock.new(COUNTDOWN, 0.0)
 var _banner_left := 0.0
 var _haptics := Haptics.new()
 var _sky_time := 0.0                 # Seconds since the start: the clouds drift with it.
 var _penguin_tex := {}               # slot * 3 + step + 1 -> the ImageTexture of the penguin of this slot.
+
+
+func _has_countdown() -> bool:
+	return false   # No visible timer, so no countdown (REQ-GM-35).
 
 
 func _game_ready() -> void:
@@ -78,8 +79,7 @@ func _exit_tree() -> void:
 ## A new round: the platform is full again and all bumpers are back at their start places (REQ-SB-2).
 func _start_round() -> void:
 	arena.setup(difficulty)
-	phase = Phase.COUNT
-	_clock = RoundClock.new(COUNTDOWN, 0.0)
+	phase = Phase.PLAY   # No visible timer: no countdown, a round starts at once (REQ-GM-35).
 	_falling.clear()
 	_dashes.clear()
 	_alive.clear()
@@ -93,6 +93,7 @@ func _start_round() -> void:
 		_dash_left[s] = 0.0
 		_boost_left[s] = 0.0
 		b.max_speed = _normal_speed
+		player(s).recenter()   # The pose held at the start of a round is the center.
 
 
 ## REQ-SB-10: a press on A is a dash. It is kept until the next tick.
@@ -124,12 +125,6 @@ func _game_tick(delta: float) -> void:
 		return
 	_tick_falls(delta)
 	match phase:
-		Phase.COUNT:
-			if _clock.tick(delta):
-				phase = Phase.PLAY
-				for s in participants:
-					player(s).recenter()   # The pose held in the countdown is the center.
-					App.server.haptic(s, 60)
 		Phase.PLAY:
 			_tick_play(delta)
 		Phase.BANNER:
@@ -350,13 +345,6 @@ func _draw_hud() -> void:
 		Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("sumo_bumpers.round_n_of",
 				[round_no, ROUNDS]), ROUND_FONT,
 				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
-	if phase == Phase.COUNT and not participants.is_empty():
-		var n := _clock.count_number()
-		var label := str(n)
-		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)   # A black shadow: yellow digits are hard to read on the sky.
-		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed())
 	if phase == Phase.BANNER and not is_over:
 		Shell.label_plate(self, banner_at(), banner_text, banner_font(banner_text), UiTheme.ACCENT)
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:

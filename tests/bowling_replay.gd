@@ -75,7 +75,7 @@ func _run() -> void:
 		var joined := Time.get_ticks_msec()
 		while _app.server.connected_slots().size() < i + 1 and Time.get_ticks_msec() - joined < 4000:
 			await process_frame
-	await _aim_and_countdown()
+	await _aim_at_start()
 	await _swing_in_the_game()
 	await _finger_and_shake()
 	await _grips()
@@ -115,10 +115,9 @@ func _new_game(n: int, props := {"difficulty": "medium"}, ups := []) -> Dictiona
 	return {"game": game, "feeders": feeders}
 
 
-## The countdown is over and the first turn starts.
+## The first turn starts (there is no countdown, REQ-GM-35).
 func _begin(game: Control) -> void:
-	game._clock.time = -0.01
-	game._game_tick(0.016)   # The countdown ends: the first turn starts.
+	game._start_turn()
 	game._game_tick(R.DT)
 
 
@@ -149,13 +148,13 @@ func _finger(f: R.Feeder, x: float) -> void:
 	f.touch = Vector2(maxf(x, 0.0), 0.5)
 
 
-func _aim_and_countdown() -> void:
+func _aim_at_start() -> void:
 	print("aim")
 	var ctx := await _new_game(2)
 	var game: Control = ctx.game
 	var f: R.Feeder = ctx.feeders[0]
 	_check(not game.has_method("countdown_spots") and game.player(0).color != game.player(1).color,
-			"the countdown has no name tags (removed 2026-10-21): the 2 balls differ by color")
+			"the game has no name tags (removed 2026-10-21): the 2 balls differ by color")
 	_play(game, f, R.turn(30.0, 0.5))
 	_begin(game)
 	_check(absf(game._aim) < 0.01,
@@ -505,9 +504,9 @@ func _over_the_network() -> void:
 	game._haptics = rec
 	var state := {}
 	await R.stream(self, _clients[0], R.still(0.6), R.UP_FLAT, state)
-	game._clock.time = 0.0
+	game._start_turn()   # The fresh phone settled for 0.6 s: its first readings are not a back swing.
 	await _frames(3)
-	_check(not game._clock.is_counting() and game.rules.current_slot() == 0, "the countdown is over and phone 1 is on turn")
+	_check(not game._has_countdown() and game.rules.current_slot() == 0, "there is no countdown and phone 1 is on turn")
 	await R.stream(self, _clients[0], R.still(0.4), R.UP_FLAT, state)
 	await R.stream(self, _clients[0], R.stroke(fw, 10.0, 25.0).append(R.still(0.4)), R.UP_FLAT, state)
 	await _frames(3)

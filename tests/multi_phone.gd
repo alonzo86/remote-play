@@ -35,6 +35,11 @@ var _watch_song := ""                    # The song id that _stream() waits for
 var _song_ms := -1                       # Tick when that song was first playing
 ## Games with a round time: the last 5 seconds tick (REQ-FL-65).
 const TIMED := ["paint_grab", "snowball_splat"]
+## Games with a visible timer start with the 3 s countdown; the others start at once (REQ-GM-35, decision of 2026-10-21).
+## Tennis has a timer only alone against the machine (`_solo_tennis`), so it has none here.
+const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "marble_race", "maze"]
+## The games without a countdown that buzz the first player at the start of the first turn (the turn buzz, 60 ms).
+const TURN_BUZZ_GAMES := ["bowling", "mini_golf"]
 
 
 func _check(cond: bool, what: String) -> void:
@@ -103,12 +108,14 @@ func _run() -> void:
 	# 3 phones: the games that change their shape with the number of players (2 against 1 in Tennis, a match of 2 in Sumo).
 	for id in ["tennis", "sumo_bumpers", "mini_golf", "bowling"]:
 		await _round(app, id, 3)
+	await _solo_tennis(app)
 	for c in _clients:
 		if is_instance_valid(c):
 			c.leave()
 
 
-## One game with the first `n` phones: the buzz at GO, the places, a tie, the cost of a frame, one phone leaves.
+## One game with the first `n` phones: the countdown (timed games only) and the buzz at GO, the places, a tie, the cost of
+## a frame, one phone leaves.
 func _round(app: Node, id: String, n: int) -> void:
 	# Phones that left an earlier round come back.
 	await _rejoin(app, 4)
@@ -124,6 +131,7 @@ func _round(app: Node, id: String, n: int) -> void:
 	for i in range(n, 4):
 		_clients[i].leave()
 	await _frames(10)
+	var started_ms := Time.get_ticks_msec()
 	app.go(load(spec[0]), spec[1].duplicate())
 	await _frames(3)
 	await _stream(1.5, n)
@@ -136,13 +144,18 @@ func _round(app: Node, id: String, n: int) -> void:
 	while _song_ms < 0 and Time.get_ticks_msec() - waited < (20000 if Slow.instrumented() else 0):
 		await _stream(0.2, n)
 	_watch_song = ""
-	_check(before == 0, "%s: no buzz in 3, 2, 1" % state)
 	var all_buzzed := true
+	var buzzed_60 := 0
 	for i in n:
 		all_buzzed = all_buzzed and _buzzes[i].count(60) >= 1
-	if id != "maze":   # The maze sends no buzz at GO, although its game file says so (issue #58).
-		_check(all_buzzed, "%s: every phone gets the 60 ms buzz at GO" % state)
-	_countdown_sounds(id, state, n)
+		buzzed_60 += 1 if _buzzes[i].count(60) >= 1 else 0
+	if id in COUNTDOWN_GAMES:
+		_check(before == 0, "%s: no buzz in 3, 2, 1" % state)
+		if id != "maze":   # The maze sends no buzz at GO, although its game file says so (issue #58).
+			_check(all_buzzed, "%s: every phone gets the 60 ms buzz at GO" % state)
+		_countdown_sounds(id, state, n)
+	else:
+		_no_countdown(id, state, buzzed_60, started_ms)
 	var game: Control = app.current_screen()
 	_check(game.participants.size() == n, "%s: %d players take part" % [state, n])
 	# The cost of one frame (logic only, nothing is drawn in --headless).
@@ -234,6 +247,39 @@ func _countdown_sounds(id: String, state: String, n: int) -> void:
 				if b[0] == 60:
 					worst = maxi(worst, absi(int(b[1]) - go_ms))
 		_check(go_ms > 0 and worst <= 100, "%s: the GO buzz comes within 100 ms of the GO sound (%d ms on loopback)" % [state, worst])
+
+
+## REQ-GM-35: a game without a timer has no countdown: no count or go sound, no start buzz on every phone (the games with
+## turns buzz the player on turn only), and the song of the game starts with the play, not after 3 s.
+func _no_countdown(id: String, state: String, buzzed_60: int, started_ms: int) -> void:
+	var sound: Node = root.get_node("Sound")
+	var beeps: Array = _sounds.filter(func(x): return x[0] == "count" or x[0] == "go").map(func(x): return x[0])
+	_check(beeps.is_empty(), "%s: no timer, so no countdown sounds (got %s)" % [state, str(beeps)])
+	var allowed := 1 if id in TURN_BUZZ_GAMES else 0
+	_check(buzzed_60 <= allowed,
+			"%s: no start buzz on every phone: %d phone(s) buzzed 60 ms (%d at most)" % [state, buzzed_60, allowed])
+	_check(_song_ms >= 0 and sound.wanted_music == id and id != "menu",
+			"%s: the song of the game starts with the play (%d ms after the start)" % [state, _song_ms - started_ms])
+
+
+## Tennis alone against the machine shows the solo clock, so it has the 3 s countdown and the GO buzz (REQ-GM-35).
+func _solo_tennis(app: Node) -> void:
+	await _rejoin(app, 4)
+	_buzzes = [[], [], [], []]
+	_sounds.clear()
+	for i in range(1, 4):
+		_clients[i].leave()
+	await _frames(10)
+	app.go(load(GAMES.tennis[0]), GAMES.tennis[1].duplicate())
+	await _frames(3)
+	await _stream(1.5, 1)
+	var before: int = _buzzes[0].size()
+	await _stream(3.2, 1)
+	var beeps: Array = _sounds.filter(func(x): return x[0] == "count" or x[0] == "go").map(func(x): return x[0])
+	_check(before == 0, "tennis with 1 phone: no buzz in 3, 2, 1")
+	_check(beeps == ["count", "count", "go"],
+			"tennis with 1 phone: the solo clock gives the countdown 2 count beeps, then GO (got %s)" % str(beeps))
+	_check(_buzzes[0].count(60) >= 1, "tennis with 1 phone: the phone gets the 60 ms buzz at GO")
 
 
 ## 18.5e: a timed round ticks once in each of the last 5 seconds. The clock is moved to 6.5 s before the end and runs 6 seconds.

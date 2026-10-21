@@ -132,7 +132,6 @@ func _event(game: Control, label: String, ids: Array, buzzes: Dictionary, trigge
 func _asteroid() -> void:
 	print("Galaxy Protector")
 	var game := _game(ASTEROID, {"difficulty": "medium"})
-	SimInput.to_play(game, func() -> bool: return game._clock.is_counting())
 	game.field.asteroids.clear()
 	var ship: SpaceField.Ship = game.field.ships[0]
 	await _event(game, "an asteroid is destroyed", ["blast_boom"], {}, func() -> void:
@@ -153,7 +152,6 @@ func _asteroid() -> void:
 		game._process(DT)
 		game._process(DT))
 	var wave := _game(ASTEROID, {"difficulty": "medium"})
-	SimInput.to_play(wave, func() -> bool: return wave._clock.is_counting())
 	await _event(wave, "a wave ends", ["blast_wave"], {}, func() -> void:
 		SimInput.run(wave, 31.0, DT, func(_t: float) -> void: wave.field.asteroids.clear()))
 
@@ -163,7 +161,6 @@ func _asteroid() -> void:
 func _sumo() -> void:
 	print("Sumo Bumpers")
 	var game := _game(SUMO, {"difficulty": "medium"})
-	SimInput.to_play(game, func() -> bool: return game.phase == game.Phase.COUNT)
 	for i in 3:
 		game._bodies[i].pos = game.arena.start_spots(3)[i]
 		game._bodies[i].vel = Vector2.ZERO
@@ -297,7 +294,6 @@ func _race() -> void:
 
 func _bowling_game() -> Control:
 	var game := _game(BOWLING, {"difficulty": "medium"})
-	SimInput.to_play(game, func() -> bool: return game._clock.is_counting())
 	return game
 
 
@@ -362,7 +358,6 @@ func _roll_on(game: Control, hole: Dictionary, from: Vector2, speed: float, effe
 func _golf() -> void:
 	print("Mini Golf")
 	var game := _game(GOLF, {"difficulty": "medium", "holes": "3"})
-	SimInput.to_play(game, func() -> bool: return game._clock.is_counting())
 	await _event(game, "a turn starts", ["golf_turn"], {0: 60}, func() -> void: game._start_turn())
 	await _event(game, "a hard putt (power above 0.6)", ["golf_putt"], {0: 60}, func() -> void:
 		game.detector.power = 0.8
@@ -391,14 +386,12 @@ func _golf() -> void:
 		game._putt_done(), true, ["golf_hole", "golf_ace"])
 	# A hole in one needs the first stroke of the player: a new game.
 	var ace := _game(GOLF, {"difficulty": "medium", "holes": "3"})
-	SimInput.to_play(ace, func() -> bool: return ace._clock.is_counting())
 	await _event(ace, "a hole in one", ["golf_ace"], {0: 200}, func() -> void:
 		ace.sim.in_cup = true
 		ace.sim.in_water = false
 		ace._putt_done(), false, ["golf_hole"])
 	# A hole in two strokes: every player misses once, then the first one holes out.
 	var hole := _game(GOLF, {"difficulty": "medium", "holes": "3"})
-	SimInput.to_play(hole, func() -> bool: return hole._clock.is_counting())
 	for i in _clients.size():   # The turns go round all the phones, so the first player is on turn again after the last one.
 		hole.sim.in_cup = false
 		hole.sim.in_water = false
@@ -415,7 +408,6 @@ func _golf() -> void:
 func _tennis() -> void:
 	print("Tennis")
 	var game := _game(TENNIS, {"difficulty": "medium"})
-	SimInput.to_play(game, func() -> bool: return game._clock.is_counting())
 	var team: Array = game.play.rules.teams[0]
 	var team_buzz := {}
 	for s in team:

@@ -92,7 +92,7 @@ func _on_plate(kind: String, ci: CanvasItem, _rect: Rect2, info: Dictionary) -> 
 		_log.append({"frame": Engine.get_process_frames(), "msg": String(info.msg)})
 
 
-## A game for the first `n` phones, after the countdown. The others stay joined but do not play.
+## A game for the first `n` phones, on the first turn. The others stay joined but do not play.
 func _new_game(n: int, difficulty := "medium", rails := "off") -> Control:
 	for p in _app.server.players:
 		SimInput.set_tilt(p, Vector2.ZERO)
@@ -105,7 +105,7 @@ func _new_game(n: int, difficulty := "medium", rails := "off") -> Control:
 	_game.rules.setup(slots)
 	_game._board = Scoreboard.new(slots)
 	_game._rows_at_start = n
-	SimInput.to_play(_game, func() -> bool: return _game._clock.is_counting())
+	_game._start_turn()   # The game started its first turn for all phones; this is the turn of the first one of `n`.
 	Shell.recorder = _on_plate
 	return _game
 
@@ -296,7 +296,7 @@ func _phones_and_scores() -> void:
 	print("the phones")
 	await _connect(2)
 	var game := await _new_game(2)
-	game._process(DT)   # The turn message goes out in the first tick after the countdown; the game does not process by itself here.
+	game._process(DT)   # The turn message goes out in the first tick; the game does not process by itself here.
 	await _frames(6)
 	var first_buzzes: Array = _buzzes[0].duplicate()
 	_check(_clients[0].turn_state == 1 and _clients[1].turn_state == 2 and _clients[1].turn_who == "Sim0"

@@ -69,7 +69,7 @@ The rows are in `assets/lang/strings.csv` (keys `registry.mini_golf`, `registry.
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
 
-The song `mini_golf` plays from "GO": a relaxed, light loop (104 BPM, F major). The countdown, pause and result sounds come from the base class. All values are first guesses (Test 26, Test 18).
+The song `mini_golf` starts with the first turn (no countdown, REQ-GM-35): a relaxed, light loop (104 BPM, F major). The pause and result sounds come from the base class; there is no `count` or `go` sound. All values are first guesses (Test 26, Test 18).
 
 | ID | Effect | When | Sound | Haptic |
 |----|--------|------|-------|--------|
@@ -81,7 +81,7 @@ The song `mini_golf` plays from "GO": a relaxed, light loop (104 BPM, F major). 
 | REQ-MG-S6 | `golf_hole` | The ball goes in the cup. | Rising three notes | 80 ms |
 | REQ-MG-S7 | `golf_ace` | A hole in one. | Rising six notes, brighter | 200 ms |
 
-Haptics on the phone of the player: Countdown end: 60 ms; Round end: 400 ms for the winners. Two buzzes of one player are at least 150 ms apart. No sound is scary or sad (REQ-GM-81): the lake is a funny splash and a picked up ball is silent.
+Haptics on the phone of the player: no start buzz (there is no countdown; the first turn has the turn buzz of `golf_turn`, 60 ms); Round end: 400 ms for the winners. Two buzzes of one player are at least 150 ms apart. No sound is scary or sad (REQ-GM-81): the lake is a funny splash and a picked up ball is silent.
 
 ## Open questions
 

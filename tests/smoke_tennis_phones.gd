@@ -62,9 +62,10 @@ func _join_to(app: Node, clients: Array, n: int) -> void:
 			await process_frame
 
 
-## Skips the countdown and keeps the tick gap short, so that swings count.
+## Skips the countdown (only the solo match has one, REQ-GM-35) and keeps the tick gap short, so that swings count.
 func _go(game: Control) -> void:
-	game._clock.time = -0.01
+	if game._clock.is_counting():
+		game._clock.time = -0.01
 	game._game_tick(0.02)
 	game._game_tick(0.016)
 
@@ -130,19 +131,21 @@ func _run() -> void:
 	await _join_to(app, clients, 2)
 	await _frames(2)
 
-	# ---- The countdown and the first screen (2 phones) ----
+	# ---- The first screen (2 phones, no countdown) ----
 	app.go(Tennis, {"difficulty": "medium", "scoring": "real"})
 	await _frames(3)
 	var game: Control = app.current_screen()
 	_check(not game.has_method("countdown_spots") and game.player(0).player_name != game.player(1).player_name,
-			"the countdown has no name tags (removed 2026-10-21): the 2 characters differ by color (2a)")
+			"the game has no name tags (removed 2026-10-21): the 2 characters differ by color (2a)")
+	_check(not game._has_countdown() and not game._clock.is_counting() and game._live(),
+			"2 players: no timer, so no countdown; the match is live at once (REQ-GM-35)")
 	_check(not game._board.has_lead() and game.play.rules.tally[0] == 0 and game.play.rules.tally[1] == 0,
 			"before the first point nobody leads, so the leader chip is not drawn (2c)")
 	_check(game.difficulty == "medium", "the difficulty is Medium by default (1a)")
 	_go(game)
 	_settle(game)
 	_check(game._hint() == "tennis.hint_serve" and Lang.t("tennis.hint_serve").begins_with("PRESS A TO TOSS"),
-			"at GO the hint line is the serve hint: %s (3a)" % Lang.t("tennis.hint_serve"))
+			"at the start the hint line is the serve hint: %s (3a)" % Lang.t("tennis.hint_serve"))
 	_tick_n(game, 14.0)
 	_check(game._hint() == "tennis.hint_serve", "the hint is still there after 14 s")
 	_tick_n(game, 4.0)
@@ -283,6 +286,8 @@ func _run() -> void:
 	app.go(Tennis, {"difficulty": "medium"})
 	await _frames(3)
 	var solo: Control = app.current_screen()
+	_check(solo._has_countdown() and solo._clock.is_counting() and solo._clock.time < -2.0 and not solo._live(),
+			"alone, the match shows the solo clock, so it starts with the 3 s countdown (REQ-GM-35)")
 	_go(solo)
 	_settle(solo)
 	var t_first := -1.0

@@ -79,7 +79,7 @@ func _on_note(kind: String, ci: CanvasItem, _rect: Rect2, info: Dictionary) -> v
 		_log.append({"kind": kind, "msg": String(info.get("msg", ""))})
 
 
-## A game for the connected phones, after the countdown.
+## A game for the connected phones, after the countdown (only a solo match has one).
 func _new_game(props := {"difficulty": "medium", "scoring": "real"}) -> Control:
 	for p in _app.server.players:
 		SimInput.set_tilt(p, Vector2.ZERO)

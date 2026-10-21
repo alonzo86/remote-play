@@ -37,12 +37,11 @@ func _frames(n: int) -> void:
 		await process_frame
 
 
-## A match in play (round 1, the countdown is over), stepped by hand. All phones are held flat.
+## A match in play (round 1, no countdown), stepped by hand. All phones are held flat.
 func _play(difficulty := "medium") -> Control:
 	for p in _app.server.players:
 		SimInput.set_tilt(p, Vector2.ZERO)
 	var game := SimInput.start_game(_app, _sumo, {"difficulty": difficulty})
-	SimInput.to_play(game, func() -> bool: return game.phase == game.Phase.COUNT)
 	return game
 
 

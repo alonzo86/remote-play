@@ -54,12 +54,21 @@ func _ready() -> void:
 	participants = App.server.connected_slots()
 	App.server.set_phase("playing", participants)
 	Sound.duck(false)
-	Sound.music_at_go(Registry.id_of_script(get_script()))   # The song starts at GO (REQ-FL-65a).
+	if _has_countdown():
+		Sound.music_at_go(Registry.id_of_script(get_script()))   # The song starts at GO (REQ-FL-65a).
+	else:
+		Sound.music(Registry.id_of_script(get_script()))   # No countdown: the song starts with the play (REQ-GM-35).
 	if _pixel_world():
 		_build_pixel_view()
 	_game_ready()
 	if participants.is_empty():
 		end_no_players()
+
+
+## True when the game starts with the 3 s countdown (REQ-GM-35). Only a game with a visible timer has one; the others
+## start at once and their song starts with the play. A game answers this in `_ready()` time: `participants` is set.
+func _has_countdown() -> bool:
+	return true
 
 
 func player(slot: int) -> PlayerInput:

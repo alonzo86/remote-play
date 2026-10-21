@@ -65,10 +65,11 @@ func _join_to(app: Node, clients: Array, n: int) -> void:
 			await process_frame
 
 
-## Skips the countdown so that a test goes straight to the first turn.
+## The first turn starts at once (REQ-GM-35); it starts again here, now that the phones have settled, so that the pose of
+## each phone is the straight line, and one tick publishes it.
 func _to_turn(game: Control) -> void:
-	game._clock.time = -0.001
-	game._game_tick(0.016)   # GO: the first turn starts
+	game._start_turn()
+	game._game_tick(0.016)
 
 
 ## Feeds one sample to the phone of `slot` and ticks the game.
@@ -148,12 +149,12 @@ func _run() -> void:
 	await _join_to(app, clients, 2)
 	await _frames(2)
 
-	# ---- The countdown, the bar and the hole text ----
+	# ---- The start, the bar and the hole text ----
 	app.go(_Golf, {"difficulty": "medium", "holes": "3"})
 	await _frames(3)
 	var game: Control = app.current_screen()
 	_check(not game.has_method("_countdown_spots") and game.player(0).player_name != game.player(1).player_name,
-			"the countdown has no name tags (removed 2026-10-21) and the 2 phones have different names (2a)")
+			"the game has no name tags (removed 2026-10-21) and the 2 phones have different names (2a)")
 	_check(game.hole_text() == "HOLE 1/3  PAR 2"
 			and game.chip_text(0) == game.player(0).player_name + "  0" and game.chip_text(1) == game.player(1).player_name + "  0",
 			"the top right says '%s' and the bar has one chip per player: '%s', '%s' (2c)"

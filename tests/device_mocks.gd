@@ -1,6 +1,7 @@
 extends SceneTree
 ## Behavior that a manual test used to check on real phones, done here with simulated phones (a real client on loopback that
-## streams sensor values and button presses, and listens for the buzz): the buzz at GO in every game, no buzz and no change in
+## streams sensor values and button presses, and listens for the buzz): the buzz at GO in the games with a countdown, none in the
+## others, no buzz and no change in
 ## the countdown, RECENTER and A/B in Paint Grab, and a phone that goes silent pauses the turn games (a lock or a lost Wi-Fi).
 ## It tests what the TV does with such a phone, not what a real phone does. Run by tests/run_all.sh and tools/coverage.sh:
 ##   godot --headless --path . --script tests/device_mocks.gd -- --role=tv
@@ -18,6 +19,10 @@ const GAMES := {
 	"bowling": ["res://scripts/game/bowling/bowling_game.gd", {"difficulty": "medium"}],
 	"tennis": ["res://scripts/game/tennis/tennis_game.gd", {"difficulty": "medium"}],
 }
+## Only a game with a visible timer has the countdown and the buzz at GO (REQ-GM-35). Tennis with 2 phones has no timer.
+const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "marble_race"]
+## The turn games buzz the phone on turn (60 ms) when the first turn starts, and no other phone.
+const TURN_GAMES := ["mini_golf", "bowling"]
 
 var _checks := 0
 var _fails := 0
@@ -82,10 +87,17 @@ func _run() -> void:
 		await _stream(1.5, flat)
 		var before: int = _buzzes[0].size() + _buzzes[1].size()
 		await _stream(2.5, flat)
-		_check(before == 0, "%s: no buzz during 3, 2, 1" % id)
-		_check(_buzzes[0].count(60) >= 1 and _buzzes[1].count(60) >= 1,
-				"%s: every phone gets a 60 ms buzz at GO (a turn game adds 'your turn'): %s %s"
-				% [id, str(_buzzes[0]), str(_buzzes[1])])
+		if id in COUNTDOWN_GAMES:
+			_check(before == 0, "%s: no buzz during 3, 2, 1" % id)
+			_check(_buzzes[0].count(60) >= 1 and _buzzes[1].count(60) >= 1,
+					"%s: every phone gets a 60 ms buzz at GO: %s %s" % [id, str(_buzzes[0]), str(_buzzes[1])])
+		elif id in TURN_GAMES:
+			_check(_buzzes[0].count(60) >= 1 and _buzzes[1].is_empty(),
+					"%s: no countdown (no timer); only the phone on turn gets the 60 ms turn buzz: %s %s"
+					% [id, str(_buzzes[0]), str(_buzzes[1])])
+		else:
+			_check(_buzzes[0].count(60) == 0 and _buzzes[1].count(60) == 0,
+					"%s: no countdown (no timer), so no 60 ms buzz at the start: %s %s" % [id, str(_buzzes[0]), str(_buzzes[1])])
 
 	# The pose held in the countdown is the center: a phone that leans during 3, 2, 1 has no tilt after GO (REQ-GM-37).
 	var lean0 := deg_to_rad(15.0)
@@ -93,7 +105,6 @@ func _run() -> void:
 	var centered := {
 		"maze": ["res://scripts/game/maze/maze_game.gd", {}],
 		"paint_grab": GAMES.paint_grab,
-		"asteroid_blast": GAMES.asteroid_blast,
 	}
 	for id in centered:
 		await _stream(0.5, flat)
@@ -106,6 +117,14 @@ func _run() -> void:
 		_check(held > 0.1 and app.server.players[0].tilt().length() < 0.05,
 				"%s: a phone that leans in the countdown is centered at GO (%.2f then %.3f)"
 				% [id, held, app.server.players[0].tilt().length()])
+
+	# No countdown (REQ-GM-35): Galaxy Protector takes the pose held when the game starts as the center.
+	await _stream(0.5, leaning)
+	app.go(load(GAMES.asteroid_blast[0]), GAMES.asteroid_blast[1].duplicate())
+	await _frames(3)
+	await _stream(0.5, leaning)
+	_check(app.server.players[0].tilt().length() < 0.05,
+			"asteroid_blast: the pose held at the start is the center (%.3f)" % app.server.players[0].tilt().length())
 
 	# Paint Grab: RECENTER stops the creep, A and B do nothing (REQ-PG-14).
 	app.go(load(GAMES.paint_grab[0]), GAMES.paint_grab[1].duplicate())

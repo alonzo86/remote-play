@@ -48,9 +48,10 @@ func _join(app: Node, n: int) -> Array:
 	return clients
 
 
-## Skips the countdown and keeps the tick gap short, so that swings count.
+## Skips the countdown (only the solo match has one, REQ-GM-35) and keeps the tick gap short, so that swings count.
 func _go(game: Control) -> void:
-	game._clock.time = -0.01
+	if game._clock.is_counting():
+		game._clock.time = -0.01
 	game._game_tick(0.02)
 	game._game_tick(0.016)
 
@@ -76,8 +77,8 @@ func _run() -> void:
 	var game: Control = app.current_screen()
 	_check(is_instance_of(game, Tennis) and game.scoring == "real" and game.difficulty == "medium" and game.best_key() == "",
 			"Start opens the game with Real scoring")
-	_check(game._clock.is_counting() and not game.play.rules.quick and game.play.chars.size() == 2,
-			"the game starts with a countdown and 2 players on the court")
+	_check(not game._has_countdown() and not game._clock.is_counting() and not game.play.rules.quick and game.play.chars.size() == 2,
+			"a match of 2 players has no countdown (no timer, REQ-GM-35) and 2 players are on the court")
 	await _frames(3)   # The pixel layer draws the court and the people without an error.
 
 	# A press on A of the server tosses the ball, a swing down serves (REQ-TN-9).

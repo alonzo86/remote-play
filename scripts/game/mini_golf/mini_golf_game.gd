@@ -9,10 +9,8 @@ const GolfSim = preload("res://scripts/game/mini_golf/golf_sim.gd")
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
-const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
-const COUNTDOWN := 3.0
 const TURN_BANNER := 1.5        # REQ-MG-3: how long the name of the player on turn shows.
 const RESULT_TIME := 1.8        # How long the banner of a putt shows. A press on A of any phone ends it at once.
 const QUIET_TIME := 0.5         # After a putt with nothing to say.
@@ -48,7 +46,6 @@ var phase := Phase.AIM
 
 var _board: Scoreboard
 var _scored := false
-var _clock := RoundClock.new(COUNTDOWN, 0.0)
 var _haptics := Haptics.new()
 var _hole: Dictionary = {}
 var _time := 0.0
@@ -77,6 +74,10 @@ static func level(d: String) -> Dictionary:
 	return LEVELS.get(d, LEVELS.medium)
 
 
+func _has_countdown() -> bool:
+	return false   # No visible timer, so no countdown (REQ-GM-35): the first turn starts at once.
+
+
 func _game_ready() -> void:
 	var slots: Array[int] = []
 	slots.assign(participants)
@@ -86,6 +87,8 @@ func _game_ready() -> void:
 		_board.set_unfinished(s, 0.0)
 	detector.threshold = float(level(difficulty).threshold)
 	_load_hole()
+	if not participants.is_empty():
+		_start_turn()
 
 
 func _load_hole() -> void:
@@ -101,7 +104,7 @@ func _on_player_left(slot: int) -> void:
 	_board.remove(slot)
 	_a_down.erase(slot)
 	_balls.erase(slot)
-	if is_over or _clock.is_counting():
+	if is_over:
 		return
 	if rules.rows.is_empty():
 		return
@@ -142,12 +145,6 @@ func _game_tick(delta: float) -> void:
 	_swing_age += delta
 	_lock_age = _lock_age + delta if detector.aim_locked else 0.0
 	if is_over:
-		return
-	if _clock.is_counting():
-		if _clock.tick(delta):
-			for s in participants:
-				App.server.haptic(s, 60)
-			_start_turn()
 		return
 	_publish_turn()
 	_phase_time += delta
@@ -357,9 +354,6 @@ func _world_draw(ci: CanvasItem) -> void:
 	for th in things:
 		th[1].call()
 	GolfLook.draw_flag(ci, geo, _hole, _time)
-	if _clock.is_counting():
-		GolfLook.draw_ball(ci, geo, _hole.tee)
-		return
 	if phase == Phase.HOLE or phase == Phase.END or _putter < 0 or not participants.has(_putter):
 		return
 	GolfLook.draw_golfer(ci, geo, _feet, sim.pos, _pose(), player(_putter).color)
@@ -375,16 +369,6 @@ func _world_draw(ci: CanvasItem) -> void:
 
 func _game_draw() -> void:
 	Shell.title(self, "registry.mini_golf")
-	if _clock.is_counting():
-		var n := _clock.count_number()
-		var label := str(n)
-		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed())
-		_draw_bar()
-		_draw_hole_text()
-		return
 	_draw_hole_text()
 	_draw_bar()
 	if is_over:
@@ -447,7 +431,7 @@ func _draw_bar() -> void:
 	var total_w := w * float(n) + gap * float(n - 1)
 	var x := (size.x - total_w) * 0.5
 	var y := size.y - BAR_MARGIN - BAR_H
-	var on := rules.current_slot() if not _clock.is_counting() and phase != Phase.HOLE else -1
+	var on := rules.current_slot() if phase != Phase.HOLE else -1
 	for r in rules.rows:
 		if not participants.has(r.slot):
 			continue

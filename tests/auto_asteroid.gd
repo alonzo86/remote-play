@@ -1,6 +1,6 @@
 extends SceneTree
 ## Galaxy Protector with simulated phones and a fixed time step: what used to be checked by hand in Test 22 and a machine can
-## check (the countdown without name tags, the hint time, RECENTER, the colors of the beams, the buzzes, the line of the wave,
+## check (no countdown, no name tags, the hint time, RECENTER, the colors of the beams, the buzzes, the line of the wave,
 ## the medals, a player that leaves). The game is stepped by hand (`SimInput`). Run:
 ##   godot --headless --path . --script tests/auto_asteroid.gd -- --role=tv
 
@@ -49,18 +49,16 @@ func _frames(n: int) -> void:
 		await process_frame
 
 
-## A game in its countdown, stepped by hand. All phones are held flat.
+## A game at its start, stepped by hand. All phones are held flat.
 func _new_game(difficulty := "medium") -> Control:
 	for p in _app.server.players:
 		SimInput.set_tilt(p, Vector2.ZERO)
 	return SimInput.start_game(_app, _blast, {"difficulty": difficulty})
 
 
-## A game after GO. The asteroids can be switched off (`calm`), so that nothing hits a ship.
+## A game in play (there is no countdown). The asteroids can be switched off (`calm`), so that nothing hits a ship.
 func _play(difficulty := "medium") -> Control:
-	var game := _new_game(difficulty)
-	SimInput.to_play(game, func() -> bool: return game._clock.is_counting())
-	return game
+	return _new_game(difficulty)
 
 
 func _run() -> void:
@@ -69,7 +67,7 @@ func _run() -> void:
 	_app = root.get_node("App")
 	_blast = load("res://scripts/game/asteroid_blast/asteroid_blast_game.gd")
 	_clients = await SimInput.connect_phones(self, _app, 4)
-	await _countdown()
+	await _start()
 	await _recenter()
 	_beams()
 	await _buzzes()
@@ -83,29 +81,26 @@ func _run() -> void:
 	quit(1 if _fails > 0 else 0)
 
 
-## 22.2a, 2b, 2c: in the countdown the ships steer and carry no name tags; the hint stays about 5 s after GO (REQ-AB-16).
-func _countdown() -> void:
-	print("the countdown")
+## 22.2a, 2b, 2c: no countdown (REQ-GM-35), the ships steer at once and carry no name tags; the hint stays about 5 s (REQ-AB-16).
+func _start() -> void:
+	print("the start")
 	var game := _new_game()
 	var p: RefCounted = _app.server.players[0]
 	var x0: float = game.field.ships[0].x
 	SimInput.set_tilt(p, Vector2(0.5, 0.0))
 	SimInput.run(game, 1.0)
-	_check(game._clock.is_counting() and game.field.ships[0].x - x0 > 100.0 and game.field.asteroids.is_empty()
-			and game.field.beams.is_empty() and game.field.events.is_empty(),
-			"in the first second of the countdown the ship steers %.0f px, and nothing falls or fires" % (game.field.ships[0].x - x0))
+	_check(not game._has_countdown() and game.field.phase_time > 0.9 and game.field.ships[0].x - x0 > 100.0,
+			"there is no countdown: in the first second the wave runs and the ship steers %.0f px" % (game.field.ships[0].x - x0))
 	var methods: Array = game.get_script().get_script_method_list().map(func(m: Dictionary) -> String: return m.name)
-	_check(game._clock.is_counting() and not methods.has("name_tag_spots") and not methods.has("name_tags_shown"),
-			"the countdown has no name tags over the ships (the players are known by the color of the ship)")
+	_check(not methods.has("name_tag_spots") and not methods.has("name_tags_shown"),
+			"the game has no name tags over the ships (the players are known by the color of the ship)")
 	var ship0 := BlastLook.ship_image(_app.server.players[0].color, 0)
 	var ship1 := BlastLook.ship_image(_app.server.players[1].color, 0)
 	_check(ship0.get_data() != ship1.get_data(),
 			"the ships of two players have different pictures (different colors)")
 	SimInput.set_tilt(p, Vector2.ZERO)
-	var go := SimInput.run_until(game, func() -> bool: return not game._clock.is_counting(), 10.0)
-	var hint_after := SimInput.run_until(game, func() -> bool: return not game.hint_shown(), 20.0)
-	_check(go > 1.5, "the countdown ends after more than 1.5 s")
-	_check(hint_after >= 4.0 and hint_after <= 6.0, "the hint goes away %.1f s after GO (4 to 6 s)" % hint_after)
+	var hint_after := 1.0 + SimInput.run_until(game, func() -> bool: return not game.hint_shown(), 20.0)
+	_check(hint_after >= 4.0 and hint_after <= 6.0, "the hint goes away %.1f s after the start (4 to 6 s)" % hint_after)
 
 
 ## 22.3e: after RECENTER the ship stops within 1 s while the phone is held at the new pose (REQ-GM-37).

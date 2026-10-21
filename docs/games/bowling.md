@@ -50,7 +50,7 @@ A swing that is too weak does nothing and the hint says "Swing a bit more!"; the
 
 ## Turn flow
 
-1. "NOA, YOUR TURN!" (a plate in the middle of the top bar for 1.5 s, the phone buzzes once, 60 ms: the first turn has this buzz only, not the "GO" buzz too). The ball of the player (slot color) is at the foul line.
+1. "NOA, YOUR TURN!" (a plate in the middle of the top bar for 1.5 s, the phone buzzes once, 60 ms; the game starts with this turn at once, there is no countdown). The ball of the player (slot color) is at the foul line.
 2. Aim, swing back, swing forward. The ball rolls (about 2 s). The pins fall (about 1.5 s). The score sheet updates.
 3. Pins left: the same player bowls ball 2 ("2 pins left. One more ball!"). Then the fallen pins are taken away at once and the next player starts.
 4. Strike: "STRIKE!" banner and a burst of colored pixels. Spare: "SPARE!". Off the side: "OOPS! OFF THE SIDE" (no point is taken, no mockery, REQ-GM-84).
@@ -64,7 +64,7 @@ The phones: the player on turn gets a short buzz (60 ms). The pad shows "YOUR TU
 | General ID | Kind | Note |
 |------------|------|------|
 | REQ-GM-24 | Note | All players have the same values. The turn order is standard (player 1 first in every frame), which is the rule of the sport. |
-| REQ-GM-35, 71 | Exception | There is a countdown (3 s) but no round clock: the game ends after the 10th frame of the last player (REQ-BW-1). |
+| REQ-GM-35, 71 | Exception | There is no countdown (REQ-GM-35, no visible timer) and no round clock: the first turn starts at once after Start; the game ends after the 10th frame of the last player (REQ-BW-1). |
 | REQ-GM-37 | Exception | The Recenter box is the aim strip while it is the turn of the phone (REQ-BW-4), because the game needs no recenter: the aim is a finger, not a pose. Other phones keep RECENTER. A is used by every phone only to skip the banner of a ball. B is not used. |
 | REQ-GM-81 | Note | The pins are plain lifeless pins with no face. Knocked pins spin and burst into colored pixels. No living thing is hit. |
 | REQ-GM-83 | Gap (open) | A player waits for the other players (about 30 s with 4 players) and a turn has no time limit. The user decided this on 2026-10-16 (no Length setting). Mitigation: short animations. |
@@ -159,7 +159,7 @@ Values that change the feel. Tune them with the swing lab and a device test (REQ
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
 
-The song `bowling`: a light, bouncy loop (about 110 BPM, C major) that plays from "GO". The effects are short. No sound is scary or sad.
+The song `bowling`: a light, bouncy loop (about 110 BPM, C major) that starts with the first turn (no countdown). The effects are short. No sound is scary or sad.
 
 | ID | Effect | When | Sound | Haptic |
 |----|--------|------|-------|--------|

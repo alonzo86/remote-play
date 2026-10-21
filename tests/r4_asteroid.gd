@@ -48,9 +48,7 @@ func _frames(n: int) -> void:
 func _play() -> Control:
 	for p in _app.server.players:
 		SimInput.set_tilt(p, Vector2.ZERO)
-	var game := SimInput.start_game(_app, _blast, {"difficulty": "medium"})
-	SimInput.to_play(game, func() -> bool: return game._clock.is_counting())
-	return game
+	return SimInput.start_game(_app, _blast, {"difficulty": "medium"})
 
 
 func _run() -> void:

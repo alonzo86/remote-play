@@ -9,10 +9,8 @@ const BowlingRules = preload("res://scripts/game/bowling/bowling_rules.gd")
 const LaneSim = preload("res://scripts/game/bowling/lane_sim.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
-const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
-const COUNTDOWN := 3.0
 const RESULT_TIME := 1.8        # How long the banner of a ball shows. A press on A of any phone ends it at once.
 const END_DELAY := 2.0          # After the last ball the lane stays this long, then the result menu opens (REQ-BW-1).
 const HINT_TIME := 12.0         # The hint shows this long at the start of a turn, then again after a weak swing.
@@ -42,7 +40,6 @@ var detector := SwingDetector.new()
 var phase := Phase.AIM
 
 var _board: Scoreboard
-var _clock := RoundClock.new(COUNTDOWN, 0.0)
 var _haptics := Haptics.new()
 var _rows_at_start := 1
 var _time := 0.0
@@ -64,6 +61,10 @@ var _a_down := {}               # slot -> A was down at the last tick.
 var _last_event := {}
 
 
+func _has_countdown() -> bool:
+	return false   # No visible timer, so no countdown (REQ-GM-35): the first turn starts at once.
+
+
 func _game_ready() -> void:
 	var slots: Array[int] = []
 	slots.assign(participants)
@@ -73,6 +74,8 @@ func _game_ready() -> void:
 	detector.threshold = float(BowlingRules.level(difficulty).threshold)
 	detector.min_back = MIN_BACK
 	detector.max_reversals = 1   # A shake turns the acceleration round again and again: it throws nothing (REQ-BW-5).
+	if not participants.is_empty():
+		_start_turn()
 
 
 func _on_player_left(slot: int) -> void:
@@ -80,7 +83,7 @@ func _on_player_left(slot: int) -> void:
 	rules.remove_player(slot)
 	_board.remove(slot)
 	_a_down.erase(slot)
-	if is_over or _clock.is_counting():
+	if is_over:
 		return
 	if rules.game_over():
 		_begin_end()
@@ -123,14 +126,6 @@ func _begin_end() -> void:
 func _game_tick(delta: float) -> void:
 	_time += delta
 	if is_over:
-		return
-	if _clock.is_counting():
-		if _clock.tick(delta):
-			var first := rules.current_slot()
-			for s in participants:
-				if s != first:   # The first player gets the buzz of the turn only: one buzz (bowling.md Turn flow 1).
-					App.server.haptic(s, 60)
-			_start_turn()
 		return
 	_publish_turn()
 	_phase_time += delta
@@ -317,11 +312,6 @@ func _world_draw(ci: CanvasItem) -> void:
 	if colors.is_empty():
 		colors.append(UiTheme.TEXT)
 	var ball_first := false
-	if _clock.is_counting():
-		BowlingLook.draw_pins(ci, geo, sim, colors)
-		for i in participants.size():
-			BowlingLook.draw_ball(ci, geo, Vector2(_wait_x(i), 0.0), player(participants[i]).color)
-		return
 	var slot := rules.current_slot()
 	if phase == Phase.ROLL and sim.ball_active and sim.ball_pos.y > LaneSim.HEAD_Y + 0.15:
 		ball_first = true
@@ -338,23 +328,9 @@ func _world_draw(ci: CanvasItem) -> void:
 		BowlingLook.draw_ball(ci, geo, sim.ball_pos, color)
 
 
-## The place across the lane (m) of the ball of the i-th player in the countdown.
-func _wait_x(i: int) -> float:
-	return (float(i + 1) / float(participants.size() + 1) * 2.0 - 1.0) * 0.4
-
-
 func _game_draw() -> void:
 	Shell.title(self, "registry.pin_pals")
 	var geo := _geo()
-	if _clock.is_counting():
-		var n := _clock.count_number()
-		var label := str(n)
-		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed())
-		_draw_sheet()
-		return
 	_draw_frame_text()
 	_draw_sheet()
 	if is_over:
@@ -402,7 +378,7 @@ func _draw_sheet() -> void:
 	for r in rules.rows:
 		if not participants.has(r.slot):
 			continue
-		var active: bool = r.slot == on_turn and not is_over and not _clock.is_counting()
+		var active: bool = r.slot == on_turn and not is_over
 		var p := player(r.slot)
 		var name_rect := Shell.chip(self, Vector2(x0, y), p.player_name, p.color, NAME_W - 6.0, ROW_H - 6.0, p.avatar)
 		if active:

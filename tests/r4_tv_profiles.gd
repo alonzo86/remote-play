@@ -209,7 +209,7 @@ func _chip_checks(state: String, rect: Rect2, player_name: String, avatar: int, 
 
 
 func _no_tag_check(id: String, snap: Dictionary, lang: String) -> void:
-	_check(not snap.has("tag"), "%s countdown in %s: no name tags (removed 2026-10-21)" % [id, lang])
+	_check(not snap.has("tag"), "%s at the start in %s: no name tags (removed 2026-10-21)" % [id, lang])
 
 
 ## The four scores of `slots` for the game: a score for a points game, a finish time for the race (60 s minus the points, so the

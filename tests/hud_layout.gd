@@ -157,21 +157,23 @@ func _run() -> void:
 			c.leave()
 
 
-## One game: the countdown in English and in Hebrew, the same game started in Hebrew, then the round with the chip and the timer.
+## One game: the start (the countdown only in a game with a timer, REQ-GM-35) in English and in Hebrew, the same game
+## started in Hebrew, then the round with the chip and the timer.
 func _play(id: String) -> void:
 	var spec: Array = GAMES[id]
+	var timed: bool = spec[3]   # A game with a visible timer has the countdown; the others start at once.
 	Lang.set_language("en", root)
 	_app.go(load(spec[0]), spec[1].duplicate())
 	_game = _app.current_screen()
 	await _stream(0.9)
 	var en := await _snap()
-	_countdown_checks(id, en, "en")
+	_countdown_checks(id, en, "en", timed)
 	# The same running game, now in Hebrew: nothing in the world moves.
 	Lang.set_language("he", root)
 	var he := await _snap()
-	_countdown_checks(id, he, "he")
+	_countdown_checks(id, he, "he", timed)
 	await _stream(4.2)   # Through 2, 1 and GO, still in Hebrew (the log keeps the GO word).
-	_go_word_checks(id)
+	_go_word_checks(id, timed)
 	# Hebrew from the start gives the same world.
 	_app.go(load(spec[0]), spec[1].duplicate())
 	_game = _app.current_screen()
@@ -184,7 +186,7 @@ func _play(id: String) -> void:
 	_game.close_menu()
 
 
-func _countdown_checks(id: String, snap: Dictionary, lang: String) -> void:
+func _countdown_checks(id: String, snap: Dictionary, lang: String, timed: bool) -> void:
 	var state := "%s in %s" % [id, "Hebrew" if lang == "he" else "English"]
 	var title := _one(snap, "title")
 	_check(not title.is_empty(), "%s: the countdown shows one title" % state)
@@ -209,6 +211,9 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String) -> void:
 				"%s: the hint fits its plate, and its text is inside the side margins (%s)" % [state, str(hint.rect)])
 		_check(Rect2(MARGIN, MARGIN, 1800, 960).encloses(text_box), "%s: the hint text is inside the 60 px margin" % state)
 	var counts: Array = snap.get("countdown", [])   # Some games draw the number twice (a shadow below the number).
+	if not timed:
+		_check(counts.is_empty(), "%s: the game has no timer, so it draws no countdown (REQ-GM-35)" % state)
+		return
 	var count: Dictionary = counts.back() if not counts.is_empty() else {}
 	_check(not count.is_empty() and Rect2(0, 0, 1920, 1080).encloses(count.rect),
 			"%s: the countdown number is inside the screen (%s)" % [state, str(count.get("rect"))])
@@ -221,14 +226,18 @@ func _is_player_name(text: String) -> bool:
 	return false
 
 
-## Hebrew only: the GO word and every number of the countdown that the log saw while the game ran in Hebrew.
-func _go_word_checks(id: String) -> void:
+## Hebrew only: the GO word and every number of the countdown that the log saw while the game ran in Hebrew (none in a
+## game without a timer).
+func _go_word_checks(id: String, timed: bool) -> void:
 	var words := {}
 	var inside := true
 	for e in _log:
 		if e.kind == "countdown" and e.lang == "he":
 			words[e.info.text] = true
 			inside = inside and Rect2(0, 0, 1920, 1080).encloses(e.rect)
+	if not timed:
+		_check(words.is_empty(), "%s in Hebrew: no timer, so no countdown number or GO word is drawn (%s)" % [id, str(words.keys())])
+		return
 	_check(not words.is_empty() and inside, "%s in Hebrew: the countdown numbers fit the screen (%s)" % [id, str(words.keys())])
 	if id == "marble_race":   # Only Road Rally shows the word GO; the other games go from 1 to the play.
 		_check(words.has(Lang.t("marble_race.go").to_upper()) and words.has("\u05e7\u05d3\u05d9\u05de\u05d4"),

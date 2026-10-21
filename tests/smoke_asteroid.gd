@@ -83,14 +83,10 @@ func _run() -> void:
 	var x0: float = game.field.ships[0].x
 	await _stream(clients, 1.0, [right, left, flat])
 	var moved_1: float = game.field.ships[1].x
-	_check(game._clock.is_counting() and game.field.asteroids.is_empty() and game.field.beams.is_empty()
-			and absf(game.field.ships[0].x - x0) > 20.0
-			and game.field.ships[2].x == xs[2],
-			"in the countdown the ships steer, but nothing falls or fires (REQ-AB-2)")
+	_check(game.field.phase_time > 0.5 and absf(game.field.ships[0].x - x0) > 20.0 and game.field.ships[2].x == xs[2],
+			"there is no countdown: the wave runs and the ships steer in the first second (REQ-GM-35, REQ-AB-2)")
 	_check((game.field.ships[0].x - x0 > 0.0) != (moved_1 - xs[1] > 0.0),
 			"tilting right and left move the ships in opposite directions (REQ-AB-2)")
-	await _stream(clients, 2.5, [flat, flat, flat])
-	_check(not game._clock.is_counting() and game.field.phase_time > 0.0, "the wave begins after the countdown (REQ-AB-8)")
 	await _stream(clients, 1.0, [flat, flat, flat])
 	_check(game.field.beams.size() > 0, "the ships fire by themselves (REQ-AB-4)")
 
@@ -114,13 +110,13 @@ func _run() -> void:
 	game._end_left = -1.0
 	game._time = 1.0
 	var hint_early: bool = game.hint_shown()
-	game._time = game.COUNTDOWN + game.HINT_TIME + 0.1
+	game._time = game.HINT_TIME + 0.1
 	var hint_late: bool = game.hint_shown()
 	game._time = 1.0
 	game._end_left = 1.0
 	var hint_end: bool = game.hint_shown()
 	_check(hint_early and not hint_late and not hint_end,
-			"the hint shows in the countdown and 5 s after GO, not later and not at the end")
+			"the hint shows for the first 5 s of the game, not later and not at the end")
 	game._end_left = -1.0
 	game.field.phase = phase_was
 	game.field.phase_time = phase_time_was
@@ -178,7 +174,6 @@ func _run() -> void:
 	solo.field.ships[0].alive = false
 	solo.field.scores[0] = 1000
 	solo.field.wave = 4
-	solo._clock.time = 0.0
 	solo._game_tick(0.016)
 	solo._game_tick(2.1)
 	await _frames(3)
@@ -192,7 +187,6 @@ func _run() -> void:
 	await _frames(3)
 	var tie: Control = app.current_screen()
 	tie._on_player_left(2)
-	tie._clock.time = 0.0
 	tie.field.scores[0] = 80
 	tie.field.scores[1] = 80
 	tie.field.ships[0].alive = false

@@ -694,7 +694,7 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 8b. Check the child during the match. Check: the child plays all 3 rounds to the end without asking to stop or crying, also after a fall, and answers "yes" when asked "again?" (yes or no). (REQ-SB-9, REQ-GM-80 to 84)
 10. Play a full round with 4 phones on Hard. Check: the debug overlay shows 55 frames per second or more during the whole round (60 expected). (REQ-GM-50)
 11e2. Zoom a photo of the TV to 300% on the edge of the island and on the edge of a cloud. Check: both edges are made of square steps, with no soft (blended) pixel at either edge (2 of 2). (REQ-GM-47i to 47n, REQ-SB-15. The view of 480 x 270 pixels, the whole scale and the nearest filter are checked by A-15-11e.)
-11g. From 3 m, read the word "WHEE!", the round banner and the countdown digits. Check: the tester reads all three aloud without error. (REQ-SB-15, REQ-FL-40)
+11g. From 3 m, read the word "WHEE!" and the round banner. Check: the tester reads both aloud without error. (REQ-SB-15, REQ-FL-40)
 
 Items 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-15-2, A-15-9). Items 1a, 1b, 3a to 3c, 4a, 4b, 5a, 5b, 6a, 6c and 7a to 7e moved there too (A-15-1, A-15-3, A-15-4, A-15-5, A-15-6, A-15-7). Items 11a, 11b and 11d were split: the machine checks the sizes, the colors, the fonts and the pixels (A-15-11); items 11c and 11f are automated too (A-15-11c, A-15-11f), and the part that needs a person is now 11e2 and 11g. The numbers of the other items do not change.
 
@@ -717,6 +717,7 @@ Measurements (not a test; no pass or fail). Write these values in the Notes colu
 
 History:
 
+- 2026-10-21 (decision of the owner, REQ-GM-35): Sumo Bumpers has no timer, so it has no countdown. A round starts at once; step 11g lost the countdown digits (no result recorded, it was not run). No recorded result changed.
 - 2026-10-21 (automated): items 4b, 11c and 11f moved to the automated tests (`auto_sumo_b`). Item 11e was split: the view size, the scale and the filter are automated, 11e2 keeps the photo of the edges. The suite fails on step 11c today: the slowest cloud moves under 4 % of the view in 10 s (REQ-SB-15 says 2 to 3 world pixels per second).
 - 2026-10-20: the steps that a machine can check moved to the automated tests (A-15-1 to A-15-11). 11a, 11b and 11d were split into the automated part and 11e, 11f and 11g (each keeps the result of the old step). The three measurements of the old steps 5a, 7b and 7c were removed with the steps: the values are tested now (round length, wait after a fall, dash speed and time).
 - 2026-10-20: the steps were rewritten with a measurable Check and split with letters. Each new step keeps the result of the old step with the same number.
@@ -807,7 +808,7 @@ New (2026-10-10). The songs, the effects and the levels are first guesses (`scri
 
 6b. Film the phone of the player and the TV with sound at 60 fps or more for 3 events. Check: the phone starts to buzz within 100 ms of the start of the sound (6 frames or fewer at 60 fps). The automated tests check this on the network only (A-18-6b), not the phone motor or the TV audio path.
 9a. A child of about 5 to 8 years plays a game with sound for 3 rounds. Read the meter at the highest effect. Check: the reading is 85 dB(A) or lower, and the child does not cover its ears and does not ask for less sound.
-10c2. Play a game with Haptics ON on one real phone. Check: the phone vibrates at GO and at 2 events of the haptic table of that game (yes or no for each of the 3).
+10c2. Play Paint Grab (it has a countdown; Galaxy Protector, Sumo Bumpers, Pin Pals, Mini Golf and Tennis with 2 to 4 players have none, REQ-GM-35) with Haptics ON on one real phone. Check: the phone vibrates at GO and at 2 events of the haptic table of that game (yes or no for each of the 3).
 11a. Film a picture event and its sound on the TV box with a camera at 60 fps or more. Count the frames from the picture to the sound for 3 events. Check: the delay is 100 ms or less (6 frames at 60 fps) for each event.
 11b. Start the app with the stopwatch. Check: the first song starts within 5 s (the same limit as the automated check A-18-1a, on the TV box).
 
@@ -969,10 +970,10 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 **Steps**
 
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the night sky with stars, the purple planet, a gray asteroid and a ship.
-2e. Read the hint line "Tilt to steer. Your ship shoots by itself. Grab the upgrades!" aloud from 3 m during "3, 2, 1". Check: no error.
+2e. Read the hint line "Tilt to steer. Your ship shoots by itself. Grab the upgrades!" aloud from 3 m while it shows, in the first 5 s after Start (there is no countdown). Check: no error.
 3c. Tilt to the right and keep the tilt for 2 s after the ship stops. Do the same to the left. Check: the ship stops at both sides, stays fully on the screen, does not move more, and its middle is 5.5 % to 7 % of the screen width (about 120 px of 1920: the 60 px margin plus the 60 px of REQ-AB-2) from the edge of the screen.
-9a. Let a child of about 5 to 8 years play, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own ship within 10 s.
-9b. Same child. Check: the child moves the ship from the middle to the left side of the screen within 30 s after "GO!", with no help.
+9a. Let a child of about 5 to 8 years play, with a grown-up next to them who does not help. Check: the child points at its own ship within 10 s after Start (there is no countdown).
+9b. Same child. Check: the child moves the ship from the middle to the left side of the screen within 30 s after Start, with no help.
 9c. Same child. Lose the ship of the child on purpose. Check: the child is still at the game 30 s later (does not stop and does not give the phone back). Ask: "Play again?". Check: the child says yes.
 11. Play with 4 phones on Hard until wave 8 or later and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
 12b. From 3 m, look for the objects. Check: you can point at all of these: stars, the planet with the ring, an asteroid with craters, a ship, a beam, an upgrade and an explosion.
@@ -1003,6 +1004,7 @@ Measurements (write down, no pass or fail): the real delay from a tilt to the sh
 
 History:
 
+- 2026-10-21 (decision of the owner, REQ-GM-35): Galaxy Protector has no timer, so it has no countdown: wave 1 starts at once after Start. Steps 2e, 9a and 9b say "after Start" instead of "3, 2, 1" and "GO" (they were not run). No recorded result changed.
 - 2026-10-21 (aligned with the requirements, not run): step 3c now says 5.5 % to 7 % (about 120 px of 1920), the 60 px margin plus the 60 px of REQ-AB-2. No recorded result changed.
 - 2026-10-21 (automated): items 5f and 8e moved to the automated tests (`auto_asteroid`, `r4_asteroid`). Step 3c is also checked by `r4_asteroid`, which fails on the 2 % to 4 % limit today (the ship is 120 px, 6.25 %, from the screen edge).
 - 2026-10-20: the steps that a machine can check moved to the automated tests (A-22-1 to A-22-12). 2c, 5c, 12a, 12c and 12e were split into the automated part and 2e, 5f, 12f, 12g and 12h (each keeps the result of the old step). Step 8e (the title and the medal of one player) is automated now (`r4_asteroid`); it finds that the medal does not follow the score (REQ-AB-14), so that suite is red until that is fixed.
@@ -1026,7 +1028,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
 4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)
 4h. Swing normally with a thumb still on the aim strip, 5 times. Check: no ball is thrown and the hint "Lift your finger, then swing!" shows in 5 of 5 swings.
-11a. Let a child of about 5 to 8 years play on Easy with Rails On, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own ball (the one in the color of its phone) within 10 s.
+11a. Let a child of about 5 to 8 years play on Easy with Rails On, with a grown-up next to them who does not help. Check: the child points at its own ball (the one in the color of its phone) within 10 s after Start (there is no countdown).
 11b. Same child. Check: the child throws a ball (a ball leaves the foul line) within 60 s after the first plate "YOUR TURN", with no help.
 11c. After the game, ask: "Play again?". Check: the child says yes.
 12. Play with 4 phones and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
@@ -1059,6 +1061,7 @@ Measurements (write down, no pass or fail): if the strip is too small or too lar
 
 History:
 
+- 2026-10-21 (decision of the owner, REQ-GM-35): Pin Pals has no timer, so it has no countdown: the first turn starts at once after Start, with the plate and the turn buzz. Step 11a says "after Start" (not run). No recorded result changed.
 - 2026-10-21 (automated): 15 steps moved to the automated tests (`smoke_bowling`, `r4_bowling`). `r4_bowling` is red today on three known bugs: the result menu opens after 3.8 s (step 6c said 1 to 3 s), the plate with the name shows the whole turn (step 8a said 1 to 2 s), and the first turn gives two buzzes (step 9a).
 - 2026-10-21 (merge with main, PR 59): the aim is a finger on the aim strip, not the turn of the phone. The yaw steps stay removed; new steps 3e to 3g (strip, delay, A and B), 4g (shakes) and 4h (thumb on the strip). No recorded result changed.
 - -: **Not run**. New (2026-10-16).
@@ -1111,12 +1114,12 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 **Steps**
 
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the court, the net, a character and the ball.
-2b. In "3, 2, 1" look at the court. Check: you can point at all of these: the doubles sidelines, the singles sidelines, the baselines, the service lines, the net, the umpire on the chair, the ball kid at the left net post, the stands and the blank ad boards.
+2b. Right after Start (a match of 2 to 4 players has no countdown) look at the court. Check: you can point at all of these: the doubles sidelines, the singles sidelines, the baselines, the service lines, the net, the umpire on the chair, the ball kid at the left net post, the stands and the blank ad boards.
 4g. Record the phone and the TV with the camera (240 fps) for 5 hits. Count the frames from the fastest point of the swing to the contact of the racket and the ball. Check: the median delay is 150 ms or less (36 frames at 240 fps).
 6c. Alternate swings 30 degrees to the right and 30 degrees to the left of your usual straight swing, 5 each, 2 s apart. Check: at least 4 of the 5 balls to the right land in the right half of the court (from the view of the swinging player), and at least 4 of the 5 balls to the left land in the left half.
 6e. Swing the way you swing when you do not aim, 5 times, then nearly straight up, 5 times, 2 s apart. Check: at least 8 of 10 balls land in the middle third of the court width.
 6h. Give the phone to a person who has not played. Show only the hint line. Check: the person sends one ball to the left half and one ball to the right half of the court within 5 swings each.
-12a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own character within 10 s.
+12a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own character within 10 s after Start (there is no countdown).
 12b. Same child. Check: the child serves a ball in play (over the net, inside the box) within 5 tries.
 12c. Same child. Check: the child returns a ball at least once in the first 3 min of a rally.
 12d. After the match, ask: "Play again?". Check: the child says yes.
@@ -1150,6 +1153,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 
 History:
 
+- 2026-10-21 (decision of the owner, REQ-GM-35): a Tennis match of 2 to 4 players has no timer, so it has no countdown and starts at once after Start; only the solo machine rally keeps the 3 s countdown. Steps 2b and 12a say "after Start" (not run). No recorded result changed.
 - 2026-10-21 (automated): 10 steps moved to the automated tests (`r4_tennis`, `smoke_tennis_phones`). `r4_tennis` is red today on three known bugs: no sparks in the code (5a), the other team shows place 3 and not 2 (9e), and a new rally starts about 3.4 s after a miss (10b said 1.5 to 2.5 s).
 - 2026-10-21 (aligned with the requirements, not run): steps 6c and 6d are merged into 6c (alternate right and left, REQ-TN-7); 6e says 'the way you swing when you do not aim'. No recorded result changed.
 - -: **Not run**. New (2026-10-17).
@@ -1168,7 +1172,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 2b. Look at the course. Check: you can point at all of these: the lawn, the fence, the clubhouse, the bushes and the walls of the hole.
 3b2. Look at the golfer. Check: the cap, the trousers and the shoes are white (3 of 3 white). (The shirt has the color of the phone of the player on turn: A-26-3b.)
 5e. Record the phone and the TV (240 fps) for 5 putts. Count the frames from the fastest point of the swing to the first move of the ball. Check: the median delay is 150 ms or less (36 frames at 240 fps).
-12a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own character (the one in the color of its phone) within 10 s.
+12a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own character (the one in the color of its phone) within 10 s after Start (there is no countdown).
 12b. Same child. Check: the child turns the phone and the aim mark moves to the left side within 30 s after the first plate "<NAME>'S TURN!", with no help.
 12c. Same child. Check: the child putts the ball (one stroke counted) within 60 s after the first plate, with no help.
 12d. After the match, ask: "Play again?". Check: the child says yes.
@@ -1200,6 +1204,7 @@ Measurements (write down, no pass or fail): the turn angle that moves the aim ma
 
 History:
 
+- 2026-10-21 (decision of the owner, REQ-GM-35): Mini Golf has no timer, so it has no countdown: the first turn starts at once after Start, with the turn banner and the turn buzz. Step 12a says "after Start" (not run). No recorded result changed.
 - 2026-10-21 (automated): 11 steps moved to the automated tests (`r4_golf`). Step 3b was split (3b2). `r4_golf` is red today on one known bug: the ball starts to move at swing age 0, while the club reaches it at 0.12 s (step 5b).
 - -: **Not run**. New (2026-10-17).
 - 2026-10-21 (aligned with the requirements, not run): step 14a also checks the ball height of 48 px or more (REQ-GM-47e). No recorded result changed.

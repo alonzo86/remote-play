@@ -109,10 +109,11 @@ func _plate() -> String:
 	return String(plates[0].info.msg) if not plates.is_empty() else ""
 
 
-## Skips the countdown so that a test goes straight to the first turn.
+## The first turn starts at once (REQ-GM-35); it starts again here, now that the phones have settled, so that the pose of
+## each phone is the straight line, and one tick publishes it.
 func _to_turn(game: Control) -> void:
-	game._clock.time = -0.001
-	game._game_tick(0.016)   # GO: the first turn starts
+	game._start_turn()
+	game._game_tick(0.016)
 
 
 ## Feeds one sample to the phone of `slot` and ticks the game.
@@ -128,7 +129,7 @@ func _rest(game: Control, slot: int, seconds: float) -> void:
 		_sample(game, slot, Vector3.ZERO)
 
 
-## A new game for the 2 phones after the countdown, the first turn running.
+## A new game for the 2 phones, the first turn running.
 func _new_game(props := {}) -> Control:
 	var p := {"difficulty": "medium", "holes": "3"}
 	p.merge(props, true)

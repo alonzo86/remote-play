@@ -7,10 +7,8 @@ extends "res://scripts/game/minigame.gd"
 
 const SpaceField = preload("res://scripts/game/asteroid_blast/space_field.gd")
 const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
-const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
-const COUNTDOWN := 3.0
 ## After the last ship is gone the sky goes on for this long, then the result menu opens (REQ-AB-14).
 const END_DELAY := 2.0
 const BANNER_TIME := 2.0        # How long "Wave 3" shows at the start of a wave.
@@ -35,7 +33,6 @@ var difficulty := "medium"
 var field := SpaceField.new()
 
 var _board: Scoreboard
-var _clock := RoundClock.new(COUNTDOWN, 0.0)
 var _rng := RandomNumberGenerator.new()
 var _haptics := Haptics.new()
 var _end_left := -1.0           # Below 0 until every ship is gone.
@@ -44,12 +41,17 @@ var _booms: Array[Dictionary] = []   # {x, y, age, scale}: explosions on the scr
 var _tex := {}                  # Cached pictures.
 
 
+func _has_countdown() -> bool:
+	return false   # No visible timer, so no countdown (REQ-GM-35): wave 1 starts at once.
+
+
 func _game_ready() -> void:
 	_rng.randomize()
 	field.setup(difficulty)
 	_board = Scoreboard.new(participants)
 	for i in participants.size():
 		field.add_ship(participants[i], SpaceField.REF_AREA.x * float(i + 1) / float(participants.size() + 1))
+		player(participants[i]).recenter()   # The pose held at the start is the center.
 
 
 func _on_player_left(slot: int) -> void:
@@ -64,13 +66,6 @@ func _game_tick(delta: float) -> void:
 	var tilts := {}
 	for s in participants:
 		tilts[s] = player(s).tilt().x
-	if _clock.is_counting():
-		field.tick(delta, _rng, tilts, false)   # The ships steer in the countdown; nothing falls yet.
-		if _clock.tick(delta):
-			for s in participants:
-				player(s).recenter()   # The pose held in the countdown is the center.
-				App.server.haptic(s, 60)
-		return
 	field.tick(delta, _rng, tilts, true)
 	for e in field.events:
 		_on_event(e)
@@ -209,15 +204,6 @@ func _draw_ship(ci: CanvasItem, s: SpaceField.Ship, o: Vector2, k: float) -> voi
 func _game_draw() -> void:
 	Shell.title(self, "registry.galaxy_protector")
 	draw_leader_chip(self)
-	if _clock.is_counting():
-		var n := _clock.count_number()
-		var label := str(n)
-		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)   # A black shadow: the stars must not hide the digits.
-		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed())
-		Shell.hint(self, size, "asteroid_blast.tilt_steer_ship_shoots")
-		return
 	if is_over:
 		return
 	Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("asteroid_blast.wave_n", [field.wave]),
@@ -254,9 +240,9 @@ func banner() -> String:
 	return ""
 
 
-## True while the hint line shows: in the countdown and for HINT_TIME after GO, never after the last ship is out (REQ-AB-16).
+## True while the hint line shows: for HINT_TIME after the start, never after the last ship is out (REQ-AB-16).
 func hint_shown() -> bool:
-	return _end_left < 0.0 and _time < COUNTDOWN + HINT_TIME
+	return _end_left < 0.0 and _time < HINT_TIME
 
 
 ## The line at the bottom of the bar: how much of the wave (or of the rest) is left.

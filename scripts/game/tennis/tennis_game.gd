@@ -28,7 +28,7 @@ var scoring := "real"
 var play := Match.new()
 
 var _board: Scoreboard
-var _clock := RoundClock.new(COUNTDOWN, 0.0)
+var _clock := RoundClock.new(0.0, 0.0)   # With the solo timer it gets the 3 s countdown in _game_ready().
 var _haptics := Haptics.new()
 var _time := 0.0
 var _playing := 0.0             # Seconds since GO.
@@ -43,6 +43,11 @@ var _tick_ms := 0
 var _wired: Array[int] = []     # The slots whose signals are connected, also the ones that left later.
 
 
+## Only the solo machine rally shows a timer, so only it starts with the countdown (REQ-GM-35, REQ-TN-4).
+func _has_countdown() -> bool:
+	return participants.size() == 1
+
+
 func _game_ready() -> void:
 	var slots: Array[int] = []
 	slots.assign(participants)
@@ -52,6 +57,11 @@ func _game_ready() -> void:
 		player(s).button_pressed.connect(_on_button.bind(s))
 		player(s).swung.connect(_on_swing.bind(s))
 		_wired.append(s)
+	if _has_countdown():
+		_clock = RoundClock.new(COUNTDOWN, 0.0)
+	else:
+		for s in participants:
+			player(s).recenter()   # No countdown: the pose at the start is the middle of the aim (REQ-TN-7).
 
 
 func _exit_tree() -> void:
@@ -88,7 +98,7 @@ func _on_swing(info: Dictionary, slot: int) -> void:
 	play.swing(slot, float(info.power), bool(info.down), side, float(info.hit_age_ms) / 1000.0)
 
 
-## True while the match is on: not in the countdown, not over, not paused.
+## True while the match is on: not in the countdown (only the solo match has one), not over, not paused.
 func _live() -> bool:
 	return not is_over and not is_paused() and not _clock.is_counting() and not play.is_over()
 

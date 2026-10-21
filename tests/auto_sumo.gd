@@ -49,18 +49,16 @@ func _frames(n: int) -> void:
 		await process_frame
 
 
-## A match in the countdown (not yet in play), stepped by hand. All phones are held flat.
+## A match at its start (round 1 plays at once, REQ-GM-35), stepped by hand. All phones are held flat.
 func _new_game(difficulty := "medium") -> Control:
 	for p in _app.server.players:
 		SimInput.set_tilt(p, Vector2.ZERO)
 	return SimInput.start_game(_app, _sumo, {"difficulty": difficulty})
 
 
-## A match in play (round 1, the countdown is over).
+## A match in play (round 1; there is no countdown).
 func _play(difficulty := "medium") -> Control:
-	var game := _new_game(difficulty)
-	SimInput.to_play(game, func() -> bool: return game.phase == game.Phase.COUNT)
-	return game
+	return _new_game(difficulty)
 
 
 func _run() -> void:
@@ -341,7 +339,7 @@ func _fall_and_next_round() -> void:
 	game._process(DT)
 	_check(game.phase == game.Phase.BANNER and game.banner_text == "Sim0 wins the round!" and game._board.score(0) == 1.0,
 			"the banner names the winner of the round: %s" % game.banner_text)
-	var waited := SimInput.run_until(game, func() -> bool: return game.phase == game.Phase.COUNT, 10.0)
+	var waited := SimInput.run_until(game, func() -> bool: return game.phase == game.Phase.PLAY, 10.0)
 	_check(absf(waited - 2.5) < 0.1 and game.round_no == 2 and game._alive.size() == 3
 			and game._bodies[1].pos.is_equal_approx(spots[1]),
 			"the next round starts %.2f s after the banner with all 3 bumpers back" % waited)
@@ -384,8 +382,7 @@ func _three_rounds(count: int) -> void:
 		game._process(DT)
 		titles_ok = titles_ok and game.phase == game.Phase.BANNER and game._board.score(0) == float(n)
 		if n < 3:
-			SimInput.run_until(game, func() -> bool: return game.phase == game.Phase.COUNT, 10.0)
-			SimInput.to_play(game, func() -> bool: return game.phase == game.Phase.COUNT)
+			SimInput.run_until(game, func() -> bool: return game.phase == game.Phase.PLAY, 10.0)
 	_check(titles_ok, "with %d phones the bar says %s and player 0 has 1, 2, 3 points after the rounds" % [count, str(shown)])
 	SimInput.run_until(game, func() -> bool: return game.is_over, 10.0)
 	var labels: Array = []

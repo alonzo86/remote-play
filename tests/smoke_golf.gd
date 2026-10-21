@@ -46,9 +46,8 @@ func _labels(game: Control) -> Array:
 	return labels
 
 
-## Skips the countdown so that a test goes straight to the first turn.
+## Goes straight to the first turn (there is no countdown, REQ-GM-35) and skips the turn banner.
 func _to_turn(game: Control) -> void:
-	game._clock.time = 0.0
 	game._game_tick(0.016)
 	game._game_tick(3.1)
 
@@ -92,12 +91,11 @@ func _run() -> void:
 	var game: Control = app.current_screen()
 	_check(is_instance_of(game, Golf) and game.rules.holes == 3 and game.best_key() == "",
 			"Start opens the game with 3 holes and no personal best (REQ-MG-1, 15)")
-	_check(game.participants.size() == 2 and game._clock.is_counting() and game.rules.current_slot() == 0,
-			"the game starts with a countdown and the first phone is on turn (REQ-MG-2)")
-	await _frames(3)   # The pixel layer draws the course, and the countdown draws the course.
-	await _stream(clients, 3.4, [flat, flat])
-	_check(not game._clock.is_counting() and game.phase == game.Phase.AIM and game.sim.pos == Vector2(game._hole.tee),
-			"after the countdown the first phone aims from the tee (REQ-MG-4)")
+	_check(game.participants.size() == 2 and not game._has_countdown() and game.rules.current_slot() == 0
+			and game.phase == game.Phase.AIM and game.sim.pos == Vector2(game._hole.tee),
+			"the game starts at once with no countdown: the first phone aims from the tee (REQ-GM-35, REQ-MG-2, REQ-MG-4)")
+	await _frames(3)   # The pixel layer draws the course.
+	await _stream(clients, 0.5, [flat, flat])
 
 	# The phones know whose turn it is, with the words of Mini Golf (REQ-MG-3).
 	_check(clients[0].turn_state == 1 and clients[1].turn_state == 2 and clients[1].turn_who == game.player(0).player_name

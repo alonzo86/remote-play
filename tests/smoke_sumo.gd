@@ -86,19 +86,21 @@ func _run() -> void:
 	app.go(Sumo, {"difficulty": "medium"})
 	await _frames(3)
 	var game: Control = app.current_screen()
-	_check(game.participants.size() == 3 and game.round_no == 1 and game.phase == game.Phase.COUNT and game._alive.size() == 3,
-			"a match starts with 3 bumpers in round 1 and the countdown (REQ-SB-1)")
+	_check(game.participants.size() == 3 and game.round_no == 1 and game.phase == game.Phase.PLAY and game._alive.size() == 3,
+			"a match starts with 3 bumpers in round 1 and plays at once, with no countdown (REQ-SB-1, REQ-GM-35)")
 	var spots: Array = game.arena.start_spots(3)
 	_check(game._bodies[0].pos.is_equal_approx(spots[0]) and game._bodies[2].pos.is_equal_approx(spots[2]),
 			"the bumpers start at the places around the middle (REQ-SB-2)")
-	await _stream(clients, 1.5, [right, right, right])
-	_check(game.phase == game.Phase.COUNT and game._bodies[0].pos.is_equal_approx(spots[0]),
-			"during the countdown the bumpers do not move (REQ-SB-1)")
-	await _stream(clients, 2.2, [flat, flat, flat])
-	_check(game.phase == game.Phase.PLAY, "the round plays after the countdown")
+	await _stream(clients, 0.5, [right, right, right])
+	_check(game.phase == game.Phase.PLAY and not game._bodies[0].pos.is_equal_approx(spots[0]),
+			"there is no countdown: the bumpers move with the tilt in the first second (REQ-GM-35)")
+	game.arena.setup("medium")   # The platform is full again (it shrinks from the first moment, as there is no countdown).
+	for s in [0, 1, 2]:
+		game._bodies[s].pos = spots[s]
+		game._bodies[s].vel = Vector2.ZERO
 
-	# A dash (REQ-SB-10).
-	await _stream(clients, 1.5, [right, flat, flat])
+	# A dash (REQ-SB-10). The round plays from the start and the platform shrinks: 1 s of tilt keeps the bumper on it.
+	await _stream(clients, 1.0, [right, flat, flat])
 	game._bodies[0].vel = Vector2.ZERO
 	var tilt: Vector2 = game.player(0).tilt()
 	game._haptics = _new_haptics()
@@ -150,10 +152,9 @@ func _run() -> void:
 			"the last bumper gets the point and a banner names it: %s" % game.banner_text)
 	game._banner_left = 0.01
 	game._game_tick(0.02)
-	_check(game.round_no == 2 and game.phase == game.Phase.COUNT and game._alive.size() == 3 and game.arena.time == 0.0
+	_check(game.round_no == 2 and game.phase == game.Phase.PLAY and game._alive.size() == 3 and game.arena.time == 0.0
 			and game._bodies[1].pos.is_equal_approx(spots[1]) and game.arena.radius() == 380.0 and game.arena.speedup == 1.0,
 			"round 2 starts with all bumpers back, also the ones that fell, on a full platform (REQ-SB-2)")
-	game._game_tick(3.5)
 	for s in [0, 1, 2]:
 		game._bodies[s].pos = Vector2.from_angle(2.1 * s) * edge   # Apart, so that the bumps do not push one back in.
 	game._game_tick(0.016)
@@ -162,7 +163,6 @@ func _run() -> void:
 			"bumpers that fall in the same moment all get the point (REQ-SB-3)")
 	game._banner_left = 0.01
 	game._game_tick(0.02)
-	game._game_tick(3.5)
 	game._bodies[1].pos = Vector2(edge, 0.0)
 	game._bodies[2].pos = Vector2(-edge, 0.0)
 	game._game_tick(0.016)
