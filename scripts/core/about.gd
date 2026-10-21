@@ -5,6 +5,8 @@ extends RefCounted
 
 const Lang = preload("res://scripts/core/lang.gd")
 
+static var _non_ascii: RegEx   # Any character outside ASCII (made on the first use).
+
 const ANDROID_LIBRARIES := "res://assets/licenses/android-libraries.txt"
 
 const FONT_LICENSES := {
@@ -99,9 +101,6 @@ static func library_text(component_name: String) -> String:
 
 ## `t` for the pixel font, which draws ASCII only: the copyright sign becomes (c), another character outside ASCII becomes "?".
 static func safe(t: String) -> String:
-	t = t.replace("©", "(c)")
-	var out := ""
-	for i in t.length():
-		var code := t.unicode_at(i)
-		out += t[i] if code < 128 else "?"
-	return out
+	if _non_ascii == null:
+		_non_ascii = RegEx.create_from_string("[^\\x00-\\x7F]")
+	return _non_ascii.sub(t.replace("©", "(c)"), "?", true)

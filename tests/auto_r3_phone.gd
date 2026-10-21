@@ -158,18 +158,14 @@ func _hebrew_pad() -> void:
 	var font := UiTheme.font()
 	var room := {"recenter": pad._rect_recenter().size.x, "disconnect": pad._rect_leave().size.x,
 			"hint": pad._rect_recenter().size.x}
-	var sizes := {"recenter": 72, "disconnect": 24, "hint": 32}
+	var sizes := {"recenter": 72, "disconnect": 24, "hint": pad.hint_size(font, pad._rect_recenter())}
 	var names := ["recenter", "disconnect", "hint"]
 	for i in 3:
 		var w := font.get_string_size(texts.he[i], HORIZONTAL_ALIGNMENT_LEFT, -1, int(sizes[names[i]])).x
 		var ok: bool = w > 0.0 and w <= float(room[names[i]]) - 2.0 * UiTheme.LINE
 		var what := "Hebrew %s: %.0f px of text in a box of %.0f px (the frame takes %d px)" % [names[i], w, room[names[i]],
 				2 * UiTheme.LINE]
-		if names[i] == "hint":
-			_known_bug("issue-needed: the Hebrew help line of the pad (pad.point_at_tv_then) is as wide as the Recenter box, "
-					+ "so it touches the yellow frame; the text must be shorter or smaller (ask the owner, strings are theirs)", ok, what)
-		else:
-			_check(ok, what)
+		_check(ok, what)
 	_app.set_language("en", false)
 	made.holder.queue_free()
 

@@ -33,14 +33,21 @@ func _ready() -> void:
 	_leave = UiKit.box_button("pad.disconnect", App.client.leave, 32)
 	_leave.custom_minimum_size = Vector2(0, 90)
 	top.add_child(_leave)
+	# The content scrolls when the screen is too low for it (a phone held in landscape), and is centered when it fits.
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	page.add_child(scroll)
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_theme_constant_override("separation", 36)
-	page.add_child(box)
+	scroll.add_child(box)
 
 	_dot = Control.new()
-	_dot.custom_minimum_size = Vector2(0, 360)
+	var landscape := get_viewport_rect().size.x > get_viewport_rect().size.y
+	_dot.custom_minimum_size = Vector2(0, 200 if landscape else 360)
 	_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dot.draw.connect(_draw_dot)
 	box.add_child(_dot)
@@ -121,7 +128,7 @@ func _refresh() -> void:
 
 func _draw_dot() -> void:
 	var c: Node = App.client
-	var side := 280.0
+	var side := minf(280.0, _dot.size.y - 20.0)
 	var has_avatar: bool = c.tv_pid != "" and Avatar.is_known(c.tv_avatar)
 	# The color square with its number, and the avatar next to it (REQ-FL-70); the pair is centered.
 	var width := side * 2.0 + 20.0 if has_avatar else side

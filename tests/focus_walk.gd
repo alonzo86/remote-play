@@ -336,9 +336,7 @@ func _tiles_in_hebrew() -> void:
 		for t in games._tiles:
 			if t._name.get_minimum_size().x > t.SHOT.x:
 				over.append("%s %d px" % [t.game.id, t._name.get_minimum_size().x])
-		_known_bug("issue-needed: a game title is wider than its tile (REQ-FL-12): it runs out of the 480 px tile",
-				over.is_empty(),
-				"[%s] every title fits in its tile (too wide: %s)" % [lang, str(over)])
+		_check(over.is_empty(), "[%s] every title fits in its tile (too wide: %s)" % [lang, str(over)])
 		_check(games._tiles.all(func(t): return t._meta.get_minimum_size().y <= 80.0),
 				"[%s] every player range fits in its box" % lang)
 	_app.set_language("en")

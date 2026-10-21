@@ -9,7 +9,8 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const About = preload("res://scripts/core/about.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 
-const TEXT_SIZE := 24
+const TEXT_SIZE := 32          # The text of a page on the TV (REQ-FL-40: TV text is 32 px or more).
+const PHONE_TEXT_SIZE := 24   # On a phone screen of about 1080 px width (REQ-FL-40: 24 px or more).
 const SCROLL_STEP := 240
 const CHUNK_LINES := 40
 
@@ -66,7 +67,9 @@ func _show_libraries() -> void:
 
 ## A title, a scrolling list of buttons (one for each page of `_current`) and Back.
 func _list_screen(title: String, on_pick: Callable, with_license: bool) -> void:
-	_box.add_child(UiKit.title(title, 56))
+	var head := UiKit.title(title, 56)
+	head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART   # A long title breaks into lines and stays inside the 60 px edge.
+	_box.add_child(head)
 	_scroll = ScrollContainer.new()
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -88,7 +91,7 @@ func _list_screen(title: String, on_pick: Callable, with_license: bool) -> void:
 		list.add_child(b)
 		if _first == null:
 			_first = b
-	_box.add_child(_button("common.back", on_back))
+	_box.add_child(_button("common.back", on_back, false, "quiet"))
 	UiKit.focus_later(_first)
 
 
@@ -109,7 +112,7 @@ func show_page(i: int) -> void:
 	_scroll.add_child(body)
 	for chunk in chunks(About.text(page)):
 		body.add_child(_text_label(chunk))
-	var back := _button("common.back", on_back)
+	var back := _button("common.back", on_back, false, "quiet")
 	_box.add_child(back)
 	UiKit.focus_later(back)
 
@@ -122,9 +125,15 @@ func _text_label(text: String) -> Label:
 	l.text_direction = Control.TEXT_DIRECTION_LTR
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	l.add_theme_font_size_override("font_size", TEXT_SIZE)
-	l.add_theme_constant_override("line_spacing", TEXT_SIZE / 4)
+	var size := text_size()
+	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_constant_override("line_spacing", size / 4)
 	return l
+
+
+## The size of the text of a page: 32 px on the TV, 24 px on the phone (REQ-FL-40).
+static func text_size() -> int:
+	return PHONE_TEXT_SIZE if Role.is_controller() else TEXT_SIZE
 
 
 ## The text in parts of at most CHUNK_LINES lines (the lines of the source text, before the wrap).
@@ -138,7 +147,7 @@ static func chunks(text: String) -> Array:
 
 ## A TV button has the cursor and takes the remote; a phone button is a box. A `wrapped` row (a library) is a box on both
 ## and breaks a long name into lines.
-func _button(text: String, cb: Callable, wrapped := false) -> Button:
+func _button(text: String, cb: Callable, wrapped := false, role := "") -> Button:
 	if wrapped:
 		var w := UiKit.box_button(text, cb, 28)
 		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -149,7 +158,7 @@ func _button(text: String, cb: Callable, wrapped := false) -> Button:
 		var b := UiKit.box_button(text, cb, UiTheme.SIZE_ITEM)
 		b.custom_minimum_size = Vector2(0, 110)
 		return b
-	return UiKit.item(text, cb, UiTheme.SIZE_ITEM)
+	return UiKit.item(text, cb, UiTheme.SIZE_ITEM, role)
 
 
 ## Up and Down of the remote scroll a page of text.

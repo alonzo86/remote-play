@@ -268,7 +268,13 @@ func _draw_recenter(rr: Rect2, f: Font) -> void:
 	_draw_box(rr, UiTheme.ACCENT, _recenter_fill(), Lang.t("pad.recenter"), 72,
 			UiTheme.BG if flashing else UiTheme.ACCENT)
 	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("pad.point_at_tv_then"),
-			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, 32, UiTheme.BG if flashing else UiTheme.TEXT)
+			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, hint_size(f, rr), UiTheme.BG if flashing else UiTheme.TEXT)
+
+
+## The size of the help line in the Recenter box: 32 px, smaller (steps of 8 px) when the line, as in Hebrew, would touch the
+## frame. It keeps a gap of 16 px at each side inside the frame.
+func hint_size(f: Font, rr: Rect2) -> int:
+	return UiTheme.fit_size(f, Lang.t("pad.point_at_tv_then").to_upper(), rr.size.x - 2.0 * (UiTheme.LINE + 16.0), 32)
 
 
 ## The aim strip of Pin Pals (REQ-BW-4): a finger slides the ball left or right along the foul line. The mark stays where the

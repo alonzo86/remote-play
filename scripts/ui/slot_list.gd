@@ -95,6 +95,9 @@ func _make_row(p: PlayerInput) -> Control:
 	name_l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # A player name is never translated (REQ-FL-63).
 	name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_l.clip_text = true
+	if removable:
+		# The row also has the state word and Remove, wider in Hebrew: a name of 10 letters is drawn at 32 px to stay whole.
+		name_l.add_theme_font_size_override("font_size", UiTheme.SIZE_BODY)
 	h.add_child(name_l)
 
 	var state_text := "slot_list.wait"
