@@ -72,15 +72,13 @@ static func step_db(step: int) -> float:
 	return linear_to_db(pow(float(clampi(step, 0, 10)) / 10.0, 2.0))
 
 
-## Applies the settings Music, Effects and Mute (REQ-FL-64).
+## Applies the settings Music and Effects (REQ-FL-64).
 func apply_settings() -> void:
 	if not enabled:
 		return
 	var s: Dictionary = App.settings
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(MUSIC_BUS), step_db(int(s.get("music_volume", 7))) + MUSIC_TRIM_DB)
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index(SFX_BUS), step_db(int(s.get("sfx_volume", 8))))
-	AudioServer.set_bus_mute(AudioServer.get_bus_index(MUSIC_BUS), bool(s.get("mute", false)))
-	AudioServer.set_bus_mute(AudioServer.get_bus_index(SFX_BUS), bool(s.get("mute", false)))
 
 
 # ---- Music ----

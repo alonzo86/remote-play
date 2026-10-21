@@ -826,7 +826,7 @@ Measurements: write down the meter reading of step 9a and the delay of steps 6b 
 
 History:
 
-- 2026-10-21 (automated): items 3a, 3d, 6a, 10a and 10f moved to the automated tests (`audio`, `auto_r3_tv`, `audio_events`, `auto_r3_phone`). Item 10c was split (10c2 keeps the motor of a real phone). The Mute row (issue #49) is still checked by `audio` and changes with that issue.
+- 2026-10-21 (automated): items 3a, 3d, 6a, 10a and 10f moved to the automated tests (`audio`, `auto_r3_tv`, `audio_events`, `auto_r3_phone`). Item 10c was split (10c2 keeps the motor of a real phone). The Mute row was dropped on 2026-10-21 (issue #49); `audio` checks that it is gone and that the Language row changes with Left and Right.
 - -: **Not run**. New.
 
 ## Test 19
@@ -934,7 +934,7 @@ New (2026-10-11). The headless tests check the rules and the pages. They do not 
 8f. On the TV box, use the stopwatch from OK on "3rd Party Libraries" to the list on the screen, and from OK on a library to its page. Check: the list opens within 3 s and the page within 2 s.
 9b2. On a phone open a long page (for example a library with two licenses) and drag it with one finger. Check: the text moves with the finger and the last line of the page can be reached by touch.
 9d. Open the page "Android libraries" and scroll to the end with the stopwatch. Check: it opens within 3 s and you reach the end of the text.
-10a. Set the TV to Hebrew. Check: the About list and the pages "Sababi" show in Hebrew, and the Hebrew reader says that the wording is correct. (The planned Settings changes of issue #49 are in Test 18.)
+10a. Set the TV to Hebrew. Check: the About list and the pages "Sababi" show in Hebrew, and the Hebrew reader says that the wording is correct. (The Settings changes of issue #49 are built and checked by `audio`.)
 
 Items 8c, 8e, 9a, 9c, 9e, 10b moved to the automated tests, and items 8a, 8d, 9b lost the part that a machine checks (`docs/AUTOMATED_TESTS.md`, A-21-8 to A-21-10). The remaining part of 8a is 8a2, of 8d is 8d2, of 9b is 9b2. On 2026-10-21 items 1a, 3a, 3b, 3c, 3e, 4a to 4d, 5a, 5b, 7, 8a2, 8b, 9f and 10c moved too (A-21-1a to A-21-10c). The PIN steps change with issue #52 and so do their tests. The numbers of the other items do not change.
 
@@ -951,7 +951,7 @@ Items 8c, 8e, 9a, 9c, 9e, 10b moved to the automated tests, and items 8a, 8d, 9b
 | 8f | Values: seconds for the list and for a page | Not run | | | New limits (3 s and 2 s) after R1. |
 | 9b2 | Note: scroll by touch | Pass | R1 | | |
 | 9d | Value: seconds to open the page | Not run | | | New limit (3 s) after R1. |
-| 10a | Photo of the Hebrew About screen; note from the Hebrew reader | Fail | R1 | | R1: "1. language should be modified by left and right keys. should be a selection of languages. 2. no explanation strings needed for the settings 3. drop Mute. it should be covered by music=0 and/or effects=0" (This note is about the Settings screen: issue #49. See Test 18 step 3.) |
+| 10a | Photo of the Hebrew About screen; note from the Hebrew reader | Fail | R1 | | R1: "1. language should be modified by left and right keys. should be a selection of languages. 2. no explanation strings needed for the settings 3. drop Mute. it should be covered by music=0 and/or effects=0" (This note is about the Settings screen: issue #49, done 2026-10-21 and checked by `audio`.) |
 
 History:
 

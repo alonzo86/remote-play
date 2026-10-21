@@ -38,7 +38,6 @@ var settings := {
 	"overlay": false,
 	"music_volume": 7,   # TV: 0 to 10 (REQ-FL-64)
 	"sfx_volume": 8,     # TV: 0 to 10
-	"mute": false,       # TV: mutes music and effects
 	"haptics": true,     # Phone: vibrate in games (REQ-FL-66)
 	"language": "",   # "en" or "he". Empty until the owner chooses on the logo screen (TV) (REQ-FL-60).
 }
