@@ -483,11 +483,8 @@ func _back_on_results() -> void:
 		await _key(KEY_BACK)
 		await _frames(3)
 		var left := _screen_is(_games_script)
-		if is_race:
-			_check(left, "[race] Back on the result menu opens the Games screen at once (REQ-MR-34)")
-		else:
-			_known_bug("issue-needed: Back on the result menu closes the menu and does not leave; only Road Rally overrides "
-					+ "on_back (Minigame.on_back, REQ-GM-31a)", left, "[maze] Back on the result menu opens the Games screen at once")
+		_check(left, "[%s] Back on the result menu opens the Games screen at once (REQ-GM-31a, REQ-MR-34)"
+				% ("race" if is_race else "maze"))
 		if not left:
 			_app.go_menu()
 			await _frames(3)

@@ -234,14 +234,6 @@ func _open_results() -> void:
 	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
 
 
-## The results menu leaves the game with Back (REQ-MR-34).
-func on_back() -> void:
-	if is_over:
-		App.go_menu()
-	else:
-		super()
-
-
 # ---- Standings ----
 
 ## Racers from first to last. Finished cars come first (by time), then by distance.

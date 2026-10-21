@@ -113,7 +113,10 @@ func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
 	var title := Lang.f("asteroid_blast.reached_wave", [field.wave]) if participants.size() == 1 else ""
-	open_results(_board, SpaceField.LEVELS.get(difficulty, SpaceField.LEVELS.medium).tiers, title)
+	var tiers: Array = SpaceField.LEVELS.get(difficulty, SpaceField.LEVELS.medium).tiers
+	# The title ("Reached wave N") stops open_results from choosing the medal of the score, so it is given here.
+	var medal: Variant = Medals.medal(_board.ranking()[0].score, tiers) if participants.size() == 1 else null
+	open_results(_board, tiers, title, [], Callable(), medal)
 
 
 func _scoreboard() -> Scoreboard:

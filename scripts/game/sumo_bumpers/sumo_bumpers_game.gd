@@ -307,8 +307,23 @@ func _draw_fall(ci: CanvasItem, slot: int, c: Vector2, k: float) -> void:
 func whee_at(fall_pos: Vector2, age: float) -> Vector2:
 	var fit := _fit()
 	var k: float = fit.k
-	return (fit.center as Vector2) + fall_pos * k + Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6
+	var p: Vector2 = (fit.center as Vector2) + fall_pos * k + Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6
 			- clampf(age / FALL_TIME, 0.0, 1.0) * 30.0)
+	# A bumper that falls off the top of the island: the plate stays under the black bar (BAR_H) and so inside the margin.
+	var font := UiTheme.font()
+	p.y = maxf(p.y, BAR_H + font.get_ascent(WHEE_FONT) + 20.0)
+	return p
+
+
+## The font size of the round banner (REQ-SB-15): BANNER_FONT, smaller when a long name would make the plate wider than the
+## screen inside the 60 px margin. The text is not changed.
+func banner_font(msg: String) -> int:
+	var font := UiTheme.font()
+	var room := size.x - 2.0 * 60.0 - 48.0
+	var fs := BANNER_FONT
+	while fs > WHEE_FONT and font.get_string_size(Lang.t(msg).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
+		fs -= 2
+	return fs
 
 
 ## Where the banner at the end of a round is drawn (the baseline, in the middle of its plate).
@@ -348,6 +363,6 @@ func _draw_hud() -> void:
 			spots[s] = Shell.snap(fit.center + (_bodies[s] as TiltBody).pos * float(fit.k))
 		draw_name_tags(self, spots, SumoArena.BUMPER_R * float(fit.k))
 	if phase == Phase.BANNER and not is_over:
-		Shell.label_plate(self, banner_at(), banner_text, BANNER_FONT, UiTheme.ACCENT)
+		Shell.label_plate(self, banner_at(), banner_text, banner_font(banner_text), UiTheme.ACCENT)
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:
 		Shell.hint(self, size, "sumo_bumpers.tilt_bump_others_off")

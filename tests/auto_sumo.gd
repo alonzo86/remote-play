@@ -133,10 +133,7 @@ func _clouds() -> void:
 		low = minf(low, shift)
 		high = maxf(high, shift)
 	_check(high <= 3.0 + 0.001 and high > 2.0, "the fastest cloud drifts at most 3 world pixels per second: %.2f" % high)
-	# docs/games/sumo_bumpers.md (REQ-SB-15) says 2 to 3; the cloud at x = 330 drifts at 1.5.
-	_known_bug("issue-needed: a cloud drifts at %.1f world pixels per second, REQ-SB-15 says 2 to 3 (CLOUDS in sumo_look.gd)"
-			% low,
-			low >= 2.0 - 0.001)
+	_check(low >= 2.0 - 0.001, "the slowest cloud drifts at least 2 world pixels per second (REQ-SB-15): %.2f" % low)
 
 
 ## 15.3a: the tilt rolls the bumper the same way, through the sensor fusion (REQ-SB-7).
