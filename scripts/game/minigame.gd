@@ -264,7 +264,7 @@ func _resume_game() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and not _menu_open and _can_open_menu():
 		open_menu("minigame.paused", [["minigame.resume", close_menu], ["minigame.restart", restart],
-				["minigame.back_to_menu", request_leave]])
+				["minigame.end_game", App.go_menu, "danger"]])   # End game leaves at once, no question (REQ-GM-31).
 		get_viewport().set_input_as_handled()
 
 

@@ -75,7 +75,7 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
 1. Make a folder under `scripts/game/`.
 2. Extend `scripts/game/minigame.gd`. Override `_game_ready()`, `_game_tick(delta)`, `_game_draw()`.
    The base class is the game shell: the player list, the pause when a phone is lost, the D-pad pause menu
-   (Resume, Try again, Back to menu), the result menu (`open_menu`), and the Back key. Draw titles, score chips, the
+   (Resume, Try again, End game), the result menu (`open_menu`), and the Back key. Draw titles, score chips, the
    countdown and hints with `scripts/game/shell.gd`. The base class also ends the game when no player is left (`end_no_players()`) and calls
    `_on_player_left(slot)` when a player leaves. Set `is_over = true` when the game ends. `round_clock.gd` (countdown and playing time) and
    `haptics.gd` (buzz cool-down), `scoreboard.gd` (scores and ranking) and `medals.gd` (solo medals) are small helpers for games; `open_results()` shows the ranking.

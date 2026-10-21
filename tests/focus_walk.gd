@@ -353,8 +353,9 @@ func _game_flow() -> void:
 	await _press("ui_accept")
 	_check(game.is_paused(), "OK opens the pause menu")
 	var entries: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(entries == ["minigame.resume", "minigame.restart", "minigame.back_to_menu"],
+	_check(entries == ["minigame.resume", "minigame.restart", "minigame.end_game"],
 			"the pause menu has 3 items: %s" % str(entries))
+	_check(game.menu_buttons()[2].theme_type_variation == "DangerButton", "End game in the pause menu is a destructive (red) item")
 	var clock: float = game._ring_time
 	await create_timer(1.5).timeout
 	_check(game._ring_time == clock, "the game clock stands still while the menu is open")
