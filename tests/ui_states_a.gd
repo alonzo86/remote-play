@@ -179,14 +179,6 @@ func _back_key() -> void:
 	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)   # What Android sends for the Back key.
 	_check(quits[0] == 1, "Back on the Connect screen of the phone quits the app through the quit hook (%d)" % quits[0])
 	_check(_app.client.state == ControllerClient.State.IDLE, "and the phone leaves the TV first")
-	# With the PIN pad open, Back closes the pad and does not quit.
-	screen = _app.current_screen()
-	screen._ask_pin("127.0.0.1", 1, "ABCD")
-	await process_frame
-	_check(screen._pad != null, "the PIN pad is open")
-	_app._last_back_ms = 0
-	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
-	_check(screen._pad == null and quits[0] == 1, "Back closes the PIN pad and the app stays open")
 	# The same press as a key and as a notification counts once.
 	_app._last_back_ms = 0
 	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)

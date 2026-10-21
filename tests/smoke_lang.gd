@@ -10,7 +10,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 ## Keys that code builds from a prefix and a word, so that no script has them as a whole.
 const DYNAMIC_KEYS := ["game_settings.easy", "game_settings.medium", "game_settings.hard"]
 
-const KEEP := ["PIN", "SABABI", "1P", "2P", "3P", "4P", "A", "B", "OK", "%S %D/%D"]
+const KEEP := ["SABABI", "1P", "2P", "3P", "4P", "A", "B", "OK", "%S %D/%D"]
 
 var _fails := 0
 var _checks := 0
@@ -321,7 +321,7 @@ func _run() -> void:
 		if screen.has_method("_open_players"):
 			screen._open_players()
 			await _frames(3)
-		var stays := ["SIM", app.server.room_code, "SABABI", "OK", "WI-FI", "QR", "PIN", "F3", "A", "B", "1P", "2P", "3P", "4P"]
+		var stays := ["SIM", app.server.room_code, "SABABI", "OK", "WI-FI", "QR", "F3", "A", "B", "1P", "2P", "3P", "4P"]
 		for t in _latin_texts(screen, stays):
 			shown_missing.append("%s: %s" % [screen.get_script().resource_path.get_file(), t])
 	app.go_connect()

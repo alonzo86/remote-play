@@ -1,19 +1,13 @@
 extends SceneTree
-## The join PIN (FD-25): a new phone must send the PIN that the TV shows, a phone that returns with its token needs none,
-## a phone on the same device needs none, and the TV makes a new PIN after too many wrong ones. Also the PIN pad of the phone
-## and the pages of the About screen. Real sockets on the local machine, like tests/net_profiles.gd.
-## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/net_pin.gd -- --role=controller
+## The About pages and the About screen of the phone (FD-25): the pages, the rows, Back, touch and Hebrew.
+## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/about_pages.gd -- --role=controller
 
-const Protocol = preload("res://scripts/core/protocol.gd")
-const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
-const PinPad = preload("res://scripts/ui/pin_pad.gd")
 const About = preload("res://scripts/core/about.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 
 var _checks := 0
 var _fails := 0
-var _server: TvServer
 var _about_script: GDScript   # The screens use the autoloads (App, Role): load them when the test runs, not at compile time.
 var _pad_script: GDScript
 var _connect_script: GDScript
@@ -34,148 +28,12 @@ func _initialize() -> void:
 	quit(1 if _fails > 0 else 0)
 
 
-func _raw_hello(fields: Dictionary) -> Dictionary:
-	var ws := WebSocketPeer.new()
-	ws.connect_to_url("ws://127.0.0.1:%d" % Protocol.WS_PORT)
-	var msg := {"t": "hello", "v": Protocol.VERSION, "room": _server.room_code, "token": "", "name": ""}
-	msg.merge(fields, true)
-	var sent := false
-	var reply := {}
-	var t0 := Time.get_ticks_msec()
-	while Time.get_ticks_msec() - t0 < 3000 and reply.is_empty():
-		ws.poll()
-		if ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
-			if not sent:
-				ws.send_text(Protocol.to_json(msg))
-				sent = true
-			while ws.get_available_packet_count() > 0:
-				var parsed := Protocol.parse_json(ws.get_packet().get_string_from_utf8())
-				if reply.is_empty():
-					reply = parsed
-		await process_frame
-	return {"ws": ws, "reply": reply}
-
-
-func _free_all() -> void:
-	for p in _server.players:
-		if p.is_present():
-			_server.drop_player(p.slot)
-
-
 func _run() -> void:
 	_about_script = load("res://scripts/ui/about_screen.gd")
 	_pad_script = load("res://scripts/ui/controller_pad.gd")
 	_connect_script = load("res://scripts/ui/controller_connect.gd")
-	_check(Protocol.is_pin("0427") and not Protocol.is_pin("427") and not Protocol.is_pin("04a7") and not Protocol.is_pin("04271"),
-			"a PIN is exactly 4 digits")
-	var pin := Protocol.make_pin()
-	_check(Protocol.is_pin(pin), "a made PIN is valid: " + pin)
-	_server = TvServer.new()
-	root.add_child(_server)
-	_server.start({})
-	_server.set_phase("menu")
-	_check(Protocol.is_pin(_server.pin), "the TV makes a PIN when it starts")
-	_server.pin_exempt_loopback = false   # The test phones are on this device: ask them for the PIN as a phone on the Wi-Fi.
-	await _join_rules()
-	await _wrong_pins()
-	_server.pin_exempt_loopback = true
-	var same_device := await _raw_hello({})
-	_check(same_device.reply.get("t", "") == "welcome", "a phone on the same device needs no PIN")
-	_free_all()
-	_server.stop()
-	await _pad()
 	_about()
 	await _about_screen()
-
-
-func _join_rules() -> void:
-	print("join with the PIN")
-	var none := await _raw_hello({})
-	_check(none.reply.get("t", "") == "reject" and none.reply.get("reason", "") == "bad_pin", "no PIN: rejected as bad_pin")
-	var wrong := await _raw_hello({"pin": "0000" if _server.pin != "0000" else "1111"})
-	_check(wrong.reply.get("reason", "") == "bad_pin", "a wrong PIN is rejected")
-	var good := await _raw_hello({"pin": _server.pin})
-	_check(good.reply.get("t", "") == "welcome", "the right PIN joins")
-	var token := String(good.reply.get("token", ""))
-	_check(_server.connected_slots().size() == 1, "the phone holds a slot")
-	good.ws.close()
-	await create_timer(0.3).timeout
-	var again := await _raw_hello({"token": token})
-	_check(again.reply.get("t", "") == "welcome" and int(again.reply.get("slot", -1)) == int(good.reply.get("slot", -2)),
-			"a phone that returns with its token needs no PIN")
-	var client := ControllerClient.new()
-	root.add_child(client)
-	client.connect_to("127.0.0.1", Protocol.WS_PORT, _server.room_code, _server.pin)
-	var t0 := Time.get_ticks_msec()
-	while client.state != ControllerClient.State.CONNECTED and Time.get_ticks_msec() - t0 < 3000:
-		await process_frame
-	_check(client.state == ControllerClient.State.CONNECTED and client.pin == "",
-			"the phone client joins with the PIN and then forgets it")
-	client.leave()
-	client.queue_free()
-	_free_all()
-
-
-func _wrong_pins() -> void:
-	print("too many wrong PINs")
-	_server.pin = "1234"
-	for i in Protocol.PIN_TRIES - 1:
-		await _raw_hello({"pin": "0000"})
-	var right := await _raw_hello({"pin": "1234"})
-	_check(right.reply.get("t", "") == "welcome", "a right PIN after fewer wrong ones than the limit still joins")
-	_free_all()
-	for i in Protocol.PIN_TRIES:
-		var wrong := await _raw_hello({"pin": "0000"})
-		_check(wrong.reply.get("reason", "") == "bad_pin", "wrong PIN %d is bad_pin" % (i + 1))
-	var locked := await _raw_hello({"pin": "1234"})
-	_check(locked.reply.get("reason", "") == "pin_locked" and _server.pin == "1234",
-			"after %d wrong PINs even the right PIN is turned away, and the PIN stays" % Protocol.PIN_TRIES)
-	_server._pin_locked_until_ms = 0   # The lock time is over.
-	var after := await _raw_hello({"pin": "1234"})
-	_check(after.reply.get("t", "") == "welcome", "after the lock time the right PIN joins again")
-	var token := String(after.reply.get("token", ""))
-	for i in Protocol.PIN_TRIES:
-		await _raw_hello({"pin": "0000"})
-	var kept := await _raw_hello({"token": token})
-	_check(kept.reply.get("t", "") == "welcome", "a phone with its token is not turned away by the lock")
-	_server._pin_locked_until_ms = 0
-	_free_all()
-	# A hello with no PIN and a token that the TV does not know (a phone after a TV restart) is no guess: it does not lock.
-	for i in Protocol.PIN_TRIES + 2:
-		var stale := await _raw_hello({"token": "unknown-token"})
-		_check(stale.reply.get("reason", "") == "bad_pin", "no PIN with an unknown token is bad_pin (%d)" % (i + 1))
-	var fresh := await _raw_hello({"pin": "1234"})
-	_check(fresh.reply.get("t", "") == "welcome",
-			"after %d hellos with no PIN the right PIN still joins (no lock)" % (Protocol.PIN_TRIES + 2))
-	_free_all()
-
-
-func _pad() -> void:
-	print("PIN pad")
-	var pad: Control = PinPad.new()
-	root.add_child(pad)
-	await process_frame
-	var got: Array = []
-	var cancelled := [false]
-	pad.entered.connect(func(p): got.append(p))
-	pad.cancelled.connect(func(): cancelled[0] = true)
-	for k in ["4", "2", "<", "1", "0"]:
-		pad._key(k)
-	_check(got.is_empty() and pad.digits == "410", "the digits are typed and one is deleted, and the pad waits: " + pad.digits)
-	var pad2: Control = PinPad.new()
-	root.add_child(pad2)
-	await process_frame
-	var got2: Array = []
-	pad2.entered.connect(func(p): got2.append(p))
-	for k in ["0", "4", "2", "7", "9"]:
-		pad2._key(k)
-	_check(got2 == ["0427"], "the fourth digit sends the PIN once: " + str(got2))
-	pad._key("X")
-	_check(cancelled[0], "the X key cancels")
-	_check(pad.find_children("*", "GridContainer", true, false)[0].layout_direction == Control.LAYOUT_DIRECTION_LTR,
-			"the keypad keeps its digit order in every language")
-	pad.queue_free()
-	pad2.queue_free()
 
 
 func _about() -> void:
@@ -438,23 +296,3 @@ func _about_stays_open() -> void:
 	await process_frame
 	_check(on_pad, "a round still opens the pad")
 	app.client.phase = "connect"
-	await _missing_pin()
-
-
-## A refusal for a missing PIN (the phone joined with a saved token that the TV does not know) opens the pad and shows no text.
-func _missing_pin() -> void:
-	var app: Node = root.get_node("App")
-	app.go(_connect_script)
-	await process_frame
-	var screen: Control = app.current_screen()
-	app.client.pin = ""
-	app._on_client_rejected("bad_pin")
-	_check(app.last_error == "", "a refusal for a missing PIN shows no error text")
-	screen._on_rejected("bad_pin")
-	_check(screen._pad != null, "a refusal for a missing PIN opens the pad")
-	screen._close_pad()
-	app.client.pin = "0000"
-	screen._on_rejected("bad_pin")
-	_check(screen._pad == null, "a refusal after a PIN was sent does not open the pad again")
-	app.client.pin = ""
-	app.last_error = ""

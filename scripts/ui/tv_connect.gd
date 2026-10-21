@@ -12,7 +12,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 
 var _qr: Control
 var _hint: Label
-var _pin: Label   # The join PIN (FD-25). It changes after too many wrong tries, so it is read again each frame.
+var _room: Label   # The room code. It follows the address of the TV, so it is read again each frame.
 var _modal: Control
 
 
@@ -40,13 +40,9 @@ func _ready() -> void:
 	_qr.custom_minimum_size = Vector2(420, 420)
 	cv.add_child(_qr)
 	cv.add_child(UiKit.label("connect.room_code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
-	var room := UiKit.title(App.server.room_code, UiTheme.SIZE_TITLE)
-	room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	cv.add_child(room)
-	cv.add_child(UiKit.label("pin.name", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
-	_pin = UiKit.title(App.server.pin, UiTheme.SIZE_TITLE)
-	_pin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	cv.add_child(_pin)
+	_room = UiKit.title(App.server.room_code, UiTheme.SIZE_TITLE)
+	_room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cv.add_child(_room)
 
 	# Right: title, help text and the slots.
 	var right := VBoxContainer.new()
@@ -55,7 +51,7 @@ func _ready() -> void:
 	right.alignment = BoxContainer.ALIGNMENT_BEGIN
 	cols.add_child(right)
 	right.add_child(UiKit.title("common.players"))
-	for help_key in ["connect.same_wi_fi", "connect.open_app_scan_code"]:
+	for help_key in ["connect.same_wi_fi", "connect.open_app_scan_code", "connect.or_type_code"]:
 		var help := UiKit.label(help_key, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 		help.autowrap_mode = TextServer.AUTOWRAP_WORD
 		right.add_child(help)
@@ -86,9 +82,9 @@ func can_continue() -> bool:
 
 
 func _refresh() -> void:
-	var ip: String = App.discovery.ip if App.discovery != null else ""
-	_pin.text = App.server.pin
-	_qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code, App.server.pin) if ip != "" else ""
+	var ip: String = App.server.ip
+	_room.text = App.server.room_code
+	_qr.text = Protocol.pair_url(ip, App.server.room_code) if ip != "" else ""
 	if App.server.connected_slots().size() >= 1:
 		_hint.add_theme_color_override("font_color", UiTheme.ACCENT)
 		_hint.text = "connect.press_ok_continue"

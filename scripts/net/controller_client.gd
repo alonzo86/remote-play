@@ -20,6 +20,8 @@ const LAST_FILE := "user://controller.cfg"
 const RETRY_DELAYS := [0.5, 1.0, 2.0]
 const CONNECT_TIMEOUT_MS := 4000
 const GIVE_UP_AFTER := 3   # Failed first attempts before "unreachable".
+const QUICK_GIVE_UP_AFTER := 1
+const QUICK_CONNECT_TIMEOUT_MS := 2000
 
 var state: State = State.IDLE
 var slot := -1
@@ -45,7 +47,8 @@ var score_text := ""         # The score as the TV shows it. Empty when there is
 var host := ""
 var port := Protocol.WS_PORT
 var room := ""
-var pin := ""   # The PIN of the TV for the next join. Not saved. It is cleared when the TV accepts this phone.
+var give_up_after := GIVE_UP_AFTER   # Failed first attempts before "unreachable" (the join by a typed code makes it 1).
+var connect_timeout_ms := CONNECT_TIMEOUT_MS
 
 var _ws: WebSocketPeer
 var _closing: Array = []     # Closed sockets that still flush their last frames.
@@ -61,12 +64,14 @@ var _tx_count := 0
 var _tx_window_ms := 0
 
 
-func connect_to(p_host: String, p_port: int, p_room: String, p_pin := "") -> void:
+## `quick` is for a guess of the address (a typed room code): one try with a short timeout, so a wrong code fails fast.
+func connect_to(p_host: String, p_port: int, p_room: String, quick := false) -> void:
 	_close_socket()
 	host = p_host
 	port = p_port
 	room = p_room.to_upper()
-	pin = p_pin
+	give_up_after = QUICK_GIVE_UP_AFTER if quick else GIVE_UP_AFTER
+	connect_timeout_ms = QUICK_CONNECT_TIMEOUT_MS if quick else CONNECT_TIMEOUT_MS
 	_attempt = 0
 	_was_connected = false
 	_open()
@@ -167,15 +172,13 @@ func _process(_delta: float) -> void:
 	_ws.poll()
 	match _ws.get_ready_state():
 		WebSocketPeer.STATE_CONNECTING:
-			if now - _open_started_ms > CONNECT_TIMEOUT_MS:
+			if now - _open_started_ms > connect_timeout_ms:
 				_ws.close()
 		WebSocketPeer.STATE_OPEN:
 			if state == State.CONNECTING or (state == State.RECONNECTING):
 				_set_state(State.JOINING)
 				_last_rx_ms = now
 				var hello := {"t": "hello", "v": Protocol.VERSION, "room": room, "token": _token, "name": player_name}
-				if pin != "":
-					hello["pin"] = pin
 				if pid != "":
 					hello["pid"] = pid
 					hello["av"] = avatar
@@ -229,8 +232,8 @@ func _handle(msg: Dictionary, now: int) -> void:
 			tv_avatar = int(msg.get("av", -1)) if tv_pid != "" else -1
 			tv_player_name = String(msg.get("pname", ""))
 			clear_score()   # The score comes again with the next frame of the game (REQ-FL-67).
-			pin = ""
 			_was_connected = true
+			connect_timeout_ms = CONNECT_TIMEOUT_MS   # A reconnect on a weak Wi-Fi gets the long timeout.
 			_attempt = 0
 			_tx_window_ms = now
 			_tx_count = 0
@@ -323,7 +326,7 @@ func _on_closed() -> void:
 
 func _schedule_retry_or_give_up() -> void:
 	_attempt += 1
-	if not _was_connected and _attempt >= GIVE_UP_AFTER:
+	if not _was_connected and _attempt >= give_up_after:
 		_set_state(State.IDLE)
 		rejected.emit("unreachable")
 		return

@@ -169,6 +169,8 @@ func _keys_map_to_actions() -> void:
 ## 8.4: Menu and F3 toggle the debug overlay, whose first line is DEBUG, the room, the address and a frame rate.
 func _overlay() -> void:
 	print("debug overlay")
+	_app.server.address_lookup = func() -> String: return "192.168.1.20"   # A sandbox may have no address, so no room code.
+	_app.server.ip = "192.168.1.20"
 	_app.go_connect()
 	await _frames(3)
 	if _app.overlay.visible:

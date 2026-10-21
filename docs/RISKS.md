@@ -28,12 +28,12 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 
 | # | Risk | Effect | Mitigation |
 |---|------|--------|------------|
-| C1 | **UDP broadcast is blocked** (guest Wi-Fi, AP isolation, some mesh systems, VPN). | The phone does not find the TV. | Done: typing the TV IP works without the beacon. The TV screen shows `ws://IP:47801/ROOM`. |
-| C2 | **No multicast lock (unverified).** Some phones drop broadcast packets in power saving. | Discovery is slow or fails. | Add `CHANGE_WIFI_MULTICAST_STATE` and a plugin that holds a `MulticastLock`. |
-| C3 | **Wrong IP on the TV.** Devices with Ethernet and Wi-Fi have two addresses. The code prefers 192.168.x.x, then 10.x, then 172.16-31.x. | The QR code or the URL shows the wrong address. | Add a menu item to choose the interface. The beacon uses the real sender address, so the list on the phone is still right. |
-| C4 | **The /24 assumption.** The subnet broadcast uses `x.y.z.255`. | Wrong on /16 networks. | `255.255.255.255` is also sent. |
+| C1 | **The room code does not reach the TV** (guest Wi-Fi with AP isolation, a VPN on the phone, mobile data only, TV and phone on networks that do not share the first two numbers of the address). | The typed code shows "CAN'T FIND THIS ROOM". | Done (issue #52, FD-28): the status line says to scan the QR code, which holds the full address. The TV sends no broadcast, so a blocked broadcast does not matter. |
+| C2 | **Multicast lock (not needed).** | - | Removed with the beacon (issue #52): the permission `CHANGE_WIFI_MULTICAST_STATE` and the `MulticastLock` are gone. |
+| C3 | **Wrong IP on the TV.** Devices with Ethernet and Wi-Fi have two addresses. The code prefers 192.168.x.x, then 10.x, then 172.16-31.x. | The QR code or the URL shows the wrong address. | Add a menu item to choose the interface. The room code is the code of that address, so a wrong address gives a code that does not work; the phone says that the room is not found. |
+| C4 | **The first two numbers.** A typed room code holds only the last two numbers of the TV address. | Wrong on a network where the phone and the TV differ in the first two numbers (rare). | The QR code holds the full address. |
 | C5 | **QR scanner plugin is unverified.** It is a small Java plugin (`android/plugin/QrScannerPlugin.java`) for the Google code scanner. It compiled only against stubs, not against the real ML Kit and Godot libraries. It needs Google Play services. | Scan fails or the app does not build. | Check on a phone (`docs/MANUAL_TESTS.md`, test 2). Fallbacks: the list, the room code, the TV IP. Use ZXing (`zxing-android-embedded`) if the phone has no Play services. |
-| C6 | **No authentication.** Any device on the LAN can join with the room code. | A neighbour on shared Wi-Fi can join. | Acceptable for a home LAN. Add a PIN in `hello` if needed. |
+| C6 | **No authentication.** Any device on the LAN can join with the room code or the QR code (the join PIN was removed in issue #52). | A neighbour on shared Wi-Fi can join. | Acceptable for a home LAN. The privacy notice says it. |
 | C7 | **The phone app goes to the background.** Android stops the sensors and the app. | The slot becomes `LOST`; the game pauses with a card and waits for the TV user (REQ-GM-30). | Done: the reconnect with token. The slot grace is 30 s (`Protocol.SLOT_GRACE_MS`) and 5 min while the game is paused (`Protocol.PAUSED_SLOT_GRACE_MS`), so a phone call does not end the game. |
 
 ## D. Android and TV platform

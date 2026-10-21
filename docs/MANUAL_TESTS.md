@@ -61,7 +61,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
-| [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 59, 68, 83, 84 | Not run |  | |
+| [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 68, 83, 84 | Not run |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
 | [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
 | [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-41a, 52, 53, REQ-GM-45, 46, FD-18 | Not run |  | |
@@ -69,7 +69,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip and phone score | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Not run | | |
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
-| [21](#test-21) | Join PIN and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-84, REQ-FL-85, REQ-N9, FD-25 | Not run | | |
+| [21](#test-21) | Join by room code and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-83, REQ-FL-84, REQ-FL-85, FD-25, FD-28 | Not run | | |
 | [22](#test-22) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [23](#test-23) | Pin Pals (bowling: aim with a finger, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
@@ -82,7 +82,7 @@ Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The 
 
 ### Start and join
 
-Needs: 1 phone, 1 TV, a stopwatch. Covers: REQ-A3, REQ-A4, REQ-FL-5 to 10, REQ-FL-80, 83, 84.
+Needs: 1 phone, 1 TV, a stopwatch. Covers: REQ-A3, REQ-A4, REQ-FL-5 to 10, REQ-FL-80, 83, 84, FD-28.
 
 Uninstall the old apps first. The package names changed (FD-26 and FD-27; the list is in `README.md`). Use a stopwatch for every time limit.
 
@@ -92,9 +92,9 @@ Uninstall the old apps first. The package names changed (FD-26 and FD-27; the li
 1b. Start the TV app. Check: the Android splash shows the pixel mascot (a yellow face with sunglasses) on a black background.
 2a. Start the controller app on one phone. Check: the app is named **Sababi: Remote**.
 2b. Look at the phone screen. Check: the screen is in **portrait** and shows the title SABABI.
-4c. Tap **Disconnect**, then tap **Refresh** (white). Check: the list shows "SEARCHING..." at once, and the TV is in the list again within 2 seconds of the tap. (Changes with issue #52: no Refresh.)
-4d. REQ-FL-83. Use the TV app on a Mac, where the list stays empty. Wait 30 seconds without a tap. Check: the list stays empty (the scan never starts by itself). Tap Refresh. Check: the TV shows in the list within 15 seconds. If the Mac asks for the Local Network permission, answer for the app that runs the TV; the scan works without it. (Changes with issue #52.)
-5. (Removed. There is no join by IP address, REQ-A4. The join by QR code is Test 2, the PIN rules are Test 21.)
+4c. Tap **Disconnect**. Type the room code of the TV in lower case with a space after the second letter, and tap **JOIN**. Check: the phone shows the waiting screen with the square of slot 1 less than 5 seconds after the tap (stopwatch), and the TV shows the player in slot 1. (REQ-FL-83. The phone builds the TV address from its own Wi-Fi address.)
+4d. Tap **Disconnect**. Type the room code with its last letter changed to another letter of the code alphabet, and tap **JOIN**. Check: less than 5 seconds after the tap the status line of the phone shows "CAN'T FIND THIS ROOM. CHECK THE CODE, OR SCAN THE QR CODE." or "WRONG ROOM CODE.", and the TV shows no new player.
+5. (Removed. There is no join by IP address, REQ-A4. The join by QR code is Test 2.)
 6a. Tap **Disconnect** on the phone. Check: within 5 seconds the TV slot of the phone shows no "READY". (Today the slot shows "LOST" for up to 30 seconds and then is empty. Changes with issue #44: the slot is empty within 5 seconds and never shows "LOST".)
 6b. Close the controller app and start it again, and film the start. Check: the Android splash (the mascot on black) is already in portrait and the phone does not turn at any frame of the video, and it is the only splash: the Connect screen follows at once, with no logo screen.
 
@@ -106,18 +106,19 @@ Uninstall the old apps first. The package names changed (FD-26 and FD-27; the li
 | 1b | Photo of the TV splash | Not run | | | |
 | 2a | Photo of the phone launcher with the app name | Not run | | | |
 | 2b | Photo of the phone in portrait | Not run | | | |
-| 4c | Video of the tap on Refresh with the stopwatch (seconds until the TV shows) | Not run | | | |
-| 4d | Video on the Mac: list empty for 30 s, then the TV after Refresh, with the seconds | Not run | | | |
+| 4c | Video of the typed code and the tap on JOIN with the stopwatch (seconds until the waiting screen) | Not run | | | |
+| 4d | Photo of the status line after the wrong code, with the seconds | Not run | | | |
 | 5 | (Removed with the join by IP address) | Not run | | | |
 | 6a | Photo of the TV slots 5 s after the tap, and the seconds until the slot is empty | Not run | | | |
 | 6b | Video of the app start in portrait: splash, then the Connect screen | Not run | | | |
 
 Items 1c to 1f, 3a, 3b, 3c, 3d, 4a, 4b, 6c and 6d moved to the automated tests (docs/AUTOMATED_TESTS.md, A-1-2, A-1-3, A-1-4, A-1-6). Steps 8.5a and 8.5b of Test 8 (the Android TV home row) are now part of step 1a. The numbers of the other items do not change.
 
-Measurements (not steps): write the time of Refresh (4c) and the time of the scan (4d) in the Notes of the step.
+Measurements (not steps): write the seconds from JOIN to the waiting screen (4c) and to the error text (4d) in the Notes of the step.
 
 History:
 
+- 2026-10-21 (issue #52, FD-28): steps 4c and 4d are about the typed room code now (they were about Refresh and the scan of the network, which are gone). Their old results were "Not run", so nothing is lost.
 - 2026-10-21 (automated): steps 1c to 1f, 3a, 4a, 4b and 6c moved to the automated tests (`r1_tv_screens`, `join_flow`). The R1 result of step 3a (Retest) is kept in the History line below and in the result database.
 - R1: **Retest** (step 3). Design change after the first run on a real Android TV: the owner found the Continue button redundant and the count of players repeated the slot list. Changed on 2026-10-09 (FD-17, REQ-FL-6, 7): the button and the count are gone, and 'PRESS OK TO CONTINUE' shows once a phone has joined. Step 3a is automated now (A-1-3).
 - R0: **Fail**. Join by room code failed with 'Room YCNW not found, is the tv on the same wi-fi?'. The list and the IP worked. TV app on a desktop, phone on the same Wi-Fi. The plan has no join by room code now, so every step needs a retest.
@@ -133,7 +134,7 @@ Needs: 1 phone, 1 TV, a stopwatch, a second QR code that is not from Sababi (for
 
 1. Tap **Disconnect**. Look at the Connect screen. Check: the button says **SCAN QR CODE**. If it says **PASTE ROOM LINK**, the plugin is not in the build (that button is only for a phone with no scanner). Run `tools/patch_android_manifest.sh controller` and export the controller again.
 2a. Tap the button and scan the QR code on the TV. Check: the phone shows "WAITING FOR THE HOST" less than 5 seconds after the scanner closes (stopwatch).
-2b. Check: the PIN pad did not open at any time (the QR code holds the PIN). (Changes with issue #52: the QR code holds no PIN.)
+2b. (Removed with the join PIN, issue #52. The QR code holds no PIN and the phone asks for nothing after the scan.)
 3a. Tap the scan button, then press Back in the scanner. Check: the Connect screen shows no message that starts with "QR SCAN FAILED".
 3b. Check: the app did not close, and a tap on the scan button opens the scanner again.
 
@@ -143,11 +144,11 @@ Needs: 1 phone, 1 TV, a stopwatch, a second QR code that is not from Sababi (for
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Phone screenshot of the connect screen: the button text | Not run | | | |
 | 2a | Screen recording of the scan, with the seconds to join | Not run | | | |
-| 2b | Screen recording of the scan: the PIN pad does not show | Not run | | | |
+| 2b | (Removed with the join PIN) | Not run | | | |
 | 3a | Phone screenshot after Back in the scanner | Not run | | | |
 | 3b | Note: the app is open; `adb logcat -d -s godot > docs/evidence/2/<run>-log.txt` if it crashes | Not run | | | |
 
-Item 4 (a QR code that is not from Sababi) moved to the automated tests (docs/AUTOMATED_TESTS.md, A-2-4). Items 1, 2a, 3a and 3b stay: they need the real scanner. Item 2b changes with issue #52 and stays until then. The numbers of the other items do not change.
+Item 4 (a QR code that is not from Sababi) moved to the automated tests (docs/AUTOMATED_TESTS.md, A-2-4). Items 1, 2a, 3a and 3b stay: they need the real scanner. Item 2b was removed with the join PIN (issue #52). The numbers of the other items do not change.
 
 History:
 
@@ -288,14 +289,14 @@ Time limit used below: the TV pauses when a phone is silent for 5 seconds (`Prot
 
 2. On the Games screen, lock the phone screen for 10 seconds, then unlock. Check: within 10 seconds the phone shows its waiting screen again with the same slot number, and the TV slot was "READY" all the time or came back to "READY". (Android can stop the app in the background.)
 3a. On the Games screen (not in a game), switch the phone Wi-Fi off for 45 seconds. Check: after 45 seconds the TV shows the slot of the phone as empty. (Changes with issue #44: the slot is empty within 5 seconds.)
-3b. Switch the Wi-Fi on. Check: within 10 seconds the phone shows the PIN pad (the TV does not know it any more). (Changes with issue #52: no PIN pad.)
-3c. Type the PIN. Check: the phone joins again and shows "CHOOSE A GAME ON THE TV" (maybe in a different slot).
-4b. Switch the Wi-Fi on. Check: within 10 seconds the phone shows the PIN pad. (Changes with issue #52.)
+3b. Switch the Wi-Fi on. Check: within 10 seconds the phone joins again by itself (the TV does not know it any more, so it takes a new slot, maybe a different one) and shows "CHOOSE A GAME ON THE TV". No question is asked. (Issue #52: the PIN pad is gone.)
+3c. (Removed with the join PIN. The phone joins again by itself in 3b.)
+4b. Switch the Wi-Fi on. Check: within 10 seconds the phone joins again by itself and shows its waiting screen or the pad, with no PIN question. (Issue #52.)
 6a. On the phone pad, tap **Disconnect** once. Check: the phone shows the Connect screen less than 1 second after the tap (no second tap).
 7a. With one phone in a game, call that phone from another phone and answer. Check: within 6 seconds of the answer (5 s of silence plus 1 s) the game pauses with the card "1P LOST CONNECTION".
 7b. End the call and go back to the controller app. Check: the phone says "RECONNECTING..." and then joins again in 10 seconds or less (stopwatch from the return to the app).
 7c. Check: the card says "1P reconnected" with **Resume**, and **Resume** goes on with the game.
-7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot, with no PIN.
+7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot.
 
 **Results**
 
@@ -303,9 +304,9 @@ Time limit used below: the TV pauses when a phone is silent for 5 seconds (`Prot
 |------|---------------------|--------|-----|----------|-------|
 | 2 | Note: the seconds the phone needs to show its waiting screen, the slot number before and after | Not run | | | |
 | 3a | Photo of the Games screen after 45 s (slot empty) | Not run | | | |
-| 3b | Photo of the phone PIN pad, with the seconds | Not run | | | |
-| 3c | Photo of the phone after the PIN | Not run | | | |
-| 4b | Photo of the phone PIN pad | Not run | | | |
+| 3b | Photo of the phone after the join, with the seconds | Not run | | | |
+| 3c | (Removed with the join PIN) | Not run | | | |
+| 4b | Photo of the phone after the join, with the seconds | Not run | | | |
 | 6a | Video of the tap and the Connect screen (the seconds) | Not run | | | |
 | 7a | Video of a phone call: the card, with the seconds | Not run | | | |
 | 7b | Video of the return: 'RECONNECTING...', the join, the seconds | Not run | | | |
@@ -586,9 +587,9 @@ Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island")
 
 1a. Follow `docs/EXPORT.md`, section *Controller on an iPhone*, and run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. Check: the export, the build, the install and the launch end, and `echo $?` after the script prints 0. If it fails, save the last 50 lines of the log.
 1b. Look at the iPhone. Check: the app opens in portrait, and the home screen icon is named **Sababi: Remote**.
-2b. Start the app for the first time after the install. Check: the iPhone asks for the Local Network permission once. Close the app and start it again: no second question. (Changes with issue #52.)
-2c. Tap **Refresh** (or wait on the screen), with the stopwatch. Check: the TV shows in the list **ROOMS FOUND** within 15 seconds. (REQ-FL-83. Changes with issue #52.)
-2d. Tap the TV in the list and type the 4-digit PIN from the TV. Check: the phone shows the waiting screen with the square of slot 1, and the TV shows the player in slot 1. (Changes with issue #52.)
+2b. Start the app for the first time after the install, type the room code of the TV and tap **JOIN**. Check: the iPhone asks for the Local Network permission once; allow it, and the phone joins within 10 seconds. Close the app, start it again and join again by the code: no second question. (The app connects to the TV address, so iOS asks.)
+2c. Look at the Connect screen. Check: it has the field for the room code and the JOIN button, and no scan button, no paste button, no list of rooms and no Refresh button. (REQ-FL-58)
+2d. Type the room code of the TV in lower case with a space after the second letter, and tap **JOIN**, with the stopwatch. Check: the phone shows the waiting screen with the square of slot 1 less than 5 seconds after the tap, and the TV shows the player in slot 1. (REQ-FL-83)
 3a. Open the debug overlay on the TV. Put the iPhone flat, screen up, still. Check: Accel z is between +9.3 and +10.3, and Accel x and y are between -0.5 and +0.5. If z is negative, tell Claude: remove "iOS" from `ACCEL_INVERTED_ON` in `scripts/input/sensor_sampler.gd`.
 3b. Put the right side down at about 30 degrees, then the left side down. Check: Accel x is -2 or lower for the right side down, and +2 or higher for the left side down. (Like Test 3, item 2.)
 3c. Put the top up at about 30 degrees, then the top down. Check: Accel y is +2 or higher for the top up, and -2 or lower for the top down. (Like Test 3, item 3.)
@@ -596,8 +597,8 @@ Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island")
 4a. Play Treasure Maze for 2 minutes (stopwatch) with the screen on and no touch on the screen. Check: no "lost connection" card on the TV and the iPhone screen does not lock.
 4b. In the same game, tilt the phone left, right, top up and top down. Check: the ball rolls to the side that is lowered, in all 4 directions.
 5a. In a game, lock the iPhone. Check: the TV shows the lost-phone card ("1P LOST CONNECTION" for slot 1) within 10 seconds. (Like A-7-7.)
-5b. Unlock the phone after 10 seconds. Check: the phone returns without the PIN pad, the card on the TV changes to a card with the button "Resume", and "Resume" restarts the game. (Like A-7-7 and A-7-8. Changes with issue #52 for the PIN.)
-5c. Outside a game (on the Games screen), lock the iPhone for 40 seconds and unlock it. Check: the PIN pad opens. (Like Test 7, item 3. Changes with issue #52.)
+5b. Unlock the phone after 10 seconds. Check: the phone returns by itself, the card on the TV changes to a card with the button "Resume", and "Resume" restarts the game. (Like A-7-7 and A-7-8.)
+5c. Outside a game (on the Games screen), lock the iPhone for 40 seconds and unlock it. Check: within 10 seconds the phone joins again by itself and shows "CHOOSE A GAME ON THE TV". (Like Test 7, item 3b.)
 6b. Open the player list, the player edit screen with the keyboard open, and Settings, upright. Take a photo of each. Check: the same as 6a. (REQ-FL-68)
 6d. Turn the phone to the side and open the screens of 6a and 6b again. Check: the same as 6a for every screen. (REQ-FL-68)
 
@@ -607,9 +608,9 @@ Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island")
 |------|---------------------|--------|-----|----------|-------|
 | 1a | Terminal log of the deploy with the exit code | Not run | | | |
 | 1b | Photo of the app and of the home screen icon | Not run | | | |
-| 2b | Photo of the permission question; note on the second start | Not run | | | |
-| 2c | Time in seconds until the TV shows in the list | Not run | | | |
-| 2d | Photo of the TV with the player joined | Not run | | | |
+| 2b | Photo of the permission question; note on the second start; seconds until the join | Not run | | | |
+| 2c | Photo of the Connect screen of the iPhone | Not run | | | |
+| 2d | Photo of the TV with the player joined; seconds from the tap | Not run | | | |
 | 3a | Photo of the overlay values flat | Not run | | | |
 | 3b | Photo of the overlay values for each tilt | Not run | | | |
 | 3c | Photo of the overlay values for each tilt | Not run | | | |
@@ -618,7 +619,7 @@ Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island")
 | 4b | Short video of the ball in 4 directions | Not run | | | |
 | 5a | Photo of the TV card; the time in seconds | Not run | | | |
 | 5b | Photo of the TV card and of the phone after unlock | Not run | | | |
-| 5c | Photo of the phone after 40 seconds | Not run | | | |
+| 5c | Photo of the phone after the unlock, with the seconds | Not run | | | |
 | 6b | Photos of the three screens, upright | Not run | | | |
 | 6d | Photos of the screens turned to the side | Not run | | | |
 
@@ -627,7 +628,7 @@ Step 6c was part of step 6a. Steps 2a, 2e and 6a moved to the automated tests (d
 History:
 
 - 2026-10-21 (automated): steps 2a, 2e and 6a moved to the automated tests (`run_tests`, `ui_states_a`). Step 3a stays (the real iPhone sensor sign). Steps 6b and 6d stay.
-- 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 6d). Steps 2a to 2e, 5b and 5c change with issue #52 (no PIN, no list, no Refresh).
+- 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 6d). Steps 2b to 2d, 5b and 5c were changed on 2026-10-21 by issue #52 (a typed room code instead of the list and the PIN; no Refresh).
 - -: **Not run**. New.
 
 ## Test 14
@@ -917,36 +918,36 @@ History:
 
 ## Test 21
 
-### Join PIN and About screens (REQ-FL-84, 85, REQ-N9, FD-25)
+### Join by room code and About screens (REQ-FL-83, 84, 85, FD-25, FD-28)
 
-Needs: 2 phones (an Android phone and, if possible, an iPhone), 1 TV on 1080p, a grown-up, a person who reads Hebrew for step 10a, a stopwatch. Covers: REQ-FL-84, REQ-FL-85, REQ-N9, FD-25.
+Needs: 2 phones (an Android phone and, if possible, an iPhone), 1 TV on 1080p, a grown-up, a person who reads Hebrew for step 10a, a stopwatch. Covers: REQ-FL-83, REQ-FL-84, REQ-FL-85, FD-25, FD-28.
 
-New (2026-10-11). The headless tests check the rules and the pages. They do not show how the PIN pad works in a hand, or how long the Godot pages take to open on a TV box. Issue #52 removes the join PIN, the list of found TVs, Refresh and the beacon. The automated tests of the PIN (`r4_pin`, `r4_tv_menus`) change with it; the steps that stay are about the real phone, the iPhone, a stopwatch and a reader.
+New (2026-10-11). The headless tests check the rules and the pages. They do not show how the typed room code works in a hand, or how long the Godot pages take to open on a TV box. Issue #52 (2026-10-21) removed the join PIN, the PIN pad, the list of found TVs, Refresh and the beacon. The steps that stay are about the real phone, the iPhone, a stopwatch and a reader. The old results of the steps about the PIN are kept in the History.
 
 **Steps**
 
-1b. Sit 3 m from the TV. Check: you read aloud the room code and the PIN without a mistake. (Changes with issue #52.)
-2. Scan the QR code of the TV with an Android phone. Check: the phone joins within 5 s and shows no PIN pad. (Changes with issue #52.)
-3d. Start the stopwatch when the grown-up taps the TV, and stop it when the phone is joined (the grown-up reads the PIN from the TV). Check: the time is 15 s or less. (Changes with issue #52.)
-6a. An iPhone: join from the list with the PIN (the iPhone has no scan button). Check: the iPhone joins. (Changes with issue #52.)
-6b. Type the PIN with one hand. Check: you reach all digit keys and the delete key with the thumb of the hand that holds the phone, without the other hand. (Changes with issue #52.)
+1b. Sit 3 m from the TV. Check: you read aloud the room code without a mistake.
+2. Scan the QR code of the TV with an Android phone. Check: the phone joins within 5 s and asks for nothing after the scan.
+3d. Start the stopwatch when the grown-up taps the TV, and stop it when the phone is joined (the grown-up reads the room code from the TV and types it). Check: the time is 15 s or less.
+6a. An iPhone: join with the typed room code (the iPhone has no scan button). Check: the iPhone joins within 5 s of the tap on JOIN.
+6b. Type the room code and tap **JOIN** with one hand. Check: you reach all letter keys of the keyboard, the delete key and JOIN with the thumb of the hand that holds the phone, without the other hand.
 8d2. Read the first line of a page aloud from 3 m. Check: you read it without a mistake. (Down and Up scroll the text: automated.)
 8f. On the TV box, use the stopwatch from OK on "3rd Party Libraries" to the list on the screen, and from OK on a library to its page. Check: the list opens within 3 s and the page within 2 s.
 9b2. On a phone open a long page (for example a library with two licenses) and drag it with one finger. Check: the text moves with the finger and the last line of the page can be reached by touch.
 9d. Open the page "Android libraries" and scroll to the end with the stopwatch. Check: it opens within 3 s and you reach the end of the text.
 10a. Set the TV to Hebrew. Check: the About list and the pages "Sababi" show in Hebrew, and the Hebrew reader says that the wording is correct. (The planned Settings changes of issue #49 are in Test 18.)
 
-Items 8c, 8e, 9a, 9c, 9e, 10b moved to the automated tests, and items 8a, 8d, 9b lost the part that a machine checks (`docs/AUTOMATED_TESTS.md`, A-21-8 to A-21-10). The remaining part of 8a is 8a2, of 8d is 8d2, of 9b is 9b2. On 2026-10-21 items 1a, 3a, 3b, 3c, 3e, 4a to 4d, 5a, 5b, 7, 8a2, 8b, 9f and 10c moved too (A-21-1a to A-21-10c). The PIN steps change with issue #52 and so do their tests. The numbers of the other items do not change.
+Items 8c, 8e, 9a, 9c, 9e, 10b moved to the automated tests, and items 8a, 8d, 9b lost the part that a machine checks (`docs/AUTOMATED_TESTS.md`, A-21-8 to A-21-10). The remaining part of 8a is 8a2, of 8d is 8d2, of 9b is 9b2. On 2026-10-21 items 1a, 3a, 3b, 3c, 3e, 4a to 4d, 5a, 5b, 7, 8a2, 8b, 9f and 10c moved too (A-21-1a to A-21-10c). The numbers of the other items do not change.
 
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1b | Note: read aloud from 3 m without a mistake | Pass | R1 | | |
+| 1b | Note: read aloud from 3 m without a mistake | Not run | | | R1 passed with the room code and the PIN; the PIN is gone, so it runs again. |
 | 2 | Value: seconds until joined; photo of the phone | Pass | R1 | | |
-| 3d | Value: seconds from the tap to the join | Not run | | | New limit (15 s) after R1. |
-| 6a | Note: the iPhone model | Pass | R1 | | |
-| 6b | Note: the iPhone model; keys reached with one hand | Pass | R1 | | |
+| 3d | Value: seconds from the tap to the join | Not run | | | New limit (15 s) after R1. The grown-up types the room code now. |
+| 6a | Note: the iPhone model | Not run | | | R1 passed with the list and the PIN; it joins by the typed code now. |
+| 6b | Note: the iPhone model; keys reached with one hand | Not run | | | R1 passed with the PIN pad; the keyboard and JOIN are checked now. |
 | 8d2 | Note: read aloud from 3 m | Pass | R1 | | |
 | 8f | Values: seconds for the list and for a page | Not run | | | New limits (3 s and 2 s) after R1. |
 | 9b2 | Note: scroll by touch | Pass | R1 | | |
@@ -955,7 +956,8 @@ Items 8c, 8e, 9a, 9c, 9e, 10b moved to the automated tests, and items 8a, 8d, 9b
 
 History:
 
-- 2026-10-21 (automated): 16 steps moved to the automated tests (`r4_pin`, `r4_tv_menus`, `join_flow`, `ui_states_a`). The R1 results of 1a, 3a to 3e, 4a to 4d, 5a, 5b, 7, 9f and 10c stay in the result database. The suite `r4_pin` fails on the status line of the Connect screen after a wrong PIN and after the lock (the R1 failures of 3b and 4b): known bug, it is red until the screen shows the text.
+- 2026-10-21 (issue #52, FD-28): the join PIN, the PIN pad and the list of TVs are gone. Steps 1b, 3d, 6a and 6b are about the room code now; 1b, 6a and 6b go back to "Not run" (R1 passed them with the PIN). The tests of the PIN (`r4_pin`, `net_pin`, `probe`) became `r4_join_code`, `about_pages` and `room_code`. The R1 failures of steps 3b and 4b (the texts of a wrong PIN and of the lock) are gone with the PIN.
+- 2026-10-21 (automated): 16 steps moved to the automated tests (`r4_pin`, `r4_tv_menus`, `join_flow`, `ui_states_a`). The R1 results of 1a, 3a to 3e, 4a to 4d, 5a, 5b, 7, 9f and 10c stay in the result database.
 - R1: **Fail** (steps 3, 4 and 10; the steps 1, 2, 5 to 9 pass). Reported in chat 2026-10-19. The failures of steps 3 and 4 are about the error texts WRONG PIN and TOO MANY WRONG PINS (no text, or a text that goes away). The note of step 10 asks for changes of the Settings screen (issue #49).
 - -: **Not run**. New.
 

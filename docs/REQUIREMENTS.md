@@ -23,9 +23,9 @@ Each requirement has an ID. Use the ID in code comments and tests.
 ## 3. Architecture
 
 - REQ-A1: The TV runs a WebSocket server (`TCPServer` + `WebSocketPeer`) on fixed TCP port 47801.
-- REQ-A2: The TV sends a UDP broadcast beacon on port 47800 every 1 second.
-- REQ-A3: The TV shows a QR code and a 4-letter room code on screen.
-- REQ-A4: The phone scans the QR code (Android; on a phone with no scanner the button is "Paste room link"; an iPhone has no scan or paste button), or finds the TV with the UDP beacon and picks it from the list of discovered rooms (with a Refresh button), and then types the 4-digit join PIN of the TV (REQ-FL-84; the QR code holds the PIN). A room in the list is a button that shows only "<room code> x/y" (players joined and maximum). There is no typed room code or IP: if neither works, there is no TV to connect to.
+- REQ-A2: **Removed (issue #52, FD-28).** The TV sends nothing on the network by itself: no UDP beacon, no port 47800.
+- REQ-A3: The TV shows a QR code and a 4-letter room code on screen. The room code is the code of the LAN address of the TV (REQ-FL-84).
+- REQ-A4: The phone joins in one of two ways: it scans the QR code (Android; on a phone with no scanner the button is "Paste room link"; an iPhone has no scan or paste button), or the player types the room code of the TV in a field (all phones, also an iPhone; REQ-FL-83). There is no list of discovered rooms, no Refresh button and no search of the network.
 - REQ-A5: The TV accepts up to 4 phones at the same time.
 - REQ-A6: Input handling and networking are in separate scripts from game logic.
 - REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.
@@ -43,7 +43,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-N6: The phone reconnects automatically with a saved token (backoff 0.5 s, 1 s, 2 s, then every 2 s).
 - REQ-N7: Full message reference: `docs/PROTOCOL.md`.
 - REQ-N8: `hello` and `welcome` carry an optional profile (`pid`, `av`, and the name); a `profile` message changes it in a menu. The TV checks every field. The protocol `VERSION` stays 2 (FD-22, `docs/PROTOCOL.md`).
-- REQ-N9: A new phone must send the join PIN of the TV (4 digits, `hello.pin`). A phone with a known token and a phone on the same device need none. After 5 wrong PINs the TV refuses new phones for 30 s. Protocol `VERSION` 3. See `docs/PROTOCOL.md`, "Join PIN".
+- REQ-N9: **Removed (issue #52, FD-28).** There is no join PIN (`hello.pin`, `bad_pin` and `pin_locked` are gone). Protocol `VERSION` 4. See `docs/PROTOCOL.md`, "Room code".
 
 ## 5. Phone controller
 
@@ -84,7 +84,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 | ID | Decision |
 |----|----------|
-| D1 | Join by UDP discovery plus room code. The TV shows a QR code that holds `ws://IP:PORT/ROOM`. The phone scans it with a small Android plugin (Google code scanner). On a PC the phone window uses a "Paste TV link" button. |
+| D1 | Join by the room code or the QR code (FD-28; it was UDP discovery plus room code). The TV shows a QR code that holds `ws://IP:PORT/ROOM` and the room code, which is its address in 4 letters. The phone scans the QR code with a small Android plugin (Google code scanner) or types the code. On a PC the phone window uses a "Paste TV link" button, or `--join=127.0.0.1`. |
 | D2 | All data goes over WebSocket (TCP) in v1. The overlay shows sensor age so the user can see TCP delay. |
 | D3 | The TV does sensor fusion. The phone sends raw values. |
 | D4 | Godot 4.7 stable. |

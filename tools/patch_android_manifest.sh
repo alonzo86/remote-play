@@ -76,10 +76,6 @@ patch(manifest, "category.LEANBACK_LAUNCHER",
                           '<category android:name="android.intent.category.LAUNCHER" />\n                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />', 1),
       "leanback launcher category")
 
-patch(manifest, "CHANGE_WIFI_MULTICAST_STATE",
-      lambda s: s.replace("    <application", '    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />\n\n    <application', 1),
-      "multicast permission")
-
 if with_qr:
     # A manifest patched before the rename names an old plugin class: point it to the new one.
     s = open(manifest).read()

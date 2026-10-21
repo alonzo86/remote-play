@@ -1,15 +1,13 @@
 extends Node
 ## Autoload "App". Owns the services and switches screens.
-## TV role: server, discovery beacon, debug overlay, menu and minigames.
-## Controller role: client, discovery listener, connect screen and pad screen.
+## TV role: server, debug overlay, menu and minigames.
+## Controller role: client, connect screen and pad screen.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
-const TvDiscovery = preload("res://scripts/net/tv_discovery.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
-const ControllerDiscovery = preload("res://scripts/net/controller_discovery.gd")
 const DebugOverlay = preload("res://scripts/ui/debug_overlay.gd")
 const Backdrop = preload("res://scripts/ui/backdrop.gd")
 const TvLogo = preload("res://scripts/ui/tv_logo.gd")
@@ -45,13 +43,11 @@ var settings := {
 
 var theme_res: Theme
 var server: Node            # TV only
-var discovery: Node         # TV only
 var overlay: CanvasLayer    # TV only
 var client: Node            # Controller only
 ## The last personal best of this phone: {"key", "value", "old"} or empty (REQ-GM-100). Cleared when the next round starts.
 var last_best := {}
 var profiles: ProfileStore  # Controller only. The profiles of this phone (FD-22).
-var controller_discovery: Node
 var last_error := ""        # Controller only. Shown on the connect screen.
 var last_game := ""         # TV only. The Games screen focuses this tile again.
 
@@ -284,9 +280,6 @@ func _start_tv() -> void:
 	add_child(server)
 	server.start(settings)
 	server.language = Lang.current()
-	discovery = TvDiscovery.new()
-	discovery.server = server
-	add_child(discovery)
 	server.player_joined.connect(func(_s): Sound.sfx("join"))
 	server.player_lost.connect(func(_s): Sound.sfx("leave"))
 	server.player_removed.connect(func(_s): Sound.sfx("leave"))
@@ -316,20 +309,15 @@ func _start_controller() -> void:
 	profiles = ProfileStore.new()
 	profiles.load_from_disk()
 	apply_profile()
-	controller_discovery = ControllerDiscovery.new()
-	add_child(controller_discovery)
 	var wifi_locks := QrScanner.new()
 	add_child(wifi_locks)
-	wifi_locks.acquire_wifi_locks() # Less jitter and no lost TV beacons on Android.
+	wifi_locks.acquire_wifi_locks() # Less jitter on Android.
 	client.state_changed.connect(_on_client_state)
 	get_viewport().size_changed.connect(_apply_safe_area)   # A turn changes the safe area (REQ-FL-68).
 	client.phase_changed.connect(_on_client_phase)
 	client.result_received.connect(_on_result)
 	client.language_changed.connect(func(code: String): set_language(code, false))
 	client.rejected.connect(_on_client_rejected)
-	if "--auto-join" in OS.get_cmdline_user_args():
-		# For desktop tests: join the first TV that sends a beacon.
-		controller_discovery.list_changed.connect(_auto_join)
 	var last: Dictionary = client.load_last()
 	if String(last.get("host", "")) != "" and String(last.get("token", "")) != "":
 		client.use_saved_token(String(last.token))
@@ -337,12 +325,17 @@ func _start_controller() -> void:
 		client.connect_to(String(last.host), int(last.port), String(last.room))
 	else:
 		go(ControllerConnect)
+		var join_host := _join_arg()
+		if join_host != "":
+			client.connect_to(join_host, Protocol.WS_PORT, "")
 
 
-func _auto_join() -> void:
-	var tvs: Array = controller_discovery.sorted_list()
-	if client.state == ControllerClient.State.IDLE and not tvs.is_empty():
-		client.connect_to(tvs[0].ip, tvs[0].port, tvs[0].room)
+## For desktop runs: `--join=127.0.0.1` joins the TV at that address without a room code (the TV takes a hello with no room).
+func _join_arg() -> String:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--join="):
+			return a.substr(7)
+	return ""
 
 
 func _on_client_state(state: int) -> void:
@@ -429,13 +422,9 @@ func _on_client_rejected(reason: String) -> void:
 	last_error = {
 		"full": Lang.t("app.room_full_4_players"),
 		"bad_room": Lang.t("app.wrong_room_code"),
-		"bad_pin": Lang.t("pin.wrong"),
-		"pin_locked": Lang.f("pin.locked", [Protocol.PIN_LOCK_MS / 1000]),
 		"version": Lang.t("app.app_version_does_not"),
 		"unreachable": Lang.t("app.cannot_connect_room"),
 		"tv_closed": Lang.t("app.tv_closed_connection"),
 		"kicked": Lang.t("app.host_removed_scan_code"),
 		"replaced": Lang.t("app.player_already_in_room"),
 	}.get(reason, Lang.f("connect.refused", [reason]))
-	if reason == "bad_pin" and client.pin == "":
-		last_error = ""   # The phone sent no PIN (an old token): the connect screen asks for it.

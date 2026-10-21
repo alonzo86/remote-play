@@ -165,7 +165,7 @@ func _run() -> void:
 	_race = load("res://scripts/game/marble_race/marble_race.gd")
 	_had_settings = FileAccess.file_exists(_app.SETTINGS_FILE)
 	_saved_settings = FileAccess.get_file_as_string(_app.SETTINGS_FILE) if _had_settings else ""
-	_orig_lookup = _app.discovery.address_lookup
+	_orig_lookup = _app.server.address_lookup
 	_app.quit_hook = func(): _quits[0] += 1
 	_app.settings.language = "en"
 	_app.set_language("en", false)
@@ -185,7 +185,7 @@ func _run() -> void:
 	await _hebrew_results()
 	await _late_phone()
 	_app.quit_hook = Callable()
-	_app.discovery.address_lookup = _orig_lookup
+	_app.server.address_lookup = _orig_lookup
 	_app.set_language("en", false)
 	if _had_settings:
 		FileAccess.open(_app.SETTINGS_FILE, FileAccess.WRITE).store_string(_saved_settings)
@@ -247,11 +247,11 @@ func _logo_back() -> void:
 # ---- Test 1 items 1e, 1f and Test 8b item 3a ----
 
 func _use_address(ip: String) -> void:
-	_app.discovery.address_lookup = func() -> String: return ip
-	_app.discovery.ip = ip
+	_app.server.address_lookup = func() -> String: return ip
+	_app.server.ip = ip
 
 
-## 1e: the PLAYERS screen has a QR code with the join link, the room code of 4 letters, the PIN of 4 digits (#52) and 4 slots.
+## 1e: the PLAYERS screen has a QR code with the join link, the room code of 4 letters (of the TV address), no PIN and 4 slots.
 func _connect_screen() -> void:
 	print("the PLAYERS screen")
 	_use_address("192.168.1.20")
@@ -263,18 +263,18 @@ func _connect_screen() -> void:
 	var qr: Control = qrs[0]
 	var pair := Protocol.parse_pair_url(qr.text)
 	_check(not pair.is_empty() and pair.host == "192.168.1.20" and pair.room == _app.server.room_code
-			and pair.pin == _app.server.pin and qr._qr.size() >= 21,
-			"the QR code holds the link with the address, the room code and the PIN: %s" % qr.text)
+			and not pair.has("pin") and not qr.text.contains("pin") and qr._qr.size() >= 21,
+			"the QR code holds the link with the address and the room code, and no PIN: %s" % qr.text)
 	var room: String = _app.server.room_code
 	var regex_room := RegEx.create_from_string("^[A-Z]{4}$")
 	_check(regex_room.search(room) != null and _label_texts(screen).has(room),
 			"the room code is 4 letters and shown on the screen: %s" % room)
-	var regex_pin := RegEx.create_from_string("^[0-9]{4}$")
-	_check(regex_pin.search(String(screen._pin.text)) != null and screen._pin.text == _app.server.pin,
-			"the join PIN is 4 digits and shown on the screen: %s (#52)" % screen._pin.text)
+	_check(room == Protocol.room_code_for_ip("192.168.1.20"), "and it is the code of the TV address 192.168.1.20")
 	var texts := _label_texts(screen)
-	_check(texts.has("connect.room_code") and Lang.t("connect.room_code") == "ROOM CODE" and texts.has("pin.name"),
-			"the words ROOM CODE and PIN are on the screen")
+	_check(texts.has("connect.room_code") and Lang.t("connect.room_code") == "ROOM CODE" and not texts.has("pin.name"),
+			"the words ROOM CODE are on the screen, and no PIN")
+	_check(texts.has("connect.same_wi_fi") and texts.has("connect.open_app_scan_code") and texts.has("connect.or_type_code"),
+			"the help says: same Wi-Fi, scan the code, or type the room code")
 	var lists := _with_script(screen, _slot_list_script)
 	_check(lists.size() == 1 and lists[0].get_child_count() == 4
 			and ["1P", "2P", "3P", "4P"].all(func(s): return texts.has(s)), "the screen has 4 slots, 1P to 4P")
@@ -294,7 +294,7 @@ func _no_address() -> void:
 			"the red line says that the TV has no network address: '%s'" % Lang.t("connect.no_wi_fi_address"))
 
 
-## 8b.3a: the Players modal has 4 slots, the QR code, the room code and the PIN (#52). 8b.5b (the token half): the frame of the
+## 8b.3a: the Players modal has 4 slots, the QR code and the room code (no PIN). 8b.5b (the token half): the frame of the
 ## modal is white outside and blue inside, the focused tile is framed in yellow and the others in gray, the screen is black.
 func _players_modal() -> void:
 	print("the Players modal")
@@ -307,11 +307,11 @@ func _players_modal() -> void:
 	var modal: Control = games._modal
 	_check(modal != null, "the badge opens the Players modal")
 	var qrs := _with_script(modal, _qr_script)
-	_check(qrs.size() == 1 and qrs[0].text == Protocol.pair_url("192.168.1.20", _app.server.room_code, _app.server.pin),
+	_check(qrs.size() == 1 and qrs[0].text == Protocol.pair_url("192.168.1.20", _app.server.room_code),
 			"the modal has the QR code of the join link")
 	var texts := _label_texts(modal)
 	_check(texts.has(_app.server.room_code), "the modal shows the room code %s" % _app.server.room_code)
-	_check(texts.any(func(t): return String(t).contains(_app.server.pin)), "the modal shows the join PIN (#52)")
+	_check(not texts.any(func(t): return String(t).contains("pin.")), "the modal shows no PIN")
 	var lists := _with_script(modal, _slot_list_script)
 	_check(lists.size() == 1 and lists[0].get_child_count() == 4, "the modal has 4 slots")
 	var frame = modal.card.get_theme_stylebox("panel")

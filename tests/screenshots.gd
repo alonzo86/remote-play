@@ -79,7 +79,8 @@ func _run() -> void:
 	await _stream(clients, 0.6, Vector3(0, 0, 9.81))
 	if app.overlay.visible:
 		app.toggle_overlay() # The UI shots show the screens without the overlay.
-	app.discovery.ip = "192.168.1.20" # A sandbox has no Wi-Fi address. The QR code needs one.
+	app.server.address_lookup = func() -> String: return "192.168.1.20" # A sandbox has no Wi-Fi address. The QR code needs one.
+	app.server.ip = "192.168.1.20"
 	app.go_logo()
 	await _frames(40)
 	await _shot("logo")
