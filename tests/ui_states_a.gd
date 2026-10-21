@@ -53,6 +53,7 @@ func _run() -> void:
 	await _fonts_and_background()
 	await _back_key()
 	await _safe_layout()
+	await _safe_rtl()
 	_app.client._set_state(ControllerClient.State.IDLE)
 
 
@@ -207,6 +208,26 @@ func _fixed_controls(node: Node, out: Array) -> void:
 		_fixed_controls(c, out)
 
 
+## The safe area is physical: a notch at the left of the phone keeps its room at the left in Hebrew too (REQ-FL-68).
+func _safe_rtl() -> void:
+	print("safe area in Hebrew")
+	var insets := Vector4(177.0, 40.0, 0.0, 30.0)
+	for lang in ["en", "he"]:
+		_app.set_language(lang, false)
+		_app.go(_app.ControllerWait)
+		await process_frame
+		await process_frame
+		_app._apply_insets(insets)
+		await process_frame
+		var r: Rect2 = _app.current_screen().get_global_rect()
+		var vp: Vector2 = root.get_visible_rect().size
+		_check(absf(r.position.x - 177.0) < 0.5 and absf(vp.x - r.end.x) < 0.5,
+				"[%s] a left inset of 177 px stays at the physical left (screen x %.0f to %.0f of %.0f)"
+				% [lang, r.position.x, r.end.x, vp.x])
+	_app.set_language("en", false)
+	_app._apply_insets(Vector4.ZERO)
+
+
 ## Test 13.6: every phone screen stays inside the safe area of an iPhone with a Dynamic Island, portrait and landscape.
 func _safe_layout() -> void:
 	print("safe area layout")
@@ -250,13 +271,6 @@ func _safe_layout() -> void:
 						outside.append("pad button " + str(center))
 			screen.queue_free()
 		var fits := outside.is_empty() and count > 20
-		if case_name == "landscape":
-			# The phone is locked to portrait (project.godot, orientation.controller = 1, also on iOS through the custom feature
-			# "controller"), so this case does not happen today. It is kept for the day the lock is removed.
-			_known_bug("issue-needed: the waiting screen is taller than a landscape phone (only when rotation is allowed)", fits,
-					"[landscape] every text and button is inside the safe area (outside: %s)" % str(outside))
-			holder.queue_free()
-			continue
 		_check(fits,
 				"[%s] %d texts, buttons and pad rects are inside the safe area (inset top %.0f, bottom %.0f, left %.0f; outside: %s)"
 				% [case_name, count, m.y, m.w, m.x, str(outside)])

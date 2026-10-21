@@ -329,7 +329,7 @@ func _about_extra() -> void:
 			outside.append(String(libs[i].title))
 	_check(rows.size() == libs.size() and bad.is_empty(),
 			"every library row shows its name and license, wraps, and is tall enough for its lines: %s" % str(bad.slice(0, 5)))
-	_known_bug("issue-needed: About libraries title is wider than the phone screen", outside.is_empty(),
+	_check(outside.is_empty(),
 			"every library row is inside the 60 px edge of a 1080 px phone screen (%d rows are not; the title is %d px wide)"
 			% [outside.size(), int(screen._box.get_minimum_size().x)])
 	screen.queue_free()
@@ -337,7 +337,7 @@ func _about_extra() -> void:
 	# The size of the text (REQ-FL-40: TV text is 32 px or more; phone text 24 px or more).
 	var script_size: int = _about_script.TEXT_SIZE
 	_check(script_size >= 24, "the text of an About page is 24 px or more (the phone minimum)")
-	_known_bug("issue-needed: REQ-FL-40", script_size >= 32,
+	_check(script_size >= 32,
 			"the About text is 32 px or more, so it reads from the sofa on the TV (it is %d)" % script_size)
 
 	# The fourth Back: from the About list to the screen that opened it.

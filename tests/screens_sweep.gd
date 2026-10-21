@@ -204,13 +204,8 @@ func _sweep(name: String, code: String) -> void:
 	_check(not nodes.is_empty() or name == "logo", "%s: the screen shows text" % state)
 	_check(small.is_empty(), "%s: every text is %d px or larger %s" % [state, MIN_FONT, str(small.slice(0, 4))])
 	_check(wide.is_empty(), "%s: no text is wider than its box %s" % [state, str(wide.slice(0, 4))])
-	if name == "games, players":
-		_known_bug("issue-needed: the Players modal is 1824 px wide, its text starts at x 54 and ends at 1878 (REQ-GM-40)",
-				outside.is_empty(),
-				"%s: no visible text box is outside the 60 px margin %s" % [state, str(outside.slice(0, 3))])
-	else:
-		_check(outside.is_empty(), "%s: no visible text box is outside the 60 px margin (REQ-GM-40) %s" % [state,
-				str(outside.slice(0, 3))])
+	_check(outside.is_empty(), "%s: no visible text box is outside the 60 px margin (REQ-GM-40) %s" % [state,
+			str(outside.slice(0, 3))])
 	_check(lower.is_empty(), "%s: all English text is upper case %s" % [state, str(lower.slice(0, 4))])
 	_check(odd.is_empty(), "%s: every label color is white, gray, yellow, green or red %s" % [state, str(odd.slice(0, 4))])
 	# The title of the screen: yellow, and at the right half in Hebrew (the first label of 64 px).
@@ -258,11 +253,7 @@ func _sweep(name: String, code: String) -> void:
 		if t == Lang.t("common.back"):
 			var quiet: bool = b.theme_type_variation == &"QuietButton" and b.get_theme_color("font_color") == UiTheme.TEXT_DIM \
 					and b.get_theme_color("font_focus_color") == UiTheme.ACCENT
-			if name == "about":
-				_known_bug("issue-needed: the BACK item of the About screen is a normal item, not a QuietButton (REQ-FL-41)", quiet,
-						"%s: BACK is a quiet item, gray and yellow with the cursor" % state)
-			else:
-				_check(quiet, "%s: BACK is a quiet item, gray and yellow with the cursor" % state)
+			_check(quiet, "%s: BACK is a quiet item, gray and yellow with the cursor" % state)
 		if b.theme_type_variation == &"DangerButton":
 			_check(b.get_theme_color("font_color") == UiTheme.TEXT and b.get_theme_color("font_focus_color") == UiTheme.BAD,
 					"%s: the red item '%s' is white and red with the cursor" % [state, t])

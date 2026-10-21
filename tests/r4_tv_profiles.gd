@@ -283,12 +283,7 @@ func _lists() -> void:
 		var whole: bool = latin.all(_fits) and hebrew.all(_fits)
 		var widths := "(%s px for 400 px of text, %s px)" % [str(latin[0].size.x) if not latin.is_empty() else "-",
 				str(hebrew[0].size.x) if not hebrew.is_empty() else "-"]
-		if lang == "he":
-			# Run: English passes; in Hebrew the Latin name gets 376 px for 400 px of text.
-			_known_bug("issue-needed: a name of 10 letters is cut in the Players list in Hebrew (the state word and Remove leave"
-					+ " about 376 px for 400 px of text)", whole, "4b: %s: both names are whole %s" % [state, widths])
-		else:
-			_check(whole, "4b: %s: both names are whole %s" % [state, widths])
+		_check(whole, "4b: %s: both names are whole %s" % [state, widths])
 		games.on_back()
 		await _frames(2)
 		_app.go_connect()

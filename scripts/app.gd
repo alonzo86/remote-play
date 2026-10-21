@@ -144,7 +144,11 @@ func _menu_sound(event: InputEvent) -> void:
 			Sound.sfx("move")
 			return
 	if event.is_action_pressed("ui_accept"):
-		if _screen == null or not ("start_props" in _screen):   # In a game, OK opens the pause menu, which has its own sound.
+		# In a game, OK opens the pause menu, which has its own sound. On a dim game tile OK plays `denied` only (TvGames).
+		var tile := get_viewport().gui_get_focus_owner()
+		if tile != null and tile.get("fits") == false:
+			return
+		if _screen == null or not ("start_props" in _screen):
 			Sound.sfx("select")
 	elif event.is_action_pressed("ui_cancel"):
 		Sound.sfx("back")
@@ -179,7 +183,14 @@ func go(script: GDScript, props := {}) -> void:
 func _apply_safe_area() -> void:
 	if _screen == null or not Role.is_controller():
 		return
-	var m := SafeArea.current(get_viewport().get_visible_rect().size)
+	_apply_insets(SafeArea.current(get_viewport().get_visible_rect().size))
+
+
+## Puts the screen inside the insets `m` (left, top, right, bottom). In Hebrew the screen is laid out right to left, so Godot
+## mirrors its left and right offsets: they swap here, and a notch at the physical left stays at the physical left.
+func _apply_insets(m: Vector4) -> void:
+	if Lang.is_rtl():
+		m = Vector4(m.z, m.y, m.x, m.w)
 	_screen.offset_left = m.x
 	_screen.offset_top = m.y
 	_screen.offset_right = -m.z
