@@ -37,7 +37,7 @@ The clip ids are the game ids. The games were renamed later: `maze` is Treasure 
 
 Rules:
 - Game music starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1).
-- Music is quieter than effects (about 6 dB), so a hit is always heard. Every effect is 3 to 9 dB above the music at the default levels (RMS, bus gains applied), and no effect or song clips (peak 1.0 or lower); `tests/audio.gd` asserts this for every effect. **Planned (issue #68):** `go` is about +9.7 dB and `time_low` about -2.6 dB.
+- Music is quieter than effects (about 6 dB), so a hit is always heard. Every effect is 3 to 9 dB above the music at the default levels (RMS, bus gains applied), and no effect or song clips (peak 1.0 or lower); `tests/audio.gd` asserts this for every effect.
 - The pause menu and the "phone lost" card lower the music to 30% (it does not stop, so Resume has no jump). The result menu stops the music and plays a short jingle, then goes quiet; it does not loop under a menu where the players talk.
 - The menu music goes on across the menu screens with no restart (the Games screen to the Settings screen and back). It restarts only after a game.
 - When the music of a game is finished by the result, the menu music comes back when the player goes back to the menu.

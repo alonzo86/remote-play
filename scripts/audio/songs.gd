@@ -157,7 +157,7 @@ static func _noise(f0: float, f1: float, dur: float, vol := 0.3, t := 0.0) -> Di
 static func effects() -> Dictionary:
 	var fx := {}
 	# Shared (menus, countdown, results).
-	fx["move"] = [_blip(1500.0, 1500.0, 0.03, 0.2)]
+	fx["move"] = [_blip(1500.0, 1500.0, 0.03, 0.37)]
 	fx["select"] = _run(["E5", "A5"], 0.045)
 	fx["back"] = _run(["A5", "E5"], 0.045)
 	fx["denied"] = [_blip(110.0, 90.0, 0.12, 0.3, 0.25)]
@@ -166,45 +166,45 @@ static func effects() -> Dictionary:
 	fx["pause"] = _run(["G5", "C5"], 0.05)
 	fx["resume"] = _run(["C5", "G5"], 0.05)
 	fx["count"] = [_blip(880.0, 880.0, 0.1, 0.35)]
-	fx["go"] = [_blip(1320.0, 1320.0, 0.3, 0.38)]
-	fx["time_low"] = [_blip(1000.0, 1000.0, 0.025, 0.15)]
+	fx["go"] = [_blip(1320.0, 1320.0, 0.3, 0.25)]
+	fx["time_low"] = [_blip(1000.0, 1000.0, 0.025, 0.4)]
 	fx["win"] = _run(["C5", "E5", "G5", "C6", "G5", "C6"], 0.15, 0.33, 0.5, 1.0)
 	fx["tie"] = _run(["E5", "G5", "E5"], 0.2, 0.3, 0.5, 1.0)
 	# Treasure Maze.
-	fx["maze_bump"] = [_blip(180.0, 120.0, 0.04, 0.22, 0.25)]
+	fx["maze_bump"] = [_blip(180.0, 120.0, 0.04, 0.33, 0.25)]
 	fx["maze_exit"] = _run(["C5", "E5", "G5", "C6"], 0.09, 0.35)
 	# Road Rally.
-	fx["marble_wall"] = [_noise(5000.0, 3000.0, 0.03, 0.2), _blip(700.0, 500.0, 0.03, 0.15, 0.25)]
+	fx["marble_wall"] = [_noise(5000.0, 3000.0, 0.03, 0.36), _blip(700.0, 500.0, 0.03, 0.27, 0.25)]
 	fx["marble_wall_hard"] = [_noise(6000.0, 3000.0, 0.04, 0.28), _blip(1000.0, 650.0, 0.04, 0.2, 0.25)]
 	fx["marble_bumper"] = [_blip(300.0, 900.0, 0.12, 0.33, 0.25)]
-	fx["marble_marble"] = [_noise(3000.0, 1800.0, 0.035, 0.2), _blip(400.0, 300.0, 0.035, 0.15, 0.25)]
+	fx["marble_marble"] = [_noise(3000.0, 1800.0, 0.035, 0.34), _blip(400.0, 300.0, 0.035, 0.26, 0.25)]
 	fx["marble_finish"] = _run(["G5", "C6", "E6", "G6"], 0.1, 0.35)
 	# Paint Grab.
-	fx["paint_tile"] = [_blip(600.0, 900.0, 0.03, 0.22)]
+	fx["paint_tile"] = [_blip(600.0, 900.0, 0.03, 0.37)]
 	fx["paint_steal"] = [_blip(900.0, 500.0, 0.06, 0.28)]
 	fx["paint_bounce"] = [_blip(200.0, 420.0, 0.08, 0.3, 0.25)]
-	fx["paint_edge"] = [_blip(160.0, 110.0, 0.04, 0.2, 0.25)]
+	fx["paint_edge"] = [_blip(160.0, 110.0, 0.04, 0.33, 0.25)]
 	fx["paint_lead"] = _run(["E6", "A6"], 0.08, 0.3)
 	# Sumo Bumpers.
-	fx["sumo_bump"] = [_noise(2500.0, 800.0, 0.08, 0.35), _blip(220.0, 90.0, 0.08, 0.35, 0.25)]
+	fx["sumo_bump"] = [_noise(2500.0, 800.0, 0.08, 0.24), _blip(220.0, 90.0, 0.08, 0.24, 0.25)]
 	fx["sumo_dash"] = [_noise(2000.0, 9000.0, 0.15, 0.25)]
 	fx["sumo_fall"] = [_blip(1200.0, 180.0, 0.5, 0.3)]
 	fx["sumo_round_win"] = _run(["C5", "E5", "G5", "C6"], 0.1, 0.35)
 	# Banana Party.
-	fx["snow_throw"] = [_noise(6000.0, 12000.0, 0.07, 0.2)]
+	fx["snow_throw"] = [_noise(6000.0, 12000.0, 0.07, 0.29)]
 	fx["snow_hit"] = [_noise(4000.0, 1500.0, 0.1, 0.28), _blip(300.0, 700.0, 0.1, 0.3, 0.25, 0.08)]
-	fx["snow_miss"] = [_noise(3000.0, 1500.0, 0.06, 0.1)]
+	fx["snow_miss"] = [_noise(3000.0, 1500.0, 0.06, 0.3)]
 	fx["snow_points"] = [_blip(1320.0, 1320.0, 0.05, 0.3), _blip(1760.0, 1760.0, 0.1, 0.3, 0.5, 0.05)]
 	# Galaxy Protector.
-	fx["blast_boom"] = [_noise(3500.0, 500.0, 0.18, 0.3), _blip(160.0, 60.0, 0.18, 0.3, 0.25)]
+	fx["blast_boom"] = [_noise(3500.0, 500.0, 0.18, 0.21), _blip(160.0, 60.0, 0.18, 0.21, 0.25)]
 	fx["blast_pickup"] = _run(["E5", "A5", "E6"], 0.06, 0.3)
 	fx["blast_shield"] = [_blip(900.0, 300.0, 0.2, 0.3), _noise(2500.0, 800.0, 0.1, 0.2)]
-	fx["blast_lost"] = [_noise(2500.0, 200.0, 0.45, 0.38), _blip(300.0, 40.0, 0.45, 0.35, 0.25)]
+	fx["blast_lost"] = [_noise(2500.0, 200.0, 0.45, 0.19), _blip(300.0, 40.0, 0.45, 0.18, 0.25)]
 	fx["blast_wave"] = _run(["A4", "E5", "A5"], 0.1, 0.3)
 	# Pin Pals.
 	fx["bowl_turn"] = _run(["E5", "G5"], 0.08, 0.25)
 	fx["bowl_throw"] = [_noise(1500.0, 5000.0, 0.25, 0.2)]
-	fx["bowl_pins"] = [_noise(3000.0, 1500.0, 0.3, 0.35), _blip(300.0, 200.0, 0.12, 0.25, 0.25)]
+	fx["bowl_pins"] = [_noise(3000.0, 1500.0, 0.3, 0.24), _blip(300.0, 200.0, 0.12, 0.17, 0.25)]
 	fx["bowl_strike"] = _run(["C5", "E5", "G5", "C6", "E6", "G6"], 0.075, 0.35, 0.5, 1.0)
 	fx["bowl_spare"] = _run(["E5", "G5", "C6"], 0.08, 0.3)
 	fx["bowl_gutter"] = [_blip(500.0, 120.0, 0.35, 0.25)]
@@ -213,7 +213,7 @@ static func effects() -> Dictionary:
 	fx["tennis_hit"] = [_noise(2500.0, 1200.0, 0.06, 0.3), _blip(500.0, 300.0, 0.06, 0.3, 0.25)]
 	fx["tennis_great"] = [_noise(3500.0, 1500.0, 0.07, 0.35), _blip(800.0, 400.0, 0.08, 0.33, 0.25),
 			_blip(1200.0, 1200.0, 0.08, 0.2, 0.5, 0.05)]
-	fx["tennis_bounce"] = [_blip(260.0, 200.0, 0.04, 0.2, 0.25)]
+	fx["tennis_bounce"] = [_blip(260.0, 200.0, 0.04, 0.33, 0.25)]
 	fx["tennis_net"] = [_noise(900.0, 300.0, 0.15, 0.3)]
 	fx["tennis_out"] = [_blip(600.0, 250.0, 0.25, 0.28)]
 	fx["tennis_point"] = _run(["C5", "E5", "G5"], 0.08, 0.3)
@@ -224,7 +224,7 @@ static func effects() -> Dictionary:
 	fx["golf_putt"] = [_noise(2000.0, 1000.0, 0.05, 0.25), _blip(600.0, 350.0, 0.06, 0.28, 0.25)]
 	fx["golf_wall"] = [_blip(300.0, 220.0, 0.05, 0.22, 0.25)]
 	fx["golf_blade"] = [_blip(500.0, 900.0, 0.08, 0.3, 0.25)]
-	fx["golf_splash"] = [_noise(3000.0, 600.0, 0.3, 0.3), _blip(700.0, 200.0, 0.25, 0.2)]
+	fx["golf_splash"] = [_noise(3000.0, 600.0, 0.3, 0.21), _blip(700.0, 200.0, 0.25, 0.14)]
 	fx["golf_hole"] = _run(["C5", "E5", "G5"], 0.08, 0.3)
 	fx["golf_ace"] = _run(["C5", "E5", "G5", "C6", "E6", "G6"], 0.075, 0.35, 0.5, 1.0)
 	return fx

@@ -477,10 +477,8 @@ func _loudness_and_songs(sound: Node, app: Node) -> void:
 		if above < 3.0 or above > 9.0:
 			out_of_range += " %s %.1f;" % [id, above]
 	print("  effects outside 3 to 9 dB above the music (RMS):%s" % out_of_range)
-	# AUDIO_PLAN "Mix": music is quieter than effects (about 6 dB), so a hit is always heard. Every effect follows it, not only
-	# select, count and win (align.md: go is about +9.7 dB and time_low about -2.6 dB, measured by the earlier run).
-	_known_bug("issue-needed: AUDIO_PLAN.md says effects are about 6 dB above the music (3 to 9 here); these are not (dB above):%s"
-			% out_of_range, out_of_range == "", "every effect is 3 to 9 dB above the music at the default levels")
+	# AUDIO_PLAN "Mix": music is quieter than effects (about 6 dB), so a hit is always heard. Every effect follows it.
+	_check(out_of_range == "", "every effect is 3 to 9 dB above the music at the default levels (outside:%s)" % out_of_range)
 	# The default levels are the ones that the checks above assume.
 	_check(int(app.settings.music_volume) == DEFAULT_MUSIC_STEP and int(app.settings.sfx_volume) == DEFAULT_SFX_STEP,
 			"the test ran at the default levels (Music %d, Effects %d)" % [DEFAULT_MUSIC_STEP, DEFAULT_SFX_STEP])

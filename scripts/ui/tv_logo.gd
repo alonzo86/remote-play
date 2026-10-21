@@ -57,7 +57,7 @@ func _ready() -> void:
 	_hint.offset_bottom = -70
 	_hint.visible = false
 
-	# The logo drops in from the top in steps of the 8 px grid (REQ-FL-42), then a confetti burst. The timer goes on to
+	# The logo drops in from the top in steps of 16 px (REQ-FL-42), then a confetti burst. The timer goes on to
 	# the Connect screen.
 	_drop(DROP_FROM)
 	create_tween().tween_method(func(y: float): _drop(snappedf(y, STEP)), DROP_FROM, 0.0, DROP_S)
