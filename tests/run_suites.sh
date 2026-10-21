@@ -5,7 +5,7 @@
 # Used by tests/run_all.sh and by tools/coverage.sh (which runs it in an instrumented copy of the project).
 set -u
 GODOT="${GODOT:-godot}"
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/.." || exit 1
 "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
 FAILED=""
 while IFS='|' read -r script role title; do
