@@ -35,7 +35,7 @@ Round
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SS-1 | A round has a countdown of 3 s and then 60 s of play (`RoundClock`). Cursors move during the countdown, but a throw does nothing. The visible clock shows the seconds left. At 0 the round ends and the result menu opens (REQ-SS-15). | Done | smoke_tv |
-| REQ-SS-2 | At GO every phone recenters, so the pose held in the countdown is the center of the screen. The Recenter button works during the round. | Done | smoke_tv |
+| REQ-SS-2 | At GO every phone recenters, so the pose held in the countdown is the center of the screen. The Recenter button works during the round; Banana Party is the game with the Recenter box (a pointer at a target, REQ-GM-37, issue #55). | Done | smoke_tv |
 
 Aim and throw
 

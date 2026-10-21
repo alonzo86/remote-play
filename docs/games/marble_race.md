@@ -1,6 +1,6 @@
 # Road Rally (`marble_race`)
 
-Type: 2D, a pixel world seen from above. Players: 1 to 4. Input: tilt (`PlayerInput.tilt()`), Recenter.
+Type: 2D, a pixel world seen from above. Players: 1 to 4. Input: tilt (`PlayerInput.tilt()`).
 General requirements: `docs/GAME_REQUIREMENTS.md`. Code: `scripts/game/marble_race/`.
 
 ## Goal
@@ -75,7 +75,7 @@ REQ-GM-90 to 96 apply. The settings view of the race has the Difficulty row, the
 | REQ-MR-33 | Try again keeps the track. | Done | smoke_tv |
 | REQ-MR-34 | Back in the results leaves the game. | Done | smoke_tv |
 | REQ-MR-14 | If all players leave during the race (their slots are freed: the hold of a paused game is over, REQ-GM-30a), a menu "No players connected" opens with "Back to menu". A lost phone first pauses the race with the card of REQ-GM-30. It is also what opens when the results are asked for after all players left. | Done | smoke_tv |
-| REQ-MR-15 | The Recenter button of the phone zeroes the tilt of that player in the race. | Done | smoke_tv |
+| REQ-MR-15 | The pad has no Recenter box in Road Rally (REQ-GM-37, issue #55); the pose held in the countdown is the center. | Done | smoke_tv |
 | REQ-MR-35 | The name of the track is shown on the screen during the race. | Device | Device |
 
 ### View and look

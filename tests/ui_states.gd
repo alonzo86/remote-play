@@ -553,10 +553,13 @@ func _pad_aim_strip() -> void:
 	pad._input(_touch(5, false, a_at))
 	_check(not pad._sampler.touching and absf(pad._aim_frac - 0.25) < 0.01, "the mark stays where the finger lifted")
 	app.client.turn_kind = "golf"
-	_check(pad._zone_at(strip.get_center()) == "recenter", "Mini Golf keeps the Recenter box")
+	app.client.recenter_button = false   # Mini Golf is not a pointer game (REQ-GM-37, issue #55).
+	_check(pad._zone_at(strip.get_center()) == "pad", "Mini Golf has no Recenter box, the strip is plain pad")
 	app.client.turn_state = 0
 	app.client.turn_kind = ""
 	pad._process(0.0)
 	_check(is_equal_approx(pad._aim_frac, 0.5), "the mark is back in the middle when the turn is over")
+	app.client.recenter_button = true
+	_check(pad._zone_at(strip.get_center()) == "recenter", "a pointer game shows the Recenter box again")
 	app.client.state = ControllerClient.State.IDLE
 	pad.queue_free()

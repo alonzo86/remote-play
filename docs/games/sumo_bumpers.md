@@ -1,6 +1,6 @@
 # Sumo Bumpers (`sumo_bumpers`)
 
-Type: 2D. Players: 2 to 4. Input: tilt (`PlayerInput.tilt()`), A (dash), Recenter.
+Type: 2D. Players: 2 to 4. Input: tilt (`PlayerInput.tilt()`), A (dash).
 General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84). Exceptions are in the first section.
 Code: `scripts/game/sumo_bumpers/`, with the shared helper `scripts/game/tilt_body.gd`. Plan: `docs/GAMES_ROADMAP.md` (branch 5).
 

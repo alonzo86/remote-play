@@ -87,6 +87,9 @@ func _run() -> void:
 		await _stream(1.5, flat)
 		var before: int = _buzzes[0].size() + _buzzes[1].size()
 		await _stream(2.5, flat)
+		# Issue #55: only a game where the phone is a pointer at a target has the Recenter box on the pad (REQ-GM-37).
+		_check(_clients[0].recenter_button == (id == "snowball_splat") and _clients[1].recenter_button == (id == "snowball_splat"),
+				"%s: the phones %s the Recenter box (REQ-GM-37)" % [id, "get" if id == "snowball_splat" else "do not get"])
 		if id in COUNTDOWN_GAMES:
 			_check(before == 0, "%s: no buzz during 3, 2, 1" % id)
 			_check(_buzzes[0].count(60) >= 1 and _buzzes[1].count(60) >= 1,
@@ -126,7 +129,7 @@ func _run() -> void:
 	_check(app.server.players[0].tilt().length() < 0.05,
 			"asteroid_blast: the pose held at the start is the center (%.3f)" % app.server.players[0].tilt().length())
 
-	# Paint Grab: RECENTER stops the creep, A and B do nothing (REQ-PG-14).
+	# Paint Grab: A and B do not recenter, and the pad has no Recenter box (REQ-PG-14).
 	app.go(load(GAMES.paint_grab[0]), GAMES.paint_grab[1].duplicate())
 	await _frames(3)
 	await _stream(4.0, flat)
@@ -138,9 +141,7 @@ func _run() -> void:
 	player.button_pressed.emit(Protocol.BTN_A)
 	player.button_pressed.emit(Protocol.BTN_B)
 	_check(player.tilt().length() > 0.2, "Paint Grab: A and B do not recenter")
-	_clients[0].send_recenter()
-	await _stream(0.3, tilted)
-	_check(player.tilt().length() < 0.05, "Paint Grab: RECENTER makes the tilt zero (%.3f)" % player.tilt().length())
+	_check(not _clients[0].recenter_button, "Paint Grab: the pad has no Recenter box (REQ-GM-37, issue #55)")
 
 	# A phone that goes silent (lock, no Wi-Fi) pauses the turn games,, and the card offers Resume when it is back.
 	app.server.peer_timeout_ms = 2500

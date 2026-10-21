@@ -18,6 +18,9 @@ var pin_exempt_loopback := true      # A phone on the same device (a development
 var _bad_pins := 0
 var _pin_locked_until_ms := 0        # New joins are refused until this time (after too many wrong PINs).
 var tv_name := "Living Room TV"
+## False while a game without a pointer is running: the phones then hide the Recenter box (REQ-GM-37). It is sent in the
+## `phase` and `welcome` messages as `rc` and only when it is false.
+var recenter_button := true
 var phase := "connect"   # connect, menu, playing, paused. See docs/PROTOCOL.md.
 var round_slots: Array[int] = []   # Slots that take part in the running round (when `round_limited`).
 var round_limited := false         # True when the round has its own list. A freed slot leaves the list.
@@ -96,6 +99,8 @@ func connected_slots() -> Array[int]:
 ## `slots` gets the phase `waiting`: it joined late and takes part in the next round (REQ-FL-25).
 func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	phase = p_phase
+	if not p_phase in ["playing", "paused"]:
+		recenter_button = true
 	round_slots.clear()
 	round_limited = false
 	if not p_phase in ["playing", "paused"]:
@@ -107,7 +112,10 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 		round_limited = true
 	for p in players:
 		if p.is_connected_now():
-			_send_json(p.slot, {"t": "phase", "v": phase_for(p.slot)})
+			var msg := {"t": "phase", "v": phase_for(p.slot)}
+			if not recenter_button:
+				msg["rc"] = false
+			_send_json(p.slot, msg)
 
 
 ## Sets the language of the TV and tells every connected phone (REQ-FL-62).
@@ -300,12 +308,15 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		_assign_names(slot if in_round() else -1)
 	_turn_sent.erase(slot)
 	_score_sent.erase(slot)   # A phone that joins or returns has no score yet.
-	_send_json(slot, {
+	var welcome := {
 		"t": "welcome", "slot": slot, "token": token,
 		"color": "#" + player.color.to_html(false),
 		"phase": phase_for(slot), "name": tv_name, "lang": language,
 		"pid": player.profile_id, "av": player.avatar, "pname": player.player_name if player.has_profile() else "",
-	})
+	}
+	if not recenter_button:
+		welcome["rc"] = false
+	_send_json(slot, welcome)
 	if resumed:
 		player_resumed.emit(slot)
 	else:

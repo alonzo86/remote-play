@@ -1,6 +1,6 @@
 # Tennis (`tennis`)
 
-Type: 2D with a view from behind a baseline (pixel world). Players: 1 to 4. Input: swing and tilt (the sensor of the phone), A (serve toss), Recenter.
+Type: 2D with a view from behind a baseline (pixel world). Players: 1 to 4. Input: swing and tilt (the sensor of the phone), A (serve toss).
 General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84). Exceptions are in the first section.
 Plan: `docs/GAMES_ROADMAP.md` (branch 7). Status: built on 2026-10-17 (code in `scripts/game/tennis/`), not yet tested on a device (Manual test 25). The look was agreed on 2026-10-16 (mock in the project thread).
 
