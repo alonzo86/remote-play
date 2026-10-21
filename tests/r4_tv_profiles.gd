@@ -280,10 +280,15 @@ func _lists() -> void:
 		var hebrew := _name_labels(modal, String(PHONES[1].name))
 		_check(latin.size() == 1 and hebrew.size() == 1,
 				"4b: %s has the name of 10 Latin letters and the name of 10 Hebrew letters" % state)
-		_known_bug("issue-needed: a name of 10 letters is cut in the Players list (the state word and Remove leave about 344 px"
-				+ " for 400 px of text; not run yet, remove the guard when the check passes)", latin.all(_fits) and hebrew.all(_fits),
-				"4b: %s: both names are whole (%s px for 400 px of text, %s px)" % [state,
-				str(latin[0].size.x) if not latin.is_empty() else "-", str(hebrew[0].size.x) if not hebrew.is_empty() else "-"])
+		var whole: bool = latin.all(_fits) and hebrew.all(_fits)
+		var widths := "(%s px for 400 px of text, %s px)" % [str(latin[0].size.x) if not latin.is_empty() else "-",
+				str(hebrew[0].size.x) if not hebrew.is_empty() else "-"]
+		if lang == "he":
+			# Run: English passes; in Hebrew the Latin name gets 376 px for 400 px of text.
+			_known_bug("issue-needed: a name of 10 letters is cut in the Players list in Hebrew (the state word and Remove leave"
+					+ " about 376 px for 400 px of text)", whole, "4b: %s: both names are whole %s" % [state, widths])
+		else:
+			_check(whole, "4b: %s: both names are whole %s" % [state, widths])
 		games.on_back()
 		await _frames(2)
 		_app.go_connect()
