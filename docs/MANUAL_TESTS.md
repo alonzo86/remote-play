@@ -134,7 +134,7 @@ Needs: 1 phone, 1 TV, a stopwatch, a second QR code that is not from Sababi (for
 1. Tap **Disconnect**. Look at the Connect screen. Check: the button says **SCAN QR CODE**. If it says **PASTE ROOM LINK**, the plugin is not in the build (that button is only for a phone with no scanner). Run `tools/patch_android_manifest.sh controller` and export the controller again.
 2a. Tap the button and scan the QR code on the TV. Check: the phone shows "WAITING FOR THE HOST" less than 5 seconds after the scanner closes (stopwatch).
 2b. Check: the PIN pad did not open at any time (the QR code holds the PIN). (Changes with issue #52: the QR code holds no PIN.)
-3a. Tap the scan button, then press Back in the scanner. Check: the Connect screen shows no message that starts with "QR SCAN FAILED".
+3a. Tap the scan button, then press Back in the scanner. Check: the Connect screen shows no message that starts with "QR SCAN FAILED". (R1 failed: the Google scanner reports Back as a failure, "Failed to scan code". Fixed on 2026-10-21 in `QrScannerPlugin.java`, which now sends "cancelled" for `MlKitException.CODE_SCANNER_CANCELLED`, issue #43: run it again on a build with the new plugin.)
 3b. Check: the app did not close, and a tap on the scan button opens the scanner again.
 
 **Results**

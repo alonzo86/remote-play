@@ -98,4 +98,4 @@ Tests the user has to run now (status on 2026-10-10 after run R1; the list is in
 | 4 | Latency and packet rate on a real TV box, and the delay with a 240 fps camera | R0 ran on a desktop and failed (RTT, Gap). Not representative |
 | 13 | Controller on an iPhone: deploy with `IOS_TEAM_ID=<id> tools/deploy-ios.sh`, join with Paste TV link, sensor directions, lock and unlock | New on 2026-10-09. Written on a Mac without Xcode, so never run |
 
-Test 2 (QR scan) passed in R0. Run it again only when the QR plugin or the connect screen changes.
+Test 2 (QR scan) passed in R0. Run it again only when the QR plugin or the connect screen changes. It changed on 2026-10-21 (Back in the scanner is a cancel, issue #43): run item 3a again.

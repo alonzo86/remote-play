@@ -7,6 +7,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
+import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
@@ -86,6 +87,12 @@ public class QrScannerPlugin extends GodotPlugin {
 						})
 						.addOnFailureListener(e -> {
 							scanning = false;
+							// The Back key in the scanner is reported as a failure ("Failed to scan code"), not as a cancel.
+							if (e instanceof MlKitException
+									&& ((MlKitException) e).getErrorCode() == MlKitException.CODE_SCANNER_CANCELLED) {
+								emitSignal(SIGNAL_FAILED, "cancelled");
+								return;
+							}
 							String message = e.getMessage();
 							emitSignal(SIGNAL_FAILED, message == null ? "error" : message);
 						});
