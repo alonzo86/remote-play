@@ -75,7 +75,7 @@ func _run() -> void:
 
 
 func _on_note(kind: String, ci: CanvasItem, _rect: Rect2, info: Dictionary) -> void:
-	if ci == _game and (kind == "plate" or kind == "leader"):
+	if (ci == _game and (kind == "plate" or kind == "leader")) or kind == "spark":
 		_log.append({"kind": kind, "msg": String(info.get("msg", ""))})
 
 
@@ -173,6 +173,7 @@ func _runs_and_great() -> void:
 	_check(game.play.phase == Match.Phase.RALLY and game.play.serve_ball, "5a: a serve at the top of the toss is hit")
 	var greats := 0
 	var great_drawn := 0
+	var sparks_drawn := 0
 	var in_ring := 0
 	var moved := 0
 	for k in 5:
@@ -194,13 +195,11 @@ func _runs_and_great() -> void:
 		await _draw_once(game)
 		greats += 1 if game._great.has(hitter) else 0
 		great_drawn += 1 if _drawn("plate", "tennis.great") else 0
+		sparks_drawn += 1 if _drawn("spark") else 0
 	_check(moved == 5, "4c: the character of the other team ran by itself before each of 5 hits (%d of 5)" % moved)
 	_check(in_ring == 5, "4c: at the hit it stood inside the ring (0.8 m) in %d of 5" % in_ring)
 	_check(greats == 5 and great_drawn == 5, "5a: 5 of 5 green swings show GREAT! (%d, drawn %d)" % [greats, great_drawn])
-	_known_bug("issue-needed: REQ-TN-6 and step 5a want sparks on a green hit; no code draws sparks (only the GREAT! plate)",
-			FileAccess.get_file_as_string("res://scripts/game/tennis/tennis_game.gd").to_lower().contains("spark")
-			or FileAccess.get_file_as_string("res://scripts/game/tennis/tennis_look.gd").to_lower().contains("spark"),
-			"5a: a green hit shows sparks")
+	_check(sparks_drawn == 5, "5a: 5 of 5 green hits draw sparks at the racket (%d)" % sparks_drawn)
 	# 5b: the second player swings early and late, the first player returns green. The ball stays in play.
 	var game2 := await _new_game()
 	_serve(game2)
@@ -311,10 +310,8 @@ func _places() -> void:
 		for s in other:
 			other_places.append(_clients[s].score_rank)
 		_check(front.size() >= 1 and front_ok, "9e: %d phones: the phones of the team in front show place 1" % n)
-		_known_bug("issue-needed: REQ-TN-13 says each phone shows its own team's place (2 for the other team); the board ranks "
-				+ "players, so equal scores share a place and the other team shows 3: %s" % str(other_places),
-				other_places.all(func(r: int) -> bool: return r == 2),
-				"9e: %d phones: the phones of the other team show place 2" % n)
+		_check(other_places.all(func(r: int) -> bool: return r == 2),
+				"9e: %d phones: the phones of the other team show place 2: %s" % [n, str(other_places)])
 
 
 # ---- 10b: the rally count ----
@@ -353,5 +350,4 @@ func _rally_count() -> void:
 			"10b: BEST is 5, the highest count: '%s'" % Lang.f("tennis.best", [shown_best]).to_upper())
 	var gap := t_next - t_over
 	_check(t_over > 0.0 and t_next > t_over, "10b: after the miss a new rally starts (%.2f s later)" % gap)
-	_known_bug("step 10b and REQ-TN-15 say a new rally starts about 2 s (1.5 to 2.5 s) after a miss; the banner (1.8 s) and the "
-			+ "wait of the machine (1.6 s) make %.1f s" % gap, gap >= 1.5 and gap <= 2.5, "10b: the new rally starts 1.5 to 2.5 s later")
+	_check(gap >= 1.5 and gap <= 2.5, "10b: the new rally starts 1.5 to 2.5 s later (%.2f s)" % gap)

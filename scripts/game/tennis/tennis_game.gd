@@ -38,6 +38,7 @@ var _banner_sub := ""
 var _banner_left := 0.0
 var _banner_color := UiTheme.ACCENT
 var _great: Dictionary = {}     # slot -> seconds left of the GREAT! text over the player.
+var _sparks: Array = []         # {pos: Vector3, age: float} of the green hits: a few pixel sparks at the racket (REQ-TN-6).
 var _tick_ms := 0
 var _wired: Array[int] = []     # The slots whose signals are connected, also the ones that left later.
 
@@ -111,6 +112,9 @@ func _game_tick(delta: float) -> void:
 		_great[s] = float(_great[s]) - delta
 		if float(_great[s]) <= 0.0:
 			_great.erase(s)
+	for sp in _sparks:
+		sp.age = float(sp.age) + delta
+	_sparks = _sparks.filter(func(sp: Dictionary) -> bool: return float(sp.age) < Look.SPARK_TIME)
 	if _end_left < 0.0:
 		play.tick(delta)
 		_handle_events(play.take_events())
@@ -162,6 +166,7 @@ func _on_hit(e: Dictionary) -> void:
 	_haptics.pulse(slot, BUZZ_GREAT_MS if great else BUZZ_HIT_MS, 80)
 	if great:
 		_great[slot] = GREAT_TIME
+		_sparks.append({"pos": e.get("pos", play.sim.pos), "age": 0.0})
 
 
 func _on_point(e: Dictionary) -> void:
@@ -208,6 +213,86 @@ func _sync_board() -> void:
 	for s in participants:
 		if play.rules.tally.has(s):
 			_board.set_score(s, float(play.rules.tally[s]))
+
+
+## The place of every player in a match of 2 to 4 players: a place belongs to the team, so the players of a team in front are 1
+## and the others 2, and everybody is 1 when the teams are level (REQ-TN-13). Equal games share a place and the next place
+## follows at once (1, 1, 2), unlike the ranks of REQ-GM-70.
+func places() -> Dictionary:
+	var scores := _scores()
+	var out := {}
+	for s in scores:
+		var better := {}
+		for o in scores:
+			if scores[o] > scores[s]:
+				better[scores[o]] = true
+		out[s] = 1 + better.size()
+	return out
+
+
+## The games (Real) or points (Quick) of every player that is in the match, from the board that `_sync_board()` fills.
+func _scores() -> Dictionary:
+	var out := {}
+	for s in participants:
+		if _board.has(s):
+			out[s] = int(_board.score(s))
+	return out
+
+
+## The most games (Real) or points (Quick) of one player; the leader chip shows nothing while it is 0.
+func _best_tally() -> int:
+	var best := 0
+	for v in _scores().values():
+		best = maxi(best, int(v))
+	return best
+
+
+func _publish_scores() -> void:
+	if play.solo:
+		super()
+		return
+	var pl := places()
+	var teams_left := 0
+	for t in play.rules.teams:
+		teams_left += 1 if not t.is_empty() else 0
+	var lead := _best_tally() > 0
+	for s in pl:
+		App.server.send_score(s, int(pl[s]) if lead else 0, teams_left if lead else 0, str(int(_board.score(s))))
+
+
+func leader_text() -> String:
+	if play.solo:
+		return super()
+	return str(_best_tally()) if _best_tally() > 0 else ""
+
+
+## The leader chip shows the team in front with its games, or TIE when the teams are level (REQ-TN-13).
+func draw_leader_chip(ci: CanvasItem) -> void:
+	if play.solo:
+		super(ci)
+		return
+	var best := _best_tally()
+	if best <= 0:
+		return
+	var in_front := {}   # team -> the slots with the best score
+	var scores := _scores()
+	for s in scores:
+		if scores[s] == best:
+			var t := play.rules.team_of(s)
+			if not in_front.has(t):
+				in_front[t] = []
+			in_front[t].append(s)
+	if in_front.is_empty():
+		return
+	var chips: Array = []
+	for t in in_front:
+		var slots: Array = in_front[t]
+		var names: Array = []
+		for s in slots:
+			names.append(player(s).player_name)
+		chips.append({"player_name": " + ".join(names), "color": player(slots[0]).color,
+				"avatar": player(slots[0]).avatar if slots.size() == 1 else -1})
+	Shell.leader_chip(ci, Shell.area_width(ci), chips, leader_text())
 
 
 ## The match is over: one player gets a medal for the longest rally, more players the winners (REQ-TN-17).
@@ -290,6 +375,9 @@ func _world_draw(ci: CanvasItem) -> void:
 			"person":
 				var c = play.chars[t.slot]
 				Look.draw_person(ci, _foot(p, c), p.scale(c.pos.y), _look_of(int(t.slot), c))
+	for sp in _sparks:
+		var sp_pos: Vector3 = sp.pos
+		Look.draw_sparks(ci, p.at(sp_pos.x, sp_pos.y, maxf(sp_pos.z, 0.0) + 0.1), float(sp.age))
 	ci.draw_rect(Rect2(0.0, 0.0, size.x, Look.HUD_H * size.y / 1080.0), UiTheme.BG)
 
 

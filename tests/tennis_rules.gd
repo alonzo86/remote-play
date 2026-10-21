@@ -35,6 +35,8 @@ func _initialize() -> void:
 	_matches()
 	_solo()
 	_leaving()
+	_leaving_teams()
+	_quick_three()
 	_green_window()
 	_power_and_distance()
 	_easy_stays_in()
@@ -482,6 +484,52 @@ func _leaving() -> void:
 	var solo := _match([2])
 	solo.remove_player(2)
 	_check(solo.is_over(), "with 1 player that leaves the game ends")
+
+
+## REQ-TN-20: the teams of 2 against 2 stay when a player leaves; a team without players loses at once.
+func _leaving_teams() -> void:
+	print("players that leave, 2 against 2")
+	var r := Rules.new()
+	r.setup([0, 1, 2, 3], false)
+	r.remove_player(2)
+	_check(r.teams == [[0, 1], [3]], "2 against 2, player 2 leaves: the teams stay [0, 1] and [3] (%s)" % str(r.teams))
+	_check(r.team_of(0) == 0 and r.team_of(1) == 0 and r.team_of(3) == 1 and not r.forfeit, "and nobody changes the team")
+	var servers := {}
+	for i in 6:
+		servers[r.server_slot()] = true
+		r.chunks += 1
+	_check(servers.has(0) and servers.has(1) and servers.has(3) and not servers.has(2), "and only players that are left serve")
+	var both := Rules.new()
+	both.setup([0, 1, 2, 3], false)
+	both.remove_player(2)
+	var over := both.remove_player(3)
+	_check(over and both.forfeit and both.match_over() and both.winners() == [0, 1],
+			"2 against 2: both players of a team leave, the 2 players of the other team win at once (%s)" % str(both.winners()))
+	var m := _match([0, 1, 2, 3])
+	m.remove_player(2)
+	_check(m.team_of(0) == 0 and m.team_of(1) == 0 and m.team_of(3) == 1,
+			"the match keeps the team of every character after a leave")
+	var three := _match([0, 1, 2])
+	for i in 4:
+		three.rules.score_point(0)   # Slot 0 (alone) wins the game: the single is slot 1 now.
+	three.remove_player(2)
+	for s in three.chars:
+		_check(three.team_of(s) == three.rules.team_of(s), "3 players, one leaves: the character of slot %d follows the new team" % s)
+
+
+## Quick with 3 players: the teams change every 2 points, so the score shown for a team is the tally of its players.
+func _quick_three() -> void:
+	print("Quick with 3 players")
+	var r := Rules.new()
+	r.setup([0, 1, 2], true)
+	r.score_point(0)
+	r.score_point(0)   # The team of slot 0 has 2 points; the teams change now.
+	for team in 2:
+		for s in r.teams[team]:
+			_check(int(r.point_text(team)) >= int(r.tally[s]),
+					"Quick, 3 players: the score of team %d is not below slot %d (%d)" % [team, s, r.tally[s]])
+	_check(r.point_text(r.team_of(0)) == "2",
+			"Quick, 3 players: the team of slot 0 that won both points shows 2 (%s)" % r.point_text(r.team_of(0)))
 
 
 # ---- Added for the automated half of Manual test 25 ----
