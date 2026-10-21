@@ -44,6 +44,16 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
+## A check that fails because the game breaks a requirement. It counts as a failure until the game is fixed.
+func _known_bug(issue: String, cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what, " (the bug is fixed: use _check)")
+	else:
+		_fails += 1
+		print("  FAIL (known bug) ", issue, ": ", what)
+
+
 func _frames(n: int) -> void:
 	for i in n:
 		await process_frame
@@ -172,6 +182,10 @@ func _aim_and_countdown() -> void:
 	_check(smooth and aims[-1] > 0.95 and aims[aims.size() / 2] > -0.2 and aims[aims.size() / 2] < 0.2,
 			"a finger that slides across the strip in 1 s moves the aim from the left to the right end, one way and without a jump "
 			+ "(middle %.2f, end %.2f)" % [aims[aims.size() / 2], aims[-1]])
+	# The slide above sets the place after each packet, so its last packet was at 1 - 1/60: the finger rests at the end for a
+	# moment, as a real finger does, and then lifts.
+	_finger(f, 1.0)
+	_play(game, f, R.still(0.1))
 	_finger(f, -1.0)
 	_play(game, f, R.still(0.5))
 	_check(not game.player(0).touching and is_equal_approx(game._aim, 1.0), "the aim stays at the right end when the finger lifts")
@@ -252,14 +266,21 @@ func _finger_and_shake() -> void:
 	_begin(game)
 	_wait(game, f, 0.3)
 	var threw := 0
+	var threw_soft := 0   # Shakes of 5 m/s2, the size the manual step 4g starts with and A-24-7 uses.
+	var thrown_by := []
 	for hz in [6.0, 8.0, 10.0, 12.0]:
 		for amp in [5.0, 12.0, 25.0]:
 			_play(game, f, R.shake(1.0, amp, hz))
 			_wait(game, f, 0.3)
 			if _threw(game):
 				threw += 1
+				threw_soft += 1 if amp == 5.0 else 0
+				thrown_by.append("%d Hz %d m/s2" % [int(hz), int(amp)])
 				_again(game)
-	_check(threw == 0, "12 shakes (6 to 12 Hz, 5 to 25 m/s2) throw nothing (%d thrown)" % threw)
+	_check(threw_soft == 0, "4 shakes of 5 m/s2 (6 to 12 Hz) throw nothing (%d thrown)" % threw_soft)
+	_known_bug("issue-needed: Pin Pals throws a ball on a hard shake, REQ-BW-5 says a shake throws nothing (MIN_BACK 0.1 s is passed by "
+			+ "a shake of 6 to 8 Hz at 12 m/s2 or more, and by 12 Hz at 25 m/s2)", threw == 0,
+			"12 shakes (6 to 12 Hz, 5 to 25 m/s2) throw nothing (%d thrown: %s)" % [threw, ", ".join(thrown_by)])
 	_again(game)
 	_wait(game, f, 0.3)
 	_finger(f, 0.5)

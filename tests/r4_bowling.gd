@@ -229,9 +229,14 @@ func _rails() -> void:
 	_check(game.best_key() == "", "7b: a game with rails has no personal best")
 
 
-## The last plate that the game drew with the name of `slot`, or "".
+## The last turn plate ("NAME, your turn!") that the game drew, or "". The hint plates ("Slide a finger to aim ...") are drawn
+## after it and are not the turn plate.
 func _plate_text() -> String:
-	return String(_log.back().msg) if not _log.is_empty() else ""
+	var tail := Lang.f("bowling.turn", [""])
+	for i in range(_log.size() - 1, -1, -1):
+		if String(_log[i].msg).ends_with(tail):
+			return String(_log[i].msg)
+	return ""
 
 
 func _draw_once(game: Control) -> void:
@@ -274,6 +279,7 @@ func _phones_and_scores() -> void:
 	print("the phones")
 	await _connect(2)
 	var game := await _new_game(2)
+	game._process(DT)   # The turn message goes out in the first tick after the countdown; the game does not process by itself here.
 	await _frames(6)
 	var first_buzzes: Array = _buzzes[0].duplicate()
 	_check(_clients[0].turn_state == 1 and _clients[1].turn_state == 2 and _clients[1].turn_who == "Sim0"
