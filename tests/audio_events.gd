@@ -97,6 +97,7 @@ func _game(path: String, props := {}) -> Control:
 ## gets a new `Haptics`, so the pause between two buzzes of an earlier event does not hide this one.
 func _event(game: Control, label: String, ids: Array, buzzes: Dictionary, trigger: Callable, quiet := false,
 		not_ids := []) -> void:
+	await create_timer(0.2).timeout   # The GO buzz of the countdown (and other earlier buzzes) are messages that are still on the way.
 	_heard.clear()
 	for b in _buzz:
 		b.clear()
@@ -395,10 +396,10 @@ func _golf() -> void:
 		ace.sim.in_cup = true
 		ace.sim.in_water = false
 		ace._putt_done(), false, ["golf_hole"])
-	# A hole in two strokes: both players miss once, then the first one holes out.
+	# A hole in two strokes: every player misses once, then the first one holes out.
 	var hole := _game(GOLF, {"difficulty": "medium", "holes": "3"})
 	SimInput.to_play(hole, func() -> bool: return hole._clock.is_counting())
-	for i in 2:
+	for i in _clients.size():   # The turns go round all the phones, so the first player is on turn again after the last one.
 		hole.sim.in_cup = false
 		hole.sim.in_water = false
 		hole._putt_done()

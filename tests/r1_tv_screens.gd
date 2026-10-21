@@ -320,8 +320,8 @@ func _players_modal() -> void:
 	modal.close()
 	await _frames(3)
 	var tile_focus: Button = _focus()
-	var others_gray: bool = games._tiles.all(func(t): return t == tile_focus or
-			(t._frame.get_theme_stylebox("panel") as StyleBoxFlat).border_color == UiTheme.TEXT_DIM)
+	var others_gray: bool = games._tiles.all(func(t): return (t == tile_focus or
+			(t._frame.get_theme_stylebox("panel") as StyleBoxFlat).border_color == UiTheme.TEXT_DIM))
 	_check(tile_focus in games._tiles and others_gray
 			and (tile_focus._frame.get_theme_stylebox("panel") as StyleBoxFlat).border_color == UiTheme.ACCENT,
 			"the focused tile has a yellow frame and the other tiles a gray frame")
@@ -345,7 +345,7 @@ func _tiles() -> void:
 	var no_range: Array[String] = []
 	for t in tiles:
 		var id := String(t.game.id)
-		var shots := t.find_children("*", "TextureRect", true, false)
+		var shots: Array = t.find_children("*", "TextureRect", true, false)
 		var tex: Texture2D = shots[0].texture if shots.size() == 1 else null
 		var placeholder: bool = not t.find_children("*", "ColorRect", true, false).is_empty()
 		if tex == null or tex.get_width() <= 0 or tex.get_height() <= 0 or placeholder:
@@ -405,7 +405,7 @@ func _walk_screens() -> void:
 	var game: Control = _app.current_screen()
 	await _press("ui_accept")
 	_check(game.is_paused(), "OK in the game opens the pause menu")
-	var buttons := game.menu_buttons()
+	var buttons: Array = game.menu_buttons()
 	_check(buttons.size() == 3 and _focus() == buttons[0], "the pause menu has 3 items and the first has the focus")
 	await _press("ui_down")
 	_check(_focus() == buttons[1], "Down moves the focus to the second item")
