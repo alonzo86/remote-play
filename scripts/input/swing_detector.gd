@@ -20,6 +20,7 @@ const FWD_FAST_FULL := 3.0     # The forward speed of the strongest ball.
 const STRIKE_ACCEL := 20.0     # A sharp push stronger than this (m/s2) for STRIKE_TIME is the forward swing, in any direction:
 const STRIKE_TIME := 0.03      # the back swing is gentle (6 to 10), the hit is 25 to 50.
 const RELEASE_AT := 0.5        # The ball goes when the forward strength falls below this share of its peak.
+const REVERSAL_SPAN := 0.5     # See `max_reversals`.
 const LOCK_AFTER := 1.5        # After a throw the detector waits this long (s).
 
 enum State { READY, BACK, FORWARD, LOCKED }
@@ -45,6 +46,11 @@ var window := SWING_WINDOW
 ## The shortest back swing (s) that a forward swing may follow. A shake goes back and forth in about 0.1 s each way, a wind-up
 ## takes longer. A push before this time is not counted. 0 turns the rule off (Tennis, Mini Golf).
 var min_back := 0.0
+## A shake reverses the direction of the acceleration again and again. When this is above 0, a push does not count while the
+## acceleration along the swing axis turned round (strongly, more than `BACK_ACCEL`) more than this many times in the last
+## `REVERSAL_SPAN` seconds. A real swing turns round once, from the back swing to the forward swing. 0 turns the rule off
+## (Tennis, Mini Golf). Pin Pals sets 1 (REQ-BW-5).
+var max_reversals := 0
 ## Tennis finds the swing with the speed of the hand and a sharp strike (a gentle back swing, then a hard push in any
 ## direction, see `STRIKE_ACCEL`). Pin Pals and Mini Golf keep the plain rule: a back swing, then a push the other way.
 var hand_speed := false
@@ -63,6 +69,8 @@ var _since_peak := 0.0
 var _peak_speed := 0.0
 var _strike := 0.0
 var _strike_sum := Vector3.ZERO
+var _sign := 0                # The side of the last strong acceleration along the axis (-1 back, 1 forward).
+var _reversal_times: Array[float] = []
 var _speed := 0.0   # The speed of the hand along the swing axis (m/s), forward positive, from the start of the back swing.
 
 
@@ -83,6 +91,8 @@ func reset() -> void:
 	_peak_speed = 0.0
 	_strike = 0.0
 	_strike_sum = Vector3.ZERO
+	_sign = 0
+	_reversal_times.clear()
 
 
 ## Feeds the acceleration without gravity for `delta` seconds.
@@ -110,6 +120,8 @@ func _update_ready(delta: float, lin: Vector3) -> void:
 		_sum += lin * delta
 		if _above >= BACK_TIME:
 			_axis = _sum.normalized()
+			_sign = -1
+			_reversal_times.clear()
 			_speed = -_sum.length()   # The hand already moves back: it must turn round before a forward swing can count.
 			state = State.BACK
 			aim_locked = true
@@ -125,7 +137,9 @@ func _update_back(delta: float, lin: Vector3) -> void:
 	_time += delta
 	var f := -lin.dot(_axis)
 	_speed += f * delta - _speed * SPEED_LEAK * delta
-	var pushed := f > FWD_ACCEL * threshold and _time >= min_back
+	_count_reversals(f)
+	var shaking := max_reversals > 0 and _reversal_times.size() > max_reversals
+	var pushed := f > FWD_ACCEL * threshold and _time >= min_back and not shaking
 	if hand_speed:
 		pushed = (pushed and _speed > FWD_SPEED * threshold) or _speed > FWD_FAST * threshold
 	if pushed:
@@ -138,6 +152,17 @@ func _update_back(delta: float, lin: Vector3) -> void:
 		weak = true
 		reset()
 		weak = true   # reset() clears the flag; the game shows "Swing a bit more!".
+
+
+## Notes a strong turn round of the acceleration along the axis (a shake does it again and again).
+func _count_reversals(f: float) -> void:
+	var strong := BACK_ACCEL * threshold
+	var side := 1 if f > strong else (-1 if f < -strong else 0)
+	if side != 0 and side != _sign:
+		_sign = side
+		_reversal_times.append(_time)
+	while not _reversal_times.is_empty() and _time - _reversal_times[0] > REVERSAL_SPAN:
+		_reversal_times.remove_at(0)
 
 
 ## A sharp strong push starts the forward swing at once, whatever came before it (a gentle back swing, a small move, nothing).

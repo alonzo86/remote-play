@@ -63,6 +63,7 @@ var _banner := ""
 var _banner_color := UiTheme.ACCENT
 var _weak_left := 0.0
 var _last_tick_ms := 0
+var _a_pressed := false
 var _a_down := {}
 var _splash_at := Vector2.ZERO
 var _splash_age := 99.0
@@ -151,6 +152,7 @@ func _game_tick(delta: float) -> void:
 	_publish_turn()
 	_phase_time += delta
 	_weak_left = maxf(0.0, _weak_left - delta)
+	_poll_buttons()
 	match phase:
 		Phase.AIM:
 			_tick_aim(delta)
@@ -158,10 +160,10 @@ func _game_tick(delta: float) -> void:
 			_tick_roll(delta)
 		Phase.RESULT:
 			var wait := RESULT_TIME if _banner != "" else QUIET_TIME
-			if _phase_time >= wait or (_banner != "" and _a_pressed()):
+			if _phase_time >= wait or (_banner != "" and _a_pressed):
 				_after_result()
 		Phase.HOLE:
-			if _phase_time >= HOLE_TIME or _a_pressed():
+			if _phase_time >= HOLE_TIME or _a_pressed:
 				_after_hole()
 		Phase.END:
 			_end_left -= delta
@@ -182,14 +184,16 @@ func _publish_turn() -> void:
 			App.server.send_turn(s, 2, player(on).player_name, "golf")
 
 
-func _a_pressed() -> bool:
+## Polls A on every tick, in every phase, so a button held since an earlier phase is not read as a new press (the putt banner
+## is not skipped by a held A). `_a_pressed` is true when a press on A starts on any phone this tick.
+func _poll_buttons() -> void:
 	var pressed := false
 	for s in participants:
 		var down := player(s).is_down(Protocol.BTN_A)
 		if down and not _a_down.get(s, false):
 			pressed = true
 		_a_down[s] = down
-	return pressed
+	_a_pressed = pressed
 
 
 func _tick_aim(delta: float) -> void:
