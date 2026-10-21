@@ -27,7 +27,7 @@ const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 ## A fixed seed for the games that draw their picture with random numbers, so that a new run makes the same tile.
-const SEEDS := {"paint_grab": 3, "snowball_splat": 3}
+const SEEDS := {"paint_grab": 6, "snowball_splat": 3}
 
 var _seq := [0, 0, 0, 0]
 
