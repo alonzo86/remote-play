@@ -68,7 +68,7 @@ func _run() -> void:
 	quit(1 if _fails > 0 else 0)
 
 
-## 3c: full tilt to the right and to the left, 2 s after the ship stopped it has not moved, and it is fully on the screen.
+## 3c: full tilt to the right and to the left, 2 s after the ship reached the side it has not moved (the tilt is still held, so the speed value stays high: the position counts), and it is fully on the screen.
 func _edges() -> void:
 	print("the sides")
 	var game := _play()
@@ -82,8 +82,8 @@ func _edges() -> void:
 		var x: float = game.field.ships[0].x
 		var want: float = SpaceField.REF_AREA.x - SpaceField.EDGE if side > 0.0 else SpaceField.EDGE
 		var label := "right" if side > 0.0 else "left"
-		_check(absf(x - stopped) < 0.01 and absf(x - want) <= 1.0 and absf(game.field.ships[0].vx) < 5.0,
-				"%s: 2 s after it stopped the ship has not moved and its middle is at %.1f of the play area (60 px from the side)"
+		_check(absf(x - stopped) < 0.01 and absf(x - want) <= 1.0,
+				"%s: 2 s after it reached the side the ship has not moved and its middle is at %.1f of the play area (60 px from the side)"
 				% [label, x])
 		var fit: Dictionary = game._fit()
 		var screen_x: float = fit.origin.x + x * float(fit.k)

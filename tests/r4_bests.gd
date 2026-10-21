@@ -123,7 +123,7 @@ func _phone_shows(rig: Dictionary) -> Dictionary:
 	var best: Dictionary = _app.current_best()
 	if not best.is_empty():
 		out.pad = _pad_script.best_line(best)
-	wait.queue_free()
+	wait.free()   # at once: while it lives it listens to the client and reads App.client, which is put back below
 	_app.client = keep_client
 	_app.last_best = keep_best
 	return out

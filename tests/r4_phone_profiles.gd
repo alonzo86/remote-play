@@ -159,6 +159,7 @@ func _run() -> void:
 	await _frames(3)
 	_app = root.get_node("App")
 	_real_store = _app.profiles
+	_app.client.leave()   # A saved room from an earlier run in user:// must not make the phone reconnect.
 	_app.set_language("en", false)
 	_reset_store()
 	_new_tv()
