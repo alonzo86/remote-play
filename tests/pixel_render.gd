@@ -479,8 +479,8 @@ func _race_hud(game: Node, tag: String, size: Vector2i) -> void:
 	var img := await _capture_part(game, "hud")
 	var k := size.x / 1920
 	var bg := _rgb(UiTheme.BG)
-	var title := _ink_box(img, Rect2i(0, 0, 560 * k, BAR * k), bg)
-	var timer := _ink_box(img, Rect2i(600 * k, 0, 360 * k, BAR * k), bg)
+	var title := _ink_box(img, Rect2i(0, 0, 480 * k, BAR * k), bg)
+	var timer := _ink_box(img, Rect2i(500 * k, 0, 460 * k, BAR * k), bg)
 	var finish := _ink_box(img, Rect2i(960 * k, 0, 960 * k, BAR * k), bg)
 	_check(title.has_area() and timer.has_area() and finish.has_area(),
 			"%s: the bar has the title, the timer and the distance to the finish (3 separate ink areas)" % tag)
