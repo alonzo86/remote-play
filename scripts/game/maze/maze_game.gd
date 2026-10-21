@@ -26,7 +26,7 @@ const RESTITUTION := 0.25
 const SUBSTEPS := 2
 const HIT_BUZZ_MS := 120    # Minimum gap between two wall buzzes of one ball.
 const HIT_BUZZ_SPEED := 320.0
-const TIMER_X := 500.0       # The timer box has a fixed place, between the title and the leader chip.
+const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
 const TIMER_W := 240.0
 
 const DEFAULT_THEME := "garden"
@@ -277,7 +277,7 @@ func _game_draw() -> void:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
-		Shell.countdown(self, size, str(n) if n > 0 else "shell.go", _round.count_elapsed())
+		Shell.countdown(self, size, str(n), _round.count_elapsed())
 		var spots := {}
 		for b in _balls:
 			spots[b.slot] = Shell.snap(o + b.pos)

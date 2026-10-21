@@ -144,13 +144,13 @@ func _go_word() -> void:
 			_countdown_log.append({"rect": rect, "text": info.text, "size": info.size, "lang": Lang.current()})
 	holder.draw.connect(func() -> void:
 		for e in [0.0, 0.1, 0.2, 0.9]:
-			Shell.countdown(holder, holder.size, "shell.go", e))
+			Shell.countdown(holder, holder.size, "marble_race.go", e))
 	for code in ["en", "he"]:
 		_app.set_language(code, false)
 		_countdown_log.clear()
 		holder.queue_redraw()
 		await _frames(3)
-		var want := Lang.t("shell.go").to_upper()
+		var want := Lang.t("marble_race.go").to_upper()
 		var inside := true
 		var texts_ok := true
 		for e in _countdown_log:
@@ -159,7 +159,7 @@ func _go_word() -> void:
 		_check(_countdown_log.size() >= 4 and texts_ok and inside,
 				"[%s] GO is '%s' at 4 sizes, whole and inside the 60 px margin (%d boxes)" % [code, want, _countdown_log.size()])
 	_app.set_language("he", false)
-	_check(Lang.t("shell.go") == "קדימה", "the Hebrew GO word is the text 'קדימה'")
+	_check(Lang.t("marble_race.go") == "קדימה", "the Hebrew GO word is the text 'קדימה'")
 	_app.set_language("en", false)
 	Shell.recorder = Callable()
 	holder.queue_free()

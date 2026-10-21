@@ -25,7 +25,7 @@ Status: Done, Open, or Device (needs a real TV and phones). "Check" names the te
 |----|-------------|--------|-------|
 | REQ-MR-1 | 1 to 4 players. Each phone controls one car. One player is a time trial. | Done | smoke_tv |
 | REQ-MR-2 | Tilt gives acceleration. The car keeps its speed and slows by damping (it slides like the marble did; it turns to face the way it moves, REQ-MR-48). There is no dead zone and no speed limit. | Done | smoke_tv (tilt moves car) |
-| REQ-MR-3 | A countdown of 3 s holds all cars still. At "GO" (the shared countdown text, `shell.go`) every phone buzzes. | Done | smoke_tv (grid wait) |
+| REQ-MR-3 | A countdown of 3 s holds all cars still. At "GO" (the countdown word of this game only, `marble_race.go`; the other games go from 1 to the play) every phone buzzes. | Done | smoke_tv (grid wait) |
 | REQ-MR-4 | All cars start on one line across the track, with the same distance to the finish. They do not touch. | Done | smoke_tv |
 | REQ-MR-5 | The car stays on the track. At the edge it bounces back and loses part of its speed. | Done | run_tests (track maths) |
 | REQ-MR-6 | Obstacles are fixed. A car bounces off them with little loss of speed. Each obstacle leaves a gap of one car or more on one side. | Done | run_tests (gap check) |
@@ -82,7 +82,7 @@ REQ-GM-90 to 96 apply. The settings view of the race has the Difficulty row, the
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-MR-40 | The view is flat, from above, and never turns. Up on the screen is toward the start of the track's first straight. A black bar at the top (112 px) holds the title, the timer, "Finish in N m" and the leader chip (REQ-GM-46). | Device | Device |
+| REQ-MR-40 | The view is flat, from above, and never turns. Up on the screen is toward the start of the track's first straight. A black bar at the top (112 px) holds the title, the timer, "Finish in N m" and the leader chip (REQ-GM-46). The timer box is at the place of every game (REQ-GM-47o): left edge at x 520 in English, right edge at x 1400 in Hebrew. | Device | Device |
 | REQ-MR-41 | The camera has one zoom: 1 m is 32 screen units (8 world pixels). It follows the middle of the pack, a little below the middle of the free space, so that more road shows ahead (up) than behind. It sits on the world pixel grid, so the picture does not shimmer. When the pack is too spread out for the screen, the leader stays in view and the others get an arrow (REQ-MR-42). | Device | smoke_tv (the cars at the start), Device |
 | REQ-MR-42 | A car that is out of view gets an arrow in its color at the screen edge (inside the 60 px margin and under the bar), and a text (32 px, for example "12 m behind") shows how many meters it is behind the leader. | Device | smoke_tv, Device |
 | REQ-MR-43 | A car has a black outline (`#101018`) and its slot color. The outline of a car and the outline of an obstacle each differ from both tones of the road by 3:1 or more, in every theme (REQ-GM-47m: the dark outline is the edge of the key object, like the white ring of the maze balls). The HUD shows "Finish in N m" for the leader. | Device | game_rules (race look), smoke_tv, Device |

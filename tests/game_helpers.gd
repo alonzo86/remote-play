@@ -220,7 +220,7 @@ func _label_plate() -> void:
 	var at := Vector2(960.0, 400.0)
 	for code in ["en", "he"]:
 		Lang.set_language(code, root)
-		var short := Shell.label_plate_rect(at, "shell.go", 72)
+		var short := Shell.label_plate_rect(at, "marble_race.go", 72)
 		var long := Shell.label_plate_rect(at, "asteroid_blast.all_ships_gone", 72)
 		_check(long.size.x > short.size.x and is_equal_approx(short.get_center().x, 960.0)
 				and is_equal_approx(long.get_center().x, 960.0)

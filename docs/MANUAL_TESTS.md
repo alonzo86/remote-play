@@ -54,7 +54,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A3, B1, B2, B3, B5, B6 | Fail | R0 | |
 | [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, 6, 7, 8, 9, 12, 13, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Partial (items 1 to 3 Pass, 4 to 7 not run) | R1 | |
-| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8 | Retest (item 1a2; the TV half of item 1 is automated) | R1 | |
+| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8 | Retest (item 1 is automated, see A-7-7 and A-7-8) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (item 3, fixed, retest; item 2 is automated) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Fail (items 2 and 7, fixed, retest) | R1 | |
 | [9](#test-9) | Road Rally | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
@@ -282,11 +282,10 @@ History:
 
 Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8.
 
-Time limit used below: the TV pauses when a phone is silent for 5 seconds (`Protocol.PEER_TIMEOUT_MS`), so "at once" means 8 seconds at most, measured from the moment you switch the Wi-Fi off. (Changes with issue #56: 3 seconds, so 6 seconds at most.)
+Time limit used below: the TV pauses when a phone is silent for 5 seconds (`Protocol.PEER_TIMEOUT_MS`), so "at once" means 5.6 seconds at most (REQ-GM-30), measured from the moment you switch the Wi-Fi off. (Changes with issue #56: 3 seconds, so 3.6 seconds at most.)
 
 **Steps**
 
-1a2. With two phones joined, during the maze, switch the Wi-Fi of one phone (2P) off for 15 seconds, then on. Check: the phone shows "RECONNECTING..." within 8 seconds of the moment the Wi-Fi goes off (stopwatch). Check: the phone shows its pad again within 10 seconds of the moment the Wi-Fi goes on. (The card on the TV, its text, the 10 seconds without a press and Resume are checked by A-7-7.)
 2. On the Games screen, lock the phone screen for 10 seconds, then unlock. Check: within 10 seconds the phone shows its waiting screen again with the same slot number, and the TV slot was "READY" all the time or came back to "READY". (Android can stop the app in the background.)
 3a. On the Games screen (not in a game), switch the phone Wi-Fi off for 45 seconds. Check: after 45 seconds the TV shows the slot of the phone as empty. (Changes with issue #44: the slot is empty within 5 seconds.)
 3b. Switch the Wi-Fi on. Check: within 10 seconds the phone shows the PIN pad (the TV does not know it any more). (Changes with issue #52: no PIN pad.)
@@ -302,7 +301,6 @@ Time limit used below: the TV pauses when a phone is silent for 5 seconds (`Prot
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1a2 | Video of the phone with the stopwatch: 'RECONNECTING...', the pad, and the seconds | Retest | R1 | Chat report 2026-10-09 (no file) | R1 (step 1a, before the split): the phone disconnected from the Wi-Fi and showed 'Reconnecting...' (the seconds were not written down). The failure of R1 was on the TV (no pause, no card). That part is automated now (A-7-7). Retest the phone half. |
 | 2 | Note: the seconds the phone needs to show its waiting screen, the slot number before and after | Not run | | | |
 | 3a | Photo of the Games screen after 45 s (slot empty) | Not run | | | |
 | 3b | Photo of the phone PIN pad, with the seconds | Not run | | | |
@@ -314,13 +312,13 @@ Time limit used below: the TV pauses when a phone is silent for 5 seconds (`Prot
 | 7c | Video: the card 'reconnected', Resume, the game goes on | Not run | | | |
 | 7d | Video of the 70 s call and the return, same slot | Not run | | | |
 
-Items 1b (merged into 1a), 1c, 1e, 4c, 5e and 6b to 6e moved to the automated tests (docs/AUTOMATED_TESTS.md, A-7-1, A-7-4, A-7-5, A-7-6). Items 1d, 4a and 5a to 5d moved too (A-7-7), and item 1a keeps only what the phone shows (now 1a2). The numbers of the other items do not change.
+Items 1b (merged into 1a), 1c, 1e, 4c, 5e and 6b to 6e moved to the automated tests (docs/AUTOMATED_TESTS.md, A-7-1, A-7-4, A-7-5, A-7-6). Items 1d, 4a and 5a to 5d moved too (A-7-7), and item 1a moved too: the TV half is A-7-7 and the phone half (it shows RECONNECTING when the TV is silent) is A-7-8, a check of `join_flow` that fails until issue #61 is fixed (Alon decided on 2026-10-21 to keep this automatic). The numbers of the other items do not change.
 
 Measurements (not steps): write the reconnect time after the call (7b) in the Notes of step 7b.
 
 History:
 
-- 2026-10-21 (automated): items 1d, 4a and 5a to 5d moved to the automated tests (`r1_reconnect`: a phone that goes silent, with the real timeouts). Item 1a was split: the card on the TV is automated, and the phone half is 1a2. The R1 results of 1a, 1d (Fail) and 5a to 5d (Retest) were about the TV; they stay in the result database.
+- 2026-10-21 (automated): items 1d, 4a and 5a to 5d moved to the automated tests (`r1_reconnect`: a phone that goes silent, with the real timeouts). Item 1a was split: the card on the TV is automated (A-7-7), and the phone half is automated too (A-7-8, `join_flow`, failing until issue #61 is fixed); step 1a2 was removed. The R1 result of 1a2 (Retest: the phone showed 'Reconnecting...' but the seconds were not written down) stays in the result database. The R1 results of 1a, 1d (Fail) and 5a to 5d (Retest) were about the TV; they stay in the result database.
 - 2026-10-21 (aligned with the requirements, not run): step 7a says 6 seconds (REQ-GM-30: 5 s of silence plus 1 s). No recorded result changed.
 - R1: **Fail** (item 1) and **Retest** (item 5). A phone without Wi-Fi did not pause the game, and a phone call ended it with no way to resume. Both changed on 2026-10-09 and wait for the retest. Items 2, 3, 4 and 6 are not run.
 - R0: **Retest**. Wi-Fi off on the phone: the phone shows 'Reconnecting...'. The game kept running and the TV never showed 'Waiting for P1 to reconnect'. Wi-Fi on: the phone reconnected and the game went on. The off time was not measured (the TV pauses only after 5 s of silence). Item 6 (Leave twice, A green and B red) is new.
@@ -466,7 +464,7 @@ Record every video at 30 frames per second or more. "Screen width" means the wid
 9b. The child plays a second round. Check: the child plays both rounds to the end without asking to stop or crying, and answers "yes" when asked "again?" (yes or no). Write down the words of the child. (REQ-GM-80 to 84, REQ-SS-17)
 11b. From the sofa (about 3 m), play a round. Check: the tester reads aloud the "+10" or "+25" over a hit animal and the score of the round end, without error. (REQ-SS-13, REQ-FL-40)
 
-Items 1a, 1b, 1c, 2a, 2b, 4a, 4b, 4d, 4e, 5b to 5e, 6a to 6c, 7a, 7b, 8a, 8b, 10a, 10b, 10c, 10d, 10e, 11a, 11c, 11d, 11e and 11f moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-10-1 to A-10-11). The numbers of the other items do not change. Step 4c2 holds the water, hearts and sparkles of old item 4b (the rest of 4c is A-10-4c). Step 5a2 holds the six names (the crown is A-10-5a). Whether a real phone buzzes (old item 4d) is Test 18; a real Wi-Fi loss (old item 8a) is Test 7 item 1a2.
+Items 1a, 1b, 1c, 2a, 2b, 4a, 4b, 4d, 4e, 5b to 5e, 6a to 6c, 7a, 7b, 8a, 8b, 10a, 10b, 10c, 10d, 10e, 11a, 11c, 11d, 11e and 11f moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-10-1 to A-10-11). The numbers of the other items do not change. Step 4c2 holds the water, hearts and sparkles of old item 4b (the rest of 4c is A-10-4c). Step 5a2 holds the six names (the crown is A-10-5a). Whether a real phone buzzes (old item 4d) is Test 18; a real Wi-Fi loss (old item 8a) is A-7-8.
 
 **Results**
 
@@ -597,8 +595,8 @@ Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island")
 3d. Turn the phone to the left on a table (like turning a plate). Check: Gyro z is positive during the turn. (Like Test 3, item 4.)
 4a. Play Treasure Maze for 2 minutes (stopwatch) with the screen on and no touch on the screen. Check: no "lost connection" card on the TV and the iPhone screen does not lock.
 4b. In the same game, tilt the phone left, right, top up and top down. Check: the ball rolls to the side that is lowered, in all 4 directions.
-5a. In a game, lock the iPhone. Check: the TV shows the lost-phone card ("1P LOST CONNECTION" for slot 1) within 10 seconds. (Like Test 7, item 1a2.)
-5b. Unlock the phone after 10 seconds. Check: the phone returns without the PIN pad, the card on the TV changes to a card with the button "Resume", and "Resume" restarts the game. (Like Test 7, item 1a2 and A-7-7. Changes with issue #52 for the PIN.)
+5a. In a game, lock the iPhone. Check: the TV shows the lost-phone card ("1P LOST CONNECTION" for slot 1) within 10 seconds. (Like A-7-7.)
+5b. Unlock the phone after 10 seconds. Check: the phone returns without the PIN pad, the card on the TV changes to a card with the button "Resume", and "Resume" restarts the game. (Like A-7-7 and A-7-8. Changes with issue #52 for the PIN.)
 5c. Outside a game (on the Games screen), lock the iPhone for 40 seconds and unlock it. Check: the PIN pad opens. (Like Test 7, item 3. Changes with issue #52.)
 6b. Open the player list, the player edit screen with the keyboard open, and Settings, upright. Take a photo of each. Check: the same as 6a. (REQ-FL-68)
 6d. Turn the phone to the side and open the screens of 6a and 6b again. Check: the same as 6a for every screen. (REQ-FL-68)
@@ -775,7 +773,7 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 
 2e. The person who reads Hebrew reads each TV screen aloud (Connect, Games, Settings, About, the quit question). Check: the punctuation (`. , ! ? -`) is at the correct end of every sentence. Write down every text that is wrong. (That a Hebrew text ends with the same punctuation as its English text is checked by `tests/smoke_lang.gd`.)
 4c. On the TV, look at the Connect screen with the two names. The person who reads Hebrew reads the Latin name and the Hebrew name aloud. Check: each one equals what was typed (the letters are in the same order, the mixed-direction text is not shuffled). (That the names stay as typed and that the pixel font has every glyph is checked by `tests/smoke_lang.gd`.)
-6b. In Hebrew, start every game with 2 phones. Check: the title is at the top right, the leader chip is at the left margin (Pin Pals has no leader chip), and the timer box is at the right (Road Rally: the timer box is at the left margin in English and at the right margin in Hebrew, 60 px from the edge, and no HUD box overlaps another). (REQ-GM-47o)
+6b. In Hebrew, start every game with 2 phones. Check: the title is at the top right, the leader chip is at the left margin (Pin Pals has no leader chip), and the timer box is at the right (in every game that has one, the timer box is in the same place: 520 px from the left edge in English and 520 px from the right edge in Hebrew; no HUD box overlaps another). (REQ-GM-47o)
 6c. In Road Rally in Hebrew, check: the word "קדימה" after the 1 is complete (inside the screen). In every game in Hebrew, check: the hint line shows complete.
 6e2. Open the pause menu and the result menu in Hebrew. The Hebrew reader reads the ranking list, the medal text and the tie text aloud. Check: the reader says that each of the 3 reads right (3 of 3 yes).
 

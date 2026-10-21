@@ -383,7 +383,7 @@ func countdown_spots(p: Look.Proj) -> Dictionary:
 
 func _draw_countdown(p: Look.Proj) -> void:
 	var n := _clock.count_number()
-	var label := str(n) if n > 0 else "shell.go"
+	var label := str(n)
 	draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)
 	Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -442,4 +442,4 @@ func _draw_solo_panel() -> void:
 		draw_style_box(UiTheme.line_box(UiTheme.FRAME, UiTheme.BG, 4), row)
 		draw_string(f, Vector2(row.position.x + 16.0, row.position.y + 38.0), rally if i == 0 else best,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.ACCENT if i == 0 else UiTheme.TEXT)
-	Shell.timer(self, Vector2(960.0 - 120.0, 36.0), maxf(0.0, play.solo_left))
+	Shell.timer(self, Vector2(Shell.TIMER_X, Shell.TIMER_Y), maxf(0.0, play.solo_left))

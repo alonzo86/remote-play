@@ -16,6 +16,8 @@ const CHIP_SQUARE := 24.0      # The slot color square of a chip.
 const CHIP_AVATAR := 32.0      # The avatar of a chip: a 16 px picture at 2x, next to the color square.
 const CHIP_GAP := 8.0          # The space between the square and the avatar.
 const CHIP_LINE := 4           # The frame of a chip.
+const TIMER_X := 520.0         # The timer box has one place in every game (REQ-GM-47o): left edge on a left to right screen.
+const TIMER_Y := 36.0
 const TAG_H := 56.0            # The height of a name tag in the countdown.
 const TAG_GAP := 8.0           # The space between two name tags.
 

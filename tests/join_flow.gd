@@ -391,7 +391,7 @@ func _phone_notices_cut(t0: int) -> int:
 	var noticed := await _wait_until(func(): return c.state == ControllerClient.State.RECONNECTING, 9000)
 	var ms := Time.get_ticks_msec() - t0
 	_known_bug("issue-needed: a phone does not notice a silent TV (half-open link): state stays CONNECTED, socket CLOSING",
-			noticed and ms <= 8000, "the phone shows RECONNECTING within 8 s of the cut (%d ms)" % ms)
+			noticed and ms <= 5600, "the phone shows RECONNECTING within 5.6 s of the cut (REQ-GM-30: 5 s of silence) (%d ms)" % ms)
 	if not noticed:
 		c._close_socket()
 		c._on_closed()   # What the client should do after PEER_TIMEOUT_MS.

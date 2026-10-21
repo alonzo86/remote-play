@@ -81,7 +81,7 @@ Rules and score
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-BW-1 | A game is 10 frames for each player . It ends when the last player has bowled the last ball of the last frame. The result menu opens after 2 s (`open_results()`, REQ-GM-72) with the totals, "X wins!" or "Tie!", Try again, New game, Back to menu. | Done | bowling_rules, smoke_bowling |
+| REQ-BW-1 | A game is 10 frames for each player . It ends when the last player has bowled the last ball of the last frame. The result menu opens 2 s after the banner of the last ball (the banner lasts 1.8 s), so 3.8 s after the last ball stops (`open_results()`, REQ-GM-72) with the totals, "X wins!" or "Tie!", Try again, New game, Back to menu. | Done | bowling_rules, smoke_bowling |
 | REQ-BW-2 | The score follows the standard rules above: strike (10 + next 2 balls), spare (10 + next ball), open frame, the 10th frame with 2 or 3 balls and a fresh rack after a strike. The rules module is pure code (no nodes). Known games are tests: 12 strikes = 300, 21 balls of 5 pins (all spares of 5) = 150, all gutters = 0, ten frames of 9 / and a last 9 = 190, the 10th frame cases X X X, X 7 / and 9 / 5.| Done | bowling_rules |
 | REQ-BW-3 | The turn order is frame by frame: slot order inside each frame. A player who leaves is skipped (REQ-GM-21) and the score sheet row is removed from the ranking. When one player is left the game goes on for that player. When nobody is left, "No players connected" opens (REQ-GM-22). | Done | bowling_rules, smoke_bowling |
 
@@ -120,6 +120,7 @@ Settings and difficulty (REQ-GM-90 to 97)
 | REQ-BW-17 | The table below shows what Difficulty means. Easy plus Rails must be playable by a child of about 5 years (REQ-GM-96): the child can only swing and score. | Device | lane_sim, game_rules |
 | REQ-BW-18 | Medals for one player (REQ-GM-73): bronze, silver, gold from the table. | Done | game_rules |
 | REQ-BW-19 | Personal best (REQ-GM-98): the key is `bowling|<difficulty>` with Rails Off only, higher is better (`best_key()`; new keys at the end of `ProfileKeys`, 3 keys, numbers 40 to 42; the code format was not changed, see `docs/PROFILES_PLAN.md`). A game with rails has no best (exception, the scores are not comparable). | Done | smoke_bests, profile_code |
+| REQ-BW-21 | The plate "NAME, YOUR TURN!" shows 1.5 s at the start of each turn, then it goes away (it is not drawn for the rest of the turn). **Planned (issue #65):** the game draws it for the whole turn. | Planned (issue #65) | r4_bowling |
 | REQ-BW-20 | A player who leaves takes the row out of the ranking. A lost phone pauses the game (REQ-GM-30). Nothing runs in the pause, and the swing state of the player on turn is reset when the pause closes. | Done | smoke_bowling |
 
 | Difficulty | Ball speed | Aim range | Swing threshold | Medal tiers (points) |

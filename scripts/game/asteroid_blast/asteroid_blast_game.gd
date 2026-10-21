@@ -227,7 +227,7 @@ func _game_draw() -> void:
 	draw_leader_chip(self)
 	if name_tags_shown():
 		var n := _clock.count_number()
-		var label := str(n) if n > 0 else "shell.go"
+		var label := str(n)
 		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)   # A black shadow: the stars must not hide the digits.
 		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

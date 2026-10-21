@@ -297,8 +297,8 @@ func _go_word_checks(id: String) -> void:
 			inside = inside and Rect2(0, 0, 1920, 1080).encloses(e.rect)
 	_check(not words.is_empty() and inside, "%s in Hebrew: the countdown numbers fit the screen (%s)" % [id, str(words.keys())])
 	if id == "marble_race":   # Only Road Rally shows the word GO; the other games go from 1 to the play.
-		_check(words.has(Lang.t("shell.go").to_upper()) and words.has("\u05e7\u05d3\u05d9\u05de\u05d4"),
-				"marble_race in Hebrew: the GO word is the Hebrew text '%s' (%s)" % [Lang.t("shell.go"), str(words.keys())])
+		_check(words.has(Lang.t("marble_race.go").to_upper()) and words.has("\u05e7\u05d3\u05d9\u05de\u05d4"),
+				"marble_race in Hebrew: the GO word is the Hebrew text '%s' (%s)" % [Lang.t("marble_race.go"), str(words.keys())])
 
 
 ## The world is not mirrored (REQ-GM-47o): no node of the game has a negative scale.
@@ -445,21 +445,21 @@ func _row_checks(state: String, snap: Dictionary, lang: String, has_timer: bool)
 			_timer_side(state, t, lang)
 
 
-## The timer box is on the other side in Hebrew: its right edge is where its left edge was (`Shell.mx`).
+## REQ-GM-47o: the timer box has one place in every game: its left edge is at x 520 in English, and in Hebrew its right edge is
+## at 1920 - 520 (`Shell.mx`). The value is the literal of the requirement, not a constant of a game.
+const TIMER_LEFT := 520.0
+
+
 func _timer_side(state: String, t: Dictionary, lang: String) -> void:
 	var key := "timer_" + state.split(" ")[0]
 	if lang == "en":
 		_countdown_pos[key] = t.rect
-		if key == "timer_marble_race":
-			# REQ-GM-47o: Road Rally's timer box is at the left margin in English (and at the right in Hebrew).
-			_known_bug("issue-needed: REQ-GM-47o says the Road Rally timer box is at the left margin (x 60) in English; the game "
-					+ "puts it at TIMER_X 640 (x %.0f)" % t.rect.position.x, is_equal_approx(t.rect.position.x, MARGIN),
-					"%s: the timer box is at the left margin in English" % state)
+		_check(is_equal_approx(t.rect.position.x, TIMER_LEFT),
+				"%s: the timer box is at the one place of every game, x %.0f in English (is %.0f)" % [state, TIMER_LEFT, t.rect.position.x])
 		return
-	if key == "timer_marble_race":
-		_known_bug("issue-needed: REQ-GM-47o says the Road Rally timer box is at the right margin in Hebrew; it ends at x %.0f"
-				% t.rect.end.x, is_equal_approx(t.rect.end.x, 1920.0 - MARGIN), "%s: the timer box is at the right margin in Hebrew" % state)
 	var en: Rect2 = _countdown_pos.get(key, Rect2())
+	_check(is_equal_approx(t.rect.end.x, 1920.0 - TIMER_LEFT),
+			"%s: the timer box ends at x %.0f in Hebrew (is %.0f)" % [state, 1920.0 - TIMER_LEFT, t.rect.end.x])
 	if en.size == Vector2.ZERO:
 		return
 	_check(is_equal_approx(t.rect.end.x, 1920.0 - en.position.x),
@@ -529,6 +529,8 @@ func _tennis_solo_timer() -> void:
 			continue
 		if lang == "en":
 			en = t
+			_check(is_equal_approx(t.rect.position.x, TIMER_LEFT),
+					"tennis alone: the timer box is at the one place of every game (x %.0f)" % TIMER_LEFT)
 		else:
 			_check(is_equal_approx(t.rect.end.x, 1920.0 - en.rect.position.x), "tennis alone: the timer box is mirrored in Hebrew")
 	Lang.set_language("en", root)

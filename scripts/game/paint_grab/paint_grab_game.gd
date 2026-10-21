@@ -27,7 +27,7 @@ const POP_TIME := 0.15          # A painted tile grows and goes back in this tim
 const HINT_TIME := 4.0
 const BOARD_TOP := 150.0        # The floor is the screen inside the margin, under the HUD.
 const BOARD_MARGIN := 60.0
-const TIMER_X := 520.0
+const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
 const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide.
 ## Difficulty (REQ-PG-20): the floor, the speed of the blobs (a factor on the Medium values) and the medal tiers in percent of the
 ## floor (first guesses, Test 13). A tile is `REF_TILE` in the simulation; on the screen it is as big as the floor fits.
@@ -298,7 +298,7 @@ func _draw_hud() -> void:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
-		Shell.countdown(self, size, str(n) if n > 0 else "shell.go", _round.count_elapsed())
+		Shell.countdown(self, size, str(n), _round.count_elapsed())
 		var fit := _fit()
 		var spots := {}
 		for s in _bodies:

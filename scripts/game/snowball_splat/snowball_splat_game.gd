@@ -20,7 +20,7 @@ const FLIGHT_TIME := 0.12       # Seconds that a banana flies (REQ-SS-6).
 # The play area is the screen inside the margin, under the HUD (REQ-SS-3).
 const AREA_TOP := 150.0
 const AREA_MARGIN := 60.0
-const TIMER_X := 520.0          # The timer box has a fixed place, between the title and the leader chip.
+const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
 const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide.
 const HINT_TIME := 4.0          # Seconds of play with the hint on the screen.
 
@@ -440,7 +440,7 @@ func _draw_hud() -> void:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
-		Shell.countdown(self, size, str(n) if n > 0 else "shell.go", _round.count_elapsed())
+		Shell.countdown(self, size, str(n), _round.count_elapsed())
 		var spots := {}
 		for s in _throwers:
 			spots[s] = Shell.snap((_throwers[s] as Thrower).aim)
