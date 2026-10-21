@@ -265,7 +265,12 @@ func _silent_phone() -> void:
 		await process_frame
 	_check(not sv.start_button.disabled and Time.get_ticks_msec() - t1 < 5000,
 			"the phones talk again: Start works after %d ms (< 5000)" % (Time.get_ticks_msec() - t1))
-	# banana Party with two phones, one goes silent: the card names it.
+	# banana Party with two phones, one goes silent: the card names it. Both phones must be back first: the start button follows
+	# the first one that returns, and a game made with one phone has no second player to lose.
+	var t3 := Time.get_ticks_msec()
+	while sim.app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t3 < 8000:
+		await process_frame
+	_check(sim.app.server.connected_slots().size() == 2, "both phones are connected again before the game starts")
 	var banana = _banana()
 	sim.app.go(banana, {"seed": 4})
 	await sim.frames(3)

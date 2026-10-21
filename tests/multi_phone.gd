@@ -8,6 +8,7 @@ extends SceneTree
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Slow = preload("res://tests/slow_run.gd")
 
 ## id -> [script, props, min players]. The maze has no score and the race ranks by distance, so they only get the leave check.
 const GAMES := {
@@ -130,6 +131,10 @@ func _round(app: Node, id: String, n: int) -> void:
 	for i in n:
 		before += _buzzes[i].size()
 	await _stream(3.2, n)
+	# The song is made in steps of 3 ms a frame. The instrumented copy is slow and makes it later: wait for it (REQ-FL-65a).
+	var waited := Time.get_ticks_msec()
+	while _song_ms < 0 and Time.get_ticks_msec() - waited < (20000 if Slow.instrumented() else 0):
+		await _stream(0.2, n)
 	_watch_song = ""
 	_check(before == 0, "%s: no buzz in 3, 2, 1" % state)
 	var all_buzzed := true
@@ -215,8 +220,9 @@ func _countdown_sounds(id: String, state: String, n: int) -> void:
 	for x in _sounds:
 		if x[0] == "go":
 			go_ms = x[1]
-	_check(_song_ms >= 0 and go_ms > 0 and _song_ms - go_ms <= 1000 and sound.wanted_music == id and id != "menu",
-			"%s: the song of the game starts %d ms after GO (1000 or less)" % [state, _song_ms - go_ms])
+	var song_limit := int(Slow.limit(1000.0, 15.0))
+	_check(_song_ms >= 0 and go_ms > 0 and _song_ms - go_ms <= song_limit and sound.wanted_music == id and id != "menu",
+			"%s: the song of the game starts %d ms after GO (%d or less)" % [state, _song_ms - go_ms, song_limit])
 	if id != "maze":   # The maze sends no buzz at GO (issue #58).
 		var worst := 0
 		for i in n:

@@ -17,6 +17,7 @@ const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 const PencilIcon = preload("res://scripts/ui/pencil_icon.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const SafeArea = preload("res://scripts/ui/safe_area.gd")
+const Slow = preload("res://tests/slow_run.gd")
 
 const PATH := "user://test_ui_profile_extra.cfg"
 
@@ -306,4 +307,6 @@ func _largest_code() -> void:
 	var version := (modules.size() - 17) / 4
 	_check(not modules.is_empty() and version <= QrEncoder.MAX_VERSION and (modules.size() - 17) % 4 == 0,
 			"its QR code is made, version %d of at most %d (the code is %d characters)" % [version, QrEncoder.MAX_VERSION, code.length()])
-	_check(ms < 1000.0, "the QR code is made in less than 1 s in a headless run (about 200 ms on the test machine): %.0f ms" % ms)
+	var qr_limit := Slow.limit(1000.0, 5.0)   # The instrumented copy of the coverage run is slower.
+	_check(ms < qr_limit, "the QR code is made in less than %.0f ms in a headless run (about 200 ms on the test machine): %.0f ms"
+			% [qr_limit, ms])

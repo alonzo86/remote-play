@@ -9,6 +9,7 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Songs = preload("res://scripts/audio/songs.gd")
+const Slow = preload("res://tests/slow_run.gd")
 
 const PAINT := "res://scripts/game/paint_grab/paint_grab_game.gd"
 const MAZE := "res://scripts/game/maze/maze_game.gd"
@@ -249,11 +250,14 @@ func _results(app: Node, sound: Node) -> void:
 			back = b
 	_check(back != null, "the result menu has Back to menu")
 	var t0 := Time.get_ticks_msec()
+	var menu_limit := int(Slow.limit(5000.0, 4.0))   # The song is made in steps: the instrumented copy is slower.
 	back.pressed.emit()
-	while not (sound._music.playing and String(sound._music.get_meta("id", "")) == "menu") and Time.get_ticks_msec() - t0 < 5000:
+	while not (sound._music.playing and String(sound._music.get_meta("id", "")) == "menu") \
+			and Time.get_ticks_msec() - t0 < menu_limit:
 		await _frames(1)
 	_check(sound.wanted_music == "menu" and sound._music.playing and String(sound._music.get_meta("id", "")) == "menu"
-			and Time.get_ticks_msec() - t0 <= 5000, "Back to menu: the menu song plays again (%d ms)" % (Time.get_ticks_msec() - t0))
+			and Time.get_ticks_msec() - t0 <= menu_limit, "Back to menu: the menu song plays again (%d ms, %d or less)"
+			% [Time.get_ticks_msec() - t0, menu_limit])
 	# 8b: a tie, a round with no score; 8a: a solo medal; 8b: a solo with no medal.
 	tag = await _result_run(app, [[0, 30.0], [1, 30.0]], [])
 	_check(tag == "tie", "a tie plays `tie` and not `win` (got %s)" % tag)

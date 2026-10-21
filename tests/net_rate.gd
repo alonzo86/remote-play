@@ -9,6 +9,7 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
+const Slow = preload("res://tests/slow_run.gd")
 
 const WINDOW_S := 5.0   # Real seconds of each run (the clocks of the code run in real time).
 
@@ -102,10 +103,11 @@ func _one_phone() -> void:
 		min_hz = minf(min_hz, p.rx_rate)
 		max_hz = maxf(max_hz, p.rx_rate)
 	print("    rtt %.1f ms, rx %.1f..%.1f Hz, gap %d ms, lost %d" % [worst_rtt, min_hz, max_hz, worst_gap, p.lost_packets])
-	_check(p.rtt_ms >= 0.0 and worst_rtt < 25.0,
-			"the round trip time is below 25 ms (a frame of the headless loop is 17 ms) (%.1f ms)" % worst_rtt)
+	_check(p.rtt_ms >= 0.0 and worst_rtt < Slow.limit(25.0, 3.0),
+			"the round trip time is below %.0f ms (a frame of the headless loop is 17 ms) (%.1f ms)" % [Slow.limit(25.0, 3.0), worst_rtt])
 	_check(min_hz >= 58.0 and max_hz <= 62.0, "the TV counts 58 to 60 packets a second (%.1f to %.1f Hz)" % [min_hz, max_hz])
-	_check(worst_gap < 50, "the longest gap between packets is below 50 ms (%d ms)" % worst_gap)
+	_check(worst_gap < int(Slow.limit(50.0, 3.0)), "the longest gap between packets is below %d ms (%d ms)"
+			% [int(Slow.limit(50.0, 3.0)), worst_gap])
 	_check(p.lost_packets == 0, "no packet is lost (sequence gaps: %d)" % p.lost_packets)
 	for c in phones:
 		c.leave()
@@ -141,14 +143,14 @@ func _four_phones(maze: GDScript) -> void:
 		var p: PlayerInput = _app.server.players[i]
 		print("    P%d rtt %.1f ms, rx %.1f..%.1f Hz, gap %d ms, lost %d" % [i + 1, stats[i].rtt, stats[i].min, stats[i].max,
 				stats[i].gap, p.lost_packets])
-		rtt_ok = rtt_ok and p.rtt_ms >= 0.0 and stats[i].rtt < 45.0
+		rtt_ok = rtt_ok and p.rtt_ms >= 0.0 and stats[i].rtt < Slow.limit(45.0, 3.0)
 		hz_ok = hz_ok and stats[i].min >= 56.0 and stats[i].max <= 62.0
-		gap_ok = gap_ok and stats[i].gap < 50
+		gap_ok = gap_ok and stats[i].gap < int(Slow.limit(50.0, 3.0))
 		lost_ok = lost_ok and p.lost_packets == 0
-	_check(rtt_ok, "the round trip time of all 4 phones is below 45 ms")
+	_check(rtt_ok, "the round trip time of all 4 phones is below %.0f ms" % Slow.limit(45.0, 3.0))
 	_check(hz_ok,
 			"the TV counts 56 to 62 packets a second from each of the 4 phones (the window of a busy frame loop moves it by 2 or 3)")
-	_check(gap_ok, "the longest gap of each phone is below 50 ms")
+	_check(gap_ok, "the longest gap of each phone is below %d ms" % int(Slow.limit(50.0, 3.0)))
 	_check(lost_ok, "no phone lost a packet")
 	for c in phones:
 		c.leave()

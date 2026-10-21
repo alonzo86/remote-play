@@ -4,6 +4,7 @@ extends SceneTree
 ## Run: godot --headless --path . --script tests/game_rules_b.gd -- --role=controller
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Slow = preload("res://tests/slow_run.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
 const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
 const BananaLook = preload("res://scripts/game/snowball_splat/banana_look.gd")
@@ -143,7 +144,9 @@ func _race_pictures() -> void:
 		var board: Dictionary = RaceLook.render(key, track.points, track.half_width, track.point_at(track.length - 6.0),
 				track.dir_at(track.length - 6.0))
 		var ms := Time.get_ticks_msec() - t0
-		_check(ms < 600, "%s: the board of a track is made in %d ms (< 600 ms here; about 100 ms measured)" % [key, ms])
+		var board_limit := int(Slow.limit(600.0, 4.0))   # The instrumented copy of the coverage run is slower.
+		_check(ms < board_limit, "%s: the board of a track is made in %d ms (< %d ms here; about 100 ms measured)"
+				% [key, ms, board_limit])
 		var palette := {}
 		for k in ["road_a", "road_b", "mark", "wall_a", "wall_b", "outline"]:
 			palette[(c[k] as Color).to_html()] = true
