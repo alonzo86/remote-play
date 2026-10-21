@@ -10,6 +10,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
 const GAMES := {
+	"maze": ["res://scripts/game/maze/maze_game.gd", {}],
 	"paint_grab": ["res://scripts/game/paint_grab/paint_grab_game.gd", {"difficulty": "medium"}],
 	"sumo_bumpers": ["res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd", {"difficulty": "medium"}],
 	"asteroid_blast": ["res://scripts/game/asteroid_blast/asteroid_blast_game.gd", {"difficulty": "medium"}],
@@ -20,7 +21,7 @@ const GAMES := {
 	"tennis": ["res://scripts/game/tennis/tennis_game.gd", {"difficulty": "medium"}],
 }
 ## Only a game with a visible timer has the countdown and the buzz at GO (REQ-GM-35). Tennis with 2 phones has no timer.
-const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "marble_race"]
+const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "marble_race", "maze"]
 ## The turn games buzz the phone on turn (60 ms) when the first turn starts, and no other phone.
 const TURN_GAMES := ["mini_golf", "bowling"]
 
