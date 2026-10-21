@@ -36,8 +36,8 @@ The clip ids are the game ids. The games were renamed later: `maze` is Treasure 
 | `asteroid_blast` | Galaxy Protector | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
 
 Rules:
-- Game music starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1).
-- Music is quieter than effects (about 6 dB), so a hit is always heard.
+- Game music of a game with a countdown starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1). Only a game with a visible timer has a countdown (REQ-GM-35); the music of the other games (Galaxy Protector, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players) starts with the play.
+- Music is quieter than effects (about 6 dB), so a hit is always heard. Every effect is 3 to 9 dB above the music at the default levels (RMS, bus gains applied), and no effect or song clips (peak 1.0 or lower); `tests/audio.gd` asserts this for every effect.
 - The pause menu and the "phone lost" card lower the music to 30% (it does not stop, so Resume has no jump). The result menu stops the music and plays a short jingle, then goes quiet; it does not loop under a menu where the players talk.
 - The menu music goes on across the menu screens with no restart (the Games screen to the Settings screen and back). It restarts only after a game.
 - When the music of a game is finished by the result, the menu music comes back when the player goes back to the menu.
@@ -54,7 +54,7 @@ Rules:
 | `join` | A phone joins | Three-note rising run (200 ms) |
 | `leave` | A phone leaves or is lost | Three-note falling run (200 ms) |
 | `pause` / `resume` | Pause menu opens / closes | A short down step / a short up step |
-| `count` | Each second of the 3, 2, 1 countdown | A beep (100 ms) |
+| `count` | Each second of the 3, 2, 1 countdown (games with a timer only) | A beep (100 ms) |
 | `go` | The countdown ends | A higher, longer beep (300 ms) |
 | `time_low` | The last 5 s of a timed game, each second | A soft tick |
 | `win` | The result menu, with a winner or a medal | A short fanfare (1.5 s). A medal tier changes the length: bronze 1 note run, silver 2, gold 3 |
@@ -68,7 +68,7 @@ Proposed scenes (the game files get the final list; the current code already has
 
 | Scene | Haptic | Games |
 |-------|--------|-------|
-| The countdown ends ("GO") | 60 ms | all |
+| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, paint grab, Tennis alone. Not Galaxy Protector, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
 | The player scores or reaches the goal (exit, finish line, a hit on a Puff) | 120 ms, or 40 ms for a small score | maze, marble race, snowball splat |
 | The player's own object touches something (wall, bumper, another player) | 15 to 30 ms, with a cool-down | maze, marble race, paint grab, sumo |
 | A bump that pushes the player (stronger when harder) | 20 to 80 ms | sumo |
@@ -106,7 +106,7 @@ Rendering at 22050 Hz mono keeps memory small: a 68 s loop is 22050 x 2 bytes x 
 - `AudioStreamPlayer` nodes (not 2D or 3D players): the audio does not come from a place on the screen.
 - The effect pool has 8 players. A new effect takes a free player; if none is free, it takes the oldest one, except that `win`, `go` and `count` are never cut. The same effect id has a minimum gap of 40 ms (so a ball that touches a wall 10 times in a frame is one sound). This is the audio twin of the haptic cool-down (REQ-GM-43).
 - Games call `Sound.sfx("sumo_bump")` at the same places they call `Haptics`/`App.server.haptic()`. A game never makes its own players (a new rule, section 5).
-- `Minigame` (the base class) starts the game music at "GO", ducks it on pause and on the "phone lost" card, stops it on the result menu, and plays `count`/`go`/`win`/`tie`. A game then needs only its own effects.
+- `Minigame` (the base class) starts the game music at "GO" (at once in a game without a countdown), ducks it on pause and on the "phone lost" card, stops it on the result menu, and plays `count`/`go`/`win`/`tie`. A game then needs only its own effects.
 - The music does not stop when the game node is freed by "Back to menu": `App.go_menu()` calls `Sound.music("menu")`.
 - Android TV: the mix rate of the project is 44100 Hz (Godot default); the 22050 Hz streams are resampled by the engine. Output latency on a TV box can be 100 ms or more and cannot be fixed in the app; effects are short and not timed with the picture to the frame. Manual test 18 checks that it feels fine.
 - Focus loss: when the app goes to the background (Home), Godot pauses the audio by itself; no code is needed. Manual test 18 checks that the music does not play on the Android home screen.
@@ -272,7 +272,7 @@ Built on `main`, in the Party Pop style of `main` (the arcade style stack is not
 - Differences from the plan:
   - The sample rate is **16000 Hz** (not 22050), to make the songs faster on a TV box. A song is made in steps of 3 ms a frame on the main thread (a worker thread crashed the coverage run, which counts lines); on a desktop the menu song is ready after about 1.8 s. A TV box is not measured.
   - The loops are **16 bars** (about 25 to 34 s), including the menu song (the plan said 32 bars).
-  - The game song is made behind the countdown and starts when `RoundClock` reports GO (so a pause during the countdown moves it too).
+  - The game song is made behind the countdown and starts when `RoundClock` reports GO (so a pause during the countdown moves it too). A game without a countdown (REQ-GM-35) calls `Sound.music()` in `Minigame._ready()`: the song is made at once and starts when it is ready, with the play.
   - `Sound` emits the signal `sfx_played(id)` that the test uses (no test-only log).
   - Effects that are not built: `maze_exit_other`, `marble_post` and `snow_puff` (no event to hang them on), the Sumo drone and rolling noise. `paint_bounce`, `paint_edge`, `paint_lead`, `time_low` and `denied` are built.
   - The songs, effects and levels are first guesses.

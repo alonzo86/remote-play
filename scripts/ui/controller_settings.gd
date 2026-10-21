@@ -5,6 +5,7 @@ extends Control
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
+const Haptics = preload("res://scripts/game/haptics.gd")
 
 var _haptics: Button
 
@@ -43,7 +44,7 @@ func _toggle_haptics() -> void:
 	App.save_settings()
 	_refresh()
 	if App.settings.haptics:
-		Input.vibrate_handheld(40)   # The sample, so the player feels that it is on.
+		Haptics.vibrate(40)   # The sample, so the player feels that it is on.
 
 
 func on_back() -> void:

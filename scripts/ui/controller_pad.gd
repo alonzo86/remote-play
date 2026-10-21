@@ -7,13 +7,16 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const SensorSampler = preload("res://scripts/input/sensor_sampler.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const Haptics = preload("res://scripts/game/haptics.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
+const QuitDialog = preload("res://scripts/ui/controller_quit_dialog.gd")
 
 var _sampler: Node
 var _fingers: Dictionary = {}   # finger index -> zone name
 var _touch_finger := -1
+var _quit_dialog: Control
 var _flash := {"recenter": 0.0}
 var _aim_frac := 0.5   # Where the finger left the aim strip (0 left, 1 right) in Pin Pals.
 
@@ -34,8 +37,7 @@ func _ready() -> void:
 
 
 func _on_haptic(ms: int) -> void:
-	if bool(App.settings.get("haptics", true)):   # The HAPTICS switch of the phone Settings screen (REQ-FL-66).
-		Input.vibrate_handheld(ms)
+	Haptics.on_message(ms)   # It vibrates when the HAPTICS switch of the phone Settings screen is on (REQ-FL-66).
 
 
 func _on_phase(_phase: String) -> void:
@@ -54,6 +56,27 @@ func _process(delta: float) -> void:
 ## The header (player badge, name and Disconnect) is one row: all three are centered on HEADER_Y.
 func _rect_leave() -> Rect2:
 	return Rect2(size.x - 300, HEADER_Y - 45.0, 270, 90)
+
+
+## The square in the slot color with the slot number, at the top left of the pad on the header row (REQ-FL-52).
+func _rect_slot_square() -> Rect2:
+	return Rect2(Vector2(60, HEADER_Y - 45.0), Vector2(90, 90))
+
+
+## The color of that square: the slot color, and red when the link to the TV is lost.
+func _slot_square_color() -> Color:
+	var c: Node = App.client
+	return c.color if c.state == ControllerClient.State.CONNECTED else UiTheme.BAD
+
+
+## The fill of the Recenter box: yellow for a moment after a tap (REQ-FL-52), else black.
+func _recenter_fill() -> Color:
+	return UiTheme.ACCENT if _flash.recenter > 0.0 else UiTheme.BG
+
+
+## The middle of the face of the arcade button `bit` at `center`: it sits lower while the button is down.
+func _button_face(center: Vector2, bit: int) -> Vector2:
+	return center - Vector2(0, BUTTON_LIFT_DOWN if (_sampler.buttons & bit) != 0 else BUTTON_LIFT)
 
 
 func _rect_recenter() -> Rect2:
@@ -94,7 +117,21 @@ func _zone_at(pos: Vector2) -> String:
 
 # ---- Input ----
 
+## Back asks whether to quit the app (REQ-FL-55); Back again answers "stay". The pad ignores touches while the question shows.
+func on_back() -> void:
+	if is_instance_valid(_quit_dialog):
+		_quit_dialog.close()
+		return
+	for index in _fingers.keys():
+		_on_zone_up(_fingers[index], index)
+	_fingers.clear()
+	_quit_dialog = QuitDialog.new()
+	add_child(_quit_dialog)
+
+
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(_quit_dialog):
+		return
 	if event is InputEventScreenTouch:
 		var pos: Vector2 = get_global_transform().affine_inverse() * event.position
 		if event.pressed:
@@ -165,8 +202,8 @@ func _draw() -> void:
 
 	# The slot color square with the slot number, and the state word. The square is red when the link is lost.
 	var online: bool = c.state == ControllerClient.State.CONNECTED
-	var square := Rect2(Vector2(60, HEADER_Y - 45.0), Vector2(90, 90))
-	var square_color: Color = c.color if online else UiTheme.BAD
+	var square := _rect_slot_square()
+	var square_color: Color = _slot_square_color()
 	draw_rect(square, square_color)
 	UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
 	# The avatar is next to the color square, not on it (REQ-FL-70).
@@ -228,10 +265,16 @@ func _draw() -> void:
 ## Recenter: a yellow framed box that fills with yellow for a moment when it is tapped.
 func _draw_recenter(rr: Rect2, f: Font) -> void:
 	var flashing: bool = _flash.recenter > 0.0
-	_draw_box(rr, UiTheme.ACCENT, UiTheme.ACCENT if flashing else UiTheme.BG, Lang.t("pad.recenter"), 72,
+	_draw_box(rr, UiTheme.ACCENT, _recenter_fill(), Lang.t("pad.recenter"), 72,
 			UiTheme.BG if flashing else UiTheme.ACCENT)
 	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("pad.point_at_tv_then"),
-			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, 32, UiTheme.BG if flashing else UiTheme.TEXT)
+			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, hint_size(f, rr), UiTheme.BG if flashing else UiTheme.TEXT)
+
+
+## The size of the help line in the Recenter box: 32 px, smaller (steps of 8 px) when the line, as in Hebrew, would touch the
+## frame. It keeps a gap of 16 px at each side inside the frame.
+func hint_size(f: Font, rr: Rect2) -> int:
+	return UiTheme.fit_size(f, Lang.t("pad.point_at_tv_then").to_upper(), rr.size.x - 2.0 * (UiTheme.LINE + 16.0), 32)
 
 
 ## The aim strip of Pin Pals (REQ-BW-4): a finger slides the ball left or right along the foul line. The mark stays where the
@@ -258,12 +301,10 @@ func _draw_box(r: Rect2, frame: Color, fill: Color, text: String, fs: int, col: 
 
 ## An arcade button: a 6 px white ring, a dark lower edge, and a face that sits in when the button is down.
 func _draw_button(center: Vector2, label: String, bit: int, col: Color) -> void:
-	var down: bool = (_sampler.buttons & bit) != 0
 	var r := _radius()
-	var lift := BUTTON_LIFT_DOWN if down else BUTTON_LIFT
 	draw_circle(center, r + UiTheme.LINE, UiTheme.TEXT)
 	draw_circle(center, r, col.darkened(0.45))
-	var face := center - Vector2(0, lift)
+	var face := _button_face(center, bit)
 	draw_circle(face, r - BUTTON_LIFT, col)
 	UiTheme.draw_centered(self, UiTheme.font(), label, Rect2(face - Vector2(r, r), Vector2(r, r) * 2.0), 96,
 			UiTheme.text_on(col))

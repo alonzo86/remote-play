@@ -26,7 +26,7 @@ const RESTITUTION := 0.25
 const SUBSTEPS := 2
 const HIT_BUZZ_MS := 120    # Minimum gap between two wall buzzes of one ball.
 const HIT_BUZZ_SPEED := 320.0
-const TIMER_X := 500.0       # The timer box has a fixed place, between the title and the leader chip.
+const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
 const TIMER_W := 240.0
 
 const DEFAULT_THEME := "garden"
@@ -54,6 +54,7 @@ var _round := RoundClock.new()
 var _haptics := Haptics.new()
 var _winner := -1
 var _board_tex: ImageTexture   # The picture of the ground and the walls (`MazeBoard`), made again when `size` changes.
+var _torches: Array[Vector2i] = []   # Where the flames of the castle torches burn (world pixels), made with the board picture.
 var _board_size := Vector2.ZERO   # The `size` the picture was made for: the walls and the balls share one origin.
 var _ring_time := 0.0   # Game time for the exit ring: it stands still while the game is paused (REQ-FL-43).
 
@@ -84,11 +85,12 @@ func _start_offset() -> float:
 
 ## The ground and the walls of the theme of this round as one texture (REQ-MZ-12). The walls are the collision rectangles.
 func _make_board_texture() -> ImageTexture:
-	var o := Shell.snap(_origin())
+	var o := _origin()
 	var rects: Array[Rect2] = []
 	for r in _walls:
 		rects.append(Rect2(o + r.position, r.size))
 	var start := Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(cell, cell) - Vector2(WALL, WALL))
+	_torches = MazeBoard.torch_places(maze_theme, rects, PIXEL_VIEW.x)
 	return ImageTexture.create_from_image(MazeBoard.render(maze_theme, rects, start, PIXEL_VIEW))
 
 
@@ -243,7 +245,11 @@ func _draw_chest(ci: CanvasItem, c: Vector2) -> void:
 
 func _origin() -> Vector2:
 	# The middle of the space under the HUD (y 128 to 1020 at 1080p): the outer edge of the walls is 14 px outside the cells.
-	return Vector2((size.x - cols * cell) * 0.5, size.y * 0.5 + 34.0 - rows * cell * 0.5)
+	# The outer edge of the walls is on the world pixel grid, so the collision and the picture agree. The margin of 60 px
+	# (REQ-MZ-7) stays: the origin is not rounded after the half wall is added.
+	var half := Vector2(WALL, WALL) * 0.5
+	var raw := Vector2((size.x - cols * cell) * 0.5, size.y * 0.5 + 34.0 - rows * cell * 0.5)
+	return Shell.snap(raw - half) + half
 
 
 func _pixel_world() -> bool:
@@ -256,24 +262,21 @@ func _world_draw(ci: CanvasItem) -> void:
 		_board_tex = _make_board_texture()   # At the first frame, and again when the size of the screen changes.
 		_board_size = size
 	ci.draw_texture_rect(_board_tex, Rect2(Vector2.ZERO, size), false)
-	var o := Shell.snap(_origin())
+	var o := _origin()
+	for spot in _torches:   # The flames move with the game time, so they stand still while the game is paused (REQ-FL-43).
+		MazeBoard.draw_flame(ci, spot, MazeBoard.flame_frame(_ring_time))
 	_draw_chest(ci, o + _exit_center())
 	for b in _balls:   # The slot numbers are drawn by the HUD (REQ-GM-47n).
 		_draw_ball(ci, o + b.pos, player(b.slot).color, b.vel)
 
 
 func _game_draw() -> void:
-	var o := Shell.snap(_origin())
 	Shell.title(self, "registry.treasure_maze")
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
-		Shell.countdown(self, size, str(n) if n > 0 else "shell.go", _round.count_elapsed())
-		var spots := {}
-		for b in _balls:
-			spots[b.slot] = Shell.snap(o + b.pos)
-		draw_name_tags(self, spots, BALL_R)
+		Shell.countdown(self, size, str(n), _round.count_elapsed())
 		Shell.hint(self, size, "maze.hold_phone_level_it")
 	if participants.is_empty():
 		Shell.hint(self, size, "maze.join_with_sababi_app")

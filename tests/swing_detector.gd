@@ -59,6 +59,25 @@ func _detector_additions() -> void:
 			and not SwingDetector.is_down(Vector3(0.9, 0, -0.3), UP),
 			"a sideways, an upward and a flat swing (less than 30 degrees down) are not down")
 
+	# A shake turns the acceleration round again and again; with `max_reversals` it throws nothing, a real swing still does.
+	for hz in [6.0, 8.0, 12.0]:
+		var shaken := SwingDetector.new()
+		shaken.min_back = 0.1
+		shaken.max_reversals = 1
+		for i in int(1.0 / DT):
+			shaken.update(DT, Vector3(25.0 * sin(TAU * hz * float(i) * DT), 0, 0))
+			if shaken.released:
+				break
+		_check(not shaken.released, "a shake of %d Hz at 25 m/s2 throws nothing with max_reversals" % int(hz))
+	var real := SwingDetector.new()
+	real.min_back = 0.1
+	real.max_reversals = 1
+	for i in 12:
+		real.update(DT, Vector3(8, 0, 0))
+	for f in [10.0, 30.0, 30.0, 10.0]:
+		real.update(DT, Vector3(-f, 0, 0))
+	_check(real.released, "a real swing (one turn round) still throws with max_reversals")
+
 	var quick := SwingDetector.new()
 	quick.lock_after = 0.4
 	_run(quick, Vector3(1, 0, 0), 0.45)

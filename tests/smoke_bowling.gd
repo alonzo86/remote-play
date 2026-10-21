@@ -47,9 +47,8 @@ func _labels(game: Control) -> Array:
 	return labels
 
 
-## Skips the countdown and the banner so that a test goes straight to the next turn.
+## Skips the banner so that a test goes straight to the next turn (there is no countdown, REQ-GM-35).
 func _to_turn(game: Control) -> void:
-	game._clock.time = 0.0
 	game._game_tick(0.016)
 	game._game_tick(3.1)
 
@@ -90,15 +89,14 @@ func _run() -> void:
 	var rail_game: Control = app.current_screen()
 	_check(rail_game.best_key() == "", "with rails there is no personal best (REQ-BW-19)")
 
-	# The countdown, then the first player's turn (REQ-BW-3).
+	# No countdown (REQ-GM-35): the first player's turn starts at once (REQ-BW-3).
 	app.go(Bowling, {"difficulty": "medium"})
 	await _frames(3)
 	var game: Control = app.current_screen()
-	_check(game.participants.size() == 2 and game._clock.is_counting() and game.rules.current_slot() == 0,
-			"the game starts with a countdown and the first phone is on turn (REQ-BW-3)")
-	await _stream(clients, 3.4, [flat, flat])
-	_check(not game._clock.is_counting() and game.phase == game.Phase.AIM and game.sim.standing_count() == 10,
-			"after the countdown the first phone aims at 10 pins (REQ-BW-4)")
+	_check(game.participants.size() == 2 and not game._has_countdown() and game.rules.current_slot() == 0
+			and game.phase == game.Phase.AIM and game.sim.standing_count() == 10,
+			"the game starts at once with no countdown: the first phone aims at 10 pins (REQ-GM-35, REQ-BW-3, REQ-BW-4)")
+	await _stream(clients, 0.5, [flat, flat])
 
 	# The phones know whose turn it is (REQ-BW-14).
 	_check(clients[0].turn_state == 1 and clients[1].turn_state == 2 and clients[1].turn_who == game.player(0).player_name,

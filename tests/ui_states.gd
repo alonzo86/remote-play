@@ -8,6 +8,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const QUIT_DIALOG := "res://scripts/ui/controller_quit_dialog.gd"
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
 
@@ -33,6 +34,7 @@ func _initialize() -> void:
 func _run() -> void:
 	_button_styles()
 	await _wait_screen_leave()
+	await _phone_back_asks_to_quit()
 	await _profile_screens()
 	await _keyboard_focus()
 	await _modal_focus()
@@ -119,6 +121,38 @@ func _wait_screen_leave() -> void:
 	var wait_buttons: Array = wait.find_children("*", "Button", true, false).map(func(b): return b.text)
 	_check(wait_buttons.slice(-2) == ["common.settings", "common.about"], "About is the button after Settings")
 	wait.queue_free()
+
+
+## Back on the phone waiting screen and on the pad screen asks whether to quit the app, with Stay in focus, and does not quit
+## (REQ-FL-55). Back again answers Stay. The pad ignores touches while the question shows.
+func _phone_back_asks_to_quit() -> void:
+	print("phone Back asks to quit")
+	var app: Node = root.get_node("App")
+	for screen in [app.ControllerWait, app.ControllerPad]:
+		app.client._set_state(ControllerClient.State.CONNECTED if screen == app.ControllerWait else ControllerClient.State.IDLE)
+		app.go(screen)
+		await process_frame
+		var cur: Control = app.current_screen()
+		var name: String = str(screen.resource_path.get_file())
+		app._last_back_ms = -1000
+		app._back()
+		await process_frame
+		var dialogs := cur.find_children("*", "Control", true, false).filter(
+				func(c: Node) -> bool: return c.get_script() != null and c.get_script().resource_path == QUIT_DIALOG)
+		_check(dialogs.size() == 1, "%s: Back opens the quit question (the app is still running)" % name)
+		if dialogs.size() != 1:
+			continue
+		var d: Control = dialogs[0]
+		var texts := d.find_children("*", "Button", true, false).map(func(b: Button) -> String: return b.text)
+		_check(texts == ["connect.stay", "connect.quit"], "%s: the question offers STAY and QUIT, STAY first: %s" % [name, str(texts)])
+		_check(d.stay_button.has_focus(), "%s: STAY has the focus" % name)
+		app._last_back_ms = -1000
+		app._back()
+		await process_frame
+		await process_frame
+		_check(not is_instance_valid(d) or d.is_queued_for_deletion(), "%s: Back again chooses STAY and closes the question" % name)
+		_check(app.current_screen() == cur, "%s: the screen stays" % name)
+	app.client._set_state(ControllerClient.State.IDLE)
 
 
 ## The layout direction follows the language of the app and not the locale of the device (REQ-FL-54, 60): Hebrew is right to left,

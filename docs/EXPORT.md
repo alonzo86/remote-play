@@ -61,7 +61,7 @@ The category comes from the preset option `package/show_in_android_tv` (set to `
 The controller app scans the QR code on the TV screen with the Google code scanner (ML Kit).
 
 - The scanner has its own screen. The app does **not** need the camera permission.
-- The phone needs **Google Play services**. A phone without them shows "QR scan failed" and you use the list or the room code.
+- The phone needs **Google Play services**. A phone without them shows "QR scan failed" and you use the list of rooms and the PIN.
 - The first scan can take a few seconds, because Play services can download the scanner module.
   The manifest entry `com.google.mlkit.vision.DEPENDENCIES = barcode_ui` asks Play services to download it at install time.
 - The first build needs internet access for Gradle (to get the dependency from Google Maven).
@@ -122,11 +122,11 @@ Or copy the APK to the phone and open it (allow installs from this source).
 ## 6. Run a test session
 
 1. Connect the TV and the phone to the **same Wi-Fi network** (best: 5 GHz).
-2. Start the TV app. After the logo it shows the **Connect controllers** screen with the room code and the QR code.
-3. Start the controller app. Tap **Scan QR code** and scan the code. (Or tap the TV under **Discovered TVs**; **Refresh** looks again.)
+2. Start the TV app. After the logo it shows the Connect screen with the room code, the 4-digit join PIN and the QR code.
+3. Start the controller app. Tap **SCAN QR CODE** and scan the code. (Or tap the room under **ROOMS FOUND** and type the PIN of the TV; **REFRESH** looks again.)
 4. On the TV, press OK on the Connect screen ("PRESS OK TO CONTINUE"). Press the Menu key (or open **Settings**, the OPTIONS button, and switch **Debug overlay** on) to see the latency numbers.
 5. Select **Treasure Maze**. Hold the phone flat during the countdown. Tilt to roll the ball.
-   If the ball rolls the wrong way, select **Invert tilt axes** on the Settings screen.
+   If the ball rolls the wrong way, select **INVERT AXES** on the Settings screen.
 
 ## Controller on an iPhone (unverified)
 
@@ -163,8 +163,8 @@ The phone window has no sensors. The mouse position simulates the tilt and the m
 |---------|-------------------------|
 | App is not in the TV home row | Banner or leanback category is missing. Run the patch script, export again, check with `aapt`. |
 | "Scan QR code" button says **Paste TV link** | The plugin is not in the build. Run the patch script and export again. |
-| "QR scan failed" | Google Play services are missing or old, or the scanner module is still downloading. Try again, or use the list or the room code. |
+| "QR scan failed" | Google Play services are missing or old, or the scanner module is still downloading. Try again, or use the list of rooms and the PIN. |
 | Phone does not find the TV | Wi-Fi guest network or "AP isolation" blocks broadcast. Scan the QR code on the TV (it does not need the beacon). |
 | Phone shows "Cannot reach the TV" | Different subnet, VPN on the phone, or a firewall. Use the TV IP from the TV screen. |
-| Tilt direction is wrong | Use the **Invert tilt axes** switch on the TV Settings screen. Report the raw values from the overlay. |
+| Tilt direction is wrong | Use the **INVERT AXES** row on the TV Settings screen. Report the raw values from the overlay. |
 | Phone starts in landscape, then turns | Expected. The app sets portrait at start. See `docs/RISKS.md`. |

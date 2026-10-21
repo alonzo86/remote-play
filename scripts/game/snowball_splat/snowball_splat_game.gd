@@ -20,7 +20,7 @@ const FLIGHT_TIME := 0.12       # Seconds that a banana flies (REQ-SS-6).
 # The play area is the screen inside the margin, under the HUD (REQ-SS-3).
 const AREA_TOP := 150.0
 const AREA_MARGIN := 60.0
-const TIMER_X := 520.0          # The timer box has a fixed place, between the title and the leader chip.
+const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
 const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide.
 const HINT_TIME := 4.0          # Seconds of play with the hint on the screen.
 
@@ -319,6 +319,24 @@ static func leave_scale(t: float) -> float:
 	return 1.0 if u <= 0.0 else ceilf((1.0 - u) * 4.0) / 4.0
 
 
+## The sideways move `dx` (px) and the facing `dir` (1 right, -1 left) of a hit animal of `species` `age` seconds into its cheer
+## (`t` is the share of the whole animation): the gorilla beats its chest (a shake), the sloth wiggles slowly and the lemur turns
+## to the other side every 0.1 s (REQ-SS-13). The other animals stand still (their cheer is drawn around them).
+static func cheer_pose(species: String, age: float, t: float, dir: int) -> Dictionary:
+	var dx := 0.0
+	var facing := dir
+	match species:
+		"gorilla":   # It beats its chest: a shake.
+			if t > 0.4 and t < 0.8:
+				dx = 8.0 * signf(sin(age * 40.0))
+		"sloth":   # A slow wiggle.
+			dx = 10.0 * sin(age * 9.0)
+		"lemur":   # It spins around: it turns to the other side every 0.1 s.
+			if t > 0.4:
+				facing = dir if int(age * 10.0) % 2 == 0 else -dir
+	return {"dx": dx, "dir": facing}
+
+
 ## The center and the radius of a hit animal (REQ-SS-13): it jumps once and then stands and cheers.
 func _hit_state(e: Effect) -> Dictionary:
 	var hop := sin(clampf(e.age / HIT_HOP, 0.0, 1.0) * PI) * HIT_HEIGHT
@@ -366,16 +384,9 @@ func _draw_effect(ci: CanvasItem, e: Effect) -> void:
 	var state := _hit_state(e)
 	var t := e.age / HIT_LIFE
 	var center: Vector2 = state.center
-	var dir := e.dir
-	match e.species:   # Each animal cheers in its own way (REQ-SS-13).
-		"gorilla":   # It beats its chest: a shake.
-			if t > 0.4 and t < 0.8:
-				center.x += 8.0 * signf(sin(e.age * 40.0))
-		"sloth":   # A slow wiggle.
-			center.x += 10.0 * sin(e.age * 9.0)
-		"lemur":   # It spins around: it turns to the other side every 0.1 s.
-			if t > 0.4:
-				dir = e.dir if int(e.age * 10.0) % 2 == 0 else -e.dir
+	var pose := cheer_pose(e.species, e.age, t, e.dir)   # Each animal cheers in its own way (REQ-SS-13).
+	center.x += float(pose.dx)
+	var dir: int = pose.dir
 	var scale := leave_scale(t)
 	if scale > 0.0:
 		_draw_animal(ci, center, e.species, true, dir, scale)
@@ -429,11 +440,7 @@ func _draw_hud() -> void:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
-		Shell.countdown(self, size, str(n) if n > 0 else "shell.go", _round.count_elapsed())
-		var spots := {}
-		for s in _throwers:
-			spots[s] = Shell.snap((_throwers[s] as Thrower).aim)
-		draw_name_tags(self, spots, CURSOR_R)
+		Shell.countdown(self, size, str(n), _round.count_elapsed())
 	if _round.time < HINT_TIME and not is_over:   # In the countdown the time is below 0.
 		Shell.hint(self, size, "snowball_splat.point_at_tv_press")
 

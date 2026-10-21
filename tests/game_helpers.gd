@@ -1,5 +1,5 @@
 extends SceneTree
-## Helpers shared by the minigames: RoundClock (REQ-GM-35, 71), Haptics (REQ-GM-43), the leader chip and name tags (REQ-GM-46),
+## Helpers shared by the minigames: RoundClock (REQ-GM-35, 71), Haptics (REQ-GM-43), the leader chip (REQ-GM-46),
 ## Scoreboard (REQ-GM-70, 72) and Medals (REQ-GM-73).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/game_helpers.gd -- --role=controller
 
@@ -38,7 +38,7 @@ func _initialize() -> void:
 	_label_plate()
 	_score_chip()
 	_chip_avatar()
-	_medal_icon()
+	await _medal_icon()
 	_fit_size()
 	_pixel_world()
 	_round_length()
@@ -156,7 +156,7 @@ func _haptics() -> void:
 
 
 func _shell_leader() -> void:
-	print("leader chip and name tags")
+	print("leader chip")
 	var board = Scoreboard.new([0, 1, 2])
 	_check(board.leaders().size() == 3, "before anybody scores all players lead: a tie (REQ-GM-46)")
 	_check(not board.has_lead(), "no leader chip while everybody has 0 (REQ-GM-46)")
@@ -182,27 +182,14 @@ func _shell_leader() -> void:
 	race.set_unfinished(1, 55.0)
 	race.set_score(2, 31.2)
 	_check(race.leaders()[0].slot == 2 and race.leaders()[0].finished, "a finished marble leads over the others")
-	# The name tags of the countdown stay inside the margin and never cover each other (REQ-GM-46a).
-	var area := Vector2(1920.0, 1080.0)
-	var same: Array = []
-	for i in 4:
-		same.append({"pos": Vector2(960.0, 540.0), "name": "ABCDEFGHIJKLMNOP"})
-	var rects: Array = Shell.name_tag_rects(area, same)
-	var apart := true
-	var inside := true
-	for i in rects.size():
-		inside = inside and rects[i].position.x >= 60.0 and rects[i].end.x <= 1860.0 and rects[i].position.y >= 60.0 \
-				and rects[i].end.y <= 1020.0
-		for k in range(i + 1, rects.size()):
-			apart = apart and not rects[i].intersects(rects[k])
-	_check(rects.size() == 4 and apart, "4 tags at the same place are moved apart")
-	_check(inside, "the tags are inside the 60 px safe margin")
-	var edge: Array = Shell.name_tag_rects(area, [{"pos": Vector2(1900.0, 20.0), "name": "ABCDEFGHIJKLMNOP"}])
-	_check(edge[0].end.x <= 1860.0 and edge[0].position.y >= 60.0,
-			"a tag for an object at the screen edge is moved inside the margin")
-	var short: Array = Shell.name_tag_rects(area, [{"pos": Vector2(960.0, 540.0), "name": "AB"}])
-	_check(short[0].size.x < edge[0].size.x and is_equal_approx(short[0].get_center().x, 960.0) and short[0].end.y < 540.0,
-			"a tag is as wide as its name, centered over the object and above it")
+	# The countdown has no name tags (removed 2026-10-21): the players are known by the color of their objects.
+	var shell_script: Script = Shell
+	var shell_methods: Array = shell_script.get_script_method_list().map(func(m: Dictionary) -> String: return m.name)
+	_check(not shell_methods.has("name_tag_rects") and not shell_methods.has("name_tags"),
+			"the shell has no name tags for the countdown")
+	var game_methods: Array = ResourceLoader.load("res://scripts/game/minigame.gd").get_script_method_list() \
+			.map(func(m: Dictionary) -> String: return m.name)
+	_check(not game_methods.has("draw_name_tags"), "a minigame has no hook to draw name tags")
 
 
 func _shell_layout() -> void:
@@ -220,7 +207,7 @@ func _label_plate() -> void:
 	var at := Vector2(960.0, 400.0)
 	for code in ["en", "he"]:
 		Lang.set_language(code, root)
-		var short := Shell.label_plate_rect(at, "shell.go", 72)
+		var short := Shell.label_plate_rect(at, "marble_race.go", 72)
 		var long := Shell.label_plate_rect(at, "asteroid_blast.all_ships_gone", 72)
 		_check(long.size.x > short.size.x and is_equal_approx(short.get_center().x, 960.0)
 				and is_equal_approx(long.get_center().x, 960.0)
@@ -411,10 +398,6 @@ func _chip_avatar() -> void:
 	var parts: Dictionary = Shell.score_chip_parts("Maya", "120", 400.0, 64.0, Shell.CHIP_FONT, 3)
 	_check(is_equal_approx(parts.name_x, with_avatar) and parts.score_x > parts.name_x,
 			"the name is after the avatar, the score at the end")
-	var rects: Array = Shell.name_tag_rects(Vector2(1920, 1080), [{"pos": Vector2(960, 540), "name": "AB", "avatar": 3},
-			{"pos": Vector2(300, 540), "name": "AB"}])
-	_check(rects[0].size.x - rects[1].size.x == Shell.CHIP_AVATAR + Shell.CHIP_GAP,
-			"a name tag with an avatar is wider by the picture")
 
 
 ## The medal sheet and the medal of a place (REQ-GM-73): 1st gold, 2nd silver, 3rd bronze, ties share, nothing after the 3rd.
@@ -442,8 +425,15 @@ func _medal_icon() -> void:
 			"only the three tiers are on the sheet")
 	var canvas := Control.new()
 	root.add_child(canvas)
-	_check(Medal.draw(canvas, Rect2(0, 0, 48, 48), "silver") and not Medal.draw(canvas, Rect2(0, 0, 48, 48), "wood"),
-			"a known tier is drawn, an unknown one is not")
+	# Drawing is only allowed inside `draw`, so the calls run in the draw signal of the canvas.
+	var results := []
+	canvas.draw.connect(func() -> void:
+		results.append(Medal.draw(canvas, Rect2(0, 0, 48, 48), "silver"))
+		results.append(Medal.draw(canvas, Rect2(0, 0, 48, 48), "wood")))
+	canvas.queue_redraw()
+	await process_frame
+	await process_frame
+	_check(results.size() >= 2 and results[0] == true and results[1] == false, "a known tier is drawn, an unknown one is not")
 	canvas.queue_free()
 
 

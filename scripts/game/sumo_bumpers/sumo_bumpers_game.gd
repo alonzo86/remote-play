@@ -6,12 +6,10 @@ extends "res://scripts/game/minigame.gd"
 
 const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
 const TiltBody = preload("res://scripts/game/tilt_body.gd")
-const RoundClock = preload("res://scripts/game/round_clock.gd")
 const SumoLook = preload("res://scripts/game/sumo_bumpers/sumo_look.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
 const ROUNDS := 3
-const COUNTDOWN := 3.0
 const BANNER_TIME := 2.5
 const DASH_BOOST_TIME := 0.35   # While a dash is fresh the speed limit is the dash speed, so the dash is not cut at once.
 const FALL_TIME := 0.8          # A fallen bumper spins and shrinks in this time (REQ-SB-9).
@@ -27,15 +25,18 @@ const UNBOUNDED := Rect2(Vector2(-FAR, -FAR), Vector2(2.0 * FAR, 2.0 * FAR))   #
 
 # Look (REQ-SB-15, REQ-GM-47): Sky Island. The pictures are in sumo_look.gd. The black bar on top is for the title and the round.
 const BAR_H := 112.0
+const WHEE_FONT := 32       # "Whee!" over a fallen bumper (REQ-SB-15: all text is 32 px or larger).
+const ROUND_FONT := 32      # "Round 2 of 3" in the bar.
+const BANNER_FONT := 72     # The banner at the end of a round.
 
-enum Phase { COUNT, PLAY, BANNER }
+enum Phase { PLAY, BANNER }
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps it for Restart.
 var difficulty := "medium"
 
 var arena := SumoArena.new()
 var round_no := 1
-var phase := Phase.COUNT
+var phase := Phase.PLAY
 var banner_text := ""
 
 var _board: Scoreboard
@@ -47,11 +48,14 @@ var _boost_left := {}           # slot -> seconds that the dash speed limit last
 var _normal_speed := TiltBody.new().max_speed   # The speed limit without a dash.
 var _dashes: Array[int] = []    # The slots of the presses of A, kept until the next tick.
 var _fell: Array[int] = []      # The slots that fell in this tick (one array for all ticks: nothing is made in each frame).
-var _clock := RoundClock.new(COUNTDOWN, 0.0)
 var _banner_left := 0.0
 var _haptics := Haptics.new()
 var _sky_time := 0.0                 # Seconds since the start: the clouds drift with it.
 var _penguin_tex := {}               # slot * 3 + step + 1 -> the ImageTexture of the penguin of this slot.
+
+
+func _has_countdown() -> bool:
+	return false   # No visible timer, so no countdown (REQ-GM-35).
 
 
 func _game_ready() -> void:
@@ -75,8 +79,7 @@ func _exit_tree() -> void:
 ## A new round: the platform is full again and all bumpers are back at their start places (REQ-SB-2).
 func _start_round() -> void:
 	arena.setup(difficulty)
-	phase = Phase.COUNT
-	_clock = RoundClock.new(COUNTDOWN, 0.0)
+	phase = Phase.PLAY   # No visible timer: no countdown, a round starts at once (REQ-GM-35).
 	_falling.clear()
 	_dashes.clear()
 	_alive.clear()
@@ -90,6 +93,7 @@ func _start_round() -> void:
 		_dash_left[s] = 0.0
 		_boost_left[s] = 0.0
 		b.max_speed = _normal_speed
+		player(s).recenter()   # The pose held at the start of a round is the center.
 
 
 ## REQ-SB-10: a press on A is a dash. It is kept until the next tick.
@@ -121,12 +125,6 @@ func _game_tick(delta: float) -> void:
 		return
 	_tick_falls(delta)
 	match phase:
-		Phase.COUNT:
-			if _clock.tick(delta):
-				phase = Phase.PLAY
-				for s in participants:
-					player(s).recenter()   # The pose held in the countdown is the center.
-					App.server.haptic(s, 60)
 		Phase.PLAY:
 			_tick_play(delta)
 		Phase.BANNER:
@@ -299,15 +297,40 @@ func _draw_fall(ci: CanvasItem, slot: int, c: Vector2, k: float) -> void:
 	ci.draw_texture_rect(tex, Rect2(Shell.snap(c + (f.pos as Vector2) * k - sz * 0.5), sz), false)
 
 
-func _game_draw() -> void:
+## Where "Whee!" is drawn (the baseline, in the middle of its plate) for a bumper that fell at `fall_pos` (platform units) `age`
+## seconds ago: above the bumper, and it rises while the bumper shrinks.
+func whee_at(fall_pos: Vector2, age: float) -> Vector2:
 	var fit := _fit()
 	var k: float = fit.k
-	var c: Vector2 = fit.center
+	var p: Vector2 = (fit.center as Vector2) + fall_pos * k + Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6
+			- clampf(age / FALL_TIME, 0.0, 1.0) * 30.0)
+	# A bumper that falls off the top of the island: the plate stays under the black bar (BAR_H) and so inside the margin.
+	var font := UiTheme.font()
+	p.y = maxf(p.y, BAR_H + font.get_ascent(WHEE_FONT) + 20.0)
+	return p
+
+
+## The font size of the round banner (REQ-SB-15): BANNER_FONT, smaller when a long name would make the plate wider than the
+## screen inside the 60 px margin. The text is not changed.
+func banner_font(msg: String) -> int:
+	var font := UiTheme.font()
+	var room := size.x - 2.0 * 60.0 - 48.0
+	var fs := BANNER_FONT
+	while fs > WHEE_FONT and font.get_string_size(Lang.t(msg).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
+		fs -= 2
+	return fs
+
+
+## Where the banner at the end of a round is drawn (the baseline, in the middle of its plate).
+func banner_at() -> Vector2:
+	return Vector2(size.x * 0.5, size.y * 0.5 + 24.0)
+
+
+func _game_draw() -> void:
 	for s in _falling:
 		var f: Dictionary = _falling[s]
 		if fall_scale(float(f.age)) > 0.0 and _bodies.has(s):
-			var above := Vector2(0.0, -SumoArena.BUMPER_R * k * 1.6 - clampf(float(f.age) / FALL_TIME, 0.0, 1.0) * 30.0)
-			Shell.label_plate(self, c + (f.pos as Vector2) * k + above, "sumo_bumpers.whee", 32, UiTheme.TEXT)
+			Shell.label_plate(self, whee_at(f.pos, float(f.age)), "sumo_bumpers.whee", WHEE_FONT, UiTheme.TEXT)
 	_draw_hud()
 
 
@@ -320,21 +343,9 @@ func _draw_hud() -> void:
 	draw_leader_chip(self)
 	if not is_over:
 		Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("sumo_bumpers.round_n_of",
-				[round_no, ROUNDS]), 32,
+				[round_no, ROUNDS]), ROUND_FONT,
 				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
-	if phase == Phase.COUNT and not participants.is_empty():
-		var n := _clock.count_number()
-		var label := str(n) if n > 0 else "shell.go"
-		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)   # A black shadow: yellow digits are hard to read on the sky.
-		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed())
-		var fit := _fit()
-		var spots := {}
-		for s in _bodies:
-			spots[s] = Shell.snap(fit.center + (_bodies[s] as TiltBody).pos * float(fit.k))
-		draw_name_tags(self, spots, SumoArena.BUMPER_R * float(fit.k))
 	if phase == Phase.BANNER and not is_over:
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, 72, UiTheme.ACCENT)
+		Shell.label_plate(self, banner_at(), banner_text, banner_font(banner_text), UiTheme.ACCENT)
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:
 		Shell.hint(self, size, "sumo_bumpers.tilt_bump_others_off")

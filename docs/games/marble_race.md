@@ -25,14 +25,14 @@ Status: Done, Open, or Device (needs a real TV and phones). "Check" names the te
 |----|-------------|--------|-------|
 | REQ-MR-1 | 1 to 4 players. Each phone controls one car. One player is a time trial. | Done | smoke_tv |
 | REQ-MR-2 | Tilt gives acceleration. The car keeps its speed and slows by damping (it slides like the marble did; it turns to face the way it moves, REQ-MR-48). There is no dead zone and no speed limit. | Done | smoke_tv (tilt moves car) |
-| REQ-MR-3 | A countdown of 3 s holds all cars still. At "GO" (the shared countdown text, `shell.go`) every phone buzzes. | Done | smoke_tv (grid wait) |
+| REQ-MR-3 | A countdown of 3 s holds all cars still. At "GO" (the countdown word of this game only, `marble_race.go`; the other games go from 1 to the play) every phone buzzes. | Done | smoke_tv (grid wait) |
 | REQ-MR-4 | All cars start on one line across the track, with the same distance to the finish. They do not touch. | Done | smoke_tv |
 | REQ-MR-5 | The car stays on the track. At the edge it bounces back and loses part of its speed. | Done | run_tests (track maths) |
 | REQ-MR-6 | Obstacles are fixed. A car bounces off them with little loss of speed. Each obstacle leaves a gap of one car or more on one side. | Done | run_tests (gap check) |
 | REQ-MR-7 | Cars bounce off each other. A car that finished does not collide with the others. | Device | Device |
 | REQ-MR-8 | The first car that crosses the finish line wins. The other players have 4 s to finish. The race ends when all have finished or after 4 s. | Done | smoke_tv |
-| REQ-MR-9 | While the race runs, the screen shows the order (1st to 4th) and the race time. A finished player shows the finish time. | Device | Device (readability) |
-| REQ-MR-10 | The order is: finished cars by time, then the others by distance along the track. The leader chip (REQ-GM-46) shows the first car (with its time once it has finished), or TIE. Each phone shows its own place and, after the finish, its time (REQ-FL-67). In the countdown each car has a name tag (REQ-GM-46a). | Done | smoke_tv (standings), game_helpers (leader, tags) |
+| REQ-MR-9 | While the race runs, the badge at the top shows only the leader (the leader chip, REQ-MR-10) and the race time, not the whole order. The result menu lists every car with its place, 1st to 4th (a finished car with its time, the others as not finished, REQ-FL-65). | Device | smoke_tv (rows and places), layout_menus; Device (readability) |
+| REQ-MR-10 | The order is: finished cars by time, then the others by distance along the track. The leader chip (REQ-GM-46) shows the first car (with its time once it has finished), or TIE. Each phone shows its own place and, after the finish, its time (REQ-FL-67). | Done | smoke_tv (standings), game_helpers (leader) |
 | REQ-MR-11 | A player who leaves is removed from the race. The race continues with the others. | Done | smoke_tv |
 | REQ-MR-12 | A phone that is lost pauses the race while another player is connected (general REQ-GM-30). | Done | smoke_tv (the race hold with one phone; the maze for two phones) |
 | REQ-MR-13 | The haptic events are: GO (60 ms), a hit at 3 m/s or faster (20 ms, at most every 150 ms), crossing the finish line (120 ms). | Device | Device |
@@ -82,7 +82,7 @@ REQ-GM-90 to 96 apply. The settings view of the race has the Difficulty row, the
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-MR-40 | The view is flat, from above, and never turns. Up on the screen is toward the start of the track's first straight. A black bar at the top (112 px) holds the title, the timer, "Finish in N m" and the leader chip (REQ-GM-46). | Device | Device |
+| REQ-MR-40 | The view is flat, from above, and never turns. Up on the screen is toward the start of the track's first straight. A black bar at the top (112 px) holds the title, the timer, "Finish in N m" and the leader chip (REQ-GM-46). The timer box is at the place of every game (REQ-GM-47o): left edge at x 520 in English, right edge at x 1400 in Hebrew. | Device | Device |
 | REQ-MR-41 | The camera has one zoom: 1 m is 32 screen units (8 world pixels). It follows the middle of the pack, a little below the middle of the free space, so that more road shows ahead (up) than behind. It sits on the world pixel grid, so the picture does not shimmer. When the pack is too spread out for the screen, the leader stays in view and the others get an arrow (REQ-MR-42). | Device | smoke_tv (the cars at the start), Device |
 | REQ-MR-42 | A car that is out of view gets an arrow in its color at the screen edge (inside the 60 px margin and under the bar), and a text (32 px, for example "12 m behind") shows how many meters it is behind the leader. | Device | smoke_tv, Device |
 | REQ-MR-43 | A car has a black outline (`#101018`) and its slot color. The outline of a car and the outline of an obstacle each differ from both tones of the road by 3:1 or more, in every theme (REQ-GM-47m: the dark outline is the edge of the key object, like the white ring of the maze balls). The HUD shows "Finish in N m" for the leader. | Device | game_rules (race look), smoke_tv, Device |

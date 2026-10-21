@@ -42,10 +42,9 @@ The texts are English and Hebrew (REQ-FL-54).
 |-------|-------|----------------|
 | Players list (Connect screen, Players modal), `slot_list.gd` | slot color square, `2P`, the name | the square holds the avatar, then the profile name |
 | Ball, marble, blob, bumper or cursor of a player (REQ-GM-46) | the slot number | nothing: since 2026-10-11 an object has neither a number nor an avatar, only the slot color |
-| Leader chip and name tags (`Shell.chip()`, REQ-GM-46b) | the color square and the name | the color square, the avatar (32 px) and the name |
+| Leader chip (`Shell.chip()`, REQ-GM-46b) | the color square and the name | the color square, the avatar (32 px) and the name |
 | Result menu and the ranking (REQ-GM-72) | `1st  Player 2  12` | `1st  Maya  12` |
 | Pause card (REQ-GM-30), `Minigame._slot_labels()` | `2P LOST CONNECTION`, `Resume without P2`, `P2 reconnected` | `MAYA LOST CONNECTION`, `Resume without Maya`, `Maya reconnected` |
-| Name tags in the countdown (REQ-GM-46a) | the name | the name (no change: there is no number there) |
 | Leader chip (REQ-GM-46) | the name and the score | no change: there is no number in it |
 | Debug overlay | `P2` | no change (it is a developer tool) |
 
@@ -235,7 +234,7 @@ Items 1, 8 and 10 are decided by the owner. The others are defaults that the own
 4. The profile list **cannot be opened during a round**; a phone switches between rounds only.
 5. `NEW BEST!` shows on the **phone only**. The TV result menu does not change. This changes what the TV shows, so the owner decides: for example a `NEW BEST` tag on the row of the result list.
 6. Deleting a profile on the phone that is not the active one tells no TV. Deleting the active one makes the phone a guest on the TV.
-7. The avatar is **not** drawn on the leader chip or on the name tags, because those places have no number now.
+7. The avatar is **not** drawn on the leader chip, because those places have no number now.
 8. **Name length.** At most 10 characters (decided by the owner). Two names fit in the pause card title on one line. Hebrew names in an English sentence and the reverse need a text direction check (manual test 20 item 6).
 9. A name field **drops** characters the fonts cannot draw, with a hint under the field.
 10. Bests of rounds with 1 to 4 players share one key (decided by the owner).
@@ -328,7 +327,8 @@ Built on 2026-10-10 on branch `claude/profiles-a-names`.
 - The `welcome` field for the player name is `pname`, because `name` in `welcome` is the name of the TV.
 - The name whitelist is a fixed set (Latin letters, digits, the space and the Hebrew letters) and a test checks that the pixel fonts have a glyph for every character of it. The plan said the set is derived from `Font.has_char()` at run time; a fixed set is the same for the phone and the TV and does not depend on a font being loaded on the TV.
 - `PlayerInput.player_name` stays the display name that every TV text uses (the plan called it `display_name`); `raw_name` is the name that the phone sent.
-- Changed on 2026-10-11: the avatar is no longer drawn on the objects of a game (`Shell.mark()` and `Shell.ball_number()` are gone). The leader chip and the name tags show it next to the color square (`Shell.chip()`). The result menu rows keep the slot color square.
+- Changed on 2026-10-11: the avatar is no longer drawn on the objects of a game (`Shell.mark()` and `Shell.ball_number()` are gone). The leader chip shows it next to the color square (`Shell.chip()`). The result menu rows keep the slot color square.
+- Changed on 2026-10-21: the name tags of the countdown (REQ-GM-46a) were removed (decision of the owner, Alon). The avatar and the name show on the leader chip, the pause card and the result menu.
 - Not in phase A: `SHARE` and the scan or paste buttons (phase B), the bests (phase C), the design-system mockups and `tests/screenshots_controller.gd` for the new screens (open, see the doubts in the pull request).
 
 Changes after the phase A review (2026-10-11):

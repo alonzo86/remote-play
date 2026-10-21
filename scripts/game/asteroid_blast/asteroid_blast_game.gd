@@ -7,10 +7,8 @@ extends "res://scripts/game/minigame.gd"
 
 const SpaceField = preload("res://scripts/game/asteroid_blast/space_field.gd")
 const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
-const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
-const COUNTDOWN := 3.0
 ## After the last ship is gone the sky goes on for this long, then the result menu opens (REQ-AB-14).
 const END_DELAY := 2.0
 const BANNER_TIME := 2.0        # How long "Wave 3" shows at the start of a wave.
@@ -21,6 +19,9 @@ const AREA_MARGIN := 60.0
 const BAR_H := 112.0            # The black bar on top is for the title and the wave.
 const TIMER_X := 560.0
 const TIMER_W := 160.0
+const WAVE_FONT := 32           # "Wave 3" in the bar.
+const BANNER_FONT := 72         # The banners in the middle of the screen.
+const SUB_FONT := 48            # "Next wave in 3" under the banner.
 const BAR_LINE_Y := 100.0       # The line in the bar that shows how much of the wave is left.
 const BAR_LINE_H := 8.0
 const BOOM_SCALE := [0.6, 1.0, 1.5]   # The size of the explosion of a small, medium and large asteroid.
@@ -32,7 +33,6 @@ var difficulty := "medium"
 var field := SpaceField.new()
 
 var _board: Scoreboard
-var _clock := RoundClock.new(COUNTDOWN, 0.0)
 var _rng := RandomNumberGenerator.new()
 var _haptics := Haptics.new()
 var _end_left := -1.0           # Below 0 until every ship is gone.
@@ -41,12 +41,17 @@ var _booms: Array[Dictionary] = []   # {x, y, age, scale}: explosions on the scr
 var _tex := {}                  # Cached pictures.
 
 
+func _has_countdown() -> bool:
+	return false   # No visible timer, so no countdown (REQ-GM-35): wave 1 starts at once.
+
+
 func _game_ready() -> void:
 	_rng.randomize()
 	field.setup(difficulty)
 	_board = Scoreboard.new(participants)
 	for i in participants.size():
 		field.add_ship(participants[i], SpaceField.REF_AREA.x * float(i + 1) / float(participants.size() + 1))
+		player(participants[i]).recenter()   # The pose held at the start is the center.
 
 
 func _on_player_left(slot: int) -> void:
@@ -61,13 +66,6 @@ func _game_tick(delta: float) -> void:
 	var tilts := {}
 	for s in participants:
 		tilts[s] = player(s).tilt().x
-	if _clock.is_counting():
-		field.tick(delta, _rng, tilts, false)   # The ships steer in the countdown; nothing falls yet.
-		if _clock.tick(delta):
-			for s in participants:
-				player(s).recenter()   # The pose held in the countdown is the center.
-				App.server.haptic(s, 60)
-		return
 	field.tick(delta, _rng, tilts, true)
 	for e in field.events:
 		_on_event(e)
@@ -110,7 +108,10 @@ func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
 	var title := Lang.f("asteroid_blast.reached_wave", [field.wave]) if participants.size() == 1 else ""
-	open_results(_board, SpaceField.LEVELS.get(difficulty, SpaceField.LEVELS.medium).tiers, title)
+	var tiers: Array = SpaceField.LEVELS.get(difficulty, SpaceField.LEVELS.medium).tiers
+	# The title ("Reached wave N") stops open_results from choosing the medal of the score, so it is given here.
+	var medal: Variant = Medals.medal(_board.ranking()[0].score, tiers) if participants.size() == 1 else null
+	open_results(_board, tiers, title, [], Callable(), medal)
 
 
 func _scoreboard() -> Scoreboard:
@@ -161,7 +162,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	for u in field.upgrades:
 		_draw_picture(ci, _picture("up_" + u.kind, BlastLook.pickup_image.bind(u.kind)), o + Vector2(u.x, u.y) * k)
 	for b in field.beams:
-		BlastLook.draw_beam(ci, o + Vector2(b.x, b.y) * k, player(b.owner).color if _has_player(b.owner) else Color.WHITE)
+		BlastLook.draw_beam(ci, o + Vector2(b.x, b.y) * k, beam_color(b.owner))
 	for s in field.ships.values():
 		if s.alive:
 			_draw_ship(ci, s, o, k)
@@ -172,6 +173,22 @@ func _world_draw(ci: CanvasItem) -> void:
 
 func _has_player(slot: int) -> bool:
 	return participants.has(slot)
+
+
+## The color of the beams of the ship of `slot`: the color of its player (white when the player has left).
+func beam_color(slot: int) -> Color:
+	return player(slot).color if _has_player(slot) else Color.WHITE
+
+
+## "Next wave in 3" for the rest between two waves.
+func next_wave_text() -> String:
+	return Lang.f("asteroid_blast.next_wave_in", [ceili(field.phase_left())])
+
+
+## How much of the wave (or of the rest) is left, 1 to 0: the length of the line in the bar.
+func wave_line_fraction() -> float:
+	var total := SpaceField.WAVE_TIME if field.phase == SpaceField.Phase.WAVE else SpaceField.REST_TIME
+	return clampf(field.phase_left() / total, 0.0, 1.0)
 
 
 func _draw_ship(ci: CanvasItem, s: SpaceField.Ship, o: Vector2, k: float) -> void:
@@ -187,38 +204,28 @@ func _draw_ship(ci: CanvasItem, s: SpaceField.Ship, o: Vector2, k: float) -> voi
 func _game_draw() -> void:
 	Shell.title(self, "registry.galaxy_protector")
 	draw_leader_chip(self)
-	var fit := _fit()
-	if _clock.is_counting():
-		var n := _clock.count_number()
-		var label := str(n) if n > 0 else "shell.go"
-		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)   # A black shadow: the stars must not hide the digits.
-		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed())
-		var spots := {}
-		for s in field.ships:
-			spots[s] = Shell.snap(fit.origin + Vector2(field.ships[s].x, SpaceField.SHIP_Y) * float(fit.k))
-		draw_name_tags(self, spots, SpaceField.SHIP_R * float(fit.k) + 24.0)
-		Shell.hint(self, size, "asteroid_blast.tilt_steer_ship_shoots")
-		return
 	if is_over:
 		return
-	Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("asteroid_blast.wave_n", [field.wave]), 32,
+	Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("asteroid_blast.wave_n", [field.wave]),
+			WAVE_FONT,
 			UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
 	_draw_wave_line()
 	match banner():
 		"wave_clear":
-			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("asteroid_blast.wave_clear", [field.wave]), 72,
-					UiTheme.ACCENT)
-			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36 + 110.0),
-					Lang.f("asteroid_blast.next_wave_in", [ceili(field.phase_left())]), 48, UiTheme.TEXT)
+			Shell.label_plate(self, banner_at(), Lang.f("asteroid_blast.wave_clear", [field.wave]), BANNER_FONT, UiTheme.ACCENT)
+			Shell.label_plate(self, banner_at() + Vector2(0.0, 110.0),
+					next_wave_text(), SUB_FONT, UiTheme.TEXT)
 		"wave_n":
-			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.f("asteroid_blast.wave_n", [field.wave]), 72,
-					UiTheme.ACCENT)
+			Shell.label_plate(self, banner_at(), Lang.f("asteroid_blast.wave_n", [field.wave]), BANNER_FONT, UiTheme.ACCENT)
 		"all_ships_gone":
-			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("asteroid_blast.all_ships_gone"), 72, UiTheme.ACCENT)
+			Shell.label_plate(self, banner_at(), Lang.t("asteroid_blast.all_ships_gone"), BANNER_FONT, UiTheme.ACCENT)
 	if hint_shown():
 		Shell.hint(self, size, "asteroid_blast.tilt_steer_ship_shoots")
+
+
+## Where the big banners are drawn (the baseline, in the middle of the plate).
+func banner_at() -> Vector2:
+	return Vector2(size.x * 0.5, size.y * 0.36)
 
 
 ## The big banner in the middle (REQ-AB-16): "all_ships_gone" once the last ship is out, "wave_clear" in the rest, "wave_n" for
@@ -233,15 +240,13 @@ func banner() -> String:
 	return ""
 
 
-## True while the hint line shows: in the countdown and for HINT_TIME after GO, never after the last ship is out (REQ-AB-16).
+## True while the hint line shows: for HINT_TIME after the start, never after the last ship is out (REQ-AB-16).
 func hint_shown() -> bool:
-	return _end_left < 0.0 and _time < COUNTDOWN + HINT_TIME
+	return _end_left < 0.0 and _time < HINT_TIME
 
 
 ## The line at the bottom of the bar: how much of the wave (or of the rest) is left.
 func _draw_wave_line() -> void:
-	var full := size.x - 2.0 * AREA_MARGIN
-	var total := SpaceField.WAVE_TIME if field.phase == SpaceField.Phase.WAVE else SpaceField.REST_TIME
-	var w := full * clampf(field.phase_left() / total, 0.0, 1.0)
+	var w := (size.x - 2.0 * AREA_MARGIN) * wave_line_fraction()
 	var color := UiTheme.ACCENT if field.phase == SpaceField.Phase.WAVE else SHIELD_LINE
 	draw_rect(Rect2(Shell.mx(self, AREA_MARGIN, w), BAR_LINE_Y, w, BAR_LINE_H), color)

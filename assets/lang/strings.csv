@@ -1,5 +1,5 @@
 ﻿key,en,he,where,notes
-about.app_scans_with_google,"The app scans the QR code with the Google code scanner (Play services). The picture stays on your phone and Sababi gets only the text. Google receives technical data about how the scanner works, such as the phone model and the app version.",האפליקציה סורקת את קוד ה־QR באמצעות סורק הקודים של GOOGLE (שירותי PLAY). התמונה נשארת בטלפון ו־SABABI מקבל רק את הטקסט. GOOGLE מקבלת נתונים טכניים על פעולת הסורק, כמו דגם הטלפון וגרסת האפליקציה.,"About screen, Android phone only: note about the Google code scanner"
+about.app_scans_with_google,"The app scans the QR code with the Google code scanner (Play services). The picture stays on your phone and Sababi gets only the text. Google receives technical data about how the scanner works, such as the phone model and the app version.","האפליקציה סורקת את קוד ה־QR באמצעות סורק הקודים של GOOGLE (שירותי PLAY). התמונה נשארת בטלפון ו־SABABI מקבל רק את הטקסט. GOOGLE מקבלת נתונים טכניים על פעולת הסורק, כמו דגם הטלפון וגרסת האפליקציה.","About screen, Android phone only: note about the Google code scanner"
 about.pages_below_list_parts,"The pages below list the parts of other makers that Sababi uses, and their licenses.","הדפים שלמטה מפרטים את החלקים של יוצרים אחרים ש־SABABI משתמש בהם, ואת הרישיונות שלהם.","About screen, first page: line before the list of other makers' parts",
 about.phones_tv_communicate_over,"The phones and the TV communicate over your Wi-Fi. The link is not encrypted, so play on a network you trust.","הטלפונים והטלוויזיה מתקשרים דרך ה־WI-FI שלכם. החיבור אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.","About screen, first page: the link is not encrypted, play on a trusted network",
 about.refresh_scans_addresses,"When you tap Refresh, the phone also scans the other addresses of your Wi-Fi network.","בלחיצה על רענון, הטלפון סורק גם את שאר הכתובות ברשת ה־WI-FI שלכם.","About screen, first page: sentence after the Wi-Fi sentence",
@@ -36,15 +36,15 @@ connect.no_wi_fi_address,NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK.
 connect.not_sababi_code,THIS IS NOT A SABABI CODE.,זה לא קוד של SABABI.,"Phone, Connect screen: message when the scanned or pasted text is not a Sababi code",
 connect.press_ok_continue,PRESS OK TO CONTINUE,לחצו OK להמשך,TV Connect screen: blinking prompt once a phone has joined,
 connect.qr_failed,QR scan failed: %s,סריקת QR נכשלה: %s,"Phone: message when the QR scan fails, %s is the reason",%s is replaced by a name or a value
-connect.quit,QUIT,יציאה,TV Connect screen: Quit button of the 'Quit?' dialog,
-connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen: title of the quit dialog,
+connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens (Back key): Quit button of the quit dialog,
+connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen and phone waiting and pad screens (Back key): title of the quit dialog,
 connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens)",
 connect.refresh,REFRESH,רענן,"Phone, Connect screen: button that searches for TVs again",
 connect.refused,Connection refused: %s,החיבור נדחה: %s,"Phone, Connect screen: error when the TV refuses for another reason, %s is the reason code",%s is replaced by a name or a value
 connect.room_code,ROOM CODE,קוד חדר,TV Connect screen: label above the room code,
 connect.scan_qr_code,SCAN QR CODE,סרקו קוד QR,"Phone, Connect screen: button that opens the QR scanner",
 connect.searching,SEARCHING...,מחפש...,"Phone, Connect screen: list text right after Refresh",
-connect.stay,STAY,להישאר,TV Connect screen: Stay button of the quit dialog,
+connect.stay,STAY,להישאר,TV Connect screen and phone waiting and pad screens (Back key): Stay button of the quit dialog,
 slot_list.lost,LOST,אבד,TV Connect screen and Players modal: state of a phone that lost the connection,
 game_settings.difficulty,DIFFICULTY,רמת קושי,TV game settings: name of the Difficulty row,
 game_settings.easy,EASY,קל,TV game settings: Easy value of the difficulty row; also in the medal title after a round,
@@ -62,6 +62,7 @@ logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים ע
 logo.press_ok_start,PRESS OK TO START,לחצו OK להתחלה,"TV logo screen, first start: prompt to choose a language",
 logo.press_ok_skip,PRESS OK TO SKIP,לחצו OK לדילוג,TV logo screen: prompt to skip the logo,
 marble_race.finish_in,Finish in %d m,%d מ׳ לסיום,"Road Rally HUD: distance to the finish line, %d is meters","the number sign (%d, %.1f ...) is replaced by a number"
+marble_race.go,GO,קדימה,"Road Rally countdown: the word GO after 1 (only this game shows it; the other games go from 1 to the play)",
 marble_race.meters,%d m behind,%d מ׳ מאחור,"Road Rally: marker at the screen edge for a car that is out of view, %d is meters behind the leader","the number sign (%d, %.1f ...) is replaced by a number"
 marble_race.random_track,RANDOM TRACK,מסלול אקראי,"Road Rally: name of the random track, HUD and track choice",
 maze.hold_phone_level_it,HOLD THE PHONE LEVEL. IT RECENTERS AT GO.,החזיקו את הטלפון ישר. הוא מתמרכז כשהמשחק מתחיל.,Treasure Maze: hint during the countdown,
@@ -145,8 +146,8 @@ result.place_2,2ND,שני,Result list and phone score line: second place,
 result.place_3,3RD,שלישי,Result list and phone score line: third place,
 result.place_4,4TH,רביעי,Result list and phone score line: fourth place,
 result.points,%d points,%d נקודות,"Sumo Bumpers result list: score, %d is the points","the number sign (%d, %.1f ...) is replaced by a number"
-result.seconds_1,%.1f s,%.1f ש׳,"Road Rally HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
-result.seconds_2,%.2f s,%.2f ש׳,"Road Rally result list: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
+result.seconds_1,%.1f s,%.1f ש׳,"Treasure Maze result list: finish time, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
+result.seconds_2,%.2f s,%.2f ש׳,"Road Rally result list and the personal best of a race, on the phone profile: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 result.winner,%s wins!,%s ניצח!,Result menu title: %s is the name of the winner,%s is replaced by a name or a value
 settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row,
 settings.effects,EFFECTS,אפקטים,TV Settings: name of the sound effects volume row,
@@ -163,7 +164,6 @@ settings.shows_link_each_phone,SHOWS THE LINK OF EACH PHONE. THE MENU KEY OR F3 
 settings.track_n,Track %d,מסלול %d,"Road Rally: name of a fixed track, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 settings.turns_off_music_effects,TURNS OFF THE MUSIC AND THE EFFECTS.,מכבה את המוזיקה ואת האפקטים.,TV Settings: help line of the Mute row,
 settings.use_when_ball_rolls,USE THIS WHEN A BALL ROLLS THE WRONG WAY.,השתמשו בזה כשכדור מתגלגל לכיוון הלא נכון.,TV Settings: help line of the Invert tilt axes row,
-shell.go,GO,קדימה,"Countdown of every game: GO (Treasure Maze, Road Rally, Banana Party, Paint Grab, Sumo Bumpers, Galaxy Protector)",
 shell.seconds,%.1f S,%.1f ש׳,"Game HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 shell.tie,TIE,תיקו,Game HUD: leader chip when two or more players share first place,
 snowball_splat.point_at_tv_press,POINT AT THE TV AND PRESS A TO THROW A BANANA. RECENTER IF THE CURSOR DRIFTS.,כוונו אל הטלוויזיה ולחצו A כדי לזרוק בננה. מרכזו אם הסמן סוטה.,Banana Party: hint during the countdown,

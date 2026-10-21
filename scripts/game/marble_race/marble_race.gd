@@ -23,13 +23,12 @@ const FINISH_BEFORE_END := 6.0 # Finish line distance from the end of the track.
 const SCALE := 32.0            # Screen units for one meter: 8 world pixels.
 const ANCHOR_Y := 620.0        # Where the middle of the pack is on the screen: under the black bar, the road ahead is above.
 const BAR_H := 112.0           # The black bar for the title and the timer.
-const TIMER_X := 640.0
+const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
 const EDGE_MARGIN := 60.0      # Out-of-view markers stay inside the TV safe margin.
 const HAPTIC_MIN_SPEED := 3.0
 const HAPTIC_COOLDOWN_MS := 150
 const TURN_STEP := 15.0        # A car turns in steps of 15 degrees, like a pixel picture does.
 const TURN_MIN_SPEED := 0.8    # A slower car keeps its direction.
-const CAR_TAG_RADIUS := 40.0
 
 const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
 const START_ARC := 2.0         # All cars start on one line across the track.
@@ -234,14 +233,6 @@ func _open_results() -> void:
 	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
 
 
-## The results menu leaves the game with Back (REQ-MR-34).
-func on_back() -> void:
-	if is_over:
-		App.go_menu()
-	else:
-		super()
-
-
 # ---- Standings ----
 
 ## Racers from first to last. Finished cars come first (by time), then by distance.
@@ -422,14 +413,6 @@ func _draw_edge_markers() -> void:
 		Shell.text(self, label_pos, m.text, 32, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 140.0)
 
 
-## The screen position of each car (the name tags of the countdown, REQ-GM-46a).
-func _car_spots() -> Dictionary:
-	var spots := {}
-	for s in _racers:
-		spots[s] = _screen(_racers[s].pos)
-	return spots
-
-
 ## The place of each car: the finish times first, then how far the others got (REQ-FL-67).
 func _scoreboard() -> Scoreboard:
 	var board := Scoreboard.new([], true)
@@ -451,9 +434,8 @@ func _game_draw() -> void:
 	draw_leader_chip(self)
 	if _round.is_counting():
 		Shell.countdown(self, size, str(_round.count_number()), _round.count_elapsed())
-		draw_name_tags(self, _car_spots(), CAR_TAG_RADIUS)
 	elif _round.time < GO_SHOW:
-		Shell.countdown(self, size, "shell.go", _round.time / GO_SHOW, UiTheme.OK)
+		Shell.countdown(self, size, "marble_race.go", _round.time / GO_SHOW, UiTheme.OK)
 	elif not is_over:
 		var lead: Racer = _lead()
 		var to_go := maxf(finish_arc - lead.arc, 0.0)

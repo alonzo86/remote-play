@@ -5,6 +5,8 @@ extends CanvasLayer
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
+const SWING_LIT_MS := 1500
+
 var _canvas: Control
 
 
@@ -16,9 +18,17 @@ func _ready() -> void:
 	_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
+## The first line of the overlay: the room, the address and the frame rate.
+static func header_text(room: String, ip: String, fps: float) -> String:
+	return _Canvas.header_text(room, ip, fps)
+
+
 class _Canvas extends Control:
 	const COLS := [0, 70, 170, 270, 370, 470, 570, 690, 940, 1190]
 	const HEAD := ["Slot", "State", "RTT ms", "Age ms", "Rx Hz", "Gap ms", "Lost", "Gyro rad/s", "Accel m/s2", "Tilt / Pointer"]
+
+	static func header_text(room: String, ip: String, fps: float) -> String:
+		return "DEBUG   room %s   %s:%d   %d FPS" % [room, ip, 47801, fps]
 
 	func _process(_d: float) -> void:
 		if visible and get_parent().visible:
@@ -34,8 +44,7 @@ class _Canvas extends Control:
 		var o := Vector2(40, 40)
 		draw_rect(Rect2(o, Vector2(w, h)), Color(0, 0, 0, 0.78))
 		var ip: String = App.discovery.ip if App.discovery != null else "?"
-		draw_string(font, o + Vector2(16, 30), "DEBUG   room %s   %s:%d   %d FPS" % [
-				App.server.room_code, ip, 47801, Engine.get_frames_per_second()],
+		draw_string(font, o + Vector2(16, 30), header_text(App.server.room_code, ip, Engine.get_frames_per_second()),
 				HORIZONTAL_ALIGNMENT_LEFT, -1, fs, UiTheme.ACCENT)
 		var y := o.y + 30 + line
 		for c in COLS.size():
@@ -63,7 +72,11 @@ class _Canvas extends Control:
 		for p in rows:
 			y += line
 			draw_string(font, Vector2(o.x + 16, y), _swing_text(p), HORIZONTAL_ALIGNMENT_LEFT, -1, fs,
-					p.color if Time.get_ticks_msec() - p.last_swing_ms < 1500 else UiTheme.TEXT_DIM)
+					_swing_color(p, Time.get_ticks_msec()))
+
+	## The line of a swing is in the color of the player for `SWING_LIT_MS` after the swing, then dim (Test 24 item 3).
+	func _swing_color(p: PlayerInput, now_ms: int) -> Color:
+		return p.color if now_ms - p.last_swing_ms < SWING_LIT_MS else UiTheme.TEXT_DIM
 
 	func _swing_text(p: PlayerInput) -> String:
 		if p.swing_count == 0:

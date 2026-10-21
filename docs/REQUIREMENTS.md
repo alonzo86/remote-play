@@ -25,7 +25,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-A1: The TV runs a WebSocket server (`TCPServer` + `WebSocketPeer`) on fixed TCP port 47801.
 - REQ-A2: The TV sends a UDP broadcast beacon on port 47800 every 1 second.
 - REQ-A3: The TV shows a QR code and a 4-letter room code on screen.
-- REQ-A4: The phone scans the QR code, or finds the TV with the UDP beacon, or picks the TV from the list of discovered TVs (with a Refresh button). The "Scan QR code" button is white. A TV in the list is a green button that shows only "<room code> x/y" (players joined and maximum); the Refresh button is yellow, not the same color. There is no typed room code or IP: if neither works, there is no TV to connect to.
+- REQ-A4: The phone scans the QR code (Android; on a phone with no scanner the button is "Paste room link"; an iPhone has no scan or paste button), or finds the TV with the UDP beacon and picks it from the list of discovered rooms (with a Refresh button), and then types the 4-digit join PIN of the TV (REQ-FL-84; the QR code holds the PIN). A room in the list is a button that shows only "<room code> x/y" (players joined and maximum). There is no typed room code or IP: if neither works, there is no TV to connect to.
 - REQ-A5: The TV accepts up to 4 phones at the same time.
 - REQ-A6: Input handling and networking are in separate scripts from game logic.
 - REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.
@@ -55,13 +55,13 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-C6: Lock the screen to portrait.
 - REQ-C7: The phone keeps up to 8 player profiles (ID, name, avatar) in a file and sends the active one to the TV (FD-22, REQ-FL-69 to 75).
 - REQ-C8: A profile is saved at once after each change, with a backup copy of the file.
-- REQ-C9: The profile changes only while the TV is in a menu phase, never during a round.
+- REQ-C9: The player of a phone is chosen on the Connect screen before the phone joins, and cannot be changed while the phone is joined (the player taps DISCONNECT and chooses again, REQ-FL-71), so a profile never changes during a round.
 - REQ-C11: The phone keeps the personal best of each profile for each game setting and saves it at once (FD-22, REQ-GM-98 to 101).
 - REQ-C10: A profile can be copied to another phone with a QR code or a text (`WP1.`); the copy has no server (FD-22, REQ-FL-76 to 78).
 
 ## 6. TV application
 
-- REQ-T1: The games are the six games of the registry (`scripts/game/registry.gd`): Treasure Maze, Road Rally, Banana Party, Paint Grab, Sumo Bumpers and Galaxy Protector. Each has its requirements in `docs/games/<id>.md`. In the maze each phone tilts a ball through a maze. The first ball to reach the exit wins.
+- REQ-T1: The games are the nine games of the registry (`scripts/game/registry.gd`): Treasure Maze, Road Rally, Paint Grab, Sumo Bumpers, Banana Party, Galaxy Protector, Pin Pals, Tennis and Mini Golf. Each has its requirements in `docs/games/<id>.md`. In the maze each phone tilts a ball through a maze. The first ball to reach the exit wins.
 - REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
 - REQ-T6: The TV app follows the flow in `docs/TV_FLOW.md`: logo, Connect controllers, Games, and a game. Settings and the Players modal open from the Games screen.
 - REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values, and the last swing (power, direction, age of the hit) that the swing detector found (`scripts/input/swing_detector.gd`).

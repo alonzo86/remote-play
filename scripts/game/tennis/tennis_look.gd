@@ -8,6 +8,8 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
 
+const SPARK_TIME := 0.4            # A green hit shows its sparks this long (s).
+const SPARK_COLORS := [Color("fcfcfc"), Color("ffd23c")]
 const HUD_H := 112.0              # The black bar on top (the title and the leader chip).
 const DEPTH_C := 16.0             # The eye is this far (m) behind the near baseline.
 const K_DEPTH := 13370.0          # Screen y of a point on the floor: HORIZON + K_DEPTH / z (units at 1920 x 1080).
@@ -237,7 +239,7 @@ static func draw_person(ci: CanvasItem, foot: Vector2, s: float, look: Dictionar
 	ci.draw_rect(head.grow(-8.0) if minf(head.size.x, head.size.y) > 20.0 else head.grow(-4.0), RACKET_STRINGS)
 
 
-## The middle of the head of a player, for the name tag in the countdown.
+## The middle of the head of a player, (the place of the 'great' plate).
 static func head_pos(foot: Vector2, s: float) -> Vector2:
 	return foot - Vector2(0.0, 1.9 * s)
 
@@ -297,3 +299,20 @@ static func draw_ball(ci: CanvasItem, p: Proj, pos: Vector3) -> void:
 	var c := p.at(pos.x, pos.y, maxf(pos.z, 0.0) + 0.1)
 	var r := maxf(12.0, 0.11 * p.scale(pos.y))
 	Shell.pixel_ball(ci, c, r, BALL)
+
+
+## A green hit (REQ-TN-6): 8 square sparks of 1 to 2 world pixels fly out from `c` in 4 steps and fall off. Returns how many were
+## drawn (0 when `age` is past SPARK_TIME).
+static func draw_sparks(ci: CanvasItem, c: Vector2, age: float) -> int:
+	if age >= SPARK_TIME:
+		return 0
+	var step := floorf(age / SPARK_TIME * 4.0)
+	var reach := 20.0 + 18.0 * step
+	var sz := Shell.WORLD_PIXEL * (2.0 if step < 2.0 else 1.0)
+	var n := 8
+	for i in n:
+		var dir := Vector2.from_angle(float(i) / float(n) * TAU + 0.4)
+		var at := Shell.snap(c + dir * reach * (0.8 + 0.4 * float(i % 2)))
+		ci.draw_rect(Rect2(at, Vector2.ONE * sz), SPARK_COLORS[(i + int(step)) % 2])
+	Shell.record("spark", ci, Rect2(Shell.snap(c), Vector2.ONE * reach), {"n": n})
+	return n

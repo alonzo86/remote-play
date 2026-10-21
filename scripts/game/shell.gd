@@ -16,8 +16,24 @@ const CHIP_SQUARE := 24.0      # The slot color square of a chip.
 const CHIP_AVATAR := 32.0      # The avatar of a chip: a 16 px picture at 2x, next to the color square.
 const CHIP_GAP := 8.0          # The space between the square and the avatar.
 const CHIP_LINE := 4           # The frame of a chip.
-const TAG_H := 56.0            # The height of a name tag in the countdown.
-const TAG_GAP := 8.0           # The space between two name tags.
+const TIMER_X := 520.0         # The timer box has one place in every game (REQ-GM-47o): left edge on a left to right screen.
+const TIMER_Y := 36.0
+
+## A test sets this to see the boxes the HUD draws (the game draws with `draw_*`, so there is no node to look at). Called as
+## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "hint", "countdown" or "plate" (a
+## `label_plate()`: info has the text `msg` and the `color`).
+static var recorder := Callable()
+
+
+static func _note(kind: String, ci: CanvasItem, rect: Rect2, info := {}) -> void:
+	if recorder.is_valid():
+		recorder.call(kind, ci, rect, info)
+
+
+## The same note for the picture functions of a game (the golfer, the ball and the aim mark of Mini Golf, kinds "golfer", "ball"
+## and "aim"), so that a test sees what is drawn. It changes nothing on the screen.
+static func record(kind: String, ci: CanvasItem, rect: Rect2, info := {}) -> void:
+	_note(kind, ci, rect, info)
 
 
 ## The width of the screen a canvas item draws on (1920 for an item that has no size).
@@ -37,6 +53,9 @@ static func title(ci: CanvasItem, text: String, pos := Vector2(60, 96), font_siz
 	var w := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	ci.draw_string(UiTheme.font(), Vector2(mx(ci, pos.x, w), pos.y), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
 			UiTheme.ACCENT)
+	_note("title", ci, Rect2(mx(ci, pos.x, w), pos.y - UiTheme.font().get_ascent(font_size), w,
+			UiTheme.font().get_height(font_size)),
+			{"text": shown})
 
 
 ## Text in the arcade font (upper case).
@@ -55,7 +74,9 @@ static func text_centered(ci: CanvasItem, pos: Vector2, msg: String, font_size :
 ## A line of text on a black plate with a frame, centered on `at` (`at.y` is the baseline), so the world behind it never hides it.
 ## The plate is as wide as the text in the current language.
 static func label_plate(ci: CanvasItem, at: Vector2, msg: String, font_size: int, color: Color) -> void:
-	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), label_plate_rect(at, msg, font_size))
+	var rect := label_plate_rect(at, msg, font_size)
+	_note("plate", ci, rect, {"msg": msg, "color": color})
+	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), rect)
 	text_centered(ci, at, msg, font_size, color)
 
 
@@ -71,16 +92,24 @@ static func label_plate_rect(at: Vector2, msg: String, font_size: int) -> Rect2:
 ## corner. A chip is always laid out left to right, also in Hebrew: the square, the avatar, the name, the score at the end.
 static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width := 240.0, height := 64.0, avatar := -1) -> Rect2:
 	var r := Rect2(pos, Vector2(width, height))
+	var parts := chip_parts(avatar)
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), r)
-	ci.draw_rect(Rect2(pos + Vector2(CHIP_PAD, (height - CHIP_SQUARE) * 0.5), Vector2(CHIP_SQUARE, CHIP_SQUARE)), color)
+	ci.draw_rect(Rect2(pos + Vector2(parts.square_x, (height - CHIP_SQUARE) * 0.5), Vector2(CHIP_SQUARE, CHIP_SQUARE)), color)
 	if has_chip_avatar(avatar):
 		var side := Vector2(CHIP_AVATAR, CHIP_AVATAR)
-		Avatar.draw(ci, Rect2(pos + Vector2(CHIP_PAD + CHIP_SQUARE + CHIP_GAP, (height - CHIP_AVATAR) * 0.5), side), avatar)
-	var x0 := name_x(avatar)
+		Avatar.draw(ci, Rect2(pos + Vector2(parts.avatar_x, (height - CHIP_AVATAR) * 0.5), side), avatar)
+	var x0: float = parts.name_x
 	var base := UiTheme.centered_baseline(UiTheme.font(), Rect2(0, 0, 0, height), CHIP_FONT)
 	var shown := fit_text(msg.to_upper(), width - x0 - CHIP_PAD, CHIP_FONT)
 	ci.draw_string(UiTheme.font(), Vector2(pos.x + x0, pos.y + base), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT, UiTheme.TEXT)
 	return r
+
+
+## Where the parts of a chip stand, from its left edge: the color square, the avatar (-1 when the chip has none) and the text.
+## The order is the same in every language (a chip is always laid out left to right).
+static func chip_parts(avatar := -1) -> Dictionary:
+	return {"square_x": CHIP_PAD, "avatar_x": CHIP_PAD + CHIP_SQUARE + CHIP_GAP if has_chip_avatar(avatar) else -1.0,
+			"name_x": name_x(avatar)}
 
 
 ## True when a chip shows this avatar.
@@ -144,7 +173,7 @@ static func fit_text(text: String, max_w: float, font_size := CHIP_FONT) -> Stri
 
 
 ## A player ball: a dark outline and the player color. The player is known by the color alone: no number and no avatar on the
-## object (the name is in the chips and in the name tags of the countdown, REQ-GM-46). `pos` is the center. The outline is 6 px
+## object (the name is in the chips, REQ-GM-46). `pos` is the center. The outline is 6 px
 ## for a ball of 40 px or more and 4 px for a smaller one.
 static func ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color) -> void:
 	ci.draw_circle(pos, radius + ball_metrics(radius).outline, UiTheme.OUTLINE)
@@ -214,39 +243,8 @@ static func leader_chip(ci: CanvasItem, area_w: float, leaders: Array, score: St
 	var avatar: int = -1 if tie else int(leaders[0].avatar)   # A tie has no one player to show.
 	var color: Color = UiTheme.TEXT_DIM if tie else leaders[0].color
 	var w := score_chip_width(label, score, 64.0, 200.0, CHIP_FONT, avatar)
-	score_chip(ci, Vector2(leader_chip_x(area_w, w), y), label, score, color, w, 64.0, avatar)
-
-
-## The rectangles of the name tags that stand above the game objects in the countdown (REQ-GM-46a). `entries` are
-## `{pos, name}` with `pos` the middle of the object on the screen; `radius` is how far the tag stands above it. A tag is as wide
-## as its name, inside the 60 px margin, and a tag that would cover an earlier one moves down until it does not.
-static func name_tag_rects(area: Vector2, entries: Array, radius := 48.0) -> Array[Rect2]:
-	var out: Array[Rect2] = []
-	for e in entries:
-		var text_w := UiTheme.font().get_string_size(String(e.name).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT).x
-		var w := name_x(int(e.get("avatar", -1))) + text_w + CHIP_PAD
-		var r := Rect2(Vector2(clampf(e.pos.x - w * 0.5, 60.0, maxf(area.x - 60.0 - w, 60.0)),
-				clampf(e.pos.y - radius - TAG_H, 60.0, area.y - 60.0 - TAG_H)), Vector2(w, TAG_H))
-		for _try in 8:
-			var free := true
-			for o in out:
-				if o.intersects(r.grow(TAG_GAP)):
-					free = false
-					r.position.y += TAG_H + TAG_GAP
-					break
-			if free:
-				break
-		out.append(r)
-	return out
-
-
-## Name tags (REQ-GM-46a): each player's name next to its object, in the countdown only, so that nobody has to read a list.
-## `entries` are `{pos, name, color}` (see `name_tag_rects()`).
-static func name_tags(ci: CanvasItem, area: Vector2, entries: Array, radius := 48.0) -> void:
-	var rects := name_tag_rects(area, entries, radius)
-	for i in entries.size():
-		var avatar := int(entries[i].get("avatar", -1))
-		chip(ci, rects[i].position, String(entries[i].name), entries[i].color, rects[i].size.x, TAG_H, avatar)
+	var r := score_chip(ci, Vector2(leader_chip_x(area_w, w), y), label, score, color, w, 64.0, avatar)
+	_note("leader", ci, r, {"name": label, "score": score, "color": color, "tie": tie, "avatar": avatar})
 
 
 ## The race timer: a black box with a frame, in a fixed place. `pos` is the top-left corner.
@@ -257,6 +255,7 @@ static func timer(ci: CanvasItem, pos: Vector2, seconds: float, width := 240.0) 
 	var r := Rect2(Vector2(mx(ci, pos.x, box_w), pos.y), Vector2(box_w, 64.0))
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), r)
 	UiTheme.draw_centered(ci, UiTheme.font(), shown, r, CHIP_FONT, UiTheme.TEXT)
+	_note("timer", ci, r, {"text": shown})
 	return r
 
 
@@ -277,6 +276,11 @@ static func countdown(ci: CanvasItem, area: Vector2, label: String, elapsed := 1
 	var rect := Rect2(Vector2.ZERO, area)
 	ci.draw_string(UiTheme.font(), Vector2(0.0, UiTheme.centered_baseline(UiTheme.font(), rect, fs)), Lang.t(label).to_upper(),
 			HORIZONTAL_ALIGNMENT_CENTER, area.x, fs, color)
+	var shown := Lang.t(label).to_upper()
+	var cw := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	_note("countdown", ci, Rect2((area.x - cw) * 0.5, (area.y - UiTheme.font().get_height(fs)) * 0.5, cw,
+			UiTheme.font().get_height(fs)),
+			{"text": shown, "size": fs})
 
 
 ## The font size of the countdown number `elapsed` (0 to 1) into its second: 352, 320, 288, then 256 px.
@@ -294,7 +298,8 @@ static func hint(ci: CanvasItem, area: Vector2, msg: String) -> void:
 	var box := f.get_multiline_string_size(upper, HORIZONTAL_ALIGNMENT_LEFT, max_w, UiTheme.SIZE_BODY)
 	var w := box.x + 64.0
 	var h := box.y + 40.0
-	var plate := Rect2((area.x - w) * 0.5, area.y - 36.0 - h, w, h)
+	var plate := Rect2((area.x - w) * 0.5, area.y - 40.0 - h, w, h)
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM, UiTheme.BG, CHIP_LINE), plate)
 	ci.draw_multiline_string(f, Vector2(plate.position.x, plate.position.y + 20.0 + f.get_ascent(UiTheme.SIZE_BODY)), upper,
 			HORIZONTAL_ALIGNMENT_CENTER, w, UiTheme.SIZE_BODY, -1, UiTheme.TEXT)
+	_note("hint", ci, plate, {"text": upper, "text_w": box.x, "max_w": max_w})

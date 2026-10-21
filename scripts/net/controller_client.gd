@@ -92,7 +92,7 @@ func is_connected_to_tv() -> bool:
 
 
 func send_sensor(packet: PackedByteArray) -> void:
-	if state != State.CONNECTED:
+	if state != State.CONNECTED or _ws == null or _ws.get_ready_state() != WebSocketPeer.STATE_OPEN:
 		return
 	_ws.send(packet, WebSocketPeer.WRITE_MODE_BINARY)
 	_tx_count += 1
@@ -212,7 +212,9 @@ func _tick_connected(now: int) -> void:
 		_tx_count = 0
 		_tx_window_ms = now
 	if now - _last_rx_ms > Protocol.PEER_TIMEOUT_MS:
-		_ws.close() # The TV is silent. Reconnect.
+		# The TV is silent. A close handshake of a half-open link never ends, so drop the socket and reconnect at once.
+		_close_socket()
+		_on_closed()
 
 
 func _handle(msg: Dictionary, now: int) -> void:

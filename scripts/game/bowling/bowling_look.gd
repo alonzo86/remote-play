@@ -20,6 +20,7 @@ const GUTTER_U := 1.24
 const RAIL_FROM := 1.04
 const RAIL_TO := 1.2
 const SIDE_LANES := 3             # Lanes on each side of the own lane.
+const SIDE_ORDER := [-3, 3, -2, 2, -1, 1]   # The side lanes, far ones first (they are drawn back to front).
 const DEPTH_END := 21.0           # The lane length (m) that depth 1 stands for.
 const FLOOR := Color("5a5a64")
 const GUTTER := Color("2c2c34")
@@ -79,8 +80,7 @@ class Geo:
 static func draw_hall(ci: CanvasItem, size: Vector2, geo: Geo, rails: bool) -> void:
 	ci.draw_rect(Rect2(Vector2.ZERO, size), FLOOR)
 	_draw_wall(ci, size, geo)
-	var order := [-3, 3, -2, 2, -1, 1]
-	for n in order:
+	for n in SIDE_ORDER:
 		_draw_lane(ci, geo, float(n) * PITCH, true, false)
 		_draw_rack(ci, geo, float(n) * PITCH, _neighbor_mask(n))
 	_draw_lane(ci, geo, 0.0, false, rails)
@@ -93,14 +93,25 @@ static func _draw_wall(ci: CanvasItem, size: Vector2, geo: Geo) -> void:
 	var y1 := geo.top
 	var wall_h := y1 - y0
 	ci.draw_rect(Rect2(0.0, y0, size.x, wall_h), UiTheme.BG)
+	for t in wall_tiles(size, geo):
+		ci.draw_rect(t.rect, t.color)
+
+
+## The light tiles of the wall: {rect, color} for each. They fill the top two thirds of the wall; the bottom third has none
+## (it is plain black).
+static func wall_tiles(size: Vector2, geo: Geo) -> Array:
+	var y0 := WALL_TOP * size.y / 1080.0
+	var wall_h := geo.top - y0
 	var grid_h := wall_h * 2.0 / 3.0
 	var tile := Vector2(48.0 * geo.k, 28.0 * size.y / 1080.0)
 	var rows := int(grid_h / tile.y)
 	var cols := int(ceil(size.x / tile.x))
+	var out := []
 	for gy in rows:
 		for gx in cols:
 			var c: Color = DISCO[_hash(gx, gy, 0) % DISCO.size()]
-			ci.draw_rect(Rect2(Shell.snap(Vector2(gx * tile.x, y0 + gy * tile.y)), tile - Vector2(8.0, 4.0)), c)
+			out.append({"rect": Rect2(Shell.snap(Vector2(gx * tile.x, y0 + gy * tile.y)), tile - Vector2(8.0, 4.0)), "color": c})
+	return out
 
 
 static func _hash(a: int, b: int, c: int) -> int:

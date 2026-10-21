@@ -18,7 +18,8 @@ const TOSS_FROM := 1.0          # The height (m) of the hand at the toss.
 const POINT_PAUSE := 1.8        # The banner after a point, a fault and a game.
 const FAULT_PAUSE := 1.4
 const GAME_PAUSE := 2.6
-const FEED_DELAY := 1.6         # With 1 player the machine sends the next ball after this time.
+const FEED_DELAY := 1.6         # With 1 player the machine sends the first ball after this time.
+const NEXT_RALLY := 2.0         # ... and a new rally starts this long after a miss (REQ-TN-15): banner time plus the rest.
 const SOLO_ROUND := 90.0
 const RUN_SPEED := 6.5
 const BEHIND := 0.6             # A player hits the ball from this far behind it.
@@ -52,6 +53,7 @@ var events: Array = []
 
 var _toss_apex := 0.0
 var _wait := 0.0
+var _feed_after := FEED_DELAY   # With 1 player: seconds from the start of the serve phase to the ball of the machine.
 var _winners: Array[int] = []
 
 
@@ -71,6 +73,7 @@ func setup(slots: Array, quick: bool, p_difficulty: String, seed_value := 1) -> 
 	best_rally = 0
 	faults = 0
 	machine_anim = 99.0
+	_feed_after = FEED_DELAY
 	_begin_serve()
 	for s in chars:
 		chars[s].pos = chars[s].target
@@ -139,7 +142,7 @@ func _begin_serve() -> void:
 	var spos := Vector2(sx, side(st) * (Sim.HALF_L + BEHIND))
 	var rt := rules.other(st)
 	var box := -signf(sx)
-	_set_formation(st, server, spos, Vector2(-sx * 0.6, side(st) * 3.5))
+	_set_formation(st, server, spos, Vector2(-sx * 1.35, side(st) * 3.5))
 	var receivers: Array = rules.teams[rt]
 	if not receivers.is_empty():
 		_set_formation(rt, receivers[0], Vector2(box * 2.3, side(rt) * (Sim.HALF_L - 0.5)),
@@ -161,7 +164,7 @@ func _set_formation(team: int, lead: int, lead_pos: Vector2, partner_pos: Vector
 func press_a(slot: int) -> void:
 	if solo:
 		if phase == Phase.SERVE and chars.has(slot):
-			_wait = FEED_DELAY   # A skips the wait of the machine.
+			_feed_after = minf(_feed_after, FEED_DELAY * 0.5)   # A skips the wait of the machine.
 		return
 	if phase != Phase.SERVE or slot != server_slot():
 		return
@@ -268,7 +271,7 @@ func _after_hit(slot: int, team: int, green: bool, power: float) -> void:
 		chars[slot].anim = 0.0
 	else:
 		machine_anim = 0.0
-	events.append({"t": "hit", "slot": slot, "team": team, "green": green, "power": power})
+	events.append({"t": "hit", "slot": slot, "team": team, "green": green, "power": power, "pos": sim.pos})
 	var pred := sim.predict()
 	contact = {}
 	hitter = -1
@@ -325,6 +328,7 @@ func tick(delta: float) -> void:
 				if not solo and rules.match_over():
 					_end_match()
 				else:
+					_feed_after = maxf(NEXT_RALLY - POINT_PAUSE, 0.0) if solo else FEED_DELAY
 					_begin_serve()
 	machine_anim += delta
 
@@ -336,12 +340,10 @@ func _move(delta: float) -> void:
 		c.anim += delta
 
 
-func _tick_serve(delta: float) -> void:
+func _tick_serve(_delta: float) -> void:
 	if not solo:
 		return
-	_wait += delta
-	if _wait >= FEED_DELAY and phase_time >= FEED_DELAY * 0.5:
-		_wait = 0.0
+	if phase_time >= _feed_after:
 		_feed()
 
 
@@ -491,6 +493,8 @@ func remove_player(slot: int) -> void:
 		return
 	chars.erase(slot)
 	var over := rules.remove_player(slot)
+	for s in chars:
+		chars[s].team = rules.team_of(s)   # The teams were made again: the characters follow (the side of the court, team_of()).
 	if over:
 		_end_match()
 		return

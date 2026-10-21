@@ -90,3 +90,15 @@ static func patch(kind: String, cell: Vector2i, cols: int, rows: int) -> Array[V
 		for x in range(maxi(cell.x - 1, 0), mini(cell.x + 2, cols)):
 			out.append(Vector2i(x, y))
 	return out
+
+
+## The smallest block of tiles that holds the patch of a pot (REQ-PG-23): the frame that the game draws around the tiles it will
+## paint. A rectangle in tiles.
+static func bounds(kind: String, cell: Vector2i, cols: int, rows: int) -> Rect2i:
+	var tiles := patch(kind, cell, cols, rows)
+	var lo := Vector2i(cols, rows)
+	var hi := Vector2i.ZERO
+	for c in tiles:
+		lo = Vector2i(mini(lo.x, c.x), mini(lo.y, c.y))
+		hi = Vector2i(maxi(hi.x, c.x), maxi(hi.y, c.y))
+	return Rect2i(lo, hi - lo + Vector2i.ONE)

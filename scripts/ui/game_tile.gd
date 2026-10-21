@@ -10,6 +10,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 
 const SHOT := Vector2(480, 270)       # The screenshot (16:9). Every tile has this size.
 const CURSOR_ROOM := UiTheme.CURSOR_UNIT * 4.0 + 16.0   # The room of the cursor before the title of the focused tile.
+const TITLE_LINE_H := 40.0            # One line of the title.
 const TEXT_H := 150.0                 # The room under the screenshot: the title and the player range.
 
 var game := {}
@@ -117,6 +118,13 @@ func _refresh() -> void:
 	var room := CURSOR_ROOM if f else 0.0
 	_name.size = Vector2(SHOT.x - room, _name.size.y)
 	_name.position = Vector2(0.0 if Lang.is_rtl() else room, _name.position.y)
+	# A title that is wider than the tile breaks into two lines at 32 px (REQ-FL-12, REQ-FL-40), and the player range moves down.
+	var shown := UiKit.shown(_name.tr(_name.text))
+	var title_w := _name.get_theme_font("font").get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_BODY).x
+	var lines := 2 if title_w > SHOT.x - room else 1
+	_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if lines > 1 else TextServer.AUTOWRAP_OFF
+	_name.size.y = TITLE_LINE_H * lines
+	_meta.position.y = SHOT.y + 64.0 + TITLE_LINE_H * (lines - 1)
 	if fits:
 		_meta.text = players_text().to_upper()
 		_meta.add_theme_color_override("font_color", UiTheme.TEXT_DIM)

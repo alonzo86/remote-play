@@ -72,6 +72,19 @@ func _paint_levels() -> void:
 			and lv.easy.tiers[2] > lv.medium.tiers[2] and lv.medium.tiers[2] > lv.hard.tiers[2],
 			"every difficulty has valid medal tiers, harder levels have lower limits")
 	_check(lv.hard.tiers[2] <= 100 and lv.easy.tiers[2] <= 100, "no medal needs more than the whole floor")
+	_check(lv.easy.cols == 12 and lv.easy.rows == 7 and lv.medium.cols == 16 and lv.medium.rows == 9 and lv.hard.cols == 20
+			and lv.hard.rows == 11, "the floor is 12 x 7, 16 x 9 and 20 x 11 tiles on Easy, Medium and Hard (REQ-PG-20)")
+	_check(lv.easy.speed == 0.8 and lv.medium.speed == 1.0 and lv.hard.speed == 1.25,
+			"the blob speed is 0.8, 1.0 and 1.25 of Medium (REQ-PG-20)")
+	_check(lv.easy.tiers == [35, 55, 75] and lv.medium.tiers == [30, 50, 70] and lv.hard.tiers == [25, 40, 55],
+			"the medal tiers in percent are 35/55/75, 30/50/70 and 25/40/55 (REQ-PG-21)")
+	var edge_ok := true
+	for d in ["easy", "medium", "hard"]:
+		var t: Array = lv[d].tiers
+		edge_ok = edge_ok and Medals.medal(t[0] - 1, t) == "" and Medals.medal(t[0], t) == "bronze" \
+				and Medals.medal(t[1] - 1, t) == "bronze" and Medals.medal(t[1], t) == "silver" \
+				and Medals.medal(t[2] - 1, t) == "silver" and Medals.medal(t[2], t) == "gold"
+	_check(edge_ok, "a share at a limit gets the medal, one percent less gets the one before (REQ-PG-21)")
 
 
 ## The pictures under the floor of Paint Grab (REQ-PG-22).
@@ -152,6 +165,26 @@ func _paint_pots() -> void:
 	_check(pots.tick(PaintPots.FIRST - 1.0, rng, 16, 9, []) == null and pots.pots.is_empty(), "no pot before the first 8 s")
 	var first := pots.tick(1.5, rng, 16, 9, [])
 	_check(first != null and pots.pots.size() == 1, "the first pot lands after 8 s")
+	var exact := PaintPots.new()
+	_check(exact.tick(PaintPots.FIRST - 0.1, _rng(4), 16, 9, []) == null and exact.tick(0.2, _rng(4), 16, 9, []) != null
+			and PaintPots.FIRST == 8.0, "the first pot lands between 7.9 s and 8.1 s of play, not 1 s earlier or later")
+	var gaps_ok := true
+	var lo_gap := 1.0e9
+	var hi_gap := 0.0
+	for seed_value in 40:
+		var gp := PaintPots.new()
+		var gr := _rng(seed_value)
+		gp.tick(PaintPots.FIRST, gr, 16, 9, [])
+		gp.pots.clear()   # Taken at once.
+		var waited := 0.0
+		while gp.pots.is_empty() and waited < 30.0:
+			gp.tick(0.1, gr, 16, 9, [])
+			waited += 0.1
+		lo_gap = minf(lo_gap, waited)
+		hi_gap = maxf(hi_gap, waited)
+		gaps_ok = gaps_ok and waited >= 8.9 and waited <= 15.1
+	_check(gaps_ok and hi_gap - lo_gap > 2.0, "the next pot comes 9 to 15 s after the last one, and the wait varies: %.1f to %.1f s"
+			% [lo_gap, hi_gap])
 	var most := pots.pots.size()
 	for i in 240:   # Two minutes in half seconds: pots land, wait and go away.
 		pots.tick(0.5, rng, 16, 9, [])
@@ -163,6 +196,20 @@ func _paint_pots() -> void:
 	_check(pot.is_blinking(), "a pot blinks in its last 2 s")
 	gone.tick(PaintPots.BLINK, rng, 16, 9, [])
 	_check(gone.pots.is_empty(), "a pot that nobody takes goes away after 9 s")
+	var bg := PaintPots.bounds(PaintPots.GOLD, Vector2i(5, 4), 16, 9)
+	var bc := PaintPots.bounds(PaintPots.GOLD, Vector2i(0, 0), 16, 9)
+	var br := PaintPots.bounds(PaintPots.ROLLER, Vector2i(3, 6), 16, 9)
+	_check(bg == Rect2i(4, 3, 3, 3) and bc == Rect2i(0, 0, 2, 2) and br == Rect2i(0, 6, 16, 1),
+			"the frame of a pot holds exactly the tiles it paints: 3 x 3, 2 x 2 in a corner, the whole row (REQ-PG-23)")
+	var frame_ok := true
+	for kind in [PaintPots.GOLD, PaintPots.ROLLER]:
+		for cell in [Vector2i(0, 0), Vector2i(15, 8), Vector2i(7, 4), Vector2i(0, 8)]:
+			var box := PaintPots.bounds(kind, cell, 16, 9)
+			var tiles := PaintPots.patch(kind, cell, 16, 9)
+			frame_ok = frame_ok and tiles.size() == box.size.x * box.size.y
+			for t in tiles:
+				frame_ok = frame_ok and box.has_point(t)
+	_check(frame_ok, "the frame has as many tiles as the patch and holds every one, at the corners and the middle")
 	var near_ok := true
 	var kinds_seen := {}
 	for seed_value in 60:

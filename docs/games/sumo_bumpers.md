@@ -32,7 +32,7 @@ Match and rounds
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SB-1 | A match has 3 rounds. Each round starts with a countdown of 3 s (`RoundClock`) and the title "Round 1", "Round 2", "Round 3". The bumpers cannot move during the countdown (REQ-GM-35). | Done | smoke_sumo |
+| REQ-SB-1 | A match has 3 rounds. Each round starts at once, with no countdown (REQ-GM-35: the game shows no timer), with the title "Round 1", "Round 2", "Round 3" in the bar. The bumpers are on their start places and the pose of each phone is the center at the start of a round. | Done | smoke_sumo |
 | REQ-SB-2 | The bumpers start on a circle around the middle of the platform, spread evenly, at the same distance from the middle (REQ-GM-25). Every round starts again like this, and all bumpers are back, also the ones that fell. | Done | run_tests, smoke_sumo |
 | REQ-SB-3 | A round ends when one bumper is left, or when none is left in the same moment. The last bumper gets 1 point. When the last bumpers fall in the same frame, all of them get the point. | Done | run_tests, smoke_sumo |
 | REQ-SB-4 | After a round, a banner names the player that won it (or says "Round draw!"), for 2.5 s. Then the next round starts, or the match ends. | Done | smoke_sumo |
@@ -42,26 +42,26 @@ Platform and movement
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SB-6 | The platform is a disk in the middle of the play area. Its radius falls in a straight line from its start radius to the least radius in the shrink time (REQ-SB-20). It does not stop before the round is over: at the least radius two bumpers do not fit, so every round ends. After the first fall of a round the platform shrinks twice as fast (`FALL_SPEEDUP`), so that a bumper that fell waits at most half the shrink time: 15 s on Easy, 12 s on Medium, 9 s on Hard (REQ-GM-83, about 20 s at most). | Done | run_tests |
-| REQ-SB-7 | Tilt moves a bumper (`TiltBody`: acceleration, dead zone, damping, speed limit). All players have the same values (REQ-GM-24). A bumper is a disk. It falls when the middle of the disk is outside the platform. | Done | run_tests, smoke_sumo |
-| REQ-SB-8 | Bumpers bounce off each other (`TiltBody.collide` with a high restitution) so that a hit pushes the other one away. There is no damage. A hit that is fast enough (more than 300 px/s between the two) buzzes both phones (20 ms, at most every 150 ms for one slot). | Device | run_tests (the bounce), Device (the feel and the buzz) |
-| REQ-SB-9 | Children (REQ-GM-80 to 84): the bumpers are friendly made-up creatures; a fall is funny (the bumper spins and shrinks in 0.8 s, "Whee!"); there is no loss of points for a fall; a bumper that fell is back in the next round; the wait for the next round is at most half the shrink time, 20 s at most (REQ-SB-6, REQ-SB-20), and the hint is one line ("Tilt to bump the others off the platform! A dashes."); all texts are positive. | Done | review |
-| REQ-SB-10 | A press on A is a dash: the bumper gets a speed of 700 px/s in the direction of the tilt (when there is no tilt: in the direction it moves; when it does not move, nothing happens). The dash is ready again after the dash time of the difficulty (REQ-SB-20). For 0.35 s after a dash the speed limit is the dash speed, so that the dash is not cut at once. A ring around the bumper shows when it is ready. B does nothing. | Done | run_tests, smoke_sumo |
-| REQ-SB-11 | A dash buzzes the phone (30 ms). A fall buzzes the phone that fell (80 ms). The winner of a round gets 120 ms, and the winner of the match 400 ms. GO buzzes every phone (60 ms). | Device | Device (the buzzes) |
+| REQ-SB-6 | The platform is a disk in the middle of the play area. Its radius falls in a straight line from its start radius to the least radius in the shrink time (REQ-SB-20). It does not stop before the round is over: at the least radius two bumpers do not fit, so every round ends. After the first fall of a round the platform shrinks twice as fast (`FALL_SPEEDUP`), so that a bumper that fell waits at most half the shrink time: 15 s on Easy, 12 s on Medium, 9 s on Hard (REQ-GM-83, about 20 s at most). | Done | run_tests, auto_sumo |
+| REQ-SB-7 | Tilt moves a bumper (`TiltBody`: acceleration, dead zone, damping, speed limit). All players have the same values (REQ-GM-24). A bumper is a disk. It falls when the middle of the disk is outside the platform. | Done | run_tests, smoke_sumo, auto_sumo |
+| REQ-SB-8 | Bumpers bounce off each other (`TiltBody.collide` with a high restitution) so that a hit pushes the other one away. There is no damage. A hit that is fast enough (more than 300 px/s between the two) buzzes both phones (20 ms, at most every 150 ms for one slot). | Device | run_tests (the bounce), Device (the feel and the buzz), auto_sumo |
+| REQ-SB-9 | Children (REQ-GM-80 to 84): the bumpers are friendly made-up creatures; a fall is funny (the bumper spins and shrinks in 0.8 s, "Whee!"); there is no loss of points for a fall; a bumper that fell is back in the next round; the wait for the next round is at most half the shrink time, 20 s at most (REQ-SB-6, REQ-SB-20), and the hint is one line ("Tilt to bump the others off the platform! A dashes."); all texts are positive. | Done | review, auto_sumo |
+| REQ-SB-10 | A press on A is a dash: the bumper gets a speed of 700 px/s in the direction of the tilt (when there is no tilt: in the direction it moves; when it does not move, nothing happens). The dash is ready again after the dash time of the difficulty (REQ-SB-20). For 0.35 s after a dash the speed limit is the dash speed, so that the dash is not cut at once. A ring around the bumper shows when it is ready. B does nothing. | Done | run_tests, smoke_sumo, auto_sumo |
+| REQ-SB-11 | A dash buzzes the phone (30 ms). A fall buzzes the phone that fell (80 ms). The winner of a round gets 120 ms, and the winner of the match 400 ms. There is no start buzz. | Device | Device (the buzzes), auto_sumo |
 
 Players and feedback
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SB-12 | A player who leaves takes the bumper out and keeps no points in the ranking (REQ-GM-21). When one player is left, the match ends at once with the result menu. When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sumo |
-| REQ-SB-13 | A lost phone pauses the match with the card of REQ-GM-30. Nothing runs during the pause (the shrink, the countdown). | Done | smoke_tv (shared base class) |
-| REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). In the countdown of each round every bumper has a name tag (REQ-GM-46a). A bumper has no number on it (REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Device | smoke_sumo (points, phones), game_helpers (leader, tags), Device (RECENTER) |
+| REQ-SB-13 | A lost phone pauses the match with the card of REQ-GM-30. Nothing runs during the pause (the shrink). | Done | smoke_tv (shared base class) |
+| REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). A bumper has no number on it (REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Device | smoke_sumo (points, phones), game_helpers (leader), Device (RECENTER) |
 
 Look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n): it is drawn in the 480x270 view, in `sumo_look.gd`, as the **Sky Island**: a sky of 8 bands of blue (`#5eb8f0` to `#b4e4f8`) with 8 white pixel clouds that drift to the right (2 to 3 world pixels per second) under the black bar of the HUD (112 px). The platform is a round grass island with a chess pattern of two greens (`#58b838`, `#4eaa30`, squares of 6 world pixels on the grid of the screen, so the edge eats them as the island shrinks), two rings, a few flowers, an edge ring that is brown (`#b0804e`) and turns to red (`#ff5a4d`) as the island shrinks, and a brown cliff that hangs below it. Island, cliff and bumpers have a one-pixel black outline (`#101018`). A bumper is a **penguin**: 16x16 world pixels plus the outline, body in the slot color, a white belly, an orange beak and feet, eyes with pupils that step to the side it rolls (no number on it, REQ-GM-46); a ring around it shows the dash. The outline of a penguin differs from both greens and from the sky by 3:1 or more, and every slot color differs from the outline by 3:1 or more (REQ-GM-47m). A fallen penguin shrinks in 4 steps in 0.8 s, and "WHEE!" is drawn at full resolution above it on a black plate. The round banner and "WHEE!" sit on a black plate, and the countdown digits have a black shadow, because the sky is light. All text is 32 px or larger and inside the 60 px margin. | Device | review, game_helpers (colors, penguin, clouds), smoke_sumo (the view), Device |
+| REQ-SB-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n): it is drawn in the 480x270 view, in `sumo_look.gd`, as the **Sky Island**: a sky of 8 bands of blue (`#5eb8f0` to `#b4e4f8`) with 8 white pixel clouds that drift to the right (2 to 3 world pixels per second) under the black bar of the HUD (112 px). The platform is a round grass island with a chess pattern of two greens (`#58b838`, `#4eaa30`, squares of 6 world pixels on the grid of the screen, so the edge eats them as the island shrinks), two rings, a few flowers, an edge ring that is brown (`#b0804e`) and turns to red (`#ff5a4d`) as the island shrinks, and a brown cliff that hangs below it. Island, cliff and bumpers have a one-pixel black outline (`#101018`). A bumper is a **penguin**: 16x16 world pixels plus the outline, body in the slot color, a white belly, an orange beak and feet, eyes with pupils that step to the side it rolls (no number on it, REQ-GM-46); a ring around it shows the dash. The outline of a penguin differs from both greens and from the sky by 3:1 or more, and every slot color differs from the outline by 3:1 or more (REQ-GM-47m). A fallen penguin shrinks in 4 steps in 0.8 s, and "WHEE!" is drawn at full resolution above it on a black plate. The round banner and "WHEE!" sit on a black plate, and the countdown digits have a black shadow, because the sky is light. All text is 32 px or larger and inside the 60 px margin. | Device | review, game_helpers (colors, penguin, clouds), smoke_sumo (the view), Device, auto_sumo, layout_menus |
 | REQ-SB-16 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080: the simulation runs in 1920x1080 units and only the drawing is scaled. | Done | smoke_sumo |
 
 Settings (REQ-GM-90 to 97)
@@ -89,7 +89,7 @@ Values that change how the game feels. Tune them on a device (Test 15). First va
 | `BUMP_RESTITUTION` | `sumo_arena.gd` | 0.95 |
 | `DASH_SPEED` | `sumo_arena.gd` | 700 px/s |
 | `FALL_SPEEDUP` | `sumo_arena.gd` | 2.0 (the shrinking is twice as fast after the first fall) |
-| `ROUNDS`, `COUNTDOWN`, `BANNER_TIME` | `sumo_bumpers_game.gd` | 3, 3 s, 2.5 s |
+| `ROUNDS`, `BANNER_TIME` | `sumo_bumpers_game.gd` | 3, 2.5 s |
 | Levels | `sumo_arena.gd` | table above |
 
 ## Open questions
@@ -100,7 +100,7 @@ Values that change how the game feels. Tune them on a device (Test 15). First va
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
 
-The song `sumo_bumpers` plays from "GO": Heavy and comic, a march at 132 BPM, D minor. The countdown, pause and result sounds come from the base class.
+The song `sumo_bumpers` starts with the first round (no countdown): Heavy and comic, a march at 132 BPM, D minor. The pause and result sounds come from the base class; there is no `count` or `go` sound.
 
 | ID | Effect | When | Sound | Status |
 |----|--------|------|-------|--------|
@@ -109,7 +109,7 @@ The song `sumo_bumpers` plays from "GO": Heavy and comic, a march at 132 BPM, D 
 | REQ-SB-S3 | `sumo_fall` | A bumper falls (haptic 80 ms). | A falling slide, funny, not sad | Device (test 18) |
 | REQ-SB-S4 | `sumo_round_win` | A round has a winner (haptic 120 ms). | Rising run | Device (test 18) |
 
-Haptics on the phone of the player: Countdown end: 60 ms; Bump: 20 ms; dash: 30 ms; fall: 80 ms; Round win: 120 ms; match end: 400 ms. The shrinking drone is not built.
+Haptics on the phone of the player: no start buzz (no countdown); Bump: 20 ms; dash: 30 ms; fall: 80 ms; Round win: 120 ms; match end: 400 ms. The shrinking drone is not built.
 
 ## Languages (REQ-GM-47o)
 

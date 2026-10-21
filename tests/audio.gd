@@ -6,16 +6,27 @@ extends SceneTree
 
 const Synth = preload("res://scripts/audio/synth.gd")
 const Songs = preload("res://scripts/audio/songs.gd")
+const Slow = preload("res://tests/slow_run.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 
 var RoundClock: GDScript
 var ControllerSettings: GDScript
+var Haptics: GDScript
 var _checks := 0
 var _fails := 0
 
 
 func _initialize() -> void:
 	_run()
+
+
+func _known_bug(issue: String, cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what, " (the bug is fixed: use _check)")
+	else:
+		_fails += 1
+		print("  FAIL (known bug) ", issue, ": ", what)
 
 
 func _check(cond: bool, what: String) -> void:
@@ -40,6 +51,7 @@ func _run() -> void:
 	await _frames(3)
 	RoundClock = load("res://scripts/game/round_clock.gd")   # These use the autoloads, so they load at run time.
 	ControllerSettings = load("res://scripts/ui/controller_settings.gd")
+	Haptics = load("res://scripts/game/haptics.gd")
 	_synth()
 	_songs()
 	_effects()
@@ -53,6 +65,13 @@ func _run() -> void:
 	await _denied(sound, app)
 	await _settings_rows(sound, app)
 	await _phone_haptics(app)
+	_effect_shapes()
+	_loudness_and_songs(sound, app)
+	await _menu_song_start(sound)
+	await _menu_keys(sound, app)
+	await _settings_sweep(sound, app)
+	await _settings_reload(sound, app)
+	_haptic_switch_calls(app)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -74,7 +93,8 @@ func _synth() -> void:
 	_check(absf(buf[end_idx - 1]) < 0.02, "the event ends near zero, so there is no click")
 	_check(buf.size() == int(0.2 * Synth.RATE), "the buffer has the length that was asked")
 	var pcm := Synth.to_pcm16(PackedFloat32Array([2.0, -2.0, 0.0]))
-	_check(pcm.decode_s16(0) == 32767 and pcm.decode_s16(2) == -32767 and pcm.decode_s16(4) == 0, "samples are clipped to 16 bits")
+	_check(pcm.decode_s16(0) == 32767 and pcm.decode_s16(2) == -32767 and pcm.decode_s16(4) == 0,
+			"samples are clipped to 16 bits")
 	var ev := [Synth.event(0.0, Synth.NOISE, 8000.0, 4000.0, 0.05, 0.3)]
 	var first := Synth.to_pcm16(Synth.mix(ev, 0.05))
 	_check(first == Synth.to_pcm16(Synth.mix(ev, 0.05)), "the same events give the same bytes (noise too)")
@@ -296,7 +316,8 @@ func _settings_rows(sound: Node, app: Node) -> void:
 	rows[4].pressed.emit()
 	_check(app.settings.mute == true and AudioServer.is_bus_mute(AudioServer.get_bus_index("SFX")), "the Mute row mutes at once")
 	rows[4].pressed.emit()
-	_check(app.settings.mute == false and not AudioServer.is_bus_mute(AudioServer.get_bus_index("SFX")), "the Mute row again plays")
+	_check(app.settings.mute == false and not AudioServer.is_bus_mute(AudioServer.get_bus_index("SFX")),
+			"the Mute row again plays")
 	var cfg := ConfigFile.new()
 	cfg.load(app.SETTINGS_FILE)
 	_check(cfg.get_value("settings", "music_volume", -1) == 0 and cfg.get_value("settings", "sfx_volume", -1) == 3,
@@ -325,5 +346,323 @@ func _phone_haptics(app: Node) -> void:
 	_check(app.settings.haptics == false, "the saved choice is loaded at the next start")
 	screen._haptics.pressed.emit()
 	_check(app.settings.haptics == true, "OK turns haptics on again")
+	app.settings.haptics = old
+	app.save_settings()
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Test 18 in the digital domain (what the ear and the meter app of the manual test measure, read from the samples).
+# Mute: issue #49 (drop the Mute row) is planned, not built. Every check that depends on the Mute row has "[issue #49]" in
+# its name; when the row is removed these checks go with it (see the report of the audio automation).
+# ---------------------------------------------------------------------------------------------------------------------
+
+const DEFAULT_MUSIC_STEP := 7   # App.settings default music_volume
+const DEFAULT_SFX_STEP := 8     # App.settings default sfx_volume
+
+
+func _db(x: float) -> float:
+	return 20.0 * log(maxf(x, 1e-9)) / log(10.0)
+
+
+func _rms(buf: PackedFloat32Array) -> float:
+	var sum := 0.0
+	for v in buf:
+		sum += v * v
+	return sqrt(sum / maxf(float(buf.size()), 1.0))
+
+
+func _peak(buf: PackedFloat32Array) -> float:
+	var p := 0.0
+	for v in buf:
+		p = maxf(p, absf(v))
+	return p
+
+
+func _max_step(buf: PackedFloat32Array) -> float:
+	var m := 0.0
+	for i in range(1, buf.size()):
+		m = maxf(m, absf(buf[i] - buf[i - 1]))
+	return m
+
+
+## The start frequencies of the events of an effect, in the order of their start time.
+func _notes(id: String) -> Array:
+	var ev: Array = Songs.effects()[id].duplicate()
+	ev.sort_custom(func(a, b): return float(a.t) < float(b.t))
+	return ev.map(func(e): return float(e.f0))
+
+
+func _rising(f: Array) -> bool:
+	for i in range(1, f.size()):
+		if f[i] <= f[i - 1]:
+			return false
+	return f.size() > 1
+
+
+func _falling(f: Array) -> bool:
+	for i in range(1, f.size()):
+		if f[i] >= f[i - 1]:
+			return false
+	return f.size() > 1
+
+
+## 18.2b to 2e, 5a, 8a, 8b: the shape of the effects (the number of notes and whether they rise or fall).
+func _effect_shapes() -> void:
+	var fx := Songs.effects()
+	var select := _notes("select")
+	_check(select.size() == 2 and _rising(select), "select (OK) is a run of 2 notes, rising")
+	var back := _notes("back")
+	_check(back.size() == 2 and _falling(back), "back is a run of 2 notes, falling")
+	_check(_notes("join").size() == 3 and _rising(_notes("join")), "join is a run of 3 notes, rising")
+	_check(_notes("leave").size() == 3 and _falling(_notes("leave")), "leave is a run of 3 notes, falling")
+	var denied := _notes("denied")
+	_check(denied.size() == 1 and denied[0] < float(select.min()) and Songs.effect_length(fx["denied"]) <= 0.2,
+			"denied is one note, lower than the select notes, 0.2 s or shorter")
+	# The countdown: GO is higher and longer than a count beep.
+	_check(_notes("go")[0] > _notes("count")[0] and Songs.effect_length(fx["go"]) > Songs.effect_length(fx["count"]),
+			"GO is higher and longer than a count beep")
+	# The result sounds: the winner fanfare rises and is 2 s or shorter; the tie sound is another sound.
+	var win := _notes("win")
+	_check(win.size() >= 4 and win[-1] > win[0] and Songs.effect_length(fx["win"]) <= Songs.MAX_FANFARE,
+			"win is a rising jingle of %d s or shorter" % int(Songs.MAX_FANFARE))
+	_check(fx["win"] != fx["tie"] and Songs.effect_length(fx["tie"]) <= Songs.MAX_FANFARE, "tie is not the fanfare of win")
+	_check(_notes("move").size() == 1 and Songs.effect_length(fx["move"]) <= 0.05, "move (the cursor) is one short blip")
+
+
+## 18.1b, 5c, 5d, 6c in the digital domain: the samples of every song and effect, with the bus gains of the default levels.
+func _loudness_and_songs(sound: Node, app: Node) -> void:
+	var bufs := {}
+	var ids := Songs.SONGS.keys()
+	for id in ids:
+		bufs[id] = Synth.mix(Songs.events(id), Songs.length(id))
+	# 18.1b: no click at the start (the first sample is silent, and the player fades in), and none at the loop point.
+	var menu: PackedFloat32Array = bufs["menu"]
+	_check(absf(menu[0]) < 0.02, "the menu song starts from silence (first sample %.4f)" % menu[0])
+	for id in ids:
+		var b: PackedFloat32Array = bufs[id]
+		var seam := absf(b[0] - b[b.size() - 1])
+		_check(absf(b[0]) < 0.02 and absf(b[b.size() - 1]) < 0.02 and seam <= _max_step(b),
+				"song %s: the loop point has no jump (first %.4f, last %.4f)" % [id, b[0], b[b.size() - 1]])
+		var stream: AudioStreamWAV = Synth.stream_from_pcm(Synth.to_pcm16(b), true)
+		_check(stream.loop_mode == AudioStreamWAV.LOOP_FORWARD and stream.loop_begin == 0 and stream.loop_end == b.size(),
+				"song %s: the loop covers the whole buffer (loop_end %d = %d samples)" % [id, stream.loop_end, b.size()])
+		_check(_peak(b) <= 1.0, "song %s does not clip (peak %.2f)" % [id, _peak(b)])
+	# The stream that the manager builds in steps is the same samples as the plain mix.
+	if sound._streams.has("menu"):
+		_check(sound._streams["menu"].data == Synth.to_pcm16(menu), "the menu song made in steps equals the plain mix")
+	# 18.5d: ten different songs; no game plays the menu song.
+	var distinct := true
+	for i in ids.size():
+		for j in range(i + 1, ids.size()):
+			if Synth.to_pcm16(bufs[ids[i]]) == Synth.to_pcm16(bufs[ids[j]]):
+				distinct = false
+				print("  same samples: %s %s" % [ids[i], ids[j]])
+	_check(distinct and ids.size() == 10, "all %d songs have different samples" % ids.size())
+	var bad_ids: Array[String] = []
+	for g in Registry.all():
+		if String(g.id) == "menu" or not Songs.SONGS.has(String(g.id)):
+			bad_ids.append(String(g.id))
+	_check(bad_ids.is_empty() and Registry.all().size() == 9, "each of the 9 games has its own song id, not `menu`")
+	# 18.6c: the effects are 3 to 9 dB above the music at the default levels (the plan: about 6 dB). Bus gains are applied.
+	var music_db: float = _db(_rms(menu)) + sound.step_db(DEFAULT_MUSIC_STEP) + sound.MUSIC_TRIM_DB
+	var fx := Songs.effects()
+	for id in ["select", "count", "win"]:
+		var b := Synth.mix(fx[id], Songs.effect_length(fx[id]) + 0.02)
+		var above: float = _db(_rms(b)) + sound.step_db(DEFAULT_SFX_STEP) - music_db
+		_check(above >= 3.0 and above <= 9.0, "effect %s is %.1f dB above the music at the default levels (3 to 9)" % [id, above])
+	var out_of_range := ""
+	for id in fx:
+		var b := Synth.mix(fx[id], Songs.effect_length(fx[id]) + 0.02)
+		_check(_peak(b) <= 1.0, "effect %s does not clip (peak %.2f)" % [id, _peak(b)])
+		var above: float = _db(_rms(b)) + sound.step_db(DEFAULT_SFX_STEP) - music_db
+		if above < 3.0 or above > 9.0:
+			out_of_range += " %s %.1f;" % [id, above]
+	print("  effects outside 3 to 9 dB above the music (RMS):%s" % out_of_range)
+	# AUDIO_PLAN "Mix": music is quieter than effects (about 6 dB), so a hit is always heard. Every effect follows it.
+	_check(out_of_range == "", "every effect is 3 to 9 dB above the music at the default levels (outside:%s)" % out_of_range)
+	# The default levels are the ones that the checks above assume.
+	_check(int(app.settings.music_volume) == DEFAULT_MUSIC_STEP and int(app.settings.sfx_volume) == DEFAULT_SFX_STEP,
+			"the test ran at the default levels (Music %d, Effects %d)" % [DEFAULT_MUSIC_STEP, DEFAULT_SFX_STEP])
+
+
+func _key(action: String) -> void:
+	for pressed in [true, false]:
+		var ev := InputEventAction.new()
+		ev.action = action
+		ev.pressed = pressed
+		Input.parse_input_event(ev)
+	await _frames(2)
+
+
+## 18.1a, 1b: a cold start of the menu song: ready in 5 s, and it fades in from silence (no click).
+func _menu_song_start(sound: Node) -> void:
+	sound.stop_music()
+	await _wait(0.7)
+	sound._streams.erase("menu")
+	sound.skip_without_output = false
+	var t0 := Time.get_ticks_msec()
+	sound.music("menu")
+	while not sound._music.playing and Time.get_ticks_msec() - t0 < 30000:
+		await _frames(1)
+	var ms := Time.get_ticks_msec() - t0
+	var start_db: float = sound._music.volume_db
+	_check(sound._music.playing and sound.wanted_music == "menu" and ms <= int(Slow.limit(5000.0)),
+			"the menu song plays %d ms after the start (5000 or less)" % ms)
+	_check(start_db <= -40.0, "the menu song starts at %.0f dB and fades in, so it does not click" % start_db)
+	await _wait(0.8)
+	_check(sound._music.volume_db > -3.0, "the fade-in reaches the full level (%.1f dB)" % sound._music.volume_db)
+
+
+## 18.1c, 2a, 2b, 2c: the song goes on across screens; cursor moves, OK and Back make their sounds.
+func _menu_keys(sound: Node, app: Node) -> void:
+	var stream: AudioStream = sound._music.stream
+	var last := float(sound._music.get_playback_position())
+	var stayed := true
+	var advanced := true
+	for go in ["go_connect", "go_games", "go_settings"]:
+		app.call(go)
+		await _wait(0.25)
+		stayed = stayed and sound._music.stream == stream and sound._music.playing and sound.wanted_music == "menu"
+		var pos := float(sound._music.get_playback_position())
+		advanced = advanced and pos > last
+		last = pos
+	_check(stayed, "Connect, Games and Settings keep the same menu song playing")
+	_check(advanced, "the song position only goes forward across the screens (no restart from its first note)")
+	var ids: Array[String] = []
+	var cb := func(id: String): ids.append(id)
+	sound.sfx_played.connect(cb)
+	for i in 5:
+		await _key("ui_down")
+		await _wait(0.06)
+	_check(ids.count("move") == 5 and ids.size() == 5,
+			"5 presses of Down make 5 `move` blips and nothing else (got %s)" % str(ids))
+	# OK on a row: `select`. The row 'invert tilt' is a switch; the setting is put back.
+	var screen: Control = app.current_screen()
+	var old_invert = app.settings.invert_tilt
+	screen._rows[1].grab_focus()
+	await _frames(2)
+	ids.clear()
+	await _key("ui_accept")
+	await _wait(0.06)
+	_check(ids.has("select"), "OK on an item plays `select` (got %s)" % str(ids))
+	app.settings.invert_tilt = old_invert
+	ids.clear()
+	await _key("ui_cancel")
+	await _wait(0.06)
+	_check(ids.has("back"), "Back plays `back` (got %s)" % str(ids))
+	sound.sfx_played.disconnect(cb)
+	app.go_settings()
+	await _frames(3)
+
+
+## The texts of the Labels in a Settings row: the title first, then the help and the value.
+func _row_texts(row: Control) -> Array:
+	return row.find_children("*", "Label", true, false).map(func(l: Label) -> String: return l.text)
+
+
+func _press_on(row: Button, action: String) -> void:
+	row.grab_focus()
+	await _key(action)
+
+
+## 18.3a to 3d: the rows, the whole Music sweep, a sample at each Effects change, and the silent Effects.
+func _settings_sweep(sound: Node, app: Node) -> void:
+	var old: Dictionary = app.settings.duplicate()
+	app.go_settings()
+	await _frames(3)
+	var screen: Control = app.current_screen()
+	var rows: Array = screen._rows
+	var lang = load("res://scripts/core/lang.gd")
+	var titles := rows.map(func(r: Control) -> String: return String(_row_texts(r)[0]))
+	_check(titles[2] in ["settings.music", lang.t("settings.music")] and titles[3] in ["settings.effects",
+			lang.t("settings.effects")],
+			"the Settings rows 3 and 4 are Music and Effects (%s)" % str(titles))
+	# [issue #49] The Mute row is still there today; when it is removed this becomes: 5 rows and no row named Mute.
+	_check(rows.size() == 6 and titles[4] in ["settings.mute", lang.t("settings.mute")], "[issue #49] the Mute row is row 5 of 6")
+	# 3b: Left until 0, then Right 10 times: +1 for each press, the bus follows, and it is silent at 0.
+	var music_bus := AudioServer.get_bus_index("Music")
+	for i in 11:
+		await _press_on(rows[2], "ui_left")
+	_check(int(app.settings.music_volume) == 0 and AudioServer.get_bus_volume_db(music_bus) <= -80.0,
+			"Music at 0 is silent (bus %.0f dB)" % AudioServer.get_bus_volume_db(music_bus))
+	var steps_ok := true
+	var rising := true
+	var db := {0: AudioServer.get_bus_volume_db(music_bus)}
+	for v in range(1, 11):
+		await _press_on(rows[2], "ui_right")
+		steps_ok = steps_ok and int(app.settings.music_volume) == v
+		db[v] = AudioServer.get_bus_volume_db(music_bus)
+		rising = rising and float(db[v]) > float(db[v - 1])
+	_check(steps_ok, "Right x10 raises Music by 1 for each press, from 0 to 10")
+	_check(rising and float(db[2]) < float(db[5]) and float(db[5]) < float(db[10]),
+			"the Music bus rises with every step (2: %.1f, 5: %.1f, 10: %.1f dB)" % [db[2], db[5], db[10]])
+	_check(_row_texts(rows[2]).has("10 / 10"), "the Music row shows 10 / 10")
+	# 3c: one sample (`select`) for each change of Effects.
+	var ids: Array[String] = []
+	var cb := func(id: String): ids.append(id)
+	await _wait(0.06)   # The same effect twice in 40 ms is one sound.
+	sound.sfx_played.connect(cb)
+	await _press_on(rows[3], "ui_left")
+	await _wait(0.06)
+	var after_left := ids.count("select")
+	await _press_on(rows[3], "ui_right")
+	await _wait(0.06)
+	sound.sfx_played.disconnect(cb)
+	_check(after_left == 1 and ids.count("select") == 2,
+			"each change of Effects plays one sample (selects: %d then %d)" % [after_left, ids.count("select")])
+	# 3d: Effects at 0 is silent; Effects at 6 plays again.
+	var sfx_bus := AudioServer.get_bus_index("SFX")
+	for i in 11:
+		await _press_on(rows[3], "ui_left")
+	_check(int(app.settings.sfx_volume) == 0 and AudioServer.get_bus_volume_db(sfx_bus) <= -80.0,
+			"Effects at 0 is silent (bus %.0f dB)" % AudioServer.get_bus_volume_db(sfx_bus))
+	for i in 6:
+		await _press_on(rows[3], "ui_right")
+	_check(int(app.settings.sfx_volume) == 6 and absf(AudioServer.get_bus_volume_db(sfx_bus) - sound.step_db(6)) < 0.01
+			and sound.step_db(6) > -20.0, "Effects at 6 is audible again (bus %.1f dB)" % AudioServer.get_bus_volume_db(sfx_bus))
+	app.settings.merge(old, true)
+	app.save_settings()
+	sound.apply_settings()
+
+
+## 18.3e: Music 4 and Effects 6 are saved; the next start reads them and sets the buses (what `App._ready` does).
+func _settings_reload(sound: Node, app: Node) -> void:
+	var old: Dictionary = app.settings.duplicate()
+	app.settings.music_volume = 4
+	app.settings.sfx_volume = 6
+	app.save_settings()
+	app.settings.music_volume = 9
+	app.settings.sfx_volume = 1
+	app._load_settings()
+	sound.apply_settings()
+	_check(int(app.settings.music_volume) == 4 and int(app.settings.sfx_volume) == 6,
+			"the next start reads Music 4 and Effects 6")
+	_check(is_equal_approx(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music")),
+			sound.step_db(4) + sound.MUSIC_TRIM_DB)
+			and is_equal_approx(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("SFX")), sound.step_db(6)),
+			"and the buses are at the volumes of Music 4 and Effects 6")
+	app.settings.merge(old, true)
+	app.save_settings()
+	sound.apply_settings()
+
+
+## 18.10b: the switch calls the motor for 40 ms when it turns ON, and a message from the TV reaches the motor only when ON.
+func _haptic_switch_calls(app: Node) -> void:
+	var calls: Array = []
+	Haptics.vibrate_call = func(ms: int) -> void: calls.append(ms)
+	var old: bool = app.settings.haptics
+	app.settings.haptics = false
+	var screen: Control = ControllerSettings.new()
+	app.add_child(screen)
+	screen._haptics.pressed.emit()   # OFF -> ON
+	_check(app.settings.haptics == true and calls == [40], "turning Haptics ON vibrates once for 40 ms (got %s)" % str(calls))
+	Haptics.on_message(60)
+	_check(calls == [40, 60], "with Haptics ON a message of 60 ms from the TV vibrates 60 ms (got %s)" % str(calls))
+	screen._haptics.pressed.emit()   # ON -> OFF
+	Haptics.on_message(60)
+	_check(app.settings.haptics == false and calls == [40, 60],
+			"with Haptics OFF, turning it off and a message do not vibrate (got %s)" % str(calls))
+	screen.queue_free()
+	Haptics.vibrate_call = Callable()
 	app.settings.haptics = old
 	app.save_settings()

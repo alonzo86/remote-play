@@ -9,10 +9,8 @@ const GolfSim = preload("res://scripts/game/mini_golf/golf_sim.gd")
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
-const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
-const COUNTDOWN := 3.0
 const TURN_BANNER := 1.5        # REQ-MG-3: how long the name of the player on turn shows.
 const RESULT_TIME := 1.8        # How long the banner of a putt shows. A press on A of any phone ends it at once.
 const QUIET_TIME := 0.5         # After a putt with nothing to say.
@@ -48,7 +46,6 @@ var phase := Phase.AIM
 
 var _board: Scoreboard
 var _scored := false
-var _clock := RoundClock.new(COUNTDOWN, 0.0)
 var _haptics := Haptics.new()
 var _hole: Dictionary = {}
 var _time := 0.0
@@ -63,6 +60,7 @@ var _banner := ""
 var _banner_color := UiTheme.ACCENT
 var _weak_left := 0.0
 var _last_tick_ms := 0
+var _a_pressed := false
 var _a_down := {}
 var _splash_at := Vector2.ZERO
 var _splash_age := 99.0
@@ -76,6 +74,10 @@ static func level(d: String) -> Dictionary:
 	return LEVELS.get(d, LEVELS.medium)
 
 
+func _has_countdown() -> bool:
+	return false   # No visible timer, so no countdown (REQ-GM-35): the first turn starts at once.
+
+
 func _game_ready() -> void:
 	var slots: Array[int] = []
 	slots.assign(participants)
@@ -85,6 +87,8 @@ func _game_ready() -> void:
 		_board.set_unfinished(s, 0.0)
 	detector.threshold = float(level(difficulty).threshold)
 	_load_hole()
+	if not participants.is_empty():
+		_start_turn()
 
 
 func _load_hole() -> void:
@@ -100,7 +104,7 @@ func _on_player_left(slot: int) -> void:
 	_board.remove(slot)
 	_a_down.erase(slot)
 	_balls.erase(slot)
-	if is_over or _clock.is_counting():
+	if is_over:
 		return
 	if rules.rows.is_empty():
 		return
@@ -142,15 +146,10 @@ func _game_tick(delta: float) -> void:
 	_lock_age = _lock_age + delta if detector.aim_locked else 0.0
 	if is_over:
 		return
-	if _clock.is_counting():
-		if _clock.tick(delta):
-			for s in participants:
-				App.server.haptic(s, 60)
-			_start_turn()
-		return
 	_publish_turn()
 	_phase_time += delta
 	_weak_left = maxf(0.0, _weak_left - delta)
+	_poll_buttons()
 	match phase:
 		Phase.AIM:
 			_tick_aim(delta)
@@ -158,10 +157,10 @@ func _game_tick(delta: float) -> void:
 			_tick_roll(delta)
 		Phase.RESULT:
 			var wait := RESULT_TIME if _banner != "" else QUIET_TIME
-			if _phase_time >= wait or (_banner != "" and _a_pressed()):
+			if _phase_time >= wait or (_banner != "" and _a_pressed):
 				_after_result()
 		Phase.HOLE:
-			if _phase_time >= HOLE_TIME or _a_pressed():
+			if _phase_time >= HOLE_TIME or _a_pressed:
 				_after_hole()
 		Phase.END:
 			_end_left -= delta
@@ -182,14 +181,16 @@ func _publish_turn() -> void:
 			App.server.send_turn(s, 2, player(on).player_name, "golf")
 
 
-func _a_pressed() -> bool:
+## Polls A on every tick, in every phase, so a button held since an earlier phase is not read as a new press (the putt banner
+## is not skipped by a held A). `_a_pressed` is true when a press on A starts on any phone this tick.
+func _poll_buttons() -> void:
 	var pressed := false
 	for s in participants:
 		var down := player(s).is_down(Protocol.BTN_A)
 		if down and not _a_down.get(s, false):
 			pressed = true
 		_a_down[s] = down
-	return pressed
+	_a_pressed = pressed
 
 
 func _tick_aim(delta: float) -> void:
@@ -331,14 +332,6 @@ func _pose() -> Dictionary:
 	return GolfLook.swing_pose(_swing_age)
 
 
-func _countdown_spots(geo: GolfLook.Geo) -> Dictionary:
-	var spots := {}
-	for i in participants.size():
-		var x := (float(i + 1) / float(participants.size() + 1) * 2.0 - 1.0) * 0.6
-		spots[participants[i]] = geo.at(Vector2(x, 1.1)) - Vector2(0.0, 40.0)
-	return spots
-
-
 func _world_draw(ci: CanvasItem) -> void:
 	var geo := _geo()
 	GolfLook.draw_ground(ci, size, rules.hole_number())
@@ -361,9 +354,6 @@ func _world_draw(ci: CanvasItem) -> void:
 	for th in things:
 		th[1].call()
 	GolfLook.draw_flag(ci, geo, _hole, _time)
-	if _clock.is_counting():
-		GolfLook.draw_ball(ci, geo, _hole.tee)
-		return
 	if phase == Phase.HOLE or phase == Phase.END or _putter < 0 or not participants.has(_putter):
 		return
 	GolfLook.draw_golfer(ci, geo, _feet, sim.pos, _pose(), player(_putter).color)
@@ -379,17 +369,6 @@ func _world_draw(ci: CanvasItem) -> void:
 
 func _game_draw() -> void:
 	Shell.title(self, "registry.mini_golf")
-	if _clock.is_counting():
-		var n := _clock.count_number()
-		var label := str(n) if n > 0 else "shell.go"
-		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		Shell.countdown(self, size, label, _clock.count_elapsed())
-		draw_name_tags(self, _countdown_spots(_geo()), 56.0)
-		_draw_bar()
-		_draw_hole_text()
-		return
 	_draw_hole_text()
 	_draw_bar()
 	if is_over:
@@ -413,9 +392,30 @@ func _game_draw() -> void:
 			Shell.label_plate(self, Vector2(mid, size.y * 0.3), Lang.t("mini_golf.hint_power"), 32, UiTheme.TEXT)
 
 
+## The hint line of a turn after the name banner (REQ-MG-13): the key of a text row, or "" for none. "Swing a bit more" after a
+## swing that was too weak, the aim hint before the back swing, the power hint on Easy once the aim is locked.
+func aim_hint_key() -> String:
+	if _weak_left > 0.0:
+		return "mini_golf.hint_weak"
+	if _phase_time < HINT_TIME and not detector.aim_locked:
+		return "mini_golf.hint_aim"
+	if detector.aim_locked and bool(level(difficulty).power_hint):
+		return "mini_golf.hint_power"
+	return ""
+
+
 ## The hole number, the holes of the match and the par, top right (REQ-MG-3).
+func hole_text() -> String:
+	return Lang.f("mini_golf.hole", [rules.hole_number(), rules.holes, rules.par()]).to_upper()
+
+
+## The text of the chip of a player in the bar at the bottom: the name and the strokes on this hole (REQ-MG-3).
+func chip_text(slot: int) -> String:
+	return Lang.f("mini_golf.chip", [player(slot).player_name, rules.strokes_on_hole(slot)])
+
+
 func _draw_hole_text() -> void:
-	var text := Lang.f("mini_golf.hole", [rules.hole_number(), rules.holes, rules.par()]).to_upper()
+	var text := hole_text()
 	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 28).x
 	var at := Vector2(Shell.mx(self, size.x - 60.0 - w, w), 96.0)
 	draw_string(UiTheme.font(), at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.TEXT)
@@ -431,7 +431,7 @@ func _draw_bar() -> void:
 	var total_w := w * float(n) + gap * float(n - 1)
 	var x := (size.x - total_w) * 0.5
 	var y := size.y - BAR_MARGIN - BAR_H
-	var on := rules.current_slot() if not _clock.is_counting() and phase != Phase.HOLE else -1
+	var on := rules.current_slot() if phase != Phase.HOLE else -1
 	for r in rules.rows:
 		if not participants.has(r.slot):
 			continue

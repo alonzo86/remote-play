@@ -103,8 +103,11 @@ func _run() -> void:
 	await _frames(4)
 	sv = app.current_screen()
 	_check(sv.rows[0].value == "hard", "the view opens with the last choice (REQ-GM-94)")
+	_check(sv.rows[1]._value.text == "GARDEN", "the Theme row starts on Garden")
 	sv.rows[1]._gui_input(right)
-	_check(sv.rows[1].value == "ice" and sv.rows[1]._value.text == "ICE", "Right on the Theme row gives Ice")
+	_check(sv.rows[1].value == "castle" and sv.rows[1]._value.text == "CASTLE", "Right on the Theme row gives Castle")
+	sv.rows[1]._gui_input(right)
+	_check(sv.rows[1].value == "ice" and sv.rows[1]._value.text == "ICE", "Right again gives Ice")
 	sv.start()
 	await _frames(4)
 	var game: Control = app.current_screen()
@@ -238,6 +241,7 @@ func _run() -> void:
 	sv.start()
 	await _frames(3)
 	_check(app.current_screen() == sv, "Start does nothing when the phones do not fit the game")
+	await _hebrew_rows(app)
 	await _slot_list(app)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
@@ -291,3 +295,55 @@ func _slot_list(app: Node) -> void:
 	for p in players:
 		p.reset()
 	list.queue_free()
+
+
+## The choice row in Hebrew (REQ-FL-54): Right goes to the previous value and Left to the next, as the arrows are mirrored; the
+## Up and Down keys visit the same items in the same order as in English, one item for each press.
+func _hebrew_rows(app: Node) -> void:
+	print("settings view in Hebrew")
+	var Lang = load("res://scripts/core/lang.gd")
+	var chains := {}
+	for code in ["en", "he"]:
+		app.set_language(code, false)
+		app.go_game_settings("maze")
+		await _frames(6)
+		var sv: Control = app.current_screen()
+		var row: Control = sv.rows[0]
+		row.set_value("medium")
+		row.grab_focus()
+		var order: Array = row.row.values
+		var right := InputEventAction.new()
+		right.action = "ui_right"
+		right.pressed = true
+		var left := InputEventAction.new()
+		left.action = "ui_left"
+		left.pressed = true
+		row._gui_input(right)
+		var after_right: String = row.value
+		row._gui_input(left)
+		row._gui_input(left)
+		var after_left: String = row.value
+		if code == "he":
+			_check(after_right == order[0] and after_left == order[2],
+					"in Hebrew Right goes to the previous value (%s) and Left to the next (%s)" % [after_right, after_left])
+		else:
+			_check(after_right == order[2] and after_left == order[0],
+					"in English Right goes to the next value (%s) and Left to the previous (%s)" % [after_right, after_left])
+		_check((row._left.get_global_rect().get_center().x < row._right.get_global_rect().get_center().x) == (code == "en"),
+				"%s: the arrow of the previous value is at the %s of the next" % [code, "left" if code == "en" else "right"])
+		row.set_value("medium")
+		var chain: Array = []
+		var cur: Control = row
+		for i in 6:
+			var below := cur.find_valid_focus_neighbor(SIDE_BOTTOM)
+			if below == null or below == cur:
+				break
+			_check(below.get_global_rect().position.y > cur.get_global_rect().position.y,
+					"%s: Down from item %d goes to an item below it" % [code, i])
+			chain.append(below.get_script().resource_path.get_file() + ":" + str(below.name))
+			cur = below
+		chains[code] = chain.map(func(x: String) -> String: return x.split(":")[0])
+	_check(chains.en == chains.he and not chains.en.is_empty(),
+			"Down visits the same kinds of items in English and in Hebrew: %s" % str(chains.en))
+	app.set_language("en", false)
+	Lang.set_language("en", root)

@@ -44,6 +44,8 @@ var _hold := false               # A participant lost its connection: the game w
 var _hold_info := {}             # slot -> {name, color} of the players lost in this hold.
 var _hold_sig := ""
 var _pixel_viewport: SubViewport
+## True only for the picture of a game tile (tools/make_tiles.gd, REQ-GM-49): the game draws its world and no HUD.
+var tile_mode := false
 var _pixel_layer: Control        # Draws the world of a pixel game, inside the low-resolution view.
 
 
@@ -52,12 +54,21 @@ func _ready() -> void:
 	participants = App.server.connected_slots()
 	App.server.set_phase("playing", participants)
 	Sound.duck(false)
-	Sound.music_at_go(Registry.id_of_script(get_script()))   # The song starts at GO (REQ-FL-65a).
+	if _has_countdown():
+		Sound.music_at_go(Registry.id_of_script(get_script()))   # The song starts at GO (REQ-FL-65a).
+	else:
+		Sound.music(Registry.id_of_script(get_script()))   # No countdown: the song starts with the play (REQ-GM-35).
 	if _pixel_world():
 		_build_pixel_view()
 	_game_ready()
 	if participants.is_empty():
 		end_no_players()
+
+
+## True when the game starts with the 3 s countdown (REQ-GM-35). Only a game with a visible timer has one; the others
+## start at once and their song starts with the play. A game answers this in `_ready()` time: `participants` is set.
+func _has_countdown() -> bool:
+	return true
 
 
 func player(slot: int) -> PlayerInput:
@@ -153,16 +164,6 @@ func draw_leader_chip(ci: CanvasItem) -> void:
 		return
 	var leaders := board.leaders()
 	Shell.leader_chip(ci, Shell.area_width(ci), leaders.map(func(e: Dictionary) -> Object: return player(e.slot)), leader_text())
-
-
-## The name tags of the countdown (REQ-GM-46a): `positions` is slot -> the middle of the object of that player on the screen.
-func draw_name_tags(ci: CanvasItem, positions: Dictionary, radius := 48.0) -> void:
-	var entries: Array = []
-	for s in participants:
-		if positions.has(s):
-			entries.append({"pos": positions[s], "name": player(s).player_name, "color": player(s).color,
-					"avatar": player(s).avatar})
-	Shell.name_tags(ci, Vector2(Shell.area_width(ci), (ci as Control).size.y if ci is Control else size.y), entries, radius)
 
 
 ## While a participant is lost the game is paused and a card says so (REQ-GM-30). The game never goes on by itself:
@@ -268,7 +269,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func on_back() -> void:
-	if _menu_open and _menu_kind != "hold":
+	if is_over:
+		App.go_menu() # The result menu and "No players connected" leave at once (REQ-GM-31a).
+	elif _menu_open and _menu_kind != "hold":
 		close_menu() # Also the "End the game?" question: Back is "Keep playing".
 	else:
 		request_leave() # On the card of a lost phone, Back asks to end the game.
@@ -352,6 +355,10 @@ func _menu_row(text: String, color: Color, avatar := -1, medal_tier := "") -> Co
 ##   A game with its own score for a medal passes `medal` (a tier of `Medals`, or `Medals.NONE`); `null` means it does not say.
 ## - `score_text` turns a score into text for the list (default `Scoreboard.format`). A player without a score shows
 ##   "not finished".
+## A game with teams sets this before `open_results()` when a team won: two winners of the board are not a tie then.
+var team_won := false
+
+
 func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entries: Array = [],
 		score_text := Callable(), medal: Variant = null) -> void:
 	is_over = true
@@ -398,7 +405,9 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	entries.append(["minigame.back_to_menu", App.go_menu])
 	open_menu(heading, entries, rows)
 	Sound.stop_music()
-	Sound.sfx("tie" if heading in [Lang.t("minigame.tie"), Lang.t("minigame.round_over")] else "win")
+	# `win` for a winner or a solo medal; `tie` for a tie, for "Round over" and for a solo round with no medal (REQ-FL-65).
+	var won := (tier != Medals.NONE) if has_medal and rows.size() == 1 else (winners.size() == 1 or team_won)
+	Sound.sfx("win" if won else "tie")
 
 
 ## The key of the personal best of this game and its settings (REQ-GM-98), for example `snowball_splat|medium`; a key of
@@ -447,6 +456,8 @@ func close_menu() -> void:
 func _draw() -> void:
 	if _pixel_layer == null:
 		draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
+	if tile_mode:
+		return
 	_game_draw()
 	_draw_overlays(self)
 

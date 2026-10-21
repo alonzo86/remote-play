@@ -28,7 +28,7 @@ var scoring := "real"
 var play := Match.new()
 
 var _board: Scoreboard
-var _clock := RoundClock.new(COUNTDOWN, 0.0)
+var _clock := RoundClock.new(0.0, 0.0)   # With the solo timer it gets the 3 s countdown in _game_ready().
 var _haptics := Haptics.new()
 var _time := 0.0
 var _playing := 0.0             # Seconds since GO.
@@ -38,8 +38,14 @@ var _banner_sub := ""
 var _banner_left := 0.0
 var _banner_color := UiTheme.ACCENT
 var _great: Dictionary = {}     # slot -> seconds left of the GREAT! text over the player.
+var _sparks: Array = []         # {pos: Vector3, age: float} of the green hits: a few pixel sparks at the racket (REQ-TN-6).
 var _tick_ms := 0
 var _wired: Array[int] = []     # The slots whose signals are connected, also the ones that left later.
+
+
+## Only the solo machine rally shows a timer, so only it starts with the countdown (REQ-GM-35, REQ-TN-4).
+func _has_countdown() -> bool:
+	return participants.size() == 1
 
 
 func _game_ready() -> void:
@@ -51,6 +57,11 @@ func _game_ready() -> void:
 		player(s).button_pressed.connect(_on_button.bind(s))
 		player(s).swung.connect(_on_swing.bind(s))
 		_wired.append(s)
+	if _has_countdown():
+		_clock = RoundClock.new(COUNTDOWN, 0.0)
+	else:
+		for s in participants:
+			player(s).recenter()   # No countdown: the pose at the start is the middle of the aim (REQ-TN-7).
 
 
 func _exit_tree() -> void:
@@ -87,7 +98,7 @@ func _on_swing(info: Dictionary, slot: int) -> void:
 	play.swing(slot, float(info.power), bool(info.down), side, float(info.hit_age_ms) / 1000.0)
 
 
-## True while the match is on: not in the countdown, not over, not paused.
+## True while the match is on: not in the countdown (only the solo match has one), not over, not paused.
 func _live() -> bool:
 	return not is_over and not is_paused() and not _clock.is_counting() and not play.is_over()
 
@@ -111,6 +122,9 @@ func _game_tick(delta: float) -> void:
 		_great[s] = float(_great[s]) - delta
 		if float(_great[s]) <= 0.0:
 			_great.erase(s)
+	for sp in _sparks:
+		sp.age = float(sp.age) + delta
+	_sparks = _sparks.filter(func(sp: Dictionary) -> bool: return float(sp.age) < Look.SPARK_TIME)
 	if _end_left < 0.0:
 		play.tick(delta)
 		_handle_events(play.take_events())
@@ -162,6 +176,7 @@ func _on_hit(e: Dictionary) -> void:
 	_haptics.pulse(slot, BUZZ_GREAT_MS if great else BUZZ_HIT_MS, 80)
 	if great:
 		_great[slot] = GREAT_TIME
+		_sparks.append({"pos": e.get("pos", play.sim.pos), "age": 0.0})
 
 
 func _on_point(e: Dictionary) -> void:
@@ -210,6 +225,86 @@ func _sync_board() -> void:
 			_board.set_score(s, float(play.rules.tally[s]))
 
 
+## The place of every player in a match of 2 to 4 players: a place belongs to the team, so the players of a team in front are 1
+## and the others 2, and everybody is 1 when the teams are level (REQ-TN-13). Equal games share a place and the next place
+## follows at once (1, 1, 2), unlike the ranks of REQ-GM-70.
+func places() -> Dictionary:
+	var scores := _scores()
+	var out := {}
+	for s in scores:
+		var better := {}
+		for o in scores:
+			if scores[o] > scores[s]:
+				better[scores[o]] = true
+		out[s] = 1 + better.size()
+	return out
+
+
+## The games (Real) or points (Quick) of every player that is in the match, from the board that `_sync_board()` fills.
+func _scores() -> Dictionary:
+	var out := {}
+	for s in participants:
+		if _board.has(s):
+			out[s] = int(_board.score(s))
+	return out
+
+
+## The most games (Real) or points (Quick) of one player; the leader chip shows nothing while it is 0.
+func _best_tally() -> int:
+	var best := 0
+	for v in _scores().values():
+		best = maxi(best, int(v))
+	return best
+
+
+func _publish_scores() -> void:
+	if play.solo:
+		super()
+		return
+	var pl := places()
+	var teams_left := 0
+	for t in play.rules.teams:
+		teams_left += 1 if not t.is_empty() else 0
+	var lead := _best_tally() > 0
+	for s in pl:
+		App.server.send_score(s, int(pl[s]) if lead else 0, teams_left if lead else 0, str(int(_board.score(s))))
+
+
+func leader_text() -> String:
+	if play.solo:
+		return super()
+	return str(_best_tally()) if _best_tally() > 0 else ""
+
+
+## The leader chip shows the team in front with its games, or TIE when the teams are level (REQ-TN-13).
+func draw_leader_chip(ci: CanvasItem) -> void:
+	if play.solo:
+		super(ci)
+		return
+	var best := _best_tally()
+	if best <= 0:
+		return
+	var in_front := {}   # team -> the slots with the best score
+	var scores := _scores()
+	for s in scores:
+		if scores[s] == best:
+			var t := play.rules.team_of(s)
+			if not in_front.has(t):
+				in_front[t] = []
+			in_front[t].append(s)
+	if in_front.is_empty():
+		return
+	var chips: Array = []
+	for t in in_front:
+		var slots: Array = in_front[t]
+		var names: Array = []
+		for s in slots:
+			names.append(player(s).player_name)
+		chips.append({"player_name": " + ".join(names), "color": player(slots[0]).color,
+				"avatar": player(slots[0]).avatar if slots.size() == 1 else -1})
+	Shell.leader_chip(ci, Shell.area_width(ci), chips, leader_text())
+
+
 ## The match is over: one player gets a medal for the longest rally, more players the winners (REQ-TN-17).
 func _finish() -> void:
 	for s in play.winners():
@@ -225,6 +320,7 @@ func _finish() -> void:
 	var title := ""
 	if not names.is_empty():
 		title = Lang.f("result.winner", [" + ".join(names)])
+		team_won = true   # Two winners of a team are a win for the sound, not a tie.
 	open_results(_board, [], title)
 
 
@@ -289,6 +385,9 @@ func _world_draw(ci: CanvasItem) -> void:
 			"person":
 				var c = play.chars[t.slot]
 				Look.draw_person(ci, _foot(p, c), p.scale(c.pos.y), _look_of(int(t.slot), c))
+	for sp in _sparks:
+		var sp_pos: Vector3 = sp.pos
+		Look.draw_sparks(ci, p.at(sp_pos.x, sp_pos.y, maxf(sp_pos.z, 0.0) + 0.1), float(sp.age))
 	ci.draw_rect(Rect2(0.0, 0.0, size.x, Look.HUD_H * size.y / 1080.0), UiTheme.BG)
 
 
@@ -307,15 +406,22 @@ func _hits_pending() -> bool:
 	return play.hitter >= 0
 
 
-## The ring on the court where the next hit happens. It is yellow, and green when a swing now is a great one (REQ-TN-6).
-func _draw_target(ci: CanvasItem, p: Look.Proj) -> void:
+## The ring on the court where the next hit happens: `{show, green, left}`. It shows when a player has to hit and the contact is
+## less than 1.2 s away (or at most HIT_W past). It is green when a swing now is a great one (REQ-TN-6), else yellow.
+func ring_state() -> Dictionary:
 	if play.hitter < 0 or play.contact.is_empty():
-		return
+		return {"show": false, "green": false, "left": 0.0}
 	var left := float(play.contact.t) - play.time
-	if left > 1.2 or left < -Match.HIT_W:
+	var show := not (left > 1.2 or left < -Match.HIT_W)
+	return {"show": show, "green": absf(left) <= float(play.level.green), "left": left}
+
+
+func _draw_target(ci: CanvasItem, p: Look.Proj) -> void:
+	var ring := ring_state()
+	if not ring.show:
 		return
 	var cp: Vector3 = play.contact.pos
-	var green := absf(left) <= float(play.level.green)
+	var green: bool = ring.green
 	var color := Color("5cf070") if green else Color("f4e04a")
 	var pts := PackedVector2Array()
 	for i in 17:
@@ -329,7 +435,7 @@ func _game_draw() -> void:
 	draw_leader_chip(self)
 	var p := Look.Proj.new(size)
 	if _clock.is_counting():
-		_draw_countdown(p)
+		_draw_countdown()
 		return
 	if not play.solo:
 		_draw_panel()
@@ -364,19 +470,13 @@ func _hint() -> String:
 	return ""
 
 
-func _draw_countdown(p: Look.Proj) -> void:
+func _draw_countdown() -> void:
 	var n := _clock.count_number()
-	var label := str(n) if n > 0 else "shell.go"
+	var label := str(n)
 	draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)
 	Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	Shell.countdown(self, size, label, _clock.count_elapsed())
-	var spots := {}
-	for s in participants:
-		if play.chars.has(s):
-			var c = play.chars[s]
-			spots[s] = Shell.snap(Look.head_pos(_foot(p, c), p.scale(c.pos.y)))
-	draw_name_tags(self, spots, 48.0)
 
 
 ## Over the player after a great hit.
@@ -429,4 +529,4 @@ func _draw_solo_panel() -> void:
 		draw_style_box(UiTheme.line_box(UiTheme.FRAME, UiTheme.BG, 4), row)
 		draw_string(f, Vector2(row.position.x + 16.0, row.position.y + 38.0), rally if i == 0 else best,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.ACCENT if i == 0 else UiTheme.TEXT)
-	Shell.timer(self, Vector2(960.0 - 120.0, 36.0), maxf(0.0, play.solo_left))
+	Shell.timer(self, Vector2(Shell.TIMER_X, Shell.TIMER_Y), maxf(0.0, play.solo_left))

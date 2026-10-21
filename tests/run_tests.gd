@@ -3,6 +3,7 @@ extends SceneTree
 ##   godot --headless --path . --script tests/run_tests.gd -- --role=controller
 ## "--role=controller" keeps the TV autoload from taking port 47801.
 
+const Lang = preload("res://scripts/core/lang.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
@@ -481,6 +482,11 @@ func _test_pad(app: Node, server: Node) -> void:
 	_check(lat.SCORE_Y - 32.0 > lat._rect_leave().end.y and info_top < 262.0 + lat.INFO_Y - 48.0
 			and lat._rect_recenter().position.y > 316.0 + lat.INFO_Y,
 			"the score line has its own row under the header and Leave, above the latency rows and the Recenter box")
+	var en_rects := [lat._rect_leave(), lat._rect_recenter(), lat._center_a(), lat._center_b()]
+	Lang.set_language("he", root)
+	var same: bool = en_rects == [lat._rect_leave(), lat._rect_recenter(), lat._center_a(), lat._center_b()]
+	Lang.set_language("en", root)
+	_check(same and lat._rect_leave().get_center().x > lat.size.x * 0.5, "Leave is top right; the pad is not mirrored in Hebrew")
 	lat.free()
 	var pad = app.current_screen()
 	var sampler = pad._sampler
@@ -991,5 +997,3 @@ func _test_network() -> void:
 	for c in clients:
 		c.leave()
 	server.stop()
-
-
