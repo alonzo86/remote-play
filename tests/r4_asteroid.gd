@@ -68,7 +68,8 @@ func _run() -> void:
 	quit(1 if _fails > 0 else 0)
 
 
-## 3c: full tilt to the right and to the left, 2 s after the ship reached the side it has not moved (the tilt is still held, so the speed value stays high: the position counts), and it is fully on the screen.
+## 3c: full tilt right and left, 2 s after the ship reached the side it has not moved (the tilt is still held, so the speed
+## value stays high: the position counts), and it is fully on the screen.
 func _edges() -> void:
 	print("the sides")
 	var game := _play()

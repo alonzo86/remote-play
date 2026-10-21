@@ -97,7 +97,7 @@ func _game(path: String, props := {}) -> Control:
 ## gets a new `Haptics`, so the pause between two buzzes of an earlier event does not hide this one.
 func _event(game: Control, label: String, ids: Array, buzzes: Dictionary, trigger: Callable, quiet := false,
 		not_ids := []) -> void:
-	await create_timer(0.2).timeout   # The GO buzz of the countdown (and other earlier buzzes) are messages that are still on the way.
+	await create_timer(0.2).timeout   # The GO buzz of the countdown and other earlier buzzes are still on the way.
 	_heard.clear()
 	for b in _buzz:
 		b.clear()
