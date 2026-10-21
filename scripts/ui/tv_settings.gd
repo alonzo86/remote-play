@@ -141,7 +141,8 @@ func _add_level_row(parent: Control, title: String, key: String) -> void:
 	_rows.append(b)
 
 
-## Moves to the next (1) or the previous (-1) language of the list. After the last comes the first, so OK goes through all of them.
+## Moves to the next (1) or the previous (-1) language of the list. After the last comes the first, so OK goes
+## through all of them.
 func _step_language(dir: int) -> void:
 	var codes := Lang.CODES
 	var i := codes.find(Lang.current())
