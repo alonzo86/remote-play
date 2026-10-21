@@ -305,12 +305,12 @@ func _sharp_logo(tag: String) -> void:
 		for x in range(0, src.get_width(), 4):
 			var c := src.get_pixel(x, y)
 			for d in [Vector2i(3, 0), Vector2i(0, 3), Vector2i(3, 3)]:
-				if src.get_pixel(x + d.x, y + d.y) != c:
+				var o := src.get_pixel(x + d.x, y + d.y)
+				if not (o == c or (o.a == 0.0 and c.a == 0.0)):   # the import may change the color of a clear pixel
 					uniform = false
-	_known_bug("issue-needed: the logo file has 2x2 px per logo pixel, REQ-FL-50 says 4x4",
-			uniform and is_equal_approx(fit * 4.0 * scale, roundf(fit * 4.0 * scale)),
-			"%s: a logo pixel is a whole number of screen pixels (the file scale %.2f gives %.2f screen px per 2x2 art pixel)"
-			% [tag, fit * scale, fit * scale * 2.0])
+	_check(uniform and is_equal_approx(fit * 4.0 * scale, roundf(fit * 4.0 * scale)),
+			"%s: a logo pixel is a whole number of screen pixels (4x4 file blocks, scale %.2f gives %.2f px per logo pixel)"
+			% [tag, fit * scale, fit * scale * 4.0])
 	# Nearest filter: no pixel of the logo has a color that the file does not have (a smoothed picture has in-between colors),
 	# and every screen pixel is the file pixel that it is above.
 	var colors := {_rgb(UiTheme.BG): true}
