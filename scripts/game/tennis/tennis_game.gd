@@ -225,6 +225,7 @@ func _finish() -> void:
 	var title := ""
 	if not names.is_empty():
 		title = Lang.f("result.winner", [" + ".join(names)])
+		team_won = true   # Two winners of a team are a win for the sound, not a tie.
 	open_results(_board, [], title)
 
 

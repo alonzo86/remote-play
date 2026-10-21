@@ -86,14 +86,11 @@ func _sumo(game: Control, code: String) -> void:
 	var banners_ok := true
 	var widest := 0.0
 	for msg in banners:
-		var r := Shell.label_plate_rect(game.banner_at(), msg, game.BANNER_FONT)
+		var r := Shell.label_plate_rect(game.banner_at(), msg, game.banner_font(msg))
 		widest = maxf(widest, r.size.x)
 		banners_ok = banners_ok and _inside(r, area)
-	if code == "en":
-		_known_bug("issue-needed: the Sumo Bumpers round banner '%s wins the round!' with a 10 letter name is %.0f px wide at 72 px, "
-				% [LONG_NAME, widest] + "wider than the screen inside the 60 px margin (1800 px)", banners_ok)
-	else:
-		_check(banners_ok, "%s: the banner plates are inside the 60 px margin, the widest is %.0f px" % [code, widest])
+	_check(banners_ok, "%s: the banner plates (long name too) are inside the 60 px margin, the widest is %.0f px"
+			% [code, widest])
 	var round_text := Lang.f("sumo_bumpers.round_n_of", [3, game.ROUNDS]).to_upper()
 	var round_w := UiTheme.font().get_string_size(round_text, HORIZONTAL_ALIGNMENT_LEFT, -1, game.ROUND_FONT).x
 	_check(round_w <= 480.0, "%s: the round number is %.0f px wide, centered at x = %.0f of the bar" % [code, round_w,
@@ -112,8 +109,8 @@ func _sumo(game: Control, code: String) -> void:
 				worst_side = minf(worst_side, minf(r.position.x, area.x - r.end.x))
 	_check(worst_side >= MARGIN, "%s: WHEE! over a bumper at the edge of the island stays %.0f px from the sides (60 or more)"
 			% [code, worst_side])
-	_known_bug("issue-needed: WHEE! over a bumper that falls off the top of the island has its plate %.0f px from the top of the "
-			% worst_top + "screen (60 px margin, and under the 112 px bar), Sumo Bumpers", worst_top >= game.BAR_H)
+	_check(worst_top >= game.BAR_H, "%s: WHEE! over a bumper that falls off the top has its plate %.0f px from the top "
+			% [code, worst_top] + "(under the 112 px bar)")
 
 
 ## 22.12e: the wave number, the banners and the line of Galaxy Protector.
@@ -128,7 +125,7 @@ func _asteroid(game: Control, code: String) -> void:
 	var texts := [Lang.f("asteroid_blast.wave_n", [88]), Lang.f("asteroid_blast.wave_clear", [88]),
 			Lang.t("asteroid_blast.all_ships_gone")]
 	for msg in texts:
-		var r := Shell.label_plate_rect(game.banner_at(), msg, game.BANNER_FONT)
+		var r := Shell.label_plate_rect(game.banner_at(), msg, game.banner_font(msg))
 		widest = maxf(widest, r.size.x)
 		ok = ok and _inside(r, area)
 	var sub := Shell.label_plate_rect(game.banner_at() + Vector2(0.0, 110.0), Lang.f("asteroid_blast.next_wave_in", [5]),

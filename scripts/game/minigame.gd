@@ -268,7 +268,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func on_back() -> void:
-	if _menu_open and _menu_kind != "hold":
+	if is_over:
+		App.go_menu() # The result menu and "No players connected" leave at once (REQ-GM-31a).
+	elif _menu_open and _menu_kind != "hold":
 		close_menu() # Also the "End the game?" question: Back is "Keep playing".
 	else:
 		request_leave() # On the card of a lost phone, Back asks to end the game.
@@ -352,6 +354,10 @@ func _menu_row(text: String, color: Color, avatar := -1, medal_tier := "") -> Co
 ##   A game with its own score for a medal passes `medal` (a tier of `Medals`, or `Medals.NONE`); `null` means it does not say.
 ## - `score_text` turns a score into text for the list (default `Scoreboard.format`). A player without a score shows
 ##   "not finished".
+## A game with teams sets this before `open_results()` when a team won: two winners of the board are not a tie then.
+var team_won := false
+
+
 func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entries: Array = [],
 		score_text := Callable(), medal: Variant = null) -> void:
 	is_over = true
@@ -399,7 +405,7 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	open_menu(heading, entries, rows)
 	Sound.stop_music()
 	# `win` for a winner or a solo medal; `tie` for a tie, for "Round over" and for a solo round with no medal (REQ-FL-65).
-	var won := (tier != Medals.NONE) if has_medal and rows.size() == 1 else winners.size() == 1
+	var won := (tier != Medals.NONE) if has_medal and rows.size() == 1 else (winners.size() == 1 or team_won)
 	Sound.sfx("win" if won else "tie")
 
 

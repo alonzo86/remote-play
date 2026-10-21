@@ -261,6 +261,8 @@ func _results(app: Node, sound: Node) -> void:
 	# 8b: a tie, a round with no score; 8a: a solo medal; 8b: a solo with no medal.
 	tag = await _result_run(app, [[0, 30.0], [1, 30.0]], [])
 	_check(tag == "tie", "a tie plays `tie` and not `win` (got %s)" % tag)
+	tag = await _result_run(app, [[0, 30.0], [1, 30.0]], [], 2, true)
+	_check(tag == "win", "a team win (two winners, team_won) plays `win` and not `tie` (got %s)" % tag)
 	tag = await _result_run(app, [], [])
 	_check(tag == "tie", "a round over with no score plays `tie` (got %s)" % tag)
 	tag = await _result_run(app, [[0, 100.0]], [10, 20, 30], 1)
@@ -270,7 +272,7 @@ func _results(app: Node, sound: Node) -> void:
 
 
 ## Starts a game with `n` phones, gives the scores, opens the result and returns "win", "tie", "both" or "none".
-func _result_run(app: Node, scores: Array, tiers: Array, n := 2) -> String:
+func _result_run(app: Node, scores: Array, tiers: Array, n := 2, team := false) -> String:
 	for i in range(1, 2):
 		if i >= n and _clients[i].state == ControllerClient.State.CONNECTED:
 			_clients[i].leave()
@@ -285,6 +287,7 @@ func _result_run(app: Node, scores: Array, tiers: Array, n := 2) -> String:
 		board.set_score(int(s[0]), float(s[1]))
 	await _wait(0.1)
 	_sounds.clear()
+	game.team_won = team
 	game.open_results(board, tiers)
 	await _wait(0.1)
 	var ids := _ids()

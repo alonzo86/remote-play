@@ -24,7 +24,7 @@ const CLIFF_DEPTH := 0.17             # The cliff hangs this share of the radius
 const BELLY := Color("fcfcfc")
 const BEAK := Color("ffa01e")
 ## The clouds: x and y in the 480x270 view, the width in world pixels, and the drift speed in world pixels per second.
-const CLOUDS := [[30.0, 40.0, 16, 2.0], [130.0, 34.0, 16, 3.0], [240.0, 60.0, 14, 2.5], [330.0, 36.0, 18, 1.5],
+const CLOUDS := [[30.0, 40.0, 16, 2.0], [130.0, 34.0, 16, 3.0], [240.0, 60.0, 14, 2.5], [330.0, 36.0, 18, 2.0],
 		[400.0, 120.0, 16, 2.0], [20.0, 170.0, 14, 3.0], [350.0, 200.0, 16, 2.5], [90.0, 230.0, 12, 2.0]]
 const VIEW_W := 480.0
 const GRASS_FLECKS := [Vector2(-0.45, -0.3), Vector2(0.3, -0.15), Vector2(-0.2, 0.5), Vector2(0.5, 0.4), Vector2(-0.6, 0.15)]
