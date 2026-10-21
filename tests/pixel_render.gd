@@ -41,14 +41,15 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
-## A check that fails because of a real bug that has an issue (or needs one). It prints KNOWN BUG and is not counted as a fail.
+## A check that fails because of a real bug that has an issue (or needs one). It counts as a failure until the bug is fixed.
 func _known_bug(issue: String, cond: bool, what: String) -> void:
 	_checks += 1
 	if cond:
 		print("  ok   ", what, "  (the bug is fixed: turn this into _check)")
 	else:
 		_bugs += 1
-		print("  KNOWN BUG (", issue, ") ", what)
+		_fails += 1
+		print("  FAIL (known bug) (", issue, ") ", what)
 
 
 func _skip(what: String) -> void:

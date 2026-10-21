@@ -277,7 +277,8 @@ func _known_bug(issue: String, cond: bool, what: String) -> void:
 	if cond:
 		print("  ok   ", what)
 	else:
-		print("  KNOWN BUG (", issue, ") ", what)
+		_fails += 1
+		print("  FAIL (known bug) (", issue, ") ", what)
 
 
 ## A fresh About screen that fills the window, with the layout done.

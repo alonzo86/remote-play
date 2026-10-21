@@ -53,13 +53,14 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
-## A known bug: it prints KNOWN BUG and does not count as a failure (the suite must pass until the issue is fixed).
+## A known bug: it counts as a failure until the bug is fixed.
 func _known_bug(issue: String, cond: bool, what: String) -> void:
 	_checks += 1
 	if cond:
 		print("  ok   ", what, " (the bug is fixed: use _check)")
 	else:
-		print("  KNOWN BUG ", issue, ": ", what)
+		_fails += 1
+		print("  FAIL (known bug) ", issue, ": ", what)
 
 
 func _initialize() -> void:

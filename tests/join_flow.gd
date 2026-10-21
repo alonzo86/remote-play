@@ -29,13 +29,14 @@ var _tv_connect_script: GDScript
 var _tv_games_script: GDScript
 
 
-## A known bug: it prints KNOWN BUG and does not count as a failure (the suite must pass until the issue is fixed).
+## A known bug: it counts as a failure until the bug is fixed.
 func _known_bug(issue: String, cond: bool, what: String) -> void:
 	_checks += 1
 	if cond:
 		print("  ok   ", what, " (the bug is fixed: remove _known_bug)")
 	else:
-		print("  KNOWN BUG ", issue, ": ", what)
+		_fails += 1
+		print("  FAIL (known bug) ", issue, ": ", what)
 
 
 func _check(cond: bool, what: String) -> void:

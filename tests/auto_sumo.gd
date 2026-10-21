@@ -33,14 +33,15 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
-## A check of something that is wrong in the game today: it prints KNOWN BUG and is not counted as a failure. The text says what
+## A check of something that is wrong in the game today: it counts as a failure until the bug is fixed. The text says what
 ## to file. When the game is fixed the check passes and the line can become a normal `_check`.
 func _known_bug(issue: String, cond: bool) -> void:
 	_checks += 1
 	if cond:
 		print("  ok   (known bug is fixed, make this a normal check) ", issue)
 	else:
-		print("  KNOWN BUG ", issue)
+		_fails += 1
+		print("  FAIL (known bug) ", issue)
 
 
 func _frames(n: int) -> void:

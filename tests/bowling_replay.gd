@@ -44,10 +44,12 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
-## A check of a real problem that is not fixed yet: it prints KNOWN BUG and does not count as a failure.
+## A check of a real problem that is not fixed yet: it counts as a failure until the bug is fixed.
 func _known_bug(issue: String, cond: bool) -> void:
 	_checks += 1
-	print("  ", "ok   (the bug is gone: remove the guard) " if cond else "KNOWN BUG ", issue)
+	if not cond:
+		_fails += 1
+	print("  ", "ok   (the bug is gone: remove the guard) " if cond else "FAIL (known bug) ", issue)
 
 
 func _frames(n: int) -> void:

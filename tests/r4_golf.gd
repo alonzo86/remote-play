@@ -39,13 +39,14 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
-## A check of something that is wrong today (or a step that does not match the code): it prints KNOWN BUG, no failure.
+## A check of something that is wrong today: it counts as a failure until the bug is fixed.
 func _known_bug(issue: String, cond: bool, what: String) -> void:
 	_checks += 1
 	if cond:
 		print("  ok   ", what, " (the bug is fixed: use _check)")
 	else:
-		print("  KNOWN BUG ", issue, ": ", what)
+		_fails += 1
+		print("  FAIL (known bug) ", issue, ": ", what)
 
 
 func _frames(n: int) -> void:

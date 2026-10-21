@@ -30,13 +30,14 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
-## A check for a problem of the game that is known: it prints KNOWN BUG and does not count as a failure.
+## A check for a problem of the game that is known: it counts as a failure until the bug is fixed.
 func _known_bug(issue: String, cond: bool, what: String) -> void:
 	_checks += 1
 	if cond:
 		print("  ok   ", what)
 	else:
-		print("  KNOWN BUG (%s) %s" % [issue, what])
+		_fails += 1
+		print("  FAIL (known bug) (%s) %s" % [issue, what])
 
 
 func _initialize() -> void:
