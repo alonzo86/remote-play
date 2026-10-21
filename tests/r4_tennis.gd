@@ -181,11 +181,13 @@ func _runs_and_great() -> void:
 		var hitter: int = game.play.hitter
 		var c_pos: Vector2 = game.play.chars[hitter].pos
 		var contact: Vector3 = game.play.contact.pos
+		# A ball that lands further out than the run area (REQ-TN-4) is reached at the edge of that area.
+		var reach: Vector2 = Match._on_screen(Vector2(contact.x, contact.y))
 		_until(game, float(game.play.contact.t) - 0.01)
 		var now: Vector2 = game.play.chars[hitter].pos
-		if now.distance_to(c_pos) > 0.5 or c_pos.distance_to(Vector2(contact.x, contact.y)) < 0.8:
+		if now.distance_to(c_pos) > 0.5 or c_pos.distance_to(reach) < 0.8:
 			moved += 1
-		var ring := Vector2(contact.x, contact.y).distance_to(now)
+		var ring := reach.distance_to(now)
 		in_ring += 1 if ring <= 0.8 else 0
 		_swing(game, hitter, 0.6, false)
 		game._process(DT)   # The events of the hit are handled in the next step.
@@ -292,13 +294,16 @@ func _places() -> void:
 	for n in [3, 4]:
 		_clients = await SimInput.connect_phones(self, _app, n, _clients)
 		var game := await _new_game()
+		# With 3 players the teams change after each game (REQ-TN-11): take the teams of the game that was won.
+		var won_front: Array = game.play.rules.teams[0].duplicate()
+		var won_other: Array = game.play.rules.teams[1].duplicate()
 		for i in 4:
 			game.play.rules.score_point(0)
 		game._sync_board()
 		game._process(DT)
 		await _frames(6)
-		var front: Array = game.play.rules.teams[0]
-		var other: Array = game.play.rules.teams[1]
+		var front: Array = won_front
+		var other: Array = won_other
 		var front_ok := true
 		var other_places := []
 		for s in front:

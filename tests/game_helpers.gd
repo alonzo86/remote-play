@@ -38,7 +38,7 @@ func _initialize() -> void:
 	_label_plate()
 	_score_chip()
 	_chip_avatar()
-	_medal_icon()
+	await _medal_icon()
 	_fit_size()
 	_pixel_world()
 	_round_length()
@@ -442,8 +442,15 @@ func _medal_icon() -> void:
 			"only the three tiers are on the sheet")
 	var canvas := Control.new()
 	root.add_child(canvas)
-	_check(Medal.draw(canvas, Rect2(0, 0, 48, 48), "silver") and not Medal.draw(canvas, Rect2(0, 0, 48, 48), "wood"),
-			"a known tier is drawn, an unknown one is not")
+	# Drawing is only allowed inside `draw`, so the calls run in the draw signal of the canvas.
+	var results := []
+	canvas.draw.connect(func() -> void:
+		results.append(Medal.draw(canvas, Rect2(0, 0, 48, 48), "silver"))
+		results.append(Medal.draw(canvas, Rect2(0, 0, 48, 48), "wood")))
+	canvas.queue_redraw()
+	await process_frame
+	await process_frame
+	_check(results.size() >= 2 and results[0] == true and results[1] == false, "a known tier is drawn, an unknown one is not")
 	canvas.queue_free()
 
 
