@@ -7,6 +7,7 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const Shell = preload("res://scripts/game/shell.gd")
 const Trace = preload("res://tests/golf_tennis_trace.gd")
 
 const DT := 1.0 / 60.0
@@ -15,6 +16,7 @@ var _fails := 0
 var _checks := 0
 var _ticks := {}      # slot -> the sensor tick of that phone
 var _buzzes := {}     # slot -> the buzzes that the phone got
+var _log: Array = []  # The leader chips that the game drew (kind "leader" notes of Shell).
 var _player_hits := 0 # The balls that a player hit in the last `_play()` (the last hitter changed from the machine to a player).
 
 
@@ -259,16 +261,23 @@ func _run() -> void:
 	await _frames(4)
 	_check(clients[0].score_rank == 1 and clients[1].score_rank == 1,
 			"the team in front has place 1 on both of its phones (9e): %s" % [[clients[0].score_rank, clients[1].score_rank]])
-	# REQ-TN-13: each phone shows its own team's place, so the other team (2 teams) is in place 2, not 3 (GM-70 ranks players).
-	_known_bug("issue-needed: REQ-TN-13 says each phone shows its own team's place (2 for the other team); the board ranks "
-			+ "the 4 players and the other team shows place %d" % clients[2].score_rank,
-			clients[2].score_rank == 2 and clients[3].score_rank == 2, "the phones of the other team show place 2 (9e)")
-	# REQ-TN-13: the leader chip shows the TEAM in front and its games. Two players of one team share first place in the
-	# board, so the chip would show TIE.
+	# REQ-TN-13: each phone shows its own team's place, so the other team (2 teams) is in place 2, not 3.
+	_check(clients[2].score_rank == 2 and clients[3].score_rank == 2,
+			"the phones of the other team show place 2 (9e): %s" % [[clients[2].score_rank, clients[3].score_rank]])
+	# REQ-TN-13: the leader chip shows the TEAM in front and its games, not TIE.
 	_check(f.leader_text() == "1", "the leader chip shows the 1 game of the team in front")
-	_known_bug("issue-needed: REQ-TN-13 says the leader chip shows the team in front; the 2 players of that team share first "
-			+ "place in the board (%d leaders), so the chip shows TIE" % f._board.leaders().size(),
-			f._board.leaders().size() == 1, "the leader chip does not show TIE when one team is in front (2 against 2)")
+	_log.clear()
+	Shell.recorder = func(kind: String, ci: CanvasItem, _r: Rect2, info: Dictionary) -> void:
+		if kind == "leader" and ci == f:
+			_log.append(info)
+	f.queue_redraw()
+	await _frames(3)
+	Shell.recorder = Callable()
+	var chip: Array = _log
+	_check(not chip.is_empty() and not bool(chip[0].tie) and String(chip[0].name).contains("+"),
+			"the leader chip names the 2 players of the team in front, not TIE (2 against 2): %s"
+			% [chip[0] if not chip.is_empty() else {}])
+
 
 	# ---- 1 phone: the machine, the buzz of every hit (4d, 10a, 10c) ----
 	for i in [3, 2, 1]:

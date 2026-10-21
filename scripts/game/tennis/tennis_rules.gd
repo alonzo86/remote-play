@@ -20,6 +20,8 @@ var chunks := 0                   # Games (Real) or blocks of 2 points (Quick) t
 var forfeit := false              # A team has no player left (REQ-TN-20).
 
 var _order: Array[int] = []       # Indexes in `slots` in the order of the servers.
+var _home := {}                   # With 4 players at the start: slot -> its team, kept when a player leaves (REQ-TN-20).
+var _server_slots: Array[int] = []   # The same: the slots in the order of the servers (A1, B1, A2, B2).
 
 
 func setup(p_slots: Array, p_quick: bool) -> void:
@@ -31,6 +33,12 @@ func setup(p_slots: Array, p_quick: bool) -> void:
 	points = [0, 0]
 	chunks = 0
 	forfeit = false
+	_home.clear()
+	_server_slots.clear()
+	if slots.size() == 4:
+		for i in 4:
+			_home[slots[i]] = 0 if i < 2 else 1
+		_server_slots.assign([slots[0], slots[2], slots[1], slots[3]])
 	_rebuild()
 
 
@@ -40,6 +48,16 @@ func _rebuild() -> void:
 	if n <= 1:
 		teams = [slots.duplicate(), []]
 		_order.assign([0] if n == 1 else [])
+		return
+	if not _home.is_empty():
+		# A match that began with 4 players: the teams stay as they were, also when one of them has a player less.
+		teams = [[], []]
+		for s in slots:
+			teams[_home[s]].append(s)
+		_order.clear()
+		for s in _server_slots:
+			if slots.has(s):
+				_order.append(slots.find(s))
 		return
 	if n == 2:
 		teams = [[slots[0]], [slots[1]]]
@@ -147,6 +165,8 @@ func remove_player(slot: int) -> bool:
 		return true
 	points = [0, 0] if not quick else points
 	_rebuild()
+	if teams[0].is_empty() or teams[1].is_empty():
+		forfeit = true   # A whole team left while players of the other team remain: they win at once (REQ-TN-20).
 	return match_over()
 
 
@@ -162,10 +182,19 @@ func advantage_team() -> int:
 	return -1 if status() != "advantage" else (0 if points[0] > points[1] else 1)
 
 
+## The games (Real) or points (Quick) of a team: the most of its players. With 3 players the teams change, so `points` (by team
+## index) is not the score of the players that are in the team now; `tally` is.
+func team_score(team: int) -> int:
+	var best := 0
+	for s in teams[team]:
+		best = maxi(best, int(tally.get(s, 0)))
+	return best
+
+
 ## The number of a team for the score: "0", "15", "30", "40" in Real, the points in Quick. A team with the advantage shows "AD".
 func point_text(team: int) -> String:
 	if quick:
-		return str(points[team])
+		return str(team_score(team))
 	if status() != "":
 		return "AD" if advantage_team() == team else "40"
 	return POINT_NAMES[mini(points[team], 3)]

@@ -30,9 +30,8 @@ const GAMES := {
 const NAMES := ["Abcdefghij", "Klmnopqrst", "Twinsssssss", "Twinsssssss"]
 ## Games whose name tags in the countdown cover the object of another player next to them (REQ-GM-46a): known, see the report.
 const TAGS_COVER := ["marble_race", "maze", "mini_golf", "snowball_splat"]
-## Games where no tag covers an object, but a tag is nearer to the object of another player than to its own (tennis: the
-## far-team character stands 64 px above the tag of the near-team character, its own object is 76 px away).
-const TAGS_NEAREST := ["tennis"]
+## Games where no tag covers an object, but a tag is nearer to the object of another player than to its own (none now).
+const TAGS_NEAREST := []
 const MARGIN := 60.0
 const SCREEN := Rect2(0, 0, 1920, 1080)
 ## The black bar at the top: the title, the timer and the leader chip stand inside it (REQ-MR-40).
@@ -364,7 +363,8 @@ func _round_checks(id: String, spec: Array) -> void:
 			_check(not big.is_empty() and _chip_fits(big),
 					"%s: a score of 5 digits fits inside the chip and the chip inside the margin" % state)
 		# A tie: the chip says TIE in the language of the TV, with a gray square (REQ-GM-46).
-		_set_scores(id, slots, [10.0, 20.0, 40.0, 40.0])
+		# Tennis counts a tie between the teams (REQ-TN-13): the two players of one team are not a tie.
+		_set_scores(id, slots, [10.0, 40.0, 40.0, 20.0] if id == "tennis" else [10.0, 20.0, 40.0, 40.0])
 		var tie := await _wait_leader(func(e: Dictionary) -> bool: return e.info.tie)
 		_check(not tie.is_empty() and tie.info.name == Lang.t("shell.tie") and tie.info.color == UiTheme.TEXT_DIM,
 				"%s: a tie shows '%s' with a gray square" % [state, Lang.t("shell.tie")])
