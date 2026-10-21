@@ -145,8 +145,8 @@ result.place_2,2ND,שני,Result list and phone score line: second place,
 result.place_3,3RD,שלישי,Result list and phone score line: third place,
 result.place_4,4TH,רביעי,Result list and phone score line: fourth place,
 result.points,%d points,%d נקודות,"Sumo Bumpers result list: score, %d is the points","the number sign (%d, %.1f ...) is replaced by a number"
-result.seconds_1,%.1f s,%.1f ש׳,"Road Rally HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
-result.seconds_2,%.2f s,%.2f ש׳,"Road Rally result list: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
+result.seconds_1,%.1f s,%.1f ש׳,"Treasure Maze result list: finish time, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
+result.seconds_2,%.2f s,%.2f ש׳,"Road Rally result list and the personal best of a race, on the phone profile: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 result.winner,%s wins!,%s ניצח!,Result menu title: %s is the name of the winner,%s is replaced by a name or a value
 settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row,
 settings.effects,EFFECTS,אפקטים,TV Settings: name of the sound effects volume row,
