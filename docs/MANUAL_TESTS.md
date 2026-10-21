@@ -293,7 +293,7 @@ Time limit used below: the TV pauses when a phone is silent for 5 seconds (`Prot
 3c. Type the PIN. Check: the phone joins again and shows "CHOOSE A GAME ON THE TV" (maybe in a different slot).
 4b. Switch the Wi-Fi on. Check: within 10 seconds the phone shows the PIN pad. (Changes with issue #52.)
 6a. On the phone pad, tap **Disconnect** once. Check: the phone shows the Connect screen less than 1 second after the tap (no second tap).
-7a. With one phone in a game, call that phone from another phone and answer. Check: within 8 seconds of the answer the game pauses with the card "1P LOST CONNECTION".
+7a. With one phone in a game, call that phone from another phone and answer. Check: within 6 seconds of the answer (5 s of silence plus 1 s) the game pauses with the card "1P LOST CONNECTION".
 7b. End the call and go back to the controller app. Check: the phone says "RECONNECTING..." and then joins again in 10 seconds or less (stopwatch from the return to the app).
 7c. Check: the card says "1P reconnected" with **Resume**, and **Resume** goes on with the game.
 7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot, with no PIN.
@@ -321,6 +321,7 @@ Measurements (not steps): write the reconnect time after the call (7b) in the No
 History:
 
 - 2026-10-21 (automated): items 1d, 4a and 5a to 5d moved to the automated tests (`r1_reconnect`: a phone that goes silent, with the real timeouts). Item 1a was split: the card on the TV is automated, and the phone half is 1a2. The R1 results of 1a, 1d (Fail) and 5a to 5d (Retest) were about the TV; they stay in the result database.
+- 2026-10-21 (aligned with the requirements, not run): step 7a says 6 seconds (REQ-GM-30: 5 s of silence plus 1 s). No recorded result changed.
 - R1: **Fail** (item 1) and **Retest** (item 5). A phone without Wi-Fi did not pause the game, and a phone call ended it with no way to resume. Both changed on 2026-10-09 and wait for the retest. Items 2, 3, 4 and 6 are not run.
 - R0: **Retest**. Wi-Fi off on the phone: the phone shows 'Reconnecting...'. The game kept running and the TV never showed 'Waiting for P1 to reconnect'. Wi-Fi on: the phone reconnected and the game went on. The off time was not measured (the TV pauses only after 5 s of silence). Item 6 (Leave twice, A green and B red) is new.
 
@@ -376,7 +377,7 @@ Needs: 1 to 2 phones, 1 TV, a stopwatch. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, 
 2b. Stand 3 m from the TV. Check: you read aloud the title and the player range of 3 tiles, with 0 errors (REQ-FL-40).
 3b. Press **Remove** on a player. Check: the phone shows "THE HOST REMOVED YOU. SCAN THE CODE TO JOIN AGAIN." and it is still on its Connect screen 30 seconds later (it does not reconnect by itself).
 5a. Check the motion on the TV box with the overlay on: the logo (with its confetti), the blinking prompts and the screen changes. Check: the overlay FPS is 55 or more at all times (REQ-FL-44).
-5b. Look at a test screen: a black background, a focused menu item, a modal frame and a tile frame. Check: you name the colors black, yellow, blue and white for them, 4 of 4 correct.
+5b. Look at a test screen: a black background, a focused menu item, a modal frame and a tile frame. Check: you name the colors black, yellow, white with blue inside, and gray, 4 of 4 correct.
 7. (Moved to Test 17.) The old step was: set the TV to Hebrew, region Israel, and check that the app stays English and left to right. FD-19 replaced that rule on 2026-10-10: the app now has Hebrew, and the result of R1 (the mirrored English UI) is not a defect any more.
 10e. On the phone, look at the waiting screen and the pad. Check: the avatar is beside the color square on both screens.
 
@@ -398,6 +399,7 @@ Covered by machines (not repeated here): the buttons TRY AGAIN, NEW GAME and BAC
 History:
 
 - 2026-10-21 (automated): items 1a, 1c, 2a, 3a, 4b, 4c, 9a, 9b, 10c, 10d, 10f and 10g moved to the automated tests (`r1_tv_screens`, `hud_layout`, `results_medals`, `games_focus`). The R1 result of 2a (Fail: no screenshots on the Android 10 TV) stays in the result database; the check on the real TV is Test 12 step 1c. Item 5b stays: its text and the code differ (tile frame color).
+- 2026-10-21 (aligned with the requirements, not run): step 5b names gray for the tile frame (REQ-FL-13, 38). No recorded result changed.
 - 2026-10-20 (not run): the steps were split and the criteria made measurable (times, key counts, color names, 55 FPS). Item 3a and 4a change with issue #52, 2a with issue #57.
 - R1: **Fail** (items 2 and 7). The tile screenshots are missing, and the layout is mirrored on a TV set to Hebrew. Both changed on 2026-10-09 and wait for the retest. The other items are not run.
 
@@ -773,8 +775,8 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 
 2e. The person who reads Hebrew reads each TV screen aloud (Connect, Games, Settings, About, the quit question). Check: the punctuation (`. , ! ? -`) is at the correct end of every sentence. Write down every text that is wrong. (That a Hebrew text ends with the same punctuation as its English text is checked by `tests/smoke_lang.gd`.)
 4c. On the TV, look at the Connect screen with the two names. The person who reads Hebrew reads the Latin name and the Hebrew name aloud. Check: each one equals what was typed (the letters are in the same order, the mixed-direction text is not shuffled). (That the names stay as typed and that the pixel font has every glyph is checked by `tests/smoke_lang.gd`.)
-6b. In Hebrew, start every game with 2 phones. Check: the title is at the top right, the leader chip is at the left margin (Pin Pals has no leader chip), and the timer box is at the right (Road Rally: the timer box is at the left margin). (REQ-GM-47o)
-6c. In the same games, check: the hint and the countdown word "קדימה" show complete.
+6b. In Hebrew, start every game with 2 phones. Check: the title is at the top right, the leader chip is at the left margin (Pin Pals has no leader chip), and the timer box is at the right (Road Rally: the timer box is at the left margin in English and at the right margin in Hebrew, 60 px from the edge, and no HUD box overlaps another). (REQ-GM-47o)
+6c. In Road Rally in Hebrew, check: the word "קדימה" after the 1 is complete (inside the screen). In every game in Hebrew, check: the hint line shows complete.
 6e2. Open the pause menu and the result menu in Hebrew. The Hebrew reader reads the ranking list, the medal text and the tie text aloud. Check: the reader says that each of the 3 reads right (3 of 3 yes).
 
 Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-17-1 to A-17-8). Item 5 moved earlier (A-17-5). Item 7b moved too (A-17-7b). Item 6e was split: that the text shows complete is automated, 6e2 keeps the reading. The numbers of the other items do not change.
@@ -791,6 +793,7 @@ Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to
 
 History:
 
+- 2026-10-21 (aligned with the requirements, not run): step 6b names the Road Rally timer box at the left (English) and right (Hebrew) margin, and step 6c splits the countdown word (Road Rally) from the hint line (every game). No recorded result changed.
 - 2026-10-21 (automated): items 2a, 2b, 4a and 7a moved to the automated tests (`screens_sweep`, `auto_r3_tv`, `auto_r3_phone`). Item 6e was split (6e2 keeps the reading by the Hebrew reader). Steps 6b and 6c stay until Alon decides (the Road Rally timer side in Hebrew; the Hebrew GO word that most games do not draw).
 - -: **Not run**. New.
 
@@ -967,7 +970,7 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the night sky with stars, the purple planet, a gray asteroid and a ship. (Changes with issue #57.)
 2e. Read the hint line "Tilt to steer. Your ship shoots by itself. Grab the upgrades!" aloud from 3 m during "3, 2, 1". Check: no error.
-3c. Tilt to the right and keep the tilt for 2 s after the ship stops. Do the same to the left. Check: the ship stops at both sides, stays fully on the screen, does not move more, and its middle is 2 % to 4 % of the screen width (60 px of 1920) from the edge.
+3c. Tilt to the right and keep the tilt for 2 s after the ship stops. Do the same to the left. Check: the ship stops at both sides, stays fully on the screen, does not move more, and its middle is 5.5 % to 7 % of the screen width (about 120 px of 1920: the 60 px margin plus the 60 px of REQ-AB-2) from the edge of the screen.
 9a. Let a child of about 5 to 8 years play, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own ship within 10 s.
 9b. Same child. Check: the child moves the ship from the middle to the left side of the screen within 30 s after "GO!", with no help.
 9c. Same child. Lose the ship of the child on purpose. Check: the child is still at the game 30 s later (does not stop and does not give the phone back). Ask: "Play again?". Check: the child says yes.
@@ -1000,6 +1003,7 @@ Measurements (write down, no pass or fail): the real delay from a tilt to the sh
 
 History:
 
+- 2026-10-21 (aligned with the requirements, not run): step 3c now says 5.5 % to 7 % (about 120 px of 1920), the 60 px margin plus the 60 px of REQ-AB-2. No recorded result changed.
 - 2026-10-21 (automated): items 5f and 8e moved to the automated tests (`auto_asteroid`, `r4_asteroid`). Step 3c is also checked by `r4_asteroid`, which fails on the 2 % to 4 % limit today (the ship is 120 px, 6.25 %, from the screen edge).
 - 2026-10-20: the steps that a machine can check moved to the automated tests (A-22-1 to A-22-12). 2c, 5c, 12a, 12c and 12e were split into the automated part and 2e, 5f, 12f, 12g and 12h (each keeps the result of the old step). Step 8e (the title and the medal of one player) is automated now (`r4_asteroid`); it finds that the medal does not follow the score (REQ-AB-14), so that suite is red until that is fixed.
 - -: **Not run**. New (2026-10-16).
@@ -1063,9 +1067,8 @@ Items 1 to 7b and 9a, 9b moved to the automated tests (`docs/AUTOMATED_TESTS.md`
 8b. Join with 1 phone on Wi-Fi, open the debug overlay and read "Age ms" in the table for 10 s. Check: "Age ms" stays below 150 for the 10 s. (The hit age of 0 to 550 ms is checked by A-24-8a.)
 10a. (iPhone, if you have one) Make 10 forehands from left to right, 2 s apart. Check: the counter rises by 9 or 10.
 10b. (iPhone) Make 10 serves and then 10 forehands from left to right, 2 s apart. Check: at least 9 of 10 serves say `DOWN`, and at most 1 of 10 forehands says `DOWN`. (Sensor sign: Test 13 item 3.)
-11a. Press RECENTER while you point at the TV. Swing a forehand to the right, 10 times, 2 s apart. Check: the `side` value is +0.3 or more in at least 8 of 10 swings. (REQ-TN-7)
-11b. Swing a forehand to the left, 10 times. Check: the `side` value is -0.3 or less in at least 8 of 10 swings.
-11c. Swing straight at the TV, 10 times. Check: the `side` value is between -0.2 and +0.2 in at least 8 of 10 swings.
+11a. Press RECENTER while you point at the TV. Swing a forehand to the right, then to the left, then to the right, and so on: 5 swings to each side, 2 s apart. Check: the `side` value is +0.3 or more in at least 4 of the 5 swings to the right, and -0.3 or less in at least 4 of the 5 swings to the left. (REQ-TN-7: straight is the mean of your own last swings, so ten swings to one side drift to the middle.)
+11c. Press RECENTER while you point at the TV. Swing straight at the TV, 10 times, 2 s apart. Check: the `side` value is between -0.2 and +0.2 in at least 8 of 10 swings.
 11d. Swing nearly vertical (up and down), 10 times. Check: the `side` value is between -0.2 and +0.2 in at least 8 of 10 swings.
 
 Measurements (write down, no pass or fail): the power of a soft, medium and hard stroke; the `side` values of each direction; the values of "hit N ms ago" and "Age ms" (the delay of the phone, Test 4). Use them to tune the thresholds of `swing_detector.gd` and `SWING_LOCK_S`.
@@ -1077,13 +1080,13 @@ Measurements (write down, no pass or fail): the power of a soft, medium and hard
 | 8b | Note: the lowest and the highest Age ms in 10 s | Not run | | | |
 | 10a | Note: the iPhone counter | Not run | | | |
 | 10b | Note: the iPhone serves and forehands with `DOWN` | Not run | | | |
-| 11a | Note: 10 `side` values to the right | Not run | | | |
-| 11b | Note: 10 `side` values to the left | Not run | | | |
+| 11a | Note: the 5 `side` values to the right and the 5 to the left | Not run | | | |
 | 11c | Note: 10 `side` values straight | Not run | | | |
 | 11d | Note: 10 `side` values nearly vertical | Not run | | | |
 
 History:
 
+- 2026-10-21 (aligned with the requirements, not run): step 11a now swings to both sides in one run and 11b is merged into it (REQ-TN-7: straight is the mean of the player's own swings); 11c starts with RECENTER. No recorded result changed.
 - -: **Not run**. New (2026-10-17).
 
 ## Test 25
@@ -1099,9 +1102,8 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the court, the net, a character and the ball. (Changes with issue #57.)
 2b. In "3, 2, 1" look at the court. Check: you can point at all of these: the doubles sidelines, the singles sidelines, the baselines, the service lines, the net, the umpire on the chair, the ball kid at the left net post, the stands and the blank ad boards.
 4g. Record the phone and the TV with the camera (240 fps) for 5 hits. Count the frames from the fastest point of the swing to the contact of the racket and the ball. Check: the median delay is 150 ms or less (36 frames at 240 fps).
-6c. Swing 30 degrees to the right of the TV, 10 times. Check: at least 8 of 10 balls land in the right half of the court (from the view of the swinging player).
-6d. Swing 30 degrees to the left of the TV, 10 times. Check: at least 8 of 10 balls land in the left half of the court.
-6e. Swing straight at the TV, 5 times, and nearly straight up, 5 times. Check: at least 8 of 10 balls land in the middle third of the court width.
+6c. Alternate swings 30 degrees to the right and 30 degrees to the left of your usual straight swing, 5 each, 2 s apart. Check: at least 4 of the 5 balls to the right land in the right half of the court (from the view of the swinging player), and at least 4 of the 5 balls to the left land in the left half.
+6e. Swing the way you swing when you do not aim, 5 times, then nearly straight up, 5 times, 2 s apart. Check: at least 8 of 10 balls land in the middle third of the court width.
 6h. Give the phone to a person who has not played. Show only the hint line. Check: the person sends one ball to the left half and one ball to the right half of the court within 5 swings each.
 12a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own character within 10 s.
 12b. Same child. Check: the child serves a ball in play (over the net, inside the box) within 5 tries.
@@ -1123,8 +1125,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 1b | Photo of the tile next to a photo of the game | Not run | | | |
 | 2b | Photo of the court; note: the nine objects, each yes or no | Not run | | | |
 | 4g | Video (240 fps); note: frames and ms for 5 hits | Not run | | | |
-| 6c | Note: balls in the right half of 10 | Not run | | | |
-| 6d | Note: balls in the left half of 10 | Not run | | | |
+| 6c | Note: balls in the right half of 5, and in the left half of 5 | Not run | | | |
 | 6e | Note: balls in the middle third of 10 | Not run | | | |
 | 6h | Note: swings until left and right, for the person | Not run | | | |
 | 12a | Note: the child, the age, seconds until it points | Not run | | | |
@@ -1139,6 +1140,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 History:
 
 - 2026-10-21 (automated): 10 steps moved to the automated tests (`r4_tennis`, `smoke_tennis_phones`). `r4_tennis` is red today on three known bugs: no sparks in the code (5a), the other team shows place 3 and not 2 (9e), and a new rally starts about 3.4 s after a miss (10b said 1.5 to 2.5 s).
+- 2026-10-21 (aligned with the requirements, not run): steps 6c and 6d are merged into 6c (alternate right and left, REQ-TN-7); 6e says 'the way you swing when you do not aim'. No recorded result changed.
 - -: **Not run**. New (2026-10-17).
 
 ## Test 26
@@ -1160,7 +1162,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 12c. Same child. Check: the child putts the ball (one stroke counted) within 60 s after the first plate, with no help.
 12d. After the match, ask: "Play again?". Check: the child says yes.
 13. Play with 4 phones and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
-14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the ball each time you say "mark" while it rolls on the farthest hole. Check: the finger points at the ball in 5 of 5 tries.
+14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the ball each time you say "mark" while it rolls on the farthest hole. Check: the finger points at the ball in 5 of 5 tries. Check: the ball is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
 14b. From 3 m, ask a tester to point at the golfer and then at the windmill. Check: both answers are right for every tester.
 14c. From 3 m, read aloud the names and strokes in the bar and one banner. Check: no error.
 
@@ -1181,7 +1183,7 @@ Measurements (write down, no pass or fail): the turn angle that moves the aim ma
 | 12c | Note: seconds until the first stroke | Not run | | | |
 | 12d | Note: the answer of the child | Not run | | | |
 | 13 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
-| 14a | Note: right answers of 5 | Not run | | | |
+| 14a | Note: right answers of 5; photo of the ball with its height in px | Not run | | | |
 | 14b | Note: answers of each tester | Not run | | | |
 | 14c | Note: errors made when reading | Not run | | | |
 
@@ -1189,4 +1191,5 @@ History:
 
 - 2026-10-21 (automated): 11 steps moved to the automated tests (`r4_golf`). Step 3b was split (3b2). `r4_golf` is red today on one known bug: the ball starts to move at swing age 0, while the club reaches it at 0.12 s (step 5b).
 - -: **Not run**. New (2026-10-17).
+- 2026-10-21 (aligned with the requirements, not run): step 14a also checks the ball height of 48 px or more (REQ-GM-47e). No recorded result changed.
 
