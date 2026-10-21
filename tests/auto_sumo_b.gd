@@ -183,9 +183,12 @@ func _sharp_view() -> void:
 		for c in game.get_children():
 			if c is TextureRect:
 				view = c
-		var scale := game.size.x / float(vp.size.x)
+		# The Control sizes are in logical units (canvas_items stretch keeps 1920 x 1080), so the factor to the screen
+		# pixels is the root's stretch scale times the logical scale of the view.
+		var stretch: Vector2 = root.get_final_transform().get_scale()
+		var scale := game.size.x * stretch.x / float(vp.size.x)
 		_check(vp.size == Vector2i(480, 270) and view != null and scale == floorf(scale) and scale == float(res.x / 480)
-				and game.size.y / float(vp.size.y) == scale,
+				and game.size.y * stretch.y / float(vp.size.y) == scale,
 				"%dx%d: the world view is 480 x 270 and scaled by the whole number %.2f" % [res.x, res.y, scale])
 		_check(view != null and view.texture is ViewportTexture and view.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST
 				and vp.canvas_item_default_texture_filter == Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST

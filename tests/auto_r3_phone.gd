@@ -30,6 +30,15 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
+func _known_bug(issue: String, cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what, " (the bug is fixed: use _check)")
+	else:
+		_fails += 1
+		print("  FAIL (known bug) (", issue, ") ", what)
+
+
 func _initialize() -> void:
 	await _run()
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -153,9 +162,14 @@ func _hebrew_pad() -> void:
 	var names := ["recenter", "disconnect", "hint"]
 	for i in 3:
 		var w := font.get_string_size(texts.he[i], HORIZONTAL_ALIGNMENT_LEFT, -1, int(sizes[names[i]])).x
-		_check(w > 0.0 and w <= float(room[names[i]]) - 2.0 * UiTheme.LINE,
-				"Hebrew %s: %.0f px of text in a box of %.0f px (the frame takes %d px)" % [names[i], w, room[names[i]],
-				2 * UiTheme.LINE])
+		var ok: bool = w > 0.0 and w <= float(room[names[i]]) - 2.0 * UiTheme.LINE
+		var what := "Hebrew %s: %.0f px of text in a box of %.0f px (the frame takes %d px)" % [names[i], w, room[names[i]],
+				2 * UiTheme.LINE]
+		if names[i] == "hint":
+			_known_bug("issue-needed: the Hebrew help line of the pad (pad.point_at_tv_then) is as wide as the Recenter box, "
+					+ "so it touches the yellow frame; the text must be shorter or smaller (ask the owner, strings are theirs)", ok, what)
+		else:
+			_check(ok, what)
 	_app.set_language("en", false)
 	made.holder.queue_free()
 

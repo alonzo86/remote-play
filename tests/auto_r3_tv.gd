@@ -27,6 +27,15 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
+func _known_bug(issue: String, cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what, " (the bug is fixed: use _check)")
+	else:
+		_fails += 1
+		print("  FAIL (known bug) (", issue, ") ", what)
+
+
 func _initialize() -> void:
 	await _run()
 	Shell.recorder = Callable()
@@ -239,8 +248,10 @@ func _tile_reason() -> void:
 	await _frames(5)
 	_sound.sfx_played.disconnect(cb)
 	var still_games: bool = _app.current_screen() == screen
-	_check(heard == ["denied"] and still_games,
-			"OK on that tile plays only `denied` (%s) and stays on the Games screen" % str(heard))
+	_check(still_games and "denied" in heard, "OK on that tile plays `denied` (%s) and stays on the Games screen" % str(heard))
+	_known_bug("issue-needed: OK on a dim tile plays `select` (App._menu_sound, every ui_accept) and then `denied` (TvGames._on_tile); "
+			+ "A-16-3e and tests/audio.gd expect only `denied`",
+			heard == ["denied"], "OK on that tile plays only `denied` (%s)" % str(heard))
 	for i in 4:
 		_app.server.players[i].state = 0
 
