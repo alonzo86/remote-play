@@ -251,7 +251,8 @@ static func leader_chip(ci: CanvasItem, area_w: float, leaders: Array, score: St
 
 ## The rectangles of the name tags that stand above the game objects in the countdown (REQ-GM-46a). `entries` are
 ## `{pos, name}` with `pos` the middle of the object on the screen; `radius` is how far the tag stands above it. A tag is as wide
-## as its name, inside the 60 px margin, and a tag that would cover an earlier one moves down until it does not.
+## as its name, inside the 60 px margin, and a tag that would cover an earlier tag or another object moves up (then down, then
+## beside the objects) until it does not.
 static func name_tag_rects(area: Vector2, entries: Array, radius := 48.0) -> Array[Rect2]:
 	var out: Array[Rect2] = []
 	for e in entries:
@@ -259,17 +260,43 @@ static func name_tag_rects(area: Vector2, entries: Array, radius := 48.0) -> Arr
 		var w := name_x(int(e.get("avatar", -1))) + text_w + CHIP_PAD
 		var r := Rect2(Vector2(clampf(e.pos.x - w * 0.5, 60.0, maxf(area.x - 60.0 - w, 60.0)),
 				clampf(e.pos.y - radius - TAG_H, 60.0, area.y - 60.0 - TAG_H)), Vector2(w, TAG_H))
-		for _try in 8:
-			var free := true
-			for o in out:
-				if o.intersects(r.grow(TAG_GAP)):
-					free = false
-					r.position.y += TAG_H + TAG_GAP
-					break
-			if free:
+		# A tag that would cover an earlier tag or the object of another player moves up first (the objects are below
+		# their tags), then down, until it stands free.
+		var home := r.position.y
+		var placed := false
+		for k in [0, -1, -2, -3, 1, 2, 3]:
+			r.position.y = clampf(home + float(k) * (TAG_H + TAG_GAP), 60.0, area.y - 60.0 - TAG_H)
+			if _tag_is_free(r, e, out, entries):
+				placed = true
 				break
+		if not placed:   # Objects close together near an edge (the maze start): the tag stands beside the object.
+			var right: float = e.pos.x   # Right of the whole group of objects near this one.
+			var left: float = e.pos.x
+			for o in entries:
+				if Vector2(o.pos).distance_to(e.pos) < 2.0 * (radius + TAG_H):
+					right = maxf(right, o.pos.x)
+					left = minf(left, o.pos.x)
+			var side := right + radius + 16.0
+			if side + w > area.x - 60.0:
+				side = left - radius - 16.0 - w
+			r.position.x = clampf(side, 60.0, maxf(area.x - 60.0 - w, 60.0))
+			for k in [0, -1, 1, -2, 2, -3, 3, -4, 4, -5, 5, -6, 6]:
+				r.position.y = clampf(e.pos.y - TAG_H * 0.5 + float(k) * (TAG_H + TAG_GAP), 60.0, area.y - 60.0 - TAG_H)
+				if _tag_is_free(r, e, out, entries):
+					break
 		out.append(r)
 	return out
+
+
+## True when the tag `r` of `e` covers no earlier tag (`out`) and no object of another player.
+static func _tag_is_free(r: Rect2, e: Dictionary, out: Array[Rect2], entries: Array) -> bool:
+	for o in out:
+		if o.intersects(r.grow(TAG_GAP)):
+			return false
+	for o in entries:
+		if o != e and r.has_point(o.pos):
+			return false
+	return true
 
 
 ## Name tags (REQ-GM-46a): each player's name next to its object, in the countdown only, so that nobody has to read a list.
@@ -334,7 +361,7 @@ static func hint(ci: CanvasItem, area: Vector2, msg: String) -> void:
 	var box := f.get_multiline_string_size(upper, HORIZONTAL_ALIGNMENT_LEFT, max_w, UiTheme.SIZE_BODY)
 	var w := box.x + 64.0
 	var h := box.y + 40.0
-	var plate := Rect2((area.x - w) * 0.5, area.y - 36.0 - h, w, h)
+	var plate := Rect2((area.x - w) * 0.5, area.y - 40.0 - h, w, h)
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM, UiTheme.BG, CHIP_LINE), plate)
 	ci.draw_multiline_string(f, Vector2(plate.position.x, plate.position.y + 20.0 + f.get_ascent(UiTheme.SIZE_BODY)), upper,
 			HORIZONTAL_ALIGNMENT_CENTER, w, UiTheme.SIZE_BODY, -1, UiTheme.TEXT)

@@ -28,11 +28,10 @@ const GAMES := {
 }
 ## Names with 10 letters, and two equal names with 12 (the TV makes them different). Slot colors come from the server.
 const NAMES := ["Abcdefghij", "Klmnopqrst", "Twinsssssss", "Twinsssssss"]
-## Games whose name tags in the countdown cover the object of another player next to them (REQ-GM-46a): known, see the report.
-const TAGS_COVER := ["marble_race", "maze", "mini_golf", "snowball_splat"]
 ## Games where no tag covers an object, but a tag is nearer to the object of another player than to its own (tennis: the
 ## far-team character stands 64 px above the tag of the near-team character, its own object is 76 px away).
-const TAGS_NEAREST := ["tennis"]
+## The maze: the 4 balls start in one corner cell, so the nearest ball to a wide tag at the margin is always a ball on the right.
+const TAGS_NEAREST := ["tennis", "maze"]
 const MARGIN := 60.0
 const SCREEN := Rect2(0, 0, 1920, 1080)
 ## The black bar at the top: the title, the timer and the leader chip stand inside it (REQ-MR-40).
@@ -245,11 +244,7 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String) -> void:
 	_check(colors_ok, "%s: each tag has the color of its player" % state)
 	_check(inside, "%s: every tag is inside the 60 px margin and as wide as its whole name" % state)
 	_check(apart, "%s: no name tag covers another name tag" % state)
-	if id in TAGS_COVER:
-		_known_bug("issue-needed: a name tag covers the object of the player next to it", cover,
-				"%s: no name tag covers the object of another player" % state)
-	else:
-		_check(cover, "%s: no name tag covers the object of another player" % state)
+	_check(cover, "%s: no name tag covers the object of another player" % state)
 	var near := true
 	for t in tags:
 		var r: Rect2 = t.rect
@@ -264,7 +259,7 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String) -> void:
 		for j in tags.size():
 			if j != i and c.distance_to(tags[j].info.pos) < c.distance_to(tags[i].info.pos):
 				nearest = false
-	if id in TAGS_COVER or id in TAGS_NEAREST:
+	if id in TAGS_NEAREST:
 		_known_bug("issue-needed: a name tag is nearer to the object of another player", nearest,
 				"%s: the object nearest to each tag is the object of its own player" % state)
 	else:
@@ -274,8 +269,7 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String) -> void:
 		var text_box: Rect2 = hint.rect.grow_individual(-32.0, -20.0, -32.0, -20.0)
 		_check(float(hint.info.text_w) <= float(hint.info.max_w) + 0.01 and Rect2(MARGIN, 0, 1800, 1080).encloses(text_box),
 				"%s: the hint fits its plate, and its text is inside the side margins (%s)" % [state, str(hint.rect)])
-		_known_bug("issue-needed: the hint text ends at y 1024, 4 px below the 60 px margin (REQ-GM-40)",
-				Rect2(MARGIN, MARGIN, 1800, 960).encloses(text_box), "%s: the hint text is inside the 60 px margin" % state)
+		_check(Rect2(MARGIN, MARGIN, 1800, 960).encloses(text_box), "%s: the hint text is inside the 60 px margin" % state)
 	var counts: Array = snap.get("countdown", [])   # Some games draw the number twice (a shadow below the number).
 	var count: Dictionary = counts.back() if not counts.is_empty() else {}
 	_check(not count.is_empty() and Rect2(0, 0, 1920, 1080).encloses(count.rect),
