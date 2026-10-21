@@ -185,25 +185,6 @@ func beam_color(slot: int) -> Color:
 	return player(slot).color if _has_player(slot) else Color.WHITE
 
 
-## True while the name tags are over the ships: in the countdown only (REQ-GM-46a).
-func name_tags_shown() -> bool:
-	return _clock.is_counting()
-
-
-## slot -> the middle of the ship on the screen, where its name tag stands.
-func name_tag_spots() -> Dictionary:
-	var fit := _fit()
-	var spots := {}
-	for s in field.ships:
-		spots[s] = Shell.snap(fit.origin + Vector2(field.ships[s].x, SpaceField.SHIP_Y) * float(fit.k))
-	return spots
-
-
-## The radius of the name tags above the ships.
-func name_tag_radius() -> float:
-	return SpaceField.SHIP_R * float(_fit().k) + 24.0
-
-
 ## "Next wave in 3" for the rest between two waves.
 func next_wave_text() -> String:
 	return Lang.f("asteroid_blast.next_wave_in", [ceili(field.phase_left())])
@@ -228,14 +209,13 @@ func _draw_ship(ci: CanvasItem, s: SpaceField.Ship, o: Vector2, k: float) -> voi
 func _game_draw() -> void:
 	Shell.title(self, "registry.galaxy_protector")
 	draw_leader_chip(self)
-	if name_tags_shown():
+	if _clock.is_counting():
 		var n := _clock.count_number()
 		var label := str(n)
 		draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)   # A black shadow: the stars must not hide the digits.
 		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		Shell.countdown(self, size, label, _clock.count_elapsed())
-		draw_name_tags(self, name_tag_spots(), name_tag_radius())
 		Shell.hint(self, size, "asteroid_blast.tilt_steer_ship_shoots")
 		return
 	if is_over:

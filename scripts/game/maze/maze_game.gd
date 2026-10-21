@@ -271,17 +271,12 @@ func _world_draw(ci: CanvasItem) -> void:
 
 
 func _game_draw() -> void:
-	var o := _origin()
 	Shell.title(self, "registry.treasure_maze")
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time)
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
 		Shell.countdown(self, size, str(n), _round.count_elapsed())
-		var spots := {}
-		for b in _balls:
-			spots[b.slot] = Shell.snap(o + b.pos)
-		draw_name_tags(self, spots, BALL_R)
 		Shell.hint(self, size, "maze.hold_phone_level_it")
 	if participants.is_empty():
 		Shell.hint(self, size, "maze.join_with_sababi_app")

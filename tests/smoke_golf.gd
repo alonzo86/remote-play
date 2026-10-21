@@ -94,7 +94,7 @@ func _run() -> void:
 			"Start opens the game with 3 holes and no personal best (REQ-MG-1, 15)")
 	_check(game.participants.size() == 2 and game._clock.is_counting() and game.rules.current_slot() == 0,
 			"the game starts with a countdown and the first phone is on turn (REQ-MG-2)")
-	await _frames(3)   # The pixel layer draws the course, and the countdown draws the name tags.
+	await _frames(3)   # The pixel layer draws the course, and the countdown draws the course.
 	await _stream(clients, 3.4, [flat, flat])
 	_check(not game._clock.is_counting() and game.phase == game.Phase.AIM and game.sim.pos == Vector2(game._hole.tee),
 			"after the countdown the first phone aims from the tee (REQ-MG-4)")

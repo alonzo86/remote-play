@@ -42,7 +42,7 @@ tests/smoke_tennis_phones.gd|tv|Tennis with sensor traces and 4 phones
 tests/smoke_golf_phones.gd|tv|Mini Golf with sensor traces
 tests/auto_paint.gd|tv|Paint Grab: tilt, levels, medals, grid (fixed step)
 tests/auto_sumo.gd|tv|Sumo Bumpers: tilt, shrink, bump, dash, rounds (fixed step)
-tests/auto_asteroid.gd|tv|Galaxy Protector: tags, RECENTER, buzzes, wave line, medals (fixed step)
+tests/auto_asteroid.gd|tv|Galaxy Protector: countdown, RECENTER, buzzes, wave line, medals (fixed step)
 tests/layout_hud_fonts.gd|tv|Sumo and Galaxy Protector HUD fonts and 60 px edge
 tests/hud_layout.gd|tv|HUD of all games (4 phones, English and Hebrew)
 tests/screens_sweep.gd|tv|every TV screen in English and Hebrew

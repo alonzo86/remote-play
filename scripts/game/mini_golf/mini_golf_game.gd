@@ -335,14 +335,6 @@ func _pose() -> Dictionary:
 	return GolfLook.swing_pose(_swing_age)
 
 
-func _countdown_spots(geo: GolfLook.Geo) -> Dictionary:
-	var spots := {}
-	for i in participants.size():
-		var x := (float(i + 1) / float(participants.size() + 1) * 2.0 - 1.0) * 0.6
-		spots[participants[i]] = geo.at(Vector2(x, 1.1)) - Vector2(0.0, 40.0)
-	return spots
-
-
 func _world_draw(ci: CanvasItem) -> void:
 	var geo := _geo()
 	GolfLook.draw_ground(ci, size, rules.hole_number())
@@ -390,7 +382,6 @@ func _game_draw() -> void:
 		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		Shell.countdown(self, size, label, _clock.count_elapsed())
-		draw_name_tags(self, _countdown_spots(_geo()), 56.0)
 		_draw_bar()
 		_draw_hole_text()
 		return

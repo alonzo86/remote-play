@@ -134,13 +134,8 @@ func _run() -> void:
 	app.go(Tennis, {"difficulty": "medium", "scoring": "real"})
 	await _frames(3)
 	var game: Control = app.current_screen()
-	var spots: Dictionary = game.countdown_spots(game.Look.Proj.new(game.size))
-	var inside := true
-	for s in spots:
-		inside = inside and Rect2(Vector2.ZERO, game.size).has_point(spots[s])
-	_check(spots.size() == 2 and spots.has(0) and spots.has(1) and inside and spots[0] != spots[1]
-			and game.player(0).player_name != game.player(1).player_name and game.player(0).player_name != "",
-			"the countdown has a name tag for each of the 2 phones, on the screen, with the phone names (2a)")
+	_check(not game.has_method("countdown_spots") and game.player(0).player_name != game.player(1).player_name,
+			"the countdown has no name tags (removed 2026-10-21): the 2 characters differ by color (2a)")
 	_check(not game._board.has_lead() and game.play.rules.tally[0] == 0 and game.play.rules.tally[1] == 0,
 			"before the first point nobody leads, so the leader chip is not drawn (2c)")
 	_check(game.difficulty == "medium", "the difficulty is Medium by default (1a)")

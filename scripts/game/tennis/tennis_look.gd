@@ -239,7 +239,7 @@ static func draw_person(ci: CanvasItem, foot: Vector2, s: float, look: Dictionar
 	ci.draw_rect(head.grow(-8.0) if minf(head.size.x, head.size.y) > 20.0 else head.grow(-4.0), RACKET_STRINGS)
 
 
-## The middle of the head of a player, for the name tag in the countdown.
+## The middle of the head of a player, (the place of the 'great' plate).
 static func head_pos(foot: Vector2, s: float) -> Vector2:
 	return foot - Vector2(0.0, 1.9 * s)
 

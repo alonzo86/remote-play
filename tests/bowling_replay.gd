@@ -154,14 +154,8 @@ func _aim_and_countdown() -> void:
 	var ctx := await _new_game(2)
 	var game: Control = ctx.game
 	var f: R.Feeder = ctx.feeders[0]
-	var spots: Dictionary = game.countdown_spots()
-	var geo = game._geo()
-	var xs := []
-	for s in [0, 1]:
-		xs.append(spots[s].x)
-	_check(spots.size() == 2 and xs[0] < xs[1] and absf((xs[0] + xs[1]) * 0.5 - geo.cx) < 2.0
-			and spots[0].y < geo.at(Vector2(0, 0)).y - geo.ball_radius(0.0),
-			"the countdown puts a name tag above each ball: two tags, side by side around the middle of the lane")
+	_check(not game.has_method("countdown_spots") and game.player(0).color != game.player(1).color,
+			"the countdown has no name tags (removed 2026-10-21): the 2 balls differ by color")
 	_play(game, f, R.turn(30.0, 0.5))
 	_begin(game)
 	_check(absf(game._aim) < 0.01,

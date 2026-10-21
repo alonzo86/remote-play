@@ -357,11 +357,6 @@ func _draw_hud() -> void:
 		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		Shell.countdown(self, size, label, _clock.count_elapsed())
-		var fit := _fit()
-		var spots := {}
-		for s in _bodies:
-			spots[s] = Shell.snap(fit.center + (_bodies[s] as TiltBody).pos * float(fit.k))
-		draw_name_tags(self, spots, SumoArena.BUMPER_R * float(fit.k))
 	if phase == Phase.BANNER and not is_over:
 		Shell.label_plate(self, banner_at(), banner_text, banner_font(banner_text), UiTheme.ACCENT)
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:

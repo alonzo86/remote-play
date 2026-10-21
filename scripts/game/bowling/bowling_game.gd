@@ -338,15 +338,6 @@ func _world_draw(ci: CanvasItem) -> void:
 		BowlingLook.draw_ball(ci, geo, sim.ball_pos, color)
 
 
-## Where the balls wait in the countdown (screen places, slot -> point above the ball): the name tags stand there (REQ-GM-46a).
-func countdown_spots() -> Dictionary:
-	var geo := _geo()
-	var spots := {}
-	for i in participants.size():
-		spots[participants[i]] = Shell.snap(geo.at(Vector2(_wait_x(i), 0.0)) - Vector2(0.0, 2.0 * geo.ball_radius(0.0)))
-	return spots
-
-
 ## The place across the lane (m) of the ball of the i-th player in the countdown.
 func _wait_x(i: int) -> float:
 	return (float(i + 1) / float(participants.size() + 1) * 2.0 - 1.0) * 0.4
@@ -362,11 +353,6 @@ func _game_draw() -> void:
 		Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		Shell.countdown(self, size, label, _clock.count_elapsed())
-		var spots := {}
-		for i in participants.size():
-			var x := (float(i + 1) / float(participants.size() + 1) * 2.0 - 1.0) * 0.4
-			spots[participants[i]] = Shell.snap(geo.at(Vector2(x, 0.0)) - Vector2(0.0, 2.0 * geo.ball_radius(0.0)))
-		draw_name_tags(self, spots, geo.ball_radius(0.0) + 24.0)
 		_draw_sheet()
 		return
 	_draw_frame_text()

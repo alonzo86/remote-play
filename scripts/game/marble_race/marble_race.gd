@@ -29,7 +29,6 @@ const HAPTIC_MIN_SPEED := 3.0
 const HAPTIC_COOLDOWN_MS := 150
 const TURN_STEP := 15.0        # A car turns in steps of 15 degrees, like a pixel picture does.
 const TURN_MIN_SPEED := 0.8    # A slower car keeps its direction.
-const CAR_TAG_RADIUS := 40.0
 
 const BUMPER_SIDE := 0.44   # Side 1.0 in the track data, as a fraction of the half-width.
 const START_ARC := 2.0         # All cars start on one line across the track.
@@ -414,14 +413,6 @@ func _draw_edge_markers() -> void:
 		Shell.text(self, label_pos, m.text, 32, col.lightened(0.25), HORIZONTAL_ALIGNMENT_CENTER, 140.0)
 
 
-## The screen position of each car (the name tags of the countdown, REQ-GM-46a).
-func _car_spots() -> Dictionary:
-	var spots := {}
-	for s in _racers:
-		spots[s] = _screen(_racers[s].pos)
-	return spots
-
-
 ## The place of each car: the finish times first, then how far the others got (REQ-FL-67).
 func _scoreboard() -> Scoreboard:
 	var board := Scoreboard.new([], true)
@@ -443,7 +434,6 @@ func _game_draw() -> void:
 	draw_leader_chip(self)
 	if _round.is_counting():
 		Shell.countdown(self, size, str(_round.count_number()), _round.count_elapsed())
-		draw_name_tags(self, _car_spots(), CAR_TAG_RADIUS)
 	elif _round.time < GO_SHOW:
 		Shell.countdown(self, size, "marble_race.go", _round.time / GO_SHOW, UiTheme.OK)
 	elif not is_over:

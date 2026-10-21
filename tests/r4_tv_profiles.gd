@@ -1,6 +1,6 @@
 extends SceneTree
 ## Test 20 (profiles), the TV side, with 4 simulated phones that have a profile (real clients on the loopback):
-## - 1b and 17b: in every game the name tags of the countdown and the leader chip hold the color square, then the avatar, then the
+## - 1b and 17b: in every game the leader chip holds the color square, then the avatar, then the
 ##   name, in this order and in English and in Hebrew (a chip is always laid out left to right), and each chip is wide enough
 ##   for the whole name, also a Hebrew name of 10 letters;
 ## - 4a: the phones `Sam` and `sam` are SAM and SAM 2 on the Players list;
@@ -162,9 +162,9 @@ func _play(id: String) -> void:
 	_app.go(load(spec[0]), spec[1].duplicate())
 	_game = _app.current_screen()
 	await _stream(0.9)
-	_tag_checks(id, await _snap(), "English")
+	_no_tag_check(id, await _snap(), "English")
 	Lang.set_language("he", root)
-	_tag_checks(id, await _snap(), "Hebrew")
+	_no_tag_check(id, await _snap(), "Hebrew")
 	Lang.set_language("en", root)
 	if not spec[2]:
 		return
@@ -208,23 +208,8 @@ func _chip_checks(state: String, rect: Rect2, player_name: String, avatar: int, 
 			"%s: the chip is %.0f px wide for %.0f px of content and inside the 60 px edge" % [state, rect.size.x, need])
 
 
-func _tag_checks(id: String, snap: Dictionary, lang: String) -> void:
-	var tags: Array = snap.get("tag", [])
-	var state := "%s countdown in %s" % [id, lang]
-	_check(tags.size() == _game.participants.size(), "%s: one name tag for each of the %d players (%d)" % [state,
-			_game.participants.size(), tags.size()])
-	var seen := {}
-	for t in tags:
-		var slot := -1
-		for s in _game.participants:
-			if _app.server.players[s].player_name == String(t.info.name) and t.info.color == _app.server.players[s].color:
-				slot = s
-		_check(slot >= 0 and int(t.info.avatar) == _app.server.players[slot].avatar,
-				"%s: the tag of '%s' holds the avatar of its player (%s)" % [state, t.info.name, str(t.info.avatar)])
-		if slot >= 0:
-			seen[slot] = true
-			_chip_checks("%s, tag of %s" % [state, t.info.name], t.rect, String(t.info.name), int(t.info.avatar))
-	_check(seen.size() == _game.participants.size(), "%s: each player has its own tag" % state)
+func _no_tag_check(id: String, snap: Dictionary, lang: String) -> void:
+	_check(not snap.has("tag"), "%s countdown in %s: no name tags (removed 2026-10-21)" % [id, lang])
 
 
 ## The four scores of `slots` for the game: a score for a points game, a finish time for the race (60 s minus the points, so the

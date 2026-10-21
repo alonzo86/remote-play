@@ -1,13 +1,14 @@
 extends SceneTree
 ## Galaxy Protector with simulated phones and a fixed time step: what used to be checked by hand in Test 22 and a machine can
-## check (the name tags, the hint time, RECENTER, the colors of the beams, the buzzes, the line of the wave, the medals, a player
-## that leaves). The game is stepped by hand (`SimInput`). Run:
+## check (the countdown without name tags, the hint time, RECENTER, the colors of the beams, the buzzes, the line of the wave,
+## the medals, a player that leaves). The game is stepped by hand (`SimInput`). Run:
 ##   godot --headless --path . --script tests/auto_asteroid.gd -- --role=tv
 
 const SimInput = preload("res://tests/sim_input.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const MedalView = preload("res://scripts/ui/medal_view.gd")
+const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
 const SpaceField = preload("res://scripts/game/asteroid_blast/space_field.gd")
 
 const DT := 1.0 / 60.0
@@ -82,7 +83,7 @@ func _run() -> void:
 	quit(1 if _fails > 0 else 0)
 
 
-## 22.2a, 2b, 2c: in the countdown the ships steer and have name tags; the hint stays about 5 s after GO (REQ-AB-16).
+## 22.2a, 2b, 2c: in the countdown the ships steer and carry no name tags; the hint stays about 5 s after GO (REQ-AB-16).
 func _countdown() -> void:
 	print("the countdown")
 	var game := _new_game()
@@ -93,29 +94,17 @@ func _countdown() -> void:
 	_check(game._clock.is_counting() and game.field.ships[0].x - x0 > 100.0 and game.field.asteroids.is_empty()
 			and game.field.beams.is_empty() and game.field.events.is_empty(),
 			"in the first second of the countdown the ship steers %.0f px, and nothing falls or fires" % (game.field.ships[0].x - x0))
-	var spots: Dictionary = game.name_tag_spots()
-	var entries: Array = []
-	for s in game.participants:
-		entries.append({"pos": spots[s], "name": _app.server.players[s].player_name, "avatar": _app.server.players[s].avatar})
-	var rects: Array = Shell.name_tag_rects(game.size, entries, game.name_tag_radius())
-	var inside := true
-	var apart := true
-	for i in rects.size():
-		inside = inside and rects[i].position.x >= 60.0 and rects[i].end.x <= game.size.x - 60.0 and rects[i].position.y >= 60.0 \
-				and rects[i].end.y <= game.size.y - 60.0
-		for j in range(i + 1, rects.size()):
-			apart = apart and not rects[i].intersects(rects[j])
-	var names: Array = entries.map(func(e: Dictionary) -> String: return e.name)
-	_check(game.name_tags_shown() and names == ["Sim0", "Sim1", "Sim2", "Sim3"] and rects.size() == 4,
-			"4 ships have 4 name tags with the names of the phones: %s" % str(names))
-	_check(inside and apart, "the tags are inside the 60 px margin and no tag covers another one")
-	_check(spots[0].y < game.size.y and spots[0].x < spots[1].x and spots[1].x < spots[2].x and spots[2].x < spots[3].x,
-			"the tags stand over the ships, from left to right in the order of the phones")
+	var methods: Array = game.get_script().get_script_method_list().map(func(m: Dictionary) -> String: return m.name)
+	_check(game._clock.is_counting() and not methods.has("name_tag_spots") and not methods.has("name_tags_shown"),
+			"the countdown has no name tags over the ships (the players are known by the color of the ship)")
+	var ship0 := BlastLook.ship_image(_app.server.players[0].color, 0)
+	var ship1 := BlastLook.ship_image(_app.server.players[1].color, 0)
+	_check(ship0.get_data() != ship1.get_data(),
+			"the ships of two players have different pictures (different colors)")
 	SimInput.set_tilt(p, Vector2.ZERO)
 	var go := SimInput.run_until(game, func() -> bool: return not game._clock.is_counting(), 10.0)
-	var tags_at_go: bool = game.name_tags_shown()
 	var hint_after := SimInput.run_until(game, func() -> bool: return not game.hint_shown(), 20.0)
-	_check(not tags_at_go and go > 1.5, "the name tags are gone at GO")
+	_check(go > 1.5, "the countdown ends after more than 1.5 s")
 	_check(hint_after >= 4.0 and hint_after <= 6.0, "the hint goes away %.1f s after GO (4 to 6 s)" % hint_after)
 
 

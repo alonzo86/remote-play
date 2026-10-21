@@ -157,16 +157,6 @@ func draw_leader_chip(ci: CanvasItem) -> void:
 	Shell.leader_chip(ci, Shell.area_width(ci), leaders.map(func(e: Dictionary) -> Object: return player(e.slot)), leader_text())
 
 
-## The name tags of the countdown (REQ-GM-46a): `positions` is slot -> the middle of the object of that player on the screen.
-func draw_name_tags(ci: CanvasItem, positions: Dictionary, radius := 48.0) -> void:
-	var entries: Array = []
-	for s in participants:
-		if positions.has(s):
-			entries.append({"pos": positions[s], "name": player(s).player_name, "color": player(s).color,
-					"avatar": player(s).avatar})
-	Shell.name_tags(ci, Vector2(Shell.area_width(ci), (ci as Control).size.y if ci is Control else size.y), entries, radius)
-
-
 ## While a participant is lost the game is paused and a card says so (REQ-GM-30). The game never goes on by itself:
 ## the TV user chooses. "Resume without ..." is there only while another participant is still connected. "Resume" is
 ## there when every participant is connected again. The card changes by itself when a phone comes back or leaves.

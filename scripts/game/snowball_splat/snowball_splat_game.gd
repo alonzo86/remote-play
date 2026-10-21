@@ -441,10 +441,6 @@ func _draw_hud() -> void:
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
 		Shell.countdown(self, size, str(n), _round.count_elapsed())
-		var spots := {}
-		for s in _throwers:
-			spots[s] = Shell.snap((_throwers[s] as Thrower).aim)
-		draw_name_tags(self, spots, CURSOR_R)
 	if _round.time < HINT_TIME and not is_over:   # In the countdown the time is below 0.
 		Shell.hint(self, size, "snowball_splat.point_at_tv_press")
 

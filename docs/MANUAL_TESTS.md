@@ -67,7 +67,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-41a, 52, 53, REQ-GM-45, 46, FD-18 | Not run |  | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Not run |  | |
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
-| [19](#test-19) | Leader chip, phone score and name tags | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, 46a, FD-21 | Not run | | |
+| [19](#test-19) | Leader chip and phone score | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Not run | | |
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 | [21](#test-21) | Join PIN and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-84, REQ-FL-85, REQ-N9, FD-25 | Not run | | |
 | [22](#test-22) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
@@ -539,7 +539,7 @@ History:
 Needs: 1 TV (phones for the game photos), a camera for photos. Covers: REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41.
 
 Phones are needed only for the photos of the running games. Needs the TV and the Games screen. New. This is the visual check that the `review` skill asks for with a screenshot of the game next to the Games screen.
-A tile has a 16:9 picture. The colors and the objects of each tile file (the ground, the 4 player colors, the main objects) are checked by the test `tiles` (A-12-3 to A-12-10); the steps below keep only what the test does not see. The tile shows only the world of the game, with no HUD, title bar, leader chip, name tag, score, time, hint or menu text (issue #57 fixed: `tools/make_tiles.gd` draws without the HUD; the test `pixel_render` checks the top rows).
+A tile has a 16:9 picture. The colors and the objects of each tile file (the ground, the 4 player colors, the main objects) are checked by the test `tiles` (A-12-3 to A-12-10); the steps below keep only what the test does not see. The tile shows only the world of the game, with no HUD, title bar, leader chip, score, time, hint or menu text (issue #57 fixed: `tools/make_tiles.gd` draws without the HUD; the test `pixel_render` checks the top rows).
 
 **Steps**
 
@@ -830,18 +830,18 @@ History:
 
 ## Test 19
 
-### Leader chip, phone score and name tags (REQ-FL-67, REQ-GM-46, 46a, FD-21)
+### Leader chip and phone score (REQ-FL-67, REQ-GM-46, FD-21)
 
-Needs: 2 to 4 phones (give two of them names of 10 letters, the most since FD-22), 1 TV on 1080p, a grown-up, a child of about 5 to 8 years for item 8, a person who reads Hebrew for item 9. Covers: REQ-FL-67, REQ-FL-68, REQ-GM-46, 46a, FD-21, issue #25.
+Needs: 2 to 4 phones (give two of them names of 10 letters, the most since FD-22), 1 TV on 1080p, a grown-up, a child of about 5 to 8 years for item 8, a person who reads Hebrew for item 9. Covers: REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21, issue #25.
 
-New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each player. Each phone shows its own place and score. The size of the header text on the phone and the place of the name tags are first values. The headless test `tests/hud_layout.gd` checks the rectangles of the chip, the title, the timer and the tags in all games with 4 phones, in English and Hebrew; what stays here is the phone screen, the real TV and the people.
+New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each player. Each phone shows its own place and score. The size of the header text on the phone is a first value. The headless test `tests/hud_layout.gd` checks the rectangles of the chip, the title and the timer, and that the countdown draws no name, in all games with 4 phones, in English and Hebrew; what stays here is the phone screen, the real TV and the people.
 
 **Steps**
 
 3c. Hold a phone at 50 cm. Check: you read aloud the place and the score of the line without a mistake.
 3d. On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out), take a photo of the pad. Check: the colored square, the player number and DISCONNECT are fully visible, and A and B are fully on the screen (REQ-FL-68).
 3e. Turn the same phone to landscape and back. Check: nothing is hidden at the top, at the bottom (the home bar) or at the side.
-8a. A child of 5 to 8 years plays a game. In the countdown, ask the child to point to its own object. Check: the child points to the right object within 10 s and without help.
+8a. A child of 5 to 8 years plays a game. In the countdown, ask the child to point to its own object (the one in the color of its phone). Check: the child points to the right object within 10 s and without help.
 8b. After one minute of play, ask the child to read aloud the number on its phone. Check: the child says the number that the phone shows.
 9c. The person who reads Hebrew reads the header of a phone. Check: the place and the score are read without a mistake.
 
@@ -860,7 +860,8 @@ Items 1a to 1c, 2a to 2d, 3a, 3b, 3f, 4a to 4c, 5a to 5c, 6, 7a, 7b, 7c, 9a and 
 
 History:
 
-- 2026-10-21 (automated): items 3a, 3b, 3f, 7a and 9a moved to the automated tests (`auto_r3_score`, `hud_layout`). The check of 7a fails today in Treasure Maze, Road Rally, Mini Golf and Banana Party (a name tag is nearer to the object of another player; known bug, REQ-GM-46a).
+- 2026-10-21 (automated): items 3a, 3b, 3f, 7a and 9a moved to the automated tests (`auto_r3_score`, `hud_layout`).
+- 2026-10-21: the name tags of the countdown (REQ-GM-46a) were removed by decision of the owner (Alon). Item 7a (the object nearest to a tag) and the tag parts of items 7b and 7c are gone; the title of the test lost "name tags". No recorded result changed.
 - -: **Not run**. New.
 
 ## Test 20
@@ -873,7 +874,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 
 **Steps**
 
-1b2. Start a game. From 3 m look at the countdown tag and at the leader chip (make this phone the leader). Check: the tester finds the avatar of the phone in the tag and in the chip (2 of 2 found). (That the tag and the chip hold the square, the avatar and the name in this order is checked by A-20-1b.)
+1b2. Start a game. Start a game and make this phone the leader. From 3 m look at the leader chip. Check: the tester finds the avatar of the phone in the chip (1 of 1 found). (That the chip holds the square, the avatar and the name in this order is checked by A-20-1b.)
 6e. Show the card with a Hebrew name in the English sentence, and with an English name in the Hebrew sentence. The Hebrew reader reads both cards aloud. Check: for each of the 2 cards the reader says that the letters of the name are in the typed order and that the sentence is in the right order (2 of 2 yes).
 7b. A child of 5 to 8 years joins with a phone, and 3 other players join. Ask the child to point to its own avatar on the TV. Check: the child points to it within 10 s and without help.
 9a. Play Banana Party, Paint Grab, Galaxy Protector, Pin Pals (Rails Off; with Rails On there is no NEW BEST) and Road Rally (a fixed track) with a profile on 2 phones. When the round is over, check: the phone of a player who scores shows NEW BEST! on the waiting screen.
@@ -885,7 +886,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 16b. Tap **+**. Tap the name field. Check: the keyboard opens and stays open. Tap outside the field: the keyboard closes.
 16c2. On the new player screen drag the avatar line with one finger by about 3 cm. Check: the line follows the finger, and the first avatar in view changes by 1 or more. (The 32 avatars in one line, the arrows with 3 avatars for each tap and the picked avatar in view at open are automated.)
 17c. In every game, check: no ball, marble, blob, bumper or cursor shows a number or an avatar, only its color.
-17d. A child of 5 to 8 years plays a game. Check: in the countdown the child points to its own object within 10 s, with the name tags and without help.
+17d. A child of 5 to 8 years plays a game. Check: in the countdown the child points to its own object (the one in the color of its phone) within 10 s and without help.
 
 Items 5, 11 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-20-5 and A-20-11). Items 1a, 1c, 3b, 6b, 6c, 8b, 16a, 16d, 16e, 16f moved to the automated tests, and items 6a, 6d, 12c, 16c lost the part that a machine checks (`docs/AUTOMATED_TESTS.md`, A-20-1 to A-20-16). The remaining part of 6a is 6a2, of 6d is 6e, of 12c is 12c2, of 16c is 16c2. On 2026-10-21 items 2a, 2b, 3a, 4a, 4b, 6a2, 7a, 8a, 9b, 9c, 9d, 10, 12b, 13a to 13c, 15a to 15c, 16g, 16h, 17a and 17b moved too (A-20-1b to A-20-16g), and the machine half of 1b is A-20-1b (the rest is 1b2). Step 9a stays until Alon decides (the NEW BEST! line shows on the waiting screen and on the pad). The numbers of the other items do not change.
 
@@ -893,7 +894,7 @@ Items 5, 11 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-20-5 and 
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1b2 | Photos of the countdown tag and the leader chip; note: found, yes or no | Not run |  |  |  |
+| 1b2 | Photo of the leader chip; note: found, yes or no | Not run |  |  |  |
 | 6e | Photo of the card in English and in Hebrew; note from the Hebrew reader | Not run | | | |
 | 7b | Note: the child, the age, the seconds | Not run | | | |
 | 9a | Photo of NEW BEST! on a phone | Not run | | | |
@@ -909,6 +910,7 @@ Items 5, 11 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-20-5 and 
 
 History:
 
+- 2026-10-21: the name tags of the countdown were removed (decision of the owner, Alon). Step 1b2 now checks the leader chip only, and 17d says the child finds its object by the color. No recorded result changed.
 - 2026-10-21 (automated): 24 steps moved to the automated tests (`r4_phone_profiles`, `r4_tv_profiles`, `r4_bests`). Step 1b was split (1b2 keeps the look of the avatar). The suite `r4_phone_profiles` fails on step 8a today: the Connect screen shows no reason after the phone was replaced (known bug).
 - -: **Not run**. New.
 
@@ -1024,7 +1026,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
 4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)
 4h. Swing normally with a thumb still on the aim strip, 5 times. Check: no ball is thrown and the hint "Lift your finger, then swing!" shows in 5 of 5 swings.
-11a. Let a child of about 5 to 8 years play on Easy with Rails On, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own ball (the name tag) within 10 s.
+11a. Let a child of about 5 to 8 years play on Easy with Rails On, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own ball (the one in the color of its phone) within 10 s.
 11b. Same child. Check: the child throws a ball (a ball leaves the foul line) within 60 s after the first plate "YOUR TURN", with no help.
 11c. After the game, ask: "Play again?". Check: the child says yes.
 12. Play with 4 phones and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
@@ -1166,7 +1168,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 2b. Look at the course. Check: you can point at all of these: the lawn, the fence, the clubhouse, the bushes and the walls of the hole.
 3b2. Look at the golfer. Check: the cap, the trousers and the shoes are white (3 of 3 white). (The shirt has the color of the phone of the player on turn: A-26-3b.)
 5e. Record the phone and the TV (240 fps) for 5 putts. Count the frames from the fastest point of the swing to the first move of the ball. Check: the median delay is 150 ms or less (36 frames at 240 fps).
-12a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own name tag within 10 s.
+12a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own character (the one in the color of its phone) within 10 s.
 12b. Same child. Check: the child turns the phone and the aim mark moves to the left side within 30 s after the first plate "<NAME>'S TURN!", with no help.
 12c. Same child. Check: the child putts the ball (one stroke counted) within 60 s after the first plate, with no help.
 12d. After the match, ask: "Play again?". Check: the child says yes.

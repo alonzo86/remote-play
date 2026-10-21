@@ -299,11 +299,6 @@ func _draw_hud() -> void:
 	if _round.is_counting() and not participants.is_empty():
 		var n := _round.count_number()
 		Shell.countdown(self, size, str(n), _round.count_elapsed())
-		var fit := _fit()
-		var spots := {}
-		for s in _bodies:
-			spots[s] = Shell.snap(fit.origin + (_bodies[s] as TiltBody).pos * float(fit.k))
-		draw_name_tags(self, spots, BLOB_R * float(fit.k))
 	if _round.time < HINT_TIME and not is_over:
 		Shell.hint(self, size, "paint_grab.tilt_phone_roll_paint")
 

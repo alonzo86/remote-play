@@ -1,6 +1,6 @@
 extends SceneTree
 ## The HUD of every game with 4 simulated phones (real clients on loopback, as in tests/multi_phone.gd), in English and in Hebrew:
-## where the title, the timer box, the leader chip, the name tags, the hint and the countdown stand (REQ-GM-46, 46a, 47o),
+## where the title, the timer box, the leader chip, the hint and the countdown stand (REQ-GM-46, 47o),
 ## read from
 ## the boxes the game really draws (`Shell.recorder`, because the HUD is drawn with draw_* and has no node). It replaces the
 ## "look at the screen with 4 long names" parts of manual tests 16 (item 7), 17 (item 6) and 19. Run:
@@ -12,7 +12,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
-## id -> [script, props, has leader chip, has timer in this run, has name tags]. A game with its own score card (Mini Golf,
+## id -> [script, props, has leader chip, has timer in this run]. A game with its own score card (Mini Golf,
 ## Pin Pals)
 ## and the maze (no score) have no leader chip.
 const GAMES := {
@@ -28,9 +28,6 @@ const GAMES := {
 }
 ## Names with 10 letters, and two equal names with 12 (the TV makes them different). Slot colors come from the server.
 const NAMES := ["Abcdefghij", "Klmnopqrst", "Twinsssssss", "Twinsssssss"]
-## Games where no tag covers an object, but a tag is nearer to the object of another player than to its own.
-## The maze: the 4 balls start in one corner cell, so the nearest ball to a wide tag at the margin is always a ball on the right.
-const TAGS_NEAREST := ["maze"]
 const MARGIN := 60.0
 const SCREEN := Rect2(0, 0, 1920, 1080)
 ## The black bar at the top: the title, the timer and the leader chip stand inside it (REQ-MR-40).
@@ -169,13 +166,10 @@ func _play(id: String) -> void:
 	await _stream(0.9)
 	var en := await _snap()
 	_countdown_checks(id, en, "en")
-	_countdown_pos[id] = {"en": _tag_positions(en)}
 	# The same running game, now in Hebrew: nothing in the world moves.
 	Lang.set_language("he", root)
 	var he := await _snap()
 	_countdown_checks(id, he, "he")
-	_check(_tag_positions(he) == _countdown_pos[id].en,
-			"%s: the objects stand in the same places when the language changes to Hebrew" % id)
 	await _stream(4.2)   # Through 2, 1 and GO, still in Hebrew (the log keeps the GO word).
 	_go_word_checks(id)
 	# Hebrew from the start gives the same world.
@@ -183,22 +177,11 @@ func _play(id: String) -> void:
 	_game = _app.current_screen()
 	await _stream(0.9)
 	var he_start := await _snap()
-	_check(_tag_positions(he_start) == _countdown_pos[id].en,
-			"%s: a game that starts in Hebrew has the same start positions as in English (REQ-GM-47o)" % id)
 	_world_not_mirrored(id)
 	await _stream(3.6)
 	_game.open_menu("minigame.paused", [["minigame.resume", _game.close_menu]])   # The ticks stop, so the scores stay.
 	await _round_checks(id, spec)
 	_game.close_menu()
-
-
-## The name tags of a snapshot: slot-less list of object positions, sorted, to compare two runs.
-func _tag_positions(snap: Dictionary) -> Array:
-	var out: Array = []
-	for t in snap.get("tag", []):
-		out.append([snappedf(t.info.pos.x, 0.5), snappedf(t.info.pos.y, 0.5)])
-	out.sort()
-	return out
 
 
 func _countdown_checks(id: String, snap: Dictionary, lang: String) -> void:
@@ -212,57 +195,13 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String) -> void:
 					"%s: the title is at the top right, ending at the 60 px margin (%s)" % [state, str(r)])
 		else:
 			_check(is_equal_approx(r.position.x, MARGIN), "%s: the title is at the top left, at the 60 px margin (%s)" % [state, str(r)])
-	var tags: Array = snap.get("tag", [])
-	_check(tags.size() == _game.participants.size(), "%s: one name tag for each of the %d players (%d)"
-			% [state, _game.participants.size(), tags.size()])
-	var names_ok := true
-	var colors_ok := true
-	var inside := true
-	var apart := true
-	var cover := true
-	for i in tags.size():
-		var t: Dictionary = tags[i]
-		var slot := _slot_of_tag(t)
-		names_ok = names_ok and slot >= 0
-		if slot >= 0:
-			colors_ok = colors_ok and t.info.color == _app.server.players[slot].color
-		var r: Rect2 = t.rect
-		inside = inside and r.position.x >= MARGIN - 0.01 and r.end.x <= 1920.0 - MARGIN + 0.01 and r.position.y >= MARGIN - 0.01 \
-				and r.end.y <= 1080.0 - MARGIN + 0.01
-		var need: float = UiTheme.font().get_string_size(String(t.info.name).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1,
-				Shell.CHIP_FONT).x + Shell.name_x() + Shell.CHIP_PAD
-		inside = inside and r.size.x >= need - 0.01
-		for j in range(i + 1, tags.size()):
-			apart = apart and not r.intersects(tags[j].rect)
-		for j in tags.size():
-			if j != i:
-				if r.has_point(tags[j].info.pos):
-					cover = false   # A tag never hides another player's object.
-					print("       tag %s %s covers the object at %s" % [tags[i].info.name, str(r), str(tags[j].info.pos)])
-	_check(names_ok, "%s: each tag has the name of its player, as the TV shows it" % state)
-	_check(colors_ok, "%s: each tag has the color of its player" % state)
-	_check(inside, "%s: every tag is inside the 60 px margin and as wide as its whole name" % state)
-	_check(apart, "%s: no name tag covers another name tag" % state)
-	_check(cover, "%s: no name tag covers the object of another player" % state)
-	var near := true
-	for t in tags:
-		var r: Rect2 = t.rect
-		var p: Vector2 = t.info.pos
-		var clamped: bool = r.position.x <= MARGIN + 0.01 or r.end.x >= 1920.0 - MARGIN - 0.01
-		near = near and (clamped or absf(r.get_center().x - p.x) < 0.01 or absf(r.get_center().y - p.y) < 400.0)
-		near = near and r.get_center().distance_to(p) < 500.0
-	_check(near, "%s: each tag stands near the object of its player" % state)
-	var nearest := true   # The object closest to a tag's centre is the object of its own player.
-	for i in tags.size():
-		var c: Vector2 = tags[i].rect.get_center()
-		for j in tags.size():
-			if j != i and c.distance_to(tags[j].info.pos) < c.distance_to(tags[i].info.pos):
-				nearest = false
-	if id in TAGS_NEAREST:
-		_known_bug("issue-needed: a name tag is nearer to the object of another player", nearest,
-				"%s: the object nearest to each tag is the object of its own player" % state)
-	else:
-		_check(nearest, "%s: the object nearest to each tag is the object of its own player" % state)
+	# The players are known by the color of their objects: the countdown draws no name over them (removed 2026-10-21).
+	_check(not snap.has("tag"), "%s: the countdown draws no name tags" % state)
+	var named := false
+	for kind in snap:
+		for e in snap[kind]:
+			named = named or (kind != "leader" and e.info.has("name") and _is_player_name(String(e.info.name)))
+	_check(not named, "%s: no box of the countdown holds the name of a player" % state)
 	var hint := _one(snap, "hint")
 	if not hint.is_empty():
 		var text_box: Rect2 = hint.rect.grow_individual(-32.0, -20.0, -32.0, -20.0)
@@ -275,12 +214,11 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String) -> void:
 			"%s: the countdown number is inside the screen (%s)" % [state, str(count.get("rect"))])
 
 
-func _slot_of_tag(t: Dictionary) -> int:
+func _is_player_name(text: String) -> bool:
 	for s in _game.participants:
-		if _app.server.players[s].player_name == String(t.info.name):
-			if t.info.color == _app.server.players[s].color:
-				return s
-	return -1
+		if _app.server.players[s].player_name == text:
+			return true
+	return false
 
 
 ## Hebrew only: the GO word and every number of the countdown that the log saw while the game ran in Hebrew.
@@ -326,7 +264,7 @@ func _round_checks(id: String, spec: Array) -> void:
 		var snap := await _snap()
 		var state := "%s in %s" % [id, "Hebrew" if lang == "he" else "English"]
 		_check(not snap.has("leader"), "%s: no leader chip while all players are level at 0" % state)
-		_check(not snap.has("tag"), "%s: the name tags are gone after GO" % state)
+		_check(not snap.has("tag"), "%s: no name tags in the round" % state)
 		_row_checks(state, snap, lang, has_timer)
 	if not has_chip:
 		Lang.set_language("en", root)
@@ -499,7 +437,7 @@ func _race_places() -> void:
 		ok = ok and c.score_rank == int(e.rank)
 		places.append(e.rank)
 	_check(ok, "Road Rally: each phone is told the place of its car (%s)" % str(places))
-	# There is no list of names at the left of the race (the names are in the chip and in the tags only).
+	# There is no list of names at the left of the race (the names are in the chip only).
 	var named := false
 	for n in _game.find_children("*", "Label", true, false):
 		for nm in NAMES:

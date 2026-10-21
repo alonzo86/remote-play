@@ -18,11 +18,9 @@ const CHIP_GAP := 8.0          # The space between the square and the avatar.
 const CHIP_LINE := 4           # The frame of a chip.
 const TIMER_X := 520.0         # The timer box has one place in every game (REQ-GM-47o): left edge on a left to right screen.
 const TIMER_Y := 36.0
-const TAG_H := 56.0            # The height of a name tag in the countdown.
-const TAG_GAP := 8.0           # The space between two name tags.
 
 ## A test sets this to see the boxes the HUD draws (the game draws with `draw_*`, so there is no node to look at). Called as
-## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "tag", "hint", "countdown" or "plate" (a
+## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "hint", "countdown" or "plate" (a
 ## `label_plate()`: info has the text `msg` and the `color`).
 static var recorder := Callable()
 
@@ -175,7 +173,7 @@ static func fit_text(text: String, max_w: float, font_size := CHIP_FONT) -> Stri
 
 
 ## A player ball: a dark outline and the player color. The player is known by the color alone: no number and no avatar on the
-## object (the name is in the chips and in the name tags of the countdown, REQ-GM-46). `pos` is the center. The outline is 6 px
+## object (the name is in the chips, REQ-GM-46). `pos` is the center. The outline is 6 px
 ## for a ball of 40 px or more and 4 px for a smaller one.
 static func ball(ci: CanvasItem, pos: Vector2, radius: float, color: Color) -> void:
 	ci.draw_circle(pos, radius + ball_metrics(radius).outline, UiTheme.OUTLINE)
@@ -247,67 +245,6 @@ static func leader_chip(ci: CanvasItem, area_w: float, leaders: Array, score: St
 	var w := score_chip_width(label, score, 64.0, 200.0, CHIP_FONT, avatar)
 	var r := score_chip(ci, Vector2(leader_chip_x(area_w, w), y), label, score, color, w, 64.0, avatar)
 	_note("leader", ci, r, {"name": label, "score": score, "color": color, "tie": tie, "avatar": avatar})
-
-
-## The rectangles of the name tags that stand above the game objects in the countdown (REQ-GM-46a). `entries` are
-## `{pos, name}` with `pos` the middle of the object on the screen; `radius` is how far the tag stands above it. A tag is as wide
-## as its name, inside the 60 px margin, and a tag that would cover an earlier tag or another object moves up (then down, then
-## beside the objects) until it does not.
-static func name_tag_rects(area: Vector2, entries: Array, radius := 48.0) -> Array[Rect2]:
-	var out: Array[Rect2] = []
-	for e in entries:
-		var text_w := UiTheme.font().get_string_size(String(e.name).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT).x
-		var w := name_x(int(e.get("avatar", -1))) + text_w + CHIP_PAD
-		var r := Rect2(Vector2(clampf(e.pos.x - w * 0.5, 60.0, maxf(area.x - 60.0 - w, 60.0)),
-				clampf(e.pos.y - radius - TAG_H, 60.0, area.y - 60.0 - TAG_H)), Vector2(w, TAG_H))
-		# A tag that would cover an earlier tag or the object of another player moves up first (the objects are below
-		# their tags), then down, until it stands free.
-		var home := r.position.y
-		var placed := false
-		for k in [0, -1, -2, -3, 1, 2, 3]:
-			r.position.y = clampf(home + float(k) * (TAG_H + TAG_GAP), 60.0, area.y - 60.0 - TAG_H)
-			if _tag_is_free(r, e, out, entries):
-				placed = true
-				break
-		if not placed:   # Objects close together near an edge (the maze start): the tag stands beside the object.
-			var right: float = e.pos.x   # Right of the whole group of objects near this one.
-			var left: float = e.pos.x
-			for o in entries:
-				if Vector2(o.pos).distance_to(e.pos) < 2.0 * (radius + TAG_H):
-					right = maxf(right, o.pos.x)
-					left = minf(left, o.pos.x)
-			var side := right + radius + 16.0
-			if side + w > area.x - 60.0:
-				side = left - radius - 16.0 - w
-			r.position.x = clampf(side, 60.0, maxf(area.x - 60.0 - w, 60.0))
-			for k in [0, -1, 1, -2, 2, -3, 3, -4, 4, -5, 5, -6, 6]:
-				r.position.y = clampf(e.pos.y - TAG_H * 0.5 + float(k) * (TAG_H + TAG_GAP), 60.0, area.y - 60.0 - TAG_H)
-				if _tag_is_free(r, e, out, entries):
-					break
-		out.append(r)
-	return out
-
-
-## True when the tag `r` of `e` covers no earlier tag (`out`) and no object of another player.
-static func _tag_is_free(r: Rect2, e: Dictionary, out: Array[Rect2], entries: Array) -> bool:
-	for o in out:
-		if o.intersects(r.grow(TAG_GAP)):
-			return false
-	for o in entries:
-		if o != e and r.has_point(o.pos):
-			return false
-	return true
-
-
-## Name tags (REQ-GM-46a): each player's name next to its object, in the countdown only, so that nobody has to read a list.
-## `entries` are `{pos, name, color}` (see `name_tag_rects()`).
-static func name_tags(ci: CanvasItem, area: Vector2, entries: Array, radius := 48.0) -> void:
-	var rects := name_tag_rects(area, entries, radius)
-	for i in entries.size():
-		var avatar := int(entries[i].get("avatar", -1))
-		chip(ci, rects[i].position, String(entries[i].name), entries[i].color, rects[i].size.x, TAG_H, avatar)
-		_note("tag", ci, rects[i], {"name": String(entries[i].name), "color": entries[i].color, "pos": entries[i].pos,
-				"avatar": avatar})
 
 
 ## The race timer: a black box with a frame, in a fixed place. `pos` is the top-left corner.

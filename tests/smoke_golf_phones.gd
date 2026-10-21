@@ -152,12 +152,8 @@ func _run() -> void:
 	app.go(_Golf, {"difficulty": "medium", "holes": "3"})
 	await _frames(3)
 	var game: Control = app.current_screen()
-	var spots: Dictionary = game._countdown_spots(game._geo())
-	var inside := true
-	for s in spots:
-		inside = inside and Rect2(Vector2.ZERO, game.size).has_point(spots[s])
-	_check(spots.size() == 2 and inside and spots[0] != spots[1] and game.player(0).player_name != game.player(1).player_name
-			and game.player(0).player_name != "", "the countdown has a name tag for each of the 2 phones, on the screen (2a)")
+	_check(not game.has_method("_countdown_spots") and game.player(0).player_name != game.player(1).player_name,
+			"the countdown has no name tags (removed 2026-10-21) and the 2 phones have different names (2a)")
 	_check(game.hole_text() == "HOLE 1/3  PAR 2"
 			and game.chip_text(0) == game.player(0).player_name + "  0" and game.chip_text(1) == game.player(1).player_name + "  0",
 			"the top right says '%s' and the bar has one chip per player: '%s', '%s' (2c)"

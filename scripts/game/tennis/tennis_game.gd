@@ -425,7 +425,7 @@ func _game_draw() -> void:
 	draw_leader_chip(self)
 	var p := Look.Proj.new(size)
 	if _clock.is_counting():
-		_draw_countdown(p)
+		_draw_countdown()
 		return
 	if not play.solo:
 		_draw_panel()
@@ -460,25 +460,13 @@ func _hint() -> String:
 	return ""
 
 
-## The middle of the name tag of every player in the countdown: over the head of its character (REQ-GM-46a).
-func countdown_spots(p: Look.Proj) -> Dictionary:
-	var spots := {}
-	for s in participants:
-		if play.chars.has(s):
-			var c = play.chars[s]
-			spots[s] = Shell.snap(Look.head_pos(_foot(p, c), p.scale(c.pos.y)))
-	return spots
-
-
-func _draw_countdown(p: Look.Proj) -> void:
+func _draw_countdown() -> void:
 	var n := _clock.count_number()
 	var label := str(n)
 	draw_set_transform(Vector2(8.0, 8.0), 0.0, Vector2.ONE)
 	Shell.countdown(self, size, label, _clock.count_elapsed(), UiTheme.BG)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	Shell.countdown(self, size, label, _clock.count_elapsed())
-	var spots := countdown_spots(p)
-	draw_name_tags(self, spots, 48.0)
 
 
 ## Over the player after a great hit.
