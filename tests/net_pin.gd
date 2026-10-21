@@ -145,7 +145,8 @@ func _wrong_pins() -> void:
 		var stale := await _raw_hello({"token": "unknown-token"})
 		_check(stale.reply.get("reason", "") == "bad_pin", "no PIN with an unknown token is bad_pin (%d)" % (i + 1))
 	var fresh := await _raw_hello({"pin": "1234"})
-	_check(fresh.reply.get("t", "") == "welcome", "after %d hellos with no PIN the right PIN still joins (no lock)" % (Protocol.PIN_TRIES + 2))
+	_check(fresh.reply.get("t", "") == "welcome",
+			"after %d hellos with no PIN the right PIN still joins (no lock)" % (Protocol.PIN_TRIES + 2))
 	_free_all()
 
 
