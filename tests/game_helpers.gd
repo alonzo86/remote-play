@@ -197,6 +197,16 @@ func _shell_leader() -> void:
 			apart = apart and not rects[i].intersects(rects[k])
 	_check(rects.size() == 4 and apart, "4 tags at the same place are moved apart")
 	_check(inside, "the tags are inside the 60 px safe margin")
+	var corner: Array = []   # Four objects in one cell at the top left (the maze start): no tag covers an object.
+	for i in 4:
+		corner.append({"pos": Vector2(108.0 + 48.0 * (i % 2), 192.0 + 48.0 * (i / 2)), "name": "ABCDEFGHIJ"})
+	var crects: Array = Shell.name_tag_rects(area, corner, 18.0)
+	var uncovered := true
+	for i in 4:
+		for k in 4:
+			uncovered = uncovered and (i == k or not crects[i].has_point(corner[k].pos))
+			uncovered = uncovered and (i >= k or not crects[i].intersects(crects[k]))
+	_check(uncovered, "tags of objects in one corner cover neither an object of another player nor each other")
 	var edge: Array = Shell.name_tag_rects(area, [{"pos": Vector2(1900.0, 20.0), "name": "ABCDEFGHIJKLMNOP"}])
 	_check(edge[0].end.x <= 1860.0 and edge[0].position.y >= 60.0,
 			"a tag for an object at the screen edge is moved inside the margin")
