@@ -167,8 +167,7 @@ func _pad_flow() -> void:
 	_check(_app.client.state == ControllerClient.State.IDLE and _server.player_count() == 0 and screen._pad == null,
 			"3b: the phone did not join and the pad is closed")
 	var now_screen: Control = _app.current_screen()
-	_known_bug("issue-needed: the Connect screen shows no error after a reject (the status line is not refreshed)",
-			now_screen.get_script() == _app.ControllerConnect and now_screen._status.text == Lang.t("pin.wrong").to_upper(),
+	_check(now_screen.get_script() == _app.ControllerConnect and now_screen._status.text == Lang.t("pin.wrong").to_upper(),
 			"3b: the Connect screen shows WRONG PIN in its status line")
 	await _try_pin(screen, TV_PIN)
 	_check(_app.client.state == ControllerClient.State.CONNECTED and _server.player_count() == 1,
@@ -210,8 +209,7 @@ func _lock_flow() -> void:
 	_check(_app.client.state != ControllerClient.State.CONNECTED and _server.player_count() == 1,
 			"4b: and the phone did not join")
 	var locked_screen: Control = _app.current_screen()
-	_known_bug("issue-needed: the Connect screen shows no error after a reject (the status line is not refreshed)",
-			locked_screen.get_script() == _app.ControllerConnect
+	_check(locked_screen.get_script() == _app.ControllerConnect
 			and locked_screen._status.text == Lang.f("pin.locked", [Protocol.PIN_LOCK_MS / 1000]).to_upper(),
 			"4b: the Connect screen shows TOO MANY WRONG PINS in its status line")
 

@@ -184,6 +184,7 @@ func _on_qr_failed(reason: String) -> void:
 
 ## A TV that does not know the saved token needs the PIN: the pad opens (a phone that sent a PIN and was refused shows the text).
 func _on_rejected(reason: String) -> void:
+	_on_state(App.client.state)   # The state went IDLE before the reason was known: show the reason now.
 	if reason == "bad_pin" and App.client.pin == "":
 		_ask_pin(App.client.host, App.client.port, App.client.room)
 

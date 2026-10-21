@@ -323,6 +323,8 @@ func _pin_check(ws: WebSocketPeer, sent: String, now: int) -> String:
 	if sent == pin and pin != "":
 		_bad_pins = 0
 		return ""
+	if sent == "":
+		return "bad_pin"   # No PIN (an old token after a TV restart): the phone asks for it. This is not a guess, so it does not count.
 	_bad_pins += 1
 	if _bad_pins >= Protocol.PIN_TRIES:
 		_bad_pins = 0

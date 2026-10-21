@@ -338,8 +338,7 @@ func _kick() -> void:
 			"a removed phone is idle and the message is the text of the host: '%s'" % _app.last_error)
 	var screen: Control = _app.current_screen()
 	_check(screen.get_script() == _connect_script, "the phone is on the Connect screen")
-	_known_bug("issue-needed: the Connect screen shows no error after a reject",
-			screen._status.text == _app.last_error.to_upper(),
+	_check(screen._status.text == _app.last_error.to_upper(),
 			"the Connect screen shows the reason in its status line: '%s'" % screen._status.text)
 	await create_timer(5.0).timeout
 	_check(_app.client.state == ControllerClient.State.IDLE and _relay.accepted == accepted_before
@@ -382,16 +381,13 @@ func _wifi_cut() -> void:
 	await _leave_all()
 
 
-## The phone must notice that the TV is silent. KNOWN BUG: the client calls `_ws.close()` after
-## PEER_TIMEOUT_MS of silence, but the
-## close handshake of a half-open link never ends, the socket stays in CLOSING and the state stays CONNECTED. The test then does
-## by hand what the client should do (drop the socket and retry), so that the rest of the scenario is still tested.
+## The phone must notice that the TV is silent: after PEER_TIMEOUT_MS the client drops the half-open socket and retries.
+## If it does not, the test does by hand what the client should do, so that the rest of the scenario is still tested.
 func _phone_notices_cut(t0: int) -> int:
 	var c: ControllerClient = _app.client
 	var noticed := await _wait_until(func(): return c.state == ControllerClient.State.RECONNECTING, 9000)
 	var ms := Time.get_ticks_msec() - t0
-	_known_bug("issue-needed: a phone does not notice a silent TV (half-open link): state stays CONNECTED, socket CLOSING",
-			noticed and ms <= 5600, "the phone shows RECONNECTING within 5.6 s of the cut (REQ-GM-30: 5 s of silence) (%d ms)" % ms)
+	_check(noticed and ms <= 5600, "the phone shows RECONNECTING within 5.6 s of the cut (REQ-GM-30: 5 s of silence) (%d ms)" % ms)
 	if not noticed:
 		c._close_socket()
 		c._on_closed()   # What the client should do after PEER_TIMEOUT_MS.

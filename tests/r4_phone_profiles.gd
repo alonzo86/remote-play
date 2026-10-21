@@ -329,8 +329,7 @@ func _replaced() -> void:
 	_check(kicked and screen.get_script() == _app.ControllerConnect, "the older phone goes to the Connect screen")
 	_check(_app.last_error == Lang.t("app.player_already_in_room"),
 			"and its message is THIS PLAYER IS ALREADY IN THE ROOM.: '%s'" % _app.last_error)
-	_known_bug("issue-needed: the Connect screen shows no error after a reject (same cause as the removed phone in join_flow)",
-			screen._status.text == Lang.t("app.player_already_in_room").to_upper(),
+	_check(screen._status.text == Lang.t("app.player_already_in_room").to_upper(),
 			"the Connect screen shows that text in its status line: '%s'" % screen._status.text)
 	await _wait_until(func(): return second.state == ControllerClient.State.CONNECTED, 4000)
 	_check(second.state == ControllerClient.State.CONNECTED and _server.player_count() == 1
