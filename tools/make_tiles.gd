@@ -10,6 +10,8 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 
+## The height of the HUD strip at the top of a game at 1080p (the world starts below it).
+const HUD_BAR := 112
 const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
@@ -24,6 +26,8 @@ const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_
 		"bowling": 2, "tennis": 2, "mini_golf": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
+## A fixed seed for the games that draw their picture with random numbers, so that a new run makes the same tile.
+const SEEDS := {"paint_grab": 3, "snowball_splat": 3}
 
 var _seq := [0, 0, 0, 0]
 
@@ -245,9 +249,22 @@ func _place_snow(game: Node, pad: Array, flats: Array) -> void:
 	for f in game._flights:
 		if f.age >= 0.0:
 			f.age = game.FLIGHT_TIME * 0.55   # Half way: the snowball is in the air.
+	# The four rings stand apart inside the part of the picture that the tile keeps (the sides are cut by `_world_crop()`).
+	var spots := [Vector2(0.3, 0.42), Vector2(0.45, 0.62), Vector2(0.6, 0.5), Vector2(0.72, 0.7)]
+	for i in game.participants.size():
+		game._throwers[game.participants[i]].aim = area.position + area.size * spots[i % spots.size()]
 	game.set_process(false)   # Freeze the picture.
 	game._request_redraw()
 	await _frames(3)
+
+
+## The picture without the strip that the HUD uses (112 px at 1080p), cut to 16:9 around the middle, so that a tile shows the
+## world and no black bar where the HUD was (REQ-GM-49).
+func _world_crop(img: Image) -> Image:
+	var top := roundi(HUD_BAR * img.get_height() / 1080.0)
+	var h := img.get_height() - top
+	var w := mini(img.get_width(), roundi(h * float(TILE_SIZE.x) / TILE_SIZE.y))
+	return img.get_region(Rect2i((img.get_width() - w) / 2, top, w, h))
 
 
 func _run() -> void:
@@ -289,6 +306,9 @@ func _run() -> void:
 		var flats: Array = []
 		for c in pad:
 			flats.append(flat)
+		if SEEDS.has(String(g.id)):
+			props = props.duplicate()
+			props.seed = SEEDS[String(g.id)]
 		app.go(Registry.load_script(String(g.id)), props)
 		await _stream(pad, 3.2, flats) # The countdown.
 		var wait: float = float(WAIT.get(String(g.id), 3.0)) - 3.2
@@ -332,8 +352,11 @@ func _run() -> void:
 			wait = 0.0
 		if wait > 0.0:
 			await _stream(clients, wait, [right, left])
+		app.current_screen().tile_mode = true   # The world only, no HUD (REQ-GM-49).
+		app.current_screen()._request_redraw()
 		await _frames(3)
 		var img := root.get_texture().get_image()
+		img = _world_crop(img)
 		img.resize(TILE_SIZE.x, TILE_SIZE.y, Image.INTERPOLATE_LANCZOS)
 		var path := OUT_DIR + String(g.id) + ".png"
 		var err := img.save_png(ProjectSettings.globalize_path(path))

@@ -6,6 +6,7 @@ extends SceneTree
 
 const Synth = preload("res://scripts/audio/synth.gd")
 const Songs = preload("res://scripts/audio/songs.gd")
+const Slow = preload("res://tests/slow_run.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 
 var RoundClock: GDScript
@@ -505,7 +506,7 @@ func _menu_song_start(sound: Node) -> void:
 		await _frames(1)
 	var ms := Time.get_ticks_msec() - t0
 	var start_db: float = sound._music.volume_db
-	_check(sound._music.playing and sound.wanted_music == "menu" and ms <= 5000,
+	_check(sound._music.playing and sound.wanted_music == "menu" and ms <= int(Slow.limit(5000.0)),
 			"the menu song plays %d ms after the start (5000 or less)" % ms)
 	_check(start_db <= -40.0, "the menu song starts at %.0f dB and fades in, so it does not click" % start_db)
 	await _wait(0.8)

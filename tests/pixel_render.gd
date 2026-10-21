@@ -617,14 +617,14 @@ func _tiles() -> void:
 						near += 1
 						break
 			_check(near >= 2, "tile %s: 2 of its 6 main colors are colors of the game's look (%d)" % [id, near])
-		# A tile shows the world only: the first 37 rows (the HUD bar of 112 px at 1080p) are not a black bar (issue 57).
+		# A tile shows the world only: the first 37 rows (the HUD bar of 112 px at 1080p) are not a black bar (REQ-GM-49).
 		var black := 0
 		for y in 37:
 			for x in range(0, 640, 2):
 				if _px(img, x, y) == _rgb(UiTheme.BG):
 					black += 1
 		var share := 100.0 * black / (37 * 320)
-		_known_bug("issue 57", share < 60.0, "tile %s: the top rows show the world, not a black HUD bar (%.0f%% black)" % [id, share])
+		_check(share < 60.0, "tile %s: the top rows show the world, not a black HUD bar (%.0f%% black)" % [id, share])
 
 
 ## The `n` most common colors of an image (quantized to 5 bits a channel), as colors.

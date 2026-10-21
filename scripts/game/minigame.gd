@@ -44,6 +44,8 @@ var _hold := false               # A participant lost its connection: the game w
 var _hold_info := {}             # slot -> {name, color} of the players lost in this hold.
 var _hold_sig := ""
 var _pixel_viewport: SubViewport
+## True only for the picture of a game tile (tools/make_tiles.gd, REQ-GM-49): the game draws its world and no HUD.
+var tile_mode := false
 var _pixel_layer: Control        # Draws the world of a pixel game, inside the low-resolution view.
 
 
@@ -455,6 +457,8 @@ func close_menu() -> void:
 func _draw() -> void:
 	if _pixel_layer == null:
 		draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
+	if tile_mode:
+		return
 	_game_draw()
 	_draw_overlays(self)
 

@@ -194,7 +194,8 @@ func _run() -> void:
 	_check(_share(golf, [GolfLook.FAIR_A, GolfLook.FAIR_B, GolfLook.LAWN_A, GolfLook.LAWN_B]) > 0.1
 			and _count(golf, GolfLook.WATER) > 3000 and _count(golf, GolfLook.WOOD) > 2000,
 			"mini_golf: the fairway, the lake and the wood of the windmill")
-	_players(golf, "mini_golf", pc, 2, 60, 20)
+	# The tile has no HUD chips (REQ-GM-49): only the golfer on its turn shows a player color.
+	_players(golf, "mini_golf", pc, 1, 60, 20)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 

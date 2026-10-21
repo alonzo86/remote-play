@@ -175,6 +175,10 @@ func _places(game: Control, state: String, n: int) -> void:
 	if board == null or game.get_script().resource_path.ends_with("marble_race.gd"):
 		_check(true, "%s: no score on the phones (this game has none)" % state)
 		return
+	# Tennis ranks teams, not players (REQ-TN-13): r4_tennis.gd and smoke_tennis_phones.gd check it.
+	if n > 2 and game.has_method("places"):
+		_check(true, "%s: the places are per team (checked in the tennis suites)" % state)
+		return
 	game.open_menu("minigame.paused", [["minigame.resume", game.close_menu]])   # The ticks stop, so they do not change the scores.
 	for k in n:
 		board.set_score(k, float(k + 1) * 10.0)
