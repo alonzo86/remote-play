@@ -249,6 +249,9 @@ class Feeder:
 	## True for a phone that reports the acceleration with the other sign (the iPhone convention): the TV then needs the
 	## `invert_tilt` setting, as the controller sends it (orientation.gd).
 	var invert := false
+	## A finger on the touch screen: `touching` and the place `touch` (0 to 1 on both axes) go in every packet.
+	var touching := false
+	var touch := Vector2.ZERO
 
 	func _init(p: PlayerInput, up_vec := Vector3(0, 0, 1)) -> void:
 		player = p
@@ -262,7 +265,7 @@ class Feeder:
 	func packet(lin: Vector3, gyro: Vector3) -> Dictionary:
 		var accel := (lin + up * G) * (-1.0 if invert else 1.0)
 		return {"ts": ts() & 0xFFFFFFFF, "seq": seq & 0xFFFF, "gyro": gyro, "accel": accel, "buttons": 0,
-				"touching": false, "touch": Vector2.ZERO}
+				"touching": touching, "touch": touch if touching else Vector2.ZERO}
 
 	func feed(trace: Trace, after_step := Callable()) -> void:
 		for i in trace.size():

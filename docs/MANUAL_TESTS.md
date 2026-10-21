@@ -71,7 +71,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 | [21](#test-21) | Join PIN and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-84, REQ-FL-85, REQ-N9, FD-25 | Not run | | |
 | [22](#test-22) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
-| [23](#test-23) | Pin Pals (bowling: aim with a turn, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [23](#test-23) | Pin Pals (bowling: aim with a finger, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
@@ -1008,7 +1008,7 @@ History:
 
 ## Test 23
 
-### Pin Pals (bowling: aim with a turn, swing to throw)
+### Pin Pals (bowling: aim with a finger, swing to throw)
 
 Needs: 1 to 4 phones, 1 TV, a stopwatch, a phone camera (60 fps or more), and a child of about 5 to 8 years for items 11a to 11c. Covers: REQ-BW-*, REQ-GM-80 to 84, REQ-GM-90 to 98, REQ-GM-37, REQ-GM-47i to 47n.
 
@@ -1017,8 +1017,13 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 **Steps**
 
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the lane with pins, the ball, the gray floor and the disco wall. (Changes with issue #57.)
+3e. **Aim strip.** On the phone on turn, slide a finger from the left end of the strip to the right end in about 1 s, then back. Check: the ball on the TV is in the left gutter at the left end of the strip and in the right gutter at the right end, and it moves in the same direction as the finger. (The mapping is in A-23-3.)
+3f. Film the phone and the TV together at 60 fps or more and slide a finger on the strip. Check: the ball starts to move within 12 frames (0.2 s) after the finger starts to move, in 5 of 5 tries.
+3g. Touch A, B, and the rest of the screen outside the strip with a finger, 5 times each. Check: the ball does not move. On a phone that is not on turn the Recenter box is back and works as RECENTER.
 4e. Throw 5 balls with each grip: screen up, screen to the side, and the other hand. Check: at least 4 of 5 swings throw a ball for each grip. (REQ-BW-5)
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
+4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)
+4h. Swing normally with a thumb still on the aim strip, 5 times. Check: no ball is thrown and the hint "Lift your finger, then swing!" shows in 5 of 5 swings.
 11a. Let a child of about 5 to 8 years play on Easy with Rails On, with a grown-up next to them who does not help. Check: in "3, 2, 1" the child points at its own ball (the name tag) within 10 s.
 11b. Same child. Check: the child throws a ball (a ball leaves the foul line) within 60 s after the first plate "YOUR TURN", with no help.
 11c. After the game, ask: "Play again?". Check: the child says yes.
@@ -1027,17 +1032,22 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 13c. From 3 m, read aloud the totals of all rows of the score sheet and one banner. Check: no error.
 (The music and the effects are checked in Test 18.)
 
-Items 1a, 2a to 2e, 3a to 3d, 4a to 4d, 5a, 5b, 6a to 6d, 7a, 7b, 8a to 8e, 9a to 9c, 10a to 10c, 13a, 13d and 14 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-23-1a to A-23-14). Items 4e and 4f keep only the part that needs a real phone (the rest is in A-23-4). The numbers of the other items do not change.
+Items 1a, 2a to 2e, 3a to 3d, 4a to 4d, 5a, 5b, 6a to 6d, 7a, 7b, 8a to 8e, 9a to 9c, 10a to 10c, 13a, 13d and 14 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-23-1a to A-23-14). Items 4e and 4f keep only the part that needs a real phone (the rest is in A-23-4). Items 3e to 3g, 4g and 4h are new (2026-10-21, the aim is a finger since 2026-10-20): they need a real touch screen and real hands. The numbers of the other items do not change.
 
-Measurements (write down, no pass or fail): the turn angle that you find best for each difficulty and if turn or tilt is better for bowling; every swing that did not throw and every throw that you did not mean (with the grip); the peak power of a soft and a hard swing. Use them to tune `AIM_RANGE_DEG`, `BACK_ACCEL`, `FWD_ACCEL` and `FWD_FULL`.
+Measurements (write down, no pass or fail): if the strip is too small or too large and if it is hard to slide with the thumb while the other fingers hold the phone; every swing that did not throw and every throw that you did not mean (with the grip); the peak power of a soft and a hard swing. Use them to tune `AIM_X`, `BACK_ACCEL`, `FWD_ACCEL`, `FWD_FULL` and `MIN_BACK`.
 
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1b | Photo of the tile next to a photo of the game | Not run | | | |
+| 3e | Note: where the ball is at the two ends of the strip | Not run | | | |
+| 3f | Video of the phone and the TV; note: frames of delay | Not run | | | |
+| 3g | Note: balls that moved when A, B or the screen was touched | Not run | | | |
 | 4e | Note: throws of 5 for each grip | Not run | | | |
 | 4f | Note: balls thrown while walking | Not run | | | |
+| 4g | Note: balls thrown by 10 shakes; throws of 5 normal swings | Not run | | | |
+| 4h | Note: balls thrown and hints shown in 5 swings with a thumb on the strip | Not run | | | |
 | 11a | Note: the child, the age, seconds until it points | Not run | | | |
 | 11b | Note: seconds until the first ball | Not run | | | |
 | 11c | Note: the answer of the child | Not run | | | |
@@ -1048,6 +1058,7 @@ Measurements (write down, no pass or fail): the turn angle that you find best fo
 History:
 
 - 2026-10-21 (automated): 15 steps moved to the automated tests (`smoke_bowling`, `r4_bowling`). `r4_bowling` is red today on three known bugs: the result menu opens after 3.8 s (step 6c said 1 to 3 s), the plate with the name shows the whole turn (step 8a said 1 to 2 s), and the first turn gives two buzzes (step 9a).
+- 2026-10-21 (merge with main, PR 59): the aim is a finger on the aim strip, not the turn of the phone. The yaw steps stay removed; new steps 3e to 3g (strip, delay, A and B), 4g (shakes) and 4h (thumb on the strip). No recorded result changed.
 - -: **Not run**. New (2026-10-16).
 
 ## Test 24

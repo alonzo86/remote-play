@@ -42,6 +42,9 @@ var lock_after := LOCK_AFTER
 ## How long (s) a back swing waits for its forward swing. Tennis waits longer, because a player draws back early while the
 ## ball is still coming.
 var window := SWING_WINDOW
+## The shortest back swing (s) that a forward swing may follow. A shake goes back and forth in about 0.1 s each way, a wind-up
+## takes longer. A push before this time is not counted. 0 turns the rule off (Tennis, Mini Golf).
+var min_back := 0.0
 ## Tennis finds the swing with the speed of the hand and a sharp strike (a gentle back swing, then a hard push in any
 ## direction, see `STRIKE_ACCEL`). Pin Pals and Mini Golf keep the plain rule: a back swing, then a push the other way.
 var hand_speed := false
@@ -122,7 +125,7 @@ func _update_back(delta: float, lin: Vector3) -> void:
 	_time += delta
 	var f := -lin.dot(_axis)
 	_speed += f * delta - _speed * SPEED_LEAK * delta
-	var pushed := f > FWD_ACCEL * threshold
+	var pushed := f > FWD_ACCEL * threshold and _time >= min_back
 	if hand_speed:
 		pushed = (pushed and _speed > FWD_SPEED * threshold) or _speed > FWD_FAST * threshold
 	if pushed:

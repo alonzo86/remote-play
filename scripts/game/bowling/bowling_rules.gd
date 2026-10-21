@@ -278,14 +278,14 @@ func score_of(slot: int) -> int:
 
 # ---- Difficulty (REQ-BW-17) ----
 
-## What Difficulty means (first guesses, test 23): `aim_deg` is the phone turn for the whole lane width, `threshold` is a factor
+## What Difficulty means (first guesses, test 23): `threshold` is a factor
 ## on the
 ## swing thresholds (a lower one counts a lighter swing), the ball speed is `fixed_speed` of the top speed on Easy and from
 ## `speed_min` to 1 of it with the swing power on the others, `tiers` are the medals of one player (bronze, silver, gold).
 const LEVELS := {
-	"easy": {"aim_deg": 18.0, "threshold": 0.7, "fixed_speed": 0.8, "tiers": [70, 110, 150]},
-	"medium": {"aim_deg": 14.0, "threshold": 1.0, "speed_min": 0.7, "tiers": [60, 100, 150]},
-	"hard": {"aim_deg": 11.0, "threshold": 1.0, "speed_min": 0.5, "tiers": [80, 130, 180]},
+	"easy": {"threshold": 0.7, "fixed_speed": 0.8, "tiers": [70, 110, 150]},
+	"medium": {"threshold": 1.0, "speed_min": 0.7, "tiers": [60, 100, 150]},
+	"hard": {"threshold": 1.0, "speed_min": 0.5, "tiers": [80, 130, 180]},
 }
 
 
@@ -299,9 +299,3 @@ static func ball_speed(difficulty: String, power: float, top_speed: float) -> fl
 	if lv.has("fixed_speed"):
 		return top_speed * float(lv.fixed_speed)
 	return top_speed * lerpf(float(lv.speed_min), 1.0, clampf(power, 0.0, 1.0))
-
-
-## The aim mark from -1 (left) to 1 (right) for a phone that turned `yaw_rad` to the left since the start of the turn
-## (REQ-BW-4): the turn of the whole lane width is `aim_deg` of the difficulty.
-static func aim_of(yaw_rad: float, difficulty: String) -> float:
-	return clampf(-yaw_rad / deg_to_rad(float(level(difficulty).aim_deg)), -1.0, 1.0)

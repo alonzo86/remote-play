@@ -44,14 +44,6 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
-## A check of a real problem that is not fixed yet: it counts as a failure until the bug is fixed.
-func _known_bug(issue: String, cond: bool) -> void:
-	_checks += 1
-	if not cond:
-		_fails += 1
-	print("  ", "ok   (the bug is gone: remove the guard) " if cond else "FAIL (known bug) ", issue)
-
-
 func _frames(n: int) -> void:
 	for i in n:
 		await process_frame
@@ -75,6 +67,7 @@ func _run() -> void:
 			await process_frame
 	await _aim_and_countdown()
 	await _swing_in_the_game()
+	await _finger_and_shake()
 	await _grips()
 	await _weak_and_wait()
 	await _banners_and_turns()
@@ -138,7 +131,13 @@ func _threw(game: Control) -> bool:
 	return game.phase != game.Phase.AIM
 
 
-# ---- Items 2e, 3a, 3d: the aim ----
+# ---- Items 2e, 3a, 3d: the aim (a finger on the aim strip, REQ-BW-4) ----
+
+## Puts a finger on the strip at `x` (0 to 1), or lifts it with a negative `x`.
+func _finger(f: R.Feeder, x: float) -> void:
+	f.touching = x >= 0.0
+	f.touch = Vector2(maxf(x, 0.0), 0.5)
+
 
 func _aim_and_countdown() -> void:
 	print("aim")
@@ -154,38 +153,34 @@ func _aim_and_countdown() -> void:
 			and spots[0].y < geo.at(Vector2(0, 0)).y - geo.ball_radius(0.0),
 			"the countdown puts a name tag above each ball: two tags, side by side around the middle of the lane")
 	_play(game, f, R.turn(30.0, 0.5))
-	var before := BowlingRules.aim_of(f.player.yaw_offset(), "medium")
 	_begin(game)
-	_check(before == -1.0 and absf(game._aim) < 0.2 and absf(f.player.yaw_offset()) < 0.01,
-			"the phone was turned 30 degrees to the left before the turn; at the start of the turn the aim is in the middle (%.2f)"
-			% game._aim)
+	_check(absf(game._aim) < 0.01,
+			"the phone was turned 30 degrees before the turn; at the start of the turn the aim is in the middle (%.2f)" % game._aim)
+	_play(game, f, R.turn(-14.0, 2.0))
+	_check(absf(game._aim) < 0.01, "turning the phone does not move the aim (%.2f)" % game._aim)
 	var aims: Array = []
-	f.feed(R.turn(7.0, 1.0), func() -> void:
+	_finger(f, 0.0)
+	_play(game, f, R.still(0.3))
+	_check(is_equal_approx(game._aim, -1.0), "a finger at the left end of the strip aims to the left end (%.2f)" % game._aim)
+	f.feed(R.still(1.0), func() -> void:
+		_finger(f, minf(1.0, f.touch.x + R.DT))   # From the left end to the right end in 1 s.
 		game._game_tick(R.DT)
 		aims.append(game._aim))
 	var smooth := true
 	for i in range(1, aims.size()):
-		smooth = smooth and aims[i] <= aims[i - 1] + 1e-9 and absf(aims[i] - aims[i - 1]) < 0.05
-	_check(smooth and aims[-1] < -0.4 and aims[-1] > -0.6,
-			"a turn of 7 degrees to the left moves the aim half way to the left, one way and without a jump (%.2f)" % aims[-1])
-	aims.clear()
-	f.feed(R.turn(-14.0, 2.0), func() -> void:
-		game._game_tick(R.DT)
-		aims.append(game._aim))
-	smooth = true
-	for i in range(1, aims.size()):
 		smooth = smooth and aims[i] >= aims[i - 1] - 1e-9 and absf(aims[i] - aims[i - 1]) < 0.05
-	_check(smooth and aims[-1] > 0.4 and aims[-1] < 0.6,
-			"then 14 degrees to the right: half way to the right (%.2f)" % aims[-1])
-	_again(game)
-	_play(game, f, R.turn(14.0, 4.0))
-	_known_bug("issue-needed: a slow aiming turn (14 degrees in 4 s, under 4.6 degrees a second) does not move the aim at all: the "
-			+ "sensor fusion counts a gyroscope under STILL_GYRO (0.08 rad/s) as 'still' and freezes the yaw (aim %.2f, wanted -1)"
-			% game._aim, game._aim < -0.9)
-	_again(game)
+	_check(smooth and aims[-1] > 0.95 and aims[aims.size() / 2] > -0.2 and aims[aims.size() / 2] < 0.2,
+			"a finger that slides across the strip in 1 s moves the aim from the left to the right end, one way and without a jump "
+			+ "(middle %.2f, end %.2f)" % [aims[aims.size() / 2], aims[-1]])
+	_finger(f, -1.0)
+	_play(game, f, R.still(0.5))
+	_check(not game.player(0).touching and is_equal_approx(game._aim, 1.0), "the aim stays at the right end when the finger lifts")
+	_play(game, f, R.turn(14.0, 2.0))
 	_play(game, f, R.gyro_drift(30.0, 0.02, 0.03, 4))
-	_check(absf(game._aim) < 0.1 and not game.detector.aim_locked and game.phase == game.Phase.AIM,
-			"a phone that lies still for 30 s (gyro noise 0.02 and an offset of 0.03 rad/s) does not move the aim (%.3f)" % game._aim)
+	_check(is_equal_approx(game._aim, 1.0) and not game.detector.aim_locked and game.phase == game.Phase.AIM,
+			"30 s of a phone that lies still (gyro noise and drift) and a turn of 14 degrees do not move the aim (%.3f)" % game._aim)
+	_again(game)
+	_check(is_equal_approx(game._aim, 1.0), "the same player keeps the aim for the next ball (REQ-BW-4)")
 
 
 # ---- Items 4a to 4d: the swing ----
@@ -244,6 +239,43 @@ func _swing_in_the_game() -> void:
 		times[name] = game.sim.time
 	_check(times.soft > 0.0 and times.hard > 0.0 and times.soft / times.hard >= 1.25,
 			"a soft swing takes %.2f s to the first pin, a hard swing %.2f s: at least 1.25 times as long" % [times.soft, times.hard])
+
+
+# ---- Items 4g, 4h: shakes are ignored, a finger on the strip blocks the throw (REQ-BW-5) ----
+
+func _finger_and_shake() -> void:
+	print("shake and finger")
+	var ctx := await _new_game(1)
+	var game: Control = ctx.game
+	var f: R.Feeder = ctx.feeders[0]
+	var fw := R.grip(R.UP_FLAT).dir(0.0)
+	_begin(game)
+	_wait(game, f, 0.3)
+	var threw := 0
+	for hz in [6.0, 8.0, 10.0, 12.0]:
+		for amp in [5.0, 12.0, 25.0]:
+			_play(game, f, R.shake(1.0, amp, hz))
+			_wait(game, f, 0.3)
+			if _threw(game):
+				threw += 1
+				_again(game)
+	_check(threw == 0, "12 shakes (6 to 12 Hz, 5 to 25 m/s2) throw nothing (%d thrown)" % threw)
+	_again(game)
+	_wait(game, f, 0.3)
+	_finger(f, 0.5)
+	_play(game, f, R.stroke(fw, 10.0, 25.0))
+	_check(not _threw(game) and not game.detector.aim_locked and game._lift_left > 0.0,
+			"a full swing with a finger on the strip throws nothing, locks nothing and shows the hint 'Lift your finger'")
+	_finger(f, -1.0)
+	_wait(game, f, 0.5)
+	_play(game, f, R.stroke(fw, 10.0, 25.0))
+	_wait(game, f, 0.3)
+	_check(game.phase == game.Phase.ROLL, "the same swing with the finger lifted throws")
+	_again(game)
+	_finger(f, 0.5)
+	_wait(game, f, 0.3)
+	_play(game, f, R.still(0.3))
+	_check(game._lift_left == 0.0 and not _threw(game), "a finger on the strip without a swing shows no hint and throws nothing")
 
 
 # ---- Items 4e, 4f: three grips, and no throw by accident ----

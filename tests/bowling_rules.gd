@@ -33,8 +33,10 @@ func _initialize() -> void:
 	_lane()
 	_lane_rails_and_gutter()
 	_swing()
+	_shake()
 	_swing_axes()
 	_orientation()
+	_aim_from_touch()
 	_look()
 	_aim_map()
 	_hall()
@@ -229,9 +231,8 @@ func _levels() -> void:
 			and is_equal_approx(BowlingRules.ball_speed("hard", 2.0, 9.0), 9.0),
 			"Hard: a gentle swing gives a slow ball, and the power is limited to 1")
 	_check(BowlingRules.level("nope") == BowlingRules.LEVELS.medium
-			and BowlingRules.level("easy").aim_deg > BowlingRules.level("hard").aim_deg
 			and BowlingRules.level("easy").threshold < BowlingRules.level("medium").threshold,
-			"an unknown level is Medium; Easy aims wider and counts a lighter swing")
+			"an unknown level is Medium; Easy counts a lighter swing")
 	for d in ["easy", "medium", "hard"]:
 		var t: Array = BowlingRules.level(d).tiers
 		_check(t[0] < t[1] and t[1] < t[2], "the medal tiers of %s rise" % d)
@@ -369,6 +370,22 @@ func _swing_run(d: SwingDetector, axis: Vector3, back: float, back_s: float, fwd
 		d.update(dt, Vector3.ZERO)
 
 
+func _shake() -> void:
+	print("shake")
+	var axis := Vector3(0, 1, 0)
+	var shake := SwingDetector.new()
+	shake.min_back = _game().MIN_BACK
+	var plain := SwingDetector.new()
+	var wind := SwingDetector.new()
+	wind.min_back = _game().MIN_BACK
+	for d in [shake, plain]:
+		_swing_run(d, axis, 9.0, 0.08, 18.0, 0.08)   # Back and forth in 0.1 s each way: a shake.
+	_check(shake.state != SwingDetector.State.LOCKED and plain.state == SwingDetector.State.LOCKED,
+			"a shake (0.08 s back, then forth) does not throw when the back swing must last MIN_BACK (REQ-BW-5)")
+	_swing_run(wind, axis, 9.0, 0.3, 18.0, 0.15)
+	_check(wind.state == SwingDetector.State.LOCKED and wind.power > 0.0, "a real wind-up of 0.3 s still throws (REQ-BW-5)")
+
+
 func _swing() -> void:
 	print("swing")
 	var d := SwingDetector.new()
@@ -453,15 +470,21 @@ func _swing_axes() -> void:
 	_check(mixed.state == SwingDetector.State.BACK, "a move across the swing axis is not the forward swing")
 
 
+## The game script is loaded when a test runs: it needs the autoloads, so a preload cannot compile it.
+func _game() -> GDScript:
+	return load("res://scripts/game/bowling/bowling_game.gd")
+
+
+func _aim_from_touch() -> void:
+	print("aim from touch")
+	_check(is_equal_approx(_game().aim_from_touch(0.0), -1.0) and is_equal_approx(_game().aim_from_touch(0.5), 0.0)
+			and is_equal_approx(_game().aim_from_touch(1.0), 1.0) and is_equal_approx(_game().aim_from_touch(2.0), 1.0),
+			"the place on the aim strip gives the aim from -1 to 1 (REQ-BW-4)")
+
+
 func _orientation() -> void:
 	print("orientation")
 	var o := OrientationFusion.new()
-	o.yaw = 0.5
-	o.recenter()
-	o.yaw = 0.8
-	_check(is_equal_approx(o.yaw_offset(), 0.3), "the turn since the recenter is the yaw offset (REQ-BW-4)")
-	o.yaw = 0.5 + TAU + 0.1
-	_check(is_equal_approx(o.yaw_offset(), 0.1), "the yaw offset wraps around")
 	o.up = Vector3(0, 0, 1)
 	_check(o.linear_accel(Vector3(0, 0, 9.81)).length() < 0.01
 			and o.linear_accel(Vector3(3, 0, 9.81)).is_equal_approx(Vector3(3, 0, 0)),
@@ -527,27 +550,34 @@ func _look() -> void:
 	canvas.queue_free()
 
 
-# ---- The aim (REQ-BW-4, Test 23 items 3b, 3c) ----
+# ---- The aim (REQ-BW-4, Test 23 item 3) ----
 
 func _aim_map() -> void:
-	print("aim range")
-	for d in [["easy", 18.0], ["medium", 14.0], ["hard", 11.0]]:
-		var deg: float = d[1]
-		var name: String = d[0]
-		_check(is_equal_approx(BowlingRules.aim_of(deg_to_rad(-deg), name), 1.0)
-				and is_equal_approx(BowlingRules.aim_of(deg_to_rad(deg), name), -1.0),
-				"%s: a turn of %.0f degrees to the right is the right end of the aim, to the left the left end" % [name, deg])
-		var half := BowlingRules.aim_of(deg_to_rad(-deg / 2.0), name)
-		_check(half > 0.35 and half < 0.65, "%s: half the range is about half way (%.2f)" % [name, half])
-		_check(BowlingRules.aim_of(deg_to_rad(deg * 2.0), name) == -1.0 and BowlingRules.aim_of(0.0, name) == 0.0,
-				"%s: a bigger turn stops at the end, no turn is the middle" % name)
-	var last := 2.0
-	var smooth := true
-	for i in range(0, 141):
-		var a := BowlingRules.aim_of(deg_to_rad(-14.0 + 0.2 * i), "medium")   # From 14 degrees right to 14 degrees left.
-		smooth = smooth and a <= last + 1e-9
+	print("aim strip")
+	var g := _game()
+	var last := -2.0
+	var steady := true
+	for i in range(0, 101):
+		var a: float = g.aim_from_touch(float(i) / 100.0)
+		steady = steady and a >= last and a >= -1.0 and a <= 1.0
 		last = a
-	_check(smooth and last == -1.0, "the aim moves one way only when the phone turns one way")
+	_check(steady and is_equal_approx(g.aim_from_touch(0.0), -1.0) and is_equal_approx(last, 1.0),
+			"a finger sliding from the left end to the right end of the strip moves the aim from -1 to 1, one way only")
+	_check(is_equal_approx(g.aim_from_touch(0.25), -0.5) and is_equal_approx(g.aim_from_touch(0.75), 0.5),
+			"a quarter and three quarters of the strip are half way to each side")
+	_check(g.aim_from_touch(-0.5) == -1.0 and g.aim_from_touch(1.5) == 1.0, "a place outside the strip stops at the end")
+	_check(g.AIM_X > LaneSim.LANE_HALF and g.AIM_X < LaneSim.GUTTER_X + 0.05,
+			"the end of the strip (%.2f m) is in the gutter, past the edge of the lane (%.3f m) (REQ-BW-4)"
+			% [g.AIM_X, LaneSim.LANE_HALF])
+	var in_gutter := LaneSim.new()
+	in_gutter.throw(g.aim_from_touch(0.0) * g.AIM_X, 6.0, false)
+	var rails := LaneSim.new()
+	rails.throw(g.aim_from_touch(1.0) * g.AIM_X, 6.0, true)
+	for i in 1200:
+		in_gutter.tick(LaneSim.STEP)
+		rails.tick(LaneSim.STEP)
+	_check(in_gutter.in_gutter and rails.finished and not rails.in_gutter,
+			"a ball from the left end of the strip is a gutter ball; with Rails a ball from the right end stays on the lane")
 
 
 # ---- The hall (REQ-BW-13, Test 23 items 2b, 2c, 13a) ----

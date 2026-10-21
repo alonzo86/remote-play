@@ -88,6 +88,7 @@ pad.disconnect,DISCONNECT,התנתקות,Phone: Disconnect button at the top of 
 pad.new_best,NEW BEST!,שיא חדש!,Phone: after a round that set a personal best,
 pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,Phone game screen: help line under the Recenter button,
 pad.recenter,RECENTER,מרכוז,Phone game screen: Recenter button,
+pad.slide_to_aim,SLIDE TO MOVE THE BALL,החליקו כדי להזיז את הכדור,Phone game screen: help line on the aim strip while it is the turn of this phone in Pin Pals,
 paint_grab.tiles,%d tiles (%d%%),%d אריחים (%d%%),Paint Grab result list: tiles painted and percent,"the number sign (%d, %.1f ...) is replaced by a number"
 paint_grab.tilt_phone_roll_paint,TILT YOUR PHONE TO ROLL AND PAINT THE TILES!,הטו את הטלפון כדי להתגלגל ולצבוע את האריחים!,Paint Grab: hint during the countdown,
 pause.and, AND , ו־,Pause card: joins the names of two or more phones ('2P AND 3P'),keep the spaces at the start and the end
@@ -192,14 +193,15 @@ asteroid_blast.wave_clear,Wave %d clear!,גל %d הסתיים!,"Galaxy Protector
 asteroid_blast.next_wave_in,Next wave in %d,הגל הבא בעוד %d,"Galaxy Protector: banner in the rest between two waves, %d is seconds",
 asteroid_blast.reached_wave,Reached wave %d,הגעתם לגל %d,"Galaxy Protector: title of the result menu for one player, %d is the wave",
 registry.pin_pals,PIN PALS,באולינג חברים,"Name of the game Pin Pals: Games screen, game settings, in-game title",
-registry.move_phone_aim_swing,MOVE YOUR PHONE TO AIM. SWING IT TO ROLL THE BALL!,הזיזו את הטלפון כדי לכוון. הניפו אותו כדי לגלגל את הכדור!,Description of Pin Pals: Games screen and game settings,
+registry.slide_aim_swing,SLIDE YOUR FINGER TO AIM. SWING YOUR PHONE TO ROLL THE BALL!,החליקו אצבע כדי לכוון. הניפו את הטלפון כדי לגלגל את הכדור!,Description of Pin Pals: Games screen and game settings view,
 bowling.rails,RAILS,מעקות,Pin Pals settings view: name of the Rails row,
 bowling.on,ON,פועל,Pin Pals settings view: On value of the Rails row,
 bowling.off,OFF,כבוי,Pin Pals settings view: Off value of the Rails row,
 bowling.turn,"%s, your turn!","%s, תורך!","Pin Pals: plate in the top bar while a player bowls, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
 bowling.frame,Frame %d/%d  Ball %d,פריים %d/%d  כדור %d,"Pin Pals: top bar, right side: the frame (of 10) and the ball (1 to 3) that is bowled now","the number sign (%d, %.1f ...) is replaced by a number"
-bowling.hint_aim,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD!",הזיזו את הטלפון כדי לכוון. הניפו אחורה ואז קדימה!,Pin Pals: hint on a plate over the lane at the start of a turn,
+bowling.hint_slide,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD!",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה!,Pin Pals: hint on a plate over the lane at the start of a turn,
 bowling.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Pin Pals: hint on a plate after a swing that was too weak,
+bowling.hint_lift,"LIFT YOUR FINGER, THEN SWING!",הרימו את האצבע ואז הניפו!,Pin Pals: hint on a plate after a swing with a finger on the aim strip,
 bowling.strike,STRIKE!,סטרייק!,Pin Pals: banner after a strike (all 10 pins with the first ball),
 bowling.spare,SPARE!,ספייר!,Pin Pals: banner after a spare (all 10 pins with 2 balls),
 bowling.gutter,OOPS! OFF THE SIDE,אופס! יצא לצד,Pin Pals: banner after a ball that knocked no pin or went into the gutter,

@@ -1,7 +1,7 @@
 # Pin Pals (`bowling`)
 
 Status: **built** (2026-10-16), not yet tried on a device (manual test 23). The mock frames are in the project files, `screens/bowling/`.
-Type: 2D (pixel world). Players: 1 to 4. Input: phone motion (aim with a turn, throw with a swing), Recenter.
+Type: 2D (pixel world). Players: 1 to 4. Input: a finger on the phone (aim strip) to aim, phone motion (a swing) to throw.
 General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84).
 Code: `scripts/game/bowling/` (`bowling_rules.gd` the score sheet and the turn order, `lane_sim.gd` the ball and the pins,
 `scripts/input/swing_detector.gd` (shared with Tennis since 2026-10-17) the throw from the sensor values, `bowling_look.gd` the pictures, `bowling_game.gd` the screen).
@@ -36,9 +36,9 @@ Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 4
 
 Hold the phone in one hand like a ball, arm down at the side (see `screens/bowling/5-swing.png`).
 
-1. **Aim.** The phone turn (yaw, `PlayerInput.pointer().x`) moves an aim mark across the lane on the TV, with a dotted line to the pins.
-   The center of the aim is the pose of the phone at the start of the turn (an automatic recenter, REQ-BW-4), so drift does not matter.
-   RECENTER works as in every game (REQ-GM-37).
+1. **Aim.** The player slides a finger on the aim strip of the phone. The ball moves along the foul line on the TV, with a dotted
+   line to the pins, and stays where the finger lifted (REQ-BW-4). The ball always rolls straight. No sensor is used for the aim,
+   so drift does not matter.
 2. **Swing back.** The first strong move of the phone in one direction is the back swing. The aim is **locked** at that moment,
    so the shaking of the swing does not change it. The mark turns solid.
 3. **Swing forward.** A strong move the other way is the forward swing. The ball is let go at its fastest point. Its speed is the
@@ -65,7 +65,7 @@ The phones: the player on turn gets a short buzz (60 ms). The pad shows "YOUR TU
 |------------|------|------|
 | REQ-GM-24 | Note | All players have the same values. The turn order is standard (player 1 first in every frame), which is the rule of the sport. |
 | REQ-GM-35, 71 | Exception | There is a countdown (3 s) but no round clock: the game ends after the 10th frame of the last player (REQ-BW-1). |
-| REQ-GM-37 | Note | The center of the aim is set again at each turn (REQ-BW-4). RECENTER still works. A is used by every phone only to skip the banner of a ball. B is not used. |
+| REQ-GM-37 | Exception | The Recenter box is the aim strip while it is the turn of the phone (REQ-BW-4), because the game needs no recenter: the aim is a finger, not a pose. Other phones keep RECENTER. A is used by every phone only to skip the banner of a ball. B is not used. |
 | REQ-GM-81 | Note | The pins are plain lifeless pins with no face. Knocked pins spin and burst into colored pixels. No living thing is hit. |
 | REQ-GM-83 | Gap (open) | A player waits for the other players (about 30 s with 4 players) and a turn has no time limit. The user decided this on 2026-10-16 (no Length setting). Mitigation: short animations. |
 | REQ-GM-47k | Note | The disco light grid on the back wall (REQ-BW-13) uses 7 bright light colors besides the 8 colors of the world palette (`DISCO` in `bowling_look.gd`). The user allowed a few more colors when the general theme is kept (2026-10-16). It is decoration only. |
@@ -89,8 +89,8 @@ Aim and throw
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-BW-4 | At the start of each turn, the pose of the phone is the center of the aim (an automatic recenter) when the phone is still. The aim position is `pointer().x` from that center, with a limit of plus and minus 14 degrees for the whole lane width (`AIM_RANGE_DEG`, Easy 18, Hard 11). A small move (under 0.5 degree) does nothing (dead zone). The aim mark follows with a smoothing of 0.05 s. | Device | swing_detector, bowling_rules (aim range), bowling_replay (turn, drift, recenter), Device |
-| REQ-BW-5 | The throw is detected from `PlayerInput.linear_accel()` (the acceleration without gravity). State machine (`swing_detector.gd`): Ready, Back swing (the acceleration is more than `BACK_ACCEL` for at least 60 ms; it gives the axis `d`; the aim is locked), Forward (the acceleration along `-d` is more than `FWD_ACCEL` within 1.5 s of the back swing), Release (when the forward strength falls to half its peak, or after 1 s), then Locked for 1.5 s. A back swing with no forward swing within 1.5 s goes back to Ready, unlocks the aim and shows the "Swing a bit more!" hint. Only the player on turn is read. Other players cannot throw. | Device | swing_detector (made-up traces), bowling_replay (three grips, walking, weak swing), swing_replay, Device |
+| REQ-BW-4 | While it is the turn of a phone, its Recenter box becomes the **aim strip** (same place, a lane row with a ball mark). A finger that slides on the strip moves the ball along the foul line; the phone sends the place on the strip (0 left to 1 right) as the touch x of the sensor packet. The TV maps it to the aim −1 to 1 (`aim_from_touch()`), that is plus and minus 0.60 m from the middle of the lane (`AIM_X`, into the gutter). The aim stays where the finger lifted (the mark on the phone and the ball on the TV stay), starts in the middle for a new player (the same player keeps it for ball 2 and the mark on the phone stays), and is locked by the back swing (REQ-BW-5). The ball always rolls straight. Only a finger on the strip is read: A, B and the rest of the screen do not move the aim. Difficulty does not change the aim. | Device | bowling_rules (`aim_from_touch`, the aim strip limits), bowling_replay (finger, lift, keep), smoke_bowling, ui_states (the pad), Device |
+| REQ-BW-5 | The throw is detected from `PlayerInput.linear_accel()` (the acceleration without gravity). State machine (`swing_detector.gd`): Ready, Back swing (the acceleration is more than `BACK_ACCEL` for at least 60 ms; it gives the axis `d`; the aim is locked), Forward (the acceleration along `-d` is more than `FWD_ACCEL` within 1.5 s of the back swing), Release (when the forward strength falls to half its peak, or after 1 s), then Locked for 1.5 s. A back swing with no forward swing within 1.5 s goes back to Ready, unlocks the aim and shows the "Swing a bit more!" hint. A forward push counts only when the back swing lasted at least 0.1 s after the start of the move (`MIN_BACK`, `min_back` of the detector; with the 0.06 s that finds the move, about 0.16 s in all): a shake goes back and forth faster and throws nothing (2026-10-20). While a finger is on the aim strip the detector is reset, so a move of the phone does not throw (REQ-BW-4); a swing that would have thrown shows the hint "Lift your finger, then swing!" for 3 s (`bowling.hint_lift`). Only the player on turn is read. Other players cannot throw. | Device | swing_detector (made-up traces), bowling_rules (shake, MIN_BACK), bowling_replay (three grips, walking, shakes, finger on the strip, weak swing), swing_replay, smoke_bowling, Device |
 | REQ-BW-6 | The ball speed comes from the peak forward acceleration, mapped from 0 at `FWD_ACCEL` to 1 at `FWD_FULL` (30 m/s2), then to the speed table of the difficulty (top speed 9 m/s). A swing below `FWD_ACCEL` does nothing; after a back swing with no forward swing the hint "Swing a bit more!" shows for 3 s. On Easy the speed is always 0.8 of the top speed (REQ-BW-17). | Device | swing_detector, lane_sim, bowling_replay (soft and hard swing) |
 | REQ-BW-7 | The throw buzzes the phone 40 ms at the release. The haptic never carries information alone (REQ-GM-43): the TV shows the ball. | Device | smoke_bowling, Device |
 | REQ-BW-8 | A sensor trace tool: the debug overlay shows the swing state, the aim and the peak values for the player on turn, so that the thresholds are set from real swings ("swing lab"). Not built: the thresholds are first guesses. | Open | Device |
@@ -123,11 +123,11 @@ Settings and difficulty (REQ-GM-90 to 97)
 | REQ-BW-21 | The plate "NAME, YOUR TURN!" shows 1.5 s at the start of each turn, then it goes away (it is not drawn for the rest of the turn). **Planned (issue #65):** the game draws it for the whole turn. | Planned (issue #65) | r4_bowling |
 | REQ-BW-20 | A player who leaves takes the row out of the ranking. A lost phone pauses the game (REQ-GM-30). Nothing runs in the pause, and the swing state of the player on turn is reset when the pause closes. | Done | smoke_bowling |
 
-| Difficulty | Ball speed | Aim range | Swing threshold | Medal tiers (points) |
+| Difficulty | Ball speed | Aim | Swing threshold | Medal tiers (points) |
 |------------|------------|-----------|-----------------|----------------------|
-| Easy | always the middle value | 18 degrees | low (`FWD_ACCEL` x 0.7) | 70, 110, 150 |
-| Medium | 0.7 to 1.0 of the top speed | 14 degrees | normal | 60, 100, 150 |
-| Hard | 0.5 to 1.0 (a slow ball leaves pins) | 11 degrees (finer aim) | normal | 80, 130, 180 |
+| Easy | always the middle value | whole strip | low (`FWD_ACCEL` x 0.7) | 70, 110, 150 |
+| Medium | 0.7 to 1.0 of the top speed | whole strip | normal | 60, 100, 150 |
+| Hard | 0.5 to 1.0 (a slow ball leaves pins) | whole strip | normal | 80, 130, 180 |
 
 Rails do not change the medal tiers. A game with rails has no personal best (REQ-BW-19).
 
@@ -139,7 +139,7 @@ Values that change the feel. Tune them with the swing lab and a device test (REQ
 
 | Name | Value (file) |
 |------|--------------|
-| Aim range (Easy, Medium, Hard); end of the aim | 18, 14, 11 degrees of turn; 0.60 m from the middle, in the gutter (`bowling_rules.gd`, `bowling_game.gd`) |
+| End of the aim strip | 0.60 m from the middle of the lane, in the gutter (`AIM_X`, `bowling_game.gd`) |
 | `BACK_ACCEL`, `FWD_ACCEL`, `FWD_FULL`, `SWING_WINDOW`, `LOCK_AFTER` | 4, 8, 30 m/s2, 1.5 s, 1.5 s (`swing_detector.gd`); Easy counts 0.7 of the thresholds |
 | Ball top speed; speed range | 9 m/s; Easy 0.8, Medium 0.7 to 1.0, Hard 0.5 to 1.0 of it |
 | Lane, ball, pin, pin distance | 1.05 m, 0.109 m, 0.09 m, 0.305 m (`lane_sim.gd`) |
@@ -148,8 +148,7 @@ Values that change the feel. Tune them with the swing lab and a device test (REQ
 
 ## Open questions
 
-- **Slow aiming turns are lost** (found by `bowling_replay`, 2026-10-20). The sensor fusion counts a gyroscope under 0.08 rad/s (4.6 degrees a second) as still and freezes the yaw, so a careful aim of 14 degrees in 4 s does not move the aim mark. Needs a decision (issue to open).
-- **Aim by turn or by roll?** (built by turn; to confirm) "Moving the phone left or right" cannot be measured as a slide (a phone cannot know a distance). The plan turns the phone
+- **Aim by finger (decided 2026-10-20).** Aiming by the turn of the phone (yaw) drifted and was hard to hold, so the aim is now a finger on the phone (REQ-BW-4). The old question, kept for the record: "Moving the phone left or right" cannot be measured as a slide (a phone cannot know a distance). The plan turns the phone
   (yaw, like the Banana Party pointer) and sets the center at each turn, so drift does not matter. The other way is to tilt the phone
   left or right (roll, no drift, like Galaxy Protector). Which one feels like bowling?
 - **Does the swing work with any grip?** The detector finds the swing axis from the back swing. This is never tried with a real phone (Test 23; the sensor directions test, Test 3, is still open).
@@ -173,6 +172,6 @@ The song `bowling`: a light, bouncy loop (about 110 BPM, C major) that plays fro
 
 ## Languages and texts (REQ-GM-47o)
 
-The rows are in `assets/lang/strings.csv` and need a review by the user. The Hebrew is a first guess by Claude and needs a native reader. The full texts and the `where` of each row are in that file; the keys are `registry.pin_pals`, `registry.move_phone_aim_swing`, `bowling.rails`, `bowling.on`, `bowling.off`, `bowling.turn`, `bowling.frame`, `bowling.hint_aim`, `bowling.hint_weak`, `bowling.strike`, `bowling.spare`, `bowling.gutter`, `bowling.nice_roll`, `bowling.nice_try`, `bowling.pins_left`, `bowling.pin_left`. The phone lines are `bowling.phone_turn` and `bowling.phone_wait`.
+The rows are in `assets/lang/strings.csv` and need a review by the user. The Hebrew is a first guess by Claude and needs a native reader. The full texts and the `where` of each row are in that file; the keys are `registry.pin_pals`, `registry.slide_aim_swing`, `bowling.rails`, `bowling.on`, `bowling.off`, `bowling.turn`, `bowling.frame`, `bowling.hint_slide`, `bowling.hint_weak`, `bowling.strike`, `bowling.spare`, `bowling.gutter`, `bowling.nice_roll`, `bowling.nice_try`, `bowling.pins_left`, `bowling.pin_left`. The phone lines are `bowling.phone_turn` and `bowling.phone_wait`. The aim strip help line on the phone is `pad.slide_to_aim`.
 
 In Hebrew the HUD is mirrored by the shell. The lane and the score sheet are the same in both languages (the game world is not mirrored, and a score sheet reads left to right as the frames go left to right).
