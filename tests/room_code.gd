@@ -121,4 +121,4 @@ func _links() -> void:
 	var others := ["http://192.168.1.23:47801/DREJ", "ws://192.168.1.23/DREJ", "ws://192.168.1.23:47801/DRE",
 			"ws://192.168.1.23:47801/DREB"]
 	_check(others.all(func(t): return Protocol.parse_pair_url(t).is_empty()), "other text is not a TV link")
-	_check(Protocol.VERSION == 4, "the protocol version is 4 (no PIN, no beacon)")
+	_check(Protocol.VERSION == 5, "the protocol version is 5 (no PIN, no beacon, the safety card of the swing games)")
