@@ -20,6 +20,9 @@ var _dot: Control
 var _name: Label
 var _leave: Button
 var _quit_dialog: Control
+var _pick_box: Control      # "Play this game?" with IN and OUT, in the TV settings view with two or more phones (issue #76).
+var _in_button: Button
+var _out_button: Button
 var _swing_card: Control   # The safety card of a swing game (issue #79). Null while it is not open.
 
 
@@ -65,6 +68,22 @@ func _ready() -> void:
 	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sub.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_sub)
+	_pick_box = VBoxContainer.new()
+	_pick_box.add_theme_constant_override("separation", 24)
+	box.add_child(_pick_box)
+	var question := UiKit.title("setup.question", 48, UiTheme.TEXT)
+	question.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	question.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_pick_box.add_child(question)
+	var choice := HBoxContainer.new()
+	choice.add_theme_constant_override("separation", 24)
+	_pick_box.add_child(choice)
+	_in_button = UiKit.box_button("setup.in", func(): App.client.send_play(true), UiTheme.SIZE_ITEM, UiTheme.OK)
+	_out_button = UiKit.box_button("setup.out", func(): App.client.send_play(false), UiTheme.SIZE_ITEM, UiTheme.BAD)
+	for b in [_in_button, _out_button]:
+		b.custom_minimum_size = Vector2(0, 96)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		choice.add_child(b)
 	_best = UiKit.title("", 56, UiTheme.OK)   # NEW BEST! after a round that set a personal best (REQ-GM-100).
 	_best.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_best)
@@ -88,13 +107,30 @@ func _ready() -> void:
 	App.client.phase_changed.connect(_on_phase)
 	App.client.state_changed.connect(_on_state)
 	App.client.profile_answered.connect(_refresh)
-	App.client.setup_changed.connect(_update_swing_card)
+	App.client.setup_changed.connect(_update_setup)
 	_refresh()
-	_update_swing_card()
+	_update_setup()
 
 
-## The safety card shows while the TV setup is a swing game and this phone has not tapped OK in this run of the app (issue #79).
-func _update_swing_card() -> void:
+## The question IN or OUT shows with two or more phones in the settings view. The chosen button is filled (issue #76).
+func _update_pick() -> void:
+	var c: Node = App.client
+	_pick_box.visible = c.setup_pick
+	_mark(_in_button, UiTheme.OK, c.setup_in)
+	_mark(_out_button, UiTheme.BAD, not c.setup_in)
+
+
+## A chosen button is filled with its color and its text is black, so the choice never depends on the color alone: the filled one
+## is the choice.
+func _mark(b: Button, color: Color, chosen: bool) -> void:
+	b.add_theme_stylebox_override("normal", UiTheme.line_box(color, color if chosen else UiTheme.BG))
+	b.add_theme_color_override("font_color", UiTheme.BG if chosen else color)
+
+
+## The setup of the TV settings view: the question IN or OUT (issue #76), and the safety card while the setup is a swing game
+## and this phone has not tapped OK in this run of the app (issue #79).
+func _update_setup() -> void:
+	_update_pick()
 	var want: bool = App.client.setup_swing and not App.client.swing_acked
 	if want and not is_instance_valid(_swing_card):
 		_swing_card = SwingCard.new()

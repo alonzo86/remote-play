@@ -53,6 +53,7 @@ func _run() -> void:
 	await _fonts_and_background()
 	await _back_key()
 	await _swing_card()
+	await _pick_question()
 	await _no_focus()
 	await _safe_layout()
 	await _safe_rtl()
@@ -91,6 +92,31 @@ func _swing_card() -> void:
 	_check(not is_instance_valid(wait._swing_card), "the card does not show again in this run of the app")
 	_app.client.setup_swing = false
 	_app.client.swing_acked = false
+	wait.queue_free()
+
+
+## Issue #76, REQ-GM-104: with two or more phones the waiting screen asks "play this game?" and the chosen button is filled.
+func _pick_question() -> void:
+	print("IN or OUT question")
+	var wait: Control = _screen(_app.ControllerWait)
+	await process_frame
+	_check(not wait._pick_box.visible, "no question with one phone")
+	_app.client.setup_pick = true
+	_app.client.setup_in = true
+	_app.client.setup_changed.emit()
+	await process_frame
+	var in_fill: StyleBoxFlat = wait._in_button.get_theme_stylebox("normal")
+	var out_fill: StyleBoxFlat = wait._out_button.get_theme_stylebox("normal")
+	_check(wait._pick_box.visible and in_fill.bg_color == UiTheme.OK and out_fill.bg_color == UiTheme.BG,
+			"with 2 phones the question shows and IN is the filled button")
+	wait._out_button.pressed.emit()
+	await process_frame
+	in_fill = wait._in_button.get_theme_stylebox("normal")
+	out_fill = wait._out_button.get_theme_stylebox("normal")
+	_check(not _app.client.setup_in and in_fill.bg_color == UiTheme.BG and out_fill.bg_color == UiTheme.BAD,
+			"a tap on OUT fills OUT and empties IN")
+	_app.client.setup_pick = false
+	_app.client.setup_in = true
 	wait.queue_free()
 
 

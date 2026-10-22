@@ -43,6 +43,8 @@ var score_of := 0            # The number of ranked players.
 var recenter_button := true    # False in a game without a pointer: the pad hides the Recenter box (REQ-GM-37).
 var pad_buttons := "ab"       # The buttons the pad shows: "", "a", "b" or "ab" (REQ-GM-37a).
 var setup_swing := false      # The TV settings view of a swing game is open: the phone shows the safety card (REQ-GM-102).
+var setup_pick := false       # Two or more phones are connected: the phone asks "play this game?" (issue #76, REQ-GM-104).
+var setup_in := true          # This phone plays the game (the choice IN); the TV sets it back to IN when it refuses the last OUT.
 var swing_acked := false      # The player tapped OK on the card in this run of the app: it does not show again.
 var turn_state := 0           # 0 no turn line, 1 this phone is on turn, 2 another player is on turn (REQ-BW-14).
 var turn_kind := ""           # "" for the words of Pin Pals, "golf" for Mini Golf.
@@ -110,6 +112,14 @@ func send_sensor(packet: PackedByteArray) -> void:
 
 func send_recenter() -> void:
 	_send_json({"t": "recenter"})
+
+
+## The player chose IN (`true`) or OUT for the game of the settings view (issue #76). The TV answers with `setup` and the
+## choice it accepted.
+func send_play(value: bool) -> void:
+	setup_in = value
+	_send_json({"t": "play", "v": value})
+	setup_changed.emit()
 
 
 ## The player tapped OK on the safety card of a swing game (issue #79): tell the TV, and do not show the card again in this run.
@@ -276,8 +286,10 @@ func _handle(msg: Dictionary, now: int) -> void:
 			phase = String(msg.get("v", "connect"))
 			recenter_button = bool(msg.get("rc", true))
 			pad_buttons = String(msg.get("ab", "ab"))
-			if setup_swing:
+			if setup_swing or setup_pick:
 				setup_swing = false
+				setup_pick = false
+				setup_in = true
 				setup_changed.emit()
 			if not phase in ["playing", "paused"]:
 				clear_score()   # A pause keeps the score on the phone (REQ-FL-67).
@@ -285,6 +297,8 @@ func _handle(msg: Dictionary, now: int) -> void:
 			_sync_profile()
 		"setup":
 			setup_swing = bool(msg.get("swing", false))
+			setup_pick = bool(msg.get("pick", false))
+			setup_in = bool(msg.get("in", true))
 			if setup_swing and swing_acked:
 				send_swing_ok()   # Once for each run of the app: the answer comes at once, with no card.
 			setup_changed.emit()

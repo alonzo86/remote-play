@@ -8,6 +8,7 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
+const SlotList = preload("res://scripts/ui/slot_list.gd")
 const ChoiceRow = preload("res://scripts/ui/choice_row.gd")
 const TrackPicker = preload("res://scripts/ui/track_picker.gd")
 
@@ -18,6 +19,7 @@ var game := {}
 var rows: Array[Control] = []   # The row controls: a choice row or a track list.
 var start_button: Button
 var back_button: Button
+var slot_list: VBoxContainer   # Who plays this game, IN or OUT (issue #76, REQ-GM-104); hidden with one phone.
 var how_to_label: Label   # How to play (REQ-GM-103).
 var reason_label: Label   # Why Start does not work now (REQ-GM-20): not enough phones. Empty when it works.
 
@@ -70,6 +72,10 @@ func _ready() -> void:
 		safety.autowrap_mode = TextServer.AUTOWRAP_WORD
 		safety.custom_minimum_size = Vector2(900, 0)
 		box.add_child(safety)
+	slot_list = SlotList.new()
+	slot_list.choices = true
+	slot_list.row_height = 48
+	box.add_child(slot_list)
 	reason_label = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
 	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(reason_label)
@@ -83,7 +89,9 @@ func _process(_delta: float) -> void:
 
 ## Start works only when the connected phones fit the game (REQ-GM-20): a phone can leave while the view is open.
 func _update_fit() -> void:
-	var n: int = App.server.connected_slots().size()
+	# Only the players that are IN count (issue #76); the list shows who is IN or OUT when two or more phones are here.
+	var n: int = App.server.players_in().size()
+	slot_list.visible = App.server.connected_slots().size() >= 2
 	var fits := Registry.accepts(game, n)
 	# A swing game waits until every phone has tapped OK on the safety card (issue #79).
 	var waiting: bool = fits and not App.server.swing_pending().is_empty()
@@ -93,7 +101,7 @@ func _update_fit() -> void:
 
 
 func start() -> void:
-	if not Registry.accepts(game, App.server.connected_slots().size()) or not App.server.swing_pending().is_empty():
+	if not Registry.accepts(game, App.server.players_in().size()) or not App.server.swing_pending().is_empty():
 		return
 	var script := Registry.load_script(game_id)
 	if script != null:

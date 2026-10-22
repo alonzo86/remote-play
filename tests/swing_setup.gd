@@ -1,7 +1,8 @@
 extends SceneTree
-## The safety card of the swing games (issue #79, REQ-GM-102), with 2 simulated phones on the loopback network: the settings view
-## of Pin Pals, Tennis and Mini Golf sends `setup` to the phones, Start waits for the answer `swing_ok` of every phone, the card
-## shows once for each run of the app (tests/ui_states_a.gd), and the other games have no card. Run:
+## The setup of a game in the TV settings view (issues #79 and #76, REQ-GM-102, REQ-GM-104), with simulated phones on the
+## loopback network. Swing games (Pin Pals, Tennis, Mini Golf): the settings view sends `setup` to the phones, Start waits
+## for the answer `swing_ok` of every phone that plays, the card shows once for each run of the app (tests/ui_states_a.gd), and
+## the other games have no card. IN and OUT: each phone chooses, the TV lists it, the game has the IN players only. Run:
 ##   godot --headless --path . --script tests/swing_setup.gd -- --role=tv
 
 const Sim = preload("res://tests/sim_b.gd")
@@ -35,6 +36,8 @@ func _run() -> void:
 	await _games()
 	await _answers()
 	await _late_phone()
+	await _choices()
+	await _one_phone()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -110,3 +113,81 @@ func _late_phone() -> void:
 			"a phone that joins in the settings view gets the card")
 	app.go_games()
 	await sim.frames(3)
+
+
+func _rows(view: Control) -> Array[String]:
+	var r: Array[String] = []
+	for row in view.slot_list.get_children():
+		for l in row.find_children("*", "Label", true, false):
+			if l.text in ["setup.in", "setup.out"]:
+				r.append(l.text)
+	return r
+
+
+## Issue #76: IN and OUT on the phones.
+func _choices() -> void:
+	print("IN and OUT")
+	var app: Node = sim.app
+	app.go_game_settings("maze")
+	await _wait_for(func(): return sim.clients[2].setup_pick)
+	await sim.frames(3)
+	var view: Control = app.current_screen()
+	_check(sim.clients[0].setup_pick and sim.clients[1].setup_pick and sim.clients[2].setup_pick
+			and sim.clients[0].setup_in and sim.clients[1].setup_in and app.server.players_in() == [0, 1, 2],
+			"with 3 phones every phone gets the question and everybody is IN")
+	_check(view.slot_list.visible and _rows(view) == ["setup.in", "setup.in", "setup.in"], "the TV lists the 3 players as IN")
+	sim.clients[1].send_play(false)
+	await _wait_for(func(): return app.server.players_in() == [0, 2])
+	await sim.frames(3)
+	_check(app.server.players_in() == [0, 2] and not sim.clients[1].setup_in and sim.clients[0].setup_in,
+			"OUT on phone 2: the TV keeps players 1 and 3")
+	_check(_rows(view) == ["setup.in", "setup.out", "setup.in"], "the TV list says OUT for player 2")
+	# Start counts the players that are IN.
+	app.go_game_settings("sumo_bumpers")
+	await sim.frames(4)
+	view = app.current_screen()
+	sim.clients[1].send_play(false)
+	sim.clients[2].send_play(false)
+	await _wait_for(func(): return app.server.players_in() == [0])
+	await sim.frames(3)
+	_check(app.server.players_in() == [0] and view.start_button.disabled
+			and view.reason_label.text == Lang.t("games.needs_players").replace("%d", "2").to_upper(),
+			"Sumo Bumpers needs 2 players: with one phone IN Start is off and the line says so")
+	sim.clients[0].send_play(false)
+	await sim.frames(6)
+	await _wait_for(func(): return sim.clients[0].setup_in)
+	_check(app.server.players_in() == [0] and sim.clients[0].setup_in,
+			"the last phone that is IN cannot go OUT, and its button says IN again")
+	sim.clients[2].send_play(true)
+	await _wait_for(func(): return app.server.players_in() == [0, 2])
+	await sim.frames(3)
+	_check(not view.start_button.disabled, "a second phone IN: Start works")
+	# The game has the IN players only; the phone that is OUT waits.
+	app.go_game_settings("maze")
+	await sim.frames(4)
+	view = app.current_screen()
+	_check(app.server.players_in() == [0, 1, 2] and sim.clients[1].setup_in, "a new settings view makes everybody IN again")
+	sim.clients[1].send_play(false)
+	await _wait_for(func(): return app.server.players_in() == [0, 2])
+	view.start()
+	await sim.frames(4)
+	var game: Control = app.current_screen()
+	await _wait_for(func(): return sim.clients[1].phase == "waiting")
+	_check(game.participants == [0, 2] and sim.clients[1].phase == "waiting" and sim.clients[0].phase == "playing",
+			"the game has players 1 and 3 only, and phone 2 gets the waiting screen")
+	app.go_games()
+	await sim.frames(4)
+	_check(app.server.players_in() == [0, 1, 2], "the Games screen makes everybody IN again")
+
+
+## With one phone the question does not show.
+func _one_phone() -> void:
+	print("one phone")
+	var app: Node = sim.app
+	await sim.leave_all()
+	await sim.join(1)
+	app.go_game_settings("maze")
+	await _wait_for(func(): return app.server.setup_open)
+	await sim.frames(6)
+	_check(not sim.clients[0].setup_pick and not app.current_screen().slot_list.visible,
+			"with one phone there is no question and no list")

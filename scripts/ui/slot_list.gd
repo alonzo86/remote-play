@@ -15,6 +15,9 @@ signal remove_requested(slot: int)
 
 var removable := false
 var row_height := 72
+## The settings view of a game (issue #76, REQ-GM-104): only the players that are here, and the state word is IN or OUT, the
+## choice of the player for this game, in place of the state of the link.
+var choices := false
 
 var _sig := ""
 var _remove_buttons: Dictionary = {}   # slot -> Button
@@ -45,6 +48,8 @@ func _signature() -> String:
 	var s := ""
 	for p in App.server.players:
 		s += "%d:%d:%s:%d;" % [p.slot, p.state, p.player_name, p.avatar if p.has_profile() else -1]
+	if choices:
+		s += str(App.server.players_in())
 	return s
 
 
@@ -59,7 +64,8 @@ func _rebuild() -> void:
 	_remove_buttons.clear()
 	_sig = _signature()
 	for p in App.server.players:
-		add_child(_make_row(p))
+		if not choices or p.is_present():
+			add_child(_make_row(p))
 	if focused_slot >= 0:
 		var b: Button = _remove_buttons.get(focused_slot)
 		if b == null:
@@ -109,6 +115,10 @@ func _make_row(p: PlayerInput) -> Control:
 		PlayerInput.State.LOST:
 			state_text = "slot_list.lost"
 			state_col = UiTheme.BAD
+	if choices:
+		var playing: bool = App.server.players_in().has(p.slot)
+		state_text = "setup.in" if playing else "setup.out"
+		state_col = UiTheme.OK if playing else UiTheme.TEXT_DIM
 	h.add_child(_cell(state_text, state_col))
 
 	if removable and present:
