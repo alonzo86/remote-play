@@ -8,7 +8,7 @@ extends RefCounted
 ## difficulty + (track - 1).
 ## 37 to 39 Star Shield (easy, medium, hard).
 ## 40 to 42 Pin Pals, id bowling (easy, medium, hard), only without rails.
-## Treasure Maze, Sumo Bumpers and a random Road Rally track have no key (the owner, 2026-10-10).
+## Treasure Maze, Sumo Bumpers and a random Car Race track have no key (the owner, 2026-10-10).
 
 const Lang = preload("res://scripts/core/lang.gd")
 

@@ -12,7 +12,7 @@ extends RefCounted
 ##   props   optional. Values set on the game before it starts.
 ##   settings  optional. The game has a settings view (REQ-GM-90) when this list exists. It lists the rows after Difficulty
 ##             (see game_settings.gd). An empty list means Difficulty only. A row with `"type": "tracks"` is the track list
-##             of Road Rally (`scripts/ui/track_picker.gd`).
+##             of Car Race (`scripts/ui/track_picker.gd`).
 ##   pad     the controls of the phone pad while the game runs (issue #80, REQ-GM-37a): "a", "b", "recenter". The pad shows only
 ##           these. Pin Pals also has the aim strip on the turn of a phone (REQ-BW-4); it is not listed here.
 ##   swing   optional. True for a game played with swings of the phone (issue #79): the settings view shows the safety line

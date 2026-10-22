@@ -129,7 +129,7 @@ func _run() -> void:
 	_check(is_instance_of(snow, Snow) and snow.difficulty == "hard" and snow._field._speed == 1.5
 			and snow.start_props.difficulty == "hard",
 			"Start begins a Hard Banana Party, and Restart keeps it")
-	# Road Rally: the track list under Difficulty (REQ-MR-53, 54).
+	# Car Race: the track list under Difficulty (REQ-MR-53, 54).
 	var Race = load("res://scripts/game/marble_race/marble_race.gd")
 	var MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
 	app.go_game_settings("marble_race")

@@ -239,7 +239,7 @@ func _go_word_checks(id: String, timed: bool) -> void:
 		_check(words.is_empty(), "%s in Hebrew: no timer, so no countdown number or GO word is drawn (%s)" % [id, str(words.keys())])
 		return
 	_check(not words.is_empty() and inside, "%s in Hebrew: the countdown numbers fit the screen (%s)" % [id, str(words.keys())])
-	if id == "marble_race":   # Only Road Rally shows the word GO; the other games go from 1 to the play.
+	if id == "marble_race":   # Only Car Race shows the word GO; the other games go from 1 to the play.
 		_check(words.has(Lang.t("marble_race.go").to_upper()) and words.has("\u05e7\u05d3\u05d9\u05de\u05d4"),
 				"marble_race in Hebrew: the GO word is the Hebrew text '%s' (%s)" % [Lang.t("marble_race.go"), str(words.keys())])
 
@@ -411,7 +411,7 @@ func _timer_side(state: String, t: Dictionary, lang: String) -> void:
 			t.rect.position.x, t.rect.end.x])
 
 
-## Road Rally: the place of each car decides the chip and the phone; a car that has not finished has no time.
+## Car Race: the place of each car decides the chip and the phone; a car that has not finished has no time.
 func _race_places() -> void:
 	Lang.set_language("en", root)
 	var spec: Array = GAMES["marble_race"]
@@ -426,17 +426,17 @@ func _race_places() -> void:
 		_game._racers[slots[k]].finish_time = -1.0
 	var lead := await _wait_leader(func(e: Dictionary) -> bool: return e.info.name == NAMES[3])
 	_check(not lead.is_empty() and lead.info.score == "",
-			"Road Rally: before the finish the chip shows the car in front (%s) and no time"
+			"Car Race: before the finish the chip shows the car in front (%s) and no time"
 			% str(lead.get("info", {}).get("name", "-")))
 	var unfinished_label_empty := true
 	for e in _game._scoreboard().ranking():
 		unfinished_label_empty = unfinished_label_empty and _game._score_label(e) == ""
-	_check(unfinished_label_empty, "Road Rally: a car that has not finished has no time text")
+	_check(unfinished_label_empty, "Car Race: a car that has not finished has no time text")
 	# The first car crosses the line: its time is on the chip.
 	_game._racers[slots[3]].finish_time = 21.5
 	var done := await _wait_leader(func(e: Dictionary) -> bool: return String(e.info.score) != "")
 	_check(not done.is_empty() and String(done.info.score).contains("21.5"),
-			"Road Rally: after the finish the chip shows the time of the winner (%s)" % str(done.get("info", {}).get("score", "-")))
+			"Car Race: after the finish the chip shows the time of the winner (%s)" % str(done.get("info", {}).get("score", "-")))
 	# Every phone is told the place of its car.
 	await _stream(0.6)
 	var ok := true
@@ -445,13 +445,13 @@ func _race_places() -> void:
 		var c = _clients[e.slot]
 		ok = ok and c.score_rank == int(e.rank)
 		places.append(e.rank)
-	_check(ok, "Road Rally: each phone is told the place of its car (%s)" % str(places))
+	_check(ok, "Car Race: each phone is told the place of its car (%s)" % str(places))
 	# There is no list of names at the left of the race (the names are in the chip only).
 	var named := false
 	for n in _game.find_children("*", "Label", true, false):
 		for nm in NAMES:
 			named = named or String(n.text).to_upper().contains(String(nm).to_upper())
-	_check(not named, "Road Rally: no list of player names in the race HUD")
+	_check(not named, "Car Race: no list of player names in the race HUD")
 	_game.close_menu()
 
 

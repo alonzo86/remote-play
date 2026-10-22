@@ -1,5 +1,5 @@
 extends RefCounted
-## The look of Road Rally (REQ-MR-44 to 47): a flat pixel world seen from above, in one of three themes (candy, space,
+## The look of Car Race (REQ-MR-44 to 47): a flat pixel world seen from above, in one of three themes (candy, space,
 ## jungle) that the player picks in the settings view. The cars look the same in every theme; the road, the walls, the ground
 ## and the obstacles are the theme.
 ## The board (the road with its walls and the finish line) is drawn once into an image of world pixels (`render()`); the game
@@ -316,8 +316,8 @@ static func _shade_piece(img: Image, a: Vector2, b: Vector2, r_out: float, r_in:
 
 
 ## The color of the road (`wall` is the depth in the wall, 0 to WALL_PX, or below 0 on the road) at the world pixel (x, y), at `u`
-## along the road and `v` across it (both in world pixels). Candy Road: a chess road with pink dashes across it and candy
-## cane stripes on the walls. Space Rally: metal panels and glowing stripes. Jungle Run: a dirt road with specks and leafy walls.
+## along the road and `v` across it (both in world pixels). Candy: a chess road with pink dashes across it and candy
+## cane stripes on the walls. Space: metal panels and glowing stripes. Jungle: a dirt road with specks and leafy walls.
 static func pattern(theme: String, c: Dictionary, x: int, y: int, u: float, v: float, wall: float) -> Color:
 	var ui := floori(u)
 	var vi := floori(v)

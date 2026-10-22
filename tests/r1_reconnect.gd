@@ -4,7 +4,7 @@ extends SceneTree
 ## "waiting to reconnect", it changes to "reconnected" with Resume in 10 s or less, the game stays paused for 10 s without a
 ## press while the other phone tilts, Resume
 ## without the lost player goes on with the other ball, and the only phone gives the card with End game only and then
-## "reconnected" and Resume in the maze, in Road Rally and in Banana Party. A silent phone is a simulated phone whose update
+## "reconnected" and Resume in the maze, in Car Race and in Banana Party. A silent phone is a simulated phone whose update
 ## loop is switched off (its socket stays open, nothing arrives), like a phone without Wi-Fi; the real radio stays manual.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r1_reconnect.gd -- --role=tv
 
@@ -120,7 +120,7 @@ func _run() -> void:
 	_app.set_language("en", false)
 	await _two_phones_in_the_maze()
 	await _only_phone(_maze, {}, "maze")
-	await _only_phone(_race, {"track_choice": "1"}, "Road Rally")
+	await _only_phone(_race, {"track_choice": "1"}, "Car Race")
 	await _only_phone(_banana, {"seed": 4}, "Banana Party")
 	_app.go_menu()
 	await _frames(3)

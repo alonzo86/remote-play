@@ -1,6 +1,6 @@
 extends SceneTree
 ## Test 20 steps 9a to 9d and 10, the whole way from the TV to the phone: two simulated phones with a profile and one guest
-## finish a round of each game that has a personal best (Banana Party, Paint Grab, Star Shield, Pin Pals, Road Rally on a
+## finish a round of each game that has a personal best (Banana Party, Paint Grab, Star Shield, Pin Pals, Car Race on a
 ## fixed track). The result goes over the network to each phone, the phone logic of the App (`_on_result`) keeps the best, and
 ## the waiting screen and the pad say NEW BEST! and BEFORE: with the old best:
 ##   round 1 a first score: NEW BEST!, no BEFORE (9a);

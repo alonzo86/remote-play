@@ -1,5 +1,5 @@
 extends "res://scripts/game/minigame.gd"
-## Road Rally. Each phone tilts its own car along a winding road. First to the finish line wins. Cars bounce off the
+## Car Race. Each phone tilts its own car along a winding road. First to the finish line wins. Cars bounce off the
 ## walls, the obstacles and each other. The game is a flat pixel world seen from above (REQ-MR-40 to 47) in a theme that the
 ## player picks (candy, space, jungle).
 ## Tilt comes from PlayerInput.tilt(). The RECENTER button of the phone recenters (REQ-GM-37). The cars are simulated here in 2D
