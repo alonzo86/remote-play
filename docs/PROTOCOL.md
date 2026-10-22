@@ -1,4 +1,4 @@
-# Network protocol, version 4
+# Network protocol, version 5
 
 This document uses ASD-STE100 style. Code: `scripts/core/protocol.gd`.
 
@@ -27,7 +27,7 @@ The room code is not a password: it is the address. Any device on the network ca
 
 | From | Message | Meaning |
 |------|---------|---------|
-| Phone | `{"t":"hello","v":4,"room":"DREJ","token":"","name":"","pid":"","av":-1}` | First message. `room` can be empty (a development run). `token` is empty for a new player. `name` can be empty: the TV then shows "Player N". `pid` and `av` are optional: the profile ID (32 lower-case hex characters) and the avatar index (0 to 255) of the profile that plays (FD-22, "Profiles" below). |
+| Phone | `{"t":"hello","v":5,"room":"DREJ","token":"","name":"","pid":"","av":-1}` | First message. `room` can be empty (a development run). `token` is empty for a new player. `name` can be empty: the TV then shows "Player N". `pid` and `av` are optional: the profile ID (32 lower-case hex characters) and the avatar index (0 to 255) of the profile that plays (FD-22, "Profiles" below). |
 | TV | `{"t":"welcome","slot":0,"token":"…","color":"#e63946","phase":"connect","name":"Living Room TV","lang":"en","pid":"","av":-1,"pname":""}` | Accepted. Optional `rc`: `false` when the running game has no Recenter box on the pad (REQ-GM-37; absent means true). Optional `ab`: the buttons of the running game, as in `phase` (REQ-GM-37a; absent means `"ab"`). The phone saves `token`. `pid`, `av` and `pname` are the profile that the TV accepted (empty or -1 for a guest). `name` here is the name of the TV; the player name is `pname`, the name that the TV shows (with a number when another player has the same name, for example `Sam 2`). `lang` is the language of the TV, `en` or `he`; the field is optional (a TV of an older build does not send it) and the phone keeps its own language then (REQ-FL-62). |
 | TV | `{"t":"reject","reason":"full"}` | `reason`: `full`, `bad_room`, `version`. |
 
@@ -46,6 +46,8 @@ The TV closes a connection that sends no `hello` in 5 seconds.
 | TV | `{"t":"haptic","ms":40}` | Vibrate the phone. |
 | TV | `{"t":"score","rank":2,"of":4,"v":"12"}` | The place of this player in the running game (`rank`, 1 is first; equal scores share a place; 0 while nobody has scored), the number of ranked players (`of`) and the score text (`v`, at most 12 characters, empty when the game has no score yet, for example a race before the finish). Sent once for each change, only while a game runs. The phone shows it in its header (REQ-FL-67) and clears it at any phase other than `playing` and `paused`, and when it joins again. Optional message: an older phone ignores it, so the protocol `VERSION` stays 2. |
 | TV | `{"t":"turn","s":1,"who":""}` | Whose turn it is in a game with turns (Pin Pals, REQ-BW-14). `s`: 0 no turn line, 1 the turn of this phone, 2 another player is on turn (`who` is the name of that player, at most 20 characters). `k` is optional: `"golf"` makes the waiting line say that the player is putting (Mini Golf, REQ-MG-12); without it the line says that the player is bowling. Sent once for each change, only while a game runs. The phone shows a line under its score row and clears it at any phase other than `playing` and `paused`, and when it joins again. Optional message: an older phone ignores it, so the protocol `VERSION` stays 3. |
+| TV | `{"t":"setup","swing":true}` | The settings view of a swing game (Pin Pals, Tennis, Mini Golf) is open on the TV (REQ-GM-102, issue #79). The phone shows the safety card "hold on tight" until the player taps OK, once for each run of the app (a phone that tapped before answers at once). Sent to every connected phone when the view opens and to a phone that joins or returns while it is open. Any `phase` message closes it. The TV does not send it for another game. |
+| Phone | `{"t":"swing_ok"}` | The player tapped OK on the safety card (or had tapped it before in this run of the app). The Start button of the TV settings view of a swing game works when every connected phone has sent it. Ignored when no swing setup is open. |
 | Phone | `{"t":"profile","pid":"…","name":"Noam","av":7}` | The player changed profile on the phone (FD-22). `{"t":"profile"}` alone is a guest. The TV accepts it only in the phases `connect` and `menu`. Optional message. |
 | TV | `{"t":"profile","pid":"…","name":"Noam","av":7}` | The answer to every `profile` message: the values the TV accepted (empty for a guest); `name` is the name that the TV shows. In the phases `playing`, `paused` and `waiting` the TV does not change the profile and answers with the stored one. The phone shows the answer as the truth. |
 | TV | `{"t":"result","pid":"…","key":"paint_grab|medium","v":340}` | The result of the round for the profile of this phone (FD-22, REQ-GM-99). `key` is the best key of the game, `v` the score as a whole number (a time in milliseconds). Sent at the end of a round to each finished player with a profile and a score above 0; never to a guest or to a lost phone. The phone ignores it when `pid` is not its profile. Optional message: `VERSION` stays 2. |
@@ -92,7 +94,7 @@ A profile lives on the phone (`docs/PROFILES_PLAN.md`). The TV keeps it in memor
 
 **Copy of a profile.** A profile is copied to another phone with a text that starts with `WP1.`, shown as a QR code or copied to the clipboard. It never goes over the network of the game and the TV never sees it. The format is in `docs/PROFILES_PLAN.md` section 6.1 (`scripts/core/profile_code.gd`). The QR encoder (`scripts/core/qr_encoder.gd`) goes up to version 14, error correction L, 458 bytes.
 
-All these fields and messages are optional: an old TV or an old phone ignores them. (They were added at `VERSION` 2. `VERSION` 3 added the join PIN and 4 removed it with the beacon: a build of another version is rejected with `version`.)
+All these fields and messages are optional: an old TV or an old phone ignores them. (They were added at `VERSION` 2. `VERSION` 3 added the join PIN, 4 removed it with the beacon and 5 added the safety card of the swing games (`setup` and `swing_ok`, because a TV of version 5 waits for the answer of every phone and an older phone would never give it): a build of another version is rejected with `version`.)
 
 ## Slots, loss and reconnect
 

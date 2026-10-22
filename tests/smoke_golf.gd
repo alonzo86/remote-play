@@ -83,6 +83,9 @@ func _run() -> void:
 	# The settings view has Difficulty and Holes, 3 holes by default (REQ-MG-12).
 	app.go_game_settings("mini_golf")
 	await _frames(4)
+	for c in clients:   # The safety card of a swing game: every phone taps OK before Start works (REQ-GM-102).
+		c.send_swing_ok()
+	await _frames(6)
 	var sv: Control = app.current_screen()
 	_check(sv.rows.size() == 2 and sv.rows[0].value == "medium" and sv.rows[1].value == "3" and not sv.start_button.disabled,
 			"Mini Golf opens the settings view with Medium and 3 holes (REQ-MG-12)")

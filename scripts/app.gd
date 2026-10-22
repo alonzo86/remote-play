@@ -6,6 +6,7 @@ extends Node
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const Registry = preload("res://scripts/game/registry.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const DebugOverlay = preload("res://scripts/ui/debug_overlay.gd")
@@ -213,6 +214,7 @@ func go_game_settings(id: String) -> void:
 	last_game = id
 	go(TvGameSettings, {"game_id": id})
 	server.set_phase("menu")
+	server.set_setup(bool(Registry.find(id).get("swing", false)))
 
 
 func go_settings() -> void:

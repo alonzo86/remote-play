@@ -1040,6 +1040,9 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 12. Play with 4 phones and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
 13b. From 3 m, a tester points at the ball each time you say "mark" at a random time during a roll. Check: the finger points at the ball (not at a pin or the lane) in 5 of 5 tries.
 13c. From 3 m, read aloud the totals of all rows of the score sheet and one banner. Check: no error.
+14a. With 2 phones connected, open the settings view of Pin Pals (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
+14b. Tap OK on one phone. Check: Start is still off. Tap OK on the second phone. Check: Start works and the line "WAITING FOR PHONES" is gone (2 of 2). (REQ-GM-102)
+14c. Go back to the Games screen and open the settings view of Pin Pals again. Check: no phone shows the card (0 of 2) and Start works at once. (REQ-GM-102)
 (The music and the effects are checked in Test 18.)
 
 Items 1a, 2a to 2e, 3a to 3d, 4a to 4d, 5a, 5b, 6a to 6d, 7a, 7b, 8a to 8e, 9a to 9c, 10a to 10c, 13a, 13d and 14 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-23-1a to A-23-14). Items 4e and 4f keep only the part that needs a real phone (the rest is in A-23-4). Items 3e to 3g, 4g and 4h are new (2026-10-21, the aim is a finger since 2026-10-20): they need a real touch screen and real hands. The numbers of the other items do not change.
@@ -1064,6 +1067,9 @@ Measurements (write down, no pass or fail): if the strip is too small or too lar
 | 12 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
 | 13b | Note: pointed right, of 5 tries | Not run | | | |
 | 13c | Note: errors made when reading | Not run | | | |
+| 14a | Photo of the TV and of both phones | Not run | | | |
+| 14b | Photo of the TV after each OK | Not run | | | |
+| 14c | Note: cards shown (0 of 2) | Not run | | | |
 
 History:
 
@@ -1133,6 +1139,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester calls "in" or "out" at the moment of the bounce for 10 balls. Check: at least 8 of 10 calls agree with the banner ("OUT" or no banner). The ball and its shadow are visible.
 14b. With 4 phones, from 3 m, each tester names the shirt color of the two far characters. Check: 2 of 2 answers are right for every tester.
 14c. From 3 m, read aloud the scoreboard and one banner. Check: no error.
+15a. With 2 phones connected, open the settings view of Tennis (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
 
 Items 1a, 2a, 2c, 3a, 3b, 3c, 3d, 3e, 3f, 4a, 4b, 4c, 4d, 4e, 4f, 5a, 5b, 5c, 5d, 6a, 6b, 6f, 6g, 7a to 7d, 8a, 8b, 9a to 9e, 10a, 10b, 10c, 10d, 11a, 11b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-25-1a to A-25-11b). The numbers of the other items do not change.
 
@@ -1156,6 +1163,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 14a | Note: calls that agree, of 10 | Not run | | | |
 | 14b | Note: answers of each tester | Not run | | | |
 | 14c | Note: errors made when reading | Not run | | | |
+| 15a | Photo of the TV and of both phones | Not run | | | |
 
 History:
 
@@ -1186,6 +1194,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the ball each time you say "mark" while it rolls on the farthest hole. Check: the finger points at the ball in 5 of 5 tries. Check: the ball is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
 14b. From 3 m, ask a tester to point at the golfer and then at the windmill. Check: both answers are right for every tester.
 14c. From 3 m, read aloud the names and strokes in the bar and one banner. Check: no error.
+15a. With 2 phones connected, open the settings view of Mini Golf (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
 
 Items 1a, 2a, 2c, 3a, 3c, 3d, 4a, 4b, 4c, 4d, 5a, 5b, 5c, 5d, 6a to 6c, 7a to 7c, 7d, 7e, 7f, 8a, 8b, 8c, 8d, 8e, 8f, 9a to 9d, 10a to 10d, 11a to 11c moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-26-1a to A-26-11c). Item 3b was split: the shirt color is automated and 3b2 keeps the white cap, trousers and shoes. The numbers of the other items do not change.
 
@@ -1207,6 +1216,7 @@ Measurements (write down, no pass or fail): the turn angle that moves the aim ma
 | 14a | Note: right answers of 5; photo of the ball with its height in px | Not run | | | |
 | 14b | Note: answers of each tester | Not run | | | |
 | 14c | Note: errors made when reading | Not run | | | |
+| 15a | Photo of the TV and of both phones | Not run | | | |
 
 History:
 

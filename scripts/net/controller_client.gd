@@ -12,6 +12,7 @@ signal language_changed(code: String)   # The TV language (REQ-FL-62).
 signal haptic_requested(ms: int)
 signal score_changed()   # The place or the score of this phone changed (REQ-FL-67).
 signal result_received(key: String, value: int)   # A round result for the active profile (REQ-GM-99).
+signal setup_changed()   # The safety card of a swing game opened or closed (issue #79).
 signal profile_answered()   # The TV told which profile this phone has now (REQ-FL-70).
 
 enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING }
@@ -41,6 +42,8 @@ var score_rank := 0          # The place of this phone in the round, 1 for the l
 var score_of := 0            # The number of ranked players.
 var recenter_button := true    # False in a game without a pointer: the pad hides the Recenter box (REQ-GM-37).
 var pad_buttons := "ab"       # The buttons the pad shows: "", "a", "b" or "ab" (REQ-GM-37a).
+var setup_swing := false      # The TV settings view of a swing game is open: the phone shows the safety card (REQ-GM-102).
+var swing_acked := false      # The player tapped OK on the card in this run of the app: it does not show again.
 var turn_state := 0           # 0 no turn line, 1 this phone is on turn, 2 another player is on turn (REQ-BW-14).
 var turn_kind := ""           # "" for the words of Pin Pals, "golf" for Mini Golf.
 var turn_who := ""            # The name of the player on turn when turn_state is 2.
@@ -107,6 +110,13 @@ func send_sensor(packet: PackedByteArray) -> void:
 
 func send_recenter() -> void:
 	_send_json({"t": "recenter"})
+
+
+## The player tapped OK on the safety card of a swing game (issue #79): tell the TV, and do not show the card again in this run.
+func send_swing_ok() -> void:
+	swing_acked = true
+	_send_json({"t": "swing_ok"})
+	setup_changed.emit()
 
 
 ## Sets the profile of this phone (FD-22). An empty `p_pid` is the guest. It goes to the TV at the next `hello` and, when the
@@ -266,10 +276,18 @@ func _handle(msg: Dictionary, now: int) -> void:
 			phase = String(msg.get("v", "connect"))
 			recenter_button = bool(msg.get("rc", true))
 			pad_buttons = String(msg.get("ab", "ab"))
+			if setup_swing:
+				setup_swing = false
+				setup_changed.emit()
 			if not phase in ["playing", "paused"]:
 				clear_score()   # A pause keeps the score on the phone (REQ-FL-67).
 			phase_changed.emit(phase)
 			_sync_profile()
+		"setup":
+			setup_swing = bool(msg.get("swing", false))
+			if setup_swing and swing_acked:
+				send_swing_ok()   # Once for each run of the app: the answer comes at once, with no card.
+			setup_changed.emit()
 		"lang":
 			language_changed.emit(String(msg.get("v", "en")))
 		"haptic":

@@ -14,6 +14,8 @@ extends RefCounted
 ##             of Road Rally (`scripts/ui/track_picker.gd`).
 ##   pad     the controls of the phone pad while the game runs (issue #80, REQ-GM-37a): "a", "b", "recenter". The pad shows only
 ##           these. Pin Pals also has the aim strip on the turn of a phone (REQ-BW-4); it is not listed here.
+##   swing   optional. True for a game played with swings of the phone (issue #79): the settings view shows the safety line
+##           and every phone shows the card "hold on tight" once, before the game can start (REQ-GM-102).
 ##   min_players / max_players  allowed player count (REQ-GM-20). The Games screen dims a game that does not fit.
 
 const Lang = preload("res://scripts/core/lang.gd")
@@ -62,6 +64,7 @@ const GAMES: Array[Dictionary] = [
 			"path": "res://scripts/game/asteroid_blast/asteroid_blast_game.gd", "min_players": 1, "max_players": 4, "settings": []},
 	{"id": "bowling", "doc": "res://docs/games/bowling.md", "title": "registry.pin_pals", "dim": "2d",
 			"pad": ["a"],
+			"swing": true,
 			"description": "registry.slide_aim_swing",
 			"tile": "res://assets/tiles/bowling.png",
 			"path": "res://scripts/game/bowling/bowling_game.gd", "min_players": 1, "max_players": 4,
@@ -69,6 +72,7 @@ const GAMES: Array[Dictionary] = [
 					"titles": ["bowling.off", "bowling.on"], "default": "off"}]},
 	{"id": "tennis", "doc": "res://docs/games/tennis.md", "title": "registry.tennis", "dim": "2d",
 			"pad": ["a"],
+			"swing": true,
 			"description": "registry.swing_phone_hit_ball",
 			"tile": "res://assets/tiles/tennis.png",
 			"path": "res://scripts/game/tennis/tennis_game.gd", "min_players": 1, "max_players": 4,
@@ -76,6 +80,7 @@ const GAMES: Array[Dictionary] = [
 					"titles": ["tennis.real", "tennis.quick"], "default": "real"}]},
 	{"id": "mini_golf", "doc": "res://docs/games/mini_golf.md", "title": "registry.mini_golf", "dim": "2d",
 			"pad": ["a"],
+			"swing": true,
 			"description": "registry.swing_phone_putt",
 			"tile": "res://assets/tiles/mini_golf.png",
 			"path": "res://scripts/game/mini_golf/mini_golf_game.gd", "min_players": 1, "max_players": 4,
