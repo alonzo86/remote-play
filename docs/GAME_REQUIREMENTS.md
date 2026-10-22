@@ -14,7 +14,7 @@ if its own requirements file says why.
 - REQ-GM-4: Code comments and tests use the requirement ID, for example `# REQ-MR-7`.
 - REQ-GM-5: A change to the behavior of a game must change its requirements file in the same commit.
 - REQ-GM-6: The registry entry of a game has a `doc` field with the path of its requirements file. A test checks that the file exists.
-- REQ-GM-7: The registry entry also has a `description` (one line) and a `tile` (`assets/tiles/<id>.png`, 640x360, made by `tools/make_tiles.gd`). A test checks both (REQ-FL-19, 22). The Games screen shows them.
+- REQ-GM-7: The registry entry also has a `description` (one short sentence that says what the game is, with no instructions: no verbs that tell the player what to do, and no rules such as who wins; the how-to-play text is in the settings view, REQ-GM-103) and a `tile` (`assets/tiles/<id>.png`, 640x360, made by `tools/make_tiles.gd`). A test checks both (REQ-FL-19, 22). The Games screen shows them.
 - REQ-GM-7: `docs/games/TEMPLATE.md` is the starting point for a new requirements file. Write it before the code.
 
 ## All games (2D and 3D)

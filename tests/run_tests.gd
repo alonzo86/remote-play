@@ -213,6 +213,21 @@ func _test_registry() -> void:
 		if sc == null or not inherits_base:
 			all_ok = false
 	_check(ids.size() == Registry.all().size(), "registry ids are unique")
+	# Issue #78, REQ-GM-7: a description says what the game is. It is one short sentence with no instruction and no rule.
+	var bad_desc: Array[String] = []
+	var rule_words := ["TILT", "SWING", "SLIDE", "POINT", "PRESS", "WINS", "WIN ", "FIRST", "MOST", "PUSH TO", "TAP"]
+	for lang in ["en", "he"]:
+		Lang.set_language(lang, root)
+		for g in Registry.all():
+			var d := Lang.t(String(g.description))
+			if d == String(g.description) or d.length() < 10 or d.length() > 70 or d.count(".") > 1:
+				bad_desc.append("%s %s" % [lang, g.id])
+			elif lang == "en":
+				for w in rule_words:
+					if d.begins_with(w) or d.contains(" " + w):
+						bad_desc.append("%s has the instruction word %s" % [g.id, w])
+	Lang.set_language("en", root)
+	_check(bad_desc.is_empty(), "each description is a short sentence in both languages with no instruction: %s" % [bad_desc])
 	# Issue #80, REQ-GM-37a: the controls of the pad of each game (the inventory of the game files).
 	var pads := {"maze": [], "marble_race": [], "paint_grab": [], "asteroid_blast": [], "sumo_bumpers": ["a"],
 			"bowling": ["a"], "tennis": ["a"], "mini_golf": ["a"], "snowball_splat": ["a", "recenter"]}

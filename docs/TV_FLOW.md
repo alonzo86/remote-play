@@ -78,7 +78,7 @@ Settings: an OPTIONS button on the Games screen opens the Settings screen. The p
 - REQ-FL-16: An OPTIONS button (a frame with text) next to the badge is the last focus target. OK on it opens the Settings screen (FD-4). The screen title is "SELECT GAME". The arrow keys between the header and the tiles are set in code, not left to the position of the controls: the players badge and OPTIONS are reached from every tile, also when the grid has scrolled (Up goes to the badge, Right goes on to OPTIONS, Left in Hebrew, and Up and Down at the edges stay where they are). Tests: `tests/games_focus.gd`.
 - REQ-FL-17: A game with a settings view (REQ-GM-90) opens it after OK on the tile: a centered view with Difficulty, Start and Back at the bottom. Back returns to the grid with the same tile in focus. Every game has this view (the marble race adds its track list). Back returns to the grid with the same tile in focus.
 - REQ-FL-18: Back on this screen goes to the Connect screen (FD-6).
-- REQ-FL-19: The registry entry of a game has a `description` and a `tile` field (path of the screenshot). Both are required for a new game.
+- REQ-FL-19: The registry entry of a game has a `description` and a `tile` field (path of the screenshot). Both are required for a new game. The description says what the game is (the idea), in one short sentence, and gives no instructions (issue #78, REQ-GM-7).
 
 ### Players modal
 - REQ-FL-32: The modal shows the 4 slots with color and state, a QR code with the room code for new phones, and a Close button. It opens on the Games screen (FD-12).
