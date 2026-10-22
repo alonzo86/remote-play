@@ -99,19 +99,21 @@ func _on_event(e: Dictionary) -> void:
 			_booms.append({"x": e.x, "y": e.y, "age": 0.0, "scale": 1.6})
 			Sound.sfx("blast_lost")
 			_haptics.pulse(int(e.slot), 400, BUZZ_GAP_MS)
+		"ship_back":
+			Sound.sfx("blast_shield")
 		"wave_end", "wave_start":
 			Sound.sfx("blast_wave")
 
 
-## REQ-AB-14: every ship is gone, the game is over. One player gets a medal for the score, more players the winner.
+## REQ-AB-14: every ship is gone, the game is over. One player sees the wave that was reached and no medal, more players the
+## winner and the medal of the place.
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
+	var alone: bool = _board.ranking().size() == 1
 	var title := Lang.f("asteroid_blast.reached_wave", [field.wave]) if participants.size() == 1 else ""
-	var tiers: Array = SpaceField.LEVELS.get(difficulty, SpaceField.LEVELS.medium).tiers
-	# The title ("Reached wave N") stops open_results from choosing the medal of the score, so it is given here.
-	var medal: Variant = Medals.medal(_board.ranking()[0].score, tiers) if participants.size() == 1 else null
-	open_results(_board, tiers, title, [], Callable(), medal)
+	no_medals = alone
+	open_results(_board, [], title)
 
 
 func _scoreboard() -> Scoreboard:

@@ -126,7 +126,7 @@ func _run() -> void:
 	game._booms.clear()
 	game.field.events.clear()
 	for e in [{"t": "kill", "x": 100.0, "y": 100.0, "size": 2, "slot": 0}, {"t": "shield_pop", "x": 1.0, "y": 1.0, "slot": 1},
-			{"t": "ship_lost", "x": 5.0, "y": 5.0, "slot": 2}, {"t": "upgrade_taken",
+			{"t": "ship_lost", "x": 5.0, "y": 5.0, "slot": 2}, {"t": "ship_back", "x": 5.0, "y": 5.0, "slot": 2}, {"t": "upgrade_taken",
 					"slot": 0}, {"t": "wave_end"}, {"t": "wave_start"}]:
 		game._on_event(e)
 	_check(game._booms.size() == 3 and is_equal_approx(game._booms[0].scale, game.BOOM_SCALE[2])
@@ -163,7 +163,7 @@ func _run() -> void:
 			and labels[0] == "SIM0 WINS!",
 			"the result menu names the player with most points: %s %s" % [str(buttons), str(labels)])
 
-	# One player: a medal for the score and the wave in the title (REQ-AB-14, REQ-GM-73).
+	# One player: the wave in the title and no medal (REQ-AB-14, REQ-GM-73).
 	app.go(Blast, {"difficulty": "easy"})
 	await _frames(3)
 	var solo: Control = app.current_screen()

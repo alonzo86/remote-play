@@ -170,8 +170,11 @@ func _buzzes() -> void:
 			and game.field.scores[0] == score_before
 			and game.field.ships[1].alive, "a hit without the ring buzzes once for 400 ms, the ship is out, the score is the same")
 	game.field.asteroids.clear()
-	SimInput.run(game, 30.0, DT, func(_t: float) -> void: game.field.asteroids.clear())
-	_check(not ship.alive and game.field.alive_count() == 3, "the ship that is out does not come back in 30 s")
+	SimInput.run(game, 5.0, DT, func(_t: float) -> void: game.field.asteroids.clear())
+	_check(not ship.alive and game.field.alive_count() == 3, "the ship that is out does not come back in 5 s")
+	SimInput.run(game, 6.0, DT, func(_t: float) -> void: game.field.asteroids.clear())
+	_check(ship.alive and ship.shield and game.field.alive_count() == 4,
+			"the ship that is out is back with a force field after 10 s")
 	_check(80 < 400, "the buzz of a lost ship is longer than the one of the ring")
 
 
@@ -196,27 +199,39 @@ func _wave_line() -> void:
 			"2 s later it says %s and the line is shorter" % game.next_wave_text())
 
 
-## 22.8e: the medal for the score at the limits of Medium (600, 1800, 4000) (REQ-AB-14, REQ-AB-20).
+## 22.8e: alone there is no medal at any score; with more players the place gets the medal (REQ-AB-14, REQ-GM-73a).
 func _medals() -> void:
 	print("the medals")
 	var all_ok := true
 	var shown := []
-	for c in [[599, ""], [600, "bronze"], [1799, "bronze"], [1800, "silver"], [3999, "silver"], [4000, "gold"]]:
+	for score in [0, 599, 600, 1800, 4000, 9000]:
 		var game := _play()
 		game.participants.clear()
 		game.participants.append(0)
 		for s in [1, 2, 3]:
 			game._on_player_left(s)
 		game.field.ships[0].alive = false
-		game.field.scores[0] = c[0]
+		game.field.scores[0] = score
 		game._process(DT)
 		SimInput.run(game, 2.2)
-		var tiers_shown: Array = MedalView.tiers_in(game._menu_box) if game.is_over else ["not over"]
-		var ok: bool = game.is_over and tiers_shown == ([c[1]] if c[1] != "" else [])
-		all_ok = all_ok and ok
-		shown.append("%d=%s" % [c[0], c[1] if c[1] != "" else "none"])
-	_check(all_ok, "the medal comes from the score: bronze at 600, silver at 1800, gold at 4000, none below (REQ-AB-14): %s"
-			% str(shown))
+		var shown_tiers: Array = MedalView.tiers_in(game._menu_box) if game.is_over else ["not over"]
+		all_ok = all_ok and game.is_over and shown_tiers.is_empty()
+		shown.append("%d=%s" % [score, str(shown_tiers)])
+	_check(all_ok, "one player gets no medal, at any score (REQ-AB-14): %s" % str(shown))
+	var duo := _play()
+	duo.participants.clear()
+	duo.participants.append_array([0, 1])
+	for s in [2, 3]:
+		duo._on_player_left(s)
+	duo.field.ships[0].alive = false
+	duo.field.ships[1].alive = false
+	duo.field.scores[0] = 300
+	duo.field.scores[1] = 100
+	duo._process(DT)
+	SimInput.run(duo, 2.2)
+	var duo_tiers: Array = MedalView.tiers_in(duo._menu_box) if duo.is_over else ["not over"]
+	_check(duo.is_over and duo_tiers == ["gold", "silver"], "two players: the place gets the medal, 1st gold and 2nd silver: %s"
+			% str(duo_tiers))
 
 
 ## 22.10a: a player leaves; the ship goes at once and the others go on firing for 10 s (REQ-AB-19).

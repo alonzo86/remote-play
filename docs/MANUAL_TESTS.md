@@ -967,7 +967,7 @@ History:
 
 Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9c. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
-Hold each phone upright or flat as you do for the other tilt games. New game (2026-10-16). Every number (ship speed, the rate of fire, the asteroid speeds, the waves, the upgrade times, the medal tiers) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
+Hold each phone upright or flat as you do for the other tilt games. New game (2026-10-16). Every number (ship speed, the rate of fire, the asteroid speeds, the waves, the upgrade times) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
 **Steps**
 
@@ -976,7 +976,7 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 3c. Tilt to the right and keep the tilt for 2 s after the ship stops. Do the same to the left. Check: the ship stops at both sides, stays fully on the screen, does not move more, and its middle is 5.5 % to 7 % of the screen width (about 120 px of 1920: the 60 px margin plus the 60 px of REQ-AB-2) from the edge of the screen.
 9a. Let a child of about 5 to 8 years play, with a grown-up next to them who does not help. Check: the child points at its own ship within 10 s after Start (there is no countdown).
 9b. Same child. Check: the child moves the ship from the middle to the left side of the screen within 30 s after Start, with no help.
-9c. Same child. Lose the ship of the child on purpose. Check: the child is still at the game 30 s later (does not stop and does not give the phone back). Ask: "Play again?". Check: the child says yes.
+9c. Same child. Lose the ship of the child on purpose while another ship flies. Check: the child is still at the game 30 s later (does not stop and does not give the phone back). Ask: "Play again?". Check: the child says yes.
 11. Play with 4 phones on Hard until wave 8 or later and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
 12b. From 3 m, look for the objects. Check: you can point at all of these: stars, the planet with the ring, an asteroid with craters, a ship, a beam, an upgrade and an explosion.
 12f. Take a close photo of the TV (30 cm). Check: the edges of the ship and of an asteroid are steps of square pixels, with no blurred edge and no gradient inside a color area.
@@ -986,7 +986,7 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 
 Items 1a, 2a, 2b, 2d, 3a, 3b, 3d, 3e, 4a to 4d, 5a, 5b, 5d, 5e, 5f, 6a to 6d, 7a to 7e, 8a to 8d, 8e, 8f, 10a, 10b and 12d moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-22-1 to A-22-12). Items 2c, 5c, 12a, 12c and 12e were split: the machine checks the numbers (A-22-2, A-22-5, A-22-12), and the part that needs a person is now 2e, 12f, 12g and 12h. Step 3c stays until Alon decides (the step says 2 % to 4 %, the ship is 6.25 % from the screen edge). The numbers of the other items do not change.
 
-Measurements (write down, no pass or fail): the real delay from a tilt to the ship moving; the wave from which you lose in less than 60 s on Easy, Medium and Hard; how long a player who is out waits for the end of the round with 4 phones; if the rate of fire of 1 shot every 0.4 s feels too slow at the start. Use them to tune `SHIP_SPEED`, `SHIP_SMOOTH`, `FIRE_EVERY` and the wave values.
+Measurements (write down, no pass or fail): the real delay from a tilt to the ship moving; the wave from which you lose in less than 60 s on Easy, Medium and Hard; how long a player who is out waits until the ship is back (wanted: 10 s) with 4 phones; if the rate of fire of 1 shot every 0.4 s feels too slow at the start. Use them to tune `SHIP_SPEED`, `SHIP_SMOOTH`, `FIRE_EVERY` and the wave values.
 
 **Results**
 
