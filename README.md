@@ -154,9 +154,10 @@ The suites are listed once, in `tests/suites.txt` (script, role, title). `tests/
 `tests/run_all.sh` is the quick local run (the suites and the check of `tokens.css`). CI has two jobs for this. `test` runs the suites
 on the instrumented copy of the project (`COVERAGE_STEP=run tools/coverage.sh`), so a failure there is a failed test, and it keeps the
 coverage hits. `coverage` (after `test`) reads those hits and fails when a module is below 80% (`COVERAGE_STEP=report tools/coverage.sh`).
-No test runs twice. `tests/suites.txt` has a tier for each suite: a pull request runs the fast suites, and the slow suites run on a
-merge, on a manual run and with the label `full-tests` (`tests/run_all.sh fast|slow|all` runs a tier). The coverage job needs all suites,
-so the 80% rule fails the job only when all suites ran; with one tier it only reports. When each CI job runs is in `docs/AUTOMATED_TESTS.md`, section "CI minutes". `tools/coverage.sh` without `COVERAGE_STEP` does both parts, as a local check.
+No test runs twice. `tests/suites.txt` has a tier for each suite: `unit` suites (the logic of one module or one rule) are what the CI runs,
+and `scenario` suites (screens, layouts, texts, flows) run locally or on demand (the label `full-tests`, or a manual run); `tests/run_all.sh
+unit|scenario|all` runs a tier. The CI reports the coverage and never fails on it: the 80% rule is the local check `tools/coverage.sh` (all
+suites). When each CI job runs is in `docs/AUTOMATED_TESTS.md`, section "CI minutes".
 
 - `tests/run_tests.gd`: packet codec, sensor fusion (tilt, yaw, bias, timestamp wrap), maze generator,
   QR encoder, and a network test with a real server and 4 clients (join, full room, wrong room, RTT,

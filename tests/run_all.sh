@@ -1,7 +1,7 @@
 #!/bin/sh
 # Runs the headless tests (a quick local run, without coverage).
-# Usage: GODOT=/path/to/godot tests/run_all.sh [fast|slow|all]   (default: all)
-# fast = the suites that the pull request CI runs; slow = the suites with the tier `slow` in tests/suites.txt.
+# Usage: GODOT=/path/to/godot tests/run_all.sh [unit|scenario|all]   (default: all)
+# unit = the suites that the CI runs; scenario = the suites of screens, layouts, texts and flows (tests/suites.txt).
 # CI runs tools/coverage.sh instead: the same suites (tests/suites.txt) with the coverage check.
 set -eu
 cd "$(dirname "$0")/.."

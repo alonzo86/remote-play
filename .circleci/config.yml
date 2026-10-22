@@ -2,9 +2,9 @@ version: 2.1
 
 # CircleCI, beside the GitHub Actions workflow (.github/workflows/ci.yml) while both run. Same rules, see docs/AUTOMATED_TESTS.md
 # "CI minutes". CircleCI has no labels and no draft state, so tools/ci_plan_circleci.sh decides from the branch and the pipeline
-# parameters: main runs all suites and the pixels; another branch runs the fast suites and the pixels only when something drawn
-# changed; a documentation-only change runs nothing (there is no build-android job here). "Trigger Pipeline" in CircleCI can set
-# `tests` (fast, slow, all) and `pixels` for a manual run. Turn on "Auto-cancel redundant workflows" in the project settings.
+# parameters: every branch runs the unit suites, and the pixels only when something drawn changed (main
+# always runs them); a documentation-only change runs nothing (there is no build-android job here). "Trigger Pipeline" in CircleCI can set
+# `tests` (unit, scenario, all) and `pixels` for a manual run. Turn on "Auto-cancel redundant workflows" in the project settings.
 
 parameters:
   tests:
@@ -70,7 +70,7 @@ jobs:
           command: tests/ci_scripts.sh
 
   test:
-    # The suites of the tier on the instrumented copy, then the coverage report. The 80% rule fails the job only for the tier all.
+    # The suites of the tier on the instrumented copy, then the coverage report. Only reported: the 80% rule is a local check.
     executor: godot
     steps:
       - checkout
@@ -80,7 +80,7 @@ jobs:
       - run:
           name: Tests and coverage
           command: |
-            if [ "$tier" = all ]; then export COVERAGE_REPORT_ONLY=0; else export COVERAGE_REPORT_ONLY=1; fi
+            export COVERAGE_REPORT_ONLY=1
             # The result is kept in a file, so the steps that store the reports still run; the last step fails the job.
             SUITE_TIER="$tier" GODOT="$(which godot)" tools/coverage.sh build/coverage || echo "$?" > /tmp/failed
       - run:

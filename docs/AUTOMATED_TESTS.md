@@ -8,13 +8,13 @@ other steps do not change) and it gets an ID `A-<test>-<item>` in the table belo
 
 ```sh
 GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh        # all suites (it runs all of them, also after a failure)
-GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh fast   # the suites that every pull request runs on CI
-GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh slow   # the suites with the tier slow
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh unit   # the suites that the CI runs
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh scenario   # the suites of screens, layouts, texts and flows
 GODOT=/Applications/Godot.app/Contents/MacOS/Godot tools/coverage.sh       # same suites with the 80% line coverage check (CI)
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tests/smoke_settings.gd -- --role=tv   # one suite (the role is in suites.txt)
 ```
 
-The suites are listed in `tests/suites.txt` (`script|role|title|tier`). A new suite is added there only. The tier is `slow` for a suite that takes 15 s or more, and empty (fast) for the others; any other tier (or a `|` in a title) stops the run with exit 2. The tier decides what the pull request CI runs (see "CI minutes" below). Each suite prints `ok` or `FAIL`
+The suites are listed in `tests/suites.txt` (`script|role|title|tier`). A new suite is added there only. The tier is `unit` (the logic of one module or one rule; the CI runs these) or `scenario` (a screen, a layout, a text, a flow or several phones at once; run locally or on demand). Every line needs a tier; any other value (or a `|` in a title) stops the run with exit 2. The unit suites take about 2.5 minutes, the scenario suites about 13 minutes (one core, headless, measured on 2026-10-22).
 for every check and ends with `N checks, M failed` (the TV smoke test ends with `smoke test done, M failed`). The whole run takes a few
 minutes and opens no window (`--headless`). Screenshots for a look at the screens need a display and are not part of the run:
 `godot --path . --rendering-driver opengl3 --script tests/screenshots.gd -- --role=tv`.
@@ -32,21 +32,21 @@ It needs `xvfb` and Mesa (`libgl1-mesa-dri`). A known-bug check (`FAIL (known bu
 
 The scripts that decide what runs (`tools/ci_changes.sh`, `tools/ci_plan_circleci.sh` and the tier filter of `tests/run_suites.sh`) have their own test, `tests/ci_scripts.sh` (git and sh only, no Godot, a few seconds). `tests/run_all.sh` and the lint job of both CI systems run it.
 
-The free GitHub plan has a limited number of minutes each month. The workflow `.github/workflows/ci.yml` spends them like this (the job `changes` decides, with `tools/ci_changes.sh`):
+The free CI plans have a limited number of minutes each month. The CI runs the unit suites and the pixel checks only (Alon, 2026-10-22). The workflow `.github/workflows/ci.yml` spends the minutes like this (the job `changes` decides):
 
 | Case | lint | test | coverage | pixels | build-android |
 |------|------|------|----------|--------|---------------|
-| A pull request that changes code | yes | fast suites | reported, never fails | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `lang.gd`, `project.godot`, the pixel tests, the design tokens) | yes |
-| A pull request with the label `full-tests` | yes | all suites, instrumented | yes | as above | yes |
-| A pull request with the label `pixels` | yes | fast suites | reported, never fails | yes | yes |
-| A push to `main` (a merge) | yes | all suites, instrumented (a run on `main` is never cancelled by a newer push) | yes | yes | yes |
-| A manual run (Actions, "Run workflow") | yes | fast, slow or all (your choice) | reported; fails only for all | your choice | yes |
+| A pull request that changes code | yes | unit suites | reported, never fails | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `scripts/core/`, `scripts/input/`, `scripts/app.gd`, `project.godot`, the pixel tests, the design tokens) | yes |
+| A pull request with the label `full-tests` | yes | all suites | reported | as above | yes |
+| A pull request with the label `pixels` | yes | unit suites | reported | yes | yes |
+| A push to `main` (a merge) | yes | unit suites (a run on `main` is never cancelled by a newer push) | reported | yes | yes |
+| A manual run (Actions, "Run workflow") | yes | unit, scenario or all (your choice) | reported | your choice | yes |
 | Only Markdown, `docs/` or `.claude/` changed (the design tokens in `docs/design-system/` are code) | no | no | no | no | yes |
 | A draft pull request | nothing runs. Mark it ready for review to start CI | | | | |
 
-The slow suites (measured on 2026-10-22, one core, headless): `hud_layout` 105 s, `multi_phone` 101 s, `device_mocks` 80 s, `audio_phones` 58 s, `r4_tv_profiles` 49 s, `r1_reconnect` 37 s, `audio` 34 s, `net_rate` 24 s, `audio_events` 23 s, `swing_replay` 21 s, `device_mocks_b` 17 s: about 9 of the 15.6 minutes. The other 69 suites take about 6.5 minutes.
+The scenario suites that take most time: `hud_layout` 105 s, `multi_phone` 101 s, `device_mocks` 80 s, `audio_phones` 58 s, `r4_tv_profiles` 49 s, `smoke_tv` 43 s, `r1_reconnect` 37 s, `r1_tv_screens` 25 s, `net_rate` 24 s, `audio_events` 23 s, `games_focus` 21 s.
 
-The coverage job always runs and always reports (the summary of the run). The 80% rule (every module) needs the hits of all suites. The fast suites alone leave `audio_manager.gd` (64%), `songs.gd` (64%) and `controller_settings.gd` (79%) below 80%, so the rule fails the job only when all suites ran (a merge to `main`, the label `full-tests`, or a manual run with `all`). On a pull request the numbers are only a report (`COVERAGE_REPORT_ONLY=1`). A pull request can therefore pass CI and fail the rule after the merge. Run `tools/coverage.sh` before you create a pull request (CLAUDE.md); that is the whole check. Add `slow` to a new suite only when it takes 15 s or more.
+The coverage job always runs, always reports (the summary of the run) and never fails. The 80% rule (every module) is a local check: `tools/coverage.sh` runs all suites, and CLAUDE.md asks for it before a pull request. The unit suites alone leave the screen modules (`scripts/ui`, most of `scripts/game`) and the audio modules below 80%, because the scenario suites cover them.
 
 ### CircleCI (beside GitHub Actions)
 
@@ -54,10 +54,10 @@ The coverage job always runs and always reports (the summary of the run). The 80
 
 | Case | lint | test and coverage | pixels |
 |------|------|-------------------|--------|
-| Branch `main` | yes | all suites; the 80% rule fails the job | yes |
+| Branch `main` | yes | unit suites; coverage is only reported | yes |
 | Branch `main`, only documentation changed since the previous commit | no | no | no |
-| Another branch | yes | fast suites; coverage is only reported | only when something drawn changed |
-| "Trigger Pipeline" with `tests` = fast, slow or all, or `pixels` = true (also for a documentation-only change) | yes | the tier you give | when `pixels` is true |
+| Another branch | yes | unit suites; coverage is only reported | only when something drawn changed |
+| "Trigger Pipeline" with `tests` = unit, scenario or all, or `pixels` = true (also for a documentation-only change) | yes | the tier you give | when `pixels` is true |
 | Only Markdown, `docs/` or `.claude/` changed | no | no | no |
 
 There is no `build-android` job on CircleCI (the APK export is off). A documentation-only change therefore runs nothing there. Godot is cached between runs. Compare the credits used with the minutes of Actions before you turn one of them off.

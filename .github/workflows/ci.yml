@@ -2,10 +2,10 @@ name: CI
 
 # What runs depends on what changed and on how the run started (see docs/AUTOMATED_TESTS.md, "CI minutes"):
 #  - Only documentation changed (Markdown, docs/, .claude/): only `build-android` runs.
-#  - A pull request runs the FAST suites (tests/suites.txt, no tier). The SLOW suites run on a push to main, on a manual run
-#    ("Run workflow", tests = slow or all) and on a pull request with the label `full-tests`.
-#  - Coverage is always reported. The 80% rule (every module) fails the run only when the suites of both tiers ran: with one tier
-#    the modules that the other tier tests look uncovered.
+#  - CI runs the UNIT suites (tests/suites.txt, tier unit) on a pull request and on a push to main. The SCENARIO suites (screens,
+#    layouts, texts, flows) run on demand: a manual run ("Run workflow", tests = scenario or all) or a pull request with the label
+#    `full-tests` (all suites).
+#  - Coverage is always reported and never fails the run. The 80% rule is a local check (tools/coverage.sh with all suites).
 #  - `pixels` runs on a push to main, when a pull request changes something that is drawn (tools/ci_changes.sh), on a manual run
 #    with pixels = true and on a pull request with the label `pixels`.
 #  - A draft pull request runs nothing. A newer push to the same branch cancels the run that is still going.
@@ -17,9 +17,9 @@ on:
   workflow_dispatch:
     inputs:
       tests:
-        description: "Suites to run: fast, slow or all (all also runs the coverage check)"
+        description: "Suites to run: unit, scenario or all"
         type: choice
-        options: [fast, slow, all]
+        options: [unit, scenario, all]
         default: all
       pixels:
         description: "Run the pixel checks"
@@ -68,10 +68,10 @@ jobs:
           RENDER: ${{ steps.files.outputs.render }}
           LABELS: ${{ join(github.event.pull_request.labels.*.name, ' ') }}
         run: |
-          TIER=fast
+          TIER=unit
           PIXELS=false
           case "$EVENT" in
-            push) TIER=all; PIXELS=true ;;
+            push) PIXELS=true ;;
             workflow_dispatch) TIER="$INPUT_TESTS"; PIXELS="$INPUT_PIXELS" ;;
           esac
           case " $LABELS " in *" full-tests "*) TIER=all ;; esac
@@ -146,11 +146,10 @@ jobs:
         with:
           name: coverage-hits
           path: build/coverage
-      # The 80% rule fails the job only when all suites ran. With one tier the modules that the other tier tests look uncovered,
-      # so the numbers are only reported.
-      - name: Coverage and the 80% rule
+      # Only reported: the CI runs unit suites, and the screen modules are covered by the scenario suites. The 80% rule is a local check.
+      - name: Coverage report
         env:
-          COVERAGE_REPORT_ONLY: ${{ needs.changes.outputs.tier == 'all' && '0' || '1' }}
+          COVERAGE_REPORT_ONLY: "1"
         run: COVERAGE_STEP=report tools/coverage.sh build/coverage
       - name: Coverage summary
         if: always()

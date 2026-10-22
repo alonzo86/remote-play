@@ -8,7 +8,7 @@ description: Run the Sababi headless tests and lint. Use after any change to scr
    lsof -iTCP:47801 -sTCP:LISTEN
    ```
    If a Godot process shows up, it is probably the user's TV app. Ask the user to quit it. Do not kill it.
-2. Run the tests: `tools/build.sh test`. It runs `tests/run_all.sh`: all suites of `tests/suites.txt` (unit, network, game rules, TV smoke tests), then the check of `tokens.css`. `tests/run_all.sh fast` runs only the fast tier (what a pull request runs on CI), `slow` the rest.
+2. Run the tests: `tools/build.sh test`. It runs `tests/run_all.sh`: all suites of `tests/suites.txt` (unit, network, game rules, TV smoke tests), then the check of `tokens.css`. `tests/run_all.sh unit` runs only the unit tier (what the CI runs), `scenario` the rest.
    Expect `178 checks, 0 failed` and `smoke test done, 0 failed`.
    The count changes when tests are added. A failure at "server listens on 47801" means the port is busy.
 3. Run lint: `gdlint scripts tests tools` and `shellcheck tests/*.sh tools/*.sh`.

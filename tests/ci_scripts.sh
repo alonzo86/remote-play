@@ -65,14 +65,14 @@ check "a base of zeros (a new branch): everything runs" "code=true render=true "
 
 echo "ci_plan_circleci.sh"
 make_repo README.md
-check "branch, documentation only: nothing runs" "tier=fast pixels=false code=false " "$(plan "" false)"
+check "branch, documentation only: nothing runs" "tier=unit pixels=false code=false " "$(plan "" false)"
 check "branch, documentation only, tests=all: it runs" "tier=all pixels=false code=true " "$(plan all false)"
-check "branch, documentation only, pixels=true: it runs" "tier=fast pixels=true code=true " "$(plan "" true)"
+check "branch, documentation only, pixels=true: it runs" "tier=unit pixels=true code=true " "$(plan "" true)"
 make_repo scripts/net/tv_server.gd
-check "branch with code: fast suites, no pixels" "tier=fast pixels=false code=true " "$(plan "" false)"
+check "branch with code: unit suites, no pixels" "tier=unit pixels=false code=true " "$(plan "" false)"
 make_repo scripts/ui/a.gd
-check "branch with drawn code: fast suites and pixels" "tier=fast pixels=true code=true " "$(plan "" false)"
-check "tests=slow gives the slow tier" "tier=slow pixels=true code=true " "$(plan slow false)"
+check "branch with drawn code: unit suites and pixels" "tier=unit pixels=true code=true " "$(plan "" false)"
+check "tests=scenario gives the scenario tier" "tier=scenario pixels=true code=true " "$(plan scenario false)"
 make_repo README.md
 git -C "$TMP/repo" checkout -q -b main2 origin/main
 git -C "$TMP/repo" checkout -q main 2>/dev/null || git -C "$TMP/repo" checkout -q -b main origin/main
@@ -80,27 +80,30 @@ echo y > "$TMP/repo/README.md"
 git -C "$TMP/repo" add -A
 git -C "$TMP/repo" -c user.name=t -c user.email=t@t commit -q -m docs
 BRANCH=main
-check "main, documentation only: nothing runs" "tier=all pixels=true code=false " "$(plan "" false)"
+check "main, documentation only: nothing runs" "tier=unit pixels=true code=false " "$(plan "" false)"
 mkdir -p "$TMP/repo/scripts"
 echo y > "$TMP/repo/scripts/a.gd"
 git -C "$TMP/repo" add -A
 git -C "$TMP/repo" -c user.name=t -c user.email=t@t commit -q -m code
-check "main with code: all suites and pixels" "tier=all pixels=true code=true " "$(plan "" false)"
+check "main with code: unit suites and pixels" "tier=unit pixels=true code=true " "$(plan "" false)"
 BRANCH=feature
 
 echo "run_suites.sh tiers"
 mkdir -p "$TMP/suites/tests"
 cp "$ROOT/tests/run_suites.sh" "$TMP/suites/tests/"
-printf '%s\n' "# comment" "a.gd|tv|first" "b.gd|tv|second|slow" "c.gd|tv|third|fast" > "$TMP/suites/tests/suites.txt"
+printf '%s\n' "# comment" "a.gd|tv|first|unit" "b.gd|tv|second|scenario" "c.gd|tv|third|unit" > "$TMP/suites/tests/suites.txt"
 printf '#!/bin/sh\necho "RUN $*"\n' > "$TMP/godot"
 chmod +x "$TMP/godot"
 run_tier() { (cd "$TMP/suites" && GODOT="$TMP/godot" SUITE_TIER="$1" tests/run_suites.sh 2>&1 | grep -o 'script [a-z.]*' | tr '\n' ' '); }
-check "fast runs the lines with no tier and with fast" "script a.gd script c.gd " "$(run_tier fast)"
-check "slow runs the slow lines" "script b.gd " "$(run_tier slow)"
+check "unit runs the unit lines" "script a.gd script c.gd " "$(run_tier unit)"
+check "scenario runs the scenario lines" "script b.gd " "$(run_tier scenario)"
 check "all runs every line" "script a.gd script b.gd script c.gd " "$(run_tier all)"
-printf '%s\n' "a.gd|tv|first|Slow" > "$TMP/suites/tests/suites.txt"
-(cd "$TMP/suites" && GODOT="$TMP/godot" SUITE_TIER=fast tests/run_suites.sh >/dev/null 2>&1)
+printf '%s\n' "a.gd|tv|first|Unit" > "$TMP/suites/tests/suites.txt"
+(cd "$TMP/suites" && GODOT="$TMP/godot" SUITE_TIER=unit tests/run_suites.sh >/dev/null 2>&1)
 check "an unknown tier stops the run with exit 2" "2" "$?"
+printf '%s\n' "a.gd|tv|first" > "$TMP/suites/tests/suites.txt"
+(cd "$TMP/suites" && GODOT="$TMP/godot" SUITE_TIER=unit tests/run_suites.sh >/dev/null 2>&1)
+check "a line with no tier stops the run with exit 2" "2" "$?"
 (cd "$TMP/suites" && GODOT="$TMP/godot" SUITE_TIER=wrong tests/run_suites.sh >/dev/null 2>&1)
 check "an unknown SUITE_TIER stops the run with exit 2" "2" "$?"
 
