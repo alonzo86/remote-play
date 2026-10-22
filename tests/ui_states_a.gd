@@ -229,7 +229,6 @@ func _safe_rtl() -> void:
 	_app._apply_insets(Vector4.ZERO)
 
 
-## Test 13.6: every phone screen stays inside the safe area of an iPhone with a Dynamic Island, portrait and landscape.
 ## REQ-FL-86 (issue #54): on the phone no button has the focus or can take it, on any phone screen. A text field keeps its focus
 ## mode: the keyboard needs it.
 func _no_focus() -> void:
@@ -250,6 +249,7 @@ func _no_focus() -> void:
 		screen.queue_free()
 
 
+## Test 13.6: every phone screen stays inside the safe area of an iPhone with a Dynamic Island, portrait and landscape.
 func _safe_layout() -> void:
 	print("safe area layout")
 	var cases := {
