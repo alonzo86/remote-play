@@ -6,7 +6,6 @@ const Shell = preload("res://scripts/game/shell.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const SpaceField = preload("res://scripts/game/asteroid_blast/space_field.gd")
 const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
-const Medals = preload("res://scripts/game/medals.gd")
 const SimInput = preload("res://tests/sim_input.gd")
 
 var _checks := 0
@@ -27,7 +26,7 @@ func _initialize() -> void:
 	_space_waves()
 	_blast_look()
 	_ship_speed_and_fire()
-	_waves_and_medals()
+	_waves()
 	_pictures()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
@@ -275,12 +274,10 @@ func _space_waves() -> void:
 		rate_ok = rate_ok and g.asteroids.size() > 0
 	_check(easy.asteroids.size() < hard.asteroids.size() and rate_ok,
 			"Hard brings more asteroids than Easy in the same time (REQ-AB-20)")
-	var tiers_ok := true
+	var no_tiers := true
 	for level in ["easy", "medium", "hard"]:
-		var t: Array = SpaceField.LEVELS[level].tiers
-		tiers_ok = tiers_ok and t[0] < t[1] and t[1] < t[2]
-	_check(tiers_ok and SpaceField.LEVELS.easy.tiers[0] > SpaceField.LEVELS.hard.tiers[0],
-			"the medal tiers rise and Hard asks less (REQ-AB-20)")
+		no_tiers = no_tiers and not SpaceField.LEVELS[level].has("tiers")
+	_check(no_tiers, "no difficulty has medal tiers: a single player gets no medal (REQ-AB-14, REQ-AB-20)")
 
 
 ## True when `img` has a pixel of exactly `color`.
@@ -379,9 +376,9 @@ func _ship_speed_and_fire() -> void:
 	_check(not f4.ships[0].alive and f4.ships[0].x == dead_x and f4.alive_count() == 1, "a ship that is out stays out for 30 s")
 
 
-## 22.7d, 7e, 8e: the waves get faster and fuller; the medal tiers.
-func _waves_and_medals() -> void:
-	print("waves and medals")
+## 22.7d, 7e: the waves get faster and fuller.
+func _waves() -> void:
+	print("waves")
 	_check(1.0 / SpaceField.wave_speed(6) <= 0.75, "an asteroid of wave 6 needs at most 0.75 of the fall time of wave 1: %.2f"
 			% (1.0 / SpaceField.wave_speed(6)))
 	var counts := []
@@ -395,13 +392,6 @@ func _waves_and_medals() -> void:
 	_check(counts[1] >= int(1.5 * counts[0]) and counts[0] >= 5,
 			"wave 6 brings %d asteroids in 10 s, wave 1 brings %d (1.5 times or more)"
 			% [counts[1], counts[0]])
-	_check(SpaceField.LEVELS.medium.tiers == [600, 1800, 4000] and SpaceField.LEVELS.easy.tiers == [800, 2400, 5000]
-			and SpaceField.LEVELS.hard.tiers == [500, 1500,
-					3200], "the medal tiers are 600/1800/4000, 800/2400/5000 and 500/1500/3200")
-	var t: Array = SpaceField.LEVELS.medium.tiers
-	_check(Medals.medal(599, t) == "" and Medals.medal(600, t) == "bronze" and Medals.medal(1799, t) == "bronze"
-			and Medals.medal(1800, t) == "silver" and Medals.medal(3999, t) == "silver" and Medals.medal(4000, t) == "gold",
-			"the score at a limit gets the medal, one point less the one before")
 
 
 ## 22.4c, 5b, 12a, 12c, 12d: the pictures are made of a few known colors, in sizes that can be seen.

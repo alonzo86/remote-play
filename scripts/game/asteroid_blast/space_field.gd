@@ -41,11 +41,11 @@ const SIZES := [
 ]
 const SHIELD := "shield"
 const WEAPON := "weapon"
-## Difficulty (REQ-AB-20): the speed and the number of asteroids, as factors on Medium, and the medal tiers (first guesses).
+## Difficulty (REQ-AB-20): the speed and the number of asteroids, as factors on Medium. There are no medal tiers (REQ-AB-20).
 const LEVELS := {
-	"easy": {"speed": 0.8, "spawn": 0.8, "tiers": [800, 2400, 5000]},
-	"medium": {"speed": 1.0, "spawn": 1.0, "tiers": [600, 1800, 4000]},
-	"hard": {"speed": 1.25, "spawn": 1.3, "tiers": [500, 1500, 3200]},
+	"easy": {"speed": 0.8, "spawn": 0.8},
+	"medium": {"speed": 1.0, "spawn": 1.0},
+	"hard": {"speed": 1.25, "spawn": 1.3},
 }
 
 enum Phase { WAVE, REST }

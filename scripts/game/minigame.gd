@@ -41,6 +41,8 @@ var _menu_box: Control
 var _menu_open := false
 var _menu_kind := ""             # "hold" for the card of a lost phone, "menu" for the other menus.
 var _hold := false               # A participant lost its connection: the game waits for a decision (REQ-GM-30).
+## A game with one player and no medal tiers sets this before `open_results()`: the row has no medal (Galaxy Protector).
+var no_medals := false
 var _hold_info := {}             # slot -> {name, color} of the players lost in this hold.
 var _hold_sig := ""
 var _pixel_viewport: SubViewport
@@ -387,7 +389,7 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title
-	var has_medal := medal != null
+	var has_medal := medal != null and not no_medals
 	var tier := String(medal) if has_medal else Medals.NONE
 	if not has_medal and heading == "" and ranking.size() == 1 and not tiers.is_empty():
 		# A player without a score gets no medal: the score 0 would beat every limit of a time.
@@ -402,7 +404,7 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 			heading = Lang.t("minigame.round_over")
 	else:
 		for i in ranking.size():   # More than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
-			if ranking[i].finished:
+			if ranking[i].finished and not no_medals:
 				rows[i]["medal"] = Medals.for_place(ranking[i].rank)
 		if heading == "":
 			heading = Lang.t("minigame.round_over")

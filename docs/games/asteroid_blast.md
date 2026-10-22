@@ -20,6 +20,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 4
 
 | General ID | Kind | Note |
 |------------|------|------|
+| REQ-GM-73 | Exception | The game has no medal tiers and one player gets no medal (owner, issue #66): the result shows the points and "Reached wave N". |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 22). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | REQ-GM-81: the ships shoot toy beams at lifeless gray rocks; no person, animal or creature is hurt, and a ship that is hit bursts into colored pixels. REQ-GM-83: a hit costs no points; a player who is out keeps the points and watches, and the game ends when the last ship is out, so the wait lasts only as long as the others fly (REQ-AB-14). The hint is one line. Texts are positive ("Wave 3 clear!"). |
@@ -55,7 +56,7 @@ Upgrades, force field and loss
 | REQ-AB-11 | The **weapon** upgrade gives the ship one more laser. A ship has 1 laser at the start and 4 at most. The lasers fire together, side by side (22 px apart, around the middle of the ship). An upgrade that a ship cannot use (4 lasers, or a force field already on) gives 50 points instead. | Done | asteroid_rules |
 | REQ-AB-12 | The **force field** upgrade puts a ring around the ship. When an asteroid hits the ship, the ring goes away, the asteroid breaks into dust (no points, no pieces), and the ship flies on, whole. | Done | asteroid_rules |
 | REQ-AB-13 | An asteroid that hits a ship without a force field blows up the ship: a burst of colored pixels, a sound and a buzz on that phone. The player is out and keeps the points. The other ships go on. | Done | asteroid_rules, smoke_asteroid |
-| REQ-AB-14 | The game is endless: it ends when every ship is gone. The sky goes on for 2 s, then the result menu opens (`open_results()`, REQ-GM-72): the ranking by points, "X wins!" or "Tie!", Try again, New game, Back to menu. One player sees a medal for the points (REQ-GM-73, tiers in REQ-AB-20) and "Reached wave N" as the title. | Done | smoke_asteroid |
+| REQ-AB-14 | The game is endless: it ends when every ship is gone. The sky goes on for 2 s, then the result menu opens (`open_results()`, REQ-GM-72): the ranking by points, "X wins!" or "Tie!", Try again, New game, Back to menu. One player sees "Reached wave N" as the title and no medal (exception to REQ-GM-73, decided by the owner on 2026-10-22, issue #66); with more players each row has the medal of its place (REQ-GM-73a). | Done | smoke_asteroid |
 
 Feedback and players
 
@@ -71,13 +72,13 @@ Settings (REQ-GM-90 to 97)
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-AB-20 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The speed and the number of asteroids are factors on Medium; the medal tiers (REQ-GM-73) are for one player (bronze, silver, gold). | Done | smoke_asteroid, game_rules |
+| REQ-AB-20 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The speed and the number of asteroids are factors on Medium; there are no medal tiers. | Done | smoke_asteroid, game_rules |
 
-| Difficulty | Fall speed | Asteroids | Medal tiers (points) |
-|------------|------------|-----------|----------------------|
-| Easy | x 0.8 | x 0.8 | 800, 2400, 5000 |
-| Medium | x 1.0 | x 1.0 | 600, 1800, 4000 |
-| Hard | x 1.25 | x 1.3 | 500, 1500, 3200 |
+| Difficulty | Fall speed | Asteroids |
+|------------|------------|-----------|
+| Easy | x 0.8 | x 0.8 |
+| Medium | x 1.0 | x 1.0 |
+| Hard | x 1.25 | x 1.3 |
 
 ## Parameters
 
@@ -101,7 +102,6 @@ Values that change how the game feels. Tune them on a device (Test 22). First va
 - How hard is wave 5, and wave 10? Does a player who is out wait too long when the others fly well (REQ-GM-83)?
 - Are the upgrades often enough (every 12 to 20 s for all players together)? Should a force field and a weapon be dropped in a fixed order?
 - With 4 players the pickups are shared: should a taken pickup respawn for the others?
-- The medal tiers are guesses: how many points does a child of 5 to 8 years get in a first game?
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
 

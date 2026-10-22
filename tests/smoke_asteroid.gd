@@ -163,7 +163,7 @@ func _run() -> void:
 			and labels[0] == "SIM0 WINS!",
 			"the result menu names the player with most points: %s %s" % [str(buttons), str(labels)])
 
-	# One player: a medal for the score and the wave in the title (REQ-AB-14, REQ-GM-73).
+	# One player: the wave in the title and no medal (REQ-AB-14, REQ-GM-73).
 	app.go(Blast, {"difficulty": "easy"})
 	await _frames(3)
 	var solo: Control = app.current_screen()
