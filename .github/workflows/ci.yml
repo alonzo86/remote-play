@@ -1,25 +1,29 @@
 name: CI
 
-# CI runs only when a change can affect the build or the tests. A change that touches only documentation
-# (Markdown, docs/, .claude/) does not start it. The design tokens stay in: the test job checks them.
+# What runs depends on what changed and on how the run started (see docs/AUTOMATED_TESTS.md, "CI minutes"):
+#  - Only documentation changed (Markdown, docs/, .claude/): only `build-android` runs.
+#  - A pull request runs the FAST suites (tests/suites.txt, no tier). The SLOW suites run on a push to main, on a manual run
+#    ("Run workflow", tests = slow or all) and on a pull request with the label `full-tests`.
+#  - The coverage check (80% for every module) needs all suites, so it runs only when the suites of both tiers run.
+#  - `pixels` runs on a push to main, when a pull request changes something that is drawn (tools/ci_changes.sh), on a manual run
+#    with pixels = true and on a pull request with the label `pixels`.
+#  - A draft pull request runs nothing. A newer push to the same branch cancels the run that is still going.
 on:
   push:
     branches: [main]
-    paths:
-      - "**"
-      - "!**.md"
-      - "!docs/**"
-      - "docs/design-system/tokens.json"
-      - "docs/design-system/tokens.css"
-      - "!.claude/**"
   pull_request:
-    paths:
-      - "**"
-      - "!**.md"
-      - "!docs/**"
-      - "docs/design-system/tokens.json"
-      - "docs/design-system/tokens.css"
-      - "!.claude/**"
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+  workflow_dispatch:
+    inputs:
+      tests:
+        description: "Suites to run: fast, slow or all (all also runs the coverage check)"
+        type: choice
+        options: [fast, slow, all]
+        default: all
+      pixels:
+        description: "Run the pixel checks"
+        type: boolean
+        default: true
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -29,8 +33,56 @@ env:
   GODOT_VERSION: 4.7.2
 
 jobs:
-  lint:
+  changes:
+    # Decides what the other jobs do. Takes a few seconds.
+    if: >-
+      github.event.pull_request.draft != true &&
+      (github.event.action != 'labeled' || github.event.label.name == 'full-tests' || github.event.label.name == 'pixels')
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.files.outputs.code }}
+      render: ${{ steps.files.outputs.render }}
+      tier: ${{ steps.pick.outputs.tier }}
+      pixels: ${{ steps.pick.outputs.pixels }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: files
+        run: |
+          case "${{ github.event_name }}" in
+            pull_request) BASE="origin/${{ github.base_ref }}" ;;
+            push) BASE="${{ github.event.before }}" ;;
+            *) BASE="" ;;
+          esac
+          tools/ci_changes.sh "$BASE" | tee -a "$GITHUB_OUTPUT"
+      - id: pick
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_TESTS: ${{ inputs.tests }}
+          INPUT_PIXELS: ${{ inputs.pixels }}
+          RENDER: ${{ steps.files.outputs.render }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ' ') }}
+        run: |
+          TIER=fast
+          PIXELS=false
+          case "$EVENT" in
+            push) TIER=all; PIXELS=true ;;
+            workflow_dispatch) TIER="$INPUT_TESTS"; PIXELS="$INPUT_PIXELS" ;;
+          esac
+          case " $LABELS " in *" full-tests "*) TIER=all ;; esac
+          case " $LABELS " in *" pixels "*) PIXELS=true ;; esac
+          if [ "$EVENT" = pull_request ] && [ "$RENDER" = true ]; then PIXELS=true; fi
+          echo "tier=${TIER}" >> "$GITHUB_OUTPUT"
+          echo "pixels=${PIXELS}" >> "$GITHUB_OUTPUT"
+          echo "tests: ${TIER}, pixels: ${PIXELS}"
+
+  lint:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -47,7 +99,14 @@ jobs:
   test:
     # The headless tests (the suites of tests/suites.txt). They run on the instrumented copy of the project, so that the same run
     # gives the coverage hits for the job `coverage`. A failure here is a failed test.
+    # The suites of the tier that `changes` picked run. Only the tier `all` is instrumented: the coverage check needs all suites,
+    # so a run of one tier would fail it. A run of one tier is plain (no instrumented copy), and the job `coverage` is skipped.
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SUITE_TIER: ${{ needs.changes.outputs.tier }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -58,11 +117,16 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
-      - name: Tests (instrumented for coverage)
+      - name: Tests (instrumented for coverage, tier all)
+        if: env.SUITE_TIER == 'all'
         run: COVERAGE_STEP=run GODOT="$(which godot)" tools/coverage.sh build/coverage
+      - name: Tests (tier ${{ env.SUITE_TIER }}, no coverage)
+        if: env.SUITE_TIER != 'all'
+        run: GODOT="$(which godot)" tests/run_suites.sh
       - name: Design tokens (CSS)
         run: python3 tools/design_tokens_css.py --check
       - uses: actions/upload-artifact@v4
+        if: env.SUITE_TIER == 'all'
         with:
           name: coverage-hits
           path: |
@@ -73,8 +137,10 @@ jobs:
   coverage:
     # The line coverage of scripts/ from the hits of the job `test`. No test runs here. A failure here is a module below 80%.
     # Modules that are set aside (with a reason) are in tools/coverage/exclusions.txt.
-    needs: test
+    needs: [changes, test]
+    if: needs.changes.outputs.code == 'true' && needs.changes.outputs.tier == 'all'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -103,7 +169,10 @@ jobs:
   pixels:
     # The render lane: pixel checks on real frames, drawn by the software GL driver (llvmpipe) under xvfb. It is not part of
     # tests/suites.txt, it has no coverage, and no other job needs it. It runs tests/pixel_render.gd at 1920x1080 and at 3840x2160.
+    needs: changes
+    if: needs.changes.outputs.code == 'true' && needs.changes.outputs.pixels == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: chickensoft-games/setup-godot@v2
@@ -132,8 +201,12 @@ jobs:
           retention-days: 7
 
   build-android:
+    # Runs for every change, also a change of documentation only (then lint and test are skipped, and this job still runs).
+    # It does not run when a job before it failed, or when the run is a draft or a label that starts nothing.
+    needs: [changes, lint, test]
+    if: ${{ !cancelled() && !failure() && needs.changes.result == 'success' }}
     runs-on: ubuntu-latest
-    needs: [lint, test]
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: chickensoft-games/setup-godot@v2

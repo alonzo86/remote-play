@@ -7,17 +7,19 @@ other steps do not change) and it gets an ID `A-<test>-<item>` in the table belo
 ## Run them on the Mac
 
 ```sh
-GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh        # all suites, stops at the first failure
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh        # all suites (it runs all of them, also after a failure)
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh fast   # the suites that every pull request runs on CI
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh slow   # the suites with the tier slow
 GODOT=/Applications/Godot.app/Contents/MacOS/Godot tools/coverage.sh       # same suites with the 80% line coverage check (CI)
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tests/smoke_settings.gd -- --role=tv   # one suite (the role is in suites.txt)
 ```
 
-The suites are listed in `tests/suites.txt` (`script|role|title`). A new suite is added there only. Each suite prints `ok` or `FAIL`
+The suites are listed in `tests/suites.txt` (`script|role|title|tier`). A new suite is added there only. The tier is `slow` for a suite that takes 15 s or more, and empty (fast) for the others. The tier decides what the pull request CI runs (see "CI minutes" below). Each suite prints `ok` or `FAIL`
 for every check and ends with `N checks, M failed` (the TV smoke test ends with `smoke test done, M failed`). The whole run takes a few
 minutes and opens no window (`--headless`). Screenshots for a look at the screens need a display and are not part of the run:
 `godot --path . --rendering-driver opengl3 --script tests/screenshots.gd -- --role=tv`.
 
-The pixel checks are not part of that run (they need a software GL driver, not `--headless`). They are in `tests/pixel_render.gd` and run in the CI job `pixels` (`.github/workflows/ci.yml`), or by hand, once for each screen size:
+The pixel checks are not part of that run (they need a software GL driver, not `--headless`). They are in `tests/pixel_render.gd` and run in the CI job `pixels` (`.github/workflows/ci.yml`; see "CI minutes" for when it runs), or by hand, once for each screen size:
 
 ```sh
 xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 --script tests/pixel_render.gd -- --role=tv
@@ -25,6 +27,24 @@ xvfb-run -a -s "-screen 0 3840x2160x24" godot --path . --rendering-driver opengl
 ```
 
 It needs `xvfb` and Mesa (`libgl1-mesa-dri`). A known-bug check (`FAIL (known bug)` in the output) is a bug that a test found. It counts as a failure: the suite stays red until the bug is fixed, and it is not hidden. When the code is fixed the check passes, and the test is changed to a plain check. So a test that finds a bug now FAILS. The suites that start the TV all use the port 47801, so run them one after the other.
+
+## CI minutes
+
+The free GitHub plan has a limited number of minutes each month. The workflow `.github/workflows/ci.yml` spends them like this (the job `changes` decides, with `tools/ci_changes.sh`):
+
+| Case | lint | test | coverage | pixels | build-android |
+|------|------|------|----------|--------|---------------|
+| A pull request that changes code | yes | fast suites, no instrumentation | no | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `lang.gd`, `project.godot`, the pixel tests, the design tokens) | yes |
+| A pull request with the label `full-tests` | yes | all suites, instrumented | yes | as above | yes |
+| A pull request with the label `pixels` | yes | fast suites | no | yes | yes |
+| A push to `main` (a merge) | yes | all suites, instrumented | yes | yes | yes |
+| A manual run (Actions, "Run workflow") | yes | fast, slow or all (your choice) | only for all | your choice | yes |
+| Only Markdown, `docs/` or `.claude/` changed (the design tokens in `docs/design-system/` are code) | no | no | no | no | yes |
+| A draft pull request | nothing runs. Mark it ready for review to start CI | | | | |
+
+The slow suites (measured on 2026-10-22, one core, headless): `hud_layout` 105 s, `multi_phone` 101 s, `device_mocks` 80 s, `audio_phones` 58 s, `r4_tv_profiles` 49 s, `r1_reconnect` 37 s, `audio` 34 s, `net_rate` 24 s, `audio_events` 23 s, `swing_replay` 21 s, `device_mocks_b` 17 s: about 9 of the 15.6 minutes. The other 69 suites take about 6.5 minutes.
+
+The coverage check (every module 80% or more) needs the hits of all suites. The fast suites alone leave `audio_manager.gd` (64%), `songs.gd` (64%) and `controller_settings.gd` (79%) below 80%, so the check runs only when all suites run (a merge to `main`, the label `full-tests`, or a manual run with `all`). A pull request that fast CI passes can therefore fail the coverage check after the merge. Run `tools/coverage.sh` before you create a pull request (CLAUDE.md); that is the whole check. Add `slow` to a new suite only when it takes 15 s or more.
 
 ## What replaced a manual step
 
@@ -331,7 +351,7 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | `device_mocks_b` | simulated phones on loopback for the maze, Road Rally and Banana Party: the buzz at a wall, a post and a car, at most 7 buzzes in a second, RECENTER while the car runs, two throws in one frame, a silent phone (the Start button of the maze view, the card of Banana Party). It runs about 25 s in real time |
 | `game_rules_b` | Banana Party: crossing times of the lanes, the golden monkey, the animal pictures; Road Rally: the lists of obstacles and scenery of 3 themes, the board palette, the time to make a board, the finish line, the cars. (A second file, because `game_rules` is at the line limit of gdlint.) |
 | `tiles` | the 9 tile files as pictures: size, import, export presets, and for each game the ground and the main objects as colors and blobs (this finds a stale tile after a look change; it does not compare with a running game) |
-| `pixel_render` (render lane, NOT in `tests/suites.txt`, no coverage) | real frames from the software GL driver (`xvfb`, Mesa llvmpipe), run at 1920x1080 and 3840x2160: menus and logo have only palette colors; Road Rally in 3 themes (sharp blocks, cars and obstacles exact, the HUD and the 60 px edge); Banana Party jungle (the bar, the lanes, the 6 animals exact); the 9 tiles are 640x360 and 2 of them have look colors; known bugs print `FAIL (known bug)` and count as failures (the logo file with 2x2 pixels); the top rows of each tile are no black HUD bar (REQ-GM-49). Run: `xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 --script tests/pixel_render.gd -- --role=tv`, and the same with 3840x2160 (the size must come from `--resolution`). CI: the job `pixels` (not run on GitHub yet) |
+| `pixel_render` (render lane, NOT in `tests/suites.txt`, no coverage) | real frames from the software GL driver (`xvfb`, Mesa llvmpipe), run at 1920x1080 and 3840x2160: menus and logo have only palette colors; Road Rally in 3 themes (sharp blocks, cars and obstacles exact, the HUD and the 60 px edge); Banana Party jungle (the bar, the lanes, the 6 animals exact); the 9 tiles are 640x360 and 2 of them have look colors; known bugs print `FAIL (known bug)` and count as failures (the logo file with 2x2 pixels); the top rows of each tile are no black HUD bar (REQ-GM-49). Run: `xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 --script tests/pixel_render.gd -- --role=tv`, and the same with 3840x2160 (the size must come from `--resolution`). CI: the job `pixels` (see "CI minutes") |
 | `sim_b` (helper, not a suite) | simulated phones, a fake-clock sensor feed and hand-stepped games for the suites above |
 | `auto_paint` | Paint Grab with a fixed time step: the tilt directions, damping, the edges, the 3 levels (floors, speed, medal tiers), 2 blobs, leader and winner, the tile grid and pop, takes and pots, a player leaves, the slot colors |
 | `auto_sumo` | Sumo Bumpers with a fixed time step: the tilt, the shrinking island and its ring, bump and buzz limit, the dash, the fall and WHEE!, the next round, round length and wait for 3 levels, 3 rounds with 2, 3 and 4 phones, the penguins |
