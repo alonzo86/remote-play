@@ -100,8 +100,9 @@ jobs:
           command: if [ "$pixels" != true ]; then circleci-agent step halt; fi
       - install-godot
       - run:
-          name: Xvfb and the software GL driver
-          command: sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 libegl1
+          name: Xvfb, the software GL driver and the X libraries of Godot
+          command: sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 libegl1 \
+              libxcursor1 libxinerama1 libxi6 libxrandr2 libxkbcommon0 libfontconfig1 libasound2t64 libwayland-cursor0 libdecor-0-0
       - run: godot --headless --path . --import || true
       - run:
           name: Pixels at 1920x1080
