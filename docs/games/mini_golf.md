@@ -1,6 +1,6 @@
 # Mini Golf (`mini_golf`)
 
-Type: 2D with a view from behind the tee (pixel world). Players: 1 to 4. Input: swing and phone direction (the sensor of the phone), Recenter.
+Type: 2D with a view from behind the tee (pixel world). Players: 1 to 4. Input: swing and phone direction (the sensor of the phone).
 General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84). Exceptions are in the first section.
 Plan: `docs/GAMES_ROADMAP.md` (branch 8). Status: built on 2026-10-17 (code, tests and tile); the feel is tested on devices in Manual test 26. The look was shown in the project thread on 2026-10-16 and 2026-10-17 (mocks in the project files, `screens/mini-golf/`, the last one is `v6-*`): the course is seen from behind the golfer, in perspective, in the 8-bit world. The look is not yet approved as final; the user said it can be revisited later.
 

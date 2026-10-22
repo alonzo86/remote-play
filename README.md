@@ -136,7 +136,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 | Where | Control | Action |
 |-------|---------|--------|
 | Phone | RECENTER | Set the neutral pose and zero the yaw |
-| Phone | A / B | Buttons. In the maze and the race, A and B do nothing; the RECENTER button recenters |
+| Phone | A / B | Buttons. In the maze and the race, A and B do nothing; only Banana Party has the RECENTER button |
 | Phone | Scan / Paste TV link | Join by the QR code on the TV (or by the link in the clipboard on a PC) |
 | Phone | Disconnect | Leave the TV at once (one tap) and return to the connect screen |
 | TV remote | D-pad | Move the focus |

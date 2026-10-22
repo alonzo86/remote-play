@@ -248,7 +248,7 @@ Needs: 1 to 4 phones, 1 TV, a protractor app, a child of about 5 to 8 years for 
 **Steps**
 
 4a. Play the maze with 2 phones, then with 4 phones. Open the debug overlay. Check on every row, during the race: Rx Hz is 50 or more, Gap ms is below 80, and Lost is 0 (the "acceptable" limits of Test 4).
-5a. On one real phone, tilt the phone 15 degrees (use a protractor app) to the right and hold it still for at least 3 seconds. Tap **RECENTER**. Keep holding the phone at the same angle for 5 seconds. Check: the ball moves less than one ball width (36 px) in the 5 seconds after the tap. (Changes with issue #55.)
+5a. On one real phone, hold the phone tilted 15 degrees (use a protractor app) to the right during the countdown and keep it at the same angle for 5 seconds after GO. Check: the ball moves less than one ball width (36 px) in the 5 seconds after GO. The pad shows no **RECENTER** box (REQ-GM-37, issue #55).
 7e. In each theme, stand 3 m from the TV. Check: a person reads aloud the names of the two pictures at each side of the maze from this list, with 0 errors in 6 pictures: Garden tree and rose bush, Castle torch and shield, Ice penguin and iceberg (REQ-MZ-13).
 7f. Bring a ball to the chest. Check: the lid of the chest opens and the gold shows.
 7g. Check with a child of 5 to 8 years. Say only: "Where do you need to go?" Check: the child points to the chest within 10 seconds of "GO", without help.
@@ -262,7 +262,7 @@ Measurements (no pass or fail; tune the constants if the owner asks): with the p
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 4a | Overlay screenshot of every row during the race (2 phones and 4 phones) | Not run | | | |
-| 5a | Video of the ball: tilt, RECENTER, 5 s | Not run | | | |
+| 5a | Video of the ball: tilt held from the countdown, 5 s; photo of the pad | Not run | | | |
 | 7e | Note: the 6 names read aloud | Not run | | | Same result as old item 7. |
 | 7f | Photo of the open chest | Not run | | | Same result as old item 7. |
 | 7g | Note: time in seconds until the child points to the chest | Not run | | | Same result as old item 7. |
@@ -1023,7 +1023,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the lane with pins, the ball, the gray floor and the disco wall.
 3e. **Aim strip.** On the phone on turn, slide a finger from the left end of the strip to the right end in about 1 s, then back. Check: the ball on the TV is in the left gutter at the left end of the strip and in the right gutter at the right end, and it moves in the same direction as the finger. (The mapping is in A-23-3.)
 3f. Film the phone and the TV together at 60 fps or more and slide a finger on the strip. Check: the ball starts to move within 12 frames (0.2 s) after the finger starts to move, in 5 of 5 tries.
-3g. Touch A, B, and the rest of the screen outside the strip with a finger, 5 times each. Check: the ball does not move. On a phone that is not on turn the Recenter box is back and works as RECENTER.
+3g. Touch A, B, and the rest of the screen outside the strip with a finger, 5 times each. Check: the ball does not move. A phone that is not on turn has no Recenter box either (REQ-GM-37, issue #55).
 4e. Throw 5 balls with each grip: screen up, screen to the side, and the other hand. Check: at least 4 of 5 swings throw a ball for each grip. (REQ-BW-5)
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
 4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)

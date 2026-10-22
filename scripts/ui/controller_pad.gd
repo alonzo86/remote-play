@@ -91,6 +91,11 @@ func _aim_mode() -> bool:
 	return c.state == ControllerClient.State.CONNECTED and c.turn_state == 1 and c.turn_kind == ""
 
 
+## True while the pad has the Recenter box: in a game where the phone is a pointer (REQ-GM-37) and outside a game.
+func _recenter_shown() -> bool:
+	return App.client.recenter_button
+
+
 func _center_a() -> Vector2:
 	return Vector2(size.x * 0.28, size.y - 330)
 
@@ -107,7 +112,10 @@ func _zone_at(pos: Vector2) -> String:
 	if _rect_leave().has_point(pos):
 		return "leave"
 	if _rect_recenter().has_point(pos):
-		return "aim" if _aim_mode() else "recenter"
+		if _aim_mode():
+			return "aim"
+		if _recenter_shown():
+			return "recenter"
 	if pos.distance_to(_center_a()) <= _radius() * 1.25:
 		return "a"
 	if pos.distance_to(_center_b()) <= _radius() * 1.25:
@@ -254,7 +262,7 @@ func _draw() -> void:
 	var rr := _rect_recenter()
 	if _aim_mode():
 		_draw_aim_strip(rr, f)
-	else:
+	elif _recenter_shown():
 		_draw_recenter(rr, f)
 
 	# A and B are round arcade buttons. A is green and B is red (REQ-FL-52). The player color is only the square at the top.

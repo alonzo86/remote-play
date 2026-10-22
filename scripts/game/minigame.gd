@@ -49,9 +49,16 @@ var tile_mode := false
 var _pixel_layer: Control        # Draws the world of a pixel game, inside the low-resolution view.
 
 
+## True for a game where the phone is a pointer at a target (Banana Party): only then the pad has the Recenter box
+## (REQ-GM-37). The other games recenter by themselves at the start of play or of a turn.
+func _uses_recenter() -> bool:
+	return false
+
+
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	participants = App.server.connected_slots()
+	App.server.recenter_button = _uses_recenter()
 	App.server.set_phase("playing", participants)
 	Sound.duck(false)
 	if _has_countdown():
