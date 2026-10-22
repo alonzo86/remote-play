@@ -28,7 +28,8 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer push cancels the run of a pull request that is still going. A run on main is never cancelled (its coverage rule counts).
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   GODOT_VERSION: 4.7.2
@@ -48,10 +49,14 @@ jobs:
         with:
           fetch-depth: 0
       - id: files
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
         run: |
-          case "${{ github.event_name }}" in
-            pull_request) BASE="origin/${{ github.base_ref }}" ;;
-            push) BASE="${{ github.event.before }}" ;;
+          case "$EVENT" in
+            pull_request) BASE="origin/${BASE_REF}" ;;
+            push) BASE="$BEFORE" ;;
             *) BASE="" ;;
           esac
           tools/ci_changes.sh "$BASE" | tee -a "$GITHUB_OUTPUT"
@@ -92,6 +97,8 @@ jobs:
         run: |
           sudo apt-get install -y shellcheck
           shellcheck tests/*.sh tools/*.sh
+      - name: CI scripts (what runs when)
+        run: tests/ci_scripts.sh
 
   test:
     # The headless tests (the suites of tests/suites.txt). They run on the instrumented copy of the project, so that the same run

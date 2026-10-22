@@ -35,8 +35,9 @@ commands:
             if [ "$code" != true ]; then circleci-agent step halt; fi
   install-godot:
     steps:
+      # The cache key holds the version: change it together with GODOT_VERSION above (CircleCI cache keys do not read executor variables).
       - restore_cache:
-          key: godot-{{ .Environment.GODOT_VERSION }}
+          key: godot-4.7.2-v1
       - run:
           name: Godot
           command: |
@@ -49,7 +50,7 @@ commands:
             sudo ln -sf "$HOME/godot/godot" /usr/local/bin/godot
             godot --version
       - save_cache:
-          key: godot-{{ .Environment.GODOT_VERSION }}
+          key: godot-4.7.2-v1
           paths:
             - ~/godot
 
@@ -64,6 +65,9 @@ jobs:
       - run:
           name: Shell scripts
           command: sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck && shellcheck tests/*.sh tools/*.sh
+      - run:
+          name: CI scripts (what runs when)
+          command: tests/ci_scripts.sh
 
   test:
     # The suites of the tier on the instrumented copy, then the coverage report. The 80% rule fails the job only for the tier all.
@@ -77,7 +81,8 @@ jobs:
           name: Tests and coverage
           command: |
             if [ "$tier" = all ]; then export COVERAGE_REPORT_ONLY=0; else export COVERAGE_REPORT_ONLY=1; fi
-            SUITE_TIER="$tier" GODOT="$(which godot)" tools/coverage.sh build/coverage
+            # The result is kept in a file, so the steps that store the reports still run; the last step fails the job.
+            SUITE_TIER="$tier" GODOT="$(which godot)" tools/coverage.sh build/coverage || echo "$?" > /tmp/failed
       - run:
           name: Design tokens (CSS)
           command: python3 tools/design_tokens_css.py --check
@@ -89,6 +94,9 @@ jobs:
           path: build/coverage/summary.md
       - store_artifacts:
           path: build/coverage/lcov.info
+      - run:
+          name: Result of the tests
+          command: '[ ! -f /tmp/failed ] || { echo "tests or the coverage rule failed (exit $(cat /tmp/failed))"; exit 1; }'
 
   pixels:
     executor: godot
@@ -110,18 +118,19 @@ jobs:
           name: Pixels at 1920x1080
           command: |
             xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 \
-              --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-1080.log
-            test "${PIPESTATUS[0]}" -eq 0
+              --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-1080.log || echo "$?" >> /tmp/failed
       - run:
           name: Pixels at 3840x2160
           command: |
             xvfb-run -a -s "-screen 0 3840x2160x24" godot --path . --rendering-driver opengl3 --resolution 3840x2160 \
-              --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-4k.log
-            test "${PIPESTATUS[0]}" -eq 0
+              --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-4k.log || echo "$?" >> /tmp/failed
       - store_artifacts:
           path: pixels-1080.log
       - store_artifacts:
           path: pixels-4k.log
+      - run:
+          name: Result of the pixel checks
+          command: '[ ! -f /tmp/failed ] || { echo "pixel checks failed"; exit 1; }'
 
 workflows:
   ci:

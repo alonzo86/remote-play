@@ -13,6 +13,8 @@ cd "$(dirname "$0")/.." || exit 1
 FAILED=""
 while IFS="|" read -r script role title tier; do
 	case "$script" in ''|'#'*) continue ;; esac
+	# The tier is empty (fast), fast or slow. Anything else is a typo (or a | in a title): stop, do not drop the suite in silence.
+	case "${tier:-fast}" in fast | slow) ;; *) echo "tests/suites.txt: unknown tier '$tier' for $script" >&2; exit 2 ;; esac
 	[ "$TIER" = all ] || [ "${tier:-fast}" = "$TIER" ] || continue
 	echo "== $title"
 	if ! "$GODOT" --headless --path . --script "$script" -- --role="$role"; then

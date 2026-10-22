@@ -8,5 +8,7 @@ cd "$(dirname "$0")/.."
 SUITE_TIER="${1:-${SUITE_TIER:-all}}"
 export SUITE_TIER
 GODOT="${GODOT:-godot}" tests/run_suites.sh
+echo "== CI scripts (what runs when)"
+tests/ci_scripts.sh
 echo "== design tokens (CSS)"
 python3 tools/design_tokens_css.py --check
