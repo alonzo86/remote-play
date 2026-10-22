@@ -89,11 +89,6 @@ var _banana_tex: Array[ImageTexture] = []
 var _peel_tex: ImageTexture
 
 
-## The phone is a pointer at the animals, so the pad has the Recenter box (REQ-GM-37).
-func _uses_recenter() -> bool:
-	return true
-
-
 func _game_ready() -> void:
 	if start_props.has("seed"):
 		_rng.seed = int(start_props.seed)   # REQ-SS-9: a test fixes the animals. Restart keeps the seed.

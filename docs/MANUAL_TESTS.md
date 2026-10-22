@@ -696,6 +696,7 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 10. Play a full round with 4 phones on Hard. Check: the debug overlay shows 55 frames per second or more during the whole round (60 expected). (REQ-GM-50)
 11e2. Zoom a photo of the TV to 300% on the edge of the island and on the edge of a cloud. Check: both edges are made of square steps, with no soft (blended) pixel at either edge (2 of 2). (REQ-GM-47i to 47n, REQ-SB-15. The view of 480 x 270 pixels, the whole scale and the nearest filter are checked by A-15-11e.)
 11g. From 3 m, read the word "WHEE!" and the round banner. Check: the tester reads both aloud without error. (REQ-SB-15, REQ-FL-40)
+12a. Look at the pad of a phone while the match runs. Check: the pad shows the green button A alone, in the middle of the row, and no button B and no RECENTER box (3 of 3). (REQ-GM-37a, issue #80)
 
 Items 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-15-2, A-15-9). Items 1a, 1b, 3a to 3c, 4a, 4b, 5a, 5b, 6a, 6c and 7a to 7e moved there too (A-15-1, A-15-3, A-15-4, A-15-5, A-15-6, A-15-7). Items 11a, 11b and 11d were split: the machine checks the sizes, the colors, the fonts and the pixels (A-15-11); items 11c and 11f are automated too (A-15-11c, A-15-11f), and the part that needs a person is now 11e2 and 11g. The numbers of the other items do not change.
 
@@ -709,6 +710,7 @@ Items 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-15-2, A-15
 | 10 | Overlay screenshot (FPS) with 4 phones on Hard | Not run | | | |
 | 11e2 | Zoomed photo of the island edge and of a cloud edge | Not run |  |  |  |
 | 11g | Note: the texts that were read; the TV (1080p or 4K) | Not run | | | |
+| 12a | Photo of the pad during the match | Not run | | | |
 
 Measurements (not a test; no pass or fail). Write these values in the Notes column of the steps above. They decide the first tuning values of the game.
 
@@ -981,6 +983,7 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 12b. From 3 m, look for the objects. Check: you can point at all of these: stars, the planet with the ring, an asteroid with craters, a ship, a beam, an upgrade and an explosion.
 12f. Take a close photo of the TV (30 cm). Check: the edges of the ship and of an asteroid are steps of square pixels, with no blurred edge and no gradient inside a color area.
 12g. Play with 4 phones. From 3 m, each tester names the color of the ship of a phone you point at. Check: 4 of 4 answers are right for every tester.
+13a. Look at the pad of a phone while the game runs. Check: the pad shows no button A, no button B and no RECENTER box (3 of 3). (REQ-GM-37a, issue #80)
 12h. From 3 m, read aloud the banners "Wave 2", "Wave 2 clear!" and "Next wave in 4", and the points in the bar. Check: no error.
 (The music and the effects are checked in Test 18.)
 
@@ -1002,6 +1005,7 @@ Measurements (write down, no pass or fail): the real delay from a tilt to the sh
 | 12b | Note: the seven objects, each yes or no | Not run | | | |
 | 12f | Close photo of the TV (30 cm) | Not run | | | |
 | 12g | Note: the answers of each tester (n of 4) | Not run | | | |
+| 13a | Photo of the pad while the game runs | Not run | | | |
 | 12h | Note: errors made when reading the texts | Not run | | | |
 
 History:
@@ -1025,7 +1029,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the lane with pins, the ball, the gray floor and the disco wall.
 3e. **Aim strip.** On the phone on turn, slide a finger from the left end of the strip to the right end in about 1 s, then back. Check: the ball on the TV is in the left gutter at the left end of the strip and in the right gutter at the right end, and it moves in the same direction as the finger. (The mapping is in A-23-3.)
 3f. Film the phone and the TV together at 60 fps or more and slide a finger on the strip. Check: the ball starts to move within 12 frames (0.2 s) after the finger starts to move, in 5 of 5 tries.
-3g. Touch A, B, and the rest of the screen outside the strip with a finger, 5 times each. Check: the ball does not move. A phone that is not on turn has no Recenter box either (REQ-GM-37, issue #55).
+3g. Touch A and the rest of the screen outside the strip with a finger, 5 times each. Check: the ball does not move. The pad has no B (REQ-GM-37a, issue #80). A phone that is not on turn has no Recenter box either (REQ-GM-37, issue #55).
 4e. Throw 5 balls with each grip: screen up, screen to the side, and the other hand. Check: at least 4 of 5 swings throw a ball for each grip. (REQ-BW-5)
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
 4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)

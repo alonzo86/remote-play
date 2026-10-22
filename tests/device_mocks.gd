@@ -7,6 +7,7 @@ extends SceneTree
 ##   godot --headless --path . --script tests/device_mocks.gd -- --role=tv
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Registry = preload("res://scripts/game/registry.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
 const GAMES := {
@@ -91,6 +92,10 @@ func _run() -> void:
 		# Issue #55: only a game where the phone is a pointer at a target has the Recenter box on the pad (REQ-GM-37).
 		_check(_clients[0].recenter_button == (id == "snowball_splat") and _clients[1].recenter_button == (id == "snowball_splat"),
 				"%s: the phones %s the Recenter box (REQ-GM-37)" % [id, "get" if id == "snowball_splat" else "do not get"])
+		# Issue #80: the phones show only the buttons the game uses (REQ-GM-37a).
+		var want := Registry.buttons_of(Registry.find(id))
+		_check(_clients[0].pad_buttons == want and _clients[1].pad_buttons == want,
+				"%s: the phones show the buttons \"%s\" (REQ-GM-37a)" % [id, want])
 		if id in COUNTDOWN_GAMES:
 			_check(before == 0, "%s: no buzz during 3, 2, 1" % id)
 			_check(_buzzes[0].count(60) >= 1 and _buzzes[1].count(60) >= 1,

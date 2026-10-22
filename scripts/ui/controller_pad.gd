@@ -96,12 +96,18 @@ func _recenter_shown() -> bool:
 	return App.client.recenter_button
 
 
+## True while the pad shows the button `key` ("a" or "b"): the game says which buttons it uses (REQ-GM-37a, issue #80).
+func _button_shown(key: String) -> bool:
+	return App.client.pad_buttons.contains(key)
+
+
+## A button that is alone stands in the middle of the row; two buttons stand left and right.
 func _center_a() -> Vector2:
-	return Vector2(size.x * 0.28, size.y - 330)
+	return Vector2(size.x * (0.28 if _button_shown("b") else 0.5), size.y - 330)
 
 
 func _center_b() -> Vector2:
-	return Vector2(size.x * 0.72, size.y - 330)
+	return Vector2(size.x * (0.72 if _button_shown("a") else 0.5), size.y - 330)
 
 
 func _radius() -> float:
@@ -116,9 +122,9 @@ func _zone_at(pos: Vector2) -> String:
 			return "aim"
 		if _recenter_shown():
 			return "recenter"
-	if pos.distance_to(_center_a()) <= _radius() * 1.25:
+	if _button_shown("a") and pos.distance_to(_center_a()) <= _radius() * 1.25:
 		return "a"
-	if pos.distance_to(_center_b()) <= _radius() * 1.25:
+	if _button_shown("b") and pos.distance_to(_center_b()) <= _radius() * 1.25:
 		return "b"
 	return "pad"
 
@@ -266,8 +272,10 @@ func _draw() -> void:
 		_draw_recenter(rr, f)
 
 	# A and B are round arcade buttons. A is green and B is red (REQ-FL-52). The player color is only the square at the top.
-	_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)
-	_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)
+	if _button_shown("a"):
+		_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)
+	if _button_shown("b"):
+		_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)
 
 
 ## Recenter: a yellow framed box that fills with yellow for a moment when it is tapped.

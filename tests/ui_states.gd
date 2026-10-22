@@ -43,6 +43,7 @@ func _run() -> void:
 	_tile_images()
 	_safe_area()
 	await _pad_aim_strip()
+	await _pad_buttons()
 
 
 func _button_styles() -> void:
@@ -499,6 +500,10 @@ func _arrow(action: String) -> InputEventAction:
 	return e
 
 
+func _new_pad() -> Control:
+	return load("res://scripts/ui/controller_pad.gd").new()
+
+
 func _touch(index: int, pressed: bool, pos: Vector2) -> InputEventScreenTouch:
 	var e := InputEventScreenTouch.new()
 	e.index = index
@@ -507,11 +512,42 @@ func _touch(index: int, pressed: bool, pos: Vector2) -> InputEventScreenTouch:
 	return e
 
 
+## Issue #80, REQ-GM-37a: the pad shows and reads only the buttons that the game uses.
+func _pad_buttons() -> void:
+	print("pad buttons")
+	var app: Node = root.get_node("App")
+	var pad: Control = _new_pad()
+	pad.size = Vector2(1080, 2160)
+	root.add_child(pad)
+	await process_frame
+	pad._sampler.set_process(false)
+	app.client.state = ControllerClient.State.CONNECTED
+	var both_a: Vector2 = pad._center_a()
+	var both_b: Vector2 = pad._center_b()
+	_check(pad._zone_at(both_a) == "a" and pad._zone_at(both_b) == "b", "outside a game both buttons work")
+	app.client.pad_buttons = "a"
+	_check(pad._center_a().x == pad.size.x * 0.5 and pad._zone_at(pad._center_a()) == "a",
+			"a game with only A: the button A stands in the middle and works")
+	var far_b := Vector2(pad.size.x * 0.95, both_b.y)
+	_check(pad._zone_at(far_b) == "pad", "a game with only A: the right side of the button row is plain pad")
+	pad._input(_touch(3, true, far_b))
+	_check((pad._sampler.buttons & Protocol.BTN_B) == 0, "a touch where B was does not press B")
+	pad._input(_touch(3, false, far_b))
+	app.client.pad_buttons = "b"
+	_check(pad._center_b().x == pad.size.x * 0.5 and pad._zone_at(pad._center_b()) == "b",
+			"a game with only B: B stands in the middle and works")
+	app.client.pad_buttons = ""
+	_check(pad._zone_at(both_a) == "pad" and pad._zone_at(pad._center_a()) == "pad", "a game with no buttons: no zone for A or B")
+	app.client.pad_buttons = "ab"
+	app.client.state = ControllerClient.State.IDLE
+	pad.queue_free()
+
+
 ## Pin Pals, the turn of this phone: the Recenter box is the aim strip (REQ-BW-4).
 func _pad_aim_strip() -> void:
 	print("pad aim strip")
 	var app: Node = root.get_node("App")
-	var pad: Control = load("res://scripts/ui/controller_pad.gd").new()
+	var pad: Control = _new_pad()
 	pad.size = Vector2(1080, 2160)
 	root.add_child(pad)
 	await process_frame
