@@ -772,15 +772,15 @@ func _run() -> void:
 	var ok_event := InputEventAction.new()
 	ok_event.action = "ui_accept"
 	ok_event.pressed = true
-	lg._unhandled_input(ok_event) # OK opens the pause menu. Its "Back to menu" asks the same question.
+	lg._unhandled_input(ok_event) # OK opens the pause menu. Its "End game" leaves at once (REQ-GM-31, issue #53).
 	await _frames(2)
+	var pause_labels: Array = lg.menu_buttons().map(func(b): return b.text)
+	_check(pause_labels == ["minigame.resume", "minigame.restart", "minigame.end_game"],
+			"the pause menu is Resume, Try again, End game: %s" % str(pause_labels))
 	lg.menu_buttons()[2].pressed.emit()
-	await _frames(2)
-	_check(app.current_screen() == lg and lg.menu_buttons().size() == 2 and lg.menu_buttons()[0].text == "minigame.resume_play",
-			"Back to menu in the pause menu asks 'End the game?'")
-	lg.menu_buttons()[1].pressed.emit()
 	await _frames(3)
-	_check(is_instance_of(app.current_screen(), TvGames), "End game leaves for the Games screen")
+	_check(is_instance_of(app.current_screen(), TvGames),
+			"End game in the pause menu leaves for the Games screen at once, with no question")
 	app.go(MazeGame)
 	await _frames(3)
 	var over: Control = app.current_screen()
