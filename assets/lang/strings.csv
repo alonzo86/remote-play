@@ -151,19 +151,12 @@ result.seconds_2,%.2f s,%.2f ש׳,"Road Rally result list and the personal best 
 result.winner,%s wins!,%s ניצח!,Result menu title: %s is the name of the winner,%s is replaced by a name or a value
 settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row,
 settings.effects,EFFECTS,אפקטים,TV Settings: name of the sound effects volume row,
-settings.english_or_hebrew_phones,ENGLISH OR HEBREW. THE PHONES FOLLOW THE TV.,אנגלית או עברית. הטלפונים עוקבים אחרי הטלוויזיה.,TV Settings: help line of the Language row,
 settings.invert_tilt_axes,INVERT AXES,היפוך צירים,TV Settings: name of the row,
 settings.language,LANGUAGE,שפה,TV Settings: name of the Language row,
-settings.left_right_change_music,LEFT AND RIGHT CHANGE THE MUSIC VOLUME.,שמאלה וימינה משנים את עוצמת המוזיקה.,TV Settings: help line of the Music row,
-settings.left_right_change_effects,LEFT AND RIGHT CHANGE THE SOUND EFFECTS VOLUME.,שמאלה וימינה משנים את עוצמת האפקטים.,TV Settings: help line of the Effects row,
-settings.mute,MUTE,השתק,TV Settings: name of the Mute row,
 common.off,OFF,כבוי,"TV Settings: state of a switch that is off (Debug overlay, Mute, Invert tilt axes)",
 common.on,ON,פועל,TV Settings: state of a switch that is on,
 settings.phone_vibrates_games_when,"THE PHONE VIBRATES IN GAMES: WHEN YOU SCORE, BUMP OR START.","הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים.",Phone Settings screen: help line under the haptics switch,
-settings.shows_link_each_phone,SHOWS THE LINK OF EACH PHONE. THE MENU KEY OR F3 DOES THE SAME.,מציג את הקישור של כל טלפון. מקש התפריט או F3 עושים אותו דבר.,TV Settings: help line of the Debug overlay row,
 settings.track_n,Track %d,מסלול %d,"Road Rally: name of a fixed track, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
-settings.turns_off_music_effects,TURNS OFF THE MUSIC AND THE EFFECTS.,מכבה את המוזיקה ואת האפקטים.,TV Settings: help line of the Mute row,
-settings.use_when_ball_rolls,USE THIS WHEN A BALL ROLLS THE WRONG WAY.,השתמשו בזה כשכדור מתגלגל לכיוון הלא נכון.,TV Settings: help line of the Invert tilt axes row,
 shell.seconds,%.1f S,%.1f ש׳,"Game HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 shell.tie,TIE,תיקו,Game HUD: leader chip when two or more players share first place,
 snowball_splat.point_at_tv_press,POINT AT THE TV AND PRESS A TO THROW A BANANA. RECENTER IF THE CURSOR DRIFTS.,כוונו אל הטלוויזיה ולחצו A כדי לזרוק בננה. מרכזו אם הסמן סוטה.,Banana Party: hint during the countdown,

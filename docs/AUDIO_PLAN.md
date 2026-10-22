@@ -82,7 +82,7 @@ Rules:
 - Only the phone of the player that the event is about vibrates, except the start, the end and a pause (all phones).
 - A repeated haptic has the 100 ms or longer cool-down of REQ-GM-43, and a game must not buzz all the time (a long tilt in a wall is not a long buzz).
 - A haptic never replaces information: a phone without a vibrator, or with vibration off, plays the same game. The TV shows everything that matters.
-- Sound and haptic are two separate outputs: the Mute setting of the TV app does not turn haptics off.
+- Sound and haptic are two separate outputs: the volume levels of the TV app do not turn haptics off.
 - **Haptics switch (decided by the owner on 2026-10-10):** the phone app has a HAPTICS ON/OFF switch. It is a framed box (`UiKit.box_button()`) on the phone's wait screen, the screen the player sees between games, so the player can change it before a game starts. Default ON. The choice is saved on the phone (`user://`, with the other phone data) and applies to every TV the phone joins. When it is OFF, the phone ignores the `haptic` messages (`controller_pad.gd` does not call `Input.vibrate_handheld()`); the TV sends them as before, so the protocol does not change (`docs/PROTOCOL.md` stays as it is). The switch has Hebrew text (FD-19) when that is merged. A test checks that OFF stops the vibration call, that ON restores it, and that the choice is saved and loaded. Manual test 18 checks it on a phone, and that a phone with the switch OFF plays the game normally.
 - Test: for each game, a smoke test emits each scene and checks that `App.server.haptic()` (or `Haptics.pulse()`) was called for the right slot. A device check (manual test 18, haptic part) feels each scene on a real phone: is it too weak, too strong, or too often?
 
@@ -111,10 +111,10 @@ Rendering at 22050 Hz mono keeps memory small: a 68 s loop is 22050 x 2 bytes x 
 - Android TV: the mix rate of the project is 44100 Hz (Godot default); the 22050 Hz streams are resampled by the engine. Output latency on a TV box can be 100 ms or more and cannot be fixed in the app; effects are short and not timed with the picture to the frame. Manual test 18 checks that it feels fine.
 - Focus loss: when the app goes to the background (Home), Godot pauses the audio by itself; no code is needed. Manual test 18 checks that the music does not play on the Android home screen.
 
-### 3.3 Volume and mute (Settings)
+### 3.3 Volume (Settings)
 
-- The Settings screen (REQ-FL-23) gets three rows after "Invert tilt axes": **Music** and **Effects** (a value from 0 to 10, changed with Left and Right, like a choice row; default 7 for Music and 8 for Effects), and **Mute** (ON/OFF, default OFF; the TV remote has a volume key that the system handles, and this is the app's own mute).
-- The values are saved in `user://settings.cfg` (`App.settings`: `music_volume`, `sfx_volume`, `mute`), like `invert_tilt`.
+- The Settings screen (REQ-FL-23) gets two rows after "Invert tilt axes": **Music** and **Effects** (a value from 0 to 10, changed with Left and Right, like a choice row; default 7 for Music and 8 for Effects). There is no Mute row (dropped by the owner, issue #49): a level of 0 is silent.
+- The values are saved in `user://settings.cfg` (`App.settings`: `music_volume`, `sfx_volume`), like `invert_tilt`.
 - Changing a value acts at once. When the owner changes **Effects**, one `select` sound plays as the sample; when the owner changes **Music**, the menu music is already playing, so the change is heard at once.
 - The volume steps use a curve (`linear_to_db(v / 10.0)` squared), not a straight line, so the steps sound even.
 - Hebrew: the three rows have Hebrew text in `assets/lang/strings.csv` (FD-19, FD-24); the test `smoke_lang` fails when one is missing.
@@ -208,7 +208,7 @@ Headless Godot uses the dummy audio driver: the nodes and buses work, nothing is
 |-------|--------|
 | `tests/audio_synth.gd` (new, in `tests/suites.txt`) | The synthesizer: a pulse at 440 Hz has the right period; a rest is silence; the envelope ends at 0 (no click at the end); a loop song has the same length as its bars and tempo; samples are inside the 16-bit range (no clipping); the same notes give the same bytes (deterministic) |
 | `tests/audio_songs.gd` (new) | Every registry game has a song and every effect id of its requirements file is in the effect table; no song is empty; every song has the same number of bars on each channel; no effect is longer than 2 s (fanfares) or 0.5 s (the others) |
-| `tests/smoke_tv.gd` | The buses `Music` and `SFX` exist; the Settings screen has the three rows, they change `App.settings`, and the values are saved and loaded; mute sets the bus mute; `Sound.music("menu")` starts a player and a second call with the same id does not restart it; a pause ducks and Resume restores; the result menu stops the music |
+| `tests/smoke_tv.gd` | The buses `Music` and `SFX` exist; the Settings screen has the Music and Effects rows, they change `App.settings`, and the values are saved and loaded; `Sound.music("menu")` starts a player and a second call with the same id does not restart it; a pause ducks and Resume restores; the result menu stops the music |
 | `tests/game_helpers.gd` | The effect pool: a 41st effect in the same 40 ms is dropped; the oldest player is taken when the pool is full; `win` is never cut |
 | `tests/smoke_*.gd` (the five games) | Each game plays its effects: the test emits the event (a hit, a fall, a throw) and checks the signal `sfx_played` (a small log kept by the manager for tests, not used by the app) |
 | `tests/smoke_lang.gd` | The new Settings rows have Hebrew text |
