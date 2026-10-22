@@ -76,6 +76,9 @@ func _run() -> void:
 	# The settings view has Difficulty and Rails (REQ-BW-16, 17).
 	app.go_game_settings("bowling")
 	await _frames(4)
+	for c in clients:   # The safety card of a swing game: every phone taps OK before Start works (REQ-GM-102).
+		c.send_swing_ok()
+	await _frames(6)
 	var sv: Control = app.current_screen()
 	_check(sv.rows.size() == 2 and sv.rows[0].value == "medium" and sv.rows[1].value == "off" and not sv.start_button.disabled,
 			"Pin Pals opens the settings view with Difficulty on Medium and Rails off (REQ-BW-16, 17)")

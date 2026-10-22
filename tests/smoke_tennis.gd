@@ -69,6 +69,9 @@ func _run() -> void:
 	# The settings view has Difficulty and Scoring, Real by default (REQ-TN-12).
 	app.go_game_settings("tennis")
 	await _frames(4)
+	for c in clients:   # The safety card of a swing game: every phone taps OK before Start works (REQ-GM-102).
+		c.send_swing_ok()
+	await _frames(6)
 	var sv: Control = app.current_screen()
 	_check(sv.rows.size() == 2 and sv.rows[1].value == "real" and not sv.start_button.disabled,
 			"Tennis opens the settings view with Scoring on Real (REQ-TN-12)")
