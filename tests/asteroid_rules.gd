@@ -370,10 +370,22 @@ func _ship_speed_and_fire() -> void:
 	f4._make(0, 900.0, SpaceField.SHIP_Y, _rng(4))
 	f4._ship_contacts()
 	var dead_x: float = f4.ships[0].x
-	for i in 1800:   # 30 s
+	for i in 594:   # 9.9 s
 		f4.tick(1.0 / 60.0, _rng(5), {0: 1.0, 1: 0.0})
 		f4.asteroids.clear()
-	_check(not f4.ships[0].alive and f4.ships[0].x == dead_x and f4.alive_count() == 1, "a ship that is out stays out for 30 s")
+	_check(not f4.ships[0].alive and f4.ships[0].x == dead_x and f4.alive_count() == 1, "a ship that is out stays out for 9.9 s")
+	for i in 12:   # up to 10.1 s
+		f4.tick(1.0 / 60.0, _rng(5), {0: 0.0, 1: 0.0})
+		f4.asteroids.clear()
+	_check(f4.ships[0].alive and f4.ships[0].shield and f4.ships[0].x == dead_x and f4.alive_count() == 2,
+			"after 10 s the ship is back where it was, with a force field (REQ-AB-13)")
+	var f5 := _field([900.0])
+	f5._make(0, 900.0, SpaceField.SHIP_Y, _rng(4))
+	f5._ship_contacts()
+	for i in 1800:   # 30 s
+		f5.tick(1.0 / 60.0, _rng(5), {0: 0.0})
+		f5.asteroids.clear()
+	_check(not f5.ships[0].alive and f5.all_lost(), "the last ship that is lost does not come back: the game is over (REQ-AB-14)")
 
 
 ## 22.7d, 7e: the waves get faster and fuller.

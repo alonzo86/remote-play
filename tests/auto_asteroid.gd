@@ -170,8 +170,11 @@ func _buzzes() -> void:
 			and game.field.scores[0] == score_before
 			and game.field.ships[1].alive, "a hit without the ring buzzes once for 400 ms, the ship is out, the score is the same")
 	game.field.asteroids.clear()
-	SimInput.run(game, 30.0, DT, func(_t: float) -> void: game.field.asteroids.clear())
-	_check(not ship.alive and game.field.alive_count() == 3, "the ship that is out does not come back in 30 s")
+	SimInput.run(game, 5.0, DT, func(_t: float) -> void: game.field.asteroids.clear())
+	_check(not ship.alive and game.field.alive_count() == 3, "the ship that is out does not come back in 5 s")
+	SimInput.run(game, 6.0, DT, func(_t: float) -> void: game.field.asteroids.clear())
+	_check(ship.alive and ship.shield and game.field.alive_count() == 4,
+			"the ship that is out is back with a force field after 10 s")
 	_check(80 < 400, "the buzz of a lost ship is longer than the one of the ring")
 
 

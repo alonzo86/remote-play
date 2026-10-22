@@ -23,7 +23,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 4
 | REQ-GM-73 | Exception | The game has no medal tiers and one player gets no medal (owner, issue #66): the result shows the points and "Reached wave N". |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 22). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
-| REQ-GM-80 to 84 | Note | REQ-GM-81: the ships shoot toy beams at lifeless gray rocks; no person, animal or creature is hurt, and a ship that is hit bursts into colored pixels. REQ-GM-83: a hit costs no points; a player who is out keeps the points and watches, and the game ends when the last ship is out, so the wait lasts only as long as the others fly (REQ-AB-14). The hint is one line. Texts are positive ("Wave 3 clear!"). |
+| REQ-GM-80 to 84 | Note | REQ-GM-81: the ships shoot toy beams at lifeless gray rocks; no person, animal or creature is hurt, and a ship that is hit bursts into colored pixels. REQ-GM-83: a hit costs no points; a player who is out keeps the points and watches for 10 s, then the ship comes back with a force field (REQ-AB-13); the game ends when the last ship is out (REQ-AB-14). The hint is one line. Texts are positive ("Wave 3 clear!"). |
 
 ## Requirements
 
@@ -55,7 +55,7 @@ Upgrades, force field and loss
 | REQ-AB-10 | A round **upgrade** falls from the top: the first after 10 s of play, then one after 12 to 20 s. Its kind is chosen by chance: a **force field** (blue, a shield) or a **weapon** (orange, an arrow). There are at most 2 on the screen. A ship that touches one takes it and the pickup is gone. An upgrade that nobody takes falls off the bottom. | Done | asteroid_rules |
 | REQ-AB-11 | The **weapon** upgrade gives the ship one more laser. A ship has 1 laser at the start and 4 at most. The lasers fire together, side by side (22 px apart, around the middle of the ship). An upgrade that a ship cannot use (4 lasers, or a force field already on) gives 50 points instead. | Done | asteroid_rules |
 | REQ-AB-12 | The **force field** upgrade puts a ring around the ship. When an asteroid hits the ship, the ring goes away, the asteroid breaks into dust (no points, no pieces), and the ship flies on, whole. | Done | asteroid_rules |
-| REQ-AB-13 | An asteroid that hits a ship without a force field blows up the ship: a burst of colored pixels, a sound and a buzz on that phone. The player is out and keeps the points. The other ships go on. | Done | asteroid_rules, smoke_asteroid |
+| REQ-AB-13 | An asteroid that hits a ship without a force field blows up the ship: a burst of colored pixels, a sound and a buzz on that phone. The player is out and keeps the points. The other ships go on. A ship that is out comes back after 10 s (`OUT_TIME`, issue #66) where it was, with a force field, and a sound of the force field; this only happens while another ship still flies: when the last ship is lost the game is over and nothing comes back. | Done | asteroid_rules, auto_asteroid, smoke_asteroid |
 | REQ-AB-14 | The game is endless: it ends when every ship is gone. The sky goes on for 2 s, then the result menu opens (`open_results()`, REQ-GM-72): the ranking by points, "X wins!" or "Tie!", Try again, New game, Back to menu. One player sees "Reached wave N" as the title and no medal (exception to REQ-GM-73, decided by the owner on 2026-10-22, issue #66); with more players each row has the medal of its place (REQ-GM-73a). | Done | smoke_asteroid |
 
 Feedback and players
@@ -89,6 +89,7 @@ Values that change how the game feels. Tune them on a device (Test 22). First va
 | `SHIP_SPEED`, `SHIP_SMOOTH`, `TILT_DEADZONE` | 760 px/s, 9 1/s, 0.04 |
 | `FIRE_EVERY`, `BEAM_SPEED`, `LASER_GAP`, `MAX_LASERS` | 0.4 s, 1100 px/s, 22 px, 4 |
 | `WAVE_TIME`, `REST_TIME`, `WAVE_BONUS` | 30 s, 5 s, 50 x wave |
+| `OUT_TIME` | 10 s |
 | `BASE_SPEED`, `SPEED_PER_WAVE` | 120 px/s (medium, wave 1), +10 % for each wave |
 | `SPAWN_BASE`, `SPAWN_PER_WAVE`, `SPAWN_MIN`, `SPAWN_PER_PLAYER` | 1.5 s, 0.2, 0.35 s, 0.3 |
 | `SIZES` | radius 30/48/74 px, life 1/2/4, points 10/20/40 |

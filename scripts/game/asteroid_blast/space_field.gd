@@ -17,6 +17,7 @@ const MAX_LASERS := 4
 const LASER_GAP := 22.0        # Distance between two beams of one ship.
 const WAVE_TIME := 30.0
 const REST_TIME := 5.0
+const OUT_TIME := 10.0         # A ship that is out comes back after this many seconds (REQ-AB-13).
 const WAVE_BONUS := 50         # Points for each living ship at the end of wave n: WAVE_BONUS * n.
 const UPGRADE_FIRST := 10.0    # The first upgrade falls after this many seconds of play, then after UPGRADE_MIN to UPGRADE_MAX.
 const UPGRADE_MIN := 12.0
@@ -58,6 +59,7 @@ class Ship:
 	var lasers := 1
 	var shield := false
 	var alive := true
+	var out_time := 0.0    # Seconds since the ship was lost.
 	var fire_left := 0.0
 
 
@@ -175,6 +177,7 @@ func tick(dt: float, rng: RandomNumberGenerator, tilts: Dictionary, running := t
 			steer(s, float(tilts.get(s.slot, 0.0)), dt)
 	if not running:
 		return
+	_tick_returns(dt)
 	_tick_waves(dt, rng)
 	_fire(dt)
 	for b in beams:
@@ -184,6 +187,21 @@ func tick(dt: float, rng: RandomNumberGenerator, tilts: Dictionary, running := t
 	_hit_asteroids()
 	_tick_upgrades(dt, rng)
 	_ship_contacts()
+
+
+## A ship that is out comes back after OUT_TIME with a force field, as long as another ship is flying (REQ-AB-13). When the
+## last ship is lost the game is over and nothing comes back.
+func _tick_returns(dt: float) -> void:
+	if alive_count() == 0:
+		return
+	for s in ships.values():
+		if s.alive:
+			continue
+		s.out_time += dt
+		if s.out_time >= OUT_TIME:
+			s.alive = true
+			s.shield = true
+			events.append({"t": "ship_back", "slot": s.slot, "x": s.x, "y": SHIP_Y})
 
 
 ## Moves one ship by its tilt (REQ-AB-2): the speed follows the tilt smoothly, and the ship stays on the screen.
@@ -366,6 +384,7 @@ func _ship_contacts() -> void:
 					gone.append(a)
 				else:
 					s.alive = false
+					s.out_time = 0.0
 					s.shield = false
 					events.append({"t": "ship_lost", "slot": s.slot, "x": s.x, "y": SHIP_Y})
 				break

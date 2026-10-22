@@ -99,6 +99,8 @@ func _on_event(e: Dictionary) -> void:
 			_booms.append({"x": e.x, "y": e.y, "age": 0.0, "scale": 1.6})
 			Sound.sfx("blast_lost")
 			_haptics.pulse(int(e.slot), 400, BUZZ_GAP_MS)
+		"ship_back":
+			Sound.sfx("blast_shield")
 		"wave_end", "wave_start":
 			Sound.sfx("blast_wave")
 
