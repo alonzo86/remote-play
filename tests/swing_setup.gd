@@ -37,6 +37,7 @@ func _run() -> void:
 	await _answers()
 	await _late_phone()
 	await _choices()
+	await _fit()
 	await _one_phone()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
@@ -115,13 +116,8 @@ func _late_phone() -> void:
 	await sim.frames(3)
 
 
-func _rows(view: Control) -> Array[String]:
-	var r: Array[String] = []
-	for row in view.slot_list.get_children():
-		for l in row.find_children("*", "Label", true, false):
-			if l.text in ["setup.in", "setup.out"]:
-				r.append(l.text)
-	return r
+func _name(slot: int) -> String:
+	return String(sim.app.server.players[slot].player_name).to_upper()
 
 
 ## Issue #76: IN and OUT on the phones.
@@ -135,13 +131,17 @@ func _choices() -> void:
 	_check(sim.clients[0].setup_pick and sim.clients[1].setup_pick and sim.clients[2].setup_pick
 			and sim.clients[0].setup_in and sim.clients[1].setup_in and app.server.players_in() == [0, 1, 2],
 			"with 3 phones every phone gets the question and everybody is IN")
-	_check(view.slot_list.visible and _rows(view) == ["setup.in", "setup.in", "setup.in"], "the TV lists the 3 players as IN")
+	_check(view.in_label.visible and not view.out_label.visible
+			and view.in_label.text == "IN: %s, %s, %s" % [_name(0), _name(1), _name(2)],
+			"the TV lists the 3 players as IN: %s" % view.in_label.text)
 	sim.clients[1].send_play(false)
 	await _wait_for(func(): return app.server.players_in() == [0, 2])
 	await sim.frames(3)
 	_check(app.server.players_in() == [0, 2] and not sim.clients[1].setup_in and sim.clients[0].setup_in,
 			"OUT on phone 2: the TV keeps players 1 and 3")
-	_check(_rows(view) == ["setup.in", "setup.out", "setup.in"], "the TV list says OUT for player 2")
+	_check(view.in_label.text == "IN: %s, %s" % [_name(0), _name(2)] and view.out_label.visible
+			and view.out_label.text == "OUT: %s" % _name(1),
+			"the TV list says OUT for player 2: %s / %s" % [view.in_label.text, view.out_label.text])
 	# Start counts the players that are IN.
 	app.go_game_settings("sumo_bumpers")
 	await sim.frames(4)
@@ -189,5 +189,21 @@ func _one_phone() -> void:
 	app.go_game_settings("maze")
 	await _wait_for(func(): return app.server.setup_open)
 	await sim.frames(6)
-	_check(not sim.clients[0].setup_pick and not app.current_screen().slot_list.visible,
+	_check(not sim.clients[0].setup_pick and not app.current_screen().in_label.visible,
 			"with one phone there is no question and no list")
+
+
+## The tallest views (the track list of Road Rally; a swing game has the safety line) with 3 players listed stay inside the 60 px
+## safe margin (REQ-GM-40, REQ-GM-90).
+func _fit() -> void:
+	print("fit")
+	var app: Node = sim.app
+	await sim.join(1)   # the 4th phone
+	for id in ["marble_race", "tennis", "mini_golf"]:
+		app.go_game_settings(id)
+		await _wait_for(func(): return sim.clients[3].setup_pick)
+		await sim.frames(4)
+		var view: Control = app.current_screen()
+		var low: float = view.out_label.get_global_rect().end.y if view.out_label.visible else view.in_label.get_global_rect().end.y
+		_check(view.in_label.visible and low <= 1080.0 - 60.0 and view.how_to_label.get_global_rect().position.y >= 60.0,
+				"%s with 4 players listed: the view ends at %.0f px of 1020" % [id, low])
