@@ -1,0 +1,140 @@
+version: 2.1
+
+# CircleCI, beside the GitHub Actions workflow (.github/workflows/ci.yml) while both run. Same rules, see docs/AUTOMATED_TESTS.md
+# "CI minutes". CircleCI has no labels and no draft state, so tools/ci_plan_circleci.sh decides from the branch and the pipeline
+# parameters: every branch runs the unit suites, and the pixels only when something drawn changed (main
+# always runs them); a documentation-only change runs nothing (there is no build-android job here). "Trigger Pipeline" in CircleCI can set
+# `tests` (unit, scenario, all) and `pixels` for a manual run. Turn on "Auto-cancel redundant workflows" in the project settings.
+
+parameters:
+  tests:
+    type: string
+    default: ""
+  pixels:
+    type: boolean
+    default: false
+
+executors:
+  godot:
+    docker:
+      - image: cimg/python:3.12
+    resource_class: medium
+    environment:
+      GODOT_VERSION: 4.7.2
+
+commands:
+  plan:
+    description: Decide what this job runs. Stops the job when only documentation changed. Sets TIER, PIXELS and CODE.
+    steps:
+      - run:
+          name: Plan
+          command: |
+            tools/ci_plan_circleci.sh "<< pipeline.parameters.tests >>" "<< pipeline.parameters.pixels >>" | tee /tmp/plan
+            . /tmp/plan
+            cat /tmp/plan >> "$BASH_ENV"
+            if [ "$code" != true ]; then circleci-agent step halt; fi
+  install-godot:
+    steps:
+      # The cache key holds the version: change it together with GODOT_VERSION above (CircleCI cache keys do not read executor variables).
+      - restore_cache:
+          key: godot-4.7.2-v1
+      - run:
+          name: Godot
+          command: |
+            if [ ! -x "$HOME/godot/godot" ]; then
+              mkdir -p "$HOME/godot"
+              curl -fsSL -o /tmp/godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+              unzip -q /tmp/godot.zip -d "$HOME/godot"
+              mv "$HOME"/godot/Godot_v*_linux.x86_64 "$HOME/godot/godot"
+            fi
+            sudo ln -sf "$HOME/godot/godot" /usr/local/bin/godot
+            godot --version
+      - save_cache:
+          key: godot-4.7.2-v1
+          paths:
+            - ~/godot
+
+jobs:
+  lint:
+    executor: godot
+    steps:
+      - checkout
+      - plan
+      - run: pip install "gdtoolkit==4.*"
+      - run: gdlint scripts tests tools
+      - run:
+          name: Shell scripts
+          command: sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck && shellcheck tests/*.sh tools/*.sh
+      - run:
+          name: CI scripts (what runs when)
+          command: tests/ci_scripts.sh
+
+  test:
+    # The suites of the tier on the instrumented copy, then the coverage report. Only reported: the 80% rule is a local check.
+    executor: godot
+    steps:
+      - checkout
+      - plan
+      - install-godot
+      - run: pip install "gdtoolkit==4.*"
+      - run:
+          name: Tests and coverage
+          command: |
+            export COVERAGE_REPORT_ONLY=1
+            # The result is kept in a file, so the steps that store the reports still run; the last step fails the job.
+            SUITE_TIER="$tier" GODOT="$(which godot)" tools/coverage.sh build/coverage || echo "$?" > /tmp/failed
+      - run:
+          name: Design tokens (CSS)
+          command: python3 tools/design_tokens_css.py --check
+      - run:
+          name: Coverage summary
+          when: always
+          command: if [ -f build/coverage/summary.md ]; then cat build/coverage/summary.md; fi
+      - store_artifacts:
+          path: build/coverage/summary.md
+      - store_artifacts:
+          path: build/coverage/lcov.info
+      - run:
+          name: Result of the tests
+          command: '[ ! -f /tmp/failed ] || { echo "tests or the coverage rule failed (exit $(cat /tmp/failed))"; exit 1; }'
+
+  pixels:
+    executor: godot
+    steps:
+      - checkout
+      - plan
+      - run:
+          name: Skip when nothing drawn changed
+          command: if [ "$pixels" != true ]; then circleci-agent step halt; fi
+      - install-godot
+      - run:
+          name: Xvfb, the software GL driver and the X libraries of Godot
+          command: |
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 libegl1 \
+              libxcursor1 libxinerama1 libxi6 libxrandr2 libxkbcommon0 libfontconfig1 libwayland-cursor0
+      - run: godot --headless --path . --import || true
+      - run:
+          name: Pixels at 1920x1080
+          command: |
+            xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 \
+              --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-1080.log || echo "$?" >> /tmp/failed
+      - run:
+          name: Pixels at 3840x2160
+          command: |
+            xvfb-run -a -s "-screen 0 3840x2160x24" godot --path . --rendering-driver opengl3 --resolution 3840x2160 \
+              --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-4k.log || echo "$?" >> /tmp/failed
+      - store_artifacts:
+          path: pixels-1080.log
+      - store_artifacts:
+          path: pixels-4k.log
+      - run:
+          name: Result of the pixel checks
+          command: '[ ! -f /tmp/failed ] || { echo "pixel checks failed"; exit 1; }'
+
+workflows:
+  ci:
+    jobs:
+      - lint
+      - test
+      - pixels

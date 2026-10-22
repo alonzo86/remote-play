@@ -1,82 +1,86 @@
+# The headless test suites, one for each line: script|role|title|tier. tests/run_suites.sh runs them in this order.
+# tier is `unit` (the logic of one module or one rule: the CI runs these on every change) or `scenario` (a screen, a layout, a text,
+# a flow or several phones at once: run them locally or on demand). Every line needs a tier; a title has no | in it.
+# tests/run_all.sh (local) and tools/coverage.sh (the coverage check) both use this list, so a new suite is added here only.
 # The headless test suites, one for each line: script|role|title. tests/run_suites.sh runs them in this order.
 # tests/run_all.sh (local run) and tools/coverage.sh (CI, with coverage) both use this list, so a new suite is added here only.
-tests/run_tests.gd|controller|unit and network tests
-tests/ui_states.gd|controller|button states and the wait screen Leave
-tests/ui_share.gd|controller|copy a player: share, paste, scan
-tests/net_loss.gd|controller|lost phones (network)
-tests/qr.gd|controller|QR encoder versions 7 to 14
-tests/profile_code.gd|controller|profile code, keys and merge
-tests/profiles.gd|controller|profiles: model, store, avatars
-tests/net_profiles.gd|controller|profiles over the network
-tests/room_code.gd|controller|room code: encode, decode, hosts, TV link
-tests/about_pages.gd|controller|About pages and About screen
-tests/game_helpers.gd|controller|game helpers
-tests/game_rules.gd|controller|game rules
-tests/swing_detector.gd|controller|swing detector
-tests/tennis_rules.gd|controller|Tennis rules, ball and match
-tests/paint_rules.gd|controller|Paint Grab rules
-tests/asteroid_rules.gd|controller|Galaxy Protector rules and pictures
-tests/design_tokens.gd|controller|design tokens
-tests/smoke_tv.gd|tv|TV smoke test
-tests/smoke_settings.gd|tv|settings view
-tests/games_focus.gd|tv|Games screen arrow keys
-tests/results_medals.gd|tv|medals in the result menu
-tests/layout_menus.gd|tv|result and pause menus with long names, English and Hebrew
-tests/device_mocks.gd|tv|simulated phones: the buzz at GO, recenter, a silent phone pauses
-tests/smoke_paint.gd|tv|Paint Grab
-tests/smoke_3d.gd|tv|3D game base class
-tests/smoke_sumo.gd|tv|Sumo Bumpers
-tests/smoke_asteroid.gd|tv|Galaxy Protector
-tests/smoke_bests.gd|tv|personal bests
-tests/audio.gd|tv|audio: synth, songs, effects, volume and haptics switch
-tests/smoke_lang.gd|tv|languages and right to left
-tests/bowling_rules.gd|controller|Pin Pals rules, lane and swing
-tests/smoke_bowling.gd|tv|Pin Pals
-tests/smoke_tennis.gd|tv|Tennis
-tests/golf_rules.gd|controller|Mini Golf rules, ball and holes
-tests/smoke_golf.gd|tv|Mini Golf
-tests/multi_phone.gd|tv|games with 3 and 4 simulated phones: GO buzz, places, tie, leaving, frame cost
-tests/swing_replay.gd|tv|swing detector replay (Test 24)
-tests/bowling_replay.gd|tv|Pin Pals replay (Test 23)
-tests/smoke_tennis_phones.gd|tv|Tennis with sensor traces and 4 phones
-tests/smoke_golf_phones.gd|tv|Mini Golf with sensor traces
-tests/auto_paint.gd|tv|Paint Grab: tilt, levels, medals, grid (fixed step)
-tests/auto_sumo.gd|tv|Sumo Bumpers: tilt, shrink, bump, dash, rounds (fixed step)
-tests/auto_asteroid.gd|tv|Galaxy Protector: countdown, RECENTER, buzzes, wave line, medals (fixed step)
-tests/layout_hud_fonts.gd|tv|Sumo and Galaxy Protector HUD fonts and 60 px edge
-tests/hud_layout.gd|tv|HUD of all games (4 phones, English and Hebrew)
-tests/screens_sweep.gd|tv|every TV screen in English and Hebrew
-tests/audio_phones.gd|tv|audio with simulated phones: join/leave, pause duck, results, haptics
-tests/audio_controller.gd|controller|the phone makes no sound
-tests/game_rules_b.gd|controller|Banana Party times and Road Rally pictures
-tests/tiles.gd|controller|game tile pictures
-tests/smoke_maze.gd|tv|Treasure Maze
-tests/smoke_race.gd|tv|Road Rally
-tests/race_bot.gd|tv|Road Rally bot (33 races)
-tests/smoke_banana.gd|tv|Banana Party
-tests/device_mocks_b.gd|tv|buzzes, RECENTER, silent phone (maze, race, banana)
-tests/join_flow.gd|controller|join flow on the loopback, Wi-Fi cut relay, QR scan, list of TVs
-tests/ui_states_a.gd|controller|phone screens: Disconnect, A and B, Back, safe area
-tests/net_rate.gd|tv|network numbers: RTT, Hz, gap, loss
-tests/focus_walk.gd|tv|TV remote: focus, Back, quit, overlay, tiles
-tests/ui_profile_extra.gd|controller|profile screens: joined, edit line, Connect layout
-tests/tv_profiles.gd|tv|profiles on the TV: list, results, pause card
-tests/r1_tv_screens.gd|tv|TV start, Connect, tiles, remote, Back, cards (Tests 1, 8, 8b)
-tests/r1_reconnect.gd|tv|lost phone cards in real time (Test 7)
-tests/auto_sumo_b.gd|tv|Sumo Bumpers: slow touch and fast hit buzz, clouds, penguin colors, sharp view
-tests/auto_paint_b.gd|tv|Paint Grab: rolling over 5 free tiles, taking a tile buzzes once
-tests/auto_banana_b.gd|tv|Banana Party: animal limit per difficulty, closed eyes, cheers, crown
-tests/race_scenery.gd|controller|Road Rally: scenery off the road and not overlapping
-tests/auto_r3_tv.gd|tv|TV screens: tile reason, blink, logo drop, countdown steps, GO word, slot squares, Effects 0
-tests/auto_r3_phone.gd|controller|phone: pad buttons, Recenter flash, slot square, Hebrew pad, device language, HAPTICS default, waiting screen layout
-tests/auto_r3_score.gd|tv|phone place and score in Banana Party (4 phones, 1 phone, pause)
-tests/audio_events.gd|tv|effects and buzzes of the events of every game table
-tests/r4_phone_profiles.gd|controller|Profiles on the phone: pencil, join, switch, replaced, share, scan, 32 avatars
-tests/r4_tv_profiles.gd|tv|Profiles on the TV: chips, lists, Wi-Fi cut
-tests/r4_bests.gd|tv|Personal bests from the TV to the phone
-tests/r4_join_code.gd|controller|Join by room code: TV rules, Connect screen, errors, the pencil
-tests/r4_tv_menus.gd|tv|Connect screen, Players modal, Settings, About
-tests/r4_asteroid.gd|tv|Galaxy Protector: ship at the sides, Reached wave N
-tests/r4_bowling.gd|tv|Pin Pals: totals, last frame, rails, plate, scores, winner, leave
-tests/r4_tennis.gd|tv|Tennis: leader chip, toss, runs, GREAT, places, rally
-tests/r4_golf.gd|tv|Mini Golf: turn, plate, phones, aim mark, swing, barriers, banner, bar, result menu
+tests/run_tests.gd|controller|unit and network tests|unit
+tests/ui_states.gd|controller|button states and the wait screen Leave|scenario
+tests/ui_share.gd|controller|copy a player: share, paste, scan|scenario
+tests/net_loss.gd|controller|lost phones (network)|unit
+tests/qr.gd|controller|QR encoder versions 7 to 14|unit
+tests/profile_code.gd|controller|profile code, keys and merge|unit
+tests/profiles.gd|controller|profiles: model, store, avatars|unit
+tests/net_profiles.gd|controller|profiles over the network|unit
+tests/room_code.gd|controller|room code: encode, decode, hosts, TV link|unit
+tests/about_pages.gd|controller|About pages and About screen|scenario
+tests/game_helpers.gd|controller|game helpers|unit
+tests/game_rules.gd|controller|game rules|unit
+tests/swing_detector.gd|controller|swing detector|unit
+tests/tennis_rules.gd|controller|Tennis rules, ball and match|unit
+tests/paint_rules.gd|controller|Paint Grab rules|unit
+tests/asteroid_rules.gd|controller|Galaxy Protector rules and pictures|unit
+tests/design_tokens.gd|controller|design tokens|unit
+tests/smoke_tv.gd|tv|TV smoke test|scenario
+tests/smoke_settings.gd|tv|settings view|scenario
+tests/games_focus.gd|tv|Games screen arrow keys|scenario
+tests/results_medals.gd|tv|medals in the result menu|scenario
+tests/layout_menus.gd|tv|result and pause menus with long names, English and Hebrew|scenario
+tests/device_mocks.gd|tv|simulated phones: the buzz at GO, recenter, a silent phone pauses|scenario
+tests/smoke_paint.gd|tv|Paint Grab|scenario
+tests/smoke_3d.gd|tv|3D game base class|scenario
+tests/smoke_sumo.gd|tv|Sumo Bumpers|scenario
+tests/smoke_asteroid.gd|tv|Galaxy Protector|scenario
+tests/smoke_bests.gd|tv|personal bests|scenario
+tests/audio.gd|tv|audio: synth, songs, effects, volume and haptics switch|unit
+tests/smoke_lang.gd|tv|languages and right to left|scenario
+tests/bowling_rules.gd|controller|Pin Pals rules, lane and swing|unit
+tests/smoke_bowling.gd|tv|Pin Pals|scenario
+tests/smoke_tennis.gd|tv|Tennis|scenario
+tests/golf_rules.gd|controller|Mini Golf rules, ball and holes|unit
+tests/smoke_golf.gd|tv|Mini Golf|scenario
+tests/multi_phone.gd|tv|games with 3 and 4 simulated phones: GO buzz, places, tie, leaving, frame cost|scenario
+tests/swing_replay.gd|tv|swing detector replay (Test 24)|unit
+tests/bowling_replay.gd|tv|Pin Pals replay (Test 23)|unit
+tests/smoke_tennis_phones.gd|tv|Tennis with sensor traces and 4 phones|scenario
+tests/smoke_golf_phones.gd|tv|Mini Golf with sensor traces|scenario
+tests/auto_paint.gd|tv|Paint Grab: tilt, levels, medals, grid (fixed step)|scenario
+tests/auto_sumo.gd|tv|Sumo Bumpers: tilt, shrink, bump, dash, rounds (fixed step)|scenario
+tests/auto_asteroid.gd|tv|Galaxy Protector: countdown, RECENTER, buzzes, wave line, medals (fixed step)|scenario
+tests/layout_hud_fonts.gd|tv|Sumo and Galaxy Protector HUD fonts and 60 px edge|scenario
+tests/hud_layout.gd|tv|HUD of all games (4 phones, English and Hebrew)|scenario
+tests/screens_sweep.gd|tv|every TV screen in English and Hebrew|scenario
+tests/audio_phones.gd|tv|audio with simulated phones: join/leave, pause duck, results, haptics|scenario
+tests/audio_controller.gd|controller|the phone makes no sound|unit
+tests/game_rules_b.gd|controller|Banana Party times and Road Rally pictures|unit
+tests/tiles.gd|controller|game tile pictures|scenario
+tests/smoke_maze.gd|tv|Treasure Maze|scenario
+tests/smoke_race.gd|tv|Road Rally|scenario
+tests/race_bot.gd|tv|Road Rally bot (33 races)|scenario
+tests/smoke_banana.gd|tv|Banana Party|scenario
+tests/device_mocks_b.gd|tv|buzzes, RECENTER, silent phone (maze, race, banana)|scenario
+tests/join_flow.gd|controller|join flow on the loopback, Wi-Fi cut relay, QR scan, list of TVs|unit
+tests/ui_states_a.gd|controller|phone screens: Disconnect, A and B, Back, safe area|scenario
+tests/net_rate.gd|tv|network numbers: RTT, Hz, gap, loss|scenario
+tests/focus_walk.gd|tv|TV remote: focus, Back, quit, overlay, tiles|scenario
+tests/ui_profile_extra.gd|controller|profile screens: joined, edit line, Connect layout|scenario
+tests/tv_profiles.gd|tv|profiles on the TV: list, results, pause card|scenario
+tests/r1_tv_screens.gd|tv|TV start, Connect, tiles, remote, Back, cards (Tests 1, 8, 8b)|scenario
+tests/r1_reconnect.gd|tv|lost phone cards in real time (Test 7)|scenario
+tests/auto_sumo_b.gd|tv|Sumo Bumpers: slow touch and fast hit buzz, clouds, penguin colors, sharp view|scenario
+tests/auto_paint_b.gd|tv|Paint Grab: rolling over 5 free tiles, taking a tile buzzes once|scenario
+tests/auto_banana_b.gd|tv|Banana Party: animal limit per difficulty, closed eyes, cheers, crown|scenario
+tests/race_scenery.gd|controller|Road Rally: scenery off the road and not overlapping|unit
+tests/auto_r3_tv.gd|tv|TV screens: tile reason, blink, logo drop, countdown steps, GO word, slot squares, Effects 0|scenario
+tests/auto_r3_phone.gd|controller|phone: pad buttons, Recenter flash, slot square, Hebrew pad, device language, HAPTICS default, waiting screen layout|scenario
+tests/auto_r3_score.gd|tv|phone place and score in Banana Party (4 phones, 1 phone, pause)|scenario
+tests/audio_events.gd|tv|effects and buzzes of the events of every game table|scenario
+tests/r4_phone_profiles.gd|controller|Profiles on the phone: pencil, join, switch, replaced, share, scan, 32 avatars|scenario
+tests/r4_tv_profiles.gd|tv|Profiles on the TV: chips, lists, Wi-Fi cut|scenario
+tests/r4_bests.gd|tv|Personal bests from the TV to the phone|scenario
+tests/r4_join_code.gd|controller|Join by room code: TV rules, Connect screen, errors, the pencil|scenario
+tests/r4_tv_menus.gd|tv|Connect screen, Players modal, Settings, About|scenario
+tests/r4_asteroid.gd|tv|Galaxy Protector: ship at the sides, Reached wave N|scenario
+tests/r4_bowling.gd|tv|Pin Pals: totals, last frame, rails, plate, scores, winner, leave|scenario
+tests/r4_tennis.gd|tv|Tennis: leader chip, toss, runs, GREAT, places, rally|scenario
+tests/r4_golf.gd|tv|Mini Golf: turn, plate, phones, aim mark, swing, barriers, banner, bar, result menu|scenario
