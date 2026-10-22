@@ -36,7 +36,6 @@ var settings := {
 	"overlay": false,
 	"music_volume": 7,   # TV: 0 to 10 (REQ-FL-64)
 	"sfx_volume": 8,     # TV: 0 to 10
-	"mute": false,       # TV: mutes music and effects
 	"haptics": true,     # Phone: vibrate in games (REQ-FL-66)
 	"language": "",   # "en" or "he". Empty until the owner chooses on the logo screen (TV) (REQ-FL-60).
 }
@@ -271,6 +270,9 @@ func _load_settings() -> void:
 	for k in settings:
 		if k != "overlay":
 			settings[k] = cfg.get_value("settings", k, settings[k])
+	if bool(cfg.get_value("settings", "mute", false)):   # The Mute row is gone (issue #49): keep the silence of an old file.
+		settings.music_volume = 0
+		settings.sfx_volume = 0
 
 
 # ---- TV ----

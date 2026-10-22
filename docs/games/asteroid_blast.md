@@ -1,6 +1,6 @@
 # Galaxy Protector (`asteroid_blast`)
 
-Type: 2D. Players: 1 to 4. Input: tilt (`PlayerInput.tilt()`, left and right), Recenter.
+Type: 2D. Players: 1 to 4. Input: tilt (`PlayerInput.tilt()`, left and right).
 General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84).
 Code: `scripts/game/asteroid_blast/` (`space_field.gd` the rules, `blast_look.gd` the pictures, `asteroid_blast_game.gd` the screen).
 
@@ -34,7 +34,7 @@ Players and flying
 |----|-------------|--------|-------|
 | REQ-AB-1 | 1 to 4 players (registry `min_players` 1, `max_players` 4). The ships start in a row along the bottom, spread evenly, in slot order (REQ-GM-25). The game is endless (REQ-AB-14) and a team game with a winner: the player with the most points wins (REQ-AB-14). | Done | smoke_asteroid |
 | REQ-AB-2 | Tilting the phone to the right moves the ship to the right, tilting to the left moves it to the left. The speed follows the tilt smoothly (full tilt: 760 px/s, `SHIP_SMOOTH`), a small tilt (dead zone 0.04) does nothing, and the ship stops with its middle 60 px from the side of the play area (the play area is inside the 60 px margin, so about 120 px from the edge of the screen at 1080p). There is no countdown (REQ-GM-35: the game shows no timer): wave 1 starts at once after Start, and the ships steer and fire from the first moment. A ship that is out does not steer. All players have the same values (REQ-GM-24). | Done | asteroid_rules, smoke_asteroid, auto_asteroid |
-| REQ-AB-3 | The RECENTER button recenters (REQ-GM-37). The pose held at the start of the game is the center. A and B do nothing. | Device | Device (RECENTER) |
+| REQ-AB-3 | The pad has no RECENTER box (REQ-GM-37, issue #55). The pose held at the start of the game is the center. A and B do nothing. | Device | Device (RECENTER) |
 | REQ-AB-4 | A ship fires by itself, every 0.4 s, straight up, from the first moment of the game. There is no button to fire. | Done | asteroid_rules, smoke_asteroid |
 
 Asteroids

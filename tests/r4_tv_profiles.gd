@@ -311,7 +311,7 @@ func _relay_cut() -> void:
 	await _wait_until(func(): return game._hold, 12000)
 	var took := Time.get_ticks_msec() - t0
 	await _frames(3)
-	_check(game._hold and Protocol.PEER_TIMEOUT_MS <= 5000 and took <= Protocol.PEER_TIMEOUT_MS + 1500,
+	_check(game._hold and Protocol.PEER_TIMEOUT_MS <= 3000 and took <= Protocol.PEER_TIMEOUT_MS + 1500,
 			"6a2: the game is paused %d ms after the link was cut (the timeout is %d ms)" % [took, Protocol.PEER_TIMEOUT_MS])
 	var title: String = game._menu_box.find_children("*", "Label", true, false)[0].text
 	_check(title == "NOAM LOST CONNECTION", "6a2: the pause card names the player: '%s'" % title)

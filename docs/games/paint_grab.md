@@ -1,6 +1,6 @@
 # Paint Grab (`paint_grab`)
 
-Type: 2D. Players: 1 to 4. Input: tilt (`PlayerInput.tilt()`), Recenter.
+Type: 2D. Players: 1 to 4. Input: tilt (`PlayerInput.tilt()`).
 General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84). Exceptions are in the first section.
 Code: `scripts/game/paint_grab/` and the shared helper `scripts/game/tilt_body.gd`. Plan: `docs/GAMES_ROADMAP.md` (branch 2).
 
@@ -56,7 +56,7 @@ Players and feedback
 | REQ-PG-11 | A lost phone pauses the round with the card of REQ-GM-30. The clock does not run during the pause. | Done | smoke_tv (shared base class) |
 | REQ-PG-12 | Haptics (REQ-GM-43): GO buzzes every phone (60 ms). Painting a tile that had the color of another player buzzes the player that painted (20 ms, at most every 150 ms for one slot, `Haptics`). The end buzzes the winner (400 ms). | Device | Device (the buzz), auto_paint |
 | REQ-PG-13 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the number of tiles of the leader, or TIE, and is updated at every change. Each phone shows its own tiles and place (REQ-FL-67). | Done | smoke_paint (scores, phones), game_helpers (leader), auto_paint |
-| REQ-PG-14 | The RECENTER button recenters the tilt of that player (REQ-GM-37). A and B do nothing, and the hint says so only if a player asks (it is not on the screen). | Device | Device (RECENTER) |
+| REQ-PG-14 | The pad has no RECENTER box (REQ-GM-37, issue #55); the pose held in the countdown is the center. A and B do nothing, and the hint says so only if a player asks (it is not on the screen). | Device | Device (RECENTER) |
 
 Look
 

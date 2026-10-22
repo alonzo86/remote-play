@@ -109,6 +109,7 @@ func _game_tick(delta: float) -> void:
 		if _round.tick(delta):
 			for b in _balls:
 				player(b.slot).recenter() # Use the pose held during the countdown.
+				App.server.haptic(b.slot, 60) # The buzz at GO (REQ-GM-37).
 		return
 	_round.tick(delta)
 	for b in _balls:

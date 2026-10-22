@@ -380,7 +380,7 @@ func _phone_notices_cut(t0: int) -> int:
 	var c: ControllerClient = _app.client
 	var noticed := await _wait_until(func(): return c.state == ControllerClient.State.RECONNECTING, 9000)
 	var ms := Time.get_ticks_msec() - t0
-	_check(noticed and ms <= 5600, "the phone shows RECONNECTING within 5.6 s of the cut (REQ-GM-30: 5 s of silence) (%d ms)" % ms)
+	_check(noticed and ms <= 3600, "the phone shows RECONNECTING within 3.6 s of the cut (REQ-GM-30: 3 s of silence) (%d ms)" % ms)
 	if not noticed:
 		c._close_socket()
 		c._on_closed()   # What the client should do after PEER_TIMEOUT_MS.

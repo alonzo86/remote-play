@@ -39,7 +39,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-N2: Each sensor packet has a phone timestamp and a sequence number.
 - REQ-N3: Control messages are JSON text frames.
 - REQ-N4: The TV and phone measure RTT and clock offset with `ping` / `pong` once each second.
-- REQ-N5: A phone that loses its connection keeps its slot for 30 seconds, and for 5 minutes while the game is paused for it.
+- REQ-N5: A phone that loses its connection keeps its slot for 5 seconds (30 before issue #44), and for 5 minutes while the game is paused for it.
 - REQ-N6: The phone reconnects automatically with a saved token (backoff 0.5 s, 1 s, 2 s, then every 2 s).
 - REQ-N7: Full message reference: `docs/PROTOCOL.md`.
 - REQ-N8: `hello` and `welcome` carry an optional profile (`pid`, `av`, and the name); a `profile` message changes it in a menu. The TV checks every field. The protocol `VERSION` stays 2 (FD-22, `docs/PROTOCOL.md`).

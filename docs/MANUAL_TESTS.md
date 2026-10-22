@@ -95,7 +95,7 @@ Uninstall the old apps first. The package names changed (FD-26 and FD-27; the li
 4c. Tap **Disconnect**. Type the room code of the TV in lower case with a space after the second letter, and tap **JOIN**. Check: the phone shows the waiting screen with the square of slot 1 less than 5 seconds after the tap (stopwatch), and the TV shows the player in slot 1. (REQ-FL-83. The phone builds the TV address from its own Wi-Fi address.)
 4d. Tap **Disconnect**. Type the room code with its last letter changed to another letter of the code alphabet, and tap **JOIN**. Check: less than 5 seconds after the tap the status line of the phone shows "CAN'T FIND THIS ROOM. CHECK THE CODE, OR SCAN THE QR CODE." or "WRONG ROOM CODE.", and the TV shows no new player.
 5. (Removed. There is no join by IP address, REQ-A4. The join by QR code is Test 2.)
-6a. Tap **Disconnect** on the phone. Check: within 5 seconds the TV slot of the phone shows no "READY". (Today the slot shows "LOST" for up to 30 seconds and then is empty. Changes with issue #44: the slot is empty within 5 seconds and never shows "LOST".)
+6a. Tap **Disconnect** on the phone. Check: within 6 seconds the TV slot of the phone is empty (the slot may show "LOST" for 5 seconds at most, REQ-FL-8, issue #44).
 6b. Close the controller app and start it again, and film the start. Check: the Android splash (the mascot on black) is already in portrait and the phone does not turn at any frame of the video, and it is the only splash: the Connect screen follows at once, with no logo screen.
 
 **Results**
@@ -135,7 +135,7 @@ Needs: 1 phone, 1 TV, a stopwatch, a second QR code that is not from Sababi (for
 1. Tap **Disconnect**. Look at the Connect screen. Check: the button says **SCAN QR CODE**. If it says **PASTE ROOM LINK**, the plugin is not in the build (that button is only for a phone with no scanner). Run `tools/patch_android_manifest.sh controller` and export the controller again.
 2a. Tap the button and scan the QR code on the TV. Check: the phone shows "WAITING FOR THE HOST" less than 5 seconds after the scanner closes (stopwatch).
 2b. (Removed with the join PIN, issue #52. The QR code holds no PIN and the phone asks for nothing after the scan.)
-3a. Tap the scan button, then press Back in the scanner. Check: the Connect screen shows no message that starts with "QR SCAN FAILED".
+3a. Tap the scan button, then press Back in the scanner. Check: the Connect screen shows no message that starts with "QR SCAN FAILED". (R1 failed: the Google scanner reports Back as a failure, "Failed to scan code". Fixed on 2026-10-21 in `QrScannerPlugin.java`, which now sends "cancelled" for `MlKitException.CODE_SCANNER_CANCELLED`, issue #43: run it again on a build with the new plugin.)
 3b. Check: the app did not close, and a tap on the scan button opens the scanner again.
 
 **Results**
@@ -249,7 +249,7 @@ Needs: 1 to 4 phones, 1 TV, a protractor app, a child of about 5 to 8 years for 
 **Steps**
 
 4a. Play the maze with 2 phones, then with 4 phones. Open the debug overlay. Check on every row, during the race: Rx Hz is 50 or more, Gap ms is below 80, and Lost is 0 (the "acceptable" limits of Test 4).
-5a. On one real phone, tilt the phone 15 degrees (use a protractor app) to the right and hold it still for at least 3 seconds. Tap **RECENTER**. Keep holding the phone at the same angle for 5 seconds. Check: the ball moves less than one ball width (36 px) in the 5 seconds after the tap. (Changes with issue #55.)
+5a. On one real phone, hold the phone tilted 15 degrees (use a protractor app) to the right during the countdown and keep it at the same angle for 5 seconds after GO. Check: the ball moves less than one ball width (36 px) in the 5 seconds after GO. The pad shows no **RECENTER** box (REQ-GM-37, issue #55).
 7e. In each theme, stand 3 m from the TV. Check: a person reads aloud the names of the two pictures at each side of the maze from this list, with 0 errors in 6 pictures: Garden tree and rose bush, Castle torch and shield, Ice penguin and iceberg (REQ-MZ-13).
 7f. Bring a ball to the chest. Check: the lid of the chest opens and the gold shows.
 7g. Check with a child of 5 to 8 years. Say only: "Where do you need to go?" Check: the child points to the chest within 10 seconds of "GO", without help.
@@ -263,7 +263,7 @@ Measurements (no pass or fail; tune the constants if the owner asks): with the p
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 4a | Overlay screenshot of every row during the race (2 phones and 4 phones) | Not run | | | |
-| 5a | Video of the ball: tilt, RECENTER, 5 s | Not run | | | |
+| 5a | Video of the ball: tilt held from the countdown, 5 s; photo of the pad | Not run | | | |
 | 7e | Note: the 6 names read aloud | Not run | | | Same result as old item 7. |
 | 7f | Photo of the open chest | Not run | | | Same result as old item 7. |
 | 7g | Note: time in seconds until the child points to the chest | Not run | | | Same result as old item 7. |
@@ -283,17 +283,17 @@ History:
 
 Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8.
 
-Time limit used below: the TV pauses when a phone is silent for 5 seconds (`Protocol.PEER_TIMEOUT_MS`), so "at once" means 5.6 seconds at most (REQ-GM-30), measured from the moment you switch the Wi-Fi off. (Changes with issue #56: 3 seconds, so 3.6 seconds at most.)
+Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Protocol.PEER_TIMEOUT_MS`, issue #56), so "at once" means 3.6 seconds at most (REQ-GM-30), measured from the moment you switch the Wi-Fi off. With one phone, the card then says "1P LOST CONNECTION" and offers only **End game** (REQ-GM-30a); "NO PLAYERS CONNECTED" opens only when the slot is freed after 5 minutes (issue #46).
 
 **Steps**
 
 2. On the Games screen, lock the phone screen for 10 seconds, then unlock. Check: within 10 seconds the phone shows its waiting screen again with the same slot number, and the TV slot was "READY" all the time or came back to "READY". (Android can stop the app in the background.)
-3a. On the Games screen (not in a game), switch the phone Wi-Fi off for 45 seconds. Check: after 45 seconds the TV shows the slot of the phone as empty. (Changes with issue #44: the slot is empty within 5 seconds.)
+3a. On the Games screen (not in a game), switch the phone Wi-Fi off for 45 seconds. Check: after 45 seconds the TV shows the slot of the phone as empty (it is empty 5 seconds after the phone was lost, REQ-FL-8).
 3b. Switch the Wi-Fi on. Check: within 10 seconds the phone joins again by itself (the TV does not know it any more, so it takes a new slot, maybe a different one) and shows "CHOOSE A GAME ON THE TV". No question is asked. (Issue #52: the PIN pad is gone.)
 3c. (Removed with the join PIN. The phone joins again by itself in 3b.)
 4b. Switch the Wi-Fi on. Check: within 10 seconds the phone joins again by itself and shows its waiting screen or the pad, with no PIN question. (Issue #52.)
 6a. On the phone pad, tap **Disconnect** once. Check: the phone shows the Connect screen less than 1 second after the tap (no second tap).
-7a. With one phone in a game, call that phone from another phone and answer. Check: within 6 seconds of the answer (5 s of silence plus 1 s) the game pauses with the card "1P LOST CONNECTION".
+7a. With one phone in a game, call that phone from another phone and answer. Check: within 4 seconds of the answer (3 s of silence plus 1 s) the game pauses with the card "1P LOST CONNECTION".
 7b. End the call and go back to the controller app. Check: the phone says "RECONNECTING..." and then joins again in 10 seconds or less (stopwatch from the return to the app).
 7c. Check: the card says "1P reconnected" with **Resume**, and **Resume** goes on with the game.
 7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot.
@@ -322,7 +322,7 @@ History:
 - 2026-10-21 (automated): items 1d, 4a and 5a to 5d moved to the automated tests (`r1_reconnect`: a phone that goes silent, with the real timeouts). Item 1a was split: the card on the TV is automated (A-7-7), and the phone half is automated too (A-7-8, `join_flow`, failing until issue #61 is fixed); step 1a2 was removed. The R1 result of 1a2 (Retest: the phone showed 'Reconnecting...' but the seconds were not written down) stays in the result database. The R1 results of 1a, 1d (Fail) and 5a to 5d (Retest) were about the TV; they stay in the result database.
 - 2026-10-21 (aligned with the requirements, not run): step 7a says 6 seconds (REQ-GM-30: 5 s of silence plus 1 s). No recorded result changed.
 - R1: **Fail** (item 1) and **Retest** (item 5). A phone without Wi-Fi did not pause the game, and a phone call ended it with no way to resume. Both changed on 2026-10-09 and wait for the retest. Items 2, 3, 4 and 6 are not run.
-- R0: **Retest**. Wi-Fi off on the phone: the phone shows 'Reconnecting...'. The game kept running and the TV never showed 'Waiting for P1 to reconnect'. Wi-Fi on: the phone reconnected and the game went on. The off time was not measured (the TV pauses only after 5 s of silence). Item 6 (Leave twice, A green and B red) is new.
+- R0: **Retest**. Wi-Fi off on the phone: the phone shows 'Reconnecting...'. The game kept running and the TV never showed 'Waiting for P1 to reconnect'. Wi-Fi on: the phone reconnected and the game went on. The off time was not measured (the TV pauses only after 5 s of silence at that time, 3 s since issue #56). Item 6 (Leave twice, A green and B red) is new.
 
 ## Test 8
 
@@ -338,7 +338,7 @@ Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a
 3a. On the Games screen press Back on the real remote. Check: the Connect screen shows, the app is still open 5 seconds later, and the player slots are still filled (same number of players).
 3b. Press Back on the Connect screen. Check: the quit question opens with **Stay** in focus.
 4. Press the Menu key. If the remote has no Menu key, open **Settings** (the OPTIONS button on the Games screen) and use **Debug overlay**. Check: the overlay shows the header line that starts with "DEBUG" and the FPS number.
-6a. On the phone, press the Android Back key on the waiting screen (joined, the TV on the Games screen). Check: the question "QUIT SABABI?" opens with **Stay** in focus and the app is still open 5 seconds later. (Changes with issue #54: no phone button has the focus.)
+6a. On the phone, press the Android Back key on the waiting screen (joined, the TV on the Games screen). Check: the question "QUIT SABABI?" opens, with no button in focus (no yellow frame), and the app is still open 5 seconds later (REQ-FL-86).
 6b. Press the Android Back key in the middle of a game (the pad screen). Check: the same question opens and the app is still open 5 seconds later. Tap **A** 5 times while the question shows. Check: the TV shows no action of A.
 6d. Press Back, then choose **Quit**. Check: the app closes (REQ-FL-55).
 
@@ -360,7 +360,7 @@ Items 1b, 1c, 2a to 2f, 5a, 5b and 6c moved to the automated tests (docs/AUTOMAT
 History:
 
 - 2026-10-21 (automated): items 2c and 2f moved to the automated tests (`r1_tv_screens`: Back in a game asks, the timer stays, End game leaves, Back on the result menu goes to the Games screen; `quit_on_go_back` is false). The R1 result of 2c and 2f (Fail) stays in the result database. Item 1a is partly automated (A-8-1a) and stays.
-- 2026-10-20 (not run): the steps were split and the criteria made measurable (focus on 7 screens, timer values, 5 s). Items 2b to 2e change with issue #53, item 6a with issue #54.
+- 2026-10-20 (not run): the steps were split and the criteria made measurable (focus on 7 screens, timer values, 5 s). Items 2b to 2e change with issue #53 (done 2026-10-21: the pause menu has End game, which leaves at once), item 6a with issue #54 (done 2026-10-21: no focus on the phone; the screens are checked by A-8-7).
 - R1: **Fail** (items 2 and 3). Back quits the app on every screen. Fixed on 2026-10-09 (REQ-FL-55). Items 1, 4 and 5 are not run.
 - Item 2 changed before the first run (the 'End the game?' question).
 
@@ -490,7 +490,7 @@ Measurements (not a test; no pass or fail). Write these values in the Notes colu
 History:
 
 - 2026-10-21 (automated): item 10c moved to the automated tests (`auto_banana_b`: the most animals with 1 phone, 5, 4 and 3). Item 4c was split (the closed eyes and three cheers are automated, 4c2 keeps the water, hearts and sparkles) and item 5a was split (the crown is automated, 5a2 keeps the six names).
-- 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 11f). Each new step keeps the result of the old step with the same number. Step 8a follows the 5 s rule of REQ-GM-30 (the owner asked for 2 to 3 seconds, planned 3 s in issue #56).
+- 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 11f). Each new step keeps the result of the old step with the same number. Step 8a follows the 3 s rule of REQ-GM-30 (the owner asked for 2 to 3 seconds, built as 3 s in issue #56).
 - 2026-10-20 (automated): 29 steps moved to the automated tests. Items 6a, 6b and 6c had the result Retest (R2, the last digit of a score above 3 digits was cut): the machine now checks a score of 1 to 6 digits and a name of 10 letters in the chip (`game_helpers`, `hud_layout`), and the results stay in the result database. The first golden monkey comes 10 to 18 s after GO (the owner's decision; it waits for a free lane). The measurement rows of the removed steps (animal times, medal tiers, pointer range, Wi-Fi wait) are removed.
 - 2026-10-10 (not run): item 11 is new: the sky is a pixel world (phase 4 of the arcade style).
 - 2026-10-16 (not run): Snowball Splat became **Banana Party** (first Banana Splat; "קרב" means fight in Hebrew, so the owner chose Party): bushes that hide animals (REQ-SS-26, 3, 5 or 8 by difficulty), a jungle at sunset, six animals that eat bananas in three depth lanes, a hit animation for each, plain ring pointers and the golden monkey king (100 points). Items 4, 5 and 11 changed (REQ-SS-7 to 13, 25). All values are first guesses.
@@ -827,7 +827,7 @@ Measurements: write down the meter reading of step 9a and the delay of steps 6b 
 
 History:
 
-- 2026-10-21 (automated): items 3a, 3d, 6a, 10a and 10f moved to the automated tests (`audio`, `auto_r3_tv`, `audio_events`, `auto_r3_phone`). Item 10c was split (10c2 keeps the motor of a real phone). The Mute row (issue #49) is still checked by `audio` and changes with that issue.
+- 2026-10-21 (automated): items 3a, 3d, 6a, 10a and 10f moved to the automated tests (`audio`, `auto_r3_tv`, `audio_events`, `auto_r3_phone`). Item 10c was split (10c2 keeps the motor of a real phone). The Mute row was dropped on 2026-10-21 (issue #49); `audio` checks that it is gone and that the Language row changes with Left and Right.
 - -: **Not run**. New.
 
 ## Test 19
@@ -935,7 +935,7 @@ New (2026-10-11). The headless tests check the rules and the pages. They do not 
 8f. On the TV box, use the stopwatch from OK on "3rd Party Libraries" to the list on the screen, and from OK on a library to its page. Check: the list opens within 3 s and the page within 2 s.
 9b2. On a phone open a long page (for example a library with two licenses) and drag it with one finger. Check: the text moves with the finger and the last line of the page can be reached by touch.
 9d. Open the page "Android libraries" and scroll to the end with the stopwatch. Check: it opens within 3 s and you reach the end of the text.
-10a. Set the TV to Hebrew. Check: the About list and the pages "Sababi" show in Hebrew, and the Hebrew reader says that the wording is correct. (The planned Settings changes of issue #49 are in Test 18.)
+10a. Set the TV to Hebrew. Check: the About list and the pages "Sababi" show in Hebrew, and the Hebrew reader says that the wording is correct. (The Settings changes of issue #49 are built and checked by `audio`.)
 
 Items 8c, 8e, 9a, 9c, 9e, 10b moved to the automated tests, and items 8a, 8d, 9b lost the part that a machine checks (`docs/AUTOMATED_TESTS.md`, A-21-8 to A-21-10). The remaining part of 8a is 8a2, of 8d is 8d2, of 9b is 9b2. On 2026-10-21 items 1a, 3a, 3b, 3c, 3e, 4a to 4d, 5a, 5b, 7, 8a2, 8b, 9f and 10c moved too (A-21-1a to A-21-10c). The numbers of the other items do not change.
 
@@ -952,7 +952,7 @@ Items 8c, 8e, 9a, 9c, 9e, 10b moved to the automated tests, and items 8a, 8d, 9b
 | 8f | Values: seconds for the list and for a page | Not run | | | New limits (3 s and 2 s) after R1. |
 | 9b2 | Note: scroll by touch | Pass | R1 | | |
 | 9d | Value: seconds to open the page | Not run | | | New limit (3 s) after R1. |
-| 10a | Photo of the Hebrew About screen; note from the Hebrew reader | Fail | R1 | | R1: "1. language should be modified by left and right keys. should be a selection of languages. 2. no explanation strings needed for the settings 3. drop Mute. it should be covered by music=0 and/or effects=0" (This note is about the Settings screen: issue #49. See Test 18 step 3.) |
+| 10a | Photo of the Hebrew About screen; note from the Hebrew reader | Fail | R1 | | R1: "1. language should be modified by left and right keys. should be a selection of languages. 2. no explanation strings needed for the settings 3. drop Mute. it should be covered by music=0 and/or effects=0" (This note is about the Settings screen: issue #49, done 2026-10-21 and checked by `audio`.) |
 
 History:
 
@@ -1025,7 +1025,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the lane with pins, the ball, the gray floor and the disco wall.
 3e. **Aim strip.** On the phone on turn, slide a finger from the left end of the strip to the right end in about 1 s, then back. Check: the ball on the TV is in the left gutter at the left end of the strip and in the right gutter at the right end, and it moves in the same direction as the finger. (The mapping is in A-23-3.)
 3f. Film the phone and the TV together at 60 fps or more and slide a finger on the strip. Check: the ball starts to move within 12 frames (0.2 s) after the finger starts to move, in 5 of 5 tries.
-3g. Touch A, B, and the rest of the screen outside the strip with a finger, 5 times each. Check: the ball does not move. On a phone that is not on turn the Recenter box is back and works as RECENTER.
+3g. Touch A, B, and the rest of the screen outside the strip with a finger, 5 times each. Check: the ball does not move. A phone that is not on turn has no Recenter box either (REQ-GM-37, issue #55).
 4e. Throw 5 balls with each grip: screen up, screen to the side, and the other hand. Check: at least 4 of 5 swings throw a ball for each grip. (REQ-BW-5)
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
 4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)

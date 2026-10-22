@@ -49,9 +49,16 @@ var tile_mode := false
 var _pixel_layer: Control        # Draws the world of a pixel game, inside the low-resolution view.
 
 
+## True for a game where the phone is a pointer at a target (Banana Party): only then the pad has the Recenter box
+## (REQ-GM-37). The other games recenter by themselves at the start of play or of a turn.
+func _uses_recenter() -> bool:
+	return false
+
+
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	participants = App.server.connected_slots()
+	App.server.recenter_button = _uses_recenter()
 	App.server.set_phase("playing", participants)
 	Sound.duck(false)
 	if _has_countdown():
@@ -261,10 +268,14 @@ func _resume_game() -> void:
 	App.server.set_phase("playing", participants)
 
 
+## The items of the pause menu. End game leaves at once, no question (REQ-GM-31).
+func pause_entries() -> Array:
+	return [["minigame.resume", close_menu], ["minigame.restart", restart], ["minigame.end_game", App.go_menu, "danger"]]
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and not _menu_open and _can_open_menu():
-		open_menu("minigame.paused", [["minigame.resume", close_menu], ["minigame.restart", restart],
-				["minigame.back_to_menu", request_leave]])
+		open_menu("minigame.paused", pause_entries())
 		get_viewport().set_input_as_handled()
 
 

@@ -31,7 +31,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   The phone types the room code (all phones, also an iPhone), or scans the QR code (Android plugin). The TV sends nothing on the network by itself: no beacon, no list of TVs ([protocol](docs/PROTOCOL.md), "Room code").
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
-- A phone that loses the connection (or is silent for 5 seconds) keeps its slot and reconnects with a token: 30 seconds, and
+- A phone that loses the connection (or is silent for 3 seconds) keeps its slot and reconnects with a token: 5 seconds, and
   5 minutes while a game is paused for it. The game pauses with a card ("2P LOST CONNECTION") and goes on only when the TV user
   chooses Resume (or Resume without the lost phone). When no player is left, the game ends with "No players connected".
 - Player profiles (FD-22, [docs/PROFILES_PLAN.md](docs/PROFILES_PLAN.md)): a phone keeps up to 8 profiles (name of at most 10 characters, one of 32 pixel avatars) in `user://profiles.cfg`. The TV shows the name and the avatar in place of "Player N" and the slot number. The player is chosen on the Connect screen (a dropdown and a + for a new player) and cannot change while the phone is joined: DISCONNECT first. The avatar shows next to the colour on the chips of the game HUD; the objects in a game have only the colour. A player can be copied to another phone with a QR code or a text (SHARE, SCAN A PLAYER, PASTE A CODE). A profile keeps its best score for each game and difficulty (Banana Party, Paint Grab, the 10 tracks of Road Rally); the phone says NEW BEST! after a round.
@@ -74,7 +74,7 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
 1. Make a folder under `scripts/game/`.
 2. Extend `scripts/game/minigame.gd`. Override `_game_ready()`, `_game_tick(delta)`, `_game_draw()`.
    The base class is the game shell: the player list, the pause when a phone is lost, the D-pad pause menu
-   (Resume, Try again, Back to menu), the result menu (`open_menu`), and the Back key. Draw titles, score chips, the
+   (Resume, Try again, End game), the result menu (`open_menu`), and the Back key. Draw titles, score chips, the
    countdown and hints with `scripts/game/shell.gd`. The base class also ends the game when no player is left (`end_no_players()`) and calls
    `_on_player_left(slot)` when a player leaves. Set `is_over = true` when the game ends. `round_clock.gd` (countdown and playing time) and
    `haptics.gd` (buzz cool-down), `scoreboard.gd` (scores and ranking) and `medals.gd` (solo medals) are small helpers for games; `open_results()` shows the ranking.
@@ -135,7 +135,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 | Where | Control | Action |
 |-------|---------|--------|
 | Phone | RECENTER | Set the neutral pose and zero the yaw |
-| Phone | A / B | Buttons. In the maze and the race, A and B do nothing; the RECENTER button recenters |
+| Phone | A / B | Buttons. In the maze and the race, A and B do nothing; only Banana Party has the RECENTER button |
 | Phone | Scan / Paste TV link | Join by the QR code on the TV (or by the link in the clipboard on a PC) |
 | Phone | Disconnect | Leave the TV at once (one tap) and return to the connect screen |
 | TV remote | D-pad | Move the focus |

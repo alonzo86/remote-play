@@ -39,6 +39,7 @@ var tv_avatar := -1
 var tv_player_name := ""
 var score_rank := 0          # The place of this phone in the round, 1 for the leader. 0 when the TV sent no score (REQ-FL-67).
 var score_of := 0            # The number of ranked players.
+var recenter_button := true    # False in a game without a pointer: the pad hides the Recenter box (REQ-GM-37).
 var turn_state := 0           # 0 no turn line, 1 this phone is on turn, 2 another player is on turn (REQ-BW-14).
 var turn_kind := ""           # "" for the words of Pin Pals, "golf" for Mini Golf.
 var turn_who := ""            # The name of the player on turn when turn_state is 2.
@@ -228,6 +229,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			_token = String(msg.get("token", ""))
 			tv_name = String(msg.get("name", "TV"))
 			phase = String(msg.get("phase", "connect"))
+			recenter_button = bool(msg.get("rc", true))
 			tv_pid = String(msg.get("pid", ""))
 			tv_avatar = int(msg.get("av", -1)) if tv_pid != "" else -1
 			tv_player_name = String(msg.get("pname", ""))
@@ -260,6 +262,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 					"off": snappedf(clock_offset_ms, 0.1), "hz": snappedf(tx_rate, 0.1)})
 		"phase":
 			phase = String(msg.get("v", "connect"))
+			recenter_button = bool(msg.get("rc", true))
 			if not phase in ["playing", "paused"]:
 				clear_score()   # A pause keeps the score on the phone (REQ-FL-67).
 			phase_changed.emit(phase)

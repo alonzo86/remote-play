@@ -1,6 +1,6 @@
 extends SceneTree
 ## A phone that loses its Wi-Fi during a game, in real time with the real timeouts (docs/MANUAL_TESTS.md test 7, items 1a, 1d,
-## 4a, 5a, 5b, 5c, 5d): the card comes after 5 s of silence (5.6 s or less, REQ-GM-30), it names the phone and says
+## 4a, 5a, 5b, 5c, 5d): the card comes after 3 s of silence (3.6 s or less, REQ-GM-30), it names the phone and says
 ## "waiting to reconnect", it changes to "reconnected" with Resume in 10 s or less, the game stays paused for 10 s without a
 ## press while the other phone tilts, Resume
 ## without the lost player goes on with the other ball, and the only phone gives the card with End game only and then
@@ -12,8 +12,8 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
-# REQ-GM-30: a phone that sends nothing for 5 s is lost (+0.6 s to notice). The step said 8 s: the requirement wins.
-const LOST_LIMIT_MS := 5600
+# REQ-GM-30: a phone that sends nothing for 3 s is lost (+0.6 s to notice, issue #56). The step said 8 s: the requirement wins.
+const LOST_LIMIT_MS := 3600
 const BACK_LIMIT_MS := 10000      # Step 1d: the card says "reconnected" within 10 s of the moment the Wi-Fi is on.
 
 var _checks := 0
@@ -147,7 +147,7 @@ func _two_phones_in_the_maze() -> void:
 	var lost_ms := Time.get_ticks_msec() - t0
 	await _frames(3)
 	_check(held and lost_ms <= LOST_LIMIT_MS and game.is_paused(),
-			"the game pauses %d ms after 2P went silent (5600 ms or less, REQ-GM-30: 5 s of silence)" % lost_ms)
+			"the game pauses %d ms after 2P went silent (3600 ms or less, REQ-GM-30: 3 s of silence)" % lost_ms)
 	_check(_card_title(game) == "2P LOST CONNECTION", "the card says '%s'" % _card_title(game))
 	var waiting := Lang.t("pause.waiting_reconnect").to_upper()
 	var who := String(_app.server.players[1].player_name).to_upper()   # A guest is "Player 2" on the TV.
