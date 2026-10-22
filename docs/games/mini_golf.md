@@ -66,7 +66,7 @@ Values in code (first guesses): aim range 1.2 rad to each side; weakest putt 1.5
 
 ## Texts for the user to review
 
-The rows are in `assets/lang/strings.csv` (keys `registry.mini_golf`, `registry.swing_phone_putt` and `mini_golf.*`). The Hebrew texts are written by Claude and need a Hebrew reader. English: "MINI GOLF", "SWING YOUR PHONE TO PUTT THE BALL INTO THE HOLE!", "HOLES" with "1 HOLE" to "5 HOLES", "Hole 2/3  Par 3", "Maya's turn!", "MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT!", "SWING A BIT MORE!", "SWING FORWARD. A BIGGER SWING GOES FARTHER!" (Easy), "HOLE IN ONE!", "BIRDIE!", "PAR!", "BOGEY", "4 strokes", "Picked up after 6 strokes", "SPLASH! TRY AGAIN FROM HERE", "Hole 2 done!", "Strokes", "Total", and on the phone "MAYA IS PUTTING" (the turn message has the optional field `k` = `golf`, `docs/PROTOCOL.md`).
+The rows are in `assets/lang/strings.csv` (keys `registry.mini_golf`, `registry.desc_mini_golf` and `mini_golf.*`). The Hebrew texts are written by Claude and need a Hebrew reader. English: "MINI GOLF", "MINI GOLF ON FUNNY COURSES, WITH YOUR PHONE AS THE CLUB.", "HOLES" with "1 HOLE" to "5 HOLES", "Hole 2/3  Par 3", "Maya's turn!", "MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT!", "SWING A BIT MORE!", "SWING FORWARD. A BIGGER SWING GOES FARTHER!" (Easy), "HOLE IN ONE!", "BIRDIE!", "PAR!", "BOGEY", "4 strokes", "Picked up after 6 strokes", "SPLASH! TRY AGAIN FROM HERE", "Hole 2 done!", "Strokes", "Total", and on the phone "MAYA IS PUTTING" (the turn message has the optional field `k` = `golf`, `docs/PROTOCOL.md`).
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
 
