@@ -252,6 +252,10 @@ func _focus_style() -> void:
 	await _frames(4)
 	var items: Array = _app.current_screen().find_children("*", "Button", true, false).filter(func(b): return b.has_focus())
 	_check(items.size() == 1 and items[0].focus_mode == Control.FOCUS_ALL, "one item of the settings view has the focus")
+	# REQ-FL-86: only the phone loses the focus.
+	var tv_box: Button = load("res://scripts/ui/ui_kit.gd").box_button("x", func(): pass)
+	_check(tv_box.focus_mode == Control.FOCUS_ALL, "on the TV a box button takes the focus (the remote needs it)")
+	tv_box.free()
 	_app.go_games()
 	await _frames(3)
 
@@ -308,6 +312,17 @@ func _settings_walk() -> void:
 	_check(back == null or visible_rect.encloses(back.get_global_rect()), "and the Back row is inside the screen")
 	await _press("ui_up")
 	_check(_focus() != null, "Up keeps a focus")
+	# Issue #49: Left and Right on the focused Language row choose a language, through the real focus path.
+	_app.set_language("en")
+	var rows: Array = _app.current_screen()._rows
+	rows[rows.size() - 1].grab_focus()
+	await _frames(2)
+	await _press("ui_right")
+	_check(_app.settings.language == "he", "Right on the focused Language row gives Hebrew (%s)" % _app.settings.language)
+	await _press("ui_left")
+	_check(_app.settings.language == "en", "Left on the focused Language row gives English (%s)" % _app.settings.language)
+	_check(rows.all(func(r: Button) -> bool: return r.custom_minimum_size.y == 120.0),
+			"every Settings row is 120 px high (REQ-FL-23)")
 	_app.go_games()
 	await _frames(3)
 

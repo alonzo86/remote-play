@@ -7,6 +7,8 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const MenuItem = preload("res://scripts/ui/menu_item.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 
+const ROW_H := 120   # A row is its name and its value on one line (REQ-FL-23).
+
 var _rows: Array[Button] = []
 var scroll_box: ScrollContainer
 
@@ -31,14 +33,11 @@ func _ready() -> void:
 	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rows.add_theme_constant_override("separation", 22)
 	scroll.add_child(rows)
-	_add_row(rows, "settings.debug_overlay", "settings.shows_link_each_phone", "overlay",
-			func(): App.toggle_overlay())
-	_add_row(rows, "settings.invert_tilt_axes", "settings.use_when_ball_rolls", "invert_tilt", Callable())
-	_add_level_row(rows, "settings.music", "settings.left_right_change_music", "music_volume")
-	_add_level_row(rows, "settings.effects", "settings.left_right_change_effects", "sfx_volume")
-	_add_row(rows, "settings.mute", "settings.turns_off_music_effects", "mute", Callable())
-	_add_row(rows, "settings.language", "settings.english_or_hebrew_phones", "language",
-			func(): App.set_language(Lang.other(Lang.current())))
+	_add_row(rows, "settings.debug_overlay", "overlay", func(): App.toggle_overlay())
+	_add_row(rows, "settings.invert_tilt_axes", "invert_tilt", Callable())
+	_add_level_row(rows, "settings.music", "music_volume")
+	_add_level_row(rows, "settings.effects", "sfx_volume")
+	_add_row(rows, "settings.language", "language", func(): _step_language(1))
 	box.add_child(UiKit.spacer(10))
 	box.add_child(UiKit.item("common.about", func(): App.go(App.AboutScreen, {"back_screen": App.TvSettings}),
 			UiTheme.SIZE_ITEM, "quiet"))
@@ -46,9 +45,9 @@ func _ready() -> void:
 	UiKit.focus_later(_rows[0])
 
 
-func _add_row(parent: Control, title: String, help: String, key: String, custom: Callable) -> void:
+func _add_row(parent: Control, title: String, key: String, custom: Callable) -> void:
 	var b: Button = MenuItem.new()
-	b.custom_minimum_size = Vector2(0, 160)
+	b.custom_minimum_size = Vector2(0, ROW_H)
 	var h := HBoxContainer.new()
 	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(h)
@@ -63,9 +62,6 @@ func _add_row(parent: Control, title: String, help: String, key: String, custom:
 	h.add_child(col)
 	var name_l := UiKit.label(title, UiTheme.SIZE_ITEM)
 	col.add_child(name_l)
-	var help_l := UiKit.label(help, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
-	help_l.autowrap_mode = TextServer.AUTOWRAP_WORD
-	col.add_child(help_l)
 	var state := UiKit.label("", UiTheme.SIZE_ITEM)   # ON in green, OFF in gray: the word says it, not the color alone.
 	state.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(state)
@@ -88,17 +84,23 @@ func _add_row(parent: Control, title: String, help: String, key: String, custom:
 		else:
 			App.settings[key] = not bool(App.settings[key])
 			App.save_settings()
-			Sound.apply_settings()   # The Mute row acts at once (REQ-FL-64).
 		refresh.call())
+	if key == "language":   # Left and Right choose the language from the list (REQ-FL-61).
+		b.gui_input.connect(func(e: InputEvent):
+			for action in ["ui_left", "ui_right"]:
+				if e.is_action_pressed(action):
+					_step_language(-1 if action == "ui_left" else 1)
+					refresh.call()
+					b.accept_event())
 	refresh.call()
 	parent.add_child(b)
 	_rows.append(b)
 
 
 ## A volume row (REQ-FL-64): the value 0 to 10 at the right. Left and Right change it, OK adds one and goes back to 0 after 10.
-func _add_level_row(parent: Control, title: String, help: String, key: String) -> void:
+func _add_level_row(parent: Control, title: String, key: String) -> void:
 	var b: Button = MenuItem.new()
-	b.custom_minimum_size = Vector2(0, 160)
+	b.custom_minimum_size = Vector2(0, ROW_H)
 	var h := HBoxContainer.new()
 	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(h)
@@ -113,9 +115,6 @@ func _add_level_row(parent: Control, title: String, help: String, key: String) -
 	h.add_child(col)
 	var name_l := UiKit.label(title, UiTheme.SIZE_ITEM)
 	col.add_child(name_l)
-	var help_l := UiKit.label(help, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
-	help_l.autowrap_mode = TextServer.AUTOWRAP_WORD
-	col.add_child(help_l)
 	var value := UiKit.label("", UiTheme.SIZE_ITEM, UiTheme.SELECTED)
 	value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(value)
@@ -140,6 +139,14 @@ func _add_level_row(parent: Control, title: String, help: String, key: String) -
 			b.accept_event())
 	parent.add_child(b)
 	_rows.append(b)
+
+
+## Moves to the next (1) or the previous (-1) language of the list. After the last comes the first, so OK goes
+## through all of them.
+func _step_language(dir: int) -> void:
+	var codes := Lang.CODES
+	var i := codes.find(Lang.current())
+	App.set_language(codes[posmod(i + dir, codes.size())])
 
 
 func on_back() -> void:

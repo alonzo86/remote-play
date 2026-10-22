@@ -127,8 +127,8 @@ func _phones_and_card() -> void:
 	await create_timer(3.6).timeout
 
 	# Step 6a1: a silent phone (no Wi-Fi) pauses the game with its name, within the timeout of the protocol.
-	_check(Protocol.PEER_TIMEOUT_MS <= 5000,
-			"a silent phone is given up after 5 s or less (PEER_TIMEOUT_MS %d)" % Protocol.PEER_TIMEOUT_MS)
+	_check(Protocol.PEER_TIMEOUT_MS <= 3000,
+			"a silent phone is given up after 3 s or less (PEER_TIMEOUT_MS %d)" % Protocol.PEER_TIMEOUT_MS)
 	_app.server.peer_timeout_ms = Protocol.PEER_TIMEOUT_MS
 	noam.set_process(false)
 	var t0 := Time.get_ticks_msec()

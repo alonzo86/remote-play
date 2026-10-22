@@ -160,36 +160,18 @@ func _continuous_wall() -> void:
 	game.set_process(false)
 
 
-## Test 9.11b: the RECENTER button while the car runs: the car then slides on for at most 20 px in seconds 3 to 5.
+## Issue #55: the pad has no Recenter box in the maze and in Road Rally; the car and the ball still start from the pose held in
+## the countdown (REQ-GM-37).
 func _recenter_distance() -> void:
-	print("device: RECENTER while a car runs")
+	print("device: no Recenter box in the race and the maze")
 	var race = _race()
 	var game: Control = await sim.start(race, {"track_choice": "1", "difficulty": "easy"})
-	for s in 2:
-		sim.settle(s, Sim.FLAT)
-		sim.app.server.players[s].recenter()
-	sim.through_countdown(game)
-	# The phone is held with its top down: the car runs up the first straight and reaches more than 2 m/s.
-	sim.settle(0, Sim.lean(0.0, -15.0))   # held long enough for the filter to follow the hand
-	sim.step(game, 0.6, {0: Sim.lean(0.0, -15.0), 1: Sim.FLAT})
-	var speed: float = game._racers[0].vel.length()
-	sim.clients[0].send_recenter()
-	var waited := Time.get_ticks_msec()
-	var tilt_before: float = sim.app.server.players[0].tilt().length()
-	while Time.get_ticks_msec() - waited < 1500 and sim.app.server.players[0].tilt().length() > 0.05:
-		sim.feed(0, Sim.lean(0.0, -15.0))
-		await process_frame
+	sim.step(game, 0.5, {0: Sim.FLAT, 1: Sim.FLAT})
+	await process_frame
+	await process_frame
+	_check(not sim.clients[0].recenter_button and not sim.clients[1].recenter_button,
+			"Road Rally: the phones have no Recenter box (REQ-GM-37)")
 	game.set_process(false)
-	var t0: Vector2 = game._racers[0].pos
-	sim.step(game, 3.0, {0: Sim.lean(0.0, -15.0), 1: Sim.FLAT})
-	var p3: Vector2 = game._racers[0].pos
-	sim.step(game, 2.0, {0: Sim.lean(0.0, -15.0), 1: Sim.FLAT})
-	var p5: Vector2 = game._racers[0].pos
-	var px: float = p5.distance_to(p3) * 32.0
-	_check(tilt_before > 0.1 and speed > 2.0 and px < 20.0,
-			"RECENTER at %.1f m/s: the car moved %.1f px between seconds 3 and 5 after the tap (< 20 px; REQ-GM-37)" % [speed,
-					px])
-	_check(t0.distance_to(p3) > 0.0, "the car slid on after the tap (%.1f m in 3 s)" % t0.distance_to(p3))
 
 
 ## Test 10.7b: two phones press A in the same frame on the same animal; the throw that arrived first scores, the other not.

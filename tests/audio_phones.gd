@@ -3,7 +3,7 @@ extends SceneTree
 ## sounds, the music under the pause menu and under the card of a lost phone, the sounds of a result, and the haptics of the
 ## phone (the phone side is `Haptics.on_message`, which the pad calls; the motor call is replaced here by a recorder).
 ## It checks the digital side (the volume of the music player, the signals of the Sound manager, the calls of the motor), not
-## how it sounds in the room (manual test 18). Mute: issue #49 is planned, nothing here depends on the Mute row. Run:
+## how it sounds in the room (manual test 18). Run:
 ##   godot --headless --path . --script tests/audio_phones.gd -- --role=tv
 
 const Protocol = preload("res://scripts/core/protocol.gd")

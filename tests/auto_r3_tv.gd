@@ -290,7 +290,6 @@ func _effects_zero() -> void:
 	var old: Dictionary = _app.settings.duplicate()
 	var sfx_bus := AudioServer.get_bus_index("SFX")
 	var music_bus := AudioServer.get_bus_index("Music")
-	_app.settings.mute = false
 	_app.settings.music_volume = 7
 	for level in [0, 6]:
 		_app.settings.sfx_volume = level

@@ -151,8 +151,7 @@ func _round(app: Node, id: String, n: int) -> void:
 		buzzed_60 += 1 if _buzzes[i].count(60) >= 1 else 0
 	if id in COUNTDOWN_GAMES:
 		_check(before == 0, "%s: no buzz in 3, 2, 1" % state)
-		if id != "maze":   # The maze sends no buzz at GO, although its game file says so (issue #58).
-			_check(all_buzzed, "%s: every phone gets the 60 ms buzz at GO" % state)
+		_check(all_buzzed, "%s: every phone gets the 60 ms buzz at GO" % state)
 		_countdown_sounds(id, state, n)
 	else:
 		_no_countdown(id, state, buzzed_60, started_ms)
@@ -240,13 +239,12 @@ func _countdown_sounds(id: String, state: String, n: int) -> void:
 	var song_limit := int(Slow.limit(1000.0, 15.0))
 	_check(_song_ms >= 0 and go_ms > 0 and _song_ms - go_ms <= song_limit and sound.wanted_music == id and id != "menu",
 			"%s: the song of the game starts %d ms after GO (%d or less)" % [state, _song_ms - go_ms, song_limit])
-	if id != "maze":   # The maze sends no buzz at GO (issue #58).
-		var worst := 0
-		for i in n:
-			for b in _buzz_at[i]:
-				if b[0] == 60:
-					worst = maxi(worst, absi(int(b[1]) - go_ms))
-		_check(go_ms > 0 and worst <= 100, "%s: the GO buzz comes within 100 ms of the GO sound (%d ms on loopback)" % [state, worst])
+	var worst := 0
+	for i in n:
+		for b in _buzz_at[i]:
+			if b[0] == 60:
+				worst = maxi(worst, absi(int(b[1]) - go_ms))
+	_check(go_ms > 0 and worst <= 100, "%s: the GO buzz comes within 100 ms of the GO sound (%d ms on loopback)" % [state, worst])
 
 
 ## REQ-GM-35: a game without a timer has no countdown: no count or go sound, no start buzz on every phone (the games with

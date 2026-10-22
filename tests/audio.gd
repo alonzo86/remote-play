@@ -173,17 +173,12 @@ func _manager(sound: Node, app: Node) -> void:
 	var old: Dictionary = app.settings.duplicate()
 	app.settings.music_volume = 3
 	app.settings.sfx_volume = 6
-	app.settings.mute = true
 	sound.apply_settings()
 	var m := AudioServer.get_bus_index("Music")
 	var f := AudioServer.get_bus_index("SFX")
 	_check(is_equal_approx(AudioServer.get_bus_volume_db(m), sound.step_db(3) + sound.MUSIC_TRIM_DB)
 			and is_equal_approx(AudioServer.get_bus_volume_db(f), sound.step_db(6)),
 			"Music and Effects set the volume of their buses")
-	_check(AudioServer.is_bus_mute(m) and AudioServer.is_bus_mute(f), "Mute mutes both buses")
-	app.settings.mute = false
-	sound.apply_settings()
-	_check(not AudioServer.is_bus_mute(m) and not AudioServer.is_bus_mute(f), "Mute off plays again")
 	app.settings.merge(old, true)
 	sound.apply_settings()
 	# Effects: the same effect twice in 40 ms is one sound; an unknown id plays nothing.
@@ -288,14 +283,14 @@ func _denied(sound: Node, app: Node) -> void:
 			"OK on a game that does not fit plays `denied` and stays on the Games screen")
 
 
-## The Music and Effects rows change the setting, save it and apply it; Mute is a switch.
+## The Music and Effects rows change the setting, save it and apply it.
 func _settings_rows(sound: Node, app: Node) -> void:
 	var old: Dictionary = app.settings.duplicate()
 	app.go_settings()
 	await _frames(3)
 	var screen: Control = app.current_screen()
 	var rows: Array = screen._rows
-	_check(rows.size() == 6, "the Settings screen has 6 rows (debug, invert, music, effects, mute, language)")
+	_check(rows.size() == 5, "the Settings screen has 5 rows (debug, invert, music, effects, language), no Mute (issue #49)")
 	app.settings.music_volume = 10
 	rows[2].pressed.emit()
 	_check(app.settings.music_volume == 0, "OK on Music after 10 goes back to 0")
@@ -313,15 +308,34 @@ func _settings_rows(sound: Node, app: Node) -> void:
 	rows[3].gui_input.emit(ev)
 	rows[3].gui_input.emit(ev)
 	_check(app.settings.sfx_volume == 3, "Left on Effects takes one away")
+	# Language (issue #49): Left and Right pick a language from the list, OK goes to the next; the language is saved.
+	app.set_language("en")
+	var lang_before: String = app.settings.language
+	ev = InputEventAction.new()
+	ev.action = "ui_right"
+	ev.pressed = true
+	rows[4].gui_input.emit(ev)
+	_check(app.settings.language == "he", "Right on Language gives Hebrew (was %s)" % lang_before)
+	ev = InputEventAction.new()
+	ev.action = "ui_left"
+	ev.pressed = true
+	rows[4].gui_input.emit(ev)
+	_check(app.settings.language == "en", "Left on Language gives English again")
 	rows[4].pressed.emit()
-	_check(app.settings.mute == true and AudioServer.is_bus_mute(AudioServer.get_bus_index("SFX")), "the Mute row mutes at once")
-	rows[4].pressed.emit()
-	_check(app.settings.mute == false and not AudioServer.is_bus_mute(AudioServer.get_bus_index("SFX")),
-			"the Mute row again plays")
+	_check(app.settings.language == "he", "OK on Language goes to the next language")
+	app.set_language("en")
 	var cfg := ConfigFile.new()
 	cfg.load(app.SETTINGS_FILE)
 	_check(cfg.get_value("settings", "music_volume", -1) == 0 and cfg.get_value("settings", "sfx_volume", -1) == 3,
 			"the volumes are saved")
+	# An old settings file with mute = true keeps its silence: the Mute row is gone (issue #49).
+	cfg.set_value("settings", "mute", true)
+	cfg.set_value("settings", "music_volume", 7)
+	cfg.set_value("settings", "sfx_volume", 8)
+	cfg.save(app.SETTINGS_FILE)
+	app._load_settings()
+	_check(app.settings.music_volume == 0 and app.settings.sfx_volume == 0,
+			"an old file with mute = true loads as Music 0 and Effects 0")
 	app.settings.merge(old, true)
 	app.save_settings()
 	sound.apply_settings()
@@ -352,8 +366,6 @@ func _phone_haptics(app: Node) -> void:
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Test 18 in the digital domain (what the ear and the meter app of the manual test measure, read from the samples).
-# Mute: issue #49 (drop the Mute row) is planned, not built. Every check that depends on the Mute row has "[issue #49]" in
-# its name; when the row is removed these checks go with it (see the report of the audio automation).
 # ---------------------------------------------------------------------------------------------------------------------
 
 const DEFAULT_MUSIC_STEP := 7   # App.settings default music_volume
@@ -577,8 +589,12 @@ func _settings_sweep(sound: Node, app: Node) -> void:
 	_check(titles[2] in ["settings.music", lang.t("settings.music")] and titles[3] in ["settings.effects",
 			lang.t("settings.effects")],
 			"the Settings rows 3 and 4 are Music and Effects (%s)" % str(titles))
-	# [issue #49] The Mute row is still there today; when it is removed this becomes: 5 rows and no row named Mute.
-	_check(rows.size() == 6 and titles[4] in ["settings.mute", lang.t("settings.mute")], "[issue #49] the Mute row is row 5 of 6")
+	_check(rows.size() == 5 and not titles.has("settings.mute") and not titles.has(lang.t("settings.mute")),
+			"the Settings screen has 5 rows and no Mute row (issue #49)")
+	var labels_ok := true
+	for r in rows:
+		labels_ok = labels_ok and _row_texts(r).size() == 2   # The name and the value: no explanation text.
+	_check(labels_ok, "every Settings row is a name and a value, with no explanation text (issue #49)")
 	# 3b: Left until 0, then Right 10 times: +1 for each press, the bus follows, and it is silent at 0.
 	var music_bus := AudioServer.get_bus_index("Music")
 	for i in 11:
