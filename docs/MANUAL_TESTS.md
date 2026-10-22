@@ -95,7 +95,7 @@ Uninstall the old apps first. The package names changed (FD-26 and FD-27; the li
 4c. Tap **Disconnect**, then tap **Refresh** (white). Check: the list shows "SEARCHING..." at once, and the TV is in the list again within 2 seconds of the tap. (Changes with issue #52: no Refresh.)
 4d. REQ-FL-83. Use the TV app on a Mac, where the list stays empty. Wait 30 seconds without a tap. Check: the list stays empty (the scan never starts by itself). Tap Refresh. Check: the TV shows in the list within 15 seconds. If the Mac asks for the Local Network permission, answer for the app that runs the TV; the scan works without it. (Changes with issue #52.)
 5. (Removed. There is no join by IP address, REQ-A4. The join by QR code is Test 2, the PIN rules are Test 21.)
-6a. Tap **Disconnect** on the phone. Check: within 5 seconds the TV slot of the phone shows no "READY". (Today the slot shows "LOST" for up to 30 seconds and then is empty. Changes with issue #44: the slot is empty within 5 seconds and never shows "LOST".)
+6a. Tap **Disconnect** on the phone. Check: within 6 seconds the TV slot of the phone is empty (the slot may show "LOST" for 5 seconds at most, REQ-FL-8, issue #44).
 6b. Close the controller app and start it again, and film the start. Check: the Android splash (the mascot on black) is already in portrait and the phone does not turn at any frame of the video, and it is the only splash: the Connect screen follows at once, with no logo screen.
 
 **Results**
@@ -282,17 +282,17 @@ History:
 
 Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8.
 
-Time limit used below: the TV pauses when a phone is silent for 5 seconds (`Protocol.PEER_TIMEOUT_MS`), so "at once" means 5.6 seconds at most (REQ-GM-30), measured from the moment you switch the Wi-Fi off. (Changes with issue #56: 3 seconds, so 3.6 seconds at most.)
+Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Protocol.PEER_TIMEOUT_MS`, issue #56), so "at once" means 3.6 seconds at most (REQ-GM-30), measured from the moment you switch the Wi-Fi off. With one phone, the card then says "1P LOST CONNECTION" and offers only **End game** (REQ-GM-30a); "NO PLAYERS CONNECTED" opens only when the slot is freed after 5 minutes (issue #46).
 
 **Steps**
 
 2. On the Games screen, lock the phone screen for 10 seconds, then unlock. Check: within 10 seconds the phone shows its waiting screen again with the same slot number, and the TV slot was "READY" all the time or came back to "READY". (Android can stop the app in the background.)
-3a. On the Games screen (not in a game), switch the phone Wi-Fi off for 45 seconds. Check: after 45 seconds the TV shows the slot of the phone as empty. (Changes with issue #44: the slot is empty within 5 seconds.)
+3a. On the Games screen (not in a game), switch the phone Wi-Fi off for 45 seconds. Check: after 45 seconds the TV shows the slot of the phone as empty (it is empty 5 seconds after the phone was lost, REQ-FL-8).
 3b. Switch the Wi-Fi on. Check: within 10 seconds the phone shows the PIN pad (the TV does not know it any more). (Changes with issue #52: no PIN pad.)
 3c. Type the PIN. Check: the phone joins again and shows "CHOOSE A GAME ON THE TV" (maybe in a different slot).
 4b. Switch the Wi-Fi on. Check: within 10 seconds the phone shows the PIN pad. (Changes with issue #52.)
 6a. On the phone pad, tap **Disconnect** once. Check: the phone shows the Connect screen less than 1 second after the tap (no second tap).
-7a. With one phone in a game, call that phone from another phone and answer. Check: within 6 seconds of the answer (5 s of silence plus 1 s) the game pauses with the card "1P LOST CONNECTION".
+7a. With one phone in a game, call that phone from another phone and answer. Check: within 4 seconds of the answer (3 s of silence plus 1 s) the game pauses with the card "1P LOST CONNECTION".
 7b. End the call and go back to the controller app. Check: the phone says "RECONNECTING..." and then joins again in 10 seconds or less (stopwatch from the return to the app).
 7c. Check: the card says "1P reconnected" with **Resume**, and **Resume** goes on with the game.
 7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot, with no PIN.
@@ -321,7 +321,7 @@ History:
 - 2026-10-21 (automated): items 1d, 4a and 5a to 5d moved to the automated tests (`r1_reconnect`: a phone that goes silent, with the real timeouts). Item 1a was split: the card on the TV is automated (A-7-7), and the phone half is automated too (A-7-8, `join_flow`, failing until issue #61 is fixed); step 1a2 was removed. The R1 result of 1a2 (Retest: the phone showed 'Reconnecting...' but the seconds were not written down) stays in the result database. The R1 results of 1a, 1d (Fail) and 5a to 5d (Retest) were about the TV; they stay in the result database.
 - 2026-10-21 (aligned with the requirements, not run): step 7a says 6 seconds (REQ-GM-30: 5 s of silence plus 1 s). No recorded result changed.
 - R1: **Fail** (item 1) and **Retest** (item 5). A phone without Wi-Fi did not pause the game, and a phone call ended it with no way to resume. Both changed on 2026-10-09 and wait for the retest. Items 2, 3, 4 and 6 are not run.
-- R0: **Retest**. Wi-Fi off on the phone: the phone shows 'Reconnecting...'. The game kept running and the TV never showed 'Waiting for P1 to reconnect'. Wi-Fi on: the phone reconnected and the game went on. The off time was not measured (the TV pauses only after 5 s of silence). Item 6 (Leave twice, A green and B red) is new.
+- R0: **Retest**. Wi-Fi off on the phone: the phone shows 'Reconnecting...'. The game kept running and the TV never showed 'Waiting for P1 to reconnect'. Wi-Fi on: the phone reconnected and the game went on. The off time was not measured (the TV pauses only after 5 s of silence at that time, 3 s since issue #56). Item 6 (Leave twice, A green and B red) is new.
 
 ## Test 8
 
@@ -489,7 +489,7 @@ Measurements (not a test; no pass or fail). Write these values in the Notes colu
 History:
 
 - 2026-10-21 (automated): item 10c moved to the automated tests (`auto_banana_b`: the most animals with 1 phone, 5, 4 and 3). Item 4c was split (the closed eyes and three cheers are automated, 4c2 keeps the water, hearts and sparkles) and item 5a was split (the crown is automated, 5a2 keeps the six names).
-- 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 11f). Each new step keeps the result of the old step with the same number. Step 8a follows the 5 s rule of REQ-GM-30 (the owner asked for 2 to 3 seconds, planned 3 s in issue #56).
+- 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 11f). Each new step keeps the result of the old step with the same number. Step 8a follows the 3 s rule of REQ-GM-30 (the owner asked for 2 to 3 seconds, built as 3 s in issue #56).
 - 2026-10-20 (automated): 29 steps moved to the automated tests. Items 6a, 6b and 6c had the result Retest (R2, the last digit of a score above 3 digits was cut): the machine now checks a score of 1 to 6 digits and a name of 10 letters in the chip (`game_helpers`, `hud_layout`), and the results stay in the result database. The first golden monkey comes 10 to 18 s after GO (the owner's decision; it waits for a free lane). The measurement rows of the removed steps (animal times, medal tiers, pointer range, Wi-Fi wait) are removed.
 - 2026-10-10 (not run): item 11 is new: the sky is a pixel world (phase 4 of the arcade style).
 - 2026-10-16 (not run): Snowball Splat became **Banana Party** (first Banana Splat; "קרב" means fight in Hebrew, so the owner chose Party): bushes that hide animals (REQ-SS-26, 3, 5 or 8 by difficulty), a jungle at sunset, six animals that eat bananas in three depth lanes, a hit animation for each, plain ring pointers and the golden monkey king (100 points). Items 4, 5 and 11 changed (REQ-SS-7 to 13, 25). All values are first guesses.

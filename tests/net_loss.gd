@@ -102,5 +102,7 @@ func _run() -> void:
 	c2.set_process(true)
 	c2.leave()
 	await create_timer(0.5).timeout
+	_check(Protocol.PEER_TIMEOUT_MS == 3000 and Protocol.SLOT_GRACE_MS <= 5000,
+			"a phone that sends nothing for 3 s is lost, and a lost slot is freed in 5 s or less (issues #56, #44)")
 	_check(Protocol.PAUSED_SLOT_GRACE_MS > Protocol.SLOT_GRACE_MS and Protocol.PEER_TIMEOUT_MS >= 2000,
 			"the real times: the paused hold is longer than the normal one, and the silence limit is above 2 s")
