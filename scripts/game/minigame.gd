@@ -240,6 +240,8 @@ func _show_hold_card(lost: Array[int]) -> void:
 	var entries: Array = []
 	if not lost.is_empty():
 		title = Lang.f("pause.lost_connection", [_slot_labels(lost)])
+		if participants.size() == 1:
+			title = Lang.t("minigame.no_players_connected")   # The only phone is gone (REQ-GM-30a, issue #46).
 		if not connected_participants().is_empty():
 			entries.append([Lang.f("pause.resume_without", [_slot_labels(lost)]), _resume_without_lost])
 	else:

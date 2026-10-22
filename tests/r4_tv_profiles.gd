@@ -5,7 +5,8 @@ extends SceneTree
 ##   for the whole name, also a Hebrew name of 10 letters;
 ## - 4a: the phones `Sam` and `sam` are SAM and SAM 2 on the Players list;
 ## - 4b: a name of 10 letters in Latin and in Hebrew is whole in the Players list and on the Connect screen, in both languages;
-## - 6a2: a phone whose Wi-Fi goes away without a close (a relay cuts the link) pauses the game with its name in 5 s or less.
+## - 6a2: a phone whose Wi-Fi goes away without a close (a relay cuts the link) pauses the game in 3.6 s or less; the card
+##   names it.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_tv_profiles.gd -- --role=tv
 
 const Protocol = preload("res://scripts/core/protocol.gd")
@@ -314,7 +315,9 @@ func _relay_cut() -> void:
 	_check(game._hold and Protocol.PEER_TIMEOUT_MS <= 3000 and took <= Protocol.PEER_TIMEOUT_MS + 1500,
 			"6a2: the game is paused %d ms after the link was cut (the timeout is %d ms)" % [took, Protocol.PEER_TIMEOUT_MS])
 	var title: String = game._menu_box.find_children("*", "Label", true, false)[0].text
-	_check(title == "NOAM LOST CONNECTION", "6a2: the pause card names the player: '%s'" % title)
+	var lines: Array = game._menu_box.find_children("*", "Label", true, false).map(func(l: Label) -> String: return l.text)
+	_check(title == "NO PLAYERS CONNECTED" and lines.any(func(t: String) -> bool: return t.contains("NOAM")),
+			"6a2: the only phone is lost: the card says NO PLAYERS CONNECTED and the line names the player: %s" % str(lines))
 	relay.restore()
 	phone.leave()
 	phone.queue_free()
