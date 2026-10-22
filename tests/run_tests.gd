@@ -213,6 +213,17 @@ func _test_registry() -> void:
 		if sc == null or not inherits_base:
 			all_ok = false
 	_check(ids.size() == Registry.all().size(), "registry ids are unique")
+	# Issue #80, REQ-GM-37a: the controls of the pad of each game (the inventory of the game files).
+	var pads := {"maze": [], "marble_race": [], "paint_grab": [], "asteroid_blast": [], "sumo_bumpers": ["a"],
+			"bowling": ["a"], "tennis": ["a"], "mini_golf": ["a"], "snowball_splat": ["a", "recenter"]}
+	var pad_bad: Array[String] = []
+	for g in Registry.all():
+		if g.get("pad", null) != pads.get(String(g.id), null):
+			pad_bad.append(String(g.id))
+	_check(pad_bad.is_empty() and pads.size() == Registry.all().size(), "each game lists the controls of its pad: %s" % pad_bad)
+	_check(Registry.buttons_of(Registry.find("snowball_splat")) == "a" and Registry.buttons_of(Registry.find("maze")) == ""
+			and Registry.has_control(Registry.find("snowball_splat"), "recenter")
+			and not Registry.has_control(Registry.find("tennis"), "recenter"), "buttons_of and has_control read the pad list")
 	var docs_ok := true
 	for g in Registry.all():
 		if not FileAccess.file_exists(String(g.get("doc", ""))):

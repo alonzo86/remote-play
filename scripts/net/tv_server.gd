@@ -24,6 +24,9 @@ var tv_name := "Living Room TV"
 ## False while a game without a pointer is running: the phones then hide the Recenter box (REQ-GM-37). It is sent in the
 ## `phase` and `welcome` messages as `rc` and only when it is false.
 var recenter_button := true
+## The buttons of the pad while a game runs: "", "a", "b" or "ab" (REQ-GM-37a). Sent as `ab` in the `phase` and `welcome`
+## messages, and only when it is not "ab".
+var pad_buttons := "ab"
 var phase := "connect"   # connect, menu, playing, paused. See docs/PROTOCOL.md.
 var round_slots: Array[int] = []   # Slots that take part in the running round (when `round_limited`).
 var round_limited := false         # True when the round has its own list. A freed slot leaves the list.
@@ -104,6 +107,7 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	phase = p_phase
 	if not p_phase in ["playing", "paused"]:
 		recenter_button = true
+		pad_buttons = "ab"
 	round_slots.clear()
 	round_limited = false
 	if not p_phase in ["playing", "paused"]:
@@ -118,6 +122,8 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 			var msg := {"t": "phase", "v": phase_for(p.slot)}
 			if not recenter_button:
 				msg["rc"] = false
+			if pad_buttons != "ab":
+				msg["ab"] = pad_buttons
 			_send_json(p.slot, msg)
 
 
@@ -319,6 +325,8 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	}
 	if not recenter_button:
 		welcome["rc"] = false
+	if pad_buttons != "ab":
+		welcome["ab"] = pad_buttons
 	_send_json(slot, welcome)
 	if resumed:
 		player_resumed.emit(slot)
