@@ -1,5 +1,5 @@
 extends SceneTree
-## The text of the HUD of Sumo Bumpers and Galaxy Protector: every font is 28 px or more and every plate is inside the 60 px
+## The text of the HUD of Sumo Bumpers and Star Shield: every font is 28 px or more and every plate is inside the 60 px
 ## margin of the screen, in English and in Hebrew (REQ-GM-45, REQ-SB-15, REQ-AB-16). A person reading it from 3 m stays a manual
 ## step; this checks the numbers. Run:
 ##   godot --headless --path . --script tests/layout_hud_fonts.gd -- --role=tv
@@ -113,9 +113,9 @@ func _sumo(game: Control, code: String) -> void:
 			% [code, worst_top] + "(under the 112 px bar)")
 
 
-## 22.12e: the wave number, the banners and the line of Galaxy Protector.
+## 22.12e: the wave number, the banners and the line of Star Shield.
 func _asteroid(game: Control, code: String) -> void:
-	print("Galaxy Protector in ", code)
+	print("Star Shield in ", code)
 	var area: Vector2 = game.size
 	_check(game.WAVE_FONT >= 28 and game.BANNER_FONT >= 28 and game.SUB_FONT >= 28,
 			"%s: the fonts of the wave number, the banner and the second line are %d, %d and %d px (28 or more)"

@@ -151,7 +151,7 @@ Values that change the feel. Tune them with the swing lab and a device test (REQ
 
 - **Aim by finger (decided 2026-10-20).** Aiming by the turn of the phone (yaw) drifted and was hard to hold, so the aim is now a finger on the phone (REQ-BW-4). The old question, kept for the record: "Moving the phone left or right" cannot be measured as a slide (a phone cannot know a distance). The plan turns the phone
   (yaw, like the Banana Party pointer) and sets the center at each turn, so drift does not matter. The other way is to tilt the phone
-  left or right (roll, no drift, like Galaxy Protector). Which one feels like bowling?
+  left or right (roll, no drift, like Star Shield). Which one feels like bowling?
 - **Does the swing work with any grip?** The detector finds the swing axis from the back swing. This is never tried with a real phone (Test 23; the sensor directions test, Test 3, is still open).
 - **Spin (hook).** A twist of the wrist at the release could curve the ball and make splits (7-10) possible. It is not in the first version (straight balls only).
 - **The code of the profile.** Pin Pals added keys 40 to 42. A code with a Pin Pals best is format version 2; any other code stays version 1, so an old app reads it and refuses only a version 2 code (`docs/PROFILES_PLAN.md`).

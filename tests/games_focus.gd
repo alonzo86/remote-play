@@ -114,13 +114,13 @@ func _grid_checks(app: Node) -> void:
 		one_cursor = one_cursor and focused.size() == 1
 	_check(always_visible, "walking to the last tile and back, the focused tile is always inside the screen")
 	_check(one_cursor, "exactly one tile has the focus (the yellow frame) at each step")
-	var asteroid := -1
+	var longest := 0
 	for i in screen._tiles.size():
-		if String(screen._tiles[i].game.id) == "asteroid_blast":
-			asteroid = i
-	screen._tiles[asteroid].grab_focus()
+		if tr(screen._tiles[i].game.title).length() > tr(screen._tiles[longest].game.title).length():
+			longest = i
+	screen._tiles[longest].grab_focus()
 	await _frames(25)
-	var tile: Control = screen._tiles[asteroid]
+	var tile: Control = screen._tiles[longest]
 	var labels := tile.find_children("*", "Label", true, false)
 	var fits := not labels.is_empty()
 	for l in labels:
@@ -128,5 +128,5 @@ func _grid_checks(app: Node) -> void:
 				l.get_theme_font_size("font_size")).x
 		fits = fits and (l.autowrap_mode != TextServer.AUTOWRAP_OFF or w <= l.size.x + 1.0)
 	_check(fits and view.grow(-60.0).encloses(tile.get_global_rect()),
-			"the focused Galaxy Protector tile (longest title) fits and is inside the 60 px margin")
+			"the focused tile with the longest title fits and is inside the 60 px margin")
 	root.size = Vector2i(1280, 720)

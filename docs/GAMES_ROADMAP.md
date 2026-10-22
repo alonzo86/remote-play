@@ -84,7 +84,7 @@ Order and dependencies:
 ## Games for children too
 
 Decision (2026-10-09, after the first try of "Target Shoot"): all games are also for children (REQ-GM-80 to 84 in `docs/GAME_REQUIREMENTS.md`).
-No violence against anything alive, no blood and nothing scary (REQ-GM-81): made-up friendly characters, bananas, bumpers, funny reactions. Toy beams at lifeless things (rocks) are fine (Galaxy Protector). A miss or a fall costs nothing. Large and slow at the start.
+No violence against anything alive, no blood and nothing scary (REQ-GM-81): made-up friendly characters, bananas, bumpers, funny reactions. Toy beams at lifeless things (rocks) are fine (Star Shield). A miss or a fall costs nothing. Large and slow at the start.
 What this means for the games that are not built yet. The decision is made in the requirements file of each game:
 
 | Game | Check against REQ-GM-80 to 84 |

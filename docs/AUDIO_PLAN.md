@@ -1,6 +1,6 @@
 # Audio plan: arcade music and sound effects (FD-20)
 
-Status: **phase A and the effects of the first five games are built (2026-10-10); Galaxy Protector, the sixth game, has a song and five effects (2026-10-16); manual test 18 is open.** The sections below are the plan; section 11 says what was built and what differs. The owner asked for music on the TV app: an arcade-style, MIDI-like loop, one clip for the menus and one for each game, and sound effects for each game. This file proposes how, lists the effects for each game, and lists the defaults chosen for the open questions. The owner confirms or changes the effect lists (section 4) before phase B.
+Status: **phase A and the effects of the first five games are built (2026-10-10); Star Shield, the sixth game, has a song and five effects (2026-10-16); manual test 18 is open.** The sections below are the plan; section 11 says what was built and what differs. The owner asked for music on the TV app: an arcade-style, MIDI-like loop, one clip for the menus and one for each game, and sound effects for each game. This file proposes how, lists the effects for each game, and lists the defaults chosen for the open questions. The owner confirms or changes the effect lists (section 4) before phase B.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
 
 Base: this plan is based on `main`. The arcade style PRs 18 to 24 are still stacked and unmerged, so some names here (the Hebrew texts of FD-19, the pixel worlds) exist only in that stack. When the stack reaches `main`, resolve conflicts in `docs/TV_FLOW.md`, `docs/GAME_REQUIREMENTS.md` and `docs/REQUIREMENTS.md`, and re-check the file names in this plan.
@@ -33,10 +33,10 @@ The clip ids are the game ids. The games were renamed later: `maze` is Treasure 
 | `paint_grab` | Paint Grab | Cheerful and bouncy (about 128 BPM) | 16 bars (30 s) |
 | `sumo_bumpers` | Sumo Bumpers | Heavy and comic, a march with a strong beat (about 132 BPM) | 16 bars (29 s) |
 | `snowball_splat` | Snowball Splat | Light and playful, bell-like (about 124 BPM) | 16 bars (31 s) |
-| `asteroid_blast` | Galaxy Protector | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
+| `asteroid_blast` | Star Shield | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
 
 Rules:
-- Game music of a game with a countdown starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1). Only a game with a visible timer has a countdown (REQ-GM-35); the music of the other games (Galaxy Protector, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players) starts with the play.
+- Game music of a game with a countdown starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1). Only a game with a visible timer has a countdown (REQ-GM-35); the music of the other games (Star Shield, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players) starts with the play.
 - Music is quieter than effects (about 6 dB), so a hit is always heard. Every effect is 3 to 9 dB above the music at the default levels (RMS, bus gains applied), and no effect or song clips (peak 1.0 or lower); `tests/audio.gd` asserts this for every effect.
 - The pause menu and the "phone lost" card lower the music to 30% (it does not stop, so Resume has no jump). The result menu stops the music and plays a short jingle, then goes quiet; it does not loop under a menu where the players talk.
 - The menu music goes on across the menu screens with no restart (the Games screen to the Settings screen and back). It restarts only after a game.
@@ -68,7 +68,7 @@ Proposed scenes (the game files get the final list; the current code already has
 
 | Scene | Haptic | Games |
 |-------|--------|-------|
-| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, paint grab, Tennis alone. Not Galaxy Protector, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
+| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, paint grab, Tennis alone. Not Star Shield, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
 | The player scores or reaches the goal (exit, finish line, a hit on a Puff) | 120 ms, or 40 ms for a small score | maze, marble race, snowball splat |
 | The player's own object touches something (wall, bumper, another player) | 15 to 30 ms, with a cool-down | maze, marble race, paint grab, sumo |
 | A bump that pushes the player (stronger when harder) | 20 to 80 ms | sumo |

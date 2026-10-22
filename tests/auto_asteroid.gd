@@ -1,5 +1,5 @@
 extends SceneTree
-## Galaxy Protector with simulated phones and a fixed time step: what used to be checked by hand in Test 22 and a machine can
+## Star Shield with simulated phones and a fixed time step: what used to be checked by hand in Test 22 and a machine can
 ## check (no countdown, no name tags, the hint time, RECENTER, the colors of the beams, the buzzes, the line of the wave,
 ## the medals, a player that leaves). The game is stepped by hand (`SimInput`). Run:
 ##   godot --headless --path . --script tests/auto_asteroid.gd -- --role=tv

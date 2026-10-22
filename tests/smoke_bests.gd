@@ -73,7 +73,7 @@ func _keys() -> void:
 	_app.go(Blast, {"difficulty": "hard"})
 	await _frames(2)
 	keys.blast = _app.current_screen().best_key()
-	_check(keys.blast == "asteroid_blast|hard", "Galaxy Protector uses the game and the difficulty (REQ-AB-18)")
+	_check(keys.blast == "asteroid_blast|hard", "Star Shield uses the game and the difficulty (REQ-AB-18)")
 	_app.go(Bowling, {"difficulty": "easy"})
 	await _frames(2)
 	keys.bowling = _app.current_screen().best_key()

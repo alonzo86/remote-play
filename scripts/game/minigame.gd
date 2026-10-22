@@ -41,7 +41,7 @@ var _menu_box: Control
 var _menu_open := false
 var _menu_kind := ""             # "hold" for the card of a lost phone, "menu" for the other menus.
 var _hold := false               # A participant lost its connection: the game waits for a decision (REQ-GM-30).
-## A game with one player and no medal tiers sets this before `open_results()`: the row has no medal (Galaxy Protector).
+## A game with one player and no medal tiers sets this before `open_results()`: the row has no medal (Star Shield).
 var no_medals := false
 var _hold_info := {}             # slot -> {name, color} of the players lost in this hold.
 var _hold_sig := ""

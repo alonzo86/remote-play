@@ -162,7 +162,7 @@ func _run() -> void:
 	_check(_share(sumo, [SumoLook.GRASS_A, SumoLook.GRASS_B]) > 0.03 and _count(sumo, SumoLook.RIM) > 100,
 			"sumo_bumpers: the grass of the island and its rim")
 	_players(sumo, "sumo_bumpers", pc, 4, 60, 20)
-	# Galaxy Protector: the night sky, 4 ships, asteroids of different sizes, a beam.
+	# Star Shield: the night sky, 4 ships, asteroids of different sizes, a beam.
 	var blast: Image = images.asteroid_blast
 	var dark := 0
 	for y in range(0, 360, 3):
