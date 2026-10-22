@@ -354,6 +354,8 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	if pad_buttons != "ab":
 		welcome["ab"] = pad_buttons
 	_send_json(slot, welcome)
+	if not resumed:
+		_swing_ok.erase(slot)   # A new phone in a used slot has not tapped OK yet.
 	if setup_swing:
 		_send_json(slot, {"t": "setup", "swing": true})   # A phone that joins or returns while the settings view is open.
 	if resumed:

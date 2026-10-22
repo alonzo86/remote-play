@@ -104,6 +104,7 @@ func _late_phone() -> void:
 		c.swing_acked = false
 	app.go_game_settings("mini_golf")
 	await _wait_for(func(): return sim.clients[0].setup_swing)
+	app.server._swing_ok[2] = true   # A phone that had this slot before tapped OK.
 	await sim.join(1)   # a third phone
 	await _wait_for(func(): return sim.clients[2].setup_swing)
 	_check(sim.clients[2].setup_swing and app.server.swing_pending() == [0, 1, 2],
