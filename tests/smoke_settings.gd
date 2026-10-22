@@ -256,6 +256,7 @@ func _slot_list(app: Node) -> void:
 	players[0].player_name = "Ann"
 	players[1].state = PlayerInput.State.LOST
 	players[1].player_name = "Bo"
+	players[1].lost_since_ms = Time.get_ticks_msec()   # Else the server frees the slot at its next tick.
 	players[2].state = PlayerInput.State.EMPTY
 	var list: VBoxContainer = load("res://scripts/ui/slot_list.gd").new()
 	list.removable = true

@@ -7,17 +7,19 @@ other steps do not change) and it gets an ID `A-<test>-<item>` in the table belo
 ## Run them on the Mac
 
 ```sh
-GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh        # all suites, stops at the first failure
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh        # all suites (it runs all of them, also after a failure)
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh unit   # the suites that the CI runs
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh scenario   # the suites of screens, layouts, texts and flows
 GODOT=/Applications/Godot.app/Contents/MacOS/Godot tools/coverage.sh       # same suites with the 80% line coverage check (CI)
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tests/smoke_settings.gd -- --role=tv   # one suite (the role is in suites.txt)
 ```
 
-The suites are listed in `tests/suites.txt` (`script|role|title`). A new suite is added there only. Each suite prints `ok` or `FAIL`
+The suites are listed in `tests/suites.txt` (`script|role|title|tier`). A new suite is added there only. The tier is `unit` (the logic of one module or one rule; the CI runs these) or `scenario` (a screen, a layout, a text, a flow or several phones at once; run locally or on demand). Every line needs a tier; any other value (or a `|` in a title) stops the run with exit 2. The unit suites take about 2.5 minutes, the scenario suites about 13 minutes (one core, headless, measured on 2026-10-22).
 for every check and ends with `N checks, M failed` (the TV smoke test ends with `smoke test done, M failed`). The whole run takes a few
 minutes and opens no window (`--headless`). Screenshots for a look at the screens need a display and are not part of the run:
 `godot --path . --rendering-driver opengl3 --script tests/screenshots.gd -- --role=tv`.
 
-The pixel checks are not part of that run (they need a software GL driver, not `--headless`). They are in `tests/pixel_render.gd` and run in the CI job `pixels` (`.github/workflows/ci.yml`), or by hand, once for each screen size:
+The pixel checks are not part of that run (they need a software GL driver, not `--headless`). They are in `tests/pixel_render.gd` and run in the CI job `pixels` (`.github/workflows/ci.yml`; see "CI minutes" for when it runs), or by hand, once for each screen size:
 
 ```sh
 xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 --script tests/pixel_render.gd -- --role=tv
@@ -25,6 +27,40 @@ xvfb-run -a -s "-screen 0 3840x2160x24" godot --path . --rendering-driver opengl
 ```
 
 It needs `xvfb` and Mesa (`libgl1-mesa-dri`). A known-bug check (`FAIL (known bug)` in the output) is a bug that a test found. It counts as a failure: the suite stays red until the bug is fixed, and it is not hidden. When the code is fixed the check passes, and the test is changed to a plain check. So a test that finds a bug now FAILS. The suites that start the TV all use the port 47801, so run them one after the other.
+
+## CI minutes
+
+The scripts that decide what runs (`tools/ci_changes.sh`, `tools/ci_plan_circleci.sh` and the tier filter of `tests/run_suites.sh`) have their own test, `tests/ci_scripts.sh` (git and sh only, no Godot, a few seconds). `tests/run_all.sh` and the lint job of both CI systems run it.
+
+The free CI plans have a limited number of minutes each month. The CI runs the unit suites and the pixel checks only (Alon, 2026-10-22). The workflow `.github/workflows/ci.yml` spends the minutes like this (the job `changes` decides):
+
+| Case | lint | test | coverage | pixels | build-android |
+|------|------|------|----------|--------|---------------|
+| A pull request that changes code | yes | unit suites | reported, never fails | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `scripts/core/`, `scripts/input/`, `scripts/app.gd`, `project.godot`, the pixel tests, the design tokens) | yes |
+| A pull request with the label `full-tests` | yes | all suites | reported | as above | yes |
+| A pull request with the label `pixels` | yes | unit suites | reported | yes | yes |
+| A push to `main` (a merge) | yes | unit suites (a run on `main` is never cancelled by a newer push) | reported | yes | yes |
+| A manual run (Actions, "Run workflow") | yes | unit, scenario or all (your choice) | reported | your choice | yes |
+| Only Markdown, `docs/` or `.claude/` changed (the design tokens in `docs/design-system/` are code) | no | no | no | no | yes |
+| A draft pull request | nothing runs. Mark it ready for review to start CI | | | | |
+
+The scenario suites that take most time: `hud_layout` 105 s, `multi_phone` 101 s, `device_mocks` 80 s, `audio_phones` 58 s, `r4_tv_profiles` 49 s, `smoke_tv` 43 s, `r1_reconnect` 37 s, `r1_tv_screens` 25 s, `net_rate` 24 s, `audio_events` 23 s, `games_focus` 21 s.
+
+The coverage job always runs, always reports (the summary of the run) and never fails. The 80% rule (every module) is a local check: `tools/coverage.sh` runs all suites, and CLAUDE.md asks for it before a pull request. The unit suites alone leave the screen modules (`scripts/ui`, most of `scripts/game`) and the audio modules below 80%, because the scenario suites cover them.
+
+### CircleCI (beside GitHub Actions)
+
+`.circleci/config.yml` runs the same checks while both systems run (Alon, 2026-10-22: keep both for now). The repository must be connected in CircleCI first (Projects, Set Up), and "Auto-cancel redundant workflows" turned on. CircleCI has no labels and no draft state, so `tools/ci_plan_circleci.sh` decides from the branch and the pipeline parameters:
+
+| Case | lint | test and coverage | pixels |
+|------|------|-------------------|--------|
+| Branch `main` | yes | unit suites; coverage is only reported | yes |
+| Branch `main`, only documentation changed since the previous commit | no | no | no |
+| Another branch | yes | unit suites; coverage is only reported | only when something drawn changed |
+| "Trigger Pipeline" with `tests` = unit, scenario or all, or `pixels` = true (also for a documentation-only change) | yes | the tier you give | when `pixels` is true |
+| Only Markdown, `docs/` or `.claude/` changed | no | no | no |
+
+There is no `build-android` job on CircleCI (the APK export is off). A documentation-only change therefore runs nothing there. Godot is cached between runs. Compare the credits used with the minutes of Actions before you turn one of them off.
 
 ## What replaced a manual step
 
@@ -332,7 +368,7 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | `device_mocks_b` | simulated phones on loopback for the maze, Road Rally and Banana Party: the buzz at a wall, a post and a car, at most 7 buzzes in a second, RECENTER while the car runs, two throws in one frame, a silent phone (the Start button of the maze view, the card of Banana Party). It runs about 25 s in real time |
 | `game_rules_b` | Banana Party: crossing times of the lanes, the golden monkey, the animal pictures; Road Rally: the lists of obstacles and scenery of 3 themes, the board palette, the time to make a board, the finish line, the cars. (A second file, because `game_rules` is at the line limit of gdlint.) |
 | `tiles` | the 9 tile files as pictures: size, import, export presets, and for each game the ground and the main objects as colors and blobs (this finds a stale tile after a look change; it does not compare with a running game) |
-| `pixel_render` (render lane, NOT in `tests/suites.txt`, no coverage) | real frames from the software GL driver (`xvfb`, Mesa llvmpipe), run at 1920x1080 and 3840x2160: menus and logo have only palette colors; Road Rally in 3 themes (sharp blocks, cars and obstacles exact, the HUD and the 60 px edge); Banana Party jungle (the bar, the lanes, the 6 animals exact); the 9 tiles are 640x360 and 2 of them have look colors; known bugs print `FAIL (known bug)` and count as failures (the logo file with 2x2 pixels); the top rows of each tile are no black HUD bar (REQ-GM-49). Run: `xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 --script tests/pixel_render.gd -- --role=tv`, and the same with 3840x2160 (the size must come from `--resolution`). CI: the job `pixels` (not run on GitHub yet) |
+| `pixel_render` (render lane, NOT in `tests/suites.txt`, no coverage) | real frames from the software GL driver (`xvfb`, Mesa llvmpipe), run at 1920x1080 and 3840x2160: menus and logo have only palette colors; Road Rally in 3 themes (sharp blocks, cars and obstacles exact, the HUD and the 60 px edge); Banana Party jungle (the bar, the lanes, the 6 animals exact); the 9 tiles are 640x360 and 2 of them have look colors; known bugs print `FAIL (known bug)` and count as failures (the logo file with 2x2 pixels); the top rows of each tile are no black HUD bar (REQ-GM-49). Run: `xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 --script tests/pixel_render.gd -- --role=tv`, and the same with 3840x2160 (the size must come from `--resolution`). CI: the job `pixels` (see "CI minutes") |
 | `sim_b` (helper, not a suite) | simulated phones, a fake-clock sensor feed and hand-stepped games for the suites above |
 | `auto_paint` | Paint Grab with a fixed time step: the tilt directions, damping, the edges, the 3 levels (floors, speed, medal tiers), 2 blobs, leader and winner, the tile grid and pop, takes and pots, a player leaves, the slot colors |
 | `auto_sumo` | Sumo Bumpers with a fixed time step: the tilt, the shrinking island and its ring, bump and buzz limit, the dash, the fall and WHEE!, the next round, round length and wait for 3 levels, 3 rounds with 2, 3 and 4 phones, the penguins |

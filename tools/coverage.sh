@@ -6,7 +6,7 @@
 # output dir, writes the reports and checks the 80% rule; `all` (the default) does both.
 # The default rule: every module (script file) has 80% line coverage, except the modules in
 # tools/coverage/exclusions.txt. The exit code is 1 when a module is below. Output (default build/coverage):
-# summary.md, summary.json, lcov.info.
+# summary.md, summary.json, lcov.info. COVERAGE_REPORT_ONLY=1 makes the reports but never fails (for a run of one tier of the suites, and for the CI).
 # It needs python3 and gdtoolkit (pip install "gdtoolkit==4.*"). See tools/coverage/instrument.py.
 set -eu
 cd "$(dirname "$0")/.."
@@ -31,6 +31,10 @@ if [ "$STEP" != report ]; then
 	)
 fi
 if [ "$STEP" != run ]; then
+	MIN_FILE="--min-file 80"
+	# COVERAGE_REPORT_ONLY=1: make the reports, but do not fail on a module below 80% (a run of one tier of the suites, and the CI)
+	[ "${COVERAGE_REPORT_ONLY:-0}" = 1 ] && MIN_FILE=""
+	# shellcheck disable=SC2086
 	python3 tools/coverage/report.py "$WORK/coverage_manifest.json" "$OUT/hits" "$OUT" \
-		--min-file 80 --exclusions tools/coverage/exclusions.txt "$@"
+		$MIN_FILE --exclusions tools/coverage/exclusions.txt "$@"
 fi
