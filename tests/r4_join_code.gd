@@ -214,6 +214,39 @@ func _typed_code() -> void:
 	_app.client.leave()
 	await _wait_until(func(): return _server.player_count() == 0, 3000)
 	await _frames(3)
+	# Enter on the keyboard joins like the button (REQ-FL-83).
+	var enter := await _connect_screen(["127.0.9.9"])
+	enter._code.text = shown
+	enter._code.text_submitted.emit(shown)
+	_check(await _wait_until(func(): return _app.client.state == ControllerClient.State.CONNECTED, 4000),
+			"Enter in the code field joins")
+	_app.client.leave()
+	await _wait_until(func(): return _server.player_count() == 0, 3000)
+	await _frames(3)
+	# Another TV answers bad_room at the first address: the next address of the phone is tried (the right TV is there).
+	var two := await _connect_screen(["127.0.9.9"])
+	two._typed_room = shown
+	two._candidates = ["127.0.0.1"] as Array[String]
+	_app.last_error = Lang.t("app.wrong_room_code")
+	two._on_rejected("bad_room")
+	_check(_app.last_error == "", "bad_room with an address left clears the error and tries again")
+	_check(await _wait_until(func(): return _app.client.state == ControllerClient.State.CONNECTED, 4000),
+			"the second address holds the right TV and the phone joins")
+	_app.client.leave()
+	await _wait_until(func(): return _server.player_count() == 0, 3000)
+	await _frames(3)
+	# bad_room at the last address stays WRONG ROOM CODE.
+	var last := await _connect_screen(["127.0.9.9"])
+	last._typed_room = shown
+	last._candidates.clear()
+	_app.last_error = Lang.t("app.wrong_room_code")
+	last._on_rejected("bad_room")
+	_check(_app.last_error == Lang.t("app.wrong_room_code") and last._typed_room == "",
+			"bad_room at the last address shows WRONG ROOM CODE")
+	_app.last_error = ""
+	# The desktop argument --join= (a development run with no room code).
+	_check(_app._join_arg(PackedStringArray(["--role=controller", "--join=127.0.0.1"])) == "127.0.0.1"
+			and _app._join_arg(PackedStringArray(["--role=controller"])) == "", "--join= gives the TV address, none gives empty")
 
 
 ## A text that is not a code and a code that nobody answers show their texts.

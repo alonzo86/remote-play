@@ -331,8 +331,8 @@ func _start_controller() -> void:
 
 
 ## For desktop runs: `--join=127.0.0.1` joins the TV at that address without a room code (the TV takes a hello with no room).
-func _join_arg() -> String:
-	for a in OS.get_cmdline_user_args():
+func _join_arg(args: PackedStringArray = OS.get_cmdline_user_args()) -> String:
+	for a in args:
 		if a.begins_with("--join="):
 			return a.substr(7)
 	return ""

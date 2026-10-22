@@ -164,13 +164,15 @@ func _on_qr_failed(reason: String) -> void:
 	_on_state(ControllerClient.State.IDLE)
 
 
-## A typed code that no address answers tries the next address of the phone; when none is left, the room is not found.
+## A typed code that no address answers, or that another TV turns away (`bad_room`), tries the next address of the phone; when
+## none is left, the room is not found (unreachable) or the code is wrong (bad_room, the text App set).
 func _on_rejected(reason: String) -> void:
-	if _typed_room != "" and reason == "unreachable":
+	if _typed_room != "" and reason in ["unreachable", "bad_room"]:
 		if not _candidates.is_empty():
 			_try_next_host()
 			return
-		App.last_error = Lang.t("connect.room_not_found")
+		if reason == "unreachable":
+			App.last_error = Lang.t("connect.room_not_found")
 	_typed_room = ""
 	_candidates.clear()
 	_on_state(App.client.state)   # The state went IDLE before the reason was known: show the reason now.
