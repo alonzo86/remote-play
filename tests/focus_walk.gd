@@ -252,7 +252,8 @@ func _focus_style() -> void:
 	await _frames(4)
 	var items: Array = _app.current_screen().find_children("*", "Button", true, false).filter(func(b): return b.has_focus())
 	_check(items.size() == 1 and items[0].focus_mode == Control.FOCUS_ALL, "one item of the settings view has the focus")
-	var tv_box: Button = load("res://scripts/ui/ui_kit.gd").box_button("x", func(): pass)   # REQ-FL-86: only the phone loses the focus.
+	# REQ-FL-86: only the phone loses the focus.
+	var tv_box: Button = load("res://scripts/ui/ui_kit.gd").box_button("x", func(): pass)
 	_check(tv_box.focus_mode == Control.FOCUS_ALL, "on the TV a box button takes the focus (the remote needs it)")
 	tv_box.free()
 	_app.go_games()
