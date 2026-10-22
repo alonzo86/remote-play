@@ -5,7 +5,8 @@ extends SceneTree
 ##   for the whole name, also a Hebrew name of 10 letters;
 ## - 4a: the phones `Sam` and `sam` are SAM and SAM 2 on the Players list;
 ## - 4b: a name of 10 letters in Latin and in Hebrew is whole in the Players list and on the Connect screen, in both languages;
-## - 6a2: a phone whose Wi-Fi goes away without a close (a relay cuts the link) pauses the game in 3.6 s or less; the card names it.
+## - 6a2: a phone whose Wi-Fi goes away without a close (a relay cuts the link) pauses the game in 3.6 s or less; the card
+##   names it.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_tv_profiles.gd -- --role=tv
 
 const Protocol = preload("res://scripts/core/protocol.gd")
