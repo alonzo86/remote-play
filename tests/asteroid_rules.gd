@@ -374,9 +374,14 @@ func _ship_speed_and_fire() -> void:
 		f4.tick(1.0 / 60.0, _rng(5), {0: 1.0, 1: 0.0})
 		f4.asteroids.clear()
 	_check(not f4.ships[0].alive and f4.ships[0].x == dead_x and f4.alive_count() == 1, "a ship that is out stays out for 9.9 s")
+	var returns: Array = []
 	for i in 12:   # up to 10.1 s
 		f4.tick(1.0 / 60.0, _rng(5), {0: 0.0, 1: 0.0})
+		for e in f4.events:
+			if e.t == "ship_back":
+				returns.append(e.slot)
 		f4.asteroids.clear()
+	_check(returns == [0], "the return is reported once, for the slot of the ship (REQ-AB-15)")
 	_check(f4.ships[0].alive and f4.ships[0].shield and f4.ships[0].x == dead_x and f4.alive_count() == 2,
 			"after 10 s the ship is back where it was, with a force field (REQ-AB-13)")
 	var f5 := _field([900.0])
