@@ -52,6 +52,7 @@ func _run() -> void:
 	await _pad_buttons()
 	await _fonts_and_background()
 	await _back_key()
+	await _swing_card()
 	await _no_focus()
 	await _safe_layout()
 	await _safe_rtl()
@@ -66,6 +67,31 @@ func _screen(script: GDScript, parent: Control = null) -> Control:
 	else:
 		root.add_child(s)
 	return s
+
+
+## Issue #79, REQ-GM-102: the safety card of a swing game shows on the waiting screen until OK, and not again in this run.
+func _swing_card() -> void:
+	print("swing card")
+	var wait: Control = _screen(_app.ControllerWait)
+	await process_frame
+	_check(not is_instance_valid(wait._swing_card), "no card without the setup of a swing game")
+	_app.client.swing_acked = false
+	_app.client.setup_swing = true
+	_app.client.setup_changed.emit()
+	await process_frame
+	_check(is_instance_valid(wait._swing_card) and wait._swing_card.ok_button.text == "common.ok",
+			"the card shows while the setup is a swing game, with an OK button")
+	var card: Control = wait._swing_card
+	card.ok_button.pressed.emit()
+	await process_frame
+	await process_frame
+	_check(_app.client.swing_acked and not is_instance_valid(wait._swing_card), "OK answers and closes the card")
+	_app.client.setup_changed.emit()
+	await process_frame
+	_check(not is_instance_valid(wait._swing_card), "the card does not show again in this run of the app")
+	_app.client.setup_swing = false
+	_app.client.swing_acked = false
+	wait.queue_free()
 
 
 ## The hue of a color in degrees.

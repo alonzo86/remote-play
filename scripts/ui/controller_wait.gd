@@ -10,6 +10,7 @@ const Avatar = preload("res://scripts/ui/avatar.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
 const QuitDialog = preload("res://scripts/ui/controller_quit_dialog.gd")
+const SwingCard = preload("res://scripts/ui/controller_swing_card.gd")
 
 var _title: Label
 var _sub: Label
@@ -19,6 +20,7 @@ var _dot: Control
 var _name: Label
 var _leave: Button
 var _quit_dialog: Control
+var _swing_card: Control   # The safety card of a swing game (issue #79). Null while it is not open.
 
 
 func _ready() -> void:
@@ -86,7 +88,19 @@ func _ready() -> void:
 	App.client.phase_changed.connect(_on_phase)
 	App.client.state_changed.connect(_on_state)
 	App.client.profile_answered.connect(_refresh)
+	App.client.setup_changed.connect(_update_swing_card)
 	_refresh()
+	_update_swing_card()
+
+
+## The safety card shows while the TV setup is a swing game and this phone has not tapped OK in this run of the app (issue #79).
+func _update_swing_card() -> void:
+	var want: bool = App.client.setup_swing and not App.client.swing_acked
+	if want and not is_instance_valid(_swing_card):
+		_swing_card = SwingCard.new()
+		add_child(_swing_card)
+	elif not want and is_instance_valid(_swing_card):
+		_swing_card.queue_free()
 
 
 func _on_phase(_phase: String) -> void:

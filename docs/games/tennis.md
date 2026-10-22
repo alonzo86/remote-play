@@ -71,6 +71,7 @@ Solo, players and feedback
 | REQ-TN-16 | Medal tiers for 1 player (REQ-GM-73), by the longest rally: `[5, 10, 20]` on Medium (the tiers for Easy and Hard are in REQ-TN-18). First guesses. | Done | tennis_rules |
 | REQ-TN-17 | Personal best (REQ-GM-98): **not built yet.** `best_key()` is empty, because a new key needs a number in `ProfileKeys` and in the profile code (a change of the profile format). Planned: in 1 player mode the key is `tennis|<difficulty>` and the longest rally counts (more is better). The games with 2 to 4 players have no key, because a match has no score that compares between matches (no best). The user decides when to add it. | Open | smoke_tennis |
 | REQ-TN-20 | A player who leaves: the character goes away and its team plays on with the rest (REQ-GM-21); in 2 against 2 the teams stay as they were (no new teams for 3 players), and the characters keep their side of the court. When a team has no player left, the other team wins at once with the result menu. With 3 players the change of the single player (REQ-TN-1) skips the one who left. When nobody is left the "No players connected" menu opens (REQ-GM-22). A lost phone pauses the match (REQ-GM-30). | Done | tennis_rules, smoke_tennis |
+| REQ-TN-22 | Safety (REQ-GM-102, issue #79): Tennis is a swing game (`swing` in the registry). The settings view shows the safety line, each phone shows the card "HOLD ON TIGHT!" once for each run of the app, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
 
 ## Parameters
 

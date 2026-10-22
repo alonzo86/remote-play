@@ -5,6 +5,7 @@ extends Control
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const ChoiceRow = preload("res://scripts/ui/choice_row.gd")
@@ -56,6 +57,13 @@ func _ready() -> void:
 	last.focus_neighbor_bottom = last.get_path_to(start_button)
 	start_button.focus_neighbor_top = start_button.get_path_to(last)
 	back_button.focus_neighbor_top = back_button.get_path_to(last)
+	if bool(game.get("swing", false)):
+		# The safety line of a swing game, always shown (issue #79, REQ-GM-102): the whole room reads it.
+		var safety := UiKit.label("swing.tv_line", UiTheme.SIZE_BODY, UiTheme.TEXT)
+		safety.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		safety.autowrap_mode = TextServer.AUTOWRAP_WORD
+		safety.custom_minimum_size = Vector2(900, 0)
+		box.add_child(safety)
 	reason_label = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
 	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(reason_label)
@@ -71,12 +79,15 @@ func _process(_delta: float) -> void:
 func _update_fit() -> void:
 	var n: int = App.server.connected_slots().size()
 	var fits := Registry.accepts(game, n)
-	start_button.disabled = not fits
-	reason_label.text = "" if fits else Registry.reason(game, n).to_upper()
+	# A swing game waits until every phone has tapped OK on the safety card (issue #79).
+	var waiting: bool = fits and not App.server.swing_pending().is_empty()
+	start_button.disabled = not fits or waiting
+	reason_label.text = Lang.t("game_settings.waiting_phones").to_upper() if waiting else (
+			"" if fits else Registry.reason(game, n).to_upper())
 
 
 func start() -> void:
-	if not Registry.accepts(game, App.server.connected_slots().size()):
+	if not Registry.accepts(game, App.server.connected_slots().size()) or not App.server.swing_pending().is_empty():
 		return
 	var script := Registry.load_script(game_id)
 	if script != null:

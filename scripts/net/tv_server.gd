@@ -27,6 +27,9 @@ var recenter_button := true
 ## The buttons of the pad while a game runs: "", "a", "b" or "ab" (REQ-GM-37a). Sent as `ab` in the `phase` and `welcome`
 ## messages, and only when it is not "ab".
 var pad_buttons := "ab"
+## True while the settings view of a swing game is open: phones show the safety card and answer `swing_ok` (REQ-GM-102).
+var setup_swing := false
+var _swing_ok := {}   # slot -> true for a phone that tapped OK on the safety card (or had tapped it before in this run).
 var phase := "connect"   # connect, menu, playing, paused. See docs/PROTOCOL.md.
 var round_slots: Array[int] = []   # Slots that take part in the running round (when `round_limited`).
 var round_limited := false         # True when the round has its own list. A freed slot leaves the list.
@@ -105,6 +108,8 @@ func connected_slots() -> Array[int]:
 ## `slots` gets the phase `waiting`: it joined late and takes part in the next round (REQ-FL-25).
 func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	phase = p_phase
+	setup_swing = false
+	_swing_ok.clear()
 	if not p_phase in ["playing", "paused"]:
 		recenter_button = true
 		pad_buttons = "ab"
@@ -125,6 +130,27 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 			if pad_buttons != "ab":
 				msg["ab"] = pad_buttons
 			_send_json(p.slot, msg)
+
+
+## Opens or closes the setup of the game that the settings view shows (issue #79). For a swing game every connected phone gets
+## the `setup` message with `swing: true`; the answers of `swing_ok` are counted again. Any `set_phase` closes the setup.
+func set_setup(swing: bool) -> void:
+	setup_swing = swing
+	_swing_ok.clear()
+	if swing:
+		for p in players:
+			if p.is_connected_now():
+				_send_json(p.slot, {"t": "setup", "swing": true})
+
+
+## The slots of the connected phones that have not tapped OK on the safety card yet. Empty when the setup is not a swing game.
+func swing_pending() -> Array[int]:
+	var r: Array[int] = []
+	if setup_swing:
+		for s in connected_slots():
+			if not _swing_ok.has(s):
+				r.append(s)
+	return r
 
 
 ## Sets the language of the TV and tells every connected phone (REQ-FL-62).
@@ -328,6 +354,8 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	if pad_buttons != "ab":
 		welcome["ab"] = pad_buttons
 	_send_json(slot, welcome)
+	if setup_swing:
+		_send_json(slot, {"t": "setup", "swing": true})   # A phone that joins or returns while the settings view is open.
 	if resumed:
 		player_resumed.emit(slot)
 	else:
@@ -477,6 +505,9 @@ func _handle_control(i: int, msg: Dictionary, now: int) -> void:
 			players[i].on_stat(float(msg.get("rtt", -1)), float(msg.get("off", 0)))
 		"recenter":
 			players[i].recenter()
+		"swing_ok":
+			if setup_swing:
+				_swing_ok[i] = true
 		"profile":
 			_handle_profile(i, msg, now)
 		"bye":
