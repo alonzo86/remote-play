@@ -553,6 +553,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 8. Check the tile of **Pin Pals**. Check: the 10 pins stand in a triangle and the ball is between the foul line and the pins. (The lane and the white shapes are checked by A-12-8; the test counts 138 white blobs and does not count the 10 pins.)
 9. Check the tile of **Tennis**. Check: the ball is high over the near half of the court. (The grass, the court, the ball and the players are checked by A-12-9.)
 10. Check the tile of **Mini Golf**. Check: a ball is between the tee and the hole. (The fairway, the lake, the windmill and the players are checked by A-12-10.)
+11. Open the settings view of each of the 9 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (9 of 9), and Back and Start are fully on the screen (9 of 9). (REQ-GM-103, issue #77)
 
 Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-12-1a, A-12-1b, A-12-1d, A-12-3a, A-12-6, A-12-7). The numbers of the other items do not change.
 
@@ -569,6 +570,7 @@ Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TEST
 | 8 | Photo of the Pin Pals tile next to a photo of the game | Not run | | | |
 | 9 | Photo of the Tennis tile next to a photo of the game | Not run | | | |
 | 10 | Photo of the Mini Golf tile next to a photo of the game | Not run | | | |
+| 11 | Photos of the 9 settings views from the sofa; the number read without error | Not run | | | |
 
 History:
 

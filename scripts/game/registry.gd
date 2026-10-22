@@ -7,6 +7,7 @@ extends RefCounted
 ##   path    script path
 ##   doc     requirements file of the game (REQ-GM-6)
 ##   description  one line for the Games screen (REQ-FL-13)
+##   how_to  the key of the how-to-play text, shown in the settings view (issue #77, REQ-GM-103). Required.
 ##   tile    16:9 screenshot for the Games screen, 640x360 (REQ-FL-20). A missing file shows a placeholder.
 ##   props   optional. Values set on the game before it starts.
 ##   settings  optional. The game has a settings view (REQ-GM-90) when this list exists. It lists the rows after Difficulty
@@ -23,6 +24,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 const GAMES: Array[Dictionary] = [
 	{"id": "maze", "doc": "res://docs/games/maze.md", "title": "registry.treasure_maze", "dim": "2d",
 			"pad": [],
+			"how_to": "how_to.maze",
 			"description": "registry.desc_maze",
 			"tile": "res://assets/tiles/maze.png",
 			"path": "res://scripts/game/maze/maze_game.gd", "min_players": 1, "max_players": 4,
@@ -30,6 +32,7 @@ const GAMES: Array[Dictionary] = [
 					"titles": ["registry.garden", "registry.castle", "registry.ice"], "default": "garden"}]},
 	{"id": "marble_race", "doc": "res://docs/games/marble_race.md", "title": "registry.marble_race", "dim": "2d",
 			"pad": [],
+			"how_to": "how_to.marble_race",
 			"description": "registry.desc_marble_race",
 			"tile": "res://assets/tiles/marble_race.png",
 			"path": "res://scripts/game/marble_race/marble_race.gd", "min_players": 1, "max_players": 4,
@@ -43,28 +46,33 @@ const GAMES: Array[Dictionary] = [
 	{"id": "paint_grab", "doc": "res://docs/games/paint_grab.md", "title": "registry.paint_grab",
 			"dim": "2d",
 			"pad": [],
+			"how_to": "how_to.paint_grab",
 			"description": "registry.desc_paint_grab",
 			"tile": "res://assets/tiles/paint_grab.png",
 			"path": "res://scripts/game/paint_grab/paint_grab_game.gd", "min_players": 1, "max_players": 4, "settings": []},
 	{"id": "sumo_bumpers", "doc": "res://docs/games/sumo_bumpers.md", "title": "registry.sumo_bumpers", "dim": "2d",
 			"pad": ["a"],
+			"how_to": "how_to.sumo_bumpers",
 			"description": "registry.desc_sumo_bumpers",
 			"tile": "res://assets/tiles/sumo_bumpers.png",
 			"path": "res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd", "min_players": 2, "max_players": 4, "settings": []},
 	{"id": "snowball_splat", "doc": "res://docs/games/snowball_splat.md", "title": "registry.snowball_splat", "dim": "2d",
 			"pad": ["a", "recenter"],
+			"how_to": "how_to.snowball_splat",
 			"description": "registry.desc_snowball_splat",
 			"tile": "res://assets/tiles/snowball_splat.png",
 			"path": "res://scripts/game/snowball_splat/snowball_splat_game.gd", "min_players": 1, "max_players": 4,
 			"settings": []},
 	{"id": "asteroid_blast", "doc": "res://docs/games/asteroid_blast.md", "title": "registry.galaxy_protector", "dim": "2d",
 			"pad": [],
+			"how_to": "how_to.asteroid_blast",
 			"description": "registry.desc_asteroid_blast",
 			"tile": "res://assets/tiles/asteroid_blast.png",
 			"path": "res://scripts/game/asteroid_blast/asteroid_blast_game.gd", "min_players": 1, "max_players": 4, "settings": []},
 	{"id": "bowling", "doc": "res://docs/games/bowling.md", "title": "registry.pin_pals", "dim": "2d",
 			"pad": ["a"],
 			"swing": true,
+			"how_to": "how_to.bowling",
 			"description": "registry.desc_bowling",
 			"tile": "res://assets/tiles/bowling.png",
 			"path": "res://scripts/game/bowling/bowling_game.gd", "min_players": 1, "max_players": 4,
@@ -73,6 +81,7 @@ const GAMES: Array[Dictionary] = [
 	{"id": "tennis", "doc": "res://docs/games/tennis.md", "title": "registry.tennis", "dim": "2d",
 			"pad": ["a"],
 			"swing": true,
+			"how_to": "how_to.tennis",
 			"description": "registry.desc_tennis",
 			"tile": "res://assets/tiles/tennis.png",
 			"path": "res://scripts/game/tennis/tennis_game.gd", "min_players": 1, "max_players": 4,
@@ -81,6 +90,7 @@ const GAMES: Array[Dictionary] = [
 	{"id": "mini_golf", "doc": "res://docs/games/mini_golf.md", "title": "registry.mini_golf", "dim": "2d",
 			"pad": ["a"],
 			"swing": true,
+			"how_to": "how_to.mini_golf",
 			"description": "registry.desc_mini_golf",
 			"tile": "res://assets/tiles/mini_golf.png",
 			"path": "res://scripts/game/mini_golf/mini_golf_game.gd", "min_players": 1, "max_players": 4,
