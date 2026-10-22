@@ -11,7 +11,7 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 const ChoiceRow = preload("res://scripts/ui/choice_row.gd")
 const TrackPicker = preload("res://scripts/ui/track_picker.gd")
 
-const ROSTER_SIZE := 28   # The size of the lines IN and OUT (the smallest text size, REQ-GM-41): the tallest view must still fit.
+const ROSTER_SIZE := 32   # The size of the lines IN and OUT (a TV text is 32 px or more, REQ-GM-41); the tallest view must fit.
 
 ## Set by `App.go_game_settings()` before the screen enters the tree.
 var game_id := ""
