@@ -42,6 +42,19 @@ The free GitHub plan has a limited number of minutes each month. The workflow `.
 | Only Markdown, `docs/` or `.claude/` changed (the design tokens in `docs/design-system/` are code) | no | no | no | no | yes |
 | A draft pull request | nothing runs. Mark it ready for review to start CI | | | | |
 
+### CircleCI (beside GitHub Actions)
+
+`.circleci/config.yml` runs the same checks while both systems run (Alon, 2026-10-22: keep both for now). The repository must be connected in CircleCI first (Projects, Set Up), and "Auto-cancel redundant workflows" turned on. CircleCI has no labels and no draft state, so `tools/ci_plan_circleci.sh` decides from the branch and the pipeline parameters:
+
+| Case | lint | test and coverage | pixels |
+|------|------|-------------------|--------|
+| Branch `main` | yes | all suites; the 80% rule fails the job | yes |
+| Another branch | yes | fast suites; coverage is only reported | only when something drawn changed |
+| "Trigger Pipeline" with `tests` = fast, slow or all and `pixels` = true | yes | the tier you give | when `pixels` is true |
+| Only Markdown, `docs/` or `.claude/` changed | no | no | no |
+
+There is no `build-android` job on CircleCI (the APK export is off). A documentation-only change therefore runs nothing there. Godot is cached between runs. Compare the credits used with the minutes of Actions before you turn one of them off.
+
 The slow suites (measured on 2026-10-22, one core, headless): `hud_layout` 105 s, `multi_phone` 101 s, `device_mocks` 80 s, `audio_phones` 58 s, `r4_tv_profiles` 49 s, `r1_reconnect` 37 s, `audio` 34 s, `net_rate` 24 s, `audio_events` 23 s, `swing_replay` 21 s, `device_mocks_b` 17 s: about 9 of the 15.6 minutes. The other 69 suites take about 6.5 minutes.
 
 The coverage job always runs and always reports (the summary of the run). The 80% rule (every module) needs the hits of all suites. The fast suites alone leave `audio_manager.gd` (64%), `songs.gd` (64%) and `controller_settings.gd` (79%) below 80%, so the rule fails the job only when all suites ran (a merge to `main`, the label `full-tests`, or a manual run with `all`). On a pull request the numbers are only a report (`COVERAGE_REPORT_ONLY=1`). A pull request can therefore pass CI and fail the rule after the merge. Run `tools/coverage.sh` before you create a pull request (CLAUDE.md); that is the whole check. Add `slow` to a new suite only when it takes 15 s or more.
