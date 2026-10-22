@@ -18,6 +18,7 @@ var game := {}
 var rows: Array[Control] = []   # The row controls: a choice row or a track list.
 var start_button: Button
 var back_button: Button
+var how_to_label: Label   # How to play (REQ-GM-103).
 var reason_label: Label   # Why Start does not work now (REQ-GM-20): not enough phones. Empty when it works.
 
 
@@ -33,6 +34,11 @@ func _ready() -> void:
 	var title := UiKit.title(String(game.get("title", "")))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
+	# How to play: the text of the game under the name, for the whole room (issue #77, REQ-GM-103).
+	how_to_label = UiKit.label(String(game.get("how_to", "")), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	how_to_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	how_to_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	box.add_child(how_to_label)
 	box.add_child(UiKit.spacer(12))
 	for r in GameSettings.rows_for(game):
 		var row: Control = TrackPicker.new() if r.get("type", "") == "tracks" else ChoiceRow.new()

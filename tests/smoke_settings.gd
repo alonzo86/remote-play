@@ -243,6 +243,7 @@ func _run() -> void:
 	_check(app.current_screen() == sv, "Start does nothing when the phones do not fit the game")
 	await _hebrew_rows(app)
 	await _slot_list(app)
+	await _how_to(app)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -348,3 +349,24 @@ func _hebrew_rows(app: Node) -> void:
 			"Down visits the same kinds of items in English and in Hebrew: %s" % str(chains.en))
 	app.set_language("en", false)
 	Lang.set_language("en", root)
+
+
+## Issue #77, REQ-GM-103: the settings view of every game shows its how-to-play text under the name, in English and in Hebrew, and
+## Back and Start stay inside the 60 px safe margin of the screen.
+func _how_to(app: Node) -> void:
+	print("how to play")
+	var lang_script = app.Lang
+	for code in ["en", "he"]:
+		lang_script.set_language(code, root)
+		for g in app.Registry.all():
+			app.go_game_settings(String(g.id))
+			await _frames(3)
+			var view: Control = app.current_screen()
+			var label: Label = view.how_to_label
+			var text := lang_script.t(String(g.how_to))
+			_check(text != String(g.how_to) and text.length() > 20 and label.text == text,
+					"%s %s: the view shows the how-to-play text" % [code, g.id])
+			var low: float = maxf(view.start_button.get_global_rect().end.y, view.back_button.get_global_rect().end.y)
+			_check(low <= 1080.0 - 60.0 and label.get_global_rect().position.y >= 60.0,
+					"%s %s: the text, Back and Start are inside the safe margin (the bottom is at %.0f px of 1020)" % [code, g.id, low])
+	lang_script.set_language("en", root)
