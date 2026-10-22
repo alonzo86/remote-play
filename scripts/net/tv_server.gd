@@ -396,6 +396,9 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	if pad_buttons != "ab":
 		welcome["ab"] = pad_buttons
 	_send_json(slot, welcome)
+	if not resumed:
+		_swing_ok.erase(slot)   # A new phone in a used slot has not tapped OK yet, and is IN.
+		_out.erase(slot)
 	_setup_sig = ""   # A phone that joins or returns while the settings view is open gets `setup` (sync_setup).
 	if resumed:
 		player_resumed.emit(slot)
@@ -552,7 +555,8 @@ func _handle_control(i: int, msg: Dictionary, now: int) -> void:
 		"play":
 			if setup_open and msg.get("v", true) is bool:
 				set_in(i, bool(msg.v))
-				_setup_sig = ""   # The phone gets the choice that the TV accepted, also when it refused one.
+				if players_in().has(i) != bool(msg.v):
+					_setup_sig = ""   # A refused choice: the phone gets the choice that the TV kept.
 		"profile":
 			_handle_profile(i, msg, now)
 		"bye":
