@@ -13,7 +13,7 @@ import_assets() { "$GODOT" --headless --path . --import >/dev/null 2>&1 || true;
 
 case "${1:-}" in
 	run-tv)         import_assets; exec caffeinate -dis "$GODOT" --path . -- --role=tv ;;  # caffeinate: no App Nap throttling
-	run-controller) import_assets; exec "$GODOT" --path . -- --role=controller --auto-join ;;
+	run-controller) import_assets; exec "$GODOT" --path . -- --role=controller --join=127.0.0.1 ;;
 	test)           GODOT="$GODOT" exec tests/run_all.sh ;;
 	apk)
 		mkdir -p build

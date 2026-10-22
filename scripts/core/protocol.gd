@@ -2,8 +2,7 @@ extends RefCounted
 ## Shared constants and packet codec for the TV and the controller.
 ## Message reference: docs/PROTOCOL.md
 
-const VERSION := 3
-const UDP_PORT := 47800
+const VERSION := 4
 const WS_PORT := 47801
 const MAX_PLAYERS := 4
 const SENSOR_HZ := 60
@@ -13,10 +12,10 @@ const SLOT_GRACE_MS := 5000    # A lost slot outside a paused game is freed afte
 const PAUSED_SLOT_GRACE_MS := 300000   # A lost slot is kept this long while the game is paused for it (a phone call).
 const HELLO_TIMEOUT_MS := 5000
 const PEER_TIMEOUT_MS := 3000
-const PIN_LENGTH := 4                    # The join PIN: digits, shown on the TV only (docs/PROTOCOL.md, FD-25).
-const PIN_TRIES := 5                   # Wrong PINs the TV accepts before it locks new joins.
-const PIN_LOCK_MS := 30000             # New phones are turned away this long after PIN_TRIES wrong PINs (the PIN stays).
 const ROOM_ALPHABET := "ACDEFGHJKLMNPQRTUVWXYZ"
+const ROOM_LENGTH := 4                 # Letters of a room code.
+const ROOM_MULTIPLIER := 40503         # The scramble of a room code: a multiplication modulo 65536 (odd, so reversible).
+const ROOM_MULTIPLIER_INVERSE := 30599 # ROOM_MULTIPLIER * ROOM_MULTIPLIER_INVERSE = 1 modulo 65536.
 const NAME_MAX := 10                   # The longest player name, on the phone, on the TV and in a code (FD-22).
 const AVATAR_COUNT := 32               # Avatars in the sprite sheet (assets/avatars/avatars.png).
 const REPLACED_TOKEN_MS := 600000      # The TV remembers the token of a replaced phone this long (docs/PROTOCOL.md).
@@ -33,28 +32,58 @@ const PLAYER_COLORS: Array[Color] = [
 ]
 
 
-static func make_room_code() -> String:
+## The room code of a TV with the address `ip`: the last two numbers of the address (16 bits) multiplied by ROOM_MULTIPLIER
+## modulo 65536 (so that the codes of one network do not all look alike), written as ROOM_LENGTH letters. An empty text when
+## `ip` is not an IPv4 address (docs/PROTOCOL.md, "Room code").
+static func room_code_for_ip(ip: String) -> String:
+	if not is_ipv4(ip):
+		return ""
+	var parts := ip.split(".")
+	var n := ((int(parts[2]) << 8) | int(parts[3])) * ROOM_MULTIPLIER % 65536
 	var code := ""
-	for i in 4:
-		code += ROOM_ALPHABET[randi() % ROOM_ALPHABET.length()]
+	for i in ROOM_LENGTH:
+		code = ROOM_ALPHABET[n % ROOM_ALPHABET.length()] + code
+		n /= ROOM_ALPHABET.length()
 	return code
 
 
-## A new join PIN: PIN_LENGTH digits.
-static func make_pin() -> String:
-	var pin := ""
-	for i in PIN_LENGTH:
-		pin += str(randi() % 10)
-	return pin
+## What a player types, as a room code: no spaces, upper case.
+static func clean_room_code(text: String) -> String:
+	return text.replace(" ", "").strip_edges().to_upper()
 
 
-static func is_pin(s: String) -> bool:
-	if s.length() != PIN_LENGTH:
-		return false
-	for ch in s:
-		if not "0123456789".contains(ch):
-			return false
-	return true
+## The last two numbers of the TV address that a room code holds, as `third * 256 + fourth`; -1 when `code` is not a room code
+## (a wrong length, a letter that is not in the alphabet, or a value above 65535).
+static func decode_room_code(code: String) -> int:
+	var c := clean_room_code(code)
+	if c.length() != ROOM_LENGTH:
+		return -1
+	var n := 0
+	for ch in c:
+		var d := ROOM_ALPHABET.find(ch)
+		if d < 0:
+			return -1
+		n = n * ROOM_ALPHABET.length() + d
+	if n > 65535:
+		return -1
+	return n * ROOM_MULTIPLIER_INVERSE % 65536
+
+
+## The addresses where the TV of `code` can be, for a phone that has the addresses `own` (it keeps the first two numbers of each
+## and takes the last two from the code). Empty when the code is not valid or the phone has no private address.
+static func hosts_for_code(code: String, own: Array) -> Array[String]:
+	var v := decode_room_code(code)
+	var out: Array[String] = []
+	if v < 0:
+		return out
+	for a in own:
+		var parts := String(a).split(".")
+		if parts.size() != 4:
+			continue
+		var host := "%s.%s.%d.%d" % [parts[0], parts[1], v >> 8, v & 255]
+		if not out.has(host):
+			out.append(host)
+	return out
 
 
 static func make_token() -> String:
@@ -101,7 +130,7 @@ static func decode_sensor(b: PackedByteArray) -> Dictionary:
 
 
 ## Parse a JSON text frame. Returns an empty Dictionary on error, and when the JSON is not an object.
-## It does not print an error: any device on the Wi-Fi can send text to the beacon port.
+## It does not print an error: any device on the Wi-Fi can send text to the TV port.
 static func parse_json(text: String) -> Dictionary:
 	var json := JSON.new()
 	if json.parse(text) != OK:
@@ -160,36 +189,17 @@ static func _private_rank(a: String) -> int:
 	return 2 if parts[0] == "172" and int(parts[1]) >= 16 and int(parts[1]) <= 31 else 99
 
 
-## Assume a /24 network. Good enough for home Wi-Fi.
-static func subnet_broadcast(ip: String) -> String:
-	var parts := ip.split(".")
-	if parts.size() != 4:
-		return ""
-	return "%s.%s.%s.255" % [parts[0], parts[1], parts[2]]
+static func pair_url(ip: String, room: String) -> String:
+	return "ws://%s:%d/%s" % [ip, WS_PORT, room]
 
 
-static func pair_url(ip: String, room: String, pin := "") -> String:
-	var url := "ws://%s:%d/%s" % [ip, WS_PORT, room]
-	return url + "?pin=" + pin if pin != "" else url
-
-
-## Parse the text of the TV QR code: ws://IP:PORT/ROOM, with an optional ?pin=1234.
-## Returns {host, port, room, pin}, or an empty Dictionary when the text is not valid. `pin` is empty when the link has none.
+## Parse the text of the TV QR code: ws://IP:PORT/ROOM.
+## Returns {host, port, room}, or an empty Dictionary when the text is not valid.
 static func parse_pair_url(text: String) -> Dictionary:
 	var t := text.strip_edges()
 	if not t.begins_with("ws://"):
 		return {}
 	var rest := t.substr(5)
-	var pin := ""
-	var query := rest.find("?")
-	if query >= 0:
-		var q := rest.substr(query + 1)
-		rest = rest.substr(0, query)
-		if not q.begins_with("pin="):
-			return {}
-		pin = q.substr(4)
-		if not is_pin(pin):
-			return {}
 	var slash := rest.find("/")
 	var hostport := rest if slash < 0 else rest.substr(0, slash)
 	var room := "" if slash < 0 else rest.substr(slash + 1).to_upper()
@@ -204,7 +214,7 @@ static func parse_pair_url(text: String) -> Dictionary:
 	for ch in room:
 		if not ROOM_ALPHABET.contains(ch):
 			return {}
-	return {"host": parts[0], "port": port, "room": room, "pin": pin}
+	return {"host": parts[0], "port": port, "room": room}
 
 
 static func is_ipv4(s: String) -> bool:

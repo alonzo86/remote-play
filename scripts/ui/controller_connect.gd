@@ -1,7 +1,6 @@
 extends Control
-## Phone screen before a TV is joined. Two ways to join: scan the QR code on the TV, or pick a TV
-## from the list of TVs found by UDP beacon (with a Refresh button). On an iPhone or iPad (no scanner
-## plugin) only the list is shown. Nothing else: when neither works there is no TV to connect to.
+## Phone screen before a TV is joined. Two ways to join: type the room code that the TV shows, or scan the QR code on the TV
+## (on a phone with no scanner, paste the room link). There is no search for TVs: the TV sends nothing by itself.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -9,34 +8,22 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const Lang = preload("res://scripts/core/lang.gd")
-const PinPad = preload("res://scripts/ui/pin_pad.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
-const TvProber = preload("res://scripts/net/tv_prober.gd")
 const ProfileDropdown = preload("res://scripts/ui/profile_dropdown.gd")
 
-const SEARCH_MS := 1500   # After Refresh the list says "Searching" this long (the beacon comes each second).
-
-var _list: VBoxContainer
 var _status: Label
 var _qr: Node
-var _search_until_ms := 0
-var _pad: Control   # The PIN pad over the screen, while the player joins from the list.
-var _prober: TvProber
+var _code: LineEdit
+var _typed_room := ""                 # The room code of a join by a typed code, while its guesses of the address run.
+var _candidates: Array[String] = []   # The addresses of that join that are not tried yet.
 var os_name := OS.get_name() # A test sets it to "iOS".
-var local_ips_lookup: Callable = Protocol.private_ipv4s   # The addresses of this phone that Refresh scans. A test gives its own.
+var local_ips_lookup: Callable = Protocol.private_ipv4s   # The addresses of this phone for a typed code. A test gives its own.
 
 
 ## The scan / paste button is not shown on an iPhone or iPad (OS name "iOS"): there is no scanner plugin, so only the
-## TV list is used. A Mac keeps "Paste TV link" for development runs.
+## room code is used. A Mac keeps "Paste room link" for development runs.
 static func shows_scan_button(os_name: String) -> bool:
 	return os_name != "iOS"
-
-
-## A line under "No TVs found" on an iPhone or iPad: the beacon needs the Local Network permission (REQ-FL-59).
-static func empty_list_hint(os_name: String) -> String:
-	if os_name == "iOS":
-		return Lang.t("connect.no_rooms_settings_allow")
-	return ""
 
 
 func _ready() -> void:
@@ -62,6 +49,24 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_status)
 
+	box.add_child(UiKit.label("connect.type_code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+	box.add_child(row)
+	_code = LineEdit.new()
+	_code.max_length = Protocol.ROOM_LENGTH + 4   # Room for spaces; Protocol.clean_room_code removes them.
+	_code.add_theme_font_size_override("font_size", 64)
+	_code.custom_minimum_size = Vector2(0, 130)
+	_code.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_code.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_code.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	_code.text_changed.connect(_on_code_changed)
+	_code.text_submitted.connect(func(_t): join_typed())
+	row.add_child(_code)
+	var join := UiKit.box_button("connect.join", join_typed, UiTheme.SIZE_ITEM)
+	join.custom_minimum_size = Vector2(260, 130)
+	row.add_child(join)
+
 	_qr = QrScanner.new()
 	add_child(_qr)
 	_qr.scanned.connect(_on_qr_text)
@@ -73,35 +78,9 @@ func _ready() -> void:
 		scan.custom_minimum_size = Vector2(0, 150)
 		box.add_child(scan)
 
-	var head := HBoxContainer.new()
-	box.add_child(head)
-	var tv_title := UiKit.label("connect.rooms_found", UiTheme.SIZE_BODY)
-	tv_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tv_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	head.add_child(tv_title)
-	var refresh := UiKit.box_button("connect.refresh", refresh_list, UiTheme.SIZE_BODY)
-	refresh.custom_minimum_size = Vector2(0, 96)
-	head.add_child(refresh)
-
-	_list = VBoxContainer.new()
-	_list.add_theme_constant_override("separation", 16)
-	box.add_child(_list)
-
-	_prober = TvProber.new()
-	add_child(_prober)
-	_prober.found.connect(App.controller_discovery.add_probed)
-
-	App.controller_discovery.list_changed.connect(_rebuild_list)
 	App.client.state_changed.connect(_on_state)
 	App.client.rejected.connect(_on_rejected)
-	_rebuild_list()
 	_on_state(App.client.state)
-
-
-func _process(_delta: float) -> void:
-	# Beacons refresh the player count. Rebuild is cheap, so do it about each second.
-	if Engine.get_process_frames() % 60 == 0:
-		_rebuild_list()
 
 
 func _on_state(state: int) -> void:
@@ -117,40 +96,45 @@ func _on_state(state: int) -> void:
 				_status.text = App.last_error.to_upper()
 				_status.add_theme_color_override("font_color", UiTheme.BAD)
 			else:
-				_status.text = "connect.looking_for_rooms"
-				_status.add_theme_color_override("font_color", UiTheme.TEXT)
+				_status.text = ""
 
 
-## Forget the TVs seen so far and listen again. A TV that is on shows up with its next beacon.
-func refresh_list() -> void:
-	App.controller_discovery.forget_all()
-	_prober.stop()
-	_prober.start(local_ips_lookup.call())
-	_search_until_ms = Time.get_ticks_msec() + SEARCH_MS
-	_rebuild_list()
+## The field shows capital letters.
+func _on_code_changed(text: String) -> void:
+	var up := text.to_upper()
+	if up != text:
+		var caret := _code.caret_column
+		_code.text = up
+		_code.caret_column = caret
 
 
-func _rebuild_list() -> void:
-	for c in _list.get_children():
-		_list.remove_child(c)
-		c.queue_free()
-	var tvs: Array = App.controller_discovery.sorted_list()
-	if tvs.is_empty():
-		var searching := Time.get_ticks_msec() < _search_until_ms or _prober.running
-		var empty_key := "connect.searching" if searching else "connect.no_rooms_found"
-		_list.add_child(UiKit.label(empty_key, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
-		var hint := empty_list_hint(os_name)
-		if not searching and hint != "":
-			var hint_label := UiKit.label(hint, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
-			hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-			_list.add_child(hint_label)
+## Joins by the typed code. The phone takes the first two numbers of the TV address from its own Wi-Fi address and the last two
+## from the code (docs/PROTOCOL.md, "Room code"). It tries each private address of the phone (a fast try each).
+func join_typed() -> void:
+	var room := Protocol.clean_room_code(_code.text)
+	if Protocol.decode_room_code(room) < 0:
+		_fail("connect.bad_code")
 		return
-	for tv in tvs:
-		# Only "<code> x/y".
-		var b := UiKit.box_button("%s %d/%d" % [tv.room, tv.players, tv.max],
-				func(): _ask_pin(tv.ip, tv.port, tv.room), UiTheme.SIZE_ITEM)
-		b.custom_minimum_size = Vector2(0, 130)
-		_list.add_child(b)
+	_candidates = Protocol.hosts_for_code(room, local_ips_lookup.call())
+	if _candidates.is_empty():
+		_fail("connect.room_not_found")   # The phone has no Wi-Fi address.
+		return
+	_typed_room = room
+	_try_next_host()
+
+
+func _try_next_host() -> void:
+	var host: String = _candidates.pop_front()
+	App.last_error = ""
+	App.client.use_saved_token("")
+	App.client.connect_to(host, Protocol.WS_PORT, _typed_room, true)
+
+
+func _fail(key: String) -> void:
+	_typed_room = ""
+	_candidates.clear()
+	App.last_error = Lang.t(key)
+	_on_state(ControllerClient.State.IDLE)
 
 
 func _on_scan_pressed() -> void:
@@ -169,10 +153,8 @@ func _on_qr_text(text: String) -> void:
 		App.last_error = Lang.t("connect.not_sababi_code")
 		_on_state(ControllerClient.State.IDLE)
 		return
-	if pair.pin == "":
-		_ask_pin(pair.host, pair.port, pair.room)   # An old link has no PIN.
-	else:
-		_join(pair.host, pair.port, pair.room, pair.pin)
+	_typed_room = ""
+	_join(pair.host, pair.port, pair.room)
 
 
 func _on_qr_failed(reason: String) -> void:
@@ -182,47 +164,25 @@ func _on_qr_failed(reason: String) -> void:
 	_on_state(ControllerClient.State.IDLE)
 
 
-## A TV that does not know the saved token needs the PIN: the pad opens (a phone that sent a PIN and was refused shows the text).
+## A typed code that no address answers, or that another TV turns away (`bad_room`), tries the next address of the phone; when
+## none is left, the room is not found (unreachable) or the code is wrong (bad_room, the text App set).
 func _on_rejected(reason: String) -> void:
+	if _typed_room != "" and reason in ["unreachable", "bad_room"]:
+		if not _candidates.is_empty():
+			_try_next_host()
+			return
+		if reason == "unreachable":
+			App.last_error = Lang.t("connect.room_not_found")
+	_typed_room = ""
+	_candidates.clear()
 	_on_state(App.client.state)   # The state went IDLE before the reason was known: show the reason now.
-	if reason == "bad_pin" and App.client.pin == "":
-		_ask_pin(App.client.host, App.client.port, App.client.room)
 
 
-## Shows the PIN pad over the screen. The player reads the PIN on the TV (FD-25).
-func _ask_pin(host: String, port: int, room: String) -> void:
-	if _pad != null:
-		return
-	var cover := ColorRect.new()
-	cover.color = UiTheme.BG
-	cover.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(cover)
-	var m := UiKit.margin(cover, 40, 120, 40, 60)
-	var pad: Control = PinPad.new()
-	m.add_child(pad)
-	_pad = cover
-	pad.entered.connect(func(pin: String):
-		_close_pad()
-		_join(host, port, room, pin))
-	pad.cancelled.connect(_close_pad)
-
-
-func _close_pad() -> void:
-	if _pad != null:
-		_pad.queue_free()
-		_pad = null
-
-
-## Back closes the PIN pad. Without a pad it leaves the app, as before.
 func on_back() -> void:
-	if _pad != null:
-		_close_pad()
-	else:
-		App._quit()
+	App._quit()
 
 
-func _join(host: String, port: int, room: String, pin := "") -> void:
-	_prober.stop()   # A scan and a join must not run together.
+func _join(host: String, port: int, room: String) -> void:
 	App.last_error = ""
 	App.client.use_saved_token("")
-	App.client.connect_to(host, port, room, pin)
+	App.client.connect_to(host, port, room)

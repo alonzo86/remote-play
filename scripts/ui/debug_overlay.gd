@@ -43,7 +43,7 @@ class _Canvas extends Control:
 		var h: float = 56.0 + line * (3 + maxi(rows.size(), 1) * 2)
 		var o := Vector2(40, 40)
 		draw_rect(Rect2(o, Vector2(w, h)), Color(0, 0, 0, 0.78))
-		var ip: String = App.discovery.ip if App.discovery != null else "?"
+		var ip: String = App.server.ip if App.server.ip != "" else "?"
 		draw_string(font, o + Vector2(16, 30), header_text(App.server.room_code, ip, Engine.get_frames_per_second()),
 				HORIZONTAL_ALIGNMENT_LEFT, -1, fs, UiTheme.ACCENT)
 		var y := o.y + 30 + line

@@ -1,9 +1,8 @@
 extends SceneTree
-## Test 21 on the TV (docs/MANUAL_TESTS.md test 21): the Connect screen shows the room code and, under it, a PIN of 4 digits (1a);
-## the Players modal shows the room code and the PIN, and a late phone joins with them (7); Settings, About and OK (keys of the
+## Test 21 on the TV (docs/MANUAL_TESTS.md test 21): the Connect screen shows the room code and no PIN (1a);
+## the Players modal shows the room code, and a late phone joins with it (7); Settings, About and OK (keys of the
 ## remote) open the list with "Godot Engine" and "3rd Party Libraries" (8a2); the Godot page has the MIT text, a library page
 ## opens, and so does a library with two licenses (8b).
-## The steps of the PIN change with issue #52: this suite changes with them.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_tv_menus.gd -- --role=tv
 
 const Protocol = preload("res://scripts/core/protocol.gd")
@@ -84,39 +83,29 @@ func _run() -> void:
 		return
 	_app.settings.language = "en"
 	_app.set_language("en")
-	_app.server.pin_exempt_loopback = false   # The test phone is on this device: ask it for the PIN like a phone on the Wi-Fi.
+	var lookup: Callable = _app.server.address_lookup
+	_app.server.address_lookup = func() -> String: return "192.168.0.1"   # A sandbox may have no Wi-Fi address, so no room code.
+	_app.server.ip = "192.168.0.1"
 	await _connect_screen()
 	await _players_modal()
 	await _settings_about()
-	_app.server.pin_exempt_loopback = true
+	_app.server.address_lookup = lookup
 	_app.go_connect()
 
 
-## 1a: the room code, then the PIN of 4 digits under it.
+## 1a: the room code of the TV address, and no PIN.
 func _connect_screen() -> void:
 	print("the Connect screen of the TV")
 	_app.go_connect()
 	await _frames(4)
 	var screen: Control = _app.current_screen()
-	var room_label: Label = null
-	var pin_label: Label = null
-	var name_label: Label = null
-	for l in screen.find_children("*", "Label", true, false):
-		if l.text == _app.server.room_code:
-			room_label = l
-		elif l.text == _app.server.pin:
-			pin_label = l
-		elif l.text == "pin.name":
-			name_label = l
-	_check(room_label != null, "1a: the Connect screen shows the room code %s" % _app.server.room_code)
-	_check(Protocol.is_pin(_app.server.pin) and pin_label != null and name_label != null,
-			"1a: and a PIN of 4 digits (%s) with the word PIN above it" % _app.server.pin)
-	_check(room_label != null and pin_label != null and room_label.global_position.y < name_label.global_position.y
-			and name_label.global_position.y < pin_label.global_position.y,
-			"1a: the PIN is under the room code")
+	var texts := _labels(screen)
+	_check(texts.has(_app.server.room_code) and _app.server.room_code == Protocol.room_code_for_ip("192.168.0.1"),
+			"1a: the Connect screen shows the room code %s of the TV address" % _app.server.room_code)
+	_check(not texts.has("pin.name") and not texts.any(func(t): return String(t).begins_with("PIN")), "1a: and no PIN")
 
 
-## 7: the Players modal holds the room code and the PIN, and a late phone joins with exactly these.
+## 7: the Players modal holds the room code, and a late phone joins with exactly this.
 func _players_modal() -> void:
 	print("the Players modal")
 	_app.go_games()
@@ -129,28 +118,24 @@ func _players_modal() -> void:
 	if modal == null:
 		return
 	var texts := _labels(modal)
-	var pin_text := Lang.f("pin.shown", [_app.server.pin]).to_upper()
 	_check(texts.has(_app.server.room_code), "7: the modal shows the room code %s" % _app.server.room_code)
-	_check(texts.has(pin_text), "7: the modal shows the PIN: '%s'" % pin_text)
+	_check(not texts.any(func(t): return String(t).begins_with("PIN") or String(t).begins_with("pin.")), "7: and no PIN")
 	var room := ""
-	var pin := ""
 	for t in texts:
 		if String(t) == _app.server.room_code:
 			room = String(t)
-		elif String(t).begins_with("PIN ") and String(t).length() == 8:
-			pin = String(t).substr(4)
 	var late := ControllerClient.new()
 	root.add_child(late)
 	var reasons: Array[String] = []
 	late.rejected.connect(func(reason: String): reasons.append(reason))
-	late.connect_to("127.0.0.1", Protocol.WS_PORT, room, "1111" if pin != "1111" else "2222")
+	late.connect_to("127.0.0.1", Protocol.WS_PORT, "AAAA")
 	var refused := await _wait_until(func(): return not reasons.is_empty(), 3000)
 	await _frames(2)
-	_check(refused and reasons[0] == "bad_pin" and _app.server.player_count() == 0,
-			"7: a phone with another PIN is not let in (the PIN matters)")
-	late.connect_to("127.0.0.1", Protocol.WS_PORT, room, pin)
+	_check(refused and reasons[0] == "bad_room" and _app.server.player_count() == 0,
+			"7: a phone with another room code is not let in (the code matters)")
+	late.connect_to("127.0.0.1", Protocol.WS_PORT, room)
 	var joined := await _wait_until(func(): return late.state == ControllerClient.State.CONNECTED, 4000)
-	_check(joined and _app.server.player_count() == 1, "7: a late phone joins with the room code and the PIN of the modal")
+	_check(joined and _app.server.player_count() == 1, "7: a late phone joins with the room code of the modal")
 	late.leave()
 	late.queue_free()
 	await _wait_until(func(): return _app.server.player_count() == 0, 3000)

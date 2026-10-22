@@ -22,8 +22,8 @@ Sababi turns your living room into a game night. Play on your Android TV. Use yo
 You need the free Sababi: Remote app on each phone (1 to 4 players). Phones and TV must be on the same Wi-Fi.
 
 HOW TO START
-1. Open Sababi on your TV. It shows a QR code and a 4-digit PIN.
-2. Open Sababi: Remote on your phone and scan the code, or pick your TV from the list and type the PIN.
+1. Open Sababi on your TV. It shows a QR code and a room code.
+2. Open Sababi: Remote on your phone and scan the QR code, or type the room code.
 3. Choose a game with the TV remote and play.
 
 THE GAMES
@@ -45,8 +45,8 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 צריך את אפליקציית Sababi: Remote החינמית בכל טלפון (1 עד 4 שחקנים). הטלפונים והטלוויזיה צריכים להיות באותה רשת Wi-Fi.
 
 איך מתחילים
-1. פותחים את Sababi בטלוויזיה. מוצגים קוד QR וקוד PIN בן 4 ספרות.
-2. פותחים את Sababi: Remote בטלפון וסורקים את הקוד, או בוחרים את הטלוויזיה מהרשימה ומקלידים את ה־PIN.
+1. פותחים את Sababi בטלוויזיה. מוצגים קוד QR וקוד חדר.
+2. פותחים את Sababi: Remote בטלפון וסורקים את קוד ה־QR, או מקלידים את קוד החדר.
 3. בוחרים משחק בשלט של הטלוויזיה ומשחקים.
 
 המשחקים
@@ -74,7 +74,7 @@ Sababi: Remote turns your phone into a motion controller for the Sababi party ga
 
 This app needs the free Sababi: TV Games app on your Android TV or streaming box. Phone and TV must be on the same Wi-Fi.
 
-• Scan the QR code on the TV, or pick your TV from the list and type the 4-digit PIN.
+• Scan the QR code on the TV, or type the room code.
 • Up to 4 phones play together.
 • Tilt, point and tap to play: your phone's motion sensors do the work.
 • Make your own player: a name and one of 32 pixel avatars. Your best scores stay on your phone.
@@ -88,7 +88,7 @@ Sababi: Remote הופך את הטלפון לשלט תנועה למשחקי המ�
 
 האפליקציה דורשת את אפליקציית Sababi: TV Games החינמית בטלוויזיה עם Android או במנגן סטרימינג. הטלפון והטלוויזיה צריכים להיות באותה רשת Wi-Fi.
 
-• סורקים את קוד ה־QR בטלוויזיה, או בוחרים את הטלוויזיה מהרשימה ומקלידים את קוד ה־PIN בן 4 הספרות.
+• סורקים את קוד ה־QR בטלוויזיה, או מקלידים את קוד החדר.
 • עד 4 טלפונים משחקים יחד.
 • מטים, מכוונים ולוחצים כדי לשחק: חיישני התנועה בטלפון עושים את העבודה.
 • יוצרים שחקן משלכם: שם ואחד מ־32 אווטארים של פיקסלים. השיאים נשמרים בטלפון.

@@ -1,6 +1,6 @@
 extends Control
 ## The logo screen after the Android splash (REQ-FL-2 to 4). It lasts about 2.5 seconds.
-## OK, Back or a touch skips it. The server and the beacon already run while it shows.
+## OK, Back or a touch skips it. The server already runs while it shows.
 ## At the first start (no saved language) it does not move on by itself: it asks for the language, "ENGLISH" or "עברית"
 ## (REQ-FL-60). OK chooses, and Back chooses the language that has the focus.
 

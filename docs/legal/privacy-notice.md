@@ -27,13 +27,11 @@ We do not collect your location, contacts, photos, microphone recordings, advert
 
 ## 3. What is sent over your Wi-Fi
 
-To find the TV, the TV sends a small broadcast message once a second on your local network. It contains the room code, the name of the TV (by default "Living Room TV") and the number of players. The phone then connects directly to the TV and sends your profile name, avatar and ID, the motion readings and the button presses.
+The TV sends nothing on your network by itself. A phone finds the TV when you type the room code that the TV shows, or scan the QR code on the TV. The room code stands for the address of the TV on your Wi-Fi network: the phone builds that address from its own Wi-Fi address and the code, and tries to connect to it (one try for each Wi-Fi address of the phone). The phone then connects directly to the TV and sends your profile name, avatar and ID, the motion readings and the button presses. A device that has the address of a wrong guess gets a connection attempt and nothing else.
 
-When you tap **Refresh** on the phone, the phone also tries the other addresses of your Wi-Fi network, one by one, to look for a TV that did not answer the broadcast. It only asks the TV for its room code, its name and its player count. It joins nothing, and it does this only when you tap Refresh.
+There is no PIN or password: anyone on the same network who knows the room code or sees the QR code on the TV can join the game.
 
-To join, a new phone must type a 4-digit PIN that the TV shows on its screen, or scan the QR code on the TV, which holds the PIN. After 5 wrong PINs the TV refuses new phones for 30 seconds. A phone that joined before can come back without the PIN.
-
-**This traffic is not encrypted.** The PIN keeps out a device that only sees the broadcast, but it does not stop a device that can read the traffic between a phone and the TV on your network. Play only on a network you trust, and do not play on public Wi-Fi.
+**This traffic is not encrypted.** A device that can read the traffic between a phone and the TV on your network can read it. Play only on a network you trust, and do not play on public Wi-Fi.
 
 The apps themselves send nothing outside your local network.
 
@@ -45,7 +43,7 @@ The apps themselves send nothing outside your local network.
 
 ## 5. Permissions
 
-Android: internet and network state (to talk to the TV), Wi-Fi state and multicast (to find the TV), keep awake (so the screen does not sleep during a game), and vibration (the Controller only). iPhone: local network (to find the TV).
+Android: internet and network state (to talk to the TV), Wi-Fi state (to keep the connection steady), keep awake (so the screen does not sleep during a game), and vibration (the Controller only). iPhone: local network (to connect to the TV on your network).
 
 ## 6. Sharing and third parties
 

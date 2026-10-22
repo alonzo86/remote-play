@@ -8,8 +8,8 @@ tests/qr.gd|controller|QR encoder versions 7 to 14
 tests/profile_code.gd|controller|profile code, keys and merge
 tests/profiles.gd|controller|profiles: model, store, avatars
 tests/net_profiles.gd|controller|profiles over the network
-tests/net_pin.gd|controller|join PIN, PIN pad and About page
-tests/probe.gd|controller|finding a TV without the beacon
+tests/room_code.gd|controller|room code: encode, decode, hosts, TV link
+tests/about_pages.gd|controller|About pages and About screen
 tests/game_helpers.gd|controller|game helpers
 tests/game_rules.gd|controller|game rules
 tests/swing_detector.gd|controller|swing detector
@@ -74,7 +74,7 @@ tests/audio_events.gd|tv|effects and buzzes of the events of every game table
 tests/r4_phone_profiles.gd|controller|Profiles on the phone: pencil, join, switch, replaced, share, scan, 32 avatars
 tests/r4_tv_profiles.gd|tv|Profiles on the TV: chips, lists, Wi-Fi cut
 tests/r4_bests.gd|tv|Personal bests from the TV to the phone
-tests/r4_pin.gd|controller|Join PIN pad: keys, digits, lock, status line
+tests/r4_join_code.gd|controller|Join by room code: TV rules, Connect screen, errors, the pencil
 tests/r4_tv_menus.gd|tv|Connect screen, Players modal, Settings, About
 tests/r4_asteroid.gd|tv|Galaxy Protector: ship at the sides, Reached wave N
 tests/r4_bowling.gd|tv|Pin Pals: totals, last frame, rails, plate, scores, winner, leave

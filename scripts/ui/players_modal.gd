@@ -38,15 +38,12 @@ func _build() -> void:
 	cols.add_child(side)
 	var qr: Control = QrView.new()
 	qr.custom_minimum_size = Vector2(300, 300)
-	var ip: String = App.discovery.ip if App.discovery != null else ""
-	qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code, App.server.pin)
+	var ip: String = App.server.ip
+	qr.text = Protocol.pair_url(ip if ip != "" else "?", App.server.room_code)
 	side.add_child(qr)
 	var room := UiKit.title(App.server.room_code, 48)
 	room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	side.add_child(room)
-	var pin := UiKit.title(Lang.f("pin.shown", [App.server.pin]), 32, UiTheme.TEXT)
-	pin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	side.add_child(pin)
 
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_END

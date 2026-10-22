@@ -38,7 +38,6 @@ func _run() -> void:
 	await _profile_screens()
 	await _keyboard_focus()
 	await _modal_focus()
-	await _connect_scan()
 	_english_ltr()
 	_back_key()
 	_tile_images()
@@ -498,25 +497,6 @@ func _arrow(action: String) -> InputEventAction:
 	e.action = action
 	e.pressed = true
 	return e
-
-
-## The Connect screen asks the network for a TV when Refresh is tapped (REQ-FL-83), says "SEARCHING..." meanwhile, and a join
-## stops the scan.
-func _connect_scan() -> void:
-	print("connect screen scan")
-	var app: Node = root.get_node("App")
-	app.go(app.ControllerConnect)
-	await process_frame
-	var screen: Control = app.current_screen()
-	_check(not screen._prober.running, "the scan does not start by itself")
-	screen._prober.start(["10.9.9.9"], 30)
-	await process_frame
-	screen._rebuild_list()
-	var texts: Array = screen._list.find_children("*", "Label", true, false).map(func(l): return l.text)
-	_check(screen._prober.running and "connect.searching" in texts, "while the scan runs the list says SEARCHING...")
-	screen._join("127.0.0.1", 1, "ABCD")
-	_check(not screen._prober.running, "a join stops the scan")
-	app.client.leave()
 
 
 func _touch(index: int, pressed: bool, pos: Vector2) -> InputEventScreenTouch:

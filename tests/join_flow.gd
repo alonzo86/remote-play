@@ -1,13 +1,11 @@
 extends SceneTree
 ## The whole join on the loopback, with the real phone screens and the real TV server: join, the waiting text and the slot color
 ## on both sides, a rejoin with the saved token, a Wi-Fi that goes away without a close (a relay cuts the link), a kick, a join
-## during a round, the QR scan with a fake plugin, and the list of TVs (docs/MANUAL_TESTS.md tests 1, 2, 7 and 8b).
-## Steps that depend on the PIN or on the list of TVs change with issue #52 (room code, no lists, no probe): see the marks "#52".
+## during a round, the QR scan with a fake plugin (docs/MANUAL_TESTS.md tests 1, 2, 7 and 8b). A typed code: r4_join_code.gd.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/join_flow.gd -- --role=controller
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
-const TvDiscovery = preload("res://scripts/net/tv_discovery.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const TcpRelay = preload("res://tests/tcp_relay.gd")
@@ -97,7 +95,6 @@ func _new_tv(slot_grace_ms := 8000) -> void:
 	_server.port = _port
 	root.add_child(_server)
 	_server.start({})
-	_server.pin_exempt_loopback = false   # The test phone is on this device: ask it for the PIN like a phone on the Wi-Fi.
 	_server.peer_timeout_ms = 1500
 	_server.slot_grace_ms = slot_grace_ms
 	_server.set_phase("connect")
@@ -107,9 +104,9 @@ func _new_tv(slot_grace_ms := 8000) -> void:
 	_app.server = _server   # The TV screens and the slot list read the server from the App.
 
 
-func _join_with_pin(via_relay := false) -> bool:
+func _join(via_relay := false) -> bool:
 	_app.last_error = ""
-	_app.client.connect_to("127.0.0.1", _relay_port if via_relay else _port, _server.room_code, _server.pin)
+	_app.client.connect_to("127.0.0.1", _relay_port if via_relay else _port, _server.room_code)
 	return await _wait_until(func(): return _app.client.state == ControllerClient.State.CONNECTED, 4000)
 
 
@@ -140,15 +137,14 @@ func _run() -> void:
 	await _wifi_cut()
 	await _wifi_cut_paused()
 	await _qr_scan()
-	await _list_of_tvs()
 	_app.server = null
 	_server.stop()
 	_relay.stop()
 
 
-## 1.3b: after the PIN, the phone shows the waiting text and a square in the color of slot 1, and the TV says READY for slot 1.
+## 1.3b: after the join, the phone shows the waiting text and a square in the color of slot 1, and the TV says READY for slot 1.
 func _join_and_wait_screen() -> void:
-	print("join with the PIN: the phone and the TV agree")
+	print("join: the phone and the TV agree")
 	_app.go(_connect_script)
 	await process_frame
 	var tv_slots: Control = _slot_list_script.new()
@@ -157,8 +153,8 @@ func _join_and_wait_screen() -> void:
 	await _frames(2)
 	_check(_labels(tv_slots).count("slot_list.ready") == 0 and _labels(tv_slots).count("slot_list.wait") == 4,
 			"before the join the TV shows 4 free slots (WAIT)")
-	var ok := await _join_with_pin()
-	_check(ok, "the phone joins with the PIN of the TV")
+	var ok := await _join()
+	_check(ok, "the phone joins the TV")
 	await _frames(3)
 	var wait: Control = _app.current_screen()
 	_check(wait.get_script() == _wait_script, "the phone shows the waiting screen after the join")
@@ -221,7 +217,7 @@ func _four_slots() -> void:
 	for i in 4:
 		var c := ControllerClient.new()
 		root.add_child(c)
-		c.connect_to("127.0.0.1", _port, _server.room_code, _server.pin)
+		c.connect_to("127.0.0.1", _port, _server.room_code)
 		phones.append(c)
 		await _wait_until(func(): return c.state == ControllerClient.State.CONNECTED, 4000)
 	var same := true
@@ -268,7 +264,7 @@ func _rejoin_saved_token() -> void:
 	print("a phone that returns with its saved token")
 	var first := ControllerClient.new()
 	root.add_child(first)
-	first.connect_to("127.0.0.1", _port, _server.room_code, _server.pin)
+	first.connect_to("127.0.0.1", _port, _server.room_code)
 	await _wait_until(func(): return first.state == ControllerClient.State.CONNECTED, 4000)
 	var token: String = _server.players[first.slot].token
 	var slot := first.slot
@@ -285,7 +281,7 @@ func _rejoin_saved_token() -> void:
 	var back := await _wait_until(func(): return second.state == ControllerClient.State.CONNECTED, 10000)
 	var ms := Time.get_ticks_msec() - t0
 	_check(back and ms < 10000 and second.slot == slot and _server.players[slot].token == token,
-			"it is joined again in %d ms, in the same slot, with no PIN and no tap" % ms)
+			"it is joined again in %d ms, in the same slot, with no tap" % ms)
 	_check(_server.player_count() == 1, "the TV still has one phone (the old connection did not take a second slot)")
 	second.leave()
 	second.queue_free()
@@ -300,13 +296,13 @@ func _join_in_round() -> void:
 	print("a join during a round")
 	var player := ControllerClient.new()
 	root.add_child(player)
-	player.connect_to("127.0.0.1", _port, _server.room_code, _server.pin)
+	player.connect_to("127.0.0.1", _port, _server.room_code)
 	await _wait_until(func(): return player.state == ControllerClient.State.CONNECTED, 4000)
 	_server.set_phase("playing", [player.slot] as Array[int])
 	await _frames(5)
 	_app.go(_connect_script)
 	await process_frame
-	var ok := await _join_with_pin()
+	var ok := await _join()
 	await _frames(5)
 	_check(ok and _app.client.phase == "waiting" and player.phase == "playing",
 			"the late phone gets the phase waiting, the player gets playing")
@@ -328,7 +324,7 @@ func _kick() -> void:
 	print("the host removes a phone")
 	_app.go(_connect_script)
 	await process_frame
-	var ok := await _join_with_pin(true)
+	var ok := await _join(true)
 	_check(ok, "the phone joins through the relay")
 	var accepted_before: int = _relay.accepted
 	_server.kick(_app.client.slot)
@@ -345,23 +341,23 @@ func _kick() -> void:
 			and _server.player_count() == 0,
 			"after 5 s the removed phone has made no new connection attempt (%d connections)" % (_relay.accepted - accepted_before))
 	# 3c: the pair link (what the QR code holds) brings the phone back in less than 5 s.
-	var url := "ws://127.0.0.1:%d/%s?pin=%s" % [_port, _server.room_code, _server.pin]
+	var url := "ws://127.0.0.1:%d/%s" % [_port, _server.room_code]
 	var pair := Protocol.parse_pair_url(url)
 	var t0 := Time.get_ticks_msec()
-	screen._join(pair.host, pair.port, pair.room, pair.pin)
+	screen._join(pair.host, pair.port, pair.room)
 	var again := await _wait_until(func(): return _app.client.state == ControllerClient.State.CONNECTED, 5000)
 	_check(again and Time.get_ticks_msec() - t0 < 5000 and _server.player_count() == 1,
 			"a join with the pair link fills the slot again in %d ms" % (Time.get_ticks_msec() - t0))
 	await _leave_all()
 
 
-## 7.1a, 7.1d and 7.3b: the link goes away without a close. The phone notices, and when the slot is freed the PIN pad comes.
+## 7.1a, 7.1d and 7.3b: the link goes away without a close. The phone notices; when the slot is freed it joins again.
 func _wifi_cut() -> void:
 	print("Wi-Fi off: the phone notices, the TV frees the slot")
 	_new_tv(2500)   # A freed slot after 2.5 s of silence.
 	_app.go(_connect_script)
 	await process_frame
-	var ok := await _join_with_pin(true)
+	var ok := await _join(true)
 	_check(ok and _server.players[0].state == PlayerInput.State.CONNECTED, "the phone joins through the relay")
 	var lost_at := [-1]
 	_server.player_lost.connect(func(_s): lost_at[0] = Time.get_ticks_msec())
@@ -372,12 +368,9 @@ func _wifi_cut() -> void:
 	var freed := await _wait_until(func(): return _server.players[0].state == PlayerInput.State.EMPTY, 6000)
 	_check(freed, "the TV frees the lost slot after the grace time")
 	_relay.restore()
-	# The TV does not know the token any more, so it asks for the PIN: the PIN pad opens (#52: the pad goes away with the PIN).
-	var pad_open := await _wait_until(func():
-		var s: Control = _app.current_screen()
-		return s.get_script() == _connect_script and s._pad != null, 20000)
-	_check(pad_open, "when the link is back and the slot is gone, the phone lands on the PIN pad (#52)")
-	_check(pad_open and _server.player_count() == 0, "and it did not take a slot by itself")
+	# The TV does not know the token any more, and it asks for no PIN: the phone joins again by itself, as a new phone.
+	var back := await _wait_until(func(): return _app.client.state == ControllerClient.State.CONNECTED, 20000)
+	_check(back and _server.player_count() == 1, "when the link is back and the slot is gone, the phone joins again by itself")
 	await _leave_all()
 
 
@@ -394,14 +387,14 @@ func _phone_notices_cut(t0: int) -> int:
 	return ms
 
 
-## 7.4b, 7.7d: while the game is paused for the phone, the slot is kept longer, and the phone returns to it with no PIN.
+## 7.4b, 7.7d: while the game is paused for the phone, the slot is kept longer, and the phone returns to it.
 func _wifi_cut_paused() -> void:
 	print("Wi-Fi off during a pause: the slot is kept")
 	_new_tv(1200)
 	_server.paused_slot_grace_ms = 60000
 	_app.go(_connect_script)
 	await process_frame
-	var ok := await _join_with_pin(true)
+	var ok := await _join(true)
 	var token: String = _server.players[0].token if ok else ""
 	var slot: int = _app.client.slot
 	_server.set_phase("paused", [slot] as Array[int])
@@ -418,7 +411,7 @@ func _wifi_cut_paused() -> void:
 	var ms := Time.get_ticks_msec() - t0
 	_check(back and ms < 10000 and _app.client.slot == slot and _server.players[slot].state == PlayerInput.State.CONNECTED
 			and _server.players[slot].token == token,
-			"when the link is back the phone returns to the same slot with no PIN in %d ms (less than 10 s)" % ms)
+			"when the link is back the phone returns to the same slot in %d ms (less than 10 s)" % ms)
 	_check(_app.client.phase == "paused", "and the TV phase is still paused for it")
 	_check(Protocol.PAUSED_SLOT_GRACE_MS >= 70000 and Protocol.PAUSED_SLOT_GRACE_MS > Protocol.SLOT_GRACE_MS,
 			"the real hold during a pause is longer than a 70 s call (%d s)" % (Protocol.PAUSED_SLOT_GRACE_MS / 1000))
@@ -476,88 +469,14 @@ func _qr_scan() -> void:
 			and screen._status.get_theme_color("font_color") == UiTheme.BAD,
 			"a scan of https://example.com says THIS IS NOT A SABABI CODE: '%s'" % screen._status.text)
 	_check(_app.client.state == ControllerClient.State.IDLE and _server.player_count() == 0, "and nothing is joined")
-	# A good code (with the PIN): joined in less than 5 s, and the PIN pad never opens (#52).
-	var pad_nodes := [0]
-	var watch := func(n: Node):
-		if n.get_script() != null and String(n.get_script().resource_path).ends_with("pin_pad.gd"):
-			pad_nodes[0] += 1
-	node_added.connect(watch)
-	var url := "ws://127.0.0.1:%d/%s?pin=%s" % [_port, _server.room_code, _server.pin]
+	# A good code: joined in less than 5 s.
+	var url := "ws://127.0.0.1:%d/%s" % [_port, _server.room_code]
 	var t0 := Time.get_ticks_msec()
 	fake.scanned.emit(url)
 	var joined := await _wait_until(func(): return _app.client.state == ControllerClient.State.CONNECTED, 5000)
 	_check(joined and Time.get_ticks_msec() - t0 < 5000, "a scan of the TV code joins in %d ms" % (Time.get_ticks_msec() - t0))
-	node_added.disconnect(watch)
-	_check(pad_nodes[0] == 0, "the PIN pad never opened for a scan (#52: the pad goes away with the PIN)")
 	await _leave_all()
 	Engine.unregister_singleton("QrScanner")
 	fake.free()
 	_app.go(_connect_script)
 	await process_frame
-
-
-func _send_beacon(room: String, players: int, port: int) -> void:
-	var udp := PacketPeerUDP.new()
-	udp.set_dest_address("127.0.0.1", Protocol.UDP_PORT)
-	udp.put_packet(Protocol.to_json({"t": "beacon", "v": Protocol.VERSION, "room": room, "port": port, "name": "Test TV",
-			"players": players, "max": Protocol.MAX_PLAYERS}).to_utf8_buffer())
-	udp.close()
-
-
-## Test 1.4 (#52): the list of TVs, Refresh and the scan that runs only on request (REQ-FL-83).
-func _list_of_tvs() -> void:
-	print("the list of TVs (#52)")
-	_app.go(_connect_script)
-	await process_frame
-	var screen: Control = _app.current_screen()
-	screen.local_ips_lookup = func() -> Array[String]: return ["10.9.9.9"]
-	var disc: Node = _app.controller_discovery
-	if not disc.listening:
-		_check(false, "the beacon port is free for the test (another TV app or test holds UDP %d)" % Protocol.UDP_PORT)
-		return
-	disc.forget_all()
-	# 4a: a beacon of the TV KQZM with 0 of 4 players is a white button "KQZM 0/4".
-	_send_beacon("KQZM", 0, _port)
-	var listed := await _wait_until(func(): return _button(screen, "KQZM 0/4") != null, 3000)
-	_check(listed, "a beacon of room KQZM with 0/4 players makes the button 'KQZM 0/4'")
-	var b := _button(screen, "KQZM 0/4")
-	_check(b != null and b.get_theme_color("font_color") == UiTheme.TEXT and b.get_theme_color("font_hover_color") == UiTheme.TEXT,
-			"the TV button is white")
-	# 6c: the heading and Refresh are white too (not the dim gray).
-	var refresh := _button(screen, "connect.refresh")
-	var heading: Label = screen.find_children("*", "Label", true,
-			false).filter(func(l): return l.text == "connect.rooms_found")[0]
-	_check(refresh != null and refresh.get_theme_color("font_color") == UiTheme.TEXT
-			and heading.get_theme_color("font_color") == UiTheme.TEXT
-			and not refresh.has_focus(), "the ROOMS FOUND heading and the Refresh button are white, and nothing has the focus")
-	# 4d: the scan does not run by itself (REQ-FL-83); Refresh starts it.
-	await create_timer(2.0).timeout
-	_check(not screen._prober.running and screen._prober._active.is_empty(),
-			"no scan runs by itself after 2 s on the Connect screen")
-	refresh.pressed.emit()
-	_check(screen._prober.running, "Refresh starts the scan of the network")
-	# 4c: Refresh says SEARCHING in the same frame, and the beacon of the real TV is listed in less than 2 s.
-	var texts := _labels(screen._list)
-	_check("connect.searching" in texts and _button(screen, "KQZM 0/4") == null,
-			"Refresh empties the list and says SEARCHING...: %s" % str(texts))
-	screen._prober.stop()
-	var beacon := TvDiscovery.new()
-	beacon.server = _server
-	root.add_child(beacon)
-	var t0 := Time.get_ticks_msec()
-	var room_button := "%s 0/4" % _server.room_code
-	var found := await _wait_until(func(): return _button(screen, room_button) != null, 2500)
-	_check(found and Time.get_ticks_msec() - t0 < 2500,
-			"the beacon of a TV on the loopback is listed in %d ms (less than 2 s)" % (Time.get_ticks_msec() - t0))
-	# 1.4b: a tap on the room opens the pad and the right PIN joins.
-	if found:
-		_button(screen, room_button).pressed.emit()
-		await process_frame
-		_check(screen._pad != null, "a tap on a TV in the list opens the PIN pad")
-		var pad_prompt := _labels(screen._pad).filter(func(t): return String(t) == "pin.type_prompt")
-		_check(pad_prompt.size() == 1, "the pad asks to type the PIN that is shown on the TV (pin.type_prompt)")
-	beacon.queue_free()
-	if screen._pad != null:
-		screen._close_pad()
-	disc.forget_all()
-	await _leave_all()

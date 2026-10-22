@@ -104,7 +104,6 @@ func _run() -> void:
 	_test_visual_rules()
 	_test_role()
 	await _test_sensor_sampler()
-	await _test_discovery()
 	await _test_qr_scanner()
 	await _test_connect_screen()
 	await _test_app_input()
@@ -126,17 +125,14 @@ func _test_protocol() -> void:
 	_check(d.gyro.is_equal_approx(Vector3(1, -2, 3)) and d.accel.is_equal_approx(Vector3(0.5, 9.81, -1)), "sensor floats round trip")
 	_check(d.buttons == 3 and d.touching and absf(d.touch.x - 1.0) < 0.01 and d.touch.y == 0.0, "buttons and touch round trip")
 	_check(Protocol.decode_sensor(PackedByteArray([1, 2, 3])).is_empty(), "short packet is rejected")
-	_check(Protocol.make_room_code().length() == 4, "room code has 4 letters")
+	_check(Protocol.room_code_for_ip("192.168.1.20").length() == 4, "room code has 4 letters (more in tests/room_code.gd)")
 	_check(Protocol.is_ipv4("192.168.1.20") and not Protocol.is_ipv4("KQZM"), "ipv4 check")
-	_check(Protocol.subnet_broadcast("192.168.1.20") == "192.168.1.255", "subnet broadcast")
 	var pair := Protocol.parse_pair_url(Protocol.pair_url("192.168.1.20", "kqzm"))
-	_check(pair == {"host": "192.168.1.20", "port": 47801, "room": "KQZM", "pin": ""}, "QR text parses: %s" % str(pair))
-	var with_pin := Protocol.parse_pair_url(Protocol.pair_url("192.168.1.20", "kqzm", "0427"))
-	_check(with_pin.pin == "0427" and with_pin.room == "KQZM", "the TV link carries the PIN: %s" % str(with_pin))
+	_check(pair == {"host": "192.168.1.20", "port": 47801, "room": "KQZM"}, "QR text parses: %s" % str(pair))
 	_check(Protocol.parse_pair_url("ws://10.0.0.5:47801").room == "", "QR text without room is accepted")
 	var bad := ["", "http://192.168.1.20:47801/KQZM", "ws://?:47801/KQZM", "ws://192.168.1.20/KQZM",
 			"ws://192.168.1.20:99999/KQZM", "ws://192.168.1.20:47801/KQ", "ws://192.168.1.20:47801/KQZI",
-			"ws://999.1.1.1:47801/KQZM", "ws://192.168.1.20:47801/KQZM?pin=12", "ws://192.168.1.20:47801/KQZM?pin=12ab",
+			"ws://999.1.1.1:47801/KQZM", "ws://192.168.1.20:47801/KQZM?pin=1234",
 			"ws://192.168.1.20:47801/KQZM?x=1234"]
 	var all_bad := true
 	for b in bad:
@@ -557,48 +553,6 @@ func _test_role() -> void:
 	here.free()
 
 
-## The phone finds TVs by their UDP beacon (REQ-A2, REQ-A4).
-func _test_discovery() -> void:
-	print("controller discovery")
-	var app: Node = root.get_node("App")
-	var disc: Node = app.controller_discovery
-	_check(disc.listening, "the phone listens on the beacon port")
-	disc.tvs.clear()
-	var changes := [0]
-	disc.list_changed.connect(func(): changes[0] += 1)
-	var udp := PacketPeerUDP.new()
-	udp.set_dest_address("127.0.0.1", Protocol.UDP_PORT)
-	var send := func(text: String): udp.put_packet(text.to_utf8_buffer())
-	var beacon := func(room: String, extra := {}) -> String:
-		var d := {"t": "beacon", "v": Protocol.VERSION, "room": room, "port": 47801, "name": "Den TV", "players": 1, "max": 4}
-		d.merge(extra, true)
-		return JSON.stringify(d)
-	send.call("not json at all")
-	send.call(JSON.stringify({"t": "hello", "v": Protocol.VERSION, "room": "HELO"}))
-	send.call(beacon.call("OLDV", {"v": Protocol.VERSION + 1}))
-	send.call(beacon.call(""))
-	send.call(beacon.call("BBBB", {"players": 2}))
-	send.call(beacon.call("AAAA", {"name": "Hall TV", "port": 5555}))
-	await _wait_until(func(): return disc.tvs.has("AAAA") and disc.tvs.has("BBBB"))
-	_check(disc.tvs.size() == 2,
-			"garbage, other message types, other versions and empty rooms are ignored (%d TVs)" % disc.tvs.size())
-	var a: Dictionary = disc.tvs.get("AAAA", {})
-	_check(a.get("ip", "") == "127.0.0.1" and a.get("port", 0) == 5555 and a.get("name", "") == "Hall TV",
-			"a TV entry has the sender address, the port and the name of the beacon")
-	_check(int(disc.tvs.get("BBBB", {}).get("players", -1)) == 2, "a TV entry has the player count")
-	_check(disc.sorted_list().map(func(t): return t.room) == ["AAAA", "BBBB"], "the list is sorted by room code")
-	_check(changes[0] >= 1, "a new TV changes the list")
-	send.call(beacon.call("AAAA", {"players": 3}))
-	await _wait_until(func(): return int(disc.tvs["AAAA"].players) == 3)
-	_check(int(disc.tvs["AAAA"].players) == 3, "a new beacon updates the player count")
-	var seen_before: int = changes[0]
-	disc.tvs["BBBB"].seen_ms = Time.get_ticks_msec() - disc.EXPIRE_MS - 100
-	await _wait_until(func(): return not disc.tvs.has("BBBB"))
-	_check(not disc.tvs.has("BBBB") and disc.tvs.has("AAAA"), "a TV that is silent for 4 s leaves the list")
-	_check(changes[0] > seen_before, "the list changes when a TV leaves")
-	disc.tvs.clear()
-
-
 ## The Android plugin glue: the fallback on desktop, and the calls with a plugin (here a stand-in).
 func _test_qr_scanner() -> void:
 	print("qr scanner")
@@ -673,7 +627,7 @@ func _test_connect_screen() -> void:
 			"on Android and desktop (also a Mac) the connect screen keeps the scan or paste button")
 	app.last_error = ""
 	screen._on_state(ControllerClient.State.IDLE)
-	_check(screen._status.text == "connect.looking_for_rooms", "idle: the screen says it looks for a TV")
+	_check(screen._status.text == "", "idle: the status line is empty")
 	screen._on_state(ControllerClient.State.CONNECTING)
 	_check(screen._status.text == "connect.connecting", "connecting: the screen says so")
 	screen._on_state(ControllerClient.State.RECONNECTING)
@@ -689,24 +643,17 @@ func _test_connect_screen() -> void:
 	_check(app.last_error == "QR scan failed: no camera" and screen._status.text == app.last_error.to_upper(),
 			"a failed scan shows the reason")
 
-	screen._on_qr_text("ws://127.0.0.1:47801/kqzm?pin=0427")
-	_check(app.client.host == "127.0.0.1" and app.client.port == 47801 and app.client.room == "KQZM" and app.client.pin == "0427"
-			and app.client.state != ControllerClient.State.IDLE and screen._pad == null, "a TV code joins that TV and room with its PIN")
-	app.client.leave()
 	screen._on_qr_text("ws://127.0.0.1:47801/kqzm")
-	_check(screen._pad != null and app.client.state == ControllerClient.State.IDLE, "a TV code without a PIN asks for the PIN")
-	screen._close_pad()
-	await process_frame
-	_check(screen._pad == null, "closing the pad leaves the screen as it was")
-
+	_check(app.client.host == "127.0.0.1" and app.client.port == 47801 and app.client.room == "KQZM"
+			and app.client.state != ControllerClient.State.IDLE, "a TV code joins that TV and room")
+	app.client.leave()
 	app.last_error = ""
-	# Only two ways to join: the QR code and the list of detected TVs (no typed room code or IP).
-	_check(screen.find_children("*", "LineEdit", true, false).is_empty(), "the connect screen has no text input")
-	app.controller_discovery.forget_all()
-	screen._rebuild_list()
-	_check(_list_texts(screen) == ["connect.no_rooms_found"], "an empty list says no TVs were found: %s" % str(_list_texts(screen)))
+	# Two ways to join: the QR code and the typed room code (tests/r4_join_code.gd). No list of TVs, no Refresh.
+	_check(screen.find_children("*", "LineEdit", true, false).size() == 1, "the connect screen has the field of the room code")
+	var shown: Array = screen.find_children("*", "Button", true, false).map(func(b): return b.text)
+	_check(shown.has("connect.join") and not shown.has("connect.refresh"), "JOIN is there and Refresh is not: %s" % str(shown))
 
-	# On an iPhone: no scan or paste button, and the empty list tells how to fix the Local Network permission (REQ-FL-58, 59).
+	# On an iPhone: no scan or paste button (REQ-FL-58).
 	var ios_screen = _script("res://scripts/ui/controller_connect.gd").new()
 	ios_screen.os_name = "iOS"
 	ios_screen.theme = app.theme_res
@@ -714,7 +661,7 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
 	# About is in the top row; then the profile dropdown and its + (FD-22). None of them is a scan or paste button.
-	_check(ios_buttons == ["common.about", "", "+", "connect.refresh"], "iPhone: no scan or paste button")
+	_check(ios_buttons == ["common.about", "", "+", "connect.join"], "iPhone: no scan or paste button")
 	var about_btn: Button = ios_screen.find_children("*", "Button", true, false).front()
 	ios_screen.size = Vector2(1080, 1920)
 	await process_frame
@@ -725,53 +672,13 @@ func _test_connect_screen() -> void:
 	root.set_layout_direction(Window.LAYOUT_DIRECTION_LTR)
 	await process_frame
 	_check(about_btn.get_global_rect().end.x > ios_screen.size.x - 200.0, "in English About is in the top-right corner")
-	var ios_texts: Array = _list_texts(ios_screen)
-	_check(ios_texts.size() == 2 and ios_texts[0] == "connect.no_rooms_found" and "LOCAL NETWORK" in ios_texts[1],
-			"iPhone: the empty list has the Local Network hint: %s" % str(ios_texts))
 	ios_screen.queue_free()
-	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
-			"max": 4, "seen_ms": Time.get_ticks_msec()}
-	screen._rebuild_list()
-	await process_frame
-	var tv_button: Button = null
-	for btn in screen._list.find_children("*", "Button", true, false):
-		tv_button = btn
-	_check(tv_button != null and tv_button.text == "QQQQ 1/4", "a detected TV is only '<code> x/y': %s" % tv_button.text)
-	var refresh_btn: Array = screen.find_children("*", "Button", true, false).filter(func(x): return x.text == "connect.refresh")
-	_check(refresh_btn.size() == 1 and tv_button.get_theme_color("font_color") == refresh_btn[0].get_theme_color("font_color"),
-			"the Refresh button and the detected TVs are both white")
-	tv_button.pressed.emit()
-	_check(screen._pad != null and app.client.state == ControllerClient.State.IDLE, "tapping a detected TV asks for the PIN first")
-	var pad = screen._pad.find_children("*", "VBoxContainer", true, false)[0]
-	for k in ["0", "4", "2", "7"]:
-		pad._key(k)
-	_check(app.client.host == "127.0.0.9" and app.client.room == "QQQQ" and app.client.pin == "0427",
-			"the PIN from the pad joins the TV")
-	app.client.leave()
-	# Refresh forgets the TVs and says it searches; a TV that beacons again comes back.
-	screen.refresh_list()
-	await process_frame
-	_check(app.controller_discovery.tvs.is_empty() and _list_texts(screen) == ["connect.searching"],
-			"Refresh clears the list and shows Searching: %s" % str(_list_texts(screen)))
-	app.controller_discovery.tvs["QQQQ"] = {"room": "QQQQ", "ip": "127.0.0.9", "port": 47801, "name": "Den", "players": 1,
-			"max": 4, "seen_ms": Time.get_ticks_msec()}
-	screen._rebuild_list()
-	await process_frame
-	_check(not screen._list.find_children("*", "Button", true, false).is_empty(), "a TV that beacons after Refresh is listed again")
-	app.controller_discovery.tvs.erase("QQQQ")
 	screen.queue_free()
 	app.last_error = ""
 	await process_frame
 
 
-func _list_texts(screen: Control) -> Array:
-	var r: Array = []
-	for c in screen._list.get_children():
-		r.append(c.text if "text" in c else "")
-	return r
-
-
-## Back, the keys and the messages of App (REQ-T3, REQ-GM-33), and the join of a phone by itself (--auto-join).
+## Back, the keys and the messages of App (REQ-T3, REQ-GM-33), and the join of a phone by itself (--join=ADDRESS).
 func _test_app_input() -> void:
 	print("app input")
 	var app: Node = root.get_node("App")
@@ -826,30 +733,18 @@ func _test_app_input() -> void:
 	_check(probe.calls == 4, "another key is not a Back")
 
 	var texts := {}
-	app.client.pin = "0000"
-	for reason in ["full", "bad_room", "version", "unreachable", "tv_closed", "kicked", "bad_pin", "pin_locked"]:
+	for reason in ["full", "bad_room", "version", "unreachable", "tv_closed", "kicked"]:
 		app._on_client_rejected(reason)
 		texts[reason] = app.last_error
 	_check(texts.values().all(func(t): return t != "" and not t.begins_with("Connection refused")),
 			"every known rejection has its own message")
-	_check(texts.values().size() == 8 and texts["full"] != texts["bad_room"] and texts["version"] != texts["unreachable"],
+	_check(texts.values().size() == 6 and texts["full"] != texts["bad_room"] and texts["version"] != texts["unreachable"],
 			"the messages are different")
-	_check("4" in texts["full"] and "30 SECONDS" in texts["pin_locked"], "the messages say the players that fit and the lock wait")
+	_check("4" in texts["full"], "the message of a full room says the players that fit")
 	app._on_client_rejected("weird")
 	_check(app.last_error == "Connection refused: weird", "an unknown rejection shows its reason")
 
-	var disc: Node = app.controller_discovery
-	disc.tvs.clear()
-	app._auto_join()
-	_check(app.client.state == ControllerClient.State.IDLE, "auto-join does nothing when no TV is found")
-	disc.tvs["AUTO"] = {"room": "AUTO", "ip": "127.0.0.1", "port": 47801, "name": "Den", "players": 0, "max": 4,
-			"seen_ms": Time.get_ticks_msec()}
-	app._auto_join()
-	_check(app.client.host == "127.0.0.1" and app.client.room == "AUTO" and app.client.state != ControllerClient.State.IDLE,
-			"auto-join joins the first TV that is found")
-	app.client.leave()
-	disc.tvs.clear()
-
+	_check(app._join_arg() == "", "a run without --join has no address to join")
 	var shown = app.current_screen()
 	app._show_phone_screen() # The client is idle: the screen must not change.
 	_check(app.current_screen() == shown, "an idle phone keeps its screen when the phase changes")
