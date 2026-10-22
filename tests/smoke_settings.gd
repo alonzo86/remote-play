@@ -363,8 +363,8 @@ func _how_to(app: Node) -> void:
 			await _frames(3)
 			var view: Control = app.current_screen()
 			var label: Label = view.how_to_label
-			var text := lang_script.t(String(g.how_to))
-			_check(text != String(g.how_to) and text.length() > 20 and label.text == text,
+			var text: String = lang_script.t(String(g.how_to))
+			_check(text != String(g.how_to) and text.length() > 20 and label.text == String(g.how_to),
 					"%s %s: the view shows the how-to-play text" % [code, g.id])
 			var low: float = maxf(view.start_button.get_global_rect().end.y, view.back_button.get_global_rect().end.y)
 			_check(low <= 1080.0 - 60.0 and label.get_global_rect().position.y >= 60.0,

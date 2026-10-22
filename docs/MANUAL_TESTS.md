@@ -379,6 +379,9 @@ Needs: 1 to 2 phones, 1 TV, a stopwatch. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, 
 5b. Look at a test screen: a black background, a focused menu item, a modal frame and a tile frame. Check: you name the colors black, yellow, white with blue inside, and gray, 4 of 4 correct.
 7. (Moved to Test 17.) The old step was: set the TV to Hebrew, region Israel, and check that the app stays English and left to right. FD-19 replaced that rule on 2026-10-10: the app now has Hebrew, and the result of R1 (the mirrored English UI) is not a defect any more.
 10e. On the phone, look at the waiting screen and the pad. Check: the avatar is beside the color square on both screens.
+11a. With 2 phones connected, open the settings view of Treasure Maze. Check: both phones show the question "PLAY THIS GAME?" with IN filled, and the TV lists both players with the word IN (4 of 4). (REQ-GM-104, issue #76)
+11b. Tap OUT on phone 2. Check: the OUT button of phone 2 is filled, the TV shows OUT after the name of player 2, and Start works (3 of 3). Then press Start. Check: phone 2 shows "A ROUND IS IN PROGRESS" and the game has 1 ball (2 of 2).
+11c. Go back to the Games screen and open the settings view again. Check: both phones are IN again (2 of 2).
 
 Items 1a, 1b, 1c, 2a, 3a, 3c, 4a, 4b, 4c, 6a, 6b, 8a, 8b, 8c, 9a, 9b, 10a, 10b, 10c, 10d, 10f and 10g moved to the automated tests (docs/AUTOMATED_TESTS.md, A-8b-1 to A-8b-10; the tiles of item 2a on a real TV are step 1c of Test 12). The numbers of the other items do not change.
 
@@ -394,6 +397,9 @@ Covered by machines (not repeated here): the buttons TRY AGAIN, NEW GAME and BAC
 | 5b | Photo of the test screen; note: the 4 color names | Not run | | | Same result as old item 5. |
 | 7 | (Moved to Test 17.) Photos of the Connect and Games screens on a TV set to Hebrew; of the phone set to Hebrew | Fail | R1 | Chat report 2026-10-09 (no file) | R1: the TV is set to the IL region and Hebrew. The text was English, but the layout was mirrored (right to left). Fixed on 2026-10-09 (REQ-FL-54): the app sets the locale to English and the layout to left to right. Retest on the TV. The phone was not tried. |
 | 10e | Photos of the phone header on both screens | Not run | | | Same result as old item 10. |
+| 11a | Photo of both phones and of the TV | Not run | | | |
+| 11b | Photo of phone 2 and of the TV before and after Start | Not run | | | |
+| 11c | Photo of the TV and the phones | Not run | | | |
 
 History:
 

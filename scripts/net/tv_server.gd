@@ -29,6 +29,10 @@ var recenter_button := true
 var pad_buttons := "ab"
 ## True while the settings view of a swing game is open: phones show the safety card and answer `swing_ok` (REQ-GM-102).
 var setup_swing := false
+## True while the settings view of a game is open (issue #76, #79): the phones get `setup` messages.
+var setup_open := false
+var _out := {}   # slot -> true for a phone that chose OUT of the game in the settings view (REQ-GM-104).
+var _setup_sig := ""
 var _swing_ok := {}   # slot -> true for a phone that tapped OK on the safety card (or had tapped it before in this run).
 var phase := "connect"   # connect, menu, playing, paused. See docs/PROTOCOL.md.
 var round_slots: Array[int] = []   # Slots that take part in the running round (when `round_limited`).
@@ -108,9 +112,11 @@ func connected_slots() -> Array[int]:
 ## `slots` gets the phase `waiting`: it joined late and takes part in the next round (REQ-FL-25).
 func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	phase = p_phase
+	setup_open = false
 	setup_swing = false
 	_swing_ok.clear()
 	if not p_phase in ["playing", "paused"]:
+		_out.clear()   # Every phone is IN again outside a round (the Games screen, a new settings view).
 		recenter_button = true
 		pad_buttons = "ab"
 	round_slots.clear()
@@ -132,22 +138,57 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 			_send_json(p.slot, msg)
 
 
-## Opens or closes the setup of the game that the settings view shows (issue #79). For a swing game every connected phone gets
-## the `setup` message with `swing: true`; the answers of `swing_ok` are counted again. Any `set_phase` closes the setup.
+## Opens the setup of the game that the settings view shows (issues #76 and #79). Every connected phone gets the `setup` message
+## (`swing`, `pick`, `in`, see `sync_setup()`); the answers of `swing_ok` and the choices IN and OUT start again. Any `set_phase`
+## closes the setup.
 func set_setup(swing: bool) -> void:
+	setup_open = true
 	setup_swing = swing
 	_swing_ok.clear()
-	if swing:
-		for p in players:
-			if p.is_connected_now():
-				_send_json(p.slot, {"t": "setup", "swing": true})
+	_out.clear()
+	_setup_sig = ""
+	sync_setup()
 
 
-## The slots of the connected phones that have not tapped OK on the safety card yet. Empty when the setup is not a swing game.
+## Sends the `setup` message to every connected phone when something in it changed since the last time: the phones that are
+## connected, a choice of IN or OUT, the swing flag. `pick` is true with two or more phones (the phone shows the question
+## "play this game?"); `in` is the choice of this phone. It runs every frame while the setup is open, so a phone that joins
+## or returns gets it at once.
+func sync_setup() -> void:
+	if not setup_open:
+		return
+	var slots := connected_slots()
+	var sig := "%s|%s|%s" % [str(slots), str(_out.keys()), str(setup_swing)]
+	if sig == _setup_sig:
+		return
+	_setup_sig = sig
+	for s in slots:
+		_send_json(s, {"t": "setup", "swing": setup_swing, "pick": slots.size() >= 2, "in": not _out.has(s)})
+
+
+## The connected phones that play the next game: all of them, except the ones that chose OUT in the settings view (REQ-GM-104).
+func players_in() -> Array[int]:
+	var r: Array[int] = []
+	for s in connected_slots():
+		if not _out.has(s):
+			r.append(s)
+	return r
+
+
+## A phone chose IN (`true`) or OUT. The last phone that is IN cannot go OUT: a game needs a player.
+func set_in(slot: int, value: bool) -> void:
+	if value:
+		_out.erase(slot)
+	elif players_in().has(slot) and players_in().size() > 1:
+		_out[slot] = true
+
+
+## The slots of the phones that play and have not tapped OK on the safety card yet (a phone that is OUT is not asked). Empty when
+## the setup is not a swing game.
 func swing_pending() -> Array[int]:
 	var r: Array[int] = []
 	if setup_swing:
-		for s in connected_slots():
+		for s in players_in():
 			if not _swing_ok.has(s):
 				r.append(s)
 	return r
@@ -232,6 +273,7 @@ func kick(slot: int) -> void:
 func _process(delta: float) -> void:
 	if not listening:
 		return
+	sync_setup()
 	_address_timer -= delta
 	if _address_timer <= 0.0:
 		_address_timer = 1.0
@@ -355,9 +397,9 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		welcome["ab"] = pad_buttons
 	_send_json(slot, welcome)
 	if not resumed:
-		_swing_ok.erase(slot)   # A new phone in a used slot has not tapped OK yet.
-	if setup_swing:
-		_send_json(slot, {"t": "setup", "swing": true})   # A phone that joins or returns while the settings view is open.
+		_swing_ok.erase(slot)   # A new phone in a used slot has not tapped OK yet, and is IN.
+		_out.erase(slot)
+	_setup_sig = ""   # A phone that joins or returns while the settings view is open gets `setup` (sync_setup).
 	if resumed:
 		player_resumed.emit(slot)
 	else:
@@ -510,6 +552,11 @@ func _handle_control(i: int, msg: Dictionary, now: int) -> void:
 		"swing_ok":
 			if setup_swing:
 				_swing_ok[i] = true
+		"play":
+			if setup_open and msg.get("v", true) is bool:
+				set_in(i, bool(msg.v))
+				if players_in().has(i) != bool(msg.v):
+					_setup_sig = ""   # A refused choice: the phone gets the choice that the TV kept.
 		"profile":
 			_handle_profile(i, msg, now)
 		"bye":

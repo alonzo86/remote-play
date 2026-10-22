@@ -53,7 +53,7 @@ var _pixel_layer: Control        # Draws the world of a pixel game, inside the l
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
-	participants = App.server.connected_slots()
+	participants = App.server.players_in()   # The phones that chose OUT in the settings view do not play (REQ-GM-104).
 	var entry := Registry.find(Registry.id_of_script(get_script()))
 	App.server.recenter_button = Registry.has_control(entry, "recenter")   # REQ-GM-37
 	App.server.pad_buttons = Registry.buttons_of(entry)   # REQ-GM-37a

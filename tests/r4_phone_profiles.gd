@@ -231,7 +231,7 @@ func _edit_and_join() -> void:
 func _waiting_screen() -> void:
 	print("the waiting screen")
 	var wait: Control = _app.current_screen()
-	var texts: Array = _buttons(wait).map(func(b): return b.text)
+	var texts: Array = _buttons(wait).filter(func(b): return b.is_visible_in_tree()).map(func(b): return b.text)
 	_check(texts == ["pad.disconnect", "common.settings", "common.about"],
 			"the waiting screen has only DISCONNECT, SETTINGS and ABOUT: %s" % str(texts))
 	var leave: Rect2 = wait._leave.get_global_rect()

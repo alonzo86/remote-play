@@ -11,6 +11,8 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 const ChoiceRow = preload("res://scripts/ui/choice_row.gd")
 const TrackPicker = preload("res://scripts/ui/track_picker.gd")
 
+const ROSTER_SIZE := 32   # The size of the lines IN and OUT (a TV text is 32 px or more, REQ-GM-41); the tallest view must fit.
+
 ## Set by `App.go_game_settings()` before the screen enters the tree.
 var game_id := ""
 
@@ -18,6 +20,8 @@ var game := {}
 var rows: Array[Control] = []   # The row controls: a choice row or a track list.
 var start_button: Button
 var back_button: Button
+var in_label: Label    # Who plays this game, and who sits out (issue #76, REQ-GM-104). Hidden with one phone.
+var out_label: Label
 var how_to_label: Label   # How to play (REQ-GM-103).
 var reason_label: Label   # Why Start does not work now (REQ-GM-20): not enough phones. Empty when it works.
 
@@ -70,6 +74,13 @@ func _ready() -> void:
 		safety.autowrap_mode = TextServer.AUTOWRAP_WORD
 		safety.custom_minimum_size = Vector2(900, 0)
 		box.add_child(safety)
+	in_label = UiKit.label("", ROSTER_SIZE, UiTheme.OK)
+	out_label = UiKit.label("", ROSTER_SIZE, UiTheme.TEXT_DIM)
+	for l in [in_label, out_label]:
+		l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # It holds player names, which are never translated (REQ-FL-63).
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD
+		box.add_child(l)
 	reason_label = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
 	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(reason_label)
@@ -83,17 +94,35 @@ func _process(_delta: float) -> void:
 
 ## Start works only when the connected phones fit the game (REQ-GM-20): a phone can leave while the view is open.
 func _update_fit() -> void:
-	var n: int = App.server.connected_slots().size()
+	# Only the players that are IN count (issue #76); the list shows who is IN or OUT when two or more phones are here.
+	var n: int = App.server.players_in().size()
 	var fits := Registry.accepts(game, n)
 	# A swing game waits until every phone has tapped OK on the safety card (issue #79).
 	var waiting: bool = fits and not App.server.swing_pending().is_empty()
 	start_button.disabled = not fits or waiting
 	reason_label.text = Lang.t("game_settings.waiting_phones").to_upper() if waiting else (
 			"" if fits else Registry.reason(game, n).to_upper())
+	_update_roster()
+
+
+## Two lines under Start with two or more phones: "IN: names" and, when someone sits out, "OUT: names" (REQ-GM-104).
+func _update_roster() -> void:
+	var ins: Array[String] = []
+	var outs: Array[String] = []
+	var here: Array[int] = App.server.connected_slots()
+	var playing: Array[int] = App.server.players_in()
+	for s in here:
+		(ins if playing.has(s) else outs).append(String(App.server.players[s].player_name).to_upper())
+	var show: bool = here.size() >= 2
+	in_label.visible = show and not ins.is_empty()
+	out_label.visible = show and not outs.is_empty()
+	in_label.text = Lang.t("setup.in").to_upper() + ": " + ", ".join(ins)
+	out_label.text = Lang.t("setup.out").to_upper() + ": " + ", ".join(outs)
+	reason_label.visible = reason_label.text != ""
 
 
 func start() -> void:
-	if not Registry.accepts(game, App.server.connected_slots().size()) or not App.server.swing_pending().is_empty():
+	if not Registry.accepts(game, App.server.players_in().size()) or not App.server.swing_pending().is_empty():
 		return
 	var script := Registry.load_script(game_id)
 	if script != null:
