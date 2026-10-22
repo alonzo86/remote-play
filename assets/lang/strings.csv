@@ -74,7 +74,7 @@ minigame.back_to_menu,BACK TO MENU,חזרה לתפריט,"Button in the result m
 minigame.end_game_ask,END THE GAME?,לסיים את המשחק?,Title of the question 'End the game?' after Back during play,
 minigame.end_game,END GAME,סיום המשחק,"Button End game in the pause menu (leaves at once), in the question 'End the game?' and in the card of a lost phone",
 minigame.resume_play,RESUME PLAY,להמשיך לשחק,Button in the question 'End the game?' that goes back to the game,
-minigame.no_players_connected,NO PLAYERS CONNECTED,אין שחקנים מחוברים,Title of the menu when every phone has left a game,
+minigame.no_players_connected,NO PLAYERS CONNECTED,אין שחקנים מחוברים,Title of the menu when every phone has left a game, and of the card when the only phone of the game is lost (it waits for the phone),
 minigame.paused,PAUSED,מושהה,Title of the pause menu,
 minigame.restart,TRY AGAIN,נסו שוב,Button Try again in the pause menu and the result menu,
 minigame.resume,RESUME,המשך,Button Resume in the pause menus,

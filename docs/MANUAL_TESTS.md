@@ -283,7 +283,7 @@ History:
 
 Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8.
 
-Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Protocol.PEER_TIMEOUT_MS`, issue #56), so "at once" means 3.6 seconds at most (REQ-GM-30), measured from the moment you switch the Wi-Fi off. With one phone, the card then says "1P LOST CONNECTION" and offers only **End game** (REQ-GM-30a); "NO PLAYERS CONNECTED" opens only when the slot is freed after 5 minutes (issue #46).
+Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Protocol.PEER_TIMEOUT_MS`, issue #56), so "at once" means 3.6 seconds at most (REQ-GM-30), measured from the moment you switch the Wi-Fi off. With one phone, the card then says "NO PLAYERS CONNECTED" and offers only **End game** (REQ-GM-30a, issue #46); when the phone is back, the card says "1P RECONNECTED" with **Resume**.
 
 **Steps**
 
@@ -293,7 +293,7 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 3c. (Removed with the join PIN. The phone joins again by itself in 3b.)
 4b. Switch the Wi-Fi on. Check: within 10 seconds the phone joins again by itself and shows its waiting screen or the pad, with no PIN question. (Issue #52.)
 6a. On the phone pad, tap **Disconnect** once. Check: the phone shows the Connect screen less than 1 second after the tap (no second tap).
-7a. With one phone in a game, call that phone from another phone and answer. Check: within 4 seconds of the answer (3 s of silence plus 1 s) the game pauses with the card "1P LOST CONNECTION".
+7a. With one phone in a game, call that phone from another phone and answer. Check: within 4 seconds of the answer (3 s of silence plus 1 s) the game pauses with the card "NO PLAYERS CONNECTED" (one phone, issue #46).
 7b. End the call and go back to the controller app. Check: the phone says "RECONNECTING..." and then joins again in 10 seconds or less (stopwatch from the return to the app).
 7c. Check: the card says "1P reconnected" with **Resume**, and **Resume** goes on with the game.
 7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot.
@@ -596,7 +596,7 @@ Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island")
 3d. Turn the phone to the left on a table (like turning a plate). Check: Gyro z is positive during the turn. (Like Test 3, item 4.)
 4a. Play Treasure Maze for 2 minutes (stopwatch) with the screen on and no touch on the screen. Check: no "lost connection" card on the TV and the iPhone screen does not lock.
 4b. In the same game, tilt the phone left, right, top up and top down. Check: the ball rolls to the side that is lowered, in all 4 directions.
-5a. In a game, lock the iPhone. Check: the TV shows the lost-phone card ("1P LOST CONNECTION" for slot 1) within 10 seconds. (Like A-7-7.)
+5a. In a game, lock the iPhone. Check: the TV shows the lost-phone card ("NO PLAYERS CONNECTED" for the only phone) within 10 seconds. (Like A-7-7.)
 5b. Unlock the phone after 10 seconds. Check: the phone returns by itself, the card on the TV changes to a card with the button "Resume", and "Resume" restarts the game. (Like A-7-7 and A-7-8.)
 5c. Outside a game (on the Games screen), lock the iPhone for 40 seconds and unlock it. Check: within 10 seconds the phone joins again by itself and shows "CHOOSE A GAME ON THE TV". (Like Test 7, item 3b.)
 6b. Open the player list, the player edit screen with the keyboard open, and Settings, upright. Take a photo of each. Check: the same as 6a. (REQ-FL-68)

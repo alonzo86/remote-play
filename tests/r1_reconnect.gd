@@ -202,8 +202,8 @@ func _wait_stream(phone: ControllerClient, _game: Control, cond: Callable, max_m
 	return cond.call()
 
 
-## Steps 5a to 5d: the only phone goes silent. The card has End game only; when the phone is back it says "1P reconnected" and
-## offers Resume.
+## Steps 5a to 5d: the only phone goes silent. The card says NO PLAYERS CONNECTED and has End game only (issue #46); when
+## the phone is back it says "1P reconnected" and offers Resume.
 func _only_phone(script: GDScript, props: Dictionary, name: String) -> void:
 	print("the only phone is silent: ", name)
 	var phones: Array[ControllerClient] = await _join(1)
@@ -217,7 +217,7 @@ func _only_phone(script: GDScript, props: Dictionary, name: String) -> void:
 	await _frames(3)
 	_check(held and ms <= LOST_LIMIT_MS and game.is_paused() and not game.is_over,
 			"[%s] the game pauses %d ms after the phone went silent" % [name, ms])
-	_check(_card_title(game) == "1P LOST CONNECTION" and _card_buttons(game) == ["minigame.end_game"],
+	_check(_card_title(game) == Lang.t("minigame.no_players_connected") and _card_buttons(game) == ["minigame.end_game"],
 			"[%s] the card says '%s' and has End game only: %s" % [name, _card_title(game), str(_card_buttons(game))])
 	phones[0].set_process(true)
 	var t1 := Time.get_ticks_msec()
