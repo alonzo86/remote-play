@@ -308,6 +308,17 @@ func _settings_walk() -> void:
 	_check(back == null or visible_rect.encloses(back.get_global_rect()), "and the Back row is inside the screen")
 	await _press("ui_up")
 	_check(_focus() != null, "Up keeps a focus")
+	# Issue #49: Left and Right on the focused Language row choose a language, through the real focus path.
+	_app.set_language("en")
+	var rows: Array = _app.current_screen()._rows
+	rows[rows.size() - 1].grab_focus()
+	await _frames(2)
+	await _press("ui_right")
+	_check(_app.settings.language == "he", "Right on the focused Language row gives Hebrew (%s)" % _app.settings.language)
+	await _press("ui_left")
+	_check(_app.settings.language == "en", "Left on the focused Language row gives English (%s)" % _app.settings.language)
+	_check(rows.all(func(r: Button) -> bool: return r.custom_minimum_size.y == 120.0),
+			"every Settings row is 120 px high (REQ-FL-23)")
 	_app.go_games()
 	await _frames(3)
 

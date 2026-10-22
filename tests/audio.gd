@@ -328,6 +328,14 @@ func _settings_rows(sound: Node, app: Node) -> void:
 	cfg.load(app.SETTINGS_FILE)
 	_check(cfg.get_value("settings", "music_volume", -1) == 0 and cfg.get_value("settings", "sfx_volume", -1) == 3,
 			"the volumes are saved")
+	# An old settings file with mute = true keeps its silence: the Mute row is gone (issue #49).
+	cfg.set_value("settings", "mute", true)
+	cfg.set_value("settings", "music_volume", 7)
+	cfg.set_value("settings", "sfx_volume", 8)
+	cfg.save(app.SETTINGS_FILE)
+	app._load_settings()
+	_check(app.settings.music_volume == 0 and app.settings.sfx_volume == 0,
+			"an old file with mute = true loads as Music 0 and Effects 0")
 	app.settings.merge(old, true)
 	app.save_settings()
 	sound.apply_settings()
