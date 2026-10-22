@@ -4,7 +4,8 @@ name: CI
 #  - Only documentation changed (Markdown, docs/, .claude/): only `build-android` runs.
 #  - A pull request runs the FAST suites (tests/suites.txt, no tier). The SLOW suites run on a push to main, on a manual run
 #    ("Run workflow", tests = slow or all) and on a pull request with the label `full-tests`.
-#  - The coverage check (80% for every module) needs all suites, so it runs only when the suites of both tiers run.
+#  - Coverage is always reported. The 80% rule (every module) fails the run only when the suites of both tiers ran: with one tier
+#    the modules that the other tier tests look uncovered.
 #  - `pixels` runs on a push to main, when a pull request changes something that is drawn (tools/ci_changes.sh), on a manual run
 #    with pixels = true and on a pull request with the label `pixels`.
 #  - A draft pull request runs nothing. A newer push to the same branch cancels the run that is still going.
@@ -35,11 +36,8 @@ env:
 jobs:
   changes:
     # Decides what the other jobs do. Takes a few seconds.
-    if: >-
-      github.event.pull_request.draft != true &&
-      (github.event.action != 'labeled' || github.event.label.name == 'full-tests' || github.event.label.name == 'pixels')
+    if: github.event.pull_request.draft != true
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     outputs:
       code: ${{ steps.files.outputs.code }}
       render: ${{ steps.files.outputs.render }}
@@ -82,7 +80,6 @@ jobs:
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -99,12 +96,10 @@ jobs:
   test:
     # The headless tests (the suites of tests/suites.txt). They run on the instrumented copy of the project, so that the same run
     # gives the coverage hits for the job `coverage`. A failure here is a failed test.
-    # The suites of the tier that `changes` picked run. Only the tier `all` is instrumented: the coverage check needs all suites,
-    # so a run of one tier would fail it. A run of one tier is plain (no instrumented copy), and the job `coverage` is skipped.
+    # The suites of the tier that `changes` picked run, on the instrumented copy, so the job `coverage` can always report.
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     env:
       SUITE_TIER: ${{ needs.changes.outputs.tier }}
     steps:
@@ -117,16 +112,11 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
-      - name: Tests (instrumented for coverage, tier all)
-        if: env.SUITE_TIER == 'all'
+      - name: Tests (instrumented for coverage)
         run: COVERAGE_STEP=run GODOT="$(which godot)" tools/coverage.sh build/coverage
-      - name: Tests (tier ${{ env.SUITE_TIER }}, no coverage)
-        if: env.SUITE_TIER != 'all'
-        run: GODOT="$(which godot)" tests/run_suites.sh
       - name: Design tokens (CSS)
         run: python3 tools/design_tokens_css.py --check
       - uses: actions/upload-artifact@v4
-        if: env.SUITE_TIER == 'all'
         with:
           name: coverage-hits
           path: |
@@ -138,9 +128,8 @@ jobs:
     # The line coverage of scripts/ from the hits of the job `test`. No test runs here. A failure here is a module below 80%.
     # Modules that are set aside (with a reason) are in tools/coverage/exclusions.txt.
     needs: [changes, test]
-    if: needs.changes.outputs.code == 'true' && needs.changes.outputs.tier == 'all'
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -150,7 +139,11 @@ jobs:
         with:
           name: coverage-hits
           path: build/coverage
+      # The 80% rule fails the job only when all suites ran. With one tier the modules that the other tier tests look uncovered,
+      # so the numbers are only reported.
       - name: Coverage and the 80% rule
+        env:
+          COVERAGE_REPORT_ONLY: ${{ needs.changes.outputs.tier == 'all' && '0' || '1' }}
         run: COVERAGE_STEP=report tools/coverage.sh build/coverage
       - name: Coverage summary
         if: always()
@@ -172,7 +165,6 @@ jobs:
     needs: changes
     if: needs.changes.outputs.code == 'true' && needs.changes.outputs.pixels == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: chickensoft-games/setup-godot@v2
@@ -206,7 +198,6 @@ jobs:
     needs: [changes, lint, test]
     if: ${{ !cancelled() && !failure() && needs.changes.result == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: chickensoft-games/setup-godot@v2

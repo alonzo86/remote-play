@@ -34,17 +34,17 @@ The free GitHub plan has a limited number of minutes each month. The workflow `.
 
 | Case | lint | test | coverage | pixels | build-android |
 |------|------|------|----------|--------|---------------|
-| A pull request that changes code | yes | fast suites, no instrumentation | no | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `lang.gd`, `project.godot`, the pixel tests, the design tokens) | yes |
+| A pull request that changes code | yes | fast suites | reported, never fails | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `lang.gd`, `project.godot`, the pixel tests, the design tokens) | yes |
 | A pull request with the label `full-tests` | yes | all suites, instrumented | yes | as above | yes |
-| A pull request with the label `pixels` | yes | fast suites | no | yes | yes |
+| A pull request with the label `pixels` | yes | fast suites | reported, never fails | yes | yes |
 | A push to `main` (a merge) | yes | all suites, instrumented | yes | yes | yes |
-| A manual run (Actions, "Run workflow") | yes | fast, slow or all (your choice) | only for all | your choice | yes |
+| A manual run (Actions, "Run workflow") | yes | fast, slow or all (your choice) | reported; fails only for all | your choice | yes |
 | Only Markdown, `docs/` or `.claude/` changed (the design tokens in `docs/design-system/` are code) | no | no | no | no | yes |
 | A draft pull request | nothing runs. Mark it ready for review to start CI | | | | |
 
 The slow suites (measured on 2026-10-22, one core, headless): `hud_layout` 105 s, `multi_phone` 101 s, `device_mocks` 80 s, `audio_phones` 58 s, `r4_tv_profiles` 49 s, `r1_reconnect` 37 s, `audio` 34 s, `net_rate` 24 s, `audio_events` 23 s, `swing_replay` 21 s, `device_mocks_b` 17 s: about 9 of the 15.6 minutes. The other 69 suites take about 6.5 minutes.
 
-The coverage check (every module 80% or more) needs the hits of all suites. The fast suites alone leave `audio_manager.gd` (64%), `songs.gd` (64%) and `controller_settings.gd` (79%) below 80%, so the check runs only when all suites run (a merge to `main`, the label `full-tests`, or a manual run with `all`). A pull request that fast CI passes can therefore fail the coverage check after the merge. Run `tools/coverage.sh` before you create a pull request (CLAUDE.md); that is the whole check. Add `slow` to a new suite only when it takes 15 s or more.
+The coverage job always runs and always reports (the summary of the run). The 80% rule (every module) needs the hits of all suites. The fast suites alone leave `audio_manager.gd` (64%), `songs.gd` (64%) and `controller_settings.gd` (79%) below 80%, so the rule fails the job only when all suites ran (a merge to `main`, the label `full-tests`, or a manual run with `all`). On a pull request the numbers are only a report (`COVERAGE_REPORT_ONLY=1`). A pull request can therefore pass CI and fail the rule after the merge. Run `tools/coverage.sh` before you create a pull request (CLAUDE.md); that is the whole check. Add `slow` to a new suite only when it takes 15 s or more.
 
 ## What replaced a manual step
 
