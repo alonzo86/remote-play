@@ -12,11 +12,14 @@ signal player_lost(slot: int)
 signal player_resumed(slot: int)
 signal player_removed(slot: int)
 
-var room_code := ""
-var pin := ""                        # The join PIN. Shown on the TV only. A new phone must send it (FD-25).
-var pin_exempt_loopback := true      # A phone on the same device (a development run, the tests) needs no PIN.
-var _bad_pins := 0
-var _pin_locked_until_ms := 0        # New joins are refused until this time (after too many wrong PINs).
+var room_code := ""                  # The code of `ip` (Protocol.room_code_for_ip). Empty while the TV has no address.
+## The LAN address of this TV. The room code follows it, so a new address shows a new code (REQ-FL-4).
+var ip := "":
+	set(value):
+		ip = value
+		room_code = Protocol.room_code_for_ip(value)
+## Finds the address of this device. A test sets another one (an empty text is a device with no network).
+var address_lookup: Callable = Protocol.local_ipv4
 var tv_name := "Living Room TV"
 ## False while a game without a pointer is running: the phones then hide the Recenter box (REQ-GM-37). It is sent in the
 ## `phase` and `welcome` messages as `rc` and only when it is false.
@@ -34,6 +37,7 @@ var peer_timeout_ms := Protocol.PEER_TIMEOUT_MS
 var slot_grace_ms := Protocol.SLOT_GRACE_MS
 var paused_slot_grace_ms := Protocol.PAUSED_SLOT_GRACE_MS
 
+var _address_timer := 0.0
 var _tcp := TCPServer.new()
 var _pending: Array = []             # [{ws, since_ms}]
 var _sockets: Array[WebSocketPeer] = []
@@ -45,8 +49,7 @@ var _score_sent := {}                # slot -> the last score message sent to th
 
 
 func start(settings: Dictionary) -> Error:
-	room_code = Protocol.make_room_code()
-	pin = Protocol.make_pin()
+	ip = address_lookup.call()
 	for i in Protocol.MAX_PLAYERS:
 		players.append(PlayerInput.new(i, settings))
 		_sockets.append(null)
@@ -194,9 +197,15 @@ func kick(slot: int) -> void:
 	player_removed.emit(slot)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if not listening:
 		return
+	_address_timer -= delta
+	if _address_timer <= 0.0:
+		_address_timer = 1.0
+		var found: String = address_lookup.call()
+		if found != ip:
+			ip = found
 	var now := Time.get_ticks_msec()
 	while _tcp.is_connection_available():
 		var stream := _tcp.take_connection()
@@ -246,8 +255,7 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		return
 	var room := String(msg.get("room", "")).to_upper()
 	if room != "" and room != room_code:
-		# The answer says which TV this is, so a phone can find the TV without the UDP beacon (docs/PROTOCOL.md, "Probe").
-		_reject(ws, "bad_room", {"room": room_code, "name": tv_name, "players": player_count(), "max": Protocol.MAX_PLAYERS})
+		_reject(ws, "bad_room")
 		return
 	var token := String(msg.get("token", ""))
 	if token != "" and _replaced_tokens.has(token):
@@ -270,11 +278,6 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 				slot = p.slot
 				resumed = true
 				break
-	if slot < 0:
-		var pin_reason := _pin_check(ws, String(msg.get("pin", "")), now)   # A phone with a known token needs no PIN.
-		if pin_reason != "":
-			_reject(ws, pin_reason)
-			return
 	if pid != "":
 		var dup := _slot_with_pid(pid)
 		if dup >= 0 and dup != slot:
@@ -321,26 +324,6 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		player_resumed.emit(slot)
 	else:
 		player_joined.emit(slot)
-
-
-## "" when a new phone may join: it sends the PIN of this TV, or it is on this device. Else the reason to reject it: `bad_pin`, or
-## `pin_locked` while the TV refuses new phones. After PIN_TRIES wrong PINs the TV refuses all new phones (also with the right
-## PIN) for PIN_LOCK_MS, so that guessing a PIN of 10000 takes hours (docs/PROTOCOL.md).
-func _pin_check(ws: WebSocketPeer, sent: String, now: int) -> String:
-	if pin_exempt_loopback and ws.get_connected_host() in ["127.0.0.1", "::1", "::ffff:127.0.0.1"]:
-		return ""
-	if now < _pin_locked_until_ms:
-		return "pin_locked"
-	if sent == pin and pin != "":
-		_bad_pins = 0
-		return ""
-	if sent == "":
-		return "bad_pin"   # No PIN (an old token after a TV restart): the phone asks for it. This is not a guess, so it does not count.
-	_bad_pins += 1
-	if _bad_pins >= Protocol.PIN_TRIES:
-		_bad_pins = 0
-		_pin_locked_until_ms = now + Protocol.PIN_LOCK_MS
-	return "bad_pin"
 
 
 ## True in a phase where a phone can change its profile: the logo and Connect screens and the menus.
@@ -421,10 +404,8 @@ func _handle_profile(i: int, msg: Dictionary, now: int) -> void:
 	_send_json(i, {"t": "profile", "pid": p.profile_id, "name": p.player_name if p.has_profile() else "", "av": p.avatar})
 
 
-func _reject(ws: WebSocketPeer, reason: String, extra := {}) -> void:
-	var msg := {"t": "reject", "reason": reason}
-	msg.merge(extra)
-	ws.send_text(Protocol.to_json(msg))
+func _reject(ws: WebSocketPeer, reason: String) -> void:
+	ws.send_text(Protocol.to_json({"t": "reject", "reason": reason}))
 	_discard(ws)
 
 

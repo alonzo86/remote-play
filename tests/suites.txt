@@ -2,6 +2,8 @@
 # tier is `unit` (the logic of one module or one rule: the CI runs these on every change) or `scenario` (a screen, a layout, a text,
 # a flow or several phones at once: run them locally or on demand). Every line needs a tier; a title has no | in it.
 # tests/run_all.sh (local) and tools/coverage.sh (the coverage check) both use this list, so a new suite is added here only.
+# The headless test suites, one for each line: script|role|title. tests/run_suites.sh runs them in this order.
+# tests/run_all.sh (local run) and tools/coverage.sh (CI, with coverage) both use this list, so a new suite is added here only.
 tests/run_tests.gd|controller|unit and network tests|unit
 tests/ui_states.gd|controller|button states and the wait screen Leave|scenario
 tests/ui_share.gd|controller|copy a player: share, paste, scan|scenario
@@ -10,8 +12,8 @@ tests/qr.gd|controller|QR encoder versions 7 to 14|unit
 tests/profile_code.gd|controller|profile code, keys and merge|unit
 tests/profiles.gd|controller|profiles: model, store, avatars|unit
 tests/net_profiles.gd|controller|profiles over the network|unit
-tests/net_pin.gd|controller|join PIN, PIN pad and About page|unit
-tests/probe.gd|controller|finding a TV without the beacon|unit
+tests/room_code.gd|controller|room code: encode, decode, hosts, TV link|unit
+tests/about_pages.gd|controller|About pages and About screen|scenario
 tests/game_helpers.gd|controller|game helpers|unit
 tests/game_rules.gd|controller|game rules|unit
 tests/swing_detector.gd|controller|swing detector|unit
@@ -76,7 +78,7 @@ tests/audio_events.gd|tv|effects and buzzes of the events of every game table|sc
 tests/r4_phone_profiles.gd|controller|Profiles on the phone: pencil, join, switch, replaced, share, scan, 32 avatars|scenario
 tests/r4_tv_profiles.gd|tv|Profiles on the TV: chips, lists, Wi-Fi cut|scenario
 tests/r4_bests.gd|tv|Personal bests from the TV to the phone|scenario
-tests/r4_pin.gd|controller|Join PIN pad: keys, digits, lock, status line|scenario
+tests/r4_join_code.gd|controller|Join by room code: TV rules, Connect screen, errors, the pencil|scenario
 tests/r4_tv_menus.gd|tv|Connect screen, Players modal, Settings, About|scenario
 tests/r4_asteroid.gd|tv|Galaxy Protector: ship at the sides, Reached wave N|scenario
 tests/r4_bowling.gd|tv|Pin Pals: totals, last frame, rails, plate, scores, winner, leave|scenario

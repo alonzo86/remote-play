@@ -61,12 +61,12 @@ The category comes from the preset option `package/show_in_android_tv` (set to `
 The controller app scans the QR code on the TV screen with the Google code scanner (ML Kit).
 
 - The scanner has its own screen. The app does **not** need the camera permission.
-- The phone needs **Google Play services**. A phone without them shows "QR scan failed" and you use the list of rooms and the PIN.
+- The phone needs **Google Play services**. A phone without them shows "QR scan failed" and you type the room code.
 - The first scan can take a few seconds, because Play services can download the scanner module.
   The manifest entry `com.google.mlkit.vision.DEPENDENCIES = barcode_ui` asks Play services to download it at install time.
 - The first build needs internet access for Gradle (to get the dependency from Google Maven).
 - GDScript side: `scripts/net/qr_scanner.gd`. Without the plugin (PC, or a build where you skipped the patch script)
-  the button on the connect screen is **Paste TV link**. It reads `ws://IP:47801/ROOM?pin=0427` from the clipboard.
+  the button on the connect screen is **Paste TV link**. It reads `ws://IP:47801/ROOM` from the clipboard.
 
 ## 3. Export
 
@@ -122,8 +122,8 @@ Or copy the APK to the phone and open it (allow installs from this source).
 ## 6. Run a test session
 
 1. Connect the TV and the phone to the **same Wi-Fi network** (best: 5 GHz).
-2. Start the TV app. After the logo it shows the Connect screen with the room code, the 4-digit join PIN and the QR code.
-3. Start the controller app. Tap **SCAN QR CODE** and scan the code. (Or tap the room under **ROOMS FOUND** and type the PIN of the TV; **REFRESH** looks again.)
+2. Start the TV app. After the logo it shows the Connect screen with the room code and the QR code.
+3. Start the controller app. Tap **SCAN QR CODE** and scan the code. (Or type the room code of the TV in the field and tap **JOIN**.)
 4. On the TV, press OK on the Connect screen ("PRESS OK TO CONTINUE"). Press the Menu key (or open **Settings**, the OPTIONS button, and switch **Debug overlay** on) to see the latency numbers.
 5. Select **Treasure Maze**. Hold the phone flat during the countdown. Tilt to roll the ball.
    If the ball rolls the wrong way, select **INVERT AXES** on the Settings screen.
@@ -143,15 +143,15 @@ Only the controller runs on iOS. The TV app stays on Android TV. Status: written
 
 Differences from Android:
 
-- No QR scan: the Android plugin does not exist on iOS, so the connect screen shows only the list of discovered TVs and Refresh. It has no scan and no **Paste TV link** button (REQ-FL-58).
-- The UDP beacon list may stay empty. iOS needs the local network permission (the app asks once), and broadcast may need an Apple multicast entitlement. If the list stays empty, the iPhone cannot join: tell Claude, the beacon or the entitlement needs work.
+- No QR scan: the Android plugin does not exist on iOS, so the iPhone joins by the typed room code. The connect screen has no scan and no **Paste TV link** button (REQ-FL-58).
+- iOS asks for the Local Network permission the first time the app connects to the TV (the text is in the `export_presets.cfg` of the controller). If the player taps Don't Allow, the iPhone cannot join: Settings > Sababi > Local Network switches it on.
 - The sensor axis fix in `scripts/input/sensor_sampler.gd` was measured on Android only. Check the directions again (Manual test 13).
 
 ## Desktop tests (no Android)
 
 ```sh
 godot --path . -- --role=tv                          # TV window (1280x720)
-godot --path . -- --role=controller --auto-join      # phone window, joins the first TV found
+godot --path . -- --role=controller --join=127.0.0.1  # phone window, joins the TV at that address
 ```
 
 Keyboard on the TV window: arrow keys move, Enter selects, Esc goes back, F3 toggles the overlay.
@@ -163,8 +163,8 @@ The phone window has no sensors. The mouse position simulates the tilt and the m
 |---------|-------------------------|
 | App is not in the TV home row | Banner or leanback category is missing. Run the patch script, export again, check with `aapt`. |
 | "Scan QR code" button says **Paste TV link** | The plugin is not in the build. Run the patch script and export again. |
-| "QR scan failed" | Google Play services are missing or old, or the scanner module is still downloading. Try again, or use the list of rooms and the PIN. |
-| Phone does not find the TV | Wi-Fi guest network or "AP isolation" blocks broadcast. Scan the QR code on the TV (it does not need the beacon). |
+| "QR scan failed" | Google Play services are missing or old, or the scanner module is still downloading. Try again, or type the room code. |
+| Phone says "CAN'T FIND THIS ROOM" | The phone and the TV do not share the first two numbers of their addresses (guest Wi-Fi, a second network, a VPN on the phone, mobile data only), or the code is wrong. Scan the QR code on the TV: it holds the full address. |
 | Phone shows "Cannot reach the TV" | Different subnet, VPN on the phone, or a firewall. Use the TV IP from the TV screen. |
 | Tilt direction is wrong | Use the **INVERT AXES** row on the TV Settings screen. Report the raw values from the overlay. |
 | Phone starts in landscape, then turns | Expected. The app sets portrait at start. See `docs/RISKS.md`. |

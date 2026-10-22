@@ -24,7 +24,7 @@ import java.util.Set;
  * Godot Android plugin "QrScanner". It opens the Google code scanner (ML Kit, Google Play services).
  * That scanner has its own screen and needs no camera permission in this app.
  *
- * It also holds the Wi-Fi locks that the controller needs (low-latency mode, multicast).
+ * It also holds the Wi-Fi lock that the controller needs (low-latency mode).
  *
  * GDScript use:
  *   var qr = Engine.get_singleton("QrScanner")
@@ -104,11 +104,10 @@ public class QrScannerPlugin extends GodotPlugin {
 	}
 
 	private WifiManager.WifiLock wifiLock;
-	private WifiManager.MulticastLock multicastLock;
 
 	/**
-	 * Hold the Wi-Fi radio in low-latency mode (no power save bursts) and accept broadcast packets
-	 * (the TV beacon). Call it when the controller starts. It is safe to call again.
+	 * Hold the Wi-Fi radio in low-latency mode (no power save bursts). Call it when the controller starts.
+	 * It is safe to call again.
 	 */
 	@UsedByGodot
 	public void acquireWifiLocks() {
@@ -131,13 +130,6 @@ public class QrScannerPlugin extends GodotPlugin {
 			if (!wifiLock.isHeld()) {
 				wifiLock.acquire();
 			}
-			if (multicastLock == null) {
-				multicastLock = wifi.createMulticastLock("sababi:beacon");
-				multicastLock.setReferenceCounted(false);
-			}
-			if (!multicastLock.isHeld()) {
-				multicastLock.acquire();
-			}
 		} catch (RuntimeException e) {
 			// Missing permission or no Wi-Fi. The app still works without the locks.
 		}
@@ -147,9 +139,6 @@ public class QrScannerPlugin extends GodotPlugin {
 	public void releaseWifiLocks() {
 		if (wifiLock != null && wifiLock.isHeld()) {
 			wifiLock.release();
-		}
-		if (multicastLock != null && multicastLock.isHeld()) {
-			multicastLock.release();
 		}
 	}
 

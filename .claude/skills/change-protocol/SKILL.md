@@ -9,10 +9,9 @@ The protocol is shared by the TV and the controller, which can be different buil
 2. Update `docs/PROTOCOL.md` in the same change: the tables, the JSON examples and the byte layout of the sensor packet.
 3. Compatibility:
    - Adding an optional JSON field or message is compatible. Old peers ignore it (`lang`, `score`, `profile`, `pid`, `av`). The messages are listed in `docs/PROTOCOL.md`.
-   - Changing the binary packet layout, a field meaning, or a required message is not compatible. Bump `VERSION`. The beacon and
-     `hello` carry `v`, and a mismatched peer is rejected.
+   - Changing the binary packet layout, a field meaning, or a required message is not compatible. Bump `VERSION`. `hello` carries `v`, and a mismatched peer is rejected.
    - Keep `SENSOR_PACKET_SIZE` equal to the real size.
-4. Update every user: `tv_server.gd`, `controller_client.gd`, `tv_discovery.gd`, `controller_discovery.gd`, `player_input.gd`,
+4. Update every user: `tv_server.gd`, `controller_client.gd`, `player_input.gd`,
    and the tests in `tests/run_tests.gd` (codec round trip, wrong version, reconnect).
 5. Timeouts (`PEER_TIMEOUT_MS`, `SLOT_GRACE_MS`, `HELLO_TIMEOUT_MS`) interact with Wi-Fi gaps. Measured gaps reach 380 ms on
    a desktop TV. Do not set a timeout below about 2 s without a device test.

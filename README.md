@@ -14,12 +14,11 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 
 ```
  Phone (controller)                               TV
- ┌─────────────────────┐   UDP 47800 beacon    ┌──────────────────────┐
- │ sensor_sampler 60 Hz│ <──────────────────── │ tv_discovery         │
- │ controller_client   │   WebSocket 47801     │ tv_server (4 slots)  │
- │  (reconnect, ping)  │ ────────────────────> │  -> PlayerInput      │
- └─────────────────────┘  36-byte sensor pkt   │      -> Orientation  │
-                          + JSON control       │ minigames read       │
+ ┌─────────────────────┐                       ┌──────────────────────┐
+ │ sensor_sampler 60 Hz│   WebSocket 47801     │ tv_server (4 slots)  │
+ │ controller_client   │ ────────────────────> │  -> PlayerInput      │
+ │  (reconnect, ping)  │  36-byte sensor pkt   │      -> Orientation  │
+ └─────────────────────┘  + JSON control       │ minigames read       │
                                                │ PlayerInput only     │
                                                └──────────────────────┘
 ```
@@ -28,8 +27,8 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   screenshot, the players badge, the OPTIONS button; the description of the focused game is in a bar under the grid), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
   Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
-- The TV shows a 4-letter room code, a 4-digit join PIN and a QR code (`ws://IP:47801/ROOM?pin=0427`).
-  The Android phone scans the QR code (Android plugin), or picks the TV from the list found by the UDP beacon (Refresh button). An iPhone has no scanner: it shows only the list. There is no typed room code or IP.
+- The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`). The room code is the address of the TV (its last two numbers, scrambled).
+  The phone types the room code (all phones, also an iPhone), or scans the QR code (Android plugin). The TV sends nothing on the network by itself: no beacon, no list of TVs ([protocol](docs/PROTOCOL.md), "Room code").
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
 - A phone that loses the connection (or is silent for 3 seconds) keeps its slot and reconnects with a token: 5 seconds, and
@@ -51,7 +50,7 @@ scripts/
   app.gd                 autoload. Owns services, switches screens, settings
   audio/                 synth.gd, songs.gd (songs and effects as data), audio_manager.gd (the Sound autoload)
   core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd, profile.gd, profile_store.gd, profile_keys.gd, profile_code.gd
-  net/                   tv_server, tv_discovery, controller_client, controller_discovery, qr_scanner
+  net/                   tv_server, controller_client, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
   game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), maze/, marble_race/
   ui/                    TV screens (tv_logo, tv_connect, tv_games, tv_settings, players_modal), controller screens
@@ -96,7 +95,7 @@ all made from seeds by `MarbleTrack.generate()` in `scripts/game/marble_race/mar
 
 ```sh
 godot --path . -- --role=tv                       # TV window
-godot --path . -- --role=controller --auto-join   # phone window. Joins the first TV found.
+godot --path . -- --role=controller --join=127.0.0.1   # phone window. Joins the TV at that address.
 ```
 
 TV keys: arrows, Enter, Esc (back), F3 (overlay).
@@ -187,7 +186,7 @@ Phone-only and Android-only code (`qr_scanner.gd`, `sensor_sampler.gd`) stays lo
 
 ## Status
 
-- Tested: headless tests above, and a two-process run (TV and phone) on one PC with real UDP discovery.
+- Tested: headless tests above, and a two-process run (TV and phone) on one PC.
   The QR codes decode with an independent decoder (OpenCV).
 - **Not tested: real Android TV, real phone sensors, real Wi-Fi.** The iPhone controller was deployed and joins a TV, but its sensor directions are not measured (Manual test 13). The first on-device run must check the
   items marked *unverified* in [docs/RISKS.md](docs/RISKS.md), mainly the sensor signs and the key mapping.
