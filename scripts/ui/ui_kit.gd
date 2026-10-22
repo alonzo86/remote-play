@@ -62,12 +62,19 @@ static func menu(entries: Array, size := UiTheme.SIZE_ITEM) -> VBoxContainer:
 	return box
 
 
+## True in the phone app. It asks the autoload at run time, because a test script loads this file before the autoloads exist.
+static func _on_phone() -> bool:
+	var role: Node = (Engine.get_main_loop() as SceneTree).root.get_node_or_null("Role")
+	return role != null and role.is_controller()
+
+
 ## A framed text box for the phone (REQ-FL-52): a touch screen has no cursor, so the button shows its edge. The frame is
 ## `color`. With the focus (a keyboard on a desktop run) it is yellow; pressed, the box fills with the frame color.
 static func box_button(text: String, cb: Callable, size := UiTheme.SIZE_ITEM, color: Color = UiTheme.TEXT) -> Button:
 	var b := Button.new()
 	b.text = shown(text)
-	b.focus_mode = Control.FOCUS_ALL
+	# A phone button is touched, never focused (REQ-FL-86); the TV remote needs the focus.
+	b.focus_mode = Control.FOCUS_NONE if _on_phone() else Control.FOCUS_ALL
 	b.add_theme_font_size_override("font_size", size)
 	b.add_theme_stylebox_override("normal", UiTheme.line_box(color))
 	b.add_theme_stylebox_override("hover", UiTheme.line_box(color))

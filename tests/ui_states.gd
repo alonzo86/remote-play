@@ -145,7 +145,8 @@ func _phone_back_asks_to_quit() -> void:
 		var d: Control = dialogs[0]
 		var texts := d.find_children("*", "Button", true, false).map(func(b: Button) -> String: return b.text)
 		_check(texts == ["connect.stay", "connect.quit"], "%s: the question offers STAY and QUIT, STAY first: %s" % [name, str(texts)])
-		_check(d.stay_button.has_focus(), "%s: STAY has the focus" % name)
+		_check(not d.stay_button.has_focus() and d.stay_button.focus_mode == Control.FOCUS_NONE,
+				"%s: STAY has no focus and takes none (REQ-FL-86)" % name)
 		app._last_back_ms = -1000
 		app._back()
 		await process_frame

@@ -52,6 +52,7 @@ func _run() -> void:
 	await _pad_buttons()
 	await _fonts_and_background()
 	await _back_key()
+	await _no_focus()
 	await _safe_layout()
 	await _safe_rtl()
 	_app.client._set_state(ControllerClient.State.IDLE)
@@ -226,6 +227,26 @@ func _safe_rtl() -> void:
 				% [lang, r.position.x, r.end.x, vp.x])
 	_app.set_language("en", false)
 	_app._apply_insets(Vector4.ZERO)
+
+
+## REQ-FL-86 (issue #54): on the phone no button has the focus or can take it, on any phone screen. A text field keeps its focus
+## mode: the keyboard needs it.
+func _no_focus() -> void:
+	print("no focus on the phone")
+	var names := ["controller_connect", "controller_wait", "controller_settings", "about_screen", "controller_profiles",
+			"controller_profile_edit", "controller_profile_share", "controller_pad", "controller_quit_dialog"]
+	for name in names:
+		var screen := _screen(load("res://scripts/ui/%s.gd" % name))
+		await process_frame
+		await process_frame
+		await process_frame
+		var buttons := screen.find_children("*", "Button", true, false)
+		var bad: Array[String] = []
+		for b in buttons:
+			if b.focus_mode != Control.FOCUS_NONE or b.has_focus():
+				bad.append(str(b.name))
+		_check(bad.is_empty(), "%s: %d buttons, none takes or has the focus (%s)" % [name, buttons.size(), str(bad)])
+		screen.queue_free()
 
 
 ## Test 13.6: every phone screen stays inside the safe area of an iPhone with a Dynamic Island, portrait and landscape.

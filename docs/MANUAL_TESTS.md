@@ -337,7 +337,7 @@ Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a
 3a. On the Games screen press Back on the real remote. Check: the Connect screen shows, the app is still open 5 seconds later, and the player slots are still filled (same number of players).
 3b. Press Back on the Connect screen. Check: the quit question opens with **Stay** in focus.
 4. Press the Menu key. If the remote has no Menu key, open **Settings** (the OPTIONS button on the Games screen) and use **Debug overlay**. Check: the overlay shows the header line that starts with "DEBUG" and the FPS number.
-6a. On the phone, press the Android Back key on the waiting screen (joined, the TV on the Games screen). Check: the question "QUIT SABABI?" opens with **Stay** in focus and the app is still open 5 seconds later. (Changes with issue #54: no phone button has the focus.)
+6a. On the phone, press the Android Back key on the waiting screen (joined, the TV on the Games screen). Check: the question "QUIT SABABI?" opens, with no button in focus (no yellow frame), and the app is still open 5 seconds later (REQ-FL-86).
 6b. Press the Android Back key in the middle of a game (the pad screen). Check: the same question opens and the app is still open 5 seconds later. Tap **A** 5 times while the question shows. Check: the TV shows no action of A.
 6d. Press Back, then choose **Quit**. Check: the app closes (REQ-FL-55).
 
@@ -359,7 +359,7 @@ Items 1b, 1c, 2a to 2f, 5a, 5b and 6c moved to the automated tests (docs/AUTOMAT
 History:
 
 - 2026-10-21 (automated): items 2c and 2f moved to the automated tests (`r1_tv_screens`: Back in a game asks, the timer stays, End game leaves, Back on the result menu goes to the Games screen; `quit_on_go_back` is false). The R1 result of 2c and 2f (Fail) stays in the result database. Item 1a is partly automated (A-8-1a) and stays.
-- 2026-10-20 (not run): the steps were split and the criteria made measurable (focus on 7 screens, timer values, 5 s). Items 2b to 2e change with issue #53, item 6a with issue #54.
+- 2026-10-20 (not run): the steps were split and the criteria made measurable (focus on 7 screens, timer values, 5 s). Items 2b to 2e change with issue #53, item 6a with issue #54 (done 2026-10-21: no focus on the phone; the screens are checked by A-8-7).
 - R1: **Fail** (items 2 and 3). Back quits the app on every screen. Fixed on 2026-10-09 (REQ-FL-55). Items 1, 4 and 5 are not run.
 - Item 2 changed before the first run (the 'End the game?' question).
 
