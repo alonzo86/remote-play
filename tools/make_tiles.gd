@@ -4,6 +4,7 @@ extends SceneTree
 ## short time per game. It needs a display and the TV role. Run:
 ##   xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 \
 ##       --script tools/make_tiles.gd -- --role=tv
+## `--only=<id>` makes the tile of one game only.
 ## Run it again after a visible change to a game. Commit the new files.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
@@ -16,7 +17,7 @@ const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
 const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0,
-		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "whack_a_mole": 4.0}
+		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "air_hockey": 4.0, "whack_a_mole": 4.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
 		Vector3(0.18, 0.0, -0.6)]}
@@ -169,6 +170,22 @@ func _place_sumo(game: Node) -> void:
 	await _frames(3)
 
 
+## The Air Hockey picture: both players enrolled, the puck flies in the right half, the mallets are in play, the score is 2 to 1.
+func _place_air_hockey(game: Node) -> void:
+	for s in game.participants.duplicate():
+		game._enroll(s)
+	game.sim.wait = 0.0
+	game.sim.paddles[0].pos = Vector2(560.0, 640.0)
+	game.sim.paddles[1].pos = Vector2(1380.0, 470.0)
+	game.sim.puck_pos = Vector2(1060.0, 560.0)
+	game.sim.puck_vel = Vector2(300.0, -100.0)
+	game.scores[0] = 2
+	game.scores[1] = 1
+	game.set_process(false)   # Freeze the picture.
+	game._request_redraw()
+	await _frames(3)
+
+
 ## The paint picture: each player owns a patch of the floor and the blobs sit at the edge of their patch.
 func _place_paint(game: Node) -> void:
 	var f = game.floor_map
@@ -309,7 +326,13 @@ func _run() -> void:
 	var lean_a := deg_to_rad(10.0)
 	var right := Vector3(-sin(lean_a), 0, cos(lean_a)) * 9.81
 	var left := Vector3(sin(lean_a), 0.0, cos(lean_a)) * 9.81
+	var only := ""
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--only="):
+			only = a.trim_prefix("--only=")
 	for g in Registry.all():
+		if only != "" and String(g.id) != only:
+			continue
 		var props: Dictionary = g.get("props", {})
 		if g.has("settings"):
 			props = GameSettings.props_for(g)
@@ -352,6 +375,9 @@ func _run() -> void:
 		if String(g.id) == "tennis":
 			_place_tennis(app.current_screen())
 			await _frames(2)
+			wait = 0.0
+		if String(g.id) == "air_hockey":
+			await _place_air_hockey(app.current_screen())
 			wait = 0.0
 		if String(g.id) == "mini_golf":
 			_place_mini_golf(app.current_screen())

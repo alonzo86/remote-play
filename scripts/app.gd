@@ -214,7 +214,7 @@ func go_game_settings(id: String) -> void:
 	last_game = id
 	go(TvGameSettings, {"game_id": id})
 	server.set_phase("menu")
-	server.set_setup(bool(Registry.find(id).get("swing", false)))
+	server.set_setup(bool(Registry.find(id).get("swing", false)), not bool(Registry.find(id).get("enroll", false)))
 
 
 func go_settings() -> void:

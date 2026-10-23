@@ -113,7 +113,7 @@ func _update_roster() -> void:
 	var playing: Array[int] = App.server.players_in()
 	for s in here:
 		(ins if playing.has(s) else outs).append(String(App.server.players[s].player_name).to_upper())
-	var show: bool = here.size() >= 2
+	var show: bool = here.size() >= 2 and not bool(game.get("enroll", false))   # An enrolling game has no IN and OUT (REQ-GM-106).
 	in_label.visible = show and not ins.is_empty()
 	out_label.visible = show and not outs.is_empty()
 	in_label.text = Lang.t("setup.in").to_upper() + ": " + ", ".join(ins)

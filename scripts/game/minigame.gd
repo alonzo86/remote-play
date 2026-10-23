@@ -240,7 +240,7 @@ func _show_hold_card(lost: Array[int]) -> void:
 		title = Lang.f("pause.lost_connection", [_slot_labels(lost)])
 		if participants.size() == 1:
 			title = Lang.t("minigame.no_players_connected")   # The only phone is gone (REQ-GM-30a, issue #46).
-		if not connected_participants().is_empty():
+		if not connected_participants().is_empty() and _allow_resume_without():
 			entries.append([Lang.f("pause.resume_without", [_slot_labels(lost)]), _resume_without_lost])
 	else:
 		title = Lang.f("pause.left", [_slot_labels(gone)]) if not gone.is_empty() and gone.size() == _hold_info.size() \
@@ -249,6 +249,12 @@ func _show_hold_card(lost: Array[int]) -> void:
 	entries.append(["minigame.end_game", request_leave, "danger"])
 	open_menu(title, entries, rows)
 	_menu_kind = "hold"
+
+
+## True when the card of a lost phone may offer "Resume without ...". A game that cannot go on without a player (Air Hockey
+## after the players enrolled) returns false: the card has Resume (when the phone is back) and End game only.
+func _allow_resume_without() -> bool:
+	return true
 
 
 ## Goes on without the lost players: their slots are freed (the TV user chose "Resume without ...").
@@ -408,6 +414,16 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 				heading = Lang.f("result.winner", [player(winners[0]).player_name])
 			elif winners.size() > 1:
 				heading = Lang.t("minigame.tie")
+	# `win` for a winner or a solo medal; `tie` for a tie, for "Round over" and for a solo round with no medal (REQ-FL-65).
+	var won := (tier != Medals.NONE) if has_medal and rows.size() == 1 else (winners.size() == 1 or team_won)
+	open_result_menu(heading, rows, extra_entries, won)
+
+
+## The result menu itself: the rows, then Try again, `extra_entries`, New game (a game with a settings view) and Back to menu.
+## `open_results()` builds the rows from a `Scoreboard`; a game whose result has a player that is not a phone (the bot of Air
+## Hockey, REQ-GM-105) builds its own rows and calls this. It sets `is_over`.
+func open_result_menu(heading: String, rows: Array, extra_entries: Array = [], won := false) -> void:
+	is_over = true
 	var entries: Array = [["minigame.restart", restart]]
 	entries.append_array(extra_entries)
 	var id := Registry.id_of_script(get_script())
@@ -416,8 +432,6 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	entries.append(["minigame.back_to_menu", App.go_menu])
 	open_menu(heading, entries, rows)
 	Sound.stop_music()
-	# `win` for a winner or a solo medal; `tie` for a tie, for "Round over" and for a solo round with no medal (REQ-FL-65).
-	var won := (tier != Medals.NONE) if has_medal and rows.size() == 1 else (winners.size() == 1 or team_won)
 	Sound.sfx("win" if won else "tie")
 
 
