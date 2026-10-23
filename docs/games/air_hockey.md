@@ -103,7 +103,7 @@ goals on Easy, Medium and Hard.
 ## Open questions
 
 - The tuning values above, from Test 27. In particular: is the Easy ROBO too passive (it scored 1 goal in 12 minutes against the proxy) and is the Medium ROBO right for a grown-up?
-- The decisions the owner gave in short form on 2026-10-23: "every match start, 2 players need to enroll" is built as REQ-AH-3 (the first two phones that press A; with one phone, or OK on the remote with one enrolled, ROBO plays). A player that leaves for good ends the match (REQ-AH-19). Confirm both.
+- The decisions the owner gave in short form on 2026-10-23: "every match start, 2 players need to enroll" is built as REQ-AH-3 (the first two phones that press A; with one phone, or OK on the remote with one enrolled, ROBO plays). A player that leaves for good ends the match (REQ-AH-19). Confirmed by the owner on 2026-10-23.
 - No personal best (exception above).
 - The chips show the name and the number of goals on one line ("MAYA 2"), not the two lines of the mock ("MAYA" and "GOALS 2").
 - Hebrew texts (12 new rows) are written by Claude: a native reader checks them, in particular the name "רובו" and "שער של %s!".

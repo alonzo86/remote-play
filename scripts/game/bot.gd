@@ -3,7 +3,7 @@ extends RefCounted
 ## bot gives what a phone gives, a tilt (`PlayerInput.tilt()`), so it moves with the same body and the same physics as a person
 ## (REQ-GM-24); only its skill changes with Difficulty (REQ-GM-91). The base class keeps what a person lacks: a reaction time (the
 ## bot sees the world as it was `reaction` seconds ago) and a seeded random generator, so a test plays the same game every time.
-## A brain overrides `_brain(view, delta)` and answers with the tilt it wants. `skill` is a dictionary: the base class reads
+## A brain overrides `_brain(seen, now, delta)` and answers with the tilt it wants. `skill` is a dictionary: the base class reads
 ## `reaction` (s) and `max_tilt` (0 to 1); the brain reads its own keys.
 
 var skill := {"reaction": 0.2, "max_tilt": 1.0}
