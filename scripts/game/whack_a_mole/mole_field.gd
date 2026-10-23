@@ -3,12 +3,14 @@ extends RefCounted
 ## nothing and uses no nodes, so the rules can be tested without a screen.
 ## Positions are in pixels of the play area at 1920x1080 (`REF_AREA`). `hole_pos()` and `head_pos()` turn them into screen pixels.
 
+const PointerMap = preload("res://scripts/game/pointer_map.gd")
 const REF_AREA := Vector2(1800.0, 870.0)   # The play area at 1920x1080: the screen inside the 60 px margin, under the HUD.
 const COLS := [1.0 / 6.0, 0.5, 5.0 / 6.0]  # Shares of the width, the middle of each column.
 const ROWS := [0.30, 0.62, 0.94]           # Shares of the height, the middle of the hole of each row.
 const RISE_TIME := 0.25
 const DOWN_TIME := 0.25
 const HIT_LIFE := 0.8
+const HIT_RISE := 0.15       # A mole that is hit while rising or sinking comes fully out in this time.
 const PICTURE_H := 168.0     # The height of the picture of a mole (px at 1920x1080): 42 world pixels of 4 px.
 const HEAD_FROM_TOP := 84.0  # The middle of the head is this far under the top of the picture.
 const HIT_SLOP := 12.0
@@ -34,6 +36,7 @@ class Mole:
 	var stay := 1.8
 	var age := 0.0            # Seconds since the mole came up.
 	var hit_age := -1.0       # Seconds since it was hit, or -1.
+	var hit_out := 1.0        # How far out it was when it was hit.
 
 	func is_hit() -> bool:
 		return hit_age >= 0.0
@@ -44,7 +47,7 @@ class Mole:
 	## How far out of its hole the mole is: 0 (hidden) to 1 (fully up).
 	func out() -> float:
 		if is_hit():
-			return 1.0
+			return lerpf(hit_out, 1.0, clampf(hit_age / HIT_RISE, 0.0, 1.0))
 		if age < RISE_TIME:
 			return age / RISE_TIME
 		if age < RISE_TIME + stay:
@@ -59,6 +62,7 @@ var moles: Array[Mole] = []
 var _spawn_left := 0.0       # Seconds until the next mole. The first one comes at once.
 var _bonus_left := BONUS_FIRST
 var _time := 0.0
+var _free: Array[int] = []   # The empty holes (reused: nothing is made in a frame).
 
 
 func setup(difficulty: String) -> void:
@@ -81,7 +85,9 @@ func tick(delta: float, rng: RandomNumberGenerator, players: int) -> void:
 			m.hit_age += delta
 		else:
 			m.age += delta
-	moles = moles.filter(func(m: Mole) -> bool: return not m.is_done())
+	for i in range(moles.size() - 1, -1, -1):   # No new array in a frame (REQ-GM-51).
+		if moles[i].is_done():
+			moles.remove_at(i)
 	_bonus_left -= delta
 	if _bonus_left <= 0.0:
 		var gold_hole := _free_hole(rng)
@@ -89,11 +95,12 @@ func tick(delta: float, rng: RandomNumberGenerator, players: int) -> void:
 			_add(gold_hole, true)
 			_bonus_left = rng.randf_range(BONUS_MIN, BONUS_MAX)
 	_spawn_left -= delta
-	if _spawn_left <= 0.0 and normal_count() < max_out(players):
-		var hole := _free_hole(rng)
-		if hole >= 0:
-			_add(hole, false)
-			_spawn_left = float(level.spawn_every)
+	if _spawn_left <= 0.0:
+		_spawn_left = float(level.spawn_every)   # The time between two moles runs also while the field is full (REQ-WM-9).
+		if normal_count() < max_out(players):
+			var hole := _free_hole(rng)
+			if hole >= 0:
+				_add(hole, false)
 
 
 func normal_count() -> int:
@@ -114,22 +121,22 @@ func _add(hole: int, golden: bool) -> void:
 
 ## A random hole with no mole, or -1.
 func _free_hole(rng: RandomNumberGenerator) -> int:
-	var free: Array[int] = []
+	_free.clear()
 	for h in COLS.size() * ROWS.size():
 		var taken := false
 		for m in moles:
 			if m.hole == h:
 				taken = true
 		if not taken:
-			free.append(h)
-	return free[rng.randi() % free.size()] if not free.is_empty() else -1
+			_free.append(h)
+	return _free[rng.randi() % _free.size()] if not _free.is_empty() else -1
 
 
 # ---- Places ----
 
 ## The scale from reference pixels to the pixels of a real play area (for the sizes).
 static func scale_for(area: Rect2) -> float:
-	return minf(area.size.x / REF_AREA.x, area.size.y / REF_AREA.y)
+	return PointerMap.scale_for(area, REF_AREA)
 
 
 ## The middle of hole `hole` (0 to 8, row by row) in screen pixels.
@@ -166,4 +173,5 @@ func hit(point: Vector2, area: Rect2) -> Mole:
 
 ## The mole is taken: it starts its happy animation and cannot be hit again.
 func take(m: Mole) -> void:
+	m.hit_out = m.out()
 	m.hit_age = 0.0

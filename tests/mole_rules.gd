@@ -4,6 +4,7 @@ extends SceneTree
 
 const MoleField = preload("res://scripts/game/whack_a_mole/mole_field.gd")
 const MoleLook = preload("res://scripts/game/whack_a_mole/mole_look.gd")
+const PointerMap = preload("res://scripts/game/pointer_map.gd")
 
 var _checks := 0
 var _fails := 0
@@ -23,9 +24,12 @@ func _initialize() -> void:
 	_holes()
 	_cycle()
 	_spawning()
+	_spawn_timer()
+	_hit_motion()
 	_hits()
 	_levels()
 	_pictures()
+	_pointer_map()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -183,6 +187,56 @@ func _hits() -> void:
 	var g2 := _field()
 	g2._add(2, true)
 	_check(is_equal_approx(g2.moles[0].stay, 1.8 * 0.7), "the golden mole stays up for 70 % of the stay (REQ-WM-8)")
+
+
+## REQ-WM-9: the time between two moles also runs while the field is full, so a free hole is not filled at once.
+func _spawn_timer() -> void:
+	print("spawn timer")
+	var f := _field()
+	var rng := _rng(4)
+	for hole in 3:
+		_up(f, hole).stay = 100.0
+	for i in 99:
+		f.tick(0.05, rng, 1)
+	_check(f.normal_count() == 3 and f._spawn_left >= 0.0 and f._spawn_left <= float(f.level.spawn_every),
+			"3 moles are out (the cap) for 4.95 s: the spawn timer stays between 0 and %.1f s (%.2f s)" % [
+					float(f.level.spawn_every), f._spawn_left])
+	f.moles.remove_at(0)
+	if f._spawn_left > 0.05:
+		f.tick(0.01, rng, 1)
+		_check(f.normal_count() == 2, "a mole that goes away is not replaced at once: the next one waits for the timer")
+	for i in 40:
+		f.tick(0.05, rng, 1)
+	_check(f.normal_count() == 3, "the next mole comes within 2 s (REQ-WM-9)")
+
+
+## A mole that is hit while it rises or sinks keeps its place and then comes fully out (REQ-WM-7).
+func _hit_motion() -> void:
+	print("hit motion")
+	var f := _field()
+	f._add(4, false)
+	var m: MoleField.Mole = f.moles[0]
+	m.age = MoleField.RISE_TIME + float(f.level.stay) + MoleField.DOWN_TIME * 0.45   # 55 % out, going down
+	f.take(m)
+	_check(is_equal_approx(m.out(), 0.55), "a mole that is hit at 55 % out is still at 55 % in that moment (no jump)")
+	f.tick(MoleField.HIT_RISE * 0.5, _rng(1), 1)
+	_check(m.out() > 0.55 and m.out() < 1.0, "it comes out in between")
+	f.tick(MoleField.HIT_RISE, _rng(1), 1)
+	_check(m.out() == 1.0, "and it is fully out after %.2f s" % MoleField.HIT_RISE)
+
+
+## The pointer mapping that Banana Party and Whack-a-Mole share (REQ-WM-3).
+func _pointer_map() -> void:
+	print("pointer map")
+	var area := Rect2(60.0, 150.0, 1800.0, 870.0)
+	var c := area.get_center()
+	_check(PointerMap.aim_to_screen(Vector2.ZERO, area) == c, "pointer 0 is the center of the play area")
+	_check(PointerMap.aim_to_screen(Vector2(-1, -1), area) == area.position
+			and PointerMap.aim_to_screen(Vector2(1, 1), area) == area.end, "-1 is the top left edge, +1 the bottom right edge")
+	_check(PointerMap.aim_to_screen(Vector2(9, -9), area) == Vector2(area.end.x, area.position.y), "values outside stay at the edge")
+	_check(is_equal_approx(PointerMap.scale_for(Rect2(0, 0, 900, 435), Vector2(1800, 870)), 0.5)
+			and is_equal_approx(PointerMap.scale_for(Rect2(0, 0, 900, 870), Vector2(1800, 870)), 0.5),
+			"the scale is the smaller of the two ratios")
 
 
 ## The difficulty table: faster and more precise as it grows; unknown names fall back to Medium.

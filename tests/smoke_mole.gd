@@ -50,6 +50,7 @@ func _run() -> void:
 ## Starts a round, steps out the countdown for the first `n` phones and returns the game at GO, with no moles. All connected
 ## phones are in the round.
 func _play(n := 1, props := {}) -> Control:
+	sim.app.server.set_in(1, n > 1)   # One phone in the round: the other one chose OUT (REQ-GM-104).
 	var game: Control = await sim.start(Game, props)
 	var accels := {}
 	for s in n:
@@ -201,7 +202,6 @@ func _first_press_wins() -> void:
 func _round_end() -> void:
 	print("mole: round end")
 	var game: Control = await _play(1, {"seed": 3})
-	game._on_player_left(1)   # Both simulated phones are in the round: the second one leaves, so one player is left.
 	var t := 0.0
 	game._board.add(0, 70)
 	while not game.is_over and t < 70.0:
@@ -220,6 +220,11 @@ func _round_end() -> void:
 	two._board.add(1, 10)
 	two._finish()
 	_check(not two.no_medals and two._menu_box != null, "two players: the places get medals (REQ-GM-73a)")
+	var left: Control = await _play(2, {"seed": 3})
+	left._board.add(0, 30)
+	left._on_player_left(1)
+	left._finish()
+	_check(not left.no_medals, "two players start and one leaves: the other one still gets the medal of the place (REQ-WM-13)")
 	var easy: Control = await _play(1, {"seed": 3, "difficulty": "easy"})
 	_check(easy._field.level == MoleField.LEVELS.easy and easy.best_key() == "",
 			"the difficulty is a prop; no personal best (REQ-WM-16)")

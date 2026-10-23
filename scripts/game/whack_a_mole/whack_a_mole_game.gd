@@ -8,7 +8,7 @@ extends "res://scripts/game/minigame.gd"
 
 const MoleField = preload("res://scripts/game/whack_a_mole/mole_field.gd")
 const MoleLook = preload("res://scripts/game/whack_a_mole/mole_look.gd")
-const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
+const PointerMap = preload("res://scripts/game/pointer_map.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
@@ -65,6 +65,7 @@ var _presses: Array[int] = []    # Slots of the A presses, in the order they arr
 var _poofs: Array[Poof] = []
 var _pops: Array[Pop] = []
 var _scene_time := 0.0           # Game time of the clouds: they stand still while the game is paused (REQ-FL-43).
+var _players_at_start := 0       # One player at the start: no medal, also if a second one leaves later (REQ-WM-13).
 var _tex := {}                   # "golden|happy" -> the ImageTexture of a mole.
 
 
@@ -75,6 +76,7 @@ func _game_ready() -> void:
 		_rng.randomize()
 	_field.setup(difficulty)
 	_board = Scoreboard.new(participants)
+	_players_at_start = participants.size()
 	for s in participants:
 		var t := Player.new()
 		t.slot = s
@@ -116,7 +118,7 @@ func _game_tick(delta: float) -> void:
 	var area := _area()
 	for s in _players:
 		var t: Player = _players[s]
-		t.aim = PuffField.aim_to_screen(player(s).pointer(), area)   # The same mapping as Banana Party (REQ-WM-3).
+		t.aim = PointerMap.aim_to_screen(player(s).pointer(), area)   # The same mapping as Banana Party (REQ-WM-3).
 		t.reload_left = maxf(t.reload_left - delta, 0.0)
 	if _round.is_counting():
 		if _round.tick(delta):
@@ -183,7 +185,7 @@ func _poof(pos: Vector2) -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	no_medals = _board.ranking().size() == 1   # REQ-WM-13: one player gets no medal (exception to REQ-GM-73).
+	no_medals = _players_at_start == 1   # REQ-WM-13: one player gets no medal (exception to REQ-GM-73).
 	open_results(_board)
 
 
