@@ -75,6 +75,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -1233,3 +1234,84 @@ History:
 - -: **Not run**. New (2026-10-17).
 - 2026-10-21 (aligned with the requirements, not run): step 14a also checks the ball height of 48 px or more (REQ-GM-47e). No recorded result changed.
 
+## Test 27
+
+### Air Hockey (tilt, enroll with A, ROBO the bot)
+
+Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), and a child of about 5 to 8 years for item 9. Covers: REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-105, REQ-GM-106, REQ-GM-47i to 47n, REQ-GM-50.
+
+New game (2026-10-23), and the first game with a computer player. It was tested only with made-up sensor values. Every number (the mallet speed, the puck friction and hit speed, the goal size, the three levels of ROBO) is a first guess; write what you measure in the Notes. Hold each phone flat like a tray. "Full tilt" means the phone is tilted about 45 degrees.
+
+**Steps**
+
+1a. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the white table, the black rails, the mallets and the black puck.
+2a. With 3 phones connected, open the settings view of Air Hockey (OK on its tile). Check: the TV shows the rows "DIFFICULTY" and "GOALS TO WIN", with 5 goals at the start, and no line "IN:" or "OUT:"; none of the 3 phones shows the question with the buttons IN and OUT (4 of 4). (REQ-AH-18, REQ-GM-106)
+2b. Press Start. Check: the TV shows "PRESS A TO PLAY!" and the puck does not move for 10 s, also when you tilt the phones (yes or no). (REQ-AH-3)
+2c. Press A on phone 3, then on phone 1. Check: the match starts at once after the second press, the mallet of phone 3 is on the left and the mallet of phone 1 on the right, and phone 2 shows the waiting screen (3 of 3). (REQ-AH-3, REQ-GM-106)
+3a. Tilt phone 3 about 15 degrees to the right, then forward. Check: its mallet slides to the right and then up (2 of 2), and it never crosses the middle line. Do the same with phone 1: its mallet slides to the right too (a tilt to the right is a slide to the right for both seats). (REQ-AH-4, REQ-AH-5)
+3b. Record a phone and the TV (240 fps) for 5 quick tilts. Count the frames from the start of the tilt to the first move of the mallet. Check: the median delay is 150 ms or less (36 frames at 240 fps). (REQ-GM-12)
+3c. Tilt a phone to full tilt to the side. Measure with the stopwatch the time that its mallet needs from the goal line to the middle line, 5 times. Check: the median is between 0.8 and 1.6 s. (REQ-AH-4)
+4a. Touch the puck softly with a mallet 5 times. Check: the puck moves away every time and never sticks to the mallet (5 of 5). (REQ-AH-6)
+4b. Hit the puck with a fast slide 5 times. Measure the time from the hit to the far rail. Check: the puck reaches the far rail in 1.5 s or less in 5 of 5 hits, and it bounces off the rails (5 of 5). (REQ-AH-6, REQ-AH-7)
+4c. Shoot 5 goals. Check: each goal shows the banner "GOAL FOR <NAME>!" with the name of the scorer (5 of 5), the puck waits for about 1 s on the side of the one who was scored on, and the two chips show the right goals after each goal. (REQ-AH-9)
+4d. Play to the goals of the setting (use 3). Check: the result menu names the winner, lists both players with their goals, and has the medals gold and silver; it has the buttons Try again, New game and Back to menu (4 of 4). (REQ-AH-10)
+5a. Hit the puck hard with a mallet 5 times. Check: the phone of that mallet buzzes at each hard hit (5 of 5) and the other phone does not buzz (5 of 5). (REQ-AH-12)
+6a. With only one phone connected, open Air Hockey and press Start. Check: the match starts at once with no "PRESS A" screen, the right chip says "ROBO" with a purple square, and the mallet on the right is purple (3 of 3). (REQ-AH-13, REQ-AH-15)
+6b. Set Difficulty to Easy and goals to 5. A grown-up plays 5 matches. Check: the grown-up wins 5 of 5. Write down the goals ROBO scored in each match. (REQ-AH-17, REQ-GM-96)
+6c. Set Difficulty to Hard and goals to 5. A grown-up plays 3 matches. Check: ROBO scores 2 goals or more in each of the 3 matches. Write down who won each match. (REQ-AH-17)
+6d. Let ROBO win one match. Check: the result menu says "ROBO WINS!", lists ROBO and the phone, and shows no medal (3 of 3). (REQ-AH-10)
+7a. With 2 phones connected, press Try again in a result menu. Check: the "PRESS A TO PLAY!" screen shows again, and the match does not start until a phone presses A (yes or no). (REQ-GM-106)
+7b. With 2 phones connected, press A on one phone and then OK on the TV remote. Check: the match starts against ROBO with that phone, and the other phone shows the waiting screen (2 of 2). (REQ-AH-3)
+8a. In a match of 2 phones, turn off Wi-Fi on one phone. Check: within 6 s the TV pauses with the card "<NAME> LOST CONNECTION" and only End game; the puck does not move. Turn Wi-Fi on again. Check: the card offers Resume and End game, and Resume continues the match (4 of 4). (REQ-AH-19, REQ-GM-30)
+8b. In a match of 2 phones, press Disconnect on one phone. Check: the match ends at once, the result menu names the other player as the winner, and it shows no medal (3 of 3). (REQ-AH-19)
+9a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once and says nothing more. Check: the child points at its own mallet (the one in the color of its phone) within 10 s after the match starts. Write down the age. (REQ-GM-80 to 84)
+9b. Same child. Check: the child hits the puck with its mallet at least once within 60 s, with no help. (REQ-AH-17)
+9c. Same child. Check: the child scores at least 1 goal in a match of 3 goals (yes or no), and the child plays to the end without asking to stop or crying (yes or no). (REQ-AH-17, REQ-GM-96)
+9d. After the match, ask: "Play again?". Check: the child says yes.
+10. Play with 4 phones connected (2 play) and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the puck each time you say "mark" while it moves. Check: the finger points at the puck in 5 of 5 tries. Check: the puck is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 68 px expected). (REQ-GM-47e, REQ-AH-20)
+11b. From 3 m, ask a tester to tell the puck from the red and blue lines of the table: the tester points at the puck and then at the red middle line. Check: both answers are right for every tester. (REQ-AH-20)
+11c. From 3 m, read aloud the two chips, "FIRST TO N" and one goal banner. Check: no error when reading. (REQ-AH-21, REQ-FL-40)
+12. Set the TV language to Hebrew and start a match. Check: the left player's goal is still on the left (the table is not mirrored), the title and "FIRST TO N" are mirrored to the right side, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "הוקי אוויר", "רובו", "שער של ...!". (REQ-AH-21, REQ-GM-47o)
+13. Look at the pad of a phone while the match runs. Check: the pad shows the green button A alone, and no button B and no RECENTER box (3 of 3). (REQ-GM-37a)
+
+Measurements (write down, no pass or fail): the time for a mallet to cross its half at full tilt; the speed of a hard hit (how long the puck needs from one end to the other); the goals ROBO scores on Easy, Medium and Hard against a grown-up; if Medium feels too easy or too hard for a grown-up and for a child; the goal size (too wide or too narrow); the time the puck waits after a goal.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1a | Photo of the tile next to a photo of the game | Not run | | | |
+| 2a | Photo of the settings view and of the 3 phones | Not run | | | |
+| 2b | Note: yes or no | Not run | | | |
+| 2c | Photo of the TV and of phone 2 | Not run | | | |
+| 3a | Video of the two mallets | Not run | | | |
+| 3b | Video (240 fps); note: frames and ms for 5 tilts | Not run | | | |
+| 3c | Note: the 5 times in seconds | Not run | | | |
+| 4a | Note: touches that stuck, of 5 | Not run | | | |
+| 4b | Note: the 5 times in seconds | Not run | | | |
+| 4c | Photo of a banner; note: names read | Not run | | | |
+| 4d | Photo of the result menu | Not run | | | |
+| 5a | Note: buzzes felt on the right phone and on the other phone, of 5 | Not run | | | |
+| 6a | Photo of the TV with ROBO | Not run | | | |
+| 6b | Note: the winner and the goals of ROBO in each of 5 matches | Not run | | | |
+| 6c | Note: the goals of ROBO and the winner in each of 3 matches | Not run | | | |
+| 6d | Photo of the result menu | Not run | | | |
+| 7a | Note: yes or no | Not run | | | |
+| 7b | Photo of the TV and of the other phone | Not run | | | |
+| 8a | Note: seconds until the card shows; photo of both cards | Not run | | | |
+| 8b | Photo of the result menu | Not run | | | |
+| 9a | Note: the child, the age, seconds until it points | Not run | | | |
+| 9b | Note: seconds until the first hit | Not run | | | |
+| 9c | Note: goals of the child; yes or no for crying or stopping | Not run | | | |
+| 9d | Note: the answer of the child | Not run | | | |
+| 10 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 11a | Note: right answers of 5; photo of the puck with its height in px | Not run | | | |
+| 11b | Note: answers of each tester | Not run | | | |
+| 11c | Note: errors made when reading | Not run | | | |
+| 12 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
+| 13 | Photo of the pad during the match | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-23). The headless checks of the rules, the bot and the screens are in `air_hockey_rules` and `smoke_air_hockey` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.

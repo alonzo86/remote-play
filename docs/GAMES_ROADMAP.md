@@ -7,7 +7,7 @@ This file is a plan, not a requirements file. Each game gets its own `docs/games
 ## Decisions
 
 - No saved scores. How users are identified is not decided, so nothing is stored. A solo game compares the score with fixed medal tiers. The tiers reset every run.
-- No bots. A game that needs opponents has `min_players` 2. Only Sumo Bumpers is like this.
+- Bots only in the games that say so (REQ-GM-105, issue #102; decision 2026-10-22). Air Hockey is the first: with one phone ROBO plays the other seat. Any other game that needs opponents has `min_players` 2 (Sumo Bumpers).
 - Order of work: one branch for the common helpers (PR 12), then one branch for each game. The helpers are merged into `main` first. Each game branch starts from the updated `main`, so its pull request shows only that game.
 - Game pull requests merge one at a time. All games touch the same few files (`registry.gd`, the status table in `GAME_REQUIREMENTS.md`, `MANUAL_TESTS.md`, `smoke_tv.gd`, the `WAIT` table in `tools/make_tiles.gd`), so a branch updates from `main` before its pull request is ready. The conflicts are small.
 - Branch names: `games/<id>` (for example `games/target-shoot`). A session needs permission to create them.
@@ -68,6 +68,7 @@ Maze and Marble Race both use `open_results()`. Their result menus now list all 
 | 8 | `games/mini-golf` (requirements written 2026-10-17) | Mini Golf (`mini_golf`, `docs/games/mini_golf.md`) | 1 to 4 | swing (power), phone direction (aim, locks at the backswing) | Turns: each player putts once in slot order, only the current golfer is on screen. 5 hole designs made in advance; the setting picks 1 to 5 holes (default 3). Pick up after 6 strokes, water costs nothing. Fewest strokes wins. Difficulty changes the aim and power help. | Fewest strokes against par, medal tiers | 0 (uses the shared `swing_detector.gd`: aim lock and power) |
 | 9 | `games/freeze-dance` (idea, 2026-10-16) | Freeze Dance (`freeze_dance`) | 1 to 4 | shake, then hold still | Music plays and you wiggle the phone; when it stops, hold still. A mover sits out one short song (about 10 s) and keeps the points (REQ-GM-83). | Survive more stops against medal tiers | 0 (needs a stillness check on the phone) |
 | 10 | `games/balloon-ride` (idea, 2026-10-16) | Balloon Ride (`balloon_ride`) | 1 to 4 | tilt, hold A | Co-op: one shared balloon. Roles split (A holds the burner, tilt steers). Collect stars over a gentle course. | Same co-op game, medal tiers by stars | 0 |
+| 11 | `claude/project-thread-hfg6z1` (requirements written and built 2026-10-23, Manual test 27) | Air Hockey (`air_hockey`, `docs/games/air_hockey.md`, issues #101, #102) | 1 to 4 phones, 2 play | tilt, A (enroll) | Head to head on a table, first to 3 to 10 goals (setting). The two players enroll with A at every match start. | One phone: ROBO, the first bot (`scripts/game/bot.gd`), plays the other seat; Difficulty changes ROBO only. No medal (decision 2026-10-23) | 0 |
 
 Status (2026-10-09): branch 1 is merged (PR 13). It also brought the settings view with Difficulty for the maze, Snowball Splat and
 Marble Race, generated Marble Race tracks, and the lost-phone hold card. All of it still needs the tests on a device (`docs/MANUAL_TESTS.md`).
@@ -117,7 +118,7 @@ Checked against `main` on 2026-10-08.
 
 ## Later candidates
 
-Air Hockey (1v1 or 2v2) and Hot Potato (tag). Both need a team rule or bots to work with few players, so they wait.
+Hot Potato (tag). It needs a team rule or bots to work with few players, so it waits. Air Hockey 1v1 is built (branch 11); a 2v2 version is not planned.
 
 ## Open questions
 

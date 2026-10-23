@@ -29,6 +29,7 @@ var recenter_button := true
 var pad_buttons := "ab"
 ## True while the settings view of a swing game is open: phones show the safety card and answer `swing_ok` (REQ-GM-102).
 var setup_swing := false
+var setup_pick := true    # False for a game that enrolls its players itself (Air Hockey): the phones are not asked IN or OUT.
 ## True while the settings view of a game is open (issue #76, #79): the phones get `setup` messages.
 var setup_open := false
 var _out := {}   # slot -> true for a phone that chose OUT of the game in the settings view (REQ-GM-104).
@@ -114,6 +115,7 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	phase = p_phase
 	setup_open = false
 	setup_swing = false
+	setup_pick = true
 	_swing_ok.clear()
 	if not p_phase in ["playing", "paused"]:
 		_out.clear()   # Every phone is IN again outside a round (the Games screen, a new settings view).
@@ -141,9 +143,10 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 ## Opens the setup of the game that the settings view shows (issues #76 and #79). Every connected phone gets the `setup` message
 ## (`swing`, `pick`, `in`, see `sync_setup()`); the answers of `swing_ok` and the choices IN and OUT start again. Any `set_phase`
 ## closes the setup.
-func set_setup(swing: bool) -> void:
+func set_setup(swing: bool, pick := true) -> void:
 	setup_open = true
 	setup_swing = swing
+	setup_pick = pick
 	_swing_ok.clear()
 	_out.clear()
 	_setup_sig = ""
@@ -158,12 +161,12 @@ func sync_setup() -> void:
 	if not setup_open:
 		return
 	var slots := connected_slots()
-	var sig := "%s|%s|%s" % [str(slots), str(_out.keys()), str(setup_swing)]
+	var sig := "%s|%s|%s|%s" % [str(slots), str(_out.keys()), str(setup_swing), str(setup_pick)]
 	if sig == _setup_sig:
 		return
 	_setup_sig = sig
 	for s in slots:
-		_send_json(s, {"t": "setup", "swing": setup_swing, "pick": slots.size() >= 2, "in": not _out.has(s)})
+		_send_json(s, {"t": "setup", "swing": setup_swing, "pick": setup_pick and slots.size() >= 2, "in": not _out.has(s)})
 
 
 ## The connected phones that play the next game: all of them, except the ones that chose OUT in the settings view (REQ-GM-104).
