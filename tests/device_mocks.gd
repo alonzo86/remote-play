@@ -20,9 +20,10 @@ const GAMES := {
 	"mini_golf": ["res://scripts/game/mini_golf/mini_golf_game.gd", {"difficulty": "medium", "holes": "1"}],
 	"bowling": ["res://scripts/game/bowling/bowling_game.gd", {"difficulty": "medium"}],
 	"tennis": ["res://scripts/game/tennis/tennis_game.gd", {"difficulty": "medium"}],
+	"sheep_herding": ["res://scripts/game/sheep_herding/sheep_herding_game.gd", {"difficulty": "medium"}],
 }
 ## Only a game with a visible timer has the countdown and the buzz at GO (REQ-GM-35). Tennis with 2 phones has no timer.
-const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "marble_race", "maze"]
+const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "marble_race", "maze", "sheep_herding"]
 ## The turn games buzz the phone on turn (60 ms) when the first turn starts, and no other phone.
 const TURN_GAMES := ["mini_golf", "bowling"]
 
@@ -114,6 +115,7 @@ func _run() -> void:
 	var centered := {
 		"maze": ["res://scripts/game/maze/maze_game.gd", {}],
 		"paint_grab": GAMES.paint_grab,
+		"sheep_herding": GAMES.sheep_herding,
 	}
 	for id in centered:
 		await _stream(0.5, flat)

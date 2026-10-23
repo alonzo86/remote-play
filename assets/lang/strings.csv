@@ -259,3 +259,10 @@ how_to.mini_golf,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT THE BA
 setup.question,PLAY THIS GAME?,לשחק במשחק הזה?,"Phone waiting screen, while the TV settings view of a game is open and two or more phones are connected: the question above the IN and OUT buttons",
 setup.in,IN,בפנים,Phone waiting screen: the IN button (this phone plays the game); TV game settings view: the word after the name of a player who plays,
 setup.out,OUT,בחוץ,Phone waiting screen: the OUT button (this phone watches); TV game settings view: the word after the name of a player who sits out,
+registry.sheep_herding,SHEEP HERDING,רועה כבשים,"Name of the game Sheep Herding: Games screen, game settings, in-game title",
+registry.desc_sheep_herding,A TEAM GAME: HERD ALL THE SHEEP INTO THE PEN.,משחק קבוצתי: מובילים את כל הכבשים לדיר.,"Description of Sheep Herding: info bar of the Games screen (what the game is, no instructions, issue #78)",
+how_to.sheep_herding,"TILT YOUR PHONE TO RUN YOUR DOG. TOGETHER, HERD ALL THE SHEEP INTO THE PEN BEFORE THE TIME IS UP!","הטו את הטלפון כדי לגרום לכלב לרוץ. יחד, הובילו את כל הכבשים לדיר לפני שהזמן נגמר!","TV game settings view of Sheep Herding: how to play, under the title (issue #77)",
+sheep_herding.hint,TILT YOUR PHONE TO STEER YOUR DOG AND HERD THE SHEEP INTO THE PEN!,הטו את הטלפון כדי להוביל את הכלב ולהכניס את הכבשים לדיר!,Sheep Herding: hint during the countdown and the first seconds,
+sheep_herding.count,%d / %d sheep,%d / %d כבשים,Sheep Herding result list: sheep in the pen out of all sheep (the same for every player),"the number sign (%d, %.1f ...) is replaced by a number"
+sheep_herding.all_safe,All sheep are safe!,כל הכבשים בטוחות!,Sheep Herding: title of the result menu for 2 to 4 players when every sheep is in the pen,
+sheep_herding.some_safe,%d of %d sheep are safe!,%d מתוך %d כבשים בטוחות!,"Sheep Herding: title of the result menu for 2 to 4 players when time is up: sheep in the pen, all sheep","the number sign (%d, %.1f ...) is replaced by a number"

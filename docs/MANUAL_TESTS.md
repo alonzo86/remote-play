@@ -75,6 +75,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [27](#test-27) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -550,7 +551,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 
 **Steps**
 
-1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 9 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 9 of 9. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
+1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 10 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 10 of 10. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
 1e. From the sofa (about 3 m), look at the Games screen. Check: the tester reads aloud the title and the player range of 3 tiles and the description of the focused game, without error. (REQ-FL-40)
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
 3b. Check the tile of **Road Rally**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
@@ -559,7 +560,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 8. Check the tile of **Pin Pals**. Check: the 10 pins stand in a triangle and the ball is between the foul line and the pins. (The lane and the white shapes are checked by A-12-8; the test counts 138 white blobs and does not count the 10 pins.)
 9. Check the tile of **Tennis**. Check: the ball is high over the near half of the court. (The grass, the court, the ball and the players are checked by A-12-9.)
 10. Check the tile of **Mini Golf**. Check: a ball is between the tee and the hole. (The fairway, the lake, the windmill and the players are checked by A-12-10.)
-11. Open the settings view of each of the 9 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (9 of 9), and Back and Start are fully on the screen (9 of 9). (REQ-GM-103, issue #77)
+11. Open the settings view of each of the 10 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (10 of 10), and Back and Start are fully on the screen (10 of 10). (REQ-GM-103, issue #77)
 
 Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-12-1a, A-12-1b, A-12-1d, A-12-3a, A-12-6, A-12-7). The numbers of the other items do not change.
 
@@ -1233,3 +1234,58 @@ History:
 - -: **Not run**. New (2026-10-17).
 - 2026-10-21 (aligned with the requirements, not run): step 14a also checks the ball height of 48 px or more (REQ-GM-47e). No recorded result changed.
 
+## Test 27
+
+### Sheep Herding (tilt, a team herds the sheep into the pen)
+
+Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+
+New game (2026-10-23). It was only tested with made-up sensor values. Every number (the speed of the dogs, how far a dog scares a sheep, how fast a sheep runs, the gate, the time of the round, the medal tiers, the pictures, the song and the Hebrew texts) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. The sheep and the dogs run by themselves, so do not count on the same round twice.
+
+**Steps**
+
+1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the sheep, a dog, the pen with its fence, and the barn.
+2a. From 3 m, a tester points at the gate of the pen. Check: the finger points at the gap in the left fence (5 of 5 testers).
+2b. From 3 m, a tester points at one sheep and at one dog. Check: both answers are right for every tester. Check: a dog is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
+3a. Play alone on Easy. Hold the phone flat at the countdown, then tilt it to the right by 20 degrees and hold it. Check: the dog runs from the left edge of the field to the fence of the pen in 5 s or less.
+3b. Same round. Tilt the phone back to flat. Check: the dog stops within 1.5 s.
+4. Play alone on Easy, an adult. Check: the adult herds all 8 sheep into the pen in 90 s or less, in 2 of 3 rounds.
+5a. In the same round, drive a dog at a flock from the left. Check: the sheep move away from the dog, to the right, in 5 of 5 tries.
+5b. Same round. Leave the dogs still for 10 s. Check: no sheep leaves the field and no sheep shows speed dashes.
+6a. Play with 2 phones on Medium, 2 adults, who talk to each other. Check: the 2 adults herd all 11 sheep into the pen in 75 s or less, in 2 of 3 rounds.
+6b. Same round, when a sheep goes into the pen. Check: only the phone of the dog that scared it last buzzes, 3 of 3 times (the other phone does not buzz). (REQ-SH-12)
+7. Play with 4 phones on Hard and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+8a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own dog (the one in the color of its phone) within 10 s after GO.
+8b. Same child. Check: the child moves its dog next to a sheep and the sheep runs away, within 30 s after GO, with no help.
+8c. Same child. Check: at least 1 sheep is in the pen at the end of the round, with no help.
+8d. After the round, ask: "Play again?". Check: the child says yes.
+9a. Open the settings view and read the how-to line under the name, then play 1 round. Check: a tester can tell what to do (tilt the phone, bring all the sheep into the pen) without more help (3 of 3 testers).
+9b. A native reader of Hebrew reads the 7 new texts of the game (the 7 rows of `assets/lang/strings.csv` that start with `sheep_herding.`, `registry.sheep_herding`, `registry.desc_sheep_herding` and `how_to.sheep_herding`) on the TV set to Hebrew. Check: the reader marks 0 texts as wrong and 0 texts as cut.
+
+Measurements (write down, no pass or fail): the time that a dog needs from the left edge to the gate with a steady tilt; the speed of the sheep that you see (too slow, too fast); if a sheep gets stuck in a corner, behind a tree, at the pond or at the fence; the time that a round of 1 child takes on Easy; how many sheep an adult herds alone on Hard in 60 s. Use them to tune the speed of the dogs, how far they scare a sheep, the gate and the time of a round.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the tile next to a photo of the game | Not run | | | |
+| 2a | Note: right answers of 5 | Not run | | | |
+| 2b | Note: answers of each tester; photo of a dog with its height in px | Not run | | | |
+| 3a | Note: seconds | Not run | | | |
+| 3b | Note: seconds | Not run | | | |
+| 4 | Note: sheep and seconds in each of 3 rounds | Not run | | | |
+| 5a | Note: right tries of 5 | Not run | | | |
+| 5b | Note: sheep that left the field or ran | Not run | | | |
+| 6a | Note: sheep and seconds in each of 3 rounds | Not run | | | |
+| 6b | Note: buzzes on the right phone of 3, buzzes on the other phone | Not run | | | |
+| 7 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 8a | Note: the child, the age, seconds until it points | Not run | | | |
+| 8b | Note: seconds until the sheep runs | Not run | | | |
+| 8c | Note: sheep in the pen | Not run | | | |
+| 8d | Note: the answer of the child | Not run | | | |
+| 9a | Note: answers of each tester | Not run | | | |
+| 9b | Note: the texts that the reader marks, with the reason | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-23).

@@ -97,6 +97,12 @@ const GAMES: Array[Dictionary] = [
 			"settings": [{"key": "holes", "label": "mini_golf.holes", "values": ["1", "2", "3", "4", "5"],
 					"titles": ["mini_golf.holes_1", "mini_golf.holes_2", "mini_golf.holes_3", "mini_golf.holes_4",
 					"mini_golf.holes_5"], "default": "3"}]},
+	{"id": "sheep_herding", "doc": "res://docs/games/sheep_herding.md", "title": "registry.sheep_herding", "dim": "2d",
+			"pad": [],
+			"how_to": "how_to.sheep_herding",
+			"description": "registry.desc_sheep_herding",
+			"tile": "res://assets/tiles/sheep_herding.png",
+			"path": "res://scripts/game/sheep_herding/sheep_herding_game.gd", "min_players": 1, "max_players": 4, "settings": []},
 ]
 
 

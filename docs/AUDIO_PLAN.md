@@ -68,7 +68,7 @@ Proposed scenes (the game files get the final list; the current code already has
 
 | Scene | Haptic | Games |
 |-------|--------|-------|
-| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, paint grab, Tennis alone. Not Galaxy Protector, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
+| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, paint grab, Sheep Herding, Tennis alone. Not Galaxy Protector, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
 | The player scores or reaches the goal (exit, finish line, a hit on a Puff) | 120 ms, or 40 ms for a small score | maze, marble race, snowball splat |
 | The player's own object touches something (wall, bumper, another player) | 15 to 30 ms, with a cool-down | maze, marble race, paint grab, sumo |
 | A bump that pushes the player (stronger when harder) | 20 to 80 ms | sumo |
@@ -188,6 +188,16 @@ Each row is one effect. "Where" names the event that the game already has (it ha
 | `snow_puff` | A Puff pops up or flies away | A squeak (pitch slide, 80 ms) |
 | `snow_points` | The "+10" appears | A coin-like ping, so the player knows who scored. The pitch depends on the player slot (4 different pitches), so a player knows which sound is theirs |
 | `snow_combo` | *Option*: 3 hits in a row | **Proposed: not built**; the rules have no combos |
+
+### 4.6 Sheep Herding (`sheep_herding`)
+
+The song is `sheep_herding` (100 BPM, C major, light drums). The effects are in `docs/games/sheep_herding.md` (REQ-SH-S1 to S3).
+
+| Id | When | Sound |
+|----|------|-------|
+| `sheep_baa` | A free sheep gets scared (at most one every 0.6 s) | Two soft falling beeps |
+| `sheep_pen` | A sheep walks into the pen | Three rising notes |
+| `sheep_bump` | Two dogs touch | A soft low blip |
 
 ## 5. Requirements to add (in the same commit as the behavior, REQ-GM-5)
 
