@@ -85,3 +85,5 @@ tests/r4_asteroid.gd|tv|Galaxy Protector: ship at the sides, Reached wave N|scen
 tests/r4_bowling.gd|tv|Pin Pals: totals, last frame, rails, plate, scores, winner, leave|scenario
 tests/r4_tennis.gd|tv|Tennis: leader chip, toss, runs, GREAT, places, rally|scenario
 tests/r4_golf.gd|tv|Mini Golf: turn, plate, phones, aim mark, swing, barriers, banner, bar, result menu|scenario
+tests/air_hockey_rules.gd|controller|Air Hockey rules, puck and ROBO|unit
+tests/smoke_air_hockey.gd|tv|Air Hockey: enroll, tilt, goals, ROBO, pause, leave, results|scenario

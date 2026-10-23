@@ -62,7 +62,7 @@ func _reach(screen: Control, code: String) -> void:
 		await _frames(25)   # The grid scrolls to the tile.
 		var focused: Control = screen._tiles[i]
 		var up: Control = focused
-		for step in 3:   # Up as often as it takes: from the second row it takes two presses.
+		for step in 8:   # Up as often as it takes: from the second row it takes two presses, from the fourth row four.
 			up = up.find_valid_focus_neighbor(SIDE_TOP)
 			if up == screen._badge:
 				break
