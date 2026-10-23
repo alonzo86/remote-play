@@ -47,7 +47,8 @@ func _run() -> void:
 	quit(1 if _fails > 0 else 0)
 
 
-## Starts a round with `n` phones, steps out the countdown and returns the game at GO, with no moles.
+## Starts a round, steps out the countdown for the first `n` phones and returns the game at GO, with no moles. All connected
+## phones are in the round.
 func _play(n := 1, props := {}) -> Control:
 	var game: Control = await sim.start(Game, props)
 	var accels := {}
@@ -55,8 +56,6 @@ func _play(n := 1, props := {}) -> Control:
 		sim.settle(s, Sim.FLAT)
 		sim.app.server.players[s].recenter()
 		accels[s] = Sim.FLAT
-	if n == 1:   # The other phone is connected but not in the round: the game takes the phones that are there.
-		pass
 	sim.through_countdown(game, accels)
 	game._field.moles.clear()
 	game._field._spawn_left = 1000.0   # No new mole while a check works with its own moles.
