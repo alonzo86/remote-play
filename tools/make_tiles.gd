@@ -17,7 +17,8 @@ const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
 const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0,
-		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "air_hockey": 4.0}
+		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "air_hockey": 4.0,
+		"tower_builder": 4.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
 		Vector3(0.18, 0.0, -0.6)]}
@@ -181,6 +182,20 @@ func _place_air_hockey(game: Node) -> void:
 	game.sim.puck_vel = Vector2(300.0, -100.0)
 	game.scores[0] = 2
 	game.scores[1] = 1
+	game.set_process(false)   # Freeze the picture.
+	game._request_redraw()
+	await _frames(3)
+
+
+## The Tower Builder picture: a tower of 9 bricks in the player colors that leans a little, and a brick that swings over it.
+func _place_tower_builder(game: Node) -> void:
+	var offsets := [0.0, 20.0, -14.0, 36.0, 10.0, -26.0, 30.0, 4.0, 40.0]
+	for i in offsets.size():
+		var slot: int = game.participants[i % game.participants.size()]
+		game.stack.bricks.append({"x": game.Stack.BASE_X + offsets[i], "w": 190.0 + 10.0 * float(i % 4), "slot": slot})
+	game.dropped = offsets.size()
+	game._swing_t = 0.0
+	game._swing_phase = asin(0.45)
 	game.set_process(false)   # Freeze the picture.
 	game._request_redraw()
 	await _frames(3)
@@ -355,6 +370,9 @@ func _run() -> void:
 			wait = 0.0
 		if String(g.id) == "air_hockey":
 			await _place_air_hockey(app.current_screen())
+			wait = 0.0
+		if String(g.id) == "tower_builder":
+			await _place_tower_builder(app.current_screen())
 			wait = 0.0
 		if String(g.id) == "mini_golf":
 			_place_mini_golf(app.current_screen())

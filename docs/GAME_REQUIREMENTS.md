@@ -180,3 +180,4 @@ Status (2026-10-09): the shared view, the choice row and the Difficulty row are 
 | Tennis (2D) | `docs/games/tennis.md` |
 | Mini Golf (2D) | `docs/games/mini_golf.md` |
 | Air Hockey (2D) | `docs/games/air_hockey.md` |
+| Tower Builder (2D) | `docs/games/tower_builder.md` |

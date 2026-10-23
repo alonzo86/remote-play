@@ -111,6 +111,12 @@ const GAMES: Array[Dictionary] = [
 						"titles": ["air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals",
 						"air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals"],
 						"format_number": true, "default": "5"}]},
+		{"id": "tower_builder", "doc": "res://docs/games/tower_builder.md", "title": "registry.tower_builder", "dim": "2d",
+				"pad": ["a"],
+				"how_to": "how_to.tower_builder",
+				"description": "registry.desc_tower_builder",
+				"tile": "res://assets/tiles/tower_builder.png",
+				"path": "res://scripts/game/tower_builder/tower_builder_game.gd", "min_players": 1, "max_players": 4, "settings": []},
 ]
 
 
