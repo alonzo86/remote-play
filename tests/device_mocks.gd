@@ -16,13 +16,16 @@ const GAMES := {
 	"sumo_bumpers": ["res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd", {"difficulty": "medium"}],
 	"asteroid_blast": ["res://scripts/game/asteroid_blast/asteroid_blast_game.gd", {"difficulty": "medium"}],
 	"snowball_splat": ["res://scripts/game/snowball_splat/snowball_splat_game.gd", {"difficulty": "medium"}],
+	"whack_a_mole": ["res://scripts/game/whack_a_mole/whack_a_mole_game.gd", {"difficulty": "medium"}],
 	"marble_race": ["res://scripts/game/marble_race/marble_race.gd", {"track_choice": "3", "difficulty": "easy"}],
 	"mini_golf": ["res://scripts/game/mini_golf/mini_golf_game.gd", {"difficulty": "medium", "holes": "1"}],
 	"bowling": ["res://scripts/game/bowling/bowling_game.gd", {"difficulty": "medium"}],
 	"tennis": ["res://scripts/game/tennis/tennis_game.gd", {"difficulty": "medium"}],
 }
+## The games where the phone is a pointer at a target: they have the Recenter box on the pad.
+const POINTER_GAMES := ["snowball_splat", "whack_a_mole"]
 ## Only a game with a visible timer has the countdown and the buzz at GO (REQ-GM-35). Tennis with 2 phones has no timer.
-const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "marble_race", "maze"]
+const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "whack_a_mole", "marble_race", "maze"]
 ## The turn games buzz the phone on turn (60 ms) when the first turn starts, and no other phone.
 const TURN_GAMES := ["mini_golf", "bowling"]
 
@@ -90,8 +93,8 @@ func _run() -> void:
 		var before: int = _buzzes[0].size() + _buzzes[1].size()
 		await _stream(2.5, flat)
 		# Issue #55: only a game where the phone is a pointer at a target has the Recenter box on the pad (REQ-GM-37).
-		_check(_clients[0].recenter_button == (id == "snowball_splat") and _clients[1].recenter_button == (id == "snowball_splat"),
-				"%s: the phones %s the Recenter box (REQ-GM-37)" % [id, "get" if id == "snowball_splat" else "do not get"])
+		_check(_clients[0].recenter_button == (id in POINTER_GAMES) and _clients[1].recenter_button == (id in POINTER_GAMES),
+				"%s: the phones %s the Recenter box (REQ-GM-37)" % [id, "get" if id in POINTER_GAMES else "do not get"])
 		# Issue #80: the phones show only the buttons the game uses (REQ-GM-37a).
 		var want := Registry.buttons_of(Registry.find(id))
 		_check(_clients[0].pad_buttons == want and _clients[1].pad_buttons == want,

@@ -75,6 +75,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [28](#test-28) | Whack-a-Mole (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -1233,3 +1234,66 @@ History:
 - -: **Not run**. New (2026-10-17).
 - 2026-10-21 (aligned with the requirements, not run): step 14a also checks the ball height of 48 px or more (REQ-GM-47e). No recorded result changed.
 
+## Test 28
+
+### Whack-a-Mole (pointer, bonk, moles, difficulty)
+
+Needs: 1 to 4 phones, 1 TV, a 240 fps phone camera (items 4b and 6a to 6c), and a child of about 5 to 8 years for items 10a to 10d. Covers: REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+
+New game (2026-10-23). It was only tested with made-up sensor values. Every number (the stay of a mole, the time between moles, the size of the hit circle, the 9 places of the holes, the points) is a first guess, but each step below has a fixed limit. Hold the phone like a remote control and point it at the TV. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
+
+**Steps**
+
+1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the meadow, the fence, a hole and a mole.
+2b. Look at the game screen. Check: you can point at all of these: the sky, the fence, the lawn, the 9 holes (9 of 9) and a mole.
+3a. Press RECENTER while you point at the middle of the screen, then point at each of the 9 holes, one after the other. Check: the ring is on the hole (inside the dark opening) within 5 s for each hole (9 of 9).
+4a. Wait for a mole that is fully out, put the ring on its head and press A. Do this 5 times. Check: the mole closes its eyes and the score grows by 10 in 5 of 5 tries.
+4b. Record the phone (the A button) and the TV (240 fps) for 5 bonks on a mole. Count the frames from the press on A to the first change of the mole (closed eyes). Check: the median delay is 150 ms or less (36 frames at 240 fps).
+5a. Put the ring on the grass, away from any mole, and press A 3 times, 1 s apart. Check: the score does not change (3 of 3) and a small ring grows at the place of the ring each time (3 of 3).
+6a. Play on Easy and record the TV (240 fps) with a stopwatch in the picture. Do not bonk 5 moles. Check: each mole is fully out for 2.3 s to 2.9 s (5 of 5).
+6b. Same, on Medium. Check: each mole is fully out for 1.5 s to 2.1 s (5 of 5).
+6c. Same, on Hard. Check: each mole is fully out for 0.8 s to 1.4 s (5 of 5).
+7a. Play one round on Medium. Check: a golden mole with a crown comes between 9 s and 12 s after GO, and a bonk on it adds 50 points.
+7b. During the same round, count the moles that are out at the same time with one phone. Check: never more than 3 (3 of 3 looks at random moments).
+8a. Open the settings view of the game (OK on its tile). Check: the TV shows the line "POINT YOUR PHONE AT THE SCREEN AND PRESS A TO BONK THE FRIENDLY MOLES. MOST POINTS IN 60 S WINS." and the rows Difficulty and Start. The phone pad shows A and RECENTER only (3 of 3). (REQ-GM-37a)
+9a. Play one round with one phone. Check: the result menu has no medal and the title is "<NAME> WINS!".
+9b. Play one round with 2 phones. Check: the first place has a gold medal and the second place a silver medal.
+10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child puts the ring on a mole within 20 s after GO, with no help.
+10b. Same child. Check: the child bonks a mole (the score grows) within 30 s after GO.
+10c. Same child. Check: the child has 5 or more bonks on moles in the 60 s round.
+10d. After the round, ask: "Play again?". Check: the child says yes.
+11. Play with 4 phones and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the golden mole when you say "mark". Check: the tester finds it in 5 of 5 tries. Check: a mole is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
+12b. From 3 m, ask a tester to read aloud the points that float up from a hit mole and the timer. Check: no error.
+
+Measurements (write down, no pass or fail): the turn angle that moves the ring from the middle to the edge; how often a bonk misses a mole that you aim at; if a mole is out too long or too short on each difficulty; the number of bonks of a good player in a round. Use them to tune the stay, the spawn time and the hit circle.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1b | Photo of the tile next to a photo of the game | Not run | | | |
+| 2b | Photo of the game; note: the five objects, each yes or no | Not run | | | |
+| 3a | Note: seconds to reach each of the 9 holes | Not run | | | |
+| 4a | Note: hits of 5 | Not run | | | |
+| 4b | Video (240 fps); note: frames and ms for 5 bonks | Not run | | | |
+| 5a | Note: score before and after; photo of the small ring | Not run | | | |
+| 6a | Video (240 fps); note: seconds of 5 moles | Not run | | | |
+| 6b | Video (240 fps); note: seconds of 5 moles | Not run | | | |
+| 6c | Video (240 fps); note: seconds of 5 moles | Not run | | | |
+| 7a | Note: the second of the first golden mole, the points | Not run | | | |
+| 7b | Note: the number of moles out at 3 looks | Not run | | | |
+| 8a | Photo of the TV and of the phone pad | Not run | | | |
+| 9a | Photo of the result menu | Not run | | | |
+| 9b | Photo of the result menu | Not run | | | |
+| 10a | Note: the child, the age, seconds until the ring is on a mole | Not run | | | |
+| 10b | Note: seconds until the first bonk | Not run | | | |
+| 10c | Note: bonks on moles in the round | Not run | | | |
+| 10d | Note: the answer of the child | Not run | | | |
+| 11 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 12a | Note: right answers of 5; photo of a mole with its height in px | Not run | | | |
+| 12b | Note: errors made when reading | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-23).

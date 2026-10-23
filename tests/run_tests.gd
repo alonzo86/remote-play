@@ -230,7 +230,8 @@ func _test_registry() -> void:
 	_check(bad_desc.is_empty(), "each description is a short sentence in both languages with no instruction: %s" % [bad_desc])
 	# Issue #80, REQ-GM-37a: the controls of the pad of each game (the inventory of the game files).
 	var pads := {"maze": [], "marble_race": [], "paint_grab": [], "asteroid_blast": [], "sumo_bumpers": ["a"],
-			"bowling": ["a"], "tennis": ["a"], "mini_golf": ["a"], "snowball_splat": ["a", "recenter"]}
+			"bowling": ["a"], "tennis": ["a"], "mini_golf": ["a"], "snowball_splat": ["a", "recenter"],
+			"whack_a_mole": ["a", "recenter"]}
 	var pad_bad: Array[String] = []
 	for g in Registry.all():
 		if g.get("pad", null) != pads.get(String(g.id), null):
