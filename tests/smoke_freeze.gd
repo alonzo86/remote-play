@@ -125,19 +125,21 @@ func _freeze_and_points() -> void:
 	print("freeze: stop and points")
 	var game: Control = await _play(2, {"seed": 4})
 	game._haptics = Haptics.new()
+	var rec: RefCounted = load("res://tests/rec_haptics.gd").new()
+	game._haptics = rec
 	var wiggle := {0: 4.0, 1: 4.0}
 	_to_freeze(game, wiggle)
 	_check(game._rules.phase == DanceRules.Phase.FREEZE and Snd.music_held,
 			"the music is held at once when the freeze starts (REQ-FD-2)")
 	_check(game._lit.is_empty() and "freeze_stop" in _sfx, "every light goes out and the stop effect plays (REQ-FD-3, 12)")
-	_check(game._haptics._last.is_empty(), "no phone buzzes at the stop or during the freeze (REQ-FD-14)")
+	_check(rec.log.is_empty(), "no phone buzzes at the stop or during the freeze (REQ-FD-14)")
 	_step(game, float(game._rules.level.freeze) - 0.3, {})
 	_check(game._board.score(0) == 0.0, "the points come when the freeze ends, not before (REQ-FD-7)")
 	_step(game, 0.6, {})
 	_check(game._board.score(0) == 10.0 and game._board.score(1) == 10.0,
 			"both players held still and danced: 10 points each (REQ-FD-7)")
-	_check(game._haptics._last.has(0) and game._haptics._last.has(1) and "dance_points" in _sfx,
-			"the points buzz the phones and play the points effect (REQ-FD-7, 14)")
+	_check("dance_points" in _sfx, "the points play the points effect (REQ-FD-7)")
+	_check(rec.ms_of(0) == [40] and rec.ms_of(1) == [40], "each phone buzzes once, 40 ms, for the points (Test 31 step 6c): %s" % str(rec.log))
 	var pops := 0
 	for p in game._pops:
 		if p.age >= 0.0:
@@ -155,14 +157,15 @@ func _freeze_and_points() -> void:
 func _move_and_bench() -> void:
 	print("freeze: a move and the bench")
 	var game: Control = await _play(2, {"seed": 4})
-	game._haptics = Haptics.new()
+	var rec: RefCounted = load("res://tests/rec_haptics.gd").new()
+	game._haptics = rec
 	_to_freeze(game, {0: 4.0, 1: 4.0})
 	game._board.add(1, 20)   # Points that stay.
 	_step(game, 1.0, {0: 0.0, 1: 5.0})   # Player 1 goes on shaking; player 0 holds still.
 	_check(not game._rules.dancers[1].plays() and game._rules.dancers[0].plays(),
 			"the mover leaves the floor, the other player stays (REQ-FD-8)")
-	_check(game._haptics._last.has(1) and not game._haptics._last.has(0) and "dance_out" in _sfx,
-			"the mover buzzes 80 ms and the soft effect plays (REQ-FD-8, 14)")
+	_check(rec.ms_of(1) == [80] and rec.ms_of(0).is_empty() and "dance_out" in _sfx,
+			"the mover buzzes once, 80 ms, and the soft effect plays (REQ-FD-8, 14): %s" % str(rec.log))
 	_check(game._bench() == [1], "the mover is on the bench")
 	_check(game._rules.back_in(1) > 10.0 and game._rules.back_in(1) < 25.0, "the bench says how many seconds until it dances again")
 	game._request_redraw()
@@ -208,6 +211,10 @@ func _full_round() -> void:
 			"a player who dances and holds still in 6 songs ends with 60 points (%.0f s)" % t)
 	_check(t > 60.0 and t < 100.0, "a round lasts about 75 s: %.0f s (6 songs of music, freeze and rest)" % t)
 	_check(game.no_medals, "one player gets no medal (REQ-FD-9)")
+	var labels: Array = []
+	for l in game._menu_box.find_children("*", "Label", true, false):
+		labels.append(String(l.text).to_upper())
+	_check(not labels.is_empty() and labels[0] == "SIM0 WINS!", "the title of the result menu names the player: %s" % str(labels))
 	_check(game.menu_buttons().size() >= 3, "the result menu has Try again, New game and Back to menu (REQ-FD-9)")
 	_check(not Snd.music_held, "the song is not held when the result menu opens")
 	var two: Control = await _play(2, {"seed": 4})
