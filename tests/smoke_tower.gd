@@ -107,6 +107,9 @@ func _run() -> void:
 			"Tower Builder opens the settings view with Difficulty on Medium only; Start works with 3 phones (REQ-TB-11)")
 	_check(GameSettings.props_for(app.Registry.find("tower_builder")) == {"difficulty": "medium"},
 			"the game gets the prop difficulty (REQ-GM-93)")
+	var entry: Dictionary = app.Registry.find("tower_builder")
+	_check(entry.pad == ["a"] and not app.Registry.has_control(entry, "recenter") and app.Registry.buttons_of(entry) == "a",
+			"the pad has button A alone, no B and no RECENTER (Test 30 step 13, REQ-GM-37a)")
 	GameSettings.clear()
 
 	# Turns: 3 phones, Medium (5 s).
@@ -118,6 +121,12 @@ func _run() -> void:
 			and game._turn_left > 4.8 and game._turn_left <= 5.0 and game.dropped == 0 and game.stack.height() == 0,
 			"3 phones: the first turn is slot 0 with 5 s, and the tower is empty (REQ-TB-4, 11)")
 	_check(not game._has_countdown() and clients[0].phase == "playing", "no countdown: the first turn starts at once (REQ-GM-35)")
+	var Lang = load("res://scripts/core/lang.gd")
+	_check(Lang.f("tower_builder.turn_of", [game.player(0).player_name]).to_upper() == "SIM0'S TURN"
+			and Lang.f("tower_builder.brick_n_of", [1, 12]).to_upper() == "BRICK 1 OF 12",
+			"the plates say the name of the turn and the brick number (Test 30 step 2b)")
+	var rec: RefCounted = load("res://tests/rec_haptics.gd").new()
+	game._haptics = rec
 	game._on_button(Protocol.BTN_A, 1)
 	_tick(game, 0.1)
 	_check(game.phase == game.Phase.TURN, "A of a phone that is not the player of the turn does nothing (REQ-TB-5)")
@@ -135,6 +144,7 @@ func _run() -> void:
 	_tick(game, game.AFTER_SAFE + 0.1)
 	_check(game.phase == game.Phase.TURN and game.current_slot() == 1 and game._turn_left > 4.7 and game._turn_left < 5.0,
 			"the next turn is the next phone, with the full turn time (REQ-TB-4)")
+	_check(rec.ms_of(1).has(100), "the phone of the next turn buzzes 100 ms (REQ-TB-13): %s" % str(rec.log))
 	game._publish_scores()
 	await _frames(3)
 	_check(clients[0].score_rank == 1 and clients[0].score_text == "1" and game.leader_text() == "1",
@@ -268,6 +278,24 @@ func _run() -> void:
 			"four long names: two chips in each of two rows, inside the margins: %s" % str(wide))
 	for i in game.participants.size():
 		game.player(game.participants[i]).player_name = saved[i]
+
+	# Test 30 step 6b: on Easy nobody presses A, and each of 5 turns takes 12 s or less from one plate to the next (REQ-GM-83).
+	app.go(Tower, {"difficulty": "easy", "seed_value": 3})
+	await _frames(3)
+	game = app.current_screen()
+	game.set_process(false)
+	var longest := 0.0
+	var turns := 0
+	for n in 5:
+		var first: int = game.dropped
+		var who: int = game.current_slot()
+		var took := 0.0
+		while took < 30.0 and not (game.phase == game.Phase.TURN and (game.dropped != first or game.current_slot() != who)):
+			game._game_tick(DT)
+			took += DT
+		turns += 1
+		longest = maxf(longest, took)
+	_check(turns == 5 and longest <= 12.0, "5 turns on Easy with nobody pressing: the longest turn takes %.1f s (12 s or less)" % longest)
 
 	# Solo: one phone plays all 12 bricks and gets a medal for the safe bricks (REQ-TB-15).
 	clients[2].leave()

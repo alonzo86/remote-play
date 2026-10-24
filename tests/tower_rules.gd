@@ -77,6 +77,18 @@ func _toppling() -> void:
 	slack.drop(Stack.BASE_X, 200.0, 0)
 	_check(slack.drop(Stack.BASE_X + 100.0 + Stack.SLACK - 1.0, 200.0, 1).outcome == Stack.Outcome.SAFE,
 			"a brick with its middle at the edge plus the SLACK stays (REQ-TB-8)")
+	# Test 30 step 4c: bricks dropped near the middle of the top brick (up to 20 px off, to one side or alternating) never topple.
+	for pattern in ["right", "alternating", "left"]:
+		var careful := Stack.new()
+		var topples := 0
+		var x := Stack.BASE_X
+		for i in 10:
+			var off := 20.0 if pattern == "right" else (-20.0 if pattern == "left" else (20.0 if i % 2 == 0 else -20.0))
+			if careful.height() > 0:
+				x = float(careful.bricks[careful.height() - 1].x) + off
+			if careful.drop(x, 200.0, i % 3).outcome == Stack.Outcome.TOPPLED:
+				topples += 1
+		_check(topples == 0 and careful.height() == 10, "10 bricks dropped up to 20 px off the middle of the top brick (%s): no topple (%d)" % [pattern, topples])
 	var lone := Stack.new()
 	lone.drop(Stack.BASE_X, 200.0, 0)
 	lone.clear()
@@ -105,6 +117,7 @@ func _game_numbers() -> void:
 	_check(Stack.turn_time("easy") == 10.0 and Stack.turn_time("medium") == 5.0 and Stack.turn_time("hard") == 3.0
 			and Stack.turn_time("nonsense") == 5.0,
 			"the turn time is 10 s on Easy, 5 s on Medium and 3 s on Hard (an unknown value is Medium)")
+	_check(Stack.MEDAL_TIERS == [6, 9, 11], "a solo player gets bronze at 6 bricks, silver at 9 and gold at 11 (Test 30 step 7a)")
 	var tiers: Array = Stack.MEDAL_TIERS
 	_check(tiers[0] < tiers[1] and tiers[1] < tiers[2] and tiers[2] <= Stack.TOTAL_BRICKS,
 			"the medal tiers rise and gold can be reached with 12 bricks")
