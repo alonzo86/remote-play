@@ -120,7 +120,8 @@ func _response() -> void:
 		if t_up < 0.0 and r.dancers[0].energy >= DanceRules.WIGGLE_MIN * 0.5:
 			t_up = t
 	_check(t_up > 0.0 and t_up <= 0.5, "the dancer lifts its arms %.2f s after the wiggle starts (0.5 s or less)" % t_up)
-	_check(r.dancers[0].dance_time >= DanceRules.DANCE_NEED, "5 s of that wiggle count as a dance, 1.5 s of dancing are needed (%.1f s)" % r.dancers[0].dance_time)
+	_check(r.dancers[0].dance_time >= DanceRules.DANCE_NEED,
+				"5 s of that wiggle count as a dance, 1.5 s of dancing are needed (%.1f s)" % r.dancers[0].dance_time)
 	var t_down := -1.0
 	t = 0.0
 	for i in int(3.0 / DT):
@@ -371,8 +372,9 @@ func _levels() -> void:
 		var music_ok := musics.size() == 6
 		for m_len in musics:
 			music_ok = music_ok and m_len >= span[2] and m_len <= span[3]
-		_check(freeze_ok, "%s: all 6 freezes last %.1f to %.1f s (%s)" % [d, span[0], span[1], str(freezes.map(func(f: float) -> float: return snappedf(f, 0.1)))])
-		_check(music_ok, "%s: all 6 songs last %.0f to %.0f s (%s)" % [d, span[2], span[3], str(musics.map(func(f: float) -> float: return snappedf(f, 0.1)))])
+		var round_to_tenth := func(v: float) -> float: return snappedf(v, 0.1)
+		_check(freeze_ok, "%s: all 6 freezes last %.1f to %.1f s (%s)" % [d, span[0], span[1], str(freezes.map(round_to_tenth))])
+		_check(music_ok, "%s: all 6 songs last %.0f to %.0f s (%s)" % [d, span[2], span[3], str(musics.map(round_to_tenth))])
 	# A tremor of 1.3 passes on Easy, fails on Medium and Hard.
 	var verdicts := []
 	for d in ["easy", "medium", "hard"]:

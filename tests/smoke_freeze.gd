@@ -125,7 +125,7 @@ func _freeze_and_points() -> void:
 	print("freeze: stop and points")
 	var game: Control = await _play(2, {"seed": 4})
 	game._haptics = Haptics.new()
-	var rec: RefCounted = load("res://tests/rec_haptics.gd").new()
+	var rec: RefCounted = _recorder()
 	game._haptics = rec
 	var wiggle := {0: 4.0, 1: 4.0}
 	_to_freeze(game, wiggle)
@@ -139,7 +139,8 @@ func _freeze_and_points() -> void:
 	_check(game._board.score(0) == 10.0 and game._board.score(1) == 10.0,
 			"both players held still and danced: 10 points each (REQ-FD-7)")
 	_check("dance_points" in _sfx, "the points play the points effect (REQ-FD-7)")
-	_check(rec.ms_of(0) == [40] and rec.ms_of(1) == [40], "each phone buzzes once, 40 ms, for the points (Test 31 step 6c): %s" % str(rec.log))
+	_check(rec.ms_of(0) == [40] and rec.ms_of(1) == [40],
+				"each phone buzzes once, 40 ms, for the points (Test 31 step 6c): %s" % str(rec.log))
 	var pops := 0
 	for p in game._pops:
 		if p.age >= 0.0:
@@ -153,11 +154,16 @@ func _freeze_and_points() -> void:
 	_check(true, "a frame with the +10 draws without an error")
 
 
+## A `Haptics` that notes every pulse (it needs the App autoload to compile, so it is loaded here).
+func _recorder() -> RefCounted:
+	return load("res://tests/rec_haptics.gd").new()
+
+
 ## REQ-FD-6, 8, 14: a move, the bench, the buzz, the sit-out song and the return.
 func _move_and_bench() -> void:
 	print("freeze: a move and the bench")
 	var game: Control = await _play(2, {"seed": 4})
-	var rec: RefCounted = load("res://tests/rec_haptics.gd").new()
+	var rec: RefCounted = _recorder()
 	game._haptics = rec
 	_to_freeze(game, {0: 4.0, 1: 4.0})
 	game._board.add(1, 20)   # Points that stay.

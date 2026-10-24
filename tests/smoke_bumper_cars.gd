@@ -239,14 +239,16 @@ func _tilt_timing() -> void:
 		_sim.feed(p0, tilt)
 		game._process(DT)
 		t += DT
-	_check(game._bodies[0].pos.x >= rail_x and t <= 4.0, "a tilt of 20 degrees takes the car to the right rail in %.2f s (4 s or less)" % t)
+	_check(game._bodies[0].pos.x >= rail_x and t <= 4.0,
+				"a tilt of 20 degrees takes the car to the right rail in %.2f s (4 s or less)" % t)
 	_check(game._bodies[1].pos.distance_to(other_start) < 1.0, "the other car does not move while only the first phone is tilted")
 	t = 0.0
 	while t < 6.0 and game._bodies[0].vel.length() >= 20.0:
 		_sim.feed(p0, Vector2.ZERO)
 		game._process(DT)
 		t += DT
-	_check(game._bodies[0].vel.length() < 20.0 and t <= 3.0, "the flat phone stops the car (under 20 px/s) in %.2f s (3 s or less)" % t)
+	_check(game._bodies[0].vel.length() < 20.0 and t <= 3.0,
+				"the flat phone stops the car (under 20 px/s) in %.2f s (3 s or less)" % t)
 
 
 ## A hit: the slower car drops a star that rolls away (REQ-BC-6, 7, 8).
@@ -386,7 +388,8 @@ func _layout_and_restart() -> void:
 	_check(game._pixel_world() and game._pixel_viewport.size == Vector2i(480, 270),
 			"the world is drawn in the 480x270 pixel view (REQ-BC-16)")
 	var pixel_scale: float = 1080.0 / float(game._pixel_viewport.size.y)
-	_check(pixel_scale * 20.0 >= 48.0, "a car is 20 world pixels high, %.0f px on a 1080p screen (48 px or more, REQ-GM-47e)" % (pixel_scale * 20.0))
+	_check(pixel_scale * 20.0 >= 48.0,
+				"a car is 20 world pixels high, %.0f px on a 1080p screen (48 px or more, REQ-GM-47e)" % (pixel_scale * 20.0))
 	for res in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
 		root.size = res
 		await _frames(4)

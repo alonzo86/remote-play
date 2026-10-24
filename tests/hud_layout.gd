@@ -30,6 +30,8 @@ const GAMES := {
 	# Tower Builder has a turn timer but no countdown before the first turn (the 5th value, REQ-GM-35, REQ-TB-11).
 	"tower_builder": ["res://scripts/game/tower_builder/tower_builder_game.gd", {"difficulty": "medium"}, true, true, false],
 	"bowling": ["res://scripts/game/bowling/bowling_game.gd", {"difficulty": "medium"}, false, false],
+	# Freeze Dance has no countdown and no timer box: the song counter stands in its place (REQ-FD-3, REQ-GM-47o).
+	"freeze_dance": ["res://scripts/game/freeze_dance/freeze_dance_game.gd", {"difficulty": "medium"}, true, false],
 }
 ## Names with 10 letters, and two equal names with 12 (the TV makes them different). Slot colors come from the server.
 const NAMES := ["Abcdefghij", "Klmnopqrst", "Twinsssssss", "Twinsssssss"]

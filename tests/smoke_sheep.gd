@@ -200,7 +200,8 @@ func _tilt_timing() -> void:
 		_sim.feed(p0, tilt)
 		game._process(DT)
 		t += DT
-	_check(dog.pos.x >= fence_x and t <= 5.0, "a tilt of 20 degrees takes the dog from the left edge to the fence of the pen in %.2f s (5 s or less)" % t)
+	_check(dog.pos.x >= fence_x and t <= 5.0,
+				"a tilt of 20 degrees takes the dog from the left edge to the fence of the pen in %.2f s (5 s or less)" % t)
 	t = 0.0
 	while t < 4.0 and dog.vel.length() >= 20.0:
 		_sim.feed(p0, Vector2.ZERO)
@@ -208,7 +209,8 @@ func _tilt_timing() -> void:
 		t += DT
 	_check(dog.vel.length() < 20.0 and t <= 1.5, "the flat phone stops the dog in %.2f s (1.5 s or less)" % t)
 	var pixel_scale: float = 1080.0 / float(game._pixel_viewport.size.y)
-	_check(pixel_scale * 14.0 >= 48.0, "a dog is 14 world pixels high, %.0f px on a 1080p screen (48 px or more, REQ-GM-47e)" % (pixel_scale * 14.0))
+	_check(pixel_scale * 14.0 >= 48.0,
+				"a dog is 14 world pixels high, %.0f px on a 1080p screen (48 px or more, REQ-GM-47e)" % (pixel_scale * 14.0))
 	# Step 5b: the dogs stand still for 10 s (nobody tilts): no sheep leaves the field and no sheep is scared (no speed dashes).
 	var calm := _play("easy", 5)
 	var worst_scared := 0.0
@@ -217,7 +219,8 @@ func _tilt_timing() -> void:
 		for sh in calm.flock.sheep:
 			worst_scared = maxf(worst_scared, float(sh.scared))
 			all_in = all_in and calm.field.has_point(sh.pos))
-	_check(all_in and worst_scared == 0.0, "10 s with the dogs still: every sheep stays on the field and none is scared (%.2f)" % worst_scared)
+	_check(all_in and worst_scared == 0.0,
+				"10 s with the dogs still: every sheep stays on the field and none is scared (%.2f)" % worst_scared)
 
 
 ## The tilt moves only the dog of that phone, and a sheep runs from it (REQ-SH-7, REQ-SH-11).

@@ -88,7 +88,8 @@ func _toppling() -> void:
 				x = float(careful.bricks[careful.height() - 1].x) + off
 			if careful.drop(x, 200.0, i % 3).outcome == Stack.Outcome.TOPPLED:
 				topples += 1
-		_check(topples == 0 and careful.height() == 10, "10 bricks dropped up to 20 px off the middle of the top brick (%s): no topple (%d)" % [pattern, topples])
+		_check(topples == 0 and careful.height() == 10,
+					"10 bricks dropped up to 20 px off the middle of the top brick (%s): no topple (%d)" % [pattern, topples])
 	var lone := Stack.new()
 	lone.drop(Stack.BASE_X, 200.0, 0)
 	lone.clear()

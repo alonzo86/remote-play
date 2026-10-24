@@ -263,7 +263,8 @@ func _levels() -> void:
 			if mm.out() >= 1.0:
 				full += step
 			mm.age += step
-		_check(full >= limits[d][0] and full <= limits[d][1], "%s: a mole is fully out for %.2f s (%.1f to %.1f s)" % [d, full, limits[d][0], limits[d][1]])
+		_check(full >= limits[d][0] and full <= limits[d][1],
+					"%s: a mole is fully out for %.2f s (%.1f to %.1f s)" % [d, full, limits[d][0], limits[d][1]])
 	_check(MoleField.PICTURE_H >= 48.0, "a mole is %.0f px high at 1080p (48 px or more, Test 28 step 12a)" % MoleField.PICTURE_H)
 	_check(_field("nonsense").level == MoleField.LEVELS.medium, "an unknown difficulty is Medium")
 	_check(float(e.radius) >= 100.0, "Easy: the hit circle is 200 px across or more, for a child of 5")

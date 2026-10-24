@@ -126,7 +126,8 @@ func _puck() -> void:
 	_check(c.puck_vel.length() <= Sim.PUCK_MAX * 3.0, "the puck does not speed up by itself")
 
 
-## Test 27 steps 3c, 4b, 11a: a full tilt takes a paddle from the goal line to the middle line in 0.8 to 1.6 s, a fast hit sends the
+## Test 27 steps 3c, 4b, 11a: a full tilt takes a paddle from the goal line to the middle line in 0.8 to 1.6 s, a fast
+## hit sends the
 ## puck to the far rail in 1.5 s or less and it bounces, and the puck is 48 px or more high at 1080p.
 func _timing() -> void:
 	print("timing")
@@ -159,10 +160,12 @@ func _timing() -> void:
 		if hit.puck_pos.x >= far_x:
 			reached = true
 			break
-	_check(hit_at > 0.0 and reached and t - hit_at <= 1.5, "a fast hit sends the puck to the far rail in %.2f s after the hit (1.5 s or less)" % (t - hit_at))
+	_check(hit_at > 0.0 and reached and t - hit_at <= 1.5,
+				"a fast hit sends the puck to the far rail in %.2f s after the hit (1.5 s or less)" % (t - hit_at))
 	for i in 12:
 		hit.step(DT, [Vector2.ZERO, Vector2.ZERO])
-	_check(reached and hit.puck_vel.x < 0.0 and Sim.RINK.has_point(hit.puck_pos), "the puck bounces off the far rail and stays in the rink")
+	_check(reached and hit.puck_vel.x < 0.0 and Sim.RINK.has_point(hit.puck_pos),
+				"the puck bounces off the far rail and stays in the rink")
 	_check(Sim.PUCK_R * 2.0 >= 48.0, "the puck is %.0f px across at 1080p (48 px or more, Test 27 step 11a)" % (Sim.PUCK_R * 2.0))
 
 

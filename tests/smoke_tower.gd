@@ -121,7 +121,6 @@ func _run() -> void:
 			and game._turn_left > 4.8 and game._turn_left <= 5.0 and game.dropped == 0 and game.stack.height() == 0,
 			"3 phones: the first turn is slot 0 with 5 s, and the tower is empty (REQ-TB-4, 11)")
 	_check(not game._has_countdown() and clients[0].phase == "playing", "no countdown: the first turn starts at once (REQ-GM-35)")
-	var Lang = load("res://scripts/core/lang.gd")
 	_check(Lang.f("tower_builder.turn_of", [game.player(0).player_name]).to_upper() == "SIM0'S TURN"
 			and Lang.f("tower_builder.brick_n_of", [1, 12]).to_upper() == "BRICK 1 OF 12",
 			"the plates say the name of the turn and the brick number (Test 30 step 2b)")
@@ -295,7 +294,8 @@ func _run() -> void:
 			took += DT
 		turns += 1
 		longest = maxf(longest, took)
-	_check(turns == 5 and longest <= 12.0, "5 turns on Easy with nobody pressing: the longest turn takes %.1f s (12 s or less)" % longest)
+	_check(turns == 5 and longest <= 12.0,
+				"5 turns on Easy with nobody pressing: the longest turn takes %.1f s (12 s or less)" % longest)
 
 	# Solo: one phone plays all 12 bricks and gets a medal for the safe bricks (REQ-TB-15).
 	clients[2].leave()
