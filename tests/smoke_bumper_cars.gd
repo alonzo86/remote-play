@@ -352,6 +352,14 @@ func _layout_and_restart() -> void:
 		await _frames(2)
 	_check(game.rink.rink == r and game._pixel_viewport.size == Vector2i(480, 270),
 			"the world is simulated in the same units at 1280x720 and 1920x1080 (REQ-BC-17)")
+	var Lang = load("res://scripts/core/lang.gd")
+	var english_font: int = game.title_font()
+	Lang.set_language("he", root)
+	var hebrew_font: int = game.title_font()
+	Lang.set_language("en", root)
+	_check(english_font == 32 and hebrew_font == 30,
+			"the title is 32 px in English and 30 px in Hebrew, where 32 px would touch the timer (REQ-BC-16): %d, %d"
+			% [english_font, hebrew_font])
 	var stars_before: Array = game.rink.stars.duplicate(true)
 	var difficulty_before: String = game.difficulty
 	game.restart()
