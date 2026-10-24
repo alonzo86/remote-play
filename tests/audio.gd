@@ -225,6 +225,7 @@ func _manager(sound: Node, app: Node) -> void:
 	sound.stop_music()
 	await _wait(0.7)
 	_check(not sound._music.playing and sound.wanted_music == "" and not sound.music_held, "stop_music ends the song and the hold")
+	_check(not sound._music.stream_paused, "and a held song does not stay paused after stop_music")
 
 
 func _round_clock(sound: Node) -> void:

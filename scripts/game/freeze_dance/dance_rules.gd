@@ -15,6 +15,7 @@ const ACCEL_WEIGHT := 0.25
 const GRAVITY_TAU := 0.25     # Time constant (s) of the slow part of the acceleration that is taken away as gravity.
 const ROWS := 8               # The tiles of the floor.
 const COLS := 16
+const FREEZE_CAP := 2.0       # At the stop the smoothed energy is cut to this many times `still_limit`.
 const LIT_SHARE := 0.35
 const LIGHT_STEP := 0.5       # Seconds between two sets of lit tiles.
 ## First guesses (docs/games/freeze_dance.md, Test 31). Medium is the base.
@@ -99,6 +100,12 @@ func is_checking() -> bool:
 	return phase == Phase.FREEZE and phase_time >= float(level.grace)
 
 
+## True when the player is out of the floor now: sits out this song or has moved in it (REQ-FD-8).
+func is_out(slot: int) -> bool:
+	var d: Dancer = dancers.get(slot)
+	return d != null and not d.plays()
+
+
 ## The seconds until the song where the player plays again, or -1 when the player is not out or the song is after the last one
 ## (REQ-FD-8).
 func back_in(slot: int) -> float:
@@ -142,6 +149,9 @@ func tick(delta: float, energies: Dictionary) -> Array:
 			if phase_time >= music_length():
 				phase = Phase.FREEZE
 				phase_time = 0.0
+				for s in dancers:   # A hard wiggle must not still read as a move when the grace ends (REQ-FD-6).
+					var d: Dancer = dancers[s]
+					d.energy = minf(d.energy, FREEZE_CAP * float(level.still_limit))
 				events.append({"type": "freeze"})
 		Phase.FREEZE:
 			if is_checking():

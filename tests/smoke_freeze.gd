@@ -50,6 +50,7 @@ func _run() -> void:
 	await _pause()
 	await _full_round()
 	await _leaving()
+	await _bench_cases()
 	await _small_screen()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
@@ -233,6 +234,34 @@ func _leaving() -> void:
 	_check(DanceLook.place(game._seat[1], game._seat_count, game.size) == before, "the other dancer keeps its place (REQ-FD-13)")
 	_step(game, 1.0, {1: 3.0})
 	_check(not game.is_over and game._rules.dancers[1].dance_time > 0.5, "the round goes on")
+
+
+## REQ-FD-8: a mover whose way back is after the last song stays on the bench; the bench fits the screen.
+## REQ-GM-22: nobody left ends the round.
+func _bench_cases() -> void:
+	print("freeze: bench cases")
+	var game: Control = await _play(4, {"seed": 4})
+	var slots: Array = game.participants.duplicate()
+	for s in slots:
+		game._rules.dancers[s].moved = true
+	game._rules.song = DanceRules.SONGS
+	_check(game._bench() == slots and game._rules.back_in(slots[0]) == -1.0,
+			"movers in the last song are on the bench with no BACK IN time (REQ-FD-8)")
+	game.size = Vector2(1280.0, 720.0)
+	var fits := true
+	for row in 4:
+		var feet: Vector2 = game._bench_feet(row)
+		fits = fits and feet.y - 100.0 > game.BAR_H and feet.x + game.BENCH_W <= game.size.x and feet.y <= game.size.y
+	_check(fits, "four players on the bench fit under the bar and inside the screen at 1280x720")
+	game._request_redraw()
+	await sim.frames(2)
+	_check(true, "a frame with a bench without times draws without an error")
+	var gone: Control = await _play(2, {"seed": 4})
+	gone.participants.clear()
+	gone._on_player_left(0)
+	gone._on_player_left(1)
+	gone.end_no_players()
+	_check(gone.is_over, "when nobody is left the game ends with the menu No players connected (REQ-GM-22)")
 
 
 ## REQ-FD-16: the layout comes from the size of the screen.

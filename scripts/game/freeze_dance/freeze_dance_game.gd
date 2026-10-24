@@ -197,13 +197,13 @@ func _texture(slot: int, pose: int, dim: bool) -> ImageTexture:
 	return _tex[key]
 
 
-## The slots that sit out and come back (REQ-FD-8): the ones with a "BACK IN" time, in slot order.
+## The slots that sit out (REQ-FD-8), in slot order. A player whose way back is after the last song has no "BACK IN" time.
 func _bench() -> Array[int]:
 	var out: Array[int] = []
 	if is_over:
 		return out
 	for s in participants:
-		if _rules.back_in(s) >= 0.0:
+		if _rules.is_out(s):
 			out.append(s)
 	return out
 

@@ -133,6 +133,8 @@ func hold_music(on: bool) -> void:
 func stop_music() -> void:
 	wanted_music = ""
 	music_held = false
+	if enabled:
+		_music.stream_paused = false   # A held song must not stay paused under the fade or in the next game.
 	if enabled and _music.playing:
 		_fade_to(SILENT_DB, FADE)
 

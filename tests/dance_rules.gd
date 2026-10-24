@@ -26,6 +26,7 @@ func _initialize() -> void:
 	_songs()
 	_dancing_and_points()
 	_grace_and_moves()
+	_hard_stop()
 	_sit_out()
 	_back_in()
 	_end()
@@ -190,6 +191,20 @@ func _grace_and_moves() -> void:
 
 
 ## REQ-FD-8
+## REQ-FD-6: a hard wiggle that stops on cue is not a move, even on Hard (grace 0.4 s).
+func _hard_stop() -> void:
+	print("dance: stop after a hard wiggle")
+	var r := _rules("hard", [0, 1])
+	_until(r, "freeze", {0: 30.0, 1: 30.0})
+	var ev := _run(r, float(r.level.freeze) + 0.1, {0: 0.0, 1: 0.0})
+	_check(_of(ev, "moved").is_empty() and _of(ev, "held").size() == 2,
+			"a player who stops at the stop is held, after 30 rad/s of wiggle")
+	var r2 := _rules("hard", [0, 1])
+	_until(r2, "freeze", {0: 30.0, 1: 30.0})
+	var ev2 := _run(r2, float(r2.level.freeze) + 0.1, {0: 30.0, 1: 0.0})
+	_check(_of(ev2, "moved").size() == 1 and int(_of(ev2, "moved")[0].slot) == 0, "a player who goes on shaking still moves")
+
+
 func _sit_out() -> void:
 	print("dance: sit out")
 	var r := _rules("medium", [0, 1])
@@ -242,6 +257,8 @@ func _back_in() -> void:
 	_until(last, "freeze", {0: 4.0})
 	_until(last, "moved", {0: 6.0})
 	_check(last.back_in(0) == -1.0, "a mover in the last song has no back-in time: nothing is left to play")
+	_check(last.is_out(0) and not _rules("medium", [0]).is_out(0) and not last.is_out(99),
+			"but it is still out of the floor, so the bench can show it (REQ-FD-8)")
 	var fifth := _rules("medium", [0])
 	for k in DanceRules.SONGS - 2:
 		_until(fifth, "song", {})

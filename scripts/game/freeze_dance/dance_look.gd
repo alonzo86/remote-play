@@ -32,6 +32,9 @@ const COL_WIDTH := 0.30
 const BALL_POS := Vector2(160.0, 34.0)   # Units of the design.
 const BALL_R := 9.0
 
+static var _corners: Array = []
+static var _corners_area := Vector2.ZERO
+
 ## Where the dancers stand, for 1 to 4 players: the middle of the feet in units of the design, and the size of a pixel of the
 ## picture in world pixels (far ones 2, near ones 3). The first place is for the first player in the slot order.
 const PLACES := [
@@ -107,13 +110,14 @@ static func tile_corners(row: int, col: int, area: Vector2) -> PackedVector2Arra
 ## The hall: the dark wall, the mirror ball and the floor with the lit tiles `lit` (see `DanceRules.lit_tiles()`).
 ## `bar` is the height of the HUD bar that covers the top of the screen.
 static func draw_hall(ci: CanvasItem, area: Vector2, bar: float, lit: Dictionary, t: float) -> void:
+	var corners_of := _floor_corners(area)
 	var k := Vector2(area.x / DESIGN.x, area.y / DESIGN.y)
 	ci.draw_rect(Rect2(Vector2.ZERO, area), HALL)
 	ci.draw_rect(Rect2(0.0, bar, area.x, float(ROW_TOPS[0]) * k.y - bar), WALL)
 	for row in DanceRules.ROWS:
 		for col in range(-8, 8):
 			var cell := Vector2i(row, col + 8)
-			var corners := tile_corners(row, col, area)
+			var corners: PackedVector2Array = corners_of[row * DanceRules.COLS + col + 8]
 			var color: Color = TILE_DARK[(row + col) & 1]
 			if lit.has(cell):
 				color = TILE_LIT
@@ -121,6 +125,17 @@ static func draw_hall(ci: CanvasItem, area: Vector2, bar: float, lit: Dictionary
 			ci.draw_line(corners[0], corners[3], TILE_LINE, 2.0)
 		ci.draw_line(Vector2(0.0, float(ROW_TOPS[row]) * k.y), Vector2(area.x, float(ROW_TOPS[row]) * k.y), TILE_LINE, 2.0)
 	_draw_ball(ci, area, t)
+
+
+## The corners of all tiles, row by row. They depend on the size of the screen only, so they are made once per size (REQ-GM-51).
+static func _floor_corners(area: Vector2) -> Array:
+	if area != _corners_area:
+		_corners.clear()
+		for row in DanceRules.ROWS:
+			for col in range(-8, 8):
+				_corners.append(tile_corners(row, col, area))
+		_corners_area = area
+	return _corners
 
 
 static func _draw_ball(ci: CanvasItem, area: Vector2, t: float) -> void:
