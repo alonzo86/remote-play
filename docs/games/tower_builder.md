@@ -22,7 +22,7 @@ Games screen.
 | General ID | Kind | Note |
 |------------|------|------|
 | REQ-GM-35 | Exception | The game has no round clock, so it has no 3 s countdown: the first turn starts at once after Start. The turn time of the difficulty (REQ-TB-11) is shown in the timer box, in the place of the timer of the other games, but it limits one drop and is not a game clock. Decision to confirm. |
-| REQ-GM-83 | Gap (open) | The game is turn-based, so a player waits for the other players. With 4 players the wait is 3 turns of about 3 s each when the players press A quickly (a drop, a landing and the pause take about 2 s), and at most 3 turns of the turn time plus 2 s each when nobody presses: 36 s on Easy, 21 s on Medium, 15 s on Hard. The waiting players watch the tower, nobody is out, and nothing is taken away. Easy with 4 players is above the "about 20 seconds" of REQ-GM-83 only when the players take all of their 10 s. Decision to confirm (the owner chose 10 s for Easy on 2026-10-23). |
+| REQ-GM-83 | Note | The game is turn-based, so a player waits for the other players. Decision of the owner, 2026-10-24: the limit is about 20 s per turn, not for all the turns of the others together. One turn takes at most the turn time plus about 2 s for the fall and the pause (12 s on Easy, 7 s on Medium, 5 s on Hard), so every turn is under 20 s. The waiting players watch the tower, nobody is out, and nothing is taken away. |
 | REQ-GM-98 | Exception | No personal best (`best_key()` is empty): the tower is a team result, and a player's bricks depend on the others. Decision to confirm. |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 28). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
@@ -93,7 +93,7 @@ For the owner (the answers of 2026-10-23 are used for all the rest):
 
 1. The end of the game: the owner did not say when it ends, so it ends after 12 bricks (REQ-TB-3). Is that the number you want?
 2. Points: a brick that stays is a point for its player, and a topple takes nothing (REQ-TB-14). The tower height is not a score. Do you want the final height of the tower on the result menu too?
-3. REQ-GM-35 (no countdown) and REQ-GM-83 (the wait of 4 players on Easy, see the first section) are decisions to confirm.
+3. REQ-GM-35 (no countdown) is a decision to confirm.
 4. Medal tiers 6, 9 and 11 of 12 for one player are guesses.
 5. No trademark search has been done for "Tower Builder".
 6. The id was changed from `wobbly_tower` (roadmap) to `tower_builder` with the name.
