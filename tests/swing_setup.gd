@@ -49,7 +49,7 @@ func _wait_for(cond: Callable) -> void:
 		await process_frame
 
 
-## Only the games with the `swing` flag of the registry have the card (Pin Pals, Tennis, Mini Golf).
+## Only the games with the `swing` flag of the registry have the card (Pin Pals, Tennis, Mini Golf, Freeze Dance).
 func _games() -> void:
 	print("which games")
 	var swing: Array[String] = []
@@ -57,7 +57,8 @@ func _games() -> void:
 		if bool(g.get("swing", false)):
 			swing.append(String(g.id))
 	swing.sort()
-	_check(swing == ["bowling", "mini_golf", "tennis"], "the swing games are Pin Pals, Mini Golf and Tennis: %s" % [swing])
+	_check(swing == ["bowling", "freeze_dance", "mini_golf", "tennis"],
+			"the swing games are Pin Pals, Freeze Dance (it is wiggled), Mini Golf and Tennis: %s" % [swing])
 	var app: Node = sim.app
 	app.go_game_settings("maze")
 	await sim.frames(6)

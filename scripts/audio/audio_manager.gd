@@ -39,6 +39,8 @@ var _job := {}                  # song id -> the song that is being made, in ste
 var _start_ms := 0              # The song starts at this tick (the countdown of a game).
 var _ducked := false
 var _fade: Tween
+## True while the song is held (Freeze Dance, REQ-FD-2): it is silent at once and goes on from the same place.
+var music_held := false
 
 
 func _ready() -> void:
@@ -121,8 +123,18 @@ func start_queued_music() -> void:
 		_start_ms = Time.get_ticks_msec()
 
 
+## Holds the song at once (no fade) or lets it go on from the same place. A song that starts or stops ends the hold.
+func hold_music(on: bool) -> void:
+	music_held = on
+	if enabled and _music != null:
+		_music.stream_paused = on
+
+
 func stop_music() -> void:
 	wanted_music = ""
+	music_held = false
+	if enabled:
+		_music.stream_paused = false   # A held song must not stay paused under the fade or in the next game.
 	if enabled and _music.playing:
 		_fade_to(SILENT_DB, FADE)
 
@@ -170,11 +182,12 @@ func _make_step(id: String) -> void:
 func _process(_delta: float) -> void:
 	for id in _job.keys():
 		_make_step(id)
-	if wanted_music != "" and _streams.has(wanted_music) and Time.get_ticks_msec() >= _start_ms \
+	if wanted_music != "" and _streams.has(wanted_music) and Time.get_ticks_msec() >= _start_ms and not music_held \
 			and not (_music.playing and _music.get_meta("id", "") == wanted_music):
 		_music.stream = _streams[wanted_music]
 		_music.set_meta("id", wanted_music)
 		_music.volume_db = SILENT_DB
+		_music.stream_paused = music_held
 		_music.play()
 		_fade_to(_target_db(), FADE)
 
