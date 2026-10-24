@@ -102,6 +102,7 @@ func _run() -> void:
 	await _settings()
 	await _start()
 	await _tilt_and_flock()
+	await _tilt_timing()
 	await _pen_and_score()
 	await _team_chip()
 	await _the_end()
@@ -180,6 +181,43 @@ func _start() -> void:
 	var easy := SimInput.start_game(_app, _script, {"difficulty": "easy", "seed": 7})
 	_check(easy.flock.sheep.size() == 8 and easy._round.duration == 90.0 and easy.flock.gate == 220.0,
 			"Easy has 8 sheep, a gate of 220 px and 90 s")
+
+
+## Test 29 steps 2b, 3a, 3b: a tilt of 20 degrees takes the dog from the left edge to the fence of the pen in 5 s or less, a flat
+## phone stops it within 1.5 s, and a dog is 48 px or more high at 1080p (REQ-SH-7).
+func _tilt_timing() -> void:
+	print("the time of a tilt")
+	var game := _play("easy", 5)
+	var p0: RefCounted = _app.server.players[0]
+	game.scenery.items.clear()   # Trees and the pond are in the way of a straight run; the time is for a free field.
+	var dog = game.dogs[0]
+	dog.pos = Vector2(game.field.position.x + dog.radius + 4.0, game.field.get_center().y)
+	dog.vel = Vector2.ZERO
+	var fence_x: float = game.pen.position.x - dog.radius
+	var tilt := Vector2(sin(deg_to_rad(20.0)), 0.0)
+	var t := 0.0
+	while t < 8.0 and dog.pos.x < fence_x:
+		_sim.feed(p0, tilt)
+		game._process(DT)
+		t += DT
+	_check(dog.pos.x >= fence_x and t <= 5.0, "a tilt of 20 degrees takes the dog from the left edge to the fence of the pen in %.2f s (5 s or less)" % t)
+	t = 0.0
+	while t < 4.0 and dog.vel.length() >= 20.0:
+		_sim.feed(p0, Vector2.ZERO)
+		game._process(DT)
+		t += DT
+	_check(dog.vel.length() < 20.0 and t <= 1.5, "the flat phone stops the dog in %.2f s (1.5 s or less)" % t)
+	var pixel_scale: float = 1080.0 / float(game._pixel_viewport.size.y)
+	_check(pixel_scale * 14.0 >= 48.0, "a dog is 14 world pixels high, %.0f px on a 1080p screen (48 px or more, REQ-GM-47e)" % (pixel_scale * 14.0))
+	# Step 5b: the dogs stand still for 10 s (nobody tilts): no sheep leaves the field and no sheep is scared (no speed dashes).
+	var calm := _play("easy", 5)
+	var worst_scared := 0.0
+	var all_in := true
+	SimInput.run(calm, 10.0, DT, func(_t: float) -> void:
+		for sh in calm.flock.sheep:
+			worst_scared = maxf(worst_scared, float(sh.scared))
+			all_in = all_in and calm.field.has_point(sh.pos))
+	_check(all_in and worst_scared == 0.0, "10 s with the dogs still: every sheep stays on the field and none is scared (%.2f)" % worst_scared)
 
 
 ## The tilt moves only the dog of that phone, and a sheep runs from it (REQ-SH-7, REQ-SH-11).

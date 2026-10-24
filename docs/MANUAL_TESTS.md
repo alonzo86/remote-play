@@ -1437,14 +1437,8 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 
 1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the sheep, a dog, the pen with its fence, and the barn.
 2a. From 3 m, a tester points at the gate of the pen. Check: the finger points at the gap in the left fence (5 of 5 testers).
-2b. From 3 m, a tester points at one sheep and at one dog. Check: both answers are right for every tester. Check: a dog is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
-3a. Play alone on Easy. Hold the phone flat at the countdown, then tilt it to the right by 20 degrees and hold it. Check: the dog runs from the left edge of the field to the fence of the pen in 5 s or less.
-3b. Same round. Tilt the phone back to flat. Check: the dog stops within 1.5 s.
 4. Play alone on Easy, an adult. Check: the adult herds all 8 sheep into the pen in 90 s or less, in 2 of 3 rounds.
-5a. In the same round, drive a dog at a flock from the left. Check: the sheep move away from the dog, to the right, in 5 of 5 tries.
-5b. Same round. Leave the dogs still for 10 s. Check: no sheep leaves the field and no sheep shows speed dashes.
 6a. Play with 2 phones on Medium, 2 adults, who talk to each other. Check: the 2 adults herd all 11 sheep into the pen in 75 s or less, in 2 of 3 rounds.
-6b. Same round, when a sheep goes into the pen. Check: only the phone of the dog that scared it last buzzes, 3 of 3 times (the other phone does not buzz). (REQ-SH-12)
 7. Play with 4 phones on Hard and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
 8a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own dog (the one in the color of its phone) within 10 s after GO.
 8b. Same child. Check: the child moves its dog next to a sheep and the sheep runs away, within 30 s after GO, with no help.
@@ -1452,6 +1446,8 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 8d. After the round, ask: "Play again?". Check: the child says yes.
 9a. Open the settings view and read the how-to line under the name, then play 1 round. Check: a tester can tell what to do (tilt the phone, bring all the sheep into the pen) without more help (3 of 3 testers).
 9b. A native reader of Hebrew reads the 7 new texts of the game (the 7 rows of `assets/lang/strings.csv` that start with `sheep_herding.`, `registry.sheep_herding`, `registry.desc_sheep_herding` and `how_to.sheep_herding`) on the TV set to Hebrew. Check: the reader marks 0 texts as wrong and 0 texts as cut.
+
+Items 2b, 3a, 3b, 5a, 5b and 6b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-29-*). The numbers of the other items do not change.
 
 Measurements (write down, no pass or fail): the time that a dog needs from the left edge to the gate with a steady tilt; the speed of the sheep that you see (too slow, too fast); if a sheep gets stuck in a corner, behind a tree, at the pond or at the fence; the time that a round of 1 child takes on Easy; how many sheep an adult herds alone on Hard in 60 s. Use them to tune the speed of the dogs, how far they scare a sheep, the gate and the time of a round.
 
@@ -1461,14 +1457,8 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the tile next to a photo of the game | Not run | | | |
 | 2a | Note: right answers of 5 | Not run | | | |
-| 2b | Note: answers of each tester; photo of a dog with its height in px | Not run | | | |
-| 3a | Note: seconds | Not run | | | |
-| 3b | Note: seconds | Not run | | | |
 | 4 | Note: sheep and seconds in each of 3 rounds | Not run | | | |
-| 5a | Note: right tries of 5 | Not run | | | |
-| 5b | Note: sheep that left the field or ran | Not run | | | |
 | 6a | Note: sheep and seconds in each of 3 rounds | Not run | | | |
-| 6b | Note: buzzes on the right phone of 3, buzzes on the other phone | Not run | | | |
 | 7 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
 | 8a | Note: the child, the age, seconds until it points | Not run | | | |
 | 8b | Note: seconds until the sheep runs | Not run | | | |
@@ -1479,6 +1469,7 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 
 History:
 
+- 2026-10-24 (automated): steps 2b, 3a, 3b, 5a, 5b, 6b moved to the automated tests (smoke_sheep, sheep_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23).
 
 ## Test 31

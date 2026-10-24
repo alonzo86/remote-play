@@ -365,6 +365,10 @@ There is no `build-android` job on CircleCI (the APK export is off). A documenta
 | A-30-5 | Test 30 items 5a, 5b, the turn time | `tower_rules`: the turn time is 10 s on Easy, 5 s on Medium and 3 s on Hard; `smoke_tower`: "after 4.6 s of 5 the turn is still on", "after 5 s the brick drops by itself", "one phone plays alone, with 10 s on Easy" |
 | A-30-6 | Test 30 items 6a, 6b, 7a, 12 bricks, the longest turn, the medal | `smoke_tower`: "the 12th brick has landed", the result menu with the three buttons, "5 turns on Easy with nobody pressing: the longest turn takes N s (12 s or less)", "12 safe bricks of one player: the result menu shows the gold medal"; `tower_rules`: the medal tiers are 6, 9 and 11 bricks |
 | A-30-8b | Test 30 item 8b, the player of the turn leaves | `smoke_tower`: "the player of the turn leaves: the next player gets a full turn and the leaver is off the board", "a player that leaves while the brick falls: the turn goes to the next player, not past it" |
+| A-29-2b | Test 29 item 2b, a dog is 48 px or more high at 1080p | `smoke_sheep`: "a dog is 14 world pixels high, 56 px on a 1080p screen" |
+| A-29-3 | Test 29 items 3a, 3b, the tilt | `smoke_sheep`: "a tilt of 20 degrees takes the dog from the left edge to the fence of the pen in N s (5 s or less)" (the trees and the pond are taken away for the time; the sheep and the fence stay), "the flat phone stops the dog in N s (1.5 s or less)", "tilt to the right moves the dog of that phone and not the other" |
+| A-29-5 | Test 29 items 5a, 5b, the sheep run from a dog and stand when no dog is near | `sheep_rules`: "a sheep far from a dog does not run", "a sheep runs away from a dog that is close", "after 10 s with two dogs every sheep is still on the field"; `smoke_sheep`: "a sheep runs from a dog that comes close", "10 s with the dogs still: every sheep stays on the field and none is scared" |
+| A-29-6b | Test 29 item 6b, the buzz of the dog that brought the sheep in | `smoke_sheep`: the phone of the dog that scared the sheep last buzzes 40 ms and the other phone does not |
 
 ## Everything else that is automated (and stays in `tests/`)
 
