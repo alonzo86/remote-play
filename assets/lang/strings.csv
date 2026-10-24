@@ -288,3 +288,13 @@ how_to.bumper_cars,"TILT YOUR PHONE TO DRIVE YOUR CAR. DRIVE OVER THE STARS TO P
 bumper_cars.hint,TILT TO DRIVE AND PICK UP THE STARS! A HARD BUMP MAKES BOTH CARS DROP A STAR.,הטו כדי לנסוע ולאסוף כוכבים! התנגשות חזקה גורמת לשתי המכוניות להפיל כוכב.,Bumper Cars: hint during the countdown and the first seconds,
 result.one_star,1 star,כוכב אחד,Bumper Cars result list: score of 1 star,
 result.stars,%d stars,%d כוכבים,"Bumper Cars result list: score, %d is the stars","the number sign (%d, %.1f ...) is replaced by a number"
+registry.tower_builder,TOWER BUILDER,בונים מגדל,"Name of the game Tower Builder: Games screen, game settings, in-game title",
+registry.desc_tower_builder,A TEAM GAME OF STACKING BRICKS INTO ONE TALL TOWER.,משחק קבוצתי של בניית מגדל גבוה אחד מלבנים.,"Description of Tower Builder: info bar of the Games screen (what the game is, no instructions, issue #78)",
+how_to.tower_builder,"WAIT FOR YOUR TURN, THEN PRESS A TO DROP THE SWINGING BRICK. STACK ALL THE BRICKS ON ONE TOWER WITHOUT LETTING IT FALL.",חכו לתור שלכם ואז לחצו A כדי לשחרר את הלבנה המתנדנדת. ערמו את כל הלבנים על מגדל אחד בלי שהוא יתמוטט.,"TV game settings view of Tower Builder: how to play, under the title (issue #77)",
+tower_builder.turn_of,%s'S TURN,התור של %s,"Tower Builder HUD: the player whose turn it is, on a plate at the left of the tower, %s is the name of the player",%s is replaced by a name or a value
+tower_builder.brick_n_of,BRICK %d OF %d,לבנה %d מתוך %d,"Tower Builder HUD: the brick that is dropped now, on a plate at the left of the tower, first %d is the brick, second is the total","the number sign (%d, %.1f ...) is replaced by a number"
+tower_builder.missed,WHOOPS! IT MISSED!,אופס! הלבנה פספסה!,Tower Builder: banner in the middle of the screen when a brick falls beside the tower,
+tower_builder.crash,CRASH! GIGGLE!,קראש! חיחי!,Tower Builder: banner in the middle of the screen when the top of the tower falls down,
+tower_builder.one_brick,1 BRICK,לבנה אחת,Tower Builder result list: the score of a player with one brick that stayed,
+tower_builder.n_bricks,%d BRICKS,%d לבנים,"Tower Builder result list: the score of a player, the bricks that stayed on the tower, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
+tower_builder.hint,WAIT FOR YOUR TURN. PRESS A TO DROP THE BRICK!,חכו לתור שלכם. לחצו A כדי לשחרר את הלבנה!,"Tower Builder: hint at the start of the game, bottom of the screen",

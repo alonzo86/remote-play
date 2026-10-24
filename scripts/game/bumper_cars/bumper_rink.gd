@@ -21,7 +21,7 @@ const START_SHARE := 0.28                # The cars start at this part of the ha
 ## The largest rink: the screen inside the margin, under the HUD and the tent (REQ-BC-16, 20).
 const LARGEST := Rect2(72.0, 224.0, 1776.0, 784.0)
 const PIXEL := 4.0
-## Difficulty (REQ-BC-20): the size of the rink (a share of the largest) and the stars on the floor. First guesses (Test 30).
+## Difficulty (REQ-BC-20): the size of the rink (a share of the largest) and the stars on the floor. First guesses (Test 32).
 const LEVELS := {
 	"easy": {"size": 1.0, "stars": 12},
 	"medium": {"size": 0.9, "stars": 9},

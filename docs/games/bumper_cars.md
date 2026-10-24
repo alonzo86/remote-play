@@ -22,7 +22,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45 to 49). Check the 
 |------------|------|------|
 | REQ-GM-73 | Exception | The game needs 2 players (registry `min_players` 2), so it has no solo mode and no medal tiers. Each row of the result has the medal of its place (REQ-GM-73a). |
 | REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`): the result is a place, and a new key changes the profile code format. |
-| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 30). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 32). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | Content: friendly toy cars, a bump is a funny bonk with a spark, nobody is hurt. A star that a bump knocks out is not lost: it lies on the floor and anybody, also the one who dropped it, can pick it up (REQ-BC-8). Nobody is out. Text is positive. Owner to confirm that this loss of a star is allowed for children (REQ-GM-80 says a mistake takes no points away). |
 
@@ -88,7 +88,7 @@ The largest rink is 1776 x 784 px. A car has a radius of 48 px.
 
 ## Parameters
 
-Values that change how the game feels. Tune them on a device (Test 30). First values:
+Values that change how the game feels. Tune them on a device (Test 32). First values:
 
 | Name | File | First value |
 |------|------|-------------|
