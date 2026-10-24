@@ -32,7 +32,7 @@ THE GAMES
 • Banana Party: point your phone and throw bananas at the hungry animals.
 • Paint Grab: tilt to move your paint blob and cover the floor with your color.
 • Sumo Bumpers: bump your friends off the platform (2 to 4 players).
-• Galaxy Protector: fly your spaceship, blast the asteroids and grab upgrades.
+• Star Shield: fly your spaceship, blast the asteroids and grab upgrades.
 
 Easy, Medium and Hard levels in the games, big pixel graphics you can read from the sofa, and arcade-style music. English and Hebrew.
 
@@ -55,7 +55,7 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 • Banana Party: מכוונים את הטלפון וזורקים בננות על חיות רעבות.
 • Paint Grab: מטים כדי להזיז את כתם הצבע ולכסות את הרצפה בצבע שלכם.
 • Sumo Bumpers: דוחפים את החברים מהפלטפורמה (2 עד 4 שחקנים).
-• Galaxy Protector: מטיסים חללית, מפוצצים אסטרואידים ואוספים שדרוגים.
+• Star Shield: מטיסים חללית, מפוצצים אסטרואידים ואוספים שדרוגים.
 
 רמות קל, בינוני וקשה, גרפיקת פיקסלים גדולה שאפשר לקרוא מהספה, ומוזיקה בסגנון משחקי ארקייד. באנגלית ובעברית.
 

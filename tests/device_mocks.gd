@@ -132,7 +132,7 @@ func _run() -> void:
 				"%s: a phone that leans in the countdown is centered at GO (%.2f then %.3f)"
 				% [id, held, app.server.players[0].tilt().length()])
 
-	# No countdown (REQ-GM-35): Galaxy Protector takes the pose held when the game starts as the center.
+	# No countdown (REQ-GM-35): Star Shield takes the pose held when the game starts as the center.
 	await _stream(0.5, leaning)
 	app.go(load(GAMES.asteroid_blast[0]), GAMES.asteroid_blast[1].duplicate())
 	await _frames(3)

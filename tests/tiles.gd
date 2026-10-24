@@ -178,7 +178,7 @@ func _run() -> void:
 			and _share(dance, [DanceLook.TILE_LIT]) < 0.4 and _count(dance, DanceLook.BALL, 0.05) > 30,
 			"freeze_dance: a dark floor with light tiles and the mirror ball")
 	_players(dance, "freeze_dance", pc, 4, 40, 15)
-	# Galaxy Protector: the night sky, 4 ships, asteroids of different sizes, a beam.
+	# Star Shield: the night sky, 4 ships, asteroids of different sizes, a beam.
 	var blast: Image = images.asteroid_blast
 	var dark := 0
 	for y in range(0, 360, 3):

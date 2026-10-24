@@ -1,5 +1,5 @@
 extends SceneTree
-## Smoke test of Galaxy Protector with three simulated phones (REQ-AB-*). Run:
+## Smoke test of Star Shield with three simulated phones (REQ-AB-*). Run:
 ##   godot --headless --path . --script tests/smoke_asteroid.gd -- --role=tv
 
 const Protocol = preload("res://scripts/core/protocol.gd")
@@ -67,7 +67,7 @@ func _run() -> void:
 	await _frames(4)
 	var sv: Control = app.current_screen()
 	_check(sv.rows.size() == 1 and sv.rows[0].value == "medium" and not sv.start_button.disabled,
-			"Galaxy Protector opens the settings view with Difficulty on Medium and Start works (REQ-AB-20)")
+			"Star Shield opens the settings view with Difficulty on Medium and Start works (REQ-AB-20)")
 	sv.start()
 	await _frames(4)
 	var med: Control = app.current_screen()

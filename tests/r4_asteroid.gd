@@ -1,5 +1,5 @@
 extends SceneTree
-## Galaxy Protector, the rest of Test 22 (docs/MANUAL_TESTS.md test 22), with a simulated phone and a fixed time step: the ship
+## Star Shield, the rest of Test 22 (docs/MANUAL_TESTS.md test 22), with a simulated phone and a fixed time step: the ship
 ## stops at both sides of the play area, stays on the screen and stands still after it stopped (3c), and a player that plays
 ## alone sees "Reached wave N" where N is the last wave banner (8e). The force field buzz (5f) is in tests/auto_asteroid.gd.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_asteroid.gd -- --role=tv

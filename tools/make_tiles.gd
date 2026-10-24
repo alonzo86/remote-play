@@ -94,7 +94,7 @@ func _place_mini_golf(game: Control) -> void:
 	game._request_redraw()
 
 
-## The Galaxy Protector picture: rocks of all sizes, beams in the air, two pickups, a force field, 3 lasers and an explosion.
+## The Star Shield picture: rocks of all sizes, beams in the air, two pickups, a force field, 3 lasers and an explosion.
 func _place_blast(game: Node) -> void:
 	var f = game.field
 	var rng := RandomNumberGenerator.new()
