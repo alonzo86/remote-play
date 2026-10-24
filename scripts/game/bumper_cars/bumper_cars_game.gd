@@ -241,7 +241,8 @@ func _draw_car(ci: CanvasItem, slot: int) -> void:
 	BumperLook.draw_spark(ci, b.pos + BumperLook.pole_offset(dir) * Shell.WORLD_PIXEL, _time, slot)
 
 
-## The size of the title (REQ-BC-16): 32 px, or 28 px when the name is so long (the Hebrew one) that it would touch the timer box.
+## The size of the title (REQ-BC-16): 32 px, or smaller in steps of 2 px, down to 28 px, when the name (the Hebrew one) would touch
+## the timer box.
 ## The timer box stands at TIMER_X from the left edge, or from the right edge in Hebrew, so the room is the same in both.
 func title_font() -> int:
 	var font := UiTheme.font()

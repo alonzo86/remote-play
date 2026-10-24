@@ -24,7 +24,8 @@ Visual language: shell, player colors, pixel world (REQ-GM-45 to 49). Check the 
 | REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`): the result is a place, and a new key changes the profile code format. |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 32). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
-| REQ-GM-80 to 84 | Note | Content: friendly toy cars, a bump is a funny bonk with a spark, nobody is hurt. A star that a bump knocks out is not lost: it lies on the floor and anybody, also the one who dropped it, can pick it up (REQ-BC-8). Nobody is out. Text is positive. Owner to confirm that this loss of a star is allowed for children (REQ-GM-80 says a mistake takes no points away). |
+| REQ-GM-80 | Exception | Decided by the owner on 2026-10-24: a collision takes 1 star from each car (REQ-BC-7), so a hit lowers the score. The star is not lost: it lies on the floor and anybody, also the one who dropped it, can pick it up (REQ-BC-8). |
+| REQ-GM-81 to 84 | Note | Content: friendly toy cars, a bump is a funny bonk with a spark, nobody is hurt, nobody is out. Text is positive. |
 
 ## Requirements
 
@@ -69,7 +70,7 @@ Look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-BC-16 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn in `bumper_look.gd` in the 480x270 view: the **Fun Fair**. A dark violet backdrop (`#181028`) under the black bar of the HUD; a red and white striped tent roof with scallops above the rink; the rink is a floor of two greys (`#a6acba`, `#b0b6c4`) in squares of 6 world pixels, a red and a white ring in the middle; the rail is black rubber with white reflectors; the stars are gold (`#ffd640`) 9x8 pixel stars. A car is a 28x20 pixel sprite that faces the way it drives (4 directions, kept when it stops): a black tyre bumper with tread marks and a shine, a glossy body in the slot color with a lighter top and a darker bottom, a white racing stripe, a dark seat and a white steering wheel, two headlights, a chrome nose, and a pole at the back with a blue spark that flickers. The shadow is a dark copy of the car shape, 2 world pixels down and to the right. The outline of a car differs from the floor by 3:1 or more, and every slot color differs from the outline by 3:1 or more (REQ-GM-47m). All text is 28 px or larger and inside the 60 px margin; the title is 32 px, and 30 px in Hebrew where 32 px would touch the timer box (`title_font()`). | Device | review, bumper_rules (colors, car, stars), tiles, smoke_bumper_cars (the view), layout_menus, Device |
+| REQ-BC-16 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn in `bumper_look.gd` in the 480x270 view: the **Fun Fair**. A dark violet backdrop (`#181028`) under the black bar of the HUD; a red and white striped tent roof with scallops above the rink; the rink is a floor of two greys (`#a6acba`, `#b0b6c4`) in squares of 6 world pixels, a red and a white ring in the middle; the rail is black rubber with white reflectors; the stars are gold (`#ffd640`) 9x8 pixel stars. A car is a 28x20 pixel sprite that faces the way it drives (4 directions, kept when it stops): a black tyre bumper with tread marks and a shine, a glossy body in the slot color with a lighter top and a darker bottom, a white racing stripe, a dark seat and a white steering wheel, two headlights, a chrome nose, and a pole at the back with a blue spark that flickers. The shadow is a dark copy of the car shape, 2 world pixels down and to the right. The outline of a car differs from the floor by 3:1 or more, and every slot color differs from the outline by 3:1 or more (REQ-GM-47m). All text is 28 px or larger and inside the 60 px margin; the title is 32 px, and smaller (30 px, at least 28 px) where the name would touch the timer box, as in Hebrew (`title_font()`). | Device | review, bumper_rules (colors, car, stars), tiles, smoke_bumper_cars (the view), layout_menus, Device |
 | REQ-BC-17 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080: the simulation runs in 1920x1080 units and only the drawing is scaled. | Done | smoke_bumper_cars |
 
 Settings (REQ-GM-90 to 97)
@@ -103,7 +104,6 @@ Values that change how the game feels. Tune them on a device (Test 32). First va
 
 ## Open questions
 
-- Is it right that a hard bump costs each of the two cars a star (REQ-GM-80 says a mistake takes no points away)? The star is not lost, it lies on the floor.
 - Is 60 s long enough, and are 9 stars on the floor with 4 cars too few or too many?
 - Should a car that has many stars be slower, so that the leader can be caught?
 
