@@ -345,6 +345,16 @@ func _scenery() -> void:
 		if is_equal_approx(float(blk.r), 58.0):
 			pond_blockers += 1
 	_check(pond_blockers == 3, "the pond blocks with three circles along its length")
+	var wanted := 0
+	for kind in SheepScenery.KINDS:
+		wanted += int(SheepScenery.KINDS[kind].count)
+	var short := []
+	for seed_n in range(1, 61):   # The game picks a new seed for every round.
+		var field_n := SheepScenery.new()
+		field_n.generate(FIELD, free, clear, _rng(seed_n))
+		if field_n.items.size() != wanted:
+			short.append("%d:%d" % [seed_n, field_n.items.size()])
+	_check(short.is_empty(), "every thing finds room on the field for 60 seeds (%d wanted); short seeds: %s" % [wanted, str(short)])
 	var tiny := SheepScenery.new()
 	tiny.generate(Rect2(0, 0, 200, 200), [], [], _rng(1))
 	_check(tiny.items.size() < 26, "things that find no room are left out and nothing hangs: %d" % tiny.items.size())

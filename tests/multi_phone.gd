@@ -16,6 +16,7 @@ const GAMES := {
 	"sumo_bumpers": ["res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd", {"difficulty": "medium"}, 2],
 	"asteroid_blast": ["res://scripts/game/asteroid_blast/asteroid_blast_game.gd", {"difficulty": "medium"}, 1],
 	"snowball_splat": ["res://scripts/game/snowball_splat/snowball_splat_game.gd", {"difficulty": "medium"}, 1],
+	"whack_a_mole": ["res://scripts/game/whack_a_mole/whack_a_mole_game.gd", {"difficulty": "medium"}, 1],
 	"marble_race": ["res://scripts/game/marble_race/marble_race.gd", {"track_choice": "3", "difficulty": "easy"}, 1],
 	"mini_golf": ["res://scripts/game/mini_golf/mini_golf_game.gd", {"difficulty": "medium", "holes": "1"}, 1],
 	"bowling": ["res://scripts/game/bowling/bowling_game.gd", {"difficulty": "medium"}, 1],
@@ -35,10 +36,10 @@ var _sounds: Array = []                  # [id, tick] of each effect that starte
 var _watch_song := ""                    # The song id that _stream() waits for
 var _song_ms := -1                       # Tick when that song was first playing
 ## Games with a round time: the last 5 seconds tick (REQ-FL-65).
-const TIMED := ["paint_grab", "snowball_splat", "sheep_herding"]
+const TIMED := ["paint_grab", "snowball_splat", "whack_a_mole", "sheep_herding"]
 ## Games with a visible timer start with the 3 s countdown; the others start at once (REQ-GM-35, decision of 2026-10-21).
 ## Tennis has a timer only alone against the machine (`_solo_tennis`), so it has none here.
-const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "marble_race", "maze", "sheep_herding"]
+const COUNTDOWN_GAMES := ["paint_grab", "snowball_splat", "whack_a_mole", "marble_race", "maze", "sheep_herding"]
 ## The games without a countdown that buzz the first player at the start of the first turn (the turn buzz, 60 ms).
 const TURN_BUZZ_GAMES := ["bowling", "mini_golf"]
 
@@ -297,9 +298,12 @@ func _time_ticks(game: Control, state: String) -> void:
 		game.close_menu()
 	_sounds.clear()
 	clock.time = clock.duration - 6.5
+	var was_processing: bool = game.is_processing()
+	game.set_process(false)   # Only the steps below move the clock: a slow frame must not end the round.
 	for k in 6:
 		game._process(1.0)
 		await create_timer(0.06).timeout   # The same effect twice in 40 ms is one sound.
+	game.set_process(was_processing)
 	clock.time = 1.0   # Back near the start, so that the round does not end in the checks that follow.
 	var ticks: int = _sounds.filter(func(x): return x[0] == "time_low").size()
 	_check(ticks == 5 and not game.is_over, "%s: the last 5 s tick 5 times, once each second (got %d)" % [state, ticks])

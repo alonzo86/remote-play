@@ -55,14 +55,15 @@ func generate(field: Rect2, keep_free: Array[Rect2], keep_clear: Array[Rect2], r
 
 func _place(kind: String, spec: Dictionary, field: Rect2, keep_free: Array[Rect2], keep_clear: Array[Rect2],
 		rng: RandomNumberGenerator) -> Variant:
-	for i in 300:
+	for i in 600:
 		var p := Vector2(rng.randf_range(field.position.x + MARGIN, field.end.x - MARGIN),
 				rng.randf_range(field.position.y + MARGIN + 40.0, field.end.y - MARGIN))   # A tree has a crown above its foot.
 		if _inside_any(p, keep_clear) or _blocks_free_place(kind, p, spec, keep_free):
 			continue
+		var squeeze := 1.0 if i < 300 else (0.75 if i < 450 else 0.5)   # A crowded field lets the things stand closer.
 		var apart := true
 		for it in items:
-			var gap := maxf(float(spec.gap), float(KINDS[it.kind].gap)) * 0.5 + 40.0
+			var gap := (maxf(float(spec.gap), float(KINDS[it.kind].gap)) * 0.5 + 40.0) * squeeze
 			if p.distance_to(it.pos) < gap:
 				apart = false
 				break

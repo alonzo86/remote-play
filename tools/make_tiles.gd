@@ -4,7 +4,8 @@ extends SceneTree
 ## short time per game. It needs a display and the TV role. Run:
 ##   xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 \
 ##       --script tools/make_tiles.gd -- --role=tv
-## Run it again after a visible change to a game. Commit the new files. `-- --role=tv --only=<id>` makes one tile only.
+## `--only=<id>` makes the tile of one game only.
+## Run it again after a visible change to a game. Commit the new files.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
@@ -16,18 +17,19 @@ const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
 const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0,
-		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "sheep_herding": 4.0}
+		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "air_hockey": 4.0, "whack_a_mole": 4.0,
+		"sheep_herding": 4.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
 		Vector3(0.18, 0.0, -0.6)]}
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
 const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2, "sumo_bumpers": 2, "asteroid_blast": 2,
-		"bowling": 2, "tennis": 2, "mini_golf": 2, "sheep_herding": 2}
+		"bowling": 2, "tennis": 2, "mini_golf": 2, "whack_a_mole": 2, "sheep_herding": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 ## A fixed seed for the games that draw their picture with random numbers, so that a new run makes the same tile.
-const SEEDS := {"paint_grab": 6, "snowball_splat": 3, "sheep_herding": 5}
+const SEEDS := {"paint_grab": 6, "snowball_splat": 3, "whack_a_mole": 3, "sheep_herding": 5}
 
 var _seq := [0, 0, 0, 0]
 
@@ -169,6 +171,22 @@ func _place_sumo(game: Node) -> void:
 	await _frames(3)
 
 
+## The Air Hockey picture: both players enrolled, the puck flies in the right half, the mallets are in play, the score is 2 to 1.
+func _place_air_hockey(game: Node) -> void:
+	for s in game.participants.duplicate():
+		game._enroll(s)
+	game.sim.wait = 0.0
+	game.sim.paddles[0].pos = Vector2(560.0, 640.0)
+	game.sim.paddles[1].pos = Vector2(1380.0, 470.0)
+	game.sim.puck_pos = Vector2(1060.0, 560.0)
+	game.sim.puck_vel = Vector2(300.0, -100.0)
+	game.scores[0] = 2
+	game.scores[1] = 1
+	game.set_process(false)   # Freeze the picture.
+	game._request_redraw()
+	await _frames(3)
+
+
 ## The paint picture: each player owns a patch of the floor and the blobs sit at the edge of their patch.
 func _place_paint(game: Node) -> void:
 	var f = game.floor_map
@@ -283,6 +301,29 @@ func _place_snow(game: Node, pad: Array, flats: Array) -> void:
 	await _frames(3)
 
 
+## The Whack-a-Mole picture: five moles out (one golden, one just hit and smiling) and two rings, one on a mole.
+func _place_mole(game: Node) -> void:
+	var MoleField = load("res://scripts/game/whack_a_mole/mole_field.gd")
+	var area: Rect2 = game._area()
+	game._field.moles.clear()
+	game._field._spawn_left = 1000.0
+	game._field._bonus_left = 1000.0
+	for hole in [0, 2, 4, 6, 7]:
+		game._field._add(hole, hole == 4)
+		game._field.moles[game._field.moles.size() - 1].age = MoleField.RISE_TIME + 0.2
+	var hit = game._field.moles[game._field.moles.size() - 2]   # The mole of hole 6.
+	game._field.take(hit)
+	hit.hit_age = 0.3
+	var scores := [60, 30]
+	for i in game.participants.size():
+		game._board.set_score(game.participants[i], scores[i % scores.size()])
+	game._players[game.participants[0]].aim = MoleField.head_pos(game._field.moles[0], area) + Vector2(10.0, 20.0)
+	game._players[game.participants[1 % game.participants.size()]].aim = area.position + area.size * Vector2(0.62, 0.7)
+	game.set_process(false)   # Freeze the picture.
+	game._request_redraw()
+	await _frames(3)
+
+
 ## The picture without the strip that the HUD uses (112 px at 1080p), cut to 16:9 around the middle, so that a tile shows the
 ## world and no black bar where the HUD was (REQ-GM-49).
 func _world_crop(img: Image) -> Image:
@@ -311,10 +352,10 @@ func _run() -> void:
 	var lean_a := deg_to_rad(10.0)
 	var right := Vector3(-sin(lean_a), 0, cos(lean_a)) * 9.81
 	var left := Vector3(sin(lean_a), 0.0, cos(lean_a)) * 9.81
-	var only := ""   # `-- --only=<id>` makes the tile of one game.
-	for arg in OS.get_cmdline_user_args():
-		if arg.begins_with("--only="):
-			only = arg.trim_prefix("--only=")
+	var only := ""
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--only="):
+			only = a.trim_prefix("--only=")
 	for g in Registry.all():
 		if only != "" and String(g.id) != only:
 			continue
@@ -361,6 +402,9 @@ func _run() -> void:
 			_place_tennis(app.current_screen())
 			await _frames(2)
 			wait = 0.0
+		if String(g.id) == "air_hockey":
+			await _place_air_hockey(app.current_screen())
+			wait = 0.0
 		if String(g.id) == "mini_golf":
 			_place_mini_golf(app.current_screen())
 			await _frames(2)
@@ -383,6 +427,10 @@ func _run() -> void:
 		if String(g.id) == "snowball_splat":
 			await _stream(pad, wait, flats, AIM_GYRO[String(g.id)])
 			await _place_snow(app.current_screen(), pad, flats)
+			wait = 0.0
+		if String(g.id) == "whack_a_mole":
+			await _stream(pad, wait, flats)
+			await _place_mole(app.current_screen())
 			wait = 0.0
 		if wait > 0.0:
 			await _stream(clients, wait, [right, left])

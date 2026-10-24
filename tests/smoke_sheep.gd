@@ -38,6 +38,12 @@ func _frames(n: int) -> void:
 		await process_frame
 
 
+## Stops the sounds that still play: a stepped game starts its sounds much faster than they end, and a full pool drops a new one.
+func _quiet() -> void:
+	for p in _sound._pool:
+		p.stop()
+
+
 ## Waits `ms` of real time, in frames (a stepped game runs much faster than the clock).
 func _real_wait(ms: int) -> void:
 	var end := Time.get_ticks_msec() + ms
@@ -202,6 +208,7 @@ func _tilt_and_flock() -> void:
 	game.dogs[1].pos = at + Vector2(-80.0, 0.0)
 	game.dogs[1].vel = Vector2.ZERO
 	_heard.clear()
+	_quiet()
 	# The sound manager drops the same effect inside 40 ms of real time, and a stepped game runs faster than that.
 	await _real_wait(60)
 	SimInput.run(game, 0.5)
@@ -215,6 +222,8 @@ func _tilt_and_flock() -> void:
 	game._process(DT)
 	_check(game.dogs[0].pos.distance_to(blocker.pos) >= float(blocker.r) + game.DOG_R - 1.0,
 			"a dog is pushed out of a blocker (REQ-SH-4)")
+	_quiet()
+	await _real_wait(60)   # The same effect twice in 40 ms of real time is one sound.
 	_heard.clear()
 	game.dogs[0].pos = Vector2(700.0, 900.0)
 	game.dogs[1].pos = Vector2(730.0, 900.0)
@@ -367,6 +376,7 @@ func _one_player() -> void:
 	var game2 := _play()
 	_pen_all(game2)
 	_heard.clear()
+	_quiet()
 	await _real_wait(60)
 	SimInput.run_until(game2, func() -> bool: return game2.is_over, 4.0)
 	_check(game2.is_over and MedalView.tiers_in(game2._menu_box) == ["gold"] and _heard.has("win"),

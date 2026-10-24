@@ -17,6 +17,8 @@ extends RefCounted
 ##           these. Pin Pals also has the aim strip on the turn of a phone (REQ-BW-4); it is not listed here.
 ##   swing   optional. True for a game played with swings of the phone (issue #79): the settings view shows the safety line
 ##           and every phone shows the card "hold on tight" once, before the game can start (REQ-GM-102).
+##   enroll  optional. True for a game whose players enroll in the game at every start (Air Hockey, REQ-GM-106): the settings view
+##           has no IN and OUT, and the game has all connected phones when it starts. It takes the first two that press A.
 ##   min_players / max_players  allowed player count (REQ-GM-20). The Games screen dims a game that does not fit.
 
 const Lang = preload("res://scripts/core/lang.gd")
@@ -97,6 +99,25 @@ const GAMES: Array[Dictionary] = [
 			"settings": [{"key": "holes", "label": "mini_golf.holes", "values": ["1", "2", "3", "4", "5"],
 					"titles": ["mini_golf.holes_1", "mini_golf.holes_2", "mini_golf.holes_3", "mini_golf.holes_4",
 					"mini_golf.holes_5"], "default": "3"}]},
+	{"id": "whack_a_mole", "doc": "res://docs/games/whack_a_mole.md", "title": "registry.whack_a_mole", "dim": "2d",
+			"pad": ["a", "recenter"],
+			"how_to": "how_to.whack_a_mole",
+			"description": "registry.desc_whack_a_mole",
+			"tile": "res://assets/tiles/whack_a_mole.png",
+			"path": "res://scripts/game/whack_a_mole/whack_a_mole_game.gd", "min_players": 1, "max_players": 4,
+			"settings": []},
+		{"id": "air_hockey", "doc": "res://docs/games/air_hockey.md", "title": "registry.air_hockey", "dim": "2d",
+				"pad": ["a"],
+				"enroll": true,
+				"how_to": "how_to.air_hockey",
+				"description": "registry.desc_air_hockey",
+				"tile": "res://assets/tiles/air_hockey.png",
+				"path": "res://scripts/game/air_hockey/air_hockey_game.gd", "min_players": 1, "max_players": 4,
+				"settings": [{"key": "goals", "label": "air_hockey.goals_to_win",
+						"values": ["3", "4", "5", "6", "7", "8", "9", "10"],
+						"titles": ["air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals",
+						"air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals"],
+						"format_number": true, "default": "5"}]},
 	{"id": "sheep_herding", "doc": "res://docs/games/sheep_herding.md", "title": "registry.sheep_herding", "dim": "2d",
 			"pad": [],
 			"how_to": "how_to.sheep_herding",

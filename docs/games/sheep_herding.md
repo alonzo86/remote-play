@@ -20,7 +20,7 @@ REQ-GM-7 and REQ-GM-103. Visual language: shell, player colors, toy-like world (
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 27). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 29). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-46 | Exception | The leader chip is the team chip: it shows the number of sheep in the pen out of all sheep (REQ-SH-13), in gray, because there is no leader. The phones show the same number and no place. |
 | REQ-GM-72, 73 | Exception | The score is shared, so every row of the result list shows the same number and the same place (1st). With 2 to 4 players there are no medals (REQ-SH-18). |
@@ -87,7 +87,7 @@ away from the pen, so the dogs have to come from the right side.
 
 ## Parameters
 
-Values that change how the game feels. Tune them on a device (Test 27). First values:
+Values that change how the game feels. Tune them on a device (Test 29). First values:
 
 | Name | File | First value |
 |------|------|-------------|
