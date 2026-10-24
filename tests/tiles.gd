@@ -102,7 +102,7 @@ func _run() -> void:
 	var ids: Array = []
 	for g in Registry.GAMES:
 		ids.append(g.id)
-	_check(ids.size() == 11, "the registry has 11 games")
+	_check(ids.size() == 12, "the registry has 12 games")
 	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
 	var all_resources := 0
 	var excluded := false

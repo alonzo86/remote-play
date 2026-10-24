@@ -118,6 +118,12 @@ const GAMES: Array[Dictionary] = [
 						"titles": ["air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals",
 						"air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals", "air_hockey.n_goals"],
 						"format_number": true, "default": "5"}]},
+	{"id": "sheep_herding", "doc": "res://docs/games/sheep_herding.md", "title": "registry.sheep_herding", "dim": "2d",
+			"pad": [],
+			"how_to": "how_to.sheep_herding",
+			"description": "registry.desc_sheep_herding",
+			"tile": "res://assets/tiles/sheep_herding.png",
+			"path": "res://scripts/game/sheep_herding/sheep_herding_game.gd", "min_players": 1, "max_players": 4, "settings": []},
 ]
 
 

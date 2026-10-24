@@ -19,6 +19,7 @@ tests/game_rules.gd|controller|game rules|unit
 tests/swing_detector.gd|controller|swing detector|unit
 tests/tennis_rules.gd|controller|Tennis rules, ball and match|unit
 tests/paint_rules.gd|controller|Paint Grab rules|unit
+tests/sheep_rules.gd|controller|Sheep Herding rules, scenery and pictures|unit
 tests/asteroid_rules.gd|controller|Galaxy Protector rules and pictures|unit
 tests/design_tokens.gd|controller|design tokens|unit
 tests/smoke_tv.gd|tv|TV smoke test|scenario
@@ -28,6 +29,7 @@ tests/results_medals.gd|tv|medals in the result menu|scenario
 tests/layout_menus.gd|tv|result and pause menus with long names, English and Hebrew|scenario
 tests/device_mocks.gd|tv|simulated phones: the buzz at GO, recenter, a silent phone pauses|scenario
 tests/smoke_paint.gd|tv|Paint Grab|scenario
+tests/smoke_sheep.gd|tv|Sheep Herding: dogs, sheep, pen, shared score, end, medals|scenario
 tests/smoke_3d.gd|tv|3D game base class|scenario
 tests/smoke_sumo.gd|tv|Sumo Bumpers|scenario
 tests/smoke_asteroid.gd|tv|Galaxy Protector|scenario
