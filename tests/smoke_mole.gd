@@ -123,6 +123,14 @@ func _countdown_and_aim() -> void:
 	var target := c + Vector2(400.0, -200.0)
 	var got := _aim_at(game, 0, target)
 	_check(got.distance_to(target) < 12.0, "the ring follows the phone (%.1f px off, REQ-WM-3)" % got.distance_to(target))
+	var Field = load("res://scripts/game/whack_a_mole/mole_field.gd")
+	var reached := 0
+	for hole in 9:
+		var hp: Vector2 = Field.hole_pos(hole, area)
+		var at := _aim_at(game, 0, hp)
+		if at.distance_to(hp) < 12.0:
+			reached += 1
+	_check(reached == 9, "the ring reaches each of the 9 holes (%d of 9, Test 28 step 3a)" % reached)
 	var far := _aim_at(game, 0, c + Vector2(5000.0, 5000.0))
 	_check(area.grow(0.01).has_point(far), "the ring stays inside the play area (REQ-WM-3)")
 	sim.app.server.players[0].orientation.yaw = 0.0

@@ -369,6 +369,12 @@ There is no `build-android` job on CircleCI (the APK export is off). A documenta
 | A-29-3 | Test 29 items 3a, 3b, the tilt | `smoke_sheep`: "a tilt of 20 degrees takes the dog from the left edge to the fence of the pen in N s (5 s or less)" (the trees and the pond are taken away for the time; the sheep and the fence stay), "the flat phone stops the dog in N s (1.5 s or less)", "tilt to the right moves the dog of that phone and not the other" |
 | A-29-5 | Test 29 items 5a, 5b, the sheep run from a dog and stand when no dog is near | `sheep_rules`: "a sheep far from a dog does not run", "a sheep runs away from a dog that is close", "after 10 s with two dogs every sheep is still on the field"; `smoke_sheep`: "a sheep runs from a dog that comes close", "10 s with the dogs still: every sheep stays on the field and none is scared" |
 | A-29-6b | Test 29 item 6b, the buzz of the dog that brought the sheep in | `smoke_sheep`: the phone of the dog that scared the sheep last buzzes 40 ms and the other phone does not |
+| A-28-3a | Test 28 item 3a, the ring reaches the 9 holes | `smoke_mole`: "the ring reaches each of the 9 holes (9 of 9)", "the ring follows the phone", "the ring stays inside the play area"; `mole_rules`: nine holes in 3 columns and 3 rows inside the play area |
+| A-28-4a | Test 28 item 4a, a bonk on a mole (4b, the delay on a real phone, stays manual) | `smoke_mole`: "a bonk on a mole gives 10 points and takes the mole", "a mole that was taken is not hit again"; `mole_rules`: a hit mole shows its happy eyes and is gone after 0.8 s, "a bonk 95 px from the middle hits, 98 px misses" |
+| A-28-5a | Test 28 item 5a, a miss costs nothing | `smoke_mole`: "a miss costs nothing and makes a poof", "a press inside the 0.3 s reload is ignored" |
+| A-28-6 | Test 28 items 6a to 6c, the time that a mole stays out | `mole_rules`: "easy: a mole is fully out for 2.61 s (2.3 to 2.9 s)", medium 1.80 s (1.5 to 2.1 s), hard 1.10 s (0.8 to 1.4 s) |
+| A-28-7 | Test 28 items 7a, 7b, the golden mole and the number of moles | `mole_rules`: the first golden mole comes between 10 s and 11 s, a golden mole is worth 50, "never more moles out than 2 + 1 player at Medium"; `smoke_mole`: "the golden mole gives 50 points" |
+| A-28-9 | Test 28 items 9a, 9b, the medals | `smoke_mole`: "one player: no medal and no 'no medal' title", "two players: the places get medals", "two players start and one leaves: the other one still gets the medal of the place" |
 
 ## Everything else that is automated (and stays in `tests/`)
 

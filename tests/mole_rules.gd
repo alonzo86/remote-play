@@ -250,6 +250,21 @@ func _levels() -> void:
 			"moles come faster as the difficulty grows")
 	_check(float(e.radius) > float(m.radius) and float(m.radius) > float(h.radius),
 			"the hit circle is smaller as the difficulty grows")
+	# Test 28 steps 6a to 6c: the time that a mole is fully out is in the limits of the difficulty.
+	var limits := {"easy": [2.3, 2.9], "medium": [1.5, 2.1], "hard": [0.8, 1.4]}
+	for d in limits:
+		var fd := _field(d)
+		fd._add(4, false)
+		var mm: MoleField.Mole = fd.moles[0]
+		var full := 0.0
+		var step := 0.01
+		mm.age = 0.0
+		while not mm.is_done():
+			if mm.out() >= 1.0:
+				full += step
+			mm.age += step
+		_check(full >= limits[d][0] and full <= limits[d][1], "%s: a mole is fully out for %.2f s (%.1f to %.1f s)" % [d, full, limits[d][0], limits[d][1]])
+	_check(MoleField.PICTURE_H >= 48.0, "a mole is %.0f px high at 1080p (48 px or more, Test 28 step 12a)" % MoleField.PICTURE_H)
 	_check(_field("nonsense").level == MoleField.LEVELS.medium, "an unknown difficulty is Medium")
 	_check(float(e.radius) >= 100.0, "Easy: the hit circle is 200 px across or more, for a child of 5")
 

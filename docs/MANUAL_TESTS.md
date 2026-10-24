@@ -1252,18 +1252,8 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the meadow, the fence, a hole and a mole.
 2b. Look at the game screen. Check: you can point at all of these: the sky, the fence, the lawn, the 9 holes (9 of 9) and a mole.
-3a. Press RECENTER while you point at the middle of the screen, then point at each of the 9 holes, one after the other. Check: the ring is on the hole (inside the dark opening) within 5 s for each hole (9 of 9).
-4a. Wait for a mole that is fully out, put the ring on its head and press A. Do this 5 times. Check: the mole closes its eyes and the score grows by 10 in 5 of 5 tries.
 4b. Record the phone (the A button) and the TV (240 fps) for 5 bonks on a mole. Count the frames from the press on A to the first change of the mole (closed eyes). Check: the median delay is 150 ms or less (36 frames at 240 fps).
-5a. Put the ring on the grass, away from any mole, and press A 3 times, 1 s apart. Check: the score does not change (3 of 3) and a small ring grows at the place of the ring each time (3 of 3).
-6a. Play on Easy and record the TV (240 fps) with a stopwatch in the picture. Do not bonk 5 moles. Check: each mole is fully out for 2.3 s to 2.9 s (5 of 5).
-6b. Same, on Medium. Check: each mole is fully out for 1.5 s to 2.1 s (5 of 5).
-6c. Same, on Hard. Check: each mole is fully out for 0.8 s to 1.4 s (5 of 5).
-7a. Play one round on Medium. Check: a golden mole with a crown comes between 9 s and 12 s after GO, and a bonk on it adds 50 points.
-7b. During the same round, count the moles that are out at the same time with one phone. Check: never more than 3 (3 of 3 looks at random moments).
 8a. Open the settings view of the game (OK on its tile). Check: the TV shows the line "POINT YOUR PHONE AT THE SCREEN AND PRESS A TO BONK THE FRIENDLY MOLES. MOST POINTS IN 60 S WINS." and the rows Difficulty and Start. The phone pad shows A and RECENTER only (3 of 3). (REQ-GM-37a)
-9a. Play one round with one phone. Check: the result menu has no medal and the title is "<NAME> WINS!".
-9b. Play one round with 2 phones. Check: the first place has a gold medal and the second place a silver medal.
 10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child puts the ring on a mole within 20 s after GO, with no help.
 10b. Same child. Check: the child bonks a mole (the score grows) within 30 s after GO.
 10c. Same child. Check: the child has 5 or more bonks on moles in the 60 s round.
@@ -1272,7 +1262,15 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the golden mole when you say "mark". Check: the tester finds it in 5 of 5 tries. Check: a mole is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
 12b. From 3 m, ask a tester to read aloud the points that float up from a hit mole and the timer. Check: no error.
 
+Items 3a, 4a, 5a, 6a, 6b, 6c, 7a, 7b, 9a and 9b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-28-*). The numbers of the other items do not change.
+
 Measurements (write down, no pass or fail): the turn angle that moves the ring from the middle to the edge; how often a bonk misses a mole that you aim at; if a mole is out too long or too short on each difficulty; the number of bonks of a good player in a round. Use them to tune the stay, the spawn time and the hit circle.
+
+History:
+
+- 2026-10-24 (automated): steps 3a, 4a, 5a, 6a, 6b, 6c, 7a, 7b, 9a, 9b moved to the automated tests (smoke_mole, mole_rules). Nothing was run on a device, so no result moved.
+
+
 ## Test 27
 
 ### Air Hockey (tilt, enroll with A, ROBO the bot)
