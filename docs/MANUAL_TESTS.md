@@ -76,10 +76,12 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [28](#test-28) | Whack-a-Mole (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Not run | | |
-| [28](#test-28) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
+| [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
 | [31](#test-31) | Freeze Dance (wiggle, freeze, bench, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -555,7 +557,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 
 **Steps**
 
-1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 12 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 12 of 12. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
+1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 13 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 13 of 13. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
 1e. From the sofa (about 3 m), look at the Games screen. Check: the tester reads aloud the title and the player range of 3 tiles and the description of the focused game, without error. (REQ-FL-40)
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
 3b. Check the tile of **Car Race**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
@@ -564,7 +566,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 8. Check the tile of **Pin Pals**. Check: the 10 pins stand in a triangle and the ball is between the foul line and the pins. (The lane and the white shapes are checked by A-12-8; the test counts 138 white blobs and does not count the 10 pins.)
 9. Check the tile of **Tennis**. Check: the ball is high over the near half of the court. (The grass, the court, the ball and the players are checked by A-12-9.)
 10. Check the tile of **Mini Golf**. Check: a ball is between the tee and the hole. (The fairway, the lake, the windmill and the players are checked by A-12-10.)
-11. Open the settings view of each of the 12 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (12 of 12), and Back and Start are fully on the screen (12 of 12). (REQ-GM-103, issue #77)
+11. Open the settings view of each of the 15 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (13 of 13), and Back and Start are fully on the screen (13 of 13). (REQ-GM-103, issue #77)
 
 Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-12-1a, A-12-1b, A-12-1d, A-12-3a, A-12-6, A-12-7). The numbers of the other items do not change.
 
@@ -581,7 +583,7 @@ Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TEST
 | 8 | Photo of the Pin Pals tile next to a photo of the game | Not run | | | |
 | 9 | Photo of the Tennis tile next to a photo of the game | Not run | | | |
 | 10 | Photo of the Mini Golf tile next to a photo of the game | Not run | | | |
-| 11 | Photos of the 9 settings views from the sofa; the number read without error | Not run | | | |
+| 11 | Photos of the 13 settings views from the sofa; the number read without error | Not run | | | |
 
 History:
 
@@ -1591,3 +1593,73 @@ Measurements (write down, no pass or fail): in how many stops a still hand was m
 History:
 
 - -: **Not run**. New (2026-10-24). The headless checks of the rules and the screens are in `dance_rules` and `smoke_freeze` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
+
+## Test 32
+
+### Bumper Cars (tilt, drive over stars and bump the others)
+
+Needs: 2 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9d. Covers: REQ-BC-* (`docs/games/bumper_cars.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+
+New game (2026-10-24). It was only tested with made-up sensor values. Every number (the speed of the cars, the size of the rink, the number of stars on the floor, the size of a bump, the 60 s of the round), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-24 that a hit takes 1 star from each car (an exception to REQ-GM-80, see the requirements file). Changed 2026-10-24 (owner): in a hit both cars lose a star.
+
+**Steps**
+
+1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the red and white tent, the rink with its black rail, gold stars on the floor, and the cars.
+2a. From 3 m, a tester points at one star and at one car. Check: both answers are right for every tester (5 of 5 testers).
+2b. Check: a car is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
+3a. Play with 2 phones. Hold each phone flat at the countdown, then tilt one to the right by 20 degrees and hold it. Check: the car goes from the middle of the rink to the right rail in 4 s or less.
+3b. Same round. Tilt the phone back to flat. Check: the car slows to a stop (under 20 px/s) within 3 s.
+3c. Same round. Check: the other car does not move while only the first phone is tilted.
+4a. Drive a car over a star. Check: the star is gone and the score on the chip goes up by 1 within 0.2 s, in 5 of 5 tries. (REQ-BC-10)
+4b. Pick up 3 stars one after the other on Medium. Check: the floor has 9 stars again within 5 s (count them on a photo). (REQ-BC-9)
+5a. Two cars that each hold at least 1 star: one drives at the other fast, from 2 car lengths away, the other car standing. Check: both cars lose 1 star on their chips and 2 stars roll away, one from each car, in 5 of 5 tries. (REQ-BC-6, 7, 8)
+5b. Push a car gently with another car (the cars touch, no run-up). Check: no star drops and no spark shows, in 5 of 5 tries. (REQ-BC-6)
+5c. Drive over a star that has just been dropped. Check: in 3 of 3 tries the star is not picked up when the car reaches it within 0.3 s after the hit, and it is picked up when the car reaches it 1 s or more after the hit. (REQ-BC-8)
+5d. A car with no star is hit by a car that holds stars. Check: the car with no star keeps 0 and shows no negative number, and the other car loses 1 star, in 3 of 3 tries. (REQ-BC-7)
+6a. At a fast hit, hold both phones. Check: both phones buzz once, in 5 of 5 hits. (REQ-BC-6)
+6b. At a slow touch. Check: no phone buzzes, in 5 of 5 touches.
+7. Play 4 phones on Hard and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+8a. Play a whole round of 60 s with 2 phones. Check: the round ends at 60 s (+/- 1 s on the stopwatch), the result menu names the player with the most stars, and the list shows the stars of each player. (REQ-BC-12)
+8b. Same round. Check: the phone of each player shows its own stars and its place during the round and after it. (REQ-FL-67)
+9a. Let a child of about 5 to 8 years play with 2 phones on Easy, with a grown-up next to them who does not help. Check: the child points at its own car (the one in the color of its phone) within 10 s after GO.
+9b. Same child. Check: the child drives over at least 1 star within 30 s after GO, with no help.
+9c. Same child. Check: the child has at least 3 stars at the end of the round.
+9d. After the round, ask: "Play again?". Check: the child says yes.
+10. Open the settings view. Check: Easy has 12 stars on the floor and the largest rink, Hard has 6 stars and a smaller rink, counted on photos at the start of a round. (REQ-BC-20)
+11a. Open the settings view and read the how-to line under the name, then play 1 round. Check: a tester can tell what to do (tilt to drive, pick up stars, bump the others) without more help (3 of 3 testers).
+11b. A native reader of Hebrew reads the 6 new texts of the game (the 6 rows of `assets/lang/strings.csv` with the keys `registry.bumper_cars`, `registry.desc_bumper_cars`, `how_to.bumper_cars`, `bumper_cars.hint`, `result.one_star` and `result.stars`) on the TV set to Hebrew. Check: the reader marks 0 texts as wrong and 0 texts as not fitting on the screen.
+
+Measurements (write down, no pass or fail): the time that a car needs from the middle to the rail with a steady tilt; how many stars a player picks up in a round of 2 and of 4; how often a hit happens in a round; if a car gets stuck in a corner or at the rail; the time that a round of 1 child takes to become fun (when the child first laughs).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the tile next to a photo of the game | Not run | | | |
+| 2a | Note: right answers of 5 | Not run | | | |
+| 2b | Photo of a car with its height in px | Not run | | | |
+| 3a | Note: seconds | Not run | | | |
+| 3b | Note: seconds | Not run | | | |
+| 3c | Note: did the other car move | Not run | | | |
+| 4a | Note: right tries of 5, the time | Not run | | | |
+| 4b | Photo of the floor with its stars | Not run | | | |
+| 5a | Note: right tries of 5 | Not run | | | |
+| 5b | Note: right tries of 5 | Not run | | | |
+| 5c | Note: right tries of 3 for each case | Not run | | | |
+| 5d | Note: right tries of 3 | Not run | | | |
+| 6a | Note: right hits of 5 | Not run | | | |
+| 6b | Note: right touches of 5 | Not run | | | |
+| 7 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 8a | Note: seconds, the result menu | Not run | | | |
+| 8b | Photo of a phone during and after a round | Not run | | | |
+| 9a | Note: the child, the age, seconds until it points | Not run | | | |
+| 9b | Note: seconds until the first star | Not run | | | |
+| 9c | Note: stars at the end | Not run | | | |
+| 9d | Note: the answer of the child | Not run | | | |
+| 10 | Photos of the floor on Easy and on Hard | Not run | | | |
+| 11a | Note: answers of each tester | Not run | | | |
+| 11b | Note: the texts that the reader marks, with the reason | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-24).

@@ -18,19 +18,18 @@ const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
 const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0,
 		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "air_hockey": 4.0, "whack_a_mole": 4.0,
-		"sheep_herding": 4.0, "tower_builder": 4.0,
-		"freeze_dance": 1.0}
+		"sheep_herding": 4.0, "tower_builder": 4.0, "freeze_dance": 1.0, "bumper_cars": 4.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
 		Vector3(0.18, 0.0, -0.6)]}
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
 const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2, "sumo_bumpers": 2, "asteroid_blast": 2,
-		"bowling": 2, "tennis": 2, "mini_golf": 2, "whack_a_mole": 2, "sheep_herding": 2, "freeze_dance": 2}
+		"bowling": 2, "tennis": 2, "mini_golf": 2, "whack_a_mole": 2, "sheep_herding": 2, "freeze_dance": 2, "bumper_cars": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 ## A fixed seed for the games that draw their picture with random numbers, so that a new run makes the same tile.
-const SEEDS := {"paint_grab": 6, "snowball_splat": 3, "whack_a_mole": 3, "sheep_herding": 5}
+const SEEDS := {"paint_grab": 6, "snowball_splat": 3, "whack_a_mole": 3, "sheep_herding": 5, "bumper_cars": 4}
 
 var _seq := [0, 0, 0, 0]
 
@@ -231,6 +230,28 @@ func _place_paint(game: Node) -> void:
 	game._pots.pots.append(pot)
 	for s in slots:
 		game._board.set_score(s, f.count(s))
+
+
+## The Bumper Cars picture: four cars drive in different directions, two of them have just bumped (a spark between them), the
+## floor is full of stars and one star rolls away from the car that was hit.
+func _place_bumper(game: Node) -> void:
+	var rink: Rect2 = game.rink.rink
+	var c := rink.get_center()
+	var spots := [Vector2(-340.0, -60.0), Vector2(-230.0, -50.0), Vector2(340.0, 150.0), Vector2(240.0, -190.0)]
+	var dirs := [0, 1, 3, 2]
+	var slots: Array = game.participants
+	for i in slots.size():
+		game._bodies[slots[i]].pos = c + spots[i % spots.size()]
+		game._bodies[slots[i]].vel = Vector2.ZERO
+		game._facing[slots[i]] = dirs[i % dirs.size()]
+		game._board.set_score(slots[i], 3 + 2 * (i % 3))
+	game._hits.append({"pos": c + Vector2(-285.0, -55.0), "age": 0.08})
+	game.rink.drop_star(c + Vector2(-340.0, -60.0), c + Vector2(-230.0, -50.0))
+	game.rink.stars[game.rink.stars.size() - 1].pos = c + Vector2(-440.0, -80.0)
+	game.rink.stars[game.rink.stars.size() - 1].lock = 0.0
+	game.set_process(false)   # Freeze the picture.
+	game._request_redraw()
+	await _frames(3)
 
 
 ## The sheep picture: three sheep are in the pen, the flock is near the gate and the four dogs stand behind it.
@@ -443,6 +464,9 @@ func _run() -> void:
 			wait = 0.0
 		if String(g.id) == "sheep_herding":
 			await _place_sheep(app.current_screen())
+			wait = 0.0
+		if String(g.id) == "bumper_cars":
+			await _place_bumper(app.current_screen())
 			wait = 0.0
 		if String(g.id) == "paint_grab":
 			_place_paint(app.current_screen())

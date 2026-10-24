@@ -20,6 +20,7 @@ tests/swing_detector.gd|controller|swing detector|unit
 tests/tennis_rules.gd|controller|Tennis rules, ball and match|unit
 tests/paint_rules.gd|controller|Paint Grab rules|unit
 tests/sheep_rules.gd|controller|Sheep Herding rules, scenery and pictures|unit
+tests/bumper_rules.gd|controller|Bumper Cars rules, stars and pictures|unit
 tests/asteroid_rules.gd|controller|Star Shield rules and pictures|unit
 tests/design_tokens.gd|controller|design tokens|unit
 tests/smoke_tv.gd|tv|TV smoke test|scenario
@@ -30,6 +31,7 @@ tests/layout_menus.gd|tv|result and pause menus with long names, English and Heb
 tests/device_mocks.gd|tv|simulated phones: the buzz at GO, recenter, a silent phone pauses|scenario
 tests/smoke_paint.gd|tv|Paint Grab|scenario
 tests/smoke_sheep.gd|tv|Sheep Herding: dogs, sheep, pen, shared score, end, medals|scenario
+tests/smoke_bumper_cars.gd|tv|Bumper Cars: cars, stars, hits, end, leave, layout|scenario
 tests/smoke_3d.gd|tv|3D game base class|scenario
 tests/smoke_sumo.gd|tv|Sumo Bumpers|scenario
 tests/smoke_asteroid.gd|tv|Star Shield|scenario
