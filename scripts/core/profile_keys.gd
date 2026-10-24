@@ -6,9 +6,9 @@ extends RefCounted
 ##
 ## Numbers: 1 to 3 Banana Party, id snowball_splat (easy, medium, hard), 4 to 6 Paint Grab, 7 to 36 Marble Race: 7 + 10 *
 ## difficulty + (track - 1).
-## 37 to 39 Galaxy Protector (easy, medium, hard).
+## 37 to 39 Star Shield (easy, medium, hard).
 ## 40 to 42 Pin Pals, id bowling (easy, medium, hard), only without rails.
-## Treasure Maze, Sumo Bumpers and a random Road Rally track have no key (the owner, 2026-10-10).
+## Treasure Maze, Sumo Bumpers and a random Car Race track have no key (the owner, 2026-10-10).
 
 const Lang = preload("res://scripts/core/lang.gd")
 

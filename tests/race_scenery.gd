@@ -1,5 +1,5 @@
 extends SceneTree
-## The scenery beside the road of Road Rally (REQ-MR-57, test 9 item 13e): no pixel of any piece of scenery is on the road, and no
+## The scenery beside the road of Car Race (REQ-MR-57, test 9 item 13e): no pixel of any piece of scenery is on the road, and no
 ## two pieces cover each other. The cars stay on the road, so a piece that is off the road covers no car. It looks at the opaque
 ## pixels of every piece of the 10 fixed tracks on Hard in the 3 themes, not at the middle of the piece. Run:
 ##   godot --headless --path . --script tests/race_scenery.gd -- --role=controller
@@ -47,7 +47,7 @@ func _nearest_pixel(track: RefCounted, pic: Image, pos: Vector2) -> float:
 
 
 func _scenery() -> void:
-	print("the scenery of Road Rally")
+	print("the scenery of Car Race")
 	for theme in RaceLook.THEMES:
 		var pieces := 0
 		var tracks_ok := true

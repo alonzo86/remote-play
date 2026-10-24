@@ -1,5 +1,5 @@
 extends "res://scripts/game/minigame.gd"
-## Galaxy Protector. Each phone tilts a little spaceship along the bottom of the screen. The ships shoot by themselves at the
+## Star Shield. Each phone tilts a little spaceship along the bottom of the screen. The ships shoot by themselves at the
 ## asteroids that fall from above. A pickup gives a force field or one more laser. A ship that is hit without a force field
 ## blows up. The waves last 30 s with 5 s of rest between them and get harder. It is a team game with a winner: the most points
 ## win. It is endless and ends when every ship is gone (REQ-AB-1 to 20). The game is for children too (REQ-GM-80 to 84).

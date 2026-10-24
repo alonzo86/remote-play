@@ -1,5 +1,5 @@
 extends SceneTree
-## Real-time checks with simulated phones on the loopback network for Treasure Maze, Road Rally and banana Party (tests 6, 9 and
+## Real-time checks with simulated phones on the loopback network for Treasure Maze, Car Race and banana Party (tests 6, 9 and
 ## 10 of docs/MANUAL_TESTS.md): a silent phone, the buzzes of the phone, RECENTER, and two throws in one frame. Run:
 ##   godot --headless --path . --script tests/device_mocks_b.gd -- --role=tv
 ## The sensor values are written with a fake clock (tests/sim_b.gd). The things that need real time (the network, the cool-down of
@@ -66,7 +66,7 @@ func _ms_list(i: int) -> Array:
 
 ## Test 9.5a: a hit on a wall, a post and a car buzzes the phone 20 ms; a soft hit does not.
 func _buzzes() -> void:
-	print("device: buzzes in Road Rally")
+	print("device: buzzes in Car Race")
 	var race = _race()
 	var game: Control = await sim.start(race, {"track_choice": "1", "difficulty": "medium"})
 	for s in 2:
@@ -160,7 +160,7 @@ func _continuous_wall() -> void:
 	game.set_process(false)
 
 
-## Issue #55: the pad has no Recenter box in the maze and in Road Rally; the car and the ball still start from the pose held in
+## Issue #55: the pad has no Recenter box in the maze and in Car Race; the car and the ball still start from the pose held in
 ## the countdown (REQ-GM-37).
 func _recenter_distance() -> void:
 	print("device: no Recenter box in the race and the maze")
@@ -170,7 +170,7 @@ func _recenter_distance() -> void:
 	await process_frame
 	await process_frame
 	_check(not sim.clients[0].recenter_button and not sim.clients[1].recenter_button,
-			"Road Rally: the phones have no Recenter box (REQ-GM-37)")
+			"Car Race: the phones have no Recenter box (REQ-GM-37)")
 	game.set_process(false)
 
 

@@ -1,5 +1,5 @@
 extends SceneTree
-## More rules of Banana Party and Road Rally without a screen (test 10 and 9 of docs/MANUAL_TESTS.md): how long an animal needs to
+## More rules of Banana Party and Car Race without a screen (test 10 and 9 of docs/MANUAL_TESTS.md): how long an animal needs to
 ## cross the screen, when the golden monkey comes, and the pictures of the animals, cars, obstacles and boards are flat pixels.
 ## Run: godot --headless --path . --script tests/game_rules_b.gd -- --role=controller
 
@@ -126,7 +126,7 @@ func _banana_times_and_pictures() -> void:
 	_check(outlined, "every pixel of an animal that touches the outside is the black outline (REQ-GM-47m)")
 
 
-## Test 9.12a, 9.12b, 9.12c, 9.12d, 9.13b, 9.13e: the pictures of Road Rally are flat pixels in the colors of their theme.
+## Test 9.12a, 9.12b, 9.12c, 9.12d, 9.13b, 9.13e: the pictures of Car Race are flat pixels in the colors of their theme.
 func _race_pictures() -> void:
 	print("race look: pictures")
 	var track = MarbleTrack.make(42, "medium")

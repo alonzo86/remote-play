@@ -120,7 +120,7 @@ func _round_trip() -> void:
 	var blast := {"asteroid_blast|easy": 800, "asteroid_blast|medium": 1800, "asteroid_blast|hard": 3200}
 	var blast_back = ProfileCode.decode(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, blast))).get("profile")
 	_check(blast_back != null and blast_back.bests == blast,
-			"the bests of keys 37 to 39 (Galaxy Protector) survive a code (REQ-AB-18)")
+			"the bests of keys 37 to 39 (Star Shield) survive a code (REQ-AB-18)")
 	var bowl := {"bowling|easy": 150, "bowling|medium": 190, "bowling|hard": 240}
 	var bowl_back = ProfileCode.decode(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, bowl))).get("profile")
 	_check(bowl_back != null and bowl_back.bests == bowl and not ProfileKeys.lower_is_better("bowling|hard"),

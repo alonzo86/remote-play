@@ -232,7 +232,7 @@ func _test_registry() -> void:
 	var pads := {"maze": [], "marble_race": [], "paint_grab": [], "asteroid_blast": [], "sumo_bumpers": ["a"],
 			"bowling": ["a"], "tennis": ["a"], "mini_golf": ["a"], "snowball_splat": ["a", "recenter"],
 			"whack_a_mole": ["a", "recenter"], "air_hockey": ["a"], "sheep_herding": [], "tower_builder": ["a"],
-			"bumper_cars": []}
+			"freeze_dance": [], "bumper_cars": []}
 	var pad_bad: Array[String] = []
 	for g in Registry.all():
 		if g.get("pad", null) != pads.get(String(g.id), null):

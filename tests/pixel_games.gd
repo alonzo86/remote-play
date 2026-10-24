@@ -4,7 +4,7 @@ extends SceneTree
 ##   xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 \
 ##       --script tests/pixel_games.gd -- --role=tv
 ## What it checks (docs/MANUAL_TESTS.md tests 22, 23, 25 and 26): the machine half of the item "put the tile next to the game
-## screen" (the main colors of the tile are colors of the game screen: 1b), and for Galaxy Protector that the edges of the ship
+## screen" (the main colors of the tile are colors of the game screen: 1b), and for Star Shield that the edges of the ship
 ## and of an asteroid are steps of square pixels (22.12f). The part "the tile and the game show the same four things" stays
 ## manual (REQ-GM-49).
 

@@ -1,5 +1,5 @@
 extends RefCounted
-## Helpers of the tests of Treasure Maze, Road Rally and Banana Party (tests/smoke_maze.gd, smoke_race.gd, smoke_banana.gd,
+## Helpers of the tests of Treasure Maze, Car Race and Banana Party (tests/smoke_maze.gd, smoke_race.gd, smoke_banana.gd,
 ## device_mocks_b.gd): simulated phones on the loopback network, a sensor stream that is written straight into the players
 ## (with a fake clock) and a game that is stepped by hand, so a test of 60 game seconds takes less than a real second.
 

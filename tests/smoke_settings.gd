@@ -129,7 +129,7 @@ func _run() -> void:
 	_check(is_instance_of(snow, Snow) and snow.difficulty == "hard" and snow._field._speed == 1.5
 			and snow.start_props.difficulty == "hard",
 			"Start begins a Hard Banana Party, and Restart keeps it")
-	# Road Rally: the track list under Difficulty (REQ-MR-53, 54).
+	# Car Race: the track list under Difficulty (REQ-MR-53, 54).
 	var Race = load("res://scripts/game/marble_race/marble_race.gd")
 	var MarbleTrack = load("res://scripts/game/marble_race/marble_track.gd")
 	app.go_game_settings("marble_race")
@@ -138,7 +138,7 @@ func _run() -> void:
 	var picker: Control = sv.rows[2]
 	_check(sv.rows.size() == 3 and sv.rows[0].row.key == "difficulty" and sv.rows[1].row.key == "race_theme"
 			and sv.rows[1].value == "candy"
-			and sv.rows[1].row.titles == ["registry.candy_road", "registry.space_rally", "registry.jungle_run"]
+			and sv.rows[1].row.titles == ["registry.candy", "registry.space", "registry.jungle"]
 			and picker.tiles.size() == 11
 			and picker.tiles[10].sketch.is_empty() and picker.tiles[0].sketch.size() >= 3,
 			"the race view has Difficulty, Theme and 11 tracks under them, the last one without a sketch (the random track)")

@@ -122,7 +122,7 @@ Settings and difficulty (REQ-GM-90 to 97)
 | REQ-BW-19 | Personal best (REQ-GM-98): the key is `bowling|<difficulty>` with Rails Off only, higher is better (`best_key()`; new keys at the end of `ProfileKeys`, 3 keys, numbers 40 to 42; the code format was not changed, see `docs/PROFILES_PLAN.md`). A game with rails has no best (exception, the scores are not comparable). | Done | smoke_bests, profile_code |
 | REQ-BW-21 | The plate "NAME, YOUR TURN!" shows 1.5 s at the start of each turn, then it goes away (it is not drawn for the rest of the turn). | Done | r4_bowling |
 | REQ-BW-20 | A player who leaves takes the row out of the ranking. A lost phone pauses the game (REQ-GM-30). Nothing runs in the pause, and the swing state of the player on turn is reset when the pause closes. | Done | smoke_bowling |
-| REQ-BW-22 | Safety (REQ-GM-102, issue #79): Pin Pals is a swing game (`swing` in the registry). The settings view shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", each phone shows the card "HOLD ON TIGHT!" once for each run of the app, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
+| REQ-BW-22 | Safety (REQ-GM-102, issue #79): Pin Pals is a swing game (`swing` in the registry). The settings view shows the line "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", each phone shows the card "HOLD ON TIGHT!" once for each run of the app, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
 
 | Difficulty | Ball speed | Aim | Swing threshold | Medal tiers (points) |
 |------------|------------|-----------|-----------------|----------------------|
@@ -151,7 +151,7 @@ Values that change the feel. Tune them with the swing lab and a device test (REQ
 
 - **Aim by finger (decided 2026-10-20).** Aiming by the turn of the phone (yaw) drifted and was hard to hold, so the aim is now a finger on the phone (REQ-BW-4). The old question, kept for the record: "Moving the phone left or right" cannot be measured as a slide (a phone cannot know a distance). The plan turns the phone
   (yaw, like the Banana Party pointer) and sets the center at each turn, so drift does not matter. The other way is to tilt the phone
-  left or right (roll, no drift, like Galaxy Protector). Which one feels like bowling?
+  left or right (roll, no drift, like Star Shield). Which one feels like bowling?
 - **Does the swing work with any grip?** The detector finds the swing axis from the back swing. This is never tried with a real phone (Test 23; the sensor directions test, Test 3, is still open).
 - **Spin (hook).** A twist of the wrist at the release could curve the ball and make splits (7-10) possible. It is not in the first version (straight balls only).
 - **The code of the profile.** Pin Pals added keys 40 to 42. A code with a Pin Pals best is format version 2; any other code stays version 1, so an old app reads it and refuses only a version 2 code (`docs/PROFILES_PLAN.md`).

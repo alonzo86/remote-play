@@ -81,6 +81,11 @@ const SONGS := {
 		"prog": [["C3", "E3", "G3"], ["F2", "A2", "C3"], ["G2", "B2", "D3"], ["C3", "E3", "G3"]],
 		"a": "E5:1 E5:0.5 G5:0.5 E5:1 C5:1  A4:1 A4:0.5 C5:0.5 A4:1 F4:1  G4:1 G4:0.5 B4:0.5 D5:1 B4:1  C5:2 E5:1 -:1",
 		"b": "G5:1 E5:0.5 G5:0.5 C6:2  A5:1 F5:0.5 A5:0.5 C6:2  B5:1 G5:0.5 B5:0.5 D6:2  C6:1 G5:1 E5:2"},
+	"freeze_dance": {"bpm": 124, "lead_duty": 0.25, "drums": "drive",
+		"prog": [["A2", "C3", "E3"], ["D3", "F3", "A3"], ["G2", "B2", "D3"], ["C3", "E3", "G3"]],
+		"a": ("E5:0.5 -:0.5 E5:0.5 G5:0.5 A5:1 G5:0.5 E5:0.5  D5:0.5 -:0.5 D5:0.5 F5:0.5 A5:1 F5:1  " +
+				"D5:0.5 -:0.5 D5:0.5 G5:0.5 B5:1 G5:0.5 D5:0.5  E5:0.5 -:0.5 G5:0.5 E5:0.5 C5:1 -:1"),
+		"b": "A5:1 G5:0.5 E5:0.5 A5:1 C6:1  A5:1 F5:0.5 D5:0.5 F5:1 A5:1  B5:1 G5:0.5 D5:0.5 G5:1 B5:1  C6:1 B5:0.5 A5:0.5 G5:1 E5:1"},
 }
 
 
@@ -196,7 +201,7 @@ static func effects() -> Dictionary:
 	# Treasure Maze.
 	fx["maze_bump"] = [_blip(180.0, 120.0, 0.04, 0.33, 0.25)]
 	fx["maze_exit"] = _run(["C5", "E5", "G5", "C6"], 0.09, 0.35)
-	# Road Rally.
+	# Car Race.
 	fx["marble_wall"] = [_noise(5000.0, 3000.0, 0.03, 0.36), _blip(700.0, 500.0, 0.03, 0.27, 0.25)]
 	fx["marble_wall_hard"] = [_noise(6000.0, 3000.0, 0.04, 0.28), _blip(1000.0, 650.0, 0.04, 0.2, 0.25)]
 	fx["marble_bumper"] = [_blip(300.0, 900.0, 0.12, 0.33, 0.25)]
@@ -218,7 +223,7 @@ static func effects() -> Dictionary:
 	fx["snow_hit"] = [_noise(4000.0, 1500.0, 0.1, 0.28), _blip(300.0, 700.0, 0.1, 0.3, 0.25, 0.08)]
 	fx["snow_miss"] = [_noise(3000.0, 1500.0, 0.06, 0.3)]
 	fx["snow_points"] = [_blip(1320.0, 1320.0, 0.05, 0.3), _blip(1760.0, 1760.0, 0.1, 0.3, 0.5, 0.05)]
-	# Galaxy Protector.
+	# Star Shield.
 	fx["blast_boom"] = [_noise(3500.0, 500.0, 0.18, 0.21), _blip(160.0, 60.0, 0.18, 0.21, 0.25)]
 	fx["blast_pickup"] = _run(["E5", "A5", "E6"], 0.06, 0.3)
 	fx["blast_shield"] = [_blip(900.0, 300.0, 0.2, 0.3), _noise(2500.0, 800.0, 0.1, 0.2)]
@@ -253,6 +258,10 @@ static func effects() -> Dictionary:
 	# Whack-a-Mole.
 	fx["mole_hit"] = [_noise(3000.0, 1200.0, 0.06, 0.26), _blip(220.0, 520.0, 0.12, 0.3, 0.25, 0.04)]
 	fx["mole_miss"] = [_noise(2500.0, 1200.0, 0.05, 0.28)]
+	# Freeze Dance. The stop is a soft "record stop", no alarm; a move is a funny boop, never sad (REQ-GM-81).
+	fx["freeze_stop"] = [_blip(520.0, 90.0, 0.35, 0.3, 0.5), _noise(2400.0, 600.0, 0.12, 0.2)]
+	fx["dance_points"] = [_blip(880.0, 880.0, 0.06, 0.3), _blip(1320.0, 1320.0, 0.12, 0.3, 0.5, 0.06)]
+	fx["dance_out"] = [_blip(420.0, 300.0, 0.14, 0.25, 0.5), _blip(300.0, 380.0, 0.14, 0.25, 0.5, 0.14)]
 	fx["mole_points"] = [_blip(1100.0, 1100.0, 0.05, 0.3), _blip(1650.0, 1650.0, 0.1, 0.3, 0.5, 0.05)]
 	# Air Hockey.
 	fx["hockey_hit"] = [_noise(2800.0, 1400.0, 0.05, 0.3), _blip(520.0, 320.0, 0.06, 0.3, 0.25)]

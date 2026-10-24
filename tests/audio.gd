@@ -212,9 +212,20 @@ func _manager(sound: Node, app: Node) -> void:
 	sound.duck(false)
 	await _wait(0.4)
 	_check(absf(sound._music.volume_db) < 0.5, "closing the menu brings it back")
+	sound.hold_music(true)
+	var at: float = sound._music.get_playback_position()
+	await _wait(0.5)
+	_check(sound.music_held and sound._music.stream_paused, "hold_music stops the song at once, without a fade (REQ-FD-2)")
+	_check(absf(float(sound._music.get_playback_position()) - at) < 0.05, "a held song stays where it is: %.2f s" % [at])
+	sound.hold_music(false)
+	await _wait(0.4)
+	_check(not sound.music_held and not sound._music.stream_paused and float(sound._music.get_playback_position()) > at + 0.1,
+			"the song goes on from the same place after the hold (REQ-FD-2)")
+	sound.hold_music(true)
 	sound.stop_music()
 	await _wait(0.7)
-	_check(not sound._music.playing and sound.wanted_music == "", "stop_music ends the song")
+	_check(not sound._music.playing and sound.wanted_music == "" and not sound.music_held, "stop_music ends the song and the hold")
+	_check(not sound._music.stream_paused, "and a held song does not stay paused after stop_music")
 
 
 func _round_clock(sound: Node) -> void:
@@ -469,12 +480,12 @@ func _loudness_and_songs(sound: Node, app: Node) -> void:
 			if Synth.to_pcm16(bufs[ids[i]]) == Synth.to_pcm16(bufs[ids[j]]):
 				distinct = false
 				print("  same samples: %s %s" % [ids[i], ids[j]])
-	_check(distinct and ids.size() == 15, "all %d songs have different samples" % ids.size())
+	_check(distinct and ids.size() == 16, "all %d songs have different samples" % ids.size())
 	var bad_ids: Array[String] = []
 	for g in Registry.all():
 		if String(g.id) == "menu" or not Songs.SONGS.has(String(g.id)):
 			bad_ids.append(String(g.id))
-	_check(bad_ids.is_empty() and Registry.all().size() == 14, "each of the 14 games has its own song id, not `menu`")
+	_check(bad_ids.is_empty() and Registry.all().size() == 15, "each of the 15 games has its own song id, not `menu`")
 	# 18.6c: the effects are 3 to 9 dB above the music at the default levels (the plan: about 6 dB). Bus gains are applied.
 	var music_db: float = _db(_rms(menu)) + sound.step_db(DEFAULT_MUSIC_STEP) + sound.MUSIC_TRIM_DB
 	var fx := Songs.effects()

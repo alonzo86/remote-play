@@ -1,5 +1,5 @@
 extends SceneTree
-## Road Rally with simulated phones, stepped by hand (REQ-MR-*, test 9 of docs/MANUAL_TESTS.md). Run:
+## Car Race with simulated phones, stepped by hand (REQ-MR-*, test 9 of docs/MANUAL_TESTS.md). Run:
 ##   godot --headless --path . --script tests/smoke_race.gd -- --role=tv
 
 const Sim = preload("res://tests/sim_b.gd")
@@ -207,8 +207,8 @@ func _settings_view() -> void:
 	for i in 3:
 		shown.append(theme_row._value.text)
 		theme_row._gui_input(right)
-	_check(shown == ["CANDY ROAD", "SPACE RALLY", "JUNGLE RUN"] and theme_row.value == "jungle",
-			"the Theme row shows CANDY ROAD, SPACE RALLY, JUNGLE RUN in this order, starting with Candy: %s" % str(shown))
+	_check(shown == ["CANDY", "SPACE", "JUNGLE"] and theme_row.value == "jungle",
+			"the Theme row shows CANDY, SPACE, JUNGLE in this order, starting with Candy: %s" % str(shown))
 	var picker: Control = sv.rows[2]
 	var labels := picker.find_children("*", "Label", true, false)
 	_check(picker.tiles.size() == 11 and labels.is_empty(), "the track list has 11 tiles (10 sketches and ?) and no text")
@@ -222,8 +222,8 @@ func _settings_view() -> void:
 
 
 func _names() -> void:
-	var expected := {"registry.marble_race": ["ROAD RALLY", "ראלי כבישים"], "registry.candy_road": ["CANDY ROAD", "כביש הממתקים"],
-			"registry.space_rally": ["SPACE RALLY", "ראלי בחלל"], "registry.jungle_run": ["JUNGLE RUN", "ריצה בג׳ונגל"]}
+	var expected := {"registry.marble_race": ["CAR RACE", "מירוץ מכוניות"], "registry.candy": ["CANDY", "ממתקים"],
+			"registry.space": ["SPACE", "חלל"], "registry.jungle": ["JUNGLE", "ג׳ונגל"]}
 	var ok := true
 	for key in expected:
 		Lang.set_language("en")
@@ -231,4 +231,4 @@ func _names() -> void:
 		Lang.set_language("he")
 		ok = ok and Lang.t(key) == expected[key][1] and Lang.t(key).strip_edges() != ""
 	Lang.set_language("en")
-	_check(ok, "the 4 names of Road Rally and its themes are the exact English and Hebrew texts")
+	_check(ok, "the 4 names of Car Race and its themes are the exact English and Hebrew texts")

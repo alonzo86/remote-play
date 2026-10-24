@@ -130,10 +130,10 @@ func _event(game: Control, label: String, ids: Array, buzzes: Dictionary, trigge
 			"; wrongly heard: " + str(forbidden) if not forbidden.is_empty() else ""])
 
 
-# ---- Galaxy Protector (REQ-AB-S1 to S5) ----
+# ---- Star Shield (REQ-AB-S1 to S5) ----
 
 func _asteroid() -> void:
-	print("Galaxy Protector")
+	print("Star Shield")
 	var game := _game(ASTEROID, {"difficulty": "medium"})
 	game.field.asteroids.clear()
 	var ship: SpaceField.Ship = game.field.ships[0]
@@ -306,10 +306,10 @@ func _maze() -> void:
 		game._game_tick(DT))
 
 
-# ---- Road Rally (REQ-MR-S1 to S4) ----
+# ---- Car Race (REQ-MR-S1 to S4) ----
 
 func _race() -> void:
-	print("Road Rally")
+	print("Car Race")
 	var game := _game(RACE, {"track_choice": "1", "difficulty": "medium"})
 	SimInput.to_play(game, func() -> bool: return game._round.is_counting())
 	var tr = game.track

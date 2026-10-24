@@ -1,4 +1,4 @@
-# Road Rally (`marble_race`)
+# Car Race (`marble_race`)
 
 Type: 2D, a pixel world seen from above. Players: 1 to 4. Input: tilt (`PlayerInput.tilt()`).
 General requirements: `docs/GAME_REQUIREMENTS.md`. Code: `scripts/game/marble_race/`.
@@ -6,7 +6,7 @@ General requirements: `docs/GAME_REQUIREMENTS.md`. Code: `scripts/game/marble_ra
 ## Goal
 
 Each player tilts a phone to slide a car along a winding road. The first car over the finish line wins.
-Cars bounce off the walls, the obstacles and each other. The game was a 3D marble race until 2026-10-15. The rules, the physics and the tracks are the same: only the look and the name changed. The player picks one of three themes in the settings view: Candy Road, Space Rally or Jungle Run.
+Cars bounce off the walls, the obstacles and each other. The game was a 3D marble race until 2026-10-15. The rules, the physics and the tracks are the same: only the look and the name changed. The player picks one of three themes in the settings view: Candy, Space or Jungle.
 
 ## Gaps and exceptions
 
@@ -69,13 +69,13 @@ REQ-GM-90 to 96 apply. The settings view of the race has the Difficulty row, the
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-MR-30 | The Games screen has one "Road Rally" tile. It opens the settings view (REQ-GM-90): Difficulty, Theme, the track list, Start and Back. Back returns to the grid with the tile in focus. | Done | smoke_settings |
+| REQ-MR-30 | The Games screen has one "Car Race" tile. It opens the settings view (REQ-GM-90): Difficulty, Theme, the track list, Start and Back. Back returns to the grid with the tile in focus. | Done | smoke_settings |
 | REQ-MR-31 | The results menu (`open_results()`, REQ-GM-72) names the winner and lists all cars: the finish times first, then the cars that did not finish (by distance). It has Try again, New game and Back to menu. Settings opens the settings view with the last choices. | Done | smoke_tv |
 | REQ-MR-32 | The pause menu has Resume, Try again and End game (it leaves at once, REQ-GM-31). A player can leave a race at any time. | Done | smoke_tv (pause menu) |
 | REQ-MR-33 | Try again keeps the track. | Done | smoke_tv |
 | REQ-MR-34 | Back in the results leaves the game. | Done | smoke_tv |
 | REQ-MR-14 | If all players leave during the race (their slots are freed: the hold of a paused game is over, REQ-GM-30a), a menu "No players connected" opens with "Back to menu". A lost phone first pauses the race with the card of REQ-GM-30. It is also what opens when the results are asked for after all players left. | Done | smoke_tv |
-| REQ-MR-15 | The pad has no Recenter box in Road Rally (REQ-GM-37, issue #55); the pose held in the countdown is the center. The pad shows no A and no B (REQ-GM-37a, issue #80). | Done | smoke_tv |
+| REQ-MR-15 | The pad has no Recenter box in Car Race (REQ-GM-37, issue #55); the pose held in the countdown is the center. The pad shows no A and no B (REQ-GM-37a, issue #80). | Done | smoke_tv |
 | REQ-MR-35 | The name of the track is shown on the screen during the race. | Device | Device |
 
 ### View and look
@@ -86,9 +86,9 @@ REQ-GM-90 to 96 apply. The settings view of the race has the Difficulty row, the
 | REQ-MR-41 | The camera has one zoom: 1 m is 32 screen units (8 world pixels). It follows the middle of the pack, a little below the middle of the free space, so that more road shows ahead (up) than behind. It sits on the world pixel grid, so the picture does not shimmer. When the pack is too spread out for the screen, the leader stays in view and the others get an arrow (REQ-MR-42). | Device | smoke_tv (the cars at the start), Device |
 | REQ-MR-42 | A car that is out of view gets an arrow in its color at the screen edge (inside the 60 px margin and under the bar), and a text (32 px, for example "12 m behind") shows how many meters it is behind the leader. | Device | smoke_tv, Device |
 | REQ-MR-43 | A car has a black outline (`#101018`) and its slot color. The outline of a car and the outline of an obstacle each differ from both tones of the road by 3:1 or more, in every theme (REQ-GM-47m: the dark outline is the edge of the key object, like the white ring of the maze balls). The HUD shows "Finish in N m" for the leader. | Device | game_rules (race look), smoke_tv, Device |
-| REQ-MR-44 | Visual language (`docs/TV_FLOW.md`, FD-18, REQ-GM-47i to 47n). The world is a flat pixel world: `_pixel_world()` is true and the world is drawn into the 480x270 view. The ground is a chess board (a tile of 120x120 world pixels that repeats), the road, its two walls (7 world pixels thick, REQ-GM-47l) and the finish line are one picture of the whole track (`RaceLook.render()`), made once at the first frame by filling rows of pattern tiles (no pixel is tested one by one), and the game draws the window of the camera each frame. The finish line is two rows of black and white cells of 4 world pixels. The shell draws the HUD and the countdown at full resolution (a car has no number and no avatar: its color and the edge arrow tell the players apart, REQ-GM-46). The tile screenshot shows this look (Candy Road). Not a 3D game any more: `minigame_3d.gd` has no game left. | Device | game_rules (race look), smoke_tv, Screenshot (`tools/make_tiles.gd`), Device |
-| REQ-MR-45 | Theme. The settings view has a row "Theme" with Candy Road, Space Rally and Jungle Run (values `candy`, `space`, `jungle`; the prop `race_theme`; default `candy`). The choice is kept for the next race (REQ-GM-94) and for Try again. An unknown value gives the default. The cars, the HUD and the physics are the same in every theme. | Done | run_tests, smoke_settings, smoke_tv |
-| REQ-MR-46 | The theme gives the ground, the road, the walls and the three obstacles. Candy Road: pink chess ground with sprinkles, a cream road with pink dashes, candy cane walls, lollipops, gumdrops and cupcakes. Space Rally: a starry sky, a metal road of panels, glowing cyan walls, asteroids, satellites and craters. Jungle Run: dark green ground with grass, a dirt road with specks, leafy hedges, logs, boulders and tiki masks. An obstacle is 12 world pixels high or more (REQ-GM-47m), 1.8 m wide like the collision circle (`BUMPER_R`), and has a dark outline of its theme. The obstacles follow the track in turn, from a number made from the seed of the track, so a track has the same obstacles every time. | Device | game_rules (race look), smoke_tv, smoke_settings, Device |
+| REQ-MR-44 | Visual language (`docs/TV_FLOW.md`, FD-18, REQ-GM-47i to 47n). The world is a flat pixel world: `_pixel_world()` is true and the world is drawn into the 480x270 view. The ground is a chess board (a tile of 120x120 world pixels that repeats), the road, its two walls (7 world pixels thick, REQ-GM-47l) and the finish line are one picture of the whole track (`RaceLook.render()`), made once at the first frame by filling rows of pattern tiles (no pixel is tested one by one), and the game draws the window of the camera each frame. The finish line is two rows of black and white cells of 4 world pixels. The shell draws the HUD and the countdown at full resolution (a car has no number and no avatar: its color and the edge arrow tell the players apart, REQ-GM-46). The tile screenshot shows this look (Candy). Not a 3D game any more: `minigame_3d.gd` has no game left. | Device | game_rules (race look), smoke_tv, Screenshot (`tools/make_tiles.gd`), Device |
+| REQ-MR-45 | Theme. The settings view has a row "Theme" with Candy, Space and Jungle (values `candy`, `space`, `jungle`; the prop `race_theme`; default `candy`). The choice is kept for the next race (REQ-GM-94) and for Try again. An unknown value gives the default. The cars, the HUD and the physics are the same in every theme. | Done | run_tests, smoke_settings, smoke_tv |
+| REQ-MR-46 | The theme gives the ground, the road, the walls and the three obstacles. Candy: pink chess ground with sprinkles, a cream road with pink dashes, candy cane walls, lollipops, gumdrops and cupcakes. Space: a starry sky, a metal road of panels, glowing cyan walls, asteroids, satellites and craters. Jungle: dark green ground with grass, a dirt road with specks, leafy hedges, logs, boulders and tiki masks. An obstacle is 12 world pixels high or more (REQ-GM-47m), 1.8 m wide like the collision circle (`BUMPER_R`), and has a dark outline of its theme. The obstacles follow the track in turn, from a number made from the seed of the track, so a track has the same obstacles every time. | Device | game_rules (race look), smoke_tv, smoke_settings, Device |
 | REQ-MR-47 | A wall stands out from the ground of its theme: the wall color or its outline differ from the ground by 3:1 or more. | Done | game_rules (race look) |
 | REQ-MR-48 | A car is a picture of 11x16 world pixels (44x64 screen units) that points up, with the player color on the body (with a light and a shade), a white stripe, a windscreen, a rear window, headlights, tail lights and tires. It faces the way it moves, in steps of 15 degrees, and keeps its direction when it moves slower than 0.8 m/s. The physics circle is 0.6 m (`R`), a little narrower than the picture of the car, which has tires at its sides. | Done | smoke_tv, game_rules (race look) |
 | REQ-MR-49 | The road and the walls are colored in the frame of the road, `u` along it and `v` across it (`RaceLook.pattern()`), so that a pattern turns with the road and is not cut in the same direction on the screen at every angle. The pattern goes on along the road across the pieces of the track. | Done | game_rules (race look), Screenshot |
@@ -111,7 +111,7 @@ In `scripts/game/marble_race/marble_race.gd` unless it says otherwise. Tune them
 - Are the target winning times right? Measure them in Test 9 and update the table.
 - Is the edge arrow (REQ-MR-42) clear enough on a TV? Other options: a smaller car view, or pull the last car forward.
 - Are the cars (64 px high) and the obstacles (about 52 px) big enough from the sofa? They are first guesses.
-- The Hebrew title "ראלי כבישים" and the three theme names in Hebrew are first guesses (`assets/lang/strings.csv`): a Hebrew reader must check them.
+- The Hebrew title "מירוץ מכוניות" and the three theme names in Hebrew are first guesses (`assets/lang/strings.csv`): a Hebrew reader must check them.
 - Should the best time of each track be saved? (The results show all finish times. Saving waits until players are identified.)
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)

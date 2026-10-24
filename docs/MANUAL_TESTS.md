@@ -57,7 +57,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8 | Retest (item 1 is automated, see A-7-7 and A-7-8) | R1 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Fail (item 3, fixed, retest; item 2 is automated) | R1 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Fail (items 2 and 7, fixed, retest) | R1 | |
-| [9](#test-9) | Road Rally | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
+| [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
 | [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50 | Fail (first version, redesigned), score chip fixed, retest | R2 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Not run |  | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Not run |  | |
@@ -70,7 +70,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [19](#test-19) | Leader chip and phone score | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Not run | | |
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 | [21](#test-21) | Join by room code and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-83, REQ-FL-84, REQ-FL-85, FD-25, FD-28 | Not run | | |
-| [22](#test-22) | Galaxy Protector (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [22](#test-22) | Star Shield (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [23](#test-23) | Pin Pals (bowling: aim with a finger, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
@@ -80,6 +80,8 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [28](#test-28) | Whack-a-Mole (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Not run | | |
 | [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
+| [31](#test-31) | Freeze Dance (wiggle, freeze, bench, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -415,11 +417,11 @@ History:
 
 ## Test 9
 
-### Road Rally
+### Car Race
 
 Needs: 1 to 4 phones (2 to 4 for step 11a), 1 TV, a phone camera, a child of about 5 to 8 years for step 13h. Covers: REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
-Needs 1 to 4 phones (one phone is a time trial). Requirements: `docs/games/marble_race.md`. Start "Road Rally" and pick a track.
+Needs 1 to 4 phones (one phone is a time trial). Requirements: `docs/games/marble_race.md`. Start "Car Race" and pick a track.
 
 
 **Steps**
@@ -523,7 +525,7 @@ Needs: 1 to 4 phones, 1 TV, a camera for photos. Covers: REQ-GM-34, REQ-GM-40, R
 1a. Maze with 1 phone: finish the maze. Check: the tester reads aloud the title and the first row (name and score text) of the result menu from 3 m, without error. (The rows, the title and the buttons are checked by `docs/AUTOMATED_TESTS.md`, A-11-1.)
 1b. Look at the same result menu. Check: the tester points to the avatar picture and to the square in the slot color next to the name (2 of 2 found). (REQ-GM-72. The color of the square and the medal of one player are checked by A-11-1b.)
 2b. Maze with 2 to 4 phones: let one ball reach the exit first and leave the others behind. Look at the result menu from 3 m. Check: the tester reads aloud the winner row and the row "NOT FINISHED" without error. (The gold medal of the winner, REQ-GM-73a, and the buttons are checked by A-11-2b.)
-3a. Road Rally with 4 phones on any track: let all cars finish. Take a photo of the whole TV. Check: the card with the list and the 3 buttons (Try again, New game, Back to menu) is 3.1% of the screen width or more from every screen edge. (The rows, the order and the 60 px edge of the layout are checked by A-11-3. The photo shows the real TV, which may cut the picture.)
+3a. Car Race with 4 phones on any track: let all cars finish. Take a photo of the whole TV. Check: the card with the list and the 3 buttons (Try again, New game, Back to menu) is 3.1% of the screen width or more from every screen edge. (The rows, the order and the 60 px edge of the layout are checked by A-11-3. The photo shows the real TV, which may cut the picture.)
 3b. Look at the same card from 3 m. Check: the tester reads aloud the 3 button names and the names of the 4 players without error. (A-11-3.)
 
 Items 2a and 3c moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-11-2a, A-11-3c). Items 4, 5, 6, 7 moved earlier (A-11-4 to A-11-7). The numbers of the other items do not change.
@@ -558,13 +560,13 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 13 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 13 of 13. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
 1e. From the sofa (about 3 m), look at the Games screen. Check: the tester reads aloud the title and the player range of 3 tiles and the description of the focused game, without error. (REQ-FL-40)
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
-3b. Check the tile of **Road Rally**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
+3b. Check the tile of **Car Race**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
 4. Check the tile of **Banana Party**. Check: an animal was just hit (its peel shows) and a banana is in the air. (The jungle, the four cursor rings, the banana and the black outline of an animal are checked by A-12-4. The tile has no score and no "+10" text.)
 5. Check the tile of **Paint Grab**. Check: the hidden picture shows in the floor. (The floor, the bonus pot and the four blobs are checked by A-12-5.)
 8. Check the tile of **Pin Pals**. Check: the 10 pins stand in a triangle and the ball is between the foul line and the pins. (The lane and the white shapes are checked by A-12-8; the test counts 138 white blobs and does not count the 10 pins.)
 9. Check the tile of **Tennis**. Check: the ball is high over the near half of the court. (The grass, the court, the ball and the players are checked by A-12-9.)
 10. Check the tile of **Mini Golf**. Check: a ball is between the tee and the hole. (The fairway, the lake, the windmill and the players are checked by A-12-10.)
-11. Open the settings view of each of the 14 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (13 of 13), and Back and Start are fully on the screen (13 of 13). (REQ-GM-103, issue #77)
+11. Open the settings view of each of the 15 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (13 of 13), and Back and Start are fully on the screen (13 of 13). (REQ-GM-103, issue #77)
 
 Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-12-1a, A-12-1b, A-12-1d, A-12-3a, A-12-6, A-12-7). The numbers of the other items do not change.
 
@@ -575,7 +577,7 @@ Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TEST
 | 1c | Photo of the Games screen on the TV; the number of tiles with all 3 parts | Not run | | | Now on the TV only. |
 | 1e | Photo from the sofa; the texts that were read | Not run | | | |
 | 2 | Photos: tile next to the game, for each game | Not run | | | |
-| 3b | Photo of the Road Rally tile and of the running game | Not run | | | Same result as old item 3. Road Rally and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
+| 3b | Photo of the Car Race tile and of the running game | Not run | | | Same result as old item 3. Car Race and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
 | 4 | Photo of the tile and of the running game | Not run | | | Banana Party tile remade 2026-10-16 (a jungle, 4 players, a hit, a banana in the air). |
 | 5 | Photo of the tile and of the running game | Not run | | | Paint Grab tile remade 2026-10-16. |
 | 8 | Photo of the Pin Pals tile next to a photo of the game | Not run | | | |
@@ -791,7 +793,7 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 2e. The person who reads Hebrew reads each TV screen aloud (Connect, Games, Settings, About, the quit question). Check: the punctuation (`. , ! ? -`) is at the correct end of every sentence. Write down every text that is wrong. (That a Hebrew text ends with the same punctuation as its English text is checked by `tests/smoke_lang.gd`.)
 4c. On the TV, look at the Connect screen with the two names. The person who reads Hebrew reads the Latin name and the Hebrew name aloud. Check: each one equals what was typed (the letters are in the same order, the mixed-direction text is not shuffled). (That the names stay as typed and that the pixel font has every glyph is checked by `tests/smoke_lang.gd`.)
 6b. In Hebrew, start every game with 2 phones. Check: the title is at the top right, the leader chip is at the left margin (Pin Pals has no leader chip), and the timer box is at the right (in every game that has one, the timer box is in the same place: 520 px from the left edge in English and 520 px from the right edge in Hebrew; no HUD box overlaps another). (REQ-GM-47o)
-6c. In Road Rally in Hebrew, check: the word "קדימה" after the 1 is complete (inside the screen). In every game in Hebrew, check: the hint line shows complete.
+6c. In Car Race in Hebrew, check: the word "קדימה" after the 1 is complete (inside the screen). In every game in Hebrew, check: the hint line shows complete.
 6e2. Open the pause menu and the result menu in Hebrew. The Hebrew reader reads the ranking list, the medal text and the tie text aloud. Check: the reader says that each of the 3 reads right (3 of 3 yes).
 
 Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-17-1 to A-17-8). Item 5 moved earlier (A-17-5). Item 7b moved too (A-17-7b). Item 6e was split: that the text shows complete is automated, 6e2 keeps the reading. The numbers of the other items do not change.
@@ -808,8 +810,8 @@ Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to
 
 History:
 
-- 2026-10-21 (aligned with the requirements, not run): step 6b names the Road Rally timer box at the left (English) and right (Hebrew) margin, and step 6c splits the countdown word (Road Rally) from the hint line (every game). No recorded result changed.
-- 2026-10-21 (automated): items 2a, 2b, 4a and 7a moved to the automated tests (`screens_sweep`, `auto_r3_tv`, `auto_r3_phone`). Item 6e was split (6e2 keeps the reading by the Hebrew reader). Steps 6b and 6c stay until Alon decides (the Road Rally timer side in Hebrew; the Hebrew GO word that most games do not draw).
+- 2026-10-21 (aligned with the requirements, not run): step 6b names the Car Race timer box at the left (English) and right (Hebrew) margin, and step 6c splits the countdown word (Car Race) from the hint line (every game). No recorded result changed.
+- 2026-10-21 (automated): items 2a, 2b, 4a and 7a moved to the automated tests (`screens_sweep`, `auto_r3_tv`, `auto_r3_phone`). Item 6e was split (6e2 keeps the reading by the Hebrew reader). Steps 6b and 6c stay until Alon decides (the Car Race timer side in Hebrew; the Hebrew GO word that most games do not draw).
 - -: **Not run**. New.
 
 ## Test 18
@@ -824,7 +826,7 @@ New (2026-10-10). The songs, the effects and the levels are first guesses (`scri
 
 6b. Film the phone of the player and the TV with sound at 60 fps or more for 3 events. Check: the phone starts to buzz within 100 ms of the start of the sound (6 frames or fewer at 60 fps). The automated tests check this on the network only (A-18-6b), not the phone motor or the TV audio path.
 9a. A child of about 5 to 8 years plays a game with sound for 3 rounds. Read the meter at the highest effect. Check: the reading is 85 dB(A) or lower, and the child does not cover its ears and does not ask for less sound.
-10c2. Play Paint Grab (it has a countdown; Galaxy Protector, Sumo Bumpers, Pin Pals, Mini Golf and Tennis with 2 to 4 players have none, REQ-GM-35) with Haptics ON on one real phone. Check: the phone vibrates at GO and at 2 events of the haptic table of that game (yes or no for each of the 3).
+10c2. Play Paint Grab (it has a countdown; Star Shield, Sumo Bumpers, Pin Pals, Mini Golf and Tennis with 2 to 4 players have none, REQ-GM-35) with Haptics ON on one real phone. Check: the phone vibrates at GO and at 2 events of the haptic table of that game (yes or no for each of the 3).
 11a. Film a picture event and its sound on the TV box with a camera at 60 fps or more. Count the frames from the picture to the sound for 3 events. Check: the delay is 100 ms or less (6 frames at 60 fps) for each event.
 11b. Start the app with the stopwatch. Check: the first song starts within 5 s (the same limit as the automated check A-18-1a, on the TV box).
 
@@ -894,7 +896,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 1b2. Start a game. Start a game and make this phone the leader. From 3 m look at the leader chip. Check: the tester finds the avatar of the phone in the chip (1 of 1 found). (That the chip holds the square, the avatar and the name in this order is checked by A-20-1b.)
 6e. Show the card with a Hebrew name in the English sentence, and with an English name in the Hebrew sentence. The Hebrew reader reads both cards aloud. Check: for each of the 2 cards the reader says that the letters of the name are in the typed order and that the sentence is in the right order (2 of 2 yes).
 7b. A child of 5 to 8 years joins with a phone, and 3 other players join. Ask the child to point to its own avatar on the TV. Check: the child points to it within 10 s and without help.
-9a. Play Banana Party, Paint Grab, Galaxy Protector, Pin Pals (Rails Off; with Rails On there is no NEW BEST) and Road Rally (a fixed track) with a profile on 2 phones. When the round is over, check: the phone of a player who scores shows NEW BEST! on the waiting screen.
+9a. Play Banana Party, Paint Grab, Star Shield, Pin Pals (Rails Off; with Rails On there is no NEW BEST) and Car Race (a fixed track) with a profile on 2 phones. When the round is over, check: the phone of a player who scores shows NEW BEST! on the waiting screen.
 12a. Share a profile to a second phone by QR: give the profile some personal bests first. On the first phone open the list and tap SHARE on a row; on the second phone tap SCAN A PROFILE. Check: the second phone shows PLAYER ADDED. with the same name and avatar.
 12c2. Share a profile from 30 cm with the screen at full brightness. Check: the code shows within 2 s of the tap on SHARE, and PLAYER ADDED. shows 10 s or less after the start of the scan. (The size of the largest code and the time to make it are automated.)
 12d. Repeat from 60 cm, and with the screen at low brightness (4 combinations). Check: PLAYER ADDED. shows within 20 s in each combination.
@@ -978,7 +980,7 @@ History:
 
 ## Test 22
 
-### Galaxy Protector (tilt, waves, upgrades)
+### Star Shield (tilt, waves, upgrades)
 
 Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9c. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
@@ -1023,7 +1025,7 @@ Measurements (write down, no pass or fail): the real delay from a tilt to the sh
 
 History:
 
-- 2026-10-21 (decision of the owner, REQ-GM-35): Galaxy Protector has no timer, so it has no countdown: wave 1 starts at once after Start. Steps 2e, 9a and 9b say "after Start" instead of "3, 2, 1" and "GO" (they were not run). No recorded result changed.
+- 2026-10-21 (decision of the owner, REQ-GM-35): Star Shield has no timer, so it has no countdown: wave 1 starts at once after Start. Steps 2e, 9a and 9b say "after Start" instead of "3, 2, 1" and "GO" (they were not run). No recorded result changed.
 - 2026-10-21 (aligned with the requirements, not run): step 3c now says 5.5 % to 7 % (about 120 px of 1920), the 60 px margin plus the 60 px of REQ-AB-2. No recorded result changed.
 - 2026-10-21 (automated): items 5f and 8e moved to the automated tests (`auto_asteroid`, `r4_asteroid`). Step 3c is also checked by `r4_asteroid`, which fails on the 2 % to 4 % limit today (the ship is 120 px, 6.25 %, from the screen edge).
 - 2026-10-20: the steps that a machine can check moved to the automated tests (A-22-1 to A-22-12). 2c, 5c, 12a, 12c and 12e were split into the automated part and 2e, 5f, 12f, 12g and 12h (each keeps the result of the old step). Step 8e (the title and the medal of one player) is automated now (`r4_asteroid`); it finds that the medal does not follow the score (REQ-AB-14), so that suite is red until that is fixed.
@@ -1507,6 +1509,90 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 History:
 
 - -: **Not run**. New (2026-10-23).
+
+## Test 31
+
+### Freeze Dance (wiggle, freeze, bench, difficulty)
+
+Needs: 1 to 4 phones, 1 TV, a stopwatch, a phone camera (240 fps for item 4a), and a child of about 5 to 8 years for item 10. Covers: REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50.
+
+New game (2026-10-24). It was tested only with made-up sensor values. Every number (the wiggle level, the limit for "still", the grace time, the length of the music and of the freeze) is a first guess; write what you measure in the Notes. Hold each phone like a remote control. Play on Medium unless the step says another difficulty. The checks of the rules (the points, the sit-out, the order of the songs, the light tiles) are automated (`dance_rules`, `smoke_freeze`, `docs/AUTOMATED_TESTS.md`).
+
+**Steps**
+
+1a. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the dark floor with white tiles, the mirror ball, the dancers and the stage edge.
+2a. Open the settings view of Freeze Dance (OK on its tile) with 2 phones connected. Check: the TV shows the line "WIGGLE YOUR PHONE WHILE THE MUSIC PLAYS. WHEN IT STOPS, HOLD STILL TO GET POINTS.", the safety line, and the rows Difficulty and Start. Each phone shows the card "HOLD ON TIGHT!" and Start stays off until both phones tapped OK (3 of 3 tries). (REQ-GM-102, REQ-GM-103)
+2b. Start the game and look at the phone pad. Check: the pad has no button A, no button B and no RECENTER box (2 of 2 phones). (REQ-GM-37a)
+3a. Press Start. Check: the music starts within 1 s and there is no 3-2-1 countdown (yes or no). The banner "WIGGLE!" shows. (REQ-FD-1, REQ-FD-3)
+3b. Hold a phone like a remote and wiggle it about 2 times a second for 3 s, then hold it still for 3 s. Check: the dancer of that phone lifts its arms and hops within 0.5 s after the wiggle starts, and stands with its arms down within 1.0 s after you hold still (5 of 5 tries). (REQ-FD-5)
+3c. Wiggle gently, like a child of 5 would, for 5 s. Check: the dancer dances (arms up and down) in 5 of 5 tries. Write down in the Notes if the wiggle that you made was too weak. (REQ-FD-5)
+3d. Take 5 photos of the floor during the music, at random moments. Check: each photo has white tiles all over the floor (in the left, right, near and far parts, 5 of 5), and in none of the photos do two white tiles touch with a whole side (0 of 5). The set of white tiles changes at least once in every 1 s of the music (yes or no). (REQ-FD-12)
+4a. Record the TV (240 fps) for 5 stops, with a stopwatch in the picture. Count the frames from the last note to the first dark floor. Check: all the lights are out and the banner "FREEZE!" shows within 100 ms (24 frames at 240 fps) after the music stops (5 of 5), and the music does not play again until the next song. (REQ-FD-2, REQ-FD-3)
+4b. Hold a phone and watch it during 5 stops. Check: the screen of the phone does not change and the phone does not buzz at the stop (5 of 5). (REQ-FD-3, REQ-FD-14)
+5a. Wiggle in the music and hold the phone as still as you can in 10 stops on Medium (a relaxed arm, no support). Check: the dancer is not moved off the floor in 9 of 10 stops. Write down the stops where it moved. (REQ-FD-6)
+5b. Wiggle in the music, and at the stop go on tilting the phone and waving it. Check: the dancer leaves the floor within 1.5 s after the music stops in 5 of 5 stops. (REQ-FD-6)
+5c. Hold the phone loosely with two fingers like a small child (the arm hanging) and hold still in 10 stops on Medium. Check: the dancer is not moved off the floor in 8 of 10 stops. (REQ-FD-4, REQ-FD-6)
+5d. Hold the phone still in 3 different poses: flat on the palm, upright like a camera, and upside down, 3 stops each. Check: the dancer is not moved off the floor in 8 of 9 stops. (REQ-FD-4)
+6a. Wiggle in the music and hold still in the freeze, 5 times in a row. Check: the score grows by 10 after each freeze (5 of 5), and a "+10" in the color of the player floats up above the dancer when the freeze ends, not before (5 of 5). (REQ-FD-7)
+6b. Hold the phone still for a whole song, with no wiggle, then freeze. Check: the score does not grow (3 of 3 songs) and the dancer is not taken off the floor (3 of 3). (REQ-FD-7)
+6c. Check the buzz of the phone: after a held freeze with points, the phone buzzes once, short (5 of 5). (REQ-FD-7, REQ-FD-14)
+7a. Move the phone in a freeze with 2 phones playing, while the other one holds still. Check: the dancer of the mover leaves the floor, it sits on the bench at the right with its name and "BACK IN n" with n between 8 and 25, its phone buzzes once (80 ms), its score does not change (3 of 3 tries). (REQ-FD-8)
+7b. Follow the mover for 2 songs. Check: it plays the song after the next one (the dancer is on the floor again at the start of the second song after the move, 3 of 3), the "BACK IN" number is 0 or 1 when it returns, and while it sits out its phone does not change its score, whatever it does (3 of 3). (REQ-FD-8)
+8a. Play 3 stops on Easy with a stopwatch. Check: the freeze lasts 1.7 s to 2.3 s from the dark floor to the next sound (3 of 3), and the music of each song lasts 7 s to 10 s (3 of 3). (REQ-FD-11)
+8b. Same, on Medium. Check: the freeze lasts 2.7 s to 3.3 s (3 of 3) and the music 5 s to 10 s (3 of 3). (REQ-FD-11)
+8c. Same, on Hard. Check: the freeze lasts 3.7 s to 4.3 s (3 of 3) and the music 4 s to 8 s (3 of 3). (REQ-FD-11)
+9a. Play one whole round with 1 phone. Check: 6 songs (the box shows SONG 1 OF 6 to SONG 6 OF 6), the result menu opens 60 s to 100 s after Start, it shows no medal and the title "<NAME> WINS!". (REQ-FD-1, REQ-FD-9)
+9b. Play one round with 2 phones. Check: the first place has a gold medal and the second place a silver medal. A player that moved keeps its points. (REQ-FD-9)
+10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once. Check: the child wiggles so that its dancer dances within 15 s after Start, with no help. (REQ-FD-15)
+10b. Same child. Check: the child holds still in at least 1 stop out of 3 (the score grows at least once), with no help. (REQ-FD-15)
+10c. Same child. Check: the child sits out at most 1 song of 3 for a move, and does not ask to stop or cry (yes or no). (REQ-FD-8, REQ-GM-83)
+10d. After the round, ask: "Play again?". Check: the child says yes.
+11. Play with 4 phones and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the dancer in a given color when you say "mark". Check: the tester finds it in 5 of 5 tries, also when the floor is lit. Check: a dancer is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e, REQ-FD-12)
+12b. From 3 m, ask a tester to read aloud the banner, the "SONG n OF 6" box and the name and time on the bench. Check: no error. (REQ-FL-40)
+13. Set the TV language to Hebrew and play 1 song. Check: the title, the song box and the bench plate are mirrored (they are on the other side of the screen), and the floor and the dancers are not mirrored (the stage is at the bottom, the near dancers on the right stay near). No text is cut. (REQ-GM-47o)
+
+Measurements (write down, no pass or fail): in how many stops a still hand was marked as moved on Easy, Medium and Hard; how much wiggle a child needs to make the dancer dance; how long a child needs to stop after the music; the length of a whole round. Use them to tune `WIGGLE_MIN`, the limits for "still", the grace time and the length of the freeze.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1a | Photo of the tile next to a photo of the game | Not run | | | |
+| 2a | Photo of the TV and of a phone | Not run | | | |
+| 2b | Photo of the pad | Not run | | | |
+| 3a | Note: seconds until the music; photo of the banner | Not run | | | |
+| 3b | Note: tries of 5; video | Not run | | | |
+| 3c | Note: tries of 5 | Not run | | | |
+| 3d | 5 photos; note: yes or no | Not run | | | |
+| 4a | Video (240 fps); note: frames and ms for 5 stops | Not run | | | |
+| 4b | Note: yes or no for each of 5 stops | Not run | | | |
+| 5a | Note: stops that were marked as moved, of 10 | Not run | | | |
+| 5b | Note: seconds for 5 stops | Not run | | | |
+| 5c | Note: stops that were marked as moved, of 10 | Not run | | | |
+| 5d | Note: stops marked as moved, per pose | Not run | | | |
+| 6a | Note: scores; photo of the +10 | Not run | | | |
+| 6b | Note: score before and after | Not run | | | |
+| 6c | Note: buzzes felt, of 5 | Not run | | | |
+| 7a | Photo of the bench; note: n | Not run | | | |
+| 7b | Note: the song numbers; video | Not run | | | |
+| 8a | Note: seconds | Not run | | | |
+| 8b | Note: seconds | Not run | | | |
+| 8c | Note: seconds | Not run | | | |
+| 9a | Note: seconds; photo of the result menu | Not run | | | |
+| 9b | Photo of the result menu | Not run | | | |
+| 10a | Note: the child, the age, seconds | Not run | | | |
+| 10b | Note: scores | Not run | | | |
+| 10c | Note: yes or no | Not run | | | |
+| 10d | Note: the answer of the child | Not run | | | |
+| 11 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 12a | Note: right answers of 5; photo with the height in px | Not run | | | |
+| 12b | Note: errors made when reading | Not run | | | |
+| 13 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-24). The headless checks of the rules and the screens are in `dance_rules` and `smoke_freeze` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
 
 ## Test 32
 
