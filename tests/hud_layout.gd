@@ -26,6 +26,8 @@ const GAMES := {
 	"marble_race": ["res://scripts/game/marble_race/marble_race.gd", {"track_choice": "3", "difficulty": "easy"}, true, true],
 	"maze": ["res://scripts/game/maze/maze_game.gd", {}, false, true],
 	"mini_golf": ["res://scripts/game/mini_golf/mini_golf_game.gd", {"difficulty": "medium", "holes": "1"}, false, false],
+	# Tower Builder has a turn timer but no countdown before the first turn (the 5th value, REQ-GM-35, REQ-TB-11).
+	"tower_builder": ["res://scripts/game/tower_builder/tower_builder_game.gd", {"difficulty": "medium"}, true, true, false],
 	"bowling": ["res://scripts/game/bowling/bowling_game.gd", {"difficulty": "medium"}, false, false],
 }
 ## Names with 10 letters, and two equal names with 12 (the TV makes them different). Slot colors come from the server.
@@ -163,7 +165,8 @@ func _run() -> void:
 ## started in Hebrew, then the round with the chip and the timer.
 func _play(id: String) -> void:
 	var spec: Array = GAMES[id]
-	var timed: bool = spec[3]   # A game with a visible timer has the countdown; the others start at once.
+	# A game with a visible timer has the countdown (unless the 5th value says no); the others start at once.
+	var timed: bool = spec[4] if spec.size() > 4 else spec[3]
 	Lang.set_language("en", root)
 	_app.go(load(spec[0]), spec[1].duplicate())
 	_game = _app.current_screen()

@@ -182,3 +182,4 @@ Status (2026-10-09): the shared view, the choice row and the Difficulty row are 
 | Whack-a-Mole (2D) | `docs/games/whack_a_mole.md` |
 | Air Hockey (2D) | `docs/games/air_hockey.md` |
 | Sheep Herding (2D) | `docs/games/sheep_herding.md` |
+| Tower Builder (2D) | `docs/games/tower_builder.md` |
