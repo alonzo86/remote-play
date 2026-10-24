@@ -17,6 +17,7 @@ const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
 const ASTEROID := "res://scripts/game/asteroid_blast/asteroid_blast_game.gd"
 const SUMO := "res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd"
 const PAINT := "res://scripts/game/paint_grab/paint_grab_game.gd"
+const SHEEP := "res://scripts/game/sheep_herding/sheep_herding_game.gd"
 const BANANA := "res://scripts/game/snowball_splat/snowball_splat_game.gd"
 const MAZE := "res://scripts/game/maze/maze_game.gd"
 const RACE := "res://scripts/game/marble_race/marble_race.gd"
@@ -67,6 +68,7 @@ func _run() -> void:
 	await _asteroid()
 	await _sumo()
 	await _paint()
+	await _sheep()
 	await _banana()
 	await _maze()
 	await _race()
@@ -206,6 +208,30 @@ func _paint() -> void:
 	await _event(game, "a blob takes a tile of another color", ["paint_steal"], {1: 20}, func() -> void:
 		game._bodies[1].pos = spot
 		game._paint_under(1), false, ["paint_tile"])
+
+
+# ---- Sheep Herding (REQ-SH-S1 to S3, REQ-SH-12) ----
+
+func _sheep() -> void:
+	print("Sheep Herding")
+	var game := _game(SHEEP, {"difficulty": "medium", "seed": 3})
+	SimInput.to_play(game, func() -> bool: return game._round.is_counting())
+	await _event(game, "a sheep gets scared", ["sheep_baa"], {}, func() -> void:
+		game._on_flock_event({"t": "startled", "i": 0, "slot": 0, "pos": Vector2(900.0, 500.0)}), true)
+	await _event(game, "a sheep walks into the pen: the dog that scared it buzzes", ["sheep_pen"], {1: 40}, func() -> void:
+		game._on_flock_event({"t": "penned", "i": 0, "slot": 1, "pos": Vector2(1600.0, 600.0)}))
+	await _event(game, "two dogs touch", ["sheep_bump"], {}, func() -> void:
+		game.dogs[0].pos = Vector2(300.0, 420.0)
+		game.dogs[1].pos = Vector2(330.0, 420.0)
+		game.dogs[0].vel = Vector2.ZERO
+		game.dogs[1].vel = Vector2.ZERO
+		game._process(DT), true)
+	await _event(game, "every sheep is in the pen: the team wins and every phone buzzes", ["win"], {0: 400, 1: 400, 2: 400},
+			func() -> void:
+				for i in game.flock.sheep.size():
+					game.flock.sheep[i].pos = game.pen.position + Vector2(70.0 + 60.0 * float(i % 4), 80.0 + 60.0 * float(i / 4))
+					game.flock.sheep[i].penned = true
+				SimInput.run(game, 2.5))
 
 
 # ---- Banana Party (REQ-SS-S1 to S3) ----

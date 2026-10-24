@@ -9,13 +9,16 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const SumoLook = preload("res://scripts/game/sumo_bumpers/sumo_look.gd")
+const HockeyLook = preload("res://scripts/game/air_hockey/air_hockey_look.gd")
 const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
 const TennisLook = preload("res://scripts/game/tennis/tennis_look.gd")
 const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
+const TowerLook = preload("res://scripts/game/tower_builder/tower_look.gd")
 const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
 const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
 const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
 const BananaLook = preload("res://scripts/game/snowball_splat/banana_look.gd")
+const MoleLook = preload("res://scripts/game/whack_a_mole/mole_look.gd")
 const PaintLook = preload("res://scripts/game/paint_grab/paint_look.gd")
 
 const TOL := 0.06   # Per channel. The tile is made from a 1920x1080 picture, scaled down, so edges are blended.
@@ -100,7 +103,7 @@ func _run() -> void:
 	var ids: Array = []
 	for g in Registry.GAMES:
 		ids.append(g.id)
-	_check(ids.size() == 9, "the registry has 9 games")
+	_check(ids.size() == 13, "the registry has 13 games")
 	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
 	var all_resources := 0
 	var excluded := false
@@ -162,6 +165,12 @@ func _run() -> void:
 	_check(_share(sumo, [SumoLook.GRASS_A, SumoLook.GRASS_B]) > 0.03 and _count(sumo, SumoLook.RIM) > 100,
 			"sumo_bumpers: the grass of the island and its rim")
 	_players(sumo, "sumo_bumpers", pc, 4, 60, 20)
+	# Air Hockey: the white table with its rails and lines, a black puck, two mallets (the first two slot colors).
+	var hockey: Image = images.air_hockey
+	_check(_share(hockey, [HockeyLook.SURFACE]) > 0.5 and _count(hockey, HockeyLook.LINE_BLUE) > 150
+			and _count(hockey, HockeyLook.LINE_RED) > 50 and _count(hockey, Color("0e0e14"), 0.03) > 30,
+			"air_hockey: the white table, the blue and red lines and the black puck")
+	_players(hockey, "air_hockey", pc, 2, 150, 60)
 	# Star Shield: the night sky, 4 ships, asteroids of different sizes, a beam.
 	var blast: Image = images.asteroid_blast
 	var dark := 0
@@ -196,6 +205,16 @@ func _run() -> void:
 			"mini_golf: the fairway, the lake and the wood of the windmill")
 	# The tile has no HUD chips (REQ-GM-49): only the golfer on its turn shows a player color.
 	_players(golf, "mini_golf", pc, 1, 60, 20)
+	# Tower Builder: the grass, the sky, the sun and the bricks of the slot colors (the tile has no HUD chips).
+	var tower: Image = images.tower_builder
+	_check(_share(tower, [TowerLook.GRASS_A, TowerLook.GRASS_B]) > 0.1 and _share(tower, TowerLook.SKY) > 0.2
+			and _count(tower, TowerLook.SUN) > 600, "tower_builder: the sky, the sun and the grass")
+	_players(tower, "tower_builder", pc, 2, 300, 60)
+	# Whack-a-Mole: the lawn, the fence, the dirt of the holes, the fur of a mole and 2 rings of the players.
+	var mole: Image = images.whack_a_mole
+	_check(_share(mole, MoleLook.GRASS) > 0.3 and _count(mole, MoleLook.FENCE) > 100 and _count(mole, MoleLook.DIRT, 0.05) > 300
+			and _count(mole, MoleLook.FUR, 0.05) > 300, "whack_a_mole: the lawn, the fence, the dirt of the holes and the fur of a mole")
+	_players(mole, "whack_a_mole", pc, 2, 20, 5)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
