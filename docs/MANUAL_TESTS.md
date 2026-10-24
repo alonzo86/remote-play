@@ -1606,28 +1606,15 @@ New game (2026-10-24). It was only tested with made-up sensor values. Every numb
 
 1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the red and white tent, the rink with its black rail, gold stars on the floor, and the cars.
 2a. From 3 m, a tester points at one star and at one car. Check: both answers are right for every tester (5 of 5 testers).
-2b. Check: a car is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
-3a. Play with 2 phones. Hold each phone flat at the countdown, then tilt one to the right by 20 degrees and hold it. Check: the car goes from the middle of the rink to the right rail in 4 s or less.
-3b. Same round. Tilt the phone back to flat. Check: the car slows to a stop (under 20 px/s) within 3 s.
-3c. Same round. Check: the other car does not move while only the first phone is tilted.
-4a. Drive a car over a star. Check: the star is gone and the score on the chip goes up by 1 within 0.2 s, in 5 of 5 tries. (REQ-BC-10)
-4b. Pick up 3 stars one after the other on Medium. Check: the floor has 9 stars again within 5 s (count them on a photo). (REQ-BC-9)
-5a. Two cars that each hold at least 1 star: one drives at the other fast, from 2 car lengths away, the other car standing. Check: both cars lose 1 star on their chips and 2 stars roll away, one from each car, in 5 of 5 tries. (REQ-BC-6, 7, 8)
-5b. Push a car gently with another car (the cars touch, no run-up). Check: no star drops and no spark shows, in 5 of 5 tries. (REQ-BC-6)
-5c. Drive over a star that has just been dropped. Check: in 3 of 3 tries the star is not picked up when the car reaches it within 0.3 s after the hit, and it is picked up when the car reaches it 1 s or more after the hit. (REQ-BC-8)
-5d. A car with no star is hit by a car that holds stars. Check: the car with no star keeps 0 and shows no negative number, and the other car loses 1 star, in 3 of 3 tries. (REQ-BC-7)
-6a. At a fast hit, hold both phones. Check: both phones buzz once, in 5 of 5 hits. (REQ-BC-6)
-6b. At a slow touch. Check: no phone buzzes, in 5 of 5 touches.
 7. Play 4 phones on Hard and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
-8a. Play a whole round of 60 s with 2 phones. Check: the round ends at 60 s (+/- 1 s on the stopwatch), the result menu names the player with the most stars, and the list shows the stars of each player. (REQ-BC-12)
-8b. Same round. Check: the phone of each player shows its own stars and its place during the round and after it. (REQ-FL-67)
 9a. Let a child of about 5 to 8 years play with 2 phones on Easy, with a grown-up next to them who does not help. Check: the child points at its own car (the one in the color of its phone) within 10 s after GO.
 9b. Same child. Check: the child drives over at least 1 star within 30 s after GO, with no help.
 9c. Same child. Check: the child has at least 3 stars at the end of the round.
 9d. After the round, ask: "Play again?". Check: the child says yes.
-10. Open the settings view. Check: Easy has 12 stars on the floor and the largest rink, Hard has 6 stars and a smaller rink, counted on photos at the start of a round. (REQ-BC-20)
 11a. Open the settings view and read the how-to line under the name, then play 1 round. Check: a tester can tell what to do (tilt to drive, pick up stars, bump the others) without more help (3 of 3 testers).
 11b. A native reader of Hebrew reads the 6 new texts of the game (the 6 rows of `assets/lang/strings.csv` with the keys `registry.bumper_cars`, `registry.desc_bumper_cars`, `how_to.bumper_cars`, `bumper_cars.hint`, `result.one_star` and `result.stars`) on the TV set to Hebrew. Check: the reader marks 0 texts as wrong and 0 texts as not fitting on the screen.
+
+Items 2b, 3a, 3b, 3c, 4a, 4b, 5a, 5b, 5c, 5d, 6a, 6b, 8a, 8b and 10 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-32-2b to A-32-10). The numbers of the other items do not change.
 
 Measurements (write down, no pass or fail): the time that a car needs from the middle to the rail with a steady tilt; how many stars a player picks up in a round of 2 and of 4; how often a hit happens in a round; if a car gets stuck in a corner or at the rail; the time that a round of 1 child takes to become fun (when the child first laughs).
 
@@ -1637,29 +1624,15 @@ Measurements (write down, no pass or fail): the time that a car needs from the m
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the tile next to a photo of the game | Not run | | | |
 | 2a | Note: right answers of 5 | Not run | | | |
-| 2b | Photo of a car with its height in px | Not run | | | |
-| 3a | Note: seconds | Not run | | | |
-| 3b | Note: seconds | Not run | | | |
-| 3c | Note: did the other car move | Not run | | | |
-| 4a | Note: right tries of 5, the time | Not run | | | |
-| 4b | Photo of the floor with its stars | Not run | | | |
-| 5a | Note: right tries of 5 | Not run | | | |
-| 5b | Note: right tries of 5 | Not run | | | |
-| 5c | Note: right tries of 3 for each case | Not run | | | |
-| 5d | Note: right tries of 3 | Not run | | | |
-| 6a | Note: right hits of 5 | Not run | | | |
-| 6b | Note: right touches of 5 | Not run | | | |
 | 7 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
-| 8a | Note: seconds, the result menu | Not run | | | |
-| 8b | Photo of a phone during and after a round | Not run | | | |
 | 9a | Note: the child, the age, seconds until it points | Not run | | | |
 | 9b | Note: seconds until the first star | Not run | | | |
 | 9c | Note: stars at the end | Not run | | | |
 | 9d | Note: the answer of the child | Not run | | | |
-| 10 | Photos of the floor on Easy and on Hard | Not run | | | |
 | 11a | Note: answers of each tester | Not run | | | |
 | 11b | Note: the texts that the reader marks, with the reason | Not run | | | |
 
 History:
 
+- 2026-10-24 (automated): steps 2b, 3a to 3c, 4a, 4b, 5a to 5d, 6a, 6b, 8a, 8b and 10 moved to the automated tests (`smoke_bumper_cars`, `bumper_rules`). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-24).

@@ -103,6 +103,7 @@ func _run() -> void:
 	await _settings()
 	await _start()
 	await _drive_and_pick_up()
+	await _tilt_timing()
 	await _hits()
 	await _the_end()
 	await _layout_and_restart()
@@ -220,6 +221,34 @@ func _drive_and_pick_up() -> void:
 	_check(cars_clear, "the new star is not under a car")
 
 
+## Test 32 steps 3a to 3c: a tilt of 20 degrees takes a car from the middle to the rail in 4 s or less, a flat phone stops it
+## in 3 s, and the other car stays where it is (REQ-BC-4).
+func _tilt_timing() -> void:
+	print("the time of a tilt")
+	var game := _play()
+	_clear_floor(game)
+	var p0: RefCounted = _app.server.players[0]
+	var middle: Vector2 = game.rink.rink.get_center()
+	var other_start: Vector2 = game._bodies[1].pos
+	game._bodies[0].pos = middle
+	game._bodies[0].vel = Vector2.ZERO
+	var tilt := Vector2(sin(deg_to_rad(20.0)), 0.0)
+	var rail_x: float = game.rink.rink.end.x - game._bodies[0].radius - 1.0
+	var t := 0.0
+	while t < 6.0 and game._bodies[0].pos.x < rail_x:
+		_sim.feed(p0, tilt)
+		game._process(DT)
+		t += DT
+	_check(game._bodies[0].pos.x >= rail_x and t <= 4.0, "a tilt of 20 degrees takes the car to the right rail in %.2f s (4 s or less)" % t)
+	_check(game._bodies[1].pos.distance_to(other_start) < 1.0, "the other car does not move while only the first phone is tilted")
+	t = 0.0
+	while t < 6.0 and game._bodies[0].vel.length() >= 20.0:
+		_sim.feed(p0, Vector2.ZERO)
+		game._process(DT)
+		t += DT
+	_check(game._bodies[0].vel.length() < 20.0 and t <= 3.0, "the flat phone stops the car (under 20 px/s) in %.2f s (3 s or less)" % t)
+
+
 ## A hit: the slower car drops a star that rolls away (REQ-BC-6, 7, 8).
 func _hits() -> void:
 	print("hits")
@@ -274,10 +303,12 @@ func _hits() -> void:
 	game._bodies[1].pos = mid + Vector2(10.0, 0.0)
 	game._bodies[1].vel = Vector2.ZERO
 	var spark_count: int = game._hits.size()
+	rec.log.clear()
 	game._process(DT)
 	_check(game._board.score(1) == 1.0 and game._hits.size() == spark_count
 			and game._bodies[0].pos.distance_to(game._bodies[1].pos) >= 95.9,
 			"a slow touch only bounces: no star drops, no spark, and the cars do not overlap (REQ-BC-5, 6)")
+	_check(rec.ms_of(0).is_empty() and rec.ms_of(1).is_empty(), "a slow touch buzzes no phone: %s" % str(rec.log))
 	# A dropped star can be picked up by the one who dropped it, after its lock.
 	var game2 := _play()
 	_clear_floor(game2)
@@ -311,6 +342,11 @@ func _the_end() -> void:
 	_quiet()
 	await _real_wait(60)
 	_heard.clear()
+	SimInput.run(game, 0.5)
+	await _frames(3)
+	_check(_clients[0].score_rank == 2 and _clients[0].score_text == "3" and _clients[1].score_rank == 1
+			and _clients[1].score_text == "5", "during the round each phone shows its own stars and its place (REQ-FL-67): %d/%s, %d/%s"
+			% [_clients[0].score_rank, _clients[0].score_text, _clients[1].score_rank, _clients[1].score_text])
 	game._round.time = game._round.duration - 0.005
 	game._game_tick(0.01)
 	await _frames(3)
@@ -349,6 +385,8 @@ func _layout_and_restart() -> void:
 			"the rink with its rail is inside the 60 px margin and under the tent: %s" % str(r))
 	_check(game._pixel_world() and game._pixel_viewport.size == Vector2i(480, 270),
 			"the world is drawn in the 480x270 pixel view (REQ-BC-16)")
+	var pixel_scale: float = 1080.0 / float(game._pixel_viewport.size.y)
+	_check(pixel_scale * 20.0 >= 48.0, "a car is 20 world pixels high, %.0f px on a 1080p screen (48 px or more, REQ-GM-47e)" % (pixel_scale * 20.0))
 	for res in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
 		root.size = res
 		await _frames(4)

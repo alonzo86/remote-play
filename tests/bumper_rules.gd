@@ -116,6 +116,11 @@ func _floor_stars() -> void:
 	_check(r.stars.size() == 8 and float(r.stars[7].blink) > 0.0, "after 0.7 s there is one new star, and it blinks")
 	r.tick(0.6, cars, rng)
 	_check(r.stars.size() == 9, "and one more 0.6 s later: the floor is full again")
+	for i in 3:
+		r.stars.remove_at(0)
+	for i in 300:
+		r.tick(DT, cars, rng)
+	_check(r.stars.size() == 9, "3 stars picked up in a row: the floor has 9 stars again within 5 s (Test 32 step 4b)")
 	var long := Rink.new()
 	long.setup("hard")
 	long.fill(cars, _rng(9))
