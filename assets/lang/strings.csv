@@ -243,9 +243,9 @@ mini_golf.col_strokes,Strokes,מכות,"Mini Golf: card at the end of a hole, ti
 mini_golf.col_total,Total,סה״כ,"Mini Golf: card at the end of a hole, title of the column with the strokes of the whole match",
 mini_golf.phone_wait,%s IS PUTTING,%s מבצע/ת מכה,"Mini Golf: phone screen, line under the player and score rows while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
 common.ok,OK,אישור,Phone safety card of a swing game (OK button),
-swing.card_title,HOLD ON TIGHT!,תחזיקו חזק!,"Phone: title of the safety card that shows once when the settings view of a swing game (Pin Pals, Tennis, Mini Golf) is open on the TV",
+swing.card_title,HOLD ON TIGHT!,תחזיקו חזק!,"Phone: title of the safety card that shows once when the settings view of a swing game (Pin Pals, Tennis, Mini Golf, Freeze Dance) is open on the TV",
 swing.card_text,GRIP YOUR PHONE FIRMLY. CHECK THAT NOBODY IS CLOSE AND NOTHING IS IN THE WAY.,אחזו את הטלפון חזק. ודאו שאף אחד לא קרוב ושום דבר לא בדרך.,Phone: text of the safety card of a swing game,
-swing.tv_line,SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.,משחק עם הנפה. החזיקו את הטלפון חזק ושמרו מרחק מסביב.,"TV game settings view of Pin Pals, Tennis and Mini Golf: safety line under the rows, always shown",
+swing.tv_line,SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.,משחק עם הנפה. החזיקו את הטלפון חזק ושמרו מרחק מסביב.,"TV game settings view of Pin Pals, Tennis, Mini Golf and Freeze Dance: safety line under the rows, always shown",
 game_settings.waiting_phones,WAITING FOR PHONES,ממתינים לטלפונים,TV game settings view of a swing game: line under Start while a phone has not tapped OK on its safety card (Start is off),
 how_to.maze,TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.,הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.,"TV game settings view of Treasure Maze: how to play, under the title (issue #77; the text that was the description before)",
 how_to.marble_race,TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.,הטו כדי להוביל את המכונית לאורך הכביש. המכונית הראשונה מעל הקו מנצחת.,"TV game settings view of Road Rally: how to play, under the title (issue #77; the text that was the description before)",
@@ -275,3 +275,11 @@ air_hockey.goal_for,GOAL FOR %s!,שער של %s!,"Air Hockey: banner in the midd
 air_hockey.tilt_to_slide,TILT TO SLIDE YOUR MALLET AND HIT THE PUCK!,הטו כדי להזיז את הידית ולהכות בדיסקית!,"Air Hockey: hint at the start of the match, bottom of the screen",
 air_hockey.press_a,PRESS A TO PLAY!,לחצו A כדי לשחק!,Air Hockey: title in the middle of the TV before the match; each phone that wants to play presses A on its pad (two players play),
 air_hockey.or_ok_robo,OR PRESS OK TO PLAY AGAINST %s,או לחצו OK כדי לשחק נגד %s,"Air Hockey: second line before the match, shown when one phone has pressed A and other phones are connected; OK is the TV remote button, %s is the name of the computer player",%s is replaced by a name or a value
+registry.freeze_dance,FREEZE DANCE,ריקוד קפוא,"Name of the game Freeze Dance: Games screen, game settings, in-game title",
+registry.desc_freeze_dance,A DISCO PARTY WHERE EVERYBODY FREEZES WHEN THE MUSIC STOPS.,מסיבת דיסקו שבה כולם קופאים כשהמוזיקה נפסקת.,"Description of Freeze Dance: info bar of the Games screen (what the game is, no instructions, issue #78)",
+how_to.freeze_dance,"WIGGLE YOUR PHONE WHILE THE MUSIC PLAYS. WHEN IT STOPS, HOLD STILL TO GET POINTS.","נענעו את הטלפון בזמן שהמוזיקה מתנגנת. כשהיא נפסקת, החזיקו בלי לזוז כדי לקבל נקודות.","TV game settings view of Freeze Dance: how to play, under the title (issue #77)",
+freeze_dance.hint,"WIGGLE YOUR PHONE TO THE MUSIC. WHEN IT STOPS, FREEZE!","נענעו את הטלפון לצלילי המוזיקה. כשהיא נפסקת, קפאו!",Freeze Dance: hint at the bottom of the TV during the first 4 seconds of the first song,
+freeze_dance.wiggle,WIGGLE!,נענעו!,Freeze Dance: banner at the top of the TV while the music plays,
+freeze_dance.freeze,FREEZE!,קפאו!,Freeze Dance: banner at the top of the TV from the moment the music stops (the phones show nothing),
+freeze_dance.song_n,SONG %d OF %d,שיר %d מתוך %d,"Freeze Dance HUD: box in the place of the timer, the song that plays now and the number of songs","the number sign (%d, %.1f ...) is replaced by a number"
+freeze_dance.back_in,BACK IN %d,חוזרים בעוד %d,"Freeze Dance: under the name of a player who moved and sits out, the seconds until the player dances again","the number sign (%d, %.1f ...) is replaced by a number"

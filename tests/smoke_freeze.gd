@@ -1,0 +1,251 @@
+extends SceneTree
+## Freeze Dance with simulated phones, stepped by hand (REQ-FD-*, test 29 of docs/MANUAL_TESTS.md). Run:
+##   godot --headless --path . --script tests/smoke_freeze.gd -- --role=tv
+
+const Sim = preload("res://tests/sim_b.gd")
+const DanceRules = preload("res://scripts/game/freeze_dance/dance_rules.gd")
+const DanceLook = preload("res://scripts/game/freeze_dance/dance_look.gd")
+const Haptics = preload("res://scripts/game/haptics.gd")
+const GameSettings = preload("res://scripts/game/game_settings.gd")
+const Registry = preload("res://scripts/game/registry.gd")
+
+var _fails := 0
+var _checks := 0
+var Game
+var sim
+var Snd
+var _sfx: Array[String] = []
+
+
+func _initialize() -> void:
+	_run()
+
+
+func _check(cond: bool, what: String) -> void:
+	_checks += 1
+	if cond:
+		print("  ok   ", what)
+	else:
+		_fails += 1
+		print("  FAIL ", what)
+
+
+func _run() -> void:
+	await process_frame
+	await process_frame
+	root.size = Vector2i(1920, 1080)
+	Game = load("res://scripts/game/freeze_dance/freeze_dance_game.gd")
+	sim = Sim.new(self)
+	Snd = root.get_node("Sound")
+	GameSettings.clear()
+	Snd.sfx_played.connect(func(id: String) -> void: _sfx.append(id))
+	await sim.join(2)
+	sim.settle(0, Sim.FLAT)
+	sim.settle(1, Sim.FLAT)
+	_registry()
+	await _start_and_music()
+	await _freeze_and_points()
+	await _move_and_bench()
+	await _pause()
+	await _full_round()
+	await _leaving()
+	await _small_screen()
+	print("%d checks, %d failed" % [_checks, _fails])
+	quit(1 if _fails > 0 else 0)
+
+
+## Starts a round with the first `n` phones in it and returns the game at once: there is no countdown.
+func _play(n := 2, props := {}) -> Control:
+	sim.app.server.set_in(1, n > 1)   # One phone in the round: the other one chose OUT (REQ-GM-104).
+	var game: Control = await sim.start(Game, props)
+	for s in n:
+		sim.settle(s, Sim.FLAT)
+	_sfx.clear()
+	return game
+
+
+## Steps `seconds`; `gyro` is slot -> the turn of the phone in rad/s (a Callable(game) -> Dictionary is also allowed).
+func _step(game: Control, seconds: float, gyro: Variant) -> void:
+	for t in roundi(seconds / Sim.DT):
+		var g: Dictionary = gyro.call(game) if gyro is Callable else gyro
+		for s in game.participants:
+			sim.feed(s, Sim.FLAT, Vector3(float(g.get(s, 0.0)), 0.0, 0.0))
+		game._game_tick(Sim.DT)
+
+
+## Steps until the freeze of the song starts.
+func _to_freeze(game: Control, gyro: Variant) -> void:
+	var guard := 0
+	while game._rules.phase != DanceRules.Phase.FREEZE and guard < 60 * 30:
+		_step(game, Sim.DT, gyro)
+		guard += 1
+
+
+func _registry() -> void:
+	print("freeze: registry")
+	var g := Registry.find("freeze_dance")
+	_check(not g.is_empty() and int(g.min_players) == 1 and int(g.max_players) == 4 and g.settings.is_empty(),
+			"the game is in the registry for 1 to 4 players, with Difficulty only (REQ-FD-11)")
+	_check(g.pad.is_empty() and Registry.buttons_of(g) == "" and not Registry.has_control(g, "recenter"),
+			"the pad has no buttons and no Recenter box: the phone is only moved (REQ-GM-37a)")
+	_check(bool(g.get("swing", false)), "the safety card of the swing games shows for this game (REQ-GM-102)")
+	_check(FileAccess.file_exists(String(g.doc)) and FileAccess.file_exists("res://assets/tiles/freeze_dance.png"),
+			"the requirements file and the tile exist (REQ-GM-6, REQ-GM-49)")
+
+
+## REQ-FD-1, 2, 3, 5, 12: no countdown, the song plays, the lights change, a wiggling dancer dances.
+func _start_and_music() -> void:
+	print("freeze: start and music")
+	var game: Control = await _play(2, {"seed": 4})
+	_check(not game._has_countdown() and game._rules.phase == DanceRules.Phase.MUSIC and game._rules.song == 1,
+			"the first song starts at once, with no countdown (REQ-FD-1)")
+	_check(Snd.wanted_music == "freeze_dance" and not Snd.music_held, "the song of the game plays (REQ-FD-2)")
+	_check(not game._lit.is_empty(), "the floor has lit tiles during the music (REQ-FD-12)")
+	var first: Dictionary = game._lit.duplicate()
+	_step(game, 1.0, {0: 3.0})
+	_check(game._lit != first, "the lit tiles change every half second (REQ-FD-12)")
+	_check(game._rules.dancers[0].energy > 2.0 and game._rules.dancers[1].energy < 0.1,
+			"the energy of a phone comes from its gyro: the wiggling phone is high, the still one is not (REQ-FD-4)")
+	_check(game._rules.dancers[0].dance_time > 0.5 and game._rules.dancers[1].dance_time == 0.0,
+			"only the wiggling player dances (REQ-FD-5)")
+	game._request_redraw()
+	await sim.frames(2)
+	_check(true, "the game draws the hall, the dancers and the HUD without an error")
+	var a: Dictionary = DanceLook.place(0, 2, game.size)
+	var b: Dictionary = DanceLook.place(1, 2, game.size)
+	_check(game._seat[0] == 0 and game._seat[1] == 1 and float(a.x) < float(b.x), "the players stand in their places (REQ-FD-13)")
+	_check(game.best_key() == "" and game.difficulty == "medium",
+			"no personal best, and Medium is the level at the start (REQ-FD-10)")
+
+
+## REQ-FD-2, 3, 7, 14: the stop, the points after the freeze, the buzz after the freeze, the music goes on.
+func _freeze_and_points() -> void:
+	print("freeze: stop and points")
+	var game: Control = await _play(2, {"seed": 4})
+	game._haptics = Haptics.new()
+	var wiggle := {0: 4.0, 1: 4.0}
+	_to_freeze(game, wiggle)
+	_check(game._rules.phase == DanceRules.Phase.FREEZE and Snd.music_held,
+			"the music is held at once when the freeze starts (REQ-FD-2)")
+	_check(game._lit.is_empty() and "freeze_stop" in _sfx, "every light goes out and the stop effect plays (REQ-FD-3, 12)")
+	_check(game._haptics._last.is_empty(), "no phone buzzes at the stop or during the freeze (REQ-FD-14)")
+	_step(game, float(game._rules.level.freeze) - 0.3, {})
+	_check(game._board.score(0) == 0.0, "the points come when the freeze ends, not before (REQ-FD-7)")
+	_step(game, 0.6, {})
+	_check(game._board.score(0) == 10.0 and game._board.score(1) == 10.0,
+			"both players held still and danced: 10 points each (REQ-FD-7)")
+	_check(game._haptics._last.has(0) and game._haptics._last.has(1) and "dance_points" in _sfx,
+			"the points buzz the phones and play the points effect (REQ-FD-7, 14)")
+	var pops := 0
+	for p in game._pops:
+		if p.age >= 0.0:
+			pops += 1
+	_check(pops == 2, "a +10 floats up above each scoring dancer")
+	_step(game, DanceRules.REST + 0.1, {})
+	_check(game._rules.song == 2 and not Snd.music_held and not game._lit.is_empty(),
+			"the next song goes on from the same place and the lights are on again (REQ-FD-2, 12)")
+	game._request_redraw()
+	await sim.frames(2)
+	_check(true, "a frame with the +10 draws without an error")
+
+
+## REQ-FD-6, 8, 14: a move, the bench, the buzz, the sit-out song and the return.
+func _move_and_bench() -> void:
+	print("freeze: a move and the bench")
+	var game: Control = await _play(2, {"seed": 4})
+	game._haptics = Haptics.new()
+	_to_freeze(game, {0: 4.0, 1: 4.0})
+	game._board.add(1, 20)   # Points that stay.
+	_step(game, 1.0, {0: 0.0, 1: 5.0})   # Player 1 goes on shaking; player 0 holds still.
+	_check(not game._rules.dancers[1].plays() and game._rules.dancers[0].plays(),
+			"the mover leaves the floor, the other player stays (REQ-FD-8)")
+	_check(game._haptics._last.has(1) and not game._haptics._last.has(0) and "dance_out" in _sfx,
+			"the mover buzzes 80 ms and the soft effect plays (REQ-FD-8, 14)")
+	_check(game._bench() == [1], "the mover is on the bench")
+	_check(game._rules.back_in(1) > 10.0 and game._rules.back_in(1) < 25.0, "the bench says how many seconds until it dances again")
+	game._request_redraw()
+	await sim.frames(2)
+	_check(true, "a frame with the bench draws without an error")
+	_step(game, float(game._rules.level.freeze) + DanceRules.REST, {0: 0.0, 1: 5.0})
+	_check(game._board.score(1) == 20.0 and game._board.score(0) == 10.0,
+			"the mover keeps its points and gets none for this song (REQ-FD-8)")
+	_check(game._rules.song == 2 and game._bench() == [1], "the next song starts and the mover is still on the bench")
+	_to_freeze(game, {0: 4.0, 1: 5.0})
+	_step(game, float(game._rules.level.freeze) + 0.2, {0: 0.0, 1: 5.0})
+	_check(game._board.score(1) == 20.0 and game._board.score(0) == 20.0,
+			"a sitting player scores nothing, and its phone is not checked (REQ-FD-8)")
+	_step(game, DanceRules.REST + 0.1, {})
+	_check(game._rules.song == 3 and game._bench().is_empty() and game._rules.dancers[1].plays(),
+			"in the song after that the player dances again")
+
+
+## The pause stops the round: no time, no event.
+func _pause() -> void:
+	print("freeze: pause")
+	var game: Control = await _play(2, {"seed": 4})
+	_step(game, 1.0, {0: 3.0})
+	var t: float = game._rules.phase_time
+	game._menu_open = true
+	for i in 120:
+		sim.feed(0, Sim.FLAT, Vector3(3.0, 0.0, 0.0))
+		game._process(Sim.DT)
+	_check(is_equal_approx(game._rules.phase_time, t), "nothing moves while the game is paused (REQ-FL-43)")
+	game._menu_open = false
+
+
+## REQ-FD-1, 9: the whole round, the winner, the medal rule.
+func _full_round() -> void:
+	print("freeze: a whole round")
+	var game: Control = await _play(1, {"seed": 4})
+	var dance := func(g: Control) -> Dictionary: return {0: 4.0 if g._rules.phase == DanceRules.Phase.MUSIC else 0.0}
+	var t := 0.0
+	while not game.is_over and t < 200.0:
+		_step(game, Sim.DT, dance)
+		t += Sim.DT
+	_check(game.is_over and game._board.score(0) == 60.0,
+			"a player who dances and holds still in 6 songs ends with 60 points (%.0f s)" % t)
+	_check(t > 60.0 and t < 100.0, "a round lasts about 75 s: %.0f s (6 songs of music, freeze and rest)" % t)
+	_check(game.no_medals, "one player gets no medal (REQ-FD-9)")
+	_check(game.menu_buttons().size() >= 3, "the result menu has Try again, New game and Back to menu (REQ-FD-9)")
+	_check(not Snd.music_held, "the song is not held when the result menu opens")
+	var two: Control = await _play(2, {"seed": 4})
+	two._board.add(0, 30)
+	two._finish()
+	_check(not two.no_medals and two.is_over, "two players: the places get medals (REQ-GM-73a)")
+	var easy: Control = await _play(1, {"seed": 4, "difficulty": "hard"})
+	_check(easy._rules.level == DanceRules.LEVELS.hard, "the difficulty is a prop of the game (REQ-FD-11)")
+	var a: Control = await _play(1, {"seed": 11})
+	var lengths_a: Array = a._rules.music_lengths.duplicate()
+	var b: Control = await _play(1, {"seed": 11})
+	_check(lengths_a == b._rules.music_lengths, "a seed fixes the songs, as Try again keeps it (REQ-FD-1)")
+
+
+## REQ-FD-9, 13: a player that leaves; the places of the others do not change.
+func _leaving() -> void:
+	print("freeze: leaving")
+	var game: Control = await _play(2, {"seed": 4})
+	var before: Dictionary = DanceLook.place(game._seat[1], game._seat_count, game.size)
+	game._board.add(1, 20)
+	game._on_player_left(0)
+	_check(not game._rules.dancers.has(0) and not game._board.has(0),
+			"a player who leaves takes the dancer and the score out (REQ-FD-9)")
+	_check(DanceLook.place(game._seat[1], game._seat_count, game.size) == before, "the other dancer keeps its place (REQ-FD-13)")
+	_step(game, 1.0, {1: 3.0})
+	_check(not game.is_over and game._rules.dancers[1].dance_time > 0.5, "the round goes on")
+
+
+## REQ-FD-16: the layout comes from the size of the screen.
+func _small_screen() -> void:
+	print("freeze: small screen")
+	var game: Control = await _play(4, {"seed": 4})
+	sim.app.server.set_in(1, true)
+	game.size = Vector2(1280.0, 720.0)
+	game._request_redraw()
+	await sim.frames(2)
+	var ok := true
+	for i in 4:
+		var p: Dictionary = DanceLook.place(i, 4, game.size)
+		var h := float(DanceLook.IMG.y) * int(p.scale) * game.size.x / 480.0
+		ok = ok and float(p.x) > 0.0 and float(p.x) < game.size.x and float(p.y) < game.size.y and float(p.y) - h > 0.0
+	_check(ok, "at 1280x720 the dancers stand inside the screen (REQ-FD-16)")
+	_check(game._pixel_viewport.size_2d_override == Vector2i(1280, 720), "the pixel view follows the size of the screen")

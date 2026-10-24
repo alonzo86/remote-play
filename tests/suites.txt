@@ -60,6 +60,8 @@ tests/race_bot.gd|tv|Road Rally bot (33 races)|scenario
 tests/smoke_banana.gd|tv|Banana Party|scenario
 tests/mole_rules.gd|controller|Whack-a-Mole rules and pictures|unit
 tests/smoke_mole.gd|tv|Whack-a-Mole|scenario
+tests/dance_rules.gd|controller|Freeze Dance rules, motion meter, light tiles and pictures|unit
+tests/smoke_freeze.gd|tv|Freeze Dance: songs, stop, points, moves, bench, round, leave|scenario
 tests/device_mocks_b.gd|tv|buzzes, RECENTER, silent phone (maze, race, banana)|scenario
 tests/swing_setup.gd|tv|safety card of the swing games: setup message, Start waits for OK, once for each run|scenario
 tests/join_flow.gd|controller|join flow on the loopback, Wi-Fi cut relay, QR scan, list of TVs|unit

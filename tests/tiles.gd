@@ -10,6 +10,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const SumoLook = preload("res://scripts/game/sumo_bumpers/sumo_look.gd")
 const HockeyLook = preload("res://scripts/game/air_hockey/air_hockey_look.gd")
+const DanceLook = preload("res://scripts/game/freeze_dance/dance_look.gd")
 const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
 const TennisLook = preload("res://scripts/game/tennis/tennis_look.gd")
 const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
@@ -102,7 +103,7 @@ func _run() -> void:
 	var ids: Array = []
 	for g in Registry.GAMES:
 		ids.append(g.id)
-	_check(ids.size() == 11, "the registry has 11 games")
+	_check(ids.size() == 12, "the registry has 12 games")
 	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
 	var all_resources := 0
 	var excluded := false
@@ -170,6 +171,12 @@ func _run() -> void:
 			and _count(hockey, HockeyLook.LINE_RED) > 50 and _count(hockey, Color("0e0e14"), 0.03) > 30,
 			"air_hockey: the white table, the blue and red lines and the black puck")
 	_players(hockey, "air_hockey", pc, 2, 150, 60)
+	# Freeze Dance: the dark floor with light tiles (never most of it), the mirror ball and 4 dancers in the slot colors.
+	var dance: Image = images.freeze_dance
+	_check(_share(dance, DanceLook.TILE_DARK + [DanceLook.HALL, DanceLook.WALL]) > 0.4 and _share(dance, [DanceLook.TILE_LIT]) > 0.08
+			and _share(dance, [DanceLook.TILE_LIT]) < 0.4 and _count(dance, DanceLook.BALL, 0.05) > 30,
+			"freeze_dance: a dark floor with light tiles and the mirror ball")
+	_players(dance, "freeze_dance", pc, 4, 40, 15)
 	# Galaxy Protector: the night sky, 4 ships, asteroids of different sizes, a beam.
 	var blast: Image = images.asteroid_blast
 	var dark := 0

@@ -17,14 +17,15 @@ const OUT_DIR := "res://assets/tiles/"
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
 const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0,
-		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "air_hockey": 4.0, "whack_a_mole": 4.0}
+		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "air_hockey": 4.0, "whack_a_mole": 4.0,
+		"freeze_dance": 1.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
 		Vector3(0.18, 0.0, -0.6)]}
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
 const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2, "sumo_bumpers": 2, "asteroid_blast": 2,
-		"bowling": 2, "tennis": 2, "mini_golf": 2, "whack_a_mole": 2}
+		"bowling": 2, "tennis": 2, "mini_golf": 2, "whack_a_mole": 2, "freeze_dance": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 ## A fixed seed for the games that draw their picture with random numbers, so that a new run makes the same tile.
@@ -181,6 +182,16 @@ func _place_air_hockey(game: Node) -> void:
 	game.sim.puck_vel = Vector2(300.0, -100.0)
 	game.scores[0] = 2
 	game.scores[1] = 1
+	game.set_process(false)   # Freeze the picture.
+	game._request_redraw()
+	await _frames(3)
+
+
+## The Freeze Dance picture: the music plays, all dancers dance and the floor is lit.
+func _place_dance(game: Node) -> void:
+	for s in game._rules.dancers:
+		game._rules.dancers[s].energy = 3.0
+	game._scene_time = 0.1   # The dancers are in the step of the dance with the arms up.
 	game.set_process(false)   # Freeze the picture.
 	game._request_redraw()
 	await _frames(3)
@@ -378,6 +389,10 @@ func _run() -> void:
 			wait = 0.0
 		if String(g.id) == "air_hockey":
 			await _place_air_hockey(app.current_screen())
+			wait = 0.0
+		if String(g.id) == "freeze_dance":
+			await _stream(pad, wait, flats)
+			await _place_dance(app.current_screen())
 			wait = 0.0
 		if String(g.id) == "mini_golf":
 			_place_mini_golf(app.current_screen())
