@@ -171,7 +171,7 @@ func _run() -> void:
 			and _count(hockey, HockeyLook.LINE_RED) > 50 and _count(hockey, Color("0e0e14"), 0.03) > 30,
 			"air_hockey: the white table, the blue and red lines and the black puck")
 	_players(hockey, "air_hockey", pc, 2, 150, 60)
-	# Galaxy Protector: the night sky, 4 ships, asteroids of different sizes, a beam.
+	# Star Shield: the night sky, 4 ships, asteroids of different sizes, a beam.
 	var blast: Image = images.asteroid_blast
 	var dark := 0
 	for y in range(0, 360, 3):

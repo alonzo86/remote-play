@@ -20,7 +20,7 @@ tests/swing_detector.gd|controller|swing detector|unit
 tests/tennis_rules.gd|controller|Tennis rules, ball and match|unit
 tests/paint_rules.gd|controller|Paint Grab rules|unit
 tests/sheep_rules.gd|controller|Sheep Herding rules, scenery and pictures|unit
-tests/asteroid_rules.gd|controller|Galaxy Protector rules and pictures|unit
+tests/asteroid_rules.gd|controller|Star Shield rules and pictures|unit
 tests/design_tokens.gd|controller|design tokens|unit
 tests/smoke_tv.gd|tv|TV smoke test|scenario
 tests/smoke_settings.gd|tv|settings view|scenario
