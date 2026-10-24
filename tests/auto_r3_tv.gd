@@ -142,7 +142,7 @@ func _countdown_steps() -> void:
 
 
 ## 17.6c: the GO word in Hebrew is the Hebrew text, whole and inside the screen and the 60 px margin, at every size of the
-## countdown. Road Rally is the only game that shows the word GO; here it is drawn by `Shell.countdown()` that all games use.
+## countdown. Car Race is the only game that shows the word GO; here it is drawn by `Shell.countdown()` that all games use.
 func _go_word() -> void:
 	print("the GO word")
 	var holder := Control.new()

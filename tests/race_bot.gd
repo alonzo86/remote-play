@@ -1,5 +1,5 @@
 extends SceneTree
-## A bot drives Road Rally on all 10 fixed tracks and a random one at every difficulty (REQ-MR-51, 52, test 9 steps 8a and 9e).
+## A bot drives Car Race on all 10 fixed tracks and a random one at every difficulty (REQ-MR-51, 52, test 9 steps 8a and 9e).
 ## It steers toward the road 4 m ahead with the tilt of a hand (0.26, 15 degrees) and checks that every race can be finished, ends
 ## with the result menu and a winner, and that the car never stands still while the bot tilts it. Run:
 ##   godot --headless --path . --script tests/race_bot.gd -- --role=tv

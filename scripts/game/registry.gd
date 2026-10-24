@@ -12,7 +12,7 @@ extends RefCounted
 ##   props   optional. Values set on the game before it starts.
 ##   settings  optional. The game has a settings view (REQ-GM-90) when this list exists. It lists the rows after Difficulty
 ##             (see game_settings.gd). An empty list means Difficulty only. A row with `"type": "tracks"` is the track list
-##             of Road Rally (`scripts/ui/track_picker.gd`).
+##             of Car Race (`scripts/ui/track_picker.gd`).
 ##   pad     the controls of the phone pad while the game runs (issue #80, REQ-GM-37a): "a", "b", "recenter". The pad shows only
 ##           these. Pin Pals also has the aim strip on the turn of a phone (REQ-BW-4); it is not listed here.
 ##   swing   optional. True for a game played with swings of the phone (issue #79; also Freeze Dance, where it is wiggled): the
@@ -40,7 +40,7 @@ const GAMES: Array[Dictionary] = [
 			"tile": "res://assets/tiles/marble_race.png",
 			"path": "res://scripts/game/marble_race/marble_race.gd", "min_players": 1, "max_players": 4,
 			"settings": [{"key": "race_theme", "label": "registry.theme", "values": ["candy", "space", "jungle"],
-					"titles": ["registry.candy_road", "registry.space_rally", "registry.jungle_run"], "default": "candy"},
+					"titles": ["registry.candy", "registry.space", "registry.jungle"], "default": "candy"},
 					{"key": "track_choice", "label": "registry.track", "type": "tracks",
 					"values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "random"],
 					"titles": ["settings.track_n", "settings.track_n", "settings.track_n", "settings.track_n", "settings.track_n",

@@ -6,7 +6,7 @@ extends SceneTree
 ## Add --resolution 3840x2160 for the 4K run (a whole number scale of 2); the screen of xvfb must be that big.
 ## The phones are made without a network (the
 ## slots are set to CONNECTED), so the run does not need port 47801.
-## What it checks (docs/AUTOMATED_TESTS.md): sharp pixels, no smoothing and integer scaling (Test 16 item 2), the Road Rally
+## What it checks (docs/AUTOMATED_TESTS.md): sharp pixels, no smoothing and integer scaling (Test 16 item 2), the Car Race
 ## cars, obstacles, themes and HUD on the screen (Test 9 item 1), the Banana Party jungle (Test 10 item 11) and the game tiles
 ## (Test 12 item 2).
 
@@ -380,7 +380,7 @@ func _sharp_ui() -> void:
 	await _sharp_logo(tag)
 
 
-# ---- Test 9 item 1: Road Rally ----
+# ---- Test 9 item 1: Car Race ----
 
 ## Puts the cars on a straight piece before the third post, like the tile picture does, and lets the camera arrive.
 func _race_scene(game: Node) -> void:
@@ -506,7 +506,7 @@ func _race_hud(game: Node, tag: String, size: Vector2i) -> void:
 
 
 func _race() -> void:
-	print("Road Rally on the screen (Test 9 item 1, REQ-MR-44 to 48)")
+	print("Car Race on the screen (Test 9 item 1, REQ-MR-44 to 48)")
 	_fake_phones(4)
 	for theme in ["candy", "space", "jungle"]:
 		await _race_theme(theme, _window())

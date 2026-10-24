@@ -54,11 +54,11 @@ tests/hud_layout.gd|tv|HUD of all games (4 phones, English and Hebrew)|scenario
 tests/screens_sweep.gd|tv|every TV screen in English and Hebrew|scenario
 tests/audio_phones.gd|tv|audio with simulated phones: join/leave, pause duck, results, haptics|scenario
 tests/audio_controller.gd|controller|the phone makes no sound|unit
-tests/game_rules_b.gd|controller|Banana Party times and Road Rally pictures|unit
+tests/game_rules_b.gd|controller|Banana Party times and Car Race pictures|unit
 tests/tiles.gd|controller|game tile pictures|scenario
 tests/smoke_maze.gd|tv|Treasure Maze|scenario
-tests/smoke_race.gd|tv|Road Rally|scenario
-tests/race_bot.gd|tv|Road Rally bot (33 races)|scenario
+tests/smoke_race.gd|tv|Car Race|scenario
+tests/race_bot.gd|tv|Car Race bot (33 races)|scenario
 tests/smoke_banana.gd|tv|Banana Party|scenario
 tests/mole_rules.gd|controller|Whack-a-Mole rules and pictures|unit
 tests/smoke_mole.gd|tv|Whack-a-Mole|scenario
@@ -77,7 +77,7 @@ tests/r1_reconnect.gd|tv|lost phone cards in real time (Test 7)|scenario
 tests/auto_sumo_b.gd|tv|Sumo Bumpers: slow touch and fast hit buzz, clouds, penguin colors, sharp view|scenario
 tests/auto_paint_b.gd|tv|Paint Grab: rolling over 5 free tiles, taking a tile buzzes once|scenario
 tests/auto_banana_b.gd|tv|Banana Party: animal limit per difficulty, closed eyes, cheers, crown|scenario
-tests/race_scenery.gd|controller|Road Rally: scenery off the road and not overlapping|unit
+tests/race_scenery.gd|controller|Car Race: scenery off the road and not overlapping|unit
 tests/auto_r3_tv.gd|tv|TV screens: tile reason, blink, logo drop, countdown steps, GO word, slot squares, Effects 0|scenario
 tests/auto_r3_phone.gd|controller|phone: pad buttons, Recenter flash, slot square, Hebrew pad, device language, HAPTICS default, waiting screen layout|scenario
 tests/auto_r3_score.gd|tv|phone place and score in Banana Party (4 phones, 1 phone, pause)|scenario

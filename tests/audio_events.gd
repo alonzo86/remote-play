@@ -276,10 +276,10 @@ func _maze() -> void:
 		game._game_tick(DT))
 
 
-# ---- Road Rally (REQ-MR-S1 to S4) ----
+# ---- Car Race (REQ-MR-S1 to S4) ----
 
 func _race() -> void:
-	print("Road Rally")
+	print("Car Race")
 	var game := _game(RACE, {"track_choice": "1", "difficulty": "medium"})
 	SimInput.to_play(game, func() -> bool: return game._round.is_counting())
 	var tr = game.track

@@ -60,10 +60,10 @@ gear_button.options,OPTIONS,אפשרויות,TV Games screen: Options button at 
 logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים עם הטלפון כשלט תנועה,TV logo screen: line under the logo,
 logo.press_ok_start,PRESS OK TO START,לחצו OK להתחלה,"TV logo screen, first start: prompt to choose a language",
 logo.press_ok_skip,PRESS OK TO SKIP,לחצו OK לדילוג,TV logo screen: prompt to skip the logo,
-marble_race.finish_in,Finish in %d m,%d מ׳ לסיום,"Road Rally HUD: distance to the finish line, %d is meters","the number sign (%d, %.1f ...) is replaced by a number"
-marble_race.go,GO,קדימה,"Road Rally countdown: the word GO after 1 (only this game shows it; the other games go from 1 to the play)",
-marble_race.meters,%d m behind,%d מ׳ מאחור,"Road Rally: marker at the screen edge for a car that is out of view, %d is meters behind the leader","the number sign (%d, %.1f ...) is replaced by a number"
-marble_race.random_track,RANDOM TRACK,מסלול אקראי,"Road Rally: name of the random track, HUD and track choice",
+marble_race.finish_in,Finish in %d m,%d מ׳ לסיום,"Car Race HUD: distance to the finish line, %d is meters","the number sign (%d, %.1f ...) is replaced by a number"
+marble_race.go,GO,קדימה,"Car Race countdown: the word GO after 1 (only this game shows it; the other games go from 1 to the play)",
+marble_race.meters,%d m behind,%d מ׳ מאחור,"Car Race: marker at the screen edge for a car that is out of view, %d is meters behind the leader","the number sign (%d, %.1f ...) is replaced by a number"
+marble_race.random_track,RANDOM TRACK,מסלול אקראי,"Car Race: name of the random track, HUD and track choice",
 maze.hold_phone_level_it,HOLD THE PHONE LEVEL. IT RECENTERS AT GO.,החזיקו את הטלפון ישר. הוא מתמרכז כשהמשחק מתחיל.,Treasure Maze: hint during the countdown,
 maze.join_with_sababi_app,"JOIN WITH THE SABABI APP, THEN START AGAIN.",הצטרפו דרך אפליקציית SABABI ואז התחילו שוב.,Treasure Maze: hint when no phone is in the game,
 medals.bronze_medal,BRONZE MEDAL!,מדליית ארד!,Result title of a one-player round: bronze,
@@ -121,18 +121,18 @@ profiles.scan_profile,SCAN A PROFILE,סרוק פרופיל,"Phone, player list: 
 profiles.share,SHARE,שתף,"Phone, player list: Share button of a player",
 profiles.who_playing,WHO IS PLAYING?,מי משחק?,"Phone, player list: title",
 qr_scanner.paste_room_link,PASTE ROOM LINK,הדבק קישור לחדר,"Phone, Connect screen: button when the phone has no QR scanner",
-registry.marble_race,ROAD RALLY,ראלי כבישים,"Name of the game Road Rally: Games screen, game settings, result",
+registry.marble_race,CAR RACE,מירוץ מכוניות,"Name of the game Car Race: Games screen, game settings, result",
 registry.paint_grab,PAINT GRAB,חטיפת צבע,"Name of the game Paint Grab: Games screen, game settings, in-game title",
 registry.desc_snowball_splat,A JUNGLE PARTY WITH HUNGRY ANIMALS AND LOTS OF BANANAS.,מסיבה בג׳ונגל עם חיות רעבות והרבה בננות.,"Description of Banana Party: info bar of the Games screen (what the game is, no instructions, issue #78)",
-registry.random,RANDOM,אקראי,Road Rally track choice: Random value,
+registry.random,RANDOM,אקראי,Car Race track choice: Random value,
 registry.snowball_splat,BANANA PARTY,מסיבת בננות,"Name of the game Banana Party: Games screen, game settings, in-game title",
 registry.sumo_bumpers,SUMO BUMPERS,סומו מתנגשים,"Name of the game Sumo Bumpers: Games screen, game settings, in-game title",
 registry.treasure_maze,TREASURE MAZE,מבוך האוצר,"Name of the game Treasure Maze: Games screen, game settings, in-game title",
 registry.desc_maze,A RACE THROUGH A TWISTY MAZE TO THE EXIT.,מירוץ דרך מבוך מפותל אל היציאה.,"Description of Treasure Maze: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.desc_paint_grab,A COLORFUL RACE TO PAINT THE WHOLE FLOOR.,מירוץ צבעוני לצבוע את כל הרצפה.,"Description of Paint Grab: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.desc_sumo_bumpers,FRIENDLY BUMPERS PUSH EACH OTHER ON A SMALL PLATFORM.,פגושים ידידותיים דוחפים זה את זה על פלטפורמה קטנה.,"Description of Sumo Bumpers: info bar of the Games screen (what the game is, no instructions, issue #78)",
-registry.desc_marble_race,A CAR RACE ON WINDING ROADS.,מירוץ מכוניות בכבישים מתפתלים.,"Description of Road Rally: info bar of the Games screen (what the game is, no instructions, issue #78)",
-registry.track,TRACK,מסלול,Road Rally game settings: name of the track row,
+registry.desc_marble_race,A CAR RACE ON WINDING ROADS.,מירוץ מכוניות בכבישים מתפתלים.,"Description of Car Race: info bar of the Games screen (what the game is, no instructions, issue #78)",
+registry.track,TRACK,מסלול,Car Race game settings: name of the track row,
 result.not_finished,NOT FINISHED,לא סיים,Result list: a player who did not finish,
 result.one_point,1 point,נקודה אחת,Sumo Bumpers result list: score of 1 point,
 result.place_1,1ST,ראשון,Result list and phone score line: first place,
@@ -141,7 +141,7 @@ result.place_3,3RD,שלישי,Result list and phone score line: third place,
 result.place_4,4TH,רביעי,Result list and phone score line: fourth place,
 result.points,%d points,%d נקודות,"Sumo Bumpers result list: score, %d is the points","the number sign (%d, %.1f ...) is replaced by a number"
 result.seconds_1,%.1f s,%.1f ש׳,"Treasure Maze result list: finish time, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
-result.seconds_2,%.2f s,%.2f ש׳,"Road Rally result list and the personal best of a race, on the phone profile: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
+result.seconds_2,%.2f s,%.2f ש׳,"Car Race result list and the personal best of a race, on the phone profile: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 result.winner,%s wins!,%s ניצח!,Result menu title: %s is the name of the winner,%s is replaced by a name or a value
 settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row,
 settings.effects,EFFECTS,אפקטים,TV Settings: name of the sound effects volume row,
@@ -150,7 +150,7 @@ settings.language,LANGUAGE,שפה,TV Settings: name of the Language row,
 common.off,OFF,כבוי,"TV Settings: state of a switch that is off (Debug overlay, Mute, Invert tilt axes)",
 common.on,ON,פועל,TV Settings: state of a switch that is on,
 settings.phone_vibrates_games_when,"THE PHONE VIBRATES IN GAMES: WHEN YOU SCORE, BUMP OR START.","הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים.",Phone Settings screen: help line under the haptics switch,
-settings.track_n,Track %d,מסלול %d,"Road Rally: name of a fixed track, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
+settings.track_n,Track %d,מסלול %d,"Car Race: name of a fixed track, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 shell.seconds,%.1f S,%.1f ש׳,"Game HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 shell.tie,TIE,תיקו,Game HUD: leader chip when two or more players share first place,
 snowball_splat.point_at_tv_press,POINT AT THE TV AND PRESS A TO THROW A BANANA. RECENTER IF THE CURSOR DRIFTS.,כוונו אל הטלוויזיה ולחצו A כדי לזרוק בננה. מרכזו אם הסמן סוטה.,Banana Party: hint during the countdown,
@@ -166,13 +166,13 @@ wait.use_tv_remote_phone,USE THE TV REMOTE. YOUR PHONE IS READY.,השתמשו ב
 wait.waiting_host,WAITING FOR THE HOST,ממתינים למארח,Phone waiting screen: title before the TV has chosen a game,
 registry.galaxy_protector,STAR SHIELD,מגן הכוכבים,"Name of the game Star Shield: Games screen, game settings, in-game title",
 registry.desc_asteroid_blast,A SPACE ADVENTURE IN A SKY FULL OF FALLING ROCKS.,הרפתקה בחלל בשמיים מלאים בסלעים נופלים.,"Description of Star Shield: info bar of the Games screen (what the game is, no instructions, issue #78)",
-registry.theme,THEME,ערכת נושא,game settings of Treasure Maze and Road Rally: name of the theme row,
+registry.theme,THEME,ערכת נושא,game settings of Treasure Maze and Car Race: name of the theme row,
 registry.castle,CASTLE,טירה,Treasure Maze theme: Castle,
 registry.garden,GARDEN,גינה,Treasure Maze theme: Garden,
 registry.ice,ICE,קרח,Treasure Maze theme: Ice,
-registry.candy_road,CANDY ROAD,כביש הממתקים,Road Rally theme: Candy Road,
-registry.space_rally,SPACE RALLY,ראלי בחלל,Road Rally theme: Space Rally,
-registry.jungle_run,JUNGLE RUN,ריצה בג׳ונגל,Road Rally theme: Jungle Run,
+registry.candy,CANDY,ממתקים,Car Race theme: Candy,
+registry.space,SPACE,חלל,Car Race theme: Space,
+registry.jungle,JUNGLE,ג׳ונגל,Car Race theme: Jungle,
 asteroid_blast.tilt_steer_ship_shoots,TILT TO STEER. YOUR SHIP SHOOTS BY ITSELF. GRAB THE UPGRADES!,הטו כדי לנווט. החללית יורה בעצמה. אספו שדרוגים!,Star Shield: hint during the countdown and the first seconds,
 asteroid_blast.all_ships_gone,ALL SHIPS ARE GONE!,כל החלליות נעלמו!,Star Shield: banner when the last ship is lost,
 asteroid_blast.wave_n,Wave %d,גל %d,"Star Shield: wave number in the HUD and the banner at the start of a wave, %d is the wave",
@@ -248,7 +248,7 @@ swing.card_text,GRIP YOUR PHONE FIRMLY. CHECK THAT NOBODY IS CLOSE AND NOTHING I
 swing.tv_line,HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.,החזיקו את הטלפון חזק ושמרו מרחק מסביב.,"TV game settings view of Pin Pals, Tennis, Mini Golf and Freeze Dance: safety line under the rows, always shown",
 game_settings.waiting_phones,WAITING FOR PHONES,ממתינים לטלפונים,TV game settings view of a swing game: line under Start while a phone has not tapped OK on its safety card (Start is off),
 how_to.maze,TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.,הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.,"TV game settings view of Treasure Maze: how to play, under the title (issue #77; the text that was the description before)",
-how_to.marble_race,TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.,הטו כדי להוביל את המכונית לאורך הכביש. המכונית הראשונה מעל הקו מנצחת.,"TV game settings view of Road Rally: how to play, under the title (issue #77; the text that was the description before)",
+how_to.marble_race,TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.,הטו כדי להוביל את המכונית לאורך הכביש. המכונית הראשונה מעל הקו מנצחת.,"TV game settings view of Car Race: how to play, under the title (issue #77; the text that was the description before)",
 how_to.paint_grab,TILT YOUR PHONE TO ROLL YOUR PAINT BLOB OVER THE FLOOR. THE MOST PAINTED TILES IN 60 S WINS.,הטו את הטלפון כדי לגלגל את כתם הצבע על הרצפה. מי שצבע הכי הרבה אריחים תוך 60 שניות מנצח.,"TV game settings view of Paint Grab: how to play, under the title (issue #77; the text that was the description before)",
 how_to.sumo_bumpers,TILT TO ROLL YOUR BUMPER AND PUSH THE OTHERS OFF THE SHRINKING PLATFORM. MOST POINTS IN 3 ROUNDS WINS.,הטו כדי לגלגל את הפגוש שלכם ולדחוף את האחרים מהפלטפורמה המצטמקת. מי שצבר הכי הרבה נקודות ב־3 סיבובים מנצח.,"TV game settings view of Sumo Bumpers: how to play, under the title (issue #77; the text that was the description before)",
 how_to.snowball_splat,POINT YOUR PHONE AT THE SCREEN AND PRESS A TO THROW BANANAS AT THE HUNGRY ANIMALS. MOST POINTS IN 60 S WINS.,כוונו את הטלפון אל המסך ולחצו A כדי לזרוק בננות על החיות הרעבות. מי שצבר הכי הרבה נקודות תוך 60 שניות מנצח.,"TV game settings view of Banana Party: how to play, under the title (issue #77; the text that was the description before)",

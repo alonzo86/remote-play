@@ -197,7 +197,7 @@ func _one_phone() -> void:
 			"with one phone there is no question and no list")
 
 
-## The tallest views (the track list of Road Rally; a swing game has the safety line) with 3 players listed stay inside the 60 px
+## The tallest views (the track list of Car Race; a swing game has the safety line) with 3 players listed stay inside the 60 px
 ## safe margin (REQ-GM-40, REQ-GM-90).
 func _fit() -> void:
 	print("fit")

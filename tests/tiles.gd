@@ -143,7 +143,7 @@ func _run() -> void:
 			"maze: the lawn of the garden is most of the picture and the hedge walls are there")
 	_check(_count(maze, Color("f8b800")) > 15, "maze: the gold of the treasure chest is there")
 	_players(maze, "maze", pc, 4, 30, 20)
-	# Road Rally: Track 1 on Hard, 4 cars on the candy road.
+	# Car Race: Track 1 on Hard, 4 cars on the candy road.
 	var race: Image = images.marble_race
 	var candy: Dictionary = RaceLook.THEMES.candy
 	_check(_share(race, [candy.ground_a, candy.ground_b]) > 0.25 and _count(race, candy.road_a) > 3000

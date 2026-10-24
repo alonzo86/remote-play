@@ -23,7 +23,7 @@ Default: **A**, built so that C is possible (section 3.4). Music in "MIDI-like" 
 
 ### 2.1 Music
 
-The clip ids are the game ids. The games were renamed later: `maze` is Treasure Maze (was Tilt Maze), `marble_race` is Road Rally (was Marble Race), `snowball_splat` is Banana Party (was Snowball Splat); the names in this plan are the names of the time it was written.
+The clip ids are the game ids. The games were renamed later: `maze` is Treasure Maze (was Tilt Maze), `marble_race` is Car Race (was Marble Race), `snowball_splat` is Banana Party (was Snowball Splat); the names in this plan are the names of the time it was written.
 
 | Clip | Where | Mood | Length of the loop |
 |------|-------|------|--------------------|
