@@ -15,8 +15,9 @@ extends RefCounted
 ##             of Road Rally (`scripts/ui/track_picker.gd`).
 ##   pad     the controls of the phone pad while the game runs (issue #80, REQ-GM-37a): "a", "b", "recenter". The pad shows only
 ##           these. Pin Pals also has the aim strip on the turn of a phone (REQ-BW-4); it is not listed here.
-##   swing   optional. True for a game played with swings of the phone (issue #79): the settings view shows the safety line
-##           and every phone shows the card "hold on tight" once, before the game can start (REQ-GM-102).
+##   swing   optional. True for a game played with swings of the phone (issue #79; also Freeze Dance, where it is wiggled): the
+##           settings view shows the safety line and every phone shows the card "hold on tight" once, before the game can start
+##           (REQ-GM-102).
 ##   enroll  optional. True for a game whose players enroll in the game at every start (Air Hockey, REQ-GM-106): the settings view
 ##           has no IN and OUT, and the game has all connected phones when it starts. It takes the first two that press A.
 ##   min_players / max_players  allowed player count (REQ-GM-20). The Games screen dims a game that does not fit.
@@ -130,6 +131,14 @@ const GAMES: Array[Dictionary] = [
 				"description": "registry.desc_tower_builder",
 				"tile": "res://assets/tiles/tower_builder.png",
 				"path": "res://scripts/game/tower_builder/tower_builder_game.gd", "min_players": 1, "max_players": 4, "settings": []},
+	{"id": "freeze_dance", "doc": "res://docs/games/freeze_dance.md", "title": "registry.freeze_dance", "dim": "2d",
+			"pad": [],
+			"swing": true,
+			"how_to": "how_to.freeze_dance",
+			"description": "registry.desc_freeze_dance",
+			"tile": "res://assets/tiles/freeze_dance.png",
+			"path": "res://scripts/game/freeze_dance/freeze_dance_game.gd", "min_players": 1, "max_players": 4,
+			"settings": []},
 ]
 
 

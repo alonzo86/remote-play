@@ -79,6 +79,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [28](#test-28) | Whack-a-Mole (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Not run | | |
 | [28](#test-28) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
+| [31](#test-31) | Freeze Dance (wiggle, freeze, bench, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -1506,3 +1507,87 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 History:
 
 - -: **Not run**. New (2026-10-23).
+
+## Test 31
+
+### Freeze Dance (wiggle, freeze, bench, difficulty)
+
+Needs: 1 to 4 phones, 1 TV, a stopwatch, a phone camera (240 fps for item 4a), and a child of about 5 to 8 years for item 10. Covers: REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50.
+
+New game (2026-10-24). It was tested only with made-up sensor values. Every number (the wiggle level, the limit for "still", the grace time, the length of the music and of the freeze) is a first guess; write what you measure in the Notes. Hold each phone like a remote control. Play on Medium unless the step says another difficulty. The checks of the rules (the points, the sit-out, the order of the songs, the light tiles) are automated (`dance_rules`, `smoke_freeze`, `docs/AUTOMATED_TESTS.md`).
+
+**Steps**
+
+1a. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the dark floor with white tiles, the mirror ball, the dancers and the stage edge.
+2a. Open the settings view of Freeze Dance (OK on its tile) with 2 phones connected. Check: the TV shows the line "WIGGLE YOUR PHONE WHILE THE MUSIC PLAYS. WHEN IT STOPS, HOLD STILL TO GET POINTS.", the safety line, and the rows Difficulty and Start. Each phone shows the card "HOLD ON TIGHT!" and Start stays off until both phones tapped OK (3 of 3 tries). (REQ-GM-102, REQ-GM-103)
+2b. Start the game and look at the phone pad. Check: the pad has no button A, no button B and no RECENTER box (2 of 2 phones). (REQ-GM-37a)
+3a. Press Start. Check: the music starts within 1 s and there is no 3-2-1 countdown (yes or no). The banner "WIGGLE!" shows. (REQ-FD-1, REQ-FD-3)
+3b. Hold a phone like a remote and wiggle it about 2 times a second for 3 s, then hold it still for 3 s. Check: the dancer of that phone lifts its arms and hops within 0.5 s after the wiggle starts, and stands with its arms down within 1.0 s after you hold still (5 of 5 tries). (REQ-FD-5)
+3c. Wiggle gently, like a child of 5 would, for 5 s. Check: the dancer dances (arms up and down) in 5 of 5 tries. Write down in the Notes if the wiggle that you made was too weak. (REQ-FD-5)
+3d. Take 5 photos of the floor during the music, at random moments. Check: each photo has white tiles all over the floor (in the left, right, near and far parts, 5 of 5), and in none of the photos do two white tiles touch with a whole side (0 of 5). The set of white tiles changes at least once in every 1 s of the music (yes or no). (REQ-FD-12)
+4a. Record the TV (240 fps) for 5 stops, with a stopwatch in the picture. Count the frames from the last note to the first dark floor. Check: all the lights are out and the banner "FREEZE!" shows within 100 ms (24 frames at 240 fps) after the music stops (5 of 5), and the music does not play again until the next song. (REQ-FD-2, REQ-FD-3)
+4b. Hold a phone and watch it during 5 stops. Check: the screen of the phone does not change and the phone does not buzz at the stop (5 of 5). (REQ-FD-3, REQ-FD-14)
+5a. Wiggle in the music and hold the phone as still as you can in 10 stops on Medium (a relaxed arm, no support). Check: the dancer is not moved off the floor in 9 of 10 stops. Write down the stops where it moved. (REQ-FD-6)
+5b. Wiggle in the music, and at the stop go on tilting the phone and waving it. Check: the dancer leaves the floor within 1.5 s after the music stops in 5 of 5 stops. (REQ-FD-6)
+5c. Hold the phone loosely with two fingers like a small child (the arm hanging) and hold still in 10 stops on Medium. Check: the dancer is not moved off the floor in 8 of 10 stops. (REQ-FD-4, REQ-FD-6)
+5d. Hold the phone still in 3 different poses: flat on the palm, upright like a camera, and upside down, 3 stops each. Check: the dancer is not moved off the floor in 8 of 9 stops. (REQ-FD-4)
+6a. Wiggle in the music and hold still in the freeze, 5 times in a row. Check: the score grows by 10 after each freeze (5 of 5), and a "+10" in the color of the player floats up above the dancer when the freeze ends, not before (5 of 5). (REQ-FD-7)
+6b. Hold the phone still for a whole song, with no wiggle, then freeze. Check: the score does not grow (3 of 3 songs) and the dancer is not taken off the floor (3 of 3). (REQ-FD-7)
+6c. Check the buzz of the phone: after a held freeze with points, the phone buzzes once, short (5 of 5). (REQ-FD-7, REQ-FD-14)
+7a. Move the phone in a freeze with 2 phones playing, while the other one holds still. Check: the dancer of the mover leaves the floor, it sits on the bench at the right with its name and "BACK IN n" with n between 8 and 25, its phone buzzes once (80 ms), its score does not change (3 of 3 tries). (REQ-FD-8)
+7b. Follow the mover for 2 songs. Check: it plays the song after the next one (the dancer is on the floor again at the start of the second song after the move, 3 of 3), the "BACK IN" number is 0 or 1 when it returns, and while it sits out its phone does not change its score, whatever it does (3 of 3). (REQ-FD-8)
+8a. Play 3 stops on Easy with a stopwatch. Check: the freeze lasts 1.7 s to 2.3 s from the dark floor to the next sound (3 of 3), and the music of each song lasts 7 s to 10 s (3 of 3). (REQ-FD-11)
+8b. Same, on Medium. Check: the freeze lasts 2.7 s to 3.3 s (3 of 3) and the music 5 s to 10 s (3 of 3). (REQ-FD-11)
+8c. Same, on Hard. Check: the freeze lasts 3.7 s to 4.3 s (3 of 3) and the music 4 s to 8 s (3 of 3). (REQ-FD-11)
+9a. Play one whole round with 1 phone. Check: 6 songs (the box shows SONG 1 OF 6 to SONG 6 OF 6), the result menu opens 60 s to 100 s after Start, it shows no medal and the title "<NAME> WINS!". (REQ-FD-1, REQ-FD-9)
+9b. Play one round with 2 phones. Check: the first place has a gold medal and the second place a silver medal. A player that moved keeps its points. (REQ-FD-9)
+10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once. Check: the child wiggles so that its dancer dances within 15 s after Start, with no help. (REQ-FD-15)
+10b. Same child. Check: the child holds still in at least 1 stop out of 3 (the score grows at least once), with no help. (REQ-FD-15)
+10c. Same child. Check: the child sits out at most 1 song of 3 for a move, and does not ask to stop or cry (yes or no). (REQ-FD-8, REQ-GM-83)
+10d. After the round, ask: "Play again?". Check: the child says yes.
+11. Play with 4 phones and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the dancer in a given color when you say "mark". Check: the tester finds it in 5 of 5 tries, also when the floor is lit. Check: a dancer is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e, REQ-FD-12)
+12b. From 3 m, ask a tester to read aloud the banner, the "SONG n OF 6" box and the name and time on the bench. Check: no error. (REQ-FL-40)
+13. Set the TV language to Hebrew and play 1 song. Check: the title, the song box and the bench plate are mirrored (they are on the other side of the screen), and the floor and the dancers are not mirrored (the stage is at the bottom, the near dancers on the right stay near). No text is cut. (REQ-GM-47o)
+
+Measurements (write down, no pass or fail): in how many stops a still hand was marked as moved on Easy, Medium and Hard; how much wiggle a child needs to make the dancer dance; how long a child needs to stop after the music; the length of a whole round. Use them to tune `WIGGLE_MIN`, the limits for "still", the grace time and the length of the freeze.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1a | Photo of the tile next to a photo of the game | Not run | | | |
+| 2a | Photo of the TV and of a phone | Not run | | | |
+| 2b | Photo of the pad | Not run | | | |
+| 3a | Note: seconds until the music; photo of the banner | Not run | | | |
+| 3b | Note: tries of 5; video | Not run | | | |
+| 3c | Note: tries of 5 | Not run | | | |
+| 3d | 5 photos; note: yes or no | Not run | | | |
+| 4a | Video (240 fps); note: frames and ms for 5 stops | Not run | | | |
+| 4b | Note: yes or no for each of 5 stops | Not run | | | |
+| 5a | Note: stops that were marked as moved, of 10 | Not run | | | |
+| 5b | Note: seconds for 5 stops | Not run | | | |
+| 5c | Note: stops that were marked as moved, of 10 | Not run | | | |
+| 5d | Note: stops marked as moved, per pose | Not run | | | |
+| 6a | Note: scores; photo of the +10 | Not run | | | |
+| 6b | Note: score before and after | Not run | | | |
+| 6c | Note: buzzes felt, of 5 | Not run | | | |
+| 7a | Photo of the bench; note: n | Not run | | | |
+| 7b | Note: the song numbers; video | Not run | | | |
+| 8a | Note: seconds | Not run | | | |
+| 8b | Note: seconds | Not run | | | |
+| 8c | Note: seconds | Not run | | | |
+| 9a | Note: seconds; photo of the result menu | Not run | | | |
+| 9b | Photo of the result menu | Not run | | | |
+| 10a | Note: the child, the age, seconds | Not run | | | |
+| 10b | Note: scores | Not run | | | |
+| 10c | Note: yes or no | Not run | | | |
+| 10d | Note: the answer of the child | Not run | | | |
+| 11 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 12a | Note: right answers of 5; photo with the height in px | Not run | | | |
+| 12b | Note: errors made when reading | Not run | | | |
+| 13 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-24). The headless checks of the rules and the screens are in `dance_rules` and `smoke_freeze` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
