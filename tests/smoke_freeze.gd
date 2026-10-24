@@ -5,7 +5,6 @@ extends SceneTree
 const Sim = preload("res://tests/sim_b.gd")
 const DanceRules = preload("res://scripts/game/freeze_dance/dance_rules.gd")
 const DanceLook = preload("res://scripts/game/freeze_dance/dance_look.gd")
-const Haptics = preload("res://scripts/game/haptics.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 
@@ -14,6 +13,7 @@ var _checks := 0
 var Game
 var sim
 var Snd
+var Haptics   # Loaded at run time: haptics.gd uses the App autoload, which a preload cannot see.
 var _sfx: Array[String] = []
 
 
@@ -37,6 +37,7 @@ func _run() -> void:
 	Game = load("res://scripts/game/freeze_dance/freeze_dance_game.gd")
 	sim = Sim.new(self)
 	Snd = root.get_node("Sound")
+	Haptics = load("res://scripts/game/haptics.gd")
 	GameSettings.clear()
 	Snd.sfx_played.connect(func(id: String) -> void: _sfx.append(id))
 	await sim.join(2)
