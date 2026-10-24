@@ -9,8 +9,8 @@ rink with black rubber rails and a red and white tent above, round-cornered cars
 ## Goal
 
 Each player tilts a phone to drive a bumper car in a rink, like the ones at a fun fair. Gold stars lie on the floor: drive over a
-star to pick it up. The cars bounce off each other and off the rubber rails. When two cars bump, the car that was hit, the slower
-one, drops one star, which rolls away so that anybody can pick it up. Nobody is out and nobody waits (REQ-GM-83). The player with the
+star to pick it up. The cars bounce off each other and off the rubber rails. When two cars bump hard, each of them drops one
+star (a car with no star drops nothing), which rolls away so that anybody can pick it up. Nobody is out and nobody waits (REQ-GM-83). The player with the
 most stars after 60 seconds wins. The game needs 2 players or more.
 
 Registry entry: `description` (one line) and `tile` (`assets/tiles/bumper_cars.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
@@ -45,8 +45,8 @@ Driving and bumping
 | REQ-BC-4 | Tilt moves a car (`TiltBody`: acceleration, dead zone, damping, speed limit). All players have the same values (REQ-GM-24). A car is a disk. The rail of the rink keeps the whole disk inside and gives a soft bounce (the car keeps 0.6 of its speed). | Done | smoke_bumper_cars |
 | REQ-BC-5 | Cars bounce off each other (`TiltBody.collide`, restitution 0.9): they never overlap after a tick, and a hit pushes the other car away. | Done | smoke_bumper_cars |
 | REQ-BC-6 | A bump is a hit when the speed of the two cars towards each other is at least 250 px/s. A hit buzzes both phones (25 ms, at most every 150 ms for one slot), plays the sound `car_bump`, and shows a spark where the cars met. A slower touch does nothing. | Device | bumper_rules, smoke_bumper_cars, audio_events, Device (the feel) |
-| REQ-BC-7 | In a hit the car with the lower speed towards the other car is the one that was hit. When the two speeds are less than 40 px/s apart, both cars are hit. A hit car with at least one star drops one star (REQ-BC-8). A hit car with no star drops nothing. The same pair of cars cannot hit again for 0.6 s. | Done | bumper_rules |
-| REQ-BC-8 | A dropped star leaves the car in the direction away from the other car, rolls 110 px in 0.35 s, and then lies on the floor (inside the rink: it stops at the rail). It cannot be picked up in its first 0.5 s, so that the other car does not take it at once. After that anybody can pick it up. A dropped star counts as a star on the floor (REQ-BC-9). | Done | bumper_rules, smoke_bumper_cars |
+| REQ-BC-7 | In a hit (REQ-BC-6) both cars are hit (owner, 2026-10-24: first only the slower car was hit). Each hit car with at least one star drops one star (REQ-BC-8). A hit car with no star drops nothing. The same pair of cars cannot hit again for 0.6 s. | Done | bumper_rules, smoke_bumper_cars |
+| REQ-BC-8 | A dropped star leaves its car in the direction away from the other car, rolls 110 px in 0.35 s, and then lies on the floor (inside the rink: it stops at the rail). It cannot be picked up in its first 0.5 s, so that the other car does not take it at once. After that anybody can pick it up. A dropped star counts as a star on the floor (REQ-BC-9). | Done | bumper_rules, smoke_bumper_cars |
 
 Stars
 
@@ -95,7 +95,7 @@ Values that change how the game feels. Tune them on a device (Test 30). First va
 | `ACCEL`, `DAMPING`, `MAX_SPEED`, `DEADZONE` | `tilt_body.gd` | 2200 px/s2, 1.4 1/s, 560 px/s, 0.03 (the same as Paint Grab) |
 | `ROUND_TIME`, `COUNTDOWN` | `bumper_cars_game.gd` | 60 s, 3 s |
 | `CAR_R`, `PICKUP_R`, `RAIL_BOUNCE` | `bumper_rink.gd` | 48 px, 76 px, 0.6 |
-| `HIT_SPEED`, `HIT_TIE`, `HIT_GAP` | `bumper_rink.gd` | 250 px/s, 40 px/s, 0.6 s |
+| `HIT_SPEED`, `HIT_GAP` | `bumper_rink.gd` | 250 px/s, 0.6 s |
 | `RESTITUTION` | `bumper_rink.gd` | 0.9 |
 | `DROP_DISTANCE`, `DROP_TIME`, `DROP_LOCK` | `bumper_rink.gd` | 110 px, 0.35 s, 0.5 s |
 | `SPAWN_EVERY`, `SPAWN_CLEAR` | `bumper_rink.gd` | 0.6 s, 120 px |
@@ -103,7 +103,7 @@ Values that change how the game feels. Tune them on a device (Test 30). First va
 
 ## Open questions
 
-- Is it right that a bump costs the hit car a star (REQ-GM-80 says a mistake takes no points away)? The star is not lost, it lies on the floor.
+- Is it right that a hard bump costs each of the two cars a star (REQ-GM-80 says a mistake takes no points away)? The star is not lost, it lies on the floor.
 - Is 60 s long enough, and are 9 stars on the floor with 4 cars too few or too many?
 - Should a car that has many stars be slower, so that the leader can be caught?
 
@@ -115,7 +115,7 @@ The song `bumper_cars` starts at GO (REQ-GM-35): a bouncy fun-fair march at 126 
 |----|--------|------|-------|--------|
 | REQ-BC-S1 | `car_bump` | Two cars hit (REQ-BC-6). | A rubber bonk with a zap | Device (test 18) |
 | REQ-BC-S2 | `car_star` | A car picks up a star. | A short rising ding | Device (test 18) |
-| REQ-BC-S3 | `car_drop` | A hit car drops a star. | A falling pop | Device (test 18) |
+| REQ-BC-S3 | `car_drop` | A hit car drops a star (once for each car that drops). | A falling pop | Device (test 18) |
 
 Haptics on the phone of the player: GO 60 ms; hit 25 ms; star 15 ms; match win 400 ms.
 

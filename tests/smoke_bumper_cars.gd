@@ -239,11 +239,13 @@ func _hits() -> void:
 	_heard.clear()
 	rec.log.clear()
 	game._process(DT)
-	_check(game._board.score(1) == 1.0 and game._board.score(0) == 1.0 and game.rink.stars.size() == 1,
-			"car 0 hits car 1 that stands: car 1 drops one star (2 to 1), car 0 keeps its star")
-	var s: Dictionary = game.rink.stars[0]
-	_check((s.vel as Vector2).x > 0.0 and absf((s.vel as Vector2).y) < 1.0 and float(s.lock) > 0.0,
-			"the star rolls away from the car that hit (to the right) and waits before it can be picked up")
+	_check(game._board.score(0) == 0.0 and game._board.score(1) == 1.0 and game.rink.stars.size() == 2,
+			"car 0 hits car 1 that stands: each car drops one star (1 to 0 and 2 to 1), two stars lie on the floor (REQ-BC-7)")
+	var s0: Dictionary = game.rink.stars[0]
+	var s1: Dictionary = game.rink.stars[1]
+	_check((s0.vel as Vector2).x < 0.0 and (s1.vel as Vector2).x > 0.0 and absf((s0.vel as Vector2).y) < 1.0
+			and float(s0.lock) > 0.0 and float(s1.lock) > 0.0,
+			"each star rolls away from the other car (left and right) and waits before it can be picked up (REQ-BC-8)")
 	_check(rec.ms_of(0) == [25] and rec.ms_of(1) == [25], "both phones buzz 25 ms: %s" % str(rec.log))
 	_check(_heard.has("car_bump") and _heard.has("car_drop"), "the sounds car_bump and car_drop play: %s" % str(_heard))
 	_check(game._hits.size() == 1, "a spark shows where they met")
@@ -252,15 +254,17 @@ func _hits() -> void:
 	_stage_hit(game)
 	game._process(DT)
 	_check(game._board.score(1) == 1.0 and game.rink.stars.is_empty(), "the same pair does not hit again at once (REQ-BC-7)")
+	game._board.add(0, 1.0)
 	_wait_apart(game, 0.7)
 	_stage_hit(game)
 	game._process(DT)
-	_check(game._board.score(1) == 0.0 and game.rink.stars.size() == 1, "after 0.7 s it can: car 1 drops its last star")
+	_check(game._board.score(0) == 0.0 and game._board.score(1) == 0.0 and game.rink.stars.size() == 2,
+			"after 0.7 s it can: both cars drop their last star")
 	# A car without a star drops nothing.
 	_wait_apart(game, 0.7)
 	_stage_hit(game)
 	game._process(DT)
-	_check(game._board.score(1) == 0.0 and game.rink.stars.is_empty(),
+	_check(game._board.score(0) == 0.0 and game._board.score(1) == 0.0 and game.rink.stars.is_empty(),
 			"a hit car with no star drops nothing, and its score is not below 0")
 	# A slow touch is no hit.
 	_wait_apart(game, 0.7)

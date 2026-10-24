@@ -1,6 +1,6 @@
 extends RefCounted
 ## The rules of the rink of Bumper Cars (REQ-BC-3 to 10, 20): the size of the rink, the stars on the floor and how they come
-## and go, who is hit in a bump and who picks up a star. Pure logic: it draws nothing and it knows no players, only positions.
+## and go, whether a bump is a hit and who picks up a star. Pure logic: it draws nothing and it knows no players, only positions.
 ## Units are px of the 1920x1080 simulation (the drawing scales them).
 
 const CAR_R := 48.0
@@ -9,7 +9,6 @@ const PICKUP_R := CAR_R + STAR_R         # A car picks up a star when its middle
 const RAIL_BOUNCE := 0.6                 # The part of the speed that a car keeps after a bounce at the rail (REQ-BC-4).
 const RESTITUTION := 0.9                 # Close to 1: a hit pushes the other car away (REQ-BC-5).
 const HIT_SPEED := 250.0                 # The speed of two cars towards each other that makes a hit (REQ-BC-6).
-const HIT_TIE := 40.0                    # Two speeds this close make a tie: both cars are hit (REQ-BC-7).
 const HIT_GAP := 0.6                     # The least time between two hits of the same pair (REQ-BC-7).
 const DROP_DISTANCE := 110.0             # A dropped star rolls this far, in DROP_TIME (REQ-BC-8).
 const DROP_TIME := 0.35
@@ -154,16 +153,11 @@ static func touching(a: Vector2, b: Vector2) -> bool:
 	return a.distance_to(b) < CAR_R * 2.0
 
 
-## A bump of two cars, with their positions and velocities before the bounce (REQ-BC-6, 7). Returns `{hit, a, b}`: `hit` is true
-## when the two speeds towards each other add up to HIT_SPEED or more; `a` and `b` say which cars were hit: the one that moves
-## towards the other more slowly, or both when the two speeds are within HIT_TIE.
-static func bump(pos_a: Vector2, vel_a: Vector2, pos_b: Vector2, vel_b: Vector2) -> Dictionary:
+## True when a bump of two cars is a hit (REQ-BC-6): the speeds of the two cars towards each other, from their positions and
+## velocities before the bounce, add up to HIT_SPEED or more. In a hit both cars lose a star (REQ-BC-7).
+static func is_hit(pos_a: Vector2, vel_a: Vector2, pos_b: Vector2, vel_b: Vector2) -> bool:
 	var d := pos_b - pos_a
 	var n := d.normalized() if d.length() > 0.001 else Vector2.RIGHT
-	var sa := vel_a.dot(n)      # How fast a goes towards b.
-	var sb := -vel_b.dot(n)     # How fast b goes towards a.
-	if sa + sb < HIT_SPEED:
-		return {"hit": false, "a": false, "b": false}
-	if absf(sa - sb) < HIT_TIE:
-		return {"hit": true, "a": true, "b": true}
-	return {"hit": true, "a": sa < sb, "b": sb < sa}
+	var towards_b := vel_a.dot(n)      # How fast a goes towards b.
+	var towards_a := -vel_b.dot(n)     # How fast b goes towards a.
+	return towards_b + towards_a >= HIT_SPEED

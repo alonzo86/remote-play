@@ -1,6 +1,6 @@
 extends "res://scripts/game/minigame.gd"
 ## Bumper Cars. Each phone tilts a bumper car in a fun-fair rink. Gold stars lie on the floor: a car that drives over one picks it
-## up. When two cars bump, the slower one is hit and drops a star that rolls away, so anybody can pick it up. Nobody is out and
+## up. When two cars bump hard, each of them drops a star that rolls away, so anybody can pick them up. Nobody is out and
 ## nobody waits (REQ-GM-83). The most stars after 60 seconds win (REQ-BC-1 to 20). The game needs 2 players or more and is for
 ## children too (REQ-GM-80 to 84). RECENTER recenters (REQ-GM-37); A and B do nothing. The rules of the rink are in
 ## bumper_rink.gd, the pictures in bumper_look.gd and the movement of a car is `TiltBody` (scripts/game/tilt_body.gd).
@@ -116,7 +116,7 @@ func _car_spots() -> Array:
 	return out
 
 
-## REQ-BC-5 to 8: cars bounce off each other. A fast bump is a hit: the slower car (or both) drops a star.
+## REQ-BC-5 to 8: cars bounce off each other. A fast bump is a hit: both cars drop a star.
 func _bump_cars() -> void:
 	var slots: Array = _bodies.keys()
 	for i in slots.size():
@@ -125,29 +125,27 @@ func _bump_cars() -> void:
 			var b: TiltBody = _bodies[slots[j]]
 			if not BumperRink.touching(a.pos, b.pos):
 				continue
-			var result := BumperRink.bump(a.pos, a.vel, b.pos, b.vel)   # Before the bounce changes the speeds.
+			var hit := BumperRink.is_hit(a.pos, a.vel, b.pos, b.vel)   # Before the bounce changes the speeds.
 			TiltBody.collide(a, b, BumperRink.RESTITUTION)
 			var key := "%d_%d" % [mini(slots[i], slots[j]), maxi(slots[i], slots[j])]
-			if not result.hit or _pair_wait.has(key):
+			if not hit or _pair_wait.has(key):
 				continue
 			_pair_wait[key] = BumperRink.HIT_GAP
-			_on_hit(int(slots[i]), int(slots[j]), result)
+			_on_hit(int(slots[i]), int(slots[j]))
 
 
-func _on_hit(sa: int, sb: int, result: Dictionary) -> void:
+func _on_hit(sa: int, sb: int) -> void:
 	var a: TiltBody = _bodies[sa]
 	var b: TiltBody = _bodies[sb]
 	_hits.append({"pos": (a.pos + b.pos) * 0.5, "age": 0.0})
 	_haptics.pulse(sa, HIT_BUZZ_MS, BUZZ_GAP_MS)
 	_haptics.pulse(sb, HIT_BUZZ_MS, BUZZ_GAP_MS)
 	Sound.sfx("car_bump")
-	if result.a:
-		_drop(sa, a.pos, b.pos)
-	if result.b:
-		_drop(sb, b.pos, a.pos)
+	_drop(sa, a.pos, b.pos)
+	_drop(sb, b.pos, a.pos)
 
 
-## REQ-BC-7, 8: a hit car with a star drops one; a car with none drops nothing.
+## REQ-BC-7, 8: in a hit each car with a star drops one; a car with none drops nothing.
 func _drop(slot: int, from: Vector2, other: Vector2) -> void:
 	if _board.score(slot) < 1.0:
 		return

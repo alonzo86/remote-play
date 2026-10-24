@@ -1439,7 +1439,7 @@ History:
 
 Needs: 2 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9d. Covers: REQ-BC-* (`docs/games/bumper_cars.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
-New game (2026-10-24). It was only tested with made-up sensor values. Every number (the speed of the cars, the size of the rink, the number of stars on the floor, the size of a bump, the 60 s of the round), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner also has to confirm that a hit car may lose a star (REQ-GM-80, open question in the requirements file).
+New game (2026-10-24). It was only tested with made-up sensor values. Every number (the speed of the cars, the size of the rink, the number of stars on the floor, the size of a bump, the 60 s of the round), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner also has to confirm that a hit car may lose a star (REQ-GM-80, open question in the requirements file). Changed 2026-10-24 (owner): in a hit both cars lose a star.
 
 **Steps**
 
@@ -1451,10 +1451,10 @@ New game (2026-10-24). It was only tested with made-up sensor values. Every numb
 3c. Same round. Check: the other car does not move while only the first phone is tilted.
 4a. Drive a car over a star. Check: the star is gone and the score on the chip goes up by 1 within 0.2 s, in 5 of 5 tries. (REQ-BC-10)
 4b. Pick up 3 stars one after the other on Medium. Check: the floor has 9 stars again within 5 s (count them on a photo). (REQ-BC-9)
-5a. A car that holds at least 1 star is rammed by a car that drives at it fast, from 2 car lengths away, the other car standing. Check: the standing car loses 1 star on its chip and a star rolls away from it, in 5 of 5 tries. (REQ-BC-6, 7, 8)
+5a. Two cars that each hold at least 1 star: one drives at the other fast, from 2 car lengths away, the other car standing. Check: both cars lose 1 star on their chips and 2 stars roll away, one from each car, in 5 of 5 tries. (REQ-BC-6, 7, 8)
 5b. Push a car gently with another car (the cars touch, no run-up). Check: no star drops and no spark shows, in 5 of 5 tries. (REQ-BC-6)
 5c. Drive over a star that has just been dropped. Check: in 3 of 3 tries the star is not picked up when the car reaches it within 0.3 s after the hit, and it is picked up when the car reaches it 1 s or more after the hit. (REQ-BC-8)
-5d. Two cars hit head-on at full speed. Check: both stars drop in 3 of 3 tries (both cars had stars). (REQ-BC-7)
+5d. A car with no star is hit by a car that holds stars. Check: the car with no star keeps 0 and shows no negative number, and the other car loses 1 star, in 3 of 3 tries. (REQ-BC-7)
 6a. At a fast hit, hold both phones. Check: both phones buzz once, in 5 of 5 hits. (REQ-BC-6)
 6b. At a slow touch. Check: no phone buzzes, in 5 of 5 touches.
 7. Play 4 phones on Hard and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)

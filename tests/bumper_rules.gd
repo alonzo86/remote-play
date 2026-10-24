@@ -124,30 +124,24 @@ func _floor_stars() -> void:
 	_check(long.stars.size() == 6, "10 s later the floor still has exactly 6 stars (Hard)")
 
 
-## REQ-BC-6, 7: a hit needs 250 px/s towards each other; the slower car is hit; a tie hits both.
+## REQ-BC-6: a hit needs 250 px/s of the two cars towards each other.
 func _bump_rule() -> void:
-	print("who is hit")
+	print("a hit")
 	var o := Vector2.ZERO
 	var right := Vector2(90.0, 0.0)   # b is to the right of a.
-	var slow := Rink.bump(o, Vector2(100.0, 0.0), right, Vector2(-100.0, 0.0))
-	_check(not slow.hit, "two cars at 100 px/s each towards the other (200 together) make no hit (REQ-BC-6)")
-	var edge := Rink.bump(o, Vector2(125.0, 0.0), right, Vector2(-125.0, 0.0))
-	_check(edge.hit and edge.a and edge.b, "125 px/s each (250 together, a tie) is a hit and hits both (REQ-BC-6, 7)")
-	var rammed := Rink.bump(o, Vector2(400.0, 0.0), right, Vector2.ZERO)
-	_check(rammed.hit and not rammed.a and rammed.b, "a car that rams one that stands still: the one that stood is hit")
-	var behind := Rink.bump(o, Vector2(300.0, 0.0), right, Vector2(100.0, 0.0))
-	_check(not behind.hit, "a car that catches another one from behind at 200 px/s more makes no hit (under 250)")
-	var chase := Rink.bump(o, Vector2(600.0, 0.0), right, Vector2(100.0, 0.0))
-	_check(chase.hit and not chase.a and chase.b,
-			"a car that catches another one from behind at 500 px/s more: the car in front is hit")
-	var almost := Rink.bump(o, Vector2(200.0, 0.0), right, Vector2(-180.0, 0.0))
-	_check(almost.hit and almost.a and almost.b, "speeds of 200 and 180 px/s are 20 apart, under 40: both are hit (REQ-BC-7)")
-	var apart := Rink.bump(o, Vector2(300.0, 0.0), right, Vector2(-200.0, 0.0))
-	_check(apart.hit and not apart.a and apart.b, "speeds of 300 and 200 px/s: only the slower one, b, is hit")
-	var side := Rink.bump(o, Vector2(0.0, 500.0), right, Vector2.ZERO)
-	_check(not side.hit, "a car that moves along the line between them, not towards the other, makes no hit")
-	var same := Rink.bump(Vector2(10.0, 10.0), Vector2(300.0, 0.0), Vector2(10.0, 10.0), Vector2(-300.0, 0.0))
-	_check(same.hit, "two cars in the same place do not crash the rule")
+	_check(not Rink.is_hit(o, Vector2(100.0, 0.0), right, Vector2(-100.0, 0.0)),
+			"two cars at 100 px/s each towards the other (200 together) make no hit (REQ-BC-6)")
+	_check(Rink.is_hit(o, Vector2(125.0, 0.0), right, Vector2(-125.0, 0.0)), "125 px/s each (250 together) is a hit (REQ-BC-6)")
+	_check(Rink.is_hit(o, Vector2(400.0, 0.0), right, Vector2.ZERO), "a car that rams one that stands still: a hit")
+	_check(Rink.is_hit(o, Vector2.ZERO, right, Vector2(-400.0, 0.0)), "a car that stands is rammed from the other side: a hit")
+	_check(not Rink.is_hit(o, Vector2(300.0, 0.0), right, Vector2(100.0, 0.0)),
+			"a car that catches another one from behind at 200 px/s more makes no hit (under 250)")
+	_check(Rink.is_hit(o, Vector2(600.0, 0.0), right, Vector2(100.0, 0.0)),
+			"a car that catches another one from behind at 500 px/s more: a hit")
+	_check(not Rink.is_hit(o, Vector2(0.0, 500.0), right, Vector2.ZERO),
+			"a car that moves along the line between them, not towards the other, makes no hit")
+	_check(Rink.is_hit(Vector2(10.0, 10.0), Vector2(300.0, 0.0), Vector2(10.0, 10.0), Vector2(-300.0, 0.0)),
+			"two cars in the same place do not crash the rule")
 	_check(Rink.touching(Vector2.ZERO, Vector2(95.0, 0.0)) and not Rink.touching(Vector2.ZERO, Vector2(96.0, 0.0)),
 			"cars touch when their middles are closer than two radii")
 
