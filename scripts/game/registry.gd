@@ -37,7 +37,7 @@ const GAMES: Array[Dictionary] = [
 			"tile": "res://assets/tiles/marble_race.png",
 			"path": "res://scripts/game/marble_race/marble_race.gd", "min_players": 1, "max_players": 4,
 			"settings": [{"key": "race_theme", "label": "registry.theme", "values": ["candy", "space", "jungle"],
-					"titles": ["registry.candy_road", "registry.space_rally", "registry.jungle_run"], "default": "candy"},
+					"titles": ["registry.candy", "registry.space", "registry.jungle"], "default": "candy"},
 					{"key": "track_choice", "label": "registry.track", "type": "tracks",
 					"values": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "random"],
 					"titles": ["settings.track_n", "settings.track_n", "settings.track_n", "settings.track_n", "settings.track_n",

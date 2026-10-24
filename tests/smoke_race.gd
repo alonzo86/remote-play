@@ -222,8 +222,8 @@ func _settings_view() -> void:
 
 
 func _names() -> void:
-	var expected := {"registry.marble_race": ["CAR RACE", "מירוץ מכוניות"], "registry.candy_road": ["CANDY", "ממתקים"],
-			"registry.space_rally": ["SPACE", "חלל"], "registry.jungle_run": ["JUNGLE", "ג׳ונגל"]}
+	var expected := {"registry.marble_race": ["CAR RACE", "מירוץ מכוניות"], "registry.candy": ["CANDY", "ממתקים"],
+			"registry.space": ["SPACE", "חלל"], "registry.jungle": ["JUNGLE", "ג׳ונגל"]}
 	var ok := true
 	for key in expected:
 		Lang.set_language("en")
