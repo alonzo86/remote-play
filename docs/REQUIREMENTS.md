@@ -61,7 +61,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 ## 6. TV application
 
-- REQ-T1: The games are the nine games of the registry (`scripts/game/registry.gd`): Treasure Maze, Road Rally, Paint Grab, Sumo Bumpers, Banana Party, Star Shield, Pin Pals, Tennis and Mini Golf. Each has its requirements in `docs/games/<id>.md`. In the maze each phone tilts a ball through a maze. The first ball to reach the exit wins.
+- REQ-T1: The games are the twelve games of the registry (`scripts/game/registry.gd`): Treasure Maze, Road Rally, Paint Grab, Sumo Bumpers, Banana Party, Galaxy Protector, Pin Pals, Tennis, Mini Golf, Sheep Herding, Whack-a-Mole and Air Hockey. Each has its requirements in `docs/games/<id>.md`. In the maze each phone tilts a ball through a maze. The first ball to reach the exit wins.
 - REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
 - REQ-T6: The TV app follows the flow in `docs/TV_FLOW.md`: logo, Connect controllers, Games, and a game. Settings and the Players modal open from the Games screen.
 - REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values, and the last swing (power, direction, age of the hit) that the swing detector found (`scripts/input/swing_detector.gd`).

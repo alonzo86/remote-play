@@ -33,7 +33,8 @@ The clip ids are the game ids. The games were renamed later: `maze` is Treasure 
 | `paint_grab` | Paint Grab | Cheerful and bouncy (about 128 BPM) | 16 bars (30 s) |
 | `sumo_bumpers` | Sumo Bumpers | Heavy and comic, a march with a strong beat (about 132 BPM) | 16 bars (29 s) |
 | `snowball_splat` | Snowball Splat | Light and playful, bell-like (about 124 BPM) | 16 bars (31 s) |
-| `asteroid_blast` | Star Shield | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
+| `asteroid_blast` | Galaxy Protector | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
+| `whack_a_mole` | Whack-a-Mole (added 2026-10-23) | Bouncy and light, short notes with rests in C major (120 BPM) | 16 bars (32 s) |
 
 Rules:
 - Game music of a game with a countdown starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1). Only a game with a visible timer has a countdown (REQ-GM-35); the music of the other games (Star Shield, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players) starts with the play.
@@ -68,7 +69,7 @@ Proposed scenes (the game files get the final list; the current code already has
 
 | Scene | Haptic | Games |
 |-------|--------|-------|
-| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, paint grab, Tennis alone. Not Star Shield, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
+| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, whack-a-mole, paint grab, Sheep Herding, Tennis alone. Not Galaxy Protector, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
 | The player scores or reaches the goal (exit, finish line, a hit on a Puff) | 120 ms, or 40 ms for a small score | maze, marble race, snowball splat |
 | The player's own object touches something (wall, bumper, another player) | 15 to 30 ms, with a cool-down | maze, marble race, paint grab, sumo |
 | A bump that pushes the player (stronger when harder) | 20 to 80 ms | sumo |
@@ -188,6 +189,24 @@ Each row is one effect. "Where" names the event that the game already has (it ha
 | `snow_puff` | A Puff pops up or flies away | A squeak (pitch slide, 80 ms) |
 | `snow_points` | The "+10" appears | A coin-like ping, so the player knows who scored. The pitch depends on the player slot (4 different pitches), so a player knows which sound is theirs |
 | `snow_combo` | *Option*: 3 hits in a row | **Proposed: not built**; the rules have no combos |
+
+### 4.5a Whack-a-Mole (`whack_a_mole`, added 2026-10-23)
+
+| Id | When | Sound |
+|----|------|-------|
+| `mole_hit` | A bonk lands on a mole | A soft "bonk" (noise plus a pitch rise, 120 ms) |
+| `mole_miss` | A bonk misses (the poof) | A very quiet "puff" (50 ms). A miss costs nothing (REQ-GM-81), so no negative sound |
+| `mole_points` | The "+10" or "+50" appears | A coin-like ping. The pitch depends on the player slot, as `snow_points` |
+
+### 4.6 Sheep Herding (`sheep_herding`)
+
+The song is `sheep_herding` (100 BPM, C major, light drums). The effects are in `docs/games/sheep_herding.md` (REQ-SH-S1 to S3).
+
+| Id | When | Sound |
+|----|------|-------|
+| `sheep_baa` | A free sheep gets scared (at most one every 0.6 s) | Two soft falling beeps |
+| `sheep_pen` | A sheep walks into the pen | Three rising notes |
+| `sheep_bump` | Two dogs touch | A soft low blip |
 
 ## 5. Requirements to add (in the same commit as the behavior, REQ-GM-5)
 
