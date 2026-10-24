@@ -25,6 +25,7 @@ func _check(cond: bool, what: String) -> void:
 func _initialize() -> void:
 	_paddles()
 	_puck()
+	_timing()
 	_goals()
 	_hits()
 	_serve()
@@ -123,6 +124,46 @@ func _puck() -> void:
 	c.puck_pos = Sim.RINK.get_center()
 	c.step(DT, [Vector2.ZERO, Vector2.ZERO])
 	_check(c.puck_vel.length() <= Sim.PUCK_MAX * 3.0, "the puck does not speed up by itself")
+
+
+## Test 27 steps 3c, 4b, 11a: a full tilt takes a paddle from the goal line to the middle line in 0.8 to 1.6 s, a fast hit sends the
+## puck to the far rail in 1.5 s or less and it bounces, and the puck is 48 px or more high at 1080p.
+func _timing() -> void:
+	print("timing")
+	var sim := _quiet()
+	var mid := Sim.RINK.get_center().x
+	var from_x: float = Sim.RINK.position.x + Sim.PADDLE_R
+	var to_x: float = mid - Sim.PADDLE_R - 1.0
+	sim.paddles[0].pos = Vector2(from_x, Sim.RINK.get_center().y)
+	sim.paddles[0].vel = Vector2.ZERO
+	var t := 0.0
+	while t < 5.0 and sim.paddles[0].pos.x < to_x:
+		sim.step(DT, [Vector2(1.0, 0.0), Vector2.ZERO])
+		t += DT
+	_check(t >= 0.8 and t <= 1.6, "a full tilt takes the paddle from the goal line to the middle line in %.2f s (0.8 to 1.6 s)" % t)
+	var hit := _quiet()
+	var c := Sim.RINK.get_center()
+	hit.puck_pos = c + Vector2(0.0, -250.0)
+	hit.puck_vel = Vector2.ZERO
+	hit.paddles[0].pos = hit.puck_pos - Vector2(Sim.PADDLE_R + Sim.PUCK_R + 40.0, 0.0)
+	hit.paddles[0].vel = Vector2(Sim.PADDLE_MAX, 0.0)
+	var far_x: float = Sim.RINK.end.x - Sim.PUCK_R - 2.0
+	t = 0.0
+	var hit_at := -1.0
+	var reached := false
+	while t < 4.0:
+		var ev := hit.step(DT, [Vector2(1.0, 0.0), Vector2.ZERO])
+		t += DT
+		if hit_at < 0.0 and int(ev.hit) == 0:
+			hit_at = t
+		if hit.puck_pos.x >= far_x:
+			reached = true
+			break
+	_check(hit_at > 0.0 and reached and t - hit_at <= 1.5, "a fast hit sends the puck to the far rail in %.2f s after the hit (1.5 s or less)" % (t - hit_at))
+	for i in 12:
+		hit.step(DT, [Vector2.ZERO, Vector2.ZERO])
+	_check(reached and hit.puck_vel.x < 0.0 and Sim.RINK.has_point(hit.puck_pos), "the puck bounces off the far rail and stays in the rink")
+	_check(Sim.PUCK_R * 2.0 >= 48.0, "the puck is %.0f px across at 1080p (48 px or more, Test 27 step 11a)" % (Sim.PUCK_R * 2.0))
 
 
 ## REQ-AH-8: a goal is the whole puck over the goal line, inside the opening, for the other seat.
