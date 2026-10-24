@@ -3,6 +3,8 @@ extends RefCounted
 ## (REQ-SS-7 to 10). Pure logic: it draws nothing and uses no nodes, so the rules can be tested without a screen.
 ## Positions are in pixels of the play area at 1920x1080 (`REF_AREA`). `center_of()` turns them into screen pixels.
 
+const PointerMap = preload("res://scripts/game/pointer_map.gd")
+
 ## The kinds, one for each animal. `radius` is the hit circle. The speed of an animal is the speed of its lane, so a fast animal
 ## never catches a slow one (REQ-SS-8). The golden monkey is the bonus: it has its own speed (REQ-SS-25).
 const KINDS := {
@@ -124,13 +126,12 @@ func is_hidden(p: Puff) -> bool:
 
 ## Where the cursor is on the screen: `pointer` (-1 to 1 on both axes) mapped to the play area `area` (REQ-SS-3).
 static func aim_to_screen(pointer: Vector2, area: Rect2) -> Vector2:
-	var p := pointer.clamp(Vector2(-1, -1), Vector2(1, 1))
-	return area.get_center() + p * area.size * 0.5
+	return PointerMap.aim_to_screen(pointer, area)
 
 
 ## The scale from reference pixels to the pixels of a real play area (for the sizes).
 static func scale_for(area: Rect2) -> float:
-	return minf(area.size.x / REF_AREA.x, area.size.y / REF_AREA.y)
+	return PointerMap.scale_for(area, REF_AREA)
 
 
 static func max_puffs(players: int, base := MAX_BASE) -> int:
