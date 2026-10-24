@@ -24,7 +24,7 @@ Games screen.
 | REQ-GM-35 | Exception | The game has no round clock, so it has no 3 s countdown: the first turn starts at once after Start. The turn time of the difficulty (REQ-TB-11) is shown in the timer box, in the place of the timer of the other games, but it limits one drop and is not a game clock. Decision to confirm. |
 | REQ-GM-83 | Note | The game is turn-based, so a player waits for the other players. Decision of the owner, 2026-10-24: the limit is about 20 s per turn, not for all the turns of the others together. One turn takes at most the turn time plus about 2 s for the fall and the pause (12 s on Easy, 7 s on Medium, 5 s on Hard), so every turn is under 20 s. The waiting players watch the tower, nobody is out, and nothing is taken away. |
 | REQ-GM-98 | Exception | No personal best (`best_key()` is empty): the tower is a team result, and a player's bricks depend on the others. Decision to confirm. |
-| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 28). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 30). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | Content: soft colored bricks and a friendly crane. A fall is funny ("CRASH! GIGGLE!", REQ-TB-9), it takes no point away from anybody (REQ-TB-14), nobody is out, a child gets 10 s a turn on Easy (REQ-TB-11), the hint is one line, and every text is positive. |
 
@@ -61,21 +61,21 @@ Time, players and points
 | REQ-TB-13 | Haptics (REQ-GM-43): the phone whose turn starts buzzes 100 ms; a drop 30 ms; a brick that stays 60 ms; a miss 40 ms; a topple 80 ms on every phone (at most one buzz every 150 ms for a phone). A buzz never carries information alone. | Device | Device (the buzzes) |
 | REQ-TB-14 | A brick that lands and stays gives its player 1 point, and the point is never taken away (REQ-GM-83, REQ-GM-70): the points are the bricks that stayed at the moment they landed. The leader chip shows the leader and the points, or TIE (REQ-GM-46). Each phone shows its place and its points (REQ-FL-67). The chip row under the tower has one chip for each player with the points; the chip of the player of the turn has a white frame. | Done | smoke_tower |
 | REQ-TB-15 | The result menu is `open_results()` with the points (REQ-GM-72): the title names the winner or says "Tie!", the rows have the medal of the place (REQ-GM-73a), and the score text is "N BRICKS" ("1 BRICK"). One player gets the medal of the points: bronze 6, silver 9, gold 11 (`MEDAL_TIERS`, the same at all three difficulties; REQ-GM-73, REQ-GM-95). The numbers are a first guess. | Done | smoke_tower, tower_rules |
-| REQ-TB-16 | Children (REQ-GM-80 to 84): see the first section. Easy gives a child 10 s for one drop and the swing is slow (one swing in 2.4 s). | Device | Device (Test 28 items 9a to 9d) |
+| REQ-TB-16 | Children (REQ-GM-80 to 84): see the first section. Easy gives a child 10 s for one drop and the swing is slow (one swing in 2.4 s). | Device | Device (Test 30 items 9a to 9d) |
 | REQ-TB-17 | The pad of the phone shows the button A alone (registry `pad: ["a"]`, REQ-GM-37a). | Done | run_tests |
 
 Look and sound
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-TB-18 | Look (REQ-GM-47i to 47n, REQ-GM-48, mock of 2026-10-23): a sunny valley drawn in the pixel view: a banded sky from blue to cream, a sun, drifting clouds, snowy mountains, green hills, trees, striped grass with flowers; a wooden base; a crane with a rope; soft bricks in the slot colors with a light top, a dark bottom and a black outline (48 px high); a height ruler at the right with a tick for each of the 12 levels, filled up to the height of the tower. There is no number and no avatar on a brick (REQ-GM-46). The black background colors of the shell are used only for the HUD bar. | Done | tiles (the tile), Device (Test 28 item 11) |
+| REQ-TB-18 | Look (REQ-GM-47i to 47n, REQ-GM-48, mock of 2026-10-23): a sunny valley drawn in the pixel view: a banded sky from blue to cream, a sun, drifting clouds, snowy mountains, green hills, trees, striped grass with flowers; a wooden base; a crane with a rope; soft bricks in the slot colors with a light top, a dark bottom and a black outline (48 px high); a height ruler at the right with a tick for each of the 12 levels, filled up to the height of the tower. There is no number and no avatar on a brick (REQ-GM-46). The black background colors of the shell are used only for the HUD bar. | Done | tiles (the tile), Device (Test 30 item 11) |
 | REQ-TB-19 | HUD: the title "TOWER BUILDER" at the top left; the turn time in the timer box; the plate "<NAME>'S TURN" in the color of the player and the plate "BRICK n OF 12" at the left of the tower; the leader chip; one chip for each player at the bottom, in one row inside the 60 px margin, or in two rows of two when four long names do not fit in one row; one banner in the middle (the miss and the topple); the hint "WAIT FOR YOUR TURN. PRESS A TO DROP THE BRICK!" at the start (6 s). All text is 32 px or more (REQ-GM-41) and mirrors in Hebrew (REQ-GM-47o); the world is not mirrored. | Done | hud_layout, smoke_tower (the chips) |
 | REQ-TB-20 | Sound (REQ-GM-49a): the song `tower_builder` (D major, 116 bpm, light drums) and the effects `tower_drop`, `tower_land`, `tower_miss`, `tower_wobble` and `tower_crash`. | Done | audio |
 | REQ-TB-21 | Personal best (REQ-GM-98): no key (exception, see the first section). | Done | smoke_bests |
 
 ## Parameters
 
-Values that change how the game feels. Tune them on a device (Test 28). All are first guesses.
+Values that change how the game feels. Tune them on a device (Test 30). All are first guesses.
 
 | Value | File | First value |
 |-------|------|-------------|

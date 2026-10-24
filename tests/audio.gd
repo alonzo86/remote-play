@@ -462,19 +462,19 @@ func _loudness_and_songs(sound: Node, app: Node) -> void:
 	# The stream that the manager builds in steps is the same samples as the plain mix.
 	if sound._streams.has("menu"):
 		_check(sound._streams["menu"].data == Synth.to_pcm16(menu), "the menu song made in steps equals the plain mix")
-	# 18.5d: ten different songs; no game plays the menu song.
+	# 18.5d: eleven different songs; no game plays the menu song.
 	var distinct := true
 	for i in ids.size():
 		for j in range(i + 1, ids.size()):
 			if Synth.to_pcm16(bufs[ids[i]]) == Synth.to_pcm16(bufs[ids[j]]):
 				distinct = false
 				print("  same samples: %s %s" % [ids[i], ids[j]])
-	_check(distinct and ids.size() == 12, "all %d songs have different samples" % ids.size())
+	_check(distinct and ids.size() == 14, "all %d songs have different samples" % ids.size())
 	var bad_ids: Array[String] = []
 	for g in Registry.all():
 		if String(g.id) == "menu" or not Songs.SONGS.has(String(g.id)):
 			bad_ids.append(String(g.id))
-	_check(bad_ids.is_empty() and Registry.all().size() == 11, "each of the 11 games has its own song id, not `menu`")
+	_check(bad_ids.is_empty() and Registry.all().size() == 13, "each of the 13 games has its own song id, not `menu`")
 	# 18.6c: the effects are 3 to 9 dB above the music at the default levels (the plan: about 6 dB). Bus gains are applied.
 	var music_db: float = _db(_rms(menu)) + sound.step_db(DEFAULT_MUSIC_STEP) + sound.MUSIC_TRIM_DB
 	var fx := Songs.effects()

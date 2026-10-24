@@ -18,6 +18,7 @@ const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
 const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
 const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
 const BananaLook = preload("res://scripts/game/snowball_splat/banana_look.gd")
+const MoleLook = preload("res://scripts/game/whack_a_mole/mole_look.gd")
 const PaintLook = preload("res://scripts/game/paint_grab/paint_look.gd")
 
 const TOL := 0.06   # Per channel. The tile is made from a 1920x1080 picture, scaled down, so edges are blended.
@@ -102,7 +103,7 @@ func _run() -> void:
 	var ids: Array = []
 	for g in Registry.GAMES:
 		ids.append(g.id)
-	_check(ids.size() == 11, "the registry has 11 games")
+	_check(ids.size() == 13, "the registry has 13 games")
 	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
 	var all_resources := 0
 	var excluded := false
@@ -209,6 +210,11 @@ func _run() -> void:
 	_check(_share(tower, [TowerLook.GRASS_A, TowerLook.GRASS_B]) > 0.1 and _share(tower, TowerLook.SKY) > 0.2
 			and _count(tower, TowerLook.SUN) > 600, "tower_builder: the sky, the sun and the grass")
 	_players(tower, "tower_builder", pc, 2, 300, 60)
+	# Whack-a-Mole: the lawn, the fence, the dirt of the holes, the fur of a mole and 2 rings of the players.
+	var mole: Image = images.whack_a_mole
+	_check(_share(mole, MoleLook.GRASS) > 0.3 and _count(mole, MoleLook.FENCE) > 100 and _count(mole, MoleLook.DIRT, 0.05) > 300
+			and _count(mole, MoleLook.FUR, 0.05) > 300, "whack_a_mole: the lawn, the fence, the dirt of the holes and the fur of a mole")
+	_players(mole, "whack_a_mole", pc, 2, 20, 5)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 

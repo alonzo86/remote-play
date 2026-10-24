@@ -14,10 +14,12 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 ## id -> [script, props, has leader chip, has timer in this run]. A game with its own score card (Mini Golf,
 ## Pin Pals)
-## and the maze (no score) have no leader chip.
+## and the maze (no score) have no leader chip. Sheep Herding has a team chip instead (tests/smoke_sheep.gd).
 const GAMES := {
 	"snowball_splat": ["res://scripts/game/snowball_splat/snowball_splat_game.gd", {"difficulty": "medium"}, true, true],
+	"whack_a_mole": ["res://scripts/game/whack_a_mole/whack_a_mole_game.gd", {"difficulty": "medium"}, true, true],
 	"paint_grab": ["res://scripts/game/paint_grab/paint_grab_game.gd", {"difficulty": "medium"}, true, true],
+	"sheep_herding": ["res://scripts/game/sheep_herding/sheep_herding_game.gd", {"difficulty": "medium"}, false, true],
 	"sumo_bumpers": ["res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd", {"difficulty": "medium"}, true, false],
 	"asteroid_blast": ["res://scripts/game/asteroid_blast/asteroid_blast_game.gd", {"difficulty": "medium"}, true, false],
 	"tennis": ["res://scripts/game/tennis/tennis_game.gd", {"difficulty": "medium"}, true, false],

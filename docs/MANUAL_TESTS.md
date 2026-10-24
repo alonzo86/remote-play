@@ -75,6 +75,8 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [28](#test-28) | Whack-a-Mole (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Not run | | |
 | [28](#test-28) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
 
@@ -552,7 +554,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 
 **Steps**
 
-1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 9 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 9 of 9. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
+1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 12 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 12 of 12. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
 1e. From the sofa (about 3 m), look at the Games screen. Check: the tester reads aloud the title and the player range of 3 tiles and the description of the focused game, without error. (REQ-FL-40)
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
 3b. Check the tile of **Road Rally**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
@@ -561,7 +563,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 8. Check the tile of **Pin Pals**. Check: the 10 pins stand in a triangle and the ball is between the foul line and the pins. (The lane and the white shapes are checked by A-12-8; the test counts 138 white blobs and does not count the 10 pins.)
 9. Check the tile of **Tennis**. Check: the ball is high over the near half of the court. (The grass, the court, the ball and the players are checked by A-12-9.)
 10. Check the tile of **Mini Golf**. Check: a ball is between the tee and the hole. (The fairway, the lake, the windmill and the players are checked by A-12-10.)
-11. Open the settings view of each of the 9 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (9 of 9), and Back and Start are fully on the screen (9 of 9). (REQ-GM-103, issue #77)
+11. Open the settings view of each of the 12 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (12 of 12), and Back and Start are fully on the screen (12 of 12). (REQ-GM-103, issue #77)
 
 Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-12-1a, A-12-1b, A-12-1d, A-12-3a, A-12-6, A-12-7). The numbers of the other items do not change.
 
@@ -1235,6 +1237,39 @@ History:
 - -: **Not run**. New (2026-10-17).
 - 2026-10-21 (aligned with the requirements, not run): step 14a also checks the ball height of 48 px or more (REQ-GM-47e). No recorded result changed.
 
+## Test 28
+
+### Whack-a-Mole (pointer, bonk, moles, difficulty)
+
+Needs: 1 to 4 phones, 1 TV, a 240 fps phone camera (items 4b and 6a to 6c), and a child of about 5 to 8 years for items 10a to 10d. Covers: REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+
+New game (2026-10-23). It was only tested with made-up sensor values. Every number (the stay of a mole, the time between moles, the size of the hit circle, the 9 places of the holes, the points) is a first guess, but each step below has a fixed limit. Hold the phone like a remote control and point it at the TV. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
+
+**Steps**
+
+1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the meadow, the fence, a hole and a mole.
+2b. Look at the game screen. Check: you can point at all of these: the sky, the fence, the lawn, the 9 holes (9 of 9) and a mole.
+3a. Press RECENTER while you point at the middle of the screen, then point at each of the 9 holes, one after the other. Check: the ring is on the hole (inside the dark opening) within 5 s for each hole (9 of 9).
+4a. Wait for a mole that is fully out, put the ring on its head and press A. Do this 5 times. Check: the mole closes its eyes and the score grows by 10 in 5 of 5 tries.
+4b. Record the phone (the A button) and the TV (240 fps) for 5 bonks on a mole. Count the frames from the press on A to the first change of the mole (closed eyes). Check: the median delay is 150 ms or less (36 frames at 240 fps).
+5a. Put the ring on the grass, away from any mole, and press A 3 times, 1 s apart. Check: the score does not change (3 of 3) and a small ring grows at the place of the ring each time (3 of 3).
+6a. Play on Easy and record the TV (240 fps) with a stopwatch in the picture. Do not bonk 5 moles. Check: each mole is fully out for 2.3 s to 2.9 s (5 of 5).
+6b. Same, on Medium. Check: each mole is fully out for 1.5 s to 2.1 s (5 of 5).
+6c. Same, on Hard. Check: each mole is fully out for 0.8 s to 1.4 s (5 of 5).
+7a. Play one round on Medium. Check: a golden mole with a crown comes between 9 s and 12 s after GO, and a bonk on it adds 50 points.
+7b. During the same round, count the moles that are out at the same time with one phone. Check: never more than 3 (3 of 3 looks at random moments).
+8a. Open the settings view of the game (OK on its tile). Check: the TV shows the line "POINT YOUR PHONE AT THE SCREEN AND PRESS A TO BONK THE FRIENDLY MOLES. MOST POINTS IN 60 S WINS." and the rows Difficulty and Start. The phone pad shows A and RECENTER only (3 of 3). (REQ-GM-37a)
+9a. Play one round with one phone. Check: the result menu has no medal and the title is "<NAME> WINS!".
+9b. Play one round with 2 phones. Check: the first place has a gold medal and the second place a silver medal.
+10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child puts the ring on a mole within 20 s after GO, with no help.
+10b. Same child. Check: the child bonks a mole (the score grows) within 30 s after GO.
+10c. Same child. Check: the child has 5 or more bonks on moles in the 60 s round.
+10d. After the round, ask: "Play again?". Check: the child says yes.
+11. Play with 4 phones and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the golden mole when you say "mark". Check: the tester finds it in 5 of 5 tries. Check: a mole is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
+12b. From 3 m, ask a tester to read aloud the points that float up from a hit mole and the timer. Check: no error.
+
+Measurements (write down, no pass or fail): the turn angle that moves the ring from the middle to the edge; how often a bonk misses a mole that you aim at; if a mole is out too long or too short on each difficulty; the number of bonks of a good player in a round. Use them to tune the stay, the spawn time and the hit circle.
 ## Test 27
 
 ### Air Hockey (tilt, enroll with A, ROBO the bot)
@@ -1282,6 +1317,31 @@ Measurements (write down, no pass or fail): the time for a mallet to cross its h
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
+| 1b | Photo of the tile next to a photo of the game | Not run | | | |
+| 2b | Photo of the game; note: the five objects, each yes or no | Not run | | | |
+| 3a | Note: seconds to reach each of the 9 holes | Not run | | | |
+| 4a | Note: hits of 5 | Not run | | | |
+| 4b | Video (240 fps); note: frames and ms for 5 bonks | Not run | | | |
+| 5a | Note: score before and after; photo of the small ring | Not run | | | |
+| 6a | Video (240 fps); note: seconds of 5 moles | Not run | | | |
+| 6b | Video (240 fps); note: seconds of 5 moles | Not run | | | |
+| 6c | Video (240 fps); note: seconds of 5 moles | Not run | | | |
+| 7a | Note: the second of the first golden mole, the points | Not run | | | |
+| 7b | Note: the number of moles out at 3 looks | Not run | | | |
+| 8a | Photo of the TV and of the phone pad | Not run | | | |
+| 9a | Photo of the result menu | Not run | | | |
+| 9b | Photo of the result menu | Not run | | | |
+| 10a | Note: the child, the age, seconds until the ring is on a mole | Not run | | | |
+| 10b | Note: seconds until the first bonk | Not run | | | |
+| 10c | Note: bonks on moles in the round | Not run | | | |
+| 10d | Note: the answer of the child | Not run | | | |
+| 11 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 12a | Note: right answers of 5; photo of a mole with its height in px | Not run | | | |
+| 12b | Note: errors made when reading | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-23).
 | 1a | Photo of the tile next to a photo of the game | Not run | | | |
 | 2a | Photo of the settings view and of the 3 phones | Not run | | | |
 | 2b | Note: yes or no | Not run | | | |
@@ -1317,7 +1377,7 @@ History:
 
 - -: **Not run**. New (2026-10-23). The headless checks of the rules, the bot and the screens are in `air_hockey_rules` and `smoke_air_hockey` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
 
-## Test 28
+## Test 30
 
 ### Tower Builder (turns, swing, drop, wobble, 12 bricks)
 
@@ -1390,3 +1450,59 @@ Measurements (write down, no pass or fail): the time for one drop that people re
 History:
 
 - -: **Not run**. New (2026-10-23). The headless checks of the rules and the screens are in `tower_rules` and `smoke_tower` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
+
+## Test 29
+
+### Sheep Herding (tilt, a team herds the sheep into the pen)
+
+Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+
+New game (2026-10-23). It was only tested with made-up sensor values. Every number (the speed of the dogs, how far a dog scares a sheep, how fast a sheep runs, the gate, the time of the round, the medal tiers, the pictures, the song and the Hebrew texts) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. The sheep and the dogs run by themselves, so do not count on the same round twice.
+
+**Steps**
+
+1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the sheep, a dog, the pen with its fence, and the barn.
+2a. From 3 m, a tester points at the gate of the pen. Check: the finger points at the gap in the left fence (5 of 5 testers).
+2b. From 3 m, a tester points at one sheep and at one dog. Check: both answers are right for every tester. Check: a dog is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
+3a. Play alone on Easy. Hold the phone flat at the countdown, then tilt it to the right by 20 degrees and hold it. Check: the dog runs from the left edge of the field to the fence of the pen in 5 s or less.
+3b. Same round. Tilt the phone back to flat. Check: the dog stops within 1.5 s.
+4. Play alone on Easy, an adult. Check: the adult herds all 8 sheep into the pen in 90 s or less, in 2 of 3 rounds.
+5a. In the same round, drive a dog at a flock from the left. Check: the sheep move away from the dog, to the right, in 5 of 5 tries.
+5b. Same round. Leave the dogs still for 10 s. Check: no sheep leaves the field and no sheep shows speed dashes.
+6a. Play with 2 phones on Medium, 2 adults, who talk to each other. Check: the 2 adults herd all 11 sheep into the pen in 75 s or less, in 2 of 3 rounds.
+6b. Same round, when a sheep goes into the pen. Check: only the phone of the dog that scared it last buzzes, 3 of 3 times (the other phone does not buzz). (REQ-SH-12)
+7. Play with 4 phones on Hard and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+8a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own dog (the one in the color of its phone) within 10 s after GO.
+8b. Same child. Check: the child moves its dog next to a sheep and the sheep runs away, within 30 s after GO, with no help.
+8c. Same child. Check: at least 1 sheep is in the pen at the end of the round, with no help.
+8d. After the round, ask: "Play again?". Check: the child says yes.
+9a. Open the settings view and read the how-to line under the name, then play 1 round. Check: a tester can tell what to do (tilt the phone, bring all the sheep into the pen) without more help (3 of 3 testers).
+9b. A native reader of Hebrew reads the 7 new texts of the game (the 7 rows of `assets/lang/strings.csv` that start with `sheep_herding.`, `registry.sheep_herding`, `registry.desc_sheep_herding` and `how_to.sheep_herding`) on the TV set to Hebrew. Check: the reader marks 0 texts as wrong and 0 texts as cut.
+
+Measurements (write down, no pass or fail): the time that a dog needs from the left edge to the gate with a steady tilt; the speed of the sheep that you see (too slow, too fast); if a sheep gets stuck in a corner, behind a tree, at the pond or at the fence; the time that a round of 1 child takes on Easy; how many sheep an adult herds alone on Hard in 60 s. Use them to tune the speed of the dogs, how far they scare a sheep, the gate and the time of a round.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the tile next to a photo of the game | Not run | | | |
+| 2a | Note: right answers of 5 | Not run | | | |
+| 2b | Note: answers of each tester; photo of a dog with its height in px | Not run | | | |
+| 3a | Note: seconds | Not run | | | |
+| 3b | Note: seconds | Not run | | | |
+| 4 | Note: sheep and seconds in each of 3 rounds | Not run | | | |
+| 5a | Note: right tries of 5 | Not run | | | |
+| 5b | Note: sheep that left the field or ran | Not run | | | |
+| 6a | Note: sheep and seconds in each of 3 rounds | Not run | | | |
+| 6b | Note: buzzes on the right phone of 3, buzzes on the other phone | Not run | | | |
+| 7 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 8a | Note: the child, the age, seconds until it points | Not run | | | |
+| 8b | Note: seconds until the sheep runs | Not run | | | |
+| 8c | Note: sheep in the pen | Not run | | | |
+| 8d | Note: the answer of the child | Not run | | | |
+| 9a | Note: answers of each tester | Not run | | | |
+| 9b | Note: the texts that the reader marks, with the reason | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-23).
