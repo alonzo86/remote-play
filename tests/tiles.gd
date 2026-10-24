@@ -13,6 +13,7 @@ const HockeyLook = preload("res://scripts/game/air_hockey/air_hockey_look.gd")
 const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
 const TennisLook = preload("res://scripts/game/tennis/tennis_look.gd")
 const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
+const TowerLook = preload("res://scripts/game/tower_builder/tower_look.gd")
 const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
 const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
 const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
@@ -203,6 +204,11 @@ func _run() -> void:
 			"mini_golf: the fairway, the lake and the wood of the windmill")
 	# The tile has no HUD chips (REQ-GM-49): only the golfer on its turn shows a player color.
 	_players(golf, "mini_golf", pc, 1, 60, 20)
+	# Tower Builder: the grass, the sky, the sun and the bricks of the slot colors (the tile has no HUD chips).
+	var tower: Image = images.tower_builder
+	_check(_share(tower, [TowerLook.GRASS_A, TowerLook.GRASS_B]) > 0.1 and _share(tower, TowerLook.SKY) > 0.2
+			and _count(tower, TowerLook.SUN) > 600, "tower_builder: the sky, the sun and the grass")
+	_players(tower, "tower_builder", pc, 2, 300, 60)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 

@@ -11,6 +11,7 @@ const Haptics = preload("res://scripts/game/haptics.gd")
 
 const FALL_SPEED := 1400.0            # A dropped brick falls this fast (px/s).
 const GRAVITY := 2600.0
+const SLIDE_SPEED := 320.0            # A fallen brick slides this fast (px/s) over the base, so that it leaves it (REQ-TB-9).
 const WOBBLE_TIME := 0.7
 const AFTER_SAFE := 0.6
 const AFTER_MISS := 1.0
@@ -19,6 +20,9 @@ const HINT_TIME := 6.0
 const BUZZ_GAP_MS := 150
 const CHIP_Y := 940.0
 const CHIP_GAP := 24.0
+const CHIP_MARGIN := 60.0
+const CHIP_Y_TWO_ROWS := 884.0         # Two rows of chips: the first row starts under the base, the second ends at the margin.
+const CHIP_ROW_STEP := 72.0
 const BANNER_FONT := 72
 const INFO_FONT := 32
 const INFO_X := 340.0                 # The middle of the plates at the left (turn, brick number).
@@ -52,6 +56,7 @@ var _falling := {}                # The brick that falls: {x, y, w, slot, target
 var _pending: Array = []          # The bricks that fall off the tower after the wobble: {x, w, slot, level}.
 var _rubble: Array[Dictionary] = []   # Bricks that lie or fall on the grass: {x, y, w, color, vx, vy, rest}.
 var _phase_left := 0.0
+var _last_outcome := -1           # Stack.Outcome of the last brick, for the wobble of a brick that stayed.
 var _wobble_t := 0.0
 var _time := 0.0
 var _haptics := Haptics.new()
@@ -171,7 +176,7 @@ func _drop() -> void:
 	var s := current_slot()
 	var x := swing_x()
 	var lands := stack.lands(x, _brick_w)
-	var target := Stack.level_top(stack.height()) if lands else Look.RUBBLE_Y - Stack.BRICK_H
+	var target := Stack.level_top(stack.height())   # A brick that misses falls to the top of the tower, then tumbles off.
 	_falling = {"x": x, "y": Look.HANG_Y - Stack.BRICK_H * 0.5, "w": _brick_w, "slot": s, "target": target}
 	phase = Phase.FALL
 	_release = false
@@ -192,7 +197,8 @@ func _land() -> void:
 	var s: int = _falling.slot
 	var res := stack.drop(float(_falling.x), float(_falling.w), s)
 	dropped += 1
-	match int(res.outcome):
+	_last_outcome = int(res.outcome)
+	match _last_outcome:
 		Stack.Outcome.SAFE:
 			_board.add(s, 1.0)
 			_phase_left = AFTER_SAFE
@@ -201,7 +207,8 @@ func _land() -> void:
 			_haptics.pulse(s, 60, BUZZ_GAP_MS)
 			Sound.sfx("tower_land")
 		Stack.Outcome.MISS:
-			_add_rubble(float(_falling.x), float(_falling.y), float(_falling.w), s, 0.0, 0.0, true)
+			var dir := 1.0 if float(_falling.x) >= float(stack.bricks[-1].x) else -1.0
+			_add_rubble(float(_falling.x), float(_falling.y), float(_falling.w), s, dir * SLIDE_SPEED, 0.0, false)
 			banner_text = Lang.t("tower_builder.missed")
 			_phase_left = AFTER_MISS
 			phase = Phase.AFTER
@@ -226,7 +233,7 @@ func _topple() -> void:
 	for i in _pending.size():
 		var b: Dictionary = _pending[i]
 		dir = 1.0 if float(b.x) >= Stack.BASE_X else -1.0
-		_add_rubble(float(b.x), Stack.level_top(int(b.level)), float(b.w), int(b.slot), dir * (140.0 + 60.0 * float(i % 3)),
+		_add_rubble(float(b.x), Stack.level_top(int(b.level)), float(b.w), int(b.slot), dir * (SLIDE_SPEED + 60.0 * float(i % 3)),
 				-260.0, false)
 	_pending = []
 	for s in participants:
@@ -249,9 +256,13 @@ func _tick_rubble(delta: float) -> void:
 		r.vy = float(r.vy) + GRAVITY * delta
 		r.x = float(r.x) + float(r.vx) * delta
 		r.y = float(r.y) + float(r.vy) * delta
-		if float(r.y) + Stack.BRICK_H >= Look.RUBBLE_Y:
-			r.y = Look.RUBBLE_Y - Stack.BRICK_H
-			r.rest = true
+		# Over the base a brick lands on it and slides on to the edge; beside the base it lands on the grass (REQ-TB-9).
+		var over_base := absf(float(r.x) - Stack.BASE_X) < (Stack.BASE_W + float(r.w)) * 0.5 - 8.0
+		var floor_y := Stack.GROUND_Y if over_base else Look.RUBBLE_Y
+		if float(r.y) + Stack.BRICK_H >= floor_y:
+			r.y = floor_y - Stack.BRICK_H
+			r.vy = 0.0
+			r.rest = not over_base
 
 
 func _finish() -> void:
@@ -280,7 +291,7 @@ func wobble_offset(level: int, height: int) -> float:
 	var strength := 0.0
 	if phase == Phase.WOBBLE:
 		strength = 14.0
-	elif phase == Phase.AFTER and _wobble_t < AFTER_SAFE and banner_text == "" and stack.height() > 2:
+	elif phase == Phase.AFTER and _last_outcome == Stack.Outcome.SAFE and _wobble_t < AFTER_SAFE and stack.height() > 2:
 		strength = 5.0 * (1.0 - _wobble_t / AFTER_SAFE)
 	if height <= 1:
 		return 0.0
@@ -337,8 +348,9 @@ func _game_draw() -> void:
 	_draw_chips()
 
 
-## One chip for each player along the bottom, with the bricks that stayed; the player of the turn has a white frame.
-func _draw_chips() -> void:
+## The rectangle of the chip of each player, in the order of `participants` (REQ-TB-19): one row along the bottom, centered;
+## when the names are so long that the row does not fit inside the 60 px margins, two chips in each row and two rows.
+func chip_rects() -> Array[Rect2]:
 	var widths: Array[float] = []
 	var total := 0.0
 	for s in participants:
@@ -346,12 +358,31 @@ func _draw_chips() -> void:
 		var w := Shell.score_chip_width(p.player_name, str(int(_board.score(s))), 64.0, 250.0, Shell.CHIP_FONT, p.avatar)
 		widths.append(w)
 		total += w + CHIP_GAP
-	var x := (size.x - (total - CHIP_GAP)) * 0.5
+	var avail := size.x - 2.0 * CHIP_MARGIN
+	var per_row := widths.size() if total - CHIP_GAP <= avail else 2
+	var rows := ceili(float(widths.size()) / float(per_row))
+	var out: Array[Rect2] = []
+	for row in rows:
+		var first := row * per_row
+		var last := mini(first + per_row, widths.size())
+		var row_w := -CHIP_GAP
+		for i in range(first, last):
+			row_w += widths[i] + CHIP_GAP
+		var x := (size.x - row_w) * 0.5
+		var y := CHIP_Y if rows == 1 else CHIP_Y_TWO_ROWS + float(row) * CHIP_ROW_STEP
+		for i in range(first, last):
+			out.append(Rect2(Shell.mx(self, x, widths[i]), y, widths[i], 64.0))
+			x += widths[i] + CHIP_GAP
+	return out
+
+
+## One chip for each player with the bricks that stayed; the player of the turn has a white frame.
+func _draw_chips() -> void:
+	var rects := chip_rects()
 	for i in participants.size():
 		var s: int = participants[i]
 		var p := player(s)
-		var at := Vector2(Shell.mx(self, x, widths[i]), CHIP_Y)
-		var r := Shell.score_chip(self, at, p.player_name, str(int(_board.score(s))), p.color, widths[i], 64.0, p.avatar)
+		var r := Shell.score_chip(self, rects[i].position, p.player_name, str(int(_board.score(s))), p.color, rects[i].size.x, 64.0,
+				p.avatar)
 		if s == current_slot() and not is_over:
 			draw_rect(r.grow(8.0), UiTheme.TEXT, false, 4.0)
-		x += widths[i] + CHIP_GAP

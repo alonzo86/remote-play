@@ -4,6 +4,7 @@ extends SceneTree
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const MedalView = preload("res://scripts/ui/medal_view.gd")
 
 const DT := 1.0 / 60.0
@@ -156,11 +157,16 @@ func _run() -> void:
 	game._on_button(Protocol.BTN_A, 2)
 	_tick(game, DT)
 	_check(_until(game, game.Phase.AFTER) and game.stack.height() == before_h and game.banner_text == "WHOOPS! IT MISSED!"
-			and not game._rubble.is_empty() and game._rubble[-1].rest,
-			"a brick that misses the tower lies on the grass and a banner says so: %s" % game.banner_text)
+			and not game._rubble.is_empty(),
+			"a brick that misses the tower falls beside it and a banner says so: %s" % game.banner_text)
+	_tick(game, 3.0)
+	var missed: Dictionary = game._rubble[-1]
+	_check(bool(missed.rest) and is_equal_approx(float(missed.y) + game.Stack.BRICK_H, game.Look.RUBBLE_Y),
+			"the missed brick lies on the grass")
+	_check(absf(float(missed.x) - game.Stack.BASE_X) >= (game.Stack.BASE_W + float(missed.w)) * 0.5 - 8.0,
+			"the missed brick slid off the base and does not lie on it (REQ-TB-9)")
 	_check([game._board.score(0), game._board.score(1), game._board.score(2)] == scores_before,
 			"a miss takes no point away and gives none (REQ-GM-83)")
-	_tick(game, game.AFTER_MISS + 0.1)
 	_check(game.banner_text == "" and game.phase == game.Phase.TURN and game.current_slot() == 0,
 			"the banner goes away with the next turn")
 
@@ -184,6 +190,10 @@ func _run() -> void:
 			"after the wobble the bricks fall and lie on the grass; the tower is the lower tower that stands")
 	_check(game._board.score(0) == points, "the player of the toppling brick gets no point, and nobody loses one (REQ-GM-83)")
 	_tick(game, 3.0)
+	var off_base := true
+	for r in game._rubble:
+		off_base = off_base and absf(float(r.x) - game.Stack.BASE_X) >= (game.Stack.BASE_W + float(r.w)) * 0.5 - 8.0
+	_check(off_base, "the toppled bricks slid off the base (REQ-TB-9)")
 	var rested := true
 	for r in game._rubble:
 		rested = rested and bool(r.rest) and is_equal_approx(float(r.y) + game.Stack.BRICK_H, game.Look.RUBBLE_Y)
@@ -223,6 +233,41 @@ func _run() -> void:
 	_check(game.is_over and menu == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"] and labels.size() >= 2,
 			"after 12 bricks the result menu opens: %s %s" % [str(menu), str(labels)])
 	_check(game.bricks_text(1.0) == "1 BRICK" and game.bricks_text(3.0) == "3 BRICKS", "the score text is a number of bricks")
+
+	# The chips of the players stay inside the 60 px margins with long names, in English and in Hebrew (REQ-TB-19).
+	var names := ["Abcdefghij", "Klmnopqrstuvwxyz", "Twinsssssss", "Twinsssssss"]
+	var saved: Array = []
+	for i in game.participants.size():
+		saved.append(game.player(game.participants[i]).player_name)
+		game.player(game.participants[i]).player_name = names[i + (4 - game.participants.size())]
+	for lang in ["en", "he"]:
+		Lang.set_language(lang, root)
+		var rects: Array[Rect2] = game.chip_rects()
+		var inside := true
+		var apart := true
+		for i in rects.size():
+			inside = inside and Rect2(60, 60, 1800, 960).encloses(rects[i])
+			for j in range(i + 1, rects.size()):
+				apart = apart and not rects[i].intersects(rects[j])
+		_check(rects.size() == game.participants.size() and inside and apart,
+				"%s: every chip is inside the margins and no chips overlap: %s" % [lang, str(rects)])
+	Lang.set_language("en", root)
+	# Four chips with 12-letter names need 1960 px: two rows of two (the 4th chip repeats a phone, only its width matters).
+	var real: Array[int] = game.participants.duplicate()
+	for s in real:
+		game.player(s).player_name = "Twinsssssss"
+	var four: Array[int] = [real[0], real[1], real[2], real[0]]
+	game.participants = four
+	var wide: Array[Rect2] = game.chip_rects()
+	game.participants = real
+	var in_margins := true
+	for r in wide:
+		in_margins = in_margins and Rect2(60, 60, 1800, 960).encloses(r)
+	_check(wide.size() == 4 and wide[0].position.y == wide[1].position.y and wide[2].position.y == wide[3].position.y
+			and wide[0].position.y < wide[2].position.y and in_margins,
+			"four long names: two chips in each of two rows, inside the margins: %s" % str(wide))
+	for i in game.participants.size():
+		game.player(game.participants[i]).player_name = saved[i]
 
 	# Solo: one phone plays all 12 bricks and gets a medal for the safe bricks (REQ-TB-15).
 	clients[2].leave()
