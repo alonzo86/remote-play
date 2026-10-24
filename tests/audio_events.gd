@@ -69,6 +69,7 @@ func _run() -> void:
 	await _sumo()
 	await _paint()
 	await _sheep()
+	await _bumper()
 	await _banana()
 	await _maze()
 	await _race()
@@ -232,6 +233,35 @@ func _sheep() -> void:
 					game.flock.sheep[i].pos = game.pen.position + Vector2(70.0 + 60.0 * float(i % 4), 80.0 + 60.0 * float(i / 4))
 					game.flock.sheep[i].penned = true
 				SimInput.run(game, 2.5))
+
+
+# ---- Bumper Cars (REQ-BC-S1 to S3) ----
+
+func _bumper() -> void:
+	print("Bumper Cars")
+	var game := _game("res://scripts/game/bumper_cars/bumper_cars_game.gd", {"difficulty": "medium", "seed": 3})
+	SimInput.to_play(game, func() -> bool: return game._round.is_counting())
+	var mid: Vector2 = game.rink.rink.get_center()
+	await _event(game, "a car picks up a star", ["car_star"], {0: 15}, func() -> void:
+		game.rink.stars.clear()
+		game._bodies[1].pos = Vector2(300.0, 900.0)
+		game._bodies[2].pos = Vector2(1700.0, 900.0)
+		game._bodies[0].pos = mid
+		game.rink.stars.append({"pos": mid + Vector2(40.0, 0.0), "vel": Vector2.ZERO, "move": 0.0, "lock": 0.0, "blink": 0.0})
+		game._process(DT), false, ["car_bump"])
+	await _event(game, "a fast hit: both phones buzz 25 ms, the hit car drops a star", ["car_bump", "car_drop"], {0: 25, 1: 25},
+			func() -> void:
+				game._board.add(1, 2.0)
+				game._bodies[2].pos = Vector2(1700.0, 900.0)
+				game._bodies[0].pos = mid + Vector2(-70.0, 0.0)
+				game._bodies[0].vel = Vector2(500.0, 0.0)
+				game._bodies[1].pos = mid + Vector2(10.0, 0.0)
+				game._bodies[1].vel = Vector2.ZERO
+				game._process(DT))
+	await _event(game, "time is up: the winner buzzes 400 ms", ["win"], {1: 400}, func() -> void:
+		game._board.add(1, 5.0)
+		game._round.time = game._round.duration - 0.005
+		game._game_tick(0.01))
 
 
 # ---- Banana Party (REQ-SS-S1 to S3) ----

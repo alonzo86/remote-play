@@ -96,6 +96,9 @@ func _keys() -> void:
 	_app.go(Sumo, {})
 	await _frames(2)
 	_check(maze_key == "" and _app.current_screen().best_key() == "", "Treasure Maze and Sumo Bumpers have no personal best")
+	_app.go(load("res://scripts/game/bumper_cars/bumper_cars_game.gd"), {})
+	await _frames(2)
+	_check(_app.current_screen().best_key() == "", "Bumper Cars has no personal best (REQ-GM-98 exception)")
 	var all_known := true
 	for k in [keys.snow, keys.paint, keys.race, keys.blast, keys.bowling]:
 		all_known = all_known and ProfileKeys.number_of(k) > 0

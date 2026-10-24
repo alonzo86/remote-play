@@ -9,6 +9,7 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const SumoLook = preload("res://scripts/game/sumo_bumpers/sumo_look.gd")
+const BumperLook = preload("res://scripts/game/bumper_cars/bumper_look.gd")
 const HockeyLook = preload("res://scripts/game/air_hockey/air_hockey_look.gd")
 const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
 const TennisLook = preload("res://scripts/game/tennis/tennis_look.gd")
@@ -102,7 +103,7 @@ func _run() -> void:
 	var ids: Array = []
 	for g in Registry.GAMES:
 		ids.append(g.id)
-	_check(ids.size() == 12, "the registry has 12 games")
+	_check(ids.size() == 13, "the registry has 13 games")
 	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
 	var all_resources := 0
 	var excluded := false
@@ -164,6 +165,12 @@ func _run() -> void:
 	_check(_share(sumo, [SumoLook.GRASS_A, SumoLook.GRASS_B]) > 0.03 and _count(sumo, SumoLook.RIM) > 100,
 			"sumo_bumpers: the grass of the island and its rim")
 	_players(sumo, "sumo_bumpers", pc, 4, 60, 20)
+	# Bumper Cars: the steel floor, the red and white tent, gold stars, 4 cars.
+	var bumper: Image = images.bumper_cars
+	_check(_share(bumper, [BumperLook.FLOOR_A, BumperLook.FLOOR_B]) > 0.4 and _count(bumper, BumperLook.TENT_RED) > 200
+			and _count(bumper, BumperLook.STAR_GOLD, 0.06) > 100,
+			"bumper_cars: the steel floor, the red of the tent and the gold of the stars")
+	_players(bumper, "bumper_cars", pc, 4, 60, 20)
 	# Air Hockey: the white table with its rails and lines, a black puck, two mallets (the first two slot colors).
 	var hockey: Image = images.air_hockey
 	_check(_share(hockey, [HockeyLook.SURFACE]) > 0.5 and _count(hockey, HockeyLook.LINE_BLUE) > 150
