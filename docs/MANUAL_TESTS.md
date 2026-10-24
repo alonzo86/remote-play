@@ -75,9 +75,11 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [28](#test-28) | Whack-a-Mole (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Not run | | |
-| [29](#test-29) | Freeze Dance (wiggle, freeze, bench, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [28](#test-28) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
+| [31](#test-31) | Freeze Dance (wiggle, freeze, bench, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -553,7 +555,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 
 **Steps**
 
-1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 9 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 9 of 9. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
+1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 12 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 12 of 12. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
 1e. From the sofa (about 3 m), look at the Games screen. Check: the tester reads aloud the title and the player range of 3 tiles and the description of the focused game, without error. (REQ-FL-40)
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
 3b. Check the tile of **Road Rally**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
@@ -562,7 +564,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 8. Check the tile of **Pin Pals**. Check: the 10 pins stand in a triangle and the ball is between the foul line and the pins. (The lane and the white shapes are checked by A-12-8; the test counts 138 white blobs and does not count the 10 pins.)
 9. Check the tile of **Tennis**. Check: the ball is high over the near half of the court. (The grass, the court, the ball and the players are checked by A-12-9.)
 10. Check the tile of **Mini Golf**. Check: a ball is between the tee and the hole. (The fairway, the lake, the windmill and the players are checked by A-12-10.)
-11. Open the settings view of each of the 9 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (9 of 9), and Back and Start are fully on the screen (9 of 9). (REQ-GM-103, issue #77)
+11. Open the settings view of each of the 12 games. From the sofa (about 3 m), read the how-to-play text aloud. Check: the tester reads the text of each game without error and without a cut or hidden line (12 of 12), and Back and Start are fully on the screen (12 of 12). (REQ-GM-103, issue #77)
 
 Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-12-1a, A-12-1b, A-12-1d, A-12-3a, A-12-6, A-12-7). The numbers of the other items do not change.
 
@@ -1051,7 +1053,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 12. Play with 4 phones and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
 13b. From 3 m, a tester points at the ball each time you say "mark" at a random time during a roll. Check: the finger points at the ball (not at a pin or the lane) in 5 of 5 tries.
 13c. From 3 m, read aloud the totals of all rows of the score sheet and one banner. Check: no error.
-14a. With 2 phones connected, open the settings view of Pin Pals (OK on its tile). Check: the TV shows the line "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
+14a. With 2 phones connected, open the settings view of Pin Pals (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
 14b. Tap OK on one phone. Check: Start is still off. Tap OK on the second phone. Check: Start works and the line "WAITING FOR PHONES" is gone (2 of 2). (REQ-GM-102)
 14c. Go back to the Games screen and open the settings view of Pin Pals again. Check: no phone shows the card (0 of 2) and Start works at once. (REQ-GM-102)
 (The music and the effects are checked in Test 18.)
@@ -1150,7 +1152,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester calls "in" or "out" at the moment of the bounce for 10 balls. Check: at least 8 of 10 calls agree with the banner ("OUT" or no banner). The ball and its shadow are visible.
 14b. With 4 phones, from 3 m, each tester names the shirt color of the two far characters. Check: 2 of 2 answers are right for every tester.
 14c. From 3 m, read aloud the scoreboard and one banner. Check: no error.
-15a. With 2 phones connected, open the settings view of Tennis (OK on its tile). Check: the TV shows the line "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
+15a. With 2 phones connected, open the settings view of Tennis (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
 
 Items 1a, 2a, 2c, 3a, 3b, 3c, 3d, 3e, 3f, 4a, 4b, 4c, 4d, 4e, 4f, 5a, 5b, 5c, 5d, 6a, 6b, 6f, 6g, 7a to 7d, 8a, 8b, 9a to 9e, 10a, 10b, 10c, 10d, 11a, 11b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-25-1a to A-25-11b). The numbers of the other items do not change.
 
@@ -1205,7 +1207,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the ball each time you say "mark" while it rolls on the farthest hole. Check: the finger points at the ball in 5 of 5 tries. Check: the ball is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
 14b. From 3 m, ask a tester to point at the golfer and then at the windmill. Check: both answers are right for every tester.
 14c. From 3 m, read aloud the names and strokes in the bar and one banner. Check: no error.
-15a. With 2 phones connected, open the settings view of Mini Golf (OK on its tile). Check: the TV shows the line "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
+15a. With 2 phones connected, open the settings view of Mini Golf (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
 
 Items 1a, 2a, 2c, 3a, 3c, 3d, 4a, 4b, 4c, 4d, 5a, 5b, 5c, 5d, 6a to 6c, 7a to 7c, 7d, 7e, 7f, 8a, 8b, 8c, 8d, 8e, 8f, 9a to 9d, 10a to 10d, 11a to 11c moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-26-1a to A-26-11c). Item 3b was split: the shirt color is automated and 3b2 keeps the white cap, trousers and shoes. The numbers of the other items do not change.
 
@@ -1376,7 +1378,137 @@ History:
 
 - -: **Not run**. New (2026-10-23). The headless checks of the rules, the bot and the screens are in `air_hockey_rules` and `smoke_air_hockey` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
 
+## Test 30
+
+### Tower Builder (turns, swing, drop, wobble, 12 bricks)
+
+Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50.
+
+New game (2026-10-23). It was tested only with made-up button presses. Every number (the swing, the 12 bricks, the widths of the bricks, the 24 px of overlap, the 8 px of slack, the turn times, the medal tiers) is a first guess; write what you measure in the Notes.
+
+**Steps**
+
+1a. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the sky with the sun, the mountains, the tower of colored bricks and the crane.
+2a. With 3 phones connected, open the settings view of Tower Builder (OK on its tile). Check: the TV shows the row "DIFFICULTY" only (1 of 1) and the how-to-play text, and each phone shows the IN and OUT buttons. (REQ-TB-11, REQ-GM-103, REQ-GM-104)
+2b. Press Start on Medium. Check: the game starts at once with no countdown, the plate says "<NAME>'S TURN" with the name of phone 1, the plate says "BRICK 1 OF 12", and the phone of the player buzzes (4 of 4). (REQ-TB-2, REQ-TB-4, REQ-TB-13)
+3a. Press A on phone 2 while it is the turn of phone 1. Check: nothing happens (the brick keeps swinging), 5 times of 5. (REQ-TB-5)
+3b. Press A on phone 1 when the brick is over the middle of the base. Check: the brick falls, lies on the base, the chip of phone 1 shows 1 and the turn goes to phone 2 within 2 s (3 of 3). (REQ-TB-4, REQ-TB-6, REQ-TB-14)
+3c. Count 10 swings of the brick with the stopwatch. Check: 10 swings take between 22 s and 26 s (2.4 s each). (REQ-TB-5)
+3d. Drop a brick when it is at the far end of its swing, over an empty side, on top of a tower of 3 bricks. Check: the brick falls beside the tower, lies on the grass, the banner says "WHOOPS! IT MISSED!", the tower is the same, and the points did not change (4 of 4). (REQ-TB-6)
+4a. Build a leaning tower: drop each brick as far to the same side as you can without a miss. Check: at some brick the tower wobbles for about 1 s, the banner says "CRASH! GIGGLE!", and then the upper bricks fall and lie on the grass; write down at which brick (the number) it happened (4 of 4 steps happen). (REQ-TB-7, REQ-TB-9)
+4b. After the topple. Check: the points of all players are the same as before it (yes or no), and the game goes on with the next player and the lower tower (yes or no). (REQ-TB-9, REQ-GM-83)
+4c. Drop 10 bricks as near to the middle of the top brick as you can. Check: no topple happens in 10 of 10 drops. (REQ-TB-8)
+5a. Set Difficulty to Easy. Do not press A on a turn and count the seconds with the stopwatch until the brick drops. Check: it drops by itself after 10 s, plus or minus 1 s. The timer box counts down to 0.0 (2 of 2). (REQ-TB-11)
+5b. Same on Medium and on Hard. Check: the brick drops by itself after 5 s on Medium and after 3 s on Hard, plus or minus 0.5 s (2 of 2). (REQ-TB-11)
+6a. Play a game with 4 phones to the end. Check: 12 bricks are dropped, each player has had 3 turns, and then the result menu opens with the ranking, the medals of the places and the buttons Try again, New game and Back to menu (4 of 4). (REQ-TB-3, REQ-TB-15)
+6b. On Easy with 4 phones, let nobody press A in 5 turns, and measure with the stopwatch the time from the start of one turn (the new plate with a name) to the start of the next. Check: each of the 5 turns takes 12 s or less, so under the 20 s of REQ-GM-83. (REQ-GM-83)
+7a. One phone plays alone on Medium, 12 bricks, and tries to stack as well as possible. Check: the result menu shows the number of bricks that stayed and a medal of 6 (bronze), 9 (silver) or 11 (gold) or more, or "No medal this time" below 6 (yes or no); write down the score. (REQ-TB-15, REQ-GM-73)
+8a. In a game with 2 phones, turn off Wi-Fi on one phone. Check: within 6 s the TV pauses with the card "<NAME> LOST CONNECTION"; the brick stops swinging and the timer box does not change. Turn Wi-Fi on again and press Resume. Check: the game goes on (3 of 3). (REQ-TB-12, REQ-GM-30)
+8b. In a game with 3 phones, press Disconnect on the phone whose turn it is. Check: the next phone gets a new brick and its full turn time at once, and the chip of the leaver is gone (3 of 3). (REQ-TB-12)
+9a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once and says nothing more. Check: the child presses A of its own phone, when it is its turn, within 20 s of the plate with its name. Write down the age. (REQ-GM-80 to 84)
+9b. Same child. Check: the child drops at least 2 bricks that stay in a game of 12 bricks (yes or no). (REQ-TB-11, REQ-GM-96)
+9c. Same child. Check: the child plays to the end without asking to stop or crying (yes or no), also after a topple (yes or no). (REQ-GM-83)
+9d. After the game, ask: "Play again?". Check: the child says yes.
+10. Play with 4 phones connected and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester reads the plate "<NAME>'S TURN", "BRICK n OF 12" and one banner aloud. Check: no error when reading. (REQ-TB-19, REQ-FL-40)
+11b. From 3 m, a tester points at the brick that hangs on the crane and at the top brick of the tower. Check: both answers are right for every tester, and the brick is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 48 px expected). (REQ-GM-47e, REQ-TB-18)
+12. Set the TV language to Hebrew and start a game. Check: the title and the plates are mirrored to the right side, the tower and the crane are not mirrored, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "בונים מגדל", "התור של ...", "קראש! חיחי!". (REQ-GM-47o, REQ-TB-19)
+13. Look at the pad of a phone while the game runs. Check: the pad shows the green button A alone, and no button B and no RECENTER box (3 of 3). (REQ-GM-37a)
+
+Measurements (write down, no pass or fail): the time for one drop that people really need; how many bricks 4 players stack on Easy, Medium and Hard; if the topple feels fair (a tower that leans too far falls, a tower that is nearly straight stays); if 12 bricks are too short or too long; how long the wait with 4 players feels.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1a | Photo of the tile next to a photo of the game | Not run | | | |
+| 2a | Photo of the settings view and of a phone | Not run | | | |
+| 2b | Photo of the TV; note: buzzes felt | Not run | | | |
+| 3a | Note: presses that did something, of 5 | Not run | | | |
+| 3b | Photo of the tower and the chips | Not run | | | |
+| 3c | Note: the seconds for 10 swings | Not run | | | |
+| 3d | Photo of the banner | Not run | | | |
+| 4a | Video; note: the number of the brick that toppled | Not run | | | |
+| 4b | Note: yes or no, yes or no | Not run | | | |
+| 4c | Note: topples in 10 drops | Not run | | | |
+| 5a | Note: seconds until the drop | Not run | | | |
+| 5b | Note: seconds on Medium and on Hard | Not run | | | |
+| 6a | Photo of the result menu | Not run | | | |
+| 6b | Note: the longest wait in seconds | Not run | | | |
+| 7a | Photo of the result menu; note: the score | Not run | | | |
+| 8a | Note: seconds until the card shows; photo of the card | Not run | | | |
+| 8b | Photo of the TV after the leave | Not run | | | |
+| 9a | Note: the child, the age, seconds until it presses A | Not run | | | |
+| 9b | Note: bricks that stayed | Not run | | | |
+| 9c | Note: yes or no for crying or stopping, also after a topple | Not run | | | |
+| 9d | Note: the answer of the child | Not run | | | |
+| 10 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 11a | Note: errors made when reading | Not run | | | |
+| 11b | Note: answers of each tester; photo of the brick with its height in px | Not run | | | |
+| 12 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
+| 13 | Photo of the pad during the game | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-23). The headless checks of the rules and the screens are in `tower_rules` and `smoke_tower` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
+
 ## Test 29
+
+### Sheep Herding (tilt, a team herds the sheep into the pen)
+
+Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+
+New game (2026-10-23). It was only tested with made-up sensor values. Every number (the speed of the dogs, how far a dog scares a sheep, how fast a sheep runs, the gate, the time of the round, the medal tiers, the pictures, the song and the Hebrew texts) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. The sheep and the dogs run by themselves, so do not count on the same round twice.
+
+**Steps**
+
+1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the sheep, a dog, the pen with its fence, and the barn.
+2a. From 3 m, a tester points at the gate of the pen. Check: the finger points at the gap in the left fence (5 of 5 testers).
+2b. From 3 m, a tester points at one sheep and at one dog. Check: both answers are right for every tester. Check: a dog is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
+3a. Play alone on Easy. Hold the phone flat at the countdown, then tilt it to the right by 20 degrees and hold it. Check: the dog runs from the left edge of the field to the fence of the pen in 5 s or less.
+3b. Same round. Tilt the phone back to flat. Check: the dog stops within 1.5 s.
+4. Play alone on Easy, an adult. Check: the adult herds all 8 sheep into the pen in 90 s or less, in 2 of 3 rounds.
+5a. In the same round, drive a dog at a flock from the left. Check: the sheep move away from the dog, to the right, in 5 of 5 tries.
+5b. Same round. Leave the dogs still for 10 s. Check: no sheep leaves the field and no sheep shows speed dashes.
+6a. Play with 2 phones on Medium, 2 adults, who talk to each other. Check: the 2 adults herd all 11 sheep into the pen in 75 s or less, in 2 of 3 rounds.
+6b. Same round, when a sheep goes into the pen. Check: only the phone of the dog that scared it last buzzes, 3 of 3 times (the other phone does not buzz). (REQ-SH-12)
+7. Play with 4 phones on Hard and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
+8a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own dog (the one in the color of its phone) within 10 s after GO.
+8b. Same child. Check: the child moves its dog next to a sheep and the sheep runs away, within 30 s after GO, with no help.
+8c. Same child. Check: at least 1 sheep is in the pen at the end of the round, with no help.
+8d. After the round, ask: "Play again?". Check: the child says yes.
+9a. Open the settings view and read the how-to line under the name, then play 1 round. Check: a tester can tell what to do (tilt the phone, bring all the sheep into the pen) without more help (3 of 3 testers).
+9b. A native reader of Hebrew reads the 7 new texts of the game (the 7 rows of `assets/lang/strings.csv` that start with `sheep_herding.`, `registry.sheep_herding`, `registry.desc_sheep_herding` and `how_to.sheep_herding`) on the TV set to Hebrew. Check: the reader marks 0 texts as wrong and 0 texts as cut.
+
+Measurements (write down, no pass or fail): the time that a dog needs from the left edge to the gate with a steady tilt; the speed of the sheep that you see (too slow, too fast); if a sheep gets stuck in a corner, behind a tree, at the pond or at the fence; the time that a round of 1 child takes on Easy; how many sheep an adult herds alone on Hard in 60 s. Use them to tune the speed of the dogs, how far they scare a sheep, the gate and the time of a round.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1 | Photo of the tile next to a photo of the game | Not run | | | |
+| 2a | Note: right answers of 5 | Not run | | | |
+| 2b | Note: answers of each tester; photo of a dog with its height in px | Not run | | | |
+| 3a | Note: seconds | Not run | | | |
+| 3b | Note: seconds | Not run | | | |
+| 4 | Note: sheep and seconds in each of 3 rounds | Not run | | | |
+| 5a | Note: right tries of 5 | Not run | | | |
+| 5b | Note: sheep that left the field or ran | Not run | | | |
+| 6a | Note: sheep and seconds in each of 3 rounds | Not run | | | |
+| 6b | Note: buzzes on the right phone of 3, buzzes on the other phone | Not run | | | |
+| 7 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
+| 8a | Note: the child, the age, seconds until it points | Not run | | | |
+| 8b | Note: seconds until the sheep runs | Not run | | | |
+| 8c | Note: sheep in the pen | Not run | | | |
+| 8d | Note: the answer of the child | Not run | | | |
+| 9a | Note: answers of each tester | Not run | | | |
+| 9b | Note: the texts that the reader marks, with the reason | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-10-23).
+
+## Test 31
 
 ### Freeze Dance (wiggle, freeze, bench, difficulty)
 

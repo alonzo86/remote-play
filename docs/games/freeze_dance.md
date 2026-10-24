@@ -25,7 +25,7 @@ see REQ-GM-7. Visual language: shell, player colors, pixel world (REQ-GM-45 to 4
 | REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`, as Whack-a-Mole): a new key changes the profile code format. Decision to confirm. |
 | REQ-GM-102 | Note | Not a swing game, but the players wiggle a phone with energy, so the registry flag `swing` is set and the safety card shows. The TV line is generic (`swing.tv_line`: "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", owner, 2026-10-24). |
 | REQ-GM-37a | Note | The pad has no buttons (`pad: []`): the phone is only moved. |
-| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 29). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 31). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | Content: friendly dancers on a disco floor. A move takes no points away (REQ-FD-8), the player who moves sits out for one song only (REQ-GM-83) and watches, and every text is positive. |
 
@@ -62,7 +62,7 @@ Difficulty (REQ-GM-91, 96)
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-FD-11 | The settings view has the row Difficulty only (registry `settings: []`), and `difficulty` is a prop of the game (REQ-GM-93). Difficulty changes the music, the freeze and the check, never the points. Easy is playable by a child of about 5 years: it has the shortest freeze, the most time to stop and the loosest check, and Hard has no penalty that Easy does not have (REQ-GM-96). First guesses, to tune on a device (Test 29), in `dance_rules.gd`, `LEVELS`: see the table below. | Done | dance_rules |
+| REQ-FD-11 | The settings view has the row Difficulty only (registry `settings: []`), and `difficulty` is a prop of the game (REQ-GM-93). Difficulty changes the music, the freeze and the check, never the points. Easy is playable by a child of about 5 years: it has the shortest freeze, the most time to stop and the loosest check, and Hard has no penalty that Easy does not have (REQ-GM-96). First guesses, to tune on a device (Test 31), in `dance_rules.gd`, `LEVELS`: see the table below. | Done | dance_rules |
 
 Look and feedback
 
@@ -71,12 +71,12 @@ Look and feedback
 | REQ-FD-12 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn by `dance_look.gd`, seen from the edge of the stage: a dark hall with a mirror ball, a floor in perspective that runs away from the viewer in 8 rows of 16 columns, a wooden stage lip and two speakers at the bottom. The floor tiles are dark; light tiles are near white. During the music, in steps of 0.5 s, a new random set of tiles is lit all over the floor: a tile is lit with a probability of 35 %, never two tiles that share a side (corners may touch), and there is always at least one lit tile in each quarter of the floor. At the stop and in the rest no tile is lit. The dancers are simple: a head with two dots and a mouth, a cap and a body in the color of the slot, two arms and two legs, a black outline; the dancer is smaller when it stands farther away. Light and color do not hide a dancer: the dark floor and the white tiles both differ from every slot color. No number and no avatar on a dancer (REQ-GM-46); the name is on the chips and on the bench. Key objects are 48 px high or more (a dancer is 160 px or more). | Done | dance_rules (tiles), smoke_freeze, pixel_games, Screenshot |
 | REQ-FD-13 | Dancers stand in the places of their slot: from 1 to 4 players, each count has its own places, near ones and far ones, so that nobody hides another (see `dance_look.gd`). A player who leaves does not change the places of the others. | Done | smoke_freeze |
 | REQ-FD-14 | Haptics (REQ-GM-43, 49b): a move buzzes 80 ms, a held freeze buzzes 40 ms (REQ-FD-7), the winner 400 ms. No buzz at the stop or during the freeze, so that no phone is moved by its own buzz. Sounds: `freeze_stop` (the stop, a soft "record stop"), `dance_points` (a pitch for each player), `dance_out` and the song `freeze_dance`. All soft and friendly (REQ-GM-81). | Done | smoke_freeze, audio |
-| REQ-FD-15 | Children (REQ-GM-80 to 84): friendly dancers, a move takes nothing away and means a short rest, nobody is out for more than one song, the hint is one line (`freeze_dance.hint`, the first 4 s of the first song), the dancers are large, the Easy freeze is 2 s with a long time to stop, and every text is positive. | Device | Review, Device (with a child, Test 29) |
+| REQ-FD-15 | Children (REQ-GM-80 to 84): friendly dancers, a move takes nothing away and means a short rest, nobody is out for more than one song, the hint is one line (`freeze_dance.hint`, the first 4 s of the first song), the dancers are large, the Easy freeze is 2 s with a long time to stop, and every text is positive. | Device | Review, Device (with a child, Test 31) |
 | REQ-FD-16 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080: the pixel world scales with the screen, the HUD keeps its pixel size. | Done | smoke_freeze |
 
 ### Settings and difficulty
 
-First guesses (`dance_rules.gd`, `LEVELS`), tuned on a device (Test 29):
+First guesses (`dance_rules.gd`, `LEVELS`), tuned on a device (Test 31):
 
 | Difficulty | Music (s) | Freeze (s) | Grace (s) | `still_limit` |
 |------------|-----------|-----------|-----------|---------------|
@@ -99,7 +99,7 @@ The freeze is longer on Hard because holding still is harder for longer; the mus
 
 ## Open questions
 
-- Every threshold (`WIGGLE_MIN`, `still_limit`, the grace) is a first guess. A phone in a loose hand shakes more than one in a tight grip; the device test (Test 29) sets the values, also with a child of 5.
+- Every threshold (`WIGGLE_MIN`, `still_limit`, the grace) is a first guess. A phone in a loose hand shakes more than one in a tight grip; the device test (Test 31) sets the values, also with a child of 5.
 - A phone held in a hand has a tremor: if `still_limit` of Hard is too strict, loosen it.
 - Personal best: a key per difficulty needs a new profile code format version. The owner decides.
 - "Freeze Dance" is the working title; no trademark search has been done.

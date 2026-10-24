@@ -259,6 +259,13 @@ how_to.mini_golf,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT THE BA
 setup.question,PLAY THIS GAME?,לשחק במשחק הזה?,"Phone waiting screen, while the TV settings view of a game is open and two or more phones are connected: the question above the IN and OUT buttons",
 setup.in,IN,בפנים,Phone waiting screen: the IN button (this phone plays the game); TV game settings view: the word after the name of a player who plays,
 setup.out,OUT,בחוץ,Phone waiting screen: the OUT button (this phone watches); TV game settings view: the word after the name of a player who sits out,
+registry.sheep_herding,SHEEP HERDING,רועה כבשים,"Name of the game Sheep Herding: Games screen, game settings, in-game title",
+registry.desc_sheep_herding,A TEAM GAME: HERD ALL THE SHEEP INTO THE PEN.,משחק קבוצתי: מובילים את כל הכבשים לדיר.,"Description of Sheep Herding: info bar of the Games screen (what the game is, no instructions, issue #78)",
+how_to.sheep_herding,"TILT YOUR PHONE TO RUN YOUR DOG. TOGETHER, HERD ALL THE SHEEP INTO THE PEN BEFORE THE TIME IS UP!","הטו את הטלפון כדי לגרום לכלב לרוץ. יחד, הובילו את כל הכבשים לדיר לפני שהזמן נגמר!","TV game settings view of Sheep Herding: how to play, under the title (issue #77)",
+sheep_herding.hint,TILT YOUR PHONE TO STEER YOUR DOG AND HERD THE SHEEP INTO THE PEN!,הטו את הטלפון כדי להוביל את הכלב ולהכניס את הכבשים לדיר!,Sheep Herding: hint during the countdown and the first seconds,
+sheep_herding.count,%d / %d sheep,%d / %d כבשים,Sheep Herding result list: sheep in the pen out of all sheep (the same for every player),"the number sign (%d, %.1f ...) is replaced by a number"
+sheep_herding.all_safe,All sheep are safe!,כל הכבשים בטוחות!,Sheep Herding: title of the result menu for 2 to 4 players when every sheep is in the pen,
+sheep_herding.some_safe,%d of %d sheep are safe!,%d מתוך %d כבשים בטוחות!,"Sheep Herding: title of the result menu for 2 to 4 players when time is up: sheep in the pen, all sheep","the number sign (%d, %.1f ...) is replaced by a number"
 registry.whack_a_mole,WHACK-A-MOLE,הכו בחפרפרת,"Name of the game Whack-a-Mole: Games screen, game settings, in-game title",
 registry.desc_whack_a_mole,FRIENDLY MOLES POP OUT OF THEIR HOLES IN A SUNNY MEADOW.,חפרפרות חביבות מציצות מהחורים שלהן באחו שטוף שמש.,"Description of Whack-a-Mole: info bar of the Games screen (what the game is, no instructions, issue #78)",
 whack_a_mole.point_at_tv_press,POINT AT THE TV AND PRESS A TO BONK A MOLE. RECENTER IF THE RING DRIFTS.,כוונו אל הטלוויזיה ולחצו A כדי להקיש על חפרפרת. מרכזו אם הטבעת סוטה.,Whack-a-Mole: hint during the countdown,
@@ -275,6 +282,16 @@ air_hockey.goal_for,GOAL FOR %s!,שער של %s!,"Air Hockey: banner in the midd
 air_hockey.tilt_to_slide,TILT TO SLIDE YOUR MALLET AND HIT THE PUCK!,הטו כדי להזיז את הידית ולהכות בדיסקית!,"Air Hockey: hint at the start of the match, bottom of the screen",
 air_hockey.press_a,PRESS A TO PLAY!,לחצו A כדי לשחק!,Air Hockey: title in the middle of the TV before the match; each phone that wants to play presses A on its pad (two players play),
 air_hockey.or_ok_robo,OR PRESS OK TO PLAY AGAINST %s,או לחצו OK כדי לשחק נגד %s,"Air Hockey: second line before the match, shown when one phone has pressed A and other phones are connected; OK is the TV remote button, %s is the name of the computer player",%s is replaced by a name or a value
+registry.tower_builder,TOWER BUILDER,בונים מגדל,"Name of the game Tower Builder: Games screen, game settings, in-game title",
+registry.desc_tower_builder,A TEAM GAME OF STACKING BRICKS INTO ONE TALL TOWER.,משחק קבוצתי של בניית מגדל גבוה אחד מלבנים.,"Description of Tower Builder: info bar of the Games screen (what the game is, no instructions, issue #78)",
+how_to.tower_builder,"WAIT FOR YOUR TURN, THEN PRESS A TO DROP THE SWINGING BRICK. STACK ALL THE BRICKS ON ONE TOWER WITHOUT LETTING IT FALL.",חכו לתור שלכם ואז לחצו A כדי לשחרר את הלבנה המתנדנדת. ערמו את כל הלבנים על מגדל אחד בלי שהוא יתמוטט.,"TV game settings view of Tower Builder: how to play, under the title (issue #77)",
+tower_builder.turn_of,%s'S TURN,התור של %s,"Tower Builder HUD: the player whose turn it is, on a plate at the left of the tower, %s is the name of the player",%s is replaced by a name or a value
+tower_builder.brick_n_of,BRICK %d OF %d,לבנה %d מתוך %d,"Tower Builder HUD: the brick that is dropped now, on a plate at the left of the tower, first %d is the brick, second is the total","the number sign (%d, %.1f ...) is replaced by a number"
+tower_builder.missed,WHOOPS! IT MISSED!,אופס! הלבנה פספסה!,Tower Builder: banner in the middle of the screen when a brick falls beside the tower,
+tower_builder.crash,CRASH! GIGGLE!,קראש! חיחי!,Tower Builder: banner in the middle of the screen when the top of the tower falls down,
+tower_builder.one_brick,1 BRICK,לבנה אחת,Tower Builder result list: the score of a player with one brick that stayed,
+tower_builder.n_bricks,%d BRICKS,%d לבנים,"Tower Builder result list: the score of a player, the bricks that stayed on the tower, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
+tower_builder.hint,WAIT FOR YOUR TURN. PRESS A TO DROP THE BRICK!,חכו לתור שלכם. לחצו A כדי לשחרר את הלבנה!,"Tower Builder: hint at the start of the game, bottom of the screen",
 registry.freeze_dance,FREEZE DANCE,ריקוד קפוא,"Name of the game Freeze Dance: Games screen, game settings, in-game title",
 registry.desc_freeze_dance,A DISCO PARTY WHERE EVERYBODY FREEZES WHEN THE MUSIC STOPS.,מסיבת דיסקו שבה כולם קופאים כשהמוזיקה נפסקת.,"Description of Freeze Dance: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.freeze_dance,"WIGGLE YOUR PHONE WHILE THE MUSIC PLAYS. WHEN IT STOPS, HOLD STILL TO GET POINTS.","נענעו את הטלפון בזמן שהמוזיקה מתנגנת. כשהיא נפסקת, החזיקו בלי לזוז כדי לקבל נקודות.","TV game settings view of Freeze Dance: how to play, under the title (issue #77)",

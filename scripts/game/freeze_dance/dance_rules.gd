@@ -17,7 +17,7 @@ const ROWS := 8               # The tiles of the floor.
 const COLS := 16
 const LIT_SHARE := 0.35
 const LIGHT_STEP := 0.5       # Seconds between two sets of lit tiles.
-## First guesses (docs/games/freeze_dance.md, Test 29). Medium is the base.
+## First guesses (docs/games/freeze_dance.md, Test 31). Medium is the base.
 const LEVELS := {
 	"easy": {"music_min": 7.0, "music_max": 10.0, "freeze": 2.0, "grace": 0.8, "still_limit": 1.6},
 	"medium": {"music_min": 5.0, "music_max": 10.0, "freeze": 3.0, "grace": 0.5, "still_limit": 1.1},

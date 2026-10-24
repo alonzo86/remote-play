@@ -18,6 +18,7 @@ const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
 const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0,
 		"asteroid_blast": 4.0, "bowling": 4.0, "tennis": 4.0, "mini_golf": 4.0, "air_hockey": 4.0, "whack_a_mole": 4.0,
+		"sheep_herding": 4.0, "tower_builder": 4.0,
 		"freeze_dance": 1.0}
 ## Games with a pointer: each phone turns a little after GO (gyroscope, rad/s), so the cursors are apart.
 const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0, -0.55), Vector3(-0.3, 0.0, 0.5),
@@ -25,11 +26,11 @@ const AIM_GYRO := {"snowball_splat": [Vector3(0.25, 0.0, 0.7), Vector3(-0.2, 0.0
 
 ## Games that need more phones for a good picture: the race shows 4 marbles close together.
 const EXTRA_PHONES := {"maze": 2, "marble_race": 2, "snowball_splat": 2, "paint_grab": 2, "sumo_bumpers": 2, "asteroid_blast": 2,
-		"bowling": 2, "tennis": 2, "mini_golf": 2, "whack_a_mole": 2, "freeze_dance": 2}
+		"bowling": 2, "tennis": 2, "mini_golf": 2, "whack_a_mole": 2, "sheep_herding": 2, "freeze_dance": 2}
 ## Props of a game for its picture, instead of the ones of the settings view. A race with many posts, on the first track.
 const SCENE_PROPS := {"marble_race": {"track_choice": "1", "difficulty": "hard"}}
 ## A fixed seed for the games that draw their picture with random numbers, so that a new run makes the same tile.
-const SEEDS := {"paint_grab": 6, "snowball_splat": 3, "whack_a_mole": 3}
+const SEEDS := {"paint_grab": 6, "snowball_splat": 3, "whack_a_mole": 3, "sheep_herding": 5}
 
 var _seq := [0, 0, 0, 0]
 
@@ -187,6 +188,17 @@ func _place_air_hockey(game: Node) -> void:
 	await _frames(3)
 
 
+## The Tower Builder picture: a tower of 9 bricks in the player colors that leans a little, and a brick that swings over it.
+func _place_tower_builder(game: Node) -> void:
+	var offsets := [0.0, 20.0, -14.0, 36.0, 10.0, -26.0, 30.0, 4.0, 40.0]
+	for i in offsets.size():
+		var slot: int = game.participants[i % game.participants.size()]
+		game.stack.bricks.append({"x": game.Stack.BASE_X + offsets[i], "w": 190.0 + 10.0 * float(i % 4), "slot": slot})
+	game.dropped = offsets.size()
+	game._swing_t = 0.0
+	game._swing_phase = asin(0.45)
+
+
 ## The Freeze Dance picture: the music plays, all dancers dance and the floor is lit.
 func _place_dance(game: Node) -> void:
 	for s in game._rules.dancers:
@@ -219,6 +231,31 @@ func _place_paint(game: Node) -> void:
 	game._pots.pots.append(pot)
 	for s in slots:
 		game._board.set_score(s, f.count(s))
+
+
+## The sheep picture: three sheep are in the pen, the flock is near the gate and the four dogs stand behind it.
+func _place_sheep(game: Node) -> void:
+	var flock = game.flock
+	var pen: Rect2 = game.pen
+	var gate: Vector2 = flock.gate_center()
+	for i in flock.sheep.size():
+		var s = flock.sheep[i]
+		if i < 3:
+			s.penned = true
+			s.pos = pen.position + Vector2(90.0 + 90.0 * float(i), 110.0 + 70.0 * float(i % 2))
+		else:
+			s.pos = gate + Vector2(-170.0 - 130.0 * float((i - 3) % 3) + 50.0 * sin(float(i) * 2.3),
+					-120.0 + 95.0 * float((i - 3) / 3 % 4) + 40.0 * cos(float(i) * 1.7))
+		s.scared = 0.7 if i % 3 == 0 and i >= 3 else 0.0
+		s.vel = Vector2(120.0, 0.0) if s.scared > 0.0 else Vector2.ZERO
+	var slots: Array = game.participants
+	for i in slots.size():
+		game.dogs[slots[i]].pos = gate + Vector2(-620.0 - 40.0 * float(i % 2), -170.0 + 115.0 * float(i))
+		game.dogs[slots[i]].vel = Vector2(160.0, 0.0)
+	game._glow = 0.3
+	game.set_process(false)   # Freeze the picture.
+	game._request_redraw()
+	await _frames(3)
 
 
 ## The maze picture: four balls on the way to the exit, one behind the other, so that the way and the race can be seen.
@@ -390,6 +427,8 @@ func _run() -> void:
 		if String(g.id) == "air_hockey":
 			await _place_air_hockey(app.current_screen())
 			wait = 0.0
+		if String(g.id) == "tower_builder":
+			await _place_tower_builder(app.current_screen())
 		if String(g.id) == "freeze_dance":
 			await _stream(pad, wait, flats)
 			await _place_dance(app.current_screen())
@@ -401,6 +440,9 @@ func _run() -> void:
 		if String(g.id) == "asteroid_blast":
 			_place_blast(app.current_screen())
 			await _frames(2)
+			wait = 0.0
+		if String(g.id) == "sheep_herding":
+			await _place_sheep(app.current_screen())
 			wait = 0.0
 		if String(g.id) == "paint_grab":
 			_place_paint(app.current_screen())

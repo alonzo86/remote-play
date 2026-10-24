@@ -14,6 +14,7 @@ const DanceLook = preload("res://scripts/game/freeze_dance/dance_look.gd")
 const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
 const TennisLook = preload("res://scripts/game/tennis/tennis_look.gd")
 const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
+const TowerLook = preload("res://scripts/game/tower_builder/tower_look.gd")
 const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
 const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
 const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
@@ -103,7 +104,7 @@ func _run() -> void:
 	var ids: Array = []
 	for g in Registry.GAMES:
 		ids.append(g.id)
-	_check(ids.size() == 12, "the registry has 12 games")
+	_check(ids.size() == 14, "the registry has 14 games")
 	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
 	var all_resources := 0
 	var excluded := false
@@ -211,6 +212,11 @@ func _run() -> void:
 			"mini_golf: the fairway, the lake and the wood of the windmill")
 	# The tile has no HUD chips (REQ-GM-49): only the golfer on its turn shows a player color.
 	_players(golf, "mini_golf", pc, 1, 60, 20)
+	# Tower Builder: the grass, the sky, the sun and the bricks of the slot colors (the tile has no HUD chips).
+	var tower: Image = images.tower_builder
+	_check(_share(tower, [TowerLook.GRASS_A, TowerLook.GRASS_B]) > 0.1 and _share(tower, TowerLook.SKY) > 0.2
+			and _count(tower, TowerLook.SUN) > 600, "tower_builder: the sky, the sun and the grass")
+	_players(tower, "tower_builder", pc, 2, 300, 60)
 	# Whack-a-Mole: the lawn, the fence, the dirt of the holes, the fur of a mole and 2 rings of the players.
 	var mole: Image = images.whack_a_mole
 	_check(_share(mole, MoleLook.GRASS) > 0.3 and _count(mole, MoleLook.FENCE) > 100 and _count(mole, MoleLook.DIRT, 0.05) > 300
