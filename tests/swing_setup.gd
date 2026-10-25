@@ -211,3 +211,8 @@ func _fit() -> void:
 		var low: float = view.out_label.get_global_rect().end.y if view.out_label.visible else view.in_label.get_global_rect().end.y
 		_check(view.in_label.visible and low <= 1080.0 - 60.0 and view.how_to_label.get_global_rect().position.y >= 60.0,
 				"%s with 4 players listed: the view ends at %.0f px of 1020" % [id, low])
+		# REQ-GM-90: the IN and OUT lines do not widen the column: the rows and the Back and Start line keep the width of the
+		# widest row (880 px, wider only for the track list), not the 1500 px of how to play.
+		var span: float = view.start_button.get_global_rect().end.x - view.back_button.get_global_rect().position.x
+		_check(view.rows[0].size.x < 1500.0 and is_equal_approx(view.rows[0].size.x, span),
+				"%s with 4 players listed: the column is %.0f px wide, the same as the rows (%.0f px)" % [id, span, view.rows[0].size.x])

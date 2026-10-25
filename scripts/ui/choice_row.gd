@@ -12,6 +12,8 @@ signal changed(value: String)
 
 ## The least width of the row. The view is as wide as its widest row, and every row gets that width.
 const MIN_W := 880.0
+## The names of the rows have one width, so the values of all rows line up (issue #120).
+const NAME_W := 480.0
 
 var row := {}
 var value := ""
@@ -20,6 +22,11 @@ var _name: Label
 var _left: Label
 var _value: Label
 var _right: Label
+
+
+## The width of the name label: the same in every row (issue #120).
+func name_width() -> float:
+	return _name.size.x
 
 
 func _ready() -> void:
@@ -33,6 +40,7 @@ func _ready() -> void:
 	h.offset_left = UiTheme.CURSOR_UNIT * 4.0 + 24.0
 	h.offset_right = -(UiTheme.CURSOR_UNIT * 4.0 + 24.0)   # The same room at both sides: the cursor is at the right in Hebrew.
 	_name = UiKit.label(String(row.label), UiTheme.SIZE_ITEM)
+	_name.custom_minimum_size = Vector2(NAME_W, 0)
 	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_name.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(_name)
