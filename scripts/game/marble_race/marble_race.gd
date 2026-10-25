@@ -101,6 +101,7 @@ func _on_player_left(slot: int) -> void:
 func _game_tick(delta: float) -> void:
 	if _round.tick(delta):
 		for s in participants:
+			player(s).recenter()   # REQ-MR-15: the pose held in the countdown is the center (issue #124).
 			App.server.haptic(s, 60)
 	if _round.is_playing():
 		var steps := maxi(1, ceili(delta / SUBSTEP))

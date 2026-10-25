@@ -821,7 +821,8 @@ func _run() -> void:
 	var mx0: float = mr._racers[0].pos.x
 	await _stream(clients[0], 0, 1.0, tilt)
 	_check(absf(mr._racers[0].pos.x - mx0) < 0.01, "cars wait on the grid during the countdown")
-	await _stream(clients[0], 0, 2.6, tilt)
+	await _stream(clients[0], 0, 2.2, flat)   # The pose held at GO is the center (REQ-MR-15, issue #124): tilt after GO.
+	await _stream(clients[0], 0, 1.4, tilt)
 	_check(mr._racers[0].pos.x > mx0 + 0.3, "car 0 rolls right when the phone tilts right")
 	_check(absf(mr._racers[0].angle - PI * 0.5) < deg_to_rad(40.0),
 			"a car that rolls right faces right, in steps of 15 degrees (REQ-MR-48)")
