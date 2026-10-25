@@ -60,28 +60,26 @@ Maze and Marble Race both use `open_results()`. Their result menus now list all 
 | 0 | PR 12 | Common helpers (step 0a, then 0b) | | | | | none |
 | 1 | `games/target-shoot` (PR 13, merged) | Snowball Splat (`snowball_splat`, first made as "Target Shoot"; the branch name stayed) | 1 to 4 | pointer, A | Throw snowballs at big, slow, friendly Puffs. Same Puffs for all. Most points in 60 s wins. No penalty for a miss. | Score attack against medal tiers | 0 |
 | 2 | `games/paint-grab` (in work) | Paint Grab (`paint_grab`), builds `TiltBody` | 1 to 4 | tilt | Roll over tiles to claim them. Others can take them back. Most area at 60 s wins. | Cover 80% of the board before time ends | 0 |
-| 3 | `games/dodge-storm` | Dodge Storm (`dodge_storm`) | 1 to 4 | tilt | Hazards fall. The last player standing wins. | Survive as long as possible, against medal tiers | 2 (`TiltBody`) |
-| 4 | `games/tilt-snake` | Tilt Snake (`tilt_snake`) | 1 to 4 | tilt | Eat pickups to grow. A hit on any tail removes you. The last one alive wins. | High score against medal tiers | 2 (`TiltBody`) |
 | 5 | `games/sumo-bumpers` (in work) | Sumo Bumpers (`sumo_bumpers`) | 2 to 4 | tilt, A (dash) | Push others off a shrinking platform. Best of 3 rounds. | None (needs 2 players) | 2 (`TiltBody`) |
 | 6 | `claude/project-thread-d6v9j3` (idea 2026-10-16, requirements written and built 2026-10-23, Manual test 28) | Tower Builder (`tower_builder`, `docs/games/tower_builder.md`, issue #96; first called Wobbly Tower) | 1 to 4 | A (drop a brick) | Turn-based and cooperative: all players build one tower, one brick each in turn. A brick swings on a crane; A drops it, or it drops when the turn time (Easy 10 s, Medium 5 s, Hard 3 s) is over. 12 bricks in all. A brick that stays is a point; a tower that topples wobbles, giggles and goes on with the lower tower, and the points stay (REQ-GM-83). | Bricks that stayed against medal tiers (6, 9, 11 of 12) | 0 |
 | 7 | `games/tennis` (requirements written 2026-10-16, built 2026-10-17, Manual test 25) | Tennis (`tennis`, `docs/games/tennis.md`) | 1 to 4 | swing (to a side to aim), A (serve toss) | Real tennis counting (setting: Real or Quick, first to 5). The character runs by itself, the player only swings. 1v1, 2v1 or 2v2 on the regular court. Server tosses with A and swings top to bottom. A miss gives the other side a point, nothing is taken away (REQ-GM-83). | Rally with a friendly ball machine; the longest rally is scored against medal tiers | 0 |
 | 8 | `games/mini-golf` (requirements written 2026-10-17) | Mini Golf (`mini_golf`, `docs/games/mini_golf.md`) | 1 to 4 | swing (power), phone direction (aim, locks at the backswing) | Turns: each player putts once in slot order, only the current golfer is on screen. 5 hole designs made in advance; the setting picks 1 to 5 holes (default 3). Pick up after 6 strokes, water costs nothing. Fewest strokes wins. Difficulty changes the aim and power help. | Fewest strokes against par, medal tiers | 0 (uses the shared `swing_detector.gd`: aim lock and power) |
 | 9 | `claude/project-thread-nlcjhu` (requirements written and built 2026-10-24, Manual test 31; issue #97) | Freeze Dance (`freeze_dance`) | 1 to 4 | shake, then hold still | Music plays and you wiggle the phone; when it stops, hold still. A mover sits out one short song (about 10 s) and keeps the points (REQ-GM-83). | Survive more stops against medal tiers | 0 (needs a stillness check on the phone) |
-| 10 | `games/balloon-ride` (idea, 2026-10-16) | Balloon Ride (`balloon_ride`) | 1 to 4 | tilt, hold A | Co-op: one shared balloon. Roles split (A holds the burner, tilt steers). Collect stars over a gentle course. | Same co-op game, medal tiers by stars | 0 |
 | 11 | `claude/project-thread-hfg6z1` (requirements written and built 2026-10-23, Manual test 27) | Air Hockey (`air_hockey`, `docs/games/air_hockey.md`, issues #101, #102) | 1 to 4 phones, 2 play | tilt, A (enroll) | Head to head on a table, first to 3 to 10 goals (setting). The two players enroll with A at every match start. | One phone: ROBO, the first bot (`scripts/game/bot.gd`), plays the other seat; Difficulty changes ROBO only. No medal (decision 2026-10-23) | 0 |
 | 12 | `claude/project-thread-xuoavw` (requirements written and built 2026-10-24, Manual test 30) | Bumper Cars (`bumper_cars`, `docs/games/bumper_cars.md`, issue #99) | 2 to 4 | tilt | Fun-fair rink with bumper cars. Drive over gold stars; a fast bump makes both cars drop a star that rolls away. 60 s, most stars win. Nobody is out (REQ-GM-83). Difficulty changes the rink size and the stars on the floor. | None (needs 2 players) | 1 (`TiltBody`) |
+| 13 | merged as PR #105 (built 2026-10-23, Manual test 29, issue #98) | Sheep Herding (`sheep_herding`, `docs/games/sheep_herding.md`) | 1 to 4 | tilt | Co-op: each player is a dog that herds the sheep into one gate before the time ends. Solo plays for a medal. | Same game, medal tiers | 0 |
+| 14 | built 2026-10-23, Manual test 28, issue #100 | Whack-a-Mole (`whack_a_mole`, `docs/games/whack_a_mole.md`) | 1 to 4 | tilt (ring), A (bonk) | Shared 9 holes: bonk the moles, 10 points, 50 for the golden mole, 60 s, most points win. | Score attack; no medal for one player | 0 |
 
 Status (2026-10-09): branch 1 is merged (PR 13). It also brought the settings view with Difficulty for the maze, Snowball Splat and
 Marble Race, generated Marble Race tracks, and the lost-phone hold card. All of it still needs the tests on a device (`docs/MANUAL_TESTS.md`).
-The values in the difficulty tables, the pointer range and the generated tracks are first guesses. Branch 2 (Paint Grab, with `TiltBody`) is merged (PR 14). Branch 5 (Sumo Bumpers) is in work on `games/sumo-bumpers`; branches 3 and 4 are not started.
+The values in the difficulty tables, the pointer range and the generated tracks are first guesses. Branch 2 (Paint Grab, with `TiltBody`) is merged (PR 14). Branch 5 (Sumo Bumpers) is in work on `games/sumo-bumpers`; Dodge Storm and Tilt Snake were dropped (issue #95).
 Each of them needs a settings view and a difficulty table (REQ-GM-90, 91) before it is done.
 
 Order and dependencies:
 - Branch 0 is merged first. Branches 1 and 2 need only branch 0, so they do not wait for each other.
 - Snowball Splat goes first because it has the biggest unknown: pointer drift and calibration. It reads `pointer()`, not tilt, so it does not use `TiltBody`.
-- `TiltBody` is built in the Paint Grab branch, with its first user. Dodge Storm, Tilt Snake and Sumo Bumpers reuse it, so they start after Paint Grab is merged.
+- `TiltBody` is built in the Paint Grab branch, with its first user. Sumo Bumpers reuses it, so they start after Paint Grab is merged.
   (If one of them has to start earlier, `TiltBody` moves into its own small branch before all of them.)
-- Tilt Snake needs extra tests for a player who leaves while the tail is on the board (REQ-GM-21).
 
 ## Games for children too
 
@@ -92,8 +90,6 @@ What this means for the games that are not built yet. The decision is made in th
 | Game | Check against REQ-GM-80 to 84 |
 |------|--------------------------------|
 | Paint Grab | Fine: roll and paint. Use bright, friendly colors. |
-| Dodge Storm | "The last player standing" means a player is out and waits (REQ-GM-83). A hit should be a funny bump, and the player is back in the game after a few seconds (or keeps the points and waits only until the team game ends, REQ-GM-83). The hazards are soft and funny (balloons, snowflakes, rubber ducks), not dangerous things. |
-| Tilt Snake | "A hit on a tail removes you" is too harsh. A hit makes the snake short again and it goes on. The snake is a friendly made-up creature. |
 | Tower Builder (was Wobbly Tower) | Fine: soft, colorful bricks. A fall is funny, not a loss, and nobody loses a point. It is the first turn-based game: the TV shows whose turn it is, and the wait is the turns of the others (a note in `docs/games/tower_builder.md`, REQ-GM-83).
 | Sumo Bumpers | Cartoon bumpers that bounce each other off a platform. A player who falls off comes back in the next round (a round is short). No fighting words. |
 
@@ -119,7 +115,7 @@ Checked against `main` on 2026-10-08.
 
 ## Later candidates
 
-Hot Potato (tag). It needs a team rule or bots to work with few players, so it waits. Air Hockey 1v1 is built (branch 11); a 2v2 version is not planned.
+Dodge Storm (hazards fall, the last player standing wins; "maybe later", issue #95; it needs a rule that keeps nobody out, REQ-GM-83) and Hot Potato (tag). Hot Potato needs a team rule or bots to work with few players, so it waits. Air Hockey 1v1 is built (branch 11); a 2v2 version is not planned.
 
 ## Open questions
 

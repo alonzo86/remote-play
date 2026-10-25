@@ -339,6 +339,8 @@ func _place_snow(game: Node, pad: Array, flats: Array) -> void:
 	var spots := [Vector2(0.3, 0.42), Vector2(0.45, 0.62), Vector2(0.6, 0.5), Vector2(0.72, 0.7)]
 	for i in game.participants.size():
 		game._throwers[game.participants[i]].aim = area.position + area.size * spots[i % spots.size()]
+	# A poof (the ring of a missed banana) would read as a fifth cursor ring: the tile shows 4 rings (issue #114).
+	game._effects = game._effects.filter(func(e) -> bool: return e.kind != "poof")
 	game.set_process(false)   # Freeze the picture.
 	game._request_redraw()
 	await _frames(3)
@@ -369,9 +371,10 @@ func _place_mole(game: Node) -> void:
 
 ## The picture without the strip that the HUD uses (112 px at 1080p), cut to 16:9 around the middle, so that a tile shows the
 ## world and no black bar where the HUD was (REQ-GM-49).
-func _world_crop(img: Image) -> Image:
+## `bottom` (at 1080p) cuts the picture above it: Pin Pals keeps the lanes and drops the score board (issue #112).
+func _world_crop(img: Image, bottom := 1080.0) -> Image:
 	var top := roundi(HUD_BAR * img.get_height() / 1080.0)
-	var h := img.get_height() - top
+	var h := roundi(bottom * img.get_height() / 1080.0) - top
 	var w := mini(img.get_width(), roundi(h * float(TILE_SIZE.x) / TILE_SIZE.y))
 	return img.get_region(Rect2i((img.get_width() - w) / 2, top, w, h))
 
@@ -490,7 +493,7 @@ func _run() -> void:
 		app.current_screen()._request_redraw()
 		await _frames(3)
 		var img := root.get_texture().get_image()
-		img = _world_crop(img)
+		img = _world_crop(img, app.current_screen()._sheet_top() if String(g.id) == "bowling" else 1080.0)
 		img.resize(TILE_SIZE.x, TILE_SIZE.y, Image.INTERPOLATE_LANCZOS)
 		var path := OUT_DIR + String(g.id) + ".png"
 		var err := img.save_png(ProjectSettings.globalize_path(path))

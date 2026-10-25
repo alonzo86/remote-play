@@ -123,12 +123,12 @@ func _wait_screen_leave() -> void:
 	wait.queue_free()
 
 
-## Back on the phone waiting screen and on the pad screen asks whether to quit the app, with Stay in focus, and does not quit
+## Back on the phone Connect, waiting and pad screens asks whether to quit the app, with Stay in focus, and does not quit
 ## (REQ-FL-55). Back again answers Stay. The pad ignores touches while the question shows.
 func _phone_back_asks_to_quit() -> void:
 	print("phone Back asks to quit")
 	var app: Node = root.get_node("App")
-	for screen in [app.ControllerWait, app.ControllerPad]:
+	for screen in [app.ControllerWait, app.ControllerPad, app.ControllerConnect]:
 		app.client._set_state(ControllerClient.State.CONNECTED if screen == app.ControllerWait else ControllerClient.State.IDLE)
 		app.go(screen)
 		await process_frame

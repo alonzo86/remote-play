@@ -1,5 +1,6 @@
 extends Control
-## The question "Quit Sababi?" on the phone (REQ-FL-55): Back on the waiting screen and on the pad asks before it leaves the app.
+## The question "Quit Sababi?" on the phone (REQ-FL-55): Back on the Connect screen, the waiting screen and the pad asks
+## before it leaves the app.
 ## A dim layer and a framed card with STAY and QUIT. Back (`close()`) is the same as STAY. The texts are the ones of the TV quit
 ## question (`connect.quit_sababi`, `connect.stay`, `connect.quit`).
 

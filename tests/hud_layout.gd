@@ -248,7 +248,7 @@ func _go_word_checks(id: String, timed: bool) -> void:
 		return
 	_check(not words.is_empty() and inside, "%s in Hebrew: the countdown numbers fit the screen (%s)" % [id, str(words.keys())])
 	if id == "marble_race":   # Only Car Race shows the word GO; the other games go from 1 to the play.
-		_check(words.has(Lang.t("marble_race.go").to_upper()) and words.has("\u05e7\u05d3\u05d9\u05de\u05d4"),
+		_check(words.has(Lang.t("marble_race.go").to_upper()) and words.has("\u05e6\u05d0"),
 				"marble_race in Hebrew: the GO word is the Hebrew text '%s' (%s)" % [Lang.t("marble_race.go"), str(words.keys())])
 
 

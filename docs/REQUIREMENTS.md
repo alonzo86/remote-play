@@ -25,7 +25,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-A1: The TV runs a WebSocket server (`TCPServer` + `WebSocketPeer`) on fixed TCP port 47801.
 - REQ-A2: **Removed (issue #52, FD-28).** The TV sends nothing on the network by itself: no UDP beacon, no port 47800.
 - REQ-A3: The TV shows a QR code and a 4-letter room code on screen. The room code is the code of the LAN address of the TV (REQ-FL-84).
-- REQ-A4: The phone joins in one of two ways: it scans the QR code (Android; on a phone with no scanner the button is "Paste room link"; an iPhone has no scan or paste button), or the player types the room code of the TV in a field (all phones, also an iPhone; REQ-FL-83). There is no list of discovered rooms, no Refresh button and no search of the network.
+- REQ-A4: The phone joins in one of two ways: it scans the QR code (Android; a phone with no scanner, and an iPhone, has no scan button and no paste button), or the player types the room code of the TV in a field (all phones, also an iPhone; REQ-FL-83). There is no list of discovered rooms, no Refresh button and no search of the network.
 - REQ-A5: The TV accepts up to 4 phones at the same time.
 - REQ-A6: Input handling and networking are in separate scripts from game logic.
 - REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.
@@ -84,7 +84,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 | ID | Decision |
 |----|----------|
-| D1 | Join by the room code or the QR code (FD-28; it was UDP discovery plus room code). The TV shows a QR code that holds `ws://IP:PORT/ROOM` and the room code, which is its address in 4 letters. The phone scans the QR code with a small Android plugin (Google code scanner) or types the code. On a PC the phone window uses a "Paste TV link" button, or `--join=127.0.0.1`. |
+| D1 | Join by the room code or the QR code (FD-28; it was UDP discovery plus room code). The TV shows a QR code that holds `ws://IP:PORT/ROOM` and the room code, which is its address in 4 letters. The phone scans the QR code with a small Android plugin (Google code scanner) or types the code. A phone without the plugin (also a PC) has no scan button: it types the code, or uses `--join=127.0.0.1`. |
 | D2 | All data goes over WebSocket (TCP) in v1. The overlay shows sensor age so the user can see TCP delay. |
 | D3 | The TV does sensor fusion. The phone sends raw values. |
 | D4 | Godot 4.7 stable. |
