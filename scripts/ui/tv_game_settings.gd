@@ -100,9 +100,20 @@ func _update_fit() -> void:
 	# A swing game waits until every phone has tapped OK on the safety card (issue #79).
 	var waiting: bool = fits and not App.server.swing_pending().is_empty()
 	start_button.disabled = not fits or waiting
+	_set_start_reachable(not start_button.disabled)
 	reason_label.text = Lang.t("game_settings.waiting_phones").to_upper() if waiting else (
 			"" if fits else Registry.reason(game, n).to_upper())
 	_update_roster()
+
+
+## A disabled Start cannot be reached with the D-pad (issue #121): it takes no focus, Down from the last row goes to Back, and the
+## focus leaves Start when it becomes disabled while it has it.
+func _set_start_reachable(reachable: bool) -> void:
+	if not reachable and start_button.has_focus():
+		back_button.grab_focus()   # Before the mode changes: a button that takes no focus drops it and nothing is left.
+	start_button.focus_mode = Control.FOCUS_ALL if reachable else Control.FOCUS_NONE
+	var last: Control = rows[-1]
+	last.focus_neighbor_bottom = last.get_path_to(start_button if reachable else back_button)
 
 
 ## Two lines under Start with two or more phones: "IN: names" and, when someone sits out, "OUT: names" (REQ-GM-104).
