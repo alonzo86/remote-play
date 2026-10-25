@@ -11,6 +11,7 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 const ChoiceRow = preload("res://scripts/ui/choice_row.gd")
 const TrackPicker = preload("res://scripts/ui/track_picker.gd")
 
+const WIDE_W := 1500.0   # The width of the warning, the enrolled players and how to play (issue #120).
 const ROSTER_SIZE := 32   # The size of the lines IN and OUT (a TV text is 32 px or more, REQ-GM-41); the tallest view must fit.
 
 ## Set by `App.go_game_settings()` before the screen enters the tree.
@@ -29,21 +30,35 @@ var reason_label: Label   # Why Start does not work now (REQ-GM-20): not enough 
 func _ready() -> void:
 	game = Registry.find(game_id)
 	var m := UiKit.margin(self, 0, 60, 0, 60)
+	# Three bands (issue #120): the name of the game and the warning at the top, the settings in the middle, and how to play at
+	# the bottom, wide.
+	var page := VBoxContainer.new()
+	page.add_theme_constant_override("separation", 16)
+	m.add_child(page)
+	var top := VBoxContainer.new()
+	top.add_theme_constant_override("separation", 16)
+	page.add_child(top)
+	var title := UiKit.title(String(game.get("title", "")))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.size_flags_horizontal = Control.SIZE_SHRINK_CENTER   # Not full width: its box stays inside the safe margin.
+	top.add_child(title)
+	if bool(game.get("swing", false)):
+		# The safety line of a swing game (issue #79, REQ-GM-102): a large box at the top, so the whole room reads it.
+		var warn := UiKit.panel(24)
+		warn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		top.add_child(warn)
+		var safety := UiKit.label("swing.tv_line", UiTheme.SIZE_ITEM, UiTheme.TEXT)
+		safety.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		safety.autowrap_mode = TextServer.AUTOWRAP_WORD
+		safety.custom_minimum_size = Vector2(WIDE_W, 0)
+		warn.add_child(safety)
 	var center := CenterContainer.new()
-	m.add_child(center)
+	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	page.add_child(center)
 	var box := VBoxContainer.new()
 	# No fixed width: the column is as wide as its widest row. The rows and the Back and Start line have that width (REQ-GM-90).
 	box.add_theme_constant_override("separation", 20)
 	center.add_child(box)
-	var title := UiKit.title(String(game.get("title", "")))
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(title)
-	# How to play: the text of the game under the name, for the whole room (issue #77, REQ-GM-103).
-	how_to_label = UiKit.label(String(game.get("how_to", "")), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
-	how_to_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	how_to_label.autowrap_mode = TextServer.AUTOWRAP_WORD
-	box.add_child(how_to_label)
-	box.add_child(UiKit.spacer(12))
 	for r in GameSettings.rows_for(game):
 		var row: Control = TrackPicker.new() if r.get("type", "") == "tracks" else ChoiceRow.new()
 		row.row = r
@@ -52,8 +67,17 @@ func _ready() -> void:
 		row.changed.connect(func(v: String): GameSettings.set_value(game, r, v))
 		box.add_child(row)
 		rows.append(row)
+	# The enrolled players, under the settings: one line for who plays and one for who sits out (issue #76, REQ-GM-104).
+	in_label = UiKit.label("", ROSTER_SIZE, UiTheme.OK)
+	out_label = UiKit.label("", ROSTER_SIZE, UiTheme.TEXT_DIM)
+	for l in [in_label, out_label]:
+		l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # It holds player names, which are never translated (REQ-FL-63).
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD
+		l.custom_minimum_size = Vector2(WIDE_W, 0)
+		box.add_child(l)
 	box.add_child(UiKit.spacer(10))
-	# Back and Start are on one line at the bottom, spaced to the two edges of the view: Back on the left, Start on the right
+	# Back and Start are on one line, spaced to the two edges of the view: Back on the left, Start on the right
 	# (REQ-GM-90). Back is a quiet item.
 	var line := HBoxContainer.new()
 	box.add_child(line)
@@ -67,23 +91,16 @@ func _ready() -> void:
 	last.focus_neighbor_bottom = last.get_path_to(start_button)
 	start_button.focus_neighbor_top = start_button.get_path_to(last)
 	back_button.focus_neighbor_top = back_button.get_path_to(last)
-	if bool(game.get("swing", false)):
-		# The safety line of a swing game, always shown (issue #79, REQ-GM-102): the whole room reads it.
-		var safety := UiKit.label("swing.tv_line", UiTheme.SIZE_BODY, UiTheme.TEXT)
-		safety.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		safety.autowrap_mode = TextServer.AUTOWRAP_WORD
-		safety.custom_minimum_size = Vector2(900, 0)
-		box.add_child(safety)
-	in_label = UiKit.label("", ROSTER_SIZE, UiTheme.OK)
-	out_label = UiKit.label("", ROSTER_SIZE, UiTheme.TEXT_DIM)
-	for l in [in_label, out_label]:
-		l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # It holds player names, which are never translated (REQ-FL-63).
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD
-		box.add_child(l)
 	reason_label = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
 	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(reason_label)
+	# How to play: the text of the game at the bottom of the screen, for the whole room (issue #77, REQ-GM-103).
+	how_to_label = UiKit.label(String(game.get("how_to", "")), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	how_to_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	how_to_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	how_to_label.custom_minimum_size = Vector2(WIDE_W, 0)
+	how_to_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	page.add_child(how_to_label)
 	_update_fit()
 	UiKit.focus_later(rows[0])
 
