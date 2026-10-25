@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -88,8 +89,13 @@ public class QrScannerPlugin extends GodotPlugin {
 						.addOnFailureListener(e -> {
 							scanning = false;
 							// The Back key in the scanner is reported as a failure ("Failed to scan code"), not as a cancel.
-							if (e instanceof MlKitException
-									&& ((MlKitException) e).getErrorCode() == MlKitException.CODE_SCANNER_CANCELLED) {
+							// The error code differs between versions of Play services, so the text counts too (issue #109).
+							String text = e.getMessage();
+							int code = e instanceof MlKitException ? ((MlKitException) e).getErrorCode() : -1;
+							Log.w("godot", "QrScanner failure: code=" + code + " message=" + text + " class=" + e.getClass().getName());
+							boolean back = code == MlKitException.CODE_SCANNER_CANCELLED
+									|| (text != null && text.toLowerCase().contains("failed to scan code"));
+							if (back) {
 								emitSignal(SIGNAL_FAILED, "cancelled");
 								return;
 							}

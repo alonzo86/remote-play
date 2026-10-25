@@ -230,13 +230,17 @@ func _back_key() -> void:
 	var screen: Control = _app.current_screen()
 	_app._last_back_ms = 0
 	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)   # What Android sends for the Back key.
-	_check(quits[0] == 1, "Back on the Connect screen of the phone quits the app through the quit hook (%d)" % quits[0])
+	var dialogs := screen.find_children("*", "Control", true, false).filter(
+			func(c: Node) -> bool: return c.get_script() != null and c.get_script().resource_path.ends_with("controller_quit_dialog.gd"))
+	_check(dialogs.size() == 1 and quits[0] == 0,
+			"Back on the Connect screen asks first and does not quit (%d dialogs, %d quits)" % [dialogs.size(), quits[0]])
+	# The same press as a key and as a notification counts once: the question stays open.
+	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
+	await process_frame
+	_check(is_instance_valid(dialogs[0]) and not dialogs[0].is_queued_for_deletion(), "two Back requests inside 250 ms count once")
+	dialogs[0].quit_button.pressed.emit()
+	_check(quits[0] == 1, "QUIT in the question quits the app through the quit hook (%d)" % quits[0])
 	_check(_app.client.state == ControllerClient.State.IDLE, "and the phone leaves the TV first")
-	# The same press as a key and as a notification counts once.
-	_app._last_back_ms = 0
-	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
-	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
-	_check(quits[0] == 2, "two Back requests inside 250 ms count once (%d quits)" % quits[0])
 	_app.quit_hook = Callable()
 	_app._last_back_ms = 0
 	_app.client.slot = 1

@@ -3,6 +3,7 @@ extends Control
 ## (on a phone with a scanner; no paste button, issue #115). There is no search for TVs: the TV sends nothing by itself.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const QuitDialog = preload("res://scripts/ui/controller_quit_dialog.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
@@ -12,6 +13,7 @@ const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const ProfileDropdown = preload("res://scripts/ui/profile_dropdown.gd")
 
 var _status: Label
+var _quit_dialog: Control
 var _qr: Node
 var _code: LineEdit
 var _typed_room := ""                 # The room code of a join by a typed code, while its guesses of the address run.
@@ -173,8 +175,13 @@ func _on_rejected(reason: String) -> void:
 	_on_state(App.client.state)   # The state went IDLE before the reason was known: show the reason now.
 
 
+## Back asks whether to quit the app (REQ-FL-55, issue #110); Back again answers "stay".
 func on_back() -> void:
-	App._quit()
+	if is_instance_valid(_quit_dialog):
+		_quit_dialog.close()
+		return
+	_quit_dialog = QuitDialog.new()
+	add_child(_quit_dialog)
 
 
 func _join(host: String, port: int, room: String) -> void:
