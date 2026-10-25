@@ -378,7 +378,7 @@ func _how_to(app: Node) -> void:
 			for row in view.rows:
 				if row.get_script().resource_path.get_file() != "choice_row.gd":
 					continue
-				name_w = row._name.size.x if name_w < 0.0 else name_w
-				same = same and is_equal_approx(row._name.size.x, name_w)
+				name_w = row.name_width() if name_w < 0.0 else name_w
+				same = same and is_equal_approx(row.name_width(), name_w)
 			_check(same, "%s %s: the names of the rows have one width (%.0f)" % [code, g.id, name_w])
 	lang_script.set_language("en", root)

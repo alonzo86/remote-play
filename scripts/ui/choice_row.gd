@@ -13,7 +13,7 @@ signal changed(value: String)
 ## The least width of the row. The view is as wide as its widest row, and every row gets that width.
 const MIN_W := 880.0
 ## The names of the rows have one width, so the values of all rows line up (issue #120).
-const NAME_W := 560.0
+const NAME_W := 480.0
 
 var row := {}
 var value := ""
@@ -22,6 +22,11 @@ var _name: Label
 var _left: Label
 var _value: Label
 var _right: Label
+
+
+## The width of the name label: the same in every row (issue #120).
+func name_width() -> float:
+	return _name.size.x
 
 
 func _ready() -> void:

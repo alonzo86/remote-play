@@ -80,13 +80,13 @@ func _run() -> void:
 	var right := Vector3(-sin(lean), 0, cos(lean)) * 9.81
 	await _stream(clients, 0.5, [flat, flat, flat])
 
-	# The settings view: Difficulty and Goals to win (REQ-AH-18), and no IN or OUT (REQ-GM-106).
+	# The settings view: Difficulty and Goals (REQ-AH-18), and no IN or OUT (REQ-GM-106).
 	app.go_game_settings("air_hockey")
 	await _frames(4)
 	var sv: Control = app.current_screen()
 	await _stream(clients, 0.4, [flat, flat, flat])
 	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 2 and sv.rows[1].value == "5" and not sv.start_button.disabled,
-			"Air Hockey opens the settings view with Difficulty and Goals to win on 5; Start works with 3 phones")
+			"Air Hockey opens the settings view with Difficulty and Goals on 5; Start works with 3 phones")
 	_check(not sv.in_label.visible and not sv.out_label.visible and not clients[0].setup_pick,
 			"with 3 phones the settings view has no IN and OUT lines and the phones are not asked IN or OUT (REQ-GM-106)")
 	_check(GameSettings.props_for(app.Registry.find("air_hockey")) == {"difficulty": "medium", "goals": "5"},

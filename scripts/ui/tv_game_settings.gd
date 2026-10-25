@@ -11,7 +11,7 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 const ChoiceRow = preload("res://scripts/ui/choice_row.gd")
 const TrackPicker = preload("res://scripts/ui/track_picker.gd")
 
-const WIDE_W := 1500.0   # The width of the warning, the enrolled players and how to play (issue #120).
+const WIDE_W := 1500.0   # The width of the warning and of how to play (issue #120).
 const ROSTER_SIZE := 32   # The size of the lines IN and OUT (a TV text is 32 px or more, REQ-GM-41); the tallest view must fit.
 
 ## Set by `App.go_game_settings()` before the screen enters the tree.
@@ -73,8 +73,7 @@ func _ready() -> void:
 	for l in [in_label, out_label]:
 		l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # It holds player names, which are never translated (REQ-FL-63).
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD
-		l.custom_minimum_size = Vector2(WIDE_W, 0)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD   # No minimum width: the column stays as wide as its widest row (REQ-GM-90).
 		box.add_child(l)
 	box.add_child(UiKit.spacer(10))
 	# Back and Start are on one line, spaced to the two edges of the view: Back on the left, Start on the right
