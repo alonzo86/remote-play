@@ -42,6 +42,8 @@ const CHEER_GOLD := Color("ffd23f")   # The colors of the cheer effects, as cons
 const CHEER_YELLOW := Color("ffe878")
 const CHEER_WATER := Color("78c8ff")
 const CHEER_HEART := Color("ff6ea0")
+## A heart of the orangutan, 5 x 4 cells.
+const HEART_ROWS := [".X.X.", "XXXXX", ".XXX.", "..X.."]
 
 class Thrower:
 	var slot := 0
@@ -399,7 +401,7 @@ func _draw_cheer(ci: CanvasItem, e: Effect, center: Vector2, t: float) -> void:
 	var px := Shell.WORLD_PIXEL
 	var gold := e.species == PuffField.BONUS_KIND
 	var reach := e.radius * 1.15
-	for i in 4 + (6 if gold else 0):   # Sparkles in a ring that turns in 4 steps.
+	for i in (0 if e.species == "orangutan" else 4 + (6 if gold else 0)):   # Sparkles in a ring that turns in 4 steps.
 		var a := float(i) / float(4 + (6 if gold else 0)) * TAU + floorf(t * 8.0) * 0.4
 		var pos := Shell.snap(center + Vector2(cos(a), sin(a) * 0.8) * reach * (1.0 + 0.12 * float(i % 3)))
 		var color := Color.WHITE if i % 2 == 0 else (CHEER_GOLD if gold else CHEER_YELLOW)
@@ -413,14 +415,15 @@ func _draw_cheer(ci: CanvasItem, e: Effect, center: Vector2, t: float) -> void:
 					var v := Vector2(e.dir * (60.0 + 40.0 * float(i % 3)), -260.0 + 30.0 * float(i))
 					var p := Shell.snap(origin + v * e.age + Vector2(0.0, 520.0) * e.age * e.age)
 					ci.draw_rect(Rect2(p, Vector2.ONE * 2.0 * px), CHEER_WATER)
-		"orangutan":   # Hearts that float up.
+		"orangutan":   # Hearts that float up: big and pink, and the orangutan has no sparkles to hide them (issue #111).
+			var u := 2.0 * px
 			for i in 3:
-				var h := Shell.snap(center + Vector2((float(i) - 1.0) * e.radius * 0.7, -e.radius * 0.9 - e.age * 70.0 - float(i) * 12.0))
-				if e.age > 0.2:
-					ci.draw_rect(Rect2(h, Vector2(px, px)), CHEER_HEART)
-					ci.draw_rect(Rect2(h + Vector2(2.0 * px, 0.0), Vector2(px, px)), CHEER_HEART)
-					ci.draw_rect(Rect2(h + Vector2(0.0, px), Vector2(3.0 * px, px)), CHEER_HEART)
-					ci.draw_rect(Rect2(h + Vector2(px, 2.0 * px), Vector2(px, px)), CHEER_HEART)
+				var rise := e.radius * 0.9 + e.age * 70.0 + float(i) * 20.0
+				var h := Shell.snap(center + Vector2((float(i) - 1.0) * e.radius * 0.8 - 2.5 * u, -rise))
+				for row in HEART_ROWS.size():
+					for col in HEART_ROWS[row].length():
+						if HEART_ROWS[row][col] == "X":
+							ci.draw_rect(Rect2(h + Vector2(float(col), float(row)) * u, Vector2(u, u)), CHEER_HEART)
 
 
 func _draw_cursor(ci: CanvasItem, t: Thrower) -> void:
