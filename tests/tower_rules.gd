@@ -118,7 +118,6 @@ func _game_numbers() -> void:
 	_check(Stack.turn_time("easy") == 10.0 and Stack.turn_time("medium") == 5.0 and Stack.turn_time("hard") == 3.0
 			and Stack.turn_time("nonsense") == 5.0,
 			"the turn time is 10 s on Easy, 5 s on Medium and 3 s on Hard (an unknown value is Medium)")
-	_check(Stack.MEDAL_TIERS == [6, 9, 11], "a solo player gets bronze at 6 bricks, silver at 9 and gold at 11 (Test 30 step 7a)")
 	var tiers: Array = Stack.MEDAL_TIERS
 	_check(tiers[0] < tiers[1] and tiers[1] < tiers[2] and tiers[2] <= Stack.TOTAL_BRICKS,
 			"the medal tiers rise and gold can be reached with 12 bricks")

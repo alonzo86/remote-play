@@ -259,7 +259,9 @@ func _levels() -> void:
 		var full := 0.0
 		var step := 0.01
 		mm.age = 0.0
-		while not mm.is_done():
+		var guard := 0
+		while not mm.is_done() and guard < 2000:
+			guard += 1
 			if mm.out() >= 1.0:
 				full += step
 			mm.age += step

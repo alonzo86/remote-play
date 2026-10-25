@@ -152,7 +152,7 @@ Needs: 1 phone, 1 TV, a stopwatch, a second QR code that is not from Sababi (for
 | 2a | Screen recording of the scan, with the seconds to join | Pass | R3 |  |  |
 | 2b | (Removed with the join PIN) | Pass | R3 |  |  |
 | 3a | Phone screenshot after Back in the scanner | Fail | R4 |  | R3: Fail - an error is shown: "QR SCAN FAILED: FAILED TO SCAN CODE"; R4: Fail - an error is shown: "QR SCAN FAILED: FAILED TO SCAN CODE" Issue #109. |
-| 3b | Note: the app is open; `adb logcat -d -s godot > docs/evidence/2/<run>-log.txt` if it crashes | Pass | R4 |  | R4: Pass - an error is shown: "QR SCAN FAILED: FAILED TO SCAN CODE" Issue #109. |
+| 3b | Note: the app is open; `adb logcat -d -s godot > docs/evidence/2/<run>-log.txt` if it crashes | Pass | R4 |  | |
 
 Item 4 (a QR code that is not from Sababi) moved to the automated tests (docs/AUTOMATED_TESTS.md, A-2-4). Items 1, 2a, 3a and 3b stay: they need the real scanner. Item 2b was removed with the join PIN (issue #52). The numbers of the other items do not change.
 

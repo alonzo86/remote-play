@@ -124,7 +124,6 @@ func _start_and_music() -> void:
 func _freeze_and_points() -> void:
 	print("freeze: stop and points")
 	var game: Control = await _play(2, {"seed": 4})
-	game._haptics = Haptics.new()
 	var rec: RefCounted = _recorder()
 	game._haptics = rec
 	var wiggle := {0: 4.0, 1: 4.0}

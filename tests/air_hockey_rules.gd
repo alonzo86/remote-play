@@ -161,9 +161,12 @@ func _timing() -> void:
 			reached = true
 			break
 	_check(hit_at > 0.0 and reached and t - hit_at <= 1.5,
-				"a fast hit sends the puck to the far rail in %.2f s after the hit (1.5 s or less)" % (t - hit_at))
-	for i in 12:
+				"a fast hit sends the puck to the far rail (%s, %.2f s after the hit, 1.5 s or less)"
+				% [reached, t - hit_at if hit_at > 0.0 else -1.0])
+	for i in 60:
 		hit.step(DT, [Vector2.ZERO, Vector2.ZERO])
+		if hit.puck_vel.x < 0.0:
+			break
 	_check(reached and hit.puck_vel.x < 0.0 and Sim.RINK.has_point(hit.puck_pos),
 				"the puck bounces off the far rail and stays in the rink")
 	_check(Sim.PUCK_R * 2.0 >= 48.0, "the puck is %.0f px across at 1080p (48 px or more, Test 27 step 11a)" % (Sim.PUCK_R * 2.0))
