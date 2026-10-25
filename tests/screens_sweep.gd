@@ -278,8 +278,11 @@ func _keys() -> void:
 	await _frames(2)
 	var before: bool = _app.settings.overlay
 	await _ok_key()
-	_check(_app.settings.overlay != before, "OK on a Settings row runs the row (the overlay switch changed)")
-	await _ok_key()
+	_check(_app.settings.overlay == before, "OK on an on/off Settings row does nothing (issue #122)")
+	await _key("ui_right")
+	_check(_app.settings.overlay, "Right on the overlay row sets it ON")
+	await _key("ui_left")
+	_check(not _app.settings.overlay, "Left on the overlay row sets it OFF")
 	_app.go_connect()
 	await _frames(6)
 	_app.current_screen().on_back()

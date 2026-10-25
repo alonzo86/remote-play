@@ -79,6 +79,13 @@ func _answers() -> void:
 			"both phones get the safety card and none has answered")
 	_check(view.start_button.disabled and view.reason_label.text == Lang.t("game_settings.waiting_phones").to_upper(),
 			"Start is off and the line says WAITING FOR PHONES")
+	# Issue #121: Down from the last row, then Up and Down between Back and Start, never leave the view with no focus.
+	view.rows[-1].grab_focus()
+	view.rows[-1].find_valid_focus_neighbor(SIDE_BOTTOM).grab_focus()
+	_check(view.get_viewport().gui_get_focus_owner() == view.start_button and view.start_button.has_focus(),
+			"Down from the last row puts the focus on Start while it waits, so its marker shows")
+	view.back_button.grab_focus()
+	_check(view.get_viewport().gui_get_focus_owner() == view.back_button, "Back takes the focus while Start waits")
 	sim.clients[0].send_swing_ok()
 	await _wait_for(func(): return app.server.swing_pending() == [1])
 	await sim.frames(3)

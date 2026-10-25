@@ -246,7 +246,7 @@ func _show_hold_card(lost: Array[int]) -> void:
 		title = Lang.f("pause.left", [_slot_labels(gone)]) if not gone.is_empty() and gone.size() == _hold_info.size() \
 				else Lang.f("pause.reconnected", [_slot_labels(_hold_info.keys())])
 		entries.append(["minigame.resume", _resume_game])
-	entries.append(["minigame.end_game", request_leave, "danger"])
+	entries.append(["minigame.end_game", App.go_menu, "danger"])   # No second question (REQ-GM-30, issue #118).
 	open_menu(title, entries, rows)
 	_menu_kind = "hold"
 
@@ -291,7 +291,7 @@ func on_back() -> void:
 	elif _menu_open and _menu_kind != "hold":
 		close_menu() # Also the "End the game?" question: Back is "Keep playing".
 	else:
-		request_leave() # On the card of a lost phone, Back asks to end the game.
+		request_leave() # Also on the card of a lost phone: Back asks, its End game item does not.
 
 
 ## Leaves the game for the Games screen (REQ-GM-31a). While the game is in progress it asks first: a round

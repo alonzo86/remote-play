@@ -35,7 +35,8 @@ func _ready() -> void:
 
 
 func _draw() -> void:
-	if has_focus() and not disabled:
+	if has_focus():   # A disabled item keeps the focus and shows its cursor dim: the marker is never lost (issue #121).
 		var rtl := is_layout_rtl()
 		var x := size.x - 8.0 - UiTheme.CURSOR_UNIT * 4.0 if rtl else 8.0   # In front of the text: at the right in Hebrew.
-		UiTheme.draw_cursor(self, Vector2(x, size.y * 0.5), get_theme_color("font_focus_color"), UiTheme.CURSOR_UNIT, rtl)
+		var c := get_theme_color("font_disabled_color" if disabled else "font_focus_color")
+		UiTheme.draw_cursor(self, Vector2(x, size.y * 0.5), c, UiTheme.CURSOR_UNIT, rtl)
