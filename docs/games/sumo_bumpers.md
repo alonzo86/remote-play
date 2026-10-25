@@ -19,7 +19,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 4
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-73 | Exception | The game needs 2 players (registry `min_players` 2), so it has no solo mode and no medal tiers. |
+| REQ-GM-73 | Exception | The game needs 2 players (registry `min_players` 2), so it has no solo mode (and no solo medal, REQ-GM-73). |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 15). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | Content: friendly bumpers that bounce, no fighting words. A bumper that falls spins and shrinks ("Whee!"), is back in the next round, and waits only until the round is over, which is short (REQ-SB-9). Text is positive. |

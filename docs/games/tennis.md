@@ -61,14 +61,14 @@ Scoring
 | REQ-TN-11 | The server changes after every game (`Real`) or every 2 points (`Quick`), in turns inside the team, and the teams take turns to serve. The near team is always the team of slot 1 (the camera does not turn), and the server serves into the service box across the net. | Done | tennis_rules |
 | REQ-TN-12 | A point is lost when: the ball lands out, the ball is not returned, or the ball bounces twice on a side. A net touch in play is "let", the ball goes on. Nothing takes points away (REQ-GM-83). | Done | tennis_rules |
 | REQ-TN-13 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the team in front and its games (`Real`) or points (`Quick`), or TIE. A scoreboard at the top left shows both teams (slot colors, names, the games and the points of the game; the server has a ball). With 1 player it shows the running rally, the best rally and a timer. Each phone shows its own team's place (REQ-FL-67). With two teams the places are 1 and 2 (1 and 1 on a tie): a place belongs to the team, not to its players (this replaces the shared ranks 1, 1, 3 of REQ-GM-70 for team games). The leader chip shows the team in front and its games, and TIE only when the teams are level, also in 2 against 2. The timer box of the solo panel is at the place of every game (REQ-GM-47o). | Done | smoke_tennis, smoke_tennis_phones, r4_tennis |
-| REQ-TN-14 | The end: `open_results()` (REQ-GM-72) with the teams, "X wins!" and Try again, New game, Back to menu. In 1 player mode the title is the medal (REQ-TN-16). The result menu opens 2.2 s after the time is up, at most 3 s. | Done | smoke_tennis |
+| REQ-TN-14 | The end: `open_results()` (REQ-GM-72) with the teams, "X wins!" and Try again, New game, Back to menu. In 1 player mode the title shows the longest rally and there is no medal (REQ-TN-16). The result menu opens 2.2 s after the time is up, at most 3 s. | Done | smoke_tennis |
 
 Solo, players and feedback
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-TN-15 | 1 player: the ball machine returns every ball it can reach (never misses on purpose). The rally counts the hits in a row. A missed ball ends the rally, the count is kept as the best of the round, and a new rally starts 2 s after the miss (the banner shows 1.8 s, the machine sends the ball 0.2 s later). The round lasts 90 s. The score is the longest rally. | Done | tennis_rules, smoke_tennis |
-| REQ-TN-16 | Medal tiers for 1 player (REQ-GM-73), by the longest rally: `[5, 10, 20]` on Medium (the tiers for Easy and Hard are in REQ-TN-18). First guesses. | Done | tennis_rules |
+| REQ-TN-16 | 1 player gets no medal (REQ-GM-73): the result shows the longest rally. The tiers by rally were removed (issue #119). | Planned (issue #119) | tennis_rules |
 | REQ-TN-17 | Personal best (REQ-GM-98): **not built yet.** `best_key()` is empty, because a new key needs a number in `ProfileKeys` and in the profile code (a change of the profile format). Planned: in 1 player mode the key is `tennis|<difficulty>` and the longest rally counts (more is better). The games with 2 to 4 players have no key, because a match has no score that compares between matches (no best). The user decides when to add it. | Open | smoke_tennis |
 | REQ-TN-20 | A player who leaves: the character goes away and its team plays on with the rest (REQ-GM-21); in 2 against 2 the teams stay as they were (no new teams for 3 players), and the characters keep their side of the court. When a team has no player left, the other team wins at once with the result menu. With 3 players the change of the single player (REQ-TN-1) skips the one who left. When nobody is left the "No players connected" menu opens (REQ-GM-22). A lost phone pauses the match (REQ-GM-30). | Done | tennis_rules, smoke_tennis |
 | REQ-TN-22 | Safety (REQ-GM-102, issue #79): Tennis is a swing game (`swing` in the registry). The settings view shows the safety line, each phone shows the card "HOLD ON TIGHT!" once for each run of the app, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
@@ -81,7 +81,6 @@ Solo, players and feedback
 | Flight time factor (a bigger factor is a slower ball) | 1.2 | 1.0 | 0.9 | |
 | The ball stays inside the lines | yes | no | no | |
 | Ball machine error (m, solo) | 0.8 | 1.4 | 2.2 | |
-| Medal tiers (longest rally) | [4, 8, 14] | [5, 10, 20] | [6, 14, 28] | |
 
 REQ-TN-19: games to win a match on `Real`: 3 (about 8 minutes with 4 players, a first guess); points on `Quick`: 5. All values are first guesses and are
 tuned on a device (`docs/MANUAL_TESTS.md`, Test 25). The values are in `Rules.level()` and the constants of `tennis_match.gd`.

@@ -20,7 +20,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 4
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-73 | Exception | The game has no medal tiers and one player gets no medal (owner, issue #66): the result shows the points and "Reached wave N". |
+| REQ-GM-73 | Rule | One player gets no medal (owner, issue #66; the general rule since issue #119): the result shows the points and "Reached wave N". |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 22). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | REQ-GM-81: the ships shoot toy beams at lifeless gray rocks; no person, animal or creature is hurt, and a ship that is hit bursts into colored pixels. REQ-GM-83: a hit costs no points; a player who is out keeps the points and watches for 10 s, then the ship comes back with a force field (REQ-AB-13); the game ends when the last ship is out (REQ-AB-14). The hint is one line. Texts are positive ("Wave 3 clear!"). |

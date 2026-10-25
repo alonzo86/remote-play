@@ -21,7 +21,7 @@ see REQ-GM-7. Visual language: shell, player colors, pixel world (REQ-GM-45 to 4
 | General ID | Kind | Note |
 |------------|------|------|
 | REQ-GM-35 | Exception | The game shows no timer, so it has no countdown: the first song starts at once after Start (the song of the game is the music of the dance). The clock is the number of songs. |
-| REQ-GM-73 | Exception | One player gets no medal and the game has no medal tiers (owner, 2026-10-24, as Whack-a-Mole). With more players each row has the medal of its place (REQ-GM-73a). |
+| REQ-GM-73 | Rule | One player gets no medal (owner, 2026-10-24; the general rule since issue #119). With more players each row has the medal of its place (REQ-GM-73a). |
 | REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`, as Whack-a-Mole): a new key changes the profile code format. Decision to confirm. |
 | REQ-GM-102 | Note | Not a swing game, but the players wiggle a phone with energy, so the registry flag `swing` is set and the safety card shows. The TV line is generic (`swing.tv_line`: "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", owner, 2026-10-24). |
 | REQ-GM-37a | Note | The pad has no buttons (`pad: []`): the phone is only moved. |
