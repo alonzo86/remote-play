@@ -339,6 +339,8 @@ func _place_snow(game: Node, pad: Array, flats: Array) -> void:
 	var spots := [Vector2(0.3, 0.42), Vector2(0.45, 0.62), Vector2(0.6, 0.5), Vector2(0.72, 0.7)]
 	for i in game.participants.size():
 		game._throwers[game.participants[i]].aim = area.position + area.size * spots[i % spots.size()]
+	# A poof (the ring of a missed banana) would read as a fifth cursor ring: the tile shows 4 rings (issue #114).
+	game._effects = game._effects.filter(func(e) -> bool: return e.kind != "poof")
 	game.set_process(false)   # Freeze the picture.
 	game._request_redraw()
 	await _frames(3)
