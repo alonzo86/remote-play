@@ -11,7 +11,7 @@ All players build one tall tower together, one brick at a time, in turns (decisi
 crane over the tower, and the player whose turn it is presses A to drop it. A brick that lands and stays is a point for its player.
 A brick that lands too far out can make the top of the tower topple: it wobbles, the bricks fall off with a giggle, and the game goes
 on with the lower tower. Nobody loses a point for a fall. 12 bricks are dropped in all, shared by the players in turns. Alone, a
-player gets a medal for the number of bricks that stayed.
+player gets no medal; the result shows the number of bricks that stayed.
 
 Registry entry: `description` (one line) and `tile` (`assets/tiles/tower_builder.png`, made by `tools/make_tiles.gd --only=tower_builder`),
 see REQ-GM-7. Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 48, 49). Check the tile next to the
@@ -60,7 +60,7 @@ Time, players and points
 | REQ-TB-12 | A player who leaves is taken out of the turns and off the board (REQ-GM-21). When it was the turn of that player, the next player gets a new brick and the full turn time at once; a leaver whose brick is falling does not make the next player lose a turn. When nobody is left the "No players connected" menu opens (REQ-GM-22). A lost phone pauses the game with the card of REQ-GM-30; the time of the turn and the swing stop (REQ-GM-30). | Done | smoke_tower, smoke_tv (shared base class) |
 | REQ-TB-13 | Haptics (REQ-GM-43): the phone whose turn starts buzzes 100 ms; a drop 30 ms; a brick that stays 60 ms; a miss 40 ms; a topple 80 ms on every phone (at most one buzz every 150 ms for a phone). A buzz never carries information alone. | Device | Device (the buzzes) |
 | REQ-TB-14 | A brick that lands and stays gives its player 1 point, and the point is never taken away (REQ-GM-83, REQ-GM-70): the points are the bricks that stayed at the moment they landed. The leader chip shows the leader and the points, or TIE (REQ-GM-46). Each phone shows its place and its points (REQ-FL-67). The chip row under the tower has one chip for each player with the points; the chip of the player of the turn has a white frame. | Done | smoke_tower |
-| REQ-TB-15 | The result menu is `open_results()` with the points (REQ-GM-72): the title names the winner or says "Tie!", the rows have the medal of the place (REQ-GM-73a), and the score text is "N BRICKS" ("1 BRICK"). One player gets the medal of the points: bronze 6, silver 9, gold 11 (`MEDAL_TIERS`, the same at all three difficulties; REQ-GM-73, REQ-GM-95). The numbers are a first guess. | Done | smoke_tower, tower_rules |
+| REQ-TB-15 | The result menu is `open_results()` with the points (REQ-GM-72): the title names the winner or says "Tie!", the rows have the medal of the place (REQ-GM-73a), and the score text is "N BRICKS" ("1 BRICK"). One player gets no medal (REQ-GM-73, issue #119; `MEDAL_TIERS` is removed). | Planned (issue #119) | smoke_tower, tower_rules |
 | REQ-TB-16 | Children (REQ-GM-80 to 84): see the first section. Easy gives a child 10 s for one drop and the swing is slow (one swing in 2.4 s). | Device | Device (Test 30 items 9a to 9d) |
 | REQ-TB-17 | The pad of the phone shows the button A alone (registry `pad: ["a"]`, REQ-GM-37a). | Done | run_tests |
 
@@ -84,7 +84,6 @@ Values that change how the game feels. Tune them on a device (Test 30). All are 
 | Swing: reach and time of one swing | `tower_stack.gd` `SWING_AMP`, `SWING_PERIOD` | 380 px, 2.4 s |
 | Brick: height, widths | `tower_stack.gd` `BRICK_H`, `WIDTH_*` | 48 px, 170 to 250 px |
 | Overlap to land, slack of a joint | `tower_stack.gd` `MIN_OVERLAP`, `SLACK` | 24 px, 8 px |
-| Medal tiers (solo) | `tower_stack.gd` `MEDAL_TIERS` | 6, 9, 11 |
 | Fall speed, wobble time, pauses | `tower_builder_game.gd` | 1400 px/s, 0.7 s, 0.6 / 1.0 / 1.8 s |
 
 ## Open questions
@@ -94,6 +93,5 @@ For the owner (the answers of 2026-10-23 are used for all the rest):
 1. The end of the game: the owner did not say when it ends, so it ends after 12 bricks (REQ-TB-3). Is that the number you want?
 2. Points: a brick that stays is a point for its player, and a topple takes nothing (REQ-TB-14). The tower height is not a score. Do you want the final height of the tower on the result menu too?
 3. REQ-GM-35 (no countdown) is a decision to confirm.
-4. Medal tiers 6, 9 and 11 of 12 for one player are guesses.
-5. No trademark search has been done for "Tower Builder".
-6. The id was changed from `wobbly_tower` (roadmap) to `tower_builder` with the name.
+4. No trademark search has been done for "Tower Builder".
+5. The id was changed from `wobbly_tower` (roadmap) to `tower_builder` with the name.

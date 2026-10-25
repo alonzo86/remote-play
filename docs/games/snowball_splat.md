@@ -11,7 +11,7 @@ was not playable (small, fast targets) and it was a shooting game.
 Each player points a phone at the TV like a remote control. A cursor in the player color follows the phone. Hungry animals (monkeys,
 lemurs, orangutans, sloths, gorillas and elephants) walk across a jungle at sunset. A press on A throws a banana at the cursor. An
 animal that is hit jumps, eats the banana and cheers. Now and then a golden monkey king runs by and is worth 100 points. The player with
-the most points after 60 seconds wins. With one player, the score is compared with medal tiers. A miss costs nothing.
+the most points after 60 seconds wins. With one player, the score is shown with no medal. A miss costs nothing.
 Renamed from Snowball Splat on 2026-10-16 (first Banana Splat, then Banana Party the same day, because in Hebrew קרב means fight) (the owner's decision): the look is a jungle, and the rules are the same except the lanes and the bonus.
 
 Registry entry: `description` (one line) and `tile` (`assets/tiles/snowball_splat.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
@@ -74,7 +74,7 @@ End and players
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SS-16 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. With one player the row shows the medal for the tiers of the difficulty ([150, 300, 450] at Medium; bronze, silver, gold, REQ-GM-73); with more players each row has the medal of its place. The tiers depend on the difficulty (REQ-SS-21); the values are open tuning values. A player who leaves takes the cursor and the score out, and the round goes on. A lost phone pauses the round with the card of REQ-GM-30. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_tv |
+| REQ-SS-16 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. With one player the row has no medal (REQ-GM-73, issue #119); with more players each row has the medal of its place. A player who leaves takes the cursor and the score out, and the round goes on. A lost phone pauses the round with the card of REQ-GM-30. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Planned (issue #119) | smoke_tv |
 | REQ-SS-17 | Children (REQ-GM-80 to 84): the animals are friendly and eat bananas, the hit is funny, a miss costs nothing, no player is out of the round, the hint is one line, the animals are large and slow, and every text is positive. | Device | Review, Device (with a child, Test 10 item 9) |
 
 ### Settings and difficulty (built 2026-10-09)
@@ -84,20 +84,20 @@ REQ-GM-90 to 96 apply. The settings view has one row: Difficulty. As it grows, t
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SS-20 | The game has the settings view with the row Difficulty (REQ-GM-90, 91; registry `settings: []`), and `difficulty` is a prop of the game. Difficulty changes four values, see the table below: the speed of the animals (a factor on the speed of each kind), the number of animals on the screen (`MAX_BASE`, plus the number of players as before), the time between two new animals (`SPAWN_EVERY`), and the number of bushes (REQ-SS-26). | Done | game_rules, smoke_settings |
-| REQ-SS-21 | The medal tiers (REQ-GM-73) belong to the difficulty. A result is judged by the tiers of the difficulty that was played, and the title of the result of one player is the difficulty that was played ("Hard"), under the medal of the row (REQ-GM-73). | Done | game_rules (tiers), smoke_tv |
+| REQ-SS-21 | The title of the result of one player is the difficulty that was played ("Hard"). There are no medal tiers (REQ-GM-73, issue #119). | Planned (issue #119) | smoke_tv |
 | REQ-SS-22 | At every difficulty the lanes never overlap (REQ-SS-8), and at least one animal is on the screen most of the time, also on Hard with 1 player. | Done | game_rules |
 | REQ-SS-23 | The HUD shows the leader chip (leader and points, or TIE; REQ-GM-46) next to the title and the timer. Each phone shows its own points and place (REQ-FL-67). | Done | game_helpers (leader), run_tests (score message) |
 | REQ-SS-24 | Personal best (REQ-GM-98): the key is `snowball_splat|<difficulty>`, the value is the score, higher is better. All player counts share one key. | Done | smoke_bests |
 | REQ-SS-25 | The golden monkey king (the bonus, REQ-SS-7): it is worth 100 points, runs at 320 px/s, and shows a gold crown and sparkles. It comes once in a while: the first after 10 s of play, then after 14 to 22 s. Only one is on the screen at a time, it comes in a lane that has no animal at the entry, and only when it cannot catch an animal ahead of it in the lane (it keeps 200 px behind). If no lane is safe it waits 1 s and tries again, so it can come a bit later. It is the same for all players. It does not count toward the maximum number of animals. | Done | game_rules |
 | REQ-SS-26 | Bushes: the ground has bushes where the animals walk. A bush stands in a lane, is 300 px wide (`BUSH_HALF_W` 150) and is drawn in front of the animals of its lane. An animal is hidden when its middle is inside the bush, less half of its radius, and a banana that lands there cannot hit it (a miss, REQ-SS-5). The animal walks on and can be hit again when it comes out. The number depends on the difficulty: Easy 3, Medium 5, Hard 8. They are spread over the lanes (middle first, then far, then near) and over the width of each lane with a random shift from the seed, 200 px or more from the edges and 420 px or more from each other in a lane. Tufts of tall grass are drawn on the ground (no effect on the game). | Done | game_rules, smoke_tv |
 
-| Difficulty | Speed factor | animals on screen (`MAX_BASE`, + players) | New animal every | Bushes | Medal tiers (first guess) |
-|------------|--------------|------------------------------------------|----------------|--------|---------------------------|
-| Easy | 0.7 | 4 | 1.2 s | 3 | [170, 340, 510] |
-| Medium | 1.0 | 3 | 1.5 s | 5 | [150, 300, 450] |
-| Hard | 1.5 | 2 | 2.0 s | 8 | [120, 240, 360] |
+| Difficulty | Speed factor | animals on screen (`MAX_BASE`, + players) | New animal every | Bushes |
+|------------|--------------|------------------------------------------|----------------|--------|
+| Easy | 0.7 | 4 | 1.2 s | 3 |
+| Medium | 1.0 | 3 | 1.5 s | 5 |
+| Hard | 1.5 | 2 | 2.0 s | 8 |
 
-The values, and especially the tiers, are first guesses and are tuned on a device (Test 10). Fewer animals on Hard makes each animal worth more attention, and faster animals ask for better aim.
+The values are first guesses and are tuned on a device (Test 10). Fewer animals on Hard makes each animal worth more attention, and faster animals ask for better aim.
 
 ## Parameters
 
@@ -112,14 +112,14 @@ Values that change how the game feels. Tune them on a device (Test 10). First va
 | `BONUS_FIRST`, `BONUS_MIN`, `BONUS_MAX`, `BONUS_GAP` | `puff_field.gd` | 10 s, 14 s, 22 s, 200 px |
 | `BUSH_HALF_W`, `BUSH_MARGIN`, `BUSH_MIN_GAP`, `bushes` of `LEVELS` | `puff_field.gd` | 150 px, 200 px, 420 px, 3 / 5 / 8 |
 | `HIT_LIFE`, `HIT_HOP`, `HIT_HEIGHT`, `CURSOR_R` | `snowball_splat_game.gd` | 1 s, 0.5 s, 72 px, 40 px |
-| `LEVELS` (speed factor, `max_base`, `spawn_every`, medal tiers for each difficulty) | `puff_field.gd` | REQ-SS-20 |
+| `LEVELS` (speed factor, `max_base`, `spawn_every` for each difficulty) | `puff_field.gd` | REQ-SS-20 |
 | `pointer_range_deg` (sensitivity) | `scripts/input/orientation.gd` | 25 (half range of the pointer in degrees) |
 
 ## Open questions
 
 - Is a half range of 25 degrees good from the sofa? Too small is shaky, too large needs a big arm movement. This is the main thing to test.
 - Does the yaw drift (gyro only) stay small enough for a round of 60 s? If not, a short smoothing or a stronger bias learning is needed in `orientation.gd`.
-- Are the animals slow and big enough for a child of 5 to 6 years? Are they too slow for an adult? The speeds, sizes, medal tiers and the 60 s are first guesses.
+- Are the animals slow and big enough for a child of 5 to 6 years? Are they too slow for an adult? The speeds, sizes and the 60 s are first guesses.
 - The pointer range covers the whole play area, but the animals walk only in its lower half. Is the top half wasted?
 - The Hebrew texts (the name "מסיבת בננות" and the hint) were written by Claude and need a native reader (test 17).
 

@@ -19,7 +19,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45 to 49). Check the 
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-73 | Exception | One player gets no medal and the game has no medal tiers (owner, 2026-10-23, as Star Shield, issue #66). The result shows the points. With more players each row has the medal of its place (REQ-GM-73a). |
+| REQ-GM-73 | Rule | One player gets no medal (owner, 2026-10-23, issue #66; the general rule since issue #119). The result shows the points. With more players each row has the medal of its place (REQ-GM-73a). |
 | REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`): a new key changes the profile code format. Open: ask the owner whether the game gets keys 43 to 45. |
 | REQ-GM-37 | Note | Recenter is on the pad, as in Banana Party: the pointer uses the yaw of the gyroscope, and yaw drifts (RISKS A4). |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 28). It is not yet run on a device. |

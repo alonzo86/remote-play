@@ -11,7 +11,7 @@ A team game. Each player tilts a phone to run a friendly **sheepdog** (a made-up
 field with a pond, trees, hay stacks and a barn. The sheep keep away from a dog that comes close. Together the dogs herd the sheep
 into the pen through its gate. The round ends when every sheep is in the pen or when the time is up. The score is the number of
 sheep in the pen, and it belongs to the whole team (nobody beats another player). With one player the number of sheep is compared
-with medal tiers. A sheep in the pen stays there, nobody is out and nobody waits.
+shown as a score, with no medal. A sheep in the pen stays there, nobody is out and nobody waits.
 
 Registry entry: `description` (one line), `how_to` and `tile` (`assets/tiles/sheep_herding.png`, made by `tools/make_tiles.gd`), see
 REQ-GM-7 and REQ-GM-103. Visual language: shell, player colors, toy-like world (REQ-GM-45 to 49).
@@ -23,7 +23,7 @@ REQ-GM-7 and REQ-GM-103. Visual language: shell, player colors, toy-like world (
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 29). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-46 | Exception | The leader chip is the team chip: it shows the number of sheep in the pen out of all sheep (REQ-SH-13), in gray, because there is no leader. The phones show the same number and no place. |
-| REQ-GM-72, 73 | Exception | The score is shared, so every row of the result list shows the same number and the same place (1st). With 2 to 4 players there are no medals (REQ-SH-18). |
+| REQ-GM-72, 73 | Exception | The score is shared, so every row of the result list shows the same number and the same place (1st). There are no medals at all (REQ-SH-18, issue #119). |
 | REQ-GM-98 | Exception | No personal best (REQ-SH-20): the score belongs to the team, not to one profile. |
 | REQ-GM-80 to 84 | Note | Content: friendly dogs and sheep, nobody is hurt, a scared sheep runs away and shows a few speed dashes, a calm sheep shows a heart or a sleepy "z". A sheep in the pen hops and a star pops. Nobody is out (REQ-SH-9). Text is positive. |
 
@@ -39,7 +39,7 @@ Round
 | REQ-SH-2 | The dogs start at the left edge of the field, spread over its height (1 dog in the middle, 2 dogs at 30% and 70%, and so on), all at the same distance from the pen. The sheep start as a flock in the left middle of the field, apart from each other and from every blocker (REQ-SH-4). | Done | sheep_rules, smoke_sheep |
 | REQ-SH-3 | The field, the pen, the barn and the things around (REQ-SH-16) come from the seed (`start_props.seed`; Restart keeps it), so a test can fix them. | Done | sheep_rules, smoke_sheep |
 | REQ-SH-5 | The round ends when every sheep is in the pen, or when the time is up. When every sheep is in, the dogs and the sheep go on for 1.6 s with confetti over the pen, every phone buzzes 400 ms, and then the result opens (a win for the team: the sound `win`). When the time is up the result opens at once. | Done | smoke_sheep, sheep_rules |
-| REQ-SH-6 | The result menu is `open_results()` (REQ-GM-72): the list of the players with "N / M sheep", Try again, New game, Back to menu. With 2 to 4 players the title is "All sheep are safe!" or "N of M sheep are safe!" and there are no medals; with one player the title is the difficulty and the row has the medal of REQ-SH-18. | Done | smoke_sheep |
+| REQ-SH-6 | The result menu is `open_results()` (REQ-GM-72): the list of the players with "N / M sheep", Try again, New game, Back to menu. With 2 to 4 players the title is "All sheep are safe!" or "N of M sheep are safe!" and there are no medals; with one player the title is the difficulty and the row has no medal (REQ-SH-18). | Done | smoke_sheep |
 
 Sheep
 
@@ -73,14 +73,14 @@ Settings (REQ-GM-90 to 97)
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SH-17 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. The number of dogs does not change them: the field is the same with 1 or 4 dogs. | Done | smoke_sheep, sheep_rules |
-| REQ-SH-18 | One player: the medal comes from the number of sheep in the pen at the end (REQ-GM-73, 95); the medal tiers `[bronze, silver, gold]` belong to the difficulty, and gold is every sheep in the pen. The medal is the picture of the tier next to the name of the player in the result row, and the title of the result is the difficulty. | Done | smoke_sheep, sheep_rules |
+| REQ-SH-18 | One player: the result shows the number of sheep in the pen at the end and no medal (REQ-GM-73, issue #119); the title of the result is the difficulty. | Planned (issue #119) | smoke_sheep, sheep_rules |
 | REQ-SH-20 | Personal best (REQ-GM-98): exception, no key (`best_key()` is empty). The result is shared by the team, so it does not belong to the profile of one player. | Done | smoke_bests |
 
-| Difficulty | Sheep | Flee radius | Run speed | Gate | Time | Medal tiers (sheep in the pen, first guess) |
-|------------|-------|-------------|-----------|------|------|---------------------------------------------|
-| Easy | 8 | 220 px | 230 px/s | 220 px | 90 s | [4, 6, 8] |
-| Medium | 11 | 260 px | 270 px/s | 180 px | 75 s | [6, 9, 11] |
-| Hard | 14 | 300 px | 320 px/s | 150 px | 60 s | [8, 11, 14] |
+| Difficulty | Sheep | Flee radius | Run speed | Gate | Time |
+|------------|-------|-------------|-----------|------|------|
+| Easy | 8 | 220 px | 230 px/s | 220 px | 90 s |
+| Medium | 11 | 260 px | 270 px/s | 180 px | 75 s |
+| Hard | 14 | 300 px | 320 px/s | 150 px | 60 s |
 
 A dog is faster than the fastest sheep for most of a run (440 px/s against 320 px/s), but a sheep that is scared from the front runs
 away from the pen, so the dogs have to come from the right side.

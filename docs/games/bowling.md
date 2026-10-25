@@ -12,7 +12,7 @@ The name is a first idea (friendly, no trademark). Other names: "Strike Party", 
 
 Ten-pin bowling with the standard rules. The players bowl in turns, 10 frames each. The phone is the ball: the player **moves the phone
 left or right to aim**, then **swings it back and forward to throw**. The ball rolls down the lane on the TV and hits 10 pins.
-The player with the most points after the 10th frame wins. One player plays for a medal.
+The player with the most points after the 10th frame wins. One player plays for a score and gets no medal (REQ-GM-73).
 
 Registry entry: `description` (one line) and `tile` (`assets/tiles/bowling.png`, made by `tools/make_tiles.gd`), see REQ-GM-7. The tile shows only the lanes (the pins and the ball), without the score board, and the picture fills the whole tile with no gray area at the bottom.
 Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 48, 49).
@@ -30,7 +30,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 4
 - Turn order: player 1 bowls frame 1, then player 2 bowls frame 1, and so on, then frame 2 starts (the standard way).
   A player who has a strike or spare does not bowl again out of turn.
 - The winner has the highest total. Players with the same total share the rank (REQ-GM-70). With one player the score is
-  judged by medal tiers (REQ-GM-73).
+  shown as a score, with no medal (REQ-GM-73, issue #119).
 
 ## How the player throws
 
@@ -118,19 +118,19 @@ Settings and difficulty (REQ-GM-90 to 97)
 |----|-------------|--------|-------|
 | REQ-BW-16 | Settings rows: **Difficulty** (Easy, Medium, Hard) and **Rails** (Off, On; default Off) only (no Length row: every turn takes as long as it takes, and the game is always 10 frames). The rails are a setting of their own, not part of the difficulty. The mock is `screens/bowling/v2-5-settings.png`. The Rails row is a registry settings row (`key: rails`, values `off` and `on`). Both rows are part of `start_props` (REQ-GM-93). | Done | smoke_settings |
 | REQ-BW-17 | The table below shows what Difficulty means. Easy plus Rails must be playable by a child of about 5 years (REQ-GM-96): the child can only swing and score. | Device | lane_sim, game_rules |
-| REQ-BW-18 | Medals for one player (REQ-GM-73): bronze, silver, gold from the table. | Done | game_rules |
+| REQ-BW-18 | One player gets no medal and the result shows the points (REQ-GM-73). The medal tiers were removed (issue #119). | Planned (issue #119) | game_rules |
 | REQ-BW-19 | Personal best (REQ-GM-98): the key is `bowling|<difficulty>` with Rails Off only, higher is better (`best_key()`; new keys at the end of `ProfileKeys`, 3 keys, numbers 40 to 42; the code format was not changed, see `docs/PROFILES_PLAN.md`). A game with rails has no best (exception, the scores are not comparable). | Done | smoke_bests, profile_code |
 | REQ-BW-21 | The plate "NAME, YOUR TURN!" shows 1.5 s at the start of each turn, then it goes away (it is not drawn for the rest of the turn). | Done | r4_bowling |
 | REQ-BW-20 | A player who leaves takes the row out of the ranking. A lost phone pauses the game (REQ-GM-30). Nothing runs in the pause, and the swing state of the player on turn is reset when the pause closes. | Done | smoke_bowling |
 | REQ-BW-22 | Safety (REQ-GM-102, issue #79): Pin Pals is a swing game (`swing` in the registry). The settings view shows the line "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", each phone shows the card "HOLD ON TIGHT!" once for each run of the app, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
 
-| Difficulty | Ball speed | Aim | Swing threshold | Medal tiers (points) |
-|------------|------------|-----------|-----------------|----------------------|
-| Easy | always the middle value | whole strip | low (`FWD_ACCEL` x 0.7) | 70, 110, 150 |
-| Medium | 0.7 to 1.0 of the top speed | whole strip | normal | 60, 100, 150 |
-| Hard | 0.5 to 1.0 (a slow ball leaves pins) | whole strip | normal | 80, 130, 180 |
+| Difficulty | Ball speed | Aim | Swing threshold |
+|------------|------------|-----------|-----------------|
+| Easy | always the middle value | whole strip | low (`FWD_ACCEL` x 0.7) |
+| Medium | 0.7 to 1.0 of the top speed | whole strip | normal |
+| Hard | 0.5 to 1.0 (a slow ball leaves pins) | whole strip | normal |
 
-Rails do not change the medal tiers. A game with rails has no personal best (REQ-BW-19).
+A game with rails has no personal best (REQ-BW-19).
 
 All numbers are first guesses.
 
@@ -156,7 +156,7 @@ Values that change the feel. Tune them with the swing lab and a device test (REQ
 - **Spin (hook).** A twist of the wrist at the release could curve the ball and make splits (7-10) possible. It is not in the first version (straight balls only).
 - **The code of the profile.** Pin Pals added keys 40 to 42. A code with a Pin Pals best is format version 2; any other code stays version 1, so an old app reads it and refuses only a version 2 code (`docs/PROFILES_PLAN.md`).
 - **Name.** "Pin Pals" or something else? The Hebrew name is "באולינג חברים" (first guess).
-- Medal tiers and the sizes of the lane and the pins are guesses.
+- The sizes of the lane and the pins are guesses.
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
 
