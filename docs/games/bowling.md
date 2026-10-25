@@ -14,7 +14,7 @@ Ten-pin bowling with the standard rules. The players bowl in turns, 10 frames ea
 left or right to aim**, then **swings it back and forward to throw**. The ball rolls down the lane on the TV and hits 10 pins.
 The player with the most points after the 10th frame wins. One player plays for a medal.
 
-Registry entry: `description` (one line) and `tile` (`assets/tiles/bowling.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
+Registry entry: `description` (one line) and `tile` (`assets/tiles/bowling.png`, made by `tools/make_tiles.gd`), see REQ-GM-7. **Planned (issue #112):** the tile shows only the lanes (the pins and the ball), without the score board, and the picture fills the whole tile with no gray area at the bottom.
 Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 48, 49).
 
 ## Rules (standard ten-pin bowling)

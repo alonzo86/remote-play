@@ -68,7 +68,7 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 - A change that needs a device check adds or changes its test in the same commit (REQ-GM-62) and adds it to the list below.
   Every pull request lists the manual tests that are still open for its change.
 
-Tests the user has to run now (status on 2026-10-10 after run R1; the list is in the order to do them):
+Tests the user has to run now (status on 2026-10-25 after run R4; the list is in the order to do them. Open failures of R4: issues #109 to #114):
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
