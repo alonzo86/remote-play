@@ -277,7 +277,7 @@ func _after_result() -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	open_results(_board, BowlingRules.level(difficulty).tiers)
+	open_results(_board)
 
 
 func _scoreboard() -> Scoreboard:

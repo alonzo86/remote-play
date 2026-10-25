@@ -281,11 +281,11 @@ func score_of(slot: int) -> int:
 ## What Difficulty means (first guesses, test 23): `threshold` is a factor
 ## on the
 ## swing thresholds (a lower one counts a lighter swing), the ball speed is `fixed_speed` of the top speed on Easy and from
-## `speed_min` to 1 of it with the swing power on the others, `tiers` are the medals of one player (bronze, silver, gold).
+## `speed_min` to 1 of it with the swing power on the others.
 const LEVELS := {
-	"easy": {"threshold": 0.7, "fixed_speed": 0.8, "tiers": [70, 110, 150]},
-	"medium": {"threshold": 1.0, "speed_min": 0.7, "tiers": [60, 100, 150]},
-	"hard": {"threshold": 1.0, "speed_min": 0.5, "tiers": [80, 130, 180]},
+	"easy": {"threshold": 0.7, "fixed_speed": 0.8},
+	"medium": {"threshold": 1.0, "speed_min": 0.7},
+	"hard": {"threshold": 1.0, "speed_min": 0.5},
 }
 
 

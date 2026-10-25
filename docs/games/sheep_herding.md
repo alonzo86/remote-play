@@ -73,7 +73,7 @@ Settings (REQ-GM-90 to 97)
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SH-17 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. The number of dogs does not change them: the field is the same with 1 or 4 dogs. | Done | smoke_sheep, sheep_rules |
-| REQ-SH-18 | One player: the result shows the number of sheep in the pen at the end and no medal (REQ-GM-73, issue #119); the title of the result is the difficulty. | Planned (issue #119) | smoke_sheep, sheep_rules |
+| REQ-SH-18 | One player: the result shows the number of sheep in the pen at the end and no medal (REQ-GM-73, issue #119); the title of the result is the difficulty. | Done | smoke_sheep, sheep_rules |
 | REQ-SH-20 | Personal best (REQ-GM-98): exception, no key (`best_key()` is empty). The result is shared by the team, so it does not belong to the profile of one player. | Done | smoke_bests |
 
 | Difficulty | Sheep | Flee radius | Run speed | Gate | Time |

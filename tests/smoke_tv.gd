@@ -475,25 +475,19 @@ func _run() -> void:
 	rg.open_results(board)
 	await _frames(2)
 	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "TIE!", "equal scores give the title Tie!")
+	# One player in the result has no medal and no medal title (REQ-GM-73, issue #119).
 	var one = Scoreboard.new([rg.participants[0]])
 	one.set_score(rg.participants[0], 25)
-	rg.open_results(one, [10, 20, 30])
+	rg.open_results(one)
 	await _frames(2)
-	_check(MedalView.tiers_in(rg._menu_box) == ["silver"], "one player and tiers: the row has the silver medal next to the name")
-	# A time that must be small: 25 s earns silver, and a player who did not finish earns nothing (REQ-GM-73).
-	var fast_tiers := [40.0, 30.0, 20.0]
-	var timed = Scoreboard.new([], true)
-	timed.set_score(rg.participants[0], 25.0)
-	rg.open_results(timed, fast_tiers)
-	await _frames(2)
-	_check(MedalView.tiers_in(rg._menu_box) == ["silver"], "a time of 25 s earns silver")
+	_check(MedalView.tiers_in(rg._menu_box).is_empty(), "one player in the result: no medal next to the name")
 	var lost = Scoreboard.new([], true)
 	lost.set_unfinished(rg.participants[0], 3.0)
-	rg.open_results(lost, fast_tiers)
+	rg.open_results(lost)
 	await _frames(2)
 	_check(MedalView.tiers_in(rg._menu_box).is_empty()
-			and rg._menu_box.find_children("*", "Label", true, false)[0].text == "NO MEDAL THIS TIME",
-			"a solo player who did not finish gets no medal, although the score 0 is below every limit")
+			and rg._menu_box.find_children("*", "Label", true, false)[0].text == "ROUND OVER",
+			"a solo player who did not finish gets no medal and the title Round over")
 
 	# A player who leaves takes the ball out of the game (REQ-GM-21).
 	var third := ControllerClient.new()
@@ -716,15 +710,15 @@ func _run() -> void:
 	var again: Array = ss2._field.puffs
 	_check(again.size() == 1 and again[0].lane == first_lane and again[0].kind == first_kind,
 			"the same seed gives the same first animal (REQ-SS-9)")
-	# One player: the score is compared with the medal tiers (REQ-SS-16).
+	# One player: no medal; the difficulty is the title (REQ-SS-16, 21, REQ-GM-73).
 	ss2._board.remove(1)
 	ss2._board.set_score(0, 400.0)
 	ss2._round.time = ss2.ROUND_TIME - 0.005
 	ss2._game_tick(0.01)
 	await _frames(3)
-	_check(MedalView.tiers_in(ss2._menu_box) == ["silver"]
+	_check(MedalView.tiers_in(ss2._menu_box).is_empty()
 			and ss2._menu_box.find_children("*", "Label", true, false)[0].text == "MEDIUM",
-			"400 points alone earn silver next to the name, and the difficulty is the title (REQ-SS-16, 21)")
+			"400 points alone earn no medal, and the difficulty is the title (REQ-SS-16, 21)")
 
 	# A player who leaves takes the cursor, the score and the bananas out (REQ-GM-21).
 	var fourth := ControllerClient.new()

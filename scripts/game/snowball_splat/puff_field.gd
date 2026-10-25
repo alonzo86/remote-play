@@ -42,12 +42,11 @@ const BUSH_MARGIN := 200.0   # The middle of a bush is at least this far from th
 const BUSH_MIN_GAP := 420.0  # ... and the middles of two bushes of one lane are at least this far from each other.
 ## Difficulty (REQ-SS-20, 21): faster animals and fewer of them as it grows. `speed` is a factor on the speed of each kind,
 ## `max_base` is MAX_BASE, `spawn_every` is SPAWN_EVERY, `bushes` is the number of
-## bushes (REQ-SS-26) and `tiers` are the medal tiers [bronze, silver, gold]. Medium is the
-## game as it was. First guesses (Test 10).
+## bushes (REQ-SS-26). Medium is the game as it was. First guesses (Test 10).
 const LEVELS := {
-	"easy": {"speed": 0.7, "max_base": 4, "spawn_every": 1.2, "bushes": 3, "tiers": [170, 340, 510]},
-	"medium": {"speed": 1.0, "max_base": MAX_BASE, "spawn_every": SPAWN_EVERY, "bushes": 5, "tiers": [150, 300, 450]},
-	"hard": {"speed": 1.5, "max_base": 2, "spawn_every": 2.0, "bushes": 8, "tiers": [120, 240, 360]},
+	"easy": {"speed": 0.7, "max_base": 4, "spawn_every": 1.2, "bushes": 3},
+	"medium": {"speed": 1.0, "max_base": MAX_BASE, "spawn_every": SPAWN_EVERY, "bushes": 5},
+	"hard": {"speed": 1.5, "max_base": 2, "spawn_every": 2.0, "bushes": 8},
 }
 
 class Puff:

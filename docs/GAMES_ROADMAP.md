@@ -6,7 +6,7 @@ This file is a plan, not a requirements file. Each game gets its own `docs/games
 
 ## Decisions
 
-- No saved scores. How users are identified is not decided, so nothing is stored. A solo game compares the score with fixed medal tiers. The tiers reset every run.
+- No saved scores. How users are identified is not decided, so nothing is stored. A solo game shows the score and no medal (REQ-GM-73).
 - Bots only in the games that say so (REQ-GM-105, issue #102; decision 2026-10-22). Air Hockey is the first: with one phone ROBO plays the other seat. Any other game that needs opponents has `min_players` 2 (Sumo Bumpers).
 - Order of work: one branch for the common helpers (PR 12), then one branch for each game. The helpers are merged into `main` first. Each game branch starts from the updated `main`, so its pull request shows only that game.
 - Game pull requests merge one at a time. All games touch the same few files (`registry.gd`, the status table in `GAME_REQUIREMENTS.md`, `MANUAL_TESTS.md`, `smoke_tv.gd`, the `WAIT` table in `tools/make_tiles.gd`), so a branch updates from `main` before its pull request is ready. The conflicts are small.
@@ -46,8 +46,8 @@ and 3D-only code (camera, meshes).
 |--------|-------|-----|
 | Scoreboard | `scripts/game/scoreboard.gd` | Score for each slot, ranking, ties (1, 1, 3), `lower_is_better` for times, players without a score (`set_unfinished()`), ordinals (REQ-GM-70). |
 | Round length | `RoundClock` (`duration`, `remaining()`, `is_time_up()`) | A round of fixed length. The visible clock is `Shell.timer()` with `remaining()` (REQ-GM-71). |
-| Ranked result | `Minigame.open_results(board, tiers, title, extra_entries, score_text)` | A result menu with the ranking (dot in the slot color), Try again, extra buttons and Back to menu. Sets `is_over` (REQ-GM-72). Used by both existing games. |
-| Medal tiers | `scripts/game/medals.gd` | Solo rule: `[bronze, silver, gold]` limits for one game. The result title is the medal. Not saved (REQ-GM-73). |
+| Ranked result | `Minigame.open_results(board, title, extra_entries, score_text)` | A result menu with the ranking (dot in the slot color), Try again, extra buttons and Back to menu. Sets `is_over` (REQ-GM-72). Used by both existing games. |
+| Medals | `scripts/game/medals.gd` | The medal of a place (1st gold, 2nd silver, 3rd bronze) with more than one player. No medal for one player. Not saved (REQ-GM-73). |
 | `Shell.ball` | `scripts/game/shell.gd` | The outlined 2D ball (no number since 2026-10-11), moved out of the maze draw code (REQ-GM-46, 47b). It still has the old shadow and shine and is used by no game now: every game draws `Shell.pixel_ball()` (flat colors, REQ-GM-47k) and a ball has no number. |
 | `TiltBody` | Not built yet | Position, velocity, tilt acceleration, damping, bounce. It is built in the Paint Grab branch, with its first user, so that its parameters come from a real need. Maze and race may adopt it later, with a device test, because the damping models differ. |
 
@@ -119,5 +119,4 @@ Dodge Storm (hazards fall, the last player standing wins; "maybe later", issue #
 
 ## Open questions
 
-- Medal tier values for each game: set after a device test.
 - User identification and saved scores: not decided. Solo mode shows no saved best until it is.

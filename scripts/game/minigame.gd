@@ -33,6 +33,10 @@ var start_props := {}
 ## Slots that joined when the game started.
 var participants: Array[int] = []
 
+## How many players the round started with (REQ-GM-73): a round that started with one player gives no medal. 0 until the game
+## is ready.
+var players_at_start := 0
+
 ## True when the game has ended: a winner, or nobody is left. A game sets it when it opens its result menu.
 ## The pause menu cannot open and leaving does not ask (REQ-GM-31a) while it is true.
 var is_over := false
@@ -41,7 +45,8 @@ var _menu_box: Control
 var _menu_open := false
 var _menu_kind := ""             # "hold" for the card of a lost phone, "menu" for the other menus.
 var _hold := false               # A participant lost its connection: the game waits for a decision (REQ-GM-30).
-## A game with one player and no medal tiers sets this before `open_results()`: the row has no medal (Star Shield).
+## A game sets this before `open_results()` when the round gives no medal even with more than one player (a team game, or a
+## match that ended by a leave).
 var no_medals := false
 var _hold_info := {}             # slot -> {name, color} of the players lost in this hold.
 var _hold_sig := ""
@@ -54,6 +59,7 @@ var _pixel_layer: Control        # Draws the world of a pixel game, inside the l
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	participants = App.server.players_in()   # The phones that chose OUT in the settings view do not play (REQ-GM-104).
+	players_at_start = participants.size()
 	var entry := Registry.find(Registry.id_of_script(get_script()))
 	App.server.recenter_button = Registry.has_control(entry, "recenter")   # REQ-GM-37
 	App.server.pad_buttons = Registry.buttons_of(entry)   # REQ-GM-37a
@@ -367,17 +373,15 @@ func _menu_row(text: String, color: Color, avatar := -1, medal_tier := "") -> Co
 ## buttons are Try again, then `extra_entries` (for example Choose track), then Back to menu.
 ## - The title names the single winner, or says "Tie!", or says "Round over" when nobody has a score.
 ##   `title` replaces it (a game puts the difficulty there).
-## - Every row has the medal of its place next to the name: 1st gold, 2nd silver, 3rd bronze (`Medals.for_place()`). With one
-##   player and `tiers` (see `Medals`) the medal is the one of the score; "No medal this time" is the title when there is none.
-##   A game with its own score for a medal passes `medal` (a tier of `Medals`, or `Medals.NONE`); `null` means it does not say.
+## - With more than one player every row has the medal of its place: 1st gold, 2nd silver, 3rd bronze (`Medals.for_place()`).
+##   A round that started with one player has no medal and no medal title (REQ-GM-73, issue #119).
 ## - `score_text` turns a score into text for the list (default `Scoreboard.format`). A player without a score shows
 ##   "not finished".
 ## A game with teams sets this before `open_results()` when a team won: two winners of the board are not a tie then.
 var team_won := false
 
 
-func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entries: Array = [],
-		score_text := Callable(), medal: Variant = null) -> void:
+func open_results(board: Scoreboard, title := "", extra_entries: Array = [], score_text := Callable()) -> void:
 	is_over = true
 	var ranking := board.ranking()
 	var rows: Array = []
@@ -391,31 +395,18 @@ func open_results(board: Scoreboard, tiers: Array = [], title := "", extra_entri
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title
-	var has_medal := medal != null and not no_medals
-	var tier := String(medal) if has_medal else Medals.NONE
-	if not has_medal and heading == "" and ranking.size() == 1 and not tiers.is_empty():
-		# A player without a score gets no medal: the score 0 would beat every limit of a time.
-		has_medal = true
-		tier = Medals.medal(ranking[0].score, tiers, board.lower_is_better) if ranking[0].finished else Medals.NONE
-	if has_medal and rows.size() == 1:
-		# One player: the medal of the score, next to the name (REQ-GM-73). `title` (the difficulty) stays as the title.
-		rows[0]["medal"] = tier
-		if tier == Medals.NONE:
-			heading = Medals.label(tier) if title == "" else "%s (%s)" % [Medals.label(tier), title]
-		elif heading == "":
-			heading = Lang.t("minigame.round_over")
-	else:
-		for i in ranking.size():   # More than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
-			if ranking[i].finished and not no_medals:
-				rows[i]["medal"] = Medals.for_place(ranking[i].rank)
-		if heading == "":
-			heading = Lang.t("minigame.round_over")
-			if winners.size() == 1:
-				heading = Lang.f("result.winner", [player(winners[0]).player_name])
-			elif winners.size() > 1:
-				heading = Lang.t("minigame.tie")
-	# `win` for a winner or a solo medal; `tie` for a tie, for "Round over" and for a solo round with no medal (REQ-FL-65).
-	var won := (tier != Medals.NONE) if has_medal and rows.size() == 1 else (winners.size() == 1 or team_won)
+	var solo := players_at_start == 1 or ranking.size() == 1   # One player in the round or left in the result: no medal.
+	for i in ranking.size():   # More than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
+		if ranking[i].finished and not no_medals and not solo:
+			rows[i]["medal"] = Medals.for_place(ranking[i].rank)
+	if heading == "":
+		heading = Lang.t("minigame.round_over")
+		if winners.size() == 1:
+			heading = Lang.f("result.winner", [player(winners[0]).player_name])
+		elif winners.size() > 1:
+			heading = Lang.t("minigame.tie")
+	# `win` for a winner; `tie` for a tie and for "Round over" (REQ-FL-65).
+	var won := winners.size() == 1 or team_won
 	open_result_menu(heading, rows, extra_entries, won)
 
 

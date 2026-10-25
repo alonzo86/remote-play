@@ -44,7 +44,6 @@ var _lit := {}                   # The lit tiles of the floor (Vector2i(row, col
 var _light_clock := 0.0
 var _light_step := -1
 var _scene_time := 0.0           # Game time of the dance: it stands still while the game is paused (REQ-FL-43).
-var _players_at_start := 0       # One player at the start: no medal, also if a second one leaves later (REQ-FD-9).
 var _pops: Array[Pop] = []
 var _tex := {}                   # "slot|pose|dim" -> the ImageTexture of a dancer.
 var _meters := {}                # slot -> DanceRules.Meter
@@ -64,7 +63,6 @@ func _game_ready() -> void:
 	for s in participants:
 		_meters[s] = DanceRules.Meter.new()
 	_board = Scoreboard.new(participants)
-	_players_at_start = participants.size()
 	_seat_count = maxi(participants.size(), 1)
 	for i in participants.size():
 		_seat[participants[i]] = i
@@ -157,7 +155,6 @@ func _finish() -> void:
 	_new_lights()
 	for s in _board.winners():
 		App.server.haptic(s, WIN_BUZZ_MS)
-	no_medals = _players_at_start == 1   # REQ-FD-9: one player gets no medal (exception to REQ-GM-73).
 	open_results(_board)
 
 

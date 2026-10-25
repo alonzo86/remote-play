@@ -2,6 +2,7 @@ extends SceneTree
 ## Smoke test of Paint Grab with two simulated phones (REQ-PG-*). Run:
 ##   godot --headless --path . --script tests/smoke_paint.gd -- --role=tv
 
+const MedalView = preload("res://scripts/ui/medal_view.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
@@ -240,7 +241,7 @@ func _run() -> void:
 	_check(not game._bodies.has(1) and not game.is_over and game.floor_map.count(1) == tiles1,
 			"a player who leaves takes the blob out, the tiles stay and the round goes on")
 
-	# Time is up with one player left: a medal for the share of the floor (REQ-PG-5, 6, 21).
+	# Time is up with one player left: no medal, the difficulty is the title (REQ-PG-5, 6, 21).
 	game._round.time = game.ROUND_TIME - 0.005
 	game._game_tick(0.01)
 	await _frames(3)
@@ -250,8 +251,9 @@ func _run() -> void:
 		labels.append(l.text)
 	_check(game.is_over and buttons == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"],
 			"time up opens the result menu: %s" % str(buttons))
-	_check(labels[0].ends_with("(MEDIUM)") and labels[1].contains(" TILES (") and labels[1].ends_with("%)"),
-			"one player gets a medal title with the difficulty and a list row with the tiles and the percent: %s" % str(labels))
+	_check(labels[0] == "MEDIUM" and MedalView.tiers_in(game._menu_box).is_empty()
+			and labels[1].contains(" TILES (") and labels[1].ends_with("%)"),
+			"one player gets the difficulty as the title and a list row with the tiles and the percent: %s" % str(labels))
 	# The layout comes from the size of the screen (REQ-PG-17): the floor stays inside the margin at 1280x720 and at 1920x1080.
 	var fits_ok := true
 	for res in [Vector2i(1280, 720), Vector2i(1920, 1080)]:

@@ -230,7 +230,7 @@ func _open_results() -> void:
 		open_menu("minigame.no_players_connected", [["minigame.back_to_menu", App.go_menu]])
 		return
 	# Finished cars have their time. The others are ranked by how far they got.
-	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
+	open_results(_scoreboard(), "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
 
 
 # ---- Standings ----

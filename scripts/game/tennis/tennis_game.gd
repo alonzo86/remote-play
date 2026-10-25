@@ -311,7 +311,7 @@ func _finish() -> void:
 		if participants.has(s):
 			App.server.haptic(s, 400)
 	if play.solo:
-		open_results(_board, Rules.level(difficulty).tiers)
+		open_results(_board)
 		return
 	var names: Array = []
 	for s in play.winners():
@@ -321,7 +321,7 @@ func _finish() -> void:
 	if not names.is_empty():
 		title = Lang.f("result.winner", [" + ".join(names)])
 		team_won = true   # Two winners of a team are a win for the sound, not a tie.
-	open_results(_board, [], title)
+	open_results(_board, title)
 
 
 func _scoreboard() -> Scoreboard:

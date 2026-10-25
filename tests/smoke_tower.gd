@@ -298,7 +298,7 @@ func _run() -> void:
 	_check(turns == 5 and longest <= 12.0,
 				"5 turns on Easy with nobody pressing (%d ended): the longest turn takes %.1f s (12 s or less)" % [turns, longest])
 
-	# Solo: one phone plays all 12 bricks and gets a medal for the safe bricks (REQ-TB-15).
+	# Solo: one phone plays all 12 bricks and gets no medal (REQ-TB-15, REQ-GM-73).
 	clients[2].leave()
 	clients[1].leave()
 	var left := Time.get_ticks_msec()
@@ -320,8 +320,8 @@ func _run() -> void:
 		if i == 5:
 			_check(game._board.score(0) == 6.0, "after 6 safe bricks a solo player has 6 points")
 	await _frames(3)
-	_check(game.is_over and MedalView.tiers_in(game._menu_box) == ["gold"],
-			"12 safe bricks of one player: the result menu shows the gold medal (REQ-TB-15, REQ-GM-73)")
+	_check(game.is_over and MedalView.tiers_in(game._menu_box).is_empty(),
+			"12 safe bricks of one player: the result menu has no medal (REQ-TB-15, REQ-GM-73)")
 	_check(_labels(game)[0] != "" and game.bricks_text(12.0) == "12 BRICKS", "the result list says 12 bricks")
 
 	print("%d checks, %d failed" % [_checks, _fails])

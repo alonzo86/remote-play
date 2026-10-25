@@ -1030,7 +1030,7 @@ History:
 
 Needs: 1 to 4 phones, 1 TV, a stopwatch, a phone camera (60 fps or more), and a child of about 5 to 8 years for items 11a to 11c. Covers: REQ-BW-*, REQ-GM-80 to 84, REQ-GM-90 to 98, REQ-GM-37, REQ-GM-47i to 47n.
 
-New game (2026-10-16). It was only tested with made-up sensor values. Every number (the swing thresholds 4, 8 and 30 m/s2, the aim ranges, the ball speeds, the lane, the pins, the medal tiers) is a first guess, but each step below has a fixed limit. Hold the phone in one hand like a ball, arm down at the side. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
+New game (2026-10-16). It was only tested with made-up sensor values. Every number (the swing thresholds 4, 8 and 30 m/s2, the aim ranges, the ball speeds, the lane, the pins) is a first guess, but each step below has a fixed limit. Hold the phone in one hand like a ball, arm down at the side. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
 **Steps**
 
@@ -1129,7 +1129,7 @@ History:
 
 Needs: 1 to 4 phones, 1 TV, a stopwatch, a phone camera (240 fps for item 4g), and a child of about 5 to 8 years for items 12a to 12d. Covers: REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
-New game (2026-10-17). It was only tested with made-up sensor values. Every number (the swing thresholds of Test 24, the hit window of 0.55 s, the green half width of 0.30, 0.21 and 0.15 s, the ball speeds, the medal tiers) is a first guess, but each step below has a fixed limit. Do Test 24 first: Tennis uses the same swing detector. Hold the phone like a racket handle, with the screen toward you. The direction of the swing sends the ball: swing toward the right of the TV and the ball goes right, toward the left and it goes left (changed 2026-10-18: the tilt did not work). The first run (2026-10-18) found swings that were not detected and shots that mostly went left for a right-handed player: check both again (items 6c to 6e; the swing detection of items 3c, 4d and 4f is checked by the automated tests). "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
+New game (2026-10-17). It was only tested with made-up sensor values. Every number (the swing thresholds of Test 24, the hit window of 0.55 s, the green half width of 0.30, 0.21 and 0.15 s, the ball speeds) is a first guess, but each step below has a fixed limit. Do Test 24 first: Tennis uses the same swing detector. Hold the phone like a racket handle, with the screen toward you. The direction of the swing sends the ball: swing toward the right of the TV and the ball goes right, toward the left and it goes left (changed 2026-10-18: the tilt did not work). The first run (2026-10-18) found swings that were not detected and shots that mostly went left for a right-handed player: check both again (items 6c to 6e; the swing detection of items 3c, 4d and 4f is checked by the automated tests). "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
 **Steps**
 
@@ -1186,7 +1186,7 @@ History:
 
 Needs: 1 to 4 phones, 1 TV, a stopwatch, a phone camera (240 fps for item 5e), and a child of about 5 to 8 years for items 12a to 12d. Covers: REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
-New game (2026-10-17). It was only tested with made-up sensor values. Every number (the swing thresholds of Test 24, the putt speeds, the friction of the grass, the 5 course designs, the aim line lengths, the medal tiers) is a first guess, but each step below has a fixed limit. Do Test 24 first: Mini Golf uses the same swing detector. Hold the phone like a putter, with the screen toward you: turn it left and right to aim, swing it back and then forward to putt. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty. The pars of the 5 holes are 2, 3, 3, 3 and 4.
+New game (2026-10-17). It was only tested with made-up sensor values. Every number (the swing thresholds of Test 24, the putt speeds, the friction of the grass, the 5 course designs, the aim line lengths) is a first guess, but each step below has a fixed limit. Do Test 24 first: Mini Golf uses the same swing detector. Hold the phone like a putter, with the screen toward you: turn it left and right to aim, swing it back and then forward to putt. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty. The pars of the 5 holes are 2, 3, 3, 3 and 4.
 
 **Steps**
 
@@ -1337,7 +1337,7 @@ History:
 
 Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50.
 
-New game (2026-10-23). It was tested only with made-up button presses. Every number (the swing, the 12 bricks, the widths of the bricks, the 24 px of overlap, the 8 px of slack, the turn times, the medal tiers) is a first guess; write what you measure in the Notes.
+New game (2026-10-23). It was tested only with made-up button presses. Every number (the swing, the 12 bricks, the widths of the bricks, the 24 px of overlap, the 8 px of slack, the turn times) is a first guess; write what you measure in the Notes.
 
 **Steps**
 
@@ -1382,7 +1382,7 @@ History:
 
 Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
-New game (2026-10-23). It was only tested with made-up sensor values. Every number (the speed of the dogs, how far a dog scares a sheep, how fast a sheep runs, the gate, the time of the round, the medal tiers, the pictures, the song and the Hebrew texts) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. The sheep and the dogs run by themselves, so do not count on the same round twice.
+New game (2026-10-23). It was only tested with made-up sensor values. Every number (the speed of the dogs, how far a dog scares a sheep, how fast a sheep runs, the gate, the time of the round, the pictures, the song and the Hebrew texts) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. The sheep and the dogs run by themselves, so do not count on the same round twice.
 
 **Steps**
 
