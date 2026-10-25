@@ -77,6 +77,19 @@ func _toppling() -> void:
 	slack.drop(Stack.BASE_X, 200.0, 0)
 	_check(slack.drop(Stack.BASE_X + 100.0 + Stack.SLACK - 1.0, 200.0, 1).outcome == Stack.Outcome.SAFE,
 			"a brick with its middle at the edge plus the SLACK stays (REQ-TB-8)")
+	# Test 30 step 4c: bricks dropped near the middle of the top brick (up to 20 px off, to one side or alternating) never topple.
+	for pattern in ["right", "alternating", "left"]:
+		var careful := Stack.new()
+		var topples := 0
+		var x := Stack.BASE_X
+		for i in 10:
+			var off := 20.0 if pattern == "right" else (-20.0 if pattern == "left" else (20.0 if i % 2 == 0 else -20.0))
+			if careful.height() > 0:
+				x = float(careful.bricks[careful.height() - 1].x) + off
+			if careful.drop(x, 200.0, i % 3).outcome == Stack.Outcome.TOPPLED:
+				topples += 1
+		_check(topples == 0 and careful.height() == 10,
+					"10 bricks dropped up to 20 px off the middle of the top brick (%s): no topple (%d)" % [pattern, topples])
 	var lone := Stack.new()
 	lone.drop(Stack.BASE_X, 200.0, 0)
 	lone.clear()

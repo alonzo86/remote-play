@@ -23,6 +23,7 @@ func _check(cond: bool, what: String) -> void:
 
 func _initialize() -> void:
 	_energy()
+	_response()
 	_songs()
 	_dancing_and_points()
 	_grace_and_moves()
@@ -98,6 +99,37 @@ func _energy() -> void:
 	var r2 := _rules()
 	r2.tick(DT, {0: 10.0})
 	_check(r2.dancers[0].energy < 2.0, "one frame of a shake does not make the smoothed energy jump (about 0.12 s time constant)")
+
+
+## Test 31 steps 3b, 4a: a wiggle of two turns a second (3 rad/s at the peak, about 14 degrees) makes the dancer dance within
+## 0.5 s and a still phone puts the arms down within 1.0 s. The drawing dances at half the wiggle level (`freeze_dance_game.gd`).
+func _response() -> void:
+	print("dance: the dancer follows the wiggle")
+	var r := _rules("medium", [0])
+	var meter := DanceRules.Meter.new()
+	var gravity := Vector3(0.0, 0.0, 9.81)
+	for i in 30:
+		r.tick(DT, {0: meter.update(Vector3.ZERO, gravity, DT)})
+	_check(r.dancers[0].energy < 0.05, "a phone held still before the wiggle reads 0")
+	var t_up := -1.0
+	var t := 0.0
+	for i in int(5.0 / DT):
+		t += DT
+		var turn := 3.0 * sin(TAU * 2.0 * t)
+		r.tick(DT, {0: meter.update(Vector3(turn, 0.0, 0.0), gravity, DT)})
+		if t_up < 0.0 and r.dancers[0].energy >= DanceRules.WIGGLE_MIN * 0.5:
+			t_up = t
+	_check(t_up > 0.0 and t_up <= 0.5, "the dancer lifts its arms %.2f s after the wiggle starts (0.5 s or less)" % t_up)
+	_check(r.dancers[0].dance_time >= DanceRules.DANCE_NEED,
+				"5 s of that wiggle count as a dance, 1.5 s of dancing are needed (%.1f s)" % r.dancers[0].dance_time)
+	var t_down := -1.0
+	t = 0.0
+	for i in int(3.0 / DT):
+		t += DT
+		r.tick(DT, {0: meter.update(Vector3.ZERO, gravity, DT)})
+		if t_down < 0.0 and r.dancers[0].energy < DanceRules.WIGGLE_MIN * 0.5:
+			t_down = t
+	_check(t_down > 0.0 and t_down <= 1.0, "the arms are down %.2f s after the phone is held still (1.0 s or less)" % t_down)
 
 
 ## REQ-FD-1
@@ -307,6 +339,42 @@ func _levels() -> void:
 	for l in _rules("easy", [0]).music_lengths:
 		ok = ok and l >= 7.0 and l <= 10.0
 	_check(ok, "Easy music lasts 7 to 10 s")
+	# Test 31 steps 8a to 8c: the measured length of the freeze and of the music of each level, over the whole round.
+	var spans := {"easy": [1.7, 2.3, 7.0, 10.0], "medium": [2.7, 3.3, 5.0, 10.0], "hard": [3.7, 4.3, 4.0, 8.0]}
+	for d in spans:
+		var rr := _rules(d, [0])
+		var freezes: Array[float] = []
+		var musics: Array[float] = []
+		var t_music := 0.0
+		var t_freeze := 0.0
+		var in_freeze := false
+		for i in int(300.0 / DT):
+			var evs := rr.tick(DT, {0: 0.0})
+			if rr.phase == DanceRules.Phase.MUSIC:
+				t_music += DT
+			for ev in evs:
+				if String(ev.type) == "freeze":
+					musics.append(t_music)
+					t_music = 0.0
+					in_freeze = true
+					t_freeze = 0.0
+			if in_freeze and rr.phase == DanceRules.Phase.FREEZE:
+				t_freeze += DT
+			elif in_freeze:
+				freezes.append(t_freeze)
+				in_freeze = false
+			if rr.phase == DanceRules.Phase.DONE:
+				break
+		var span: Array = spans[d]
+		var freeze_ok := freezes.size() == 6
+		for f in freezes:
+			freeze_ok = freeze_ok and f >= span[0] and f <= span[1]
+		var music_ok := musics.size() == 6
+		for m_len in musics:
+			music_ok = music_ok and m_len >= span[2] and m_len <= span[3]
+		var round_to_tenth := func(v: float) -> float: return snappedf(v, 0.1)
+		_check(freeze_ok, "%s: all 6 freezes last %.1f to %.1f s (%s)" % [d, span[0], span[1], str(freezes.map(round_to_tenth))])
+		_check(music_ok, "%s: all 6 songs last %.0f to %.0f s (%s)" % [d, span[2], span[3], str(musics.map(round_to_tenth))])
 	# A tremor of 1.3 passes on Easy, fails on Medium and Hard.
 	var verdicts := []
 	for d in ["easy", "medium", "hard"]:

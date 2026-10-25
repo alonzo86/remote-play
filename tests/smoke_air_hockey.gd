@@ -91,6 +91,9 @@ func _run() -> void:
 			"with 3 phones the settings view has no IN and OUT lines and the phones are not asked IN or OUT (REQ-GM-106)")
 	_check(GameSettings.props_for(app.Registry.find("air_hockey")) == {"difficulty": "medium", "goals": "5"},
 			"the game gets the props difficulty and goals (REQ-GM-93)")
+	var entry: Dictionary = app.Registry.find("air_hockey")
+	_check(entry.pad == ["a"] and not app.Registry.has_control(entry, "recenter") and not app.Registry.has_control(entry, "b"),
+			"the pad has button A alone, no B and no RECENTER (Test 27 step 13, REQ-GM-37a)")
 	var key := InputEventAction.new()
 	key.action = "ui_right"
 	key.pressed = true
