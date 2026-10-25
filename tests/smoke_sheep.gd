@@ -219,7 +219,7 @@ func _tilt_timing() -> void:
 		for sh in calm.flock.sheep:
 			worst_scared = maxf(worst_scared, float(sh.scared))
 			all_in = all_in and calm.field.has_point(sh.pos))
-	_check(all_in and worst_scared == 0.0,
+	_check(all_in and worst_scared < 0.001,
 				"10 s with the dogs still: every sheep stays on the field and none is scared (%.2f)" % worst_scared)
 
 

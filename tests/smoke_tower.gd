@@ -286,16 +286,17 @@ func _run() -> void:
 	var longest := 0.0
 	var turns := 0
 	for n in 5:
-		var first: int = game.dropped
+		var dropped_before: int = game.dropped
 		var who: int = game.current_slot()
 		var took := 0.0
-		while took < 30.0 and not (game.phase == game.Phase.TURN and (game.dropped != first or game.current_slot() != who)):
+		while took < 30.0 and not (game.phase == game.Phase.TURN and (game.dropped != dropped_before or game.current_slot() != who)):
 			game._game_tick(DT)
 			took += DT
-		turns += 1
+		if took < 30.0:   # A turn that never ends in 30 s is not counted, so the check below fails with the real time.
+			turns += 1
 		longest = maxf(longest, took)
 	_check(turns == 5 and longest <= 12.0,
-				"5 turns on Easy with nobody pressing: the longest turn takes %.1f s (12 s or less)" % longest)
+				"5 turns on Easy with nobody pressing (%d ended): the longest turn takes %.1f s (12 s or less)" % [turns, longest])
 
 	# Solo: one phone plays all 12 bricks and gets a medal for the safe bricks (REQ-TB-15).
 	clients[2].leave()
