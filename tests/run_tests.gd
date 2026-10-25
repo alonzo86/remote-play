@@ -644,15 +644,15 @@ func _test_connect_screen() -> void:
 	screen.theme = app.theme_res
 	root.add_child(screen)
 	await process_frame
-	var has_paste := false
+	var has_scan_or_paste := false
 	for b in screen.find_children("*", "Button", true, false):
-		has_paste = has_paste or b.text == "qr_scanner.paste_room_link"
-	_check(has_paste, "without the plugin the connect screen offers Paste TV link")
+		has_scan_or_paste = has_scan_or_paste or b.text in ["qr_scanner.paste_room_link", "connect.scan_qr_code"]
+	_check(not has_scan_or_paste, "without the plugin the connect screen has no scan and no paste button")
 	var connect_script: GDScript = _script("res://scripts/ui/controller_connect.gd")
 	_check(not connect_script.shows_scan_button("iOS"),
 			"on an iPhone or iPad the connect screen has no scan or paste button")
 	_check(connect_script.shows_scan_button("Android") and connect_script.shows_scan_button("macOS"),
-			"on Android and desktop (also a Mac) the connect screen keeps the scan or paste button")
+			"on Android and desktop (also a Mac) the connect screen may show the scan button")
 	app.last_error = ""
 	screen._on_state(ControllerClient.State.IDLE)
 	_check(screen._status.text == "", "idle: the status line is empty")

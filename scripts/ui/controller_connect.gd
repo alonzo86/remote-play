@@ -1,6 +1,6 @@
 extends Control
 ## Phone screen before a TV is joined. Two ways to join: type the room code that the TV shows, or scan the QR code on the TV
-## (on a phone with no scanner, paste the room link). There is no search for TVs: the TV sends nothing by itself.
+## (on a phone with a scanner; no paste button, issue #115). There is no search for TVs: the TV sends nothing by itself.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -20,8 +20,8 @@ var os_name := OS.get_name() # A test sets it to "iOS".
 var local_ips_lookup: Callable = Protocol.private_ipv4s   # The addresses of this phone for a typed code. A test gives its own.
 
 
-## The scan / paste button is not shown on an iPhone or iPad (OS name "iOS"): there is no scanner plugin, so only the
-## room code is used. A Mac keeps "Paste room link" for development runs.
+## The scan button is not shown on an iPhone or iPad (OS name "iOS"): there is no scanner plugin, so only the
+## room code is used. A phone whose build has no scanner has no button either (issue #115).
 static func shows_scan_button(os_name: String) -> bool:
 	return os_name != "iOS"
 
@@ -71,10 +71,8 @@ func _ready() -> void:
 	add_child(_qr)
 	_qr.scanned.connect(_on_qr_text)
 	_qr.failed.connect(_on_qr_failed)
-	if shows_scan_button(os_name):
-		# No plugin (desktop, or a build without it): the button reads the TV link from the clipboard.
-		var scan_text := "connect.scan_qr_code" if _qr.is_available() else "qr_scanner.paste_room_link"
-		var scan := UiKit.box_button(scan_text, _on_scan_pressed, 40)
+	if shows_scan_button(os_name) and _qr.is_available():
+		var scan := UiKit.box_button("connect.scan_qr_code", _on_scan_pressed, 40)
 		scan.custom_minimum_size = Vector2(0, 150)
 		box.add_child(scan)
 
@@ -138,10 +136,7 @@ func _fail(key: String) -> void:
 
 
 func _on_scan_pressed() -> void:
-	if _qr.is_available():
-		_qr.scan()
-	else:
-		_on_qr_text(DisplayServer.clipboard_get())
+	_qr.scan()
 
 
 func _on_qr_text(text: String) -> void:

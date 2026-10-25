@@ -138,7 +138,7 @@ Needs: 1 phone, 1 TV, a stopwatch, a second QR code that is not from Sababi (for
 
 **Steps**
 
-1. Tap **Disconnect**. Look at the Connect screen. Check: the button says **SCAN QR CODE**. (If it says **PASTE ROOM LINK**, the plugin is not in the build: run `tools/patch_android_manifest.sh controller` and export the controller again.)
+1. Tap **Disconnect**. Look at the Connect screen. Check: the button says **SCAN QR CODE**. (If there is no scan button, the plugin is not in the build: run `tools/patch_android_manifest.sh controller` and export the controller again.)
 2a. Tap the button and scan the QR code on the TV. Check: the phone shows "WAITING FOR THE HOST" less than 5 seconds after the scanner closes (stopwatch).
 2b. (Removed with the join PIN, issue #52. The QR code holds no PIN and the phone asks for nothing after the scan.)
 3a. Tap the scan button, then press Back in the scanner. Check: the Connect screen shows no message that starts with "QR SCAN FAILED". (R1 failed: the Google scanner reports Back as a failure, "Failed to scan code". Fixed on 2026-10-21 in `QrScannerPlugin.java`, which now sends "cancelled" for `MlKitException.CODE_SCANNER_CANCELLED`, issue #43: run it again on a build with the new plugin.)
@@ -783,7 +783,7 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 
 2e. The person who reads Hebrew reads each TV screen aloud (Connect, Games, Settings, About, the quit question). Check: the punctuation (`. , ! ? -`) is at the correct end of every sentence. Write down every text that is wrong. (That a Hebrew text ends with the same punctuation as its English text is checked by `tests/smoke_lang.gd`.)
 4c. On the TV, look at the Connect screen with the two names. The person who reads Hebrew reads the Latin name and the Hebrew name aloud. Check: each one equals what was typed (the letters are in the same order, the mixed-direction text is not shuffled). (That the names stay as typed and that the pixel font has every glyph is checked by `tests/smoke_lang.gd`.)
-6c. In Car Race in Hebrew, check: the word "קדימה" after the 1 is complete (inside the screen). In every game in Hebrew, check: the hint line shows complete.
+6c. In Car Race in Hebrew, check: the word "צא" after the 1 is complete (inside the screen). In every game in Hebrew, check: the hint line shows complete.
 6e2. Open the pause menu and the result menu in Hebrew. The Hebrew reader reads the ranking list, the medal text and the tie text aloud. Check: the reader says that each of the 3 reads right (3 of 3 yes).
 
 Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-17-1 to A-17-8). Item 5 moved earlier (A-17-5). Item 7b moved too (A-17-7b). Item 6e was split: that the text shows complete is automated, 6e2 keeps the reading. The numbers of the other items do not change.

@@ -1,7 +1,7 @@
 extends Node
 ## Phone side. Glue to the Android plugin "QrScanner" (android/plugin/QrScannerPlugin.java).
 ## The plugin exists only in Android builds that ran tools/patch_android_manifest.sh.
-## Without it, is_available() is false and the UI offers "Paste TV link" instead.
+## Without it, is_available() is false and the Connect screen has no scan button.
 
 signal scanned(text: String)
 signal failed(reason: String)

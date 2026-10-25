@@ -66,7 +66,7 @@ The controller app scans the QR code on the TV screen with the Google code scann
   The manifest entry `com.google.mlkit.vision.DEPENDENCIES = barcode_ui` asks Play services to download it at install time.
 - The first build needs internet access for Gradle (to get the dependency from Google Maven).
 - GDScript side: `scripts/net/qr_scanner.gd`. Without the plugin (PC, or a build where you skipped the patch script)
-  the button on the connect screen is **Paste TV link**. It reads `ws://IP:47801/ROOM` from the clipboard.
+  the connect screen has no scan button: the player types the room code (issue #115).
 
 ## 3. Export
 
@@ -143,7 +143,7 @@ Only the controller runs on iOS. The TV app stays on Android TV. Status: written
 
 Differences from Android:
 
-- No QR scan: the Android plugin does not exist on iOS, so the iPhone joins by the typed room code. The connect screen has no scan and no **Paste TV link** button (REQ-FL-58).
+- No QR scan: the Android plugin does not exist on iOS, so the iPhone joins by the typed room code. The connect screen has no scan button (REQ-FL-58).
 - iOS asks for the Local Network permission the first time the app connects to the TV (the text is in the `export_presets.cfg` of the controller). If the player taps Don't Allow, the iPhone cannot join: Settings > Sababi > Local Network switches it on.
 - The sensor axis fix in `scripts/input/sensor_sampler.gd` was measured on Android only. Check the directions again (Manual test 13).
 
@@ -162,7 +162,7 @@ The phone window has no sensors. The mouse position simulates the tilt and the m
 | Symptom | Likely cause and action |
 |---------|-------------------------|
 | App is not in the TV home row | Banner or leanback category is missing. Run the patch script, export again, check with `aapt`. |
-| "Scan QR code" button says **Paste TV link** | The plugin is not in the build. Run the patch script and export again. |
+| No "Scan QR code" button on Android | The plugin is not in the build. Run the patch script and export again. |
 | "QR scan failed" | Google Play services are missing or old, or the scanner module is still downloading. Try again, or type the room code. |
 | Phone says "CAN'T FIND THIS ROOM" | The phone and the TV do not share the first two numbers of their addresses (guest Wi-Fi, a second network, a VPN on the phone, mobile data only), or the code is wrong. Scan the QR code on the TV: it holds the full address. |
 | Phone shows "Cannot reach the TV" | Different subnet, VPN on the phone, or a firewall. Use the TV IP from the TV screen. |

@@ -184,8 +184,8 @@ func _screen_layout() -> void:
 	var buttons: Array = screen.find_children("*", "Button", true, false).map(func(b): return b.text)
 	var labels: Array = screen.find_children("*", "Label", true, false).map(func(l): return l.text)
 	_check(screen._code != null and screen._code.is_visible_in_tree(), "the code field shows")
-	_check("connect.join" in buttons and ("connect.scan_qr_code" in buttons or "qr_scanner.paste_room_link" in buttons),
-			"JOIN and the scan (or paste) button show: %s" % str(buttons))
+	_check("connect.join" in buttons and not ("qr_scanner.paste_room_link" in buttons),
+			"JOIN shows and there is no paste button: %s" % str(buttons))
 	_check("connect.type_code" in labels, "the field has its label")
 	for gone in ["connect.refresh", "connect.rooms_found", "connect.searching", "connect.no_rooms_found",
 			"connect.looking_for_rooms"]:

@@ -437,12 +437,12 @@ class FakeQrPlugin extends Object:
 func _qr_scan() -> void:
 	print("QR scan with a fake plugin")
 	_new_tv()
-	# Without the plugin the button pastes the link.
+	# Without the plugin there is no button: the phone joins with the typed room code (issue #115).
 	_app.go(_connect_script)
 	await process_frame
 	var plain: Control = _app.current_screen()
-	_check(_button(plain, "qr_scanner.paste_room_link") != null and _button(plain, "connect.scan_qr_code") == null,
-			"without the plugin the button is PASTE TV LINK")
+	_check(_button(plain, "connect.scan_qr_code") == null and _button(plain, "qr_scanner.paste_room_link") == null,
+			"without the plugin the connect screen has no scan and no paste button")
 	var fake := FakeQrPlugin.new()
 	Engine.register_singleton("QrScanner", fake)
 	_app.go(_connect_script)
