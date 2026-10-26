@@ -4,7 +4,6 @@ extends SceneTree
 ## friends, the pen, the things around the field, the pictures and the difficulty (REQ-SH-2 to 4, 7, 8, 10, 15 to 18).
 ## Run: godot --headless --path . --script tests/sheep_rules.gd -- --role=controller
 
-const Medals = preload("res://scripts/game/medals.gd")
 const SheepFlock = preload("res://scripts/game/sheep_herding/sheep_flock.gd")
 const SheepScenery = preload("res://scripts/game/sheep_herding/sheep_scenery.gd")
 const SheepLook = preload("res://scripts/game/sheep_herding/sheep_look.gd")
@@ -411,12 +410,9 @@ func _levels() -> void:
 	_check(lv.easy.gate > lv.medium.gate and lv.medium.gate > lv.hard.gate and lv.hard.gate >= 150.0,
 			"harder levels have a narrower gate")
 	_check(lv.easy.time > lv.medium.time and lv.medium.time > lv.hard.time, "harder levels have less time")
-	_check(lv.easy.tiers == [4, 6, 8] and lv.medium.tiers == [6, 9, 11] and lv.hard.tiers == [8, 11, 14],
-			"the medal tiers are [4, 6, 8], [6, 9, 11] and [8, 11, 14] sheep (REQ-SH-18)")
+	_check(not lv.easy.has("tiers") and not lv.medium.has("tiers") and not lv.hard.has("tiers"),
+			"no level has medal tiers (REQ-GM-73)")
 	var tiers_ok := true
 	for d in ["easy", "medium", "hard"]:
-		var t: Array = lv[d].tiers
-		tiers_ok = tiers_ok and Medals.is_valid(t) and t[2] == lv[d].sheep and Medals.medal(t[0] - 1, t) == "" \
-				and Medals.medal(t[0], t) == "bronze" and Medals.medal(t[1], t) == "silver" and Medals.medal(t[2], t) == "gold"
 		tiers_ok = tiers_ok and lv[d].gate > 2.0 * SheepFlock.RADIUS * 2.0
-	_check(tiers_ok, "gold is every sheep, each limit gives its medal, and the gate is wider than two sheep (REQ-SH-18)")
+	_check(tiers_ok, "the gate is wider than two sheep")

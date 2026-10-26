@@ -77,7 +77,7 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
    (Resume, Try again, End game), the result menu (`open_menu`), and the Back key. Draw titles, score chips, the
    countdown and hints with `scripts/game/shell.gd`. The base class also ends the game when no player is left (`end_no_players()`) and calls
    `_on_player_left(slot)` when a player leaves. Set `is_over = true` when the game ends. `round_clock.gd` (countdown and playing time) and
-   `haptics.gd` (buzz cool-down), `scoreboard.gd` (scores and ranking) and `medals.gd` (solo medals) are small helpers for games; `open_results()` shows the ranking.
+   `haptics.gd` (buzz cool-down), `scoreboard.gd` (scores and ranking) and `medals.gd` (the medal of a place) are small helpers for games; `open_results()` shows the ranking.
 3. Add one entry for the game in `scripts/game/registry.gd` (with `doc`, `description` and `tile`; `enroll: true` for a game that enrolls its players itself, REQ-GM-106). The Games screen is built
    from that list. Run `tools/make_tiles.gd` to make the tile screenshot (see the header of that file).
 

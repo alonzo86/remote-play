@@ -112,15 +112,12 @@ func _widths() -> void:
 	_check(same and inside, "a seed gives the same widths, all between 170 and 250 px")
 
 
-## REQ-TB-11, 15: 10 s, 5 s and 3 s a turn; the medal tiers are three rising numbers that 12 bricks can reach.
+## REQ-TB-11, 15: 10 s, 5 s and 3 s a turn.
 func _game_numbers() -> void:
 	print("game numbers")
 	_check(Stack.turn_time("easy") == 10.0 and Stack.turn_time("medium") == 5.0 and Stack.turn_time("hard") == 3.0
 			and Stack.turn_time("nonsense") == 5.0,
 			"the turn time is 10 s on Easy, 5 s on Medium and 3 s on Hard (an unknown value is Medium)")
-	var tiers: Array = Stack.MEDAL_TIERS
-	_check(tiers[0] < tiers[1] and tiers[1] < tiers[2] and tiers[2] <= Stack.TOTAL_BRICKS,
-			"the medal tiers rise and gold can be reached with 12 bricks")
 	var lo := 1.0e9
 	var hi := -1.0e9
 	for i in 240:

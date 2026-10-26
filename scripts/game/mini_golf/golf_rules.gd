@@ -182,10 +182,3 @@ func remove_player(slot: int) -> void:
 ## True when the match is over: the last hole is done (REQ-MG-7) or nobody is left.
 func match_over() -> bool:
 	return rows.is_empty() or (_hole >= holes and _hole_over())
-
-
-## The medal tiers of one player, `[bronze, silver, gold]` as strokes, a smaller number is better (REQ-MG-14): gold at par or
-## better, silver at most 1 over par on each hole, bronze at most 2 over par on each hole.
-static func tiers(holes_count: int) -> Array:
-	var p := Holes.par_total(holes_count)
-	return [p + 2 * holes_count, p + holes_count, p]

@@ -686,21 +686,13 @@ func _solo_clock() -> void:
 	_check(absf(t_end - 90.0) <= 0.1, "the round is over after %.1f s (90 s, REQ-TN-15)" % t_end)
 
 
-## REQ-TN-16, 18: the medal of the longest rally on each difficulty.
+## REQ-GM-73: no difficulty has medal tiers.
 func _medal_tiers() -> void:
-	print("medals of the longest rally")
-	const Medals = preload("res://scripts/game/medals.gd")
-	var table := {"easy": [[3, Medals.NONE], [4, Medals.BRONZE], [8, Medals.SILVER], [14, Medals.GOLD]],
-			"medium": [[4, Medals.NONE], [5, Medals.BRONZE], [10, Medals.SILVER], [20, Medals.GOLD]],
-			"hard": [[5, Medals.NONE], [6, Medals.BRONZE], [14, Medals.SILVER], [28, Medals.GOLD]]}
-	var ok := true
-	for d in table:
-		for row in table[d]:
-			var got: String = Medals.medal(float(row[0]), Rules.level(d).tiers, false)
-			if got != row[1]:
-				ok = false
-				print("    %s rally %d: %s, wanted %s" % [d, row[0], got, row[1]])
-	_check(ok, "the tiers [4, 8, 14], [5, 10, 20] and [6, 14, 28] give none, bronze, silver and gold at their limits")
+	print("no medal tiers")
+	var none := true
+	for d in ["easy", "medium", "hard"]:
+		none = none and not Rules.level(d).has("tiers")
+	_check(none, "no difficulty has medal tiers (REQ-TN-16)")
 
 
 ## The chain from a trace of the phone to the ball: the swing detector of a slot, the match, the landing place (REQ-TN-5 to 9).

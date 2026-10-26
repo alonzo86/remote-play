@@ -392,36 +392,34 @@ func _the_end() -> void:
 	_check(game2._confetti.is_empty(), "no confetti when the time is up")
 
 
-## One player: the medal of the number of sheep (REQ-SH-18).
+## One player: no medal, the title is the difficulty and the list shows the sheep (REQ-SH-18, REQ-GM-73).
 func _one_player() -> void:
 	print("one player")
-	var cases := {"easy": [[3, ""], [4, "bronze"], [6, "silver"], [8, "gold"]], "medium": [[5, ""], [6, "bronze"], [9, "silver"],
-			[11, "gold"]], "hard": [[7, ""], [8, "bronze"], [11, "silver"], [14, "gold"]]}
+	var cases := {"easy": [3, 4, 6, 8], "medium": [5, 6, 9, 11], "hard": [7, 8, 11, 14]}
 	var all_ok := true
 	for d in cases:
-		for c in cases[d]:
+		for n in cases[d]:
 			var game := _play(d)
-			_pen_all(game, int(c[0]))
+			_pen_all(game, int(n))
 			game._round.time = game._round.duration - 0.005
 			SimInput.run_until(game, func() -> bool: return game.is_over, 4.0)
 			await _frames(2)
 			var labels := _result_labels(game)
 			var medals: Array = MedalView.tiers_in(game._menu_box)
-			var title_ok: bool = labels[0] == d.to_upper() if c[1] != "" else labels[0].begins_with("NO MEDAL")
-			var ok: bool = game.is_over and title_ok and medals == ([c[1]] if c[1] != "" else [])
-			ok = ok and labels.has("1ST   SIM0   %d / %d SHEEP" % [int(c[0]), game.flock.sheep.size()])
+			var ok: bool = game.is_over and labels[0] == d.to_upper() and medals.is_empty()
+			ok = ok and labels.has("1ST   SIM0   %d / %d SHEEP" % [int(n), game.flock.sheep.size()])
 			if not ok:
-				print("    bad case: ", d, " ", c, " ", labels, " ", medals)
+				print("    bad case: ", d, " ", n, " ", labels, " ", medals)
 			all_ok = all_ok and ok
-	_check(all_ok, "every limit gives its medal, one sheep less gives the one before, and the title is the difficulty (REQ-SH-18)")
+	_check(all_ok, "one player gets no medal at any number of sheep, and the title is the difficulty (REQ-SH-18)")
 	var game2 := _play()
 	_pen_all(game2)
 	_heard.clear()
 	_quiet()
 	await _real_wait(60)
 	SimInput.run_until(game2, func() -> bool: return game2.is_over, 4.0)
-	_check(game2.is_over and MedalView.tiers_in(game2._menu_box) == ["gold"] and _heard.has("win"),
-			"one player with every sheep in gets gold and the win sound: %s %s" % [MedalView.tiers_in(game2._menu_box), _heard])
+	_check(game2.is_over and MedalView.tiers_in(game2._menu_box).is_empty() and _heard.has("win"),
+			"one player with every sheep in has no medal, and hears the win sound: %s" % str(_heard))
 
 
 ## A player leaves: the dog goes, the round goes on, nobody is out (REQ-SH-9).

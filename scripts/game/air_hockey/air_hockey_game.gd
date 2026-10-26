@@ -216,7 +216,7 @@ func _finish(left: bool) -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
 	no_medals = left   # The player that stayed gets no medal for a match that ended by a leave.
-	open_results(_board, [], "", [], _goals_text)
+	open_results(_board, "", [], _goals_text)
 
 
 func _finish_with_bot() -> void:

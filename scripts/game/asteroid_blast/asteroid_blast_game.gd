@@ -110,10 +110,8 @@ func _on_event(e: Dictionary) -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	var alone: bool = _board.ranking().size() == 1
 	var title := Lang.f("asteroid_blast.reached_wave", [field.wave]) if participants.size() == 1 else ""
-	no_medals = alone
-	open_results(_board, [], title)
+	open_results(_board, title)
 
 
 func _scoreboard() -> Scoreboard:

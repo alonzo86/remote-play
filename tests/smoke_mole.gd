@@ -2,6 +2,7 @@ extends SceneTree
 ## Whack-a-Mole with simulated phones, stepped by hand (REQ-WM-*, test 28 of docs/MANUAL_TESTS.md). Run:
 ##   godot --headless --path . --script tests/smoke_mole.gd -- --role=tv
 
+const MedalView = preload("res://scripts/ui/medal_view.gd")
 const Sim = preload("res://tests/sim_b.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const MoleField = preload("res://scripts/game/whack_a_mole/mole_field.gd")
@@ -220,18 +221,20 @@ func _round_end() -> void:
 	for l in labels:
 		text += String(l.text) + "|"
 	print("    result menu: ", text)
-	_check(game.no_medals and text.find("MEDAL") < 0, "one player: no medal and no 'no medal' title (REQ-WM-13)")
+	_check(MedalView.tiers_in(game._menu_box).is_empty() and text.find("MEDAL") < 0,
+			"one player: no medal and no 'no medal' title (REQ-WM-13)")
 	_check(game.menu_buttons().size() >= 3, "the result menu has Try again, New game and Back to menu (REQ-WM-13)")
 	var two: Control = await _play(2, {"seed": 3})
 	two._board.add(0, 30)
 	two._board.add(1, 10)
 	two._finish()
-	_check(not two.no_medals and two._menu_box != null, "two players: the places get medals (REQ-GM-73a)")
+	_check(MedalView.tiers_in(two._menu_box) == ["gold", "silver"], "two players: the places get medals (REQ-GM-73a)")
 	var left: Control = await _play(2, {"seed": 3})
 	left._board.add(0, 30)
 	left._on_player_left(1)
 	left._finish()
-	_check(not left.no_medals, "two players start and one leaves: the other one still gets the medal of the place (REQ-WM-13)")
+	_check(MedalView.tiers_in(left._menu_box).is_empty(),
+			"two players start and one leaves: one player is left, so no medal (REQ-WM-13)")
 	var easy: Control = await _play(1, {"seed": 3, "difficulty": "easy"})
 	_check(easy._field.level == MoleField.LEVELS.easy and easy.best_key() == "",
 			"the difficulty is a prop; no personal best (REQ-WM-16)")

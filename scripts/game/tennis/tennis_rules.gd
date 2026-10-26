@@ -201,11 +201,11 @@ func point_text(team: int) -> String:
 
 
 ## The level of a difficulty: the half width of the green part of the hit window in seconds (REQ-TN-6), the factor on the flight
-## time (a slower ball on Easy), whether the ball is kept inside the lines (Easy) and the medal tiers of 1 player (REQ-TN-16).
+## time (a slower ball on Easy), and whether the ball is kept inside the lines (Easy).
 static func level(difficulty: String) -> Dictionary:
 	match difficulty:
 		"easy":
-			return {"green": 0.30, "flight": 1.2, "inside": true, "tiers": [4, 8, 14], "machine_error": 0.8}
+			return {"green": 0.30, "flight": 1.2, "inside": true, "machine_error": 0.8}
 		"hard":
-			return {"green": 0.15, "flight": 0.9, "inside": false, "tiers": [6, 14, 28], "machine_error": 2.2}
-	return {"green": 0.21, "flight": 1.0, "inside": false, "tiers": [5, 10, 20], "machine_error": 1.4}
+			return {"green": 0.15, "flight": 0.9, "inside": false, "machine_error": 2.2}
+	return {"green": 0.21, "flight": 1.0, "inside": false, "machine_error": 1.4}

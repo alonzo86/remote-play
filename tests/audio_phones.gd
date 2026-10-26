@@ -234,7 +234,7 @@ func _pause_and_lost_phone(app: Node, sound: Node) -> void:
 ## 18.8a to 8d: the sound of a result, then silence, then the menu song after Back to menu.
 func _results(app: Node, sound: Node) -> void:
 	# A winner (2 phones).
-	var tag := await _result_run(app, [[0, 50.0], [1, 20.0]], [])
+	var tag := await _result_run(app, [[0, 50.0], [1, 20.0]])
 	_check(tag == "win", "a winner plays `win` and not `tie` (got %s)" % tag)
 	_check(sound._music.playing == false or sound._music.volume_db < -20.0, "the game song is stopped or fading on the result")
 	# 8c: after the jingle there is no music and no sound (the jingle is 2 s or shorter).
@@ -258,21 +258,19 @@ func _results(app: Node, sound: Node) -> void:
 	_check(sound.wanted_music == "menu" and sound._music.playing and String(sound._music.get_meta("id", "")) == "menu"
 			and Time.get_ticks_msec() - t0 <= menu_limit, "Back to menu: the menu song plays again (%d ms, %d or less)"
 			% [Time.get_ticks_msec() - t0, menu_limit])
-	# 8b: a tie, a round with no score; 8a: a solo medal; 8b: a solo with no medal.
-	tag = await _result_run(app, [[0, 30.0], [1, 30.0]], [])
+	# 8b: a tie, a round with no score; 8a: a single player with a score wins (no medal, no medal title).
+	tag = await _result_run(app, [[0, 30.0], [1, 30.0]])
 	_check(tag == "tie", "a tie plays `tie` and not `win` (got %s)" % tag)
-	tag = await _result_run(app, [[0, 30.0], [1, 30.0]], [], 2, true)
+	tag = await _result_run(app, [[0, 30.0], [1, 30.0]], 2, true)
 	_check(tag == "win", "a team win (two winners, team_won) plays `win` and not `tie` (got %s)" % tag)
-	tag = await _result_run(app, [], [])
+	tag = await _result_run(app, [])
 	_check(tag == "tie", "a round over with no score plays `tie` (got %s)" % tag)
-	tag = await _result_run(app, [[0, 100.0]], [10, 20, 30], 1)
-	_check(tag == "win", "a solo round with a medal plays `win` (got %s)" % tag)
-	tag = await _result_run(app, [[0, 1.0]], [10, 20, 30], 1)
-	_check(tag == "tie", "a solo round with no medal plays `tie` (got %s)" % tag)
+	tag = await _result_run(app, [[0, 100.0]], 1)
+	_check(tag == "win", "a solo round with a score plays `win` (got %s)" % tag)
 
 
 ## Starts a game with `n` phones, gives the scores, opens the result and returns "win", "tie", "both" or "none".
-func _result_run(app: Node, scores: Array, tiers: Array, n := 2, team := false) -> String:
+func _result_run(app: Node, scores: Array, n := 2, team := false) -> String:
 	for i in range(1, 2):
 		if i >= n and _clients[i].state == ControllerClient.State.CONNECTED:
 			_clients[i].leave()
@@ -288,7 +286,7 @@ func _result_run(app: Node, scores: Array, tiers: Array, n := 2, team := false) 
 	await _wait(0.1)
 	_sounds.clear()
 	game.team_won = team
-	game.open_results(board, tiers)
+	game.open_results(board)
 	await _wait(0.1)
 	var ids := _ids()
 	var won := ids.has("win")

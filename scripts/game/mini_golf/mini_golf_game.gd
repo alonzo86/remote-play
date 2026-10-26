@@ -295,11 +295,11 @@ func _after_hole() -> void:
 		_end_left = END_DELAY
 
 
-## The match is over: one player gets a medal for the strokes, more players the winner (REQ-MG-7, 14).
+## The match is over: one player sees the strokes and no medal, more players the winner (REQ-MG-7, 14, REQ-GM-73).
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	open_results(_board, GolfRules.tiers(rules.holes))
+	open_results(_board)
 
 
 func _scoreboard() -> Scoreboard:

@@ -239,13 +239,10 @@ func _effect(kind: String, pos: Vector2, text: String, slot: int, species: Strin
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	var tiers: Array = PuffField.LEVELS.get(difficulty, PuffField.LEVELS.medium).tiers
 	var heading := ""
-	var medal: Variant = null
-	if _board.ranking().size() == 1:   # The medal picture has the difficulty that was played under it (REQ-SS-21).
-		medal = Medals.medal(_board.ranking()[0].score, tiers)
+	if _board.ranking().size() == 1:   # One player: the difficulty that was played is the title (REQ-SS-21).
 		heading = Lang.t("game_settings." + difficulty)
-	open_results(_board, tiers, heading, [], Callable(), medal)
+	open_results(_board, heading)
 
 
 # ---- Drawing ----

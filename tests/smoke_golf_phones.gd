@@ -7,7 +7,6 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
-const Medals = preload("res://scripts/game/medals.gd")
 const Trace = preload("res://tests/golf_tennis_trace.gd")
 const GolfRules = preload("res://scripts/game/mini_golf/golf_rules.gd")
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
@@ -334,14 +333,13 @@ func _run() -> void:
 	g7._game_tick(DT)
 	_check(g7.phase != g7.Phase.RESULT, "a new press on A skips the putt banner")
 
-	# ---- 10b: the medal of 3 holes alone ----
-	var medals_ok := true
-	var table := [[[3, 3, 2], Medals.GOLD], [[3, 3, 3], Medals.SILVER], [[4, 4, 3], Medals.SILVER], [[4, 4, 4], Medals.BRONZE],
-			[[5, 5, 4], Medals.BRONZE], [[5, 5, 5], Medals.NONE]]
+	# ---- 10b: the score of 3 holes alone is the number of strokes (no medal tiers, REQ-GM-73, REQ-MG-14) ----
+	var strokes_ok := true
+	var table := [[3, 3, 2], [3, 3, 3], [4, 4, 3], [4, 4, 4], [5, 5, 4], [5, 5, 5]]
 	for row in table:
 		var gm := await _start(app, {"holes": "3"})
 		gm._on_player_left(1)
-		for per_hole in row[0]:
+		for per_hole in row:
 			for st in per_hole:
 				gm.sim.in_cup = st == per_hole
 				gm.sim.in_water = false
@@ -349,11 +347,10 @@ func _run() -> void:
 				gm._after_result()
 			gm._after_hole()
 		var total := int(gm._board.score(0))
-		var got: String = Medals.medal(float(total), GolfRules.tiers(3), true)
-		if got != row[1] or total != int(row[0][0]) + int(row[0][1]) + int(row[0][2]):
-			medals_ok = false
-			print("    strokes %s total %d: %s, wanted %s" % [str(row[0]), total, got, row[1]])
-	_check(medals_ok, "8, 9, 11, 12, 14 and 15 strokes over 3 holes: gold, silver, silver, bronze, bronze, none (10b)")
+		if total != int(row[0]) + int(row[1]) + int(row[2]):
+			strokes_ok = false
+			print("    strokes %s total %d" % [str(row), total])
+	_check(strokes_ok, "8, 9, 11, 12, 14 and 15 strokes over 3 holes are the score of the player (10b)")
 
 	# ---- 11c: a pause after the back swing, then a full swing putts ----
 	var gp := await _start(app)

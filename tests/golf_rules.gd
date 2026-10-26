@@ -359,14 +359,6 @@ func _words_and_medals() -> void:
 	r.setup([0], 2)
 	var ev := r.putt_done(true)
 	_check(ev.label == "mini_golf.hole_in_one", "a hole in one is said")
-	_check(Rules.tiers(3) == [14, 11, 8] and Rules.tiers(1) == [4, 3, 2] and Rules.tiers(5) == [25, 20, 15],
-			"the medal tiers come from the par: gold at par, silver 1 over a hole, bronze 2 over a hole")
-	for n in range(1, Holes.COUNT + 1):
-		_check(_medals_valid(Rules.tiers(n)), "the tiers of %d holes are valid (each one is harder)" % n)
-
-
-func _medals_valid(t: Array) -> bool:
-	return t.size() == 3 and float(t[2]) < float(t[1]) and float(t[1]) < float(t[0])
 
 
 # ---- Added for the automated half of Manual test 26 ----

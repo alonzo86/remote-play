@@ -2,11 +2,11 @@ extends SceneTree
 ## Banana Party with simulated phones, stepped by hand (REQ-SS-*, test 10 of docs/MANUAL_TESTS.md). Run:
 ##   godot --headless --path . --script tests/smoke_banana.gd -- --role=tv
 
+const MedalView = preload("res://scripts/ui/medal_view.gd")
 const Sim = preload("res://tests/sim_b.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
-const Medals = preload("res://scripts/game/medals.gd")
 
 var _fails := 0
 var _checks := 0
@@ -168,28 +168,20 @@ func _round_and_medals() -> void:
 		t += Sim.DT
 	_check(game.is_over and t >= 58.0 and t <= 62.0 and absf(start) < 0.05 and remaining_first > 59.9,
 			"the round ends %.1f s after GO (58 to 62, REQ-SS-14)" % t)
-	var cases := {"easy": [[169, Medals.NONE], [170, "bronze"], [339, "bronze"], [340, "silver"], [509, "silver"], [510, "gold"]],
-			"medium": [[149, Medals.NONE], [150, "bronze"], [299, "bronze"], [300, "silver"], [449, "silver"], [450, "gold"]],
-			"hard": [[119, Medals.NONE], [120, "bronze"], [239, "bronze"], [240, "silver"], [359, "silver"], [360, "gold"]]}
-	for d in cases:
+	# One player: no medal at any score, and the title is the difficulty (REQ-SS-16, 21, REQ-GM-73, issue #119).
+	for d in ["easy", "medium", "hard"]:
 		var ok := true
-		var titles_ok := true
-		for case in cases[d]:
+		for score in [0, 150, 450, 900]:
 			var g: Control = await _play({"seed": 3, "difficulty": d})
-			g._board.add(0, case[0])
+			g._board.add(0, score)
 			g._finish()
-			var tier := Medals.medal(case[0], PuffField.LEVELS[d].tiers)
-			ok = ok and tier == case[1]
 			var labels: Array = g._menu_box.find_children("*", "Label", true, false)
 			var title: String = labels[0].text
-			var want: String = "NO MEDAL THIS TIME (%s)" % d.to_upper() if case[1] == Medals.NONE else d.to_upper()
-			titles_ok = titles_ok and title == want
-			if title != want:
-				print("    ", d, " ", case[0], ": '", title, "' instead of '", want, "'")
-		_check(ok, "%s: scores around the tiers %s give none, bronze, bronze, silver, silver, gold" % [d,
-				str(PuffField.LEVELS[d].tiers)])
-		_check(titles_ok, "%s: the result title is the difficulty, or NO MEDAL THIS TIME (%s) under the first tier" % [d,
-				d.to_upper()])
+			ok = ok and title == d.to_upper() and MedalView.tiers_in(g._menu_box).is_empty()
+			if not ok:
+				print("    ", d, " ", score, ": '", title, "' ", MedalView.tiers_in(g._menu_box))
+				break
+		_check(ok, "%s: one player gets no medal at any score and the result title is the difficulty" % d)
 
 
 ## Test 10.7a: the cursor of each of 4 phones has the color of the square on that phone.

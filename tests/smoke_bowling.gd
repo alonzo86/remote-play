@@ -5,6 +5,7 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const MedalView = preload("res://scripts/ui/medal_view.gd")
 
 var _fails := 0
 var _checks := 0
@@ -213,6 +214,7 @@ func _run() -> void:
 	await _frames(3)
 	var labels := _labels(solo)
 	_check(solo.is_over and not labels.is_empty(), "the result menu opens after the last ball: %s" % str(labels))
+	_check(MedalView.tiers_in(solo._menu_box).is_empty(), "one player: the result menu has no medal (REQ-GM-73)")
 
 	# Two players with equal scores: Tie (REQ-GM-72).
 	app.go(Bowling, {"difficulty": "medium"})

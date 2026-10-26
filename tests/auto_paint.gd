@@ -216,47 +216,32 @@ func _level_speed() -> void:
 			"the times are about 1.25 : 1 and 1.25 : 1 apart (speed 0.8, 1.0, 1.25): %.2f, %.2f" % [te / tm, tm / th])
 
 
-## 14.5c: the medal and the title for the share of the floor, at the limits of each difficulty (REQ-PG-21).
+## 14.5c: one player gets no medal at any share of the floor, and the title names the level (REQ-PG-21, REQ-GM-73).
 func _level_medals() -> void:
-	print("the medal for the share of the floor")
+	print("no medal for the share of the floor")
 	var lv: Dictionary = _game_script.LEVELS
 	var all_ok := true
-	var shown := []
 	for d in ["easy", "medium", "hard"]:
-		var tiers: Array = lv[d].tiers
 		var total: int = int(lv[d].cols) * int(lv[d].rows)
-		var cases := []   # [tiles, medal]: the fewest tiles for each limit, and one tile less.
-		for i in 3:
-			var n := 0
-			while n * 100 / total < int(tiers[i]):
-				n += 1
-			cases.append([n - 1, ["", "bronze", "silver"][i]])
-			cases.append([n, ["bronze", "silver", "gold"][i]])
-		for c in cases:
+		for tiles in [0, total / 4, total / 2, total]:
 			var game := _play(d)
 			game.participants.clear()
 			game.participants.append(0)
 			game._on_player_left(1)
 			game._on_player_left(2)
-			for i in int(c[0]):
+			for i in tiles:
 				game.floor_map.paint(Vector2i(i % game.floor_map.cols, i / game.floor_map.cols), 0)
 			game._board.set_score(0, game.floor_map.count(0))
-			var percent: int = game.floor_map.percent(0)
 			game._round.time = game.ROUND_TIME - 0.001
 			game._process(0.01)
 			var labels: Array = []
 			for l in game._menu_box.find_children("*", "Label", true, false):
 				labels.append(l.text)
-			var tiers_shown: Array = MedalView.tiers_in(game._menu_box)
-			var title_ok: bool = labels[0] == d.to_upper() if c[1] != "" else (String(labels[0]).begins_with("NO MEDAL")
-					and String(labels[0]).ends_with("(%s)" % d.to_upper()))
-			var ok: bool = game.is_over and title_ok and tiers_shown == ([c[1]] if c[1] != "" else [])
+			var ok: bool = game.is_over and labels[0] == d.to_upper() and MedalView.tiers_in(game._menu_box).is_empty()
 			all_ok = all_ok and ok
-			shown.append("%s %d tiles=%d%%=%s" % [d, c[0], percent, c[1] if c[1] != "" else "none"])
 			if not ok:
-				print("    bad case: ", d, " ", c, " got percent ", percent, " labels ", labels, " medals ", tiers_shown)
-	_check(all_ok, "every limit gives its medal, the tile below gives the one before, and the title names the level: %s"
-			% str(shown))
+				print("    bad case: ", d, " ", tiles, " labels ", labels)
+	_check(all_ok, "at every share of the floor one player has no medal and the title names the level")
 
 
 ## 14.6a: two blobs that run into each other bounce and never overlap (REQ-PG-8).

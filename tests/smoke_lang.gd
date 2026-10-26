@@ -130,7 +130,6 @@ func _run() -> void:
 	var Registry = load("res://scripts/game/registry.gd")
 	var GameSettings = load("res://scripts/game/game_settings.gd")
 	var Shell = load("res://scripts/game/shell.gd")
-	var Medals = load("res://scripts/game/medals.gd")
 	var TvLogo = load("res://scripts/ui/tv_logo.gd")
 	var TvConnect = load("res://scripts/ui/tv_connect.gd")
 	var TvSettings = load("res://scripts/ui/tv_settings.gd")
@@ -169,13 +168,6 @@ func _run() -> void:
 			for t in r.titles:
 				games_ok = games_ok and _has_he(String(t))
 	_check(games_ok, "every game title, description, setting row and value is a key with a Hebrew text")
-	var medals_ok := true
-	for m in ["bronze", "silver", "gold", ""]:
-		Lang.set_language("en", root)
-		var en_label: String = Medals.label(m)
-		Lang.set_language("he", root)
-		medals_ok = medals_ok and Medals.label(m) != en_label
-	_check(medals_ok, "every medal text is different in Hebrew")
 	_csv_checks()
 
 	# The helper.

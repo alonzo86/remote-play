@@ -73,7 +73,7 @@ Settings (REQ-GM-90 to 97)
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-PG-20 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. | Done | smoke_paint, auto_paint, paint_rules |
-| REQ-PG-21 | One player: the score is the share of the floor that is painted at the end, in percent, rounded down. One player gets no medal (REQ-GM-73, issue #119); the title of the result is the difficulty. | Planned (issue #119) | smoke_paint, run_tests, auto_paint, paint_rules |
+| REQ-PG-21 | One player: the score is the share of the floor that is painted at the end, in percent, rounded down. One player gets no medal (REQ-GM-73, issue #119); the title of the result is the difficulty. | Done | smoke_paint, run_tests, auto_paint, paint_rules |
 
 | Difficulty | Floor (columns x rows) | Tile size | Blob speed limit |
 |------------|------------------------|-----------|------------------|

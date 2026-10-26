@@ -18,7 +18,6 @@ const WIDTH_STEPS := 8           # The widths are WIDTH_MIN + k * WIDTH_STEP for
 
 const TOTAL_BRICKS := 12         # Bricks dropped in a game, shared by the players in turns (REQ-TB-3).
 const TURN_TIMES := {"easy": 10.0, "medium": 5.0, "hard": 3.0}   # Seconds for one drop (REQ-TB-11).
-const MEDAL_TIERS := [6, 9, 11]  # A solo player: safe bricks of 12 for bronze, silver and gold (REQ-TB-15).
 const SWING_AMP := 380.0         # The brick on the crane swings this far to each side of the middle of the tower.
 const SWING_PERIOD := 2.4        # Seconds for a full swing there and back.
 
