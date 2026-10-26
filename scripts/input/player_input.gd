@@ -186,8 +186,8 @@ func tick(now_ms: int) -> void:
 		rx_rate = 0.0
 
 
-func recenter() -> void:
-	orientation.recenter()
+func recenter(snap_flat := true) -> void:
+	orientation.recenter(snap_flat)
 	heading = 0.0
 	_head_x = 0.0
 	_head_y = HEADING_PRIOR

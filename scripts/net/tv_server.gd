@@ -551,7 +551,7 @@ func _handle_control(i: int, msg: Dictionary, now: int) -> void:
 		"stat":
 			players[i].on_stat(float(msg.get("rtt", -1)), float(msg.get("off", 0)))
 		"recenter":
-			players[i].recenter()
+			players[i].recenter(false)   # The button: the pose in the hand is neutral, no snap to flat.
 		"swing_ok":
 			if setup_swing:
 				_swing_ok[i] = true

@@ -40,7 +40,7 @@ The TV closes a connection that sends no `hello` in 5 seconds.
 | Phone | `{"t":"ping","id":7,"t0":123456}` | Once each second. `t0` is the phone clock in ms. |
 | TV | `{"t":"pong","id":7,"t0":123456,"t1":987654}` | `t1` is the TV clock in ms when the ping arrived. |
 | Phone | `{"t":"stat","rtt":14.2,"off":864198.5,"hz":59.8}` | Sent after each pong. `rtt` = RTT in ms. `off` = TV clock minus phone clock. `hz` = sensor packets sent per second. |
-| Phone | `{"t":"recenter"}` | Set the neutral pose and zero the yaw. |
+| Phone | `{"t":"recenter"}` | Set the neutral pose and zero the yaw. The pose in the hand is neutral (no snap to flat, REQ-GM-37b). |
 | TV | `{"t":"phase","v":"menu"}` | What the TV shows. `v`: `connect` (logo and Connect screens), `menu` (Games, Settings, Players), `playing`, `paused`, `waiting`. `waiting` is sent only to a phone that joined during a round: it takes part in the next round. Optional `rc`: `false` while the running game has no Recenter box on the pad (REQ-GM-37, issue #55); absent means true. Optional `ab`: the buttons that the running game uses, `"a"`, `"b"`, `"ab"` or `""` (REQ-GM-37a, issue #80); absent means `"ab"`. An older phone ignores both and shows all controls, so the protocol `VERSION` does not change. |
 | TV | `{"t":"lang","v":"he"}` | The language of the TV changed (Settings). Every connected phone switches its UI at once (REQ-FL-62). `v`: `en` or `he`. An unknown value is ignored. Optional message: an older phone ignores it, so the protocol `VERSION` stays 2. |
 | TV | `{"t":"haptic","ms":40}` | Vibrate the phone. |

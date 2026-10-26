@@ -101,7 +101,7 @@ func _axes() -> void:
 			-0.7)}.keys():
 		var t: Vector2 = {"right": Vector2(0.7, 0.0), "left": Vector2(-0.7, 0.0), "up": Vector2(0.0, 0.7),
 				"down": Vector2(0.0, -0.7)}[dir]
-		for i in 120:
+		for i in 400:
 			_sim.feed(p, Vector2.ZERO)   # Held flat: the filter settles.
 		p.recenter()
 		body.pos = middle
