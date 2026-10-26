@@ -369,4 +369,16 @@ func _how_to(app: Node) -> void:
 			var low: float = maxf(view.start_button.get_global_rect().end.y, view.back_button.get_global_rect().end.y)
 			_check(low <= 1080.0 - 60.0 and label.get_global_rect().position.y >= 60.0,
 					"%s %s: the text, Back and Start are inside the safe margin (the bottom is at %.0f px of 1020)" % [code, g.id, low])
+			# Issue #120: how to play is the bottom band, wide, under Start; the names of the rows have one width.
+			_check(label.get_global_rect().position.y >= view.start_button.get_global_rect().end.y and label.size.x >= 1400.0
+					and label.get_global_rect().end.y <= 1080.0 - 60.0,
+					"%s %s: how to play is wide, under Start and inside the margin" % [code, g.id])
+			var name_w := -1.0
+			var same := true
+			for row in view.rows:
+				if row.get_script().resource_path.get_file() != "choice_row.gd":
+					continue
+				name_w = row.name_width() if name_w < 0.0 else name_w
+				same = same and is_equal_approx(row.name_width(), name_w)
+			_check(same, "%s %s: the names of the rows have one width (%.0f)" % [code, g.id, name_w])
 	lang_script.set_language("en", root)

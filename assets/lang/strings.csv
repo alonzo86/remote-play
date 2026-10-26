@@ -268,7 +268,7 @@ how_to.whack_a_mole,POINT YOUR PHONE AT THE SCREEN AND PRESS A TO BONK THE FRIEN
 registry.air_hockey,AIR HOCKEY,הוקי אוויר,"Name of the game Air Hockey: Games screen, game settings, in-game title",
 registry.desc_air_hockey,A FAST TABLE GAME WITH A PUCK AND TWO GOALS.,משחק שולחן מהיר עם דיסקית ושני שערים.,"Description of Air Hockey: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.air_hockey,TILT TO SLIDE YOUR MALLET AND HIT THE PUCK INTO THE OTHER GOAL. THE FIRST TO SCORE THE SET GOALS WINS. SINGLE PLAYER? YOU PLAY ROBO.,הטו כדי להזיז את הידית ולהכניס את הדיסקית לשער השני. הראשון שמבקיע את מספר השערים שנקבע מנצח. שחקן יחיד? משחקים נגד רובו.,"TV game settings view of Air Hockey: how to play, under the title (issue #77). ROBO is the name of the computer player (air_hockey.bot_name)",
-air_hockey.goals_to_win,GOALS TO WIN,שערים לניצחון,Air Hockey settings view: name of the row where the players choose how many goals end the match (3 to 10),
+air_hockey.goals_to_win,GOALS,שערים,Air Hockey settings view: name of the row where the players choose how many goals end the match (3 to 10),
 air_hockey.n_goals,%d GOALS,%d שערים,Air Hockey: a number of goals; the values of the settings row (3 to 10) and the score in the result list,"the number sign (%d, %.1f ...) is replaced by a number"
 air_hockey.one_goal,1 GOAL,שער אחד,Air Hockey result list: the score of a player with one goal,
 air_hockey.bot_name,ROBO,רובו,"Air Hockey: the name of the computer player that plays when one phone plays: name chip under the table, result list, banners",
