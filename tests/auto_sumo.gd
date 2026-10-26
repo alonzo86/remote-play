@@ -143,7 +143,7 @@ func _axes() -> void:
 	var got := {}
 	var ways := {"right": Vector2(0.7, 0.0), "left": Vector2(-0.7, 0.0), "up": Vector2(0.0, 0.7), "down": Vector2(0.0, -0.7)}
 	for way in ways:
-		for i in 120:
+		for i in 400:
 			_sim.feed(p, Vector2.ZERO)
 		p.recenter()
 		body.pos = Vector2.ZERO
