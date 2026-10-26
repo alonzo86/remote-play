@@ -305,7 +305,7 @@ func draw_leader_chip(ci: CanvasItem) -> void:
 	Shell.leader_chip(ci, Shell.area_width(ci), chips, leader_text())
 
 
-## The match is over: one player gets a medal for the longest rally, more players the winners (REQ-TN-17).
+## The match is over: one player sees the longest rally and no medal, more players the winners (REQ-TN-17, REQ-GM-73).
 func _finish() -> void:
 	for s in play.winners():
 		if participants.has(s):

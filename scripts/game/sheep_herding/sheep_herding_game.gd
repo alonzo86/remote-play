@@ -215,8 +215,9 @@ func _start_confetti() -> void:
 	Sound.sfx("sheep_pen")
 
 
-## The round is over: all the sheep are in (a win for the team, REQ-SH-5) or the time is up. One player gets the medal of the
-## number of sheep (REQ-SH-18); more players get a sentence for the whole team and no medals (the score is shared).
+## The round is over: all the sheep are in (a win for the team, REQ-SH-5) or the time is up. One player sees the difficulty and
+## the number of sheep, with no medal (REQ-SH-18, REQ-GM-73); more players get a sentence for the whole team and no medals
+## (the score is shared).
 func _finish() -> void:
 	var n := flock.penned_count()
 	var total := flock.sheep.size()
