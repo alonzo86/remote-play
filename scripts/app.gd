@@ -295,8 +295,12 @@ func _start_tv() -> void:
 
 
 func toggle_overlay() -> void:
-	settings.overlay = not bool(settings.overlay)
-	overlay.visible = settings.overlay
+	set_overlay(not bool(settings.overlay))
+
+
+func set_overlay(on: bool) -> void:
+	settings.overlay = on
+	overlay.visible = on
 	save_settings()
 
 

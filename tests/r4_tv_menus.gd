@@ -150,6 +150,21 @@ func _settings_about() -> void:
 	await _frames(5)
 	var settings: Control = _app.current_screen()
 	_check(settings.get_script() == _app.TvSettings, "8a2: the Settings screen is open")
+	# Issue #122: an on/off row changes with Left and Right, and OK does nothing.
+	var invert_row: Button = settings._rows[1]
+	var invert_before: bool = _app.settings.invert_tilt
+	invert_row.grab_focus()
+	await _frames(1)
+	await _press("ui_accept")
+	_check(_app.settings.invert_tilt == invert_before, "8a2: OK on 'Invert tilt axes' changes nothing")
+	await _press("ui_right")
+	_check(_app.settings.invert_tilt, "8a2: Right sets 'Invert tilt axes' to ON")
+	await _press("ui_right")
+	_check(_app.settings.invert_tilt, "8a2: Right again keeps it ON")
+	await _press("ui_left")
+	_check(not _app.settings.invert_tilt, "8a2: Left sets it to OFF")
+	_app.settings.invert_tilt = invert_before
+	_app.save_settings()
 	var about_item: Button = null
 	for b in _buttons(settings):
 		if b.text == "common.about":

@@ -33,7 +33,7 @@ func _ready() -> void:
 	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rows.add_theme_constant_override("separation", 22)
 	scroll.add_child(rows)
-	_add_row(rows, "settings.debug_overlay", "overlay", func(): App.toggle_overlay())
+	_add_row(rows, "settings.debug_overlay", "overlay", Callable())
 	_add_row(rows, "settings.invert_tilt_axes", "invert_tilt", Callable())
 	_add_level_row(rows, "settings.music", "music_volume")
 	_add_level_row(rows, "settings.effects", "sfx_volume")
@@ -78,13 +78,25 @@ func _add_row(parent: Control, title: String, key: String, custom: Callable) -> 
 		name_l.add_theme_color_override("font_color", UiTheme.ACCENT if b.has_focus() else UiTheme.TEXT)
 	b.focus_entered.connect(tint)
 	b.focus_exited.connect(tint)
-	b.pressed.connect(func():
-		if custom.is_valid():
+	if custom.is_valid():
+		b.pressed.connect(func():
 			custom.call()
-		else:
-			App.settings[key] = not bool(App.settings[key])
-			App.save_settings()
-		refresh.call())
+			refresh.call())
+	else:
+		# An on/off row changes with Left and Right like a choice row (issue #122): Left is OFF, Right is ON, mirrored in
+		# Hebrew. OK does nothing.
+		b.gui_input.connect(func(e: InputEvent):
+			var forward := -1 if b.is_layout_rtl() else 1
+			for action in ["ui_left", "ui_right"]:
+				if e.is_action_pressed(action):
+					var on: bool = (forward if action == "ui_right" else -forward) > 0
+					if key == "overlay":
+						App.set_overlay(on)
+					else:
+						App.settings[key] = on
+						App.save_settings()
+					refresh.call()
+					b.accept_event())
 	if key == "language":   # Left and Right choose the language from the list (REQ-FL-61).
 		b.gui_input.connect(func(e: InputEvent):
 			for action in ["ui_left", "ui_right"]:

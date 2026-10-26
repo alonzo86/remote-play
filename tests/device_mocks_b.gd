@@ -279,4 +279,9 @@ func _silent_phone() -> void:
 	_check(game.is_paused() and title == "2P LOST CONNECTION" and dt2 <= limit,
 			"banana Party: a silent phone pauses the game with the card '%s' after %d ms (<= %d, REQ-GM-30)" % [title, dt2,
 					limit])
+	var game_script: Script = game.get_script()
+	game.menu_buttons()[-1].pressed.emit()   # End game on the card of a lost phone leaves at once (issue #118).
+	await sim.frames(3)
+	_check(not is_instance_of(sim.app.current_screen(), game_script),
+			"End game on the card of a lost phone leaves the game at once, with no 'End the game?' question (issue #118)")
 	sim.clients[1].set_process(true)

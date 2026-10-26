@@ -79,6 +79,14 @@ func _answers() -> void:
 			"both phones get the safety card and none has answered")
 	_check(view.start_button.disabled and view.reason_label.text == Lang.t("game_settings.waiting_phones").to_upper(),
 			"Start is off and the line says WAITING FOR PHONES")
+	# Issue #121: a disabled Start cannot be reached. Down from the last row goes to Back, and Start takes no focus.
+	var last: Control = view.rows[-1]
+	last.grab_focus()
+	last.find_valid_focus_neighbor(SIDE_BOTTOM).grab_focus()
+	_check(view.get_viewport().gui_get_focus_owner() == view.back_button,
+			"Down from the last row goes to Back while Start waits")
+	view.start_button.grab_focus()
+	_check(view.get_viewport().gui_get_focus_owner() == view.back_button, "Start waits: it takes no focus")
 	sim.clients[0].send_swing_ok()
 	await _wait_for(func(): return app.server.swing_pending() == [1])
 	await sim.frames(3)
@@ -88,6 +96,11 @@ func _answers() -> void:
 	await sim.frames(3)
 	_check(not view.start_button.disabled and view.reason_label.text == "",
 			"both phones answered: Start works and the line is empty")
+	view.start_button.grab_focus()
+	_check(view.get_viewport().gui_get_focus_owner() == view.start_button, "Start works: it takes the focus")
+	view._set_start_reachable(false)   # Start becomes disabled while it has the focus (a phone left): the focus moves to Back.
+	_check(view.get_viewport().gui_get_focus_owner() == view.back_button, "Start disabled while focused: Back gets the focus")
+	view._set_start_reachable(true)
 	# The answer is kept for this run of the app: the second visit asks nobody.
 	app.go_games()
 	await sim.frames(3)
