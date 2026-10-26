@@ -8,7 +8,6 @@ const MazeGenerator = preload("res://scripts/game/maze/maze_generator.gd")
 const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
 const MarbleTrack = preload("res://scripts/game/marble_race/marble_track.gd")
 const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
-const Medals = preload("res://scripts/game/medals.gd")
 const SumoArena = preload("res://scripts/game/sumo_bumpers/sumo_arena.gd")
 const TiltBody = preload("res://scripts/game/tilt_body.gd")
 const BananaLook = preload("res://scripts/game/snowball_splat/banana_look.gd")
@@ -508,10 +507,7 @@ func _difficulty() -> void:
 	_check(lv.easy.spawn_every < lv.medium.spawn_every and lv.medium.spawn_every < lv.hard.spawn_every,
 			"new animals come less often with the difficulty")
 	_check(lv.medium.speed == 1.0 and lv.medium.max_base == PuffField.MAX_BASE and lv.medium.spawn_every == PuffField.SPAWN_EVERY
-			and lv.medium.tiers == [150, 300, 450], "Medium is the game from before")
-	_check(Medals.is_valid(lv.easy.tiers) and Medals.is_valid(lv.medium.tiers) and Medals.is_valid(lv.hard.tiers)
-			and lv.easy.tiers[2] > lv.medium.tiers[2] and lv.medium.tiers[2] > lv.hard.tiers[2],
-			"every difficulty has valid medal tiers (REQ-GM-73), harder levels have lower limits")
+			and not lv.medium.has("tiers"), "Medium is the game from before, and no level has medal tiers (REQ-GM-73)")
 	# The speed and the count of a real field.
 	for d in ["easy", "medium", "hard"]:
 		var f := PuffField.new()

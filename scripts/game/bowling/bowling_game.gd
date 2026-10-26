@@ -273,11 +273,11 @@ func _after_result() -> void:
 	_start_turn()
 
 
-## REQ-BW-1: the game is over. One player gets a medal for the score, more players the winner.
+## REQ-BW-1: the game is over. One player sees the score and no medal, more players the winner (REQ-GM-73).
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	open_results(_board, BowlingRules.level(difficulty).tiers)
+	open_results(_board)
 
 
 func _scoreboard() -> Scoreboard:

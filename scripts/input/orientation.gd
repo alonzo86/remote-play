@@ -11,6 +11,8 @@ const BLEND := 0.03             # Accelerometer weight for each sample.
 const STILL_GYRO := 0.08        # rad/s. Below this the phone counts as still.
 const STILL_TIME_FOR_BIAS := 0.5
 const BIAS_RATE := 0.02
+## A recenter within this angle of flat (screen up) takes exactly flat as the neutral pose (issue #124).
+const FLAT_SNAP_DEG := 12.0
 
 var settings: Dictionary
 
@@ -76,10 +78,13 @@ func update(ts_ms: int, gyro: Vector3, accel: Vector3) -> void:
 		yaw += w.dot(up) * dt * sign_y
 
 
-func recenter() -> void:
+## `snap_flat`: a pose within `FLAT_SNAP_DEG` of flat becomes exactly flat. A game takes it at GO; the Recenter button of the
+## phone does not (a player who taps it wants the pose in the hand to be neutral).
+func recenter(snap_flat := true) -> void:
 	# The TV is where the phone points: its top when it lies flat, else away from the screen (a racket grip, screen to the player).
 	_north = _flatten(Vector3(0, 1, 0) if absf(up.z) > 0.8 else Vector3(0, 0, -1))
-	_ref_up = up
+	# A phone that lies on a table or is held about flat is neutral when it is exactly flat: its small offset is not a tilt.
+	_ref_up = Vector3(0, 0, 1) if snap_flat and up.z >= cos(deg_to_rad(FLAT_SNAP_DEG)) else up
 	_ref_yaw = yaw
 	_ref_elev = _elevation()
 

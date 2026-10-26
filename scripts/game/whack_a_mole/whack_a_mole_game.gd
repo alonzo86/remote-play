@@ -65,7 +65,6 @@ var _presses: Array[int] = []    # Slots of the A presses, in the order they arr
 var _poofs: Array[Poof] = []
 var _pops: Array[Pop] = []
 var _scene_time := 0.0           # Game time of the clouds: they stand still while the game is paused (REQ-FL-43).
-var _players_at_start := 0       # One player at the start: no medal, also if a second one leaves later (REQ-WM-13).
 var _tex := {}                   # "golden|happy" -> the ImageTexture of a mole.
 
 
@@ -76,7 +75,6 @@ func _game_ready() -> void:
 		_rng.randomize()
 	_field.setup(difficulty)
 	_board = Scoreboard.new(participants)
-	_players_at_start = participants.size()
 	for s in participants:
 		var t := Player.new()
 		t.slot = s
@@ -185,7 +183,6 @@ func _poof(pos: Vector2) -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	no_medals = _players_at_start == 1   # REQ-WM-13: one player gets no medal (exception to REQ-GM-73).
 	open_results(_board)
 
 

@@ -40,7 +40,6 @@ func _initialize() -> void:
 	_look()
 	_aim_map()
 	_hall()
-	_medals()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -234,8 +233,7 @@ func _levels() -> void:
 			and BowlingRules.level("easy").threshold < BowlingRules.level("medium").threshold,
 			"an unknown level is Medium; Easy counts a lighter swing")
 	for d in ["easy", "medium", "hard"]:
-		var t: Array = BowlingRules.level(d).tiers
-		_check(t[0] < t[1] and t[1] < t[2], "the medal tiers of %s rise" % d)
+		_check(not BowlingRules.level(d).has("tiers"), "%s has no medal tiers (REQ-GM-73)" % d)
 
 
 # ---- The lane (REQ-BW-9 to 11) ----
@@ -625,16 +623,3 @@ func _hall() -> void:
 	_check(white >= 20 and not open_edge and UiTheme.BG == Color.BLACK
 			and Shell.contrast(BowlingLook.PIN_COLORS["W"], UiTheme.BG) > 15.0,
 			"the pins are white (%d pixels) with a black outline, and the wall behind them is black" % white)
-
-
-# ---- The medal (REQ-BW-18, Test 23 item 6d) ----
-
-func _medals() -> void:
-	print("medals")
-	var cases := {"easy": [69, 70, 109, 110, 149, 150], "medium": [59, 60, 99, 100, 149, 150], "hard": [79, 80, 129, 130, 179, 180]}
-	for d in cases:
-		var got := []
-		for score in cases[d]:
-			got.append(Medals.medal(float(score), BowlingRules.level(d).tiers))
-		_check(got == ["", "bronze", "bronze", "silver", "silver", "gold"],
-				"%s: %s give none, bronze, bronze, silver, silver, gold: %s" % [d, str(cases[d]), str(got)])

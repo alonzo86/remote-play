@@ -4,6 +4,7 @@ extends SceneTree
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const MedalView = preload("res://scripts/ui/medal_view.gd")
 
 var _fails := 0
 var _checks := 0
@@ -164,6 +165,7 @@ func _run() -> void:
 	solo._game_tick(2.3)
 	await _frames(3)
 	_check(solo.is_over and not _labels(solo).is_empty(), "the round ends with the result menu: %s" % str(_labels(solo)))
+	_check(MedalView.tiers_in(solo._menu_box).is_empty(), "the machine rally of one player has no medal (REQ-GM-73)")
 
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)

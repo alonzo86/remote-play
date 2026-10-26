@@ -217,7 +217,7 @@ func _tick_falls(delta: float) -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	open_results(_board, [], "", [], _points_text)
+	open_results(_board, "", [], _points_text)
 
 
 ## "2 points" for the result list.

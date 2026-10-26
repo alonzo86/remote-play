@@ -29,12 +29,12 @@ const BOARD_TOP := 150.0        # The floor is the screen inside the margin, und
 const BOARD_MARGIN := 60.0
 const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
 const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide.
-## Difficulty (REQ-PG-20): the floor, the speed of the blobs (a factor on the Medium values) and the medal tiers in percent of the
-## floor (first guesses, Test 13). A tile is `REF_TILE` in the simulation; on the screen it is as big as the floor fits.
+## Difficulty (REQ-PG-20): the floor, and the speed of the blobs (a factor on the Medium values)
+## (first guesses, Test 13). A tile is `REF_TILE` in the simulation; on the screen it is as big as the floor fits.
 const LEVELS := {
-	"easy": {"cols": 12, "rows": 7, "speed": 0.8, "tiers": [35, 55, 75]},
-	"medium": {"cols": 16, "rows": 9, "speed": 1.0, "tiers": [30, 50, 70]},
-	"hard": {"cols": 20, "rows": 11, "speed": 1.25, "tiers": [25, 40, 55]},
+	"easy": {"cols": 12, "rows": 7, "speed": 0.8},
+	"medium": {"cols": 16, "rows": 9, "speed": 1.0},
+	"hard": {"cols": 20, "rows": 11, "speed": 1.25},
 }
 ## Where the blobs start: the corners of a rectangle around the middle of the floor, so that all have the same distance to it.
 const START_SPOTS := [Vector2(-1, -1), Vector2(1, 1), Vector2(1, -1), Vector2(-1, 1)]
@@ -186,14 +186,10 @@ func _paint_under(slot: int) -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	var tiers: Array = _level.tiers
 	var heading := ""
-	var medal: Variant = null
-	if _board.ranking().size() == 1:   # One player: the share of the floor gives the medal (REQ-PG-21).
-		var slot: int = _board.ranking()[0].slot
-		medal = Medals.medal(floor_map.percent(slot), tiers)
+	if _board.ranking().size() == 1:   # One player: the difficulty that was played is the title (REQ-PG-21).
 		heading = Lang.t("game_settings." + difficulty)
-	open_results(_board, [], heading, [], _score_text, medal)
+	open_results(_board, heading, [], _score_text)
 
 
 ## "34 tiles (23%)" for the result list.

@@ -129,7 +129,7 @@ func _finish(slot: int) -> void:
 	for b in _balls:
 		if b.slot != slot:
 			board.set_unfinished(b.slot, -b.pos.distance_to(_exit_center()))
-	open_results(board, [], "", [], func(t: float) -> String: return Lang.f("result.seconds_1", [t]))
+	open_results(board, "", [], func(t: float) -> String: return Lang.f("result.seconds_1", [t]))
 
 
 func _exit_center() -> Vector2:

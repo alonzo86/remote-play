@@ -1,6 +1,6 @@
 extends SceneTree
 ## The medals in the result menu (REQ-GM-73): each row has the medal of its place, 1st gold, 2nd silver, 3rd bronze; players that
-## tie have the same medal, nobody after the 3rd has one, and a player who did not finish has none.
+## tie have the same medal, nobody after the 3rd has one, and a player who did not finish has none. One player has no medal.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/results_medals.gd -- --role=tv
 
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
@@ -35,7 +35,8 @@ func _run() -> void:
 	var app: Node = root.get_node("App")
 	for i in 4:
 		app.server.players[i].state = 1
-	app.go(load("res://scripts/game/maze/maze_game.gd"))
+	var maze: GDScript = load("res://scripts/game/maze/maze_game.gd")
+	app.go(maze)
 	await _frames(5)
 	var game: Control = app.current_screen()
 	# Times: lower is better. Four players with distinct times.
@@ -72,27 +73,34 @@ func _run() -> void:
 	game.open_results(board)
 	await _frames(2)
 	_check(MedalView.tiers_in(game._menu_box) == ["gold"], "a player who did not finish has no medal")
-	# One player: the medal of the score, not of the place.
+	# One player (a round that started with one phone): no medal at all, and no medal title (REQ-GM-73, issue #119).
+	for i in range(1, 4):
+		app.server.players[i].state = 0
+	app.go(maze)
+	await _frames(5)
+	game = app.current_screen()
 	var solo := Scoreboard.new([0], true)
 	solo.set_score(0, 25.0)
-	game.open_results(solo, [40.0, 30.0, 20.0])
+	game.open_results(solo)
 	await _frames(2)
-	_check(MedalView.tiers_in(game._menu_box) == ["silver"],
-			"one player gets the medal of the score (silver for 25 s), not gold for the 1st place")
-	# The sound of the result menu: a medal is a win, a solo round without a medal is not (REQ-FL-65).
+	_check(MedalView.tiers_in(game._menu_box).is_empty(), "one player gets no medal, not even gold for the 1st place")
+	var texts: Array = game._menu_box.find_children("*", "Label", true, false).map(func(l): return String(l.text))
+	_check(texts.filter(func(t): return t.to_upper().contains("MEDAL")).is_empty(), "and no title about a medal: %s" % str(texts))
+	# The sound of the result menu: a single player with a score wins; a player without a score gets the neutral sound (REQ-FL-65).
 	var played: Array[String] = []
 	var cb := func(id: String) -> void: played.append(id)
 	var sound: Node = root.get_node("Sound")
 	sound.sfx_played.connect(cb)
 	await _frames(3)   # The same effect twice in 40 ms is one sound.
 	played.clear()
-	game.open_results(solo, [40.0, 30.0, 20.0])
-	_check(played.has("win") and not played.has("tie"), "a solo round with a medal plays the win fanfare: %s" % str(played))
+	game.open_results(solo)
+	_check(played.has("win") and not played.has("tie"), "a solo round with a score plays the win fanfare: %s" % str(played))
 	await _frames(5)
 	played.clear()
-	solo.set_score(0, 99.0)
-	game.open_results(solo, [40.0, 30.0, 20.0])
-	_check(played.has("tie") and not played.has("win"), "a solo round with no medal plays the neutral sound: %s" % str(played))
+	var nobody := Scoreboard.new([0], true)
+	nobody.set_unfinished(0, 3.0)
+	game.open_results(nobody)
+	_check(played.has("tie") and not played.has("win"), "a solo round with no score plays the neutral sound: %s" % str(played))
 	sound.sfx_played.disconnect(cb)
 	for i in 4:
 		app.server.players[i].state = 0

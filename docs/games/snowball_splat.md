@@ -74,7 +74,7 @@ End and players
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SS-16 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. With one player the row has no medal (REQ-GM-73, issue #119); with more players each row has the medal of its place. A player who leaves takes the cursor and the score out, and the round goes on. A lost phone pauses the round with the card of REQ-GM-30. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Planned (issue #119) | smoke_tv |
+| REQ-SS-16 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. With one player the row has no medal (REQ-GM-73, issue #119); with more players each row has the medal of its place. A player who leaves takes the cursor and the score out, and the round goes on. A lost phone pauses the round with the card of REQ-GM-30. When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_tv |
 | REQ-SS-17 | Children (REQ-GM-80 to 84): the animals are friendly and eat bananas, the hit is funny, a miss costs nothing, no player is out of the round, the hint is one line, the animals are large and slow, and every text is positive. | Device | Review, Device (with a child, Test 10 item 9) |
 
 ### Settings and difficulty (built 2026-10-09)
@@ -84,7 +84,7 @@ REQ-GM-90 to 96 apply. The settings view has one row: Difficulty. As it grows, t
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SS-20 | The game has the settings view with the row Difficulty (REQ-GM-90, 91; registry `settings: []`), and `difficulty` is a prop of the game. Difficulty changes four values, see the table below: the speed of the animals (a factor on the speed of each kind), the number of animals on the screen (`MAX_BASE`, plus the number of players as before), the time between two new animals (`SPAWN_EVERY`), and the number of bushes (REQ-SS-26). | Done | game_rules, smoke_settings |
-| REQ-SS-21 | The title of the result of one player is the difficulty that was played ("Hard"). There are no medal tiers (REQ-GM-73, issue #119). | Planned (issue #119) | smoke_tv |
+| REQ-SS-21 | The title of the result of one player is the difficulty that was played ("Hard"). There are no medal tiers (REQ-GM-73, issue #119). | Done | smoke_tv |
 | REQ-SS-22 | At every difficulty the lanes never overlap (REQ-SS-8), and at least one animal is on the screen most of the time, also on Hard with 1 player. | Done | game_rules |
 | REQ-SS-23 | The HUD shows the leader chip (leader and points, or TIE; REQ-GM-46) next to the title and the timer. Each phone shows its own points and place (REQ-FL-67). | Done | game_helpers (leader), run_tests (score message) |
 | REQ-SS-24 | Personal best (REQ-GM-98): the key is `snowball_splat|<difficulty>`, the value is the score, higher is better. All player counts share one key. | Done | smoke_bests |

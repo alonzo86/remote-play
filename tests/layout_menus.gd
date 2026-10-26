@@ -89,7 +89,7 @@ func _run() -> void:
 		board = Scoreboard.new([], true)
 		for s in 4:
 			board.set_score(s, 30.0 + s * 12.34)
-		game.open_results(board, [40.0, 30.0, 20.0])
+		game.open_results(board)
 		await _frames(3)
 		_check(_problems(game._menu_box).is_empty(),
 				"%s: race results with 4 rows and medals fit: %s" % [lang, str(_problems(game._menu_box))])

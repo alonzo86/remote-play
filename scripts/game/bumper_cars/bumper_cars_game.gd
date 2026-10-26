@@ -173,7 +173,7 @@ func _pick_up() -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, WIN_BUZZ_MS)
-	open_results(_board, [], "", [], _stars_text)
+	open_results(_board, "", [], _stars_text)
 
 
 ## "3 stars" for the result list.

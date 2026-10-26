@@ -101,6 +101,7 @@ func _on_player_left(slot: int) -> void:
 func _game_tick(delta: float) -> void:
 	if _round.tick(delta):
 		for s in participants:
+			player(s).recenter()   # REQ-MR-15: the pose held in the countdown is the center (issue #124).
 			App.server.haptic(s, 60)
 	if _round.is_playing():
 		var steps := maxi(1, ceili(delta / SUBSTEP))
@@ -230,7 +231,7 @@ func _open_results() -> void:
 		open_menu("minigame.no_players_connected", [["minigame.back_to_menu", App.go_menu]])
 		return
 	# Finished cars have their time. The others are ranked by how far they got.
-	open_results(_scoreboard(), [], "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
+	open_results(_scoreboard(), "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
 
 
 # ---- Standings ----

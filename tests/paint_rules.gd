@@ -3,7 +3,6 @@ extends SceneTree
 ## (REQ-PG-2, 4, 5, 20 to 23). Run: godot --headless --path . --script tests/paint_rules.gd -- --role=controller
 
 const Protocol = preload("res://scripts/core/protocol.gd")
-const Medals = preload("res://scripts/game/medals.gd")
 const PaintFloor = preload("res://scripts/game/paint_grab/paint_floor.gd")
 const PaintPicture = preload("res://scripts/game/paint_grab/paint_picture.gd")
 const PaintPots = preload("res://scripts/game/paint_grab/paint_pots.gd")
@@ -68,23 +67,12 @@ func _paint_levels() -> void:
 			and lv.medium.rows < lv.hard.rows, "the floor grows with the difficulty")
 	_check(lv.easy.speed < lv.medium.speed and lv.medium.speed < lv.hard.speed and lv.medium.speed == 1.0,
 			"the blobs are faster with the difficulty, Medium is the base")
-	_check(Medals.is_valid(lv.easy.tiers) and Medals.is_valid(lv.medium.tiers) and Medals.is_valid(lv.hard.tiers)
-			and lv.easy.tiers[2] > lv.medium.tiers[2] and lv.medium.tiers[2] > lv.hard.tiers[2],
-			"every difficulty has valid medal tiers, harder levels have lower limits")
-	_check(lv.hard.tiers[2] <= 100 and lv.easy.tiers[2] <= 100, "no medal needs more than the whole floor")
 	_check(lv.easy.cols == 12 and lv.easy.rows == 7 and lv.medium.cols == 16 and lv.medium.rows == 9 and lv.hard.cols == 20
 			and lv.hard.rows == 11, "the floor is 12 x 7, 16 x 9 and 20 x 11 tiles on Easy, Medium and Hard (REQ-PG-20)")
 	_check(lv.easy.speed == 0.8 and lv.medium.speed == 1.0 and lv.hard.speed == 1.25,
 			"the blob speed is 0.8, 1.0 and 1.25 of Medium (REQ-PG-20)")
-	_check(lv.easy.tiers == [35, 55, 75] and lv.medium.tiers == [30, 50, 70] and lv.hard.tiers == [25, 40, 55],
-			"the medal tiers in percent are 35/55/75, 30/50/70 and 25/40/55 (REQ-PG-21)")
-	var edge_ok := true
-	for d in ["easy", "medium", "hard"]:
-		var t: Array = lv[d].tiers
-		edge_ok = edge_ok and Medals.medal(t[0] - 1, t) == "" and Medals.medal(t[0], t) == "bronze" \
-				and Medals.medal(t[1] - 1, t) == "bronze" and Medals.medal(t[1], t) == "silver" \
-				and Medals.medal(t[2] - 1, t) == "silver" and Medals.medal(t[2], t) == "gold"
-	_check(edge_ok, "a share at a limit gets the medal, one percent less gets the one before (REQ-PG-21)")
+	_check(not lv.easy.has("tiers") and not lv.medium.has("tiers") and not lv.hard.has("tiers"),
+			"no level has medal tiers (REQ-GM-73)")
 
 
 ## The pictures under the floor of Paint Grab (REQ-PG-22).

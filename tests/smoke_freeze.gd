@@ -2,6 +2,7 @@ extends SceneTree
 ## Freeze Dance with simulated phones, stepped by hand (REQ-FD-*, test 29 of docs/MANUAL_TESTS.md). Run:
 ##   godot --headless --path . --script tests/smoke_freeze.gd -- --role=tv
 
+const MedalView = preload("res://scripts/ui/medal_view.gd")
 const Sim = preload("res://tests/sim_b.gd")
 const DanceRules = preload("res://scripts/game/freeze_dance/dance_rules.gd")
 const DanceLook = preload("res://scripts/game/freeze_dance/dance_look.gd")
@@ -215,7 +216,7 @@ func _full_round() -> void:
 	_check(game.is_over and game._board.score(0) == 60.0,
 			"a player who dances and holds still in 6 songs ends with 60 points (%.0f s)" % t)
 	_check(t > 60.0 and t < 100.0, "a round lasts about 75 s: %.0f s (6 songs of music, freeze and rest)" % t)
-	_check(game.no_medals, "one player gets no medal (REQ-FD-9)")
+	_check(MedalView.tiers_in(game._menu_box).is_empty(), "one player gets no medal (REQ-FD-9)")
 	var labels: Array = []
 	for l in game._menu_box.find_children("*", "Label", true, false):
 		labels.append(String(l.text).to_upper())
@@ -225,7 +226,8 @@ func _full_round() -> void:
 	var two: Control = await _play(2, {"seed": 4})
 	two._board.add(0, 30)
 	two._finish()
-	_check(not two.no_medals and two.is_over, "two players: the places get medals (REQ-GM-73a)")
+	_check(two.is_over and MedalView.tiers_in(two._menu_box) == ["gold", "silver"],
+			"two players: the places get medals (REQ-GM-73a)")
 	var easy: Control = await _play(1, {"seed": 4, "difficulty": "hard"})
 	_check(easy._rules.level == DanceRules.LEVELS.hard, "the difficulty is a prop of the game (REQ-FD-11)")
 	var a: Control = await _play(1, {"seed": 11})

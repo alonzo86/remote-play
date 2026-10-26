@@ -305,13 +305,13 @@ func draw_leader_chip(ci: CanvasItem) -> void:
 	Shell.leader_chip(ci, Shell.area_width(ci), chips, leader_text())
 
 
-## The match is over: one player gets a medal for the longest rally, more players the winners (REQ-TN-17).
+## The match is over: one player sees the longest rally and no medal, more players the winners (REQ-TN-17, REQ-GM-73).
 func _finish() -> void:
 	for s in play.winners():
 		if participants.has(s):
 			App.server.haptic(s, 400)
 	if play.solo:
-		open_results(_board, Rules.level(difficulty).tiers)
+		open_results(_board)
 		return
 	var names: Array = []
 	for s in play.winners():
@@ -321,7 +321,7 @@ func _finish() -> void:
 	if not names.is_empty():
 		title = Lang.f("result.winner", [" + ".join(names)])
 		team_won = true   # Two winners of a team are a win for the sound, not a tie.
-	open_results(_board, [], title)
+	open_results(_board, title)
 
 
 func _scoreboard() -> Scoreboard:
