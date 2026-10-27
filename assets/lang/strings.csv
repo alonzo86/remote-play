@@ -177,8 +177,8 @@ asteroid_blast.reached_wave,Reached wave %d,הגעתם לגל %d,"Star Shield: t
 registry.pin_pals,PIN PALS,באולינג חברים,"Name of the game Pin Pals: Games screen, game settings, in-game title",
 registry.desc_bowling,"BOWLING WITH FRIENDS, WITH YOUR PHONE AS THE BALL.","באולינג עם חברים, והטלפון הוא הכדור.","Description of Pin Pals: info bar of the Games screen (what the game is, no instructions, issue #78)",
 bowling.rails,RAILS,מעקות,Pin Pals settings view: name of the Rails row,
-bowling.on,ON,פועל,Pin Pals settings view: On value of the Rails row,
-bowling.off,OFF,כבוי,Pin Pals settings view: Off value of the Rails row,
+bowling.with_rails,WITH,עם,Pin Pals settings view: the value of the Rails row when the lane has rails (the gutters are covered),
+bowling.without_rails,WITHOUT,בלי,Pin Pals settings view: the value of the Rails row when the lane has no rails (the default),
 bowling.turn,"%s, your turn!","%s, תורך!","Pin Pals: plate in the top bar while a player bowls, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
 bowling.frame,Frame %d/%d  Ball %d,פריים %d/%d  כדור %d,"Pin Pals: top bar, right side: the frame (of 10) and the ball (1 to 3) that is bowled now","the number sign (%d, %.1f ...) is replaced by a number"
 bowling.hint_slide,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD!",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה!,Pin Pals: hint on a plate over the lane at the start of a turn,
