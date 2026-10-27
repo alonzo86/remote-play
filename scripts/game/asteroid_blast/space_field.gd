@@ -17,6 +17,8 @@ const MAX_LASERS := 4
 const LASER_GAP := 22.0        # Distance between two beams of one ship.
 const WAVE_TIME := 30.0
 const REST_TIME := 5.0
+const GRACE_TIME := 3.0        # After a force field took a hit the ship is safe for this many seconds (issue #137).
+const FLY_OFF_SPEED := 1500.0  # The asteroids that are left at the end of a wave fly off the screen at this speed (issue #136).
 const OUT_TIME := 10.0         # A ship that is out comes back after this many seconds (REQ-AB-13).
 const WAVE_BONUS := 50         # Points for each living ship at the end of wave n: WAVE_BONUS * n.
 const UPGRADE_FIRST := 10.0    # The first upgrade falls after this many seconds of play, then after UPGRADE_MIN to UPGRADE_MAX.
@@ -60,6 +62,7 @@ class Ship:
 	var shield := false
 	var alive := true
 	var out_time := 0.0    # Seconds since the ship was lost.
+	var grace := 0.0       # Seconds left in which asteroids pass through the ship. It blinks and still shoots.
 	var fire_left := 0.0
 
 
@@ -73,6 +76,7 @@ class Asteroid:
 	var hp := 1
 	var age := 0.0         # For the spin of the picture.
 	var look := 0          # Which picture of its size it has.
+	var leaving := false   # The wave is over: it flies off, and beams and ships pass through it.
 
 
 class Beam:
@@ -177,6 +181,8 @@ func tick(dt: float, rng: RandomNumberGenerator, tilts: Dictionary, running := t
 			steer(s, float(tilts.get(s.slot, 0.0)), dt)
 	if not running:
 		return
+	for s in ships.values():
+		s.grace = maxf(0.0, s.grace - dt)
 	_tick_returns(dt)
 	_tick_waves(dt, rng)
 	_fire(dt)
@@ -225,6 +231,8 @@ func _tick_waves(dt: float, rng: RandomNumberGenerator) -> void:
 			for s in ships.values():
 				if s.alive:
 					scores[s.slot] += WAVE_BONUS * wave
+			for a in asteroids:
+				a.leaving = true   # REQ-AB-8: the screen is empty in the rest.
 			events.append({"t": "wave_end", "wave": wave})
 	elif phase_time >= REST_TIME:
 		phase = Phase.WAVE
@@ -285,6 +293,8 @@ func _fire(dt: float) -> void:
 func _move_asteroids(dt: float) -> void:
 	for a in asteroids:
 		a.age += dt
+		if a.leaving:
+			a.vy = maxf(a.vy, FLY_OFF_SPEED)
 		a.x += a.vx * dt
 		a.y += a.vy * dt
 		if a.x < a.radius and a.vx < 0.0 or a.x > REF_AREA.x - a.radius and a.vx > 0.0:
@@ -297,7 +307,7 @@ func _hit_asteroids() -> void:
 	var spent: Array[Beam] = []
 	for b in beams:
 		for a in asteroids:
-			if a.hp > 0 and Vector2(b.x - a.x, b.y - a.y).length() <= a.radius + BEAM_R:
+			if a.hp > 0 and not a.leaving and Vector2(b.x - a.x, b.y - a.y).length() <= a.radius + BEAM_R:
 				a.hp -= 1
 				spent.append(b)
 				if a.hp <= 0:
@@ -372,14 +382,17 @@ func _ship_contacts() -> void:
 	var gone: Array[Asteroid] = []
 	var popped := {}
 	for a in asteroids:
+		if a.leaving:
+			continue
 		for s in ships.values():
-			if not s.alive:
+			if not s.alive or (s.grace > 0.0 and not popped.has(s.slot)):
 				continue
 			if Vector2(a.x - s.x, a.y - SHIP_Y).length() <= a.radius + SHIP_R * 0.8:
 				if s.shield or popped.has(s.slot):
 					if s.shield:
 						events.append({"t": "shield_pop", "slot": s.slot, "x": a.x, "y": a.y})
 					s.shield = false
+					s.grace = GRACE_TIME
 					popped[s.slot] = true
 					gone.append(a)
 				else:
