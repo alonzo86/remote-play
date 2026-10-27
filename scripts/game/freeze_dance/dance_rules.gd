@@ -1,5 +1,5 @@
 extends RefCounted
-## The rules of Freeze Dance: the songs, the check of the motion of a phone, the points, the players that sit out and the
+## The rules of Freeze Dance: the songs, the check of the motion of a phone, the points, the players that move and the
 ## light tiles of the floor (REQ-FD-1 to 8, 11, 12). Pure logic: it draws nothing and uses no nodes, so the rules can be tested
 ## without a screen. The game feeds it the energy of every phone each tick and reads the events that come back.
 
@@ -28,13 +28,11 @@ const LEVELS := {
 class Dancer:
 	var energy := 0.0          # Smoothed.
 	var dance_time := 0.0      # Seconds of dancing in the music of this song.
-	var sit_songs := 0         # Songs that the player still sits out, counted from the next song.
-	var sitting := false       # Sits out this song.
-	var moved := false         # Moved in the freeze of this song.
+	var moved := false         # Moved in the freeze of this song: out of the floor until the next song (REQ-FD-8).
 
 	## True when the player is on the floor and is checked.
 	func plays() -> bool:
-		return not sitting and not moved
+		return not moved
 
 var level := LEVELS.medium
 var phase: Phase = Phase.MUSIC
@@ -100,7 +98,7 @@ func is_checking() -> bool:
 	return phase == Phase.FREEZE and phase_time >= float(level.grace)
 
 
-## True when the player is out of the floor now: sits out this song or has moved in it (REQ-FD-8).
+## True when the player is out of the floor now: has moved in the freeze of this song (REQ-FD-8).
 func is_out(slot: int) -> bool:
 	var d: Dancer = dancers.get(slot)
 	return d != null and not d.plays()
@@ -121,10 +119,6 @@ func back_in(slot: int) -> float:
 			left = phase_left() + REST
 		_:
 			left = phase_left()
-	if d.moved:   # Moved in this freeze: the next song is the one that is skipped.
-		returns = song + 2
-		if song < SONGS:
-			left += music_lengths[song] + float(level.freeze) + REST
 	return left if returns <= SONGS else -1.0
 
 
@@ -159,7 +153,6 @@ func tick(delta: float, energies: Dictionary) -> Array:
 					var d: Dancer = dancers[s]
 					if d.plays() and d.energy > float(level.still_limit):
 						d.moved = true
-						d.sit_songs = 1
 						events.append({"type": "moved", "slot": s})
 			if phase_time >= float(level.freeze):
 				for s in dancers:
@@ -182,14 +175,11 @@ func tick(delta: float, energies: Dictionary) -> Array:
 	return events
 
 
-## The start of a song: the players that sit out are marked, the others begin with no dance.
+## The start of a song: every player is back on the floor with no dance.
 func _begin_song() -> void:
 	for s in dancers:
 		var d: Dancer = dancers[s]
 		d.moved = false
-		d.sitting = d.sit_songs > 0
-		if d.sitting:
-			d.sit_songs -= 1
 		d.dance_time = 0.0
 
 

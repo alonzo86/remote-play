@@ -177,7 +177,7 @@ func _recorder() -> RefCounted:
 	return load("res://tests/rec_haptics.gd").new()
 
 
-## REQ-FD-6, 8, 14: a move, the bench, the buzz, the sit-out song and the return.
+## REQ-FD-6, 8, 14: a move, the bench, the buzz, the return in the next song.
 func _move_and_bench() -> void:
 	print("freeze: a move and the bench")
 	var game: Control = await _play(2, {"seed": 4})
@@ -191,7 +191,7 @@ func _move_and_bench() -> void:
 	_check(rec.ms_of(1) == [80] and rec.ms_of(0).is_empty() and "dance_out" in _sfx,
 			"the mover buzzes once, 80 ms, and the soft effect plays (REQ-FD-8, 14): %s" % str(rec.log))
 	_check(game._bench() == [1], "the mover is on the bench")
-	_check(game._rules.back_in(1) > 10.0 and game._rules.back_in(1) < 25.0, "the bench says how many seconds until it dances again")
+	_check(game._rules.back_in(1) > 0.0 and game._rules.back_in(1) < 6.0, "the bench says how many seconds until it dances again")
 	game._request_redraw()
 	await sim.frames(2)
 	_check(true, "a frame with the bench draws without an error")
@@ -211,14 +211,11 @@ func _move_and_bench() -> void:
 	_step(game, float(game._rules.level.freeze) + DanceRules.REST, {0: 0.0, 1: 5.0})
 	_check(game._board.score(1) == 20.0 and game._board.score(0) == 10.0,
 			"the mover keeps its points and gets none for this song (REQ-FD-8)")
-	_check(game._rules.song == 2 and game._bench() == [1], "the next song starts and the mover is still on the bench")
-	_to_freeze(game, {0: 4.0, 1: 5.0})
-	_step(game, float(game._rules.level.freeze) + 0.2, {0: 0.0, 1: 5.0})
-	_check(game._board.score(1) == 20.0 and game._board.score(0) == 20.0,
-			"a sitting player scores nothing, and its phone is not checked (REQ-FD-8)")
-	_step(game, DanceRules.REST + 0.1, {})
-	_check(game._rules.song == 3 and game._bench().is_empty() and game._rules.dancers[1].plays(),
-			"in the song after that the player dances again")
+	_check(game._rules.song == 2 and game._bench().is_empty() and game._rules.dancers[1].plays(),
+			"the next song starts and the mover is back on the floor (REQ-FD-8)")
+	_to_freeze(game, {0: 4.0, 1: 4.0})
+	_step(game, float(game._rules.level.freeze) + 0.2, {0: 0.0, 1: 0.0})
+	_check(game._board.score(1) == 30.0 and game._board.score(0) == 20.0, "in the next song the player scores again")
 
 
 ## The pause stops the round: no time, no event.
