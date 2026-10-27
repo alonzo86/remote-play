@@ -88,6 +88,11 @@ func _answers() -> void:
 			"both phones get the safety card and none has answered")
 	_check(view.start_button.disabled and view.reason_label.text == Lang.t("game_settings.waiting_phones").to_upper(),
 			"Start is off and the line says WAITING FOR PHONES")
+	var tv_line: String = load("res://scripts/ui/ui_kit.gd").shown("swing.tv_line")
+	var line_shown := false
+	for l in view.find_children("*", "Label", true, false):
+		line_shown = line_shown or (l.text == tv_line and l.is_visible_in_tree())
+	_check(line_shown, "the settings view of a swing game shows the safety line under the rows (Test 23 step 14a)")
 	# Issue #121: a disabled Start cannot be reached. Down from the last row goes to Back, and Start takes no focus.
 	var last: Control = view.rows[-1]
 	last.grab_focus()

@@ -98,3 +98,4 @@ tests/hockey_bot.gd|tv|ROBO in simulated matches and shots: own goals, defence (
 tests/smoke_air_hockey.gd|tv|Air Hockey: enroll, tilt, goals, ROBO, pause, leave, results|scenario
 tests/tower_rules.gd|controller|Tower Builder rules: landing, toppling, turn time|unit
 tests/smoke_tower.gd|tv|Tower Builder: turns, drop, miss, topple, leave, results, solo medal|scenario
+tests/frame_cost.gd|tv|frame cost of every game with 4 phones on Hard (Tests 14, 15, 22, 23, 27, 28, 30, 31, 32)|scenario
