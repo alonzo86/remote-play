@@ -154,7 +154,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	var o: Vector2 = fit.origin
 	BlastLook.draw_sky(ci, size)
 	BlastLook.draw_stars(ci, _time)
-	BlastLook.draw_planet(ci, Vector2(size.x - 260.0, 300.0), 90.0)
+	BlastLook.draw_planet(ci, Vector2(size.x - 260.0, 300.0), 50.0)
 	for a in field.asteroids:
 		var tex := _picture("rock%d_%d_%d" % [a.size, a.look, roundi(k * 100.0)],
 				BlastLook.asteroid_image.bind(a.size, a.look, a.radius * k))
