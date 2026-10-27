@@ -11,7 +11,7 @@ const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
-const RESULT_TIME := 1.8        # How long the banner of a ball shows. A press on A of any phone ends it at once.
+const RESULT_TIME := 1.8        # How long the banner of a ball shows.
 const END_DELAY := 2.0          # After the last ball the lane stays this long, then the result menu opens (REQ-BW-1).
 const HINT_TIME := 12.0         # The hint shows this long at the start of a turn, then again after a weak swing.
 const WEAK_HINT_TIME := 3.0
@@ -56,8 +56,6 @@ var _plate_left := 0.0
 var _aim_slot := -1             # The player whose aim is in `_aim`: the same player keeps it for ball 2 (REQ-BW-4).
 var _probe := SwingDetector.new()   # Sees a swing made with a finger on the strip, to show the hint.
 var _last_tick_ms := 0
-var _a_pressed := false
-var _a_down := {}               # slot -> A was down at the last tick.
 var _last_event := {}
 
 
@@ -82,7 +80,6 @@ func _on_player_left(slot: int) -> void:
 	var was_turn := rules.current_slot() == slot
 	rules.remove_player(slot)
 	_board.remove(slot)
-	_a_down.erase(slot)
 	if is_over:
 		return
 	if rules.game_over():
@@ -130,7 +127,6 @@ func _game_tick(delta: float) -> void:
 	_publish_turn()
 	_phase_time += delta
 	_plate_left = maxf(0.0, _plate_left - delta)
-	_poll_buttons()
 	_weak_left = maxf(0.0, _weak_left - delta)
 	_lift_left = maxf(0.0, _lift_left - delta)
 	match phase:
@@ -139,7 +135,7 @@ func _game_tick(delta: float) -> void:
 		Phase.ROLL:
 			_tick_roll(delta)
 		Phase.RESULT:
-			if _phase_time >= RESULT_TIME or _a_pressed:
+			if _phase_time >= RESULT_TIME:
 				_after_result()
 		Phase.END:
 			_end_left -= delta
@@ -158,18 +154,6 @@ func _publish_turn() -> void:
 			App.server.send_turn(s, 1, "")
 		else:
 			App.server.send_turn(s, 2, player(on).player_name)
-
-
-## Polls A on every tick, in every phase, so a button held since an earlier phase is not read as a new press. Sets
-## `_a_pressed`: true when a press on A starts on any phone this tick: it skips the banner (REQ-BW-11).
-func _poll_buttons() -> void:
-	var pressed := false
-	for s in participants:
-		var down := player(s).is_down(Protocol.BTN_A)
-		if down and not _a_down.get(s, false):
-			pressed = true
-		_a_down[s] = down
-	_a_pressed = pressed
 
 
 func _tick_aim(delta: float) -> void:

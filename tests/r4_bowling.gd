@@ -10,6 +10,7 @@ const SimInput = preload("res://tests/sim_input.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const Registry = preload("res://scripts/game/registry.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const BowlingRules = preload("res://scripts/game/bowling/bowling_rules.gd")
 const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
@@ -65,7 +66,7 @@ func _run() -> void:
 	await _totals()
 	await _last_frame()
 	await _rails()
-	await _held_a()
+	await _no_a()
 	await _turn_order()
 	await _phones_and_scores()
 	await _winner_and_menu()
@@ -274,21 +275,24 @@ func _turn_order() -> void:
 	_check(later == "", "8a: 2.0 s into the turn (1.5 s plate) the plate is gone ('%s')" % later)
 
 
-## A held A does not skip the banner of a ball: the button is polled in every phase, so only a new press counts (REQ-BW-11).
-func _held_a() -> void:
-	print("held A")
+## Issue #143: the pad has no A button, and a press on A does nothing: the banner of a ball lasts its time (REQ-BW-11).
+func _no_a() -> void:
+	print("no A")
 	var game := await _new_game(2)
-	game.player(0).buttons = Protocol.BTN_A
-	game._game_tick(DT)   # In the AIM phase: A goes down.
+	game._game_tick(DT)
 	game._before = game.sim.standing_mask()
 	game._roll_done()
 	game._game_tick(DT)
-	_check(game.phase == game.Phase.RESULT, "11: A held since the aim does not skip the banner of the ball")
+	game.player(0).buttons = Protocol.BTN_A
+	game._game_tick(DT)
 	game.player(0).buttons = 0
 	game._game_tick(DT)
 	game.player(0).buttons = Protocol.BTN_A
 	game._game_tick(DT)
-	_check(game.phase == game.Phase.AIM, "11: a new press on A skips the banner")
+	_check(game.phase == game.Phase.RESULT, "11: a press on A does not skip the banner of the ball")
+	_check(Registry.find("bowling").pad.is_empty(), "11: the pad of Pin Pals has no A, no B and no Recenter box (REQ-GM-37a)")
+	game._game_tick(game.RESULT_TIME)
+	_check(game.phase == game.Phase.AIM, "11: the banner ends after its time")
 
 
 ## 9a to 9c, 8c: the phones are told whose turn it is, buzz once, and show their own score and place.
