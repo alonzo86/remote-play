@@ -196,7 +196,9 @@ func _draw_ship(ci: CanvasItem, s: SpaceField.Ship, o: Vector2, k: float) -> voi
 	var frame := int(_time * 10.0) % 2
 	var tex := _picture("ship_%d_%d" % [s.slot, frame], BlastLook.ship_image.bind(player(s.slot).color, frame))
 	# The hull is the top 14 of the picture; the middle of the hull is the place of the ship.
-	_draw_picture(ci, tex, p + Vector2(0.0, (float(tex.get_height()) * 0.5 - 8.0) * Shell.WORLD_PIXEL))
+	var blink_off: bool = s.grace > 0.0 and int(_time * 6.0) % 2 == 0   # A ship in its grace time blinks (issue #137).
+	if not blink_off:
+		_draw_picture(ci, tex, p + Vector2(0.0, (float(tex.get_height()) * 0.5 - 8.0) * Shell.WORLD_PIXEL))
 	if s.shield:
 		BlastLook.draw_shield(ci, p, (SpaceField.SHIP_R + 10.0) * k, _time)
 
