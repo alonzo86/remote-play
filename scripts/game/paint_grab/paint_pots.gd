@@ -35,7 +35,7 @@ func reset() -> void:
 
 ## Moves the time. `blob_cells` are the tiles under the blobs, a pot
 ## does not land near them (REQ-PG-23). Returns the new pot or null.
-func tick(dt: float, rng: RandomNumberGenerator, cols: int, rows: int, blob_cells: Array) -> Pot:
+func tick(dt: float, rng: RandomNumberGenerator, cols: int, rows: int, blob_cells: Array, allowed := Callable()) -> Pot:
 	for i in range(pots.size() - 1, -1, -1):
 		pots[i].age += dt
 		if pots[i].age >= LIFE:
@@ -45,16 +45,16 @@ func tick(dt: float, rng: RandomNumberGenerator, cols: int, rows: int, blob_cell
 	_timer -= dt
 	if _timer > 0.0:
 		return null
-	var pot := _land(rng, cols, rows, blob_cells)
+	var pot := _land(rng, cols, rows, blob_cells, allowed)
 	_timer = rng.randf_range(GAP_MIN, GAP_MAX) if pot != null else 1.0   # No free tile: try again in a second.
 	return pot
 
 
-func _land(rng: RandomNumberGenerator, cols: int, rows: int, blob_cells: Array) -> Pot:
+func _land(rng: RandomNumberGenerator, cols: int, rows: int, blob_cells: Array, allowed: Callable) -> Pot:
 	var free: Array[Vector2i] = []
 	for y in rows:
 		for x in cols:
-			var ok := true
+			var ok := not allowed.is_valid() or bool(allowed.call(Vector2i(x, y)))   # `allowed` limits the tiles (the picture).
 			for b in blob_cells:
 				if maxi(absi(b.x - x), absi(b.y - y)) < FAR:
 					ok = false

@@ -44,6 +44,8 @@ func _play(difficulty := "medium", seed_value := 7) -> Control:
 	for p in _app.server.players:
 		SimInput.set_tilt(p, Vector2.ZERO)
 	var game := SimInput.start_game(_app, _game_script, {"difficulty": difficulty, "seed": seed_value})
+	game._picture.fill(1)   # These checks are about rolling and painting: every tile is a picture tile (REQ-PG-24 has its own test).
+	game._picture_total = game._picture.size()
 	SimInput.to_play(game, func() -> bool: return game._round.is_counting())
 	return game
 

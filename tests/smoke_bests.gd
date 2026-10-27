@@ -136,7 +136,9 @@ func _round() -> void:
 	game._board.set_score(2, 9.0)    # A guest sends nothing.
 	game.open_results(game._board)
 	await _frames(20)
-	_check(got[0] == [["paint_grab|medium", 12]], "a finished player with a profile gets the key and the score: %s" % str(got[0]))
+	var twelve_tiles: int = 12 * 100 / game._picture_total
+	_check(got[0] == [["paint_grab|medium", twelve_tiles]],
+			"a finished player with a profile gets the key and the percent of the picture: %s" % str(got[0]))
 	_check(got[1].is_empty(), "a score of 0 sends nothing")
 	_check(got[2].is_empty(), "a guest gets nothing")
 	got[0].clear()

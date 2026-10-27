@@ -659,6 +659,7 @@ difficulty values are first guesses. "Full tilt" means the phone is tilted about
 11a. **Pictures (2026-10-16, REQ-PG-22).** Play 5 rounds in a row. After 10 seconds of each round (the floor is still mostly empty), take a photo. Check: a second person who has the list of the 30 names (`SHAPES` in `paint_picture.gd`) names the picture correctly in at least 4 of the 5 rounds, and the 5 pictures are not all the same.
 11b. At the end of the same rounds (the time is up, or the picture is painted), take a photo. Check: the same second person names the same picture in at least 4 of the 5 rounds. (REQ-PG-22)
 11g. Let the child of step 7 play 2 rounds with pots, without a hint about pots. Check: the child rolls over at least 1 pot within 10 seconds after it landed, and no picture makes the child upset (the child does not cover the eyes, cry or ask to stop). (REQ-PG-9, 22, 23)
+11h. **Paintable tiles (2026-10-27, REQ-PG-24, issue #130).** At the start of 5 rounds (nothing painted), from 3 m, ask a tester: "Where can you paint?". Check: the tester points at the lighter tiles (the picture) and not at the dark blocks in 5 of 5 rounds, and the ghost of the picture is faded (the lighter tiles are not brighter than the player colors).
 
 Items 1, 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-14-1, A-14-2, A-14-9). Items 3a to 3c, 4a, 4c, 5a to 5c, 6a to 6c, 10a, 10c and 11c to 11f moved there too (A-14-3, A-14-4, A-14-5, A-14-6, A-14-10, A-14-11). Item 10b was split: the machine checks the rule (A-14-10), and the part that needs a person is now 10d. Item 4b was split earlier into the rule (A-14-4) and 4c; both are automated now. The numbers of the other items do not change.
 
@@ -673,6 +674,7 @@ Items 1, 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-14-1, A
 | 11a | Photos at 10 s of 5 rounds; the names that were given | Not run | | | Added 2026-10-16 (REQ-PG-22, 23). The shapes, the colors and the pot values are first guesses. |
 | 11b | Photos at the end of 5 rounds; the names that were given | Not run | | | Added 2026-10-16 (REQ-PG-22, 23). The shapes, the colors and the pot values are first guesses. |
 | 11g | Note: the child, the time to the first pot, what happened | Not run | | | Added 2026-10-16 (REQ-PG-22, 23). The shapes, the colors and the pot values are first guesses. |
+| 11h | Note: the answers of the tester in 5 rounds | Not run | | | Added 2026-10-27 (issue #130). The faded values (0.22 to 0.34) are first guesses. |
 
 Measurements (not a test; no pass or fail). Write these values in the Notes column of the steps above. They decide the first tuning values of the game.
 

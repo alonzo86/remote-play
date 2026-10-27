@@ -44,6 +44,7 @@ const START_SHARE := 0.3
 const STAR_COUNT := 48
 const FLOOR_COLOR := Color("2a1070")
 const EMPTY_TILE := Color("3a1c97")
+const OUTSIDE_TILE := Color("1d0b4d")   # A tile outside the picture: a dark block, nobody can paint it (REQ-PG-24).
 const TILE_GAP := Shell.WORLD_PIXEL   # One world pixel between two tiles.
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps it for Restart.
@@ -61,6 +62,7 @@ var _level := {}
 var _stars := PackedVector2Array()
 var _rng := RandomNumberGenerator.new()
 var _pots := PaintPots.new()
+var _picture_total := 0              # Tiles that belong to the picture, the only ones that can be painted (REQ-PG-24).
 var _picture := PackedInt32Array()   # The part of the picture on each tile (PaintPicture), row after row (REQ-PG-22).
 var _pot_textures := {}
 
@@ -77,6 +79,10 @@ func _game_ready() -> void:
 		_rng.randomize()
 	_picture = PaintPicture.kinds_for(PaintPicture.pick(_rng), floor_map.cols, floor_map.rows, _rng.randf() < 0.5,
 			_rng.randf() < 0.5)
+	_picture_total = 0
+	for k in _picture:
+		if k != PaintPicture.EMPTY:
+			_picture_total += 1
 	_board = Scoreboard.new(participants)
 	var middle := floor_map.size() * 0.5
 	for i in participants.size():
@@ -135,7 +141,7 @@ func _tick_pots(delta: float) -> void:
 	var cells := []
 	for s in _bodies:
 		cells.append(floor_map.cell_at(_bodies[s].pos))
-	_pots.tick(delta, _rng, floor_map.cols, floor_map.rows, cells)
+	_pots.tick(delta, _rng, floor_map.cols, floor_map.rows, cells, is_paintable)
 	for s in _bodies:
 		var c: Vector2i = floor_map.cell_at(_bodies[s].pos)
 		var pot := _pots.take_at(c) if c.x >= 0 else null
@@ -145,6 +151,8 @@ func _tick_pots(delta: float) -> void:
 
 func _apply_pot(slot: int, pot: PaintPots.Pot) -> void:
 	for c in PaintPots.patch(pot.kind, pot.cell, floor_map.cols, floor_map.rows):
+		if not is_paintable(c):
+			continue   # A pot paints the picture tiles of its patch only (REQ-PG-24).
 		if floor_map.paint(c, slot) != PaintFloor.Result.SAME:
 			_pops[c.y * floor_map.cols + c.x] = POT_POP_TIME
 	for s in _bodies:
@@ -165,11 +173,18 @@ func _lead_sound() -> void:
 	_leader = w[0]
 
 
+## True for a tile that belongs to the picture: only those tiles can be painted and count (REQ-PG-24).
+func is_paintable(c: Vector2i) -> bool:
+	return c.x >= 0 and _picture[c.y * floor_map.cols + c.x] != PaintPicture.EMPTY
+
+
 ## REQ-PG-4: the blob paints the tile under its middle.
 func _paint_under(slot: int) -> void:
 	var c := floor_map.cell_at(_bodies[slot].pos)
 	if c.x < 0:
 		return
+	if not is_paintable(c):
+		return   # REQ-PG-24: a tile outside the picture stays as it is.
 	var before := floor_map.owner_of(c)
 	var result := floor_map.paint(c, slot)
 	if result == PaintFloor.Result.SAME:
@@ -195,7 +210,12 @@ func _finish() -> void:
 ## "34 tiles (23%)" for the result list.
 func _score_text(tiles: float) -> String:
 	return Lang.f("paint_grab.tiles", [int(tiles),
-			int(tiles) * 100 / floor_map.total()])   # The percent is rounded down (REQ-PG-21).
+			percent_of(int(tiles))])   # The percent is rounded down (REQ-PG-21).
+
+
+## The share of the picture that `tiles` tiles are, in percent, rounded down (REQ-PG-21).
+func percent_of(tiles: int) -> int:
+	return tiles * 100 / maxi(_picture_total, 1)
 
 
 # ---- Drawing ----
@@ -253,6 +273,9 @@ func _draw_tile(ci: CanvasItem, c: Vector2i, origin: Vector2, k: float) -> void:
 	var owner_slot := floor_map.owner_of(c)
 	var rect := _tile_rect(c, origin, k, _pops[c.y * floor_map.cols + c.x] > 0.0)
 	var part: int = _picture[c.y * floor_map.cols + c.x]
+	if part == PaintPicture.EMPTY:
+		ci.draw_rect(rect, OUTSIDE_TILE)
+		return
 	ci.draw_rect(rect, PaintLook.ghost(part, EMPTY_TILE) if owner_slot == PaintFloor.NONE
 			else PaintLook.painted(part, player(owner_slot).color))
 
@@ -301,3 +324,8 @@ func _draw_hud() -> void:
 
 func best_key() -> String:
 	return "paint_grab|%s" % difficulty
+
+
+## The personal best is the percent of the picture, so that a small and a big picture are fair (REQ-PG-31).
+func best_value(score: float) -> int:
+	return percent_of(int(score))
