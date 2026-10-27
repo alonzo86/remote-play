@@ -28,7 +28,7 @@ func _initialize() -> void:
 	_dancing_and_points()
 	_grace_and_moves()
 	_hard_stop()
-	_sit_out()
+	_mover()
 	_back_in()
 	_end()
 	_levels()
@@ -237,8 +237,8 @@ func _hard_stop() -> void:
 	_check(_of(ev2, "moved").size() == 1 and int(_of(ev2, "moved")[0].slot) == 0, "a player who goes on shaking still moves")
 
 
-func _sit_out() -> void:
-	print("dance: sit out")
+func _mover() -> void:
+	print("dance: a mover")
 	var r := _rules("medium", [0, 1])
 	var ev := []
 	_until(r, "freeze", {0: 4.0, 1: 4.0}, ev)
@@ -256,6 +256,11 @@ func _sit_out() -> void:
 	var ev3 := _run(r, float(r.level.freeze), {0: 6.0, 1: 0.0})
 	_check(_of(ev3, "moved").size() == 1 and int(_of(ev3, "moved")[0].slot) == 0,
 			"in the next song the player is checked again and moves again")
+	_until(r, "song", {0: 0.0, 1: 0.0})
+	var ev4 := []
+	_until(r, "freeze", {0: 4.0, 1: 4.0}, ev4)
+	var held := _of(_run(r, float(r.level.freeze) + 0.2, {0: 0.0, 1: 0.0}), "held")
+	_check(held.size() == 2 and int(held[0].points) == 10, "a player who moved in an earlier song holds still and scores again")
 	var r2 := _rules("medium", [0])
 	r2.remove(0)
 	_check(r2.dancers.is_empty(), "a player that leaves is removed")

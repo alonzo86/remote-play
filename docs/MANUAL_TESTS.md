@@ -1444,7 +1444,7 @@ New game (2026-10-24). It was tested only with made-up sensor values. Every numb
 5d. Hold the phone still in 3 different poses: flat on the palm, upright like a camera, and upside down, 3 stops each. Check: the dancer is not moved off the floor in 8 of 9 stops. (REQ-FD-4)
 10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once. Check: the child wiggles so that its dancer dances within 15 s after Start, with no help. (REQ-FD-15)
 10b. Same child. Check: the child holds still in at least 1 stop out of 3 (the score grows at least once), with no help. (REQ-FD-15)
-10c. Same child. Check: the child gets no points for at most 1 song of 3 for a move (and is back on the floor at the next song), and does not ask to stop or cry (yes or no). (REQ-FD-8, REQ-GM-83)
+10c. Same child. After a move at FREEZE, check: the child plays on in the next song and does not ask to stop or cry (yes or no). (REQ-FD-8, REQ-GM-83)
 10d. After the round, ask: "Play again?". Check: the child says yes.
 11. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-31-11, issue #132).
 12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the dancer in a given color when you say "mark". Check: the tester finds it in 5 of 5 tries, also when the floor is lit. Check: a dancer is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e, REQ-FD-12)

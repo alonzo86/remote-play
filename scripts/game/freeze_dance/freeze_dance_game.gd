@@ -278,7 +278,8 @@ func _draw_bench_plates() -> void:
 		var y := feet.y - 40.0
 		var p := player(s)
 		Shell.chip(self, Vector2(x, y - 20.0), slot_label(s), p.color, BENCH_W - 40.0, 64.0, p.avatar)
-		var back_in := Lang.f("freeze_dance.back_in", [ceili(_rules.back_in(s))])
-		var text_w := UiTheme.font().get_string_size(back_in.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_BODY).x
-		Shell.text(self, Vector2(bench_text_x(x, text_w, size.x), y + 76.0), back_in, UiTheme.SIZE_BODY, UiTheme.TEXT)
+		if _rules.back_in(s) >= 0.0:   # A mover in the last song has no time (REQ-FD-8).
+			var back_in := Lang.f("freeze_dance.back_in", [ceili(_rules.back_in(s))])
+			var text_w := UiTheme.font().get_string_size(back_in.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_BODY).x
+			Shell.text(self, Vector2(bench_text_x(x, text_w, size.x), y + 76.0), back_in, UiTheme.SIZE_BODY, UiTheme.TEXT)
 		row += 1
