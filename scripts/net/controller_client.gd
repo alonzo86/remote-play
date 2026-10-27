@@ -122,7 +122,7 @@ func send_play(value: bool) -> void:
 	setup_changed.emit()
 
 
-## The player tapped OK on the safety card of a swing game (issue #79): tell the TV, and do not show the card again in this run.
+## The player tapped OK on the safety card of a swing game (issue #79): tell the TV, and do not show the card again for this view.
 func send_swing_ok() -> void:
 	swing_acked = true
 	_send_json({"t": "swing_ok"})
@@ -249,6 +249,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			color = Color(String(msg.get("color", "#ffffff")))
 			_token = String(msg.get("token", ""))
 			tv_name = String(msg.get("name", "TV"))
+			swing_acked = false   # A new session (another TV or slot) never inherits an earlier answer (issue #148).
 			phase = String(msg.get("phase", "connect"))
 			recenter_button = bool(msg.get("rc", true))
 			pad_buttons = String(msg.get("ab", "ab"))
