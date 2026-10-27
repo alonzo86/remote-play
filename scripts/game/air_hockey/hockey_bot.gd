@@ -10,13 +10,13 @@ const Sim = preload("res://scripts/game/air_hockey/air_hockey_sim.gd")
 const LEVELS := {
 	"easy": {"reaction": 0.5, "max_tilt": 0.35, "aim_error": 250.0,
 			"defend_error": 260.0, "attack": 0.3,
-			"attack_speed": 260.0, "idle": 2.0},
+			"attack_speed": 400.0, "idle": 2.0},
 	"medium": {"reaction": 0.3, "max_tilt": 0.5, "aim_error": 200.0,
 			"defend_error": 60.0, "attack": 0.5,
-			"attack_speed": 520.0, "idle": 1.2},
+			"attack_speed": 780.0, "idle": 1.2},
 	"hard": {"reaction": 0.07, "max_tilt": 1.0, "aim_error": 60.0,
 			"defend_error": 25.0, "attack": 0.95,
-			"attack_speed": 900.0, "idle": 0.5},
+			"attack_speed": 1300.0, "idle": 0.5},
 }
 const DEFEND_GAP := 100.0       # The paddle waits this far from its goal line, beyond its radius.
 const GOAL_REACH := 170.0       # The paddle keeps this close to the middle of its goal (up and down).
@@ -108,7 +108,7 @@ func _attack_target(puck: Vector2, pad: Vector2) -> Vector2:
 	if lined_up:
 		return puck + dir * 40.0
 	# The straight way to the point behind the puck must not brush the puck: a touch from the wrong side sends it the wrong way.
-	var keep_off := Sim.PUCK_R + Sim.PADDLE_R + 30.0
+	var keep_off := Sim.PUCK_R + Sim.PADDLE_R + 40.0
 	var way := behind - pad
 	var t := clampf((puck - pad).dot(way) / maxf(way.length_squared(), 1.0), 0.0, 1.0)
 	if (pad + way * t).distance_to(puck) < keep_off:
