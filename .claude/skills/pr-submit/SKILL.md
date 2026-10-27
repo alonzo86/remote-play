@@ -10,7 +10,7 @@ Ask before each step that publishes: creating the PR, updating its title or body
 
 1. `gh auth status`: the account for this repo is `alonzo86` (remote `git@github-personal:alonzo86/remote-play.git`). If it is not logged in,
    ask the user to run `gh auth login`. Never use another account.
-2. Run the `run-tests` skill: tests pass, `gdlint scripts tests tools` is clean, and `GODOT=<path> tools/coverage.sh` reports every module at 80% or more.
+2. Run the `run-tests` skill: the suites that your change touches pass and `gdlint scripts tests tools` is clean. Do not run the full coverage (`tools/coverage.sh`) unless the user told you to.
    Report the real numbers. Do not create the PR when one fails. Do not report a pass for a check that did not run.
 3. The branch is the one the session gave you, and the changes are committed and pushed. Requirements files changed with the behavior (REQ-GM-5).
 
@@ -49,8 +49,8 @@ Closes #<ISSUE_NUMBER>        (remove this section when there is no issue)
 What changed and how, in a few lines.
 
 ## Coverage
-Total line coverage and the lowest modules (from `tools/coverage.sh`). Name any module set aside in
-`tools/coverage/exclusions.txt`, with the reason.
+Say that the full coverage was not run (CLAUDE.md), or, when the user asked for it, the total line coverage and the lowest modules
+(from `tools/coverage.sh`). Name any module set aside in `tools/coverage/exclusions.txt`, with the reason.
 
 ## How to Test
 Steps for a reviewer, from the tests the user listed. Add the on-device steps from `docs/MANUAL_TESTS.md` that apply.

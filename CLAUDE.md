@@ -31,9 +31,8 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 ## Tests and coverage
 
-- Every module (each script file in `scripts/`) needs at least 80% line coverage. Check it with `GODOT=<path> tools/coverage.sh`
-  before you create a pull request. The script fails when a module is below 80%. CI runs only the `unit` suites (tier column of `tests/suites.txt`) and the pixel checks, and it only reports the coverage: it never fails on it. So run `tools/coverage.sh` yourself (all suites) before the pull request. A new test suite is added to `tests/suites.txt` only.
-  New or changed code comes with its tests in the same change. Say the total and the lowest modules in the pull request.
+- Every module (each script file in `scripts/`) needs at least 80% line coverage. CI runs only the `unit` suites (tier column of `tests/suites.txt`) and the pixel checks, and it only reports the coverage: it never fails on it. **Do not run the full coverage (`tools/coverage.sh`, about 20 minutes) on your own.** Run it only when the user explicitly tells you to. Before a pull request run `gdlint` and the suites that your change touches (a single suite with `godot --headless --path . --script tests/<x>.gd`), and say in the pull request that the full coverage was not run. When the user asks for it: `GODOT=<path> tools/coverage.sh`, it fails when a module is below 80%; say the total and the lowest modules. A new test suite is added to `tests/suites.txt` only.
+  New or changed code comes with its tests in the same change.
 - Write tests that matter. A test checks a behavior: an input and the result, an error case, a state change, a rule from a
   requirements file. It must fail when that behavior breaks. Do not write a test only to run lines or to raise the number
   (a call without an assertion, a copy of the code in the test). If code has no behavior worth a test, say so and do not test it.
@@ -44,8 +43,8 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 ## Pull requests
 
-- Before you create a pull request: the tests pass, `gdlint` is clean, and `tools/coverage.sh` reports every module at 80% or more
-  (see "Tests and coverage"). Do not create the pull request when it does not.
+- Before you create a pull request: the suites that your change touches pass and `gdlint` is clean. Do not run the full
+  coverage unless the user told you to (see "Tests and coverage"). Do not create the pull request when a check fails.
 - After you create a pull request, always run the `review` skill on it, and post the findings as one comment on the pull request.
   End the comment with the Claude Code footer. If there are no findings, post a short comment that says so, and list what you checked.
 - Do not fix the findings of that review unless the user asks. Tell the user what you found.
