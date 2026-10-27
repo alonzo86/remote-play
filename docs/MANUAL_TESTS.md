@@ -988,13 +988,14 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 9b. Same child. Check: the child moves the ship from the middle to the left side of the screen within 30 s after Start, with no help.
 9c. Same child. Lose the ship of the child on purpose while another ship flies. Check: the child is still at the game 30 s later (does not stop and does not give the phone back). Ask: "Play again?". Check: the child says yes.
 11. Play with 4 phones on Hard until wave 8 or later and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50)
-12b. From 3 m, look for the objects. Check: you can point at all of these: stars, the planet with the ring, an asteroid with craters, a ship, a beam, an upgrade and an explosion.
+12b. From 3 m, look for the objects. Check: you can point at all of these: stars, the far dark world, an asteroid with craters, a ship, a beam, an upgrade and an explosion.
 12f. Take a close photo of the TV (30 cm). Check: the edges of the ship and of an asteroid are steps of square pixels, with no blurred edge and no gradient inside a color area.
 12g. Play with 4 phones. From 3 m, each tester names the color of the ship of a phone you point at. Check: 4 of 4 answers are right for every tester.
 13a. Look at the pad of a phone while the game runs. Check: the pad shows no button A, no button B and no RECENTER box (3 of 3). (REQ-GM-37a, issue #80)
 12h. From 3 m, read aloud the banners "Wave 2", "Wave 2 clear!" and "Next wave in 4", and the points in the bar. Check: no error.
 12i. Watch the rest between two waves, in 3 waves. Check: 1.5 s after the banner "Wave n clear!" shows there is no asteroid on the screen, in 3 of 3 waves. (REQ-AB-8, issue #136)
 12j. Let an asteroid hit a ship that has a force field, 3 times. Check: the ship blinks for 2.5 s to 3.5 s (stopwatch) and shoots meanwhile, and an asteroid that touches it in this time does not blow it up, in 3 of 3 tries. (REQ-AB-12, issue #137)
+12k. From 3 m, play 30 s and ask each of 2 testers what the dark round thing in the top right is ("background" or "target"). Check: both say "background" and nobody shoots at it in 30 s. (REQ-AB-17, issue #138)
 (The music and the effects are checked in Test 18.)
 
 Items 1a, 2a, 2b, 2d, 3a, 3b, 3d, 3e, 4a to 4d, 5a, 5b, 5d, 5e, 5f, 6a to 6d, 7a to 7e, 8a to 8d, 8e, 8f, 10a, 10b and 12d moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-22-1 to A-22-12). Items 2c, 5c, 12a, 12c and 12e were split: the machine checks the numbers (A-22-2, A-22-5, A-22-12), and the part that needs a person is now 2e, 12f, 12g and 12h. Step 3c stays until Alon decides (the step says 2 % to 4 %, the ship is 6.25 % from the screen edge). The numbers of the other items do not change.
@@ -1019,6 +1020,7 @@ Measurements (write down, no pass or fail): the real delay from a tilt to the sh
 | 12h | Note: errors made when reading the texts | Not run | | | |
 | 12i | Note: asteroids seen 1.5 s into the rest (per wave) | Not run | | | Added 2026-10-27 (issue #136). |
 | 12j | Note: the seconds of blinking in 3 tries (stopwatch); whether a touch in this time blew up the ship | Not run | | | Added 2026-10-27 (issue #137). The 3 s is the owner's value. |
+| 12k | Note: the answers of 2 testers; shots at it in 30 s | Not run | | | Added 2026-10-27 (issue #138). The look is the owner's choice A. |
 
 History:
 
