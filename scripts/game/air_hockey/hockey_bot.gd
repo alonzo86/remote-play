@@ -12,7 +12,7 @@ const LEVELS := {
 			"defend_error": 260.0, "attack": 0.3,
 			"attack_speed": 260.0, "idle": 2.0},
 	"medium": {"reaction": 0.3, "max_tilt": 0.5, "aim_error": 200.0,
-			"defend_error": 110.0, "attack": 0.5,
+			"defend_error": 60.0, "attack": 0.5,
 			"attack_speed": 520.0, "idle": 1.2},
 	"hard": {"reaction": 0.07, "max_tilt": 1.0, "aim_error": 60.0,
 			"defend_error": 25.0, "attack": 0.95,
@@ -22,6 +22,9 @@ const DEFEND_GAP := 100.0       # The paddle waits this far from its goal line, 
 const GOAL_REACH := 170.0       # The paddle keeps this close to the middle of its goal (up and down).
 const KP := 6.0                 # Position error (px) to wanted speed (px/s).
 const SPEED_LIMIT := 1000.0
+const APPROACH_SPEED := 60.0    # The puck comes to our goal when it moves toward it faster than this (px/s).
+const DANGER_DEPTH := 190.0     # A puck closer than this to our goal line, in front of the opening, is swept sideways.
+const DANGER_BAND := 30.0       # The band of the opening grows by this much on both sides.
 
 var seat := 1
 var _committed := false         # The bot decided to attack the puck that is on its half now.
@@ -63,7 +66,8 @@ func _brain(seen: Dictionary, now: Dictionary, delta: float) -> Vector2:
 	if _slow_time > float(skill.idle):
 		_committed = true
 	var target := _defend_target(puck, vel)
-	if home and _committed and vel.length() < float(skill.attack_speed):
+	# A puck that comes to our goal is defended, however slow it is: going behind it would leave the goal open (issue #147).
+	if home and _committed and vel.length() < float(skill.attack_speed) and vel.x * away() > -APPROACH_SPEED:
 		target = _attack_target(puck, pad)
 	var want := ((target - pad).limit_length(SPEED_LIMIT / KP)) * KP
 	var pv: Vector2 = now.pad_vel
@@ -75,7 +79,7 @@ func _defend_target(puck: Vector2, vel: Vector2) -> Vector2:
 	var c := Sim.RINK.get_center()
 	var x := Sim.goal_x(seat) + away() * (Sim.PADDLE_R + DEFEND_GAP)
 	var y := lerpf(c.y, puck.y, 0.5)
-	if vel.x * away() < -60.0:   # The puck comes to our goal: stand where it will cross.
+	if vel.x * away() < -APPROACH_SPEED:   # The puck comes to our goal: stand where it will cross.
 		y = _fold(puck.y + vel.y * (x - puck.x) / vel.x) + _defend_noise
 	return Vector2(x, clampf(y, c.y - GOAL_REACH, c.y + GOAL_REACH))
 
@@ -88,10 +92,28 @@ static func _fold(y: float) -> float:
 	return top + (m if m <= span else 2.0 * span - m)
 
 
-## Goes behind the puck (as seen from the other goal), then through it.
+## Goes behind the puck (as seen from the other goal), then through it. A puck in front of our own goal opening cannot be hit
+## toward the other goal: there is no room behind it, and a hit from the side of the field pushes it into our goal (issue #146).
+## It is swept along the goal line, away from the opening, from the side of the middle line.
 func _attack_target(puck: Vector2, pad: Vector2) -> Vector2:
-	var foe := Vector2(Sim.goal_x(1 - seat), Sim.RINK.get_center().y + _aim_noise)
-	var dir := (foe - puck).normalized()
+	var c := Sim.RINK.get_center()
+	var depth := (puck.x - Sim.goal_x(seat)) * away()
+	var dir: Vector2
+	if depth < DANGER_DEPTH and absf(puck.y - c.y) < Sim.GOAL_H * 0.5 + Sim.PUCK_R + DANGER_BAND:
+		dir = Vector2(0.0, 1.0 if puck.y >= c.y else -1.0)
+	else:
+		dir = (Vector2(Sim.goal_x(1 - seat), c.y + _aim_noise) - puck).normalized()
 	var behind := puck - dir * (Sim.PUCK_R + Sim.PADDLE_R + 70.0)
 	var lined_up := (pad - behind).length() < 60.0 or (pad - puck).dot(dir) < 0.0 and absf((pad - puck).cross(dir)) < 50.0
-	return puck + dir * 40.0 if lined_up else behind
+	if lined_up:
+		return puck + dir * 40.0
+	# The straight way to the point behind the puck must not brush the puck: a touch from the wrong side sends it the wrong way.
+	var keep_off := Sim.PUCK_R + Sim.PADDLE_R + 30.0
+	var way := behind - pad
+	var t := clampf((puck - pad).dot(way) / maxf(way.length_squared(), 1.0), 0.0, 1.0)
+	if (pad + way * t).distance_to(puck) < keep_off:
+		var side := dir.orthogonal()
+		if (pad - puck).dot(side) < 0.0:
+			side = -side
+		return puck + side * (keep_off + 40.0) - dir * 40.0
+	return behind

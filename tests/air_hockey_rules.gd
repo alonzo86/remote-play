@@ -273,6 +273,16 @@ func _serve() -> void:
 	for i in 60:
 		sim.step(DT, [Vector2.ZERO, Vector2.ZERO])
 	_check(sim.puck_pos.x > before.x, "then the puck moves")
+	# Issue #146: the puck is solid for a mallet while it waits. A mallet that drives into it stops at its edge, so the puck is not
+	# hit away from the wrong side when the wait ends.
+	var solid := Sim.new()
+	solid.reset(1)
+	solid.paddles[1].pos = solid.puck_pos + Vector2(Sim.PADDLE_R + Sim.PUCK_R + 150.0, 0.0)
+	for i in 50:
+		solid.step(DT, [Vector2.ZERO, Vector2(-1.0, 0.0)])
+	var gap: float = solid.paddles[1].pos.x - solid.puck_pos.x
+	_check(solid.puck_vel == Vector2.ZERO and solid.wait > 0.0 and gap >= Sim.PADDLE_R + Sim.PUCK_R - 0.5,
+			"a mallet that drives into the waiting puck stops at its edge (%.0f px from it)" % gap)
 
 
 class TiltBot extends "res://scripts/game/bot.gd":
@@ -400,7 +410,8 @@ func _levels() -> void:
 		total[d] = [novice, robo]
 		print("    %s: the novice scored %d, ROBO scored %d" % [d, novice, robo])
 	_check(total.easy[0] + total.easy[1] >= 10, "matches have goals: nobody waits for ever (the bot plays a slow puck on its half)")
-	_check(total.easy[0] >= 3 * total.easy[1] and total.easy[0] >= 20,
+	_check(total.easy[0] >= 3 * total.easy[1] and total.easy[0] >= 10,   # Was 20 when ROBO still gave away own goals (issue #146).
+
 			"Easy: a player that only chases the puck scores most of the goals (REQ-GM-96)")
 	_check(total.hard[1] > 3 * total.hard[0], "Hard: ROBO beats that player clearly")
 	_check(total.medium[1] > total.easy[1] and total.hard[1] > total.medium[1], "ROBO scores more on each higher level")

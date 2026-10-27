@@ -82,6 +82,7 @@ func _step_once(dt: float, tilts: Array, ev: Dictionary) -> void:
 		paddles[i].step(dt, tilts[i], half(i))
 	if wait > 0.0:
 		wait -= dt
+		_keep_out(puck_pos)
 		return
 	puck_vel *= exp(-PUCK_DAMPING * dt)
 	puck_pos += puck_vel * dt
@@ -97,6 +98,19 @@ func _step_once(dt: float, tilts: Array, ev: Dictionary) -> void:
 			ev.goal = 1
 		elif puck_pos.x > RINK.end.x + PUCK_R:
 			ev.goal = 0
+
+
+## While the puck waits on its spot it is solid for the paddles: a paddle that reaches it stops at its edge. Without this a
+## paddle that stands in the puck when the wait ends hits it away from the wrong side (an own goal, issue #146).
+func _keep_out(spot: Vector2) -> void:
+	for p in paddles:
+		var d: Vector2 = p.pos - spot
+		var reach := PUCK_R + PADDLE_R
+		if d.length() >= reach:
+			continue
+		var n := d / d.length() if d.length() > 0.001 else Vector2.RIGHT
+		p.pos = spot + n * reach
+		p.vel -= minf(p.vel.dot(n), 0.0) * n
 
 
 ## The puck leaves a paddle it overlaps: it takes the speed of the paddle into account (a moving paddle hits harder).
