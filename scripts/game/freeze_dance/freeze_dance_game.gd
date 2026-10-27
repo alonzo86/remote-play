@@ -212,13 +212,13 @@ func _bench() -> Array[int]:
 	return out
 
 
-## The middle of the feet of the dancer on place `row` of the bench: the first place is the lowest.
 ## The left edge of the "back in n" text under a chip at `chip_x`: centered under the chip, and inside the 60 px safe margin even
 ## when the text is wider than the bench (the Hebrew text is, issue #151).
 static func bench_text_x(chip_x: float, text_w: float, area_w: float) -> float:
 	return clampf(chip_x + (BENCH_W - 40.0) * 0.5 - text_w * 0.5, 60.0, area_w - 60.0 - text_w)
 
 
+## The middle of the feet of the dancer on place `row` of the bench: the first place is the lowest.
 func _bench_feet(row: int) -> Vector2:
 	return Vector2(size.x - 60.0 - BENCH_W - 60.0, size.y - 120.0 - float(row) * BENCH_STEP + 40.0)
 
