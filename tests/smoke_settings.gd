@@ -234,6 +234,10 @@ func _run() -> void:
 			"Down from the last row goes to Start; Up from Start and from Back goes to the row")
 	# Start needs phones that fit the game (REQ-GM-20): a phone can leave while the view is open.
 	_check(not sv.start_button.disabled and sv.reason_label.text == "", "with a phone the view has no reason line and Start works")
+	await _back_focus(app, TvGames)
+	app.go_game_settings("maze")   # The check left the view.
+	await _frames(4)
+	sv = app.current_screen()
 	app.server.kick(0)
 	await _frames(4)
 	_check(sv.start_button.disabled and sv.reason_label.text == "NO PLAYERS CONNECTED",
@@ -381,4 +385,43 @@ func _how_to(app: Node) -> void:
 				name_w = row.name_width() if name_w < 0.0 else name_w
 				same = same and is_equal_approx(row.name_width(), name_w)
 			_check(same, "%s %s: the names of the rows have one width (%.0f)" % [code, g.id, name_w])
+	lang_script.set_language("en", root)
+
+
+func _press(action: String) -> void:
+	var e := InputEventAction.new()
+	e.action = action
+	e.pressed = true
+	Input.parse_input_event(e)
+	await _frames(2)
+
+
+## Issues #134 and #135, REQ-GM-90 and REQ-FL-55: in the settings view of every game, in English and in Hebrew, the D-pad reaches
+## Back (from Start with Left in English, with Right in Hebrew, and back again), and the Back key goes to the Games screen.
+func _back_focus(app: Node, games_script: GDScript) -> void:
+	print("back and the D-pad")
+	var lang_script = app.Lang
+	for code in ["en", "he"]:
+		lang_script.set_language(code, root)
+		var toward_back := "ui_right" if code == "he" else "ui_left"
+		var toward_start := "ui_left" if code == "he" else "ui_right"
+		for g in app.Registry.all():
+			app.go_game_settings(String(g.id))
+			await _frames(4)
+			var view: Control = app.current_screen()
+			if not view.start_button.disabled:
+				view.start_button.grab_focus()
+				await _press(toward_back)
+				_check(root.gui_get_focus_owner() == view.back_button,
+						"%s %s: %s from Start goes to Back" % [code, g.id, toward_back])
+				await _press(toward_start)
+				_check(root.gui_get_focus_owner() == view.start_button,
+						"%s %s: %s from Back goes to Start" % [code, g.id, toward_start])
+			else:
+				view.back_button.grab_focus()
+			app._last_back_ms = 0   # Two Back presses inside 250 ms count once.
+			await _press("ui_cancel")
+			await _frames(3)
+			_check(is_instance_of(app.current_screen(), games_script) and app.last_game == String(g.id),
+					"%s %s: the Back key goes to the Games screen with the tile of the game" % [code, g.id])
 	lang_script.set_language("en", root)

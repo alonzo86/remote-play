@@ -90,6 +90,14 @@ func _ready() -> void:
 	last.focus_neighbor_bottom = last.get_path_to(start_button)
 	start_button.focus_neighbor_top = start_button.get_path_to(last)
 	back_button.focus_neighbor_top = back_button.get_path_to(last)
+	# Left and Right between Back and Start (issue #135): the search by place can skip Back and land on a row above when Start
+	# has the focus. Back is at the left in English and at the right in Hebrew; the outer sides stay on the same item.
+	var back_side := SIDE_RIGHT if is_layout_rtl() else SIDE_LEFT
+	var start_side := SIDE_LEFT if is_layout_rtl() else SIDE_RIGHT
+	start_button.set_focus_neighbor(back_side, start_button.get_path_to(back_button))
+	start_button.set_focus_neighbor(start_side, start_button.get_path_to(start_button))
+	back_button.set_focus_neighbor(start_side, back_button.get_path_to(start_button))
+	back_button.set_focus_neighbor(back_side, back_button.get_path_to(back_button))
 	reason_label = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
 	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(reason_label)
