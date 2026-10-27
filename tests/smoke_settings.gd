@@ -425,3 +425,16 @@ func _back_focus(app: Node, games_script: GDScript) -> void:
 			_check(is_instance_of(app.current_screen(), games_script) and app.last_game == String(g.id),
 					"%s %s: the Back key goes to the Games screen with the tile of the game" % [code, g.id])
 	lang_script.set_language("en", root)
+	# Issue #134: a screen that takes 300 ms to build must not get the second event of the same press (a key and a notification).
+	var slow := GDScript.new()
+	slow.source_code = "extends Control\nvar backs := 0\nfunc on_back() -> void:\n\tbacks += 1\n\tOS.delay_msec(300)\n"
+	slow.reload()
+	var stub: Control = slow.new()
+	var real_screen: Control = app._screen
+	app._screen = stub
+	app._last_back_ms = 0
+	app._back()
+	app._back()   # Arrives after the slow screen is built.
+	_check(stub.backs == 1, "a Back press that arrives after a slow screen change counts once (%d)" % stub.backs)
+	app._screen = real_screen
+	stub.free()

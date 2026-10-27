@@ -240,6 +240,9 @@ func _back() -> void:
 	_last_back_ms = now
 	if _screen != null and _screen.has_method("on_back"):
 		_screen.on_back()
+		# A screen can take longer than 250 ms to build. The second event of the same press waits in the queue
+		# meanwhile, so the time is counted from the end (issue #134).
+		_last_back_ms = Time.get_ticks_msec()
 	else:
 		_quit()
 
