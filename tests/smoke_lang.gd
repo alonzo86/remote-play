@@ -153,7 +153,8 @@ func _run() -> void:
 	var same: Array = []
 	for k in table:
 		var en2 := String(table[k].en)
-		if table[k].he == en2 and en2.to_upper() != en2.to_lower() and not (en2.to_upper() in KEEP):
+		var words := fmtre.sub(en2, "", true)   # A text of a number alone ("%d") has no words to translate.
+		if table[k].he == en2 and words.to_upper() != words.to_lower() and not (en2.to_upper() in KEEP):
 			same.append(k)
 	_check(same.is_empty(), "no Hebrew text is the English text, except the brands " + str(same))
 	var missing := _untranslated_literals()
