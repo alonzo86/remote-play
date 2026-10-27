@@ -126,8 +126,8 @@ func _game_tick(delta: float) -> void:
 	for i in _pops.size():
 		if _pops[i] > 0.0:
 			_pops[i] = maxf(_pops[i] - delta, 0.0)
-	if _round.is_time_up():
-		_finish()
+	if _round.is_time_up() or PaintPicture.is_painted(_picture, floor_map.owners, PaintFloor.NONE):
+		_finish()   # REQ-PG-5: the time is up, or the last tile of the picture got a color.
 
 
 ## The pots (REQ-PG-23): one lands now and then, and the first blob that rolls over it paints its patch.

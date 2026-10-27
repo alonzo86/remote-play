@@ -121,6 +121,20 @@ func _paint_pictures() -> void:
 					if a == PaintPicture.ACCENT else a)
 	_check(flip_ok and swap_ok and plain != flipped and plain != swapped,
 			"a picture can be turned upside down and body and accent can be swapped (REQ-PG-22)")
+	# The picture is done when every tile with a part has an owner, whatever the color (REQ-PG-5).
+	var done_floor := PaintFloor.new(16, 9, 100.0)
+	_check(not PaintPicture.is_painted(plain, done_floor.owners, PaintFloor.NONE), "an empty floor is not a finished picture")
+	var last := -1
+	for i in plain.size():
+		if plain[i] != PaintPicture.EMPTY:
+			last = i
+			done_floor.paint(Vector2i(i % 16, i / 16), i % 3)   # Three colors mixed.
+	_check(PaintPicture.is_painted(plain, done_floor.owners, PaintFloor.NONE)
+			and done_floor.count(0) + done_floor.count(1) + done_floor.count(2) < done_floor.total(),
+			"all tiles of the picture painted in any colors finish it, tiles outside the picture do not matter")
+	done_floor.owners[last] = PaintFloor.NONE
+	_check(not PaintPicture.is_painted(plain, done_floor.owners, PaintFloor.NONE),
+			"one picture tile without a color is not finished")
 	var seen := {}
 	for seed_value in 200:
 		seen[PaintPicture.pick(_rng(seed_value))] = true
