@@ -33,7 +33,8 @@ static func _view(sim: RefCounted, seat: int) -> Dictionary:
 
 ## `rallies` rallies: seat 0 plays `foe_level`, seat 1 (ROBO) plays `level`. A rally starts with the puck on the side of the seat
 ## that conceded. Counts the goals of ROBO (`scored`), the goals against it (`conceded`) and, of those, the own goals: the last
-## hit was by ROBO, the puck did not go to its goal before the hit and the hit sent it there.
+## hit was by ROBO, its mallet drove at the puck (150 px/s or more), the puck did not go to its goal before the hit and the hit
+## sent it there. A mallet that stands still and only blocks a puck that comes by is not an own goal.
 static func play(level: String, foe_level: String, rallies: int, seed_value: int) -> Dictionary:
 	var sim := Sim.new()
 	var robo := HockeyBot.new(level, 1, seed_value)
@@ -53,7 +54,9 @@ static func play(level: String, foe_level: String, rallies: int, seed_value: int
 			var ev := sim.step(DT, [foe.tilt(DT, _view(sim, 0)), robo.tilt(DT, _view(sim, 1))])
 			if ev.hit >= 0:
 				last_hit = ev.hit
-				self_made = ev.hit == 1 and before.x < 150.0 and sim.puck_vel.x > 100.0
+				# The mallet drove at the puck (150 px/s or more toward it); a stand-still mallet only blocks a puck that comes by.
+				var toward: float = sim.paddles[1].vel.dot((sim.puck_pos - sim.paddles[1].pos).normalized())
+				self_made = ev.hit == 1 and before.x < 150.0 and sim.puck_vel.x > 100.0 and toward > 150.0
 			if ev.goal >= 0:
 				out.scored += 1 if ev.goal == 1 else 0
 				out.conceded += 1 if ev.goal == 0 else 0
@@ -112,7 +115,7 @@ func _shots() -> void:
 ## Issue #146: ROBO against a Medium player over 180 rallies. Before the fix ROBO scored against itself 115 times on Easy, 19 on
 ## Medium and 1 on Hard (it ran into the puck while it waited for the serve, and it hit a puck near its goal from the wrong side).
 func _matches() -> void:
-	var limits := {"easy": 30, "medium": 12, "hard": 3}
+	var limits := {"easy": 8, "medium": 4, "hard": 3}
 	for level in ["easy", "medium", "hard"]:
 		var total := {"own": 0, "scored": 0, "conceded": 0}
 		for s in 6:

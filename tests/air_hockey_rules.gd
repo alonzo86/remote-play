@@ -233,6 +233,19 @@ func _hits() -> void:
 	quick.step(DT, [Vector2(0.6, 0.0), Vector2.ZERO])
 	_check(quick.puck_vel.x > slow_hit + 300.0,
 			"a faster paddle sends the puck faster (%.0f against %.0f)" % [quick.puck_vel.x, slow_hit])
+	# Issue #145: the puck leaves faster than the mallet that hit it, and the speed follows the speed of the mallet.
+	var speeds: Array[float] = []
+	for v in [250.0, 500.0, 750.0]:
+		var h := _quiet()
+		h.paddles[0].pos = Vector2(600.0, 500.0)
+		h.paddles[0].vel = Vector2(v, 0.0)
+		h.puck_pos = Vector2(600.0 + Sim.PADDLE_R + Sim.PUCK_R - 5.0, 500.0)
+		h.puck_vel = Vector2.ZERO
+		h.step(DT, [Vector2.ZERO, Vector2.ZERO])
+		speeds.append(h.puck_vel.length())
+	_check(speeds[0] > 250.0 * (1.0 + Sim.HIT_KEEP) and speeds[1] > speeds[0] + 400.0 and speeds[2] > speeds[1] + 400.0
+			and speeds[2] <= Sim.PUCK_MAX,
+			"the puck speed follows the mallet speed: %s px/s for 250, 500 and 750 px/s, never above the top speed" % [speeds])
 	var still := _quiet()
 	still.paddles[1].pos = Vector2(1300.0, 500.0)
 	still.puck_pos = Vector2(1300.0 - 150.0, 500.0)

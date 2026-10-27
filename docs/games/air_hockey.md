@@ -49,7 +49,7 @@ Puck, rails and goals
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-AH-6 | The puck is a disk. A mallet that overlaps it pushes it away along the line between them: the speed of the mallet is added (a mallet that moves fast hits hard), and the puck leaves at 420 px/s at least, so it never sticks to a mallet. The puck never speeds up beyond 1800 px/s. A long frame is split in steps of 1/120 s at most, so the puck cannot go through a mallet. | Done | air_hockey_rules |
+| REQ-AH-6 | The puck is a disk. A mallet that overlaps it pushes it away along the line between them: the speed of the mallet is added, and 60 % of its speed toward the puck once more (`HIT_BOOST`, issue #145): a mallet that moves fast hits hard, and the puck leaves faster than the mallet, and the puck leaves at 420 px/s at least, so it never sticks to a mallet. The puck never speeds up beyond 1800 px/s. A long frame is split in steps of 1/120 s at most, so the puck cannot go through a mallet. | Done | air_hockey_rules |
 | REQ-AH-7 | The puck slows down by itself (damping 0.35 /s: about a third in 1 s) and bounces off the rails keeping 92 % of the speed. | Done | air_hockey_rules |
 | REQ-AH-8 | Each short side has a goal opening 280 px high in the middle. A puck whose whole disk is over the goal line inside the opening is a goal for the other seat. A puck beside the opening bounces off the rail. | Done | air_hockey_rules |
 | REQ-AH-9 | After a goal the scorer gets 1 goal, the phone of the scorer buzzes (120 ms), a banner "GOAL FOR <NAME>!" shows for 2 s with the puck still, and then the mallets go back to their start places and the puck waits 1 s on the side of the seat that conceded (the puck is served to the one who was scored on). While the puck waits it is solid for a mallet: a mallet that reaches it stops at its edge (issue #146). Nothing is taken away from anybody. | Done | smoke_air_hockey, air_hockey_rules |
@@ -86,6 +86,7 @@ Values that change how the game feels. All are first guesses; tune them on a dev
 | Table, goal opening, puck and mallet radius | `air_hockey_sim.gd` `RINK`, `GOAL_H`, `PUCK_R`, `PADDLE_R` | 1680x728 px, 280, 34, 60 |
 | Mallet: acceleration, damping, speed limit | `PADDLE_ACCEL`, `PADDLE_DAMPING`, `PADDLE_MAX` | 5200 px/s2, 5 /s, 1100 px/s |
 | Puck: damping, top speed, rail keep, hit keep, least hit speed | `PUCK_DAMPING`, `PUCK_MAX`, `WALL_KEEP`, `HIT_KEEP`, `MIN_HIT` | 0.35 /s, 1800 px/s, 0.92, 0.9, 420 px/s |
+| Hit boost: the part of the speed of the mallet (toward the puck) that a hit adds to the puck (issue #145, first guess, tuned in Test 27) | `HIT_BOOST` | 0.6 |
 | Serve wait, goal banner | `SERVE_WAIT`, `GOAL_BANNER` | 1.0 s, 2.0 s |
 | Hit buzz speed and length | `HIT_BUZZ_SPEED`, `_on_hit()` | 450 px/s, 25 ms |
 
@@ -93,12 +94,12 @@ What Easy, Medium and Hard mean (`hockey_bot.gd` `LEVELS`; only ROBO changes, RE
 
 | Level | Reaction (s) | Max tilt | Aim error (px) | Defend error (px) | Attacks a new puck | Slow puck speed (px/s) | Idle before it attacks (s) |
 |-------|--------------|----------|----------------|-------------------|--------------------|------------------------|----------------------------|
-| Easy | 0.5 | 0.35 | 250 | 260 | 30 % | 260 | 2.0 |
-| Medium | 0.3 | 0.5 | 200 | 60 | 50 % | 520 | 1.2 |
-| Hard | 0.07 | 1.0 | 60 | 25 | 95 % | 900 | 0.5 |
+| Easy | 0.5 | 0.35 | 250 | 260 | 30 % | 400 | 2.0 |
+| Medium | 0.3 | 0.5 | 200 | 60 | 50 % | 780 | 1.2 |
+| Hard | 0.07 | 1.0 | 60 | 25 | 95 % | 1300 | 0.5 |
 
-In the headless proxy (a player that only chases the puck, 4 matches of 3 minutes) the player scored 15, 0 and 0 goals and ROBO 2, 3 and 7
-goals on Easy, Medium and Hard (changed with issue #146: before, ROBO gave the player 115 own goals on Easy).
+In the headless proxy (a player that only chases the puck, 4 matches of 3 minutes) the player scored 18, 0 and 2 goals and ROBO 5, 8 and 24
+goals on Easy, Medium and Hard (changed with issue #146: before, ROBO gave the player 115 own goals on Easy; and with issue #145: the puck is faster, so the slow-puck speeds of the table are 1.5 times the old values).
 
 ## Open questions
 
