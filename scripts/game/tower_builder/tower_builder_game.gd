@@ -207,7 +207,8 @@ func _land() -> void:
 			_haptics.pulse(s, 60, BUZZ_GAP_MS)
 			Sound.sfx("tower_land")
 		Stack.Outcome.MISS:
-			var dir := 1.0 if float(_falling.x) >= float(stack.bricks[-1].x) else -1.0
+			var top_x := Stack.BASE_X if stack.bricks.is_empty() else float(stack.bricks[-1].x)   # The first brick can miss the base too.
+			var dir := 1.0 if float(_falling.x) >= top_x else -1.0
 			_add_rubble(float(_falling.x), float(_falling.y), float(_falling.w), s, dir * SLIDE_SPEED, 0.0, false)
 			banner_text = Lang.t("tower_builder.missed")
 			_phase_left = AFTER_MISS
