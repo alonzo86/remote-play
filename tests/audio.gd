@@ -212,6 +212,18 @@ func _manager(sound: Node, app: Node) -> void:
 	sound.duck(false)
 	await _wait(0.4)
 	_check(absf(sound._music.volume_db) < 0.5, "closing the menu brings it back")
+	# Issue #149: a song can be made ahead (the settings view of a game does it), without playing and without changing the music.
+	_check(not sound.song_ready("freeze_dance"), "a song that is not made yet is not ready")
+	sound.prepare_song("freeze_dance")
+	_check(sound._job.has("freeze_dance") and sound.wanted_music == "menu",
+			"prepare_song starts to make the song, the wanted music stays")
+	var t1 := Time.get_ticks_msec()
+	while not sound.song_ready("freeze_dance") and Time.get_ticks_msec() - t1 < 30000:
+		await _frames(1)
+	_check(sound.song_ready("freeze_dance") and sound._music.get_meta("id", "") == "menu",
+			"the song is ready after %d ms and the menu song still plays" % (Time.get_ticks_msec() - t1))
+	sound.prepare_song("freeze_dance")
+	_check(not sound._job.has("freeze_dance"), "a song that is made is not made again")
 	sound.hold_music(true)
 	var at: float = sound._music.get_playback_position()
 	await _wait(0.5)

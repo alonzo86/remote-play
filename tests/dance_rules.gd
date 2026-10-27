@@ -204,7 +204,7 @@ func _grace_and_moves() -> void:
 			break
 	_check(moved.size() == 1 and int(moved[0].slot) == 0, "only the player that goes on shaking has moved, once")
 	_check(t_move >= float(r.level.grace) and t_move < float(r.level.grace) + 0.1,
-			"the move counts after the grace time of 0.5 s, not before (%.2f s)" % t_move)
+			"the move counts after the grace time of 0.9 s (Medium), not before (%.2f s)" % t_move)
 	_check(not r.dancers[1].moved and r.dancers[0].moved, "the state says who moved")
 	# A small tremor stays below the limit.
 	var r2 := _rules("medium", [0])
@@ -223,7 +223,7 @@ func _grace_and_moves() -> void:
 
 
 ## REQ-FD-8
-## REQ-FD-6: a hard wiggle that stops on cue is not a move, even on Hard (grace 0.4 s).
+## REQ-FD-6: a hard wiggle that stops on cue is not a move, even on Hard (grace 0.8 s).
 func _hard_stop() -> void:
 	print("dance: stop after a hard wiggle")
 	var r := _rules("hard", [0, 1])

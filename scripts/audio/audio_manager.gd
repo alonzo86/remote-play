@@ -111,6 +111,29 @@ func music(id: String, delay := 0.0) -> void:
 		_job[id] = {"events": events, "buf": buf, "pcm": pcm, "mixed": 0, "converted": 0}
 
 
+## Starts to make the song `id` without playing it, so it is ready when a game starts (the settings view of a game calls this,
+## issue #149). A song that is made or being made is left alone.
+func prepare_song(id: String) -> void:
+	if not enabled or not Songs.SONGS.has(id) or _streams.has(id) or _job.has(id):
+		return
+	if skip_without_output and AudioServer.get_driver_name() == "Dummy":
+		return
+	var buf := PackedFloat32Array()
+	buf.resize(int(Songs.length(id) * Synth.RATE))
+	var pcm := PackedByteArray()
+	pcm.resize(buf.size() * 2)
+	_job[id] = {"events": Songs.events(id), "buf": buf, "pcm": pcm, "mixed": 0, "converted": 0}
+
+
+## True when the song `id` can play at once: it is made, or nothing makes sound here (the phone, a headless run).
+func song_ready(id: String) -> bool:
+	if not enabled or not Songs.SONGS.has(id):
+		return true
+	if skip_without_output and AudioServer.get_driver_name() == "Dummy":
+		return true
+	return _streams.has(id)
+
+
 ## Prepares the song of a game: it is made now, and it starts at GO (`start_queued_music()`, called by `RoundClock`).
 ## A song that plays already (a restart) goes on.
 func music_at_go(id: String) -> void:

@@ -119,6 +119,24 @@ func _start_and_music() -> void:
 	_check(game._seat[0] == 0 and game._seat[1] == 1 and float(a.x) < float(b.x), "the players stand in their places (REQ-FD-13)")
 	_check(game.best_key() == "" and game.difficulty == "medium",
 			"no personal best, and Medium is the level at the start (REQ-FD-10)")
+	# Issue #149: with a sound device the first round waits until its song is made, so it never runs in silence.
+	Snd.skip_without_output = false
+	Snd._streams.erase("freeze_dance")
+	var waiting: Control = await _play(2, {"seed": 4})
+	Snd._job.clear()   # The song is not made and nothing makes it.
+	_step(waiting, 2.0, {0: 3.0})
+	_check(waiting._rules.phase_time == 0.0 and waiting._rules.dancers[0].dance_time == 0.0,
+			"the first round does not start while the song is not made (issue #149)")
+	Snd._streams["freeze_dance"] = AudioStreamWAV.new()
+	_step(waiting, 1.0, {0: 3.0})
+	_check(waiting._rules.phase_time > 0.9, "when the song is made the round runs (%.2f s)" % waiting._rules.phase_time)
+	Snd._streams.erase("freeze_dance")
+	var late: Control = await _play(2, {"seed": 4})
+	Snd._job.clear()
+	_step(late, late.SONG_WAIT_MAX + 1.0, {0: 3.0})
+	_check(late._rules.phase_time > 0.5, "a song that never comes does not stop the game for ever (%.2f s)" % late._rules.phase_time)
+	Snd._streams.erase("freeze_dance")
+	Snd.skip_without_output = true
 
 
 ## REQ-FD-2, 3, 7, 14: the stop, the points after the freeze, the buzz after the freeze, the music goes on.

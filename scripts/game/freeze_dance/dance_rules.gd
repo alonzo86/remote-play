@@ -20,9 +20,9 @@ const LIT_SHARE := 0.35
 const LIGHT_STEP := 0.5       # Seconds between two sets of lit tiles.
 ## First guesses (docs/games/freeze_dance.md, Test 31). Medium is the base.
 const LEVELS := {
-	"easy": {"music_min": 7.0, "music_max": 10.0, "freeze": 2.0, "grace": 0.8, "still_limit": 1.6},
-	"medium": {"music_min": 5.0, "music_max": 10.0, "freeze": 3.0, "grace": 0.5, "still_limit": 1.1},
-	"hard": {"music_min": 4.0, "music_max": 8.0, "freeze": 4.0, "grace": 0.4, "still_limit": 0.8},
+	"easy": {"music_min": 7.0, "music_max": 10.0, "freeze": 2.0, "grace": 1.2, "still_limit": 1.6},
+	"medium": {"music_min": 5.0, "music_max": 10.0, "freeze": 3.0, "grace": 0.9, "still_limit": 1.1},
+	"hard": {"music_min": 4.0, "music_max": 8.0, "freeze": 4.0, "grace": 0.8, "still_limit": 0.8},
 }
 
 class Dancer:

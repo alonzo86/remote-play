@@ -22,6 +22,7 @@ const POP_LIFE := 1.2
 const DANCE_RATE := 5.0          # Steps of the dance in a second.
 const BENCH_STEP := 104.0        # The height of one place on the bench.
 const BENCH_W := 280.0
+const SONG_WAIT_MAX := 8.0   # Seconds the first round waits for its song at most.
 
 ## A "+10" that floats up above a dancer. The pool is made once (REQ-GM-51).
 class Pop:
@@ -43,6 +44,8 @@ var _draw_order: Array[int] = [] # The slots, the far dancers first.
 var _lit := {}                   # The lit tiles of the floor (Vector2i(row, col)).
 var _light_clock := 0.0
 var _light_step := -1
+var _song_ready := false         # The song is made and the first round may start (issue #149).
+var _song_wait := 0.0
 var _scene_time := 0.0           # Game time of the dance: it stands still while the game is paused (REQ-FL-43).
 var _pops: Array[Pop] = []
 var _tex := {}                   # "slot|pose|dim" -> the ImageTexture of a dancer.
@@ -88,6 +91,10 @@ func _on_player_left(slot: int) -> void:
 
 func _game_tick(delta: float) -> void:
 	_scene_time += delta
+	if not _song_ready:   # The first round waits until the song is made, so it has music (issue #149).
+		_song_wait += delta
+		_song_ready = Sound.song_ready(Registry.id_of_script(get_script())) or _song_wait >= SONG_WAIT_MAX
+		return
 	for p in _pops:
 		if p.age >= 0.0:
 			p.age += delta
