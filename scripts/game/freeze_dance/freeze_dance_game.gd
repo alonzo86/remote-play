@@ -22,6 +22,7 @@ const POP_LIFE := 1.2
 const DANCE_RATE := 5.0          # Steps of the dance in a second.
 const BENCH_STEP := 104.0        # The height of one place on the bench.
 const BENCH_W := 280.0
+const SONG_WAIT_MAX := 8.0   # Seconds the first round waits for its song at most.
 
 ## A "+10" that floats up above a dancer. The pool is made once (REQ-GM-51).
 class Pop:
@@ -43,6 +44,8 @@ var _draw_order: Array[int] = [] # The slots, the far dancers first.
 var _lit := {}                   # The lit tiles of the floor (Vector2i(row, col)).
 var _light_clock := 0.0
 var _light_step := -1
+var _song_ready := false         # The song is made and the first round may start (issue #149).
+var _song_wait := 0.0
 var _scene_time := 0.0           # Game time of the dance: it stands still while the game is paused (REQ-FL-43).
 var _pops: Array[Pop] = []
 var _tex := {}                   # "slot|pose|dim" -> the ImageTexture of a dancer.
@@ -88,6 +91,10 @@ func _on_player_left(slot: int) -> void:
 
 func _game_tick(delta: float) -> void:
 	_scene_time += delta
+	if not _song_ready:   # The first round waits until the song is made, so it has music (issue #149).
+		_song_wait += delta
+		_song_ready = Sound.song_ready(Registry.id_of_script(get_script())) or _song_wait >= SONG_WAIT_MAX
+		return
 	for p in _pops:
 		if p.age >= 0.0:
 			p.age += delta
@@ -205,6 +212,12 @@ func _bench() -> Array[int]:
 	return out
 
 
+## The left edge of the "back in n" text under a chip at `chip_x`: centered under the chip, and inside the 60 px safe margin even
+## when the text is wider than the bench (the Hebrew text is, issue #151).
+static func bench_text_x(chip_x: float, text_w: float, area_w: float) -> float:
+	return clampf(chip_x + (BENCH_W - 40.0) * 0.5 - text_w * 0.5, 60.0, area_w - 60.0 - text_w)
+
+
 ## The middle of the feet of the dancer on place `row` of the bench: the first place is the lowest.
 func _bench_feet(row: int) -> Vector2:
 	return Vector2(size.x - 60.0 - BENCH_W - 60.0, size.y - 120.0 - float(row) * BENCH_STEP + 40.0)
@@ -264,6 +277,7 @@ func _draw_bench_plates() -> void:
 		var y := feet.y - 40.0
 		var p := player(s)
 		Shell.chip(self, Vector2(x, y - 20.0), slot_label(s), p.color, BENCH_W - 40.0, 64.0, p.avatar)
-		Shell.text(self, Vector2(x, y + 76.0), Lang.f("freeze_dance.back_in", [ceili(_rules.back_in(s))]),
-				UiTheme.SIZE_BODY, UiTheme.TEXT)
+		var back_in := Lang.f("freeze_dance.back_in", [ceili(_rules.back_in(s))])
+		var text_w := UiTheme.font().get_string_size(back_in.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_BODY).x
+		Shell.text(self, Vector2(bench_text_x(x, text_w, size.x), y + 76.0), back_in, UiTheme.SIZE_BODY, UiTheme.TEXT)
 		row += 1

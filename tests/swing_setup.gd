@@ -65,6 +65,15 @@ func _games() -> void:
 	_check(not app.server.setup_swing and app.server.swing_pending().is_empty() and not sim.clients[0].setup_swing,
 			"the settings view of Treasure Maze has no safety card")
 	_check(not app.current_screen().start_button.disabled, "Start works in Treasure Maze")
+	# Issue #148: every swing game asks a phone that has not tapped OK yet, Freeze Dance too.
+	for id in swing:
+		for c in sim.clients:
+			c.swing_acked = false
+		app.go_game_settings(id)
+		await _wait_for(func(): return sim.clients[0].setup_swing and sim.clients[1].setup_swing)
+		await sim.frames(3)
+		_check(app.server.swing_pending() == [0, 1] and app.current_screen().start_button.disabled,
+				"%s: both phones are asked for the safety card and Start waits" % id)
 
 
 ## Start of a swing game waits for the OK of every phone, and the line says why.

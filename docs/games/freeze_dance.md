@@ -80,9 +80,9 @@ First guesses (`dance_rules.gd`, `LEVELS`), tuned on a device (Test 31):
 
 | Difficulty | Music (s) | Freeze (s) | Grace (s) | `still_limit` |
 |------------|-----------|-----------|-----------|---------------|
-| Easy | 7 to 10 | 2.0 | 0.8 | 1.6 |
-| Medium | 5 to 10 | 3.0 | 0.5 | 1.1 |
-| Hard | 4 to 8 | 4.0 | 0.4 | 0.8 |
+| Easy | 7 to 10 | 2.0 | 1.2 | 1.6 |
+| Medium | 5 to 10 | 3.0 | 0.9 | 1.1 |
+| Hard | 4 to 8 | 4.0 | 0.8 | 0.8 |
 
 The freeze is longer on Hard because holding still is harder for longer; the music is shorter on Hard so the stop comes sooner.
 
@@ -99,6 +99,7 @@ The freeze is longer on Hard because holding still is harder for longer; the mus
 
 ## Open questions
 
+- The grace was made 0.4 s longer on every level on 2026-10-27 (issue #150, owner), so Easy has 1.2 s, Medium 0.9 s and Hard 0.8 s. A player who moves in the freeze gets no points for that song (the stop of that song is the only place where points are given, REQ-FD-7, 8) and keeps the points of the songs before (issue #152: "round" is the song, owner).
 - Every threshold (`WIGGLE_MIN`, `still_limit`, the grace) is a first guess. A phone in a loose hand shakes more than one in a tight grip; the device test (Test 31) sets the values, also with a child of 5.
 - A phone held in a hand has a tremor: if `still_limit` of Hard is too strict, loosen it.
 - Personal best: a key per difficulty needs a new profile code format version. The owner decides.
