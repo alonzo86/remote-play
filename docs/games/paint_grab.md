@@ -8,11 +8,11 @@ Code: `scripts/game/paint_grab/` and the shared helper `scripts/game/tilt_body.g
 
 Each player tilts a phone to roll a round, friendly **paint blob** (a made-up creature with big eyes, in the player color) over a
 floor of square tiles. A tile that a blob rolls over turns into the color of that blob, also when it had the color of another
-player. After 60 seconds, or when the last tile of the hidden picture is painted, the player with the most tiles wins. With one player, the score (the share of the floor that is painted)
+player. After 60 seconds, or when the last tile of the hidden picture is painted, the player with the most tiles wins. With one player, the score (the share of the picture that is painted)
 is shown as a score, with no medal. A tile that is painted over costs nothing but the tile: nobody is out and nobody waits.
 
 Since 2026-10-16 the floor hides a picture (a different one in each round, REQ-PG-22) and now and then a bonus pot lands on it:
-the first blob that rolls over it paints a whole patch (REQ-PG-23). The score is still the number of tiles.
+the first blob that rolls over it paints a whole patch (REQ-PG-23). Only the tiles of the picture can be painted (REQ-PG-24); the score is the number of those tiles.
 
 Registry entry: `description` (one line) and `tile` (`assets/tiles/paint_grab.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
 Visual language: shell, player colors, toy-like world (REQ-GM-45 to 49). Check the tile next to the Games screen.
@@ -65,15 +65,16 @@ Look
 | REQ-PG-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn in the 480x270 view: a black sky with 48 star pixels, a dark floor board `#2a1070` with a one-pixel black outline, empty tiles `#3a1c97`, painted tiles in the flat slot color (no lighter edge). A tile is a whole number of world pixels wide, so all gaps are one world pixel (the floor is as big as fits, in steps of 4 px per tile). A blob has a one-pixel black outline, square eyes (no number on it, REQ-GM-46). All text is 32 px or larger. Everything stays inside the 60 px margin. | Device | review, smoke_paint (the view, the grid), Device |
 | REQ-PG-16 | A tile that is painted pops (it is one world pixel wider on each side for 0.15 s, a hard step), so the painting can be seen. A blob has square eyes with pupils that step to the side it rolls. | Device | smoke_paint (pop), Device, auto_paint |
 | REQ-PG-17 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080. | Done | smoke_paint, auto_paint |
-| REQ-PG-22 | The floor hides a picture (`paint_picture.gd`). There are 30 pictures, all friendly (REQ-GM-81: nothing scary such as a skull or a spider). A picture is the left half of a symmetric shape, 6 columns by 9 rows of text (`.` nothing, `#` body, `o` accent, `e` eye), mirrored and centered on a 16 x 9 grid; a floor of any size takes the nearest cell, and stays symmetric. A round picks one at random from the seed (`start_props.seed`; Restart keeps it), and also turns it upside down or swaps body and accent at random (4 looks of a shape). A tile that nobody painted shows a faint ghost of its part: body lighter violet, accent green, eye almost white, the background of the picture darker than an empty tile. A painted tile keeps the shade of its part in the color of its owner: the body is the color, the accent is 28 % darker, the eye is almost white, the background is very dark (72 % darker). The picture has no effect on the score or the rules. The pictures are text in the code, not image files. | Device | game_rules (the shapes, the floors, the flip, the seed), smoke_paint, Device (can the pictures be recognized?) |
+| REQ-PG-22 | The floor hides a picture (`paint_picture.gd`). There are 30 pictures, all friendly (REQ-GM-81: nothing scary such as a skull or a spider). A picture is the left half of a symmetric shape, 6 columns by 9 rows of text (`.` nothing, `#` body, `o` accent, `e` eye), mirrored and centered on a 16 x 9 grid; a floor of any size takes the nearest cell, and stays symmetric. A round picks one at random from the seed (`start_props.seed`; Restart keeps it), and also turns it upside down or swaps body and accent at random (4 looks of a shape). A tile that nobody painted shows a very faded ghost of its part (a quarter of the way from an empty tile): body slightly lighter violet, accent slightly green, eye lighter (changed 2026-10-27, issue #130). A painted tile keeps the shade of its part in the color of its owner: the body is the color, the accent is 28 % darker, the eye is almost white, the background is very dark (72 % darker). The picture tiles are the only tiles that can be painted and count (REQ-PG-24); the tiles outside the picture are dark blocks (`OUTSIDE_TILE`). The pictures are text in the code, not image files. | Device | game_rules (the shapes, the floors, the flip, the seed), smoke_paint, Device (can the pictures be recognized?) |
 | REQ-PG-23 | Bonus pots. A pot lands on a random tile of the floor the first time after 8 s of play and then after 9 to 15 s; the tile is at least 3 tiles (in a line or diagonal) from every blob, and one pot is on the floor at a time. It is the gold pot (3 x 3 tiles around its tile, clipped at the edge; chance 60 %) or the rainbow roller (the whole row of its tile; chance 40 %). A pot that nobody takes goes away after 9 s and blinks in the last 2 s. The first blob that rolls over the tile of a pot paints the whole patch in its color (also tiles of other players), the painted tiles pop for 0.4 s, the pot goes away, the scores follow, the phone buzzes 40 ms and the sound `paint_tile` plays. A frame shows the tiles that the pot will paint (gold or white, 1 world pixel). A pot is a picture of 11 x 11 world pixels. It costs nobody anything (REQ-GM-81). | Device | game_rules (the patch, the timing, the distance), smoke_paint, Device (feel), auto_paint, paint_rules |
+| REQ-PG-24 | Only the tiles of the picture (REQ-PG-22) can be painted. A blob that rolls over any other tile paints nothing; a pot lands only on a picture tile and paints only the picture tiles of its patch. The total for the percent (REQ-PG-21), the leader chip, the phone score and the result list is the picture: the tiles are the picture tiles that a player painted, the percent is that number out of the picture tiles. The other tiles are dark blocks, so the floor stays a rectangle and the picture shows where to roll. | Done | smoke_paint, paint_rules, auto_paint |
 
 Settings (REQ-GM-90 to 97)
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-PG-20 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. | Done | smoke_paint, auto_paint, paint_rules |
-| REQ-PG-21 | One player: the score is the share of the floor that is painted at the end, in percent, rounded down. One player gets no medal (REQ-GM-73, issue #119); the title of the result is the difficulty. | Done | smoke_paint, run_tests, auto_paint, paint_rules |
+| REQ-PG-21 | One player: the score is the share of the picture that is painted at the end (the picture tiles, REQ-PG-24), in percent, rounded down. One player gets no medal (REQ-GM-73, issue #119); the title of the result is the difficulty. | Done | smoke_paint, run_tests, auto_paint, paint_rules |
 
 | Difficulty | Floor (columns x rows) | Tile size | Blob speed limit |
 |------------|------------------------|-----------|------------------|
@@ -81,14 +82,14 @@ Settings (REQ-GM-90 to 97)
 | Medium | 16 x 9 | about 96 px | 1.0 |
 | Hard | 20 x 11 | about 79 px | 1.25 |
 
-The tile size is what fits inside the margin and under the HUD at 1920x1080. The brush is the blob itself: a bigger floor with smaller tiles and a faster blob is harder to cover, and every level has the same 60 s.
+The floor size is the size of the floor; the picture is scaled to it, and only its tiles are painted (REQ-PG-24). The tile size is what fits inside the margin and under the HUD at 1920x1080. The brush is the blob itself: a bigger floor with smaller tiles and a faster blob is harder to cover, and every level has the same 60 s.
 
 Shared code
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-PG-30 | `scripts/game/tilt_body.gd` (`TiltBody`) is a helper without nodes: position, velocity, tilt acceleration, dead zone, damping, speed limit, bounce at a rectangle, and the bounce between two bodies. The Dodge Storm, Tilt Snake and Sumo Bumpers branches use it too. The maze and the race keep their own models for now (a device test is needed to change them). | Done | run_tests |
-| REQ-PG-31 | Personal best (REQ-GM-98): the key is `paint_grab|<difficulty>`, the value is the number of tiles, higher is better. All player counts share one key. | Done | smoke_bests |
+| REQ-PG-31 | Personal best (REQ-GM-98): the key is `paint_grab|<difficulty>`, the value is the percent of the picture (REQ-PG-21), higher is better. Before 2026-10-27 it was the number of tiles of the floor: an old best of that kind stays in a profile and is hard to beat (issue #130). All player counts share one key. | Done | smoke_bests |
 
 ## Parameters
 

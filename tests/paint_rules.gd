@@ -135,6 +135,22 @@ func _paint_pictures() -> void:
 	done_floor.owners[last] = PaintFloor.NONE
 	_check(not PaintPicture.is_painted(plain, done_floor.owners, PaintFloor.NONE),
 			"one picture tile without a color is not finished")
+	# A pot lands only on a tile that `allowed` accepts (the picture, REQ-PG-24).
+	var pots := PaintPots.new()
+	var only_left := func(c: Vector2i) -> bool: return c.x < 3
+	var lands_ok := true
+	var landed := 0
+	for seed_value in 30:
+		pots.reset()
+		var pot_rng := _rng(seed_value)
+		var pot: PaintPots.Pot = pots.tick(PaintPots.FIRST + 1.0, pot_rng, 16, 9, [Vector2i(15, 8)], only_left)
+		if pot != null:
+			landed += 1
+			lands_ok = lands_ok and pot.cell.x < 3
+	_check(landed == 30 and lands_ok, "a pot lands only on the tiles that are allowed (%d of 30 landed)" % landed)
+	var faded := PaintLook.ghost(PaintPicture.BODY, Color("3a1c97"))
+	_check(absf(faded.v - Color("3a1c97").v) < 0.12 and absf(PaintLook.ghost(PaintPicture.EYE, Color("3a1c97")).v - 0.5) < 0.35,
+			"the ghost of the picture is faded: a body tile is close to an empty tile")
 	var seen := {}
 	for seed_value in 200:
 		seen[PaintPicture.pick(_rng(seed_value))] = true
