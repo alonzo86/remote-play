@@ -73,7 +73,7 @@ const GAMES: Array[Dictionary] = [
 			"tile": "res://assets/tiles/asteroid_blast.png",
 			"path": "res://scripts/game/asteroid_blast/asteroid_blast_game.gd", "min_players": 1, "max_players": 4, "settings": []},
 	{"id": "bowling", "doc": "res://docs/games/bowling.md", "title": "registry.pin_pals", "dim": "2d",
-			"pad": ["a"],
+			"pad": [],
 			"swing": true,
 			"how_to": "how_to.bowling",
 			"description": "registry.desc_bowling",
