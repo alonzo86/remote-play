@@ -80,7 +80,7 @@ const GAMES: Array[Dictionary] = [
 			"tile": "res://assets/tiles/bowling.png",
 			"path": "res://scripts/game/bowling/bowling_game.gd", "min_players": 1, "max_players": 4,
 			"settings": [{"key": "rails", "label": "bowling.rails", "values": ["off", "on"],
-					"titles": ["bowling.off", "bowling.on"], "default": "off"}]},
+					"titles": ["bowling.without_rails", "bowling.with_rails"], "default": "off"}]},
 	{"id": "tennis", "doc": "res://docs/games/tennis.md", "title": "registry.tennis", "dim": "2d",
 			"pad": ["a"],
 			"swing": true,
