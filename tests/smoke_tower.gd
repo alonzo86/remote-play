@@ -278,6 +278,18 @@ func _run() -> void:
 	for i in game.participants.size():
 		game.player(game.participants[i]).player_name = saved[i]
 
+	# The first brick can miss the base: it falls beside the base, the tower stays empty and the game goes on (REQ-TB-6).
+	app.go(Tower, {"difficulty": "easy", "seed_value": 3})
+	await _frames(3)
+	game = app.current_screen()
+	game.set_process(false)
+	_aim(game, game.Stack.SWING_AMP)
+	game._on_button(Protocol.BTN_A, game.current_slot())
+	_tick(game, DT)
+	_check(_until(game, game.Phase.AFTER) and game.stack.height() == 0 and game.dropped == 1 and not game._rubble.is_empty()
+			and game.banner_text == "WHOOPS! IT MISSED!" and not game.is_over,
+			"the first brick that misses the base falls beside it, the tower stays empty and the game goes on")
+
 	# Test 30 step 6b: on Easy nobody presses A, and each of 5 turns takes 12 s or less from one plate to the next (REQ-GM-83).
 	app.go(Tower, {"difficulty": "easy", "seed_value": 3})
 	await _frames(3)
