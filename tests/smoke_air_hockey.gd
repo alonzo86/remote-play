@@ -101,8 +101,8 @@ func _run() -> void:
 	_check(sv.rows[1].value == "6", "the Goals row steps from 5 to 6")
 	var row = sv.rows[1].row
 	_check(GameSettings.step(row, "10", 1) == "10" and GameSettings.step(row, "3", -1) == "3"
-			and row.values.size() == 8 and GameSettings.title_text(row, "7") == "7 GOALS",
-			"the Goals row goes from 3 to 10 and stops at both ends (REQ-AH-18)")
+			and row.values.size() == 8 and GameSettings.title_text(row, "7") == "7",
+			"the Goals row goes from 3 to 10, stops at both ends and shows only the number (REQ-AH-18)")
 	GameSettings.clear()
 
 	# Enrollment with 3 phones (REQ-GM-106): nobody plays until two press A.
