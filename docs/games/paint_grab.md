@@ -8,7 +8,7 @@ Code: `scripts/game/paint_grab/` and the shared helper `scripts/game/tilt_body.g
 
 Each player tilts a phone to roll a round, friendly **paint blob** (a made-up creature with big eyes, in the player color) over a
 floor of square tiles. A tile that a blob rolls over turns into the color of that blob, also when it had the color of another
-player. After 60 seconds the player with the most tiles wins. With one player, the score (the share of the floor that is painted)
+player. After 60 seconds, or when the last tile of the hidden picture is painted, the player with the most tiles wins. With one player, the score (the share of the floor that is painted)
 is shown as a score, with no medal. A tile that is painted over costs nothing but the tile: nobody is out and nobody waits.
 
 Since 2026-10-16 the floor hides a picture (a different one in each round, REQ-PG-22) and now and then a bonus pot lands on it:
@@ -36,8 +36,8 @@ Round
 | REQ-PG-1 | A round has a countdown of 3 s and then 60 s of play (`RoundClock`). The blobs cannot move during the countdown (REQ-GM-35). The clock is visible (`Shell.timer`). | Done | smoke_paint |
 | REQ-PG-2 | The floor is a grid of square tiles (the size depends on the difficulty, REQ-PG-20). The floor is empty (no color) at the start. All players have the same floor. | Done | smoke_paint, run_tests |
 | REQ-PG-3 | The blobs start in different places of the floor, apart from each other, at the same distance from the middle (REQ-GM-25). | Done | smoke_paint |
-| REQ-PG-4 | A blob paints the tile under its middle at every frame. A tile has one color at a time: the one of the blob that was on it last. A tile that is painted again by the same player stays as it is. | Done | run_tests, smoke_paint |
-| REQ-PG-5 | The round ends when the time is up. The score of a player is the number of tiles in the color of that player at that moment (`Scoreboard`, higher is better). Players with the same score share the rank (a tie). | Done | run_tests, smoke_paint |
+| REQ-PG-4 | A blob paints the tile under its middle at every frame. A tile has one color at a time: the one of the blob that was on it last. A tile that is painted again by the same player stays as it is. | Done | run_tests, smoke_paint, paint_rules (`is_painted`) |
+| REQ-PG-5 | The round ends when the time is up, or earlier when every tile that shows a part of the picture (REQ-PG-22) has a color, whatever the color (a tile without a part, the dark background of the picture, does not count). The score of a player is the number of tiles in the color of that player at that moment (`Scoreboard`, higher is better). Players with the same score share the rank (a tie). | Done | run_tests, smoke_paint |
 | REQ-PG-6 | The result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. The score text is the number of tiles. With one player the row has no medal (REQ-GM-73); with more players each row has the medal of its place (REQ-GM-73). | Done | smoke_paint |
 
 Movement

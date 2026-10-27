@@ -273,6 +273,23 @@ func _run() -> void:
 	await _frames(4)
 	_check(is_instance_of(app.current_screen(), PaintGame) and app.current_screen().difficulty == "medium"
 			and app.current_screen().floor_map.count(0) == 0, "Restart starts a new empty floor with the same difficulty")
+	# The round ends when the last tile of the picture is painted, before the time is up (REQ-PG-5).
+	var PaintPicture = load("res://scripts/game/paint_grab/paint_picture.gd")
+	var g2 = app.current_screen()
+	g2._game_tick(4.0)   # The countdown is over.
+	var open_tile := Vector2i(-1, -1)
+	for i in g2._picture.size():
+		if g2._picture[i] != PaintPicture.EMPTY:
+			if open_tile.x < 0:
+				open_tile = Vector2i(i % g2.floor_map.cols, i / g2.floor_map.cols)
+			else:
+				g2.floor_map.paint(Vector2i(i % g2.floor_map.cols, i / g2.floor_map.cols), 0)
+	g2._game_tick(0.01)
+	_check(not g2.is_over, "one picture tile without a color: the round goes on")
+	g2.floor_map.paint(open_tile, 1)
+	g2._game_tick(0.01)
+	_check(g2.is_over and g2._round.remaining() > 30.0,
+			"the last picture tile painted (another color): the round ends before the time")
 	for c in clients:
 		c.leave()
 	await _frames(10)
