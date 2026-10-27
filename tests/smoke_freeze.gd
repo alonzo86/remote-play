@@ -177,6 +177,19 @@ func _move_and_bench() -> void:
 	game._request_redraw()
 	await sim.frames(2)
 	_check(true, "a frame with the bench draws without an error")
+	# Issue #151: "back in n" stays inside the 60 px safe margin in English and in Hebrew, for 1 and 2 digits.
+	var lang_script = sim.app.Lang
+	var UiThemeS = load("res://scripts/ui/ui_theme.gd")
+	for code in ["en", "he"]:
+		lang_script.set_language(code, root)
+		var chip_x: float = game._bench_feet(0).x + 60.0
+		for n in [1, 9, 10, 25]:
+			var shown: String = lang_script.f("freeze_dance.back_in", [n]).to_upper()
+			var w: float = UiThemeS.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, UiThemeS.SIZE_BODY).x
+			var x: float = game.bench_text_x(chip_x, w, 1920.0)
+			_check(x >= 60.0 and x + w <= 1920.0 - 60.0,
+					"%s, %d s: the back-in text is inside the margin (%.0f to %.0f)" % [code, n, x, x + w])
+	lang_script.set_language("en", root)
 	_step(game, float(game._rules.level.freeze) + DanceRules.REST, {0: 0.0, 1: 5.0})
 	_check(game._board.score(1) == 20.0 and game._board.score(0) == 10.0,
 			"the mover keeps its points and gets none for this song (REQ-FD-8)")

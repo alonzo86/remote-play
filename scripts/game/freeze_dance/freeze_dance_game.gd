@@ -206,6 +206,12 @@ func _bench() -> Array[int]:
 
 
 ## The middle of the feet of the dancer on place `row` of the bench: the first place is the lowest.
+## The left edge of the "back in n" text under a chip at `chip_x`: centered under the chip, and inside the 60 px safe margin even
+## when the text is wider than the bench (the Hebrew text is, issue #151).
+static func bench_text_x(chip_x: float, text_w: float, area_w: float) -> float:
+	return clampf(chip_x + (BENCH_W - 40.0) * 0.5 - text_w * 0.5, 60.0, area_w - 60.0 - text_w)
+
+
 func _bench_feet(row: int) -> Vector2:
 	return Vector2(size.x - 60.0 - BENCH_W - 60.0, size.y - 120.0 - float(row) * BENCH_STEP + 40.0)
 
@@ -264,6 +270,7 @@ func _draw_bench_plates() -> void:
 		var y := feet.y - 40.0
 		var p := player(s)
 		Shell.chip(self, Vector2(x, y - 20.0), slot_label(s), p.color, BENCH_W - 40.0, 64.0, p.avatar)
-		Shell.text(self, Vector2(x, y + 76.0), Lang.f("freeze_dance.back_in", [ceili(_rules.back_in(s))]),
-				UiTheme.SIZE_BODY, UiTheme.TEXT)
+		var back_in := Lang.f("freeze_dance.back_in", [ceili(_rules.back_in(s))])
+		var text_w := UiTheme.font().get_string_size(back_in.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_BODY).x
+		Shell.text(self, Vector2(bench_text_x(x, text_w, size.x), y + 76.0), back_in, UiTheme.SIZE_BODY, UiTheme.TEXT)
 		row += 1
