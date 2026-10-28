@@ -177,7 +177,7 @@ GODOT=/path/to/godot tools/coverage.sh        # needs python3 and gdtoolkit (pip
 Godot has no coverage switch, so `tools/coverage/instrument.py` makes a copy of the project and puts a hit call before each
 statement inside a function in `scripts/` (it uses the parser of gdtoolkit). The suites of `tests/suites.txt` run on the copy. The result is in
 `build/coverage/`: `summary.md`, `summary.json` and `lcov.info`.
-**The rule: every module (script file) has at least 80% line coverage.** The script fails when one is lower, and the CI job
+**The rule: every module (script file) has at least 80% line coverage. The full run takes about 20 minutes and is run only when the owner asks for it.** The script fails when one is lower, and the CI job
 `coverage` runs the same script, shows the table in the run summary and keeps the files for 14 days. A module that needs extremely hard
 work to test today (a real device, an external service) can be set aside in `tools/coverage/exclusions.txt` (`path | reason`).
 Tests check behavior. Do not write a test only to cover lines. See `CLAUDE.md`, "Tests and coverage".

@@ -85,13 +85,11 @@ static func draw_stars(ci: CanvasItem, t: float) -> void:
 		ci.draw_rect(Rect2(float(s.x) * PX, float(s.y) * PX, PX, PX), STAR_COLORS[s.layer])
 
 
-## A far planet with a ring, in the top right of the sky, so the sky is not only stars.
+## A far, dark world in the top right of the sky, so the sky is not only stars. It is small and dim, with no outline and no ring,
+## so that it does not look like a target (issue #138).
 static func draw_planet(ci: CanvasItem, c: Vector2, r: float) -> void:
-	ci.draw_circle(c, r + PX, OUTLINE)
-	ci.draw_circle(c, r, Color("5b3a8c"))
-	ci.draw_circle(c + Vector2(-r * 0.2, -r * 0.2), r * 0.7, Color("7a52b4"))
-	ci.draw_arc(c, r * 1.5, 0.15 * PI, 0.85 * PI, 24, Color("c8a8ff"), PX)
-	ci.draw_arc(c, r * 1.5, 1.15 * PI, 1.85 * PI, 24, Color("c8a8ff"), PX)
+	ci.draw_circle(c, r, Color("241a3d"))
+	ci.draw_circle(c + Vector2(-r * 0.2, -r * 0.2), r * 0.7, Color("2e2250"))
 
 
 ## The picture of an asteroid of `size` (0 to 2) in one of 4 `look`s, with a one-pixel outline. The shape is a circle with a rough

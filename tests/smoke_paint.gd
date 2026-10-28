@@ -3,6 +3,8 @@ extends SceneTree
 ##   godot --headless --path . --script tests/smoke_paint.gd -- --role=tv
 
 const MedalView = preload("res://scripts/ui/medal_view.gd")
+const PaintPicture = preload("res://scripts/game/paint_grab/paint_picture.gd")
+const PaintPots = preload("res://scripts/game/paint_grab/paint_pots.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
@@ -43,7 +45,6 @@ func _run() -> void:
 	await _frames(5)
 	root.size = Vector2i(1920, 1080)
 	var PaintGame = load("res://scripts/game/paint_grab/paint_grab_game.gd")
-	var PaintPots = load("res://scripts/game/paint_grab/paint_pots.gd")
 	var TvGameSettings = load("res://scripts/ui/tv_game_settings.gd")
 	var GameSettings = load("res://scripts/game/game_settings.gd")
 	var app: Node = root.get_node("App")
@@ -273,6 +274,66 @@ func _run() -> void:
 	await _frames(4)
 	_check(is_instance_of(app.current_screen(), PaintGame) and app.current_screen().difficulty == "medium"
 			and app.current_screen().floor_map.count(0) == 0, "Restart starts a new empty floor with the same difficulty")
+	# The round ends when the last tile of the picture is painted, before the time is up (REQ-PG-5).
+	var g2 = app.current_screen()
+	g2._game_tick(4.0)   # The countdown is over.
+	var open_tile := Vector2i(-1, -1)
+	for i in g2._picture.size():
+		if g2._picture[i] != PaintPicture.EMPTY:
+			if open_tile.x < 0:
+				open_tile = Vector2i(i % g2.floor_map.cols, i / g2.floor_map.cols)
+			else:
+				g2.floor_map.paint(Vector2i(i % g2.floor_map.cols, i / g2.floor_map.cols), 0)
+	g2._game_tick(0.01)
+	_check(not g2.is_over, "one picture tile without a color: the round goes on")
+	g2.floor_map.paint(open_tile, 1)
+	g2._game_tick(0.01)
+	_check(g2.is_over and g2._round.remaining() > 30.0,
+			"the last picture tile painted (another color): the round ends before the time")
+	# Only the tiles of the picture can be painted and count (REQ-PG-24, issue #130).
+	app.go(g2.get_script(), {"difficulty": "medium", "seed": 7})
+	await _frames(3)
+	var g3 = app.current_screen()
+	g3._game_tick(4.0)
+	var cols: int = g3.floor_map.cols
+	var inside := Vector2i(-1, -1)
+	var outside := Vector2i(-1, -1)
+	var edge := Vector2i(-1, -1)   # A picture tile with a tile outside the picture in its 3 x 3 patch.
+	for i in g3._picture.size():
+		var c := Vector2i(i % cols, i / cols)
+		if g3._picture[i] == PaintPicture.EMPTY:
+			outside = c
+		elif inside.x < 0:
+			inside = c
+		if g3._picture[i] != PaintPicture.EMPTY and edge.x < 0 and c.x > 0 and c.y > 0 and c.x < cols - 1 \
+				and c.y < g3.floor_map.rows - 1:
+			for d in [Vector2i(-1, -1), Vector2i(1, 1), Vector2i(-1, 1), Vector2i(1, -1)]:
+				if g3._picture[(c.y + d.y) * cols + c.x + d.x] == PaintPicture.EMPTY:
+					edge = c
+	g3._bodies[0].pos = (Vector2(outside) + Vector2(0.5, 0.5)) * g3.floor_map.tile
+	g3._paint_under(0)
+	_check(g3.floor_map.owner_of(outside) == -1 and g3.floor_map.count(0) == 0 and not g3.is_paintable(outside),
+			"a blob over a tile outside the picture paints nothing and nothing counts")
+	g3._bodies[0].pos = (Vector2(inside) + Vector2(0.5, 0.5)) * g3.floor_map.tile
+	g3._paint_under(0)
+	_check(g3.floor_map.owner_of(inside) == 0 and g3.floor_map.count(0) == 1 and g3.is_paintable(inside),
+			"a blob over a tile of the picture paints it")
+	_check(g3.percent_of(g3._picture_total) == 100 and g3.percent_of(g3._picture_total / 2) == 50 and g3.best_value(1.0) >= 1
+			and g3._picture_total < g3.floor_map.total(),
+			"the percent and the personal best are counted on the picture tiles, not on the whole floor (REQ-PG-21, 31)")
+	var gold := PaintPots.Pot.new()
+	gold.kind = PaintPots.GOLD
+	gold.cell = edge
+	g3._apply_pot(1, gold)
+	var painted := 0
+	var stray := 0
+	for i in g3._picture.size():
+		if g3.floor_map.owners[i] == 1:
+			painted += 1
+			stray += 1 if g3._picture[i] == PaintPicture.EMPTY else 0
+	_check(edge.x >= 0 and painted >= 1 and painted < 9 and stray == 0,
+			"a gold pot paints only the picture tiles of its patch (%d of 9)" % painted)
+
 	for c in clients:
 		c.leave()
 	await _frames(10)

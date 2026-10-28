@@ -154,7 +154,18 @@ func _space_field() -> void:
 	_check(f.ships[0].alive and not f.ships[0].shield and not f.asteroids.has(hit) and f.scores[0] == 0
 			and f.events.any(func(e: Dictionary) -> bool: return e.t == "shield_pop"),
 			"a force field takes one hit and goes away; the ship flies on, the asteroid is gone with no points (REQ-AB-12)")
+	_check(is_equal_approx(f.ships[0].grace, SpaceField.GRACE_TIME),
+			"a force field that took a hit leaves the ship 3 s of grace (issue #137)")
 	var hit2 := f._make(0, 900.0, SpaceField.SHIP_Y - 20.0, rng)
+	f._ship_contacts()
+	_check(f.ships[0].alive and f.asteroids.has(hit2) and f.ships[0].shield == false,
+			"a second asteroid inside the grace time costs nothing: it passes through the ship (issue #137)")
+	f.tick(0.5, rng, {0: 0.0, 1: 0.0})
+	_check(f.ships[0].grace > 0.0 and f.events.any(func(e: Dictionary) -> bool: return e.t == "shot" and e.slot == 0),
+			"a ship in its grace time still shoots (issue #137)")
+	f.tick(SpaceField.GRACE_TIME, rng, {0: 0.0, 1: 0.0})
+	_check(f.ships[0].grace == 0.0, "the grace time ends after 3 s")
+	hit2 = f._make(0, 900.0, SpaceField.SHIP_Y - 20.0, rng)
 	f._ship_contacts()
 	_check(not f.ships[0].alive and f.ships[1].alive and f.asteroids.has(hit2) and f.alive_count() == 1 and not f.all_lost()
 			and f.events.any(func(e: Dictionary) -> bool: return e.t == "ship_lost"),
@@ -244,6 +255,26 @@ func _space_waves() -> void:
 	f.ships[1].alive = false
 	f._tick_waves(30.1, rng)
 	_check(f.scores[0] == 50 + 100 and f.scores[1] == 50, "the bonus is 50 times the wave, only for a ship that is still flying")
+	# Issue #136: the asteroids that are left at the end of a wave fly off, and the screen is empty in the rest.
+	f = _field([900.0, 1200.0])
+	var left := f._make(2, 900.0, SpaceField.SHIP_Y - 40.0, rng)   # On top of the ship 0 when the wave ends.
+	f.phase_time = SpaceField.WAVE_TIME - 0.01
+	f.tick(0.02, rng, {0: 0.0, 1: 0.0})
+	_check(f.phase == SpaceField.Phase.REST and left.leaving and f.ships[0].alive and f.ships[0].shield == false,
+			"at the end of the wave the asteroids that are left stop being a danger: the ship on which one sits is not hit")
+	f.beams.clear()
+	f.tick(1.0, rng, {0: 0.0, 1: 0.0})
+	_check(f.asteroids.is_empty() and f.phase == SpaceField.Phase.REST,
+			"1 s into the rest the left asteroids are gone and the screen has no asteroid (REQ-AB-8, issue #136)")
+	f = _field([900.0, 1200.0])
+	var hit_by_beam := f._make(1, 900.0, 300.0, rng)
+	hit_by_beam.leaving = true
+	var beam := SpaceField.Beam.new()
+	beam.x = 900.0
+	beam.y = 300.0
+	f.beams.append(beam)
+	f._hit_asteroids()
+	_check(hit_by_beam.hp == 2 and f.scores[0] == 0, "a beam passes through an asteroid that flies off: no points for it")
 	_check(SpaceField.wave_speed(1) == 1.0 and is_equal_approx(SpaceField.wave_speed(6), 1.5),
 			"each wave is 10 % faster (REQ-AB-9)")
 	var every_1 := SpaceField.spawn_every(1, 1)

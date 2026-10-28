@@ -119,6 +119,24 @@ func _start_and_music() -> void:
 	_check(game._seat[0] == 0 and game._seat[1] == 1 and float(a.x) < float(b.x), "the players stand in their places (REQ-FD-13)")
 	_check(game.best_key() == "" and game.difficulty == "medium",
 			"no personal best, and Medium is the level at the start (REQ-FD-10)")
+	# Issue #149: with a sound device the first round waits until its song is made, so it never runs in silence.
+	Snd.skip_without_output = false
+	Snd._streams.erase("freeze_dance")
+	var waiting: Control = await _play(2, {"seed": 4})
+	Snd._job.clear()   # The song is not made and nothing makes it.
+	_step(waiting, 2.0, {0: 3.0})
+	_check(waiting._rules.phase_time == 0.0 and waiting._rules.dancers[0].dance_time == 0.0,
+			"the first round does not start while the song is not made (issue #149)")
+	Snd._streams["freeze_dance"] = AudioStreamWAV.new()
+	_step(waiting, 1.0, {0: 3.0})
+	_check(waiting._rules.phase_time > 0.9, "when the song is made the round runs (%.2f s)" % waiting._rules.phase_time)
+	Snd._streams.erase("freeze_dance")
+	var late: Control = await _play(2, {"seed": 4})
+	Snd._job.clear()
+	_step(late, late.SONG_WAIT_MAX + 1.0, {0: 3.0})
+	_check(late._rules.phase_time > 0.5, "a song that never comes does not stop the game for ever (%.2f s)" % late._rules.phase_time)
+	Snd._streams.erase("freeze_dance")
+	Snd.skip_without_output = true
 
 
 ## REQ-FD-2, 3, 7, 14: the stop, the points after the freeze, the buzz after the freeze, the music goes on.
@@ -159,7 +177,7 @@ func _recorder() -> RefCounted:
 	return load("res://tests/rec_haptics.gd").new()
 
 
-## REQ-FD-6, 8, 14: a move, the bench, the buzz, the sit-out song and the return.
+## REQ-FD-6, 8, 14: a move, the bench, the buzz, the return in the next song.
 func _move_and_bench() -> void:
 	print("freeze: a move and the bench")
 	var game: Control = await _play(2, {"seed": 4})
@@ -173,21 +191,31 @@ func _move_and_bench() -> void:
 	_check(rec.ms_of(1) == [80] and rec.ms_of(0).is_empty() and "dance_out" in _sfx,
 			"the mover buzzes once, 80 ms, and the soft effect plays (REQ-FD-8, 14): %s" % str(rec.log))
 	_check(game._bench() == [1], "the mover is on the bench")
-	_check(game._rules.back_in(1) > 10.0 and game._rules.back_in(1) < 25.0, "the bench says how many seconds until it dances again")
+	_check(game._rules.back_in(1) > 0.0 and game._rules.back_in(1) < 6.0, "the bench says how many seconds until it dances again")
 	game._request_redraw()
 	await sim.frames(2)
 	_check(true, "a frame with the bench draws without an error")
+	# Issue #151: "back in n" stays inside the 60 px safe margin in English and in Hebrew, for 1 and 2 digits.
+	var lang_script = sim.app.Lang
+	var UiThemeS = load("res://scripts/ui/ui_theme.gd")
+	for code in ["en", "he"]:
+		lang_script.set_language(code, root)
+		var chip_x: float = game._bench_feet(0).x + 60.0
+		for n in [1, 9, 10, 25]:
+			var shown: String = lang_script.f("freeze_dance.back_in", [n]).to_upper()
+			var w: float = UiThemeS.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, UiThemeS.SIZE_BODY).x
+			var x: float = game.bench_text_x(chip_x, w, 1920.0)
+			_check(x >= 60.0 and x + w <= 1920.0 - 60.0,
+					"%s, %d s: the back-in text is inside the margin (%.0f to %.0f)" % [code, n, x, x + w])
+	lang_script.set_language("en", root)
 	_step(game, float(game._rules.level.freeze) + DanceRules.REST, {0: 0.0, 1: 5.0})
 	_check(game._board.score(1) == 20.0 and game._board.score(0) == 10.0,
 			"the mover keeps its points and gets none for this song (REQ-FD-8)")
-	_check(game._rules.song == 2 and game._bench() == [1], "the next song starts and the mover is still on the bench")
-	_to_freeze(game, {0: 4.0, 1: 5.0})
-	_step(game, float(game._rules.level.freeze) + 0.2, {0: 0.0, 1: 5.0})
-	_check(game._board.score(1) == 20.0 and game._board.score(0) == 20.0,
-			"a sitting player scores nothing, and its phone is not checked (REQ-FD-8)")
-	_step(game, DanceRules.REST + 0.1, {})
-	_check(game._rules.song == 3 and game._bench().is_empty() and game._rules.dancers[1].plays(),
-			"in the song after that the player dances again")
+	_check(game._rules.song == 2 and game._bench().is_empty() and game._rules.dancers[1].plays(),
+			"the next song starts and the mover is back on the floor (REQ-FD-8)")
+	_to_freeze(game, {0: 4.0, 1: 4.0})
+	_step(game, float(game._rules.level.freeze) + 0.2, {0: 0.0, 1: 0.0})
+	_check(game._board.score(1) == 30.0 and game._board.score(0) == 20.0, "in the next song the player scores again")
 
 
 ## The pause stops the round: no time, no event.

@@ -21,11 +21,11 @@ const GHOST_ACCENT := Color("46dcbe")
 static func ghost(kind: int, empty: Color) -> Color:
 	match kind:
 		PaintPicture.BODY:
-			return empty.lerp(GHOST_BODY, 0.45)
+			return empty.lerp(GHOST_BODY, 0.22)
 		PaintPicture.ACCENT:
-			return empty.lerp(GHOST_ACCENT, 0.5)
+			return empty.lerp(GHOST_ACCENT, 0.24)
 		PaintPicture.EYE:
-			return empty.lerp(Color.WHITE, 0.7)
+			return empty.lerp(Color.WHITE, 0.34)
 	return empty.lerp(Color.BLACK, 0.25)
 
 

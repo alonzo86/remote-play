@@ -67,7 +67,7 @@ tests/smoke_mole.gd|tv|Whack-a-Mole|scenario
 tests/dance_rules.gd|controller|Freeze Dance rules, motion meter, light tiles and pictures|unit
 tests/smoke_freeze.gd|tv|Freeze Dance: songs, stop, points, moves, bench, round, leave|scenario
 tests/device_mocks_b.gd|tv|buzzes, RECENTER, silent phone (maze, race, banana)|scenario
-tests/swing_setup.gd|tv|safety card of the swing games: setup message, Start waits for OK, once for each run|scenario
+tests/swing_setup.gd|tv|safety card of the swing games: setup message, Start waits for OK, asked before every game|scenario
 tests/join_flow.gd|controller|join flow on the loopback, Wi-Fi cut relay, QR scan, list of TVs|unit
 tests/ui_states_a.gd|controller|phone screens: Disconnect, A and B, Back, safe area|scenario
 tests/net_rate.gd|tv|network numbers: RTT, Hz, gap, loss|scenario
@@ -94,6 +94,8 @@ tests/r4_bowling.gd|tv|Pin Pals: totals, last frame, rails, plate, scores, winne
 tests/r4_tennis.gd|tv|Tennis: leader chip, toss, runs, GREAT, places, rally|scenario
 tests/r4_golf.gd|tv|Mini Golf: turn, plate, phones, aim mark, swing, barriers, banner, bar, result menu|scenario
 tests/air_hockey_rules.gd|controller|Air Hockey rules, puck and ROBO|unit
+tests/hockey_bot.gd|tv|ROBO in simulated matches and shots: own goals, defence (issues #146, #147)|unit
 tests/smoke_air_hockey.gd|tv|Air Hockey: enroll, tilt, goals, ROBO, pause, leave, results|scenario
 tests/tower_rules.gd|controller|Tower Builder rules: landing, toppling, turn time|unit
 tests/smoke_tower.gd|tv|Tower Builder: turns, drop, miss, topple, leave, results, solo medal|scenario
+tests/frame_cost.gd|tv|frame cost of every game with 4 phones on Hard (Tests 14, 15, 22, 23, 27, 28, 30, 31, 32)|scenario

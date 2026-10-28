@@ -1,7 +1,7 @@
 extends Control
 ## The safety card of a swing game on the phone (issue #79, REQ-GM-102): "hold on tight". It covers the waiting screen while the
-## settings view of Pin Pals, Tennis or Mini Golf is open on the TV, until the player taps OK. It shows once for each run of
-## the app. The look is the one of the quit question (`controller_quit_dialog.gd`).
+## settings view of Pin Pals, Tennis or Mini Golf is open on the TV, until the player taps OK. It shows every time that
+## the settings view of a swing game opens. The look is the one of the quit question (`controller_quit_dialog.gd`).
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")

@@ -1,7 +1,8 @@
 extends "res://scripts/game/minigame.gd"
 ## Freeze Dance. Everybody wiggles the phone while the music plays and the dancers on the TV dance; when the music stops and the
-## floor lights go out, everybody holds the phone still. A player who holds still gets 10 points. A player who moves sits out one
-## song and keeps the points (REQ-FD-1 to 16, REQ-GM-83). The game is for children too (REQ-GM-80 to 84).
+## floor lights go out, everybody holds the phone still. A player who holds still gets 10 points. A player who moves gets no
+## points for that song, rests until the next one and keeps the points (REQ-FD-1 to 16, REQ-GM-83).
+## The game is for children too (REQ-GM-80 to 84).
 ## The rules are in dance_rules.gd, the pictures in dance_look.gd. This script has the input, the round and the drawing.
 
 const DanceRules = preload("res://scripts/game/freeze_dance/dance_rules.gd")
@@ -22,6 +23,7 @@ const POP_LIFE := 1.2
 const DANCE_RATE := 5.0          # Steps of the dance in a second.
 const BENCH_STEP := 104.0        # The height of one place on the bench.
 const BENCH_W := 280.0
+const SONG_WAIT_MAX := 8.0   # Seconds the first round waits for its song at most.
 
 ## A "+10" that floats up above a dancer. The pool is made once (REQ-GM-51).
 class Pop:
@@ -43,6 +45,8 @@ var _draw_order: Array[int] = [] # The slots, the far dancers first.
 var _lit := {}                   # The lit tiles of the floor (Vector2i(row, col)).
 var _light_clock := 0.0
 var _light_step := -1
+var _song_ready := false         # The song is made and the first round may start (issue #149).
+var _song_wait := 0.0
 var _scene_time := 0.0           # Game time of the dance: it stands still while the game is paused (REQ-FL-43).
 var _pops: Array[Pop] = []
 var _tex := {}                   # "slot|pose|dim" -> the ImageTexture of a dancer.
@@ -88,6 +92,10 @@ func _on_player_left(slot: int) -> void:
 
 func _game_tick(delta: float) -> void:
 	_scene_time += delta
+	if not _song_ready:   # The first round waits until the song is made, so it has music (issue #149).
+		_song_wait += delta
+		_song_ready = Sound.song_ready(Registry.id_of_script(get_script())) or _song_wait >= SONG_WAIT_MAX
+		return
 	for p in _pops:
 		if p.age >= 0.0:
 			p.age += delta
@@ -180,7 +188,7 @@ func _world_draw(ci: CanvasItem) -> void:
 		DanceLook.draw_dancer(ci, _texture(s, pose, false), Vector2(float(at.x), float(at.y) - hop), int(at.scale), wp)
 	DanceLook.draw_stage(ci, size)
 	var row := 0
-	for s in _bench():   # The dancers that sit out, on the bench at the right (REQ-FD-8).
+	for s in _bench():   # The dancers that moved, on the bench at the right (REQ-FD-8).
 		var feet := _bench_feet(row)
 		DanceLook.draw_dancer(ci, _texture(s, 0, true), feet, 1, wp)
 		row += 1
@@ -194,7 +202,7 @@ func _texture(slot: int, pose: int, dim: bool) -> ImageTexture:
 	return _tex[key]
 
 
-## The slots that sit out (REQ-FD-8), in slot order. A player whose way back is after the last song has no "BACK IN" time.
+## The slots that moved in this song (REQ-FD-8), in slot order. A mover in the last song has no "BACK IN" time.
 func _bench() -> Array[int]:
 	var out: Array[int] = []
 	if is_over:
@@ -203,6 +211,12 @@ func _bench() -> Array[int]:
 		if _rules.is_out(s):
 			out.append(s)
 	return out
+
+
+## The left edge of the "back in n" text under a chip at `chip_x`: centered under the chip, and inside the 60 px safe margin even
+## when the text is wider than the bench (the Hebrew text is, issue #151).
+static func bench_text_x(chip_x: float, text_w: float, area_w: float) -> float:
+	return clampf(chip_x + (BENCH_W - 40.0) * 0.5 - text_w * 0.5, 60.0, area_w - 60.0 - text_w)
 
 
 ## The middle of the feet of the dancer on place `row` of the bench: the first place is the lowest.
@@ -264,6 +278,8 @@ func _draw_bench_plates() -> void:
 		var y := feet.y - 40.0
 		var p := player(s)
 		Shell.chip(self, Vector2(x, y - 20.0), slot_label(s), p.color, BENCH_W - 40.0, 64.0, p.avatar)
-		Shell.text(self, Vector2(x, y + 76.0), Lang.f("freeze_dance.back_in", [ceili(_rules.back_in(s))]),
-				UiTheme.SIZE_BODY, UiTheme.TEXT)
+		if _rules.back_in(s) >= 0.0:   # A mover in the last song has no time (REQ-FD-8).
+			var back_in := Lang.f("freeze_dance.back_in", [ceili(_rules.back_in(s))])
+			var text_w := UiTheme.font().get_string_size(back_in.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_BODY).x
+			Shell.text(self, Vector2(bench_text_x(x, text_w, size.x), y + 76.0), back_in, UiTheme.SIZE_BODY, UiTheme.TEXT)
 		row += 1

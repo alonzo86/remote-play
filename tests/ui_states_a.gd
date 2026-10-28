@@ -70,7 +70,8 @@ func _screen(script: GDScript, parent: Control = null) -> Control:
 	return s
 
 
-## Issue #79, REQ-GM-102: the safety card of a swing game shows on the waiting screen until OK, and not again in this run.
+## Issue #79, REQ-GM-102: the safety card of a swing game shows on the waiting screen until OK, not again for the same view,
+## and again for the next view.
 func _swing_card() -> void:
 	print("swing card")
 	var wait: Control = _screen(_app.ControllerWait)
@@ -89,9 +90,13 @@ func _swing_card() -> void:
 	_check(_app.client.swing_acked and not is_instance_valid(wait._swing_card), "OK answers and closes the card")
 	_app.client.setup_changed.emit()
 	await process_frame
-	_check(not is_instance_valid(wait._swing_card), "the card does not show again in this run of the app")
-	_app.client.setup_swing = false
-	_app.client.swing_acked = false
+	_check(not is_instance_valid(wait._swing_card), "the card does not show again for the same view")
+	_app.client._handle({"t": "phase", "v": "connect"}, 0)   # The view closes.
+	_check(not _app.client.swing_acked and not _app.client.setup_swing,
+			"the answer is forgotten when the view closes: the next view asks again (issue #148)")
+	_app.client.swing_acked = true
+	_app.client._handle({"t": "welcome", "slot": 1, "color": "#ff0000", "token": "t", "name": "TV2", "phase": "connect"}, 0)
+	_check(not _app.client.swing_acked, "a new welcome (another TV) forgets the answer too")
 	wait.queue_free()
 
 

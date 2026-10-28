@@ -1,7 +1,7 @@
 extends SceneTree
 ## The setup of a game in the TV settings view (issues #79 and #76, REQ-GM-102, REQ-GM-104), with simulated phones on the
 ## loopback network. Swing games (Pin Pals, Tennis, Mini Golf): the settings view sends `setup` to the phones, Start waits
-## for the answer `swing_ok` of every phone that plays, the card shows once for each run of the app (tests/ui_states_a.gd), and
+## for the answer `swing_ok` of every phone that plays, the card shows every time the view opens (tests/ui_states_a.gd), and
 ## the other games have no card. IN and OUT: each phone chooses, the TV lists it, the game has the IN players only. Run:
 ##   godot --headless --path . --script tests/swing_setup.gd -- --role=tv
 
@@ -65,6 +65,15 @@ func _games() -> void:
 	_check(not app.server.setup_swing and app.server.swing_pending().is_empty() and not sim.clients[0].setup_swing,
 			"the settings view of Treasure Maze has no safety card")
 	_check(not app.current_screen().start_button.disabled, "Start works in Treasure Maze")
+	# Issue #148: every swing game asks a phone that has not tapped OK yet, Freeze Dance too.
+	for id in swing:
+		for c in sim.clients:
+			c.swing_acked = false
+		app.go_game_settings(id)
+		await _wait_for(func(): return sim.clients[0].setup_swing and sim.clients[1].setup_swing)
+		await sim.frames(3)
+		_check(app.server.swing_pending() == [0, 1] and app.current_screen().start_button.disabled,
+				"%s: both phones are asked for the safety card and Start waits" % id)
 
 
 ## Start of a swing game waits for the OK of every phone, and the line says why.
@@ -79,6 +88,11 @@ func _answers() -> void:
 			"both phones get the safety card and none has answered")
 	_check(view.start_button.disabled and view.reason_label.text == Lang.t("game_settings.waiting_phones").to_upper(),
 			"Start is off and the line says WAITING FOR PHONES")
+	var tv_line: String = load("res://scripts/ui/ui_kit.gd").shown("swing.tv_line")
+	var line_shown := false
+	for l in view.find_children("*", "Label", true, false):
+		line_shown = line_shown or (l.text == tv_line and l.is_visible_in_tree())
+	_check(line_shown, "the settings view of a swing game shows the safety line under the rows (Test 23 step 14a)")
 	# Issue #121: a disabled Start cannot be reached. Down from the last row goes to Back, and Start takes no focus.
 	var last: Control = view.rows[-1]
 	last.grab_focus()
@@ -101,15 +115,21 @@ func _answers() -> void:
 	view._set_start_reachable(false)   # Start becomes disabled while it has the focus (a phone left): the focus moves to Back.
 	_check(view.get_viewport().gui_get_focus_owner() == view.back_button, "Start disabled while focused: Back gets the focus")
 	view._set_start_reachable(true)
-	# The answer is kept for this run of the app: the second visit asks nobody.
+	# Issue #148: the answer is for one view: the next visit asks every phone again.
 	app.go_games()
 	await sim.frames(3)
 	_check(not sim.clients[0].setup_swing and not app.server.setup_swing, "the Games screen closes the safety card")
 	app.go_game_settings("tennis")
-	await _wait_for(func(): return app.server.swing_pending().is_empty() and app.server.setup_swing)
+	await _wait_for(func(): return app.server.setup_swing and sim.clients[0].setup_swing and sim.clients[1].setup_swing)
 	await sim.frames(3)
-	_check(sim.clients[0].swing_acked and app.server.swing_pending().is_empty()
-			and not app.current_screen().start_button.disabled, "a phone that answered once answers at once, with no card")
+	_check(not sim.clients[0].swing_acked and not sim.clients[1].swing_acked and app.server.swing_pending() == [0, 1]
+			and app.current_screen().start_button.disabled,
+			"the second visit asks both phones again: the card shows and Start waits (before every game)")
+	sim.clients[0].send_swing_ok()
+	sim.clients[1].send_swing_ok()
+	await _wait_for(func(): return app.server.swing_pending().is_empty())
+	await sim.frames(3)
+	_check(not app.current_screen().start_button.disabled, "after the answers of the second visit Start works")
 	app.go_games()
 	await sim.frames(3)
 

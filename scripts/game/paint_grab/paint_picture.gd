@@ -102,3 +102,15 @@ static func kinds_for(index: int, cols: int, rows: int, flip := false, swap := f
 				k = BODY
 			out[y * cols + x] = k
 	return out
+
+
+## True when every tile that has a part of the picture (not EMPTY) has an owner, whatever the color (REQ-PG-5).
+static func is_painted(kinds: PackedInt32Array, owners: PackedInt32Array, none: int) -> bool:
+	var any := false
+	for i in kinds.size():
+		if kinds[i] == EMPTY:
+			continue
+		any = true
+		if owners[i] == none:
+			return false
+	return any

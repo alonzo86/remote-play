@@ -154,7 +154,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	var o: Vector2 = fit.origin
 	BlastLook.draw_sky(ci, size)
 	BlastLook.draw_stars(ci, _time)
-	BlastLook.draw_planet(ci, Vector2(size.x - 260.0, 300.0), 90.0)
+	BlastLook.draw_planet(ci, Vector2(size.x - 260.0, 300.0), 50.0)
 	for a in field.asteroids:
 		var tex := _picture("rock%d_%d_%d" % [a.size, a.look, roundi(k * 100.0)],
 				BlastLook.asteroid_image.bind(a.size, a.look, a.radius * k))
@@ -196,7 +196,9 @@ func _draw_ship(ci: CanvasItem, s: SpaceField.Ship, o: Vector2, k: float) -> voi
 	var frame := int(_time * 10.0) % 2
 	var tex := _picture("ship_%d_%d" % [s.slot, frame], BlastLook.ship_image.bind(player(s.slot).color, frame))
 	# The hull is the top 14 of the picture; the middle of the hull is the place of the ship.
-	_draw_picture(ci, tex, p + Vector2(0.0, (float(tex.get_height()) * 0.5 - 8.0) * Shell.WORLD_PIXEL))
+	var blink_off: bool = s.grace > 0.0 and int(_time * 6.0) % 2 == 0   # A ship in its grace time blinks (issue #137).
+	if not blink_off:
+		_draw_picture(ci, tex, p + Vector2(0.0, (float(tex.get_height()) * 0.5 - 8.0) * Shell.WORLD_PIXEL))
 	if s.shield:
 		BlastLook.draw_shield(ci, p, (SpaceField.SHIP_R + 10.0) * k, _time)
 

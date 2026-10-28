@@ -161,6 +161,14 @@ func _buzzes() -> void:
 	game._process(DT)
 	_check(not ship.shield and ship.alive and not game.field.asteroids.has(rock) and rec.log == [[0, 80]]
 			and game.field.scores[0] == score_before, "a hit on the ring buzzes once for 80 ms, the ship flies on, the score is the same")
+	# Issue #137: for 3 s after the ring took a hit an asteroid passes through the ship: no hit, no buzz.
+	var rock_in_grace: SpaceField.Asteroid = game.field._make(1, ship.x, SpaceField.SHIP_Y - 30.0, RandomNumberGenerator.new())
+	rec.log.clear()
+	game._process(DT)
+	_check(ship.alive and game.field.asteroids.has(rock_in_grace) and rec.log.is_empty(),
+			"an asteroid inside the grace time after the ring is gone does not hit the ship and does not buzz")
+	game.field.asteroids.clear()
+	SimInput.run(game, SpaceField.GRACE_TIME + 0.1, DT, func(_t: float) -> void: game.field.asteroids.clear())
 	# An asteroid hits the ship without the ring.
 	var rock2: SpaceField.Asteroid = game.field._make(1, ship.x, SpaceField.SHIP_Y - 30.0, RandomNumberGenerator.new())
 	rec.log.clear()

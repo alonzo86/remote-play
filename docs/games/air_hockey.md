@@ -49,10 +49,10 @@ Puck, rails and goals
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-AH-6 | The puck is a disk. A mallet that overlaps it pushes it away along the line between them: the speed of the mallet is added (a mallet that moves fast hits hard), and the puck leaves at 420 px/s at least, so it never sticks to a mallet. The puck never speeds up beyond 1800 px/s. A long frame is split in steps of 1/120 s at most, so the puck cannot go through a mallet. | Done | air_hockey_rules |
+| REQ-AH-6 | The puck is a disk. A mallet that overlaps it pushes it away along the line between them: the speed of the mallet is added, and 60 % of its speed toward the puck once more (`HIT_BOOST`, issue #145): a mallet that moves fast hits hard, and the puck leaves faster than the mallet, and the puck leaves at 420 px/s at least, so it never sticks to a mallet. The puck never speeds up beyond 1800 px/s. A long frame is split in steps of 1/120 s at most, so the puck cannot go through a mallet. | Done | air_hockey_rules |
 | REQ-AH-7 | The puck slows down by itself (damping 0.35 /s: about a third in 1 s) and bounces off the rails keeping 92 % of the speed. | Done | air_hockey_rules |
 | REQ-AH-8 | Each short side has a goal opening 280 px high in the middle. A puck whose whole disk is over the goal line inside the opening is a goal for the other seat. A puck beside the opening bounces off the rail. | Done | air_hockey_rules |
-| REQ-AH-9 | After a goal the scorer gets 1 goal, the phone of the scorer buzzes (120 ms), a banner "GOAL FOR <NAME>!" shows for 2 s with the puck still, and then the mallets go back to their start places and the puck waits 1 s on the side of the seat that conceded (the puck is served to the one who was scored on). Nothing is taken away from anybody. | Done | smoke_air_hockey, air_hockey_rules |
+| REQ-AH-9 | After a goal the scorer gets 1 goal, the phone of the scorer buzzes (120 ms), a banner "GOAL FOR <NAME>!" shows for 2 s with the puck still, and then the mallets go back to their start places and the puck waits 1 s on the side of the seat that conceded (the puck is served to the one who was scored on). While the puck waits it is solid for a mallet: a mallet that reaches it stops at its edge (issue #146). Nothing is taken away from anybody. | Done | smoke_air_hockey, air_hockey_rules |
 | REQ-AH-10 | The match ends when a seat reaches the goals of the setting. Two phones: `open_results()` ranks both (REQ-GM-72): "<NAME> wins!", "1st NAME 5 goals", "2nd NAME 3 goals", with the medals of the places (REQ-GM-73). Against ROBO: the same menu with both rows (ROBO has the color of its seat and no avatar), no medal (exception above), "<NAME> wins!" or "ROBO wins!", the win sound when the phone won and the neutral sound when ROBO won. The winner phone buzzes 400 ms. The buttons are Try again, New game and Back to menu. Score text: "N goals" ("1 goal"). | Done | smoke_air_hockey |
 | REQ-AH-11 | The leader chip (REQ-GM-46) and the place and score on each phone (REQ-FL-67) work with two phones. Against ROBO the phone gets no place (a place of one player would say nothing), and the two chips under the table show the score. | Done | smoke_air_hockey |
 | REQ-AH-12 | A hit that sends the puck away faster than 450 px/s buzzes the phone of the mallet (25 ms, at most every 150 ms) and plays `hockey_hit`. A rail hit above 450 px/s plays `hockey_wall`. A goal plays `hockey_goal`. Enrolling buzzes the phone (40 ms) and plays `join`. The song `air_hockey` plays from the start of the play (no countdown). | Done | smoke_air_hockey, audio |
@@ -64,14 +64,14 @@ ROBO (REQ-GM-105)
 | REQ-AH-13 | ROBO is added automatically, and only, when one phone plays (one phone connected, or the TV remote started the match with one enrolled phone). It takes the right seat. It is never added when two phones play. There is no setting to turn it on or off. | Done | smoke_air_hockey |
 | REQ-AH-14 | ROBO is a body like a phone player: it gives a tilt (`PlayerInput.tilt()` is what a phone gives), and its mallet moves with the same `TiltBody` and the same table rules (REQ-GM-24). It sees the puck `reaction` seconds late and cannot tilt farther than `max_tilt`. | Done | air_hockey_rules |
 | REQ-AH-15 | ROBO has the name "ROBO" (`air_hockey.bot_name`) and its own color, purple `#a678e6`, which no phone slot has. Its chip under the table has no avatar. It has no personal best and no medal. | Done | smoke_air_hockey |
-| REQ-AH-16 | The brain defends: it waits in front of its goal and moves to where the puck will cross its line (a line that bounces off a rail is folded). A slow puck on its half is attacked: it goes behind the puck, seen from the other goal, and then through it, aiming at the other goal with an error of `aim_error` px. A puck that stays slow on its half for `idle` seconds is always attacked (nobody else can reach it). A new puck on its half is attacked with the probability `attack`. | Done | air_hockey_rules |
+| REQ-AH-16 | The brain defends: it waits in front of its goal and moves to where the puck will cross its line (a line that bounces off a rail is folded). A slow puck on its half is attacked: it goes behind the puck, seen from the other goal, and then through it, aiming at the other goal with an error of `aim_error` px. A puck that stays slow on its half for `idle` seconds is always attacked (nobody else can reach it). A puck that comes to its goal is defended, however slow it is (issue #147). The way to the point behind the puck goes around the puck (a touch from the wrong side sends it the wrong way). A puck close to its goal line in front of the opening is swept sideways along the goal line, away from the opening, never hit toward its own goal (issue #146). A new puck on its half is attacked with the probability `attack`. | Done | air_hockey_rules |
 | REQ-AH-17 | Difficulty (REQ-GM-91) changes only the skill of ROBO (REQ-GM-96): see the table in Parameters. Easy is beatable by a child of about 5 years: a player that only chases the puck with a soft tilt scores at least 3 times as many goals as ROBO on Easy (headless proxy, 4 matches of 3 minutes), and Hard beats that player clearly. The mallet of the player is the same on every level. | Done | air_hockey_rules (the proxy), Device (a child, Test 27) |
 
 Settings, leaving and look
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-AH-18 | The settings view has Difficulty and **Goals** (3 to 10, 5 at the start; props `difficulty` and `goals`; the row stops at 3 and at 10). The line under the name is `how_to.air_hockey`. There is no IN and OUT (REQ-GM-106). | Done | smoke_air_hockey |
+| REQ-AH-18 | The settings view has Difficulty and **Goals** (3 to 10, 5 at the start; props `difficulty` and `goals`; the row stops at 3 and at 10; the value shows only the number, "5", key `air_hockey.goals_value`, issue #144). The line under the name is `how_to.air_hockey`. There is no IN and OUT (REQ-GM-106). | Done | smoke_air_hockey |
 | REQ-AH-19 | A lost phone pauses the match (REQ-GM-30): nothing runs. The card has End game, and Resume only when every player is connected again; it never offers "Resume without ...". A player that left for good (its slot was freed, REQ-GM-30a) ends the match: the result menu names the player that stays as the winner, with no medal. Against ROBO, when the only phone leaves, "No players connected" opens (REQ-GM-22). Before the match starts, a leave only changes who can enroll; with one phone left it is enrolled at once. | Done | smoke_air_hockey |
 | REQ-AH-20 | Look (mock v5): a white table with rounded corners and black rails with silver corner caps on the blue of the arcade set (`#1b3a8a`); a red dashed middle line, a blue center circle with a red dot, blue lines at the thirds, blue goal creases, red face-off circles and dots; the goal openings are gaps in the rails. A mallet has a black outline, a base in the slot color with a darker lower edge, a groove, a knob with a shine and a soft shadow; the puck is black with a bevel, a darker top and a shine. All of it is drawn in the 480x270 pixel view (REQ-GM-47i). | Done | smoke_air_hockey (the view), Device (the look, Test 27) |
 | REQ-AH-21 | HUD: the title (REQ-GM-45), "FIRST TO N" in the place of the timer (REQ-GM-47o), one chip under each goal with the color square, the name (the avatar when the player has one) and the goals, the leader chip with two phones, the goal banner (72 px) in the middle, and one hint line "TILT TO SLIDE YOUR MALLET AND HIT THE PUCK!" for 6 s at the start. The table is not mirrored in Hebrew (the world is not mirrored, REQ-GM-47o); the HUD text is. All text is 32 px or larger and inside the 60 px margin. | Done | smoke_air_hockey, hud_layout |
@@ -86,6 +86,7 @@ Values that change how the game feels. All are first guesses; tune them on a dev
 | Table, goal opening, puck and mallet radius | `air_hockey_sim.gd` `RINK`, `GOAL_H`, `PUCK_R`, `PADDLE_R` | 1680x728 px, 280, 34, 60 |
 | Mallet: acceleration, damping, speed limit | `PADDLE_ACCEL`, `PADDLE_DAMPING`, `PADDLE_MAX` | 5200 px/s2, 5 /s, 1100 px/s |
 | Puck: damping, top speed, rail keep, hit keep, least hit speed | `PUCK_DAMPING`, `PUCK_MAX`, `WALL_KEEP`, `HIT_KEEP`, `MIN_HIT` | 0.35 /s, 1800 px/s, 0.92, 0.9, 420 px/s |
+| Hit boost: the part of the speed of the mallet (toward the puck) that a hit adds to the puck (issue #145, first guess, tuned in Test 27) | `HIT_BOOST` | 0.6 |
 | Serve wait, goal banner | `SERVE_WAIT`, `GOAL_BANNER` | 1.0 s, 2.0 s |
 | Hit buzz speed and length | `HIT_BUZZ_SPEED`, `_on_hit()` | 450 px/s, 25 ms |
 
@@ -93,12 +94,12 @@ What Easy, Medium and Hard mean (`hockey_bot.gd` `LEVELS`; only ROBO changes, RE
 
 | Level | Reaction (s) | Max tilt | Aim error (px) | Defend error (px) | Attacks a new puck | Slow puck speed (px/s) | Idle before it attacks (s) |
 |-------|--------------|----------|----------------|-------------------|--------------------|------------------------|----------------------------|
-| Easy | 0.5 | 0.35 | 250 | 260 | 30 % | 260 | 2.0 |
-| Medium | 0.3 | 0.5 | 200 | 110 | 50 % | 520 | 1.2 |
-| Hard | 0.07 | 1.0 | 60 | 25 | 95 % | 900 | 0.5 |
+| Easy | 0.5 | 0.35 | 250 | 260 | 30 % | 400 | 2.0 |
+| Medium | 0.3 | 0.5 | 200 | 60 | 50 % | 780 | 1.2 |
+| Hard | 0.07 | 1.0 | 60 | 25 | 95 % | 1300 | 0.5 |
 
-In the headless proxy (a player that only chases the puck, 4 matches of 3 minutes) the player scored 54, 3 and 2 goals and ROBO 1, 4 and 26
-goals on Easy, Medium and Hard.
+In the headless proxy (a player that only chases the puck, 4 matches of 3 minutes) the player scored 18, 0 and 2 goals and ROBO 5, 8 and 24
+goals on Easy, Medium and Hard (changed with issue #146: before, ROBO gave the player 115 own goals on Easy; and with issue #145: the puck is faster, so the slow-puck speeds of the table are 1.5 times the old values).
 
 ## Open questions
 

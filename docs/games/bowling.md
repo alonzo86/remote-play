@@ -55,7 +55,7 @@ A swing that is too weak does nothing and the hint says "Swing a bit more!"; the
 3. Pins left: the same player bowls ball 2 ("2 pins left. One more ball!"). Then the fallen pins are taken away at once and the next player starts.
 4. Strike: "STRIKE!" banner and a burst of colored pixels. Spare: "SPARE!". Off the side: "OOPS! OFF THE SIDE" (no point is taken, no mockery, REQ-GM-84).
 5. A turn has **no time limit**: it takes as long as the player needs (decision of 2026-10-16). A game of 4 players is about 10 minutes
-   and the longest wait for the others is about 30 s, more than the "about 20 seconds" of REQ-GM-83 (see the gaps). The banner after a ball shows 1.8 s, and a press on A of any phone skips it (REQ-BW-11). There is no short game: the game always has 10 frames.
+   and the longest wait for the others is about 30 s, more than the "about 20 seconds" of REQ-GM-83 (see the gaps). The banner after a ball shows 1.8 s (REQ-BW-11). There is no short game: the game always has 10 frames.
 
 The phones: the player on turn gets a short buzz (60 ms). The pad shows "YOUR TURN" on the phone on turn and "NOA IS BOWLING" on the others (REQ-BW-14, the optional `turn` message of `docs/PROTOCOL.md`).
 
@@ -65,7 +65,7 @@ The phones: the player on turn gets a short buzz (60 ms). The pad shows "YOUR TU
 |------------|------|------|
 | REQ-GM-24 | Note | All players have the same values. The turn order is standard (player 1 first in every frame), which is the rule of the sport. |
 | REQ-GM-35, 71 | Exception | There is no countdown (REQ-GM-35, no visible timer) and no round clock: the first turn starts at once after Start; the game ends after the 10th frame of the last player (REQ-BW-1). |
-| REQ-GM-37 | Exception | The Recenter box is the aim strip while it is the turn of the phone (REQ-BW-4), because the game needs no recenter: the aim is a finger, not a pose. Other phones have no Recenter box either (issue #55). A is used by every phone only to skip the banner of a ball. B is not used. |
+| REQ-GM-37 | Exception | The Recenter box is the aim strip while it is the turn of the phone (REQ-BW-4), because the game needs no recenter: the aim is a finger, not a pose. Other phones have no Recenter box either (issue #55). The pad has no A and no B (issue #143): the game needs no button. |
 | REQ-GM-81 | Note | The pins are plain lifeless pins with no face. Knocked pins spin and burst into colored pixels. No living thing is hit. |
 | REQ-GM-83 | Gap (open) | A player waits for the other players (about 30 s with 4 players) and a turn has no time limit. The user decided this on 2026-10-16 (no Length setting). Mitigation: short animations. |
 | REQ-GM-47k | Note | The disco light grid on the back wall (REQ-BW-13) uses 7 bright light colors besides the 8 colors of the world palette (`DISCO` in `bowling_look.gd`). The user allowed a few more colors when the general theme is kept (2026-10-16). It is decoration only. |
@@ -101,7 +101,7 @@ Lane and pins
 |----|-------------|--------|-------|
 | REQ-BW-9 | The lane is a fixed 2D simulation (top view numbers, drawn in perspective): the lane is 1.05 m wide, the ball radius 0.11 m, a pin radius 0.09 m (a pin is bigger than a real one so that it is easy to see), in the standard triangle of 10 pins (numbered 1 to 10, 0.305 m apart). Sub-steps of 1/120 s (REQ-GM-13). Pins and ball are circles. A ball that hits a pin passes on momentum with a fixed restitution; a pin hit above a speed limit falls and goes on as a sliding circle with friction, so it can knock others (pin action). The same aim and speed always give the same result (REQ-3D-9 spirit): no random number in the physics. | Device | lane_sim |
 | REQ-BW-10 | A ball that leaves the lane (the line of the gutter) is in the gutter: it rolls to the end with no pin hit and the player sees "OOPS! OFF THE SIDE". The result of the ball is 0 pins. With the setting **Rails** on, the gutters are covered by rails (bumpers): a ball that touches a rail rolls back into the lane, so there is no gutter ball (REQ-BW-16). | Done | lane_sim |
-| REQ-BW-11 | After a ball, the fallen pins are taken away at once (no animation) and the standing pins stay for ball 2. After the last ball of a frame, a fresh rack is set at once. A press on A of any phone skips the banner of the ball (not the rolling). | Done | smoke_bowling |
+| REQ-BW-11 | After a ball, the fallen pins are taken away at once (no animation) and the standing pins stay for ball 2. After the last ball of a frame, a fresh rack is set at once.  The banner of the ball shows 1.8 s and nothing skips it (issue #143: there is no A button). | Done | smoke_bowling |
 
 Feedback and screen
 
@@ -116,13 +116,13 @@ Settings and difficulty (REQ-GM-90 to 97)
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-BW-16 | Settings rows: **Difficulty** (Easy, Medium, Hard) and **Rails** (Off, On; default Off) only (no Length row: every turn takes as long as it takes, and the game is always 10 frames). The rails are a setting of their own, not part of the difficulty. The mock is `screens/bowling/v2-5-settings.png`. The Rails row is a registry settings row (`key: rails`, values `off` and `on`). Both rows are part of `start_props` (REQ-GM-93). | Done | smoke_settings |
+| REQ-BW-16 | Settings rows: **Difficulty** (Easy, Medium, Hard) and **Rails** (the values read "WITHOUT" and "WITH"; default Without; issue #140) only (no Length row: every turn takes as long as it takes, and the game is always 10 frames). The rails are a setting of their own, not part of the difficulty. The mock is `screens/bowling/v2-5-settings.png`. The Rails row is a registry settings row (`key: rails`, values `off` and `on`). Both rows are part of `start_props` (REQ-GM-93). | Done | smoke_settings |
 | REQ-BW-17 | The table below shows what Difficulty means. Easy plus Rails must be playable by a child of about 5 years (REQ-GM-96): the child can only swing and score. | Device | lane_sim, game_rules |
 | REQ-BW-18 | One player gets no medal and the result shows the points (REQ-GM-73). The medal tiers were removed (issue #119). | Done | game_rules |
 | REQ-BW-19 | Personal best (REQ-GM-98): the key is `bowling|<difficulty>` with Rails Off only, higher is better (`best_key()`; new keys at the end of `ProfileKeys`, 3 keys, numbers 40 to 42; the code format was not changed, see `docs/PROFILES_PLAN.md`). A game with rails has no best (exception, the scores are not comparable). | Done | smoke_bests, profile_code |
 | REQ-BW-21 | The plate "NAME, YOUR TURN!" shows 1.5 s at the start of each turn, then it goes away (it is not drawn for the rest of the turn). | Done | r4_bowling |
 | REQ-BW-20 | A player who leaves takes the row out of the ranking. A lost phone pauses the game (REQ-GM-30). Nothing runs in the pause, and the swing state of the player on turn is reset when the pause closes. | Done | smoke_bowling |
-| REQ-BW-22 | Safety (REQ-GM-102, issue #79): Pin Pals is a swing game (`swing` in the registry). The settings view shows the line "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", each phone shows the card "HOLD ON TIGHT!" once for each run of the app, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
+| REQ-BW-22 | Safety (REQ-GM-102, issue #79): Pin Pals is a swing game (`swing` in the registry). The settings view shows the line "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", each phone shows the card "HOLD ON TIGHT!" every time the settings view opens, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
 
 | Difficulty | Ball speed | Aim | Swing threshold |
 |------------|------------|-----------|-----------------|

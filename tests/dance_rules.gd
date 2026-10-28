@@ -1,6 +1,6 @@
 extends SceneTree
 ## The rules of Freeze Dance, without a screen: the songs, the energy of a phone, dancing, the freeze with its grace time, the
-## points, the sit-out, "back in", the levels and the light tiles (REQ-FD-1 to 8, 11, 12). Run:
+## points, the move and the rest, "back in", the levels and the light tiles (REQ-FD-1 to 8, 11, 12). Run:
 ##   godot --headless --path . --script tests/dance_rules.gd -- --role=controller
 
 const DanceRules = preload("res://scripts/game/freeze_dance/dance_rules.gd")
@@ -28,7 +28,7 @@ func _initialize() -> void:
 	_dancing_and_points()
 	_grace_and_moves()
 	_hard_stop()
-	_sit_out()
+	_mover()
 	_back_in()
 	_end()
 	_levels()
@@ -204,7 +204,7 @@ func _grace_and_moves() -> void:
 			break
 	_check(moved.size() == 1 and int(moved[0].slot) == 0, "only the player that goes on shaking has moved, once")
 	_check(t_move >= float(r.level.grace) and t_move < float(r.level.grace) + 0.1,
-			"the move counts after the grace time of 0.5 s, not before (%.2f s)" % t_move)
+			"the move counts after the grace time of 0.9 s (Medium), not before (%.2f s)" % t_move)
 	_check(not r.dancers[1].moved and r.dancers[0].moved, "the state says who moved")
 	# A small tremor stays below the limit.
 	var r2 := _rules("medium", [0])
@@ -223,7 +223,7 @@ func _grace_and_moves() -> void:
 
 
 ## REQ-FD-8
-## REQ-FD-6: a hard wiggle that stops on cue is not a move, even on Hard (grace 0.4 s).
+## REQ-FD-6: a hard wiggle that stops on cue is not a move, even on Hard (grace 0.8 s).
 func _hard_stop() -> void:
 	print("dance: stop after a hard wiggle")
 	var r := _rules("hard", [0, 1])
@@ -237,8 +237,8 @@ func _hard_stop() -> void:
 	_check(_of(ev2, "moved").size() == 1 and int(_of(ev2, "moved")[0].slot) == 0, "a player who goes on shaking still moves")
 
 
-func _sit_out() -> void:
-	print("dance: sit out")
+func _mover() -> void:
+	print("dance: a mover")
 	var r := _rules("medium", [0, 1])
 	var ev := []
 	_until(r, "freeze", {0: 4.0, 1: 4.0}, ev)
@@ -249,14 +249,18 @@ func _sit_out() -> void:
 	_check(_of(freeze_ev, "held").size() == 1 and int(_of(freeze_ev, "held")[0].slot) == 1,
 			"the mover gets no points event, the other player does")
 	_until(r, "song", {0: 6.0, 1: 0.0})
-	_check(r.song == 2 and r.dancers[0].sitting and not r.dancers[0].plays(), "the mover sits out the whole next song")
+	_check(r.song == 2 and r.dancers[0].plays(), "the mover does not sit out: back on the floor in the next song")
+	_check(r.dancers[0].dance_time == 0.0, "the dance of a returning player begins at 0")
 	var ev2 := []
 	_until(r, "freeze", {0: 6.0, 1: 4.0}, ev2)
 	var ev3 := _run(r, float(r.level.freeze), {0: 6.0, 1: 0.0})
-	_check(_of(ev2, "moved").is_empty() and _of(ev3, "moved").is_empty(), "a sitting player is not checked, whatever its phone does")
+	_check(_of(ev3, "moved").size() == 1 and int(_of(ev3, "moved")[0].slot) == 0,
+			"in the next song the player is checked again and moves again")
 	_until(r, "song", {0: 0.0, 1: 0.0})
-	_check(r.song == 3 and r.dancers[0].plays() and not r.dancers[0].sitting, "in the song after that the player dances again")
-	_check(r.dancers[0].dance_time == 0.0, "the dance of a returning player begins at 0")
+	var ev4 := []
+	_until(r, "freeze", {0: 4.0, 1: 4.0}, ev4)
+	var held := _of(_run(r, float(r.level.freeze) + 0.2, {0: 0.0, 1: 0.0}), "held")
+	_check(held.size() == 2 and int(held[0].points) == 10, "a player who moved in an earlier song holds still and scores again")
 	var r2 := _rules("medium", [0])
 	r2.remove(0)
 	_check(r2.dancers.is_empty(), "a player that leaves is removed")
@@ -272,15 +276,13 @@ func _back_in() -> void:
 	_run(r, 1.0, {0: 0.0, 1: 0.0})
 	_until(r, "moved", func(_r: DanceRules) -> Dictionary: return {0: 6.0, 1: 0.0})
 	var freeze_left := r.phase_left()
-	var expect := freeze_left + DanceRules.REST + r.music_lengths[1] + float(r.level.freeze) + DanceRules.REST
-	_check(absf(r.back_in(0) - expect) < 0.01, "a mover is back after the rest and the whole next song (%.1f s)" % r.back_in(0))
+	var expect := freeze_left + DanceRules.REST
+	_check(absf(r.back_in(0) - expect) < 0.01, "a mover is back at the start of the next song (%.1f s)" % r.back_in(0))
 	_check(r.back_in(1) == -1.0, "the player that held still has none")
+	_run(r, 1.0, {})
+	_check(r.back_in(0) < expect - 0.9, "the time goes down")
 	_until(r, "song", {})
-	var in_song := r.back_in(0)
-	var expect2 := r.music_lengths[1] + float(r.level.freeze) + DanceRules.REST
-	_check(absf(in_song - expect2) < 0.05, "in the sit-out song the time is what is left of that song (%.1f s)" % in_song)
-	_run(r, 2.0, {})
-	_check(r.back_in(0) < in_song - 1.9, "the time goes down as the song plays")
+	_check(r.back_in(0) == -1.0, "in the next song the player is on the floor: no time")
 	# Moving in the last song: nothing to wait for.
 	var last := _rules("medium", [0])
 	for k in DanceRules.SONGS - 1:
@@ -296,13 +298,13 @@ func _back_in() -> void:
 		_until(fifth, "song", {})
 	_until(fifth, "freeze", {0: 4.0})
 	_until(fifth, "moved", {0: 6.0})
-	_check(fifth.back_in(0) < 0.0, "a mover in the 5th song comes back for the 7th: there is none, so no time")
+	_check(fifth.back_in(0) > 0.0, "a mover in the 5th song is back for the 6th")
 	var fourth := _rules("medium", [0])
 	for k in 2:
 		_until(fourth, "song", {})
 	_until(fourth, "freeze", {0: 4.0})
 	_until(fourth, "moved", {0: 6.0})
-	_check(fourth.back_in(0) > 0.0, "a mover in the 3rd song is back for the 5th")
+	_check(fourth.back_in(0) > 0.0, "a mover in the 3rd song is back for the 4th")
 
 
 func _end() -> void:

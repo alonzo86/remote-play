@@ -177,8 +177,8 @@ asteroid_blast.reached_wave,Reached wave %d,הגעתם לגל %d,"Star Shield: t
 registry.pin_pals,PIN PALS,באולינג חברים,"Name of the game Pin Pals: Games screen, game settings, in-game title",
 registry.desc_bowling,"BOWLING WITH FRIENDS, WITH YOUR PHONE AS THE BALL.","באולינג עם חברים, והטלפון הוא הכדור.","Description of Pin Pals: info bar of the Games screen (what the game is, no instructions, issue #78)",
 bowling.rails,RAILS,מעקות,Pin Pals settings view: name of the Rails row,
-bowling.on,ON,פועל,Pin Pals settings view: On value of the Rails row,
-bowling.off,OFF,כבוי,Pin Pals settings view: Off value of the Rails row,
+bowling.with_rails,WITH,עם,Pin Pals settings view: the value of the Rails row when the lane has rails (the gutters are covered),
+bowling.without_rails,WITHOUT,בלי,Pin Pals settings view: the value of the Rails row when the lane has no rails (the default),
 bowling.turn,"%s, your turn!","%s, תורך!","Pin Pals: plate in the top bar while a player bowls, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
 bowling.frame,Frame %d/%d  Ball %d,פריים %d/%d  כדור %d,"Pin Pals: top bar, right side: the frame (of 10) and the ball (1 to 3) that is bowled now","the number sign (%d, %.1f ...) is replaced by a number"
 bowling.hint_slide,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD!",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה!,Pin Pals: hint on a plate over the lane at the start of a turn,
@@ -238,7 +238,7 @@ mini_golf.col_strokes,Strokes,מכות,"Mini Golf: card at the end of a hole, ti
 mini_golf.col_total,Total,סה״כ,"Mini Golf: card at the end of a hole, title of the column with the strokes of the whole match",
 mini_golf.phone_wait,%s IS PUTTING,%s מבצע/ת מכה,"Mini Golf: phone screen, line under the player and score rows while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
 common.ok,OK,אישור,Phone safety card of a swing game (OK button),
-swing.card_title,HOLD ON TIGHT!,תחזיקו חזק!,"Phone: title of the safety card that shows once when the settings view of a swing game (Pin Pals, Tennis, Mini Golf, Freeze Dance) is open on the TV",
+swing.card_title,HOLD ON TIGHT!,תחזיקו חזק!,"Phone: title of the safety card that shows each time the settings view of a swing game (Pin Pals, Tennis, Mini Golf, Freeze Dance) is open on the TV",
 swing.card_text,GRIP YOUR PHONE FIRMLY. CHECK THAT NOBODY IS CLOSE AND NOTHING IS IN THE WAY.,אחזו את הטלפון חזק. ודאו שאף אחד לא קרוב ושום דבר לא בדרך.,Phone: text of the safety card of a swing game,
 swing.tv_line,HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.,החזיקו את הטלפון חזק ושמרו מרחק מסביב.,"TV game settings view of Pin Pals, Tennis, Mini Golf and Freeze Dance: safety line under the rows, always shown",
 game_settings.waiting_phones,WAITING FOR PHONES,ממתינים לטלפונים,TV game settings view of a swing game: line under Start while a phone has not tapped OK on its safety card (Start is off),
@@ -269,7 +269,8 @@ registry.air_hockey,AIR HOCKEY,הוקי אוויר,"Name of the game Air Hockey:
 registry.desc_air_hockey,A FAST TABLE GAME WITH A PUCK AND TWO GOALS.,משחק שולחן מהיר עם דיסקית ושני שערים.,"Description of Air Hockey: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.air_hockey,TILT TO SLIDE YOUR MALLET AND HIT THE PUCK INTO THE OTHER GOAL. THE FIRST TO SCORE THE SET GOALS WINS. SINGLE PLAYER? YOU PLAY ROBO.,הטו כדי להזיז את הידית ולהכניס את הדיסקית לשער השני. הראשון שמבקיע את מספר השערים שנקבע מנצח. שחקן יחיד? משחקים נגד רובו.,"TV game settings view of Air Hockey: how to play, under the title (issue #77). ROBO is the name of the computer player (air_hockey.bot_name)",
 air_hockey.goals_to_win,GOALS,שערים,Air Hockey settings view: name of the row where the players choose how many goals end the match (3 to 10),
-air_hockey.n_goals,%d GOALS,%d שערים,Air Hockey: a number of goals; the values of the settings row (3 to 10) and the score in the result list,"the number sign (%d, %.1f ...) is replaced by a number"
+air_hockey.n_goals,%d GOALS,%d שערים,Air Hockey: a number of goals; the score in the result list,"the number sign (%d, %.1f ...) is replaced by a number"
+air_hockey.goals_value,%d,%d,Air Hockey settings view: the value of the Goals row (3 to 10); only the number,"the number sign (%d, %.1f ...) is replaced by a number"
 air_hockey.one_goal,1 GOAL,שער אחד,Air Hockey result list: the score of a player with one goal,
 air_hockey.bot_name,ROBO,רובו,"Air Hockey: the name of the computer player that plays when one phone plays: name chip under the table, result list, banners",
 air_hockey.first_to,FIRST TO %d,ראשון ל־%d,"Air Hockey HUD: the goals that win the match, in the bar at the top, where the timer is in other games","the number sign (%d, %.1f ...) is replaced by a number"
@@ -300,4 +301,4 @@ freeze_dance.hint,"WIGGLE YOUR PHONE TO THE MUSIC. WHEN IT STOPS, FREEZE!","נע
 freeze_dance.wiggle,WIGGLE!,נענעו!,Freeze Dance: banner at the top of the TV while the music plays,
 freeze_dance.freeze,FREEZE!,קפאו!,Freeze Dance: banner at the top of the TV from the moment the music stops (the phones show nothing),
 freeze_dance.song_n,SONG %d OF %d,שיר %d מתוך %d,"Freeze Dance HUD: box in the place of the timer, the song that plays now and the number of songs","the number sign (%d, %.1f ...) is replaced by a number"
-freeze_dance.back_in,BACK IN %d,חוזרים בעוד %d,"Freeze Dance: under the name of a player who moved and sits out, the seconds until the player dances again","the number sign (%d, %.1f ...) is replaced by a number"
+freeze_dance.back_in,BACK IN %d,חוזרים בעוד %d,"Freeze Dance: under the name of a player who moved in the freeze, the seconds until the next song, where the player dances again","the number sign (%d, %.1f ...) is replaced by a number"

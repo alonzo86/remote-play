@@ -212,6 +212,7 @@ func go_games() -> void:
 ## The settings view of a game (REQ-GM-90). The Games screen focuses the tile of the game when Back returns to it.
 func go_game_settings(id: String) -> void:
 	last_game = id
+	Sound.prepare_song(id)   # The song is made while the players choose, so the first round has music (issue #149).
 	go(TvGameSettings, {"game_id": id})
 	server.set_phase("menu")
 	server.set_setup(bool(Registry.find(id).get("swing", false)), not bool(Registry.find(id).get("enroll", false)))
@@ -240,6 +241,9 @@ func _back() -> void:
 	_last_back_ms = now
 	if _screen != null and _screen.has_method("on_back"):
 		_screen.on_back()
+		# A screen can take longer than 250 ms to build. The second event of the same press waits in the queue
+		# meanwhile, so the time is counted from the end (issue #134).
+		_last_back_ms = Time.get_ticks_msec()
 	else:
 		_quit()
 

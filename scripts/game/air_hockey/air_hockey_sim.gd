@@ -16,6 +16,7 @@ const PUCK_DAMPING := 0.35      # 1/s: the puck slows down by itself, slowly.
 const PUCK_MAX := 1800.0        # px/s
 const WALL_KEEP := 0.92         # The part of the speed that is kept after a bounce at a rail.
 const HIT_KEEP := 0.9           # Restitution of a paddle hit.
+const HIT_BOOST := 0.6          # A hit adds this part of the mallet speed toward the puck (issue #145).
 const MIN_HIT := 420.0          # A hit sends the puck away at this speed at least: it never sticks to a paddle.
 const SERVE_WAIT := 1.0         # The puck waits this long on its spot after a goal.
 const MAX_STEP := 1.0 / 120.0   # A longer frame is split: the puck cannot jump over a paddle.
@@ -82,6 +83,7 @@ func _step_once(dt: float, tilts: Array, ev: Dictionary) -> void:
 		paddles[i].step(dt, tilts[i], half(i))
 	if wait > 0.0:
 		wait -= dt
+		_keep_out(puck_pos)
 		return
 	puck_vel *= exp(-PUCK_DAMPING * dt)
 	puck_pos += puck_vel * dt
@@ -99,6 +101,19 @@ func _step_once(dt: float, tilts: Array, ev: Dictionary) -> void:
 			ev.goal = 0
 
 
+## While the puck waits on its spot it is solid for the paddles: a paddle that reaches it stops at its edge. Without this a
+## paddle that stands in the puck when the wait ends hits it away from the wrong side (an own goal, issue #146).
+func _keep_out(spot: Vector2) -> void:
+	for p in paddles:
+		var d: Vector2 = p.pos - spot
+		var reach := PUCK_R + PADDLE_R
+		if d.length() >= reach:
+			continue
+		var n := d / d.length() if d.length() > 0.001 else Vector2.RIGHT
+		p.pos = spot + n * reach
+		p.vel -= minf(p.vel.dot(n), 0.0) * n
+
+
 ## The puck leaves a paddle it overlaps: it takes the speed of the paddle into account (a moving paddle hits harder).
 func _hit_paddle(p: TiltBody) -> bool:
 	var d := puck_pos - p.pos
@@ -113,6 +128,7 @@ func _hit_paddle(p: TiltBody) -> bool:
 	if closing < 0.0:
 		rel -= (1.0 + HIT_KEEP) * closing * n
 	puck_vel = rel + p.vel
+	puck_vel += n * HIT_BOOST * maxf(p.vel.dot(n), 0.0)
 	if puck_vel.dot(n) < MIN_HIT:
 		puck_vel += n * (MIN_HIT - puck_vel.dot(n))
 	puck_vel = puck_vel.limit_length(PUCK_MAX)
