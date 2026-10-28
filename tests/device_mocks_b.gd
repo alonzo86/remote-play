@@ -173,7 +173,7 @@ func _recenter_distance() -> void:
 			"Car Race: the phones have no Recenter box (REQ-GM-37)")
 	game.set_process(false)
 	# Issue #124: the phone was level when it joined, and lies tilted (a phone on a table, in a hand) during the countdown. The
-	# pose held at GO is the center: the car does not drift (20 degrees is beyond the 12 degree snap to flat, REQ-GM-37b).
+	# pose held at GO is the center: the car does not drift (20 degrees is beyond the 1.7 degree snap to flat, REQ-GM-37b).
 	var game2: Control = await sim.start(race, {"track_choice": "1", "difficulty": "easy"})
 	var tilted: Vector3 = Sim.lean(20.0, 0.0)
 	for s in 2:

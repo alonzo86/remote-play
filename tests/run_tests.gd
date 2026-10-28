@@ -167,24 +167,25 @@ func _test_orientation() -> void:
 	_feed(o, 3.0, Vector3.ZERO, Vector3(0, sin(a), cos(a)) * 9.81, ts + 100000)
 	_check(o.tilt().y > 0.1, "top up: tilt.y positive (got %.3f)" % o.tilt().y)
 
-	# Issue #124: a recenter within 12 degrees of flat takes exactly flat as neutral; a larger angle keeps the held pose.
-	var near := deg_to_rad(8.0)
+	# held at 3 degrees would else show a constant tilt of 0.05, above the dead zone of the maze, 0.03).
+	# held 	# at 3 degrees would else show a constant tilt of 0.05, above the dead zone of the maze, 0.03).
+	var near := deg_to_rad(1.5)
 	var o_near := OrientationFusion.new({})
 	var ts_near := _feed(o_near, 3.0, Vector3.ZERO, Vector3(-sin(near), 0, cos(near)) * 9.81)
 	o_near.recenter()
 	_check(absf(o_near.tilt().x - sin(near)) < 0.02,
-			"recenter at 8 degrees from flat: neutral is flat, the tilt stays (got %.3f)" % o_near.tilt().x)
+			"recenter at 1.5 degrees from flat: neutral is flat, the tilt stays (got %.3f)" % o_near.tilt().x)
 	_feed(o_near, 3.0, Vector3.ZERO, flat, ts_near)
 	_check(o_near.tilt().length() < 0.02, "after that, the phone lying flat has no tilt (got %.3f)" % o_near.tilt().length())
 	var o_btn := OrientationFusion.new({})
 	_feed(o_btn, 3.0, Vector3.ZERO, Vector3(-sin(near), 0, cos(near)) * 9.81)
 	o_btn.recenter(false)
-	_check(o_btn.tilt().length() < 0.01, "the Recenter button at 8 degrees from flat keeps the pose in the hand as neutral")
-	var far := deg_to_rad(16.0)
+	_check(o_btn.tilt().length() < 0.01, "the Recenter button at 1.5 degrees from flat keeps the pose in the hand as neutral")
+	var far := deg_to_rad(3.0)
 	var o_far := OrientationFusion.new({})
 	_feed(o_far, 3.0, Vector3.ZERO, Vector3(-sin(far), 0, cos(far)) * 9.81)
 	o_far.recenter()
-	_check(o_far.tilt().length() < 0.01, "recenter at 16 degrees from flat keeps the held pose as neutral")
+	_check(o_far.tilt().length() < 0.01, "recenter at 3 degrees from flat keeps the held pose as neutral")
 
 	# Yaw: turn left at 1 rad/s for 0.5 s. The cursor must go left (x < 0).
 	var o2 := OrientationFusion.new({})
