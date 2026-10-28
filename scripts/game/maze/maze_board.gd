@@ -219,20 +219,20 @@ static func flame_frame(t: float) -> int:
 
 
 ## The squares of one frame of the flame with its top left corner at `spot` (world pixels): [[Rect2 in screen units, Color]].
-static func flame_squares(spot: Vector2i, frame: int) -> Array:
+static func flame_squares(spot: Vector2i, frame: int, unit := Vector2(4, 4)) -> Array:
 	var out := []
 	var rows: Array = FLAME_FRAMES[frame % FLAME_FRAMES.size()]
 	for y in rows.size():
 		var row := String(rows[y])
 		for x in row.length():
 			if row[x] != ".":
-				out.append([Rect2(Vector2(spot + Vector2i(x, y)) * 4.0, Vector2(4, 4)), FLAME_COLORS[row[x]]])
+				out.append([Rect2(Vector2(spot + Vector2i(x, y)) * unit, unit), FLAME_COLORS[row[x]]])
 	return out
 
 
 ## Draws one frame of the flame on `ci`, which draws in screen units.
-static func draw_flame(ci: CanvasItem, spot: Vector2i, frame: int) -> void:
-	for sq in flame_squares(spot, frame):
+static func draw_flame(ci: CanvasItem, spot: Vector2i, frame: int, unit := Vector2(4, 4)) -> void:
+	for sq in flame_squares(spot, frame, unit):
 		ci.draw_rect(sq[0], sq[1])
 
 

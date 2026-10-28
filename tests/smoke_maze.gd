@@ -47,6 +47,7 @@ func _run() -> void:
 	_levels()
 	await _size_margin_corridor()
 	await _look()
+	await _window_sizes()
 	await _torch_flames()
 	await _titles()
 	_check_colors()
@@ -327,6 +328,38 @@ func _look() -> void:
 	game._balls[0].pos = game._exit_center()
 	game._game_tick(Sim.DT)
 	_check(game._winner == 0 and game.is_over, "a ball in the exit sets the winner at once, so the chest draws open (REQ-MZ-7)")
+
+
+## Issue #45: on a window that is not 1920 x 1080 (a maximized window on a Mac) the picture of the walls is where the collision
+## walls are: the middle of a wall is not ground in the picture, the middle of a corridor cell is.
+func _window_sizes() -> void:
+	print("maze: the picture follows the window")
+	for theme in MazeBoard.THEMES:
+		var game: Control = await sim.start(MazeGame, {"difficulty": "medium", "maze_theme": theme})
+		var c: Dictionary = MazeBoard.THEMES[theme]
+		var ground := {}
+		for key in ["ground_a", "ground_b", "tuft", "flower", "start"]:
+			ground[(c[key] as Color).to_html(false)] = true
+		for win in [Vector2(1920, 1080), Vector2(2450, 1230), Vector2(1920, 1350)]:   # The window never gets smaller than 1920 x 1080.
+			game.size = win
+			var img: Image = game.board_image()
+			var o: Vector2 = game._origin()
+			var unit: Vector2 = game._unit()
+			var on_wall := 0
+			var checked := 0
+			for r in game._walls:
+				if minf(r.size.x, r.size.y) < 20.0:
+					continue
+				checked += 1
+				var p: Vector2 = (o + r.get_center()) / unit
+				if not ground.has(img.get_pixelv(Vector2i(p)).to_html(false)):
+					on_wall += 1
+			_check(checked > 20 and on_wall >= checked - 1,
+					"%s, window %dx%d: %d of %d wall middles are wall in the picture" % [theme, win.x, win.y, on_wall, checked])
+			var cell_mid: Vector2 = (o + Vector2(game.cell, game.cell) * 0.5) / unit
+			_check(ground.has(img.get_pixelv(Vector2i(cell_mid)).to_html(false)),
+					"%s, window %dx%d: the middle of the start cell is ground in the picture" % [theme, win.x, win.y])
+		game.size = Vector2(1920, 1080)
 
 
 func _torch_flames() -> void:
