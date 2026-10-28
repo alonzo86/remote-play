@@ -12,7 +12,7 @@ const STILL_GYRO := 0.08        # rad/s. Below this the phone counts as still.
 const STILL_TIME_FOR_BIAS := 0.5
 const BIAS_RATE := 0.02
 ## A recenter within this angle of flat (screen up) takes exactly flat as the neutral pose (issue #124).
-const FLAT_SNAP_DEG := 3.0
+const FLAT_SNAP_DEG := 1.7
 
 var settings: Dictionary
 
