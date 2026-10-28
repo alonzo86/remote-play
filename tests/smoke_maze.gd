@@ -48,6 +48,7 @@ func _run() -> void:
 	await _size_margin_corridor()
 	await _look()
 	await _window_sizes()
+	await _wall_edges()
 	await _torch_flames()
 	await _titles()
 	_check_colors()
@@ -354,12 +355,51 @@ func _window_sizes() -> void:
 				var p: Vector2 = (o + r.get_center()) / unit
 				if not ground.has(img.get_pixelv(Vector2i(p)).to_html(false)):
 					on_wall += 1
-			_check(checked > 20 and on_wall >= checked - 1,
+			_check(checked > 20 and on_wall == checked,
 					"%s, window %dx%d: %d of %d wall middles are wall in the picture" % [theme, win.x, win.y, on_wall, checked])
 			var cell_mid: Vector2 = (o + Vector2(game.cell, game.cell) * 0.5) / unit
 			_check(ground.has(img.get_pixelv(Vector2i(cell_mid)).to_html(false)),
 					"%s, window %dx%d: the middle of the start cell is ground in the picture" % [theme, win.x, win.y])
 		game.size = Vector2(1920, 1080)
+
+
+## The edges of the walls in the mask of the picture are within half a world pixel of the collision rectangle: along the middle of
+## every wall, a pixel is wall exactly when its center is between the two edges (the corridors are at least 15 pixels wide).
+func _wall_edges() -> void:
+	print("maze: the edges of the walls")
+	var game: Control = await sim.start(MazeGame, {"difficulty": "medium", "maze_theme": "garden"})
+	for win in [Vector2(1920, 1080), Vector2(2450, 1230), Vector2(1920, 1350)]:
+		game.size = win
+		var rects: Array[Rect2] = game.board_rects()
+		var mask: PackedByteArray = MazeBoard._mask(rects, Vector2i(480, 270))
+		var wrong := 0
+		var checked := 0
+		for r in rects:
+			var l := r.position / 4.0
+			var e := r.end / 4.0
+			var horizontal := r.size.x > r.size.y
+			var lo := l.y if horizontal else l.x
+			var hi := e.y if horizontal else e.x
+			var along := int((l.x + e.x) * 0.5) if horizontal else int((l.y + e.y) * 0.5)
+			for i in range(maxi(int(floor(lo)) - 2, 0), int(ceil(hi)) + 2):
+				var center := float(i) + 0.5
+				var xi := along if horizontal else i
+				var yi := i if horizontal else along
+				if absf(center - lo) < 0.01 or absf(center - hi) < 0.01 or xi >= 480 or yi >= 270:
+					continue
+				checked += 1
+				if (mask[yi * 480 + xi] != 0) != (center > lo and center < hi):
+					wrong += 1
+		_check(checked > 500 and wrong == 0,
+				"window %dx%d: %d edge pixels of the walls checked, %d on the wrong side" % [win.x, win.y, checked, wrong])
+		var scaled_ok := true
+		var unit: Vector2 = game._unit()
+		for i in game._walls.size():
+			var truth := Rect2(game._origin() + game._walls[i].position, game._walls[i].size)
+			var back := Rect2(rects[i].position * unit / 4.0, rects[i].size * unit / 4.0)
+			scaled_ok = scaled_ok and back.position.distance_to(truth.position) < 0.01 and back.size.distance_to(truth.size) < 0.01
+		_check(scaled_ok, "window %dx%d: the picture rectangles are the collision walls in the window pixels" % [win.x, win.y])
+	game.size = Vector2(1920, 1080)
 
 
 func _torch_flames() -> void:
@@ -375,8 +415,12 @@ func _torch_flames() -> void:
 		for j in range(i + 1, frames.size()):
 			distinct = distinct and str(frames[i]) != str(frames[j])
 	_check(frames.size() >= 3 and distinct, "the flame has %d frames and they all differ (REQ-MZ-14)" % frames.size())
-	var f0: Array = MazeBoard.flame_squares(Vector2i(10, 20), 0)
-	var f1: Array = MazeBoard.flame_squares(Vector2i(10, 20), 1)
+	var f0: Array = MazeBoard.flame_squares(Vector2i(10, 20), 0, Vector2(4, 4))
+	var f1: Array = MazeBoard.flame_squares(Vector2i(10, 20), 1, Vector2(4, 4))
+	var wide: Array = MazeBoard.flame_squares(Vector2i(10, 20), 0, Vector2(5, 4.5))
+	var first: Rect2 = wide[0][0]
+	_check(first.size == Vector2(5, 4.5) and is_equal_approx(first.position.x / 5.0, roundf(first.position.x / 5.0)),
+			"a flame follows the size of a world pixel of the window (5 x 4.5 units)")
 	_check(not f0.is_empty() and str(f0) != str(f1) and (f0[0][0] as Rect2).size == Vector2(4, 4),
 			"two frames draw different squares of one world pixel (4 x 4 units)")
 	var inside := true

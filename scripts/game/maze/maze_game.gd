@@ -95,15 +95,22 @@ func _unit() -> Vector2:
 	return size / Vector2(PIXEL_VIEW)
 
 
-## The picture of the board for the current `size`. `MazeBoard` counts 4 units to a world pixel, so the walls are given in units
-## of 4 per world pixel of this window: the picture and the collision rectangles stay on the same place on any window.
-func board_image() -> Image:
+## The collision walls in the units `MazeBoard` expects (4 per world pixel of this window), at the place they have on the screen.
+func board_rects() -> Array[Rect2]:
 	var o := _origin()
 	var k := Vector2(4.0, 4.0) / _unit()
 	var rects: Array[Rect2] = []
 	for r in _walls:
 		rects.append(Rect2((o + r.position) * k, r.size * k))
-	var start := Rect2((o + Vector2(WALL, WALL) * 0.5) * k, (Vector2(cell, cell) - Vector2(WALL, WALL)) * k)
+	return rects
+
+
+## The picture of the board for the current `size`. `MazeBoard` counts 4 units to a world pixel, so the walls are given in units
+## of 4 per world pixel of this window: the picture and the collision rectangles stay on the same place on any window.
+func board_image() -> Image:
+	var k := Vector2(4.0, 4.0) / _unit()
+	var rects := board_rects()
+	var start := Rect2((_origin() + Vector2(WALL, WALL) * 0.5) * k, (Vector2(cell, cell) - Vector2(WALL, WALL)) * k)
 	_torches = MazeBoard.torch_places(maze_theme, rects, PIXEL_VIEW.x)
 	return MazeBoard.render(maze_theme, rects, start, PIXEL_VIEW)
 
