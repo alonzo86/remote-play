@@ -122,7 +122,7 @@ Settings and difficulty (REQ-GM-90 to 97)
 | REQ-BW-19 | Personal best (REQ-GM-98): the key is `bowling|<difficulty>` with Rails Off only, higher is better (`best_key()`; new keys at the end of `ProfileKeys`, 3 keys, numbers 40 to 42; the code format was not changed, see `docs/PROFILES_PLAN.md`). A game with rails has no best (exception, the scores are not comparable). | Done | smoke_bests, profile_code |
 | REQ-BW-21 | The plate "NAME, YOUR TURN!" shows 1.5 s at the start of each turn, then it goes away (it is not drawn for the rest of the turn). | Done | r4_bowling |
 | REQ-BW-20 | A player who leaves takes the row out of the ranking. A lost phone pauses the game (REQ-GM-30). Nothing runs in the pause, and the swing state of the player on turn is reset when the pause closes. | Done | smoke_bowling |
-| REQ-BW-22 | Safety (REQ-GM-102, issue #79): Pin Pals is a swing game (`swing` in the registry). The settings view shows the line "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", each phone shows the card "HOLD ON TIGHT!" once for each run of the app, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
+| REQ-BW-22 | Safety (REQ-GM-102, issue #79): Pin Pals is a swing game (`swing` in the registry). The settings view shows the line "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", each phone shows the card "HOLD ON TIGHT!" every time the settings view opens, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
 
 | Difficulty | Ball speed | Aim | Swing threshold |
 |------------|------------|-----------|-----------------|

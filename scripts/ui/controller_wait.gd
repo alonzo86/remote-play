@@ -128,7 +128,7 @@ func _mark(b: Button, color: Color, chosen: bool) -> void:
 
 
 ## The setup of the TV settings view: the question IN or OUT (issue #76), and the safety card while the setup is a swing game
-## and this phone has not tapped OK in this run of the app (issue #79).
+## and this phone has not tapped OK for this view (issues #79 and #148).
 func _update_setup() -> void:
 	_update_pick()
 	var want: bool = App.client.setup_swing and not App.client.swing_acked

@@ -1,7 +1,7 @@
 extends SceneTree
 ## The setup of a game in the TV settings view (issues #79 and #76, REQ-GM-102, REQ-GM-104), with simulated phones on the
 ## loopback network. Swing games (Pin Pals, Tennis, Mini Golf): the settings view sends `setup` to the phones, Start waits
-## for the answer `swing_ok` of every phone that plays, the card shows once for each run of the app (tests/ui_states_a.gd), and
+## for the answer `swing_ok` of every phone that plays, the card shows every time the view opens (tests/ui_states_a.gd), and
 ## the other games have no card. IN and OUT: each phone chooses, the TV lists it, the game has the IN players only. Run:
 ##   godot --headless --path . --script tests/swing_setup.gd -- --role=tv
 
@@ -115,15 +115,21 @@ func _answers() -> void:
 	view._set_start_reachable(false)   # Start becomes disabled while it has the focus (a phone left): the focus moves to Back.
 	_check(view.get_viewport().gui_get_focus_owner() == view.back_button, "Start disabled while focused: Back gets the focus")
 	view._set_start_reachable(true)
-	# The answer is kept for this run of the app: the second visit asks nobody.
+	# Issue #148: the answer is for one view: the next visit asks every phone again.
 	app.go_games()
 	await sim.frames(3)
 	_check(not sim.clients[0].setup_swing and not app.server.setup_swing, "the Games screen closes the safety card")
 	app.go_game_settings("tennis")
-	await _wait_for(func(): return app.server.swing_pending().is_empty() and app.server.setup_swing)
+	await _wait_for(func(): return app.server.setup_swing and sim.clients[0].setup_swing and sim.clients[1].setup_swing)
 	await sim.frames(3)
-	_check(sim.clients[0].swing_acked and app.server.swing_pending().is_empty()
-			and not app.current_screen().start_button.disabled, "a phone that answered once answers at once, with no card")
+	_check(not sim.clients[0].swing_acked and not sim.clients[1].swing_acked and app.server.swing_pending() == [0, 1]
+			and app.current_screen().start_button.disabled,
+			"the second visit asks both phones again: the card shows and Start waits (before every game)")
+	sim.clients[0].send_swing_ok()
+	sim.clients[1].send_swing_ok()
+	await _wait_for(func(): return app.server.swing_pending().is_empty())
+	await sim.frames(3)
+	_check(not app.current_screen().start_button.disabled, "after the answers of the second visit Start works")
 	app.go_games()
 	await sim.frames(3)
 
