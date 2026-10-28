@@ -301,4 +301,4 @@ freeze_dance.hint,"WIGGLE YOUR PHONE TO THE MUSIC. WHEN IT STOPS, FREEZE!","נע
 freeze_dance.wiggle,WIGGLE!,נענעו!,Freeze Dance: banner at the top of the TV while the music plays,
 freeze_dance.freeze,FREEZE!,קפאו!,Freeze Dance: banner at the top of the TV from the moment the music stops (the phones show nothing),
 freeze_dance.song_n,SONG %d OF %d,שיר %d מתוך %d,"Freeze Dance HUD: box in the place of the timer, the song that plays now and the number of songs","the number sign (%d, %.1f ...) is replaced by a number"
-freeze_dance.back_in,BACK IN %d,חוזרים בעוד %d,"Freeze Dance: under the name of a player who moved and sits out, the seconds until the player dances again","the number sign (%d, %.1f ...) is replaced by a number"
+freeze_dance.back_in,BACK IN %d,חוזרים בעוד %d,"Freeze Dance: under the name of a player who moved in the freeze, the seconds until the next song, where the player dances again","the number sign (%d, %.1f ...) is replaced by a number"
