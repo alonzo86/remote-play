@@ -10,12 +10,14 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 - Every text the user sees is a row of `assets/lang/strings.csv` (key, English, Hebrew, where, notes). The code uses the key (`connect.join`),
   never the English text. A new text adds its row in the same commit (FD-24, REQ-FL-63), with a short `where` (the screen and the place
   where the text shows). When the use of a text changes, change its `where` in the same commit. The file is UTF-8 with a byte order mark (Excel needs it for the Hebrew): keep the mark when you write the file.
-- Every new or changed string needs a review by the user (a new row, or a change in the English, the Hebrew or the key). Do not change the
-  text of a row on your own: ask first. A pull request that adds or changes strings lists each row (key, old text, new text, in both
-  languages) in its description and asks the user to review them. Claude does not merge such a pull request, and the `review` skill
-  reports a change of strings that has no such list.
+- Every new or changed string is reviewed by the `localization-reviewer` (a new row, or a change in the English, the Hebrew or the key). A pull
+  request that adds or changes strings lists each row (key, old text, new text, in both languages) in its description, and the `review`
+  skill reports a change of strings that has no such list. Do not change the text of a row that is already in the app on your own: ask
+  first, unless the user's request or an issue gives the new text. Hebrew that Claude wrote is not a reason to hold a merge: the points
+  that only a native Hebrew reader can confirm go in one open issue (label `localization`, one comment per pull request) and in the manual
+  test of the change (Alon, 2026-10-29).
 - Do not decide on your own what the user sees (for example cutting or shortening text, hiding information). Ask the user first.
-- Work on the branch the session gives you. Create a pull request only when the user asks for one.
+- Work on the branch the session gives you. When the user's request is a change to the repository, Claude creates the pull request when the work is done and the checks pass (Alon, 2026-10-29).
 
 ## Third-party libraries and resources
 
@@ -53,10 +55,17 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
   fixed, with evidence). (2) When it has addressed all of them, it posts one summary comment on the pull request: for each finding the fix
   (commit) or the justification. (3) Only after that summary comment does `code-reviewer` review again: it checks each fix and decides if
   each justification holds, and posts the result. (4) When `sw-developer` and `code-reviewer` agree that every finding is resolved, the pull
-  request can be merged (not a pull request that adds or changes strings: it waits for the owner, see "Rules for this repository").
+  request is merged by `sw-developer` once the checks are green and the PR has no merge conflict. A pull request that adds or changes
+  strings also needs `localization-reviewer` to end its PR comment with "Strings: approved" (see "Rules for this repository"). Alon decided on
+  2026-10-29 that this is full automation: nobody waits for the owner except in the cases of step (5) and the cases below.
   (5) One cycle is steps 1 to 3. When the two still disagree after 2 cycles, the pull request is left for the owner: `sw-developer`
   posts a comment that states what the disagreement is (the finding, the fix or justification, the reviewer's objection) and nobody merges.
   The reviewer never fixes a finding. Tell the user what the review found.
+  Cases that stop an automatic merge and are left for the owner: a disagreement after 2 cycles; "Strings: not approved" that the developer
+  cannot fix without a decision on what the user sees (cutting text, hiding information, a new text for a row already in the app); a new
+  third-party resource, a change of the privacy notice or of a store or legal text (REQ-P6, `docs/THIRD_PARTY.md`); a change of the protocol
+  version; a change of a rule in CLAUDE.md or of an agent or skill file; a change that needs the whole suite and it fails; a requirement
+  with status `Device` that the PR marks as done. Claude states the case in a PR comment and tells the user.
 - The review comment is also required for later pull requests, not only for the first one.
 
 ## Manual tests (for the user)

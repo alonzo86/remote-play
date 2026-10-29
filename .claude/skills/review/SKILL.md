@@ -44,7 +44,7 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 
 **Strings**
 - A new or changed row of `assets/lang/strings.csv` is listed in the pull request description (key, old and new text, English and Hebrew) and
-  waits for the user's review (CLAUDE.md). Report a change of strings that is not listed. Every row has a `where`; a changed use changes it.
+  is checked by the `localization-reviewer` (CLAUDE.md). Report a change of strings that is not listed. Every row has a `where`; a changed use changes it.
 - The code has keys, never English text (REQ-FL-63).
 
 **Tests and docs**
@@ -91,4 +91,4 @@ Every comment starts with "🤖 AI Code Review", so it is clear that an AI wrote
      Quote the body (`>`) with the file, the code, the issue and the fix. After the quote add a line `**Developer answer:**` for the author to reply.
   3. The Tests comment.
 
-Do not fix your own findings and do not merge. The owner of the PR (`sw-developer`) addresses every finding with a fix or a justification and posts a summary comment; you review again after that comment and decide if each fix and justification holds. When you agree the PR can be merged, except a PR that adds or changes strings: it waits for the user. After 2 cycles of disagreement `sw-developer` states the disagreement in a comment and the PR is left for the user; you do not merge (CLAUDE.md, "Pull requests"). Tell the user what you found.
+Do not fix your own findings and do not merge. The owner of the PR (`sw-developer`) addresses every finding with a fix or a justification and posts a summary comment; you review again after that comment and decide if each fix and justification holds. When you agree the PR can be merged by `sw-developer` (a PR that adds or changes strings also needs the `localization-reviewer` verdict). After 2 cycles of disagreement `sw-developer` states the disagreement in a comment and the PR is left for the user; you do not merge (CLAUDE.md, "Pull requests"). Tell the user what you found.
