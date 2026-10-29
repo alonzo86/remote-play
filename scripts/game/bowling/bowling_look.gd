@@ -7,11 +7,11 @@ extends RefCounted
 ## from -1 to 1 (the lane edges). Everything is drawn in 1920x1080 units on the pixel layer, so it comes out as sharp pixels.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const Minigame = preload("res://scripts/game/minigame.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const LaneSim = preload("res://scripts/game/bowling/lane_sim.gd")
 
-const HUD_H := 112.0              # The black bar on top (the title, the frame, the turn).
-const WALL_TOP := 112.0
+const WALL_TOP := Minigame.HUD_BAR_H
 const WALL_END := 232.0           # The far end of the lanes; the wall is above it.
 const NEAR_HALF := 224.0          # Half the lane width at the foul line, in units at 1920 px wide ...
 const FAR_HALF := 104.0           # ... and at the far end.
@@ -84,7 +84,6 @@ static func draw_hall(ci: CanvasItem, size: Vector2, geo: Geo, rails: bool) -> v
 		_draw_lane(ci, geo, float(n) * PITCH, true, false)
 		_draw_rack(ci, geo, float(n) * PITCH, _neighbor_mask(n))
 	_draw_lane(ci, geo, 0.0, false, rails)
-	ci.draw_rect(Rect2(0.0, 0.0, size.x, HUD_H * size.y / 1080.0), UiTheme.BG)
 
 
 ## The wall at the far end: the top two thirds are a grid of light tiles (7 bright colors), the bottom third is black.

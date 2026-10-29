@@ -16,7 +16,7 @@ const HINT_TIME := 5.0
 const BUZZ_GAP_MS := 150
 const AREA_TOP := 150.0
 const AREA_MARGIN := 60.0
-const BAR_H := 112.0            # The black bar on top is for the title and the wave.
+const BAR_H := HUD_BAR_H            # The black bar on top (the shell draws it, REQ-GM-45a).
 const TIMER_X := 560.0
 const TIMER_W := 160.0
 const WAVE_FONT := 32           # "Wave 3" in the bar.
@@ -168,7 +168,6 @@ func _world_draw(ci: CanvasItem) -> void:
 			_draw_ship(ci, s, o, k)
 	for b in _booms:
 		BlastLook.draw_explosion(ci, o + Vector2(b.x, b.y) * k, b.age, b.scale)
-	ci.draw_rect(Rect2(0, 0, size.x, BAR_H), UiTheme.BG)
 
 
 func _has_player(slot: int) -> bool:

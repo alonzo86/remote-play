@@ -558,6 +558,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
 3b. Check the tile of **Car Race**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
 4. Check the tile of **Banana Party**. Check: an animal was just hit (its peel shows) and a banana is in the air. (The jungle, the four cursor rings, the banana and the black outline of an animal are checked by A-12-4. The tile has no score and no "+10" text.)
+4b. Check the tiles of **Air Hockey** and **Paint Grab** (remade 2026-10-29, issue #123). Check: Air Hockey has a black floor and dark gray rails around the white table; Paint Grab shows no stars under a black bar. (REQ-GM-49)
 5. Check the tile of **Paint Grab**. Check: the hidden picture shows in the floor. (The floor, the bonus pot and the four blobs are checked by A-12-5.)
 8. Check the tile of **Pin Pals**. Check: the 10 pins stand in a triangle and the ball is between the foul line and the pins. (The lane and the white shapes are checked by A-12-8; the test counts 138 white blobs and does not count the 10 pins.)
 9. Check the tile of **Tennis**. Check: the ball is high over the near half of the court. (The grass, the court, the ball and the players are checked by A-12-9.)
@@ -575,6 +576,7 @@ Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TEST
 | 2 | Photos: tile next to the game, for each game | Pass | R4 |  |  |
 | 3b | Photo of the Car Race tile and of the running game | Pass | R4 |  | Same result as old item 3. Car Race and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
 | 4 | Photo of the tile and of the running game | Fail | R3 |  | R3: Fail - the tile shows 5 cursor rings instead of 4 Banana Party tile remade 2026-10-16 (a jungle, 4 players, a hit, a banana in the air). Issue #114. |
+| 4b | Photo of the two tiles and of the running games | Not run | | | Added 2026-10-29 (issue #123). |
 | 5 | Photo of the tile and of the running game | Pass | R4 |  | Paint Grab tile remade 2026-10-16. |
 | 8 | Photo of the Pin Pals tile next to a photo of the game | Fail | R4 |  | R4: Fail - in the tile show the bawling tracks without the score board but fill the tile. currently there's a gray area in the bottom which doesn't look good Issue #112. |
 | 9 | Photo of the Tennis tile next to a photo of the game | Pass | R4 |  |  |
@@ -662,6 +664,7 @@ difficulty values are first guesses. "Full tilt" means the phone is tilted about
 11b. At the end of the same rounds (the time is up, or the picture is painted), take a photo. Check: the same second person names the same picture in at least 4 of the 5 rounds. (REQ-PG-22)
 11g. Let the child of step 7 play 2 rounds with pots, without a hint about pots. Check: the child rolls over at least 1 pot within 10 seconds after it landed, and no picture makes the child upset (the child does not cover the eyes, cry or ask to stop). (REQ-PG-9, 22, 23)
 11h. **Paintable tiles (2026-10-27, REQ-PG-24, issue #130).** At the start of 5 rounds (nothing painted), from 3 m, ask a tester: "Where can you paint?". Check: the tester points at the lighter tiles (the picture) and not at the dark blocks in 5 of 5 rounds, and the ghost of the picture is faded (the lighter tiles are not brighter than the player colors).
+12. **The black bar (2026-10-29, issue #123, REQ-GM-45a).** Start a round and look at the top of the screen from 3 m. Check: the bar is black from the left edge to the right edge of the TV (yes or no), and no star of the picture or bonus pot shows inside the bar (yes or no). (REQ-GM-45a)
 
 Items 1, 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-14-1, A-14-2, A-14-9). Items 3a to 3c, 4a, 4c, 5a to 5c, 6a to 6c, 10a, 10c and 11c to 11f moved there too (A-14-3, A-14-4, A-14-5, A-14-6, A-14-10, A-14-11). Item 10b was split: the machine checks the rule (A-14-10), and the part that needs a person is now 10d. Item 4b was split earlier into the rule (A-14-4) and 4c; both are automated now. The numbers of the other items do not change.
 
@@ -677,6 +680,7 @@ Items 1, 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-14-1, A
 | 11b | Photos at the end of 5 rounds; the names that were given | Not run | | | Added 2026-10-16 (REQ-PG-22, 23). The shapes, the colors and the pot values are first guesses. |
 | 11g | Note: the child, the time to the first pot, what happened | Not run | | | Added 2026-10-16 (REQ-PG-22, 23). The shapes, the colors and the pot values are first guesses. |
 | 11h | Note: the answers of the tester in 5 rounds | Not run | | | Added 2026-10-27 (issue #130). The faded values (0.22 to 0.34) are first guesses. |
+| 12 | Photo of the top of the screen | Not run | | | Added 2026-10-29 (issue #123). The shell draws the bar over the floor. |
 
 Measurements (not a test; no pass or fail). Write these values in the Notes column of the steps above. They decide the first tuning values of the game.
 
@@ -1278,7 +1282,7 @@ New game (2026-10-23), and the first game with a computer player. It was tested 
 
 **Steps**
 
-1a. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the white table, the black rails, the mallets and the black puck.
+1a. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the white table, the dark gray rails, the mallets and the black puck.
 3b. Record a phone and the TV (240 fps) for 5 quick tilts. Count the frames from the start of the tilt to the first move of the mallet. Check: the median delay is 150 ms or less (36 frames at 240 fps). (REQ-GM-12)
 6b. Set Difficulty to Easy and goals to 5. A grown-up plays 5 matches. Check: the grown-up wins 5 of 5. Write down the goals ROBO scored in each match. (REQ-AH-17, REQ-GM-96)
 6c. Set Difficulty to Hard and goals to 5. A grown-up plays 3 matches. Check: ROBO scores 2 goals or more in each of the 3 matches. Write down who won each match. (REQ-AH-17)
@@ -1288,8 +1292,9 @@ New game (2026-10-23), and the first game with a computer player. It was tested 
 9d. After the match, ask: "Play again?". Check: the child says yes.
 10. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-27-10, issue #132).
 11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the puck each time you say "mark" while it moves. Check: the finger points at the puck in 5 of 5 tries. Check: the puck is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 68 px expected). (REQ-GM-47e, REQ-AH-20)
-11b. From 3 m, ask a tester to tell the puck from the red and blue lines of the table: the tester points at the puck and then at the red middle line. Check: both answers are right for every tester. (REQ-AH-20)
+11b. From 3 m, ask a tester to tell the puck from the red and blue lines of the table and from the dark gray rails and the black floor: the tester points at the puck and then at the red middle line. Check: both answers are right for every tester. (REQ-AH-20)
 11c. From 3 m, read aloud the two chips, "FIRST TO N" and one goal banner. Check: no error when reading. (REQ-AH-21, REQ-FL-40)
+11d. **Black floor (2026-10-29, issue #123, REQ-AH-20).** From 3 m, a tester points at the left goal opening, the top rail and the floor outside the table. Check: the tester points at all 3 right (3 of 3), and the black puck is seen at every moment it is over a rail (yes or no). (REQ-AH-20)
 12. Set the TV language to Hebrew and start a match. Check: the left player's goal is still on the left (the table is not mirrored), the title and "FIRST TO N" are mirrored to the right side, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "הוקי אוויר", "רובו", "שער של ...!". (REQ-AH-21, REQ-GM-47o)
 
 Items 2a, 2b, 2c, 3a, 3c, 4a, 4b, 4c, 4d, 5a, 6a, 6d, 7a, 7b, 8a, 8b and 13 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-27-*). The numbers of the other items do not change.
@@ -1329,6 +1334,7 @@ History:
 | 11a | Note: right answers of 5; photo of the puck with its height in px | Not run | | | |
 | 11b | Note: answers of each tester | Not run | | | |
 | 11c | Note: errors made when reading | Not run | | | |
+| 11d | Note: the answers of the tester; photo of the table from 3 m | Not run | | | Added 2026-10-29 (issue #123). The rails are dark gray `#4a4e5e` (a first guess) on the black floor. |
 | 12 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
 
 History:

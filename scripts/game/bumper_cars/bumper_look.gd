@@ -4,6 +4,7 @@ extends RefCounted
 ## Everything is drawn in screen units on the pixel layer (one world pixel is `Shell.WORLD_PIXEL` units).
 
 const Shell = preload("res://scripts/game/shell.gd")
+const Minigame = preload("res://scripts/game/minigame.gd")
 
 const PX := Shell.WORLD_PIXEL
 const CELL := 24.0                 # A square of the floor: 6 world pixels.
@@ -29,7 +30,7 @@ const SEAT_EDGE := Color("3c3c54")
 const CHROME := Color("d2d6e4")
 const LIGHT := Color("fffabe")
 const SPARK := Color("96dcff")
-const TENT_TOP := 112.0             # The tent starts under the black bar of the HUD.
+const TENT_TOP := Minigame.HUD_BAR_H  # The tent starts under the black bar of the HUD.
 const TENT_STRIPE := 40.0           # The width of a stripe: 10 world pixels.
 const TENT_BODY := 64.0             # The height of the straight part of the roof, then the scallops.
 const TENT_SCALLOP := 24.0

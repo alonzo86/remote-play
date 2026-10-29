@@ -22,7 +22,7 @@ const AREA_TOP := 150.0
 const AREA_MARGIN := 60.0
 const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
 const TIMER_W := 208.0
-const BAR_H := 112.0            # The black bar on top is for the HUD.
+const BAR_H := HUD_BAR_H            # The black bar on top (the shell draws it, REQ-GM-45a).
 const CURSOR_R := 40.0
 const POOF_COLOR := Color("ffe040")
 const POOF_STEPS := 3           # The poof of a bonk that missed grows in 3 hard steps.
@@ -214,7 +214,6 @@ func _world_draw(ci: CanvasItem) -> void:
 			ci.draw_arc(Shell.snap(p.pos), 20.0 + step * 20.0, 0.0, TAU, 24, POOF_COLOR, Shell.WORLD_PIXEL)
 	for s in _players:
 		_draw_cursor(ci, _players[s])
-	ci.draw_rect(Rect2(0, 0, size.x, BAR_H), UiTheme.BG)
 
 
 func _game_draw() -> void:
