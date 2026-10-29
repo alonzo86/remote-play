@@ -507,6 +507,9 @@ func _build_pixel_view() -> void:
 	_pixel_layer = Control.new()
 	_pixel_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_pixel_layer.size = Vector2(DESIGN_SIZE)
+	# The worlds are not mirrored in Hebrew (REQ-GM-47o): a right to left window would put this layer at the right edge of a
+	# window that is wider than 1920 units, and the world would stand off to the right (issue #45).
+	_pixel_layer.layout_direction = Control.LAYOUT_DIRECTION_LTR
 	_pixel_layer.draw.connect(func(): _world_draw(_pixel_layer))
 	_pixel_viewport.add_child(_pixel_layer)
 	resized.connect(_fit_pixel_view)   # The view stands for the whole screen, whatever its size.

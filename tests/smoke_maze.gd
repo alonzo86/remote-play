@@ -48,6 +48,7 @@ func _run() -> void:
 	await _size_margin_corridor()
 	await _look()
 	await _window_sizes()
+	await _hebrew_world()
 	await _wall_edges()
 	await _torch_flames()
 	await _titles()
@@ -361,6 +362,20 @@ func _window_sizes() -> void:
 			_check(ground.has(img.get_pixelv(Vector2i(cell_mid)).to_html(false)),
 					"%s, window %dx%d: the middle of the start cell is ground in the picture" % [theme, win.x, win.y])
 		game.size = Vector2(1920, 1080)
+
+
+## Issue #45: in Hebrew (a right to left window) the world is not mirrored and does not move: the pixel layer is left to right, so
+## on a window wider than 1920 units the maze is not pushed to the right (a black strip at the left, the right wall cut).
+func _hebrew_world() -> void:
+	print("maze: the world in Hebrew")
+	sim.app.Lang.set_language("he", root)
+	var game: Control = await sim.start(MazeGame, {"difficulty": "medium", "maze_theme": "garden"})
+	game.size = Vector2(2030, 1080)
+	await sim.frames(3)
+	_check(not game._pixel_layer.is_layout_rtl() and game._pixel_layer.position == Vector2.ZERO,
+			"in Hebrew the pixel layer of the world is left to right and at the corner (position %s)" % str(game._pixel_layer.position))
+	sim.app.Lang.set_language("en", root)
+	game.size = Vector2(1920, 1080)
 
 
 ## The edges of the walls in the mask of the picture are within half a world pixel of the collision rectangle: along the middle of
