@@ -38,6 +38,7 @@ func _run() -> void:
 		app.go_games()
 		await _frames(20)
 		await _reach(app.current_screen(), code)
+	await _room_checks(app)
 	app.set_language("en", false)
 	app.go_games()
 	await _frames(5)
@@ -130,3 +131,44 @@ func _grid_checks(app: Node) -> void:
 	_check(fits and view.grow(-60.0).encloses(tile.get_global_rect()),
 			"the focused tile with the longest title fits and is inside the 60 px margin")
 	root.size = Vector2i(1280, 720)
+
+
+## The room code is always in the header (REQ-FL-15a): with 0 and with 4 players, in English and in Hebrew, inside the 60 px
+## margin, not over a tile, and it follows the address.
+func _room_checks(app: Node) -> void:
+	for code in ["en", "he"]:
+		for n in [0, 4]:
+			app.set_language(code, false)
+			for i in 4:
+				app.server.players[i].state = 1 if i < n else 0
+			app.server.address_lookup = func(): return "192.168.1.77"   # The server looks the address up again from time to time.
+			app.server.ip = "192.168.1.77"
+			app.go_games()
+			await _frames(20)
+			var screen: Control = app.current_screen()
+			var label: Label = screen._room
+			var tag := "room code, %s, %d players" % [code, n]
+			var shown: bool = label != null and label.is_visible_in_tree()
+			_check(shown and label.text == app.server.room_code and label.text.length() == 4, tag + ": visible and equal to the TV code")
+			var r := label.get_global_rect()
+			var vp := root.get_visible_rect().size
+			_check(r.position.x >= 60.0 and r.end.x <= vp.x - 60.0 and r.position.y >= 0.0, tag + ": inside the safe margin")
+			var clear := true
+			for t in screen._tiles:
+				clear = clear and not r.intersects(t.get_global_rect())
+			_check(clear, tag + ": does not cover a tile")
+			_check(label.focus_mode == Control.FOCUS_NONE, tag + ": is not a focus target")
+			var rtl: bool = code == "he"
+			var b: Rect2 = screen._badge.get_global_rect()
+			_check(r.position.x >= b.end.x if rtl else r.end.x <= b.position.x, tag + ": next to the badge on the title side")
+	var old_code: String = app.current_screen()._room.text
+	app.server.address_lookup = func(): return "10.0.5.9"
+	app.server.ip = "10.0.5.9"   # A new address while the screen is open: the code follows within 2 frames.
+	await _frames(2)
+	var now: String = app.current_screen()._room.text
+	_check(now == app.server.room_code and now != old_code, "room code: follows a new address")
+	app.server.address_lookup = func(): return ""
+	app.server.ip = ""
+	app.go_games()
+	await _frames(5)
+	_check(app.current_screen()._room.text == "----", "room code: a TV with no address shows ----")

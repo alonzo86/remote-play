@@ -40,7 +40,7 @@ connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens
 connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen and phone waiting and pad screens (Back key): title of the quit dialog,
 connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens)",
 connect.refused,Connection refused: %s,החיבור נדחה: %s,"Phone, Connect screen: error when the TV refuses for another reason, %s is the reason code",%s is replaced by a name or a value
-connect.room_code,ROOM CODE,קוד חדר,TV Connect screen: label above the room code,
+connect.room_code,ROOM CODE,קוד חדר,"TV Connect screen: label above the room code; Games screen: label above the room code in the header",
 connect.scan_qr_code,SCAN QR CODE,סרקו קוד QR,"Phone, Connect screen: button that opens the QR scanner",
 connect.stay,STAY,להישאר,TV Connect screen and phone waiting and pad screens (Back key): Stay button of the quit dialog,
 slot_list.lost,LOST,אבד,TV Connect screen and Players modal: state of a phone that lost the connection,

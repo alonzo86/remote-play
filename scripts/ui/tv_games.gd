@@ -21,6 +21,7 @@ var _grid_view: Control
 var _scroll: ScrollContainer
 var _tiles: Array[Button] = []
 var _badge: Button
+var _room: Label   # The room code in the header (REQ-FL-15a). It follows the address of the TV.
 var _gear: Button
 var _info: Label   # The description of the focused game.
 var _modal: Control
@@ -64,6 +65,7 @@ func _show_grid(focus_id := "") -> void:
 	var title := UiKit.title("games.select_game")
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
+	head.add_child(_room_tag())
 	_badge = PlayersBadge.new()
 	_badge.pressed.connect(_open_players)
 	head.add_child(_badge)
@@ -156,6 +158,27 @@ func _link(from: Control, side: Side, to: Control) -> void:
 
 func _process(_delta: float) -> void:
 	_update_fit()
+	if _room != null:
+		_room.text = _room_text()
+
+
+## The room code, always in the header (REQ-FL-15a): a dim label and the code under it. It is not a focus target.
+func _room_tag() -> Control:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 0)
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	var cap := UiKit.label("connect.room_code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(cap)
+	_room = UiKit.title(_room_text(), UiTheme.SIZE_ITEM)
+	_room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(_room)
+	return box
+
+
+func _room_text() -> String:
+	var code: String = App.server.room_code
+	return code if code != "" else "----"   # A TV with no address has no code yet (REQ-FL-84).
 
 
 ## Dims the tiles of games that do not accept the number of players now (REQ-FL-14, 27).
