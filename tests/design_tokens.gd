@@ -220,8 +220,15 @@ func _white_buttons() -> void:
 		_check(b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT, "%s: its text is black" % names[i])
 		_check(b.get_theme_stylebox("hover").bg_color == UiTheme.BUTTON_FACE, "%s: hovered, it is still white" % names[i])
 		var focus: StyleBoxFlat = b.get_theme_stylebox("focus")
-		_check(focus.bg_color == UiTheme.BUTTON_FACE and focus.border_color == UiTheme.ACCENT
-				and focus.border_width_left == UiTheme.MARK_W, "%s: the focus is a thick yellow border on the white face" % names[i])
+		_check(focus.bg_color == UiTheme.ACCENT and focus.border_color == UiTheme.ACCENT
+				and focus.border_width_left == UiTheme.MARK_W
+				and UiTheme.contrast(b.get_theme_color("font_focus_color"), focus.bg_color) >= 4.5,
+				"%s: the focus is a yellow face with a thick yellow border and readable black text" % names[i])
+		var margins := {}
+		for st in ["normal", "hover", "focus", "pressed", "disabled"]:
+			var sb: StyleBoxFlat = b.get_theme_stylebox(st)
+			margins[[sb.content_margin_left, sb.content_margin_top, sb.content_margin_right, sb.content_margin_bottom]] = true
+		_check(margins.size() == 1, "%s: all five states have the same content margins, so a focus never moves the layout" % names[i])
 		var off: StyleBoxFlat = b.get_theme_stylebox("disabled")
 		_check(off.bg_color == UiTheme.BG and off.border_color == UiTheme.TEXT_DIM
 				and b.get_theme_color("font_disabled_color") == UiTheme.DISABLED, "%s: disabled keeps the dim look" % names[i])
@@ -234,8 +241,9 @@ func _white_buttons() -> void:
 	for b in buttons:
 		b.free()
 	# The players badge needs the autoloads (it reads the server), so its source is checked: it takes the same look.
-	_check(FileAccess.get_file_as_string("res://scripts/ui/players_badge.gd").contains("UiTheme.style_button(self)"),
-			"the players badge takes the white button look")
+	var badge_src := FileAccess.get_file_as_string("res://scripts/ui/players_badge.gd")
+	_check(badge_src.contains("UiTheme.style_button(self)") and badge_src.contains("content_margin_left = UiTheme.LINE + 20.0"),
+			"the players badge takes the white button look and keeps the room for its slot squares")
 	# The text menus (REQ-FL-41) have no face: an enabled item is white text (also the quiet one), the focus is yellow or red.
 	var theme := UiTheme.make()
 	var menu_white := true
@@ -254,10 +262,21 @@ func _white_buttons() -> void:
 	_check(offenders.is_empty(), "no screen styles a button by itself or gives box_button a color (%s)" % str(offenders))
 
 
-## True when a call of `box_button(` in `src` passes a UiTheme color name as an argument.
+## True when a call of `box_button(` in `src` passes a UiTheme color name as an argument. The call is read up to its closing
+## parenthesis, over several lines.
 func _has_color_arg(src: String) -> bool:
-	var re := RegEx.create_from_string("box_button\\([^\\n]*UiTheme\\.(OK|BAD|DANGER|TEXT_DIM|ACCENT|TEXT)\\b")
-	return re.search(src) != null
+	var re := RegEx.create_from_string("UiTheme\\.(OK|BAD|DANGER|TEXT_DIM|ACCENT|TEXT)\\b")
+	var from := src.find("box_button(")
+	while from >= 0:
+		var i := from + "box_button(".length()
+		var depth := 1
+		while i < src.length() and depth > 0:
+			depth += 1 if src[i] == "(" else (-1 if src[i] == ")" else 0)
+			i += 1
+		if re.search(src.substr(from, i - from)) != null:
+			return true
+		from = src.find("box_button(", i)
+	return false
 
 
 ## The text of one `[preset.N.options]` block of export_presets.cfg as {key: value (raw text)}, by the name of its preset.

@@ -89,19 +89,28 @@ static func line_box(color: Color, fill: Color = BG, width := LINE) -> StyleBoxF
 
 
 ## The box of a button in one state ("normal", "hover", "focus", "pressed" or "disabled"). Enabled: a white face with black
-## text (`BUTTON_FACE`, `BUTTON_TEXT`). `marked` (the TV focus, the chosen IN or OUT, the active player) is a yellow border
-## twice as thick, so the mark is a shape and a color and the face stays white. Pressed is the reverse (black face, white text).
-## Disabled keeps its dim look (a dim line on black).
+## text (`BUTTON_FACE`, `BUTTON_TEXT`). `marked` (the chosen IN or OUT, the active player) is a yellow border twice as thick,
+## so the mark is a shape and a color and the face stays white. The focus (the TV remote, a keyboard) is different: a yellow
+## face with black text (11.8:1) and the same thick border, so a focused button is never taken for a marked one.
+## Pressed is the reverse (black face, white text). Disabled keeps its dim look (a dim line on black).
 static func button_box(state: String, marked := false) -> StyleBoxFlat:
 	match state:
 		"disabled":
-			return line_box(TEXT_DIM)
+			return _same_margins(line_box(TEXT_DIM))
 		"pressed":
-			return line_box(TEXT, BG)
+			return _same_margins(line_box(TEXT, BG))
 		"focus":
-			return line_box(ACCENT, BUTTON_FACE, MARK_W)
+			return _same_margins(line_box(ACCENT, ACCENT, MARK_W))
 		_:
-			return line_box(ACCENT if marked else BUTTON_FACE, BUTTON_FACE, MARK_W if marked else LINE)
+			var edge := ACCENT if marked else BUTTON_FACE
+			return _same_margins(line_box(edge, BUTTON_FACE, MARK_W if marked else LINE))
+
+
+## A button keeps one size in every state: the content margin does not follow the border width, so a focus or a mark never
+## moves its neighbors.
+static func _same_margins(s: StyleBoxFlat) -> StyleBoxFlat:
+	s.set_content_margin_all(float(LINE + 8))
+	return s
 
 
 ## The text color of a button in a state (see `button_box`).
@@ -111,7 +120,7 @@ static func button_text(state: String) -> Color:
 			return DISABLED
 		"pressed":
 			return TEXT
-		_:
+		_:   # Normal, hover and focus (the yellow face) have black text.
 			return BUTTON_TEXT
 
 

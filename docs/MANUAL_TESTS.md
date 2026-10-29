@@ -762,7 +762,7 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 6a. On a phone, go through the Connect, the waiting and the pad screens. Hold the phone at 50 cm and read aloud every text of each screen. Check: you read each text without a mistake.
 6b2. Look at the phone pad from 50 cm. Check: A and B are white with a black letter, each with a white ring (2 of 2; changed 2026-10-29, issue #173: they were green and red), and the tester reads the slot number in the slot square at the top of the pad aloud, without a mistake. (The lift of the buttons, the independent press and the place of the square are checked by A-16-6b.)
 6b3. Look at the Connect or waiting screen of a phone from 50 cm. Check: JOIN (or SETTINGS) and ABOUT have a white face and black text (2 of 2), and the tester reads both words aloud without a mistake. (New 2026-10-29, issue #173.)
-6b4. Look at the TV Games screen from the sofa (3 m), with the focus on OPTIONS. Check: OPTIONS has a white face and black text and a thick yellow border, and the tester names the focused item within 5 s. Do the same in Hebrew. (New 2026-10-29, issue #173.)
+6b4. Look at the TV Games screen from the sofa (3 m), with the focus on OPTIONS. Check: OPTIONS has a yellow face with black text and a thick yellow border, and the tester names the focused item within 5 s. Do the same in Hebrew. (New 2026-10-29, issue #173.)
 8a. A child of 5 to 8 years sits at the TV with the Games screen open. Ask: "Which game is chosen now?". Check: the child points to the focused tile (the one with the cursor) within 10 s and without help.
 8b. Show the child the screen with PRESS OK TO CONTINUE. Ask the child to continue. Check: the child presses OK within 10 s and without help.
 

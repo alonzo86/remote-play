@@ -78,8 +78,8 @@ black. They show as a filled square next to the slot number, never as the only c
 
 - Every enabled button, on the phone and on the TV, is white (issue #173, 2026-10-29): the face is `BUTTON_FACE`, the text
   is `BUTTON_TEXT` (black), the edge is white. Pressed is the reverse (black face, white text). A disabled button keeps
-  its dim look (a `TEXT_DIM` line on black). A mark (the TV focus, the chosen IN or OUT, the active player) is a `MARK_W`
-  `ACCENT` border around the white face, so it is a shape and a color. The code is `UiTheme.button_box()` and
+  its dim look (a `TEXT_DIM` line on black). A mark (the chosen IN or OUT, the active player) is a `MARK_W`
+  `ACCENT` border around the white face, so it is a shape and a color. The focus is a yellow face with black text and the same border. The code is `UiTheme.button_box()` and
   `UiTheme.style_button()`; no screen styles a button by itself (`tests/design_tokens.gd`). A text menu item has no face (it
   is white text with a cursor, section 2.4); a game tile is a picture with a frame, not a button.
 - A and B are round white arcade buttons: a 6 px white ring, a `BUTTON_EDGE` lower edge and a white face with a black
