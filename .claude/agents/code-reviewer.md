@@ -1,7 +1,7 @@
 ---
 name: code-reviewer
 description: Reviews a Sababi diff, branch or pull request with the repo review checklist and blocks until every finding is fixed, filed as a follow-up issue, or justified in writing. Use after a PR is created and before it is merged. Does not edit code.
-model: opus
+model: sonnet
 tools: Read, Bash, Grep, Glob
 ---
 
