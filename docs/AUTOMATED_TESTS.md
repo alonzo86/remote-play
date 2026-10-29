@@ -498,3 +498,4 @@ the real phone and the real Wi-Fi, so a simulated phone cannot answer them.
   never ran, and the suite still said "0 failed". It reads the optional lists with `get()` now.
 - With the checks running: on Mini Golf hole 5 the sliding barrier passes 0.25 m from the cup (the other things keep 0.3 m, REQ-MG-12).
   The test checks that the barrier never covers the tee or the cup, and leaves the 0.3 m margin to a decision of the owner. Nothing in the game was changed.
+| A-GM-169 | Issue #169 (no manual step; a real TV box that is killed or closed is part of Test 7) | `run_tests`: "a clean quit of the TV: the phone leaves CONNECTED within 1.5 s and says tv_closed", "a silent TV: the phone leaves CONNECTED for RECONNECTING within PEER_TIMEOUT_MS + 2 s" |

@@ -250,7 +250,9 @@ func _back() -> void:
 
 func _quit() -> void:
 	if server != null:
-		server.stop()
+		if server.stop() and not quit_hook.is_valid():
+			# The phones get "bye" and the close handshake needs a moment; then the TV closes (issue #169).
+			await get_tree().create_timer(0.45).timeout
 	if client != null:
 		client.leave()
 	if quit_hook.is_valid():

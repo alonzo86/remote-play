@@ -100,6 +100,7 @@ func _run() -> void:
 	_test_qr()
 	_test_registry()
 	await _test_network()
+	await _test_tv_gone()
 	await _test_phone_screens()
 	_test_visual_rules()
 	_test_role()
@@ -940,3 +941,43 @@ func _test_network() -> void:
 	for c in clients:
 		c.leave()
 	server.stop()
+
+
+## Issue #169: when the TV app goes away, the phone does not stay "connected". A clean quit sends "bye" (the phone goes to IDLE
+## and says the TV closed); a killed TV just goes silent (the phone drops to RECONNECTING after PEER_TIMEOUT_MS).
+func _test_tv_gone() -> void:
+	print("the TV goes away (issue #169)")
+	var server := TvServer.new()
+	root.add_child(server)
+	server.start({})
+	var c := ControllerClient.new()
+	root.add_child(c)
+	var reasons := []
+	c.rejected.connect(func(r): reasons.append(r))
+	c.connect_to("127.0.0.1", Protocol.WS_PORT, server.room_code)
+	await _wait_until(func(): return c.state == ControllerClient.State.CONNECTED)
+	server.stop()
+	var left := await _wait_until(func(): return c.state != ControllerClient.State.CONNECTED, 1500)
+	_check(left and c.state == ControllerClient.State.IDLE and reasons == ["tv_closed"],
+			"a clean quit of the TV: the phone leaves CONNECTED within 1.5 s and says tv_closed (%s, state %d)"
+			% [str(reasons), c.state])
+	c.leave()
+	server.queue_free()
+	c.queue_free()
+	await _frames(3)
+
+	var server2 := TvServer.new()
+	root.add_child(server2)
+	server2.start({})
+	var c2 := ControllerClient.new()
+	root.add_child(c2)
+	c2.connect_to("127.0.0.1", Protocol.WS_PORT, server2.room_code)
+	await _wait_until(func(): return c2.state == ControllerClient.State.CONNECTED)
+	server2.set_process(false)   # A killed or frozen TV: no pong, no bye.
+	var t0 := Time.get_ticks_msec()
+	var gone := await _wait_until(func(): return c2.state != ControllerClient.State.CONNECTED, Protocol.PEER_TIMEOUT_MS + 2000)
+	_check(gone and c2.state == ControllerClient.State.RECONNECTING,
+			"a silent TV: the phone leaves CONNECTED for RECONNECTING within PEER_TIMEOUT_MS + 2 s (%d ms)"
+			% (Time.get_ticks_msec() - t0))
+	c2.leave()
+	server2.stop()
