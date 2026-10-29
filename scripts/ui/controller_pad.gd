@@ -69,9 +69,9 @@ func _slot_square_color() -> Color:
 	return c.color if c.state == ControllerClient.State.CONNECTED else UiTheme.BAD
 
 
-## The fill of the Recenter box: yellow for a moment after a tap (REQ-FL-52), else black.
+## The fill of the Recenter box: white like every enabled button (REQ-FL-38a); black for a moment after a tap (REQ-FL-52).
 func _recenter_fill() -> Color:
-	return UiTheme.ACCENT if _flash.recenter > 0.0 else UiTheme.BG
+	return UiTheme.BG if _flash.recenter > 0.0 else UiTheme.BUTTON_FACE
 
 
 ## The middle of the face of the arcade button `bit` at `center`: it sits lower while the button is down.
@@ -258,7 +258,7 @@ func _draw() -> void:
 				HORIZONTAL_ALIGNMENT_LEFT, best_rect.size.x, 32, UiTheme.OK)
 
 	# Disconnect: a framed text box. One tap leaves the TV (REQ-FL-52).
-	_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BG, Lang.t("pad.disconnect"), 24, UiTheme.TEXT)
+	_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect"), 24, UiTheme.BUTTON_TEXT)
 
 	var rr := _rect_recenter()
 	if _aim_mode():
@@ -266,20 +266,20 @@ func _draw() -> void:
 	elif _recenter_shown():
 		_draw_recenter(rr, f)
 
-	# A and B are round arcade buttons. A is green and B is red (REQ-FL-52). The player color is only the square at the top.
+	# A and B are round white arcade buttons (REQ-FL-52, issue #173). The player color is only the square at the top.
 	if _button_shown("a"):
-		_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)
+		_draw_button(_center_a(), "A", Protocol.BTN_A)
 	if _button_shown("b"):
-		_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)
+		_draw_button(_center_b(), "B", Protocol.BTN_B)
 
 
-## Recenter: a yellow framed box that fills with yellow for a moment when it is tapped.
+## Recenter: a white box with black text that turns black with white text for a moment when it is tapped.
 func _draw_recenter(rr: Rect2, f: Font) -> void:
 	var flashing: bool = _flash.recenter > 0.0
-	_draw_box(rr, UiTheme.ACCENT, _recenter_fill(), Lang.t("pad.recenter"), 72,
-			UiTheme.BG if flashing else UiTheme.ACCENT)
+	_draw_box(rr, UiTheme.TEXT, _recenter_fill(), Lang.t("pad.recenter"), 72,
+			UiTheme.TEXT if flashing else UiTheme.BUTTON_TEXT)
 	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("pad.point_at_tv_then"),
-			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, hint_size(f, rr), UiTheme.BG if flashing else UiTheme.TEXT)
+			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, hint_size(f, rr), UiTheme.TEXT if flashing else UiTheme.BUTTON_TEXT)
 
 
 ## The size of the help line in the Recenter box: 32 px, smaller (steps of 8 px) when the line, as in Hebrew, would touch the
@@ -310,15 +310,16 @@ func _draw_box(r: Rect2, frame: Color, fill: Color, text: String, fs: int, col: 
 	draw_string(UiTheme.font(), Vector2(r.position.x, ty), text.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, fs, col)
 
 
-## An arcade button: a 6 px white ring, a dark lower edge, and a face that sits in when the button is down.
-func _draw_button(center: Vector2, label: String, bit: int, col: Color) -> void:
+## An arcade button (issue #173): a 6 px white ring, a gray lower edge, a white face with a black letter that sits in when the
+## button is down. A and B differ by the letter only.
+func _draw_button(center: Vector2, label: String, bit: int) -> void:
 	var r := _radius()
 	draw_circle(center, r + UiTheme.LINE, UiTheme.TEXT)
-	draw_circle(center, r, col.darkened(0.45))
+	draw_circle(center, r, UiTheme.BUTTON_EDGE)
 	var face := _button_face(center, bit)
-	draw_circle(face, r - BUTTON_LIFT, col)
+	draw_circle(face, r - BUTTON_LIFT, UiTheme.BUTTON_FACE)
 	UiTheme.draw_centered(self, UiTheme.font(), label, Rect2(face - Vector2(r, r), Vector2(r, r) * 2.0), 96,
-			UiTheme.text_on(col))
+			UiTheme.BUTTON_TEXT)
 
 
 ## The line under the header during a game (REQ-FL-67): the place and the score of this player, "2ND  12". The place shows

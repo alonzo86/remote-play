@@ -5,7 +5,7 @@ Sababi is a couch game for Android TV with phones as motion controllers. The loo
 - A failing state always says why in words ("LOST", the reason a game cannot start); never color alone.
 
 ## Visual foundations
-- **Color.** Every screen sits on plain `bg` black. Text is `text`, secondary `text-dim`, titles, the room code and the focused item `accent`. `frame` blue is a line, never text. `ok` is READY and the A button, `bad` is LOST, errors and the B button. Player colors `player-1`..`player-4` are a square next to the slot number. Every text color holds 4.5:1 on black.
+- **Color.** Every screen sits on plain `bg` black. Text is `text`, secondary `text-dim`, titles, the room code and the focused item `accent`. `frame` blue is a line, never text. `ok` is READY, `bad` is LOST and errors. Every enabled button is white (face `text`, black text; issue #173); a disabled one keeps its dim look. Player colors `player-1`..`player-4` are a square next to the slot number. Every text color holds 4.5:1 on black.
 - **Type.** One font, Press Start 2P, with Sababi Pixel Hebrew as the fallback for Hebrew names. Sizes are multiples of 8 on the 1080p TV: body and hints 32px, menu items and slots 40px, modal titles 48px, titles 64px, logo text 96px, countdown 256px. Text smoothing and hinting are off, so the pixels stay sharp.
 - **Shape.** Square corners, no shadow, no outline around buttons. A panel has a double frame (6px `text`, 6px black, 6px `frame`). A box has one 6px line.
 - **Menus and focus.** A list of choices is a text menu. The focused item is `accent` with a cursor drawn as pixels in front of it; a destructive item is `bad` with the focus. A focused tile has an `accent` frame and a cursor before its title; its description is in a bar under the grid.

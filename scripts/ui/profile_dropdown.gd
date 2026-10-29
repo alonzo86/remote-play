@@ -23,17 +23,17 @@ func _ready() -> void:
 	add_child(row)
 	var active = App.profiles.active()
 	_head = _row(active.avatar if active != null else -1, active.player_name if active != null else "connect.guest",
-			active != null, toggle, UiTheme.TEXT, true)
+			active != null, toggle, false, true)
 	_head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_head)
 	if active != null:   # Rename the player, change the avatar, or delete it.
-		var edit := UiKit.box_button("", _on_edit, UiTheme.SIZE_BODY, UiTheme.ACCENT)
+		var edit := UiKit.box_button("", _on_edit, UiTheme.SIZE_BODY)
 		edit.custom_minimum_size = Vector2(ROW_H, ROW_H)
 		var pencil := PencilIcon.new()
 		pencil.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 20)
 		edit.add_child(pencil)
 		row.add_child(edit)
-	var plus := UiKit.box_button("+", _on_new, UiTheme.SIZE_TITLE, UiTheme.ACCENT)
+	var plus := UiKit.box_button("+", _on_new, UiTheme.SIZE_TITLE)
 	plus.custom_minimum_size = Vector2(ROW_H, ROW_H)
 	plus.disabled = App.profiles.is_full()
 	row.add_child(plus)
@@ -57,16 +57,16 @@ func _fill() -> void:
 	var store = App.profiles
 	for p in store.profiles:
 		_list.add_child(_row(p.avatar, p.player_name, true, _pick.bind(p.id),
-				UiTheme.ACCENT if p.id == store.active_id else UiTheme.TEXT))
-	_list.add_child(_row(-1, "connect.guest", false, _pick.bind(""), UiTheme.ACCENT if store.active_id == "" else UiTheme.TEXT))
-	var manage := UiKit.box_button("common.players", _on_manage, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+				p.id == store.active_id))
+	_list.add_child(_row(-1, "connect.guest", false, _pick.bind(""), store.active_id == ""))
+	var manage := UiKit.box_button("common.players", _on_manage, UiTheme.SIZE_BODY)
 	manage.custom_minimum_size = Vector2(0, 96)
 	_list.add_child(manage)
 
 
 ## A framed row: the avatar (none for the guest), the name, and a triangle on the head row.
-func _row(avatar: int, text: String, is_name: bool, cb: Callable, color: Color, head := false) -> Button:
-	var b := UiKit.box_button("", cb, UiTheme.SIZE_ITEM, color)
+func _row(avatar: int, text: String, is_name: bool, cb: Callable, marked: bool, head := false) -> Button:
+	var b := UiKit.box_button("", cb, UiTheme.SIZE_ITEM, marked)
 	b.custom_minimum_size = Vector2(0, ROW_H)
 	var inner := HBoxContainer.new()
 	inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -82,7 +82,7 @@ func _row(avatar: int, text: String, is_name: bool, cb: Callable, color: Color, 
 	av.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	inner.add_child(av)
-	var l := UiKit.label(text, UiTheme.SIZE_ITEM, color)
+	var l := UiKit.label(text, UiTheme.SIZE_ITEM, UiTheme.BUTTON_TEXT)
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.clip_text = true
@@ -94,7 +94,8 @@ func _row(avatar: int, text: String, is_name: bool, cb: Callable, color: Color, 
 		tri.custom_minimum_size = Vector2(32, 32)
 		tri.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		tri.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tri.draw.connect(func(): tri.draw_colored_polygon(PackedVector2Array([Vector2(0, 6), Vector2(32, 6), Vector2(16, 26)]), color))
+		tri.draw.connect(func(): tri.draw_colored_polygon(
+				PackedVector2Array([Vector2(0, 6), Vector2(32, 6), Vector2(16, 26)]), UiTheme.BUTTON_TEXT))
 		inner.add_child(tri)
 	return b
 

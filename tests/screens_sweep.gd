@@ -251,9 +251,9 @@ func _sweep(name: String, code: String) -> void:
 	for b in items:
 		var t := _shown(b)
 		if t == Lang.t("common.back"):
-			var quiet: bool = b.theme_type_variation == &"QuietButton" and b.get_theme_color("font_color") == UiTheme.TEXT_DIM \
+			var quiet: bool = b.theme_type_variation == &"QuietButton" and b.get_theme_color("font_color") == UiTheme.TEXT \
 					and b.get_theme_color("font_focus_color") == UiTheme.ACCENT
-			_check(quiet, "%s: BACK is a quiet item, gray and yellow with the cursor" % state)
+			_check(quiet, "%s: BACK is a quiet item, white and yellow with the cursor" % state)
 		if b.theme_type_variation == &"DangerButton":
 			_check(b.get_theme_color("font_color") == UiTheme.TEXT and b.get_theme_color("font_focus_color") == UiTheme.BAD,
 					"%s: the red item '%s' is white and red with the cursor" % [state, t])

@@ -80,11 +80,11 @@ func _ready() -> void:
 	bar.changed.connect(_update_arrows)
 	_show_picked.call_deferred()
 	box.add_child(UiKit.spacer(0, true))   # Save, Delete and Back sit at the bottom of the screen.
-	_save = UiKit.box_button("profile_edit.save", _on_save, UiTheme.SIZE_ITEM, UiTheme.OK)
+	_save = UiKit.box_button("profile_edit.save", _on_save, UiTheme.SIZE_ITEM)
 	_save.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_save)
 	if existing != null:
-		_delete = UiKit.box_button("profile_edit.delete", _on_delete, UiTheme.SIZE_ITEM, UiTheme.BAD)
+		_delete = UiKit.box_button("profile_edit.delete", _on_delete, UiTheme.SIZE_ITEM)
 		_delete.custom_minimum_size = Vector2(0, 110)
 		box.add_child(_delete)
 		_delete_timer = Timer.new()
@@ -92,7 +92,7 @@ func _ready() -> void:
 		_delete_timer.wait_time = DELETE_ARM_SECONDS
 		_delete_timer.timeout.connect(_disarm_delete)
 		add_child(_delete_timer)
-	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
+	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM)
 	back.custom_minimum_size = Vector2(0, 96)
 	box.add_child(back)
 	_refresh()

@@ -66,7 +66,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 68, 83, 84 | Not run |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
 | [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run |  | |
-| [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-41a, 52, 53, REQ-GM-45, 46, FD-18 | Partial (see the result table) | R4 | |
+| [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-38a, 41a, 52, 53, REQ-GM-45, 46, FD-18 | Partial (see the result table) | R4 | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Fail (steps 6c) | R4 | |
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip and phone score | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Not run | | |
@@ -760,7 +760,9 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 2d. Do step 2c on a 4K TV, if you have one. Check: the same result. (Skip this step if you have no 4K TV and write "no 4K TV" in the notes.)
 4d. On the real TV remote, in each menu of the Games screen, a game settings view and the quit question, press OK, Back and the D-pad once each. Check: OK does the action of the focused item, Back closes the menu or goes up one step, and the D-pad moves the focus (the same result as in Test 8).
 6a. On a phone, go through the Connect, the waiting and the pad screens. Hold the phone at 50 cm and read aloud every text of each screen. Check: you read each text without a mistake.
-6b2. Look at the phone pad from 50 cm. Check: A is green and B is red, each with a white ring (2 of 2), and the tester reads the slot number in the slot square at the top of the pad aloud, without a mistake. (The lift of the buttons, the independent press and the place of the square are checked by A-16-6b.)
+6b2. Look at the phone pad from 50 cm. Check: A and B are white with a black letter, each with a white ring (2 of 2; changed 2026-10-29, issue #173: they were green and red), and the tester reads the slot number in the slot square at the top of the pad aloud, without a mistake. (The lift of the buttons, the independent press and the place of the square are checked by A-16-6b.)
+6b3. Look at the Connect or waiting screen of a phone from 50 cm. Check: JOIN (or SETTINGS) and ABOUT have a white face and black text (2 of 2), and the tester reads both words aloud without a mistake. (New 2026-10-29, issue #173.)
+6b4. Look at the TV Games screen from the sofa (3 m), with the focus on OPTIONS. Check: OPTIONS has a white face and black text and a thick yellow border, and the tester names the focused item within 5 s. Do the same in Hebrew. (New 2026-10-29, issue #173.)
 8a. A child of 5 to 8 years sits at the TV with the Games screen open. Ask: "Which game is chosen now?". Check: the child points to the focused tile (the one with the cursor) within 10 s and without help.
 8b. Show the child the screen with PRESS OK TO CONTINUE. Ask the child to continue. Check: the child presses OK within 10 s and without help.
 
@@ -777,7 +779,9 @@ Measurements: write down the lowest FPS value of step 5d and the text sizes you 
 | 2d | Close photo of the Logo screen and the Games screen on 4K (or "no 4K TV") | Pass | R4 |  |  |
 | 4d | Note: OK, Back and D-pad on each menu | Pass | R4 |  |  |
 | 6a | Photos of the phone screens; the note "read without a mistake" | Pass | R4 |  |  |
-| 6b2 | Photo of the pad; note: the slot number that was read | Pass | R4 |  |  |
+| 6b2 | Photo of the pad; note: the slot number that was read | Open | R4 (Pass before the change of 2026-10-29, issue #173: A and B are white now) |  |  |
+| 6b3 | Photo of the phone screen; note: the two words that were read | Open |  |  |  |
+| 6b4 | Photo of the Games screen in English and in Hebrew; note: the seconds | Open |  |  |  |
 | 8a | Note: the child, the age, the seconds | Pass | R4 |  |  |
 | 8b | Note: the child, the age, the seconds | Pass | R4 |  |  |
 

@@ -5,7 +5,7 @@ extends Control
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 const GRID := 8
-## The body is yellow, the tip white and the eraser red.
+## The icon sits on a white button (issue #173): the body is black, the tip gray and the eraser red.
 const ROWS := [
 	".....ee#",
 	"....bbbe",
@@ -27,7 +27,8 @@ static func cells() -> Array:
 	var out: Array = []
 	for y in ROWS.size():
 		for x in String(ROWS[y]).length():
-			var color = {"b": UiTheme.ACCENT, "t": UiTheme.TEXT, "e": UiTheme.BAD, "#": UiTheme.TEXT_DIM}.get(String(ROWS[y])[x])
+			var palette := {"b": UiTheme.BUTTON_TEXT, "t": UiTheme.BUTTON_EDGE, "e": UiTheme.BAD, "#": UiTheme.TEXT_DIM}
+			var color = palette.get(String(ROWS[y])[x])
 			if color != null:
 				out.append({"x": x, "y": y, "color": color})
 	return out

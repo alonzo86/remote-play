@@ -78,8 +78,8 @@ func _ready() -> void:
 	var choice := HBoxContainer.new()
 	choice.add_theme_constant_override("separation", 24)
 	_pick_box.add_child(choice)
-	_in_button = UiKit.box_button("setup.in", func(): App.client.send_play(true), UiTheme.SIZE_ITEM, UiTheme.OK)
-	_out_button = UiKit.box_button("setup.out", func(): App.client.send_play(false), UiTheme.SIZE_ITEM, UiTheme.BAD)
+	_in_button = UiKit.box_button("setup.in", func(): App.client.send_play(true), UiTheme.SIZE_ITEM)
+	_out_button = UiKit.box_button("setup.out", func(): App.client.send_play(false), UiTheme.SIZE_ITEM)
 	for b in [_in_button, _out_button]:
 		b.custom_minimum_size = Vector2(0, 96)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -116,15 +116,14 @@ func _ready() -> void:
 func _update_pick() -> void:
 	var c: Node = App.client
 	_pick_box.visible = c.setup_pick
-	_mark(_in_button, UiTheme.OK, c.setup_in)
-	_mark(_out_button, UiTheme.BAD, not c.setup_in)
+	_mark(_in_button, c.setup_in)
+	_mark(_out_button, not c.setup_in)
 
 
-## A chosen button is filled with its color and its text is black, so the choice never depends on the color alone: the filled one
-## is the choice.
-func _mark(b: Button, color: Color, chosen: bool) -> void:
-	b.add_theme_stylebox_override("normal", UiTheme.line_box(color, color if chosen else UiTheme.BG))
-	b.add_theme_color_override("font_color", UiTheme.BG if chosen else color)
+## Both answers are white (issue #173). The chosen one has the thick yellow border (a shape and a color), so the choice never
+## depends on the color alone (issue #76).
+func _mark(b: Button, chosen: bool) -> void:
+	UiTheme.style_button(b, chosen)
 
 
 ## The setup of the TV settings view: the question IN or OUT (issue #76), and the safety card while the setup is a swing game
