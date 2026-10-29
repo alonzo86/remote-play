@@ -1,5 +1,5 @@
 extends SceneTree
-## With the TV in Hebrew, every game name shows in Hebrew (REQ-FL-64, Alon 2026-10-29): the tiles and the info bar of the Games
+## With the TV in Hebrew, every game name shows in Hebrew (REQ-FL-87, Alon 2026-10-29): the tiles and the info bar of the Games
 ## screen, the settings view of each game and the title of the HUD. No screen shows the English name of a game. Run:
 ##   godot --headless --path . --script tests/game_names_hebrew.gd -- --role=tv
 
@@ -122,6 +122,11 @@ func _run() -> void:
 		holder.queue_free()
 		_check(_hud == [hebrew[String(g.id)]], "%s: the HUD title is the Hebrew name (%s)" % [g.id, str(_hud)])
 	Shell.recorder = Callable()
+
+	# The HUD of each game passes its own registry key to Shell.title (not a name written in the script).
+	for g in games:
+		var src := FileAccess.get_file_as_string(String(g.path))
+		_check(src.contains('Shell.title(self, "%s"' % g.title), "%s: its HUD title is the key %s" % [g.id, g.title])
 
 	# No script writes the English name of a game as a literal text: it always goes through the key.
 	var literal: Array[String] = []
