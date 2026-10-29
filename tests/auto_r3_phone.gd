@@ -72,6 +72,7 @@ func _run() -> void:
 	await _hebrew_pad()
 	await _connect_language()
 	await _haptics_default()
+	await _phone_language()
 	await _wait_layout()
 	_app.settings.merge(old_settings, true)
 	_app.set_language("en", false)
@@ -181,14 +182,14 @@ func _shown_keys(node: Node) -> Dictionary:
 
 
 ## 17.4a: a phone whose system language is Hebrew shows its Connect screen in Hebrew before it has joined; a phone whose system
-## language is English (or another one) shows English (REQ-FL-62: the phone follows the TV only after the join).
+## language is English (or another one) shows English (REQ-FL-62: the phone never follows the TV).
 func _connect_language() -> void:
 	print("the Connect screen follows the language of the phone")
 	var connect_script: GDScript = load("res://scripts/ui/controller_connect.gd")
 	var table := Lang.table()
 	for pair in [["he", "he"], ["iw", "he"], ["en", "en"], ["fr", "en"]]:
 		Lang.device_locale = pair[0]
-		_app.settings.language = ""   # A phone never saves the language: it uses the language of the device.
+		_app.settings.language = ""   # No saved choice: the phone uses the language of the device.
 		_app.set_language(_app.language_to_use(), false)
 		_app.go(connect_script)
 		await _frames(3)
@@ -234,6 +235,54 @@ func _haptics_default() -> void:
 		_check(screen.get_script().resource_path.ends_with("controller_settings.gd") and screen._haptics.text == "HAPTICS: ON",
 				"Settings opens, with the row '%s'" % (screen._haptics.text if "_haptics" in screen else "-"))
 	_app.settings.haptics = saved
+
+
+## 17.2b (issue #171): the phone Settings screen has a language button. A tap switches the phone at once (text and layout
+## direction) and saves the choice; the choice wins over the language of the device at the next start; the TV language message
+## (`welcome.lang`, `lang`) changes nothing on the phone, also when the connection state changes.
+func _phone_language() -> void:
+	print("the language of the phone")
+	var saved_lang: String = _app.settings.language
+	Lang.device_locale = "en"
+	_app.settings.language = ""
+	_app.set_language(_app.language_to_use(), false)
+	_app.go(_wait_script)
+	await _frames(3)
+	for b in _app.current_screen().find_children("*", "Button", true, false):
+		if b.text == "common.settings":
+			b.pressed.emit()
+	await _frames(3)
+	var screen: Control = _app.current_screen()
+	_check(screen.get_script().resource_path.ends_with("controller_settings.gd") and screen._language.text == "LANGUAGE: English",
+			"the Settings screen shows the language button in English: '%s'" % screen._language.text)
+	screen._language.pressed.emit()
+	await _frames(3)
+	_check(Lang.current() == "he" and _app.settings.language == "he" and Lang.is_rtl() and screen._language.text == "שפה: עברית"
+			and root.get_layout_direction() == Window.LAYOUT_DIRECTION_RTL,
+			"a tap switches the phone to Hebrew, right to left, and saves it: '%s'" % screen._language.text)
+	# The TV says English and the connection comes and goes: the phone keeps its own choice.
+	_app.client._handle({"t": "lang", "v": "en"}, Time.get_ticks_msec())
+	_app._on_client_state(ControllerClient.State.IDLE)
+	await _frames(3)
+	_check(Lang.current() == "he", "the language of the TV and a lost connection do not change the language of the phone")
+	# The next start: the saved choice wins over the language of the device.
+	Lang.device_locale = "en"
+	var settings_now: String = _app.settings.language
+	_app.settings.language = ""
+	_app._load_settings()
+	_check(settings_now == "he" and _app.language_to_use() == "he",
+			"the next start uses the saved choice (Hebrew), not the device (English)")
+	_app.go(_app.ControllerSettings)   # The lost connection took the phone to the Connect screen.
+	await _frames(3)
+	screen = _app.current_screen()
+	screen._language.pressed.emit()
+	await _frames(3)
+	_check(Lang.current() == "en" and _app.settings.language == "en" and screen._language.text == "LANGUAGE: English",
+			"a second tap switches back to English")
+	Lang.device_locale = ""
+	_app.settings.language = saved_lang
+	_app.save_settings()
+	_app.set_language("en", false)
 
 
 ## 18.10f: on the waiting screen the Settings button and Disconnect do not touch (at least 24 px apart) and both are inside the

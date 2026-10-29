@@ -8,7 +8,6 @@ signal state_changed(state: int)
 signal welcomed(slot: int, color: Color)
 signal rejected(reason: String)
 signal phase_changed(phase: String)
-signal language_changed(code: String)   # The TV language (REQ-FL-62).
 signal haptic_requested(ms: int)
 signal score_changed()   # The place or the score of this phone changed (REQ-FL-67).
 signal result_received(key: String, value: int)   # A round result for the active profile (REQ-GM-99).
@@ -266,8 +265,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			_set_state(State.CONNECTED)
 			_save_last(false)
 			welcomed.emit(slot, color)
-			if msg.has("lang"):
-				language_changed.emit(String(msg.lang))
+			# `lang` (the TV language) is ignored: a phone has its own language (REQ-FL-62).
 			phase_changed.emit(phase)
 			_sync_profile()   # The TV may have ignored the profile (a round was running): send it again in a menu.
 		"reject":
@@ -305,7 +303,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 				send_swing_ok()   # The same view is synced again (a phone joined): this phone has answered already.
 			setup_changed.emit()
 		"lang":
-			language_changed.emit(String(msg.get("v", "en")))
+			pass   # The TV language: a phone does not follow it (REQ-FL-62, issue #171).
 		"haptic":
 			haptic_requested.emit(int(msg.get("ms", 50)))
 		"score":

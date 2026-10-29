@@ -140,7 +140,7 @@ result.winner,%s wins!,%s ניצח!,Result menu title: %s is the name of the win
 settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row,
 settings.effects,EFFECTS,אפקטים,TV Settings: name of the sound effects volume row,
 settings.invert_tilt_axes,INVERT AXES,היפוך צירים,TV Settings: name of the row,
-settings.language,LANGUAGE,שפה,TV Settings: name of the Language row,
+settings.language,LANGUAGE,שפה,TV Settings: name of the Language row; phone Settings: start of the language button (LANGUAGE: ENGLISH),
 common.off,OFF,כבוי,"TV Settings: state of a switch that is off (Debug overlay, Mute, Invert tilt axes)",
 common.on,ON,פועל,TV Settings: state of a switch that is on,
 settings.phone_vibrates_games_when,"THE PHONE VIBRATES IN GAMES: WHEN YOU SCORE, BUMP OR START.","הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים.",Phone Settings screen: help line under the haptics switch,
