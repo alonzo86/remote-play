@@ -2,8 +2,6 @@
 # tier is `unit` (the logic of one module or one rule: the CI runs these on every change) or `scenario` (a screen, a layout, a text,
 # a flow or several phones at once: run them locally or on demand). Every line needs a tier; a title has no | in it.
 # tests/run_all.sh (local) and tools/coverage.sh (the coverage check) both use this list, so a new suite is added here only.
-# The headless test suites, one for each line: script|role|title. tests/run_suites.sh runs them in this order.
-# tests/run_all.sh (local run) and tools/coverage.sh (CI, with coverage) both use this list, so a new suite is added here only.
 tests/run_tests.gd|controller|unit and network tests|unit
 tests/ui_states.gd|controller|button states and the wait screen Leave|scenario
 tests/ui_share.gd|controller|copy a player: share, paste, scan|scenario
