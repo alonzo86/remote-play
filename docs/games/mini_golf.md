@@ -61,11 +61,11 @@ Holes and settings
 | Power hint at the swing | yes | no | no | |
 | Weakest swing that moves the ball far enough for a short hole | helped | normal | normal | |
 
-Values in code (first guesses): aim range 1.2 rad to each side; weakest putt 1.5 / 0.5 / 0.3 m/s and strongest 4.5 m/s; swing threshold factor 0.7 on Easy; aim line 3.0 / 1.2 / 0 course units (`mini_golf_game.gd` `LEVELS`, `golf_sim.gd`). Other first guesses: stroke limit 6 (REQ-MG-8); the turn banner 1.5 s; 5 holes with par 2 to 4. All values are tuned on a device (`docs/MANUAL_TESTS.md`, to be added with the code).
+Values in code (first guesses): aim range 1.2 rad to each side; weakest putt 1.5 / 0.5 / 0.3 m/s and strongest 4.5 m/s; swing threshold factor 0.7 on Easy; aim line 3.0 / 1.2 / 0 course units (`mini_golf_game.gd` `LEVELS`, `golf_sim.gd`). Other first guesses: stroke limit 6 (REQ-MG-8); the turn banner 1.5 s; 5 holes with par 2 to 4. All values are tuned on a device (`docs/MANUAL_TESTS.md`, Test 26).
 
-## Texts for the user to review
+## Languages and texts (REQ-GM-47o)
 
-The rows are in `assets/lang/strings.csv` (keys `registry.mini_golf`, `registry.desc_mini_golf` and `mini_golf.*`). The Hebrew texts are written by Claude and need a Hebrew reader. English: "MINI GOLF", "MINI GOLF ON FUNNY COURSES, WITH YOUR PHONE AS THE CLUB.", "HOLES" with "1 HOLE" to "5 HOLES", "Hole 2/3  Par 3", "Maya's turn!", "MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT!", "SWING A BIT MORE!", "SWING FORWARD. A BIGGER SWING GOES FARTHER!" (Easy), "HOLE IN ONE!", "BIRDIE!", "PAR!", "BOGEY", "4 strokes", "Picked up after 6 strokes", "SPLASH! TRY AGAIN FROM HERE", "Hole 2 done!", "Strokes", "Total", and on the phone "MAYA IS PUTTING" (the turn message has the optional field `k` = `golf`, `docs/PROTOCOL.md`).
+In Hebrew the HUD is mirrored by the shell; the course is not. The rows are in `assets/lang/strings.csv` (keys `registry.mini_golf`, `registry.desc_mini_golf` and `mini_golf.*`). The Hebrew texts are written by Claude and need a Hebrew reader. English: "MINI GOLF", "MINI GOLF ON FUNNY COURSES, WITH YOUR PHONE AS THE CLUB.", "HOLES" with "1 HOLE" to "5 HOLES", "Hole 2/3  Par 3", "Maya's turn!", "MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT!", "SWING A BIT MORE!", "SWING FORWARD. A BIGGER SWING GOES FARTHER!" (Easy), "HOLE IN ONE!", "BIRDIE!", "PAR!", "BOGEY", "4 strokes", "Picked up after 6 strokes", "SPLASH! TRY AGAIN FROM HERE", "Hole 2 done!", "Strokes", "Total", and on the phone "MAYA IS PUTTING" (the turn message has the optional field `k` = `golf`, `docs/PROTOCOL.md`).
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
 

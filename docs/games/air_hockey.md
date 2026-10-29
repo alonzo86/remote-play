@@ -23,7 +23,6 @@ Games screen.
 |------------|------|------|
 | REQ-GM-73 | Note | A match against ROBO has no medal (REQ-GM-105, a bot is not a phone). A match of two phones gives the medal of the place (gold, silver, REQ-GM-73a); the player that stays after a leave has a technical win and the gold medal (REQ-AH-19, owner, 2026-10-29). |
 | REQ-GM-98 | Exception | No personal best (`best_key()` is empty): the score is the goals of a match against one opponent, so it says little about the player. Decision to confirm. |
-| REQ-GM-35 | Exception | The game shows no timer, so it has no countdown. The match starts when the second phone has enrolled (or at once with one phone), and the puck waits 1 s for the serve. |
 | REQ-GM-104 | Exception | There is no IN and OUT choice: the game enrolls its players itself (REQ-GM-106, registry `enroll`). |
 | REQ-GM-30 | Exception | The card of a lost phone never offers "Resume without ..." once the match runs: the match cannot go on without a player (REQ-AH-19). |
 | REQ-GM-47d, 47e, 47m | Exception | Decision of the owner, 2026-10-23: the table is white with rails (black first, dark gray `#4a4e5e` since 2026-10-29, REQ-AH-20) on a black floor, and the puck is black. The mallets keep the slot colors with a black outline, and the puck and the table differ by more than 3:1 in luminance. |
@@ -41,7 +40,7 @@ Match and players
 |----|-------------|--------|-------|
 | REQ-AH-1 | A match has two seats: seat 0 on the left, seat 1 on the right. The first seat to reach the goals of the setting (REQ-AH-18) wins. There is no timer and no draw during play. | Done | smoke_air_hockey |
 | REQ-AH-2 | The game starts with 1 to 4 phones connected (registry `min_players` 1, `max_players` 4). Two phones play; the other phones watch (their pad says "waiting", REQ-GM-106). | Done | smoke_air_hockey |
-| REQ-AH-3 | Enrollment (REQ-GM-106): at every start of a match (also Try again and New game) a screen says "PRESS A TO PLAY!" and every connected phone may press A. The first phone that presses stands on the left, the second on the right, and the match starts at once. A phone that is already enrolled does nothing when it presses A again. With one phone connected it is enrolled at once and the match starts against ROBO. With two or more phones connected and one enrolled, the screen also says "OR PRESS OK TO PLAY AGAINST ROBO", and OK on the TV remote starts the match against ROBO. OK with nobody enrolled does nothing. Back leaves at once (nothing is in progress). Nobody can join after the match started. | Done | smoke_air_hockey |
+| REQ-AH-3 | Enrollment (REQ-GM-106): at every start of a match (also Try again and New game) a screen says "PRESS A TO PLAY!" and every connected phone may press A. The first phone that presses stands on the left, the second on the right, and the match starts at once. A phone that is already enrolled does nothing when it presses A again. With one phone connected it is enrolled at once and the match starts against ROBO. With two or more phones connected and one enrolled, the screen also says "OR PRESS OK TO PLAY AGAINST ROBO", and OK on the TV remote starts the match against ROBO. OK with nobody enrolled does nothing. Back leaves at once (nothing is in progress). Nobody can join after the match started. The game has no timer and so no countdown (REQ-GM-35): at the start the puck waits 1 s for the first serve, as after a goal (REQ-AH-9). | Done | smoke_air_hockey |
 | REQ-AH-4 | Tilt moves the mallet of the seat (`TiltBody`: acceleration 5200 px/s2, damping 5 /s, speed limit 1100 px/s). Tilt to the right slides to the right and tilt forward slides up, for both seats (nobody is mirrored; the left player defends the left goal). Both seats have the same values (REQ-GM-24). The pose held at the start of the match is the center. B does nothing. | Done | air_hockey_rules, smoke_air_hockey |
 | REQ-AH-5 | A mallet stays in its own half of the table (it stops at the middle line) and inside the rails. | Done | air_hockey_rules |
 
@@ -100,6 +99,14 @@ What Easy, Medium and Hard mean (`hockey_bot.gd` `LEVELS`; only ROBO changes, RE
 
 In the headless proxy (a player that only chases the puck, 4 matches of 3 minutes) the player scored 18, 0 and 2 goals and ROBO 5, 8 and 24
 goals on Easy, Medium and Hard (changed with issue #146: before, ROBO gave the player 115 own goals on Easy; and with issue #145: the puck is faster, so the slow-puck speeds of the table are 1.5 times the old values).
+
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `air_hockey` plays from the start of the play (no countdown). The effects `hockey_hit`, `hockey_wall`, `hockey_goal` and `join`, the win and neutral sounds of the result menu, and the haptics (hit 25 ms, goal 120 ms, enroll 40 ms, winner 400 ms) are in REQ-AH-9, REQ-AH-10 and REQ-AH-12. The pause and result sounds come from the base class.
+
+## Languages and texts (REQ-GM-47o)
+
+The rows are in `assets/lang/strings.csv`: `registry.air_hockey`, `registry.desc_air_hockey`, `how_to.air_hockey` and `air_hockey.*` (the goals row, "FIRST TO N", "GOAL FOR <NAME>!", the enroll prompts, the name of ROBO). In Hebrew the HUD is mirrored by the shell; the table is not (REQ-AH-21). The Hebrew was written by Claude and needs a native reader (see the open questions).
 
 ## Open questions
 

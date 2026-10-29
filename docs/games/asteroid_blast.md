@@ -16,7 +16,7 @@ two waves, and every wave is harder than the one before.
 Registry entry: `description` (one line) and `tile` (`assets/tiles/asteroid_blast.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
 Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 48, 49). Check the tile next to the Games screen.
 
-## Gaps
+## Gaps and exceptions
 
 | General ID | Kind | Note |
 |------------|------|------|

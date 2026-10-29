@@ -97,6 +97,14 @@ The freeze is longer on Hard because holding still is harder for longer; the mus
 | `HINT_TIME` | 4 s |
 | Levels | table above |
 
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `freeze_dance` is the music of the dance (REQ-FD-2). The effects `freeze_stop`, `dance_points` and `dance_out` and the haptics (move 80 ms, held freeze 40 ms, winner 400 ms; no buzz at the stop) are in REQ-FD-14. The pause and result sounds come from the base class.
+
+## Languages and texts (REQ-GM-47o)
+
+The rows are in `assets/lang/strings.csv`: `registry.freeze_dance`, `registry.desc_freeze_dance`, `how_to.freeze_dance` and `freeze_dance.*` (hint, WIGGLE!, FREEZE!, the song number, back in). In Hebrew the HUD is mirrored by the shell; the stage is not. The Hebrew was written by Claude and needs a native reader.
+
 ## Open questions
 
 - The grace was made 0.4 s longer on every level on 2026-10-27 (issue #150, owner), so Easy has 1.2 s, Medium 0.9 s and Hard 0.8 s. A player who moves in the freeze gets no points for that song (the stop of that song is the only place where points are given, REQ-FD-7, 8) and keeps the points of the songs before (issue #152: "round" is the song, owner).
