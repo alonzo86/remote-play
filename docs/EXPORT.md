@@ -16,7 +16,9 @@ The two IDs are different, so you can install both apps on one device.
 2. Install **JDK 17** or newer (the build was checked with JDK 21).
 3. Install the **Android SDK**. The easy way is Android Studio. You need these SDK packages:
    platform-tools, build-tools 36.1.0 and platform android-36 (the versions in the 4.7 build template,
-   `android/build/config.gradle`). The Gradle build does not need the NDK or CMake.
+   `android/build/config.gradle`). The Gradle build does not need the NDK or CMake. (`.github/workflows/ci.yml` still names
+   android-34, build-tools 34.0.0, an NDK and CMake for its APK job; that export step is commented out, so the job builds no APK.
+   Change those versions when the APK export is turned on.)
 4. In Godot open **Editor > Editor Settings > Export > Android**.
    Set `Java SDK Path` and `Android SDK Path`.
 5. Open **Editor > Manage Export Templates** and install the templates for your Godot version.
@@ -88,9 +90,10 @@ For a release build, set a release keystore in the preset (`keystore/release*`) 
 ```sh
 aapt dump badging build/sababi-tv.apk | grep -E "banner|package:"
 aapt dump xmltree build/sababi-tv.apk AndroidManifest.xml | grep -E "LEANBACK_LAUNCHER|QrScanner"
+aapt dump xmltree build/sababi-controller.apk AndroidManifest.xml | grep -E "QrScanner"
 ```
 
-You must see a `banner` entry, `android.intent.category.LEANBACK_LAUNCHER` and `org.godotengine.plugin.v2.QrScanner`.
+The TV apk must show a `banner` entry and `android.intent.category.LEANBACK_LAUNCHER`, and **no** `QrScanner` (the TV app has no scanner). The controller apk must show `org.godotengine.plugin.v2.QrScanner`.
 (Godot 4.7 puts the launcher categories on an `activity-alias`, so `aapt dump badging` does not show a
 `leanback-launchable-activity` line.)
 If you do not see them, run `tools/patch_android_manifest.sh` again and export again.
