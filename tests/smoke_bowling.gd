@@ -203,6 +203,7 @@ func _run() -> void:
 	await _frames(3)
 	var solo: Control = app.current_screen()
 	solo._on_player_left(1)
+	solo.players_at_start = 1   # A round that started with one phone has no medal; a player that stays after a leave has the gold.
 	_to_turn(solo)
 	for i in 12:
 		solo.sim.set_rack(solo.FULL_RACK)

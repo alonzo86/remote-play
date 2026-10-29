@@ -231,6 +231,7 @@ func _level_medals() -> void:
 			game.participants.append(0)
 			game._on_player_left(1)
 			game._on_player_left(2)
+			game.players_at_start = 1   # A round that started with one phone; a player that stays after a leave has the gold medal.
 			for i in tiles:
 				game.floor_map.paint(Vector2i(i % game.floor_map.cols, i / game.floor_map.cols), 0)
 			game._board.set_score(0, game.floor_map.count(0))
