@@ -1,7 +1,7 @@
 ---
 name: sw-developer
 description: Implements and fixes GDScript code in Sababi (TV app, phone controller, games, protocol) with its tests and docs. Use for any code change or bug fix.
-model: opus
+model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
