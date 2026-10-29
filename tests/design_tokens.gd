@@ -120,6 +120,8 @@ func _run() -> void:
 			missing.append((c as Color).to_html(true))
 	_check(missing.is_empty(), "every UiTheme and player color is a design token (missing: %s)" % str(missing))
 	_check(_family(data, "border", "line-w") == "%dpx" % UiTheme.LINE, "frame line token matches UiTheme")
+	var Shell = load("res://scripts/game/shell.gd")
+	_check(_family(data, "border", "chip-line-w") == "%dpx" % Shell.CHIP_LINE, "chip frame line token matches Shell.CHIP_LINE")
 	_check(data.has("color") and not data.has("radius") and not data.has("shadow"),
 			"the design system has no radius and no shadow tokens: the style has square corners and no shadows (REQ-FL-38)")
 
