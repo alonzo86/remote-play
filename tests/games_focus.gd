@@ -160,7 +160,13 @@ func _room_checks(app: Node) -> void:
 			_check(label.focus_mode == Control.FOCUS_NONE, tag + ": is not a focus target")
 			var rtl: bool = code == "he"
 			var b: Rect2 = screen._badge.get_global_rect()
-			_check(r.position.x >= b.end.x if code == "he" else r.end.x <= b.position.x, tag + ": next to the badge on the title side")
+			_check(r.position.x >= b.end.x if rtl else r.end.x <= b.position.x, tag + ": next to the badge on the title side")
+	var old_code: String = app.current_screen()._room.text
+	app.server.address_lookup = func(): return "10.0.5.9"
+	app.server.ip = "10.0.5.9"   # A new address while the screen is open: the code follows within 2 frames.
+	await _frames(2)
+	var now: String = app.current_screen()._room.text
+	_check(now == app.server.room_code and now != old_code, "room code: follows a new address")
 	app.server.address_lookup = func(): return ""
 	app.server.ip = ""
 	app.go_games()
