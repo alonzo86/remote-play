@@ -62,7 +62,7 @@ Players, result and phones
 | REQ-BC-12 | At the end of the round the result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. The score text is "N stars". The winner gets a buzz of 400 ms. | Done | smoke_bumper_cars |
 | REQ-BC-13 | A lost phone pauses the round with the card of REQ-GM-30. Nothing runs during the pause (the clock, the new stars, the cars). | Done | smoke_tv (shared base class) |
 | REQ-BC-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the stars of the leader, or TIE. Each phone shows its own stars and place (REQ-FL-67). A car has no number on it (REQ-GM-46). | Done | smoke_bumper_cars, hud_layout |
-| REQ-BC-15 | Children (REQ-GM-80 to 84): friendly toy cars; a bump is a bonk and a spark; nobody is out and nobody waits (REQ-GM-83); there is a hint line in the first seconds (`bumper_cars.hint`; its text still speaks of a star that drops and is waiting for the owner's new wording); all texts are positive. | Done | review, smoke_bumper_cars |
+| REQ-BC-15 | Children (REQ-GM-80 to 84): friendly toy cars; a bump is a bonk and a spark; nobody is out and nobody waits (REQ-GM-83); there is a hint line in the first seconds ("Tilt to drive and pick up the stars! Bump the others for fun."); all texts are positive. | Done | review, smoke_bumper_cars |
 
 Look
 

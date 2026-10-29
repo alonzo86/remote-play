@@ -373,7 +373,8 @@ func _menu_row(text: String, color: Color, avatar := -1, medal_tier := "") -> Co
 ## - The title names the single winner, or says "Tie!", or says "Round over" when nobody has a score.
 ##   `title` replaces it (a game puts the difficulty there).
 ## - With more than one player every row has the medal of its place: 1st gold, 2nd silver, 3rd bronze (`Medals.for_place()`).
-##   A round that started with one player has no medal and no medal title (REQ-GM-73, issue #119).
+##   A round that started with one player has no medal and no medal title (REQ-GM-73, issue #119). A player that stays after the
+##   others left has a technical win and the medal of its place (owner, 2026-10-29).
 ## - `score_text` turns a score into text for the list (default `Scoreboard.format`). A player without a score shows
 ##   "not finished".
 ## A game with teams sets this before `open_results()` when a team won: two winners of the board are not a tie then.
@@ -394,8 +395,8 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title
-	var solo := players_at_start == 1 or ranking.size() == 1   # One player in the round or left in the result: no medal.
-	for i in ranking.size():   # More than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
+	var solo := players_at_start == 1   # The round started with one player: no medal. A player that stays after a leave has a technical win.
+	for i in ranking.size():   # The round started with more than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
 		if ranking[i].finished and not solo:
 			rows[i]["medal"] = Medals.for_place(ranking[i].rank)
 	if heading == "":

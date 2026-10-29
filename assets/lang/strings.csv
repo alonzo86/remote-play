@@ -280,7 +280,7 @@ air_hockey.or_ok_robo,OR PRESS OK TO PLAY AGAINST %s,או לחצו OK כדי ל�
 registry.bumper_cars,BUMPER CARS,מכוניות מתנגשות,"Name of the game Bumper Cars: Games screen, game settings, in-game title",
 registry.desc_bumper_cars,BUMPER CARS IN A FUN-FAIR RINK: COLLECT GOLD STARS.,מכוניות מתנגשות במתחם שעשועים: אוספים כוכבי זהב.,"Description of Bumper Cars: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.bumper_cars,"TILT YOUR PHONE TO DRIVE YOUR CAR. DRIVE OVER THE STARS TO PICK THEM UP. WHEN CARS BUMP HARD, BOTH DROP A STAR. MOST STARS IN 60 SECONDS WINS.","הטו את הטלפון כדי לנהוג במכונית. סעו על הכוכבים כדי לאסוף אותם. כשמכוניות מתנגשות חזק, כל אחת מפילה כוכב. מי שאוסף הכי הרבה כוכבים תוך 60 שניות מנצח.","TV game settings view of Bumper Cars: how to play, under the title (issue #77)",
-bumper_cars.hint,TILT TO DRIVE AND PICK UP THE STARS! A HARD BUMP MAKES BOTH CARS DROP A STAR.,הטו כדי לנסוע ולאסוף כוכבים! התנגשות גורמת לשתי המכוניות להפיל כוכב.,Bumper Cars: hint during the countdown and the first seconds,
+bumper_cars.hint,TILT TO DRIVE AND PICK UP THE STARS! BUMP THE OTHERS FOR FUN.,הטו כדי לנסוע ולאסוף כוכבים! אפשר להתנגש באחרים בכיף.,Bumper Cars: hint during the countdown and the first seconds,
 result.one_star,1 star,כוכב אחד,Bumper Cars result list: score of 1 star,
 result.stars,%d stars,%d כוכבים,"Bumper Cars result list: score, %d is the stars","the number sign (%d, %.1f ...) is replaced by a number"
 registry.tower_builder,TOWER BUILDER,בונים מגדל,"Name of the game Tower Builder: Games screen, game settings, in-game title",
