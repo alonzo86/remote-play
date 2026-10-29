@@ -1494,7 +1494,7 @@ History:
 
 Needs: 2 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9d. Covers: REQ-BC-* (`docs/games/bumper_cars.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
 
-New game (2026-10-24). It was only tested with made-up sensor values. Every number (the speed of the cars, the size of the rink, the number of stars on the floor, the size of a bump, the 60 s of the round), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-24 that a hit takes 1 star from each car (an exception to REQ-GM-80, see the requirements file). Changed 2026-10-24 (owner): in a hit both cars lose a star.
+New game (2026-10-24). It was only tested with made-up sensor values. Every number (the speed of the cars, the size of the rink, the number of stars on the floor, the size of a bump, the 60 s of the round), the pictures, the song, the sounds and the Hebrew texts are first guesses. Changed 2026-10-29 (owner): a hit takes no star (it took 1 star from each car from 2026-10-24); a bump is only a bonk, a spark and a buzz (REQ-BC-7).
 
 **Steps**
 

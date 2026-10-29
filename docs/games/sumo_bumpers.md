@@ -19,7 +19,6 @@ Visual language: shell, player colors, pixel world (REQ-GM-45, 46, 47i to 47n, 4
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-73 | Exception | The game needs 2 players (registry `min_players` 2), so it has no solo mode (and no solo medal, REQ-GM-73). |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 15). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | Content: friendly bumpers that bounce, no fighting words. A bumper that falls spins and shrinks ("Whee!"), is back in the next round, and waits only until the round is over, which is short (REQ-SB-9). Text is positive. |
@@ -53,7 +52,7 @@ Players and feedback
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SB-12 | A player who leaves takes the bumper out and keeps no points in the ranking (REQ-GM-21). When one player is left, the match ends at once with the result menu. When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sumo |
+| REQ-SB-12 | A player who leaves takes the bumper out and keeps no points in the ranking (REQ-GM-21). When one player is left, the match ends at once with the result menu: a technical win with the gold medal (REQ-GM-73). When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sumo |
 | REQ-SB-13 | A lost phone pauses the match with the card of REQ-GM-30. Nothing runs during the pause (the shrink). | Done | smoke_tv (shared base class) |
 | REQ-SB-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the points of the leader, or TIE. Each phone shows its own points and place (REQ-FL-67). A bumper has no number on it (REQ-GM-46). The RECENTER button recenters (REQ-GM-37). | Device | smoke_sumo (points, phones), game_helpers (leader), Device (RECENTER) |
 

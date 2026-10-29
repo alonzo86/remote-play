@@ -216,8 +216,8 @@ func _start_confetti() -> void:
 
 
 ## The round is over: all the sheep are in (a win for the team, REQ-SH-5) or the time is up. One player sees the difficulty and
-## the number of sheep, with no medal (REQ-SH-18, REQ-GM-73); more players get a sentence for the whole team and no medals
-## (the score is shared).
+## the number of sheep, with no medal (REQ-SH-18, REQ-GM-73); more players get a sentence for the whole team and the medal of the
+## place (REQ-GM-73a): the score is shared, so every player has the same place and the same medal.
 func _finish() -> void:
 	var n := flock.penned_count()
 	var total := flock.sheep.size()
@@ -230,7 +230,6 @@ func _finish() -> void:
 	if _board.ranking().size() == 1:
 		heading = Lang.t("game_settings." + difficulty)
 	else:
-		no_medals = true
 		heading = Lang.t("sheep_herding.all_safe") if all else Lang.f("sheep_herding.some_safe", [n, total])
 	open_results(_board, heading, [], _score_text)
 

@@ -203,7 +203,7 @@ func _draw_ship(ci: CanvasItem, s: SpaceField.Ship, o: Vector2, k: float) -> voi
 
 
 func _game_draw() -> void:
-	Shell.title(self, "registry.galaxy_protector")
+	Shell.title(self, "registry.star_shield")
 	draw_leader_chip(self)
 	if is_over:
 		return

@@ -270,7 +270,6 @@ static func effects() -> Dictionary:
 	# Bumper Cars.
 	fx["car_bump"] = [_noise(2500.0, 800.0, 0.08, 0.24), _blip(180.0, 90.0, 0.1, 0.26, 0.5)]
 	fx["car_star"] = _run(["E6", "A6"], 0.06, 0.25)
-	fx["car_drop"] = [_blip(700.0, 250.0, 0.2, 0.25, 0.5)]
 	# Sheep Herding.
 	fx["sheep_baa"] = [_blip(500.0, 380.0, 0.12, 0.2, 0.5), _blip(380.0, 330.0, 0.1, 0.18, 0.5, 0.12)]
 	fx["sheep_pen"] = _run(["E5", "G5", "C6"], 0.07, 0.3)

@@ -226,6 +226,7 @@ func _run() -> void:
 	labels = _labels(game)
 	_check(game.is_over and labels[0] == "SIM0 WINS!" and game.participants == [0],
 			"a player that left ends the match, and the player that stays wins: %s" % [str(labels)])
+	_check(MedalView.tiers_in(game._menu_box) == ["gold"], "the player that stays has a technical win with the gold medal")
 	clients.remove_at(1)
 
 	# One phone: the match starts at once against ROBO (REQ-GM-105, REQ-AH-14).

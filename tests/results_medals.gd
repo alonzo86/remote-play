@@ -84,6 +84,14 @@ func _run() -> void:
 	game.open_results(solo)
 	await _frames(2)
 	_check(MedalView.tiers_in(game._menu_box).is_empty(), "one player gets no medal, not even gold for the 1st place")
+	# A round that started with 4 players and has one left (a technical win, owner 2026-10-29): the gold medal.
+	game.players_at_start = 4
+	game.open_results(solo)
+	await _frames(2)
+	_check(MedalView.tiers_in(game._menu_box) == ["gold"], "one player left of 4 has a technical win and the gold medal")
+	game.players_at_start = 1
+	game.open_results(solo)
+	await _frames(2)
 	var texts: Array = game._menu_box.find_children("*", "Label", true, false).map(func(l): return String(l.text))
 	_check(texts.filter(func(t): return t.to_upper().contains("MEDAL")).is_empty(), "and no title about a medal: %s" % str(texts))
 	# The sound of the result menu: a single player with a score wins; a player without a score gets the neutral sound (REQ-FL-65).

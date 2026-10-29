@@ -47,9 +47,6 @@ var _menu_box: Control
 var _menu_open := false
 var _menu_kind := ""             # "hold" for the card of a lost phone, "menu" for the other menus.
 var _hold := false               # A participant lost its connection: the game waits for a decision (REQ-GM-30).
-## A game sets this before `open_results()` when the round gives no medal even with more than one player (a team game, or a
-## match that ended by a leave).
-var no_medals := false
 var _hold_info := {}             # slot -> {name, color} of the players lost in this hold.
 var _hold_sig := ""
 var _pixel_viewport: SubViewport
@@ -376,7 +373,8 @@ func _menu_row(text: String, color: Color, avatar := -1, medal_tier := "") -> Co
 ## - The title names the single winner, or says "Tie!", or says "Round over" when nobody has a score.
 ##   `title` replaces it (a game puts the difficulty there).
 ## - With more than one player every row has the medal of its place: 1st gold, 2nd silver, 3rd bronze (`Medals.for_place()`).
-##   A round that started with one player has no medal and no medal title (REQ-GM-73, issue #119).
+##   A round that started with one player has no medal and no medal title (REQ-GM-73, issue #119). A player that stays after the
+##   others left has a technical win and the medal of its place (owner, 2026-10-29).
 ## - `score_text` turns a score into text for the list (default `Scoreboard.format`). A player without a score shows
 ##   "not finished".
 ## A game with teams sets this before `open_results()` when a team won: two winners of the board are not a tie then.
@@ -397,9 +395,9 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title
-	var solo := players_at_start == 1 or ranking.size() == 1   # One player in the round or left in the result: no medal.
-	for i in ranking.size():   # More than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
-		if ranking[i].finished and not no_medals and not solo:
+	var solo := players_at_start == 1   # The round started with one player: no medal. One that stays after a leave: a technical win.
+	for i in ranking.size():   # More than one player at the start: the medal of the place (1st gold, 2nd silver, 3rd bronze).
+		if ranking[i].finished and not solo:
 			rows[i]["medal"] = Medals.for_place(ranking[i].rank)
 	if heading == "":
 		heading = Lang.t("minigame.round_over")

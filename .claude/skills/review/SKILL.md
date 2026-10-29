@@ -46,7 +46,7 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 
 **Strings**
 - A new or changed row of `assets/lang/strings.csv` is listed in the pull request description (key, old and new text, English and Hebrew) and
-  waits for the user's review (CLAUDE.md). Report a change of strings that is not listed. Every row has a `where`; a changed use changes it.
+  is checked by the `localization-reviewer` (CLAUDE.md). Report a change of strings that is not listed. Every row has a `where`; a changed use changes it.
 - The code has keys, never English text (REQ-FL-63).
 
 **Tests and docs**
@@ -78,11 +78,11 @@ When the target is a PR (a number or a URL):
 - Get the title, body, author, state, labels and the stats: `gh pr view <n> --json title,body,author,state,labels,additions,deletions,changedFiles,commits`.
 - Get the diff: `gh pr diff <n>`. Save it in the scratchpad. If a saved diff of this PR is less than an hour old, reuse it. Otherwise fetch it again.
   Read it in chunks when it is large.
-- Review against the goals of the PR, then write the report. **Show the whole report to the user with every issue in full** before you post anything.
+- Review against the goals of the PR, then write the report.
 
 ### Posting
 
-Post only after the user says yes. Use temp files for the comment bodies (`gh pr comment <n> --body-file`) and delete them after.
+Post without asking the user first (decision of the owner, 2026-10-29). Use temp files for the comment bodies (`gh pr comment <n> --body-file`) and delete them after.
 Every comment starts with "🤖 AI Code Review", so it is clear that an AI wrote it, and ends with the Claude Code footer.
 
 - **After the PR is created by `pr-submit`** (CLAUDE.md): post **one** comment with the Summary, Good practices, every issue in full, and Tests.
@@ -93,4 +93,4 @@ Every comment starts with "🤖 AI Code Review", so it is clear that an AI wrote
      Quote the body (`>`) with the file, the code, the issue and the fix. After the quote add a line `**Developer answer:**` for the author to reply.
   3. The Tests comment.
 
-Do not fix the findings unless the user asks.
+Do not fix your own findings and do not merge. The owner of the PR (`sw-developer`) addresses every finding with a fix or a justification and posts a summary comment; you review again after that comment and decide if each fix and justification holds. When you agree the PR can be merged by `sw-developer` (a PR that adds or changes strings also needs the `localization-reviewer` verdict). After 2 cycles of disagreement `sw-developer` states the disagreement in a comment and the PR is left for the user; you do not merge (CLAUDE.md, "Pull requests"). Tell the user what you found.

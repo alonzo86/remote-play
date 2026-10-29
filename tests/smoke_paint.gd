@@ -242,7 +242,7 @@ func _run() -> void:
 	_check(not game._bodies.has(1) and not game.is_over and game.floor_map.count(1) == tiles1,
 			"a player who leaves takes the blob out, the tiles stay and the round goes on")
 
-	# Time is up with one player left: no medal, the difficulty is the title (REQ-PG-5, 6, 21).
+	# Time is up with one player left: a technical win (gold medal), the difficulty is the title (REQ-PG-5, 6, 21).
 	game._round.time = game.ROUND_TIME - 0.005
 	game._game_tick(0.01)
 	await _frames(3)
@@ -252,9 +252,9 @@ func _run() -> void:
 		labels.append(l.text)
 	_check(game.is_over and buttons == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"],
 			"time up opens the result menu: %s" % str(buttons))
-	_check(labels[0] == "MEDIUM" and MedalView.tiers_in(game._menu_box).is_empty()
+	_check(labels[0] == "MEDIUM" and MedalView.tiers_in(game._menu_box) == ["gold"]
 			and labels[1].contains(" TILES (") and labels[1].ends_with("%)"),
-			"one player gets the difficulty as the title and a list row with the tiles and the percent: %s" % str(labels))
+			"one player left: the difficulty is the title, the gold medal, a row with the tiles and the percent: %s" % str(labels))
 	# The layout comes from the size of the screen (REQ-PG-17): the floor stays inside the margin at 1280x720 and at 1920x1080.
 	var fits_ok := true
 	for res in [Vector2i(1280, 720), Vector2i(1920, 1080)]:

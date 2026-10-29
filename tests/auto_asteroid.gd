@@ -218,6 +218,7 @@ func _medals() -> void:
 		game.participants.append(0)
 		for s in [1, 2, 3]:
 			game._on_player_left(s)
+		game.players_at_start = 1   # A round that started with one phone; a player that stays after a leave has the gold medal.
 		game.field.ships[0].alive = false
 		game.field.scores[0] = score
 		game._process(DT)

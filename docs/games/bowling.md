@@ -83,7 +83,7 @@ Rules and score
 |----|-------------|--------|-------|
 | REQ-BW-1 | A game is 10 frames for each player . It ends when the last player has bowled the last ball of the last frame. The result menu opens 2 s after the banner of the last ball (the banner lasts 1.8 s), so 3.8 s after the last ball stops (`open_results()`, REQ-GM-72) with the totals, "X wins!" or "Tie!", Try again, New game, Back to menu. | Done | bowling_rules, smoke_bowling |
 | REQ-BW-2 | The score follows the standard rules above: strike (10 + next 2 balls), spare (10 + next ball), open frame, the 10th frame with 2 or 3 balls and a fresh rack after a strike. The rules module is pure code (no nodes). Known games are tests: 12 strikes = 300, 21 balls of 5 pins (all spares of 5) = 150, all gutters = 0, ten frames of 9 / and a last 9 = 190, the 10th frame cases X X X, X 7 / and 9 / 5.| Done | bowling_rules |
-| REQ-BW-3 | The turn order is frame by frame: slot order inside each frame. A player who leaves is skipped (REQ-GM-21) and the score sheet row is removed from the ranking. When one player is left the game goes on for that player. When nobody is left, "No players connected" opens (REQ-GM-22). | Done | bowling_rules, smoke_bowling |
+| REQ-BW-3 | The turn order is frame by frame: slot order inside each frame. A player who leaves is skipped (REQ-GM-21) and the score sheet row is removed from the ranking. When one player is left the game goes on for that player, and at the end that player has the gold medal (a technical win, REQ-GM-73). When nobody is left, "No players connected" opens (REQ-GM-22). | Done | bowling_rules, smoke_bowling |
 
 Aim and throw
 

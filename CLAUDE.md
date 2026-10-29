@@ -6,16 +6,18 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 - Each game has a requirements file `docs/games/<id>.md`. All games also follow `docs/GAME_REQUIREMENTS.md`.
   Change the requirements file in the same commit as the behavior (REQ-GM-5). Use the `add-minigame` skill for new games.
-- Do not run the whole test suite after every change. Run the `run-tests` skill only before you submit a pull request, or when the user asks. Run a single test or check while you work only when it is needed. Do not report a pass for a check that did not run.
+- Do not run the whole test suite after every change. Run the touched suites (`run-tests` skill, step 2a) and `gdlint` before you submit a pull request. The whole suite (`tests/run_all.sh`, step 2b) runs only when the user asks or when the QA engineer (`.claude/agents/qa.md`) decides that the change needs it (for example a change of the net, the input, a shared module or the test tooling). Run a single test or check while you work only when it is needed. Do not report a pass for a check that did not run.
 - Every text the user sees is a row of `assets/lang/strings.csv` (key, English, Hebrew, where, notes). The code uses the key (`connect.join`),
   never the English text. A new text adds its row in the same commit (FD-24, REQ-FL-63), with a short `where` (the screen and the place
   where the text shows). When the use of a text changes, change its `where` in the same commit. The file is UTF-8 with a byte order mark (Excel needs it for the Hebrew): keep the mark when you write the file.
-- Every new or changed string needs a review by the user (a new row, or a change in the English, the Hebrew or the key). Do not change the
-  text of a row on your own: ask first. A pull request that adds or changes strings lists each row (key, old text, new text, in both
-  languages) in its description and asks the user to review them. Claude does not merge such a pull request, and the `review` skill
-  reports a change of strings that has no such list.
+- Every new or changed string is reviewed by the `localization-reviewer` (a new row, or a change in the English, the Hebrew or the key). A pull
+  request that adds or changes strings lists each row (key, old text, new text, in both languages) in its description, and the `review`
+  skill reports a change of strings that has no such list. Do not change the text of a row that is already in the app on your own: ask
+  first, unless the user's request or an issue gives the new text. Hebrew that Claude wrote is not a reason to hold a merge: the points
+  that only a native Hebrew reader can confirm go in one open issue (label `localization`, one comment per pull request) and in the manual
+  test of the change (Alon, 2026-10-29).
 - Do not decide on your own what the user sees (for example cutting or shortening text, hiding information). Ask the user first.
-- Work on the branch the session gives you. Create a pull request only when the user asks for one.
+- Work on the branch the session gives you. When the user's request is a change to the repository, Claude creates the pull request when the work is done and the checks pass (Alon, 2026-10-29).
 
 ## Third-party libraries and resources
 
@@ -28,6 +30,11 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
   5. the privacy notice, when it sends or collects data (also tell the user, so the notice and the store forms can change).
 - Check the license before you add the resource, and say in the commit or pull request which license it has. Do not add a resource
   with no license, or with a license that does not allow a free app that is shipped in a store. Ask the user when you are not sure.
+- `license-reviewer` (`.claude/agents/license-reviewer.md`) checks every PR that adds or changes such a resource. For a permissive license
+  (MIT, BSD, Apache-2.0, ISC, zlib, OFL, CC0, CC-BY) it makes sure that items 1 to 5 above are all in the PR and agree with each other
+  (`docs/THIRD_PARTY.md`, the license file, the export presets, the About pages and their strings, REQ-P6, the privacy notice), fixes what
+  is missing or wrong in the documents and About pages, and ends its PR comment with "License: approved" or "License: not approved: <what>".
+  A license that is not permissive, not clear or missing is left for the owner.
 
 ## Tests and coverage
 
@@ -46,13 +53,39 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 - Before you create a pull request: the suites that your change touches pass and `gdlint` is clean. Do not run the full
   coverage unless the user told you to (see "Tests and coverage"). Do not create the pull request when a check fails.
 - After you create a pull request, always run the `review` skill on it, and post the findings as one comment on the pull request.
-  End the comment with the Claude Code footer. If there are no findings, post a short comment that says so, and list what you checked.
-- Do not fix the findings of that review unless the user asks. Tell the user what you found.
+  The reviewer (`code-reviewer`) posts without asking the user first. End the comment with the Claude Code footer. If there are no
+  findings, post a short comment that says so, and list what you checked.
+- Review cycle (decision of the owner, 2026-10-29). (1) `sw-developer` owns the pull request and acts on a review comment as soon as it is
+  posted: it addresses every finding, whatever its importance, with a fix or with a justification (the finding is wrong or should not be
+  fixed, with evidence). (2) When it has addressed all of them, it posts one summary comment on the pull request: for each finding the fix
+  (commit) or the justification. (3) Only after that summary comment does `code-reviewer` review again: it checks each fix and decides if
+  each justification holds, and posts the result. (4) When `sw-developer` and `code-reviewer` agree that every finding is resolved, the pull
+  request is merged by `sw-developer` once the checks are green and the PR has no merge conflict. A pull request that adds or changes
+  strings also needs `localization-reviewer` to end its PR comment with "Strings: approved" (see "Rules for this repository"). Alon decided on
+  2026-10-29 that this is full automation: nobody waits for the owner except in the cases of step (5) and the cases below.
+  (5) One cycle is steps 1 to 3. When the two still disagree after 2 cycles, the pull request is left for the owner: `sw-developer`
+  posts a comment that states what the disagreement is (the finding, the fix or justification, the reviewer's objection) and nobody merges.
+  The reviewer never fixes a finding. Tell the user what the review found.
+  Automatic decisions (Alon, 2026-10-29):
+  - Disagreement after 2 cycles: `software-architect` decides as a tiebreaker and posts the decision as a comment (the finding, both
+    positions, the decision, why). It is final. A disagreement about what the user sees (cut or hidden information) still goes to the owner.
+  - Strings that need a decision (a new text for a row already in the app, a "Strings: not approved"): `product-engineer` and
+    `localization-reviewer` decide with the rules of this file (kid-friendly, short, no cut information). Each such change is listed in the
+    PR description and in the open `localization` issue so the owner can revert it. A text the owner wrote is never changed this way.
+  - Protocol: a change of `scripts/core/protocol.gd` is merged when `docs/PROTOCOL.md`, the `VERSION` bump (when incompatible) and the
+    protocol tests match, and the old and the new version are tested together (the `change-protocol` skill).
+  - Failing whole suite (when `qa` decided to run it): `qa` triages each failure. A failure that the PR caused goes back to `sw-developer`.
+    A failure that also fails on `main` is filed as an issue and does not block the merge.
+  - New third-party resource: `license-reviewer` checks it (see "Third-party libraries and resources"); a permissive license is merged
+    when everything is aligned.
+  Cases that stop an automatic merge and are left for the owner: a decision that the tiebreaker may not take (see above); a license that is
+  not permissive or not clear; a change of the privacy notice or of a store or legal text; a change of a rule in CLAUDE.md or of an
+  agent or skill file; a requirement with status `Device` that the PR marks as done. Claude states the case in a PR comment and tells the user.
 - The review comment is also required for later pull requests, not only for the first one.
 
 ## Agents and workflows
 
-The agents are in `.claude/agents/`. Use them for the steps below when the task is large enough to need a role. A small, clear change may be done by one agent (`sw-developer`) or by the main session. Every agent follows the rules of this file. No agent merges a pull request or marks a manual test as passed.
+The agents are in `.claude/agents/`. Use them for the steps below when the task is large enough to need a role. A small, clear change may be done by one agent (`sw-developer`) or by the main session. Every agent follows the rules of this file. Only `sw-developer` merges a pull request, and only under the rules of "Pull requests". No agent marks a manual test as passed.
 
 | Flow | Order of the agents |
 |------|---------------------|
@@ -61,10 +94,11 @@ The agents are in `.claude/agents/`. Use them for the steps below when the task 
 | Planning | `product-engineer` (what and why) and `software-architect` (how, phases, risks) -> a plan in `docs/*_PLAN.md` or an issue; the user decides |
 | Testing | `automation-developer` (headless tests, `docs/AUTOMATED_TESTS.md`) and `qa` (manual tests, results the user reports, issues from test notes) |
 | Documentation | the agent that owns the area writes it: `product-engineer` (requirements), `software-architect` (plans, `docs/PROTOCOL.md`), `ui-ux-designer` (design system), `release-engineer` (export, `docs/THIRD_PARTY.md`), `qa` (manual tests). The `code-reviewer` checks that docs match the code |
-| Pull request | `sw-developer` owns it. After it is created, the `code-reviewer` runs the `review` skill and posts the comment. A finding is fixed, or moved to a follow-up issue, or answered in a PR comment with the reason (false positive or not worth a fix). After each fix the owner comments what was resolved |
-| Build, export, CI, a new third-party resource | `release-engineer` |
+| Pull request | `sw-developer` owns it. After it is created, the `code-reviewer` runs the `review` skill and posts the comment. A finding is fixed, or moved to a follow-up issue, or answered in a PR comment with the reason (false positive or not worth a fix). After each fix the owner comments what was resolved. The review cycle and the merge rules are in "Pull requests" |
+| Build, export, CI | `release-engineer` |
+| A new third-party resource | `license-reviewer` (with `release-engineer` for the export presets) |
 
-
+## Manual tests (for the user)
 
 - Every note in a test result that describes a problem or a change request (also on a step that passes) triggers, in the same turn: a change of the requirements (marked "Planned (issue #N)" until the code is built) and a GitHub issue, unless an issue for it exists. Look in the open issues first. Do not fix the issue unless the user asks. When a note is unclear or conflicts with a requirement or another test, ask the user and put the question in the issue.
 
@@ -85,7 +119,7 @@ Tests the user has to run now (status on 2026-10-25 after run R4; the list is in
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
-| 32 | **New game.** Bumper Cars with 2 to 4 phones: the tile against the game, a tester points at a star and a car, the FPS with 4 phones on Hard, a child of 5 to 8 years, the how-to line (3 testers), the Hebrew texts (a Hebrew reader), the pixel look from the sofa. The tilt times, the stars, the hits, the buzz, the round and Easy and Hard are automated (`docs/AUTOMATED_TESTS.md`, A-32-*) | Bumper Cars was added on 2026-10-24 (`docs/games/bumper_cars.md`). Needed before it is merged. All values (speeds, hit speed, stars on the floor, rink size), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided that a hit takes 1 star from each car |
+| 32 | **New game.** Bumper Cars with 2 to 4 phones: the tile against the game, a tester points at a star and a car, the FPS with 4 phones on Hard, a child of 5 to 8 years, the how-to line (3 testers), the Hebrew texts (a Hebrew reader), the pixel look from the sofa. The tilt times, the stars, the hits, the buzz, the round and Easy and Hard are automated (`docs/AUTOMATED_TESTS.md`, A-32-*) | Bumper Cars was added on 2026-10-24 (`docs/games/bumper_cars.md`). Needed before it is merged. All values (speeds, hit speed, stars on the floor, rink size), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-29 that a hit takes no star (it was 1 star from each car) |
 | 31 | **New game.** Freeze Dance with 1 to 4 phones: the tile against the game, a gentle wiggle of a child and a relaxed hand, a loose grip and three poses of the phone held still (5a, 5c, 5d), the stop on the TV at 240 fps, the safety card, the FPS with 4 phones, a child of 5 to 8 years, the pixel look and Hebrew from the sofa. The music, the freeze lengths, the points, the bench and the round are automated (A-31-*) | Freeze Dance was added on 2026-10-24 (`docs/games/freeze_dance.md`). Needed before it is merged. Every value (the wiggle level, the limit for "still", the grace time, the music and freeze lengths), the pictures, the song and the Hebrew texts are first guesses |
 | 30 | **New game.** Tower Builder with 1 to 4 phones: the tile against the game, a lost Wi-Fi during a turn (8a), the FPS with 4 phones, a child of 5 to 8 years, a tester reads the plates, the brick and the tower are pointed at, Hebrew from the sofa. The swing, the drop, the miss, the topple, the turn times, the 12 bricks, the medals and a player that leaves are automated (A-30-*) | Tower Builder was added on 2026-10-23 (`docs/games/tower_builder.md`). Needed before it is merged. All values (the swing, the 12 bricks, the slack of the joints), the pictures, the song and the Hebrew texts are first guesses |
 | 29 | **New game.** Sheep Herding with 1 to 4 phones: the tile against the game, a tester points at the gate, an adult herds all the sheep in the time (4 and 6a), the FPS with 4 phones, a child of 5 to 8 years, the how-to line, the Hebrew texts. The tilt times, how the sheep run, the buzz and the dog size are automated (A-29-*) | Sheep Herding was added on 2026-10-23 (`docs/games/sheep_herding.md`, issue #98). Needed before it is merged. All values (dog speed, the scare distance, the sheep speed, the gate, the time of a round), the pictures, the song and the Hebrew texts are first guesses; a Hebrew reader checks the 7 new texts |

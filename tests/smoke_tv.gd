@@ -475,12 +475,12 @@ func _run() -> void:
 	rg.open_results(board)
 	await _frames(2)
 	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "TIE!", "equal scores give the title Tie!")
-	# One player in the result has no medal and no medal title (REQ-GM-73, issue #119).
+	# One player left in the result of a round that started with more players: a technical win, the gold medal (owner, 2026-10-29).
 	var one = Scoreboard.new([rg.participants[0]])
 	one.set_score(rg.participants[0], 25)
 	rg.open_results(one)
 	await _frames(2)
-	_check(MedalView.tiers_in(rg._menu_box).is_empty(), "one player in the result: no medal next to the name")
+	_check(MedalView.tiers_in(rg._menu_box) == ["gold"], "one player left in the result: the gold medal next to the name")
 	var lost = Scoreboard.new([], true)
 	lost.set_unfinished(rg.participants[0], 3.0)
 	rg.open_results(lost)
@@ -710,15 +710,15 @@ func _run() -> void:
 	var again: Array = ss2._field.puffs
 	_check(again.size() == 1 and again[0].lane == first_lane and again[0].kind == first_kind,
 			"the same seed gives the same first animal (REQ-SS-9)")
-	# One player: no medal; the difficulty is the title (REQ-SS-16, 21, REQ-GM-73).
+	# One player left after a leave: a technical win (gold medal); the difficulty is the title (REQ-SS-16, 21, REQ-GM-73).
 	ss2._board.remove(1)
 	ss2._board.set_score(0, 400.0)
 	ss2._round.time = ss2.ROUND_TIME - 0.005
 	ss2._game_tick(0.01)
 	await _frames(3)
-	_check(MedalView.tiers_in(ss2._menu_box).is_empty()
+	_check(MedalView.tiers_in(ss2._menu_box) == ["gold"]
 			and ss2._menu_box.find_children("*", "Label", true, false)[0].text == "MEDIUM",
-			"400 points alone earn no medal, and the difficulty is the title (REQ-SS-16, 21)")
+			"400 points left alone after a leave earn the gold medal, and the difficulty is the title (REQ-SS-16, 21)")
 
 	# A player who leaves takes the cursor, the score and the bananas out (REQ-GM-21).
 	var fourth := ControllerClient.new()

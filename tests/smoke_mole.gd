@@ -233,8 +233,8 @@ func _round_end() -> void:
 	left._board.add(0, 30)
 	left._on_player_left(1)
 	left._finish()
-	_check(MedalView.tiers_in(left._menu_box).is_empty(),
-			"two players start and one leaves: one player is left, so no medal (REQ-WM-13)")
+	_check(MedalView.tiers_in(left._menu_box) == ["gold"],
+			"two players start and one leaves: the player that stays has a technical win and the gold medal (REQ-WM-13)")
 	var easy: Control = await _play(1, {"seed": 3, "difficulty": "easy"})
 	_check(easy._field.level == MoleField.LEVELS.easy and easy.best_key() == "",
 			"the difficulty is a prop; no personal best (REQ-WM-16)")

@@ -1,6 +1,6 @@
 extends SceneTree
 ## The rules of the rink of Bumper Cars without a screen: the size of the rink, the stars on the floor, who is hit in a bump,
-## how a dropped star rolls and who picks up a star, and the pictures (docs/games/bumper_cars.md, REQ-BC-3 to 10, 16, 20).
+## who picks up a star, and the pictures (docs/games/bumper_cars.md, REQ-BC-3 to 10, 16, 20).
 ## Run: godot --headless --path . --script tests/bumper_rules.gd -- --role=controller
 
 const Rink = preload("res://scripts/game/bumper_cars/bumper_rink.gd")
@@ -27,7 +27,6 @@ func _initialize() -> void:
 	_start_spots()
 	_floor_stars()
 	_bump_rule()
-	_dropped_stars()
 	_pickups()
 	_pictures()
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -151,55 +150,18 @@ func _bump_rule() -> void:
 			"cars touch when their middles are closer than two radii")
 
 
-## REQ-BC-8: a dropped star rolls 110 px in 0.35 s, away from the other car, stops at the rail and waits 0.5 s.
-func _dropped_stars() -> void:
-	print("dropped stars")
-	var r := Rink.new()
-	r.setup("medium")
-	var c := r.rink.get_center()
-	r.drop_star(c, c + Vector2(-80.0, 0.0))
-	_check(r.stars.size() == 1 and r.stars[0].pos == c, "the star starts at the car")
-	r.tick(0.2, [], _rng())
-	var at: Vector2 = r.stars[0].pos
-	_check(is_equal_approx(at.x, c.x + 110.0 * 0.2 / 0.35) and is_equal_approx(at.y, c.y),
-			"it rolls away from the other car (to the right here)")
-	r.tick(1.0, [], _rng())
-	_check(is_equal_approx((r.stars[0].pos as Vector2).distance_to(c), Rink.DROP_DISTANCE), "it stops after 110 px")
-	_check(r.pickups([r.stars[0].pos]).is_empty() == false, "after 1.2 s a car on the star picks it up")
-	var fresh := Rink.new()
-	fresh.setup("medium")
-	fresh.drop_star(c, c + Vector2(0.0, 50.0))
-	_check(fresh.pickups([c]).is_empty(), "a star that was just dropped cannot be picked up (REQ-BC-8)")
-	fresh.tick(0.45, [], _rng())
-	_check(fresh.pickups([fresh.stars[0].pos]).is_empty(), "not after 0.45 s either")
-	fresh.tick(0.1, [], _rng())
-	_check(fresh.pickups([fresh.stars[0].pos]).size() == 1, "after 0.55 s it can")
-	var wall := Rink.new()
-	wall.setup("medium")
-	var edge := Vector2(wall.rink.end.x - 40.0, c.y)
-	wall.drop_star(edge, edge + Vector2(-60.0, 0.0))
-	wall.tick(1.0, [], _rng())
-	_check(wall.rink.has_point(wall.stars[0].pos) and (wall.stars[0].pos as Vector2).x <= wall.rink.end.x - Rink.STAR_R + 0.01,
-			"a star that rolls into the rail stops inside the rink")
-	var same := Rink.new()
-	same.setup("medium")
-	same.drop_star(c, c)
-	_check(same.stars.size() == 1 and (same.stars[0].vel as Vector2).length() > 0.0,
-			"a star dropped from the same place as the other car still rolls")
-
-
 ## REQ-BC-10: a car picks up a star within 70 px; the nearer car gets it; one car can take several.
 func _pickups() -> void:
 	print("pick-ups")
 	var r := Rink.new()
 	r.setup("medium")
-	r.stars.append({"pos": Vector2(500.0, 500.0), "vel": Vector2.ZERO, "move": 0.0, "lock": 0.0, "blink": 0.0})
+	r.stars.append({"pos": Vector2(500.0, 500.0), "blink": 0.0})
 	_check(r.pickups([Vector2(500.0 + 75.0, 500.0)]).size() == 1, "a car 75 px from a star picks it up")
 	_check(r.pickups([Vector2(500.0 + 77.0, 500.0)]).is_empty(), "a car 77 px away does not")
 	var two := r.pickups([Vector2(500.0 + 60.0, 500.0), Vector2(500.0 - 20.0, 500.0)])
 	_check(two.size() == 1 and two[0][0] == 1, "two cars reach the star: the nearer one (index 1) gets it")
-	r.stars.append({"pos": Vector2(520.0, 520.0), "vel": Vector2.ZERO, "move": 0.0, "lock": 0.0, "blink": 0.0})
-	r.stars.append({"pos": Vector2(1500.0, 700.0), "vel": Vector2.ZERO, "move": 0.0, "lock": 0.0, "blink": 0.0})
+	r.stars.append({"pos": Vector2(520.0, 520.0), "blink": 0.0})
+	r.stars.append({"pos": Vector2(1500.0, 700.0), "blink": 0.0})
 	var both := r.pickups([Vector2(510.0, 510.0)])
 	_check(both.size() == 2, "one car takes the two stars that it reaches, not the far one")
 	r.remove_stars([0, 1])

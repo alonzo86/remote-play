@@ -1,8 +1,7 @@
 ﻿key,en,he,where,notes
-about.app_scans_with_google,"The app scans the QR code with the Google code scanner (Play services). The picture stays on your phone and Sababi gets only the text. Google receives technical data about how the scanner works, such as the phone model and the app version.","האפליקציה סורקת את קוד ה־QR באמצעות סורק הקודים של GOOGLE (שירותי PLAY). התמונה נשארת בטלפון ו־SABABI מקבל רק את הטקסט. GOOGLE מקבלת נתונים טכניים על פעולת הסורק, כמו דגם הטלפון וגרסת האפליקציה.","About screen, Android phone only: note about the Google code scanner"
+about.app_scans_with_google,"The app scans the QR code with the Google code scanner (Play services). The picture stays on your phone and Sababi gets only the text. Google receives technical data about how the scanner works, such as the phone model and the app version.","האפליקציה סורקת את קוד ה־QR באמצעות סורק הקודים של GOOGLE (שירותי PLAY). התמונה נשארת בטלפון ו־SABABI מקבל רק את הטקסט. GOOGLE מקבלת נתונים טכניים על פעולת הסורק, כמו דגם הטלפון וגרסת האפליקציה.","About screen, Android phone only: note about the Google code scanner",
 about.pages_below_list_parts,"The pages below list the parts of other makers that Sababi uses, and their licenses.","הדפים שלמטה מפרטים את החלקים של יוצרים אחרים ש־SABABI משתמש בהם, ואת הרישיונות שלהם.","About screen, first page: line before the list of other makers' parts",
 about.phones_tv_communicate_over,"The phones and the TV communicate over your Wi-Fi. The link is not encrypted, so play on a network you trust.","הטלפונים והטלוויזיה מתקשרים דרך ה־WI-FI שלכם. החיבור אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.","About screen, first page: the link is not encrypted, play on a trusted network",
-about.refresh_scans_addresses,"When you tap Refresh, the phone also scans the other addresses of your Wi-Fi network.","בלחיצה על רענון, הטלפון סורק גם את שאר הכתובות ברשת ה־WI-FI שלכם.","About screen, first page: sentence after the Wi-Fi sentence",
 about.nothing_leaves_network,Nothing leaves your network.,שום דבר לא יוצא מהרשת שלכם.,"About screen, first page: last sentence of the Wi-Fi paragraph",
 common.about,ABOUT,אודות,"Button About: phone waiting screen (after Settings) and top corner of the phone Connect screen, TV Settings screen; title of the About screen",
 about.sababi_has_no_account,"Sababi has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.","ב־SABABI אין חשבון, אין פרסומות ואין ניתוח נתונים. השם, הדמות והשיאים שלכם נשארים בטלפון.","About screen, first page: what data Sababi keeps",
@@ -70,7 +69,7 @@ minigame.back_to_menu,BACK TO MENU,חזרה לתפריט,"Button in the result m
 minigame.end_game_ask,END THE GAME?,לסיים את המשחק?,Title of the question 'End the game?' after Back during play,
 minigame.end_game,END GAME,סיום המשחק,"Button End game in the pause menu (leaves at once), in the question 'End the game?' and in the card of a lost phone",
 minigame.resume_play,RESUME PLAY,להמשיך לשחק,Button in the question 'End the game?' that goes back to the game,
-minigame.no_players_connected,NO PLAYERS CONNECTED,אין שחקנים מחוברים,Title of the menu when every phone has left a game, and of the card when the only phone of the game is lost (it waits for the phone),
+minigame.no_players_connected,NO PLAYERS CONNECTED,אין שחקנים מחוברים,"Title of the menu when every phone has left a game, and of the card when the only phone of the game is lost (it waits for the phone)",
 minigame.paused,PAUSED,מושהה,Title of the pause menu,
 minigame.restart,TRY AGAIN,נסו שוב,Button Try again in the pause menu and the result menu,
 minigame.resume,RESUME,המשך,Button Resume in the pause menus,
@@ -159,7 +158,7 @@ wait.join_next_round,YOU JOIN NEXT ROUND.,תצטרפו לסיבוב הבא.,Phon
 wait.round_running,A ROUND IS IN PROGRESS,סיבוב מתנהל כעת,Phone waiting screen: title when a round runs and the phone is not in it,
 wait.use_tv_remote_phone,USE THE TV REMOTE. YOUR PHONE IS READY.,השתמשו בשלט הטלוויזיה. הטלפון שלכם מוכן.,Phone waiting screen: second line while the TV shows the menus,
 wait.waiting_host,WAITING FOR THE HOST,ממתינים למארח,Phone waiting screen: title before the TV has chosen a game,
-registry.galaxy_protector,STAR SHIELD,מגן הכוכבים,"Name of the game Star Shield: Games screen, game settings, in-game title",
+registry.star_shield,STAR SHIELD,מגן הכוכבים,"Name of the game Star Shield: Games screen, game settings, in-game title",
 registry.desc_asteroid_blast,A SPACE ADVENTURE IN A SKY FULL OF FALLING ROCKS.,הרפתקה בחלל בשמיים מלאים בסלעים נופלים.,"Description of Star Shield: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.theme,THEME,ערכת נושא,game settings of Treasure Maze and Car Race: name of the theme row,
 registry.castle,CASTLE,טירה,Treasure Maze theme: Castle,
@@ -281,7 +280,7 @@ air_hockey.or_ok_robo,OR PRESS OK TO PLAY AGAINST %s,או לחצו OK כדי ל�
 registry.bumper_cars,BUMPER CARS,מכוניות מתנגשות,"Name of the game Bumper Cars: Games screen, game settings, in-game title",
 registry.desc_bumper_cars,BUMPER CARS IN A FUN-FAIR RINK: COLLECT GOLD STARS.,מכוניות מתנגשות במתחם שעשועים: אוספים כוכבי זהב.,"Description of Bumper Cars: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.bumper_cars,"TILT YOUR PHONE TO DRIVE YOUR CAR. DRIVE OVER THE STARS TO PICK THEM UP. WHEN CARS BUMP HARD, BOTH DROP A STAR. MOST STARS IN 60 SECONDS WINS.","הטו את הטלפון כדי לנהוג במכונית. סעו על הכוכבים כדי לאסוף אותם. כשמכוניות מתנגשות חזק, כל אחת מפילה כוכב. מי שאוסף הכי הרבה כוכבים תוך 60 שניות מנצח.","TV game settings view of Bumper Cars: how to play, under the title (issue #77)",
-bumper_cars.hint,TILT TO DRIVE AND PICK UP THE STARS! A HARD BUMP MAKES BOTH CARS DROP A STAR.,הטו כדי לנסוע ולאסוף כוכבים! התנגשות גורמת לשתי המכוניות להפיל כוכב.,Bumper Cars: hint during the countdown and the first seconds,
+bumper_cars.hint,TILT TO DRIVE AND PICK UP THE STARS! BUMP THE OTHERS FOR FUN.,הטו כדי לנסוע ולאסוף כוכבים! אפשר להתנגש באחרים בכיף.,Bumper Cars: hint during the countdown and the first seconds,
 result.one_star,1 star,כוכב אחד,Bumper Cars result list: score of 1 star,
 result.stars,%d stars,%d כוכבים,"Bumper Cars result list: score, %d is the stars","the number sign (%d, %.1f ...) is replaced by a number"
 registry.tower_builder,TOWER BUILDER,בונים מגדל,"Name of the game Tower Builder: Games screen, game settings, in-game title",

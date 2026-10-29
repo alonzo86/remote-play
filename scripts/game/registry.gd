@@ -66,7 +66,7 @@ const GAMES: Array[Dictionary] = [
 			"tile": "res://assets/tiles/snowball_splat.png",
 			"path": "res://scripts/game/snowball_splat/snowball_splat_game.gd", "min_players": 1, "max_players": 4,
 			"settings": []},
-	{"id": "asteroid_blast", "doc": "res://docs/games/asteroid_blast.md", "title": "registry.galaxy_protector", "dim": "2d",
+	{"id": "asteroid_blast", "doc": "res://docs/games/asteroid_blast.md", "title": "registry.star_shield", "dim": "2d",
 			"pad": [],
 			"how_to": "how_to.asteroid_blast",
 			"description": "registry.desc_asteroid_blast",

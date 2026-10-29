@@ -247,9 +247,9 @@ func _bumper() -> void:
 		game._bodies[1].pos = Vector2(300.0, 900.0)
 		game._bodies[2].pos = Vector2(1700.0, 900.0)
 		game._bodies[0].pos = mid
-		game.rink.stars.append({"pos": mid + Vector2(40.0, 0.0), "vel": Vector2.ZERO, "move": 0.0, "lock": 0.0, "blink": 0.0})
+		game.rink.stars.append({"pos": mid + Vector2(40.0, 0.0), "blink": 0.0})
 		game._process(DT), false, ["car_bump"])
-	await _event(game, "a fast hit: both phones buzz 25 ms, both cars drop a star", ["car_bump", "car_drop"], {0: 25, 1: 25},
+	await _event(game, "a fast hit: both phones buzz 25 ms and the cars bonk", ["car_bump"], {0: 25, 1: 25},
 			func() -> void:
 				game._board.add(1, 2.0)
 				game._bodies[2].pos = Vector2(1700.0, 900.0)

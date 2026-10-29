@@ -1,7 +1,7 @@
 extends "res://scripts/game/minigame.gd"
 ## Bumper Cars. Each phone tilts a bumper car in a fun-fair rink. Gold stars lie on the floor: a car that drives over one picks it
-## up. When two cars bump hard, each of them drops a star that rolls away, so anybody can pick them up. Nobody is out and
-## nobody waits (REQ-GM-83). The most stars after 60 seconds win (REQ-BC-1 to 20). The game needs 2 players or more and is for
+## up. When two cars bump hard it is a bonk with a spark and a buzz; nobody loses a star, nobody is out and nobody waits
+## (REQ-GM-83). The most stars after 60 seconds win (REQ-BC-1 to 20). The game needs 2 players or more and is for
 ## children too (REQ-GM-80 to 84). RECENTER recenters (REQ-GM-37); A and B do nothing. The rules of the rink are in
 ## bumper_rink.gd, the pictures in bumper_look.gd and the movement of a car is `TiltBody` (scripts/game/tilt_body.gd).
 
@@ -116,7 +116,7 @@ func _car_spots() -> Array:
 	return out
 
 
-## REQ-BC-5 to 8: cars bounce off each other. A fast bump is a hit: both cars drop a star.
+## REQ-BC-5 to 7: cars bounce off each other. A fast bump is a hit: a spark, a bonk and a buzz; nobody loses a star (REQ-BC-7).
 func _bump_cars() -> void:
 	var slots: Array = _bodies.keys()
 	for i in slots.size():
@@ -141,17 +141,6 @@ func _on_hit(sa: int, sb: int) -> void:
 	_haptics.pulse(sa, HIT_BUZZ_MS, BUZZ_GAP_MS)
 	_haptics.pulse(sb, HIT_BUZZ_MS, BUZZ_GAP_MS)
 	Sound.sfx("car_bump")
-	_drop(sa, a.pos, b.pos)
-	_drop(sb, b.pos, a.pos)
-
-
-## REQ-BC-7, 8: in a hit each car with a star drops one; a car with none drops nothing.
-func _drop(slot: int, from: Vector2, other: Vector2) -> void:
-	if _board.score(slot) < 1.0:
-		return
-	_board.add(slot, -1.0)
-	rink.drop_star(from, other)
-	Sound.sfx("car_drop")
 
 
 ## REQ-BC-10: a car picks up the stars it reaches.
