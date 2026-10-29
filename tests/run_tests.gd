@@ -519,14 +519,10 @@ func _test_pad(app: Node, server: Node) -> void:
 	var lat: Control = pad_script.new()
 	lat.size = Vector2(1080, 2160)
 	_check(is_equal_approx(lat._rect_leave().get_center().y, lat.HEADER_Y), "Leave is centered on the pad header row")
-	_check(lat._lat_color(-1.0) == UiTheme.TEXT_DIM and lat._lat_color(10.0) == UiTheme.OK
-			and lat._lat_color(24.9) == UiTheme.OK and lat._lat_color(25.0) == UiTheme.ACCENT
-			and lat._lat_color(59.0) == UiTheme.ACCENT and lat._lat_color(60.0) == UiTheme.BAD_TEXT,
-			"the latency color is dim, green, yellow and red at 25 ms and 60 ms")
 	var info_top: float = lat.SCORE_Y + 32.0   # The score line at 64 px.
-	_check(lat.SCORE_Y - 32.0 > lat._rect_leave().end.y and info_top < 262.0 + lat.INFO_Y - 48.0
-			and lat._rect_recenter().position.y > 316.0 + lat.INFO_Y,
-			"the score line has its own row under the header and Leave, above the latency rows and the Recenter box")
+	_check(lat.SCORE_Y - 32.0 > lat._rect_leave().end.y and info_top < lat._rect_recenter().position.y,
+			"the score line has its own row under the header and Leave, above the Recenter box")
+	_check(not lat.has_method("_lat_color"), "the pad shows no RTT, Hz or TV phase line (issue #170)")
 	var en_rects := [lat._rect_leave(), lat._rect_recenter(), lat._center_a(), lat._center_b()]
 	Lang.set_language("he", root)
 	var same: bool = en_rects == [lat._rect_leave(), lat._rect_recenter(), lat._center_a(), lat._center_b()]
