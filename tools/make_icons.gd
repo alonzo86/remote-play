@@ -1,6 +1,6 @@
 extends SceneTree
 ## Makes the launcher icons and the Android TV banner from the Sababi mascot and logo (`assets/logo/splash.png`, `logo.png`,
-## FD-21).
+## FD-21 (naming), FD-26).
 ## Run:  godot --headless --path . --script tools/make_icons.gd
 ## Output: assets/icons/*.png  (the files are committed, so this is only needed after a change of the logo)
 ## The mascot is cut out of the splash picture and enlarged by a whole number (nearest filter), so its pixels stay sharp.

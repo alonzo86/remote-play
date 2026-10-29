@@ -115,7 +115,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 7. Install (or `tools/build.sh install`): `adb connect <tv-ip>:5555`, then `adb install -r build/sababi-tv.apk`.
    Install the controller APK on the phone.
    A device with an older build (Remote Play, Wobble, or Sababi with the test package names) keeps it, because the package names
-   changed (FD-21, FD-26, FD-27): remove it with `adb uninstall com.example.remoteplay.tv`, `adb uninstall com.example.remoteplay.controller`,
+   changed (FD-21 (naming), FD-26, FD-27): remove it with `adb uninstall com.example.remoteplay.tv`, `adb uninstall com.example.remoteplay.controller`,
    `adb uninstall com.example.wobble.tv`, `adb uninstall com.example.wobble.controller`,
    `adb uninstall com.example.sababi.tv` and `adb uninstall com.example.sababi.controller`.
 
