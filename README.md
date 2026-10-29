@@ -36,8 +36,8 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
   chooses Resume (or Resume without the lost phone). When no player is left, the game ends with "No players connected".
 - Player profiles (FD-22, [docs/PROFILES_PLAN.md](docs/PROFILES_PLAN.md)): a phone keeps up to 8 profiles (name of at most 10 characters, one of 32 pixel avatars) in `user://profiles.cfg`. The TV shows the name and the avatar in place of "Player N" and the slot number. The player is chosen on the Connect screen (a dropdown and a + for a new player) and cannot change while the phone is joined: DISCONNECT first. The avatar shows next to the colour on the chips of the game HUD; the objects in a game have only the colour. A player can be copied to another phone with a QR code or a text (SHARE, SCAN A PLAYER, PASTE A CODE). A profile keeps its best score for each game and difficulty (Banana Party, Paint Grab, the 10 tracks of Car Race); the phone says NEW BEST! after a round.
 - Sound (FD-20, [docs/AUDIO_PLAN.md](docs/AUDIO_PLAN.md)): the TV plays an arcade-style song for the menus and one for each game, and sound
-  effects. It is made in code by a small chip synthesizer (`scripts/audio/`), so there is no audio file. The Settings screen has Music, Effects
-  and Mute. The phone makes no sound: it vibrates in games, and its Settings screen (a button on the waiting screen) has a Haptics ON/OFF switch.
+  effects. It is made in code by a small chip synthesizer (`scripts/audio/`), so there is no audio file. The Settings screen has Music and Effects
+  (0 is silent; there is no Mute row). The phone makes no sound: it vibrates in games, and its Settings screen (a button on the waiting screen) has a Haptics ON/OFF switch.
 - The debug overlay (Menu key, F3, or the switch on the Settings screen) shows per player: RTT, sensor age, packet rate,
   longest gap, lost packets, raw gyroscope and accelerometer, tilt and pointer.
 
@@ -45,19 +45,19 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 
 ```
 project.godot            autoloads: Role, Sound, App. Main scene: scenes/boot.tscn (an empty node)
-export_presets.cfg       presets "tv" and "controller"
+export_presets.cfg       presets "tv", "controller" and "controller-ios"
 scripts/
   app.gd                 autoload. Owns services, switches screens, settings
   audio/                 synth.gd, songs.gd (songs and effects as data), audio_manager.gd (the Sound autoload)
   core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd, profile.gd, profile_store.gd, profile_keys.gd, profile_code.gd
   net/                   tv_server, controller_client, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
-  game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), maze/, marble_race/
+  game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), shell.gd (HUD, cards), bot.gd, and one folder for each game (maze/, marble_race/, snowball_splat/ ... )
   ui/                    TV screens (tv_logo, tv_connect, tv_games, tv_settings, players_modal), controller screens
                          (controller_connect, controller_wait, controller_pad), ui_theme, ui_kit, debug_overlay
 android/plugin/          QrScannerPlugin.java (Android plugin: Google code scanner)
 tests/                   headless tests (see below) and screenshot scripts
-tools/                   make_icons.gd, patch_android_manifest.sh
+tools/                   make_icons.gd, make_tiles.gd, make_medals.gd, patch_android_manifest.sh, coverage.sh, build and deploy scripts
 docs/                    requirements, protocol, export, risks
 ```
 
@@ -123,11 +123,11 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 
 1. Enable developer options and ADB debugging on the TV (see [docs/EXPORT.md](docs/EXPORT.md), section 5).
 2. Put the TV and the phones on the same Wi-Fi network (5 GHz is best; Ethernet on the TV box is better).
-3. Start the TV app. Start the controller app. Scan the QR code on the TV (or tap the TV in the list).
+3. Start the TV app. Start the controller app. Scan the QR code on the TV (or type the room code).
 4. Open the debug overlay. Watch RTT, *Age ms*, *Gap ms*, and *Rx Hz*.
    The full test plan with pass criteria is in [docs/MANUAL_TESTS.md](docs/MANUAL_TESTS.md).
 5. Run **Treasure Maze** with 1 to 4 phones. If the ball rolls the wrong way, use **Invert tilt axes** on the TV Settings screen
-   (the gear on the Games screen).
+   (the OPTIONS button on the Games screen).
 6. Run **Car Race** and check the frame rate with 4 phones.
 
 ## Controls
@@ -152,7 +152,7 @@ GODOT=/path/to/godot tests/run_all.sh
 The suites are listed once, in `tests/suites.txt` (script, role, title). `tests/run_suites.sh` runs them. A new suite is added to that file only.
 `tests/run_all.sh` is the quick local run (the suites and the check of `tokens.css`). CI has two jobs for this. `test` runs the suites
 on the instrumented copy of the project (`COVERAGE_STEP=run tools/coverage.sh`), so a failure there is a failed test, and it keeps the
-coverage hits. `coverage` (after `test`) reads those hits and fails when a module is below 80% (`COVERAGE_STEP=report tools/coverage.sh`).
+coverage hits. `coverage` (after `test`) reads those hits and only reports the table (`COVERAGE_STEP=report tools/coverage.sh`).
 No test runs twice. `tests/suites.txt` has a tier for each suite: `unit` suites (the logic of one module or one rule) are what the CI runs,
 and `scenario` suites (screens, layouts, texts, flows) run locally or on demand (the label `full-tests`, or a manual run); `tests/run_all.sh
 unit|scenario|all` runs a tier. The CI reports the coverage and never fails on it: the 80% rule is the local check `tools/coverage.sh` (all
@@ -190,5 +190,4 @@ Phone-only and Android-only code (`qr_scanner.gd`, `sensor_sampler.gd`) stays lo
   The QR codes decode with an independent decoder (OpenCV).
 - **Not tested: real Android TV, real phone sensors, real Wi-Fi.** The iPhone controller was deployed and joins a TV, but its sensor directions are not measured (Manual test 13). The first on-device run must check the
   items marked *unverified* in [docs/RISKS.md](docs/RISKS.md), mainly the sensor signs and the key mapping.
-- The QR scanner plugin compiled only against stubs (the real ML Kit and Godot libraries were not reachable
-  from the build sandbox). It needs Google Play services on the phone. Test it first: `docs/MANUAL_TESTS.md`, test 2.
+- The QR scanner plugin needs Google Play services on the phone. It scanned on a phone in Test 2 (R5); run Test 2 again when the plugin or the Connect screen changes.

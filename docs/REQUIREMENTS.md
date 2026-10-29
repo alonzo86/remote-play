@@ -14,11 +14,11 @@ Each requirement has an ID. Use the ID in code comments and tests.
 ## 2. Platform and tools
 
 - REQ-P1: Use Godot 4.7 (4.x) with GDScript only.
-- REQ-P2: Use one project with two export targets: `tv` (Android TV) and `controller` (Android phone).
+- REQ-P2: Use one project with two export targets: `tv` (Android TV), `controller` (Android phone) and `controller-ios` (iPhone).
 - REQ-P3: The role is chosen by the feature tag `tv` or `controller`.
 - REQ-P4: On desktop, the argument `-- --role=tv` or `-- --role=controller` replaces the feature tag.
 - REQ-P5: Do not use servers, accounts, subscriptions, analytics, or paid services. Use the LAN only. A player profile (FD-22) is a file on the phone; it is not an account and nothing leaves the LAN.
-- REQ-P6: Menus and games are built in code from shapes, with the 8-bit arcade style (`docs/TV_FLOW.md`, FD-18). Allowed files: the pixel font Press Start 2P and the Hebrew fallback font Sababi Pixel Hebrew (`assets/fonts`, each with its license file), the game tile screenshots (`assets/tiles`), the player avatar sheet (`assets/avatars`), the licence text of the Android libraries (`assets/licenses`), the logo (`assets/logo`), and the app icons. No other image, sound or model files without a decision in `docs/TV_FLOW.md`.
+- REQ-P6: Menus and games are built in code from shapes, with the 8-bit arcade style (`docs/TV_FLOW.md`, FD-18). Allowed files: the pixel font Press Start 2P and the Hebrew fallback font Sababi Pixel Hebrew (`assets/fonts`, each with its license file), the game tile screenshots (`assets/tiles`), the medal pictures (`assets/medals`), the player avatar sheet (`assets/avatars`), the licence text of the Android libraries (`assets/licenses`), the logo (`assets/logo`), and the app icons. No other image, sound or model files without a decision in `docs/TV_FLOW.md`.
 
 ## 3. Architecture
 
@@ -42,8 +42,8 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-N5: A phone that loses its connection keeps its slot for 5 seconds (30 before issue #44), and for 5 minutes while the game is paused for it.
 - REQ-N6: The phone reconnects automatically with a saved token (backoff 0.5 s, 1 s, 2 s, then every 2 s).
 - REQ-N7: Full message reference: `docs/PROTOCOL.md`.
-- REQ-N8: `hello` and `welcome` carry an optional profile (`pid`, `av`, and the name); a `profile` message changes it in a menu. The TV checks every field. The protocol `VERSION` stays 2 (FD-22, `docs/PROTOCOL.md`).
-- REQ-N9: **Removed (issue #52, FD-28).** There is no join PIN (`hello.pin`, `bad_pin` and `pin_locked` are gone). Protocol `VERSION` 4. See `docs/PROTOCOL.md`, "Room code".
+- REQ-N8: `hello` and `welcome` carry an optional profile (`pid`, `av`, and the name); a `profile` message changes it in a menu. The TV checks every field. The new fields are optional, so adding them did not change the protocol `VERSION` (FD-22); the current `VERSION` is in `scripts/core/protocol.gd` (5) and the rules are in `docs/PROTOCOL.md`.
+- REQ-N9: **Removed (issue #52, FD-28).** There is no join PIN (`hello.pin`, `bad_pin` and `pin_locked` are gone). The protocol `VERSION` became 4 with it (now 5, `scripts/core/protocol.gd`). See `docs/PROTOCOL.md`, "Room code".
 
 ## 5. Phone controller
 
@@ -56,16 +56,16 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-C7: The phone keeps up to 8 player profiles (ID, name, avatar) in a file and sends the active one to the TV (FD-22, REQ-FL-69 to 75).
 - REQ-C8: A profile is saved at once after each change, with a backup copy of the file.
 - REQ-C9: The player of a phone is chosen on the Connect screen before the phone joins, and cannot be changed while the phone is joined (the player taps DISCONNECT and chooses again, REQ-FL-71), so a profile never changes during a round.
-- REQ-C11: The phone keeps the personal best of each profile for each game setting and saves it at once (FD-22, REQ-GM-98 to 101).
 - REQ-C10: A profile can be copied to another phone with a QR code or a text (`WP1.`); the copy has no server (FD-22, REQ-FL-76 to 78).
+- REQ-C11: The phone keeps the personal best of each profile for each game setting and saves it at once (FD-22, REQ-GM-98 to 101).
 
 ## 6. TV application
 
 - REQ-T1: The games are the fifteen games of the registry (`scripts/game/registry.gd`): Treasure Maze, Car Race, Paint Grab, Sumo Bumpers, Banana Party, Star Shield, Pin Pals, Tennis, Mini Golf, Sheep Herding, Whack-a-Mole, Tower Builder, Freeze Dance, Air Hockey and Bumper Cars. Each has its requirements in `docs/games/<id>.md`. In the maze each phone tilts a ball through a maze. The first ball to reach the exit wins.
 - REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
-- REQ-T6: The TV app follows the flow in `docs/TV_FLOW.md`: logo, Connect controllers, Games, and a game. Settings and the Players modal open from the Games screen.
 - REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values, and the last swing (power, direction, age of the hit) that the swing detector found (`scripts/input/swing_detector.gd`).
 - REQ-T5: The game pauses when a phone disconnects, also when the phone is only silent (no Wi-Fi, a phone call). A card tells which player (by the profile name, or "2P" for a guest), and the player chooses: resume without it (while another phone is connected), resume when it is back, or end the game (REQ-GM-30, 30a). The game never goes on by itself.
+- REQ-T6: The TV app follows the flow in `docs/TV_FLOW.md`: logo, Connect controllers, Games, and a game. Settings and the Players modal open from the Games screen.
 
 ## 7. Android export
 
