@@ -31,4 +31,12 @@ Use the prefix REQ-<XX>-n. Status: Done, Open, or Device. "Check" says how it is
 
 Values that change how the game feels, with their file and the first value. Tune them on a device.
 
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The events with a haptic on the phone, and the sound effect and the song of each (the TV only). No sound is scary or sad (REQ-GM-81).
+
+## Languages and texts (REQ-GM-47o)
+
+The rows of `assets/lang/strings.csv` that the game adds (keys), and what is mirrored in Hebrew. The Hebrew written by Claude needs a native reader; the user reviews every new row.
+
 ## Open questions
