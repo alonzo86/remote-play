@@ -82,14 +82,14 @@ The pixel fonts draw only some characters (REQ-FL-39). The name field accepts th
 
 ## 4. Protocol (`docs/PROTOCOL.md`)
 
-The protocol `VERSION` stays 2: every new field and message is optional, and an old TV or an old phone ignores it (the same rule as `lang` and `score`). The sentence in `PROTOCOL.md` that says `VERSION` changes "when a message changes" is reworded: it changes when an old side would misread a message. The wrong `"v":1` in the example of `hello` is corrected in the same change. Use the `change-protocol` skill.
+The protocol `VERSION` stayed unchanged by the profiles (it was 2 then; it is 5 now, `scripts/core/protocol.gd`): every new field and message is optional, and an old TV or an old phone ignores it (the same rule as `lang` and `score`). The sentence in `PROTOCOL.md` that says `VERSION` changes "when a message changes" is reworded: it changes when an old side would misread a message. The wrong `"v":1` in the example of `hello` is corrected in the same change. Use the `change-protocol` skill.
 
 ### 4.1 Join
 
 `hello` gets two optional fields:
 
 ```json
-{"t":"hello","v":2,"room":"KQZM","token":"","name":"Maya","pid":"9f2c...32 hex...","av":3}
+{"t":"hello","v":5,"room":"KQZM","token":"","name":"Maya","pid":"9f2c...32 hex...","av":3}
 ```
 
 `pid` is the profile ID, `av` the avatar index. The TV checks them: `pid` is made lower case and must be 32 hex characters, `av` must be an integer from 0 to 255, and `name` goes through the whitelist and the 10-character cut. A `pid` that fails is ignored and the phone is a guest. **Any `hello` with no valid `pid` is a guest, also when `name` is not empty** (an old phone that sends a name shows that name as now, and has no avatar). A guest has the name `Player N` when the name is empty.
