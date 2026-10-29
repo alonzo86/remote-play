@@ -85,7 +85,7 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 ## Agents and workflows
 
-The agents are in `.claude/agents/`. Use them for the steps below when the task is large enough to need a role. A small, clear change may be done by one agent (`sw-developer`) or by the main session. Every agent follows the rules of this file. Only `sw-developer` merges a pull request, and only under the rules of "Pull requests". No agent marks a manual test as passed.
+The agents are in `.claude/agents/`. Use them for the steps below when the task is large enough to need a role. A small, clear change may be done by one agent (`sw-developer`) or by the main session. Every agent follows the rules of this file. Only `sw-developer` merges a pull request, and only under the rules of "Pull requests". No agent marks a manual test as passed. The same flows as diagrams are in `docs/AGENTS.md`.
 
 | Flow | Order of the agents |
 |------|---------------------|
