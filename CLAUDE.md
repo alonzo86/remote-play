@@ -85,7 +85,7 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 ## Agents and workflows
 
-The agents are in `.claude/agents/`. Use them for the steps below when the task is large enough to need a role. A small, clear change may be done by one agent (`sw-developer`) or by the main session. Every agent follows the rules of this file. No agent merges a pull request or marks a manual test as passed.
+The agents are in `.claude/agents/`. Use them for the steps below when the task is large enough to need a role. A small, clear change may be done by one agent (`sw-developer`) or by the main session. Every agent follows the rules of this file. Only `sw-developer` merges a pull request, and only under the rules of "Pull requests". No agent marks a manual test as passed.
 
 | Flow | Order of the agents |
 |------|---------------------|
@@ -94,10 +94,11 @@ The agents are in `.claude/agents/`. Use them for the steps below when the task 
 | Planning | `product-engineer` (what and why) and `software-architect` (how, phases, risks) -> a plan in `docs/*_PLAN.md` or an issue; the user decides |
 | Testing | `automation-developer` (headless tests, `docs/AUTOMATED_TESTS.md`) and `qa` (manual tests, results the user reports, issues from test notes) |
 | Documentation | the agent that owns the area writes it: `product-engineer` (requirements), `software-architect` (plans, `docs/PROTOCOL.md`), `ui-ux-designer` (design system), `release-engineer` (export, `docs/THIRD_PARTY.md`), `qa` (manual tests). The `code-reviewer` checks that docs match the code |
-| Pull request | `sw-developer` owns it. After it is created, the `code-reviewer` runs the `review` skill and posts the comment. A finding is fixed, or moved to a follow-up issue, or answered in a PR comment with the reason (false positive or not worth a fix). After each fix the owner comments what was resolved |
-| Build, export, CI, a new third-party resource | `release-engineer` |
+| Pull request | `sw-developer` owns it. After it is created, the `code-reviewer` runs the `review` skill and posts the comment. A finding is fixed, or moved to a follow-up issue, or answered in a PR comment with the reason (false positive or not worth a fix). After each fix the owner comments what was resolved. The review cycle and the merge rules are in "Pull requests" |
+| Build, export, CI | `release-engineer` |
+| A new third-party resource | `license-reviewer` (with `release-engineer` for the export presets) |
 
-
+## Manual tests (for the user)
 
 - Every note in a test result that describes a problem or a change request (also on a step that passes) triggers, in the same turn: a change of the requirements (marked "Planned (issue #N)" until the code is built) and a GitHub issue, unless an issue for it exists. Look in the open issues first. Do not fix the issue unless the user asks. When a note is unclear or conflicts with a requirement or another test, ask the user and put the question in the issue.
 
