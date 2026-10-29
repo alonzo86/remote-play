@@ -26,6 +26,12 @@ const FOCUS_BORDER := ACCENT
 const BAD_TEXT := BAD
 const DANGER := BAD
 
+# A button that is not disabled is white (issue #173, REQ-FL-38a): a white face, black text, a white edge.
+const BUTTON_FACE := TEXT            # The face of every enabled button (phone and TV).
+const BUTTON_TEXT := BG              # The text on that face: 20:1 on white.
+const BUTTON_EDGE := Color("a4a4a4") # The darker lower edge of the round A and B buttons.
+const MARK_W := 12                   # The border of a marked button (the focus, the chosen one): twice the normal line.
+
 const LINE := 6                      # The width of a frame line in pixels at 1920x1080 (REQ-FL-38).
 const OUTLINE_W := LINE
 # There are no shadows and no round corners (REQ-FL-38).
@@ -80,6 +86,52 @@ static func line_box(color: Color, fill: Color = BG, width := LINE) -> StyleBoxF
 	s.border_color = color
 	s.set_content_margin_all(float(width + 8))
 	return s
+
+
+## The box of a button in one state ("normal", "hover", "focus", "pressed" or "disabled"). Enabled: a white face with black
+## text (`BUTTON_FACE`, `BUTTON_TEXT`). `marked` (the chosen IN or OUT, the active player) is a yellow border twice as thick,
+## so the mark is a shape and a color and the face stays white. The focus (the TV remote, a keyboard) is different: a yellow
+## face with black text (11.8:1) and the same thick border, so a focused button is never taken for a marked one.
+## Pressed is the reverse (black face, white text). Disabled keeps its dim look (a dim line on black).
+static func button_box(state: String, marked := false) -> StyleBoxFlat:
+	match state:
+		"disabled":
+			return _same_margins(line_box(TEXT_DIM))
+		"pressed":
+			return _same_margins(line_box(TEXT, BG))
+		"focus":
+			return _same_margins(line_box(ACCENT, ACCENT, MARK_W))
+		_:
+			var edge := ACCENT if marked else BUTTON_FACE
+			return _same_margins(line_box(edge, BUTTON_FACE, MARK_W if marked else LINE))
+
+
+## A button keeps one size in every state: the content margin does not follow the border width, so a focus or a mark never
+## moves its neighbors.
+static func _same_margins(s: StyleBoxFlat) -> StyleBoxFlat:
+	s.set_content_margin_all(float(LINE + 8))
+	return s
+
+
+## The text color of a button in a state (see `button_box`).
+static func button_text(state: String) -> Color:
+	match state:
+		"disabled":
+			return DISABLED
+		"pressed":
+			return TEXT
+		_:   # Normal, hover and focus (the yellow face) have black text.
+			return BUTTON_TEXT
+
+
+## Gives a Button the white look in every state. `marked`: see `button_box`.
+static func style_button(b: Button, marked := false) -> void:
+	for st in ["normal", "hover", "focus", "pressed", "disabled"]:
+		b.add_theme_stylebox_override(st, button_box(st, marked))
+	var colors := {"font_color": "normal", "font_hover_color": "hover", "font_focus_color": "focus",
+			"font_pressed_color": "pressed", "font_disabled_color": "disabled"}
+	for c in colors:
+		b.add_theme_color_override(c, button_text(colors[c]))
 
 
 ## A flat box with a border for the games (their boards and platforms). The corners stay square and there is no shadow:
@@ -143,7 +195,7 @@ static func make() -> Theme:
 	t.set_type_variation("DangerButton", "Button")
 	_item_type(t, "DangerButton", TEXT, BAD)
 	t.set_type_variation("QuietButton", "Button")
-	_item_type(t, "QuietButton", TEXT_DIM, ACCENT)
+	_item_type(t, "QuietButton", TEXT, ACCENT)   # An enabled item is white (issue #173).
 	t.set_color("font_color", "LineEdit", TEXT)
 	t.set_color("font_placeholder_color", "LineEdit", TEXT_DIM)
 	t.set_color("caret_color", "LineEdit", ACCENT)

@@ -61,7 +61,7 @@ func _ready() -> void:
 	paste.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	paste.custom_minimum_size = Vector2(0, 110)
 	more.add_child(paste)
-	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
+	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM)
 	back.custom_minimum_size = Vector2(0, 96)
 	box.add_child(back)
 	_rebuild()
@@ -81,20 +81,20 @@ func _rebuild() -> void:
 		av.pressed.connect(_on_pick.bind(p.id))
 		row.add_child(av)
 		var b := UiKit.box_button(p.player_name, _on_pick.bind(p.id), UiTheme.SIZE_ITEM,
-				UiTheme.ACCENT if p.id == store.active_id else UiTheme.TEXT)
+				p.id == store.active_id)
 		b.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # A player name is never translated (REQ-FL-63).
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.custom_minimum_size = Vector2(0, 110)
 		row.add_child(b)
-		var edit := UiKit.box_button("profiles.edit", _on_edit.bind(p.id), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		var edit := UiKit.box_button("profiles.edit", _on_edit.bind(p.id), UiTheme.SIZE_BODY)
 		edit.custom_minimum_size = Vector2(0, 110)
 		row.add_child(edit)
-		var share := UiKit.box_button("profiles.share", _on_share.bind(p.id), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		var share := UiKit.box_button("profiles.share", _on_share.bind(p.id), UiTheme.SIZE_BODY)
 		share.custom_minimum_size = Vector2(0, 110)
 		row.add_child(share)
 		_list.add_child(row)
 	var guest := UiKit.box_button("connect.guest", _on_pick.bind(""), UiTheme.SIZE_ITEM,
-			UiTheme.ACCENT if store.active_id == "" else UiTheme.TEXT)
+			store.active_id == "")
 	guest.custom_minimum_size = Vector2(0, 110)
 	_list.add_child(guest)
 	_new_button.disabled = store.is_full()

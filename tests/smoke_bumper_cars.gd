@@ -1,7 +1,7 @@
 extends SceneTree
 ## Bumper Cars with simulated phones and a fixed time step (REQ-BC-1 to 20): the settings view, the countdown, the tilt, the
-## stars that cars pick up, a hit that drops a star, the end and the result, a player that leaves, the layout and Restart. The
-## game is stepped by hand (`SimInput`).
+## stars that cars pick up, a hit that only bonks (no star is lost), the end and the result, a player that leaves, the layout and
+## Restart. The game is stepped by hand (`SimInput`).
 ## Run: godot --headless --path . --script tests/smoke_bumper_cars.gd -- --role=tv
 
 const SimInput = preload("res://tests/sim_input.gd")
@@ -251,7 +251,7 @@ func _tilt_timing() -> void:
 				"the flat phone stops the car (under 20 px/s) in %.2f s (3 s or less)" % t)
 
 
-## A hit: the slower car drops a star that rolls away (REQ-BC-6, 7, 8).
+## A hit: a bonk with a spark and a buzz; nobody loses a star (REQ-BC-6, 7).
 func _hits() -> void:
 	print("hits")
 	var game := _play()

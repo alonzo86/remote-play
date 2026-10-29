@@ -60,7 +60,7 @@ func _ready() -> void:
 	_copy = UiKit.box_button("profile_share.copy_code", _on_copy, UiTheme.SIZE_ITEM)
 	_copy.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_copy)
-	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM, UiTheme.TEXT_DIM)
+	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM)
 	back.custom_minimum_size = Vector2(0, 96)
 	box.add_child(back)
 	_timer = Timer.new()

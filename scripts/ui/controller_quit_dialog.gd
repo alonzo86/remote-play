@@ -32,7 +32,7 @@ func _ready() -> void:
 	stay_button = UiKit.box_button("connect.stay", close, UiTheme.SIZE_ITEM)
 	stay_button.custom_minimum_size = Vector2(0, 96)
 	body.add_child(stay_button)
-	quit_button = UiKit.box_button("connect.quit", App._quit, UiTheme.SIZE_ITEM, UiTheme.DANGER)
+	quit_button = UiKit.box_button("connect.quit", App._quit, UiTheme.SIZE_ITEM)
 	quit_button.custom_minimum_size = Vector2(0, 96)
 	body.add_child(quit_button)
 	UiKit.focus_later(stay_button)

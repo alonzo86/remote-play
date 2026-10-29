@@ -14,20 +14,11 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_ALL
 	add_theme_font_size_override("font_size", UiTheme.SIZE_ITEM)
 	custom_minimum_size = Vector2(SQUARES_W + 170.0, 84)
-	for st in ["normal", "pressed", "disabled"]:
-		add_theme_stylebox_override(st, _style(UiTheme.TEXT_DIM))
-	for st in ["hover", "focus"]:
-		add_theme_stylebox_override(st, _style(UiTheme.ACCENT))
-	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
-		add_theme_color_override(c, UiTheme.TEXT)
-	add_theme_color_override("font_focus_color", UiTheme.ACCENT)
+	UiTheme.style_button(self)   # White like every enabled button (issue #173).
+	for st in ["normal", "hover", "focus", "pressed", "disabled"]:
+		var box: StyleBoxFlat = get_theme_stylebox(st)
+		box.content_margin_left = UiTheme.LINE + 20.0 + SQUARES_W + 20.0
 	alignment = HORIZONTAL_ALIGNMENT_LEFT
-
-
-func _style(color: Color) -> StyleBoxFlat:
-	var s := UiTheme.line_box(color)
-	s.content_margin_left = UiTheme.LINE + 20.0 + SQUARES_W + 20.0
-	return s
 
 
 func _process(_delta: float) -> void:

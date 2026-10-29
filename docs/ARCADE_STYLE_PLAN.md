@@ -34,6 +34,10 @@ A small fixed palette, taken from the NES palette. All text colors have a contra
 | `OK` | `#00b800` | "READY", good | 7.9:1 |
 | `BAD` | `#f83800` | "LOST", errors, danger | 5.6:1 |
 | `DISABLED` | `#7c7c7c` | A disabled item: dim text, no cursor | 5.0:1 |
+| `BUTTON_FACE` | `#fcfcfc` (`TEXT`) | The face of every enabled button (issue #173) | - |
+| `BUTTON_TEXT` | `#000000` (`BG`) | The text on that face | 20.5:1 on the face |
+| `BUTTON_EDGE` | `#a4a4a4` | The lower edge of the round A and B buttons | 2.4:1 on the face |
+| `MARK_W` | 12 px | The border of a marked button (focus, chosen, active): twice `LINE`, `ACCENT` | - |
 
 The player colors stay as they are in `Protocol` (`#e63946`, `#2a9d8f`, `#f4a261`, `#457b9d`). They are 4.6:1 or more on
 black. They show as a filled square next to the slot number, never as the only cue.
@@ -64,7 +68,7 @@ black. They show as a filled square next to the slot number, never as the only c
 ### 2.4 Menus and focus
 
 - A list of choices (results, pause, quit, settings) is a text menu, not a row of buttons. The focused item is
-  `ACCENT` with a "▶" cursor in front of it (drawn as pixels, not a font glyph). Other items are `TEXT`. A destructive
+  `ACCENT` with a "▶" cursor in front of it (drawn as pixels, not a font glyph). Other items are `TEXT` (also the quiet item BACK, since issue #173; only a disabled item is dim). A destructive
   item ("END GAME", "QUIT") is `BAD` when it has focus. A choice never depends on color alone: the cursor shows focus.
 - A game tile has a 6 px `TEXT_DIM` frame. The focused tile has a 6 px `ACCENT` frame, a pixel cursor (REQ-FL-41) before its title, and it
   shows no growth (FD-7 was changed by question 1: the description is in a bar under the grid and the tiles keep one size).
@@ -72,9 +76,15 @@ black. They show as a filled square next to the slot number, never as the only c
 
 ### 2.5 Phone pad
 
-- A and B are round arcade buttons with a 6 px white ring and a darker lower edge (the button looks pressed in when
-  it is down). The colors are open question 6.
-- RECENTER and DISCONNECT are framed text boxes. DISCONNECT leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
+- Every enabled button, on the phone and on the TV, is white (issue #173, 2026-10-29): the face is `BUTTON_FACE`, the text
+  is `BUTTON_TEXT` (black), the edge is white. Pressed is the reverse (black face, white text). A disabled button keeps
+  its dim look (a `TEXT_DIM` line on black). A mark (the chosen IN or OUT, the active player) is a `MARK_W`
+  `ACCENT` border around the white face, so it is a shape and a color. The focus is a yellow face with black text and the same border. The code is `UiTheme.button_box()` and
+  `UiTheme.style_button()`; no screen styles a button by itself (`tests/design_tokens.gd`). A text menu item has no face (it
+  is white text with a cursor, section 2.4); a game tile is a picture with a frame, not a button.
+- A and B are round white arcade buttons: a 6 px white ring, a `BUTTON_EDGE` lower edge and a white face with a black
+  letter (the button looks pressed in when it is down). A and B differ by the letter only (question 6).
+- RECENTER and DISCONNECT are white text boxes. DISCONNECT leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
 - The slot color square and "2P" are at the top. The text under them says what to do ("TILT TO ROLL").
 
 ### 2.6 Motion
@@ -185,8 +195,8 @@ Each question has a default. On 2026-10-10 the owner said to keep the defaults; 
    objects get hard to see.
 5. **Logo.** The owner makes the logo (FD-15). It must now read on black, and pixel art fits the style. Default: text
    logo in the arcade font until then. Done on 2026-10-10: a pixel-art logo and splash (FD-21 (naming), FD-26).
-6. **Phone A and B colors.** The mockup shows two red arcade buttons. The current rule is A green, B red (REQ-FL-52).
-   Default: keep A green and B red.
+6. **Phone A and B colors.** The mockup shows two red arcade buttons. The rule was A green, B red (REQ-FL-52). Decided
+   2026-10-29 (issue #173, the owner's wording "all enabled buttons are white"): A and B are white, the letter tells them apart.
 7. **Where to choose the language** (section 7.1). Decided 2026-10-10: on the logo screen at the first start only,
    then automatic as now, and a Language row in Settings.
 

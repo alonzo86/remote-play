@@ -60,8 +60,8 @@ func _button_styles() -> void:
 		for st in ["normal", "focus", "pressed", "disabled"]:
 			item_ok = item_ok and theme.get_stylebox(st, type) is StyleBoxEmpty   # No box, no shadow, no outline.
 	_check(item_ok, "menu items: no box, yellow with the focus, red for a destructive item, 4.5:1 or more in every state")
-	_check(theme.get_color("font_color", "QuietButton") == UiTheme.TEXT_DIM and theme.get_color("font_disabled_color", "Button")
-			== UiTheme.DISABLED, "a quiet item and a disabled item are dim")
+	_check(theme.get_color("font_color", "QuietButton") == UiTheme.TEXT and theme.get_color("font_disabled_color", "Button")
+			== UiTheme.DISABLED, "a quiet item is white like every enabled item (issue #173) and a disabled item is dim")
 	# The cursor is made of pixels: 4 columns of 7, 5, 3 and 1 pixels, tall in the middle (REQ-FL-41).
 	var rects := UiTheme.cursor_rects(Vector2(0, 100), 5.0)
 	_check(rects.size() == 4 and rects[0].size == Vector2(5, 35) and rects[1].size == Vector2(5, 25)
