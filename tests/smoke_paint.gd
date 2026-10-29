@@ -254,7 +254,7 @@ func _run() -> void:
 			"time up opens the result menu: %s" % str(buttons))
 	_check(labels[0] == "MEDIUM" and MedalView.tiers_in(game._menu_box) == ["gold"]
 			and labels[1].contains(" TILES (") and labels[1].ends_with("%)"),
-			"one player left gets the difficulty as the title, the gold medal and a list row with the tiles and the percent: %s" % str(labels))
+			"one player left: the difficulty is the title, the gold medal, a row with the tiles and the percent: %s" % str(labels))
 	# The layout comes from the size of the screen (REQ-PG-17): the floor stays inside the margin at 1280x720 and at 1920x1080.
 	var fits_ok := true
 	for res in [Vector2i(1280, 720), Vector2i(1920, 1080)]:

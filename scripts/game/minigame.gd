@@ -395,8 +395,8 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title
-	var solo := players_at_start == 1   # The round started with one player: no medal. A player that stays after a leave has a technical win.
-	for i in ranking.size():   # The round started with more than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
+	var solo := players_at_start == 1   # The round started with one player: no medal. One that stays after a leave: a technical win.
+	for i in ranking.size():   # More than one player at the start: the medal of the place (1st gold, 2nd silver, 3rd bronze).
 		if ranking[i].finished and not solo:
 			rows[i]["medal"] = Medals.for_place(ranking[i].rank)
 	if heading == "":
