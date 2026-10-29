@@ -75,8 +75,10 @@ Solo, players and feedback
 
 ## Parameters
 
-| Value | Easy | Medium | Hard | REQ-TN-18 |
-|-------|------|--------|------|-----------|
+REQ-TN-18: the levels of the game (the table):
+
+| Value | Easy | Medium | Hard |
+|-------|------|--------|------|
 | Half width of the green part (s, around the contact time; the hit window is 0.55 s) | 0.30 | 0.21 | 0.15 | |
 | Flight time factor (a bigger factor is a slower ball) | 1.2 | 1.0 | 0.9 | |
 | The ball stays inside the lines | yes | no | no | |

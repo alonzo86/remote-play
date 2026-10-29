@@ -1,7 +1,7 @@
 extends RefCounted
-## The pictures of Air Hockey (REQ-AH-20): a white table with black rails, red and blue lines, mallets in the slot colors and a
-## black puck (the look of the approved mock, 2026-10-23). Everything is drawn in the pixel view with shapes in 1920x1080 units;
-## one world pixel is `Shell.WORLD_PIXEL` (4) units.
+## The pictures of Air Hockey (REQ-AH-20): a white table with dark gray rails on a black floor, red and blue lines, mallets in
+## the slot colors and a black puck (the look of the approved mock, 2026-10-23). Everything is drawn in the pixel view with shapes
+## in 1920x1080 units; one world pixel is `Shell.WORLD_PIXEL` (4) units.
 
 const Sim = preload("res://scripts/game/air_hockey/air_hockey_sim.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")

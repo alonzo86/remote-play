@@ -15,7 +15,7 @@ if its own requirements file says why.
 - REQ-GM-5: A change to the behavior of a game must change its requirements file in the same commit.
 - REQ-GM-6: The registry entry of a game has a `doc` field with the path of its requirements file. A test checks that the file exists.
 - REQ-GM-7: The registry entry also has a `description` (one short sentence that says what the game is, with no instructions: no verbs that tell the player what to do, and no rules such as who wins; the how-to-play text is in the settings view, REQ-GM-103) and a `tile` (`assets/tiles/<id>.png`, 640x360, made by `tools/make_tiles.gd`). A test checks both (REQ-FL-19, 22). The Games screen shows them.
-- REQ-GM-7: `docs/games/TEMPLATE.md` is the starting point for a new requirements file. Write it before the code.
+- REQ-GM-7a: `docs/games/TEMPLATE.md` is the starting point for a new requirements file. Write it before the code.
 
 ## All games (2D and 3D)
 
@@ -146,7 +146,7 @@ Tests
 
 ## Settings and difficulty
 
-Status (2026-10-09): the shared view, the choice row and the Difficulty row are **Done** and used by the maze, Banana Party and Car Race (the race adds the track list), so REQ-GM-90, 91 and 95 are Done only for games with a `settings` entry in the registry. When the others are built, `docs/TV_FLOW.md` (the Games screen flow) and the game requirement files change in the same commit (REQ-GM-5).
+Status (2026-10-09): the shared view, the choice row and the Difficulty row are **Done** and used by every game that has a `settings` entry in the registry (the race adds the track list); the first three were the maze, Banana Party and Car Race, so REQ-GM-90, 91 and 95 are Done only for games with a `settings` entry in the registry. When the others are built, `docs/TV_FLOW.md` (the Games screen flow) and the game requirement files change in the same commit (REQ-GM-5).
 
 - REQ-GM-90: Every game defines its own settings. OK on the tile of a game opens the settings view first, not the game. The view has three bands (issue #120): at the top the game name as its title (and, for a swing game, the safety box, REQ-GM-102); in the middle, centered, the settings rows, the lines IN and OUT (REQ-GM-104) and the Back and Start line; at the bottom the how-to-play text, wide (REQ-GM-103). The middle column is as narrow as its widest row (all rows and the Back and Start line have that same width) and the names of the rows have one fixed width, so the values of all rows line up. The view has one row for each setting, and under the rows one line with the Back item at the left edge and the Start item at the right edge of the view. Both are menu items (REQ-FL-41); Back is quiet (dim until it has the focus). Down from the last row goes to Start. Left and Right move between Start and Back (Back is at the left in English and at the right in Hebrew; the outer sides stay on the same item), so Back can always be reached with the D-pad (issue #135). Start works only while the connected phones fit the game (REQ-GM-20): a phone can leave while the view is open. When they do not fit, Start is disabled and a line under the buttons says why ("Needs 2 players"). Back returns to the Games screen with the tile in focus. Start begins the game (the countdown, REQ-GM-35). Everything works with the D-pad, OK and Back (REQ-GM-33). (Done: `scripts/game/game_settings.gd`, `scripts/ui/tv_game_settings.gd`, `scripts/ui/choice_row.gd`; check smoke_settings, game_helpers)
 - REQ-GM-91: Every game has the setting Difficulty with the values Easy, Medium and Hard. The game decides what each value means and lists it in its requirements file (a table of Easy, Medium, Hard). Medium is the value to start with. A game without a meaning for the three values is not allowed. (Done: `scripts/game/game_settings.gd`, `scripts/ui/tv_game_settings.gd`, `scripts/ui/choice_row.gd`; check smoke_settings, game_helpers)
@@ -168,7 +168,7 @@ Status (2026-10-09): the shared view, the choice row and the Difficulty row are 
 - REQ-GM-100: A new best shows on the phone only: NEW BEST! with the score (a race time in seconds) and, when there was a best before, "BEFORE: x". It shows on the pad while the result menu is open and on the waiting screen after Back to menu. The TV result menu does not change (REQ-GM-72, 73: medals stay a separate thing). The message goes away when the next round starts. It belongs to the player who set the best: after the phone switches to another profile it is not shown.
 - REQ-GM-101: The bests are part of the profile code (REQ-FL-78), so a copy to another phone carries them, and an import keeps the better value for each key.
 
-## Status of the games
+## The requirements file of each game
 
 | Game | Requirements file |
 |------|-------------------|
