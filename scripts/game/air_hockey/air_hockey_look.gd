@@ -4,8 +4,9 @@ extends RefCounted
 ## one world pixel is `Shell.WORLD_PIXEL` (4) units.
 
 const Sim = preload("res://scripts/game/air_hockey/air_hockey_sim.gd")
+const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
-const FLOOR := Color("1b3a8a")      # The blue of the arcade set (REQ-GM-48) around the table.
+const FLOOR := UiTheme.BG          # Black around the table, like the other games (owner, 2026-10-29).
 const SURFACE := Color("f6f8fc")
 const RAIL := Color("000000")
 const SILVER := Color("b0b6c4")
