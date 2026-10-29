@@ -22,7 +22,7 @@ const END_DELAY := 4.0         # Seconds the others have to finish after the fir
 const FINISH_BEFORE_END := 6.0 # Finish line distance from the end of the track.
 const SCALE := 32.0            # Screen units for one meter: 8 world pixels.
 const ANCHOR_Y := 620.0        # Where the middle of the pack is on the screen: under the black bar, the road ahead is above.
-const BAR_H := 112.0           # The black bar for the title and the timer.
+const BAR_H := HUD_BAR_H            # The black bar on top (the shell draws it, REQ-GM-45a).
 const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
 const EDGE_MARGIN := 60.0      # Out-of-view markers stay inside the TV safe margin.
 const HAPTIC_MIN_SPEED := 3.0
@@ -366,7 +366,6 @@ func _world_draw(ci: CanvasItem) -> void:
 	for s in participants:
 		if _racers.has(s):
 			_draw_car(ci, _racers[s])
-	ci.draw_rect(Rect2(0, 0, size.x, BAR_H), UiTheme.BG)
 
 
 func _draw_car(ci: CanvasItem, r: Racer) -> void:

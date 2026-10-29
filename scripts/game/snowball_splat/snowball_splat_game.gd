@@ -25,7 +25,7 @@ const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide.
 const HINT_TIME := 4.0          # Seconds of play with the hint on the screen.
 
 # Look (REQ-SS-12, REQ-GM-47i to 47n): the jungle and the animals are in banana_look.gd. The black bar on top is for the HUD.
-const BAR_H := 112.0
+const BAR_H := HUD_BAR_H            # The black bar on top (the shell draws it, REQ-GM-45a).
 const BUSH_DROP := 16.0         # A bush stands this much lower than the middle of its lane (px).
 const CURSOR_R := 40.0
 const POOF_STEPS := 3           # The poof of a banana that missed grows in 3 hard steps.
@@ -273,7 +273,6 @@ func _world_draw(ci: CanvasItem) -> void:
 			_draw_banana(ci, f)
 	for s in _throwers:
 		_draw_cursor(ci, _throwers[s])
-	ci.draw_rect(Rect2(0, 0, size.x, BAR_H), UiTheme.BG)
 
 
 func _game_draw() -> void:

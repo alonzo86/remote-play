@@ -388,7 +388,6 @@ func _world_draw(ci: CanvasItem) -> void:
 	for sp in _sparks:
 		var sp_pos: Vector3 = sp.pos
 		Look.draw_sparks(ci, p.at(sp_pos.x, sp_pos.y, maxf(sp_pos.z, 0.0) + 0.1), float(sp.age))
-	ci.draw_rect(Rect2(0.0, 0.0, size.x, Look.HUD_H * size.y / 1080.0), UiTheme.BG)
 
 
 func _draw_ball(ci: CanvasItem, p: Look.Proj) -> void:

@@ -31,6 +31,32 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
+## REQ-GM-45a (issue #123): every game has the black bar at the top, from the left edge to the right edge, in English and in
+## Hebrew.
+## The columns at the two edges are black in the whole height of the bar (the title and the timer start 60 units from the edge).
+func _bars(k: int) -> void:
+	var Lang = load("res://scripts/core/lang.gd")
+	for code in ["en", "he"]:
+		Lang.set_language(code, root)
+		var not_black := []
+		for spec in Registry.all():
+			_fake_phones(2)
+			await _start_game(String(spec.id))
+			await _seconds(0.6)
+			var shot := await _capture()
+			var bad := 0
+			for y in range(4 * k, (BAR - 4) * k, 6):
+				for x in [3 * k, shot.get_width() - 4 * k]:
+					if shot.get_pixel(x, y).to_html(false) != "000000":
+						bad += 1
+			if bad > 0:
+				not_black.append("%s (%d)" % [spec.id, bad])
+			_app.go_menu()
+			await _frames(3)
+		_check(not_black.is_empty(), "%s: the black bar reaches both edges in every game %s" % [code, str(not_black)])
+	Lang.set_language("en", root)
+
+
 func _initialize() -> void:
 	_run()
 
@@ -172,5 +198,6 @@ func _run() -> void:
 					% [int(Shell.WORLD_PIXEL) * k, int(Shell.WORLD_PIXEL) * k, soft])
 		_app.go_menu()
 		await _frames(3)
+	await _bars(k)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)

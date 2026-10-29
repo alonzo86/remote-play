@@ -4,10 +4,12 @@ extends RefCounted
 ## one world pixel is `Shell.WORLD_PIXEL` (4) units.
 
 const Sim = preload("res://scripts/game/air_hockey/air_hockey_sim.gd")
+const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
-const FLOOR := Color("1b3a8a")      # The blue of the arcade set (REQ-GM-48) around the table.
+const FLOOR := UiTheme.BG          # Black around the table, like the other games (owner, 2026-10-29).
 const SURFACE := Color("f6f8fc")
-const RAIL := Color("000000")
+const RAIL := Color("000000")      # Outlines of the mallets and the puck.
+const RAIL_GRAY := Color("4a4e5e")  # The rails of the table: dark gray, so they show on the black floor (owner, 2026-10-29).
 const SILVER := Color("b0b6c4")
 const LINE_RED := Color("d62828")
 const LINE_BLUE := Color("1e46c8")
@@ -31,7 +33,7 @@ static func draw_table(ci: CanvasItem, area: Vector2) -> void:
 	ci.draw_rect(Rect2(Vector2.ZERO, area), FLOOR)
 	var rink := Sim.RINK
 	var c := rink.get_center()
-	ci.draw_style_box(_box(RAIL, CORNER + RAIL_W), rink.grow(RAIL_W))
+	ci.draw_style_box(_box(RAIL_GRAY, CORNER + RAIL_W), rink.grow(RAIL_W))
 	ci.draw_style_box(_box(SURFACE, CORNER), rink)
 	for seat in 2:
 		var gx := Sim.goal_x(seat)

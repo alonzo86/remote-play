@@ -4,11 +4,12 @@ extends RefCounted
 ## approved mock of 2026-10-23). Drawn in the pixel view with shapes in 1920x1080 units; one world pixel is `Shell.WORLD_PIXEL`.
 
 const Stack = preload("res://scripts/game/tower_builder/tower_stack.gd")
+const Minigame = preload("res://scripts/game/minigame.gd")
 
 const SKY := [Color("46c0ff"), Color("5cccff"), Color("78d8ff"), Color("96e2ff"), Color("b9ecff"), Color("ffecc8"),
 		Color("ffdeaa")]
 const SKY_BAND := 160.0          # The height of one band of the sky.
-const SKY_TOP := 112.0           # Under the black bar of the HUD.
+const SKY_TOP := Minigame.HUD_BAR_H  # Under the black bar of the HUD.
 const SUN := Color("ffdc50")
 const SUN_GLOW := Color("fff0aa")
 const CLOUD := Color("ffffff")

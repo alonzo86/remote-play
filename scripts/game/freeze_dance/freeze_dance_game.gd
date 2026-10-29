@@ -9,7 +9,7 @@ const DanceRules = preload("res://scripts/game/freeze_dance/dance_rules.gd")
 const DanceLook = preload("res://scripts/game/freeze_dance/dance_look.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 
-const BAR_H := 112.0             # The black bar on top is for the HUD.
+const BAR_H := HUD_BAR_H            # The black bar on top (the shell draws it, REQ-GM-45a).
 const TIMER_X := Shell.TIMER_X   # The song counter has the place of the timer (REQ-GM-47o).
 const BANNER_Y := 176.0          # The baseline of the banner WIGGLE! / FREEZE!.
 const BANNER_SIZE := 64
@@ -192,7 +192,6 @@ func _world_draw(ci: CanvasItem) -> void:
 		var feet := _bench_feet(row)
 		DanceLook.draw_dancer(ci, _texture(s, 0, true), feet, 1, wp)
 		row += 1
-	ci.draw_rect(Rect2(0, 0, size.x, BAR_H), UiTheme.BG)
 
 
 func _texture(slot: int, pose: int, dim: bool) -> ImageTexture:

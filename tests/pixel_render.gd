@@ -540,9 +540,10 @@ func _jungle() -> void:
 	var k := _window().x / 1920
 	var world := _world_of(shot, 4 * k)
 	var bg := _rgb(UiTheme.BG)
-	# The scene is under the bar: the first 112 px are the black of the HUD bar.
-	var bar_box := _ink_box(shot, Rect2i(0, 0, 1920 * k, BAR * k), bg)
-	_check(not bar_box.has_area(), "jungle: the 112 px of the HUD bar hold no world pixel (%s)" % str(bar_box))
+	# The scene is under the bar: the first 112 px of the screen are the black of the shell bar (REQ-GM-45a).
+	var screen := await _capture()
+	var bar_foreign := _foreign(screen, Rect2i(0, 0, 1920 * k, BAR * k), _ui_palette())
+	_check(int(bar_foreign.count) == 0, "jungle: the 112 px of the HUD bar hold no world pixel (%s)" % str(bar_foreign))
 	# Sky, hills, ground and lanes in the jungle colors.
 	var sky := {_rgb(BananaLook.SKY_TOP): true, _rgb(BananaLook.SKY_BOTTOM): true}
 	_check(_count_colors(shot, Rect2i(0, BAR * k, 1920 * k, 400 * k), sky) > 1000,
@@ -650,6 +651,33 @@ func _close(a: Color, b: Color, tol: int) -> bool:
 
 # ---- Run ----
 
+## REQ-GM-45a (issue #123): every game has the black bar at the top from the left edge to the right edge, in English and in
+## Hebrew. The two columns at the edges are black over the whole height of the bar (the title and the timer start 60 units from
+## the edge).
+func _bars() -> void:
+	var win := _window()
+	var k := win.x / 1920
+	for code in ["en", "he"]:
+		Lang.set_language(code, root)
+		var not_black := []
+		for spec in Registry.all():
+			_fake_phones(2)
+			await _start_game(String(spec.id), {"difficulty": "medium"})
+			await _seconds(0.6)
+			var shot := await _capture()
+			var bad := 0
+			for y in range(4 * k, (BAR - 4) * k, 6):
+				for x in [3 * k, shot.get_width() - 4 * k]:
+					if shot.get_pixel(x, y).to_html(false) != "000000":
+						bad += 1
+			if bad > 0:
+				not_black.append("%s (%d)" % [spec.id, bad])
+			_app.go_menu()
+			await _frames(3)
+		_check(not_black.is_empty(), "%s: the black bar reaches both edges in every game %s" % [code, str(not_black)])
+	Lang.set_language("en", root)
+
+
 func _run() -> void:
 	await _frames(5)
 	if DisplayServer.get_name() == "headless":
@@ -672,5 +700,6 @@ func _run() -> void:
 	await _race()
 	await _jungle()
 	_tiles()
+	await _bars()
 	print("%d checks, %d failed, %d known bugs, %d skipped" % [_checks, _fails, _bugs, _skips])
 	quit(1 if _fails > 0 else 0)
