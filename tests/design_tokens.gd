@@ -198,7 +198,8 @@ func _contrast_checks() -> void:
 
 
 ## Issue #173, REQ-FL-38a: every enabled button is white (the face is the white token, the text is black and readable), a
-## disabled button keeps its dim look, and the focus is a yellow face with black text, distinct from a mark (a thick border on the white face). A new button cannot use another color.
+## disabled button keeps its dim look, and the focus is a yellow face with black text, distinct from a mark (a thick border
+## on the white face). A new button cannot use another color.
 func _white_buttons() -> void:
 	print("white buttons")
 	_check(UiTheme.BUTTON_FACE == UiTheme.TEXT and UiTheme.BUTTON_FACE == Color("fcfcfc"),
