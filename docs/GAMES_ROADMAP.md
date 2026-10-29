@@ -35,7 +35,7 @@ of the maze A shortcut, and it changes `docs/games/maze.md` (REQ-MZ-8) and `test
 | Recenter cleanup | A button wiring in the maze (with `_exit_tree`), the stale "B recenters" comment in the race | Delete. The RECENTER button does the work. The maze keeps its recenter at GO. |
 | `Avatar`, `Minigame.slot_label()` | The picture of a profile; the name of a player in a card | The avatar of a profile on the chips (`Shell.chip()`, REQ-GM-46b) and in the Players list. A game does not draw an avatar or a number on its objects (REQ-GM-46): the slot color alone. |
 | `Minigame.best_key()`, `best_value()` | Nothing (new) | The key and the saved number of the personal best of a game (REQ-GM-98); an empty key means no best. `open_results()` sends the result to the phones (REQ-GM-99). |
-| `Shell.leader_chip`, `Minigame.draw_leader_chip()` | The leader chip in the HUD | One chip: the leader and the score, or TIE (REQ-GM-46, FD-21). A game returns its `Scoreboard` from `_scoreboard()`; the phones get the place and score (REQ-FL-67). |
+| `Shell.leader_chip`, `Minigame.draw_leader_chip()` | The leader chip in the HUD | One chip: the leader and the score, or TIE (REQ-GM-46, FD-21 leader chip). A game returns its `Scoreboard` from `_scoreboard()`; the phones get the place and score (REQ-FL-67). |
 
 Not extracted: collision code (different in each game), the two damping models (the feel would change and need a device test),
 and 3D-only code (camera, meshes).
@@ -99,7 +99,7 @@ Checked against `main` on 2026-10-08.
 
 - A game has a settings view with Difficulty and a table of what Easy, Medium and Hard mean in its requirements file (REQ-GM-90, 91). The chosen value is yellow (REQ-GM-97). The game gets it as the prop `difficulty`; Try again keeps it. The score of a solo game belongs to a difficulty and has no medal (REQ-GM-73, REQ-GM-95).
 - Leaving a game in progress asks first (REQ-GM-31a). A game overrides `_can_open_menu()` (or `_in_progress()`) to say when it is over.
-- A ball-like player object has only the slot color (no number, no avatar), the HUD has one leader chip, and the countdown has no name tags (removed 2026-10-21; REQ-GM-46, FD-21).
+- A ball-like player object has only the slot color (no number, no avatar), the HUD has one leader chip, and the countdown has no name tags (removed 2026-10-21; REQ-GM-46, FD-21 leader chip).
 - Key objects are at least 48 px high and use no pale grey (REQ-GM-47d, 47e). All text is 28 px or larger (REQ-GM-41).
 - On the phone, A is green and B is red (REQ-FL-52). A game states what A and B do, or that it has none (the `pad` list of its registry entry, REQ-GM-37a). Recenter is not a game action: the RECENTER button does it (REQ-GM-37).
 - Hints use `Shell.hint` (dark plate).

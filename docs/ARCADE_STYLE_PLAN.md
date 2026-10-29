@@ -2,7 +2,7 @@
 
 Status: **phases 1 to 5 built** (phase 1: menus, phone, game shell, manual test 16; phase 2: the pixel view and Sumo Bumpers, manual test 15; phase 3: the 3D pixel view and Marble Race, manual test 9; phase 4: Tilt Maze, Paint Grab and Snowball Splat, manual tests 6, 14 and 10). Phase 5, English and Hebrew with a right to left UI, was built on 2026-10-10 (manual test 17). The style requirements are in
 `docs/TV_FLOW.md` (REQ-FL-37 to 46) and `docs/GAME_REQUIREMENTS.md` (REQ-GM-45, 46); REQ-GM-47 and 48 (the game worlds) still
-describe the toy-like tier 2 rules until phase 2.
+described the toy-like tier 2 rules until phase 2; phases 2 to 4 are built and REQ-GM-47i to 47n are the rules now.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
 
 ## 1. Decision
@@ -49,8 +49,7 @@ black. They show as a filled square next to the slot number, never as the only c
 - Hebrew player names use **Sababi Pixel Hebrew** (`assets/fonts/SababiPixelHebrew.ttf`, SIL OFL), a fallback
   font made for this project on the same 8 px grid: 2 px vertical strokes, 1 px horizontal strokes, the cap height of
   Press Start 2P, and final letters (and qof) that go 2 px lower than the other letters. It has the 27 letters, maqaf, geresh and
-  gershayim, no niqqud. The TTF file is the source: change it with a font editor (the tool that drew it is not in the repository). The UI text stays English
-  (REQ-FL-54); this font is only for names. Other characters (emoji) use the Godot default font.
+  gershayim, no niqqud. The TTF file is the source: change it with a font editor (the tool that drew it is not in the repository). The UI text is English or Hebrew (FD-19, REQ-FL-54 was changed by it); this font is the Hebrew fallback and covers names. Other characters (emoji) use the Godot default font.
 - The phone uses the same font, at 24 px or more on a phone screen.
 
 ### 2.3 Frames and shapes
@@ -67,8 +66,8 @@ black. They show as a filled square next to the slot number, never as the only c
 - A list of choices (results, pause, quit, settings) is a text menu, not a row of buttons. The focused item is
   `ACCENT` with a "▶" cursor in front of it (drawn as pixels, not a font glyph). Other items are `TEXT`. A destructive
   item ("END GAME", "QUIT") is `BAD` when it has focus. A choice never depends on color alone: the cursor shows focus.
-- A game tile has a 6 px `TEXT_DIM` frame. The focused tile has a 6 px `ACCENT` frame, a "▶" before its title, and it
-  grows to show the description (FD-7 stays).
+- A game tile has a 6 px `TEXT_DIM` frame. The focused tile has a 6 px `ACCENT` frame, a pixel cursor (REQ-FL-41) before its title, and it
+  shows no growth (FD-7 was changed by question 1: the description is in a bar under the grid and the tiles keep one size).
 - The default focus of a confirmation stays on the safe item (REQ-FL-10, REQ-FL-53).
 
 ### 2.5 Phone pad
@@ -136,7 +135,7 @@ The menus and the shell change in the same pull request, so a game never shows a
 6. Game shell: `scripts/game/shell.gd`, `minigame.gd`, `minigame_3d.gd` (HUD, chips, timer, countdown, hint, pause and
    result menus).
 7. The Android splash color (REQ-FL-51) becomes black. The logo screen draws "SABABI" in the arcade font until
-   the logo file exists (FD-15, open question 5). The logo file exists since 2026-10-10 (FD-21).
+   the logo file exists (FD-15, open question 5). The logo file exists since 2026-10-10 (FD-21 (naming), FD-26).
 8. Requirements: replace REQ-FL-37 to 46, 41a, 52, 53, 56, 57 in `docs/TV_FLOW.md`; change REQ-P6 in
    `docs/REQUIREMENTS.md` (the font file); change REQ-GM-45, 46 in `docs/GAME_REQUIREMENTS.md` (chips and balls in the
    new style).
@@ -185,7 +184,7 @@ Each question has a default. On 2026-10-10 the owner said to keep the defaults; 
 4. **Game resolution.** 480x270 (the default) keeps detail; 320x180 is chunkier and more "real 8-bit", but small
    objects get hard to see.
 5. **Logo.** The owner makes the logo (FD-15). It must now read on black, and pixel art fits the style. Default: text
-   logo in the arcade font until then. Done on 2026-10-10: a pixel-art logo and splash (FD-21).
+   logo in the arcade font until then. Done on 2026-10-10: a pixel-art logo and splash (FD-21 (naming), FD-26).
 6. **Phone A and B colors.** The mockup shows two red arcade buttons. The current rule is A green, B red (REQ-FL-52).
    Default: keep A green and B red.
 7. **Where to choose the language** (section 7.1). Decided 2026-10-10: on the logo screen at the first start only,
@@ -236,7 +235,7 @@ step before every game night.
 ### 7.2 Strings
 
 - Every UI text goes through Godot translation (`tr()`, a `.csv` translation file in `translations/` with the columns
-  `keys,en,he`). Game names, descriptions, hints, result titles and medal names are translated too (the registry
+  `key,en,he,where,notes` (`assets/lang/strings.csv`, FD-24)). Game names, descriptions, hints, result titles and medal names are translated too (the registry
   stores keys, not text).
 - A test fails when a key has no English or no Hebrew text, or when code shows a text that is not a key.
 - Player names are never translated.
