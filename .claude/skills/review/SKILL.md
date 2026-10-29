@@ -3,6 +3,8 @@ name: review
 description: Review a change to the Sababi Godot project (a diff, a branch or a GitHub pull request) against its architecture rules and known pitfalls, and write a structured report. Use before a commit or PR, after a PR is created, or when asked to review code.
 ---
 
+The `code-reviewer` agent uses this skill. Every finding must be fixed, moved to a follow-up issue, or answered with a documented reason (false positive or not worth a fix); the owner comments what was resolved after each fix.
+
 Review the current diff (`git diff main...HEAD` plus uncommitted changes), or the files or PR the user names.
 Report only real problems, most severe first, each with file:line, the failing scenario, and a fix.
 Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plugin.

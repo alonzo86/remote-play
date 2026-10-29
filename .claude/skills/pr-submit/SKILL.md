@@ -4,7 +4,8 @@ description: Create or update a GitHub pull request for the Sababi project with 
 ---
 
 Create or update a pull request. Do it only when the user asks for one.
-Ask before each step that publishes: creating the PR and updating its title or body. The review comment of step 4 is posted without asking.
+The PR owner is `sw-developer` (or the agent that made the change). The `code-reviewer` agent does step 4 of section 4, and `localization-reviewer` prepares the string list when `strings.csv` changed.
+Do not ask before creating the PR, updating its title or body, or posting the review comment of step 4 (CLAUDE.md, "Pull requests": Alon, 2026-10-29).
 
 ## 1. Gates (stop when one fails)
 

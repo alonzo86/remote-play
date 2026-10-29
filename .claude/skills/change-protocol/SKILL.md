@@ -4,6 +4,7 @@ description: Change the Sababi network protocol (packets, messages, ports, timeo
 ---
 
 The protocol is shared by the TV and the controller, which can be different builds on the same network.
+Agents: the `software-architect` decides the change and the version bump and updates `docs/PROTOCOL.md`; `sw-developer` implements it; `automation-developer` adds the codec and reconnect tests; `code-reviewer` checks it.
 
 1. Edit `scripts/core/protocol.gd` first. Keep the encoder and the decoder together.
 2. Update `docs/PROTOCOL.md` in the same change: the tables, the JSON examples and the byte layout of the sensor packet.

@@ -3,6 +3,8 @@ name: device-test
 description: Guide an on-device test run (phone and TV) from docs/MANUAL_TESTS.md and record the results. Use when the user is testing on real hardware, reports a device test result, or asks what to retest.
 ---
 
+The `qa` agent runs this flow. A note in a result goes to `product-engineer` and `qa` for the requirement change and the issue (CLAUDE.md, Manual tests); a step a machine can check goes to `automation-developer`.
+
 1. Read `docs/MANUAL_TESTS.md`. It holds the tests, a results table for every test, the run log and the Summary. Evidence goes in `docs/evidence/`.
 2. Check the setup before the tests: current controller APK installed (`build-deploy`), TV and phone on the same Wi-Fi,
    **Invert tilt axes off**, TV window in front if the TV app runs on a desktop. A desktop TV is not a real TV box. Say so in the notes.

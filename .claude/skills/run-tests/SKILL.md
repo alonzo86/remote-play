@@ -3,6 +3,8 @@ name: run-tests
 description: Run the Sababi headless tests and lint. Use before a pull request (the touched suites) or when asked to run tests, lint or check the build. The whole suite only when the user asks or the QA engineer decides.
 ---
 
+`automation-developer` and `sw-developer` use this skill; `code-reviewer` runs only the suites the diff touches.
+
 1. Make sure nothing holds the network ports. The tests start a real TV server on TCP 47801.
    ```sh
    lsof -iTCP:47801 -sTCP:LISTEN
