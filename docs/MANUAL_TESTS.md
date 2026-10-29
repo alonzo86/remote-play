@@ -55,7 +55,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Partial (see the result table) | R5 | |
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A3, B1, B2, B3, B5, B6 | Fail | R0 | |
-| [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV | REQ-MZ-4, 6, 7, 8, 9, 12, 13, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Partial (see the result table) | R4 | |
+| [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Partial (see the result table) | R4 | |
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R4 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Partial (see the result table) | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Partial (see the result table) | R4 | |
@@ -261,6 +261,7 @@ Needs: 1 to 4 phones, 1 TV, a protractor app, a child of about 5 to 8 years for 
 7e. In each theme, stand 3 m from the TV. Check: a person reads aloud the names of the two pictures at each side of the maze from this list, with 0 errors in 6 pictures: Garden tree and rose bush, Castle torch and shield, Ice penguin and iceberg (REQ-MZ-13).
 7f. Bring a ball to the chest. Check: the lid of the chest opens and the gold shows.
 7g. Check with a child of 5 to 8 years. Say only: "Where do you need to go?" Check: the child points to the chest within 10 seconds of "GO", without help.
+7i. On a Mac, in English and then in Hebrew, start the maze in a small window, then maximize the window (green button) and play to the chest. Check: the walls of the picture and the walls the ball bumps into are the same lines (the ball never goes into a wall, 0 times in 1 round), and the whole maze is inside the window with an equal margin at the left and the right (a photo of the screen). (REQ-MZ-15, issue #45)
 
 Items 1, 2a, 2b, 2c, 4b, 5b, 5c, 6a to 6h, 7a to 7d and 7h moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-6-1 to A-6-7). Item 3 was removed earlier. Items 5a and 7f keep only what a machine cannot show (a real phone; the drawn lid). The numbers of the other items do not change. The result menu has New game and returns to the view with the last choice (A-11-5), the rows of the result menu (A-11-1, A-11-2).
 
@@ -275,6 +276,7 @@ Measurements (no pass or fail; tune the constants if the owner asks): with the p
 | 7e | Note: the 6 names read aloud | Pass | R3 |  | R3: Pass - THEME should start from Garden which should be first in the options Same result as old item 7. |
 | 7f | Photo of the open chest | Pass | R3 |  | R3: Pass - THEME should start from Garden which should be first in the options Same result as old item 7. |
 | 7g | Note: time in seconds until the child points to the chest | Pass | R3 |  | R3: Pass - THEME should start from Garden which should be first in the options Same result as old item 7. |
+| 7i | Photo of the maximized window; the number of times the ball went into a wall | Not run | | | |
 
 History:
 

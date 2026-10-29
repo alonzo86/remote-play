@@ -219,20 +219,21 @@ static func flame_frame(t: float) -> int:
 
 
 ## The squares of one frame of the flame with its top left corner at `spot` (world pixels): [[Rect2 in screen units, Color]].
-static func flame_squares(spot: Vector2i, frame: int) -> Array:
+## `unit` is the size of a world pixel in screen units (4 x 4 on 1920 x 1080).
+static func flame_squares(spot: Vector2i, frame: int, unit: Vector2) -> Array:
 	var out := []
 	var rows: Array = FLAME_FRAMES[frame % FLAME_FRAMES.size()]
 	for y in rows.size():
 		var row := String(rows[y])
 		for x in row.length():
 			if row[x] != ".":
-				out.append([Rect2(Vector2(spot + Vector2i(x, y)) * 4.0, Vector2(4, 4)), FLAME_COLORS[row[x]]])
+				out.append([Rect2(Vector2(spot + Vector2i(x, y)) * unit, unit), FLAME_COLORS[row[x]]])
 	return out
 
 
 ## Draws one frame of the flame on `ci`, which draws in screen units.
-static func draw_flame(ci: CanvasItem, spot: Vector2i, frame: int) -> void:
-	for sq in flame_squares(spot, frame):
+static func draw_flame(ci: CanvasItem, spot: Vector2i, frame: int, unit: Vector2) -> void:
+	for sq in flame_squares(spot, frame, unit):
 		ci.draw_rect(sq[0], sq[1])
 
 
@@ -261,7 +262,9 @@ static func _sprite(img: Image, c: Dictionary, name: String, center: Vector2i) -
 static func _mask(walls: Array[Rect2], view: Vector2i) -> PackedByteArray:
 	var m := Image.create(view.x, view.y, false, Image.FORMAT_L8)
 	for r in walls:
-		m.fill_rect(Rect2i((r.position / 4.0).round(), (r.size / 4.0).round()), Color.WHITE)
+		# The edges are rounded, not the position and the size: a wall is as thick as its edges are far apart, to half a world pixel.
+		var from := (r.position / 4.0).round()
+		m.fill_rect(Rect2i(from, ((r.end / 4.0).round() - from)), Color.WHITE)
 	return m.get_data()
 
 

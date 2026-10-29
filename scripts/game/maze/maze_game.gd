@@ -85,13 +85,34 @@ func _start_offset() -> float:
 
 ## The ground and the walls of the theme of this round as one texture (REQ-MZ-12). The walls are the collision rectangles.
 func _make_board_texture() -> ImageTexture:
+	return ImageTexture.create_from_image(board_image())
+
+
+## Screen units of one world pixel. The pixel view is 480 x 270 and stands for the whole screen, so on a window that is not
+## 1920 x 1080 (a maximized window on a computer, issue #45) a world pixel is larger or smaller than 4 units, and not square
+## when the window is not 16:9.
+func _unit() -> Vector2:
+	return size / Vector2(PIXEL_VIEW)
+
+
+## The collision walls in the units `MazeBoard` expects (4 per world pixel of this window), at the place they have on the screen.
+func board_rects() -> Array[Rect2]:
 	var o := _origin()
+	var k := Vector2(4.0, 4.0) / _unit()
 	var rects: Array[Rect2] = []
 	for r in _walls:
-		rects.append(Rect2(o + r.position, r.size))
-	var start := Rect2(o + Vector2(WALL, WALL) * 0.5, Vector2(cell, cell) - Vector2(WALL, WALL))
+		rects.append(Rect2((o + r.position) * k, r.size * k))
+	return rects
+
+
+## The picture of the board for the current `size`. `MazeBoard` counts 4 units to a world pixel, so the walls are given in units
+## of 4 per world pixel of this window: the picture and the collision rectangles stay on the same place on any window.
+func board_image() -> Image:
+	var k := Vector2(4.0, 4.0) / _unit()
+	var rects := board_rects()
+	var start := Rect2((_origin() + Vector2(WALL, WALL) * 0.5) * k, (Vector2(cell, cell) - Vector2(WALL, WALL)) * k)
 	_torches = MazeBoard.torch_places(maze_theme, rects, PIXEL_VIEW.x)
-	return ImageTexture.create_from_image(MazeBoard.render(maze_theme, rects, start, PIXEL_VIEW))
+	return MazeBoard.render(maze_theme, rects, start, PIXEL_VIEW)
 
 
 func _on_player_left(slot: int) -> void:
@@ -265,7 +286,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	ci.draw_texture_rect(_board_tex, Rect2(Vector2.ZERO, size), false)
 	var o := _origin()
 	for spot in _torches:   # The flames move with the game time, so they stand still while the game is paused (REQ-FL-43).
-		MazeBoard.draw_flame(ci, spot, MazeBoard.flame_frame(_ring_time))
+		MazeBoard.draw_flame(ci, spot, MazeBoard.flame_frame(_ring_time), _unit())
 	_draw_chest(ci, o + _exit_center())
 	for b in _balls:   # The slot numbers are drawn by the HUD (REQ-GM-47n).
 		_draw_ball(ci, o + b.pos, player(b.slot).color, b.vel)
