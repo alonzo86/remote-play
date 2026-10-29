@@ -4,6 +4,7 @@ description: Add a new minigame to the Sababi TV app. Use when asked to create a
 ---
 
 0. The game is also for children (REQ-GM-80 to 84): friendly made-up characters, no violence against anything alive, no blood and no scary things (toy beams at lifeless things are fine); a mistake takes no points away, and a player who is out keeps the points and waits only briefly or as long as the others play in a team game; one hint line; large and slow at the start; positive texts. Plan the game with that rule, and say in the requirements file how it is met.
+   Agents: `product-engineer` writes the requirements and `ui-ux-designer` makes the mock and the tile (the user approves the look first); `software-architect` is asked only when the game needs a change across modules or the protocol; `sw-developer` builds; `automation-developer` and `qa` write the tests and the manual steps; `localization-reviewer` lists the strings (see "Agents and workflows" in `CLAUDE.md`).
    Write the requirements first. Copy `docs/games/TEMPLATE.md` to `docs/games/<id>.md` and fill it in. Read `docs/GAME_REQUIREMENTS.md`:
    the general requirements (all games, plus 2D or 3D) apply, and the game file lists its gaps and its own `REQ-<XX>-n` requirements.
    Show the file to the user before you write code if a requirement is a design choice.
@@ -23,5 +24,5 @@ description: Add a new minigame to the Sababi TV app. Use when asked to create a
    Put the requirement ID in the check text. Add a test to `docs/MANUAL_TESTS.md` for what only a device can check: the steps, a results table with "Evidence to capture" and a row in its Summary. Add the test to the list in `CLAUDE.md` (Manual tests).
    Every script of the game needs 80% line coverage (`tools/coverage.sh`, REQ-GM-63). Test the rules of the game (win, collision, leaving
    players, buttons), not only that it starts.
-6. Run the `run-tests` skill and the `review` skill, then update the README project structure if needed.
+6. Run the `run-tests` skill and the `review` skill (the `code-reviewer` agent runs it), then update the README project structure if needed.
    Set the status of each requirement (Done, Open, Device) so that the file matches the code.
