@@ -22,7 +22,7 @@ var _aim_frac := 0.5   # Where the finger left the aim strip (0 left, 1 right) i
 
 const HEADER_Y := 110.0   # The vertical middle of the header row.
 const SCORE_Y := 205.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
-const INFO_Y := 50.0      # How far the latency rows and the Recenter box move down for the score row.
+const INFO_Y := 50.0      # How far the Recenter box and the turn and best rows move down for the score row.
 const BUTTON_LIFT := 12.0        # How far the face of an arcade button stands above its lower edge.
 const BUTTON_LIFT_DOWN := 4.0    # The same while it is pressed: the button looks pressed in.
 
@@ -257,11 +257,6 @@ func _draw() -> void:
 		draw_string(f, Vector2(best_rect.position.x, UiTheme.centered_baseline(f, best_rect, 32)), best_line(best),
 				HORIZONTAL_ALIGNMENT_LEFT, best_rect.size.x, 32, UiTheme.OK)
 
-	var lat := "RTT -- ms" if c.rtt_ms < 0 else "RTT %d ms" % roundi(c.rtt_ms)
-	draw_string(f, Vector2(60, 262 + INFO_Y), lat.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 48, _lat_color(c.rtt_ms))
-	draw_string(f, Vector2(60, 316 + INFO_Y), ("%d Hz  -  TV: %s" % [roundi(c.tx_rate), c.phase]).to_upper(),
-			HORIZONTAL_ALIGNMENT_LEFT, size.x - 120, 24, UiTheme.TEXT_DIM)
-
 	# Disconnect: a framed text box. One tap leaves the TV (REQ-FL-52).
 	_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BG, Lang.t("pad.disconnect"), 24, UiTheme.TEXT)
 
@@ -343,13 +338,3 @@ static func line_font_size(text: String, width: float) -> int:
 		if UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x <= width:
 			return fs
 	return 32
-
-
-func _lat_color(rtt: float) -> Color:
-	if rtt < 0:
-		return UiTheme.TEXT_DIM
-	if rtt < 25:
-		return UiTheme.OK
-	if rtt < 60:
-		return UiTheme.ACCENT
-	return UiTheme.BAD
