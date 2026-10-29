@@ -283,9 +283,9 @@ func score_of(slot: int) -> int:
 ## swing thresholds (a lower one counts a lighter swing), the ball speed is `fixed_speed` of the top speed on Easy and from
 ## `speed_min` to 1 of it with the swing power on the others.
 const LEVELS := {
-	"easy": {"threshold": 0.7, "fixed_speed": 0.8},
-	"medium": {"threshold": 1.0, "speed_min": 0.7},
-	"hard": {"threshold": 1.0, "speed_min": 0.5},
+	"easy": {"threshold": 0.6, "fixed_speed": 0.8},
+	"medium": {"threshold": 0.75, "speed_min": 0.7},
+	"hard": {"threshold": 0.75, "speed_min": 0.5},
 }
 
 
