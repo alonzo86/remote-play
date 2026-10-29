@@ -22,6 +22,8 @@ const STRIKE_TIME := 0.03      # the back swing is gentle (6 to 10), the hit is 
 const RELEASE_AT := 0.5        # The ball goes when the forward strength falls below this share of its peak.
 const REVERSAL_SPAN := 0.5     # See `max_reversals`.
 const LOCK_AFTER := 1.5        # After a throw the detector waits this long (s).
+const REJECT_GRACE := 0.6      # After a forward swing that `fwd_ratio` rejects, the back swing waits this long (s) more.
+const FWD_RATIO := 1.3         # See `fwd_ratio`: the value Pin Pals sets.
 
 enum State { READY, BACK, FORWARD, LOCKED }
 
@@ -51,6 +53,12 @@ var min_back := 0.0
 ## `REVERSAL_SPAN` seconds. A real swing turns round once, from the back swing to the forward swing. 0 turns the rule off
 ## (Tennis, Mini Golf). Pin Pals sets 1 (REQ-BW-5).
 var max_reversals := 0
+## A real throw is harder forward than back (the back swing is gentle, the hit is not). When this is above 0, a forward swing
+## whose peak is less than this times the peak of the back swing is not a throw: a move to the side or a shake pushes as hard
+## on the way back as on the way out (issue #141). The detector then goes back to the back swing and waits for the real forward
+## swing, so the stop of a back swing does not throw. 0 turns the rule off (Tennis; Mini Golf, where a putt is a pendulum and
+## its forward swing is as soft as its back swing). Pin Pals sets `FWD_RATIO`.
+var fwd_ratio := 0.0
 ## Tennis finds the swing with the speed of the hand and a sharp strike (a gentle back swing, then a hard push in any
 ## direction, see `STRIKE_ACCEL`). Pin Pals and Mini Golf keep the plain rule: a back swing, then a push the other way.
 var hand_speed := false
@@ -71,6 +79,8 @@ var _strike := 0.0
 var _strike_sum := Vector3.ZERO
 var _sign := 0                # The side of the last strong acceleration along the axis (-1 back, 1 forward).
 var _reversal_times: Array[float] = []
+var _back_peak := 0.0   # The strongest acceleration of the back swing along the axis (m/s2).
+var _back_time := 0.0   # How long the back swing had lasted when the forward swing started.
 var _speed := 0.0   # The speed of the hand along the swing axis (m/s), forward positive, from the start of the back swing.
 
 
@@ -88,6 +98,8 @@ func reset() -> void:
 	_time = 0.0
 	_peak = 0.0
 	_speed = 0.0
+	_back_peak = 0.0
+	_back_time = 0.0
 	_peak_speed = 0.0
 	_strike = 0.0
 	_strike_sum = Vector3.ZERO
@@ -122,6 +134,7 @@ func _update_ready(delta: float, lin: Vector3) -> void:
 			_axis = _sum.normalized()
 			_sign = -1
 			_reversal_times.clear()
+			_back_peak = _sum.length() / _above
 			_speed = -_sum.length()   # The hand already moves back: it must turn round before a forward swing can count.
 			state = State.BACK
 			aim_locked = true
@@ -137,6 +150,7 @@ func _update_back(delta: float, lin: Vector3) -> void:
 	_time += delta
 	var f := -lin.dot(_axis)
 	_speed += f * delta - _speed * SPEED_LEAK * delta
+	_back_peak = maxf(_back_peak, -f)
 	_count_reversals(f)
 	var shaking := max_reversals > 0 and _reversal_times.size() > max_reversals
 	var pushed := f > FWD_ACCEL * threshold and _time >= min_back and not shaking
@@ -147,6 +161,7 @@ func _update_back(delta: float, lin: Vector3) -> void:
 		_peak = maxf(f, 0.0)
 		_peak_speed = _speed
 		_since_peak = 0.0
+		_back_time = _time
 		_time = 0.0
 	elif _time > window:
 		weak = true
@@ -197,6 +212,14 @@ func _update_forward(delta: float, lin: Vector3) -> void:
 	else:
 		_since_peak += delta
 	if f < _peak * RELEASE_AT or _time > FORWARD_MAX:
+		if fwd_ratio > 0.0 and _back_time > 0.0 and _peak < _back_peak * fwd_ratio:
+			# As gentle as the back swing: a move to the side, a shake or the stop of the back swing. Not a throw.
+			# Back to the back swing, but only REJECT_GRACE seconds more: the real forward swing after a hard stop comes at once,
+			# a player who moved to the side and swings again must not wait for the whole window.
+			state = State.BACK
+			_time = maxf(_back_time + _time, window - REJECT_GRACE)
+			_back_time = 0.0
+			return
 		var low := FWD_ACCEL * threshold
 		var fast_low := FWD_FAST * threshold
 		power = clampf((_peak - low) / (FWD_FULL - low), 0.0, 1.0)

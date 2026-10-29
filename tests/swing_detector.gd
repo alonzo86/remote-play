@@ -7,6 +7,8 @@ extends SceneTree
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
+const R = preload("res://tests/sensor_replay.gd")
+const BowlingRules = preload("res://scripts/game/bowling/bowling_rules.gd")
 
 const DT := 1.0 / 60.0
 const G := 9.81
@@ -28,6 +30,8 @@ func _check(cond: bool, what: String) -> void:
 func _initialize() -> void:
 	_detector_additions()
 	_player_slot()
+	_not_a_throw()
+	_real_swings()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -238,3 +242,102 @@ func _player_slot() -> void:
 	_check(wrapped.size() == 1, "a swing over the u32 wrap of the timestamp is found")
 	p.reset()
 	_check(p.swing_count == 0 and p.last_swing.is_empty(), "a slot that is reset starts again without swings")
+
+
+# ---- Issues #141 and #142: made-up sensor series for Pin Pals (2026-10-29) ----
+
+## The detector as Pin Pals sets it (bowling_game.gd `_game_ready()`) for `level`.
+func _pins(level := "medium") -> SwingDetector:
+	var d := SwingDetector.new()
+	d.threshold = float(BowlingRules.level(level).threshold)
+	d.min_back = load("res://scripts/game/bowling/bowling_game.gd").MIN_BACK
+	d.max_reversals = 1
+	d.fwd_ratio = SwingDetector.FWD_RATIO
+	return d
+
+
+## The phone moves `cm` to the side in `seconds` and stops (one sine of acceleration: out, then back): a hand that carries it.
+func _sideways(cm: float, seconds: float, axis := Vector3(1, 0, 0)) -> R.Trace:
+	var peak := TAU * cm / 100.0 / (seconds * seconds)
+	var t := R.Trace.new()
+	var n := int(round(seconds / R.DT))
+	for i in n:
+		t.add(axis.normalized() * peak * sin(TAU * float(i) / float(n)))
+	return t
+
+
+func _throws(d: SwingDetector, trace: R.Trace) -> int:
+	return R.run_detector(d, R.still(0.3).append(trace).append(R.still(2.0))).releases.size()
+
+
+func _not_a_throw() -> void:
+	print("issue #141: moves that are not a swing")
+	var cases := {}
+	for cm_s in [[20.0, 0.3], [30.0, 0.4], [50.0, 0.5], [40.0, 0.3], [15.0, 0.25]]:
+		var peak: float = TAU * cm_s[0] / 100.0 / (cm_s[1] * cm_s[1])
+		cases["a move of %d cm to the side in %.2f s (%.0f m/s2)" % [cm_s[0], cm_s[1], peak]] = _sideways(cm_s[0], cm_s[1])
+	var x := Vector3(-1, 0, 0)
+	cases["a sideways move with a harder stop (the push 1.2 times the start)"] = R.stroke(x, 12.0, 14.0, 0.2, 0.2)
+	for hz in [2.0, 3.0, 4.0, 5.0]:
+		for amp in [8.0, 15.0]:
+			cases["a shake of %d Hz at %d m/s2" % [hz, amp]] = R.shake(1.0, amp, hz)
+			cases["three waves of %d Hz at %d m/s2" % [hz, amp]] = R.shake(3.0 / hz, amp, hz)
+	cases["20 s of brisk walking"] = R.walk(20.0, Vector3(0, 0, 1), 2.0, [2.0, 4.0, 6.0, 3.0, 5.0])
+	cases["a tap (100 m/s2 for one step)"] = R.tap(100.0)
+	cases["the stop of a back swing (back 8, a push of 10 the other way)"] = R.stroke(Vector3(0, 1, 0), 8.0, 0.0, 0.2, 0.2, 10.0)
+	var bad := []
+	for name in cases:
+		for who in ["Pin Pals Medium", "Pin Pals Easy", "Pin Pals Hard"]:
+			var d := _pins(who.get_slice(" ", 2).to_lower())
+			if _throws(d, cases[name]) > 0:
+				bad.append("%s: %s" % [who, name])
+	_check(bad.is_empty(), "%d moves (sideways, shakes, walking, a tap, a stop) throw nothing in 3 levels. Thrown: %s" %
+			[cases.size(), "; ".join(bad)])
+	# A move to the side and then a real swing: the swing still throws, once.
+	var d2 := _pins()
+	var both := _sideways(30.0, 0.4).append(R.still(1.0)).append(R.stroke(Vector3(0, 1, 0), 8.0, 20.0))
+	_check(_throws(d2, both) == 1, "a move to the side and then, a second later, a real swing throw once")
+	# The stop of the back swing is not the throw: the real forward swing after it is, with its own power.
+	var d3 := _pins()
+	var stop_then := R.stroke(Vector3(0, 1, 0), 8.0, 25.0, 0.2, 0.2, 10.0)
+	var res := R.run_detector(d3, R.still(0.3).append(stop_then).append(R.still(2.0)))
+	var pw := float(res.releases[0].power) if res.releases.size() == 1 else -1.0
+	_check(pw > 0.5, "a back swing, its stop and the forward swing throw once with the power of the forward swing (%.2f)" % pw)
+	_check(SwingDetector.new().fwd_ratio == 0.0, "the rule is off by default (Tennis keeps its own rule)")
+
+
+func _real_swings() -> void:
+	print("issue #142: real swings that must throw")
+	var y := Vector3(0, 1, 0)
+	var cases := {
+		"soft (back 5, forward 10 m/s2)": R.stroke(y, 5.0, 10.0),
+		"soft and slow (back 4.5, forward 9, 0.3 s each)": R.stroke(y, 4.5, 9.0, 0.3, 0.3),
+		"a gentle back swing (back 3.5, forward 10)": R.stroke(y, 3.5, 10.0),
+		"a gentle back swing (back 4.2, forward 12)": R.stroke(y, 4.2, 12.0),
+		"a soft forward swing (back 4.5, forward 7)": R.stroke(y, 4.5, 7.0),
+		"medium (back 8, forward 18)": R.stroke(y, 8.0, 18.0),
+		"hard (back 10, forward 32)": R.stroke(y, 10.0, 32.0),
+		"a long back swing (0.5 s)": R.stroke(y, 6.0, 20.0, 0.5, 0.2),
+		"a short back swing (0.1 s)": R.stroke(y, 10.0, 25.0, 0.1, 0.15),
+		"a wide slow swing (0.4 s each way)": R.stroke(y, 6.0, 14.0, 0.4, 0.4),
+		"a pause of 0.4 s between the back and the forward swing":
+				R.back_swing(y, 8.0, 0.25).append(R.still(0.4)).append(R.forward_swing(y, 20.0, 0.2)),
+		"a forward swing 45 degrees off the back axis":
+				R.back_swing(y, 8.0, 0.25).append(R.forward_swing(Vector3(0.7071, 0.7071, 0), 20.0, 0.2)),
+		"a soft swing with sensor noise (1 m/s2)": R.noisy(R.stroke(y, 5.0, 10.0), 1.0, 3),
+		"a medium swing with sensor noise (1.5 m/s2)": R.noisy(R.stroke(y, 8.0, 18.0), 1.5, 4),
+	}
+	var missed := []
+	for name in cases:
+		for who in ["Pin Pals Easy", "Pin Pals Medium", "Pin Pals Hard"]:
+			var d := _pins(who.get_slice(" ", 2).to_lower())
+			if _throws(d, cases[name]) != 1:
+				missed.append("%s: %s" % [who, name])
+	_check(missed.is_empty(), "%d real swings, soft to hard, throw exactly once in 3 levels. Missed: %s" %
+			[cases.size(), "; ".join(missed)])
+	var easy := _pins("easy")
+	_check(_throws(easy, R.stroke(y, 4.5, 6.0, 0.25, 0.25)) == 1, "Pin Pals Easy counts an even lighter swing (back 4.5, forward 6)")
+	var powers := []
+	for fwd in [9.0, 18.0, 32.0]:
+		powers.append(float(R.run_detector(_pins(), R.still(0.3).append(R.stroke(y, 5.0, fwd)).append(R.still(2.0))).releases[0].power))
+	_check(powers[0] < powers[1] and powers[1] < powers[2], "the power still grows with the swing: %s" % str(powers))
