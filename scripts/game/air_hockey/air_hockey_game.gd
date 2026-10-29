@@ -133,7 +133,7 @@ func _on_participants_changed() -> void:
 		if participants.size() == 1:
 			_enroll(participants[0])
 	elif participants.size() < seats.size() - (1 if bot != null else 0):
-		_finish(true)
+		_finish()
 
 
 func _game_tick(delta: float) -> void:
@@ -191,7 +191,7 @@ func _goal(scorer: int) -> void:
 		App.server.haptic(slot, 120)
 	Sound.sfx("hockey_goal")
 	if scores[scorer] >= goals_to_win():
-		_finish(false)
+		_finish()
 		return
 	banner_text = Lang.f("air_hockey.goal_for", [String(seats[scorer].name)])
 	phase = Phase.GOAL
@@ -206,8 +206,8 @@ func leading_seat() -> int:
 
 
 ## REQ-AH-10: the match is over. With ROBO the rows are made here (ROBO is not a phone, REQ-GM-105); with two phones the shared
-## result menu ranks them (REQ-GM-72, 73). `left` is true when a player left and the one that is left wins.
-func _finish(left: bool) -> void:
+## result menu ranks them (REQ-GM-72, 73). After a leave only the player that stays is on the board: a technical win (REQ-AH-19).
+func _finish() -> void:
 	if bot != null:
 		if scores[0] > scores[1]:
 			App.server.haptic(int(seats[0].slot), 400)
@@ -215,7 +215,6 @@ func _finish(left: bool) -> void:
 		return
 	for s in _board.winners():
 		App.server.haptic(s, 400)
-	no_medals = left   # The player that stayed gets no medal for a match that ended by a leave.
 	open_results(_board, "", [], _goals_text)
 
 

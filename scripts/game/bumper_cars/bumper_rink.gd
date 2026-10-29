@@ -10,9 +10,6 @@ const RAIL_BOUNCE := 0.6                 # The part of the speed that a car keep
 const RESTITUTION := 0.9                 # Close to 1: a hit pushes the other car away (REQ-BC-5).
 const HIT_SPEED := 250.0                 # The speed of two cars towards each other that makes a hit (REQ-BC-6).
 const HIT_GAP := 0.6                     # The least time between two hits of the same pair (REQ-BC-7).
-const DROP_DISTANCE := 110.0             # A dropped star rolls this far, in DROP_TIME (REQ-BC-8).
-const DROP_TIME := 0.35
-const DROP_LOCK := 0.5                   # A dropped star cannot be picked up in this time (REQ-BC-8).
 const SPAWN_EVERY := 0.6                 # A new star comes this often while the floor has too few (REQ-BC-9).
 const SPAWN_CLEAR := 120.0               # A new star is this far from every car and from the rail.
 const SPAWN_BLINK := 0.4
@@ -68,17 +65,11 @@ func fill(cars: Array, rng: RandomNumberGenerator) -> void:
 		_add_random(cars, rng, 0.0)
 
 
-## One tick of `dt` seconds: the dropped stars roll and wait, and a new star comes when the floor has too few (REQ-BC-8, 9).
+## One tick of `dt` seconds: a new star comes when the floor has too few (REQ-BC-9).
 ## `cars` is the list of the positions of the cars.
 func tick(dt: float, cars: Array, rng: RandomNumberGenerator) -> void:
-	var inner := rink.grow(-STAR_R)
 	for s in stars:
-		s.lock = maxf(float(s.lock) - dt, 0.0)
 		s.blink = maxf(float(s.blink) - dt, 0.0)
-		if float(s.move) > 0.0:
-			var step := minf(dt, float(s.move))
-			s.pos = _clamp_to(inner, (s.pos as Vector2) + (s.vel as Vector2) * step)
-			s.move = float(s.move) - step
 	if stars.size() >= star_count:
 		_spawn_wait = 0.0
 		return
@@ -86,10 +77,6 @@ func tick(dt: float, cars: Array, rng: RandomNumberGenerator) -> void:
 	if _spawn_wait >= SPAWN_EVERY:
 		_spawn_wait = 0.0
 		_add_random(cars, rng, SPAWN_BLINK)
-
-
-static func _clamp_to(area: Rect2, p: Vector2) -> Vector2:
-	return Vector2(clampf(p.x, area.position.x, area.end.x), clampf(p.y, area.position.y, area.end.y))
 
 
 ## A star at a random place at least SPAWN_CLEAR from the rail and from every car, and STAR_GAP from the other stars when that
@@ -101,7 +88,7 @@ func _add_random(cars: Array, rng: RandomNumberGenerator, blink: float) -> void:
 		p = Vector2(rng.randf_range(area.position.x, area.end.x), rng.randf_range(area.position.y, area.end.y))
 		if _is_clear(p, cars, STAR_GAP if attempt < 20 else 0.0):
 			break
-	stars.append({"pos": p, "vel": Vector2.ZERO, "move": 0.0, "lock": 0.0, "blink": blink})
+	stars.append({"pos": p, "blink": blink})
 
 
 func _is_clear(p: Vector2, cars: Array, star_gap: float) -> bool:
@@ -114,19 +101,11 @@ func _is_clear(p: Vector2, cars: Array, star_gap: float) -> bool:
 	return true
 
 
-## A car at `from` was hit by a car at `other`: a star leaves it in the direction away from the other car (REQ-BC-8).
-func drop_star(from: Vector2, other: Vector2) -> void:
-	var away := (from - other).normalized() if from.distance_to(other) > 0.001 else Vector2.RIGHT
-	stars.append({"pos": from, "vel": away * DROP_DISTANCE / DROP_TIME, "move": DROP_TIME, "lock": DROP_LOCK, "blink": 0.0})
-
-
 ## The stars that cars pick up now (REQ-BC-10): a list of `[car_index, star_index]`. A star that two cars reach is picked up
-## by the nearer one, and a car picks up all the stars that it reaches. A star that is locked (just dropped) is not picked up.
+## by the nearer one, and a car picks up all the stars that it reaches.
 func pickups(cars: Array) -> Array:
 	var out: Array = []
 	for i in stars.size():
-		if float(stars[i].lock) > 0.0:
-			continue
 		var best := -1
 		var best_d := PICKUP_R
 		for j in cars.size():
@@ -154,7 +133,8 @@ static func touching(a: Vector2, b: Vector2) -> bool:
 
 
 ## True when a bump of two cars is a hit (REQ-BC-6): the speeds of the two cars towards each other, from their positions and
-## velocities before the bounce, add up to HIT_SPEED or more. In a hit both cars lose a star (REQ-BC-7).
+## velocities before the bounce, add up to HIT_SPEED or more. A hit is a bonk with a spark and a buzz; nobody loses a star
+## (REQ-BC-7).
 static func is_hit(pos_a: Vector2, vel_a: Vector2, pos_b: Vector2, vel_b: Vector2) -> bool:
 	var d := pos_b - pos_a
 	var n := d.normalized() if d.length() > 0.001 else Vector2.RIGHT

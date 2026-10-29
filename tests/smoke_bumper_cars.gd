@@ -199,9 +199,9 @@ func _drive_and_pick_up() -> void:
 	game._bodies[0].vel = Vector2.ZERO
 	game._bodies[1].pos = Vector2(1500.0, 850.0)
 	game._bodies[1].vel = Vector2.ZERO
-	game.rink.stars.append({"pos": Vector2(900.0 + 50.0, 600.0), "vel": Vector2.ZERO, "move": 0.0, "lock": 0.0, "blink": 0.0})
-	game.rink.stars.append({"pos": Vector2(1300.0, 300.0), "vel": Vector2.ZERO, "move": 0.0, "lock": 0.0, "blink": 0.0})
-	game.rink.stars.append({"pos": Vector2(300.0, 900.0), "vel": Vector2.ZERO, "move": 0.0, "lock": 0.0, "blink": 0.0})
+	game.rink.stars.append({"pos": Vector2(900.0 + 50.0, 600.0), "blink": 0.0})
+	game.rink.stars.append({"pos": Vector2(1300.0, 300.0), "blink": 0.0})
+	game.rink.stars.append({"pos": Vector2(300.0, 900.0), "blink": 0.0})
 	_quiet()
 	await _real_wait(60)
 	_heard.clear()
@@ -270,36 +270,26 @@ func _hits() -> void:
 	_heard.clear()
 	rec.log.clear()
 	game._process(DT)
-	_check(game._board.score(0) == 0.0 and game._board.score(1) == 1.0 and game.rink.stars.size() == 2,
-			"car 0 hits car 1 that stands: each car drops one star (1 to 0 and 2 to 1), two stars lie on the floor (REQ-BC-7)")
-	var s0: Dictionary = game.rink.stars[0]
-	var s1: Dictionary = game.rink.stars[1]
-	_check((s0.vel as Vector2).x < 0.0 and (s1.vel as Vector2).x > 0.0 and absf((s0.vel as Vector2).y) < 1.0
-			and float(s0.lock) > 0.0 and float(s1.lock) > 0.0,
-			"each star rolls away from the other car (left and right) and waits before it can be picked up (REQ-BC-8)")
+	_check(game._board.score(0) == 1.0 and game._board.score(1) == 2.0 and game.rink.stars.is_empty(),
+			"car 0 hits car 1 that stands: nobody loses a star (1 and 2 stay), and no star lies on the floor (REQ-BC-7)")
 	_check(rec.ms_of(0) == [25] and rec.ms_of(1) == [25], "both phones buzz 25 ms: %s" % str(rec.log))
-	_check(_heard.has("car_bump") and _heard.has("car_drop"), "the sounds car_bump and car_drop play: %s" % str(_heard))
+	_check(_heard.has("car_bump") and not _heard.has("car_drop"), "the sound car_bump plays: %s" % str(_heard))
 	_check(game._hits.size() == 1, "a spark shows where they met")
-	# The same pair cannot hit again for 0.6 s.
-	game.rink.stars.clear()
+	# The same pair cannot hit again for 0.6 s: no second spark and no second buzz.
 	_stage_hit(game)
+	rec.log.clear()
 	game._process(DT)
-	_check(game._board.score(1) == 1.0 and game.rink.stars.is_empty(), "the same pair does not hit again at once (REQ-BC-7)")
-	game._board.add(0, 1.0)
+	_check(game._hits.size() == 1 and rec.ms_of(0).is_empty() and rec.ms_of(1).is_empty(),
+			"the same pair does not hit again at once (REQ-BC-7)")
 	_wait_apart(game, 0.7)
 	_stage_hit(game)
+	rec.log.clear()
 	game._process(DT)
-	_check(game._board.score(0) == 0.0 and game._board.score(1) == 0.0 and game.rink.stars.size() == 2,
-			"after 0.7 s it can: both cars drop their last star")
-	# A car without a star drops nothing.
-	_wait_apart(game, 0.7)
-	_stage_hit(game)
-	game._process(DT)
-	_check(game._board.score(0) == 0.0 and game._board.score(1) == 0.0 and game.rink.stars.is_empty(),
-			"a hit car with no star drops nothing, and its score is not below 0")
+	_check(game._hits.size() == 1 and rec.ms_of(0) == [25] and rec.ms_of(1) == [25]
+			and game._board.score(0) == 1.0 and game._board.score(1) == 2.0,
+			"after 0.7 s it can: a new spark and buzz, and still nobody loses a star")
 	# A slow touch is no hit.
 	_wait_apart(game, 0.7)
-	game._board.add(1, 1.0)
 	game._bodies[0].pos = mid + Vector2(-60.0, 0.0)
 	game._bodies[0].vel = Vector2(100.0, 0.0)
 	game._bodies[1].pos = mid + Vector2(10.0, 0.0)
@@ -307,31 +297,10 @@ func _hits() -> void:
 	var spark_count: int = game._hits.size()
 	rec.log.clear()
 	game._process(DT)
-	_check(game._board.score(1) == 1.0 and game._hits.size() == spark_count
+	_check(game._board.score(1) == 2.0 and game._hits.size() == spark_count
 			and game._bodies[0].pos.distance_to(game._bodies[1].pos) >= 95.9,
 			"a slow touch only bounces: no star drops, no spark, and the cars do not overlap (REQ-BC-5, 6)")
 	_check(rec.ms_of(0).is_empty() and rec.ms_of(1).is_empty(), "a slow touch buzzes no phone: %s" % str(rec.log))
-	# A dropped star can be picked up by the one who dropped it, after its lock.
-	var game2 := _play()
-	_clear_floor(game2)
-	game2.rink.star_count = 0
-	game2._board.add(1, 1.0)
-	var at: Vector2 = game2.rink.rink.get_center()
-	game2._bodies[0].pos = at + Vector2(-70.0, 0.0)
-	game2._bodies[0].vel = Vector2(500.0, 0.0)
-	game2._bodies[1].pos = at + Vector2(10.0, 0.0)
-	game2._bodies[1].vel = Vector2.ZERO
-	game2._process(DT)
-	game2._bodies[1].vel = Vector2.ZERO
-	game2._bodies[0].pos = Vector2(300.0, 900.0)
-	game2._bodies[0].vel = Vector2.ZERO
-	for i in 90:
-		if game2.rink.stars.is_empty():
-			break
-		game2._bodies[1].pos = game2.rink.stars[0].pos
-		game2._process(DT)
-	_check(game2._board.score(1) == 1.0 and game2.rink.stars.is_empty(),
-			"the car that dropped the star can pick it up again after 0.5 s (REQ-BC-8)")
 
 
 ## The end: the most stars win (REQ-BC-12).

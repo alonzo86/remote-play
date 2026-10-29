@@ -47,9 +47,6 @@ var _menu_box: Control
 var _menu_open := false
 var _menu_kind := ""             # "hold" for the card of a lost phone, "menu" for the other menus.
 var _hold := false               # A participant lost its connection: the game waits for a decision (REQ-GM-30).
-## A game sets this before `open_results()` when the round gives no medal even with more than one player (a team game, or a
-## match that ended by a leave).
-var no_medals := false
 var _hold_info := {}             # slot -> {name, color} of the players lost in this hold.
 var _hold_sig := ""
 var _pixel_viewport: SubViewport
@@ -399,7 +396,7 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 	var heading := title
 	var solo := players_at_start == 1 or ranking.size() == 1   # One player in the round or left in the result: no medal.
 	for i in ranking.size():   # More than one player: the medal of the place, 1st gold, 2nd silver, 3rd bronze.
-		if ranking[i].finished and not no_medals and not solo:
+		if ranking[i].finished and not solo:
 			rows[i]["medal"] = Medals.for_place(ranking[i].rank)
 	if heading == "":
 		heading = Lang.t("minigame.round_over")
