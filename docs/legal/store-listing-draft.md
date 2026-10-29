@@ -34,7 +34,7 @@ THE GAMES
 • Sumo Bumpers: bump your friends off the platform (2 to 4 players).
 • Star Shield: fly your spaceship, blast the asteroids and grab upgrades.
 • Pin Pals: swing your phone to bowl, with the phone as the ball.
-• Tennis: swing your phone like a racket and win the rally.
+• Tennis: swing your phone like a racket.
 • Mini Golf: aim by turning your phone, swing to putt on funny courses.
 • Whack-a-Mole: friendly moles pop out of their holes, point at them and bonk them.
 • Air Hockey: slide your mallet and score goals, alone against the robot ROBO or with a friend.
@@ -66,7 +66,7 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 • Sumo Bumpers: דוחפים את החברים מהפלטפורמה (2 עד 4 שחקנים).
 • Star Shield: מטיסים חללית, מפוצצים אסטרואידים ואוספים שדרוגים.
 • Pin Pals: מניפים את הטלפון כדי לשחק באולינג, והטלפון הוא הכדור.
-• Tennis: מניפים את הטלפון כמו מחבט ומנצחים בהחלפה.
+• Tennis: מניפים את הטלפון כמו מחבט.
 • Mini Golf: מכוונים בסיבוב הטלפון ומניפים כדי לדחוף את הכדור במסלולים מצחיקים.
 • Whack-a-Mole: חפרפרות חביבות מציצות מהחורים, מכוונים אליהן ומכים.
 • Air Hockey: מזיזים את הידית ומבקיעים שערים, לבד נגד הרובוט ROBO או עם חבר.
