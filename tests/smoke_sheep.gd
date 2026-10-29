@@ -372,7 +372,8 @@ func _the_end() -> void:
 	_check(game.is_over and labels[0] == "ALL SHEEP ARE SAFE!" and labels.has("1ST   SIM0   11 / 11 SHEEP")
 			and labels.has("1ST   SIM1   11 / 11 SHEEP"),
 			"with 2 players the title says that all sheep are safe, and the list has the same score for both: %s" % str(labels))
-	_check(MedalView.tiers_in(game._menu_box).is_empty(), "no medals with 2 players (REQ-SH-18)")
+	_check(MedalView.tiers_in(game._menu_box) == ["gold", "gold"],
+			"with 2 players the shared score is a tie for 1st, so both rows have the gold medal (REQ-GM-73a)")
 	_check(buttons == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"], "the buttons: %s" % str(buttons))
 	_check(_heard.has("win") and not _heard.has("tie"), "the team wins: the win sound")
 	# Time is up with 3 sheep in the pen.

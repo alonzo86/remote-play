@@ -21,7 +21,7 @@ Games screen.
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-73 | Exception | A match against ROBO has no medal (decision of the owner, 2026-10-23; REQ-GM-73 has no solo tiers for any game since issue #119). A match of two phones gives the medal of the place (gold, silver). |
+| REQ-GM-73 | Note | A match against ROBO has no medal (REQ-GM-105, a bot is not a phone). A match of two phones gives the medal of the place (gold, silver, REQ-GM-73a); the player that stays after a leave has no medal (`no_medals`, `air_hockey_game.gd:218`: the match did not end by play). |
 | REQ-GM-98 | Exception | No personal best (`best_key()` is empty): the score is the goals of a match against one opponent, so it says little about the player. Decision to confirm. |
 | REQ-GM-35 | Exception | The game shows no timer, so it has no countdown. The match starts when the second phone has enrolled (or at once with one phone), and the puck waits 1 s for the serve. |
 | REQ-GM-104 | Exception | There is no IN and OUT choice: the game enrolls its players itself (REQ-GM-106, registry `enroll`). |

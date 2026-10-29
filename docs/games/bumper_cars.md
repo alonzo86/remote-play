@@ -20,7 +20,6 @@ Visual language: shell, player colors, pixel world (REQ-GM-45 to 49). Check the 
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-73 | Exception | The game needs 2 players (registry `min_players` 2), so it has no solo mode (and no solo medal, REQ-GM-73). Each row of the result has the medal of its place (REQ-GM-73a). |
 | REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`): the result is a place, and a new key changes the profile code format. |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 32). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |

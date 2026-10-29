@@ -65,7 +65,6 @@ static func text(page: Dictionary) -> String:
 			return Lang.t("about.sababi_party_game_tv") + "\n\n" \
 					+ Lang.t("about.sababi_has_no_account") \
 					+ "\n\n" + Lang.t("about.phones_tv_communicate_over") \
-					+ " " + Lang.t("about.refresh_scans_addresses") \
 					+ " " + Lang.t("about.nothing_leaves_network") \
 					+ "\n\n" + Lang.t("about.pages_below_list_parts")
 		"scanner":

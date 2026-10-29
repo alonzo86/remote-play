@@ -4,7 +4,7 @@ description: Create or update a GitHub pull request for the Sababi project with 
 ---
 
 Create or update a pull request. Do it only when the user asks for one.
-Ask before each step that publishes: creating the PR, updating its title or body, and posting a comment.
+Ask before each step that publishes: creating the PR and updating its title or body. The review comment of step 4 is posted without asking.
 
 ## 1. Gates (stop when one fails)
 
@@ -70,5 +70,5 @@ End the body with `🤖 Generated with [Claude Code](https://claude.com/claude-c
    Use a temp file for the body to avoid escaping problems. Delete it after.
 3. Bind the PR with the app's PR tools (`get_status`, then `bind_pr` if needed) and read its CI. Do not poll CI yourself.
 4. Run the `review` skill on the PR and post its findings as one comment (see that skill). This is required for every PR (CLAUDE.md).
-   Do not fix the findings unless the user asks. Tell the user what you found.
+   Do not fix the findings yourself as the reviewer. The owner of the PR resolves each one (a fix, a linked follow-up issue, or a written reason in a PR comment, CLAUDE.md "Pull requests"). Tell the user what you found.
 5. Tell the user the PR link, the review result and any module set aside.

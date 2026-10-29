@@ -76,11 +76,11 @@ When the target is a PR (a number or a URL):
 - Get the title, body, author, state, labels and the stats: `gh pr view <n> --json title,body,author,state,labels,additions,deletions,changedFiles,commits`.
 - Get the diff: `gh pr diff <n>`. Save it in the scratchpad. If a saved diff of this PR is less than an hour old, reuse it. Otherwise fetch it again.
   Read it in chunks when it is large.
-- Review against the goals of the PR, then write the report. **Show the whole report to the user with every issue in full** before you post anything.
+- Review against the goals of the PR, then write the report.
 
 ### Posting
 
-Post only after the user says yes. Use temp files for the comment bodies (`gh pr comment <n> --body-file`) and delete them after.
+Post without asking the user first (decision of the owner, 2026-10-29). Use temp files for the comment bodies (`gh pr comment <n> --body-file`) and delete them after.
 Every comment starts with "🤖 AI Code Review", so it is clear that an AI wrote it, and ends with the Claude Code footer.
 
 - **After the PR is created by `pr-submit`** (CLAUDE.md): post **one** comment with the Summary, Good practices, every issue in full, and Tests.
@@ -91,4 +91,4 @@ Every comment starts with "🤖 AI Code Review", so it is clear that an AI wrote
      Quote the body (`>`) with the file, the code, the issue and the fix. After the quote add a line `**Developer answer:**` for the author to reply.
   3. The Tests comment.
 
-Do not fix the findings unless the user asks.
+Do not fix your own findings and do not merge: the owner of the PR resolves each one (a fix, a linked follow-up issue, or a written reason in a PR comment), and you decide if a reason holds (CLAUDE.md, "Pull requests"). Tell the user what you found.

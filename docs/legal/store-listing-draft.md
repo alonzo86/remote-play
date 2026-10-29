@@ -6,7 +6,7 @@ Limits of Google Play: title 30 characters, short description 80, full descripti
 
 Two listings (the recommended plan): the TV app and the controller app. Each says that it needs the other one.
 
-Facts these texts use (checked in `README.md` and `docs/games/`): 6 games; 1 to 4 players (Sumo Bumpers needs 2); the phone is the controller; same Wi-Fi; no account; Android phones only for now (the iPhone is unverified, so the texts do not mention it).
+Facts these texts use (checked in `README.md` and `docs/games/`): 15 games (`scripts/game/registry.gd`, 2026-10-29); 1 to 4 players (Sumo Bumpers and Bumper Cars need 2; Air Hockey plays against the bot ROBO with one phone); the phone is the controller; same Wi-Fi; no account; Android phones only for now (the iPhone is unverified, so the texts do not mention it).
 
 ## 1. TV app
 
@@ -33,6 +33,15 @@ THE GAMES
 • Paint Grab: tilt to move your paint blob and cover the floor with your color.
 • Sumo Bumpers: bump your friends off the platform (2 to 4 players).
 • Star Shield: fly your spaceship, blast the asteroids and grab upgrades.
+• Pin Pals: swing your phone to bowl, with the phone as the ball.
+• Tennis: swing your phone like a racket and win the rally.
+• Mini Golf: aim by turning your phone, swing to putt on funny courses.
+• Whack-a-Mole: friendly moles pop out of their holes, point at them and bonk them.
+• Air Hockey: slide your mallet and score goals, alone against the robot ROBO or with a friend.
+• Bumper Cars (2 to 4 players): bump your friends in the rink and collect gold stars.
+• Sheep Herding: steer your dog and herd all the sheep into the pen together.
+• Tower Builder: take turns to drop bricks and build one tall tower together.
+• Freeze Dance: wiggle your phone to the music and freeze when it stops.
 
 Easy, Medium and Hard levels in the games, big pixel graphics you can read from the sofa, and arcade-style music. English and Hebrew.
 
@@ -56,6 +65,15 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 • Paint Grab: מטים כדי להזיז את כתם הצבע ולכסות את הרצפה בצבע שלכם.
 • Sumo Bumpers: דוחפים את החברים מהפלטפורמה (2 עד 4 שחקנים).
 • Star Shield: מטיסים חללית, מפוצצים אסטרואידים ואוספים שדרוגים.
+• Pin Pals: מניפים את הטלפון כדי לשחק באולינג, והטלפון הוא הכדור.
+• Tennis: מניפים את הטלפון כמו מחבט ומנצחים בהחלפה.
+• Mini Golf: מכוונים בסיבוב הטלפון ומניפים כדי לדחוף את הכדור במסלולים מצחיקים.
+• Whack-a-Mole: חפרפרות חביבות מציצות מהחורים, מכוונים אליהן ומכים.
+• Air Hockey: מזיזים את הידית ומבקיעים שערים, לבד נגד הרובוט ROBO או עם חבר.
+• Bumper Cars (2 עד 4 שחקנים): מתנגשים בחברים במתחם ואוספים כוכבי זהב.
+• Sheep Herding: מכוונים את הכלב ומובילים יחד את כל הכבשים לדיר.
+• Tower Builder: בתורות מפילים לבנים ובונים יחד מגדל גבוה אחד.
+• Freeze Dance: מנענעים את הטלפון לצלילי המוזיקה וקופאים כשהיא נפסקת.
 
 רמות קל, בינוני וקשה, גרפיקת פיקסלים גדולה שאפשר לקרוא מהספה, ומוזיקה בסגנון משחקי ארקייד. באנגלית ובעברית.
 

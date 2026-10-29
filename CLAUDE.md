@@ -6,7 +6,7 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 - Each game has a requirements file `docs/games/<id>.md`. All games also follow `docs/GAME_REQUIREMENTS.md`.
   Change the requirements file in the same commit as the behavior (REQ-GM-5). Use the `add-minigame` skill for new games.
-- Do not run the whole test suite after every change. Run the `run-tests` skill only before you submit a pull request, or when the user asks. Run a single test or check while you work only when it is needed. Do not report a pass for a check that did not run.
+- Do not run the whole test suite after every change. Run the touched suites (`run-tests` skill, step 2a) and `gdlint` before you submit a pull request. The whole suite (`tests/run_all.sh`, step 2b) runs only when the user asks or when the QA engineer (`.claude/agents/qa.md`) decides that the change needs it (for example a change of the net, the input, a shared module or the test tooling). Run a single test or check while you work only when it is needed. Do not report a pass for a check that did not run.
 - Every text the user sees is a row of `assets/lang/strings.csv` (key, English, Hebrew, where, notes). The code uses the key (`connect.join`),
   never the English text. A new text adds its row in the same commit (FD-24, REQ-FL-63), with a short `where` (the screen and the place
   where the text shows). When the use of a text changes, change its `where` in the same commit. The file is UTF-8 with a byte order mark (Excel needs it for the Hebrew): keep the mark when you write the file.
@@ -46,8 +46,12 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 - Before you create a pull request: the suites that your change touches pass and `gdlint` is clean. Do not run the full
   coverage unless the user told you to (see "Tests and coverage"). Do not create the pull request when a check fails.
 - After you create a pull request, always run the `review` skill on it, and post the findings as one comment on the pull request.
-  End the comment with the Claude Code footer. If there are no findings, post a short comment that says so, and list what you checked.
-- Do not fix the findings of that review unless the user asks. Tell the user what you found.
+  The reviewer (`code-reviewer`) posts without asking the user first. End the comment with the Claude Code footer. If there are no
+  findings, post a short comment that says so, and list what you checked.
+- The reviewer never fixes a finding and never merges. The owner of the pull request (usually `sw-developer`) resolves every finding in one of
+  three ways: a fix, a follow-up issue that is linked, or a written reason in a pull request comment that the finding is wrong or
+  should not be fixed (the reviewer decides if the reason holds). After every review fix the owner posts a comment that says what was
+  resolved (decision of the owner, 2026-10-29). Tell the user what the review found.
 - The review comment is also required for later pull requests, not only for the first one.
 
 ## Manual tests (for the user)

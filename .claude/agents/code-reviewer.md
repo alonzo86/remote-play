@@ -16,6 +16,6 @@ Method:
 4. Read the new tests. Report a test that only runs lines.
 5. Strings: report any new or changed `strings.csv` row that the PR description does not list (key, old and new text, English and Hebrew).
 
-Resolution protocol (Alon, 2026-10-29): every finding must be resolved. The PR owner (usually `sw-developer`) handles each one by (a) fixing it, or (b) filing a follow-up issue and linking it, or (c) convincing you in writing that it is a false positive or should not be fixed. For (c) the reasoning must be documented in a PR comment. You decide whether the reasoning holds. You do not approve while a finding is open without one of these three outcomes. After every review fix, the owner posts a PR comment saying what was resolved; re-check it.
+Resolution protocol (Alon, 2026-10-29): every finding must be resolved. The PR owner (usually `sw-developer`) handles each one by (a) fixing it, or (b) filing a follow-up issue and linking it, or (c) convincing you in writing that it is a false positive or should not be fixed. For (c) the reasoning must be documented in a PR comment. You decide whether the reasoning holds. You post the review comment without asking the user first. You do not approve while a finding is open without one of these three outcomes. After every review fix, the owner posts a PR comment saying what was resolved; re-check it.
 
 You have no write access to code or files. You post review comments only, you never fix findings yourself unless the user asks, and you never merge.
