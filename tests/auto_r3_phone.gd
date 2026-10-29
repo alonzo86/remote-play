@@ -5,7 +5,8 @@ extends SceneTree
 ## the Hebrew texts of the pad that fit their boxes (17.7a), the HAPTICS switch that is on at the first start (18.10a) and the
 ## waiting screen where Settings does not touch Disconnect on 4 phone shapes (18.10f). Run:
 ##   godot --headless --path . --script tests/auto_r3_phone.gd -- --role=controller
-## The colors and the round shape of the buttons, and the number in the square, are pixels: tests/pixel_pad.gd (the render lane).
+## The colors and the round shape of the buttons, and the number in the square, are pixels: they need a render check of the pad
+## (tests/pixel_pad.gd was planned and is not written; Test 16 step 6b2 stays manual).
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
