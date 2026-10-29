@@ -42,7 +42,7 @@ func _ready() -> void:
 	top.add_child(title)
 	var about := UiKit.box_button("common.about", func():
 		App.go(App.AboutScreen, {"back_screen": App.ControllerConnect, "scanner_note": os_name == "Android"}),
-			UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+			UiTheme.SIZE_BODY)
 	about.custom_minimum_size = Vector2(0, 80)
 	top.add_child(about)
 	box.add_child(ProfileDropdown.new())

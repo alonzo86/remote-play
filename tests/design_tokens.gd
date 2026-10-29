@@ -4,6 +4,8 @@ extends SceneTree
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
+const UiKit = preload("res://scripts/ui/ui_kit.gd")
+const GearButton = preload("res://scripts/ui/gear_button.gd")
 
 var _checks := 0
 var _fails := 0
@@ -20,6 +22,7 @@ func _check(cond: bool, what: String) -> void:
 
 func _initialize() -> void:
 	_run()
+	_white_buttons()
 	_avatar_sheet()
 	_font_licences()
 	_app_identity()
@@ -192,6 +195,89 @@ func _contrast_checks() -> void:
 			"black text on the A button (green) and the B button (red) has 4.5:1 or more")
 	_check(UiTheme.contrast(Color.WHITE, Color.BLACK) > 20.0 and UiTheme.contrast(Color.WHITE, Color.WHITE) < 1.01,
 			"the contrast function is right")
+
+
+## Issue #173, REQ-FL-38a: every enabled button is white (the face is the white token, the text is black and readable), a
+## disabled button keeps its dim look, and the focus is a yellow face with black text, distinct from a mark (a thick border
+## on the white face). A new button cannot use another color.
+func _white_buttons() -> void:
+	print("white buttons")
+	_check(UiTheme.BUTTON_FACE == UiTheme.TEXT and UiTheme.BUTTON_FACE == Color("fcfcfc"),
+			"the button face token is the white token")
+	_check(UiTheme.contrast(UiTheme.BUTTON_TEXT, UiTheme.BUTTON_FACE) >= 4.5, "the text on a white button has 4.5:1 or more")
+	_check(UiTheme.contrast(UiTheme.BUTTON_EDGE, UiTheme.BUTTON_FACE) >= 1.5, "the lower edge of A and B shows on the white face")
+	_check(UiTheme.contrast(UiTheme.ACCENT, UiTheme.BG) >= 4.5 and UiTheme.MARK_W == 2 * UiTheme.LINE,
+			"the yellow mark is 4.5:1 on the black screen and twice as thick as a normal line")
+	var buttons: Array[Button] = [UiKit.box_button("x", func(): pass), UiKit.box_button("x", func(): pass, 40, true),
+			GearButton.new()]
+	for b in buttons:
+		b.size = Vector2(300, 84)
+	buttons[2]._ready()   # The OPTIONS button sets its look in `_ready()`.
+	var names := ["a box button", "a marked box button", "OPTIONS"]
+	for i in buttons.size():
+		var b := buttons[i]
+		var rest: StyleBoxFlat = b.get_theme_stylebox("normal")
+		_check(rest.bg_color == UiTheme.BUTTON_FACE, "%s: an enabled button has the white face" % names[i])
+		_check(b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT, "%s: its text is black" % names[i])
+		_check(b.get_theme_stylebox("hover").bg_color == UiTheme.BUTTON_FACE, "%s: hovered, it is still white" % names[i])
+		var focus: StyleBoxFlat = b.get_theme_stylebox("focus")
+		_check(focus.bg_color == UiTheme.ACCENT and focus.border_color == UiTheme.ACCENT
+				and focus.border_width_left == UiTheme.MARK_W
+				and UiTheme.contrast(b.get_theme_color("font_focus_color"), focus.bg_color) >= 4.5,
+				"%s: the focus is a yellow face with a thick yellow border and readable black text" % names[i])
+		var margins := {}
+		for st in ["normal", "hover", "focus", "pressed", "disabled"]:
+			var sb: StyleBoxFlat = b.get_theme_stylebox(st)
+			margins[[sb.content_margin_left, sb.content_margin_top, sb.content_margin_right, sb.content_margin_bottom]] = true
+		_check(margins.size() == 1, "%s: all five states have the same content margins, so a focus never moves the layout" % names[i])
+		var off: StyleBoxFlat = b.get_theme_stylebox("disabled")
+		_check(off.bg_color == UiTheme.BG and off.border_color == UiTheme.TEXT_DIM
+				and b.get_theme_color("font_disabled_color") == UiTheme.DISABLED, "%s: disabled keeps the dim look" % names[i])
+		var down: StyleBoxFlat = b.get_theme_stylebox("pressed")
+		_check(down.bg_color == UiTheme.BG and b.get_theme_color("font_pressed_color") == UiTheme.TEXT,
+				"%s: pressed is the reverse, a black face with white text" % names[i])
+	_check((buttons[1].get_theme_stylebox("normal") as StyleBoxFlat).border_color == UiTheme.ACCENT
+			and (buttons[0].get_theme_stylebox("normal") as StyleBoxFlat).border_color == UiTheme.BUTTON_FACE,
+			"a marked button has the thick yellow border and the face stays white; an unmarked one has a white edge")
+	for b in buttons:
+		b.free()
+	# The players badge needs the autoloads (it reads the server), so its source is checked: it takes the same look.
+	var badge_src := FileAccess.get_file_as_string("res://scripts/ui/players_badge.gd")
+	_check(badge_src.contains("UiTheme.style_button(self)") and badge_src.contains("content_margin_left = UiTheme.LINE + 20.0"),
+			"the players badge takes the white button look and keeps the room for its slot squares")
+	# The text menus (REQ-FL-41) have no face: an enabled item is white text (also the quiet one), the focus is yellow or red.
+	var theme := UiTheme.make()
+	var menu_white := true
+	for type in ["Button", "DangerButton", "QuietButton"]:
+		menu_white = menu_white and theme.get_color("font_color", type) == UiTheme.TEXT
+	_check(menu_white, "every enabled menu item type is white at rest")
+	# No script may give a button a look of its own: the styleboxes of a button come from UiTheme.button_box. The menu item
+	# and the game tile are not boxed buttons (a text with a cursor, a picture with a frame).
+	var allowed := ["ui_theme.gd", "menu_item.gd", "game_tile.gd", "players_badge.gd"]   # The badge is checked above.
+	var offenders: Array[String] = []
+	for f in DirAccess.get_files_at("res://scripts/ui"):
+		if f.ends_with(".gd") and not allowed.has(f):
+			var src := FileAccess.get_file_as_string("res://scripts/ui/" + f)
+			if src.contains('add_theme_stylebox_override("normal"') or src.contains("box_button(") and _has_color_arg(src):
+				offenders.append(f)
+	_check(offenders.is_empty(), "no screen styles a button by itself or gives box_button a color (%s)" % str(offenders))
+
+
+## True when a call of `box_button(` in `src` passes a UiTheme color name as an argument. The call is read up to its closing
+## parenthesis, over several lines.
+func _has_color_arg(src: String) -> bool:
+	var re := RegEx.create_from_string("UiTheme\\.(OK|BAD|DANGER|TEXT_DIM|ACCENT|TEXT)\\b")
+	var from := src.find("box_button(")
+	while from >= 0:
+		var i := from + "box_button(".length()
+		var depth := 1
+		while i < src.length() and depth > 0:
+			depth += 1 if src[i] == "(" else (-1 if src[i] == ")" else 0)
+			i += 1
+		if re.search(src.substr(from, i - from)) != null:
+			return true
+		from = src.find("box_button(", i)
+	return false
 
 
 ## The text of one `[preset.N.options]` block of export_presets.cfg as {key: value (raw text)}, by the name of its preset.

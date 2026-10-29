@@ -112,22 +112,19 @@ func _pick_question() -> void:
 	await process_frame
 	var in_fill: StyleBoxFlat = wait._in_button.get_theme_stylebox("normal")
 	var out_fill: StyleBoxFlat = wait._out_button.get_theme_stylebox("normal")
-	_check(wait._pick_box.visible and in_fill.bg_color == UiTheme.OK and out_fill.bg_color == UiTheme.BG,
-			"with 2 phones the question shows and IN is the filled button")
+	_check(wait._pick_box.visible and in_fill.bg_color == UiTheme.BUTTON_FACE and out_fill.bg_color == UiTheme.BUTTON_FACE
+			and in_fill.border_width_left == UiTheme.MARK_W and out_fill.border_width_left == UiTheme.LINE,
+			"with 2 phones the question shows, both buttons are white and IN has the thick yellow border")
 	wait._out_button.pressed.emit()
 	await process_frame
 	in_fill = wait._in_button.get_theme_stylebox("normal")
 	out_fill = wait._out_button.get_theme_stylebox("normal")
-	_check(not _app.client.setup_in and in_fill.bg_color == UiTheme.BG and out_fill.bg_color == UiTheme.BAD,
-			"a tap on OUT fills OUT and empties IN")
+	_check(not _app.client.setup_in and in_fill.border_width_left == UiTheme.LINE
+			and out_fill.border_width_left == UiTheme.MARK_W and out_fill.bg_color == UiTheme.BUTTON_FACE,
+			"a tap on OUT moves the thick border to OUT, and both stay white")
 	_app.client.setup_pick = false
 	_app.client.setup_in = true
 	wait.queue_free()
-
-
-## The hue of a color in degrees.
-func _hue(c: Color) -> float:
-	return c.h * 360.0
 
 
 ## Test 7.6b, 6d, 6e: the Disconnect button of the waiting screen and the pad.
@@ -159,10 +156,10 @@ func _disconnect_button() -> void:
 		_check(b.size.y >= 80.0, "[%s] and it is at least 80 px high (%.0f)" % [lang, b.size.y])
 		var pressed := b.get_theme_stylebox("pressed") as StyleBoxFlat
 		var normal := b.get_theme_stylebox("normal") as StyleBoxFlat
-		_check(pressed.bg_color != normal.bg_color and pressed.bg_color == UiTheme.TEXT and normal.bg_color == UiTheme.BG,
-				"[%s] a pressed button fills with white and a normal one is black" % lang)
-		_check(b.get_theme_color("font_pressed_color") == UiTheme.BG and b.get_theme_color("font_color") == UiTheme.TEXT,
-				"[%s] the text of a pressed button turns black on the white fill" % lang)
+		_check(pressed.bg_color != normal.bg_color and pressed.bg_color == UiTheme.BG and normal.bg_color == UiTheme.BUTTON_FACE,
+				"[%s] a pressed button turns black and a normal one is white (issue #173)" % lang)
+		_check(b.get_theme_color("font_pressed_color") == UiTheme.TEXT and b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT,
+				"[%s] the text of a pressed button turns white on the black fill, a normal one is black on white" % lang)
 		holder.queue_free()
 	_app.set_language("en", false)
 	# The Disconnect box of the pad: the rect is the top right of the pad.
@@ -180,20 +177,17 @@ func _disconnect_button() -> void:
 	holder2.queue_free()
 
 
-## Test 7.6c, 6d: A is green, B is red; a pressed button sits lower (REQ-FL-52).
+## Test 7.6c, 6d: A and B are white (issue #173); a pressed button sits lower (REQ-FL-52).
 func _pad_buttons() -> void:
 	print("A and B")
-	_check(_hue(UiTheme.OK) >= 90.0 and _hue(UiTheme.OK) <= 150.0, "A is green (hue %.0f degrees)" % _hue(UiTheme.OK))
-	var bad_hue := _hue(UiTheme.BAD)
-	_check(bad_hue < 20.0 or bad_hue > 340.0, "B is red (hue %.0f degrees)" % bad_hue)
 	var pad_script: GDScript = _pad_script
 	_check(pad_script.BUTTON_LIFT - pad_script.BUTTON_LIFT_DOWN > 0.0 and pad_script.BUTTON_LIFT_DOWN < pad_script.BUTTON_LIFT,
 			"a pressed arcade button sits lower than a free one (%.0f against %.0f px)"
 			% [pad_script.BUTTON_LIFT_DOWN, pad_script.BUTTON_LIFT])
 	var src := FileAccess.get_file_as_string("res://scripts/ui/controller_pad.gd")
-	var draws_a: bool = src.contains('_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)')
-	var draws_b: bool = src.contains('_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)')
-	_check(draws_a and draws_b, "the pad draws A with the green and B with the red")
+	var draws_a: bool = src.contains('_draw_button(_center_a(), "A", Protocol.BTN_A)')
+	var draws_b: bool = src.contains('_draw_button(_center_b(), "B", Protocol.BTN_B)')
+	_check(draws_a and draws_b, "the pad draws A and B with no color of their own (a white face, issue #173)")
 
 
 ## Test 8b.6a: the phone screens are black with the pixel font. Every text uses the font of the theme.
