@@ -253,7 +253,7 @@ func _phone_language() -> void:
 			b.pressed.emit()
 	await _frames(3)
 	var screen: Control = _app.current_screen()
-	_check(screen.get_script().resource_path.ends_with("controller_settings.gd") and screen._language.text == "LANGUAGE: English",
+	_check(screen.get_script().resource_path.ends_with("controller_settings.gd") and screen._language.text == "LANGUAGE: ENGLISH",
 			"the Settings screen shows the language button in English: '%s'" % screen._language.text)
 	screen._language.pressed.emit()
 	await _frames(3)
@@ -262,6 +262,11 @@ func _phone_language() -> void:
 			"a tap switches the phone to Hebrew, right to left, and saves it: '%s'" % screen._language.text)
 	# The TV says English and the connection comes and goes: the phone keeps its own choice.
 	_app.client._handle({"t": "lang", "v": "en"}, Time.get_ticks_msec())
+	_check(Lang.current() == "he", "a lang message of the TV changes nothing")
+	_app.client._handle({"t": "welcome", "slot": 1, "token": "t", "color": "#e63946", "phase": "menu", "name": "TV", "lang": "en"},
+			Time.get_ticks_msec())
+	await _frames(3)
+	_check(Lang.current() == "he" and _app.settings.language == "he", "a welcome with lang en changes nothing")
 	_app._on_client_state(ControllerClient.State.IDLE)
 	await _frames(3)
 	_check(Lang.current() == "he", "the language of the TV and a lost connection do not change the language of the phone")
@@ -277,7 +282,7 @@ func _phone_language() -> void:
 	screen = _app.current_screen()
 	screen._language.pressed.emit()
 	await _frames(3)
-	_check(Lang.current() == "en" and _app.settings.language == "en" and screen._language.text == "LANGUAGE: English",
+	_check(Lang.current() == "en" and _app.settings.language == "en" and screen._language.text == "LANGUAGE: ENGLISH",
 			"a second tap switches back to English")
 	Lang.device_locale = ""
 	_app.settings.language = saved_lang

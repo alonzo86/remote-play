@@ -292,7 +292,8 @@ func _run() -> void:
 	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - joined < 4000:
 		await process_frame
 	await _frames(8)
-	_check(Lang.current() == "he" and c2.state == ControllerClient.State.CONNECTED,
+	# (That the phone keeps its own language is checked in auto_r3_phone, where the TV is not in the same process.)
+	_check(c2.state == ControllerClient.State.CONNECTED,
 			"a phone that joined to a Hebrew TV is connected; the TV language message does not break the join")
 	app.set_language("en", false)
 	await _frames(8)
