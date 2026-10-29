@@ -42,8 +42,8 @@ One row for each session with the devices. The *Run* ID is used in the result ta
 | R1 | 2026-10-09 | the project owner | branch `games/target-shoot`, HEAD `091cacf` (the app code is the same as `5603ac1`), debug APK installed with `tools/deploy.sh` over `adb connect` | Android TV, Android 10, Ethernet. Language Hebrew, region Israel (IL). Model not written down | not written down (the maze was played) | TV on Ethernet. Same home network | Reported in chat. No photos, videos or logs yet. Found 4 problems (Tests 1, 8, 8b), all fixed in code on `games/target-shoot` and waiting for a retest. Run R2 is the retest. |
 | R2 | 2026-10-09 | the project owner | build with Snowball Splat. The commit was not written down | not written down | not written down | not written down | Reported in chat. Only the problem with the score chip was reported. Everything else of the new game is not reported yet. |
 | R3 | 2026-10-19 to 2026-10-20 | the project owner | not written down | Android TV | 1 phone | same Wi-Fi | Results typed in the test tracker (first session). Recorded in this file on 2026-10-25. |
-| R5 | 2026-10-25 | the project owner | not written down | Android phone | 1 phone | same Wi-Fi | Retest of Test 2 steps 3a and 3b and Test 8 step 6a after the fixes of issues #109 and #110 (rebuilt phone app, patch script run first). The owner reported "all these steps now pass, no additional notes". |
 | R4 | 2026-10-24 to 2026-10-25 | the project owner | not written down | Android TV | 1 phone | same Wi-Fi | Retests typed in the test tracker (second session), with notes. Recorded on 2026-10-25. |
+| R5 | 2026-10-25 | the project owner | not written down | Android phone | 1 phone | same Wi-Fi | Retest of Test 2 steps 3a and 3b and Test 8 step 6a after the fixes of issues #109 and #110 (rebuilt phone app, patch script run first). The owner reported "all these steps now pass, no additional notes". |
 
 ## Summary
 
@@ -52,7 +52,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | Test | Title | Needs | Covers | Latest | Run | Evidence |
 |------|-------|-------|--------|--------|-----|----------|
 | [1](#test-1) | Start and join | 1 phone, 1 TV | REQ-A3, REQ-A4, REQ-FL-5 to 10, REQ-FL-80, 83, 84 | Partial (see the result table) | R4 | |
-| [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Partial (see the result table) | R5 | |
+| [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Pass | R5 | |
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A3, B1, B2, B3, B5, B6 | Fail | R0 | |
 | [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Partial (see the result table) | R4 | |
@@ -77,10 +77,9 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
-| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
-| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
-| [28](#test-28) | Whack-a-Mole (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Not run | | |
+| [28](#test-28) | Whack-a-Mole (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
 | [31](#test-31) | Freeze Dance (wiggle, freeze, bench, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
@@ -149,9 +148,9 @@ Needs: 1 phone, 1 TV, a stopwatch, a second QR code that is not from Sababi (for
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1 | Phone screenshot of the connect screen: the button text | Pass | R4 |  | R4: Pass - "TV link" feature was removed - this step is no longer relevant; R4: Pass |
+| 1 | Phone screenshot of the connect screen: the button text | Pass | R4 |  | R4: Pass - "TV link" feature was removed (FD-28, issue #52) - this step is no longer relevant; R4: Pass |
 | 2a | Screen recording of the scan, with the seconds to join | Pass | R3 |  |  |
-| 2b | (Removed with the join PIN) | Pass | R3 |  |  |
+| 2b | (Removed with the join PIN) | N/A | R3 |  |  |
 | 3a | Phone screenshot after Back in the scanner | Pass | R5 |  | R5: Pass, no notes (issue #109). Before: R3: Fail - an error is shown: "QR SCAN FAILED: FAILED TO SCAN CODE"; R4: Fail - an error is shown: "QR SCAN FAILED: FAILED TO SCAN CODE" Issue #109. |
 | 3b | Note: the app is open; `adb logcat -d -s godot > docs/evidence/2/<run>-log.txt` if it crashes | Pass | R5 |  | |
 
@@ -1249,7 +1248,7 @@ History:
 
 ### Whack-a-Mole (pointer, bonk, moles, difficulty)
 
-Needs: 1 to 4 phones, 1 TV, a 240 fps phone camera (items 4b and 6a to 6c), and a child of about 5 to 8 years for items 10a to 10d. Covers: REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+Needs: 1 to 4 phones, 1 TV, a 240 fps phone camera (item 4b), and a child of about 5 to 8 years for items 10a to 10d. Covers: REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-23). It was only tested with made-up sensor values. Every number (the stay of a mole, the time between moles, the size of the hit circle, the 9 places of the holes, the points) is a first guess, but each step below has a fixed limit. Hold the phone like a remote control and point it at the TV. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
@@ -1270,6 +1269,22 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 Items 3a, 4a, 5a, 6a, 6b, 6c, 7a, 7b, 9a and 9b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-28-*). The numbers of the other items do not change.
 
 Measurements (write down, no pass or fail): the turn angle that moves the ring from the middle to the edge; how often a bonk misses a mole that you aim at; if a mole is out too long or too short on each difficulty; the number of bonks of a good player in a round. Use them to tune the stay, the spawn time and the hit circle.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1b | Photo of the tile next to a photo of the game | Not run | | | |
+| 2b | Note: right answers of 9 holes and 4 other objects | Not run | | | |
+| 4b | Video (240 fps); note: frames and ms for 5 bonks | Not run | | | |
+| 8a | Photo of the settings view | Not run | | | |
+| 10a | Note: the child, the age, seconds until the ring is on a mole | Not run | | | |
+| 10b | Note: seconds until the first bonk | Not run | | | |
+| 10c | Note: bonks on moles in the round | Not run | | | |
+| 10d | Note: the answer of the child | Not run | | | |
+| 11 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
+| 12a | Note: right answers of 5; photo of a mole with its height in px | Not run | | | |
+| 12b | Note: errors made when reading | Not run | | | |
 
 History:
 
@@ -1309,23 +1324,6 @@ Measurements (write down, no pass or fail): the time for a mallet to cross its h
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1b | Photo of the tile next to a photo of the game | Not run | | | |
-| 6b | Video (240 fps); note: seconds of 5 moles | Not run | | | |
-| 6c | Video (240 fps); note: seconds of 5 moles | Not run | | | |
-| 9a | Photo of the result menu | Not run | | | |
-| 9b | Photo of the result menu | Not run | | | |
-| 10a | Note: the child, the age, seconds until the ring is on a mole | Not run | | | |
-| 10b | Note: seconds until the first bonk | Not run | | | |
-| 10c | Note: bonks on moles in the round | Not run | | | |
-| 10d | Note: the answer of the child | Not run | | | |
-| 11 | Overlay screenshot (FPS) with 4 phones | Not run | | | |
-| 12a | Note: right answers of 5; photo of a mole with its height in px | Not run | | | |
-| 12b | Note: errors made when reading | Not run | | | |
-
-History:
-
-- 2026-10-24 (automated): steps 2a, 2b, 2c, 3a, 3c, 4a, 4b, 4c, 4d, 5a, 6a, 6d, 7a, 7b, 8a, 8b, 13 moved to the automated tests (smoke_air_hockey, air_hockey_rules). Nothing was run on a device, so no result moved.
-- -: **Not run**. New (2026-10-23).
 | 1a | Photo of the tile next to a photo of the game | Not run | | | |
 | 3b | Video (240 fps); note: frames and ms for 5 tilts | Not run | | | |
 | 6b | Note: the winner and the goals of ROBO in each of 5 matches | Not run | | | |
@@ -1343,6 +1341,7 @@ History:
 
 History:
 
+- 2026-10-24 (automated): steps 2a, 2b, 2c, 3a, 3c, 4a, 4b, 4c, 4d, 5a, 6a, 6d, 7a, 7b, 8a, 8b, 13 moved to the automated tests (smoke_air_hockey, air_hockey_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23). The headless checks of the rules, the bot and the screens are in `air_hockey_rules` and `smoke_air_hockey` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
 
 ## Test 30
