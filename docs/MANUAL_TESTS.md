@@ -1244,53 +1244,6 @@ History:
 - -: **Not run**. New (2026-10-17).
 - 2026-10-21 (aligned with the requirements, not run): step 14a also checks the ball height of 48 px or more (REQ-GM-47e). No recorded result changed.
 
-## Test 28
-
-### Whack-a-Mole (pointer, bonk, moles, difficulty)
-
-Needs: 1 to 4 phones, 1 TV, a 240 fps phone camera (item 4b), and a child of about 5 to 8 years for items 10a to 10d. Covers: REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
-
-New game (2026-10-23). It was only tested with made-up sensor values. Every number (the stay of a mole, the time between moles, the size of the hit circle, the 9 places of the holes, the points) is a first guess, but each step below has a fixed limit. Hold the phone like a remote control and point it at the TV. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
-
-**Steps**
-
-1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the meadow, the fence, a hole and a mole.
-2b. Look at the game screen. Check: you can point at all of these: the sky, the fence, the lawn, the 9 holes (9 of 9) and a mole.
-4b. Record the phone (the A button) and the TV (240 fps) for 5 bonks on a mole. Count the frames from the press on A to the first change of the mole (closed eyes). Check: the median delay is 150 ms or less (36 frames at 240 fps).
-8a. Open the settings view of the game (OK on its tile). Check: the TV shows the line "POINT YOUR PHONE AT THE SCREEN AND PRESS A TO BONK THE FRIENDLY MOLES. MOST POINTS IN 60 S WINS." and the rows Difficulty and Start. The phone pad shows A and RECENTER only (3 of 3). (REQ-GM-37a)
-10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child puts the ring on a mole within 20 s after GO, with no help.
-10b. Same child. Check: the child bonks a mole (the score grows) within 30 s after GO.
-10c. Same child. Check: the child has 5 or more bonks on moles in the 60 s round.
-10d. After the round, ask: "Play again?". Check: the child says yes.
-11. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-28-11, issue #132).
-12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the golden mole when you say "mark". Check: the tester finds it in 5 of 5 tries. Check: a mole is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
-12b. From 3 m, ask a tester to read aloud the points that float up from a hit mole and the timer. Check: no error.
-
-Items 3a, 4a, 5a, 6a, 6b, 6c, 7a, 7b, 9a and 9b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-28-*). The numbers of the other items do not change.
-
-Measurements (write down, no pass or fail): the turn angle that moves the ring from the middle to the edge; how often a bonk misses a mole that you aim at; if a mole is out too long or too short on each difficulty; the number of bonks of a good player in a round. Use them to tune the stay, the spawn time and the hit circle.
-
-**Results**
-
-| Item | Evidence to capture | Result | Run | Evidence | Notes |
-|------|---------------------|--------|-----|----------|-------|
-| 1b | Photo of the tile next to a photo of the game | Not run | | | |
-| 2b | Note: right answers of 9 holes and 4 other objects | Not run | | | |
-| 4b | Video (240 fps); note: frames and ms for 5 bonks | Not run | | | |
-| 8a | Photo of the settings view | Not run | | | |
-| 10a | Note: the child, the age, seconds until the ring is on a mole | Not run | | | |
-| 10b | Note: seconds until the first bonk | Not run | | | |
-| 10c | Note: bonks on moles in the round | Not run | | | |
-| 10d | Note: the answer of the child | Not run | | | |
-| 11 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
-| 12a | Note: right answers of 5; photo of a mole with its height in px | Not run | | | |
-| 12b | Note: errors made when reading | Not run | | | |
-
-History:
-
-- 2026-10-24 (automated): steps 3a, 4a, 5a, 6a, 6b, 6c, 7a, 7b, 9a, 9b moved to the automated tests (smoke_mole, mole_rules). Nothing was run on a device, so no result moved.
-
-
 ## Test 27
 
 ### Air Hockey (tilt, enroll with A, ROBO the bot)
@@ -1344,50 +1297,52 @@ History:
 - 2026-10-24 (automated): steps 2a, 2b, 2c, 3a, 3c, 4a, 4b, 4c, 4d, 5a, 6a, 6d, 7a, 7b, 8a, 8b, 13 moved to the automated tests (smoke_air_hockey, air_hockey_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23). The headless checks of the rules, the bot and the screens are in `air_hockey_rules` and `smoke_air_hockey` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
 
-## Test 30
+## Test 28
 
-### Tower Builder (turns, swing, drop, wobble, 12 bricks)
+### Whack-a-Mole (pointer, bonk, moles, difficulty)
 
-Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, a 240 fps phone camera (item 4b), and a child of about 5 to 8 years for items 10a to 10d. Covers: REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
-New game (2026-10-23). It was tested only with made-up button presses. Every number (the swing, the 12 bricks, the widths of the bricks, the 24 px of overlap, the 8 px of slack, the turn times) is a first guess; write what you measure in the Notes.
+New game (2026-10-23). It was only tested with made-up sensor values. Every number (the stay of a mole, the time between moles, the size of the hit circle, the 9 places of the holes, the points) is a first guess, but each step below has a fixed limit. Hold the phone like a remote control and point it at the TV. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
 **Steps**
 
-1a. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the sky with the sun, the mountains, the tower of colored bricks and the crane.
-8a. In a game with 2 phones, turn off Wi-Fi on one phone. Check: within 6 s the TV pauses with the card "<NAME> LOST CONNECTION"; the brick stops swinging and the timer box does not change. Turn Wi-Fi on again and press Resume. Check: the game goes on (3 of 3). (REQ-TB-12, REQ-GM-30)
-9a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once and says nothing more. Check: the child presses A of its own phone, when it is its turn, within 20 s of the plate with its name. Write down the age. (REQ-GM-80 to 84)
-9b. Same child. Check: the child drops at least 2 bricks that stay in a game of 12 bricks (yes or no). (REQ-TB-11, REQ-GM-96)
-9c. Same child. Check: the child plays to the end without asking to stop or crying (yes or no), also after a topple (yes or no). (REQ-GM-83)
-9d. After the game, ask: "Play again?". Check: the child says yes.
-10. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-30-10, issue #132).
-11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester reads the plate "<NAME>'S TURN", "BRICK n OF 12" and one banner aloud. Check: no error when reading. (REQ-TB-19, REQ-FL-40)
-11b. From 3 m, a tester points at the brick that hangs on the crane and at the top brick of the tower. Check: both answers are right for every tester, and the brick is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 48 px expected). (REQ-GM-47e, REQ-TB-18)
-12. Set the TV language to Hebrew and start a game. Check: the title and the plates are mirrored to the right side, the tower and the crane are not mirrored, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "בונים מגדל", "התור של ...", "קראש! חיחי!". (REQ-GM-47o, REQ-TB-19)
+1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the meadow, the fence, a hole and a mole.
+2b. Look at the game screen. Check: you can point at all of these: the sky, the fence, the lawn, the 9 holes (9 of 9) and a mole.
+4b. Record the phone (the A button) and the TV (240 fps) for 5 bonks on a mole. Count the frames from the press on A to the first change of the mole (closed eyes). Check: the median delay is 150 ms or less (36 frames at 240 fps).
+8a. Open the settings view of the game (OK on its tile). Check: the TV shows the line "POINT YOUR PHONE AT THE SCREEN AND PRESS A TO BONK THE FRIENDLY MOLES. MOST POINTS IN 60 S WINS." and the rows Difficulty and Start. The phone pad shows A and RECENTER only (3 of 3). (REQ-GM-37a)
+10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child puts the ring on a mole within 20 s after GO, with no help.
+10b. Same child. Check: the child bonks a mole (the score grows) within 30 s after GO.
+10c. Same child. Check: the child has 5 or more bonks on moles in the 60 s round.
+10d. After the round, ask: "Play again?". Check: the child says yes.
+11. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-28-11, issue #132).
+12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the golden mole when you say "mark". Check: the tester finds it in 5 of 5 tries. Check: a mole is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
+12b. From 3 m, ask a tester to read aloud the points that float up from a hit mole and the timer. Check: no error.
 
-Items 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b and 13 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-30-*). The numbers of the other items do not change.
+Items 3a, 4a, 5a, 6a, 6b, 6c, 7a, 7b, 9a and 9b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-28-*). The numbers of the other items do not change.
 
-Measurements (write down, no pass or fail): the time for one drop that people really need; how many bricks 4 players stack on Easy, Medium and Hard; if the topple feels fair (a tower that leans too far falls, a tower that is nearly straight stays); if 12 bricks are too short or too long; how long the wait with 4 players feels.
+Measurements (write down, no pass or fail): the turn angle that moves the ring from the middle to the edge; how often a bonk misses a mole that you aim at; if a mole is out too long or too short on each difficulty; the number of bonks of a good player in a round. Use them to tune the stay, the spawn time and the hit circle.
 
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1a | Photo of the tile next to a photo of the game | Not run | | | |
-| 8a | Note: seconds until the card shows; photo of the card | Not run | | | |
-| 9a | Note: the child, the age, seconds until it presses A | Not run | | | |
-| 9b | Note: bricks that stayed | Not run | | | |
-| 9c | Note: yes or no for crying or stopping, also after a topple | Not run | | | |
-| 9d | Note: the answer of the child | Not run | | | |
-| 10 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
-| 11a | Note: errors made when reading | Not run | | | |
-| 11b | Note: answers of each tester; photo of the brick with its height in px | Not run | | | |
-| 12 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
+| 1b | Photo of the tile next to a photo of the game | Not run | | | |
+| 2b | Note: right answers of 9 holes and 4 other objects | Not run | | | |
+| 4b | Video (240 fps); note: frames and ms for 5 bonks | Not run | | | |
+| 8a | Photo of the settings view | Not run | | | |
+| 10a | Note: the child, the age, seconds until the ring is on a mole | Not run | | | |
+| 10b | Note: seconds until the first bonk | Not run | | | |
+| 10c | Note: bonks on moles in the round | Not run | | | |
+| 10d | Note: the answer of the child | Not run | | | |
+| 11 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
+| 12a | Note: right answers of 5; photo of a mole with its height in px | Not run | | | |
+| 12b | Note: errors made when reading | Not run | | | |
 
 History:
 
-- 2026-10-24 (automated): steps 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b, 13 moved to the automated tests (smoke_tower, tower_rules). Nothing was run on a device, so no result moved.
-- -: **Not run**. New (2026-10-23). The headless checks of the rules and the screens are in `tower_rules` and `smoke_tower` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
+- 2026-10-24 (automated): steps 3a, 4a, 5a, 6a, 6b, 6c, 7a, 7b, 9a, 9b moved to the automated tests (smoke_mole, mole_rules). Nothing was run on a device, so no result moved.
+
 
 ## Test 29
 
@@ -1435,6 +1390,51 @@ History:
 
 - 2026-10-24 (automated): steps 2b, 3a, 3b, 5a, 5b, 6b moved to the automated tests (smoke_sheep, sheep_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23).
+
+## Test 30
+
+### Tower Builder (turns, swing, drop, wobble, 12 bricks)
+
+Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50.
+
+New game (2026-10-23). It was tested only with made-up button presses. Every number (the swing, the 12 bricks, the widths of the bricks, the 24 px of overlap, the 8 px of slack, the turn times) is a first guess; write what you measure in the Notes.
+
+**Steps**
+
+1a. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the sky with the sun, the mountains, the tower of colored bricks and the crane.
+8a. In a game with 2 phones, turn off Wi-Fi on one phone. Check: within 6 s the TV pauses with the card "<NAME> LOST CONNECTION"; the brick stops swinging and the timer box does not change. Turn Wi-Fi on again and press Resume. Check: the game goes on (3 of 3). (REQ-TB-12, REQ-GM-30)
+9a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once and says nothing more. Check: the child presses A of its own phone, when it is its turn, within 20 s of the plate with its name. Write down the age. (REQ-GM-80 to 84)
+9b. Same child. Check: the child drops at least 2 bricks that stay in a game of 12 bricks (yes or no). (REQ-TB-11, REQ-GM-96)
+9c. Same child. Check: the child plays to the end without asking to stop or crying (yes or no), also after a topple (yes or no). (REQ-GM-83)
+9d. After the game, ask: "Play again?". Check: the child says yes.
+10. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-30-10, issue #132).
+11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester reads the plate "<NAME>'S TURN", "BRICK n OF 12" and one banner aloud. Check: no error when reading. (REQ-TB-19, REQ-FL-40)
+11b. From 3 m, a tester points at the brick that hangs on the crane and at the top brick of the tower. Check: both answers are right for every tester, and the brick is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 48 px expected). (REQ-GM-47e, REQ-TB-18)
+12. Set the TV language to Hebrew and start a game. Check: the title and the plates are mirrored to the right side, the tower and the crane are not mirrored, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "בונים מגדל", "התור של ...", "קראש! חיחי!". (REQ-GM-47o, REQ-TB-19)
+
+Items 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b and 13 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-30-*). The numbers of the other items do not change.
+
+Measurements (write down, no pass or fail): the time for one drop that people really need; how many bricks 4 players stack on Easy, Medium and Hard; if the topple feels fair (a tower that leans too far falls, a tower that is nearly straight stays); if 12 bricks are too short or too long; how long the wait with 4 players feels.
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1a | Photo of the tile next to a photo of the game | Not run | | | |
+| 8a | Note: seconds until the card shows; photo of the card | Not run | | | |
+| 9a | Note: the child, the age, seconds until it presses A | Not run | | | |
+| 9b | Note: bricks that stayed | Not run | | | |
+| 9c | Note: yes or no for crying or stopping, also after a topple | Not run | | | |
+| 9d | Note: the answer of the child | Not run | | | |
+| 10 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
+| 11a | Note: errors made when reading | Not run | | | |
+| 11b | Note: answers of each tester; photo of the brick with its height in px | Not run | | | |
+| 12 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
+
+History:
+
+- 2026-10-24 (automated): steps 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b, 13 moved to the automated tests (smoke_tower, tower_rules). Nothing was run on a device, so no result moved.
+- -: **Not run**. New (2026-10-23). The headless checks of the rules and the screens are in `tower_rules` and `smoke_tower` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
 
 ## Test 31
 
