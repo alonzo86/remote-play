@@ -1,7 +1,7 @@
 # Player profiles plan: names, avatars, QR transfer, personal bests (FD-22)
 
 Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). All three phases are built (A: profiles and names, B: copy by QR, C: personal bests).** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
-Style: ASD-STE100 Simplified Technical English, like the other requirements files. The requirement IDs in this plan (REQ-FL-69 to 78, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C9) are proposed: they are given in the pull request of each phase.
+Style: ASD-STE100 Simplified Technical English, like the other requirements files. The requirement IDs in this plan (REQ-FL-69 to 78, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C9) are in the requirements files now (all phases are built).
 
 ## 1. Decision proposed (FD-22)
 
@@ -42,7 +42,7 @@ The texts are English and Hebrew (REQ-FL-54).
 |-------|-------|----------------|
 | Players list (Connect screen, Players modal), `slot_list.gd` | slot color square, `2P`, the name | the square holds the avatar, then the profile name |
 | Ball, marble, blob, bumper or cursor of a player (REQ-GM-46) | the slot number | nothing: since 2026-10-11 an object has neither a number nor an avatar, only the slot color |
-| Leader chip (`Shell.chip()`, REQ-GM-46b) | the color square and the name | the color square, the avatar (32 px) and the name |
+| Leader chip (`Shell.chip()`, REQ-GM-46b) | the color square and the name | the color square, the avatar (32 px) and the name (changed on 2026-10-11 to show the avatar, see the end of this file) |
 | Result menu and the ranking (REQ-GM-72) | `1st  Player 2  12` | `1st  Maya  12` |
 | Pause card (REQ-GM-30), `Minigame._slot_labels()` | `2P LOST CONNECTION`, `Resume without P2`, `P2 reconnected` | `MAYA LOST CONNECTION`, `Resume without Maya`, `Maya reconnected` |
 | Leader chip (REQ-GM-46) | the name and the score | no change: there is no number in it |
@@ -114,7 +114,7 @@ A `hello` that resumes a slot with a token follows the same guard: outside `conn
 
 The `pid` check runs before the slot is chosen, so a full TV does not reject the phone that replaces its own profile.
 
-- In the phases `connect` and `menu`, if a `hello` or a `profile` brings a `pid` that is already present in **another** slot, the **newer phone wins**. The TV frees the older slot and tells that phone `{"t":"kicked","reason":"replaced"}`. The phone shows `YOUR PLAYER JOINED ANOTHER PHONE` (the text for plain `kicked` stays `The host removed you...`), forgets its token and does not reconnect by itself. The TV also remembers the token of the freed slot for 10 minutes, and answers a `hello` with that token with the same `kicked`, so a phone that was offline when it was replaced does not come back and replace the newer one.
+- In the phases `connect` and `menu`, if a `hello` or a `profile` brings a `pid` that is already present in **another** slot, the **newer phone wins**. The TV frees the older slot and tells that phone `{"t":"kicked","reason":"replaced"}`. The phone shows `THIS PLAYER IS ALREADY IN THE ROOM.` (key `app.player_already_in_room`; the plan first had "YOUR PLAYER JOINED ANOTHER PHONE") (the text for plain `kicked` stays `The host removed you...`), forgets its token and does not reconnect by itself. The TV also remembers the token of the freed slot for 10 minutes, and answers a `hello` with that token with the same `kicked`, so a phone that was offline when it was replaced does not come back and replace the newer one.
 - In the phases `playing`, `paused` and `waiting` the TV does **not** free a slot because of a `pid`. The newer phone joins as a guest (as every late phone waits for the next round, REQ-FL-25) and its `pid` is ignored; it can send `profile` in the next menu.
 - A phone that reconnects with its token is checked first and is not affected (the token path of `tv_server.gd` stays first).
 
@@ -234,7 +234,7 @@ Items 1, 8 and 10 are decided by the owner. The others are defaults that the own
 4. The profile list **cannot be opened during a round**; a phone switches between rounds only.
 5. `NEW BEST!` shows on the **phone only**. The TV result menu does not change. This changes what the TV shows, so the owner decides: for example a `NEW BEST` tag on the row of the result list.
 6. Deleting a profile on the phone that is not the active one tells no TV. Deleting the active one makes the phone a guest on the TV.
-7. The avatar is **not** drawn on the leader chip, because those places have no number now.
+7. ~~The avatar is not drawn on the leader chip.~~ Changed on 2026-10-11: the leader chip shows the avatar (REQ-GM-46b, REQ-FL-70); the game objects do not.
 8. **Name length.** At most 10 characters (decided by the owner). Two names fit in the pause card title on one line. Hebrew names in an English sentence and the reverse need a text direction check (manual test 20 item 6).
 9. A name field **drops** characters the fonts cannot draw, with a hint under the field.
 10. Bests of rounds with 1 to 4 players share one key (decided by the owner).
@@ -251,7 +251,7 @@ The documents are as important as the code (REQ-GM-5). Each item is done in the 
 | `docs/PROTOCOL.md` | `hello` and `welcome` fields `pid`, `av`; the messages `profile` and `result`; the `reason` of `kicked`; the duplicate ID rule and the token memory in "Slots, loss and reconnect"; the text "Resume without P2" in that section becomes the name rule; the `WP1.` payload in a new section; `VERSION` stays 2 and why; the wrong `"v":1` and the sentence about `VERSION`. | A, B, C |
 | `docs/REQUIREMENTS.md` | REQ-P5: say that profiles are on the phone only and are not an account. REQ-P6: the allowed file `assets/avatars`. New REQ-N8 (profile fields in `hello`) and REQ-C7 to C9 (profiles on the phone, local storage, switch rule). REQ-T5: the pause card names the players. | A |
 | `docs/GAME_REQUIREMENTS.md` | REQ-GM-30 and 30a (names in the pause card), REQ-GM-46 (avatar in the place of the number on a ball), REQ-GM-72 (names in the result list), REQ-GM-73 (medals stay; personal best is separate). New REQ-GM-98 to 101: `best_key()`, what counts, the message, no best for a game with no key. The comment in `scripts/game/medals.gd` ("the player is not identified yet") is corrected. | A, C |
-| `docs/games/TEMPLATE.md` and the five game files | The template gets a requirement row "Personal best (REQ-GM-98): key and direction, or the exception" in its table. `marble_race.md`, `snowball_splat.md`, `paint_grab.md` get a row with the key; `maze.md` and `sumo_bumpers.md` get an exception row. The rows that say `2P` or `P2` are updated for profile players. | A, C |
+| `docs/games/TEMPLATE.md` and the game files that existed then (`marble_race.md` is now the Car Race file; the file names did not change) | The template gets a requirement row "Personal best (REQ-GM-98): key and direction, or the exception" in its table. `marble_race.md`, `snowball_splat.md`, `paint_grab.md` get a row with the key; `maze.md` and `sumo_bumpers.md` get an exception row. The rows that say `2P` or `P2` are updated for profile players. | A, C |
 | `docs/MANUAL_TESTS.md` | New test 20 (section 11), the Summary table row, the list of covered requirements. The steps of test 7 (lines about `2P LOST CONNECTION`, `Resume without P2`, `P2 reconnected`) and test 19 (the phone shows `2P`) are edited so they are right for a guest and for a profile player; the old wording stays for a guest. Test 19 uses names of 12 to 16 letters: they become 10 letters. | A, B, C |
 | `CLAUDE.md` | The table "Tests the user has to run now": a row for test 20. | A |
 | `docs/design-system/` | The profile row, the avatar picker and the Share card in the phone mockups; `tests/screenshots_controller.gd` gets the new screens. | A, B |
@@ -295,7 +295,7 @@ Needs: 2 to 4 phones (one an iPhone if possible), 1 TV, a grown-up and a child o
 5. A guest next to profile players: the guest keeps the number.
 6. Pause card with profile names (switch Wi-Fi off): two names of 10 letters, a Hebrew name in an English sentence and an English name in Hebrew; check that the text fits and reads right.
 7. All avatars on all four slot colors and on the smallest ball, from the sofa; a child names five of them.
-8. The same profile on a second phone joins the same TV in the menu: the older phone shows `YOUR PLAYER JOINED ANOTHER PHONE`. Then repeat during a round: the second phone waits as a guest and nobody is removed.
+8. The same profile on a second phone joins the same TV in the menu: the older phone shows `THIS PLAYER IS ALREADY IN THE ROOM.` (key `app.player_already_in_room`; the plan first had "YOUR PLAYER JOINED ANOTHER PHONE"). Then repeat during a round: the second phone waits as a guest and nobody is removed.
 9. Play Snowball Splat, Paint Grab and Marble Race (a fixed track) with a profile; check `NEW BEST!` and that a worse round does not change the best; one round with 2 phones.
 10. Close the app and open it: the profiles and bests are still there. Join another TV: the same name and avatar.
 11. Tilt Maze, Sumo Bumpers and a random Marble Race track: no best.

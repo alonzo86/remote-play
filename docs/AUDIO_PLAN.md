@@ -1,9 +1,9 @@
 # Audio plan: arcade music and sound effects (FD-20)
 
-Status: **phase A and the effects of the first five games are built (2026-10-10); Star Shield, the sixth game, has a song and five effects (2026-10-16); manual test 18 is open.** The sections below are the plan; section 11 says what was built and what differs. The owner asked for music on the TV app: an arcade-style, MIDI-like loop, one clip for the menus and one for each game, and sound effects for each game. This file proposes how, lists the effects for each game, and lists the defaults chosen for the open questions. The owner confirms or changes the effect lists (section 4) before phase B.
+Status: **phase A and the effects of the games that existed then (the newer games have songs and effects too, see `scripts/audio/songs.gd`) are built (2026-10-10); Star Shield, the sixth game, has a song and five effects (2026-10-16); manual test 18 is open.** The sections below are the plan; section 11 says what was built and what differs. The owner asked for music on the TV app: an arcade-style, MIDI-like loop, one clip for the menus and one for each game, and sound effects for each game. This file proposes how, lists the effects for each game, and lists the defaults chosen for the open questions. The owner confirms or changes the effect lists (section 4) before phase B. **Read this plan with section 11 first: the built version differs (no `SoundBank` and no `assets/audio`; the rate is 16000 Hz; there is no Mute row, REQ-FL-64).**
 Style: ASD-STE100 Simplified Technical English, like the other requirements files.
 
-Base: this plan is based on `main`. The arcade style PRs 18 to 24 are still stacked and unmerged, so some names here (the Hebrew texts of FD-19, the pixel worlds) exist only in that stack. When the stack reaches `main`, resolve conflicts in `docs/TV_FLOW.md`, `docs/GAME_REQUIREMENTS.md` and `docs/REQUIREMENTS.md`, and re-check the file names in this plan.
+Base: this plan was written on `main` before the arcade style PRs 18 to 24 (they are merged now). The sections below are the plan as written; where the build differs, section 11 is right.
 
 ## 1. Decision proposed (FD-20)
 
@@ -94,13 +94,13 @@ Rules:
 
 | File | Job |
 |------|-----|
-| `scripts/audio/synth.gd` | Pure functions. Renders a list of notes to 16-bit mono `PackedByteArray` samples at 22050 Hz: pulse (duty 12.5%, 25%, 50%), triangle, noise (short and long), a simple volume envelope, a pitch slide. No node, no scene |
+| `scripts/audio/synth.gd` | Pure functions. Renders a list of notes to 16-bit mono `PackedByteArray` samples at 16000 Hz (the built rate): pulse (duty 12.5%, 25%, 50%), triangle, noise (short and long), a simple volume envelope, a pitch slide. No node, no scene |
 | `scripts/audio/songs.gd` | The data: one song for each clip (tempo, loop length, four channels of notes written as short strings), and the effect table (section 4) |
-| `scripts/audio/sound_bank.gd` | Renders a song or an effect to an `AudioStreamWAV` once and keeps it (a loop song uses `LOOP_FORWARD`). Looks for `res://assets/audio/<id>.ogg` first (option C) |
+| `scripts/audio/sound_bank.gd` | **Not built.** The `Sound` autoload (`audio_manager.gd`) renders a song or an effect once and keeps it. There is no `assets/audio` folder and no `.ogg` lookup (section 3.4 is a plan only). |
 | `scripts/audio/audio_manager.gd` | The autoload `Sound` (or a child of `App`): the buses, one music player, a pool of 8 effect players, `Sound.music(id)`, `Sound.sfx(id)`, `Sound.duck(on)`, volume and mute |
-| `tools/make_audio_preview.py` or `tools/export_audio.gd` | A developer tool that writes each song and effect to a `.wav` in a scratch folder, so the owner can listen on a computer without the TV. It is not part of the app |
+| `tools/export_audio.gd` | A developer tool that writes each song and effect to a `.wav` in a scratch folder, so the owner can listen on a computer without the TV. It is not part of the app |
 
-Rendering at 22050 Hz mono keeps memory small: a 68 s loop is 22050 x 2 bytes x 68 = about 3 MB in memory. All 6 songs are about 11 MB. This is acceptable, but a song is rendered on first use (and the previous game song is freed), so only the menu song and one game song are in memory. Rendering a 30 s loop in GDScript takes about 100 to 300 ms on a TV box (an estimate, not measured: **the first test measures it**); the render happens behind the countdown (3 s), not on the frame the game opens. If it is too slow, the songs are rendered at the first start of the app and cached in `user://audio_cache/`, or the sample rate goes down to 16000 Hz (the style allows it).
+Rendering at 16000 Hz mono keeps memory small: a 68 s loop is 16000 x 2 bytes x 68 = about 2 MB in memory. All 6 songs are about 11 MB. This is acceptable, but a song is rendered on first use (and the previous game song is freed), so only the menu song and one game song are in memory. Rendering a 30 s loop in GDScript takes about 100 to 300 ms on a TV box (an estimate, not measured: **the first test measures it**); the render happens behind the countdown (3 s), not on the frame the game opens. If it is too slow, the songs are rendered at the first start of the app and cached in `user://audio_cache/`, or the sample rate goes down to 16000 Hz (the style allows it).
 
 ### 3.2 Playing in Godot
 
@@ -110,7 +110,7 @@ Rendering at 22050 Hz mono keeps memory small: a 68 s loop is 22050 x 2 bytes x 
 - Games call `Sound.sfx("sumo_bump")` at the same places they call `Haptics`/`App.server.haptic()`. A game never makes its own players (a new rule, section 5).
 - `Minigame` (the base class) starts the game music at "GO" (at once in a game without a countdown), ducks it on pause and on the "phone lost" card, stops it on the result menu, and plays `count`/`go`/`win`/`tie`. A game then needs only its own effects.
 - The music does not stop when the game node is freed by "Back to menu": `App.go_menu()` calls `Sound.music("menu")`.
-- Android TV: the mix rate of the project is 44100 Hz (Godot default); the 22050 Hz streams are resampled by the engine. Output latency on a TV box can be 100 ms or more and cannot be fixed in the app; effects are short and not timed with the picture to the frame. Manual test 18 checks that it feels fine.
+- Android TV: the mix rate of the project is 44100 Hz (Godot default); the 16000 Hz streams are resampled by the engine. Output latency on a TV box can be 100 ms or more and cannot be fixed in the app; effects are short and not timed with the picture to the frame. Manual test 18 checks that it feels fine.
 - Focus loss: when the app goes to the background (Home), Godot pauses the audio by itself; no code is needed. Manual test 18 checks that the music does not play on the Android home screen.
 
 ### 3.3 Volume (Settings)
@@ -249,7 +249,7 @@ Coverage: the new modules are pure data and a thin player manager; the 80% rule 
 
 | Phase | Content | PR |
 |-------|---------|----|
-| A | The phone HAPTICS switch (small, and useful by itself), the synthesizer, the sound bank, `Sound`, the buses, the menu song, the shared effects, the Settings rows (volume, mute), FD-20 and the requirements, the tests, the preview tool, manual test 18 (menu part) | PR 1 |
+| A | The phone HAPTICS switch (small, and useful by itself), the synthesizer, the sound bank, `Sound`, the buses, the menu song, the shared effects, the Settings rows (volume; the Mute row was dropped, REQ-FL-64), FD-20 and the requirements, the tests, the preview tool, manual test 18 (menu part) | PR 1 |
 | B1 | Game music and effects for Sumo Bumpers (it has the most events: use it to tune the pool and the gap) | PR 2 |
 | B2 | Marble Race and Tilt Maze | PR 3 |
 | B3 | Paint Grab and Snowball Splat | PR 4 |
@@ -276,7 +276,7 @@ After phase A the owner can listen to the preview tool's `.wav` files on a compu
 | 3 | Menu music on the logo screen too? | Yes, it starts with the logo (on a TV the app may start with the sound off until the owner presses a key; if the system blocks audio, it starts at the first key) |
 | 4 | Music while the game settings view is open? | Yes, the menu song continues |
 | 5 | Music on the result menu? | A jingle, then silence |
-| 6 | Mute and two volumes in Settings? | Yes: Music, Effects, Mute. Defaults 7, 8, off |
+| 6 | Mute and two volumes in Settings? | Two volumes: Music and Effects, defaults 7 and 8. **No Mute row** (REQ-FL-64: a level of 0 is silent). Changed after this decision. |
 | 7 | One song for each game, or several that change with the difficulty? | One song for each game. The tempo does not change with the difficulty |
 | 8 | Does the music speed up in the last 10 s of a timed game? | No (a tempo change in a loop is hard to do without a click). The `time_low` tick is used |
 | 9 | The effects of section 4 | As listed. The rows marked "not built" and "option" are not built unless the owner asks |
@@ -295,7 +295,7 @@ After phase A the owner can listen to the preview tool's `.wav` files on a compu
 ## 11. What was built (2026-10-10)
 
 Built on `main`, in the Party Pop style of `main` (the arcade style stack is not merged; resolve conflicts later):
-- `scripts/audio/synth.gd`, `songs.gd`, `audio_manager.gd` (the autoload `Sound`), the volume rows and Mute on the Settings screen, the phone Settings screen with the Haptics switch, and the requirements REQ-FL-64 to 66, REQ-GM-49a to 49c (this PR). Manual test 18.
+- `scripts/audio/synth.gd`, `songs.gd`, `audio_manager.gd` (the autoload `Sound`), the volume rows on the Settings screen (Music and Effects, no Mute), the phone Settings screen with the Haptics switch, and the requirements REQ-FL-64 to 66, REQ-GM-49a to 49c (this PR). Manual test 18.
 - The menu song and one song for each game, the shared effects, and the effects of the five games, played where the games already have a haptic.
 - Differences from the plan:
   - The sample rate is **16000 Hz** (not 22050), to make the songs faster on a TV box. A song is made in steps of 3 ms a frame on the main thread (a worker thread crashed the coverage run, which counts lines); on a desktop the menu song is ready after about 1.8 s. A TV box is not measured.
