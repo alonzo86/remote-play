@@ -78,6 +78,7 @@ func _run() -> void:
 	await _aim_at_start()
 	await _swing_in_the_game()
 	await _finger_and_shake()
+	await _sideways_and_soft()
 	await _grips()
 	await _weak_and_wait()
 	await _banners_and_turns()
@@ -237,7 +238,7 @@ func _swing_in_the_game() -> void:
 	for name in ["soft", "hard"]:
 		_again(game)
 		_wait(game, f, 0.3)
-		_play(game, f, R.stroke(fw, 10.0, 9.0 if name == "soft" else 32.0))
+		_play(game, f, R.stroke(fw, 5.0 if name == "soft" else 10.0, 9.0 if name == "soft" else 32.0))
 		_wait(game, f, 0.2)
 		var guard := 0
 		while not game.sim.first_hit and game.phase == game.Phase.ROLL and guard < 1200:
@@ -288,6 +289,42 @@ func _finger_and_shake() -> void:
 	_wait(game, f, 0.3)
 	_play(game, f, R.still(0.3))
 	_check(game._lift_left == 0.0 and not _threw(game), "a finger on the strip without a swing shows no hint and throws nothing")
+
+
+# ---- Issues #141, #142: a move to the side or a slow shake throws nothing, a soft swing throws ----
+
+func _sideways_and_soft() -> void:
+	print("sideways and soft")
+	var ctx := await _new_game(1)
+	var game: Control = ctx.game
+	var f: R.Feeder = ctx.feeders[0]
+	var g := R.grip(R.UP_FLAT)
+	_begin(game)
+	_wait(game, f, 0.3)
+	var thrown := []
+	var cases := {}
+	for cm_s in [[20.0, 0.3], [30.0, 0.4], [50.0, 0.5]]:   # The hand carries the phone from left to right and stops.
+		var peak: float = TAU * cm_s[0] / 100.0 / (cm_s[1] * cm_s[1])
+		var t := R.Trace.new()
+		var n := int(round(cm_s[1] / R.DT))
+		for i in n:
+			t.add(g.right * peak * sin(TAU * float(i) / float(n)))
+		cases["%d cm in %.1f s" % [cm_s[0], cm_s[1]]] = t
+	cases["shake 3 Hz 15 m/s2, no finger"] = R.shake(1.0, 15.0, 3.0)
+	cases["shake 4 Hz 15 m/s2, no finger"] = R.shake(1.0, 15.0, 4.0)
+	for name in cases:
+		_play(game, f, cases[name])
+		_wait(game, f, 2.0)
+		if _threw(game):
+			thrown.append(name)
+			_again(game)
+	_check(thrown.is_empty(), "a move to the side and slow shakes without a finger throw nothing (thrown: %s)" % ", ".join(thrown))
+	for name in ["soft", "gentle back"]:
+		_again(game)
+		_wait(game, f, 0.5)
+		_play(game, f, R.stroke(g.dir(0.0), 5.0 if name == "soft" else 4.2, 12.0))
+		_wait(game, f, 0.3)
+		_check(_threw(game), "a %s swing throws the ball" % name)
 
 
 # ---- Items 4e, 4f: three grips, and no throw by accident ----

@@ -72,6 +72,7 @@ func _game_ready() -> void:
 	detector.threshold = float(BowlingRules.level(difficulty).threshold)
 	detector.min_back = MIN_BACK
 	detector.max_reversals = 1   # A shake turns the acceleration round again and again: it throws nothing (REQ-BW-5).
+	detector.fwd_ratio = SwingDetector.FWD_RATIO   # A move to the side is as hard back as out: it throws nothing (REQ-BW-5).
 	if not participants.is_empty():
 		_start_turn()
 
@@ -173,6 +174,7 @@ func _tick_aim(delta: float) -> void:
 		_probe.threshold = detector.threshold
 		_probe.min_back = detector.min_back
 		_probe.max_reversals = detector.max_reversals
+		_probe.fwd_ratio = detector.fwd_ratio
 		_probe.update(delta, p.linear_accel())
 		if _probe.released:
 			_lift_left = LIFT_HINT_TIME
