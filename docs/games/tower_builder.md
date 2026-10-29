@@ -86,6 +86,14 @@ Values that change how the game feels. Tune them on a device (Test 30). All are 
 | Overlap to land, slack of a joint | `tower_stack.gd` `MIN_OVERLAP`, `SLACK` | 24 px, 8 px |
 | Fall speed, wobble time, pauses | `tower_builder_game.gd` | 1400 px/s, 0.7 s, 0.6 / 1.0 / 1.8 s |
 
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `tower_builder` plays with the play. The effects `tower_drop`, `tower_land`, `tower_miss`, `tower_wobble` and `tower_crash` are in REQ-TB-20, and the haptics (turn 100 ms, drop 30 ms, brick 60 ms, miss 40 ms, topple 80 ms) in REQ-TB-13. The pause and result sounds come from the base class.
+
+## Languages and texts (REQ-GM-47o)
+
+The rows are in `assets/lang/strings.csv`: `registry.tower_builder`, `registry.desc_tower_builder`, `how_to.tower_builder` and `tower_builder.*` (the turn plate, the brick plate, the miss and crash banners, the hint, the brick counts). In Hebrew the HUD is mirrored by the shell; the tower is not. The Hebrew was written by Claude and needs a native reader.
+
 ## Open questions
 
 For the owner (the answers of 2026-10-23 are used for all the rest):

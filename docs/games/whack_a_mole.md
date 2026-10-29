@@ -96,6 +96,14 @@ Values that change how the game feels. Tune them on a device (Test 28). First va
 | `RELOAD`, `HINT_TIME`, `ROUND_TIME`, `COUNTDOWN` | 0.3 s, 4 s, 60 s, 3 s |
 | Levels | table above |
 
+## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
+
+The song `whack_a_mole` plays with the play. The effects `mole_hit`, `mole_points` and `mole_miss` and the haptics (hit 40 ms, miss 15 ms, GO 60 ms, winner 400 ms) are in REQ-WM-12. The pause and result sounds come from the base class.
+
+## Languages and texts (REQ-GM-47o)
+
+The rows are in `assets/lang/strings.csv`: `registry.whack_a_mole`, `registry.desc_whack_a_mole`, `how_to.whack_a_mole` and `whack_a_mole.*`. In Hebrew the HUD is mirrored by the shell; the field is not. The Hebrew was written by Claude and needs a native reader.
+
 ## Open questions
 
 - Personal best: a key per difficulty (numbers 43 to 45) needs a new profile code format version. The owner decides.

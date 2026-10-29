@@ -70,12 +70,14 @@ Solo, players and feedback
 | REQ-TN-15 | 1 player: the ball machine returns every ball it can reach (never misses on purpose). The rally counts the hits in a row. A missed ball ends the rally, the count is kept as the best of the round, and a new rally starts 2 s after the miss (the banner shows 1.8 s, the machine sends the ball 0.2 s later). The round lasts 90 s. The score is the longest rally. | Done | tennis_rules, smoke_tennis |
 | REQ-TN-16 | 1 player gets no medal (REQ-GM-73): the result shows the longest rally. The tiers by rally were removed (issue #119). | Done | tennis_rules |
 | REQ-TN-17 | Personal best (REQ-GM-98): **not built yet.** `best_key()` is empty, because a new key needs a number in `ProfileKeys` and in the profile code (a change of the profile format). Planned: in 1 player mode the key is `tennis|<difficulty>` and the longest rally counts (more is better). The games with 2 to 4 players have no key, because a match has no score that compares between matches (no best). The user decides when to add it. | Open | smoke_tennis |
+| REQ-TN-18 | The levels Easy, Medium and Hard change the hit window, the ball speed, the lines and the ball machine as in the table under Parameters (`Rules.level()`). | Done | tennis_rules |
+| REQ-TN-19 | Length of a match: 3 games on `Real` (about 8 minutes with 4 players, a first guess); 5 points on `Quick`. The values are in `Rules.level()` and the constants of `tennis_match.gd` and `tennis_rules.gd`, and are tuned on a device (Test 25). | Done | tennis_rules |
 | REQ-TN-20 | A player who leaves: the character goes away and its team plays on with the rest (REQ-GM-21); in 2 against 2 the teams stay as they were (no new teams for 3 players), and the characters keep their side of the court. When a team has no player left, the other team wins at once with the result menu. With 3 players the change of the single player (REQ-TN-1) skips the one who left. When nobody is left the "No players connected" menu opens (REQ-GM-22). A lost phone pauses the match (REQ-GM-30). | Done | tennis_rules, smoke_tennis |
 | REQ-TN-22 | Safety (REQ-GM-102, issue #79): Tennis is a swing game (`swing` in the registry). The settings view shows the safety line, each phone shows the card "HOLD ON TIGHT!" every time the settings view opens, and Start waits for the OK of every phone. | Done | swing_setup, ui_states_a |
 
 ## Parameters
 
-REQ-TN-18: the levels of the game (the table):
+The levels of the game (REQ-TN-18):
 
 | Value | Easy | Medium | Hard |
 |-------|------|--------|------|
@@ -84,7 +86,7 @@ REQ-TN-18: the levels of the game (the table):
 | The ball stays inside the lines | yes | no | no | |
 | Ball machine error (m, solo) | 0.8 | 1.4 | 2.2 | |
 
-REQ-TN-19: games to win a match on `Real`: 3 (about 8 minutes with 4 players, a first guess); points on `Quick`: 5. All values are first guesses and are
+Games to win a match on `Real`: 3 (about 8 minutes with 4 players, a first guess); points on `Quick`: 5. All values are first guesses and are
 tuned on a device (`docs/MANUAL_TESTS.md`, Test 25). The values are in `Rules.level()` and the constants of `tennis_match.gd`.
 
 ## Sound and haptics (REQ-GM-49a to 49c, REQ-GM-43)
@@ -104,6 +106,10 @@ The song `tennis` starts with the play in a match of 2 to 4 players, and at "GO"
 | REQ-TN-S9 | `tennis_game` | A game is won, the time is up, or the match is over. | Rising five notes | 80 ms for the players of the team that won the game; 400 ms for the winners at the end |
 
 Haptics on the phone of the player: Countdown end: 60 ms (solo rally only; a match of 2 to 4 players has no countdown and no start buzz). No sound is scary or sad (REQ-GM-81): a miss, a fault and an out are funny and soft.
+
+## Languages and texts (REQ-GM-47o)
+
+The rows are in `assets/lang/strings.csv`: `registry.tennis`, `registry.desc_tennis`, `how_to.tennis` and `tennis.*` (Scoring, Real, Quick, the hints, the score calls, the banners). In Hebrew the HUD is mirrored by the shell; the court is not. The Hebrew was written by Claude and needs a native reader.
 
 ## Open questions
 
