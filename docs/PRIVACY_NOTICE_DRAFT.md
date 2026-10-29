@@ -1,6 +1,6 @@
 # Privacy notice: draft paragraph for the QR scanner (Android)
 
-Draft, not legal advice. Written on 2026-10-13 for checklist item B2 of pull request 33. The full privacy notice and terms (English and Hebrew, drafts) are in `docs/legal/`; this paragraph is the source of their QR scanner part. It must say the same as the About note (`about.app_scans_with_google` in `assets/lang/strings.csv`): if one changes, change the other.
+`docs/legal/privacy-notice.md` is the notice (the canonical text); this file keeps only the facts behind its section 4. Draft, not legal advice. Written on 2026-10-13 for checklist item B2 of pull request 33. The full privacy notice and terms (English and Hebrew, drafts) are in `docs/legal/`; this paragraph is the source of their QR scanner part. It must say the same as the About note (`about.app_scans_with_google` in `assets/lang/strings.csv`): if one changes, change the other.
 
 ## English
 

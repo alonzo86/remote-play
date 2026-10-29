@@ -23,8 +23,8 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 
 - Any library, plugin, addon, font, sound, image, model or other resource that another maker owns needs, in the same commit that adds it:
   1. a row in `docs/THIRD_PARTY.md` (name, version, where it is used, license, owner, what the license asks, status);
-  2. its license text next to the file (`assets/<kind>/LICENSE-<name>.txt` or `OFL-<name>.txt`), packed in every export preset
-     (`include_filter` in `export_presets.cfg`, checked by `tests/design_tokens.gd`);
+  2. its license text next to the file (`assets/fonts/OFL-<name>.txt` for a font, `assets/licenses/LICENSE-<name>.txt` for anything else), packed in
+     every export preset (`include_filter` in `export_presets.cfg`, checked by `tests/design_tokens.gd`; add a pattern there for a new folder);
   3. a page for it on the About screen when the license asks for a notice (`scripts/core/about.gd`), with its rows in `assets/lang/strings.csv`;
   4. a line in `docs/REQUIREMENTS.md` REQ-P6 (allowed files) or in the matching decision in `docs/TV_FLOW.md`;
   5. the privacy notice, when it sends or collects data (also tell the user, so the notice and the store forms can change).
