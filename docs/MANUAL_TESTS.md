@@ -307,6 +307,8 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 7b. End the call and go back to the controller app. Check: the phone says "RECONNECTING..." and then joins again in 10 seconds or less (stopwatch from the return to the app).
 7c. Check: the card says "1P reconnected" with **Resume**, and **Resume** goes on with the game.
 7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot.
+8a. **The TV closes (2026-10-29, issue #169).** With one phone joined and on the Games screen, press Back on the TV remote until the TV app quits. Check: within 3 seconds the phone leaves the waiting screen and shows the Connect screen or "RECONNECTING..." (yes or no). (REQ-GM-30)
+8b. Join again, then kill the TV app (swipe it away in the recent apps, or unplug the box). Check: within 5 seconds the phone shows "RECONNECTING..." and not the waiting screen with the game name (yes or no). (REQ-GM-30)
 
 **Results**
 
@@ -321,6 +323,8 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 | 7b | Video of the return: 'RECONNECTING...', the join, the seconds | Pass | R4 |  |  |
 | 7c | Video: the card 'reconnected', Resume, the game goes on | Pass | R4 |  |  |
 | 7d | Video of the 70 s call and the return, same slot | Pass | R4 |  |  |
+| 8a | Video of the phone when the TV app quits | Not run | | | Added 2026-10-29 (issue #169). |
+| 8b | Video of the phone when the TV app is killed | Not run | | | Added 2026-10-29 (issue #169). |
 
 Items 1b (merged into 1a), 1c, 1e, 4c, 5e and 6b to 6e moved to the automated tests (docs/AUTOMATED_TESTS.md, A-7-1, A-7-4, A-7-5, A-7-6). Items 1d, 4a and 5a to 5d moved too (A-7-7), and item 1a moved too: the TV half is A-7-7 and the phone half (it shows RECONNECTING when the TV is silent) is A-7-8, a check of `join_flow` that fails until issue #61 is fixed (Alon decided on 2026-10-21 to keep this automatic). The numbers of the other items do not change.
 

@@ -401,6 +401,7 @@ There is no `build-android` job on CircleCI (the APK export is off). A documenta
 | A-27-7 | Test 27 items 7a, 7b, Try again and the TV remote | `smoke_air_hockey`: "two phones: a new match waits for the players to enroll", "OK on the TV remote starts the match with the one enrolled phone against ROBO", "OK with nobody enrolled starts nothing" |
 | A-27-8 | Test 27 items 8a, 8b, a lost phone and Disconnect (the real Wi-Fi is Test 7) | `smoke_air_hockey`: the card "2P LOST CONNECTION" with End game only, nothing runs during the pause, after the return Resume and End game, Resume goes on; a phone that leaves ends the match with the other as the winner |
 | A-27-13 | Test 27 item 13, the pad | `smoke_air_hockey`: "the pad has button A alone, no B and no RECENTER" |
+| A-GM-169 | Issue #169 (no manual step; a real TV box that is killed or closed is part of Test 7) | `run_tests`: "a clean quit of the TV: the phone leaves CONNECTED within 1.5 s and says tv_closed", "a silent TV: the phone leaves CONNECTED for RECONNECTING within PEER_TIMEOUT_MS + 2 s" |
 
 ## Everything else that is automated (and stays in `tests/`)
 

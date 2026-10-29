@@ -81,16 +81,18 @@ func _on_player_removed(slot: int) -> void:
 		_assign_names()
 
 
-func stop() -> void:
+## Stops the server. Every phone gets "bye" first (issue #169). Returns true when sockets are still finishing their close
+## handshake: the app waits a moment before it quits.
+func stop() -> bool:
 	for i in _sockets.size():
 		if _sockets[i] != null:
 			_send_json(i, {"t": "bye"})
-			_sockets[i].poll() # Flush the bye frame.
-			_sockets[i].close()
-			_sockets[i].poll()
+			_discard(_sockets[i])   # Closed 300 ms later: a close right after the bye can drop it (issue #169).
+			_sockets[i] = null
 	_tcp.stop()
 	_replaced_tokens.clear()
 	listening = false
+	return not _closing.is_empty()
 
 
 func player_count() -> int:
@@ -274,6 +276,7 @@ func kick(slot: int) -> void:
 
 
 func _process(delta: float) -> void:
+	_service_closing(Time.get_ticks_msec())
 	if not listening:
 		return
 	sync_setup()
@@ -290,6 +293,13 @@ func _process(delta: float) -> void:
 		if ws.accept_stream(stream) == OK:
 			_pending.append({"ws": ws, "since": now})
 	_poll_pending(now)
+	for i in _sockets.size():
+		_poll_slot(i, now)
+		players[i].tick(now)
+
+
+## Finishes the close handshake of the sockets that were rejected, replaced or stopped.
+func _service_closing(now: int) -> void:
 	for entry in _closing.duplicate():
 		entry.ws.poll()
 		if entry.ws.get_ready_state() == WebSocketPeer.STATE_CLOSED or now - int(entry.since) > 1500:
@@ -297,9 +307,6 @@ func _process(delta: float) -> void:
 		elif not entry.closed and now - int(entry.since) >= 300:
 			entry.ws.close()
 			entry.closed = true
-	for i in _sockets.size():
-		_poll_slot(i, now)
-		players[i].tick(now)
 
 
 func _poll_pending(now: int) -> void:
