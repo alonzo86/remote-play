@@ -30,6 +30,11 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
   5. the privacy notice, when it sends or collects data (also tell the user, so the notice and the store forms can change).
 - Check the license before you add the resource, and say in the commit or pull request which license it has. Do not add a resource
   with no license, or with a license that does not allow a free app that is shipped in a store. Ask the user when you are not sure.
+- `license-reviewer` (`.claude/agents/license-reviewer.md`) checks every PR that adds or changes such a resource. For a permissive license
+  (MIT, BSD, Apache-2.0, ISC, zlib, OFL, CC0, CC-BY) it makes sure that items 1 to 5 above are all in the PR and agree with each other
+  (`docs/THIRD_PARTY.md`, the license file, the export presets, the About pages and their strings, REQ-P6, the privacy notice), fixes what
+  is missing or wrong in the documents and About pages, and ends its PR comment with "License: approved" or "License: not approved: <what>".
+  A license that is not permissive, not clear or missing is left for the owner.
 
 ## Tests and coverage
 
@@ -61,11 +66,21 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
   (5) One cycle is steps 1 to 3. When the two still disagree after 2 cycles, the pull request is left for the owner: `sw-developer`
   posts a comment that states what the disagreement is (the finding, the fix or justification, the reviewer's objection) and nobody merges.
   The reviewer never fixes a finding. Tell the user what the review found.
-  Cases that stop an automatic merge and are left for the owner: a disagreement after 2 cycles; "Strings: not approved" that the developer
-  cannot fix without a decision on what the user sees (cutting text, hiding information, a new text for a row already in the app); a new
-  third-party resource, a change of the privacy notice or of a store or legal text (REQ-P6, `docs/THIRD_PARTY.md`); a change of the protocol
-  version; a change of a rule in CLAUDE.md or of an agent or skill file; a change that needs the whole suite and it fails; a requirement
-  with status `Device` that the PR marks as done. Claude states the case in a PR comment and tells the user.
+  Automatic decisions (Alon, 2026-10-29):
+  - Disagreement after 2 cycles: `software-architect` decides as a tiebreaker and posts the decision as a comment (the finding, both
+    positions, the decision, why). It is final. A disagreement about what the user sees (cut or hidden information) still goes to the owner.
+  - Strings that need a decision (a new text for a row already in the app, a "Strings: not approved"): `product-engineer` and
+    `localization-reviewer` decide with the rules of this file (kid-friendly, short, no cut information). Each such change is listed in the
+    PR description and in the open `localization` issue so the owner can revert it. A text the owner wrote is never changed this way.
+  - Protocol: a change of `scripts/core/protocol.gd` is merged when `docs/PROTOCOL.md`, the `VERSION` bump (when incompatible) and the
+    protocol tests match, and the old and the new version are tested together (the `change-protocol` skill).
+  - Failing whole suite (when `qa` decided to run it): `qa` triages each failure. A failure that the PR caused goes back to `sw-developer`.
+    A failure that also fails on `main` is filed as an issue and does not block the merge.
+  - New third-party resource: `license-reviewer` checks it (see "Third-party libraries and resources"); a permissive license is merged
+    when everything is aligned.
+  Cases that stop an automatic merge and are left for the owner: a decision that the tiebreaker may not take (see above); a license that is
+  not permissive or not clear; a change of the privacy notice or of a store or legal text; a change of a rule in CLAUDE.md or of an
+  agent or skill file; a requirement with status `Device` that the PR marks as done. Claude states the case in a PR comment and tells the user.
 - The review comment is also required for later pull requests, not only for the first one.
 
 ## Manual tests (for the user)
