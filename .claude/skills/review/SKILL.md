@@ -91,4 +91,4 @@ Every comment starts with "🤖 AI Code Review", so it is clear that an AI wrote
      Quote the body (`>`) with the file, the code, the issue and the fix. After the quote add a line `**Developer answer:**` for the author to reply.
   3. The Tests comment.
 
-Do not fix your own findings and do not merge: the owner of the PR resolves each one (a fix, a linked follow-up issue, or a written reason in a PR comment), and you decide if a reason holds (CLAUDE.md, "Pull requests"). Tell the user what you found.
+Do not fix your own findings and do not merge. The owner of the PR (`sw-developer`) addresses every finding with a fix or a justification and posts a summary comment; you review again after that comment and decide if each fix and justification holds. When you agree the PR can be merged. After 2 cycles of disagreement the PR is left for the user (CLAUDE.md, "Pull requests"). Tell the user what you found.

@@ -58,7 +58,7 @@ Players, result and phones
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-BC-11 | A player who leaves takes the car out and keeps no stars in the ranking (REQ-GM-21). The stars of a leaving player are gone. When one player is left, the match ends at once with the result menu. When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_bumper_cars |
+| REQ-BC-11 | A player who leaves takes the car out and keeps no stars in the ranking (REQ-GM-21). The stars of a leaving player are gone. When one player is left, the match ends at once with the result menu: a technical win with the gold medal (REQ-GM-73). When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_bumper_cars |
 | REQ-BC-12 | At the end of the round the result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. The score text is "N stars". The winner gets a buzz of 400 ms. | Done | smoke_bumper_cars |
 | REQ-BC-13 | A lost phone pauses the round with the card of REQ-GM-30. Nothing runs during the pause (the clock, the new stars, the cars). | Done | smoke_tv (shared base class) |
 | REQ-BC-14 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the stars of the leader, or TIE. Each phone shows its own stars and place (REQ-FL-67). A car has no number on it (REQ-GM-46). | Done | smoke_bumper_cars, hud_layout |

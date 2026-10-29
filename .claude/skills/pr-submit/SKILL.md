@@ -70,5 +70,5 @@ End the body with `🤖 Generated with [Claude Code](https://claude.com/claude-c
    Use a temp file for the body to avoid escaping problems. Delete it after.
 3. Bind the PR with the app's PR tools (`get_status`, then `bind_pr` if needed) and read its CI. Do not poll CI yourself.
 4. Run the `review` skill on the PR and post its findings as one comment (see that skill). This is required for every PR (CLAUDE.md).
-   Do not fix the findings yourself as the reviewer. The owner of the PR resolves each one (a fix, a linked follow-up issue, or a written reason in a PR comment, CLAUDE.md "Pull requests"). Tell the user what you found.
+   Do not fix the findings yourself as the reviewer. The owner of the PR (`sw-developer`) addresses every finding with a fix or a justification and posts one summary comment; the reviewer then reviews again (at most 2 cycles, then the PR is left for the user; CLAUDE.md "Pull requests"). Tell the user what you found.
 5. Tell the user the PR link, the review result and any module set aside.

@@ -48,10 +48,15 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 - After you create a pull request, always run the `review` skill on it, and post the findings as one comment on the pull request.
   The reviewer (`code-reviewer`) posts without asking the user first. End the comment with the Claude Code footer. If there are no
   findings, post a short comment that says so, and list what you checked.
-- The reviewer never fixes a finding and never merges. The owner of the pull request (usually `sw-developer`) resolves every finding in one of
-  three ways: a fix, a follow-up issue that is linked, or a written reason in a pull request comment that the finding is wrong or
-  should not be fixed (the reviewer decides if the reason holds). After every review fix the owner posts a comment that says what was
-  resolved (decision of the owner, 2026-10-29). Tell the user what the review found.
+- Review cycle (decision of the owner, 2026-10-29). (1) `sw-developer` owns the pull request and acts on a review comment as soon as it is
+  posted: it addresses every finding, whatever its importance, with a fix or with a justification (the finding is wrong or should not be
+  fixed, with evidence). (2) When it has addressed all of them, it posts one summary comment on the pull request: for each finding the fix
+  (commit) or the justification. (3) Only after that summary comment does `code-reviewer` review again: it checks each fix and decides if
+  each justification holds, and posts the result. (4) When `sw-developer` and `code-reviewer` agree that every finding is resolved, the pull
+  request can be merged (not a pull request that adds or changes strings: it waits for the owner, see "Rules for this repository").
+  (5) One cycle is steps 1 to 3. When the two still disagree after 2 cycles, the pull request is left for the owner: `sw-developer`
+  posts a comment that states what the disagreement is (the finding, the fix or justification, the reviewer's objection) and nobody merges.
+  The reviewer never fixes a finding. Tell the user what the review found.
 - The review comment is also required for later pull requests, not only for the first one.
 
 ## Manual tests (for the user)
