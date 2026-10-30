@@ -99,7 +99,7 @@ What this means for the games that are not built yet. The decision is made in th
 
 Checked against `main` on 2026-10-08.
 
-- A game has a settings view with Difficulty and a table of what Easy, Medium and Hard mean in its requirements file (REQ-GM-90, 91). The chosen value is yellow (REQ-GM-97). The game gets it as the prop `difficulty`; Try again keeps it. The score of a solo game belongs to a difficulty and has no medal (REQ-GM-73, REQ-GM-95).
+- A game has a settings view with Difficulty and a table of what Easy, Medium and Hard mean in its requirements file (REQ-GM-90, 91). The chosen value is white (REQ-GM-97). The game gets it as the prop `difficulty`; Try again keeps it. The score of a solo game belongs to a difficulty and has no medal (REQ-GM-73, REQ-GM-95).
 - Leaving a game in progress asks first (REQ-GM-31a). A game overrides `_can_open_menu()` (or `_in_progress()`) to say when it is over.
 - A ball-like player object has only the slot color (no number, no avatar), the HUD has one leader chip, and the countdown has no name tags (removed 2026-10-21; REQ-GM-46, FD-21 leader chip).
 - Key objects are at least 48 px high and use no pale grey (REQ-GM-47d, 47e). All text is 32 px or larger (REQ-GM-41, REQ-FL-40).

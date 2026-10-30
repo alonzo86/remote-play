@@ -69,7 +69,7 @@ func _add_row(parent: Control, title: String, key: String, custom: Callable) -> 
 		if key == "language":
 			state.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # The name of a language is written in that language.
 			state.text = String(Lang.NAMES[Lang.current()]).to_upper()
-			state.add_theme_color_override("font_color", UiTheme.SELECTED)
+			state.add_theme_color_override("font_color", UiTheme.TEXT)   # REQ-GM-97: a chosen value is white.
 			return
 		var on := bool(App.settings[key])
 		state.text = "common.on" if on else "common.off"
@@ -127,7 +127,7 @@ func _add_level_row(parent: Control, title: String, key: String) -> void:
 	h.add_child(col)
 	var name_l := UiKit.label(title, UiTheme.SIZE_ITEM)
 	col.add_child(name_l)
-	var value := UiKit.label("", UiTheme.SIZE_ITEM, UiTheme.SELECTED)
+	var value := UiKit.label("", UiTheme.SIZE_ITEM)   # White like the other values (REQ-GM-97).
 	value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(value)
 	var tint := func():
