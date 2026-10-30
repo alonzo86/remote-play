@@ -338,6 +338,21 @@ func _hebrew_rows(app: Node) -> void:
 					"in English Right goes to the next value (%s) and Left to the previous (%s)" % [after_right, after_left])
 		_check((row._left.get_global_rect().get_center().x < row._right.get_global_rect().get_center().x) == (code == "en"),
 				"%s: the arrow of the previous value is at the %s of the next" % [code, "left" if code == "en" else "right"])
+		# Issue #229: the arrow glyph that is DRAWN (Hebrew mirrors "<" and ">") points the way of the key that uses it: the arrow
+		# at the left of the value is "<" and the one at the right is ">" in both languages, and the dim arrow at the end of the
+		# row is the one whose key would go past the end.
+		var at_left: Label = row._left if row._left.get_global_rect().get_center().x < row._right.get_global_rect().get_center().x \
+				else row._right
+		var at_right: Label = row._right if at_left == row._left else row._left
+		var lt := _glyph("<", TextServer.DIRECTION_LTR)
+		_check(_drawn_glyph(at_left) == lt and _drawn_glyph(at_right) == _glyph(">", TextServer.DIRECTION_LTR),
+				"%s: the arrow at the left of the value is drawn as '<' and the one at the right as '>'" % code)
+		row.set_value(order[order.size() - 1])
+		var end_dim: Label = row._right   # The arrow of the "next" step: the key that cannot go on at the last value.
+		_check(end_dim.modulate.a < 1.0 and row._left.modulate.a == 1.0,
+				"%s: at the last value the arrow of the key that cannot go on is dim" % code)
+		_check((at_right == end_dim) == (code == "en"),
+				"%s: the dim arrow at the last value is at the %s" % [code, "right" if code == "en" else "left"])
 		row.set_value("medium")
 		var chain: Array = []
 		var cur: Control = row
@@ -358,6 +373,20 @@ func _hebrew_rows(app: Node) -> void:
 
 ## Issue #77, REQ-GM-103: the settings view of every game shows its how-to-play text under the name, in English and in Hebrew, and
 ## Back and Start stay inside the 60 px safe margin of the screen.
+## The glyph index that the TextServer draws for `text` in the font of the UI when the direction is `dir`.
+func _glyph(text: String, dir: int) -> int:
+	var para := TextParagraph.new()
+	para.direction = dir
+	para.add_string(text, UiTheme.font(), 32)
+	var glyphs: Array[Dictionary] = TextServerManager.get_primary_interface().shaped_text_get_glyphs(para.get_line_rid(0))
+	return int(glyphs[0].index) if not glyphs.is_empty() else -1
+
+
+## The glyph that a label with a single arrow character draws in its layout direction.
+func _drawn_glyph(l: Label) -> int:
+	return _glyph(l.text, TextServer.DIRECTION_RTL if l.is_layout_rtl() else TextServer.DIRECTION_LTR)
+
+
 func _how_to(app: Node) -> void:
 	print("how to play")
 	var lang_script = app.Lang
