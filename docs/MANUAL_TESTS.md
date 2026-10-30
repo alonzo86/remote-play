@@ -56,7 +56,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A3, B1, B2, B3, B5, B6 | Fail | R0 | |
 | [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Partial (see the result table) | R4 | |
-| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R4 | |
+| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R4 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Partial (see the result table) | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Partial (see the result table) | R4 | |
 | [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Partial (see the result table) | R4 | |
@@ -291,7 +291,7 @@ History:
 
 ### Disconnect and reconnect
 
-Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8.
+Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-MR-14, REQ-MZ-8.
 
 Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Protocol.PEER_TIMEOUT_MS`, issue #56), so "at once" means 3.6 seconds at most (REQ-GM-30), measured from the moment you switch the Wi-Fi off. With one phone, the card then says "NO PLAYERS CONNECTED" and offers only **End game** (REQ-GM-30a, issue #46); when the phone is back, the card says "1P RECONNECTED" with **Resume**.
 
@@ -301,7 +301,9 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 3a. On the Games screen (not in a game), switch the phone Wi-Fi off for 45 seconds. Check: after 45 seconds the TV shows the slot of the phone as empty (it is empty 5 seconds after the phone was lost, REQ-FL-8).
 3b. Switch the Wi-Fi on. Check: within 10 seconds the phone joins again by itself (the TV does not know it any more, so it takes a new slot, maybe a different one) and shows "CHOOSE A GAME ON THE TV". No question is asked. (Issue #52: the PIN pad is gone.)
 3c. (Removed with the join PIN. The phone joins again by itself in 3b.)
-6a. On the phone pad, tap **Disconnect** once. Check: the phone shows the Connect screen less than 1 second after the tap (no second tap).
+6a. On the phone pad (in a game), tap **Disconnect** quickly 5 times. Check: the phone is still on the pad (no leave). (REQ-FL-52a, issue #239)
+6b. On the phone pad, press **HOLD TO LEAVE** and keep the finger on it. Check: the box fills from left to right and the phone shows the Connect screen 0.8 to 1.2 seconds after the press. A Hebrew reader checks the text HOLD TO LEAVE (`pad.disconnect_hold`). (REQ-FL-52a, issue #239)
+6c. Swing the phone in Tennis or Bowling for 20 swings with the thumb near the top right corner. Check: the phone does not leave the TV (yes or no). (issue #239)
 7a. With one phone in a game, call that phone from another phone and answer. Check: within 4 seconds of the answer (3 s of silence plus 1 s) the game pauses with the card "NO PLAYERS CONNECTED" (one phone, issue #46).
 7b. End the call and go back to the controller app. Check: the phone says "RECONNECTING..." and then joins again in 10 seconds or less (stopwatch from the return to the app).
 7c. Check: the card says "1P reconnected" with **Resume**, and **Resume** goes on with the game.
@@ -317,7 +319,9 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 | 3a | Photo of the Games screen after 45 s (slot empty) | Pass | R4 |  |  |
 | 3b | Photo of the phone after the join, with the seconds | Pass | R4 |  |  |
 | 3c | (Removed with the join PIN) | Not run | | | |
-| 6a | Video of the tap and the Connect screen (the seconds) | Pass | R4 |  |  |
+| 6a | Video of 5 quick taps on the pad | Not run | | | Changed 2026-10-30 (issue #239). R4 passed the old one-tap step. |
+| 6b | Video of the hold: the fill and the seconds to the Connect screen | Not run | | | Added 2026-10-30 (issue #239). |
+| 6c | Video of 20 swings | Not run | | | Added 2026-10-30 (issue #239). |
 | 7a | Video of a phone call: the card, with the seconds | Pass | R4 |  |  |
 | 7b | Video of the return: 'RECONNECTING...', the join, the seconds | Pass | R4 |  |  |
 | 7c | Video: the card 'reconnected', Resume, the game goes on | Pass | R4 |  |  |
