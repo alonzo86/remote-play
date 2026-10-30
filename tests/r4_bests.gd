@@ -24,8 +24,8 @@ const PATHS := ["user://test_r4_bests_a.cfg", "user://test_r4_bests_b.cfg"]
 const GAMES := [
 	{"id": "snowball_splat", "path": "res://scripts/game/snowball_splat/snowball_splat_game.gd", "props": {"difficulty": "medium"},
 			"key": "snowball_splat|medium", "scores": [100.0, 60.0, 130.0, 160.0], "unit": 1.0},
-	{"id": "paint_grab", "path": "res://scripts/game/paint_grab/paint_grab_game.gd", "props": {"difficulty": "medium"},
-			"key": "paint_grab|medium", "scores": [12.0, 8.0, 15.0, 18.0], "unit": 1.0},
+	{"id": "paint_grab", "path": "res://scripts/game/paint_grab/paint_grab_game.gd", "props": {"difficulty": "medium", "seed": 7},
+			"key": "paint_grab|medium", "scores": [12.0, 8.0, 15.0, 18.0], "unit": 1.0, "tiles": true},
 	{"id": "asteroid_blast", "path": "res://scripts/game/asteroid_blast/asteroid_blast_game.gd", "props": {"difficulty": "medium"},
 			"key": "asteroid_blast|medium", "scores": [800.0, 500.0, 1200.0, 1500.0], "unit": 1.0},
 	{"id": "bowling", "path": "res://scripts/game/bowling/bowling_game.gd", "props": {"difficulty": "medium"},
@@ -38,6 +38,7 @@ const GAMES := [
 var _checks := 0
 var _fails := 0
 var _app: Node
+var _stored_of := {}   # Paint Grab: the tiles of a round -> the value stored for them (REQ-PG-31, percent of the picture).
 var _rigs: Array = []   # {client, store, last_best, got}: a phone with the profile store and the message of its App
 var _wait_script: GDScript
 var _pad_script: GDScript
@@ -163,6 +164,10 @@ func _round(g: Dictionary, scores: Array) -> void:
 	for rig in _rigs:
 		rig.last_best = {}   # A new round clears the message (the App does it when the phase turns to playing).
 		rig.got.clear()
+	if g.get("tiles", false):
+		# Paint Grab counts tiles, the best is the percent of the picture (REQ-PG-31): ask the game (the seed fixes it).
+		for sc in g.scores:
+			_stored_of[sc] = game.best_value(sc)   # The key is the score; only Paint Grab fills it.
 	if g.id == "marble_race":
 		for s in 3:
 			game._racers[s].finish_time = scores[s]
@@ -175,6 +180,11 @@ func _round(g: Dictionary, scores: Array) -> void:
 	await _frames(20)
 
 
+## The whole number a profile stores for a round `score` of game `g`.
+func _value(g: Dictionary, score: float) -> int:
+	return int(_stored_of[score]) if g.get("tiles", false) else roundi(score * float(g.unit))
+
+
 func _stored(rig: Dictionary, key: String) -> int:
 	var p = rig.store.profiles[0] if not rig.store.profiles.is_empty() else null
 	return int(p.bests.get(key, 0)) if p != null else 0
@@ -183,12 +193,13 @@ func _stored(rig: Dictionary, key: String) -> int:
 func _game(g: Dictionary) -> void:
 	print(g.id)
 	var key: String = g.key
-	var unit: float = g.unit
-	var first: int = roundi(g.scores[0] * unit)
-	var worse: int = roundi(g.scores[1] * unit)
-	var better: int = roundi(g.scores[2] * unit)
 	# Round 1: a first score.
 	await _round(g, [g.scores[0], g.scores[0], g.scores[0]])
+	var first: int = _value(g, g.scores[0])
+	var worse: int = _value(g, g.scores[1])
+	var better: int = _value(g, g.scores[2])
+	_check(not g.get("tiles", false) or (worse < first and first < better),
+			"9: %s: the stored values keep the order of the scores (%d < %d < %d)" % [g.id, worse, first, better])
 	var shown: Dictionary = await _phone_shows(_rigs[0])
 	_check(_rigs[0].got == [[key, first]] and _rigs[1].got == [[key, first]],
 			"9a %s: both phones with a profile get the key and the score: %s %s" % [g.id, str(_rigs[0].got), str(_rigs[1].got)])
@@ -228,7 +239,7 @@ func _restart() -> void:
 	print("after a restart of the app")
 	var g: Dictionary = GAMES[1]   # Paint Grab
 	var key: String = g.key
-	var old: int = roundi(g.scores[2])
+	var old: int = _value(g, g.scores[2])
 	var maya = _rigs[0].store.profiles[0]
 	var pid: String = maya.id
 	_check(key.split("|").size() == 2 and not key.contains(_app.server.room_code),
