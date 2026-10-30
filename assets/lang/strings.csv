@@ -38,7 +38,7 @@ connect.press_ok_continue,PRESS OK TO CONTINUE,לחצו OK להמשך,TV Connect
 connect.qr_failed,QR scan failed: %s,סריקת QR נכשלה: %s,"Phone: message when the QR scan fails, %s is the reason",%s is replaced by a name or a value
 connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens (Back key): Quit button of the quit dialog,
 connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen and phone waiting and pad screens (Back key): title of the quit dialog,
-connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens)",
+connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens), also big in the middle of the pad with a dashed frame (issue #238)",
 connect.refused,Connection refused: %s,החיבור נדחה: %s,"Phone, Connect screen: error when the TV refuses for another reason, %s is the reason code",%s is replaced by a name or a value
 connect.room_code,ROOM CODE,קוד חדר,TV Connect screen: label above the room code; Games screen: label above the room code in the header,
 connect.scan_qr_code,SCAN QR CODE,סרוק קוד QR,"Phone, Connect screen: button that opens the QR scanner",
