@@ -90,7 +90,7 @@ Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The 
 
 ### Start and join
 
-Needs: 1 phone, 1 TV, a stopwatch. Covers: REQ-A3, REQ-A4, REQ-FL-5 to 10, REQ-FL-80, 83, 84, FD-28.
+Needs: 1 phone, 1 TV, a stopwatch. Covers: REQ-A3, REQ-A4, REQ-FL-5 to 10, REQ-FL-80, 83, 83a, 84, FD-28.
 
 Uninstall the old apps first. The package names changed (FD-26 and FD-27; the list is in `README.md`). Use a stopwatch for every time limit.
 
@@ -102,6 +102,8 @@ Uninstall the old apps first. The package names changed (FD-26 and FD-27; the li
 2b. Look at the phone screen. Check: the screen is in **portrait** and shows the title SABABI.
 4c. Tap **Disconnect**. Type the room code of the TV in lower case with a space after the second letter, and tap **JOIN**. Check: the phone shows the waiting screen with the square of slot 1 less than 5 seconds after the tap (stopwatch), and the TV shows the player in slot 1. (REQ-FL-83. The phone builds the TV address from its own Wi-Fi address.)
 4d. Tap **Disconnect**. Type the room code with its last letter changed to another letter of the code alphabet, and tap **JOIN**. Check: less than 5 seconds after the tap the status line of the phone shows "CAN'T FIND THIS ROOM. CHECK THE CODE, OR SCAN THE QR CODE." or "WRONG ROOM CODE.", and the TV shows no new player.
+4e. **Issue #241.** Tap **Disconnect** and look at the Connect screen on an Android phone. Check: the SCAN QR CODE button is the first and the biggest button, with a yellow frame, above the code field (yes or no). Tap it and scan the TV code: the phone shows the waiting screen in less than 5 seconds (stopwatch).
+4f. Tap **Disconnect**. Type only the 4 letters of the room code (no JOIN). Check: the phone shows the waiting screen less than 5 seconds after the 4th letter, without a tap on JOIN (3 of 3 tries), and the letters show as capitals while you type. A child of 5 to 8 years reads the 4 letters from the TV and types them: note the seconds and the wrong letters.
 6a. Tap **Disconnect** on the phone. Check: within 6 seconds the TV slot of the phone is empty (the slot may show "LOST" for 5 seconds at most, REQ-FL-8, issue #44).
 6b. Close the controller app and start it again, and film the start. Check: the Android splash (the mascot on black) is already in portrait and the phone does not turn at any frame of the video, and it is the only splash: the Connect screen follows at once, with no logo screen.
 
@@ -115,6 +117,8 @@ Uninstall the old apps first. The package names changed (FD-26 and FD-27; the li
 | 2b | Photo of the phone in portrait | Pass | R3 |  |  |
 | 4c | Video of the typed code and the tap on JOIN with the stopwatch (seconds until the waiting screen) | Pass | R4 |  | R3: Pass - 1. instead of "Discovered TVs" now shows "ROOMS" - this is the correct behavior; R4: Pass |
 | 4d | Photo of the status line after the wrong code, with the seconds | Pass | R4 |  | R3: Pass - 1. instead of "Discovered TVs" now shows "ROOMS" - this is the correct behavior; R4: Pass |
+| 4e | Photo of the Connect screen; note: the seconds to the waiting screen | Not run | | | Added 2026-10-30 (issue #241). |
+| 4f | Video of typing 4 letters; note: seconds, and for the child the wrong letters | Not run | | | Added 2026-10-30 (issue #241). |
 | 6a | Photo of the TV slots 5 s after the tap, and the seconds until the slot is empty | Pass | R4 |  | R3: Pass - when disconnected, the tv still shows the previously connected player with status "LOST" which disappears after some time. i think the "LOST" state is no needed here, if a player disconnected they need to be removed from the list or maybe give some grace but no more then 3-5 seconds; R4: Pass |
 | 6b | Video of the app start in portrait: splash, then the Connect screen | Pass | R3 |  | R3: Pass - when disconnected, the tv still shows the previously connected player with status "LOST" which disappears after some time. i think the "LOST" state is no needed here, if a player disconnected they need to be removed from the list or maybe give some grace but no more then 3-5 seconds |
 
