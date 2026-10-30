@@ -6,6 +6,8 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const GearButton = preload("res://scripts/ui/gear_button.gd")
+const Lang = preload("res://scripts/core/lang.gd")
+const Registry = preload("res://scripts/game/registry.gd")
 
 var _checks := 0
 var _fails := 0
@@ -29,6 +31,7 @@ func _initialize() -> void:
 	_images()
 	_export_pack()
 	_info_text()
+	_game_names()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -429,7 +432,7 @@ func _export_pack() -> void:
 	if not FileAccess.file_exists(out):
 		return
 	var hex := FileAccess.get_file_as_bytes(out).hex_encode()
-	var registry: GDScript = load("res://scripts/game/registry.gd")
+	var registry: GDScript = Registry
 	var missing: Array[String] = []
 	for g in registry.GAMES:
 		var tile := String(g.tile)
@@ -485,3 +488,36 @@ func _gd_files(dir: String) -> Array[String]:
 	for d in DirAccess.get_directories_at(dir):
 		out.append_array(_gd_files(dir + "/" + d))
 	return out
+## REQ-GM-6a (issue #231): docs/GAME_REQUIREMENTS.md has one table of game ids and names. Every registry id has a row, the name in
+## the row is the English text of the title key, and the table has no row of a game that is not in the registry.
+func _game_names() -> void:
+	print("game ids and names")
+	var rows := {}
+	for line in FileAccess.get_file_as_string("res://docs/GAME_REQUIREMENTS.md").split("\n"):
+		var cells := line.strip_edges().trim_prefix("|").split("|")
+		if cells.size() >= 3 and cells[0].strip_edges().begins_with("`"):
+			var id: String = cells[0].strip_edges().trim_prefix("`").trim_suffix("`")
+			rows[id] = {"name": cells[1].strip_edges(), "doc": cells[2].strip_edges()}
+	var ids: Array[String] = []
+	var missing: Array[String] = []
+	var wrong: Array[String] = []
+	for g in Registry.GAMES:
+		var id := String(g.id)
+		ids.append(id)
+		if not rows.has(id):
+			missing.append(id)
+			continue
+		var english := String(Lang.table()[String(g.title)].en)
+		if rows[id].name != english:
+			wrong.append("%s: '%s' is '%s' in the app" % [id, rows[id].name, english])
+		if rows[id].doc != "`%s`" % String(g.doc).trim_prefix("res://"):
+			wrong.append("%s: file %s" % [id, rows[id].doc])
+	var extra: Array[String] = []
+	for id in rows:
+		if not ids.has(id):
+			extra.append(id)
+	_check(not ids.is_empty() and missing.is_empty(),
+			"every registry id has a row in the id-to-name table (missing: %s)" % str(missing))
+	_check(wrong.is_empty(),
+			"each row has the English name of the title key and the doc of the registry (wrong: %s)" % str(wrong))
+	_check(extra.is_empty(), "the table has no row of a game that is not in the registry (extra: %s)" % str(extra))

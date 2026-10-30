@@ -18,11 +18,13 @@ var _fingers: Dictionary = {}   # finger index -> zone name
 var _touch_finger := -1
 var _quit_dialog: Control
 var _flash := {"recenter": 0.0}
+var _leave_hold := 0.0   # Seconds that a finger has stayed on Disconnect (issue #239).
 var _aim_frac := 0.5   # Where the finger left the aim strip (0 left, 1 right) in Pin Pals.
 
 const HEADER_Y := 110.0   # The vertical middle of the header row.
 const SCORE_Y := 205.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
 const INFO_Y := 50.0      # How far the Recenter box and the turn and best rows move down for the score row.
+const LEAVE_HOLD := 0.8   # A game needs a long press to leave: a swinging child must not leave by accident (REQ-FL-52a).
 const BUTTON_LIFT := 12.0        # How far the face of an arcade button stands above its lower edge.
 const BUTTON_LIFT_DOWN := 4.0    # The same while it is pressed: the button looks pressed in.
 
@@ -46,6 +48,15 @@ func _on_phase(_phase: String) -> void:
 
 func _process(delta: float) -> void:
 	_flash.recenter = maxf(_flash.recenter - delta * 3.0, 0.0)
+	if _fingers.values().has("leave"):
+		_leave_hold += delta
+		if _leave_hold >= LEAVE_HOLD:
+			_leave_hold = 0.0
+			_fingers.erase(_fingers.find_key("leave"))
+			App.client.leave()
+			return
+	else:
+		_leave_hold = 0.0
 	if not _aim_mode():
 		_aim_frac = 0.5   # Each turn starts in the middle of the lane.
 	queue_redraw()
@@ -164,7 +175,7 @@ func _input(event: InputEvent) -> void:
 func _on_zone_down(zone: String, index: int, pos: Vector2) -> void:
 	match zone:
 		"leave":
-			App.client.leave()
+			_leave_hold = 0.0   # The leave happens in _process after LEAVE_HOLD seconds.
 		"recenter":
 			App.client.send_recenter()
 			_flash.recenter = 1.0
@@ -257,8 +268,14 @@ func _draw() -> void:
 		draw_string(f, Vector2(best_rect.position.x, UiTheme.centered_baseline(f, best_rect, 32)), best_line(best),
 				HORIZONTAL_ALIGNMENT_LEFT, best_rect.size.x, 32, UiTheme.OK)
 
-	# Disconnect: a framed text box. One tap leaves the TV (REQ-FL-52).
-	_draw_box(_rect_leave(), UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect"), 24, UiTheme.BUTTON_TEXT)
+	# Disconnect: a framed text box. A game needs a press of LEAVE_HOLD seconds; the box fills while the finger stays (REQ-FL-52a).
+	var lr := _rect_leave()
+	_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), 24, UiTheme.BUTTON_TEXT)
+	if _leave_hold > 0.0:
+		var fill := Rect2(lr.position, Vector2(lr.size.x * minf(_leave_hold / LEAVE_HOLD, 1.0), lr.size.y))
+		draw_rect(fill, UiTheme.BAD)
+		draw_string(UiTheme.font(), Vector2(lr.position.x, UiTheme.centered_baseline(UiTheme.font(), lr, 24)),
+				Lang.t("pad.disconnect_hold").to_upper(), HORIZONTAL_ALIGNMENT_CENTER, lr.size.x, 24, UiTheme.BG)
 
 	var rr := _rect_recenter()
 	if _aim_mode():

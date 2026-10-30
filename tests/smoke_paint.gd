@@ -250,7 +250,7 @@ func _run() -> void:
 	var labels: Array = []
 	for l in game._menu_box.find_children("*", "Label", true, false):
 		labels.append(l.text)
-	_check(game.is_over and buttons == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"],
+	_check(game.is_over and buttons == ["minigame.restart", "common.settings", "minigame.back_to_menu"],
 			"time up opens the result menu: %s" % str(buttons))
 	_check(labels[0] == "MEDIUM" and MedalView.tiers_in(game._menu_box) == ["gold"]
 			and labels[1].contains(" TILES (") and labels[1].ends_with("%)"),

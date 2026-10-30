@@ -49,7 +49,7 @@ black. They show as a filled square next to the slot number, never as the only c
   Fredoka. The font is an 8 px grid: sizes are multiples of 8, with antialiasing off and no hinting, so the pixels stay
   sharp.
 - Sizes on the TV: body text and hints 32 px, menu items and slots 40 px, titles 64 px, the logo text 96 px, the
-  countdown 256 px. The rule "all TV text is 28 px or more" (REQ-FL-40) stays; the smallest size is now 32 px.
+  countdown 256 px. The rule "all TV text is 32 px or more" (REQ-FL-40) stays; the smallest size is 32 px.
 - All UI text is upper case ("PRESS OK TO CONTINUE", "1P ALON"). Player names show in upper case.
 - Hebrew player names use **Sababi Pixel Hebrew** (`assets/fonts/SababiPixelHebrew.ttf`, SIL OFL), a fallback
   font made for this project on the same 8 px grid: 2 px vertical strokes, 1 px horizontal strokes, the cap height of
