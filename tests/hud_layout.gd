@@ -196,6 +196,7 @@ func _play(id: String) -> void:
 
 func _countdown_checks(id: String, snap: Dictionary, lang: String, timed: bool) -> void:
 	var state := "%s in %s" % [id, "Hebrew" if lang == "he" else "English"]
+	_chip_margin_checks(state, snap)
 	var title := _one(snap, "title")
 	_check(not title.is_empty(), "%s: the countdown shows one title" % state)
 	if not title.is_empty():
@@ -210,7 +211,7 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String, timed: bool) 
 	var named := false
 	for kind in snap:
 		for e in snap[kind]:
-			named = named or (kind != "leader" and e.info.has("name") and _is_player_name(String(e.info.name)))
+			named = named or (kind != "leader" and kind != "chip" and e.info.has("name") and _is_player_name(String(e.info.name)))
 	_check(not named, "%s: no box of the countdown holds the name of a player" % state)
 	var hint := _one(snap, "hint")
 	if not hint.is_empty():
@@ -218,6 +219,11 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String, timed: bool) 
 		_check(float(hint.info.text_w) <= float(hint.info.max_w) + 0.01 and Rect2(MARGIN, 0, 1800, 1080).encloses(text_box),
 				"%s: the hint fits its plate, and its text is inside the side margins (%s)" % [state, str(hint.rect)])
 		_check(Rect2(MARGIN, MARGIN, 1800, 960).encloses(text_box), "%s: the hint text is inside the 60 px margin" % state)
+		var covered: Array = []
+		for c in snap.get("chip", []):
+			if hint.rect.intersects(c.rect):
+				covered.append(str(c.rect))
+		_check(covered.is_empty(), "%s: the hint plate does not cover a chip (covered: %s)" % [state, str(covered)])
 	var counts: Array = snap.get("countdown", [])   # Some games draw the number twice (a shadow below the number).
 	if not timed:
 		_check(counts.is_empty(), "%s: the game has no timer, so it draws no countdown (REQ-GM-35)" % state)
@@ -282,6 +288,7 @@ func _round_checks(id: String, spec: Array) -> void:
 		var state := "%s in %s" % [id, "Hebrew" if lang == "he" else "English"]
 		_check(not snap.has("leader"), "%s: no leader chip while all players are level at 0" % state)
 		_check(not snap.has("tag"), "%s: no name tags in the round" % state)
+		_chip_margin_checks(state, snap)
 		_row_checks(state, snap, lang, has_timer)
 	if not has_chip:
 		Lang.set_language("en", root)
@@ -303,6 +310,7 @@ func _round_checks(id: String, spec: Array) -> void:
 		_check(leader.info.score == _game.leader_text() and leader.info.color == _app.server.players[lead_slot].color,
 				"%s: the chip has the score text '%s' and the color of the leader" % [state, _game.leader_text()])
 		var snap := await _snap()
+		_chip_margin_checks(state, snap)
 		_row_checks(state, snap, lang, has_timer)
 		_chip_edge_checks(state, snap, lang)
 		# A long score still fits inside the chip, and the chip inside the margin (REQ-GM-46).
@@ -368,6 +376,22 @@ func _chip_edge_checks(state: String, snap: Dictionary, lang: String) -> void:
 		_check(is_equal_approx(l.rect.end.x, 1920.0 - MARGIN),
 				"%s: the leader chip ends at the right margin (x %.0f)" % [state, l.rect.end.x])
 	_check(_chip_fits(l), "%s: the whole name and score fit inside the chip, inside the margin (%s)" % [state, str(l.rect)])
+
+
+## Issue #223: every chip the game draws (name and score chips, lists, the bench) is inside the 60 px margin of the 1920x1080
+## screen: at the sides, at the bottom and, below the black bar, at the top. A chip in the bar (the leader chip) keeps the
+## 60 px at the sides only, as the bar rule above says. Older TV boxes crop 2 to 5 percent of each edge.
+func _chip_margin_checks(state: String, snap: Dictionary) -> void:
+	var safe := Rect2(MARGIN, MARGIN, 1920.0 - 2.0 * MARGIN, 1080.0 - 2.0 * MARGIN)
+	var bad: Array = []
+	for e in snap.get("chip", []):
+		var r: Rect2 = e.rect
+		var in_bar: bool = r.end.y <= HUD_BAR_H
+		var ok := r.position.x >= MARGIN - 0.01 and r.end.x <= safe.end.x + 0.01 and r.end.y <= safe.end.y + 0.01 \
+				and (in_bar or r.position.y >= MARGIN - 0.01)
+		if not ok:
+			bad.append(str(r))
+	_check(bad.is_empty(), "%s: every chip is inside the 60 px margin (outside: %s)" % [state, str(bad)])
 
 
 ## The title, the timer and the chip share one row, do not touch each other and stand inside the top bar (REQ-GM-46, 47o).

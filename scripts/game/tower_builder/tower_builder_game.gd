@@ -345,7 +345,10 @@ func _game_draw() -> void:
 		if banner_text != "" and phase != Phase.TURN:
 			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, BANNER_FONT, UiTheme.ACCENT)
 		if dropped == 0 and phase == Phase.TURN and _time < HINT_TIME:
-			Shell.hint(self, size, "tower_builder.hint")
+			var top := CHIP_Y
+			for r in chip_rects():
+				top = minf(top, r.position.y)
+			Shell.hint(self, size, "tower_builder.hint", top - 16.0)   # Above the chips, not over them (issue #223).
 	_draw_chips()
 
 

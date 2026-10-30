@@ -24,7 +24,7 @@ const BUZZ_GAP_MS := 150
 const MAX_HEADING := 1.2        # The aim can turn this far to each side (radians).
 const PAUSE_GAP_MS := 400
 const BAR_H := 56.0
-const BAR_MARGIN := 24.0
+const BAR_MARGIN := 64.0   # Chips and the 4 px frame of the player on turn end inside the 60 px margin (REQ-GM-40, #223).
 
 enum Phase { AIM, ROLL, RESULT, HOLE, END }
 
