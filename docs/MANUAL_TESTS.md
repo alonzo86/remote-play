@@ -56,7 +56,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A3, B1, B2, B3, B5, B6 | Fail | R0 | |
 | [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Partial (see the result table) | R4 | |
-| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R4 | |
+| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52b, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R4 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Partial (see the result table) | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Partial (see the result table) | R4 | |
 | [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Partial (see the result table) | R4 | |
@@ -308,6 +308,10 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot.
 8a. **The TV closes (2026-10-29, issue #169).** With one phone joined and on the Games screen, press Back on the TV remote until the TV app quits. Check: within 3 seconds the phone leaves the waiting screen and shows the Connect screen or "RECONNECTING..." (yes or no). (REQ-GM-30)
 8b. Join again, then kill the TV app (swipe it away in the recent apps, or unplug the box). Check: within 5 seconds the phone shows "RECONNECTING..." and not the waiting screen with the game name (yes or no). (REQ-GM-30)
+9a. **Lost link on the pad (2026-10-30, issue #238).** Start a game with one phone, then switch the phone Wi-Fi off. Check: within 4 seconds the phone vibrates once for about 0.7 s and the pad shows a frame of red and white dashes around the whole screen, a dimmed play area and RECONNECTING... in the middle (yes or no for each of the three). (REQ-FL-52b)
+9b. Look at the phone for the dashed frame with a color-blindness filter on (or in gray scale). Check: the frame is still visible as a ring of dashes (yes or no).
+9c. With the HAPTICS switch OFF repeat 9a. Check: the phone does not vibrate; the frame still shows.
+9d. Join with a profile whose name is 10 letters of the widest kind (for example WWWWWWWWWW) and an avatar. Check: all letters of the name show in the header and none is under DISCONNECT (yes or no).
 
 **Results**
 
@@ -324,6 +328,10 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 | 7d | Video of the 70 s call and the return, same slot | Pass | R4 |  |  |
 | 8a | Video of the phone when the TV app quits | Not run | | | Added 2026-10-29 (issue #169). |
 | 8b | Video of the phone when the TV app is killed | Not run | | | Added 2026-10-29 (issue #169). |
+| 9a | Video of the Wi-Fi cut: the buzz (sound or feel), the frame, the time | Not run | | | Added 2026-10-30 (issue #238). |
+| 9b | Photo in gray scale | Not run | | | Added 2026-10-30 (issue #238). |
+| 9c | Video with HAPTICS OFF | Not run | | | Added 2026-10-30 (issue #238). |
+| 9d | Photo of the header | Not run | | | Added 2026-10-30 (issue #238). |
 
 Items 1b (merged into 1a), 1c, 1e, 4c, 5e and 6b to 6e moved to the automated tests (docs/AUTOMATED_TESTS.md, A-7-1, A-7-4, A-7-5, A-7-6). Items 1d, 4a and 5a to 5d moved too (A-7-7), and item 1a moved too: the TV half is A-7-7 and the phone half (it shows RECONNECTING when the TV is silent) is A-7-8, a check of `join_flow` that fails until issue #61 is fixed (Alon decided on 2026-10-21 to keep this automatic). The numbers of the other items do not change.
 
