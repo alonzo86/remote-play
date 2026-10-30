@@ -236,8 +236,9 @@ Decided on 2026-10-10 (open question 7):
 - **To change it later:** a "LANGUAGE" row on the Settings screen (FD-4) switches between English and Hebrew at once,
   with no restart.
 - **The phone:** before it joins, the phone uses the language of the phone (Hebrew when the system language is Hebrew,
-  else English). After it joins, it uses the language of the TV, so that the TV and every phone in the room match. The
-  TV sends its language to the phones; a change on the Settings screen goes to all phones at once.
+  else English). Changed 2026-10-29 (issue #171, REQ-FL-62): it keeps that language after it joins and never follows the
+  TV. The phone changes its own language with the language button on its Settings screen (kept after a restart). The TV
+  still sends its language, but a phone ignores it.
 
 Why not a choice on every start: the same family uses the same language every time, and a stop on every start adds a
 step before every game night.
@@ -289,6 +290,6 @@ test 17 checks the Android and iOS builds.
 6. The Hebrew punctuation in the font. (Built without a change to the font: the Hebrew font is the fallback of Press Start 2P, so
    `,` `.` `!` `?` `:` `-` `"` `'` come from Press Start 2P and no glyph needed to be added. The device test 17 checks that
    they look right next to the Hebrew letters.)
-7. Manual test: the TV and two phones in Hebrew (first start, the choice, every screen mirrored and readable, the
-   phones follow the TV, a change in Settings), and in English. Test 8b item 7 ("a TV set to Hebrew stays English")
+7. Manual test: the TV and two phones in Hebrew (first start, the choice, every screen mirrored and readable, each
+   phone in its own language, never the TV's, since 2026-10-29, a change in Settings), and in English. Test 8b item 7 ("a TV set to Hebrew stays English")
    changes: the TV now offers Hebrew.
