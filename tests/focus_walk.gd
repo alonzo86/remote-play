@@ -385,7 +385,7 @@ func _game_flow() -> void:
 	_check(game._ring_time > running, "and the game clock runs again")
 	await _key(KEY_BACK)
 	var ask: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(game.is_paused() and ask == ["minigame.resume_play", "minigame.end_game"],
+	_check(game.is_paused() and ask == ["minigame.resume", "minigame.end_game"],
 			"Back during play asks END THE GAME?: %s" % str(ask))
 	_check(_focus() == game.menu_buttons()[0], "RESUME PLAY has the focus")
 	var stopped: float = game._ring_time

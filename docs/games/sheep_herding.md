@@ -39,7 +39,7 @@ Round
 | REQ-SH-2 | The dogs start at the left edge of the field, spread over its height (1 dog in the middle, 2 dogs at 30% and 70%, and so on), all at the same distance from the pen. The sheep start as a flock in the left middle of the field, apart from each other and from every blocker (REQ-SH-4). | Done | sheep_rules, smoke_sheep |
 | REQ-SH-3 | The field, the pen, the barn and the things around (REQ-SH-16) come from the seed (`start_props.seed`; Restart keeps it), so a test can fix them. | Done | sheep_rules, smoke_sheep |
 | REQ-SH-5 | The round ends when every sheep is in the pen, or when the time is up. When every sheep is in, the dogs and the sheep go on for 1.6 s with confetti over the pen, every phone buzzes 400 ms, and then the result opens (a win for the team: the sound `win`). When the time is up the result opens at once. | Done | smoke_sheep, sheep_rules |
-| REQ-SH-6 | The result menu is `open_results()` (REQ-GM-72): the list of the players with "N / M sheep", Try again, New game, Back to menu. With 2 to 4 players the title is "All sheep are safe!" or "N of M sheep are safe!" and every row has the gold medal (the score is shared, so all players tie for 1st, REQ-GM-73a); with one player the title is the difficulty and the row has no medal (REQ-SH-18). | Done | smoke_sheep |
+| REQ-SH-6 | The result menu is `open_results()` (REQ-GM-72): the list of the players with "N / M sheep", Try again, Settings, Back to menu. With 2 to 4 players the title is "All sheep are safe!" or "N of M sheep are safe!" and every row has the gold medal (the score is shared, so all players tie for 1st, REQ-GM-73a); with one player the title is the difficulty and the row has no medal (REQ-SH-18). | Done | smoke_sheep |
 
 Sheep
 
