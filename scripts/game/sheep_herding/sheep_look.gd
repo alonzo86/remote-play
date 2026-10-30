@@ -4,6 +4,7 @@ extends RefCounted
 ## the text is one world pixel (4 units, REQ-GM-47a). Nothing is an image file. The drawing helpers draw on the pixel layer.
 
 const Shell = preload("res://scripts/game/shell.gd")
+const Palette = preload("res://scripts/game/palette.gd")
 
 const WORLD_PIXEL := 4.0
 const OUTLINE := Color("000000")
@@ -30,7 +31,7 @@ const SILO := Color("b8bcc8")
 const SILO_LIGHT := Color("dfe3ee")
 const HAY_COLOR := Color("e8c24a")
 const HAY_DARK := Color("c49a28")
-const CONFETTI := [Color("e63946"), Color("2a9d8f"), Color("f4a261"), Color("457b9d"), Color("f8d800"), Color("fcfcfc")]
+const CONFETTI := Palette.SLOTS + [ Color("f8d800"), Color("fcfcfc")]
 
 ## Where the barn parts are, from the top-left corner of the barn picture (world pixels).
 const BARN_SIZE := Vector2(56.0, 46.0)         # The walls and the roof, without the silo and the vane.
