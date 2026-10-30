@@ -85,8 +85,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	if phase == Phase.ENROLL and not _menu_open and not is_over and _enrolled.size() == 1 and event.is_action_pressed("ui_accept"):
 		get_viewport().set_input_as_handled()
 		_start_match()
-		return
-	super(event)
 
 
 func _start_match() -> void:

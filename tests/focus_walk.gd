@@ -368,7 +368,12 @@ func _game_flow() -> void:
 	await _wait_until(func(): return game._can_open_menu(), 8000)
 	await _frames(3)
 	await _press("ui_accept")
-	_check(game.is_paused(), "OK opens the pause menu")
+	_check(not game.is_paused() and game.menu_buttons().is_empty(), "OK in a game does nothing (REQ-GM-31, issue #228)")
+	var clock0: float = game._ring_time
+	await create_timer(0.5).timeout
+	_check(game._ring_time > clock0, "and the game clock keeps running after OK")
+	game.open_menu("minigame.paused", game.pause_entries())
+	await _frames(2)
 	var entries: Array = game.menu_buttons().map(func(b): return b.text)
 	_check(entries == ["minigame.resume", "minigame.restart", "minigame.end_game"],
 			"the pause menu has 3 items: %s" % str(entries))

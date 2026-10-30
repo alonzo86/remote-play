@@ -128,11 +128,8 @@ func _four_phones() -> void:
 	var before: Array = []
 	for i in 4:
 		before.append([_clients[slots[i]].score_rank, _clients[slots[i]].score_of, _clients[slots[i]].score_text])
-	var ok_key := InputEventAction.new()
-	ok_key.action = "ui_accept"
-	ok_key.pressed = true
-	game._unhandled_input(ok_key)
-	_check(game.is_paused(), "OK on the remote opens the pause menu")
+	game.open_menu("minigame.paused", game.pause_entries())
+	_check(game.is_paused(), "the pause menu is open")
 	await _stream(1.5, 4)
 	var after: Array = []
 	for i in 4:
