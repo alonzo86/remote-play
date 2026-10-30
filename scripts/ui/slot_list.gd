@@ -90,7 +90,7 @@ func _make_row(p: PlayerInput) -> Control:
 		av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		h.add_child(av)
 	else:
-		h.add_child(_cell("%dP" % (p.slot + 1), UiTheme.TEXT if present else UiTheme.TEXT_DIM))
+		h.add_child(_cell("%dP" % (p.slot + 1), UiTheme.TEXT if present else UiTheme.TEXT_INFO))
 	var name_l := _cell(p.player_name if present else "", UiTheme.TEXT)
 	name_l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # A player name is never translated (REQ-FL-63).
 	name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -101,7 +101,7 @@ func _make_row(p: PlayerInput) -> Control:
 	h.add_child(name_l)
 
 	var state_text := "slot_list.wait"
-	var state_col := UiTheme.TEXT_DIM
+	var state_col := UiTheme.TEXT_INFO
 	match p.state:
 		PlayerInput.State.CONNECTED:
 			state_text = "slot_list.ready"

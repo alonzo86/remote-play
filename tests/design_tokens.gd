@@ -28,6 +28,7 @@ func _initialize() -> void:
 	_app_identity()
 	_images()
 	_export_pack()
+	_info_text()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -107,7 +108,8 @@ func _run() -> void:
 	# Colors the theme derives in code.
 	wanted.append(Color(UiTheme.BG, 0.8))
 	# Each named token holds the value of its UiTheme constant (a swap of two values is caught).
-	var named := {"bg": UiTheme.BG, "text": UiTheme.TEXT, "text-dim": UiTheme.TEXT_DIM, "accent": UiTheme.ACCENT,
+	var named := {"bg": UiTheme.BG, "text": UiTheme.TEXT, "text-info": UiTheme.TEXT_INFO,
+			"text-dim": UiTheme.TEXT_DIM, "accent": UiTheme.ACCENT,
 			"frame": UiTheme.FRAME, "ok": UiTheme.OK, "bad": UiTheme.BAD, "slot-empty": UiTheme.SLOT_EMPTY,
 			"dim-layer": Color(UiTheme.BG, 0.8), "player-1": Protocol.PLAYER_COLORS[0],
 			"player-2": Protocol.PLAYER_COLORS[1], "player-3": Protocol.PLAYER_COLORS[2],
@@ -173,7 +175,8 @@ func _check_outside_theme(data: Dictionary, by_name: Dictionary) -> void:
 ## The text colors are readable on black, and the text on a player color is readable (REQ-GM-46, REQ-FL-40).
 func _contrast_checks() -> void:
 	print("contrast")
-	var palette := {"TEXT": UiTheme.TEXT, "TEXT_DIM": UiTheme.TEXT_DIM, "ACCENT": UiTheme.ACCENT, "OK": UiTheme.OK,
+	var palette := {"TEXT": UiTheme.TEXT, "TEXT_INFO": UiTheme.TEXT_INFO,
+			"TEXT_DIM": UiTheme.TEXT_DIM, "ACCENT": UiTheme.ACCENT, "OK": UiTheme.OK,
 			"BAD": UiTheme.BAD}
 	var low: Array[String] = []
 	for n in palette:
@@ -230,6 +233,13 @@ func _white_buttons() -> void:
 			var sb: StyleBoxFlat = b.get_theme_stylebox(st)
 			margins[[sb.content_margin_left, sb.content_margin_top, sb.content_margin_right, sb.content_margin_bottom]] = true
 		_check(margins.size() == 1, "%s: all five states have the same content margins, so a focus never moves the layout" % names[i])
+		# Issue #221: the disabled color belongs to the disabled state only.
+		var uses_disabled := false
+		for st in ["normal", "hover", "focus", "pressed"]:
+			var sb2: StyleBoxFlat = b.get_theme_stylebox(st)
+			uses_disabled = uses_disabled or sb2.bg_color == UiTheme.DISABLED or sb2.border_color == UiTheme.DISABLED \
+					or b.get_theme_color("font_%s_color" % st if st != "normal" else "font_color") == UiTheme.DISABLED
+		_check(not uses_disabled, "%s: no enabled state (normal, hover, focus, pressed) uses the disabled color" % names[i])
 		var off: StyleBoxFlat = b.get_theme_stylebox("disabled")
 		_check(off.bg_color == UiTheme.BG and off.border_color == UiTheme.TEXT_DIM
 				and b.get_theme_color("font_disabled_color") == UiTheme.DISABLED, "%s: disabled keeps the dim look" % names[i])
@@ -434,3 +444,44 @@ func _export_pack() -> void:
 			and hex.contains("assets/logo/logo.png".to_utf8_buffer().hex_encode()), "the pack holds the table of texts and the logo")
 	_check(not hex.contains("res://tests/".to_utf8_buffer().hex_encode()), "the pack holds no test file")
 	DirAccess.remove_absolute(out)
+
+
+## Issue #221: grey is for what is disabled. Info text that is active (hints, the player range, WAIT, empty slots) has its own
+## lighter token, and no text of the TV or the phone is drawn with the disabled color.
+func _info_text() -> void:
+	print("info text and the disabled color")
+	_check(UiTheme.DISABLED == UiTheme.TEXT_DIM and UiTheme.TEXT_INFO != UiTheme.TEXT_DIM,
+			"the disabled color is TEXT_DIM and the info text has another token")
+	var info := UiTheme.TEXT_INFO
+	_check(info.r >= 0xb0 / 255.0 - 0.001 and info.g >= 0xb0 / 255.0 - 0.001 and info.b >= 0xb0 / 255.0 - 0.001,
+			"the info text is #b0b0b0 or lighter")
+	var c_info := UiTheme.contrast(info, UiTheme.BG)
+	var c_dim := UiTheme.contrast(UiTheme.TEXT_DIM, UiTheme.BG)
+	_check(c_info >= 7.0 and c_info > c_dim, "the info text has 7:1 or more on black (%.1f), more than the disabled color (%.1f)"
+			% [c_info, c_dim])
+	_check(UiTheme.contrast(info, UiTheme.BG) < UiTheme.contrast(UiTheme.TEXT, UiTheme.BG), "the info text is quieter than white")
+	var re := RegEx.create_from_string("label\\(|draw_string|font_color|blinking\\(|draw_centered|Shell\\.(text|hint)")
+	var offenders: Array[String] = []
+	for dir in ["res://scripts/ui", "res://scripts/game"]:
+		for f in _gd_files(dir):
+			if f.ends_with("debug_overlay.gd") or f.ends_with("ui_theme.gd"):
+				continue
+			var n := 0
+			for line in FileAccess.get_file_as_string(f).split("\n"):
+				n += 1
+				if line.contains("TEXT_DIM") and re.search(line) != null:
+					offenders.append("%s:%d" % [f.trim_prefix("res://"), n])
+	_check(offenders.is_empty(), "no text is drawn in the disabled color; use TEXT_INFO (%s)" % str(offenders))
+	# The test itself: a text line with TEXT_DIM is found by the pattern.
+	_check(re.search("UiKit.label(\"x\", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)") != null
+			and re.search("draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM))") == null, "the pattern finds a text, not a frame")
+
+
+func _gd_files(dir: String) -> Array[String]:
+	var out: Array[String] = []
+	for f in DirAccess.get_files_at(dir):
+		if f.ends_with(".gd"):
+			out.append(dir + "/" + f)
+	for d in DirAccess.get_directories_at(dir):
+		out.append_array(_gd_files(dir + "/" + d))
+	return out

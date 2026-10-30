@@ -28,7 +28,8 @@ A small fixed palette, taken from the NES palette. All text colors have a contra
 |-------|-------|-----|-------------------|
 | `BG` | `#000000` | Every screen background | - |
 | `TEXT` | `#fcfcfc` | Text, the outer frame line | 20.5:1 |
-| `TEXT_DIM` | `#7c7c7c` | Help text, "WAIT", empty slots, the quiet menu item | 5.0:1 |
+| `TEXT_INFO` | `#b0b0b0` | Active info text: help text, "WAIT", empty slots, the player range (issue #221) | 9.7:1 |
+| `TEXT_DIM` | `#7c7c7c` | A disabled item only, and the frame of a tile that is not focused (not text) | 5.0:1 |
 | `ACCENT` | `#f8b800` | Titles, the room code, the focused item, "PRESS OK" | 11.8:1 |
 | `FRAME` | `#0058f8` | The inner frame line (not text) | 3.8:1 |
 | `OK` | `#00b800` | "READY", good | 7.9:1 |
@@ -62,7 +63,7 @@ black. They show as a filled square next to the slot number, never as the only c
 - A panel (the QR card, the result box, the pause box, a modal) is black with a **double frame**: a 6 px `TEXT` line
   outside, 6 px of black, and a 6 px `FRAME` blue line inside.
 - A player slot is a row: the slot color square (24 px), "1P" to "4P", the name, and the state word ("READY" in `OK`,
-  "WAIT" in `TEXT_DIM`, "LOST" in `BAD`).
+  "WAIT" in `TEXT_INFO`, "LOST" in `BAD`).
 - The players badge shows four small squares (filled in the slot color when joined, dark gray when empty) and "2P".
 
 ### 2.4 Menus and focus

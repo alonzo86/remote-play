@@ -73,7 +73,7 @@ func _add_row(parent: Control, title: String, key: String, custom: Callable) -> 
 			return
 		var on := bool(App.settings[key])
 		state.text = "common.on" if on else "common.off"
-		state.add_theme_color_override("font_color", UiTheme.OK if on else UiTheme.TEXT_DIM)
+		state.add_theme_color_override("font_color", UiTheme.OK if on else UiTheme.TEXT_INFO)
 	var tint := func():
 		name_l.add_theme_color_override("font_color", UiTheme.ACCENT if b.has_focus() else UiTheme.TEXT)
 	b.focus_entered.connect(tint)
