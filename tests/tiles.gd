@@ -160,7 +160,7 @@ func _run() -> void:
 	# Paint Grab: 4 colors of paint on the floor.
 	var paint: Image = images.paint_grab
 	_players(paint, "paint_grab", pc, 4, 1000, 100)
-	_check(_count(paint, Color("2a1070")) + _count(paint, Color("3a1c97")) > 3000 and _count(paint, PaintLook.GOLD, 0.08) > 30,
+	_check(_count(paint, Color("2a1070")) + _count(paint, Color("2a3a8c")) > 3000 and _count(paint, PaintLook.GOLD, 0.08) > 30,
 			"paint_grab: the dark floor and the gold of the bonus pot")
 	# Sumo Bumpers: the island, its rim, 4 penguins.
 	var sumo: Image = images.sumo_bumpers

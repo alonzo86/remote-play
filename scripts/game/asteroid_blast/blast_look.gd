@@ -5,6 +5,7 @@ extends RefCounted
 ## (one world pixel is `Shell.WORLD_PIXEL` units). The pictures are built from code.
 
 const Shell = preload("res://scripts/game/shell.gd")
+const Palette = preload("res://scripts/game/palette.gd")
 
 const PX := 4.0                       # One world pixel in screen units (`Shell.WORLD_PIXEL`).
 const OUTLINE := Color("101018")
@@ -131,7 +132,7 @@ static func ship_image(color: Color, frame: int) -> Image:
 	var w := SHIP[0].length() * SCALE
 	var h := SHIP.size() * SCALE
 	var src := Image.create(w, h + 3 * SCALE, false, Image.FORMAT_RGBA8)
-	var colors := {"k": color, "w": Color("fcfcfc"), "c": Color("5ad2ff")}
+	var colors := {"k": color, "w": Color("fcfcfc"), "c": Palette.COCKPIT_CYAN}
 	for y in SHIP.size():
 		for x in SHIP[y].length():
 			var ch: String = SHIP[y][x]

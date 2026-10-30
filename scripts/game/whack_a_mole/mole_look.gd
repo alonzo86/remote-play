@@ -4,6 +4,7 @@ extends RefCounted
 ## made from shapes when the game starts (`mole_image()`), with a black outline of one pixel.
 
 const Shell = preload("res://scripts/game/shell.gd")
+const Palette = preload("res://scripts/game/palette.gd")
 
 const OUTLINE := Color("101018")
 const SKY_TOP := Color("58b4f0")
@@ -23,7 +24,7 @@ const HOLE := Color("28180e")
 const FUR := Color("8c5630")
 const FUR_DARK := Color("60381c")
 const GOLD := Color("ffc832")
-const GOLD_DARK := Color("d69614")
+const GOLD_DARK := Palette.GOLD_SHADE
 const CROWN := Color("fff078")
 const NOSE := Color("ff96aa")
 const CHEEK := Color("ff8aa0")

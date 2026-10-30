@@ -25,10 +25,10 @@ const BTN_B := 2
 const FLAG_TOUCH := 1
 
 const PLAYER_COLORS: Array[Color] = [
-	Color("e63946"), # red
-	Color("2a9d8f"), # teal
-	Color("f4a261"), # orange
-	Color("457b9d"), # blue
+	Color("3dcef2"), # cyan
+	Color("cc7e0a"), # orange
+	Color("aa3df2"), # purple
+	Color("f20c68"), # pink
 ]
 
 

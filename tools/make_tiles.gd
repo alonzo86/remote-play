@@ -93,7 +93,8 @@ func _place_mini_golf(game: Control) -> void:
 	game._request_redraw()
 
 
-## The Star Shield picture: rocks of all sizes, beams in the air, two pickups, a force field, 3 lasers and an explosion.
+## The Star Shield picture: rocks of all sizes, beams in the air, two pickups, 3 lasers and an explosion. No ship has the force
+## field on: a ship inside the field hides its hull color, and the check of tests/tiles.gd needs every slot color (issue #237).
 func _place_blast(game: Node) -> void:
 	var f = game.field
 	var rng := RandomNumberGenerator.new()
@@ -107,7 +108,6 @@ func _place_blast(game: Node) -> void:
 	for a in [[2, 420.0, 250.0], [1, 1000.0, 140.0], [0, 700.0, 430.0], [1, 1420.0, 390.0], [0, 1660.0, 180.0], [2, 1160.0,
 			560.0], [0, 230.0, 90.0]]:
 		f._make(a[0], a[1], a[2], rng)
-	f.ships[1].shield = true
 	f.ships[2].lasers = 3
 	f.ships[3].lasers = 2
 	for s in f.ships.values():
