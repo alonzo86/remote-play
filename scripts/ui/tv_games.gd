@@ -12,6 +12,7 @@ const GameTile = preload("res://scripts/ui/game_tile.gd")
 const PlayersBadge = preload("res://scripts/ui/players_badge.gd")
 const GearButton = preload("res://scripts/ui/gear_button.gd")
 const PlayersModal = preload("res://scripts/ui/players_modal.gd")
+const ScrollArrow = preload("res://scripts/ui/scroll_arrow.gd")
 
 const CONTENT_W := 1720
 const ROW_LEN := 3   # Tiles in a row (REQ-FL-12).
@@ -20,6 +21,8 @@ var _root: VBoxContainer
 var _grid_view: Control
 var _scroll: ScrollContainer
 var _tiles: Array[Button] = []
+var _arrow_up: Control   # Blinks when rows are hidden above the grid (REQ-FL-12a).
+var _arrow_down: Control   # Blinks when rows are hidden below the grid.
 var _badge: Button
 var _room: Label   # The room code in the header (REQ-FL-15a). It follows the address of the TV.
 var _gear: Button
@@ -104,6 +107,17 @@ func _show_grid(focus_id := "") -> void:
 		row.add_child(t)
 		_tiles.append(t)
 
+	# The scroll cue (REQ-FL-12a): a row of fixed height, so the layout does not jump when an arrow goes on or off.
+	var cue := HBoxContainer.new()
+	cue.alignment = BoxContainer.ALIGNMENT_CENTER
+	cue.add_theme_constant_override("separation", 48)
+	view.add_child(cue)
+	_arrow_up = ScrollArrow.new()
+	_arrow_up.up = true
+	cue.add_child(_arrow_up)
+	_arrow_down = ScrollArrow.new()
+	cue.add_child(_arrow_down)
+
 	# The info bar: three lines of 32 px, so that the bar does not change its height from game to game.
 	var bar := PanelContainer.new()
 	bar.add_theme_stylebox_override("panel", UiTheme.line_box(UiTheme.TEXT_DIM))
@@ -158,8 +172,18 @@ func _link(from: Control, side: Side, to: Control) -> void:
 
 func _process(_delta: float) -> void:
 	_update_fit()
+	_update_cue()
 	if _room != null:
 		_room.text = _room_text()
+
+
+## Turns the two arrows on when the grid has rows above or below the visible part (REQ-FL-12a).
+func _update_cue() -> void:
+	if _scroll == null or _arrow_up == null:
+		return
+	var bar := _scroll.get_v_scroll_bar()
+	_arrow_up.active = ScrollArrow.more_above(bar.value)
+	_arrow_down.active = ScrollArrow.more_below(bar.value, bar.page, bar.max_value)
 
 
 ## The room code, always in the header (REQ-FL-15a): a dim label and the code under it. It is not a focus target.
