@@ -121,6 +121,7 @@ func _run() -> void:
 	_new_tv()
 	await _tv_rules()
 	await _screen_layout()
+	await _fourth_letter()
 	await _typed_code()
 	await _errors()
 	await _unreachable()
@@ -195,6 +196,33 @@ func _screen_layout() -> void:
 			"an iPhone has no scan button, the code field is its way")
 	for k in ["pin_pad", "_pad", "_prober"]:
 		_check(not (k in screen) or screen.get(k) == null, "the screen has no %s" % k)
+
+
+## Issue #241: the 4th letter joins at once, 3 letters do not, a wrong 4th shows the error, JOIN after it is no second try.
+func _fourth_letter() -> void:
+	print("the 4th letter joins")
+	var screen := await _connect_screen(["127.0.9.9"])
+	var shown: String = _server.room_code
+	screen._code.text = shown.substr(0, 3).to_lower()
+	screen._code.text_changed.emit(screen._code.text)
+	await _frames(2)
+	_check(_app.client.state == ControllerClient.State.IDLE and _app.last_error == "", "3 letters do not join and show no error")
+	screen._code.text = shown.to_lower()
+	screen._code.text_changed.emit(screen._code.text)
+	screen.join_typed()   # JOIN pressed right after the 4th letter.
+	_check(screen._code.text == shown, "the 4th letter shows capitals")
+	_check(await _wait_until(func(): return _app.client.state == ControllerClient.State.CONNECTED, 4000),
+			"the 4th letter joins without a tap on JOIN")
+	_check(_server.player_count() == 1, "and JOIN after it made no second player (%d)" % _server.player_count())
+	_app.client.leave()
+	await _wait_until(func(): return _server.player_count() == 0, 3000)
+	await _frames(3)
+	var bad := await _connect_screen(["127.0.9.9"])
+	bad._code.text = "ZZZZ"
+	bad._code.text_changed.emit("ZZZZ")
+	_check(_app.last_error == Lang.t("connect.bad_code") and _app.client.state == ControllerClient.State.IDLE,
+			"a 4th letter that makes a text that is no code says so at once")
+	_app.last_error = ""
 
 
 ## A typed code joins. Lower case and spaces are fine.

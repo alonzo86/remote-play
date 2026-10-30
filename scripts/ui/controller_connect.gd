@@ -51,6 +51,17 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_status)
 
+	# The QR scan is the main way to join (issue #241): the biggest button, first, with the thick yellow frame. Typing 4 letters
+	# is the second way, under it.
+	_qr = QrScanner.new()
+	add_child(_qr)
+	_qr.scanned.connect(_on_qr_text)
+	_qr.failed.connect(_on_qr_failed)
+	if shows_scan_button(os_name) and _qr.is_available():
+		var scan := UiKit.box_button("connect.scan_qr_code", _on_scan_pressed, 56, true)
+		scan.custom_minimum_size = Vector2(0, 260)
+		box.add_child(scan)
+
 	box.add_child(UiKit.label("connect.type_code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
@@ -68,15 +79,6 @@ func _ready() -> void:
 	var join := UiKit.box_button("connect.join", join_typed, UiTheme.SIZE_ITEM)
 	join.custom_minimum_size = Vector2(260, 130)
 	row.add_child(join)
-
-	_qr = QrScanner.new()
-	add_child(_qr)
-	_qr.scanned.connect(_on_qr_text)
-	_qr.failed.connect(_on_qr_failed)
-	if shows_scan_button(os_name) and _qr.is_available():
-		var scan := UiKit.box_button("connect.scan_qr_code", _on_scan_pressed, 40)
-		scan.custom_minimum_size = Vector2(0, 150)
-		box.add_child(scan)
 
 	App.client.state_changed.connect(_on_state)
 	App.client.rejected.connect(_on_rejected)
@@ -99,19 +101,24 @@ func _on_state(state: int) -> void:
 				_status.text = ""
 
 
-## The field shows capital letters.
+## The field shows capital letters. The 4th letter joins at once (issue #241): a young child does not need to find JOIN. A
+## text that is not a code shows the error at once. JOIN and Enter stay for a keyboard that sends the letters later.
 func _on_code_changed(text: String) -> void:
 	var up := text.to_upper()
 	if up != text:
 		var caret := _code.caret_column
 		_code.text = up
 		_code.caret_column = caret
+	if Protocol.clean_room_code(up).length() == Protocol.ROOM_LENGTH:
+		join_typed()
 
 
 ## Joins by the typed code. The phone takes the first two numbers of the TV address from its own Wi-Fi address and the last two
 ## from the code (docs/PROTOCOL.md, "Room code"). It tries each private address of the phone (a fast try each).
 func join_typed() -> void:
 	var room := Protocol.clean_room_code(_code.text)
+	if _typed_room == room and App.client.state in [ControllerClient.State.CONNECTING, ControllerClient.State.JOINING]:
+		return   # The 4th letter joined already: JOIN or Enter right after it does not start a second try.
 	if Protocol.decode_room_code(room) < 0:
 		_fail("connect.bad_code")
 		return
