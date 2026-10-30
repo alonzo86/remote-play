@@ -8,7 +8,7 @@ The name of the app is **Sababi**. "Sababi Play" is not used as the name.
 "Play" is allowed only in store text, for example the store title "Sababi: TV Games" (the chosen title).
 This replaces the name Wobble (FD-26 in `docs/TV_FLOW.md`). The check of the name Wobble was removed from the repository.
 The app was renamed on 2026-10-15: code, texts, app IDs, package names, APK names, the Hebrew font and the docs. The logo is a pixel face with sunglasses (option 1 of the logo review) with the word SABABI.
-The Hebrew texts write the name in Latin letters (SABABI). A Hebrew spelling (סבבי or סבבה) is not chosen yet.
+The Hebrew texts of the app write the name as סבבי (decided by the agents on 2026-10-30 by the owner's instruction on issue #179: no Latin words in Hebrew text; the owner can change it). The logo picture and the store titles stay in Latin letters. The spelling סבבה is not used (it is the Hebrew slang word, and the trademark search found SABABA).
 
 ## Why Sababi and not Sababi Play
 

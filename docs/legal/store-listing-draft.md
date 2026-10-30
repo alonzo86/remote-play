@@ -27,21 +27,21 @@ HOW TO START
 3. Choose a game with the TV remote and play.
 
 THE GAMES
-• Treasure Maze: tilt your phone to roll your ball through the maze to the treasure.
-• Car Race: steer your car along the road and be first over the line.
-• Banana Party: point your phone and throw bananas at the hungry animals.
-• Paint Grab: tilt to move your paint blob and cover the floor with your color.
-• Sumo Bumpers: bump your friends off the platform (2 to 4 players).
-• Star Shield: fly your spaceship, blast the asteroids and grab upgrades.
-• Pin Pals: swing your phone to bowl, with the phone as the ball.
-• Tennis: swing your phone like a racket.
-• Mini Golf: aim by turning your phone, swing to putt on funny courses.
-• Whack-a-Mole: friendly moles pop out of their holes, point at them and bonk them.
-• Air Hockey: slide your mallet and score goals, alone against the robot ROBO or with a friend.
+• מבוך האוצר: tilt your phone to roll your ball through the maze to the treasure.
+• מירוץ מכוניות: steer your car along the road and be first over the line.
+• מסיבת בננות: point your phone and throw bananas at the hungry animals.
+• חטיפת צבע: tilt to move your paint blob and cover the floor with your color.
+• סומו מתנגשים: bump your friends off the platform (2 to 4 players).
+• מגן הכוכבים: fly your spaceship, blast the asteroids and grab upgrades.
+• באולינג חברים: swing your phone to bowl, with the phone as the ball.
+• טניס: swing your phone like a racket.
+• מיני גולף: aim by turning your phone, swing to putt on funny courses.
+• הכו בחפרפרת: friendly moles pop out of their holes, point at them and bonk them.
+• הוקי אוויר: slide your mallet and score goals, alone against the robot ROBO or with a friend.
 • Bumper Cars (2 to 4 players): bump your friends in the rink and collect gold stars.
-• Sheep Herding: steer your dog and herd all the sheep into the pen together.
-• Tower Builder: take turns to drop bricks and build one tall tower together.
-• Freeze Dance: wiggle your phone to the music and freeze when it stops.
+• רועה כבשים: steer your dog and herd all the sheep into the pen together.
+• בונים מגדל: take turns to drop bricks and build one tall tower together.
+• ריקוד קפוא: wiggle your phone to the music and freeze when it stops.
 
 Easy, Medium and Hard levels in the games, big pixel graphics you can read from the sofa, and arcade-style music. English and Hebrew.
 
@@ -49,31 +49,31 @@ No account. No sign-up. Made for family and friends.
 
 ### Full description, Hebrew
 
-Sababi הופך את הסלון שלכם לערב משחקים. משחקים על הטלוויזיה עם Android, והטלפון הוא השלט: מטים אותו, מכוונים אותו, ומשחקים.
+סבבי הופך את הסלון שלכם לערב משחקים. משחקים על הטלוויזיה עם אנדרואיד, והטלפון הוא השלט: מטים אותו, מכוונים אותו, ומשחקים.
 
-צריך את אפליקציית Sababi: Remote החינמית בכל טלפון (1 עד 4 שחקנים). הטלפונים והטלוויזיה צריכים להיות באותה רשת Wi-Fi.
+צריך את אפליקציית Sababi: Remote החינמית בכל טלפון (1 עד 4 שחקנים). הטלפונים והטלוויזיה צריכים להיות באותה רשת אלחוטית.
 
 איך מתחילים
-1. פותחים את Sababi בטלוויזיה. מוצגים קוד QR וקוד חדר.
-2. פותחים את Sababi: Remote בטלפון וסורקים את קוד ה־QR, או מקלידים את קוד החדר.
+1. פותחים את סבבי בטלוויזיה. מוצגים קוד קיו־אר וקוד חדר.
+2. פותחים את Sababi: Remote בטלפון וסורקים את קוד קיו־אר, או מקלידים את קוד החדר.
 3. בוחרים משחק בשלט של הטלוויזיה ומשחקים.
 
 המשחקים
-• Treasure Maze: מטים את הטלפון כדי לגלגל את הכדור במבוך אל האוצר.
-• Car Race: מנווטים את המכונית בכביש ומגיעים ראשונים לקו הסיום.
-• Banana Party: מכוונים את הטלפון וזורקים בננות על חיות רעבות.
-• Paint Grab: מטים כדי להזיז את כתם הצבע ולכסות את הרצפה בצבע שלכם.
-• Sumo Bumpers: דוחפים את החברים מהפלטפורמה (2 עד 4 שחקנים).
-• Star Shield: מטיסים חללית, מפוצצים אסטרואידים ואוספים שדרוגים.
-• Pin Pals: מניפים את הטלפון כדי לשחק באולינג, והטלפון הוא הכדור.
-• Tennis: מניפים את הטלפון כמו מחבט.
-• Mini Golf: מכוונים בסיבוב הטלפון ומניפים כדי לדחוף את הכדור במסלולים מצחיקים.
-• Whack-a-Mole: חפרפרות חביבות מציצות מהחורים, מכוונים אליהן ומכים.
-• Air Hockey: מזיזים את הידית ומבקיעים שערים, לבד נגד הרובוט ROBO או עם חבר.
-• Bumper Cars (2 עד 4 שחקנים): מתנגשים בחברים במתחם ואוספים כוכבי זהב.
-• Sheep Herding: מכוונים את הכלב ומובילים יחד את כל הכבשים לדיר.
-• Tower Builder: בתורות מפילים לבנים ובונים יחד מגדל גבוה אחד.
-• Freeze Dance: מנענעים את הטלפון לצלילי המוזיקה וקופאים כשהיא נפסקת.
+• מבוך האוצר: מטים את הטלפון כדי לגלגל את הכדור במבוך אל האוצר.
+• מירוץ מכוניות: מנווטים את המכונית בכביש ומגיעים ראשונים לקו הסיום.
+• מסיבת בננות: מכוונים את הטלפון וזורקים בננות על חיות רעבות.
+• חטיפת צבע: מטים כדי להזיז את כתם הצבע ולכסות את הרצפה בצבע שלכם.
+• סומו מתנגשים: דוחפים את החברים מהפלטפורמה (2 עד 4 שחקנים).
+• מגן הכוכבים: מטיסים חללית, מפוצצים אסטרואידים ואוספים שדרוגים.
+• באולינג חברים: מניפים את הטלפון כדי לשחק באולינג, והטלפון הוא הכדור.
+• טניס: מניפים את הטלפון כמו מחבט.
+• מיני גולף: מכוונים בסיבוב הטלפון ומניפים כדי לדחוף את הכדור במסלולים מצחיקים.
+• הכו בחפרפרת: חפרפרות חביבות מציצות מהחורים, מכוונים אליהן ומכים.
+• הוקי אוויר: מזיזים את הידית ומבקיעים שערים, לבד נגד הרובוט רובו או עם חבר.
+• מכוניות מתנגשות (2 עד 4 שחקנים): מתנגשים בחברים במתחם ואוספים כוכבי זהב.
+• רועה כבשים: מכוונים את הכלב ומובילים יחד את כל הכבשים לדיר.
+• בונים מגדל: בתורות מפילים לבנים ובונים יחד מגדל גבוה אחד.
+• ריקוד קפוא: מנענעים את הטלפון לצלילי המוזיקה וקופאים כשהיא נפסקת.
 
 רמות קל, בינוני וקשה, גרפיקת פיקסלים גדולה שאפשר לקרוא מהספה, ומוזיקה בסגנון משחקי ארקייד. באנגלית ובעברית.
 
@@ -84,7 +84,7 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 | Field | English | Hebrew |
 |---|---|---|
 | Title (30) | Sababi: Remote | Sababi: Remote |
-| Short description (80) | Use your phone as a motion controller for Sababi party games on your TV. | הפכו את הטלפון לשלט תנועה למשחקי Sababi בטלוויזיה. |
+| Short description (80) | Use your phone as a motion controller for Sababi party games on your TV. | הפכו את הטלפון לשלט תנועה למשחקי סבבי בטלוויזיה. |
 
 ### Full description, English
 
@@ -102,15 +102,15 @@ No account. No sign-up.
 
 ### Full description, Hebrew
 
-Sababi: Remote הופך את הטלפון לשלט תנועה למשחקי המסיבה של Sababi בטלוויזיה עם Android.
+Sababi: Remote הופך את הטלפון לשלט תנועה למשחקי המסיבה של סבבי בטלוויזיה עם אנדרואיד.
 
-האפליקציה דורשת את אפליקציית Sababi: TV Games החינמית בטלוויזיה עם Android או במנגן סטרימינג. הטלפון והטלוויזיה צריכים להיות באותה רשת Wi-Fi.
+האפליקציה דורשת את אפליקציית Sababi: TV Games החינמית בטלוויזיה עם אנדרואיד או במנגן סטרימינג. הטלפון והטלוויזיה צריכים להיות באותה רשת אלחוטית.
 
-• סורקים את קוד ה־QR בטלוויזיה, או מקלידים את קוד החדר.
+• סורקים את קוד קיו־אר בטלוויזיה, או מקלידים את קוד החדר.
 • עד 4 טלפונים משחקים יחד.
 • מטים, מכוונים ולוחצים כדי לשחק: חיישני התנועה בטלפון עושים את העבודה.
-• יוצרים שחקן משלכם: שם ואחד מ־32 אווטארים של פיקסלים. השיאים נשמרים בטלפון.
-• משתפים את השחקן עם טלפון אחר באמצעות קוד QR.
+• יוצרים שחקן משלכם: שם ואחת מ־32 דמויות של פיקסלים. השיאים נשמרים בטלפון.
+• משתפים את השחקן עם טלפון אחר באמצעות קוד קיו־אר.
 
 בלי חשבון ובלי הרשמה.
 
@@ -125,6 +125,10 @@ Sababa and Sababy: the owner decided on 2026-10-15 not to add the other spelling
 - TV title: "Sababi: TV Games". Titles are not translated: the Hebrew listing uses the same English titles.
 - Phone app title: "Sababi: Remote".
 - No line about the spellings Sababa and Sababy.
+
+## Hebrew text rule (decided 2026-10-30, issue #179 item 6)
+
+The Hebrew texts have no Latin words, as in the app (REQ-FL-63): the game names are the Hebrew names of the app, Wi-Fi is "רשת אלחוטית", QR is "קיו־אר", Android is "אנדרואיד", ROBO is "רובו" and the name Sababi in a sentence is "סבבי". The two store titles (decided on 2026-10-15) and the title of the other app inside a sentence stay as they are in Latin letters, because they are the names a person types in the store.
 
 ## Still open
 

@@ -328,7 +328,7 @@ func _app_identity() -> void:
 	_check(ios.get("application/bundle_identifier", "") != "" and ios.get("application/targeted_device_family", "") == "0",
 			"the iOS preset is for iPhone and iPad and has a bundle id")
 	_check(String(ios.get("application/additional_plist_content",
-			"")).contains("<key>NSLocalNetworkUsageDescription</key><string>Sababi"),
+			"")).contains("<key>NSLocalNetworkUsageDescription</key><string>Sababi uses the room code to find your TV"),
 			"the iOS preset has the Local Network usage text (NSLocalNetworkUsageDescription)")
 	_check(String(ios.get("privacy/camera_usage_description", "")) != "", "the iOS preset has the camera usage text")
 	var main_scene := String(ProjectSettings.get_setting("application/run/main_scene", ""))
