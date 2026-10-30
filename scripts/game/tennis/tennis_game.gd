@@ -331,7 +331,7 @@ func _scoreboard() -> Scoreboard:
 ## The personal best (REQ-TN-17): the longest rally against the machine, for each difficulty. Only the 1-player mode has a key:
 ## a match of 2 to 4 players has no score that compares between matches.
 func best_key() -> String:
-	if play == null or not play.solo:
+	if not play.solo:
 		return ""
 	return "tennis|%s" % difficulty
 
