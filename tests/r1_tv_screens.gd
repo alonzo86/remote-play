@@ -18,7 +18,6 @@ const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 const CARD_TITLES := {
 	"minigame.no_players_connected": {"en": "NO PLAYERS CONNECTED",
 			"he": "\u05d0\u05d9\u05df \u05e9\u05d7\u05e7\u05e0\u05d9\u05dd \u05de\u05d7\u05d5\u05d1\u05e8\u05d9\u05dd"},
-	"minigame.paused": {"en": "PAUSED", "he": "\u05de\u05d5\u05e9\u05d4\u05d4"},
 	"minigame.end_game_ask": {"en": "END THE GAME?",
 			"he": "\u05dc\u05e1\u05d9\u05d9\u05dd \u05d0\u05ea \u05d4\u05de\u05e9\u05d7\u05e7?"},
 }
@@ -410,7 +409,7 @@ func _walk_screens() -> void:
 	var game: Control = _app.current_screen()
 	await _press("ui_accept")
 	_check(not game.is_paused() and game.menu_buttons().is_empty(), "OK in the game does nothing (issue #228)")
-	game.open_menu("minigame.paused", game.pause_entries())
+	game.open_menu("minigame.end_game_ask", game.pause_entries())
 	await _frames(2)
 	var buttons: Array = game.menu_buttons()
 	_check(buttons.size() == 3 and _focus() == buttons[0], "the pause menu has 3 items and the first has the focus")
@@ -532,9 +531,9 @@ func _cards() -> void:
 		await _press("ui_accept")
 		await _frames(2)
 		_check(not game.is_paused(), "[%s] OK in the game does nothing" % lang)
-		game.open_menu("minigame.paused", game.pause_entries())
+		game.open_menu("minigame.end_game_ask", game.pause_entries())
 		await _frames(2)
-		_card_checks(game, "minigame.paused", lang)
+		_card_checks(game, "minigame.end_game_ask", lang)
 		await _key(KEY_BACK)
 		_check(not game.is_paused(), "[%s] Back closes it" % lang)
 		await _frames(3)

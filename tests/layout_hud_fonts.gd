@@ -125,7 +125,7 @@ func _asteroid(game: Control, code: String) -> void:
 	var texts := [Lang.f("asteroid_blast.wave_n", [88]), Lang.f("asteroid_blast.wave_clear", [88]),
 			Lang.t("asteroid_blast.all_ships_gone")]
 	for msg in texts:
-		var r := Shell.label_plate_rect(game.banner_at(), msg, game.banner_font(msg))
+		var r := Shell.label_plate_rect(game.banner_at(), msg, game.BANNER_FONT)
 		widest = maxf(widest, r.size.x)
 		ok = ok and _inside(r, area)
 	var sub := Shell.label_plate_rect(game.banner_at() + Vector2(0.0, 110.0), Lang.f("asteroid_blast.next_wave_in", [5]),

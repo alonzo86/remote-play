@@ -5,7 +5,7 @@ extends SceneTree
 const BowlingRules = preload("res://scripts/game/bowling/bowling_rules.gd")
 const LaneSim = preload("res://scripts/game/bowling/lane_sim.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
-const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
+var BowlingLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Medals = preload("res://scripts/game/medals.gd")
@@ -25,6 +25,7 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	BowlingLook = load("res://scripts/game/bowling/bowling_look.gd")
 	_score_sheet()
 	_last_frame()
 	_turn_flow()
@@ -496,27 +497,27 @@ func _orientation() -> void:
 
 func _look() -> void:
 	print("look")
-	var pin := BowlingLook.pin_image(false)
-	var lying := BowlingLook.pin_image(true)
+	var pin = BowlingLook.pin_image(false)
+	var lying = BowlingLook.pin_image(true)
 	_check(pin.get_width() == 7 and pin.get_height() == 14 and lying.get_width() == 14 and lying.get_height() == 7,
 			"a pin is 7 x 14 world pixels and a lying pin 14 x 7")
 	_check(pin.get_height() * Shell.WORLD_PIXEL >= 48.0, "a pin is 48 units high or more (REQ-GM-47m)")
 	_check(pin.get_pixel(0, 0).a == 0.0 and pin.get_pixel(3, 0).is_equal_approx(Color("000000"))
 			and pin.get_pixel(3, 4).is_equal_approx(Color("e63946")),
 			"a pin has a one-pixel black outline and a red stripe on its neck")
-	var geo := BowlingLook.Geo.new(Vector2(1920, 1080), 718.0 + 2.0)
+	var geo = BowlingLook.Geo.new(Vector2(1920, 1080), 718.0 + 2.0)
 	_check(is_equal_approx(geo.top, 232.0) and geo.bot < 720.0 and geo.half(0.0) > geo.half(1.0),
 			"the lane narrows towards the pins")
-	var near := geo.at(Vector2(0.0, 0.0))
-	var far := geo.at(Vector2(0.0, LaneSim.HEAD_Y))
+	var near = geo.at(Vector2(0.0, 0.0))
+	var far = geo.at(Vector2(0.0, LaneSim.HEAD_Y))
 	_check(is_equal_approx(near.x, 960.0) and near.y > far.y and far.y > geo.top,
 			"the foul line is at the bottom, the head pin is near the far end")
-	var p8 := geo.at(LaneSim.rack_pos(8))
-	var p9 := geo.at(LaneSim.rack_pos(9))
+	var p8 = geo.at(LaneSim.rack_pos(8))
+	var p9 = geo.at(LaneSim.rack_pos(9))
 	_check(p9.x - p8.x >= 28.0, "two pins of a row do not overlap on the screen: %.0f units apart" % (p9.x - p8.x))
 	_check(geo.ball_radius(0.0) * 2.0 >= 48.0 and geo.ball_radius(1.0) * 2.0 >= 48.0 and geo.ball_radius(0.0) > geo.ball_radius(0.9),
 			"the ball is 48 units across or more and smaller at the far end (REQ-GM-47m)")
-	var geo_small := BowlingLook.Geo.new(Vector2(1280, 720), 480.0)
+	var geo_small = BowlingLook.Geo.new(Vector2(1280, 720), 480.0)
 	_check(geo_small.cx == 640.0 and geo_small.half(0.0) < geo.half(0.0), "the lane scales with the screen width")
 	var canvas := Control.new()
 	canvas.size = Vector2(1920, 1080)
@@ -590,16 +591,16 @@ func _hall() -> void:
 	var all_racks := true
 	var down_somewhere := false
 	for n in order:
-		var standing := BowlingLook._neighbor_mask(n).filter(func(b): return b).size()
+		var standing = BowlingLook._neighbor_mask(n).filter(func(b): return b).size()
 		all_racks = all_racks and standing >= 1
 		down_somewhere = down_somewhere or standing < 10
 	_check(all_racks and down_somewhere, "each side lane has a rack, and some pins are down in some of them")
 	for res: Vector2 in [Vector2(1920, 1080), Vector2(1280, 720)]:
-		var geo := BowlingLook.Geo.new(res, res.y - 60.0 - 72.0)
-		var tiles := BowlingLook.wall_tiles(res, geo)
-		var y0 := BowlingLook.WALL_TOP * res.y / 1080.0
-		var third := (geo.top - y0) / 3.0
-		var top_ok := not tiles.is_empty()
+		var geo = BowlingLook.Geo.new(res, res.y - 60.0 - 72.0)
+		var tiles = BowlingLook.wall_tiles(res, geo)
+		var y0 = BowlingLook.WALL_TOP * res.y / 1080.0
+		var third = (geo.top - y0) / 3.0
+		var top_ok = not tiles.is_empty()
 		var colors := {}
 		for t in tiles:
 			top_ok = top_ok and t.rect.position.y >= y0 - 0.01 and t.rect.end.y <= y0 + 2.0 * third + 0.01
@@ -609,7 +610,7 @@ func _hall() -> void:
 		for c in colors:
 			all_disco = all_disco and BowlingLook.DISCO.has(c)
 		_check(all_disco and colors.size() == BowlingLook.DISCO.size(), "the tiles use the 7 disco colors and no other")
-	var img := BowlingLook.pin_image(false)
+	var img = BowlingLook.pin_image(false)
 	var white := 0
 	var open_edge := false
 	for y in img.get_height():

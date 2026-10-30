@@ -191,7 +191,7 @@ func _places(game: Control, state: String, n: int) -> void:
 		return
 	# Sheep Herding is a team game: every phone is told the same number of sheep and no place (REQ-SH-13).
 	if game.get_script().resource_path.ends_with("sheep_herding_game.gd"):
-		game.open_menu("minigame.paused", [["minigame.resume", game.close_menu]])
+		game.open_menu("minigame.end_game_ask", [["minigame.resume", game.close_menu]])
 		await _stream(0.6, n)
 		var same_text := true
 		for k in n:
@@ -202,7 +202,8 @@ func _places(game: Control, state: String, n: int) -> void:
 	if n > 2 and game.has_method("places"):
 		_check(true, "%s: the places are per team (checked in the tennis suites)" % state)
 		return
-	game.open_menu("minigame.paused", [["minigame.resume", game.close_menu]])   # The ticks stop, so they do not change the scores.
+	# The ticks stop, so they do not change the scores.
+	game.open_menu("minigame.end_game_ask", [["minigame.resume", game.close_menu]])
 	for k in n:
 		board.set_score(k, float(k + 1) * 10.0)
 	await _stream(0.6, n)

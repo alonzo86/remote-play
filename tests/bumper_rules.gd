@@ -4,7 +4,7 @@ extends SceneTree
 ## Run: godot --headless --path . --script tests/bumper_rules.gd -- --role=controller
 
 const Rink = preload("res://scripts/game/bumper_cars/bumper_rink.gd")
-const Look = preload("res://scripts/game/bumper_cars/bumper_look.gd")
+var Look: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
 const Shell = preload("res://scripts/game/shell.gd")
 
 const DT := 1.0 / 60.0
@@ -23,6 +23,7 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	Look = load("res://scripts/game/bumper_cars/bumper_look.gd")
 	_levels()
 	_start_spots()
 	_floor_stars()
@@ -171,7 +172,7 @@ func _pickups() -> void:
 ## REQ-BC-16: the pictures.
 func _pictures() -> void:
 	print("pictures")
-	var star := Look.star_image()
+	var star = Look.star_image()
 	_check(star.get_size() == Vector2i(11, 10) and star.get_pixel(5, 3) == Look.STAR_GOLD,
 			"a star is 9x8 pixels plus the outline, in gold")
 	var colors: Array[Color] = [Color("ff4638"), Color("4a9eff"), Color("48dc6a"), Color("ffc828")]
@@ -179,7 +180,7 @@ func _pictures() -> void:
 	var outlined := true
 	for c in colors:
 		for d in 4:
-			var img := Look.car_image(c, d)
+			var img = Look.car_image(c, d)
 			var want := Vector2i(28, 20) if d < 2 else Vector2i(20, 28)
 			whole = whole and img.get_size() == want
 			outlined = outlined and img.get_pixel(want.x / 2, 0) == Look.OUTLINE
@@ -187,7 +188,7 @@ func _pictures() -> void:
 	_check(outlined, "a car has a black outline")
 	var body_ok := true
 	for c in colors:
-		var img := Look.car_image(c, Look.DIR_RIGHT)
+		var img = Look.car_image(c, Look.DIR_RIGHT)
 		var found := false
 		for y in img.get_height():
 			for x in img.get_width():
@@ -199,11 +200,11 @@ func _pictures() -> void:
 		contrast = contrast and Shell.contrast(c, Look.OUTLINE) >= 3.0
 	_check(contrast and Shell.contrast(Look.FLOOR_A, Look.OUTLINE) >= 3.0 and Shell.contrast(Look.FLOOR_B, Look.OUTLINE) >= 3.0,
 			"every slot color and the floor differ from the outline by 3:1 or more (REQ-GM-47m)")
-	var left := Look.car_image(colors[0], Look.DIR_LEFT)
-	var right := Look.car_image(colors[0], Look.DIR_RIGHT)
+	var left = Look.car_image(colors[0], Look.DIR_LEFT)
+	var right = Look.car_image(colors[0], Look.DIR_RIGHT)
 	_check(left.get_pixel(0, 10) == right.get_pixel(27, 10) and left.get_pixel(25, 10) != right.get_pixel(25, 10),
 			"the car that faces left is the mirror of the one that faces right")
-	var shadow := Look.shadow_image(right)
+	var shadow = Look.shadow_image(right)
 	var solid := true
 	for y in right.get_height():
 		for x in right.get_width():

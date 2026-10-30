@@ -170,7 +170,7 @@ func _play(id: String) -> void:
 	if not spec[2]:
 		return
 	await _stream(5.0)
-	_game.open_menu("minigame.paused", [["minigame.resume", _game.close_menu]])   # The ticks stop, so the scores stay.
+	_game.open_menu("minigame.end_game_ask", [["minigame.resume", _game.close_menu]])   # The ticks stop, so the scores stay.
 	var slots: Array = _game.participants
 	for lang in ["en", "he"]:
 		Lang.set_language(lang, root)

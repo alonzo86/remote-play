@@ -126,7 +126,8 @@ func _run() -> void:
 	# The HUD of each game passes its own registry key to Shell.title (not a name written in the script).
 	for g in games:
 		var src := FileAccess.get_file_as_string(String(g.path))
-		_check(src.contains('Shell.title(self, "%s"' % g.title), "%s: its HUD title is the key %s" % [g.id, g.title])
+		_check(src.contains('Shell.title(self, "%s"' % g.title) or src.contains('Shell.title_wrapped(self, "%s"' % g.title),
+				"%s: its HUD title is the key %s" % [g.id, g.title])
 
 	# No script writes the English name of a game as a literal text: it always goes through the key.
 	var literal: Array[String] = []
