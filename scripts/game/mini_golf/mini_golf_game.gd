@@ -459,8 +459,8 @@ func _draw_hole_card() -> void:
 	var y := rect.position.y + 130.0
 	var head_strokes := Lang.t("mini_golf.col_strokes").to_upper()
 	var head_total := Lang.t("mini_golf.col_total").to_upper()
-	draw_string(f, Vector2(x_strokes, y), head_strokes, HORIZONTAL_ALIGNMENT_LEFT, 180.0, 28, UiTheme.TEXT_DIM)
-	draw_string(f, Vector2(x_total, y), head_total, HORIZONTAL_ALIGNMENT_LEFT, 180.0, 28, UiTheme.TEXT_DIM)
+	draw_string(f, Vector2(x_strokes, y), head_strokes, HORIZONTAL_ALIGNMENT_LEFT, 180.0, 28, UiTheme.TEXT_INFO)
+	draw_string(f, Vector2(x_total, y), head_total, HORIZONTAL_ALIGNMENT_LEFT, 180.0, 28, UiTheme.TEXT_INFO)
 	y += 24.0
 	for r in rules.rows:
 		if not participants.has(r.slot):

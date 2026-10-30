@@ -18,12 +18,18 @@ var _fingers: Dictionary = {}   # finger index -> zone name
 var _touch_finger := -1
 var _quit_dialog: Control
 var _flash := {"recenter": 0.0}
+var _aim_trail: Array[float] = []   # The last places of the knob, oldest first, for the trail.
 var _leave_hold := 0.0   # Seconds that a finger has stayed on Disconnect (issue #239).
 var _aim_frac := 0.5   # Where the finger left the aim strip (0 left, 1 right) in Pin Pals.
 
 const HEADER_Y := 110.0   # The vertical middle of the header row.
 const SCORE_Y := 205.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
 const INFO_Y := 50.0      # How far the Recenter box and the turn and best rows move down for the score row.
+const AIM_KNOB := 88.0       # The radius of the aim knob (it was 56 px; a finger covers a small one, issue #236, REQ-BW-4a).
+const AIM_TRAIL := 8         # How many places of the knob the trail keeps.
+const AIM_TICK_MS := 20      # The tick when the knob crosses the middle of the strip.
+const LOST_FRAME := 20.0   # The width of the frame that shows a lost link (REQ-FL-52b).
+const LOST_BUZZ_MS := 700  # The buzz when the link is lost (REQ-FL-52b).
 const LEAVE_HOLD := 0.8   # A game needs a long press to leave: a swinging child must not leave by accident (REQ-FL-52a).
 const BUTTON_LIFT := 12.0        # How far the face of an arcade button stands above its lower edge.
 const BUTTON_LIFT_DOWN := 4.0    # The same while it is pressed: the button looks pressed in.
@@ -36,10 +42,19 @@ func _ready() -> void:
 	# Connect methods, not lambdas: App.client outlives this screen.
 	App.client.haptic_requested.connect(_on_haptic)
 	App.client.phase_changed.connect(_on_phase)
+	App.client.state_changed.connect(_on_state)
 
 
 func _on_haptic(ms: int) -> void:
 	Haptics.on_message(ms)   # It vibrates when the HAPTICS switch of the phone Settings screen is on (REQ-FL-66).
+
+
+## The link is lost while the pad shows: one strong buzz, so a player who looks at the TV feels it (REQ-FL-52b).
+## The HAPTICS switch of the phone decides, as for every buzz (REQ-FL-66).
+func _on_state(state: int) -> void:
+	if state == ControllerClient.State.RECONNECTING:
+		Haptics.on_message(LOST_BUZZ_MS)
+	queue_redraw()
 
 
 func _on_phase(_phase: String) -> void:
@@ -59,6 +74,7 @@ func _process(delta: float) -> void:
 		_leave_hold = 0.0
 	if not _aim_mode():
 		_aim_frac = 0.5   # Each turn starts in the middle of the lane.
+		_aim_trail.clear()
 	queue_redraw()
 
 
@@ -67,6 +83,17 @@ func _process(delta: float) -> void:
 ## The header (player badge, name and Disconnect) is one row: all three are centered on HEADER_Y.
 func _rect_leave() -> Rect2:
 	return Rect2(size.x - 300, HEADER_Y - 45.0, 270, 90)
+
+
+## Where the player name (or RECONNECTING...) is written in the header: between the badge (and the avatar) and Disconnect.
+func _rect_name(has_avatar: bool) -> Rect2:
+	var name_x := 270.0 if has_avatar else 190.0
+	return Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 320.0, 90)
+
+
+## The font size for a name in the header: 48 px, smaller (steps of 8 px, down to 16) so that no letter is cut (issue #238).
+static func name_size(text: String, width: float) -> int:
+	return UiTheme.fit_size(UiTheme.font(), text, width, 48)
 
 
 ## The square in the slot color with the slot number, at the top left of the pad on the header row (REQ-FL-52).
@@ -185,6 +212,7 @@ func _on_zone_down(zone: String, index: int, pos: Vector2) -> void:
 			_sampler.buttons |= Protocol.BTN_B
 	# On the aim strip only the finger on the strip is the touch that the TV reads (REQ-BW-4).
 	if _touch_finger < 0 and (zone == "aim" or not _aim_mode()):
+		_aim_trail.clear()   # Each slide has its own trail.
 		_touch_finger = index
 		_sampler.touching = true
 		_update_touch(pos)
@@ -206,7 +234,14 @@ func _update_touch(pos: Vector2) -> void:
 	if _aim_mode():
 		# On the aim strip x is the place on the strip, not on the screen.
 		var strip := _rect_recenter()
+		var before := _aim_frac
 		_aim_frac = clampf((pos.x - strip.position.x) / strip.size.x, 0.0, 1.0)
+		if crossed_middle(before, _aim_frac):
+			Haptics.on_message(AIM_TICK_MS)   # A tick under the finger at the middle of the lane (follows the HAPTICS switch).
+		if not is_equal_approx(before, _aim_frac):
+			_aim_trail.append(before)
+			if _aim_trail.size() > AIM_TRAIL:
+				_aim_trail.pop_front()
 		_sampler.touch.x = _aim_frac
 
 
@@ -239,10 +274,10 @@ func _draw() -> void:
 		Avatar.draw(self, av.grow(-5.0), c.tv_avatar)
 	var own: String = c.tv_player_name if c.tv_pid != "" else "%dP" % (c.slot + 1)
 	var status := own if online else Lang.t("connect.reconnecting")
-	var name_x := 270.0 if has_avatar else 190.0
-	var name_rect := Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 320.0, 90)
-	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, 48)), status.to_upper(),
-			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, 48, UiTheme.ACCENT if online else UiTheme.BAD)
+	var name_rect := _rect_name(has_avatar)
+	var name_fs := name_size(status.to_upper(), name_rect.size.x)
+	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, name_fs)), status.to_upper(),
+			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, name_fs, UiTheme.ACCENT if online else UiTheme.BAD)
 
 	# The place and the score of this player, on a row of their own under the header (REQ-FL-67).
 	var line := score_line(c.score_rank, c.score_of, c.score_text) if online else ""
@@ -259,7 +294,7 @@ func _draw() -> void:
 		var turn_text := Lang.t("bowling.phone_turn") if c.turn_state == 1 else Lang.f(
 				"mini_golf.phone_wait" if golf else "bowling.phone_wait", [c.turn_who])
 		draw_string(f, Vector2(turn_rect.position.x, UiTheme.centered_baseline(f, turn_rect, 32)), turn_text.to_upper(),
-				HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_DIM)
+				HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO)
 
 	# NEW BEST! while the result menu is open, until the next round starts (REQ-GM-100).
 	var best: Dictionary = App.current_best()
@@ -267,6 +302,9 @@ func _draw() -> void:
 		var best_rect := Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
 		draw_string(f, Vector2(best_rect.position.x, UiTheme.centered_baseline(f, best_rect, 32)), best_line(best),
 				HORIZONTAL_ALIGNMENT_LEFT, best_rect.size.x, 32, UiTheme.OK)
+
+	if not online:
+		_draw_lost_link(f)
 
 	# Disconnect: a framed text box. A game needs a press of LEAVE_HOLD seconds; the box fills while the finger stays (REQ-FL-52a).
 	var lr := _rect_leave()
@@ -290,6 +328,38 @@ func _draw() -> void:
 		_draw_button(_center_b(), "B", Protocol.BTN_B)
 
 
+## The link is lost (REQ-FL-52b): the play area is dimmed and a frame of white and red dashes runs around the pad. Dashes, not
+## only red, so a color-blind player and a child who looks at the TV see a change; the buzz is in `_on_state`.
+func _draw_lost_link(f: Font) -> void:
+	var top := HEADER_Y + 60.0
+	draw_rect(Rect2(0, top, size.x, size.y - top), Color(UiTheme.BG, 0.6))
+	var dash := 60.0
+	var fw := LOST_FRAME
+	var i := 0
+	var x := 0.0
+	while x < size.x:
+		var col: Color = UiTheme.BAD if i % 2 == 0 else UiTheme.TEXT
+		var w := minf(dash, size.x - x)
+		draw_rect(Rect2(x, 0, w, fw), col)
+		draw_rect(Rect2(x, size.y - fw, w, fw), col)
+		x += dash
+		i += 1
+	var y := 0.0
+	i = 0
+	while y < size.y:
+		var col2: Color = UiTheme.BAD if i % 2 == 0 else UiTheme.TEXT
+		var h := minf(dash, size.y - y)
+		draw_rect(Rect2(0, y, fw, h), col2)
+		draw_rect(Rect2(size.x - fw, y, fw, h), col2)
+		y += dash
+		i += 1
+	var mid := Rect2(60, size.y * 0.5 - 40.0, size.x - 120, 80)
+	var msg := Lang.t("connect.reconnecting").to_upper()
+	var fs := UiTheme.fit_size(f, msg, mid.size.x, 56)
+	draw_string(f, Vector2(mid.position.x, UiTheme.centered_baseline(f, mid, fs)), msg, HORIZONTAL_ALIGNMENT_CENTER,
+			mid.size.x, fs, UiTheme.TEXT)
+
+
 ## Recenter: a white box with black text that turns black with white text for a moment when it is tapped.
 func _draw_recenter(rr: Rect2, f: Font) -> void:
 	var flashing: bool = _flash.recenter > 0.0
@@ -305,6 +375,11 @@ func hint_size(f: Font, rr: Rect2) -> int:
 	return UiTheme.fit_size(f, Lang.t("pad.point_at_tv_then").to_upper(), rr.size.x - 2.0 * (UiTheme.LINE + 16.0), 32)
 
 
+## True when the knob went from one side of the middle of the strip to the other, or onto the middle (REQ-BW-4a).
+static func crossed_middle(before: float, now: float) -> bool:
+	return (before - 0.5) * (now - 0.5) < 0.0 or (now == 0.5 and before != 0.5)
+
+
 ## The aim strip of Pin Pals (REQ-BW-4): a finger slides the ball left or right along the foul line. The mark stays where the
 ## finger left it. The word is the help line; the lane lines are drawn as a plain row of ticks.
 func _draw_aim_strip(rr: Rect2, f: Font) -> void:
@@ -315,8 +390,12 @@ func _draw_aim_strip(rr: Rect2, f: Font) -> void:
 		var tx := rr.position.x + rr.size.x * float(i) / 8.0
 		draw_rect(Rect2(tx - 3.0, mid_y - (40.0 if i == 4 else 20.0), 6.0, 80.0 if i == 4 else 40.0), UiTheme.TEXT_DIM)
 	var bx := rr.position.x + rr.size.x * _aim_frac
-	draw_circle(Vector2(bx, mid_y), 56.0 + UiTheme.LINE, UiTheme.TEXT)
-	draw_circle(Vector2(bx, mid_y), 56.0, col)
+	# The trail: the earlier places of the knob, smaller and fainter the older they are.
+	for i in _aim_trail.size():
+		var k := float(i + 1) / float(_aim_trail.size() + 1)
+		draw_circle(Vector2(rr.position.x + rr.size.x * _aim_trail[i], mid_y), AIM_KNOB * (0.4 + 0.5 * k), Color(col, 0.15 + 0.3 * k))
+	draw_circle(Vector2(bx, mid_y), AIM_KNOB + UiTheme.LINE, UiTheme.TEXT)
+	draw_circle(Vector2(bx, mid_y), AIM_KNOB, col)
 	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("pad.slide_to_aim"), HORIZONTAL_ALIGNMENT_CENTER,
 			rr.size.x, 32, UiTheme.TEXT)
 

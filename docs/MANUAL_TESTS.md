@@ -56,7 +56,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Retest | R0 | |
 | [4](#test-4) | Latency and packet rate | 1 to 4 phones, 1 TV, a phone camera (240 fps) | RISKS A3, B1, B2, B3, B5, B6 | Fail | R0 | |
 | [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Partial (see the result table) | R4 | |
-| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R4 | |
+| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R4 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Partial (see the result table) | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Partial (see the result table) | R4 | |
 | [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Partial (see the result table) | R4 | |
@@ -310,6 +310,10 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot.
 8a. **The TV closes (2026-10-29, issue #169).** With one phone joined and on the Games screen, press Back on the TV remote until the TV app quits. Check: within 3 seconds the phone leaves the waiting screen and shows the Connect screen or "RECONNECTING..." (yes or no). (REQ-GM-30)
 8b. Join again, then kill the TV app (swipe it away in the recent apps, or unplug the box). Check: within 5 seconds the phone shows "RECONNECTING..." and not the waiting screen with the game name (yes or no). (REQ-GM-30)
+9a. **Lost link on the pad (2026-10-30, issue #238).** Start a game with one phone, then switch the phone Wi-Fi off. Check: within 4 seconds the phone vibrates once for about 0.7 s and the pad shows a frame of red and white dashes around the whole screen, a dimmed play area and RECONNECTING... in the middle (yes or no for each of the three). (REQ-FL-52b)
+9b. Look at the phone for the dashed frame with a color-blindness filter on (or in gray scale). Check: the frame is still visible as a ring of dashes (yes or no).
+9c. With the HAPTICS switch OFF repeat 9a. Check: the phone does not vibrate; the frame still shows.
+9d. Join with a profile whose name is 10 letters of the widest kind (for example WWWWWWWWWW) and an avatar. Check: all letters of the name show in the header and none is under DISCONNECT (yes or no).
 
 **Results**
 
@@ -328,6 +332,10 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 | 7d | Video of the 70 s call and the return, same slot | Pass | R4 |  |  |
 | 8a | Video of the phone when the TV app quits | Not run | | | Added 2026-10-29 (issue #169). |
 | 8b | Video of the phone when the TV app is killed | Not run | | | Added 2026-10-29 (issue #169). |
+| 9a | Video of the Wi-Fi cut: the buzz (sound or feel), the frame, the time | Not run | | | Added 2026-10-30 (issue #238). |
+| 9b | Photo in gray scale | Not run | | | Added 2026-10-30 (issue #238). |
+| 9c | Video with HAPTICS OFF | Not run | | | Added 2026-10-30 (issue #238). |
+| 9d | Photo of the header | Not run | | | Added 2026-10-30 (issue #238). |
 
 Items 1b (merged into 1a), 1c, 1e, 4c, 5e and 6b to 6e moved to the automated tests (docs/AUTOMATED_TESTS.md, A-7-1, A-7-4, A-7-5, A-7-6). Items 1d, 4a and 5a to 5d moved too (A-7-7), and item 1a moved too: the TV half is A-7-7 and the phone half (it shows RECONNECTING when the TV is silent) is A-7-8, a check of `join_flow` that fails until issue #61 is fixed (Alon decided on 2026-10-21 to keep this automatic). The numbers of the other items do not change.
 
@@ -761,6 +769,7 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 **Steps**
 
 1b. On the Connect screen, the Games screen, a pause menu and a result menu, read aloud the smallest text of each screen (the hint, a slot row or a description) from 3 m. Check: you read each one without a mistake (0 mistakes). The smallest text is 32 px (REQ-FL-40).
+1b2. New (issue #221). On the Connect screen and the Games screen, in a dim room, read aloud from 3 m the info lines ('1-4 PLAYERS' under three tiles, the hint lines, 'WAIT' and the empty slots), and look at the disabled things (a game that needs more phones). Check: you read all of them without a mistake (0 mistakes), and the info lines (light gray, #b0b0b0) are clearly lighter than a dimmed tile or a disabled item (dark gray, #7c7c7c): you name the 2 gray levels correctly in 3 of 3 tries. (REQ-FL-37, REQ-FL-40)
 2c. On a 1080p TV, photograph the Logo screen and the Games screen from the sofa, with the phone camera at 1:1 crop. Check: a single-pixel black and white edge of a letter stays a single pixel in the photo, with no gray halo wider than 1 pixel of the photo (the TV's own scaler does not soften the picture).
 2d. Do step 2c on a 4K TV, if you have one. Check: the same result. (Skip this step if you have no 4K TV and write "no 4K TV" in the notes.)
 4d. On the real TV remote, in each menu of the Games screen, a game settings view and the quit question, press OK, Back and the D-pad once each. Check: OK does the action of the focused item, Back closes the menu or goes up one step, and the D-pad moves the focus (the same result as in Test 8).
@@ -780,6 +789,7 @@ Measurements: write down the lowest FPS value of step 5d and the text sizes you 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1b | List of the screens and the smallest text read without a mistake (yes or no) | Pass | R4 |  |  |
+| 1b2 | Note: the info lines read without a mistake (yes or no); the 2 gray levels named in 3 of 3 tries | Open |  |  | New 2026-10-30, issue #221 |
 | 2c | Close photo of the Logo screen and the Games screen on 1080p, 1:1 crop | Pass | R4 |  |  |
 | 2d | Close photo of the Logo screen and the Games screen on 4K (or "no 4K TV") | Pass | R4 |  |  |
 | 4d | Note: OK, Back and D-pad on each menu | Pass | R4 |  |  |
@@ -812,6 +822,8 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 9b. Set the TV to English and the system language of phone A to Hebrew. Join phone A, open the waiting screen, the Settings screen and start Car Race. Check: every text on phone A (waiting screen, Settings, pad, hint line, result card) is in Hebrew and the screen is mirrored (title at the right), while the TV stays in English and left to right; no text on the phone is cut off or outside the screen edge (6 of 6 screens). Then set the TV to Hebrew and the system language of phone B to English and repeat. Check: phone B stays in English and left to right.
 9c. On phone A (Hebrew) open Settings and tap the language button once, then leave the app and start it again. Check: the button says "LANGUAGE: ENGLISH" (the language switched to English at the tap), the phone is in English after the restart, and the TV language did not change.
 
+9e. The person who reads Hebrew reads the 5 Hebrew texts whose end mark changed by issue #234 (the how-to texts of Mini Golf and Sheep Herding now end with a full stop; the hints of Tennis (serve, hit) and Sumo Bumpers now end with an exclamation mark). Check: the reader says that each of the 5 reads right (5 of 5 yes).
+
 Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-17-1 to A-17-8). Item 5 moved earlier (A-17-5). Item 7b moved too (A-17-7b). Item 6e was split: that the text shows complete is automated, 6e2 keeps the reading. The numbers of the other items do not change.
 
 **Results**
@@ -824,6 +836,7 @@ Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to
 | 6e2 | Photos of the pause and result menus; note from the Hebrew reader | Pass | R4 |  |  |
 | 9b | Photos of phone and TV side by side, in both combinations | Not run |  |  | New 2026-10-29 (issue #171) |
 | 9c | Photo of the Settings screen before and after the tap; photo after the restart | Not run |  |  | New 2026-10-29 (issue #171) |
+| 9e | Note from the Hebrew reader | Not run |  |  | New 2026-10-30 (issue #234) |
 
 History:
 
@@ -1070,6 +1083,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 3e. **Aim strip.** On the phone on turn, slide a finger from the left end of the strip to the right end in about 1 s, then back. Check: the ball on the TV is in the left gutter at the left end of the strip and in the right gutter at the right end, and it moves in the same direction as the finger. (The mapping is in A-23-3.)
 3f. Film the phone and the TV together at 60 fps or more and slide a finger on the strip. Check: the ball starts to move within 12 frames (0.2 s) after the finger starts to move, in 5 of 5 tries.
 3g. Touch the rest of the screen outside the strip with a finger, 5 times. Check: the ball does not move, and the pad shows no A and no B button (REQ-GM-37a, issues #80 and #143). A phone that is not on turn has no Recenter box either (REQ-GM-37, issue #55).
+3h. **Knob, trail and tick (2026-10-30, issue #236).** On the phone on turn, slide a finger slowly from the left end to the right end of the strip, with the HAPTICS switch ON. Check: the knob is still visible next to the finger (yes or no), a fading trail follows it (yes or no), and the phone ticks once as the knob passes the middle mark (once in 5 of 5 slides).
 4e. Throw 5 balls with each grip: screen up, screen to the side, and the other hand. Check: at least 4 of 5 swings throw a ball for each grip. (REQ-BW-5)
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
 4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)
@@ -1094,6 +1108,7 @@ Measurements (write down, no pass or fail): if the strip is too small or too lar
 | 3e | Note: where the ball is at the two ends of the strip | Not run | | | |
 | 3f | Video of the phone and the TV; note: frames of delay | Not run | | | |
 | 3g | Note: balls that moved when the screen was touched; a photo of the pad | Not run | | | |
+| 3h | Video of the finger and the knob; note: ticks counted in 5 slides | Not run | | | Added 2026-10-30 (issue #236). |
 | 4e | Note: throws of 5 for each grip | Not run | | | |
 | 4f | Note: balls thrown while walking | Not run | | | |
 | 4g | Note: balls thrown by 10 shakes; throws of 5 normal swings | Not run | | | |
@@ -1174,6 +1189,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 14b. With 4 phones, from 3 m, each tester names the shirt color of the two far characters. Check: 2 of 2 answers are right for every tester.
 14c. From 3 m, read aloud the scoreboard and one banner. Check: no error.
 15a. With 2 phones connected, open the settings view of Tennis (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
+15c. **The card with children (2026-10-30, issue #235).** Show the card (open the Tennis settings view) on a phone to 3 children of 5 to 8 years, 5 seconds each, and ask: "What do you do before you play?". Check: at least 2 of 3 answer with holding the phone tight or making space around them. A Hebrew reader checks the Hebrew line "אחזו חזק. שמרו מרחק מסביב." (`swing.card_text`).
 
 Items 1a, 2a, 2c, 3a, 3b, 3c, 3d, 3e, 3f, 4a, 4b, 4c, 4d, 4e, 4f, 5a, 5b, 5c, 5d, 6a, 6b, 6f, 6g, 7a to 7d, 8a, 8b, 9a to 9e, 10a, 10b, 10c, 10d, 11a, 11b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-25-1a to A-25-11b). The numbers of the other items do not change.
 
@@ -1198,6 +1214,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 14b | Note: answers of each tester | Not run | | | |
 | 14c | Note: errors made when reading | Not run | | | |
 | 15a | Photo of the TV and of both phones | Not run | | | |
+| 15c | Note: the ages and the answers of 3 children; a photo of the card | Not run | | | Added 2026-10-30 (issue #235). |
 
 History:
 

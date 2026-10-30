@@ -61,7 +61,7 @@ func _ready() -> void:
 	_name.position = Vector2(0.0, SHOT.y + 16)
 	_name.size = Vector2(SHOT.x, 40)
 	add_child(_name)
-	_meta = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_meta = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 	_meta.position = Vector2(0, SHOT.y + 64)
 	_meta.size = Vector2(SHOT.x, 80)
 	_meta.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -127,7 +127,7 @@ func _refresh() -> void:
 	_meta.position.y = SHOT.y + 64.0 + TITLE_LINE_H * (lines - 1)
 	if fits:
 		_meta.text = players_text().to_upper()
-		_meta.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		_meta.add_theme_color_override("font_color", UiTheme.TEXT_INFO)
 	else:
 		_meta.text = reason().to_upper()
 		_meta.add_theme_color_override("font_color", UiTheme.ACCENT)
