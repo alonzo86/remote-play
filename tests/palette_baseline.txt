@@ -1,2 +1,2 @@
 # File<TAB>count: literals equal or near (delta E < 12) to a player color, OK or BAD that are still in a file (issue #232).
-# Move one to scripts/game/palette.gd or to the player colors and lower the count. Never raise it.
+# Empty since issue #257. Never add a line: name the color in scripts/game/palette.gd.
