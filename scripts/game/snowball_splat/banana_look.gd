@@ -93,7 +93,7 @@ static func draw_scene(ci: CanvasItem, area: Vector2, t: float, bar := 0.0) -> v
 			var lx := fposmod(n * 211.3 + sin(n * 1.7) * 50.0 + t * 6.0, area.x)
 			var ly := fposmod(t * (22.0 + layer * 10.0) + n * 97.7, area.y)
 			ci.draw_rect(Rect2(Shell.snap(Vector2(lx, ly)), Vector2.ONE * px * (1.0 + (layer % 2))), LEAF if n % 2 == 0
-					else Color("e0842c"))
+					else Palette.LEAF_ORANGE)
 			n += 1
 
 
@@ -115,7 +115,7 @@ static func animal_image(kind: String, happy: bool, facing: int) -> Image:
 		"elephant":
 			img = _elephant(happy)
 		"golden":
-			img = _monkey(Color("ffc832"), Color("d69614"), Color("ffecaa"), Color("ffe06e"), true, happy)
+			img = _monkey(Color("ffc832"), Palette.GOLD_SHADE, Color("ffecaa"), Color("ffe06e"), true, happy)
 		_:
 			img = _monkey(FUR.monkey, FUR.monkey_dark, FUR.monkey_face, FUR.monkey_belly, false, happy)
 	var out := _outlined(img)

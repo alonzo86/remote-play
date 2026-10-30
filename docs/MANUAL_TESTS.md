@@ -903,6 +903,8 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 3e. Turn the same phone to landscape and back. Check: nothing is hidden at the top, at the bottom (the home bar) or at the side.
 8a. A child of 5 to 8 years plays a game. In the countdown, ask the child to point to its own object (the one in the color of its phone). Check: the child points to the right object within 10 s and without help.
 8b. After one minute of play, ask the child to read aloud the number on its phone. Check: the child says the number that the phone shows.
+8c. New (2026-10-30, issue #237, palette B: cyan, orange, purple, pink). 4 phones, 4 testers, Car Race and Treasure Maze, the TV seen from 3 m. In the countdown each tester points to the object in the color of the own phone. Check: 4 of 4 testers point to the right object within 5 s, in both games.
+8d. New (2026-10-30, issue #237). The same as 8c with a tester who has red-green color blindness, when one is available (write "none available" otherwise). Check: the tester points to the right object within 5 s in both games.
 9c. The person who reads Hebrew reads the header of a phone. Check: the place and the score are read without a mistake.
 
 Items 1a to 1c, 2a to 2d, 3a, 3b, 3f, 4a to 4c, 5a to 5c, 6, 7a, 7b, 7c, 9a and 9b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-19-1 to A-19-9). The numbers of the other items do not change.
@@ -916,6 +918,8 @@ Items 1a to 1c, 2a to 2d, 3a, 3b, 3f, 4a to 4c, 5a to 5c, 6, 7a, 7b, 7c, 9a and 
 | 3e | Photos of the phone in landscape | Not run | | | |
 | 8a | Note: the child, the age, the seconds | Not run | | | |
 | 8b | Note: the child, the age, the number | Not run | | | |
+| 8c | Note: 4 testers, the seconds of each, 2 games | Not run | | | Added 2026-10-30 (issue #237). |
+| 8d | Note: the tester, the type of color blindness, the seconds | Not run | | | Added 2026-10-30 (issue #237). |
 | 9c | Photo of the Hebrew phone header; note from the Hebrew reader | Not run | | | |
 
 History:

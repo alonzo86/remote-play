@@ -32,7 +32,7 @@ const SEAM := Color("b87c3c")
 const ARROW := Color("6a3a10")
 const FOUL := Color("fc3030")
 const DISCO := Palette.SLOTS + [ Color("f8b800"), Color("b05cd8"),
-		Color("3ddcff")]
+		Palette.NEON_CYAN]
 
 ## The picture of a pin: 7 x 14 world pixels. K black, W white, G shade, R red.
 const PIN_ROWS := ["..KKK..", ".KWWGK.", ".KWWGK.", "..KWK..", "..KRK..", "..KWK..", ".KWWGK.", "KWWWWGK", "KWRRRGK",

@@ -20,11 +20,11 @@ const OUTLINE := Color("101018")   # The outline of a car.
 ## the wall has two colors (stripes or leaves), `outline` is the dark edge of the road and of the obstacles.
 const THEMES := {
 	"candy": {"ground_a": Color("f8a8d0"), "ground_b": Color("f090c0"), "road_a": Color("fff0d8"), "road_b": Color("f8e4c8"),
-			"mark": Color("f8b8d8"), "wall_a": Color("fcfcfc"), "wall_b": Color("e8286c"), "outline": Color("8c1c50"),
+			"mark": Color("f8b8d8"), "wall_a": Color("fcfcfc"), "wall_b": Palette.RACE_RED, "outline": Color("8c1c50"),
 			"obstacles": ["lolly", "gumdrop", "cupcake"],
 			"decor": ["lolly_big", "cane", "icecream", "donut", "cookie", "wrapped"]},
 	"space": {"ground_a": Color("0c0c28"), "ground_b": Color("080820"), "road_a": Color("6c7488"), "road_b": Color("646c80"),
-			"mark": Color("4c5468"), "wall_a": Color("3ddcff"), "wall_b": Palette.RACE_BLUE, "outline": Color("101040"),
+			"mark": Color("4c5468"), "wall_a": Palette.SPACE_WALL, "wall_b": Palette.RACE_BLUE, "outline": Color("101040"),
 			"obstacles": ["asteroid", "satellite", "crater"],
 			"decor": ["rocket", "ringed", "ufo", "planet", "star"]},
 	"jungle": {"ground_a": Color("145820"), "ground_b": Color("10501c"), "road_a": Color("b88048"), "road_b": Color("b07844"),
@@ -92,9 +92,9 @@ static func obstacle_image(theme: String, kind: String) -> Image:
 static func _paint(img: Image, kind: String) -> Rect2i:
 	match kind:
 		"lolly":
-			_disc(img, 5.5, 5.5, 5.5, 5.5, Color("e8286c"))
+			_disc(img, 5.5, 5.5, 5.5, 5.5, Palette.RACE_RED)
 			_disc(img, 5.5, 5.5, 4.0, 4.0, Color("fcfcfc"))
-			_disc(img, 5.5, 5.5, 2.5, 2.5, Color("e8286c"))
+			_disc(img, 5.5, 5.5, 2.5, 2.5, Palette.RACE_RED)
 			_box(img, 5, 11, 2, 3, Color("fcfcfc"))
 			return Rect2i(0, 0, 11, 14)
 		"gumdrop":
@@ -416,7 +416,7 @@ static func decor_image(theme: String, kind: String) -> Image:
 
 
 static func _paint_decor(img: Image, kind: String) -> Rect2i:
-	var red := Color("e8286c")
+	var red := Palette.RACE_RED
 	var white := Color("fcfcfc")
 	match kind:
 		"lolly_big":
@@ -448,7 +448,7 @@ static func _paint_decor(img: Image, kind: String) -> Rect2i:
 			_disc(img, 10.0, 10.0, 10.0, 10.0, Palette.RACE_AMBER)
 			_disc(img, 10.0, 10.0, 8.5, 8.5, Color("f8a0c8"))
 			_disc(img, 10.0, 10.0, 3.0, 3.0, Color(0, 0, 0, 0))
-			var sprinkles := [Palette.RACE_GREEN, Color("3ddcff"), Color("f8e060"), Color("fcfcfc")]
+			var sprinkles := [Palette.RACE_GREEN, Palette.NEON_CYAN, Color("f8e060"), Color("fcfcfc")]
 			for p in [Vector2i(4, 6), Vector2i(8, 3), Vector2i(14, 5), Vector2i(16, 11), Vector2i(13, 15), Vector2i(6, 14),
 					Vector2i(3, 10)]:
 				_box(img, p.x, p.y, 2, 1, sprinkles[(p.x + p.y) % 4])
@@ -472,7 +472,7 @@ static func _paint_decor(img: Image, kind: String) -> Rect2i:
 			_poly(img, [Vector2(7, 26), Vector2(13, 26), Vector2(10, 33)], Color("f8a000"))
 			_disc(img, 10.0, 14.0, 5.5, 12.0, Color("e0e8f0"))
 			_poly(img, [Vector2(4.5, 8), Vector2(15.5, 8), Vector2(10, 0)], red)
-			_disc(img, 10.0, 14.0, 2.6, 2.6, Color("3ddcff"))
+			_disc(img, 10.0, 14.0, 2.6, 2.6, Palette.NEON_CYAN)
 			_box(img, 5, 21, 10, 2, Color("8890a8"))
 			return Rect2i(0, 0, 21, 33)
 		"ringed":
@@ -486,7 +486,7 @@ static func _paint_decor(img: Image, kind: String) -> Rect2i:
 			for y in [8, 11, 13]:
 				for x in range(6, 19):
 					if img.get_pixel(x, y).a > 0.0 and img.get_pixel(x, y) == Color("f8a000"):
-						img.set_pixel(x, y, Color("c87800"))
+						img.set_pixel(x, y, Palette.SATURN_BAND)
 			for y in 22:
 				for x in 25:
 					var q2 := Vector2((x + 0.5 - 12.0) / 12.0, (y + 0.5 - 11.0) / 4.0)
@@ -496,7 +496,7 @@ static func _paint_decor(img: Image, kind: String) -> Rect2i:
 			return Rect2i(0, 0, 25, 22)
 		"ufo":
 			_disc(img, 13.0, 11.0, 13.0, 5.0, Color("a0a8b8"))
-			_disc(img, 13.0, 7.0, 5.0, 5.0, Color("3ddcff"))
+			_disc(img, 13.0, 7.0, 5.0, 5.0, Palette.NEON_CYAN)
 			_disc(img, 11.5, 5.5, 1.5, 1.5, Color("c8f4ff"))
 			_box(img, 0, 9, 26, 1, Color("c0c8d8"))
 			for x in [4, 9, 14, 19, 22]:

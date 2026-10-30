@@ -34,6 +34,7 @@ func _check(cond: bool, what: String) -> void:
 func _initialize() -> void:
 	_detection()
 	_migrated()
+	_color_blind()
 	_scan()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
@@ -78,9 +79,9 @@ func _migrated() -> void:
 	_check(Palette.NES_RED == Color("f83800"), "Palette.NES_RED is the old red f83800")
 	var sheep: GDScript = load("res://scripts/game/sheep_herding/sheep_look.gd")
 	var bowling: GDScript = load("res://scripts/game/bowling/bowling_look.gd")
-	var olds := [Color("e63946"), Color("2a9d8f"), Color("f4a261"), Color("457b9d")]
-	_check(sheep.CONFETTI.slice(0, 4) == olds and bowling.DISCO.slice(0, 4) == olds,
-			"the party lights are the 4 player colors (the values did not change)")
+	var slots: Array = Protocol.PLAYER_COLORS
+	_check(sheep.CONFETTI.slice(0, 4) == slots and bowling.DISCO.slice(0, 4) == slots,
+			"the party lights are the 4 player colors (they follow the palette)")
 	var moved := {"RACE_RED": "e83838", "RACE_GREEN": "48c838", "RACE_BLUE": "1c88b0", "RACE_WOOD": "d89850", "RACE_AMBER": "e8a050",
 			"ICE_BLUE": "5a90c0", "MAZE_RED": "d02838", "HOCKEY_RED": "d62828", "BANANA_TAN": "dc9660", "BANANA_RED": "e6323c",
 			"BANANA_PEACH": "e6aa6e", "LANE_WOOD": "d8a058", "TOY_RED": "e63946", "TONGUE_PINK": "ff4060", "GOLF_GREEN": "00a800"}
@@ -93,6 +94,45 @@ func _migrated() -> void:
 			"the 15 named world colors have the value of the literals they replaced (changed: %s)" % str(changed))
 	var golf: GDScript = load("res://scripts/game/mini_golf/golf_look.gd")
 	_check(golf.RED == Color("f83800") and golf.BALLOON[0] == Color("f83800"), "Mini Golf red and balloon are the old red")
+
+
+## Machado et al. (2009) matrices for severity 1.0, applied in linear RGB (docs/COLOR_BLIND_AUDIT.md).
+const CB_MATRICES := {
+	"protanopia": [0.152286, 1.052583, -0.204868, 0.114503, 0.786281, 0.099216, -0.003882, -0.048116, 1.051998],
+	"deuteranopia": [0.367322, 0.860646, -0.227968, 0.280085, 0.672501, 0.047413, -0.011820, 0.042940, 0.968881],
+	"tritanopia": [1.255528, -0.076749, -0.178779, -0.078411, 0.930809, 0.147602, 0.004733, 0.691367, 0.303900]}
+const CB_MIN_DELTA_E := 40.0
+
+
+static func simulate(c: Color, m: Array) -> Color:
+	var l := c.srgb_to_linear()
+	var r := clampf(m[0] * l.r + m[1] * l.g + m[2] * l.b, 0.0, 1.0)
+	var g := clampf(m[3] * l.r + m[4] * l.g + m[5] * l.b, 0.0, 1.0)
+	var b := clampf(m[6] * l.r + m[7] * l.g + m[8] * l.b, 0.0, 1.0)
+	return Color(r, g, b).linear_to_srgb()
+
+
+## Issue #237 (REQ-GM-46a): any two slot colors are at least 40 delta E apart for normal vision and under each simulation.
+func _color_blind() -> void:
+	print("the slot colors under color blindness")
+	var slots: Array = Protocol.PLAYER_COLORS
+	_check(SimInput.min_delta_e(slots) >= CB_MIN_DELTA_E, "normal vision: %.1f" % SimInput.min_delta_e(slots))
+	for n in CB_MATRICES:
+		var sim: Array = []
+		for c in slots:
+			sim.append(simulate(c, CB_MATRICES[n]))
+		var d := SimInput.min_delta_e(sim)
+		_check(d >= CB_MIN_DELTA_E, "%s: the closest two slots are %.1f apart (%.0f or more)" % [n, d, CB_MIN_DELTA_E])
+	# The test must fail on the old palette (so the limit means something).
+	var old: Array = [Color("e63946"), Color("2a9d8f"), Color("f4a261"), Color("457b9d")]
+	var sim_old: Array = []
+	for c in old:
+		sim_old.append(simulate(c, CB_MATRICES["deuteranopia"]))
+	var worst_old := SimInput.min_delta_e(sim_old)
+	_check(worst_old < CB_MIN_DELTA_E, "the old palette is under the limit for deuteranopia (%.1f)" % worst_old)
+	# Slot color against the empty tile and the black screen.
+	for c in slots:
+		_check(UiTheme.contrast(c, UiTheme.BG) >= 4.5, "slot %s has 4.5:1 on black" % c.to_html(false))
 
 
 func _files(dir: String) -> Array[String]:

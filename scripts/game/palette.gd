@@ -35,3 +35,17 @@ const LANE_WOOD := Color("d8a058")
 const TOY_RED := Color("e63946")
 const TONGUE_PINK := Color("ff4060")
 const GOLF_GREEN := Color("00a800")
+
+## Issue #237 (palette B): these world colors are near a new player color. They keep their old value (a decoration, a small
+## detail or a shade, not an object that has to be told from a player), named here so that the lint can tell a decision from
+## a mistake.
+const NEON_CYAN := Color("3ddcff")
+const COCKPIT_CYAN := Color("5ad2ff")
+const SATURN_BAND := Color("c87800")
+const GOLF_SKY := Color("68d0fc")
+const LEAF_ORANGE := Color("e0842c")
+const GOLD_SHADE := Color("d69614")
+const HAIR_BLOND := Color("c8861e")
+## Changed in issue #237 because a car in the slot color has to be told from the wall of the track: the old Space wall was
+## cyan (3ddcff, slot 1 is now 3dcef2). The Candy red (was e8286c, near the new pink slot 4) is now `RACE_RED`.
+const SPACE_WALL := Color("8c9cff")

@@ -43,7 +43,7 @@ const START_SHARE := 0.3
 # Look (REQ-PG-15, REQ-GM-47i to 47n). The floor is dark so that every player color has a contrast of 3:1 or more.
 const STAR_COUNT := 48
 const FLOOR_COLOR := Color("2a1070")
-const EMPTY_TILE := Color("3a1c97")
+const EMPTY_TILE := Color("2a3a8c")
 const OUTSIDE_TILE := Color("1d0b4d")   # A tile outside the picture: a dark block, nobody can paint it (REQ-PG-24).
 const TILE_GAP := Shell.WORLD_PIXEL   # One world pixel between two tiles.
 

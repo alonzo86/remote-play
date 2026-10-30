@@ -6,7 +6,7 @@ extends RefCounted
 const Stack = preload("res://scripts/game/tower_builder/tower_stack.gd")
 const Minigame = preload("res://scripts/game/minigame.gd")
 
-const SKY := [Color("46c0ff"), Color("5cccff"), Color("78d8ff"), Color("96e2ff"), Color("b9ecff"), Color("ffecc8"),
+const SKY := [Color("4a8cff"), Color("66a0ff"), Color("84b4ff"), Color("96e2ff"), Color("b9ecff"), Color("ffecc8"),
 		Color("ffdeaa")]
 const SKY_BAND := 160.0          # The height of one band of the sky.
 const SKY_TOP := Minigame.HUD_BAR_H  # Under the black bar of the HUD.
