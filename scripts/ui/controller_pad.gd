@@ -91,9 +91,25 @@ func _rect_name(has_avatar: bool) -> Rect2:
 	return Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 320.0, 90)
 
 
-## The font size for a name in the header: 48 px, smaller (steps of 8 px, down to 16) so that no letter is cut (issue #238).
-static func name_size(text: String, width: float) -> int:
-	return UiTheme.fit_size(UiTheme.font(), text, width, 48)
+const NAME_SIZE := 48   # The name in the header: never smaller, a wide name goes on two lines (#246).
+const LOST_SIZE := 56   # RECONNECTING... on the dimmed pad.
+const HINT_SIZE := 32   # The help line of the Recenter box.
+
+
+## The lines of a name in the header at 48 px: one line, or more when the name is wider than `width` (issues #238, #246).
+static func name_lines(text: String, width: float) -> Array[String]:
+	return UiTheme.wrap_lines(UiTheme.font(), text, width, NAME_SIZE)
+
+
+## Draws `lines` one under the other, the block centered on the middle of `rect` (the box grows around the middle).
+func _draw_lines_centered(f: Font, lines: Array[String], rect: Rect2, fs: int, align: HorizontalAlignment, x: float,
+		color: Color) -> void:
+	var step := f.get_height(fs)
+	var mid := rect.get_center()
+	for i in lines.size():
+		var line_rect := Rect2(rect.position.x, mid.y + (float(i) - float(lines.size() - 1) * 0.5) * step - step * 0.5,
+				rect.size.x, step)
+		draw_string(f, Vector2(x, UiTheme.centered_baseline(f, line_rect, fs)), lines[i], align, rect.size.x, fs, color)
 
 
 ## The square in the slot color with the slot number, at the top left of the pad on the header row (REQ-FL-52).
@@ -275,9 +291,8 @@ func _draw() -> void:
 	var own: String = c.tv_player_name if c.tv_pid != "" else "%dP" % (c.slot + 1)
 	var status := own if online else Lang.t("connect.reconnecting")
 	var name_rect := _rect_name(has_avatar)
-	var name_fs := name_size(status.to_upper(), name_rect.size.x)
-	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, name_fs)), status.to_upper(),
-			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, name_fs, UiTheme.ACCENT if online else UiTheme.BAD)
+	_draw_lines_centered(f, name_lines(status.to_upper(), name_rect.size.x), name_rect, NAME_SIZE, HORIZONTAL_ALIGNMENT_LEFT,
+			name_rect.position.x, UiTheme.ACCENT if online else UiTheme.BAD)
 
 	# The place and the score of this player, on a row of their own under the header (REQ-FL-67).
 	var line := score_line(c.score_rank, c.score_of, c.score_text) if online else ""
@@ -355,9 +370,8 @@ func _draw_lost_link(f: Font) -> void:
 		i += 1
 	var mid := Rect2(60, size.y * 0.5 - 40.0, size.x - 120, 80)
 	var msg := Lang.t("connect.reconnecting").to_upper()
-	var fs := UiTheme.fit_size(f, msg, mid.size.x, 56)
-	draw_string(f, Vector2(mid.position.x, UiTheme.centered_baseline(f, mid, fs)), msg, HORIZONTAL_ALIGNMENT_CENTER,
-			mid.size.x, fs, UiTheme.TEXT)
+	_draw_lines_centered(f, UiTheme.wrap_lines(f, msg, mid.size.x, LOST_SIZE), mid, LOST_SIZE, HORIZONTAL_ALIGNMENT_CENTER,
+			mid.position.x, UiTheme.TEXT)
 
 
 ## Recenter: a white box with black text that turns black with white text for a moment when it is tapped.
@@ -365,14 +379,17 @@ func _draw_recenter(rr: Rect2, f: Font) -> void:
 	var flashing: bool = _flash.recenter > 0.0
 	_draw_box(rr, UiTheme.TEXT, _recenter_fill(), Lang.t("pad.recenter"), 72,
 			UiTheme.TEXT if flashing else UiTheme.BUTTON_TEXT)
-	draw_string(f, rr.position + Vector2(0, rr.size.y - 40), Lang.t("pad.point_at_tv_then"),
-			HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, hint_size(f, rr), UiTheme.TEXT if flashing else UiTheme.BUTTON_TEXT)
+	var lines := hint_lines(f, rr)
+	var step := f.get_height(HINT_SIZE)
+	for i in lines.size():   # The last line stays where the one line was; more lines grow upward.
+		draw_string(f, rr.position + Vector2(0, rr.size.y - 40 - float(lines.size() - 1 - i) * step), lines[i],
+				HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, HINT_SIZE, UiTheme.TEXT if flashing else UiTheme.BUTTON_TEXT)
 
 
-## The size of the help line in the Recenter box: 32 px, smaller (steps of 8 px) when the line, as in Hebrew, would touch the
-## frame. It keeps a gap of 16 px at each side inside the frame.
-func hint_size(f: Font, rr: Rect2) -> int:
-	return UiTheme.fit_size(f, Lang.t("pad.point_at_tv_then").to_upper(), rr.size.x - 2.0 * (UiTheme.LINE + 16.0), 32)
+## The lines of the help line in the Recenter box at 32 px: one line, or more when the line, as in Hebrew, would touch the
+## frame (issue #246: it is not made smaller). It keeps a gap of 16 px at each side inside the frame.
+func hint_lines(f: Font, rr: Rect2) -> Array[String]:
+	return UiTheme.wrap_lines(f, Lang.t("pad.point_at_tv_then").to_upper(), rr.size.x - 2.0 * (UiTheme.LINE + 16.0), HINT_SIZE)
 
 
 ## True when the knob went from one side of the middle of the strip to the other, or onto the middle (REQ-BW-4a).

@@ -143,6 +143,7 @@ static func label_plate_rect(at: Vector2, msg: String, font_size: int) -> Rect2:
 ## there is one (REQ-GM-46b), and the text in the text color. The text never sits on the player color. `pos` is the top-left
 ## corner. A chip is always laid out left to right, also in Hebrew: the square, the avatar, the name, the score at the end.
 static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width := 240.0, height := 64.0, avatar := -1) -> Rect2:
+	width = chip_width(msg, width, avatar)   # The chip grows to the name: nothing is cut (issue #246, REQ-FL-40).
 	var r := Rect2(pos, Vector2(width, height))
 	_note("chip", ci, r, {"name": msg})   # Every chip of every game, so a test can check them all (issue #223).
 	var parts := chip_parts(avatar)
@@ -153,9 +154,14 @@ static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width 
 		Avatar.draw(ci, Rect2(pos + Vector2(parts.avatar_x, (height - CHIP_AVATAR) * 0.5), side), avatar)
 	var x0: float = parts.name_x
 	var base := UiTheme.centered_baseline(UiTheme.font(), Rect2(0, 0, 0, height), CHIP_FONT)
-	var shown := fit_text(msg.to_upper(), width - x0 - CHIP_PAD, CHIP_FONT)
-	ci.draw_string(UiTheme.font(), Vector2(pos.x + x0, pos.y + base), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT, UiTheme.TEXT)
+	ci.draw_string(UiTheme.font(), Vector2(pos.x + x0, pos.y + base), msg.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, CHIP_FONT,
+			UiTheme.TEXT)
 	return r
+
+
+## The width of a chip for `msg`: `min_w`, or the whole text with the padding when that is wider. The text is never cut.
+static func chip_width(msg: String, min_w: float, avatar := -1) -> float:
+	return maxf(min_w, name_x(avatar) + UiTheme.text_width(UiTheme.font(), msg.to_upper(), CHIP_FONT) + CHIP_PAD)
 
 
 ## Where the parts of a chip stand, from its left edge: the color square, the avatar (-1 when the chip has none) and the text.
@@ -210,19 +216,6 @@ static func score_chip_parts(player_name: String, score: String, width: float, _
 	var score_w := UiTheme.font().get_string_size(score.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	return {"name": player_name, "name_x": name_x(avatar),
 			"score_x": right - score_w, "score_w": score_w}
-
-
-## `text` shortened with "..." (one character) so that it is at most `max_w` px wide. A short text stays as it is.
-static func fit_text(text: String, max_w: float, font_size := CHIP_FONT) -> String:
-	var f := UiTheme.font()
-	if f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x <= max_w:
-		return text
-	var cut := text
-	while not cut.is_empty() and f.get_string_size(cut + "\u2026", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > max_w:
-		cut = cut.substr(0, cut.length() - 1)
-	if cut.is_empty() and f.get_string_size("\u2026", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > max_w:
-		return ""
-	return cut + "\u2026"
 
 
 ## A player ball: a dark outline and the player color. The player is known by the color alone: no number and no avatar on the

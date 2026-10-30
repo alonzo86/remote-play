@@ -2,6 +2,7 @@ extends SceneTree
 ## Smoke test of Pin Pals with two simulated phones (REQ-BW-*). Run:
 ##   godot --headless --path . --script tests/smoke_bowling.gd -- --role=tv
 
+const Shell = preload("res://scripts/game/shell.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
@@ -104,6 +105,18 @@ func _run() -> void:
 			and game.phase == game.Phase.AIM and game.sim.standing_count() == 10,
 			"the game starts at once with no countdown: the first phone aims at 10 pins (REQ-GM-35, REQ-BW-3, REQ-BW-4)")
 	await _stream(clients, 0.5, [flat, flat])
+
+	# Issue #246: the name column grows with the names, no name is cut.
+	var narrow_col: float = game.name_column_width()
+	_check(narrow_col == game.NAME_W, "short names: the name column has its least width (%.0f px)" % narrow_col)
+	var old_name: String = game.player(0).player_name
+	game.player(0).player_name = "WWWWWWWWWW"
+	game.player(0).avatar = 3   # With an avatar on the chip a name of 10 letters is wider than the 420 px column.
+	var need_col: float = Shell.chip_width("WWWWWWWWWW", 0.0, game.player(0).avatar) + 6.0
+	_check(game.name_column_width() == need_col and need_col > game.NAME_W,
+			"a name of 10 letters: the name column is %.0f px and holds the whole name" % need_col)
+	game.player(0).player_name = old_name
+	game.player(0).avatar = -1
 
 	# The phones know whose turn it is (REQ-BW-14).
 	_check(clients[0].turn_state == 1 and clients[1].turn_state == 2 and clients[1].turn_who == game.player(0).player_name,

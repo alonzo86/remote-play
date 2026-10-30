@@ -88,16 +88,21 @@ func _sources() -> void:
 	print("scripts/game and scripts/ui")
 	var scanned := 0
 	var new_ones: Array[String] = []
+	var shrinking: Array[String] = []   # Issue #246: a text is never made smaller to fit; the box grows or the text wraps.
 	var counts := {}
 	for folder in FOLDERS:
 		for path in _files(folder):
 			scanned += 1
+			var source := FileAccess.get_file_as_string(path)
+			if source.contains("fit_size(") or source.contains("fit_text("):
+				shrinking.append(path)
 			var found := small_sizes(FileAccess.get_file_as_string(path), PHONE_FLOOR if PHONE_FILES.has(path) else FLOOR)
 			if found.is_empty():
 				continue
 			counts[path] = found.size()
 			if found.size() > int(KNOWN.get(path, 0)):
 				new_ones.append("%s %s" % [path, str(found)])
+	_check(shrinking.is_empty(), "no text is made smaller to fit a box: fit_size and fit_text are gone (found: %s)" % str(shrinking))
 	_check(scanned > 40, "the scan reads the sources (%d files)" % scanned)
 	_check(new_ones.is_empty(), "no text under %d px outside the known list (found: %s)" % [FLOOR, str(new_ones)])
 	var stale: Array[String] = []

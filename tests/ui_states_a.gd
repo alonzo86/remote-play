@@ -239,12 +239,18 @@ func _pad_header() -> void:
 	for lang in names:
 		for avatar in [true, false]:
 			var rect: Rect2 = pad._rect_name(avatar)
-			var fs: int = _pad_script.name_size(names[lang], rect.size.x)
-			var w := UiTheme.font().get_string_size(names[lang], HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-			_check(w <= rect.size.x and fs >= 16 and rect.end.x <= pad._rect_leave().position.x,
-					"[%s] a name of 16 letters fits the header with%s an avatar (%.0f of %.0f px at %d px type)"
-					% [lang, "" if avatar else "out", w, rect.size.x, fs])
-	_check(_pad_script.name_size("MAYA", pad._rect_name(true).size.x) == 48, "a short name keeps the full 48 px type")
+			var lines: Array[String] = _pad_script.name_lines(names[lang], rect.size.x)
+			var widest := 0.0
+			for line in lines:
+				widest = maxf(widest, UiTheme.font().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 48).x)
+			_check(widest <= rect.size.x and "".join(lines) == names[lang] and lines.size() == 2
+					and rect.end.x <= pad._rect_leave().position.x,
+					"[%s] a name of 16 letters goes on 2 lines at 48 px, nothing cut, with%s an avatar (%.0f of %.0f px)"
+					% [lang, "" if avatar else "out", widest, rect.size.x])
+	_check(_pad_script.name_lines("MAYA", pad._rect_name(true).size.x) == ["MAYA"],
+			"a short name is one line of the full 48 px type")
+	_check(_pad_script.name_lines("WWWWWWWWWW", pad._rect_name(true).size.x).size() == 1,
+			"a name of 10 letters (the longest, NAME_MAX) is one line, also with an avatar")
 	var Haptics: GDScript = load("res://scripts/game/haptics.gd")
 	var calls: Array = []
 	Haptics.vibrate_call = func(ms: int) -> void: calls.append(ms)
