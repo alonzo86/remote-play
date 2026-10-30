@@ -396,7 +396,7 @@ Needs: 1 to 2 phones, 1 TV, a stopwatch. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, 
 
 Items 1a, 1b, 1c, 2a, 3a, 3c, 4a, 4b, 4c, 6a, 6b, 8a, 8b, 8c, 9a, 9b, 10a, 10b, 10c, 10d, 10f and 10g moved to the automated tests (docs/AUTOMATED_TESTS.md, A-8b-1 to A-8b-10; the tiles of item 2a on a real TV are step 1c of Test 12). The numbers of the other items do not change.
 
-Covered by machines (not repeated here): the buttons TRY AGAIN, NEW GAME and BACK TO MENU of the result menu (A-11-1) and the medals of a tie or a solo round (A-11-7).
+Covered by machines (not repeated here): the buttons TRY AGAIN, SETTINGS and BACK TO MENU of the result menu (A-11-1) and the medals of a tie or a solo round (A-11-7).
 
 **Results**
 
@@ -524,7 +524,7 @@ Needs: 1 to 4 phones, 1 TV, a camera for photos. Covers: REQ-GM-34, REQ-GM-40, R
 1a. Maze with 1 phone: finish the maze. Check: the tester reads aloud the title and the first row (name and score text) of the result menu from 3 m, without error. (The rows, the title and the buttons are checked by `docs/AUTOMATED_TESTS.md`, A-11-1.)
 1b. Look at the same result menu. Check: the tester points to the avatar picture and to the square in the slot color next to the name (2 of 2 found). (REQ-GM-72. The color of the square and the medal of one player are checked by A-11-1b.)
 2b. Maze with 2 to 4 phones: let one ball reach the exit first and leave the others behind. Look at the result menu from 3 m. Check: the tester reads aloud the winner row and the row "NOT FINISHED" without error. (The gold medal of the winner, REQ-GM-73a, and the buttons are checked by A-11-2b.)
-3a. Car Race with 4 phones on any track: let all cars finish. Take a photo of the whole TV. Check: the card with the list and the 3 buttons (Try again, New game, Back to menu) is 3.1% of the screen width or more from every screen edge. (The rows, the order and the 60 px edge of the layout are checked by A-11-3. The photo shows the real TV, which may cut the picture.)
+3a. Car Race with 4 phones on any track: let all cars finish. Take a photo of the whole TV. Check: the card with the list and the 3 buttons (Try again, Settings, Back to menu) is 3.1% of the screen width or more from every screen edge. (The rows, the order and the 60 px edge of the layout are checked by A-11-3. The photo shows the real TV, which may cut the picture.)
 3b. Look at the same card from 3 m. Check: the tester reads aloud the 3 button names and the names of the 4 players without error. (A-11-3.)
 
 Items 2a and 3c moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-11-2a, A-11-3c). Items 4, 5, 6, 7 moved earlier (A-11-4 to A-11-7). The numbers of the other items do not change.

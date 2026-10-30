@@ -3,7 +3,7 @@ extends SceneTree
 ##   godot --headless --path . --script tests/smoke_tv.gd -- --role=tv
 ## It runs the TV flow, the maze and the race, and checks that tilt moves a ball.
 
-const RESULT_MENU := ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"]
+const RESULT_MENU := ["minigame.restart", "common.settings", "minigame.back_to_menu"]
 const Protocol = preload("res://scripts/core/protocol.gd")
 const MedalView = preload("res://scripts/ui/medal_view.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -327,7 +327,7 @@ func _run() -> void:
 	game.on_back()
 	await _frames(3)
 	var ask: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(ask == ["minigame.resume_play", "minigame.end_game"], "Back asks 'End the game?' (REQ-GM-31a): %s" % str(ask))
+	_check(ask == ["minigame.resume", "minigame.end_game"], "Back asks 'End the game?' (REQ-GM-31a): %s" % str(ask))
 	game.menu_buttons()[0].pressed.emit()
 	await _frames(4)
 	_check(game._hold and game.is_paused() and game._menu_kind == "hold", "Keep playing brings the card of the lost phone back")
@@ -756,7 +756,7 @@ func _run() -> void:
 	var leave_labels: Array = []
 	for b in lg.menu_buttons():
 		leave_labels.append(b.text)
-	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["minigame.resume_play", "minigame.end_game"],
+	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["minigame.resume", "minigame.end_game"],
 			"Back in a game in progress asks 'End the game?' and pauses: %s" % str(leave_labels))
 	_check(lg._in_progress() == lg._can_open_menu() and lg._in_progress(), "a race in progress is in progress (REQ-GM-31a)")
 	_check(lg.menu_buttons()[1].theme_type_variation == "DangerButton", "End game is the red destructive button")
