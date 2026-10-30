@@ -24,7 +24,6 @@ const TIMER_X := Shell.TIMER_X
 const TIMER_W := 208.0
 const TITLE_X := 60.0          # The title starts at the 60 px margin.
 const TITLE_FONT := 32
-const TITLE_FONT_MIN := 28     # The least size of any text (REQ-GM-47o).
 const TITLE_GAP := 8.0         # The title stays this far from the timer box.
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps it, and the seed, for Restart.
@@ -230,21 +229,14 @@ func _draw_car(ci: CanvasItem, slot: int) -> void:
 	BumperLook.draw_spark(ci, b.pos + BumperLook.pole_offset(dir) * Shell.WORLD_PIXEL, _time, slot)
 
 
-## The size of the title (REQ-BC-16): 32 px, or smaller in steps of 2 px, down to 28 px, when the name (the Hebrew one)
-## would touch the timer box.
-## The timer box stands at TIMER_X from the left edge, or from the right edge in Hebrew, so the room is the same in both.
-func title_font() -> int:
-	var font := UiTheme.font()
-	var text := Lang.t("registry.bumper_cars").to_upper()
-	var room := TIMER_X - TITLE_X - TITLE_GAP
-	var fs := TITLE_FONT
-	while fs > TITLE_FONT_MIN and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
-		fs -= 2
-	return fs
+## The room of the title (REQ-BC-16): up to the timer box, which stands at TIMER_X from the left edge, or from the right edge in
+## Hebrew, so the room is the same in both. A longer name (the Hebrew one) goes on two lines at 32 px (`Shell.title_wrapped()`).
+func title_room() -> float:
+	return TIMER_X - TITLE_X - TITLE_GAP
 
 
 func _game_draw() -> void:
-	Shell.title(self, "registry.bumper_cars", Vector2(TITLE_X, 96.0), title_font())
+	Shell.title_wrapped(self, "registry.bumper_cars", title_room(), Vector2(TITLE_X, 96.0), TITLE_FONT)
 	draw_leader_chip(self)
 	if _round.is_playing() and not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), maxf(_round.remaining(), 0.0), TIMER_W)

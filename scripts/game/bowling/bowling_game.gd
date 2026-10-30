@@ -21,7 +21,8 @@ const MIN_BACK := 0.1          # A back swing shorter than this (s) is a shake, 
 const BUZZ_GAP_MS := 150
 # The aim at its end is this far from the middle of the lane (m): past the lane edge, in the gutter.
 const AIM_X := 0.60
-const ROW_H := 72.0             # A row of the score sheet.
+const ROW_H := 88.0             # A row of the score sheet: the marks and the total, both at 32 px (REQ-FL-40).
+const TEXT_SIZE := 32           # The frame text and the marks of the score sheet.
 const NAME_W := 420.0
 const SHEET_MARGIN := 60.0
 const PAUSE_GAP_MS := 400       # A gap between two ticks longer than this means the game was paused: the swing starts again.
@@ -346,9 +347,9 @@ func _readable(c: Color) -> bool:
 
 func _draw_frame_text() -> void:
 	var text := Lang.f("bowling.frame", [rules.current_frame(), BowlingRules.FRAMES, maxi(1, rules.current_ball())]).to_upper()
-	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 28).x
+	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE).x
 	var at := Vector2(Shell.mx(self, size.x - 60.0 - w, w), 96.0)
-	draw_string(UiTheme.font(), at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.TEXT)
+	draw_string(UiTheme.font(), at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.TEXT)
 
 
 ## The score sheet at the bottom (the headboard, REQ-BW-12): a row for each player with the marks and the running total of each
@@ -377,7 +378,8 @@ func _draw_sheet() -> void:
 			var here := active and i + 1 == current_frame
 			draw_style_box(UiTheme.line_box(UiTheme.ACCENT if here else UiTheme.FRAME, UiTheme.BG, 4), rect)
 			var marks := " ".join(cells[i].marks)
-			draw_string(f, Vector2(x + 10.0, y + 30.0), marks, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.TEXT)
+			draw_string(f, Vector2(x + 10.0, y + 38.0), marks, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.TEXT)
 			if int(cells[i].total) >= 0:
-				draw_string(f, Vector2(x + 10.0, y + 60.0), str(int(cells[i].total)), HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.ACCENT)
+				draw_string(f, Vector2(x + 10.0, y + 74.0), str(int(cells[i].total)), HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE,
+						UiTheme.ACCENT)
 		y += ROW_H

@@ -18,8 +18,9 @@ const GREAT_TIME := 0.8
 const BUZZ_HIT_MS := 30
 const BUZZ_GREAT_MS := 60
 const PAUSE_GAP_MS := 400       # A gap between two ticks longer than this means the game was paused: swings are ignored.
-const PANEL_W := 700.0
+const PANEL_W := 760.0   # 32 px names need 4/28 more room than the 28 px ones had (REQ-FL-40), so none is cut more.
 const PANEL_ROW := 60.0
+const TEXT_SIZE := 32
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps them for Try again.
 var difficulty := "medium"
@@ -505,8 +506,8 @@ func _draw_panel() -> void:
 			if participants.has(s):
 				draw_rect(Rect2(cx, row.position.y + 17.0, 22.0, 22.0), player(s).color)
 				cx += 30.0
-		var names := Shell.fit_text(_team_names(team).to_upper(), PANEL_W - 250.0 - (cx - row.position.x), 28)
-		draw_string(f, Vector2(cx + 4.0, row.position.y + 38.0), names, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.TEXT)
+		var names := Shell.fit_text(_team_names(team).to_upper(), PANEL_W - 250.0 - (cx - row.position.x), TEXT_SIZE)
+		draw_string(f, Vector2(cx + 4.0, row.position.y + 38.0), names, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.TEXT)
 		if play.phase != Match.Phase.END and not rules.teams[team].is_empty() and rules.team_of(play.server_slot()) == team:
 			draw_circle(Vector2(row.end.x - 190.0, row.position.y + 28.0), 8.0, Look.BALL)
 		var games := 0
@@ -524,11 +525,11 @@ func _draw_solo_panel() -> void:
 	var f := UiTheme.font()
 	var rally := Lang.f("tennis.rally", [play.rally]).to_upper()
 	var best := Lang.f("tennis.best", [maxi(play.best_rally, play.rally)]).to_upper()
-	var x := Shell.mx(self, 60.0, 360.0)
+	var x := Shell.mx(self, 60.0, 400.0)
 	var y := Look.HUD_H + 16.0
 	for i in 2:
-		var row := Rect2(x, y + i * PANEL_ROW, 360.0, PANEL_ROW - 6.0)
+		var row := Rect2(x, y + i * PANEL_ROW, 400.0, PANEL_ROW - 6.0)
 		draw_style_box(UiTheme.line_box(UiTheme.FRAME, UiTheme.BG, 4), row)
 		draw_string(f, Vector2(row.position.x + 16.0, row.position.y + 38.0), rally if i == 0 else best,
-				HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.ACCENT if i == 0 else UiTheme.TEXT)
+				HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.ACCENT if i == 0 else UiTheme.TEXT)
 	Shell.timer(self, Vector2(Shell.TIMER_X, Shell.TIMER_Y), maxf(0.0, play.solo_left))

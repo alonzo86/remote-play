@@ -5,6 +5,8 @@ extends SceneTree
 ## Run: godot --headless --path . --script tests/smoke_bumper_cars.gd -- --role=tv
 
 const SimInput = preload("res://tests/sim_input.gd")
+const Shell = preload("res://scripts/game/shell.gd")
+const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 const DT := 1.0 / 60.0
 
@@ -367,13 +369,18 @@ func _layout_and_restart() -> void:
 	_check(game.rink.rink == r and game._pixel_viewport.size == Vector2i(480, 270),
 			"the world is simulated in the same units at 1280x720 and 1920x1080 (REQ-BC-17)")
 	var Lang = load("res://scripts/core/lang.gd")
-	var english_font: int = game.title_font()
+	var english_lines: Array = Shell.title_lines("registry.bumper_cars", game.title_room(), game.TITLE_FONT)
 	Lang.set_language("he", root)
-	var hebrew_font: int = game.title_font()
+	var hebrew_lines: Array = Shell.title_lines("registry.bumper_cars", game.title_room(), game.TITLE_FONT)
 	Lang.set_language("en", root)
-	_check(english_font == 32 and hebrew_font == 30,
-			"the title is 32 px in English and 30 px in Hebrew, where 32 px would touch the timer (REQ-BC-16): %d, %d"
-			% [english_font, hebrew_font])
+	var room: float = game.title_room()
+	var widest := 0.0
+	for line in hebrew_lines:
+		widest = maxf(widest, UiTheme.font().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, game.TITLE_FONT).x)
+	_check(english_lines.size() == 1 and hebrew_lines.size() == 2 and game.TITLE_FONT == 32 and widest <= room
+			and " ".join(hebrew_lines) == Lang.table()["registry.bumper_cars"].he.to_upper(),
+			"the title is 32 px: one line in English, two lines in Hebrew (one would touch the timer), all letters (REQ-BC-16): %s, %s"
+			% [str(english_lines), str(hebrew_lines)])
 	var stars_before: Array = game.rink.stars.duplicate(true)
 	var difficulty_before: String = game.difficulty
 	game.restart()
