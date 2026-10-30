@@ -177,13 +177,16 @@ func _pause_and_lost_phone(app: Node, sound: Node) -> void:
 	_check(await _wait_music(sound, "paint_grab"), "the song of the game plays after GO")
 	var full: float = sound._music.volume_db
 	var bus_before := AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music"))
-	# 7a: OK opens the pause menu (a real key event).
+	# 7a: OK does nothing in the game (issue #228); the pause menu is opened by code.
 	var ev := InputEventAction.new()
 	ev.action = "ui_accept"
 	ev.pressed = true
 	Input.parse_input_event(ev)
 	await _stream(0.5, 2)
-	_check(game.is_paused(), "OK in the game opens the pause menu")
+	_check(not game.is_paused(), "OK in the game does nothing")
+	game.open_menu("minigame.paused", game.pause_entries())
+	await _stream(0.5, 2)
+	_check(game.is_paused(), "the pause menu is open")
 	var ducked: float = sound._music.volume_db
 	_check(sound._music.playing and full - ducked >= 8.0 and full - ducked <= 13.0,
 			"the pause menu lowers the music by %.1f dB (8 to 13) and the music goes on" % (full - ducked))

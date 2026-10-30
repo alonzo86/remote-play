@@ -356,10 +356,7 @@ func _run() -> void:
 	var gp := await _start(app)
 	_feed(gp, 0, Trace.stroke(Vector3(1, 0, 0), 8.0, 0.0, 0.25, 0.01).slice(0, 15))
 	var locked_before: bool = gp.detector.aim_locked
-	var ev := InputEventAction.new()
-	ev.action = "ui_accept"
-	ev.pressed = true
-	gp._unhandled_input(ev)
+	gp.open_menu("minigame.paused", gp.pause_entries())
 	await _frames(2)
 	var paused: bool = gp.is_paused()
 	await create_timer(0.6).timeout

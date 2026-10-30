@@ -362,7 +362,7 @@ Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a
 
 **Steps**
 
-1a. Use only the remote. On each of these 7 screens press Up, Down, Left and Right once each: Connect, Games, Players modal, OPTIONS (Settings), the settings view of a game, the pause menu and the result menu. Check: on each screen the focus moves at least once, and OK selects the focused item (REQ-GM-33).
+1a. Use only the remote. On each of these 7 screens press Up, Down, Left and Right once each: Connect, Games, Players modal, OPTIONS (Settings), the settings view of a game, the question "End the game?" (Back in a game) and the result menu. Check: on each screen the focus moves at least once, and OK selects the focused item (REQ-GM-33).
 1d. Stand 3 m from the TV. A second person presses keys on the 7 screens of step 1a without saying where the focus is. Check: you name the focused item on 7 of 7 screens, also in Settings.
 3a. On the Games screen press Back on the real remote. Check: the Connect screen shows, the app is still open 5 seconds later, and the player slots are still filled (same number of players).
 3b. Press Back on the Connect screen. Check: the quit question opens with **Stay** in focus.
