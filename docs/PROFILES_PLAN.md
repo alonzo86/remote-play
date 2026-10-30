@@ -143,6 +143,8 @@ If the player deletes the active profile, or an import changes it, while the pho
 | Tilt Maze | none (owner, item 9.1) | | The maze is random in every round (`maze_game.gd:64`), so a time is mostly the luck of the maze. Only the winner has a time (`maze_game.gd:100`). |
 | Marble Race | `marble_race|<difficulty>|<track 1 to 10>` | lower (time) | Only the 10 fixed tracks (`FIXED_SEEDS`, `marble_track.gd:63`). |
 | Snowball Splat | `snowball_splat|<difficulty>` | higher | |
+| Whack-a-Mole | `whack_a_mole|<difficulty>` | higher (points) | Rounds of 1 to 4 players share a key (issue #216). |
+| Tennis | `tennis|<difficulty>`, 1 player only | higher (longest rally) | A match of 2 to 4 players has no key: it has no score that compares between matches (issue #216). |
 | Paint Grab | `paint_grab|<difficulty>` | higher (tiles) | The score of the `Scoreboard` is the number of tiles (`paint_grab_game.gd:139`). |
 | Sumo Bumpers | none | | The result is a win, not a number. |
 
@@ -168,16 +170,16 @@ The text of the QR code is `WP1.` followed by base64url text (no padding) of thi
 
 | Bytes | Field |
 |-------|-------|
-| 1 | Format version: 1, or 2 when a best has a number above 39 |
+| 1 | Format version: 1, 2 when a best has a number above 39, or 3 when a best has a number above 42 |
 | 16 | Profile ID |
 | 1 | Avatar |
 | 1 to 5 | `rev` (varint; the decoder accepts up to 5 bytes) |
 | 1 + n | Name: length n (0 to 20 bytes, UTF-8; 10 characters, Hebrew letters take 2 bytes), then the bytes |
-| 1 | Number of bests, k (0 to 39 in version 1, 0 to 42 in version 2) |
+| 1 | Number of bests, k (0 to 39 in version 1, 0 to 42 in version 2, 0 to 48 in version 3) |
 | k times | Best key number (1 byte, from the table `ProfileKeys`), then the value as a varint (up to 5 bytes) |
 | 2 | Checksum (CRC-16) of all the bytes before it |
 
-`ProfileKeys` is a fixed table in code: for each key the key text, its number (1 to 42: Maze none, Snowball Splat 3, Paint Grab 3, Marble Race 3 difficulties x 10 tracks = 30, Star Shield 3 = numbers 37 to 39, Pin Pals 3 = numbers 40 to 42. Pin Pals raised `MAX_KEYS` from 39 to 42 and added a second format version: a code with a best above number 39 is written as `FORMAT_VERSION` 2, any other code stays version 1 (same layout; version 1 allows k up to 39, version 2 up to 42), so an app from before Pin Pals reads every code except one that has a Pin Pals best. The next game with a best adds numbers at the end and decides again whether a version 3 is needed) and its direction. A number is never reused or changed; a new game or a changed track set adds numbers at the end. A code with a key number the app does not know is read, and that key is skipped. The prefix `WP1.` tells the scanner that this is not a TV link (`ws://`); the Connect screen scan routes a `WP1.` code to the import and the profile scan gives `THIS IS A TV LINK` for a TV link.
+`ProfileKeys` is a fixed table in code: for each key the key text, its number (1 to 48: Maze none, Snowball Splat 3, Paint Grab 3, Marble Race 3 difficulties x 10 tracks = 30, Star Shield 3 = numbers 37 to 39, Pin Pals 3 = numbers 40 to 42, Whack-a-Mole 3 = numbers 43 to 45, Tennis against the machine (1 player only) 3 = numbers 46 to 48. Pin Pals raised `MAX_KEYS` from 39 to 42 and added a second format version: a code with a best above number 39 is written as `FORMAT_VERSION` 2, any other code stays version 1 (same layout; version 1 allows k up to 39, version 2 up to 42), so an app from before Pin Pals reads every code except one that has a Pin Pals best. Whack-a-Mole and Tennis raised `MAX_KEYS` from 42 to 48 and added `FORMAT_VERSION` 3 (issue #216): a code with a best above number 42 is written as version 3, a code with a best above 39 and none above 42 stays version 2, any other stays version 1; same layout, version 3 allows k up to 48. This app reads versions 1, 2 and 3; an app from before issue #216 refuses a version 3 code, so it cannot import a profile that has a Whack-a-Mole or Tennis best. The next game with a best adds numbers at the end and decides again whether a version 4 is needed) and its direction. A number is never reused or changed; a new game or a changed track set adds numbers at the end. A code with a key number the app does not know is read, and that key is skipped. The prefix `WP1.` tells the scanner that this is not a TV link (`ws://`); the Connect screen scan routes a `WP1.` code to the import and the profile scan gives `THIS IS A TV LINK` for a TV link.
 
 ### 6.2 Size and the QR encoder
 
@@ -194,7 +196,7 @@ The TV link keeps using the small versions. The Share screen draws the code with
 
 A profile code gives anybody who scans it the player. This is acceptable because the TV already trusts what the phone says. The Share screen opens only after a tap on `SHARE`, hides the code after 60 seconds, and never shows it on the TV.
 
-**Import rules.** The CRC finds typing errors only, so a decoded profile goes through the same rules as a typed one. The name goes through the whitelist and the 10-character cut (the format allows 20 bytes; a longer or unclean name is cut, not refused). The avatar is 0 to 255 and an unknown index shows the number. `k` is at most 42, a key that appears twice is refused, a value of 0 or above 4 000 000 000 is skipped, and the direction comes from `ProfileKeys`, not from the code. A code that breaks the format is refused with `THIS CODE DOES NOT WORK`. Every rule has a test.
+**Import rules.** The CRC finds typing errors only, so a decoded profile goes through the same rules as a typed one. The name goes through the whitelist and the 10-character cut (the format allows 20 bytes; a longer or unclean name is cut, not refused). The avatar is 0 to 255 and an unknown index shows the number. `k` is at most 48 (39 in version 1, 42 in version 2), a key that appears twice is refused, a value of 0 or above 4 000 000 000 is skipped, and the direction comes from `ProfileKeys`, not from the code. A code that breaks the format is refused with `THIS CODE DOES NOT WORK`. Every rule has a test.
 
 ### 6.4 Scanning
 
@@ -274,7 +276,7 @@ All new suites are added to `tests/suites.txt` only, with these lines: `tests/pr
 |-------|----------------|
 | `tests/profiles.gd` | Make, rename, change the avatar (and `rev` goes up), delete; the limit of 8; the name rules (10 characters, Hebrew, the allowed set derived from `Font.has_char()`, empty is refused); write and read back `profiles.cfg`; a failed write; a corrupt file with and without `.bak`; the active profile and the guest; the random ID is 32 hex characters and two IDs differ. |
 | same | Bests: a lower time is better, a higher score is better, a score of 0 and "not finished" are ignored, the merge rule, the direction comes from `ProfileKeys`. |
-| same | Code: encode and decode of a profile give the same profile; a Hebrew name of 10 letters; 42 bests; a wrong checksum, a truncated code, another version, a wrong prefix are rejected; an unknown key number is skipped; a duplicate key, a value of 0, a name of 20 bytes and one of 30 bytes, an avatar of 255 and k above 42 follow the import rules; the merge with `rev`; golden test: a fixed profile gives a fixed text (protects `ProfileKeys`). |
+| same | Code: encode and decode of a profile give the same profile; a Hebrew name of 10 letters; 48 bests; a wrong checksum, a truncated code, another version (4), a wrong prefix are rejected; version 1, 2 and 3 codes are all read; an unknown key number is skipped; a duplicate key, a value of 0, a name of 20 bytes and one of 30 bytes, an avatar of 255 and k above 48 follow the import rules; the merge with `rev`; golden test: a fixed profile gives a fixed text (protects `ProfileKeys`). |
 | `tests/net_profiles.gd` (real sockets, like `net_loss.gd`) | `hello` with `pid` and `av` fills the player and `welcome` echoes it; an old `hello` without them is a guest; a bad `pid`, an `av` of 300 and a name with a newline are cleaned; `profile` changes name and avatar in `connect` and `menu`, is answered, and is ignored (but answered) in `playing`; a resume `hello` in `playing` does not change the profile; the duplicate ID rule frees the older slot with `kicked/replaced` in a menu, also on a full TV; the old phone with a stale token gets `kicked/replaced` and does not replace the new one; in `playing` the second phone is a guest; a token resume is not affected; `Sam`, `sam` and a guest named `Player 2` get distinct `display_name`; `display_name` does not change during a round; `result` carries the `pid` and reaches only a phone with one. |
 | `tests/game_rules.gd` | `open_results()` sends one `result` for each finished player with the key of the game; Maze, Sumo and a random track send none; a player who is "not finished" gets none. |
 | `tests/ui_states.gd` | The profile list, the edit screen (a name is needed to save, `DELETE` asks first, the full list dims `NEW PLAYER` and says why), the Share screen and its 60-second hide, the screens close on a phase change, the waiting screen shows the avatar, the guest and the reconnect case. |

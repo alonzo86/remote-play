@@ -8,13 +8,15 @@ extends RefCounted
 ## difficulty + (track - 1).
 ## 37 to 39 Star Shield (easy, medium, hard).
 ## 40 to 42 Pin Pals, id bowling (easy, medium, hard), only without rails.
+## 43 to 45 Whack-a-Mole (easy, medium, hard), the points; 46 to 48 Tennis against the machine (1 player only; easy, medium,
+## hard), the longest rally. Tennis with 2 to 4 players has no key.
 ## Treasure Maze, Sumo Bumpers and a random Car Race track have no key (the owner, 2026-10-10).
 
 const Lang = preload("res://scripts/core/lang.gd")
 
 const DIFFICULTIES: Array[String] = ["easy", "medium", "hard"]
 const TRACKS := 10
-const MAX_KEYS := 42   # What a code can hold (plan 6.1). The table has 42.
+const MAX_KEYS := 48   # What a code can hold (plan 6.1). The table has 48.
 
 static var _keys: Array[String] = []
 
@@ -32,6 +34,9 @@ static func all_keys() -> Array[String]:
 			_keys.append("asteroid_blast|%s" % d)
 		for d in DIFFICULTIES:
 			_keys.append("bowling|%s" % d)
+		for g in ["whack_a_mole", "tennis"]:
+			for d in DIFFICULTIES:
+				_keys.append("%s|%s" % [g, d])
 	return _keys
 
 

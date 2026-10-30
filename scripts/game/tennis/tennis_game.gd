@@ -328,9 +328,12 @@ func _scoreboard() -> Scoreboard:
 	return _board
 
 
-## No personal best for now: a rally and a games score need keys in the profile code (REQ-TN-17).
+## The personal best (REQ-TN-17): the longest rally against the machine, for each difficulty. Only the 1-player mode has a key:
+## a match of 2 to 4 players has no score that compares between matches.
 func best_key() -> String:
-	return ""
+	if not play.solo:
+		return ""
+	return "tennis|%s" % difficulty
 
 
 # ---- Drawing ----

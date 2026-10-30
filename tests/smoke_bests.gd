@@ -37,6 +37,10 @@ func _paint() -> GDScript:
 	return load("res://scripts/game/paint_grab/paint_grab_game.gd")
 
 
+func _mole() -> GDScript:
+	return load("res://scripts/game/whack_a_mole/whack_a_mole_game.gd")
+
+
 func _frames(n: int) -> void:
 	for i in n:
 		await process_frame
@@ -48,6 +52,7 @@ func _run() -> void:
 	_app = root.get_node("App")
 	await _keys()
 	await _round()
+	await _tennis_round()
 	_store()
 
 
@@ -60,6 +65,7 @@ func _keys() -> void:
 	var Maze = load("res://scripts/game/maze/maze_game.gd")
 	var Sumo = load("res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd")
 	var Blast = load("res://scripts/game/asteroid_blast/asteroid_blast_game.gd")
+	var mole_game = _mole()
 	var Bowling = load("res://scripts/game/bowling/bowling_game.gd")
 	var keys := {}
 	_app.go(Snow, {"difficulty": "hard"})
@@ -103,8 +109,13 @@ func _keys() -> void:
 	_app.go(load("res://scripts/game/bumper_cars/bumper_cars_game.gd"), {})
 	await _frames(2)
 	_check(_app.current_screen().best_key() == "", "Bumper Cars has no personal best (REQ-GM-98 exception)")
+	_app.go(mole_game, {"difficulty": "hard"})
+	await _frames(2)
+	keys.mole = _app.current_screen().best_key()
+	_check(keys.mole == "whack_a_mole|hard" and ProfileKeys.number_of(keys.mole) == 45
+			and not ProfileKeys.lower_is_better(keys.mole), "Whack-a-Mole: game, difficulty, higher is better (REQ-WM-16)")
 	var all_known := true
-	for k in [keys.snow, keys.paint, keys.race, keys.blast, keys.bowling]:
+	for k in [keys.snow, keys.paint, keys.race, keys.blast, keys.bowling, keys.mole]:
 		all_known = all_known and ProfileKeys.number_of(k) > 0
 	_check(all_known, "every key that a game gives is in the table of the profile code")
 
@@ -155,6 +166,60 @@ func _round() -> void:
 	await _frames(3)
 
 
+## Tennis (REQ-TN-17): only a match against the machine (1 phone) has a key, and the longest rally is sent to the phone.
+## With 2 phones the match has no key and nothing is sent.
+func _tennis_round() -> void:
+	print("Tennis: the key and the result")
+	var Tennis = load("res://scripts/game/tennis/tennis_game.gd")
+	var mole_game = _mole()
+	_app.go_games()
+	await _frames(2)
+	var got := [[], []]
+	var clients: Array = []
+	for i in 2:
+		var c := ControllerClient.new()
+		root.add_child(c)
+		c.set_profile([ID_A, ID_B][i], "Sim%d" % i, i)
+		c.connect_to("127.0.0.1", Protocol.WS_PORT, _app.server.room_code)
+		c.result_received.connect(func(key: String, v: int): got[i].append([key, v]))
+		clients.append(c)
+	var t0 := Time.get_ticks_msec()
+	while _app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - t0 < 4000:
+		await process_frame
+	_app.go(Tennis, {"difficulty": "hard"})
+	await _frames(3)
+	var versus: Control = _app.current_screen()
+	_check(not versus.play.solo and versus.best_key() == "", "Tennis with 2 players has no personal best")
+	versus.open_results(versus._board)
+	await _frames(20)
+	_check(got[0].is_empty() and got[1].is_empty(), "a match of 2 players sends no result")
+	clients[1].leave()
+	t0 = Time.get_ticks_msec()
+	while _app.server.connected_slots().size() > 1 and Time.get_ticks_msec() - t0 < 4000:
+		await process_frame
+	_app.go(Tennis, {"difficulty": "hard"})
+	await _frames(3)
+	var solo: Control = _app.current_screen()
+	_check(solo.play.solo and solo.best_key() == "tennis|hard" and ProfileKeys.number_of(solo.best_key()) == 48
+			and not ProfileKeys.lower_is_better(solo.best_key()), "Tennis with 1 player: game, difficulty, longer rally is better")
+	solo._board.set_score(0, 7.0)
+	solo.open_results(solo._board)
+	await _frames(20)
+	_check(got[0] == [["tennis|hard", 7]], "the longest rally of the player is sent: %s" % str(got[0]))
+	got[0].clear()
+	_app.go(mole_game, {"difficulty": "easy"})
+	await _frames(3)
+	var mole: Control = _app.current_screen()
+	mole._board.set_score(0, 130.0)
+	mole.open_results(mole._board)
+	await _frames(20)
+	_check(got[0] == [["whack_a_mole|easy", 130]], "Whack-a-Mole sends the points of the player: %s" % str(got[0]))
+	for c in clients:
+		c.leave()
+		c.queue_free()
+	await _frames(3)
+
+
 func _store() -> void:
 	print("the best of a profile")
 	for f in [PATH, PATH + ".bak"]:
@@ -162,6 +227,9 @@ func _store() -> void:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path(f))
 	var s := ProfileStore.new(PATH)
 	var p = s.create("Maya", 1)
+	_check(s.record_best(p.id, "whack_a_mole|medium", 90).new_best and not s.record_best(p.id, "whack_a_mole|medium", 80).new_best
+			and s.record_best(p.id, "tennis|easy", 12).new_best and s.record_best(p.id, "tennis|easy", 15).old == 12,
+			"Whack-a-Mole points and the Tennis rally are bests when higher")
 	var first := s.record_best(p.id, "paint_grab|easy", 10)
 	_check(first.new_best and first.old == 0 and p.bests["paint_grab|easy"] == 10, "the first score is a new best")
 	_check(not s.record_best(p.id, "paint_grab|easy", 8).new_best and p.bests["paint_grab|easy"] == 10,
