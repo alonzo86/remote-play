@@ -179,7 +179,7 @@ func _run() -> void:
 	var labels: Array = []
 	for l in game._menu_box.find_children("*", "Label", true, false):
 		labels.append(l.text)
-	var menu := ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"]
+	var menu := ["minigame.restart", "common.settings", "minigame.back_to_menu"]
 	_check(game.is_over and buttons == menu and labels[0] == "SIM0 WINS!"
 			and labels[1].ends_with("3 POINTS") and labels[2].ends_with("1 POINT"),
 			"after round 3 the result menu names the winner and lists the points: %s %s" % [str(buttons), str(labels)])
