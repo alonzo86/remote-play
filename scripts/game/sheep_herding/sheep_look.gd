@@ -79,10 +79,10 @@ const STAR := ["...y...", "...y...", "..yyy..", "yyyyyyy", "..yyy..", "...y...",
 const BUSH := [".....gggg.....", "...gggggggg...", ".ggggpgggggg..", "gggggggggpggg.", "gggggggggggggg"]
 
 const KEY := {
-	"o": Color("000000"), "b": Color("e63946"), "d": Color("7a1c24"), "w": Color("fcf0dc"), "c": Color("fcfcfc"),
+	"o": Color("000000"), "b": Palette.TOY_RED, "d": Color("7a1c24"), "w": Color("fcf0dc"), "c": Color("fcfcfc"),
 	"t": Color("ff7a9a"), "e": Color("000000"), "n": Color("000000"),
 	"f": Color("fcfcfc"), "g": Color("cfd8e8"), "k": Color("3a3a3a"),
-	"r": Color("ff4060"), "z": Color("9ad0ff"), "y": Color("f8d800"), "p": Color("ff9ac8"),
+	"r": Palette.TONGUE_PINK, "z": Color("9ad0ff"), "y": Color("f8d800"), "p": Color("ff9ac8"),
 }
 const BUSH_KEY := {"g": Color("237a30"), "p": Color("ff9ac8")}
 

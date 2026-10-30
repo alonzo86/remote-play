@@ -4,9 +4,10 @@ extends RefCounted
 ## made from shapes when the game starts (`animal_image()`): they face right, and have a black outline of one pixel.
 
 const Shell = preload("res://scripts/game/shell.gd")
+const Palette = preload("res://scripts/game/palette.gd")
 
 const OUTLINE := Color("101018")
-const SKY_TOP := Color("dc9660")
+const SKY_TOP := Palette.BANANA_TAN
 const SKY_BOTTOM := Color("fad8a8")
 const SKY_BANDS := 6
 const SUN := Color("fff096")
@@ -197,7 +198,7 @@ static func _monkey(body: Color, dark: Color, face: Color, belly: Color, crown: 
 		_rect(img, 17, 1, 25, 3, Color("ffd628"))
 		for x in [17, 20, 23]:
 			_rect(img, x, 0, x + 1, 1, Color("ffd628"))
-		img.set_pixel(20, 2, Color("e6323c"))
+		img.set_pixel(20, 2, Palette.BANANA_RED)
 		img.set_pixel(23, 2, Color("3cb4e6"))
 	return img
 
@@ -238,7 +239,7 @@ static func _orangutan(happy: bool) -> Image:
 	_ell(img, 10, 2, 28, 18, Color("d66428"))
 	_ell(img, 8, 4, 14, 12, Color("d66428"))
 	_ell(img, 14, 6, 27, 17, Color("f4c48c"))
-	_ell(img, 12, 8, 17, 15, Color("e6aa6e"))
+	_ell(img, 12, 8, 17, 15, Palette.BANANA_PEACH)
 	_eye(img, 18, 9, happy)
 	_eye(img, 22, 9, happy)
 	_ell(img, 19, 12, 23, 15, Color("d2966a"))
