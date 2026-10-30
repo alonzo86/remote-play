@@ -76,6 +76,12 @@ func _run() -> void:
 	sv.start_button.grab_focus()
 	_check(white_before and yellow_with_focus and name_label.get_theme_color("font_color") == UiTheme.TEXT,
 			"the name of a settings row is yellow with the focus and white without it (issue #224)")
+	var value_label: Label = sv.rows[0]._value
+	_check(value_label.get_theme_color("font_color") == UiTheme.TEXT,
+			"the chosen value of a settings row is white, also without the focus (issue #224, REQ-GM-97)")
+	sv.rows[0].grab_focus()
+	_check(value_label.get_theme_color("font_color") == UiTheme.TEXT, "and white with the focus (yellow is the cursor and the name)")
+	sv.start_button.grab_focus()
 	var row_left: float = sv.rows[0].global_position.x
 	var row_right: float = row_left + sv.rows[0].size.x
 	_check(is_equal_approx(sv.rows[0].size.x, sv.rows[0].MIN_W) and is_equal_approx(sv.back_button.global_position.x, row_left)
