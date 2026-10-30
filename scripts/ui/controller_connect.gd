@@ -51,7 +51,7 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_status)
 
-	box.add_child(UiKit.label("connect.type_code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	box.add_child(UiKit.label("connect.type_code", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	box.add_child(row)

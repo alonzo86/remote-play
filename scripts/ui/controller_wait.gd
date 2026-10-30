@@ -65,7 +65,7 @@ func _ready() -> void:
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_title)
-	_sub = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_sub = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sub.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_sub)
@@ -93,7 +93,7 @@ func _ready() -> void:
 	_best = UiKit.title("", 56, UiTheme.OK)   # NEW BEST! after a round that set a personal best (REQ-GM-100).
 	_best.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_best)
-	_best_detail = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_best_detail = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 	_best_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_best_detail.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_best_detail)

@@ -50,9 +50,9 @@ func _ready() -> void:
 	box.add_child(qr)
 	var lines: Array[Label] = []
 	lines.append(UiKit.label("profile_share.everyone_who_scans_code", UiTheme.SIZE_BODY,
-			UiTheme.TEXT_DIM))
-	lines.append(UiKit.label("profile_share.two_phones_do_not", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
-	lines.append(UiKit.label("profile_share.code_goes_away_after", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+			UiTheme.TEXT_INFO))
+	lines.append(UiKit.label("profile_share.two_phones_do_not", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO))
+	lines.append(UiKit.label("profile_share.code_goes_away_after", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO))
 	for line in lines:
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD
 		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

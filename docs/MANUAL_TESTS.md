@@ -769,6 +769,7 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 **Steps**
 
 1b. On the Connect screen, the Games screen, a pause menu and a result menu, read aloud the smallest text of each screen (the hint, a slot row or a description) from 3 m. Check: you read each one without a mistake (0 mistakes). The smallest text is 32 px (REQ-FL-40).
+1b2. New (issue #221). On the Connect screen and the Games screen, in a dim room, read aloud from 3 m the info lines ('1-4 PLAYERS' under three tiles, the hint lines, 'WAIT' and the empty slots), and look at the disabled things (a game that needs more phones). Check: you read all of them without a mistake (0 mistakes), and the info lines (light gray, #b0b0b0) are clearly lighter than a dimmed tile or a disabled item (dark gray, #7c7c7c): you name the 2 gray levels correctly in 3 of 3 tries. (REQ-FL-37, REQ-FL-40)
 2c. On a 1080p TV, photograph the Logo screen and the Games screen from the sofa, with the phone camera at 1:1 crop. Check: a single-pixel black and white edge of a letter stays a single pixel in the photo, with no gray halo wider than 1 pixel of the photo (the TV's own scaler does not soften the picture).
 2d. Do step 2c on a 4K TV, if you have one. Check: the same result. (Skip this step if you have no 4K TV and write "no 4K TV" in the notes.)
 4d. On the real TV remote, in each menu of the Games screen, a game settings view and the quit question, press OK, Back and the D-pad once each. Check: OK does the action of the focused item, Back closes the menu or goes up one step, and the D-pad moves the focus (the same result as in Test 8).
@@ -788,6 +789,7 @@ Measurements: write down the lowest FPS value of step 5d and the text sizes you 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1b | List of the screens and the smallest text read without a mistake (yes or no) | Pass | R4 |  |  |
+| 1b2 | Note: the info lines read without a mistake (yes or no); the 2 gray levels named in 3 of 3 tries | Open |  |  | New 2026-10-30, issue #221 |
 | 2c | Close photo of the Logo screen and the Games screen on 1080p, 1:1 crop | Pass | R4 |  |  |
 | 2d | Close photo of the Logo screen and the Games screen on 4K (or "no 4K TV") | Pass | R4 |  |  |
 | 4d | Note: OK, Back and D-pad on each menu | Pass | R4 |  |  |
@@ -1081,6 +1083,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 3e. **Aim strip.** On the phone on turn, slide a finger from the left end of the strip to the right end in about 1 s, then back. Check: the ball on the TV is in the left gutter at the left end of the strip and in the right gutter at the right end, and it moves in the same direction as the finger. (The mapping is in A-23-3.)
 3f. Film the phone and the TV together at 60 fps or more and slide a finger on the strip. Check: the ball starts to move within 12 frames (0.2 s) after the finger starts to move, in 5 of 5 tries.
 3g. Touch the rest of the screen outside the strip with a finger, 5 times. Check: the ball does not move, and the pad shows no A and no B button (REQ-GM-37a, issues #80 and #143). A phone that is not on turn has no Recenter box either (REQ-GM-37, issue #55).
+3h. **Knob, trail and tick (2026-10-30, issue #236).** On the phone on turn, slide a finger slowly from the left end to the right end of the strip, with the HAPTICS switch ON. Check: the knob is still visible next to the finger (yes or no), a fading trail follows it (yes or no), and the phone ticks once as the knob passes the middle mark (once in 5 of 5 slides).
 4e. Throw 5 balls with each grip: screen up, screen to the side, and the other hand. Check: at least 4 of 5 swings throw a ball for each grip. (REQ-BW-5)
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
 4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)
@@ -1105,6 +1108,7 @@ Measurements (write down, no pass or fail): if the strip is too small or too lar
 | 3e | Note: where the ball is at the two ends of the strip | Not run | | | |
 | 3f | Video of the phone and the TV; note: frames of delay | Not run | | | |
 | 3g | Note: balls that moved when the screen was touched; a photo of the pad | Not run | | | |
+| 3h | Video of the finger and the knob; note: ticks counted in 5 slides | Not run | | | Added 2026-10-30 (issue #236). |
 | 4e | Note: throws of 5 for each grip | Not run | | | |
 | 4f | Note: balls thrown while walking | Not run | | | |
 | 4g | Note: balls thrown by 10 shakes; throws of 5 normal swings | Not run | | | |
@@ -1185,6 +1189,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 14b. With 4 phones, from 3 m, each tester names the shirt color of the two far characters. Check: 2 of 2 answers are right for every tester.
 14c. From 3 m, read aloud the scoreboard and one banner. Check: no error.
 15a. With 2 phones connected, open the settings view of Tennis (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
+15c. **The card with children (2026-10-30, issue #235).** Show the card (open the Tennis settings view) on a phone to 3 children of 5 to 8 years, 5 seconds each, and ask: "What do you do before you play?". Check: at least 2 of 3 answer with holding the phone tight or making space around them. A Hebrew reader checks the Hebrew line "אחזו חזק. שמרו מרחק מסביב." (`swing.card_text`).
 
 Items 1a, 2a, 2c, 3a, 3b, 3c, 3d, 3e, 3f, 4a, 4b, 4c, 4d, 4e, 4f, 5a, 5b, 5c, 5d, 6a, 6b, 6f, 6g, 7a to 7d, 8a, 8b, 9a to 9e, 10a, 10b, 10c, 10d, 11a, 11b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-25-1a to A-25-11b). The numbers of the other items do not change.
 
@@ -1209,6 +1214,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 14b | Note: answers of each tester | Not run | | | |
 | 14c | Note: errors made when reading | Not run | | | |
 | 15a | Photo of the TV and of both phones | Not run | | | |
+| 15c | Note: the ages and the answers of 3 children; a photo of the card | Not run | | | Added 2026-10-30 (issue #235). |
 
 History:
 

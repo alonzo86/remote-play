@@ -25,7 +25,7 @@ func _ready() -> void:
 	_haptics.custom_minimum_size = Vector2(0, 120)
 	box.add_child(_haptics)
 	var help := UiKit.label("settings.phone_vibrates_games_when", UiTheme.SIZE_BODY,
-			UiTheme.TEXT_DIM)
+			UiTheme.TEXT_INFO)
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(help)
