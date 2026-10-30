@@ -634,7 +634,7 @@ func _run() -> void:
 	_check(ss._pixel_world() and ss._pixel_viewport.size == Vector2i(480, 270),
 			"the jungle is drawn in the 480x270 pixel view (REQ-SS-12)")
 	var snow_before: float = ss._scene_time
-	ss.open_menu("minigame.paused", [["minigame.resume", ss.close_menu]])
+	ss.open_menu("minigame.end_game_ask", [["minigame.resume", ss.close_menu]])
 	await _frames(4)
 	_check(is_equal_approx(ss._scene_time, snow_before), "the jungle stands still while the game is paused (REQ-FL-43)")
 	ss.close_menu()
@@ -677,7 +677,7 @@ func _run() -> void:
 	ready_all.call()
 	p0.button_pressed.emit(Protocol.BTN_B)
 	_check(ss._presses.is_empty(), "B does nothing")
-	ss.open_menu("minigame.paused", [["minigame.resume", ss.close_menu]])
+	ss.open_menu("minigame.end_game_ask", [["minigame.resume", ss.close_menu]])
 	p0.button_pressed.emit(Protocol.BTN_A)
 	_check(ss._presses.is_empty(), "a press in the pause menu does nothing")
 	ss.close_menu()
@@ -770,7 +770,7 @@ func _run() -> void:
 	await _frames(2)
 	_check(not lg.is_paused() and lg.menu_buttons().is_empty(), "OK in a race does nothing (REQ-GM-31, issue #228)")
 	# The pause menu is only opened by code now; its "End game" leaves at once (issue #53).
-	lg.open_menu("minigame.paused", lg.pause_entries())
+	lg.open_menu("minigame.end_game_ask", lg.pause_entries())
 	await _frames(2)
 	var pause_labels: Array = lg.menu_buttons().map(func(b): return b.text)
 	_check(pause_labels == ["minigame.resume", "minigame.restart", "minigame.end_game"],

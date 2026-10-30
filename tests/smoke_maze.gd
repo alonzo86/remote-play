@@ -463,7 +463,7 @@ func _torch_flames() -> void:
 	await sim.frames(10)
 	var t0: float = castle._ring_time
 	_check(t0 > 0.0, "the game time of the flames runs while the game plays")
-	castle.open_menu("minigame.paused", [["minigame.resume", castle.close_menu]])
+	castle.open_menu("minigame.end_game_ask", [["minigame.resume", castle.close_menu]])
 	await sim.frames(2)
 	var t1: float = castle._ring_time
 	await sim.frames(20)

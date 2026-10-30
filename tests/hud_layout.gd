@@ -189,7 +189,7 @@ func _play(id: String) -> void:
 	var he_start := await _snap()
 	_world_not_mirrored(id)
 	await _stream(3.6)
-	_game.open_menu("minigame.paused", [["minigame.resume", _game.close_menu]])   # The ticks stop, so the scores stay.
+	_game.open_menu("minigame.end_game_ask", [["minigame.resume", _game.close_menu]])   # The ticks stop, so the scores stay.
 	await _round_checks(id, spec)
 	_game.close_menu()
 
@@ -457,7 +457,7 @@ func _race_places() -> void:
 	_app.go(load(spec[0]), spec[1].duplicate())
 	_game = _app.current_screen()
 	await _stream(4.5)
-	_game.open_menu("minigame.paused", [["minigame.resume", _game.close_menu]])
+	_game.open_menu("minigame.end_game_ask", [["minigame.resume", _game.close_menu]])
 	var slots: Array = _game.participants
 	# Nobody has finished: the first car in front leads, and the chip has a name and no time.
 	for k in slots.size():

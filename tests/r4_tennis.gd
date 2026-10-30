@@ -11,7 +11,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Match = preload("res://scripts/game/tennis/tennis_match.gd")
-const Look = preload("res://scripts/game/tennis/tennis_look.gd")
+var Look: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
 
 const DT := 1.0 / 60.0
 
@@ -25,6 +25,7 @@ var _game: Control
 
 
 func _initialize() -> void:
+	Look = load("res://scripts/game/tennis/tennis_look.gd")
 	_run()
 
 
@@ -237,9 +238,9 @@ func _runs_and_great() -> void:
 # ---- 6b: wide and long ----
 
 ## The rectangle of a character on the screen (the body and the hands, 0.35 m to each side, 2 m high).
-func _char_rect(p: Look.Proj, pos: Vector2) -> Rect2:
-	var s := p.scale(pos.y)
-	var foot := p.at(pos.x, pos.y)
+func _char_rect(p, pos: Vector2) -> Rect2:
+	var s = p.scale(pos.y)
+	var foot = p.at(pos.x, pos.y)
 	return Rect2(foot.x - 0.35 * s, foot.y - 2.0 * s, 0.7 * s, 2.0 * s)
 
 
@@ -262,7 +263,7 @@ func _wide_and_long() -> void:
 		var returns := 0
 		var inside := true
 		var worst := ""
-		var rects := [Look.Proj.new(Vector2(1920, 1080)), Look.Proj.new(Vector2(1280, 720))]
+		var rects = [Look.Proj.new(Vector2(1920, 1080)), Look.Proj.new(Vector2(1280, 720))]
 		var screens := [Rect2(0, 0, 1920, 1080), Rect2(0, 0, 1280, 720)]
 		var side := 1.0
 		while served and attempts < 5 and m.phase == Match.Phase.RALLY and m.hitter >= 0:

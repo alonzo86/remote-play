@@ -4,7 +4,7 @@ extends SceneTree
 ##   godot --headless --path . --script tests/tower_rules.gd -- --role=controller
 
 const Stack = preload("res://scripts/game/tower_builder/tower_stack.gd")
-const Look = preload("res://scripts/game/tower_builder/tower_look.gd")
+var Look: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
 
 var _checks := 0
 var _fails := 0
@@ -20,6 +20,7 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	Look = load("res://scripts/game/tower_builder/tower_look.gd")
 	_landing()
 	_toppling()
 	_widths()

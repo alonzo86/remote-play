@@ -102,7 +102,7 @@ func _run() -> void:
 		game.restart()
 		await _frames(5)
 		game = app.current_screen()
-		game.open_menu("minigame.paused", game.pause_entries())
+		game.open_menu("minigame.end_game_ask", game.pause_entries())
 		await _frames(3)
 		_check(_problems(game._menu_box).is_empty(), "%s: a pause menu fits: %s" % [lang, str(_problems(game._menu_box))])
 	Lang.set_language("en", root)

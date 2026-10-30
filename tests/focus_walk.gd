@@ -372,7 +372,7 @@ func _game_flow() -> void:
 	var clock0: float = game._ring_time
 	await create_timer(0.5).timeout
 	_check(game._ring_time > clock0, "and the game clock keeps running after OK")
-	game.open_menu("minigame.paused", game.pause_entries())
+	game.open_menu("minigame.end_game_ask", game.pause_entries())
 	await _frames(2)
 	var entries: Array = game.menu_buttons().map(func(b): return b.text)
 	_check(entries == ["minigame.resume", "minigame.restart", "minigame.end_game"],

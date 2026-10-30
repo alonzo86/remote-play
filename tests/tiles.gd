@@ -8,20 +8,20 @@ extends SceneTree
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Registry = preload("res://scripts/game/registry.gd")
-const SumoLook = preload("res://scripts/game/sumo_bumpers/sumo_look.gd")
-const BumperLook = preload("res://scripts/game/bumper_cars/bumper_look.gd")
-const HockeyLook = preload("res://scripts/game/air_hockey/air_hockey_look.gd")
-const DanceLook = preload("res://scripts/game/freeze_dance/dance_look.gd")
-const BlastLook = preload("res://scripts/game/asteroid_blast/blast_look.gd")
-const TennisLook = preload("res://scripts/game/tennis/tennis_look.gd")
-const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
-const TowerLook = preload("res://scripts/game/tower_builder/tower_look.gd")
-const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
+var SumoLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var BumperLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var HockeyLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var DanceLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var BlastLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var TennisLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var GolfLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var TowerLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var BowlingLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
 const MazeBoard = preload("res://scripts/game/maze/maze_board.gd")
-const RaceLook = preload("res://scripts/game/marble_race/race_look.gd")
-const BananaLook = preload("res://scripts/game/snowball_splat/banana_look.gd")
-const MoleLook = preload("res://scripts/game/whack_a_mole/mole_look.gd")
-const PaintLook = preload("res://scripts/game/paint_grab/paint_look.gd")
+var RaceLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var BananaLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var MoleLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
+var PaintLook: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
 
 const TOL := 0.06   # Per channel. The tile is made from a 1920x1080 picture, scaled down, so edges are blended.
 
@@ -30,6 +30,19 @@ var _checks := 0
 
 
 func _initialize() -> void:
+	SumoLook = load("res://scripts/game/sumo_bumpers/sumo_look.gd")
+	BumperLook = load("res://scripts/game/bumper_cars/bumper_look.gd")
+	HockeyLook = load("res://scripts/game/air_hockey/air_hockey_look.gd")
+	DanceLook = load("res://scripts/game/freeze_dance/dance_look.gd")
+	BlastLook = load("res://scripts/game/asteroid_blast/blast_look.gd")
+	TennisLook = load("res://scripts/game/tennis/tennis_look.gd")
+	GolfLook = load("res://scripts/game/mini_golf/golf_look.gd")
+	TowerLook = load("res://scripts/game/tower_builder/tower_look.gd")
+	BowlingLook = load("res://scripts/game/bowling/bowling_look.gd")
+	RaceLook = load("res://scripts/game/marble_race/race_look.gd")
+	BananaLook = load("res://scripts/game/snowball_splat/banana_look.gd")
+	MoleLook = load("res://scripts/game/whack_a_mole/mole_look.gd")
+	PaintLook = load("res://scripts/game/paint_grab/paint_look.gd")
 	_run()
 
 

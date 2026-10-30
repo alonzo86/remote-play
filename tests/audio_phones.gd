@@ -184,7 +184,7 @@ func _pause_and_lost_phone(app: Node, sound: Node) -> void:
 	Input.parse_input_event(ev)
 	await _stream(0.5, 2)
 	_check(not game.is_paused(), "OK in the game does nothing")
-	game.open_menu("minigame.paused", game.pause_entries())
+	game.open_menu("minigame.end_game_ask", game.pause_entries())
 	await _stream(0.5, 2)
 	_check(game.is_paused(), "the pause menu is open")
 	var ducked: float = sound._music.volume_db

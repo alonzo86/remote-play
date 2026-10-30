@@ -519,7 +519,7 @@ func _pause() -> void:
 	_wait(game, f, 0.3)
 	_play(game, f, R.back_swing(fw, 10.0, 0.25))
 	_check(game.detector.aim_locked, "the back swing is under way")
-	game.open_menu("minigame.paused", [["minigame.resume", game.close_menu]])
+	game.open_menu("minigame.end_game_ask", [["minigame.resume", game.close_menu]])
 	_check(game.is_paused(), "the TV pauses the game")
 	OS.delay_msec(600)   # The pause lasts longer than the gap that the game takes for a pause.
 	game.close_menu()

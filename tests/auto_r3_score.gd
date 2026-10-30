@@ -128,7 +128,7 @@ func _four_phones() -> void:
 	var before: Array = []
 	for i in 4:
 		before.append([_clients[slots[i]].score_rank, _clients[slots[i]].score_of, _clients[slots[i]].score_text])
-	game.open_menu("minigame.paused", game.pause_entries())
+	game.open_menu("minigame.end_game_ask", game.pause_entries())
 	_check(game.is_paused(), "the pause menu is open")
 	await _stream(1.5, 4)
 	var after: Array = []
