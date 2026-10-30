@@ -11,6 +11,10 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 var _fails := 0
 var _checks := 0
 var _seq := [0, 0]
+## The game that the test steps by hand with a fixed delta (issue #281): its own _process is off, so a slow or busy machine
+## cannot change how far a blob rolls or how long the countdown has run.
+var _game: Control = null
+const DT := 1.0 / 60.0
 
 
 func _initialize() -> void:
@@ -29,12 +33,13 @@ func _check(cond: bool, what: String) -> void:
 func _frames(n: int) -> void:
 	for i in n:
 		await process_frame
+		if _game != null and is_instance_valid(_game):
+			_game._process(DT)
 
 
 ## Both phones send `accel` (a lean of the phone) for `seconds`.
 func _stream(clients: Array, seconds: float, accel: Array) -> void:
-	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
-	while Time.get_ticks_msec() < end:
+	for step in ceili(seconds / DT):
 		for i in clients.size():
 			clients[i].send_sensor(Protocol.encode_sensor(_seq[i], Time.get_ticks_msec(), Vector3.ZERO, accel[i], 0, 0, Vector2.ZERO))
 			_seq[i] += 1
@@ -82,9 +87,11 @@ func _run() -> void:
 	GameSettings.clear()
 
 	# A round on Medium.
-	app.go(PaintGame, {"difficulty": "medium"})
+	app.go(PaintGame, {"difficulty": "medium", "seed": 7})   # A fixed picture and fixed pots: the same round every run.
 	await _frames(3)
 	var game: Control = app.current_screen()
+	game.set_process(false)
+	_game = game
 	_check(game.participants.size() == 2 and game.floor_map.cols == 16 and game.floor_map.rows == 9
 			and game.floor_map.count(0) == 0, "Medium starts with 2 blobs on an empty floor of 16 x 9 tiles (REQ-PG-2)")
 	var start0: Vector2 = game._bodies[0].pos
@@ -157,7 +164,17 @@ func _run() -> void:
 	game._pots.pots.clear()
 	var pot = PaintPots.Pot.new()
 	pot.kind = PaintPots.GOLD
-	pot.cell = Vector2i(8, 4)
+	# A pot paints the picture tiles of its patch only (REQ-PG-24): take a cell whose whole 3 x 3 patch is in the picture.
+	pot.cell = Vector2i(-1, -1)
+	for cy in range(1, game.floor_map.rows - 1):
+		for cx in range(1, game.floor_map.cols - 1):
+			var whole := true
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					whole = whole and game.is_paintable(Vector2i(cx + dx, cy + dy))
+			if whole and pot.cell.x < 0:
+				pot.cell = Vector2i(cx, cy)
+	_check(pot.cell.x >= 0, "the picture has a cell with a whole 3 x 3 patch for the pot test")
 	game._pots.pots.append(pot)
 	game._bodies[0].pos = Vector2(100.0, 100.0)
 	game._bodies[1].pos = (Vector2(pot.cell) + Vector2(0.5, 0.5)) * 100.0
@@ -166,7 +183,7 @@ func _run() -> void:
 	var patch_ok := true
 	for dy in range(-1, 2):
 		for dx in range(-1, 2):
-			patch_ok = patch_ok and game.floor_map.owner_of(Vector2i(8 + dx, 4 + dy)) == 1
+			patch_ok = patch_ok and game.floor_map.owner_of(pot.cell + Vector2i(dx, dy)) == 1
 	_check(patch_ok and game._pots.pots.is_empty() and game._board.score(1) == game.floor_map.count(1)
 			and game._board.score(0) == game.floor_map.count(0),
 			"a blob on the gold pot paints the 3 x 3 patch, takes tiles of the other player, and the scores follow (REQ-PG-23)")
@@ -270,12 +287,14 @@ func _run() -> void:
 			+ "world pixels (REQ-PG-17, REQ-PG-15)")
 	_check(game._pixel_world() and game._pixel_viewport.size == Vector2i(480, 270),
 			"the floor is drawn in the 480x270 pixel view (REQ-PG-15)")
+	_game = null
 	game.restart()
 	await _frames(4)
 	_check(is_instance_of(app.current_screen(), PaintGame) and app.current_screen().difficulty == "medium"
 			and app.current_screen().floor_map.count(0) == 0, "Restart starts a new empty floor with the same difficulty")
 	# The round ends when the last tile of the picture is painted, before the time is up (REQ-PG-5).
 	var g2 = app.current_screen()
+	g2.set_process(false)
 	g2._game_tick(4.0)   # The countdown is over.
 	var open_tile := Vector2i(-1, -1)
 	for i in g2._picture.size():
@@ -294,6 +313,7 @@ func _run() -> void:
 	app.go(g2.get_script(), {"difficulty": "medium", "seed": 7})
 	await _frames(3)
 	var g3 = app.current_screen()
+	g3.set_process(false)
 	g3._game_tick(4.0)
 	var cols: int = g3.floor_map.cols
 	var inside := Vector2i(-1, -1)
