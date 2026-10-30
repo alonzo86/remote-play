@@ -86,18 +86,17 @@ func needs_language_choice() -> bool:
 	return not (String(settings.get("language", "")) in Lang.CODES)
 
 
-## Switches the UI at once (REQ-FL-61). On the TV the choice is saved and goes to the phones; a phone follows the TV and
-## does not save it.
+## Switches the UI at once (REQ-FL-61). On the TV the choice is saved and goes to the phones (they ignore it). A phone saves
+## the choice of its own Settings screen too (REQ-FL-62); it never follows the TV.
 func set_language(code: String, remember := true) -> void:
 	if not (code in Lang.CODES):
 		return
 	Lang.set_language(code, get_tree().root)
-	if Role.is_tv():
-		if remember:
-			settings.language = code
-			save_settings()
-		if server != null:
-			server.set_language(code)
+	if remember:
+		settings.language = code
+		save_settings()
+	if Role.is_tv() and server != null:
+		server.set_language(code)
 
 
 func _notification(what: int) -> void:
@@ -330,7 +329,6 @@ func _start_controller() -> void:
 	get_viewport().size_changed.connect(_apply_safe_area)   # A turn changes the safe area (REQ-FL-68).
 	client.phase_changed.connect(_on_client_phase)
 	client.result_received.connect(_on_result)
-	client.language_changed.connect(func(code: String): set_language(code, false))
 	client.rejected.connect(_on_client_rejected)
 	var last: Dictionary = client.load_last()
 	if String(last.get("host", "")) != "" and String(last.get("token", "")) != "":
@@ -357,7 +355,6 @@ func _on_client_state(state: int) -> void:
 		last_error = ""
 		_show_phone_screen()
 	elif state == ControllerClient.State.IDLE:
-		set_language(Lang.system_language(), false)   # Away from the TV, the phone uses its own language (REQ-FL-62).
 		# A failed connection does not close the profile screens: a typed name stays (the phone works without the TV).
 		if not (_screen is ControllerConnect or _screen is ControllerProfiles or _screen is ControllerProfileEdit):
 			go(ControllerConnect)

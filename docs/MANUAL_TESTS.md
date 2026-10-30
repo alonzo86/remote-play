@@ -795,7 +795,7 @@ History:
 
 ### Hebrew and right to left (REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19)
 
-Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it with the TV set to Hebrew, region Israel, and again set to English), a person who reads Hebrew, a stopwatch. Covers: REQ-FL-54, 60 to 63, REQ-GM-47o. New, written on 2026-10-10 for phase 5 of `docs/ARCADE_STYLE_PLAN.md`. The headless tests `tests/smoke_lang.gd`, `tests/smoke_settings.gd`, `tests/screens_sweep.gd`, `tests/hud_layout.gd` and `tests/run_tests.gd` check the table, the layout positions, the fit of every text, the language choice and the protocol; they cannot check how the text looks on a TV or whether it reads right.
+Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it with the TV set to Hebrew, region Israel, and again set to English), a person who reads Hebrew, a stopwatch. Covers: REQ-FL-54, 60 to 63, REQ-GM-47o. Items 9b and 9c (issue #171, the phones keep their own language) are new on 2026-10-29. New, written on 2026-10-10 for phase 5 of `docs/ARCADE_STYLE_PLAN.md`. The headless tests `tests/smoke_lang.gd`, `tests/smoke_settings.gd`, `tests/screens_sweep.gd`, `tests/hud_layout.gd` and `tests/run_tests.gd` check the table, the layout positions, the fit of every text, the language choice and the protocol; they cannot check how the text looks on a TV or whether it reads right.
 
 **Steps**
 
@@ -803,6 +803,9 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 4c. On the TV, look at the Connect screen with the two names. The person who reads Hebrew reads the Latin name and the Hebrew name aloud. Check: each one equals what was typed (the letters are in the same order, the mixed-direction text is not shuffled). (That the names stay as typed and that the pixel font has every glyph is checked by `tests/smoke_lang.gd`.)
 6c. In Car Race in Hebrew, check: the word "צא" after the 1 is complete (inside the screen). In every game in Hebrew, check: the hint line shows complete.
 6e2. Open the pause menu and the result menu in Hebrew. The Hebrew reader reads the ranking list, the medal text and the tie text aloud. Check: the reader says that each of the 3 reads right (3 of 3 yes).
+
+9b. Set the TV to English and the system language of phone A to Hebrew. Join phone A, open the waiting screen, the Settings screen and start Car Race. Check: every text on phone A (waiting screen, Settings, pad, hint line, result card) is in Hebrew and the screen is mirrored (title at the right), while the TV stays in English and left to right; no text on the phone is cut off or outside the screen edge (6 of 6 screens). Then set the TV to Hebrew and the system language of phone B to English and repeat. Check: phone B stays in English and left to right.
+9c. On phone A (Hebrew) open Settings and tap the language button once, then leave the app and start it again. Check: the button says "LANGUAGE: ENGLISH" (the language switched to English at the tap), the phone is in English after the restart, and the TV language did not change.
 
 Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-17-1 to A-17-8). Item 5 moved earlier (A-17-5). Item 7b moved too (A-17-7b). Item 6e was split: that the text shows complete is automated, 6e2 keeps the reading. The numbers of the other items do not change.
 
@@ -814,9 +817,12 @@ Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to
 | 4c | Photo of the Connect screen with the names; note from the Hebrew reader | Pass | R4 |  |  |
 | 6c | Same photos and the countdown | Fail | R4 |  | R4: Fail - change the string to צא instead of קדימה Issue #113. |
 | 6e2 | Photos of the pause and result menus; note from the Hebrew reader | Pass | R4 |  |  |
+| 9b | Photos of phone and TV side by side, in both combinations | Not run |  |  | New 2026-10-29 (issue #171) |
+| 9c | Photo of the Settings screen before and after the tap; photo after the restart | Not run |  |  | New 2026-10-29 (issue #171) |
 
 History:
 
+- 2026-10-29 (issue #171): the phones no longer follow the TV language (REQ-FL-62). New steps 9b and 9c, not run. The automated half is A-17-9.
 - 2026-10-25 (R4): step 6c failed: the Hebrew of GO in Car Race should be "צא" (issue #113, a string change that waits for the owner's review). Step 6b (the HUD boxes in Hebrew with 2 phones) was removed: the tester has one phone; the box places are automated (`hud_layout`, REQ-GM-47o).
 - 2026-10-21 (aligned with the requirements, not run): step 6b names the Car Race timer box at the left (English) and right (Hebrew) margin, and step 6c splits the countdown word (Car Race) from the hint line (every game). No recorded result changed.
 - 2026-10-21 (automated): items 2a, 2b, 4a and 7a moved to the automated tests (`screens_sweep`, `auto_r3_tv`, `auto_r3_phone`). Item 6e was split (6e2 keeps the reading by the Hebrew reader). Steps 6b and 6c stay until Alon decides (the Car Race timer side in Hebrew; the Hebrew GO word that most games do not draw).

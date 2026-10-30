@@ -257,48 +257,46 @@ func _run() -> void:
 	var slots_en := _first(app.current_screen(), "SlotList").get_global_rect().get_center().x
 	_check(qr_en < slots_en, "in English the QR card is at the left of the slots (%d < %d)" % [qr_en, slots_en])
 
-	# A phone follows the TV (REQ-FL-62).
+	# A phone does NOT follow the TV (REQ-FL-62, issue #171). The TV still sends its language
+	# (compatible protocol); a phone ignores it.
 	var c := ControllerClient.new()
 	c.player_name = "Ready"   # A name that is also a word of the UI: it must stay as it is.
 	root.add_child(c)
-	var heard: Array = []
-	c.language_changed.connect(func(code: String): heard.append(code))
+	_check(not c.has_signal("language_changed"), "the client has no signal for the TV language")
 	c.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
 	var joined := Time.get_ticks_msec()
 	while app.server.connected_slots().is_empty() and Time.get_ticks_msec() - joined < 4000:
 		await process_frame
 	await _frames(10)
-	_check(heard == ["en"], "the welcome tells the phone the language of the TV: %s" % str(heard))
+	_check(app.server.language == "en", "the welcome still carries the language of the TV (an older phone reads it)")
 	app.go_settings()
 	await _frames(4)
 	var settings: Control = app.current_screen()
 	_check(is_instance_of(settings, TvSettings) and settings._rows.size() == 5, "Settings has the row Language")
 	settings._rows[4].pressed.emit()
 	await _frames(10)
-	_check(Lang.current() == "he" and app.settings.language == "he" and app.server.language == "he" and heard == ["en", "he"],
-			"the Language row switches the UI at once and every phone follows: %s" % str(heard))
+	_check(Lang.current() == "he" and app.settings.language == "he" and app.server.language == "he",
+			"the Language row switches the TV UI at once and the TV tells the phones")
 	_check(_texts(settings).has("שפה") and _texts(settings).has("עברית"), "the Settings screen is in Hebrew at once")
 	settings._rows[4].pressed.emit()
 	await _frames(10)
-	_check(Lang.current() == "en" and heard == ["en", "he", "en"], "the row switches back to English")
+	_check(Lang.current() == "en", "the row switches back to English")
 	_check(_texts(settings).has("ENGLISH"), "in English the Language row says ENGLISH")
-	# A second phone whose own language is Hebrew still follows the TV, both ways (REQ-FL-62).
+	# A second phone that joins while the TV is in Hebrew gets the message, and its client does not switch anything (REQ-FL-62).
 	var c2 := ControllerClient.new()
 	c2.player_name = "Second"
 	root.add_child(c2)
-	var heard2: Array = []
-	c2.language_changed.connect(func(code: String): heard2.append(code))
+	app.set_language("he", false)
 	c2.connect_to("127.0.0.1", Protocol.WS_PORT, app.server.room_code)
 	joined = Time.get_ticks_msec()
 	while app.server.connected_slots().size() < 2 and Time.get_ticks_msec() - joined < 4000:
 		await process_frame
-	await _frames(5)
-	app.set_language("he", false)
 	await _frames(8)
+	# (That the phone keeps its own language is checked in auto_r3_phone, where the TV is not in the same process.)
+	_check(c2.state == ControllerClient.State.CONNECTED,
+			"a phone that joined to a Hebrew TV is connected; the TV language message does not break the join")
 	app.set_language("en", false)
 	await _frames(8)
-	_check(heard2.slice(-2) == ["he", "en"] and heard.slice(-2) == ["he", "en"],
-			"every phone follows the TV to Hebrew and back, also a phone that joined later: %s %s" % [str(heard), str(heard2)])
 	c2.leave()
 	await _frames(5)
 	# Every screen in Hebrew shows no English word (REQ-FL-63): the player name, the room code and the brand are the only Latin text.
