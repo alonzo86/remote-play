@@ -388,16 +388,21 @@ func _walk_screens() -> void:
 	_app.go_game_settings("maze")
 	await _frames(25)
 	var sv: Control = _app.current_screen()
-	var first: Control = _focus()
-	_check(first != null, "a row of the settings view has the focus")
+	_check(_focus() == sv.start_button, "the settings view opens with Start in focus (issue #226)")
 	var moved := false
 	var presses := 0
-	while _focus() != sv.start_button and presses < sv.rows.size() + 3:
+	while _focus() != sv.rows[0] and presses < sv.rows.size() + 3:
 		var before := _focus()
-		await _press("ui_down")
+		await _press("ui_up")
 		moved = moved or _focus() != before
 		presses += 1
-	_check(moved and _focus() == sv.start_button, "Down moves the focus through the rows to Start (%d presses)" % presses)
+	_check(moved and _focus() == sv.rows[0],
+			"Up moves the focus from Start through the rows to the first row (%d presses)" % presses)
+	presses = 0
+	while _focus() != sv.start_button and presses < sv.rows.size() + 3:
+		await _press("ui_down")
+		presses += 1
+	_check(_focus() == sv.start_button, "Down moves the focus through the rows back to Start (%d presses)" % presses)
 	await _key(KEY_ENTER)
 	var started := await _wait_until(func(): return _screen_is(_maze), 2000)
 	_check(started, "OK on Start begins the game")

@@ -66,7 +66,8 @@ func _run() -> void:
 	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 2 and sv.rows[0].value == "medium"
 			and sv.rows[1].value == "garden",
 			"the settings view of the maze has the rows Difficulty on Medium and Theme on Garden (REQ-MZ-12)")
-	_check(sv.rows[0].has_focus() and sv.rows[0]._value.text == "MEDIUM", "the row has the focus and shows Medium")
+	_check(sv.start_button.has_focus() and sv.rows[0]._value.text == "MEDIUM",
+			"Start has the focus when the view opens, and the row shows Medium (issue #226)")
 	var row_left: float = sv.rows[0].global_position.x
 	var row_right: float = row_left + sv.rows[0].size.x
 	_check(is_equal_approx(sv.rows[0].size.x, sv.rows[0].MIN_W) and is_equal_approx(sv.back_button.global_position.x, row_left)
@@ -409,6 +410,13 @@ func _back_focus(app: Node, games_script: GDScript) -> void:
 			app.go_game_settings(String(g.id))
 			await _frames(4)
 			var view: Control = app.current_screen()
+			# Issue #226: the view opens on Start. While Start cannot work (too few phones, or a swing game waits for the safety taps)
+			# the focus is on an item that can be used: the first row, or Back where it was parked.
+			var owner := root.gui_get_focus_owner()
+			var ok: bool = owner == view.start_button if not view.start_button.disabled else (
+					owner == view.rows[0] or owner == view.back_button)
+			_check(ok, "%s %s: the view opens with the focus on %s" % [
+					code, g.id, "Start" if not view.start_button.disabled else "the first row or Back (Start waits)"])
 			if not view.start_button.disabled:
 				view.start_button.grab_focus()
 				await _press(toward_back)
