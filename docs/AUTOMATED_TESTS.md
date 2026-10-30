@@ -32,6 +32,8 @@ It needs `xvfb` and Mesa (`libgl1-mesa-dri`). A known-bug check (`FAIL (known bu
 
 The scripts that decide what runs (`tools/ci_changes.sh`, `tools/ci_plan_circleci.sh` and the tier filter of `tests/run_suites.sh`) have their own test, `tests/ci_scripts.sh` (git and sh only, no Godot, a few seconds). `tests/run_all.sh` and the lint job of both CI systems run it.
 
+A suite that prints a `SCRIPT ERROR` line fails in `tests/run_suites.sh` even when it ends with `0 failed` and exit 0 (issue #276): the error stops the code that ran it, so the checks after it did not run.
+
 The free CI plans have a limited number of minutes each month. The CI runs the unit suites and the pixel checks only (Alon, 2026-10-22). The workflow `.github/workflows/ci.yml` spends the minutes like this (the job `changes` decides):
 
 | Case | lint | test | coverage | pixels | build-android |
