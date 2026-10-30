@@ -1,6 +1,7 @@
 extends Button
 ## One tile of the Games screen: a 16:9 screenshot in a 6 px frame, and the title and the player range under it.
 ## Every tile has the same size and layout. The focused tile has a yellow frame and a cursor before its title (REQ-FL-13).
+## The title is 40 px and the player range 32 px and dim, so the name leads (issue #225); the focused frame is twice as thick.
 ## The description of the focused game is in the bar under the grid (docs/ARCADE_STYLE_PLAN.md, question 1).
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -10,7 +11,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 
 const SHOT := Vector2(480, 270)       # The screenshot (16:9). Every tile has this size.
 const CURSOR_ROOM := UiTheme.CURSOR_UNIT * 4.0 + 16.0   # The room of the cursor before the title of the focused tile.
-const TITLE_LINE_H := 40.0            # One line of the title.
+const TITLE_LINE_H := 48.0            # One line of the title (UiTheme.SIZE_ITEM, 40 px, issue #225).
 const TEXT_H := 150.0                 # The room under the screenshot: the title and the player range.
 
 var game := {}
@@ -57,9 +58,9 @@ func _ready() -> void:
 	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_frame)
 
-	_name = UiKit.label(String(game.title), UiTheme.SIZE_BODY)
-	_name.position = Vector2(0.0, SHOT.y + 16)
-	_name.size = Vector2(SHOT.x, 40)
+	_name = UiKit.label(String(game.title), UiTheme.SIZE_ITEM)
+	_name.position = Vector2(0.0, SHOT.y + 12)
+	_name.size = Vector2(SHOT.x, TITLE_LINE_H)
 	add_child(_name)
 	_meta = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
 	_meta.position = Vector2(0, SHOT.y + 64)
@@ -111,16 +112,17 @@ func _refresh() -> void:
 	if _frame == null:
 		return
 	var f := has_focus()
-	_frame.add_theme_stylebox_override("panel", UiTheme.line_box(UiTheme.ACCENT if f else UiTheme.TEXT_DIM, Color.TRANSPARENT))
+	_frame.add_theme_stylebox_override("panel", UiTheme.line_box(UiTheme.ACCENT if f else UiTheme.TEXT_DIM,
+			Color.TRANSPARENT, UiTheme.LINE * 2 if f else UiTheme.LINE))
 	_name.add_theme_color_override("font_color", UiTheme.ACCENT if f else UiTheme.TEXT)
 	# Only the focused tile has the cursor, so only its title is moved in to make room for it: at the left of the title, and at the
 	# right of it in Hebrew.
 	var room := CURSOR_ROOM if f else 0.0
 	_name.size = Vector2(SHOT.x - room, _name.size.y)
 	_name.position = Vector2(0.0 if Lang.is_rtl() else room, _name.position.y)
-	# A title that is wider than the tile breaks into two lines at 32 px (REQ-FL-12, REQ-FL-40), and the player range moves down.
+	# A title that is wider than the tile breaks into two lines at 40 px (REQ-FL-12, REQ-FL-40), and the player range moves down.
 	var shown := UiKit.shown(_name.tr(_name.text))
-	var title_w := _name.get_theme_font("font").get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_BODY).x
+	var title_w := _name.get_theme_font("font").get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_ITEM).x
 	var lines := 2 if title_w > SHOT.x - room else 1
 	_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if lines > 1 else TextServer.AUTOWRAP_OFF
 	_name.size.y = TITLE_LINE_H * lines
