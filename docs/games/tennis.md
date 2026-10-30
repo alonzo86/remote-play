@@ -22,7 +22,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45 to 49). Check the 
 | REQ-GM-82 | Note | A child must understand the game from one hint line. The phone needs a swing and at most A (REQ-TN-8, 9). The character runs by itself, so a child only times the swing. |
 | REQ-GM-83 | Note | A missed ball gives a point to the other team and takes nothing away. Nobody is out. All players play every point. |
 | REQ-GM-47k | Note | The world palette is the arcade colors plus the court and the stands: court blue and light blue, grass green, white lines, dark net, and the seats and shirts of the crowd (about 12 more colors, `tennis_look.gd`). They are decoration and flat colors, so the arcade theme stays. |
-| REQ-GM-98 | Gap | No personal best for now (REQ-TN-17, planned, issue #216). |
+| REQ-GM-98 | Gap | No personal best for now (REQ-TN-17, planned, issue #216). Planned as an exception to "a 1-player and a 4-player round share one key": only 1 player (against the machine) gets a key, because a match of 2 to 4 players has no score that compares between matches. |
 | REQ-GM-62 | Note | Manual test 25 is added with the code. |
 | REQ-GM-50, 51, 52 | Device | Frame rate, allocation and start time are not measured on a TV box. |
 

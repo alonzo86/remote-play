@@ -21,7 +21,7 @@ Games screen.
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-35 | Exception | The game has no round clock, so it has no 3 s countdown: the first turn starts at once after Start. The turn time of the difficulty (REQ-TB-11) is shown in the timer box, in the place of the timer of the other games, but it limits one drop and is not a game clock. REQ-GM-35 asks for a countdown only for a round clock, so this is a note and not a real exception. Decided 2026-10-30 by agents under CLAUDE.md; the owner can revert. |
+| REQ-GM-35 | Note | The game has no round clock, so it has no 3 s countdown: the first turn starts at once after Start. The turn time of the difficulty (REQ-TB-11) is shown in the timer box, in the place of the timer of the other games, but it limits one drop and is not a game clock. REQ-GM-35 asks for a countdown only for a round clock, so this is a note and not a real exception. Decided 2026-10-30 by agents under CLAUDE.md; the owner can revert. |
 | REQ-GM-83 | Note | The game is turn-based, so a player waits for the other players. Decision of the owner, 2026-10-24: the limit is about 20 s per turn, not for all the turns of the others together. One turn takes at most the turn time plus about 2 s for the fall and the pause (12 s on Easy, 7 s on Medium, 5 s on Hard), so every turn is under 20 s. The waiting players watch the tower, nobody is out, and nothing is taken away. |
 | REQ-GM-98 | Exception | No personal best (`best_key()` is empty): the tower is a team result, and a player's bricks depend on the others. Decided 2026-10-30 by agents under CLAUDE.md; the owner can revert. |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 30). It is not yet run on a device. |
@@ -101,5 +101,5 @@ Decided 2026-10-30 by agents under CLAUDE.md (the owner can revert); the answers
 1. The end of the game: 12 bricks (REQ-TB-3). Kept: 12 turns of at most 12 s on Easy fit a session of a child, and every player gets the same number of turns for 1 to 4 players.
 2. Points: a brick that stays is a point for its player, and a topple takes nothing (REQ-TB-14). The result menu shows the bricks that stayed, which is the height of the tower in bricks, so no second number is added.
 3. REQ-GM-35 (no countdown): kept, see the first section.
-4. Names: "Tower Builder" is plain words; no trademark search (the owner accepted this risk for the app name on 2026-10-15, `docs/NAME_DECISION.md`).
+4. Name: "Tower Builder" stays for now. No trademark search was done for this game name. This is not a clearance, and the decision about the name Sababi (`docs/NAME_DECISION.md`) does not cover it. Check the name before the store release.
 5. The id was changed from `wobbly_tower` (roadmap) to `tower_builder` with the name.

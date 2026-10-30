@@ -20,7 +20,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45 to 49). Check the 
 | General ID | Kind | Note |
 |------------|------|------|
 | REQ-GM-73 | Rule | One player gets no medal (owner, 2026-10-23, issue #66; the general rule since issue #119). The result shows the points. With more players each row has the medal of its place (REQ-GM-73a). |
-| REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`): the game has no best yet. Decided 2026-10-30 by agents under CLAUDE.md (the owner can revert): it gets one, `whack_a_mole|<difficulty>`, the points of the player, higher is better, keys 43 to 45; planned (issue #216), because the points are a personal score that compares between rounds (as Banana Party). |
+| REQ-GM-98 | Gap | No personal best (no key in `ProfileKeys`): the game has no best yet. Decided 2026-10-30 by agents under CLAUDE.md (the owner can revert): it gets one, `whack_a_mole|<difficulty>`, the points of the player, higher is better, keys 43 to 45; planned (issue #216), because the points are a personal score that compares between rounds (as Banana Party). |
 | REQ-GM-37 | Note | Recenter is on the pad, as in Banana Party: the pointer uses the yaw of the gyroscope, and yaw drifts (RISKS A4). |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 28). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
@@ -106,5 +106,6 @@ The rows are in `assets/lang/strings.csv`: `registry.whack_a_mole`, `registry.de
 
 ## Open questions
 
+- Name: no trademark search was done for "Whack-a-Mole" (a name that others may own). This is not a clearance, and the decision about the name Sababi does not cover it. Check the name before the store release.
 - Personal best: decided 2026-10-30, planned (issue #216): keys 43 to 45, a new profile code format version.
 - The Hebrew texts were written by Claude and need a native reader.
