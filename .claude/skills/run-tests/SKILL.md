@@ -18,7 +18,7 @@ description: Run the Sababi headless tests and lint. Use before a pull request (
 3. Run lint: `gdlint scripts tests tools` and `shellcheck tests/*.sh tools/*.sh`.
    Install `gdtoolkit` with `pip install "gdtoolkit==4.*"` if needed. If pip fails on a certificate path, check `pip config list`
    and pass `PIP_CERT=` for that one command. Do not edit the user's pip config.
-4. Report the real counts and any failures. Never report a pass for a step that did not run.
+4. For a change or a bug fix, the touched suites include the tests that `qa` and `automation-developer` wrote or updated for it (CLAUDE.md, "Tests and coverage"). Report the real counts and any failures. Never report a pass for a step that did not run.
 
 5. Run the coverage only when the user explicitly tells you to: `GODOT=<path> tools/coverage.sh` (see the README, section Coverage). It fails when a module is below 80%.
    It is slow (about 20 minutes: it runs the tests again on an instrumented copy), so never start it on your own.
