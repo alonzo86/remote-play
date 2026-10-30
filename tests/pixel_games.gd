@@ -57,6 +57,36 @@ func _bars(k: int) -> void:
 	Lang.set_language("en", root)
 
 
+## Issue #227: the black Air Hockey puck has a light ring, so it shows on the black goal mouth. With the puck standing in the
+## right goal opening, the ring is light (3:1 or more against the black floor) and the pixel beyond it is black floor again.
+func _puck_on_goal(k: int) -> void:
+	var Sim = load("res://scripts/game/air_hockey/air_hockey_sim.gd")
+	var Look = load("res://scripts/game/air_hockey/air_hockey_look.gd")
+	_fake_phones(1)
+	var game: Node = await _start_game("air_hockey")
+	await _seconds(0.5)
+	game.sim.wait = 1000.0   # The puck stands still on its spot.
+	game.sim.puck_vel = Vector2.ZERO
+	var spot := Vector2(Sim.RINK.end.x + 12.0, Sim.RINK.get_center().y)   # In the opening of the right goal, beyond the rail line.
+	game.sim.puck_pos = spot
+	var shot := await _capture()
+	var at := Shell.snap(spot)
+	# The pixel view snaps the circles to its 4 px grid, so the ring is searched in a few pixels at the right edge of the puck.
+	var ring := Color.BLACK
+	var beyond := Color.BLACK
+	for dx in range(int(Sim.PUCK_R) - 6, int(Sim.PUCK_R + Look.PUCK_RING_W) + 8):
+		var c := shot.get_pixel(int((at.x + dx) * k), int(at.y * k))
+		if Shell.contrast(c, Color.BLACK) > Shell.contrast(ring, Color.BLACK):
+			ring = c
+	beyond = shot.get_pixel(int((at.x + Sim.PUCK_R + Look.PUCK_RING_W + 14.0) * k), int(at.y * k))
+	_check(Shell.contrast(ring, Color.BLACK) >= 3.0,
+			"air_hockey: the ring of the puck in the goal mouth is light (%s, contrast %.1f)" % [ring.to_html(false),
+			Shell.contrast(ring, Color.BLACK)])
+	_check(beyond.to_html(false) == "000000", "air_hockey: the goal mouth beside the puck is black (%s)" % beyond.to_html(false))
+	_app.go_menu()
+	await _frames(3)
+
+
 func _initialize() -> void:
 	_run()
 
@@ -199,5 +229,6 @@ func _run() -> void:
 		_app.go_menu()
 		await _frames(3)
 	await _bars(k)
+	await _puck_on_goal(k)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
