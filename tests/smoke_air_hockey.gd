@@ -243,7 +243,8 @@ func _run() -> void:
 			"one phone: the match starts at once against ROBO with its own color (REQ-GM-105)")
 	_check(not Protocol.PLAYER_COLORS.has(game.Look.BOT_COLOR), "the color of ROBO is not the color of any phone slot")
 	# Issue #227: the puck is black with a light ring: the ring stands out from the black goal mouth, the black from the white table.
-	_check(Shell.contrast(game.Look.PUCK_RING, game.Look.FLOOR) >= 3.0 and Shell.contrast(game.Look.RAIL, game.Look.SURFACE) >= 3.0,
+	var contrast := Callable(game.Look.UiTheme, "contrast")
+	_check(contrast.call(game.Look.PUCK_RING, game.Look.FLOOR) >= 3.0 and contrast.call(game.Look.RAIL, game.Look.SURFACE) >= 3.0,
 			"the puck ring has 3:1 against the black goal mouth, and the black puck has 3:1 against the white table")
 	_check(game._scoreboard() == null and game.bot.skill.reaction == 0.07,
 			"with ROBO there is no place on the phone, and the bot has the hard skill")
