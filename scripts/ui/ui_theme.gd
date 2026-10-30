@@ -209,20 +209,47 @@ static func make() -> Theme:
 ## descent, so a digit sits in the middle of a box).
 static func draw_centered(ci: CanvasItem, f: Font, text: String, rect: Rect2, font_size: int, color: Color) -> void:
 	# Left aligned from a computed x: the centered alignment of draw_string loses a right to left text (Hebrew).
-	# No width is given to draw_string (a text wider than the box would be cut to its last letters); a text that does not fit is
-	# drawn smaller, in steps of the 8 px grid, so it stays inside the box.
-	var size := fit_size(f, text, rect.size.x, font_size)
+	# No width is given to draw_string (a text wider than the box would be cut to its last letters). The text is never drawn
+	# smaller (issue #246, REQ-FL-40): the caller makes the box wide enough (`text_width`) or wraps the text (`wrap_lines`).
+	var size := font_size
 	var w := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	ci.draw_string(f, Vector2(rect.position.x + (rect.size.x - w) * 0.5, centered_baseline(f, rect, size)), text,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
 
 
-## The largest size of `font_size`, `font_size - 8`, ... (at least 16) at which `text` is at most `max_w` wide.
-static func fit_size(f: Font, text: String, max_w: float, font_size: int) -> int:
-	var size := font_size
-	while size > 16 and f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > max_w:
-		size -= 8
-	return size
+## The width of `text` at `font_size` (the width a box needs for it, without its padding).
+static func text_width(f: Font, text: String, font_size: int) -> float:
+	return f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+
+
+## `text` on lines that are at most `max_w` wide, at the same size (issue #246: a text that does not fit its box goes on
+## more lines, the box grows, the text is not made smaller and nothing is cut). Breaks at spaces; a word wider than a line is
+## broken between letters. A text that fits is one line. The lines keep the order of the text.
+static func wrap_lines(f: Font, text: String, max_w: float, font_size: int) -> Array[String]:
+	var lines: Array[String] = []
+	if text_width(f, text, font_size) <= max_w:
+		lines.append(text)
+		return lines
+	var line := ""
+	for word in text.split(" ", false):
+		var tryout: String = word if line.is_empty() else line + " " + word
+		if text_width(f, tryout, font_size) <= max_w:
+			line = tryout
+			continue
+		if not line.is_empty():
+			lines.append(line)
+			line = ""
+		var rest: String = word
+		while text_width(f, rest, font_size) > max_w and rest.length() > 1:
+			var n := rest.length() - 1
+			while n > 1 and text_width(f, rest.substr(0, n), font_size) > max_w:
+				n -= 1
+			lines.append(rest.substr(0, n))
+			rest = rest.substr(n)
+		line = rest
+	if not line.is_empty():
+		lines.append(line)
+	return lines
 
 
 ## The baseline y that puts the middle of a line of text (ascent to descent) at the middle of `rect`.

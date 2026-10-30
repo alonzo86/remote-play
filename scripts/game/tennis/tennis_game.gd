@@ -18,7 +18,7 @@ const GREAT_TIME := 0.8
 const BUZZ_HIT_MS := 30
 const BUZZ_GREAT_MS := 60
 const PAUSE_GAP_MS := 400       # A gap between two ticks longer than this means the game was paused: swings are ignored.
-const PANEL_W := 760.0   # 32 px names need 4/28 more room than the 28 px ones had (REQ-FL-40), so none is cut more.
+const PANEL_W := 760.0   # The least width of the team panel; `panel_width()` grows it (#246).
 const PANEL_ROW := 60.0
 const TEXT_SIZE := 32
 
@@ -492,22 +492,36 @@ func _draw_great(p: Look.Proj) -> void:
 		Shell.label_plate(self, Shell.snap(at), "tennis.great", 32, Color("5cf070"))
 
 
+## The width of the team panel: `PANEL_W`, or more when the names of a team need it (the color squares, the names, and the room
+## for the games, the server dot and the points). A name is never cut (issue #246).
+func panel_width() -> float:
+	var widest := 0.0
+	for team in 2:
+		var squares := 0
+		for s in play.rules.teams[team]:
+			squares += 1 if participants.has(s) else 0
+		var need := 14.0 + 30.0 * float(squares) + 4.0 + UiTheme.text_width(UiTheme.font(), _team_names(team).to_upper(), TEXT_SIZE)
+		widest = maxf(widest, need + 250.0)
+	return maxf(PANEL_W, widest)
+
+
 ## The score of the teams, top left: the colors of the players, the names, the games and the points of the game (REQ-TN-10).
 func _draw_panel() -> void:
 	var rules := play.rules
-	var x := Shell.mx(self, 60.0, PANEL_W)
+	var panel_w := panel_width()
+	var x := Shell.mx(self, 60.0, panel_w)
 	var y := Look.HUD_H + 16.0
 	var f := UiTheme.font()
 	for team in 2:
-		var row := Rect2(x, y + team * PANEL_ROW, PANEL_W, PANEL_ROW - 6.0)
+		var row := Rect2(x, y + team * PANEL_ROW, panel_w, PANEL_ROW - 6.0)
 		draw_style_box(UiTheme.line_box(UiTheme.FRAME, UiTheme.BG, 4), row)
 		var cx := row.position.x + 14.0
 		for s in rules.teams[team]:
 			if participants.has(s):
 				draw_rect(Rect2(cx, row.position.y + 17.0, 22.0, 22.0), player(s).color)
 				cx += 30.0
-		var names := Shell.fit_text(_team_names(team).to_upper(), PANEL_W - 250.0 - (cx - row.position.x), TEXT_SIZE)
-		draw_string(f, Vector2(cx + 4.0, row.position.y + 38.0), names, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.TEXT)
+		draw_string(f, Vector2(cx + 4.0, row.position.y + 38.0), _team_names(team).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1,
+				TEXT_SIZE, UiTheme.TEXT)
 		if play.phase != Match.Phase.END and not rules.teams[team].is_empty() and rules.team_of(play.server_slot()) == team:
 			draw_circle(Vector2(row.end.x - 190.0, row.position.y + 28.0), 8.0, Look.BALL)
 		var games := 0

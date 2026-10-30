@@ -160,10 +160,20 @@ func _hebrew_pad() -> void:
 	var font := UiTheme.font()
 	var room := {"recenter": pad._rect_recenter().size.x, "disconnect": pad._rect_leave().size.x,
 			"hint": pad._rect_recenter().size.x}
-	var sizes := {"recenter": 72, "disconnect": 24, "hint": pad.hint_size(font, pad._rect_recenter())}
+	var sizes := {"recenter": 72, "disconnect": 24, "hint": 32}
 	var names := ["recenter", "disconnect", "hint"]
 	for i in 3:
 		var w := font.get_string_size(texts.he[i], HORIZONTAL_ALIGNMENT_LEFT, -1, int(sizes[names[i]])).x
+		if names[i] == "hint":
+			# Issue #246: the help line keeps 32 px; when it is wider than the box it goes on more lines, nothing is cut.
+			var lines: Array[String] = pad.hint_lines(font, pad._rect_recenter())
+			var widest := 0.0
+			for line in lines:
+				widest = maxf(widest, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 32).x)
+			_check(widest <= float(room.hint) - 2.0 * (UiTheme.LINE + 16.0) and " ".join(lines) == texts.he[2],
+					"Hebrew hint: %d line(s) of 32 px, the widest %.0f px in a box of %.0f px, every word kept"
+					% [lines.size(), widest, room.hint])
+			continue
 		var ok: bool = w > 0.0 and w <= float(room[names[i]]) - 2.0 * UiTheme.LINE
 		var what := "Hebrew %s: %.0f px of text in a box of %.0f px (the frame takes %d px)" % [names[i], w, room[names[i]],
 				2 * UiTheme.LINE]

@@ -84,6 +84,19 @@ func _run() -> void:
 	_check(not game._has_countdown() and not game._clock.is_counting() and not game.play.rules.quick and game.play.chars.size() == 2,
 			"a match of 2 players has no countdown (no timer, REQ-GM-35) and 2 players are on the court")
 	await _frames(3)   # The pixel layer draws the court and the people without an error.
+	# Issue #246: the team panel grows with the names, no name is cut.
+	var panel_before: float = game.panel_width()
+	_check(panel_before == game.PANEL_W, "short names: the team panel has its least width (%.0f px)" % panel_before)
+	var old_names: Array[String] = [game.player(0).player_name, game.player(1).player_name]
+	game.player(0).player_name = "WWWWWWWWWW"
+	game.player(1).player_name = "MMMMMMMMMM"
+	var teams_two: bool = game.play.rules.teams[0].size() + game.play.rules.teams[1].size() == 2
+	var wide: float = game.panel_width()
+	var one_team_needs: float = 250.0 + 14.0 + 30.0 + 4.0 + 10.0 * 32.0
+	_check(teams_two and wide >= one_team_needs,
+			"names of 10 letters: the team panel is %.0f px, at least %.0f px (nothing is cut)" % [wide, one_team_needs])
+	game.player(0).player_name = old_names[0]
+	game.player(1).player_name = old_names[1]
 
 	# A press on A of the server tosses the ball, a swing down serves (REQ-TN-9).
 	_go(game)

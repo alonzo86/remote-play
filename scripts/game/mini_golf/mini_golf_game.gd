@@ -425,24 +425,45 @@ func _draw_hole_text() -> void:
 
 ## The bar at the bottom (REQ-MG-3): a chip for every player with the strokes on this hole; the player on turn has a frame.
 func _draw_bar() -> void:
-	var n := rules.rows.size()
-	if n == 0:
+	var items: Array = []   # [row, text, width]
+	for r in rules.rows:
+		if participants.has(r.slot):
+			var text := Lang.f("mini_golf.chip", [player(r.slot).player_name, r.strokes])
+			items.append([r, text, Shell.chip_width(text, 200.0, player(r.slot).avatar)])
+	if items.is_empty():
 		return
 	var gap := 16.0
-	var w := minf(440.0, (size.x - 120.0 - gap * float(n - 1)) / float(n))
-	var total_w := w * float(n) + gap * float(n - 1)
-	var x := (size.x - total_w) * 0.5
-	var y := size.y - BAR_MARGIN - BAR_H
+	var widths: Array = items.map(func(it): return it[2])
+	var lines := bar_lines(widths, size.x - 120.0, gap)   # Index lists: a long name does not fit one row, so the bar gets a second.
 	var on := rules.current_slot() if phase != Phase.HOLE else -1
-	for r in rules.rows:
-		if not participants.has(r.slot):
-			continue
-		var p := player(r.slot)
-		var text := Lang.f("mini_golf.chip", [p.player_name, r.strokes])
-		var rect := Shell.chip(self, Vector2(x, y), text, p.color, w, BAR_H, p.avatar)
-		if r.slot == on and not is_over:
-			draw_rect(rect.grow(4.0), UiTheme.ACCENT, false, 4.0)
-		x += w + gap
+	for li in lines.size():
+		var line_w := gap * float(lines[li].size() - 1)
+		for k in lines[li]:
+			line_w += float(widths[k])
+		var x := (size.x - line_w) * 0.5
+		var y := size.y - BAR_MARGIN - BAR_H - float(lines.size() - 1 - li) * (BAR_H + gap)
+		for k in lines[li]:
+			var p := player(items[k][0].slot)
+			var rect := Shell.chip(self, Vector2(x, y), items[k][1], p.color, widths[k], BAR_H, p.avatar)
+			if items[k][0].slot == on and not is_over:
+				draw_rect(rect.grow(4.0), UiTheme.ACCENT, false, 4.0)
+			x += float(widths[k]) + gap
+
+
+## The chips of the bar in rows: the indexes of `widths` that stand in each row, in order. A chip is as wide as its text needs
+## (nothing is cut, issue #246), so when they do not fit one row of `avail` px the bar gets one more row.
+static func bar_lines(widths: Array, avail: float, gap: float) -> Array:
+	var lines: Array = [[]]
+	var used := 0.0
+	for k in widths.size():
+		var need: float = float(widths[k]) + (gap if not lines[-1].is_empty() else 0.0)
+		if not lines[-1].is_empty() and used + need > avail:
+			lines.append([])
+			need = float(widths[k])
+			used = 0.0
+		lines[-1].append(k)
+		used += need
+	return lines
 
 
 ## The card at the end of a hole: the strokes of each player on the hole and in all (REQ-MG-6).

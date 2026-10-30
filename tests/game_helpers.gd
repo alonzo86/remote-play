@@ -437,12 +437,28 @@ func _medal_icon() -> void:
 	canvas.queue_free()
 
 
-## A text that does not fit its box is drawn smaller, in steps of 8, never under 16 (`UiTheme.fit_size`).
+## A text that does not fit its box goes on more lines or the box grows; it is never made smaller or cut (issue #246).
 func _fit_size() -> void:
 	print("text fit")
 	var f: Font = UiTheme.font()
+	var mini = load("res://scripts/game/mini_golf/mini_golf_game.gd")
 	var w32: float = f.get_string_size("HELLO WORLD", HORIZONTAL_ALIGNMENT_LEFT, -1, 32).x
-	_check(UiTheme.fit_size(f, "HELLO WORLD", w32 + 1.0, 32) == 32, "a text that fits keeps its size")
-	_check(UiTheme.fit_size(f, "HELLO WORLD", w32 * 0.8, 32) == 24, "a text that is a little too wide is one step smaller")
-	_check(UiTheme.fit_size(f, "HELLO WORLD", 10.0, 32) == 16, "it never goes under 16 px")
-	_check(UiTheme.fit_size(f, "HELLO WORLD", 10.0, 8) == 8, "a size that is already small is kept")
+	_check(UiTheme.wrap_lines(f, "HELLO WORLD", w32 + 1.0, 32) == ["HELLO WORLD"], "a text that fits is one line")
+	_check(UiTheme.wrap_lines(f, "HELLO WORLD", w32 * 0.8, 32) == ["HELLO", "WORLD"],
+			"a text that is a little too wide goes on two lines")
+	var narrow := UiTheme.wrap_lines(f, "HELLO WORLD", 10.0, 32)
+	_check("".join(narrow) == "HELLOWORLD", "a box narrower than a letter still keeps every letter")
+	var long_word := UiTheme.wrap_lines(f, "ABCDEFGHIJ", 5.0 * 32.0, 32)
+	_check(long_word == ["ABCDE", "FGHIJ"], "a word wider than the box is broken between letters: %s" % str(long_word))
+	var he := UiTheme.wrap_lines(f, "אבגדהוזחטי", 5.0 * 32.0, 32)
+	_check("".join(he) == "אבגדהוזחטי" and he.size() == 2, "Hebrew keeps every letter on two lines: %s" % str(he))
+	for line in long_word:
+		_check(f.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 32).x <= 5.0 * 32.0, "every line is inside the box (%s)" % line)
+	# A chip grows with its text (the name column of Pin Pals and the bar of Mini Golf were cutting a name of 10 letters).
+	var need: float = Shell.name_x(3) + 10.0 * 32.0 + Shell.CHIP_PAD
+	_check(Shell.chip_width("WWWWWWWWWW", 100.0, 3) == need, "a chip is as wide as a name of 10 letters needs (%.0f px)" % need)
+	_check(Shell.chip_width("1P", 240.0, 3) == 240.0, "a short text keeps the width the game asked for")
+	var rows: Array = mini.bar_lines([560.0, 560.0, 560.0, 560.0], 1800.0, 16.0)
+	_check(rows == [[0, 1, 2], [3]], "four wide chips of Mini Golf go on two rows: %s" % str(rows))
+	rows = mini.bar_lines([300.0, 300.0, 300.0, 300.0], 1800.0, 16.0)
+	_check(rows == [[0, 1, 2, 3]], "four short chips stay on one row: %s" % str(rows))

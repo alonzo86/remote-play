@@ -23,7 +23,7 @@ const BUZZ_GAP_MS := 150
 const AIM_X := 0.60
 const ROW_H := 88.0             # A row of the score sheet: the marks and the total, both at 32 px (REQ-FL-40).
 const TEXT_SIZE := 32           # The frame text and the marks of the score sheet.
-const NAME_W := 420.0
+const NAME_W := 420.0           # The least width of the name column; it grows with the names (`name_column_width`, issue #246).
 const SHEET_MARGIN := 60.0
 const PAUSE_GAP_MS := 400       # A gap between two ticks longer than this means the game was paused: the swing starts again.
 
@@ -351,12 +351,22 @@ func _draw_frame_text() -> void:
 	Shell.status(self, size.x - 60.0 - w, w, text)   # The status text of the bar, the same place as in Air Hockey (REQ-GM-45c).
 
 
+## The width of the name column of the score sheet: `NAME_W`, or more when a name needs it (the chip grows, nothing is cut).
+func name_column_width() -> float:
+	var w := NAME_W
+	for r in rules.rows:
+		if participants.has(r.slot):
+			w = maxf(w, Shell.chip_width(player(r.slot).player_name, 0.0, player(r.slot).avatar) + 6.0)
+	return w
+
+
 ## The score sheet at the bottom (the headboard, REQ-BW-12): a row for each player with the marks and the running total of each
 ## frame.
 ## It is laid out left to right in both languages.
 func _draw_sheet() -> void:
 	var x0 := SHEET_MARGIN
-	var cell_w := (size.x - 2.0 * SHEET_MARGIN - NAME_W) / (float(BowlingRules.FRAMES) + 0.5)
+	var name_w := name_column_width()
+	var cell_w := (size.x - 2.0 * SHEET_MARGIN - name_w) / (float(BowlingRules.FRAMES) + 0.5)
 	var on_turn := rules.current_slot()
 	var current_frame := rules.current_frame()
 	var y := _sheet_top()
@@ -366,13 +376,13 @@ func _draw_sheet() -> void:
 			continue
 		var active: bool = r.slot == on_turn and not is_over
 		var p := player(r.slot)
-		var name_rect := Shell.chip(self, Vector2(x0, y), p.player_name, p.color, NAME_W - 6.0, ROW_H - 6.0, p.avatar)
+		var name_rect := Shell.chip(self, Vector2(x0, y), p.player_name, p.color, name_w - 6.0, ROW_H - 6.0, p.avatar)
 		if active:
 			draw_rect(name_rect, UiTheme.ACCENT, false, 4.0)
 		var cells := BowlingRules.sheet_cells(r.rolls)
 		for i in BowlingRules.FRAMES:
 			var w := cell_w * (1.5 if i == BowlingRules.FRAMES - 1 else 1.0)
-			var x := x0 + NAME_W + cell_w * i
+			var x := x0 + name_w + cell_w * i
 			var rect := Rect2(x, y, w - 6.0, ROW_H - 6.0)
 			var here := active and i + 1 == current_frame
 			draw_style_box(UiTheme.line_box(UiTheme.ACCENT if here else UiTheme.FRAME, UiTheme.BG, 4), rect)
