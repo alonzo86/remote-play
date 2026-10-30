@@ -154,6 +154,7 @@ sumo_bumpers.round_winner,%s wins the round!,%s ניצח בסיבוב!,"Sumo Bum
 sumo_bumpers.tilt_bump_others_off,TILT TO BUMP THE OTHERS OFF THE PLATFORM! PRESS A TO DASH!,הטו כדי לדחוף את האחרים מהפלטפורמה! לחצו A כדי לזנק!,Sumo Bumpers: hint during the countdown,
 wait.choose_game_tv,CHOOSE A GAME ON THE TV,בחר משחק בטלוויזיה,Phone waiting screen: title while the TV shows the menus,
 wait.join_next_round,YOU JOIN NEXT ROUND.,תצטרפו לסיבוב הבא.,Phone waiting screen: second line when a round is running,
+wait.you_chose_out,YOU CHOSE OUT. YOU JOIN NEXT ROUND.,בחרתם להישאר בחוץ. תצטרפו לסיבוב הבא.,Phone waiting screen: second line when a round runs and this phone chose OUT before the start (instead of wait.join_next_round),New 2026-10-30 (issue #242).
 wait.round_running,A ROUND IS IN PROGRESS,סיבוב מתנהל כעת,Phone waiting screen: title when a round runs and the phone is not in it,
 wait.use_tv_remote_phone,USE THE TV REMOTE. YOUR PHONE IS READY.,השתמשו בשלט הטלוויזיה. הטלפון שלכם מוכן.,Phone waiting screen: second line while the TV shows the menus,
 wait.waiting_host,WAITING FOR THE HOST,ממתינים למארח,Phone waiting screen: title before the TV has chosen a game,
@@ -252,6 +253,7 @@ how_to.mini_golf,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT THE BA
 setup.question,PLAY THIS GAME?,לשחק במשחק הזה?,"Phone waiting screen, while the TV settings view of a game is open and two or more phones are connected: the question above the IN and OUT buttons",
 setup.in,IN,בפנים,Phone waiting screen: the IN button (this phone plays the game); TV game settings view: the word after the name of a player who plays,
 setup.out,OUT,בחוץ,Phone waiting screen: the OUT button (this phone watches); TV game settings view: the word after the name of a player who sits out,
+setup.out_banner,YOU ARE OUT. TAP IN TO PLAY.,אתם בחוץ. לחצו על בפנים כדי לשחק.,"Phone waiting screen, under the IN and OUT buttons while this phone has chosen OUT (the TV settings view is open)",New 2026-10-30 (issue #242). The Hebrew word for IN must match setup.in.
 registry.sheep_herding,SHEEP HERDING,רועה כבשים,"Name of the game Sheep Herding: Games screen, game settings, in-game title",
 registry.desc_sheep_herding,A TEAM GAME: HERD ALL THE SHEEP INTO THE PEN.,משחק קבוצתי: מובילים את כל הכבשים לדיר.,"Description of Sheep Herding: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.sheep_herding,"TILT YOUR PHONE TO RUN YOUR DOG. TOGETHER, HERD ALL THE SHEEP INTO THE PEN BEFORE THE TIME IS UP.","הטו את הטלפון כדי לגרום לכלב לרוץ. יחד, הובילו את כל הכבשים לדיר לפני שהזמן נגמר.","TV game settings view of Sheep Herding: how to play, under the title (issue #77)",
