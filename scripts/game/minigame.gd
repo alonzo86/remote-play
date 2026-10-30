@@ -284,10 +284,9 @@ func pause_entries() -> Array:
 	return [["minigame.resume", close_menu], ["minigame.restart", restart], ["minigame.end_game", App.go_menu, "danger"]]
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_accept") and not _menu_open and _can_open_menu():
-		open_menu("minigame.paused", pause_entries())
-		get_viewport().set_input_as_handled()
+## OK on the TV remote does nothing during play (REQ-GM-31, decision of the owner, issue #228). Back is the way to
+## stop a game in progress: it pauses and asks "End the game?" with Resume first (REQ-GM-31a).
+## (There is no `_unhandled_input` here on purpose. A game that wants OK, like Air Hockey before the match, adds its own.)
 
 
 func on_back() -> void:

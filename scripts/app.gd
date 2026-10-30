@@ -139,7 +139,7 @@ func _menu_sound(event: InputEvent) -> void:
 			Sound.sfx("move")
 			return
 	if event.is_action_pressed("ui_accept"):
-		# In a game, OK opens the pause menu, which has its own sound. On a dim game tile OK plays `denied` only (TvGames).
+		# In a game, OK does nothing (REQ-GM-31), so it has no sound either. On a dim game tile OK plays `denied` only (TvGames).
 		var tile := get_viewport().gui_get_focus_owner()
 		if tile != null and tile.get("fits") == false:
 			return
