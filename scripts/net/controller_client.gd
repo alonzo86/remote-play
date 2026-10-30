@@ -44,6 +44,7 @@ var pad_buttons := "ab"       # The buttons the pad shows: "", "a", "b" or "ab" 
 var setup_swing := false      # The TV settings view of a swing game is open: the phone shows the safety card (REQ-GM-102).
 var setup_pick := false       # Two or more phones are connected: the phone asks "play this game?" (issue #76, REQ-GM-104).
 var setup_in := true          # This phone plays the game (the choice IN); the TV sets it back to IN when it refuses the last OUT.
+var sat_out := false          # The round that runs began with this phone OUT: the waiting screen says so (issue #242).
 var swing_acked := false      # The player tapped OK for the settings view that is open; the next view asks again (issue #148).
 var turn_state := 0           # 0 no turn line, 1 this phone is on turn, 2 another player is on turn (REQ-BW-14).
 var turn_kind := ""           # "" for the words of Pin Pals, "golf" for Mini Golf.
@@ -248,6 +249,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			color = Color(String(msg.get("color", "#ffffff")))
 			_token = String(msg.get("token", ""))
 			tv_name = String(msg.get("name", "TV"))
+			sat_out = false
 			swing_acked = false   # A new session (another TV or slot) never inherits an earlier answer (issue #148).
 			phase = String(msg.get("phase", "connect"))
 			recenter_button = bool(msg.get("rc", true))
@@ -285,6 +287,8 @@ func _handle(msg: Dictionary, now: int) -> void:
 			phase = String(msg.get("v", "connect"))
 			recenter_button = bool(msg.get("rc", true))
 			pad_buttons = String(msg.get("ab", "ab"))
+			var was_out := setup_pick and not setup_in   # The view closes with this phone OUT (REQ-GM-104).
+			sat_out = (sat_out or was_out) if phase == "waiting" else false
 			if setup_swing or setup_pick:
 				setup_swing = false
 				setup_pick = false

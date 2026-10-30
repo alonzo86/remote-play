@@ -14,7 +14,7 @@ const Registry = preload("res://scripts/game/registry.gd")
 const MIN_FONT := 32            # The smallest text on the TV (smoke_tv `_small_text`, REQ-GM-41 asks for 28).
 const MARGIN := 60.0
 ## The colors a text can have (REQ-FL-38): white, dim, yellow, and green and red for the words ON, OK, LOST.
-const TEXT_COLORS := [UiTheme.TEXT, UiTheme.TEXT_DIM, UiTheme.ACCENT, UiTheme.OK, UiTheme.BAD]
+const TEXT_COLORS := [UiTheme.TEXT, UiTheme.TEXT_INFO, UiTheme.TEXT_DIM, UiTheme.ACCENT, UiTheme.OK, UiTheme.BAD]
 
 var _checks := 0
 var _fails := 0

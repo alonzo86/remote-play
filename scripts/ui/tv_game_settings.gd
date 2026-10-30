@@ -25,6 +25,7 @@ var in_label: Label    # Who plays this game, and who sits out (issue #76, REQ-G
 var out_label: Label
 var how_to_label: Label   # How to play (REQ-GM-103).
 var reason_label: Label   # Why Start does not work now (REQ-GM-20): not enough phones. Empty when it works.
+var _parked_on: Control   # Where the view put the focus while Start waits (issue #226).
 
 
 func _ready() -> void:
@@ -69,7 +70,7 @@ func _ready() -> void:
 		rows.append(row)
 	# The enrolled players, under the settings: one line for who plays and one for who sits out (issue #76, REQ-GM-104).
 	in_label = UiKit.label("", ROSTER_SIZE, UiTheme.OK)
-	out_label = UiKit.label("", ROSTER_SIZE, UiTheme.TEXT_DIM)
+	out_label = UiKit.label("", ROSTER_SIZE, UiTheme.TEXT_INFO)
 	for l in [in_label, out_label]:
 		l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # It holds player names, which are never translated (REQ-FL-63).
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -102,14 +103,20 @@ func _ready() -> void:
 	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(reason_label)
 	# How to play: the text of the game at the bottom of the screen, for the whole room (issue #77, REQ-GM-103).
-	how_to_label = UiKit.label(String(game.get("how_to", "")), UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	how_to_label = UiKit.label(String(game.get("how_to", "")), UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 	how_to_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	how_to_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	how_to_label.custom_minimum_size = Vector2(WIDE_W, 0)
 	how_to_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	page.add_child(how_to_label)
 	_update_fit()
-	UiKit.focus_later(rows[0])
+	# The most common action is to just play, so the view opens on Start (issue #226). While Start cannot work (too few phones, or a
+	# swing game waits for the safety taps) it takes no focus, and the first row gets it.
+	if start_button.focus_mode == Control.FOCUS_ALL:
+		UiKit.focus_later(start_button)
+	else:
+		_parked_on = rows[0]
+		UiKit.focus_later(rows[0])
 
 
 func _process(_delta: float) -> void:
@@ -135,7 +142,18 @@ func _update_fit() -> void:
 func _set_start_reachable(reachable: bool) -> void:
 	if not reachable and start_button.has_focus():
 		back_button.grab_focus()   # Before the mode changes: a button that takes no focus drops it and nothing is left.
+		_parked_on = back_button
+	elif not reachable and is_inside_tree() and get_viewport().gui_get_focus_owner() == null:
+		# Start went off in the first frame, before the view gave it the focus: the first row gets it.
+		rows[0].grab_focus()
+		_parked_on = rows[0]
 	start_button.focus_mode = Control.FOCUS_ALL if reachable else Control.FOCUS_NONE
+	if reachable and _parked_on != null:
+		# Start works again (the phones tapped OK, or a phone came back): when the focus is still where the view put it while Start
+		# waited, it goes to Start, so that just playing stays one OK (issue #226). A focus the user moved stays.
+		if _parked_on.has_focus():
+			start_button.grab_focus()
+		_parked_on = null
 	var last: Control = rows[-1]
 	last.focus_neighbor_bottom = last.get_path_to(start_button if reachable else back_button)
 

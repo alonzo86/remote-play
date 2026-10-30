@@ -569,6 +569,36 @@ func _pad_aim_strip() -> void:
 	pad._input(_touch(6, false, at))
 	pad._input(_touch(5, false, a_at))
 	_check(not pad._sampler.touching and absf(pad._aim_frac - 0.25) < 0.01, "the mark stays where the finger lifted")
+	# Issue #236, REQ-BW-4a: a big knob, a trail, and one tick under the finger when the knob crosses the middle.
+	var pad_script: GDScript = pad.get_script()
+	var cross: Callable = pad_script.crossed_middle
+	_check(cross.call(0.25, 0.75) and cross.call(0.75, 0.25) and cross.call(0.3, 0.5) and not cross.call(0.2, 0.4)
+			and not cross.call(0.5, 0.5) and not cross.call(0.6, 0.9),
+			"the knob crosses the middle from the left, from the right or onto it")
+	_check(pad_script.AIM_KNOB >= 80.0 and strip.size.y * 0.45 + pad_script.AIM_KNOB < strip.size.y - 72.0,
+			"the knob is at least 80 px in radius and fits in the strip above its help line (%.0f px)" % pad_script.AIM_KNOB)
+	var ticks: Array = []
+	var Haptics: GDScript = load("res://scripts/game/haptics.gd")
+	Haptics.vibrate_call = func(ms: int) -> void: ticks.append(ms)
+	var old_haptics: bool = app.settings.get("haptics", true)
+	app.settings.haptics = true
+	pad._input(_touch(6, true, at))
+	pad._update_touch(Vector2(strip.position.x + strip.size.x * 0.45, at.y))
+	_check(ticks.is_empty(), "a slide that stays left of the middle gives no tick")
+	pad._update_touch(Vector2(strip.position.x + strip.size.x * 0.75, at.y))
+	pad._update_touch(Vector2(strip.position.x + strip.size.x * 0.8, at.y))
+	_check(ticks == [pad_script.AIM_TICK_MS],
+			"crossing the middle gives one tick of %d ms (got %s)" % [pad_script.AIM_TICK_MS, str(ticks)])
+	_check(pad._aim_trail.size() == 3 and absf(pad._aim_trail[0] - 0.25) < 0.01, "the trail keeps the earlier places of the knob")
+	for i in 20:
+		pad._update_touch(Vector2(strip.position.x + strip.size.x * (0.8 + 0.005 * (i % 2)), at.y))
+	_check(pad._aim_trail.size() == pad_script.AIM_TRAIL, "the trail is at most %d places long" % pad_script.AIM_TRAIL)
+	app.settings.haptics = false
+	pad._update_touch(Vector2(strip.position.x + strip.size.x * 0.2, at.y))
+	_check(ticks.size() == 1, "with HAPTICS off the middle gives no tick")
+	app.settings.haptics = old_haptics
+	Haptics.vibrate_call = Callable()
+	pad._input(_touch(6, false, at))
 	app.client.turn_kind = "golf"
 	app.client.recenter_button = false   # Mini Golf is not a pointer game (REQ-GM-37, issue #55).
 	_check(pad._zone_at(strip.get_center()) == "pad", "Mini Golf has no Recenter box, the strip is plain pad")

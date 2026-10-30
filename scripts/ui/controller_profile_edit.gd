@@ -39,7 +39,7 @@ func _ready() -> void:
 	var title := UiKit.title("profile_edit.edit_player" if existing != null else "profile_edit.new_player", 48)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
-	box.add_child(UiKit.label("profile_edit.name", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	box.add_child(UiKit.label("profile_edit.name", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO))
 	_name = LineEdit.new()
 	_name.max_length = Protocol.NAME_MAX
 	_name.add_theme_font_size_override("font_size", 56)

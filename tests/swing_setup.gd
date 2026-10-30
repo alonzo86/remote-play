@@ -110,6 +110,8 @@ func _answers() -> void:
 	await sim.frames(3)
 	_check(not view.start_button.disabled and view.reason_label.text == "",
 			"both phones answered: Start works and the line is empty")
+	_check(view.get_viewport().gui_get_focus_owner() == view.back_button,
+			"the user moved the focus to Back while Start waited: it stays on Back when Start works (issue #226)")
 	view.start_button.grab_focus()
 	_check(view.get_viewport().gui_get_focus_owner() == view.start_button, "Start works: it takes the focus")
 	view._set_start_reachable(false)   # Start becomes disabled while it has the focus (a phone left): the focus moves to Back.
@@ -125,11 +127,16 @@ func _answers() -> void:
 	_check(not sim.clients[0].swing_acked and not sim.clients[1].swing_acked and app.server.swing_pending() == [0, 1]
 			and app.current_screen().start_button.disabled,
 			"the second visit asks both phones again: the card shows and Start waits (before every game)")
+	var second: Control = app.current_screen()
+	_check(second.get_viewport().gui_get_focus_owner() == second.rows[0],
+			"Start waits from the first frame: the view has the focus on the first row")
 	sim.clients[0].send_swing_ok()
 	sim.clients[1].send_swing_ok()
 	await _wait_for(func(): return app.server.swing_pending().is_empty())
 	await sim.frames(3)
 	_check(not app.current_screen().start_button.disabled, "after the answers of the second visit Start works")
+	_check(second.get_viewport().gui_get_focus_owner() == second.start_button,
+			"and the focus, which the user did not move, goes to Start (issue #226)")
 	app.go_games()
 	await sim.frames(3)
 
