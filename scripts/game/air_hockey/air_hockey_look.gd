@@ -5,6 +5,7 @@ extends RefCounted
 
 const Sim = preload("res://scripts/game/air_hockey/air_hockey_sim.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const Palette = preload("res://scripts/game/palette.gd")
 
 const FLOOR := UiTheme.BG          # Black around the table, like the other games (owner, 2026-10-29).
 const SURFACE := Color("f6f8fc")
@@ -13,7 +14,7 @@ const RAIL_GRAY := Color("4a4e5e")  # The rails of the table: dark gray, so they
 const SILVER := Color("b0b6c4")
 const PUCK_RING := Color("e8ecf6")   # A light ring around the black puck, so it shows on the black goal mouth (issue #227).
 const PUCK_RING_W := 4.0             # One world pixel.
-const LINE_RED := Color("d62828")
+const LINE_RED := Palette.HOCKEY_RED
 const LINE_BLUE := Color("1e46c8")
 const SHADOW_SURFACE := Color("bec2ce")   # A shadow on the white surface.
 const BOT_COLOR := Color("a678e6")  # ROBO: a color that no phone slot has (REQ-AH-15).

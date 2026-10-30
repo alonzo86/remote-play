@@ -26,7 +26,7 @@ const DEPTH_END := 21.0           # The lane length (m) that depth 1 stands for.
 const FLOOR := Color("5a5a64")
 const GUTTER := Color("2c2c34")
 const GUTTER_DIM := Color("22222a")
-const PLANK := [Color("d8a058"), Color("d0985a"), Color("dca65e")]
+const PLANK := [Palette.LANE_WOOD, Color("d0985a"), Color("dca65e")]
 const PLANK_DIM := [Color("9a7044"), Color("946a40"), Color("9e7448")]
 const SEAM := Color("b87c3c")
 const ARROW := Color("6a3a10")
@@ -37,7 +37,7 @@ const DISCO := Palette.SLOTS + [ Color("f8b800"), Color("b05cd8"),
 ## The picture of a pin: 7 x 14 world pixels. K black, W white, G shade, R red.
 const PIN_ROWS := ["..KKK..", ".KWWGK.", ".KWWGK.", "..KWK..", "..KRK..", "..KWK..", ".KWWGK.", "KWWWWGK", "KWRRRGK",
 		"KWWWWGK", "KWWWWGK", "KWWWWGK", ".KWWGK.", "..KKK.."]
-const PIN_COLORS := {"K": Color("000000"), "W": Color("fcfcfc"), "G": Color("b0b8d0"), "R": Color("e63946")}
+const PIN_COLORS := {"K": Color("000000"), "W": Color("fcfcfc"), "G": Color("b0b8d0"), "R": Palette.TOY_RED}
 const BURST_TIME := 0.45
 const LIE_TIME := 0.55            # A fallen pin lies this long (s), then it bursts into colored pixels.
 

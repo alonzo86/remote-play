@@ -6,6 +6,7 @@ extends RefCounted
 
 const PaintPicture = preload("res://scripts/game/paint_grab/paint_picture.gd")
 const PaintPots = preload("res://scripts/game/paint_grab/paint_pots.gd")
+const Palette = preload("res://scripts/game/palette.gd")
 
 const OUTLINE := Color("101018")
 const GOLD := Color("ffcd28")
@@ -46,7 +47,7 @@ static func painted(kind: int, col: Color) -> Color:
 static func pot_image(kind: String) -> Image:
 	var img := Image.create(POT_SIZE - 2, POT_SIZE - 2, false, Image.FORMAT_RGBA8)
 	if kind == PaintPots.ROLLER:
-		var stripes := [Color("e63946"), Color("fabe28"), Color("50c864"), Color("468ce6")]
+		var stripes := [Palette.TOY_RED, Color("fabe28"), Color("50c864"), Color("468ce6")]
 		for i in stripes.size():
 			img.fill_rect(Rect2i(1 + i * 2, 2, 2, 7), stripes[i])
 		img.fill_rect(Rect2i(0, 0, 9, 2), Color("dcdce6"))
