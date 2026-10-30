@@ -3,18 +3,13 @@ extends SceneTree
 ## scripts/ui and finds every font size that is written as a number (a size argument of draw_string, draw_centered, fit_text,
 ## get_string_size, the font_size of a theme override, a *_FONT or *_SIZE constant, a font_size parameter).
 ## A size under 32 fails, except the places in KNOWN
-## (issue #246, to be fixed: remove a line when it is fixed). The About screen has phone text, floor 24 px (REQ-FL-40).
+## (none now; issue #246). The About screen has phone text, floor 24 px (REQ-FL-40).
 ## Run: godot --headless --path . --script tests/text_size.gd -- --role=controller
 
 const FLOOR := 32
 const FOLDERS: Array[String] = ["res://scripts/game", "res://scripts/ui"]
-## Known text under the floor: file -> number of places. Issue #246.
-const KNOWN := {
-	"res://scripts/game/bumper_cars/bumper_cars_game.gd": 1,
-	"res://scripts/game/mini_golf/mini_golf_game.gd": 4,
-	"res://scripts/game/bowling/bowling_game.gd": 4,
-	"res://scripts/game/tennis/tennis_game.gd": 3,
-}
+## Known text under the floor: file -> number of places. Empty since issue #246 (fixed); a new one fails the test.
+const KNOWN := {}
 ## Files with phone text (REQ-FL-40: 24 px or more on a phone, so the floor is 24 there).
 const PHONE_FLOOR := 24
 const PHONE_FILES: Array[String] = ["res://scripts/ui/about_screen.gd"]

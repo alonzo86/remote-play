@@ -10,6 +10,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
 
+const TITLE_LINE_UP := 40.0   # A title on two lines: the first line is this far above the second.
 const CHIP_FONT := 32          # The size of the text on a chip.
 const CHIP_PAD := 16.0         # The space between the chip edge and its content.
 const CHIP_SQUARE := 24.0      # The slot color square of a chip.
@@ -56,6 +57,35 @@ static func title(ci: CanvasItem, text: String, pos := Vector2(60, 96), font_siz
 	_note("title", ci, Rect2(mx(ci, pos.x, w), pos.y - UiTheme.font().get_ascent(font_size), w,
 			UiTheme.font().get_height(font_size)),
 			{"text": shown})
+
+
+## The lines of a title (upper case): one line, or two lines (split at the last space) when one line is wider than `room` at
+## `font_size`. The size never changes and no letter is cut (REQ-FL-40).
+static func title_lines(text: String, room: float, font_size := 32) -> Array[String]:
+	var shown := Lang.t(text).to_upper()
+	var one: Array[String] = [shown]
+	var w := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	if w <= room or not shown.contains(" "):
+		return one
+	var cut := shown.rfind(" ")
+	var two: Array[String] = [shown.substr(0, cut), shown.substr(cut + 1)]
+	return two
+
+
+## Like `title()`, but a title wider than `room` goes on two lines (see `title_lines()`); `pos` is the baseline of the last line.
+## It is one title box for the HUD (one `title` note), also on two lines.
+static func title_wrapped(ci: CanvasItem, text: String, room: float, pos := Vector2(60, 96), font_size := 32) -> void:
+	var f := UiTheme.font()
+	var lines := title_lines(text, room, font_size)
+	var box := Rect2()
+	for i in lines.size():
+		var at_y := pos.y - TITLE_LINE_UP * float(lines.size() - 1 - i)
+		var w := f.get_string_size(lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		var x := mx(ci, pos.x, w)
+		ci.draw_string(f, Vector2(x, at_y), lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, UiTheme.ACCENT)
+		var r := Rect2(x, at_y - f.get_ascent(font_size), w, f.get_height(font_size))
+		box = r if i == 0 else box.merge(r)
+	_note("title", ci, box, {"text": " ".join(lines)})
 
 
 ## Text in the arcade font (upper case).

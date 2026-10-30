@@ -9,6 +9,8 @@ const GolfSim = preload("res://scripts/game/mini_golf/golf_sim.gd")
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
+
+const TEXT_SIZE := 32   # The hole text and the column heads of the hole card (REQ-FL-40: 32 px or more).
 const Haptics = preload("res://scripts/game/haptics.gd")
 
 const TURN_BANNER := 1.5        # REQ-MG-3: how long the name of the player on turn shows.
@@ -416,9 +418,9 @@ func chip_text(slot: int) -> String:
 
 func _draw_hole_text() -> void:
 	var text := hole_text()
-	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 28).x
+	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE).x
 	var at := Vector2(Shell.mx(self, size.x - 60.0 - w, w), 96.0)
-	draw_string(UiTheme.font(), at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 28, UiTheme.TEXT)
+	draw_string(UiTheme.font(), at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.TEXT)
 
 
 ## The bar at the bottom (REQ-MG-3): a chip for every player with the strokes on this hole; the player on turn has a frame.
@@ -454,20 +456,20 @@ func _draw_hole_card() -> void:
 	Shell.label_plate(self, Vector2(size.x * 0.5, rect.position.y + 60.0), Lang.f("mini_golf.hole_done", [rules.hole_number()]), 56,
 			UiTheme.ACCENT)
 	var f := UiTheme.font()
-	var x_strokes := Shell.mx(self, rect.position.x + 600.0, 160.0)
-	var x_total := Shell.mx(self, rect.position.x + 800.0, 160.0)
+	var x_strokes := Shell.mx(self, rect.position.x + 540.0, 240.0)
+	var x_total := Shell.mx(self, rect.position.x + 790.0, 180.0)
 	var y := rect.position.y + 130.0
 	var head_strokes := Lang.t("mini_golf.col_strokes").to_upper()
 	var head_total := Lang.t("mini_golf.col_total").to_upper()
-	draw_string(f, Vector2(x_strokes, y), head_strokes, HORIZONTAL_ALIGNMENT_LEFT, 180.0, 28, UiTheme.TEXT_INFO)
-	draw_string(f, Vector2(x_total, y), head_total, HORIZONTAL_ALIGNMENT_LEFT, 180.0, 28, UiTheme.TEXT_INFO)
+	draw_string(f, Vector2(x_strokes, y), head_strokes, HORIZONTAL_ALIGNMENT_LEFT, 240.0, TEXT_SIZE, UiTheme.TEXT_INFO)
+	draw_string(f, Vector2(x_total, y), head_total, HORIZONTAL_ALIGNMENT_LEFT, 180.0, TEXT_SIZE, UiTheme.TEXT_INFO)
 	y += 24.0
 	for r in rules.rows:
 		if not participants.has(r.slot):
 			continue
 		var p := player(r.slot)
-		var chip_at := Vector2(Shell.mx(self, rect.position.x + 40.0, 520.0), y)
-		Shell.chip(self, chip_at, p.player_name, p.color, 520.0, row_h - 12.0, p.avatar)
+		var chip_at := Vector2(Shell.mx(self, rect.position.x + 40.0, 480.0), y)
+		Shell.chip(self, chip_at, p.player_name, p.color, 480.0, row_h - 12.0, p.avatar)
 		draw_string(f, Vector2(x_strokes, y + 40.0), str(r.strokes), HORIZONTAL_ALIGNMENT_LEFT, 180.0, 36, UiTheme.TEXT)
 		draw_string(f, Vector2(x_total, y + 40.0), str(rules.total(r.slot)), HORIZONTAL_ALIGNMENT_LEFT, 180.0, 36, UiTheme.ACCENT)
 		y += row_h
