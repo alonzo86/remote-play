@@ -1,5 +1,5 @@
 extends SceneTree
-## The text of the HUD of Sumo Bumpers and Star Shield: every font is 28 px or more and every plate is inside the 60 px
+## The text of the HUD of Sumo Bumpers and Star Shield: every font is 32 px or more and every plate is inside the 60 px
 ## margin of the screen, in English and in Hebrew (REQ-GM-45, REQ-SB-15, REQ-AB-16). A person reading it from 3 m stays a manual
 ## step; this checks the numbers. Run:
 ##   godot --headless --path . --script tests/layout_hud_fonts.gd -- --role=tv
@@ -79,8 +79,8 @@ func _run() -> void:
 func _sumo(game: Control, code: String) -> void:
 	print("Sumo Bumpers in ", code)
 	var area: Vector2 = game.size
-	_check(game.WHEE_FONT >= 28 and game.ROUND_FONT >= 28 and game.BANNER_FONT >= 28,
-			"%s: the fonts of WHEE!, the round number and the banner are %d, %d and %d px (28 or more)"
+	_check(game.WHEE_FONT >= 32 and game.ROUND_FONT >= 32 and game.BANNER_FONT >= 32,
+			"%s: the fonts of WHEE!, the round number and the banner are %d, %d and %d px (32 or more)"
 			% [code, game.WHEE_FONT, game.ROUND_FONT, game.BANNER_FONT])
 	var banners := [Lang.f("sumo_bumpers.round_winner", [LONG_NAME]), Lang.t("sumo_bumpers.round_draw")]
 	var banners_ok := true
@@ -117,8 +117,8 @@ func _sumo(game: Control, code: String) -> void:
 func _asteroid(game: Control, code: String) -> void:
 	print("Star Shield in ", code)
 	var area: Vector2 = game.size
-	_check(game.WAVE_FONT >= 28 and game.BANNER_FONT >= 28 and game.SUB_FONT >= 28,
-			"%s: the fonts of the wave number, the banner and the second line are %d, %d and %d px (28 or more)"
+	_check(game.WAVE_FONT >= 32 and game.BANNER_FONT >= 32 and game.SUB_FONT >= 32,
+			"%s: the fonts of the wave number, the banner and the second line are %d, %d and %d px (32 or more)"
 			% [code, game.WAVE_FONT, game.BANNER_FONT, game.SUB_FONT])
 	var ok := true
 	var widest := 0.0
