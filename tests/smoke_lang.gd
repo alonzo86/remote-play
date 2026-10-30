@@ -183,6 +183,27 @@ func _run() -> void:
 			bad_form.append(k + " (colloquial 'hold')")
 	_check(bad_form.is_empty(),
 			"the Hebrew buttons are masculine singular, the prompts plural, 'hold' has one spelling " + str(bad_form))
+	# The text voice (REQ-FL-39a, issue #234): a row is upper case; sentence case is for the About paragraphs and for rows with a
+	# value or a name inside (the code makes them upper case when it draws them); a how-to text ends with a full stop, a game hint
+	# ends with "!" when it tells the player to act; the end mark is the same in English and Hebrew.
+	var voice: Array = []
+	var one_words := ["games.one_player", "result.one_point", "result.one_star", "bowling.pin_left", "mini_golf.col_strokes",
+			"mini_golf.col_total", "mini_golf.holes_1", "sheep_herding.all_safe"]
+	for k in table:
+		var en_text := String(table[k].en)
+		var bare := fmtre.sub(en_text, "", true)
+		if bare != bare.to_upper() and not (k.begins_with("about.") or en_text.contains("%") or k in one_words):
+			voice.append(k + " (sentence case)")
+		var end_en := en_text.right(1)
+		var end_he := String(table[k].he).right(1)
+		if (end_en in [".", "!", "?"] or end_he in [".", "!", "?"]) and end_en != end_he:
+			voice.append(k + " (the end marks differ)")
+		if k.begins_with("how_to.") and end_en != ".":
+			voice.append(k + " (a how-to text ends with a full stop)")
+	for k in ["tennis.hint_serve", "tennis.hint_hit", "sumo_bumpers.tilt_bump_others_off"]:
+		if not String(table[k].en).ends_with("!"):
+			voice.append(k + " (a hint that tells the player to act ends with '!')")
+	_check(voice.is_empty(), "the text voice: upper case rows, end marks, how-to and hint endings " + str(voice))
 	var missing := _untranslated_literals()
 	_check(missing.is_empty(), "every literal text in the code is a key of the table " + str(missing))
 	var unused := _unused_keys(table)

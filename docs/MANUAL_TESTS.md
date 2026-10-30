@@ -562,6 +562,7 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 
 1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 13 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 13 of 13. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
 1e. From the sofa (about 3 m), look at the Games screen. Check: the tester reads aloud the title and the player range of 3 tiles and the description of the focused game, without error. (REQ-FL-40)
+1f. From the sofa (about 3 m), open the Games screen with the first row in view. Check: a yellow arrow that points down blinks under the grid, and no arrow points up (issue #220, REQ-FL-12a). Then press Down until the last row is in view. Check: the arrow that points up blinks and the one that points down is gone.
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
 3b. Check the tile of **Car Race**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
 4. Check the tile of **Banana Party**. Check: an animal was just hit (its peel shows) and a banana is in the air. (The jungle, the four cursor rings, the banana and the black outline of an animal are checked by A-12-4. The tile has no score and no "+10" text.)
@@ -812,6 +813,7 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 9c. On phone A (Hebrew) open Settings and tap the language button once, then leave the app and start it again. Check: the button says "LANGUAGE: ENGLISH" (the language switched to English at the tap), the phone is in English after the restart, and the TV language did not change.
 
 9d. The person who reads Hebrew reads the buttons and the prompts changed by issue #230 (the rows in the pull request: JOIN, SCAN QR CODE, TRY AGAIN on the buttons; CHOOSE A GAME ON THE TV, SELECT GAME and HOLD ON TIGHT! on the prompts). Check: the reader says that each of the 6 reads right and natural for a child (6 of 6 yes).
+9e. The person who reads Hebrew reads the 5 Hebrew texts whose end mark changed by issue #234 (the how-to texts of Mini Golf and Sheep Herding now end with a full stop; the hints of Tennis (serve, hit) and Sumo Bumpers now end with an exclamation mark). Check: the reader says that each of the 5 reads right (5 of 5 yes).
 
 Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-17-1 to A-17-8). Item 5 moved earlier (A-17-5). Item 7b moved too (A-17-7b). Item 6e was split: that the text shows complete is automated, 6e2 keeps the reading. The numbers of the other items do not change.
 
@@ -826,6 +828,7 @@ Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to
 | 9b | Photos of phone and TV side by side, in both combinations | Not run |  |  | New 2026-10-29 (issue #171) |
 | 9c | Photo of the Settings screen before and after the tap; photo after the restart | Not run |  |  | New 2026-10-29 (issue #171) |
 | 9d | Note from the Hebrew reader | Not run |  |  | New 2026-10-30 (issue #230) |
+| 9e | Note from the Hebrew reader | Not run |  |  | New 2026-10-30 (issue #234) |
 
 History:
 
