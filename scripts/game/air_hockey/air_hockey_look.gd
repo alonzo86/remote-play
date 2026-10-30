@@ -11,6 +11,8 @@ const SURFACE := Color("f6f8fc")
 const RAIL := Color("000000")      # Outlines of the mallets and the puck.
 const RAIL_GRAY := Color("4a4e5e")  # The rails of the table: dark gray, so they show on the black floor (owner, 2026-10-29).
 const SILVER := Color("b0b6c4")
+const PUCK_RING := Color("e8ecf6")   # A light ring around the black puck, so it shows on the black goal mouth (issue #227).
+const PUCK_RING_W := 4.0             # One world pixel.
 const LINE_RED := Color("d62828")
 const LINE_BLUE := Color("1e46c8")
 const SHADOW_SURFACE := Color("bec2ce")   # A shadow on the white surface.
@@ -97,10 +99,13 @@ static func draw_paddle(ci: CanvasItem, pos: Vector2, color: Color) -> void:
 	ci.draw_rect(Rect2(pos + Vector2(-r * 0.12, -r * 0.36), Vector2(8.0, 4.0)), Color.WHITE)
 
 
-## The puck: black, with a dark bevel ring, a darker top face, a small shine and a soft shadow.
+## The puck: black, with a light ring of one world pixel outside it (issue #227: on the black goal mouth the black puck was
+## almost invisible; on the white table the ring is the color of the table), a dark bevel ring, a darker top face, a small
+## shine and a soft shadow.
 static func draw_puck(ci: CanvasItem, pos: Vector2) -> void:
 	var r := Sim.PUCK_R
 	ci.draw_circle(pos + Vector2(4.0, 14.0), r, SHADOW_SURFACE)
+	ci.draw_circle(pos, r + PUCK_RING_W, PUCK_RING)
 	ci.draw_circle(pos, r, RAIL)
 	ci.draw_circle(pos, r * 0.78, Color("34364a"))
 	ci.draw_circle(pos, r * 0.56, Color("0e0e14"))
