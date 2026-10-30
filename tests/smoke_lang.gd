@@ -166,6 +166,23 @@ func _run() -> void:
 			if not (m.get_string() in ["A", "B", "OK", "QR", "SABABI", "Sababi"]):
 				latin_he.append("%s: %s" % [k, m.get_string()])
 	_check(latin_he.is_empty(), "no Hebrew text has a Latin word except A, B, OK, QR and the brand Sababi " + str(latin_he))
+	# The Hebrew form (REQ-FL-63a, issue #230): a button is masculine singular (it does not end in the plural ending of an
+	# imperative); a prompt, a hint or a sentence to the players is plural; "hold" has one spelling (the standard "החזיקו").
+	var button_keys := ["connect.join", "connect.scan_qr_code", "minigame.restart", "minigame.resume", "game_settings.start",
+			"profile_edit.save", "profile_edit.delete", "players.remove", "players_modal.close", "profiles.share"]
+	var prompt_keys := ["wait.choose_game_tv", "games.select_game", "swing.card_title", "swing.tv_line"]
+	var bad_form: Array = []
+	for k in button_keys:
+		if String(table[k].he).ends_with("ו"):
+			bad_form.append(k + " (a button in the plural)")
+	for k in prompt_keys:
+		if not String(table[k].he).trim_suffix("!").ends_with("ו") and not String(table[k].he).contains("ו "):
+			bad_form.append(k + " (a prompt in the singular)")
+	for k in table:
+		if String(table[k].he).contains("תחזיק"):
+			bad_form.append(k + " (colloquial 'hold')")
+	_check(bad_form.is_empty(),
+			"the Hebrew buttons are masculine singular, the prompts plural, 'hold' has one spelling " + str(bad_form))
 	var missing := _untranslated_literals()
 	_check(missing.is_empty(), "every literal text in the code is a key of the table " + str(missing))
 	var unused := _unused_keys(table)
