@@ -95,6 +95,18 @@ func _swing_card() -> void:
 	_app.client._handle({"t": "phase", "v": "connect"}, 0)   # The view closes.
 	_check(not _app.client.swing_acked and not _app.client.setup_swing,
 			"the answer is forgotten when the view closes: the next view asks again (issue #148)")
+	# Issue #235: a second swing game asks again, even when the first one was answered by a tap.
+	_app.client._handle({"t": "setup", "swing": true, "pick": false, "in": true}, 0)
+	await process_frame
+	_check(is_instance_valid(wait._swing_card), "the view of the next swing game shows the card again after a tap on the first")
+	var shown: Control = wait._swing_card
+	var picture := shown.find_children("*", "Control", true, false).filter(
+			func(n): return n.custom_minimum_size.y >= 150.0 and not (n is Label or n is Button))
+	_check(picture.size() == 1, "the card has a picture of at least 150 px above the title")
+	var texts := shown.find_children("*", "Label", true, false).map(func(l): return l.text)
+	_check(texts.has("swing.card_title") and texts.has("swing.card_text"), "the card keeps its title and its short line")
+	_app.client._handle({"t": "phase", "v": "connect"}, 0)
+	await process_frame
 	_app.client.swing_acked = true
 	_app.client._handle({"t": "welcome", "slot": 1, "color": "#ff0000", "token": "t", "name": "TV2", "phase": "connect"}, 0)
 	_check(not _app.client.swing_acked, "a new welcome (another TV) forgets the answer too")
