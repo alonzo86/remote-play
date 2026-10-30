@@ -142,7 +142,7 @@ func _body_color_of(color: Color) -> Dictionary:
 	return {"color": Color(best), "share": float(counts.get(best, 0)) / float(maxi(opaque, 1))}
 
 
-## 15.11f: the body of each penguin is the color of its slot (red, teal, orange, blue) and it is the main color of the picture,
+## 15.11f: the body of each penguin is the color of its slot (cyan, orange, purple, pink) and it is the main color of the picture,
 ## so a person names the penguin by the color of the phone. The 4 colors are far apart (delta E, `auto_sumo.gd`), so the
 ## nearest named color of every penguin is its own.
 func _penguin_body_colors() -> void:
