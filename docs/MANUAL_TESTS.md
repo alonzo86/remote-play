@@ -1296,6 +1296,7 @@ New game (2026-10-23), and the first game with a computer player. It was tested 
 **Steps**
 
 1a. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the white table, the dark gray rails, the mallets and the black puck.
+3a. From the sofa (about 3 m), look at the puck while it is in front of the right goal and the left goal (hit it there, or wait). Check: the tester points at the puck within 1 second in 5 of 5 tries (issue #227, REQ-AH-20; the light ring and its contrast are checked by A-27-puck).
 3b. Record a phone and the TV (240 fps) for 5 quick tilts. Count the frames from the start of the tilt to the first move of the mallet. Check: the median delay is 150 ms or less (36 frames at 240 fps). (REQ-GM-12)
 6b. Set Difficulty to Easy and goals to 5. A grown-up plays 5 matches. Check: the grown-up wins 5 of 5. Write down the goals ROBO scored in each match. (REQ-AH-17, REQ-GM-96)
 6c. Set Difficulty to Hard and goals to 5. A grown-up plays 3 matches. Check: ROBO scores 2 goals or more in each of the 3 matches. Write down who won each match. (REQ-AH-17)

@@ -242,6 +242,10 @@ func _run() -> void:
 			and game.seats[1].slot == -1 and game.seats[1].name == "ROBO" and game.seats[1].color == game.Look.BOT_COLOR,
 			"one phone: the match starts at once against ROBO with its own color (REQ-GM-105)")
 	_check(not Protocol.PLAYER_COLORS.has(game.Look.BOT_COLOR), "the color of ROBO is not the color of any phone slot")
+	# Issue #227: the puck is black with a light ring: the ring stands out from the black goal mouth, the black from the white table.
+	var contrast := Callable(game.Look.UiTheme, "contrast")
+	_check(contrast.call(game.Look.PUCK_RING, game.Look.FLOOR) >= 3.0 and contrast.call(game.Look.RAIL, game.Look.SURFACE) >= 3.0,
+			"the puck ring has 3:1 against the black goal mouth, and the black puck has 3:1 against the white table")
 	# Issue #223: the hint at the start stands above the two score chips and does not cover them.
 	var Shell = load("res://scripts/game/shell.gd")
 	var hints: Array[Rect2] = []
