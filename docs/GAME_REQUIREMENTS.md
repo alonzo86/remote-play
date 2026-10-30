@@ -76,7 +76,7 @@ Flow
 Look and sound
 
 - REQ-GM-40: Text and important shapes stay inside the 60 px safe margin of the 1920x1080 screen.
-- REQ-GM-41: Text on the TV is 28 px or larger (all text, also hints and chips; ), and it has good contrast with the background (`UiTheme` colors).
+- REQ-GM-41: Text on the TV is 32 px or larger (all text, also hints and chips). The rule is stated once, in REQ-FL-40 (`docs/TV_FLOW.md`; 28 px was an older value, issue #222). Text on the TV also has good contrast with the background (`UiTheme` colors).
 - REQ-GM-42: A game uses `UiTheme` colors, the shell fonts, and mostly shapes made in code. Image, model and font files are allowed when `docs/TV_FLOW.md` (FD-9, FD-13) allows them. A game states its own asset files in its requirements file.
 - REQ-GM-43: Important events give haptic feedback on the phone of the player: start (the end of the countdown, in a game that has one), hit, goal. The game file lists the scenes with a haptic (a "Sound and haptics" section). A player can turn haptics off on the phone (REQ-FL-66), so a haptic never carries information alone.
   Repeated events have a cool-down of 100 ms or more. Short pulses are 15 to 60 ms. A big event can be longer. `Haptics.pulse()` (`scripts/game/haptics.gd`) keeps the cool-down for each slot.
