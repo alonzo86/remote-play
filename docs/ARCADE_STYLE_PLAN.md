@@ -291,5 +291,5 @@ test 17 checks the Android and iOS builds.
    `,` `.` `!` `?` `:` `-` `"` `'` come from Press Start 2P and no glyph needed to be added. The device test 17 checks that
    they look right next to the Hebrew letters.)
 7. Manual test: the TV and two phones in Hebrew (first start, the choice, every screen mirrored and readable, each
-   phone in its own language, never the TV's, since 2026-10-29, a change in Settings), and in English. Test 8b item 7 ("a TV set to Hebrew stays English")
+   phone in its own language and never the TV's (since 2026-10-29), a change in Settings), and in English. Test 8b item 7 ("a TV set to Hebrew stays English")
    changes: the TV now offers Hebrew.
