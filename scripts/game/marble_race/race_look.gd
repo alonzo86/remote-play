@@ -6,6 +6,8 @@ extends RefCounted
 ## draws a window of it every frame. One meter is `PX` world pixels. The outlines are filled in runs, row by row; the road and the
 ## walls are colored pixel by pixel in the frame of the road, so that their patterns turn with the road.
 
+const Palette = preload("res://scripts/game/palette.gd")
+
 const PX := 8                 # World pixels in one meter (32 screen units).
 const TILE := 120             # The ground tile is 120x120 world pixels: its chess squares of 12 divide it.
 const WALL_PX := 7            # The thickness of a wall: seven world pixels (REQ-GM-47l).
@@ -22,7 +24,7 @@ const THEMES := {
 			"obstacles": ["lolly", "gumdrop", "cupcake"],
 			"decor": ["lolly_big", "cane", "icecream", "donut", "cookie", "wrapped"]},
 	"space": {"ground_a": Color("0c0c28"), "ground_b": Color("080820"), "road_a": Color("6c7488"), "road_b": Color("646c80"),
-			"mark": Color("4c5468"), "wall_a": Color("3ddcff"), "wall_b": Color("1c88b0"), "outline": Color("101040"),
+			"mark": Color("4c5468"), "wall_a": Color("3ddcff"), "wall_b": Palette.RACE_BLUE, "outline": Color("101040"),
 			"obstacles": ["asteroid", "satellite", "crater"],
 			"decor": ["rocket", "ringed", "ufo", "planet", "star"]},
 	"jungle": {"ground_a": Color("145820"), "ground_b": Color("10501c"), "road_a": Color("b88048"), "road_b": Color("b07844"),
@@ -69,7 +71,7 @@ static func theme_or_default(theme: String) -> String:
 
 static func car_image(color: Color) -> Image:
 	var colors := {"K": OUTLINE, "B": color, "L": color.lightened(0.35), "S": color.darkened(0.3), "F": Color("fcfcfc"),
-			"W": CAR_GLASS, "G": Color("fcfcfc"), "D": CAR_COVER, "Y": Color("f8e060"), "R": Color("e83838"), "T": CAR_TIRE}
+			"W": CAR_GLASS, "G": Color("fcfcfc"), "D": CAR_COVER, "Y": Color("f8e060"), "R": Palette.RACE_RED, "T": CAR_TIRE}
 	var img := Image.create(CAR[0].length(), CAR.size(), false, Image.FORMAT_RGBA8)
 	for y in CAR.size():
 		for x in CAR[y].length():
@@ -96,7 +98,7 @@ static func _paint(img: Image, kind: String) -> Rect2i:
 			_box(img, 5, 11, 2, 3, Color("fcfcfc"))
 			return Rect2i(0, 0, 11, 14)
 		"gumdrop":
-			_disc(img, 5.5, 5.5, 5.5, 5.5, Color("48c838"))
+			_disc(img, 5.5, 5.5, 5.5, 5.5, Palette.RACE_GREEN)
 			_box(img, 0, 8, 11, 2, Color("2c8c20"))
 			for p in [Vector2i(3, 2), Vector2i(4, 1), Vector2i(3, 3), Vector2i(7, 4), Vector2i(6, 6), Vector2i(2, 5)]:
 				img.set_pixelv(p, Color("b0f090"))
@@ -108,7 +110,7 @@ static func _paint(img: Image, kind: String) -> Rect2i:
 			_disc(img, 5.5, 4.5, 5.5, 4.0, Color("f8a0c8"))
 			for p in [Vector2i(3, 3), Vector2i(7, 4), Vector2i(5, 6), Vector2i(2, 5), Vector2i(8, 2)]:
 				img.set_pixelv(p, Color("fcfcfc"))
-			_disc(img, 5.5, 1.5, 1.5, 1.5, Color("e83838"))
+			_disc(img, 5.5, 1.5, 1.5, 1.5, Palette.RACE_RED)
 			return Rect2i(0, 0, 11, 12)
 		"asteroid":
 			_disc(img, 5.5, 5.5, 5.5, 5.5, Color("8c8478"))
@@ -124,9 +126,9 @@ static func _paint(img: Image, kind: String) -> Rect2i:
 			for x in [1, 3, 10, 12]:
 				_box(img, x, 1, 1, 8, Color("70a0f8"))
 			_box(img, 4, 2, 5, 6, Color("e0e8f0"))
-			img.set_pixel(6, 5, Color("e83838"))
+			img.set_pixel(6, 5, Palette.RACE_RED)
 			img.set_pixel(6, 1, Color("e0e8f0"))
-			img.set_pixel(6, 0, Color("e83838"))
+			img.set_pixel(6, 0, Palette.RACE_RED)
 			return Rect2i(0, 0, 13, 10)
 		"crater":
 			_disc(img, 5.5, 5.5, 5.5, 5.5, Color("8890a8"))
@@ -153,13 +155,13 @@ static func _paint(img: Image, kind: String) -> Rect2i:
 			return Rect2i(0, 0, 11, 10)
 		"tiki":
 			_box(img, 0, 1, 9, 11, Color("a86c2c"))
-			_box(img, 0, 0, 9, 2, Color("e83838"))
+			_box(img, 0, 0, 9, 2, Palette.RACE_RED)
 			for x in [1, 4, 7]:
 				_box(img, x, 0, 1, 1, Color("f8b800"))
 			_box(img, 1, 4, 2, 2, Color("fcfcfc"))
 			_box(img, 6, 4, 2, 2, Color("fcfcfc"))
-			img.set_pixel(2, 5, Color("e83838"))
-			img.set_pixel(6, 5, Color("e83838"))
+			img.set_pixel(2, 5, Palette.RACE_RED)
+			img.set_pixel(6, 5, Palette.RACE_RED)
 			_box(img, 2, 8, 5, 2, Color("301808"))
 			for x in [3, 5]:
 				img.set_pixel(x, 8, Color("fcfcfc"))
@@ -435,18 +437,18 @@ static func _paint_decor(img: Image, kind: String) -> Rect2i:
 						img.set_pixel(x, y, red if ((x + y) / 3) % 2 == 0 else white)
 			return Rect2i(0, 0, 22, 28)
 		"icecream":
-			_poly(img, [Vector2(3, 13), Vector2(19, 13), Vector2(11, 30)], Color("d89850"))
+			_poly(img, [Vector2(3, 13), Vector2(19, 13), Vector2(11, 30)], Palette.RACE_WOOD)
 			for k in range(0, 14, 4):
 				_box(img, 5 + k / 3, 15 + k, 12 - k * 2 / 3, 1, Color("a0702c"))
 			_disc(img, 11.0, 10.0, 8.0, 7.0, Color("f8a0c8"))
 			_disc(img, 8.0, 7.0, 2.0, 2.0, Color("fcd0e4"))
-			_disc(img, 11.0, 2.0, 2.0, 2.0, Color("e83838"))
+			_disc(img, 11.0, 2.0, 2.0, 2.0, Palette.RACE_RED)
 			return Rect2i(0, 0, 22, 31)
 		"donut":
-			_disc(img, 10.0, 10.0, 10.0, 10.0, Color("e8a050"))
+			_disc(img, 10.0, 10.0, 10.0, 10.0, Palette.RACE_AMBER)
 			_disc(img, 10.0, 10.0, 8.5, 8.5, Color("f8a0c8"))
 			_disc(img, 10.0, 10.0, 3.0, 3.0, Color(0, 0, 0, 0))
-			var sprinkles := [Color("48c838"), Color("3ddcff"), Color("f8e060"), Color("fcfcfc")]
+			var sprinkles := [Palette.RACE_GREEN, Color("3ddcff"), Color("f8e060"), Color("fcfcfc")]
 			for p in [Vector2i(4, 6), Vector2i(8, 3), Vector2i(14, 5), Vector2i(16, 11), Vector2i(13, 15), Vector2i(6, 14),
 					Vector2i(3, 10)]:
 				_box(img, p.x, p.y, 2, 1, sprinkles[(p.x + p.y) % 4])
@@ -502,8 +504,8 @@ static func _paint_decor(img: Image, kind: String) -> Rect2i:
 			return Rect2i(0, 0, 26, 17)
 		"planet":
 			_disc(img, 9.0, 9.0, 9.0, 9.0, Color("3070e0"))
-			_disc(img, 6.0, 6.0, 3.5, 3.0, Color("48c838"))
-			_disc(img, 12.5, 11.5, 3.0, 4.0, Color("48c838"))
+			_disc(img, 6.0, 6.0, 3.5, 3.0, Palette.RACE_GREEN)
+			_disc(img, 12.5, 11.5, 3.0, 4.0, Palette.RACE_GREEN)
 			_disc(img, 5.0, 5.0, 1.5, 1.0, Color("a0e090"))
 			return Rect2i(0, 0, 18, 18)
 		"star":
@@ -535,13 +537,13 @@ static func _paint_decor(img: Image, kind: String) -> Rect2i:
 			_disc(img, 16.0, 15.0, 4.0, 2.5, Color("2c8c30"))
 			for k in 5:
 				var a2 := deg_to_rad(k * 72.0)
-				_disc(img, 10.0 + sin(a2) * 5.0, 9.0 - cos(a2) * 5.0, 4.0, 4.0, Color("e83838"))
+				_disc(img, 10.0 + sin(a2) * 5.0, 9.0 - cos(a2) * 5.0, 4.0, 4.0, Palette.RACE_RED)
 			_disc(img, 10.0, 9.0, 2.5, 2.5, Color("f8e060"))
 			return Rect2i(0, 0, 20, 19)
 		"mushroom":
 			_box(img, 6, 9, 6, 8, Color("f8ecd0"))
-			_disc(img, 9.0, 7.0, 9.0, 6.5, Color("e83838"))
-			_box(img, 0, 9, 18, 1, Color("e83838"))
+			_disc(img, 9.0, 7.0, 9.0, 6.5, Palette.RACE_RED)
+			_box(img, 0, 9, 18, 1, Palette.RACE_RED)
 			for p in [Vector2i(5, 4), Vector2i(10, 3), Vector2i(13, 6), Vector2i(8, 7)]:
 				_box(img, p.x, p.y, 2, 2, Color("fcfcfc"))
 			return Rect2i(0, 0, 18, 17)

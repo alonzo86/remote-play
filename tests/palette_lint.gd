@@ -81,6 +81,16 @@ func _migrated() -> void:
 	var olds := [Color("e63946"), Color("2a9d8f"), Color("f4a261"), Color("457b9d")]
 	_check(sheep.CONFETTI.slice(0, 4) == olds and bowling.DISCO.slice(0, 4) == olds,
 			"the party lights are the 4 player colors (the values did not change)")
+	var moved := {"RACE_RED": "e83838", "RACE_GREEN": "48c838", "RACE_BLUE": "1c88b0", "RACE_WOOD": "d89850", "RACE_AMBER": "e8a050",
+			"ICE_BLUE": "5a90c0", "MAZE_RED": "d02838", "HOCKEY_RED": "d62828", "BANANA_TAN": "dc9660", "BANANA_RED": "e6323c",
+			"BANANA_PEACH": "e6aa6e", "LANE_WOOD": "d8a058", "TOY_RED": "e63946", "TONGUE_PINK": "ff4060", "GOLF_GREEN": "00a800"}
+	var consts: Dictionary = (Palette as GDScript).get_script_constant_map()
+	var changed: Array[String] = []
+	for n in moved:
+		if consts.get(n) != Color(moved[n]):
+			changed.append(n)
+	_check(changed.is_empty() and moved.size() == 15,
+			"the 15 named world colors have the value of the literals they replaced (changed: %s)" % str(changed))
 	var golf: GDScript = load("res://scripts/game/mini_golf/golf_look.gd")
 	_check(golf.RED == Color("f83800") and golf.BALLOON[0] == Color("f83800"), "Mini Golf red and balloon are the old red")
 
