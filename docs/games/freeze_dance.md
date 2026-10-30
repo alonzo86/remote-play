@@ -22,7 +22,7 @@ see REQ-GM-7. Visual language: shell, player colors, pixel world (REQ-GM-45 to 4
 |------------|------|------|
 | REQ-GM-35 | Exception | The game shows no timer, so it has no countdown: the first song starts at once after Start (the song of the game is the music of the dance). The clock is the number of songs. |
 | REQ-GM-73 | Rule | One player gets no medal (owner, 2026-10-24; the general rule since issue #119). With more players each row has the medal of its place (REQ-GM-73a). |
-| REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`, as Whack-a-Mole): a new key changes the profile code format. Decision to confirm. |
+| REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`): the points of a round come from 6 songs with random lengths and the freeze luck (at most 60), and the wiggle limits are still first guesses (Test 31), so a best would compare luck and not the player. Revisit after Test 31. Decided 2026-10-30 by agents under CLAUDE.md; the owner can revert. |
 | REQ-GM-102 | Note | Not a swing game, but the players wiggle a phone with energy, so the registry flag `swing` is set and the safety card shows. The TV line is generic (`swing.tv_line`: "HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.", owner, 2026-10-24). |
 | REQ-GM-37a | Note | The pad has no buttons (`pad: []`): the phone is only moved. |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 31). It is not yet run on a device. |
@@ -110,6 +110,6 @@ The rows are in `assets/lang/strings.csv`: `registry.freeze_dance`, `registry.de
 - The grace was made 0.4 s longer on every level on 2026-10-27 (issue #150, owner), so Easy has 1.2 s, Medium 0.9 s and Hard 0.8 s. A player who moves in the freeze gets no points for that song (the stop of that song is the only place where points are given, REQ-FD-7, 8) and keeps the points of the songs before (issue #152: "round" is the song, owner).
 - Every threshold (`WIGGLE_MIN`, `still_limit`, the grace) is a first guess. A phone in a loose hand shakes more than one in a tight grip; the device test (Test 31) sets the values, also with a child of 5.
 - A phone held in a hand has a tremor: if `still_limit` of Hard is too strict, loosen it.
-- Personal best: a key per difficulty needs a new profile code format version. The owner decides.
-- "Freeze Dance" is the working title; no trademark search has been done.
+- Personal best: decided 2026-10-30, no best (exception in the first section).
+- "Freeze Dance" is a plain descriptive name; the title stays. No trademark search was done (the owner accepted this risk for the app name on 2026-10-15, `docs/NAME_DECISION.md`). Decided 2026-10-30 by agents under CLAUDE.md; the owner can revert.
 - The Hebrew texts were written by Claude and need a native reader.
