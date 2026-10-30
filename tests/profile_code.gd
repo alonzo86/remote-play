@@ -13,6 +13,10 @@ const ID_A := "9f2c4e7a1b3d5f60718293a4b5c6d7e8"
 const ID_B := "00112233445566778899aabbccddeeff"
 const TEMP := "user://test_profile_code.cfg"
 const GOLDEN := "WP1.AZ8sTnobPV9gcYKTpLXG1-gLAwRNYXlhAwLUAgQRHpLCArDh"
+## A code of the app before issue #216 (version 2, with a Pin Pals best): this app must still read it.
+const GOLDEN_V2 := "WP1.Ap8sTnobPV9gcYKTpLXG1-gDAgRNYXlhAgQHKb4Bkkw"
+## A fixed profile with a Whack-a-Mole and a Tennis best (version 3): protects the numbers 43 to 48.
+const GOLDEN_V3 := "WP1.A58sTnobPV9gcYKTpLXG1-gDAgRNYXlhAizwATAfu6U"
 
 var _checks := 0
 var _fails := 0
@@ -82,14 +86,16 @@ func _keys() -> void:
 	var round_ok := true
 	for i in keys.size():
 		round_ok = round_ok and ProfileKeys.number_of(keys[i]) == i + 1 and ProfileKeys.key_of(i + 1) == keys[i]
-	_check(keys.size() == 42 and round_ok and keys.size() <= ProfileKeys.MAX_KEYS, "42 keys, each with its own number from 1")
+	_check(keys.size() == 48 and round_ok and keys.size() <= ProfileKeys.MAX_KEYS, "48 keys, each with its own number from 1")
 	_check(ProfileKeys.number_of("snowball_splat|easy") == 1 and ProfileKeys.number_of("paint_grab|hard") == 6
 			and ProfileKeys.number_of("marble_race|easy|1") == 7 and ProfileKeys.number_of("marble_race|hard|10") == 36
 			and ProfileKeys.number_of("asteroid_blast|easy") == 37 and ProfileKeys.number_of("asteroid_blast|hard") == 39
-			and ProfileKeys.number_of("bowling|easy") == 40 and ProfileKeys.number_of("bowling|hard") == 42,
+			and ProfileKeys.number_of("bowling|easy") == 40 and ProfileKeys.number_of("bowling|hard") == 42
+			and ProfileKeys.number_of("whack_a_mole|easy") == 43 and ProfileKeys.number_of("whack_a_mole|hard") == 45
+			and ProfileKeys.number_of("tennis|easy") == 46 and ProfileKeys.number_of("tennis|hard") == 48,
 			"the numbers are fixed (a saved code depends on them)")
 	_check(ProfileKeys.number_of("maze|easy") == 0 and ProfileKeys.number_of("sumo_bumpers|easy") == 0
-			and ProfileKeys.key_of(0) == "" and ProfileKeys.key_of(43) == "", "maze, sumo and an unknown number have no key")
+			and ProfileKeys.key_of(0) == "" and ProfileKeys.key_of(49) == "", "maze, sumo and an unknown number have no key")
 	_check(ProfileKeys.lower_is_better("marble_race|easy|2") and not ProfileKeys.lower_is_better("paint_grab|easy"),
 			"a race time is better when lower, a score when higher")
 	_check(ProfileKeys.is_better("paint_grab|easy", 9, 5) and not ProfileKeys.is_better("paint_grab|easy", 5, 9)
@@ -116,7 +122,7 @@ func _round_trip() -> void:
 	var big := ProfileCode.encode(_profile(ID_A, "אבגדהוזחטי", 15, 300, all))
 	var back = ProfileCode.decode(big).get("profile")
 	_check(back != null and back.bests == all and not QrEncoder.encode(big).is_empty(),
-			"the largest profile (42 bests, a name of 20 bytes) is read back and fits in a QR code: %d characters" % big.length())
+			"the largest profile (48 bests, a name of 20 bytes) is read back and fits in a QR code: %d characters" % big.length())
 	var blast := {"asteroid_blast|easy": 800, "asteroid_blast|medium": 1800, "asteroid_blast|hard": 3200}
 	var blast_back = ProfileCode.decode(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, blast))).get("profile")
 	_check(blast_back != null and blast_back.bests == blast,
@@ -129,6 +135,29 @@ func _round_trip() -> void:
 	var old_raw := _raw_of(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, blast)))
 	_check(bowl_raw[0] == 2 and old_raw[0] == 1,
 			"a code with a Pin Pals best is version 2; a code without one stays version 1, so an old app reads it")
+	var mole_tennis := {"whack_a_mole|easy": 120, "whack_a_mole|medium": 240, "whack_a_mole|hard": 310,
+			"tennis|easy": 9, "tennis|medium": 14, "tennis|hard": 31}
+	var mt_code := ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, mole_tennis))
+	var mt_back = ProfileCode.decode(mt_code).get("profile")
+	_check(mt_back != null and mt_back.bests == mole_tennis and not ProfileKeys.lower_is_better("tennis|hard"),
+			"the bests of keys 43 to 48 (Whack-a-Mole, Tennis) survive a code (REQ-WM-16, REQ-TN-17)")
+	var only_mole := {"whack_a_mole|easy": 120}
+	var v3_raw := _raw_of(mt_code)
+	var v3_one := _raw_of(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, only_mole)))
+	var v2_mix := _raw_of(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, {"bowling|easy": 150, "paint_grab|easy": 4})))
+	_check(v3_raw[0] == 3 and v3_one[0] == 3 and v2_mix[0] == 2 and bowl_raw[0] == 2 and old_raw[0] == 1,
+			"a best above number 42 gives version 3; the lowest version that holds the bests is used otherwise")
+	var old_v2 := ProfileCode.decode(GOLDEN_V2)
+	_check(old_v2.ok and old_v2.profile.player_name == "Maya" and old_v2.profile.bests
+			== {"bowling|medium": 190, "paint_grab|easy": 7},
+			"an old version 2 code is still read by this app: %s" % GOLDEN_V2)
+	var v3_golden := ProfileCode.decode(GOLDEN_V3)
+	_check(v3_golden.ok and v3_golden.profile.bests == {"whack_a_mole|medium": 240, "tennis|hard": 31},
+			"a version 3 code is read and gives the bests back: %s" % GOLDEN_V3)
+	_check(ProfileCode.encode(_profile(ID_A, "Maya", 3, 2, {"whack_a_mole|medium": 240, "tennis|hard": 31})) == GOLDEN_V3,
+			"a fixed profile with a Whack-a-Mole and a Tennis best gives a fixed text (this protects the numbers 43 to 48)")
+	_check(ProfileCode.encode(_profile(ID_A, "Maya", 3, 2, {"bowling|medium": 190, "paint_grab|easy": 7})) == GOLDEN_V2,
+			"a profile with a Pin Pals best still gives the version 2 text")
 	var small := ProfileCode.encode(_profile(ID_A, "Maya", 1))
 	_check(small.length() < 70 and not QrEncoder.encode(small).is_empty(),
 			"a profile with no bests is short: %d characters" % small.length())
@@ -152,12 +181,14 @@ func _refused() -> void:
 		"one changed letter (the checksum)": broken,
 		"a cut code": good.substr(0, good.length() - 8),
 		"a sign that base64url does not have": good.substr(0, 10) + "!" + good.substr(11),
-		"another format version": _raw(PackedByteArray([3]) + _body("Maya", [0]).slice(1)),
+		"another format version": _raw(PackedByteArray([4]) + _body("Maya", [0]).slice(1)),
+		"format version 0": _raw(PackedByteArray([0]) + _body("Maya", [0]).slice(1)),
 		"40 bests in version 1": _raw(_body("Maya", [40])),
 		"a name of 21 bytes": _raw(_body("a".repeat(21), [0])),
 		"an empty name": _raw(_body("", [0])),
 		"a name with no allowed letter": _raw(_body("!!!", [0])),
-		"43 bests": _raw(_body("Maya", [43])),
+		"49 bests": _raw(_body("Maya", [49])),
+		"43 bests in version 2": _raw(PackedByteArray([2]) + _body("Maya", [43]).slice(1)),
 		"the same key twice": _raw(_body("Maya", [2, 1, 5, 1, 6])),
 		"bytes after the last best": _raw(_body("Maya", [0, 9])),
 		"a best that is cut": _raw(_body("Maya", [1, 1])),

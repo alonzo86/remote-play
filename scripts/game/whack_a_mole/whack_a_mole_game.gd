@@ -180,6 +180,11 @@ func _poof(pos: Vector2) -> void:
 			return
 
 
+## The personal best (REQ-WM-16): the points of the player, for each difficulty. Rounds of 1 to 4 players share a key.
+func best_key() -> String:
+	return "whack_a_mole|%s" % difficulty
+
+
 func _finish() -> void:
 	for s in _board.winners():
 		App.server.haptic(s, 400)

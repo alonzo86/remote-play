@@ -236,8 +236,8 @@ func _round_end() -> void:
 	_check(MedalView.tiers_in(left._menu_box) == ["gold"],
 			"two players start and one leaves: the player that stays has a technical win and the gold medal (REQ-WM-13)")
 	var easy: Control = await _play(1, {"seed": 3, "difficulty": "easy"})
-	_check(easy._field.level == MoleField.LEVELS.easy and easy.best_key() == "",
-			"the difficulty is a prop; no personal best (REQ-WM-16)")
+	_check(easy._field.level == MoleField.LEVELS.easy and easy.best_key() == "whack_a_mole|easy",
+			"the difficulty is a prop and the key of the personal best (REQ-WM-16)")
 
 
 ## REQ-WM-13: a player who leaves takes the ring and the score out, and the round goes on.
