@@ -769,6 +769,7 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 **Steps**
 
 1b. On the Connect screen, the Games screen, a pause menu and a result menu, read aloud the smallest text of each screen (the hint, a slot row or a description) from 3 m. Check: you read each one without a mistake (0 mistakes). The smallest text is 32 px (REQ-FL-40).
+1b2. New (issue #221). On the Connect screen and the Games screen, in a dim room, read aloud from 3 m the info lines ('1-4 PLAYERS' under three tiles, the hint lines, 'WAIT' and the empty slots), and look at the disabled things (a game that needs more phones). Check: you read all of them without a mistake (0 mistakes), and the info lines (light gray, #b0b0b0) are clearly lighter than a dimmed tile or a disabled item (dark gray, #7c7c7c): you name the 2 gray levels correctly in 3 of 3 tries. (REQ-FL-37, REQ-FL-40)
 2c. On a 1080p TV, photograph the Logo screen and the Games screen from the sofa, with the phone camera at 1:1 crop. Check: a single-pixel black and white edge of a letter stays a single pixel in the photo, with no gray halo wider than 1 pixel of the photo (the TV's own scaler does not soften the picture).
 2d. Do step 2c on a 4K TV, if you have one. Check: the same result. (Skip this step if you have no 4K TV and write "no 4K TV" in the notes.)
 4d. On the real TV remote, in each menu of the Games screen, a game settings view and the quit question, press OK, Back and the D-pad once each. Check: OK does the action of the focused item, Back closes the menu or goes up one step, and the D-pad moves the focus (the same result as in Test 8).
@@ -788,6 +789,7 @@ Measurements: write down the lowest FPS value of step 5d and the text sizes you 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1b | List of the screens and the smallest text read without a mistake (yes or no) | Pass | R4 |  |  |
+| 1b2 | Note: the info lines read without a mistake (yes or no); the 2 gray levels named in 3 of 3 tries | Open |  |  | New 2026-10-30, issue #221 |
 | 2c | Close photo of the Logo screen and the Games screen on 1080p, 1:1 crop | Pass | R4 |  |  |
 | 2d | Close photo of the Logo screen and the Games screen on 4K (or "no 4K TV") | Pass | R4 |  |  |
 | 4d | Note: OK, Back and D-pad on each menu | Pass | R4 |  |  |

@@ -52,7 +52,7 @@ func _build() -> void:
 		t.autowrap_mode = TextServer.AUTOWRAP_WORD
 		body.add_child(t)
 	if message != "":
-		var m := UiKit.label(message, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		var m := UiKit.label(message, UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 		m.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		m.autowrap_mode = TextServer.AUTOWRAP_WORD
 		body.add_child(m)

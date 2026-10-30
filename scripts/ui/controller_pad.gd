@@ -294,7 +294,7 @@ func _draw() -> void:
 		var turn_text := Lang.t("bowling.phone_turn") if c.turn_state == 1 else Lang.f(
 				"mini_golf.phone_wait" if golf else "bowling.phone_wait", [c.turn_who])
 		draw_string(f, Vector2(turn_rect.position.x, UiTheme.centered_baseline(f, turn_rect, 32)), turn_text.to_upper(),
-				HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_DIM)
+				HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO)
 
 	# NEW BEST! while the result menu is open, until the next round starts (REQ-GM-100).
 	var best: Dictionary = App.current_best()
