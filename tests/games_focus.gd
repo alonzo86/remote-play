@@ -40,6 +40,7 @@ func _run() -> void:
 		await _reach(app.current_screen(), code)
 	await _room_checks(app)
 	await _cue_checks(app)
+	await _tile_look_checks(app)
 	app.set_language("en", false)
 	app.go_games()
 	await _frames(5)
@@ -171,6 +172,38 @@ func _cue_checks(app: Node) -> void:
 	var tall: Control = app.current_screen()
 	_check(not tall._arrow_up.active and not tall._arrow_down.active, "when all rows fit, no arrow is on")
 	root.size = Vector2i(1280, 720)
+	app.set_language("en", false)
+
+
+## The tile hierarchy (issue #225, REQ-FL-13): the title is 40 px, bigger than the 32 px player range, the focused frame
+## is twice as thick as the others, and every title (focused or not) keeps to 2 lines above the player range (English, Hebrew).
+func _tile_look_checks(app: Node) -> void:
+	var UiTheme = load("res://scripts/ui/ui_theme.gd")
+	for code in ["en", "he"]:
+		app.set_language(code, false)
+		app.go_games()
+		await _frames(20)
+		var screen: Control = app.current_screen()
+		var t: Button = screen._tiles[0]
+		var title_px: int = t._name.get_theme_font_size("font_size")
+		var range_px: int = t._meta.get_theme_font_size("font_size")
+		_check(title_px == 40 and range_px == 32 and title_px > range_px, "%s: the title is 40 px, the player range 32 px" % code)
+		var ok_lines := true
+		var ok_below := true
+		for i in screen._tiles.size():
+			var tile: Button = screen._tiles[i]
+			tile.grab_focus()
+			await _frames(3)
+			ok_lines = ok_lines and tile._name.get_line_count() <= 2 and tile._name.get_theme_font_size("font_size") == 40
+			ok_below = ok_below and tile._name.position.y + tile._name.size.y <= tile._meta.position.y
+			var frame := tile._frame.get_theme_stylebox("panel") as StyleBoxFlat
+			_check(frame.border_width_left == UiTheme.LINE * 2,
+					"%s: the focused tile %d has a frame of %d px" % [code, i, UiTheme.LINE * 2])
+			var other: StyleBoxFlat = screen._tiles[(i + 1) % screen._tiles.size()]._frame.get_theme_stylebox("panel")
+			if other.border_width_left != UiTheme.LINE:
+				ok_below = false
+		_check(ok_lines, "%s: every focused title has at most 2 lines at 40 px" % code)
+		_check(ok_below, "%s: the title is above the player range, and the other tiles keep the thin frame" % code)
 	app.set_language("en", false)
 
 
