@@ -236,7 +236,7 @@ func _focus_style() -> void:
 			% UiTheme.contrast(UiTheme.ACCENT, UiTheme.BG))
 	_check(UiTheme.contrast(UiTheme.BAD, UiTheme.BG) >= 4.5, "the red of a destructive item has 4.5:1 or more on black (%.1f)"
 			% UiTheme.contrast(UiTheme.BAD, UiTheme.BG))
-	_check(UiTheme.LINE >= 4 and UiTheme.SIZE_BODY >= 28, "the focus frame is at least 4 px (%d) and the text at least 28 px (%d)"
+	_check(UiTheme.LINE >= 4 and UiTheme.SIZE_BODY >= 32, "the focus frame is at least 4 px (%d) and the text at least 32 px (%d)"
 			% [UiTheme.LINE, UiTheme.SIZE_BODY])
 	_app.go_games()
 	await _frames(6)
