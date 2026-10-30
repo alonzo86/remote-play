@@ -412,10 +412,21 @@ func _test_phone_screens() -> void:
 	await _wait_until(func(): return app.client.phase == "playing")
 	await process_frame
 	var leave_pad = app.current_screen()
-	leave_pad._input(_touch(5, true, leave_pad._rect_leave().get_center()))
+	var leave_at: Vector2 = leave_pad._rect_leave().get_center()
+	leave_pad._input(_touch(5, true, leave_at))
+	leave_pad._input(_touch(5, false, leave_at))
+	await create_timer(1.0).timeout
+	_check(app.client.state == ControllerClient.State.CONNECTED, "a tap on Disconnect in a game does not leave (REQ-FL-52a)")
+	leave_pad._input(_touch(5, true, leave_at))
+	await create_timer(0.4).timeout
+	leave_pad._input(_touch(5, false, leave_at))
+	await create_timer(0.8).timeout
+	_check(app.client.state == ControllerClient.State.CONNECTED,
+			"a press shorter than 0.8 s that is lifted does not leave (REQ-FL-52a)")
+	leave_pad._input(_touch(5, true, leave_at))
+	await create_timer(1.2).timeout
 	await process_frame
-	await process_frame
-	_check(app.client.state == ControllerClient.State.IDLE, "one tap on Disconnect leaves the TV (REQ-FL-52)")
+	_check(app.client.state == ControllerClient.State.IDLE, "holding Disconnect for 0.8 s leaves the TV (REQ-FL-52a)")
 	_check(app.current_screen().get_script().resource_path == "res://scripts/ui/controller_connect.gd",
 			"leaving returns to the connect screen")
 	server.stop()
