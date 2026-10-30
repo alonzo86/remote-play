@@ -22,7 +22,7 @@ Games screen.
 | General ID | Kind | Note |
 |------------|------|------|
 | REQ-GM-73 | Note | A match against ROBO has no medal (REQ-GM-105, a bot is not a phone). A match of two phones gives the medal of the place (gold, silver, REQ-GM-73a); the player that stays after a leave has a technical win and the gold medal (REQ-AH-19, owner, 2026-10-29). |
-| REQ-GM-98 | Exception | No personal best (`best_key()` is empty): the score is the goals of a match against one opponent, so it says little about the player. Decision to confirm. |
+| REQ-GM-98 | Exception | No personal best (`best_key()` is empty): the score is the goals of a match against one opponent, so it says little about the player, and ROBO has no best (REQ-GM-105). Decided 2026-10-30 by agents under CLAUDE.md; the owner can revert. |
 | REQ-GM-104 | Exception | There is no IN and OUT choice: the game enrolls its players itself (REQ-GM-106, registry `enroll`). |
 | REQ-GM-30 | Exception | The card of a lost phone never offers "Resume without ..." once the match runs: the match cannot go on without a player (REQ-AH-19). |
 | REQ-GM-47d, 47e, 47m | Exception | Decision of the owner, 2026-10-23: the table is white with rails (black first, dark gray `#4a4e5e` since 2026-10-29, REQ-AH-20) on a black floor, and the puck is black. The mallets keep the slot colors with a black outline, and the puck and the table differ by more than 3:1 in luminance. |
@@ -112,6 +112,6 @@ The rows are in `assets/lang/strings.csv`: `registry.air_hockey`, `registry.desc
 
 - The tuning values above, from Test 27. In particular: is the Easy ROBO too passive (it scored 1 goal in 12 minutes against the proxy) and is the Medium ROBO right for a grown-up?
 - The decisions the owner gave in short form on 2026-10-23: "every match start, 2 players need to enroll" is built as REQ-AH-3 (the first two phones that press A; with one phone, or OK on the remote with one enrolled, ROBO plays). A player that leaves for good ends the match (REQ-AH-19). Confirmed by the owner on 2026-10-23.
-- No personal best (exception above).
+- No personal best (exception above, decided 2026-10-30).
 - The chips show the name and the number of goals on one line ("MAYA 2"), not the two lines of the mock ("MAYA" and "GOALS 2").
 - Hebrew texts (12 new rows) are written by Claude: a native reader checks them, in particular the name "רובו" and "שער של %s!".
