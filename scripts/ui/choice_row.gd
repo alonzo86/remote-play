@@ -48,7 +48,7 @@ func _ready() -> void:
 	focus_exited.connect(_tint)
 	_left = _arrow("<")
 	h.add_child(_left)
-	_value = UiKit.label("", UiTheme.SIZE_ITEM, UiTheme.SELECTED)   # REQ-GM-97: the chosen value is yellow.
+	_value = UiKit.label("", UiTheme.SIZE_ITEM)   # REQ-GM-97: white; yellow is the cursor and the focused name.
 	_value.custom_minimum_size = Vector2(240, 0)
 	_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_value.size_flags_vertical = Control.SIZE_SHRINK_CENTER
