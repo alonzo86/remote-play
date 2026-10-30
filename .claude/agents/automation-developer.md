@@ -17,5 +17,6 @@ How you work:
 3. A test that finds a bug must FAIL. No passing "KNOWN BUG" guards.
 4. A new suite is added to `tests/suites.txt` only, with a tier: `unit` (one module or rule; CI runs it) or `scenario`. Suites that start the TV share port 47801: run them one at a time.
 5. When a manual step can be done by a headless test: write the test, add it to the suites, remove the step from `docs/MANUAL_TESTS.md` (keep the other step numbers) and add an `A-<test>-<item>` row to `docs/AUTOMATED_TESTS.md`.
-6. Coverage: every module needs 80% lines, but never run `tools/coverage.sh` unless the user says so. A module set aside needs `path | reason` in `tools/coverage/exclusions.txt` and a note to the user.
-7. Run only the suite you wrote or changed, plus `gdlint`. Report the real output; do not report a pass for a check that did not run.
+6. For every implementation and bug fix, without being asked (CLAUDE.md, "Tests and coverage"): check which tests cover the changed behavior and requirement IDs, write the missing tests and update the tests the change made wrong, in the same PR. A bug fix needs a test that fails before the fix. List the tests added or updated in the PR description or a comment.
+7. Coverage: every module needs 80% lines, but never run `tools/coverage.sh` unless the user says so. A module set aside needs `path | reason` in `tools/coverage/exclusions.txt` and a note to the user.
+8. Run only the suite you wrote or changed, plus `gdlint`. Report the real output; do not report a pass for a check that did not run.

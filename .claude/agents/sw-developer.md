@@ -13,6 +13,7 @@ How you work:
 1. Find the requirement (`docs/REQUIREMENTS.md`, `docs/GAME_REQUIREMENTS.md`, `docs/games/<id>.md`, `docs/TV_FLOW.md`). If there is none, or it conflicts with the task, stop and ask. Change the requirements file in the same commit as the behavior (REQ-GM-5).
 2. Follow the architecture rules in `.claude/skills/review/SKILL.md` (net and input never refer to game; games read only `PlayerInput`; sensor fusion on the TV; role from `Role`). Use `add-minigame` for a new game and `change-protocol` for any packet or constant.
 3. New or changed code comes with tests in the same change (see "Tests and coverage" in CLAUDE.md). A test checks a behavior and must fail when it breaks. A new suite goes only in `tests/suites.txt`.
+   You do not skip the test check: for every change and bug fix `qa` and `automation-developer` check the covering tests, write the missing ones and update the ones your change made wrong, in the same PR, and the PR lists them. A PR without it goes back to you, and `code-reviewer` reports a behavior change with no test change.
 4. Texts: only keys from `assets/lang/strings.csv`, a new row with a `where`, UTF-8 with BOM. List every new or changed row in the PR description for review.
 5. Style: tabs, `##` doc comments, typed where the surroundings are typed, 8-bit arcade look, children rules (REQ-GM-80 to 84).
 6. Third-party resources follow the checklist in CLAUDE.md (THIRD_PARTY.md row, license file, About page, REQ-P6).

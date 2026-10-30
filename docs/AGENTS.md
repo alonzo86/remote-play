@@ -2,7 +2,7 @@
 
 The agents are defined in `.claude/agents/` (one file each). The rules for using them are in `CLAUDE.md`, section "Agents and workflows". This page shows the same flows as diagrams. A small, clear change may skip steps: one agent (`sw-developer`) or the main session can do it.
 
-Only `sw-developer` merges a pull request, and only under the rules of "Pull requests" in `CLAUDE.md`. No agent marks a manual test as passed. The owner decides at every "Owner" box; the cases that stop an automatic merge are listed under "Pull request and review".
+Only `sw-developer` merges a pull request, and only under the rules of "Pull requests" in `CLAUDE.md`. No agent marks a manual test as passed. For every implementation and bug fix `qa` and `automation-developer` check the covering tests and write or update them in the same PR, without being asked; `code-reviewer` sends back a behavior change with no test change. The owner decides at every "Owner" box; the cases that stop an automatic merge are listed under "Pull request and review".
 
 ## Roles
 
@@ -32,8 +32,8 @@ flowchart TD
     X -- yes --> SA[software-architect<br/>plan, PROTOCOL.md]
     X -- no --> DEV
     SA --> DEV[sw-developer<br/>code + docs]
-    DEV --> AUTO[automation-developer<br/>headless tests]
-    AUTO --> QA[qa<br/>manual steps, open tests list]
+    DEV --> AUTO[automation-developer<br/>missing and changed tests,<br/>test list in the PR]
+    AUTO --> QA[qa<br/>test check by requirement ID,<br/>manual steps, open tests list]
     DEV --> LOC[localization-reviewer<br/>string list for the PR]
     QA --> PR[sw-developer<br/>opens the PR]
     DEV --> LIC{New third-party<br/>resource?}
@@ -55,10 +55,9 @@ flowchart TD
     U0([Bug report or test note]) --> QA[qa<br/>reproduce, steps, issue]
     QA --> PE[product-engineer<br/>requirement change<br/>Planned issue N]
     PE --> DEV[sw-developer<br/>fix + test that fails before the fix]
-    DEV --> GAP{Test gap<br/>is large?}
-    GAP -- yes --> AUTO[automation-developer<br/>more tests]
-    GAP -- no --> PR
-    AUTO --> PR[sw-developer<br/>opens the PR]
+    DEV --> AUTO[automation-developer<br/>missing and changed tests, always]
+    AUTO --> QA2[qa<br/>test check, test list in the PR]
+    QA2 --> PR[sw-developer<br/>opens the PR]
     PR --> REV[code-reviewer]
     REV --> FIX[sw-developer<br/>resolve each finding<br/>and comment what was resolved]
     FIX --> REV
