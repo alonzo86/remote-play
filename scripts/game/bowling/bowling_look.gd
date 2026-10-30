@@ -7,6 +7,7 @@ extends RefCounted
 ## from -1 to 1 (the lane edges). Everything is drawn in 1920x1080 units on the pixel layer, so it comes out as sharp pixels.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const Palette = preload("res://scripts/game/palette.gd")
 const Minigame = preload("res://scripts/game/minigame.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const LaneSim = preload("res://scripts/game/bowling/lane_sim.gd")
@@ -30,7 +31,7 @@ const PLANK_DIM := [Color("9a7044"), Color("946a40"), Color("9e7448")]
 const SEAM := Color("b87c3c")
 const ARROW := Color("6a3a10")
 const FOUL := Color("fc3030")
-const DISCO := [Color("e63946"), Color("2a9d8f"), Color("f4a261"), Color("457b9d"), Color("f8b800"), Color("b05cd8"),
+const DISCO := Palette.SLOTS + [ Color("f8b800"), Color("b05cd8"),
 		Color("3ddcff")]
 
 ## The picture of a pin: 7 x 14 world pixels. K black, W white, G shade, R red.
