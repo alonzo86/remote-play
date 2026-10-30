@@ -20,7 +20,7 @@ const TIMER_X := 520.0         # The timer box has one place in every game (REQ-
 const TIMER_Y := 36.0
 
 ## A test sets this to see the boxes the HUD draws (the game draws with `draw_*`, so there is no node to look at). Called as
-## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "hint", "countdown" or "plate" (a
+## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "chip", "hint", "countdown" or "plate" (a
 ## `label_plate()`: info has the text `msg` and the `color`).
 static var recorder := Callable()
 
@@ -92,6 +92,7 @@ static func label_plate_rect(at: Vector2, msg: String, font_size: int) -> Rect2:
 ## corner. A chip is always laid out left to right, also in Hebrew: the square, the avatar, the name, the score at the end.
 static func chip(ci: CanvasItem, pos: Vector2, msg: String, color: Color, width := 240.0, height := 64.0, avatar := -1) -> Rect2:
 	var r := Rect2(pos, Vector2(width, height))
+	_note("chip", ci, r, {"name": msg})   # Every chip of every game, so a test can check them all (issue #223).
 	var parts := chip_parts(avatar)
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), r)
 	ci.draw_rect(Rect2(pos + Vector2(parts.square_x, (height - CHIP_SQUARE) * 0.5), Vector2(CHIP_SQUARE, CHIP_SQUARE)), color)
@@ -291,14 +292,16 @@ static func countdown_size(elapsed: float) -> int:
 
 ## A hint line at the bottom of the screen, on a black plate with a frame so that game graphics behind it (for example a
 ## wall) never make it hard to read. A long hint wraps to more lines; none of it is cut.
-static func hint(ci: CanvasItem, area: Vector2, msg: String) -> void:
+## `bottom` is the lowest y of the plate when the game has chips at the bottom (the plate then ends above them, issue #223); the
+## default is 40 units above the bottom of the area.
+static func hint(ci: CanvasItem, area: Vector2, msg: String, bottom := -1.0) -> void:
 	var f := UiTheme.font()
 	var max_w := area.x - 240.0
 	var upper := Lang.t(msg).to_upper()
 	var box := f.get_multiline_string_size(upper, HORIZONTAL_ALIGNMENT_LEFT, max_w, UiTheme.SIZE_BODY)
 	var w := box.x + 64.0
 	var h := box.y + 40.0
-	var plate := Rect2((area.x - w) * 0.5, area.y - 40.0 - h, w, h)
+	var plate := Rect2((area.x - w) * 0.5, (bottom if bottom >= 0.0 else area.y - 40.0) - h, w, h)
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM, UiTheme.BG, CHIP_LINE), plate)
 	ci.draw_multiline_string(f, Vector2(plate.position.x, plate.position.y + 20.0 + f.get_ascent(UiTheme.SIZE_BODY)), upper,
 			HORIZONTAL_ALIGNMENT_CENTER, w, UiTheme.SIZE_BODY, -1, UiTheme.TEXT)

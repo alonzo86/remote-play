@@ -269,7 +269,7 @@ func _game_draw() -> void:
 	if phase == Phase.GOAL and not is_over:
 		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, BANNER_FONT, UiTheme.ACCENT)
 	if _time < HINT_TIME and phase == Phase.PLAY and not is_over:
-		Shell.hint(self, size, "air_hockey.tilt_to_slide")
+		Shell.hint(self, size, "air_hockey.tilt_to_slide", CHIP_Y - 16.0)   # Above the chips, not over them (issue #223).
 
 
 ## The two score chips under the table, each under its own goal (the table is not mirrored in Hebrew, REQ-GM-47o).

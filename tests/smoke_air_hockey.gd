@@ -242,6 +242,19 @@ func _run() -> void:
 			and game.seats[1].slot == -1 and game.seats[1].name == "ROBO" and game.seats[1].color == game.Look.BOT_COLOR,
 			"one phone: the match starts at once against ROBO with its own color (REQ-GM-105)")
 	_check(not Protocol.PLAYER_COLORS.has(game.Look.BOT_COLOR), "the color of ROBO is not the color of any phone slot")
+	# Issue #223: the hint at the start stands above the two score chips and does not cover them.
+	var Shell = load("res://scripts/game/shell.gd")
+	var hints: Array[Rect2] = []
+	var chips: Array[Rect2] = []
+	Shell.recorder = func(kind: String, ci: CanvasItem, rect: Rect2, _info: Dictionary) -> void:
+		if ci == game and kind == "hint":
+			hints.append(rect)
+		elif ci == game and kind == "chip":
+			chips.append(rect)
+	await _frames(3)
+	Shell.recorder = Callable()
+	var covered := hints.is_empty() or chips.size() < 2 or chips.any(func(c: Rect2) -> bool: return hints[-1].intersects(c))
+	_check(not covered, "the hint plate shows and does not cover a score chip (hints %s, chips %s)" % [str(hints), str(chips)])
 	_check(game._scoreboard() == null and game.bot.skill.reaction == 0.07,
 			"with ROBO there is no place on the phone, and the bot has the hard skill")
 	game.sim.wait = 0.0
