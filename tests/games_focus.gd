@@ -39,6 +39,7 @@ func _run() -> void:
 		await _frames(20)
 		await _reach(app.current_screen(), code)
 	await _room_checks(app)
+	await _cue_checks(app)
 	await _tile_look_checks(app)
 	app.set_language("en", false)
 	app.go_games()
@@ -132,6 +133,46 @@ func _grid_checks(app: Node) -> void:
 	_check(fits and view.grow(-60.0).encloses(tile.get_global_rect()),
 			"the focused tile with the longest title fits and is inside the 60 px margin")
 	root.size = Vector2i(1280, 720)
+
+
+## The scroll cue (REQ-FL-12a): a down arrow while rows are hidden below, an up arrow while rows are hidden above, none at the
+## other end, in English and in Hebrew, and inside the 60 px margin.
+func _cue_checks(app: Node) -> void:
+	var Arrow = load("res://scripts/ui/scroll_arrow.gd")
+	_check(Arrow.more_below(0, 400, 1000) and not Arrow.more_below(600, 400, 1000),
+			"more_below: true in the middle, false at the end")
+	_check(Arrow.more_above(50) and not Arrow.more_above(0), "more_above: true when scrolled, false at the top")
+	_check(not Arrow.more_below(1610, 626, 2252), "more_below: false when only the 16 px padding of the grid is hidden")
+	for code in ["en", "he"]:
+		app.set_language(code, false)
+		app.go_games()
+		await _frames(20)
+		var screen: Control = app.current_screen()
+		_check(not screen._arrow_up.active and screen._arrow_down.active,
+				"%s: at the top only the down arrow is on" % code)
+		screen._tiles[screen._tiles.size() - 1].grab_focus()
+		await _frames(30)
+		_check(screen._arrow_up.active and not screen._arrow_down.active, "%s: at the last row only the up arrow is on" % code)
+		screen._tiles[screen._tiles.size() / 2].grab_focus()
+		await _frames(30)
+		var bar: VScrollBar = screen._scroll.get_v_scroll_bar()
+		if bar.value > 1.0 and bar.value + bar.page < bar.max_value - 1.0:
+			_check(screen._arrow_up.active and screen._arrow_down.active, "%s: in the middle both arrows are on" % code)
+		var view := Rect2(60, 60, 1800, 960)
+		root.size = Vector2i(1920, 1080)
+		await _frames(5)
+		_check(view.encloses(screen._arrow_down.get_global_rect()) and view.encloses(screen._arrow_up.get_global_rect()),
+				"%s: the arrows are inside the 60 px margin" % code)
+		root.size = Vector2i(1280, 720)
+		await _frames(5)
+	# With enough room for all rows nothing is hidden, so no arrow is on.
+	root.size = Vector2i(1920, 3000)
+	app.go_games()
+	await _frames(20)
+	var tall: Control = app.current_screen()
+	_check(not tall._arrow_up.active and not tall._arrow_down.active, "when all rows fit, no arrow is on")
+	root.size = Vector2i(1280, 720)
+	app.set_language("en", false)
 
 
 ## The tile hierarchy (issue #225, REQ-FL-13): the title is 40 px, bigger than the 32 px player range, the focused frame
