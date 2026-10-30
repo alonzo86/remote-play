@@ -20,7 +20,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45 to 49). Check the 
 | General ID | Kind | Note |
 |------------|------|------|
 | REQ-GM-73 | Rule | One player gets no medal (owner, 2026-10-23, issue #66; the general rule since issue #119). The result shows the points. With more players each row has the medal of its place (REQ-GM-73a). |
-| REQ-GM-98 | Exception | No personal best (no key in `ProfileKeys`): a new key changes the profile code format. Open: ask the owner whether the game gets keys 43 to 45. |
+| REQ-GM-98 | Gap | No personal best (no key in `ProfileKeys`): the game has no best yet. Decided 2026-10-30 by agents under CLAUDE.md (the owner can revert): it gets one, `whack_a_mole|<difficulty>`, the points of the player, higher is better, keys 43 to 45; planned (issue #216), because the points are a personal score that compares between rounds (as Banana Party). |
 | REQ-GM-37 | Note | Recenter is on the pad, as in Banana Party: the pointer uses the yaw of the gyroscope, and yaw drifts (RISKS A4). |
 | REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 28). It is not yet run on a device. |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
@@ -69,7 +69,7 @@ End and players
 | REQ-WM-13 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. With one player there is no medal (REQ-GM-73); a player who stays after the others left has a technical win and the gold medal (owner, 2026-10-29); with more players each row has the medal of its place (REQ-GM-73a). A player who leaves takes the ring and the score out, and the round goes on. A lost phone pauses the round (REQ-GM-30). When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_mole |
 | REQ-WM-14 | Children (REQ-GM-80 to 84): friendly moles, a funny bonk, a miss costs nothing, no player is out of the round, the hint is one line, the moles are large (168 px circle) and slow at Easy, and every text is positive. | Device | Review, Device (with a child, Test 28) |
 | REQ-WM-15 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080: the play area and the sizes of the moles scale with the screen. The ring and the HUD keep their pixel size. | Done | game_rules (scale) |
-| REQ-WM-16 | Personal best: no key (exception, see the first section). | Done | smoke_bests |
+| REQ-WM-16 | Personal best: no key yet; planned (issue #216): `whack_a_mole|<difficulty>`, higher is better, keys 43 to 45 (see the first section). | Planned (issue #216) | smoke_bests |
 
 ### Settings and difficulty
 
@@ -106,5 +106,6 @@ The rows are in `assets/lang/strings.csv`: `registry.whack_a_mole`, `registry.de
 
 ## Open questions
 
-- Personal best: a key per difficulty (numbers 43 to 45) needs a new profile code format version. The owner decides.
+- Name: no trademark search was done for "Whack-a-Mole" (a name that others may own). This is not a clearance, and the decision about the name Sababi does not cover it. Check the name before the store release.
+- Personal best: decided 2026-10-30, planned (issue #216): keys 43 to 45, a new profile code format version.
 - The Hebrew texts were written by Claude and need a native reader.
