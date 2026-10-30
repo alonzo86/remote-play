@@ -237,7 +237,7 @@ mini_golf.col_total,Total,סה״כ,"Mini Golf: card at the end of a hole, title 
 mini_golf.phone_wait,%s IS PUTTING,%s מבצע/ת מכה,"Mini Golf: phone screen, line under the player and score rows while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
 common.ok,OK,אישור,Phone safety card of a swing game (OK button),
 swing.card_title,HOLD ON TIGHT!,תחזיקו חזק!,"Phone: title of the safety card that shows each time the settings view of a swing game (Pin Pals, Tennis, Mini Golf, Freeze Dance) is open on the TV",
-swing.card_text,GRIP YOUR PHONE FIRMLY. CHECK THAT NOBODY IS CLOSE AND NOTHING IS IN THE WAY.,אחזו את הטלפון חזק. ודאו שאף אחד לא קרוב ושום דבר לא בדרך.,Phone: text of the safety card of a swing game,
+swing.card_text,GRIP FIRMLY. KEEP SPACE AROUND YOU.,אחזו חזק. שמרו מרחק מסביב.,Phone: text of the safety card of a swing game (under a picture of a phone with a wrist strap),Shortened 2026-10-30 (issue #235); was: GRIP YOUR PHONE FIRMLY. CHECK THAT NOBODY IS CLOSE AND NOTHING IS IN THE WAY.
 swing.tv_line,HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.,החזיקו את הטלפון חזק ושמרו מרחק מסביב.,"TV game settings view of Pin Pals, Tennis, Mini Golf and Freeze Dance: safety line under the rows, always shown",
 game_settings.waiting_phones,WAITING FOR PHONES,ממתינים לטלפונים,TV game settings view of a swing game: line under Start while a phone has not tapped OK on its safety card (Start is off),
 how_to.maze,TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.,הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.,"TV game settings view of Treasure Maze: how to play, under the title (issue #77; the text that was the description before)",
