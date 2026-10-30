@@ -348,8 +348,7 @@ func _readable(c: Color) -> bool:
 func _draw_frame_text() -> void:
 	var text := Lang.f("bowling.frame", [rules.current_frame(), BowlingRules.FRAMES, maxi(1, rules.current_ball())]).to_upper()
 	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE).x
-	var at := Vector2(Shell.mx(self, size.x - 60.0 - w, w), 96.0)
-	draw_string(UiTheme.font(), at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.TEXT)
+	Shell.status(self, size.x - 60.0 - w, w, text)   # The status text of the bar, the same place as in Air Hockey (REQ-GM-45c).
 
 
 ## The score sheet at the bottom (the headboard, REQ-BW-12): a row for each player with the marks and the running total of each

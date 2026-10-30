@@ -397,7 +397,7 @@ func _chip_margin_checks(state: String, snap: Dictionary) -> void:
 ## The title, the timer and the chip share one row, do not touch each other and stand inside the top bar (REQ-GM-46, 47o).
 func _row_checks(state: String, snap: Dictionary, lang: String, has_timer: bool) -> void:
 	var boxes: Array = []
-	for kind in ["title", "timer", "leader"]:
+	for kind in ["title", "timer", "leader", "status"]:
 		for e in snap.get(kind, []):
 			boxes.append(e)
 	var one_row := true
@@ -411,6 +411,13 @@ func _row_checks(state: String, snap: Dictionary, lang: String, has_timer: bool)
 			var b: Rect2 = boxes[j].rect
 			one_row = one_row and a.position.y < b.end.y and b.position.y < a.end.y
 			apart = apart and not a.intersects(b)
+	# Issue #223, REQ-GM-45c: the title has one baseline in every game, and the status text of the bar has another one.
+	for t in snap.get("title", []):
+		var base: float = t.rect.end.y - _line_h() + _ascent()   # The last line of a title on two lines.
+		_check(is_equal_approx(base, Shell.TITLE_BASELINE), "%s: the title stands on the common baseline (y %.0f)" % [state, base])
+	for st in snap.get("status", []):
+		_check(is_equal_approx(st.rect.position.y + _ascent(), Shell.STATUS_BASELINE),
+				"%s: the status text stands on the common baseline (y %.0f)" % [state, st.rect.position.y + _ascent()])
 	_check(one_row, "%s: the title, the timer and the chip share one row" % state)
 	_check(apart, "%s: no HUD box touches another HUD box %s" % [state, str(boxes.map(func(e): return e.kind + str(e.rect)))])
 	_check(in_bar, "%s: every HUD box is inside the top bar and the 60 px margin" % state)
@@ -514,3 +521,11 @@ func _tennis_solo_timer() -> void:
 		if _clients[i].state != ControllerClient.State.CONNECTED:
 			_clients[i].connect_to("127.0.0.1", Protocol.WS_PORT, _app.server.room_code)
 	await _stream(1.0, 1)
+
+
+func _ascent() -> float:
+	return UiTheme.font().get_ascent(32)
+
+
+func _line_h() -> float:
+	return UiTheme.font().get_height(32)

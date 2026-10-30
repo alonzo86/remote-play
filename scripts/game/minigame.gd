@@ -26,7 +26,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 ## The size of the low-resolution world view and of the screen it stands for (REQ-GM-47a).
 const PIXEL_VIEW := Vector2i(480, 270)
 ## The black bar on top of every game for the title, the timer and the chips (REQ-GM-45a). It is as wide as the window.
-const HUD_BAR_H := 112.0
+const HUD_BAR_H := Shell.BAR_H
 const DESIGN_SIZE := Vector2i(1920, 1080)
 
 ## Values the game was started with (App.go props). restart() uses them again.
@@ -475,7 +475,7 @@ func _draw() -> void:
 	if tile_mode:
 		return
 	if _pixel_layer != null:   # The same bar in every game, over the world, at full width on any window (issue #123).
-		draw_rect(Rect2(0.0, 0.0, size.x, HUD_BAR_H), UiTheme.BG)
+		Shell.hud_bar(self, size.x)
 	_game_draw()
 	_draw_overlays(self)
 

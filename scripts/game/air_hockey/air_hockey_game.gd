@@ -263,8 +263,7 @@ func _game_draw() -> void:
 		return
 	draw_leader_chip(self)
 	if not is_over:
-		Shell.text(self, Vector2(Shell.mx(self, FIRST_TO_X, FIRST_TO_W + 80.0), 84.0),
-				Lang.f("air_hockey.first_to", [goals_to_win()]), 32, UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, FIRST_TO_W + 80.0)
+		Shell.status(self, FIRST_TO_X, FIRST_TO_W + 80.0, Lang.f("air_hockey.first_to", [goals_to_win()]))
 	_draw_chips()
 	if phase == Phase.GOAL and not is_over:
 		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, BANNER_FONT, UiTheme.ACCENT)

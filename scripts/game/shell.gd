@@ -19,6 +19,11 @@ const CHIP_GAP := 8.0          # The space between the square and the avatar.
 const CHIP_LINE := 4           # The frame of a chip.
 const TIMER_X := 520.0         # The timer box has one place in every game (REQ-GM-47o): left edge on a left to right screen.
 const TIMER_Y := 36.0
+const BAR_H := 112.0           # The black bar on top of every pixel game (REQ-GM-45a); `Minigame.HUD_BAR_H` is this value.
+const TITLE_BASELINE := 96.0   # The baseline of the game title, in every game (REQ-GM-45c).
+# The baseline of the status text of the bar ("FIRST TO 5", "FRAME 1/10"): level with the text of the timer box and the
+# leader chip, which stand at y 36 (REQ-GM-45c).
+const STATUS_BASELINE := 84.0
 
 ## A test sets this to see the boxes the HUD draws (the game draws with `draw_*`, so there is no node to look at). Called as
 ## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "chip", "hint", "countdown" or "plate" (a
@@ -49,7 +54,7 @@ static func mx(ci: CanvasItem, x: float, w: float) -> float:
 
 
 ## Game title: yellow, in the arcade font. At the top left, and at the top right in Hebrew.
-static func title(ci: CanvasItem, text: String, pos := Vector2(60, 96), font_size := 32) -> void:
+static func title(ci: CanvasItem, text: String, pos := Vector2(60, TITLE_BASELINE), font_size := 32) -> void:
 	var shown := Lang.t(text).to_upper()
 	var w := UiTheme.font().get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	ci.draw_string(UiTheme.font(), Vector2(mx(ci, pos.x, w), pos.y), shown, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size,
@@ -86,6 +91,23 @@ static func title_wrapped(ci: CanvasItem, text: String, room: float, pos := Vect
 		var r := Rect2(x, at_y - f.get_ascent(font_size), w, f.get_height(font_size))
 		box = r if i == 0 else box.merge(r)
 	_note("title", ci, box, {"text": " ".join(lines)})
+
+
+## The black bar on top of every pixel game (REQ-GM-45a), `width` wide: the one bar for the title (`title()`, baseline
+## `TITLE_BASELINE`), the timer and the leader chip (y `TIMER_Y`), and the status text (`status()`, baseline `STATUS_BASELINE`).
+## `Minigame` draws it over the world, so a game never draws its own.
+static func hud_bar(ci: CanvasItem, width: float) -> Rect2:
+	var r := Rect2(0.0, 0.0, width, BAR_H)
+	ci.draw_rect(r, UiTheme.BG)
+	return r
+
+
+## The status text of the bar (REQ-GM-45c): `x` and `w` are the box on a left to right screen (mirrored in Hebrew by `mx()`),
+## the text is centered in it at `STATUS_BASELINE`. The game gives the whole text, so nothing is cut.
+static func status(ci: CanvasItem, x: float, w: float, msg: String, color: Color = UiTheme.TEXT) -> void:
+	text(ci, Vector2(mx(ci, x, w), STATUS_BASELINE), msg, 32, color, HORIZONTAL_ALIGNMENT_CENTER, w)
+	_note("status", ci, Rect2(mx(ci, x, w), STATUS_BASELINE - UiTheme.font().get_ascent(32), w, UiTheme.font().get_height(32)),
+			{"text": msg})
 
 
 ## Text in the arcade font (upper case).
