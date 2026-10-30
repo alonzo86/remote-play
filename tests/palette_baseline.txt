@@ -1,0 +1,10 @@
+# File<TAB>count: literals equal or near (delta E < 12) to a player color, OK or BAD that are still in a file (issue #232).
+# Move one to scripts/game/palette.gd or to the player colors and lower the count. Never raise it.
+scripts/game/air_hockey/air_hockey_look.gd	1
+scripts/game/bowling/bowling_look.gd	2
+scripts/game/marble_race/race_look.gd	18
+scripts/game/maze/maze_board.gd	3
+scripts/game/mini_golf/golf_look.gd	1
+scripts/game/paint_grab/paint_look.gd	1
+scripts/game/sheep_herding/sheep_look.gd	2
+scripts/game/snowball_splat/banana_look.gd	3

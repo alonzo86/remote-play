@@ -10,6 +10,7 @@ extends RefCounted
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const Shell = preload("res://scripts/game/shell.gd")
+const Palette = preload("res://scripts/game/palette.gd")
 
 const W := 480
 const H := 270
@@ -46,7 +47,7 @@ const STONE_LO := Color("604428")
 const BUSH := Color("006800")
 const BUSH_LO := Color("003800")
 const BUSH_HI := Color("009800")
-const RED := Color("f83800")
+const RED := Palette.NES_RED
 const GOLD := Color("f8b800")
 const BRICK := Color("d48430")
 const OL := Color("181818")
@@ -286,7 +287,7 @@ static func _paint_bushes(img: Image, h: Dictionary) -> void:
 const FL_PINK := Color("f878f8")
 const FL_PURPLE := Color("6844fc")
 const LAMP := Color("383838")
-const BALLOON := [Color("f83800"), Color("f8b800"), Color("0078f8")]
+const BALLOON := [Palette.NES_RED, Color("f8b800"), Color("0078f8")]
 
 
 static func _line(img: Image, x0: float, y0: float, x1: float, y1: float, c: Color) -> void:

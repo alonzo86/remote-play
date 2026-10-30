@@ -98,4 +98,5 @@ tests/smoke_air_hockey.gd|tv|Air Hockey: enroll, tilt, goals, ROBO, pause, leave
 tests/tower_rules.gd|controller|Tower Builder rules: landing, toppling, turn time|unit
 tests/smoke_tower.gd|tv|Tower Builder: turns, drop, miss, topple, leave, results, solo medal|scenario
 tests/frame_cost.gd|tv|frame cost of every game with 4 phones on Hard (Tests 14, 15, 22, 23, 27, 28, 30, 31, 32)|scenario
+tests/palette_lint.gd|controller|palette lint: no new color near a player color, OK or BAD outside palette.gd|unit
 tests/text_size.gd|controller|text size floor: no TV text under 32 px (REQ-FL-40)|unit

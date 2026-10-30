@@ -5,6 +5,7 @@ extends RefCounted
 ## The court is in meters: x across (positive to the right of the near team), y along (the near baseline is at negative y).
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const Palette = preload("res://scripts/game/palette.gd")
 const Minigame = preload("res://scripts/game/minigame.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
@@ -93,7 +94,7 @@ static func _hash(a: int, b: int, c: int) -> int:
 static func _stands_image() -> Image:
 	var img := Image.create(480, STANDS_PX_H, false, Image.FORMAT_RGBA8)
 	img.fill(Color("181828"))
-	var shirts := [Color("e63946"), Color("f4a261"), Color("2a9d8f"), Color("f4f4f4"), Color("b05cd8"), Color("f8b800")]
+	var shirts := [Palette.SLOTS[0], Palette.SLOTS[2], Palette.SLOTS[1], Color("f4f4f4"), Color("b05cd8"), Color("f8b800")]
 	var rows := STANDS_PX_H / 6
 	for r in rows:
 		var y := r * 6
