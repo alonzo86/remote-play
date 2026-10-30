@@ -776,6 +776,7 @@ Measurements: write down the lowest FPS value of step 5d and the text sizes you 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1b | List of the screens and the smallest text read without a mistake (yes or no) | Pass | R4 |  |  |
+| 1b2 | Note: the info lines read without a mistake (yes or no); the 2 gray levels named in 3 of 3 tries | Open |  |  | New 2026-10-30, issue #221 |
 | 2c | Close photo of the Logo screen and the Games screen on 1080p, 1:1 crop | Pass | R4 |  |  |
 | 2d | Close photo of the Logo screen and the Games screen on 4K (or "no 4K TV") | Pass | R4 |  |  |
 | 4d | Note: OK, Back and D-pad on each menu | Pass | R4 |  |  |
