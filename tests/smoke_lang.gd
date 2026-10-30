@@ -5,6 +5,8 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const Registry = preload("res://scripts/game/registry.gd")
+const GameSettings = preload("res://scripts/game/game_settings.gd")
 
 ## Texts that stay as they are in Hebrew: brand names and the room code are not words of a language.
 ## Keys that code builds from a prefix and a word, so that no script has them as a whole.
@@ -106,6 +108,31 @@ func _csv_checks() -> void:
 			"a text without the header 'key,en,he' gives an empty table")
 
 
+## Issue #224: the words ON and OFF are the two rows `common.on` and `common.off` only (no game writes its own), and a number of
+## seconds has one unit case: "%.1f s", never "%.1f S" in one place and "%.1f s" in another.
+func _shared_words(table: Dictionary) -> void:
+	var switch_rows: Array = []
+	var unit_cases := {}
+	var unit_re := RegEx.create_from_string("%[-+0-9.]*f ?([sS])$")
+	for k in table:
+		var en := String(table[k].en).strip_edges()
+		if en.to_upper() in ["ON", "OFF"] and not (k in ["common.on", "common.off"]):
+			switch_rows.append(k)
+		var m := unit_re.search(en)
+		if m != null:
+			unit_cases[m.get_string(1)] = true
+	_check(switch_rows.is_empty(), "only common.on and common.off say ON or OFF (others: %s)" % str(switch_rows))
+	_check(unit_cases.size() == 1 and unit_cases.has("s"),
+			"every number of seconds uses the unit 's' (found: %s)" % str(unit_cases.keys()))
+	var own: Array = []
+	for g in Registry.all():
+		for r in GameSettings.rows_for(g):
+			for key in r.get("titles", []):
+				if String(key).begins_with(String(g.id) + ".on") or String(key).begins_with(String(g.id) + ".off"):
+					own.append(key)
+	_check(own.is_empty(), "no game defines its own on or off row text (%s)" % str(own))
+
+
 func _placeholders(rx: RegEx, text: String) -> Array:
 	var found: Array = []
 	for m in rx.search_all(text):
@@ -127,8 +154,6 @@ func _script_files(dir: String) -> Array:
 func _run() -> void:
 	await _frames(5)
 	root.size = Vector2i(1920, 1080)
-	var Registry = load("res://scripts/game/registry.gd")
-	var GameSettings = load("res://scripts/game/game_settings.gd")
 	var Shell = load("res://scripts/game/shell.gd")
 	var TvLogo = load("res://scripts/ui/tv_logo.gd")
 	var TvConnect = load("res://scripts/ui/tv_connect.gd")
@@ -200,6 +225,7 @@ func _run() -> void:
 				games_ok = games_ok and _has_he(String(t))
 	_check(games_ok, "every game title, description, setting row and value is a key with a Hebrew text")
 	_csv_checks()
+	_shared_words(table)
 
 	# The helper.
 	Lang.set_language("en", root)

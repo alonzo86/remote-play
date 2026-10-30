@@ -67,6 +67,14 @@ func _run() -> void:
 			and sv.rows[1].value == "garden",
 			"the settings view of the maze has the rows Difficulty on Medium and Theme on Garden (REQ-MZ-12)")
 	_check(sv.rows[0].has_focus() and sv.rows[0]._value.text == "MEDIUM", "the row has the focus and shows Medium")
+	# Issue #224: the name of a row is yellow while the row has the focus (like the menus), and white when it has not.
+	var name_label: Label = sv.rows[0]._name
+	var white_before: bool = name_label.get_theme_color("font_color") != UiTheme.ACCENT
+	sv.rows[0].grab_focus()
+	var yellow_with_focus: bool = name_label.get_theme_color("font_color") == UiTheme.ACCENT
+	sv.start_button.grab_focus()
+	_check(white_before and yellow_with_focus and name_label.get_theme_color("font_color") == UiTheme.TEXT,
+			"the name of a settings row is yellow with the focus and white without it (issue #224)")
 	var row_left: float = sv.rows[0].global_position.x
 	var row_right: float = row_left + sv.rows[0].size.x
 	_check(is_equal_approx(sv.rows[0].size.x, sv.rows[0].MIN_W) and is_equal_approx(sv.back_button.global_position.x, row_left)

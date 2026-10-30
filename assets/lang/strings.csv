@@ -144,7 +144,7 @@ common.off,OFF,כבוי,"TV Settings: state of a switch that is off (Debug overl
 common.on,ON,פועל,TV Settings: state of a switch that is on,
 settings.phone_vibrates_games_when,"THE PHONE VIBRATES IN GAMES: WHEN YOU SCORE, BUMP OR START.","הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים.",Phone Settings screen: help line under the haptics switch,
 settings.track_n,Track %d,מסלול %d,"Car Race: name of a fixed track, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
-shell.seconds,%.1f S,%.1f ש׳,"Game HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
+shell.seconds,%.1f s,%.1f ש׳,"Game HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 shell.tie,TIE,תיקו,Game HUD: leader chip when two or more players share first place,
 snowball_splat.point_at_tv_press,POINT AT THE TV AND PRESS A TO THROW A BANANA. RECENTER IF THE CURSOR DRIFTS.,כוונו אל הטלוויזיה ולחצו A כדי לזרוק בננה. מרכזו אם הסמן סוטה.,Banana Party: hint during the countdown,
 sumo_bumpers.whee,WHEE!,וויי!,Sumo Bumpers: small word above a bumper that falls,

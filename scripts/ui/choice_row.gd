@@ -44,6 +44,8 @@ func _ready() -> void:
 	_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_name.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	h.add_child(_name)
+	focus_entered.connect(_tint)
+	focus_exited.connect(_tint)
 	_left = _arrow("<")
 	h.add_child(_left)
 	_value = UiKit.label("", UiTheme.SIZE_ITEM, UiTheme.SELECTED)   # REQ-GM-97: the chosen value is yellow.
@@ -54,6 +56,11 @@ func _ready() -> void:
 	_right = _arrow(">")
 	h.add_child(_right)
 	_refresh()
+
+
+## The name of the focused row is yellow, as in the menus and on the Settings screen (issue #224); the cursor is yellow too.
+func _tint() -> void:
+	_name.add_theme_color_override("font_color", UiTheme.ACCENT if has_focus() else UiTheme.TEXT)
 
 
 func _arrow(text: String) -> Label:
