@@ -150,6 +150,9 @@ func _asteroid() -> void:
 	await _event(game, "a force field takes a hit", ["blast_shield"], {0: 80}, func() -> void:
 		game.field._make(1, ship.x, SpaceField.SHIP_Y - 30.0, RandomNumberGenerator.new())
 		game._process(DT))
+	# The ship that just lost its force field is safe for GRACE_TIME (REQ-AB-12): asteroids pass through it. The lost ship
+	# is therefore tested on a ship with no force field and no grace (issue #280).
+	ship.grace = 0.0
 	await _event(game, "a ship is lost", ["blast_lost"], {0: 400}, func() -> void:
 		game.field._make(1, ship.x, SpaceField.SHIP_Y - 30.0, RandomNumberGenerator.new())
 		game._process(DT)
