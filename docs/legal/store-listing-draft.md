@@ -49,13 +49,13 @@ No account. No sign-up. Made for family and friends.
 
 ### Full description, Hebrew
 
-סבבי הופך את הסלון שלכם לערב משחקים. משחקים על הטלוויזיה עם אנדרואיד, והטלפון הוא השלט: מטים אותו, מכוונים אותו, ומשחקים.
+Sababi הופך את הסלון שלכם לערב משחקים. משחקים על הטלוויזיה עם אנדרואיד, והטלפון הוא השלט: מטים אותו, מכוונים אותו, ומשחקים.
 
 צריך את אפליקציית Sababi: Remote החינמית בכל טלפון (1 עד 4 שחקנים). הטלפונים והטלוויזיה צריכים להיות באותה רשת אלחוטית.
 
 איך מתחילים
-1. פותחים את סבבי בטלוויזיה. מוצגים קוד קיו־אר וקוד חדר.
-2. פותחים את Sababi: Remote בטלפון וסורקים את קוד קיו־אר, או מקלידים את קוד החדר.
+1. פותחים את Sababi בטלוויזיה. מוצגים קוד QR וקוד חדר.
+2. פותחים את Sababi: Remote בטלפון וסורקים את קוד ה־QR, או מקלידים את קוד החדר.
 3. בוחרים משחק בשלט של הטלוויזיה ומשחקים.
 
 המשחקים
@@ -84,7 +84,7 @@ No account. No sign-up. Made for family and friends.
 | Field | English | Hebrew |
 |---|---|---|
 | Title (30) | Sababi: Remote | Sababi: Remote |
-| Short description (80) | Use your phone as a motion controller for Sababi party games on your TV. | הפכו את הטלפון לשלט תנועה למשחקי סבבי בטלוויזיה. |
+| Short description (80) | Use your phone as a motion controller for Sababi party games on your TV. | הפכו את הטלפון לשלט תנועה למשחקי Sababi בטלוויזיה. |
 
 ### Full description, English
 
@@ -102,15 +102,15 @@ No account. No sign-up.
 
 ### Full description, Hebrew
 
-Sababi: Remote הופך את הטלפון לשלט תנועה למשחקי המסיבה של סבבי בטלוויזיה עם אנדרואיד.
+Sababi: Remote הופך את הטלפון לשלט תנועה למשחקי המסיבה של Sababi בטלוויזיה עם אנדרואיד.
 
 האפליקציה דורשת את אפליקציית Sababi: TV Games החינמית בטלוויזיה עם אנדרואיד או במנגן סטרימינג. הטלפון והטלוויזיה צריכים להיות באותה רשת אלחוטית.
 
-• סורקים את קוד קיו־אר בטלוויזיה, או מקלידים את קוד החדר.
+• סורקים את קוד ה־QR בטלוויזיה, או מקלידים את קוד החדר.
 • עד 4 טלפונים משחקים יחד.
 • מטים, מכוונים ולוחצים כדי לשחק: חיישני התנועה בטלפון עושים את העבודה.
 • יוצרים שחקן משלכם: שם ואחת מ־32 דמויות של פיקסלים. השיאים נשמרים בטלפון.
-• משתפים את השחקן עם טלפון אחר באמצעות קוד קיו־אר.
+• משתפים את השחקן עם טלפון אחר באמצעות קוד QR.
 
 בלי חשבון ובלי הרשמה.
 
@@ -128,7 +128,7 @@ Sababa and Sababy: the owner decided on 2026-10-15 not to add the other spelling
 
 ## Hebrew text rule (decided 2026-10-30, issue #179 item 6)
 
-The Hebrew texts have no Latin words, as in the app (REQ-FL-63): the game names are the Hebrew names of the app, Wi-Fi is "רשת אלחוטית", QR is "קיו־אר", Android is "אנדרואיד", ROBO is "רובו" and the name Sababi in a sentence is "סבבי". The two store titles (decided on 2026-10-15) and the title of the other app inside a sentence stay as they are in Latin letters, because they are the names a person types in the store.
+The Hebrew texts have no Latin words, as in the app (REQ-FL-63): the game names are the Hebrew names of the app, Wi-Fi is "רשת אלחוטית", Android is "אנדרואיד", ROBO is "רובו", while QR and the name Sababi stay in Latin letters (Alon, 2026-10-30). The two store titles (decided on 2026-10-15) and the title of the other app inside a sentence stay as they are in Latin letters, because they are the names a person types in the store.
 
 ## Still open
 
