@@ -777,6 +777,7 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 6b2. Look at the phone pad from 50 cm. Check: A and B are white with a black letter, each with a white ring (2 of 2; changed 2026-10-29, issue #173: they were green and red), and the tester reads the slot number in the slot square at the top of the pad aloud, without a mistake. (The lift of the buttons, the independent press and the place of the square are checked by A-16-6b.)
 6b3. Look at the Connect or waiting screen of a phone from 50 cm. Check: JOIN (or SETTINGS) and ABOUT have a white face and black text (2 of 2), and the tester reads both words aloud without a mistake. (New 2026-10-29, issue #173.)
 6b4. Look at the TV Games screen from the sofa (3 m), with the focus on OPTIONS. Check: OPTIONS has a yellow face with black text and a thick yellow border, and the tester names the focused item within 5 s. Do the same in Hebrew. (New 2026-10-29, issue #173.)
+6b5. **A and B reach (2026-10-30, issue #240).** Use one phone with a screen of 6.7 inches or more (the one that is held in the right hand), in a game that uses both A and B (for example Star Shield). Hold it in one hand, the way you hold it to play, and without moving the hand, reach A and then B with the thumb, 10 times each. Measure the height of the middle of A above the bottom edge of the screen with a ruler (the code puts it 330 px above the bottom, about 2.6 cm on a 6.7-inch phone). Check: the thumb reaches A and B without moving the hand in 10 of 10 tries each (yes or no), and write the height in cm and the phone model. Repeat with the left hand: 10 of 10 tries each (yes or no).
 8a. A child of 5 to 8 years sits at the TV with the Games screen open. Ask: "Which game is chosen now?". Check: the child points to the focused tile (the one with the cursor) within 10 s and without help.
 8b. Show the child the screen with PRESS OK TO CONTINUE. Ask the child to continue. Check: the child presses OK within 10 s and without help.
 
@@ -797,6 +798,7 @@ Measurements: write down the lowest FPS value of step 5d and the text sizes you 
 | 6b2 | Photo of the pad; note: the slot number that was read | Open | R4 (Pass before the change of 2026-10-29, issue #173: A and B are white now) |  |  |
 | 6b3 | Photo of the phone screen; note: the two words that were read | Open |  |  |  |
 | 6b4 | Photo of the Games screen in English and in Hebrew; note: the seconds | Open |  |  |  |
+| 6b5 | Photo of the hand on the phone; note: the phone model, the height in cm, tries of 10 for A and B with the right and the left hand | Open |  |  | Added 2026-10-30 (issue #240). |
 | 8a | Note: the child, the age, the seconds | Pass | R4 |  |  |
 | 8b | Note: the child, the age, the seconds | Pass | R4 |  |  |
 
