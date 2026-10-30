@@ -27,21 +27,21 @@ HOW TO START
 3. Choose a game with the TV remote and play.
 
 THE GAMES
-• מבוך האוצר: tilt your phone to roll your ball through the maze to the treasure.
-• מירוץ מכוניות: steer your car along the road and be first over the line.
-• מסיבת בננות: point your phone and throw bananas at the hungry animals.
-• חטיפת צבע: tilt to move your paint blob and cover the floor with your color.
-• סומו מתנגשים: bump your friends off the platform (2 to 4 players).
-• מגן הכוכבים: fly your spaceship, blast the asteroids and grab upgrades.
-• באולינג חברים: swing your phone to bowl, with the phone as the ball.
-• טניס: swing your phone like a racket.
-• מיני גולף: aim by turning your phone, swing to putt on funny courses.
-• הכו בחפרפרת: friendly moles pop out of their holes, point at them and bonk them.
-• הוקי אוויר: slide your mallet and score goals, alone against the robot ROBO or with a friend.
+• Treasure Maze: tilt your phone to roll your ball through the maze to the treasure.
+• Car Race: steer your car along the road and be first over the line.
+• Banana Party: point your phone and throw bananas at the hungry animals.
+• Paint Grab: tilt to move your paint blob and cover the floor with your color.
+• Sumo Bumpers: bump your friends off the platform (2 to 4 players).
+• Star Shield: fly your spaceship, blast the asteroids and grab upgrades.
+• Pin Pals: swing your phone to bowl, with the phone as the ball.
+• Tennis: swing your phone like a racket.
+• Mini Golf: aim by turning your phone, swing to putt on funny courses.
+• Whack-a-Mole: friendly moles pop out of their holes, point at them and bonk them.
+• Air Hockey: slide your mallet and score goals, alone against the robot ROBO or with a friend.
 • Bumper Cars (2 to 4 players): bump your friends in the rink and collect gold stars.
-• רועה כבשים: steer your dog and herd all the sheep into the pen together.
-• בונים מגדל: take turns to drop bricks and build one tall tower together.
-• ריקוד קפוא: wiggle your phone to the music and freeze when it stops.
+• Sheep Herding: steer your dog and herd all the sheep into the pen together.
+• Tower Builder: take turns to drop bricks and build one tall tower together.
+• Freeze Dance: wiggle your phone to the music and freeze when it stops.
 
 Easy, Medium and Hard levels in the games, big pixel graphics you can read from the sofa, and arcade-style music. English and Hebrew.
 
