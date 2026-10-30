@@ -157,6 +157,15 @@ func _run() -> void:
 		if table[k].he == en2 and words.to_upper() != words.to_lower() and not (en2.to_upper() in KEEP):
 			same.append(k)
 	_check(same.is_empty(), "no Hebrew text is the English text, except the brands " + str(same))
+	# The Hebrew column has no Latin word (Wi-Fi, Google, ...): only A, B, OK, QR and the brand Sababi stay (Alon, 2026-10-30).
+	var latin_he: Array = []
+	var wordre := RegEx.new()
+	wordre.compile("[A-Za-z][A-Za-z\\-]*")
+	for k in table:
+		for m in wordre.search_all(fmtre.sub(String(table[k].he), "", true)):
+			if not (m.get_string() in ["A", "B", "OK", "QR", "SABABI", "Sababi"]):
+				latin_he.append("%s: %s" % [k, m.get_string()])
+	_check(latin_he.is_empty(), "no Hebrew text has a Latin word except A, B, OK, QR and the brand Sababi " + str(latin_he))
 	var missing := _untranslated_literals()
 	_check(missing.is_empty(), "every literal text in the code is a key of the table " + str(missing))
 	var unused := _unused_keys(table)
@@ -299,7 +308,8 @@ func _run() -> void:
 	await _frames(8)
 	c2.leave()
 	await _frames(5)
-	# Every screen in Hebrew shows no English word (REQ-FL-63): the player name, the room code and the brand are the only Latin text.
+	# Every screen in Hebrew shows no English word (REQ-FL-63): the player name, the room code, the brand (SABABI) and the
+	# names QR, A, B and OK are the only Latin text.
 	Lang.set_language("he", root)
 	var shown_missing: Array = []
 	var views: Array[Callable] = [app.go_connect, app.go_games, app.go_settings]
@@ -312,7 +322,7 @@ func _run() -> void:
 		if screen.has_method("_open_players"):
 			screen._open_players()
 			await _frames(3)
-		var stays := ["SIM", app.server.room_code, "SABABI", "OK", "WI-FI", "QR", "F3", "A", "B", "1P", "2P", "3P", "4P"]
+		var stays := ["SIM", app.server.room_code, "SABABI", "OK", "QR", "F3", "A", "B", "1P", "2P", "3P", "4P"]
 		for t in _latin_texts(screen, stays):
 			shown_missing.append("%s: %s" % [screen.get_script().resource_path.get_file(), t])
 	app.go_connect()

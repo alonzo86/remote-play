@@ -147,7 +147,7 @@ Only the controller runs on iOS. The TV app stays on Android TV. Status: written
 Differences from Android:
 
 - No QR scan: the Android plugin does not exist on iOS, so the iPhone joins by the typed room code. The connect screen has no scan button (REQ-FL-58).
-- iOS asks for the Local Network permission the first time the app connects to the TV (the text is in the `export_presets.cfg` of the controller). If the player taps Don't Allow, the iPhone cannot join: Settings > Sababi > Local Network switches it on.
+- iOS asks for the Local Network permission the first time the phone looks for the TV (the text is in the `export_presets.cfg` of the controller: "Sababi uses the room code to find your TV on your Wi-Fi and connect to it." The phone builds the TV address from the room code and tries the addresses of the Wi-Fi network). The text is in English only: the Godot iOS preset has no localized option for this key, and a Hebrew `InfoPlist.strings` would have to be added to the Xcode project by hand (not done). If the player taps Don't Allow, the iPhone cannot join: Settings > Sababi > Local Network switches it on.
 - The sensor axis fix in `scripts/input/sensor_sampler.gd` was measured on Android only. Check the directions again (Manual test 13).
 
 ## Desktop tests (no Android)
