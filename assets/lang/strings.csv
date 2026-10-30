@@ -79,6 +79,7 @@ common.settings,SETTINGS,הגדרות,Title of the TV and phone Settings screens
 minigame.tie,TIE!,תיקו!,Title of the result menu when scores are equal,
 pad.before,Before: %s,קודם: %s,"Phone: after a personal best, shows the old best, %s is the old value",%s is replaced by a name or a value
 pad.disconnect,DISCONNECT,התנתקות,Phone: Disconnect button at the top of the game and waiting screens,
+pad.disconnect_hold,HOLD TO LEAVE,החזק להתנתקות,Phone: Disconnect button on the game screen (hold it for 0.8 s to leave; a tap does nothing),New 2026-10-30 (issue #239). The waiting screen keeps pad.disconnect.
 pad.new_best,NEW BEST!,שיא חדש!,Phone: after a round that set a personal best,
 pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,Phone game screen: help line under the Recenter button,
 pad.recenter,RECENTER,מרכוז,Phone game screen: Recenter button,
