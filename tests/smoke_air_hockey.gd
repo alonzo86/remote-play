@@ -179,7 +179,7 @@ func _run() -> void:
 	await _frames(3)
 	var labels := _labels(game)
 	var menu: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(game.is_over and menu == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"]
+	_check(game.is_over and menu == ["minigame.restart", "common.settings", "minigame.back_to_menu"]
 			and labels[0] == "SIM0 WINS!" and labels[1].contains("3 GOALS") and labels[2].contains("0 GOALS"),
 			"3 goals end the match: the result menu names the winner and lists the goals: %s %s" % [str(menu), str(labels)])
 	_check(MedalView.tiers_in(game._menu_box) == ["gold", "silver"],

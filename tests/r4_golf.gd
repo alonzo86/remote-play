@@ -462,7 +462,7 @@ func _result_menu() -> void:
 	_check(again.is_over and texts.has(Lang.t("minigame.tie").to_lower()),
 			"10a: with equal strokes the title is 'Tie!': %s" % str(texts))
 	# 10d: New game opens the settings view, Back to menu on the next result menu opens the Games screen.
-	_check(_press(again, "minigame.new_game"), "10d: the menu has the button New game")
+	_check(_press(again, "common.settings"), "10d: the menu has the button New game")
 	await _frames(4)
 	_check(_screen_file() == "tv_game_settings.gd", "10d: New game opens the settings view of the game (%s)" % _screen_file())
 	var third := await _new_game({"holes": "1"})

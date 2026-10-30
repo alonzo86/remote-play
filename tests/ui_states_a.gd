@@ -50,6 +50,7 @@ func _run() -> void:
 	_app.client.phase = "menu"
 	await _disconnect_button()
 	await _pad_buttons()
+	await _pad_header()
 	await _fonts_and_background()
 	await _back_key()
 	await _swing_card()
@@ -188,6 +189,44 @@ func _pad_buttons() -> void:
 	var draws_a: bool = src.contains('_draw_button(_center_a(), "A", Protocol.BTN_A)')
 	var draws_b: bool = src.contains('_draw_button(_center_b(), "B", Protocol.BTN_B)')
 	_check(draws_a and draws_b, "the pad draws A and B with no color of their own (a white face, issue #173)")
+
+
+## Issue #238, REQ-FL-52b: a long name fits the header, and a lost link buzzes the phone once (HAPTICS ON only).
+func _pad_header() -> void:
+	print("pad header and lost link")
+	var holder := Control.new()
+	holder.size = Vector2(1080, 1920)
+	root.add_child(holder)
+	var pad := _screen(_pad_script, holder)
+	pad.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	await process_frame
+	await process_frame
+	var names := {"en": "WWWWWWWWWWWWWWWW", "he": "אבגדהוזחטיכלמנסע"}
+	for lang in names:
+		for avatar in [true, false]:
+			var rect: Rect2 = pad._rect_name(avatar)
+			var fs: int = _pad_script.name_size(names[lang], rect.size.x)
+			var w := UiTheme.font().get_string_size(names[lang], HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+			_check(w <= rect.size.x and fs >= 16 and rect.end.x <= pad._rect_leave().position.x,
+					"[%s] a name of 16 letters fits the header with%s an avatar (%.0f of %.0f px at %d px type)"
+					% [lang, "" if avatar else "out", w, rect.size.x, fs])
+	_check(_pad_script.name_size("MAYA", pad._rect_name(true).size.x) == 48, "a short name keeps the full 48 px type")
+	var Haptics: GDScript = load("res://scripts/game/haptics.gd")
+	var calls: Array = []
+	Haptics.vibrate_call = func(ms: int) -> void: calls.append(ms)
+	var old: bool = _app.settings.get("haptics", true)
+	_app.settings.haptics = true
+	_app.client.state_changed.emit(ControllerClient.State.CONNECTED)
+	_check(calls.is_empty(), "no buzz when the link is (back) up")
+	_app.client.state_changed.emit(ControllerClient.State.RECONNECTING)
+	_check(calls == [_pad_script.LOST_BUZZ_MS] and _pad_script.LOST_BUZZ_MS >= 500,
+			"a lost link buzzes once, 500 ms or more (got %s)" % str(calls))
+	_app.settings.haptics = false
+	_app.client.state_changed.emit(ControllerClient.State.RECONNECTING)
+	_check(calls.size() == 1, "with HAPTICS off the lost link does not buzz")
+	_app.settings.haptics = old
+	Haptics.vibrate_call = Callable()
+	holder.queue_free()
 
 
 ## Test 8b.6a: the phone screens are black with the pixel font. Every text uses the font of the theme.

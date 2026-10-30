@@ -239,7 +239,7 @@ func _run() -> void:
 	await _frames(3)
 	var menu: Array = game.menu_buttons().map(func(b): return b.text)
 	var labels := _labels(game)
-	_check(game.is_over and menu == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"] and labels.size() >= 2,
+	_check(game.is_over and menu == ["minigame.restart", "common.settings", "minigame.back_to_menu"] and labels.size() >= 2,
 			"after 12 bricks the result menu opens: %s %s" % [str(menu), str(labels)])
 	_check(game.bricks_text(1.0) == "1 BRICK" and game.bricks_text(3.0) == "3 BRICKS", "the score text is a number of bricks")
 

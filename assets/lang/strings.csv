@@ -38,7 +38,7 @@ connect.press_ok_continue,PRESS OK TO CONTINUE,לחצו OK להמשך,TV Connect
 connect.qr_failed,QR scan failed: %s,סריקת QR נכשלה: %s,"Phone: message when the QR scan fails, %s is the reason",%s is replaced by a name or a value
 connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens (Back key): Quit button of the quit dialog,
 connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen and phone waiting and pad screens (Back key): title of the quit dialog,
-connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens)",
+connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens), also big in the middle of the pad with a dashed frame (issue #238)",
 connect.refused,Connection refused: %s,החיבור נדחה: %s,"Phone, Connect screen: error when the TV refuses for another reason, %s is the reason code",%s is replaced by a name or a value
 connect.room_code,ROOM CODE,קוד חדר,TV Connect screen: label above the room code; Games screen: label above the room code in the header,
 connect.scan_qr_code,SCAN QR CODE,סרקו קוד QR,"Phone, Connect screen: button that opens the QR scanner",
@@ -68,14 +68,12 @@ maze.join_with_sababi_app,"JOIN WITH THE SABABI APP, THEN START AGAIN.",הצטר
 minigame.back_to_menu,BACK TO MENU,חזרה לתפריט,Button in the result menu and the 'no players' menu of every game,
 minigame.end_game_ask,END THE GAME?,לסיים את המשחק?,Title of the question 'End the game?' after Back during play,
 minigame.end_game,END GAME,סיום המשחק,"Button End game in the pause menu (leaves at once), in the question 'End the game?' and in the card of a lost phone",
-minigame.resume_play,RESUME PLAY,להמשיך לשחק,Button in the question 'End the game?' that goes back to the game,
 minigame.no_players_connected,NO PLAYERS CONNECTED,אין שחקנים מחוברים,"Title of the menu when every phone has left a game, and of the card when the only phone of the game is lost (it waits for the phone)",
 minigame.paused,PAUSED,מושהה,Title of the pause menu,
 minigame.restart,TRY AGAIN,נסו שוב,Button Try again in the pause menu and the result menu,
-minigame.resume,RESUME,המשך,Button Resume in the pause menus,
+minigame.resume,RESUME,המשך,"Button Resume in the pause menus, the pause card and the question 'End the game?'",
 minigame.round_over,ROUND OVER,הסיבוב נגמר,Title of the result menu when there is no winner to name,
-minigame.new_game,NEW GAME,משחק חדש,Button in the result menu: back to the settings of the game,
-common.settings,SETTINGS,הגדרות,Title of the TV and phone Settings screens; Settings button on the phone waiting screen and in the game result menu,
+common.settings,SETTINGS,הגדרות,"Title of the TV and phone Settings screens; Settings button on the phone waiting screen; button in the game result menu (back to the settings of the game)",
 minigame.tie,TIE!,תיקו!,Title of the result menu when scores are equal,
 pad.before,Before: %s,קודם: %s,"Phone: after a personal best, shows the old best, %s is the old value",%s is replaced by a name or a value
 pad.disconnect,DISCONNECT,התנתקות,Phone: Disconnect button at the top of the game and waiting screens,
@@ -153,7 +151,7 @@ sumo_bumpers.whee,WHEE!,וויי!,Sumo Bumpers: small word above a bumper that f
 sumo_bumpers.round_draw,ROUND DRAW!,תיקו בסיבוב!,Sumo Bumpers: banner when nobody wins the round,
 sumo_bumpers.round_n_of,Round %d of %d,סיבוב %d מתוך %d,"Sumo Bumpers HUD: round counter, first %d is the round, second is the total","the number sign (%d, %.1f ...) is replaced by a number"
 sumo_bumpers.round_winner,%s wins the round!,%s ניצח בסיבוב!,"Sumo Bumpers: banner after a round, %s is the name of the winner",%s is replaced by a name or a value
-sumo_bumpers.tilt_bump_others_off,TILT TO BUMP THE OTHERS OFF THE PLATFORM! PRESS A TO DASH.,הטו כדי לדחוף את האחרים מהפלטפורמה! לחצו A כדי לזנק.,Sumo Bumpers: hint during the countdown,
+sumo_bumpers.tilt_bump_others_off,TILT TO BUMP THE OTHERS OFF THE PLATFORM! PRESS A TO DASH!,הטו כדי לדחוף את האחרים מהפלטפורמה! לחצו A כדי לזנק!,Sumo Bumpers: hint during the countdown,
 wait.choose_game_tv,CHOOSE A GAME ON THE TV,בחר משחק בטלוויזיה,Phone waiting screen: title while the TV shows the menus,
 wait.join_next_round,YOU JOIN NEXT ROUND.,תצטרפו לסיבוב הבא.,Phone waiting screen: second line when a round is running,
 wait.round_running,A ROUND IS IN PROGRESS,סיבוב מתנהל כעת,Phone waiting screen: title when a round runs and the phone is not in it,
@@ -198,8 +196,8 @@ registry.desc_tennis,A TENNIS MATCH WITH YOUR PHONE AS THE RACKET.,"משחק ט�
 tennis.scoring,SCORING,ניקוד,Tennis settings view: name of the Scoring row,
 tennis.real,REAL,אמיתי,"Tennis settings view: Real value of the Scoring row (15, 30, 40, deuce, first to 3 games)",
 tennis.quick,QUICK,מהיר,Tennis settings view: Quick value of the Scoring row (first to 5 points),
-tennis.hint_serve,PRESS A TO TOSS. SWING DOWN TO SERVE! SWING TO A SIDE TO AIM.,לחצו A כדי לזרוק. הניפו מלמעלה למטה כדי להגיש! הניפו לצד כדי לכוון.,Tennis: hint line at the bottom while a player serves (first 16 seconds of the match),
-tennis.hint_hit,SWING WHEN THE BALL ARRIVES! SWING TO A SIDE TO AIM.,הניפו כשהכדור מגיע! הניפו לצד כדי לכוון.,Tennis: hint line at the bottom during a rally (first 16 seconds of the match),
+tennis.hint_serve,PRESS A TO TOSS. SWING DOWN TO SERVE! SWING TO A SIDE TO AIM!,לחצו A כדי לזרוק. הניפו מלמעלה למטה כדי להגיש! הניפו לצד כדי לכוון!,Tennis: hint line at the bottom while a player serves (first 16 seconds of the match),
+tennis.hint_hit,SWING WHEN THE BALL ARRIVES! SWING TO A SIDE TO AIM!,הניפו כשהכדור מגיע! הניפו לצד כדי לכוון!,Tennis: hint line at the bottom during a rally (first 16 seconds of the match),
 tennis.hint_solo,HIT EVERY BALL BACK TO KEEP THE RALLY GOING!,הדפו כל כדור כדי להמשיך את הרצף!,Tennis with 1 player: hint line at the bottom (first 16 seconds of the match),
 tennis.serves,%s SERVES,%s מגיש/ה,"Tennis: plate in the middle of the screen before a serve, %s is the name of the server",%s is replaced by a name or a value
 tennis.point_to,POINT: %s,נקודה: %s,"Tennis: banner after a point, %s is the name of the player or team that won it",%s is replaced by a name or a value
@@ -250,13 +248,13 @@ how_to.snowball_splat,POINT YOUR PHONE AT THE SCREEN AND PRESS A TO THROW BANANA
 how_to.asteroid_blast,TILT TO FLY YOUR SPACESHIP AND BLAST THE ASTEROIDS. THE GAME GOES ON UNTIL EVERY SHIP IS GONE.,הטו כדי להטיס את החללית ולפוצץ אסטרואידים. המשחק נמשך עד שכל החלליות נעלמו.,"TV game settings view of Star Shield: how to play, under the title (issue #77; the text that was the description before)",
 how_to.bowling,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD TO ROLL THE BALL! KNOCK DOWN ALL THE PINS.",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה כדי לגלגל את הכדור! הפילו את כל הפינים.,"TV game settings view of Pin Pals: how to play, under the title (issue #77)",
 how_to.tennis,SWING YOUR PHONE WHEN THE BALL ARRIVES. SWING TO A SIDE TO AIM. PRESS A TO TOSS THE BALL FOR A SERVE.,הניפו את הטלפון כשהכדור מגיע. הניפו לצד כדי לכוון. לחצו A כדי לזרוק את הכדור להגשה.,"TV game settings view of Tennis: how to play, under the title (issue #77)",
-how_to.mini_golf,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT THE BALL INTO THE HOLE!",הזיזו את הטלפון כדי לכוון. הניפו אחורה ואז קדימה כדי לדחוף את הכדור לגומה!,"TV game settings view of Mini Golf: how to play, under the title (issue #77)",
+how_to.mini_golf,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT THE BALL INTO THE HOLE.",הזיזו את הטלפון כדי לכוון. הניפו אחורה ואז קדימה כדי לדחוף את הכדור לגומה.,"TV game settings view of Mini Golf: how to play, under the title (issue #77)",
 setup.question,PLAY THIS GAME?,לשחק במשחק הזה?,"Phone waiting screen, while the TV settings view of a game is open and two or more phones are connected: the question above the IN and OUT buttons",
 setup.in,IN,בפנים,Phone waiting screen: the IN button (this phone plays the game); TV game settings view: the word after the name of a player who plays,
 setup.out,OUT,בחוץ,Phone waiting screen: the OUT button (this phone watches); TV game settings view: the word after the name of a player who sits out,
 registry.sheep_herding,SHEEP HERDING,רועה כבשים,"Name of the game Sheep Herding: Games screen, game settings, in-game title",
 registry.desc_sheep_herding,A TEAM GAME: HERD ALL THE SHEEP INTO THE PEN.,משחק קבוצתי: מובילים את כל הכבשים לדיר.,"Description of Sheep Herding: info bar of the Games screen (what the game is, no instructions, issue #78)",
-how_to.sheep_herding,"TILT YOUR PHONE TO RUN YOUR DOG. TOGETHER, HERD ALL THE SHEEP INTO THE PEN BEFORE THE TIME IS UP!","הטו את הטלפון כדי לגרום לכלב לרוץ. יחד, הובילו את כל הכבשים לדיר לפני שהזמן נגמר!","TV game settings view of Sheep Herding: how to play, under the title (issue #77)",
+how_to.sheep_herding,"TILT YOUR PHONE TO RUN YOUR DOG. TOGETHER, HERD ALL THE SHEEP INTO THE PEN BEFORE THE TIME IS UP.","הטו את הטלפון כדי לגרום לכלב לרוץ. יחד, הובילו את כל הכבשים לדיר לפני שהזמן נגמר.","TV game settings view of Sheep Herding: how to play, under the title (issue #77)",
 sheep_herding.hint,TILT YOUR PHONE TO STEER YOUR DOG AND HERD THE SHEEP INTO THE PEN!,הטו את הטלפון כדי להוביל את הכלב ולהכניס את הכבשים לדיר!,Sheep Herding: hint during the countdown and the first seconds,
 sheep_herding.count,%d / %d sheep,%d / %d כבשים,Sheep Herding result list: sheep in the pen out of all sheep (the same for every player),"the number sign (%d, %.1f ...) is replaced by a number"
 sheep_herding.all_safe,All sheep are safe!,כל הכבשים בטוחות!,Sheep Herding: title of the result menu for 2 to 4 players when every sheep is in the pen,

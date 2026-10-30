@@ -303,7 +303,7 @@ func on_back() -> void:
 ## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
 func request_leave() -> void:
 	if _in_progress():
-		open_menu("minigame.end_game_ask", [["minigame.resume_play", close_menu], ["minigame.end_game", App.go_menu, "danger"]])
+		open_menu("minigame.end_game_ask", [["minigame.resume", close_menu], ["minigame.end_game", App.go_menu, "danger"]])
 	else:
 		App.go_menu()
 
@@ -410,7 +410,7 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 	open_result_menu(heading, rows, extra_entries, won)
 
 
-## The result menu itself: the rows, then Try again, `extra_entries`, New game (a game with a settings view) and Back to menu.
+## The result menu itself: the rows, then Try again, `extra_entries`, Settings (a game with a settings view) and Back to menu.
 ## `open_results()` builds the rows from a `Scoreboard`; a game whose result has a player that is not a phone (the bot of Air
 ## Hockey, REQ-GM-105) builds its own rows and calls this. It sets `is_over`.
 func open_result_menu(heading: String, rows: Array, extra_entries: Array = [], won := false) -> void:
@@ -419,7 +419,7 @@ func open_result_menu(heading: String, rows: Array, extra_entries: Array = [], w
 	entries.append_array(extra_entries)
 	var id := Registry.id_of_script(get_script())
 	if GameSettings.has_view(Registry.find(id)):
-		entries.append(["minigame.new_game", App.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
+		entries.append(["common.settings", App.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
 	entries.append(["minigame.back_to_menu", App.go_menu])
 	open_menu(heading, entries, rows)
 	Sound.stop_music()

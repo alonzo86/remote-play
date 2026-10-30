@@ -28,6 +28,8 @@ const INFO_Y := 50.0      # How far the Recenter box and the turn and best rows 
 const AIM_KNOB := 88.0       # The radius of the aim knob (it was 56 px; a finger covers a small one, issue #236, REQ-BW-4a).
 const AIM_TRAIL := 8         # How many places of the knob the trail keeps.
 const AIM_TICK_MS := 20      # The tick when the knob crosses the middle of the strip.
+const LOST_FRAME := 20.0   # The width of the frame that shows a lost link (REQ-FL-52b).
+const LOST_BUZZ_MS := 700  # The buzz when the link is lost (REQ-FL-52b).
 const LEAVE_HOLD := 0.8   # A game needs a long press to leave: a swinging child must not leave by accident (REQ-FL-52a).
 const BUTTON_LIFT := 12.0        # How far the face of an arcade button stands above its lower edge.
 const BUTTON_LIFT_DOWN := 4.0    # The same while it is pressed: the button looks pressed in.
@@ -40,10 +42,19 @@ func _ready() -> void:
 	# Connect methods, not lambdas: App.client outlives this screen.
 	App.client.haptic_requested.connect(_on_haptic)
 	App.client.phase_changed.connect(_on_phase)
+	App.client.state_changed.connect(_on_state)
 
 
 func _on_haptic(ms: int) -> void:
 	Haptics.on_message(ms)   # It vibrates when the HAPTICS switch of the phone Settings screen is on (REQ-FL-66).
+
+
+## The link is lost while the pad shows: one strong buzz, so a player who looks at the TV feels it (REQ-FL-52b).
+## The HAPTICS switch of the phone decides, as for every buzz (REQ-FL-66).
+func _on_state(state: int) -> void:
+	if state == ControllerClient.State.RECONNECTING:
+		Haptics.on_message(LOST_BUZZ_MS)
+	queue_redraw()
 
 
 func _on_phase(_phase: String) -> void:
@@ -72,6 +83,17 @@ func _process(delta: float) -> void:
 ## The header (player badge, name and Disconnect) is one row: all three are centered on HEADER_Y.
 func _rect_leave() -> Rect2:
 	return Rect2(size.x - 300, HEADER_Y - 45.0, 270, 90)
+
+
+## Where the player name (or RECONNECTING...) is written in the header: between the badge (and the avatar) and Disconnect.
+func _rect_name(has_avatar: bool) -> Rect2:
+	var name_x := 270.0 if has_avatar else 190.0
+	return Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 320.0, 90)
+
+
+## The font size for a name in the header: 48 px, smaller (steps of 8 px, down to 16) so that no letter is cut (issue #238).
+static func name_size(text: String, width: float) -> int:
+	return UiTheme.fit_size(UiTheme.font(), text, width, 48)
 
 
 ## The square in the slot color with the slot number, at the top left of the pad on the header row (REQ-FL-52).
@@ -252,10 +274,10 @@ func _draw() -> void:
 		Avatar.draw(self, av.grow(-5.0), c.tv_avatar)
 	var own: String = c.tv_player_name if c.tv_pid != "" else "%dP" % (c.slot + 1)
 	var status := own if online else Lang.t("connect.reconnecting")
-	var name_x := 270.0 if has_avatar else 190.0
-	var name_rect := Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 320.0, 90)
-	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, 48)), status.to_upper(),
-			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, 48, UiTheme.ACCENT if online else UiTheme.BAD)
+	var name_rect := _rect_name(has_avatar)
+	var name_fs := name_size(status.to_upper(), name_rect.size.x)
+	draw_string(f, Vector2(name_rect.position.x, UiTheme.centered_baseline(f, name_rect, name_fs)), status.to_upper(),
+			HORIZONTAL_ALIGNMENT_LEFT, name_rect.size.x, name_fs, UiTheme.ACCENT if online else UiTheme.BAD)
 
 	# The place and the score of this player, on a row of their own under the header (REQ-FL-67).
 	var line := score_line(c.score_rank, c.score_of, c.score_text) if online else ""
@@ -281,6 +303,9 @@ func _draw() -> void:
 		draw_string(f, Vector2(best_rect.position.x, UiTheme.centered_baseline(f, best_rect, 32)), best_line(best),
 				HORIZONTAL_ALIGNMENT_LEFT, best_rect.size.x, 32, UiTheme.OK)
 
+	if not online:
+		_draw_lost_link(f)
+
 	# Disconnect: a framed text box. A game needs a press of LEAVE_HOLD seconds; the box fills while the finger stays (REQ-FL-52a).
 	var lr := _rect_leave()
 	_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), 24, UiTheme.BUTTON_TEXT)
@@ -301,6 +326,38 @@ func _draw() -> void:
 		_draw_button(_center_a(), "A", Protocol.BTN_A)
 	if _button_shown("b"):
 		_draw_button(_center_b(), "B", Protocol.BTN_B)
+
+
+## The link is lost (REQ-FL-52b): the play area is dimmed and a frame of white and red dashes runs around the pad. Dashes, not
+## only red, so a color-blind player and a child who looks at the TV see a change; the buzz is in `_on_state`.
+func _draw_lost_link(f: Font) -> void:
+	var top := HEADER_Y + 60.0
+	draw_rect(Rect2(0, top, size.x, size.y - top), Color(UiTheme.BG, 0.6))
+	var dash := 60.0
+	var fw := LOST_FRAME
+	var i := 0
+	var x := 0.0
+	while x < size.x:
+		var col: Color = UiTheme.BAD if i % 2 == 0 else UiTheme.TEXT
+		var w := minf(dash, size.x - x)
+		draw_rect(Rect2(x, 0, w, fw), col)
+		draw_rect(Rect2(x, size.y - fw, w, fw), col)
+		x += dash
+		i += 1
+	var y := 0.0
+	i = 0
+	while y < size.y:
+		var col2: Color = UiTheme.BAD if i % 2 == 0 else UiTheme.TEXT
+		var h := minf(dash, size.y - y)
+		draw_rect(Rect2(0, y, fw, h), col2)
+		draw_rect(Rect2(size.x - fw, y, fw, h), col2)
+		y += dash
+		i += 1
+	var mid := Rect2(60, size.y * 0.5 - 40.0, size.x - 120, 80)
+	var msg := Lang.t("connect.reconnecting").to_upper()
+	var fs := UiTheme.fit_size(f, msg, mid.size.x, 56)
+	draw_string(f, Vector2(mid.position.x, UiTheme.centered_baseline(f, mid, fs)), msg, HORIZONTAL_ALIGNMENT_CENTER,
+			mid.size.x, fs, UiTheme.TEXT)
 
 
 ## Recenter: a white box with black text that turns black with white text for a moment when it is tapped.

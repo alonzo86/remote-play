@@ -35,7 +35,7 @@ Match and rounds
 | REQ-SB-2 | The bumpers start on a circle around the middle of the platform, spread evenly, at the same distance from the middle (REQ-GM-25). Every round starts again like this, and all bumpers are back, also the ones that fell. | Done | run_tests, smoke_sumo |
 | REQ-SB-3 | A round ends when one bumper is left, or when none is left in the same moment. The last bumper gets 1 point. When the last bumpers fall in the same frame, all of them get the point. | Done | run_tests, smoke_sumo |
 | REQ-SB-4 | After a round, a banner names the player that won it (or says "Round draw!"), for 2.5 s. Then the next round starts, or the match ends. | Done | smoke_sumo |
-| REQ-SB-5 | After round 3 the result menu is `open_results()` (REQ-GM-72) with the points: ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. The score text is "N points". | Done | smoke_sumo |
+| REQ-SB-5 | After round 3 the result menu is `open_results()` (REQ-GM-72) with the points: ranking, "X wins!" or "Tie!", Try again, Settings, Back to menu. The score text is "N points". | Done | smoke_sumo |
 
 Platform and movement
 

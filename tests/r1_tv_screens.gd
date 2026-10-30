@@ -447,7 +447,7 @@ func _back_in_game() -> void:
 	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
 	await _frames(3)
 	var ask: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(game.is_paused() and ask == ["minigame.resume_play", "minigame.end_game"] and _quits[0] == 0,
+	_check(game.is_paused() and ask == ["minigame.resume", "minigame.end_game"] and _quits[0] == 0,
 			"the Android Back request in the game opens END THE GAME? (%s) and does not quit" % str(ask))
 	var round_time: float = game._round.time
 	var ring: float = game._ring_time
@@ -459,7 +459,7 @@ func _back_in_game() -> void:
 	await _frames(3)
 	await _key(KEY_BACK)
 	ask = game.menu_buttons().map(func(b): return b.text)
-	_check(game.is_paused() and ask == ["minigame.resume_play", "minigame.end_game"],
+	_check(game.is_paused() and ask == ["minigame.resume", "minigame.end_game"],
 			"the Back key in the game opens the question too")
 	game.menu_buttons()[1].pressed.emit()
 	await _frames(4)
