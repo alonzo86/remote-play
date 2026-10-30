@@ -22,7 +22,7 @@ const THEMES := {
 			"front": Color("6c5a48"), "start": Color("5a3cc0"), "deco": ["torch", "shield"]},
 	"ice": {"kind": "ice", "ground_a": Color("0e2458"), "ground_b": Color("0a1c4a"), "tuft": Color("1c3c7c"),
 			"flower": Color("fcfcfc"), "outline": Color("061030"), "face": Color("a8d8f0"), "light": Color("e8f8ff"),
-			"front": Color("5a90c0"), "start": Color("3a68c0"), "deco": ["penguin", "iceberg"]},
+			"front": Palette.ICE_BLUE, "start": Color("3a68c0"), "deco": ["penguin", "iceberg"]},
 }
 const DEFAULT_THEME := "garden"
 
@@ -92,7 +92,7 @@ const SPRITES := {
 				"..KRYYRK..",
 				"...KRRK...",
 				"....KK...."],
-			"colors": {"K": Color("140840"), "R": Color("d02838"), "Y": Color("f8b800")}},
+			"colors": {"K": Color("140840"), "R": Palette.MAZE_RED, "Y": Color("f8b800")}},
 	"penguin": {"rows": ["..HHHHH..",
 				".HNNNNNH.",
 				".HNWNWNH.",
@@ -116,7 +116,7 @@ const SPRITES := {
 				"HLLLLLDDDDLH",
 				".HDDDDDDDDH.",
 				"..HHHHHHHH.."],
-			"colors": {"H": Color("e8f8ff"), "L": Color("a8d8f0"), "W": Color.WHITE, "D": Color("5a90c0")}},
+			"colors": {"H": Color("e8f8ff"), "L": Color("a8d8f0"), "W": Color.WHITE, "D": Palette.ICE_BLUE}},
 }
 
 
