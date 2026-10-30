@@ -807,6 +807,8 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 9b. Set the TV to English and the system language of phone A to Hebrew. Join phone A, open the waiting screen, the Settings screen and start Car Race. Check: every text on phone A (waiting screen, Settings, pad, hint line, result card) is in Hebrew and the screen is mirrored (title at the right), while the TV stays in English and left to right; no text on the phone is cut off or outside the screen edge (6 of 6 screens). Then set the TV to Hebrew and the system language of phone B to English and repeat. Check: phone B stays in English and left to right.
 9c. On phone A (Hebrew) open Settings and tap the language button once, then leave the app and start it again. Check: the button says "LANGUAGE: ENGLISH" (the language switched to English at the tap), the phone is in English after the restart, and the TV language did not change.
 
+9e. The person who reads Hebrew reads the 5 Hebrew texts whose end mark changed by issue #234 (the how-to texts of Mini Golf and Sheep Herding now end with a full stop; the hints of Tennis (serve, hit) and Sumo Bumpers now end with an exclamation mark). Check: the reader says that each of the 5 reads right (5 of 5 yes).
+
 Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-17-1 to A-17-8). Item 5 moved earlier (A-17-5). Item 7b moved too (A-17-7b). Item 6e was split: that the text shows complete is automated, 6e2 keeps the reading. The numbers of the other items do not change.
 
 **Results**
@@ -819,6 +821,7 @@ Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to
 | 6e2 | Photos of the pause and result menus; note from the Hebrew reader | Pass | R4 |  |  |
 | 9b | Photos of phone and TV side by side, in both combinations | Not run |  |  | New 2026-10-29 (issue #171) |
 | 9c | Photo of the Settings screen before and after the tap; photo after the restart | Not run |  |  | New 2026-10-29 (issue #171) |
+| 9e | Note from the Hebrew reader | Not run |  |  | New 2026-10-30 (issue #234) |
 
 History:
 
