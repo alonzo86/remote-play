@@ -5,7 +5,8 @@ extends RefCounted
 
 const BG := Color("000000")          # Every screen background.
 const TEXT := Color("fcfcfc")        # Text and the outer frame line.
-const TEXT_DIM := Color("7c7c7c")    # Help text, WAIT, empty slots, a quiet menu item, a disabled item.
+const TEXT_INFO := Color("b0b0b0")   # Active info text: hints, ranges, WAIT, help (#221).
+const TEXT_DIM := Color("7c7c7c")    # A disabled item only; never enabled text (#221).
 const ACCENT := Color("f8b800")      # Titles, the room code, the focused item, PRESS OK.
 const FRAME := Color("0058f8")       # The inner frame line (not text).
 const OK := Color("00b800")          # READY, good.
@@ -19,8 +20,8 @@ const BG_DARK := BG
 const OUTLINE := BG                  # The dark outline of a game object.
 const CARD := BG
 const CARD_TEXT := TEXT
-const CARD_DIM := TEXT_DIM
-const CARD_MUTED := TEXT_DIM
+const CARD_DIM := TEXT_INFO
+const CARD_MUTED := TEXT_INFO
 const SELECTED := ACCENT             # The chosen value in the settings view (REQ-GM-97).
 const FOCUS_BORDER := ACCENT
 const BAD_TEXT := BAD
@@ -197,9 +198,9 @@ static func make() -> Theme:
 	t.set_type_variation("QuietButton", "Button")
 	_item_type(t, "QuietButton", TEXT, ACCENT)   # An enabled item is white (issue #173).
 	t.set_color("font_color", "LineEdit", TEXT)
-	t.set_color("font_placeholder_color", "LineEdit", TEXT_DIM)
+	t.set_color("font_placeholder_color", "LineEdit", TEXT_INFO)
 	t.set_color("caret_color", "LineEdit", ACCENT)
-	t.set_stylebox("normal", "LineEdit", line_box(TEXT_DIM))
+	t.set_stylebox("normal", "LineEdit", line_box(TEXT_INFO))
 	t.set_stylebox("focus", "LineEdit", line_box(ACCENT))
 	return t
 
