@@ -13,7 +13,6 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const BowlingRules = preload("res://scripts/game/bowling/bowling_rules.gd")
-const BowlingLook = preload("res://scripts/game/bowling/bowling_look.gd")
 const LaneSim = preload("res://scripts/game/bowling/lane_sim.gd")
 
 const DT := 1.0 / 60.0
@@ -22,6 +21,7 @@ var _checks := 0
 var _fails := 0
 var _app: Node
 var _bowling: GDScript
+var BowlingLook: GDScript   # Loaded at run time: bowling_look.gd needs the App autoload (a const preload compiles it too early).
 var _clients: Array = []
 var _buzzes: Array = [[], [], [], []]
 var _log: Array = []   # The plates that the game drew: {frame, msg}.
@@ -61,6 +61,7 @@ func _run() -> void:
 	root.size = Vector2i(1920, 1080)
 	_app = root.get_node("App")
 	_bowling = load("res://scripts/game/bowling/bowling_game.gd")
+	BowlingLook = load("res://scripts/game/bowling/bowling_look.gd")
 	load("res://scripts/game/game_settings.gd").clear()
 	await _connect(4)
 	await _totals()
@@ -415,14 +416,14 @@ func _look() -> void:
 	_check(pin_h / 1080.0 >= 0.044, "13a: a pin is %.0f units high, %.1f %% of the 1080 high screen (at least 4.4 %%)"
 			% [pin_h, 100.0 * pin_h / 1080.0])
 	var size := Vector2(1920, 1080)
-	var geo := BowlingLook.Geo.new(size, 1080.0 - 60.0 - 72.0)
-	var first := BowlingLook.wall_tiles(size, geo)
+	var geo = BowlingLook.Geo.new(size, 1080.0 - 60.0 - 72.0)
+	var first = BowlingLook.wall_tiles(size, geo)
 	var changes := 0
 	var max_per_s := 0
 	var colors: Array = first.map(func(t: Dictionary) -> Color: return t.color)
 	var window := 0
 	for step in 60:   # 30 s, a look every half second.
-		var now := BowlingLook.wall_tiles(size, geo)
+		var now = BowlingLook.wall_tiles(size, geo)
 		for i in now.size():
 			if now[i].color != colors[i]:
 				changes += 1
@@ -431,8 +432,9 @@ func _look() -> void:
 		if step % 2 == 1:
 			max_per_s = maxi(max_per_s, window)
 			window = 0
-	var wall_h := geo.top - BowlingLook.WALL_TOP
-	var in_top := first.all(func(t: Dictionary) -> bool: return t.rect.end.y <= BowlingLook.WALL_TOP + wall_h * 2.0 / 3.0 + 0.01)
+	var wall_h: float = geo.top - BowlingLook.WALL_TOP
+	var wall_top: float = BowlingLook.WALL_TOP
+	var in_top: bool = first.all(func(t: Dictionary) -> bool: return t.rect.end.y <= wall_top + wall_h * 2.0 / 3.0 + 0.01)
 	_check(not first.is_empty() and in_top and changes == 0 and max_per_s <= 3,
 			"13d: the light tiles fill the top two thirds only; over 30 s no tile changed (%d changes, at most %d in 1 s)"
 			% [changes, max_per_s])

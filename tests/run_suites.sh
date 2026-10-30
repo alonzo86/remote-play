@@ -17,7 +17,18 @@ while IFS="|" read -r script role title tier; do
 	case "$tier" in unit | scenario) ;; *) echo "tests/suites.txt: unknown tier '$tier' for $script" >&2; exit 2 ;; esac
 	[ "$TIER" = all ] || [ "$tier" = "$TIER" ] || continue
 	echo "== $title"
-	if ! "$GODOT" --headless --path . --script "$script" -- --role="$role"; then
+	# A script error (a call of a function that does not exist, a null) stops the code that ran it, but the suite can still end with
+	# "0 failed" and exit 0: the checks after the error never ran (issue #276). So the output is kept and a SCRIPT ERROR line fails the suite.
+	LOG="$(mktemp)"
+	STATUS=0
+	"$GODOT" --headless --path . --script "$script" -- --role="$role" >"$LOG" 2>&1 || STATUS=$?
+	cat "$LOG"
+	if [ "$STATUS" = 0 ] && grep -q "^SCRIPT ERROR" "$LOG"; then
+		echo "FAIL: $script printed a SCRIPT ERROR, so some checks did not run"
+		STATUS=1
+	fi
+	rm -f "$LOG"
+	if [ "$STATUS" != 0 ]; then
 		FAILED="$FAILED
   $script ($title)"
 	fi

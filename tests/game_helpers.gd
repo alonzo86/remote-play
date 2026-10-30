@@ -330,20 +330,10 @@ func _scoreboard() -> void:
 func _medals() -> void:
 	print("medals")
 	var medals: GDScript = load("res://scripts/game/medals.gd")
-	var tiers := [10, 20, 30]
 	_check([1, 2, 3, 4, 0, -1].map(func(p): return medals.for_place(p)) == ["gold", "silver", "bronze", "", "", ""],
 			"the medal of a place: 1st gold, 2nd silver, 3rd bronze and nobody else (REQ-GM-73)")
-	_check(medals.medal(9, tiers) == "" and medals.medal(10, tiers) == "bronze" and medals.medal(25, tiers) == "silver"
-			and medals.medal(30, tiers) == "gold" and medals.medal(99, tiers) == "gold",
-			"a score at the limit or better earns the medal of that tier")
-	var fast := [40.0, 30.0, 20.0]
-	_check(medals.medal(45.0, fast, true) == "" and medals.medal(40.0, fast, true) == "bronze"
-			and medals.medal(19.9, fast, true) == "gold", "with lower_is_better a smaller time earns more")
-	_check(medals.is_valid(tiers) and medals.is_valid(fast, true), "tiers that get harder are valid")
-	_check(not medals.is_valid([10, 10, 30]) and not medals.is_valid([30, 20, 10]) and not medals.is_valid([10, 20]),
-			"equal, backward or missing tiers are not valid")
-	_check(not medals.is_valid(tiers, true), "tiers that get easier are not valid for a time")
-	_check(medals.label("gold") == "GOLD MEDAL!" and medals.label("") == "NO MEDAL THIS TIME", "the text of a medal")
+	# There are no score tiers (REQ-GM-73, issue #119): the script must not offer them again.
+	_check(not medals.has_method("medal") and not medals.has_method("is_valid"), "Medals has no score tiers (REQ-GM-73)")
 
 
 func _game_settings() -> void:
