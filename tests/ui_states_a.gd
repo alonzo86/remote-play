@@ -50,6 +50,7 @@ func _run() -> void:
 	_app.client.phase = "menu"
 	await _disconnect_button()
 	await _pad_buttons()
+	await _pad_header()
 	await _fonts_and_background()
 	await _back_key()
 	await _swing_card()
@@ -94,6 +95,18 @@ func _swing_card() -> void:
 	_app.client._handle({"t": "phase", "v": "connect"}, 0)   # The view closes.
 	_check(not _app.client.swing_acked and not _app.client.setup_swing,
 			"the answer is forgotten when the view closes: the next view asks again (issue #148)")
+	# Issue #235: a second swing game asks again, even when the first one was answered by a tap.
+	_app.client._handle({"t": "setup", "swing": true, "pick": false, "in": true}, 0)
+	await process_frame
+	_check(is_instance_valid(wait._swing_card), "the view of the next swing game shows the card again after a tap on the first")
+	var shown: Control = wait._swing_card
+	var picture := shown.find_children("*", "Control", true, false).filter(
+			func(n): return n.custom_minimum_size.y >= 150.0 and not (n is Label or n is Button))
+	_check(picture.size() == 1, "the card has a picture of at least 150 px above the title")
+	var texts := shown.find_children("*", "Label", true, false).map(func(l): return l.text)
+	_check(texts.has("swing.card_title") and texts.has("swing.card_text"), "the card keeps its title and its short line")
+	_app.client._handle({"t": "phase", "v": "connect"}, 0)
+	await process_frame
 	_app.client.swing_acked = true
 	_app.client._handle({"t": "welcome", "slot": 1, "color": "#ff0000", "token": "t", "name": "TV2", "phase": "connect"}, 0)
 	_check(not _app.client.swing_acked, "a new welcome (another TV) forgets the answer too")
@@ -188,6 +201,44 @@ func _pad_buttons() -> void:
 	var draws_a: bool = src.contains('_draw_button(_center_a(), "A", Protocol.BTN_A)')
 	var draws_b: bool = src.contains('_draw_button(_center_b(), "B", Protocol.BTN_B)')
 	_check(draws_a and draws_b, "the pad draws A and B with no color of their own (a white face, issue #173)")
+
+
+## Issue #238, REQ-FL-52b: a long name fits the header, and a lost link buzzes the phone once (HAPTICS ON only).
+func _pad_header() -> void:
+	print("pad header and lost link")
+	var holder := Control.new()
+	holder.size = Vector2(1080, 1920)
+	root.add_child(holder)
+	var pad := _screen(_pad_script, holder)
+	pad.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	await process_frame
+	await process_frame
+	var names := {"en": "WWWWWWWWWWWWWWWW", "he": "אבגדהוזחטיכלמנסע"}
+	for lang in names:
+		for avatar in [true, false]:
+			var rect: Rect2 = pad._rect_name(avatar)
+			var fs: int = _pad_script.name_size(names[lang], rect.size.x)
+			var w := UiTheme.font().get_string_size(names[lang], HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+			_check(w <= rect.size.x and fs >= 16 and rect.end.x <= pad._rect_leave().position.x,
+					"[%s] a name of 16 letters fits the header with%s an avatar (%.0f of %.0f px at %d px type)"
+					% [lang, "" if avatar else "out", w, rect.size.x, fs])
+	_check(_pad_script.name_size("MAYA", pad._rect_name(true).size.x) == 48, "a short name keeps the full 48 px type")
+	var Haptics: GDScript = load("res://scripts/game/haptics.gd")
+	var calls: Array = []
+	Haptics.vibrate_call = func(ms: int) -> void: calls.append(ms)
+	var old: bool = _app.settings.get("haptics", true)
+	_app.settings.haptics = true
+	_app.client.state_changed.emit(ControllerClient.State.CONNECTED)
+	_check(calls.is_empty(), "no buzz when the link is (back) up")
+	_app.client.state_changed.emit(ControllerClient.State.RECONNECTING)
+	_check(calls == [_pad_script.LOST_BUZZ_MS] and _pad_script.LOST_BUZZ_MS >= 500,
+			"a lost link buzzes once, 500 ms or more (got %s)" % str(calls))
+	_app.settings.haptics = false
+	_app.client.state_changed.emit(ControllerClient.State.RECONNECTING)
+	_check(calls.size() == 1, "with HAPTICS off the lost link does not buzz")
+	_app.settings.haptics = old
+	Haptics.vibrate_call = Callable()
+	holder.queue_free()
 
 
 ## Test 8b.6a: the phone screens are black with the pixel font. Every text uses the font of the theme.
