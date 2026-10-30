@@ -1065,6 +1065,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 3e. **Aim strip.** On the phone on turn, slide a finger from the left end of the strip to the right end in about 1 s, then back. Check: the ball on the TV is in the left gutter at the left end of the strip and in the right gutter at the right end, and it moves in the same direction as the finger. (The mapping is in A-23-3.)
 3f. Film the phone and the TV together at 60 fps or more and slide a finger on the strip. Check: the ball starts to move within 12 frames (0.2 s) after the finger starts to move, in 5 of 5 tries.
 3g. Touch the rest of the screen outside the strip with a finger, 5 times. Check: the ball does not move, and the pad shows no A and no B button (REQ-GM-37a, issues #80 and #143). A phone that is not on turn has no Recenter box either (REQ-GM-37, issue #55).
+3h. **Knob, trail and tick (2026-10-30, issue #236).** On the phone on turn, slide a finger slowly from the left end to the right end of the strip, with the HAPTICS switch ON. Check: the knob is still visible next to the finger (yes or no), a fading trail follows it (yes or no), and the phone ticks once as the knob passes the middle mark (once in 5 of 5 slides).
 4e. Throw 5 balls with each grip: screen up, screen to the side, and the other hand. Check: at least 4 of 5 swings throw a ball for each grip. (REQ-BW-5)
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
 4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)
@@ -1089,6 +1090,7 @@ Measurements (write down, no pass or fail): if the strip is too small or too lar
 | 3e | Note: where the ball is at the two ends of the strip | Not run | | | |
 | 3f | Video of the phone and the TV; note: frames of delay | Not run | | | |
 | 3g | Note: balls that moved when the screen was touched; a photo of the pad | Not run | | | |
+| 3h | Video of the finger and the knob; note: ticks counted in 5 slides | Not run | | | Added 2026-10-30 (issue #236). |
 | 4e | Note: throws of 5 for each grip | Not run | | | |
 | 4f | Note: balls thrown while walking | Not run | | | |
 | 4g | Note: balls thrown by 10 shakes; throws of 5 normal swings | Not run | | | |
