@@ -191,7 +191,7 @@ func _room_tag() -> Control:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 0)
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	var cap := UiKit.label("connect.room_code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	var cap := UiKit.label("connect.room_code", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 	cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(cap)
 	_room = UiKit.title(_room_text(), UiTheme.SIZE_ITEM)

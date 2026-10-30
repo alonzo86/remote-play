@@ -23,6 +23,7 @@ var _quit_dialog: Control
 var _pick_box: Control      # "Play this game?" with IN and OUT, in the TV settings view with two or more phones (issue #76).
 var _in_button: Button
 var _out_button: Button
+var _out_banner: Label   # "You are OUT, tap IN to play" while this phone has chosen OUT (issue #242).
 var _swing_card: Control   # The safety card of a swing game (issue #79). Null while it is not open.
 
 
@@ -64,7 +65,7 @@ func _ready() -> void:
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_title)
-	_sub = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_sub = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sub.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_sub)
@@ -78,6 +79,11 @@ func _ready() -> void:
 	var choice := HBoxContainer.new()
 	choice.add_theme_constant_override("separation", 24)
 	_pick_box.add_child(choice)
+	_out_banner = UiKit.title("setup.out_banner", UiTheme.SIZE_BODY, UiTheme.ACCENT)
+	_out_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_out_banner.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_out_banner.visible = false
+	_pick_box.add_child(_out_banner)
 	_in_button = UiKit.box_button("setup.in", func(): App.client.send_play(true), UiTheme.SIZE_ITEM)
 	_out_button = UiKit.box_button("setup.out", func(): App.client.send_play(false), UiTheme.SIZE_ITEM)
 	for b in [_in_button, _out_button]:
@@ -87,7 +93,7 @@ func _ready() -> void:
 	_best = UiKit.title("", 56, UiTheme.OK)   # NEW BEST! after a round that set a personal best (REQ-GM-100).
 	_best.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_best)
-	_best_detail = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_best_detail = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 	_best_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_best_detail.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_best_detail)
@@ -118,6 +124,7 @@ func _update_pick() -> void:
 	_pick_box.visible = c.setup_pick
 	_mark(_in_button, c.setup_in)
 	_mark(_out_button, not c.setup_in)
+	_out_banner.visible = c.setup_pick and not c.setup_in
 
 
 ## Both answers are white (issue #173). The chosen one has the thick yellow border (a shape and a color), so the choice never
@@ -162,6 +169,8 @@ func _refresh() -> void:
 	var t := texts_for(c.phase)
 	_title.text = Lang.t(String(t[0])).to_upper()
 	_sub.text = Lang.t(String(t[1])).to_upper()
+	if c.phase == "waiting" and c.sat_out:
+		_sub.text = Lang.t("wait.you_chose_out").to_upper()   # This phone chose OUT: not a late joiner (issue #242).
 	if c.state != ControllerClient.State.CONNECTED:
 		_sub.text = "connect.reconnecting"
 	_name.text = c.tv_player_name.to_upper() if c.tv_pid != "" else "%dP" % (c.slot + 1)

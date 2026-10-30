@@ -19,7 +19,7 @@ app.room_full_4_players,THE ROOM IS FULL (4 PLAYERS).,החדר מלא (4 שחק�
 app.room_link,THIS IS A ROOM LINK.,זה קישור של חדר.,"Phone, player list: message when a room link (TV link) is pasted instead of a player code",
 app.wrong_room_code,WRONG ROOM CODE.,קוד החדר שגוי.,"Phone, Connect screen: error for a wrong room code",
 connect.bad_code,THAT IS NOT A ROOM CODE. IT HAS 4 LETTERS.,זה לא קוד חדר. הוא כולל 4 אותיות.,"Phone, Connect screen: error when the typed text is not a room code",
-connect.join,JOIN,הצטרפו,"Phone, Connect screen: button next to the room code field",
+connect.join,JOIN,הצטרף,"Phone, Connect screen: button next to the room code field",
 connect.or_type_code,OR TYPE THE ROOM CODE.,או הקלידו את קוד החדר.,"TV Connect screen: help line under the title, third sentence",
 connect.room_not_found,"CAN'T FIND THIS ROOM. CHECK THE CODE, OR SCAN THE QR CODE.","לא נמצא חדר כזה. בדקו את הקוד, או סרקו את קוד ה־QR.","Phone, Connect screen: error when no TV answers to the typed room code",
 connect.type_code,TYPE THE ROOM CODE FROM THE TV,הקלידו את קוד החדר מהטלוויזיה,"Phone, Connect screen: label above the room code field",
@@ -41,7 +41,7 @@ connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen and phon
 connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens), also big in the middle of the pad with a dashed frame (issue #238)",
 connect.refused,Connection refused: %s,החיבור נדחה: %s,"Phone, Connect screen: error when the TV refuses for another reason, %s is the reason code",%s is replaced by a name or a value
 connect.room_code,ROOM CODE,קוד חדר,TV Connect screen: label above the room code; Games screen: label above the room code in the header,
-connect.scan_qr_code,SCAN QR CODE,סרקו קוד QR,"Phone, Connect screen: button that opens the QR scanner",
+connect.scan_qr_code,SCAN QR CODE,סרוק קוד QR,"Phone, Connect screen: button that opens the QR scanner",
 connect.stay,STAY,להישאר,TV Connect screen and phone waiting and pad screens (Back key): Stay button of the quit dialog,
 slot_list.lost,LOST,אבד,TV Connect screen and Players modal: state of a phone that lost the connection,
 game_settings.difficulty,DIFFICULTY,רמת קושי,TV game settings: name of the Difficulty row,
@@ -53,7 +53,7 @@ games.n_players,%d players,%d שחקנים,"TV Games screen: game tile, a game f
 games.needs_players,Needs %d players,דרושים %d שחקנים,"TV game settings and game tile: why a game cannot start when too few phones have joined, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
 games.one_player,1 player,שחקן אחד,"TV Games screen: game tile, a game for 1 player",
 games.range_players,%d-%d players,%d-%d שחקנים,"TV Games screen: game tile, a game for a range of players","the number sign (%d, %.1f ...) is replaced by a number"
-games.select_game,SELECT GAME,בחר משחק,TV Games screen: title,
+games.select_game,SELECT GAME,בחרו משחק,TV Games screen: title,
 games.up_to_players,Up to %d players,עד %d שחקנים,"TV game settings and game tile: why a game cannot start when too many phones have joined, %d is the maximum","the number sign (%d, %.1f ...) is replaced by a number"
 gear_button.options,OPTIONS,אפשרויות,TV Games screen: Options button at the top,
 logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים עם הטלפון כשלט תנועה,TV logo screen: line under the logo,
@@ -70,7 +70,7 @@ minigame.end_game_ask,END THE GAME?,לסיים את המשחק?,Title of the que
 minigame.end_game,END GAME,סיום המשחק,"Button End game in the pause menu (leaves at once), in the question 'End the game?' and in the card of a lost phone",
 minigame.no_players_connected,NO PLAYERS CONNECTED,אין שחקנים מחוברים,"Title of the menu when every phone has left a game, and of the card when the only phone of the game is lost (it waits for the phone)",
 minigame.paused,PAUSED,מושהה,Title of the pause menu,
-minigame.restart,TRY AGAIN,נסו שוב,Button Try again in the pause menu and the result menu,
+minigame.restart,TRY AGAIN,נסה שוב,Button Try again in the pause menu and the result menu,
 minigame.resume,RESUME,המשך,"Button Resume in the pause menus, the pause card and the question 'End the game?'",
 minigame.round_over,ROUND OVER,הסיבוב נגמר,Title of the result menu when there is no winner to name,
 common.settings,SETTINGS,הגדרות,"Title of the TV and phone Settings screens; Settings button on the phone waiting screen; button in the game result menu (back to the settings of the game)",
@@ -152,8 +152,9 @@ sumo_bumpers.round_draw,ROUND DRAW!,תיקו בסיבוב!,Sumo Bumpers: banner 
 sumo_bumpers.round_n_of,Round %d of %d,סיבוב %d מתוך %d,"Sumo Bumpers HUD: round counter, first %d is the round, second is the total","the number sign (%d, %.1f ...) is replaced by a number"
 sumo_bumpers.round_winner,%s wins the round!,%s ניצח בסיבוב!,"Sumo Bumpers: banner after a round, %s is the name of the winner",%s is replaced by a name or a value
 sumo_bumpers.tilt_bump_others_off,TILT TO BUMP THE OTHERS OFF THE PLATFORM! PRESS A TO DASH!,הטו כדי לדחוף את האחרים מהפלטפורמה! לחצו A כדי לזנק!,Sumo Bumpers: hint during the countdown,
-wait.choose_game_tv,CHOOSE A GAME ON THE TV,בחר משחק בטלוויזיה,Phone waiting screen: title while the TV shows the menus,
+wait.choose_game_tv,CHOOSE A GAME ON THE TV,בחרו משחק בטלוויזיה,Phone waiting screen: title while the TV shows the menus,
 wait.join_next_round,YOU JOIN NEXT ROUND.,תצטרפו לסיבוב הבא.,Phone waiting screen: second line when a round is running,
+wait.you_chose_out,YOU CHOSE OUT. YOU JOIN NEXT ROUND.,בחרתם להישאר בחוץ. תצטרפו לסיבוב הבא.,Phone waiting screen: second line when a round runs and this phone chose OUT before the start (instead of wait.join_next_round),New 2026-10-30 (issue #242).
 wait.round_running,A ROUND IS IN PROGRESS,סיבוב מתנהל כעת,Phone waiting screen: title when a round runs and the phone is not in it,
 wait.use_tv_remote_phone,USE THE TV REMOTE. YOUR PHONE IS READY.,השתמשו בשלט הטלוויזיה. הטלפון שלכם מוכן.,Phone waiting screen: second line while the TV shows the menus,
 wait.waiting_host,WAITING FOR THE HOST,ממתינים למארח,Phone waiting screen: title before the TV has chosen a game,
@@ -236,7 +237,7 @@ mini_golf.col_strokes,Strokes,מכות,"Mini Golf: card at the end of a hole, ti
 mini_golf.col_total,Total,סה״כ,"Mini Golf: card at the end of a hole, title of the column with the strokes of the whole match",
 mini_golf.phone_wait,%s IS PUTTING,%s מבצע/ת מכה,"Mini Golf: phone screen, line under the player and score rows while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
 common.ok,OK,אישור,Phone safety card of a swing game (OK button),
-swing.card_title,HOLD ON TIGHT!,תחזיקו חזק!,"Phone: title of the safety card that shows each time the settings view of a swing game (Pin Pals, Tennis, Mini Golf, Freeze Dance) is open on the TV",
+swing.card_title,HOLD ON TIGHT!,החזיקו חזק!,"Phone: title of the safety card that shows each time the settings view of a swing game (Pin Pals, Tennis, Mini Golf, Freeze Dance) is open on the TV",
 swing.card_text,GRIP FIRMLY. KEEP SPACE AROUND YOU.,אחזו חזק. שמרו מרחק מסביב.,Phone: text of the safety card of a swing game (under a picture of a phone with a wrist strap),Shortened 2026-10-30 (issue #235); was: GRIP YOUR PHONE FIRMLY. CHECK THAT NOBODY IS CLOSE AND NOTHING IS IN THE WAY.
 swing.tv_line,HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.,החזיקו את הטלפון חזק ושמרו מרחק מסביב.,"TV game settings view of Pin Pals, Tennis, Mini Golf and Freeze Dance: safety line under the rows, always shown",
 game_settings.waiting_phones,WAITING FOR PHONES,ממתינים לטלפונים,TV game settings view of a swing game: line under Start while a phone has not tapped OK on its safety card (Start is off),
@@ -252,6 +253,7 @@ how_to.mini_golf,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT THE BA
 setup.question,PLAY THIS GAME?,לשחק במשחק הזה?,"Phone waiting screen, while the TV settings view of a game is open and two or more phones are connected: the question above the IN and OUT buttons",
 setup.in,IN,בפנים,Phone waiting screen: the IN button (this phone plays the game); TV game settings view: the word after the name of a player who plays,
 setup.out,OUT,בחוץ,Phone waiting screen: the OUT button (this phone watches); TV game settings view: the word after the name of a player who sits out,
+setup.out_banner,YOU ARE OUT. TAP IN TO PLAY.,אתם בחוץ. לחצו על בפנים כדי לשחק.,"Phone waiting screen, under the IN and OUT buttons while this phone has chosen OUT (the TV settings view is open)",New 2026-10-30 (issue #242). The Hebrew word for IN must match setup.in.
 registry.sheep_herding,SHEEP HERDING,רועה כבשים,"Name of the game Sheep Herding: Games screen, game settings, in-game title",
 registry.desc_sheep_herding,A TEAM GAME: HERD ALL THE SHEEP INTO THE PEN.,משחק קבוצתי: מובילים את כל הכבשים לדיר.,"Description of Sheep Herding: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.sheep_herding,"TILT YOUR PHONE TO RUN YOUR DOG. TOGETHER, HERD ALL THE SHEEP INTO THE PEN BEFORE THE TIME IS UP.","הטו את הטלפון כדי לגרום לכלב לרוץ. יחד, הובילו את כל הכבשים לדיר לפני שהזמן נגמר.","TV game settings view of Sheep Herding: how to play, under the title (issue #77)",

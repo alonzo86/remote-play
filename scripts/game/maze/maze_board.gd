@@ -4,6 +4,8 @@ extends RefCounted
 ## The walls are given as rectangles in screen units (1 world pixel = 4 units). Everything is flat color on the pixel grid:
 ## a wall has a dark outline, a lit top edge, a face with marks, and a front band below it (the wall stands up from the ground).
 
+const Palette = preload("res://scripts/game/palette.gd")
+
 const FRONT := 4      # The front band under a wall, in world pixels.
 const TILE := 12      # The ground is a chess board of tiles this many world pixels wide.
 const HUD_ROWS := 28  # The black bar for the title and the timer: 112 screen units.
@@ -26,7 +28,7 @@ const DEFAULT_THEME := "garden"
 
 ## The flame of a torch (REQ-MZ-14): the top 5 rows of the torch picture are not in the board picture. The game draws one of these
 ## frames there, and the frame changes every FLAME_S seconds of game time. One character is one world pixel, as in SPRITES.
-const FLAME_COLORS := {"Y": Color("f8b800"), "O": Color("f83800")}
+const FLAME_COLORS := {"Y": Color("f8b800"), "O": Palette.NES_RED}
 const FLAME_FRAMES := [
 	["...YY...", "..YOOY..", "..YOOY..", ".YOYYOY.", ".YOYYOY."],
 	["........", "...YY...", "..YOOY..", ".YOYYOY.", ".YOYYOY."],
@@ -61,7 +63,7 @@ const SPRITES := {
 				"KGGGGRGGGGDK",
 				".KDDDDDDDDK.",
 				"..KKKKKKKK.."],
-			"colors": {"K": "outline", "G": "face", "D": "front", "R": Color("f83800"), "P": Color("f8a0b8")}},
+			"colors": {"K": "outline", "G": "face", "D": "front", "R": Palette.NES_RED, "P": Color("f8a0b8")}},
 	"torch": {"rows": ["........",
 				"........",
 				"........",
@@ -77,7 +79,7 @@ const SPRITES := {
 				"...TT...",
 				"...TT...",
 				"..KKKK.."],
-			"colors": {"K": "outline", "O": Color("f83800"), "T": Color("7c4a1c")}},
+			"colors": {"K": "outline", "O": Palette.NES_RED, "T": Color("7c4a1c")}},
 	"shield": {"rows": ["KKKKKKKKKK",
 				"KRRRRRRRRK",
 				"KRRRYYRRRK",

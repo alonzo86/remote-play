@@ -27,9 +27,27 @@ func _initialize() -> void:
 
 func _run() -> void:
 	_codes()
+	_alphabet()
 	_decode()
 	_hosts()
 	_links()
+
+
+## Issue #241: a child reads the code from the TV and types it, so the alphabet has no letter that looks like a digit or like
+## another letter of the alphabet (docs/PROTOCOL.md, "Room code"). Changing it changes every room code: it needs a new VERSION.
+func _alphabet() -> void:
+	print("the alphabet")
+	var a: String = Protocol.ROOM_ALPHABET
+	var confusing := ["B", "I", "O", "S", "0", "1", "5", "8"]   # 8, 1, 0, 5 and the letters that look like them.
+	_check(confusing.all(func(ch): return not a.contains(ch)), "no B, I, O, S and no digit in the alphabet")
+	var unique := {}
+	for ch in a:
+		unique[ch] = true
+	_check(unique.size() == a.length() and a == a.to_upper(), "every letter is there once, in capitals")
+	_check(pow(a.length(), Protocol.ROOM_LENGTH) >= 65536.0,
+			"4 letters of the alphabet can write all 65536 values (%d letters)" % a.length())
+	_check(Protocol.room_code_for_ip("192.168.1.23") == "DREJ",
+			"the alphabet has the same order as before: DREJ stays DREJ (VERSION 5)")
 
 
 func _codes() -> void:

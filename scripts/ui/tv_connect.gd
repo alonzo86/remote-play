@@ -39,7 +39,7 @@ func _ready() -> void:
 	_qr = QrView.new()
 	_qr.custom_minimum_size = Vector2(420, 420)
 	cv.add_child(_qr)
-	cv.add_child(UiKit.label("connect.room_code", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM))
+	cv.add_child(UiKit.label("connect.room_code", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO))
 	_room = UiKit.title(App.server.room_code, UiTheme.SIZE_TITLE)
 	_room.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	cv.add_child(_room)
@@ -52,7 +52,7 @@ func _ready() -> void:
 	cols.add_child(right)
 	right.add_child(UiKit.title("common.players"))
 	for help_key in ["connect.same_wi_fi", "connect.open_app_scan_code", "connect.or_type_code"]:
-		var help := UiKit.label(help_key, UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+		var help := UiKit.label(help_key, UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 		help.autowrap_mode = TextServer.AUTOWRAP_WORD
 		right.add_child(help)
 	right.add_child(UiKit.spacer(10))

@@ -237,7 +237,7 @@ func _tile_reason() -> void:
 	var want := Registry.reason(sumo.game, 1).to_upper()
 	_check(want != "" and sumo._meta.text == want and sumo._meta.get_theme_color("font_color") == UiTheme.ACCENT,
 			"Sumo Bumpers with 1 phone shows the reason '%s' in yellow" % want)
-	_check(paint._meta.text != want and paint._meta.get_theme_color("font_color") == UiTheme.TEXT_DIM,
+	_check(paint._meta.text != want and paint._meta.get_theme_color("font_color") == UiTheme.TEXT_INFO,
 			"Paint Grab, which fits 1 phone, shows its player range in the dim color, not in yellow")
 	_check(sumo.modulate.a < 1.0 and paint.modulate.a == 1.0, "the tile that does not fit is dim")
 	var heard: Array[String] = []

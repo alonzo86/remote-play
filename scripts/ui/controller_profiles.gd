@@ -38,7 +38,7 @@ func _ready() -> void:
 	_list.add_theme_constant_override("separation", 16)
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_list)
-	_note = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DIM)
+	_note = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
 	_note.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_note)

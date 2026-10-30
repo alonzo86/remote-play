@@ -8,6 +8,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const SafeArea = preload("res://scripts/ui/safe_area.gd")
 
 var _checks := 0
@@ -135,6 +136,27 @@ func _pick_question() -> void:
 	_check(not _app.client.setup_in and in_fill.border_width_left == UiTheme.LINE
 			and out_fill.border_width_left == UiTheme.MARK_W and out_fill.bg_color == UiTheme.BUTTON_FACE,
 			"a tap on OUT moves the thick border to OUT, and both stay white")
+	_check(wait._out_banner.visible and wait._out_banner.text == "setup.out_banner",
+			"issue #242: after OUT a banner says YOU ARE OUT, TAP IN TO PLAY")
+	wait._in_button.pressed.emit()   # One tap undoes it.
+	await process_frame
+	_check(_app.client.setup_in and not wait._out_banner.visible, "one tap on IN undoes OUT and hides the banner")
+	wait._out_button.pressed.emit()
+	await process_frame
+	# The round starts while this phone is OUT: the waiting screen says that it chose OUT, not that it is late.
+	_app.client._handle({"t": "phase", "v": "waiting"}, 0)
+	await process_frame
+	_check(_app.client.sat_out and wait._sub.text == Lang.t("wait.you_chose_out").to_upper(),
+			"a phone that chose OUT is told so while the round runs (got '%s')" % wait._sub.text)
+	_app.client._handle({"t": "phase", "v": "waiting"}, 0)
+	_check(_app.client.sat_out, "a second waiting message does not forget it")
+	_app.client._handle({"t": "phase", "v": "menu"}, 0)
+	await process_frame
+	_check(not _app.client.sat_out, "back in the menus the phone is IN again and the note is gone")
+	_app.client._handle({"t": "phase", "v": "waiting"}, 0)
+	await process_frame
+	_check(not _app.client.sat_out and wait._sub.text == Lang.t("wait.join_next_round").to_upper(),
+			"a phone that was IN or late sees the old line (got '%s')" % wait._sub.text)
 	_app.client.setup_pick = false
 	_app.client.setup_in = true
 	wait.queue_free()
