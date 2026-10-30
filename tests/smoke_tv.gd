@@ -352,7 +352,7 @@ func _run() -> void:
 	ev.pressed = true
 	Input.parse_input_event(ev)
 	await _frames(3)
-	_check(game.is_paused(), "OK opens the pause menu")
+	_check(not game.is_paused(), "OK in a game does nothing (issue #228)")
 	game.restart()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), MazeGame) and app.current_screen() != game, "restart makes a new maze screen")
@@ -766,7 +766,11 @@ func _run() -> void:
 	var ok_event := InputEventAction.new()
 	ok_event.action = "ui_accept"
 	ok_event.pressed = true
-	lg._unhandled_input(ok_event) # OK opens the pause menu. Its "End game" leaves at once (REQ-GM-31, issue #53).
+	Input.parse_input_event(ok_event)
+	await _frames(2)
+	_check(not lg.is_paused() and lg.menu_buttons().is_empty(), "OK in a race does nothing (REQ-GM-31, issue #228)")
+	# The pause menu is only opened by code now; its "End game" leaves at once (issue #53).
+	lg.open_menu("minigame.paused", lg.pause_entries())
 	await _frames(2)
 	var pause_labels: Array = lg.menu_buttons().map(func(b): return b.text)
 	_check(pause_labels == ["minigame.resume", "minigame.restart", "minigame.end_game"],
