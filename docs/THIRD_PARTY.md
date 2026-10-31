@@ -1,6 +1,6 @@
 # Third-party libraries and resources
 
-Every library, plugin, font, sound, image or other resource that Sababi ships and that another maker owns is listed here, with its license and what the license asks of us. The rule for adding one is in `CLAUDE.md` ("Third-party libraries and resources"). Checked on 2026-10-13 (draft, not legal advice).
+Every library, plugin, font, sound, image or other resource that Sababi ships and that another maker owns is listed here, with its license and what the license asks of us. The rule for adding one is in `CLAUDE.md` ("Third-party libraries and resources"); the checklist is in `.claude/agents/license-reviewer.md`. Checked on 2026-10-13 (draft, not legal advice).
 
 | Component | Version | Used in | Shipped in the app | License | Owner | Notice needed | Status |
 |-----------|---------|---------|--------------------|---------|-------|---------------|--------|
