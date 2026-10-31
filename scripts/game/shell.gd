@@ -9,6 +9,7 @@ extends RefCounted
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
+const RoundClock = preload("res://scripts/game/round_clock.gd")
 
 const TITLE_LINE_UP := 40.0   # A title on two lines: the first line is this far above the second.
 const CHIP_FONT := 32          # The size of the text on a chip.
@@ -19,6 +20,7 @@ const CHIP_GAP := 8.0          # The space between the square and the avatar.
 const CHIP_LINE := 4           # The frame of a chip.
 const TIMER_X := 520.0         # The timer box has one place in every game (REQ-GM-47o): left edge on a left to right screen.
 const TIMER_Y := 36.0
+const TIMER_W := 208.0         # The width of the timer box of a timed game: "60.0 S" in the 32 px font is 192 px wide.
 const BAR_H := 112.0           # The black bar on top of every pixel game (REQ-GM-45a); `Minigame.HUD_BAR_H` is this value.
 const TITLE_BASELINE := 96.0   # The baseline of the game title, in every game (REQ-GM-45c).
 # The baseline of the status text of the bar ("FIRST TO 5", "FRAME 1/10"): level with the text of the timer box and the
@@ -322,6 +324,19 @@ static func timer(ci: CanvasItem, pos: Vector2, seconds: float, width := 240.0) 
 	UiTheme.draw_centered(ci, UiTheme.font(), shown, r, CHIP_FONT, UiTheme.TEXT)
 	_note("timer", ci, r, {"text": shown})
 	return r
+
+
+## The HUD of a game with a timed round (REQ-GM-47o): the timer box while the round runs, the countdown numbers before it, and the
+## hint line during the first `hint_time` seconds. The title and the chips are drawn by the game. `over` is the end of the game,
+## `has_players` is false when nobody plays (no countdown is shown then). In the countdown `round_clock.time` is below 0.
+static func timed_hud(ci: CanvasItem, area: Vector2, round_clock: RoundClock, over: bool, has_players: bool, hint_key: String,
+		hint_time: float) -> void:
+	if round_clock.is_playing() and not over:
+		timer(ci, Vector2(TIMER_X, TIMER_Y), round_clock.remaining(), TIMER_W)
+	if round_clock.is_counting() and has_players:
+		countdown(ci, area, str(round_clock.count_number()), round_clock.count_elapsed())
+	if round_clock.time < hint_time and not over:
+		hint(ci, area, hint_key)
 
 
 ## The width of a timer box for `shown`: `min_w`, or the text with the padding of a chip when that is wider.

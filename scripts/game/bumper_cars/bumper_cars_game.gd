@@ -22,7 +22,7 @@ const BUZZ_GAP_MS := 150
 const HINT_TIME := 5.0
 const HIT_SHOW_TIME := 0.25
 const TIMER_X := Shell.TIMER_X
-const TIMER_W := 208.0
+const TIMER_W := Shell.TIMER_W
 const TITLE_X := 60.0          # The title starts at the 60 px margin.
 const TITLE_FONT := 32
 const TITLE_GAP := 8.0         # The title stays this far from the timer box.
@@ -239,9 +239,4 @@ func title_room() -> float:
 func _game_draw() -> void:
 	Shell.title_wrapped(self, "registry.bumper_cars", title_room(), Vector2(TITLE_X, 96.0), TITLE_FONT)
 	draw_leader_chip(self)
-	if _round.is_playing() and not is_over:
-		Shell.timer(self, Vector2(TIMER_X, 36.0), maxf(_round.remaining(), 0.0), TIMER_W)
-	if _round.is_counting() and not participants.is_empty():
-		Shell.countdown(self, size, str(_round.count_number()), _round.count_elapsed())
-	if _round.time < HINT_TIME and not is_over:
-		Shell.hint(self, size, "bumper_cars.hint")
+	Shell.timed_hud(self, size, _round, is_over, not participants.is_empty(), "bumper_cars.hint", HINT_TIME)
