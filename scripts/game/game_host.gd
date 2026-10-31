@@ -5,8 +5,8 @@ extends RefCounted
 ## is the one that knows the `App` autoload. REQ-GM-12: a game reaches the phones only through the server API, and this is
 ## that API for a game.
 ##
-## Issue #300: `Minigame`, `Haptics` and the games use it; nothing under `scripts/game/` names `App` except this class and the phone
-## side of `Haptics` (`on_message`, the HAPTICS switch).
+## Issue #300: `Minigame`, `Haptics` and the games use it; nothing under `scripts/game/` names `App` except this class and
+## the phone side of `Haptics` (`on_message`, the HAPTICS switch).
 
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 
