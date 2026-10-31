@@ -41,17 +41,17 @@ func _about() -> void:
 	var pages := About.pages(false)
 	var titles := pages.map(func(p): return p.title)
 	_check(titles == ["Sababi", "Godot Engine", "about.third_party_libraries"], "the About list: Sababi, Godot, 3rd Party Libraries")
-	_check(not ("QR scanner" in titles) and "QR scanner" in About.pages(true).map(func(p): return p.title),
+	_check(not ("about.qr_scanner" in titles) and "about.qr_scanner" in About.pages(true).map(func(p): return p.title),
 			"the scanner note is only for the Android phone")
 	var by := {}
 	for p in pages:
 		by[p.title] = p
 	_check(About.text(by["Godot Engine"]).contains("Permission is hereby granted"), "the Godot page has the MIT license text")
 	var libs := About.libraries()
-	var has_android := func(list: Array): return list.any(func(l): return l.title == "Android libraries")
+	var has_android := func(list: Array): return list.any(func(l): return l.title == "about.android_libraries")
 	_check(not has_android.call(libs) and has_android.call(About.libraries(true)),
 			"the Android libraries page is only in the Android apps")
-	var android_page: Dictionary = About.libraries(true).filter(func(l): return l.title == "Android libraries").front()
+	var android_page: Dictionary = About.libraries(true).filter(func(l): return l.title == "about.android_libraries").front()
 	var android_text := About.text(android_page)
 	_check(android_page.license == "Apache-2.0" and android_text.contains("Apache License") and android_text.contains("Version 2.0")
 			and android_text.contains("play-services-code-scanner") and android_text.contains("Kotlin standard library"),
@@ -134,6 +134,7 @@ func _about_screen() -> void:
 	screen.queue_free()
 	await _about_extra()
 	await _about_stays_open()
+	await _about_titles_in_hebrew()
 
 
 ## Marks a check that fails because of a real problem in the game that is not fixed yet: it is printed and not counted as a
@@ -159,6 +160,34 @@ func _open_about(props := {}) -> Control:
 	await process_frame
 	await process_frame
 	return screen
+
+
+## Issue #292: the titles "QR scanner" and "Android libraries" are string rows, so they show in Hebrew: in the list of pages,
+## in the list of libraries (with the license) and as the heading of the page. A name (Godot Engine, a font) stays as it is.
+func _about_titles_in_hebrew() -> void:
+	print("About titles in Hebrew")
+	var app: Node = root.get_node("App")
+	app.set_language("he", false)
+	var qr := About.title_text({"title": "about.qr_scanner"})
+	var android := About.title_text({"title": "about.android_libraries"})
+	_check(qr == "סורק QR" and android == "ספריות אנדרואיד" and About.title_text({"title": "Godot Engine"}) == "Godot Engine",
+			"a key title is translated and a name stays")
+	var screen: Control = await _open_about({"scanner_note": true})
+	_check(screen.find_children("*", "Button", true, false).any(func(b): return String(b.text) == "סורק QR"),
+			"the About list shows the scanner page in Hebrew")
+	screen._libs = About.libraries(true)
+	screen._show_libraries()
+	await process_frame
+	var buttons: Array = screen.find_children("*", "Button", true, false)
+	var row: Array = buttons.filter(func(b): return String(b.text).contains("ספריות אנדרואיד"))
+	_check(row.size() == 1 and String(row[0].text).to_upper().contains("(APACHE-2.0)"),
+			"the Android libraries row is in Hebrew with its license")
+	screen.show_page(screen._libs.find_custom(func(l): return l.title == "about.android_libraries"))
+	await process_frame
+	_check(screen.find_children("*", "Label", true, false).any(func(l): return String(l.text) == "ספריות אנדרואיד"),
+			"the heading of the Android libraries page is in Hebrew (not '?' marks)")
+	screen.queue_free()
+	app.set_language("en", false)
 
 
 ## More About steps of tests 21.8 to 21.10 (REQ-FL-85): every library row, the size of the text, the fourth Back, touch scrolling,
@@ -187,7 +216,7 @@ func _about_extra() -> void:
 		var needed := font.get_multiline_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, room, size).y \
 				+ box.get_margin(SIDE_TOP) + box.get_margin(SIDE_BOTTOM)
 		var r := b.get_global_rect()
-		var name_ok := shown.to_upper().contains(About.safe(String(libs[i].title)).to_upper())
+		var name_ok := shown.to_upper().contains(About.title_text(libs[i]).to_upper())
 		var license_ok := shown.to_upper().contains("(%s)" % String(libs[i].license).to_upper())
 		if not (name_ok and license_ok and b.autowrap_mode != TextServer.AUTOWRAP_OFF and b.size.y + 0.5 >= needed):
 			bad.append(String(libs[i].title))

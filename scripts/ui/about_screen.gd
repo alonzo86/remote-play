@@ -83,7 +83,7 @@ func _list_screen(title: String, on_pick: Callable, with_license: bool) -> void:
 		var idx := i
 		var label := String(_current[i].title)
 		if with_license:
-			label = About.safe("%s  (%s)" % [label, _current[i].license])
+			label = "%s  (%s)" % [About.title_text(_current[i]), About.safe(String(_current[i].license))]
 		else:
 			label = Lang.t(label)
 		var b := _button(label, func(): on_pick.call(idx), with_license)
@@ -99,7 +99,7 @@ func show_page(i: int) -> void:
 	_clear()
 	open_page = i
 	var page: Dictionary = _current[i]
-	var t := UiKit.title(About.safe(String(page.title)), 40)
+	var t := UiKit.title(About.title_text(page), 40)
 	t.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD
 	_box.add_child(t)

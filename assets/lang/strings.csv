@@ -301,3 +301,5 @@ freeze_dance.wiggle,WIGGLE!,נענעו!,Freeze Dance: banner at the top of the T
 freeze_dance.freeze,FREEZE!,קפאו!,Freeze Dance: banner at the top of the TV from the moment the music stops (the phones show nothing),
 freeze_dance.song_n,SONG %d OF %d,שיר %d מתוך %d,"Freeze Dance HUD: box in the place of the timer, the song that plays now and the number of songs","the number sign (%d, %.1f ...) is replaced by a number"
 freeze_dance.back_in,BACK IN %d,חוזרים בעוד %d,"Freeze Dance: under the name of a player who moved in the freeze, the seconds until the next song, where the player dances again","the number sign (%d, %.1f ...) is replaced by a number"
+about.qr_scanner,QR scanner,סורק QR,"About screen, Android phone: name of the page about the QR scanner (list entry and heading of the page)",
+about.android_libraries,Android libraries,ספריות אנדרואיד,"About screen, Android phone, 3rd Party Libraries: name of the page of the Android libraries (list entry and heading of the page)",
