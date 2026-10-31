@@ -22,12 +22,16 @@ const Medals = preload("res://scripts/game/medals.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const GameHost = preload("res://scripts/game/game_host.gd")
 
 ## The size of the low-resolution world view and of the screen it stands for (REQ-GM-47a).
 const PIXEL_VIEW := Vector2i(480, 270)
 ## The black bar on top of every game for the title, the timer and the chips (REQ-GM-45a). It is as wide as the window.
 const HUD_BAR_H := Shell.BAR_H
 const DESIGN_SIZE := Vector2i(1920, 1080)
+
+## What the game asks from the TV app (issue #300). A test sets a stub before the game is added to the tree.
+var game_host := GameHost.new()
 
 ## Values the game was started with (App.go props). restart() uses them again.
 var start_props := {}
@@ -57,12 +61,11 @@ var _pixel_layer: Control        # Draws the world of a pixel game, inside the l
 
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
-	participants = App.server.players_in()   # The phones that chose OUT in the settings view do not play (REQ-GM-104).
+	participants = game_host.players_in()   # The phones that chose OUT in the settings view do not play (REQ-GM-104).
 	players_at_start = participants.size()
 	var entry := Registry.find(Registry.id_of_script(get_script()))
-	App.server.recenter_button = Registry.has_control(entry, "recenter")   # REQ-GM-37
-	App.server.pad_buttons = Registry.buttons_of(entry)   # REQ-GM-37a
-	App.server.set_phase("playing", participants)
+	game_host.set_pad(Registry.has_control(entry, "recenter"), Registry.buttons_of(entry))   # REQ-GM-37, 37a
+	game_host.set_phase("playing", participants)
 	Sound.duck(false)
 	if _has_countdown():
 		Sound.music_at_go(Registry.id_of_script(get_script()))   # The song starts at GO (REQ-FL-65a).
@@ -82,7 +85,7 @@ func _has_countdown() -> bool:
 
 
 func player(slot: int) -> PlayerInput:
-	return App.server.players[slot]
+	return game_host.player(slot)
 
 
 ## Slots of participants that lost their connection.
@@ -119,7 +122,7 @@ func end_no_players() -> void:
 	if is_over:
 		return
 	is_over = true
-	open_menu("minigame.no_players_connected", [["minigame.back_to_menu", App.go_menu]])
+	open_menu("minigame.no_players_connected", [["minigame.back_to_menu", game_host.go_menu]])
 
 
 func is_paused() -> bool:
@@ -155,7 +158,7 @@ func _publish_scores() -> void:
 	var ranking := board.ranking()
 	var lead := board.has_lead()   # Nobody has a place while everybody is level at 0 (REQ-FL-67).
 	for e in ranking:
-		App.server.send_score(e.slot, e.rank if lead else 0, ranking.size() if lead else 0, _score_label(e))
+		game_host.send_score(e.slot, e.rank if lead else 0, ranking.size() if lead else 0, _score_label(e))
 
 
 ## The score text on the leader chip: the score of the first leader, empty when there is no board or no player.
@@ -184,12 +187,12 @@ func _update_hold() -> void:
 		if _hold:
 			_hold = false
 			_hold_info.clear()
-			App.server.set_phase("playing", participants)
+			game_host.set_phase("playing", participants)
 		return
 	var lost := lost_participants()
 	if not lost.is_empty() and not _hold:
 		_hold = true
-		App.server.set_phase("paused", participants)   # The slot of the lost phone is kept longer (a phone call).
+		game_host.set_phase("paused", participants)   # The slot of the lost phone is kept longer (a phone call).
 	for s in lost:
 		if not _hold_info.has(s):
 			_hold_info[s] = {"name": player(s).player_name, "color": player(s).color, "label": slot_label(s),
@@ -251,7 +254,7 @@ func _show_hold_card(lost: Array[int]) -> void:
 		title = Lang.f("pause.left", [_slot_labels(gone)]) if not gone.is_empty() and gone.size() == _hold_info.size() \
 				else Lang.f("pause.reconnected", [_slot_labels(_hold_info.keys())])
 		entries.append(["minigame.resume", _resume_game])
-	entries.append(["minigame.end_game", App.go_menu, "danger"])   # No second question (REQ-GM-30, issue #118).
+	entries.append(["minigame.end_game", game_host.go_menu, "danger"])   # No second question (REQ-GM-30, issue #118).
 	open_menu(title, entries, rows)
 	_menu_kind = "hold"
 
@@ -265,7 +268,7 @@ func _allow_resume_without() -> bool:
 ## Goes on without the lost players: their slots are freed (the TV user chose "Resume without ...").
 func _resume_without_lost() -> void:
 	for s in lost_participants():
-		App.server.drop_player(s)
+		game_host.drop_player(s)
 	_prune_participants()
 	_resume_game()
 
@@ -276,12 +279,12 @@ func _resume_game() -> void:
 	_hold = false
 	_hold_info.clear()
 	close_menu()
-	App.server.set_phase("playing", participants)
+	game_host.set_phase("playing", participants)
 
 
 ## The items of the pause menu. End game leaves at once, no question (REQ-GM-31).
 func pause_entries() -> Array:
-	return [["minigame.resume", close_menu], ["minigame.restart", restart], ["minigame.end_game", App.go_menu, "danger"]]
+	return [["minigame.resume", close_menu], ["minigame.restart", restart], ["minigame.end_game", game_host.go_menu, "danger"]]
 
 
 ## OK on the TV remote does nothing during play (REQ-GM-31, decision of the owner, issue #228). Back is the way to
@@ -291,7 +294,7 @@ func pause_entries() -> Array:
 
 func on_back() -> void:
 	if is_over:
-		App.go_menu() # The result menu and "No players connected" leave at once (REQ-GM-31a).
+		game_host.go_menu() # The result menu and "No players connected" leave at once (REQ-GM-31a).
 	elif _menu_open and _menu_kind != "hold":
 		close_menu() # Also the "End the game?" question: Back is "Keep playing".
 	else:
@@ -302,13 +305,13 @@ func on_back() -> void:
 ## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
 func request_leave() -> void:
 	if _in_progress():
-		open_menu("minigame.end_game_ask", [["minigame.resume", close_menu], ["minigame.end_game", App.go_menu, "danger"]])
+		open_menu("minigame.end_game_ask", [["minigame.resume", close_menu], ["minigame.end_game", game_host.go_menu, "danger"]])
 	else:
-		App.go_menu()
+		game_host.go_menu()
 
 
 func restart() -> void:
-	App.go(get_script(), start_props)
+	game_host.go(get_script(), start_props)
 
 
 const MENU_CARD_W := 1200
@@ -418,8 +421,8 @@ func open_result_menu(heading: String, rows: Array, extra_entries: Array = [], w
 	entries.append_array(extra_entries)
 	var id := Registry.id_of_script(get_script())
 	if GameSettings.has_view(Registry.find(id)):
-		entries.append(["common.settings", App.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
-	entries.append(["minigame.back_to_menu", App.go_menu])
+		entries.append(["common.settings", game_host.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
+	entries.append(["minigame.back_to_menu", game_host.go_menu])
 	open_menu(heading, entries, rows)
 	Sound.stop_music()
 	Sound.sfx("win" if won else "tie")
@@ -445,7 +448,7 @@ func _send_best_results(ranking: Array) -> void:
 	for e in ranking:
 		var v := best_value(e.score)
 		if e.finished and v > 0:
-			App.server.send_result(e.slot, key, v)
+			game_host.send_result(e.slot, key, v)
 
 
 ## The buttons of the open menu (tests use it).
