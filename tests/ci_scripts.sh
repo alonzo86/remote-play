@@ -175,6 +175,7 @@ sed -i.bak 's/^application\/version="12"/application\/version="13"/' "$TMP/prese
 check "one place that differs makes the check fail" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
 check "a bad name is refused" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" abc 1 >/dev/null 2>&1; echo $?)"
 check "a bad code is refused" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 1.0.0 x1 >/dev/null 2>&1; echo $?)"
+check "build.sh aab refuses to run without the upload keystore variables" "1" "$(env -u GODOT_ANDROID_KEYSTORE_RELEASE_PATH -u GODOT_ANDROID_KEYSTORE_RELEASE_USER -u GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD "$ROOT/tools/build.sh" aab >/dev/null 2>&1; echo $?)"
 check ".gitignore keeps keystores and certificates out" "3" "$(grep -c '^\*\.keystore$\|^\*\.jks$\|^\*\.p12$' "$ROOT/.gitignore")"
 
 echo "$CHECKS checks, $FAILS failed"

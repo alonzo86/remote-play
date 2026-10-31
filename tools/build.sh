@@ -22,9 +22,9 @@ case "${1:-}" in
 		ls -l build/*.apk ;;
 	aab)
 		# Store bundles (issue #289). The upload keystore is never in the repo: the three variables name it (docs/EXPORT.md, "Keys").
-		for v in GODOT_ANDROID_KEYSTORE_RELEASE_PATH GODOT_ANDROID_KEYSTORE_RELEASE_USER GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD; do
-			eval "[ -n \"\${$v:-}\" ]" || { echo "$v is not set (the upload keystore, docs/EXPORT.md \"Keys\")." >&2; exit 1; }
-		done
+		[ -n "${GODOT_ANDROID_KEYSTORE_RELEASE_PATH:-}" ] && [ -n "${GODOT_ANDROID_KEYSTORE_RELEASE_USER:-}" ] \
+			&& [ -n "${GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD:-}" ] \
+			|| { echo "Set GODOT_ANDROID_KEYSTORE_RELEASE_PATH, _USER and _PASSWORD (the upload keystore, docs/EXPORT.md \"Keys\")." >&2; exit 1; }
 		mkdir -p build
 		"$GODOT" --headless --path . --export-release tv-release build/sababi-tv.aab
 		"$GODOT" --headless --path . --export-release controller-release build/sababi-controller.aab
