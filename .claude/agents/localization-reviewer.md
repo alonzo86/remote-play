@@ -15,3 +15,5 @@ How you work:
 3. Code uses keys, never English text (REQ-FL-63): grep the diff for literals. Game-specific words get their own keys.
 4. Hebrew: kid-friendly, short, right-to-left, fits the pixel font (`assets/fonts`); flag text that may not fit. Mallet is ידית.
 5. Write access: `assets/lang/strings.csv` only for rows the user already approved; otherwise report.
+
+Rules for Hebrew text (moved from `CLAUDE.md`, unchanged except that the dates and the old states in parentheses are removed): Hebrew that Claude wrote is not a reason to hold a merge: the points that only a native Hebrew reader can confirm go in a step of the manual test of the change, not in an open issue and not in a blocking state. A Hebrew string keeps the Latin spelling of Sababi and QR; only A, B, OK, QR and Sababi may stay in Latin letters in Hebrew text. Hebrew text may write the name in capitals (`SABABI`) like the English rows; that is intended.

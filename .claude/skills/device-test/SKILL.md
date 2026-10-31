@@ -15,6 +15,6 @@ The `qa` agent runs this flow. A note in a result goes to `product-engineer` and
    - The TV decides a phone is lost after 5 s of silence. A shorter Wi-Fi drop will not pause the game.
    - Latency gaps above 100 ms point to the network (risks B1, B2).
 5. Write the user's results into the results table of the test (one row for each step): pass, fail, retest or n/a, plus the measured values, the run ID
-   and the link to the evidence. Add a row to the Run log for the session. Update the Summary table and the list in `CLAUDE.md` (Manual tests).
+   and the link to the evidence. Add a row to the Run log for the session. Update the Summary table and the table "Tests to run, in order" in `docs/MANUAL_TESTS.md`.
    Keep first-run values when a retest follows. Never mark a step as pass on your own: write only what the user reports, and do not turn a result into a pass without a measurement.
 6. Finish with a list of the tests that still need a run, and ask for `adb logcat -s godot` for any failure.
