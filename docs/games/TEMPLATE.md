@@ -20,7 +20,7 @@ General requirements that this game does not meet. "Exception" = on purpose. "Ga
 
 ## Requirements
 
-Use the prefix REQ-<XX>-n. Status: Done, Open, or Device. "Check" says how it is tested.
+Use the prefix REQ-<XX>-n. Status: Done, Open, Planned (issue #N), or Device. "Check" says how it is tested.
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|

@@ -34,3 +34,8 @@ android-tv/build/
 android-tv/.build_version
 *.apk
 *.aab
+
+# Signing material: never commit it (docs/EXPORT.md, "Release to the stores")
+*.keystore
+*.jks
+*.p12

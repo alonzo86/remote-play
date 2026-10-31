@@ -26,6 +26,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	_rect_push()
 	_fence_and_blockers()
 	_spawn()

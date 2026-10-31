@@ -24,6 +24,7 @@ const TITLE_BASELINE := 96.0   # The baseline of the game title, in every game (
 # The baseline of the status text of the bar ("FIRST TO 5", "FRAME 1/10"): level with the text of the timer box and the
 # leader chip, which stand at y 36 (REQ-GM-45c).
 const STATUS_BASELINE := 84.0
+const STATUS_FONT := 32
 
 ## A test sets this to see the boxes the HUD draws (the game draws with `draw_*`, so there is no node to look at). Called as
 ## `recorder.call(kind, ci, rect, info)` with kind "title", "timer", "leader", "chip", "hint", "countdown" or "plate" (a
@@ -105,7 +106,7 @@ static func hud_bar(ci: CanvasItem, width: float) -> Rect2:
 ## The status text of the bar (REQ-GM-45c): `x` and `w` are the box on a left to right screen (mirrored in Hebrew by `mx()`),
 ## the text is centered in it at `STATUS_BASELINE`. The game gives the whole text, so nothing is cut.
 static func status(ci: CanvasItem, x: float, w: float, msg: String, color: Color = UiTheme.TEXT) -> void:
-	text(ci, Vector2(mx(ci, x, w), STATUS_BASELINE), msg, 32, color, HORIZONTAL_ALIGNMENT_CENTER, w)
+	text(ci, Vector2(mx(ci, x, w), STATUS_BASELINE), msg, STATUS_FONT, color, HORIZONTAL_ALIGNMENT_CENTER, w)
 	_note("status", ci, Rect2(mx(ci, x, w), STATUS_BASELINE - UiTheme.font().get_ascent(32), w, UiTheme.font().get_height(32)),
 			{"text": msg})
 

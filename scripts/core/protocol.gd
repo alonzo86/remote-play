@@ -20,6 +20,23 @@ const NAME_MAX := 10                   # The longest player name, on the phone, 
 const AVATAR_COUNT := 32               # Avatars in the sprite sheet (assets/avatars/avatars.png).
 const REPLACED_TOKEN_MS := 600000      # The TV remembers the token of a replaced phone this long (docs/PROTOCOL.md).
 
+## Every message of the JSON protocol: the value `"t"` -> who sends it (`"phone"`, `"tv"` or `"both"`). The net code writes the
+## names as literals; tests/protocol_doc.gd checks that this table, the literals of scripts/net/ and the tables of
+## docs/PROTOCOL.md agree, and that the numbers above are the ones the document quotes (issue #296). A new message: add it here
+## and to the document, in the same change (skill `change-protocol`).
+const MESSAGES := {
+	"hello": "phone", "welcome": "tv", "reject": "tv",
+	"ping": "phone", "pong": "tv", "stat": "phone", "recenter": "phone",
+	"phase": "tv", "lang": "tv", "haptic": "tv", "score": "tv", "turn": "tv",
+	"setup": "tv", "play": "phone", "swing_ok": "phone",
+	"profile": "both", "result": "tv", "bye": "both", "kicked": "tv",
+}
+
+## `lang` and `welcome.lang` are still sent, but the phone ignores them (issue #171). Remove both at the next VERSION bump,
+## which is an incompatible change anyway. tests/protocol_doc.gd fails when VERSION is above this number and `lang` is still in
+## MESSAGES.
+const LANG_REMOVE_AFTER_VERSION := 5
+
 const BTN_A := 1
 const BTN_B := 2
 const FLAG_TOUCH := 1
@@ -138,6 +155,36 @@ static func parse_json(text: String) -> Dictionary:
 	if json.data is Dictionary:
 		return json.data
 	return {}
+
+
+## Typed readers for the fields of a parsed frame. Any device on the Wi-Fi can send any value, so a handler never casts a field
+## itself (`float()`, `int()`, `String()` and `bool()` raise a script error for an Array or a Dictionary). A value of another
+## type gives `default`. A number must be finite. A boolean is not a number.
+static func num(msg: Dictionary, key: String, default: float = 0.0) -> float:
+	var v: Variant = msg.get(key, default)
+	if (v is int or v is float) and is_finite(float(v)):
+		return float(v)
+	return default
+
+
+## `num` for an integer field.
+static func whole(msg: Dictionary, key: String, default: int = 0) -> int:
+	var v: Variant = msg.get(key, default)
+	if v is int:
+		return v
+	if v is float and is_finite(v) and absf(v) < 1.0e15:
+		return int(v)
+	return default
+
+
+static func text(msg: Dictionary, key: String, default: String = "") -> String:
+	var v: Variant = msg.get(key, default)
+	return v if v is String else default
+
+
+static func flag(msg: Dictionary, key: String, default: bool = false) -> bool:
+	var v: Variant = msg.get(key, default)
+	return v if v is bool else default
 
 
 static func to_json(d: Dictionary) -> String:

@@ -13,6 +13,9 @@ var _checks := 0
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	_run()
 
 

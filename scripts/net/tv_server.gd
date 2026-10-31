@@ -333,17 +333,17 @@ func _poll_pending(now: int) -> void:
 
 
 func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
-	if msg.get("t", "") != "hello":
+	if Protocol.text(msg, "t") != "hello":
 		ws.close()
 		return
-	if int(msg.get("v", 0)) != Protocol.VERSION:
+	if Protocol.whole(msg, "v") != Protocol.VERSION:
 		_reject(ws, "version")
 		return
-	var room := String(msg.get("room", "")).to_upper()
+	var room := Protocol.text(msg, "room").to_upper()
 	if room != "" and room != room_code:
 		_reject(ws, "bad_room")
 		return
-	var token := String(msg.get("token", ""))
+	var token := Protocol.text(msg, "token")
 	if token != "" and _replaced_tokens.has(token):
 		if now < int(_replaced_tokens[token]):
 			_send_kicked(ws, "replaced")   # This phone was replaced by another phone with its profile.
@@ -351,10 +351,10 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		_replaced_tokens.erase(token)
 	var in_menu := in_menu_phase()
 	# The profile of the phone. It counts only in the menu phases: in a round the new phone is a guest (PROFILES_PLAN.md 4.4).
-	var pid := Profile.clean_id(String(msg.get("pid", ""))) if in_menu else ""
+	var pid := Profile.clean_id(Protocol.text(msg, "pid")) if in_menu else ""
 	var av := Profile.clean_avatar(msg.get("av", -1)) if pid != "" else -1
-	var p_name := Profile.clean_name(String(msg.get("name", "")))
-	if not in_menu and Profile.clean_id(String(msg.get("pid", ""))) != "":
+	var p_name := Profile.clean_name(Protocol.text(msg, "name"))
+	if not in_menu and Profile.clean_id(Protocol.text(msg, "pid")) != "":
 		p_name = ""   # A new phone with a profile joins a round as a guest.
 	var slot := -1
 	var resumed := false
@@ -483,9 +483,9 @@ func _assign_names(only := -1) -> void:
 ## what the TV has now, so the phone shows the truth.
 func _handle_profile(i: int, msg: Dictionary, now: int) -> void:
 	if in_menu_phase():
-		var pid := Profile.clean_id(String(msg.get("pid", "")))
+		var pid := Profile.clean_id(Protocol.text(msg, "pid"))
 		var av := Profile.clean_avatar(msg.get("av", -1)) if pid != "" else -1
-		var p_name := Profile.clean_name(String(msg.get("name", ""))) if pid != "" else ""
+		var p_name := Profile.clean_name(Protocol.text(msg, "name")) if pid != "" else ""
 		if pid != "":
 			var dup := _slot_with_pid(pid)
 			if dup >= 0 and dup != i:
@@ -554,11 +554,11 @@ func _mark_lost(i: int) -> void:
 
 
 func _handle_control(i: int, msg: Dictionary, now: int) -> void:
-	match msg.get("t", ""):
+	match Protocol.text(msg, "t"):
 		"ping":
-			_send_json(i, {"t": "pong", "id": msg.get("id", 0), "t0": msg.get("t0", 0), "t1": now})
+			_send_json(i, {"t": "pong", "id": Protocol.whole(msg, "id"), "t0": Protocol.num(msg, "t0"), "t1": now})
 		"stat":
-			players[i].on_stat(float(msg.get("rtt", -1)), float(msg.get("off", 0)))
+			players[i].on_stat(Protocol.num(msg, "rtt", -1.0), Protocol.num(msg, "off"))
 		"recenter":
 			players[i].recenter(false)   # The button: the pose in the hand is neutral, no snap to flat.
 		"swing_ok":
