@@ -584,7 +584,7 @@ func _menu_keys(sound: Node, app: Node) -> void:
 		await _key("ui_down")
 		await _wait(0.06)
 	_check(ids.count("move") == 5 and ids.size() == 5,
-			"5 presses of Down make 5 `move` blips and nothing else (got %s)" % str(ids))
+			"REQ-FL-65b: 5 presses of Down make 5 `move` blips and nothing else (got %s)" % str(ids))
 	# OK on a row: `select`. The row 'invert tilt' is a switch; the setting is put back.
 	var screen: Control = app.current_screen()
 	var old_invert = app.settings.invert_tilt
@@ -593,12 +593,12 @@ func _menu_keys(sound: Node, app: Node) -> void:
 	ids.clear()
 	await _key("ui_accept")
 	await _wait(0.06)
-	_check(ids.has("select"), "OK on an item plays `select` (got %s)" % str(ids))
+	_check(ids.has("select"), "REQ-FL-65b: OK on an item plays `select` (got %s)" % str(ids))
 	app.settings.invert_tilt = old_invert
 	ids.clear()
 	await _key("ui_cancel")
 	await _wait(0.06)
-	_check(ids.has("back"), "Back plays `back` (got %s)" % str(ids))
+	_check(ids.has("back"), "REQ-FL-65b: Back plays `back` (got %s)" % str(ids))
 	sound.sfx_played.disconnect(cb)
 	app.go_settings()
 	await _frames(3)

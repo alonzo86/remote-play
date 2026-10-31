@@ -334,7 +334,7 @@ func _kick() -> void:
 	var idle := await _wait_until(func(): return _app.client.state == ControllerClient.State.IDLE, 3000)
 	await _frames(3)
 	_check(idle and _app.last_error == Lang.t("app.host_removed_scan_code"),
-			"a removed phone is idle and the message is the text of the host: '%s'" % _app.last_error)
+			"a removed phone gets the message (REQ-FL-35), leaves (idle) and the message is the text of the host: '%s'" % _app.last_error)
 	var screen: Control = _app.current_screen()
 	_check(screen.get_script() == _connect_script, "the phone is on the Connect screen")
 	_check(screen._status.text == _app.last_error.to_upper(),

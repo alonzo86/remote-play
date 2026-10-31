@@ -17,7 +17,7 @@ Buckets:
   have manual steps since the pull requests #320 and #324.
 - **obsolete**: removed, superseded or no longer true. **These are for Alon to decide**; no requirement was deleted or reworded.
 
-Counts: a 66, todo 33, review 11, obsolete 12, device 0 (total 122).
+Counts: a 78, todo 21, review 11, obsolete 12, device 0 (total 122).
 
 Ids that need a decision of Alon (obsolete):
 
@@ -49,29 +49,29 @@ Ids that need a decision of Alon (obsolete):
 | REQ-BW-20 | a (done) | named in the existing check of smoke_bowling.gd |
 | REQ-BW-21 | todo | r4_bowling logs the plates: check the turn plate shows 1.5 s and is not drawn afterwards |
 | REQ-BW-22 | a (done) | named in the existing check of swing_setup.gd |
-| REQ-FL-17 | todo | smoke_settings: after Back the Games screen has the same tile in focus |
+| REQ-FL-17 | a (done) | named in the existing check of smoke_settings.gd (Back to the tile of the game) |
 | REQ-FL-18 | a (done) | named in the existing check of smoke_tv.gd |
 | REQ-FL-21 | a (done) | req_registry (new check) |
 | REQ-FL-22 | a (done) | req_registry (new check) |
 | REQ-FL-26 | a (done) | named in the existing check of smoke_tv.gd |
-| REQ-FL-27 | todo | tv_games: the tiles dim or open when a phone joins or leaves on the Games screen |
-| REQ-FL-29 | todo | protocol_doc.gd ties the messages to docs/PROTOCOL.md: add the phase values of the Connect and Games screens |
-| REQ-FL-30 | todo | read the Android manifest and export preset: LEANBACK_LAUNCHER, the banner, the main scene is the logo screen |
+| REQ-FL-27 | a (done) | tv_flow_reqs (new check) |
+| REQ-FL-29 | a (done) | tv_flow_reqs (new check), protocol_doc.gd (the phase values in the document) |
+| REQ-FL-30 | a (done) | named in the existing checks of design_tokens.gd; a check of the start screen was added |
 | REQ-FL-31 | review | no internet service for play and the Connect help text: judged by the reviewer with REQ-P5 (the help text is a string row) |
-| REQ-FL-32 | todo | r4_tv_menus: the Players modal shows 4 slots with color and state, a QR code and Close |
-| REQ-FL-34 | todo | r4_tv_menus: the modal updates when a phone joins or leaves, the focus starts on Close, Back closes it |
-| REQ-FL-35 | todo | smoke_tv: Remove sends the message to the phone and the phone leaves |
+| REQ-FL-32 | a (done) | tv_flow_reqs (new check) |
+| REQ-FL-34 | a (done) | tv_flow_reqs (new check) |
+| REQ-FL-35 | a (done) | named in the existing check of join_flow.gd (a removed phone gets the message and leaves) |
 | REQ-FL-41a | a (done) | named by a step of docs/MANUAL_TESTS.md |
-| REQ-FL-45 | todo | scan scenes and scripts: the background is plain black and the confetti of the logo is drawn in code, not an image |
-| REQ-FL-46 | todo | design_tokens.gd: the phone scenes use the UiTheme palette and font of the TV |
+| REQ-FL-45 | a (done) | design_tokens.gd (new check: confetti and backdrop in code), ui_states_a.gd |
+| REQ-FL-46 | a (done) | named in the existing check of ui_states_a.gd |
 | REQ-FL-47 | obsolete | the plan for the next pull request that restyled the marble race; it is done (tier 2 and the arcade style replaced it) |
 | REQ-FL-48 | obsolete | the game shell is built in the same pull request as the menus: history of a finished pull request |
 | REQ-FL-49 | obsolete | the other games get the shell in the same pull request: history of a finished pull request |
 | REQ-FL-53 | a (done) | named in the existing check of docs/MANUAL_TESTS.md, ui_states.gd |
-| REQ-FL-61 | todo | smoke_lang: the Language row of Settings, Left and Right choose, OK goes to the next language |
-| REQ-FL-65b | todo | audio_events.gd: D-pad plays move, OK select, Back back, a join plays join, a leave plays leave |
+| REQ-FL-61 | a (done) | named in the existing checks of smoke_lang.gd, focus_walk.gd |
+| REQ-FL-65b | a (done) | named in the existing checks of audio.gd, audio_phones.gd |
 | REQ-FL-65c | a (done) | named in the existing check of audio.gd, audio_controller.gd |
-| REQ-FL-70 | todo | ui_profile_extra: the avatar takes the place of the slot number in the list, the header, the rows and the chips, and no game object has one |
+| REQ-FL-70 | a (done) | named in the existing checks of tv_profiles.gd, smoke_settings.gd (unknown index), r4_tv_profiles.gd; design_tokens.gd (new check: no avatar on a game object) |
 | REQ-FL-74 | a (done) | named in the existing check of r4_phone_profiles.gd |
 | REQ-FL-77 | a (done) | named in the existing check of ui_share.gd |
 | REQ-FL-78 | a (done) | named in the existing check of profile_code.gd |

@@ -105,6 +105,17 @@ func _run() -> void:
 	_quote(text, "for (\\d+) minutes \\(`REPLACED_TOKEN_MS`", Protocol.REPLACED_TOKEN_MS / 60000, "REPLACED_TOKEN_MS (min)")
 	_quote(text, "`NAME_MAX` = (\\d+)", Protocol.NAME_MAX, "NAME_MAX")
 
+	# REQ-FL-29: the document names every value of `phase` that the TV code sends, among them `connect` and `menu`.
+	var phase_row := ""
+	for line in text.split("\n"):
+		if line.contains('{"t":"phase"'):
+			phase_row = line
+	var tv_src := _read("res://scripts/net/tv_server.gd") + _read("res://scripts/app.gd")
+	for v in ["connect", "menu", "playing", "paused", "waiting"]:
+		_check(phase_row.contains("`%s`" % v), "REQ-FL-29: docs/PROTOCOL.md describes the phase value `%s`" % v)
+	for v in ["connect", "menu"]:
+		_check(tv_src.contains('set_phase("%s")' % v), "REQ-FL-29: the TV code sends the phase `%s` (set_phase)" % v)
+
 	# `lang` goes at the next incompatible version (issue #171, #296).
 	var lang_due: bool = Protocol.VERSION > Protocol.LANG_REMOVE_AFTER_VERSION and Protocol.MESSAGES.has("lang")
 	_check(not lang_due, "VERSION is %d: remove `lang` and welcome.lang when it is above %d"

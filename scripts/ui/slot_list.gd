@@ -76,12 +76,12 @@ func _make_row(p: PlayerInput) -> Control:
 	h.add_theme_constant_override("separation", 22)
 	h.custom_minimum_size = Vector2(0, row_height)
 
-	var square := Control.new()
+	var square := ColorRect.new()   # A ColorRect, so that a test reads the color of the slot (REQ-FL-32).
+	square.name = "Square"
 	square.custom_minimum_size = Vector2(SQUARE, SQUARE)
 	square.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	square.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var col: Color = p.color if present else UiTheme.SLOT_EMPTY
-	square.draw.connect(func(): square.draw_rect(Rect2(Vector2.ZERO, square.size), col))
+	square.color = p.color if present else UiTheme.SLOT_EMPTY
 	h.add_child(square)
 
 	if present and p.has_profile() and Avatar.is_known(p.avatar):

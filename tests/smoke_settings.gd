@@ -4,6 +4,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
+const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 ## Smoke test of the settings view (REQ-GM-90 to 95) with the maze. Run:
 ##   godot --headless --path . --script tests/smoke_settings.gd -- --role=tv
 ## No phone is needed: the view is opened with App.go_game_settings(). The rest of the flow is in smoke_tv.gd.
@@ -309,13 +310,25 @@ func _slot_list(app: Node) -> void:
 	await process_frame
 	await process_frame
 	var avatars := list.find_children("*", "Control", true, false).filter(
-			func(n: Node) -> bool: return n.get_script() == load("res://scripts/ui/avatar_view.gd"))
+			func(n: Node) -> bool: return n is AvatarView)
 	var numbers := 0
 	for l in list.find_children("*", "Label", true, false):
 		if (l as Label).text in ["1P", "2P", "3P", "4P"]:
 			numbers += 1
 	_check(avatars.size() == 1 and numbers == 3,
-			"a profile shows its avatar in place of 1P; the other rows keep their numbers: %d %d" % [avatars.size(), numbers])
+			"a profile shows its avatar in place of 1P; the other rows keep their numbers (REQ-FL-70): %d %d" % [avatars.size(), numbers])
+	# REQ-FL-70: an index that the app does not know shows the slot number again.
+	players[0].avatar = 99
+	await process_frame
+	await process_frame
+	avatars = list.find_children("*", "Control", true, false).filter(
+			func(n: Node) -> bool: return n is AvatarView)
+	numbers = 0
+	for l in list.find_children("*", "Label", true, false):
+		if (l as Label).text in ["1P", "2P", "3P", "4P"]:
+			numbers += 1
+	_check(avatars.is_empty() and numbers == 4, "REQ-FL-70: an avatar index the app does not know shows 1P (%d avatars, %d numbers)"
+			% [avatars.size(), numbers])
 	for p in players:
 		p.reset()
 	list.queue_free()
@@ -477,7 +490,7 @@ func _back_focus(app: Node, games_script: GDScript) -> void:
 			await _press("ui_cancel")
 			await _frames(3)
 			_check(is_instance_of(app.current_screen(), games_script) and app.last_game == String(g.id),
-					"%s %s: the Back key goes to the Games screen with the tile of the game" % [code, g.id])
+					"%s %s: the Back key goes to the Games screen with the tile of the game (REQ-FL-17)" % [code, g.id])
 	lang_script.set_language("en", root)
 	# Issue #134: a screen that takes 300 ms to build must not get the second event of the same press (a key and a notification).
 	var slow := GDScript.new()

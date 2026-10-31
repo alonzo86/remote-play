@@ -275,15 +275,15 @@ func _pad_header() -> void:
 ## Test 8b.6a: the phone screens are black with the pixel font. Every text uses the font of the theme.
 func _fonts_and_background() -> void:
 	print("fonts and background")
-	_check(_app.theme_res.default_font == UiTheme.font(), "the theme of the app has the pixel font as its default font")
+	_check(_app.theme_res.default_font == UiTheme.font(), "the theme of the app has the pixel font as its default font (REQ-FL-46)")
 	var backdrops := _app.get_children().filter(func(n): return n is CanvasLayer)
 	var black := false
 	for layer in backdrops:
 		for n in layer.get_children():
 			if n.get_script() != null and String(n.get_script().resource_path).ends_with("backdrop.gd"):
 				black = true
-	_check(black, "the app draws the backdrop behind every screen")
-	_check(UiTheme.BG == Color.BLACK, "the background color is black")
+	_check(black, "the app draws the backdrop behind every screen (REQ-FL-45)")
+	_check(UiTheme.BG == Color.BLACK, "the background color is black (REQ-FL-45)")
 	var scripts := ["controller_connect", "controller_wait", "controller_settings", "about_screen", "controller_profiles"]
 	var bad: Array[String] = []
 	for name in scripts:

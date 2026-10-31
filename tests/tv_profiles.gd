@@ -100,7 +100,7 @@ func _phones_and_card() -> void:
 			if l.text.to_upper() in ["MAYA", "NOAM"] and avatars.size() == 1:
 				found[l.text.to_upper()] = avatars[0].index
 	_check(found == {"MAYA": 3, "NOAM": 7},
-			"the Players list shows the name and the avatar of each profile phone, and the avatar replaces 1P: %s" % str(found))
+			"REQ-FL-70: the Players list shows the name and the avatar of each profile phone, the avatar replaces 1P: %s" % str(found))
 	_check(not _texts(modal).any(func(t): return t == "1P" or t == "2P"), "a profile phone has no 1P or 2P text in the list")
 	games.on_back()
 	await _frames(2)
