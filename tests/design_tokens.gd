@@ -31,6 +31,7 @@ func _initialize() -> void:
 	_avatar_sheet()
 	_font_licences()
 	_app_identity()
+	_release_presets()
 	_images()
 	_export_pack()
 	_info_text()
@@ -321,6 +322,67 @@ func _preset_options(preset_name: String) -> Dictionary:
 			var eq := line.find("=")
 			out[line.substr(0, eq)] = line.substr(eq + 1)
 	return out
+
+
+## The top-level keys of one `[preset.N]` block (name, export_path, include_filter, ...) as {key: value (raw text)}.
+func _preset_top(preset_name: String) -> Dictionary:
+	var out := {}
+	var lines := FileAccess.get_file_as_string("res://export_presets.cfg").split("\n")
+	var start := -1
+	for i in lines.size():
+		if lines[i] == 'name="%s"' % preset_name:
+			start = i
+			break
+	if start < 0:
+		return out
+	var first := start
+	while first > 0 and not lines[first].begins_with("[preset."):
+		first -= 1
+	for i in range(first + 1, lines.size()):
+		if lines[i].begins_with("["):
+			break
+		if lines[i].contains("="):
+			var eq := lines[i].find("=")
+			out[lines[i].substr(0, eq)] = lines[i].substr(eq + 1)
+	return out
+
+
+## The Android App Bundle presets for the stores (issue #289): AAB format, same app as the APK twin, no secrets.
+func _release_presets() -> void:
+	print("release presets (AAB)")
+	var pairs := [["tv", "tv-release", "build/sababi-tv.aab"],
+			["controller", "controller-release", "build/sababi-controller.aab"]]
+	for pair in pairs:
+		var dbg_top := _preset_top(pair[0])
+		var rel_top := _preset_top(pair[1])
+		var dbg := _preset_options(pair[0])
+		var rel := _preset_options(pair[1])
+		_check(not rel.is_empty() and rel.get("gradle_build/export_format", "") == "1",
+				"%s exports an Android App Bundle (export_format=1)" % pair[1])
+		_check(dbg.get("gradle_build/export_format", "") == "0", "%s still exports an APK for testing" % pair[0])
+		_check(rel_top.get("export_path", "") == '"%s"' % pair[2], "%s writes %s" % [pair[1], pair[2]])
+		_check(rel_top.get("platform", "") == '"Android"' and rel_top.get("runnable", "") == "false",
+				"%s is an Android preset that is not run on a device" % pair[1])
+		_check(rel.get("package/signed", "") == "true", "%s signs the bundle" % pair[1])
+		for key in ["include_filter", "exclude_filter", "export_filter", "custom_features"]:
+			_check(rel_top.has(key) and rel_top.get(key) == dbg_top.get(key), "%s has the %s of %s" % [pair[1], key, pair[0]])
+		for key in ["package/unique_name", "package/name", "version/code", "version/name", "gradle_build/gradle_build_directory",
+				"architectures/arm64-v8a", "architectures/armeabi-v7a", "package/show_in_android_tv"]:
+			_check(rel.has(key) and rel.get(key) == dbg.get(key), "%s has the %s of %s" % [pair[1], key, pair[0]])
+		for key in ["keystore/release", "keystore/release_user", "keystore/release_password", "keystore/debug",
+				"keystore/debug_user", "keystore/debug_password"]:
+			_check(rel.get(key, '""') == '""', "%s has no value in %s (the keystore comes from the environment)" % [pair[1], key])
+	# No secret anywhere in the file: every key that names a keystore, a password or a key is empty.
+	var leaks := 0
+	for line in FileAccess.get_file_as_string("res://export_presets.cfg").split("\n"):
+		var lower := line.to_lower()
+		if line.contains("=") and (lower.begins_with("keystore/") or lower.contains("password") or lower.contains("keystore")):
+			if line.substr(line.find("=") + 1) not in ['""', ""]:
+				leaks += 1
+	_check(leaks == 0, "export_presets.cfg holds no keystore path, user or password (%d found)" % leaks)
+	_check(not FileAccess.get_file_as_string("res://export_presets.cfg").contains(".keystore")
+			and not FileAccess.get_file_as_string("res://export_presets.cfg").contains(".jks"),
+			"export_presets.cfg names no keystore file")
 
 
 ## Names, launcher, orientation and the iPhone keys (docs/MANUAL_TESTS.md tests 1, 2, 8, 13: the part a machine can read).

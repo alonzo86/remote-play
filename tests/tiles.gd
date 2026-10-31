@@ -130,8 +130,8 @@ func _run() -> void:
 			all_resources += 1 if line.contains("all_resources") else 0
 		if line.begins_with("exclude_filter=") and (line.contains("assets") or line.contains("png") or line.contains("tiles")):
 			excluded = true
-	_check(all_resources == 3 and not excluded,
-			"all 3 export presets pack all resources and exclude nothing under assets/ (the tiles are packed)")
+	_check(all_resources == 5 and not excluded,
+			"all 5 export presets pack all resources and exclude nothing under assets/ (the tiles are packed)")
 	var images := {}
 	for g in Registry.GAMES:
 		var id: String = g.id
