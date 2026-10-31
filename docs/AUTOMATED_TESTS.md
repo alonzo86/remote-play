@@ -202,6 +202,7 @@ Neither system has an Android job (the Actions job `build-android` exported noth
 | A-12-7 | Test 12 item 7: the Star Shield tile | `tiles`: "asteroid_blast: the night sky is most of the picture", "asteroid_blast: at least 3 asteroids and the biggest is 3 times the area of the smallest", "asteroid_blast: a beam of the weapon color", "asteroid_blast: 4 of the 4 player colors show" |
 | A-12-8 | Test 12 item 8 (the colors): the Pin Pals tile | `tiles`: "bowling: the lane and N white blobs (10 pins and more)" (weak: 138 blobs are found), "bowling: 2 of the 4 player colors show". The triangle of pins and the ball are not asserted: item 8 |
 | A-12-9 | Test 12 item 9 (the colors): the Tennis tile | `tiles`: "tennis: the grass, the court and the yellow ball", "tennis: 3 of the 4 player colors show". The height of the ball is not asserted: item 9 |
+| A-304-1 | Issue #304 (REQ-GM-49, no device step; the look next to the Games screen stays in Test 12) | `pixel_render`: "tile <id>: the bottom rows show the world, not a black strip" for every tile except Air Hockey, Paint Grab and Sheep Herding (it failed on the old Mini Golf tile: 1280 of 1280 pixels black) |
 | A-12-10 | Test 12 item 10 (the colors): the Mini Golf tile | `tiles`: "mini_golf: the fairway, the lake and the wood of the windmill", "mini_golf: 1 of the 4 player colors show" (the golfer on its turn; the chips are not in the tile). The ball between the tee and the hole is not asserted: item 10 |
 | A-14-3 | Test 14 items 3a to 3c, the blob feel (direction, stop, edges) | `auto_paint`: "a tilt to the right rolls the blob to the right (x > 0)", "...to the left...", "the top of the phone up rolls the blob down the screen (y > 0)" and the 4th direction (all through the sensor fusion); "full tilt for 1.5 s gives a high speed", "the blob still rolls 0.5 s and 2 s after the tilt stops", the speed is under 20 px/s at 3.5 s and 4 s; "in 10 s of full tilt at all 4 edges the whole blob stayed inside the floor" and the blob bounced at right, left, up and down. The real sensor axes stay in Test 3 |
 | A-14-4 | Test 14 item 4b, the logic of taking a tile (4c: A-14-4a, 4c) | `auto_paint`: "painting a free tile buzzes nobody", "taking the tile of another player buzzes the player that took it for 20 ms" |
@@ -448,6 +449,7 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | Suite | What it checks |
 |-------|----------------|
 | `run_tests` | protocol, server, slots, the controller client, remove and kick, sensors, tilt and recenter |
+| `config_files` | the settings and last-TV files: a failed save is reported, values of the wrong type load the defaults, volumes and the port are cut to their range (REQ-C12, issue #309) |
 | `net_malformed` | frames with fields of the wrong type (Array, object, number for text) reach no script error and change no state, on the TV and on the phone (REQ-N10, issue #308) |
 | `net_loss` | a silent phone: when it is lost, when its slot is freed (grace times, paused game) |
 | `about_pages` | the About pages and the About screen of the phone (it was `net_pin`; the join PIN part is gone) |
