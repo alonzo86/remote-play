@@ -68,7 +68,7 @@ The phones: the player on turn gets a short buzz (60 ms). The pad shows "YOUR TU
 | REQ-GM-37 | Exception | The Recenter box is the aim strip while it is the turn of the phone (REQ-BW-4), because the game needs no recenter: the aim is a finger, not a pose. Other phones have no Recenter box either (issue #55). The pad has no A and no B (issue #143): the game needs no button. |
 | REQ-GM-81 | Note | The pins are plain lifeless pins with no face. Knocked pins spin and burst into colored pixels. No living thing is hit. |
 | REQ-GM-83 | Gap (open) | A player waits for the other players (about 30 s with 4 players) and a turn has no time limit. The user decided this on 2026-10-16 (no Length setting). Mitigation: short animations. |
-| REQ-GM-47k | Note | The disco light grid on the back wall (REQ-BW-13) uses 7 bright light colors besides the 8 colors of the world palette (`DISCO` in `bowling_look.gd`). The user allowed a few more colors when the general theme is kept (2026-10-16). It is decoration only. |
+| Note (palette) | Note | The disco light grid on the back wall (REQ-BW-13) uses 7 bright light colors besides the 8 colors of the world palette (`DISCO` in `bowling_look.gd`). The user allowed a few more colors when the general theme is kept (2026-10-16). It is decoration only. |
 | REQ-GM-98 | Note | A personal best only with Rails off (REQ-BW-19). |
 | REQ-GM-46 | Exception | No leader chip in the HUD: the score sheet at the bottom shows all scores (REQ-BW-12). The phones still show their own place and score (REQ-FL-67) unless the user says otherwise. |
 | REQ-GM-62 | Note | Test 23 in `docs/MANUAL_TESTS.md`. |

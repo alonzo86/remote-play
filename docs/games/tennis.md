@@ -21,7 +21,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45 to 49). Check the 
 | REQ-GM-46 | Note | Players are detailed characters (hair, shirt, shorts, racket), not balls. The shirt has the slot color. There is no number or avatar on a character (REQ-GM-46). |
 | REQ-GM-82 | Note | A child must understand the game from one hint line. The phone needs a swing and at most A (REQ-TN-8, 9). The character runs by itself, so a child only times the swing. |
 | REQ-GM-83 | Note | A missed ball gives a point to the other team and takes nothing away. Nobody is out. All players play every point. |
-| REQ-GM-47k | Note | The world palette is the arcade colors plus the court and the stands: court blue and light blue, grass green, white lines, dark net, and the seats and shirts of the crowd (about 12 more colors, `tennis_look.gd`). They are decoration and flat colors, so the arcade theme stays. |
+| Note (palette) | Note | The world palette is the arcade colors plus the court and the stands: court blue and light blue, grass green, white lines, dark net, and the seats and shirts of the crowd (about 12 more colors, `tennis_look.gd`). They are decoration and flat colors, so the arcade theme stays. |
 | REQ-GM-98 | Rule | A personal best only with 1 player (REQ-TN-17, issue #216). An exception to "a 1-player and a 4-player round share one key": only 1 player (against the machine) gets a key, because a match of 2 to 4 players has no score that compares between matches. |
 | REQ-GM-62 | Note | Manual test 25 is added with the code. |
 | REQ-GM-50, 51, 52 | Device | Frame rate, allocation and start time are not measured on a TV box. |
@@ -51,7 +51,7 @@ Aim
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-TN-21 | **Removed 2026-10-18.** The aim line on the TV followed the tilt of the phone. The swing direction now decides the shot (REQ-TN-7), so the line would be wrong, and it is not built. The hint texts were rewritten. | Removed | - |
+| Removed id | **REQ-TN-21 removed 2026-10-18.** The aim line on the TV followed the tilt of the phone. The swing direction now decides the shot (REQ-TN-7), so the line would be wrong, and it is not built. The hint texts were rewritten. | Removed | - |
 
 Scoring
 

@@ -13,20 +13,13 @@ Buckets:
   list; a range (`to`) and a wildcard (`REQ-MG-*`) count for none.
 - **todo**: a headless test can check it; it is not written yet. The reason says how. None is left: the tests were written in the pull requests #347, #349 and the one after it.
 - **review**: a rule of work or of taste that a reviewer judges; no machine can.
-- **device**: only a device or a person can check it. None of the 122 is in this bucket: the 63 rows with the status `Device` all
+- **device**: only a device or a person can check it. None of the 111 is in this bucket: the 63 rows with the status `Device` all
   have manual steps since the pull requests #320 and #324.
-- **obsolete**: removed, superseded or no longer true. **These are for Alon to decide**; no requirement was deleted or reworded.
+- **obsolete**: removed, superseded or no longer true. None is left: Alon chose "remove or fix them" (issue #306, 2026-10-31). The 11 ids that were removed
+  (REQ-BC-8, REQ-TN-21, REQ-FL-47, 48, 49, REQ-GM-47, 47c, 47f, 47g, 47h, 47k) are not requirements any more and their ids are not used again; the two that said
+  something false (REQ-GM-60, REQ-GM-61) were reworded and moved to **review**.
 
-Counts: a 98, todo 0, review 11, obsolete 13, device 0 (total 122).
-
-Ids that need a decision of Alon (obsolete):
-
-- Removed rows with a test that proves the removal: REQ-BC-8, REQ-TN-21. Keep as history or delete the rows.
-- Finished plans written as requirements: REQ-FL-47, REQ-FL-48, REQ-FL-49.
-- 3D and superseded pixel rules: REQ-GM-47 (umbrella), REQ-GM-47c, REQ-GM-47f, REQ-GM-47g, REQ-GM-47h.
-- A rule that the games do not follow and a count cannot settle: REQ-GM-47k (at most 8 colors in a world palette; the games use 11 to 72 color literals).
-- Rules that say something false today: REQ-GM-60 (tests are in `smoke_<game>.gd`, not in `smoke_tv.gd`) and REQ-GM-61 (the logic tests
-  are in the `*_rules.gd` suites, not in `run_tests.gd`). They need a new wording.
+Counts: a 98, todo 0, review 13, obsolete 0, device 0 (total 111; 122 before the 11 removals).
 
 | ID | Bucket | How it is named, or why it is not |
 |----|--------|-----------------------------------|
@@ -41,7 +34,6 @@ Ids that need a decision of Alon (obsolete):
 | REQ-AH-15 | a (done) | smoke_air_hockey (check made stricter: purple, no avatar) |
 | REQ-AH-22 | a (done) | smoke_bests (new check) |
 | REQ-BC-2 | a (done) | req_registry (new check) |
-| REQ-BC-8 | obsolete | the row says Removed on 2026-10-29 (a hit drops no star, REQ-BC-7): smoke_bumper_cars checks that a hit takes no star |
 | REQ-BC-13 | a (done) | smoke_bumper_cars (new check: a lost phone pauses, 10 s later cars, clock and stars have not moved) |
 | REQ-BC-14 | a (done) | named in the existing check of smoke_bumper_cars.gd |
 | REQ-BC-15 | review | friendly toys, a hint line, positive texts: the localization-reviewer and the code-reviewer judge it |
@@ -65,9 +57,6 @@ Ids that need a decision of Alon (obsolete):
 | REQ-FL-41a | a (done) | named by a step of docs/MANUAL_TESTS.md |
 | REQ-FL-45 | a (done) | design_tokens.gd (new check: confetti and backdrop in code), ui_states_a.gd |
 | REQ-FL-46 | a (done) | named in the existing check of ui_states_a.gd |
-| REQ-FL-47 | obsolete | the plan for the next pull request that restyled the marble race; it is done (tier 2 and the arcade style replaced it) |
-| REQ-FL-48 | obsolete | the game shell is built in the same pull request as the menus: history of a finished pull request |
-| REQ-FL-49 | obsolete | the other games get the shell in the same pull request: history of a finished pull request |
 | REQ-FL-53 | a (done) | named in the existing check of docs/MANUAL_TESTS.md, ui_states.gd |
 | REQ-FL-61 | a (done) | named in the existing checks of smoke_lang.gd, focus_walk.gd |
 | REQ-FL-65b | a (done) | named in the existing checks of audio.gd, audio_phones.gd |
@@ -91,13 +80,7 @@ Ids that need a decision of Alon (obsolete):
 | REQ-GM-36 | a (done) | frame_cost.gd (the menu during play of every game has Resume and End game only) |
 | REQ-GM-42 | review | which files a game may use depends on docs/TV_FLOW.md (FD-9, FD-13) and docs/THIRD_PARTY.md: the license-reviewer judges it |
 | REQ-GM-44 | a (done) | palette_lint.gd (new check: every use of OK and BAD is on a list with its meaning) |
-| REQ-GM-47 | obsolete | the tier 2 rule of toy-like worlds; its parts 47a to 47h are superseded by REQ-GM-47j to 47n (the pixel worlds) |
-| REQ-GM-47c | obsolete | outline width in 3D: no game is drawn in 3D since minigame_3d.gd was removed (issue #300) |
-| REQ-GM-47f | obsolete | the text says it is superseded by REQ-GM-47l and REQ-FL-38 (no round corners in the arcade style) |
-| REQ-GM-47g | obsolete | the text says it is superseded by REQ-GM-47l (no registered game is drawn in 3D) |
-| REQ-GM-47h | obsolete | materials and light in 3D: no game is drawn in 3D |
 | REQ-GM-47j | a (done) | pixel_games.gd (render lane: the outline of Shell.pixel_ball is one world pixel); the outline of other objects is a look item of the game tests |
-| REQ-GM-47k | obsolete | the limit of 8 colors is not what the games do: the games have 11 to 72 different color literals each (only bowling.md and tennis.md list extra colors); the colors on screen can be counted in the render lane, but the limit per game is for the owner to decide |
 | REQ-GM-47l | a (done) | pixel_world_lint (new suite: the world draw of every game snaps; Mini Golf is listed, issue #346) |
 | REQ-GM-47n | a (done) | pixel_world_lint (new suite: no text in the world draw of any game) |
 | REQ-GM-49b | a (done) | audio.gd (limits and lengths of every effect), audio_events.gd (a buzz comes with a sound effect) |
@@ -105,8 +88,8 @@ Ids that need a decision of Alon (obsolete):
 | REQ-GM-49d | a (done) | named in the existing check of game_names_hebrew.gd |
 | REQ-GM-51 | a (done) | frame_cost.gd (480 ticks add no nodes in any game) |
 | REQ-GM-52 | a (done) | frame_cost.gd (every game builds its scene in 2 s or less) |
-| REQ-GM-60 | obsolete | says each game has a check in tests/smoke_tv.gd; in fact each game has its own smoke_<game>.gd suite: reword the rule |
-| REQ-GM-61 | obsolete | says pure logic has unit tests in tests/run_tests.gd; in fact they are in the *_rules.gd suites: reword the rule |
+| REQ-GM-60 | review | each game has its own smoke_<name>.gd suite in tests/suites.txt (the names are not the game ids, so no test can derive them); reworded in issue #306 |
+| REQ-GM-61 | review | pure logic has unit tests in the *_rules.gd suites; reworded in issue #306 |
 | REQ-GM-62 | a (done) | req_registry (new check) |
 | REQ-GM-63 | a (done) | named in the existing check of tools/coverage.sh |
 | REQ-GM-71 | a (done) | named in the existing check of game_helpers.gd |
@@ -150,5 +133,4 @@ Ids that need a decision of Alon (obsolete):
 | REQ-TB-20 | a (done) | audio.gd (new check: the song is in D major at 116 bpm, the five tower effects) |
 | REQ-TN-14 | a (done) | named in the existing check of tennis_rules.gd |
 | REQ-TN-19 | a (done) | named in the existing check of tennis_rules.gd |
-| REQ-TN-21 | obsolete | the row says Removed on 2026-10-18 (the aim line on the TV is not built) |
 | REQ-TN-22 | a (done) | named in the existing check of swing_setup.gd |

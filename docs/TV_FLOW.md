@@ -160,9 +160,7 @@ These requirements replaced the Party Pop ones (FD-13) in phase 1 of `docs/ARCAD
 - REQ-FL-68: Every phone screen stays inside the safe area of the device, so a notch, a camera cut-out, a Dynamic Island, the status bar or the home bar never covers the player badge, the Leave button, the text or the A and B buttons. `App.go()` gives a phone screen the margins of `SafeArea` (`DisplayServer.get_display_safe_area()`, in the units of the viewport) and gives them again when the window changes (a turn of the phone). The TV and a desktop window have no margin. Tests: `tests/ui_states.gd` (the margins). Device: test 13 and test 19.
 
 ### Game shell and trial (FD-14)
-- REQ-FL-47: The next pull request restyles the marble race as a trial of the tier 2 rules (REQ-GM-47). The result is judged with a screenshot of the game next to the Games screen (REQ-GM-49). The trial checks the tier 2 values (REQ-GM-47a to 47h) and they are corrected in `docs/GAME_REQUIREMENTS.md` if they are wrong. If the trial shows that games need more freedom, the rules are made looser before any other game is changed.
-- REQ-FL-48: The game shell (REQ-GM-45) is built in the same pull request as the menus. A game must not show an old style pause menu, countdown or result screen next to the new menus.
-- REQ-FL-49: The other games get the shell in the same pull request. Their tier 2 restyle follows in a later pull request. (Done for the maze. The pointer test and the 3D demo were removed, see FD-16.)
+- Removed on 2026-10-31 (issue #306): REQ-FL-47, REQ-FL-48 and REQ-FL-49 were plans for the pull requests of the first restyle (the marble race trial of the tier 2 rules, the game shell built with the menus, the shell in the other games). All are done (the shell REQ-GM-45 is in every game, the arcade style replaced tier 2). The ids are not used again.
 
 ### Tile screenshots
 - REQ-FL-20: A tool script makes the screenshot of each game and saves it as `assets/tiles/<id>.png`, 640x360 pixels.
@@ -201,5 +199,5 @@ These requirements replaced the Party Pop ones (FD-13) in phase 1 of `docs/ARCAD
 
 - The open questions of the arcade style (FD-18) are in `docs/ARCADE_STYLE_PLAN.md` section 4.
 
-- The tier 2 values are a first version. The marble race trial can change them (FD-14, REQ-FL-47).
+- The tier 2 values are a first version. The marble race trial could change them (FD-14); tier 2 was replaced by the pixel worlds (REQ-GM-47i to 47n).
 - The screenshot size (640x360) and the tile count per row may change after a check on a real TV.
