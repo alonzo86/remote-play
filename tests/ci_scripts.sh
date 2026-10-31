@@ -156,6 +156,13 @@ check "patch: both manifests have the banner, the leanback flag and the launcher
 cp "$PT/android/build/src/main/AndroidManifest.xml" "$TMP/before.xml"
 (cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)
 check "patch: a second run changes nothing" "same" "$(cmp -s "$TMP/before.xml" "$PT/android/build/src/main/AndroidManifest.xml" && echo same || echo changed)"
+echo "Godot version in both CI configs (issue #285)"
+gv() { sed -n "s/^[[:space:]]*GODOT_VERSION:[[:space:]]*\([0-9][0-9.]*\).*/\1/p" "$1" | head -1; }
+V_ACTIONS="$(gv "$ROOT/.github/workflows/ci.yml")"
+V_CIRCLE="$(gv "$ROOT/.circleci/config.yml")"
+check "ci.yml has a GODOT_VERSION" "yes" "$([ -n "$V_ACTIONS" ] && echo yes)"
+check "GODOT_VERSION is the same in ci.yml and in .circleci/config.yml" "$V_ACTIONS" "$V_CIRCLE"
+check "the CircleCI cache keys name that version (2 keys, same key)" "godot-$V_ACTIONS-v1 godot-$V_ACTIONS-v1" "$(sed -n 's/^[[:space:]]*key:[[:space:]]*\(godot-.*\)$/\1/p' "$ROOT/.circleci/config.yml" | tr '\n' ' ' | sed 's/ $//')"
 
 echo "$CHECKS checks, $FAILS failed"
 [ "$FAILS" -eq 0 ]

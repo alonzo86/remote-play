@@ -50,9 +50,17 @@ The scenario suites that take most time: `hud_layout` 105 s, `multi_phone` 101 s
 
 The coverage job always runs, always reports (the summary of the run) and never fails. The 80% rule (every module) is a local check: `tools/coverage.sh` runs all suites, and CLAUDE.md asks for it before a pull request. The unit suites alone leave the screen modules (`scripts/ui`, most of `scripts/game`) and the audio modules below 80%, because the scenario suites cover them.
 
+### Which CI counts (issue #285)
+
+- **CircleCI is the CI that gives the signal.** Its three jobs (`lint`, `test`, `pixels`) are the checks of a pull request.
+- **The GitHub Actions workflow (`.github/workflows/ci.yml`) is disabled on purpose** (Alon). It stays in the repository as the same plan in a second system and as a way back. Do not wait for it and do not count it as a result. Its last runs (224 to 211, 2026-10-22) ended in `failure` after about 2 s with no step run, which is what a limit of the account's Actions minutes or spending gives; the cause was not read from the logs and only the owner can see it (Settings, Billing, Actions). Runs 219 and before were green.
+- **Branch protection** should require the CircleCI checks only; this is set by the owner on GitHub (an agent cannot see or change it).
+- **Godot version:** `GODOT_VERSION` in `ci.yml` and in `.circleci/config.yml`, and the cache key `godot-<version>-v1` in `.circleci/config.yml` (two places), are the same number. `tests/ci_scripts.sh` fails when they differ. Change all four together when Godot is updated.
+- When both systems are active a pull request spends minutes twice; that is why Actions is off.
+
 ### CircleCI (beside GitHub Actions)
 
-`.circleci/config.yml` runs the same checks while both systems run (Alon, 2026-10-22: keep both for now). The repository must be connected in CircleCI first (Projects, Set Up), and "Auto-cancel redundant workflows" turned on. CircleCI has no labels and no draft state, so `tools/ci_plan_circleci.sh` decides from the branch and the pipeline parameters:
+`.circleci/config.yml` runs the same checks while both systems run (Alon, 2026-10-22: keep both for now; since then the Actions workflow is disabled, see above). The repository must be connected in CircleCI first (Projects, Set Up), and "Auto-cancel redundant workflows" turned on. CircleCI has no labels and no draft state, so `tools/ci_plan_circleci.sh` decides from the branch and the pipeline parameters:
 
 | Case | lint | test and coverage | pixels |
 |------|------|-------------------|--------|
