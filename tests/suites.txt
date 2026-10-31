@@ -110,3 +110,4 @@ tests/protocol_doc.gd|controller|protocol: docs/PROTOCOL.md, Protocol.MESSAGES a
 tests/import_guard_check.gd|controller|import guard: a suite fails on a tree that was not imported|unit
 tests/req_registry.gd|controller|registry and requirements files agree: files, base class, texts, values, status words|unit
 tests/req_ids.gd|controller|requirement ids: each is named by a test or listed in tests/req_untested.txt|unit
+tests/small_screen.gd|tv|every game at 1280x720: the HUD and the controls stay inside the window (REQ-2D-2)|scenario
