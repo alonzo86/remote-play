@@ -261,7 +261,7 @@ func _putt_done() -> void:
 		var key := String(ev.label)
 		_banner = Lang.t(key) if key != "" else Lang.f("mini_golf.strokes", [int(ev.strokes)])
 		Sound.sfx("golf_hole" if key != "mini_golf.hole_in_one" else "golf_ace")
-		App.server.haptic(slot, 200 if key == "mini_golf.hole_in_one" else 80)
+		game_host.haptic(slot, 200 if key == "mini_golf.hole_in_one" else 80)
 	elif ev.get("picked", false):
 		_banner = Lang.f("mini_golf.picked", [GolfRules.MAX_STROKES])
 		_banner_color = UiTheme.TEXT
@@ -300,7 +300,7 @@ func _after_hole() -> void:
 ## The match is over: one player sees the strokes and no medal, more players the winner (REQ-MG-7, 14, REQ-GM-73).
 func _finish() -> void:
 	for s in _board.winners():
-		App.server.haptic(s, 400)
+		game_host.haptic(s, 400)
 	open_results(_board)
 
 

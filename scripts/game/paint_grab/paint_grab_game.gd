@@ -107,7 +107,7 @@ func _game_tick(delta: float) -> void:
 		if _round.tick(delta):
 			for s in _bodies:
 				player(s).recenter()   # The pose held in the countdown is the center.
-				App.server.haptic(s, 60)
+				game_host.haptic(s, 60)
 		return
 	_round.tick(delta)
 	var bounds := Rect2(Vector2.ZERO, floor_map.size())
@@ -200,7 +200,7 @@ func _paint_under(slot: int) -> void:
 
 func _finish() -> void:
 	for s in _board.winners():
-		App.server.haptic(s, 400)
+		game_host.haptic(s, 400)
 	var heading := ""
 	if _board.ranking().size() == 1:   # One player: the difficulty that was played is the title (REQ-PG-21).
 		heading = Lang.t("game_settings." + difficulty)

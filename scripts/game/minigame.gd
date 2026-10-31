@@ -23,6 +23,7 @@ const Registry = preload("res://scripts/game/registry.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const GameHost = preload("res://scripts/game/game_host.gd")
+const HAPTICS_SCRIPT = preload("res://scripts/game/haptics.gd")   # Not `Haptics`: the games name it so.
 
 ## The size of the low-resolution world view and of the screen it stands for (REQ-GM-47a).
 const PIXEL_VIEW := Vector2i(480, 270)
@@ -73,9 +74,24 @@ func _ready() -> void:
 		Sound.music(Registry.id_of_script(get_script()))   # No countdown: the song starts with the play (REQ-GM-35).
 	if _pixel_world():
 		_build_pixel_view()
+	_give_host_to_haptics()
 	_game_ready()
 	if participants.is_empty():
 		end_no_players()
+
+
+## A buzz of `ms` on the phone of `slot`, through the host (REQ-GM-12).
+func haptic(slot: int, ms: int) -> void:
+	game_host.haptic(slot, ms)
+
+
+## The `Haptics` helpers of the game send their pulses through `game_host`.
+func _give_host_to_haptics() -> void:
+	for prop in get_property_list():
+		if int(prop.usage) & PROPERTY_USAGE_SCRIPT_VARIABLE != 0:
+			var v: Variant = get(prop.name)
+			if v is HAPTICS_SCRIPT:
+				v.host = game_host
 
 
 ## True when the game starts with the 3 s countdown (REQ-GM-35). Only a game with a visible timer has one; the others

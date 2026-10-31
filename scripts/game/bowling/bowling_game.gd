@@ -228,11 +228,11 @@ func _roll_done() -> void:
 	if ev.strike:
 		_banner = Lang.t("bowling.strike")
 		Sound.sfx("bowl_strike")
-		App.server.haptic(slot, 200)
+		game_host.haptic(slot, 200)
 	elif ev.spare:
 		_banner = Lang.t("bowling.spare")
 		Sound.sfx("bowl_spare")
-		App.server.haptic(slot, 80)
+		game_host.haptic(slot, 80)
 	elif sim.in_gutter or knocked == 0:
 		_banner = Lang.t("bowling.gutter")
 		_banner_color = UiTheme.TEXT
@@ -263,7 +263,7 @@ func _after_result() -> void:
 ## REQ-BW-1: the game is over. One player sees the score and no medal, more players the winner (REQ-GM-73).
 func _finish() -> void:
 	for s in _board.winners():
-		App.server.haptic(s, 400)
+		game_host.haptic(s, 400)
 	open_results(_board)
 
 

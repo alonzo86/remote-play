@@ -42,6 +42,11 @@ func drop_player(slot: int) -> void:
 	App.server.drop_player(slot)
 
 
+## A buzz of `ms` on the phone of `slot` (REQ-GM-12, 43).
+func haptic(slot: int, ms: int) -> void:
+	App.server.haptic(slot, ms)
+
+
 # ---- The way out of the game ----
 
 func go_menu() -> void:

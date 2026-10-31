@@ -51,3 +51,7 @@ func go(_script: GDScript, props := {}) -> void:
 
 func go_game_settings(id: String) -> void:
 	calls.append(["settings", id])
+
+
+func haptic(slot: int, ms: int) -> void:
+	calls.append(["haptic", slot, ms])

@@ -122,7 +122,7 @@ func _game_tick(delta: float) -> void:
 		if _round.tick(delta):
 			for s in _players:
 				player(s).recenter()   # REQ-WM-2: the pose held in the countdown is the center.
-				App.server.haptic(s, 60)
+				game_host.haptic(s, 60)
 		return
 	_round.tick(delta)
 	_field.tick(delta, _rng, participants.size())
@@ -187,7 +187,7 @@ func best_key() -> String:
 
 func _finish() -> void:
 	for s in _board.winners():
-		App.server.haptic(s, 400)
+		game_host.haptic(s, 400)
 	open_results(_board)
 
 

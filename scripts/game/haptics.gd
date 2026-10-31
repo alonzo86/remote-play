@@ -1,10 +1,15 @@
 extends RefCounted
 ## Haptic pulses with a minimum gap for each slot. A repeated event (a hit on a wall) has a cool-down of
-## 100 ms or more (REQ-GM-43). A game keeps one instance. It sends the pulse with `App.server.haptic()` (REQ-GM-12).
+## 100 ms or more (REQ-GM-43). A game keeps one instance. It sends the pulse through the `GameHost` of the game (`host`,
+## REQ-GM-12); `Minigame` sets it.
+
+const GameHost = preload("res://scripts/game/game_host.gd")
 
 ## The phone side: the call that makes the motor run. A test replaces it (a Callable that takes `ms`) and records the calls.
 static var vibrate_call := Callable()
 
+## Who sends the pulse. The base class `Minigame` gives its own host to the `Haptics` of the game when it starts.
+var host := GameHost.new()
 var _last := {}   # slot -> tick of the last pulse in ms
 
 
@@ -34,5 +39,5 @@ func allow(slot: int, cooldown_ms: int, now_ms := Time.get_ticks_msec()) -> bool
 func pulse(slot: int, ms: int, cooldown_ms: int) -> bool:
 	if not allow(slot, cooldown_ms):
 		return false
-	App.server.haptic(slot, ms)
+	host.haptic(slot, ms)
 	return true

@@ -197,7 +197,7 @@ func _end_round(fell_last: Array) -> void:
 	var winners := SumoArena.round_winners(_alive, fell_last)
 	for s in winners:
 		_board.add(s, 1.0)
-		App.server.haptic(s, 120)
+		game_host.haptic(s, 120)
 	if not winners.is_empty():
 		Sound.sfx("sumo_round_win")
 	if winners.size() == 1:
@@ -215,7 +215,7 @@ func _tick_falls(delta: float) -> void:
 
 func _finish() -> void:
 	for s in _board.winners():
-		App.server.haptic(s, 400)
+		game_host.haptic(s, 400)
 	open_results(_board, "", [], _points_text)
 
 

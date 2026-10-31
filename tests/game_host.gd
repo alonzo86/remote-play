@@ -7,6 +7,7 @@ const PlayerInput = preload("res://scripts/input/player_input.gd")
 
 var _checks := 0
 var _fails := 0
+var _stub_host: GDScript
 
 
 func _check(cond: bool, what: String) -> void:
@@ -31,8 +32,8 @@ func _names(host: Object) -> Array:
 func _run() -> void:
 	print("a game with a stub host")
 	var Minigame = load("res://scripts/game/minigame.gd")   # Loaded here: the game needs the App autoload to compile.
-	var StubHost = load("res://tests/stub_game_host.gd")
-	var host = StubHost.new()
+	_stub_host = load("res://tests/stub_game_host.gd")
+	var host = _stub_host.new()
 	var game = Minigame.new()
 	game.game_host = host
 	root.add_child(game)
@@ -65,7 +66,7 @@ func _run() -> void:
 	await process_frame
 
 	print("no players")
-	var empty = StubHost.new()
+	var empty = _stub_host.new()
 	var none: Array[int] = []
 	empty.slots = none
 	var g2 = Minigame.new()
@@ -77,4 +78,23 @@ func _run() -> void:
 	g2.menu_buttons()[0].pressed.emit()
 	_check(_names(empty).has("menu"), "its button goes to the menu through the host")
 	g2.queue_free()
+	await process_frame
+	await _haptics()
+
+
+## Step 2 of the plan of issue #300: a buzz goes through the host, also the one of the `Haptics` helper of a game.
+func _haptics() -> void:
+	print("haptics through the host")
+	var host = _stub_host.new()
+	var game = load("res://tests/buzz_game.gd").new()
+	game.game_host = host
+	root.add_child(game)
+	await process_frame
+	game.haptic(1, 50)
+	_check(["haptic", 1, 50] in host.calls, "Minigame.haptic goes to the host")
+	_check(game._haptics.host == host, "the Haptics helper of the game gets the host when the game starts")
+	host.calls.clear()
+	_check(game._haptics.pulse(0, 30, 100) and ["haptic", 0, 30] in host.calls, "a pulse of the helper goes to the host")
+	_check(not game._haptics.pulse(0, 30, 100) and host.calls.size() == 1, "and the cool-down still holds back a second pulse")
+	game.queue_free()
 	await process_frame
