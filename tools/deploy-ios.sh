@@ -1,5 +1,5 @@
 #!/bin/sh
-# Builds (unless --no-build) and installs the controller app on a connected iPhone, then launches it.
+# macOS only (Xcode). Builds (unless --no-build) and installs the controller app on a connected iPhone, then launches it.
 # Usage: tools/deploy-ios.sh [--no-build] [-d <device-id>]
 #   Needs Xcode (xcode-select -s /Applications/Xcode.app), the Godot iOS export templates, Developer Mode on the phone,
 #   and an Apple ID signed in under Xcode > Settings > Accounts.
@@ -39,9 +39,8 @@ echo "Device: $DEVICE"
 
 if [ "$BUILD" -eq 1 ]; then
 	[ -n "${IOS_TEAM_ID:-}" ] || { echo "Set IOS_TEAM_ID to your Apple Team ID (10 characters, in Xcode > Signing & Capabilities)." >&2; exit 1; }
-	GODOT="${GODOT:-}"
-	[ -z "$GODOT" ] && [ -x /Applications/Godot.app/Contents/MacOS/Godot ] && GODOT=/Applications/Godot.app/Contents/MacOS/Godot
-	[ -z "$GODOT" ] && GODOT="$(command -v godot)"
+	# shellcheck source=tools/env.sh
+	. tools/env.sh
 	mkdir -p build/ios
 	# The Team ID in the preset is a placeholder (Godot needs a value). The preset only exports the Xcode project;
 	# xcodebuild below signs it. It builds for this device, so Xcode can register the phone in the team.

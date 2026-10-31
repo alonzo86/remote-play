@@ -107,5 +107,21 @@ check "a line with no tier stops the run with exit 2" "2" "$?"
 (cd "$TMP/suites" && GODOT="$TMP/godot" SUITE_TIER=wrong tests/run_suites.sh >/dev/null 2>&1)
 check "an unknown SUITE_TIER stops the run with exit 2" "2" "$?"
 
+echo "tools/env.sh (portable build scripts, issue #287)"
+env_run() { # env_run <var> [VAR=value ...]: source tools/env.sh in a clean shell and print one variable
+	V="$1"; shift
+	(cd "$ROOT" && env -i PATH="/usr/bin:/bin" HOME="$TMP/home" "$@" sh -c ". tools/env.sh; eval \"printf '%s' \\\"\\\${$V:-}\\\"\"")
+}
+mkdir -p "$TMP/home"
+printf '#!/bin/sh\n' > "$TMP/mygodot"
+chmod +x "$TMP/mygodot"
+check "GODOT from the environment is kept" "$TMP/mygodot" "$(env_run GODOT GODOT="$TMP/mygodot")"
+check "a JAVA_HOME that is set is not overwritten" "/my/jdk" "$(env_run JAVA_HOME GODOT="$TMP/mygodot" JAVA_HOME=/my/jdk)"
+check "an ANDROID_HOME that is set is not overwritten" "/my/sdk" "$(env_run ANDROID_HOME GODOT="$TMP/mygodot" ANDROID_HOME=/my/sdk)"
+check "no Godot: it stops with a message and exit 1" "1" "$(cd "$ROOT" && env -i PATH="/nonexistent" HOME="$TMP/home" /bin/sh -c '. tools/env.sh' >/dev/null 2>&1; echo $?)"
+check "no tool script uses the BSD form sed -i ''" "" "$(grep -n "sed -i ''" "$ROOT"/tools/*.sh "$ROOT"/tests/*.sh | grep -v 'tests/ci_scripts.sh' || true)"
+check "no tool script sets JAVA_HOME to a fixed path" "" "$(grep -n '^[[:space:]]*export JAVA_HOME=/' "$ROOT"/tools/*.sh || true)"
+check "caffeinate is used only when it exists" "" "$(grep -n 'caffeinate' "$ROOT"/tools/*.sh | grep -v 'command -v caffeinate' | grep -v '^[^:]*:[0-9]*:[[:space:]]*#' | grep -v 'exec caffeinate' || true)"
+
 echo "$CHECKS checks, $FAILS failed"
 [ "$FAILS" -eq 0 ]
