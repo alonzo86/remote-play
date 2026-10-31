@@ -102,7 +102,7 @@ func _game_tick(delta: float) -> void:
 	if _round.tick(delta):
 		for s in participants:
 			player(s).recenter()   # REQ-MR-15: the pose held in the countdown is the center (issue #124).
-			App.server.haptic(s, 60)
+			game_host.haptic(s, 60)
 	if _round.is_playing():
 		var steps := maxi(1, ceili(delta / SUBSTEP))
 		for i in steps:
@@ -138,7 +138,7 @@ func _step(dt: float) -> void:
 		r.arc = q.arc
 		if r.finish_time < 0.0 and r.arc >= finish_arc:
 			r.finish_time = _round.time
-			App.server.haptic(r.slot, 120)
+			game_host.haptic(r.slot, 120)
 			Sound.sfx("marble_finish")
 			if _first_finish_time < 0.0:
 				_first_finish_time = _round.time

@@ -115,7 +115,7 @@ func _game_tick(delta: float) -> void:
 		if _clock.tick(delta):
 			for s in participants:
 				player(s).recenter()   # The pose at GO is the middle of the aim (REQ-TN-7).
-				App.server.haptic(s, 60)
+				game_host.haptic(s, 60)
 		return
 	_playing += delta
 	_banner_left = maxf(0.0, _banner_left - delta)
@@ -196,7 +196,7 @@ func _on_point(e: Dictionary) -> void:
 		_show(Lang.f("tennis.point_to", [names]), sub, UiTheme.ACCENT, Match.POINT_PAUSE)
 	for s in play.rules.teams[team]:
 		if participants.has(s):
-			App.server.haptic(s, 80)
+			game_host.haptic(s, 80)
 
 
 func _show(text: String, sub: String, color: Color, seconds: float) -> void:
@@ -310,7 +310,7 @@ func draw_leader_chip(ci: CanvasItem) -> void:
 func _finish() -> void:
 	for s in play.winners():
 		if participants.has(s):
-			App.server.haptic(s, 400)
+			game_host.haptic(s, 400)
 	if play.solo:
 		open_results(_board)
 		return

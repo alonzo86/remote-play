@@ -108,7 +108,7 @@ func _on_event(e: Dictionary) -> void:
 ## winner and the medal of the place.
 func _finish() -> void:
 	for s in _board.winners():
-		App.server.haptic(s, 400)
+		game_host.haptic(s, 400)
 	var title := Lang.f("asteroid_blast.reached_wave", [field.wave]) if participants.size() == 1 else ""
 	open_results(_board, title)
 

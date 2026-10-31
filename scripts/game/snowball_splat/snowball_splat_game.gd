@@ -150,7 +150,7 @@ func _game_tick(delta: float) -> void:
 		if _round.tick(delta):
 			for s in _throwers:
 				player(s).recenter()   # REQ-SS-2: the pose held in the countdown is the center.
-				App.server.haptic(s, 60)
+				game_host.haptic(s, 60)
 		return
 	_round.tick(delta)
 	for s in _presses:
@@ -238,7 +238,7 @@ func _effect(kind: String, pos: Vector2, text: String, slot: int, species: Strin
 
 func _finish() -> void:
 	for s in _board.winners():
-		App.server.haptic(s, 400)
+		game_host.haptic(s, 400)
 	var heading := ""
 	if _board.ranking().size() == 1:   # One player: the difficulty that was played is the title (REQ-SS-21).
 		heading = Lang.t("game_settings." + difficulty)

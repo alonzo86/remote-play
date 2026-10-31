@@ -130,7 +130,7 @@ func _game_tick(delta: float) -> void:
 		if _round.tick(delta):
 			for b in _balls:
 				player(b.slot).recenter() # Use the pose held during the countdown.
-				App.server.haptic(b.slot, 60) # The buzz at GO (REQ-GM-37).
+				game_host.haptic(b.slot, 60) # The buzz at GO (REQ-GM-37).
 		return
 	_round.tick(delta)
 	for b in _balls:
@@ -142,7 +142,7 @@ func _game_tick(delta: float) -> void:
 
 func _finish(slot: int) -> void:
 	_winner = slot
-	App.server.haptic(slot, 400)
+	game_host.haptic(slot, 400)
 	Sound.sfx("maze_exit")
 	# Times: the winner has one. The balls still in the maze are ranked by their distance to the exit.
 	var board := Scoreboard.new([], true)

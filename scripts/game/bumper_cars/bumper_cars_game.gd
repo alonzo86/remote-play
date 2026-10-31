@@ -85,7 +85,7 @@ func _game_tick(delta: float) -> void:
 		if _round.tick(delta):
 			for s in _bodies:
 				player(s).recenter()   # The pose held in the countdown is the center (REQ-BC-2).
-				App.server.haptic(s, GO_BUZZ_MS)
+				game_host.haptic(s, GO_BUZZ_MS)
 		return
 	_round.tick(delta)
 	for s in _bodies:
@@ -161,7 +161,7 @@ func _pick_up() -> void:
 ## REQ-BC-12: the round is over. The most stars win.
 func _finish() -> void:
 	for s in _board.winners():
-		App.server.haptic(s, WIN_BUZZ_MS)
+		game_host.haptic(s, WIN_BUZZ_MS)
 	open_results(_board, "", [], _stars_text)
 
 

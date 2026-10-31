@@ -75,7 +75,7 @@ func _enroll(slot: int) -> void:
 		return
 	_enrolled.append(slot)
 	Sound.sfx("join")
-	App.server.haptic(slot, 40)
+	game_host.haptic(slot, 40)
 	if _enrolled.size() >= 2 or participants.size() == 1:
 		_start_match()
 
@@ -186,7 +186,7 @@ func _goal(scorer: int) -> void:
 	var slot := int(seats[scorer].slot)
 	if slot >= 0:
 		_board.add(slot, 1.0)
-		App.server.haptic(slot, 120)
+		game_host.haptic(slot, 120)
 	Sound.sfx("hockey_goal")
 	if scores[scorer] >= goals_to_win():
 		_finish()
@@ -201,11 +201,11 @@ func _goal(scorer: int) -> void:
 func _finish() -> void:
 	if bot != null:
 		if scores[0] > scores[1]:
-			App.server.haptic(int(seats[0].slot), 400)
+			game_host.haptic(int(seats[0].slot), 400)
 		_finish_with_bot()
 		return
 	for s in _board.winners():
-		App.server.haptic(s, 400)
+		game_host.haptic(s, 400)
 	open_results(_board, "", [], _goals_text)
 
 

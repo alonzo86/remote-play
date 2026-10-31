@@ -131,7 +131,7 @@ func _game_tick(delta: float) -> void:
 		if _round.tick(delta):
 			for s in dogs:
 				player(s).recenter()   # The pose held in the countdown is the center.
-				App.server.haptic(s, GO_BUZZ_MS)
+				game_host.haptic(s, GO_BUZZ_MS)
 		return
 	if _end_left < 0.0:
 		_round.tick(delta)
@@ -224,7 +224,7 @@ func _finish() -> void:
 	var all := n >= total
 	if all:
 		for s in dogs:
-			App.server.haptic(s, 400)
+			game_host.haptic(s, 400)
 	team_won = all
 	var heading := ""
 	if _board.ranking().size() == 1:

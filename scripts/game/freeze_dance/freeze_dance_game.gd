@@ -162,7 +162,7 @@ func _finish() -> void:
 	_light_clock = 0.0
 	_new_lights()
 	for s in _board.winners():
-		App.server.haptic(s, WIN_BUZZ_MS)
+		game_host.haptic(s, WIN_BUZZ_MS)
 	open_results(_board)
 
 
