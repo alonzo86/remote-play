@@ -64,6 +64,10 @@ Phone computation:
 The TV computes the sensor age: `age = tv_receive_time - (packet_ts + off)`.
 The error is about +/- RTT/2. Use the trend, not the single value. The value can be below zero.
 
+## Fields of the wrong type
+
+A JSON frame can hold any value in any field (REQ-N10). The TV and the phone read a field only with `Protocol.num` (a finite number), `Protocol.whole` (an integer), `Protocol.text` and `Protocol.flag` (a boolean). A value of another type gives the default of that field, so a `stat` with `"rtt": {}` is taken as `rtt = -1`, a `ping` echoes `id` and `t0` as numbers (0 when they are not), and a `hello` with `"v": [5]` has the wrong version. This is not a change of the protocol: the `VERSION` stays.
+
 ## Sensor packet (WebSocket binary frame, phone to TV, about 60 per second)
 
 Little-endian. Size: 36 bytes.
