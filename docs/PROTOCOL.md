@@ -110,4 +110,8 @@ All these fields and messages are optional: an old TV or an old phone ignores th
 
 ## Version change
 
-Change `VERSION` in `protocol.gd` when an old peer would misread the packet layout or a message. A new optional field or message does not change it (`lang`, `score`, `turn`, `profile`). The TV rejects other versions.
+Change `VERSION` in `protocol.gd` when an old peer would misread the packet layout or a message, or when the new message is one that the other side **waits for**. A new optional field or message that nobody waits for does not change it (`lang`, `score`, `turn`, `profile`). A new message that one side waits for is incompatible, because an old peer never sends it: `setup` and `swing_ok` raised `VERSION` to 5 for that reason (a TV of version 5 waits for the answer of every phone). The TV rejects other versions.
+
+`lang` and `welcome.lang` are still sent but the phone ignores them (issue #171). Remove both at the next `VERSION` bump (`LANG_REMOVE_AFTER_VERSION` in `protocol.gd`; `tests/protocol_doc.gd` fails if the bump is made and `lang` is still there).
+
+**What keeps this document true.** `Protocol.MESSAGES` lists every message and its sender. `tests/protocol_doc.gd` checks that the messages of the tables above, the `"t"` values written in `scripts/net/tv_server.gd` and `scripts/net/controller_client.gd`, and `Protocol.MESSAGES` are the same set with the same senders, and that the version, the port, the size of the sensor packet, the time-outs, the number of slots and `NAME_MAX` quoted in this document are the values in `protocol.gd`.
