@@ -301,3 +301,4 @@ freeze_dance.wiggle,WIGGLE!,נענעו!,Freeze Dance: banner at the top of the T
 freeze_dance.freeze,FREEZE!,קפאו!,Freeze Dance: banner at the top of the TV from the moment the music stops (the phones show nothing),
 freeze_dance.song_n,SONG %d OF %d,שיר %d מתוך %d,"Freeze Dance HUD: box in the place of the timer, the song that plays now and the number of songs","the number sign (%d, %.1f ...) is replaced by a number"
 freeze_dance.back_in,BACK IN %d,חוזרים בעוד %d,"Freeze Dance: under the name of a player who moved in the freeze, the seconds until the next song, where the player dances again","the number sign (%d, %.1f ...) is replaced by a number"
+players.default_name,Player %d,שחקן %d,"TV, everywhere a player name shows (Players list, HUD chips, pause card, result menu): name of a phone that has no profile name, %d is the slot number (1 to 4)","the number sign (%d, %.1f ...) is replaced by a number; it is not saved: it follows the TV language"
