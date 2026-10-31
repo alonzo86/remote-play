@@ -16,9 +16,9 @@ The two IDs are different, so you can install both apps on one device.
 2. Install **JDK 17** or newer (the build was checked with JDK 21).
 3. Install the **Android SDK**. The easy way is Android Studio. You need these SDK packages:
    platform-tools, build-tools 36.1.0 and platform android-36 (the versions in the 4.7 build template,
-   `android/build/config.gradle`). The Gradle build does not need the NDK or CMake. (`.github/workflows/ci.yml` still names
-   android-34, build-tools 34.0.0, an NDK and CMake for its APK job; that export step is commented out, so the job builds no APK.
-   Change those versions when the APK export is turned on.)
+   `android/build/config.gradle`). The Gradle build does not need the NDK or CMake. (CI has no APK job: the job
+   `build-android` was removed on 2026-10-31, issue #286, because it exported nothing. The manifest patch is tested by
+   `tests/ci_scripts.sh`. When an APK job is added, use these versions.)
 4. In Godot open **Editor > Editor Settings > Export > Android**.
    Set `Java SDK Path` and `Android SDK Path`.
 5. Open **Editor > Manage Export Templates** and install the templates for your Godot version.

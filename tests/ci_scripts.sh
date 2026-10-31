@@ -123,5 +123,39 @@ check "no tool script uses the BSD form sed -i ''" "" "$(grep -n "sed -i ''" "$R
 check "no tool script sets JAVA_HOME to a fixed path" "" "$(grep -n '^[[:space:]]*export JAVA_HOME=/' "$ROOT"/tools/*.sh || true)"
 check "caffeinate is used only when it exists" "" "$(grep -n 'caffeinate' "$ROOT"/tools/*.sh | grep -v 'command -v caffeinate' | grep -v '^[^:]*:[0-9]*:[[:space:]]*#' | grep -v 'exec caffeinate' || true)"
 
+echo "patch_android_manifest.sh (replaces the job build-android, issue #286)"
+# A fake build template with the lines the script patches; the script is copied with the files it needs, so no Godot, SDK or JDK is used.
+PT="$TMP/patch"
+mkdir -p "$PT/tools" "$PT/assets/icons" "$PT/android/plugin"
+cp "$ROOT/tools/patch_android_manifest.sh" "$PT/tools/"
+cp "$ROOT/assets/icons/banner.png" "$PT/assets/icons/"
+cp "$ROOT/android/plugin/QrScannerPlugin.java" "$PT/android/plugin/"
+for DIR in android android-tv; do
+	mkdir -p "$PT/$DIR/build/src/main"
+	cat > "$PT/$DIR/build/src/main/AndroidManifest.xml" <<'MANIFEST'
+<manifest>
+    <application android:icon="@mipmap/icon">
+        <activity>
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+MANIFEST
+	printf 'dependencies {\n}\n' > "$PT/$DIR/build/build.gradle"
+done
+(cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)
+check "patch: the controller manifest gets the QR plugin entry" "1" "$(grep -c 'org.godotengine.plugin.v2.QrScanner' "$PT/android/build/src/main/AndroidManifest.xml")"
+check "patch: the controller gets the code scanner dependency" "1" "$(grep -c 'play-services-code-scanner' "$PT/android/build/build.gradle")"
+check "patch: the controller gets the plugin source" "yes" "$([ -f "$PT/android/build/src/main/java/io/github/alonzo86/sababi/QrScannerPlugin.java" ] && echo yes)"
+check "patch: the TV manifest has no QR entry" "0" "$(grep -c 'QrScanner' "$PT/android-tv/build/src/main/AndroidManifest.xml")"
+check "patch: the TV has no code scanner dependency" "0" "$(grep -c 'play-services-code-scanner' "$PT/android-tv/build/build.gradle")"
+check "patch: the TV has no plugin source" "no" "$([ -f "$PT/android-tv/build/src/main/java/io/github/alonzo86/sababi/QrScannerPlugin.java" ] && echo yes || echo no)"
+check "patch: both manifests have the banner, the leanback flag and the launcher category" "3 3" "$(for D in android android-tv; do grep -c 'android:banner=\|android.software.leanback\|LEANBACK_LAUNCHER' "$PT/$D/build/src/main/AndroidManifest.xml"; done | tr '\n' ' ' | sed 's/ $//')"
+cp "$PT/android/build/src/main/AndroidManifest.xml" "$TMP/before.xml"
+(cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)
+check "patch: a second run changes nothing" "same" "$(cmp -s "$TMP/before.xml" "$PT/android/build/src/main/AndroidManifest.xml" && echo same || echo changed)"
+
 echo "$CHECKS checks, $FAILS failed"
 [ "$FAILS" -eq 0 ]

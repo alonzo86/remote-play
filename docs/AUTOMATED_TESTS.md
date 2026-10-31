@@ -36,14 +36,14 @@ A suite that prints a `SCRIPT ERROR` line fails in `tests/run_suites.sh` even wh
 
 The free CI plans have a limited number of minutes each month. The CI runs the unit suites and the pixel checks only (Alon, 2026-10-22). The workflow `.github/workflows/ci.yml` spends the minutes like this (the job `changes` decides):
 
-| Case | lint | test | coverage | pixels | build-android |
-|------|------|------|----------|--------|---------------|
-| A pull request that changes code | yes | unit suites | reported, never fails | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `scripts/core/`, `scripts/input/`, `scripts/app.gd`, `project.godot`, the pixel tests, the design tokens) | yes |
-| A pull request with the label `full-tests` | yes | all suites | reported | as above | yes |
-| A pull request with the label `pixels` | yes | unit suites | reported | yes | yes |
-| A push to `main` (a merge) | yes | unit suites (a run on `main` is never cancelled by a newer push) | reported | yes | yes |
-| A manual run (Actions, "Run workflow") | yes | unit, scenario or all (your choice) | reported | your choice | yes |
-| Only Markdown, `docs/` or `.claude/` changed (the design tokens in `docs/design-system/` are code) | no | no | no | no | yes |
+| Case | lint | test | coverage | pixels |
+|------|------|------|----------|--------|
+| A pull request that changes code | yes | unit suites | reported, never fails | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `scripts/core/`, `scripts/input/`, `scripts/app.gd`, `project.godot`, the pixel tests, the design tokens) |
+| A pull request with the label `full-tests` | yes | all suites | reported | as above |
+| A pull request with the label `pixels` | yes | unit suites | reported | yes |
+| A push to `main` (a merge) | yes | unit suites (a run on `main` is never cancelled by a newer push) | reported | yes |
+| A manual run (Actions, "Run workflow") | yes | unit, scenario or all (your choice) | reported | your choice |
+| Only Markdown, `docs/` or `.claude/` changed (the design tokens in `docs/design-system/` are code) | no | no | no | no |
 | A draft pull request | nothing runs. Mark it ready for review to start CI | | | | |
 
 The scenario suites that take most time: `hud_layout` 105 s, `multi_phone` 101 s, `device_mocks` 80 s, `audio_phones` 58 s, `r4_tv_profiles` 49 s, `smoke_tv` 43 s, `r1_reconnect` 37 s, `r1_tv_screens` 25 s, `net_rate` 24 s, `audio_events` 23 s, `games_focus` 21 s.
@@ -62,7 +62,7 @@ The coverage job always runs, always reports (the summary of the run) and never 
 | "Trigger Pipeline" with `tests` = unit, scenario or all, or `pixels` = true (also for a documentation-only change) | yes | the tier you give | when `pixels` is true |
 | Only Markdown, `docs/` or `.claude/` changed | no | no | no |
 
-There is no `build-android` job on CircleCI (the APK export is off). A documentation-only change therefore runs nothing there. Godot is cached between runs. Compare the credits used with the minutes of Actions before you turn one of them off.
+Neither system has an Android job (the Actions job `build-android` exported nothing and was removed, issue #286; the manifest patch is checked in `tests/ci_scripts.sh`, which the lint job runs). A documentation-only change therefore runs nothing. Godot is cached between runs. Compare the credits used with the minutes of Actions before you turn one of them off.
 
 ## What replaced a manual step
 
