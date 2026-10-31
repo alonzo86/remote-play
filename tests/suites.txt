@@ -102,3 +102,4 @@ tests/rtl_text.gd|tv|Hebrew text: geresh and gershayim glyphs, order of rows wit
 tests/palette_lint.gd|controller|palette lint: no new color near a player color, OK or BAD outside palette.gd|unit
 tests/text_size.gd|controller|text size floor: no TV text under 32 px (REQ-FL-40)|unit
 tests/protocol_doc.gd|controller|protocol: docs/PROTOCOL.md, Protocol.MESSAGES and the net code agree|unit
+tests/import_guard_check.gd|controller|import guard: a suite fails on a tree that was not imported|unit

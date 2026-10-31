@@ -23,6 +23,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	Look = load("res://scripts/game/bumper_cars/bumper_look.gd")
 	_levels()
 	_start_spots()

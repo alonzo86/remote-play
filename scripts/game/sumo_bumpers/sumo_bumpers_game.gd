@@ -26,7 +26,6 @@ const UNBOUNDED := Rect2(Vector2(-FAR, -FAR), Vector2(2.0 * FAR, 2.0 * FAR))   #
 # Look (REQ-SB-15, REQ-GM-47): Sky Island. The pictures are in sumo_look.gd. The black bar on top is for the title and the round.
 const BAR_H := HUD_BAR_H            # The black bar on top (the shell draws it, REQ-GM-45a).
 const WHEE_FONT := 32       # "Whee!" over a fallen bumper (REQ-SB-15: all text is 32 px or larger).
-const ROUND_FONT := 32      # "Round 2 of 3" in the bar.
 const BANNER_FONT := 72     # The banner at the end of a round.
 
 enum Phase { PLAY, BANNER }
@@ -341,9 +340,7 @@ func _draw_hud() -> void:
 	Shell.title(self, "registry.sumo_bumpers")
 	draw_leader_chip(self)
 	if not is_over:
-		Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("sumo_bumpers.round_n_of",
-				[round_no, ROUNDS]), ROUND_FONT,
-				UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
+		Shell.status(self, TIMER_X, TIMER_W + 80.0, Lang.f("sumo_bumpers.round_n_of", [round_no, ROUNDS]))
 	if phase == Phase.BANNER and not is_over:
 		Shell.label_plate(self, banner_at(), banner_text, banner_font(banner_text), UiTheme.ACCENT)
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:

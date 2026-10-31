@@ -91,6 +91,7 @@ BRANCH=feature
 echo "run_suites.sh tiers"
 mkdir -p "$TMP/suites/tests"
 cp "$ROOT/tests/run_suites.sh" "$TMP/suites/tests/"
+cp "$ROOT/tests/suite_lib.sh" "$TMP/suites/tests/"
 printf '%s\n' "# comment" "a.gd|tv|first|unit" "b.gd|tv|second|scenario" "c.gd|tv|third|unit" > "$TMP/suites/tests/suites.txt"
 printf '#!/bin/sh\necho "RUN $*"\n' > "$TMP/godot"
 chmod +x "$TMP/godot"
