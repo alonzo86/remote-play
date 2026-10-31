@@ -39,6 +39,7 @@ func _initialize() -> void:
 	_migrated()
 	_color_blind()
 	_scan()
+	_meaning()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -182,6 +183,44 @@ func _scan() -> void:
 		if not seen.has(path):
 			older.append("%s: 0 (baseline %d)" % [path.trim_prefix("res://"), base[path]])
 	_check(newer.is_empty(),
-			"no new literal equal or near a player color, OK or BAD; use scripts/game/palette.gd (new: %s)" % str(newer))
+			"REQ-GM-23: no new literal equal or near a player color, OK or BAD; use scripts/game/palette.gd (new: %s)" % str(newer))
 	_check(older.is_empty(),
 			"the baseline has no line that is too high; lower it in tests/palette_baseline.txt (old: %s)" % str(older))
+
+
+## REQ-GM-44: OK green means good and BAD red means danger, in every screen and game. The uses of `UiTheme.OK` and `UiTheme.BAD`
+## outside the three files that define them are listed here with what each one means. A new use (or one that is gone) fails the
+## test: whoever adds it checks its meaning and adds the line. {file: [uses of OK, uses of BAD]}
+const MEANING := {
+	"scripts/ui/tv_connect.gd": [0, 1],           # BAD: the TV has no network address (an error).
+	"scripts/ui/pencil_icon.gd": [0, 1],          # BAD: the red rubber of the pencil picture (a drawing detail, not a message).
+	"scripts/ui/track_picker.gd": [1, 0],         # OK: the green start mark of a track sketch (go).
+	"scripts/ui/tv_game_settings.gd": [1, 0],     # OK: the roster line "IN" (good, taking part).
+	"scripts/ui/controller_connect.gd": [0, 1],   # BAD: a failed join (an error).
+	"scripts/ui/tv_settings.gd": [1, 0],          # OK: a switch that is ON.
+	"scripts/ui/controller_wait.gd": [1, 0],      # OK: NEW BEST! (good).
+	"scripts/ui/controller_pad.gd": [1, 5],       # OK: the best score. BAD: the lost link (badge, name), the B button, its stripes.
+	"scripts/ui/slot_list.gd": [1, 1],            # OK: READY. BAD: LOST.
+	"scripts/game/marble_race/marble_race.gd": [1, 0]}   # OK: the GO word (go).
+
+
+func _meaning() -> void:
+	print("OK and BAD keep their meaning")
+	var re_ok := RegEx.create_from_string("UiTheme\\.OK\\b")
+	var re_bad := RegEx.create_from_string("UiTheme\\.(BAD|DANGER|BAD_TEXT)\\b")
+	var found := {}
+	for path in _files("res://scripts"):
+		if DEFINERS.has(path):
+			continue
+		var ok := 0
+		var bad := 0
+		for line in FileAccess.get_file_as_string(path).split("\n"):
+			var code := line.split("#")[0]
+			ok += re_ok.search_all(code).size()
+			bad += re_bad.search_all(code).size()
+		if ok + bad > 0:
+			found[path.trim_prefix("res://")] = [ok, bad]
+	_check(found == MEANING, "REQ-GM-44: every use of OK green and BAD red is on the list of MEANING; found %s" % str(found))
+	_check(re_ok.search("c = UiTheme.OK") != null and re_bad.search("c = UiTheme.BAD") != null
+			and re_ok.search("UiTheme.OKAY") == null,
+			"the pattern finds a use of OK and of BAD")

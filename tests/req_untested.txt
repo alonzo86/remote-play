@@ -5,20 +5,9 @@
 # were handled in the pull request is in docs/REQ_COVERAGE.md.
 #
 # todo
-REQ-2D-2 | todo | pixel_games.gd draws at 1920x1080 and 3840x2160 only: add a draw of each game at 1280x720 that checks every object is inside the area
 REQ-BC-13 | todo | smoke_bumper_cars: a lost phone pauses and the cars, the clock and the new stars do not move (the pause itself is tested in smoke_tv)
 REQ-BW-21 | todo | r4_bowling logs the plates: check the turn plate shows 1.5 s and is not drawn afterwards
 REQ-BW-8 | todo | swing_replay.gd drives the overlay canvas: check the rows it shows for a swing (number, power, DOWN, side, age)
-REQ-GM-23 | todo | one check for every game that a player object has the color of its slot (PlayerInput.color)
-REQ-GM-36 | todo | each game: during play no screen with setup rows opens (menu_buttons never lists a setup row)
-REQ-GM-44 | todo | palette_lint.gd: OK is used for good and BAD for danger only
-REQ-GM-47j | todo | pixel_games.gd: a key object has a black outline of one world pixel (4 units)
-REQ-GM-47k | todo | palette_lint.gd: at most 8 colors in a world palette unless the game file says why
-REQ-GM-47l | todo | pixel_games.gd: positions are moved to the grid with Shell.snap before they are drawn
-REQ-GM-47n | todo | pixel_games.gd: no text is drawn in the pixel view
-REQ-GM-49b | todo | audio.gd: every effect is 0.5 s or shorter (a fanfare 2 s) and every haptic event has an effect
-REQ-GM-51 | todo | frame_cost.gd: no game creates nodes in a frame (count the nodes before and after 60 ticks)
-REQ-GM-52 | todo | frame_cost.gd: a game builds its scene in 2 s or less (time _game_ready)
 REQ-MR-2 | todo | smoke_race: tilt gives acceleration, the speed stays and is damped, there is no dead zone and no speed limit
 REQ-MR-3 | todo | smoke_race: the cars stand still for 3 s and every phone buzzes at GO (the grid wait is tested)
 REQ-MR-30 | todo | smoke_settings: the Games screen has one Car Race tile and it opens the settings view with Difficulty, Theme, the track list, Start and Back
@@ -41,6 +30,7 @@ REQ-GM-81 | review | friendly content (no violence, nothing alive shot) is a jud
 REQ-GM-84 | review | kind words in titles and messages is a judgment of the localization-reviewer (strings.csv has no list of banned words)
 #
 # obsolete
+REQ-GM-47k | obsolete | the limit of 8 colors is not what the games do: the games have 11 to 72 different color literals each (only bowling.md and tennis.md list extra colors); the colors on screen can be counted in the render lane, but the limit per game is for the owner to decide
 REQ-BC-8 | obsolete | the row says Removed on 2026-10-29 (a hit drops no star, REQ-BC-7): smoke_bumper_cars checks that a hit takes no star
 REQ-FL-47 | obsolete | the plan for the next pull request that restyled the marble race; it is done (tier 2 and the arcade style replaced it)
 REQ-FL-48 | obsolete | the game shell is built in the same pull request as the menus: history of a finished pull request

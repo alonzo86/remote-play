@@ -17,20 +17,21 @@ Buckets:
   have manual steps since the pull requests #320 and #324.
 - **obsolete**: removed, superseded or no longer true. **These are for Alon to decide**; no requirement was deleted or reworded.
 
-Counts: a 78, todo 21, review 11, obsolete 12, device 0 (total 122).
+Counts: a 88, todo 10, review 11, obsolete 13, device 0 (total 122).
 
 Ids that need a decision of Alon (obsolete):
 
 - Removed rows with a test that proves the removal: REQ-BC-8, REQ-TN-21. Keep as history or delete the rows.
 - Finished plans written as requirements: REQ-FL-47, REQ-FL-48, REQ-FL-49.
 - 3D and superseded pixel rules: REQ-GM-47 (umbrella), REQ-GM-47c, REQ-GM-47f, REQ-GM-47g, REQ-GM-47h.
+- A rule that the games do not follow and a count cannot settle: REQ-GM-47k (at most 8 colors in a world palette; the games use 11 to 72 color literals).
 - Rules that say something false today: REQ-GM-60 (tests are in `smoke_<game>.gd`, not in `smoke_tv.gd`) and REQ-GM-61 (the logic tests
   are in the `*_rules.gd` suites, not in `run_tests.gd`). They need a new wording.
 
 | ID | Bucket | How it is named, or why it is not |
 |----|--------|-----------------------------------|
 | REQ-2D-1 | a (done) | req_registry (new check) |
-| REQ-2D-2 | todo | pixel_games.gd draws at 1920x1080 and 3840x2160 only: add a draw of each game at 1280x720 that checks every object is inside the area |
+| REQ-2D-2 | a (done) | small_screen (new suite: every game at 1280x720; three games are listed as fixed layouts, issue #348) |
 | REQ-2D-3 | review | draw calls instead of one node for each moving object: the code-reviewer reads it (frame_cost.gd shows the cost only) |
 | REQ-2D-4 | review | a convention for units (pixels at 1920x1080, tilt as sin of the angle): the reviewer reads it |
 | REQ-AH-1 | a (done) | named in the existing check of smoke_air_hockey.gd |
@@ -85,25 +86,25 @@ Ids that need a decision of Alon (obsolete):
 | REQ-GM-7a | review | the starting point for a new requirements file is a rule of work for the add-minigame skill |
 | REQ-GM-10 | a (done) | req_registry (new check) |
 | REQ-GM-11 | a (done) | req_registry (new check) |
-| REQ-GM-23 | todo | one check for every game that a player object has the color of its slot (PlayerInput.color) |
+| REQ-GM-23 | a (done) | frame_cost.gd (every player of every game has its slot color), palette_lint.gd (no own color near a slot color) |
 | REQ-GM-25 | review | a fair start state for every player is a rule of the design of each game; the reviewer checks it per game |
-| REQ-GM-36 | todo | each game: during play no screen with setup rows opens (menu_buttons never lists a setup row) |
+| REQ-GM-36 | a (done) | frame_cost.gd (the menu during play of every game has Resume and End game only) |
 | REQ-GM-42 | review | which files a game may use depends on docs/TV_FLOW.md (FD-9, FD-13) and docs/THIRD_PARTY.md: the license-reviewer judges it |
-| REQ-GM-44 | todo | palette_lint.gd: OK is used for good and BAD for danger only |
+| REQ-GM-44 | a (done) | palette_lint.gd (new check: every use of OK and BAD is on a list with its meaning) |
 | REQ-GM-47 | obsolete | the tier 2 rule of toy-like worlds; its parts 47a to 47h are superseded by REQ-GM-47j to 47n (the pixel worlds) |
 | REQ-GM-47c | obsolete | outline width in 3D: no game is drawn in 3D since minigame_3d.gd was removed (issue #300) |
 | REQ-GM-47f | obsolete | the text says it is superseded by REQ-GM-47l and REQ-FL-38 (no round corners in the arcade style) |
 | REQ-GM-47g | obsolete | the text says it is superseded by REQ-GM-47l (no registered game is drawn in 3D) |
 | REQ-GM-47h | obsolete | materials and light in 3D: no game is drawn in 3D |
-| REQ-GM-47j | todo | pixel_games.gd: a key object has a black outline of one world pixel (4 units) |
-| REQ-GM-47k | todo | palette_lint.gd: at most 8 colors in a world palette unless the game file says why |
-| REQ-GM-47l | todo | pixel_games.gd: positions are moved to the grid with Shell.snap before they are drawn |
-| REQ-GM-47n | todo | pixel_games.gd: no text is drawn in the pixel view |
-| REQ-GM-49b | todo | audio.gd: every effect is 0.5 s or shorter (a fanfare 2 s) and every haptic event has an effect |
+| REQ-GM-47j | a (done) | pixel_games.gd (render lane: the outline of Shell.pixel_ball is one world pixel); the outline of other objects is a look item of the game tests |
+| REQ-GM-47k | obsolete | the limit of 8 colors is not what the games do: the games have 11 to 72 different color literals each (only bowling.md and tennis.md list extra colors); the colors on screen can be counted in the render lane, but the limit per game is for the owner to decide |
+| REQ-GM-47l | a (done) | pixel_world_lint (new suite: the world draw of every game snaps; Mini Golf is listed, issue #346) |
+| REQ-GM-47n | a (done) | pixel_world_lint (new suite: no text in the world draw of any game) |
+| REQ-GM-49b | a (done) | audio.gd (limits and lengths of every effect), audio_events.gd (a buzz comes with a sound effect) |
 | REQ-GM-49c | a (done) | named in the existing check of audio.gd, audio_controller.gd |
 | REQ-GM-49d | a (done) | named in the existing check of game_names_hebrew.gd |
-| REQ-GM-51 | todo | frame_cost.gd: no game creates nodes in a frame (count the nodes before and after 60 ticks) |
-| REQ-GM-52 | todo | frame_cost.gd: a game builds its scene in 2 s or less (time _game_ready) |
+| REQ-GM-51 | a (done) | frame_cost.gd (480 ticks add no nodes in any game) |
+| REQ-GM-52 | a (done) | frame_cost.gd (every game builds its scene in 2 s or less) |
 | REQ-GM-60 | obsolete | says each game has a check in tests/smoke_tv.gd; in fact each game has its own smoke_<game>.gd suite: reword the rule |
 | REQ-GM-61 | obsolete | says pure logic has unit tests in tests/run_tests.gd; in fact they are in the *_rules.gd suites: reword the rule |
 | REQ-GM-62 | a (done) | req_registry (new check) |

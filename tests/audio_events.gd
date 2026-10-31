@@ -124,6 +124,9 @@ func _event(game: Control, label: String, ids: Array, buzzes: Dictionary, trigge
 	if quiet:
 		for b in _buzz:
 			noisy = noisy or not b.is_empty()
+	# REQ-GM-49b: an event with a haptic also has a sound effect (a buzz alone is not enough).
+	var buzzed := _buzz.any(func(b: Array) -> bool: return not b.is_empty())
+	_check(not buzzed or not _heard.is_empty(), "REQ-GM-49b: %s: a buzz comes with a sound effect (heard %s)" % [label, str(_heard)])
 	var what := "%s: plays %s%s" % [label, str(ids), " and buzzes " + str(buzzes) if not buzzes.is_empty() else ""]
 	if quiet:
 		what += " and buzzes nobody"

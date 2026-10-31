@@ -87,6 +87,40 @@ func _puck_on_goal(k: int) -> void:
 	await _frames(3)
 
 
+## REQ-GM-47j: a key object in a pixel world has a black outline of exactly one world pixel (`Shell.WORLD_PIXEL`, 4 units), drawn
+## under the fill. A ball from `Shell.pixel_ball()` is drawn on a white sheet and read along a horizontal line through its center:
+## the fill, then a black run of 4 units (4 * k screen pixels), then the sheet.
+func _ball_outline(k: int) -> void:
+	var sheet := ColorRect.new()
+	sheet.color = Color.WHITE
+	sheet.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	sheet.z_index = 4000
+	var ball := Control.new()
+	ball.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var center := Vector2(800, 600)
+	var radius := 48.0
+	ball.draw.connect(func() -> void: Shell.pixel_ball(ball, center, radius, Color(1, 0, 0)))
+	sheet.add_child(ball)
+	_app.add_child(sheet)
+	await _frames(3)
+	var shot := await _capture()
+	var y := int(center.y * k)
+	var x0 := int((center.x + radius) * k)
+	var fill := shot.get_pixel(x0 - 2 * k, y)
+	var run := 0
+	var x := x0 - 1
+	while shot.get_pixel(x, y).to_html(false) == "ff0000":
+		x += 1
+	while shot.get_pixel(x + run, y).to_html(false) == "000000":
+		run += 1
+	var beyond := shot.get_pixel(x + run + 2, y)
+	_check(fill.to_html(false) == "ff0000" and run == int(Shell.WORLD_PIXEL) * k and beyond.to_html(false) == "ffffff",
+			"REQ-GM-47j: a pixel ball has a black outline of %d px (one world pixel): fill %s, black run %d px, then %s"
+			% [int(Shell.WORLD_PIXEL) * k, fill.to_html(false), run, beyond.to_html(false)])
+	sheet.queue_free()
+	await _frames(2)
+
+
 func _initialize() -> void:
 	_run()
 
@@ -230,5 +264,6 @@ func _run() -> void:
 		await _frames(3)
 	await _bars(k)
 	await _puck_on_goal(k)
+	await _ball_outline(k)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
