@@ -28,7 +28,7 @@ const HINT_TIME := 4.0
 const BOARD_TOP := 150.0        # The floor is the screen inside the margin, under the HUD.
 const BOARD_MARGIN := 60.0
 const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
-const TIMER_W := 208.0          # "60.0 S" in the 32 px font is 192 px wide.
+const TIMER_W := Shell.TIMER_W
 ## Difficulty (REQ-PG-20): the floor, and the speed of the blobs (a factor on the Medium values)
 ## (first guesses, Test 13). A tile is `REF_TILE` in the simulation; on the screen it is as big as the floor fits.
 const LEVELS := {
@@ -313,13 +313,7 @@ func _scoreboard() -> Scoreboard:
 func _draw_hud() -> void:
 	Shell.title(self, "registry.paint_grab")
 	draw_leader_chip(self)
-	if _round.is_playing() and not is_over:
-		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
-	if _round.is_counting() and not participants.is_empty():
-		var n := _round.count_number()
-		Shell.countdown(self, size, str(n), _round.count_elapsed())
-	if _round.time < HINT_TIME and not is_over:
-		Shell.hint(self, size, "paint_grab.tilt_phone_roll_paint")
+	Shell.timed_hud(self, size, _round, is_over, not participants.is_empty(), "paint_grab.tilt_phone_roll_paint", HINT_TIME)
 
 
 func best_key() -> String:

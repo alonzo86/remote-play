@@ -21,7 +21,7 @@ const HINT_TIME := 4.0          # Seconds of play with the hint on the screen.
 const AREA_TOP := 150.0
 const AREA_MARGIN := 60.0
 const TIMER_X := Shell.TIMER_X  # The timer box has the same place in every game (REQ-GM-47o).
-const TIMER_W := 208.0
+const TIMER_W := Shell.TIMER_W
 const BAR_H := HUD_BAR_H            # The black bar on top (the shell draws it, REQ-GM-45a).
 const CURSOR_R := 40.0
 const POOF_COLOR := Color("ffe040")
@@ -275,9 +275,4 @@ func _scoreboard() -> Scoreboard:
 func _draw_hud() -> void:
 	Shell.title(self, "registry.whack_a_mole")
 	draw_leader_chip(self)
-	if _round.is_playing() and not is_over:
-		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.remaining(), TIMER_W)
-	if _round.is_counting() and not participants.is_empty():
-		Shell.countdown(self, size, str(_round.count_number()), _round.count_elapsed())
-	if _round.time < HINT_TIME and not is_over:   # In the countdown the time is below 0.
-		Shell.hint(self, size, "whack_a_mole.point_at_tv_press")
+	Shell.timed_hud(self, size, _round, is_over, not participants.is_empty(), "whack_a_mole.point_at_tv_press", HINT_TIME)
