@@ -89,11 +89,18 @@ func _sumo(game: Control, code: String) -> void:
 	var banners_ok := true
 	var widest := 0.0
 	for msg in banners:
-		var r := Shell.label_plate_rect(game.banner_at(), msg, game.banner_font(msg))
+		var r := Shell.label_plate_rect(game.banner_at(), msg, game.BANNER_FONT, game.banner_room())
 		widest = maxf(widest, r.size.x)
 		banners_ok = banners_ok and _inside(r, area)
 	_check(banners_ok, "%s: the banner plates (long name too) are inside the 60 px margin, the widest is %.0f px"
 			% [code, widest])
+	# Issue #288: a long name does not make the banner smaller; the plate grows (a second line) at the full size.
+	var one := Shell.label_plate_rect(game.banner_at(), Lang.t("sumo_bumpers.round_draw"), game.BANNER_FONT, game.banner_room())
+	var two := Shell.label_plate_rect(game.banner_at(), Lang.f("sumo_bumpers.round_winner", [LONG_NAME]), game.BANNER_FONT,
+			game.banner_room())
+	_check(game.BANNER_FONT == 72 and (two.size.y > one.size.y or code != "en") and two.size.x <= game.banner_room() + 48.0 + 0.01,
+			"%s: the banner of a 10 letter name stays at %d px and grows to two lines (%.0f px high, one line %.0f)"
+			% [code, game.BANNER_FONT, two.size.y, one.size.y])
 	var round_text := Lang.f("sumo_bumpers.round_n_of", [3, game.ROUNDS]).to_upper()
 	var round_w := UiTheme.font().get_string_size(round_text, HORIZONTAL_ALIGNMENT_LEFT, -1, Shell.STATUS_FONT).x
 	_check(round_w <= 480.0, "%s: the round number is %.0f px wide, centered at x = %.0f of the bar" % [code, round_w,
