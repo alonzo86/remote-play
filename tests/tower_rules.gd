@@ -20,6 +20,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	Look = load("res://scripts/game/tower_builder/tower_look.gd")
 	_landing()
 	_toppling()

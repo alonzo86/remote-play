@@ -3,7 +3,7 @@ version: 2.1
 # CircleCI, beside the GitHub Actions workflow (.github/workflows/ci.yml) while both run. Same rules, see docs/AUTOMATED_TESTS.md
 # "CI minutes". CircleCI has no labels and no draft state, so tools/ci_plan_circleci.sh decides from the branch and the pipeline
 # parameters: every branch runs the unit suites, and the pixels only when something drawn changed (main
-# always runs them); a documentation-only change runs nothing (there is no build-android job here). "Trigger Pipeline" in CircleCI can set
+# always runs them); a documentation-only change runs nothing (there is no Android job here). "Trigger Pipeline" in CircleCI can set
 # `tests` (unit, scenario, all) and `pixels` for a manual run. Turn on "Auto-cancel redundant workflows" in the project settings.
 
 parameters:

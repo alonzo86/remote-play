@@ -44,6 +44,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-N7: Full message reference: `docs/PROTOCOL.md`.
 - REQ-N8: `hello` and `welcome` carry an optional profile (`pid`, `av`, and the name); a `profile` message changes it in a menu. The TV checks every field. The new fields are optional, so adding them did not change the protocol `VERSION` (FD-22); the current `VERSION` is in `scripts/core/protocol.gd` (5) and the rules are in `docs/PROTOCOL.md`.
 - REQ-N9: **Removed (issue #52, FD-28).** There is no join PIN (`hello.pin`, `bad_pin` and `pin_locked` are gone). The protocol `VERSION` became 4 with it (now 5, `scripts/core/protocol.gd`). See `docs/PROTOCOL.md`, "Room code".
+- REQ-N10: Any device on the Wi-Fi can send a frame to the TV port, and the TV and a phone can be different builds. A handler reads the fields of a JSON frame only with `Protocol.num`, `whole`, `text` and `flag`, which give the default for a value of another type (an Array, an object, a number for a text). A frame with a field of the wrong type never raises a script error and never changes the state of a player (issue #308; `tests/net_malformed.gd`).
 
 ## 5. Phone controller
 

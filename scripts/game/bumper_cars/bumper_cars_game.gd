@@ -2,8 +2,9 @@ extends "res://scripts/game/minigame.gd"
 ## Bumper Cars. Each phone tilts a bumper car in a fun-fair rink. Gold stars lie on the floor: a car that drives over one picks it
 ## up. When two cars bump hard it is a bonk with a spark and a buzz; nobody loses a star, nobody is out and nobody waits
 ## (REQ-GM-83). The most stars after 60 seconds win (REQ-BC-1 to 20). The game needs 2 players or more and is for
-## children too (REQ-GM-80 to 84). RECENTER recenters (REQ-GM-37); A and B do nothing. The rules of the rink are in
-## bumper_rink.gd, the pictures in bumper_look.gd and the movement of a car is `TiltBody` (scripts/game/tilt_body.gd).
+## children too (REQ-GM-80 to 84). The pad is empty (REQ-GM-37a): every phone recenters at GO (REQ-BC-2), and there is
+## no RECENTER, A or B. The rules of the rink are in bumper_rink.gd, the pictures in bumper_look.gd and the movement of a
+## car is `TiltBody` (scripts/game/tilt_body.gd).
 
 const TiltBody = preload("res://scripts/game/tilt_body.gd")
 const RoundClock = preload("res://scripts/game/round_clock.gd")

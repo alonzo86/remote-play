@@ -19,7 +19,6 @@ const AREA_MARGIN := 60.0
 const BAR_H := HUD_BAR_H            # The black bar on top (the shell draws it, REQ-GM-45a).
 const TIMER_X := 560.0
 const TIMER_W := 160.0
-const WAVE_FONT := 32           # "Wave 3" in the bar.
 const BANNER_FONT := 72         # The banners in the middle of the screen.
 const SUB_FONT := 48            # "Next wave in 3" under the banner.
 const BAR_LINE_Y := 100.0       # The line in the bar that shows how much of the wave is left.
@@ -207,9 +206,7 @@ func _game_draw() -> void:
 	draw_leader_chip(self)
 	if is_over:
 		return
-	Shell.text(self, Vector2(Shell.mx(self, TIMER_X, TIMER_W + 80.0), 84.0), Lang.f("asteroid_blast.wave_n", [field.wave]),
-			WAVE_FONT,
-			UiTheme.TEXT, HORIZONTAL_ALIGNMENT_CENTER, TIMER_W + 80.0)
+	Shell.status(self, TIMER_X, TIMER_W + 80.0, Lang.f("asteroid_blast.wave_n", [field.wave]))
 	_draw_wave_line()
 	match banner():
 		"wave_clear":

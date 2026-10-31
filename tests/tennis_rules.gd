@@ -24,6 +24,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	_scoring_real()
 	_scoring_quick()
 	_teams()

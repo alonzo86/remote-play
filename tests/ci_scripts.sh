@@ -91,6 +91,7 @@ BRANCH=feature
 echo "run_suites.sh tiers"
 mkdir -p "$TMP/suites/tests"
 cp "$ROOT/tests/run_suites.sh" "$TMP/suites/tests/"
+cp "$ROOT/tests/suite_lib.sh" "$TMP/suites/tests/"
 printf '%s\n' "# comment" "a.gd|tv|first|unit" "b.gd|tv|second|scenario" "c.gd|tv|third|unit" > "$TMP/suites/tests/suites.txt"
 printf '#!/bin/sh\necho "RUN $*"\n' > "$TMP/godot"
 chmod +x "$TMP/godot"
@@ -106,6 +107,75 @@ printf '%s\n' "a.gd|tv|first" > "$TMP/suites/tests/suites.txt"
 check "a line with no tier stops the run with exit 2" "2" "$?"
 (cd "$TMP/suites" && GODOT="$TMP/godot" SUITE_TIER=wrong tests/run_suites.sh >/dev/null 2>&1)
 check "an unknown SUITE_TIER stops the run with exit 2" "2" "$?"
+
+echo "tools/env.sh (portable build scripts, issue #287)"
+env_run() { # env_run <var> [VAR=value ...]: source tools/env.sh in a clean shell and print one variable
+	V="$1"; shift
+	(cd "$ROOT" && env -i PATH="/usr/bin:/bin" HOME="$TMP/home" "$@" sh -c ". tools/env.sh; eval \"printf '%s' \\\"\\\${$V:-}\\\"\"")
+}
+mkdir -p "$TMP/home"
+printf '#!/bin/sh\n' > "$TMP/mygodot"
+chmod +x "$TMP/mygodot"
+check "GODOT from the environment is kept" "$TMP/mygodot" "$(env_run GODOT GODOT="$TMP/mygodot")"
+check "a JAVA_HOME that is set is not overwritten" "/my/jdk" "$(env_run JAVA_HOME GODOT="$TMP/mygodot" JAVA_HOME=/my/jdk)"
+check "an ANDROID_HOME that is set is not overwritten" "/my/sdk" "$(env_run ANDROID_HOME GODOT="$TMP/mygodot" ANDROID_HOME=/my/sdk)"
+check "no Godot: it stops with a message and exit 1" "1" "$(cd "$ROOT" && env -i PATH="/nonexistent" HOME="$TMP/home" /bin/sh -c '. tools/env.sh' >/dev/null 2>&1; echo $?)"
+check "no tool script uses the BSD form sed -i ''" "" "$(grep -n "sed -i ''" "$ROOT"/tools/*.sh "$ROOT"/tests/*.sh | grep -v 'tests/ci_scripts.sh' || true)"
+check "no tool script sets JAVA_HOME to a fixed path" "" "$(grep -n '^[[:space:]]*export JAVA_HOME=/' "$ROOT"/tools/*.sh || true)"
+check "caffeinate is used only when it exists" "" "$(grep -n 'caffeinate' "$ROOT"/tools/*.sh | grep -v 'command -v caffeinate' | grep -v '^[^:]*:[0-9]*:[[:space:]]*#' | grep -v 'exec caffeinate' || true)"
+
+echo "patch_android_manifest.sh (replaces the job build-android, issue #286)"
+# A fake build template with the lines the script patches; the script is copied with the files it needs, so no Godot, SDK or JDK is used.
+PT="$TMP/patch"
+mkdir -p "$PT/tools" "$PT/assets/icons" "$PT/android/plugin"
+cp "$ROOT/tools/patch_android_manifest.sh" "$PT/tools/"
+cp "$ROOT/assets/icons/banner.png" "$PT/assets/icons/"
+cp "$ROOT/android/plugin/QrScannerPlugin.java" "$PT/android/plugin/"
+for DIR in android android-tv; do
+	mkdir -p "$PT/$DIR/build/src/main"
+	cat > "$PT/$DIR/build/src/main/AndroidManifest.xml" <<'MANIFEST'
+<manifest>
+    <application android:icon="@mipmap/icon">
+        <activity>
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+MANIFEST
+	printf 'dependencies {\n}\n' > "$PT/$DIR/build/build.gradle"
+done
+(cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)
+check "patch: the controller manifest gets the QR plugin entry" "1" "$(grep -c 'org.godotengine.plugin.v2.QrScanner' "$PT/android/build/src/main/AndroidManifest.xml")"
+check "patch: the controller gets the code scanner dependency" "1" "$(grep -c 'play-services-code-scanner' "$PT/android/build/build.gradle")"
+check "patch: the controller gets the plugin source" "yes" "$([ -f "$PT/android/build/src/main/java/io/github/alonzo86/sababi/QrScannerPlugin.java" ] && echo yes)"
+check "patch: the TV manifest has no QR entry" "0" "$(grep -c 'QrScanner' "$PT/android-tv/build/src/main/AndroidManifest.xml")"
+check "patch: the TV has no code scanner dependency" "0" "$(grep -c 'play-services-code-scanner' "$PT/android-tv/build/build.gradle")"
+check "patch: the TV has no plugin source" "no" "$([ -f "$PT/android-tv/build/src/main/java/io/github/alonzo86/sababi/QrScannerPlugin.java" ] && echo yes || echo no)"
+check "patch: both manifests have the banner, the leanback flag and the launcher category" "3 3" "$(for D in android android-tv; do grep -c 'android:banner=\|android.software.leanback\|LEANBACK_LAUNCHER' "$PT/$D/build/src/main/AndroidManifest.xml"; done | tr '\n' ' ' | sed 's/ $//')"
+cp "$PT/android/build/src/main/AndroidManifest.xml" "$TMP/before.xml"
+(cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)
+check "patch: a second run changes nothing" "same" "$(cmp -s "$TMP/before.xml" "$PT/android/build/src/main/AndroidManifest.xml" && echo same || echo changed)"
+echo "Godot version in both CI configs (issue #285)"
+gv() { sed -n "s/^[[:space:]]*GODOT_VERSION:[[:space:]]*\([0-9][0-9.]*\).*/\1/p" "$1" | head -1; }
+V_ACTIONS="$(gv "$ROOT/.github/workflows/ci.yml")"
+V_CIRCLE="$(gv "$ROOT/.circleci/config.yml")"
+check "ci.yml has a GODOT_VERSION" "yes" "$([ -n "$V_ACTIONS" ] && echo yes)"
+check "GODOT_VERSION is the same in ci.yml and in .circleci/config.yml" "$V_ACTIONS" "$V_CIRCLE"
+check "the CircleCI cache keys name that version (2 keys, same key)" "godot-$V_ACTIONS-v1 godot-$V_ACTIONS-v1" "$(sed -n 's/^[[:space:]]*key:[[:space:]]*\(godot-.*\)$/\1/p' "$ROOT/.circleci/config.yml" | tr '\n' ' ' | sed 's/ $//')"
+
+echo "tools/set_version.sh (one app version, issue #289)"
+check "the 3 version places of export_presets.cfg agree" "0" "$("$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+cp "$ROOT/export_presets.cfg" "$TMP/presets.cfg"
+FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 2.3.4 12 >/dev/null
+check "set_version writes name and code to the 6 lines" "6" "$(grep -c '"2.3.4"\|^version/code=12$\|^application/version="12"$' "$TMP/presets.cfg")"
+check "after set_version the check passes" "0" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+sed -i.bak 's/^application\/version="12"/application\/version="13"/' "$TMP/presets.cfg"
+check "one place that differs makes the check fail" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+check "a bad name is refused" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" abc 1 >/dev/null 2>&1; echo $?)"
+check "a bad code is refused" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 1.0.0 x1 >/dev/null 2>&1; echo $?)"
+check ".gitignore keeps keystores and certificates out" "3" "$(grep -c '^\*\.keystore$\|^\*\.jks$\|^\*\.p12$' "$ROOT/.gitignore")"
 
 echo "$CHECKS checks, $FAILS failed"
 [ "$FAILS" -eq 0 ]
