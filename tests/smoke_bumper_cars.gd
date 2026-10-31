@@ -7,6 +7,7 @@ extends SceneTree
 const SimInput = preload("res://tests/sim_input.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const PlayerInput = preload("res://scripts/input/player_input.gd")
 
 const DT := 1.0 / 60.0
 
@@ -113,6 +114,7 @@ func _run() -> void:
 	await _the_end()
 	await _layout_and_restart()
 	_clients = await SimInput.connect_phones(self, _app, 3, _clients)
+	await _lost_phone()
 	await _leave()
 	for c in _clients:
 		c.leave()
@@ -400,6 +402,45 @@ func _layout_and_restart() -> void:
 
 
 ## A player leaves (REQ-BC-11).
+## REQ-BC-13: a lost phone pauses the round with the card of REQ-GM-30. Nothing runs during the pause: the cars (even with a
+## tilted phone), the clock and the stars (a star that was picked up is not replaced).
+func _lost_phone() -> void:
+	print("a phone is lost")
+	var game := _play()
+	game.rink.stars.remove_at(0)   # A hole in the stars: the rink would add one on its next tick.
+	game.rink._spawn_wait = 0.0
+	var lost: RefCounted = _app.server.players[1]
+	lost.state = PlayerInput.State.LOST
+	game._process(DT)
+	_check(game.is_paused() and game._hold and game.lost_participants() == [1] and game._menu_kind == "hold",
+			"REQ-BC-13: a lost phone pauses the round with the card of the lost phone")
+	var cars: Array = game._bodies.keys().map(func(s: int) -> Vector2: return game._bodies[s].pos)
+	var clock: float = game._round.time
+	var stars_before: int = game.rink.stars.size()
+	var p0: RefCounted = _app.server.players[0]
+	for i in 600:   # 10 s, with a tilted phone 0.
+		_sim.feed(p0, Vector2(sin(deg_to_rad(20.0)), 0.0))
+		game._process(DT)
+	var after: Array = game._bodies.keys().map(func(s: int) -> Vector2: return game._bodies[s].pos)
+	_check(after == cars and is_equal_approx(game._round.time, clock) and game.rink.stars.size() == stars_before,
+			"REQ-BC-13: 10 s later the cars, the clock and the stars have not moved (clock %.2f, %d stars)"
+			% [game._round.time, game.rink.stars.size()])
+	lost.state = PlayerInput.State.CONNECTED
+	game._process(DT)
+	await _frames(2)
+	var buttons: Array = game.menu_buttons().map(func(b: Button) -> String: return b.text)
+	_check(game.is_paused() and buttons.has("minigame.resume"), "the phone is back: the round waits for Resume (REQ-GM-30)")
+	for i in 60:
+		_sim.feed(p0, Vector2.ZERO)   # Resume recenters: the pose held while the card shows is the center.
+	game.menu_buttons()[0].pressed.emit()
+	await _frames(2)
+	for i in 60:
+		_sim.feed(p0, Vector2(sin(deg_to_rad(20.0)), 0.0))
+		game._process(DT)
+	_check(not game.is_paused() and game._bodies[0].pos != cars[0] and game._round.time > clock,
+			"REQ-BC-13: after Resume the car and the clock move again")
+
+
 func _leave() -> void:
 	print("a player leaves")
 	var game := _play()

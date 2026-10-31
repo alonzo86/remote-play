@@ -260,7 +260,7 @@ func _go_word_checks(id: String, timed: bool) -> void:
 	_check(not words.is_empty() and inside, "%s in Hebrew: the countdown numbers fit the screen (%s)" % [id, str(words.keys())])
 	if id == "marble_race":   # Only Car Race shows the word GO; the other games go from 1 to the play.
 		_check(words.has(Lang.t("marble_race.go").to_upper()) and words.has("\u05e6\u05d0\u05d5"),
-				"marble_race in Hebrew: the GO word is the Hebrew text '%s' (%s)" % [Lang.t("marble_race.go"), str(words.keys())])
+				"marble_race in Hebrew (REQ-MR-3): the GO word is the Hebrew text '%s' (%s)" % [Lang.t("marble_race.go"), str(words.keys())])
 
 
 ## The world is not mirrored (REQ-GM-47o): no node of the game has a negative scale.

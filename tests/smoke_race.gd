@@ -42,6 +42,7 @@ func _run() -> void:
 	for s in 4:
 		sim.settle(s, Sim.FLAT)
 	await _grid_and_directions()
+	await _motion()
 	await _edge_markers()
 	await _end_delay()
 	await _restart_and_seeds()
@@ -76,7 +77,7 @@ func _grid_and_directions() -> void:
 		if game._round.is_counting():
 			for s in 4:
 				worst = maxf(worst, game._racers[s].pos.distance_to(start[s]))
-	_check(worst < 0.01, "4 cars stay on the grid in '3, 2, 1' with all phones leaned 30 degrees: %.4f m < 0.01 (REQ-MR-4)"
+	_check(worst < 0.01, "4 cars stay on the grid in '3, 2, 1' with all phones leaned 30 degrees: %.4f m < 0.01 (REQ-MR-3, REQ-MR-4)"
 			% worst)
 	_flat_all()
 	sim.step(game, 0.5, {0: Sim.FLAT, 1: Sim.FLAT, 2: Sim.FLAT, 3: Sim.FLAT})
@@ -97,6 +98,56 @@ func _grid_and_directions() -> void:
 	var off := absf(wrapf(r2.angle + PI * 0.5, -PI, PI))
 	_check(r2.vel.x < -1.0 and off <= deg_to_rad(15.0) + 0.001,
 			"a car driven to the left faces left, within 15 degrees: %.0f degrees off" % rad_to_deg(off))
+
+
+## REQ-MR-2 and REQ-MR-5: tilt gives acceleration (no dead zone, no speed limit), the car keeps its speed and slows by damping; a
+## car that goes past the edge of the track is put back and loses part of its speed.
+func _motion() -> void:
+	print("race: acceleration, damping and the edge")
+	var game: Control = await sim.start(Race, {"track_choice": "1", "difficulty": "medium"})
+	_flat_all()
+	sim.through_countdown(game)
+	var r = game._racers[0]
+	var tr = game.track
+	var start_arc := 20.0
+	var dir: Vector2 = tr.dir_at(start_arc)
+	var speeds := {}
+	for deg in [3.0, 6.0, 12.0]:
+		r.pos = tr.point_at(start_arc)
+		r.vel = Vector2.ZERO
+		_flat_all()
+		sim.step(game, 0.5, {0: func(t): return Sim.ramp(t, 0.0, deg)})   # The top of the phone up: the car goes down the screen.
+		speeds[deg] = r.vel.length()
+	_check(speeds[3.0] > 0.1, "REQ-MR-2: 3 degrees of tilt already give a speed (no dead zone): %.2f m/s" % speeds[3.0])
+	_check(speeds[6.0] > 1.6 * speeds[3.0] and speeds[12.0] > 1.6 * speeds[6.0],
+			"REQ-MR-2: the speed after 0.5 s grows with the tilt (3, 6, 12 degrees: %.1f, %.1f, %.1f m/s)"
+			% [speeds[3.0], speeds[6.0], speeds[12.0]])
+	# Damping: with a flat phone the speed falls by exp(-DAMPING * t), it does not stop at once and does not stay.
+	_flat_all()
+	r.pos = tr.point_at(start_arc)
+	r.vel = dir * 8.0
+	sim.step(game, 1.0, {0: Sim.FLAT})
+	var kept: float = r.vel.length() / 8.0
+	_check(kept > 0.30 and kept < 0.45,
+			"REQ-MR-2: a flat phone: 1 s later the car keeps %.0f %% of its speed (exp(-1) = 37 %%)" % (kept * 100.0))
+	# No speed limit: a car at 40 m/s is not held back to a top speed.
+	r.pos = tr.point_at(start_arc)
+	r.vel = dir * 40.0
+	sim.step(game, Sim.DT, {0: Sim.FLAT})
+	_check(r.vel.length() > 38.5, "REQ-MR-2: there is no speed limit (40 m/s is still %.1f m/s one tick later)" % r.vel.length())
+	# REQ-MR-5: past the edge, the car is put back inside the road and bounces with a part of its speed.
+	var q: Dictionary = tr.query(tr.point_at(start_arc))
+	var side := Vector2(-dir.y, dir.x)
+	var limit: float = tr.half_width - game.R
+	r.pos = tr.point_at(start_arc) + side * (tr.half_width + 1.5)
+	r.vel = side * 8.0
+	sim.step(game, Sim.DT, {0: Sim.FLAT})
+	var back: Dictionary = tr.query(r.pos)
+	_check(q.dist < 0.01 and back.dist <= limit + 0.01,
+			"REQ-MR-5: a car 1.5 m past the edge is put back on the road (%.2f m from the line, limit %.2f)" % [back.dist, limit])
+	var out_speed: float = r.vel.dot(side)
+	_check(out_speed < 0.0 and absf(out_speed) < 8.0 * 0.6 and absf(out_speed) > 8.0 * 0.3,
+			"REQ-MR-5: it bounces back and loses part of its speed (8 m/s out, %.1f m/s in)" % out_speed)
 
 
 ## Test 9.7a, 9.7b: the arrow for a car that is out of view stays in the safe margin and names the distance.
@@ -203,6 +254,18 @@ func _settings_view() -> void:
 	sim.app.go_game_settings("marble_race")
 	await sim.frames(4)
 	var sv: Control = sim.app.current_screen()
+	sim.app.go_games()
+	await sim.frames(6)
+	var tiles: Array = sim.app.current_screen()._tiles.filter(func(t: Button) -> bool: return String(t.game.id) == "marble_race")
+	_check(tiles.size() == 1 and tiles[0].game.title == "registry.marble_race",
+			"REQ-MR-30: the Games screen has one Car Race tile")
+	sim.app.go_game_settings("marble_race")
+	await sim.frames(4)
+	sv = sim.app.current_screen()
+	_check(sv.rows.size() == 3 and sv.rows[0].get_script() == sv.rows[1].get_script() and sv.rows[2].tiles.size() == 11
+			and sv.start_button != null and sv.back_button != null
+			and sv.back_button.global_position.x < sv.start_button.global_position.x,
+			"REQ-MR-30: the settings view has Difficulty, Theme, the track list, then Back and Start")
 	var theme_row: Control = sv.rows[1]
 	var shown: Array = []
 	var right := InputEventAction.new()

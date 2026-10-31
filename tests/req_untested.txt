@@ -5,16 +5,6 @@
 # were handled in the pull request is in docs/REQ_COVERAGE.md.
 #
 # todo
-REQ-BC-13 | todo | smoke_bumper_cars: a lost phone pauses and the cars, the clock and the new stars do not move (the pause itself is tested in smoke_tv)
-REQ-BW-21 | todo | r4_bowling logs the plates: check the turn plate shows 1.5 s and is not drawn afterwards
-REQ-BW-8 | todo | swing_replay.gd drives the overlay canvas: check the rows it shows for a swing (number, power, DOWN, side, age)
-REQ-MR-2 | todo | smoke_race: tilt gives acceleration, the speed stays and is damped, there is no dead zone and no speed limit
-REQ-MR-3 | todo | smoke_race: the cars stand still for 3 s and every phone buzzes at GO (the grid wait is tested)
-REQ-MR-30 | todo | smoke_settings: the Games screen has one Car Race tile and it opens the settings view with Difficulty, Theme, the track list, Start and Back
-REQ-MR-32 | todo | smoke_race: OK does nothing during the race, Back asks End the game with Resume and End game
-REQ-MR-5 | todo | game_rules: a car that goes past the edge of the track is put back and loses part of its speed
-REQ-MR-55 | todo | smoke_race: the results menu of the race has Settings in place of Choose track
-REQ-TB-20 | todo | audio.gd: the song tower_builder (D major, 116 bpm) and the five tower effects exist
 #
 # review
 REQ-2D-3 | review | draw calls instead of one node for each moving object: the code-reviewer reads it (frame_cost.gd shows the cost only)

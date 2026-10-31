@@ -762,7 +762,7 @@ func _run() -> void:
 	for b in lg.menu_buttons():
 		leave_labels.append(b.text)
 	_check(app.current_screen() == lg and lg.is_paused() and leave_labels == ["minigame.resume", "minigame.end_game"],
-			"Back in a game in progress asks 'End the game?' and pauses: %s" % str(leave_labels))
+			"Back in a race in progress asks 'End the game?' and pauses (REQ-MR-32): %s" % str(leave_labels))
 	_check(lg._in_progress() == lg._can_open_menu() and lg._in_progress(), "a race in progress is in progress (REQ-GM-31a)")
 	_check(lg.menu_buttons()[1].theme_type_variation == "DangerButton", "End game is the red destructive button")
 	lg.on_back()
@@ -774,7 +774,7 @@ func _run() -> void:
 	ok_event.pressed = true
 	Input.parse_input_event(ok_event)
 	await _frames(2)
-	_check(not lg.is_paused() and lg.menu_buttons().is_empty(), "OK in a race does nothing (REQ-GM-31, issue #228)")
+	_check(not lg.is_paused() and lg.menu_buttons().is_empty(), "OK in a race does nothing (REQ-MR-32, REQ-GM-31, issue #228)")
 	# The pause menu is only opened by code now; its "End game" leaves at once (issue #53).
 	lg.open_menu("minigame.end_game_ask", lg.pause_entries())
 	await _frames(2)
@@ -784,7 +784,7 @@ func _run() -> void:
 	lg.menu_buttons()[2].pressed.emit()
 	await _frames(3)
 	_check(is_instance_of(app.current_screen(), TvGames),
-			"End game in the pause menu leaves for the Games screen at once, with no question")
+			"End game in a race menu leaves for the Games screen at once, with no question (REQ-MR-32)")
 	app.go(MazeGame)
 	await _frames(3)
 	var over: Control = app.current_screen()
@@ -866,6 +866,8 @@ func _run() -> void:
 	var race_rows: Array = []
 	for l in mr._menu_box.find_children("*", "Label", true, false):
 		race_rows.append(l.text)
+	_check(race_labels == RESULT_MENU and race_labels.size() == 3 and race_labels[1] == "common.settings",
+			"REQ-MR-55: the results menu of the race is Try again, Settings, Back to menu (no Choose track): %s" % str(race_labels))
 	_check(race_labels == RESULT_MENU and race_rows.size() == 3 and race_rows[0].ends_with("WINS!")
 			and race_rows[1].begins_with("1ST") and race_rows[2].begins_with("2ND") and race_rows[2].ends_with(" S"),
 			"the race results list both cars with their times, and offer Settings: %s %s" % [str(race_labels), str(race_rows)])

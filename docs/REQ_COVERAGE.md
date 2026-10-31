@@ -11,13 +11,13 @@ Buckets:
 - **a (done)**: a test names the id now. Either a new check was written (the second column says where) or the existing check of
   that suite checks the behavior and now names the id. A short list after an id (`REQ-PG-5, 6 and 21`) counts for each id of the
   list; a range (`to`) and a wildcard (`REQ-MG-*`) count for none.
-- **todo**: a headless test can check it; it is not written yet. The reason says how. These are the next pull requests of the issue.
+- **todo**: a headless test can check it; it is not written yet. The reason says how. None is left: the tests were written in the pull requests #347, #349 and the one after it.
 - **review**: a rule of work or of taste that a reviewer judges; no machine can.
 - **device**: only a device or a person can check it. None of the 122 is in this bucket: the 63 rows with the status `Device` all
   have manual steps since the pull requests #320 and #324.
 - **obsolete**: removed, superseded or no longer true. **These are for Alon to decide**; no requirement was deleted or reworded.
 
-Counts: a 88, todo 10, review 11, obsolete 13, device 0 (total 122).
+Counts: a 98, todo 0, review 11, obsolete 13, device 0 (total 122).
 
 Ids that need a decision of Alon (obsolete):
 
@@ -42,13 +42,13 @@ Ids that need a decision of Alon (obsolete):
 | REQ-AH-22 | a (done) | smoke_bests (new check) |
 | REQ-BC-2 | a (done) | req_registry (new check) |
 | REQ-BC-8 | obsolete | the row says Removed on 2026-10-29 (a hit drops no star, REQ-BC-7): smoke_bumper_cars checks that a hit takes no star |
-| REQ-BC-13 | todo | smoke_bumper_cars: a lost phone pauses and the cars, the clock and the new stars do not move (the pause itself is tested in smoke_tv) |
+| REQ-BC-13 | a (done) | smoke_bumper_cars (new check: a lost phone pauses, 10 s later cars, clock and stars have not moved) |
 | REQ-BC-14 | a (done) | named in the existing check of smoke_bumper_cars.gd |
 | REQ-BC-15 | review | friendly toys, a hint line, positive texts: the localization-reviewer and the code-reviewer judge it |
-| REQ-BW-8 | todo | swing_replay.gd drives the overlay canvas: check the rows it shows for a swing (number, power, DOWN, side, age) |
+| REQ-BW-8 | a (done) | swing_replay.gd (the overlay line has every field of the last swing, one line for each player) |
 | REQ-BW-18 | a (done) | named in the existing check of smoke_bowling.gd |
 | REQ-BW-20 | a (done) | named in the existing check of smoke_bowling.gd |
-| REQ-BW-21 | todo | r4_bowling logs the plates: check the turn plate shows 1.5 s and is not drawn afterwards |
+| REQ-BW-21 | a (done) | named and made exact in r4_bowling.gd (the plate is there at 1.4 s and gone at 1.6 s) |
 | REQ-BW-22 | a (done) | named in the existing check of swing_setup.gd |
 | REQ-FL-17 | a (done) | named in the existing check of smoke_settings.gd (Back to the tile of the game) |
 | REQ-FL-18 | a (done) | named in the existing check of smoke_tv.gd |
@@ -118,20 +118,20 @@ Ids that need a decision of Alon (obsolete):
 | REQ-MG-15 | a (done) | smoke_bests (new check) |
 | REQ-MG-17 | a (done) | named in the existing check of swing_setup.gd |
 | REQ-MR-1 | a (done) | req_registry (new check) |
-| REQ-MR-2 | todo | smoke_race: tilt gives acceleration, the speed stays and is damped, there is no dead zone and no speed limit |
-| REQ-MR-3 | todo | smoke_race: the cars stand still for 3 s and every phone buzzes at GO (the grid wait is tested) |
-| REQ-MR-5 | todo | game_rules: a car that goes past the edge of the track is put back and loses part of its speed |
+| REQ-MR-2 | a (done) | smoke_race (new check: no dead zone, speed grows with the tilt, damping, no speed limit) |
+| REQ-MR-3 | a (done) | named in the existing checks of smoke_race.gd, device_mocks.gd, hud_layout.gd |
+| REQ-MR-5 | a (done) | smoke_race (new check: a car past the edge is put back and bounces with a part of its speed) |
 | REQ-MR-10 | a (done) | smoke_race (new check) |
 | REQ-MR-11 | a (done) | smoke_race (new check) |
 | REQ-MR-20 | a (done) | game_rules (new check) |
 | REQ-MR-21 | a (done) | game_rules (new check) |
 | REQ-MR-24 | a (done) | named in the existing check of game_rules.gd |
 | REQ-MR-25 | a (done) | req_registry (new check) |
-| REQ-MR-30 | todo | smoke_settings: the Games screen has one Car Race tile and it opens the settings view with Difficulty, Theme, the track list, Start and Back |
-| REQ-MR-32 | todo | smoke_race: OK does nothing during the race, Back asks End the game with Resume and End game |
+| REQ-MR-30 | a (done) | smoke_race (one tile; Difficulty, Theme, track list, Back and Start) |
+| REQ-MR-32 | a (done) | named in the existing checks of smoke_tv.gd |
 | REQ-MR-33 | a (done) | named in the existing check of smoke_race.gd |
 | REQ-MR-47 | a (done) | named in the existing check of game_rules.gd |
-| REQ-MR-55 | todo | smoke_race: the results menu of the race has Settings in place of Choose track |
+| REQ-MR-55 | a (done) | smoke_tv.gd (the results menu of the race: Try again, Settings, Back to menu) |
 | REQ-MZ-10 | a (done) | named in the existing check of hud_layout.gd |
 | REQ-MZ-11 | a (done) | named in the existing check of smoke_bests.gd |
 | REQ-PG-6 | a (done) | named in the existing check of smoke_paint.gd |
@@ -147,7 +147,7 @@ Ids that need a decision of Alon (obsolete):
 | REQ-TB-2 | a (done) | named in the existing check of smoke_tower.gd |
 | REQ-TB-14 | a (done) | named in the existing check of smoke_tower.gd |
 | REQ-TB-17 | a (done) | req_registry (new check) |
-| REQ-TB-20 | todo | audio.gd: the song tower_builder (D major, 116 bpm) and the five tower effects exist |
+| REQ-TB-20 | a (done) | audio.gd (new check: the song is in D major at 116 bpm, the five tower effects) |
 | REQ-TN-14 | a (done) | named in the existing check of tennis_rules.gd |
 | REQ-TN-19 | a (done) | named in the existing check of tennis_rules.gd |
 | REQ-TN-21 | obsolete | the row says Removed on 2026-10-18 (the aim line on the TV is not built) |
