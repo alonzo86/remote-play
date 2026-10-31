@@ -32,6 +32,7 @@ func _initialize() -> void:
 	_export_pack()
 	_info_text()
 	_game_names()
+	_typed_sizes()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -521,3 +522,33 @@ func _game_names() -> void:
 	_check(wrong.is_empty(),
 			"each row has the English name of the title key and the doc of the registry (wrong: %s)" % str(wrong))
 	_check(extra.is_empty(), "the table has no row of a game that is not in the registry (extra: %s)" % str(extra))
+
+
+## Issue #302: a size typed in a screen or a game is a multiple of 8 too (the font is crisp only on the 8 px grid, REQ-FL-40).
+## It looks at the literals of `draw_string(...)`, `box_button(text, cb, N)`, the font size overrides and the `*_FONT := N`
+## constants.
+func _typed_sizes() -> void:
+	print("typed font sizes")
+	var rx := RegEx.new()
+	rx.compile("(?:HORIZONTAL_ALIGNMENT_[A-Z]+, *-?[0-9.]+, *([0-9]+),|box_button\\([^\\n]*, *([0-9]+)\\)"
+			+ "|\"font_size\", *([0-9]+)\\)|\\b[A-Z_]*FONT[A-Z_]* *:?= *([0-9]+))")
+	var bad: Array[String] = []
+	var seen := 0
+	var dirs: Array[String] = ["res://scripts"]
+	while not dirs.is_empty():
+		var d: String = dirs.pop_back()
+		for sub in DirAccess.get_directories_at(d):
+			dirs.append(d + "/" + sub)
+		for f in DirAccess.get_files_at(d):
+			if not f.ends_with(".gd") or f == "debug_overlay.gd":   # The debug overlay is a developer tool, not a screen.
+				continue
+			var lines := FileAccess.get_file_as_string(d + "/" + f).split("\n")
+			for i in lines.size():
+				for m in rx.search_all(lines[i]):
+					for g in range(1, 5):
+						if m.get_string(g) != "":
+							seen += 1
+							if int(m.get_string(g)) % 8 != 0:
+								bad.append("%s/%s:%d size %s" % [d, f, i + 1, m.get_string(g)])
+	_check(seen >= 8, "the scan found the typed sizes (%d)" % seen)
+	_check(bad.is_empty(), "every typed font size is a multiple of 8 (off the grid: %s)" % str(bad))

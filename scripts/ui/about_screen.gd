@@ -149,7 +149,7 @@ static func chunks(text: String) -> Array:
 ## and breaks a long name into lines.
 func _button(text: String, cb: Callable, wrapped := false, role := "") -> Button:
 	if wrapped:
-		var w := UiKit.box_button(text, cb, 28)
+		var w := UiKit.box_button(text, cb, UiTheme.SIZE_ITEM)
 		w.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		w.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		w.custom_minimum_size = Vector2(0, 84)
