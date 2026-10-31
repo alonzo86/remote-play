@@ -446,9 +446,18 @@ Needs 1 to 4 phones (one phone is a time trial). Requirements: `docs/games/marbl
 
 1c. Stand 3 m from the TV. Check: you read aloud the title, the timer and the distance text ("Finish in N m") with 0 errors.
 11a. After a change to the shared game code (the countdown clock, the buzz cool-down, the end with no players), run this test again with 2 real phones on each track. Check: no phone buzzes in "3, 2, 1" and each phone buzzes once at "GO" (A-multi_phone covers the simulated phones only).
-13b. Play one race in each theme. Check: the three obstacles match the theme: candy lollipops, gumdrops and cupcakes; space asteroids, satellites and craters; jungle logs, boulders and tiki masks. You name all 3 kinds in each theme with 0 errors from a photo. (The lists of obstacles are checked by A-9-13b.)
+13b. Play one race in each theme. Check: the three obstacles match the theme: candy lollipops, gumdrops and cupcakes; space asteroids, satellites and craters; jungle logs, boulders and tiki masks. You name all 3 kinds in each theme with 0 errors from a photo. (The lists of obstacles are checked by A-9-13b.) (REQ-MR-46)
 13e. Check: the scenery beside the road matches the theme (REQ-MR-57: candy lollipops, canes, ice creams, donuts, cookies; space rockets, planets, UFOs, stars; jungle palms, bushes, flowers, mushrooms) and 0 pieces cover the road or a car in the photo.
 13h. Check with a child of 5 to 8 years. Ask: "Show me your car." Check: the child points to its own car within 10 seconds of "GO", without help. Ask: "Show me one thing you can hit." Check: the child points to an obstacle within 10 seconds.
+14a. Drive two cars into each other, 5 times. Check: the cars bounce away from each other in 5 of 5 hits. Let one car finish and wait at the finish. Drive another car through the place of the car that finished, 3 times. Check: it drives through it without a bounce (3 of 3). (REQ-MR-7)
+14b. With 4 phones, race 1 lap. Check: while the race runs the bar at the top shows one leader chip and the race time and no other list of places (1 chip, 0 rows); at the end the result menu has 4 rows with the places 1st to 4th, a finished car with its time and the others as NOT FINISHED, and the tester reads aloud the rows from 3 m without error. (REQ-MR-9)
+14c. Race with 2 phones in your hands. Check: both phones buzz at GO (2 of 2); a hit at full speed buzzes the phones of both cars (5 of 5 hits); a soft touch slower than 3 m/s buzzes none (0 of 5); crossing the finish line buzzes the phone of that car (2 of 2 cars). With your eyes closed, name the longer buzz of a pair of one hit and one finish. Check: you name the finish buzz (120 ms against 20 ms) right in 2 of 2 pairs. (REQ-MR-13)
+14d. Race on Track 1, Track 5 and Track 10. Check: the name of the track shows on the screen during the race and equals the name in the settings view (3 of 3 tracks), and the tester reads it from 3 m without error. (REQ-MR-35)
+14e. Take a screenshot of the TV during a race (the Android TV screenshot or a photo straight at the screen) on 3 tracks. Check: the black bar at the top is 112 px high (108 px to 116 px) and holds the title, the timer, "Finish in N m" and the leader chip (4 of 4 items); the left edge of the timer box is at x 520 in English and its right edge at x 1400 in Hebrew (each within 8 px); at the start the first straight of the track runs up from the cars (3 of 3 tracks), and after a bend of the road the view has not turned: the wall pieces of the first straight stay upright in the photo (3 of 3 tracks). (REQ-MR-40)
+14f. With 4 phones, let one car run far ahead and leave the others behind. Check: the leader stays in view in every frame of a video of 20 s (0 frames without it); every car out of view has an arrow in its color at the edge of the screen that is at least 60 px from the edge and under the black bar (3 of 3 arrows), with a text of 32 px like "12 m behind" and the number is within 3 m of the real distance on the track; the middle of the pack is in the lower half of the screen (more road shows ahead than behind, 3 of 3 screenshots). (REQ-MR-41, REQ-MR-42)
+14g. In each of the 3 themes, from 3 m, a tester points at the 4 cars and at the 3 kinds of obstacle on the road. Check: 7 of 7 right for each of 3 testers in each theme. Check: "Finish in N m" shows for the leader and the number is smaller after 10 s of driving than at the start (3 of 3 themes). (REQ-MR-43)
+14h. Zoom a photo of the TV to 300% on the edge of the road, on a wall and on the finish line. Check: all 3 places are made of square steps with no blended pixel (3 of 3). Count the rows of the finish line. Check: 2 rows of black and white cells, each cell 16 px wide at 1080p (14 px to 18 px). Look at the ground. Check: a chess board that repeats. (REQ-MR-44)
+14i. In each theme, from 3 m, a tester names the ground, the road and the walls. Check: Candy: pink chess ground with sprinkles, cream road with pink dashes, candy cane walls; Space: starry sky, metal road of panels, glowing cyan walls; Jungle: dark green ground with grass, dirt road with specks, leafy hedges (9 of 9 named right by each of 3 testers). An obstacle is 48 px or more high (12 world pixels) in a photo with a ruler (3 of 3 kinds). Start the same track twice. Check: the obstacles stand in the same places both times (3 of 3 tracks). (REQ-MR-46)
 
 Items 1a, 1b, 1d, 2a, 2b, 3a, 3b, 5a, 5b, 7a, 7b, 8a, 8b, 9a to 9e, 11b, 11c, 12a to 12d, 13a, 13c, 13d, 13f and 13g moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-9-1 to A-9-13). Item 1c keeps the reading from 3 m, item 6 keeps the frame rate on the TV box (it also holds the frame rate of old item 12d), item 13b keeps the naming of the pictures. Item 13e stays manual until the owner has decided which list of scenery is right (see the notes of this change); the geometry of the scenery (no piece on the road, no two pieces overlap) is checked by A-9-13e. Items 4 and 10 were removed earlier (10 is A-9-10). The numbers of the other items do not change. The result menu with Try again, New game and Back to menu is covered by A-11-1 and A-11-5.
 
@@ -463,6 +472,15 @@ Measurements (no pass or fail): note how the car feels at `ACCEL` and `DAMPING` 
 | 13b | Photo of each theme with the obstacles | Pass | R3 |  | Same result as old item 13. |
 | 13e | Photo of the scenery of each theme | Pass | R3 |  | Same result as old item 13. |
 | 13h | Note: the two times in seconds | Pass | R3 |  | Same result as old item 13. |
+| 14a | Video; note: bounces (of 5); drive-throughs (of 3) | Not run | | | Added 2026-10-31 (issue #306). |
+| 14b | Photo of the bar and of the result menu; note: reading errors | Not run | | | Added 2026-10-31 (issue #306). |
+| 14c | Note: the buzzes of each kind | Not run | | | Added 2026-10-31 (issue #306). |
+| 14d | Photos of 3 screens; note: reading errors | Not run | | | Added 2026-10-31 (issue #306). |
+| 14e | Screenshots; note: the bar height, the timer box edges, the 3 tracks | Not run | | | Added 2026-10-31 (issue #306). |
+| 14f | Video; screenshots with the measure; note: the 3 arrows | Not run | | | Added 2026-10-31 (issue #306). |
+| 14g | Note: the answers per theme; the numbers | Not run | | | Added 2026-10-31 (issue #306). |
+| 14h | Photos zoomed to 300%; note: the 3 places, the rows, the cell width | Not run | | | Added 2026-10-31 (issue #306). |
+| 14i | Note: the answers; photo with the ruler; the 3 tracks | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
 
@@ -755,6 +773,8 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 11e2. Zoom a photo of the TV to 300% on the edge of the island and on the edge of a cloud. Check: both edges are made of square steps, with no soft (blended) pixel at either edge (2 of 2). (REQ-GM-47i to 47n, REQ-SB-15. The view of 480 x 270 pixels, the whole scale and the nearest filter are checked by A-15-11e.)
 11g. From 3 m, read the word "WHEE!" and the round banner. Check: the tester reads both aloud without error. (REQ-SB-15, REQ-FL-40)
 12a. Look at the pad of a phone while the match runs. Check: the pad shows the green button A alone, in the middle of the row, and no button B and no RECENTER box (3 of 3). (REQ-GM-37a, issue #80)
+13a. Play a match with 2 phones and hold both. Bump the two bumpers into each other at full speed, 5 times, and slowly (below 300 px/s: they need more than 6 s to cross the screen), 5 times. Check: every fast bump buzzes both phones (5 of 5), a slow touch buzzes none (0 of 5), the bumper that is hit moves away from the other (5 of 5) and nobody loses points for it (0 of 5 losses). (REQ-SB-8)
+13b. Play a match with 3 phones. Check: the leader chip shows the name of the leader and the points of the leader, equal to the score line of the phone of the leader in 3 of 3 readings; when two players have the same points the chip shows TIE (1 of 1); each phone shows its own points and place, equal to the TV (3 of 3 phones); no bumper has a number on it (0 of 3). Look at the pad of a phone. Check: it shows A and no RECENTER box (3 of 3 phones). (REQ-SB-14)
 
 Items 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-15-2, A-15-9). Items 1a, 1b, 3a to 3c, 4a, 4b, 5a, 5b, 6a, 6c and 7a to 7e moved there too (A-15-1, A-15-3, A-15-4, A-15-5, A-15-6, A-15-7). Items 11a, 11b and 11d were split: the machine checks the sizes, the colors, the fonts and the pixels (A-15-11); items 11c and 11f are automated too (A-15-11c, A-15-11f), and the part that needs a person is now 11e2 and 11g. The numbers of the other items do not change.
 
@@ -769,6 +789,8 @@ Items 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-15-2, A-15
 | 11e2 | Zoomed photo of the island edge and of a cloud edge | Not run |  |  |  |
 | 11g | Note: the texts that were read; the TV (1080p or 4K) | Not run | | | |
 | 12a | Photo of the pad during the match | Not run | | | |
+| 13a | Video; note: fast bumps with 2 buzzes (of 5), slow touches with a buzz (of 5) | Not run | | | Added 2026-10-31 (issue #306). |
+| 13b | Photos of the chip and of 3 phones; note: the counts | Not run | | | Added 2026-10-31 (issue #306). |
 
 Measurements (not a test; no pass or fail). Write these values in the Notes column of the steps above. They decide the first tuning values of the game.
 
@@ -1116,10 +1138,10 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 **Steps**
 
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the lane with pins, the ball, the gray floor and the disco wall.
-3e. **Aim strip.** On the phone on turn, slide a finger from the left end of the strip to the right end in about 1 s, then back. Check: the ball on the TV is in the left gutter at the left end of the strip and in the right gutter at the right end, and it moves in the same direction as the finger. (The mapping is in A-23-3.)
+3e. **Aim strip.** On the phone on turn, slide a finger from the left end of the strip to the right end in about 1 s, then back. Check: the ball on the TV is in the left gutter at the left end of the strip and in the right gutter at the right end, and it moves in the same direction as the finger. (The mapping is in A-23-3.) (REQ-BW-4)
 3f. Film the phone and the TV together at 60 fps or more and slide a finger on the strip. Check: the ball starts to move within 12 frames (0.2 s) after the finger starts to move, in 5 of 5 tries.
 3g. Touch the rest of the screen outside the strip with a finger, 5 times. Check: the ball does not move, and the pad shows no A and no B button (REQ-GM-37a, issues #80 and #143). A phone that is not on turn has no Recenter box either (REQ-GM-37, issue #55).
-3h. **Knob, trail and tick (2026-10-30, issue #236).** On the phone on turn, slide a finger slowly from the left end to the right end of the strip, with the HAPTICS switch ON. Check: the knob is still visible next to the finger (yes or no), a fading trail follows it (yes or no), and the phone ticks once as the knob passes the middle mark (once in 5 of 5 slides).
+3h. **Knob, trail and tick (2026-10-30, issue #236).** On the phone on turn, slide a finger slowly from the left end to the right end of the strip, with the HAPTICS switch ON. Check: the knob is still visible next to the finger (yes or no), a fading trail follows it (yes or no), and the phone ticks once as the knob passes the middle mark (once in 5 of 5 slides). (REQ-BW-4a)
 4e. Throw 5 balls with each grip: screen up, screen to the side, and the other hand. Check: at least 4 of 5 swings throw a ball for each grip. (REQ-BW-5)
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
 4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)
@@ -1130,6 +1152,14 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 12. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-23-12, issue #132).
 13b. From 3 m, a tester points at the ball each time you say "mark" at a random time during a roll. Check: the finger points at the ball (not at a pin or the lane) in 5 of 5 tries.
 13c. From 3 m, read aloud the totals of all rows of the score sheet and one banner. Check: no error.
+14a. On the phone on turn, slide a finger to about three quarters of the strip to the right and lift it. Wait 5 s. Check: the mark on the phone and the ball on the TV stay where the finger lifted (each moves less than the width of the ball in 5 s, 5 of 5 tries). Start the turn of a new player and look before touching the strip. Check: the ball is in the middle of the lane (3 of 3 new players). Throw ball 1 and look at the start of ball 2 of the same player. Check: the ball and the mark are where they were at the throw (3 of 3 players). Start the back swing and slide the finger on the strip meanwhile. Check: the ball does not move (5 of 5). (REQ-BW-4)
+14b. Take a screenshot of the phone while a finger holds the knob on the strip and measure the knob in the screenshot. Check: the radius of the knob is 88 px (80 px to 96 px). Slide a finger slowly from the left end to the right end. Check: the trail has 2 to 8 fading circles at any moment (5 of 5 slides), and it starts new when the finger goes down again (5 of 5). (REQ-BW-4a)
+14c. Throw 5 soft swings and 5 hard swings on Medium and film the TV at 60 fps or more. Count the frames from the foul line to the first pin. Check: the median time of the hard swings is shorter than the median time of the soft swings. Then swing so weakly that nothing is thrown, 3 times, and use a stopwatch. Check: no ball is thrown and the hint "Swing a bit more!" shows for 2.5 s to 3.5 s (3 of 3 tries). On Easy throw 5 soft and 5 hard swings. Check: the medians of the two times differ by less than 10 %. (REQ-BW-6)
+14d. Hold the phone of the player on turn and throw 5 balls. Check: the phone buzzes shortly at the release of the ball in 5 of 5 throws. At the start of 5 turns of this phone, look and feel. Check: the plate "YOUR TURN" shows with a buzz that is longer than the buzz at the release (5 of 5 turns), the phone of another player does not buzz at it (0 of 5), and while another player bowls the phone shows "<NAME> IS BOWLING" and its own score and place (3 of 3 turns). (REQ-BW-7, REQ-BW-14)
+14e. Throw 10 balls on Medium. Check: in at least 1 of the 10 throws a pin that the ball did not touch falls (pin action), and a ball that hits the front pin in the middle knocks down 5 pins or more in at least 3 of the 10 throws. In a screenshot of the lane measure a pin and the ball. Check: the ball is wider than a pin (ball radius 0.11 m, pin radius 0.09 m; 1 of 1). (REQ-BW-9)
+14f. Play a game with 4 phones, two of them with names of 10 letters. Check: the bar shows the title and "FRAME N/10  BALL N" and no leader chip (0 chips), the score sheet has one row for each of the 4 players with 10 cells each, and no name is cut (4 of 4 names whole); from 3 m the tester reads aloud the 4 totals without error. (REQ-BW-12)
+14g. From 3 m, a tester points at: the own lane, a gutter, the red foul line, a lane at the side with its pins, the gray floor, the disco wall at the far end and the black part of the wall. Check: 7 of 7 right for each of 3 testers (3 of 3 testers). Count the pins in the rack of the own lane. Check: 10. Make a strike. Check: the tester says "strike" at the burst, in 3 of 3 strikes. (REQ-BW-13)
+14h. Let the child of step 11a play 3 frames (6 balls) on Easy with Rails WITH. Check: the child knocks down at least 1 pin with at least 4 of the 6 balls, and no ball goes to the gutter (0 of 6). (REQ-BW-17)
 (The music and the effects are checked in Test 18.)
 
 Items 1a, 2a to 2e, 3a to 3d, 4a to 4d, 5a, 5b, 6a to 6d, 7a, 7b, 8a to 8e, 9a to 9c, 10a to 10c, 13a, 13d, 14 and 14a to 14c moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-23-1a to A-23-14c). Items 4e and 4f keep only the part that needs a real phone (the rest is in A-23-4). Items 3e to 3g, 4g and 4h are new (2026-10-21, the aim is a finger since 2026-10-20): they need a real touch screen and real hands. The numbers of the other items do not change.
@@ -1155,6 +1185,14 @@ Measurements (write down, no pass or fail): if the strip is too small or too lar
 | 12 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 13b | Note: pointed right, of 5 tries | Not run | | | |
 | 13c | Note: errors made when reading | Not run | | | |
+| 14a | Video of the strip and the TV; note: each count of 5, 3 and 3 | Not run | | | Added 2026-10-31 (issue #306). |
+| 14b | Screenshot with the measure; note: the trail counts | Not run | | | Added 2026-10-31 (issue #306). |
+| 14c | Video; note: the 2 medians on Medium; the hint times; the 2 medians on Easy | Not run | | | Added 2026-10-31 (issue #306). |
+| 14d | Note: buzzes at the release (of 5), at the turn start (of 5), other phone (of 5), the line (of 3) | Not run | | | Added 2026-10-31 (issue #306). |
+| 14e | Video of 10 throws; screenshot with the sizes; note: the counts | Not run | | | Added 2026-10-31 (issue #306). |
+| 14f | Photo of the score sheet; note: names whole (of 4), reading errors | Not run | | | Added 2026-10-31 (issue #306). |
+| 14g | Note: the answers of each tester; the pins counted; strikes seen (of 3) | Not run | | | Added 2026-10-31 (issue #306). |
+| 14h | Note: the child, the age; balls with a pin down (of 6); balls in the gutter (of 6) | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
 
@@ -1211,7 +1249,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 **Steps**
 
 1b. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the court, the net, a character and the ball.
-2b. Right after Start (a match of 2 to 4 players has no countdown) look at the court. Check: you can point at all of these: the doubles sidelines, the singles sidelines, the baselines, the service lines, the net, the umpire on the chair, the ball kid at the left net post, the stands and the blank ad boards.
+2b. Right after Start (a match of 2 to 4 players has no countdown) look at the court. Check: you can point at all of these: the doubles sidelines, the singles sidelines, the baselines, the service lines, the net, the umpire on the chair, the ball kid at the left net post, the stands and the blank ad boards. (REQ-TN-2)
 4g. Record the phone and the TV with the camera (240 fps) for 5 hits. Count the frames from the fastest point of the swing to the contact of the racket and the ball. Check: the median delay is 150 ms or less (36 frames at 240 fps).
 6c. Alternate swings 30 degrees to the right and 30 degrees to the left of your usual straight swing, 5 each, 2 s apart. Check: at least 4 of the 5 balls to the right land in the right half of the court (from the view of the swinging player), and at least 4 of the 5 balls to the left land in the left half.
 6e. Swing the way you swing when you do not aim, 5 times, then nearly straight up, 5 times, 2 s apart. Check: at least 8 of 10 balls land in the middle third of the court width.
@@ -1226,6 +1264,13 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 14c. From 3 m, read aloud the scoreboard and one banner. Check: no error.
 15a. With 2 phones connected, open the settings view of Tennis (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
 15c. **The card with children (2026-10-30, issue #235).** Show the card (open the Tennis settings view) on a phone to 3 children of 5 to 8 years, 5 seconds each, and ask: "What do you do before you play?". Check: at least 2 of 3 answer with holding the phone tight or making space around them. A Hebrew reader checks the Hebrew line "אחזו חזק. שמרו מרחק מסביב." (`swing.card_text`).
+16a. From 3 m, a tester points at: a near character, a far character, the ball and the shadow of the ball. Check: 4 of 4 right for each of 3 testers (3 of 3 testers). Measure the height of a near character and of a far character in a photo of the 1080p TV. Check: the near one is at least 1.5 times as high as the far one, the near one is seen from behind and the far one faces the camera (2 of 2), and the ball has a thin black border in a photo zoomed to 300% (yes or no). (REQ-TN-3)
+16b. Serve 5 times with a swing in the green part of the ring, 5 times too early and 5 times too late. Check: a swing in the green part gives a fast shot with sparks in at least 4 of 5 swings; an early or a late swing gives a slower high lob that lands in the court in at least 4 of 5 swings each, with no sparks (0 of 10); the median flight time of the 10 lobs is longer than the median flight time of the 5 fast shots (video at 60 fps). (REQ-TN-6)
+16c. Press A to toss and swing the phone from top to bottom when the ball is at its top, 5 times. Check: the serve is counted in 5 of 5 tries. Swing 0.3 s after the top: counted in 5 of 5 tries. Swing 0.8 s after the top (the ball is low): not counted in 5 of 5 tries (0 counted). (REQ-TN-9)
+16d. Toss and do not swing, 3 times, with a stopwatch from the toss. Check: the ball falls 0.8 s to 1.2 s after the toss and the server tosses again, with no fault and no point lost (3 of 3). Make a serve land out. Check: it is served again (1 of 1). Make the second serve land out too. Check: the point goes to the other team (1 of 1). (REQ-TN-9)
+16e. Open the debug overlay. Swing and swing back at once (the second stroke starts less than 0.3 s after the first), 5 times. Check: the overlay counts 1 swing for each of the 5 pairs (5 of 5). Swing, wait 0.7 s and swing again, 5 times. Check: the overlay counts 2 swings for each of the 5 pairs (5 of 5). (REQ-TN-8)
+16f. Look at the pad of a phone in a match. Check: the pad shows the button A alone and no B and no RECENTER box (3 of 3 phones). Hit 5 normal shots and 5 fast shots with the phone in your hand. Check: every hit buzzes (10 of 10) and, with your eyes closed, you name the fast shot (60 ms) of a pair right in 4 of 5 pairs against the normal shot (30 ms). (REQ-TN-8)
+16g. Start a match with 2 phones and a stopwatch. Check: before the first serve the hint line shows one line at the bottom that tells to press A to toss, swing down to serve and swing to a side to aim; in a rally it tells to swing when the ball arrives and to swing to a side to aim; a match with 1 player shows the line for 1 player (3 of 3 variants as written); the line goes away 15 s to 17 s after it began (3 of 3 matches). (REQ-TN-8)
 
 Items 1a, 2a, 2c, 3a, 3b, 3c, 3d, 3e, 3f, 4a, 4b, 4c, 4d, 4e, 4f, 5a, 5b, 5c, 5d, 6a, 6b, 6f, 6g, 7a to 7d, 8a, 8b, 9a to 9e, 10a, 10b, 10c, 10d, 11a, 11b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-25-1a to A-25-11b). The numbers of the other items do not change.
 
@@ -1251,6 +1296,13 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 14c | Note: errors made when reading | Not run | | | |
 | 15a | Photo of the TV and of both phones | Not run | | | |
 | 15c | Note: the ages and the answers of 3 children; a photo of the card | Not run | | | Added 2026-10-30 (issue #235). |
+| 16a | Photo with the heights; note: the answers of each tester | Not run | | | Added 2026-10-31 (issue #306). |
+| 16b | Video; note: sparks (of 5), lobs in play (of 5 and of 5), the 2 medians | Not run | | | Added 2026-10-31 (issue #306). |
+| 16c | Video at 60 fps; note: counted serves in each group of 5 | Not run | | | Added 2026-10-31 (issue #306). |
+| 16d | Note: the 3 fall times; the two outs | Not run | | | Added 2026-10-31 (issue #306). |
+| 16e | Screenshots of the overlay; note: the counts | Not run | | | Added 2026-10-31 (issue #306). |
+| 16f | Photo of the pad; note: the buzzes (of 10), the pairs right (of 5) | Not run | | | Added 2026-10-31 (issue #306). |
+| 16g | Photos of the 3 hint lines; note: the 3 times | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
 
@@ -1402,6 +1454,8 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 11. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-28-11, issue #132).
 12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the golden mole when you say "mark". Check: the tester finds it in 5 of 5 tries. Check: a mole is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
 12b. From 3 m, ask a tester to read aloud the points that float up from a hit mole and the timer. Check: no error.
+13a. Play a round with 2 phones and hold the phone of A. Do 5 pairs of bonks, one that hits and one that misses in a random order, with your eyes closed, and say which of the pair buzzed longer. Check: you name the hit (40 ms against 15 ms) right in 4 of 5 pairs. Check: both phones buzz at GO (2 of 2) and at the end only the phone of the winner buzzes for about 400 ms (1 of 2 phones). Listen. Check: a sound plays for a hit, for the points (the pitch is different for the 2 players) and for a miss (3 of 3 sounds heard), and the song plays during the round (yes or no). (REQ-WM-12)
+13b. Let a child of 5 to 8 years play a round on Easy. Measure the ring of a mole in a photo of the 1080p TV with a ruler. Check: the mole circle is 168 px (160 px to 176 px). Check: the child plays to the end of the round without asking to stop (yes or no), the score does not go down after 5 misses (0 of 5 drops), and none of the texts on the screen (hint, banner, result) has the words LOSE, WRONG, FAIL or BAD (0 of 3 texts). (REQ-WM-14)
 
 Items 3a, 4a, 5a, 6a, 6b, 6c, 7a, 7b, 9a and 9b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-28-*). The numbers of the other items do not change.
 
@@ -1422,6 +1476,8 @@ Measurements (write down, no pass or fail): the turn angle that moves the ring f
 | 11 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 12a | Note: right answers of 5; photo of a mole with its height in px | Not run | | | |
 | 12b | Note: errors made when reading | Not run | | | |
+| 13a | Note: pairs answered right (of 5); the buzzes at GO and at the end; the sounds heard | Not run | | | Added 2026-10-31 (issue #306). |
+| 13b | Note: the child, the age; the ring in px; the 3 checks | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
 
@@ -1511,6 +1567,9 @@ New game (2026-10-23). It was tested only with made-up button presses. Every num
 11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester reads the plate "<NAME>'S TURN", "BRICK n OF 12" and one banner aloud. Check: no error when reading. (REQ-TB-19, REQ-FL-40)
 11b. From 3 m, a tester points at the brick that hangs on the crane and at the top brick of the tower. Check: both answers are right for each of 3 testers (3 of 3 testers), and the brick is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 48 px expected). (REQ-GM-47e, REQ-TB-18)
 12. Set the TV language to Hebrew and start a game. Check: the title and the plates are mirrored to the right side, the tower and the crane are not mirrored, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "בונים מגדל", "התור של ...", "קראש! חיחי!". (REQ-GM-47o, REQ-TB-19)
+13a. Record 10 drops with the camera at 60 fps or more. In the frame after each landing measure, in a photo of the 1080p TV, how far the middle of the new brick is beyond the edge of the brick below. Check: no brick that stays is more than 8 world pixels (32 px at 1080p) beyond the edge, no brick that is further out stays (0 of 10), and at least 1 brick that stays is between 1 and 8 world pixels beyond the edge. (REQ-TB-8)
+13b. Play a round with 2 phones. Check: the phone whose turn starts buzzes (5 of 5 turns) and the other phone does not (0 of 5). A drop buzzes the phone shortly (5 of 5), a brick that stays buzzes it longer than the drop (4 of 5 pairs named right with the eyes closed: 60 ms against 30 ms), a miss buzzes it (3 of 3), and a topple buzzes both phones (2 of 2). (REQ-TB-13)
+13c. Use a stopwatch on Easy, Medium and Hard and let a turn run to the end without a drop. Check: the timer box starts at 10 s on Easy, 5 s on Medium and 3 s on Hard, and the crane drops by itself at that time plus or minus 1 s (3 of 3 difficulties). On Easy time the crane for 5 swings from one end and back. Check: one swing takes 2.4 s (2.2 s to 2.6 s) in each of 3 measures. A child of the steps 9a to 9d plays a round on Easy. Check: the answers to those steps are written (REQ-TB-16, REQ-GM-80 to 84).
 
 Items 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b and 13 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-30-*). The numbers of the other items do not change.
 
@@ -1530,6 +1589,9 @@ Measurements (write down, no pass or fail): the time for one drop that people re
 | 11a | Note: errors made when reading | Not run | | | |
 | 11b | Note: answers of each tester; photo of the brick with its height in px | Not run | | | |
 | 12 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
+| 13a | Frames with the measure; note: each of the 10 offsets and the result (stays or not) | Not run | | | Added 2026-10-31 (issue #306). |
+| 13b | Note: the buzzes of each kind | Not run | | | Added 2026-10-31 (issue #306). |
+| 13c | Note: the 3 times; the 3 swing times; the child's steps | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
 
