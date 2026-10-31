@@ -17,7 +17,9 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
   that only a native Hebrew reader can confirm go in a step of the manual test of the change, not in an open issue and not in a blocking
   state (Alon, 2026-10-30; it was one open issue with the label `localization` on 2026-10-29). A Hebrew string keeps the Latin spelling of
   Sababi and QR; only A, B, OK, QR and Sababi may stay in Latin letters in Hebrew text (Alon, 2026-10-30).
+  Hebrew text may write the name in capitals (`SABABI`) like the English rows; that is intended (Alon, 2026-10-31). Hebrew commands to the user use the plural form ("סרקו", "התחילו"), never the masculine singular (Alon, 2026-10-31).
 - Do not decide on your own what the user sees (for example cutting or shortening text, hiding information). Ask the user first.
+- Continuous integration: Alon has no CI credits left (2026-10-31). Ignore the state of GitHub Actions and CircleCI; do not file issues or block a pull request because CI is red or did not run. The checks you run yourself (touched suites and `gdlint`) are the gate.
 - Work on the branch the session gives you. For a delegated sweep of issues, one `claude/issue-<n>-<name>` branch per pull request is allowed
   (worktrees may be used); the session branch is for work in a single pull request (Alon, 2026-10-30). When the user's request is a change to the repository, Claude creates the pull request when the work is done and the checks pass (Alon, 2026-10-29).
 
@@ -126,7 +128,7 @@ The agents are in `.claude/agents/`. Use them for the steps below when the task 
 - A change that needs a device check adds or changes its test in the same commit (REQ-GM-62) and adds it to the list below.
   Every pull request lists the manual tests that are still open for its change.
 
-Tests the user has to run now (status on 2026-10-29 after run R5; the list is in the order to do them. Open failures of R4 that R5 did not retest: issues #111 to #114; #109 and #110 passed in R5):
+Tests the user has to run now (status on 2026-10-29 after run R5; the list is in the order to do them. Failures of R4 that R5 did not retest (their issues #111 to #114 are closed, the steps stay Fail until a retest); #109 and #110 passed in R5):
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
