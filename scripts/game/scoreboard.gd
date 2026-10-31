@@ -30,7 +30,7 @@ func size() -> int:
 	return _scores.size() + _progress.size()
 
 
-## True when the player has a score (not `set_unfinished()`).
+## True when the player has a score (not `set_unfinished()`). Only the tests call it; it is part of the model of a race.
 func is_finished(slot: int) -> bool:
 	return _scores.has(slot)
 

@@ -196,13 +196,6 @@ func _goal(scorer: int) -> void:
 	_banner_left = GOAL_BANNER
 
 
-## The seat with the most goals, or -1 for a tie.
-func leading_seat() -> int:
-	if scores[0] == scores[1]:
-		return -1
-	return 0 if scores[0] > scores[1] else 1
-
-
 ## REQ-AH-10: the match is over. With ROBO the rows are made here (ROBO is not a phone, REQ-GM-105); with two phones the shared
 ## result menu ranks them (REQ-GM-72, 73). After a leave only the player that stays is on the board: a technical win (REQ-AH-19).
 func _finish() -> void:

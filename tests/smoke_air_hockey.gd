@@ -173,7 +173,7 @@ func _run() -> void:
 	await _frames(3)
 	_check(clients[0].score_rank == 1 and clients[0].score_text == "1" and clients[2].score_rank == 2,
 			"each phone gets its place and its goals; the leader is the right seat (REQ-FL-67)")
-	_check(game.leader_text() == "1" and game.leading_seat() == 1, "the leader chip shows the goals of the leader (REQ-GM-46)")
+	_check(game.leader_text() == "1", "the leader chip shows the goals of the leader (REQ-GM-46)")
 
 	# The end of the match: first to 3 (REQ-AH-10).
 	game.scores[1] = 2
