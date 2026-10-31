@@ -633,7 +633,8 @@ func _tiles() -> void:
 				for x in range(0, 640, 2):
 					if _px(img, x, y) == _rgb(UiTheme.BG):
 						low += 1
-			_check(low < 4 * 320 * 0.6, "tile %s: the bottom rows show the world, not a black strip (%d of %d pixels black)" % [id, low, 4 * 320])
+			_check(low < 4 * 320 * 0.6, "tile %s: the bottom rows show the world, not a black strip (%d of %d pixels black)"
+					% [id, low, 4 * 320])
 		var share := 100.0 * black / (37 * 320)
 		_check(share < 60.0, "tile %s: the top rows show the world, not a black HUD bar (%.0f%% black)" % [id, share])
 
