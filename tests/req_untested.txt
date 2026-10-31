@@ -9,18 +9,6 @@ REQ-2D-2 | todo | pixel_games.gd draws at 1920x1080 and 3840x2160 only: add a dr
 REQ-BC-13 | todo | smoke_bumper_cars: a lost phone pauses and the cars, the clock and the new stars do not move (the pause itself is tested in smoke_tv)
 REQ-BW-21 | todo | r4_bowling logs the plates: check the turn plate shows 1.5 s and is not drawn afterwards
 REQ-BW-8 | todo | swing_replay.gd drives the overlay canvas: check the rows it shows for a swing (number, power, DOWN, side, age)
-REQ-FL-17 | todo | smoke_settings: after Back the Games screen has the same tile in focus
-REQ-FL-27 | todo | tv_games: the tiles dim or open when a phone joins or leaves on the Games screen
-REQ-FL-29 | todo | protocol_doc.gd ties the messages to docs/PROTOCOL.md: add the phase values of the Connect and Games screens
-REQ-FL-30 | todo | read the Android manifest and export preset: LEANBACK_LAUNCHER, the banner, the main scene is the logo screen
-REQ-FL-32 | todo | r4_tv_menus: the Players modal shows 4 slots with color and state, a QR code and Close
-REQ-FL-34 | todo | r4_tv_menus: the modal updates when a phone joins or leaves, the focus starts on Close, Back closes it
-REQ-FL-35 | todo | smoke_tv: Remove sends the message to the phone and the phone leaves
-REQ-FL-45 | todo | scan scenes and scripts: the background is plain black and the confetti of the logo is drawn in code, not an image
-REQ-FL-46 | todo | design_tokens.gd: the phone scenes use the UiTheme palette and font of the TV
-REQ-FL-61 | todo | smoke_lang: the Language row of Settings, Left and Right choose, OK goes to the next language
-REQ-FL-65b | todo | audio_events.gd: D-pad plays move, OK select, Back back, a join plays join, a leave plays leave
-REQ-FL-70 | todo | ui_profile_extra: the avatar takes the place of the slot number in the list, the header, the rows and the chips, and no game object has one
 REQ-GM-23 | todo | one check for every game that a player object has the color of its slot (PlayerInput.color)
 REQ-GM-36 | todo | each game: during play no screen with setup rows opens (menu_buttons never lists a setup row)
 REQ-GM-44 | todo | palette_lint.gd: OK is used for good and BAD for danger only

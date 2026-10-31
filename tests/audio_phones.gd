@@ -124,13 +124,14 @@ func _join_and_leave(app: Node) -> void:
 	_sounds.clear()
 	await _connect_phone(app, 0)
 	await _wait(0.2)
-	_check(_ids().count("join") == 1 and not _ids().has("leave"), "a phone that joins plays `join` once (got %s)" % str(_ids()))
+	_check(_ids().count("join") == 1 and not _ids().has("leave"),
+			"REQ-FL-65b: a phone that joins plays `join` once (got %s)" % str(_ids()))
 	await _connect_phone(app, 1)
 	await _wait(0.2)
 	_sounds.clear()
 	_clients[1].leave()
 	await _wait(0.4)
-	_check(_ids().has("leave") and not _ids().has("join"), "a phone that leaves plays `leave` (got %s)" % str(_ids()))
+	_check(_ids().has("leave") and not _ids().has("join"), "REQ-FL-65b: a phone that leaves plays `leave` (got %s)" % str(_ids()))
 	await _connect_phone(app, 1)
 	await _wait(0.2)
 

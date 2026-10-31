@@ -323,7 +323,7 @@ func _settings_walk() -> void:
 	rows[rows.size() - 1].grab_focus()
 	await _frames(2)
 	await _press("ui_right")
-	_check(_app.settings.language == "he", "Right on the focused Language row gives Hebrew (%s)" % _app.settings.language)
+	_check(_app.settings.language == "he", "REQ-FL-61: Right on the focused Language row gives Hebrew (%s)" % _app.settings.language)
 	await _press("ui_left")
 	_check(_app.settings.language == "en", "Left on the focused Language row gives English (%s)" % _app.settings.language)
 	_check(rows.all(func(r: Button) -> bool: return r.custom_minimum_size.y == 120.0),
