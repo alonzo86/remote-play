@@ -91,6 +91,7 @@ func _rect_name(has_avatar: bool) -> Rect2:
 	return Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 320.0, 90)
 
 
+const LINE_SIZE := 64   # The place and the score under the header (REQ-FL-67): never smaller, two lines when long (#288).
 const NAME_SIZE := 48   # The name in the header: never smaller, a wide name goes on two lines (#246).
 const LOST_SIZE := 56   # RECONNECTING... on the dimmed pad.
 const HINT_SIZE := 32   # The help line of the Recenter box.
@@ -298,9 +299,8 @@ func _draw() -> void:
 	var line := score_line(c.score_rank, c.score_of, c.score_text) if online else ""
 	if line != "":
 		var line_rect := Rect2(60, SCORE_Y - 30.0, size.x - 120, 60)
-		var line_size := line_font_size(line, line_rect.size.x)
-		draw_string(f, Vector2(line_rect.position.x, UiTheme.centered_baseline(f, line_rect, line_size)), line,
-				HORIZONTAL_ALIGNMENT_LEFT, line_rect.size.x, line_size, UiTheme.TEXT)
+		_draw_lines_centered(f, score_lines(line, line_rect.size.x), line_rect, LINE_SIZE, HORIZONTAL_ALIGNMENT_LEFT,
+				line_rect.position.x, UiTheme.TEXT)
 
 	# Whose turn it is, in a game with turns, on the row of NEW BEST! (the two never show together, REQ-BW-14).
 	if online and c.turn_state != 0:
@@ -446,9 +446,7 @@ static func score_line(rank: int, of: int, score: String) -> String:
 	return "  ".join(parts).to_upper()
 
 
-## The size of the score line: 64 px, and 48 or 32 px when a long score would not fit in `width`. Nothing is cut.
-static func line_font_size(text: String, width: float) -> int:
-	for fs in [64, 48, 32]:
-		if UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x <= width:
-			return fs
-	return 32
+## The score line on lines of at most `width`: always 64 px; a place and a long score that do not fit go on a second line, the
+## row grows downward (issue #288, REQ-FL-40: the text is never made smaller). Nothing is cut.
+static func score_lines(text: String, width: float) -> Array[String]:
+	return UiTheme.wrap_lines(UiTheme.font(), text, width, LINE_SIZE)

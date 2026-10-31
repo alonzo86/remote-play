@@ -28,6 +28,7 @@ const ControllerProfileEdit = preload("res://scripts/ui/controller_profile_edit.
 const ControllerProfileShare = preload("res://scripts/ui/controller_profile_share.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
+const ConfigIO = preload("res://scripts/core/config_io.gd")
 
 const SETTINGS_FILE := "user://settings.cfg"
 
@@ -262,22 +263,29 @@ func _quit() -> void:
 
 # ---- Settings ----
 
-func save_settings() -> void:
+## Returns false when the file could not be written; the settings stay in memory (issue #309).
+func save_settings(path := SETTINGS_FILE) -> bool:
 	var cfg := ConfigFile.new()
 	for k in settings:
 		if k != "overlay": # The debug overlay always starts off.
 			cfg.set_value("settings", k, settings[k])
-	cfg.save(SETTINGS_FILE)
+	return ConfigIO.save(cfg, path)
 
 
-func _load_settings() -> void:
+## A value of the wrong type in the file keeps the default (the first start choice for `language`); a volume is cut to 0..10.
+func _load_settings(path := SETTINGS_FILE) -> void:
 	var cfg := ConfigFile.new()
-	if cfg.load(SETTINGS_FILE) != OK:
+	if cfg.load(path) != OK:
 		return
 	for k in settings:
 		if k != "overlay":
-			settings[k] = cfg.get_value("settings", k, settings[k])
-	if bool(cfg.get_value("settings", "mute", false)):   # The Mute row is gone (issue #49): keep the silence of an old file.
+			settings[k] = ConfigIO.fit(cfg.get_value("settings", k, settings[k]), settings[k])
+	settings.music_volume = clampi(settings.music_volume, 0, 10)
+	settings.sfx_volume = clampi(settings.sfx_volume, 0, 10)
+	if not (settings.language == "" or settings.language in Lang.CODES):
+		settings.language = ""
+	# The Mute row is gone (issue #49): keep the silence of an old file.
+	if ConfigIO.fit(cfg.get_value("settings", "mute", false), false):
 		settings.music_volume = 0
 		settings.sfx_volume = 0
 

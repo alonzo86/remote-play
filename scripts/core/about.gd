@@ -20,7 +20,7 @@ const FONT_LICENSES := {
 static func pages(scanner := false) -> Array:
 	var out: Array = [{"title": "Sababi", "kind": "summary", "arg": ""}]
 	if scanner:
-		out.append({"title": "QR scanner", "kind": "scanner", "arg": ""})
+		out.append({"title": "about.qr_scanner", "kind": "scanner", "arg": ""})
 	out.append({"title": "Godot Engine", "kind": "godot", "arg": ""})
 	out.append({"title": "about.third_party_libraries", "kind": "libraries", "arg": ""})
 	return out
@@ -34,7 +34,7 @@ static func libraries(android := false) -> Array:
 	for f in FONT_LICENSES:
 		out.append({"title": f, "kind": "file", "arg": FONT_LICENSES[f], "license": "OFL-1.1"})
 	if android:
-		out.append({"title": "Android libraries", "kind": "file", "arg": ANDROID_LIBRARIES, "license": "Apache-2.0"})
+		out.append({"title": "about.android_libraries", "kind": "file", "arg": ANDROID_LIBRARIES, "license": "Apache-2.0"})
 	for c in Engine.get_copyright_info():
 		if String(c.name) == "Godot Engine":
 			continue
@@ -56,6 +56,13 @@ static func _licenses_of(component: Dictionary) -> Array:
 ## The license types for a row: "Expat" is the MIT license, and it is written as MIT.
 static func license_label(names: Array) -> String:
 	return ", ".join(names.map(func(n): return "MIT" if n == "Expat" else String(n)))
+
+
+## The title of a page as it is shown: a key (about.qr_scanner) in the language of the app, a name (Godot Engine, a library) as it
+## is, in the characters of the pixel font.
+static func title_text(page: Dictionary) -> String:
+	var t := String(page.title)
+	return Lang.t(t) if Lang.has(t) else safe(t)
 
 
 ## The text of one page.
