@@ -453,6 +453,8 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | `air_hockey_rules`, `smoke_air_hockey` | Air Hockey and ROBO (Test 27 has the steps that need a device): the mallet inside its half and the rails, the speed limit, the same way at 60 and 120 frames a second, the puck friction, rail bounces, the goal openings and the post, a hit that sends the puck away and never sticks or goes through, the serve; the bot base class (reaction, tilt limit, seed), ROBO defends and attacks, seat 0 and 1, the levels (Easy loses to a player that only chases the puck, Hard beats it); with 3 simulated phones: the settings view (no IN and OUT), enrolling with A (not with a tilt or B), the match for the first two, the third phone waiting, goals, the banner and the serve, the result menu with medals, a silent phone pauses with End game only, Resume when it is back, a player that leaves ends the match, ROBO with one phone, the result menu without medals, OK on the remote |
 | `tower_rules`, `smoke_tower` | Tower Builder (Test 30 has the steps that need a device): a brick lands on the base or on the top brick, a brick that overlaps less than 24 px misses and changes nothing, a joint that does not hold drops everything above it (also a brick of an earlier turn), the 8 px slack, the same widths for the same seed, the turn time 10, 5 and 3 s and the swing range; with 3 simulated phones: the settings view (Difficulty only), only the phone of the turn can drop (A of another phone and B do nothing), a brick that stays is a point, the next turn goes to the next phone with the full time, a brick that is not dropped falls by itself when the time is over, a miss lies on the grass and takes nothing away, a topple wobbles first and then the bricks lie on the grass with no point lost, a leaving player (during a turn and during a fall) does not make anybody lose a turn, the result menu after 12 bricks, one phone playing 12 bricks gets the gold medal |
 | `design_tokens` | sizes, colors, license files packed in the export presets |
+| `qr` (controller, unit) | the QR encoder for the player profile code (FD-22): versions 7 to 14, the size, the function patterns, the version information, the capacity of each version (458 bytes at version 14, error correction L) and a fixed text whose module hash was read back by an outside decoder (a changed hash means the code changed) |
+| `game_names_hebrew` (tv) | with the TV in Hebrew every game name shows in Hebrew (REQ-FL-87): the tile titles and the info bar of the Games screen, the settings view of each of the 15 games and the HUD title; no screen shows the English name, and no script holds an English game name as a text |
 | `join_flow` | the phone and the TV on the loopback with a TCP relay that cuts the link without closing it: join and slot colors, PRESS OK TO CONTINUE, rejoin with the saved token, join during a round, kick, a Wi-Fi cut (the TV marks the slot lost), the hold of a paused game, QR scan with a fake plugin (the SCAN button only with the plugin, cancel, not a Sababi code), the pair link; a phone that comes back after its slot was freed joins again by itself. Three known-bug checks (the phone does not notice a silent TV, no reason on the Connect screen after a kick): they fail today, so the suite is red until the bugs are fixed |
 | `ui_states_a` | phone screens: the Disconnect button, A and B white and the lift, the pixel font and black backdrop, the Back key, every screen inside the safe area of an iPhone in portrait. One known-bug check (landscape): it fails today |
 | `net_rate` | the numbers of the link on the loopback: round trip, packets a second, longest gap, lost packets, with 1 phone and with 4 phones in the maze; the frames until the ball moves |
@@ -528,4 +530,21 @@ the real phone and the real Wi-Fi, so a simulated phone cannot answer them.
 - With the checks running: on Mini Golf hole 5 the sliding barrier passes 0.25 m from the cup (the other things keep 0.3 m, REQ-MG-12).
   The test checks that the barrier never covers the tee or the cup, and leaves the 0.3 m margin to a decision of the owner. Nothing in the game was changed.
 
-Helpers in `tests/` that are not suites: `golf_tennis_trace.gd` (made-up swing traces), `slow_run.gd` (longer time limits in the instrumented coverage run), `tcp_relay.gd` (a relay that freezes a link for the lost Wi-Fi tests), `sample_3d_game.gd` (the game of `smoke_3d`) and `screenshots_controller.gd` (phone screenshots by hand with a display). `pixel_games.gd` and `pixel_render.gd` are the render lane: only `pixel_render.gd` runs in CI; `pixel_games.gd` is run by hand.
+## Scripts in `tests/` that are not suites
+
+These 12 files are not in `tests/suites.txt`, so `run_all.sh`, the unit CI job and `coverage.sh` do not run them as suites. Each has a reason (issue #305). None is a forgotten test.
+
+| File | Kind | Why it is not a suite |
+|------|------|-----------------------|
+| `pixel_render` | check (render lane) | Needs a GL driver and a display. The CI job `pixels` runs it under xvfb at 1920x1080 and 3840x2160 (`.circleci/config.yml`, `.github/workflows/ci.yml`) |
+| `pixel_games` | check (render lane), by hand | Same needs. No CI job runs it: it is run by hand (the command is in its header) for Tests 22, 23, 25 and 26. Adding it to the `pixels` job is a change of the CI files (`release-engineer`) |
+| `screenshots` | tool | Saves screenshots of the TV screens to `user://shot_*.png` (display needed); no assertions |
+| `screenshots_controller` | tool | The same for the phone screens |
+| `golf_tennis_trace` | helper | Made-up swing traces for `tennis_rules`, `smoke_tennis`, `smoke_golf` |
+| `sensor_replay` | helper | Traces and ways to replay them for the swing tests (`swing_detector` and others) |
+| `sim_b` | helper | Simulated phones, a fake-clock sensor feed and hand-stepped games for the maze, race and banana suites |
+| `sim_input` | helper | Steps a game by hand and feeds sensor packets for the `auto_*` suites |
+| `rec_haptics` | helper | Records the buzzes as [slot, ms] instead of sending them |
+| `sample_3d_game` | helper | The tiny 3D game of `smoke_3d` |
+| `slow_run` | helper | Longer time limits in the instrumented coverage run |
+| `tcp_relay` | helper | A relay that freezes a link, for the lost Wi-Fi tests (`join_flow`, `net_loss`) |

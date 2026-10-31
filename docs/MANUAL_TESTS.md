@@ -274,8 +274,7 @@ Measurements (no pass or fail; tune the constants if the owner asks): with the p
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 5a | Video of the ball: tilt held from the countdown, 5 s; photo of the pad | Pass | R4 |  | R3: Fail - 1. after recenter ball still drifts
-2. A and B does nothing; R4: Pass |
+| 5a | Video of the ball: tilt held from the countdown, 5 s; photo of the pad | Pass | R4 |  | R3: Fail - 1. after recenter ball still drifts; 2. A and B does nothing. R4: Pass |
 | 7e | Note: the 6 names read aloud | Pass | R3 |  | R3: Pass - THEME should start from Garden which should be first in the options Same result as old item 7. |
 | 7f | Photo of the open chest | Pass | R3 |  | R3: Pass - THEME should start from Garden which should be first in the options Same result as old item 7. |
 | 7g | Note: time in seconds until the child points to the chest | Pass | R3 |  | R3: Pass - THEME should start from Garden which should be first in the options Same result as old item 7. |
@@ -574,8 +573,8 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 
 1c. Open the Games screen on the TV (the Android build, not the computer). Look at every tile. Check: each of the 13 tiles shows its screenshot, a title and a player range (for example "1-4 PLAYERS"): 13 of 13. (REQ-FL-13. The tile files, their import, the export presets and the player range are checked by A-12-1c.)
 1e. From the sofa (about 3 m), look at the Games screen. Check: the tester reads aloud the title and the player range of 3 tiles and the description of the focused game, without error. (REQ-FL-40)
-1g. From the sofa (about 3 m), in English and in Hebrew, find the focused tile. Check: the tester points at the focused tile within 2 seconds, and says which of the title and the player range is bigger (the title: 40 px against 32 px, a 12 px yellow frame; issue #225, REQ-FL-13).
 1f. From the sofa (about 3 m), open the Games screen with the first row in view. Check: a yellow arrow that points down blinks under the grid, and no arrow points up (issue #220, REQ-FL-12a). Then press Down until the last row is in view. Check: the arrow that points up blinks and the one that points down is gone.
+1g. From the sofa (about 3 m), in English and in Hebrew, find the focused tile. Check: the tester points at the focused tile within 2 seconds, and says which of the title and the player range is bigger (the title: 40 px against 32 px, a 12 px yellow frame; issue #225, REQ-FL-13).
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
 3b. Check the tile of **Car Race**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
 4. Check the tile of **Banana Party**. Check: an animal was just hit (its peel shows) and a banana is in the air. (The jungle, the four cursor rings, the banana and the black outline of an animal are checked by A-12-4. The tile has no score and no "+10" text.)
@@ -594,6 +593,8 @@ Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TEST
 |------|---------------------|--------|-----|----------|-------|
 | 1c | Photo of the Games screen on the TV; the number of tiles with all 3 parts | Pass | R3 |  | Now on the TV only. |
 | 1e | Photo from the sofa; the texts that were read | Pass | R3 |  |  |
+| 1f | Photo of the Games screen with the first row and with the last row in view; the arrows seen | Not run | | | Row added 2026-10-31 (issue #303); step added for issue #220. |
+| 1g | Photos from the sofa in English and in Hebrew; the seconds until the tester points at the tile | Not run | | | Row added 2026-10-31 (issue #303); step added for issue #225. |
 | 2 | Photos: tile next to the game, for each game | Pass | R4 |  |  |
 | 3b | Photo of the Car Race tile and of the running game | Pass | R4 |  | Same result as old item 3. Car Race and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
 | 4 | Photo of the tile and of the running game | Fail | R3 |  | R3: Fail - the tile shows 5 cursor rings instead of 4 Banana Party tile remade 2026-10-16 (a jungle, 4 players, a hit, a banana in the air). Issue #114. |
@@ -1038,11 +1039,11 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 3c. Tilt to the right and keep the tilt for 2 s after the ship stops. Do the same to the left. Check: the ship stops at both sides, stays fully on the screen, does not move more, and its middle is 5.5 % to 7 % of the screen width (about 120 px of 1920: the 60 px margin plus the 60 px of REQ-AB-2) from the edge of the screen.
 9a. Let a child of about 5 to 8 years play, with a grown-up next to them who does not help. Check: the child points at its own ship within 10 s after Start (there is no countdown).
 9b. Same child. Check: the child moves the ship from the middle to the left side of the screen within 30 s after Start, with no help.
-9c. Same child. Lose the ship of the child on purpose while another ship flies. Check: the child is still at the game 30 s later (does not stop and does not give the phone back). Ask: "Play again?". Check: the child says yes.
+9c. Same child. Lose the ship of the child on purpose while another ship flies. Check: the child is still at the game 30 s later (does not stop and does not give the phone back). Ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 11. Play with 1 phone on Hard until wave 8 or later on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-22-11, issue #132).
 12b. From 3 m, look for the objects. Check: you can point at all of these: stars, the far dark world, an asteroid with craters, a ship, a beam, an upgrade and an explosion.
 12f. Take a close photo of the TV (30 cm). Check: the edges of the ship and of an asteroid are steps of square pixels, with no blurred edge and no gradient inside a color area.
-12g. Play with 4 phones. From 3 m, each tester names the color of the ship of a phone you point at. Check: 4 of 4 answers are right for every tester.
+12g. Play with 4 phones. From 3 m, each tester names the color of the ship of a phone you point at. Check: 4 of 4 answers are right for each of 3 testers (3 of 3 testers).
 13a. Look at the pad of a phone while the game runs. Check: the pad shows no button A, no button B and no RECENTER box (3 of 3). (REQ-GM-37a, issue #80)
 12h. From 3 m, read aloud the banners "Wave 2", "Wave 2 clear!" and "Next wave in 4", and the points in the bar. Check: no error.
 12i. Watch the rest between two waves, in 3 waves. Check: 1.5 s after the banner "Wave n clear!" shows there is no asteroid on the screen, in 3 of 3 waves. (REQ-AB-8, issue #136)
@@ -1103,7 +1104,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 4h. Swing normally with a thumb still on the aim strip, 5 times. Check: no ball is thrown and the hint "Lift your finger, then swing!" shows in 5 of 5 swings.
 11a. Let a child of about 5 to 8 years play on Easy with Rails With, with a grown-up next to them who does not help. Check: the child points at its own ball (the one in the color of its phone) within 10 s after Start (there is no countdown).
 11b. Same child. Check: the child throws a ball (a ball leaves the foul line) within 60 s after the first plate "YOUR TURN", with no help.
-11c. After the game, ask: "Play again?". Check: the child says yes.
+11c. After the game, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 12. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-23-12, issue #132).
 13b. From 3 m, a tester points at the ball each time you say "mark" at a random time during a roll. Check: the finger points at the ball (not at a pin or the lane) in 5 of 5 tries.
 13c. From 3 m, read aloud the totals of all rows of the score sheet and one banner. Check: no error.
@@ -1196,10 +1197,10 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 12a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own character within 10 s after Start (there is no countdown).
 12b. Same child. Check: the child serves a ball in play (over the net, inside the box) within 5 tries.
 12c. Same child. Check: the child returns a ball at least once in the first 3 min of a rally.
-12d. After the match, ask: "Play again?". Check: the child says yes.
+12d. After the match, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 13. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-25-13, issue #132).
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester calls "in" or "out" at the moment of the bounce for 10 balls. Check: at least 8 of 10 calls agree with the banner ("OUT" or no banner). The ball and its shadow are visible.
-14b. With 4 phones, from 3 m, each tester names the shirt color of the two far characters. Check: 2 of 2 answers are right for every tester.
+14b. With 4 phones, from 3 m, each tester names the shirt color of the two far characters. Check: 2 of 2 answers are right for each of 3 testers (3 of 3 testers).
 14c. From 3 m, read aloud the scoreboard and one banner. Check: no error.
 15a. With 2 phones connected, open the settings view of Tennis (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
 15c. **The card with children (2026-10-30, issue #235).** Show the card (open the Tennis settings view) on a phone to 3 children of 5 to 8 years, 5 seconds each, and ask: "What do you do before you play?". Check: at least 2 of 3 answer with holding the phone tight or making space around them. A Hebrew reader checks the Hebrew line "אחזו חזק. שמרו מרחק מסביב." (`swing.card_text`).
@@ -1253,10 +1254,10 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 12a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own character (the one in the color of its phone) within 10 s after Start (there is no countdown).
 12b. Same child. Check: the child turns the phone and the aim mark moves to the left side within 30 s after the first plate "<NAME>'S TURN!", with no help.
 12c. Same child. Check: the child putts the ball (one stroke counted) within 60 s after the first plate, with no help.
-12d. After the match, ask: "Play again?". Check: the child says yes.
+12d. After the match, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 13. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-26-13, issue #132).
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the ball each time you say "mark" while it rolls on the farthest hole. Check: the finger points at the ball in 5 of 5 tries. Check: the ball is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
-14b. From 3 m, ask a tester to point at the golfer and then at the windmill. Check: both answers are right for every tester.
+14b. From 3 m, ask a tester to point at the golfer and then at the windmill. Check: both answers are right for each of 3 testers (3 of 3 testers).
 14c. From 3 m, read aloud the names and strokes in the bar and one banner. Check: no error.
 15a. With 2 phones connected, open the settings view of Mini Golf (OK on its tile). Check: the TV shows the line "SWING GAME. HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU." under the rows, both phones show the card "HOLD ON TIGHT!" with an OK button, and Start is off with the line "WAITING FOR PHONES" (4 of 4). (REQ-GM-102, issue #79)
 
@@ -1307,10 +1308,10 @@ New game (2026-10-23), and the first game with a computer player. It was tested 
 9a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once and says nothing more. Check: the child points at its own mallet (the one in the color of its phone) within 10 s after the match starts. Write down the age. (REQ-GM-80 to 84)
 9b. Same child. Check: the child hits the puck with its mallet at least once within 60 s, with no help. (REQ-AH-17)
 9c. Same child. Check: the child scores at least 1 goal in a match of 3 goals (yes or no), and the child plays to the end without asking to stop or crying (yes or no). (REQ-AH-17, REQ-GM-96)
-9d. After the match, ask: "Play again?". Check: the child says yes.
+9d. After the match, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 10. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-27-10, issue #132).
 11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the puck each time you say "mark" while it moves. Check: the finger points at the puck in 5 of 5 tries. Check: the puck is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 68 px expected). (REQ-GM-47e, REQ-AH-20)
-11b. From 3 m, ask a tester to tell the puck from the red and blue lines of the table and from the dark gray rails and the black floor: the tester points at the puck and then at the red middle line. Check: both answers are right for every tester. (REQ-AH-20)
+11b. From 3 m, ask a tester to tell the puck from the red and blue lines of the table and from the dark gray rails and the black floor: the tester points at the puck and then at the red middle line. Check: both answers are right for each of 3 testers (3 of 3 testers). (REQ-AH-20)
 11c. From 3 m, read aloud the two chips, "FIRST TO N" and one goal banner. Check: no error when reading. (REQ-AH-21, REQ-FL-40)
 11d. **Black floor (2026-10-29, issue #123, REQ-AH-20).** From 3 m, a tester points at the left goal opening, the top rail and the floor outside the table. Check: the tester points at all 3 right (3 of 3), and the black puck is seen at every moment it is over a rail (yes or no). (REQ-AH-20)
 12. Set the TV language to Hebrew and start a match. Check: the left player's goal is still on the left (the table is not mirrored), the title and "FIRST TO N" are mirrored to the right side, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "הוקי אוויר", "רובו", "שער של ...!". (REQ-AH-21, REQ-GM-47o)
@@ -1324,6 +1325,7 @@ Measurements (write down, no pass or fail): the time for a mallet to cross its h
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1a | Photo of the tile next to a photo of the game | Not run | | | |
+| 3a | Note: the tries in which the tester pointed at the puck within 1 s (of 5); photo of the screen | Not run | | | Row added 2026-10-31 (issue #303); step added for issue #227. |
 | 3b | Video (240 fps); note: frames and ms for 5 tilts | Not run | | | |
 | 6b | Note: the winner and the goals of ROBO in each of 5 matches | Not run | | | |
 | 6c | Note: the goals of ROBO and the winner in each of 3 matches | Not run | | | |
@@ -1360,7 +1362,7 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child puts the ring on a mole within 20 s after GO, with no help.
 10b. Same child. Check: the child bonks a mole (the score grows) within 30 s after GO.
 10c. Same child. Check: the child has 5 or more bonks on moles in the 60 s round.
-10d. After the round, ask: "Play again?". Check: the child says yes.
+10d. After the round, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 11. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-28-11, issue #132).
 12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the golden mole when you say "mark". Check: the tester finds it in 5 of 5 tries. Check: a mole is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e)
 12b. From 3 m, ask a tester to read aloud the points that float up from a hit mole and the timer. Check: no error.
@@ -1408,7 +1410,7 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 8a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own dog (the one in the color of its phone) within 10 s after GO.
 8b. Same child. Check: the child moves its dog next to a sheep and the sheep runs away, within 30 s after GO, with no help.
 8c. Same child. Check: at least 1 sheep is in the pen at the end of the round, with no help.
-8d. After the round, ask: "Play again?". Check: the child says yes.
+8d. After the round, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 9a. Open the settings view and read the how-to line under the name, then play 1 round. Check: a tester can tell what to do (tilt the phone, bring all the sheep into the pen) without more help (3 of 3 testers).
 9b. A native reader of Hebrew reads the 7 new texts of the game (the 7 rows of `assets/lang/strings.csv` that start with `sheep_herding.`, `registry.sheep_herding`, `registry.desc_sheep_herding` and `how_to.sheep_herding`) on the TV set to Hebrew. Check: the reader marks 0 texts as wrong and 0 texts as cut.
 
@@ -1452,10 +1454,10 @@ New game (2026-10-23). It was tested only with made-up button presses. Every num
 9a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once and says nothing more. Check: the child presses A of its own phone, when it is its turn, within 20 s of the plate with its name. Write down the age. (REQ-GM-80 to 84)
 9b. Same child. Check: the child drops at least 2 bricks that stay in a game of 12 bricks (yes or no). (REQ-TB-11, REQ-GM-96)
 9c. Same child. Check: the child plays to the end without asking to stop or crying (yes or no), also after a topple (yes or no). (REQ-GM-83)
-9d. After the game, ask: "Play again?". Check: the child says yes.
+9d. After the game, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 10. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-30-10, issue #132).
 11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester reads the plate "<NAME>'S TURN", "BRICK n OF 12" and one banner aloud. Check: no error when reading. (REQ-TB-19, REQ-FL-40)
-11b. From 3 m, a tester points at the brick that hangs on the crane and at the top brick of the tower. Check: both answers are right for every tester, and the brick is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 48 px expected). (REQ-GM-47e, REQ-TB-18)
+11b. From 3 m, a tester points at the brick that hangs on the crane and at the top brick of the tower. Check: both answers are right for each of 3 testers (3 of 3 testers), and the brick is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 48 px expected). (REQ-GM-47e, REQ-TB-18)
 12. Set the TV language to Hebrew and start a game. Check: the title and the plates are mirrored to the right side, the tower and the crane are not mirrored, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "בונים מגדל", "התור של ...", "קראש! חיחי!". (REQ-GM-47o, REQ-TB-19)
 
 Items 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b and 13 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-30-*). The numbers of the other items do not change.
@@ -1502,7 +1504,7 @@ New game (2026-10-24). It was tested only with made-up sensor values. Every numb
 10a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. The grown-up reads the hint line once. Check: the child wiggles so that its dancer dances within 15 s after Start, with no help. (REQ-FD-15)
 10b. Same child. Check: the child holds still in at least 1 stop out of 3 (the score grows at least once), with no help. (REQ-FD-15)
 10c. Same child. After a move at FREEZE, check: the child plays on in the next song and does not ask to stop or cry (yes or no). (REQ-FD-8, REQ-GM-83)
-10d. After the round, ask: "Play again?". Check: the child says yes.
+10d. After the round, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 11. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-31-11, issue #132).
 12a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the dancer in a given color when you say "mark". Check: the tester finds it in 5 of 5 tries, also when the floor is lit. Check: a dancer is 48 px or more high on the screen at 1080p (photo). (REQ-GM-47e, REQ-FD-12)
 12b. From 3 m, ask a tester to read aloud the banner, the "SONG n OF 6" box and the name and time on the bench. Check: no error. (REQ-FL-40)
@@ -1548,12 +1550,12 @@ New game (2026-10-24). It was only tested with made-up sensor values. Every numb
 **Steps**
 
 1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the red and white tent, the rink with its black rail, gold stars on the floor, and the cars.
-2a. From 3 m, a tester points at one star and at one car. Check: both answers are right for every tester (5 of 5 testers).
+2a. From 3 m, a tester points at one star and at one car. Check: both answers are right for each of 5 testers (5 of 5 testers).
 7. Play with 1 phone on Hard on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-32-7, issue #132).
 9a. Let a child of about 5 to 8 years play with 2 phones on Easy, with a grown-up next to them who does not help. Check: the child points at its own car (the one in the color of its phone) within 10 s after GO.
 9b. Same child. Check: the child drives over at least 1 star within 30 s after GO, with no help.
 9c. Same child. Check: the child has at least 3 stars at the end of the round.
-9d. After the round, ask: "Play again?". Check: the child says yes.
+9d. After the round, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
 11a. Open the settings view and read the how-to line under the name, then play 1 round. Check: a tester can tell what to do (tilt to drive, pick up stars, bump the others) without more help (3 of 3 testers).
 11b. A native reader of Hebrew reads the 6 new texts of the game (the 6 rows of `assets/lang/strings.csv` with the keys `registry.bumper_cars`, `registry.desc_bumper_cars`, `how_to.bumper_cars`, `bumper_cars.hint`, `result.one_star` and `result.stars`) on the TV set to Hebrew. Check: the reader marks 0 texts as wrong and 0 texts as not fitting on the screen.
 
