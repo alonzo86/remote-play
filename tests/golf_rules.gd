@@ -5,6 +5,8 @@ extends SceneTree
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const Sim = preload("res://scripts/game/mini_golf/golf_sim.gd")
 const Rules = preload("res://scripts/game/mini_golf/golf_rules.gd")
+const Look = preload("res://scripts/game/mini_golf/golf_look.gd")
+const Shell = preload("res://scripts/game/shell.gd")
 
 const DT := 1.0 / 60.0
 
@@ -40,6 +42,7 @@ func _initialize() -> void:
 	_blades_on_holes()
 	_barriers_leave_a_gap()
 	_pars()
+	await _grid()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -492,3 +495,32 @@ func _pars() -> void:
 			and Rules.label_for(2, 4) == "mini_golf.birdie" and Rules.label_for(4, 4) == "mini_golf.par"
 			and Rules.label_for(5, 4) == "mini_golf.bogey" and Rules.label_for(6, 4) == "",
 			"the words fit the par of the hole: par 2, par 4")
+
+
+## REQ-GM-47l (issue #346): the ball and the aim mark are drawn on the grid of world pixels (4 units), so that they do not
+## shimmer between two pixels while they move.
+func _grid() -> void:
+	print("pixel grid")
+	var ci := Node2D.new()
+	var geo := Look.Geo.new(Vector2(1920.0, 1080.0))
+	var feet: Array[Vector2] = []
+	Shell.recorder = func(kind: String, _ci: CanvasItem, rect: Rect2, _info: Dictionary) -> void:
+		# The foot of the ball and the tip of the aim mark, from the box each one records.
+		if kind == "ball":
+			feet.append(rect.position + Vector2(rect.size.x * 0.5, rect.size.y))
+		elif kind == "aim":
+			feet.append(rect.position + Vector2(rect.size.x * 0.5, rect.size.y * 1.4))
+	ci.draw.connect(func() -> void:
+		for i in 12:
+			var p := Vector2(-1.0 + 0.037 * float(i), 2.0 + 0.0113 * float(i))
+			Look.draw_ball(ci, geo, p)
+			Look.draw_aim(ci, geo, p, 0.3, 1.0, false))
+	root.add_child(ci)
+	await process_frame
+	Shell.recorder = Callable()
+	var off := 0
+	for f in feet:
+		if absf(f.x - snappedf(f.x, 4.0)) > 0.001 or absf(f.y - snappedf(f.y, 4.0)) > 0.001:
+			off += 1
+	ci.queue_free()
+	_check(feet.size() == 24 and off == 0, "the ball and the aim mark stand on the 4-unit grid (%d of %d off)" % [off, feet.size()])

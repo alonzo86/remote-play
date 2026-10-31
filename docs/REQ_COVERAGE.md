@@ -81,7 +81,7 @@ Counts: a 98, todo 0, review 13, obsolete 0, device 0 (total 111; 122 before the
 | REQ-GM-42 | review | which files a game may use depends on docs/TV_FLOW.md (FD-9, FD-13) and docs/THIRD_PARTY.md: the license-reviewer judges it |
 | REQ-GM-44 | a (done) | palette_lint.gd (new check: every use of OK and BAD is on a list with its meaning) |
 | REQ-GM-47j | a (done) | pixel_games.gd (render lane: the outline of Shell.pixel_ball is one world pixel); the outline of other objects is a look item of the game tests |
-| REQ-GM-47l | a (done) | pixel_world_lint (new suite: the world draw of every game snaps; Mini Golf is listed, issue #346) |
+| REQ-GM-47l | a (done) | pixel_world_lint (new suite: the world draw of every game snaps) |
 | REQ-GM-47n | a (done) | pixel_world_lint (new suite: no text in the world draw of any game) |
 | REQ-GM-49b | a (done) | audio.gd (limits and lengths of every effect), audio_events.gd (a buzz comes with a sound effect) |
 | REQ-GM-49c | a (done) | named in the existing check of audio.gd, audio_controller.gd |
