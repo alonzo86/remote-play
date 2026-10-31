@@ -207,7 +207,7 @@ func _game(g: Dictionary) -> void:
 	_check(_rigs[0].got == [[key, first]] and _rigs[1].got == [[key, first]],
 			"9a %s: both phones with a profile get the key and the score: %s %s" % [g.id, str(_rigs[0].got), str(_rigs[1].got)])
 	_check(shown.best == "NEW BEST!" and shown.detail == ProfileKeys.format(key, first),
-			"9a %s: the waiting screen says NEW BEST! with the score: '%s' '%s'" % [g.id, shown.best, shown.detail])
+			"9a %s: the waiting screen says NEW BEST! with the score (REQ-FL-79): '%s' '%s'" % [g.id, shown.best, shown.detail])
 	_check(String(shown.pad).begins_with("NEW BEST! " + ProfileKeys.format(key, first)) and not String(shown.pad).contains("BEFORE"),
 			"9a %s: the pad line has no BEFORE for a first score: '%s'" % [g.id, shown.pad])
 	var shown_b: Dictionary = await _phone_shows(_rigs[1])
@@ -229,7 +229,8 @@ func _game(g: Dictionary) -> void:
 	_check(shown.best == "NEW BEST!" and String(shown.detail).begins_with(ProfileKeys.format(key, better))
 			and String(shown.detail).contains(before),
 			"9b/9c %s: the next better round shows '%s' with the old best: '%s'" % [g.id, before, shown.detail])
-	_check(_stored(_rigs[0], key) == better and String(shown.pad).contains(before), "and the phone keeps the new best %d" % better)
+	_check(_stored(_rigs[0], key) == better and String(shown.pad).contains(before),
+			"and the phone keeps the new best %d" % better)
 	if g.id == "marble_race":
 		_check(String(shown.detail).contains("41.20 S") and String(shown.detail).begins_with("39.50 s"),
 				"9c: the times of the race are in seconds: '%s'" % shown.detail)

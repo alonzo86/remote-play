@@ -4,7 +4,7 @@
 # COVERAGE_STEP picks a part (CI runs the two parts in two jobs): `run` makes the instrumented copy and runs the suites of
 # tests/suites.txt on it (the hits are written to <output dir>/hits); `report` reads the hits and the manifest of the
 # output dir, writes the reports and checks the 80% rule; `all` (the default) does both.
-# The default rule: every module (script file) has 80% line coverage, except the modules in
+# The default rule (REQ-GM-63): every module (script file) has 80% line coverage, except the modules in
 # tools/coverage/exclusions.txt. The exit code is 1 when a module is below. Output (default build/coverage):
 # summary.md, summary.json, lcov.info. COVERAGE_REPORT_ONLY=1 makes the reports but never fails (for a run of one tier of the suites, and for the CI).
 # It needs python3 and gdtoolkit (pip install "gdtoolkit==4.*"). See tools/coverage/instrument.py.

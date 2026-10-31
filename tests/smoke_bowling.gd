@@ -202,7 +202,7 @@ func _run() -> void:
 	# A whole game, phone 2 leaves in frame 1 (REQ-GM-21).
 	game._on_player_left(1)
 	_check(not game._board.has(1) and not game.rules.slots().has(1),
-			"a player that leaves is taken out of the rules and the board (REQ-GM-21)")
+			"a player that leaves is taken out of the rules and the board (REQ-GM-21, REQ-BW-20)")
 
 	# One pin left: the line under the banner has no number to format (the error of 2026-10-20).
 	app.go(Bowling, {"difficulty": "medium"})
@@ -234,7 +234,7 @@ func _run() -> void:
 	await _frames(3)
 	var labels := _labels(solo)
 	_check(solo.is_over and not labels.is_empty(), "the result menu opens after the last ball: %s" % str(labels))
-	_check(MedalView.tiers_in(solo._menu_box).is_empty(), "one player: the result menu has no medal (REQ-GM-73)")
+	_check(MedalView.tiers_in(solo._menu_box).is_empty(), "one player: the result menu has no medal (REQ-GM-73, REQ-BW-18)")
 
 	# Two players with equal scores: Tie (REQ-GM-72).
 	app.go(Bowling, {"difficulty": "medium"})

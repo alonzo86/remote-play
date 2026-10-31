@@ -42,6 +42,7 @@ func _initialize() -> void:
 	_maze_levels()
 	_difficulty()
 	_test_marble_track()
+	_test_track_area_and_seeds()
 	_test_race_look()
 	_tilt_body()
 	_sumo_arena()
@@ -548,6 +549,33 @@ func _difficulty() -> void:
 			"an unknown difficulty is Medium")
 
 
+## REQ-MR-20: the drivable area is the points within the half-width of the line (also beyond the ends of the line, where the
+## nearest point is the end). REQ-MR-21: a track is made from its seed: one seed gives one track, and the ten
+## fixed seeds give ten.
+func _test_track_area_and_seeds() -> void:
+	print("track area and seeds")
+	var line: Array[Vector2] = [Vector2(0, 0), Vector2(0, -40), Vector2(30, -40)]
+	var t := MarbleTrack.new(line, 3.0)
+	var on_line: Dictionary = t.query(Vector2(2.9, -20.0))
+	var off_line: Dictionary = t.query(Vector2(3.1, -20.0))
+	var beyond: Dictionary = t.query(Vector2(0, 2.0))
+	var corner: Dictionary = t.query(Vector2(-2.0, -42.0))
+	_check(on_line.dist <= t.half_width and off_line.dist > t.half_width and is_equal_approx(on_line.arc, 20.0),
+			"a point 2.9 m from the line is on the track, 3.1 m is off it, and the arc is the distance along the line (REQ-MR-20)")
+	_check(beyond.dist <= t.half_width and corner.dist <= t.half_width and is_equal_approx(t.length, 70.0),
+			"behind the start and around a corner the track is the half-width around the nearest point (REQ-MR-20)")
+	var a: RefCounted = MarbleTrack.generate(42)
+	var b: RefCounted = MarbleTrack.generate(42)
+	var c: RefCounted = MarbleTrack.generate(43)
+	_check(a.points == b.points and a.half_width == b.half_width and a.points != c.points,
+			"the same seed gives the same track and another seed gives another one (REQ-MR-21)")
+	var distinct := {}
+	for sd in MarbleTrack.FIXED_SEEDS:
+		distinct[str(MarbleTrack.generate(sd).points)] = true
+	_check(MarbleTrack.FIXED_SEEDS.size() == 10 and distinct.size() == 10,
+			"the ten fixed seeds give ten different tracks (REQ-MR-21)")
+
+
 func _test_marble_track() -> void:
 	print("marble track")
 	var seeds: Array = MarbleTrack.FIXED_SEEDS.duplicate()
@@ -851,7 +879,8 @@ func _test_race_look() -> void:
 		for k in range(0, int(hw * RaceLook.PX) + RaceLook.WALL_PX):
 			seq_up.append(pu.image.get_pixel(int(au.x) + k, int(au.y) - 101))
 			seq_right.append(pr.image.get_pixel(int(ar.x) + 100, int(ar.y) + k))
-		_check(seq_up == seq_right, "%s: the road and the wall look the same across a road that runs up and one that runs right" % key)
+		_check(seq_up == seq_right,
+				"%s: the road and the wall look the same across a road that runs up and one that runs right" % key)
 	# Cars and obstacles.
 	var car: Image = RaceLook.car_image(Color("e63946"))
 	_check(car.get_width() == 11 and car.get_height() == 16 and car.get_pixel(3, 7) == Color("e63946")

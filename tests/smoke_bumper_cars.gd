@@ -127,7 +127,7 @@ func _settings() -> void:
 	var Registry = load("res://scripts/game/registry.gd")
 	var entry: Dictionary = Registry.find("bumper_cars")
 	_check(entry.min_players == 2 and entry.max_players == 4 and entry.pad == [] and entry.settings == [],
-			"2 to 4 players, no control on the pad, and Difficulty is the only row (REQ-BC-20)")
+			"2 to 4 players, no control on the pad (REQ-BC-2), and Difficulty is the only row (REQ-BC-20)")
 	_check(not Registry.accepts(entry, 1) and Registry.accepts(entry, 2) and Registry.accepts(entry, 4)
 			and not Registry.accepts(entry, 5) and Registry.reason(entry, 1) == "Needs 2 players",
 			"the game needs 2 to 4 players (no solo mode)")
@@ -176,7 +176,8 @@ func _start() -> void:
 		same = same and other.rink.stars[i].pos == game.rink.stars[i].pos
 	_check(same, "the same seed gives the same stars")
 	var easy := SimInput.start_game(_app, _script, {"difficulty": "easy", "seed": 7})
-	_check(easy.rink.stars.size() == 12 and easy.rink.rink.size == easy.rink.LARGEST.size, "Easy has 12 stars and the largest rink")
+	_check(easy.rink.stars.size() == 12 and easy.rink.rink.size == easy.rink.LARGEST.size,
+			"Easy has 12 stars and the largest rink")
 
 
 ## The tilt drives only the car of that phone; a car that reaches a star picks it up (REQ-BC-4, 9, 10).
@@ -321,7 +322,8 @@ func _the_end() -> void:
 	SimInput.run(game, 0.5)
 	await _frames(3)
 	_check(_clients[0].score_rank == 2 and _clients[0].score_text == "3" and _clients[1].score_rank == 1
-			and _clients[1].score_text == "5", "during the round each phone shows its own stars and its place (REQ-FL-67): %d/%s, %d/%s"
+			and _clients[1].score_text == "5",
+			"during the round each phone shows its own stars and its place (REQ-FL-67, REQ-BC-14): %d/%s, %d/%s"
 			% [_clients[0].score_rank, _clients[0].score_text, _clients[1].score_rank, _clients[1].score_text])
 	game._round.time = game._round.duration - 0.005
 	game._game_tick(0.01)

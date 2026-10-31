@@ -87,7 +87,7 @@ func _scoring_real() -> void:
 	_win_game(r, 1)
 	_check(not r.match_over() and r.winners().is_empty(), "no match winner before 3 games")
 	var end := _win_game(r, 0)
-	_check(end.match and r.match_over() and r.winners() == [0], "the first player with 3 games wins the match")
+	_check(end.match and r.match_over() and r.winners() == [0], "the first player with 3 games wins the match (REQ-TN-19)")
 
 
 ## The scoring Quick (REQ-TN-10).
@@ -102,7 +102,7 @@ func _scoring_quick() -> void:
 		r.score_point(0)
 	_check(not r.match_over(), "4 points are not enough")
 	var last := r.score_point(0)
-	_check(last.match and r.winners() == [0] and r.tally[0] == 5, "the first to 5 points wins")
+	_check(last.match and r.winners() == [0] and r.tally[0] == 5, "the first to 5 points wins (REQ-TN-19)")
 	var fresh := Rules.new()
 	fresh.setup([0, 1], true)
 	_check(not fresh.score_point(0).game, "Quick has no games: a point never ends a game")
@@ -401,7 +401,8 @@ func _points() -> void:
 			break
 		if r.swing(r.hitter, 0.5, false, 0.0, 0.0) == "hit":
 			returns += 1
-	_check(returns >= 5 and r.rules.points == [0, 0], "a rally goes on while the balls are returned and in (%d returns)" % returns)
+	_check(returns >= 5 and r.rules.points == [0, 0],
+			"a rally goes on while the balls are returned and in (%d returns)" % returns)
 
 
 ## Games, the match and the result (REQ-TN-10, 14).
@@ -441,7 +442,8 @@ func _solo() -> void:
 	var m := _match([3])
 	_check(m.solo and m.half_width() == Sim.HALF_W_SINGLES, "1 player: a rally on the singles court")
 	_run(m, Match.FEED_DELAY + 0.5)
-	_check(m.phase == Match.Phase.RALLY and m.expect_team == 0 and m.hitter == 3, "the machine sends the first ball to the player")
+	_check(m.phase == Match.Phase.RALLY and m.expect_team == 0 and m.hitter == 3,
+			"the machine sends the first ball to the player")
 	for i in 5:
 		_until_contact(m)
 		if m.swing(3, 0.5, false, 0.0, 0.0) != "hit":
@@ -517,7 +519,8 @@ func _leaving_teams() -> void:
 		three.rules.score_point(0)   # Slot 0 (alone) wins the game: the single is slot 1 now.
 	three.remove_player(2)
 	for s in three.chars:
-		_check(three.team_of(s) == three.rules.team_of(s), "3 players, one leaves: the character of slot %d follows the new team" % s)
+		_check(three.team_of(s) == three.rules.team_of(s),
+				"3 players, one leaves: the character of slot %d follows the new team" % s)
 
 
 ## Quick with 3 players: the teams change every 2 points, so the score shown for a team is the tally of its players.
@@ -608,7 +611,8 @@ func _green_window() -> void:
 		var w := float(greens) * 0.02
 		var want: float = 2.0 * float(Rules.level(d).green)
 		_check(absf(w - want) <= 0.05, "%s: the green part is %.2f s wide (wanted %.2f s)" % [d, w, want])
-		_check(absf(float(any) * 0.02 - 2.0 * Match.HIT_W) <= 0.05, "%s: the whole hit window is %.2f s wide" % [d, float(any) * 0.02])
+		_check(absf(float(any) * 0.02 - 2.0 * Match.HIT_W) <= 0.05,
+				"%s: the whole hit window is %.2f s wide" % [d, float(any) * 0.02])
 	var wm: float = 2.0 * float(Rules.level("medium").green)
 	var we: float = 2.0 * float(Rules.level("easy").green)
 	var wh: float = 2.0 * float(Rules.level("hard").green)

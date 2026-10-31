@@ -152,7 +152,7 @@ func _run() -> void:
 	game._bodies[2].pos = Vector2(0.0, edge)
 	game._game_tick(0.016)
 	_check(game.phase == game.Phase.BANNER and game._board.score(0) == 1.0 and game.banner_text.ends_with("wins the round!"),
-			"the last bumper gets the point and a banner names it: %s" % game.banner_text)
+			"the last bumper gets the point and a banner names it (REQ-SB-4): %s" % game.banner_text)
 	game._banner_left = 0.01
 	game._game_tick(0.02)
 	_check(game.round_no == 2 and game.phase == game.Phase.PLAY and game._alive.size() == 3 and game.arena.time == 0.0
@@ -185,7 +185,7 @@ func _run() -> void:
 	var menu := ["minigame.restart", "common.settings", "minigame.back_to_menu"]
 	_check(game.is_over and buttons == menu and labels[0] == "SIM0 WINS!"
 			and labels[1].ends_with("3 POINTS") and labels[2].ends_with("1 POINT"),
-			"after round 3 the result menu names the winner and lists the points: %s %s" % [str(buttons), str(labels)])
+			"after round 3 the result menu names the winner and lists the points (REQ-SB-5): %s %s" % [str(buttons), str(labels)])
 
 	# The layout (REQ-SB-16): the platform is inside the margin at two sizes, at every difficulty.
 	var fits_ok := true
@@ -218,7 +218,8 @@ func _run() -> void:
 	game = app.current_screen()
 	_check(is_instance_of(game, Sumo) and game.round_no == 1 and game._board.score(0) == 0.0,
 			"Restart starts a new match with 0 points")
-	# A lost phone pauses the match and nothing runs during the pause (REQ-SB-13): a phone that goes silent, like one without Wi-Fi.
+	# A lost phone pauses the match and nothing runs during the pause (REQ-SB-13): a phone that goes silent, like
+	# one without Wi-Fi.
 	await _stream(clients, 3.4, [flat, flat, flat])
 	_check(game.phase == game.Phase.PLAY and game.arena.time > 0.0, "the new match plays")
 	app.server.peer_timeout_ms = 2500

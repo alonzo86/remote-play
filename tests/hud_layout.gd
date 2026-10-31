@@ -14,7 +14,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 ## id -> [script, props, has leader chip, has timer in this run]. A game with its own score card (Mini Golf,
 ## Pin Pals)
-## and the maze (no score) have no leader chip. Sheep Herding has a team chip instead (tests/smoke_sheep.gd).
+## and the maze (no score, REQ-MZ-10) have no leader chip. Sheep Herding has a team chip instead (tests/smoke_sheep.gd).
 const GAMES := {
 	"snowball_splat": ["res://scripts/game/snowball_splat/snowball_splat_game.gd", {"difficulty": "medium"}, true, true],
 	"whack_a_mole": ["res://scripts/game/whack_a_mole/whack_a_mole_game.gd", {"difficulty": "medium"}, true, true],
@@ -208,7 +208,8 @@ func _countdown_checks(id: String, snap: Dictionary, lang: String, timed: bool) 
 			_check(r.get_center().x > 960.0 and is_equal_approx(r.end.x, 1920.0 - MARGIN),
 					"%s: the title is at the top right, ending at the 60 px margin (%s)" % [state, str(r)])
 		else:
-			_check(is_equal_approx(r.position.x, MARGIN), "%s: the title is at the top left, at the 60 px margin (%s)" % [state, str(r)])
+			_check(is_equal_approx(r.position.x, MARGIN),
+					"%s: the title is at the top left, at the 60 px margin (%s)" % [state, str(r)])
 	# The players are known by the color of their objects: the countdown draws no name over them (removed 2026-10-21).
 	_check(not snap.has("tag"), "%s: the countdown draws no name tags" % state)
 	var named := false
@@ -253,7 +254,8 @@ func _go_word_checks(id: String, timed: bool) -> void:
 			words[e.info.text] = true
 			inside = inside and Rect2(0, 0, 1920, 1080).encloses(e.rect)
 	if not timed:
-		_check(words.is_empty(), "%s in Hebrew: no timer, so no countdown number or GO word is drawn (%s)" % [id, str(words.keys())])
+		_check(words.is_empty(),
+				"%s in Hebrew: no timer, so no countdown number or GO word is drawn (%s)" % [id, str(words.keys())])
 		return
 	_check(not words.is_empty() and inside, "%s in Hebrew: the countdown numbers fit the screen (%s)" % [id, str(words.keys())])
 	if id == "marble_race":   # Only Car Race shows the word GO; the other games go from 1 to the play.
@@ -417,14 +419,16 @@ func _row_checks(state: String, snap: Dictionary, lang: String, has_timer: bool)
 	# Issue #223, REQ-GM-45c: the title has one baseline in every game, and the status text of the bar has another one.
 	for t in snap.get("title", []):
 		var base: float = t.rect.end.y - _line_h() + _ascent()   # The last line of a title on two lines.
-		_check(is_equal_approx(base, Shell.TITLE_BASELINE), "%s: the title stands on the common baseline (y %.0f)" % [state, base])
+		_check(is_equal_approx(base, Shell.TITLE_BASELINE),
+				"%s: the title stands on the common baseline (y %.0f)" % [state, base])
 	for st in snap.get("status", []):
 		_check(is_equal_approx(st.rect.position.y + _ascent(), Shell.STATUS_BASELINE),
 				"%s: the status text stands on the common baseline (y %.0f)" % [state, st.rect.position.y + _ascent()])
 	# Issue #301: the wave and the round texts of the bar go through Shell.status(), so the baseline check sees them.
 	for gid in ["asteroid_blast", "sumo_bumpers"]:
 		if state.begins_with(gid + " in"):
-			_check(not snap.get("status", []).is_empty(), "%s: the text of the bar is drawn by Shell.status() (the check sees it)" % state)
+			_check(not snap.get("status", []).is_empty(),
+					"%s: the text of the bar is drawn by Shell.status() (the check sees it)" % state)
 	_check(one_row, "%s: the title, the timer and the chip share one row" % state)
 	_check(apart, "%s: no HUD box touches another HUD box %s" % [state, str(boxes.map(func(e): return e.kind + str(e.rect)))])
 	_check(in_bar, "%s: every HUD box is inside the top bar and the 60 px margin" % state)
@@ -522,7 +526,8 @@ func _tennis_solo_timer() -> void:
 			_check(is_equal_approx(t.rect.position.x, TIMER_LEFT),
 					"tennis alone: the timer box is at the one place of every game (x %.0f)" % TIMER_LEFT)
 		else:
-			_check(is_equal_approx(t.rect.end.x, 1920.0 - en.rect.position.x), "tennis alone: the timer box is mirrored in Hebrew")
+			_check(is_equal_approx(t.rect.end.x, 1920.0 - en.rect.position.x),
+					"tennis alone: the timer box is mirrored in Hebrew")
 	Lang.set_language("en", root)
 	for i in range(1, 4):
 		if _clients[i].state != ControllerClient.State.CONNECTED:

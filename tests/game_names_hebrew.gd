@@ -1,5 +1,6 @@
 extends SceneTree
-## With the TV in Hebrew, every game name shows in Hebrew (REQ-FL-87, Alon 2026-10-29): the tiles and the info bar of the Games
+## With the TV in Hebrew, every game name shows in Hebrew (REQ-FL-87, REQ-GM-49d, Alon 2026-10-29): the tiles and
+## the info bar of the Games
 ## screen, the settings view of each game and the title of the HUD. No screen shows the English name of a game. Run:
 ##   godot --headless --path . --script tests/game_names_hebrew.gd -- --role=tv
 

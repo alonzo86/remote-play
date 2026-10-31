@@ -112,7 +112,7 @@ func _run() -> void:
 			"the game gets the prop difficulty (REQ-GM-93)")
 	var entry: Dictionary = app.Registry.find("tower_builder")
 	_check(entry.pad == ["a"] and not app.Registry.has_control(entry, "recenter") and app.Registry.buttons_of(entry) == "a",
-			"the pad has button A alone, no B and no RECENTER (Test 30 step 13, REQ-GM-37a)")
+			"the pad has button A alone, no B and no RECENTER (Test 30 step 13, REQ-GM-37a, REQ-TB-17)")
 	GameSettings.clear()
 
 	# Turns: 3 phones, Medium (5 s).
@@ -123,7 +123,8 @@ func _run() -> void:
 	_check(game.participants == [0, 1, 2] and game.phase == game.Phase.TURN and game.current_slot() == 0
 			and game._turn_left > 4.8 and game._turn_left <= 5.0 and game.dropped == 0 and game.stack.height() == 0,
 			"3 phones: the first turn is slot 0 with 5 s, and the tower is empty (REQ-TB-4, 11)")
-	_check(not game._has_countdown() and clients[0].phase == "playing", "no countdown: the first turn starts at once (REQ-GM-35)")
+	_check(not game._has_countdown() and clients[0].phase == "playing",
+			"no countdown: the first turn starts at once (REQ-GM-35, REQ-TB-2)")
 	_check(Lang.f("tower_builder.turn_of", [game.player(0).player_name]).to_upper() == "SIM0'S TURN"
 			and Lang.f("tower_builder.brick_n_of", [1, 12]).to_upper() == "BRICK 1 OF 12",
 			"the plates say the name of the turn and the brick number (Test 30 step 2b)")
