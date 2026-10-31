@@ -176,11 +176,11 @@ func _publish_turn() -> void:
 	var on := rules.current_slot() if phase == Phase.AIM or phase == Phase.ROLL else -1
 	for s in participants:
 		if on < 0:
-			App.server.send_turn(s, 0, "", "golf")
+			game_host.send_turn(s, 0, "", "golf")
 		elif s == on:
-			App.server.send_turn(s, 1, "", "golf")
+			game_host.send_turn(s, 1, "", "golf")
 		else:
-			App.server.send_turn(s, 2, player(on).player_name, "golf")
+			game_host.send_turn(s, 2, player(on).player_name, "golf")
 
 
 ## Polls A on every tick, in every phase, so a button held since an earlier phase is not read as a new press (the putt banner

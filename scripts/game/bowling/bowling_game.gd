@@ -151,11 +151,11 @@ func _publish_turn() -> void:
 	var on := rules.current_slot() if phase != Phase.END else -1
 	for s in participants:
 		if on < 0:
-			App.server.send_turn(s, 0, "")
+			game_host.send_turn(s, 0, "")
 		elif s == on:
-			App.server.send_turn(s, 1, "")
+			game_host.send_turn(s, 1, "")
 		else:
-			App.server.send_turn(s, 2, player(on).player_name)
+			game_host.send_turn(s, 2, player(on).player_name)
 
 
 func _tick_aim(delta: float) -> void:

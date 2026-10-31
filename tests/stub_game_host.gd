@@ -55,3 +55,7 @@ func go_game_settings(id: String) -> void:
 
 func haptic(slot: int, ms: int) -> void:
 	calls.append(["haptic", slot, ms])
+
+
+func send_turn(slot: int, state: int, who: String, kind := "") -> void:
+	calls.append(["turn", slot, state, who, kind])

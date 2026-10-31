@@ -249,7 +249,7 @@ func _publish_scores() -> void:
 		return
 	var text := "%d / %d" % [flock.penned_count(), flock.sheep.size()]
 	for s in dogs:
-		App.server.send_score(s, 0, 0, text)
+		game_host.send_score(s, 0, 0, text)
 
 
 # ---- Drawing ----
