@@ -308,15 +308,10 @@ func whee_at(fall_pos: Vector2, age: float) -> Vector2:
 	return p
 
 
-## The font size of the round banner (REQ-SB-15): BANNER_FONT, smaller when a long name would make the plate wider than the
-## screen inside the 60 px margin. The text is not changed.
-func banner_font(msg: String) -> int:
-	var font := UiTheme.font()
-	var room := size.x - 2.0 * 60.0 - 48.0
-	var fs := BANNER_FONT
-	while fs > WHEE_FONT and font.get_string_size(Lang.t(msg).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > room:
-		fs -= 2
-	return fs
+## The room for the text of the round banner (REQ-SB-15): the screen inside the 60 px margin, less the plate padding. A long name
+## makes the banner go on a second line at the same size (the plate grows), the text is never made smaller.
+func banner_room() -> float:
+	return size.x - 2.0 * 60.0 - 48.0
 
 
 ## Where the banner at the end of a round is drawn (the baseline, in the middle of its plate).
@@ -342,6 +337,6 @@ func _draw_hud() -> void:
 	if not is_over:
 		Shell.status(self, TIMER_X, TIMER_W + 80.0, Lang.f("sumo_bumpers.round_n_of", [round_no, ROUNDS]))
 	if phase == Phase.BANNER and not is_over:
-		Shell.label_plate(self, banner_at(), banner_text, banner_font(banner_text), UiTheme.ACCENT)
+		Shell.label_plate(self, banner_at(), banner_text, BANNER_FONT, UiTheme.ACCENT, banner_room())
 	if round_no == 1 and arena.time < HINT_TIME and phase != Phase.BANNER and not is_over:
 		Shell.hint(self, size, "sumo_bumpers.tilt_bump_others_off")
