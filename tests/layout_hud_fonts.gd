@@ -79,9 +79,9 @@ func _run() -> void:
 func _sumo(game: Control, code: String) -> void:
 	print("Sumo Bumpers in ", code)
 	var area: Vector2 = game.size
-	_check(game.WHEE_FONT >= 32 and game.ROUND_FONT >= 32 and game.BANNER_FONT >= 32,
-			"%s: the fonts of WHEE!, the round number and the banner are %d, %d and %d px (32 or more)"
-			% [code, game.WHEE_FONT, game.ROUND_FONT, game.BANNER_FONT])
+	_check(game.WHEE_FONT >= 32 and game.BANNER_FONT >= 32,
+			"%s: the fonts of WHEE! and the banner are %d and %d px (32 or more)"
+			% [code, game.WHEE_FONT, game.BANNER_FONT])
 	var banners := [Lang.f("sumo_bumpers.round_winner", [LONG_NAME]), Lang.t("sumo_bumpers.round_draw")]
 	var banners_ok := true
 	var widest := 0.0
@@ -92,7 +92,7 @@ func _sumo(game: Control, code: String) -> void:
 	_check(banners_ok, "%s: the banner plates (long name too) are inside the 60 px margin, the widest is %.0f px"
 			% [code, widest])
 	var round_text := Lang.f("sumo_bumpers.round_n_of", [3, game.ROUNDS]).to_upper()
-	var round_w := UiTheme.font().get_string_size(round_text, HORIZONTAL_ALIGNMENT_LEFT, -1, game.ROUND_FONT).x
+	var round_w := UiTheme.font().get_string_size(round_text, HORIZONTAL_ALIGNMENT_LEFT, -1, Shell.STATUS_FONT).x
 	_check(round_w <= 480.0, "%s: the round number is %.0f px wide, centered at x = %.0f of the bar" % [code, round_w,
 			game.TIMER_X + 120.0])
 	# "WHEE!" is over the bumper that fell, at the edge of the island: the plate must stay under the bar and inside the margin.
@@ -117,9 +117,9 @@ func _sumo(game: Control, code: String) -> void:
 func _asteroid(game: Control, code: String) -> void:
 	print("Star Shield in ", code)
 	var area: Vector2 = game.size
-	_check(game.WAVE_FONT >= 32 and game.BANNER_FONT >= 32 and game.SUB_FONT >= 32,
-			"%s: the fonts of the wave number, the banner and the second line are %d, %d and %d px (32 or more)"
-			% [code, game.WAVE_FONT, game.BANNER_FONT, game.SUB_FONT])
+	_check(game.BANNER_FONT >= 32 and game.SUB_FONT >= 32,
+			"%s: the fonts of the banner and the second line are %d and %d px (32 or more)"
+			% [code, game.BANNER_FONT, game.SUB_FONT])
 	var ok := true
 	var widest := 0.0
 	var texts := [Lang.f("asteroid_blast.wave_n", [88]), Lang.f("asteroid_blast.wave_clear", [88]),
@@ -133,7 +133,7 @@ func _asteroid(game: Control, code: String) -> void:
 	_check(ok and _inside(sub, area), "%s: the banners and 'Next wave in' are inside the 60 px margin, the widest is %.0f px"
 			% [code, widest])
 	var wave_w := UiTheme.font().get_string_size(Lang.f("asteroid_blast.wave_n", [88]).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1,
-			game.WAVE_FONT).x
+			Shell.STATUS_FONT).x
 	_check(wave_w <= game.TIMER_W + 80.0, "%s: 'Wave 88' in the bar is %.0f px wide in a box of %.0f px" % [code, wave_w,
 			game.TIMER_W + 80.0])
 	var line_ok: bool = game.BAR_LINE_Y + game.BAR_LINE_H <= game.BAR_H and game.AREA_MARGIN >= MARGIN
