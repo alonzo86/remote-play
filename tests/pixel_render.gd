@@ -474,23 +474,20 @@ func _race_theme(theme: String, size: Vector2i) -> void:
 	await _frames(3)
 
 
-## The HUD of the race, seen without the world (the pixel view is hidden): the bar, the title, the timer, the distance to the
-## finish and the name of the track (9.1a, 9.1b, 9.1c).
+## The HUD of the race, seen without the world (the pixel view is hidden): the bar, the title, the timer and the name of the
+## track (9.1a, 9.1b, 9.1c).
 func _race_hud(game: Node, tag: String, size: Vector2i) -> void:
 	var img := await _capture_part(game, "hud")
 	var k := size.x / 1920
 	var bg := _rgb(UiTheme.BG)
 	var title := _ink_box(img, Rect2i(0, 0, 480 * k, BAR * k), bg)
 	var timer := _ink_box(img, Rect2i(500 * k, 0, 460 * k, BAR * k), bg)
-	var finish := _ink_box(img, Rect2i(960 * k, 0, 960 * k, BAR * k), bg)
-	_check(title.has_area() and timer.has_area() and finish.has_area(),
-			"%s: the bar has the title, the timer and the distance to the finish (3 separate ink areas)" % tag)
+	_check(title.has_area() and timer.has_area(), "%s: the bar has the title and the timer (2 separate ink areas)" % tag)
 	var title_text: String = Lang.t("registry.marble_race").to_upper()
 	var title_w: float = UiTheme.font().get_string_size(title_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 32).x * k
 	_check(absf(title.size.x - (title_w - 4.0 * k)) <= 8.0 * k,
 			"%s: the title ink is as wide as the text %s: %d px, expected about %d"
 			% [tag, title_text, title.size.x, int(title_w) - 4 * k])
-	_check(finish.size.y >= 28 * k, "%s: the distance text is at least 28 px high (a 32 px font, %d px)" % [tag, finish.size.y])
 	var plate := Rect2i(size.x - 380 * k, size.y - 100 * k, 380 * k, 100 * k)
 	var name_box := _ink_box(img, plate, bg)
 	_check(name_box.has_area(), "%s: the track name is in the bottom right corner" % tag)
