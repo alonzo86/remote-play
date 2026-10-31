@@ -5,8 +5,8 @@ extends RefCounted
 ## is the one that knows the `App` autoload. REQ-GM-12: a game reaches the phones only through the server API, and this is
 ## that API for a game.
 ##
-## Step 1 of the plan in issue #300: `Minigame` uses it. The games and `Haptics` still call `App.server` themselves (about 45
-## places); they move here one message at a time, with no change of behavior.
+## Issue #300: `Minigame`, `Haptics` and the games use it; nothing under `scripts/game/` names `App` except this class and
+## the phone side of `Haptics` (`on_message`, the HAPTICS switch).
 
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 
@@ -28,6 +28,11 @@ func set_pad(recenter_button: bool, pad_buttons: String) -> void:
 
 func set_phase(phase: String, slots: Array[int]) -> void:
 	App.server.set_phase(phase, slots)
+
+
+## The turn state of a phone (0 waiting, 1 your turn, 2 the turn of `who`), for the games that play in turns.
+func send_turn(slot: int, state: int, who: String, kind := "") -> void:
+	App.server.send_turn(slot, state, who, kind)
 
 
 func send_score(slot: int, rank: int, of: int, text: String) -> void:

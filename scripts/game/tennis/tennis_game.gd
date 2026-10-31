@@ -268,7 +268,7 @@ func _publish_scores() -> void:
 		teams_left += 1 if not t.is_empty() else 0
 	var lead := _best_tally() > 0
 	for s in pl:
-		App.server.send_score(s, int(pl[s]) if lead else 0, teams_left if lead else 0, str(int(_board.score(s))))
+		game_host.send_score(s, int(pl[s]) if lead else 0, teams_left if lead else 0, str(int(_board.score(s))))
 
 
 func leader_text() -> String:

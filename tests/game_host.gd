@@ -80,6 +80,7 @@ func _run() -> void:
 	g2.queue_free()
 	await process_frame
 	await _haptics()
+	_no_app_in_games()
 
 
 ## Step 2 of the plan of issue #300: a buzz goes through the host, also the one of the `Haptics` helper of a game.
@@ -98,3 +99,24 @@ func _haptics() -> void:
 	_check(not game._haptics.pulse(0, 30, 100) and host.calls.size() == 1, "and the cool-down still holds back a second pulse")
 	game.queue_free()
 	await process_frame
+
+
+## REQ-GM-12 (issue #300): a game file does not name the `App` autoload. The host is the only class of `scripts/game/` that does;
+## `Haptics` keeps the phone side (the HAPTICS switch).
+func _no_app_in_games() -> void:
+	print("no game names App")
+	var offenders: Array[String] = []
+	var stack: Array[String] = ["res://scripts/game"]
+	while not stack.is_empty():
+		var dir: String = stack.pop_back()
+		for sub in DirAccess.get_directories_at(dir):
+			stack.append(dir + "/" + sub)
+		for f in DirAccess.get_files_at(dir):
+			if not f.ends_with(".gd") or f in ["game_host.gd", "haptics.gd"]:
+				continue
+			var code := FileAccess.get_file_as_string(dir + "/" + f)
+			for line in code.split("\n"):
+				var body := line.split("#")[0]
+				if body.contains("App.") or body.contains("App)"):
+					offenders.append("%s/%s: %s" % [dir, f, line.strip_edges()])
+	_check(offenders.is_empty(), "no file under scripts/game (but the host and Haptics) names App: %s" % str(offenders))

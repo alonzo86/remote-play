@@ -96,7 +96,7 @@ func _start_match() -> void:
 		bot = HockeyBot.new(difficulty, 1, int(Time.get_ticks_usec()))
 		seats.append({"slot": -1, "name": Lang.t("air_hockey.bot_name"), "color": Look.BOT_COLOR, "avatar": -1})
 	_board = Scoreboard.new(participants)
-	App.server.set_phase("playing", participants)   # The other phones watch: their pad says "waiting".
+	game_host.set_phase("playing", participants)   # The other phones watch: their pad says "waiting".
 	for s in participants:
 		player(s).recenter()   # The pose held when the match starts is the center.
 	scores = [0, 0]

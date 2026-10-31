@@ -228,7 +228,7 @@ func _check_end() -> void:
 
 func _open_results() -> void:
 	if participants.is_empty():   # Everyone left after the finish: nobody is left to read a list.
-		open_menu("minigame.no_players_connected", [["minigame.back_to_menu", App.go_menu]])
+		open_menu("minigame.no_players_connected", [["minigame.back_to_menu", game_host.go_menu]])
 		return
 	# Finished cars have their time. The others are ranked by how far they got.
 	open_results(_scoreboard(), "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
