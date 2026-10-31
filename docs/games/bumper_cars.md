@@ -34,7 +34,7 @@ Round
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-BC-1 | A round has a countdown of 3 s and then 60 s of play (`RoundClock`). Cars do not move during the countdown. The visible clock shows the seconds left, in the same place as in the other games (REQ-GM-47o). At 0 the round ends and the result menu opens (REQ-BC-12). | Done | smoke_bumper_cars |
-| REQ-BC-2 | At GO every phone recenters, so the pose held in the countdown is the center. The Recenter button of the phone recenters (REQ-GM-37). | Done | smoke_bumper_cars |
+| REQ-BC-2 | At GO every phone recenters, so the pose held in the countdown is the center. The pad has no Recenter box and no A or B (REQ-GM-37, 37a, `pad: []`). | Done | smoke_bumper_cars |
 | REQ-BC-3 | The cars start on a circle around the middle of the rink, spread evenly (REQ-GM-25), the first at the top, all at the same distance from the middle. | Done | bumper_rules |
 
 Driving and bumping
