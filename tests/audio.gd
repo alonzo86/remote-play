@@ -58,6 +58,7 @@ func _run() -> void:
 	_synth()
 	_songs()
 	_effects()
+	_tower_builder_sounds()
 	_code_uses_known_effects()
 	var sound: Node = root.get_node("Sound")
 	var app: Node = root.get_node("App")
@@ -135,6 +136,39 @@ func _effects() -> void:
 				"REQ-GM-49b: effect %s is %.2f s (limit %.1f)" % [id, length, limit])
 	for id in Songs.PROTECTED:
 		_check(fx.has(id), "the protected effect %s exists" % id)
+
+
+## REQ-TB-20: the song `tower_builder` is in D major at 116 bpm (every note of the lead and the chords is a note of the D
+## major scale), with light drums, and the five tower effects exist and are short.
+func _tower_builder_sounds() -> void:
+	print("Tower Builder sounds")
+	var song: Dictionary = Songs.SONGS.get("tower_builder", {})
+	_check(not song.is_empty() and int(song.bpm) == 116 and String(song.drums) == "light",
+			"REQ-TB-20: the song tower_builder is 116 bpm with light drums")
+	var d_major := ["D", "E", "F#", "G", "A", "B", "C#"]
+	var outside: Array[String] = []
+	var notes: Array[String] = []
+	for phrase in [String(song.get("a", "")), String(song.get("b", ""))]:
+		for tok in phrase.split(" ", false):
+			notes.append(tok.get_slice(":", 0))
+	for chord in song.get("prog", []):
+		notes.append_array(chord)
+	for n in notes:
+		if n == "-":
+			continue
+		var name := RegEx.create_from_string("^[A-G][#b]?").search(n).get_string()
+		if not d_major.has(name) and not outside.has(name):
+			outside.append(name)
+	_check(notes.size() >= 40 and outside.is_empty(), "REQ-TB-20: all %d notes of the song are in D major (outside: %s)"
+			% [notes.size(), str(outside)])
+	_check(String(song.get("a", "")).begins_with("F#5") and Array(song.get("prog", [[]])[0]) == ["D3", "F#3", "A3"],
+			"REQ-TB-20: the song starts on the D chord")
+	var fx := Songs.effects()
+	for id in ["tower_drop", "tower_land", "tower_miss", "tower_wobble", "tower_crash"]:
+		_check(fx.has(id) and Songs.effect_length(fx[id]) > 0.0 and Songs.effect_length(fx[id]) <= Songs.MAX_EFFECT,
+				"REQ-TB-20: the effect %s exists and is %.2f s" % [id, Songs.effect_length(fx[id]) if fx.has(id) else 0.0])
+	var tower_fx: Array = fx.keys().filter(func(k: String) -> bool: return k.begins_with("tower_"))
+	_check(tower_fx.size() == 5, "REQ-TB-20: and there are five tower effects, no more (%s)" % str(tower_fx))
 
 
 ## Every id that the code plays exists (a typo would play nothing), and every effect is played somewhere.

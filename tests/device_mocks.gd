@@ -106,7 +106,7 @@ func _run() -> void:
 		if id in COUNTDOWN_GAMES:
 			_check(before == 0, "%s: no buzz during 3, 2, 1" % id)
 			_check(_buzzes[0].count(60) >= 1 and _buzzes[1].count(60) >= 1,
-					"%s: every phone gets a 60 ms buzz at GO: %s %s" % [id, str(_buzzes[0]), str(_buzzes[1])])
+					"%s: every phone gets a 60 ms buzz at GO (REQ-MR-3 for Car Race): %s %s" % [id, str(_buzzes[0]), str(_buzzes[1])])
 		elif id in TURN_GAMES:
 			_check(_buzzes[0].count(60) >= 1 and _buzzes[1].is_empty(),
 					"%s: no countdown (no timer); only the phone on turn gets the 60 ms turn buzz: %s %s"

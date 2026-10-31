@@ -79,6 +79,18 @@ func _overlay() -> void:
 	var text: String = canvas._swing_text(p)
 	_check(text.begins_with("P1") and text.contains("swing 1:") and text.contains("DOWN") and not text.contains("not down")
 			and text.contains("ms ago"), "a serve gives 'swing 1' with DOWN and the age of the hit: %s" % text)
+	# REQ-BW-8: the line holds the number, the power, DOWN, the side, the direction in the world, the age of the hit and the time
+	# since the swing; it holds no detector state, aim or peaks.
+	var fields := RegEx.create_from_string("^P1 +swing 1: power (\\d\\.\\d\\d) +DOWN +side (-?\\d\\.\\d\\d) "
+			+ "\\(x -?\\d\\.\\d\\d, to TV -?\\d\\.\\d\\d, up -?\\d\\.\\d\\d\\) +hit \\d+ ms ago +-?\\d+\\.\\d s ago$")
+	var m := fields.search(text)
+	_check(m != null and float(m.get_string(1)) == snappedf(float(p.last_swing.power), 0.01)
+			and float(m.get_string(2)) == snappedf(float(p.last_swing.side), 0.01),
+			"REQ-BW-8: the line has the number, power, DOWN, side, direction, hit age and swing age of the last swing: %s" % text)
+	_check(not text.to_lower().contains("aim") and not text.to_lower().contains("peak") and not text.to_lower().contains("state"),
+			"REQ-BW-8: and no detector state, aim or peaks")
+	var other := PlayerInput.new(1, {})
+	_check(String(canvas._swing_text(other)).begins_with("P2"), "REQ-BW-8: every player has a line of its own (P2)")
 	var g := R.grip(R.UP_UPRIGHT)
 	f.feed(R.still(1.0))
 	f.feed(R.stroke(g.dir(0.0), 10.0, 25.0))

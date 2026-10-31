@@ -269,14 +269,15 @@ func _turn_order() -> void:
 		_check(seen == want, "8a: %d phones, two frames of strikes: the plate names %s" % [n, str(seen)])
 	# How long the plate stays: bowling.md "Turn flow" 1: the plate shows for 1.5 s.
 	var game := await _new_game(2)
-	SimInput.run(game, 1.0)
+	SimInput.run(game, 1.4)
 	await _draw_once(game)
 	var early := _plate_text()
-	SimInput.run(game, 1.0)   # 2.0 s into the turn.
+	SimInput.run(game, 0.2)   # 1.6 s into the turn.
 	await _draw_once(game)
 	var later := _plate_text()
-	_check(early == Lang.f("bowling.turn", ["Sim0"]), "8a: the plate shows the name of the first player 1.0 s into the turn")
-	_check(later == "", "8a: 2.0 s into the turn (1.5 s plate) the plate is gone ('%s')" % later)
+	_check(early == Lang.f("bowling.turn", ["Sim0"]),
+			"REQ-BW-21: the plate shows the name of the first player 1.4 s into the turn")
+	_check(later == "", "REQ-BW-21: 1.6 s into the turn (the plate shows 1.5 s) the plate is gone ('%s')" % later)
 
 
 ## Issue #143: the pad has no A button, and a press on A does nothing: the banner of a ball lasts its time (REQ-BW-11).
