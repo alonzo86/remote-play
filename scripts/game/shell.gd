@@ -125,19 +125,37 @@ static func text_centered(ci: CanvasItem, pos: Vector2, msg: String, font_size :
 
 
 ## A line of text on a black plate with a frame, centered on `at` (`at.y` is the baseline), so the world behind it never hides it.
-## The plate is as wide as the text in the current language.
-static func label_plate(ci: CanvasItem, at: Vector2, msg: String, font_size: int, color: Color) -> void:
-	var rect := label_plate_rect(at, msg, font_size)
+## The plate is as wide as the text in the current language. When `max_w` is given and the text is wider, the text goes on more
+## lines at the same size and the plate grows in height (never smaller text, nothing cut, REQ-FL-40); the block of lines is
+## centered on the baseline `at.y` of a single line.
+static func label_plate(ci: CanvasItem, at: Vector2, msg: String, font_size: int, color: Color, max_w := -1.0) -> void:
+	var rect := label_plate_rect(at, msg, font_size, max_w)
 	_note("plate", ci, rect, {"msg": msg, "color": color})
 	ci.draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BG, CHIP_LINE), rect)
-	text_centered(ci, at, msg, font_size, color)
+	var lines := _plate_lines(msg, font_size, max_w)
+	var step := UiTheme.font().get_height(font_size)
+	for i in lines.size():
+		text_centered(ci, at + Vector2(0.0, (float(i) - float(lines.size() - 1) * 0.5) * step), lines[i], font_size, color)
 
 
 ## The black plate of `label_plate()`: 24 px wider than the text on each side, centered on `at.x`.
-static func label_plate_rect(at: Vector2, msg: String, font_size: int) -> Rect2:
+static func label_plate_rect(at: Vector2, msg: String, font_size: int, max_w := -1.0) -> Rect2:
 	var f := UiTheme.font()
-	var w := f.get_string_size(Lang.t(msg).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-	return Rect2(at.x - w * 0.5 - 24.0, at.y - f.get_ascent(font_size) - 20.0, w + 48.0, f.get_height(font_size) + 40.0)
+	var lines := _plate_lines(msg, font_size, max_w)
+	var w := 0.0
+	for l in lines:
+		w = maxf(w, f.get_string_size(l, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
+	var step := f.get_height(font_size)
+	var extra := float(lines.size() - 1) * step * 0.5
+	return Rect2(at.x - w * 0.5 - 24.0, at.y - f.get_ascent(font_size) - 20.0 - extra, w + 48.0, step * lines.size() + 40.0)
+
+
+## The upper case lines of a plate: one line, or more when `max_w` (the room for the text) is given and the text is wider.
+static func _plate_lines(msg: String, font_size: int, max_w: float) -> Array[String]:
+	var upper := Lang.t(msg).to_upper()
+	if max_w <= 0.0:
+		return [upper]
+	return UiTheme.wrap_lines(UiTheme.font(), upper, max_w, font_size)
 
 
 ## A name or score chip (REQ-GM-46): a black box with a 4 px frame, a square in the player color, the avatar of the player when

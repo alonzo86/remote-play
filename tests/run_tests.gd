@@ -585,9 +585,9 @@ func _test_pad(app: Node, server: Node) -> void:
 	_check(pad.score_line(2, 4, "12") == "2ND  12" and pad.score_line(1, 3, "") == "1ST"
 			and pad.score_line(1, 1, "7") == "7" and pad.score_line(0, 0, "") == "" and pad.score_line(0, 0, "0") == "0",
 			"the line shows the place only with 2 or more players, and the score only when there is one")
-	_check(pad.line_font_size("1ST  12", 960.0) == 64 and pad.line_font_size("4TH  1234567890", 600.0) < 64
-			and pad.line_font_size("4TH  12345678901234567890", 300.0) == 32,
-			"a long score makes the line smaller; at least 32 px")
+	_check(pad.score_lines("1ST  12", 960.0) == ["1ST  12"] and pad.LINE_SIZE == 64
+			and pad.score_lines("4TH  123456789012", 960.0) == ["4TH", "123456789012"],
+			"a long score goes on a second line at 64 px, it is not made smaller")
 	sampler.set_process(true)
 
 
