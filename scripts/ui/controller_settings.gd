@@ -42,7 +42,7 @@ func _ready() -> void:
 
 
 func _refresh() -> void:
-	_haptics.text = "HAPTICS: " + ("ON" if bool(App.settings.haptics) else "OFF")
+	_haptics.text = Lang.f("settings.haptics", [Lang.t("common.on" if bool(App.settings.haptics) else "common.off")])
 	# The language name is in its own language. All caps (REQ-FL-39); Hebrew has no case.
 	_language.text = (Lang.t("settings.language") + ": " + String(Lang.NAMES[Lang.current()])).to_upper()
 

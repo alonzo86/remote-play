@@ -375,6 +375,16 @@ func _phone_haptics(app: Node) -> void:
 	_check(screen._haptics.text == "HAPTICS: ON", "the switch shows ON")
 	screen._haptics.pressed.emit()
 	_check(app.settings.haptics == false and screen._haptics.text == "HAPTICS: OFF", "OK turns haptics off")
+	# Issue #290: the label is a string row, so a phone in Hebrew shows it in Hebrew (the same switch, the state word of the row).
+	app.set_language("he", false)
+	screen._refresh()
+	_check(screen._haptics.text == "רטט: כבוי", "a phone in Hebrew shows the switch in Hebrew: %s" % screen._haptics.text)
+	app.settings.haptics = true
+	screen._refresh()
+	_check(screen._haptics.text == "רטט: פועל", "and the state ON in Hebrew: %s" % screen._haptics.text)
+	app.settings.haptics = false
+	app.set_language("en", false)
+	screen._refresh()
 	var cfg := ConfigFile.new()
 	cfg.load(app.SETTINGS_FILE)
 	_check(cfg.get_value("settings", "haptics", true) == false, "the choice is saved")
