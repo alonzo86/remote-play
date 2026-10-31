@@ -124,10 +124,17 @@ jobs:
           command: |
             xvfb-run -a -s "-screen 0 3840x2160x24" godot --path . --rendering-driver opengl3 --resolution 3840x2160 \
               --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-4k.log || echo "$?" >> /tmp/failed
+      - run:
+          name: Pixels of the games at 1920x1080
+          command: |
+            xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 \
+              --script tests/pixel_games.gd -- --role=tv 2>&1 | tee pixels-games.log || echo "$?" >> /tmp/failed
       - store_artifacts:
           path: pixels-1080.log
       - store_artifacts:
           path: pixels-4k.log
+      - store_artifacts:
+          path: pixels-games.log
       - run:
           name: Result of the pixel checks
           command: '[ ! -f /tmp/failed ] || { echo "pixel checks failed"; exit 1; }'

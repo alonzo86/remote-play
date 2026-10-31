@@ -170,7 +170,7 @@ jobs:
 
   pixels:
     # The render lane: pixel checks on real frames, drawn by the software GL driver (llvmpipe) under xvfb. It is not part of
-    # tests/suites.txt, it has no coverage, and no other job needs it. It runs tests/pixel_render.gd at 1920x1080 and at 3840x2160.
+    # tests/suites.txt, it has no coverage, and no other job needs it. It runs tests/pixel_render.gd at 1920x1080 and at 3840x2160, and tests/pixel_games.gd at 1920x1080.
     needs: changes
     if: needs.changes.outputs.code == 'true' && needs.changes.outputs.pixels == 'true'
     runs-on: ubuntu-latest
@@ -193,6 +193,11 @@ jobs:
         run: |
           xvfb-run -a -s "-screen 0 3840x2160x24" godot --path . --rendering-driver opengl3 --resolution 3840x2160 \
             --script tests/pixel_render.gd -- --role=tv 2>&1 | tee pixels-4k.log
+          test "${PIPESTATUS[0]}" -eq 0
+      - name: Pixels of the games at 1920x1080
+        run: |
+          xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 \
+            --script tests/pixel_games.gd -- --role=tv 2>&1 | tee pixels-games.log
           test "${PIPESTATUS[0]}" -eq 0
       - uses: actions/upload-artifact@v4
         if: always()
