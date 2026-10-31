@@ -15,21 +15,11 @@ REQ-GM-2 | review | the gaps and exceptions of a game file are read by the produ
 REQ-GM-25 | review | a fair start state for every player is a rule of the design of each game; the reviewer checks it per game
 REQ-GM-42 | review | which files a game may use depends on docs/TV_FLOW.md (FD-9, FD-13) and docs/THIRD_PARTY.md: the license-reviewer judges it
 REQ-GM-5 | review | a behavior change must change the requirements file in the same commit: the code-reviewer checks every pull request
+REQ-GM-60 | review | each game has its own smoke_<name>.gd suite in tests/suites.txt (the names are not the game ids, so no test can derive them); the code-reviewer and the add-minigame skill check it for a new game
+REQ-GM-61 | review | pure logic has unit tests in the *_rules.gd suites; which logic is "pure" is judged per game by the code-reviewer
 REQ-GM-7a | review | the starting point for a new requirements file is a rule of work for the add-minigame skill
 REQ-GM-81 | review | friendly content (no violence, nothing alive shot) is a judgment of the reviewer on pictures and sounds
 REQ-GM-84 | review | kind words in titles and messages is a judgment of the localization-reviewer (strings.csv has no list of banned words)
 #
 # obsolete
-REQ-GM-47k | obsolete | the limit of 8 colors is not what the games do: the games have 11 to 72 different color literals each (only bowling.md and tennis.md list extra colors); the colors on screen can be counted in the render lane, but the limit per game is for the owner to decide
-REQ-BC-8 | obsolete | the row says Removed on 2026-10-29 (a hit drops no star, REQ-BC-7): smoke_bumper_cars checks that a hit takes no star
-REQ-FL-47 | obsolete | the plan for the next pull request that restyled the marble race; it is done (tier 2 and the arcade style replaced it)
-REQ-FL-48 | obsolete | the game shell is built in the same pull request as the menus: history of a finished pull request
-REQ-FL-49 | obsolete | the other games get the shell in the same pull request: history of a finished pull request
-REQ-GM-47 | obsolete | the tier 2 rule of toy-like worlds; its parts 47a to 47h are superseded by REQ-GM-47j to 47n (the pixel worlds)
-REQ-GM-47c | obsolete | outline width in 3D: no game is drawn in 3D since minigame_3d.gd was removed (issue #300)
-REQ-GM-47f | obsolete | the text says it is superseded by REQ-GM-47l and REQ-FL-38 (no round corners in the arcade style)
-REQ-GM-47g | obsolete | the text says it is superseded by REQ-GM-47l (no registered game is drawn in 3D)
-REQ-GM-47h | obsolete | materials and light in 3D: no game is drawn in 3D
-REQ-GM-60 | obsolete | says each game has a check in tests/smoke_tv.gd; in fact each game has its own smoke_<game>.gd suite: reword the rule
-REQ-GM-61 | obsolete | says pure logic has unit tests in tests/run_tests.gd; in fact they are in the *_rules.gd suites: reword the rule
-REQ-TN-21 | obsolete | the row says Removed on 2026-10-18 (the aim line on the TV is not built)
+
