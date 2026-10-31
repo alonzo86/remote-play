@@ -1,0 +1,56 @@
+extends RefCounted
+## What a minigame asks from the TV app (issue #300): the players, the phase and the pad of the phones, the score and the
+## result messages, and the way out of the game. The base class `Minigame` holds one (`game_host`) and uses only this class, so
+## a game can run without the whole app when a test gives it a stub that extends this class and records the calls. This class
+## is the one that knows the `App` autoload. REQ-GM-12: a game reaches the phones only through the server API, and this is
+## that API for a game.
+##
+## Step 1 of the plan in issue #300: `Minigame` uses it. The games and `Haptics` still call `App.server` themselves (about 45
+## places); they move here one message at a time, with no change of behavior.
+
+const PlayerInput = preload("res://scripts/input/player_input.gd")
+
+
+## The slots that play this round (the phones that chose OUT in the settings view are not in it, REQ-GM-104).
+func players_in() -> Array[int]:
+	return App.server.players_in()
+
+
+func player(slot: int) -> PlayerInput:
+	return App.server.players[slot]
+
+
+## The buttons of the pad of the phones for this game (REQ-GM-37, 37a): the Recenter button and the letters of A and B.
+func set_pad(recenter_button: bool, pad_buttons: String) -> void:
+	App.server.recenter_button = recenter_button
+	App.server.pad_buttons = pad_buttons
+
+
+func set_phase(phase: String, slots: Array[int]) -> void:
+	App.server.set_phase(phase, slots)
+
+
+func send_score(slot: int, rank: int, of: int, text: String) -> void:
+	App.server.send_score(slot, rank, of, text)
+
+
+func send_result(slot: int, key: String, value: int) -> void:
+	App.server.send_result(slot, key, value)
+
+
+func drop_player(slot: int) -> void:
+	App.server.drop_player(slot)
+
+
+# ---- The way out of the game ----
+
+func go_menu() -> void:
+	App.go_menu()
+
+
+func go(script: GDScript, props := {}) -> void:
+	App.go(script, props)
+
+
+func go_game_settings(id: String) -> void:
+	App.go_game_settings(id)

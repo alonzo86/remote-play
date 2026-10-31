@@ -455,6 +455,7 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | `pixel_art` | the sprite outline that the look files share (`PixelArt.outlined`, issue #294): a one pixel line around the colored pixels, none at the corners, not wider than one pixel, the source not changed |
 | `shell_timed_hud` | `Shell.timed_hud` (issue #293): the timer box only while the round runs, the countdown only with players, the hint in the first seconds, nothing when the game is over |
 | `net_cleanup` | `ClosingSockets` (the close frame after 300 ms, the drop after 1500 ms, a closed socket leaves) and `TvServer.start` called twice (issue #310) |
+| `game_host` | `GameHost` (issue #300, step 1): a `Minigame` runs with a stub host and no TV server: participants, pad and phase, pause and "Resume without", Try again and Back go through the host |
 | `net_loss` | a silent phone: when it is lost, when its slot is freed (grace times, paused game) |
 | `about_pages` | the About pages and the About screen of the phone (it was `net_pin`; the join PIN part is gone) |
 | `room_code` | the room code: every one of the 65536 values round-trips, no two addresses share a code, a typo above 65535 is rejected, lower case and spaces, the addresses that the phone builds, the TV link without a PIN, `VERSION` 4 |
