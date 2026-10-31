@@ -354,11 +354,11 @@ func _run() -> void:
 	settings._rows[4].pressed.emit()
 	await _frames(10)
 	_check(Lang.current() == "he" and app.settings.language == "he" and app.server.language == "he",
-			"the Language row switches the TV UI at once and the TV tells the phones")
+			"the Language row switches the TV UI at once and the TV tells the phones (REQ-FL-61)")
 	_check(_texts(settings).has("שפה") and _texts(settings).has("עברית"), "the Settings screen is in Hebrew at once")
 	settings._rows[4].pressed.emit()
 	await _frames(10)
-	_check(Lang.current() == "en", "the row switches back to English")
+	_check(Lang.current() == "en", "REQ-FL-61: OK on the last language goes round to the first: the row switches back to English")
 	_check(_texts(settings).has("ENGLISH"), "in English the Language row says ENGLISH")
 	# A second phone that joins while the TV is in Hebrew gets the message, and its client does not switch anything (REQ-FL-62).
 	var c2 := ControllerClient.new()

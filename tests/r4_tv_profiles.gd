@@ -198,7 +198,7 @@ func _play(id: String) -> void:
 ## language), and the chip holds the whole name (and the score).
 func _chip_checks(state: String, rect: Rect2, player_name: String, avatar: int, score := "") -> void:
 	var parts := Shell.chip_parts(avatar)
-	_check(avatar >= 0 and parts.avatar_x >= 0.0, "%s: the chip has the avatar of the player (%d)" % [state, avatar])
+	_check(avatar >= 0 and parts.avatar_x >= 0.0, "%s: the chip has the avatar of the player, REQ-FL-70 (%d)" % [state, avatar])
 	_check(parts.square_x < parts.avatar_x and parts.square_x + Shell.CHIP_SQUARE <= parts.avatar_x
 			and parts.avatar_x + Shell.CHIP_AVATAR <= parts.name_x,
 			"%s: color square (x %.0f), then avatar (x %.0f), then the name (x %.0f), left to right" % [state, parts.square_x,

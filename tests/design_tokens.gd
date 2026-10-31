@@ -37,6 +37,8 @@ func _initialize() -> void:
 	_info_text()
 	_game_names()
 	_typed_sizes()
+	_no_avatar_on_objects()
+	_confetti_in_code()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -401,7 +403,7 @@ func _app_identity() -> void:
 	var patch := FileAccess.get_file_as_string("res://tools/patch_android_manifest.sh")
 	_check(patch.contains("assets/icons/banner.png") and patch.contains('android:banner="@drawable/banner"')
 			and patch.contains("LEANBACK_LAUNCHER") and patch.contains("android.software.leanback"),
-			"the manifest patch gives the TV build a banner and the leanback launcher")
+			"the manifest patch gives the TV build a banner and the leanback launcher (REQ-FL-30)")
 	_check(ProjectSettings.get_setting("display/window/handheld/orientation.controller", -1) == 1,
 			"the phone app starts in portrait (orientation.controller = 1)")
 	_check(ios.get("application/bundle_identifier", "") != "" and ios.get("application/targeted_device_family", "") == "0",
@@ -415,6 +417,11 @@ func _app_identity() -> void:
 	var boot := FileAccess.get_file_as_string("res://scenes/boot.tscn") + FileAccess.get_file_as_string("res://scripts/app.gd")
 	var app_src := FileAccess.get_file_as_string("res://scripts/app.gd")
 	var ctrl := app_src.substr(app_src.find("func _start_controller"))
+	var from := app_src.find("func _start_tv")
+	var tv_start := app_src.substr(from, app_src.find("func toggle_overlay") - from)
+	_check(main_scene == "res://scenes/boot.tscn" and tv_start.strip_edges().ends_with("go_logo()")
+			and app_src.contains("func go_logo() -> void:\n\tgo(TvLogo)"),
+			"REQ-FL-30: the one start scene boots the app and the TV app opens on the logo screen")
 	_check(not ctrl.contains("go(TvLogo)") and ctrl.contains("go(ControllerConnect)")
 			and ctrl.contains("screen_set_orientation(DisplayServer.SCREEN_PORTRAIT)"),
 			"the phone app starts straight on Connect, with no logo screen, and sets portrait in code too")
@@ -617,3 +624,49 @@ func _typed_sizes() -> void:
 								bad.append("%s/%s:%d size %s" % [d, f, i + 1, m.get_string(g)])
 	_check(seen >= 8, "the scan found the typed sizes (%d)" % seen)
 	_check(bad.is_empty(), "every typed font size is a multiple of 8 (off the grid: %s)" % str(bad))
+
+
+## REQ-FL-70: the player objects of a game have neither a number nor an avatar. The avatar is drawn by the HUD chip (shell.gd) and
+## by the result rows (minigame.gd) only: no other script of a game uses the avatar sheet.
+func _no_avatar_on_objects() -> void:
+	print("no avatar on a game object")
+	var users: Array[String] = []
+	for f in _gd_files("res://scripts/game"):
+		var src := FileAccess.get_file_as_string(f)
+		if (src.contains("avatar.gd") or src.contains("avatar_view.gd") or src.contains("Avatar.draw")) \
+				and not f.ends_with("/shell.gd") and not f.ends_with("/minigame.gd"):
+			users.append(f)
+	_check(users.is_empty(), "REQ-FL-70: only the HUD chip and the result rows use an avatar (others: %s)" % str(users))
+
+
+## REQ-FL-45: the background is plain black and the confetti of the logo is drawn in code: the particles carry a texture that is
+## made at run time (no resource path), and there is no image file for them in assets/.
+func _confetti_in_code() -> void:
+	print("confetti in code")
+	var Confetti = load("res://scripts/ui/confetti.gd")
+	var c: CPUParticles2D = Confetti.new()
+	c._ready()
+	var tex: Texture2D = c.texture
+	_check(tex != null and tex.resource_path == "" and tex.get_size() == Vector2(Confetti.PIXEL, Confetti.PIXEL),
+			"REQ-FL-45: the confetti piece is a square made in code (no file)")
+	_check(c.color_initial_ramp != null and c.color_initial_ramp.colors == PackedColorArray(UiTheme.CONFETTI),
+			"REQ-FL-45: and the pieces take the colors of the palette")
+	c.free()
+	var pictures: Array[String] = []
+	for f in _files("res://assets"):
+		if f.get_file().to_lower().contains("confetti"):
+			pictures.append(f)
+	_check(pictures.is_empty(), "REQ-FL-45: no image of confetti in assets/ (%s)" % str(pictures))
+	var back := load("res://scripts/ui/backdrop.gd")
+	_check(back.get_script_constant_map().has("UiTheme") and UiTheme.BG == Color.BLACK
+			and not FileAccess.get_file_as_string("res://scripts/ui/backdrop.gd").contains("texture"),
+			"REQ-FL-45: the backdrop is drawn in code in plain black, with no texture")
+
+
+func _files(dir: String) -> Array[String]:
+	var out: Array[String] = []
+	for f in DirAccess.get_files_at(dir):
+		out.append(dir + "/" + f)
+	for d in DirAccess.get_directories_at(dir):
+		out.append_array(_files(dir + "/" + d))
+	return out
