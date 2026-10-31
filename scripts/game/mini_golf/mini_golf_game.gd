@@ -491,6 +491,6 @@ func _draw_hole_card() -> void:
 		var p := player(r.slot)
 		var chip_at := Vector2(Shell.mx(self, rect.position.x + 40.0, 480.0), y)
 		Shell.chip(self, chip_at, p.player_name, p.color, 480.0, row_h - 12.0, p.avatar)
-		draw_string(f, Vector2(x_strokes, y + 40.0), str(r.strokes), HORIZONTAL_ALIGNMENT_LEFT, 180.0, 36, UiTheme.TEXT)
-		draw_string(f, Vector2(x_total, y + 40.0), str(rules.total(r.slot)), HORIZONTAL_ALIGNMENT_LEFT, 180.0, 36, UiTheme.ACCENT)
+		draw_string(f, Vector2(x_strokes, y + 52.0), str(r.strokes), HORIZONTAL_ALIGNMENT_LEFT, 180.0, 40, UiTheme.TEXT)
+		draw_string(f, Vector2(x_total, y + 52.0), str(rules.total(r.slot)), HORIZONTAL_ALIGNMENT_LEFT, 180.0, 40, UiTheme.ACCENT)
 		y += row_h
