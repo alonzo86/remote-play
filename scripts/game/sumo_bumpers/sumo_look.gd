@@ -4,6 +4,7 @@ extends RefCounted
 ## Everything is drawn in screen units on the pixel layer (one world pixel is `Shell.WORLD_PIXEL` units).
 
 const Shell = preload("res://scripts/game/shell.gd")
+const PixelArt = preload("res://scripts/game/pixel_art.gd")
 
 const PX := Shell.WORLD_PIXEL   # One world pixel in screen units.
 const CELL := 24.0            # A square of the grass chess pattern: 6 world pixels.
@@ -131,21 +132,4 @@ static func penguin_image(color: Color, step: int) -> Image:
 				var px := 0 if (step < 0 or (step == 0 and eye_no == 0)) else SCALE - 1
 				src.set_pixel(x * SCALE + px, y * SCALE + SCALE - 1, OUTLINE)
 				eye_no += 1
-	return _outlined(src)
-
-
-static func _outlined(src: Image) -> Image:
-	var w := src.get_width()
-	var h := src.get_height()
-	var out := Image.create(w + 2, h + 2, false, Image.FORMAT_RGBA8)
-	out.blit_rect(src, Rect2i(0, 0, w, h), Vector2i(1, 1))
-	var painted := out.duplicate() as Image
-	for y in h + 2:
-		for x in w + 2:
-			if painted.get_pixel(x, y).a > 0.0:
-				continue
-			for n in [Vector2i(x - 1, y), Vector2i(x + 1, y), Vector2i(x, y - 1), Vector2i(x, y + 1)]:
-				if n.x >= 0 and n.y >= 0 and n.x < w + 2 and n.y < h + 2 and painted.get_pixelv(n).a > 0.0:
-					out.set_pixel(x, y, OUTLINE)
-					break
-	return out
+	return PixelArt.outlined(src, OUTLINE)

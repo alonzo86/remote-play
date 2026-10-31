@@ -5,6 +5,7 @@ extends RefCounted
 
 const Shell = preload("res://scripts/game/shell.gd")
 const Palette = preload("res://scripts/game/palette.gd")
+const PixelArt = preload("res://scripts/game/pixel_art.gd")
 
 const OUTLINE := Color("101018")
 const SKY_TOP := Color("58b4f0")
@@ -154,20 +155,4 @@ static func mole_image(golden: bool, happy: bool) -> Image:
 			_rect(img, 9 + i * 6, 3, 3, 1, GOLD_DARK)
 		_rect(img, 9, 4, 15, 3, CROWN)
 		_rect(img, 9, 6, 15, 1, GOLD_DARK)
-	return _outlined(img)
-
-
-## The picture with a black outline of one pixel around its colored pixels.
-static func _outlined(img: Image) -> Image:
-	var out := Image.create(img.get_width() + 2, img.get_height() + 2, false, Image.FORMAT_RGBA8)
-	for y in img.get_height():
-		for x in img.get_width():
-			if img.get_pixel(x, y).a > 0.0:
-				for d in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
-					out.set_pixel(x + 1 + d.x, y + 1 + d.y, OUTLINE)
-	for y in img.get_height():
-		for x in img.get_width():
-			var c := img.get_pixel(x, y)
-			if c.a > 0.0:
-				out.set_pixel(x + 1, y + 1, c)
-	return out
+	return PixelArt.outlined(img, OUTLINE)

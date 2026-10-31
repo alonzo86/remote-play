@@ -7,6 +7,7 @@ extends RefCounted
 const PaintPicture = preload("res://scripts/game/paint_grab/paint_picture.gd")
 const PaintPots = preload("res://scripts/game/paint_grab/paint_pots.gd")
 const Palette = preload("res://scripts/game/palette.gd")
+const PixelArt = preload("res://scripts/game/pixel_art.gd")
 
 const OUTLINE := Color("101018")
 const GOLD := Color("ffcd28")
@@ -56,21 +57,4 @@ static func pot_image(kind: String) -> Image:
 		img.fill_rect(Rect2i(0, 2, 9, 2), GOLD_LIGHT)
 		img.set_pixel(1, 0, GOLD_LIGHT)
 		img.set_pixel(7, 0, GOLD_LIGHT)
-	return _outlined(img)
-
-
-static func _outlined(src: Image) -> Image:
-	var w := src.get_width()
-	var h := src.get_height()
-	var out := Image.create(w + 2, h + 2, false, Image.FORMAT_RGBA8)
-	out.blit_rect(src, Rect2i(0, 0, w, h), Vector2i(1, 1))
-	var painted_px := out.duplicate() as Image
-	for y in h + 2:
-		for x in w + 2:
-			if painted_px.get_pixel(x, y).a > 0.0:
-				continue
-			for n in [Vector2i(x - 1, y), Vector2i(x + 1, y), Vector2i(x, y - 1), Vector2i(x, y + 1)]:
-				if n.x >= 0 and n.y >= 0 and n.x < w + 2 and n.y < h + 2 and painted_px.get_pixelv(n).a > 0.0:
-					out.set_pixel(x, y, OUTLINE)
-					break
-	return out
+	return PixelArt.outlined(img, OUTLINE)

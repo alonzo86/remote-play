@@ -452,6 +452,7 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | `run_tests` | protocol, server, slots, the controller client, remove and kick, sensors, tilt and recenter |
 | `config_files` | the settings and last-TV files: a failed save is reported, values of the wrong type load the defaults, volumes and the port are cut to their range (REQ-C12, issue #309) |
 | `net_malformed` | frames with fields of the wrong type (Array, object, number for text) reach no script error and change no state, on the TV and on the phone (REQ-N10, issue #308) |
+| `pixel_art` | the sprite outline that the look files share (`PixelArt.outlined`, issue #294): a one pixel line around the colored pixels, none at the corners, not wider than one pixel, the source not changed |
 | `net_loss` | a silent phone: when it is lost, when its slot is freed (grace times, paused game) |
 | `about_pages` | the About pages and the About screen of the phone (it was `net_pin`; the join PIN part is gone) |
 | `room_code` | the room code: every one of the 65536 values round-trips, no two addresses share a code, a typo above 65535 is rejected, lower case and spaces, the addresses that the phone builds, the TV link without a PIN, `VERSION` 4 |
