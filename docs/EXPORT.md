@@ -152,14 +152,25 @@ Differences from Android:
 
 ## Release to the stores (not done yet; nothing here is built or uploaded without the owner's go-ahead)
 
-State of the presets on 2026-10-31: both Android presets export an **APK** (`gradle_build/export_format=0`, `export_path` `build/*.apk`). Google Play needs an **Android App Bundle** for a new app. No preset or script makes one yet; adding the two release presets (`export_format=1`, output `build/sababi-tv.aab` and `build/sababi-controller.aab`, `package/signed` with the upload key) is a store decision of the owner (issue #289) and is not done.
+State of the presets: `tv` and `controller` export an **APK** for testing (`gradle_build/export_format=0`, `build/*.apk`). Google Play needs an **Android App Bundle** for a new app, so there are two more presets, `tv-release` and `controller-release` (`export_format=1`, `build/sababi-tv.aab` and `build/sababi-controller.aab`, `package/signed=true`, not runnable). They are copies of their APK twins (same package, name, version, icons, architectures, include and exclude filters, Gradle directory; `tests/design_tokens.gd` checks it) and have **no keystore, user or password** in the file. The owner's store decisions (the upload keystore, Play App Signing, the iOS Team ID, bundle id and minimum iOS version) are open in issue #289; nothing is built or uploaded without the owner's go-ahead.
+
+Build the bundles (only on the owner's go-ahead, with the three variables of "Keys" set; the script stops when one is missing):
+
+```sh
+GODOT_ANDROID_KEYSTORE_RELEASE_PATH=/path/sababi-upload.keystore \
+GODOT_ANDROID_KEYSTORE_RELEASE_USER=sababi-upload \
+GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD=... \
+tools/build.sh aab        # exports tv-release and controller-release with --export-release
+```
+
+Run `tools/patch_android_manifest.sh` first, as for the APKs (section 3). Not verified: no bundle was built yet (it needs the upload keystore).
 
 ### The version (one place)
 
-The version is written in three places of `export_presets.cfg` (the presets `tv`, `controller` and `controller-ios`). Do not edit them by hand:
+The version is written in five presets of `export_presets.cfg` (`tv`, `controller`, `controller-ios`, `tv-release`, `controller-release`: ten lines). Do not edit them by hand:
 
 ```sh
-tools/set_version.sh 0.2.0 2     # name x.y.z and one whole number, written to all six lines
+tools/set_version.sh 0.2.0 2     # name x.y.z and one whole number, written to all ten lines
 tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh runs it in the lint job
 ```
 
@@ -171,7 +182,7 @@ tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh
 
 - The **upload keystore** (Android) is made once by the owner (`keytool -genkeypair -v -keystore sababi-upload.keystore -alias sababi-upload -keyalg RSA -keysize 2048 -validity 10000`) and lives outside the repository (a password manager or an encrypted backup, with its two passwords). `.gitignore` now ignores `*.keystore`, `*.jks` and `*.p12`; `export_credentials.cfg` was already ignored. Losing the upload key is recoverable only through Google's key reset, so keep two backups.
 - Use **Play App Signing** (the Play Console default for a new app): Google keeps the key that signs the apps for people, and you sign the bundle with the upload key only.
-- The presets have `package/signed=true` and no keystore path on purpose: Godot reads the release keystore from the editor settings or from the environment of the export (`GODOT_ANDROID_KEYSTORE_RELEASE_PATH`, `GODOT_ANDROID_KEYSTORE_RELEASE_USER`, `GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD`). On a fresh machine set them first, or the release export fails (it must not fall back to the debug key for a store build).
+- The presets (also the two release presets, whose `keystore/release*` keys stay empty) have `package/signed=true` and no keystore path on purpose: Godot reads the release keystore from the editor settings or from the environment of the export (`GODOT_ANDROID_KEYSTORE_RELEASE_PATH`, `GODOT_ANDROID_KEYSTORE_RELEASE_USER`, `GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD`). On a fresh machine set them first, or the release export fails (it must not fall back to the debug key for a store build).
 - iOS: signing uses the Apple account of the owner in Xcode. `application/app_store_team_id="0000000000"` in the preset is a placeholder that Godot needs; the real Team ID comes from `IOS_TEAM_ID` (`tools/deploy-ios.sh`) or from the Xcode project. `application/min_ios_version="15.0"` is a first guess, not a decision.
 
 ### Checklist for a store release (owner decides each step)
@@ -180,7 +191,7 @@ tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh
 2. `tools/set_version.sh <name> <code>`, then `tools/set_version.sh --check`.
 3. The privacy notice and the store forms are final (issues #36 and #37): the Play **Data safety** form (the controller uses the Google code scanner, the TV does not, see `tools/patch_android_manifest.sh`), the App Store privacy answers, the age rating and the Local Network text.
 4. The suites of the change and the manual tests with status `Device` that the release needs are Pass in `docs/MANUAL_TESTS.md`.
-5. Android: export the bundles with the release presets (after the owner adds them), check them like in section 4 (the TV has no `QrScanner`, the controller has it) and upload both to the internal testing track first.
+5. Android: export the bundles with `tools/build.sh aab`, check them like in section 4 (the TV has no `QrScanner`, the controller has it) and upload both to the internal testing track first.
 6. iOS: export the Xcode project (`controller-ios`), open it in Xcode, set the team, Product > Archive, Distribute App > App Store Connect, then test in TestFlight. (Not verified: no Mac with Xcode was used for this.)
 7. Only after the owner says so: promote to production and push the tag `v<name>`. No agent pushes a tag or publishes a store build on its own.
 

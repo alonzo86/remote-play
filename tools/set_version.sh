@@ -1,5 +1,5 @@
 #!/bin/sh
-# The app version lives in three places of export_presets.cfg (tv, controller, controller-ios). This script writes or checks all of them.
+# The app version lives in five presets of export_presets.cfg (tv, controller, controller-ios, tv-release, controller-release): ten lines. This script writes or checks all of them.
 # Usage: tools/set_version.sh <name> <code>     e.g. tools/set_version.sh 0.2.0 2
 #        tools/set_version.sh --check           exits 1 when the places differ (tests/ci_scripts.sh runs this)
 # <name> is the visible version (x.y.z). <code> is one whole number, higher than the one of the last release you uploaded
@@ -10,7 +10,7 @@
 set -eu
 FILE="${FILE:-$(cd "$(dirname "$0")/.." && pwd)/export_presets.cfg}"
 
-values() { # prints the six values in a fixed order, one per line
+values() { # prints the ten values in a fixed order, one per line
 	sed -n \
 		-e 's/^version\/name="\(.*\)"$/name \1/p' \
 		-e 's/^version\/code=\(.*\)$/code \1/p' \
@@ -22,12 +22,12 @@ if [ "${1:-}" = "--check" ]; then
 	N="$(values | wc -l | tr -d ' ')"
 	NAMES="$(values | sed -n 's/^name //p' | sort -u | wc -l | tr -d ' ')"
 	CODES="$(values | sed -n 's/^code //p' | sort -u | wc -l | tr -d ' ')"
-	if [ "$N" -ne 6 ] || [ "$NAMES" -ne 1 ] || [ "$CODES" -ne 1 ]; then
+	if [ "$N" -ne 10 ] || [ "$NAMES" -ne 1 ] || [ "$CODES" -ne 1 ]; then
 		echo "Version mismatch in $FILE (found $N values, $NAMES different names, $CODES different codes):" >&2
 		values >&2
 		exit 1
 	fi
-	echo "Version $(values | sed -n 's/^name //p' | head -1), code $(values | sed -n 's/^code //p' | head -1): the 3 places agree."
+	echo "Version $(values | sed -n 's/^name //p' | head -1), code $(values | sed -n 's/^code //p' | head -1): the 5 presets agree."
 	exit 0
 fi
 

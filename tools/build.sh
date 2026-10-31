@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build and run helper (macOS and Linux; the Android and iOS parts need the SDK, JDK 17 and the export templates). Usage: tools/build.sh <run-tv|run-controller|test|apk|install>
+# Build and run helper (macOS and Linux; the Android and iOS parts need the SDK, JDK 17 and the export templates). Usage: tools/build.sh <run-tv|run-controller|test|apk|aab|install>
 set -eu
 cd "$(dirname "$0")/.."
 # shellcheck source=tools/env.sh
@@ -20,8 +20,17 @@ case "${1:-}" in
 		"$GODOT" --headless --path . --export-debug tv build/sababi-tv.apk
 		"$GODOT" --headless --path . --export-debug controller build/sababi-controller.apk
 		ls -l build/*.apk ;;
+	aab)
+		# Store bundles (issue #289). The upload keystore is never in the repo: the three variables name it (docs/EXPORT.md, "Keys").
+		for v in GODOT_ANDROID_KEYSTORE_RELEASE_PATH GODOT_ANDROID_KEYSTORE_RELEASE_USER GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD; do
+			eval "[ -n \"\${$v:-}\" ]" || { echo "$v is not set (the upload keystore, docs/EXPORT.md \"Keys\")." >&2; exit 1; }
+		done
+		mkdir -p build
+		"$GODOT" --headless --path . --export-release tv-release build/sababi-tv.aab
+		"$GODOT" --headless --path . --export-release controller-release build/sababi-controller.aab
+		ls -l build/*.aab ;;
 	install)
 		adb install -r build/sababi-controller.apk
 		[ -n "${TV_IP:-}" ] && adb connect "$TV_IP:5555" && adb -s "$TV_IP:5555" install -r build/sababi-tv.apk ;;
-	*) echo "Usage: $0 run-tv|run-controller|test|apk|install (TV_IP=x.x.x.x to also install the TV app)" >&2; exit 1 ;;
+	*) echo "Usage: $0 run-tv|run-controller|test|apk|aab|install (TV_IP=x.x.x.x to also install the TV app)" >&2; exit 1 ;;
 esac
