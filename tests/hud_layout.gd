@@ -421,6 +421,10 @@ func _row_checks(state: String, snap: Dictionary, lang: String, has_timer: bool)
 	for st in snap.get("status", []):
 		_check(is_equal_approx(st.rect.position.y + _ascent(), Shell.STATUS_BASELINE),
 				"%s: the status text stands on the common baseline (y %.0f)" % [state, st.rect.position.y + _ascent()])
+	# Issue #301: the wave and the round texts of the bar go through Shell.status(), so the baseline check sees them.
+	for gid in ["asteroid_blast", "sumo_bumpers"]:
+		if state.begins_with(gid + " in"):
+			_check(not snap.get("status", []).is_empty(), "%s: the text of the bar is drawn by Shell.status() (the check sees it)" % state)
 	_check(one_row, "%s: the title, the timer and the chip share one row" % state)
 	_check(apart, "%s: no HUD box touches another HUD box %s" % [state, str(boxes.map(func(e): return e.kind + str(e.rect)))])
 	_check(in_bar, "%s: every HUD box is inside the top bar and the 60 px margin" % state)
