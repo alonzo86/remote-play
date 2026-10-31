@@ -59,7 +59,6 @@ gear_button.options,OPTIONS,אפשרויות,TV Games screen: Options button at 
 logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים עם הטלפון כשלט תנועה,TV logo screen: line under the logo,
 logo.press_ok_start,PRESS OK TO START,לחצו OK להתחלה,"TV logo screen, first start: prompt to choose a language",
 logo.press_ok_skip,PRESS OK TO SKIP,לחצו OK לדילוג,TV logo screen: prompt to skip the logo,
-marble_race.finish_in,Finish in %d m,%d מ׳ לסיום,"Car Race HUD: distance to the finish line, %d is meters","the number sign (%d, %.1f ...) is replaced by a number"
 marble_race.go,GO,צאו,Car Race countdown: the word GO after 1 (only this game shows it; the other games go from 1 to the play),
 marble_race.meters,%d m behind,%d מ׳ מאחור,"Car Race: marker at the screen edge for a car that is out of view, %d is meters behind the leader","the number sign (%d, %.1f ...) is replaced by a number"
 marble_race.random_track,RANDOM TRACK,מסלול אקראי,"Car Race: name of the random track, HUD and track choice",

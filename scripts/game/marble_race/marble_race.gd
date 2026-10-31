@@ -437,10 +437,6 @@ func _game_draw() -> void:
 	elif _round.time < GO_SHOW:
 		Shell.countdown(self, size, "marble_race.go", _round.time / GO_SHOW, UiTheme.OK)
 	elif not is_over:
-		var lead: Racer = _lead()
-		var to_go := maxf(finish_arc - lead.arc, 0.0)
-		Shell.text(self, Vector2(Shell.mx(self, 960.0, 480.0), 80.0), Lang.f("marble_race.finish_in", [roundi(to_go)]), 32,
-				UiTheme.ACCENT, HORIZONTAL_ALIGNMENT_LEFT if not Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 480.0)
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time, 240.0)
 	_draw_edge_markers()
 	Shell.text(self, Vector2(Shell.mx(self, size.x - 360.0, 300.0), size.y - 70), track.title, 32,
