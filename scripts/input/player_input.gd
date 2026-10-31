@@ -3,6 +3,7 @@ extends RefCounted
 ## Games only read from it. Games must not use any networking script.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 
@@ -108,10 +109,16 @@ func reset() -> void:
 	_new_swing_detector()
 
 
+## The name of a phone that has no profile name: "Player N" in the language of the TV (players.default_name). It is never
+## saved, only made when the TV needs it, so it follows the language of the TV.
+static func default_name(p_slot: int) -> String:
+	return Lang.f("players.default_name", [p_slot + 1])
+
+
 ## Called when a phone (re)joins this slot.
 func on_join(p_name: String, p_token: String) -> void:
 	raw_name = p_name
-	player_name = p_name if p_name != "" else "Player %d" % (slot + 1)
+	player_name = p_name if p_name != "" else default_name(slot)
 	token = p_token
 	state = State.CONNECTED
 	_last_seq = -1 # Do not count the reconnect gap as packet loss.

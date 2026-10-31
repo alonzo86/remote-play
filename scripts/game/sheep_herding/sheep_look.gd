@@ -5,6 +5,7 @@ extends RefCounted
 
 const Shell = preload("res://scripts/game/shell.gd")
 const Palette = preload("res://scripts/game/palette.gd")
+const PixelArt = preload("res://scripts/game/pixel_art.gd")
 
 const WORLD_PIXEL := 4.0
 const OUTLINE := Color("000000")
@@ -133,25 +134,7 @@ static func _from_rows(rows: Array, key: Dictionary, outline := false) -> Image:
 			var ch := row[x]
 			if key.has(ch):
 				img.set_pixel(x, y, key[ch])
-	return _outlined(img) if outline else img
-
-
-## The same picture with a one pixel black line around it (the lines of the text pictures are already in the text).
-static func _outlined(src: Image) -> Image:
-	var w := src.get_width()
-	var h := src.get_height()
-	var out := Image.create(w + 2, h + 2, false, Image.FORMAT_RGBA8)
-	out.blit_rect(src, Rect2i(0, 0, w, h), Vector2i(1, 1))
-	var base := out.duplicate() as Image
-	for y in h + 2:
-		for x in w + 2:
-			if base.get_pixel(x, y).a > 0.0:
-				continue
-			for n in [Vector2i(x - 1, y), Vector2i(x + 1, y), Vector2i(x, y - 1), Vector2i(x, y + 1)]:
-				if n.x >= 0 and n.y >= 0 and n.x < w + 2 and n.y < h + 2 and base.get_pixelv(n).a > 0.0:
-					out.set_pixel(x, y, OUTLINE)
-					break
-	return out
+	return PixelArt.outlined(img, OUTLINE) if outline else img
 
 
 static func _disc(img: Image, cx: int, cy: int, r: int, color: Color) -> void:
@@ -171,7 +154,7 @@ static func _tree() -> Image:
 	img.set_pixel(14, 6, Color("ff4040"))
 	img.set_pixel(9, 13, Color("ff4040"))
 	img.set_pixel(15, 12, Color("ff4040"))
-	return _outlined(img)
+	return PixelArt.outlined(img, OUTLINE)
 
 
 ## A pine: three steps of green on a trunk. 22 x 27 with the outline.
@@ -184,7 +167,7 @@ static func _pine() -> Image:
 		for row in 8:
 			var w := mini(half, 1 + row * (half - 1) / 7)
 			img.fill_rect(Rect2i(10 - w, top + row, w * 2, 1), Color("17692a"))
-	return _outlined(img)
+	return PixelArt.outlined(img, OUTLINE)
 
 
 ## A hay stack: a heap with a few darker stripes. 24 x 20 with the outline.
@@ -197,7 +180,7 @@ static func _hay() -> Image:
 		for y in range(6, 17):
 			if img.get_pixel(x, y).a > 0.0 and (x + y) % 3 == 0:
 				img.set_pixel(x, y, HAY_DARK)
-	return _outlined(img)
+	return PixelArt.outlined(img, OUTLINE)
 
 
 ## Four square bales, two below and two above. 32 x 24 with the outline.
@@ -208,7 +191,7 @@ static func _bales() -> Image:
 		img.fill_rect(Rect2i(spot.x, spot.y + 4, 14, 1), HAY_DARK)
 		img.fill_rect(Rect2i(spot.x + 4, spot.y, 1, 10), HAY_DARK)
 		img.fill_rect(Rect2i(spot.x + 9, spot.y, 1, 10), HAY_DARK)
-	return _outlined(img)
+	return PixelArt.outlined(img, OUTLINE)
 
 
 static func _rock() -> Image:
@@ -216,7 +199,7 @@ static func _rock() -> Image:
 	img.fill_rect(Rect2i(0, 1, 12, 7), Color("8a8a8a"))
 	img.fill_rect(Rect2i(1, 0, 10, 1), Color("8a8a8a"))
 	img.fill_rect(Rect2i(2, 2, 4, 2), Color("c4c4c4"))
-	return _outlined(img)
+	return PixelArt.outlined(img, OUTLINE)
 
 
 # ---- Drawing helpers (the pixel layer, units of the 1920 x 1080 screen) ----
@@ -335,4 +318,3 @@ static func draw_barn(ci: CanvasItem, origin: Vector2) -> void:
 static func barn_blocks(origin: Vector2) -> Array[Rect2]:
 	return [Rect2(origin + Vector2(0.0, BARN_WALL_TOP) * WORLD_PIXEL, Vector2(56.0, 32.0) * WORLD_PIXEL),
 			Rect2(origin + Vector2(-SILO_W - 1.0, 6.0) * WORLD_PIXEL, Vector2(SILO_W, 38.0) * WORLD_PIXEL)]
-

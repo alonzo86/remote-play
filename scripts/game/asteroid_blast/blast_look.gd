@@ -6,6 +6,7 @@ extends RefCounted
 
 const Shell = preload("res://scripts/game/shell.gd")
 const Palette = preload("res://scripts/game/palette.gd")
+const PixelArt = preload("res://scripts/game/pixel_art.gd")
 
 const PX := 4.0                       # One world pixel in screen units (`Shell.WORLD_PIXEL`).
 const OUTLINE := Color("101018")
@@ -124,7 +125,7 @@ static func asteroid_image(size: int, look: int, radius_units: float) -> Image:
 				if Vector2(dx - c.x, dy - c.y).length() <= c.z:
 					col = ROCK_CRATER
 			img.set_pixel(x, y, col)
-	return _outlined(img)
+	return PixelArt.outlined(img, OUTLINE)
 
 
 ## The picture of a ship in `color`. `frame` 0 or 1 is the flame of the engine under it (two sizes).
@@ -141,7 +142,7 @@ static func ship_image(color: Color, frame: int) -> Image:
 	var fx := (SHIP[0].length() / 2) * SCALE   # The flame under the middle of the hull.
 	src.fill_rect(Rect2i(fx, h, SCALE, SCALE), FLAME_A)
 	src.fill_rect(Rect2i(fx, h + SCALE, SCALE, SCALE * (1 + frame)), FLAME_B)
-	return _outlined(src)
+	return PixelArt.outlined(src, OUTLINE)
 
 
 ## The round picture of a pickup: `kind` is "shield" or "weapon".
@@ -159,7 +160,7 @@ static func pickup_image(kind: String) -> Image:
 		for x in glyph[y].length():
 			if glyph[y][x] == "w":
 				img.set_pixel(off + x, off + y, Color.WHITE)
-	return _outlined(img)
+	return PixelArt.outlined(img, OUTLINE)
 
 
 ## A beam in the color of its ship: a bar with a white core, drawn at the middle `c`.
@@ -196,20 +197,3 @@ static func draw_explosion(ci: CanvasItem, c: Vector2, age: float, scale: float)
 	if core > 0.0:
 		ci.draw_rect(Rect2(Shell.snap(c) - Vector2.ONE * core * 0.5, Vector2.ONE * core), SPARKS[0] if step < 2.0 else SPARKS[1])
 	return n
-
-
-static func _outlined(src: Image) -> Image:
-	var w := src.get_width()
-	var h := src.get_height()
-	var out := Image.create(w + 2, h + 2, false, Image.FORMAT_RGBA8)
-	out.blit_rect(src, Rect2i(0, 0, w, h), Vector2i(1, 1))
-	var painted := out.duplicate() as Image
-	for y in h + 2:
-		for x in w + 2:
-			if painted.get_pixel(x, y).a > 0.0:
-				continue
-			for n in [Vector2i(x - 1, y), Vector2i(x + 1, y), Vector2i(x, y - 1), Vector2i(x, y + 1)]:
-				if n.x >= 0 and n.y >= 0 and n.x < w + 2 and n.y < h + 2 and painted.get_pixelv(n).a > 0.0:
-					out.set_pixel(x, y, OUTLINE)
-					break
-	return out
