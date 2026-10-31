@@ -448,6 +448,7 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | Suite | What it checks |
 |-------|----------------|
 | `run_tests` | protocol, server, slots, the controller client, remove and kick, sensors, tilt and recenter |
+| `config_files` | the settings and last-TV files: a failed save is reported, values of the wrong type load the defaults, volumes and the port are cut to their range (REQ-C12, issue #309) |
 | `net_malformed` | frames with fields of the wrong type (Array, object, number for text) reach no script error and change no state, on the TV and on the phone (REQ-N10, issue #308) |
 | `net_loss` | a silent phone: when it is lost, when its slot is freed (grace times, paused game) |
 | `about_pages` | the About pages and the About screen of the phone (it was `net_pin`; the join PIN part is gone) |
