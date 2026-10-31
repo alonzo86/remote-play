@@ -126,10 +126,13 @@ func _songs() -> void:
 
 func _effects() -> void:
 	var fx := Songs.effects()
+	_check(Songs.MAX_EFFECT == 0.5 and Songs.MAX_FANFARE == 2.0,
+			"REQ-GM-49b: the limits are 0.5 s for an effect and 2 s for a fanfare")
 	for id in fx:
 		var length := Songs.effect_length(fx[id])
 		var limit := Songs.MAX_FANFARE if id in ["win", "tie"] else Songs.MAX_EFFECT
-		_check(length > 0.0 and length <= limit + 0.0001, "effect %s is %.2f s (limit %.1f)" % [id, length, limit])
+		_check(length > 0.0 and length <= limit + 0.0001,
+				"REQ-GM-49b: effect %s is %.2f s (limit %.1f)" % [id, length, limit])
 	for id in Songs.PROTECTED:
 		_check(fx.has(id), "the protected effect %s exists" % id)
 

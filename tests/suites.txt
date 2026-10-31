@@ -112,3 +112,4 @@ tests/req_registry.gd|controller|registry and requirements files agree: files, b
 tests/req_ids.gd|controller|requirement ids: each is named by a test or listed in tests/req_untested.txt|unit
 tests/small_screen.gd|tv|every game at 1280x720: the HUD and the controls stay inside the window (REQ-2D-2)|scenario
 tests/tv_flow_reqs.gd|tv|TV flow: phase, tiles follow phones, Players modal (REQ-FL-27, 29, 32, 34)|scenario
+tests/pixel_world_lint.gd|controller|pixel worlds: no text in the world draw, positions snapped (REQ-GM-47n, 47l)|unit

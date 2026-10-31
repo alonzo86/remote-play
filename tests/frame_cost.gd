@@ -106,6 +106,7 @@ func _measure(app: Node, spec: Dictionary, budget: float) -> void:
 		game.field.wave = LATE_WAVE
 	_player_colors(id, game)
 	await _pause_menu(id, game, app)
+	await _frames(3)   # The menu is freed.
 	var worst := 0.0
 	var nodes_before := Performance.get_monitor(Performance.OBJECT_NODE_COUNT)
 	for b in BURSTS:
@@ -117,7 +118,8 @@ func _measure(app: Node, spec: Dictionary, budget: float) -> void:
 	# REQ-GM-51: a game does not create nodes in a frame. 480 ticks of play (8 s) may add a few nodes for events (a banner, a
 	# pop-up), but not one for each frame.
 	var grown := Performance.get_monitor(Performance.OBJECT_NODE_COUNT) - nodes_before
-	_check(grown < BURST, "%s: REQ-GM-51: %d ticks add %d nodes, not one for each frame" % [id, BURST * BURSTS, int(grown)])
+	_check(grown <= 2, "%s: REQ-GM-51: %d ticks add %d nodes (2 or less, not one for each frame)" % [id, BURST * BURSTS, int(grown)])
+	print("  info %s: nodes added in %d ticks: %d" % [id, BURST * BURSTS, int(grown)])
 	print("  info %s: worst logic of one frame %.2f ms" % [id, worst])
 	_check(worst < budget, "%s: the logic of a frame with %d phones on Hard is under %.0f ms (%.2f ms)"
 			% [id, PHONES, budget, worst])
@@ -125,7 +127,7 @@ func _measure(app: Node, spec: Dictionary, budget: float) -> void:
 
 ## REQ-GM-23: the color of a player in the game is the slot color of its PlayerInput.
 func _player_colors(id: String, game: Control) -> void:
-	var ok := not game.participants.is_empty()
+	var ok: bool = not game.participants.is_empty()
 	for s in game.participants:
 		ok = ok and game.player(s).color == Protocol.PLAYER_COLORS[s]
 	_check(ok, "%s: REQ-GM-23: every player of the game has the color of its slot" % id)

@@ -13,6 +13,8 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 
 const SCREEN := Vector2i(1280, 720)
+## These games have HUD boxes at fixed 1080p places (issue #348). The test fails when one of them fits, so the entry goes then.
+const FIXED_LAYOUT: Array[String] = ["bowling", "air_hockey", "tower_builder"]
 
 var _checks := 0
 var _fails := 0
@@ -20,6 +22,7 @@ var _clients: Array = []
 var _seq := [0, 0]
 var _game: Control
 var _boxes: Array = []
+var _scale_mode := Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 
 
 func _check(cond: bool, what: String) -> void:
@@ -38,6 +41,7 @@ func _initialize() -> void:
 	await _run()
 	Shell.recorder = Callable()
 	Lang.set_language("en", root)
+	root.content_scale_mode = _scale_mode
 	root.size = Vector2i(1920, 1080)
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
@@ -66,6 +70,10 @@ func _on_box(kind: String, ci: CanvasItem, rect: Rect2, _info: Dictionary) -> vo
 func _run() -> void:
 	await _frames(5)
 	var app: Node = root.get_node("App")
+	# The project stretches 1920x1080 to the window, so a 1280x720 window has the same layout size. The stretch is switched off
+	# here: the screen is then really 1280x720 units and a layout with fixed pixels would show.
+	_scale_mode = root.content_scale_mode
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	root.size = SCREEN
 	await _frames(3)
 	load("res://scripts/game/game_settings.gd").clear()
@@ -100,10 +108,14 @@ func _run() -> void:
 						"REQ-2D-2: %s: the pixel view stands for the whole window" % state)
 			var outside: Array[String] = []
 			for b in _boxes:
-				if not screen.encloses(b.rect):
-					outside.append("%s %s" % [b.kind, str(b.rect)])
-			_check(not _boxes.is_empty() and outside.is_empty(),
-					"REQ-2D-2: %s: all %d boxes of the HUD are inside the window (outside: %s)" % [state, _boxes.size(), str(outside)])
+				var text := "%s %s" % [b.kind, str(b.rect)]
+				if not screen.encloses(b.rect) and not outside.has(text):
+					outside.append(text)
+			if String(spec.id) in FIXED_LAYOUT:
+				_check(not outside.is_empty(), "REQ-2D-2: %s is on the list of fixed layouts (issue #348) and has boxes outside" % state)
+			else:
+				_check(not _boxes.is_empty() and outside.is_empty(),
+						"REQ-2D-2: %s: all %d boxes of the HUD are inside the window (outside: %s)" % [state, _boxes.size(), str(outside)])
 			var off: Array[String] = []
 			for n in _game.find_children("*", "Control", true, false):
 				var c := n as Control
