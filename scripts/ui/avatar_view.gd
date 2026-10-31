@@ -22,6 +22,7 @@ func _init(p_index := 0, side := 96.0) -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS   # A drag goes on to the scroll box that holds the picker.
 
 
+## Shows another avatar (only the tests call it; the picker makes a new view for each choice).
 func set_index(i: int) -> void:
 	index = i
 	queue_redraw()

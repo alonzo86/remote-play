@@ -264,12 +264,6 @@ static func _mark(n: int) -> String:
 	return "-" if n == 0 else str(n)
 
 
-## The sheet cells of a player on this game.
-func cells_of(slot: int) -> Array[Dictionary]:
-	var r := row_of(slot)
-	return sheet_cells(r.rolls) if r != null else []
-
-
 ## The score of a player so far (REQ-BW-2).
 func score_of(slot: int) -> int:
 	var r := row_of(slot)

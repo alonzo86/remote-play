@@ -96,11 +96,6 @@ static func hole_texture(n: int) -> ImageTexture:
 	return _hole_tex[n]
 
 
-static func clear_cache() -> void:
-	_hole_tex.clear()
-	_base = null
-
-
 static func hole_image(h: Dictionary) -> Image:
 	var img := _base_image().duplicate() as Image
 	_paint_ground(img, h)

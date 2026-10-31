@@ -191,16 +191,11 @@ static func to_json(d: Dictionary) -> String:
 	return JSON.stringify(d)
 
 
-## Pick the most likely LAN IPv4 address of this device.
-static func local_ipv4() -> String:
-	var best := ""
-	var best_rank := 99
-	for a in IP.get_local_addresses():
-		var rank := _private_rank(String(a))
-		if rank < best_rank:
-			best_rank = rank
-			best = a
-	return best
+## Pick the most likely LAN IPv4 address of this device: the first address of the best private kind (see `best_private`),
+## or an empty text when there is none. A test gives its own list.
+static func local_ipv4(addresses: Array = IP.get_local_addresses()) -> String:
+	var best := best_private(addresses)
+	return best[0] if not best.is_empty() else ""
 
 
 ## The private IPv4 addresses of this device that are of the best kind (`192.168.x.x`, else `10.x.x.x`, else `172.16.x.x` to

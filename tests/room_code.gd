@@ -128,6 +128,11 @@ func _hosts() -> void:
 	var best := Protocol.best_private(["10.0.0.4", "192.168.43.1", "fe80::1", "172.20.1.1", "192.168.2.2"])
 	_check(str(best) == str(["192.168.43.1", "192.168.2.2"]),
 			"the phone uses the 192.168 addresses first and all of them: %s" % str(best))
+	_check(Protocol.local_ipv4(["10.0.0.4", "192.168.43.1", "fe80::1", "172.20.1.1", "192.168.2.2"]) == "192.168.43.1",
+			"the TV takes the first address of the best kind")
+	_check(Protocol.local_ipv4(["fe80::1", "8.8.8.8", "172.20.1.1", "10.1.1.1"]) == "10.1.1.1", "10.x.x.x comes before 172.16.x.x")
+	_check(Protocol.local_ipv4(["fe80::1", "8.8.8.8"]) == "" and Protocol.local_ipv4([]) == "",
+			"no private address gives an empty text")
 
 
 func _links() -> void:

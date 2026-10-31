@@ -4,6 +4,7 @@ extends Node
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ConfigIO = preload("res://scripts/core/config_io.gd")
+const ClosingSockets = preload("res://scripts/net/closing_sockets.gd")
 
 signal state_changed(state: int)
 signal welcomed(slot: int, color: Color)
@@ -59,7 +60,7 @@ var give_up_after := GIVE_UP_AFTER   # Failed first attempts before "unreachable
 var connect_timeout_ms := CONNECT_TIMEOUT_MS
 
 var _ws: WebSocketPeer
-var _closing: Array = []     # Closed sockets that still flush their last frames.
+var _closing := ClosingSockets.new()   # Closed sockets that still flush their last frames.
 var _token := ""
 var _attempt := 0
 var _retry_at_ms := 0
@@ -98,10 +99,6 @@ func leave() -> void:
 	_was_connected = false
 	_set_state(State.IDLE)
 	_save_last(true)
-
-
-func is_connected_to_tv() -> bool:
-	return state == State.CONNECTED
 
 
 func send_sensor(packet: PackedByteArray) -> void:
@@ -185,13 +182,7 @@ func use_saved_token(token: String) -> void:
 
 func _process(_delta: float) -> void:
 	var now := Time.get_ticks_msec()
-	for entry in _closing.duplicate():
-		entry.ws.poll()
-		if entry.ws.get_ready_state() == WebSocketPeer.STATE_CLOSED or now - int(entry.since) > 1500:
-			_closing.erase(entry)
-		elif not entry.closed and now - int(entry.since) >= 300:
-			entry.ws.close() # Delayed: a close frame can drop the frames that came before it.
-			entry.closed = true
+	_closing.service(now)
 	if _ws == null:
 		if state == State.RECONNECTING and now >= _retry_at_ms:
 			_open()
@@ -387,7 +378,7 @@ func _schedule_retry_or_give_up() -> void:
 func _close_socket() -> void:
 	if _ws != null:
 		_ws.poll()
-		_closing.append({"ws": _ws, "since": Time.get_ticks_msec(), "closed": false})
+		_closing.add(_ws, Time.get_ticks_msec())
 		_ws = null
 
 

@@ -309,7 +309,7 @@ func _holes_and_totals() -> void:
 	_check(r.hole_done() and not r.match_over() and r.total(0) == 1 and r.total(2) == 2, "a hole is done but the match is not")
 	_check(r.next_hole() and r.hole_number() == 2 and r.current_slot() == 0 and r.strokes_on_hole(0) == 0,
 			"the next hole starts with the first player and no strokes")
-	_check(r.total(0) == 1 and r.done_total(2) == 2, "the strokes of the first hole stay in the total")
+	_check(r.total(0) == 1 and r.total(2) == 2, "the strokes of the first hole stay in the total")
 	r.putt_done(false)
 	r.putt_done(true)   # slot 2: 1
 	r.putt_done(true)   # slot 0: 2
