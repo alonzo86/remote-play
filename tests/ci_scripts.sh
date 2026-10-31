@@ -178,5 +178,10 @@ check "a bad code is refused" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_ve
 check "build.sh aab refuses to run without the upload keystore variables" "1" "$(env -u GODOT_ANDROID_KEYSTORE_RELEASE_PATH -u GODOT_ANDROID_KEYSTORE_RELEASE_USER -u GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD "$ROOT/tools/build.sh" aab >/dev/null 2>&1; echo $?)"
 check ".gitignore keeps keystores and certificates out" "3" "$(grep -c '^\*\.keystore$\|^\*\.jks$\|^\*\.p12$' "$ROOT/.gitignore")"
 
+echo "the pixels job runs both render scripts"
+for f in pixel_render pixel_games; do
+	check "CircleCI and GitHub pixels jobs run tests/$f.gd" "2" "$(grep -l "tests/$f.gd" "$ROOT/.circleci/config.yml" "$ROOT/.github/workflows/ci.yml" | wc -l | tr -d ' ')"
+done
+
 echo "$CHECKS checks, $FAILS failed"
 [ "$FAILS" -eq 0 ]

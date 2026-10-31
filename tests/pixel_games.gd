@@ -1,6 +1,6 @@
 extends SceneTree
 ## Pixel checks of the four newest games on real rendered frames (the render lane, like tests/pixel_render.gd; it needs a GL
-## driver and a display, so it is not in tests/suites.txt). Run it like this:
+## driver and a display, so it is not in tests/suites.txt; the CI job `pixels` runs it at 1920x1080). Run it like this:
 ##   xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 \
 ##       --script tests/pixel_games.gd -- --role=tv
 ## What it checks (docs/MANUAL_TESTS.md tests 22, 23, 25 and 26): the machine half of the item "put the tile next to the game

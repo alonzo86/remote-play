@@ -22,7 +22,7 @@ for every check and ends with `N checks, M failed` (the TV smoke test ends with 
 minutes and opens no window (`--headless`). Screenshots for a look at the screens need a display and are not part of the run:
 `godot --path . --rendering-driver opengl3 --script tests/screenshots.gd -- --role=tv`.
 
-The pixel checks are not part of that run (they need a software GL driver, not `--headless`). They are in `tests/pixel_render.gd` and run in the CI job `pixels` (`.github/workflows/ci.yml`; see "CI minutes" for when it runs), or by hand, once for each screen size:
+The pixel checks are not part of that run (they need a software GL driver, not `--headless`). They are in `tests/pixel_render.gd` and run in the CI job `pixels` (`.circleci/config.yml`, `.github/workflows/ci.yml`; see "CI minutes" for when it runs), or by hand, once for each screen size:
 
 ```sh
 xvfb-run -a -s "-screen 0 1920x1080x24" godot --path . --rendering-driver opengl3 --resolution 1920x1080 --script tests/pixel_render.gd -- --role=tv
@@ -373,7 +373,7 @@ Neither system has an Android job (the Actions job `build-android` exported noth
 | A-22-3c | Test 22 item 3c (the step stays, Alon to decide) | `r4_asteroid`: the ship stops at both sides of the play area, stays on the screen and stands still after it stopped. The distance of its middle from the screen edge is checked against 2 % to 4 %: known bug, the ship is 60 px from the side of the play area, that is 120 px (6.25 %) from the screen edge, so this check fails |
 | A-22-5f | Test 22 item 5f | `auto_asteroid`: "the buzzes" (a shield taken gives the ring and one 30 ms buzz, see A-22-5) |
 | A-22-8e | Test 22 item 8e | `r4_asteroid`: a player who plays alone sees "Reached wave N" where N is the number of the last wave banner. A single player gets no medal at any score (`auto_asteroid`); with two players the places get gold and silver |
-| A-22-1b, 12f; 23-1b; 25-1b; 26-1b | Test 22 items 1b, 12f; Test 23 item 1b; Test 25 item 1b; Test 26 item 1b (the colors; the steps stay) | `pixel_games` (render lane, NOT in `tests/suites.txt`): 3 of the 6 main colors of the tile are main colors of the game screen, and for Star Shield the world changes color only at the borders of its pixel blocks (the edges of the ship and of an asteroid are steps). "The tile and the game show the same four things" stays manual (REQ-GM-49) |
+| A-22-1b, 12f; 23-1b; 25-1b; 26-1b | Test 22 items 1b, 12f; Test 23 item 1b; Test 25 item 1b; Test 26 item 1b (the colors; the steps stay) | `pixel_games` (render lane, run by the CI job `pixels`, NOT in `tests/suites.txt`): 3 of the 6 main colors of the tile are main colors of the game screen, and for Star Shield the world changes color only at the borders of its pixel blocks (the edges of the ship and of an asteroid are steps). "The tile and the game show the same four things" stays manual (REQ-GM-49) |
 | A-GM-40c | REQ-GM-40 (issue #223): every chip of every game is inside the 60 px margin, and the hint plate does not cover a chip (no manual step) | `hud_layout`: "every chip is inside the 60 px margin" and "the hint plate does not cover a chip" for the 15 games in English and Hebrew; `smoke_air_hockey`: "the hint plate shows and does not cover a score chip". Found and fixed: the Mini Golf chips (bottom 1056) and the Tower Builder hint over the chips |
 | A-GM-45c | REQ-GM-45c (issue #223): the title of every game stands on baseline y 96, the status text of the bar (Air Hockey, Pin Pals, Star Shield, Sumo Bumpers) on y 84, inside the bar and the margin, in English and Hebrew (no manual step) | `hud_layout`: "the title stands on the common baseline" and "the status text stands on the common baseline" for the 15 games in English and Hebrew |
 | A-GM-45a | REQ-GM-45a (issue #123): the black bar at the top of every game reaches both screen edges, in English and in Hebrew (no manual step; the look of Air Hockey on the black floor is in Test 27) | `pixel_render` (CI, 1080p and 4K) and `pixel_games` (render lane): "en: the black bar reaches both edges in every game", "he: the black bar reaches both edges in every game" |
@@ -524,7 +524,7 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | `r4_bowling` (tv) | Pin Pals: the total of whole games, Frame 10/10 and the time to the result menu, rails, the plate, scores and places, the winner, YOUR TURN and the buzz, a player that leaves, the pin height and the disco wall. Three known-bug checks (3.8 s, the plate time, the double buzz) |
 | `r4_tennis` (tv) | Tennis: no chip before the first point, the toss, the runs, GREAT!, far shots, the places, the rally count. The sparks, the place of the other team and the time to a new rally are plain checks |
 | `r4_golf` (tv) | Mini Golf: what is drawn at a turn, the plate, the lines on two phones, the aim mark, the swing, the sliding barriers, the 6-stroke banner, the strokes in the bar, the result menu and its buttons. One known-bug check (the ball starts too early) |
-| `pixel_games` (render lane, NOT in `tests/suites.txt`, no coverage) | Tests 22, 23, 25, 26: the main colors of the 4 newest tiles are colors of the game screen, and the Star Shield world is made of whole pixels. Run it like `pixel_render` under `xvfb-run` |
+| `pixel_games` (render lane, NOT in `tests/suites.txt`, no coverage) | Tests 22, 23, 25, 26: the main colors of the 4 newest tiles are colors of the game screen, and the Star Shield world is made of whole pixels. Run it like `pixel_render` under `xvfb-run` at 1920x1080. CI: the job `pixels` runs it after `pixel_render` |
 
 ## What stays manual, and why
 
@@ -557,7 +557,7 @@ These 12 files are not in `tests/suites.txt`, so `run_all.sh`, the unit CI job a
 | File | Kind | Why it is not a suite |
 |------|------|-----------------------|
 | `pixel_render` | check (render lane) | Needs a GL driver and a display. The CI job `pixels` runs it under xvfb at 1920x1080 and 3840x2160 (`.circleci/config.yml`, `.github/workflows/ci.yml`) |
-| `pixel_games` | check (render lane), by hand | Same needs. No CI job runs it: it is run by hand (the command is in its header) for Tests 22, 23, 25 and 26. Adding it to the `pixels` job is a change of the CI files (`release-engineer`) |
+| `pixel_games` | check (render lane) | Same needs. The CI job `pixels` runs it under xvfb at 1920x1080, after `pixel_render` (`.circleci/config.yml`, `.github/workflows/ci.yml`); by hand the command is in its header. For Tests 22, 23, 25 and 26 and REQ-GM-45a |
 | `screenshots` | tool | Saves screenshots of the TV screens to `user://shot_*.png` (display needed); no assertions |
 | `screenshots_controller` | tool | The same for the phone screens |
 | `golf_tennis_trace` | helper | Made-up swing traces for `tennis_rules`, `smoke_tennis`, `smoke_golf` |
