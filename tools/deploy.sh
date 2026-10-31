@@ -20,7 +20,7 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-ADB="${ADB:-$(command -v adb || echo "$HOME/Library/Android/sdk/platform-tools/adb")}"
+ADB="${ADB:-$(command -v adb || echo "${ANDROID_HOME:-$HOME/Library/Android/sdk}/platform-tools/adb")}"
 [ -x "$ADB" ] || { echo "adb not found. Install the Android SDK platform-tools or set ADB=." >&2; exit 1; }
 
 if [ -z "$SERIAL" ]; then
@@ -36,11 +36,8 @@ fi
 echo "Device: $SERIAL"
 
 if [ "$BUILD" -eq 1 ]; then
-	GODOT="${GODOT:-}"
-	[ -z "$GODOT" ] && [ -x /Applications/Godot.app/Contents/MacOS/Godot ] && GODOT=/Applications/Godot.app/Contents/MacOS/Godot
-	[ -z "$GODOT" ] && GODOT="$(command -v godot)"
-	export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
-	export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+	# shellcheck source=tools/env.sh
+	. tools/env.sh
 	mkdir -p build
 	"$GODOT" --headless --path . --export-debug "$ROLE" "build/sababi-$ROLE.apk"
 fi

@@ -1,18 +1,18 @@
 #!/bin/sh
-# Build and run helper. Usage: tools/build.sh <run-tv|run-controller|test|apk|install>
+# Build and run helper (macOS and Linux; the Android and iOS parts need the SDK, JDK 17 and the export templates). Usage: tools/build.sh <run-tv|run-controller|test|apk|install>
 set -eu
 cd "$(dirname "$0")/.."
-GODOT="${GODOT:-}"
-[ -z "$GODOT" ] && [ -x /Applications/Godot.app/Contents/MacOS/Godot ] && GODOT=/Applications/Godot.app/Contents/MacOS/Godot
-[ -z "$GODOT" ] && GODOT="$(command -v godot)"
-export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
-export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+# shellcheck source=tools/env.sh
+. tools/env.sh
 
 # Run and test need the imported-asset cache (.godot/, not in git). Without it fonts and images fail to load.
 import_assets() { "$GODOT" --headless --path . --import >/dev/null 2>&1 || true; }
 
 case "${1:-}" in
-	run-tv)         import_assets; exec caffeinate -dis "$GODOT" --path . -- --role=tv ;;  # caffeinate: no App Nap throttling
+	run-tv)         import_assets;
+		# caffeinate (macOS only) stops App Nap from throttling the window
+		if command -v caffeinate >/dev/null 2>&1; then exec caffeinate -dis "$GODOT" --path . -- --role=tv; fi
+		exec "$GODOT" --path . -- --role=tv ;;
 	run-controller) import_assets; exec "$GODOT" --path . -- --role=controller --join=127.0.0.1 ;;
 	test)           GODOT="$GODOT" exec tests/run_all.sh ;;
 	apk)

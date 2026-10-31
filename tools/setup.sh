@@ -1,7 +1,7 @@
 #!/bin/sh
-# One-time setup for building and running on macOS. Safe to run again.
+# One-time setup for building and running on macOS and Linux. Safe to run again.
 # Usage: tools/setup.sh
-#   - finds Godot (GODOT env var, /Applications/Godot.app, or PATH)
+#   - finds Godot (GODOT env var, PATH, or /Applications/Godot.app)
 #   - sets the JDK 17 path in the Godot editor settings
 #   - installs the Android build templates, one for the controller and one for the TV (see tools/patch_android_manifest.sh)
 #   - runs tools/patch_android_manifest.sh
@@ -10,29 +10,34 @@ set -eu
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-GODOT="${GODOT:-}"
-[ -z "$GODOT" ] && [ -x /Applications/Godot.app/Contents/MacOS/Godot ] && GODOT=/Applications/Godot.app/Contents/MacOS/Godot
-[ -z "$GODOT" ] && GODOT="$(command -v godot || true)"
-[ -n "$GODOT" ] || { echo "Godot not found. Install Godot 4.7 or set GODOT=/path/to/godot." >&2; exit 1; }
+# shellcheck source=tools/env.sh
+. tools/env.sh
 VERSION="$("$GODOT" --version | sed 's/\.official.*//')"   # e.g. 4.7.2.stable
 echo "Godot: $GODOT ($VERSION)"
 
-JDK17=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
-[ -x "$JDK17/bin/java" ] || JDK17="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
+# JDK 17: JAVA_HOME when it is a 17, then the Homebrew one (tools/env.sh sets JAVA_HOME from it), then /usr/libexec/java_home (macOS).
+JDK17="${JAVA_HOME:-}"
 case "$("$JDK17/bin/java" -version 2>&1 | head -1)" in *'"17.'*) ;; *) JDK17="" ;; esac
-[ -n "$JDK17" ] || { echo "JDK 17 not found. Run: brew install openjdk@17" >&2; exit 1; }
+if [ -z "$JDK17" ] && [ -x /usr/libexec/java_home ]; then JDK17="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"; fi
+[ -n "$JDK17" ] || { echo "JDK 17 not found. Set JAVA_HOME to a JDK 17 (macOS: brew install openjdk@17; Linux: your package manager, e.g. openjdk-17-jdk)." >&2; exit 1; }
 echo "JDK 17: $JDK17"
 
-SETTINGS="$HOME/Library/Application Support/Godot/editor_settings-4.7.tres"
+# The editor settings file is named after major.minor of Godot (editor_settings-4.7.tres).
+MINOR="$(printf '%s' "$VERSION" | cut -d. -f1,2)"
+SETTINGS="$GODOT_CONFIG_DIR/editor_settings-${MINOR}.tres"
 if [ -f "$SETTINGS" ]; then
-	sed -i '' "s|^export/android/java_sdk_path = .*|export/android/java_sdk_path = \"$JDK17\"|" "$SETTINGS"
+	# Portable edit (BSD and GNU sed differ on -i): write a copy, then put it back.
+	TMP="$(mktemp)"
+	sed "s|^export/android/java_sdk_path = .*|export/android/java_sdk_path = \"$JDK17\"|" "$SETTINGS" > "$TMP"
+	cat "$TMP" > "$SETTINGS"
+	rm -f "$TMP"
 	echo "editor settings: java_sdk_path set"
 else
-	echo "Open the Godot editor once, then run this script again (no editor settings yet)." >&2
+	echo "Open the Godot editor once, then run this script again (no editor settings yet: $SETTINGS)." >&2
 	exit 1
 fi
 
-TEMPLATES="$HOME/Library/Application Support/Godot/export_templates/${VERSION}"
+TEMPLATES="$GODOT_DATA_DIR/export_templates/${VERSION}"
 [ -f "$TEMPLATES/android_source.zip" ] || { echo "Export templates for $VERSION missing. Editor > Manage Export Templates." >&2; exit 1; }
 # Two projects: android (preset "controller", with the QR scanner) and android-tv (preset "tv", without it).
 for DIR in android android-tv; do
