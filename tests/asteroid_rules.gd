@@ -22,6 +22,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	_space_field()
 	_space_waves()
 	_blast_look()

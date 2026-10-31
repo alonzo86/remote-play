@@ -25,6 +25,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	BowlingLook = load("res://scripts/game/bowling/bowling_look.gd")
 	_score_sheet()
 	_last_frame()

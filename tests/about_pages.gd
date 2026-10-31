@@ -23,6 +23,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	await _run()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
