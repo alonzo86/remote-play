@@ -325,18 +325,24 @@ func _game_draw() -> void:
 	var slot := rules.current_slot()
 	if slot >= 0 and participants.has(slot) and phase != Phase.END and _plate_left > 0.0:
 		Shell.label_plate(self, Vector2(size.x * 0.5, 92.0), Lang.f("bowling.turn", [player(slot).player_name]), 32,
-				player(slot).color if _readable(player(slot).color) else UiTheme.TEXT)
+				player(slot).color if _readable(player(slot).color) else UiTheme.TEXT, _plate_room())
 	if phase == Phase.RESULT and _banner != "":
-		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), _banner, 72, _banner_color)
+		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), _banner, 72, _banner_color, _plate_room())
 		if _pins_left_line != "":
-			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36 + 110.0), _pins_left_line, 32, UiTheme.TEXT)
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36 + 110.0), _pins_left_line, 32, UiTheme.TEXT, _plate_room())
 	elif phase == Phase.AIM:
 		if _lift_left > 0.0:
-			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_lift"), 48, UiTheme.ACCENT)
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_lift"), 48, UiTheme.ACCENT, _plate_room())
 		elif _weak_left > 0.0:
-			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_weak"), 48, UiTheme.ACCENT)
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_weak"), 48, UiTheme.ACCENT, _plate_room())
 		elif _phase_time < HINT_TIME and not detector.aim_locked:
-			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_slide"), 32, UiTheme.TEXT)
+			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.36), Lang.t("bowling.hint_slide"), 32, UiTheme.TEXT, _plate_room())
+
+
+## The room for the text of a plate: the screen inside the 60 px safe margin and the 24 px of the plate on each side. A longer
+## text goes on more lines at the same size (never smaller, nothing cut, REQ-FL-40, issue #348).
+func _plate_room() -> float:
+	return size.x - 2.0 * 60.0 - 48.0
 
 
 ## The title of the turn is in the slot color when that color reads on black (REQ-GM-46 is about chips; text stays white
