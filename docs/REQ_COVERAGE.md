@@ -1,0 +1,153 @@
+# Requirement ids that no test named (issue #306)
+
+The issue counted 126 ids (36 in `GAME_REQUIREMENTS.md`, 28 in `TV_FLOW.md`) that appear in no test, manual step or
+`AUTOMATED_TESTS.md` row. There was no tool for it, so `tests/req_ids.gd` is the tool now: it reads the ids of the requirements
+files and the files that name them, and fails for an id that is not named and not in `tests/req_untested.txt`. Alon chose
+"the agent sorts them" (2026-10-31). The count with the same rule as the issue (full text `REQ-XX-n` only) is 122 ids
+(`REQ-XX-1` of the template is a placeholder and is not counted).
+
+Buckets:
+
+- **a (done)**: a test names the id now. Either a new check was written (the second column says where) or the existing check of
+  that suite checks the behavior and now names the id. A short list after an id (`REQ-PG-5, 6 and 21`) counts for each id of the
+  list; a range (`to`) and a wildcard (`REQ-MG-*`) count for none.
+- **todo**: a headless test can check it; it is not written yet. The reason says how. These are the next pull requests of the issue.
+- **review**: a rule of work or of taste that a reviewer judges; no machine can.
+- **device**: only a device or a person can check it. None of the 122 is in this bucket: the 63 rows with the status `Device` all
+  have manual steps since the pull requests #320 and #324.
+- **obsolete**: removed, superseded or no longer true. **These are for Alon to decide**; no requirement was deleted or reworded.
+
+Counts: a 66, todo 33, review 11, obsolete 12, device 0 (total 122).
+
+Ids that need a decision of Alon (obsolete):
+
+- Removed rows with a test that proves the removal: REQ-BC-8, REQ-TN-21. Keep as history or delete the rows.
+- Finished plans written as requirements: REQ-FL-47, REQ-FL-48, REQ-FL-49.
+- 3D and superseded pixel rules: REQ-GM-47 (umbrella), REQ-GM-47c, REQ-GM-47f, REQ-GM-47g, REQ-GM-47h.
+- Rules that say something false today: REQ-GM-60 (tests are in `smoke_<game>.gd`, not in `smoke_tv.gd`) and REQ-GM-61 (the logic tests
+  are in the `*_rules.gd` suites, not in `run_tests.gd`). They need a new wording.
+
+| ID | Bucket | How it is named, or why it is not |
+|----|--------|-----------------------------------|
+| REQ-2D-1 | a (done) | req_registry (new check) |
+| REQ-2D-2 | todo | pixel_games.gd draws at 1920x1080 and 3840x2160 only: add a draw of each game at 1280x720 that checks every object is inside the area |
+| REQ-2D-3 | review | draw calls instead of one node for each moving object: the code-reviewer reads it (frame_cost.gd shows the cost only) |
+| REQ-2D-4 | review | a convention for units (pixels at 1920x1080, tilt as sin of the angle): the reviewer reads it |
+| REQ-AH-1 | a (done) | named in the existing check of smoke_air_hockey.gd |
+| REQ-AH-2 | a (done) | req_registry (new check) |
+| REQ-AH-3 | a (done) | named in the existing check of smoke_air_hockey.gd |
+| REQ-AH-11 | a (done) | named in the existing check of smoke_air_hockey.gd |
+| REQ-AH-15 | a (done) | smoke_air_hockey (check made stricter: purple, no avatar) |
+| REQ-AH-22 | a (done) | smoke_bests (new check) |
+| REQ-BC-2 | a (done) | req_registry (new check) |
+| REQ-BC-8 | obsolete | the row says Removed on 2026-10-29 (a hit drops no star, REQ-BC-7): smoke_bumper_cars checks that a hit takes no star |
+| REQ-BC-13 | todo | smoke_bumper_cars: a lost phone pauses and the cars, the clock and the new stars do not move (the pause itself is tested in smoke_tv) |
+| REQ-BC-14 | a (done) | named in the existing check of smoke_bumper_cars.gd |
+| REQ-BC-15 | review | friendly toys, a hint line, positive texts: the localization-reviewer and the code-reviewer judge it |
+| REQ-BW-8 | todo | swing_replay.gd drives the overlay canvas: check the rows it shows for a swing (number, power, DOWN, side, age) |
+| REQ-BW-18 | a (done) | named in the existing check of smoke_bowling.gd |
+| REQ-BW-20 | a (done) | named in the existing check of smoke_bowling.gd |
+| REQ-BW-21 | todo | r4_bowling logs the plates: check the turn plate shows 1.5 s and is not drawn afterwards |
+| REQ-BW-22 | a (done) | named in the existing check of swing_setup.gd |
+| REQ-FL-17 | todo | smoke_settings: after Back the Games screen has the same tile in focus |
+| REQ-FL-18 | a (done) | named in the existing check of smoke_tv.gd |
+| REQ-FL-21 | a (done) | req_registry (new check) |
+| REQ-FL-22 | a (done) | req_registry (new check) |
+| REQ-FL-26 | a (done) | named in the existing check of smoke_tv.gd |
+| REQ-FL-27 | todo | tv_games: the tiles dim or open when a phone joins or leaves on the Games screen |
+| REQ-FL-29 | todo | protocol_doc.gd ties the messages to docs/PROTOCOL.md: add the phase values of the Connect and Games screens |
+| REQ-FL-30 | todo | read the Android manifest and export preset: LEANBACK_LAUNCHER, the banner, the main scene is the logo screen |
+| REQ-FL-31 | review | no internet service for play and the Connect help text: judged by the reviewer with REQ-P5 (the help text is a string row) |
+| REQ-FL-32 | todo | r4_tv_menus: the Players modal shows 4 slots with color and state, a QR code and Close |
+| REQ-FL-34 | todo | r4_tv_menus: the modal updates when a phone joins or leaves, the focus starts on Close, Back closes it |
+| REQ-FL-35 | todo | smoke_tv: Remove sends the message to the phone and the phone leaves |
+| REQ-FL-41a | a (done) | named by a step of docs/MANUAL_TESTS.md |
+| REQ-FL-45 | todo | scan scenes and scripts: the background is plain black and the confetti of the logo is drawn in code, not an image |
+| REQ-FL-46 | todo | design_tokens.gd: the phone scenes use the UiTheme palette and font of the TV |
+| REQ-FL-47 | obsolete | the plan for the next pull request that restyled the marble race; it is done (tier 2 and the arcade style replaced it) |
+| REQ-FL-48 | obsolete | the game shell is built in the same pull request as the menus: history of a finished pull request |
+| REQ-FL-49 | obsolete | the other games get the shell in the same pull request: history of a finished pull request |
+| REQ-FL-53 | a (done) | named in the existing check of docs/MANUAL_TESTS.md, ui_states.gd |
+| REQ-FL-61 | todo | smoke_lang: the Language row of Settings, Left and Right choose, OK goes to the next language |
+| REQ-FL-65b | todo | audio_events.gd: D-pad plays move, OK select, Back back, a join plays join, a leave plays leave |
+| REQ-FL-65c | a (done) | named in the existing check of audio.gd, audio_controller.gd |
+| REQ-FL-70 | todo | ui_profile_extra: the avatar takes the place of the slot number in the list, the header, the rows and the chips, and no game object has one |
+| REQ-FL-74 | a (done) | named in the existing check of r4_phone_profiles.gd |
+| REQ-FL-77 | a (done) | named in the existing check of ui_share.gd |
+| REQ-FL-78 | a (done) | named in the existing check of profile_code.gd |
+| REQ-FL-79 | a (done) | named in the existing check of r4_bests.gd |
+| REQ-FL-83a | a (done) | named by a step of docs/MANUAL_TESTS.md |
+| REQ-GM-1 | a (done) | req_registry (new check) |
+| REQ-GM-2 | review | the gaps and exceptions of a game file are read by the product-engineer and the code-reviewer |
+| REQ-GM-3 | a (done) | req_registry (new check) |
+| REQ-GM-4 | a (done) | named in the existing check of docs/AUTOMATED_TESTS.md |
+| REQ-GM-5 | review | a behavior change must change the requirements file in the same commit: the code-reviewer checks every pull request |
+| REQ-GM-7a | review | the starting point for a new requirements file is a rule of work for the add-minigame skill |
+| REQ-GM-10 | a (done) | req_registry (new check) |
+| REQ-GM-11 | a (done) | req_registry (new check) |
+| REQ-GM-23 | todo | one check for every game that a player object has the color of its slot (PlayerInput.color) |
+| REQ-GM-25 | review | a fair start state for every player is a rule of the design of each game; the reviewer checks it per game |
+| REQ-GM-36 | todo | each game: during play no screen with setup rows opens (menu_buttons never lists a setup row) |
+| REQ-GM-42 | review | which files a game may use depends on docs/TV_FLOW.md (FD-9, FD-13) and docs/THIRD_PARTY.md: the license-reviewer judges it |
+| REQ-GM-44 | todo | palette_lint.gd: OK is used for good and BAD for danger only |
+| REQ-GM-47 | obsolete | the tier 2 rule of toy-like worlds; its parts 47a to 47h are superseded by REQ-GM-47j to 47n (the pixel worlds) |
+| REQ-GM-47c | obsolete | outline width in 3D: no game is drawn in 3D since minigame_3d.gd was removed (issue #300) |
+| REQ-GM-47f | obsolete | the text says it is superseded by REQ-GM-47l and REQ-FL-38 (no round corners in the arcade style) |
+| REQ-GM-47g | obsolete | the text says it is superseded by REQ-GM-47l (no registered game is drawn in 3D) |
+| REQ-GM-47h | obsolete | materials and light in 3D: no game is drawn in 3D |
+| REQ-GM-47j | todo | pixel_games.gd: a key object has a black outline of one world pixel (4 units) |
+| REQ-GM-47k | todo | palette_lint.gd: at most 8 colors in a world palette unless the game file says why |
+| REQ-GM-47l | todo | pixel_games.gd: positions are moved to the grid with Shell.snap before they are drawn |
+| REQ-GM-47n | todo | pixel_games.gd: no text is drawn in the pixel view |
+| REQ-GM-49b | todo | audio.gd: every effect is 0.5 s or shorter (a fanfare 2 s) and every haptic event has an effect |
+| REQ-GM-49c | a (done) | named in the existing check of audio.gd, audio_controller.gd |
+| REQ-GM-49d | a (done) | named in the existing check of game_names_hebrew.gd |
+| REQ-GM-51 | todo | frame_cost.gd: no game creates nodes in a frame (count the nodes before and after 60 ticks) |
+| REQ-GM-52 | todo | frame_cost.gd: a game builds its scene in 2 s or less (time _game_ready) |
+| REQ-GM-60 | obsolete | says each game has a check in tests/smoke_tv.gd; in fact each game has its own smoke_<game>.gd suite: reword the rule |
+| REQ-GM-61 | obsolete | says pure logic has unit tests in tests/run_tests.gd; in fact they are in the *_rules.gd suites: reword the rule |
+| REQ-GM-62 | a (done) | req_registry (new check) |
+| REQ-GM-63 | a (done) | named in the existing check of tools/coverage.sh |
+| REQ-GM-71 | a (done) | named in the existing check of game_helpers.gd |
+| REQ-GM-81 | review | friendly content (no violence, nothing alive shot) is a judgment of the reviewer on pictures and sounds |
+| REQ-GM-84 | review | kind words in titles and messages is a judgment of the localization-reviewer (strings.csv has no list of banned words) |
+| REQ-GM-95 | a (done) | named in the existing check of smoke_air_hockey.gd |
+| REQ-GM-100 | a (done) | named in the existing check of ui_share.gd |
+| REQ-GM-101 | a (done) | named in the existing check of profile_code.gd |
+| REQ-MG-15 | a (done) | smoke_bests (new check) |
+| REQ-MG-17 | a (done) | named in the existing check of swing_setup.gd |
+| REQ-MR-1 | a (done) | req_registry (new check) |
+| REQ-MR-2 | todo | smoke_race: tilt gives acceleration, the speed stays and is damped, there is no dead zone and no speed limit |
+| REQ-MR-3 | todo | smoke_race: the cars stand still for 3 s and every phone buzzes at GO (the grid wait is tested) |
+| REQ-MR-5 | todo | game_rules: a car that goes past the edge of the track is put back and loses part of its speed |
+| REQ-MR-10 | a (done) | smoke_race (new check) |
+| REQ-MR-11 | a (done) | smoke_race (new check) |
+| REQ-MR-20 | a (done) | game_rules (new check) |
+| REQ-MR-21 | a (done) | game_rules (new check) |
+| REQ-MR-24 | a (done) | named in the existing check of game_rules.gd |
+| REQ-MR-25 | a (done) | req_registry (new check) |
+| REQ-MR-30 | todo | smoke_settings: the Games screen has one Car Race tile and it opens the settings view with Difficulty, Theme, the track list, Start and Back |
+| REQ-MR-32 | todo | smoke_race: OK does nothing during the race, Back asks End the game with Resume and End game |
+| REQ-MR-33 | a (done) | named in the existing check of smoke_race.gd |
+| REQ-MR-47 | a (done) | named in the existing check of game_rules.gd |
+| REQ-MR-55 | todo | smoke_race: the results menu of the race has Settings in place of Choose track |
+| REQ-MZ-10 | a (done) | named in the existing check of hud_layout.gd |
+| REQ-MZ-11 | a (done) | named in the existing check of smoke_bests.gd |
+| REQ-PG-6 | a (done) | named in the existing check of smoke_paint.gd |
+| REQ-PG-30 | a (done) | named in the existing check of game_rules.gd |
+| REQ-SB-4 | a (done) | named in the existing check of auto_sumo.gd, smoke_sumo.gd |
+| REQ-SB-5 | a (done) | named in the existing check of smoke_sumo.gd |
+| REQ-SB-21 | a (done) | named in the existing check of smoke_bests.gd |
+| REQ-SH-6 | a (done) | named in the existing check of smoke_sheep.gd |
+| REQ-SS-21 | a (done) | named in the existing check of smoke_banana.gd, smoke_tv.gd |
+| REQ-SS-23 | a (done) | named in the existing check of game_rules.gd |
+| REQ-SS-24 | a (done) | named in the existing check of smoke_bests.gd |
+| REQ-TB-1 | a (done) | req_registry (new check) |
+| REQ-TB-2 | a (done) | named in the existing check of smoke_tower.gd |
+| REQ-TB-14 | a (done) | named in the existing check of smoke_tower.gd |
+| REQ-TB-17 | a (done) | req_registry (new check) |
+| REQ-TB-20 | todo | audio.gd: the song tower_builder (D major, 116 bpm) and the five tower effects exist |
+| REQ-TN-14 | a (done) | named in the existing check of tennis_rules.gd |
+| REQ-TN-19 | a (done) | named in the existing check of tennis_rules.gd |
+| REQ-TN-21 | obsolete | the row says Removed on 2026-10-18 (the aim line on the TV is not built) |
+| REQ-TN-22 | a (done) | named in the existing check of swing_setup.gd |

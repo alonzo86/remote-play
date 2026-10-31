@@ -122,17 +122,19 @@ func _run() -> void:
 	_check(game.phase == game.Phase.ENROLL and game._enrolled.is_empty(), "B does not enroll a phone")
 	await _stream(clients, 0.2, [flat, flat, flat], [0, 0, Protocol.BTN_A])
 	_check(game._enrolled == [2] and game.phase == game.Phase.ENROLL and not clients[0].pad_buttons.is_empty(),
-			"a press of A on phone 3 enrolls it: the first enrolled stands on the left, and the match waits for a second player")
+			"a press of A on phone 3 enrolls it: the first enrolled stands on the left, "
+			+ "and the match waits for a second player (REQ-AH-3)")
 	game._on_button(Protocol.BTN_A, 2)
 	_check(game._enrolled == [2], "a phone that is enrolled already is not enrolled twice")
 	game._on_button(Protocol.BTN_A, 0)
 	await _frames(3)
 	_check(game.phase == game.Phase.PLAY and game.participants == [2, 0] and game.bot == null and game.seats.size() == 2
 			and game.seats[0].slot == 2 and game.seats[1].slot == 0 and game.sim.wait > 0.0,
-			"the second press starts the match for the two that enrolled, left seat and right seat in that order")
+			"the second press starts the match for the two that enrolled, left seat and right seat in that order (REQ-AH-1, REQ-AH-3)")
 	_check(clients[1].phase == "waiting" and clients[2].phase == "playing" and clients[0].phase == "playing",
-			"the third phone watches: its pad says waiting (REQ-GM-106)")
-	_check(game._scoreboard() != null and game._board.size() == 2, "two phones: the phones get a place and a score (REQ-GM-46)")
+			"the third phone watches: its pad says waiting (REQ-GM-106, REQ-AH-2)")
+	_check(game._scoreboard() != null and game._board.size() == 2,
+			"two phones: the phones get a place and a score (REQ-GM-46, REQ-AH-11)")
 
 	# Play: a tilt moves the paddle of its seat (REQ-AH-4).
 	var seat1_start: Vector2 = game.sim.paddles[1].pos
@@ -173,7 +175,7 @@ func _run() -> void:
 	await _frames(3)
 	_check(clients[0].score_rank == 1 and clients[0].score_text == "1" and clients[2].score_rank == 2,
 			"each phone gets its place and its goals; the leader is the right seat (REQ-FL-67)")
-	_check(game.leader_text() == "1", "the leader chip shows the goals of the leader (REQ-GM-46)")
+	_check(game.leader_text() == "1", "the leader chip shows the goals of the leader (REQ-GM-46, REQ-AH-11)")
 
 	# The end of the match: first to 3 (REQ-AH-10).
 	game.scores[1] = 2
@@ -184,7 +186,8 @@ func _run() -> void:
 	var menu: Array = game.menu_buttons().map(func(b): return b.text)
 	_check(game.is_over and menu == ["minigame.restart", "common.settings", "minigame.back_to_menu"]
 			and labels[0] == "SIM0 WINS!" and labels[1].contains("3 GOALS") and labels[2].contains("0 GOALS"),
-			"3 goals end the match: the result menu names the winner and lists the goals: %s %s" % [str(menu), str(labels)])
+			"3 goals end the match: the result menu names the winner and lists the goals "
+			+ "(REQ-AH-1, REQ-GM-95): %s %s" % [str(menu), str(labels)])
 	_check(MedalView.tiers_in(game._menu_box) == ["gold", "silver"],
 			"two players get the medals of their places (REQ-GM-73)")
 
@@ -242,10 +245,13 @@ func _run() -> void:
 	await _frames(3)
 	game = app.current_screen()
 	_check(game.phase == game.Phase.PLAY and game.bot != null and game.participants == [0] and game.seats.size() == 2
-			and game.seats[1].slot == -1 and game.seats[1].name == "ROBO" and game.seats[1].color == game.Look.BOT_COLOR,
-			"one phone: the match starts at once against ROBO with its own color (REQ-GM-105)")
+			and game.seats[1].slot == -1 and game.seats[1].name == "ROBO" and game.seats[1].color == game.Look.BOT_COLOR
+			and game.seats[1].color == Color("a678e6") and game.seats[1].avatar == -1,
+			"one phone: the match starts at once against ROBO, named ROBO, purple #a678e6, "
+			+ "with no avatar on its chip (REQ-GM-105, REQ-AH-15)")
 	_check(not Protocol.PLAYER_COLORS.has(game.Look.BOT_COLOR), "the color of ROBO is not the color of any phone slot")
-	# Issue #227: the puck is black with a light ring: the ring stands out from the black goal mouth, the black from the white table.
+	# Issue #227: the puck is black with a light ring: the ring stands out from the black goal mouth, the black from
+	# the white table.
 	var contrast := Callable(game.Look.UiTheme, "contrast")
 	_check(contrast.call(game.Look.PUCK_RING, game.Look.FLOOR) >= 3.0 and contrast.call(game.Look.RAIL, game.Look.SURFACE) >= 3.0,
 			"the puck ring has 3:1 against the black goal mouth, and the black puck has 3:1 against the white table")
@@ -288,7 +294,7 @@ func _run() -> void:
 			and labels[1].contains("3 GOALS")
 			and labels[2].contains("SIM0") and labels[2].contains("1 GOAL"),
 			"ROBO wins: the result menu names it and lists both rows with no medals: %s" % [str(labels)])
-	_check(MedalView.tiers_in(game._menu_box).is_empty(), "a match against ROBO has no medal (REQ-AH-10)")
+	_check(MedalView.tiers_in(game._menu_box).is_empty(), "a match against ROBO has no medal (REQ-AH-10, REQ-AH-15)")
 	game.restart()
 	await _frames(3)
 	game = app.current_screen()
@@ -313,7 +319,8 @@ func _run() -> void:
 	game.restart()
 	await _frames(3)
 	game = app.current_screen()
-	_check(game.phase == game.Phase.ENROLL and game._enrolled.is_empty(), "two phones: a new match waits for the players to enroll")
+	_check(game.phase == game.Phase.ENROLL and game._enrolled.is_empty(),
+			"two phones: a new match waits for the players to enroll")
 	game._on_button(Protocol.BTN_A, second)
 	var ok := InputEventAction.new()
 	ok.action = "ui_accept"

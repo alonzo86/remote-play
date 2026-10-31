@@ -331,7 +331,7 @@ func _replaced() -> void:
 	var screen: Control = _app.current_screen()
 	_check(kicked and screen.get_script() == _app.ControllerConnect, "the older phone goes to the Connect screen")
 	_check(_app.last_error == Lang.t("app.player_already_in_room"),
-			"and its message is THIS PLAYER IS ALREADY IN THE ROOM.: '%s'" % _app.last_error)
+			"and its message is THIS PLAYER IS ALREADY IN THE ROOM. (REQ-FL-74): '%s'" % _app.last_error)
 	_check(screen._status.text == Lang.t("app.player_already_in_room").to_upper(),
 			"the Connect screen shows that text in its status line: '%s'" % screen._status.text)
 	await _wait_until(func(): return second.state == ControllerClient.State.CONNECTED, 4000)

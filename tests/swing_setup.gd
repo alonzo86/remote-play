@@ -95,7 +95,9 @@ func _answers() -> void:
 	var line_shown := false
 	for l in view.find_children("*", "Label", true, false):
 		line_shown = line_shown or (l.text == tv_line and l.is_visible_in_tree())
-	_check(line_shown, "the settings view of a swing game shows the safety line under the rows (Test 23 step 14a)")
+	_check(line_shown,
+			"the settings view of a swing game shows the safety line under the rows and Start waits for the OK "
+			+ "of every phone (Test 23 step 14a, REQ-BW-22, REQ-MG-17, REQ-TN-22)")
 	# Issue #121: a disabled Start cannot be reached. Down from the last row goes to Back, and Start takes no focus.
 	var last: Control = view.rows[-1]
 	last.grab_focus()
@@ -107,7 +109,8 @@ func _answers() -> void:
 	sim.clients[0].send_swing_ok()
 	await _wait_for(func(): return app.server.swing_pending() == [1])
 	await sim.frames(3)
-	_check(app.server.swing_pending() == [1] and view.start_button.disabled, "one phone answered: Start still waits for the other")
+	_check(app.server.swing_pending() == [1] and view.start_button.disabled,
+			"one phone answered: Start still waits for the other")
 	sim.clients[1].send_swing_ok()
 	await _wait_for(func(): return app.server.swing_pending().is_empty())
 	await sim.frames(3)

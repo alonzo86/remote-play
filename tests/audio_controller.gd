@@ -34,7 +34,7 @@ func _run() -> void:
 		await process_frame
 	var sound: Node = root.get_node("Sound")
 	var app: Node = root.get_node("App")
-	_check(not sound.enabled, "the phone: the Sound manager is off")
+	_check(not sound.enabled, "the phone: the Sound manager is off (REQ-FL-65c, REQ-GM-49c)")
 	_check(AudioServer.get_bus_index("Music") < 0 and AudioServer.get_bus_index("SFX") < 0, "the phone has no Music or SFX bus")
 	_check(_players(root).is_empty(), "the phone has no audio player at the start")
 	# Every call of the games and menus does nothing.

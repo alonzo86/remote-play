@@ -1,5 +1,6 @@
 extends SceneTree
-## The copy of a player profile (FD-22, docs/PROFILES_PLAN.md 6): the table of best keys, the text of a profile (`WP1.`), the
+## The copy of a player profile (FD-22, docs/PROFILES_PLAN.md 6): the table of best keys, the text of a profile
+## (`WP1.`, REQ-FL-78), the
 ## rules for a code that comes from outside, and the merge of an imported profile.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/profile_code.gd -- --role=controller
 
@@ -232,7 +233,7 @@ func _merge() -> void:
 	_check(merged.status == "merged" and s.profiles.size() == 2 and a.player_name == "Mia" and a.avatar == 7 and a.rev == 6,
 			"the copy with the higher rev gives the name and the avatar")
 	_check(a.bests == {"paint_grab|easy": 10, "marble_race|easy|1": 25000, "snowball_splat|easy": 99},
-			"each best is the better value (higher score, lower time) and a key in one profile only stays")
+			"each best is the better value (higher score, lower time) and a key in one profile only stays (REQ-GM-101)")
 	s.import_profile(_profile(ID_A, "Old", 1, 2, {"paint_grab|easy": 3}))
 	_check(a.player_name == "Mia" and a.avatar == 7 and a.rev == 6, "an old copy never replaces a newer rename")
 	s.import_profile(_profile(ID_A, "Old", 1, 2, {"marble_race|easy|1": 40000}))

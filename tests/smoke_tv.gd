@@ -304,7 +304,7 @@ func _run() -> void:
 	await _wait_while(func() -> bool: return not game._hold, 8000)
 	await _frames(3)
 	_check(game._hold and game.is_paused() and game.lost_participants() == [1],
-			"a silent phone makes the TV pause the game, also when its connection does not close")
+			"a silent phone makes the TV pause the game, also when its connection does not close (REQ-FL-26)")
 	var card_title: String = game._menu_box.find_children("*", "Label", true, false)[0].text
 	var card_buttons: Array = game.menu_buttons().map(func(b): return b.text)
 	_check(card_title == "2P LOST CONNECTION" and card_buttons == ["RESUME WITHOUT 2P", "minigame.end_game"],
@@ -478,7 +478,8 @@ func _run() -> void:
 	rg.open_results(board)
 	await _frames(2)
 	_check(rg._menu_box.find_children("*", "Label", true, false)[0].text == "TIE!", "equal scores give the title Tie!")
-	# One player left in the result of a round that started with more players: a technical win, the gold medal (owner, 2026-10-29).
+	# One player left in the result of a round that started with more players: a technical win, the gold medal
+	# (owner, 2026-10-29).
 	var one = Scoreboard.new([rg.participants[0]])
 	one.set_score(rg.participants[0], 25)
 	rg.open_results(one)
@@ -546,7 +547,8 @@ func _run() -> void:
 	await _frames(8)
 	_check(haptics.has(60), "GO buzzes the phone 60 ms: %s" % str(haptics))
 
-	# A animal that stands still in the middle of the screen, in lane 1 (an orangutan, 10 points), or lane 0 (a monkey, 25 points).
+	# A animal that stands still in the middle of the screen, in lane 1 (an orangutan, 10 points), or lane 0 (a
+	# monkey, 25 points).
 	var put := func(lane: int, x: float, y: float) -> void:
 		ss._field.puffs.clear()
 		ss._field.bushes.clear()   # A bush could hide the animal that the test sets up.
@@ -765,7 +767,8 @@ func _run() -> void:
 	_check(lg.menu_buttons()[1].theme_type_variation == "DangerButton", "End game is the red destructive button")
 	lg.on_back()
 	await _frames(2)
-	_check(app.current_screen() == lg and not lg.is_paused() and lg.menu_buttons().is_empty(), "Back on the question keeps playing")
+	_check(app.current_screen() == lg and not lg.is_paused() and lg.menu_buttons().is_empty(),
+			"Back on the question keeps playing")
 	var ok_event := InputEventAction.new()
 	ok_event.action = "ui_accept"
 	ok_event.pressed = true

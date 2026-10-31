@@ -169,7 +169,7 @@ func _gd_files(dir: String) -> Array[String]:
 
 
 func _manager(sound: Node, app: Node) -> void:
-	_check(sound.enabled, "the TV makes sound")
+	_check(sound.enabled, "the TV makes sound (REQ-FL-65c, REQ-GM-49c)")
 	_check(AudioServer.get_bus_index("Music") >= 0 and AudioServer.get_bus_index("SFX") >= 0, "the buses Music and SFX exist")
 	_check(sound.step_db(0) <= -80.0 and is_equal_approx(sound.step_db(10), 0.0) and sound.step_db(5) > sound.step_db(4),
 			"the volume steps rise from silent to full")
@@ -184,7 +184,7 @@ func _manager(sound: Node, app: Node) -> void:
 			"Music and Effects set the volume of their buses")
 	app.settings.merge(old, true)
 	sound.apply_settings()
-	# Effects: the same effect twice in 40 ms is one sound; an unknown id plays nothing.
+	# Effects: the same effect twice in 40 ms is one sound (REQ-FL-65c); an unknown id plays nothing.
 	var played: Array[String] = []
 	var cb := func(id: String): played.append(id)
 	sound.sfx_played.connect(cb)
@@ -239,7 +239,8 @@ func _manager(sound: Node, app: Node) -> void:
 	sound.hold_music(true)
 	sound.stop_music()
 	await _wait(0.7)
-	_check(not sound._music.playing and sound.wanted_music == "" and not sound.music_held, "stop_music ends the song and the hold")
+	_check(not sound._music.playing and sound.wanted_music == "" and not sound.music_held,
+			"stop_music ends the song and the hold")
 	_check(not sound._music.stream_paused, "and a held song does not stay paused after stop_music")
 
 

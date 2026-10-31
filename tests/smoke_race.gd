@@ -47,6 +47,7 @@ func _run() -> void:
 	await _restart_and_seeds()
 	await _settings_view()
 	_names()
+	await _standings_and_leave()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -187,7 +188,7 @@ func _restart_and_seeds() -> void:
 	var again: Control = sim.app.current_screen()
 	again.set_process(false)
 	_check(again != a and again.track_seed == seed_a and str(again._bumpers) == bumpers and str(again._bumper_kinds) == kinds
-			and str(again._decor) == decor, "Try again: the same seed, obstacles, obstacle pictures and scenery (REQ-MR-54)")
+			and str(again._decor) == decor, "Try again: the same seed, obstacles, obstacle pictures and scenery (REQ-MR-33, REQ-MR-54)")
 	_check(again.start_props.race_theme == "space" and again.race_theme == "space", "Try again keeps the theme (REQ-MR-45)")
 	var b: Control = await sim.start(Race, {"track_choice": "random", "difficulty": "medium"})
 	b_seed = b.start_props.track_seed
@@ -235,3 +236,31 @@ func _names() -> void:
 		ok = ok and Lang.t(key) == expected[key][1] and Lang.t(key).strip_edges() != ""
 	Lang.set_language("en")
 	_check(ok, "the 4 names of Car Race and its themes are the exact English and Hebrew texts")
+
+
+## REQ-MR-10: the order is the finished cars by time, then the others by distance along the track. REQ-MR-11: a player who
+## leaves is removed from the race, and the race goes on with the others. This runs last: it takes a phone away.
+func _standings_and_leave() -> void:
+	print("race: order and a player that leaves")
+	var game: Control = await sim.start(Race, {"track_choice": "1", "difficulty": "easy"})
+	_flat_all()
+	sim.through_countdown(game)
+	game._racers[0].finish_time = 25.0
+	game._racers[1].arc = 80.0
+	game._racers[2].finish_time = 20.0
+	game._racers[3].arc = 100.0
+	game._racers[2].arc = 10.0   # A finished car stays before a car that is further along but did not finish.
+	game._racers[0].arc = 5.0
+	var order: Array = game.standings().map(func(r) -> int: return r.slot)
+	_check(order == [2, 0, 3, 1],
+			"finished cars first by time (20 s, 25 s), then the others by distance (100 m, 80 m): %s (REQ-MR-10)" % str(order))
+	sim.clients[1].leave()
+	var waited := Time.get_ticks_msec()
+	while game.player(1).is_present() and Time.get_ticks_msec() - waited < 5000:
+		await sim.frames(1)
+	game._prune_participants()   # What _process() does in every frame.
+	sim.step(game, 0.1, {0: Sim.FLAT, 2: Sim.FLAT, 3: Sim.FLAT})
+	order = game.standings().map(func(r) -> int: return r.slot)
+	_check(not game.player(1).is_present() and not game._racers.has(1) and order.size() == 3
+			and order.slice(0, 2) == [2, 0] and not order.has(1) and not game.is_over,
+			"a player who leaves is out of the order and the race goes on with the others: %s (REQ-MR-11)" % str(order))

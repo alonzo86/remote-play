@@ -108,3 +108,5 @@ tests/palette_lint.gd|controller|palette lint: no new color near a player color,
 tests/text_size.gd|controller|text size floor: no TV text under 32 px (REQ-FL-40)|unit
 tests/protocol_doc.gd|controller|protocol: docs/PROTOCOL.md, Protocol.MESSAGES and the net code agree|unit
 tests/import_guard_check.gd|controller|import guard: a suite fails on a tree that was not imported|unit
+tests/req_registry.gd|controller|registry and requirements files agree: files, base class, texts, values, status words|unit
+tests/req_ids.gd|controller|requirement ids: each is named by a test or listed in tests/req_untested.txt|unit

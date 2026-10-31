@@ -1,0 +1,67 @@
+# Requirement ids that no test, tool or manual step names (issue #306). tests/req_ids.gd reads this file.
+# Format: ID | bucket | reason. Buckets: todo (a headless test can check it; nobody wrote it yet), device (a device or a person
+# checks it), review (a reviewer judges it), obsolete (removed, superseded or no longer true: the owner decides). When a test
+# names an id, take its line away (the suite fails for a line that is not needed any more). The full table with the ids that
+# were handled in the pull request is in docs/REQ_COVERAGE.md.
+#
+# todo
+REQ-2D-2 | todo | pixel_games.gd draws at 1920x1080 and 3840x2160 only: add a draw of each game at 1280x720 that checks every object is inside the area
+REQ-BC-13 | todo | smoke_bumper_cars: a lost phone pauses and the cars, the clock and the new stars do not move (the pause itself is tested in smoke_tv)
+REQ-BW-21 | todo | r4_bowling logs the plates: check the turn plate shows 1.5 s and is not drawn afterwards
+REQ-BW-8 | todo | swing_replay.gd drives the overlay canvas: check the rows it shows for a swing (number, power, DOWN, side, age)
+REQ-FL-17 | todo | smoke_settings: after Back the Games screen has the same tile in focus
+REQ-FL-27 | todo | tv_games: the tiles dim or open when a phone joins or leaves on the Games screen
+REQ-FL-29 | todo | protocol_doc.gd ties the messages to docs/PROTOCOL.md: add the phase values of the Connect and Games screens
+REQ-FL-30 | todo | read the Android manifest and export preset: LEANBACK_LAUNCHER, the banner, the main scene is the logo screen
+REQ-FL-32 | todo | r4_tv_menus: the Players modal shows 4 slots with color and state, a QR code and Close
+REQ-FL-34 | todo | r4_tv_menus: the modal updates when a phone joins or leaves, the focus starts on Close, Back closes it
+REQ-FL-35 | todo | smoke_tv: Remove sends the message to the phone and the phone leaves
+REQ-FL-45 | todo | scan scenes and scripts: the background is plain black and the confetti of the logo is drawn in code, not an image
+REQ-FL-46 | todo | design_tokens.gd: the phone scenes use the UiTheme palette and font of the TV
+REQ-FL-61 | todo | smoke_lang: the Language row of Settings, Left and Right choose, OK goes to the next language
+REQ-FL-65b | todo | audio_events.gd: D-pad plays move, OK select, Back back, a join plays join, a leave plays leave
+REQ-FL-70 | todo | ui_profile_extra: the avatar takes the place of the slot number in the list, the header, the rows and the chips, and no game object has one
+REQ-GM-23 | todo | one check for every game that a player object has the color of its slot (PlayerInput.color)
+REQ-GM-36 | todo | each game: during play no screen with setup rows opens (menu_buttons never lists a setup row)
+REQ-GM-44 | todo | palette_lint.gd: OK is used for good and BAD for danger only
+REQ-GM-47j | todo | pixel_games.gd: a key object has a black outline of one world pixel (4 units)
+REQ-GM-47k | todo | palette_lint.gd: at most 8 colors in a world palette unless the game file says why
+REQ-GM-47l | todo | pixel_games.gd: positions are moved to the grid with Shell.snap before they are drawn
+REQ-GM-47n | todo | pixel_games.gd: no text is drawn in the pixel view
+REQ-GM-49b | todo | audio.gd: every effect is 0.5 s or shorter (a fanfare 2 s) and every haptic event has an effect
+REQ-GM-51 | todo | frame_cost.gd: no game creates nodes in a frame (count the nodes before and after 60 ticks)
+REQ-GM-52 | todo | frame_cost.gd: a game builds its scene in 2 s or less (time _game_ready)
+REQ-MR-2 | todo | smoke_race: tilt gives acceleration, the speed stays and is damped, there is no dead zone and no speed limit
+REQ-MR-3 | todo | smoke_race: the cars stand still for 3 s and every phone buzzes at GO (the grid wait is tested)
+REQ-MR-30 | todo | smoke_settings: the Games screen has one Car Race tile and it opens the settings view with Difficulty, Theme, the track list, Start and Back
+REQ-MR-32 | todo | smoke_race: OK does nothing during the race, Back asks End the game with Resume and End game
+REQ-MR-5 | todo | game_rules: a car that goes past the edge of the track is put back and loses part of its speed
+REQ-MR-55 | todo | smoke_race: the results menu of the race has Settings in place of Choose track
+REQ-TB-20 | todo | audio.gd: the song tower_builder (D major, 116 bpm) and the five tower effects exist
+#
+# review
+REQ-2D-3 | review | draw calls instead of one node for each moving object: the code-reviewer reads it (frame_cost.gd shows the cost only)
+REQ-2D-4 | review | a convention for units (pixels at 1920x1080, tilt as sin of the angle): the reviewer reads it
+REQ-BC-15 | review | friendly toys, a hint line, positive texts: the localization-reviewer and the code-reviewer judge it
+REQ-FL-31 | review | no internet service for play and the Connect help text: judged by the reviewer with REQ-P5 (the help text is a string row)
+REQ-GM-2 | review | the gaps and exceptions of a game file are read by the product-engineer and the code-reviewer
+REQ-GM-25 | review | a fair start state for every player is a rule of the design of each game; the reviewer checks it per game
+REQ-GM-42 | review | which files a game may use depends on docs/TV_FLOW.md (FD-9, FD-13) and docs/THIRD_PARTY.md: the license-reviewer judges it
+REQ-GM-5 | review | a behavior change must change the requirements file in the same commit: the code-reviewer checks every pull request
+REQ-GM-7a | review | the starting point for a new requirements file is a rule of work for the add-minigame skill
+REQ-GM-81 | review | friendly content (no violence, nothing alive shot) is a judgment of the reviewer on pictures and sounds
+REQ-GM-84 | review | kind words in titles and messages is a judgment of the localization-reviewer (strings.csv has no list of banned words)
+#
+# obsolete
+REQ-BC-8 | obsolete | the row says Removed on 2026-10-29 (a hit drops no star, REQ-BC-7): smoke_bumper_cars checks that a hit takes no star
+REQ-FL-47 | obsolete | the plan for the next pull request that restyled the marble race; it is done (tier 2 and the arcade style replaced it)
+REQ-FL-48 | obsolete | the game shell is built in the same pull request as the menus: history of a finished pull request
+REQ-FL-49 | obsolete | the other games get the shell in the same pull request: history of a finished pull request
+REQ-GM-47 | obsolete | the tier 2 rule of toy-like worlds; its parts 47a to 47h are superseded by REQ-GM-47j to 47n (the pixel worlds)
+REQ-GM-47c | obsolete | outline width in 3D: no game is drawn in 3D since minigame_3d.gd was removed (issue #300)
+REQ-GM-47f | obsolete | the text says it is superseded by REQ-GM-47l and REQ-FL-38 (no round corners in the arcade style)
+REQ-GM-47g | obsolete | the text says it is superseded by REQ-GM-47l (no registered game is drawn in 3D)
+REQ-GM-47h | obsolete | materials and light in 3D: no game is drawn in 3D
+REQ-GM-60 | obsolete | says each game has a check in tests/smoke_tv.gd; in fact each game has its own smoke_<game>.gd suite: reword the rule
+REQ-GM-61 | obsolete | says pure logic has unit tests in tests/run_tests.gd; in fact they are in the *_rules.gd suites: reword the rule
+REQ-TN-21 | obsolete | the row says Removed on 2026-10-18 (the aim line on the TV is not built)
