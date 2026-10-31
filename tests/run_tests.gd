@@ -227,7 +227,7 @@ func _test_registry() -> void:
 	for g in Registry.all():
 		ids[g.id] = true
 		var sc := Registry.load_script(String(g.id))
-		var base := "res://scripts/game/minigame_3d.gd" if g.dim == "3d" else "res://scripts/game/minigame.gd"
+		var base := "res://scripts/game/minigame.gd"
 		var s := sc
 		var inherits_base := false
 		while s != null:

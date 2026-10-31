@@ -37,7 +37,6 @@ tests/device_mocks.gd|tv|simulated phones: the buzz at GO, recenter, a silent ph
 tests/smoke_paint.gd|tv|Paint Grab|scenario
 tests/smoke_sheep.gd|tv|Sheep Herding: dogs, sheep, pen, shared score, end, medals|scenario
 tests/smoke_bumper_cars.gd|tv|Bumper Cars: cars, stars, hits, end, leave, layout|scenario
-tests/smoke_3d.gd|tv|3D game base class|scenario
 tests/smoke_sumo.gd|tv|Sumo Bumpers|scenario
 tests/smoke_asteroid.gd|tv|Star Shield|scenario
 tests/smoke_bests.gd|tv|personal bests|scenario

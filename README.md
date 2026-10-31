@@ -52,7 +52,7 @@ scripts/
   core/                  protocol.gd (constants, packet codec), role.gd, qr_encoder.gd, profile.gd, profile_store.gd, profile_keys.gd, profile_code.gd
   net/                   tv_server, controller_client, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
-  game/                  minigame.gd (2D base), minigame_3d.gd (3D base), registry.gd (game list), shell.gd (HUD, cards), bot.gd, and one folder for each game (maze/, marble_race/, snowball_splat/ ... )
+  game/                  minigame.gd (base class of the games), registry.gd (game list), shell.gd (HUD, cards), bot.gd, and one folder for each game (maze/, marble_race/, snowball_splat/ ... )
   ui/                    TV screens (tv_logo, tv_connect, tv_games, tv_settings, players_modal), controller screens
                          (controller_connect, controller_wait, controller_pad), ui_theme, ui_kit, debug_overlay
 android/plugin/          QrScannerPlugin.java (Android plugin: Google code scanner)
@@ -81,10 +81,7 @@ Games only read `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_press
 3. Add one entry for the game in `scripts/game/registry.gd` (with `doc`, `description` and `tile`; `enroll: true` for a game that enrolls its players itself, REQ-GM-106). The Games screen is built
    from that list. Run `tools/make_tiles.gd` to make the tile screenshot (see the header of that file).
 
-For a 3D game, extend `scripts/game/minigame_3d.gd` instead. Override `_world_ready()` (build the scene under `world`),
-`_world_tick(delta)` and optionally `_hud_draw(canvas)`. No game uses it now: Car Race (`scripts/game/marble_race/`) was a 3D game until 2026-10-15 and is a flat pixel world now.
-A key object (player, goal, hazard) gets an outline with `add_outlined_mesh()`.
-The 3D world is frozen while the game is paused.
+There is no 3D base class: `minigame_3d.gd` was removed on 2026-10-31 (issue #300). Car Race was a 3D game until 2026-10-15 and is a flat pixel world now.
 
 A registry entry may have `props`, set on the game before it starts (and kept for Try again). An entry with a `settings`
 list has a settings view (Difficulty and the rows of the list) before the game: the choices become props of the game

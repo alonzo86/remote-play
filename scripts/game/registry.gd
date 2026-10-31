@@ -3,7 +3,7 @@ extends RefCounted
 ## To add a game: add one entry to GAMES. The script loads when the player picks the game.
 ##   id      unique short name
 ##   title   text on the menu button
-##   dim     "2d" (extends minigame.gd) or "3d" (extends minigame_3d.gd)
+##   dim     "2d" (extends minigame.gd; there is no 3D base class)
 ##   path    script path
 ##   doc     requirements file of the game (REQ-GM-6)
 ##   description  one line for the Games screen (REQ-FL-13)
