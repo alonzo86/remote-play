@@ -873,6 +873,8 @@ Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it
 9d. The person who reads Hebrew reads the buttons and the prompts changed by issue #230 (the rows in the pull request: JOIN, SCAN QR CODE, TRY AGAIN on the buttons; CHOOSE A GAME ON THE TV, SELECT GAME and HOLD ON TIGHT! on the prompts). Check: the reader says that each of the 6 reads right and natural for a child (6 of 6 yes).
 9e. The person who reads Hebrew reads the 5 Hebrew texts whose end mark changed by issue #234 (the how-to texts of Mini Golf and Sheep Herding now end with a full stop; the hints of Tennis (serve, hit) and Sumo Bumpers now end with an exclamation mark). Check: the reader says that each of the 5 reads right (5 of 5 yes).
 
+9f. On a phone set to Hebrew open Settings (waiting screen). The person who reads Hebrew reads the haptics button in both states (issue #290: it says "רטט: פועל" with the switch on and "רטט: כבוי" with it off). Check: the reader says that each of the 2 reads right (2 of 2 yes) and the text fits inside the button.
+
 Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-17-1 to A-17-8). Item 5 moved earlier (A-17-5). Item 7b moved too (A-17-7b). Item 6e was split: that the text shows complete is automated, 6e2 keeps the reading. The numbers of the other items do not change.
 
 **Results**
@@ -887,9 +889,11 @@ Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to
 | 9c | Photo of the Settings screen before and after the tap; photo after the restart | Not run |  |  | New 2026-10-29 (issue #171) |
 | 9d | Note from the Hebrew reader | Not run |  |  | New 2026-10-30 (issue #230) |
 | 9e | Note from the Hebrew reader | Not run |  |  | New 2026-10-30 (issue #234) |
+| 9f | Note from the Hebrew reader | Not run |  |  | New 2026-10-31 (issue #290); Hebrew by Claude |
 
 History:
 
+- 2026-10-31 (issue #290): the haptics button of the phone Settings is the string row settings.haptics (it was English text in the code). New step 9f, not run. The automated half is the Hebrew check in `audio` (_phone_haptics).
 - 2026-10-29 (issue #171): the phones no longer follow the TV language (REQ-FL-62). New steps 9b and 9c, not run. The automated half is A-17-9.
 - 2026-10-25 (R4): step 6c failed: the Hebrew of GO in Car Race should be "צא" (issue #113, a string change that waits for the owner's review). Step 6b (the HUD boxes in Hebrew with 2 phones) was removed: the tester has one phone; the box places are automated (`hud_layout`, REQ-GM-47o).
 - 2026-10-21 (aligned with the requirements, not run): step 6b names the Car Race timer box at the left (English) and right (Hebrew) margin, and step 6c splits the countdown word (Car Race) from the hint line (every game). No recorded result changed.
