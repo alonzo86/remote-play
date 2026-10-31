@@ -37,6 +37,9 @@ func _known_bug(issue: String, cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	await _run()
 	Shell.recorder = Callable()
 	_app.set_language("en", false)

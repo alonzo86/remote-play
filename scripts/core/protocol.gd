@@ -140,6 +140,36 @@ static func parse_json(text: String) -> Dictionary:
 	return {}
 
 
+## Typed readers for the fields of a parsed frame. Any device on the Wi-Fi can send any value, so a handler never casts a field
+## itself (`float()`, `int()`, `String()` and `bool()` raise a script error for an Array or a Dictionary). A value of another
+## type gives `default`. A number must be finite. A boolean is not a number.
+static func num(msg: Dictionary, key: String, default: float = 0.0) -> float:
+	var v: Variant = msg.get(key, default)
+	if (v is int or v is float) and is_finite(float(v)):
+		return float(v)
+	return default
+
+
+## `num` for an integer field.
+static func whole(msg: Dictionary, key: String, default: int = 0) -> int:
+	var v: Variant = msg.get(key, default)
+	if v is int:
+		return v
+	if v is float and is_finite(v) and absf(v) < 1.0e15:
+		return int(v)
+	return default
+
+
+static func text(msg: Dictionary, key: String, default: String = "") -> String:
+	var v: Variant = msg.get(key, default)
+	return v if v is String else default
+
+
+static func flag(msg: Dictionary, key: String, default: bool = false) -> bool:
+	var v: Variant = msg.get(key, default)
+	return v if v is bool else default
+
+
 static func to_json(d: Dictionary) -> String:
 	return JSON.stringify(d)
 

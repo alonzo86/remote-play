@@ -1,7 +1,9 @@
 name: CI
 
 # What runs depends on what changed and on how the run started (see docs/AUTOMATED_TESTS.md, "CI minutes"):
-#  - Only documentation changed (Markdown, docs/, .claude/): only `build-android` runs.
+#  - Only documentation changed (Markdown, docs/, .claude/): nothing runs.
+#  - There is no Android job: the APK export is off, and the manifest patch (tools/patch_android_manifest.sh) is tested in the job `lint`
+#    by tests/ci_scripts.sh (issue #286).
 #  - CI runs the UNIT suites (tests/suites.txt, tier unit) on a pull request and on a push to main. The SCENARIO suites (screens,
 #    layouts, texts, flows) run on demand: a manual run ("Run workflow", tests = scenario or all) or a pull request with the label
 #    `full-tests` (all suites).
@@ -198,67 +200,3 @@ jobs:
           name: pixels-log
           path: pixels-*.log
           retention-days: 7
-
-  build-android:
-    # Runs for every change, also a change of documentation only (then lint and test are skipped, and this job still runs).
-    # It does not run when a job before it failed, or when the run is a draft or a label that starts nothing.
-    needs: [changes, lint, test]
-    if: ${{ !cancelled() && !failure() && needs.changes.result == 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: chickensoft-games/setup-godot@v2
-        with:
-          version: ${{ env.GODOT_VERSION }}
-          use-dotnet: false
-          include-templates: true
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-      - name: Android SDK packages (the runner image has the SDK and sdkmanager)
-        run: |
-          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          echo "ANDROID_HOME=${ANDROID_HOME}" >> "$GITHUB_ENV"
-          SDKMANAGER="$(ls "${ANDROID_HOME}"/cmdline-tools/*/bin/sdkmanager | sort -V | tail -1)"
-          yes | "$SDKMANAGER" --licenses > /dev/null || true
-          "$SDKMANAGER" "platforms;android-34" "build-tools;34.0.0" "ndk;28.2.13676358" "cmake;3.22.1"
-      - name: Godot Android settings and debug keystore
-        run: |
-          VERSION_DIR="${HOME}/.local/share/godot"
-          mkdir -p "${HOME}/.config/godot" "${VERSION_DIR}/keystores"
-          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android \
-            -keystore "${VERSION_DIR}/keystores/debug.keystore" -storepass android \
-            -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -storetype pkcs12
-          cat > "${HOME}/.config/godot/editor_settings-4.7.tres" <<SETTINGS
-          [gd_resource type="EditorSettings" format=3]
-
-          [resource]
-          export/android/java_sdk_path = "${JAVA_HOME}"
-          export/android/android_sdk_path = "${ANDROID_HOME}"
-          export/android/debug_keystore = "${VERSION_DIR}/keystores/debug.keystore"
-          export/android/debug_keystore_user = "androiddebugkey"
-          export/android/debug_keystore_pass = "android"
-          SETTINGS
-      - name: Install the Android build template and patch the manifest
-        run: |
-          for DIR in android android-tv; do
-            mkdir -p ${DIR}/build
-            unzip -q "${HOME}/.local/share/godot/export_templates/${GODOT_VERSION}.stable/android_source.zip" -d ${DIR}/build
-            touch ${DIR}/build/.gdignore
-            printf '%s' "${GODOT_VERSION}.stable" > ${DIR}/.build_version
-          done
-          tools/patch_android_manifest.sh
-      # Disabled for now. Turn it on again to build and upload the APKs.
-      # - name: Export the APKs
-      #   run: |
-      #     godot --headless --path . --import || true
-      #     mkdir -p build
-      #     godot --headless --path . --export-debug tv build/sababi-tv.apk
-      #     godot --headless --path . --export-debug controller build/sababi-controller.apk
-      #     ls -l build/*.apk
-      - uses: actions/upload-artifact@v4
-        with:
-          name: apks
-          path: build/*.apk
-          retention-days: 14

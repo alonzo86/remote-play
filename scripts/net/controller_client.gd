@@ -248,20 +248,20 @@ func _tick_connected(now: int) -> void:
 
 
 func _handle(msg: Dictionary, now: int) -> void:
-	match msg.get("t", ""):
+	match Protocol.text(msg, "t"):
 		"welcome":
-			slot = int(msg.get("slot", -1))
-			color = Color(String(msg.get("color", "#ffffff")))
-			_token = String(msg.get("token", ""))
-			tv_name = String(msg.get("name", "TV"))
+			slot = Protocol.whole(msg, "slot", -1)
+			color = Color(Protocol.text(msg, "color", "#ffffff"))
+			_token = Protocol.text(msg, "token", "")
+			tv_name = Protocol.text(msg, "name", "TV")
 			sat_out = false
 			swing_acked = false   # A new session (another TV or slot) never inherits an earlier answer (issue #148).
-			phase = String(msg.get("phase", "connect"))
-			recenter_button = bool(msg.get("rc", true))
-			pad_buttons = String(msg.get("ab", "ab"))
-			tv_pid = String(msg.get("pid", ""))
-			tv_avatar = int(msg.get("av", -1)) if tv_pid != "" else -1
-			tv_player_name = String(msg.get("pname", ""))
+			phase = Protocol.text(msg, "phase", "connect")
+			recenter_button = Protocol.flag(msg, "rc", true)
+			pad_buttons = Protocol.text(msg, "ab", "ab")
+			tv_pid = Protocol.text(msg, "pid", "")
+			tv_avatar = Protocol.whole(msg, "av", -1) if tv_pid != "" else -1
+			tv_player_name = Protocol.text(msg, "pname", "")
 			clear_score()   # The score comes again with the next frame of the game (REQ-FL-67).
 			_was_connected = true
 			connect_timeout_ms = CONNECT_TIMEOUT_MS   # A reconnect on a weak Wi-Fi gets the long timeout.
@@ -276,22 +276,22 @@ func _handle(msg: Dictionary, now: int) -> void:
 			phase_changed.emit(phase)
 			_sync_profile()   # The TV may have ignored the profile (a round was running): send it again in a menu.
 		"reject":
-			var reason := String(msg.get("reason", "unknown"))
+			var reason := Protocol.text(msg, "reason", "unknown")
 			_close_socket()
 			_set_state(State.IDLE)
 			rejected.emit(reason)
 		"pong":
-			var t0 := float(msg.get("t0", now))
-			var t1 := float(msg.get("t1", now))
+			var t0 := Protocol.num(msg, "t0", now)
+			var t1 := Protocol.num(msg, "t1", now)
 			var rtt := maxf(now - t0, 0.0)
 			rtt_ms = rtt if rtt_ms < 0.0 else lerpf(rtt_ms, rtt, 0.3)
 			clock_offset_ms = t1 - (t0 + now) * 0.5
 			_send_json({"t": "stat", "rtt": snappedf(rtt_ms, 0.1),
 					"off": snappedf(clock_offset_ms, 0.1), "hz": snappedf(tx_rate, 0.1)})
 		"phase":
-			phase = String(msg.get("v", "connect"))
-			recenter_button = bool(msg.get("rc", true))
-			pad_buttons = String(msg.get("ab", "ab"))
+			phase = Protocol.text(msg, "v", "connect")
+			recenter_button = Protocol.flag(msg, "rc", true)
+			pad_buttons = Protocol.text(msg, "ab", "ab")
 			var was_out := setup_pick and not setup_in   # The view closes with this phone OUT (REQ-GM-104).
 			sat_out = (sat_out or was_out) if phase == "waiting" else false
 			if setup_swing or setup_pick:
@@ -305,41 +305,41 @@ func _handle(msg: Dictionary, now: int) -> void:
 			phase_changed.emit(phase)
 			_sync_profile()
 		"setup":
-			setup_swing = bool(msg.get("swing", false))
-			setup_pick = bool(msg.get("pick", false))
-			setup_in = bool(msg.get("in", true))
+			setup_swing = Protocol.flag(msg, "swing", false)
+			setup_pick = Protocol.flag(msg, "pick", false)
+			setup_in = Protocol.flag(msg, "in", true)
 			if setup_swing and swing_acked:
 				send_swing_ok()   # The same view is synced again (a phone joined): this phone has answered already.
 			setup_changed.emit()
 		"lang":
 			pass   # The TV language: a phone does not follow it (REQ-FL-62, issue #171).
 		"haptic":
-			haptic_requested.emit(int(msg.get("ms", 50)))
+			haptic_requested.emit(Protocol.whole(msg, "ms", 50))
 		"score":
-			score_rank = clampi(int(msg.get("rank", 0)), 0, Protocol.MAX_PLAYERS)
-			score_of = clampi(int(msg.get("of", 0)), 0, Protocol.MAX_PLAYERS)
-			score_text = String(msg.get("v", "")).substr(0, 12)
+			score_rank = clampi(Protocol.whole(msg, "rank", 0), 0, Protocol.MAX_PLAYERS)
+			score_of = clampi(Protocol.whole(msg, "of", 0), 0, Protocol.MAX_PLAYERS)
+			score_text = Protocol.text(msg, "v", "").substr(0, 12)
 			score_changed.emit()
 		"turn":
-			turn_state = clampi(int(msg.get("s", 0)), 0, 2)
-			turn_who = String(msg.get("who", "")).substr(0, 20) if turn_state == 2 else ""
-			turn_kind = "golf" if String(msg.get("k", "")) == "golf" else ""
+			turn_state = clampi(Protocol.whole(msg, "s", 0), 0, 2)
+			turn_who = Protocol.text(msg, "who", "").substr(0, 20) if turn_state == 2 else ""
+			turn_kind = "golf" if Protocol.text(msg, "k", "") == "golf" else ""
 			score_changed.emit()
 		"result":
 			# Only the profile that plays on this phone counts (the TV sends the ID of the slot).
-			var key := String(msg.get("key", ""))
+			var key := Protocol.text(msg, "key", "")
 			var v: Variant = msg.get("v", 0)
-			if pid != "" and String(msg.get("pid", "")) == pid and key != "" and (v is int or v is float):
+			if pid != "" and Protocol.text(msg, "pid", "") == pid and key != "" and (v is int or v is float):
 				result_received.emit(key, int(v))
 		"profile":
-			tv_pid = String(msg.get("pid", ""))
-			tv_avatar = int(msg.get("av", -1)) if tv_pid != "" else -1
-			tv_player_name = String(msg.get("name", "")) if tv_pid != "" else ""
+			tv_pid = Protocol.text(msg, "pid", "")
+			tv_avatar = Protocol.whole(msg, "av", -1) if tv_pid != "" else -1
+			tv_player_name = Protocol.text(msg, "name", "") if tv_pid != "" else ""
 			profile_answered.emit()
 		"kicked":
 			# The host removed this phone, or another phone took its profile (`reason` "replaced"). Forget the token. Do not
 			# reconnect (REQ-FL-33).
-			var kicked_reason := "replaced" if String(msg.get("reason", "")) == "replaced" else "kicked"
+			var kicked_reason := "replaced" if Protocol.text(msg, "reason", "") == "replaced" else "kicked"
 			_close_socket()
 			_token = ""
 			slot = -1

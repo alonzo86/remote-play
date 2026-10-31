@@ -11,6 +11,7 @@ tests/profile_code.gd|controller|profile code, keys and merge|unit
 tests/profiles.gd|controller|profiles: model, store, avatars|unit
 tests/config_files.gd|controller|settings and last-TV files: save result, wrong types|unit
 tests/net_profiles.gd|controller|profiles over the network|unit
+tests/net_malformed.gd|controller|TV and phone: frames with fields of the wrong type|unit
 tests/room_code.gd|controller|room code: encode, decode, hosts, TV link|unit
 tests/about_pages.gd|controller|About pages and About screen|scenario
 tests/game_helpers.gd|controller|game helpers|unit
@@ -102,3 +103,4 @@ tests/frame_cost.gd|tv|frame cost of every game with 4 phones on Hard (Tests 14,
 tests/rtl_text.gd|tv|Hebrew text: geresh and gershayim glyphs, order of rows with numbers and Latin names|unit
 tests/palette_lint.gd|controller|palette lint: no new color near a player color, OK or BAD outside palette.gd|unit
 tests/text_size.gd|controller|text size floor: no TV text under 32 px (REQ-FL-40)|unit
+tests/import_guard_check.gd|controller|import guard: a suite fails on a tree that was not imported|unit

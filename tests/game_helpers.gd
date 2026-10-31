@@ -30,6 +30,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	SnowGame = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
 	_round_clock()
 	_haptics()

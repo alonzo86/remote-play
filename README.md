@@ -105,7 +105,7 @@ The phone window has no sensors. The mouse simulates tilt (position) and yaw (mo
 
 Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 
-1. Install Godot 4.7 (with export templates), JDK 17 (`brew install openjdk@17`) and the Android SDK. JDK 26 does not work with the Gradle build.
+1. Install Godot 4.7 (with export templates), JDK 17 (macOS: `brew install openjdk@17`; Linux: `openjdk-17-jdk`) and the Android SDK. JDK 26 does not work with the Gradle build. The scripts in `tools/` (`setup.sh`, `build.sh`, `deploy.sh`) work on macOS and Linux and keep a `JAVA_HOME`, `ANDROID_HOME` or `GODOT` that you set; `deploy-ios.sh` is macOS only (Xcode).
 2. Run `tools/setup.sh`. It sets the JDK path in the editor settings, installs the Android build template,
    and patches the manifest (TV banner, hardware flags, QR scanner plugin).
 3. Build the APKs: `tools/build.sh apk` (output: `build/sababi-tv.apk`, `build/sababi-controller.apk`).

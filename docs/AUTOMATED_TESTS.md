@@ -12,7 +12,10 @@ GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh unit   # the
 GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_all.sh scenario   # the suites of screens, layouts, texts and flows
 GODOT=/Applications/Godot.app/Contents/MacOS/Godot tools/coverage.sh       # same suites with the 80% line coverage check (CI)
 /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tests/smoke_settings.gd -- --role=tv   # one suite (the role is in suites.txt)
+GODOT=/Applications/Godot.app/Contents/MacOS/Godot tests/run_one.sh tests/smoke_settings.gd   # one suite, with the import and the SCRIPT ERROR check of run_suites.sh
 ```
+
+**The project must be imported.** On a fresh checkout (no `.godot/imported`) the fonts and the sprite sheets do not load, and a suite can print a script error, or even end with `0 failed`, because of that and not because of the code (issue #291). `tests/run_suites.sh` and `tests/run_one.sh` run `godot --headless --path . --import` first. A suite that you start with `godot --script` yourself needs one `godot --headless --path . --import` before. If you forget it, the first statement of every suite (`tests/import_guard.gd`) prints `FAIL: assets not imported, run: godot --headless --path . --import` and the suite exits with 1. Every suite of `tests/suites.txt` must start `_initialize()` with that guard (copy it from any suite); `import_guard_check` fails when one does not, and it runs a suite on a copy of the project without `.godot` to prove that the suite fails. A SCRIPT ERROR line in the output of a suite fails it in `run_suites.sh` and `run_one.sh` (the shared function is in `tests/suite_lib.sh`); a direct `godot --script` run cannot do that, so read its output for `SCRIPT ERROR`.
 
 The suites are listed in `tests/suites.txt` (`script|role|title|tier`). A new suite is added there only. The tier is `unit` (the logic of one module or one rule; the CI runs these) or `scenario` (a screen, a layout, a text, a flow or several phones at once; run locally or on demand). Every line needs a tier; any other value (or a `|` in a title) stops the run with exit 2. The unit suites take about 2.5 minutes, the scenario suites about 13 minutes (one core, headless, measured on 2026-10-22).
 for every check and ends with `N checks, M failed` (the TV smoke test ends with `smoke test done, M failed`). The whole run takes a few
@@ -36,23 +39,31 @@ A suite that prints a `SCRIPT ERROR` line fails in `tests/run_suites.sh` even wh
 
 The free CI plans have a limited number of minutes each month. The CI runs the unit suites and the pixel checks only (Alon, 2026-10-22). The workflow `.github/workflows/ci.yml` spends the minutes like this (the job `changes` decides):
 
-| Case | lint | test | coverage | pixels | build-android |
-|------|------|------|----------|--------|---------------|
-| A pull request that changes code | yes | unit suites | reported, never fails | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `scripts/core/`, `scripts/input/`, `scripts/app.gd`, `project.godot`, the pixel tests, the design tokens) | yes |
-| A pull request with the label `full-tests` | yes | all suites | reported | as above | yes |
-| A pull request with the label `pixels` | yes | unit suites | reported | yes | yes |
-| A push to `main` (a merge) | yes | unit suites (a run on `main` is never cancelled by a newer push) | reported | yes | yes |
-| A manual run (Actions, "Run workflow") | yes | unit, scenario or all (your choice) | reported | your choice | yes |
-| Only Markdown, `docs/` or `.claude/` changed (the design tokens in `docs/design-system/` are code) | no | no | no | no | yes |
+| Case | lint | test | coverage | pixels |
+|------|------|------|----------|--------|
+| A pull request that changes code | yes | unit suites | reported, never fails | only when something drawn changed (`scenes/`, `assets/`, `scripts/ui/`, `scripts/game/`, `scripts/core/`, `scripts/input/`, `scripts/app.gd`, `project.godot`, the pixel tests, the design tokens) |
+| A pull request with the label `full-tests` | yes | all suites | reported | as above |
+| A pull request with the label `pixels` | yes | unit suites | reported | yes |
+| A push to `main` (a merge) | yes | unit suites (a run on `main` is never cancelled by a newer push) | reported | yes |
+| A manual run (Actions, "Run workflow") | yes | unit, scenario or all (your choice) | reported | your choice |
+| Only Markdown, `docs/` or `.claude/` changed (the design tokens in `docs/design-system/` are code) | no | no | no | no |
 | A draft pull request | nothing runs. Mark it ready for review to start CI | | | | |
 
 The scenario suites that take most time: `hud_layout` 105 s, `multi_phone` 101 s, `device_mocks` 80 s, `audio_phones` 58 s, `r4_tv_profiles` 49 s, `smoke_tv` 43 s, `r1_reconnect` 37 s, `r1_tv_screens` 25 s, `net_rate` 24 s, `audio_events` 23 s, `games_focus` 21 s.
 
 The coverage job always runs, always reports (the summary of the run) and never fails. The 80% rule (every module) is a local check: `tools/coverage.sh` runs all suites, and CLAUDE.md asks for it before a pull request. The unit suites alone leave the screen modules (`scripts/ui`, most of `scripts/game`) and the audio modules below 80%, because the scenario suites cover them.
 
+### Which CI counts (issue #285)
+
+- **CircleCI is the CI that gives the signal.** Its three jobs (`lint`, `test`, `pixels`) are the checks of a pull request.
+- **The GitHub Actions workflow (`.github/workflows/ci.yml`) is disabled on purpose** (Alon). It stays in the repository as the same plan in a second system and as a way back. Do not wait for it and do not count it as a result. Its last runs (224 to 211, 2026-10-22) ended in `failure` after about 2 s with no step run, which is what a limit of the account's Actions minutes or spending gives; the cause was not read from the logs and only the owner can see it (Settings, Billing, Actions). Runs 219 and before were green.
+- **Branch protection** should require the CircleCI checks only; this is set by the owner on GitHub (an agent cannot see or change it).
+- **Godot version:** `GODOT_VERSION` in `ci.yml` and in `.circleci/config.yml`, and the cache key `godot-<version>-v1` in `.circleci/config.yml` (two places), are the same number. `tests/ci_scripts.sh` fails when they differ. Change all four together when Godot is updated.
+- When both systems are active a pull request spends minutes twice; that is why Actions is off.
+
 ### CircleCI (beside GitHub Actions)
 
-`.circleci/config.yml` runs the same checks while both systems run (Alon, 2026-10-22: keep both for now). The repository must be connected in CircleCI first (Projects, Set Up), and "Auto-cancel redundant workflows" turned on. CircleCI has no labels and no draft state, so `tools/ci_plan_circleci.sh` decides from the branch and the pipeline parameters:
+`.circleci/config.yml` runs the same checks while both systems run (Alon, 2026-10-22: keep both for now; since then the Actions workflow is disabled, see above). The repository must be connected in CircleCI first (Projects, Set Up), and "Auto-cancel redundant workflows" turned on. CircleCI has no labels and no draft state, so `tools/ci_plan_circleci.sh` decides from the branch and the pipeline parameters:
 
 | Case | lint | test and coverage | pixels |
 |------|------|-------------------|--------|
@@ -62,7 +73,7 @@ The coverage job always runs, always reports (the summary of the run) and never 
 | "Trigger Pipeline" with `tests` = unit, scenario or all, or `pixels` = true (also for a documentation-only change) | yes | the tier you give | when `pixels` is true |
 | Only Markdown, `docs/` or `.claude/` changed | no | no | no |
 
-There is no `build-android` job on CircleCI (the APK export is off). A documentation-only change therefore runs nothing there. Godot is cached between runs. Compare the credits used with the minutes of Actions before you turn one of them off.
+Neither system has an Android job (the Actions job `build-android` exported nothing and was removed, issue #286; the manifest patch is checked in `tests/ci_scripts.sh`, which the lint job runs). A documentation-only change therefore runs nothing. Godot is cached between runs. Compare the credits used with the minutes of Actions before you turn one of them off.
 
 ## What replaced a manual step
 
@@ -361,7 +372,7 @@ There is no `build-android` job on CircleCI (the APK export is off). A documenta
 | A-22-8e | Test 22 item 8e | `r4_asteroid`: a player who plays alone sees "Reached wave N" where N is the number of the last wave banner. A single player gets no medal at any score (`auto_asteroid`); with two players the places get gold and silver |
 | A-22-1b, 12f; 23-1b; 25-1b; 26-1b | Test 22 items 1b, 12f; Test 23 item 1b; Test 25 item 1b; Test 26 item 1b (the colors; the steps stay) | `pixel_games` (render lane, NOT in `tests/suites.txt`): 3 of the 6 main colors of the tile are main colors of the game screen, and for Star Shield the world changes color only at the borders of its pixel blocks (the edges of the ship and of an asteroid are steps). "The tile and the game show the same four things" stays manual (REQ-GM-49) |
 | A-GM-40c | REQ-GM-40 (issue #223): every chip of every game is inside the 60 px margin, and the hint plate does not cover a chip (no manual step) | `hud_layout`: "every chip is inside the 60 px margin" and "the hint plate does not cover a chip" for the 15 games in English and Hebrew; `smoke_air_hockey`: "the hint plate shows and does not cover a score chip". Found and fixed: the Mini Golf chips (bottom 1056) and the Tower Builder hint over the chips |
-| A-GM-45c | REQ-GM-45c (issue #223): the title of every game stands on baseline y 96, the status text of the bar (Air Hockey, Pin Pals) on y 84, inside the bar and the margin, in English and Hebrew (no manual step) | `hud_layout`: "the title stands on the common baseline" and "the status text stands on the common baseline" for the 15 games in English and Hebrew |
+| A-GM-45c | REQ-GM-45c (issue #223): the title of every game stands on baseline y 96, the status text of the bar (Air Hockey, Pin Pals, Star Shield, Sumo Bumpers) on y 84, inside the bar and the margin, in English and Hebrew (no manual step) | `hud_layout`: "the title stands on the common baseline" and "the status text stands on the common baseline" for the 15 games in English and Hebrew |
 | A-GM-45a | REQ-GM-45a (issue #123): the black bar at the top of every game reaches both screen edges, in English and in Hebrew (no manual step; the look of Air Hockey on the black floor is in Test 27) | `pixel_render` (CI, 1080p and 4K) and `pixel_games` (render lane): "en: the black bar reaches both edges in every game", "he: the black bar reaches both edges in every game" |
 | A-23-1a | Test 23 item 1a | `smoke_bowling`: "Pin Pals opens the settings view with Difficulty on Medium and Rails off (REQ-BW-16, 17)" |
 | A-23-6a, 6c | Test 23 items 6a, 6c | `r4_bowling`: the total on the score sheet of 12 whole games against an independent count; after the last ball of frame 10 the top bar says "Frame 10/10" and the result menu opens in 1 to 3 s (REQ-BW-1). Known bug: the menu opens after 3.8 s, so the check of 6c fails |
@@ -437,6 +448,7 @@ a real device, but they make a regression show in CI before a person sees it. Th
 |-------|----------------|
 | `run_tests` | protocol, server, slots, the controller client, remove and kick, sensors, tilt and recenter |
 | `config_files` | the settings and last-TV files: a failed save is reported, values of the wrong type load the defaults, volumes and the port are cut to their range (REQ-C12, issue #309) |
+| `net_malformed` | frames with fields of the wrong type (Array, object, number for text) reach no script error and change no state, on the TV and on the phone (REQ-N10, issue #308) |
 | `net_loss` | a silent phone: when it is lost, when its slot is freed (grace times, paused game) |
 | `about_pages` | the About pages and the About screen of the phone (it was `net_pin`; the join PIN part is gone) |
 | `room_code` | the room code: every one of the 65536 values round-trips, no two addresses share a code, a typo above 65535 is rejected, lower case and spaces, the addresses that the phone builds, the TV link without a PIN, `VERSION` 4 |
@@ -454,6 +466,9 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | `air_hockey_rules`, `smoke_air_hockey` | Air Hockey and ROBO (Test 27 has the steps that need a device): the mallet inside its half and the rails, the speed limit, the same way at 60 and 120 frames a second, the puck friction, rail bounces, the goal openings and the post, a hit that sends the puck away and never sticks or goes through, the serve; the bot base class (reaction, tilt limit, seed), ROBO defends and attacks, seat 0 and 1, the levels (Easy loses to a player that only chases the puck, Hard beats it); with 3 simulated phones: the settings view (no IN and OUT), enrolling with A (not with a tilt or B), the match for the first two, the third phone waiting, goals, the banner and the serve, the result menu with medals, a silent phone pauses with End game only, Resume when it is back, a player that leaves ends the match, ROBO with one phone, the result menu without medals, OK on the remote |
 | `tower_rules`, `smoke_tower` | Tower Builder (Test 30 has the steps that need a device): a brick lands on the base or on the top brick, a brick that overlaps less than 24 px misses and changes nothing, a joint that does not hold drops everything above it (also a brick of an earlier turn), the 8 px slack, the same widths for the same seed, the turn time 10, 5 and 3 s and the swing range; with 3 simulated phones: the settings view (Difficulty only), only the phone of the turn can drop (A of another phone and B do nothing), a brick that stays is a point, the next turn goes to the next phone with the full time, a brick that is not dropped falls by itself when the time is over, a miss lies on the grass and takes nothing away, a topple wobbles first and then the bricks lie on the grass with no point lost, a leaving player (during a turn and during a fall) does not make anybody lose a turn, the result menu after 12 bricks, one phone playing 12 bricks gets the gold medal |
 | `design_tokens` | sizes, colors, license files packed in the export presets |
+| `import_guard_check` (controller, unit) | issue #291: every suite starts with the import guard; a suite run on a copy of the project without `.godot` exits with 1, prints "assets not imported" and prints no green result |
+| `qr` (controller, unit) | the QR encoder for the player profile code (FD-22): versions 7 to 14, the size, the function patterns, the version information, the capacity of each version (458 bytes at version 14, error correction L) and a fixed text whose module hash was read back by an outside decoder (a changed hash means the code changed) |
+| `game_names_hebrew` (tv) | with the TV in Hebrew every game name shows in Hebrew (REQ-FL-87): the tile titles and the info bar of the Games screen, the settings view of each of the 15 games and the HUD title; no screen shows the English name, and no script holds an English game name as a text |
 | `join_flow` | the phone and the TV on the loopback with a TCP relay that cuts the link without closing it: join and slot colors, PRESS OK TO CONTINUE, rejoin with the saved token, join during a round, kick, a Wi-Fi cut (the TV marks the slot lost), the hold of a paused game, QR scan with a fake plugin (the SCAN button only with the plugin, cancel, not a Sababi code), the pair link; a phone that comes back after its slot was freed joins again by itself. Three known-bug checks (the phone does not notice a silent TV, no reason on the Connect screen after a kick): they fail today, so the suite is red until the bugs are fixed |
 | `ui_states_a` | phone screens: the Disconnect button, A and B white and the lift, the pixel font and black backdrop, the Back key, every screen inside the safe area of an iPhone in portrait. One known-bug check (landscape): it fails today |
 | `net_rate` | the numbers of the link on the loopback: round trip, packets a second, longest gap, lost packets, with 1 phone and with 4 phones in the maze; the frames until the ball moves |
@@ -529,4 +544,21 @@ the real phone and the real Wi-Fi, so a simulated phone cannot answer them.
 - With the checks running: on Mini Golf hole 5 the sliding barrier passes 0.25 m from the cup (the other things keep 0.3 m, REQ-MG-12).
   The test checks that the barrier never covers the tee or the cup, and leaves the 0.3 m margin to a decision of the owner. Nothing in the game was changed.
 
-Helpers in `tests/` that are not suites: `golf_tennis_trace.gd` (made-up swing traces), `slow_run.gd` (longer time limits in the instrumented coverage run), `tcp_relay.gd` (a relay that freezes a link for the lost Wi-Fi tests), `sample_3d_game.gd` (the game of `smoke_3d`) and `screenshots_controller.gd` (phone screenshots by hand with a display). `pixel_games.gd` and `pixel_render.gd` are the render lane: only `pixel_render.gd` runs in CI; `pixel_games.gd` is run by hand.
+## Scripts in `tests/` that are not suites
+
+These 12 files are not in `tests/suites.txt`, so `run_all.sh`, the unit CI job and `coverage.sh` do not run them as suites. Each has a reason (issue #305). None is a forgotten test.
+
+| File | Kind | Why it is not a suite |
+|------|------|-----------------------|
+| `pixel_render` | check (render lane) | Needs a GL driver and a display. The CI job `pixels` runs it under xvfb at 1920x1080 and 3840x2160 (`.circleci/config.yml`, `.github/workflows/ci.yml`) |
+| `pixel_games` | check (render lane), by hand | Same needs. No CI job runs it: it is run by hand (the command is in its header) for Tests 22, 23, 25 and 26. Adding it to the `pixels` job is a change of the CI files (`release-engineer`) |
+| `screenshots` | tool | Saves screenshots of the TV screens to `user://shot_*.png` (display needed); no assertions |
+| `screenshots_controller` | tool | The same for the phone screens |
+| `golf_tennis_trace` | helper | Made-up swing traces for `tennis_rules`, `smoke_tennis`, `smoke_golf` |
+| `sensor_replay` | helper | Traces and ways to replay them for the swing tests (`swing_detector` and others) |
+| `sim_b` | helper | Simulated phones, a fake-clock sensor feed and hand-stepped games for the maze, race and banana suites |
+| `sim_input` | helper | Steps a game by hand and feeds sensor packets for the `auto_*` suites |
+| `rec_haptics` | helper | Records the buzzes as [slot, ms] instead of sending them |
+| `sample_3d_game` | helper | The tiny 3D game of `smoke_3d` |
+| `slow_run` | helper | Longer time limits in the instrumented coverage run |
+| `tcp_relay` | helper | A relay that freezes a link, for the lost Wi-Fi tests (`join_flow`, `net_loss`) |
