@@ -625,6 +625,15 @@ func _tiles() -> void:
 			for x in range(0, 640, 2):
 				if _px(img, x, y) == _rgb(UiTheme.BG):
 					black += 1
+		# Issue #304: no black strip at the bottom either, unless the world has a black floor by design (owner decisions in
+		# docs/games/air_hockey.md, paint_grab.md and sheep_herding.md).
+		if not ["air_hockey", "paint_grab", "sheep_herding"].has(id):
+			var low := 0
+			for y in range(img.get_height() - 4, img.get_height()):
+				for x in range(0, 640, 2):
+					if _px(img, x, y) == _rgb(UiTheme.BG):
+						low += 1
+			_check(low < 4 * 320 * 0.6, "tile %s: the bottom rows show the world, not a black strip (%d of %d pixels black)" % [id, low, 4 * 320])
 		var share := 100.0 * black / (37 * 320)
 		_check(share < 60.0, "tile %s: the top rows show the world, not a black HUD bar (%.0f%% black)" % [id, share])
 
