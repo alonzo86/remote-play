@@ -110,7 +110,7 @@ Checked against `main` on 2026-10-08.
 
 1. Requirements file `docs/games/<id>.md` (from `TEMPLATE.md`), written before the code. There are no medal tiers for a single player, so none are listed (REQ-GM-73).
 2. The game, the registry entry (`doc`, `description`, `tile`, `min_players`, `max_players`, `settings`) and the tile (`tools/make_tiles.gd`, with a scene that shows action, for example 4 players).
-3. A check in `tests/smoke_tv.gd` and unit tests of the rules: score, collision, what wins, a player who leaves (REQ-GM-60, 61).
+3. A smoke suite `tests/smoke_<game>.gd` and unit tests of the rules: score, collision, what wins, a player who leaves (REQ-GM-60, 61).
 4. At least 80% line coverage for each script (`GODOT=<path> tools/coverage.sh`), clean `gdlint`, passing tests.
 5. A section in `docs/MANUAL_TESTS.md` (REQ-GM-62), and a row in the status table of `docs/GAME_REQUIREMENTS.md`.
 6. A pull request only when the user asks. After it, the `review` skill runs and posts its findings as one comment.

@@ -45,7 +45,7 @@ Driving and bumping
 | REQ-BC-5 | Cars bounce off each other (`TiltBody.collide`, restitution 0.9): they never overlap after a tick, and a hit pushes the other car away. | Done | smoke_bumper_cars |
 | REQ-BC-6 | A bump is a hit when the speed of the two cars towards each other is at least 250 px/s. A hit buzzes both phones (25 ms, at most every 150 ms for one slot), plays the sound `car_bump`, and shows a spark where the cars met. A slower touch does nothing. | Device | bumper_rules, smoke_bumper_cars, audio_events, Device (the feel) (Test 32 step 12a) |
 | REQ-BC-7 | A hit (REQ-BC-6) takes no star from any car and never changes a score (owner, 2026-10-29: it was one star from each car from 2026-10-24; REQ-GM-83). It only bonks: the spark, the buzz and the sound of REQ-BC-6. The same pair of cars cannot hit again for 0.6 s. | Done | bumper_rules, smoke_bumper_cars |
-| REQ-BC-8 | Removed on 2026-10-29 (a hit drops no star, REQ-BC-7). | Done | smoke_bumper_cars |
+| Removed id | REQ-BC-8 was removed on 2026-10-29 (a hit drops no star, REQ-BC-7; `smoke_bumper_cars` checks it). The id is not used again. | Removed | - |
 
 Stars
 
