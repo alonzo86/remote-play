@@ -9,10 +9,6 @@ extends SceneTree
 ## The lint finds the problem in a made-up source first (so that it cannot pass by reading nothing), then reads the real games.
 ## Run: godot --headless --path . --script tests/pixel_world_lint.gd -- --role=controller
 
-## Mini Golf draws its world without `Shell.snap()` today (issue #346). The entry goes when the issue is fixed: the lint fails
-## for a game on this list that snaps.
-const NOT_SNAPPED: Array[String] = ["mini_golf"]
-
 const TEXT_CALL := "draw_string\\(|Label\\.new|UiKit\\.label|Shell\\.(text|text_centered|label_plate|status|hint|title|" \
 		+ "title_wrapped|chip|score_chip|leader_chip|timer|countdown)\\("
 const SNAP_CALL := "snap\\(|pixel_ball\\(|pixel_eyes\\("
@@ -131,10 +127,6 @@ func _real_games() -> void:
 				func(e: Dictionary) -> String: return "%s: %s" % [e.fn, String(e.line).strip_edges()]))])
 		var draws := count_matches(lines, DRAW_CALL)
 		var snaps := count_matches(lines, SNAP_CALL)
-		if id in NOT_SNAPPED:
-			_check(snaps.is_empty() and not draws.is_empty(),
-					"REQ-GM-47l: %s is on the list of worlds without Shell.snap (issue #346): remove it when it snaps" % id)
-		else:
-			_check(not snaps.is_empty() and not draws.is_empty(),
-					"REQ-GM-47l: %s: the world draw moves positions to the grid (%d calls of Shell.snap or pixel_ball)" % [id, snaps.size()])
+		_check(not snaps.is_empty() and not draws.is_empty(),
+				"REQ-GM-47l: %s: the world draw moves positions to the grid (%d calls of Shell.snap or pixel_ball)" % [id, snaps.size()])
 	_check(worlds >= 15, "the lint read the world draw of %d games" % worlds)

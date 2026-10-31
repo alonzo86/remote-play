@@ -98,7 +98,7 @@ Ids that need a decision of Alon (obsolete):
 | REQ-GM-47h | obsolete | materials and light in 3D: no game is drawn in 3D |
 | REQ-GM-47j | a (done) | pixel_games.gd (render lane: the outline of Shell.pixel_ball is one world pixel); the outline of other objects is a look item of the game tests |
 | REQ-GM-47k | obsolete | the limit of 8 colors is not what the games do: the games have 11 to 72 different color literals each (only bowling.md and tennis.md list extra colors); the colors on screen can be counted in the render lane, but the limit per game is for the owner to decide |
-| REQ-GM-47l | a (done) | pixel_world_lint (new suite: the world draw of every game snaps; Mini Golf is listed, issue #346) |
+| REQ-GM-47l | a (done) | pixel_world_lint (new suite: the world draw of every game snaps) |
 | REQ-GM-47n | a (done) | pixel_world_lint (new suite: no text in the world draw of any game) |
 | REQ-GM-49b | a (done) | audio.gd (limits and lengths of every effect), audio_events.gd (a buzz comes with a sound effect) |
 | REQ-GM-49c | a (done) | named in the existing check of audio.gd, audio_controller.gd |

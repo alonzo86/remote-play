@@ -398,10 +398,10 @@ static func draw_rock(ci: CanvasItem, geo: Geo, r: Vector3) -> void:
 ## top, the front and the side that faces the middle of the view are drawn.
 static func draw_box(ci: CanvasItem, geo: Geo, rect: Rect2, wall: bool) -> void:
 	var h := 0.32
-	var nl := geo.at(Vector2(rect.position.x, rect.position.y))
-	var nr := geo.at(Vector2(rect.end.x, rect.position.y))
-	var fl := geo.at(Vector2(rect.position.x, rect.end.y))
-	var fr := geo.at(Vector2(rect.end.x, rect.end.y))
+	var nl := Shell.snap(geo.at(Vector2(rect.position.x, rect.position.y)))
+	var nr := Shell.snap(geo.at(Vector2(rect.end.x, rect.position.y)))
+	var fl := Shell.snap(geo.at(Vector2(rect.position.x, rect.end.y)))
+	var fr := Shell.snap(geo.at(Vector2(rect.end.x, rect.end.y)))
 	var hn := Vector2(0.0, h * geo.scale_at(rect.position.y) * geo.m)
 	var hf := Vector2(0.0, h * geo.scale_at(rect.end.y) * geo.m)
 	ci.draw_colored_polygon(PackedVector2Array([nl, nr, fr, fl]), Color(0.0, 0.2, 0.0, 0.45))
@@ -435,11 +435,11 @@ static func draw_spinner(ci: CanvasItem, geo: Geo, sp: Dictionary, time: float) 
 	var c: Vector2 = sp.c
 	var sc := geo.scale_at(c.y) * geo.m
 	var lift := Vector2(0.0, -0.22 * sc)
-	var foot := geo.at(c)
+	var foot := Shell.snap(geo.at(c))
 	ci.draw_line(foot, foot + lift, OL, maxf(10.0, 0.1 * sc))
 	ci.draw_line(foot, foot + lift, WOOD, maxf(6.0, 0.06 * sc))
-	var a := geo.at(ends[0]) + lift * (geo.scale_at(float(Vector2(ends[0]).y)) / geo.scale_at(c.y))
-	var b := geo.at(ends[1]) + lift * (geo.scale_at(float(Vector2(ends[1]).y)) / geo.scale_at(c.y))
+	var a := Shell.snap(geo.at(ends[0]) + lift * (geo.scale_at(float(Vector2(ends[0]).y)) / geo.scale_at(c.y)))
+	var b := Shell.snap(geo.at(ends[1]) + lift * (geo.scale_at(float(Vector2(ends[1]).y)) / geo.scale_at(c.y)))
 	var mid := foot + lift
 	ci.draw_line(a, b, OL, maxf(14.0, 0.14 * sc))
 	ci.draw_line(a, mid, RED, maxf(8.0, 0.09 * sc))
@@ -457,7 +457,7 @@ static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float) -
 			foot + Vector2(hw * 0.6, -1.0 * sc), foot + Vector2(-hw * 0.6, -1.0 * sc)]), BRICK)
 	ci.draw_colored_polygon(PackedVector2Array([foot + Vector2(-hw * 0.8, -1.0 * sc), foot + Vector2(hw * 0.8, -1.0 * sc),
 			foot + Vector2(0.0, -1.3 * sc)]), RED)
-	var hub := foot + Vector2(0.0, -0.95 * sc)
+	var hub := Shell.snap(foot + Vector2(0.0, -0.95 * sc))
 	for i in 4:
 		var a := time * 1.4 + TAU * float(i) / 4.0
 		ci.draw_line(hub, hub + Vector2(cos(a), sin(a)) * 0.8 * sc, GOLD, maxf(4.0, 0.05 * sc))
@@ -466,7 +466,7 @@ static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float) -
 
 ## The ball at `p`, always white, with a small shadow on the ground and a shine.
 static func draw_ball(ci: CanvasItem, geo: Geo, p: Vector2, lift := 0.0) -> void:
-	var foot := geo.at(p)
+	var foot := Shell.snap(geo.at(p))
 	var r := geo.ball_r(p.y)
 	Shell.record("ball", ci, Rect2(foot - Vector2(r, 2.0 * r), Vector2(2.0 * r, 2.0 * r)), {"color": WHITE})
 	ci.draw_circle(foot, r * 0.9, Color(0.0, 0.2, 0.0, 0.5))
@@ -486,11 +486,11 @@ static func draw_aim(ci: CanvasItem, geo: Geo, from: Vector2, heading: float, le
 			var p := from + dir * length * float(i) / float(steps)
 			if p.y < 0.8:
 				continue
-			var at := geo.at(p) - Vector2(0.0, 4.0)
+			var at := Shell.snap(geo.at(p) - Vector2(0.0, 4.0))
 			var sz := maxf(8.0, 0.05 * geo.scale_at(p.y) * geo.m)
 			ci.draw_rect(Rect2((at - Vector2(sz, sz) * 0.5), Vector2(sz, sz)), UiTheme.TEXT if i % 2 == 1 else GOLD)
 	var end := from + dir * maxf(length, 0.6)
-	var e := geo.at(end)
+	var e := Shell.snap(geo.at(end))
 	var sz2 := maxf(16.0, 0.12 * geo.scale_at(end.y) * geo.m)
 	Shell.record("aim", ci, Rect2(e - Vector2(sz2 * 0.5, sz2 * 1.4), Vector2(sz2, sz2)),
 			{"locked": locked, "color": GOLD if locked else UiTheme.TEXT})
