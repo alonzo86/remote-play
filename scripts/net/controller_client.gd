@@ -3,6 +3,7 @@ extends Node
 ## It does not know about screens or sensors. Other scripts call send_sensor().
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const ConfigIO = preload("res://scripts/core/config_io.gd")
 
 signal state_changed(state: int)
 signal welcomed(slot: int, color: Color)
@@ -164,13 +165,17 @@ func _sync_profile(force := false) -> void:
 		_send_json(msg)
 
 
-func load_last() -> Dictionary:
+## The saved TV. A value of the wrong type is the default, and the port is 1 to 65535 (issue #309).
+func load_last(path := LAST_FILE) -> Dictionary:
 	var cfg := ConfigFile.new()
-	if cfg.load(LAST_FILE) != OK:
+	if cfg.load(path) != OK:
 		return {}
+	var p: int = ConfigIO.fit(cfg.get_value("last", "port", Protocol.WS_PORT), Protocol.WS_PORT)
 	return {
-		"host": cfg.get_value("last", "host", ""), "port": cfg.get_value("last", "port", Protocol.WS_PORT),
-		"room": cfg.get_value("last", "room", ""), "token": cfg.get_value("last", "token", ""),
+		"host": ConfigIO.fit(cfg.get_value("last", "host", ""), ""),
+		"port": p if p >= 1 and p <= 65535 else Protocol.WS_PORT,
+		"room": ConfigIO.fit(cfg.get_value("last", "room", ""), ""),
+		"token": ConfigIO.fit(cfg.get_value("last", "token", ""), ""),
 	}
 
 
@@ -409,10 +414,10 @@ func _set_state(s: State) -> void:
 		state_changed.emit(s)
 
 
-func _save_last(clear_token: bool) -> void:
+func _save_last(clear_token: bool, path := LAST_FILE) -> bool:
 	var cfg := ConfigFile.new()
 	cfg.set_value("last", "host", host)
 	cfg.set_value("last", "port", port)
 	cfg.set_value("last", "room", room)
 	cfg.set_value("last", "token", "" if clear_token else _token)
-	cfg.save(LAST_FILE)
+	return ConfigIO.save(cfg, path)

@@ -58,6 +58,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-C9: The player of a phone is chosen on the Connect screen before the phone joins, and cannot be changed while the phone is joined (the player taps DISCONNECT and chooses again, REQ-FL-71), so a profile never changes during a round.
 - REQ-C10: A profile can be copied to another phone with a QR code or a text (`WP1.`); the copy has no server (FD-22, REQ-FL-76 to 78).
 - REQ-C11: The phone keeps the personal best of each profile for each game setting and saves it at once (FD-22, REQ-GM-98 to 101).
+- REQ-C12: The settings file (`user://settings.cfg`) and the last-TV file (`user://controller.cfg`) are checked when they are read and when they are written (issue #309, `scripts/core/config_io.gd`). A write that fails is put in the log as a warning and the values stay in memory. A value of the wrong type in a file (a damaged or hand-edited file) is not used: the default stays (for `language` it is the first-start choice, REQ-FL-60). A volume is cut to 0 to 10, a language is `en`, `he` or empty, and the saved port is 1 to 65535, else 47801. Test: `tests/config_files.gd`.
 
 ## 6. TV application
 
