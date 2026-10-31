@@ -58,6 +58,7 @@ static func pick(rng: RandomNumberGenerator) -> int:
 	return rng.randi_range(0, SHAPES.size() - 1)
 
 
+## The key of the name of a picture. Only the tests call it: they check that the names are different.
 static func name_of(index: int) -> String:
 	return SHAPES[index][0]
 

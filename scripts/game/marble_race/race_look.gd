@@ -7,6 +7,7 @@ extends RefCounted
 ## walls are colored pixel by pixel in the frame of the road, so that their patterns turn with the road.
 
 const Palette = preload("res://scripts/game/palette.gd")
+const PixelArt = preload("res://scripts/game/pixel_art.gd")
 
 const PX := 8                 # World pixels in one meter (32 screen units).
 const TILE := 120             # The ground tile is 120x120 world pixels: its chess squares of 12 divide it.
@@ -86,7 +87,7 @@ static func car_image(color: Color) -> Image:
 static func obstacle_image(theme: String, kind: String) -> Image:
 	var img := Image.create(15, 16, false, Image.FORMAT_RGBA8)
 	var area := _paint(img, kind)
-	return _outlined(img.get_region(area), look(theme).outline)
+	return PixelArt.outlined(img.get_region(area), look(theme).outline)
 
 
 static func _paint(img: Image, kind: String) -> Rect2i:
@@ -168,24 +169,6 @@ static func _paint(img: Image, kind: String) -> Rect2i:
 			return Rect2i(0, 0, 9, 12)
 	_disc(img, 5.5, 5.5, 5.5, 5.5, Color("fcfcfc"))   # An unknown name: a plain disc.
 	return Rect2i(0, 0, 11, 11)
-
-
-## `src` with a one pixel outline around it: every empty pixel that touches a painted one (up, down, left or right) gets `color`.
-static func _outlined(src: Image, color: Color) -> Image:
-	var w := src.get_width()
-	var h := src.get_height()
-	var out := Image.create(w + 2, h + 2, false, Image.FORMAT_RGBA8)
-	out.blit_rect(src, Rect2i(0, 0, w, h), Vector2i(1, 1))
-	var painted := out.duplicate() as Image   # The outline pixels do not count as painted: it is one pixel wide.
-	for y in h + 2:
-		for x in w + 2:
-			if painted.get_pixel(x, y).a > 0.0:
-				continue
-			for n in [Vector2i(x - 1, y), Vector2i(x + 1, y), Vector2i(x, y - 1), Vector2i(x, y + 1)]:
-				if n.x >= 1 and n.y >= 1 and n.x <= w and n.y <= h and painted.get_pixelv(n).a > 0.0:
-					out.set_pixel(x, y, color)
-					break
-	return out
 
 
 static func _disc(img: Image, cx: float, cy: float, rx: float, ry: float, color: Color) -> void:
@@ -412,7 +395,7 @@ const DECOR_STEP_MAX := 9.0
 static func decor_image(theme: String, kind: String) -> Image:
 	var img := Image.create(36, 36, false, Image.FORMAT_RGBA8)
 	var area := _paint_decor(img, kind)
-	return _outlined(img.get_region(area), look(theme).outline)
+	return PixelArt.outlined(img.get_region(area), look(theme).outline)
 
 
 static func _paint_decor(img: Image, kind: String) -> Rect2i:

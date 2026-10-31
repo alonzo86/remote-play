@@ -6,10 +6,13 @@ tests/run_tests.gd|controller|unit and network tests|unit
 tests/ui_states.gd|controller|button states and the wait screen Leave|scenario
 tests/ui_share.gd|controller|copy a player: share, paste, scan|scenario
 tests/net_loss.gd|controller|lost phones (network)|unit
+tests/net_cleanup.gd|controller|close handshake helper and TvServer.start twice|unit
 tests/qr.gd|controller|QR encoder versions 7 to 14|unit
 tests/profile_code.gd|controller|profile code, keys and merge|unit
 tests/profiles.gd|controller|profiles: model, store, avatars|unit
 tests/game_host.gd|tv|GameHost: a minigame runs with a stub host and no TV server|unit
+tests/shell_timed_hud.gd|tv|Shell.timed_hud: timer, countdown and hint of the timed games|unit
+tests/pixel_art.gd|tv|sprite outline shared by the look files|unit
 tests/config_files.gd|controller|settings and last-TV files: save result, wrong types|unit
 tests/net_profiles.gd|controller|profiles over the network|unit
 tests/net_malformed.gd|controller|TV and phone: frames with fields of the wrong type|unit

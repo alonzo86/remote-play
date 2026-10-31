@@ -5,6 +5,7 @@ extends RefCounted
 
 const Shell = preload("res://scripts/game/shell.gd")
 const Palette = preload("res://scripts/game/palette.gd")
+const PixelArt = preload("res://scripts/game/pixel_art.gd")
 
 const OUTLINE := Color("101018")
 const SKY_TOP := Palette.BANANA_TAN
@@ -118,7 +119,7 @@ static func animal_image(kind: String, happy: bool, facing: int) -> Image:
 			img = _monkey(Color("ffc832"), Palette.GOLD_SHADE, Color("ffecaa"), Color("ffe06e"), true, happy)
 		_:
 			img = _monkey(FUR.monkey, FUR.monkey_dark, FUR.monkey_face, FUR.monkey_belly, false, happy)
-	var out := _outlined(img)
+	var out := PixelArt.outlined(img, OUTLINE)
 	if facing < 0:
 		out.flip_x()
 	return out
@@ -130,7 +131,7 @@ static func banana_image(turn: int) -> Image:
 	_line(img, [Vector2(8, 1), Vector2(8, 3), Vector2(6, 6), Vector2(2, 8)], BANANA, 2)
 	img.set_pixel(8, 1, BANANA_STEM)
 	img.set_pixel(1, 8, BANANA_STEM)
-	var out := _outlined(img)
+	var out := PixelArt.outlined(img, OUTLINE)
 	for i in posmod(turn, 4):
 		out.rotate_90(CLOCKWISE)
 	return out
@@ -141,7 +142,7 @@ static func peel_image() -> Image:
 	var img := Image.create(9, 4, false, Image.FORMAT_RGBA8)
 	_ell(img, 0, 1, 8, 3, BANANA)
 	_ell(img, 2, 0, 5, 1, BANANA.lightened(0.3))
-	return _outlined(img)
+	return PixelArt.outlined(img, OUTLINE)
 
 
 ## A bush (REQ-SS-26): `BUSH_HALF_W * 2` px wide, round, in three greens with a few flowers, a one pixel black outline.
@@ -154,7 +155,7 @@ static func bush_image() -> Image:
 		_ell(img, lobe[0], lobe[1], lobe[2], lobe[3], BUSH[2])
 	for f in [Vector2(14, 20), Vector2(36, 16), Vector2(58, 22), Vector2(26, 26)]:
 		_rect(img, int(f.x), int(f.y), int(f.x) + 1, int(f.y) + 1, BUSH_FLOWER)
-	return _outlined(img)
+	return PixelArt.outlined(img, OUTLINE)
 
 
 # ---- Animals ----
@@ -346,21 +347,3 @@ static func _line(img: Image, points: Array, color: Color, width: int) -> void:
 		for s in steps + 1:
 			var p := a.lerp(b, float(s) / float(steps))
 			_rect(img, int(p.x), int(p.y), int(p.x) + width - 1, int(p.y) + width - 1, color)
-
-
-## `src` with a one pixel outline: every empty pixel that touches a painted one (up, down, left or right) gets the outline color.
-static func _outlined(src: Image) -> Image:
-	var w := src.get_width()
-	var h := src.get_height()
-	var out := Image.create(w + 2, h + 2, false, Image.FORMAT_RGBA8)
-	out.blit_rect(src, Rect2i(0, 0, w, h), Vector2i(1, 1))
-	var painted := out.duplicate() as Image
-	for y in h + 2:
-		for x in w + 2:
-			if painted.get_pixel(x, y).a > 0.0:
-				continue
-			for n in [Vector2i(x - 1, y), Vector2i(x + 1, y), Vector2i(x, y - 1), Vector2i(x, y + 1)]:
-				if n.x >= 0 and n.y >= 0 and n.x < w + 2 and n.y < h + 2 and painted.get_pixelv(n).a > 0.0:
-					out.set_pixel(x, y, OUTLINE)
-					break
-	return out

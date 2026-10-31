@@ -96,16 +96,6 @@ func total(slot: int) -> int:
 	return sum
 
 
-## The strokes of the holes that are done only.
-func done_total(slot: int) -> int:
-	var r := row_of(slot)
-	var sum := 0
-	if r != null:
-		for s in r.done:
-			sum += s
-	return sum
-
-
 ## One putt of the player on turn is over (REQ-MG-2, 6, 8): `in_cup` says whether the ball is in the cup. The result:
 ## `slot`, `strokes` (on this hole), `in` (the ball is in), `picked` (the ball was picked up after MAX_STROKES), `hole_done`
 ## (nobody putts any more on this hole) and `label` (a text key, see `label_for()`, or "" for a plain number).

@@ -59,7 +59,7 @@ func _open_between(a: Vector2i, b: Vector2i) -> void:
 		h[maxi(a.y, b.y)][a.x] = false
 
 
-## True when a path exists from the first cell to the last cell.
+## True when a path exists from the first cell to the last cell. Only the tests call it: they prove that every maze can be solved.
 func is_solvable() -> bool:
 	var seen := {Vector2i.ZERO: true}
 	var queue: Array[Vector2i] = [Vector2i.ZERO]

@@ -44,7 +44,7 @@ Architecture
 - REQ-GM-10: A game extends `scripts/game/minigame.gd` (2D) or `scripts/game/minigame_3d.gd` (3D) and is listed in `scripts/game/registry.gd`.
 - REQ-GM-11: A game reads input only through `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_pressed`, raw values).
   It must not use `scripts/net/`.
-- REQ-GM-12: A game uses `App.server.haptic(slot, ms)` for feedback. It must not send network messages itself.
+- REQ-GM-12: A game uses `App.server.haptic(slot, ms)` for feedback. It must not send network messages itself. The base class `Minigame` reaches the TV app only through `game_host` (`scripts/game/game_host.gd`, issue #300); the games and `Haptics` move to it step by step.
 - REQ-GM-13: Game logic uses the frame `delta`. The result must not change with the frame rate.
   Fast physics use sub-steps of 1/120 s or less.
 

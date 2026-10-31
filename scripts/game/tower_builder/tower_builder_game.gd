@@ -26,7 +26,7 @@ const CHIP_ROW_STEP := 72.0
 const BANNER_FONT := 72
 const INFO_FONT := 32
 const INFO_X := 340.0                 # The middle of the plates at the left (turn, brick number).
-const TIMER_X := 520.0
+const TIMER_X := Shell.TIMER_X
 const TIMER_W := 240.0
 
 enum Phase { TURN, FALL, WOBBLE, AFTER }

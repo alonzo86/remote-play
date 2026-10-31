@@ -8,6 +8,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 const ID_A := "9f2c4e7a1b3d5f60718293a4b5c6d7e8"
 const ID_B := "00112233445566778899aabbccddeeff"
@@ -119,6 +120,14 @@ func _join_and_validate() -> void:
 	var g := await _phone()
 	_check(not _server.players[0].has_profile() and _server.players[0].player_name == "Player 1" and _server.players[0].avatar == -1
 			and g.tv_pid == "", "a guest is called Player N and has no avatar")
+	# Issue #307: the default name is a string row, made in the language of the TV, never saved as text.
+	Lang.set_language("he")   # In this order, as App.set_language does.
+	_server.set_language("he")
+	_check(_server.players[0].player_name == "שחקן 1" and _server.players[0].raw_name == "",
+			"a guest is 'שחקן 1' when the TV is in Hebrew, and no name is stored")
+	Lang.set_language("en")
+	_server.set_language("en")
+	_check(_server.players[0].player_name == "Player 1", "the guest name follows the TV back to English")
 	await _leave(g)
 	await _free_all()
 	var old := await _raw_hello({"name": "Longname123456"})

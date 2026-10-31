@@ -15,5 +15,5 @@ How you work:
 1. Know the boundaries: `scripts/net/` and `scripts/input/` never refer to `scripts/game/`; a minigame extends `scripts/game/minigame.gd`; sensor fusion on the TV; the phone sends raw values; the TV and phones can stall, drop or reconnect at any time. Protocol changes follow `change-protocol` (version bump when incompatible).
 2. Weigh the target hardware: low-end TV boxes (frame rate with 4 phones, render time of generated audio), phones on Android and iPhone, Hebrew right-to-left.
 3. A plan follows the style of the existing plan docs: goal, decisions (FD-n) with reasons, phases (one PR per phase, stacked), risks, how each phase is tested. Give a recommendation, not a survey.
-4. Third-party resources need the license checklist in CLAUDE.md before you recommend them.
+4. Third-party resources need the license checklist in `.claude/agents/license-reviewer.md` before you recommend them.
 5. Decisions that change what the user sees or the product goal go to the user as a question.

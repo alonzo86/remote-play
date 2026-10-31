@@ -4,6 +4,7 @@ extends Node
 ## It never refers to game scripts.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const ClosingSockets = preload("res://scripts/net/closing_sockets.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const Profile = preload("res://scripts/core/profile.gd")
 
@@ -53,7 +54,7 @@ var _tcp := TCPServer.new()
 var _pending: Array = []             # [{ws, since_ms}]
 var _sockets: Array[WebSocketPeer] = []
 var _last_rx_ms: Array[int] = []
-var _closing: Array = []             # Rejected sockets that finish their close handshake.
+var _closing := ClosingSockets.new()   # Rejected, replaced and stopped sockets that finish their close handshake.
 var _replaced_tokens := {}           # token -> time (ms) until which the TV remembers it (a phone that was replaced, FD-22).
 var _turn_sent := {}                 # slot -> the last turn message sent to that phone.
 var _score_sent := {}                # slot -> the last score message sent to that phone (it is not sent again, REQ-FL-67).
@@ -61,11 +62,16 @@ var _score_sent := {}                # slot -> the last score message sent to th
 
 func start(settings: Dictionary) -> Error:
 	ip = address_lookup.call()
+	# A second call starts again with 4 empty slots; it never adds slots to the ones it has (issue #310).
+	players.clear()
+	_sockets.clear()
+	_last_rx_ms.clear()
 	for i in Protocol.MAX_PLAYERS:
 		players.append(PlayerInput.new(i, settings))
 		_sockets.append(null)
 		_last_rx_ms.append(0)
-	player_removed.connect(_on_player_removed)
+	if not player_removed.is_connected(_on_player_removed):
+		player_removed.connect(_on_player_removed)
 	var err := _tcp.listen(port)
 	listening = (err == OK)
 	if err != OK:
@@ -95,6 +101,7 @@ func stop() -> bool:
 	return not _closing.is_empty()
 
 
+## The number of present players. The tests use it to wait for a join or a leave; the game code uses `players_in()`.
 func player_count() -> int:
 	var n := 0
 	for p in players:
@@ -204,6 +211,8 @@ func set_language(code: String) -> void:
 	if code == language:
 		return
 	language = code
+	if in_menu_phase():
+		_assign_names()   # A phone without a name is "Player N" in the new language.
 	for p in players:
 		if p.is_connected_now():
 			_send_json(p.slot, {"t": "lang", "v": language})
@@ -276,7 +285,7 @@ func kick(slot: int) -> void:
 
 
 func _process(delta: float) -> void:
-	_service_closing(Time.get_ticks_msec())
+	_closing.service(Time.get_ticks_msec())
 	if not listening:
 		return
 	sync_setup()
@@ -296,17 +305,6 @@ func _process(delta: float) -> void:
 	for i in _sockets.size():
 		_poll_slot(i, now)
 		players[i].tick(now)
-
-
-## Finishes the close handshake of the sockets that were rejected, replaced or stopped.
-func _service_closing(now: int) -> void:
-	for entry in _closing.duplicate():
-		entry.ws.poll()
-		if entry.ws.get_ready_state() == WebSocketPeer.STATE_CLOSED or now - int(entry.since) > 1500:
-			_closing.erase(entry)
-		elif not entry.closed and now - int(entry.since) >= 300:
-			entry.ws.close()
-			entry.closed = true
 
 
 func _poll_pending(now: int) -> void:
@@ -467,7 +465,7 @@ func _assign_names(only := -1) -> void:
 	for p in players:
 		if not p.is_present() or (only >= 0 and p.slot != only):
 			continue
-		var base: String = p.raw_name if p.raw_name != "" else "Player %d" % (p.slot + 1)
+		var base: String = p.raw_name if p.raw_name != "" else PlayerInput.default_name(p.slot)
 		var shown := base
 		var n := 2
 		while used.has(shown.strip_edges().to_upper()):
@@ -502,8 +500,7 @@ func _reject(ws: WebSocketPeer, reason: String) -> void:
 ## Close a socket and keep polling it, so the last frames are sent.
 ## The close is delayed: a close frame can drop the frames that came before it.
 func _discard(ws: WebSocketPeer) -> void:
-	ws.poll()
-	_closing.append({"ws": ws, "since": Time.get_ticks_msec(), "closed": false})
+	_closing.add(ws, Time.get_ticks_msec())
 
 
 func _poll_slot(i: int, now: int) -> void:
