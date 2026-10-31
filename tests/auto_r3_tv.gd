@@ -171,7 +171,7 @@ func _go_word() -> void:
 		_check(_countdown_log.size() >= 4 and texts_ok and inside,
 				"[%s] GO is '%s' at 4 sizes, whole and inside the 60 px margin (%d boxes)" % [code, want, _countdown_log.size()])
 	_app.set_language("he", false)
-	_check(Lang.t("marble_race.go") == "צא", "the Hebrew GO word is the text 'צא'")
+	_check(Lang.t("marble_race.go") == "צאו", "the Hebrew GO word is the text 'צאו'")
 	_app.set_language("en", false)
 	Shell.recorder = Callable()
 	holder.queue_free()
