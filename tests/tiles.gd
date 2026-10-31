@@ -30,6 +30,9 @@ var _checks := 0
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	SumoLook = load("res://scripts/game/sumo_bumpers/sumo_look.gd")
 	BumperLook = load("res://scripts/game/bumper_cars/bumper_look.gd")
 	HockeyLook = load("res://scripts/game/air_hockey/air_hockey_look.gd")

@@ -24,6 +24,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	_banana_times_and_pictures()
 	_race_pictures()
 	print("%d checks, %d failed" % [_checks, _fails])

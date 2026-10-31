@@ -18,6 +18,9 @@ var _buzz: Array = []   # [[ms of the buzz, real time of arrival]] for each phon
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	_run()
 
 

@@ -23,6 +23,9 @@ func _check(cond: bool, what: String) -> void:
 
 
 func _initialize() -> void:
+	if not preload("res://tests/import_guard.gd").ok():
+		quit(1)
+		return
 	_run()
 	_white_buttons()
 	_avatar_sheet()
