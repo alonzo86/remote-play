@@ -164,5 +164,17 @@ check "ci.yml has a GODOT_VERSION" "yes" "$([ -n "$V_ACTIONS" ] && echo yes)"
 check "GODOT_VERSION is the same in ci.yml and in .circleci/config.yml" "$V_ACTIONS" "$V_CIRCLE"
 check "the CircleCI cache keys name that version (2 keys, same key)" "godot-$V_ACTIONS-v1 godot-$V_ACTIONS-v1" "$(sed -n 's/^[[:space:]]*key:[[:space:]]*\(godot-.*\)$/\1/p' "$ROOT/.circleci/config.yml" | tr '\n' ' ' | sed 's/ $//')"
 
+echo "tools/set_version.sh (one app version, issue #289)"
+check "the 3 version places of export_presets.cfg agree" "0" "$("$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+cp "$ROOT/export_presets.cfg" "$TMP/presets.cfg"
+FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 2.3.4 12 >/dev/null
+check "set_version writes name and code to the 6 lines" "6" "$(grep -c '"2.3.4"\|^version/code=12$\|^application/version="12"$' "$TMP/presets.cfg")"
+check "after set_version the check passes" "0" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+sed -i.bak 's/^application\/version="12"/application\/version="13"/' "$TMP/presets.cfg"
+check "one place that differs makes the check fail" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+check "a bad name is refused" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" abc 1 >/dev/null 2>&1; echo $?)"
+check "a bad code is refused" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 1.0.0 x1 >/dev/null 2>&1; echo $?)"
+check ".gitignore keeps keystores and certificates out" "3" "$(grep -c '^\*\.keystore$\|^\*\.jks$\|^\*\.p12$' "$ROOT/.gitignore")"
+
 echo "$CHECKS checks, $FAILS failed"
 [ "$FAILS" -eq 0 ]
