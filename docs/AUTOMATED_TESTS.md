@@ -461,7 +461,6 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | `room_code` | the room code: every one of the 65536 values round-trips, no two addresses share a code, a typo above 65535 is rejected, lower case and spaces, the addresses that the phone builds, the TV link without a PIN, `VERSION` 4 |
 | `net_profiles`, `profiles`, `profile_code`, `ui_share`, `smoke_bests` | profiles: names, `Sam` and `sam`, bests, copy codes, share, NEW BEST |
 | `smoke_tv`, `games_focus`, `smoke_settings`, `ui_states`, `results_medals`, `layout_menus` | TV flow, Back and the quit question (TV, and the phone waiting and pad screens, REQ-FL-55), the Players modal, arrow keys, settings views (the maze Theme order Garden, Castle, Ice), medals, the win or tie sound of the result menu, result and pause menus |
-| `smoke_3d` (with `sample_3d_game`) | the 3D game base class: a tiny 3D game ticks its logic, draws the HUD above the world, and a sphere has a clear size on the HUD |
 | `hockey_bot` | ROBO in simulated matches and shots: no own goals, defence (issues #146, #147) |
 | `swing_detector` (with `golf_tennis_trace`, `sensor_replay`) | the swing detector of Pin Pals, Tennis and Mini Golf on made-up traces: the power and the time of the hit, the stop of a back swing is not a forward swing, a shake (`max_reversals`) throws nothing, a real swing still does; moves to the side, slow shakes, walking and a tap throw nothing in Pin Pals (`fwd_ratio`), soft to hard real swings throw once (issues #141, #142) |
 | `smoke_lang` | the strings table, Hebrew, right to left, the language choice |
@@ -566,6 +565,5 @@ These 12 files are not in `tests/suites.txt`, so `run_all.sh`, the unit CI job a
 | `sim_b` | helper | Simulated phones, a fake-clock sensor feed and hand-stepped games for the maze, race and banana suites |
 | `sim_input` | helper | Steps a game by hand and feeds sensor packets for the `auto_*` suites |
 | `rec_haptics` | helper | Records the buzzes as [slot, ms] instead of sending them |
-| `sample_3d_game` | helper | The tiny 3D game of `smoke_3d` |
 | `slow_run` | helper | Longer time limits in the instrumented coverage run |
 | `tcp_relay` | helper | A relay that freezes a link, for the lost Wi-Fi tests (`join_flow`, `net_loss`) |

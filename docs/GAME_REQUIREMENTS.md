@@ -37,11 +37,11 @@ if its own requirements file says why.
 - REQ-GM-7: The registry entry also has a `description` (one short sentence that says what the game is, with no instructions: no verbs that tell the player what to do, and no rules such as who wins; the how-to-play text is in the settings view, REQ-GM-103) and a `tile` (`assets/tiles/<id>.png`, 640x360, made by `tools/make_tiles.gd`). A test checks both (REQ-FL-19, 22). The Games screen shows them.
 - REQ-GM-7a: `docs/games/TEMPLATE.md` is the starting point for a new requirements file. Write it before the code.
 
-## All games (2D and 3D)
+## All games
 
 Architecture
 
-- REQ-GM-10: A game extends `scripts/game/minigame.gd` (2D) or `scripts/game/minigame_3d.gd` (3D) and is listed in `scripts/game/registry.gd`.
+- REQ-GM-10: A game extends `scripts/game/minigame.gd` (all games are 2D) and is listed in `scripts/game/registry.gd`. There is no 3D base class: `minigame_3d.gd` was removed on 2026-10-31 (issue #300, decision of the owner; no game used it since Car Race became flat on 2026-10-15).
 - REQ-GM-11: A game reads input only through `PlayerInput` (`tilt()`, `pointer()`, `is_down()`, `button_pressed`, raw values).
   It must not use `scripts/net/`.
 - REQ-GM-12: A game uses `App.server.haptic(slot, ms)` for feedback. It must not send network messages itself. The base class `Minigame` reaches the TV app only through `game_host` (`scripts/game/game_host.gd`, issue #300); the games and `Haptics` move to it step by step.
@@ -156,17 +156,7 @@ Tests
 
 ## 3D games
 
-- REQ-3D-1: A 3D game extends `minigame_3d.gd` and builds its scene in code under `world`.
-- REQ-3D-2: A 3D game uses primitive meshes with flat materials (`flat_material()`, `add_mesh()`). No textures or models until the project allows them.
-- REQ-3D-3: Shadows are off and MSAA is off, unless the game requirements file says why it needs them and the device test passes.
-- REQ-3D-4: A 3D game should have 200 mesh instances or fewer in view at the same time. (Device)
-- REQ-3D-5: The world is frozen while the game is paused (the base class does this).
-- REQ-3D-6: The camera keeps all active players in view. The camera can move and zoom. It must not turn the controls:
-  tilt right is always right on the screen, and tilt toward the player is always down on the screen.
-- REQ-3D-7: A 3D game draws score, names and text on the HUD layer (`_hud_draw()`), not as 3D text.
-- REQ-3D-8: A 3D game shows the shape of the play area clearly (floor, edges), and objects have enough contrast with the background.
-- REQ-3D-9: The result of the game must not depend on the physics engine of Godot (`RigidBody3D`). Use fixed sub-steps in game code
-  so that the same input gives the same result.
+Removed on 2026-10-31 (issue #300, decision of the owner). REQ-3D-1 to REQ-3D-9 described `minigame_3d.gd`, which no game used. The ids are not used again. A future 3D game needs a new base class and new requirements, decided with the owner. (REQ-3D-6 and REQ-3D-9 are still named as a spirit in a test message and in `docs/games/bowling.md` REQ-BW-9: the rule that the camera never turns the controls and that a result does not depend on the physics engine.)
 
 ## Settings and difficulty
 
