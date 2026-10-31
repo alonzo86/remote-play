@@ -27,7 +27,7 @@ const HINT_TIME := 4.0
 const FIELD_TOP := 152.0          # The grass is the screen inside the margin, under the HUD.
 const FIELD_MARGIN := 60.0
 const TIMER_X := Shell.TIMER_X
-const TIMER_W := 208.0
+const TIMER_W := Shell.TIMER_W
 const CHIP_W := 280.0
 const CONFETTI_COUNT := 70
 ## Difficulty (REQ-SH-17): the number of sheep, how far a dog scares a sheep, how fast a scared sheep
@@ -342,12 +342,7 @@ func _draw_sheep(ci: CanvasItem, s: SheepFlock.Sheep) -> void:
 func _game_draw() -> void:
 	Shell.title(self, "registry.sheep_herding")
 	draw_leader_chip(self)
-	if _round.is_playing() and not is_over:
-		Shell.timer(self, Vector2(TIMER_X, 36.0), maxf(_round.remaining(), 0.0), TIMER_W)
-	if _round.is_counting() and not participants.is_empty():
-		Shell.countdown(self, size, str(_round.count_number()), _round.count_elapsed())
-	if _round.time < HINT_TIME and not is_over:
-		Shell.hint(self, size, "sheep_herding.hint")
+	Shell.timed_hud(self, size, _round, is_over, not participants.is_empty(), "sheep_herding.hint", HINT_TIME)
 
 
 ## The one chip of the team: the number of sheep in the pen out of all (REQ-SH-13). It has no leader: the score is shared.

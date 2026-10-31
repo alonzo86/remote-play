@@ -211,6 +211,8 @@ func set_language(code: String) -> void:
 	if code == language:
 		return
 	language = code
+	if in_menu_phase():
+		_assign_names()   # A phone without a name is "Player N" in the new language.
 	for p in players:
 		if p.is_connected_now():
 			_send_json(p.slot, {"t": "lang", "v": language})
@@ -463,7 +465,7 @@ func _assign_names(only := -1) -> void:
 	for p in players:
 		if not p.is_present() or (only >= 0 and p.slot != only):
 			continue
-		var base: String = p.raw_name if p.raw_name != "" else "Player %d" % (p.slot + 1)
+		var base: String = p.raw_name if p.raw_name != "" else PlayerInput.default_name(p.slot)
 		var shown := base
 		var n := 2
 		while used.has(shown.strip_edges().to_upper()):
