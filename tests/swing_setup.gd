@@ -97,7 +97,7 @@ func _answers() -> void:
 		line_shown = line_shown or (l.text == tv_line and l.is_visible_in_tree())
 	_check(line_shown,
 			"the settings view of a swing game shows the safety line under the rows and Start waits for the OK "
-			+ "of every phone (Test 23 step 14a, REQ-BW-22, REQ-MG-17, REQ-TN-22)")
+			+ "of every phone (Test 23 step 14a, REQ-BW-22)")
 	# Issue #121: a disabled Start cannot be reached. Down from the last row goes to Back, and Start takes no focus.
 	var last: Control = view.rows[-1]
 	last.grab_focus()
@@ -132,7 +132,7 @@ func _answers() -> void:
 	await sim.frames(3)
 	_check(not sim.clients[0].swing_acked and not sim.clients[1].swing_acked and app.server.swing_pending() == [0, 1]
 			and app.current_screen().start_button.disabled,
-			"the second visit asks both phones again: the card shows and Start waits (before every game)")
+			"the second visit asks both phones again: the card shows and Start waits (before every game, REQ-TN-22)")
 	var second: Control = app.current_screen()
 	_check(second.get_viewport().gui_get_focus_owner() == second.rows[0],
 			"Start waits from the first frame: the view has the focus on the first row")
@@ -160,7 +160,7 @@ func _late_phone() -> void:
 	await sim.join(1)   # a third phone
 	await _wait_for(func(): return sim.clients[2].setup_swing)
 	_check(sim.clients[2].setup_swing and app.server.swing_pending() == [0, 1, 2],
-			"a phone that joins in the settings view gets the card")
+			"a phone that joins in the settings view of Mini Golf gets the card (REQ-MG-17)")
 	_check(sim.clients[2].setup_in and app.server.players_in().has(2), "a new phone in a slot that was OUT is IN")
 	app.go_games()
 	await sim.frames(3)
