@@ -17,7 +17,7 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
   that only a native Hebrew reader can confirm go in a step of the manual test of the change, not in an open issue and not in a blocking
   state (Alon, 2026-10-30; it was one open issue with the label `localization` on 2026-10-29). A Hebrew string keeps the Latin spelling of
   Sababi and QR; only A, B, OK, QR and Sababi may stay in Latin letters in Hebrew text (Alon, 2026-10-30).
-  Hebrew text may write the name in capitals (`SABABI`) like the English rows; that is intended (Alon, 2026-10-31). Hebrew commands to the user use the plural form ("סרקו", "התחילו"), never the masculine singular (Alon, 2026-10-31).
+  Hebrew text may write the name in capitals (`SABABI`) like the English rows; that is intended (Alon, 2026-10-31).
 - Do not decide on your own what the user sees (for example cutting or shortening text, hiding information). Ask the user first.
 - Continuous integration: Alon has no CI credits left (2026-10-31). Ignore the state of GitHub Actions and CircleCI; do not file issues or block a pull request because CI is red or did not run. The checks you run yourself (touched suites and `gdlint`) are the gate.
 - Work on the branch the session gives you. For a delegated sweep of issues, one `claude/issue-<n>-<name>` branch per pull request is allowed
