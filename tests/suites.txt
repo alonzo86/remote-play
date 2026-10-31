@@ -9,11 +9,8 @@ tests/net_loss.gd|controller|lost phones (network)|unit
 tests/qr.gd|controller|QR encoder versions 7 to 14|unit
 tests/profile_code.gd|controller|profile code, keys and merge|unit
 tests/profiles.gd|controller|profiles: model, store, avatars|unit
-<<<<<<< HEAD
 tests/pixel_art.gd|tv|sprite outline shared by the look files|unit
-=======
 tests/config_files.gd|controller|settings and last-TV files: save result, wrong types|unit
->>>>>>> origin/main
 tests/net_profiles.gd|controller|profiles over the network|unit
 tests/net_malformed.gd|controller|TV and phone: frames with fields of the wrong type|unit
 tests/room_code.gd|controller|room code: encode, decode, hosts, TV link|unit
