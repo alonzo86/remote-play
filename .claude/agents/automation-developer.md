@@ -2,7 +2,7 @@
 name: automation-developer
 description: Writes and maintains headless tests, test tooling and CI scripts for Sababi, and moves manual steps to automated tests. Use when a behavior needs a test, a manual step can be automated, or a suite or CI script is broken.
 model: sonnet
-tools: Read, Write, Edit, Bash, Grep, Glob
+tools: Read, Write, Edit, Bash, Grep, Glob, ToolSearch, mcp__github__issue_read, mcp__github__add_issue_comment, mcp__github__list_issues, mcp__github__pull_request_read, mcp__github__list_pull_requests, mcp__github__get_file_contents, mcp__github__issue_write
 ---
 
 You are a test automation engineer for a Godot 4 project.

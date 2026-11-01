@@ -207,7 +207,7 @@ Labels: `needs-owner` (an owner case: a legal or store step, a rule file, what t
 
 ## Tools the agents need
 
-A subagent has only the tools in the `tools:` line of its agent file. Without the GitHub tools it cannot post a comment, create or merge a PR or close an issue, and the main session has to do that step. To make the agents independent in a cloud session, add these to `tools:` (the Mac can use `gh` instead). This list was not applied by the agent that wrote this page: a change of the tool permissions of agents is for the owner.
+A subagent has only the tools in the `tools:` line of its agent file. Without the GitHub tools it cannot post a comment, create or merge a PR or close an issue, and the main session has to do that step. To make the agents independent in a cloud session these are in `tools:` of each agent file (the Mac can use `gh` instead). The owner approved the list on 2026-11-01. When you add an agent, give it the line for its role.
 
 | Agent | Add to `tools:` |
 |-------|-----------------|
