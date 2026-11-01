@@ -690,7 +690,7 @@ Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island")
 1a. Follow `docs/EXPORT.md`, section *Controller on an iPhone*, and run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. Check: the export, the build, the install and the launch end, and `echo $?` after the script prints 0. If it fails, save the last 50 lines of the log.
 1b. Look at the iPhone. Check: the app opens in portrait, and the home screen icon is named **Sababi: Remote**.
 2b. Start the app for the first time after the install, type the room code of the TV and tap **JOIN**. Check: the iPhone asks for the Local Network permission once; allow it, and the phone joins within 10 seconds. Close the app, start it again and join again by the code: no second question. (The app connects to the TV address, so iOS asks.)
-2c. Look at the Connect screen. Check: it has the field for the room code and the JOIN button, and no scan button, no paste button, no list of rooms and no Refresh button. (REQ-FL-58)
+2c. Look at the Connect screen. Check: it has the field for the room code and the JOIN button, and no paste button, no list of rooms and no Refresh button. It has a scan button only when the build has the scanner plugin (Test 33); a build without the plugin has none. (REQ-FL-58, changed 2026-11-01)
 2d. Type the room code of the TV in lower case with a space after the second letter, and tap **JOIN**, with the stopwatch. Check: the phone shows the waiting screen with the square of slot 1 less than 5 seconds after the tap, and the TV shows the player in slot 1. (REQ-FL-83)
 3a. Open the debug overlay on the TV. Put the iPhone flat, screen up, still. Check: Accel z is between +9.3 and +10.3, and Accel x and y are between -0.5 and +0.5. If z is negative, tell Claude: remove "iOS" from `ACCEL_INVERTED_ON` in `scripts/input/sensor_sampler.gd`.
 3b. Put the right side down at about 30 degrees, then the left side down. Check: Accel x is -2 or lower for the right side down, and +2 or higher for the left side down. (Like Test 3, item 2.)
@@ -1791,7 +1791,7 @@ Write the model of the iPhone and the iOS version in the Run log.
 9a. In a dark room with only the TV on, scan the code. Check: it reads within 5 seconds (yes or no; write the phone model). (REQ-FL-89)
 9b. A child of about 5 to 8 years scans the code on the TV with the phone, with no help. Check: the child joins within 30 seconds (stopwatch). (REQ-FL-58, REQ-FL-89)
 
-Nothing in this test can be done headless (it needs a real camera): the GDScript side (the call with the two texts, the reasons, the button) is covered by headless tests (`docs/AUTOMATED_TESTS.md`, A-33-*, when the code of the scan screen is built).
+Nothing in this test can be done headless (it needs a real camera): the GDScript side (the call with the two texts, the reasons, the button) is covered by headless tests (`docs/AUTOMATED_TESTS.md`, A-33-1 and A-33-2).
 
 **Results**
 

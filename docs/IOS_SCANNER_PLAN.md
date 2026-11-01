@@ -1,6 +1,6 @@
 # iPhone QR scanner plan (issue #299)
 
-Status: **plan, not built. No code, no preset change and no legal text is changed by this file.** Written on 2026-11-01 by the roles `product-engineer` and `software-architect`. Alon decided in issue #299: "add an iPhone scanner". The owner approves this plan before phase 1 starts.
+Status (2026-11-01): **built as four stacked pull requests, none built or run on a device.** The owner decided on 2026-11-01 (issue #299): own AVFoundation plugin, minimum iOS 15, no About page, the drafts of section 5 applied, a Hebrew camera text, binaries built on the Mac and not committed, requirements and Test 33 added at the start, keep the buzz. The PRs: documents, requirements, Test 33, privacy notice and camera text (owner-merge); the native plugin source and `tools/build_ios_plugin.sh` (never built); the GDScript side with tests and the four strings; the export preset and `tools/deploy-ios.sh`. The device phase (Manual test 33) is the owner's. The text below is the plan as written; the numbers of the phases there differ from the PRs. **No code, no preset change and no legal text is changed by this file.** Written on 2026-11-01 by the roles `product-engineer` and `software-architect`. Alon decided in issue #299: "add an iPhone scanner". The owner approves this plan before phase 1 starts.
 Style: ASD-STE100 Simplified Technical English, like the other plans. Requirement IDs in this plan are proposed; check the highest free ID in `docs/TV_FLOW.md` when the first phase starts (REQ-FL-87 is the highest on 2026-11-01).
 
 ## 1. Why, and the state today
@@ -181,7 +181,7 @@ No existing row changes. Four new rows (key, English, Hebrew, where):
 
 | Key | English | Hebrew | where |
 |-----|---------|--------|-------|
-| `connect.scan_hint` | POINT THE CAMERA AT THE QR CODE ON THE TV | כוונו את המצלמה אל קוד ה־QR שבטלוויזיה | Phone (iPhone), scan view: help line over the camera picture |
+| `connect.scan_hint` | POINT THE CAMERA AT THE QR CODE ON THE TV! | כוונו את המצלמה אל קוד ה־QR שבטלוויזיה! | Phone (iPhone), scan view: help line over the camera picture |
 | `connect.scan_cancel` | CANCEL | ביטול | Phone (iPhone), scan view: button that closes the camera |
 | `connect.camera_denied` | THE CAMERA IS OFF FOR SABABI. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE. | המצלמה כבויה עבור SABABI. הפעילו אותה בהגדרות, או הקלידו את קוד החדר. | Phone, Connect screen: message after the player said no to the camera |
 | `connect.no_camera` | THIS PHONE HAS NO CAMERA. TYPE THE ROOM CODE. | אין מצלמה בטלפון הזה. הקלידו את קוד החדר. | Phone, Connect screen: message when the scan cannot start |

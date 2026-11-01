@@ -143,8 +143,15 @@ Only the controller runs on iOS. The TV app stays on Android TV. Status: written
 4. Connect the iPhone by cable. Unlock it, tap Trust, and turn on Developer Mode (Settings > Privacy & Security).
 5. Run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. It exports the preset `controller-ios`, builds with `xcodebuild`, installs and launches the app.
    The app is named "Sababi: Remote" on the home screen, as on Android (FD-27): the script sets it with `INFOPLIST_KEY_CFBundleDisplayName`, because Godot writes the project name. An App Store build needs the same setting.
+   The script first runs `tools/build_ios_plugin.sh` (the QR scanner plugin, rebuilt only when its source is newer) and stops if `ios/plugins/` is missing. After the export it checks that Godot wrote a Hebrew `InfoPlist.strings` with the camera text (`privacy/camera_usage_description_localized`); if it did not, it stops. In that case add `he.lproj/InfoPlist.strings` with `"NSCameraUsageDescription" = "<the Hebrew text of the preset>";` to the Xcode project by hand (the fallback decided by the owner on 2026-11-01).
    `--no-build` reuses the last build. `-d <id>` picks a phone. `IOS_BUNDLE_ID=` changes the bundle ID when a free account says it is taken.
 6. On a free account, trust the developer on the phone (Settings > General > VPN & Device Management). The app stops working after 7 days: deploy again.
+
+### The iPhone QR scanner plugin (issue #299)
+
+Source: `ios/plugin/qr_scanner/` (Objective-C++ on Apple AVFoundation, our own code; no third-party code). Build: `tools/build_ios_plugin.sh` on a Mac. It clones the Godot source at the tag of the export templates (`GODOT_TAG`, default `4.7.2-stable`, or use `GODOT_SRC`), lets scons write the engine headers once, compiles a device slice and a simulator slice, and writes `ios/plugins/qr_scanner.xcframework` and `ios/plugins/QrScanner.gdip`. These two are **not committed** (`.gitignore`); the script rebuilds only when the source is newer (`--force` rebuilds). The plugin registers the singleton `QrScanner` with `scan(hint, cancel)` and the signals `scanned(text)` and `failed(reason)` (reasons: `cancelled`, `camera_denied`, `no_camera`, `error`), as `scripts/net/qr_scanner.gd` expects. The camera text is not in the `.gdip`: it comes from the preset.
+
+**Status: written on Linux without Xcode and without an iPhone. It was never built and never run.** The first Mac run may find compile errors or an engine API that differs from 4.7.2 (risk R2 of `docs/IOS_SCANNER_PLAN.md`). Manual test 33 step 1a is the first check; nothing is marked as built before it.
 
 Differences from Android:
 
