@@ -429,6 +429,9 @@ func _app_identity() -> void:
 	_check(gdip.contains('initialization="qr_scanner_init"') and plugin_mm.contains("void qr_scanner_init()")
 			and gdip.contains('deinitialization="qr_scanner_deinit"') and plugin_mm.contains("void qr_scanner_deinit()"),
 			"the .gdip names the init and deinit functions that the module defines")
+	_check(plugin_mm.contains("GDREGISTER_CLASS(QrScanner)")
+			and plugin_mm.find("GDREGISTER_CLASS(QrScanner)") < plugin_mm.find("memnew(QrScanner)"),
+			"the iOS plugin registers its class before it makes the singleton (else scan() and the signals do not exist in GDScript)")
 	_check(plugin_cls.contains('D_METHOD("scan", "hint", "cancel")') and plugin_cls.contains('MethodInfo("scanned"')
 			and plugin_cls.contains('MethodInfo("failed"'),
 			"the iOS plugin has scan(hint, cancel) and the signals scanned and failed, like the Android plugin")
