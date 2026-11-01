@@ -412,6 +412,13 @@ func _app_identity() -> void:
 			"")).contains("<key>NSLocalNetworkUsageDescription</key><string>Sababi uses the room code to find your TV"),
 			"the iOS preset has the Local Network usage text (NSLocalNetworkUsageDescription)")
 	_check(String(ios.get("privacy/camera_usage_description", "")) != "", "the iOS preset has the camera usage text")
+	# REQ-FL-92 (issue #299): the camera question says what it is for and that the picture is not kept.
+	var cam_en := String(ios.get("privacy/camera_usage_description", ""))
+	_check(cam_en.contains("QR") and cam_en.contains("not saved or sent"),
+			"the iOS camera text names the QR code and says the picture is not saved or sent")
+	_check(String(ios.get("privacy/camera_usage_description_localized", "")).contains("\"he\"")
+			and String(ios.get("privacy/camera_usage_description_localized", "")).contains("QR"),
+			"the iOS preset has a Hebrew camera text (REQ-FL-92)")
 	var main_scene := String(ProjectSettings.get_setting("application/run/main_scene", ""))
 	_check(main_scene == "res://scenes/boot.tscn", "one start scene")
 	var boot := FileAccess.get_file_as_string("res://scenes/boot.tscn") + FileAccess.get_file_as_string("res://scripts/app.gd")

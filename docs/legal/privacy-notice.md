@@ -1,6 +1,6 @@
 # Sababi Privacy Notice
 
-**Draft, not published.** Sababi: TV Games and Sababi: Remote. Last updated: 2026-10-30.
+**Draft, not published.** Sababi: TV Games and Sababi: Remote. Last updated: 2026-11-01.
 Provider: Alon Yampolski, Israel. Contact: sababi.play@gmail.com
 
 Sababi does not collect your personal data. We run no server, no account system and no analytics, so we never receive your name, your scores or your sensor readings. Everything below describes what stays on your own devices and your own Wi-Fi.
@@ -38,16 +38,17 @@ The apps themselves send nothing outside your local network.
 ## 4. Camera, clipboard and sharing a profile
 
 - **QR code scan (Android).** To scan the QR code of the TV or of a shared profile, the Controller opens the Google code scanner, which is part of Google Play services. The picture of the camera stays on your phone and is not sent to us or to Google. Sababi receives only the text of the code. Google receives technical data about how the scanner works, such as the phone model, the version of the operating system, the version of the app and performance information, and uses it to run and improve the scanner. Google's terms apply to this part: <https://developers.google.com/ml-kit/terms>. A phone without Google Play services cannot scan. It types the room code instead, and then nothing is sent to Google.
+- **QR code scan (iPhone and iPad).** To scan the QR code of the TV or of a shared profile, the Controller uses the camera of your iPhone. iOS asks for your permission the first time. The camera picture is shown on the scan screen only while it is open. It stays on your phone: Sababi does not save it and does not send it to us or to anyone else. Sababi receives only the text of the code. If you tap Don't Allow, you can type the room code instead, and you can turn the camera on later in Settings > Sababi.
 - **Share a profile.** A profile can be copied to another phone as a QR code or as text. The code holds the profile ID, the name, the avatar and the best scores, with no password. Anyone who scans the QR code or reads the text gets a copy. The QR code is hidden after 60 seconds. If you tap Copy Code, the text goes to the clipboard, where other apps on your phone may be able to read it.
 - **Paste.** The Controller reads the clipboard only when you tap Paste a code in the player list, to read a profile code.
 
 ## 5. Permissions
 
-Android: internet and network state (to talk to the TV), Wi-Fi state (to keep the connection steady), keep awake (so the screen does not sleep during a game), and vibration (the Controller only). iPhone: local network (to connect to the TV on your network).
+Android: internet and network state (to talk to the TV), Wi-Fi state (to keep the connection steady), keep awake (so the screen does not sleep during a game), and vibration (the Controller only). iPhone: local network (to connect to the TV on your network) and camera (only to scan a QR code; you can say no and type the room code instead).
 
 ## 6. Sharing and third parties
 
-We do not sell or share personal data, because we do not receive it. The only third-party component that touches your data on the device is Google Play services (the QR scanner, Android only). If you install the apps from Google Play or from another store, that store collects its own data under its own policy.
+We do not sell or share personal data, because we do not receive it. The only third-party component that touches your data on the device is Google Play services (the QR scanner, Android only). The QR scanner on the iPhone is part of iOS (Apple's camera framework): it adds no third-party component. If you install the apps from Google Play or from another store, that store collects its own data under its own policy.
 
 ## 7. Children
 

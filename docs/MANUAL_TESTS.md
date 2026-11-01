@@ -83,6 +83,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
 | [31](#test-31) | Freeze Dance (wiggle, freeze, bench, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [33](#test-33) | iPhone QR scanner (camera view, permission, cancel, privacy) | 1 iPhone, 1 Mac with Xcode, 1 TV, a second phone, a child for item 9b, a Hebrew reader for item 8a | REQ-FL-58, 88 to 92 (`docs/TV_FLOW.md`), issue #299 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -94,6 +95,7 @@ Tests the user has to run now (status on 2026-10-29 after run R5; the list is in
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
+| 33 | **New (iPhone QR scanner).** An iPhone with a Mac and Xcode: build the plugin and deploy (1a), the scan button, the camera question on the first scan and the view (2a, 3a, 3b), a TV code, a profile code and a web page code (4a to 4d), CANCEL, swipe down and the home button (5a to 5c), the camera off in Settings and on again (6a, 6b), no photo saved and only Camera and Local Network listed (7a, 7b), Hebrew from a Hebrew reader (8a), a dark room and a child of 5 to 8 years (9a, 9b). Run test 13 steps 1a to 2d first. Nothing here can be done headless | The iPhone scanner was planned on 2026-11-01 (`docs/IOS_SCANNER_PLAN.md`, issue #299, REQ-FL-58, 88 to 92). The plugin source is written on Linux and was never built or run: every value, the plugin and the texts (also the Hebrew camera question) are unverified. Needed before it is merged and before the privacy notice text about the iPhone camera is final |
 | 32 | **New game.** Bumper Cars with 2 to 4 phones: the tile against the game, a tester points at a star and a car, the FPS with 1 phone on the TV box, a child of 5 to 8 years, the how-to line (3 testers), the Hebrew texts (a Hebrew reader), the pixel look from the sofa. The tilt times, the stars, the hits, the buzz, the round and Easy and Hard are automated (`docs/AUTOMATED_TESTS.md`, A-32-*) | Bumper Cars was added on 2026-10-24 (`docs/games/bumper_cars.md`). Needed before it is merged. All values (speeds, hit speed, stars on the floor, rink size), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-29 that a hit takes no star (it was 1 star from each car); the how-to line says so since 2026-10-30 (issue #212) and the hint line is shorter (owner text, issue #191), so step 11a and the Hebrew reader (11b) read the new texts |
 | 31 | **New game.** Freeze Dance with 1 to 4 phones: the tile against the game, a gentle wiggle of a child and a relaxed hand, a loose grip and three poses of the phone held still (5a, 5c, 5d), the stop on the TV at 240 fps, the safety card, the FPS with 1 phone on the TV box, a child of 5 to 8 years, the pixel look and Hebrew from the sofa. The music, the freeze lengths, the points, the bench and the round are automated (A-31-*) | Freeze Dance was added on 2026-10-24 (`docs/games/freeze_dance.md`). Needed before it is merged. Every value (the wiggle level, the limit for "still", the grace time, the music and freeze lengths), the pictures, the song and the Hebrew texts are first guesses |
 | 30 | **New game.** Tower Builder with 1 to 4 phones: the tile against the game, a lost Wi-Fi during a turn (8a), the FPS with 1 phone on the TV box, a child of 5 to 8 years, a tester reads the plates, the brick and the tower are pointed at, Hebrew from the sofa. The swing, the drop, the miss, the topple, the turn times, the 12 bricks, the medals and a player that leaves are automated (A-30-*) | Tower Builder was added on 2026-10-23 (`docs/games/tower_builder.md`). Needed before it is merged. All values (the swing, the 12 bricks, the slack of the joints), the pictures, the song and the Hebrew texts are first guesses |
@@ -1757,3 +1759,64 @@ History:
 
 - 2026-10-24 (automated): steps 2b, 3a to 3c, 4a, 4b, 5a to 5d, 6a, 6b, 8a, 8b and 10 moved to the automated tests (`smoke_bumper_cars`, `bumper_rules`). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-24).
+
+## Test 33
+
+### iPhone QR scanner (camera view, permission, cancel, privacy)
+
+Needs: 1 iPhone, 1 Mac with Xcode, 1 TV with the Sababi TV app, a second phone with a player profile (for item 4b), a stopwatch, a child of about 5 to 8 years for item 9b, and a native reader of Hebrew for item 8a. Covers: REQ-FL-58, REQ-FL-88, REQ-FL-89, REQ-FL-90, REQ-FL-91, REQ-FL-92 (`docs/TV_FLOW.md`), `docs/IOS_SCANNER_PLAN.md`, issue #299.
+
+New (2026-11-01). The plugin (`ios/plugin/qr_scanner/`) was written without Xcode and without an iPhone: it was never built and never run. Run Test 13 steps 1a to 2d first, so that a scanner problem can be told from a join problem. In Test 13, step 2c ("no scan button") stays true until the code of the scanner is built; after that, the scan button is expected on an iPhone that has the plugin, and Claude changes step 2c then.
+Write the model of the iPhone and the iOS version in the Run log.
+
+**Steps**
+
+1a. Run `IOS_TEAM_ID=<id> tools/deploy-ios.sh` (it builds the plugin first, `docs/EXPORT.md`). Check: the plugin builds, the app installs and starts, and `echo $?` after the script prints 0. If it fails, save the last 50 lines of the log.
+2a. Open the Connect screen. Check: the SCAN QR CODE button is the first control under the status line and is at least 200 px high. (REQ-FL-58, REQ-FL-83a)
+3a. Tap SCAN QR CODE for the first time. Check: iOS shows the camera question once, and the text of the question is "Sababi uses the camera only to read the QR code on your TV, to join the game. The picture is not saved or sent." (REQ-FL-91)
+3b. Tap Allow. Check: the camera view opens within 2 seconds, in portrait, with a live picture, the hint line and a CANCEL button at least 96 px high at the bottom. (REQ-FL-88)
+4a. Point the phone at the QR code on the TV from 30 cm to 1 m. Check: the view closes and the phone is on the waiting screen within 3 seconds of the code being in the picture, in 5 tries out of 5. Note the distance range that reads. (REQ-FL-89)
+4b. Scan the QR code of a shared player profile (a second phone, Share). Check: the player list opens with the note that the player was added. (REQ-FL-89)
+4c. Scan a QR code of a web page. Check: the Connect screen shows "THIS IS NOT A SABABI CODE." and the camera is closed (no green dot in the status bar). (REQ-FL-89)
+4d. Scan a good TV code with HAPTICS on. Check: the phone buzzes once when the view closes (yes or no). Then switch HAPTICS off in the Settings of the phone and scan again: no buzz (yes or no). (REQ-FL-89)
+5a. Open the scan view and tap CANCEL. Check: the view closes, the Connect screen shows no message, and the typed room code still joins. (REQ-FL-90)
+5b. Open the scan view and swipe down. Check: same result as 5a. (REQ-FL-90)
+5c. Open the scan view, press the home button and return. Check: the camera view is closed, the Connect screen shows no message, and the green camera dot in the status bar is off. (REQ-FL-88, REQ-FL-90)
+6a. Switch the camera off for Sababi (Settings > Sababi > Camera) and tap SCAN QR CODE. Check: no camera view opens, the Connect screen shows the exact text of `connect.camera_denied` ("THE CAMERA IS OFF FOR SABABI. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE."), and the typed room code joins. (REQ-FL-91)
+6b. Switch the camera on again and tap SCAN QR CODE. Check: the scan works without a restart of the app. (REQ-FL-91)
+7a. After a scan and after a CANCEL, open the Photos app. Check: no new picture. (REQ-FL-92)
+7b. Open Settings > Sababi. Check: the only permissions listed are Camera and Local Network (no Photos, no Microphone). (REQ-FL-92)
+7c. Set the iPhone to Hebrew, delete the app, install it again and tap SCAN QR CODE. Check: the camera question is in Hebrew (the text in the preset, `privacy/camera_usage_description_localized`). If it is in English, the Hebrew text did not reach the build: tell Claude. (REQ-FL-92)
+8a. Set the app to Hebrew. Check: the hint line and CANCEL show the Hebrew text, read right to left, and are inside the screen edge. A native reader of Hebrew confirms the words of the 4 new rows (`connect.scan_hint`, `connect.scan_cancel`, `connect.camera_denied`, `connect.no_camera`) and of the camera question (7c). (REQ-FL-88, REQ-FL-91)
+9a. In a dark room with only the TV on, scan the code. Check: it reads within 5 seconds (yes or no; write the phone model). (REQ-FL-89)
+9b. A child of about 5 to 8 years scans the code on the TV with the phone, with no help. Check: the child joins within 30 seconds (stopwatch). (REQ-FL-58, REQ-FL-89)
+
+Nothing in this test can be done headless (it needs a real camera): the GDScript side (the call with the two texts, the reasons, the button) is covered by headless tests (`docs/AUTOMATED_TESTS.md`, A-33-*, when the code of the scan screen is built).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1a | Terminal log of the deploy with the exit code | Not run | | | |
+| 2a | Photo of the Connect screen | Not run | | | |
+| 3a | Photo of the camera question | Not run | | | |
+| 3b | Photo of the camera view | Not run | | | |
+| 4a | Note: seconds for each of 5 tries; the distance range | Not run | | | |
+| 4b | Photo of the player list | Not run | | | |
+| 4c | Photo of the message | Not run | | | |
+| 4d | Note: buzz with HAPTICS on (yes/no), buzz with HAPTICS off (yes/no) | Not run | | | |
+| 5a | Photo of the Connect screen after CANCEL | Not run | | | |
+| 5b | Note: result | Not run | | | |
+| 5c | Photo of the status bar | Not run | | | |
+| 6a | Photo of the message | Not run | | | |
+| 6b | Note: result | Not run | | | |
+| 7a | Photo of the Photos app | Not run | | | |
+| 7b | Photo of Settings > Sababi | Not run | | | |
+| 7c | Photo of the camera question in Hebrew | Not run | | | |
+| 8a | Photo of the view in Hebrew; note: the words the reader marks, with the reason | Not run | | | |
+| 9a | Note: yes or no; the phone model | Not run | | | |
+| 9b | Note: the child, the age, seconds | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-11-01, issue #299).
