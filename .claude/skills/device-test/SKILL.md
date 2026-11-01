@@ -18,3 +18,4 @@ The `qa` agent runs this flow. A note in a result goes to `product-engineer` and
    and the link to the evidence. Add a row to the Run log for the session. Update the Summary table and the table "Tests to run, in order" in `docs/MANUAL_TESTS.md`.
    Keep first-run values when a retest follows. Never mark a step as pass on your own: write only what the user reports, and do not turn a result into a pass without a measurement.
 6. Finish with a list of the tests that still need a run, and ask for `adb logcat -s godot` for any failure.
+7. Close the loop in the same turn (CLAUDE.md "Finishing work without the owner"): for every issue whose last open step is now Pass, close it with a comment (test, run ID, evidence path). For every Fail or note, file or update the issue and hand it to `sw-developer`; keep the label `needs-device` only on issues that still wait for a step.

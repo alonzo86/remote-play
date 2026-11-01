@@ -19,6 +19,8 @@ Only `sw-developer` merges a pull request, and only under the rules of "Pull req
 | `license-reviewer` | license of every third-party resource, documents and About pages agree | license documents, About rows |
 | `code-reviewer` | review with the `review` skill, checks the answers | comments only, never merges |
 | `design-reviewer` | independent critique of screens | nothing |
+| `security-reviewer` | network input, saved files, permissions, privacy data of a change | comments only, never merges |
+| `project-manager` | finishing sweep: closes resolved, duplicate and obsolete issues, keeps `needs-owner` / `needs-device` / `blocked` true, splits owner parts, owner list | issue comments, labels |
 
 ## New feature or game
 
@@ -176,3 +178,40 @@ flowchart TD
     P -- missing, unclear, copyleft,<br/>non-commercial --> O{{Owner decides}}
     RE --> O2{{Owner deploys to devices}}
 ```
+
+## Finishing work without the owner
+
+Rules in `CLAUDE.md`, "Finishing work without the owner". The PR owner (`sw-developer`) does not stop at "ready for review".
+
+```mermaid
+flowchart TD
+    D[sw-developer: checks pass] --> PR[create PR, subscribe to its activity]
+    PR --> R[code-reviewer + security / localization / license when they apply]
+    R --> F[answer every finding, summary comment]
+    F --> R2[re-review, max 2 cycles]
+    R2 -- still disagree --> T[software-architect decides]
+    R2 -- agree --> O{owner-only case?}
+    T --> O
+    O -- no --> M[merge]
+    O -- yes --> L1[label needs-owner, one comment with the action, continue with other work]
+    M --> C[close the issues the PR resolves]
+    C --> DV{only a Device test left?}
+    DV -- yes --> L2[label needs-device, qa closes it on Pass]
+    DV -- no --> PM[project-manager sweep]
+    L1 --> PM
+    L2 --> PM
+    PM --> U{{owner list: needs-owner, then needs-device}}
+```
+
+Labels: `needs-owner` (an owner case: a legal or store step, a rule file, what the user sees), `needs-device` (only a manual test is left), `blocked` (with the reason in a comment).
+
+## Tools the agents need
+
+A subagent has only the tools in the `tools:` line of its agent file. Without the GitHub tools it cannot post a comment, create or merge a PR or close an issue, and the main session has to do that step. To make the agents independent in a cloud session these are in `tools:` of each agent file (the Mac can use `gh` instead). The owner approved the list on 2026-11-01. When you add an agent, give it the line for its role.
+
+| Agent | Add to `tools:` |
+|-------|-----------------|
+| all agents below | `ToolSearch, mcp__github__issue_read, mcp__github__add_issue_comment, mcp__github__list_issues, mcp__github__pull_request_read, mcp__github__list_pull_requests, mcp__github__get_file_contents` |
+| `sw-developer` | the line above plus `Agent, mcp__github__issue_write, mcp__github__create_pull_request, mcp__github__update_pull_request, mcp__github__update_pull_request_branch, mcp__github__merge_pull_request, mcp__github__pull_request_review_write, mcp__claude-code-remote__subscribe_pr_activity, mcp__claude-code-remote__unsubscribe_pr_activity` |
+| `code-reviewer`, `security-reviewer`, `localization-reviewer`, `license-reviewer` | the first line plus `mcp__github__pull_request_review_write` |
+| `qa`, `product-engineer`, `project-manager`, `release-engineer`, `software-architect`, `automation-developer` | the first line plus `mcp__github__issue_write` (and `mcp__github__sub_issue_write` for `project-manager`) |

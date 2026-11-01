@@ -74,20 +74,62 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
   - New third-party resource: `license-reviewer` checks it (see "Third-party libraries and resources"); a permissive license is merged
     when everything is aligned.
   Automatic decisions so that agents can run unattended (Alon):
-  - Closing issues: an agent may close an issue when its content is applied in a merged pull request; it comments with the PR number.
+  - Closing issues: an agent closes an issue when its content is applied in a merged pull request; it comments with the PR number. This
+    is part of finishing the work (see "Finishing work without the owner"), not an option. When the only thing left is a `Device`
+    test, the issue is not closed: it gets the label `needs-device` and one comment (the manual test and steps). The agent that records
+    the passing result (`qa`, `device-test` skill) closes the issue in the same turn. A duplicate or an obsolete issue is closed at once
+    with a comment that links the issue that replaces it or the rule that makes it obsolete.
     A point that only a native Hebrew reader can confirm goes in a manual test step, not in an open issue and not in a blocking state.
   - Open design rows ("Decision to confirm" in a requirements file): `product-engineer` decides them by the rules of this project and
     records the decision in the requirements file and in the PR description. Alon can revert it with a comment. A row about what the user
     sees (cut or hidden information) still goes to the owner.
   - The Summary table and the table "Tests to run, in order" of `docs/MANUAL_TESTS.md`: `sw-developer` edits the tables (not the rules) in
     the same pull request as the behavior change, as REQ-GM-62 says.
-  Cases that stop an automatic merge and are left for the owner: a decision that the tiebreaker may not take (see above); a license that is
-  not permissive or not clear; a change of the privacy notice or of a store or legal text; a change of a rule in CLAUDE.md or of an
-  agent or skill file; a requirement with status `Device` that the PR marks as done. Claude states the case in a PR comment and tells the user.
+  Cases that stop an automatic merge and are left for the owner (the list is closed: nothing else stops a merge):
+  - a decision that the tiebreaker may not take (see above);
+  - a license that is not permissive or not clear;
+  - a change of the privacy notice, a store text or a legal text, unless the PR only applies text or a decision that the owner already
+    gave in an issue or PR comment (the PR links that comment and says "applies the owner's decision of <date>");
+  - a change of a rule in CLAUDE.md or of an agent file or a skill file, unless the PR only applies lines that the owner approved in an
+    issue or PR comment (same link rule);
+  - a PR that changes the status of a requirement to done or verified while its test is not Pass. A requirement that stays `Device` does
+    not stop a merge.
+  The agent states the case in one PR comment that says what the owner has to do (one sentence), adds the label `needs-owner` to the PR,
+  and tells the user. It does not wait: it goes on with the other work (see "Finishing work without the owner").
+
+## Finishing work without the owner
+
+The owner wants the agents to carry every task to its end: code, tests, review, merge, issues. The task is finished only when the list
+below is true. A turn must not end with "waiting" or "ready for review" unless the open item is an owner case (above), a `Device` test or a
+question that only the owner can answer.
+
+1. **GitHub access.** In a cloud session `gh` is usually not logged in; use the GitHub tools (`mcp__github__*`: create/merge/update pull
+   request, `pull_request_read`, `add_issue_comment`, `issue_read`, `issue_write`, `list_issues`, `pull_request_review_write`, and
+   `mcp__claude-code-remote__subscribe_pr_activity`). If they are deferred, load them with `ToolSearch` (`select:<names>`). On the
+   owner's Mac `gh` is allowed. Use whichever works, do not stop because one is missing, and never use another account. A subagent has
+   these tools only when its agent file lists them in `tools:` (see `docs/AGENTS.md`, "Tools the agents need"); when it has not, it
+   names the next step in its result and the main session does that step at once, without asking the user.
+2. **The PR owner runs the loop to the end, in the same turn.** After the checks pass: create the PR (no confirmation; `pr-submit`),
+   subscribe to its activity, run the review (`code-reviewer` as a separate agent, not by the author), answer every finding, post the
+   summary comment, run the re-review, get "Strings: approved" and "License: approved" when they apply, and merge when it is allowed.
+   When a step needs another agent, call that agent and wait for its result; do not stop and report the next step to the user.
+3. **Events wake the owner.** A subscribed PR delivers comments, reviews and CI to the session. Act on each at once. The checks the agents
+   run themselves are the gate (CI is ignored, see "Rules for this repository").
+4. **Close the issues.** After the merge: every issue the PR resolves is closed with a comment (PR number, what changed, tests run).
+   An issue that waits for a device gets `needs-device`; a PR or issue that waits for the owner gets `needs-owner`. Open follow-ups are
+   filed as issues, never left as text in a PR.
+5. **Do not leave a state that only the owner can read.** Every blocked item has a label (`needs-owner`, `needs-device`, `blocked`
+   with the reason in a comment). `project-manager` keeps these labels true and gives the owner one list: `needs-owner` first, then
+   `needs-device` in the order of "Tests to run, in order".
+6. **Split work so that the owner's part is small.** When one part of a task needs the owner (a legal text, a device test, a rule of
+   this file), do the rest and merge it; ask the owner about that part only, in its own PR or comment. A stack of PRs is merged leaf
+   first into its parent branch; only the root waits.
+7. **Report at the end.** The last message to the user says what is merged, which issues are closed, and the short list of what is left
+   for the owner with the exact action (merge this PR, run test N, answer this question).
 
 ## Agents and workflows
 
-The agents are in `.claude/agents/`. Use them for the steps below when the task is large enough to need a role. A small, clear change may be done by one agent (`sw-developer`) or by the main session. Every agent follows the rules of this file. Only `sw-developer` merges a pull request, and only under the rules of "Pull requests". The same flows as diagrams are in `docs/AGENTS.md`.
+The agents are in `.claude/agents/`. Use them for the steps below when the task is large enough to need a role. A small, clear change may be done by one agent (`sw-developer`) or by the main session. Every agent follows the rules of this file. Only `sw-developer` merges a pull request, and only under the rules of "Pull requests". Agents finish their work as "Finishing work without the owner" says. The same flows as diagrams are in `docs/AGENTS.md`.
 
 | Flow | Order of the agents |
 |------|---------------------|
@@ -96,7 +138,9 @@ The agents are in `.claude/agents/`. Use them for the steps below when the task 
 | Planning | `product-engineer` (what and why) and `software-architect` (how, phases, risks) -> a plan in `docs/*_PLAN.md` or an issue; the user decides |
 | Testing | `automation-developer` (headless tests, `docs/AUTOMATED_TESTS.md`) and `qa` (manual tests, results the user reports, issues from test notes) |
 | Documentation | the agent that owns the area writes it: `product-engineer` (requirements), `software-architect` (plans, `docs/PROTOCOL.md`), `ui-ux-designer` (design system), `release-engineer` (export, `docs/THIRD_PARTY.md`), `qa` (manual tests). The `code-reviewer` checks that docs match the code |
-| Pull request | `sw-developer` owns it. After it is created, the `code-reviewer` runs the `review` skill and posts the comment. A finding is fixed, or moved to a follow-up issue, or answered in a PR comment with the reason (false positive or not worth a fix). After each fix the owner comments what was resolved. The review cycle and the merge rules are in "Pull requests" |
+| Pull request | `sw-developer` owns it until it is merged and its issues are closed. After it is created, the `code-reviewer` (a separate agent, never the author) runs the `review` skill and posts the comment. A finding is fixed, or moved to a follow-up issue, or answered in a PR comment with the reason (false positive or not worth a fix). After each fix the owner comments what was resolved. The review cycle and the merge rules are in "Pull requests" |
+| Finish and sweep | `project-manager`: after a merge or on request, closes resolved, duplicate and obsolete issues, keeps `needs-owner` / `needs-device` / `blocked` labels true, splits issues so the owner's part is small, and posts the owner list |
+| Security-relevant change (network input, saved files, permissions, privacy) | `security-reviewer` runs next to `code-reviewer` and ends its comment with "Security: approved" or findings |
 | Build, export, CI | `release-engineer` |
 | A new third-party resource | `license-reviewer` (with `release-engineer` for the export presets) |
 

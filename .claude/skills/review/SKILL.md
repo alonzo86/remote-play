@@ -75,15 +75,16 @@ Focus on: errors and exceptions, type safety, new and changed tests, edge cases,
 ## Reviewing a pull request
 
 When the target is a PR (a number or a URL):
-- `gh auth status` first: use `alonzo86` for this repo, never another account.
-- Get the title, body, author, state, labels and the stats: `gh pr view <n> --json title,body,author,state,labels,additions,deletions,changedFiles,commits`.
-- Get the diff: `gh pr diff <n>`. Save it in the scratchpad. If a saved diff of this PR is less than an hour old, reuse it. Otherwise fetch it again.
+- Use `gh` only when `gh auth status` shows `alonzo86` (never another account). Otherwise use the `mcp__github__*` tools (load with `ToolSearch`): `pull_request_read` with methods `get`, `get_diff`, `get_files`, `get_comments`.
+- Get the title, body, author, state, labels and the stats: `gh pr view <n> --json title,body,author,state,labels,additions,deletions,changedFiles,commits`, or `pull_request_read` `get`.
+- Get the diff: `gh pr diff <n>`, or `pull_request_read` `get_diff`. Save it in the scratchpad. If a saved diff of this PR is less than an hour old, reuse it. Otherwise fetch it again.
   Read it in chunks when it is large.
 - Review against the goals of the PR, then write the report.
 
 ### Posting
 
-Post without asking the user first (decision of the owner, 2026-10-29). Use temp files for the comment bodies (`gh pr comment <n> --body-file`) and delete them after.
+Post without asking the user first (decision of the owner, 2026-10-29). Use temp files for the comment bodies (`gh pr comment <n> --body-file`) and delete them after, or post with `mcp__github__add_issue_comment` when `gh` is not logged in.
+In every comment say plainly "Merge: allowed" or list the open findings, so the PR owner can act without asking.
 Every comment starts with "🤖 AI Code Review", so it is clear that an AI wrote it, and ends with the Claude Code footer.
 
 - **After the PR is created by `pr-submit`** (CLAUDE.md): post **one** comment with the Summary, Good practices, every issue in full, and Tests.
