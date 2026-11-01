@@ -420,6 +420,17 @@ func _app_identity() -> void:
 	_check(String(ios.get("privacy/camera_usage_description_localized", "")).contains("\"he\"")
 			and String(ios.get("privacy/camera_usage_description_localized", "")).contains("QR"),
 			"the iOS preset has a Hebrew camera text (REQ-FL-92)")
+	# The iPhone scanner plugin is in the iOS preset only, and its source is not packed in any pck (issue #299).
+	_check(ios.get("plugins/QrScanner", "") == "true", "the controller-ios preset turns the QrScanner plugin on")
+	for preset_name in ["tv", "controller", "tv-release", "controller-release"]:
+		var other := _preset_options(preset_name)
+		var has_plugin := false
+		for key in other:
+			has_plugin = has_plugin or String(key).begins_with("plugins/")
+		_check(not has_plugin, "the %s preset has no iOS plugin option" % preset_name)
+	for preset_name in ["tv", "controller", "controller-ios", "tv-release", "controller-release"]:
+		_check(String(_preset_top(preset_name).get("exclude_filter", "")).contains("ios/plugin/*"),
+				"the %s preset leaves the source of the iOS plugin out of the pck" % preset_name)
 	# The source of the iPhone scanner plugin (issue #299) cannot be built here; these checks keep its parts in step.
 	var gdip := FileAccess.get_file_as_string("res://ios/plugin/qr_scanner/QrScanner.gdip")
 	var plugin_mm := FileAccess.get_file_as_string("res://ios/plugin/qr_scanner/qr_scanner_module.mm")

@@ -143,6 +143,7 @@ Only the controller runs on iOS. The TV app stays on Android TV. Status: written
 4. Connect the iPhone by cable. Unlock it, tap Trust, and turn on Developer Mode (Settings > Privacy & Security).
 5. Run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. It exports the preset `controller-ios`, builds with `xcodebuild`, installs and launches the app.
    The app is named "Sababi: Remote" on the home screen, as on Android (FD-27): the script sets it with `INFOPLIST_KEY_CFBundleDisplayName`, because Godot writes the project name. An App Store build needs the same setting.
+   The script first runs `tools/build_ios_plugin.sh` (the QR scanner plugin, rebuilt only when its source is newer) and stops if `ios/plugins/` is missing. After the export it checks that Godot wrote a Hebrew `InfoPlist.strings` with the camera text (`privacy/camera_usage_description_localized`); if it did not, it stops. In that case add `he.lproj/InfoPlist.strings` with `"NSCameraUsageDescription" = "<the Hebrew text of the preset>";` to the Xcode project by hand (the fallback decided by the owner on 2026-11-01).
    `--no-build` reuses the last build. `-d <id>` picks a phone. `IOS_BUNDLE_ID=` changes the bundle ID when a free account says it is taken.
 6. On a free account, trust the developer on the phone (Settings > General > VPN & Device Management). The app stops working after 7 days: deploy again.
 
