@@ -11,7 +11,7 @@ description: Run the Sababi headless tests and lint. Use before a pull request (
    ```
    If a Godot process shows up, it is probably the user's TV app. Ask the user to quit it. Do not kill it.
 2. Choose the scope. The default is 2a. Use 2b only when the user asks or when the QA engineer (`.claude/agents/qa.md`) decides that the change needs the whole suite (CLAUDE.md, "Tests and coverage").
-   2a. The touched suites: `godot --headless --path . --script tests/<x>.gd` for each suite of `tests/suites.txt` that covers the changed module or rule. Say which suites you ran.
+   2a. The touched suites: first `godot --headless --path . --import` (once on a fresh checkout or after assets changed; without it fonts and sprite sheets do not load and a suite fails with the message "assets not imported", issue #291). Then `tests/run_one.sh tests/<x>.gd` (it imports when `.godot/imported` is missing and fails on a SCRIPT ERROR line) or `godot --headless --path . --script tests/<x>.gd` for each suite of `tests/suites.txt` that covers the changed module or rule. Say which suites you ran.
    2b. The whole suite: `tools/build.sh test`. It runs `tests/run_all.sh`: all suites of `tests/suites.txt` (unit, network, game rules, TV smoke tests), then the check of `tokens.css`. `tests/run_all.sh unit` runs only the unit tier (what the CI runs), `scenario` the rest.
    Expect `0 failed` and `smoke test done, 0 failed`.
    The count changes when tests are added. A failure at "server listens on 47801" means the port is busy.
