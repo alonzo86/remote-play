@@ -313,6 +313,31 @@ func _run() -> void:
 			and game.sim.RINK.position.y - 24.0 >= 112.0 and game.CHIP_Y + 64.0 <= 1080.0 - 60.0,
 			"the table is under the black bar and the chips are inside the 60 px margin")
 
+	# REQ-AH-23: the design screen scales to `size` with one factor; the sim stays in design units.
+	var rink_before: Rect2 = game.sim.RINK
+	var size_before: Vector2 = game.size
+	var scaled := {}
+	for res in [Vector2(1280, 720), Vector2(1920, 1080), Vector2(1600, 1200)]:
+		game.size = res
+		game._fit_design(game.CHIP_Y, game.CHIP_H)
+		scaled[res] = {"k": game.design_k, "a": game._to_screen(rink_before.position), "b": game._to_screen(rink_before.end),
+				"chip": game._chip_pos(1, 250.0)}
+	game.size = size_before
+	var s720: Dictionary = scaled[Vector2(1280, 720)]
+	var s1080: Dictionary = scaled[Vector2(1920, 1080)]
+	var s43: Dictionary = scaled[Vector2(1600, 1200)]
+	_check(is_equal_approx(s720.k, (720.0 - 60.0 - 64.0 - 112.0) / (940.0 - 112.0)) and s720.a.y >= 112.0 + 24.0 * s720.k
+			and s720.b.y + 24.0 * s720.k < s720.chip.y and s720.chip.y + 64.0 <= 720.0 - 60.0
+			and s720.chip.x + 250.0 <= 1280.0,
+			"REQ-AH-23: at 1280x720 the rink is under the 112 px bar, the chips stand under it, inside the 60 px margin: %s"
+			% str(s720))
+	_check(s1080.k == 1.0 and s1080.a == rink_before.position and s1080.b == rink_before.end
+			and s1080.chip == Vector2(1550.0, 940.0),
+			"REQ-AH-23: at 1920x1080 nothing moves (factor 1, chip at 1550, 940)")
+	_check(is_equal_approx(s43.k, 5.0 / 6.0) and s43.a.x >= 0.0 and s43.b.x <= 1600.0 and s43.b.y <= 1200.0
+			and s43.chip.y + 64.0 <= 1200.0, "REQ-AH-23: a 4:3 window keeps one factor and the table is centered: %s" % str(s43))
+	_check(game.sim.RINK == rink_before, "REQ-AH-23: the rink of the simulation is in design units whatever the window")
+
 	# One phone and two phones: the TV remote starts a match against ROBO (REQ-GM-106).
 	clients.append_array(await _connect(app, 1, 1))
 	var second: int = app.server.connected_slots()[-1]

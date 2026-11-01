@@ -30,6 +30,7 @@ const PIXEL_VIEW := Vector2i(480, 270)
 ## The black bar on top of every game for the title, the timer and the chips (REQ-GM-45a). It is as wide as the window.
 const HUD_BAR_H := Shell.BAR_H
 const DESIGN_SIZE := Vector2i(1920, 1080)
+const SAFE_MARGIN := 60.0         # No HUD box is closer than this to a screen edge (REQ-GM-40).
 
 ## What the game asks from the TV app (issue #300). A test sets a stub before the game is added to the tree.
 var game_host := GameHost.new()
@@ -563,6 +564,32 @@ func _fit_pixel_view() -> void:
 	if size.x > 0.0 and size.y > 0.0:
 		_pixel_viewport.size_2d_override = Vector2i(size)
 		_pixel_layer.size = size
+
+
+## REQ-2D-2: a game that simulates in design units (1920x1080) and scales only its drawing calls `_fit_design()` before it draws.
+## The factor is the same for x and y and never above what the width allows. The design line of the black bar (`HUD_BAR_H`)
+## stays on the bar, so the bar never hides the top of the world, and the design screen is centered across. The lowest HUD box
+## (its top in design units `low_y`, its height `low_h` in screen units, 0 for none) must end inside the 60 px margin at the
+## bottom: HUD boxes keep their size (text never shrinks, issue #246), so only the world gets smaller. At 1920x1080 the
+## factor is 1 and the offset is zero. HUD boxes follow `_to_screen()`.
+var design_k := 1.0
+var design_off := Vector2.ZERO
+
+
+func _fit_design(low_y := float(DESIGN_SIZE.y), low_h := 0.0) -> void:
+	if size.x <= 0.0 or size.y <= 0.0:
+		design_k = 1.0
+		design_off = Vector2.ZERO
+		return
+	var bar := float(HUD_BAR_H)
+	var by_height := (size.y - SAFE_MARGIN - low_h - bar) / (low_y - bar)
+	design_k = minf(minf(size.x / float(DESIGN_SIZE.x), by_height), 1.0)
+	design_off = Vector2((size.x - float(DESIGN_SIZE.x) * design_k) * 0.5, bar - bar * design_k)
+
+
+## A place of the design screen on `size` (after `_fit_design()`).
+func _to_screen(design: Vector2) -> Vector2:
+	return design_off + design * design_k
 
 
 ## True when the world of the game is drawn in the low-resolution view (REQ-GM-47a).
