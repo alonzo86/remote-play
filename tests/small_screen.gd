@@ -14,7 +14,7 @@ const Shell = preload("res://scripts/game/shell.gd")
 
 const SCREEN := Vector2i(1280, 720)
 ## These games have HUD boxes at fixed 1080p places (issue #348). The test fails when one of them fits, so the entry goes then.
-const FIXED_LAYOUT: Array[String] = ["air_hockey", "tower_builder"]
+const FIXED_LAYOUT: Array[String] = ["tower_builder"]
 
 var _checks := 0
 var _fails := 0

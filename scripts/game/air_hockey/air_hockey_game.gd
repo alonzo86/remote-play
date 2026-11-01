@@ -16,6 +16,7 @@ const BUZZ_GAP_MS := 150
 const HIT_BUZZ_SPEED := 450.0   # A hit that sends the puck away faster than this buzzes the phone (REQ-AH-12).
 const WALL_SOUND_SPEED := 450.0
 const CHIP_Y := 940.0
+const CHIP_H := 64.0
 const BANNER_FONT := 72
 const FIRST_TO_X := 560.0
 const FIRST_TO_W := 360.0
@@ -238,7 +239,9 @@ func _pixel_world() -> bool:
 
 
 func _world_draw(ci: CanvasItem) -> void:
-	Look.draw_table(ci, size)
+	_fit_design(CHIP_Y, CHIP_H)   # The simulation stays in design units; only the drawing is scaled (REQ-AH-23).
+	ci.draw_set_transform(design_off, 0.0, Vector2(design_k, design_k))
+	Look.draw_table(ci, size / design_k, -design_off / design_k)
 	if phase == Phase.ENROLL:
 		Look.draw_puck(ci, Shell.snap(Sim.RINK.get_center()))
 		return
@@ -248,6 +251,7 @@ func _world_draw(ci: CanvasItem) -> void:
 
 
 func _game_draw() -> void:
+	_fit_design(CHIP_Y, CHIP_H)
 	Shell.title(self, "registry.air_hockey")
 	if phase == Phase.ENROLL:
 		_draw_enroll()
@@ -259,7 +263,17 @@ func _game_draw() -> void:
 	if phase == Phase.GOAL and not is_over:
 		Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, BANNER_FONT, UiTheme.ACCENT)
 	if _time < HINT_TIME and phase == Phase.PLAY and not is_over:
-		Shell.hint(self, size, "air_hockey.tilt_to_slide", CHIP_Y - 16.0)   # Above the chips, not over them (issue #223).
+		Shell.hint(self, size, "air_hockey.tilt_to_slide", _chip_y() - 16.0)   # Above the chips, not over them (issue #223).
+
+
+## Under the table, each chip under its own goal. The chip keeps its size (text never shrinks, REQ-FL-40); only its place scales.
+func _chip_y() -> float:
+	return _to_screen(Vector2(0.0, CHIP_Y)).y
+
+
+func _chip_pos(seat: int, w: float) -> Vector2:
+	var x := _to_screen(Sim.RINK.position).x if seat == 0 else _to_screen(Sim.RINK.end).x - w
+	return Vector2(x, _chip_y())
 
 
 ## The two score chips under the table, each under its own goal (the table is not mirrored in Hebrew, REQ-GM-47o).
@@ -268,8 +282,7 @@ func _draw_chips() -> void:
 		var seat: Dictionary = seats[i]
 		var score := str(scores[i])
 		var w := Shell.score_chip_width(String(seat.name), score, 64.0, 250.0, Shell.CHIP_FONT, int(seat.avatar))
-		var x := Sim.RINK.position.x if i == 0 else Sim.RINK.end.x - w
-		Shell.score_chip(self, Vector2(x, CHIP_Y), String(seat.name), score, seat.color, w, 64.0, int(seat.avatar))
+		Shell.score_chip(self, _chip_pos(i, w), String(seat.name), score, seat.color, w, 64.0, int(seat.avatar))
 
 
 ## Before the match: who is in, and how to start.
@@ -282,5 +295,4 @@ func _draw_enroll() -> void:
 	for i in _enrolled.size():
 		var p := player(_enrolled[i])
 		var w := Shell.score_chip_width(p.player_name, Lang.t("setup.in"), 64.0, 250.0, Shell.CHIP_FONT, p.avatar)
-		var x := Sim.RINK.position.x if i == 0 else Sim.RINK.end.x - w
-		Shell.score_chip(self, Vector2(x, CHIP_Y), p.player_name, Lang.t("setup.in"), p.color, w, 64.0, p.avatar)
+		Shell.score_chip(self, _chip_pos(i, w), p.player_name, Lang.t("setup.in"), p.color, w, 64.0, p.avatar)

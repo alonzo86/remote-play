@@ -1456,6 +1456,7 @@ New game (2026-10-23), and the first game with a computer player. It was tested 
 11b. From 3 m, ask a tester to tell the puck from the red and blue lines of the table and from the dark gray rails and the black floor: the tester points at the puck and then at the red middle line. Check: both answers are right for each of 3 testers (3 of 3 testers). (REQ-AH-20)
 11c. From 3 m, read aloud the two chips, "FIRST TO N" and one goal banner. Check: no error when reading. (REQ-AH-21, REQ-FL-40)
 11d. **Black floor (2026-10-29, issue #123, REQ-AH-20).** From 3 m, a tester points at the left goal opening, the top rail and the floor outside the table. Check: the tester points at all 3 right (3 of 3), and the black puck is seen at every moment it is over a rail (yes or no). (REQ-AH-20)
+11e. **Re-look after the screen scaling (2026-11-01, issue #348, REQ-AH-23).** The layout now comes from the window size; at 1920x1080 nothing moved. On the TV box, start a match with 2 phones. Check: the left chip stands under the left goal and the right chip under the right goal, both fully visible (2 of 2); the top rail of the table is visible under the black bar (yes or no). Check: the table, the chips and the hint are at the same places as in the photo of step 11a (compare the photos: each edge within 10 px at 1080p). (REQ-AH-23, REQ-2D-2)
 12. Set the TV language to Hebrew and start a match. Check: the left player's goal is still on the left (the table is not mirrored), the title and "FIRST TO N" are mirrored to the right side, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "הוקי אוויר", "רובו", "שער של ...!". (REQ-AH-21, REQ-GM-47o)
 
 Items 2a, 2b, 2c, 3a, 3c, 4a, 4b, 4c, 4d, 5a, 6a, 6d, 7a, 7b, 8a, 8b and 13 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-27-*). The numbers of the other items do not change.
@@ -1480,6 +1481,7 @@ Measurements (write down, no pass or fail): the time for a mallet to cross its h
 | 11b | Note: answers of each tester | Not run | | | |
 | 11c | Note: errors made when reading | Not run | | | |
 | 11d | Note: the answers of the tester; photo of the table from 3 m | Not run | | | Added 2026-10-29 (issue #123). The rails are dark gray `#4a4e5e` (a first guess) on the black floor. |
+| 11e | Photo of the screen next to the photo of 11a; note: yes or no for each check | Not run | | | Added 2026-11-01 (issue #348). |
 | 12 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
 
 History:
