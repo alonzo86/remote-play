@@ -37,7 +37,7 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 - Screens are built in code in the 8-bit arcade style (`docs/TV_FLOW.md`, REQ-FL-37 to 46). Image files only where REQ-P6 allows them.
 - The style is 8-bit arcade (FD-18, `docs/ARCADE_STYLE_PLAN.md`); phases 1 to 4 are built (menus, phone, shell, and the pixel worlds of all six games). A game that draws a pixel world follows REQ-GM-47i to 47n. A change that adds rounded or shadowed widgets, other fonts or art outside the plan is a finding. A change that implements a phase of the plan follows section 2 of the plan.
 - A new game is also for children (REQ-GM-80 to 84): friendly made-up characters, no violence against anything alive, no blood and no scary things (toy beams at lifeless things are fine), no point penalty for a mistake and a short wait for a player who is out (or a team game that ends when the last player is out), one hint line, large and slow at the start, positive texts. Report a broken rule by its ID.
-- A new game follows the visual language: shell (REQ-GM-45), player colors (REQ-GM-46), toy-like world (REQ-GM-47), and a tile screenshot that looks like the same toy box as the Games screen (REQ-GM-49).
+- A new game follows the visual language: shell (REQ-GM-45), player colors (REQ-GM-46), pixel world (REQ-GM-47i to 47n), and a tile screenshot that looks like the same toy box as the Games screen (REQ-GM-49).
 
 **Games**
 - A game has `docs/games/<id>.md` and a `doc` field in `scripts/game/registry.gd`. A change to game behavior changes that file (REQ-GM-5).
