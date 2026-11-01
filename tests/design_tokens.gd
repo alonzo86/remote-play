@@ -8,6 +8,7 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const GearButton = preload("res://scripts/ui/gear_button.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Registry = preload("res://scripts/game/registry.gd")
+const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 
 var _checks := 0
 var _fails := 0
@@ -419,6 +420,23 @@ func _app_identity() -> void:
 	_check(String(ios.get("privacy/camera_usage_description_localized", "")).contains("\"he\"")
 			and String(ios.get("privacy/camera_usage_description_localized", "")).contains("QR"),
 			"the iOS preset has a Hebrew camera text (REQ-FL-92)")
+	# The source of the iPhone scanner plugin (issue #299) cannot be built here; these checks keep its parts in step.
+	var gdip := FileAccess.get_file_as_string("res://ios/plugin/qr_scanner/QrScanner.gdip")
+	var plugin_mm := FileAccess.get_file_as_string("res://ios/plugin/qr_scanner/qr_scanner_module.mm")
+	var plugin_cls := FileAccess.get_file_as_string("res://ios/plugin/qr_scanner/qr_scanner.mm")
+	_check(gdip.contains('name="QrScanner"') and plugin_mm.contains('"QrScanner"') and QrScanner.PLUGIN_NAME == "QrScanner",
+			"the iOS plugin has the singleton name that qr_scanner.gd looks for")
+	_check(gdip.contains('initialization="qr_scanner_init"') and plugin_mm.contains("void qr_scanner_init()")
+			and gdip.contains('deinitialization="qr_scanner_deinit"') and plugin_mm.contains("void qr_scanner_deinit()"),
+			"the .gdip names the init and deinit functions that the module defines")
+	_check(plugin_cls.contains('D_METHOD("scan", "hint", "cancel")') and plugin_cls.contains('MethodInfo("scanned"')
+			and plugin_cls.contains('MethodInfo("failed"'),
+			"the iOS plugin has scan(hint, cancel) and the signals scanned and failed, like the Android plugin")
+	var sets_camera_text := false
+	for gdip_line in gdip.split("\n"):
+		if gdip_line.contains("NSCameraUsageDescription") and not gdip_line.strip_edges().begins_with("#"):
+			sets_camera_text = true
+	_check(not sets_camera_text, "the .gdip does not set the camera text (one source: the preset)")
 	var main_scene := String(ProjectSettings.get_setting("application/run/main_scene", ""))
 	_check(main_scene == "res://scenes/boot.tscn", "one start scene")
 	var boot := FileAccess.get_file_as_string("res://scenes/boot.tscn") + FileAccess.get_file_as_string("res://scripts/app.gd")

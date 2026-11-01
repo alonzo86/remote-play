@@ -32,6 +32,8 @@ android/build/
 android/.build_version
 android-tv/build/
 android-tv/.build_version
+# The iPhone QR scanner plugin: built on the Mac by tools/build_ios_plugin.sh, never committed (issue #299). ios/plugin/ is the source.
+ios/plugins/
 *.apk
 *.aab
 
