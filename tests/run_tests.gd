@@ -642,7 +642,7 @@ func _test_qr_scanner() -> void:
 	fake.scanned.emit("ws://192.168.1.20:47801/KQZM")
 	fake.failed.emit("cancelled")
 	_check(texts == ["ws://192.168.1.20:47801/KQZM"] and fails == ["cancelled"], "results of the plugin come out as signals")
-	late.acquire_wifi_locks()
+	_check(late.acquire_wifi_locks(), "acquire_wifi_locks() says it called the plugin")
 	_check(fake.calls == ["scan", "acquireWifiLocks"], "acquire_wifi_locks() calls the plugin: %s" % str(fake.calls))
 
 	# The connect screen offers the scan button when the plugin exists, and the button starts a scan.
@@ -679,11 +679,6 @@ func _test_connect_screen() -> void:
 	for b in screen.find_children("*", "Button", true, false):
 		has_scan_or_paste = has_scan_or_paste or b.text in ["qr_scanner.paste_room_link", "connect.scan_qr_code"]
 	_check(not has_scan_or_paste, "without the plugin the connect screen has no scan and no paste button")
-	var connect_script: GDScript = _script("res://scripts/ui/controller_connect.gd")
-	_check(not connect_script.shows_scan_button("iOS"),
-			"on an iPhone or iPad the connect screen has no scan or paste button")
-	_check(connect_script.shows_scan_button("Android") and connect_script.shows_scan_button("macOS"),
-			"on Android and desktop (also a Mac) the connect screen may show the scan button")
 	app.last_error = ""
 	screen._on_state(ControllerClient.State.IDLE)
 	_check(screen._status.text == "", "idle: the status line is empty")
@@ -712,7 +707,7 @@ func _test_connect_screen() -> void:
 	var shown: Array = screen.find_children("*", "Button", true, false).map(func(b): return b.text)
 	_check(shown.has("connect.join") and not shown.has("connect.refresh"), "JOIN is there and Refresh is not: %s" % str(shown))
 
-	# On an iPhone: no scan or paste button (REQ-FL-58).
+	# On an iPhone without the scanner plugin: no scan or paste button (REQ-FL-58).
 	var ios_screen = _script("res://scripts/ui/controller_connect.gd").new()
 	ios_screen.os_name = "iOS"
 	ios_screen.theme = app.theme_res
@@ -720,7 +715,7 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
 	# About is in the top row; then the profile dropdown and its + (FD-22). None of them is a scan or paste button.
-	_check(ios_buttons == ["common.about", "", "+", "connect.join"], "iPhone: no scan or paste button")
+	_check(ios_buttons == ["common.about", "", "+", "connect.join"], "iPhone without the plugin: no scan or paste button")
 	var about_btn: Button = ios_screen.find_children("*", "Button", true, false).front()
 	ios_screen.size = Vector2(1080, 1920)
 	await process_frame

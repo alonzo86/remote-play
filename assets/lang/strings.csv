@@ -36,6 +36,10 @@ connect.no_wi_fi_address,NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK.
 connect.not_sababi_code,THIS IS NOT A SABABI CODE.,זה לא קוד של SABABI.,"Phone, Connect screen: message when the scanned or pasted text is not a Sababi code",
 connect.press_ok_continue,PRESS OK TO CONTINUE,לחצו OK להמשך,TV Connect screen: blinking prompt once a phone has joined,
 connect.qr_failed,QR scan failed: %s,סריקת QR נכשלה: %s,"Phone: message when the QR scan fails, %s is the reason",%s is replaced by a name or a value
+connect.camera_denied,"THE CAMERA IS OFF FOR SABABI. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE.","המצלמה כבויה עבור SABABI. הפעילו אותה בהגדרות, או הקלידו את קוד החדר.","Phone, Connect screen: message after the player said no to the camera",
+connect.no_camera,THIS PHONE HAS NO CAMERA. TYPE THE ROOM CODE.,אין מצלמה בטלפון הזה. הקלידו את קוד החדר.,"Phone, Connect screen: message when the scan cannot start",
+connect.scan_cancel,CANCEL,ביטול,"Phone (iPhone), scan view: button that closes the camera",
+connect.scan_hint,POINT THE CAMERA AT THE QR CODE ON THE TV,כוונו את המצלמה אל קוד ה־QR שבטלוויזיה,"Phone (iPhone), scan view: help line over the camera picture",
 connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens (Back key): Quit button of the quit dialog,
 connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen and phone waiting and pad screens (Back key): title of the quit dialog,
 connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens), also big in the middle of the pad with a dashed frame (issue #238)",
