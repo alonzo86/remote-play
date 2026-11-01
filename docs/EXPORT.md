@@ -60,7 +60,9 @@ The category comes from the preset option `package/show_in_android_tv` (set to `
 
 ### QR scanner plugin
 
-The controller app scans the QR code on the TV screen with the Google code scanner (ML Kit).
+The controller app scans the QR code on the TV screen. Android uses the Google code scanner (ML Kit); the iPhone uses its own plugin (section *Controller on an iPhone*).
+
+**Android.**
 
 - The scanner has its own screen. The app does **not** need the camera permission.
 - The phone needs **Google Play services**. A phone without them shows "QR scan failed" and you type the room code.
@@ -141,12 +143,19 @@ Only the controller runs on iOS. The TV app stays on Android TV. Status: written
 4. Connect the iPhone by cable. Unlock it, tap Trust, and turn on Developer Mode (Settings > Privacy & Security).
 5. Run `IOS_TEAM_ID=<team id> tools/deploy-ios.sh`. It exports the preset `controller-ios`, builds with `xcodebuild`, installs and launches the app.
    The app is named "Sababi: Remote" on the home screen, as on Android (FD-27): the script sets it with `INFOPLIST_KEY_CFBundleDisplayName`, because Godot writes the project name. An App Store build needs the same setting.
+   The script first runs `tools/build_ios_plugin.sh` (the QR scanner plugin, rebuilt only when its source is newer) and stops if `ios/plugins/` is missing. After the export it checks that Godot wrote a Hebrew `InfoPlist.strings` with the camera text (`privacy/camera_usage_description_localized`); if it did not, it stops. In that case add `he.lproj/InfoPlist.strings` with `"NSCameraUsageDescription" = "<the Hebrew text of the preset>";` to the Xcode project by hand (the fallback decided by the owner on 2026-11-01).
    `--no-build` reuses the last build. `-d <id>` picks a phone. `IOS_BUNDLE_ID=` changes the bundle ID when a free account says it is taken.
 6. On a free account, trust the developer on the phone (Settings > General > VPN & Device Management). The app stops working after 7 days: deploy again.
 
+### The iPhone QR scanner plugin (issue #299)
+
+Source: `ios/plugin/qr_scanner/` (Objective-C++ on Apple AVFoundation, our own code; no third-party code). Build: `tools/build_ios_plugin.sh` on a Mac. It clones the Godot source at the tag of the export templates (`GODOT_TAG`, default `4.7.2-stable`, or use `GODOT_SRC`), lets scons write the engine headers once, compiles a device slice and a simulator slice, and writes `ios/plugins/qr_scanner.xcframework` and `ios/plugins/QrScanner.gdip`. These two are **not committed** (`.gitignore`); the script rebuilds only when the source is newer (`--force` rebuilds). The plugin registers the singleton `QrScanner` with `scan(hint, cancel)` and the signals `scanned(text)` and `failed(reason)` (reasons: `cancelled`, `camera_denied`, `no_camera`, `error`), as `scripts/net/qr_scanner.gd` expects. The camera text is not in the `.gdip`: it comes from the preset.
+
+**Status: written on Linux without Xcode and without an iPhone. It was never built and never run.** The first Mac run may find compile errors or an engine API that differs from 4.7.2 (risk R2 of `docs/IOS_SCANNER_PLAN.md`). Manual test 33 step 1a is the first check; nothing is marked as built before it.
+
 Differences from Android:
 
-- No QR scan: the Android plugin does not exist on iOS, so the iPhone joins by the typed room code. The connect screen has no scan button (REQ-FL-58).
+- QR scan: the iPhone app has its own scanner plugin (`ios/plugin/qr_scanner`, built by `tools/build_ios_plugin.sh`, issue #299; REQ-FL-58, 88 to 92). It needs the **camera permission**: iOS asks the first time the player taps SCAN QR CODE. If the player taps Don't Allow, the scan shows a message and the player types the room code, or switches the camera on in Settings > Sababi. The text of the question is in the preset (`privacy/camera_usage_description`, English, and `privacy/camera_usage_description_localized`, Hebrew; the Hebrew text needs a native reader). Without the plugin folder the build has no scan button. **Status: the plugin source and the build script are written on Linux and were never built or run (no Xcode, no iPhone); Manual test 33 is the check.** The plugin binaries are built on the Mac and are not committed (`.gitignore`). The minimum iOS version is 15 (decision of the owner, 2026-11-01).
 - iOS asks for the Local Network permission the first time the phone looks for the TV (the text is in the `export_presets.cfg` of the controller: "Sababi uses the room code to find your TV on your Wi-Fi and connect to it." The phone builds the TV address from the room code and tries the addresses of the Wi-Fi network). The text is in English only: the Godot iOS preset has no localized option for this key, and a Hebrew `InfoPlist.strings` would have to be added to the Xcode project by hand (not done). If the player taps Don't Allow, the iPhone cannot join: Settings > Sababi > Local Network switches it on.
 - The sensor axis fix in `scripts/input/sensor_sampler.gd` was measured on Android only. Check the directions again (Manual test 13).
 
@@ -189,7 +198,7 @@ tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh
 
 1. The owner agrees to the release and to its version name.
 2. `tools/set_version.sh <name> <code>`, then `tools/set_version.sh --check`.
-3. The privacy notice and the store forms are final (issues #36 and #37): the Play **Data safety** form (the controller uses the Google code scanner, the TV does not, see `tools/patch_android_manifest.sh`), the App Store privacy answers, the age rating and the Local Network text.
+3. The privacy notice and the store forms are final (issues #36 and #37): the Play **Data safety** form (the controller uses the Google code scanner, the TV does not, see `tools/patch_android_manifest.sh`), the App Store privacy answers (Data Not Collected; the iPhone scanner uses the camera on the device only), the age rating, the Local Network text and the camera text.
 4. The suites of the change and the manual tests with status `Device` that the release needs are Pass in `docs/MANUAL_TESTS.md`.
 5. Android: export the bundles with `tools/build.sh aab`, check them like in section 4 (the TV has no `QrScanner`, the controller has it) and upload both to the internal testing track first.
 6. iOS: export the Xcode project (`controller-ios`), open it in Xcode, set the team, Product > Archive, Distribute App > App Store Connect, then test in TestFlight. (Not verified: no Mac with Xcode was used for this.)

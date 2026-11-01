@@ -1,0 +1,19 @@
+[config]
+name="QrScanner"
+binary="qr_scanner.xcframework"
+
+initialization="qr_scanner_init"
+deinitialization="qr_scanner_deinit"
+
+[dependencies]
+linked=[]
+embedded=[]
+system=["AVFoundation.framework", "UIKit.framework"]
+
+capabilities=[]
+files=[]
+linker_flags=["-ObjC"]
+
+# NSCameraUsageDescription is NOT set here. It comes from privacy/camera_usage_description in the
+# controller-ios preset (one source of the text, localized there).
+[plist]

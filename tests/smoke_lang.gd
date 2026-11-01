@@ -230,7 +230,7 @@ func _run() -> void:
 			voice.append(k + " (the end marks differ)")
 		if k.begins_with("how_to.") and end_en != ".":
 			voice.append(k + " (a how-to text ends with a full stop)")
-	for k in ["tennis.hint_serve", "tennis.hint_hit", "sumo_bumpers.tilt_bump_others_off"]:
+	for k in ["tennis.hint_serve", "tennis.hint_hit", "sumo_bumpers.tilt_bump_others_off", "connect.scan_hint"]:
 		if not String(table[k].en).ends_with("!"):
 			voice.append(k + " (a hint that tells the player to act ends with '!')")
 	_check(voice.is_empty(), "the text voice: upper case rows, end marks, how-to and hint endings " + str(voice))

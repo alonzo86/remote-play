@@ -41,10 +41,19 @@ if [ "$BUILD" -eq 1 ]; then
 	[ -n "${IOS_TEAM_ID:-}" ] || { echo "Set IOS_TEAM_ID to your Apple Team ID (10 characters, in Xcode > Signing & Capabilities)." >&2; exit 1; }
 	# shellcheck source=tools/env.sh
 	. tools/env.sh
+	# The QR scanner plugin (issue #299): built on this Mac, never committed. The script rebuilds only when the source is newer.
+	# Without ios/plugins/ the export has no scan button, and Godot prints a warning about the plugin option of the preset.
+	tools/build_ios_plugin.sh
+	[ -d ios/plugins/qr_scanner.xcframework ] && [ -f ios/plugins/QrScanner.gdip ] \
+		|| { echo "The scanner plugin is missing in ios/plugins/. See docs/EXPORT.md." >&2; exit 1; }
 	mkdir -p build/ios
 	# The Team ID in the preset is a placeholder (Godot needs a value). The preset only exports the Xcode project;
 	# xcodebuild below signs it. It builds for this device, so Xcode can register the phone in the team.
 	"$GODOT" --headless --path . --export-debug controller-ios "$PROJECT"
+	# The camera question must have the Hebrew text (privacy/camera_usage_description_localized in the preset, REQ-FL-92).
+	# If Godot did not write it, the iPhone shows the question in English only: stop and say so (fallback: docs/EXPORT.md).
+	grep -rl "NSCameraUsageDescription" build/ios/sababi-controller --include=InfoPlist.strings 2>/dev/null | grep -q he.lproj \
+		|| { echo "The export has no Hebrew InfoPlist.strings with NSCameraUsageDescription. See docs/EXPORT.md (Hebrew camera text)." >&2; exit 1; }
 	# The controller is a portrait app. Godot writes landscape into Info.plist from the project setting, which the
 	# Android TV app needs, so patch only this export. Without it iOS blocks the portrait request in scripts/app.gd.
 	PLIST="$(find build/ios/sababi-controller -maxdepth 1 -name '*-Info.plist' | head -n 1)"

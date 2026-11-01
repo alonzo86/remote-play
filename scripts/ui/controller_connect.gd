@@ -8,6 +8,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
+const Haptics = preload("res://scripts/game/haptics.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const ProfileDropdown = preload("res://scripts/ui/profile_dropdown.gd")
@@ -20,12 +21,6 @@ var _typed_room := ""                 # The room code of a join by a typed code,
 var _candidates: Array[String] = []   # The addresses of that join that are not tried yet.
 var os_name := OS.get_name() # A test sets it to "iOS".
 var local_ips_lookup: Callable = Protocol.private_ipv4s   # The addresses of this phone for a typed code. A test gives its own.
-
-
-## The scan button is not shown on an iPhone or iPad (OS name "iOS"): there is no scanner plugin, so only the
-## room code is used. A phone whose build has no scanner has no button either (issue #115).
-static func shows_scan_button(os_name: String) -> bool:
-	return os_name != "iOS"
 
 
 func _ready() -> void:
@@ -54,10 +49,11 @@ func _ready() -> void:
 	# The QR scan is the main way to join (issue #241): the biggest button, first, with the thick yellow frame. Typing 4 letters
 	# is the second way, under it.
 	_qr = QrScanner.new()
+	_qr.os_name = os_name
 	add_child(_qr)
 	_qr.scanned.connect(_on_qr_text)
 	_qr.failed.connect(_on_qr_failed)
-	if shows_scan_button(os_name) and _qr.is_available():
+	if _qr.is_available():   # An iPhone shows it too when its build has the scanner plugin (REQ-FL-58, issue #299).
 		var scan := UiKit.box_button("connect.scan_qr_code", _on_scan_pressed, 56, true)
 		scan.custom_minimum_size = Vector2(0, 260)
 		box.add_child(scan)
@@ -149,6 +145,8 @@ func _on_scan_pressed() -> void:
 
 
 func _on_qr_text(text: String) -> void:
+	if _qr.buzzes_on_scan():
+		Haptics.on_message(QrScanner.BUZZ_MS)   # Once, when the code is read; follows the HAPTICS switch (REQ-FL-89).
 	if text.strip_edges().begins_with(ProfileCode.PREFIX):   # A player code, not a TV link (FD-22).
 		App.go(App.ControllerProfiles, {"note": App.import_profile_text(text)})
 		return
@@ -162,9 +160,10 @@ func _on_qr_text(text: String) -> void:
 
 
 func _on_qr_failed(reason: String) -> void:
-	if reason == "cancelled":
-		return
-	App.last_error = Lang.f("connect.qr_failed", [reason])
+	var text := QrScanner.failure_text(reason)
+	if text == "":
+		return   # A cancel shows nothing (REQ-FL-90).
+	App.last_error = text
 	_on_state(ControllerClient.State.IDLE)
 
 

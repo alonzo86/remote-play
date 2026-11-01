@@ -93,6 +93,7 @@ tests/r4_phone_profiles.gd|controller|Profiles on the phone: pencil, join, switc
 tests/r4_tv_profiles.gd|tv|Profiles on the TV: chips, lists, Wi-Fi cut|scenario
 tests/r4_bests.gd|tv|Personal bests from the TV to the phone|scenario
 tests/r4_join_code.gd|controller|Join by room code: TV rules, Connect screen, errors, the pencil|scenario
+tests/qr_scanner_ios.gd|controller|iPhone QR scanner, GDScript side: texts, reasons, button, buzz (issue #299)|unit
 tests/r4_tv_menus.gd|tv|Connect screen, Players modal, Settings, About|scenario
 tests/r4_asteroid.gd|tv|Star Shield: ship at the sides, Reached wave N|scenario
 tests/r4_bowling.gd|tv|Pin Pals: totals, last frame, rails, plate, scores, winner, leave|scenario
