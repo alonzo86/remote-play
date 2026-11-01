@@ -33,7 +33,7 @@ All new requirements go in `docs/TV_FLOW.md` (the phone connect screen) and are 
 - REQ-FL-90: CANCEL, a swipe down on the view and the app going to the background close the view and report `failed("cancelled")`. The Connect screen then shows no message and stays as it was, with the typed room code field still usable. This matches the Android scanner, where Back is a cancel (issue #43). Status: Device.
 - REQ-FL-91: The first scan asks iOS for the camera permission. When the player taps "Don't Allow" (or the camera is off in Settings, or a school profile blocks it), the scan reports `failed("camera_denied")` and the Connect screen shows `connect.camera_denied` (it says how to turn the camera on, and that the room code works). The player can still join with the typed room code. A phone with no camera reports `failed("no_camera")` and shows `connect.no_camera`. No other reason shows the raw word to a child: every reason from the plugin maps to a key (the Android path keeps its text `connect.qr_failed`). Status: Device.
 - REQ-FL-92: The picture of the camera is not saved, not sent and not kept after the view closes. The plugin reads the text of the code in memory only. The iPhone app asks for the camera permission and for nothing else new (no photo library, no microphone). Status: Device (the privacy notice depends on it; Manual test 33 step 6).
-- REQ-FL-83 (changed, one phrase): "the scan button (only when the build has the scanner ...)" stays true; the sentence about iOS in REQ-FL-58 is the only iOS change.
+- REQ-FL-83: no text change. "The scan button (only when the build has the scanner ...)" stays true; REQ-FL-58 is the only iOS change.
 - REQ-FL-76 / REQ-FL-77: no text change. "Where the phone has a scanner" now also covers the iPhone, and the paste button stays as the second way.
 - REQ-P6 / REQ-P5: the plugin is our own code (no third-party resource), so REQ-P6 (allowed files) lists the folder `ios/plugin/` as source only. If the owner chooses a third-party plugin (section 4, option B), REQ-P6 gets the line that CLAUDE.md asks for.
 
@@ -150,7 +150,7 @@ The text is English only: the Godot iOS preset has no localized option (same lim
 
 ### 5.4 App Privacy answers (App Store Connect, owner fills the form)
 
-Answer stays **Data Not Collected**. Reason to write in the form notes: the camera picture is processed on the device and is never sent off the device or kept (Apple's definition of "collect" is data sent off the device in a way that lets us or a partner keep it for longer than needed to serve the request in real time). No third-party SDK with data collection is added (the iOS plugin is own code on a system framework). The privacy manifest (`PrivacyInfo.xcprivacy`): the plugin uses no "required reason API" (no UserDefaults, no file time stamps, no disk space, no system boot time), so the plugin adds no entry; the manifest of the engine (from the Godot export) stays as it is. Check at phase 3 with `xcodebuild`'s privacy report that no new entry appears.
+Answer stays **Data Not Collected**. Reason to write in the form notes: the camera picture is processed on the device and is never sent off the device or kept (Apple defines "collect" as data sent off the device and kept; Alon or the release engineer confirms this against Apple's current App Privacy text before the form is filled). No third-party SDK with data collection is added (the iOS plugin is own code on a system framework). The privacy manifest (`PrivacyInfo.xcprivacy`): the plugin uses no "required reason API" (no UserDefaults, no file time stamps, no disk space, no system boot time), so the plugin adds no entry; the manifest of the engine (from the Godot export) stays as it is. Check at phase 3 with `xcodebuild`'s privacy report that no new entry appears.
 
 ### 5.5 `docs/EXPORT.md` (line 65 and the iOS section)
 
@@ -198,16 +198,18 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV with the Sababi TV app, a second phone f
 3b. Tap Allow. Check: the camera view opens within 2 seconds, in portrait, with the hint line and the CANCEL button (REQ-FL-88).
 4a. Point the phone at the QR code on the TV from 30 cm to 1 m (note the distance range that reads). Check: the view closes and the phone is on the waiting screen within 3 seconds of the code being in the picture. (REQ-FL-89) Note: the time in seconds, 5 tries.
 4b. Scan a QR code of a shared player profile (a second phone, Share). Check: the player list opens with the note that the player was added. (REQ-FL-89)
+4d. Scan a good TV code with haptics on. Check: the phone buzzes once when the view closes (yes/no). (REQ-FL-89)
 4c. Scan a QR code of a web page. Check: the Connect screen shows "THIS IS NOT A SABABI CODE." and the camera is closed. (REQ-FL-89)
 5a. Open the scan view and tap CANCEL. Check: the view closes, the Connect screen shows no message, and the typed room code still joins. (REQ-FL-90)
 5b. Open the scan view and swipe down. Check: same result as 5a. (REQ-FL-90)
 5c. Open the scan view, press the home button and return. Check: the camera view is closed, no message; the green camera dot in the status bar is off. (REQ-FL-88, 90)
 6a. Settings > Sababi > Camera off. Tap SCAN QR CODE. Check: no camera view, the Connect screen shows the exact text of `connect.camera_denied`, and typing the room code joins. (REQ-FL-91)
 6b. Switch the camera on again. Check: the scan works without a restart. (REQ-FL-91)
-7a. After a scan (and after CANCEL) check the Photos app and Files. Check: no new picture or file of Sababi (REQ-FL-92). Note: Settings > Privacy > Camera lists Sababi, and Settings > Privacy has no new entry (microphone, photos) for Sababi.
+7a. After a scan and after CANCEL, open the Photos app. Check: no new picture (REQ-FL-92).
+7b. Open Settings > Sababi. Check: the only permissions listed are Camera and Local Network (no Photos, no Microphone). (REQ-FL-92)
 8a. Set the phone to Hebrew in the app. Check: the hint line and CANCEL show the Hebrew text and read right to left, inside the screen edge. Note: a Hebrew reader confirms the words (the manual test step for Claude-written Hebrew).
 9a. In the dark room with only the TV on. Check: the code reads in 5 seconds (note: yes/no, the phone model).
-9b. Hold a child of 5 to 8 years in front of the TV with the phone. Check: the child scans without help in 30 seconds.
+9b. A child of 5 to 8 years scans the code on the TV with the phone, with no help. Check: the child joins in 30 seconds (stopwatch).
 
 The matching row `| 33 | ... |` goes in the "Tests the user has to run now" table of CLAUDE.md in phase 0. Nothing in this test can be done headless (a real camera): the GDScript side is covered by the headless tests of phase 2.
 
@@ -222,7 +224,7 @@ The matching row `| 33 | ... |` goes in the "Tests the user has to run now" tabl
 | R5 | The privacy notice says "not sent" and a later change breaks that | Wrong legal text | REQ-FL-92 is a requirement with a test step; a change of the plugin goes through `code-reviewer` and the owner (privacy notice). |
 | R6 | Camera question text is English only | A Hebrew child gets an English question | Same known limit as the Local Network text. Out of scope; listed in the open `localization` issue. |
 | R7 | App Store review asks why the camera is used | Delay | The text (5.3) says it, the scan is user started, and the notice explains it. |
-| R8 | iPad and simulator have no usable camera | Button shown, scan fails | `no_camera` message (REQ-FL-91). The simulator build has no plugin slice for the camera, so the button is hidden there only if the simulator slice is not built; decision in phase 1. |
+| R8 | An iPad or the simulator has no usable camera | Button shown, scan fails | `no_camera` message (REQ-FL-91). Whether the simulator slice is built is decided in phase 1. |
 | R9 | The Mac build step makes `tools/deploy-ios.sh` slower and needs Godot sources | Friction for the owner | The plugin is built once and cached in `ios/plugins/`; the script rebuilds only when the source is newer. |
 
 ## 8. Decisions for Alon
