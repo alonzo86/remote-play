@@ -12,6 +12,7 @@ extends RefCounted
 ##   tremor(s, amp, hz)               a hand that trembles
 ##   walk(s, axis, hz, peaks)         steps at `hz` along `axis`, the peaks cycle through `peaks` (m/s2)
 ##   stroke(fwd_dir, back, fwd, ...)  a swing: the hand goes back (peak `back`), then forward (peak `fwd`) along `fwd_dir`
+##   pendulum(fwd_dir, back, fwd, s)  a swing as a hand moves it: speed up and brake backward, speed up and brake forward
 ##   back_swing(fwd_dir, peak, s) / forward_swing(fwd_dir, peak, s)  the two halves of a stroke, to cut a swing in the middle
 ##   follow_through(fwd_dir, peak, s) the hand slows down after a forward swing (a push against `fwd_dir`)
 ##   noisy(trace, amp, seed)          the same trace with +/- `amp` m/s2 of sensor noise on every axis, step by step
@@ -135,6 +136,19 @@ static func stroke(fwd_dir: Vector3, back: float, fwd: float, back_s := 0.2, fwd
 	if stop > 0.0:
 		_bump(t, d * stop, back_s * 0.5)
 	_bump(t, d * fwd, fwd_s)
+	return t
+
+
+## A pendulum swing, as a hand really moves it (a putt): the hand speeds up backward and brakes (two half sines of `back` m/s2,
+## `s` long each), then speeds up forward (`fwd`) and brakes. `stroke()` has only the two speeding-up halves, so its hand
+## speed at the forward swing is the difference of the two; here the hand is at rest at the top of the back swing.
+static func pendulum(fwd_dir: Vector3, back: float, fwd: float, s := 0.2) -> Trace:
+	var d := fwd_dir.normalized()
+	var t := Trace.new()
+	_bump(t, -d * back, s)
+	_bump(t, d * back, s)
+	_bump(t, d * fwd, s)
+	_bump(t, -d * fwd, s)
 	return t
 
 
