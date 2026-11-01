@@ -19,6 +19,7 @@ const AFTER_TOPPLED := 1.8
 const HINT_TIME := 6.0
 const BUZZ_GAP_MS := 150
 const CHIP_Y := 940.0
+const CHIP_H := 64.0
 const CHIP_GAP := 24.0
 const CHIP_MARGIN := 60.0
 const CHIP_Y_TWO_ROWS := 884.0         # Two rows of chips: the first row starts under the base, the second ends at the margin.
@@ -300,7 +301,10 @@ func wobble_offset(level: int, height: int) -> float:
 
 
 func _world_draw(ci: CanvasItem) -> void:
-	Look.draw_scene(ci, size, _time)
+	_fit_design(CHIP_Y, CHIP_H)   # The tower and the bricks stay in design units; only the drawing is scaled (REQ-TB-22).
+	ci.draw_rect(Rect2(-design_off / design_k, size / design_k), Look.OUTLINE)   # Black beside the design screen, when not 16:9.
+	ci.draw_set_transform(design_off, 0.0, Vector2(design_k, design_k))
+	Look.draw_scene(ci, Vector2(DESIGN_SIZE), _time)
 	Look.draw_base(ci)
 	var h := stack.height()
 	for i in h:
@@ -332,24 +336,35 @@ func _world_draw(ci: CanvasItem) -> void:
 
 
 func _game_draw() -> void:
+	_fit_design(CHIP_Y, CHIP_H)
 	Shell.title(self, "registry.tower_builder")
 	draw_leader_chip(self)
 	if not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _turn_left if phase == Phase.TURN else turn_time(), TIMER_W)
 		var slot := current_slot()
 		if slot >= 0:
-			Shell.label_plate(self, Vector2(Shell.mx(self, INFO_X, 0.0), 300.0),
+			Shell.label_plate(self, _info_at(0, Lang.f("tower_builder.turn_of", [player(slot).player_name])),
 					Lang.f("tower_builder.turn_of", [player(slot).player_name]), INFO_FONT, _colors.get(slot, UiTheme.TEXT))
-		Shell.label_plate(self, Vector2(Shell.mx(self, INFO_X, 0.0), 380.0),
-				Lang.f("tower_builder.brick_n_of", [mini(dropped + 1, Stack.TOTAL_BRICKS), Stack.TOTAL_BRICKS]), INFO_FONT, UiTheme.TEXT)
+		var brick_text := Lang.f("tower_builder.brick_n_of", [mini(dropped + 1, Stack.TOTAL_BRICKS), Stack.TOTAL_BRICKS])
+		Shell.label_plate(self, _info_at(1, brick_text), brick_text, INFO_FONT, UiTheme.TEXT)
 		if banner_text != "" and phase != Phase.TURN:
 			Shell.label_plate(self, Vector2(size.x * 0.5, size.y * 0.5 + 24.0), banner_text, BANNER_FONT, UiTheme.ACCENT)
 		if dropped == 0 and phase == Phase.TURN and _time < HINT_TIME:
-			var top := CHIP_Y
+			var top := _to_screen(Vector2(0.0, CHIP_Y)).y
 			for r in chip_rects():
 				top = minf(top, r.position.y)
 			Shell.hint(self, size, "tower_builder.hint", top - 16.0)   # Above the chips, not over them (issue #223).
 	_draw_chips()
+
+
+## Where the plate at the left of the tower (row 0: the turn, row 1: the brick number) stands. Its place follows the tower; its
+## size does not change, and it stays inside the 60 px margin. At 1920x1080 it is at (340, 300) and (340, 380).
+func _info_at(row: int, msg: String) -> Vector2:
+	var at := _to_screen(Vector2(INFO_X, 300.0))
+	at.y += 80.0 * float(row)
+	var half := Shell.label_plate_rect(Vector2.ZERO, msg, INFO_FONT).size.x * 0.5
+	at.x = maxf(at.x, SAFE_MARGIN + half)
+	return Vector2(Shell.mx(self, at.x, 0.0), at.y)
 
 
 ## The rectangle of the chip of each player, in the order of `participants` (REQ-TB-19): one row along the bottom, centered;
@@ -365,6 +380,9 @@ func chip_rects() -> Array[Rect2]:
 	var avail := size.x - 2.0 * CHIP_MARGIN
 	var per_row := widths.size() if total - CHIP_GAP <= avail else 2
 	var rows := ceili(float(widths.size()) / float(per_row))
+	_fit_design(CHIP_Y, CHIP_H)
+	var y0 := minf(_to_screen(Vector2(0.0, CHIP_Y if rows == 1 else CHIP_Y_TWO_ROWS)).y,
+			size.y - SAFE_MARGIN - CHIP_H - float(rows - 1) * CHIP_ROW_STEP)   # The last row ends inside the 60 px margin.
 	var out: Array[Rect2] = []
 	for row in rows:
 		var first := row * per_row
@@ -373,7 +391,7 @@ func chip_rects() -> Array[Rect2]:
 		for i in range(first, last):
 			row_w += widths[i] + CHIP_GAP
 		var x := (size.x - row_w) * 0.5
-		var y := CHIP_Y if rows == 1 else CHIP_Y_TWO_ROWS + float(row) * CHIP_ROW_STEP
+		var y := y0 + float(row) * CHIP_ROW_STEP
 		for i in range(first, last):
 			out.append(Rect2(Shell.mx(self, x, widths[i]), y, widths[i], 64.0))
 			x += widths[i] + CHIP_GAP
