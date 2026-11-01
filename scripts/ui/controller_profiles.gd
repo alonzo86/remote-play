@@ -117,13 +117,13 @@ func _on_share(id: String) -> void:
 	App.go(App.ControllerProfileShare, {"profile_id": id})
 
 
-## The text of a scan or of the clipboard (REQ-FL-76).
 func _on_scanned(text: String) -> void:
 	if _qr.buzzes_on_scan():
 		Haptics.on_message(QrScanner.BUZZ_MS)   # A scan on an iPhone buzzes once (REQ-FL-89); a paste does not.
 	_on_code(text)
 
 
+## The text of a scan or of the clipboard (REQ-FL-76).
 func _on_code(text: String) -> void:
 	if App.client.state == ControllerClient.State.CONNECTED and not App.client.can_change_profile():
 		return   # A round has started: a scan that comes late changes nothing (REQ-FL-71, plan 6.4).
