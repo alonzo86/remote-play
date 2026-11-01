@@ -1626,6 +1626,7 @@ New game (2026-10-23). It was tested only with made-up button presses. Every num
 13a. Record 10 drops with the camera at 60 fps or more. In the frame after each landing measure, in a photo of the 1080p TV, how far the middle of the new brick is beyond the edge of the brick below. Check: no brick that stays is more than 8 world pixels (32 px at 1080p) beyond the edge, no brick that is further out stays (0 of 10), and at least 1 brick that stays is between 1 and 8 world pixels beyond the edge. (REQ-TB-8)
 13b. Play a round with 2 phones. Check: the phone whose turn starts buzzes (5 of 5 turns) and the other phone does not (0 of 5). A drop buzzes the phone shortly (5 of 5), a brick that stays buzzes it longer than the drop (4 of 5 pairs named right with the eyes closed: 60 ms against 30 ms), a miss buzzes it (3 of 3), and a topple buzzes both phones (2 of 2). (REQ-TB-13)
 13c. Use a stopwatch on Easy, Medium and Hard and let a turn run to the end without a drop. Check: the timer box starts at 10 s on Easy, 5 s on Medium and 3 s on Hard, and the crane drops by itself at that time plus or minus 1 s (3 of 3 difficulties). On Easy time the crane for 5 swings from one end and back. Check: one swing takes 2.4 s (2.2 s to 2.6 s) in each of 3 measures. A child of the steps 9a to 9d plays a round on Easy. Check: the answers to those steps are written (REQ-TB-16, REQ-GM-80 to 84).
+13d. **Re-look after the screen scaling (2026-11-01, issue #348, REQ-TB-22).** The layout now comes from the window size; at 1920x1080 nothing moved. On the TV box, start a game with 2 phones. Check: both chips are fully visible under the base (2 of 2) and the plates "<NAME>'S TURN" and "BRICK n OF 12" are at the left of the tower; the crane arm is visible under the black bar (yes or no). Check: the sky, the tower, the chips and the plates are at the same places as in the photo of step 1a (compare the photos: each edge within 10 px at 1080p). (REQ-TB-22, REQ-2D-2)
 
 Items 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b and 13 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-30-*). The numbers of the other items do not change.
 
@@ -1648,6 +1649,7 @@ Measurements (write down, no pass or fail): the time for one drop that people re
 | 13a | Frames with the measure; note: each of the 10 offsets and the result (stays or not) | Not run | | | Added 2026-10-31 (issue #306). |
 | 13b | Note: the buzzes of each kind | Not run | | | Added 2026-10-31 (issue #306). |
 | 13c | Note: the 3 times; the 3 swing times; the child's steps | Not run | | | Added 2026-10-31 (issue #306). |
+| 13d | Photo of the screen next to the photo of 1a; note: yes or no for each check | Not run | | | Added 2026-11-01 (issue #348). |
 
 History:
 

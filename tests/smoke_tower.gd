@@ -6,6 +6,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const MedalView = preload("res://scripts/ui/medal_view.gd")
+const Shell = preload("res://scripts/game/shell.gd")
 
 const DT := 1.0 / 60.0
 
@@ -279,6 +280,45 @@ func _run() -> void:
 	_check(wide.size() == 4 and wide[0].position.y == wide[1].position.y and wide[2].position.y == wide[3].position.y
 			and wide[0].position.y < wide[2].position.y and in_margins,
 			"four long names: two chips in each of two rows, inside the margins: %s" % str(wide))
+
+	# REQ-TB-22: the design screen scales to `size` with one factor; the tower stays in design units and the HUD keeps its size.
+	var base_before: float = game.Stack.BASE_X
+	var size_before: Vector2 = game.size
+	var at_1080: Vector2 = game._info_at(0, "TURN OF SIM0")
+	var one_row: Array[Rect2] = []
+	for res in [Vector2(1280, 720), Vector2(1920, 1080)]:
+		game.size = res
+		for i in real.size():
+			game.player(real[i]).player_name = "Sim%d" % i
+		one_row = game.chip_rects()
+		var info0: Vector2 = game._info_at(0, "TURN OF SIM0")
+		var info1: Vector2 = game._info_at(1, "BRICK 1 OF 12")
+		var plate0 := Shell.label_plate_rect(info0, "TURN OF SIM0", 32)
+		var plate1 := Shell.label_plate_rect(info1, "BRICK 1 OF 12", 32)
+		var ground: float = game._to_screen(Vector2(0.0, game.Stack.GROUND_Y)).y
+		var screen := Rect2(Vector2(60, 60), res - Vector2(120, 120))
+		var chips_ok := true
+		for r in one_row:
+			chips_ok = chips_ok and screen.encloses(r) and r.position.y > ground
+		_check(chips_ok and screen.encloses(plate0) and screen.encloses(plate1) and not plate0.intersects(plate1)
+				and (res.x > 1280.0 or is_equal_approx(game.design_k, (720.0 - 60.0 - 64.0 - 112.0) / (940.0 - 112.0))),
+				"REQ-TB-22: at %s the chips are under the base and the plates apart, inside the 60 px margin; factor %.3f: %s %s %s"
+				% [str(res), game.design_k, str(one_row), str(plate0), str(plate1)])
+	_check(game.design_k == 1.0 and at_1080 == Vector2(340.0, 300.0) and one_row[0].position.y == 940.0,
+			"REQ-TB-22: at 1920x1080 nothing moves (factor 1, plates at x 340, chips at y 940)")
+	game.size = Vector2(1280, 720)
+	for s in real:
+		game.player(s).player_name = "Twinsssssss"
+	game.participants = four
+	var wide_small: Array[Rect2] = game.chip_rects()
+	game.participants = real
+	var small_ok := true
+	for r in wide_small:
+		small_ok = small_ok and Rect2(60, 60, 1160, 600).encloses(r)
+	_check(wide_small.size() == 4 and wide_small[0].position.y < wide_small[2].position.y and small_ok,
+			"REQ-TB-22: four long names at 1280x720: two rows, inside the margins: %s" % str(wide_small))
+	game.size = size_before
+	_check(game.Stack.BASE_X == base_before, "REQ-TB-22: the tower is in design units whatever the window")
 	for i in game.participants.size():
 		game.player(game.participants[i]).player_name = saved[i]
 

@@ -13,8 +13,6 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 
 const SCREEN := Vector2i(1280, 720)
-## These games have HUD boxes at fixed 1080p places (issue #348). The test fails when one of them fits, so the entry goes then.
-const FIXED_LAYOUT: Array[String] = ["tower_builder"]
 
 var _checks := 0
 var _fails := 0
@@ -111,11 +109,8 @@ func _run() -> void:
 				var text := "%s %s" % [b.kind, str(b.rect)]
 				if not screen.encloses(b.rect) and not outside.has(text):
 					outside.append(text)
-			if String(spec.id) in FIXED_LAYOUT:
-				_check(not outside.is_empty(), "REQ-2D-2: %s is on the list of fixed layouts (issue #348) and has boxes outside" % state)
-			else:
-				_check(not _boxes.is_empty() and outside.is_empty(),
-						"REQ-2D-2: %s: all %d boxes of the HUD are inside the window (outside: %s)" % [state, _boxes.size(), str(outside)])
+			_check(not _boxes.is_empty() and outside.is_empty(),
+					"REQ-2D-2: %s: all %d boxes of the HUD are inside the window (outside: %s)" % [state, _boxes.size(), str(outside)])
 			var off: Array[String] = []
 			for n in _game.find_children("*", "Control", true, false):
 				var c := n as Control
