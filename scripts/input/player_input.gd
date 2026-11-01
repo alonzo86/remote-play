@@ -6,6 +6,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
+const SensorRecorder = preload("res://scripts/input/sensor_recorder.gd")
 
 const SWING_THRESHOLD := 0.75   # Tennis counts a lighter swing than Pin Pals (the factor on the thresholds of the detector).
 const SWING_WINDOW_S := 3.0     # A player draws back early: a back swing waits this long (s) for the forward swing.
@@ -19,6 +20,9 @@ enum State { EMPTY, CONNECTED, LOST }
 
 signal button_pressed(bit: int)
 signal swung(info: Dictionary)   # A swing was thrown (see `_feed_swing()`): the power, the direction and how old the hit is.
+
+## The sensor recorder of the debug overlay (REQ-T7), or null. One for all phones; it records only while it is `recording`.
+static var recorder: SensorRecorder = null
 
 var slot := 0
 var state: State = State.EMPTY
@@ -169,6 +173,8 @@ func on_sensor(pkt: Dictionary, now_ms: int) -> void:
 	if has_clock:
 		sensor_age_ms = now_ms - (pkt.ts + clock_offset_ms)
 	orientation.update(pkt.ts, pkt.gyro, pkt.accel)
+	if recorder != null and recorder.recording:
+		recorder.add(slot, pkt.ts, orientation.linear_accel(pkt.accel), pkt.gyro)
 	_feed_swing(pkt, now_ms)
 	for bit in [Protocol.BTN_A, Protocol.BTN_B]:
 		if pressed_bits & bit:

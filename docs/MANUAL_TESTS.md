@@ -1283,7 +1283,7 @@ Items 1 to 7b and 9a, 9b moved to the automated tests (`docs/AUTOMATED_TESTS.md`
 12a. (Added 2026-11-01, issues #141, #142, #209.) Join with 1 phone and open the debug overlay in Tennis rules (the Tennis detector). Move the phone from left to right and back, 40 cm in about 0.4 s, 10 times, 2 s apart. Check: the counter rises by 0 (a sweep is not a hit). Automated series cannot separate a sweep from a sharp hit: write down the counter and the `power` of each swing found.
 12b. Shake the phone hard (3 Hz, as hard as you can) for 2 s, 5 times, 3 s apart. Check: the counter rises by 0. Write down how many swings each shake gave.
 12c. Swing 10 real forehands (back swing, then a clear forward swing), soft, medium and hard, 2 s apart. Check: the counter rises by 9 or 10. (Keeps the opposite problem in view: nothing in 12a and 12b may be won by losing swings here.)
-12d. **Raw samples (missing tool).** The debug overlay shows only the counter, the power and the side; it cannot record the sensor. To tune a rule that tells a sweep or a shake from a swing, 60 Hz traces of `linear_accel()` (m/s2, phone frame) are needed for: 10 sweeps, 10 hard shakes, 10 slow shakes (2 to 5 Hz), 10 soft, 10 medium and 10 hard real swings, from 2 people. A recorder is not built yet (it would write the packets to a file on the TV). Until then 12a to 12c only count.
+12d. **Raw samples (recorder, REQ-T7; changed 2026-11-01).** Needs the TV app on a computer with a keyboard (a Mac), or a TV box with a keyboard or `adb shell input keyevent KEYCODE_F5` (F5 is 135, F6 is 136, F7 is 137), and 1 or 2 phones joined. Open the debug overlay (F3 or Menu); the last line says `RECORD  label: sweep   F5 start   F6 / F7 label`. For each kind, in this order: choose the label with F6 / F7, press F5 (the line says `RECORDING <label>` and the time and the packets of each phone grow), make ONE movement, press F5 again (the line says `saved N file(s): <folder>`). Do this 10 times for each label: `sweep` (40 cm in about 0.4 s), `hard_shake` (3 Hz, as hard as you can, 2 s), `slow_shake` (2 to 5 Hz), `swing_soft`, `swing_medium`, `swing_hard` (real forehands), from 2 people (use a phone each, or take turns). Take the files out of the folder: on a Mac it is `~/Library/Application Support/Godot/app_userdata/Sababi/sensor_traces/` (the overlay shows the exact folder); a release Android TV app keeps them in its private folder, which `adb` cannot read, so use a Mac for this step. Check: 60 files (6 labels x 10 recordings) exist, every file starts with `# sababi sensor trace 1`, and each has at least 50 rows per second recorded (rows in the file / seconds recorded >= 50). Give the files to Claude (put them in `docs/evidence/sensor_traces/`): they replay through `SensorRecorder.parse()` and `SensorRecorder.resample()` in tests, and tune the rule that tells a sweep or a shake from a swing. The CSV round trip into the detector is automated (A-24-12).
 
 Measurements (write down, no pass or fail): the power of a soft, medium and hard stroke; the `side` values of each direction; the values of "hit N ms ago" and "Age ms" (the delay of the phone, Test 4). Use them to tune the thresholds of `swing_detector.gd` and `SWING_LOCK_S`.
 
@@ -1300,11 +1300,12 @@ Measurements (write down, no pass or fail): the power of a soft, medium and hard
 | 12a | Note: the counter after 10 sweeps and the `power` of each swing found | Not run | | | Added 2026-11-01 (issue #209). |
 | 12b | Note: swings found in each of 5 hard shakes | Not run | | | Added 2026-11-01 (issue #209). |
 | 12c | Note: swings found of 10 real forehands, soft to hard | Not run | | | Added 2026-11-01 (issue #209). |
-| 12d | Note: whether a recorder exists; if not, the issue number | Not run | | | Added 2026-11-01 (issue #209). |
+| 12d | Note: the number of files per label, the lowest rows per second, the folder | Not run | | | Added 2026-11-01 (issue #209); the recorder was built the same day. |
 
 History:
 
 - 2026-11-01 (not run): steps 12a to 12d added (issue #209): sweeps, hard shakes, real swings and the missing recorder. No recorded result changed.
+- 2026-11-01 (not run): step 12d rewritten for the sensor recorder of the debug overlay (REQ-T7). It was a note about a missing tool. No recorded result changed.
 - 2026-10-21 (aligned with the requirements, not run): step 11a now swings to both sides in one run and 11b is merged into it (REQ-TN-7: straight is the mean of the player's own swings); 11c starts with RECENTER. No recorded result changed.
 - -: **Not run**. New (2026-10-17).
 

@@ -95,7 +95,7 @@ godot --path . -- --role=tv                       # TV window
 godot --path . -- --role=controller --join=127.0.0.1   # phone window. Joins the TV at that address.
 ```
 
-TV keys: arrows, Enter, Esc (back), F3 (overlay).
+TV keys: arrows, Enter, Esc (back), F3 (overlay; with the overlay on: F5 starts and stops the sensor recorder, F6 / F7 change its label, REQ-T7).
 The phone window has no sensors. The mouse simulates tilt (position) and yaw (movement).
 
 ## Build and export
