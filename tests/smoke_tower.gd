@@ -6,6 +6,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const MedalView = preload("res://scripts/ui/medal_view.gd")
+const Shell = preload("res://scripts/game/shell.gd")
 
 const DT := 1.0 / 60.0
 
@@ -287,7 +288,8 @@ func _run() -> void:
 	var one_row: Array[Rect2] = []
 	for res in [Vector2(1280, 720), Vector2(1920, 1080)]:
 		game.size = res
-		game.player(real[0]).player_name = "Sim0"
+		for i in real.size():
+			game.player(real[i]).player_name = "Sim%d" % i
 		one_row = game.chip_rects()
 		var info0: Vector2 = game._info_at(0, "TURN OF SIM0")
 		var info1: Vector2 = game._info_at(1, "BRICK 1 OF 12")
@@ -305,6 +307,8 @@ func _run() -> void:
 	_check(game.design_k == 1.0 and at_1080 == Vector2(340.0, 300.0) and one_row[0].position.y == 940.0,
 			"REQ-TB-22: at 1920x1080 nothing moves (factor 1, plates at x 340, chips at y 940)")
 	game.size = Vector2(1280, 720)
+	for s in real:
+		game.player(s).player_name = "Twinsssssss"
 	game.participants = four
 	var wide_small: Array[Rect2] = game.chip_rects()
 	game.participants = real
