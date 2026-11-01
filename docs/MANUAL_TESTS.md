@@ -1119,7 +1119,7 @@ Items 8c, 8e, 9a, 9c, 9e, 10b moved to the automated tests, and items 8a, 8d, 9b
 
 History:
 
-- 2026-11-01: steps 1c to 1e added for the room code in the header of the Games screen (issue #172, REQ-FL-15a). Step 1b keeps its result: it checks the code read from the phone side, not the header of the Games screen.
+- 2026-11-01: steps 1c to 1e added for the room code in the header of the Games screen (issue #172, REQ-FL-15a). Step 1b keeps its result: it was written and passed before the code was always in the header of the Games screen.
 - 2026-10-21 (issue #52, FD-28): the join PIN, the PIN pad and the list of TVs are gone. Steps 1b, 3d, 6a and 6b are about the room code now; 1b, 6a and 6b go back to "Not run" (R1 passed them with the PIN). The tests of the PIN (`r4_pin`, `net_pin`, `probe`) became `r4_join_code`, `about_pages` and `room_code`. The R1 failures of steps 3b and 4b (the texts of a wrong PIN and of the lock) are gone with the PIN.
 - 2026-10-21 (automated): 16 steps moved to the automated tests (`r4_pin`, `r4_tv_menus`, `join_flow`, `ui_states_a`). The R1 results of 1a, 3a to 3e, 4a to 4d, 5a, 5b, 7, 9f and 10c stay in the result database.
 - R1: **Fail** (steps 3, 4 and 10; the steps 1, 2, 5 to 9 pass). Reported in chat 2026-10-19. The failures of steps 3 and 4 are about the error texts WRONG PIN and TOO MANY WRONG PINS (no text, or a text that goes away). The note of step 10 asks for changes of the Settings screen (issue #49).
