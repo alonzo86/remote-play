@@ -1273,6 +1273,10 @@ Items 1 to 7b and 9a, 9b moved to the automated tests (`docs/AUTOMATED_TESTS.md`
 11a. Press RECENTER while you point at the TV. Swing a forehand to the right, then to the left, then to the right, and so on: 5 swings to each side, 2 s apart. Check: the `side` value is +0.3 or more in at least 4 of the 5 swings to the right, and -0.3 or less in at least 4 of the 5 swings to the left. (REQ-TN-7: straight is the mean of your own last swings, so ten swings to one side drift to the middle.)
 11c. Press RECENTER while you point at the TV. Swing straight at the TV, 10 times, 2 s apart. Check: the `side` value is between -0.2 and +0.2 in at least 8 of 10 swings.
 11d. Swing nearly vertical (up and down), 10 times. Check: the `side` value is between -0.2 and +0.2 in at least 8 of 10 swings.
+12a. (Added 2026-11-01, issues #141, #142, #209.) Join with 1 phone and open the debug overlay in Tennis rules (the Tennis detector). Move the phone from left to right and back, 40 cm in about 0.4 s, 10 times, 2 s apart. Check: the counter rises by 0 (a sweep is not a hit). Automated series cannot separate a sweep from a sharp hit: write down the counter and the `power` of each swing found.
+12b. Shake the phone hard (3 Hz, as hard as you can) for 2 s, 5 times, 3 s apart. Check: the counter rises by 0. Write down how many swings each shake gave.
+12c. Swing 10 real forehands (back swing, then a clear forward swing), soft, medium and hard, 2 s apart. Check: the counter rises by 9 or 10. (Keeps the opposite problem in view: nothing in 12a and 12b may be won by losing swings here.)
+12d. **Raw samples (missing tool).** The debug overlay shows only the counter, the power and the side; it cannot record the sensor. To tune a rule that tells a sweep or a shake from a swing, 60 Hz traces of `linear_accel()` (m/s2, phone frame) are needed for: 10 sweeps, 10 hard shakes, 10 slow shakes (2 to 5 Hz), 10 soft, 10 medium and 10 hard real swings, from 2 people. A recorder is not built yet (it would write the packets to a file on the TV). Until then 12a to 12c only count.
 
 Measurements (write down, no pass or fail): the power of a soft, medium and hard stroke; the `side` values of each direction; the values of "hit N ms ago" and "Age ms" (the delay of the phone, Test 4). Use them to tune the thresholds of `swing_detector.gd` and `SWING_LOCK_S`.
 
@@ -1286,9 +1290,14 @@ Measurements (write down, no pass or fail): the power of a soft, medium and hard
 | 11a | Note: the 5 `side` values to the right and the 5 to the left | Not run | | | |
 | 11c | Note: 10 `side` values straight | Not run | | | |
 | 11d | Note: 10 `side` values nearly vertical | Not run | | | |
+| 12a | Note: the counter after 10 sweeps and the `power` of each swing found | Not run | | | Added 2026-11-01 (issue #209). |
+| 12b | Note: swings found in each of 5 hard shakes | Not run | | | Added 2026-11-01 (issue #209). |
+| 12c | Note: swings found of 10 real forehands, soft to hard | Not run | | | Added 2026-11-01 (issue #209). |
+| 12d | Note: whether a recorder exists; if not, the issue number | Not run | | | Added 2026-11-01 (issue #209). |
 
 History:
 
+- 2026-11-01 (not run): steps 12a to 12d added (issue #209): sweeps, hard shakes, real swings and the missing recorder. No recorded result changed.
 - 2026-10-21 (aligned with the requirements, not run): step 11a now swings to both sides in one run and 11b is merged into it (REQ-TN-7: straight is the mean of the player's own swings); 11c starts with RECENTER. No recorded result changed.
 - -: **Not run**. New (2026-10-17).
 
@@ -1395,6 +1404,8 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 16e. Play one hole on Easy, one on Medium and one on Hard and look at the aim phase. Check: Easy shows a long aim line and a power hint at the swing; Medium shows a short aim line and no power hint; Hard shows no aim line, only a small marker on the ground (3 of 3 difficulties as written). Then on Easy and on Medium make the weakest swing that still counts as a putt, 5 times each. Check: the median distance of the 5 Easy putts is larger than the median of the 5 Medium putts. (REQ-MG-13)
 16f. Record the golfer with the phone camera (240 fps) for 3 putts. Check: in each of 3 putts you see these phases in this order: address, backswing, downswing, hit, follow-through (3 of 3), and the putter has a dark grip, a steel shaft and a steel head with a gold top line (3 of 3 parts seen). (REQ-MG-16)
 16g. Hold a phone and putt 5 soft and 5 strong putts. A second person watches. Then you putt 5 pairs (one soft and one strong, in a random order) with your eyes closed, and say which buzz of the pair was longer. Check: the phone buzzes at the hit in 10 of 10 putts, and you name the longer buzz (the strong putt, 60 ms against 30 ms) right in 4 of 5 pairs. (REQ-MG-16)
+16h. (Added 2026-11-01, issue #209.) Medium. Move the phone 40 cm to the side in about 0.4 s, 10 times, then shake it slowly (2 to 5 Hz) for 2 s, 5 times, then walk 20 steps with the phone in your hand. Check: the stroke count stays 0 (0 of 10 moves, 0 of 5 shakes and 0 of the walk make a putt). Do it again on Easy.
+16i. (Added 2026-11-01, issue #209.) Medium. Putt 10 soft putts, a real slow pendulum swing as for a short putt. Check: at least 9 of 10 roll the ball, and none rolls at the stop of the back swing. Write down the misses and how you held the phone. The speed rule (`GATE_SPEED` 0.5 m/s) is a first guess and a soft putt can be dropped by it: if more than 1 of 10 is dropped, report it (issue #142).
 
 Items 1a, 2a, 2c, 3a, 3c, 3d, 4a, 4b, 4c, 4d, 5a, 5b, 5c, 5d, 6a to 6c, 7a to 7c, 7d, 7e, 7f, 8a, 8b, 8c, 8d, 8e, 8f, 9a to 9d, 10a to 10d, 11a to 11c moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-26-1a to A-26-11c). Item 3b was split: the shirt color is automated and 3b2 keeps the white cap, trousers and shoes. The numbers of the other items do not change.
 
@@ -1424,6 +1435,8 @@ Measurements (write down, no pass or fail): the turn angle that moves the aim ma
 | 16e | Photos of the aim phase on the 3 difficulties; note: the 10 distances | Not run | | | Added 2026-10-31 (issue #306). |
 | 16f | Video (240 fps) of 3 putts; note: phases seen per putt | Not run | | | Added 2026-10-31 (issue #306). |
 | 16g | Note: putts with a buzz (of 10); pairs answered right (of 5) | Not run | | | Added 2026-10-31 (issue #306). |
+| 16h | Note: strokes after the moves, the shakes and the walk, on Medium and on Easy | Not run | | | Added 2026-11-01 (issue #209). |
+| 16i | Note: soft putts that rolled (of 10) and the misses | Not run | | | Added 2026-11-01 (issue #209). |
 
 History:
 

@@ -35,6 +35,7 @@ func _initialize() -> void:
 	_player_slot()
 	_not_a_throw()
 	_real_swings()
+	_golf_gate()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -344,3 +345,44 @@ func _real_swings() -> void:
 	for fwd in [9.0, 18.0, 32.0]:
 		powers.append(float(R.run_detector(_pins(), R.still(0.3).append(R.stroke(y, 5.0, fwd)).append(R.still(2.0))).releases[0].power))
 	_check(powers[0] < powers[1] and powers[1] < powers[2], "the power still grows with the swing: %s" % str(powers))
+
+
+# ---- Issue #209: the speed gate of Mini Golf (2026-11-01) ----
+
+func _golf(level_threshold := 1.0) -> SwingDetector:
+	var d := SwingDetector.new()
+	d.threshold = level_threshold
+	d.speed_gate = SwingDetector.GATE_SPEED
+	return d
+
+
+func _golf_gate() -> void:
+	print("issue #209: the hand speed gate (Mini Golf)")
+	var x := Vector3(1, 0, 0)
+	var moves := {
+		"a move of 20 cm in 0.3 s": _sideways(20.0, 0.3), "a move of 30 cm in 0.4 s": _sideways(30.0, 0.4),
+		"a move of 50 cm in 0.5 s": _sideways(50.0, 0.5), "a move of 15 cm in 0.25 s": _sideways(15.0, 0.25),
+		"a 3 Hz shake of 8 m/s2": R.shake(1.0, 8.0, 3.0), "a 5 Hz shake of 8 m/s2": R.shake(1.0, 8.0, 5.0),
+		"15 s of walking": R.walk(15.0, Vector3(0, 0, 1), 2.0, [2.0, 4.0, 6.0, 3.0, 5.0]),
+	}
+	var bad := []
+	for name in moves:
+		for th in [0.7, 1.0]:
+			if _throws(_golf(th), moves[name]) > 0:
+				bad.append("%s (threshold %.1f)" % [name, th])
+	_check(bad.is_empty(), "moves to the side, slow shakes and walking do not putt. Putted: %s" % "; ".join(bad))
+	var missed := []
+	for fwd in [10.0, 14.0, 20.0, 30.0]:
+		for th in [0.7, 1.0]:
+			var res := R.run_detector(_golf(th), R.still(0.3).append(R.pendulum(x, 9.0, fwd, 0.25)).append(R.still(2.0)))
+			# The back swing and its brake are 0.5 s long (from step 18): the putt is the forward swing after them.
+			if res.releases.size() != 1 or int(res.releases[0].step) < 18 + 30:
+				missed.append("forward %.0f, threshold %.1f: %s" % [fwd, th, str(res.releases)])
+	_check(missed.is_empty(), "a pendulum putt (back 9 and brake, forward 10 to 30) putts once, after the forward swing. Wrong: %s"
+			% "; ".join(missed))
+	var plain := SwingDetector.new()
+	_check(_throws(plain, R.pendulum(x, 9.0, 14.0, 0.25)) == 1 and plain.speed_gate == 0.0,
+			"the gate is off by default (Pin Pals and Tennis keep their rules)")
+	var tennis := PlayerInput.new(0, {}).swing
+	_check(tennis.speed_gate == 0.0 and tennis.fwd_ratio == 0.0 and tennis.hand_speed,
+			"Tennis keeps its detector: no speed gate, no ratio, the hand speed and strike rules (issue #209 item 4)")
