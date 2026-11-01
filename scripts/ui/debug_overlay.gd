@@ -21,6 +21,13 @@ func _ready() -> void:
 	_canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	PlayerInput.recorder = recorder
+	visibility_changed.connect(_on_visibility_changed)
+
+
+## Hiding the overlay while it records ends the recording and writes the files (no recording that nobody sees).
+func _on_visibility_changed() -> void:
+	if not visible and recorder.recording:
+		last_saved = recorder.save()
 
 
 func _exit_tree() -> void:

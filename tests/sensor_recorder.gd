@@ -9,6 +9,7 @@ const SensorRecorder = preload("res://scripts/input/sensor_recorder.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 
+var DebugOverlay = null   # Loaded when the tests run: the overlay script uses the App autoload.
 var _checks := 0
 var _fails := 0
 
@@ -45,12 +46,14 @@ func _record(rec: SensorRecorder, trace: R.Trace, slot := 0) -> void:
 
 func _run() -> void:
 	await process_frame
+	DebugOverlay = load("res://scripts/ui/debug_overlay.gd")
 	_round_trip()
 	_packets_reach_the_recorder()
 	_labels()
 	_files()
 	_bad_files()
 	_overlay_line()
+	_overlay_hidden_while_recording()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -142,6 +145,15 @@ func _files() -> void:
 	_check(parsed.ok and parsed.t_ms == PackedInt64Array([0, 16]) and parsed.lin[0] == Vector3(1, 2, 3),
 			"the file on disk has the times from the first packet and the values")
 	_check(rec.save(dir).is_empty(), "saving again with no packets writes nothing")
+	# Two quick recordings of one label, saved in the same second, do not overwrite each other.
+	var names := {}
+	for i in 2:
+		rec.start("sweep", 0)
+		rec.add(0, 0, Vector3.ZERO, Vector3.ZERO)
+		for path in rec.save(dir):
+			names[path] = true
+		OS.delay_msec(5)
+	_check(names.size() == 2, "two recordings of one label one after the other are two files (%d)" % names.size())
 	for f in DirAccess.get_files_at(dir):
 		DirAccess.remove_absolute(dir + "/" + f)
 	DirAccess.remove_absolute(dir)
@@ -157,17 +169,32 @@ func _bad_files() -> void:
 	_check(not SensorRecorder.parse(head).ok, "a file with no rows is not a trace")
 
 
+func _overlay_hidden_while_recording() -> void:
+	print("overlay hidden while recording")
+	var overlay = DebugOverlay.new()
+	root.add_child(overlay)
+	overlay.recorder.start("sweep", 0)
+	overlay.recorder.add(0, 0, Vector3.ZERO, Vector3.ZERO)
+	overlay.visible = false
+	_check(not overlay.recorder.recording and overlay.last_saved.size() == 1,
+			"hiding the overlay ends the recording and writes the file")
+	for path in overlay.last_saved:
+		DirAccess.remove_absolute(path)
+	root.remove_child(overlay)
+	overlay.free()
+	_check(PlayerInput.recorder == null, "a removed overlay does not leave its recorder in PlayerInput")
+
+
 func _overlay_line() -> void:
 	print("overlay line")
-	var Overlay = load("res://scripts/ui/debug_overlay.gd")   # Not a preload: it uses the App autoload.
 	var rec := SensorRecorder.new()
 	var p := PlayerInput.new(1, {})
-	var idle: String = Overlay._Canvas.record_text(rec, [p], 0)
+	var idle: String = DebugOverlay._Canvas.record_text(rec, [p], 0)
 	_check(idle.contains("label: sweep") and idle.contains("F5") and not idle.contains("RECORDING"),
 			"idle: the line names the label and the keys (%s)" % idle)
 	rec.start("", 1000)
 	rec.add(1, 0, Vector3.ZERO, Vector3.ZERO)
 	rec.add(1, 16, Vector3.ZERO, Vector3.ZERO)
-	var on: String = Overlay._Canvas.record_text(rec, [p], 3500)
+	var on: String = DebugOverlay._Canvas.record_text(rec, [p], 3500)
 	_check(on.contains("RECORDING sweep") and on.contains("2.5 s") and on.contains("P2 2"),
 			"recording: the line names the label, the time and the packets of P2 (%s)" % on)

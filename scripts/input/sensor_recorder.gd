@@ -76,7 +76,8 @@ func save(dir := DIR, stamp := "") -> PackedStringArray:
 	if files.is_empty():
 		return paths
 	if stamp == "":
-		stamp = Time.get_datetime_string_from_system().replace(":", "").replace("-", "")
+		# The milliseconds keep two quick recordings of the same label in the same second apart.
+		stamp = Time.get_datetime_string_from_system().replace(":", "").replace("-", "") + "%03d" % (Time.get_ticks_msec() % 1000)
 	DirAccess.make_dir_recursive_absolute(dir)
 	for slot in files:
 		var path := "%s/%s_%s_p%d.csv" % [dir, label, stamp, slot + 1]
