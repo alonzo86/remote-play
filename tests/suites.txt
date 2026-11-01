@@ -49,6 +49,7 @@ tests/golf_rules.gd|controller|Mini Golf rules, ball and holes|unit
 tests/smoke_golf.gd|tv|Mini Golf|scenario
 tests/multi_phone.gd|tv|games with 3 and 4 simulated phones: GO buzz, places, tie, leaving, frame cost|scenario
 tests/swing_replay.gd|tv|swing detector replay (Test 24)|unit
+tests/sensor_recorder.gd|tv|sensor recorder: CSV round trip into the swing detector (Test 24 12d)|unit
 tests/bowling_replay.gd|tv|Pin Pals replay (Test 23)|unit
 tests/smoke_tennis_phones.gd|tv|Tennis with sensor traces and 4 phones|scenario
 tests/smoke_golf_phones.gd|tv|Mini Golf with sensor traces|scenario

@@ -88,6 +88,8 @@ func _game_ready() -> void:
 	for s in participants:
 		_board.set_unfinished(s, 0.0)
 	detector.threshold = float(level(difficulty).threshold)
+	# A move to the side, a slow shake or the brake of the back swing is not a putt (issue #209, REQ-MG-5).
+	detector.speed_gate = SwingDetector.GATE_SPEED
 	_load_hole()
 	if not participants.is_empty():
 		_start_turn()

@@ -23,6 +23,7 @@ const RELEASE_AT := 0.5        # The ball goes when the forward strength falls b
 const REVERSAL_SPAN := 0.5     # See `max_reversals`.
 const LOCK_AFTER := 1.5        # After a throw the detector waits this long (s).
 const REJECT_GRACE := 0.6      # After a forward swing that `fwd_ratio` rejects, the back swing waits this long (s) more.
+const GATE_SPEED := 0.5        # See `speed_gate`: the value Mini Golf sets (m/s; a putt of 10 m/s2 for 0.25 s reaches about 1.6).
 const FWD_RATIO := 1.3         # See `fwd_ratio`: the value Pin Pals sets.
 
 enum State { READY, BACK, FORWARD, LOCKED }
@@ -62,6 +63,12 @@ var fwd_ratio := 0.0
 ## Tennis finds the swing with the speed of the hand and a sharp strike (a gentle back swing, then a hard push in any
 ## direction, see `STRIKE_ACCEL`). Pin Pals and Mini Golf keep the plain rule: a back swing, then a push the other way.
 var hand_speed := false
+## Mini Golf: the hand must move forward at least this fast (m/s, along the swing axis, times `threshold`) when the forward push
+## comes; 0 turns the rule off (Pin Pals and Tennis). A move to the side or a slow shake ends with the hand stopped: its second
+## half is only the brake of the first, so the speed at the push is about zero. The brake of a real back swing is the same: the
+## hand is at rest at the top, and the putt is the push after it. Unlike `hand_speed`, there is no sharp strike and no smooth wide
+## swing here (a putt is gentle). `GATE_SPEED` is the value Mini Golf sets.
+var speed_gate := 0.0
 ## The direction of the forward swing in the phone frame (a unit vector), valid after `released`. With the world "up" of the
 ## sensor fusion a game finds out if it went down (a serve): `forward_dir.dot(orientation.up) < 0`.
 var forward_dir := Vector3.ZERO
@@ -154,6 +161,8 @@ func _update_back(delta: float, lin: Vector3) -> void:
 	_count_reversals(f)
 	var shaking := max_reversals > 0 and _reversal_times.size() > max_reversals
 	var pushed := f > FWD_ACCEL * threshold and _time >= min_back and not shaking
+	if speed_gate > 0.0:
+		pushed = pushed and _speed > speed_gate * threshold
 	if hand_speed:
 		pushed = (pushed and _speed > FWD_SPEED * threshold) or _speed > FWD_FAST * threshold
 	if pushed:

@@ -8,6 +8,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Trace = preload("res://tests/golf_tennis_trace.gd")
+const R = preload("res://tests/sensor_replay.gd")
 const GolfRules = preload("res://scripts/game/mini_golf/golf_rules.gd")
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const GolfSim = preload("res://scripts/game/mini_golf/golf_sim.gd")
@@ -255,6 +256,53 @@ func _run() -> void:
 	_check(g4.rules.strokes_on_hole(0) == 0 and g4.phase == g4.Phase.AIM and not g4.detector.aim_locked,
 			"10 slow moves (1.5 m/s2) give no stroke and no lock (5d)")
 
+	# ---- Issue #209: a move of the phone that is not a putt ----
+	var x := Vector3(1, 0, 0)
+	var moves := {}
+	for cm_s in [[20.0, 0.3], [30.0, 0.4], [50.0, 0.5], [15.0, 0.25]]:
+		var peak: float = TAU * cm_s[0] / 100.0 / (cm_s[1] * cm_s[1])
+		var carry := R.Trace.new()
+		var n := int(round(cm_s[1] / DT))
+		for i in n:
+			carry.add(x * peak * sin(TAU * float(i) / float(n)))
+		moves["a move of %d cm to the side in %.2f s (%.0f m/s2)" % [cm_s[0], cm_s[1], peak]] = carry
+	for hz in [2.0, 3.0, 4.0, 5.0]:
+		moves["a slow shake of %d Hz at 8 m/s2" % hz] = R.shake(1.0, 8.0, hz)
+	var putted := []
+	for d in ["easy", "medium", "hard"]:
+		for name in moves:
+			var gm := await _start(app, {"difficulty": d})
+			_feed(gm, 0, Array(moves[name].lin))
+			_rest(gm, 0, 1.5)
+			if gm.phase != gm.Phase.AIM or gm.rules.strokes_on_hole(0) > 0:
+				putted.append("%s: %s" % [d, name])
+	_check(putted.is_empty(), "%d moves to the side and slow shakes give no putt on 3 levels (issue #209). Putted: %s"
+			% [moves.size(), "; ".join(putted)])
+	var gwalk := await _start(app, {"difficulty": "easy"})
+	_feed(gwalk, 0, Array(R.walk(15.0, Vector3(0, 0, 1), 2.0, [2.0, 4.0, 6.0, 3.0, 5.0]).lin))
+	_check(gwalk.phase == gwalk.Phase.AIM and gwalk.rules.strokes_on_hole(0) == 0,
+			"15 s of walking give no putt on Easy (#209)")
+	# A real putt: the hand brakes the back swing (9 m/s2: as hard as the push that the old rule took for the forward swing),
+	# then swings forward. The stop of the back swing is not the putt.
+	var real_putts := 0
+	var early := 0
+	for d in ["easy", "medium", "hard"]:
+		for fwd in [10.0, 14.0, 20.0]:
+			var gr := await _start(app, {"difficulty": d})
+			var tr := R.pendulum(x, 9.0, fwd, 0.25)
+			var stopped_at := int(round(0.5 / DT))
+			var first := -1
+			for i in tr.size():
+				_sample(gr, 0, tr.lin[i])
+				if first < 0 and gr.phase != gr.Phase.AIM:
+					first = i
+			_rest(gr, 0, 0.5)
+			real_putts += 1 if gr.phase != gr.Phase.AIM and first >= 0 else 0
+			early += 1 if first >= 0 and first < stopped_at else 0
+	_check(real_putts == 9 and early == 0,
+			"9 real putts (back 9 and brake, forward 10 to 20) all roll, none at the stop of the back swing: %d rolled, %d early"
+			% [real_putts, early])
+
 	# ---- 9: the help of the three levels ----
 	var lines: Array = [_Golf.level("easy").line, _Golf.level("medium").line, _Golf.level("hard").line]
 	_check(lines[0] >= 2.0 * lines[1] and lines[1] > 0.0 and lines[2] == 0.0,
@@ -275,7 +323,13 @@ func _run() -> void:
 	for d in ["easy", "medium"]:
 		for k in 5:
 			var gw := await _start(app, {"difficulty": d})
-			_swing(gw, 0, (6.0 if d == "easy" else 8.6) + rng.randf_range(0.0, 0.3), 5.0 if d == "easy" else 8.0)
+			# The weakest putt is a pendulum swing as a hand moves it (it brakes the back swing, issue #209).
+			var weak_fwd: float = (6.0 if d == "easy" else 8.6) + rng.randf_range(0.0, 0.3)
+			_feed(gw, 0, Array(R.pendulum(Vector3(1, 0, 0), 5.0 if d == "easy" else 8.0, weak_fwd, 0.25).lin))
+			for i in 180:
+				if gw.phase != gw.Phase.AIM:
+					break
+				_sample(gw, 0, Vector3.ZERO)
 			var moved: bool = gw.phase == gw.Phase.ROLL
 			var from: Vector2 = gw.sim.pos
 			_roll_out(gw)
