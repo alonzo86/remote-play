@@ -1,16 +1,17 @@
 ---
 name: pr-submit
-description: Create or update a GitHub pull request for the Sababi project with a structured description, after the repository gates pass. Use only when the user asks for a pull request (CLAUDE.md).
+description: Create or update a GitHub pull request for the Sababi project with a structured description, after the repository gates pass. Use when a change to the repository is done and its checks pass (CLAUDE.md).
 ---
 
-Create or update a pull request. Do it only when the user asks for one.
+Create or update a pull request. CLAUDE.md asks for it when the work is done and the checks pass; the user does not have to ask.
+GitHub access: use the `mcp__github__*` tools (load them with `ToolSearch`) when `gh` is not logged in, which is usual in cloud sessions. `gh` is the same operation on the owner's Mac. Where this file says `gh <x>`, do the same with the tool that works.
 The PR owner is `sw-developer` (or the agent that made the change). The `code-reviewer` agent does step 4 of section 4, and `localization-reviewer` prepares the string list when `strings.csv` changed.
 Do not ask before creating the PR, updating its title or body, or posting the review comment of step 4 (CLAUDE.md, "Pull requests": Alon, 2026-10-29).
 
 ## 1. Gates (stop when one fails)
 
-1. `gh auth status`: the account for this repo is `alonzo86` (remote `git@github-personal:alonzo86/remote-play.git`). If it is not logged in,
-   ask the user to run `gh auth login`. Never use another account.
+1. Access: the account for this repo is `alonzo86` (remote `git@github-personal:alonzo86/remote-play.git`). If `gh auth status` fails, use the
+   `mcp__github__*` tools; do not stop and do not ask the user to log in unless no tool works. Never use another account.
 2. Run the `run-tests` skill: the suites that your change touches pass and `gdlint scripts tests tools` is clean. Do not run the full coverage (`tools/coverage.sh`) unless the user told you to.
    Report the real numbers. Do not create the PR when one fails. Do not report a pass for a check that did not run.
 3. The branch is the one the session gave you, and the changes are committed and pushed. Requirements files changed with the behavior (REQ-GM-5).
@@ -65,11 +66,13 @@ End the body with `🤖 Generated with [Claude Code](https://claude.com/claude-c
 
 ## 4. Show, confirm, publish
 
-1. Show the title and the full body. Wait for a clear yes.
+1. Do not wait for a yes (CLAUDE.md, Alon): the title and body follow section 3, and the owner can edit the PR afterwards. Create it now.
 2. A) `gh pr create --repo owner/repo --base <target> --head <branch> --title ... --body-file <temp file>`.
    B) `gh pr edit <n> --title ... --body-file <temp file>`.
    Use a temp file for the body to avoid escaping problems. Delete it after.
-3. Bind the PR with the app's PR tools (`get_status`, then `bind_pr` if needed) and read its CI. Do not poll CI yourself.
-4. Run the `review` skill on the PR and post its findings as one comment (see that skill). This is required for every PR (CLAUDE.md).
-   Do not fix the findings yourself as the reviewer. The owner of the PR (`sw-developer`) addresses every finding with a fix or a justification and posts one summary comment; the reviewer then reviews again (at most 2 cycles, then the PR is left for the user; CLAUDE.md "Pull requests"). Tell the user what you found.
-5. Tell the user the PR link, the review result and any module set aside.
+3. Subscribe to the PR (`mcp__claude-code-remote__subscribe_pr_activity`) so its comments and reviews wake the session. CI is ignored (CLAUDE.md).
+4. Run the `review` skill on the PR with `code-reviewer` (a separate agent, not the author) and post its findings as one comment (see that skill). This is required for every PR (CLAUDE.md).
+   Add `security-reviewer` when the change touches network input, saved files, permissions, the camera or privacy data, and `localization-reviewer` / `license-reviewer` when they apply.
+   Do not fix the findings yourself as the reviewer. The owner of the PR (`sw-developer`) addresses every finding with a fix or a justification and posts one summary comment; the reviewer then reviews again (at most 2 cycles, then `software-architect` decides; CLAUDE.md "Pull requests").
+5. Continue to the merge and the closing of the issues (CLAUDE.md "Finishing work without the owner"). Do not stop after step 4.
+6. Tell the user the PR link, the review result, what is merged and closed, and the exact action for the owner when something is left.
