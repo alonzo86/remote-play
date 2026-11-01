@@ -54,5 +54,7 @@ for DIR in android android-tv; do
 done
 
 tools/patch_android_manifest.sh
+# On a Mac with Xcode: the iPhone QR scanner plugin (issue #299). The script is a no-op when it is up to date.
+if [ "$(uname -s)" = "Darwin" ] && xcodebuild -version >/dev/null 2>&1; then tools/build_ios_plugin.sh; fi
 "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
 echo "Setup done. Next: tools/build.sh run-tv | run-controller | test | apk"

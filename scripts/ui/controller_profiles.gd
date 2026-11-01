@@ -11,6 +11,7 @@ const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
+const Haptics = preload("res://scripts/game/haptics.gd")
 
 ## A sentence about the last scan or paste ("PLAYER ADDED"). The Connect screen sets it when it took a player code.
 var note := ""
@@ -50,9 +51,9 @@ func _ready() -> void:
 	box.add_child(more)
 	_qr = QrScanner.new()
 	add_child(_qr)
-	_qr.scanned.connect(_on_code)
+	_qr.scanned.connect(_on_scanned)
 	_qr.failed.connect(_on_scan_failed)
-	if _qr.is_available():   # An iPhone and a desktop have no scanner: they paste the code.
+	if _qr.is_available():   # A desktop and a phone without the plugin have no scanner: they paste the code.
 		var scan := UiKit.box_button("profiles.scan_profile", _qr.scan, UiTheme.SIZE_BODY)
 		scan.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		scan.custom_minimum_size = Vector2(0, 110)
@@ -116,6 +117,12 @@ func _on_share(id: String) -> void:
 	App.go(App.ControllerProfileShare, {"profile_id": id})
 
 
+func _on_scanned(text: String) -> void:
+	if _qr.buzzes_on_scan():
+		Haptics.on_message(QrScanner.BUZZ_MS)   # A scan on an iPhone buzzes once (REQ-FL-89); a paste does not.
+	_on_code(text)
+
+
 ## The text of a scan or of the clipboard (REQ-FL-76).
 func _on_code(text: String) -> void:
 	if App.client.state == ControllerClient.State.CONNECTED and not App.client.can_change_profile():
@@ -125,8 +132,9 @@ func _on_code(text: String) -> void:
 
 
 func _on_scan_failed(reason: String) -> void:
-	if reason != "cancelled":
-		note = Lang.f("connect.qr_failed", [reason])
+	var text := QrScanner.failure_text(reason)
+	if text != "":
+		note = text
 		_rebuild()
 
 

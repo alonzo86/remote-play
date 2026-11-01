@@ -417,6 +417,22 @@ func _scan_flow() -> void:
 	await _frames(2)
 	_check(fake.calls == ["scan"] and list._note.text == Lang.t("app.room_link").to_upper(),
 			"15b: a scan of the QR code of a TV says THIS IS A ROOM LINK.: '%s'" % list._note.text)
+	# Issue #299: on an iPhone a scan buzzes once (REQ-FL-89), a paste does not, and a refused camera has its own text (REQ-FL-91).
+	var Haptics: GDScript = load("res://scripts/game/haptics.gd")
+	var buzzes: Array = []
+	Haptics.vibrate_call = func(ms: int) -> void: buzzes.append(ms)
+	var old_haptics: bool = _app.settings.get("haptics", true)
+	_app.settings.haptics = true
+	list._qr.os_name = "iOS"
+	fake.scanned.emit("ws://192.168.1.5:47801/KQZM")
+	list._on_code("ws://192.168.1.5:47801/KQZM")
+	_check(buzzes.size() == 1, "on an iPhone one scan buzzes once and a paste does not (%d buzzes)" % buzzes.size())
+	fake.failed.emit("camera_denied")
+	await _frames(2)
+	_check(list._note.text == Lang.t("connect.camera_denied").to_upper(),
+			"a refused camera shows the camera text on the list of players: '%s'" % list._note.text)
+	_app.settings.haptics = old_haptics
+	Haptics.vibrate_call = Callable()
 
 	_app.go(_app.ControllerConnect)
 	await _frames(3)

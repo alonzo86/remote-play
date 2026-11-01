@@ -195,8 +195,8 @@ func _screen_layout() -> void:
 			"connect.looking_for_rooms"]:
 		_check(not (gone in buttons) and not (gone in labels), "no %s" % gone)
 	_check(screen._status.text == "", "the status line is empty when nothing happens")
-	_check(not screen.shows_scan_button("iOS") and screen.shows_scan_button("Android"),
-			"an iPhone has no scan button, the code field is its way")
+	_check(not buttons.has("connect.scan_qr_code"),
+			"a phone with no scanner plugin has no scan button, the code field is its way (REQ-FL-58)")
 	for k in ["pin_pad", "_pad", "_prober"]:
 		_check(not (k in screen) or screen.get(k) == null, "the screen has no %s" % k)
 
