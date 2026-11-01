@@ -31,9 +31,9 @@ const CREASE_R := 136.0
 const CENTER_R := 104.0
 
 
-## The floor, the table and its lines.
-static func draw_table(ci: CanvasItem, area: Vector2) -> void:
-	ci.draw_rect(Rect2(Vector2.ZERO, area), FLOOR)
+## The floor, the table and its lines. `area` and `origin` are the floor in design units.
+static func draw_table(ci: CanvasItem, area: Vector2, origin := Vector2.ZERO) -> void:
+	ci.draw_rect(Rect2(origin, area), FLOOR)
 	var rink := Sim.RINK
 	var c := rink.get_center()
 	ci.draw_style_box(_box(RAIL_GRAY, CORNER + RAIL_W), rink.grow(RAIL_W))
