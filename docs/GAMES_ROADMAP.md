@@ -103,7 +103,7 @@ Checked against `main` on 2026-10-08.
 - Leaving a game in progress asks first (REQ-GM-31a). A game overrides `_can_open_menu()` (or `_in_progress()`) to say when it is over.
 - A ball-like player object has only the slot color (no number, no avatar), the HUD has one leader chip, and the countdown has no name tags (removed 2026-10-21; REQ-GM-46, FD-21 leader chip).
 - Key objects are at least 48 px high and use no pale grey (REQ-GM-47d, 47e). All text is 32 px or larger (REQ-GM-41, REQ-FL-40).
-- On the phone, A and B are white buttons with a black letter (REQ-FL-52, REQ-FL-38a; green and red until 2026-10-29). A game states what A and B do, or that it has none (the `pad` list of its registry entry, REQ-GM-37a). Recenter is not a game action: the RECENTER button does it (REQ-GM-37).
+- On the phone, A and B are black buttons with a white letter and a white ring (REQ-FL-52, REQ-FL-38a; green and red until 2026-10-29). A game states what A and B do, or that it has none (the `pad` list of its registry entry, REQ-GM-37a). Recenter is not a game action: the RECENTER button does it (REQ-GM-37).
 - Hints use `Shell.hint` (dark plate).
 
 ## Cost of each game branch

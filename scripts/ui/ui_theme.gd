@@ -5,7 +5,7 @@ extends RefCounted
 
 const BG := Color("000000")          # Every screen background.
 const TEXT := Color("fcfcfc")        # Text and the outer frame line.
-const TEXT_INFO := Color("b0b0b0")   # Active info text: hints, ranges, WAIT, help (#221).
+const TEXT_INFO := Color("fcfcfc")   # Active info text: hints, ranges, WAIT, help. White like TEXT (owner, 2026-11-02; it was #b0b0b0, #221).
 const TEXT_DIM := Color("7c7c7c")    # A disabled item only; never enabled text (#221).
 const ACCENT := Color("f8b800")      # Titles, the room code, the focused item, PRESS OK.
 const FRAME := Color("0058f8")       # The inner frame line (not text).
@@ -27,9 +27,11 @@ const FOCUS_BORDER := ACCENT
 const BAD_TEXT := BAD
 const DANGER := BAD
 
-# A button that is not disabled is white (issue #173, REQ-FL-38a): a white face, black text, a white edge.
-const BUTTON_FACE := TEXT            # The face of every enabled button (phone and TV).
-const BUTTON_TEXT := BG              # The text on that face: 20:1 on white.
+# A button that is not disabled has a black face, white text and a white border (REQ-FL-38a, owner 2026-11-02; it was a white face
+# with black text, issue #173).
+const BUTTON_FACE := BG              # The face of every enabled button (phone and TV).
+const BUTTON_TEXT := TEXT            # The text on that face: 20:1 on black.
+const BUTTON_BORDER := TEXT          # The border of every enabled button.
 const BUTTON_EDGE := Color("a4a4a4") # The darker lower edge of the round A and B buttons.
 const MARK_W := 12                   # The border of a marked button (the focus, the chosen one): twice the normal line.
 
@@ -89,21 +91,21 @@ static func line_box(color: Color, fill: Color = BG, width := LINE) -> StyleBoxF
 	return s
 
 
-## The box of a button in one state ("normal", "hover", "focus", "pressed" or "disabled"). Enabled: a white face with black
-## text (`BUTTON_FACE`, `BUTTON_TEXT`). `marked` (the chosen IN or OUT, the active player) is a yellow border twice as thick,
-## so the mark is a shape and a color and the face stays white. The focus (the TV remote, a keyboard) is different: a yellow
-## face with black text (11.8:1) and the same thick border, so a focused button is never taken for a marked one.
-## Pressed is the reverse (black face, white text). Disabled keeps its dim look (a dim line on black).
+## The box of a button in one state ("normal", "hover", "focus", "pressed" or "disabled"). Enabled: a black face with white
+## text and a white border (`BUTTON_FACE`, `BUTTON_TEXT`, `BUTTON_BORDER`). `marked` (the chosen IN or OUT, the active player) is
+## a yellow border twice as thick, so the mark is a shape and a color and the face stays black. The focus (the TV remote, a
+## keyboard) is different: a yellow face with black text (11.8:1) and the same thick border, so a focused button is never taken
+## for a marked one. Pressed is the reverse (white face, black text). Disabled keeps its dim look (a dim line on black).
 static func button_box(state: String, marked := false) -> StyleBoxFlat:
 	match state:
 		"disabled":
 			return _same_margins(line_box(TEXT_DIM))
 		"pressed":
-			return _same_margins(line_box(TEXT, BG))
+			return _same_margins(line_box(BUTTON_BORDER, BUTTON_TEXT))
 		"focus":
 			return _same_margins(line_box(ACCENT, ACCENT, MARK_W))
 		_:
-			var edge := ACCENT if marked else BUTTON_FACE
+			var edge := ACCENT if marked else BUTTON_BORDER
 			return _same_margins(line_box(edge, BUTTON_FACE, MARK_W if marked else LINE))
 
 
@@ -119,13 +121,13 @@ static func button_text(state: String) -> Color:
 	match state:
 		"disabled":
 			return DISABLED
-		"pressed":
-			return TEXT
-		_:   # Normal, hover and focus (the yellow face) have black text.
+		"pressed", "focus":   # A white face and a yellow face have black text.
+			return BUTTON_FACE
+		_:
 			return BUTTON_TEXT
 
 
-## Gives a Button the white look in every state. `marked`: see `button_box`.
+## Gives a Button the black look (white text and border) in every state. `marked`: see `button_box`.
 static func style_button(b: Button, marked := false) -> void:
 	for st in ["normal", "hover", "focus", "pressed", "disabled"]:
 		b.add_theme_stylebox_override(st, button_box(st, marked))

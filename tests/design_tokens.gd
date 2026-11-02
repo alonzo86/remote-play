@@ -216,10 +216,10 @@ func _contrast_checks() -> void:
 ## on the white face). A new button cannot use another color.
 func _white_buttons() -> void:
 	print("white buttons")
-	_check(UiTheme.BUTTON_FACE == UiTheme.TEXT and UiTheme.BUTTON_FACE == Color("fcfcfc"),
-			"the button face token is the white token")
-	_check(UiTheme.contrast(UiTheme.BUTTON_TEXT, UiTheme.BUTTON_FACE) >= 4.5, "the text on a white button has 4.5:1 or more")
-	_check(UiTheme.contrast(UiTheme.BUTTON_EDGE, UiTheme.BUTTON_FACE) >= 1.5, "the lower edge of A and B shows on the white face")
+	_check(UiTheme.BUTTON_FACE == UiTheme.BG and UiTheme.BUTTON_TEXT == Color("fcfcfc") and UiTheme.BUTTON_BORDER == Color("fcfcfc"),
+			"the button face token is black, the text and the border token are white")
+	_check(UiTheme.contrast(UiTheme.BUTTON_TEXT, UiTheme.BUTTON_FACE) >= 4.5, "the text on a black button has 4.5:1 or more")
+	_check(UiTheme.contrast(UiTheme.BUTTON_EDGE, UiTheme.BUTTON_FACE) >= 1.5, "the lower edge of A and B shows on the black face")
 	_check(UiTheme.contrast(UiTheme.ACCENT, UiTheme.BG) >= 4.5 and UiTheme.MARK_W == 2 * UiTheme.LINE,
 			"the yellow mark is 4.5:1 on the black screen and twice as thick as a normal line")
 	var buttons: Array[Button] = [UiKit.box_button("x", func(): pass), UiKit.box_button("x", func(): pass, 40, true),
@@ -231,9 +231,9 @@ func _white_buttons() -> void:
 	for i in buttons.size():
 		var b := buttons[i]
 		var rest: StyleBoxFlat = b.get_theme_stylebox("normal")
-		_check(rest.bg_color == UiTheme.BUTTON_FACE, "%s: an enabled button has the white face" % names[i])
-		_check(b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT, "%s: its text is black" % names[i])
-		_check(b.get_theme_stylebox("hover").bg_color == UiTheme.BUTTON_FACE, "%s: hovered, it is still white" % names[i])
+		_check(rest.bg_color == UiTheme.BUTTON_FACE, "%s: an enabled button has the black face" % names[i])
+		_check(b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT, "%s: its text is white" % names[i])
+		_check(b.get_theme_stylebox("hover").bg_color == UiTheme.BUTTON_FACE, "%s: hovered, it is still black" % names[i])
 		var focus: StyleBoxFlat = b.get_theme_stylebox("focus")
 		_check(focus.bg_color == UiTheme.ACCENT and focus.border_color == UiTheme.ACCENT
 				and focus.border_width_left == UiTheme.MARK_W
@@ -255,11 +255,11 @@ func _white_buttons() -> void:
 		_check(off.bg_color == UiTheme.BG and off.border_color == UiTheme.TEXT_DIM
 				and b.get_theme_color("font_disabled_color") == UiTheme.DISABLED, "%s: disabled keeps the dim look" % names[i])
 		var down: StyleBoxFlat = b.get_theme_stylebox("pressed")
-		_check(down.bg_color == UiTheme.BG and b.get_theme_color("font_pressed_color") == UiTheme.TEXT,
-				"%s: pressed is the reverse, a black face with white text" % names[i])
+		_check(down.bg_color == UiTheme.BUTTON_TEXT and b.get_theme_color("font_pressed_color") == UiTheme.BUTTON_FACE,
+				"%s: pressed is the reverse, a white face with black text" % names[i])
 	_check((buttons[1].get_theme_stylebox("normal") as StyleBoxFlat).border_color == UiTheme.ACCENT
-			and (buttons[0].get_theme_stylebox("normal") as StyleBoxFlat).border_color == UiTheme.BUTTON_FACE,
-			"a marked button has the thick yellow border and the face stays white; an unmarked one has a white edge")
+			and (buttons[0].get_theme_stylebox("normal") as StyleBoxFlat).border_color == UiTheme.BUTTON_BORDER,
+			"a marked button has the thick yellow border and the face stays black; an unmarked one has a white edge")
 	for b in buttons:
 		b.free()
 	# The players badge needs the autoloads (it reads the server), so its source is checked: it takes the same look.
@@ -571,13 +571,11 @@ func _info_text() -> void:
 	_check(UiTheme.DISABLED == UiTheme.TEXT_DIM and UiTheme.TEXT_INFO != UiTheme.TEXT_DIM,
 			"the disabled color is TEXT_DIM and the info text has another token")
 	var info := UiTheme.TEXT_INFO
-	_check(info.r >= 0xb0 / 255.0 - 0.001 and info.g >= 0xb0 / 255.0 - 0.001 and info.b >= 0xb0 / 255.0 - 0.001,
-			"the info text is #b0b0b0 or lighter")
+	_check(info == UiTheme.TEXT, "the info text is white like the normal text (owner, 2026-11-02)")
 	var c_info := UiTheme.contrast(info, UiTheme.BG)
 	var c_dim := UiTheme.contrast(UiTheme.TEXT_DIM, UiTheme.BG)
 	_check(c_info >= 7.0 and c_info > c_dim, "the info text has 7:1 or more on black (%.1f), more than the disabled color (%.1f)"
 			% [c_info, c_dim])
-	_check(UiTheme.contrast(info, UiTheme.BG) < UiTheme.contrast(UiTheme.TEXT, UiTheme.BG), "the info text is quieter than white")
 	var re := RegEx.create_from_string("label\\(|draw_string|font_color|blinking\\(|draw_centered|Shell\\.(text|hint)")
 	var offenders: Array[String] = []
 	for dir in ["res://scripts/ui", "res://scripts/game"]:

@@ -124,9 +124,9 @@ func _slot_square_color() -> Color:
 	return c.color if c.state == ControllerClient.State.CONNECTED else UiTheme.BAD
 
 
-## The fill of the Recenter box: white like every enabled button (REQ-FL-38a); black for a moment after a tap (REQ-FL-52).
+## The fill of the Recenter box: black like every enabled button (REQ-FL-38a); white for a moment after a tap (REQ-FL-52).
 func _recenter_fill() -> Color:
-	return UiTheme.BG if _flash.recenter > 0.0 else UiTheme.BUTTON_FACE
+	return UiTheme.BUTTON_TEXT if _flash.recenter > 0.0 else UiTheme.BUTTON_FACE
 
 
 ## The middle of the face of the arcade button `bit` at `center`: it sits lower while the button is down.
@@ -374,16 +374,16 @@ func _draw_lost_link(f: Font) -> void:
 			mid.position.x, UiTheme.TEXT)
 
 
-## Recenter: a white box with black text that turns black with white text for a moment when it is tapped.
+## Recenter: a black box with white text that turns white with black text for a moment when it is tapped.
 func _draw_recenter(rr: Rect2, f: Font) -> void:
 	var flashing: bool = _flash.recenter > 0.0
 	_draw_box(rr, UiTheme.TEXT, _recenter_fill(), Lang.t("pad.recenter"), 72,
-			UiTheme.TEXT if flashing else UiTheme.BUTTON_TEXT)
+			UiTheme.BUTTON_FACE if flashing else UiTheme.BUTTON_TEXT)
 	var lines := hint_lines(f, rr)
 	var step := f.get_height(HINT_SIZE)
 	for i in lines.size():   # The last line stays where the one line was; more lines grow upward.
 		draw_string(f, rr.position + Vector2(0, rr.size.y - 40 - float(lines.size() - 1 - i) * step), lines[i],
-				HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, HINT_SIZE, UiTheme.TEXT if flashing else UiTheme.BUTTON_TEXT)
+				HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, HINT_SIZE, UiTheme.BUTTON_FACE if flashing else UiTheme.BUTTON_TEXT)
 
 
 ## The lines of the help line in the Recenter box at 32 px: one line, or more when the line, as in Hebrew, would touch the
@@ -423,7 +423,7 @@ func _draw_box(r: Rect2, frame: Color, fill: Color, text: String, fs: int, col: 
 	draw_string(UiTheme.font(), Vector2(r.position.x, ty), text.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, fs, col)
 
 
-## An arcade button (issue #173): a 6 px white ring, a gray lower edge, a white face with a black letter that sits in when the
+## An arcade button (issue #173): a 6 px white ring, a gray lower edge, a black face with a white letter that sits in when the
 ## button is down. A and B differ by the letter only.
 func _draw_button(center: Vector2, label: String, bit: int) -> void:
 	var r := _radius()
