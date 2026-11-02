@@ -68,9 +68,10 @@ static func _on_phone() -> bool:
 	return role != null and role.is_controller()
 
 
-## A text box for the phone (REQ-FL-52, REQ-FL-38a): a touch screen has no cursor, so the button shows its edge. The face
-## is black, the text and the border white in every enabled button (issue #173, owner 2026-11-02). `marked`: a thick yellow border (the active player).
-## With the focus (a keyboard on a desktop run) the border is yellow too; pressed, the box turns white with black text.
+## A text box for the phone (REQ-FL-52, REQ-FL-38a): a touch screen has no cursor, so the button shows its edge. The face is
+## black, the text and the border white in every enabled button (issue #173, owner 2026-11-02). `marked`: a thick yellow border
+## (the active player). With the focus (a keyboard on a desktop run) the border is yellow too; pressed, the box turns white with
+## black text.
 static func box_button(text: String, cb: Callable, size := UiTheme.SIZE_ITEM, marked := false) -> Button:
 	var b := Button.new()
 	b.text = shown(text)
