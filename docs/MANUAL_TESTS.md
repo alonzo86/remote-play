@@ -701,7 +701,7 @@ Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island")
 5a. In a game, lock the iPhone. Check: the TV shows the lost-phone card ("NO PLAYERS CONNECTED" for the only phone) within 10 seconds. (Like A-7-7.)
 5b. Unlock the phone after 10 seconds. Check: the phone returns by itself, the card on the TV changes to a card with the button "Resume", and "Resume" restarts the game. (Like A-7-7 and A-7-8.)
 5c. Outside a game (on the Games screen), lock the iPhone for 40 seconds and unlock it. Check: within 10 seconds the phone joins again by itself and shows "CHOOSE A GAME ON THE TV". (Like Test 7, item 3b.)
-6b. Open the player list, the player edit screen with the keyboard open, and Settings, upright. Take a photo of each. Check: the same as 6a. (REQ-FL-68)
+6b. Open the player edit screen with the keyboard open, and Settings, upright. Take a photo of each. Check: the same as 6a. (REQ-FL-68)
 6d. Turn the phone to the side and open the screens of 6a and 6b again. Check: the same as 6a for every screen. (REQ-FL-68)
 
 **Results**
@@ -1044,7 +1044,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 12c2. Share a profile from 30 cm with the screen at full brightness. Check: the code shows within 2 s of the tap on SHARE, and PLAYER ADDED. shows 10 s or less after the start of the scan. (The size of the largest code and the time to make it are automated.)
 12d. Repeat from 60 cm, and with the screen at low brightness (4 combinations). Check: PLAYER ADDED. shows within 20 s in each combination.
 12e. New 2026-11-02 (owner). On the Connect screen open the dropdown, then tap + and then the pencil. Check: the dropdown has no PLAYERS button; the new player screen has IMPORT and no SHARE; the edit screen has SHARE and no IMPORT (3 of 3 yes).
-14a. An iPhone: tap COPY CODE on the Share screen. Check: the phone says CODE COPIED. (COPY CODE has no use since PASTE A CODE was removed on 2026-11-02; the owner decides whether it goes too.)
+14a. An iPhone: tap COPY CODE on the Share screen. Check: the phone says CODE COPIED. (Open question for the owner, 2026-11-02: COPY CODE has no use since PASTE A CODE was removed; keep or remove it. Until then this step stays.)
 14b. Removed on 2026-11-02 (owner): PASTE A CODE is gone. On the iPhone use IMPORT on the new player screen (step 12a). Check: the iPhone shows PLAYER ADDED. with the same name, avatar and bests as in step 12.
 16b. Tap **+**. Tap the name field. Check: the keyboard opens and stays open. Tap outside the field: the keyboard closes.
 16c2. On the new player screen drag the avatar line with one finger by about 3 cm. Check: the line follows the finger, and the first avatar in view changes by 1 or more. (The 32 avatars in one line, the arrows with 3 avatars for each tap and the picked avatar in view at open are automated.)
@@ -1828,7 +1828,7 @@ Nothing in this test can be done headless (it needs a real camera): the GDScript
 | 3a | Photo of the camera question | Not run | | | |
 | 3b | Photo of the camera view | Not run | | | |
 | 4a | Note: seconds for each of 5 tries; the distance range | Not run | | | |
-| 4b | Photo of the player list | Not run | | | |
+| 4b | Photo of the Connect screen after the scan (PLAYER ADDED.) | Not run | | | |
 | 4c | Photo of the message | Not run | | | |
 | 4d | Note: buzz with HAPTICS on (yes/no), buzz with HAPTICS off (yes/no) | Not run | | | |
 | 5a | Photo of the Connect screen after CANCEL | Not run | | | |

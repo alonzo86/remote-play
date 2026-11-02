@@ -41,7 +41,7 @@ All new requirements go in `docs/TV_FLOW.md` (the phone connect screen) and are 
 - REQ-FL-91: The first scan asks iOS for the camera permission. When the player taps "Don't Allow" (or the camera is off in Settings, or a school profile blocks it), the scan reports `failed("camera_denied")` and the Connect screen shows `connect.camera_denied` (it says how to turn the camera on, and that the room code works). The player can still join with the typed room code. A phone with no camera reports `failed("no_camera")` and shows `connect.no_camera`. No other reason shows the raw word to a child: every reason from the plugin maps to a key (the Android path keeps its text `connect.qr_failed`). Status: Device.
 - REQ-FL-92: The picture of the camera is not saved, not sent and not kept after the view closes. The plugin reads the text of the code in memory only. The iPhone app asks for the camera permission and for nothing else new (no photo library, no microphone). Status: Device (the privacy notice depends on it; Manual test 33 step 6).
 - REQ-FL-83: no text change. "The scan button (only when the build has the scanner ...)" stays true; REQ-FL-58 is the only iOS change.
-- REQ-FL-76 / REQ-FL-77: no text change. "Where the phone has a scanner" now also covers the iPhone, and the paste button stays as the second way.
+- REQ-FL-76 / REQ-FL-77: no text change. "Where the phone has a scanner" now also covers the iPhone, (the paste button was removed on 2026-11-02).
 - REQ-P6 / REQ-P5: the plugin is our own code (no third-party resource), so REQ-P6 (allowed files) lists the folder `ios/plugin/` as source only. If the owner chooses a third-party plugin (section 4, option B), REQ-P6 gets the line that CLAUDE.md asks for.
 
 How this matches the Android scanner:
@@ -236,8 +236,10 @@ The matching row `| 33 | ... |` goes in the "Tests the user has to run now" tabl
 
 ## 8. Decisions for Alon
 
-1. **Approve option A** (own plugin on Apple AVFoundation, no third party). Or choose B (a community plugin: then name it, and `license-reviewer` checks the license), C (Google ML Kit, with data to Google) or D (VisionKit, minimum iOS 16).
-2. **Minimum iOS version**: keep 15.0 (AVFoundation works on it) or raise it to 16 (needed only for option D). Issue #289 holds the open iOS store decisions.
+Decided: items 1 and 2 on 2026-11-02 (VisionKit, option D; minimum iOS 16, see the note at the top); item 3 on 2026-11-01 (no About page). Item 4: the drafts are applied; the privacy notice stays owner only.
+
+1. (Decided 2026-11-02: option D, VisionKit.) ~~**Approve option A** (own plugin on Apple AVFoundation, no third party). Or choose B (a community plugin: then name it, and `license-reviewer` checks the license), C (Google ML Kit, with data to Google) or D (VisionKit, minimum iOS 16).~~
+2. (Decided 2026-11-02: minimum iOS 16.) ~~**Minimum iOS version**: keep 15.0 or raise it to 16.~~ Issue #289 holds the open iOS store decisions.
 3. **About page on iPhone** for the scanner (section 5.6): add or not. It is not required by any license with option A.
 4. **Privacy notice, camera text and the App Privacy answer**: accept, change or reject the drafts in sections 5.1 to 5.5 (owner only). The Hebrew drafts need a native reader.
 5. **Camera text only in English** (Godot limit) or add a Hebrew `InfoPlist.strings` by hand in the Xcode project later.

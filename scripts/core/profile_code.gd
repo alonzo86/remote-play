@@ -1,7 +1,7 @@
 extends RefCounted
 ## The text of a player profile for the copy to another phone (FD-22, docs/PROFILES_PLAN.md 6): `WP1.` and base64url of the
 ## binary data: format version, 16 bytes of ID, avatar, rev (varint), name (length and UTF-8 bytes), the bests (a number of
-## `ProfileKeys` and a varint for each) and a CRC-16. A QR code carries the same text, and COPY CODE and PASTE A CODE use it.
+## `ProfileKeys` and a varint for each) and a CRC-16. A QR code carries the same text, and COPY CODE and IMPORT (a scan) use it.
 
 const Profile = preload("res://scripts/core/profile.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")

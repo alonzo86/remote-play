@@ -4,7 +4,7 @@
 # tests/run_all.sh (local) and tools/coverage.sh (the coverage check) both use this list, so a new suite is added here only.
 tests/run_tests.gd|controller|unit and network tests|unit
 tests/ui_states.gd|controller|button states and the wait screen Leave|scenario
-tests/ui_share.gd|controller|copy a player: share, paste, scan|scenario
+tests/ui_share.gd|controller|copy a player: share, import by scan|scenario
 tests/net_loss.gd|controller|lost phones (network)|unit
 tests/net_cleanup.gd|controller|close handshake helper and TvServer.start twice|unit
 tests/qr.gd|controller|QR encoder versions 7 to 14|unit

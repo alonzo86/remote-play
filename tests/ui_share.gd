@@ -1,6 +1,7 @@
 extends SceneTree
-## Copy a player to another phone (FD-22, REQ-FL-76, 77): the Share screen, SCAN A PLAYER and PASTE A CODE, and the Connect screen
-## that sends a player code to the same import.
+## Copy a player to another phone (FD-22, REQ-FL-76, 77): the Share screen (on the edit screen), IMPORT on the new
+## player screen (PASTE A CODE and the player list were removed on 2026-11-02), and the Connect screen that sends a
+## player code to the same import.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/ui_share.gd -- --role=controller
 
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
