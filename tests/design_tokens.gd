@@ -455,6 +455,9 @@ func _app_identity() -> void:
 	_check(main_scene == "res://scenes/boot.tscn", "one start scene")
 	var boot := FileAccess.get_file_as_string("res://scenes/boot.tscn") + FileAccess.get_file_as_string("res://scripts/app.gd")
 	var app_src := FileAccess.get_file_as_string("res://scripts/app.gd")
+	# The instrumented copy of the coverage run (CI) puts a CoverageRecorder.h(file, line) line before each statement: remove them.
+	var recorder_lines := RegEx.create_from_string("(?m)^[ \t]*CoverageRecorder\\.h\\(\\d+, \\d+\\)\n")
+	app_src = recorder_lines.sub(app_src, "", true)
 	var ctrl := app_src.substr(app_src.find("func _start_controller"))
 	var from := app_src.find("func _start_tv")
 	var tv_start := app_src.substr(from, app_src.find("func toggle_overlay") - from)

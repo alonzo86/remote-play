@@ -63,6 +63,8 @@ The coverage job always runs, always reports (the summary of the run) and never 
 
 ### CircleCI (beside GitHub Actions)
 
+**Temporarily disabled (owner, 2026-11-02):** the workflow `ci` in `.circleci/config.yml` has `when: false`, so no pipeline runs. Remove that line to turn it on again. The rest of this section describes how it works when it is on.
+
 `.circleci/config.yml` runs the same checks while both systems run (Alon, 2026-10-22: keep both for now; since then the Actions workflow is disabled, see above). The repository must be connected in CircleCI first (Projects, Set Up), and "Auto-cancel redundant workflows" turned on. CircleCI has no labels and no draft state, so `tools/ci_plan_circleci.sh` decides from the branch and the pipeline parameters:
 
 | Case | lint | test and coverage | pixels |

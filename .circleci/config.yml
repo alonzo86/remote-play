@@ -141,6 +141,8 @@ jobs:
 
 workflows:
   ci:
+    # Temporarily disabled (owner, 2026-11-02): no pipeline runs. Remove this line to turn CircleCI on again.
+    when: false
     jobs:
       - lint
       - test
