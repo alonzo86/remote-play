@@ -16,10 +16,18 @@ else
 	DEFAULT_ANDROID_HOME="$HOME/Android/Sdk"
 fi
 
-GODOT="${GODOT:-}"
-[ -n "$GODOT" ] || GODOT="$(command -v godot || true)"
-[ -n "$GODOT" ] || { [ -x /Applications/Godot.app/Contents/MacOS/Godot ] && GODOT=/Applications/Godot.app/Contents/MacOS/Godot; }
-[ -n "$GODOT" ] || { echo "Godot not found. Install Godot 4.7 or set GODOT=/path/to/godot." >&2; exit 1; }
+# Godot: the first candidate that really runs (`--version`). A `godot` on PATH can be a binary for another system (for example a Linux
+# one in /usr/local/bin on a Mac: "cannot execute binary file"), so it is skipped when it does not run. A $GODOT that the user
+# set is never replaced: if it does not run, say so.
+godot_runs() { [ -n "$1" ] && "$1" --version >/dev/null 2>&1; }
+if [ -n "${GODOT:-}" ]; then
+	godot_runs "$GODOT" || { echo "GODOT=$GODOT does not run on this computer (wrong system or not executable)." >&2; exit 1; }
+else
+	for CAND in "$(command -v godot || true)" /Applications/Godot.app/Contents/MacOS/Godot; do
+		if godot_runs "$CAND"; then GODOT="$CAND"; break; fi
+	done
+	[ -n "${GODOT:-}" ] || { echo "No Godot that runs here. Install Godot 4.7 (macOS: /Applications/Godot.app) or set GODOT=/path/to/godot." >&2; exit 1; }
+fi
 
 # The JDK 17 that Homebrew installs (Apple Silicon, then Intel). A JAVA_HOME that is set already is kept.
 if [ -z "${JAVA_HOME:-}" ]; then
