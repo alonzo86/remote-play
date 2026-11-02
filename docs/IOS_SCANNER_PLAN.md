@@ -200,7 +200,7 @@ No existing row has the text CANCEL, so none is reused. Hebrew keeps SABABI and 
 Needs: 1 iPhone, 1 Mac with Xcode, 1 TV with the Sababi TV app, a second phone for a profile code. Run test 13 steps 1a to 2d first. Every step has one pass or fail criterion. Claude cannot run them.
 
 1a. Run `IOS_TEAM_ID=<id> tools/deploy-ios.sh`. Check: the plugin builds, the app installs and starts (exit code 0).
-2a. Open the Connect screen. Check: the SCAN QR CODE button is the first control under the status line and is at least 200 px high (REQ-FL-58, 83a).
+2a. Open the Connect screen. Check: the SCAN QR CODE button is under the code field and JOIN (changed 2026-11-02) and is at least 200 px high (REQ-FL-58, 83a).
 3a. Tap SCAN QR CODE for the first time. Check: iOS shows the camera question once, with the text of section 5.3 (REQ-FL-91).
 3b. Tap Allow. Check: the camera view opens within 2 seconds, in portrait, with the hint line and the CANCEL button (REQ-FL-88).
 4a. Point the phone at the QR code on the TV from 30 cm to 1 m (note the distance range that reads). Check: the view closes and the phone is on the waiting screen within 3 seconds of the code being in the picture. (REQ-FL-89) Note: the time in seconds, 5 tries.
