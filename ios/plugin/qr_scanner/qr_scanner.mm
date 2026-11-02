@@ -37,6 +37,7 @@ static UIViewController *top_view_controller() {
 
 void QrScanner::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("scan", "hint", "cancel"), &QrScanner::scan);
+	ClassDB::bind_method(D_METHOD("is_supported"), &QrScanner::is_supported);
 	ADD_SIGNAL(MethodInfo("scanned", PropertyInfo(Variant::STRING, "text")));
 	ADD_SIGNAL(MethodInfo("failed", PropertyInfo(Variant::STRING, "reason")));
 }
@@ -55,6 +56,10 @@ QrScanner::~QrScanner() {
 		CFRelease(view_controller);
 		view_controller = nullptr;
 	}
+}
+
+bool QrScanner::is_supported() const {
+	return [QrScanViewController isScannerSupported]; // VisionKit needs an A12 chip or newer (REQ-FL-58)
 }
 
 void QrScanner::scan(const String &p_hint, const String &p_cancel) {

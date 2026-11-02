@@ -23,7 +23,7 @@ Written in `docs/legal/privacy-notice.he.md` (section 4), based on the Hebrew of
 
 The paragraph is in `docs/legal/privacy-notice.md` (section 4, with sections 5 and 6) and its Hebrew twin. The owner accepted the draft on 2026-11-01. Facts behind it:
 
-- The scan uses Apple's AVFoundation (`AVCaptureSession` with a QR metadata output) in our own plugin. It runs on the device. No third-party code and no network call are added.
+- The scan uses Apple's VisionKit (`DataScannerViewController`, QR codes only) in our own plugin. It runs on the device. No third-party code and no network call are added.
 - The camera picture is shown on the scan screen only. Nothing is saved, sent or kept after the screen closes (REQ-FL-92, Manual test 33 steps 7a and 7b).
 - App Store Connect, App Privacy: the answer stays **Data Not Collected**. The picture is processed on the device and never sent off the device (Apple counts data as collected when it is sent off the device and kept; the owner confirms this against Apple's current App Privacy text before the form is filled). The plugin uses no "required reason API", so it adds no entry to the privacy manifest; check with the Xcode privacy report on the first build.
 - The camera question is the text of `privacy/camera_usage_description` in the `controller-ios` preset: "Sababi uses the camera only to read the QR code on your TV, to join the game. The picture is not saved or sent." and its Hebrew entry (needs a native reader).

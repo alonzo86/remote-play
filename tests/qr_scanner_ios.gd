@@ -26,12 +26,16 @@ func _check(cond: bool, what: String) -> void:
 		print("  FAIL ", what)
 
 
-## A stand-in for the iOS plugin "QrScanner" (ios/plugin/qr_scanner): scan() takes the two texts, and there is no
-## acquireWifiLocks.
+## A stand-in for the iOS plugin "QrScanner" (ios/plugin/qr_scanner): scan() takes the two texts, is_supported() says
+## whether VisionKit runs on the phone (A12 chip or newer), and there is no acquireWifiLocks.
 class FakeIosQrPlugin extends Object:
 	signal scanned(text: String)
 	signal failed(reason: String)
 	var scans: Array = []
+	var supported := true
+
+	func is_supported() -> bool:
+		return supported
 
 	func scan(hint: String, cancel: String) -> void:
 		scans.append([hint, cancel])
@@ -58,6 +62,10 @@ func _run() -> void:
 			and fake.scans[1][1] != fake.scans[0][1], "in Hebrew the texts are the Hebrew ones: %s" % str(fake.scans[1]))
 	Lang.set_language("en", root)
 	_check(ios.acquire_wifi_locks() == false, "a plugin with no acquireWifiLocks is not called (the iOS plugin)")
+	_check(ios.is_available(), "a plugin that is_supported() is available")
+	fake.supported = false
+	_check(not ios.is_available(), "a phone older than the A12 chip (is_supported() false) is not available (REQ-FL-58)")
+	fake.supported = true
 	var texts: Array = []
 	var fails: Array = []
 	ios.scanned.connect(func(t): texts.append(t))

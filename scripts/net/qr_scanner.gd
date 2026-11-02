@@ -43,8 +43,13 @@ func _ready() -> void:
 		_plugin.connect("failed", func(reason: String): failed.emit(reason))
 
 
+## False without the plugin, and on an iPhone older than the A12 chip: the plugin says so with is_supported() and the
+## Connect screen then has no scan button (REQ-FL-58). The Android plugin has no such method and is always supported.
 func is_available() -> bool:
-	return Engine.has_singleton(PLUGIN_NAME)
+	if not Engine.has_singleton(PLUGIN_NAME):
+		return false
+	var plugin := Engine.get_singleton(PLUGIN_NAME)
+	return not plugin.has_method("is_supported") or bool(plugin.call("is_supported"))
 
 
 func scan() -> void:
