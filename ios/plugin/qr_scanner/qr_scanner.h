@@ -1,10 +1,12 @@
-// QrScanner: Godot iOS plugin (own code on Apple AVFoundation, issue #299, REQ-FL-88 to 92).
+// QrScanner: Godot iOS plugin (own code on Apple VisionKit, issue #299, REQ-FL-88 to 92).
 // STATUS: written on Linux, never built, never run (no Xcode, no iPhone). Manual test 33 is the check.
 //
 // It registers the engine singleton "QrScanner" with the same name and signals as the Android plugin
 // (android/plugin/QrScannerPlugin.java), so scripts/net/qr_scanner.gd is the one entry point:
 //   scan(hint: String, cancel: String)  opens the camera view. The two texts come from GDScript (Lang),
 //                                       the native code has no text of its own (REQ-FL-63).
+//   is_supported() -> bool              false on a phone older than the A12 chip (VisionKit cannot scan there).
+//                                       scripts/net/qr_scanner.gd then shows no scan button.
 //   signal scanned(text: String)        the text of the first QR code seen.
 //   signal failed(reason: String)       one of: cancelled, camera_denied, no_camera, error.
 #pragma once
@@ -29,6 +31,9 @@ protected:
 
 public:
 	static QrScanner *get_singleton();
+
+	// Called from GDScript. True when VisionKit's scanner runs on this phone.
+	bool is_supported() const;
 
 	// Called from GDScript. Starts a scan; ignored while a scan view is open.
 	void scan(const String &p_hint, const String &p_cancel);

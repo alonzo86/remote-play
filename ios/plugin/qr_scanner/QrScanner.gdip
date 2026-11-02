@@ -8,11 +8,12 @@ deinitialization="qr_scanner_deinit"
 [dependencies]
 linked=[]
 embedded=[]
-system=["AVFoundation.framework", "UIKit.framework"]
+system=["AVFoundation.framework", "UIKit.framework", "VisionKit.framework"]
 
 capabilities=[]
 files=[]
-linker_flags=["-ObjC"]
+# The Swift runtime: the exported Xcode project has no Swift of its own, so it needs the Swift library path.
+linker_flags=["-ObjC", "-L$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)", "-L/usr/lib/swift"]
 
 # NSCameraUsageDescription is NOT set here. It comes from privacy/camera_usage_description in the
 # controller-ios preset (one source of the text, localized there).

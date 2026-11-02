@@ -20,7 +20,7 @@ xcodebuild -version >/dev/null 2>&1 || { echo "Xcode is not active. Install Xcod
 SRC=ios/plugin/qr_scanner
 OUT=ios/plugins
 WORK=build/ios-plugin
-MIN_IOS=15.0
+MIN_IOS=16.0
 mkdir -p "$WORK" "$OUT"
 
 # Rebuild only when a source file is newer than the output.
@@ -51,13 +51,16 @@ build_slice() { # $1 sdk, $2 target triple suffix, $3 name
 	SDK="$1"; SUFFIX="$2"; NAME="$3"
 	OBJ="$WORK/$NAME"
 	rm -rf "$OBJ"; mkdir -p "$OBJ"
-	for FILE in qr_scanner qr_scan_view_controller qr_scanner_module; do
+	for FILE in qr_scanner qr_scanner_module; do
 		xcrun --sdk "$SDK" clang++ -x objective-c++ -std=c++17 -fobjc-arc -fmodules -fcxx-modules -Os -arch arm64 \
 			-target "arm64-apple-ios${MIN_IOS}${SUFFIX}" \
 			-DIOS_ENABLED -DUNIX_ENABLED -DPTRCALL_ENABLED -DTYPED_METHOD_BIND -DDEBUG_ENABLED -DDISABLE_FORCED_INLINE \
 			-I"$GODOT_DIR" -I"$GODOT_DIR/platform/ios" -I"$SRC" \
 			-c "$SRC/$FILE.mm" -o "$OBJ/$FILE.o"
 	done
+	# The scan view is Swift (VisionKit has no Objective-C interface). -parse-as-library: no main file.
+	xcrun --sdk "$SDK" swiftc -emit-object -parse-as-library -module-name QrScannerSwift -O \
+		-target "arm64-apple-ios${MIN_IOS}${SUFFIX}" "$SRC/qr_scan_view_controller.swift" -o "$OBJ/qr_scan_view_controller.o"
 	xcrun --sdk "$SDK" libtool -static -o "$OBJ/libqr_scanner.a" "$OBJ"/*.o
 }
 build_slice iphoneos "" device
