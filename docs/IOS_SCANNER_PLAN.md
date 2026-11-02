@@ -236,6 +236,8 @@ The matching row `| 33 | ... |` goes in the "Tests the user has to run now" tabl
 
 ## 8. Decisions for Alon
 
+Decided: items 1 and 2 on 2026-11-02 (VisionKit, option D; minimum iOS 16, see the note at the top); item 3 on 2026-11-01 (no About page). Item 4: the drafts are applied; the privacy notice stays owner only.
+
 1. **Approve option A** (own plugin on Apple AVFoundation, no third party). Or choose B (a community plugin: then name it, and `license-reviewer` checks the license), C (Google ML Kit, with data to Google) or D (VisionKit, minimum iOS 16).
 2. **Minimum iOS version**: keep 15.0 (AVFoundation works on it) or raise it to 16 (needed only for option D). Issue #289 holds the open iOS store decisions.
 3. **About page on iPhone** for the scanner (section 5.6): add or not. It is not required by any license with option A.
