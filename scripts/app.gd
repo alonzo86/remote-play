@@ -396,7 +396,7 @@ func current_best() -> Dictionary:
 	return last_best if not last_best.is_empty() and last_best.pid == client.pid else {}
 
 
-## Takes the text of a scan or of the clipboard that should be a player code (FD-22, REQ-FL-76). Returns the sentence for the
+## Takes the text of a scan that should be a player code (FD-22, REQ-FL-76). Returns the sentence for the
 ## player: the player was added or updated, or why the text does not work. A change of the active profile goes to the TV.
 func import_profile_text(text: String) -> String:
 	if not text.strip_edges().begins_with(ProfileCode.PREFIX):
