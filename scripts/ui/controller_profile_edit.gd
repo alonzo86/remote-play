@@ -177,6 +177,9 @@ func _on_save() -> void:
 	elif not store.update(profile_id, _name.text, _avatar):
 		return
 	App.apply_profile()
+	if not store.last_save_ok:   # The player is kept in memory; the screen stays and says it was not saved to the file.
+		_hint.text = Lang.t("profiles.could_not_save").to_upper()
+		return
 	on_back()
 
 

@@ -110,6 +110,7 @@ profile_share.copy_code,COPY CODE,העתיקו קוד,"Phone, share player: Copy
 profile_share.everyone_who_scans_code,EVERYONE WHO SCANS THIS CODE CAN IMPORT THIS PLAYER'S PROFILE.,כל מי שסורק את הקוד הזה יכול לייבא את הפרופיל של השחקן הזה.,"Phone, share player: help line",
 profile_share.share_player,SHARE PLAYER,שתף שחקן,"Phone, share player: title",
 profile_share.two_phones_do_not,THE TWO PHONES DO NOT STAY IN SYNC AFTER THE COPY.,שני הטלפונים לא מסתנכרנים אחרי ההעתקה.,"Phone, share player: help line",
+profiles.could_not_save,COULD NOT SAVE,שמירה נכשלה,"Phone, edit player: message when saving the player fails",
 profiles.maximum,%d players is the maximum,%d שחקנים זה המקסימום,"Phone, new player screen (Import) and Connect screen (scan of a player code): message when the phone has the maximum of players, %d is the limit","the number sign (%d, %.1f ...) is replaced by a number"
 profiles.share,SHARE,שתפו,"Phone, edit player: Share button",
 registry.marble_race,CAR RACE,מירוץ מכוניות,"Name of the game Car Race: Games screen, game settings, result",

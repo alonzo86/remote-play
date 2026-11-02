@@ -4,6 +4,7 @@ extends SceneTree
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/ui_share.gd -- --role=controller
 
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const Profile = preload("res://scripts/core/profile.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
@@ -63,6 +64,7 @@ func _run() -> void:
 			DirAccess.remove_absolute(f)
 	_app.profiles = ProfileStore.new(PATH)
 	var maya = _app.profiles.create("Maya", 4)
+	await _save_fails()
 	await _share(maya)
 	await _import()
 	await _connect_screen()
@@ -99,8 +101,7 @@ func _share(maya: RefCounted) -> void:
 	await process_frame
 	_check(_app.current_screen().get_script() == _app.ControllerProfileEdit and _app.current_screen().profile_id == maya.id,
 			"when the time is over the screen goes back to the edit screen of that player")
-	_app.current_screen()._save.get_parent().get_children().filter(
-			func(n: Node) -> bool: return n is Button and n.text == "profiles.share")[0].pressed.emit()
+	_find_button(_app.current_screen(), "profiles.share").pressed.emit()
 	await process_frame
 	_find_button(_app.current_screen(), "common.back").pressed.emit()
 	await process_frame
@@ -108,12 +109,31 @@ func _share(maya: RefCounted) -> void:
 			"BACK on the Share screen also goes back to the edit screen")
 
 
+func _save_fails() -> void:
+	print("a save that fails")
+	var old_path: String = _app.profiles.path
+	_app.profiles.path = "user://no_such_folder_375/profiles.cfg"
+	_app.go(_app.ControllerProfileEdit, {"profile_id": ""})
+	await process_frame
+	var screen: Control = _app.current_screen()
+	screen._name.text = "Zed"
+	screen._on_text("Zed")
+	screen._save.pressed.emit()
+	await process_frame
+	_check(_app.current_screen() == screen and screen._hint.text == Lang.t("profiles.could_not_save").to_upper(),
+			"a save that fails keeps the screen and says COULD NOT SAVE: '%s'" % screen._hint.text)
+	var made = _app.profiles.profiles.back()
+	_check(made != null and made.player_name == "Zed", "and the player stays in memory")
+	_app.profiles.path = old_path
+	_app.profiles.delete(made.id)
+	_app.apply_profile()
+
+
 func _import() -> void:
 	print("import a code")
 	_app.go(_app.ControllerProfileEdit, {"profile_id": ""})
 	await process_frame
 	var list: Control = _app.current_screen()
-	_check(_find_button(list, "profiles.paste_code") == null, "there is no PASTE A CODE button any more")
 	list._on_scanned(_code(ID_B, "Noam", 6, 1, {"paint_grab|easy": 12}))
 	_check(list._hint.text == "PLAYER ADDED." and _app.profiles.find(ID_B) != null and _app.profiles.profiles.size() == 2,
 			"a good code adds the player and the screen says so")
