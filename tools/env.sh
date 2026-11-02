@@ -6,6 +6,8 @@
 # After it: SYS (Darwin or Linux), GODOT_CONFIG_DIR (editor settings) and GODOT_DATA_DIR (export templates) are set.
 
 SYS="$(uname -s)"
+# GODOT_CONFIG_DIR and GODOT_DATA_DIR are used by the scripts that source this file.
+# shellcheck disable=SC2034
 if [ "$SYS" = Darwin ]; then
 	GODOT_CONFIG_DIR="$HOME/Library/Application Support/Godot"
 	GODOT_DATA_DIR="$HOME/Library/Application Support/Godot"

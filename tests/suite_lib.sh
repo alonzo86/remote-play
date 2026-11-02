@@ -1,3 +1,4 @@
+# shellcheck shell=sh
 # Shared by tests/run_suites.sh and tests/run_one.sh (issue #291). Source it; it defines one function.
 # run_suite <script> <role>: runs one suite with $GODOT, prints its output and returns its status. A script error (a call of a
 # function that does not exist, a null) stops the code that ran it, but the suite can still end with "0 failed" and exit 0: the
