@@ -194,9 +194,11 @@ func _disconnect_button() -> void:
 		_check(b.size.y >= 80.0, "[%s] and it is at least 80 px high (%.0f)" % [lang, b.size.y])
 		var pressed := b.get_theme_stylebox("pressed") as StyleBoxFlat
 		var normal := b.get_theme_stylebox("normal") as StyleBoxFlat
-		_check(pressed.bg_color != normal.bg_color and pressed.bg_color == UiTheme.BUTTON_TEXT and normal.bg_color == UiTheme.BUTTON_FACE,
+		_check(pressed.bg_color != normal.bg_color and pressed.bg_color == UiTheme.BUTTON_TEXT
+				and normal.bg_color == UiTheme.BUTTON_FACE,
 				"[%s] a pressed button turns white and a normal one is black (issue #173, owner 2026-11-02)" % lang)
-		_check(b.get_theme_color("font_pressed_color") == UiTheme.BUTTON_FACE and b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT,
+		_check(b.get_theme_color("font_pressed_color") == UiTheme.BUTTON_FACE
+				and b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT,
 				"[%s] the text of a pressed button turns black on the white fill, a normal one is white on black" % lang)
 		holder.queue_free()
 	_app.set_language("en", false)

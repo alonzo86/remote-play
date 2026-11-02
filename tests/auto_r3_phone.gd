@@ -123,7 +123,8 @@ func _pad_checks() -> void:
 	pad._input(_touch(1, false, b))
 	_check(pad._sampler.buttons == 0, "and nothing stays pressed")
 
-	# 16.6c: RECENTER is black with a white edge (issue #173, owner 2026-11-02); a tap turns it white; it is black again after 0.34 s (the flash falls by 3 each second).
+	# 16.6c: RECENTER is black with a white edge (issue #173, owner 2026-11-02); a tap turns it white; black again
+	# after 0.34 s (the flash falls by 3 each second).
 	_check(pad._recenter_fill() == UiTheme.BUTTON_FACE, "the Recenter box is black while nobody taps it")
 	var middle: Vector2 = pad._rect_recenter().get_center()
 	pad._input(_touch(2, true, middle))

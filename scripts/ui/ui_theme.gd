@@ -5,7 +5,7 @@ extends RefCounted
 
 const BG := Color("000000")          # Every screen background.
 const TEXT := Color("fcfcfc")        # Text and the outer frame line.
-const TEXT_INFO := Color("fcfcfc")   # Active info text: hints, ranges, WAIT, help. White like TEXT (owner, 2026-11-02; it was #b0b0b0, #221).
+const TEXT_INFO := Color("fcfcfc")   # Active info text: hints, ranges, WAIT, help. White (owner 2026-11-02; was #b0b0b0, #221).
 const TEXT_DIM := Color("7c7c7c")    # A disabled item only; never enabled text (#221).
 const ACCENT := Color("f8b800")      # Titles, the room code, the focused item, PRESS OK.
 const FRAME := Color("0058f8")       # The inner frame line (not text).
