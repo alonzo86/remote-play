@@ -1,7 +1,7 @@
 extends VBoxContainer
 ## The player picker of the phone Connect screen (REQ-FL-71): a dropdown that shows the avatar and the name of the active
 ## profile, and a "+" next to it that opens the new player screen. The dropdown opens in place under the row. It lists the
-## profiles and the guest, then "Players" for the list screen (edit, share, paste and scan a player).
+## profiles and the guest (owner, 2026-11-02: there is no "Players" list screen any more).
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -59,9 +59,6 @@ func _fill() -> void:
 		_list.add_child(_row(p.avatar, p.player_name, true, _pick.bind(p.id),
 				p.id == store.active_id))
 	_list.add_child(_row(-1, "connect.guest", false, _pick.bind(""), store.active_id == ""))
-	var manage := UiKit.box_button("common.players", _on_manage, UiTheme.SIZE_BODY)
-	manage.custom_minimum_size = Vector2(0, 96)
-	_list.add_child(manage)
 
 
 ## A framed row: the avatar (none for the guest), the name, and a triangle on the head row.
@@ -113,6 +110,3 @@ func _on_new() -> void:
 func _on_edit() -> void:
 	App.go(App.ControllerProfileEdit, {"profile_id": App.profiles.active_id})
 
-
-func _on_manage() -> void:
-	App.go(App.ControllerProfiles)

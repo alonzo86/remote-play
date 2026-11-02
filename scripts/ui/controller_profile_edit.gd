@@ -8,13 +8,15 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Profile = preload("res://scripts/core/profile.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
+const QrScanner = preload("res://scripts/net/qr_scanner.gd")
+const Haptics = preload("res://scripts/game/haptics.gd")
+const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
 const DELETE_ARM_SECONDS := 3.0
 const AVATAR_SIDE := 144.0
 const AVATAR_STEP := AVATAR_SIDE + 12.0   # One avatar and the gap after it.
 
 var profile_id := ""
-var from_list := false   # Opened from the list "WHO IS PLAYING?": Back goes there. Otherwise Back goes to the main screen.
 
 var _name: LineEdit
 var _hint: Label
@@ -26,6 +28,7 @@ var _scroll: ScrollContainer
 var _arrow_left: Button
 var _arrow_right: Button
 var _avatar := 0
+var _qr: QrScanner
 
 
 func _ready() -> void:
@@ -83,7 +86,19 @@ func _ready() -> void:
 	_save = UiKit.box_button("profile_edit.save", _on_save, UiTheme.SIZE_ITEM)
 	_save.custom_minimum_size = Vector2(0, 110)
 	box.add_child(_save)
+	if existing == null:   # IMPORT reads the QR code of a player from another phone (owner, 2026-11-02).
+		_qr = QrScanner.new()
+		add_child(_qr)
+		_qr.scanned.connect(_on_scanned)
+		_qr.failed.connect(_on_scan_failed)
+		if _qr.is_available():
+			var import_button := UiKit.box_button("profile_edit.import", _qr.scan, UiTheme.SIZE_ITEM)
+			import_button.custom_minimum_size = Vector2(0, 110)
+			box.add_child(import_button)
 	if existing != null:
+		var share := UiKit.box_button("profiles.share", _on_share, UiTheme.SIZE_ITEM)
+		share.custom_minimum_size = Vector2(0, 110)
+		box.add_child(share)
 		_delete = UiKit.box_button("profile_edit.delete", _on_delete, UiTheme.SIZE_ITEM)
 		_delete.custom_minimum_size = Vector2(0, 110)
 		box.add_child(_delete)
@@ -157,11 +172,16 @@ func _on_avatar(i: int) -> void:
 func _on_save() -> void:
 	var store = App.profiles
 	if profile_id == "":
-		if store.create(_name.text, _avatar) == null:
+		var made = store.create(_name.text, _avatar)
+		if made == null:
 			return
+		profile_id = made.id   # A second tap on SAVE (after a failed save) changes this player; it makes no second one.
 	elif not store.update(profile_id, _name.text, _avatar):
 		return
 	App.apply_profile()
+	if not store.last_save_ok:   # The player is kept in memory; the screen stays and says it was not saved to the file.
+		_hint.text = Lang.t("profiles.could_not_save").to_upper()
+		return
 	on_back()
 
 
@@ -181,9 +201,25 @@ func _disarm_delete() -> void:
 	_delete.text = Lang.t("profile_edit.delete").to_upper()
 
 
-## Back goes to the main screen, or to the list when the screen was opened from the list (REQ-FL-72).
+## The text of a scan: a player code. The sentence ("PLAYER ADDED", or why the code does not work) shows in the hint line.
+func _on_scanned(text: String) -> void:
+	if _qr.buzzes_on_scan():
+		Haptics.on_message(QrScanner.BUZZ_MS)   # A scan on an iPhone buzzes once (REQ-FL-89).
+	if App.client.state == ControllerClient.State.CONNECTED and not App.client.can_change_profile():
+		return   # A round has started: a scan that comes late changes nothing (REQ-FL-71).
+	_hint.text = App.import_profile_text(text).to_upper()
+
+
+func _on_scan_failed(reason: String) -> void:
+	var text := QrScanner.failure_text(reason)
+	if text != "":
+		_hint.text = text.to_upper()
+
+
+func _on_share() -> void:
+	App.go(App.ControllerProfileShare, {"profile_id": profile_id})
+
+
+## Back goes to the main screen (REQ-FL-72).
 func on_back() -> void:
-	if from_list:
-		App.go(App.ControllerProfiles)
-	else:
-		App.leave_profile_screens()
+	App.leave_profile_screens()

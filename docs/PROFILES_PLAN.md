@@ -1,5 +1,7 @@
 # Player profiles plan: names, avatars, QR transfer, personal bests (FD-22)
 
+Status (2026-11-02, owner): the list screen "WHO IS PLAYING?", the PLAYERS button and PASTE A CODE were removed; SHARE is on the edit screen and IMPORT (a scan) is on the new player screen. Where this plan describes them, REQ-FL-71, 72, 76 and 77 in `docs/TV_FLOW.md` win.
+
 Status: **plan, reviewed once by an independent critic on 2026-10-10 (section 13). All three phases are built (A: profiles and names, B: copy by QR, C: personal bests).** The owner asked on 2026-10-10 for players who are recognized in every room, with their own name and avatar, and a best score that stays with them. This file records the decisions, the design, the changes to every document, and the phases. The owner confirms or changes the defaults in section 9 before phase A.
 Style: ASD-STE100 Simplified Technical English, like the other requirements files. The requirement IDs in this plan (REQ-FL-69 to 78, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C9) are in the requirements files now (all phases are built).
 

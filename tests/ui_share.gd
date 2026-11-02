@@ -4,6 +4,7 @@ extends SceneTree
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/ui_share.gd -- --role=controller
 
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const Profile = preload("res://scripts/core/profile.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
@@ -63,6 +64,7 @@ func _run() -> void:
 			DirAccess.remove_absolute(f)
 	_app.profiles = ProfileStore.new(PATH)
 	var maya = _app.profiles.create("Maya", 4)
+	await _save_fails()
 	await _share(maya)
 	await _import()
 	await _connect_screen()
@@ -77,10 +79,10 @@ func _run() -> void:
 
 func _share(maya: RefCounted) -> void:
 	print("the Share screen")
-	_app.go(_app.ControllerProfiles)
+	_app.go(_app.ControllerProfileEdit, {"profile_id": maya.id})
 	await process_frame
 	var share_button := _find_button(_app.current_screen(), "profiles.share")
-	_check(share_button != null, "each profile row has a SHARE item")
+	_check(share_button != null, "the edit screen of a player has a SHARE button")
 	share_button.pressed.emit()
 	await process_frame
 	var screen: Control = _app.current_screen()
@@ -91,46 +93,75 @@ func _share(maya: RefCounted) -> void:
 	_check(qr.quiet == 4 and qr._qr.size() >= 21, "the code has a quiet zone of 4 modules and was made when the screen opened")
 	var decoded := ProfileCode.decode(screen.code)
 	_check(decoded.ok and decoded.profile.id == maya.id and decoded.profile.player_name == "Maya" and decoded.profile.avatar == 4,
-			"the text is the profile of that row")
+			"the text is the profile of that player")
 	_find_button(screen, "profile_share.copy_code").pressed.emit()
 	_check(_find_button(screen, "CODE COPIED") != null, "COPY CODE says the code was copied")
 	_check(screen._timer.wait_time == 60.0 and not screen._timer.is_stopped(), "the code goes away after 60 seconds")
 	screen._timer.timeout.emit()
 	await process_frame
-	_check(_app.current_screen().get_script() == _app.ControllerProfiles, "when the time is over the screen goes back to the list")
+	_check(_app.current_screen().get_script() == _app.ControllerProfileEdit and _app.current_screen().profile_id == maya.id,
+			"when the time is over the screen goes back to the edit screen of that player")
+	_find_button(_app.current_screen(), "profiles.share").pressed.emit()
+	await process_frame
+	_find_button(_app.current_screen(), "common.back").pressed.emit()
+	await process_frame
+	_check(_app.current_screen().get_script() == _app.ControllerProfileEdit and _app.current_screen().profile_id == maya.id,
+			"BACK on the Share screen also goes back to the edit screen")
+
+
+func _save_fails() -> void:
+	print("a save that fails")
+	var old_path: String = _app.profiles.path
+	_app.profiles.path = "user://no_such_folder_375/profiles.cfg"
+	_app.go(_app.ControllerProfileEdit, {"profile_id": ""})
+	await process_frame
+	var screen: Control = _app.current_screen()
+	screen._name.text = "Zed"
+	screen._on_text("Zed")
+	screen._save.pressed.emit()
+	await process_frame
+	_check(_app.current_screen() == screen and screen._hint.text == Lang.t("profiles.could_not_save").to_upper(),
+			"a save that fails keeps the screen and says COULD NOT SAVE: '%s'" % screen._hint.text)
+	var made = _app.profiles.profiles.back()
+	_check(made != null and made.player_name == "Zed", "and the player stays in memory")
+	var count: int = _app.profiles.profiles.size()
+	screen._save.pressed.emit()
+	await process_frame
+	_check(_app.profiles.profiles.size() == count and screen.profile_id == made.id,
+			"a second tap on SAVE changes that player and makes no second one (%d players)" % _app.profiles.profiles.size())
+	_app.profiles.path = old_path
+	_app.profiles.delete(made.id)
+	_app.apply_profile()
 
 
 func _import() -> void:
-	print("paste a code")
-	_app.go(_app.ControllerProfiles)
+	print("import a code")
+	_app.go(_app.ControllerProfileEdit, {"profile_id": ""})
 	await process_frame
 	var list: Control = _app.current_screen()
-	_check(_find_button(list, "profiles.paste_code") != null, "the list has PASTE A CODE")
-	list._on_code(_code(ID_B, "Noam", 6, 1, {"paint_grab|easy": 12}))
-	_check(list._note.text == "PLAYER ADDED." and _app.profiles.find(ID_B) != null and _app.profiles.profiles.size() == 2,
+	list._on_scanned(_code(ID_B, "Noam", 6, 1, {"paint_grab|easy": 12}))
+	_check(list._hint.text == "PLAYER ADDED." and _app.profiles.find(ID_B) != null and _app.profiles.profiles.size() == 2,
 			"a good code adds the player and the screen says so")
-	list._on_code(_code(ID_B, "Noam2", 7, 2, {"paint_grab|easy": 3}))
-	_check(list._note.text == "PLAYER UPDATED." and _app.profiles.find(ID_B).player_name == "Noam2"
+	list._on_scanned(_code(ID_B, "Noam2", 7, 2, {"paint_grab|easy": 3}))
+	_check(list._hint.text == "PLAYER UPDATED." and _app.profiles.find(ID_B).player_name == "Noam2"
 			and _app.profiles.find(ID_B).bests["paint_grab|easy"] == 12, "the same player again: newer name, better best")
-	list._on_code("WP1.not-a-code")
-	_check(list._note.text == "THIS CODE DOES NOT WORK.", "a broken code is refused with a message")
-	list._on_code("ws://192.168.1.5:47801/KQZM")
-	_check(list._note.text == "THIS IS A ROOM LINK.", "a room link on this screen is said to be a room link")
-	list._on_code("hello")
-	_check(list._note.text == "THIS CODE DOES NOT WORK.", "other text is refused")
-	list._note.text = "SENTINEL"
+	list._on_scanned("WP1.not-a-code")
+	_check(list._hint.text == "THIS CODE DOES NOT WORK.", "a broken code is refused with a message")
+	list._on_scanned("ws://192.168.1.5:47801/KQZM")
+	_check(list._hint.text == "THIS IS A ROOM LINK.", "a room link on this screen is said to be a room link")
+	list._on_scanned("hello")
+	_check(list._hint.text == "THIS CODE DOES NOT WORK.", "other text is refused")
+	list._hint.text = "SENTINEL"
 	list._on_scan_failed("cancelled")
-	_check(list._note.text == "SENTINEL", "a cancelled scan changes nothing")
+	_check(list._hint.text == "SENTINEL", "a cancelled scan changes nothing")
 	list._on_scan_failed("camera")
-	_check(list._note.text.contains("CAMERA"), "a failed scan says why")
-	list._on_pick(ID_B)
-	_check(list._note.text == "" and list.note == "", "a tap on a row clears the old note")
+	_check(list._hint.text.contains("CAMERA"), "a failed scan says why")
 	# A scan that comes late, when a round has started, changes nothing (plan 6.4).
 	var late: Node = _app.client
 	late._set_state(ControllerClient.State.CONNECTED)
 	late.phase = "playing"
 	var count: int = _app.profiles.profiles.size()
-	list._on_code(_code("ef".repeat(16), "Late", 3))
+	list._on_scanned(_code("ef".repeat(16), "Late", 3))
 	_check(_app.profiles.profiles.size() == count and _app.profiles.find("ef".repeat(16)) == null, "a code in a round is ignored")
 	late.phase = "menu"
 	late._set_state(ControllerClient.State.IDLE)
@@ -154,9 +185,9 @@ func _connect_screen() -> void:
 	_app.profiles.delete(_app.profiles.profiles[2].id)
 	connect._on_qr_text(_code("cd".repeat(16), "Dana", 2))
 	await process_frame
-	var list: Control = _app.current_screen()
-	_check(list.get_script() == _app.ControllerProfiles and list._note.text == "PLAYER ADDED."
-			and _app.profiles.find("cd".repeat(16)) != null, "a player code on the Connect screen is taken and opens the list")
+	_check(_app.current_screen() == connect and connect._status.text == "PLAYER ADDED."
+			and _app.profiles.find("cd".repeat(16)) != null,
+			"a player code on the Connect screen is taken and the status line says so (no list screen)")
 
 
 func _round_closes_share() -> void:

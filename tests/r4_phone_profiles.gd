@@ -399,40 +399,55 @@ func _share_flow() -> void:
 	_app.apply_profile()
 
 
-## 15b and 15c with a scanner: the camera scan of the TV code on the list of players, and of a player code on the Connect screen.
+## 15b and 15c with a scanner: IMPORT on the new player screen (a scan of a TV code, a player code, a broken code, the buzz on an
+## iPhone, a refused camera), and a scan of a player code on the Connect screen (owner, 2026-11-02: there is no list screen).
 func _scan_flow() -> void:
 	print("the camera scan on the profile screens")
 	_reset_store()
 	var other := ProfileStore.new(PATH_B)
 	var noam = other.create("Noam", 6)
+	var maya = other.create("Maya", 3)
 	var fake := FakeQrPlugin.new()
 	Engine.register_singleton("QrScanner", fake)
-	_app.go(_app.ControllerProfiles)
+	_app.go(_app.ControllerProfileEdit, {"profile_id": ""})
 	await _frames(3)
-	var list: Control = _app.current_screen()
-	var scan_button: Button = _buttons(list).filter(func(b): return b.text == "profiles.scan_profile").front()
-	_check(scan_button != null, "with the scanner the list of players has the button SCAN A PROFILE")
-	scan_button.pressed.emit()
+	var screen: Control = _app.current_screen()
+	var import_button: Button = _buttons(screen).filter(func(b): return b.text == "profile_edit.import").front()
+	_check(import_button != null, "with the scanner the new player screen has the button IMPORT")
+	import_button.pressed.emit()
 	fake.scanned.emit("ws://192.168.1.5:47801/KQZM")
 	await _frames(2)
-	_check(fake.calls == ["scan"] and list._note.text == Lang.t("app.room_link").to_upper(),
-			"15b: a scan of the QR code of a TV says THIS IS A ROOM LINK.: '%s'" % list._note.text)
-	# Issue #299: on an iPhone a scan buzzes once (REQ-FL-89), a paste does not, and a refused camera has its own text (REQ-FL-91).
+	_check(fake.calls == ["scan"] and screen._hint.text == Lang.t("app.room_link").to_upper(),
+			"15b: a scan of the QR code of a TV says THIS IS A ROOM LINK.: '%s'" % screen._hint.text)
+	fake.scanned.emit(ProfileCode.encode(noam))
+	await _frames(2)
+	_check(screen._hint.text == Lang.t("app.player_added").to_upper() and _app.profiles.find(noam.id) != null
+			and _app.profiles.find(noam.id).player_name == "Noam" and _app.current_screen() == screen,
+			"IMPORT of a player code adds the player, says PLAYER ADDED and stays on the screen: '%s'" % screen._hint.text)
+	fake.scanned.emit("WP1.not-a-code")
+	await _frames(2)
+	_check(screen._hint.text == Lang.t("app.code_does_not_work").to_upper(),
+			"a broken code says the code does not work: '%s'" % screen._hint.text)
+	# Issue #299: on an iPhone a scan buzzes once (REQ-FL-89), and a refused camera has its own text (REQ-FL-91).
 	var Haptics: GDScript = load("res://scripts/game/haptics.gd")
 	var buzzes: Array = []
 	Haptics.vibrate_call = func(ms: int) -> void: buzzes.append(ms)
 	var old_haptics: bool = _app.settings.get("haptics", true)
 	_app.settings.haptics = true
-	list._qr.os_name = "iOS"
+	screen._qr.os_name = "iOS"
 	fake.scanned.emit("ws://192.168.1.5:47801/KQZM")
-	list._on_code("ws://192.168.1.5:47801/KQZM")
-	_check(buzzes.size() == 1, "on an iPhone one scan buzzes once and a paste does not (%d buzzes)" % buzzes.size())
+	_check(buzzes.size() == 1, "on an iPhone one scan buzzes once (%d buzzes)" % buzzes.size())
 	fake.failed.emit("camera_denied")
 	await _frames(2)
-	_check(list._note.text == Lang.t("connect.camera_denied").to_upper(),
-			"a refused camera shows the camera text on the list of players: '%s'" % list._note.text)
+	_check(screen._hint.text == Lang.t("connect.camera_denied").to_upper(),
+			"a refused camera shows the camera text on the new player screen: '%s'" % screen._hint.text)
 	_app.settings.haptics = old_haptics
 	Haptics.vibrate_call = Callable()
+	# IMPORT is on the new player screen only, not on the edit screen of an existing player.
+	_app.go(_app.ControllerProfileEdit, {"profile_id": noam.id})
+	await _frames(3)
+	_check(not _buttons(_app.current_screen()).any(func(b): return b.text == "profile_edit.import"),
+			"the edit screen of an existing player has no IMPORT button")
 
 	_app.go(_app.ControllerConnect)
 	await _frames(3)
@@ -440,14 +455,18 @@ func _scan_flow() -> void:
 	var scan: Button = _buttons(connect).filter(func(b): return b.text == "connect.scan_qr_code").front()
 	_check(scan != null, "with the scanner the Connect screen has SCAN QR CODE")
 	scan.pressed.emit()
-	fake.scanned.emit(ProfileCode.encode(noam))
+	fake.scanned.emit(ProfileCode.encode(maya))
 	await _frames(3)
-	var opened: Control = _app.current_screen()
-	_check(opened.get_script() == _app.ControllerProfiles and opened._note.text == Lang.t("app.player_added").to_upper()
-			and _app.profiles.find(noam.id) != null and _app.profiles.find(noam.id).player_name == "Noam",
-			"15c: a scan of a player code on the Connect screen adds the player and opens the list with PLAYER ADDED.")
+	_check(_app.current_screen() == connect and connect._status.text == Lang.t("app.player_added").to_upper()
+			and _app.profiles.find(maya.id) != null and _app.profiles.find(maya.id).player_name == "Maya",
+			"15c: a scan of a player code on the Connect screen adds the player and says PLAYER ADDED there: '%s'"
+			% connect._status.text)
 	Engine.unregister_singleton("QrScanner")
 	fake.free()
+	_app.go(_app.ControllerProfileEdit, {"profile_id": ""})
+	await _frames(3)
+	_check(not _buttons(_app.current_screen()).any(func(b): return b.text == "profile_edit.import"),
+			"without the scanner the new player screen has no IMPORT button")
 	_app.go(_app.ControllerConnect)
 	await _frames(2)
 

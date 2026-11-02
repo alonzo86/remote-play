@@ -12,7 +12,7 @@ Style: ASD-STE100 Simplified Technical English, like the other plans. Requiremen
 
 ## 1. Why, and the state today
 
-The iPhone controller joins only with the typed room code (REQ-FL-58). The Android phone has a "SCAN QR CODE" button that opens the Google code scanner (issue #36, REQ-FL-83a). Joining by scan is the main way to join (issue #241), so the iPhone player gets the slower way. The iPhone also cannot scan a shared player profile (`profiles.scan_profile`, REQ-FL-76/77): it pastes a code.
+The iPhone controller joins only with the typed room code (REQ-FL-58). The Android phone has a "SCAN QR CODE" button that opens the Google code scanner (issue #36, REQ-FL-83a). Joining by scan is the main way to join (issue #241), so the iPhone player gets the slower way. The iPhone also cannot scan a shared player profile (IMPORT on the new player screen, REQ-FL-76/77; it was `profiles.scan_profile` and a paste button until 2026-11-02).
 
 Facts that this plan starts from (checked in the repository on 2026-11-01):
 
@@ -21,7 +21,7 @@ Facts that this plan starts from (checked in the repository on 2026-11-01):
 | `export_presets.cfg:173` (`controller-ios`) | `privacy/camera_usage_description="Sababi scans the QR code on the TV."` The line is already there. `tests/design_tokens.gd:414` checks that the text is not empty. |
 | `scripts/ui/controller_connect.gd:25-28` | `shows_scan_button(os_name)` returns false for "iOS". |
 | `scripts/net/qr_scanner.gd` | One GDScript entry point. It looks for the engine singleton "QrScanner" (the Android plugin). Signals `scanned(text)` and `failed(reason)`; reason "cancelled" is silent (`_on_qr_failed`, issue #43). `acquire_wifi_locks()` calls `acquireWifiLocks` on the plugin. |
-| `scripts/ui/controller_profiles.gd:55` | Shows "SCAN A PROFILE" when `is_available()`. |
+| `scripts/ui/controller_profile_edit.gd` | Shows IMPORT on the new player screen when `is_available()` (the list screen with "SCAN A PROFILE" was removed on 2026-11-02). |
 | `docs/legal/privacy-notice.md` (and `.he.md`) | Section 4: the scan is Android only. Section 5: iPhone has "local network" only. Section 6: the only third-party component is Google Play services. |
 | `docs/EXPORT.md:65, 149` | "The app does not need the camera permission" (Android text); "No QR scan: ... the iPhone joins by the typed room code" (iOS text). |
 | `docs/THIRD_PARTY.md` | Rows for the Google code scanner (Android only). Nothing for iOS. |
@@ -204,7 +204,7 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV with the Sababi TV app, a second phone f
 3a. Tap SCAN QR CODE for the first time. Check: iOS shows the camera question once, with the text of section 5.3 (REQ-FL-91).
 3b. Tap Allow. Check: the camera view opens within 2 seconds, in portrait, with the hint line and the CANCEL button (REQ-FL-88).
 4a. Point the phone at the QR code on the TV from 30 cm to 1 m (note the distance range that reads). Check: the view closes and the phone is on the waiting screen within 3 seconds of the code being in the picture. (REQ-FL-89) Note: the time in seconds, 5 tries.
-4b. Scan a QR code of a shared player profile (a second phone, Share). Check: the player list opens with the note that the player was added. (REQ-FL-89)
+4b. 4b. Scan a QR code of a shared player profile (a second phone, Share) with SCAN QR CODE. Check: the Connect screen stays open and its status line says PLAYER ADDED. (changed 2026-11-02: the player list is gone). (REQ-FL-89)
 4d. Scan a good TV code with haptics on. Check: the phone buzzes once when the view closes (yes/no). (REQ-FL-89)
 4c. Scan a QR code of a web page. Check: the Connect screen shows "THIS IS NOT A SABABI CODE." and the camera is closed. (REQ-FL-89)
 5a. Open the scan view and tap CANCEL. Check: the view closes, the Connect screen shows no message, and the typed room code still joins. (REQ-FL-90)
