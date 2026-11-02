@@ -219,7 +219,7 @@ func _white_buttons() -> void:
 	_check(UiTheme.BUTTON_FACE == UiTheme.BG and UiTheme.BUTTON_TEXT == Color("fcfcfc") and UiTheme.BUTTON_BORDER == Color("fcfcfc"),
 			"the button face token is black, the text and the border token are white")
 	_check(UiTheme.contrast(UiTheme.BUTTON_TEXT, UiTheme.BUTTON_FACE) >= 4.5, "the text on a black button has 4.5:1 or more")
-	_check(UiTheme.contrast(UiTheme.BUTTON_EDGE, UiTheme.BUTTON_FACE) >= 1.5, "the lower edge of A and B shows on the black face")
+	_check(UiTheme.contrast(UiTheme.BUTTON_EDGE, UiTheme.BUTTON_FACE) >= 4.5, "the lower edge of A and B shows on the black face")
 	_check(UiTheme.contrast(UiTheme.ACCENT, UiTheme.BG) >= 4.5 and UiTheme.MARK_W == 2 * UiTheme.LINE,
 			"the yellow mark is 4.5:1 on the black screen and twice as thick as a normal line")
 	var buttons: Array[Button] = [UiKit.box_button("x", func(): pass), UiKit.box_button("x", func(): pass, 40, true),

@@ -1,5 +1,5 @@
 extends Button
-## The OPTIONS button of the Games screen: a white text box (the border is thick and yellow with the focus). OK opens the Settings
+## The OPTIONS button of the Games screen: a black text box with a white border (the border is thick and yellow with the focus). OK opens the Settings
 ## screen (REQ-FL-16). The file keeps its old name, from the time it drew a gear.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")

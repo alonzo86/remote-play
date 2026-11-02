@@ -37,7 +37,7 @@ A small fixed palette, taken from the NES palette. All text colors have a contra
 | `DISABLED` | `#7c7c7c` | A disabled item: dim text, no cursor | 5.0:1 |
 | `BUTTON_FACE` | `#000000` (`BG`) | The face of every enabled button (issue #173; black since 2026-11-02, owner) | - |
 | `BUTTON_TEXT` | `#fcfcfc` (`TEXT`) | The text on that face; `BUTTON_BORDER` (also `TEXT`) is its border | 20.5:1 on the face |
-| `BUTTON_EDGE` | `#a4a4a4` | The lower edge of the round A and B buttons | 2.4:1 on the face |
+| `BUTTON_EDGE` | `#a4a4a4` | The lower edge of the round A and B buttons | 8.4:1 on the black face |
 | `MARK_W` | 12 px | The border of a marked button (focus, chosen, active): twice `LINE`, `ACCENT` | - |
 
 The player colors are in `Protocol` (`#3dcef2`, `#cc7e0a`, `#aa3df2`, `#f20c68`, palette B of issue #237, `docs/COLOR_BLIND_AUDIT.md`; they were `#e63946`, `#2a9d8f`, `#f4a261`, `#457b9d`). They are 4.5:1 or more on
