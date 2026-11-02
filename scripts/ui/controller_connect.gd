@@ -46,18 +46,13 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_status)
 
-	# The QR scan is the main way to join (issue #241): the biggest button, first, with the thick yellow frame. Typing 4 letters
-	# is the second way, under it.
+	# The QR scan is the main way to join (issue #241): the biggest button. It is under the code field and has no yellow
+	# frame (owner, 2026-11-02; it was above the field, with the frame).
 	_qr = QrScanner.new()
 	_qr.os_name = os_name
 	add_child(_qr)
 	_qr.scanned.connect(_on_qr_text)
 	_qr.failed.connect(_on_qr_failed)
-	if _qr.is_available():   # An iPhone shows it too when its build has the scanner plugin (REQ-FL-58, issue #299).
-		var scan := UiKit.box_button("connect.scan_qr_code", _on_scan_pressed, 56, true)
-		scan.custom_minimum_size = Vector2(0, 260)
-		box.add_child(scan)
-
 	box.add_child(UiKit.label("connect.type_code", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
@@ -75,6 +70,11 @@ func _ready() -> void:
 	var join := UiKit.box_button("connect.join", join_typed, UiTheme.SIZE_ITEM)
 	join.custom_minimum_size = Vector2(260, 130)
 	row.add_child(join)
+
+	if _qr.is_available():   # An iPhone shows it too when its build has the scanner plugin (REQ-FL-58, issue #299).
+		var scan := UiKit.box_button("connect.scan_qr_code", _on_scan_pressed, 56)
+		scan.custom_minimum_size = Vector2(0, 260)
+		box.add_child(scan)
 
 	App.client.state_changed.connect(_on_state)
 	App.client.rejected.connect(_on_rejected)
