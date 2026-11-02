@@ -1,6 +1,6 @@
 # Sababi Privacy Notice
 
-**Draft, not published.** Sababi: TV Games and Sababi: Remote. Last updated: 2026-11-01.
+**Draft, not published.** Sababi: TV Games and Sababi: Remote. Last updated: 2026-11-02.
 Provider: Alon Yampolski, Israel. Contact: sababi.play@gmail.com
 
 Sababi does not collect your personal data. We run no server, no account system and no analytics, so we never receive your name, your scores or your sensor readings. Everything below describes what stays on your own devices and your own Wi-Fi.
@@ -39,8 +39,7 @@ The apps themselves send nothing outside your local network.
 
 - **QR code scan (Android).** To scan the QR code of the TV or of a shared profile, the Controller opens the Google code scanner, which is part of Google Play services. The picture of the camera stays on your phone and is not sent to us or to Google. Sababi receives only the text of the code. Google receives technical data about how the scanner works, such as the phone model, the version of the operating system, the version of the app and performance information, and uses it to run and improve the scanner. Google's terms apply to this part: <https://developers.google.com/ml-kit/terms>. A phone without Google Play services cannot scan. It types the room code instead, and then nothing is sent to Google.
 - **QR code scan (iPhone and iPad).** To scan the QR code of the TV or of a shared profile, the Controller uses the camera of your iPhone. iOS asks for your permission the first time. The camera picture is shown on the scan screen only while it is open. It stays on your phone: Sababi does not save it and does not send it to us or to anyone else. Sababi receives only the text of the code. If you tap Don't Allow, you can type the room code instead, and you can turn the camera on later in Settings > Sababi.
-- **Share a profile.** A profile can be copied to another phone as a QR code or as text. The code holds the profile ID, the name, the avatar and the best scores, with no password. Anyone who scans the QR code or reads the text gets a copy. The QR code is hidden after 60 seconds. If you tap Copy Code, the text goes to the clipboard, where other apps on your phone may be able to read it.
-- **Paste.** The Controller reads the clipboard only when you tap Paste a code in the player list, to read a profile code.
+- **Share a profile.** A profile can be copied to another phone as a QR code or as text. The code holds the profile ID, the name, the avatar and the best scores, with no password. Anyone who scans the QR code or reads the text gets a copy. The QR code is hidden after 60 seconds. If you tap Copy Code, the text goes to the clipboard, where other apps on your phone may be able to read it. The Controller never reads the clipboard: to add a shared profile to a phone, you scan its QR code with Import on the New player screen.
 
 ## 5. Permissions
 
@@ -56,7 +55,7 @@ Sababi is a game for family and friends. It is not aimed at children, but childr
 
 ## 8. Your choices
 
-- Edit or delete a profile in the Controller (Who is playing). Deleting removes it from that phone.
+- Edit or delete a profile in the Controller (the pencil next to the player name on the Connect screen). Deleting removes it from that phone.
 - **Disconnect** in the Controller ends the session with the TV and clears its token. The address of the TV stays saved until you uninstall the app or clear its data.
 - Uninstall the app or clear its data to remove everything. A copy of a profile that you shared to another phone stays on that phone until it is deleted there.
 - We hold no data about you, so there is nothing for us to look up, correct or delete for you. The data is on your devices and under your control.
