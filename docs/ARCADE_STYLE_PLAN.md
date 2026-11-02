@@ -28,16 +28,16 @@ A small fixed palette, taken from the NES palette. All text colors have a contra
 |-------|-------|-----|-------------------|
 | `BG` | `#000000` | Every screen background | - |
 | `TEXT` | `#fcfcfc` | Text, the outer frame line | 20.5:1 |
-| `TEXT_INFO` | `#b0b0b0` | Active info text: help text, "WAIT", empty slots, the player range (issue #221) | 9.7:1 |
+| `TEXT_INFO` | `#fcfcfc` | Active info text: help text, "WAIT", empty slots, the player range (issue #221; white since 2026-11-02, owner) | 20.5:1 |
 | `TEXT_DIM` | `#7c7c7c` | A disabled item only, and the frame of a tile that is not focused (not text) | 5.0:1 |
 | `ACCENT` | `#f8b800` | Titles, the room code, the focused item, "PRESS OK" | 11.8:1 |
 | `FRAME` | `#0058f8` | The inner frame line (not text) | 3.8:1 |
 | `OK` | `#00b800` | "READY", good | 7.9:1 |
 | `BAD` | `#f83800` | "LOST", errors, danger | 5.6:1 |
 | `DISABLED` | `#7c7c7c` | A disabled item: dim text, no cursor | 5.0:1 |
-| `BUTTON_FACE` | `#fcfcfc` (`TEXT`) | The face of every enabled button (issue #173) | - |
-| `BUTTON_TEXT` | `#000000` (`BG`) | The text on that face | 20.5:1 on the face |
-| `BUTTON_EDGE` | `#a4a4a4` | The lower edge of the round A and B buttons | 2.4:1 on the face |
+| `BUTTON_FACE` | `#000000` (`BG`) | The face of every enabled button (issue #173; black since 2026-11-02, owner) | - |
+| `BUTTON_TEXT` | `#fcfcfc` (`TEXT`) | The text on that face; `BUTTON_BORDER` (also `TEXT`) is its border | 20.5:1 on the face |
+| `BUTTON_EDGE` | `#a4a4a4` | The lower edge of the round A and B buttons | 8.4:1 on the black face |
 | `MARK_W` | 12 px | The border of a marked button (focus, chosen, active): twice `LINE`, `ACCENT` | - |
 
 The player colors are in `Protocol` (`#3dcef2`, `#cc7e0a`, `#aa3df2`, `#f20c68`, palette B of issue #237, `docs/COLOR_BLIND_AUDIT.md`; they were `#e63946`, `#2a9d8f`, `#f4a261`, `#457b9d`). They are 4.5:1 or more on
@@ -77,13 +77,13 @@ black. They show as a filled square next to the slot number, never as the only c
 
 ### 2.5 Phone pad
 
-- Every enabled button, on the phone and on the TV, is white (issue #173, 2026-10-29): the face is `BUTTON_FACE`, the text
-  is `BUTTON_TEXT` (black), the edge is white. Pressed is the reverse (black face, white text). A disabled button keeps
+- Every enabled button, on the phone and on the TV, has a black face, white text and a white border (issue #173, 2026-10-29; changed 2026-11-02): the face is `BUTTON_FACE`, the text
+  is `BUTTON_TEXT` (white), the border is `BUTTON_BORDER` (white). Pressed is the reverse (white face, black text). A disabled button keeps
   its dim look (a `TEXT_DIM` line on black). A mark (the chosen IN or OUT, the active player) is a `MARK_W`
-  `ACCENT` border around the white face, so it is a shape and a color. The focus is a yellow face with black text and the same border. The code is `UiTheme.button_box()` and
+  `ACCENT` border around the black face, so it is a shape and a color. The focus is a yellow face with black text and the same border. The code is `UiTheme.button_box()` and
   `UiTheme.style_button()`; no screen styles a button by itself (`tests/design_tokens.gd`). A text menu item has no face (it
   is white text with a cursor, section 2.4); a game tile is a picture with a frame, not a button.
-- A and B are round white arcade buttons: a 6 px white ring, a `BUTTON_EDGE` lower edge and a white face with a black
+- A and B are round arcade buttons: a 6 px white ring, a `BUTTON_EDGE` lower edge and a black face with a white
   letter (the button looks pressed in when it is down). A and B differ by the letter only (question 6).
 - RECENTER and DISCONNECT are white text boxes. DISCONNECT leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
 - The slot color square and "2P" are at the top. The text under them says what to do ("TILT TO ROLL").

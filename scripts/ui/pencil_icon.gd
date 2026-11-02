@@ -5,7 +5,7 @@ extends Control
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 const GRID := 8
-## The icon sits on a white button (issue #173): the body is black, the tip gray and the eraser red.
+## The icon sits on a black button (issue #173, 2026-11-02): the body is white, the tip gray and the eraser red.
 const ROWS := [
 	".....ee#",
 	"....bbbe",

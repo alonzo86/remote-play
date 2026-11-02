@@ -131,14 +131,14 @@ func _pick_question() -> void:
 	var out_fill: StyleBoxFlat = wait._out_button.get_theme_stylebox("normal")
 	_check(wait._pick_box.visible and in_fill.bg_color == UiTheme.BUTTON_FACE and out_fill.bg_color == UiTheme.BUTTON_FACE
 			and in_fill.border_width_left == UiTheme.MARK_W and out_fill.border_width_left == UiTheme.LINE,
-			"with 2 phones the question shows, both buttons are white and IN has the thick yellow border")
+			"with 2 phones the question shows, both buttons are black and IN has the thick yellow border")
 	wait._out_button.pressed.emit()
 	await process_frame
 	in_fill = wait._in_button.get_theme_stylebox("normal")
 	out_fill = wait._out_button.get_theme_stylebox("normal")
 	_check(not _app.client.setup_in and in_fill.border_width_left == UiTheme.LINE
 			and out_fill.border_width_left == UiTheme.MARK_W and out_fill.bg_color == UiTheme.BUTTON_FACE,
-			"a tap on OUT moves the thick border to OUT, and both stay white")
+			"a tap on OUT moves the thick border to OUT, and both stay black")
 	_check(wait._out_banner.visible and wait._out_banner.text == "setup.out_banner",
 			"issue #242: after OUT a banner says YOU ARE OUT, TAP IN TO PLAY")
 	wait._in_button.pressed.emit()   # One tap undoes it.
@@ -194,10 +194,12 @@ func _disconnect_button() -> void:
 		_check(b.size.y >= 80.0, "[%s] and it is at least 80 px high (%.0f)" % [lang, b.size.y])
 		var pressed := b.get_theme_stylebox("pressed") as StyleBoxFlat
 		var normal := b.get_theme_stylebox("normal") as StyleBoxFlat
-		_check(pressed.bg_color != normal.bg_color and pressed.bg_color == UiTheme.BG and normal.bg_color == UiTheme.BUTTON_FACE,
-				"[%s] a pressed button turns black and a normal one is white (issue #173)" % lang)
-		_check(b.get_theme_color("font_pressed_color") == UiTheme.TEXT and b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT,
-				"[%s] the text of a pressed button turns white on the black fill, a normal one is black on white" % lang)
+		_check(pressed.bg_color != normal.bg_color and pressed.bg_color == UiTheme.BUTTON_TEXT
+				and normal.bg_color == UiTheme.BUTTON_FACE,
+				"[%s] a pressed button turns white and a normal one is black (issue #173, owner 2026-11-02)" % lang)
+		_check(b.get_theme_color("font_pressed_color") == UiTheme.BUTTON_FACE
+				and b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT,
+				"[%s] the text of a pressed button turns black on the white fill, a normal one is white on black" % lang)
 		holder.queue_free()
 	_app.set_language("en", false)
 	# The Disconnect box of the pad: the rect is the top right of the pad.

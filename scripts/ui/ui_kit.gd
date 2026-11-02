@@ -68,16 +68,17 @@ static func _on_phone() -> bool:
 	return role != null and role.is_controller()
 
 
-## A white text box for the phone (REQ-FL-52, REQ-FL-38a): a touch screen has no cursor, so the button shows its edge. The face
-## is white and the text black in every enabled button (issue #173). `marked`: a thick yellow border (the active player).
-## With the focus (a keyboard on a desktop run) the border is yellow too; pressed, the box turns black with white text.
+## A text box for the phone (REQ-FL-52, REQ-FL-38a): a touch screen has no cursor, so the button shows its edge. The face is
+## black, the text and the border white in every enabled button (issue #173, owner 2026-11-02). `marked`: a thick yellow border
+## (the active player). With the focus (a keyboard on a desktop run) the border is yellow too; pressed, the box turns white with
+## black text.
 static func box_button(text: String, cb: Callable, size := UiTheme.SIZE_ITEM, marked := false) -> Button:
 	var b := Button.new()
 	b.text = shown(text)
 	# A phone button is touched, never focused (REQ-FL-86); the TV remote needs the focus.
 	b.focus_mode = Control.FOCUS_NONE if _on_phone() else Control.FOCUS_ALL
 	b.add_theme_font_size_override("font_size", size)
-	UiTheme.style_button(b, marked)   # Every enabled button is white (issue #173, REQ-FL-38a).
+	UiTheme.style_button(b, marked)   # Every enabled button is black with white text and border (REQ-FL-38a).
 	b.pressed.connect(cb)
 	return b
 

@@ -123,16 +123,17 @@ func _pad_checks() -> void:
 	pad._input(_touch(1, false, b))
 	_check(pad._sampler.buttons == 0, "and nothing stays pressed")
 
-	# 16.6c: RECENTER is white (issue #173); a tap turns it black; it is white again after 0.34 s (the flash falls by 3 each second).
-	_check(pad._recenter_fill() == UiTheme.BUTTON_FACE, "the Recenter box is white while nobody taps it")
+	# 16.6c: RECENTER is black with a white edge (issue #173, owner 2026-11-02); a tap turns it white; black again
+	# after 0.34 s (the flash falls by 3 each second).
+	_check(pad._recenter_fill() == UiTheme.BUTTON_FACE, "the Recenter box is black while nobody taps it")
 	var middle: Vector2 = pad._rect_recenter().get_center()
 	pad._input(_touch(2, true, middle))
-	_check(pad._recenter_fill() == UiTheme.BG, "a tap on RECENTER turns the box black at once")
+	_check(pad._recenter_fill() == UiTheme.BUTTON_TEXT, "a tap on RECENTER turns the box white at once")
 	pad._input(_touch(2, false, middle))
 	pad._process(0.2)
-	_check(pad._recenter_fill() == UiTheme.BG, "0.2 s later it is still black")
+	_check(pad._recenter_fill() == UiTheme.BUTTON_TEXT, "0.2 s later it is still white")
 	pad._process(0.15)
-	_check(pad._recenter_fill() == UiTheme.BUTTON_FACE, "0.35 s after the tap it is white again")
+	_check(pad._recenter_fill() == UiTheme.BUTTON_FACE, "0.35 s after the tap it is black again")
 
 	# 16.6e: the color square with the slot number is at the top left of the pad, on the row of Disconnect.
 	var sq: Rect2 = pad._rect_slot_square()
