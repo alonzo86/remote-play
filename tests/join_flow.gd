@@ -453,13 +453,13 @@ func _qr_scan() -> void:
 	var screen: Control = _app.current_screen()
 	var scan := _button(screen, "connect.scan_qr_code")
 	_check(scan != null and _button(screen, "qr_scanner.paste_room_link") == null, "with the plugin the button is SCAN QR CODE")
-	# Issue #241: the scan is the main way to join: it is the biggest button; it is under the code field and has no yellow
+	# Issue #241: the scan is the main way to join: it is under the code field, as high as JOIN, and has no yellow
 	# frame (owner, 2026-11-02).
 	var join_button := _button(screen, "connect.join")
 	var scan_rect := scan.get_global_rect()
 	_check(join_button != null and scan_rect.position.y >= screen._code.get_global_rect().end.y
-			and scan.size.y >= 1.5 * join_button.size.y and scan.size.y >= 200.0,
-			"the scan button is under the code field and at least 1.5 times as high as JOIN (%.0f against %.0f px)"
+			and is_equal_approx(scan.size.y, join_button.size.y),
+			"the scan button is under the code field and as high as JOIN (%.0f against %.0f px)"
 			% [scan.size.y, join_button.size.y if join_button != null else 0.0])
 	var edge: StyleBoxFlat = scan.get_theme_stylebox("normal")
 	_check(edge.border_color == UiTheme.TEXT and edge.border_width_left == UiTheme.LINE,
