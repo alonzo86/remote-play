@@ -172,8 +172,10 @@ func _on_avatar(i: int) -> void:
 func _on_save() -> void:
 	var store = App.profiles
 	if profile_id == "":
-		if store.create(_name.text, _avatar) == null:
+		var made = store.create(_name.text, _avatar)
+		if made == null:
 			return
+		profile_id = made.id   # A second tap on SAVE (after a failed save) changes this player; it makes no second one.
 	elif not store.update(profile_id, _name.text, _avatar):
 		return
 	App.apply_profile()

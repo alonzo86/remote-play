@@ -124,6 +124,11 @@ func _save_fails() -> void:
 			"a save that fails keeps the screen and says COULD NOT SAVE: '%s'" % screen._hint.text)
 	var made = _app.profiles.profiles.back()
 	_check(made != null and made.player_name == "Zed", "and the player stays in memory")
+	var count: int = _app.profiles.profiles.size()
+	screen._save.pressed.emit()
+	await process_frame
+	_check(_app.profiles.profiles.size() == count and screen.profile_id == made.id,
+			"a second tap on SAVE changes that player and makes no second one (%d players)" % _app.profiles.profiles.size())
 	_app.profiles.path = old_path
 	_app.profiles.delete(made.id)
 	_app.apply_profile()
