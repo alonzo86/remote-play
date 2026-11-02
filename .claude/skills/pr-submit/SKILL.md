@@ -14,7 +14,8 @@ Do not ask before creating the PR, updating its title or body, or posting the re
    `mcp__github__*` tools; do not stop and do not ask the user to log in unless no tool works. Never use another account.
 2. Run the `run-tests` skill: the suites that your change touches pass and `gdlint scripts tests tools` is clean. Do not run the full coverage (`tools/coverage.sh`) unless the user told you to.
    Report the real numbers. Do not create the PR when one fails. Do not report a pass for a check that did not run.
-3. The branch is the one the session gave you, and the changes are committed and pushed. Requirements files changed with the behavior (REQ-GM-5).
+3. The `sync-docs` skill was run: the PR body will have the section "Docs and tests aligned" (see section 3). Do not create the PR without it.
+4. The branch is the one the session gave you, and the changes are committed and pushed. Requirements files changed with the behavior (REQ-GM-5).
 
 ## 2. Gather the inputs
 
@@ -49,6 +50,10 @@ Closes #<ISSUE_NUMBER>        (remove this section when there is no issue)
 
 ### Changes
 What changed and how, in a few lines.
+
+## Docs and tests aligned
+What the change removed or renamed, the files searched (`sync-docs` step 2), the documents and tests changed, and the hits left on purpose
+(history, owner-only text) with the reason.
 
 ## Coverage
 Say that the full coverage was not run (CLAUDE.md), or, when the user asked for it, the total line coverage and the lowest modules

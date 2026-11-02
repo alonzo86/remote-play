@@ -20,6 +20,16 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
 - Work on the branch the session gives you. For a delegated sweep of issues, one `claude/issue-<n>-<name>` branch per pull request is allowed
   (worktrees may be used); the session branch is for work in a single pull request. When the user's request is a change to the repository, Claude creates the pull request when the work is done and the checks pass (Alon).
 
+## Docs and tests stay aligned (Alon)
+
+- A change is not finished, and its issue is not closed, until every document and test that it makes wrong is updated in the same pull
+  request. Run the `sync-docs` skill (`.claude/skills/sync-docs/SKILL.md`) after the code works and before `pr-submit`: list what the
+  change removed or renamed, search the whole repository for it, and update the requirements, plans, manual and automated test files,
+  strings, tests and `README.md`. The PR description has the section "Docs and tests aligned".
+- `code-reviewer` repeats the search and reports a stale hit as a finding. `qa` checks the test side. `project-manager` does not close an
+  issue whose PR has no such section.
+- The privacy notice, store texts and legal texts are owner only: the PR names what is out of date and carries the label `needs-owner`.
+
 ## Third-party libraries and resources
 
 - Any library, plugin, addon, font, sound, image, model or other resource that another maker owns needs a row in `docs/THIRD_PARTY.md`,

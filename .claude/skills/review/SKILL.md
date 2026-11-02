@@ -11,6 +11,9 @@ Run the `run-tests` skill when the diff touches `scripts/`, `tests/` or the plug
 
 ## Checklist
 
+**Docs and tests aligned** (`.claude/skills/sync-docs/SKILL.md`)
+- Every removed, renamed or changed item of the diff (button, screen, key, function, file, value) has no stale hit in `docs/`, `README.md`, `.claude/`, `assets/lang/strings.csv` or `tests/`; the PR has the section "Docs and tests aligned".
+
 **Architecture**
 - `scripts/net/` and `scripts/input/` must never refer to `scripts/game/`. Games read `PlayerInput` only.
 - A minigame extends `scripts/game/minigame.gd` and uses no networking script.

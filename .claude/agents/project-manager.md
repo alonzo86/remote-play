@@ -11,7 +11,7 @@ Read `CLAUDE.md` ("Pull requests", "Finishing work without the owner", "Manual t
 
 Sweep (do all of it, do not ask first):
 1. List open issues and PRs. For each one decide the state from evidence (merged PRs, `docs/MANUAL_TESTS.md` Summary table, the issue comments), never from the title.
-2. **Resolved**: the content is in a merged PR and no `Device` test is left: close it with a comment (PR number, what changed, tests run).
+2. **Resolved**: the content is in a merged PR and no `Device` test is left. Check that the PR has the section "Docs and tests aligned" (`.claude/skills/sync-docs/SKILL.md`); if it has none, run step 2 of that skill on the merged change and file a docs PR before you close the issue. Then close it with a comment (PR number, what changed, tests run).
 3. **Duplicate or obsolete** (for example an issue that asks for a CI result, because CI is ignored by decision of the owner; two issues for one problem): close it with a comment that links the issue or the rule that replaces it.
 4. **Only a device test left**: label `needs-device`, one comment that names the manual test and steps (from the table "Tests to run, in order"). Do not close it; `qa` closes it when the result is Pass.
 5. **Needs the owner** (a legal, store or account step, a decision about what the user sees, a rule of CLAUDE.md or an agent or skill file): label `needs-owner`, one comment that says the exact action in one sentence.
