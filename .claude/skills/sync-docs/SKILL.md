@@ -14,7 +14,7 @@ protocol field, tool or build option, and every value that changed (a color toke
 ## 2. Search for each item (the whole repository, not only the files you touched)
 
 For each item run `grep -rniE "<old name>|<old text>|<old value>" docs README.md CLAUDE.md .claude assets/lang/strings.csv tests tools scripts ios export_presets.cfg`
-(leave out `docs/evidence/` and build output). Search for the English text, the key, the function or file name and the old value. Also search
+with `--exclude-dir=evidence --exclude-dir=build` (not `docs/evidence/`, not build output). Search for the English text, the key, the function or file name and the old value. Also search
 the words a person would use ("PLAYERS button", "yellow frame", "clipboard"). Open each hit and decide: wrong now, history, or still true.
 
 ## 3. Update by change type
