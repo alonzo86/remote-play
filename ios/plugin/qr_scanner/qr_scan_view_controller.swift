@@ -3,7 +3,6 @@
 // qr_scanner.mm; the @objc name below is the link between the two.
 // STATUS: compiled with swiftc only (tools/build_ios_plugin.sh), never run on a device. Read the life cycle with care
 // (code-reviewer): scanning starts in viewDidAppear and stops on every way out; `done` runs once (`finished`).
-import AVFoundation
 import UIKit
 import VisionKit
 

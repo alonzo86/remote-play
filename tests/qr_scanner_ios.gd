@@ -41,6 +41,12 @@ class FakeIosQrPlugin extends Object:
 		scans.append([hint, cancel])
 
 
+## A stand-in for the Android plugin: it has no is_supported(), so it is always supported.
+class FakeAndroidQrPlugin extends Object:
+	signal scanned(text: String)
+	signal failed(reason: String)
+
+
 ## The iPhone scanner (issue #299, REQ-FL-58, 88 to 92): the call with the two texts, the Wi-Fi lock guard, the button
 ## without the OS check, the texts of the reasons and the buzz.
 func _run() -> void:
@@ -66,6 +72,13 @@ func _run() -> void:
 	fake.supported = false
 	_check(not ios.is_available(), "a phone older than the A12 chip (is_supported() false) is not available (REQ-FL-58)")
 	fake.supported = true
+	Engine.unregister_singleton("QrScanner")
+	var android_fake := FakeAndroidQrPlugin.new()
+	Engine.register_singleton("QrScanner", android_fake)
+	_check(ios.is_available(), "a plugin with no is_supported() (the Android plugin) is available")
+	Engine.unregister_singleton("QrScanner")
+	android_fake.free()
+	Engine.register_singleton("QrScanner", fake)
 	var texts: Array = []
 	var fails: Array = []
 	ios.scanned.connect(func(t): texts.append(t))
