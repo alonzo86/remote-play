@@ -46,8 +46,8 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_status)
 
-	# The QR scan is the main way to join (issue #241): the biggest button, with the thick yellow frame. It is under the code field
-	# (owner, 2026-11-02; it was above the field).
+	# The QR scan is the main way to join (issue #241): the biggest button. It is under the code field and has no yellow
+	# frame (owner, 2026-11-02; it was above the field, with the frame).
 	_qr = QrScanner.new()
 	_qr.os_name = os_name
 	add_child(_qr)
@@ -72,7 +72,7 @@ func _ready() -> void:
 	row.add_child(join)
 
 	if _qr.is_available():   # An iPhone shows it too when its build has the scanner plugin (REQ-FL-58, issue #299).
-		var scan := UiKit.box_button("connect.scan_qr_code", _on_scan_pressed, 56, true)
+		var scan := UiKit.box_button("connect.scan_qr_code", _on_scan_pressed, 56)
 		scan.custom_minimum_size = Vector2(0, 260)
 		box.add_child(scan)
 
