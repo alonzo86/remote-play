@@ -23,7 +23,6 @@ const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const SafeArea = preload("res://scripts/ui/safe_area.gd")
 const AboutScreen = preload("res://scripts/ui/about_screen.gd")
 const ControllerSettings = preload("res://scripts/ui/controller_settings.gd")
-const ControllerProfiles = preload("res://scripts/ui/controller_profiles.gd")
 const ControllerProfileEdit = preload("res://scripts/ui/controller_profile_edit.gd")
 const ControllerProfileShare = preload("res://scripts/ui/controller_profile_share.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
@@ -364,7 +363,7 @@ func _on_client_state(state: int) -> void:
 		_show_phone_screen()
 	elif state == ControllerClient.State.IDLE:
 		# A failed connection does not close the profile screens: a typed name stays (the phone works without the TV).
-		if not (_screen is ControllerConnect or _screen is ControllerProfiles or _screen is ControllerProfileEdit):
+		if not (_screen is ControllerConnect or _screen is ControllerProfileEdit or _screen is ControllerProfileShare):
 			go(ControllerConnect)
 
 
@@ -426,7 +425,7 @@ func leave_profile_screens() -> void:
 func _show_phone_screen() -> void:
 	if client.state == ControllerClient.State.IDLE:
 		return
-	if (_screen is ControllerProfiles or _screen is ControllerProfileEdit or _screen is ControllerProfileShare) \
+	if (_screen is ControllerProfileEdit or _screen is ControllerProfileShare) \
 			and client.phase in ["connect", "menu"]:
 		return
 	var playing: bool = client.phase in ["playing", "paused"]

@@ -148,7 +148,8 @@ func _on_qr_text(text: String) -> void:
 	if _qr.buzzes_on_scan():
 		Haptics.on_message(QrScanner.BUZZ_MS)   # Once, when the code is read; follows the HAPTICS switch (REQ-FL-89).
 	if text.strip_edges().begins_with(ProfileCode.PREFIX):   # A player code, not a TV link (FD-22).
-		App.go(App.ControllerProfiles, {"note": App.import_profile_text(text)})
+		_status.text = App.import_profile_text(text).to_upper()   # The sentence stays on this screen (owner, 2026-11-02).
+		_status.add_theme_color_override("font_color", UiTheme.TEXT_INFO)
 		return
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():

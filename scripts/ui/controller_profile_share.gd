@@ -1,7 +1,8 @@
 extends Control
-## Phone screen "SHARE PLAYER" (FD-22, REQ-FL-77): a QR code of one profile, which another phone scans (SCAN A PLAYER), and the
-## text of the same code for COPY CODE and PASTE A CODE. `profile_id` is set before the screen enters the tree. The code is made
-## once, when the screen opens, and it goes away after `SHOW_SECONDS`.
+## Phone screen "SHARE PLAYER" (FD-22, REQ-FL-77): a QR code of one profile, which another phone scans (IMPORT on its new player
+## screen), and the text of the same code for COPY CODE. It opens from the edit player screen and Back goes back there.
+## `profile_id` is set before the screen enters the tree. The code is made once, when the screen opens, and it goes away after
+## `SHOW_SECONDS`.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -77,4 +78,4 @@ func _on_copy() -> void:
 
 
 func on_back() -> void:
-	App.go(App.ControllerProfiles)
+	App.go(App.ControllerProfileEdit, {"profile_id": profile_id})

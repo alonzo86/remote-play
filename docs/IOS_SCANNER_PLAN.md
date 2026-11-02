@@ -204,7 +204,7 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV with the Sababi TV app, a second phone f
 3a. Tap SCAN QR CODE for the first time. Check: iOS shows the camera question once, with the text of section 5.3 (REQ-FL-91).
 3b. Tap Allow. Check: the camera view opens within 2 seconds, in portrait, with the hint line and the CANCEL button (REQ-FL-88).
 4a. Point the phone at the QR code on the TV from 30 cm to 1 m (note the distance range that reads). Check: the view closes and the phone is on the waiting screen within 3 seconds of the code being in the picture. (REQ-FL-89) Note: the time in seconds, 5 tries.
-4b. Scan a QR code of a shared player profile (a second phone, Share). Check: the player list opens with the note that the player was added. (REQ-FL-89)
+4b. 4b. Scan a QR code of a shared player profile (a second phone, Share) with SCAN QR CODE. Check: the Connect screen stays open and its status line says PLAYER ADDED. (changed 2026-11-02: the player list is gone). (REQ-FL-89)
 4d. Scan a good TV code with haptics on. Check: the phone buzzes once when the view closes (yes/no). (REQ-FL-89)
 4c. Scan a QR code of a web page. Check: the Connect screen shows "THIS IS NOT A SABABI CODE." and the camera is closed. (REQ-FL-89)
 5a. Open the scan view and tap CANCEL. Check: the view closes, the Connect screen shows no message, and the typed room code still joins. (REQ-FL-90)

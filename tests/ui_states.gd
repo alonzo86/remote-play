@@ -304,7 +304,10 @@ func _profile_screens() -> void:
 	dropdown = _dropdown(app.current_screen())
 	_check(dropdown._head.get_child(0).get_child(1).text == "MAYA", "the dropdown head shows the active player")
 	dropdown.toggle()
-	_check(dropdown.open and dropdown._list.get_child_count() == 3, "it opens a row for the player, one for the guest and PLAYERS")
+	_check(dropdown.open and dropdown._list.get_child_count() == 2,
+			"it opens a row for the player and one for the guest, and there is no PLAYERS button (owner, 2026-11-02)")
+	_check(not dropdown.find_children("*", "Button", true, false).any(func(b): return b.text == "common.players"),
+			"the Connect screen has no PLAYERS button")
 	dropdown._pick("")
 	await process_frame
 	_check(app.profiles.active_id == "" and app.client.pid == "", "a tap on GUEST in the dropdown makes the phone a guest")
@@ -340,17 +343,17 @@ func _profile_screens() -> void:
 	app.profiles.update(made.id, "Maya", 5)   # The tests below go on with the first name and avatar and the first edit number.
 	made.rev = rev_before
 	app.apply_profile()
-	app.go(app.ControllerProfiles)
+	app.go(app.ControllerConnect)
 	await process_frame
-	var list: Control = app.current_screen()
-	# The list: rows for the profiles and the guest, the active one in yellow; a tap changes the active profile.
-	list._on_pick("")
+	var picker = _dropdown(app.current_screen())
+	# The dropdown: rows for the profiles and the guest, the active one marked; a tap changes the active profile.
+	picker._pick("")
 	_check(app.profiles.active_id == "" and app.client.pid == "" and app.client.avatar == -1,
 			"the guest row makes the phone a guest")
-	list._on_pick(made.id)
+	picker._pick(made.id)
 	_check(app.client.pid == made.id, "a profile row makes it the active one again")
 	# The edit screen of a profile: a change of the name raises the edit number; DELETE asks first.
-	list._on_edit(made.id)
+	app.go(app.ControllerProfileEdit, {"profile_id": made.id})
 	await process_frame
 	edit = app.current_screen()
 	_check(edit._name.text == "Maya" and edit._views[5].selected and edit._delete != null, "the edit screen shows the profile")
@@ -361,7 +364,7 @@ func _profile_screens() -> void:
 	await process_frame
 	_check(made.player_name == "Mia" and made.avatar == 2 and made.rev == 1 and app.client.player_name == "Mia",
 			"an edit changes the profile and the client")
-	app.go(app.ControllerProfileEdit, {"profile_id": made.id, "from_list": true})
+	app.go(app.ControllerProfileEdit, {"profile_id": made.id})
 	await process_frame
 	edit = app.current_screen()
 	edit._delete.pressed.emit()
@@ -372,18 +375,21 @@ func _profile_screens() -> void:
 	edit._delete.pressed.emit()
 	await process_frame
 	_check(app.profiles.profiles.is_empty() and app.client.pid == ""
-			and app.current_screen().get_script() == app.ControllerProfiles,
+			and app.current_screen().get_script() == app.ControllerConnect,
 			"the second tap deletes the profile, the phone is a guest")
 	# A full list.
 	for i in ProfileStore.MAX_PROFILES:
 		app.profiles.create("P%d" % i, i)
-	app.go(app.ControllerProfiles)
+	app.go(app.ControllerConnect)
 	await process_frame
-	list = app.current_screen()
-	_check(list._new_button.disabled and list._note.text.contains("8"), "8 profiles: NEW PLAYER is dim and a line says why")
+	var plus: Button = _dropdown(app.current_screen()).find_children("*", "Button", true, false).filter(
+			func(b): return b.text == "+").front()
+	_check(plus.disabled, "8 profiles: the + button is dim")
 	app.profiles.delete(app.profiles.profiles[0].id)
-	list._rebuild()
-	_check(not list._new_button.disabled and list._note.text == "", "with room again NEW PLAYER works")
+	app.go(app.ControllerConnect)
+	await process_frame
+	plus = _dropdown(app.current_screen()).find_children("*", "Button", true, false).filter(func(b): return b.text == "+").front()
+	_check(not plus.disabled, "with room again the + button works")
 
 	# The waiting screen shows the avatar and the name that the TV has, and the PLAYER button only in a menu phase.
 	var c: Node = app.client
@@ -401,13 +407,13 @@ func _profile_screens() -> void:
 	_check(wait._name.text == "%dP" % (c.slot + 1), "a guest sees the slot number")
 	# The profile screens close when a round starts, and stay in a menu phase.
 	c.phase = "menu"
-	app.go(app.ControllerProfiles)
+	app.go(app.ControllerProfileEdit, {"profile_id": ""})
 	await process_frame
 	app._show_phone_screen()
-	_check(app.current_screen().get_script() == app.ControllerProfiles, "the list stays open in a menu phase")
+	_check(app.current_screen().get_script() == app.ControllerProfileEdit, "the new player screen stays open in a menu phase")
 	c.phase = "waiting"
 	app._show_phone_screen()
-	_check(app.current_screen().get_script() == app.ControllerWait, "a round that this phone joined late closes the list")
+	_check(app.current_screen().get_script() == app.ControllerWait, "a round that this phone joined late closes it")
 	c.phase = "menu"
 	app.go(app.ControllerProfileEdit, {"profile_id": ""})
 	await process_frame
