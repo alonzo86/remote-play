@@ -56,7 +56,7 @@ A guest keeps the slot number and the name `Player N`. Names that are the same o
 
 1. On the first phone: profile list, `SHARE` on the row. The QR code shows.
 2. On the second phone: profile list, `SCAN A PLAYER`. The camera scans the code and the profile is made, with the same ID, name, avatar and best scores.
-3. (History: `PASTE A CODE` was removed on 2026-11-02; a phone imports a player with IMPORT, a scan, REQ-FL-76.) A phone that cannot scan uses `COPY CODE` on the first phone and `PASTE A CODE` on the second one. An iPhone has no scan button at all today (`controller_connect.gd:24`, RISKS C5), so for an iPhone this is the only way. `COPY CODE` and `PASTE A CODE` are new UI that use the clipboard of the device.
+3. (History: `PASTE A CODE` was removed on 2026-11-02; a phone imports a player with IMPORT, a scan, REQ-FL-76.) Original plan, no longer true: a phone that cannot scan used `COPY CODE` and `PASTE A CODE` (clipboard); an iPhone had no scan button. Now the iPhone scans too (issue #299) and there is no paste.
 
 The result is a **copy**, not a move. If the second phone already has a profile with the same ID, the two are merged (section 6.5). After the copy the two phones do not sync.
 
@@ -223,7 +223,7 @@ One pull request for each phase, stacked, with the code, the tests, the document
 | Phase | Content | Manual test |
 |-------|---------|-------------|
 | A. Profiles and names | `Profile` and `ProfileStore` (new modules), the avatar sheet and the `Avatar` drawing, the phone screens (list, edit, avatar picker, switch), `hello`, `welcome` and `profile`, the TV validation and `display_name`, avatars instead of numbers, names in the pause card, the result menu and the lists, the duplicate ID rule, the text edits of section 10. | Test 20 items 1 to 8 |
-| B. Share by QR | The QR encoder up to version 14, the code format and the import rules, `SHARE`, `SCAN A PLAYER`, `COPY CODE`, `PASTE A CODE`, the merge. The code has k = 0 bests until phase C. | Test 20 items 12 to 15 |
+| B. Share by QR | The QR encoder up to version 14, the code format and the import rules, `SHARE`, `SCAN A PLAYER`, `COPY CODE`, `PASTE A CODE` (as planned; PASTE A CODE and the list were removed on 2026-11-02), the merge. The code has k = 0 bests until phase C. | Test 20 items 12 to 15 |
 | C. Personal bests | `ProfileKeys` directions, `best_key()` in `Minigame` and in the games, the `result` message, the update rule, `NEW BEST!` on the phone, the bests in the code. The requirements file of each game. | Test 20 items 9 to 11 |
 
 Phase A is useful alone. Phase B needs A and gives the copy of a profile early (a child's profile can move to a new phone before bests exist). Phase C needs A and B.
@@ -305,7 +305,7 @@ Needs: 2 to 4 phones (one an iPhone if possible), 1 TV, a grown-up and a child o
 11. Tilt Maze, Sumo Bumpers and a random Marble Race track: no best.
 12. Share a profile with 20 bests to a second phone by QR: the same name, avatar and bests; time how long the code takes to appear and to scan; try it from 30 cm and from 60 cm.
 13. Import a profile that the second phone already has, with a newer name on one phone and better bests on each side: the newer name and the better bests stay.
-14. An iPhone: `COPY CODE` on one phone and `PASTE A CODE` on the iPhone.
+14. (Removed on 2026-11-02) An iPhone: `COPY CODE` on one phone and `PASTE A CODE` on the iPhone. Now: IMPORT by scan on the iPhone.
 15. A broken code (one letter changed), a TV link on the profile scan, and a profile code on the Connect screen: the right messages.
 
 ## 12. Risks
@@ -351,9 +351,9 @@ Built on 2026-10-10 on branch `claude/profiles-b-share`.
 
 - `QrEncoder` goes up to version 14 (L). It was checked with an outside decoder (zxing-cpp): 66 texts of 1 to 458 bytes, every version, all read back. `tests/qr.gd` checks the structure and the hash of a fixed text. The code is drawn by `QrView` with `quiet = 4` and whole-pixel modules.
 - `ProfileKeys` (the key table, numbers 1 to 36 and the direction) was moved from phase C to this phase, because the code format needs the numbers. Phase C adds `best_key()`, the `result` message and the update rule. `Profile.bests` already existed in phase A.
-- `ProfileCode` (`encode`, `decode`, the CRC-16) and `ProfileStore.import_profile()` (add or merge). `App.import_profile_text()` is the one entry for a scan, a paste and the Connect screen.
+- `ProfileCode` (`encode`, `decode`, the CRC-16) and `ProfileStore.import_profile()` (add or merge). `App.import_profile_text()` is the one entry for a scan (IMPORT, and the Connect screen); the paste was removed on 2026-11-02.
 - A new player from a code becomes the active one only when the phone had no profile. Otherwise the active profile stays.
-- Screens: `controller_profile_share.gd`, SHARE on each row, SCAN A PLAYER (only where the QR plugin exists) and PASTE A CODE on the list.
+- Screens: `controller_profile_share.gd`, SHARE (on each row of the list when planned; on the edit screen since 2026-11-02), SCAN A PLAYER (now IMPORT on the new player screen, only where the QR plugin exists); PASTE A CODE and the list were removed.
 - The Share screen has no countdown number; it goes back to the list after 60 seconds.
 - Not in phase B: the time to make a version 14 code on a phone is not measured (test 20 item 12).
 
