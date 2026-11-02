@@ -284,7 +284,7 @@ func _fonts_and_background() -> void:
 				black = true
 	_check(black, "the app draws the backdrop behind every screen (REQ-FL-45)")
 	_check(UiTheme.BG == Color.BLACK, "the background color is black (REQ-FL-45)")
-	var scripts := ["controller_connect", "controller_wait", "controller_settings", "about_screen", "controller_profiles"]
+	var scripts := ["controller_connect", "controller_wait", "controller_settings", "about_screen", "controller_profile_edit"]
 	var bad: Array[String] = []
 	for name in scripts:
 		_app.go(load("res://scripts/ui/%s.gd" % name))
@@ -362,7 +362,7 @@ func _safe_rtl() -> void:
 ## mode: the keyboard needs it.
 func _no_focus() -> void:
 	print("no focus on the phone")
-	var names := ["controller_connect", "controller_wait", "controller_settings", "about_screen", "controller_profiles",
+	var names := ["controller_connect", "controller_wait", "controller_settings", "about_screen",
 			"controller_profile_edit", "controller_profile_share", "controller_pad", "controller_quit_dialog"]
 	for name in names:
 		var screen := _screen(load("res://scripts/ui/%s.gd" % name))
@@ -385,7 +385,7 @@ func _safe_layout() -> void:
 		"portrait": {"window": Vector2(1179, 2556), "safe": Rect2(0, 177, 1179, 2280), "viewport": Vector2(1080, 1920)},
 		"landscape": {"window": Vector2(2556, 1179), "safe": Rect2(177, 0, 2202, 1179), "viewport": Vector2(1920, 886)},
 	}
-	var names := ["controller_connect", "controller_wait", "controller_settings", "about_screen", "controller_profiles",
+	var names := ["controller_connect", "controller_wait", "controller_settings", "about_screen", "controller_profile_edit",
 			"controller_pad"]
 	for case_name in cases:
 		var c: Dictionary = cases[case_name]
