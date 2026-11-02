@@ -81,7 +81,7 @@ void QrScanner::scan(const String &p_hint, const String &p_cancel) {
 			present_view(from_ns(hint), from_ns(cancel));
 			break;
 		case AVAuthorizationStatusNotDetermined: {
-			// The braces keep the blocks inside their own scope; a block that captures a variable cannot sit in a bare case.
+			// The braces give the blocks their own scope: clang rejects a jump to a later case label past a block that strongly captures hint and cancel.
 			// iOS shows the question with NSCameraUsageDescription, once (REQ-FL-91).
 			[AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
 									 completionHandler:^(BOOL granted) {
