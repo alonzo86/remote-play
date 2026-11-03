@@ -20,6 +20,7 @@ const QUIET_TIME := 0.5         # After a putt with nothing to say.
 const HOLE_TIME := 4.0          # The card at the end of a hole.
 const END_DELAY := 1.2
 const HINT_TIME := 12.0
+const SNAP := 0.1               # The aim snaps to the cup when it is this close to it (radians, about 6 degrees; REQ-MG-4).
 const WEAK_HINT_TIME := 3.0
 # The swing strengths of a putt (m/s2), lower than the common ones of `SwingDetector` (REQ-MG-5). The gate is the common one.
 const LIGHT_BACK_ACCEL := 3.0
@@ -61,6 +62,9 @@ var _heading := 0.0
 var _spot := Vector2.ZERO       # Where the last putt started: the ball goes back here from the water.
 var _swing_age := 99.0
 var _lock_age := 0.0            # How long the direction is locked.
+var _a_down := {}               # Which phone holds A (a press is the change from up to down).
+var _aim_held := false          # The player locked the aim with A (REQ-MG-4); a second press on A unlocks it.
+var _snapped := false           # The aim is on the cup now.
 var _banner := ""
 var _banner_color := UiTheme.ACCENT
 var _weak_left := 0.0
@@ -120,6 +124,7 @@ func _on_player_left(slot: int) -> void:
 	rules.remove_player(slot)
 	_board.remove(slot)
 	_balls.erase(slot)
+	_a_down.erase(slot)
 	if is_over:
 		return
 	if rules.rows.is_empty():
@@ -143,6 +148,8 @@ func _start_turn() -> void:
 	_weak_left = 0.0
 	_swing_age = 99.0
 	_heading = 0.0
+	_aim_held = false
+	_snapped = false
 	_putter = slot
 	sim.start(_hole, _ball_of(slot))
 	_spot = sim.pos
@@ -195,6 +202,15 @@ func _publish_turn() -> void:
 			game_host.send_turn(s, 2, player(on).player_name, "golf")
 
 
+## True when a press on A starts on the phone `slot` in this tick. The button is read in every tick, so an A that was held from an
+## earlier phase is not a press.
+func _a_pressed(slot: int) -> bool:
+	var down := player(slot).is_down(Protocol.BTN_A)
+	var pressed: bool = down and not _a_down.get(slot, false)
+	_a_down[slot] = down
+	return pressed
+
+
 func _tick_aim(delta: float) -> void:
 	var slot := rules.current_slot()
 	if slot < 0:
@@ -203,8 +219,15 @@ func _tick_aim(delta: float) -> void:
 	var p := player(slot)
 	if _last_tick_ms > 0 and Time.get_ticks_msec() - _last_tick_ms > PAUSE_GAP_MS:
 		detector.reset()   # The game was paused: a swing that was under way starts again.
-	if not detector.aim_locked:
+	var pressed := _a_pressed(slot)
+	if pressed and not detector.aim_locked:
+		_aim_held = not _aim_held   # A locks the aim, and a second press unlocks it (REQ-MG-4).
+	if not detector.aim_locked and not _aim_held:
 		_heading = clampf(-p.yaw_offset(), -MAX_HEADING, MAX_HEADING)
+		var to_cup := GolfSim.heading_to_cup(_hole, sim.pos)
+		_snapped = absf(_heading - to_cup) <= SNAP
+		if _snapped:
+			_heading = to_cup   # Near the cup the aim goes to the cup: most putts are straight at the hole.
 	detector.update(delta, p.linear_accel())
 	if detector.weak:
 		_weak_left = WEAK_HINT_TIME
@@ -389,7 +412,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	if golfer_shown():
 		GolfLook.draw_golfer(ci, geo, geo.at(_spot), _pose(), player(_putter).color)
 		if phase == Phase.AIM:
-			GolfLook.draw_aim(ci, geo, _hole, sim.pos, _heading, _line_length(), detector.aim_locked)
+			GolfLook.draw_aim(ci, geo, _hole, sim.pos, _heading, _line_length(), detector.aim_locked or _aim_held, _snapped)
 	if not list.is_empty():
 		GolfLook.draw_ball(ci, geo, geo.at(list[0].pos), list[0].slot)
 	if _splash_age < 1.0:
@@ -435,6 +458,8 @@ func _game_draw() -> void:
 					p.color if Shell.contrast(p.color, UiTheme.BG) >= 4.5 else UiTheme.TEXT)
 		elif _weak_left > 0.0:
 			_banner_plate(Lang.t("mini_golf.hint_weak"), 48, UiTheme.ACCENT)
+		elif _aim_held and not detector.aim_locked:
+			_banner_plate(Lang.t("mini_golf.hint_aim_locked"), 32, UiTheme.TEXT)
 		elif _phase_time < HINT_TIME and not detector.aim_locked:
 			_banner_plate(Lang.t("mini_golf.hint_aim"), 32, UiTheme.TEXT)
 		elif detector.aim_locked and bool(level(difficulty).power_hint):
@@ -446,6 +471,8 @@ func _game_draw() -> void:
 func aim_hint_key() -> String:
 	if _weak_left > 0.0:
 		return "mini_golf.hint_weak"
+	if _aim_held and not detector.aim_locked:
+		return "mini_golf.hint_aim_locked"
 	if _phase_time < HINT_TIME and not detector.aim_locked:
 		return "mini_golf.hint_aim"
 	if detector.aim_locked and bool(level(difficulty).power_hint):

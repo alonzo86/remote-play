@@ -22,8 +22,9 @@ const AREA_R := 1860.0
 const AREA_T := 124.0
 const AREA_B := 944.0
 const ROW_H := 72.0
-## The ball is drawn at one size on every hole (REQ-GM-47m: 12 world pixels = 48 screen pixels with its outline).
-const BALL_OUT := 24.0            # Radius with the outline.
+## The ball is drawn at one size on every hole: 32 screen pixels with its outline (8 world pixels; owner, 2026-11-03: it was 48,
+## REQ-GM-47m, and too big; the cup stays 64 and the aim arrow shows where it goes).
+const BALL_OUT := 16.0            # Radius with the outline.
 const CUP_MIN_R := 32.0           # The cup is never smaller than this (the ball must fit it).
 const GOLFER_K := 2.0             # Screen units for one unit of the golfer picture (the golfer is about 160 units tall).
 const FLAG_H := 88.0
@@ -126,7 +127,7 @@ class Geo:
 	func dir(heading: float) -> Vector2:
 		return Vector2(cos(heading), sin(heading))
 
-	## The ball with its outline is this wide (REQ-GM-47m asks for 48 at 1080p).
+	## The ball with its outline is this wide (32 at 1080p, an exception to REQ-GM-47m for this game, owner 2026-11-03).
 	func ball_d() -> float:
 		return 2.0 * BALL_OUT * u
 
@@ -406,48 +407,49 @@ static func draw_ball(ci: CanvasItem, geo: Geo, c: Vector2, slot := -1) -> void:
 	var u := geo.u
 	Shell.record("ball", ci, Rect2(p - Vector2(BALL_OUT, BALL_OUT) * u, Vector2(2.0, 2.0) * BALL_OUT * u),
 			{"color": WHITE, "slot": slot})
-	ci.draw_circle(p + Vector2(4.0, 8.0) * u, BALL_OUT * u * 0.9, SHADOW)
+	ci.draw_circle(p + Vector2(3.0, 6.0) * u, BALL_OUT * u * 0.9, SHADOW)
 	ci.draw_circle(p, BALL_OUT * u, OL)
-	ci.draw_circle(p, (BALL_OUT - 4.0) * u, WHITE)
-	ci.draw_rect(Rect2(p + Vector2(4.0, 4.0) * u, Vector2(6.0, 6.0) * u), Color("bcbcbc"))
+	ci.draw_circle(p, (BALL_OUT - 3.0) * u, WHITE)
+	ci.draw_rect(Rect2(p + Vector2(2.0, 2.0) * u, Vector2(4.0, 4.0) * u), Color("bcbcbc"))
 
 
 ## The aim: a line of dots on the ground from the ball in `heading`, `length` course units long (0 for no line) but never
 ## beyond the walls, and an arrow at its end (REQ-MG-4, 13). The line is as long on the screen as the putt is on the course,
-## on every hole and at every distance. The dots and the arrow have one size.
+## on every hole and at every distance. The dots and the arrow have one size. The arrow is gold when the aim is locked and green
+## when it is snapped to the cup (`snapped`).
 static func draw_aim(ci: CanvasItem, geo: Geo, hole: Dictionary, from: Vector2, heading: float, length: float,
-		locked: bool) -> void:
+		locked: bool, snapped := false) -> void:
 	var e := aim_end(geo, hole, from, heading, length)
 	var c := geo.at(from)
 	var dir := geo.dir(heading)
 	var u := geo.u
 	var run := (e - c).length()
-	var gap := 48.0 * u
-	var start := BALL_OUT * u + 28.0 * u
+	var gap := 36.0 * u
+	var start := BALL_OUT * u + 20.0 * u
 	var tip := geo.snap(e)
-	var col := GOLD if locked else UiTheme.TEXT
+	var col := GOLD if locked else (UiTheme.OK if snapped else UiTheme.TEXT)
 	var side := dir.orthogonal()
-	# A wide light lane under the dots, from the ball to the arrow, so the direction reads from the sofa on any grass.
+	# A light lane under the dots, from the ball to the arrow, so the direction reads from the sofa on any grass.
 	if length > 0.0 and run > start:
 		var lane_a := c + dir * start
-		var w := side * 20.0 * u
+		var w := side * 12.0 * u
 		var lane := PackedVector2Array([lane_a + w, tip + w, tip - w, lane_a - w])
-		ci.draw_colored_polygon(lane, Color(1.0, 1.0, 1.0, 0.22))
+		ci.draw_colored_polygon(lane, Color(1.0, 1.0, 1.0, 0.2))
 		var d := start
 		var i := 0
-		while d < run - 40.0 * u:
+		while d < run - 28.0 * u:
 			var p := geo.snap(c + dir * d)
-			ci.draw_rect(Rect2(p - Vector2(10.0, 10.0) * u, Vector2(20.0, 20.0) * u), OL)
-			ci.draw_rect(Rect2(p - Vector2(7.0, 7.0) * u, Vector2(14.0, 14.0) * u), UiTheme.TEXT if i % 2 == 0 else GOLD)
+			ci.draw_rect(Rect2(p - Vector2(7.0, 7.0) * u, Vector2(14.0, 14.0) * u), OL)
+			ci.draw_rect(Rect2(p - Vector2(5.0, 5.0) * u, Vector2(10.0, 10.0) * u), UiTheme.TEXT if i % 2 == 0 else GOLD)
 			d += gap
 			i += 1
-	# A big arrow: 2.2 times the old one, so the heading shows even on the Hard level (the arrow only).
-	var back := tip - dir * 36.0 * u
-	var head := PackedVector2Array([tip + dir * 30.0 * u, back + side * 38.0 * u, back - side * 38.0 * u])
-	Shell.record("aim", ci, Rect2(tip - Vector2(40.0, 40.0) * u, Vector2(80.0, 80.0) * u),
-			{"locked": locked, "color": col, "length": run / geo.s, "heading": heading})
+	# The arrow: smaller than the first one (owner, 2026-11-03: too big), still clear on the grass.
+	var back := tip - dir * 20.0 * u
+	var head := PackedVector2Array([tip + dir * 16.0 * u, back + side * 22.0 * u, back - side * 22.0 * u])
+	Shell.record("aim", ci, Rect2(tip - Vector2(24.0, 24.0) * u, Vector2(48.0, 48.0) * u),
+			{"locked": locked, "snapped": snapped, "color": col, "length": run / geo.s, "heading": heading})
 	ci.draw_colored_polygon(head, col)
-	ci.draw_polyline(PackedVector2Array([head[0], head[1], head[2], head[0]]), OL, 5.0)
+	ci.draw_polyline(PackedVector2Array([head[0], head[1], head[2], head[0]]), OL, 4.0)
 
 
 const AIM_MARK := 0.6

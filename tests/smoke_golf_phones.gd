@@ -162,7 +162,7 @@ func _run() -> void:
 			and game.chip_text(0) == game.player(0).player_name + "  0" and game.chip_text(1) == game.player(1).player_name + "  0",
 			"the top right says '%s' and the bar has one chip per player: '%s', '%s' (2c)"
 			% [game.hole_text(), game.chip_text(0), game.chip_text(1)])
-	# REQ-GM-47e / 47m: a key object (the ball) is 48 units (4.4 % of 1080) or more on the screen, on every hole, and the cup is
+	# The ball is 32 units (3 % of 1080; an exception to REQ-GM-47m, owner 2026-11-03: 48 was too big) on every hole, and the cup is
 	# bigger than the ball (the view has one scale for a hole, so it is the same at the tee and at the cup).
 	var smallest := 9999.0
 	var cup_ok := true
@@ -171,8 +171,8 @@ func _run() -> void:
 		smallest = minf(smallest, geo.ball_d())
 		cup_ok = cup_ok and geo.cup_r() * 2.0 > geo.ball_d()
 	print("   the ball is %.0f units wide on a 1080p screen (%.1f%% of the height)" % [smallest, smallest / 10.8])
-	_check(smallest >= 48.0 and cup_ok,
-			"the golf ball is 48 units or more at 1080p on every hole, and the cup is wider (%.0f)" % smallest)
+	_check(smallest == 32.0 and cup_ok,
+			"the golf ball is 32 units at 1080p on every hole, and the cup is wider (%.0f)" % smallest)
 	_to_turn(game)
 	var on_course: Array = game.ball_list()
 	_check(game._putter == game.rules.current_slot() and game._putter == 0 and game.golfer_shown(),
@@ -200,6 +200,36 @@ func _run() -> void:
 	_turn(game, 0, 20.0, 0.5)
 	_check(game.detector.aim_locked
 				and game._heading == locked_at, "a turn of 20 degrees while the aim is locked changes nothing (4c)")
+
+	# ---- 4e: near the cup the aim snaps to it; A locks the aim and a second press unlocks it (REQ-MG-4) ----
+	var gsn := await _start(app)
+	var to_cup: float = GolfSim.heading_to_cup(gsn._hole, gsn.sim.pos)
+	_turn(gsn, 0, -rad_to_deg(to_cup + 0.06), 0.5)   # 0.06 rad (3.4 degrees) from the cup: inside the snap
+	_check(gsn._snapped and gsn._heading == to_cup,
+			"3 degrees from the cup the aim snaps to the cup (heading %.3f, cup %.3f)" % [gsn._heading, to_cup])
+	_turn(gsn, 0, -rad_to_deg(0.19), 0.5)
+	_check(not gsn._snapped and absf(gsn._heading - to_cup) > 0.15,
+			"14 degrees from the cup the aim does not snap (%.2f rad away)" % absf(gsn._heading - to_cup))
+	_sample(gsn, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)   # A goes down: the aim is locked.
+	_sample(gsn, 0, Vector3.ZERO)
+	var held_at: float = gsn._heading
+	_turn(gsn, 0, 25.0, 0.5)
+	_check(gsn._aim_held and not gsn.detector.aim_locked and gsn._heading == held_at,
+			"A locks the aim: a turn of 25 degrees changes nothing, and the swing has not started")
+	_check(gsn.aim_hint_key() == "mini_golf.hint_aim_locked", "while the aim is locked by A the hint says so and how to unlock")
+	_sample(gsn, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)
+	_sample(gsn, 0, Vector3.ZERO)
+	_turn(gsn, 0, -10.0, 0.5)
+	_check(not gsn._aim_held and gsn._heading != held_at, "a second press on A unlocks it: the aim follows the phone again")
+	# An A that is held while the turn starts is not a press, and a press during the back swing changes nothing.
+	var gk := await _start(app)
+	gk.player(0).buttons = Protocol.BTN_A
+	_rest(gk, 0, 0.3)
+	_check(not gk._aim_held, "an A that is held from before is not a press")
+	gk.player(0).buttons = 0
+	_feed(gk, 0, Trace.stroke(Vector3(1, 0, 0), 8.0, 0.0, 0.25, 0.01).slice(0, 15))
+	_sample(gk, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)
+	_check(gk.detector.aim_locked and not gk._aim_held, "a press on A during the back swing does nothing")
 
 	# ---- 4b: RECENTER straightens the aim within a second ----
 	var g2 := await _start(app)

@@ -65,7 +65,7 @@ func _fits() -> void:
 
 
 ## No perspective: a course unit is as long on the screen at the tee as at the cup, along and across, and the ball, the cup and
-## the golfer have one size on every hole (REQ-GM-47m: the ball is 48 units wide with its outline).
+## the golfer have one size on every hole (the ball is 32 units wide with its outline, owner 2026-11-03).
 func _one_scale() -> void:
 	print("one scale")
 	for n in range(1, Holes.COUNT + 1):
@@ -77,10 +77,10 @@ func _one_scale() -> void:
 		_check(is_equal_approx(near, geo.s) and is_equal_approx(far, geo.s) and is_equal_approx(side, geo.s),
 				"hole %d: a course unit is %.1f units long near the tee, far from it and across (%.1f, %.1f, %.1f)"
 				% [n, geo.s, near, far, side])
-		_check(geo.ball_d() == 48.0 and geo.cup_r() * 2.0 >= geo.ball_d() + 8.0,
+		_check(geo.ball_d() == 32.0 and geo.cup_r() * 2.0 >= geo.ball_d() + 8.0,
 				"hole %d: the ball is %.0f units wide and the cup %.0f, the ball fits in it" % [n, geo.ball_d(), geo.cup_r() * 2.0])
 	var small := Look.Geo.new(Vector2(960.0, 540.0), Holes.hole(2), 1)
-	_check(is_equal_approx(small.ball_d(), 24.0),
+	_check(is_equal_approx(small.ball_d(), 16.0),
 			"on a screen of half the size everything is half as big (the ball is %.0f)" % small.ball_d())
 	var a := Look.Geo.new(SCREEN, Holes.hole(3), 1)
 	var p := Vector2(1.3, 3.7)

@@ -91,7 +91,7 @@ const GAMES: Array[Dictionary] = [
 			"settings": [{"key": "scoring", "label": "tennis.scoring", "values": ["real", "quick"],
 					"titles": ["tennis.real", "tennis.quick"], "default": "real"}]},
 	{"id": "mini_golf", "doc": "res://docs/games/mini_golf.md", "title": "registry.mini_golf", "dim": "2d",
-			"pad": [],
+			"pad": ["a"],
 			"swing": true,
 			"how_to": "how_to.mini_golf",
 			"description": "registry.desc_mini_golf",
