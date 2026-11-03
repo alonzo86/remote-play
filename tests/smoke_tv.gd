@@ -3,7 +3,7 @@ extends SceneTree
 ##   godot --headless --path . --script tests/smoke_tv.gd -- --role=tv
 ## It runs the TV flow, the maze and the race, and checks that tilt moves a ball.
 
-const RESULT_MENU := ["minigame.restart", "common.settings", "minigame.back_to_menu"]
+const RESULT_MENU := ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"]
 const Protocol = preload("res://scripts/core/protocol.gd")
 const MedalView = preload("res://scripts/ui/medal_view.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -466,7 +466,7 @@ func _run() -> void:
 		row_labels.append(l.text)
 	var result_buttons: Array = rg.menu_buttons().map(func(b): return b.text)
 	_check(rg.is_over and result_buttons == RESULT_MENU and not rg._can_open_menu(),
-			"the result menu has Restart, Settings and Back to menu, and the game is over: %s" % str(result_buttons))
+			"the result menu has Restart, New game and Back to menu, and the game is over: %s" % str(result_buttons))
 	_check(row_labels.size() == 3 and row_labels[1].begins_with("1ST") and row_labels[1].ends_with("9")
 			and row_labels[2].begins_with("2ND") and row_labels[0].ends_with("WINS!"),
 			"the ranking lists the best first and the title names the winner: %s" % str(row_labels))
@@ -866,7 +866,7 @@ func _run() -> void:
 	var race_rows: Array = []
 	for l in mr._menu_box.find_children("*", "Label", true, false):
 		race_rows.append(l.text)
-	_check(race_labels == RESULT_MENU and race_labels.size() == 3 and race_labels[1] == "common.settings",
+	_check(race_labels == RESULT_MENU and race_labels.size() == 3 and race_labels[1] == "minigame.new_game",
 			"REQ-MR-55: the results menu of the race is Try again, Settings, Back to menu (no Choose track): %s" % str(race_labels))
 	_check(race_labels == RESULT_MENU and race_rows.size() == 3 and race_rows[0].ends_with("WINS!")
 			and race_rows[1].begins_with("1ST") and race_rows[2].begins_with("2ND") and race_rows[2].ends_with(" S"),

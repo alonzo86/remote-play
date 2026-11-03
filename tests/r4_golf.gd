@@ -158,7 +158,9 @@ func _putt_result(game: Control, in_cup: bool) -> void:
 
 # ---- 3a, 3b ----
 
-## 3a: at the start of a turn 1 golfer and 1 white ball are drawn. 3b: the shirt has the color of the phone on turn.
+## 3a: at the start of a turn 1 golfer and 1 white ball (the ball of the player on turn) are drawn, with no ring and no flashing
+## halo (REQ-MG-2, owner 2026-11-03: the balls of the others are not drawn). 3b: the shirt of the golfer has the color of the
+## phone on turn.
 func _start_of_turn() -> void:
 	print("the start of a turn")
 	var game := await _new_game()
@@ -168,7 +170,9 @@ func _start_of_turn() -> void:
 	_check(game.rules.current_slot() == 0 and golfers.size() == 1 and balls.size() == 1,
 			"3a: 1 golfer and 1 ball are drawn at the start of the turn of phone 1 (%d golfers, %d balls)"
 			% [golfers.size(), balls.size()])
-	_check(not balls.is_empty() and balls[0].info.color == GolfLook.WHITE, "3a: the ball is white")
+	_check(balls.size() == 1 and balls[0].info.color == GolfLook.WHITE and not balls[0].info.has("ring")
+			and not balls[0].info.has("turn") and int(balls[0].info.slot) == 0,
+			"3a: the ball is white, with no ring of a slot color and no flashing halo")
 	_check(not golfers.is_empty() and golfers[0].info.shirt == game.player(0).color,
 			"3b: the shirt of the golfer has the color of phone 1")
 	_putt_result(game, false)
@@ -176,25 +180,34 @@ func _start_of_turn() -> void:
 	await _draw_once()
 	golfers = _last("golfer")
 	balls = _last("ball")
-	_check(game.rules.current_slot() == 1 and golfers.size() == 1 and balls.size() == 1,
-			"3a: on the turn of phone 2 there is still 1 golfer and 1 ball (%d, %d)" % [golfers.size(), balls.size()])
+	_check(game.rules.current_slot() == 1 and golfers.size() == 1 and balls.size() == 1 and int(balls[0].info.slot) == 1,
+			"3a: on the turn of phone 2 there is 1 golfer and the 1 ball of phone 2 (%d golfers, %d balls)"
+			% [golfers.size(), balls.size()])
 	_check(not golfers.is_empty() and golfers[0].info.shirt == game.player(1).color
 			and game.player(0).color != game.player(1).color, "3b: the shirt is now the color of phone 2, not of phone 1")
 
 
 # ---- 3c ----
 
-## 3c: the plate "<NAME>'S TURN!" shows for 1.0 to 2.0 s: a look every 0.1 s of game time.
+## 3c: the plate "<NAME>'S TURN!" shows for 1.0 to 2.0 s: a look every 0.1 s of game time. It keeps off the cup and the balls.
 func _plate_time() -> void:
 	print("the plate with the name")
 	var game := await _new_game()
 	var want := Lang.f("mini_golf.turn", [game.player(0).player_name])
 	var shown := 0
+	var on_cup := 0
+	var on_balls := 0
 	var first_hint := ""
 	for k in 26:
 		await _draw_once()
 		if _plate() == want:
 			shown += 1
+			var rect: Rect2 = _last("plate")[0].rect
+			if rect.intersects(GolfLook.cup_zone(game._geo(), game._hole)):
+				on_cup += 1
+			for b in _last("ball"):
+				if rect.intersects(b.rect):
+					on_balls += 1
 		elif first_hint == "" and k > 0:
 			first_hint = _plate()
 		game._game_tick(0.1)
@@ -202,6 +215,8 @@ func _plate_time() -> void:
 	_check(seconds >= 1.0 and seconds <= 2.0,
 			"3c: the plate '%s' showed in %d of 26 looks, 0.1 s apart: %.1f s (1.0 to 2.0 s)" % [want, shown, seconds])
 	_check(first_hint != want, "3c: after the plate it is gone (the next plate is '%s')" % first_hint)
+	_check(on_cup == 0 and on_balls == 0 and shown > 0,
+			"3c: the plate with the name covers neither the cup and its flag (%d looks) nor a ball (%d)" % [on_cup, on_balls])
 
 
 # ---- 3d ----
@@ -465,7 +480,7 @@ func _result_menu() -> void:
 	_check(again.is_over and texts.has(Lang.t("minigame.tie").to_lower()),
 			"10a: with equal strokes the title is 'Tie!': %s" % str(texts))
 	# 10d: New game opens the settings view, Back to menu on the next result menu opens the Games screen.
-	_check(_press(again, "common.settings"), "10d: the menu has the button New game")
+	_check(_press(again, "minigame.new_game"), "10d: the menu has the button New game")
 	await _frames(4)
 	_check(_screen_file() == "tv_game_settings.gd", "10d: New game opens the settings view of the game (%s)" % _screen_file())
 	var third := await _new_game({"holes": "1"})

@@ -429,7 +429,7 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 	open_result_menu(heading, rows, extra_entries, won)
 
 
-## The result menu itself: the rows, then Try again, `extra_entries`, Settings (a game with a settings view) and Back to menu.
+## The result menu itself: the rows, then Try again, `extra_entries`, New game (a game with a settings view) and Back to menu.
 ## `open_results()` builds the rows from a `Scoreboard`; a game whose result has a player that is not a phone (the bot of Air
 ## Hockey, REQ-GM-105) builds its own rows and calls this. It sets `is_over`.
 func open_result_menu(heading: String, rows: Array, extra_entries: Array = [], won := false) -> void:
@@ -438,7 +438,7 @@ func open_result_menu(heading: String, rows: Array, extra_entries: Array = [], w
 	entries.append_array(extra_entries)
 	var id := Registry.id_of_script(get_script())
 	if GameSettings.has_view(Registry.find(id)):
-		entries.append(["common.settings", game_host.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
+		entries.append(["minigame.new_game", game_host.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
 	entries.append(["minigame.back_to_menu", game_host.go_menu])
 	open_menu(heading, entries, rows)
 	Sound.stop_music()

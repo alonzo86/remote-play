@@ -422,8 +422,14 @@ func _row_checks(state: String, snap: Dictionary, lang: String, has_timer: bool)
 		_check(is_equal_approx(base, Shell.TITLE_BASELINE),
 				"%s: the title stands on the common baseline (y %.0f)" % [state, base])
 	for st in snap.get("status", []):
-		_check(is_equal_approx(st.rect.position.y + _ascent(), Shell.STATUS_BASELINE),
+		# Pin Pals: "FRAME 1/10" stands on the baseline of its title (REQ-BW-12); the other games use the status baseline.
+		var want := Shell.TITLE_BASELINE if state.begins_with("bowling") else Shell.STATUS_BASELINE
+		_check(is_equal_approx(st.rect.position.y + _ascent(), want),
 				"%s: the status text stands on the common baseline (y %.0f)" % [state, st.rect.position.y + _ascent()])
+		if state.begins_with("bowling"):
+			for t in snap.get("title", []):
+				_check(is_equal_approx(st.rect.end.y, t.rect.end.y) and is_equal_approx(st.rect.position.y, t.rect.position.y),
+						"%s: the title and the FRAME text have the same top and bottom (one row)" % state)
 	# Issue #301: the wave and the round texts of the bar go through Shell.status(), so the baseline check sees them.
 	for gid in ["asteroid_blast", "sumo_bumpers"]:
 		if state.begins_with(gid + " in"):

@@ -254,7 +254,7 @@ func _test_registry() -> void:
 	_check(bad_desc.is_empty(), "each description is a short sentence in both languages with no instruction: %s" % [bad_desc])
 	# Issue #80, REQ-GM-37a: the controls of the pad of each game (the inventory of the game files).
 	var pads := {"maze": [], "marble_race": [], "paint_grab": [], "asteroid_blast": [], "sumo_bumpers": ["a"],
-			"bowling": [], "tennis": ["a"], "mini_golf": ["a"], "snowball_splat": ["a", "recenter"],
+			"bowling": [], "tennis": ["a"], "mini_golf": [], "snowball_splat": ["a", "recenter"],
 			"whack_a_mole": ["a", "recenter"], "air_hockey": ["a"], "sheep_herding": [], "tower_builder": ["a"],
 			"freeze_dance": [], "bumper_cars": []}
 	var pad_bad: Array[String] = []
@@ -526,22 +526,30 @@ func _test_pad(app: Node, server: Node) -> void:
 				and not box_a.intersects(box_b)
 		_check(inside and apart, "pad %dx%d: the controls are on the screen and do not overlap" % [dim.x, dim.y])
 		var hits: Array = [lay._zone_at(rec.get_center()), lay._zone_at(ca), lay._zone_at(cb),
-				lay._zone_at(leave.get_center()), lay._zone_at(Vector2(dim.x * 0.5, dim.y - 20.0))]
+				lay._zone_at(leave.get_center()), lay._zone_at(Vector2(dim.x * 0.5, 300.0))]
 		_check(hits == ["recenter", "a", "b", "leave", "pad"],
 				"pad %dx%d: a touch gives the right zone: %s" % [dim.x, dim.y, str(hits)])
+		_check(rec.size.y >= 64.0 and rec.size.x < dim.x * 0.6 and is_equal_approx(rec.get_center().x, dim.x * 0.5)
+				and rec.end.y < leave.position.y and leave.position.y - rec.end.y <= 40.0 and box_a.end.y < rec.position.y,
+				"pad %dx%d: RECENTER is small (%s), centered, right above HOLD TO LEAVE, and the A and B buttons are above it"
+				% [dim.x, dim.y, str(rec.size)])
 		lay.free()
 	var lat: Control = pad_script.new()
 	lat.size = Vector2(1080, 2160)
-	_check(is_equal_approx(lat._rect_leave().get_center().y, lat.HEADER_Y), "Leave is centered on the pad header row")
+	_check(is_equal_approx(lat._rect_name(true).get_center().y, lat.HEADER_Y), "the name is centered on the pad header row")
 	var info_top: float = lat.SCORE_Y + 32.0   # The score line at 64 px.
-	_check(lat.SCORE_Y - 32.0 > lat._rect_leave().end.y and info_top < lat._rect_recenter().position.y,
-			"the score line has its own row under the header and Leave, above the Recenter box")
+	_check(lat.SCORE_Y - 32.0 > lat._rect_slot_square().end.y and info_top < lat._rect_recenter().position.y,
+			"the score line has its own row under the header, above the Recenter box")
 	_check(not lat.has_method("_lat_color"), "the pad shows no RTT, Hz or TV phase line (issue #170)")
 	var en_rects := [lat._rect_leave(), lat._rect_recenter(), lat._center_a(), lat._center_b()]
 	Lang.set_language("he", root)
 	var same: bool = en_rects == [lat._rect_leave(), lat._rect_recenter(), lat._center_a(), lat._center_b()]
 	Lang.set_language("en", root)
-	_check(same and lat._rect_leave().get_center().x > lat.size.x * 0.5, "Leave is top right; the pad is not mirrored in Hebrew")
+	var bottom: Rect2 = lat._rect_leave()
+	_check(same and is_equal_approx(bottom.position.x, lat.LEAVE_SIDE)
+			and is_equal_approx(bottom.size.x, lat.size.x - 2.0 * lat.LEAVE_SIDE)
+			and is_equal_approx(lat.size.y - bottom.end.y, lat.LEAVE_BOTTOM),
+			"Leave is at the bottom, inset from the sides and the bottom, and the pad is not mirrored in Hebrew")
 	lat.free()
 	var pad = app.current_screen()
 	var sampler = pad._sampler
@@ -705,7 +713,8 @@ func _test_connect_screen() -> void:
 	# Two ways to join: the QR code and the typed room code (tests/r4_join_code.gd). No list of TVs, no Refresh.
 	_check(screen.find_children("*", "LineEdit", true, false).size() == 1, "the connect screen has the field of the room code")
 	var shown: Array = screen.find_children("*", "Button", true, false).map(func(b): return b.text)
-	_check(shown.has("connect.join") and not shown.has("connect.refresh"), "JOIN is there and Refresh is not: %s" % str(shown))
+	_check(screen.find_child("JoinButton", true, false) != null and not shown.has("connect.refresh"),
+			"JOIN is there (an icon button) and Refresh is not: %s" % str(shown))
 
 	# On an iPhone without the scanner plugin: no scan or paste button (REQ-FL-58).
 	var ios_screen = _script("res://scripts/ui/controller_connect.gd").new()
@@ -715,7 +724,8 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
 	# About is in the top row; then the profile dropdown and its + (FD-22). None of them is a scan or paste button.
-	_check(ios_buttons == ["common.about", "", "+", "connect.join"], "iPhone without the plugin: no scan or paste button")
+	_check(ios_buttons == ["common.about", "", "+", ""] and ios_screen.find_child("JoinButton", true, false) != null,
+			"iPhone without the plugin: no scan or paste button")
 	var about_btn: Button = ios_screen.find_children("*", "Button", true, false).front()
 	ios_screen.size = Vector2(1080, 1920)
 	await process_frame

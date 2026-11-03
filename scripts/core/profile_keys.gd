@@ -65,6 +65,11 @@ static func is_better(key: String, a: int, b: int) -> bool:
 	return a < b if lower_is_better(key) else a > b
 
 
+## The id of the game of a key ("paint_grab|easy" gives "paint_grab"), the part before the first bar.
+static func game_of(key: String) -> String:
+	return key.get_slice("|", 0)
+
+
 ## A best as text for the phone: a race time in seconds ("12.35 s"), a score as it is.
 static func format(key: String, value: int) -> String:
 	return Lang.f("result.seconds_2", [float(value) / 1000.0]) if lower_is_better(key) else str(value)

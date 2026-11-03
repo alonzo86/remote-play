@@ -162,18 +162,23 @@ func _run() -> void:
 			and game.chip_text(0) == game.player(0).player_name + "  0" and game.chip_text(1) == game.player(1).player_name + "  0",
 			"the top right says '%s' and the bar has one chip per player: '%s', '%s' (2c)"
 			% [game.hole_text(), game.chip_text(0), game.chip_text(1)])
-	var balls: Array = [GolfLook.Geo.new(Vector2(1920, 1080)).ball_r(Holes.hole(1).tee.y) * 2.0]
-	print("   the ball is %.0f px wide at the tee on a 1080p screen (%.1f%% of the height)" % [balls[0], balls[0] / 10.8])
-	# REQ-GM-47e / 47m: a key object (the ball) is 48 px (4.4 % of 1080) or more on the screen, also at the far end.
+	# REQ-GM-47e / 47m: a key object (the ball) is 48 units (4.4 % of 1080) or more on the screen, on every hole, and the cup is
+	# bigger than the ball (the view has one scale for a hole, so it is the same at the tee and at the cup).
 	var smallest := 9999.0
+	var cup_ok := true
 	for n in [1, 2, 3, 4, 5]:
-		var hh: Dictionary = Holes.hole(n)
-		smallest = minf(smallest, GolfLook.Geo.new(Vector2(1920, 1080)).ball_r(hh.cup.y) * 2.0)
-	_check(balls[0] >= 48.0 and smallest >= 48.0,
-			"the golf ball is 48 px or more at 1080p at the tee and at every cup (%.0f, %.0f px)"
-			% [balls[0], smallest])
+		var geo := GolfLook.Geo.new(Vector2(1920, 1080), Holes.hole(n))
+		smallest = minf(smallest, geo.ball_d())
+		cup_ok = cup_ok and geo.cup_r() * 2.0 > geo.ball_d()
+	print("   the ball is %.0f units wide on a 1080p screen (%.1f%% of the height)" % [smallest, smallest / 10.8])
+	_check(smallest >= 48.0 and cup_ok,
+			"the golf ball is 48 units or more at 1080p on every hole, and the cup is wider (%.0f)" % smallest)
 	_to_turn(game)
-	_check(game._putter == game.rules.current_slot() and game._putter == 0, "only the golfer of the player on turn is drawn (3a)")
+	var on_course: Array = game.ball_list()
+	_check(game._putter == game.rules.current_slot() and game._putter == 0 and game.golfer_shown(),
+			"only the golfer of the player on turn is drawn (3a)")
+	_check(on_course.size() == 1 and on_course[0].turn and on_course[0].slot == 0,
+			"only the ball of the player on turn is on the course (REQ-MG-2, owner 2026-11-03)")
 	_check(game.TURN_BANNER >= 1.0 and game.TURN_BANNER <= 2.0,
 			"the name of the player on turn shows for %.1f s, between 1 and 2 (3c)"
 			% game.TURN_BANNER)
@@ -367,28 +372,23 @@ func _run() -> void:
 			"the card says 'Hole 1 done!' with 1 and 2 strokes and the totals 1 and 2 (8d)")
 	for i in 60:
 		_sample(g6, 0, Vector3.ZERO)
-	_check(g6.phase == g6.Phase.HOLE, "the card stays while nobody presses A (1 s)")
-	_sample(g6, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)
-	_sample(g6, 0, Vector3.ZERO)
-	_check(g6.phase == g6.Phase.AIM and g6.rules.hole_number() == 2 and g6._phase_time < 0.2,
-			"A on a phone starts the next hole at once (8e)")
+	_check(g6.phase == g6.Phase.HOLE, "the card stays for 1 s (it goes on by itself, no button: owner, 2026-11-03)")
+	for i in int((g6.HOLE_TIME + 0.5) / DT):
+		_sample(g6, 0, Vector3.ZERO)
+	_check(g6.phase == g6.Phase.AIM and g6.rules.hole_number() == 2,
+			"the card goes on to the next hole by itself after %.1f s (8e)" % g6.HOLE_TIME)
 	_check(g6.rules.total(0) == 1 and g6.rules.total(1) == 2, "the totals go on to hole 2: 1 and 2 strokes")
 
-	# A held A does not skip the banner of a putt: the button is read in every phase, so only a new press counts (REQ-MG-3).
+	# A button held on the phone does nothing: the game has no button (REQ-GM-37a).
 	var g7 := await _start(app, {"holes": "3"})
 	g7.player(0).buttons = Protocol.BTN_A
-	g7.player(1).buttons = Protocol.BTN_A
-	g7._game_tick(DT)   # In the AIM phase: A goes down.
 	g7.sim.in_cup = true   # A putt that holes out has a banner.
 	g7._putt_done()
 	g7._game_tick(DT)
-	_check(g7.phase == g7.Phase.RESULT and g7._banner != "", "A held since the aim does not skip the putt banner")
 	g7.player(0).buttons = 0
-	g7.player(1).buttons = 0
-	g7._game_tick(DT)
 	g7.player(0).buttons = Protocol.BTN_A
 	g7._game_tick(DT)
-	_check(g7.phase != g7.Phase.RESULT, "a new press on A skips the putt banner")
+	_check(g7.phase == g7.Phase.RESULT and g7._banner != "", "a press on A does not skip the putt banner: the game has no button")
 
 	# ---- 10b: the score of 3 holes alone is the number of strokes (no medal tiers, REQ-GM-73, REQ-MG-14) ----
 	var strokes_ok := true

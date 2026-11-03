@@ -1,8 +1,9 @@
 extends "res://scripts/game/minigame.gd"
 ## Mini Golf: a golf park for 1 to 4 phones (REQ-MG-1 to 16). The players putt in turns, one putt each, on 1 to 5 holes. Turning
 ## the phone moves the aim, the first back swing locks it, and the swing speed sets the power. The rules are in golf_rules.gd, the
-## ball in golf_sim.gd, the courses in golf_holes.gd, the swing in swing_detector.gd and the pictures in golf_look.gd. The game
-## is for children too (REQ-GM-80 to 84): a turn has no time limit, water costs nothing and a hole ends after 6 strokes.
+## ball in golf_sim.gd, the courses in golf_holes.gd, the swing in swing_detector.gd and the whole TV view
+## in golf_look.gd. The game is for children too (REQ-GM-80 to 84): a turn has no time limit, water costs nothing and a hole ends
+## after 6 strokes.
 
 const GolfRules = preload("res://scripts/game/mini_golf/golf_rules.gd")
 const GolfSim = preload("res://scripts/game/mini_golf/golf_sim.gd")
@@ -14,12 +15,15 @@ const TEXT_SIZE := 32   # The hole text and the column heads of the hole card (R
 const Haptics = preload("res://scripts/game/haptics.gd")
 
 const TURN_BANNER := 1.5        # REQ-MG-3: how long the name of the player on turn shows.
-const RESULT_TIME := 1.8        # How long the banner of a putt shows. A press on A of any phone ends it at once.
+const RESULT_TIME := 1.8        # How long the banner of a putt shows.
 const QUIET_TIME := 0.5         # After a putt with nothing to say.
 const HOLE_TIME := 4.0          # The card at the end of a hole.
 const END_DELAY := 1.2
 const HINT_TIME := 12.0
 const WEAK_HINT_TIME := 3.0
+# The swing strengths of a putt (m/s2), lower than the common ones of `SwingDetector` (REQ-MG-5). The gate is the common one.
+const LIGHT_BACK_ACCEL := 3.0
+const LIGHT_FWD_ACCEL := 5.0
 const BUZZ_GAP_MS := 150
 const MAX_HEADING := 1.2        # The aim can turn this far to each side (radians).
 const PAUSE_GAP_MS := 400
@@ -32,7 +36,7 @@ enum Phase { AIM, ROLL, RESULT, HOLE, END }
 ## is the speed of the weakest putt (m/s), `threshold` is a factor on the swing thresholds, `power_hint` shows the hint about the
 ## swing.
 const LEVELS := {
-	"easy": {"line": 3.0, "speed_min": 1.5, "threshold": 0.7, "power_hint": true},
+	"easy": {"line": 3.0, "speed_min": 1.5, "threshold": 1.0, "power_hint": true},
 	"medium": {"line": 1.2, "speed_min": 0.5, "threshold": 1.0, "power_hint": false},
 	"hard": {"line": 0.0, "speed_min": 0.3, "threshold": 1.0, "power_hint": false},
 }
@@ -55,20 +59,18 @@ var _phase_time := 0.0
 var _end_left := 0.0
 var _heading := 0.0
 var _spot := Vector2.ZERO       # Where the last putt started: the ball goes back here from the water.
-var _feet := Vector2.ZERO
 var _swing_age := 99.0
 var _lock_age := 0.0            # How long the direction is locked.
 var _banner := ""
 var _banner_color := UiTheme.ACCENT
 var _weak_left := 0.0
 var _last_tick_ms := 0
-var _a_pressed := false
-var _a_down := {}
 var _splash_at := Vector2.ZERO
 var _splash_age := 99.0
 var _spark_age := 99.0
 var _last_event := {}
-var _putter := -1               # The slot of the golfer who is drawn.
+var _putter := -1               # The slot of the golfer who is drawn (the player on turn).
+var _bar_rows := -1             # Rows of chips in the bar at the bottom (-1: not counted).
 var _balls := {}                # slot -> where the ball of that player lies on this hole.
 
 
@@ -89,10 +91,20 @@ func _game_ready() -> void:
 		_board.set_unfinished(s, 0.0)
 	detector.threshold = float(level(difficulty).threshold)
 	# A move to the side, a slow shake or the brake of the back swing is not a putt (issue #209, REQ-MG-5).
-	detector.speed_gate = SwingDetector.GATE_SPEED
+	_set_swing_feel()
 	_load_hole()
 	if not participants.is_empty():
 		_start_turn()
+
+
+## A putt close to the hole is a light swing, so Mini Golf asks less of the detector than the other games (owner, 2026-11-03: a
+## light swing was not found, and a back swing with no found putt ended with "swing not found"). The common code and its
+## defaults stay as they are for the other games. A move to the side, a slow shake and the brake of the back swing are still
+## stopped by the speed gate.
+func _set_swing_feel() -> void:
+	detector.back_accel = LIGHT_BACK_ACCEL
+	detector.fwd_accel = LIGHT_FWD_ACCEL
+	detector.speed_gate = SwingDetector.GATE_SPEED
 
 
 func _load_hole() -> void:
@@ -100,13 +112,13 @@ func _load_hole() -> void:
 	_spot = _hole.tee
 	sim.start(_hole, _spot)
 	_putter = -1
+	_bar_rows = -1
 
 
 func _on_player_left(slot: int) -> void:
 	var was_turn := rules.current_slot() == slot
 	rules.remove_player(slot)
 	_board.remove(slot)
-	_a_down.erase(slot)
 	_balls.erase(slot)
 	if is_over:
 		return
@@ -134,7 +146,6 @@ func _start_turn() -> void:
 	_putter = slot
 	sim.start(_hole, _ball_of(slot))
 	_spot = sim.pos
-	_feet = GolfLook.feet_for(sim.pos)
 	detector.reset()
 	detector.threshold = float(level(difficulty).threshold)
 	player(slot).recenter()   # The pose at the start of the turn is straight ahead (REQ-MG-4).
@@ -153,7 +164,6 @@ func _game_tick(delta: float) -> void:
 	_publish_turn()
 	_phase_time += delta
 	_weak_left = maxf(0.0, _weak_left - delta)
-	_poll_buttons()
 	match phase:
 		Phase.AIM:
 			_tick_aim(delta)
@@ -161,10 +171,10 @@ func _game_tick(delta: float) -> void:
 			_tick_roll(delta)
 		Phase.RESULT:
 			var wait := RESULT_TIME if _banner != "" else QUIET_TIME
-			if _phase_time >= wait or (_banner != "" and _a_pressed):
+			if _phase_time >= wait:
 				_after_result()
 		Phase.HOLE:
-			if _phase_time >= HOLE_TIME or _a_pressed:
+			if _phase_time >= HOLE_TIME:
 				_after_hole()
 		Phase.END:
 			_end_left -= delta
@@ -183,18 +193,6 @@ func _publish_turn() -> void:
 			game_host.send_turn(s, 1, "", "golf")
 		else:
 			game_host.send_turn(s, 2, player(on).player_name, "golf")
-
-
-## Polls A on every tick, in every phase, so a button held since an earlier phase is not read as a new press (the putt banner
-## is not skipped by a held A). `_a_pressed` is true when a press on A starts on any phone this tick.
-func _poll_buttons() -> void:
-	var pressed := false
-	for s in participants:
-		var down := player(s).is_down(Protocol.BTN_A)
-		if down and not _a_down.get(s, false):
-			pressed = true
-		_a_down[s] = down
-	_a_pressed = pressed
 
 
 func _tick_aim(delta: float) -> void:
@@ -217,7 +215,6 @@ func _tick_aim(delta: float) -> void:
 func _putt(slot: int) -> void:
 	var speed := GolfSim.speed_for(detector.power, float(level(difficulty).speed_min))
 	_spot = sim.pos
-	_feet = GolfLook.feet_for(sim.pos)
 	sim.putt(_heading, speed)
 	phase = Phase.ROLL
 	_phase_time = 0.0
@@ -321,8 +318,23 @@ func _pixel_world() -> bool:
 	return true
 
 
+## The scale of the course on the screen: one for the whole hole (see `golf_look.gd`).
 func _geo() -> GolfLook.Geo:
-	return GolfLook.Geo.new(size)
+	if _bar_rows < 0 and size.x > 0.0:
+		_bar_rows = _bar_row_count()
+	return GolfLook.Geo.new(size, _hole, maxi(_bar_rows, 1))
+
+
+## The rows of chips that the bar at the bottom needs on this screen (REQ-MG-3). The course ends above them.
+func _bar_row_count() -> int:
+	var widths: Array = []
+	for r in rules.rows:
+		if participants.has(r.slot):
+			var text := Lang.f("mini_golf.chip", [player(r.slot).player_name, GolfRules.MAX_STROKES])
+			widths.append(Shell.chip_width(text, 200.0, player(r.slot).avatar))
+	if widths.is_empty():
+		return 1
+	return bar_lines(widths, size.x - 120.0, 16.0).size()
 
 
 func _line_length() -> float:
@@ -336,39 +348,73 @@ func _pose() -> Dictionary:
 	return GolfLook.swing_pose(_swing_age)
 
 
+## The balls that are on the course now, the ball of the player on turn first: `{slot, pos, turn}` with `pos` the place on the
+## course. A ball that is in the cup or picked up is not on the course. At the end of a hole there are none.
+func ball_list() -> Array:
+	var out: Array = []
+	if phase == Phase.HOLE or phase == Phase.END or is_over:
+		return out
+	if _putter >= 0 and participants.has(_putter):
+		var row := rules.row_of(_putter)
+		if row != null and not row.finished() and not sim.in_cup:
+			out.append({"slot": _putter, "pos": _spot if sim.in_water else sim.pos, "turn": true})
+	return out   # Only the ball of the player on turn is drawn (owner, 2026-11-03).
+
+
+## The golfer is drawn by the ball of the player on turn, from the start of the turn until the next one.
+func golfer_shown() -> bool:
+	return phase != Phase.HOLE and phase != Phase.END and _putter >= 0 and participants.has(_putter)
+
+
 func _world_draw(ci: CanvasItem) -> void:
 	var geo := _geo()
-	GolfLook.draw_ground(ci, size, rules.hole_number())
+	GolfLook.draw_lawn(ci, geo)
+	GolfLook.draw_scenery(ci, geo, _hole, rules.hole_number(), _time)
+	GolfLook.draw_course(ci, geo, _hole)
+	GolfLook.draw_flag(ci, geo, _hole, _time)
 	var blocks: Array = _hole.blocks
 	var windmill: bool = _hole.get("windmill", false)
-	var things: Array = []
 	for i in blocks.size():
-		var block: Rect2 = blocks[i]
 		if windmill and i == 0:
-			things.append([block.end.y, func() -> void: GolfLook.draw_windmill(ci, geo, block, _time)])
+			GolfLook.draw_windmill(ci, geo, blocks[i], _time)
 		else:
-			things.append([block.end.y, func() -> void: GolfLook.draw_box(ci, geo, block, true)])
+			GolfLook.draw_box(ci, geo, blocks[i], true)
 	for r in _hole.rocks:
-		things.append([float(Vector3(r).y), func() -> void: GolfLook.draw_rock(ci, geo, r)])
+		GolfLook.draw_rock(ci, geo, r)
 	for m in _hole.movers:
-		things.append([Holes.mover_rect(m, _time).end.y, func() -> void: GolfLook.draw_box(ci, geo, Holes.mover_rect(m, _time), false)])
+		GolfLook.draw_box(ci, geo, Holes.mover_rect(m, _time), false)
 	for sp in _hole.spinners:
-		things.append([Vector2(sp.c).y + float(sp.len), func() -> void: GolfLook.draw_spinner(ci, geo, sp, _time)])
-	things.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
-	for th in things:
-		th[1].call()
-	GolfLook.draw_flag(ci, geo, _hole, _time)
-	if phase == Phase.HOLE or phase == Phase.END or _putter < 0 or not participants.has(_putter):
-		return
-	GolfLook.draw_golfer(ci, geo, _feet, sim.pos, _pose(), player(_putter).color)
-	if phase == Phase.AIM:
-		GolfLook.draw_aim(ci, geo, sim.pos, _heading, _line_length(), detector.aim_locked)
-	if not sim.in_cup and not sim.in_water:
-		GolfLook.draw_ball(ci, geo, sim.pos)
+		GolfLook.draw_spinner(ci, geo, sp, _time)
+	var list := ball_list()
+	if golfer_shown():
+		GolfLook.draw_golfer(ci, geo, geo.at(_spot), _pose(), player(_putter).color)
+		if phase == Phase.AIM:
+			GolfLook.draw_aim(ci, geo, _hole, sim.pos, _heading, _line_length(), detector.aim_locked)
+	if not list.is_empty():
+		GolfLook.draw_ball(ci, geo, geo.at(list[0].pos), list[0].slot)
 	if _splash_age < 1.0:
-		GolfLook.draw_splash(ci, geo, _splash_at, _splash_age)
+		GolfLook.draw_splash(ci, geo, geo.at(_splash_at), _splash_age)
 	if _spark_age < 1.0:
-		GolfLook.draw_sparks(ci, geo, Vector2(_hole.cup), _spark_age)
+		GolfLook.draw_sparks(ci, geo, _hole, _spark_age)
+
+
+## The place of a banner plate: where it covers the cup, the balls, the golfer and the aim line the least (REQ-MG-3).
+func _plate_pos(msg: String, font_size: int) -> Vector2:
+	var geo := _geo()
+	var avoid: Array = [GolfLook.cup_zone(geo, _hole)]
+	for b in ball_list():
+		avoid.append(Rect2(geo.at(b.pos) - Vector2(36.0, 36.0) * geo.u, Vector2(72.0, 72.0) * geo.u))
+	if golfer_shown():
+		avoid.append(GolfLook.golfer_zone(geo, geo.at(_spot)))
+		if phase == Phase.AIM:
+			var to := GolfLook.aim_end(geo, _hole, sim.pos, _heading, _line_length())
+			avoid.append(Rect2(geo.at(sim.pos), Vector2.ZERO).expand(to).grow(30.0 * geo.u))
+	return GolfLook.plate_at(geo, msg, font_size, avoid, GolfLook.obstacle_zones(geo, _hole))
+
+
+## A banner plate (the turn, the putt, the hints) on the course, away from what the players look at.
+func _banner_plate(msg: String, font_size: int, color: Color) -> void:
+	Shell.label_plate(self, _plate_pos(msg, font_size), msg, font_size, color)
 
 
 func _game_draw() -> void:
@@ -377,23 +423,22 @@ func _game_draw() -> void:
 	_draw_bar()
 	if is_over:
 		return
-	var mid := size.x * 0.5
 	var slot := rules.current_slot()
 	if phase == Phase.HOLE:
 		_draw_hole_card()
 	elif phase == Phase.RESULT and _banner != "":
-		Shell.label_plate(self, Vector2(mid, size.y * 0.3), _banner, 72, _banner_color)
+		_banner_plate(_banner, 72, _banner_color)
 	elif phase == Phase.AIM and slot >= 0 and participants.has(slot):
 		var p := player(slot)
 		if _phase_time < TURN_BANNER:
-			Shell.label_plate(self, Vector2(mid, size.y * 0.3), Lang.f("mini_golf.turn", [p.player_name]), 64,
+			_banner_plate(Lang.f("mini_golf.turn", [p.player_name]), 64,
 					p.color if Shell.contrast(p.color, UiTheme.BG) >= 4.5 else UiTheme.TEXT)
 		elif _weak_left > 0.0:
-			Shell.label_plate(self, Vector2(mid, size.y * 0.3), Lang.t("mini_golf.hint_weak"), 48, UiTheme.ACCENT)
+			_banner_plate(Lang.t("mini_golf.hint_weak"), 48, UiTheme.ACCENT)
 		elif _phase_time < HINT_TIME and not detector.aim_locked:
-			Shell.label_plate(self, Vector2(mid, size.y * 0.3), Lang.t("mini_golf.hint_aim"), 32, UiTheme.TEXT)
+			_banner_plate(Lang.t("mini_golf.hint_aim"), 32, UiTheme.TEXT)
 		elif detector.aim_locked and bool(level(difficulty).power_hint):
-			Shell.label_plate(self, Vector2(mid, size.y * 0.3), Lang.t("mini_golf.hint_power"), 32, UiTheme.TEXT)
+			_banner_plate(Lang.t("mini_golf.hint_power"), 32, UiTheme.TEXT)
 
 
 ## The hint line of a turn after the name banner (REQ-MG-13): the key of a text row, or "" for none. "Swing a bit more" after a

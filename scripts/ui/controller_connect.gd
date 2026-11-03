@@ -12,6 +12,7 @@ const Haptics = preload("res://scripts/game/haptics.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const ProfileDropdown = preload("res://scripts/ui/profile_dropdown.gd")
+const EnterIcon = preload("res://scripts/ui/enter_icon.gd")
 
 var _status: Label
 var _quit_dialog: Control
@@ -46,14 +47,15 @@ func _ready() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_status)
 
-	# The QR scan is the main way to join (issue #241). It is under the code field, as high as JOIN, and has no yellow
+	# The QR scan is the main way to join (issue #241). It is under the code field, as high as the JOIN icon button, and has no
+	# yellow
 	# frame (owner, 2026-11-02; it was above the field, with the frame, and 260 px high).
 	_qr = QrScanner.new()
 	_qr.os_name = os_name
 	add_child(_qr)
 	_qr.scanned.connect(_on_qr_text)
 	_qr.failed.connect(_on_qr_failed)
-	box.add_child(UiKit.label("connect.type_code", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO))
+	box.add_child(UiKit.label("connect.type_code", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	box.add_child(row)
@@ -67,8 +69,16 @@ func _ready() -> void:
 	_code.text_changed.connect(_on_code_changed)
 	_code.text_submitted.connect(func(_t): join_typed())
 	row.add_child(_code)
-	var join := UiKit.box_button("connect.join", join_typed, UiTheme.SIZE_ITEM)
-	join.custom_minimum_size = Vector2(260, 130)
+	# JOIN is an icon button (the enter arrow), as high as the scan button. It has no text; the name and the tooltip say JOIN
+	# for a screen reader (key connect.join). No focus on a phone (REQ-FL-86).
+	var join := UiKit.box_button("", join_typed, UiTheme.SIZE_ITEM)
+	join.name = "JoinButton"
+	join.accessibility_name = Lang.t("connect.join")
+	join.tooltip_text = Lang.t("connect.join")
+	join.custom_minimum_size = Vector2(160, 130)
+	var icon := EnterIcon.new()
+	icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 28)
+	join.add_child(icon)
 	row.add_child(join)
 
 	if _qr.is_available():   # An iPhone shows it too when its build has the scanner plugin (REQ-FL-58, issue #299).
@@ -97,16 +107,14 @@ func _on_state(state: int) -> void:
 				_status.text = ""
 
 
-## The field shows capital letters. The 4th letter joins at once (issue #241): a young child does not need to find JOIN. A
-## text that is not a code shows the error at once. JOIN and Enter stay for a keyboard that sends the letters later.
+## The field shows capital letters. Typing never joins: only JOIN or Enter does, so a mistyped letter cannot join another room on
+## the same network (owner, 2026-11-03; the 4th letter joined by itself from issue #241 until then).
 func _on_code_changed(text: String) -> void:
 	var up := text.to_upper()
 	if up != text:
 		var caret := _code.caret_column
 		_code.text = up
 		_code.caret_column = caret
-	if Protocol.clean_room_code(up).length() == Protocol.ROOM_LENGTH:
-		join_typed()
 
 
 ## Joins by the typed code. The phone takes the first two numbers of the TV address from its own Wi-Fi address and the last two
@@ -114,7 +122,7 @@ func _on_code_changed(text: String) -> void:
 func join_typed() -> void:
 	var room := Protocol.clean_room_code(_code.text)
 	if _typed_room == room and App.client.state in [ControllerClient.State.CONNECTING, ControllerClient.State.JOINING]:
-		return   # The 4th letter joined already: JOIN or Enter right after it does not start a second try.
+		return   # A second tap on JOIN, or Enter, while the first try runs does not start another try.
 	if Protocol.decode_room_code(room) < 0:
 		_fail("connect.bad_code")
 		return

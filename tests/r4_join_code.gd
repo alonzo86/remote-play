@@ -1,9 +1,9 @@
 extends SceneTree
 ## Join by room code (issue #52, docs/TV_FLOW.md REQ-FL-4, REQ-FL-83, docs/MANUAL_TESTS.md tests 1 and 21), with the real
 ## Connect screen and a real TV server on the real port: the rules of the TV (its code follows its address, a wrong room is
-## `bad_room`, no PIN), a typed code joins (also in lower case and with spaces), a wrong text shows its error, a code that no
-## address answers says that the room is not found, the QR link joins, and the screen has no list of rooms, no Refresh and no
-## PIN pad. Also the pencil next to the player (9f).
+## `bad_room`, no PIN), typing 4 letters does not join, JOIN joins (also in lower case and with spaces), a wrong text shows its
+## error, a code that no address answers says that the room is not found, the QR link joins, and the screen has no list of
+## rooms, no Refresh and no PIN pad. Also the pencil next to the player (9f).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_join_code.gd -- --role=controller
 
 const Protocol = preload("res://scripts/core/protocol.gd")
@@ -124,7 +124,7 @@ func _run() -> void:
 	_new_tv()
 	await _tv_rules()
 	await _screen_layout()
-	await _fourth_letter()
+	await _typing_does_not_join()
 	await _typed_code()
 	await _errors()
 	await _unreachable()
@@ -188,8 +188,21 @@ func _screen_layout() -> void:
 	var buttons: Array = screen.find_children("*", "Button", true, false).map(func(b): return b.text)
 	var labels: Array = screen.find_children("*", "Label", true, false).map(func(l): return l.text)
 	_check(screen._code != null and screen._code.is_visible_in_tree(), "the code field shows")
-	_check("connect.join" in buttons and not ("qr_scanner.paste_room_link" in buttons),
-			"JOIN shows and there is no paste button: %s" % str(buttons))
+	var join: Button = screen.find_child("JoinButton", true, false)
+	var icon_script: Script = load("res://scripts/ui/enter_icon.gd")
+	var has_icon: bool = join != null and join.find_children("*", "Control", true, false).any(
+			func(n): return n.get_script() == icon_script)
+	_check(join != null and join.is_visible_in_tree() and join.text == "" and join.accessibility_name == Lang.t("connect.join")
+			and join.tooltip_text == Lang.t("connect.join") and join.focus_mode == Control.FOCUS_NONE and has_icon,
+			"JOIN is an icon button (the enter arrow, no text) with its name for a screen reader, no focus on a phone")
+	var plain: Array = icon_script.cells(false)
+	var mirror: Array = icon_script.cells(true)
+	var tail_x := func(cells: Array) -> int:   # The column of the long stroke (the tail of the arrow), at its row.
+		return cells.filter(func(c): return c.y == 4).map(func(c): return int(c.x)).min()
+	_check(plain.size() == mirror.size() and mirror.all(func(m): return plain.any(func(p): return p.y == m.y and p.x == 11 - m.x))
+			and tail_x.call(plain) == 0 and tail_x.call(mirror) == 11 - 9,
+			"in Hebrew (right to left) the enter arrow is mirrored left to right (REQ-FL-83)")
+	_check(not ("qr_scanner.paste_room_link" in buttons), "there is no paste button: %s" % str(buttons))
 	_check("connect.type_code" in labels, "the field has its label")
 	for gone in ["connect.refresh", "connect.rooms_found", "connect.searching", "connect.no_rooms_found",
 			"connect.looking_for_rooms"]:
@@ -201,30 +214,33 @@ func _screen_layout() -> void:
 		_check(not (k in screen) or screen.get(k) == null, "the screen has no %s" % k)
 
 
-## Issue #241: the 4th letter joins at once, 3 letters do not, a wrong 4th shows the error, JOIN after it is no second try.
-func _fourth_letter() -> void:
-	print("the 4th letter joins")
+## Typing never joins (owner, 2026-11-03; the 4th letter joined by itself until then): 4 letters of a real room wait for JOIN,
+## JOIN joins, a second JOIN while the first try runs makes no second player, a text that is no code shows the error on JOIN.
+func _typing_does_not_join() -> void:
+	print("typing does not join")
 	var screen := await _connect_screen(["127.0.9.9"])
 	var shown: String = _server.room_code
-	screen._code.text = shown.substr(0, 3).to_lower()
-	screen._code.text_changed.emit(screen._code.text)
-	await _frames(2)
-	_check(_app.client.state == ControllerClient.State.IDLE and _app.last_error == "", "3 letters do not join and show no error")
 	screen._code.text = shown.to_lower()
 	screen._code.text_changed.emit(screen._code.text)
-	screen.join_typed()   # JOIN pressed right after the 4th letter.
-	_check(screen._code.text == shown, "the 4th letter shows capitals")
-	_check(await _wait_until(func(): return _app.client.state == ControllerClient.State.CONNECTED, 4000),
-			"the 4th letter joins without a tap on JOIN")
-	_check(_server.player_count() == 1, "and JOIN after it made no second player (%d)" % _server.player_count())
+	await _frames(2)
+	_check(screen._code.text == shown, "the field shows capitals")
+	await _wait_until(func(): return _app.client.state != ControllerClient.State.IDLE, 1000)
+	_check(_app.client.state == ControllerClient.State.IDLE and _server.player_count() == 0 and _app.last_error == "",
+			"the 4 letters of a real room do not join by themselves")
+	screen.join_typed()
+	screen.join_typed()   # A second tap while the first try runs.
+	_check(await _wait_until(func(): return _app.client.state == ControllerClient.State.CONNECTED, 4000), "JOIN joins")
+	_check(_server.player_count() == 1, "and a second JOIN made no second player (%d)" % _server.player_count())
 	_app.client.leave()
 	await _wait_until(func(): return _server.player_count() == 0, 3000)
 	await _frames(3)
 	var bad := await _connect_screen(["127.0.9.9"])
 	bad._code.text = "ZZZZ"
 	bad._code.text_changed.emit("ZZZZ")
+	_check(_app.last_error == "", "4 letters that are no code show no error while typing")
+	bad.join_typed()
 	_check(_app.last_error == Lang.t("connect.bad_code") and _app.client.state == ControllerClient.State.IDLE,
-			"a 4th letter that makes a text that is no code says so at once")
+			"JOIN on a text that is no code says so")
 	_app.last_error = ""
 
 

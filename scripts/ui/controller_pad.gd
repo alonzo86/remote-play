@@ -9,6 +9,7 @@ const SensorSampler = preload("res://scripts/input/sensor_sampler.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
+const Registry = preload("res://scripts/game/registry.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
 const QuitDialog = preload("res://scripts/ui/controller_quit_dialog.gd")
@@ -30,6 +31,16 @@ const AIM_TRAIL := 8         # How many places of the knob the trail keeps.
 const AIM_TICK_MS := 20      # The tick when the knob crosses the middle of the strip.
 const LOST_FRAME := 20.0   # The width of the frame that shows a lost link (REQ-FL-52b).
 const LOST_BUZZ_MS := 700  # The buzz when the link is lost (REQ-FL-52b).
+const LEAVE_H := 110.0   # The height of the HOLD TO LEAVE box at the bottom.
+const LEAVE_SIDE := 60.0    # Its gap to the left and right edge: the rounded corners of a phone must not cut it (REQ-FL-52a).
+const LEAVE_BOTTOM := 40.0  # Its gap to the bottom edge.
+const RECENTER_W := 480.0   # The RECENTER button: about as wide as its text, right above the HOLD TO LEAVE box (REQ-FL-52).
+const RECENTER_H := 80.0
+const RECENTER_SIZE := 48   # Its text.
+const RECENTER_GAP := 24.0  # The gap between RECENTER and HOLD TO LEAVE, and between the A and B buttons and RECENTER.
+const BEST_GAME_SIZE := 40  # The game name above it.
+const BEST_SIZE := 56       # NEW BEST!: large and centered in the upper half of the play area (at least 48 px).
+const LEAVE_SIZE := 40    # Its text: it fills the box, so the longest text (Hebrew) fits without cutting.
 const LEAVE_HOLD := 0.8   # A game needs a long press to leave: a swinging child must not leave by accident (REQ-FL-52a).
 const BUTTON_LIFT := 12.0        # How far the face of an arcade button stands above its lower edge.
 const BUTTON_LIFT_DOWN := 4.0    # The same while it is pressed: the button looks pressed in.
@@ -80,15 +91,16 @@ func _process(delta: float) -> void:
 
 # ---- Layout (all in viewport coordinates) ----
 
-## The header (player badge, name and Disconnect) is one row: all three are centered on HEADER_Y.
+## The HOLD TO LEAVE box: at the bottom of the pad, inset from the sides and the bottom so that the rounded corners of a phone
+## do not cut it (REQ-FL-52a). The header row has the badge and the name.
 func _rect_leave() -> Rect2:
-	return Rect2(size.x - 300, HEADER_Y - 45.0, 270, 90)
+	return Rect2(LEAVE_SIDE, size.y - LEAVE_BOTTOM - LEAVE_H, size.x - 2.0 * LEAVE_SIDE, LEAVE_H)
 
 
-## Where the player name (or RECONNECTING...) is written in the header: between the badge (and the avatar) and Disconnect.
+## Where the player name (or RECONNECTING...) is written in the header: between the badge (and the avatar) and the right margin.
 func _rect_name(has_avatar: bool) -> Rect2:
 	var name_x := 270.0 if has_avatar else 190.0
-	return Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 320.0, 90)
+	return Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 60.0, 90)
 
 
 const LINE_SIZE := 64   # The place and the score under the header (REQ-FL-67): never smaller, two lines when long (#288).
@@ -134,10 +146,32 @@ func _button_face(center: Vector2, bit: int) -> Vector2:
 	return center - Vector2(0, BUTTON_LIFT_DOWN if (_sampler.buttons & bit) != 0 else BUTTON_LIFT)
 
 
+## The RECENTER button: small, in the middle, right above the HOLD TO LEAVE box (REQ-FL-52).
 func _rect_recenter() -> Rect2:
+	var leave := _rect_leave()
+	return Rect2((size.x - RECENTER_W) * 0.5, leave.position.y - RECENTER_GAP - RECENTER_H, RECENTER_W, RECENTER_H)
+
+
+## The aim strip of Pin Pals (REQ-BW-4): the big box in the upper half of the play area.
+func _rect_aim() -> Rect2:
 	var top := 360.0 + INFO_Y
 	var h := minf(size.y * 0.30, 620.0)
 	return Rect2(60, top, size.x - 120, h)
+
+
+## The help line of RECENTER ("POINT AT THE CENTER OF THE TV, THEN TAP"): under the turn row, in the upper half of the play area.
+func _rect_hint() -> Rect2:
+	return Rect2(60, 430.0 + INFO_Y - 50.0, size.x - 120, 120)
+
+
+## Where NEW BEST! is written: centered, in the upper half of the play area under the help line.
+func _rect_best() -> Rect2:
+	return Rect2(60, 640.0, size.x - 120, 160)
+
+
+## The name of the game that NEW BEST! belongs to, on the line above it.
+func _rect_best_game() -> Rect2:
+	return Rect2(60, 580.0, size.x - 120, 56)
 
 
 ## True while this phone is on turn in Pin Pals: the Recenter box becomes the aim strip (REQ-BW-4).
@@ -158,11 +192,16 @@ func _button_shown(key: String) -> bool:
 
 ## A button that is alone stands in the middle of the row; two buttons stand left and right.
 func _center_a() -> Vector2:
-	return Vector2(size.x * (0.28 if _button_shown("b") else 0.5), size.y - 330)
+	return Vector2(size.x * (0.28 if _button_shown("b") else 0.5), _buttons_y())
 
 
 func _center_b() -> Vector2:
-	return Vector2(size.x * (0.72 if _button_shown("a") else 0.5), size.y - 330)
+	return Vector2(size.x * (0.72 if _button_shown("a") else 0.5), _buttons_y())
+
+
+## The A and B buttons stand right above the RECENTER button.
+func _buttons_y() -> float:
+	return _rect_recenter().position.y - RECENTER_GAP - _radius()
 
 
 func _radius() -> float:
@@ -172,11 +211,10 @@ func _radius() -> float:
 func _zone_at(pos: Vector2) -> String:
 	if _rect_leave().has_point(pos):
 		return "leave"
-	if _rect_recenter().has_point(pos):
-		if _aim_mode():
-			return "aim"
-		if _recenter_shown():
-			return "recenter"
+	if _aim_mode() and _rect_aim().has_point(pos):
+		return "aim"
+	if _recenter_shown() and not _aim_mode() and _rect_recenter().has_point(pos):
+		return "recenter"
 	if _button_shown("a") and pos.distance_to(_center_a()) <= _radius() * 1.25:
 		return "a"
 	if _button_shown("b") and pos.distance_to(_center_b()) <= _radius() * 1.25:
@@ -250,7 +288,7 @@ func _update_touch(pos: Vector2) -> void:
 	_sampler.touch = Vector2(clampf(pos.x / size.x, 0.0, 1.0), clampf(pos.y / size.y, 0.0, 1.0))
 	if _aim_mode():
 		# On the aim strip x is the place on the strip, not on the screen.
-		var strip := _rect_recenter()
+		var strip := _rect_aim()
 		var before := _aim_frac
 		_aim_frac = clampf((pos.x - strip.position.x) / strip.size.x, 0.0, 1.0)
 		if crossed_middle(before, _aim_frac):
@@ -270,6 +308,12 @@ static func best_line(best: Dictionary) -> String:
 	if best.old > 0:
 		text += "  " + Lang.f("pad.before", [ProfileKeys.format(best.key, best.old)]).to_upper()
 	return text
+
+
+## The name of the game that a NEW BEST! belongs to ("PAINT GRAB"), from the key of the best. Empty for an unknown game.
+static func best_game_name(best: Dictionary) -> String:
+	var game := Registry.find(ProfileKeys.game_of(String(best.get("key", ""))))
+	return Lang.t(String(game.title)).to_upper() if not game.is_empty() else ""
 
 
 func _draw() -> void:
@@ -311,36 +355,39 @@ func _draw() -> void:
 		draw_string(f, Vector2(turn_rect.position.x, UiTheme.centered_baseline(f, turn_rect, 32)), turn_text.to_upper(),
 				HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO)
 
-	# NEW BEST! while the result menu is open, until the next round starts (REQ-GM-100).
+	# NEW BEST! with the game name, only while the result of the game is open (REQ-GM-100; App.current_best() decides).
 	var best: Dictionary = App.current_best()
 	if not best.is_empty() and c.state == ControllerClient.State.CONNECTED:
-		var best_rect := Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
-		draw_string(f, Vector2(best_rect.position.x, UiTheme.centered_baseline(f, best_rect, 32)), best_line(best),
-				HORIZONTAL_ALIGNMENT_LEFT, best_rect.size.x, 32, UiTheme.OK)
+		var game_rect := _rect_best_game()
+		var game_name := best_game_name(best)
+		_draw_lines_centered(f, UiTheme.wrap_lines(f, game_name, game_rect.size.x, BEST_GAME_SIZE), game_rect, BEST_GAME_SIZE,
+				HORIZONTAL_ALIGNMENT_CENTER, game_rect.position.x, UiTheme.TEXT)
+		var best_rect := _rect_best()
+		_draw_lines_centered(f, UiTheme.wrap_lines(f, best_line(best), best_rect.size.x, BEST_SIZE), best_rect, BEST_SIZE,
+				HORIZONTAL_ALIGNMENT_CENTER, best_rect.position.x, UiTheme.ACCENT)
 
 	if not online:
 		_draw_lost_link(f)
 
 	# Disconnect: a framed text box. A game needs a press of LEAVE_HOLD seconds; the box fills while the finger stays (REQ-FL-52a).
 	var lr := _rect_leave()
-	_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), 24, UiTheme.BUTTON_TEXT)
+	_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), LEAVE_SIZE, UiTheme.BUTTON_TEXT)
 	if _leave_hold > 0.0:
 		var fill := Rect2(lr.position, Vector2(lr.size.x * minf(_leave_hold / LEAVE_HOLD, 1.0), lr.size.y))
 		draw_rect(fill, UiTheme.BAD)
-		draw_string(UiTheme.font(), Vector2(lr.position.x, UiTheme.centered_baseline(UiTheme.font(), lr, 24)),
-				Lang.t("pad.disconnect_hold").to_upper(), HORIZONTAL_ALIGNMENT_CENTER, lr.size.x, 24, UiTheme.BG)
+		draw_string(UiTheme.font(), Vector2(lr.position.x, UiTheme.centered_baseline(UiTheme.font(), lr, LEAVE_SIZE)),
+				Lang.t("pad.disconnect_hold").to_upper(), HORIZONTAL_ALIGNMENT_CENTER, lr.size.x, LEAVE_SIZE, UiTheme.BG)
 
-	var rr := _rect_recenter()
 	if _aim_mode():
-		_draw_aim_strip(rr, f)
+		_draw_aim_strip(_rect_aim(), f)
 	elif _recenter_shown():
-		_draw_recenter(rr, f)
+		_draw_recenter(_rect_recenter(), f)
 
-	# A and B are round white arcade buttons (REQ-FL-52, issue #173). The player color is only the square at the top.
+	# A and B are round arcade buttons: A green, B red (REQ-FL-52). The player color is only the square at the top.
 	if _button_shown("a"):
-		_draw_button(_center_a(), "A", Protocol.BTN_A)
+		_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)
 	if _button_shown("b"):
-		_draw_button(_center_b(), "B", Protocol.BTN_B)
+		_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)
 
 
 ## The link is lost (REQ-FL-52b): the play area is dimmed and a frame of white and red dashes runs around the pad. Dashes, not
@@ -377,17 +424,14 @@ func _draw_lost_link(f: Font) -> void:
 ## Recenter: a black box with white text that turns white with black text for a moment when it is tapped.
 func _draw_recenter(rr: Rect2, f: Font) -> void:
 	var flashing: bool = _flash.recenter > 0.0
-	_draw_box(rr, UiTheme.TEXT, _recenter_fill(), Lang.t("pad.recenter"), 72,
+	_draw_box(rr, UiTheme.TEXT, _recenter_fill(), Lang.t("pad.recenter"), RECENTER_SIZE,
 			UiTheme.BUTTON_FACE if flashing else UiTheme.BUTTON_TEXT)
-	var lines := hint_lines(f, rr)
-	var step := f.get_height(HINT_SIZE)
-	for i in lines.size():   # The last line stays where the one line was; more lines grow upward.
-		draw_string(f, rr.position + Vector2(0, rr.size.y - 40 - float(lines.size() - 1 - i) * step), lines[i],
-				HORIZONTAL_ALIGNMENT_CENTER, rr.size.x, HINT_SIZE, UiTheme.BUTTON_FACE if flashing else UiTheme.BUTTON_TEXT)
+	var hr := _rect_hint()
+	_draw_lines_centered(f, hint_lines(f, hr), hr, HINT_SIZE, HORIZONTAL_ALIGNMENT_CENTER, hr.position.x, UiTheme.TEXT_DESC)
 
 
-## The lines of the help line in the Recenter box at 32 px: one line, or more when the line, as in Hebrew, would touch the
-## frame (issue #246: it is not made smaller). It keeps a gap of 16 px at each side inside the frame.
+## The lines of the help line of RECENTER at 32 px: one line, or more when the line, as in Hebrew, would be wider than `rr`
+## (issue #246: it is not made smaller). It keeps a gap of 16 px at each side.
 func hint_lines(f: Font, rr: Rect2) -> Array[String]:
 	return UiTheme.wrap_lines(f, Lang.t("pad.point_at_tv_then").to_upper(), rr.size.x - 2.0 * (UiTheme.LINE + 16.0), HINT_SIZE)
 
@@ -423,16 +467,16 @@ func _draw_box(r: Rect2, frame: Color, fill: Color, text: String, fs: int, col: 
 	draw_string(UiTheme.font(), Vector2(r.position.x, ty), text.to_upper(), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, fs, col)
 
 
-## An arcade button (issue #173): a 6 px white ring, a gray lower edge, a black face with a white letter that sits in when the
-## button is down. A and B differ by the letter only.
-func _draw_button(center: Vector2, label: String, bit: int) -> void:
+## An arcade button (REQ-FL-52): a 6 px white ring, a gray lower edge, a face in the color `col` (A green, B red; owner,
+## 2026-11-03) with a letter in `UiTheme.text_on(col)`; the face sits in when the button is down.
+func _draw_button(center: Vector2, label: String, bit: int, col: Color) -> void:
 	var r := _radius()
 	draw_circle(center, r + UiTheme.LINE, UiTheme.TEXT)
 	draw_circle(center, r, UiTheme.BUTTON_EDGE)
 	var face := _button_face(center, bit)
-	draw_circle(face, r - BUTTON_LIFT, UiTheme.BUTTON_FACE)
+	draw_circle(face, r - BUTTON_LIFT, col)
 	UiTheme.draw_centered(self, UiTheme.font(), label, Rect2(face - Vector2(r, r), Vector2(r, r) * 2.0), 96,
-			UiTheme.BUTTON_TEXT)
+			UiTheme.text_on(col))
 
 
 ## The line under the header during a game (REQ-FL-67): the place and the score of this player, "2ND  12". The place shows

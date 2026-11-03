@@ -144,7 +144,16 @@ func _space_field() -> void:
 	var drift := f._make(1, SpaceField.REF_AREA.x - 10.0, 100.0, rng)
 	drift.vx = 80.0
 	f._move_asteroids(0.1)
-	_check(drift.vx < 0.0 and f.scores.size() == 2, "an asteroid at the side turns back and stays on the screen")
+	_check(drift.vx > 0.0 and f.asteroids.has(drift) and f.scores.size() == 2,
+			"an asteroid at the side does not turn back: it keeps its way (REQ-AB-6)")
+	for i in 40:
+		f._move_asteroids(0.1)
+	_check(not f.asteroids.has(drift), "an asteroid that is fully outside the screen at the right is removed (REQ-AB-6)")
+	var left := f._make(0, 20.0, 100.0, rng)
+	left.vx = -80.0
+	for i in 40:
+		f._move_asteroids(0.1)
+	_check(not f.asteroids.has(left), "an asteroid that leaves at the left is removed too (REQ-AB-6)")
 	f.remove_ship(1)
 	_check(not f.ships.has(1) and not f.scores.has(1) and f.beams.all(func(b: SpaceField.Beam) -> bool: return b.owner != 1),
 			"a ship that leaves takes its score and beams away (REQ-AB-19)")

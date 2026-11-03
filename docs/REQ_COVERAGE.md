@@ -114,7 +114,7 @@ Counts: a 98, todo 0, review 13, obsolete 0, device 0 (total 111; 122 before the
 | REQ-MR-32 | a (done) | named in the existing checks of smoke_tv.gd |
 | REQ-MR-33 | a (done) | named in the existing check of smoke_race.gd |
 | REQ-MR-47 | a (done) | named in the existing check of game_rules.gd |
-| REQ-MR-55 | a (done) | smoke_tv.gd (the results menu of the race: Try again, Settings, Back to menu) |
+| REQ-MR-55 | a (done) | smoke_tv.gd (the results menu of the race: Try again, New game, Back to menu) |
 | REQ-MZ-10 | a (done) | named in the existing check of hud_layout.gd |
 | REQ-MZ-11 | a (done) | named in the existing check of smoke_bests.gd |
 | REQ-PG-6 | a (done) | named in the existing check of smoke_paint.gd |

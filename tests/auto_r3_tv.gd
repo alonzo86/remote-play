@@ -238,10 +238,13 @@ func _tile_reason() -> void:
 	sumo.grab_focus()
 	await _frames(10)
 	var want := Registry.reason(sumo.game, 1).to_upper()
-	_check(want != "" and sumo._meta.text == want and sumo._meta.get_theme_color("font_color") == UiTheme.ACCENT,
-			"Sumo Bumpers with 1 phone shows the reason '%s' in yellow" % want)
-	_check(paint._meta.text != want and paint._meta.get_theme_color("font_color") == UiTheme.TEXT_INFO,
-			"Paint Grab, which fits 1 phone, shows its player range in the dim color, not in yellow")
+	_check(want != "" and screen._reason.text == want and screen._reason.get_theme_color("font_color") == UiTheme.ACCENT,
+			"Sumo Bumpers with 1 phone shows the reason '%s' in yellow in the info bar" % want)
+	_check(sumo._meta.text == sumo.players_text().to_upper() and sumo._meta.get_theme_color("font_color") == UiTheme.TEXT_INFO,
+			"and its tile keeps the player range in the dim color, not the reason")
+	paint.grab_focus()
+	await _frames(5)
+	_check(screen._reason.text == "", "Paint Grab, which fits 1 phone, has no reason in the info bar")
 	_check(sumo.modulate.a < 1.0 and paint.modulate.a == 1.0, "the tile that does not fit is dim")
 	var heard: Array[String] = []
 	var cb := func(id: String) -> void: heard.append(id)

@@ -147,7 +147,7 @@ If the player deletes the active profile, or an import changes it, while the pho
 | Snowball Splat | `snowball_splat|<difficulty>` | higher | |
 | Whack-a-Mole | `whack_a_mole|<difficulty>` | higher (points) | Rounds of 1 to 4 players share a key (issue #216). |
 | Tennis | `tennis|<difficulty>`, 1 player only | higher (longest rally) | A match of 2 to 4 players has no key: it has no score that compares between matches (issue #216). |
-| Paint Grab | `paint_grab|<difficulty>` | higher (tiles) | The score of the `Scoreboard` is the number of tiles (`paint_grab_game.gd:139`). |
+| Paint Grab | `paint_grab|<difficulty>` | higher (percent of the picture) | The `Scoreboard` keeps the exact tiles; the screens and the stored best show the percent (REQ-PG-31, 32). |
 | Sumo Bumpers | none | | The result is a win, not a number. |
 
 A random track of Marble Race has no key. If the track generator or `FIXED_SEEDS` changes so that a track is not the same track, the change adds **new key numbers** (section 6.1) instead of reusing the old ones.
@@ -162,7 +162,7 @@ An integer: a time in milliseconds (12.345 s is 12345), a score as it is (340 ti
 
 ### 5.4 What the player sees
 
-The phone shows `NEW BEST!` on the waiting screen after a round that set a new best, with the old best in small text. Nothing changes on the TV: the result menu stays as it is (item 9.5).
+The phone shows `NEW BEST!` on the pad, while the result of the game is open (not on the waiting screen since 2026-11-03, REQ-GM-100), with the game name above it and the old best next to it. Nothing changes on the TV: the result menu stays as it is (item 9.5).
 
 ## 6. Sharing by QR code
 
@@ -363,5 +363,5 @@ Built on 2026-10-10 on branch `claude/profiles-c-bests`.
 
 - `Minigame.best_key()` and `best_value()`. The default key is empty (no best), so Tilt Maze and Sumo Bumpers needed no change; Snowball Splat and Paint Grab give `<game>|<difficulty>`; Marble Race gives the key only for the 10 fixed tracks and saves the time in milliseconds. The plan said the default key is the game and the difficulty; an empty default is safer for a new game (the `add-minigame` skill asks for a decision).
 - `open_results()` sends the `result` message (`TvServer.send_result()`). The phone checks the `pid`, and `App` records the best with `ProfileStore.record_best()`.
-- The waiting screen shows NEW BEST! and the old best. The old best shows only when there was one. The first score of a key is also a new best.
+- The pad shows NEW BEST!, the game name and the old best while the result is open (the waiting screen does not, 2026-11-03). The old best shows only when there was one. The first score of a key is also a new best.
 - `ProfileKeys` was built in phase B.

@@ -40,7 +40,6 @@ var _fails := 0
 var _app: Node
 var _stored_of := {}   # Paint Grab: the tiles of a round -> the value stored for them (REQ-PG-31, percent of the picture).
 var _rigs: Array = []   # {client, store, last_best, got}: a phone with the profile store and the message of its App
-var _wait_script: GDScript
 var _pad_script: GDScript
 
 
@@ -113,21 +112,24 @@ func _deliver(rig: Dictionary, key: String, v: int) -> void:
 	_app.last_best = keep_best
 
 
-## What the phone shows after the round: the texts of the waiting screen and the line of the pad.
+## What the phone shows after the round: the pad line (NEW BEST!, the score, BEFORE) and the game id above it. The waiting
+## screen shows no NEW BEST! any more (REQ-GM-100): the pad shows it only while the result of the game is open, so the rig
+## client is put in the phase "playing" for the look (it is joined; the result menu is open).
 func _phone_shows(rig: Dictionary) -> Dictionary:
 	var keep_client = _app.client
 	var keep_best = _app.last_best
+	var keep_phase: String = rig.client.phase
 	_app.client = rig.client
 	_app.last_best = rig.last_best
-	var wait: Control = _wait_script.new()
-	wait.theme = _app.theme_res
-	root.add_child(wait)
-	await _frames(2)
-	var out := {"best": wait._best.text, "detail": wait._best_detail.text, "pad": ""}
+	rig.client.phase = "playing"
+	var out := {"best": "", "detail": "", "pad": "", "game": ""}
 	var best: Dictionary = _app.current_best()
 	if not best.is_empty():
 		out.pad = _pad_script.best_line(best)
-	wait.free()   # at once: while it lives it listens to the client and reads App.client, which is put back below
+		out.best = "NEW BEST!"
+		out.detail = out.pad.trim_prefix("NEW BEST! ")
+		out.game = ProfileKeys.game_of(best.key)
+	rig.client.phase = keep_phase
 	_app.client = keep_client
 	_app.last_best = keep_best
 	return out
@@ -137,7 +139,6 @@ func _run() -> void:
 	await _frames(5)
 	root.size = Vector2i(1920, 1080)
 	_app = root.get_node("App")
-	_wait_script = load("res://scripts/ui/controller_wait.gd")
 	_pad_script = load("res://scripts/ui/controller_pad.gd")
 	_clean_files()
 	load("res://scripts/game/game_settings.gd").clear()

@@ -129,9 +129,9 @@ func _run() -> void:
 	await _frames(3)
 	var s0: int = game._board.score(0)
 	var s1: int = game._board.score(1)
-	_check(clients[0].score_text == str(s0) and clients[1].score_text == str(s1)
+	_check(clients[0].score_text == "%d%%" % game.percent_of(s0) and clients[1].score_text == "%d%%" % game.percent_of(s1)
 			and clients[0].score_rank == (2 if s1 > s0 else 1) and clients[1].score_rank == (2 if s0 > s1 else 1),
-			"each phone gets its tiles and its place (REQ-FL-67): %d/%d" % [s0, s1])
+			"each phone gets its percent of the picture and its place (REQ-FL-67, REQ-PG-32): %d/%d tiles" % [s0, s1])
 	# The buzz of a take (REQ-PG-12): a free tile gives none, a take gives one, and a second take within 150 ms gives no second.
 	game._haptics = load("res://scripts/game/haptics.gd").new()   # Loaded here: it needs the App autoload.
 	var free := Vector2i(-1, -1)
@@ -270,11 +270,11 @@ func _run() -> void:
 	var labels: Array = []
 	for l in game._menu_box.find_children("*", "Label", true, false):
 		labels.append(l.text)
-	_check(game.is_over and buttons == ["minigame.restart", "common.settings", "minigame.back_to_menu"],
+	_check(game.is_over and buttons == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"],
 			"time up opens the result menu: %s" % str(buttons))
 	_check(labels[0] == "MEDIUM" and MedalView.tiers_in(game._menu_box) == ["gold"]
-			and labels[1].contains(" TILES (") and labels[1].ends_with("%)"),
-			"one player left: the difficulty is the title, the gold medal, a row with the tiles and the percent: %s" % str(labels))
+			and labels[1].ends_with("%") and not labels[1].contains("TILES"),
+			"one player left: the difficulty is the title, the gold medal, a row with the percent only (REQ-PG-32): %s" % str(labels))
 	# The layout comes from the size of the screen (REQ-PG-17): the floor stays inside the margin at 1280x720 and at 1920x1080.
 	var fits_ok := true
 	for res in [Vector2i(1280, 720), Vector2i(1920, 1080)]:
@@ -344,6 +344,20 @@ func _run() -> void:
 	_check(g3.percent_of(g3._picture_total) == 100 and g3.percent_of(g3._picture_total / 2) == 50 and g3.best_value(1.0) >= 1
 			and g3._picture_total < g3.floor_map.total(),
 			"the percent and the personal best are counted on the picture tiles, not on the whole floor (REQ-PG-21, 31)")
+	# REQ-PG-32: the screen shows the percent rounded down, the ranking keeps the exact tiles.
+	var total: int = g3._picture_total
+	var more := total / 10 + 1   # One tile more than the other player; the exact count decides the rank.
+	g3._board.set_score(0, float(more))
+	g3._board.set_score(1, float(more - 1))
+	var rk: Array = g3._board.ranking()
+	var sum := 0
+	for e in rk:
+		sum += g3.percent_of(int(e.score))
+	_check(g3._score_label(rk[0]) == "%d%%" % g3.percent_of(more) and int(rk[0].slot) == 0 and int(rk[0].rank) == 1
+			and int(rk[1].rank) == 2 and sum <= 100,
+			"the chip, phone and list show the percent of the picture; the ranking still uses the exact tiles (REQ-PG-32)")
+	g3._board.set_score(0, float(g3.floor_map.count(0)))
+	g3._board.set_score(1, 0.0)
 	var gold := PaintPots.Pot.new()
 	gold.kind = PaintPots.GOLD
 	gold.cell = edge

@@ -34,6 +34,7 @@ const SPAWN_BASE := 1.5        # ... and has more asteroids: the time between tw
 const SPAWN_PER_WAVE := 0.2    # ... shrinks by 1 / (1 + 0.2 * (wave - 1)) ...
 const SPAWN_MIN := 0.35
 const SPAWN_PER_PLAYER := 0.3  # ... and by 1 / (1 + 0.3 * (living ships - 1)).
+const SIDE_MARGIN := 70.0      # An asteroid is removed this far (60 px margin + 10) beyond the sides of the play area (REQ-AB-6).
 const SPLIT_SPEED := 70.0      # Sideways speed of the two pieces of a broken asteroid.
 
 ## The sizes of an asteroid. `split` is the size of its two pieces, or -1. The speed is a factor on the fall speed.
@@ -297,9 +298,9 @@ func _move_asteroids(dt: float) -> void:
 			a.vy = maxf(a.vy, FLY_OFF_SPEED)
 		a.x += a.vx * dt
 		a.y += a.vy * dt
-		if a.x < a.radius and a.vx < 0.0 or a.x > REF_AREA.x - a.radius and a.vx > 0.0:
-			a.vx = -a.vx
-	asteroids = asteroids.filter(func(a: Asteroid) -> bool: return a.y < REF_AREA.y + a.radius + 4.0)
+	# REQ-AB-6: an asteroid does not turn back at the sides: it leaves the screen and is removed once it is fully outside.
+	asteroids = asteroids.filter(func(a: Asteroid) -> bool:
+		return a.y < REF_AREA.y + a.radius + 4.0 and a.x > -SIDE_MARGIN - a.radius and a.x < REF_AREA.x + SIDE_MARGIN + a.radius)
 
 
 ## A beam that touches an asteroid does 1 damage and is gone. An asteroid with no life left breaks (REQ-AB-5, 7).

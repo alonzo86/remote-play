@@ -6,6 +6,7 @@ extends SceneTree
 
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
 const Profile = preload("res://scripts/core/profile.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
@@ -207,7 +208,8 @@ func _round_closes_share() -> void:
 	c._set_state(ControllerClient.State.IDLE)
 
 
-## A result from the TV: the profile keeps the best and the waiting screen says NEW BEST! (REQ-GM-99, 100).
+## A result from the TV: the profile keeps the best and the pad says NEW BEST! only while the result of the game is open
+## (REQ-GM-99, 100): not on the waiting screen, not after the TV goes back to the menu, not after the player leaves.
 func _new_best() -> void:
 	print("new best")
 	var c: Node = _app.client
@@ -215,7 +217,7 @@ func _new_best() -> void:
 	_app.profiles.set_active(who.id)
 	_app.apply_profile()
 	c._set_state(ControllerClient.State.CONNECTED)
-	c.phase = "menu"
+	c.phase = "playing"
 	c.result_received.emit("paint_grab|easy", 300)
 	var first: Dictionary = _app.last_best
 	c.result_received.emit("paint_grab|easy", 340)
@@ -223,27 +225,36 @@ func _new_best() -> void:
 	_check(first.value == 300 and first.old == 0 and second.value == 340 and second.old == 300,
 			"a result that beats the best is remembered with the old best")
 	_check(who.bests["paint_grab|easy"] == 340, "and the profile keeps it")
-	_app.go(_app.ControllerWait)
-	await process_frame
-	var wait: Control = _app.current_screen()
-	_check(wait._best.text == "NEW BEST!" and wait._best_detail.text.begins_with("340") and wait._best_detail.text.contains("300"),
-			"the waiting screen says NEW BEST! with the score and the old best: %s" % wait._best_detail.text)
 	c.result_received.emit("paint_grab|easy", 100)
 	_check(_app.last_best.value == 340 and who.bests["paint_grab|easy"] == 340, "a worse result changes nothing")
-	_check(_app.current_best().value == 340, "the pad can show the best of this player while the result menu is open")
+	_check(_app.current_best().value == 340, "the pad shows the best of this player while the result menu is open")
 	var line: String = _app.ControllerPad.best_line(_app.current_best())
 	_check(line == "NEW BEST! 340  BEFORE: 300", "the pad line: %s" % line)
+	_check(_app.ControllerPad.best_game_name({"key": "paint_grab|easy"}) == "PAINT GRAB"
+			and _app.ControllerPad.best_game_name({"key": "bowling|easy"}) == "PIN PALS"
+			and _app.ControllerPad.best_game_name({"key": "asteroid_blast|hard"}) == "STAR SHIELD",
+			"the pad writes the name of the game of the best above the line (also when the key id differs from the title)")
+	c.phase = "paused"
+	_check(not _app.current_best().is_empty(), "a paused result menu still shows it")
 	var other_pid: String = c.pid
 	c.pid = "f".repeat(32)   # The phone switched to another profile: the best is not theirs.
 	_check(_app.current_best().is_empty(), "a best is not shown for another profile")
-	wait._refresh()
-	_check(wait._best.text == "", "and the waiting screen shows nothing for it")
 	c.pid = other_pid
+	# The TV goes back to the menu: the message is gone for good, it does not come back with the next game phase.
+	c.phase_changed.emit("menu")
+	c.phase = "menu"
+	_check(_app.last_best.is_empty() and _app.current_best().is_empty(), "the TV is back at the menu: no NEW BEST!")
+	c.result_received.emit("paint_grab|easy", 400)
+	c.phase = "waiting"
+	_check(_app.current_best().is_empty(), "the waiting screen never shows NEW BEST!")
+	c.phase = "playing"
+	_check(not _app.current_best().is_empty(), "the pad shows it in the game phase")
+	c._set_state(ControllerClient.State.RECONNECTING)
+	_check(_app.current_best().is_empty(), "a phone that lost the link shows no NEW BEST!")
+	c._set_state(ControllerClient.State.CONNECTED)
 	c.phase_changed.emit("playing")
 	_check(_app.last_best.is_empty(), "the next round clears the message")
-	wait._refresh()
-	_check(wait._best.text == "" and wait._best_detail.text == "", "and the screen shows nothing")
-	c.result_received.emit("marble_race|easy|2", 21500)
-	wait._refresh()
-	_check(wait._best_detail.text == "21.50 s", "a race time is shown in seconds")
+	c.result_received.emit("paint_grab|easy", 500)
 	c._set_state(ControllerClient.State.IDLE)
+	_check(_app.last_best.is_empty(), "the player leaves the game: the message is cleared")
+

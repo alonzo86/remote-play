@@ -46,6 +46,7 @@ tests/bowling_rules.gd|controller|Pin Pals rules, lane and swing|unit
 tests/smoke_bowling.gd|tv|Pin Pals|scenario
 tests/smoke_tennis.gd|tv|Tennis|scenario
 tests/golf_rules.gd|controller|Mini Golf rules, ball and holes|unit
+tests/golf_view.gd|controller|Mini Golf view: one scale, fit, aim line, balls, plate, scenery|unit
 tests/smoke_golf.gd|tv|Mini Golf|scenario
 tests/multi_phone.gd|tv|games with 3 and 4 simulated phones: GO buzz, places, tie, leaving, frame cost|scenario
 tests/swing_replay.gd|tv|swing detector replay (Test 24)|unit

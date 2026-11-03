@@ -103,7 +103,7 @@ func _ready() -> void:
 	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(reason_label)
 	# How to play: the text of the game at the bottom of the screen, for the whole room (issue #77, REQ-GM-103).
-	how_to_label = UiKit.label(String(game.get("how_to", "")), UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
+	how_to_label = UiKit.label(String(game.get("how_to", "")), UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 	how_to_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	how_to_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	how_to_label.custom_minimum_size = Vector2(WIDE_W, 0)

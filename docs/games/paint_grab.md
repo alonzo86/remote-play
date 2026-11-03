@@ -8,11 +8,10 @@ Code: `scripts/game/paint_grab/` and the shared helper `scripts/game/tilt_body.g
 
 Each player tilts a phone to roll a round, friendly **paint blob** (a made-up creature with big eyes, in the player color) over a
 floor of square tiles. A tile that a blob rolls over turns into the color of that blob, also when it had the color of another
-player. After 60 seconds, or when the last tile of the hidden picture is painted, the player with the most tiles wins. With one player, the score (the share of the picture that is painted)
-is shown as a score, with no medal. A tile that is painted over costs nothing but the tile: nobody is out and nobody waits.
+player. After 60 seconds, or when the last tile of the hidden picture is painted, the player with the most tiles wins. Every score the player sees is the percent of the picture that the player covered (REQ-PG-32); with one player there is no medal. A tile that is painted over costs nothing but the tile: nobody is out and nobody waits.
 
 Since 2026-10-16 the floor hides a picture (a different one in each round, REQ-PG-22) and now and then a bonus pot lands on it:
-the first blob that rolls over it paints a whole patch (REQ-PG-23). Only the tiles of the picture can be painted (REQ-PG-24); the score is the number of those tiles.
+the first blob that rolls over it paints a whole patch (REQ-PG-23). Only the tiles of the picture can be painted (REQ-PG-24); the stored score is the number of those tiles, and the screen shows it as a percent (REQ-PG-32).
 
 Registry entry: `description` (one line) and `tile` (`assets/tiles/paint_grab.png`, made by `tools/make_tiles.gd`), see REQ-GM-7.
 Visual language: shell, player colors, toy-like world (REQ-GM-45 to 49). Check the tile next to the Games screen.
@@ -38,7 +37,7 @@ Round
 | REQ-PG-3 | The blobs start in different places of the floor, apart from each other, at the same distance from the middle (REQ-GM-25). | Done | smoke_paint |
 | REQ-PG-4 | A blob paints the tile under its middle at every frame. A tile has one color at a time: the one of the blob that was on it last. A tile that is painted again by the same player stays as it is. | Done | run_tests, smoke_paint, paint_rules (`is_painted`) |
 | REQ-PG-5 | The round ends when the time is up, or earlier when every tile that shows a part of the picture (REQ-PG-22) has a color, whatever the color (a tile without a part, the dark background of the picture, does not count). The score of a player is the number of tiles in the color of that player at that moment (`Scoreboard`, higher is better). Players with the same score share the rank (a tie). | Done | run_tests, smoke_paint |
-| REQ-PG-6 | The result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Try again, Settings, Back to menu. The score text is the number of tiles. With one player the row has no medal (REQ-GM-73); with more players each row has the medal of its place (REQ-GM-73). | Done | smoke_paint |
+| REQ-PG-6 | The result menu is `open_results()` (REQ-GM-72): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. The score text of a row is the percent of the picture, for example `37%` (REQ-PG-32). With one player the row has no medal (REQ-GM-73); with more players each row has the medal of its place (REQ-GM-73). | Done | smoke_paint |
 
 Movement
 
@@ -55,7 +54,7 @@ Players and feedback
 | REQ-PG-10 | A player who leaves takes the blob out. The tiles of that player stay on the floor and count for nobody. The round goes on with the others (REQ-GM-21). When nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_paint, auto_paint |
 | REQ-PG-11 | A lost phone pauses the round with the card of REQ-GM-30. The clock does not run during the pause. | Done | smoke_tv (shared base class) |
 | REQ-PG-12 | Haptics (REQ-GM-43): GO buzzes every phone (60 ms). Painting a tile that had the color of another player buzzes the player that painted (20 ms, at most every 150 ms for one slot, `Haptics`). The end buzzes the winner (400 ms). | Device | Device (the buzz), auto_paint (Test 14 step 13b) |
-| REQ-PG-13 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the number of tiles of the leader, or TIE, and is updated at every change. Each phone shows its own tiles and place (REQ-FL-67). | Done | smoke_paint (scores, phones), game_helpers (leader), auto_paint |
+| REQ-PG-13 | The leader chip (`draw_leader_chip()`, REQ-GM-46) shows the leader and the percent of the picture of the leader (REQ-PG-32), or TIE, and is updated at every change. Each phone shows its own percent and place (REQ-FL-67). | Done | smoke_paint (scores, phones), game_helpers (leader), auto_paint |
 | REQ-PG-14 | The pad has no RECENTER box (REQ-GM-37, issue #55); the pose held in the countdown is the center. The pad shows no A and no B (REQ-GM-37a, issue #80). | Device | Device (RECENTER) (Test 14 step 13c) |
 
 Look
@@ -89,6 +88,7 @@ Shared code
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-PG-30 | `scripts/game/tilt_body.gd` (`TiltBody`) is a helper without nodes: position, velocity, tilt acceleration, dead zone, damping, speed limit, bounce at a rectangle, and the bounce between two bodies. The Dodge Storm, Tilt Snake and Sumo Bumpers branches use it too. The maze and the race keep their own models for now (a device test is needed to change them). | Done | run_tests |
+| REQ-PG-32 | Every score on a screen is a percent: the leader chip, the score line of each phone, the result list (`paint_grab.percent`, `37%`) and the personal best (REQ-PG-31). The percent is the share of the whole picture, that is of all the paintable tiles (REQ-PG-24), not of the tiles that are already painted, so the unpainted tiles count in the 100 %. It is the tiles of the player times 100 divided by the picture tiles, **rounded down** (REQ-PG-21), so the percents of all players add up to at most 100. The stored score of the `Scoreboard` stays the exact number of tiles: the ranking, the tie and the winner use it, so two players with the same percent but different tiles keep their order (the rows then show the same percent), and only equal tiles are a tie. | Done | smoke_paint, auto_paint (14.6b), paint_rules |
 | REQ-PG-31 | Personal best (REQ-GM-98): the key is `paint_grab|<difficulty>`, the value is the percent of the picture (REQ-PG-21), higher is better. Before 2026-10-27 it was the number of tiles of the floor: an old best of that kind stays in a profile and is hard to beat (issue #130). All player counts share one key. | Done | smoke_bests |
 
 ## Parameters

@@ -69,6 +69,7 @@ func _run() -> void:
 	var Golf = load("res://scripts/game/mini_golf/mini_golf_game.gd")
 	var GameSettings = load("res://scripts/game/game_settings.gd")
 	var app: Node = root.get_node("App")
+	app.set_language("en", false)   # The title of the result is compared in English, whatever language the saved settings have.
 	GameSettings.clear()
 	var clients: Array = []
 	for i in 2:

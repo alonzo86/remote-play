@@ -42,14 +42,14 @@ func _ready() -> void:
 		var t := UiKit.title("SABABI", UiTheme.SIZE_LOGO)
 		t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		box.add_child(t)
-		var sub := UiKit.label("logo.phone_motion_controller_games", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
+		var sub := UiKit.label("logo.phone_motion_controller_games", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		box.add_child(sub)
 	asks_language = App.needs_language_choice()
 	if asks_language:
 		box.add_child(UiKit.spacer(24))
 		box.add_child(_language_choice())
-	_hint = UiKit.blinking("logo.press_ok_start" if asks_language else "logo.press_ok_skip", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
+	_hint = UiKit.blinking("logo.press_ok_start" if asks_language else "logo.press_ok_skip", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_hint)
 	_hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)

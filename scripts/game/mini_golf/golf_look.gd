@@ -1,34 +1,34 @@
 extends RefCounted
-## The pictures of Mini Golf (REQ-MG-16, docs/games/mini_golf.md): a small golf park seen from behind the tee, in a simple
-## perspective. The ground, the walls, the lake with its bridge and the scenery of a hole are drawn once into a 480x270 picture
-## (the pixel view of the game, REQ-GM-47a) and shown scaled; the golfer, the ball, the rocks, the barriers, the blades,
-## the windmill and the flag are
-## drawn each frame. The golfer has a white hat, white trousers and white shoes and a shirt in the slot color; the ball is
-## always white; nothing on the course is white (the user, 2026-10-17). A point of the course (x across, z along, in the units
-## of `golf_holes.gd`) is at `Geo.at()`, in screen units.
+## The pictures of Mini Golf (REQ-MG-16, docs/games/mini_golf.md): a small golf park seen from above, in the 8-bit world. The
+## whole hole is drawn from its data (`golf_holes.gd`) with ONE scale per hole, so that the course always fits the screen between
+## the black bar and the chips, and the ball, the cup and the golfer keep the same size on every putt (docs/MINI_GOLF_REDESIGN.md,
+## option A, decision of the owner, 2026-11-03). The tee is at the left and the cup at the right: the course axis z runs to the
+## right and the across axis x runs down, so a turn of the phone to the right aims clockwise (down). Every player has a ball in a
+## ring of the slot color; the ball of the player on turn has a flashing ring round it. A small golfer stands by that ball with
+## a shirt in the slot color. A point of the course (x across, z along, in the units of `golf_holes.gd`) is at `Geo.at()`, in
+## screen units. This file is the whole view; the rules, the ball and the holes do not know it (a camera change touches this file
+## only).
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Palette = preload("res://scripts/game/palette.gd")
 
-const W := 480
-const H := 270
-const HY := 88                    # The horizon, in picture pixels.
-const SK := 0.95
-const CX := 240
-const GROUND_END := 230           # The ground goes to the bar of the players at the bottom of the screen.
-const HUD_TOP := 28
 const WALL_W := 0.14              # The width of a wall, in course units.
-const WALL_H := 0.16
-const BALL_MIN_R := 6.0           # The ball is at least this big (picture pixels), also far away (48 px across at 1080p).
-const GOLFER_MIN := 0.42          # The golfer is at least this share of the near size, also far away.
+## Design units (1920x1080): the room for the course. The black bar ends at y 112, the chips of the bar stand at y 960 or higher
+## (a second row of chips 72 units higher), so the course stays 12 units clear of them (REQ-MG-3).
+const AREA_L := 60.0
+const AREA_R := 1860.0
+const AREA_T := 124.0
+const AREA_B := 944.0
+const ROW_H := 72.0
+## The ball is drawn at one size on every hole (REQ-GM-47m: 12 world pixels = 48 screen pixels with its outline).
+const BALL_OUT := 24.0            # Radius with the outline.
+const CUP_MIN_R := 32.0           # The cup is never smaller than this (the ball must fit it).
+const GOLFER_K := 2.0             # Screen units for one unit of the golfer picture (the golfer is about 160 units tall).
+const FLAG_H := 88.0
 
-const SKY := [Color("3cbcfc"), Palette.GOLF_SKY, Color("a4e4fc")]
 const WHITE := Color("fcfcfc")
-const HILL_FAR := Color("007800")
-const HILL_NEAR := Palette.GOLF_GREEN
-const TREE := Color("005800")
 const LAWN_A := Color("98d838")
 const LAWN_B := Color("8ccc30")
 const FAIR_A := Color("58b800")
@@ -37,8 +37,6 @@ const TEE_MAT := Color("009800")
 const WOOD := Color("ac6418")
 const WOOD_HI := Color("d8a868")
 const WOOD_LO := Color("683808")
-const FENCE := Color("d8ac6c")
-const FENCE_LO := Color("a07038")
 const WATER := Color("3cbcfc")
 const WATER_DEEP := Color("0078f8")
 const WATER_GLINT := Color("a4e4fc")
@@ -59,136 +57,97 @@ const STEEL_LO := Color("5c6880")
 const GRIP := Color("383838")
 const SKIN := Color("fcbc94")
 const HAIR := Color("784818")
-const SHOE := Color("fcfcfc")
+const FL_PINK := Color("f878f8")
+const FL_PURPLE := Color("6844fc")
+const BALLOON := [Palette.NES_RED, Color("f8b800"), Color("0078f8")]
+const SHADOW := Color(0.0, 0.2, 0.0, 0.45)
 
-static var _base: Image
-static var _hole_tex := {}        # hole number -> ImageTexture
+static var _scenery_cache := {}   # hole, screen and room -> the list of `scenery()`: the park does not change during a hole.
 
 
-## Where a point of the course is on the screen. `scale` is how many screen units a course unit is long there.
+## Where a point of the course is on the screen. One scale `s` (screen units for one course unit) for the whole hole, so that
+## nothing changes size while the players putt. The course is centered in the room between the bar and the chips.
 class Geo:
-	var m := 4.0                  # Screen units for one picture pixel.
+	var size := Vector2(1920.0, 1080.0)
+	var u := 1.0                  # Screen units for one design unit.
+	var off := Vector2.ZERO       # Where the design screen starts (a window that is not 16:9 centers it).
+	var s := 200.0                # Screen units for one course unit.
+	var bounds := Rect2()         # The ground with its walls: Rect2(x, z, across, along).
+	var origin := Vector2.ZERO    # The screen place of the near-left corner of `bounds` (x min, z min).
+	var area := Rect2()           # The room for the course, in screen units.
+	var grid := 4.0               # One world pixel of the pixel view, in screen units.
 
-	func _init(size: Vector2) -> void:
-		m = size.x / float(W)
+	## `rows` is the number of rows of chips in the bar at the bottom (1 or 2): the course ends above the first of them.
+	func _init(p_size: Vector2, hole: Dictionary, rows := 1) -> void:
+		size = p_size
+		u = minf(size.x / 1920.0, size.y / 1080.0)
+		off = Vector2(size.x - 1920.0 * u, size.y - 1080.0 * u) * 0.5
+		grid = size.x / 480.0
+		area = Rect2(off + Vector2(AREA_L, AREA_T) * u,
+				Vector2(AREA_R - AREA_L, AREA_B - AREA_T - float(maxi(rows, 1) - 1) * ROW_H) * u)
+		bounds = Geo.ground_bounds(hole)
+		s = minf(area.size.x / maxf(bounds.size.y, 0.01), area.size.y / maxf(bounds.size.x, 0.01))
+		var used := Vector2(bounds.size.y, bounds.size.x) * s
+		origin = ((area.position + (area.size - used) * 0.5) / grid).round() * grid
 
-	func py(z: float) -> float:
-		return float(HY) + 100.0 / maxf(z, 0.05)
+	## The ground of a hole and its walls: the union of the fairway rectangles, grown by the wall.
+	static func ground_bounds(hole: Dictionary) -> Rect2:
+		var out := Rect2()
+		var first := true
+		for r in hole.fairway:
+			var rr := (r as Rect2).grow(WALL_W)
+			out = rr if first else out.merge(rr)
+			first = false
+		return out
 
-	func scale_at(z: float) -> float:
-		return (py(z) - float(HY)) / SK
+	func snap(v: Vector2) -> Vector2:
+		return (v / grid).round() * grid
 
-	## The screen place of the foot of a thing at (x, z).
+	## The screen place of a point (x, z) of the course: z runs to the right, x runs down.
 	func at(p: Vector2) -> Vector2:
-		return Vector2(float(CX) + p.x * scale_at(p.y), py(p.y)) * m
+		return origin + Vector2(p.y - bounds.position.y, p.x - bounds.position.x) * s
 
-	## The ball radius in screen units.
-	func ball_r(z: float) -> float:
-		return maxf(BALL_MIN_R, Holes.BALL_R * scale_at(z)) * m
+	## The screen rectangle of a rectangle of the course (`Rect2(x, z, across, along)`), on the pixel grid.
+	func rect(r: Rect2) -> Rect2:
+		var a := snap(at(r.position))
+		var b := snap(at(r.end))
+		return Rect2(a, b - a)
 
+	## A length of the course in screen units.
+	func len(m: float) -> float:
+		return m * s
 
-# ---- The picture of a hole ----
+	## The point (x, z) of the course that is at the screen place `c` (the opposite of `at()`).
+	func point_at(c: Vector2) -> Vector2:
+		var d := (c - origin) / s
+		return Vector2(d.y + bounds.position.x, d.x + bounds.position.y)
 
-## The texture of a hole, made the first time it is asked for (REQ-MG-12).
-static func hole_texture(n: int) -> ImageTexture:
-	if not _hole_tex.has(n):
-		_hole_tex[n] = ImageTexture.create_from_image(hole_image(Holes.hole(n)))
-	return _hole_tex[n]
+	## The direction on the screen of an aim `heading` (radians from the +z axis towards +x).
+	func dir(heading: float) -> Vector2:
+		return Vector2(cos(heading), sin(heading))
 
+	## The ball with its outline is this wide (REQ-GM-47m asks for 48 at 1080p).
+	func ball_d() -> float:
+		return 2.0 * BALL_OUT * u
 
-static func hole_image(h: Dictionary) -> Image:
-	var img := _base_image().duplicate() as Image
-	_paint_ground(img, h)
-	_paint_scenery(img, h)
-	_paint_bushes(img, h)
-	return img
+	## The cup as it is drawn: the real cup, and never smaller than the ball needs.
+	func cup_r() -> float:
+		return maxf(Holes.CUP_R * s, CUP_MIN_R * u)
 
-
-static func _px(img: Image, x: int, y: int, c: Color) -> void:
-	if x >= 0 and x < W and y >= 0 and y < H:
-		img.set_pixel(x, y, c)
-
-
-static func _rect(img: Image, x0: int, y0: int, x1: int, y1: int, c: Color) -> void:
-	for y in range(maxi(y0, 0), mini(y1, H - 1) + 1):
-		for x in range(maxi(x0, 0), mini(x1, W - 1) + 1):
-			img.set_pixel(x, y, c)
-
-
-static func _ellipse(img: Image, cx: float, cy: float, rx: float, ry: float, c: Color) -> void:
-	for y in range(int(cy - ry) - 1, int(cy + ry) + 2):
-		for x in range(int(cx - rx) - 1, int(cx + rx) + 2):
-			var dx := (float(x) - cx) / maxf(rx, 0.5)
-			var dy := (float(y) - cy) / maxf(ry, 0.5)
-			if dx * dx + dy * dy <= 1.0:
-				_px(img, x, y, c)
+	## A length in design units.
+	func d(v: float) -> float:
+		return v * u
 
 
-## The sky, the hills, the trees, the clubhouse and the fence: the same for every hole.
-static func _base_image() -> Image:
-	if _base != null:
-		return _base
-	var img := Image.create(W, H, false, Image.FORMAT_RGBA8)
-	img.fill(UiTheme.BG)
-	for y in range(HUD_TOP, HY):
-		img.fill_rect(Rect2i(0, y, W, 1), SKY[0] if y < 52 else SKY[1] if y < 70 else SKY[2])
-	for c in [Vector3(60, 50, 28), Vector3(190, 58, 36), Vector3(330, 52, 30), Vector3(430, 46, 26)]:
-		_rect(img, int(c.x - c.z / 2.0), int(c.y), int(c.x + c.z / 2.0), int(c.y) + 5, WHITE)
-		_rect(img, int(c.x - c.z / 3.0), int(c.y) - 4, int(c.x + c.z / 4.0), int(c.y), WHITE)
-	for x in W:
-		var far := int(10.0 + 7.0 * sin(float(x) / 37.0) + 4.0 * sin(float(x) / 11.0))
-		img.fill_rect(Rect2i(x, HY - far - 4, 1, far + 4), HILL_FAR)
-		var near := int(5.0 + 3.0 * sin(float(x) / 19.0 + 1.0))
-		img.fill_rect(Rect2i(x, HY - near, 1, near), HILL_NEAR)
-	for tx in range(6, W, 26):
-		var ty := HY - 6 - (tx * 7) % 5
-		_rect(img, tx, ty - 8, tx + 8, ty, TREE)
-		_rect(img, tx + 2, ty - 11, tx + 6, ty - 8, TREE)
-		_rect(img, tx + 3, ty, tx + 5, ty + 3, WOOD_LO)
-	for y in range(HY, GROUND_END + 30):
-		for x in W:
-			img.set_pixel(x, y, LAWN_A if (x / 4 + y / 4) % 2 == 0 else LAWN_B)
-	_rect(img, 380, HY - 26, 430, HY - 6, BRICK)
-	for i in 31:
-		_rect(img, 374 + i * 2, HY - 27 - mini(i, 30 - i), 375 + i * 2, HY - 26, RED)
-	_rect(img, 398, HY - 18, 410, HY - 6, WOOD_LO)
-	_rect(img, 384, HY - 22, 392, HY - 14, WATER)
-	_rect(img, 418, HY - 22, 426, HY - 14, WATER)
-	for fx in range(0, W, 5):
-		_rect(img, fx, HY - 4, fx + 2, HY + 1, FENCE)
-	_rect(img, 0, HY - 2, W - 1, HY - 2, FENCE)
-	_rect(img, 0, HY, W - 1, HY, FENCE_LO)
-	# The sky: a hot air balloon and birds. The park: a Ferris wheel behind the hills and a string of flags on the fence.
-	_ellipse(img, 285.0, 42.0, 11.0, 13.0, BALLOON[0])
-	_ellipse(img, 285.0, 42.0, 4.0, 13.0, BALLOON[1])
-	_ellipse(img, 285.0, 42.0, 11.0, 3.0, BALLOON[2])
-	_line(img, 280.0, 54.0, 282.0, 61.0, OL)
-	_line(img, 290.0, 54.0, 288.0, 61.0, OL)
-	_rect(img, 281, 61, 289, 65, WOOD)
-	for b in [Vector2(120, 40), Vector2(135, 36), Vector2(150, 42)]:
-		_px(img, int(b.x) - 2, int(b.y), OL)
-		_px(img, int(b.x) - 1, int(b.y) + 1, OL)
-		_px(img, int(b.x), int(b.y), OL)
-		_px(img, int(b.x) + 1, int(b.y) + 1, OL)
-		_px(img, int(b.x) + 2, int(b.y), OL)
-	var wheel := Vector2(88.0, 52.0)
-	for i in 16:
-		var a := TAU * float(i) / 16.0
-		_line(img, wheel.x, wheel.y, wheel.x + cos(a) * 22.0, wheel.y + sin(a) * 22.0, FENCE_LO)
-		_px(img, int(wheel.x + cos(a) * 22.0), int(wheel.y + sin(a) * 22.0), FENCE)
-		var cab := Color.from_hsv(float(i % 4) / 4.0, 0.8, 0.95)
-		_rect(img, int(wheel.x + cos(a) * 22.0) - 2, int(wheel.y + sin(a) * 22.0), int(wheel.x + cos(a) * 22.0) + 2,
-				int(wheel.y + sin(a) * 22.0) + 3, cab)
-	_line(img, wheel.x, wheel.y, wheel.x - 10.0, HY - 6.0, FENCE_LO)
-	_line(img, wheel.x, wheel.y, wheel.x + 10.0, HY - 6.0, FENCE_LO)
-	for fx in range(4, W, 8):
-		var sag := int(2.0 * sin(float(fx) / 8.0 * PI))
-		var flag := [RED, GOLD, FL_PINK, BALLOON[2]][(fx / 8) % 4] as Color
-		_rect(img, fx, HY - 8 + sag, fx + 4, HY - 8 + sag, OL)
-		_rect(img, fx + 1, HY - 7 + sag, fx + 3, HY - 6 + sag, flag)
-		_rect(img, fx + 2, HY - 5 + sag, fx + 2, HY - 5 + sag, flag)
-	_base = img
-	return img
+# ---- The ground ----
+
+## The lawn of the whole screen, in mowed stripes.
+static func draw_lawn(ci: CanvasItem, geo: Geo) -> void:
+	ci.draw_rect(Rect2(Vector2.ZERO, geo.size), LAWN_A)
+	var w := 96.0 * geo.u
+	var n := int(ceil(geo.size.x / w))
+	for i in range(0, n, 2):
+		ci.draw_rect(Rect2(float(i) * w, 0.0, w, geo.size.y), LAWN_B)
 
 
 static func _in_union(list: Array, p: Vector2, grow: float) -> bool:
@@ -198,326 +157,520 @@ static func _in_union(list: Array, p: Vector2, grow: float) -> bool:
 	return false
 
 
-## The ground of a hole: for every picture row below the horizon the depth `z` is known, so every pixel is a point of the course.
-static func _paint_ground(img: Image, h: Dictionary) -> void:
-	var rects: Array = h.fairway
-	var tee: Vector2 = h.tee
-	for y in range(HY + 1, GROUND_END + 30):
-		var z := 100.0 / float(y - HY)
-		var s := float(y - HY) / SK
-		for x in W:
-			var wx := (float(x) - float(CX)) / s
-			var p := Vector2(wx, z)
-			if _in_union(rects, p, 0.0):
-				img.set_pixel(x, y, _fairway_pixel(h, p, x, y, tee))
-			elif _in_union(rects, p, WALL_W):
-				img.set_pixel(x, y, WOOD_HI if _in_union(rects, p, 0.05) else WOOD)
-	# The walls at the far edges of the ground stand up a little.
+## True when the point `p` (x, z) is on the ground of the hole (inside a fairway rectangle).
+static func on_ground(hole: Dictionary, p: Vector2) -> bool:
+	return _in_union(hole.fairway, p, 0.0)
+
+
+## The walls, the mown ground with the tee mat, the lake with its bridge and the cup. The ball, the obstacles and the flag are
+## drawn on top of this by the game.
+static func draw_course(ci: CanvasItem, geo: Geo, hole: Dictionary) -> void:
+	var rects: Array = hole.fairway
 	for r in rects:
-		var rr: Rect2 = r
-		var far := rr.position.y + rr.size.y
-		for i in 9:
-			var wx := rr.position.x + rr.size.x * float(i) / 8.0
-			if _in_union(rects, Vector2(wx, far + 0.05), 0.0):
-				continue
-			var a := Vector2(float(CX) + wx * (100.0 / far / SK), HY + 100.0 / far)
-			var hgt := WALL_H * (100.0 / far / SK)
-			_rect(img, int(a.x) - 3, int(a.y - hgt), int(a.x) + 3, int(a.y), WOOD)
-			_rect(img, int(a.x) - 3, int(a.y - hgt), int(a.x) + 3, int(a.y - hgt), WOOD_HI)
-	var cup: Vector2 = h.cup
-	var cy := HY + 100.0 / cup.y
-	var cs := (cy - HY) / SK
-	_ellipse(img, float(CX) + cup.x * cs, cy, maxf(1.5, Holes.CUP_R * cs * 1.3), maxf(1.0, Holes.CUP_R * cs * 0.55), OL)
+		ci.draw_rect(geo.rect((r as Rect2).grow(WALL_W)).grow(4.0), OL)
+	for r in rects:
+		ci.draw_rect(geo.rect((r as Rect2).grow(WALL_W)), WOOD)
+	for r in rects:
+		ci.draw_rect(geo.rect((r as Rect2).grow(0.045)), WOOD_HI)
+	for r in rects:
+		_draw_fairway(ci, geo, r)
+	var tee: Vector2 = hole.tee
+	ci.draw_rect(geo.rect(Rect2(tee.x - 0.3, tee.y - 0.18, 0.6, 0.36)), TEE_MAT)
+	for r in hole.water:
+		_draw_water(ci, geo, r)
+	for r in hole.bridges:
+		_draw_bridge(ci, geo, r)
+	draw_cup(ci, geo, hole)
 
 
-static func _fairway_pixel(h: Dictionary, p: Vector2, x: int, y: int, tee: Vector2) -> Color:
-	var c := FAIR_A if int(p.y / 0.45) % 2 == 1 else FAIR_B
-	if absf(p.x - tee.x) < 0.3 and absf(p.y - tee.y) < 0.18:
-		c = TEE_MAT
-	for r in h.water:
-		var rr: Rect2 = r
-		if not rr.has_point(p):
-			continue
-		var d := minf(p.y - rr.position.y, rr.end.y - p.y)
-		c = WATER if d > 0.2 else WATER_DEEP
-		if (int(p.y * 20.0) + int(p.x * 14.0)) % 5 == 0:
-			c = WATER_GLINT
-		if d < 0.07:
-			c = STONE if (x + y) % 3 != 0 else STONE_LO
-	for r in h.bridges:
-		var br: Rect2 = r
-		if not br.has_point(p):
-			continue
-		c = WOOD_HI if int(p.y / 0.07) % 2 == 0 else WOOD
-		if minf(p.x - br.position.x, br.end.x - p.x) < 0.05:
-			c = WOOD_LO
-	return c
+static func _draw_fairway(ci: CanvasItem, geo: Geo, r: Rect2) -> void:
+	var band := 0.45
+	var b0 := int(floor(r.position.y / band))
+	var b1 := int(floor((r.end.y - 0.0001) / band))
+	for b in range(b0, b1 + 1):
+		var z0 := maxf(r.position.y, float(b) * band)
+		var z1 := minf(r.end.y, float(b + 1) * band)
+		ci.draw_rect(geo.rect(Rect2(r.position.x, z0, r.size.x, z1 - z0)), FAIR_A if b % 2 == 1 else FAIR_B)
 
 
-## Round bushes outside the walls, along both sides of the ground of the hole.
-static func _paint_bushes(img: Image, h: Dictionary) -> void:
-	var min_x := 99.0
-	var max_x := -99.0
-	var max_z := 0.0
-	for r in h.fairway:
-		var rr: Rect2 = r
-		min_x = minf(min_x, rr.position.x)
-		max_x = maxf(max_x, rr.end.x)
-		max_z = maxf(max_z, rr.end.y)
-	for zv in [1.0, 1.5, 2.1, 2.8, 3.6, 4.5, 5.5]:
-		var z: float = zv
-		if z > max_z:
-			continue
-		var y: float = HY + 100.0 / z
-		var s: float = (y - HY) / SK
-		for side in [-1.0, 1.0]:
-			var x: float = float(CX) + (min_x - 0.45 if side < 0.0 else max_x + 0.45) * s
-			_ellipse(img, x, y - 0.13 * s, 0.30 * s, 0.14 * s, BUSH_LO)
-			_ellipse(img, x, y - 0.14 * s, 0.28 * s, 0.12 * s, BUSH)
-			_ellipse(img, x - 0.06 * s, y - 0.18 * s, 0.14 * s, 0.05 * s, BUSH_HI)
+static func _draw_water(ci: CanvasItem, geo: Geo, r: Rect2) -> void:
+	var edge := 0.07
+	var deep := 0.2
+	ci.draw_rect(geo.rect(r), STONE)
+	ci.draw_rect(geo.rect(Rect2(r.position.x, r.position.y + edge, r.size.x, r.size.y - 2.0 * edge)), WATER_DEEP)
+	var mid := Rect2(r.position.x, r.position.y + deep, r.size.x, r.size.y - 2.0 * deep)
+	if mid.size.y > 0.0:
+		ci.draw_rect(geo.rect(mid), WATER)
+	var sr := geo.rect(r)
+	var step := 56.0 * geo.u
+	var gx := 0
+	var x := sr.position.x + step * 0.5
+	while x < sr.end.x - step * 0.5:
+		var gy := 0
+		var y := sr.position.y + step * 0.5
+		while y < sr.end.y - step * 0.5:
+			if (gx * 3 + gy * 5) % 4 == 0:
+				ci.draw_rect(Rect2(geo.snap(Vector2(x, y)), Vector2(16.0, 4.0) * geo.u), WATER_GLINT)
+			y += step
+			gy += 1
+		x += step
+		gx += 1
+	# The stones along the two shores.
+	for z0 in [r.position.y, r.end.y - edge]:
+		var sh := geo.rect(Rect2(r.position.x, z0, r.size.x, edge))
+		ci.draw_rect(sh, STONE_LO)
+		ci.draw_rect(Rect2(sh.position, Vector2(sh.size.x, sh.size.y * 0.5)), STONE)
 
 
-# ---- The scenery ----
-
-const FL_PINK := Color("f878f8")
-const FL_PURPLE := Color("6844fc")
-const LAMP := Color("383838")
-const BALLOON := [Palette.NES_RED, Color("f8b800"), Color("0078f8")]
-
-
-static func _line(img: Image, x0: float, y0: float, x1: float, y1: float, c: Color) -> void:
-	var n := int(maxf(absf(x1 - x0), absf(y1 - y0))) + 1
-	for i in n + 1:
-		var f := float(i) / float(n)
-		_px(img, int(lerpf(x0, x1, f)), int(lerpf(y0, y1, f)), c)
+static func _draw_bridge(ci: CanvasItem, geo: Geo, r: Rect2) -> void:
+	ci.draw_rect(geo.rect(r).grow(4.0), OL)
+	ci.draw_rect(geo.rect(r), WOOD)
+	var plank := 0.07
+	var n := int(r.size.y / plank)
+	for i in n:
+		if i % 2 == 0:
+			ci.draw_rect(geo.rect(Rect2(r.position.x, r.position.y + float(i) * plank, r.size.x, plank)), WOOD_HI)
+	var rail := 0.05
+	ci.draw_rect(geo.rect(Rect2(r.position.x, r.position.y, rail, r.size.y)), WOOD_LO)
+	ci.draw_rect(geo.rect(Rect2(r.end.x - rail, r.position.y, rail, r.size.y)), WOOD_LO)
 
 
-## A round tree with a trunk: `s` is the picture pixels of one course unit at its foot.
-static func _tree(img: Image, x: float, y: float, s: float, fruit: Color) -> void:
-	_rect(img, int(x - 0.07 * s), int(y - 0.55 * s), int(x + 0.07 * s), int(y), WOOD)
-	_rect(img, int(x + 0.02 * s), int(y - 0.55 * s), int(x + 0.07 * s), int(y), WOOD_LO)
-	_ellipse(img, x, y - 0.85 * s, 0.5 * s, 0.42 * s, BUSH_LO)
-	_ellipse(img, x - 0.02 * s, y - 0.88 * s, 0.46 * s, 0.38 * s, BUSH)
-	_ellipse(img, x - 0.14 * s, y - 1.0 * s, 0.2 * s, 0.14 * s, BUSH_HI)
-	for i in 4:
-		var fx := int(x + (float(i) - 1.5) * 0.2 * s)
-		var fy := int(y - 0.8 * s - float(i % 2) * 0.15 * s)
-		_rect(img, fx, fy, fx + 1, fy + 1, fruit)
+## The cup: a black hole in a gold rim. It is never smaller than the ball needs (`Geo.cup_r()`).
+static func draw_cup(ci: CanvasItem, geo: Geo, hole: Dictionary) -> void:
+	var c := geo.snap(geo.at(hole.cup))
+	var r := geo.cup_r()
+	ci.draw_circle(c, r + 4.0, OL)
+	ci.draw_circle(c, r, GOLD)
+	ci.draw_circle(c, r - 4.0, OL)
 
 
-static func _flowerbed(img: Image, x: float, y: float, s: float, seed_i: int) -> void:
-	_ellipse(img, x, y - 0.06 * s, 0.42 * s, 0.1 * s, WOOD_LO)
-	var cols := [RED, GOLD, FL_PINK, FL_PURPLE]
-	for i in 7:
-		var fx := x + (float(i) - 3.0) * 0.11 * s
-		var fy := y - 0.09 * s - float((i * 3 + seed_i) % 3) * 0.04 * s
-		_rect(img, int(fx), int(fy), int(fx), int(fy + 0.07 * s), BUSH)
-		_rect(img, int(fx) - 1, int(fy) - 1, int(fx) + 1, int(fy) + 1, cols[(i + seed_i) % 4])
+## The flag stands at the top rim of the cup, so that it never covers the hole: a pole up the screen and a red pennant.
+static func flag_base(geo: Geo, hole: Dictionary) -> Vector2:
+	return geo.snap(geo.at(hole.cup)) + Vector2(0.0, -geo.cup_r() * 0.7)
 
 
-static func _bench(img: Image, x: float, y: float, s: float) -> void:
-	_rect(img, int(x - 0.3 * s), int(y - 0.2 * s), int(x - 0.27 * s), int(y), LAMP)
-	_rect(img, int(x + 0.27 * s), int(y - 0.2 * s), int(x + 0.3 * s), int(y), LAMP)
-	_rect(img, int(x - 0.33 * s), int(y - 0.26 * s), int(x + 0.33 * s), int(y - 0.2 * s), WOOD_HI)
-	_rect(img, int(x - 0.33 * s), int(y - 0.46 * s), int(x + 0.33 * s), int(y - 0.38 * s), WOOD)
+static func draw_flag(ci: CanvasItem, geo: Geo, hole: Dictionary, time: float) -> void:
+	var foot := flag_base(geo, hole)
+	var top := foot - Vector2(0.0, FLAG_H * geo.u)
+	ci.draw_line(foot, top, OL, 8.0)
+	ci.draw_line(foot, top, GOLD, 4.0)
+	var wave := float(int(sin(time * 5.0) * 2.0)) * 4.0
+	var tip := top + Vector2(44.0 * geo.u, 16.0 * geo.u + wave)
+	var pennant := PackedVector2Array([top, tip, top + Vector2(0.0, 32.0 * geo.u)])
+	ci.draw_colored_polygon(pennant, RED)
+	ci.draw_polyline(PackedVector2Array([top, tip, top + Vector2(0.0, 32.0 * geo.u), top]), OL, 4.0)
 
 
-static func _lamp(img: Image, x: float, y: float, s: float) -> void:
-	_rect(img, int(x) - 1, int(y - 0.7 * s), int(x) + 1, int(y), LAMP)
-	_ellipse(img, x, y - 0.76 * s, 0.08 * s, 0.08 * s, GOLD)
-
-
-## Trees, flower beds, benches and lamps on the lawn on both sides of the course, far ones first. The course (and
-## its bushes) are in the middle, so everything stands outside the widest part of the ground of the hole.
-static func _paint_scenery(img: Image, h: Dictionary) -> void:
-	var min_x := 99.0
-	var max_x := -99.0
-	for r in h.fairway:
-		var rr: Rect2 = r
-		min_x = minf(min_x, rr.position.x)
-		max_x = maxf(max_x, rr.end.x)
-	var zs := [7.5, 6.2, 5.0, 4.0, 3.2, 2.5, 2.0, 1.6, 1.25]
-	for i in zs.size():
-		var z: float = zs[i]
-		var y: float = HY + 100.0 / z
-		var s: float = (y - HY) / SK
-		for side in [-1.0, 1.0]:
-			var kind := (i * 2 + (0 if side < 0.0 else 1)) % 4
-			var edge: float = (min_x - 0.9) if side < 0.0 else (max_x + 0.9)
-			var x: float = float(CX) + (edge + side * 0.25 * float(i % 3)) * s
-			match kind:
-				0:
-					_tree(img, x, y, s, RED if i % 2 == 0 else GOLD)
-				1:
-					_flowerbed(img, x, y, s, i)
-				2:
-					_bench(img, x, y, s)
-				_:
-					_lamp(img, x, y, s)
-
-
-## Draws the picture of the hole over the whole view.
-static func draw_ground(ci: CanvasItem, size: Vector2, n: int) -> void:
-	ci.draw_texture_rect(hole_texture(n), Rect2(Vector2.ZERO, size), false)
+## The place that the flag and the cup take on the screen (the plate of the banner keeps out of it).
+static func cup_zone(geo: Geo, hole: Dictionary) -> Rect2:
+	var c := geo.snap(geo.at(hole.cup))
+	var r := geo.cup_r() + 8.0
+	var top := flag_base(geo, hole).y - FLAG_H * geo.u - 8.0
+	return Rect2(c.x - r, top, 2.0 * r + 56.0 * geo.u, c.y + r - top)
 
 
 # ---- Things on the course ----
 
-static func draw_flag(ci: CanvasItem, geo: Geo, h: Dictionary, time: float) -> void:
-	var foot := geo.at(h.cup)
-	var sc := geo.scale_at(float(Vector2(h.cup).y)) * geo.m
-	var top := foot - Vector2(0.0, 1.0 * sc)
-	ci.draw_line(foot, top, GOLD, maxf(4.0, 0.03 * sc))
-	var wave := sin(time * 5.0) * 0.04 * sc
-	ci.draw_colored_polygon(PackedVector2Array([top, top + Vector2(0.5 * sc, 0.16 * sc + wave), top + Vector2(0.0, 0.34 * sc)]), RED)
-
-
-## A boulder with a green patch of moss: the ball bounces off it.
+## A boulder with a green patch of moss, seen from above: the ball bounces off it. Its size is the size of the rock in the data.
 static func draw_rock(ci: CanvasItem, geo: Geo, r: Vector3) -> void:
-	var foot := geo.at(Vector2(r.x, r.y))
-	var sc := geo.scale_at(r.y) * geo.m
-	var rad := maxf(r.z * sc, 12.0)
-	ci.draw_circle(foot, rad * 0.9, Color(0.0, 0.2, 0.0, 0.45))
-	var c := foot - Vector2(0.0, rad * 0.65)
+	var c := geo.snap(geo.at(Vector2(r.x, r.y)))
+	var rad := maxf(geo.len(r.z), 16.0 * geo.u)
+	ci.draw_circle(c + Vector2(6.0, 10.0) * geo.u, rad, SHADOW)
 	var pts := PackedVector2Array()
 	for i in 14:
 		var a := TAU * float(i) / 14.0
-		var wob := 1.0 + 0.08 * sin(float(i) * 2.3)
-		pts.append(c + Vector2(cos(a) * rad * 1.05 * wob, sin(a) * rad * 0.8 * wob))
+		var wob := 1.0 + 0.06 * sin(float(i) * 2.3)
+		pts.append(c + Vector2(cos(a), sin(a)) * rad * wob)
 	ci.draw_colored_polygon(pts, ROCK)
 	pts.append(pts[0])
 	ci.draw_polyline(pts, OL, 4.0)
-	ci.draw_circle(c + Vector2(rad * 0.3, rad * 0.2), rad * 0.4, ROCK_LO)
-	ci.draw_circle(c + Vector2(-rad * 0.25, -rad * 0.2), rad * 0.45, ROCK_HI)
-	ci.draw_circle(c + Vector2(-rad * 0.3, -rad * 0.55), rad * 0.2, BUSH_HI)
-	ci.draw_circle(c + Vector2(-rad * 0.1, -rad * 0.6), rad * 0.15, BUSH)
+	ci.draw_circle(c + Vector2(rad * 0.3, rad * 0.25), rad * 0.4, ROCK_LO)
+	ci.draw_circle(c + Vector2(-rad * 0.25, -rad * 0.25), rad * 0.45, ROCK_HI)
+	ci.draw_circle(c + Vector2(-rad * 0.35, -rad * 0.4), rad * 0.2, BUSH_HI)
+	ci.draw_circle(c + Vector2(-rad * 0.15, -rad * 0.45), rad * 0.14, BUSH)
 
 
-## A box on the ground: a sliding barrier (red and gold stripes on wood) or, with `wall`, a brick wall. `rect` is its
-## place now. The
-## top, the front and the side that faces the middle of the view are drawn.
+## A box on the ground: a sliding barrier (red and gold stripes on wood) or, with `wall`, a brick wall. `rect` is its place now.
+## It is drawn flat, as the camera sees it from straight above: only the top, with a shadow and a dark outline (owner, 2026-11-03:
+## the low front face did not look right from this angle).
 static func draw_box(ci: CanvasItem, geo: Geo, rect: Rect2, wall: bool) -> void:
-	var h := 0.32
-	var nl := Shell.snap(geo.at(Vector2(rect.position.x, rect.position.y)))
-	var nr := Shell.snap(geo.at(Vector2(rect.end.x, rect.position.y)))
-	var fl := Shell.snap(geo.at(Vector2(rect.position.x, rect.end.y)))
-	var fr := Shell.snap(geo.at(Vector2(rect.end.x, rect.end.y)))
-	var hn := Vector2(0.0, h * geo.scale_at(rect.position.y) * geo.m)
-	var hf := Vector2(0.0, h * geo.scale_at(rect.end.y) * geo.m)
-	ci.draw_colored_polygon(PackedVector2Array([nl, nr, fr, fl]), Color(0.0, 0.2, 0.0, 0.45))
-	var left_side := rect.position.x + rect.size.x * 0.5 > 0.0
-	var side := PackedVector2Array([nl, fl, fl - hf, nl - hn]) if left_side else PackedVector2Array([nr, fr, fr - hf, nr - hn])
-	ci.draw_colored_polygon(side, ROCK_LO if wall else WOOD_LO)
-	ci.draw_polyline(side + PackedVector2Array([side[0]]), OL, 4.0)
-	var front := PackedVector2Array([nl, nr, nr - hn, nl - hn])
-	ci.draw_colored_polygon(front, BRICK if wall else RED)
+	var r := geo.rect(rect)
+	ci.draw_rect(Rect2(r.position + Vector2(8.0, 8.0) * geo.u, r.size), SHADOW)
+	ci.draw_rect(r.grow(4.0), OL)
 	if wall:
-		for row in 3:
-			var f := float(row + 1) / 4.0
-			ci.draw_line(nl - hn * f, nr - hn * f, ROCK_LO, 3.0)
-	else:
-		var stripes := maxi(2, int(rect.size.x * 6.0))
-		for i in stripes:
-			if i % 2 == 0:
-				var a := float(i) / float(stripes)
-				var b := float(i + 1) / float(stripes)
-				ci.draw_colored_polygon(PackedVector2Array([nl.lerp(nr, a), nl.lerp(nr, b), nl.lerp(nr, b) - hn,
-						nl.lerp(nr, a) - hn]), GOLD)
-	ci.draw_polyline(front + PackedVector2Array([front[0]]), OL, 4.0)
-	var top := PackedVector2Array([nl - hn, nr - hn, fr - hf, fl - hf])
-	ci.draw_colored_polygon(top, ROCK_HI if wall else WOOD_HI)
-	ci.draw_polyline(top + PackedVector2Array([top[0]]), OL, 4.0)
+		_draw_bricks(ci, geo, r)
+		return
+	ci.draw_rect(r, WOOD_LO)
+	var along_x := r.size.x >= r.size.y
+	var long := r.size.x if along_x else r.size.y
+	var stripes := maxi(2, int(long / (24.0 * geo.u)))
+	for i in stripes:
+		var a := long * float(i) / float(stripes)
+		var b := long * float(i + 1) / float(stripes)
+		var col := GOLD if i % 2 == 0 else RED
+		if along_x:
+			ci.draw_rect(Rect2(r.position.x + a, r.position.y, b - a, r.size.y), col)
+		else:
+			ci.draw_rect(Rect2(r.position.x, r.position.y + a, r.size.x, b - a), col)
+	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 4.0 * geo.u)), WOOD_HI)
 
 
-## A turning blade: a bar on a post that turns, with red and gold halves (REQ-MG-10).
+## The top of a brick wall: rows of bricks, every other row shifted, with a light edge on the top and the left.
+static func _draw_bricks(ci: CanvasItem, geo: Geo, r: Rect2) -> void:
+	ci.draw_rect(r, BRICK)
+	var brick_h := maxf(r.size.y / maxf(1.0, roundf(r.size.y / (28.0 * geo.u))), 12.0 * geo.u)
+	var brick_w := 44.0 * geo.u
+	var row := 0
+	var y := r.position.y
+	while y < r.end.y - 1.0:
+		var h := minf(brick_h, r.end.y - y)
+		if y > r.position.y:
+			ci.draw_line(Vector2(r.position.x, y), Vector2(r.end.x, y), ROCK_LO, 3.0)
+		var x := r.position.x + (brick_w * 0.5 if row % 2 == 1 else 0.0)
+		while x < r.end.x:
+			if x > r.position.x:
+				ci.draw_line(Vector2(x, y), Vector2(x, y + h), ROCK_LO, 3.0)
+			x += brick_w
+		y += brick_h
+		row += 1
+	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 4.0)), ROCK_HI)
+	ci.draw_rect(Rect2(r.position, Vector2(4.0, r.size.y)), ROCK_HI)
+
+
+## A turning blade: a bar that turns round its middle, with a red and a gold half (REQ-MG-10). The bar is as wide as the
+## ball needs to hit it (`GolfSim.BLADE_R`).
 static func draw_spinner(ci: CanvasItem, geo: Geo, sp: Dictionary, time: float) -> void:
 	var ends := Holes.spinner_ends(sp, time)
-	var c: Vector2 = sp.c
-	var sc := geo.scale_at(c.y) * geo.m
-	var lift := Vector2(0.0, -0.22 * sc)
-	var foot := Shell.snap(geo.at(c))
-	ci.draw_line(foot, foot + lift, OL, maxf(10.0, 0.1 * sc))
-	ci.draw_line(foot, foot + lift, WOOD, maxf(6.0, 0.06 * sc))
-	var a := Shell.snap(geo.at(ends[0]) + lift * (geo.scale_at(float(Vector2(ends[0]).y)) / geo.scale_at(c.y)))
-	var b := Shell.snap(geo.at(ends[1]) + lift * (geo.scale_at(float(Vector2(ends[1]).y)) / geo.scale_at(c.y)))
-	var mid := foot + lift
-	ci.draw_line(a, b, OL, maxf(14.0, 0.14 * sc))
-	ci.draw_line(a, mid, RED, maxf(8.0, 0.09 * sc))
-	ci.draw_line(mid, b, GOLD, maxf(8.0, 0.09 * sc))
-	ci.draw_circle(mid, maxf(8.0, 0.08 * sc), WOOD_LO)
+	var a := geo.snap(geo.at(ends[0]))
+	var b := geo.snap(geo.at(ends[1]))
+	var mid := geo.snap(geo.at(sp.c))
+	var w := maxf(2.0 * 0.05 * geo.s, 16.0 * geo.u)
+	ci.draw_line(a + Vector2(6.0, 8.0) * geo.u, b + Vector2(6.0, 8.0) * geo.u, SHADOW, w)
+	ci.draw_line(a, b, OL, w + 8.0)
+	ci.draw_line(a, mid, RED, w)
+	ci.draw_line(mid, b, GOLD, w)
+	ci.draw_circle(mid, w * 0.75 + 4.0, OL)
+	ci.draw_circle(mid, w * 0.75, WOOD_LO)
 
 
-## The windmill stands on the first block of a hole that has one: a brown tower, a red roof and four gold blades that turn.
+## The windmill stands on the first block of a hole that has one: the roof of a brown tower seen from above, with four gold
+## blades that turn over it. The blades stay inside the block, so the picture shows what the ball hits.
 static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float) -> void:
-	var mid := Vector2(block.position.x + block.size.x * 0.5, block.position.y + block.size.y * 0.5)
-	var foot := geo.at(mid)
-	var sc := geo.scale_at(mid.y) * geo.m
-	var hw := block.size.x * 0.5 * sc
-	ci.draw_colored_polygon(PackedVector2Array([foot + Vector2(-hw, 0.0), foot + Vector2(hw, 0.0),
-			foot + Vector2(hw * 0.6, -1.0 * sc), foot + Vector2(-hw * 0.6, -1.0 * sc)]), BRICK)
-	ci.draw_colored_polygon(PackedVector2Array([foot + Vector2(-hw * 0.8, -1.0 * sc), foot + Vector2(hw * 0.8, -1.0 * sc),
-			foot + Vector2(0.0, -1.3 * sc)]), RED)
-	var hub := Shell.snap(foot + Vector2(0.0, -0.95 * sc))
+	var r := geo.rect(block)
+	ci.draw_rect(Rect2(r.position + Vector2(8.0, 8.0) * geo.u, r.size), SHADOW)
+	ci.draw_rect(r.grow(4.0), OL)
+	ci.draw_rect(r, RED)
+	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 4.0 * geo.u)), BRICK)
+	ci.draw_rect(Rect2(r.position.x, r.position.y + r.size.y * 0.5 - 2.0, r.size.x, 4.0), BRICK)
+	var hub := geo.snap(r.get_center())
+	var blade := 0.5 * minf(r.size.x, r.size.y) - 6.0 * geo.u
 	for i in 4:
 		var a := time * 1.4 + TAU * float(i) / 4.0
-		ci.draw_line(hub, hub + Vector2(cos(a), sin(a)) * 0.8 * sc, GOLD, maxf(4.0, 0.05 * sc))
-	ci.draw_circle(hub, maxf(4.0, 0.06 * sc), WOOD_LO)
+		var tip := hub + Vector2(cos(a), sin(a)) * blade
+		ci.draw_line(hub, tip, OL, 14.0 * geo.u)
+		ci.draw_line(hub, tip, GOLD, 8.0 * geo.u)
+	ci.draw_circle(hub, 10.0 * geo.u + 4.0, OL)
+	ci.draw_circle(hub, 10.0 * geo.u, WOOD_LO)
 
 
-## The ball at `p`, always white, with a small shadow on the ground and a shine.
-static func draw_ball(ci: CanvasItem, geo: Geo, p: Vector2, lift := 0.0) -> void:
-	var foot := Shell.snap(geo.at(p))
-	var r := geo.ball_r(p.y)
-	Shell.record("ball", ci, Rect2(foot - Vector2(r, 2.0 * r), Vector2(2.0 * r, 2.0 * r)), {"color": WHITE})
-	ci.draw_circle(foot, r * 0.9, Color(0.0, 0.2, 0.0, 0.5))
-	var c := foot - Vector2(0.0, r + lift)
-	ci.draw_circle(c, r + 4.0, OL)
-	ci.draw_circle(c, r, WHITE)
-	ci.draw_rect(Rect2(c + Vector2(r * 0.1, r * 0.15), Vector2(4.0, 4.0)), Color("bcbcbc"))
+## The places of the obstacles on the screen, for a banner plate to keep out of: the blocks, the rocks, the whole way of each
+## sliding barrier and the circle of each turning blade.
+static func obstacle_zones(geo: Geo, hole: Dictionary) -> Array:
+	var out: Array = []
+	for b in hole.blocks:
+		out.append(geo.rect(b))
+	for r in hole.rocks:
+		var c := geo.at(Vector2(r.x, r.y))
+		out.append(Rect2(c - Vector2(geo.len(r.z), geo.len(r.z)), Vector2(2.0, 2.0) * geo.len(r.z)))
+	for m in hole.movers:
+		var a := geo.rect(m.rect)
+		var far: Rect2 = m.rect
+		if String(m.axis) == "x":
+			far.position.x += float(m.amp)
+		else:
+			far.position.y += float(m.amp)
+		out.append(a.merge(geo.rect(far)))
+	for sp in hole.spinners:
+		var c2 := geo.at(sp.c)
+		var l := geo.len(float(sp.len))
+		out.append(Rect2(c2 - Vector2(l, l), Vector2(2.0, 2.0) * l))
+	return out
 
 
-## The aim: a line of dots on the ground from the ball in `heading` that is `length` course units long (0 for no line), and a
-## small mark at its end (REQ-MG-4, 13).
-static func draw_aim(ci: CanvasItem, geo: Geo, from: Vector2, heading: float, length: float, locked: bool) -> void:
+# ---- The balls ----
+
+## The ball at the screen place `c`: white with a dark outline, in no color and with no ring (owner, 2026-11-03). Only the ball of
+## the player on turn is drawn; the golfer's shirt has the slot color (REQ-MG-2). It is `Geo.ball_d()` wide.
+static func draw_ball(ci: CanvasItem, geo: Geo, c: Vector2, slot := -1) -> void:
+	var p := geo.snap(c)
+	var u := geo.u
+	Shell.record("ball", ci, Rect2(p - Vector2(BALL_OUT, BALL_OUT) * u, Vector2(2.0, 2.0) * BALL_OUT * u),
+			{"color": WHITE, "slot": slot})
+	ci.draw_circle(p + Vector2(4.0, 8.0) * u, BALL_OUT * u * 0.9, SHADOW)
+	ci.draw_circle(p, BALL_OUT * u, OL)
+	ci.draw_circle(p, (BALL_OUT - 4.0) * u, WHITE)
+	ci.draw_rect(Rect2(p + Vector2(4.0, 4.0) * u, Vector2(6.0, 6.0) * u), Color("bcbcbc"))
+
+
+## The aim: a line of dots on the ground from the ball in `heading`, `length` course units long (0 for no line) but never
+## beyond the walls, and an arrow at its end (REQ-MG-4, 13). The line is as long on the screen as the putt is on the course,
+## on every hole and at every distance. The dots and the arrow have one size.
+static func draw_aim(ci: CanvasItem, geo: Geo, hole: Dictionary, from: Vector2, heading: float, length: float,
+		locked: bool) -> void:
+	var e := aim_end(geo, hole, from, heading, length)
+	var c := geo.at(from)
+	var dir := geo.dir(heading)
+	var u := geo.u
+	var run := (e - c).length()
+	var gap := 48.0 * u
+	var start := BALL_OUT * u + 28.0 * u
+	var tip := geo.snap(e)
+	var col := GOLD if locked else UiTheme.TEXT
+	var side := dir.orthogonal()
+	# A wide light lane under the dots, from the ball to the arrow, so the direction reads from the sofa on any grass.
+	if length > 0.0 and run > start:
+		var lane_a := c + dir * start
+		var w := side * 20.0 * u
+		var lane := PackedVector2Array([lane_a + w, tip + w, tip - w, lane_a - w])
+		ci.draw_colored_polygon(lane, Color(1.0, 1.0, 1.0, 0.22))
+		var d := start
+		var i := 0
+		while d < run - 40.0 * u:
+			var p := geo.snap(c + dir * d)
+			ci.draw_rect(Rect2(p - Vector2(10.0, 10.0) * u, Vector2(20.0, 20.0) * u), OL)
+			ci.draw_rect(Rect2(p - Vector2(7.0, 7.0) * u, Vector2(14.0, 14.0) * u), UiTheme.TEXT if i % 2 == 0 else GOLD)
+			d += gap
+			i += 1
+	# A big arrow: 2.2 times the old one, so the heading shows even on the Hard level (the arrow only).
+	var back := tip - dir * 36.0 * u
+	var head := PackedVector2Array([tip + dir * 30.0 * u, back + side * 38.0 * u, back - side * 38.0 * u])
+	Shell.record("aim", ci, Rect2(tip - Vector2(40.0, 40.0) * u, Vector2(80.0, 80.0) * u),
+			{"locked": locked, "color": col, "length": run / geo.s, "heading": heading})
+	ci.draw_colored_polygon(head, col)
+	ci.draw_polyline(PackedVector2Array([head[0], head[1], head[2], head[0]]), OL, 5.0)
+
+
+const AIM_MARK := 0.6
+
+
+## The end of the aim line on the screen: `length` course units from `from` (at least `AIM_MARK` for the marker of the Hard
+## level), stopped at the wall where the line leaves the ground.
+static func aim_end(geo: Geo, hole: Dictionary, from: Vector2, heading: float, length: float) -> Vector2:
+	var want := maxf(length, AIM_MARK)
 	var dir := Vector2(sin(heading), cos(heading))
-	if length > 0.0:
-		var steps := 9
-		for i in range(1, steps + 1):
-			var p := from + dir * length * float(i) / float(steps)
-			if p.y < 0.8:
-				continue
-			var at := Shell.snap(geo.at(p) - Vector2(0.0, 4.0))
-			var sz := maxf(8.0, 0.05 * geo.scale_at(p.y) * geo.m)
-			ci.draw_rect(Rect2((at - Vector2(sz, sz) * 0.5), Vector2(sz, sz)), UiTheme.TEXT if i % 2 == 1 else GOLD)
-	var end := from + dir * maxf(length, 0.6)
-	var e := Shell.snap(geo.at(end))
-	var sz2 := maxf(16.0, 0.12 * geo.scale_at(end.y) * geo.m)
-	Shell.record("aim", ci, Rect2(e - Vector2(sz2 * 0.5, sz2 * 1.4), Vector2(sz2, sz2)),
-			{"locked": locked, "color": GOLD if locked else UiTheme.TEXT})
-	ci.draw_colored_polygon(PackedVector2Array([e + Vector2(0.0, -sz2 * 0.4), e + Vector2(-sz2 * 0.5, -sz2 * 1.4),
-			e + Vector2(sz2 * 0.5, -sz2 * 1.4)]), GOLD if locked else UiTheme.TEXT)
-	ci.draw_polyline(PackedVector2Array([e + Vector2(0.0, -sz2 * 0.4), e + Vector2(-sz2 * 0.5, -sz2 * 1.4),
-			e + Vector2(sz2 * 0.5, -sz2 * 1.4), e + Vector2(0.0, -sz2 * 0.4)]), OL, 4.0)
+	var reach := 0.0
+	var step := 0.02
+	while reach + step <= want:
+		if not on_ground(hole, from + dir * (reach + step)):
+			break
+		reach += step
+	return geo.at(from + dir * maxf(reach, 0.1))
 
 
-## A splash of water drops at `p` (age in seconds): REQ-MG-9.
-static func draw_splash(ci: CanvasItem, geo: Geo, p: Vector2, age: float) -> void:
-	var foot := geo.at(p)
-	var sc := geo.scale_at(p.y) * geo.m
+## A splash of water drops at the screen place `c` (age in seconds): REQ-MG-9.
+static func draw_splash(ci: CanvasItem, geo: Geo, c: Vector2, age: float) -> void:
+	var foot := geo.snap(c)
 	for i in 7:
 		var a := TAU * float(i) / 7.0
-		var d := Vector2(cos(a) * 0.18, -absf(sin(a)) * 0.25 - age * 0.3) * sc * (0.6 + age)
+		var d := Vector2(cos(a) * 30.0, sin(a) * 30.0 - 10.0) * (0.5 + age * 1.5) * geo.u
 		ci.draw_rect(Rect2(foot + d - Vector2(4.0, 4.0), Vector2(8.0, 8.0)), WATER_GLINT if i % 2 == 0 else WATER)
 
 
-## Gold sparks around the cup: the ball is in (age in seconds).
-static func draw_sparks(ci: CanvasItem, geo: Geo, p: Vector2, age: float) -> void:
-	var foot := geo.at(p)
-	var sc := geo.scale_at(p.y) * geo.m
+## Gold sparks round the cup: the ball is in (age in seconds).
+static func draw_sparks(ci: CanvasItem, geo: Geo, hole: Dictionary, age: float) -> void:
+	var foot := geo.snap(geo.at(hole.cup))
 	for i in 8:
 		var a := TAU * float(i) / 8.0
-		var d := Vector2(cos(a), sin(a) * 0.6 - 0.4) * (0.15 + age * 0.35) * sc
+		var d := Vector2(cos(a), sin(a)) * (geo.cup_r() + 10.0 + age * 90.0) * geo.u
 		ci.draw_rect(Rect2(foot + d - Vector2(4.0, 4.0), Vector2(8.0, 8.0)), GOLD)
+
+
+# ---- The plate of the banner ----
+
+## The baseline place for a banner plate (`Shell.label_plate`) of `msg`: one of a few places on the course area that covers the
+## least of `avoid` (the cup with its flag, the balls, the golfer, the aim line). The first free place wins, so the plate stays
+## in one place while nothing moves under it. The plate always stays inside the 60 unit margin. `soft` are places that it should
+## keep out of if it can (the obstacles): they count a quarter of `avoid`.
+static func plate_at(geo: Geo, msg: String, font_size: int, avoid: Array, soft := [], max_w := -1.0) -> Vector2:
+	var probe := Shell.label_plate_rect(Vector2.ZERO, msg, font_size, max_w)
+	var half := probe.size.x * 0.5
+	var mid := geo.size.x * 0.5
+	var xs := [mid, mid - 0.25 * geo.area.size.x, mid + 0.25 * geo.area.size.x]
+	var ys := [geo.area.position.y + geo.area.size.y * 0.16, geo.area.end.y - geo.area.size.y * 0.16 - probe.size.y * 0.5,
+			geo.area.position.y + geo.area.size.y * 0.5]
+	var best := Vector2(mid, ys[0])
+	var best_score := INF
+	for y in ys:
+		for x in xs:
+			var cx := clampf(float(x), geo.off.x + 60.0 * geo.u + half, geo.off.x + 1860.0 * geo.u - half)
+			var at := Vector2(cx, float(y) + probe.size.y * 0.5)
+			var rect := Shell.label_plate_rect(at, msg, font_size, max_w)
+			var score := 0.0
+			for a in avoid:
+				var inter := rect.intersection(a as Rect2)
+				score += inter.size.x * inter.size.y
+			for a in soft:
+				var inter2 := rect.intersection(a as Rect2)
+				score += 0.25 * inter2.size.x * inter2.size.y
+			if score < best_score:
+				best_score = score
+				best = at
+				if score == 0.0:
+					return best
+	return best
+
+
+# ---- The park round the course ----
+
+## The things that stand on the lawn round the course, small, in the free places only: [kind, screen place]. The clubhouse and
+## the hot air balloon take the first free corner, the trees, beds and benches the free places along the edges of the screen.
+static func scenery(geo: Geo, hole: Dictionary, n: int) -> Array:
+	var keep: Array = []
+	for r in hole.fairway:
+		keep.append(geo.rect((r as Rect2).grow(WALL_W)).grow(44.0 * geo.u))
+	var out: Array = []
+	var used: Array = []
+	var u := geo.u
+	var corners := [Vector2(1740.0, 250.0), Vector2(190.0, 250.0), Vector2(1740.0, 800.0), Vector2(190.0, 800.0)]
+	var big := [["clubhouse", Vector2(150.0, 110.0)], ["balloon", Vector2(110.0, 150.0)]]
+	for k in big.size():
+		for j in corners.size():
+			var c: Vector2 = corners[(j + n + k * 2) % corners.size()]
+			var box := Rect2(geo.off + c * u - big[k][1] * u * 0.5, big[k][1] * u)
+			if _free(box, keep, used):
+				out.append([big[k][0], box.get_center()])
+				used.append(box.grow(12.0 * u))
+				break
+	var kinds := ["tree", "flowers", "bush", "tree", "bench"]
+	var i := 0
+	var spots: Array = []
+	for y in range(168, 940, 104):
+		spots.append(Vector2(42.0, y))
+		spots.append(Vector2(1878.0, y))
+	for x in range(130, 1800, 120):
+		spots.append(Vector2(x, 154.0))
+		spots.append(Vector2(x, 1046.0))
+	for y in range(236, 900, 150):
+		for x in range(150, 1800, 150):
+			if (x * 7 + y * 13 + n * 5) % 3 == 0:
+				spots.append(Vector2(x, y))
+	for sp in spots:
+		var c: Vector2 = geo.off + (sp as Vector2) * u
+		var box := Rect2(c - Vector2(36.0, 36.0) * u, Vector2(72.0, 72.0) * u)
+		if _free(box, keep, used) and not (sp.y > 930.0 and sp.y < 1030.0):
+			out.append([kinds[i % kinds.size()], c])
+			used.append(box)
+			i += 1
+	return out
+
+
+static func _free(box: Rect2, keep: Array, used: Array) -> bool:
+	for k in keep:
+		if box.intersects(k as Rect2):
+			return false
+	for k in used:
+		if box.intersects(k as Rect2):
+			return false
+	return true
+
+
+static func draw_scenery(ci: CanvasItem, geo: Geo, hole: Dictionary, n: int, time: float) -> void:
+	var key := "%d|%s|%s" % [n, str(geo.size), str(geo.area.size)]
+	if not _scenery_cache.has(key):
+		_scenery_cache[key] = scenery(geo, hole, n)
+	for it in _scenery_cache[key]:
+		var c: Vector2 = geo.snap(it[1])
+		match String(it[0]):
+			"clubhouse":
+				_clubhouse(ci, geo, c)
+			"balloon":
+				_balloon(ci, geo, c, time)
+			"tree":
+				_tree(ci, geo, c, 28.0)
+			"bush":
+				_tree(ci, geo, c, 20.0)
+			"flowers":
+				_flowerbed(ci, geo, c)
+			_:
+				_bench(ci, geo, c)
+
+
+static func _ellipse_pts(c: Vector2, rx: float, ry: float) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for i in 20:
+		var a := TAU * float(i) / 20.0
+		pts.append(c + Vector2(cos(a) * rx, sin(a) * ry))
+	return pts
+
+
+## A round tree seen from above: the crown with a light spot and some fruit.
+static func _tree(ci: CanvasItem, geo: Geo, c: Vector2, r: float) -> void:
+	var u := geo.u
+	ci.draw_circle(c + Vector2(6.0, 10.0) * u, r * u, SHADOW)
+	ci.draw_circle(c, r * u + 4.0, OL)
+	ci.draw_circle(c, r * u, BUSH_LO)
+	ci.draw_circle(c + Vector2(-2.0, -3.0) * u, r * u - 5.0, BUSH)
+	ci.draw_circle(c + Vector2(-0.3, -0.3) * r * u, r * u * 0.35, BUSH_HI)
+	if r > 24.0:
+		for i in 4:
+			var p := c + Vector2(float(i - 1) * 0.5 - 0.2, float(i % 2) * 0.6 - 0.2) * r * u
+			ci.draw_rect(Rect2(geo.snap(p), Vector2(8.0, 8.0)), RED if i % 2 == 0 else GOLD)
+
+
+static func _flowerbed(ci: CanvasItem, geo: Geo, c: Vector2) -> void:
+	var u := geo.u
+	var box := Rect2(c - Vector2(36.0, 22.0) * u, Vector2(72.0, 44.0) * u)
+	ci.draw_rect(box.grow(4.0), OL)
+	ci.draw_rect(box, WOOD_LO)
+	ci.draw_rect(box.grow(-6.0 * u), BUSH)
+	var cols := [RED, GOLD, FL_PINK, FL_PURPLE]
+	for i in 6:
+		var p := box.position + Vector2(14.0 + float(i % 3) * 22.0, 12.0 + float(i / 3) * 18.0) * u
+		ci.draw_rect(Rect2(geo.snap(p), Vector2(8.0, 8.0)), cols[i % 4])
+
+
+static func _bench(ci: CanvasItem, geo: Geo, c: Vector2) -> void:
+	var u := geo.u
+	var box := Rect2(c - Vector2(36.0, 12.0) * u, Vector2(72.0, 24.0) * u)
+	ci.draw_rect(Rect2(box.position + Vector2(6.0, 8.0) * u, box.size), SHADOW)
+	ci.draw_rect(box.grow(4.0), OL)
+	ci.draw_rect(box, WOOD_HI)
+	ci.draw_rect(Rect2(box.position.x, box.position.y + 8.0 * u, box.size.x, 4.0 * u), WOOD)
+	ci.draw_rect(Rect2(box.position.x, box.end.y - 8.0 * u, box.size.x, 8.0 * u), WOOD_LO)
+
+
+## The clubhouse seen from above: a red roof over a brick wall, with a door and two windows.
+static func _clubhouse(ci: CanvasItem, geo: Geo, c: Vector2) -> void:
+	var u := geo.u
+	var body := Rect2(c - Vector2(66.0, 40.0) * u, Vector2(132.0, 96.0) * u)
+	ci.draw_rect(Rect2(body.position + Vector2(8.0, 10.0) * u, body.size), SHADOW)
+	ci.draw_rect(body.grow(4.0), OL)
+	ci.draw_rect(body, BRICK)
+	var roof := Rect2(body.position + Vector2(-4.0, -4.0) * u, Vector2(body.size.x + 8.0 * u, 56.0 * u))
+	ci.draw_rect(roof.grow(4.0), OL)
+	ci.draw_rect(roof, RED)
+	ci.draw_rect(Rect2(roof.position.x, roof.position.y + roof.size.y * 0.5 - 2.0, roof.size.x, 4.0), BRICK)
+	ci.draw_rect(Rect2(c + Vector2(-8.0, 22.0) * u, Vector2(16.0, 34.0) * u), WOOD_LO)
+	for sx in [-44.0, 28.0]:
+		ci.draw_rect(Rect2(c + Vector2(sx, 26.0) * u, Vector2(16.0, 16.0) * u), WATER)
+
+
+## A hot air balloon over the lawn, with its shadow on the grass.
+static func _balloon(ci: CanvasItem, geo: Geo, c: Vector2, time: float) -> void:
+	var u := geo.u
+	var bob := float(int(sin(time * 1.2) * 2.0)) * 4.0 * u
+	var top := c + Vector2(0.0, -22.0 * u + bob)
+	ci.draw_colored_polygon(_ellipse_pts(c + Vector2(30.0, 54.0) * u, 24.0 * u, 11.0 * u), SHADOW)
+	var env := _ellipse_pts(top, 34.0 * u + 4.0, 42.0 * u + 4.0)
+	ci.draw_colored_polygon(env, OL)
+	ci.draw_colored_polygon(_ellipse_pts(top, 34.0 * u, 42.0 * u), BALLOON[0])
+	ci.draw_colored_polygon(_ellipse_pts(top, 13.0 * u, 42.0 * u), BALLOON[1])
+	ci.draw_rect(Rect2(top + Vector2(-34.0, -5.0) * u, Vector2(68.0, 10.0) * u), BALLOON[2])
+	ci.draw_line(top + Vector2(-12.0, 40.0) * u, top + Vector2(-6.0, 62.0) * u, OL, 4.0)
+	ci.draw_line(top + Vector2(12.0, 40.0) * u, top + Vector2(6.0, 62.0) * u, OL, 4.0)
+	var basket := Rect2(top + Vector2(-10.0, 62.0) * u, Vector2(20.0, 14.0) * u)
+	ci.draw_rect(basket.grow(4.0), OL)
+	ci.draw_rect(basket, WOOD)
 
 
 # ---- The golfer ----
@@ -569,18 +722,34 @@ static func swing_pose(age: float) -> Dictionary:
 	return _mix(POSES[Pose.FINISH], POSES[Pose.ADDRESS], smoothstep(SWING_UP, SWING_TOTAL, age))
 
 
-## The place of the feet of the golfer for a ball at `ball`: to the left of it, level with it, so that the club reaches
-## down to the ball.
-static func feet_for(ball: Vector2) -> Vector2:
-	return Vector2(ball.x - 0.3, maxf(0.8, ball.y - 0.04))
+## The golfer is drawn at one size (`GOLFER_K`), seen from the side and a little from above, facing the cup (to the right). The
+## head of the club touches the ball from the left (the side of the tee), and the feet stand `CLUB_REACH` units further left.
+const CLUB_REACH := Vector2(16.0, -3.0)
+
+## Where the head of the putter rests at the address for the ball at the screen place `ball_c`: left of the ball, level with it.
+static func club_head_at(geo: Geo, ball_c: Vector2) -> Vector2:
+	var k := GOLFER_K * geo.u
+	return ball_c + Vector2(-(BALL_OUT * geo.u + 6.0 * k + 2.0), 2.0 * k)
 
 
-## Draws the golfer, seen from behind and a little from the side (the cap, the cheek and one eye look to the ball), with the
-## feet at `feet`. `shirt` is the slot color. `pose` is one of `POSES` or a mix.
-static func draw_golfer(ci: CanvasItem, geo: Geo, feet: Vector2, ball: Vector2, pose: Dictionary, shirt: Color) -> void:
-	var foot := geo.at(feet)
-	var k := maxf(geo.scale_at(feet.y) / 131.0 * 1.35, GOLFER_MIN) * geo.m
-	Shell.record("golfer", ci, Rect2(foot - Vector2(30.0, 70.0) * k, Vector2(60.0, 70.0) * k),
+## The place of the feet of the golfer for the ball at the screen place `ball_c`.
+static func feet_at(geo: Geo, ball_c: Vector2) -> Vector2:
+	return club_head_at(geo, ball_c) - CLUB_REACH * GOLFER_K * geo.u
+
+
+## The screen rectangle that the golfer takes (the banner keeps out of it).
+static func golfer_zone(geo: Geo, ball_c: Vector2) -> Rect2:
+	var k := GOLFER_K * geo.u
+	var foot := feet_at(geo, ball_c)
+	return Rect2(foot - Vector2(40.0, 92.0) * k, Vector2(110.0, 100.0) * k)
+
+
+## Draws the golfer for the ball at the screen place `ball_c` (the cap, the cheek and one eye look to the ball). `shirt` is the
+## slot color. `pose` is one of `POSES` or a mix.
+static func draw_golfer(ci: CanvasItem, geo: Geo, ball_c: Vector2, pose: Dictionary, shirt: Color) -> void:
+	var foot := geo.snap(feet_at(geo, ball_c))
+	var k := GOLFER_K * geo.u
+	Shell.record("golfer", ci, Rect2(foot - Vector2(30.0, 80.0) * k, Vector2(60.0, 80.0) * k),
 			{"shirt": shirt, "pose": pose})
 	var lean := float(pose.lean)
 	var pt := func(dx: float, dy: float) -> Vector2: return foot + Vector2(dx, dy) * k
@@ -653,9 +822,8 @@ static func draw_golfer(ci: CanvasItem, geo: Geo, feet: Vector2, ball: Vector2, 
 	# that lies on
 	# the ground. At the ball the shaft goes down to the ball at an angle and the head stands behind the ball.
 	var ang := deg_to_rad(float(pose.a))
-	var br := geo.ball_r(ball.y)
 	var head_at: Vector2 = hand + Vector2(cos(ang), -sin(ang)) * CLUB * k
-	var at_ball: Vector2 = geo.at(ball) - Vector2(br + 14.0, br * 0.5)
+	var at_ball: Vector2 = club_head_at(geo, ball_c)
 	head_at = head_at.lerp(at_ball, float(pose.ab))
 	var shaft := head_at - hand
 	var dir := shaft.normalized()

@@ -7,6 +7,7 @@ const Sim = preload("res://scripts/game/mini_golf/golf_sim.gd")
 const Rules = preload("res://scripts/game/mini_golf/golf_rules.gd")
 const Look = preload("res://scripts/game/mini_golf/golf_look.gd")
 const Shell = preload("res://scripts/game/shell.gd")
+const Protocol = preload("res://scripts/core/protocol.gd")
 
 const DT := 1.0 / 60.0
 
@@ -502,25 +503,25 @@ func _pars() -> void:
 func _grid() -> void:
 	print("pixel grid")
 	var ci := Node2D.new()
-	var geo := Look.Geo.new(Vector2(1920.0, 1080.0))
-	var feet: Array[Vector2] = []
+	var hole: Dictionary = Holes.hole(1)
+	var geo := Look.Geo.new(Vector2(1920.0, 1080.0), hole)
+	var centers: Array[Vector2] = []
 	Shell.recorder = func(kind: String, _ci: CanvasItem, rect: Rect2, _info: Dictionary) -> void:
-		# The foot of the ball and the tip of the aim mark, from the box each one records.
-		if kind == "ball":
-			feet.append(rect.position + Vector2(rect.size.x * 0.5, rect.size.y))
-		elif kind == "aim":
-			feet.append(rect.position + Vector2(rect.size.x * 0.5, rect.size.y * 1.4))
+		# The middle of the ball and of the tip of the aim mark, from the box each one records.
+		if kind == "ball" or kind == "aim":
+			centers.append(rect.get_center())
 	ci.draw.connect(func() -> void:
 		for i in 12:
-			var p := Vector2(-1.0 + 0.037 * float(i), 2.0 + 0.0113 * float(i))
-			Look.draw_ball(ci, geo, p)
-			Look.draw_aim(ci, geo, p, 0.3, 1.0, false))
+			var p := Vector2(-0.5 + 0.037 * float(i), 2.0 + 0.0113 * float(i))
+			Look.draw_ball(ci, geo, geo.at(p), 0)
+			Look.draw_aim(ci, geo, hole, p, 0.3, 1.0, false))
 	root.add_child(ci)
 	await process_frame
 	Shell.recorder = Callable()
 	var off := 0
-	for f in feet:
+	for f in centers:
 		if absf(f.x - snappedf(f.x, 4.0)) > 0.001 or absf(f.y - snappedf(f.y, 4.0)) > 0.001:
 			off += 1
 	ci.queue_free()
-	_check(feet.size() == 24 and off == 0, "the ball and the aim mark stand on the 4-unit grid (%d of %d off)" % [off, feet.size()])
+	_check(centers.size() == 24 and off == 0,
+			"the ball and the aim mark stand on the 4-unit grid (%d of %d off)" % [off, centers.size()])
