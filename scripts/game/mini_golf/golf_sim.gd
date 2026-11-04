@@ -15,6 +15,7 @@ const BLADE_KEEP := 0.8
 const STOP_SPEED := 0.04         # Under this speed (m/s) the ball stops.
 const CUP_SPEED := 1.6           # A ball slower than this falls into the cup; a faster one rolls over it.
 const MAX_TIME := 14.0           # A putt ends after this time at the latest.
+const HILL_G := 9.8              # m/s2: a hill slows a ball that climbs it and speeds up one that rolls down.
 const SPEED_TOP := 4.5           # The speed of the strongest putt (m/s).
 
 var hole: Dictionary = {}
@@ -137,10 +138,12 @@ func _step(dt: float) -> void:
 	time += dt
 	clock += dt
 	_push_out_of_movers()
+	var slope := Holes.hill_slope(hole, pos)
+	vel.y -= HILL_G * slope * dt
 	var speed := vel.length()
 	speed = maxf(0.0, speed - ROLL_DECEL * dt)
 	vel = vel.normalized() * speed if speed > 0.0 else Vector2.ZERO
-	if speed < STOP_SPEED or time > MAX_TIME:
+	if (speed < STOP_SPEED and absf(HILL_G * slope) <= ROLL_DECEL) or time > MAX_TIME:
 		vel = Vector2.ZERO
 		finished = true
 		return

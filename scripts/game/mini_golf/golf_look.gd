@@ -59,6 +59,10 @@ const GOLD := Color("f8b800")
 const BRICK := Color("c0442c")
 const MORTAR := Color("e8dcc8")
 const BRICK_TOP := Color("e07058")
+const HILL_LIT := Color("78d820")
+const HILL_MID := Color("5cc010")
+const HILL_DARK := Color("3c9c10")
+const HILL_CUT := Color("2c7808")
 const GOLD_TOP := Color("f8d870")
 const OL := Color("181818")
 const ROCK := Color("887868")
@@ -208,7 +212,33 @@ static func draw_course(ci: CanvasItem, geo: Geo, hole: Dictionary) -> void:
 		_draw_bridge(ci, geo, r)
 	for m in hole.movers:
 		_draw_rail(ci, geo, m)
+	for hl in hole.get("hills", []):
+		_draw_hill(ci, geo, hl)
 	draw_cup(ci, geo, hole)
+
+
+## A hill: a bump across the whole width of its rectangle, smooth, as high as its `height` (m) in the middle. It is drawn in
+## vertical strips: the light falls from the left, so the side that rises is light and the side that falls is dark; the near
+## end shows the cut of the bump (owner, 2026-11-04: a full-width bump to climb and slide down).
+static func _draw_hill(ci: CanvasItem, geo: Geo, hill: Dictionary) -> void:
+	var f := geo.rect(hill.rect)
+	var hmax := geo.up(float(hill.height))
+	var step := geo.grid
+	var top: Array = []
+	var bottom: Array = []
+	var x := f.position.x
+	while x < f.end.x:
+		var t := (x + step * 0.5 - f.position.x) / f.size.x
+		var h := hmax * pow(sin(PI * t), 2.0)
+		var lean := sin(2.0 * PI * t)
+		var col := HILL_LIT if lean > 0.3 else (HILL_DARK if lean < -0.3 else HILL_MID)
+		ci.draw_rect(Rect2(x, f.position.y - h, step + 1.0, f.size.y), col)
+		ci.draw_rect(Rect2(x, f.end.y - h, step + 1.0, h), HILL_CUT)
+		top.append(Vector2(x, f.position.y - h))
+		bottom.append(Vector2(x, f.end.y - h))
+		x += step
+	ci.draw_polyline(PackedVector2Array(top), OL, 4.0)
+	ci.draw_polyline(PackedVector2Array(bottom), OL, 4.0)
 
 
 ## The way of a sliding barrier on the ground: a dashed dark line along its axis with a post at each end, so that it is clear
@@ -542,6 +572,7 @@ static func draw_aim(ci: CanvasItem, geo: Geo, hole: Dictionary, from: Vector2, 
 	var d := start
 	while d <= run:
 		var p := geo.snap(c + dir * d)
+		p.y -= geo.up(Holes.hill_height(hole, geo.point_at(c + dir * d)))
 		ci.draw_rect(Rect2(p - Vector2(8.0, 8.0) * u, Vector2(16.0, 16.0) * u), OL)
 		ci.draw_rect(Rect2(p - Vector2(5.0, 5.0) * u, Vector2(10.0, 10.0) * u), col)
 		d += gap

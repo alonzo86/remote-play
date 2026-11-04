@@ -391,6 +391,11 @@ func golfer_flipped() -> bool:
 	return cos(_heading) < 0.0
 
 
+## The screen place of a point of the course with the height of the ground (a hill lifts the ball).
+func _lifted(geo: GolfLook.Geo, p: Vector2) -> Vector2:
+	return geo.at(p) - Vector2(0.0, geo.up(Holes.hill_height(_hole, p)))
+
+
 func _world_draw(ci: CanvasItem) -> void:
 	var geo := _geo()
 	GolfLook.draw_lawn(ci, geo)
@@ -418,7 +423,7 @@ func _world_draw(ci: CanvasItem) -> void:
 		items.append([geo.at(sp.c).y, func() -> void: GolfLook.draw_spinner(ci, geo, sp, _time)])
 	var list := ball_list()
 	if golfer_shown():
-		var spot := geo.at(_spot)
+		var spot := geo.at(_spot) - Vector2(0.0, geo.up(Holes.hill_height(_hole, _spot)))
 		items.append([spot.y, func() -> void:
 			GolfLook.draw_golfer(ci, geo, spot, _pose(), player(_putter).color, golfer_flipped())])
 	if not list.is_empty():
@@ -427,7 +432,7 @@ func _world_draw(ci: CanvasItem) -> void:
 		# disappears behind the door and comes out on the other side.
 		var in_tunnel: bool = windmill and blocks.size() > 0 and (blocks[0] as Rect2).has_point(ball.pos)
 		var ball_key: float = geo.at((blocks[0] as Rect2).end).y - 1.0 if in_tunnel else INF
-		items.append([ball_key, func() -> void: GolfLook.draw_ball(ci, geo, geo.at(ball.pos), ball.slot)])
+		items.append([ball_key, func() -> void: GolfLook.draw_ball(ci, geo, _lifted(geo, ball.pos), ball.slot)])
 	items.sort_custom(func(a, b) -> bool: return a[0] < b[0])
 	for it in items:
 		it[1].call()

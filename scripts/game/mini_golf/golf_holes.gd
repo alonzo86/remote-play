@@ -3,8 +3,8 @@ extends RefCounted
 ## of rectangles that overlap at the turns), the place of the tee and of the cup, and the things on the course: lakes (`water`,
 ## a rectangle from wall to wall) with `bridges`, rocks (`Vector3(x, z, radius)`), brick walls and the tower of a windmill
 ## (`blocks`, `Rect2`; the first block of a hole with `windmill` is the tower, with a door of width `door` along z in the middle
-## that the ball goes through along x, `solid_blocks()`), sliding barriers (`movers`) and turning blades (`spinners`). All in the
-## same units as the picture
+## that the ball goes through along x, `solid_blocks()`), hills (`hills`), sliding barriers (`movers`) and turning blades
+## (`spinners`). All in the same units as the picture
 ## (`golf_look.gd`): x across (the middle of the view is 0) and z along, away from the camera, about a meter each. `Rect2(x, z,
 ## width, depth)` has its near left corner at (x, z). The par of a hole is the strokes of a good player (REQ-MG-6). The first
 ## values are guesses (Manual test 26).
@@ -14,9 +14,10 @@ const BALL_R := 0.045
 const CUP_R := 0.1
 
 const HOLES: Array[Dictionary] = [
-	# 1: a straight hole with a rock and a brick wall to steer around.
+	# 1: a straight hole with a hill to climb (a soft putt rolls back), then a rock and a brick wall to steer around.
 	{"par": 2, "tee": Vector2(0.0, 1.1), "cup": Vector2(0.0, 5.1),
 			"fairway": [Rect2(-0.8, 0.75, 1.6, 5.0)], "water": [], "bridges": [], "spinners": [],
+			"hills": [{"rect": Rect2(-0.8, 1.7, 1.6, 0.9), "height": 0.12}],
 			"blocks": [Rect2(0.25, 3.6, 0.5, 0.25)], "rocks": [Vector3(-0.3, 3.0, 0.17)], "movers": []},
 	# 2: two rows with a wall between them. The ball crosses a lake by the bridge in the near row, then goes up through the
 	# door of the windmill (the only way into the far row), past the turning blades, to the cup.
@@ -57,6 +58,27 @@ static func solid_blocks(h: Dictionary) -> Array[Rect2]:
 		else:
 			out.append(b)
 	return out
+
+
+## The height of the ground of a hole at `p` (m): a hill (`hills`, `{"rect": Rect2, "height": m}`) is a bump across the whole
+## width of its rectangle, `height` at the middle along z and 0 at both ends, smooth (sin squared).
+static func hill_height(h: Dictionary, p: Vector2) -> float:
+	for hl in h.get("hills", []):
+		var r: Rect2 = hl.rect
+		if r.has_point(p):
+			var t := (p.y - r.position.y) / r.size.y
+			return float(hl.height) * pow(sin(PI * t), 2.0)
+	return 0.0
+
+
+## The slope of the ground at `p` along z (dh/dz, positive going up in the direction of the course axis).
+static func hill_slope(h: Dictionary, p: Vector2) -> float:
+	for hl in h.get("hills", []):
+		var r: Rect2 = hl.rect
+		if r.has_point(p):
+			var t := (p.y - r.position.y) / r.size.y
+			return float(hl.height) * PI * sin(2.0 * PI * t) / r.size.y
+	return 0.0
 
 
 ## The hole `n` (1 to COUNT). A number outside the range gives the nearest hole.

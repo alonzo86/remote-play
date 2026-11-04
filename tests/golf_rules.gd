@@ -41,6 +41,7 @@ func _initialize() -> void:
 	_words_and_medals()
 	_things_bounce()
 	_windmill_door()
+	_hills()
 	_blades_on_holes()
 	_barriers_leave_a_gap()
 	_pars()
@@ -481,6 +482,55 @@ func _windmill_door() -> void:
 	_check(not got_in, "hole 2: a ball shot up beside the door stays in the near row (the wall stops it)")
 	_check(Sim.walkable(h2, h2.cup) and Vector2(h2.cup).x < -0.13 and Vector2(h2.tee).x > 0.13,
 			"hole 2: the tee is in the near row and the cup in the far row")
+
+
+## REQ-MG-10: a hill is a bump across the whole width: a soft putt does not get over it and rolls back, a strong one does and
+## speeds up again on the way down (owner, 2026-11-04).
+func _hills() -> void:
+	print("hills")
+	var h := _flat_hole()
+	h.hills = [{"rect": Rect2(-1.0, 2.0, 2.0, 1.0), "height": 0.12}]
+	_check(is_zero_approx(Holes.hill_height(h, Vector2(0.0, 1.9))) and absf(Holes.hill_height(h, Vector2(0.0, 2.5)) - 0.12) < 0.001
+			and is_zero_approx(Holes.hill_height(h, Vector2(0.0, 3.1))),
+			"the hill is 0.12 m high in the middle and flat outside")
+	_check(Holes.hill_slope(h, Vector2(0.0, 2.25)) > 0.2 and Holes.hill_slope(h, Vector2(0.0, 2.75)) < -0.2
+			and absf(Holes.hill_slope(h, Vector2(0.0, 2.5))) < 0.001, "it rises, is level at the top and falls")
+	var soft := Sim.new()
+	soft.start(h, Vector2(0.0, 1.2))
+	_roll(soft, 0.0, 1.2)
+	_check(soft.finished and soft.pos.y < 2.5, "a soft putt (1.2 m/s) does not get over the hill (stops at z %.2f)" % soft.pos.y)
+	var rolled_back := Sim.new()
+	rolled_back.start(h, Vector2(0.0, 1.2))
+	rolled_back.putt(0.0, 1.5)
+	var top := 0.0
+	var back := false
+	while not rolled_back.finished:
+		rolled_back.tick(DT)
+		top = maxf(top, rolled_back.pos.y)
+		back = back or (top > 2.0 and rolled_back.vel.y < -0.05)
+	_check(back and rolled_back.pos.y < top - 0.05,
+			"a putt that does not make it rolls back down the hill (the top %.2f, the end %.2f)" % [top, rolled_back.pos.y])
+	var strong := Sim.new()
+	strong.start(h, Vector2(0.0, 1.2))
+	_roll(strong, 0.0, 3.5)
+	_check(strong.pos.y > 3.1, "a strong putt (3.5 m/s) gets over the hill (stops at z %.2f)" % strong.pos.y)
+	var speeds: Array = []
+	for hole_data in [h, _flat_hole()]:
+		var run := Sim.new()
+		run.start(hole_data, Vector2(0.0, 1.2))
+		run.putt(0.0, 3.5)
+		var at := -1.0
+		while not run.finished and at < 0.0:
+			run.tick(DT)
+			if run.pos.y > 2.5:
+				at = run.vel.length()
+		speeds.append(at)
+	_check(speeds[0] > 0.0 and speeds[0] < speeds[1] - 0.3,
+			"a putt is slower on the top of the hill (%.2f m/s at z 2.5, against %.2f m/s on flat ground)" % [speeds[0], speeds[1]])
+	for n in range(1, Holes.COUNT + 1):
+		var hh := Holes.hole(n)
+		_check(is_zero_approx(Holes.hill_height(hh, hh.tee)) and is_zero_approx(Holes.hill_height(hh, hh.cup)),
+				"hole %d: the tee and the cup are not on a hill" % n)
 
 
 ## REQ-MG-10: a turning blade bounces the ball, on holes 2, 4 and 5; it depends on where the blade is, so many times are tried.
