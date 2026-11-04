@@ -424,16 +424,21 @@ static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float, d
 	for r in range(1, rows):
 		var yy := lerpf(foot, base_top, float(r) / float(rows))
 		ci.draw_line(Vector2(cx - hw * 0.96, yy), Vector2(cx + hw * 0.96, yy), Color("5c5448"), 3.0)
-	# The door: the ball goes through it, along the course axis across the screen (up the screen): a dark arch with a brown inside.
+	# The door: the ball goes through it, along the across axis (up the screen). A real doorway: a wooden frame with a lintel and a
+	# stone step, and a dark opening with the light of the far end at the top (not a ring).
 	var door_w := minf(geo.len(door), w * 0.8)
-	var door_h := (foot - base_top) * 0.75
-	var arch := door_w * 0.5
-	ci.draw_rect(Rect2(cx - arch - 3.0, foot - door_h + arch, door_w + 6.0, door_h - arch), OL)
-	ci.draw_circle(Vector2(cx, foot - door_h + arch), arch + 3.0, OL)
-	ci.draw_rect(Rect2(cx - arch, foot - door_h + arch, door_w, door_h - arch), WOOD_LO)
-	ci.draw_circle(Vector2(cx, foot - door_h + arch), arch, WOOD_LO)
-	ci.draw_rect(Rect2(cx - arch * 0.7, foot - door_h + arch, door_w * 0.7, door_h - arch), Color("301800"))
-	ci.draw_circle(Vector2(cx, foot - door_h + arch), arch * 0.7, Color("301800"))
+	var door_h := (foot - base_top) * 0.78
+	var frame := 7.0 * u
+	var open := Rect2(cx - door_w * 0.5, foot - door_h, door_w, door_h)
+	ci.draw_rect(open.grow(frame + 3.0), OL)
+	ci.draw_rect(open.grow(frame), WOOD)
+	ci.draw_rect(Rect2(open.position.x - frame, open.position.y - frame, frame, door_h + frame), WOOD_HI)
+	ci.draw_rect(open, OL)
+	ci.draw_rect(Rect2(open.position.x + 3.0, open.position.y + 3.0, open.size.x - 6.0, open.size.y * 0.35), Color("5c4a30"))
+	ci.draw_rect(Rect2(open.position.x + 3.0, open.position.y + 3.0, open.size.x - 6.0, 4.0), Color("a89878"))
+	var step := Rect2(open.position.x - frame - 4.0, foot - 5.0 * u, open.size.x + 2.0 * frame + 8.0, 5.0 * u)
+	ci.draw_rect(step, Color("d8d0c0"))
+	ci.draw_rect(step.grow(2.0), OL, false, 3.0)
 	# The balcony between the base and the tower.
 	ci.draw_rect(Rect2(cx - hw * 1.0, base_top - 4.0 * u, w, 8.0 * u).grow(2.0), OL)
 	ci.draw_rect(Rect2(cx - hw * 1.0, base_top - 4.0 * u, w, 8.0 * u), WOOD_LO)
