@@ -42,11 +42,12 @@ func _initialize() -> void:
 
 func _course_rect(geo: Look.Geo) -> Rect2:
 	var tl := geo.at(geo.bounds.position)
-	return Rect2(tl, Vector2(geo.bounds.size.y, geo.bounds.size.x) * geo.s)
+	return Rect2(tl, Vector2(geo.bounds.size.y * geo.s, geo.bounds.size.x * geo.s * geo.k + geo.wall_h))
 
 
-## The whole hole, walls included, is inside the 60 unit margin and between the black bar (112) and the chips, with one row of
-## chips and with two (the HUD never lies on the course). One of its two sides fills the room: the scale is as big as it can be.
+## The whole hole, walls included (and the front face of the wall slab), is inside the 60 unit margin and between the black
+## bar (112) and the chips, with one row of chips and with two (the HUD never lies on the course). One of its two sides fills the
+## room: the scale is as big as it can be.
 func _fits() -> void:
 	print("the hole fits the room")
 	for n in range(1, Holes.COUNT + 1):
@@ -64,8 +65,9 @@ func _fits() -> void:
 		_check(one.s >= 200.0, "hole %d: the course is at least 200 units for each course unit (%.0f), so it can be read" % [n, one.s])
 
 
-## No perspective: a course unit is as long on the screen at the tee as at the cup, along and across, and the ball, the cup and
-## the golfer have one size on every hole (the ball is 32 units wide with its outline, owner 2026-11-03).
+## One scale: a course unit along the course is as long on the screen at the tee as at the cup, and across it is squashed by the
+## tilt of the camera (owner, 2026-11-04). The ball, the cup and the golfer have one size on every hole (the ball is 32 units
+## wide with its outline, owner 2026-11-03).
 func _one_scale() -> void:
 	print("one scale")
 	for n in range(1, Holes.COUNT + 1):
@@ -74,9 +76,9 @@ func _one_scale() -> void:
 		var near := geo.at(Vector2(0.0, 1.0)).distance_to(geo.at(Vector2(0.0, 2.0)))
 		var far := geo.at(Vector2(0.0, 4.0)).distance_to(geo.at(Vector2(0.0, 5.0)))
 		var side := geo.at(Vector2(0.0, 3.0)).distance_to(geo.at(Vector2(1.0, 3.0)))
-		_check(is_equal_approx(near, geo.s) and is_equal_approx(far, geo.s) and is_equal_approx(side, geo.s),
-				"hole %d: a course unit is %.1f units long near the tee, far from it and across (%.1f, %.1f, %.1f)"
-				% [n, geo.s, near, far, side])
+		_check(is_equal_approx(near, geo.s) and is_equal_approx(far, geo.s) and is_equal_approx(side, geo.s * geo.k),
+				"hole %d: a course unit is %.1f units long along the course (near the tee %.1f, far %.1f) and %.1f across (tilt %.2f)"
+				% [n, geo.s, near, far, side, geo.k])
 		_check(geo.ball_d() == 32.0 and geo.cup_r() * 2.0 >= geo.ball_d() + 8.0,
 				"hole %d: the ball is %.0f units wide and the cup %.0f, the ball fits in it" % [n, geo.ball_d(), geo.cup_r() * 2.0])
 	var small := Look.Geo.new(Vector2(960.0, 540.0), Holes.hole(2), 1)

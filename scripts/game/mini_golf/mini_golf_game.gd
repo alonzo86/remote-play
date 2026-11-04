@@ -396,27 +396,40 @@ func _world_draw(ci: CanvasItem) -> void:
 	GolfLook.draw_lawn(ci, geo)
 	GolfLook.draw_scenery(ci, geo, _hole, rules.hole_number(), _time)
 	GolfLook.draw_course(ci, geo, _hole)
+	# The obstacles, the ball and the golfer are drawn from far to near (the camera is tilted, so a tall obstacle hides what is
+	# behind it); the flag and the aim line stay on top.
+	var items: Array = []
 	var blocks: Array = _hole.blocks
 	var windmill: bool = _hole.get("windmill", false)
 	for i in blocks.size():
-		if windmill and i == 0:
-			GolfLook.draw_windmill(ci, geo, blocks[i], _time)
-		else:
-			GolfLook.draw_box(ci, geo, blocks[i], true)
+		var blk: Rect2 = blocks[i]
+		items.append([geo.at(blk.end).y, func() -> void:
+			if windmill and i == 0:
+				GolfLook.draw_windmill(ci, geo, blk, _time)
+			else:
+				GolfLook.draw_box(ci, geo, blk, true)])
 	for r in _hole.rocks:
-		GolfLook.draw_rock(ci, geo, r)
+		var rock: Vector3 = r
+		items.append([geo.at(Vector2(rock.x, rock.y)).y, func() -> void: GolfLook.draw_rock(ci, geo, rock)])
 	for m in _hole.movers:
-		GolfLook.draw_box(ci, geo, Holes.mover_rect(m, _time), false)
+		var mv: Rect2 = Holes.mover_rect(m, _time)
+		items.append([geo.at(mv.end).y, func() -> void: GolfLook.draw_box(ci, geo, mv, false)])
 	for sp in _hole.spinners:
-		GolfLook.draw_spinner(ci, geo, sp, _time)
-	GolfLook.draw_flag(ci, geo, _hole, _time)   # On top of the obstacles: a sliding barrier never hides it.
+		items.append([geo.at(sp.c).y, func() -> void: GolfLook.draw_spinner(ci, geo, sp, _time)])
 	var list := ball_list()
 	if golfer_shown():
-		GolfLook.draw_golfer(ci, geo, geo.at(_spot), _pose(), player(_putter).color, golfer_flipped())
-		if phase == Phase.AIM:
-			GolfLook.draw_aim(ci, geo, _hole, sim.pos, _heading, _line_length(), detector.aim_locked or _aim_held, _snapped)
+		var spot := geo.at(_spot)
+		items.append([spot.y, func() -> void:
+			GolfLook.draw_golfer(ci, geo, spot, _pose(), player(_putter).color, golfer_flipped())])
 	if not list.is_empty():
-		GolfLook.draw_ball(ci, geo, geo.at(list[0].pos), list[0].slot)
+		var ball: Dictionary = list[0]
+		items.append([geo.at(ball.pos).y + 1.0, func() -> void: GolfLook.draw_ball(ci, geo, geo.at(ball.pos), ball.slot)])
+	items.sort_custom(func(a, b) -> bool: return a[0] < b[0])
+	for it in items:
+		it[1].call()
+	GolfLook.draw_flag(ci, geo, _hole, _time)   # On top of the obstacles: a sliding barrier never hides it.
+	if golfer_shown() and phase == Phase.AIM:
+		GolfLook.draw_aim(ci, geo, _hole, sim.pos, _heading, _line_length(), detector.aim_locked or _aim_held, _snapped)
 	if _splash_age < 1.0:
 		GolfLook.draw_splash(ci, geo, geo.at(_splash_at), _splash_age)
 	if _spark_age < 1.0:
