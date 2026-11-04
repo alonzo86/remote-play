@@ -35,7 +35,7 @@ const TILT := 0.36
 const WALL_UNITS := 0.09          # The height of the wall slab (its front face shows below the near edge).
 const BRICK_UNITS := 0.2          # The height of a brick wall.
 const MOVER_UNITS := 0.17         # The height of a sliding barrier.
-const TOWER_UNITS := 0.45         # The height of the windmill tower.
+const TOWER_UNITS := 0.62         # The height of the windmill tower.
 
 const WHITE := Color("fcfcfc")
 const LAWN_A := Color("98d838")
@@ -398,27 +398,74 @@ static func draw_spinner(ci: CanvasItem, geo: Geo, sp: Dictionary, time: float) 
 	ci.draw_circle(mid, w * 0.75, WOOD_LO)
 
 
-## The windmill stands on the first block of a hole that has one: a red tower with a roof, and four gold sails that turn in front
-## of the top of it. The footprint of the tower is the block, which is what the ball hits.
+## The windmill stands on the first block of a hole that has one: a stone base with an arched door, a cream wooden tower with
+## two windows and a balcony, a red cap, and four lattice sails that turn in front of the top (owner, 2026-11-04: redrawn, it
+## looked plain). The footprint of the tower is the block, which is what the ball hits; the sails and the door are only a picture.
 static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float) -> void:
 	var f := geo.rect(block)
 	var h := geo.up(TOWER_UNITS)
-	ci.draw_rect(Rect2(f.position + Vector2(10.0, 6.0) * geo.u, f.size), SHADOW)
-	var front := Rect2(f.position.x, f.end.y - h, f.size.x, h)
-	ci.draw_rect(Rect2(f.position.x, f.position.y - h, f.size.x, f.size.y + h).grow(4.0), OL)
-	ci.draw_rect(front, WHITE)
-	ci.draw_rect(Rect2(front.position.x, front.position.y, front.size.x * 0.25, front.size.y), Color("d8d8d8"))
-	ci.draw_rect(Rect2(front.get_center().x - 10.0 * geo.u, front.end.y - 36.0 * geo.u, 20.0 * geo.u, 36.0 * geo.u), WOOD_LO)
-	ci.draw_rect(Rect2(f.position.x, f.position.y - h, f.size.x, f.size.y), RED)
-	var hub := geo.snap(Vector2(f.get_center().x, f.position.y - h + f.size.y * 0.5))
-	var blade := f.size.x * 0.9
+	var u := geo.u
+	var cx := f.get_center().x
+	var foot := f.end.y                      # The bottom of the front face.
+	var w := f.size.x                        # The width of the base.
+	ci.draw_colored_polygon(_ellipse_pts(Vector2(cx + 8.0 * u, foot), w * 0.62, 10.0 * u), SHADOW)
+	var poly := func(pts: Array, c: Color) -> void:
+		var pp := PackedVector2Array(pts)
+		ci.draw_colored_polygon(pp, c)
+		pp.append(pp[0])
+		ci.draw_polyline(pp, OL, 4.0)
+	var base_top := foot - h * 0.4
+	var wood_top := foot - h * 0.86
+	var hw := w * 0.5
+	# The stone base, with rows of stones.
+	poly.call([Vector2(cx - hw, foot), Vector2(cx + hw, foot), Vector2(cx + hw * 0.86, base_top), Vector2(cx - hw * 0.86, base_top)],
+			Color("a8a090"))
+	var rows := 3
+	for r in range(1, rows):
+		var yy := lerpf(foot, base_top, float(r) / float(rows))
+		ci.draw_line(Vector2(cx - hw * 0.96, yy), Vector2(cx + hw * 0.96, yy), Color("5c5448"), 3.0)
+	var door_h := (foot - base_top) * 0.7
+	ci.draw_rect(Rect2(cx - 12.0 * u, foot - door_h, 24.0 * u, door_h), OL)
+	ci.draw_circle(Vector2(cx, foot - door_h), 12.0 * u, OL)
+	ci.draw_rect(Rect2(cx - 8.0 * u, foot - door_h + 2.0, 16.0 * u, door_h - 2.0), WOOD_LO)
+	ci.draw_circle(Vector2(cx, foot - door_h + 2.0), 8.0 * u, WOOD_LO)
+	# The balcony between the base and the tower.
+	ci.draw_rect(Rect2(cx - hw * 1.0, base_top - 4.0 * u, w, 8.0 * u).grow(2.0), OL)
+	ci.draw_rect(Rect2(cx - hw * 1.0, base_top - 4.0 * u, w, 8.0 * u), WOOD_LO)
+	# The wooden tower: cream, with a shaded left side, plank lines and two windows.
+	poly.call([Vector2(cx - hw * 0.84, base_top), Vector2(cx + hw * 0.84, base_top), Vector2(cx + hw * 0.6, wood_top),
+			Vector2(cx - hw * 0.6, wood_top)], Color("f8e8c8"))
+	poly.call([Vector2(cx - hw * 0.84, base_top), Vector2(cx - hw * 0.5, base_top), Vector2(cx - hw * 0.36, wood_top),
+			Vector2(cx - hw * 0.6, wood_top)], Color("d8c8a8"))
+	for r in range(1, 3):
+		var yy2 := lerpf(base_top, wood_top, float(r) / 3.0)
+		ci.draw_line(Vector2(cx - hw * 0.8, yy2), Vector2(cx + hw * 0.8, yy2), Color("c8b898"), 3.0)
+	for wx in [-0.22, 0.28]:
+		var wc := Vector2(cx + hw * wx, lerpf(base_top, wood_top, 0.5))
+		ci.draw_rect(Rect2(wc - Vector2(7.0, 9.0) * u, Vector2(14.0, 18.0) * u).grow(3.0), OL)
+		ci.draw_rect(Rect2(wc - Vector2(7.0, 9.0) * u, Vector2(14.0, 18.0) * u), Color("3cbcfc"))
+	# The red cap.
+	var cap_h := h * 0.24
+	poly.call([Vector2(cx - hw * 0.7, wood_top), Vector2(cx + hw * 0.7, wood_top), Vector2(cx, wood_top - cap_h)], BRICK)
+	ci.draw_colored_polygon(PackedVector2Array([Vector2(cx - hw * 0.66, wood_top - 2.0), Vector2(cx - hw * 0.1, wood_top - 2.0),
+			Vector2(cx, wood_top - cap_h + 4.0)]), BRICK_TOP)
+	# Four lattice sails round a gold hub, turning slowly.
+	var hub := geo.snap(Vector2(cx, wood_top - 2.0))
+	var reach := w * 0.8
 	for i in 4:
-		var a := time * 1.4 + TAU * float(i) / 4.0
-		var tip := hub + Vector2(cos(a), sin(a)) * blade
-		ci.draw_line(hub, tip, OL, 14.0 * geo.u)
-		ci.draw_line(hub, tip, GOLD, 8.0 * geo.u)
-	ci.draw_circle(hub, 10.0 * geo.u + 4.0, OL)
-	ci.draw_circle(hub, 10.0 * geo.u, WOOD_LO)
+		var a := time * 1.0 + TAU * float(i) / 4.0
+		var ux := Vector2(cos(a), sin(a))
+		var nx := ux.orthogonal()
+		ci.draw_line(hub, hub + ux * reach, OL, 9.0 * u)
+		ci.draw_line(hub, hub + ux * reach, WOOD_LO, 4.0 * u)
+		var q := PackedVector2Array([hub + ux * reach * 0.3 + nx * reach * 0.2, hub + ux * reach + nx * reach * 0.2,
+				hub + ux * reach, hub + ux * reach * 0.3])
+		ci.draw_colored_polygon(q, WHITE)
+		ci.draw_polyline(PackedVector2Array([q[0], q[1], q[2], q[3], q[0]]), OL, 3.0)
+		for t in [0.4, 0.7]:
+			ci.draw_line(q[3].lerp(q[2], t), q[0].lerp(q[1], t), Color("a8a090"), 2.0)
+	ci.draw_circle(hub, 9.0 * u + 3.0, OL)
+	ci.draw_circle(hub, 9.0 * u, GOLD)
 
 
 ## The places of the obstacles on the screen, for a banner plate to keep out of: the blocks, the rocks, the whole way of each
