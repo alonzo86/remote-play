@@ -26,7 +26,7 @@ const HOLES: Array[Dictionary] = [
 	{"par": 3, "tee": Vector2(0.0, 1.1), "cup": Vector2(2.4, 3.6),
 			"fairway": [Rect2(-0.7, 0.75, 1.4, 2.7), Rect2(-0.7, 2.9, 3.6, 1.4)], "water": [], "bridges": [], "spinners": [],
 			"blocks": [Rect2(0.0, 3.8, 0.45, 0.4)], "rocks": [Vector3(0.9, 3.3, 0.15)],
-			"movers": [{"rect": Rect2(1.7, 2.9, 0.2, 0.65), "axis": "z", "amp": 0.75, "speed": 1.6}]},
+			"movers": [{"rect": Rect2(1.45, 2.9, 0.2, 0.65), "axis": "z", "amp": 0.75, "speed": 1.6}]},
 	# 4: a lake from wall to wall with a narrow bridge in the middle, rocks before it and turning blades after it.
 	{"par": 3, "tee": Vector2(-0.6, 1.1), "cup": Vector2(0.0, 5.0),
 			"fairway": [Rect2(-1.25, 0.75, 2.5, 5.0)], "water": [Rect2(-1.25, 2.7, 2.5, 1.0)],

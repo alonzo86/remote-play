@@ -26,7 +26,6 @@ const WEAK_HINT_TIME := 3.0
 const LIGHT_BACK_ACCEL := 3.0
 const LIGHT_FWD_ACCEL := 5.0
 const BUZZ_GAP_MS := 150
-const MAX_HEADING := 1.2        # The aim can turn this far to each side (radians).
 const PAUSE_GAP_MS := 400
 const BAR_H := 56.0
 const BAR_MARGIN := 64.0   # Chips and the 4 px frame of the player on turn end inside the 60 px margin (REQ-GM-40, #223).
@@ -223,9 +222,9 @@ func _tick_aim(delta: float) -> void:
 	if pressed and not detector.aim_locked:
 		_aim_held = not _aim_held   # A locks the aim, and a second press unlocks it (REQ-MG-4).
 	if not detector.aim_locked and not _aim_held:
-		_heading = clampf(-p.yaw_offset(), -MAX_HEADING, MAX_HEADING)
+		_heading = -p.yaw_offset()   # The whole circle: a putt can go back or to the side (owner, 2026-11-03).
 		var to_cup := GolfSim.heading_to_cup(_hole, sim.pos)
-		_snapped = absf(_heading - to_cup) <= SNAP
+		_snapped = absf(angle_difference(_heading, to_cup)) <= SNAP
 		if _snapped:
 			_heading = to_cup   # Near the cup the aim goes to the cup: most putts are straight at the hole.
 	detector.update(delta, p.linear_accel())
@@ -394,7 +393,6 @@ func _world_draw(ci: CanvasItem) -> void:
 	GolfLook.draw_lawn(ci, geo)
 	GolfLook.draw_scenery(ci, geo, _hole, rules.hole_number(), _time)
 	GolfLook.draw_course(ci, geo, _hole)
-	GolfLook.draw_flag(ci, geo, _hole, _time)
 	var blocks: Array = _hole.blocks
 	var windmill: bool = _hole.get("windmill", false)
 	for i in blocks.size():
@@ -408,6 +406,7 @@ func _world_draw(ci: CanvasItem) -> void:
 		GolfLook.draw_box(ci, geo, Holes.mover_rect(m, _time), false)
 	for sp in _hole.spinners:
 		GolfLook.draw_spinner(ci, geo, sp, _time)
+	GolfLook.draw_flag(ci, geo, _hole, _time)   # On top of the obstacles: a sliding barrier never hides it.
 	var list := ball_list()
 	if golfer_shown():
 		GolfLook.draw_golfer(ci, geo, geo.at(_spot), _pose(), player(_putter).color)

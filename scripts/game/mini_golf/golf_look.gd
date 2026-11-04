@@ -48,7 +48,8 @@ const BUSH_LO := Color("003800")
 const BUSH_HI := Color("009800")
 const RED := Palette.NES_RED
 const GOLD := Color("f8b800")
-const BRICK := Color("b4503c")
+const BRICK := Color("c0442c")
+const MORTAR := Color("e8dcc8")
 const OL := Color("181818")
 const ROCK := Color("887868")
 const ROCK_HI := Color("b8a898")
@@ -272,23 +273,23 @@ static func cup_zone(geo: Geo, hole: Dictionary) -> Rect2:
 
 # ---- Things on the course ----
 
-## A boulder with a green patch of moss, seen from above: the ball bounces off it. Its size is the size of the rock in the data.
+## A boulder seen from above: a grey rock with sharp edges, a light side up-left and a dark side down-right, and a crack. The ball
+## bounces off it. Its size is the size of the rock in the data.
 static func draw_rock(ci: CanvasItem, geo: Geo, r: Vector3) -> void:
 	var c := geo.snap(geo.at(Vector2(r.x, r.y)))
 	var rad := maxf(geo.len(r.z), 16.0 * geo.u)
 	ci.draw_circle(c + Vector2(6.0, 10.0) * geo.u, rad, SHADOW)
 	var pts := PackedVector2Array()
-	for i in 14:
-		var a := TAU * float(i) / 14.0
-		var wob := 1.0 + 0.06 * sin(float(i) * 2.3)
-		pts.append(c + Vector2(cos(a), sin(a)) * rad * wob)
+	var n := 7
+	for i in n:
+		var a := TAU * (float(i) + 0.3 * sin(float(i) * 2.1)) / float(n) - 0.4
+		pts.append(c + Vector2(cos(a), sin(a)) * rad * (1.0 if i % 2 == 0 else 0.82))
 	ci.draw_colored_polygon(pts, ROCK)
+	ci.draw_colored_polygon(PackedVector2Array([c, pts[3], pts[4], pts[5], pts[6]]), ROCK_LO)
+	ci.draw_colored_polygon(PackedVector2Array([c, pts[0], pts[1], pts[2], pts[3]]), ROCK_HI)
+	ci.draw_polyline(PackedVector2Array([c + Vector2(-rad * 0.1, -rad * 0.5), c, c + Vector2(rad * 0.35, rad * 0.2)]), OL, 3.0)
 	pts.append(pts[0])
-	ci.draw_polyline(pts, OL, 4.0)
-	ci.draw_circle(c + Vector2(rad * 0.3, rad * 0.25), rad * 0.4, ROCK_LO)
-	ci.draw_circle(c + Vector2(-rad * 0.25, -rad * 0.25), rad * 0.45, ROCK_HI)
-	ci.draw_circle(c + Vector2(-rad * 0.35, -rad * 0.4), rad * 0.2, BUSH_HI)
-	ci.draw_circle(c + Vector2(-rad * 0.15, -rad * 0.45), rad * 0.14, BUSH)
+	ci.draw_polyline(pts, OL, 5.0)
 
 
 ## A box on the ground: a sliding barrier (red and gold stripes on wood) or, with `wall`, a brick wall. `rect` is its place now.
@@ -316,26 +317,24 @@ static func draw_box(ci: CanvasItem, geo: Geo, rect: Rect2, wall: bool) -> void:
 	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 4.0 * geo.u)), WOOD_HI)
 
 
-## The top of a brick wall: rows of bricks, every other row shifted, with a light edge on the top and the left.
+## The top of a brick wall: red bricks with light mortar between them, every other row shifted (big enough to read from the sofa).
 static func _draw_bricks(ci: CanvasItem, geo: Geo, r: Rect2) -> void:
-	ci.draw_rect(r, BRICK)
-	var brick_h := maxf(r.size.y / maxf(1.0, roundf(r.size.y / (28.0 * geo.u))), 12.0 * geo.u)
-	var brick_w := 44.0 * geo.u
+	ci.draw_rect(r, MORTAR)
+	var brick_h := maxf(r.size.y / maxf(1.0, roundf(r.size.y / (36.0 * geo.u))), 16.0 * geo.u)
+	var brick_w := 64.0 * geo.u
 	var row := 0
 	var y := r.position.y
 	while y < r.end.y - 1.0:
-		var h := minf(brick_h, r.end.y - y)
-		if y > r.position.y:
-			ci.draw_line(Vector2(r.position.x, y), Vector2(r.end.x, y), ROCK_LO, 3.0)
-		var x := r.position.x + (brick_w * 0.5 if row % 2 == 1 else 0.0)
+		var h := minf(brick_h, r.end.y - y) - 4.0
+		var x := r.position.x - (brick_w * 0.5 if row % 2 == 1 else 0.0)
 		while x < r.end.x:
-			if x > r.position.x:
-				ci.draw_line(Vector2(x, y), Vector2(x, y + h), ROCK_LO, 3.0)
+			var x0 := maxf(x + 2.0, r.position.x)
+			var x1 := minf(x + brick_w - 2.0, r.end.x)
+			if x1 > x0:
+				ci.draw_rect(Rect2(x0, y + 2.0, x1 - x0, h), BRICK)
 			x += brick_w
 		y += brick_h
 		row += 1
-	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 4.0)), ROCK_HI)
-	ci.draw_rect(Rect2(r.position, Vector2(4.0, r.size.y)), ROCK_HI)
 
 
 ## A turning blade: a bar that turns round its middle, with a red and a gold half (REQ-MG-10). The bar is as wide as the
@@ -413,9 +412,9 @@ static func draw_ball(ci: CanvasItem, geo: Geo, c: Vector2, slot := -1) -> void:
 	ci.draw_rect(Rect2(p + Vector2(2.0, 2.0) * u, Vector2(4.0, 4.0) * u), Color("bcbcbc"))
 
 
-## The aim: a line of dots on the ground from the ball in `heading`, `length` course units long (0 for no line) but never
-## beyond the walls, and an arrow at its end (REQ-MG-4, 13). The line is as long on the screen as the putt is on the course,
-## on every hole and at every distance. The dots and the arrow have one size. The arrow is gold when the aim is locked and green
+## The aim: a line of dots on the ground from the ball in `heading`, `length` course units long (Hard: a short marker line of
+## `AIM_MARK`) but never beyond the walls (REQ-MG-4, 13). There is no arrow (owner, 2026-11-03). The line is as long on the screen
+## as the putt is on the course, on every hole and at every distance. The dots are white, gold when the aim is locked and green
 ## when it is snapped to the cup (`snapped`).
 static func draw_aim(ci: CanvasItem, geo: Geo, hole: Dictionary, from: Vector2, heading: float, length: float,
 		locked: bool, snapped := false) -> void:
@@ -426,30 +425,22 @@ static func draw_aim(ci: CanvasItem, geo: Geo, hole: Dictionary, from: Vector2, 
 	var run := (e - c).length()
 	var gap := 36.0 * u
 	var start := BALL_OUT * u + 20.0 * u
-	var tip := geo.snap(e)
 	var col := GOLD if locked else (UiTheme.OK if snapped else UiTheme.TEXT)
 	var side := dir.orthogonal()
-	# A light lane under the dots, from the ball to the arrow, so the direction reads from the sofa on any grass.
 	if length > 0.0 and run > start:
+		# A light lane under the dots, so the direction reads from the sofa on any grass.
 		var lane_a := c + dir * start
 		var w := side * 12.0 * u
-		var lane := PackedVector2Array([lane_a + w, tip + w, tip - w, lane_a - w])
+		var lane := PackedVector2Array([lane_a + w, e + w, e - w, lane_a - w])
 		ci.draw_colored_polygon(lane, Color(1.0, 1.0, 1.0, 0.2))
-		var d := start
-		var i := 0
-		while d < run - 28.0 * u:
-			var p := geo.snap(c + dir * d)
-			ci.draw_rect(Rect2(p - Vector2(7.0, 7.0) * u, Vector2(14.0, 14.0) * u), OL)
-			ci.draw_rect(Rect2(p - Vector2(5.0, 5.0) * u, Vector2(10.0, 10.0) * u), UiTheme.TEXT if i % 2 == 0 else GOLD)
-			d += gap
-			i += 1
-	# The arrow: smaller than the first one (owner, 2026-11-03: too big), still clear on the grass.
-	var back := tip - dir * 20.0 * u
-	var head := PackedVector2Array([tip + dir * 16.0 * u, back + side * 22.0 * u, back - side * 22.0 * u])
-	Shell.record("aim", ci, Rect2(tip - Vector2(24.0, 24.0) * u, Vector2(48.0, 48.0) * u),
+	var d := start
+	while d <= run:
+		var p := geo.snap(c + dir * d)
+		ci.draw_rect(Rect2(p - Vector2(8.0, 8.0) * u, Vector2(16.0, 16.0) * u), OL)
+		ci.draw_rect(Rect2(p - Vector2(5.0, 5.0) * u, Vector2(10.0, 10.0) * u), col)
+		d += gap
+	Shell.record("aim", ci, Rect2(geo.snap(e) - Vector2(24.0, 24.0) * u, Vector2(48.0, 48.0) * u),
 			{"locked": locked, "snapped": snapped, "color": col, "length": run / geo.s, "heading": heading})
-	ci.draw_colored_polygon(head, col)
-	ci.draw_polyline(PackedVector2Array([head[0], head[1], head[2], head[0]]), OL, 4.0)
 
 
 const AIM_MARK := 0.6

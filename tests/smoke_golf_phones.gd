@@ -194,6 +194,11 @@ func _run() -> void:
 			"20 degrees to the right aims +%.2f rad, 20 degrees to the left aims %.2f rad (4a)" % [right, left])
 	_turn(game, 0, -20.0, 0.5)
 	_check(absf(game._heading) < 0.06, "back at the start the aim is straight again (%.2f rad)" % game._heading)
+	_turn(game, 0, 150.0, 1.0)   # Nearly backwards: the aim is not limited to the front (owner, 2026-11-04).
+	_check(game._heading < -2.4 and game._heading > -2.8,
+			"150 degrees to the left aims %.2f rad: the putt can go back" % game._heading)
+	_turn(game, 0, -150.0, 1.0)
+	_check(absf(game._heading) < 0.06, "and back at the start the aim is straight again (%.2f rad)" % game._heading)
 	_feed(game, 0, Trace.stroke(Vector3(1, 0, 0), 8.0, 0.0, 0.25, 0.01).slice(0, 15))
 	_check(game.detector.aim_locked, "the back swing locks the aim")
 	var locked_at: float = game._heading
