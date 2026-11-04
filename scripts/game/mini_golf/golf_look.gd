@@ -33,8 +33,6 @@ const CUP_SQUASH := 0.6           # The cup is an ellipse this much lower than w
 ## as a front face. The course axis z (to the right) keeps the full scale.
 const TILT := 0.36
 const WALL_UNITS := 0.09          # The height of the wall slab (its front face shows below the near edge).
-const BRICK_UNITS := 0.2          # The height of a brick wall.
-const MOVER_UNITS := 0.17         # The height of a sliding barrier.
 const TOWER_UNITS := 0.62         # The height of the windmill tower.
 
 const WHITE := Color("fcfcfc")
@@ -63,7 +61,6 @@ const HILL_LIT := Color("78d820")
 const HILL_MID := Color("5cc010")
 const HILL_DARK := Color("3c9c10")
 const HILL_CUT := Color("2c7808")
-const GOLD_TOP := Color("f8d870")
 const OL := Color("181818")
 const ROCK := Color("887868")
 const ROCK_HI := Color("b8a898")
@@ -188,7 +185,7 @@ static func on_ground(hole: Dictionary, p: Vector2) -> bool:
 
 
 ## The walls (a slab with a front face below its near edges), the mown ground with the tee mat, the lake with its bridge, the
-## rails of the sliding barriers and the cup. The ball, the obstacles and the flag are drawn on top of this by the game.
+## hills and the cup. The ball, the obstacles and the flag are drawn on top of this by the game.
 static func draw_course(ci: CanvasItem, geo: Geo, hole: Dictionary) -> void:
 	var rects: Array = hole.fairway
 	for r in rects:
@@ -210,8 +207,6 @@ static func draw_course(ci: CanvasItem, geo: Geo, hole: Dictionary) -> void:
 		_draw_water(ci, geo, r)
 	for r in hole.bridges:
 		_draw_bridge(ci, geo, r)
-	for m in hole.movers:
-		_draw_rail(ci, geo, m)
 	for hl in hole.get("hills", []):
 		_draw_hill(ci, geo, hl)
 	draw_cup(ci, geo, hole)
@@ -239,27 +234,6 @@ static func _draw_hill(ci: CanvasItem, geo: Geo, hill: Dictionary) -> void:
 		x += step
 	ci.draw_polyline(PackedVector2Array(top), OL, 4.0)
 	ci.draw_polyline(PackedVector2Array(bottom), OL, 4.0)
-
-
-## The way of a sliding barrier on the ground: a dashed dark line along its axis with a post at each end, so that it is clear
-## where the barrier goes.
-static func _draw_rail(ci: CanvasItem, geo: Geo, m: Dictionary) -> void:
-	var r: Rect2 = m.rect
-	var far: Rect2 = Holes.mover_rect(m, PI / 2.0 / float(m.speed))
-	var a := r.get_center()
-	var b := far.get_center()
-	var pa := geo.snap(geo.at(a))
-	var pb := geo.snap(geo.at(b))
-	var run := (pb - pa).length()
-	var step := 20.0 * geo.u
-	var n := maxi(1, int(run / step))
-	for i in n + 1:
-		if i % 2 == 0:
-			var p := pa.lerp(pb, float(i) / float(n))
-			ci.draw_rect(Rect2(p - Vector2(5.0, 5.0) * geo.u, Vector2(10.0, 10.0) * geo.u), GRIP)
-	for p in [pa, pb]:
-		ci.draw_rect(Rect2(p - Vector2(9.0, 9.0) * geo.u, Vector2(18.0, 18.0) * geo.u), OL)
-		ci.draw_rect(Rect2(p - Vector2(5.0, 5.0) * geo.u, Vector2(10.0, 10.0) * geo.u), GOLD)
 
 
 static func _draw_fairway(ci: CanvasItem, geo: Geo, r: Rect2) -> void:
@@ -370,48 +344,6 @@ static func draw_rock(ci: CanvasItem, geo: Geo, r: Vector3) -> void:
 	ci.draw_polyline(body, OL, 5.0)
 
 
-## A box standing on the ground: a sliding barrier (black and gold hazard stripes on the front face) or, with `wall`, a brick wall
-## (red bricks with light mortar). `rect` is its footprint now. It has a top face, lifted by its height, and a front face below
-## it (owner, 2026-11-04: the tilted camera).
-static func draw_box(ci: CanvasItem, geo: Geo, rect: Rect2, wall: bool) -> void:
-	var f := geo.rect(rect)
-	var h := geo.up(BRICK_UNITS if wall else MOVER_UNITS)
-	ci.draw_rect(Rect2(f.position + Vector2(10.0, 6.0) * geo.u, f.size), SHADOW)
-	var top := Rect2(f.position - Vector2(0.0, h), f.size)
-	var front := Rect2(f.position.x, f.end.y - h, f.size.x, h)
-	ci.draw_rect(Rect2(top.position, Vector2(f.size.x, f.size.y + h)).grow(4.0), OL)
-	if wall:
-		ci.draw_rect(front, BRICK)
-		_draw_bricks(ci, front)
-		ci.draw_rect(Rect2(f.position.x, f.position.y - h, f.size.x, f.size.y), BRICK_TOP)
-		return
-	ci.draw_rect(front, GOLD)
-	var n := maxi(2, int(front.size.x / (28.0 * geo.u)))
-	var w := front.size.x / float(n)
-	for i in n:
-		if i % 2 == 0:
-			var x0 := front.position.x + float(i) * w
-			var lean := minf(h * 0.5, w * 0.5)
-			ci.draw_colored_polygon(PackedVector2Array([Vector2(x0, front.end.y), Vector2(x0 + w, front.end.y),
-					Vector2(minf(x0 + w + lean, front.end.x), front.position.y), Vector2(minf(x0 + lean, front.end.x), front.position.y)]), OL)
-	ci.draw_rect(Rect2(f.position.x, f.position.y - h, f.size.x, f.size.y), GOLD_TOP)
-
-
-## The front face of a brick wall: rows of red bricks with light mortar between them, every other row shifted.
-static func _draw_bricks(ci: CanvasItem, front: Rect2) -> void:
-	var rows := maxi(2, roundi(front.size.y / 20.0))
-	var row_h := front.size.y / float(rows)
-	var brick_w := maxf(front.size.x / maxf(1.0, roundf(front.size.x / 40.0)), 20.0)
-	for row in rows:
-		var y := front.position.y + float(row) * row_h
-		ci.draw_line(Vector2(front.position.x, y), Vector2(front.end.x, y), MORTAR, 3.0)
-		var x := front.position.x + (brick_w * 0.5 if row % 2 == 1 else 0.0)
-		while x < front.end.x - 2.0:
-			if x > front.position.x + 2.0:
-				ci.draw_line(Vector2(x, y), Vector2(x, y + row_h), MORTAR, 3.0)
-			x += brick_w
-
-
 ## A turning blade: a bar that turns round its middle, with a red and a gold half (REQ-MG-10). The bar is as wide as the
 ## ball needs to hit it (`GolfSim.BLADE_R`).
 static func draw_spinner(ci: CanvasItem, geo: Geo, sp: Dictionary, time: float) -> void:
@@ -508,8 +440,8 @@ static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float, d
 	ci.draw_circle(hub, 9.0 * u, GOLD)
 
 
-## The places of the obstacles on the screen, for a banner plate to keep out of: the blocks, the rocks, the whole way of each
-## sliding barrier and the circle of each turning blade.
+## The places of the obstacles on the screen, for a banner plate to keep out of: the tower, the rocks and the circle of each
+## turning blade.
 static func obstacle_zones(geo: Geo, hole: Dictionary) -> Array:
 	var out: Array = []
 	for b in hole.blocks:
@@ -518,14 +450,6 @@ static func obstacle_zones(geo: Geo, hole: Dictionary) -> Array:
 	for r in hole.rocks:
 		var c := geo.at(Vector2(r.x, r.y))
 		out.append(Rect2(c - Vector2(geo.len(r.z), geo.len(r.z)), Vector2(2.0, 2.0) * geo.len(r.z)))
-	for m in hole.movers:
-		var a := geo.rect(m.rect)
-		var far: Rect2 = m.rect
-		if String(m.axis) == "x":
-			far.position.x += float(m.amp)
-		else:
-			far.position.y += float(m.amp)
-		out.append(a.merge(geo.rect(far)))
 	for sp in hole.spinners:
 		var c2 := geo.at(sp.c)
 		var l := geo.len(float(sp.len))

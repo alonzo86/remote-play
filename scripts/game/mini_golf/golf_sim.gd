@@ -1,6 +1,6 @@
 extends RefCounted
 ## The ball of Mini Golf on one hole (REQ-MG-5, 9, 10): a ball that rolls on the ground of a hole, slows down, bounces from the
-## walls, the blocks, the rocks, the sliding barriers and the turning blades, falls into water and into the cup. Pure
+## walls, the blocks, the rocks, the hills and the turning blades, falls into water and into the cup. Pure
 ## logic: it draws nothing.
 ## The ball is a point with a radius that moves in small steps, one axis at a time, so that it bounces from straight walls.
 
@@ -25,9 +25,9 @@ var finished := true             # True while the ball stands still.
 var in_cup := false
 var in_water := false
 var time := 0.0
-## The time of the world (s) for the sliding barriers: the game sets it before a putt and the ball moves it on.
+## The time of the world (s) for the turning blades: the game sets it before a putt and the ball moves it on.
 var clock := 0.0
-## What happened in the last `tick()`: dictionaries `{"t": "wall" | "rock" | "mover" | "blade" | "water" | "cup"}`.
+## What happened in the last `tick()`: dictionaries `{"t": "wall" | "rock" | "blade" | "water" | "cup"}`.
 var events: Array[Dictionary] = []
 
 
@@ -78,32 +78,6 @@ static func walkable(h: Dictionary, p: Vector2) -> bool:
 	return true
 
 
-## True when a sliding barrier is at `p` (a ball of the size of BALL_R touches it).
-func _in_mover(p: Vector2) -> bool:
-	for m in hole.movers:
-		if Holes.mover_rect(m, clock).grow(Holes.BALL_R).has_point(p):
-			return true
-	return false
-
-
-## A barrier that slides into the ball pushes it out to the nearest side.
-func _push_out_of_movers() -> void:
-	for m in hole.movers:
-		var r := Holes.mover_rect(m, clock).grow(Holes.BALL_R)
-		if not r.has_point(pos):
-			continue
-		var outs := [Vector2(r.position.x - 0.001, pos.y), Vector2(r.end.x + 0.001, pos.y), Vector2(pos.x, r.position.y - 0.001),
-				Vector2(pos.x, r.end.y + 0.001)]
-		var best := pos
-		var best_d := 99.0
-		for o in outs:
-			if walkable(hole, o) and (o - pos).length() < best_d:
-				best = o
-				best_d = (o - pos).length()
-		pos = best
-		events.append({"t": "mover"})
-
-
 ## A turning blade pushes the ball away from the bar and gives it the speed of the bar at that place.
 func _hit_blade(sp: Dictionary) -> void:
 	var ends := Holes.spinner_ends(sp, clock)
@@ -137,7 +111,6 @@ func tick(delta: float) -> void:
 func _step(dt: float) -> void:
 	time += dt
 	clock += dt
-	_push_out_of_movers()
 	var slope := Holes.hill_slope(hole, pos)
 	vel.y -= HILL_G * slope * dt
 	var speed := vel.length()
@@ -149,13 +122,13 @@ func _step(dt: float) -> void:
 		return
 	# One axis at a time, so that a straight wall mirrors one part of the speed.
 	var nx := Vector2(pos.x + vel.x * dt, pos.y)
-	if walkable(hole, nx) and not _in_mover(nx):
+	if walkable(hole, nx):
 		pos = nx
 	else:
 		vel.x = -vel.x * WALL_KEEP
 		events.append({"t": "wall"})
 	var nz := Vector2(pos.x, pos.y + vel.y * dt)
-	if walkable(hole, nz) and not _in_mover(nz):
+	if walkable(hole, nz):
 		pos = nz
 	else:
 		vel.y = -vel.y * WALL_KEEP

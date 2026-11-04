@@ -265,7 +265,7 @@ func _run() -> void:
 	for k in 5:
 		var speeds: Array = []
 		var dists: Array = []
-		for peak in [12.0, 20.0, 30.0]:
+		for peak in [8.0, 12.0, 18.0]:   # Full power is reached at 18 m/s2 (FULL_FWD).
 			var g := await _start(app)
 			_swing(g, 0, peak + rng.randf_range(-1.0, 1.0))
 			speeds.append(g.sim.vel.length())
@@ -360,6 +360,11 @@ func _run() -> void:
 	for d in ["easy", "medium"]:
 		for k in 5:
 			var gw := await _start(app, {"difficulty": d})
+			var flat := {"par": 2, "tee": Vector2(0.0, 1.1), "cup": Vector2(0.0, 5.1), "fairway": [Rect2(-0.8, 0.75, 1.6, 5.0)],
+					"water": [], "bridges": [], "spinners": [], "blocks": [], "rocks": []}   # No hill: the weakest putts roll free.
+			gw._hole = flat
+			gw._spot = flat.tee
+			gw.sim.start(flat, flat.tee)
 			# The weakest putt is a pendulum swing as a hand moves it (it brakes the back swing, issue #209).
 			var weak_fwd: float = (6.0 if d == "easy" else 8.6) + rng.randf_range(0.0, 0.3)
 			_feed(gw, 0, Array(R.pendulum(Vector3(1, 0, 0), 5.0 if d == "easy" else 8.0, weak_fwd, 0.25).lin))

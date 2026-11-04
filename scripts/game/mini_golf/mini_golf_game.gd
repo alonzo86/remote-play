@@ -250,7 +250,7 @@ func _tick_roll(delta: float) -> void:
 	sim.tick(delta)
 	for e in sim.events:
 		match String(e.t):
-			"wall", "rock", "mover":
+			"wall", "rock":
 				Sound.sfx("golf_wall")
 			"blade":
 				Sound.sfx("golf_blade")
@@ -408,19 +408,13 @@ func _world_draw(ci: CanvasItem) -> void:
 	var items: Array = []
 	var blocks: Array = _hole.blocks
 	var windmill: bool = _hole.get("windmill", false)
-	for i in blocks.size():
-		var blk: Rect2 = blocks[i]
-		items.append([geo.at(blk.end).y, func() -> void:
-			if windmill and i == 0:
-				GolfLook.draw_windmill(ci, geo, blk, _time, float(_hole.get("door", 0.3)))
-			else:
-				GolfLook.draw_box(ci, geo, blk, true)])
+	if windmill and not blocks.is_empty():
+		var tower: Rect2 = blocks[0]
+		items.append([geo.at(tower.end).y, func() -> void:
+			GolfLook.draw_windmill(ci, geo, tower, _time, float(_hole.get("door", 0.3)))])
 	for r in _hole.rocks:
 		var rock: Vector3 = r
 		items.append([geo.at(Vector2(rock.x, rock.y)).y, func() -> void: GolfLook.draw_rock(ci, geo, rock)])
-	for m in _hole.movers:
-		var mv: Rect2 = Holes.mover_rect(m, _time)
-		items.append([geo.at(mv.end).y, func() -> void: GolfLook.draw_box(ci, geo, mv, false)])
 	for sp in _hole.spinners:
 		items.append([geo.at(sp.c).y, func() -> void: GolfLook.draw_spinner(ci, geo, sp, _time)])
 	var list := ball_list()
@@ -438,7 +432,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	items.sort_custom(func(a, b) -> bool: return a[0] < b[0])
 	for it in items:
 		it[1].call()
-	GolfLook.draw_flag(ci, geo, _hole, _time)   # On top of the obstacles: a sliding barrier never hides it.
+	GolfLook.draw_flag(ci, geo, _hole, _time)   # On top of the obstacles: the tower never hides it.
 	if golfer_shown() and phase == Phase.AIM:
 		GolfLook.draw_aim(ci, geo, _hole, sim.pos, _heading, _line_length(), detector.aim_locked or _aim_held, _snapped)
 	if _splash_age < 1.0:

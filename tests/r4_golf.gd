@@ -1,8 +1,8 @@
 extends SceneTree
 ## Mini Golf, the rest of Test 26 (docs/MANUAL_TESTS.md test 26), with simulated phones over the loopback and the game stepped by
 ## hand: what is drawn at the start of a turn (3a, 3b), the plate with the name (3c), the lines on the two phones (3d), the gold
-## aim mark (4c), the swing of the golfer and the moment the ball starts (5b), the sliding barriers (7d), the banner after the
-## 6th stroke (8c), the strokes in the bar (8f), the result menu (10a) and its three buttons (10c, 10d).
+## aim mark (4c), the swing of the golfer and the moment the ball starts (5b), the free lane beside the blades (7d), the banner
+## after the 6th stroke (8c), the strokes in the bar (8f), the result menu (10a) and its three buttons (10c, 10d).
 ## The golfer, the ball, the aim mark and the plates are seen through `Shell.recorder` (the game draws with `draw_*`).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_golf.gd -- --role=tv
 
@@ -70,8 +70,7 @@ func _run() -> void:
 	await _phone_lines()
 	await _aim_mark()
 	await _swing_and_ball()
-	_barriers()
-	_barrier_passes()
+	_blades()
 	await _picked_up()
 	await _bar_counts()
 	await _result_menu()
@@ -305,64 +304,27 @@ func _swing_and_ball() -> void:
 
 # ---- 7d ----
 
-## 7d: at every moment of 30 s a gap of 0.18 m or more is open at each sliding barrier (holes 3 and 5).
-func _barriers() -> void:
-	print("the sliding barriers")
-	for n in [3, 5]:
+## 7d (owner, 2026-11-04: the blades of hole 2 were too hard to pass): the turning blades of every hole leave a free lane beside
+## their circle that a ball passes, and they turn slowly.
+func _blades() -> void:
+	print("the turning blades leave a free lane")
+	for n in [2, 3, 4, 5]:
 		var h: Dictionary = Holes.hole(n)
-		_check(h.movers.size() == 1, "7d: hole %d has a sliding barrier" % n)
-		for m in h.movers:
-			var along_z := String(m.axis) == "z"
-			var r0: Rect2 = m.rect
-			var cross: float = r0.get_center().x if along_z else r0.get_center().y
-			var lo := 99.0
-			var hi := -99.0
+		for sp in h.spinners:
+			var c: Vector2 = sp.c
+			var reach := float(sp.len) + GolfSim.BLADE_R
+			var best := 0.0
 			for f in h.fairway:
 				var fr: Rect2 = f
-				var inside := (fr.position.x <= cross and cross <= fr.end.x) if along_z \
-						else (fr.position.y <= cross and cross <= fr.end.y)
-				if inside:
-					lo = minf(lo, fr.position.y if along_z else fr.position.x)
-					hi = maxf(hi, fr.end.y if along_z else fr.end.x)
-			var worst := 99.0
-			var lowest := 99.0
-			var highest := -99.0
-			for k in 600:   # 30 s, a look every 0.05 s
-				var r: Rect2 = Holes.mover_rect(m, float(k) * 0.05)
-				var b0: float = r.position.y if along_z else r.position.x
-				var b1: float = r.end.y if along_z else r.end.x
-				worst = minf(worst, maxf(b0 - lo, hi - b1))
-				lowest = minf(lowest, b0)
-				highest = maxf(highest, b0)
-			_check(hi > lo and worst >= 4.0 * Holes.BALL_R,
-					"7d: hole %d: the widest gap is never under %.2f m (the ball is %.2f m wide)" % [n, worst, 2.0 * Holes.BALL_R])
-			_check(highest - lowest > 0.5 * float(m.amp), "7d: hole %d: the barrier moves by %.2f m" % [n, highest - lowest])
-
-
-## 7d: a ball aimed at the gap passes the barrier of hole 3 at least once in 5 putts started at different times.
-func _barrier_passes() -> void:
-	var h: Dictionary = Holes.hole(3)
-	var m: Dictionary = h.movers[0]
-	var passed := 0
-	for k in 5:
-		var t0 := float(k) * 0.9
-		var r: Rect2 = Holes.mover_rect(m, t0 + 0.2)
-		var below_w: float = r.position.y - 2.9
-		var above_w: float = 4.3 - r.end.y
-		var zc: float = 2.9 + below_w * 0.5 if below_w >= above_w else r.end.y + above_w * 0.5
-		var sim := GolfSim.new()
-		sim.start(h, Vector2(1.25, zc))
-		sim.clock = t0
-		sim.putt(PI * 0.5, 2.5)
-		var max_x := sim.pos.x
-		var guard := 0
-		while not sim.finished and guard < 2000:
-			sim.tick(DT)
-			max_x = maxf(max_x, sim.pos.x)
-			guard += 1
-		if max_x > 2.0:
-			passed += 1
-	_check(passed >= 1, "7d: a ball aimed at the gap passed the barrier in %d of 5 putts (at least 1)" % passed)
+				if fr.position.y <= c.y and c.y <= fr.end.y:
+					best = maxf(best, maxf(c.x - reach - fr.position.x, fr.end.x - (c.x + reach)))
+				if fr.position.x <= c.x and c.x <= fr.end.x:
+					best = maxf(best, maxf(c.y - reach - fr.position.y, fr.end.y - (c.y + reach)))
+			_check(best >= 0.2, "7d: hole %d: the free lane beside the blades is %.2f m wide (the ball is %.2f m)"
+					% [n, best, 2.0 * Holes.BALL_R])
+			_check(absf(float(sp.speed)) <= 2.0, "7d: hole %d: the blades turn at %.1f rad/s or less" % [n, absf(float(sp.speed))])
+	_check(absf(float(Holes.hole(2).spinners[0].speed)) <= 1.0 and float(Holes.hole(2).spinners[0].len) <= 0.3,
+			"7d: the blades of hole 2 are short and slow (owner, 2026-11-04)")
 
 
 # ---- 8c ----
