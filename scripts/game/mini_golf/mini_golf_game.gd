@@ -19,7 +19,6 @@ const RESULT_TIME := 1.8        # How long the banner of a putt shows.
 const QUIET_TIME := 0.5         # After a putt with nothing to say.
 const HOLE_TIME := 4.0          # The card at the end of a hole.
 const END_DELAY := 1.2
-const HINT_TIME := 12.0
 const SNAP := 0.1               # The aim snaps to the cup when it is this close to it (radians, about 6 degrees; REQ-MG-4).
 const WEAK_HINT_TIME := 3.0
 # The swing strengths of a putt (m/s2), lower than the common ones of `SwingDetector` (REQ-MG-5). The gate is the common one.
@@ -33,12 +32,11 @@ const BAR_MARGIN := 64.0   # Chips and the 4 px frame of the player on turn end 
 enum Phase { AIM, ROLL, RESULT, HOLE, END }
 
 ## What Difficulty means (REQ-MG-13): `line` is the length of the aim line in course units (0 for the marker only), `speed_min`
-## is the speed of the weakest putt (m/s), `threshold` is a factor on the swing thresholds, `power_hint` shows the hint about the
-## swing.
+## is the speed of the weakest putt (m/s), `threshold` is a factor on the swing thresholds.
 const LEVELS := {
-	"easy": {"line": 3.0, "speed_min": 1.5, "threshold": 1.0, "power_hint": true},
-	"medium": {"line": 1.2, "speed_min": 0.5, "threshold": 1.0, "power_hint": false},
-	"hard": {"line": 0.0, "speed_min": 0.3, "threshold": 1.0, "power_hint": false},
+	"easy": {"line": 3.0, "speed_min": 1.5, "threshold": 1.0},
+	"medium": {"line": 1.2, "speed_min": 0.5, "threshold": 1.0},
+	"hard": {"line": 0.0, "speed_min": 0.3, "threshold": 1.0},
 }
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps them for Try again.
@@ -388,6 +386,11 @@ func golfer_shown() -> bool:
 	return phase != Phase.HOLE and phase != Phase.END and _putter >= 0 and participants.has(_putter)
 
 
+## True when the aim points back (to the left of the screen): the golfer stands on the other side and faces the other way.
+func golfer_flipped() -> bool:
+	return cos(_heading) < 0.0
+
+
 func _world_draw(ci: CanvasItem) -> void:
 	var geo := _geo()
 	GolfLook.draw_lawn(ci, geo)
@@ -409,7 +412,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	GolfLook.draw_flag(ci, geo, _hole, _time)   # On top of the obstacles: a sliding barrier never hides it.
 	var list := ball_list()
 	if golfer_shown():
-		GolfLook.draw_golfer(ci, geo, geo.at(_spot), _pose(), player(_putter).color)
+		GolfLook.draw_golfer(ci, geo, geo.at(_spot), _pose(), player(_putter).color, golfer_flipped())
 		if phase == Phase.AIM:
 			GolfLook.draw_aim(ci, geo, _hole, sim.pos, _heading, _line_length(), detector.aim_locked or _aim_held, _snapped)
 	if not list.is_empty():
@@ -457,26 +460,12 @@ func _game_draw() -> void:
 					p.color if Shell.contrast(p.color, UiTheme.BG) >= 4.5 else UiTheme.TEXT)
 		elif _weak_left > 0.0:
 			_banner_plate(Lang.t("mini_golf.hint_weak"), 48, UiTheme.ACCENT)
-		elif _aim_held and not detector.aim_locked:
-			_banner_plate(Lang.t("mini_golf.hint_aim_locked"), 32, UiTheme.TEXT)
-		elif _phase_time < HINT_TIME and not detector.aim_locked:
-			_banner_plate(Lang.t("mini_golf.hint_aim"), 32, UiTheme.TEXT)
-		elif detector.aim_locked and bool(level(difficulty).power_hint):
-			_banner_plate(Lang.t("mini_golf.hint_power"), 32, UiTheme.TEXT)
 
 
-## The hint line of a turn after the name banner (REQ-MG-13): the key of a text row, or "" for none. "Swing a bit more" after a
-## swing that was too weak, the aim hint before the back swing, the power hint on Easy once the aim is locked.
+## The hint line of a turn after the name banner: the key of a text row, or "" for none. Only "Swing a bit more" after a swing
+## that was too weak; there are no instructions on the screen during the game (owner, 2026-11-04).
 func aim_hint_key() -> String:
-	if _weak_left > 0.0:
-		return "mini_golf.hint_weak"
-	if _aim_held and not detector.aim_locked:
-		return "mini_golf.hint_aim_locked"
-	if _phase_time < HINT_TIME and not detector.aim_locked:
-		return "mini_golf.hint_aim"
-	if detector.aim_locked and bool(level(difficulty).power_hint):
-		return "mini_golf.hint_power"
-	return ""
+	return "mini_golf.hint_weak" if _weak_left > 0.0 else ""
 
 
 ## The hole number, the holes of the match and the par, top right (REQ-MG-3).

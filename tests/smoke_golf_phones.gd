@@ -197,8 +197,10 @@ func _run() -> void:
 	_turn(game, 0, 150.0, 1.0)   # Nearly backwards: the aim is not limited to the front (owner, 2026-11-04).
 	_check(game._heading < -2.4 and game._heading > -2.8,
 			"150 degrees to the left aims %.2f rad: the putt can go back" % game._heading)
+	_check(game.golfer_flipped(), "when the aim points back the golfer turns the other way")
 	_turn(game, 0, -150.0, 1.0)
-	_check(absf(game._heading) < 0.06, "and back at the start the aim is straight again (%.2f rad)" % game._heading)
+	_check(absf(game._heading) < 0.06 and not game.golfer_flipped(),
+			"and back at the start the aim is straight again (%.2f rad) and the golfer faces the cup" % game._heading)
 	_feed(game, 0, Trace.stroke(Vector3(1, 0, 0), 8.0, 0.0, 0.25, 0.01).slice(0, 15))
 	_check(game.detector.aim_locked, "the back swing locks the aim")
 	var locked_at: float = game._heading
@@ -221,7 +223,7 @@ func _run() -> void:
 	_turn(gsn, 0, 25.0, 0.5)
 	_check(gsn._aim_held and not gsn.detector.aim_locked and gsn._heading == held_at,
 			"A locks the aim: a turn of 25 degrees changes nothing, and the swing has not started")
-	_check(gsn.aim_hint_key() == "mini_golf.hint_aim_locked", "while the aim is locked by A the hint says so and how to unlock")
+	_check(gsn.aim_hint_key() == "", "while the aim is locked by A no instruction shows on the screen (owner, 2026-11-04)")
 	_sample(gsn, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)
 	_sample(gsn, 0, Vector3.ZERO)
 	_turn(gsn, 0, -10.0, 0.5)
@@ -352,13 +354,8 @@ func _run() -> void:
 		var gh := await _start(app, {"difficulty": d})
 		var unlocked: String = gh.aim_hint_key()
 		_feed(gh, 0, Trace.stroke(Vector3(1, 0, 0), 8.0, 0.0, 0.25, 0.01).slice(0, 15))
-		var locked: String = gh.aim_hint_key()
-		if d == "easy":
-			hint_ok = hint_ok and unlocked == "mini_golf.hint_aim" and locked == "mini_golf.hint_power" \
-					and Lang.t(locked) == "SWING FORWARD. A BIGGER SWING GOES FARTHER!"
-		else:
-			hint_ok = hint_ok and unlocked == "mini_golf.hint_aim" and locked == ""
-	_check(hint_ok, "'SWING FORWARD...' shows after the lock on Easy only (9b)")
+		hint_ok = hint_ok and unlocked == "" and gh.aim_hint_key() == ""
+	_check(hint_ok, "no instruction shows before or after the lock on any level (9b, owner 2026-11-04)")
 	var dist := {"easy": 0.0, "medium": 0.0}
 	for d in ["easy", "medium"]:
 		for k in 5:

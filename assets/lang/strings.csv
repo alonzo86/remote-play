@@ -222,10 +222,7 @@ mini_golf.holes_5,5 HOLES,5 גומות,Mini Golf settings view: value 5 of the H
 mini_golf.hole,Hole %d/%d  Par %d,גומה %d/%d  פר %d,"Mini Golf: top bar, right side: the hole that is played, the holes of the match and the par of the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.turn,%s's turn!,התור של %s!,"Mini Golf: plate over the course for 1.5 seconds at the start of a turn, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.chip,%s  %d,%s: %d,"Mini Golf: chip of a player in the bar at the bottom, the name and the strokes on this hole","the number sign (%d, %.1f ...) is replaced by a number"
-mini_golf.hint_aim,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT!",הזיזו את הטלפון כדי לכוון. הניפו אחורה ואז קדימה כדי לדחוף!,Mini Golf: hint on a plate over the course at the start of a turn,
-mini_golf.hint_aim_locked,"AIM LOCKED! SWING BACK, THEN FORWARD. PRESS A TO UNLOCK.",הכיוון נעול! הניפו אחורה ואז קדימה. לחצו A כדי לשחרר.,"Mini Golf: hint on a plate while the aim is locked with A, before the back swing",
 mini_golf.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Mini Golf: hint on a plate after a swing that was too weak,
-mini_golf.hint_power,SWING FORWARD. A BIGGER SWING GOES FARTHER!,הניפו קדימה. תנופה גדולה יותר מגיעה רחוק יותר!,Mini Golf on Easy: hint on a plate after the aim is locked,
 mini_golf.strokes,%d strokes,%d מכות,"Mini Golf: banner after a ball went in with more strokes than par plus one, %d is the strokes on the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hole_in_one,HOLE IN ONE!,גומה במכה אחת!,Mini Golf: banner after a ball went in with the first stroke,
 mini_golf.birdie,BIRDIE!,ברדי!,Mini Golf: banner after a ball went in with fewer strokes than par,

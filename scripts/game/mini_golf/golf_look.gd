@@ -739,7 +739,17 @@ static func golfer_zone(geo: Geo, ball_c: Vector2) -> Rect2:
 
 ## Draws the golfer for the ball at the screen place `ball_c` (the cap, the cheek and one eye look to the ball). `shirt` is the
 ## slot color. `pose` is one of `POSES` or a mix.
-static func draw_golfer(ci: CanvasItem, geo: Geo, ball_c: Vector2, pose: Dictionary, shirt: Color) -> void:
+## With `flip` (the aim points back, to the left of the screen) the golfer stands on the other side of the ball and faces the
+## other way (owner, 2026-11-04).
+static func draw_golfer(ci: CanvasItem, geo: Geo, ball_c: Vector2, pose: Dictionary, shirt: Color, flip := false) -> void:
+	if flip:
+		ci.draw_set_transform(Vector2(2.0 * ball_c.x, 0.0), 0.0, Vector2(-1.0, 1.0))
+	_draw_golfer(ci, geo, ball_c, pose, shirt)
+	if flip:
+		ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+static func _draw_golfer(ci: CanvasItem, geo: Geo, ball_c: Vector2, pose: Dictionary, shirt: Color) -> void:
 	var foot := geo.snap(feet_at(geo, ball_c))
 	var k := GOLFER_K * geo.u
 	Shell.record("golfer", ci, Rect2(foot - Vector2(30.0, 80.0) * k, Vector2(60.0, 80.0) * k),
