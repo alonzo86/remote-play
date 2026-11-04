@@ -381,6 +381,7 @@ func _golf(level_threshold := 1.0) -> SwingDetector:
 	d.threshold = level_threshold
 	d.back_accel = c.LIGHT_BACK_ACCEL
 	d.fwd_accel = c.LIGHT_FWD_ACCEL
+	d.fwd_full = c.FULL_FWD
 	d.speed_gate = SwingDetector.GATE_SPEED
 	return d
 
