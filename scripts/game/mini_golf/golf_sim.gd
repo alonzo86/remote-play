@@ -71,8 +71,8 @@ static func walkable(h: Dictionary, p: Vector2) -> bool:
 			break
 	if not ok:
 		return false
-	for b in h.blocks:
-		if (b as Rect2).grow(Holes.BALL_R).has_point(p):
+	for b in Holes.solid_blocks(h):
+		if b.grow(Holes.BALL_R).has_point(p):
 			return false
 	return true
 

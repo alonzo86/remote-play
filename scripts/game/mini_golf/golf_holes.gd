@@ -2,7 +2,9 @@ extends RefCounted
 ## The five holes of Mini Golf (REQ-MG-12), made in advance. A hole is data: the ground the ball may roll on (`fairway`, a list
 ## of rectangles that overlap at the turns), the place of the tee and of the cup, and the things on the course: lakes (`water`,
 ## a rectangle from wall to wall) with `bridges`, rocks (`Vector3(x, z, radius)`), brick walls and the tower of a windmill
-## (`blocks`, `Rect2`), sliding barriers (`movers`) and turning blades (`spinners`). All in the same units as the picture
+## (`blocks`, `Rect2`; the first block of a hole with `windmill` is the tower, with a door of width `door` along z in the middle
+## that the ball goes through along x, `solid_blocks()`), sliding barriers (`movers`) and turning blades (`spinners`). All in the
+## same units as the picture
 ## (`golf_look.gd`): x across (the middle of the view is 0) and z along, away from the camera, about a meter each. `Rect2(x, z,
 ## width, depth)` has its near left corner at (x, z). The par of a hole is the strokes of a good player (REQ-MG-6). The first
 ## values are guesses (Manual test 26).
@@ -16,12 +18,13 @@ const HOLES: Array[Dictionary] = [
 	{"par": 2, "tee": Vector2(0.0, 1.1), "cup": Vector2(0.0, 5.1),
 			"fairway": [Rect2(-0.8, 0.75, 1.6, 5.0)], "water": [], "bridges": [], "spinners": [],
 			"blocks": [Rect2(0.25, 3.6, 0.5, 0.25)], "rocks": [Vector3(-0.3, 3.0, 0.17)], "movers": []},
-	# 2: a lake from wall to wall with a bridge on the right, then a windmill whose blades turn before the cup.
-	{"par": 3, "tee": Vector2(-0.42, 1.2), "cup": Vector2(0.25, 5.3), "windmill": true,
-			"fairway": [Rect2(-1.25, 0.75, 2.5, 5.45)], "water": [Rect2(-1.25, 2.5, 2.5, 0.9)],
-			"bridges": [Rect2(0.05, 2.5, 0.7, 0.9)],
-			"spinners": [{"c": Vector2(0.15, 4.5), "len": 0.5, "speed": 1.8}],
-			"blocks": [Rect2(-0.8, 3.75, 0.4, 0.3)], "rocks": [Vector3(-0.55, 1.9, 0.15)], "movers": []},
+	# 2: two rows with a wall between them. The ball crosses a lake by the bridge in the near row, then goes up through the
+	# door of the windmill (the only way into the far row), past the turning blades, to the cup.
+	{"par": 3, "tee": Vector2(0.55, 1.2), "cup": Vector2(-0.55, 5.4), "windmill": true, "door": 0.30,
+			"fairway": [Rect2(0.13, 0.75, 0.85, 3.95), Rect2(-0.98, 3.2, 0.85, 3.0), Rect2(-0.3, 3.65, 0.6, 0.5)],
+			"water": [Rect2(0.13, 1.9, 0.85, 0.7)], "bridges": [Rect2(0.3, 1.9, 0.45, 0.7)],
+			"spinners": [{"c": Vector2(-0.55, 4.8), "len": 0.35, "speed": 1.8}],
+			"blocks": [Rect2(-0.13, 3.65, 0.26, 0.5)], "rocks": [Vector3(0.75, 3.3, 0.15)], "movers": []},
 	# 3: a turn to the right with a brick wall at the corner and a sliding barrier before the cup.
 	{"par": 3, "tee": Vector2(0.0, 1.1), "cup": Vector2(2.4, 3.6),
 			"fairway": [Rect2(-0.7, 0.75, 1.4, 2.7), Rect2(-0.7, 2.9, 3.6, 1.4)], "water": [], "bridges": [], "spinners": [],
@@ -36,9 +39,24 @@ const HOLES: Array[Dictionary] = [
 	{"par": 4, "tee": Vector2(-0.7, 1.1), "cup": Vector2(1.2, 5.4), "windmill": true,
 			"fairway": [Rect2(-1.2, 0.75, 1.4, 2.3), Rect2(-1.2, 2.7, 3.0, 1.2), Rect2(0.6, 3.6, 1.2, 2.4)],
 			"water": [], "bridges": [], "spinners": [{"c": Vector2(1.2, 4.2), "len": 0.42, "speed": -1.5}],
-			"blocks": [Rect2(-0.2, 3.2, 0.35, 0.25)], "rocks": [Vector3(-0.6, 2.2, 0.17)],
+			"door": 0.30, "blocks": [Rect2(-0.2, 3.075, 0.35, 0.5)], "rocks": [Vector3(-0.6, 2.2, 0.17)],
 			"movers": [{"rect": Rect2(0.6, 5.0, 0.55, 0.15), "axis": "x", "amp": 0.65, "speed": 1.4}]},
 ]
+
+
+## What the ball cannot enter: the blocks, but the tower of a windmill is two pillars with the door (`door`, along z, in the
+## middle of the tower) between them. The ball goes through the door along x.
+static func solid_blocks(h: Dictionary) -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	for i in h.blocks.size():
+		var b: Rect2 = h.blocks[i]
+		if i == 0 and h.get("windmill", false):
+			var side := (b.size.y - float(h.get("door", 0.3))) * 0.5
+			out.append(Rect2(b.position.x, b.position.y, b.size.x, side))
+			out.append(Rect2(b.position.x, b.end.y - side, b.size.x, side))
+		else:
+			out.append(b)
+	return out
 
 
 ## The hole `n` (1 to COUNT). A number outside the range gives the nearest hole.

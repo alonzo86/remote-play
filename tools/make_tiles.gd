@@ -80,15 +80,15 @@ func _place_tennis(game: Control) -> void:
 	game._request_redraw()
 
 
-## The Mini Golf picture: the second hole seen from above (lake with its bridge, windmill, blade), the balls of all players on
-## the tee, the ball of the first golfer on its way to the bridge just after the swing.
+## The Mini Golf picture: the second hole seen from above (lake with its bridge, the windmill with its door, blade), the balls of all players on
+## the tee, the ball of the first golfer on its way over the bridge just after the swing.
 func _place_mini_golf(game: Control) -> void:
 	game.rules.next_hole()
 	game._load_hole()
 	game._start_turn()
 	game.detector.aim_locked = true
 	game.detector.power = 0.5
-	game._heading = 0.45
+	game._heading = 0.0
 	game._putt(game.rules.current_slot())
 	for i in 24:
 		game._game_tick(0.016)

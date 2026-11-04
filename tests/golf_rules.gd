@@ -40,6 +40,7 @@ func _initialize() -> void:
 	_leaving()
 	_words_and_medals()
 	_things_bounce()
+	_windmill_door()
 	_blades_on_holes()
 	_barriers_leave_a_gap()
 	_pars()
@@ -416,16 +417,21 @@ func _things_bounce() -> void:
 				bounced = bounced or (r.events.size() > 0 and r.events[0] == "rock")
 			_check(bounced, "hole %d: a ball shot at the rock at (%.2f, %.2f) bounces from it" % [n, rv.x, rv.y])
 			rock_holes.append(n)
+		var solid := Holes.solid_blocks(h)
+		var tower_pillars := 2 if h.get("windmill", false) else 0   # The tower is two pillars with a door between them.
 		for i in h.blocks.size():
-			var blk: Rect2 = h.blocks[i]
 			var bounced2 := false
-			var centre := blk.get_center()
-			for from in _around(centre, maxf(blk.size.x, blk.size.y) * 0.5 + 0.4):
-				if not Sim.walkable(h, from):
-					continue
-				var r2 := _shoot(h, from, centre, 2.5)
-				all_off = all_off or r2.off
-				bounced2 = bounced2 or (r2.events.size() > 0 and r2.events[0] == "wall")
+			var pieces: Array[Rect2] = [h.blocks[i]]
+			if i == 0 and tower_pillars == 2:
+				pieces = [solid[0], solid[1]]
+			for blk in pieces:
+				var centre := blk.get_center()
+				for from in _around(centre, maxf(blk.size.x, blk.size.y) * 0.5 + 0.4):
+					if not Sim.walkable(h, from):
+						continue
+					var r2 := _shoot(h, from, centre, 2.5)
+					all_off = all_off or r2.off
+					bounced2 = bounced2 or (r2.events.size() > 0 and r2.events[0] == "wall")
 			var what := "windmill block" if h.get("windmill", false) and i == 0 else "brick wall"
 			_check(bounced2, "hole %d: a ball shot at the %s bounces from it" % [n, what])
 			block_holes.append(n)
@@ -435,6 +441,46 @@ func _things_bounce() -> void:
 	_check(block_holes == [1, 2, 3, 5] and windmill_holes == [2, 5],
 			"brick walls are on holes 1, 2, 3 and 5, the windmill on 2 and 5")
 	_check(rock_holes.size() == 6, "the holes have 6 rocks in all (%d)" % rock_holes.size())
+
+
+## REQ-MG-10, 12: the tower of a windmill has a door that the ball goes through; the tower is two pillars on both sides of it, and
+## on hole 2 the door is the only way into the far row (owner, 2026-11-04).
+func _windmill_door() -> void:
+	print("the door of the windmill")
+	for n in [2, 5]:
+		var h := Holes.hole(n)
+		var tower: Rect2 = h.blocks[0]
+		var door: float = h.get("door", 0.3)
+		var solid := Holes.solid_blocks(h)
+		_check(h.get("windmill", false) and solid.size() == h.blocks.size() + 1
+				and is_equal_approx(solid[0].size.y + solid[1].size.y + door, tower.size.y)
+				and is_equal_approx(solid[0].end.y + door, solid[1].position.y),
+				"hole %d: the tower is two pillars with a door of %.2f m in the middle" % [n, door])
+		var zc := tower.get_center().y
+		_check(not Sim.walkable(h, Vector2(tower.get_center().x, tower.position.y + 0.02))
+				and Sim.walkable(h, Vector2(tower.get_center().x, zc)),
+				"hole %d: the ball can stand in the door, not in a pillar" % n)
+	# Hole 2: a ball shot up the screen (heading -90 degrees) through the door gets into the far row; beside it, it does not.
+	var h2 := Holes.hole(2)
+	var zd: float = Rect2(h2.blocks[0]).get_center().y
+	var through := Sim.new()
+	through.start(h2, Vector2(0.6, zd))
+	through.putt(-PI * 0.5, 3.0)
+	var crossed := false
+	while not through.finished:
+		through.tick(DT)
+		crossed = crossed or through.pos.x < -0.3
+	_check(crossed and not through.in_water, "hole 2: a ball shot straight at the door goes through it into the far row")
+	var beside := Sim.new()
+	beside.start(h2, Vector2(0.6, zd - 0.6))
+	beside.putt(-PI * 0.5, 3.0)
+	var got_in := false
+	while not beside.finished:
+		beside.tick(DT)
+		got_in = got_in or beside.pos.x < 0.0
+	_check(not got_in, "hole 2: a ball shot up beside the door stays in the near row (the wall stops it)")
+	_check(Sim.walkable(h2, h2.cup) and Vector2(h2.cup).x < -0.13 and Vector2(h2.tee).x > 0.13,
+			"hole 2: the tee is in the near row and the cup in the far row")
 
 
 ## REQ-MG-10: a turning blade bounces the ball, on holes 2, 4 and 5; it depends on where the blade is, so many times are tried.

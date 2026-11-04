@@ -401,7 +401,7 @@ static func draw_spinner(ci: CanvasItem, geo: Geo, sp: Dictionary, time: float) 
 ## The windmill stands on the first block of a hole that has one: a stone base with an arched door, a cream wooden tower with
 ## two windows and a balcony, a red cap, and four lattice sails that turn in front of the top (owner, 2026-11-04: redrawn, it
 ## looked plain). The footprint of the tower is the block, which is what the ball hits; the sails and the door are only a picture.
-static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float) -> void:
+static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float, door := 0.3) -> void:
 	var f := geo.rect(block)
 	var h := geo.up(TOWER_UNITS)
 	var u := geo.u
@@ -424,11 +424,16 @@ static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float) -
 	for r in range(1, rows):
 		var yy := lerpf(foot, base_top, float(r) / float(rows))
 		ci.draw_line(Vector2(cx - hw * 0.96, yy), Vector2(cx + hw * 0.96, yy), Color("5c5448"), 3.0)
-	var door_h := (foot - base_top) * 0.7
-	ci.draw_rect(Rect2(cx - 12.0 * u, foot - door_h, 24.0 * u, door_h), OL)
-	ci.draw_circle(Vector2(cx, foot - door_h), 12.0 * u, OL)
-	ci.draw_rect(Rect2(cx - 8.0 * u, foot - door_h + 2.0, 16.0 * u, door_h - 2.0), WOOD_LO)
-	ci.draw_circle(Vector2(cx, foot - door_h + 2.0), 8.0 * u, WOOD_LO)
+	# The door: the ball goes through it, along the course axis across the screen (up the screen): a dark arch with a brown inside.
+	var door_w := minf(geo.len(door), w * 0.8)
+	var door_h := (foot - base_top) * 0.75
+	var arch := door_w * 0.5
+	ci.draw_rect(Rect2(cx - arch - 3.0, foot - door_h + arch, door_w + 6.0, door_h - arch), OL)
+	ci.draw_circle(Vector2(cx, foot - door_h + arch), arch + 3.0, OL)
+	ci.draw_rect(Rect2(cx - arch, foot - door_h + arch, door_w, door_h - arch), WOOD_LO)
+	ci.draw_circle(Vector2(cx, foot - door_h + arch), arch, WOOD_LO)
+	ci.draw_rect(Rect2(cx - arch * 0.7, foot - door_h + arch, door_w * 0.7, door_h - arch), Color("301800"))
+	ci.draw_circle(Vector2(cx, foot - door_h + arch), arch * 0.7, Color("301800"))
 	# The balcony between the base and the tower.
 	ci.draw_rect(Rect2(cx - hw * 1.0, base_top - 4.0 * u, w, 8.0 * u).grow(2.0), OL)
 	ci.draw_rect(Rect2(cx - hw * 1.0, base_top - 4.0 * u, w, 8.0 * u), WOOD_LO)

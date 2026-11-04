@@ -405,7 +405,7 @@ func _world_draw(ci: CanvasItem) -> void:
 		var blk: Rect2 = blocks[i]
 		items.append([geo.at(blk.end).y, func() -> void:
 			if windmill and i == 0:
-				GolfLook.draw_windmill(ci, geo, blk, _time)
+				GolfLook.draw_windmill(ci, geo, blk, _time, float(_hole.get("door", 0.3)))
 			else:
 				GolfLook.draw_box(ci, geo, blk, true)])
 	for r in _hole.rocks:
@@ -423,7 +423,11 @@ func _world_draw(ci: CanvasItem) -> void:
 			GolfLook.draw_golfer(ci, geo, spot, _pose(), player(_putter).color, golfer_flipped())])
 	if not list.is_empty():
 		var ball: Dictionary = list[0]
-		items.append([geo.at(ball.pos).y + 1.0, func() -> void: GolfLook.draw_ball(ci, geo, geo.at(ball.pos), ball.slot)])
+		# The ball is on top of everything (a tall obstacle never hides it), except inside the tunnel of the windmill, where it
+		# disappears behind the door and comes out on the other side.
+		var in_tunnel: bool = windmill and blocks.size() > 0 and (blocks[0] as Rect2).has_point(ball.pos)
+		var ball_key: float = geo.at((blocks[0] as Rect2).end).y - 1.0 if in_tunnel else INF
+		items.append([ball_key, func() -> void: GolfLook.draw_ball(ci, geo, geo.at(ball.pos), ball.slot)])
 	items.sort_custom(func(a, b) -> bool: return a[0] < b[0])
 	for it in items:
 		it[1].call()
