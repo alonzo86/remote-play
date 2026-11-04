@@ -80,7 +80,7 @@ func _place_tennis(game: Control) -> void:
 	game._request_redraw()
 
 
-## The Mini Golf picture: the second hole seen from above (lake with its bridge, the windmill with its door, blade), the balls of all players on
+## The Mini Golf picture: the second hole (lake with its bridge, the windmill with its door, blade), the balls of all players on
 ## the tee, the ball of the first golfer on its way over the bridge just after the swing.
 func _place_mini_golf(game: Control) -> void:
 	game.rules.next_hole()
