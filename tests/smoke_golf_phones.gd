@@ -361,7 +361,7 @@ func _run() -> void:
 		for k in 5:
 			var gw := await _start(app, {"difficulty": d})
 			var flat := {"par": 2, "tee": Vector2(0.0, 1.1), "cup": Vector2(0.0, 5.1), "fairway": [Rect2(-0.8, 0.75, 1.6, 5.0)],
-					"water": [], "bridges": [], "spinners": [], "blocks": [], "rocks": []}   # No hill: the weakest putts roll free.
+					"water": [], "bridges": [], "blocks": [], "rocks": []}   # No hill: the weakest putts roll free.
 			gw._hole = flat
 			gw._spot = flat.tee
 			gw.sim.start(flat, flat.tee)

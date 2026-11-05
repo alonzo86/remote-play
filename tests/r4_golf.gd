@@ -1,8 +1,8 @@
 extends SceneTree
 ## Mini Golf, the rest of Test 26 (docs/MANUAL_TESTS.md test 26), with simulated phones over the loopback and the game stepped by
 ## hand: what is drawn at the start of a turn (3a, 3b), the plate with the name (3c), the lines on the two phones (3d), the gold
-## aim mark (4c), the swing of the golfer and the moment the ball starts (5b), the free lane beside the blades (7d), the banner
-## after the 6th stroke (8c), the strokes in the bar (8f), the result menu (10a) and its three buttons (10c, 10d).
+## aim mark (4c), the swing of the golfer and the moment the ball starts (5b), the banner after the 6th stroke (8c), the
+## strokes in the bar (8f), the result menu (10a) and its three buttons (10c, 10d).
 ## The golfer, the ball, the aim mark and the plates are seen through `Shell.recorder` (the game draws with `draw_*`).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_golf.gd -- --role=tv
 
@@ -70,7 +70,6 @@ func _run() -> void:
 	await _phone_lines()
 	await _aim_mark()
 	await _swing_and_ball()
-	_blades()
 	await _picked_up()
 	await _bar_counts()
 	await _result_menu()
@@ -303,29 +302,6 @@ func _swing_and_ball() -> void:
 
 
 # ---- 7d ----
-
-## 7d (owner, 2026-11-04: the blades of hole 2 were too hard to pass): the turning blades of every hole leave a free lane beside
-## their circle that a ball passes, and they turn slowly.
-func _blades() -> void:
-	print("the turning blades leave a free lane")
-	for n in [2, 3, 4, 5]:
-		var h: Dictionary = Holes.hole(n)
-		for sp in h.spinners:
-			var c: Vector2 = sp.c
-			var reach := float(sp.len) + GolfSim.BLADE_R
-			var best := 0.0
-			for f in h.fairway:
-				var fr: Rect2 = f
-				if fr.position.y <= c.y and c.y <= fr.end.y:
-					best = maxf(best, maxf(c.x - reach - fr.position.x, fr.end.x - (c.x + reach)))
-				if fr.position.x <= c.x and c.x <= fr.end.x:
-					best = maxf(best, maxf(c.y - reach - fr.position.y, fr.end.y - (c.y + reach)))
-			_check(best >= 0.2, "7d: hole %d: the free lane beside the blades is %.2f m wide (the ball is %.2f m)"
-					% [n, best, 2.0 * Holes.BALL_R])
-			_check(absf(float(sp.speed)) <= 2.0, "7d: hole %d: the blades turn at %.1f rad/s or less" % [n, absf(float(sp.speed))])
-	_check(absf(float(Holes.hole(2).spinners[0].speed)) <= 1.0 and float(Holes.hole(2).spinners[0].len) <= 0.3,
-			"7d: the blades of hole 2 are short and slow (owner, 2026-11-04)")
-
 
 # ---- 8c ----
 

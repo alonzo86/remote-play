@@ -1,6 +1,6 @@
 extends RefCounted
 ## The ball of Mini Golf on one hole (REQ-MG-5, 9, 10): a ball that rolls on the ground of a hole, slows down, bounces from the
-## walls, the blocks, the rocks, the hills and the turning blades, falls into water and into the cup. Pure
+## walls, the blocks, the rocks and the hills, falls into water and into the cup. Pure
 ## logic: it draws nothing.
 ## The ball is a point with a radius that moves in small steps, one axis at a time, so that it bounces from straight walls.
 
@@ -10,8 +10,6 @@ const STEP := 1.0 / 120.0
 const ROLL_DECEL := 0.9          # m/s2 on grass.
 const WALL_KEEP := 0.7           # The speed that stays after a wall.
 const ROCK_KEEP := 0.65          # A rock takes some speed.
-const BLADE_R := 0.05            # The half width of a turning blade.
-const BLADE_KEEP := 0.8
 const STOP_SPEED := 0.04         # Under this speed (m/s) the ball stops.
 const CUP_SPEED := 1.6           # A ball slower than this falls into the cup; a faster one rolls over it.
 const MAX_TIME := 14.0           # A putt ends after this time at the latest.
@@ -25,9 +23,7 @@ var finished := true             # True while the ball stands still.
 var in_cup := false
 var in_water := false
 var time := 0.0
-## The time of the world (s) for the turning blades: the game sets it before a putt and the ball moves it on.
-var clock := 0.0
-## What happened in the last `tick()`: dictionaries `{"t": "wall" | "rock" | "blade" | "water" | "cup"}`.
+## What happened in the last `tick()`: dictionaries `{"t": "wall" | "rock" | "water" | "cup"}`.
 var events: Array[Dictionary] = []
 
 
@@ -78,25 +74,6 @@ static func walkable(h: Dictionary, p: Vector2) -> bool:
 	return true
 
 
-## A turning blade pushes the ball away from the bar and gives it the speed of the bar at that place.
-func _hit_blade(sp: Dictionary) -> void:
-	var ends := Holes.spinner_ends(sp, clock)
-	var near := Holes.nearest_on_bar(ends[0], ends[1], pos)
-	var d := pos - near
-	var reach := BLADE_R + Holes.BALL_R
-	if d.length() >= reach:
-		return
-	var n := d.normalized() if d.length() > 0.0001 else Vector2(0.0, -1.0)
-	var r: Vector2 = near - Vector2(sp.c)
-	var v_bar := Vector2(-r.y, r.x) * float(sp.speed)
-	var rel := vel - v_bar
-	if rel.dot(n) < 0.0:
-		rel -= 2.0 * rel.dot(n) * n
-	vel = rel * BLADE_KEEP + v_bar
-	pos = near + n * (reach + 0.002)
-	events.append({"t": "blade"})
-
-
 func tick(delta: float) -> void:
 	events.clear()
 	if finished:
@@ -110,7 +87,6 @@ func tick(delta: float) -> void:
 
 func _step(dt: float) -> void:
 	time += dt
-	clock += dt
 	var slope := Holes.hill_slope(hole, pos)
 	vel.y -= HILL_G * slope * dt
 	var speed := vel.length()
@@ -133,8 +109,6 @@ func _step(dt: float) -> void:
 	else:
 		vel.y = -vel.y * WALL_KEEP
 		events.append({"t": "wall"})
-	for sp in hole.spinners:
-		_hit_blade(sp)
 	for rk in hole.rocks:
 		var rv: Vector3 = rk
 		var rd := pos - Vector2(rv.x, rv.y)

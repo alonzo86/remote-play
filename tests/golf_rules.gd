@@ -12,7 +12,6 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const DT := 1.0 / 60.0
 
 var _checks := 0
-var _clock := 0.0
 var _fails := 0
 
 
@@ -42,7 +41,6 @@ func _initialize() -> void:
 	_things_bounce()
 	_windmill_door()
 	_hills()
-	_blades_on_holes()
 	_pars()
 	await _grid()
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -60,7 +58,7 @@ func _roll(sim: Sim, heading: float, speed: float) -> void:
 
 func _flat_hole() -> Dictionary:
 	return {"par": 2, "tee": Vector2(0.0, 1.0), "cup": Vector2(0.0, 5.0), "fairway": [Rect2(-1.0, 0.75, 2.0, 5.0)],
-			"water": [], "bridges": [], "spinners": [], "blocks": [], "rocks": []}
+			"water": [], "bridges": [], "blocks": [], "rocks": []}
 
 
 ## REQ-MG-12: five holes with a par of 2 to 4, and a tee and a cup on the ground, away from the things on the course.
@@ -118,9 +116,9 @@ func _ball() -> void:
 			and Sim.heading_to_cup(_flat_hole(), Vector2(-1.0, 5.0)) > 1.4, "the heading to the cup")
 
 
-## REQ-MG-9, 10: water sends the ball back, a bridge lets it over, a blade and a block bounce it.
+## REQ-MG-9, 10: water sends the ball back, a bridge lets it over, a block bounces it.
 func _obstacles() -> void:
-	print("water, bridges, blades")
+	print("water, bridges, blocks")
 	var h := _flat_hole()
 	h.water = [Rect2(-1.0, 2.8, 2.0, 0.6)]
 	var wet := Sim.new()
@@ -150,18 +148,6 @@ func _obstacles() -> void:
 		for e in rock.events:
 			bounced = bounced or e.t == "rock"
 	_check(bounced and rock.pos.y < 3.0, "a ball that hits a rock bounces back (REQ-MG-10)")
-	h = _flat_hole()
-	h.spinners = [{"c": Vector2(0.0, 3.0), "len": 0.5, "speed": 0.0}]
-	var blade := Sim.new()
-	blade.start(h, Vector2(0.0, 1.0))
-	var hit := false
-	var back := false
-	blade.putt(0.0, 3.0)
-	while not blade.finished:
-		blade.tick(DT)
-		hit = hit or not blade.events.filter(func(e: Dictionary) -> bool: return e.t == "blade").is_empty()
-		back = back or blade.vel.y < -0.1
-	_check(hit and back, "a turning blade bounces the ball (REQ-MG-10)")
 	h = _flat_hole()
 	h.blocks = [Rect2(-0.3, 3.0, 0.6, 0.3)]
 	var blocked := Sim.new()
@@ -196,39 +182,41 @@ func _cup() -> void:
 
 
 ## Every hole can be played in a few strokes: a simple search of putts (each one starts from the stopped ball that is nearest to
-## the cup) finds the cup in at most par + 1 strokes.
+## the cup) finds the cup in at most par + 1 strokes. The holes 2 and 5 have a wall with the door of the windmill in it: there
+## the search goes through the door first.
 func _solvable() -> void:
 	print("every hole can be played")
 	for n in range(1, Holes.COUNT + 1):
 		var h := Holes.hole(n)
-		for clock in [0.0, 1.3, 2.9]:
-			_clock = clock
-			var best := _solve_through_the_door(h) if n == 2 else _search(h, Vector2(h.tee), 0, int(h.par) + 1)
-			_check(best > 0 and best <= int(h.par) + 1, "hole %d at time %.1f: the cup is reachable in %d strokes (par %d)"
-					% [n, clock, best, h.par])
+		var best := _solve_through_the_door(h) if h.get("windmill", false) else _search(h, Vector2(h.tee), 0, int(h.par) + 1)
+		_check(best > 0 and best <= int(h.par) + 1, "hole %d: the cup is reachable in %d strokes (par %d)" % [n, best, h.par])
 
 
-## Hole 2 (the windmill door is the only way to the far row): a putt straight over the bridge, a putt at the door, then the search
-## finds the cup. Returns the number of strokes, or 0.
+## A hole with the door of the windmill in a wall: a putt that stops in front of the door (on the side of the tee), a putt through
+## the door, then the search finds the cup. Returns the number of strokes, or 0.
 func _solve_through_the_door(h: Dictionary) -> int:
-	var sim := Sim.new()
-	sim.start(h, h.tee)
-	sim.clock = _clock
-	_roll(sim, 0.0, 2.2)
-	if sim.in_water:
-		return 0
 	var tower: Rect2 = h.blocks[0]
-	var door := Vector2(tower.get_center().x, tower.get_center().y)
-	var from: Vector2 = sim.pos
-	for speed in [2.5, 3.5, 1.8]:
-		for i in range(-2, 3):
-			sim.start(h, from)
-			sim.clock = _clock
-			_roll(sim, Sim.heading_to_cup({"cup": door}, from) + deg_to_rad(float(i) * 3.0), speed)
-			if sim.pos.x < -0.3 and not sim.in_water:
-				var rest := _search(h, sim.pos, 2, int(h.par) + 1)
-				if rest > 0:
-					return rest
+	var zc := tower.get_center().y
+	var cx := tower.get_center().x
+	var side := 1.0 if Vector2(h.tee).x > cx else -1.0
+	var aim := Vector2(cx + side * 0.7, zc)
+	var sim := Sim.new()
+	var tee: Vector2 = h.tee
+	for speed in range(14, 34, 1):
+		for deg in [-6.0, -4.0, -2.0, 0.0, 2.0, 4.0, 6.0]:
+			sim.start(h, tee)
+			_roll(sim, Sim.heading_to_cup({"cup": aim}, tee) + deg_to_rad(deg), float(speed) * 0.1)
+			if sim.in_water or absf(sim.pos.y - zc) > 0.08 or (sim.pos.x - cx) * side < 0.25:
+				continue
+			var from: Vector2 = sim.pos
+			for sp2 in [2.6, 3.4, 1.8]:
+				for i in range(-2, 3):
+					sim.start(h, from)
+					_roll(sim, Sim.heading_to_cup({"cup": Vector2(cx, zc)}, from) + deg_to_rad(float(i) * 3.0), sp2)
+					if (sim.pos.x - cx) * side < -0.3 and not sim.in_water:
+						var rest := _search(h, sim.pos, 2, int(h.par) + 1)
+						if rest > 0:
+							return rest
 	return 0
 
 
@@ -242,7 +230,6 @@ func _search(h: Dictionary, from: Vector2, used: int, limit: int) -> int:
 	for i in range(-12, 13):
 		for p in [0.15, 0.3, 0.5, 0.7, 0.9]:
 			sim.start(h, from)
-			sim.clock = _clock
 			_roll(sim, base + deg_to_rad(float(i) * 5.0), Sim.speed_for(p, 0.8))
 			if sim.in_cup:
 				return used + 1
@@ -375,13 +362,12 @@ func _words_and_medals() -> void:
 
 # ---- Added for the automated half of Manual test 26 ----
 
-## Rolls a ball from `from` at `speed` towards `target` for at most `seconds`, with the sliding things at time `clock`. Returns
+## Rolls a ball from `from` at `speed` towards `target` for at most `seconds`. Returns
 ## `{events, off}`: the types of the events in order, and whether the ball was ever off the ground (outside the fairway or in
 ## a block).
-func _shoot(h: Dictionary, from: Vector2, target: Vector2, speed: float, clock := 0.0, seconds := 4.0) -> Dictionary:
+func _shoot(h: Dictionary, from: Vector2, target: Vector2, speed: float, seconds := 4.0) -> Dictionary:
 	var sim := Sim.new()
 	sim.start(h, from)
-	sim.clock = clock
 	var d := target - from
 	sim.putt(atan2(d.x, d.y), speed)
 	var types: Array = []
@@ -477,6 +463,27 @@ func _windmill_door() -> void:
 	_check(not got_in, "hole 2: a ball shot up beside the door stays in the near row (the wall stops it)")
 	_check(Sim.walkable(h2, h2.cup) and Vector2(h2.cup).x < -0.13 and Vector2(h2.tee).x > 0.13,
 			"hole 2: the tee is in the near row and the cup in the far row")
+	# Hole 5: a ball shot down the screen (heading +90 degrees) through the door gets into the lower half; beside it, it does not.
+	var h5 := Holes.hole(5)
+	var z5: float = Rect2(h5.blocks[0]).get_center().y
+	var down := Sim.new()
+	down.start(h5, Vector2(-0.1, z5))
+	down.putt(PI * 0.5, 3.0)
+	var got_down := false
+	while not down.finished:
+		down.tick(DT)
+		got_down = got_down or down.pos.x > 0.9
+	_check(got_down and not down.in_water, "hole 5: a ball shot straight at the door goes through it into the lower half")
+	var aside := Sim.new()
+	aside.start(h5, Vector2(-0.1, z5 - 0.5))
+	aside.putt(PI * 0.5, 3.0)
+	var got_across := false
+	while not aside.finished:
+		aside.tick(DT)
+		got_across = got_across or aside.pos.x > 0.4
+	_check(not got_across, "hole 5: a ball shot down beside the door is stopped by the wall")
+	_check(Sim.walkable(h5, h5.tee) and Vector2(h5.tee).x < 0.3 and Vector2(h5.cup).x > 0.58,
+			"hole 5: the cup is below the wall, the tee above")
 
 
 ## REQ-MG-10: a hill is a bump across the whole width: a soft putt does not get over it and rolls back, a strong one does and
@@ -522,30 +529,27 @@ func _hills() -> void:
 		speeds.append(at)
 	_check(speeds[0] > 0.0 and speeds[0] < speeds[1] - 0.3,
 			"a putt is slower on the top of the hill (%.2f m/s at z 2.5, against %.2f m/s on flat ground)" % [speeds[0], speeds[1]])
+	# A ramp up to a platform and a slide down (hole 4).
+	var hs := _flat_hole()
+	hs.hills = [{"rect": Rect2(-1.0, 2.0, 2.0, 1.0), "height": 0.14, "kind": "slide"}]
+	_check(is_zero_approx(Holes.hill_height(hs, Vector2(0.0, 2.0))) and absf(Holes.hill_height(hs, Vector2(0.0, 2.5)) - 0.14) < 0.001
+			and Holes.hill_height(hs, Vector2(0.0, 2.999)) < 0.01,
+			"the slide is 0.14 m high on the platform and 0 at both ends")
+	_check(Holes.hill_slope(hs, Vector2(0.0, 2.2)) > 0.2 and is_zero_approx(Holes.hill_slope(hs, Vector2(0.0, 2.5)))
+			and Holes.hill_slope(hs, Vector2(0.0, 2.8)) < -0.2, "it rises on the ramp, is level on the platform and falls on the slide")
+	var weak_slide := Sim.new()
+	weak_slide.start(hs, Vector2(0.0, 1.2))
+	_roll(weak_slide, 0.0, 1.5)
+	_check(weak_slide.pos.y < 2.5, "a soft putt (1.5 m/s) does not get up the ramp (stops at z %.2f)" % weak_slide.pos.y)
+	var strong_slide := Sim.new()
+	strong_slide.start(hs, Vector2(0.0, 1.2))
+	_roll(strong_slide, 0.0, 3.5)
+	_check(strong_slide.pos.y > 3.0, "a strong putt (3.5 m/s) goes up the ramp, over the platform and down the slide (z %.2f)"
+			% strong_slide.pos.y)
 	for n in range(1, Holes.COUNT + 1):
 		var hh := Holes.hole(n)
 		_check(is_zero_approx(Holes.hill_height(hh, hh.tee)) and is_zero_approx(Holes.hill_height(hh, hh.cup)),
 				"hole %d: the tee and the cup are not on a hill" % n)
-
-
-## REQ-MG-10: a turning blade bounces the ball, on holes 2, 4 and 5; it depends on where the blade is, so many times are tried.
-func _blades_on_holes() -> void:
-	print("turning blades")
-	for n in [2, 4, 5]:
-		var h := Holes.hole(n)
-		var sp: Dictionary = h.spinners[0]
-		var c: Vector2 = sp.c
-		var from := c - Vector2(0.0, float(sp.len) + 0.35)
-		var hits := 0
-		var tunnels := false
-		for k in 24:
-			var clock := float(k) / 24.0 * TAU / absf(float(sp.speed))
-			var r := _shoot(h, from, c, 3.0, clock, 3.0)
-			hits += 1 if r.events.has("blade") else 0
-			tunnels = tunnels or r.off
-		_check(from.y > 0.0 and Sim.walkable(h, from), "hole %d: the place to shoot from is on the ground" % n)
-		_check(hits >= 6, "hole %d: the blade bounces the ball in %d of 24 positions of the blade" % [n, hits])
-		_check(not tunnels, "hole %d: the ball never gets out of the course through a blade" % n)
 
 
 ## REQ-MG-12, 6: the par of each hole, and the words of the holes that are not covered above.

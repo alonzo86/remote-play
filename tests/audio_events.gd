@@ -406,7 +406,7 @@ func _bowling() -> void:
 ## A flat hole of 2 x 5 m with nothing on it (tests/golf_rules.gd has the same one).
 func _flat_hole() -> Dictionary:
 	return {"par": 2, "tee": Vector2(0.0, 1.0), "cup": Vector2(0.0, 5.0), "fairway": [Rect2(-1.0, 0.75, 2.0, 5.0)],
-			"water": [], "bridges": [], "spinners": [], "blocks": [], "rocks": []}
+			"water": [], "bridges": [], "blocks": [], "rocks": []}
 
 
 ## Rolls the ball of the game on `hole` from `from` with `speed`, tick after tick, until `effect` was heard or the ball stops.
@@ -437,10 +437,6 @@ func _golf() -> void:
 	rock.rocks = [Vector3(0.0, 3.0, 0.2)]
 	await _event(game, "the ball touches a rock", ["golf_wall"], {}, func() -> void:
 		_roll_on(game, rock, Vector2(0.0, 1.0), 3.0, "golf_wall"), true)
-	var blade := _flat_hole()
-	blade.spinners = [{"c": Vector2(0.0, 3.0), "len": 0.5, "speed": 0.0}]
-	await _event(game, "the ball touches a turning blade", ["golf_blade"], {}, func() -> void:
-		_roll_on(game, blade, Vector2(0.0, 1.0), 3.0, "golf_blade"), true, ["golf_wall"])
 	await _event(game, "the ball falls in the lake", ["golf_splash"], {}, func() -> void:
 		game.sim.in_water = true
 		game.sim.finished = true

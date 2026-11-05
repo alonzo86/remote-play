@@ -246,14 +246,11 @@ func _putt(slot: int) -> void:
 
 
 func _tick_roll(delta: float) -> void:
-	sim.clock = _time - delta
 	sim.tick(delta)
 	for e in sim.events:
 		match String(e.t):
 			"wall", "rock":
 				Sound.sfx("golf_wall")
-			"blade":
-				Sound.sfx("golf_blade")
 	if sim.finished:
 		_putt_done()
 
@@ -415,8 +412,6 @@ func _world_draw(ci: CanvasItem) -> void:
 	for r in _hole.rocks:
 		var rock: Vector3 = r
 		items.append([geo.at(Vector2(rock.x, rock.y)).y, func() -> void: GolfLook.draw_rock(ci, geo, rock)])
-	for sp in _hole.spinners:
-		items.append([geo.at(sp.c).y, func() -> void: GolfLook.draw_spinner(ci, geo, sp, _time)])
 	var list := ball_list()
 	if golfer_shown():
 		var spot := geo.at(_spot) - Vector2(0.0, geo.up(Holes.hill_height(_hole, _spot)))

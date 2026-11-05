@@ -212,28 +212,43 @@ static func draw_course(ci: CanvasItem, geo: Geo, hole: Dictionary) -> void:
 	draw_cup(ci, geo, hole)
 
 
-## A hill: a bump across the whole width of its rectangle, smooth, as high as its `height` (m) in the middle. It is drawn in
-## vertical strips: the light falls from the left, so the side that rises is light and the side that falls is dark; the near
-## end shows the cut of the bump (owner, 2026-11-04: a full-width bump to climb and slide down).
+## A hill: a bump across the whole width of its rectangle, as high as its `height` (m) at the top; or, for `"kind": "slide"`,
+## a ramp up to a platform and a slide down. It is drawn in vertical strips: on a bump the light falls from the left, so the side
+## that rises is light and the side that falls is dark; a slide has a tan ramp, a yellow platform and a red slide. The near
+## end shows the cut (owner, 2026-11-04: a full-width bump to climb and slide down, a ramp and a slide).
 static func _draw_hill(ci: CanvasItem, geo: Geo, hill: Dictionary) -> void:
 	var f := geo.rect(hill.rect)
 	var hmax := geo.up(float(hill.height))
 	var step := geo.grid
+	var slide := String(hill.get("kind", "bump")) == "slide"
 	var top: Array = []
 	var bottom: Array = []
 	var x := f.position.x
 	while x < f.end.x:
 		var t := (x + step * 0.5 - f.position.x) / f.size.x
-		var h := hmax * pow(sin(PI * t), 2.0)
-		var lean := sin(2.0 * PI * t)
-		var col := HILL_LIT if lean > 0.3 else (HILL_DARK if lean < -0.3 else HILL_MID)
+		var pr := Holes.hill_profile(hill, t)
+		var h := hmax * pr.x
+		var col := HILL_MID
+		var cut := HILL_CUT
+		if slide:
+			col = Color("d8a868") if t < 0.45 else (Color("f8d870") if t < 0.6 else RED)
+			cut = Color("ac6418") if t < 0.45 else (Color("d8a868") if t < 0.6 else Color("a01808"))
+		else:
+			col = HILL_LIT if pr.y > 0.3 * PI else (HILL_DARK if pr.y < -0.3 * PI else HILL_MID)
 		ci.draw_rect(Rect2(x, f.position.y - h, step + 1.0, f.size.y), col)
-		ci.draw_rect(Rect2(x, f.end.y - h, step + 1.0, h), HILL_CUT)
+		ci.draw_rect(Rect2(x, f.end.y - h, step + 1.0, h), cut)
 		top.append(Vector2(x, f.position.y - h))
 		bottom.append(Vector2(x, f.end.y - h))
 		x += step
 	ci.draw_polyline(PackedVector2Array(top), OL, 4.0)
 	ci.draw_polyline(PackedVector2Array(bottom), OL, 4.0)
+	if slide:   # Chevrons on the ramp and the slide show the way.
+		for t in [0.15, 0.3, 0.75, 0.9]:
+			var pr2 := Holes.hill_profile(hill, t)
+			var c := Vector2(f.position.x + f.size.x * t, f.position.y + f.size.y * 0.5 - hmax * pr2.x)
+			var d := Vector2(1.0, -hmax * pr2.y / f.size.x).normalized()
+			var n := d.orthogonal() * Vector2(1.0, 0.5)
+			ci.draw_polyline(PackedVector2Array([c - d * 8.0 + n * 12.0, c + d * 6.0, c - d * 8.0 - n * 12.0]), WHITE, 5.0)
 
 
 static func _draw_fairway(ci: CanvasItem, geo: Geo, r: Rect2) -> void:
@@ -344,22 +359,6 @@ static func draw_rock(ci: CanvasItem, geo: Geo, r: Vector3) -> void:
 	ci.draw_polyline(body, OL, 5.0)
 
 
-## A turning blade: a bar that turns round its middle, with a red and a gold half (REQ-MG-10). The bar is as wide as the
-## ball needs to hit it (`GolfSim.BLADE_R`).
-static func draw_spinner(ci: CanvasItem, geo: Geo, sp: Dictionary, time: float) -> void:
-	var ends := Holes.spinner_ends(sp, time)
-	var a := geo.snap(geo.at(ends[0]))
-	var b := geo.snap(geo.at(ends[1]))
-	var mid := geo.snap(geo.at(sp.c))
-	var w := maxf(2.0 * 0.05 * geo.s, 16.0 * geo.u)
-	ci.draw_line(a + Vector2(6.0, 8.0) * geo.u, b + Vector2(6.0, 8.0) * geo.u, SHADOW, w)
-	ci.draw_line(a, b, OL, w + 8.0)
-	ci.draw_line(a, mid, RED, w)
-	ci.draw_line(mid, b, GOLD, w)
-	ci.draw_circle(mid, w * 0.75 + 4.0, OL)
-	ci.draw_circle(mid, w * 0.75, WOOD_LO)
-
-
 ## The windmill stands on the first block of a hole that has one: a stone base with an arched door, a cream wooden tower with
 ## two windows and a balcony, a red cap, and four lattice sails that turn in front of the top (owner, 2026-11-04: redrawn, it
 ## looked plain). The footprint of the tower is the block, which is what the ball hits; the sails and the door are only a picture.
@@ -440,8 +439,7 @@ static func draw_windmill(ci: CanvasItem, geo: Geo, block: Rect2, time: float, d
 	ci.draw_circle(hub, 9.0 * u, GOLD)
 
 
-## The places of the obstacles on the screen, for a banner plate to keep out of: the tower, the rocks and the circle of each
-## turning blade.
+## The places of the obstacles on the screen, for a banner plate to keep out of: the tower and the rocks.
 static func obstacle_zones(geo: Geo, hole: Dictionary) -> Array:
 	var out: Array = []
 	for b in hole.blocks:
@@ -450,10 +448,6 @@ static func obstacle_zones(geo: Geo, hole: Dictionary) -> Array:
 	for r in hole.rocks:
 		var c := geo.at(Vector2(r.x, r.y))
 		out.append(Rect2(c - Vector2(geo.len(r.z), geo.len(r.z)), Vector2(2.0, 2.0) * geo.len(r.z)))
-	for sp in hole.spinners:
-		var c2 := geo.at(sp.c)
-		var l := geo.len(float(sp.len))
-		out.append(Rect2(c2 - Vector2(l, l), Vector2(2.0, 2.0) * l))
 	return out
 
 
@@ -602,15 +596,15 @@ static func scenery(geo: Geo, hole: Dictionary, n: int) -> Array:
 	var kinds := ["tree", "flowers", "bush", "tree", "bench"]
 	var i := 0
 	var spots: Array = []
-	for y in range(168, 940, 104):
+	for y in range(168, 940, 190):
 		spots.append(Vector2(42.0, y))
 		spots.append(Vector2(1878.0, y))
-	for x in range(130, 1800, 120):
+	for x in range(130, 1800, 230):
 		spots.append(Vector2(x, 154.0))
 		spots.append(Vector2(x, 1046.0))
 	for y in range(236, 900, 150):
 		for x in range(150, 1800, 150):
-			if (x * 7 + y * 13 + n * 5) % 3 == 0:
+			if (x * 7 + y * 13 + n * 5) % 7 == 0:
 				spots.append(Vector2(x, y))
 	for sp in spots:
 		var c: Vector2 = geo.off + (sp as Vector2) * u
