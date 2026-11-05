@@ -40,6 +40,8 @@ func _initialize() -> void:
 	_words_and_medals()
 	_things_bounce()
 	_windmill_door()
+	_rocks_do_not_trap()
+	_debug_jump()
 	_hills()
 	_pars()
 	await _grid()
@@ -182,8 +184,8 @@ func _cup() -> void:
 
 
 ## Every hole can be played in a few strokes: a simple search of putts (each one starts from the stopped ball that is nearest to
-## the cup) finds the cup in at most par + 1 strokes. The holes 2 and 5 have a wall with the door of the windmill in it: there
-## the search goes through the door first.
+## the cup) finds the cup in at most par + 1 strokes. Hole 2 has a wall with the door of the windmill in it: there the
+## search goes through the door first.
 func _solvable() -> void:
 	print("every hole can be played")
 	for n in range(1, Holes.COUNT + 1):
@@ -421,15 +423,64 @@ func _things_bounce() -> void:
 			_check(bounced2, "hole %d: a ball shot at a pillar of the windmill bounces from it" % n)
 			windmill_holes.append(n)
 		_check(not all_off, "hole %d: the ball never leaves the ground or enters a block" % n)
-	_check(windmill_holes == [2, 5], "the windmill is on holes 2 and 5 (there are no brick walls or sliding barriers any more)")
+	_check(windmill_holes == [2], "the windmill is on hole 2 only (there are no brick walls, sliding barriers or blades any more)")
 	_check(rock_holes.size() == 6, "the holes have 6 rocks in all (%d)" % rock_holes.size())
+
+
+## TEMP-DEBUG (remove with `Rules.debug_jump_to_hole()`): the jump to a hole for testing.
+func _debug_jump() -> void:
+	print("temporary: jump to a hole")
+	var r := _two_players(3)
+	r.debug_jump_to_hole(4)
+	_check(r.hole_number() == 4 and r.holes == Holes.COUNT and r.strokes_on_hole(0) == 0 and r.total(0) == 0
+			and r.current_slot() == 0, "TEMP-DEBUG: a jump to hole 4 starts hole 4 of 5 with no strokes")
+	r.debug_jump_to_hole(99)
+	_check(r.hole_number() == Holes.COUNT, "TEMP-DEBUG: a jump past the last hole goes to the last hole")
+
+
+## REQ-MG-10 (owner, 2026-11-05: a rock was hit wrong and the ball could get stuck near it): a rock never leaves a pinch against a
+## wall that a ball can wedge in (the free lane is 0.15 m or more on each side), and a ball shot at a rock from any side, hard or
+## soft, straight or off the middle, ends on the ground and outside the rock.
+func _rocks_do_not_trap() -> void:
+	print("rocks do not trap the ball")
+	for n in range(1, Holes.COUNT + 1):
+		var h := Holes.hole(n)
+		for rk in h.rocks:
+			var rv: Vector3 = rk
+			var c := Vector2(rv.x, rv.y)
+			var reach := rv.z + Holes.BALL_R
+			var narrowest := 99.0
+			for dir in [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]:
+				var d := reach
+				while d < 3.0 and Sim.walkable(h, c + dir * d):
+					d += 0.005
+				narrowest = minf(narrowest, d - reach if d < 3.0 else 99.0)
+			_check(narrowest >= 0.15, "hole %d: the rock at (%.2f, %.2f) leaves a lane of %.2f m beside it, at least 0.15 m"
+					% [n, rv.x, rv.y, narrowest])
+			var bad := 0
+			var shots := 0
+			for k in 24:
+				var a := TAU * float(k) / 24.0
+				var from := c + Vector2(cos(a), sin(a)) * (reach + 0.3)
+				if not Sim.walkable(h, from):
+					continue
+				for off in [-0.08, 0.0, 0.08]:
+					for speed in [0.8, 2.5]:
+						var sim := Sim.new()
+						sim.start(h, from)
+						var aim: Vector2 = c + Vector2(-sin(a), cos(a)) * off - from
+						_roll(sim, atan2(aim.x, aim.y), speed)
+						shots += 1
+						if not sim.finished or not Sim.walkable(h, sim.pos) or (sim.pos - c).length() < reach - 0.001:
+							bad += 1
+			_check(shots > 0 and bad == 0, "hole %d: %d shots at the rock end on the ground and outside it (%d did not)" % [n, shots, bad])
 
 
 ## REQ-MG-10, 12: the tower of a windmill has a door that the ball goes through; the tower is two pillars on both sides of it, and
 ## on hole 2 the door is the only way into the far row (owner, 2026-11-04).
 func _windmill_door() -> void:
 	print("the door of the windmill")
-	for n in [2, 5]:
+	for n in [2]:
 		var h := Holes.hole(n)
 		var tower: Rect2 = h.blocks[0]
 		var door: float = h.get("door", 0.3)
@@ -463,27 +514,6 @@ func _windmill_door() -> void:
 	_check(not got_in, "hole 2: a ball shot up beside the door stays in the near row (the wall stops it)")
 	_check(Sim.walkable(h2, h2.cup) and Vector2(h2.cup).x < -0.13 and Vector2(h2.tee).x > 0.13,
 			"hole 2: the tee is in the near row and the cup in the far row")
-	# Hole 5: a ball shot down the screen (heading +90 degrees) through the door gets into the lower half; beside it, it does not.
-	var h5 := Holes.hole(5)
-	var z5: float = Rect2(h5.blocks[0]).get_center().y
-	var down := Sim.new()
-	down.start(h5, Vector2(-0.1, z5))
-	down.putt(PI * 0.5, 3.0)
-	var got_down := false
-	while not down.finished:
-		down.tick(DT)
-		got_down = got_down or down.pos.x > 0.9
-	_check(got_down and not down.in_water, "hole 5: a ball shot straight at the door goes through it into the lower half")
-	var aside := Sim.new()
-	aside.start(h5, Vector2(-0.1, z5 - 0.5))
-	aside.putt(PI * 0.5, 3.0)
-	var got_across := false
-	while not aside.finished:
-		aside.tick(DT)
-		got_across = got_across or aside.pos.x > 0.4
-	_check(not got_across, "hole 5: a ball shot down beside the door is stopped by the wall")
-	_check(Sim.walkable(h5, h5.tee) and Vector2(h5.tee).x < 0.3 and Vector2(h5.cup).x > 0.58,
-			"hole 5: the cup is below the wall, the tee above")
 
 
 ## REQ-MG-10: a hill is a bump across the whole width: a soft putt does not get over it and rolls back, a strong one does and

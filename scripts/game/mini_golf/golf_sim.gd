@@ -87,6 +87,7 @@ func tick(delta: float) -> void:
 
 func _step(dt: float) -> void:
 	time += dt
+	var before := pos
 	var slope := Holes.hill_slope(hole, pos)
 	vel.y -= HILL_G * slope * dt
 	var speed := vel.length()
@@ -111,12 +112,16 @@ func _step(dt: float) -> void:
 		events.append({"t": "wall"})
 	for rk in hole.rocks:
 		var rv: Vector3 = rk
-		var rd := pos - Vector2(rv.x, rv.y)
+		var rc := Vector2(rv.x, rv.y)
+		var rd := pos - rc
 		var rreach := rv.z + Holes.BALL_R
 		if rd.length() < rreach:
-			var rn := rd.normalized() if rd.length() > 0.0001 else Vector2(0.0, -1.0)
-			vel = (vel - 2.0 * vel.dot(rn) * rn) * ROCK_KEEP
-			pos = Vector2(rv.x, rv.y) + rn * (rreach + 0.002)
+			var rn := rd.normalized() if rd.length() > 0.0001 else (before - rc).normalized()
+			if vel.dot(rn) < 0.0:   # Only a ball that moves into the rock bounces: one that moves away is not turned back.
+				vel = (vel - 2.0 * vel.dot(rn) * rn) * ROCK_KEEP
+			var out := rc + rn * (rreach + 0.002)
+			# A ball pushed out of a rock must stay on the ground: beside a wall it goes back to where it was before the step.
+			pos = out if walkable(hole, out) else before
 			events.append({"t": "rock"})
 	if Holes.is_water(hole, pos):
 		vel = Vector2.ZERO

@@ -344,7 +344,7 @@ static func cup_zone(geo: Geo, hole: Dictionary) -> Rect2:
 ## height in the tilted view). The ball bounces off it. Its size is the size of the rock in the data.
 static func draw_rock(ci: CanvasItem, geo: Geo, r: Vector3) -> void:
 	var base := geo.snap(geo.at(Vector2(r.x, r.y)))
-	var rad := maxf(geo.len(r.z), 16.0 * geo.u) * 1.15
+	var rad := maxf(geo.len(r.z), 16.0 * geo.u)   # The footprint is the circle that the ball bounces from.
 	ci.draw_colored_polygon(_ellipse_pts(base + Vector2(6.0, 4.0) * geo.u, rad * 1.05, rad * 0.4), SHADOW)
 	var p := func(dx: float, dy: float) -> Vector2: return base + Vector2(dx, dy) * rad
 	var body := PackedVector2Array([p.call(-1.0, -0.1), p.call(-0.65, -1.15), p.call(0.15, -1.4), p.call(0.95, -0.85),

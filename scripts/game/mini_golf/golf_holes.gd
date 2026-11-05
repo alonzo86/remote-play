@@ -24,7 +24,7 @@ const HOLES: Array[Dictionary] = [
 	{"par": 3, "tee": Vector2(0.7, 1.2), "cup": Vector2(-0.68, 5.4), "windmill": true, "door": 0.30,
 			"fairway": [Rect2(0.13, 0.75, 1.1, 3.95), Rect2(-1.23, 3.2, 1.1, 3.0), Rect2(-0.3, 3.65, 0.6, 0.5)],
 			"water": [Rect2(0.13, 1.9, 1.1, 0.7)], "bridges": [Rect2(0.4, 1.9, 0.6, 0.7)],
-			"blocks": [Rect2(-0.13, 3.65, 0.26, 0.5)], "rocks": [Vector3(1.02, 3.1, 0.12)]},
+			"blocks": [Rect2(-0.13, 3.65, 0.26, 0.5)], "rocks": [Vector3(0.68, 3.1, 0.12)]},
 	# 3: a hill, then a turn to the right with a rock at the corner before the cup.
 	{"par": 3, "tee": Vector2(0.0, 1.1), "cup": Vector2(2.4, 3.6),
 			"fairway": [Rect2(-0.7, 0.75, 1.4, 2.7), Rect2(-0.7, 2.9, 3.6, 1.4)], "water": [], "bridges": [],
@@ -37,13 +37,13 @@ const HOLES: Array[Dictionary] = [
 			"bridges": [Rect2(-0.3, 2.7, 0.6, 1.0)],
 			"hills": [{"rect": Rect2(-1.25, 3.95, 2.5, 1.15), "height": 0.14, "kind": "slide"}],
 			"blocks": [], "rocks": [Vector3(-0.7, 1.9, 0.16), Vector3(0.45, 2.1, 0.16)]},
-	# 5: an S. A hill in the first leg, then a wall across the second leg with the door of the windmill in it (the only way
-	# down to the third leg), and a rock after the hill.
-	{"par": 4, "tee": Vector2(-0.7, 1.1), "cup": Vector2(1.2, 5.4), "windmill": true, "door": 0.30,
-			"fairway": [Rect2(-1.2, 0.75, 1.4, 2.3), Rect2(-1.2, 2.7, 1.52, 1.2), Rect2(0.58, 2.7, 1.22, 1.2),
-					Rect2(0.58, 3.6, 1.22, 2.4), Rect2(0.15, 3.05, 0.6, 0.5)],
-			"water": [], "bridges": [], "hills": [{"rect": Rect2(-1.2, 1.6, 1.4, 0.8), "height": 0.1}],
-			"blocks": [Rect2(0.32, 3.05, 0.26, 0.5)], "rocks": [Vector3(-0.55, 2.85, 0.14)]},
+	# 5: an S. A hill and a rock in the first leg, then the turn down, and a hill before the cup in the last leg (owner,
+	# 2026-11-05: the windmill of this hole faced the wrong way to play, so it is gone).
+	{"par": 4, "tee": Vector2(-0.7, 1.1), "cup": Vector2(1.2, 5.45),
+			"fairway": [Rect2(-1.2, 0.75, 1.4, 2.3), Rect2(-1.2, 2.7, 3.0, 1.2), Rect2(0.6, 3.6, 1.2, 2.4)],
+			"water": [], "bridges": [],
+			"hills": [{"rect": Rect2(-1.2, 1.6, 1.4, 0.8), "height": 0.1}, {"rect": Rect2(0.6, 4.3, 1.2, 0.8), "height": 0.1}],
+			"blocks": [], "rocks": [Vector3(-0.55, 2.85, 0.14)]},
 ]
 
 

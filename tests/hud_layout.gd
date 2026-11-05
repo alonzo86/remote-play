@@ -12,9 +12,9 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
-## id -> [script, props, has leader chip, has timer in this run]. A game with its own score card (Mini Golf,
-## Pin Pals)
-## and the maze (no score, REQ-MZ-10) have no leader chip. Sheep Herding has a team chip instead (tests/smoke_sheep.gd).
+## id -> [script, props, has leader chip, has timer in this run]. A game with its own score card (Pin Pals) and the maze
+## (no score, REQ-MZ-10) have no leader chip. Mini Golf has one since 2026-11-05 (the fewest strokes lead). Sheep Herding has a
+## team chip instead (tests/smoke_sheep.gd).
 const GAMES := {
 	"snowball_splat": ["res://scripts/game/snowball_splat/snowball_splat_game.gd", {"difficulty": "medium"}, true, true],
 	"whack_a_mole": ["res://scripts/game/whack_a_mole/whack_a_mole_game.gd", {"difficulty": "medium"}, true, true],
@@ -26,7 +26,7 @@ const GAMES := {
 	"tennis": ["res://scripts/game/tennis/tennis_game.gd", {"difficulty": "medium"}, true, false],
 	"marble_race": ["res://scripts/game/marble_race/marble_race.gd", {"track_choice": "3", "difficulty": "easy"}, true, true],
 	"maze": ["res://scripts/game/maze/maze_game.gd", {}, false, true],
-	"mini_golf": ["res://scripts/game/mini_golf/mini_golf_game.gd", {"difficulty": "medium", "holes": "1"}, false, false],
+	"mini_golf": ["res://scripts/game/mini_golf/mini_golf_game.gd", {"difficulty": "medium", "holes": "1"}, true, false],
 	# Tower Builder has a turn timer but no countdown before the first turn (the 5th value, REQ-GM-35, REQ-TB-11).
 	"tower_builder": ["res://scripts/game/tower_builder/tower_builder_game.gd", {"difficulty": "medium"}, true, true, false],
 	"bowling": ["res://scripts/game/bowling/bowling_game.gd", {"difficulty": "medium"}, false, false],
@@ -281,17 +281,20 @@ func _world_not_mirrored(id: String) -> void:
 func _round_checks(id: String, spec: Array) -> void:
 	var has_chip: bool = spec[2]
 	var has_timer: bool = spec[3]
+	if id == "mini_golf":
+		_game._scored = true   # The leader chip shows after the first putt (the fewest strokes lead).
 	var board = _game._scoreboard()
 	var slots: Array = _game.participants
 	# No scores yet: no leader chip while everybody is level (REQ-GM-46).
-	if board != null and id != "marble_race":
+	if board != null and id != "marble_race" and id != "mini_golf":   # Strokes: a level start at 0 is not a state of Mini Golf.
 		for s in slots:
 			board.set_score(s, 0.0)
 	for lang in ["en", "he"]:
 		Lang.set_language(lang, root)
 		var snap := await _snap()
 		var state := "%s in %s" % [id, "Hebrew" if lang == "he" else "English"]
-		_check(not snap.has("leader"), "%s: no leader chip while all players are level at 0" % state)
+		if id != "mini_golf":
+			_check(not snap.has("leader"), "%s: no leader chip while all players are level at 0" % state)
 		_check(not snap.has("tag"), "%s: no name tags in the round" % state)
 		_chip_margin_checks(state, snap)
 		_row_checks(state, snap, lang, has_timer)
@@ -319,8 +322,11 @@ func _round_checks(id: String, spec: Array) -> void:
 		_row_checks(state, snap, lang, has_timer)
 		_chip_edge_checks(state, snap, lang)
 		# A long score still fits inside the chip, and the chip inside the margin (REQ-GM-46).
-		if id != "marble_race":
-			_game._scoreboard().set_score(lead_slot, 12345.0)
+		if id != "marble_race" and id != "mini_golf":
+			var long_score := 12345.0
+			if id == "paint_grab":   # It shows a percent of the picture: a score of tiles that reads as 12345 percent.
+				long_score = 12345.0 * float(_game._picture_total) / 100.0 + 1.0
+			_game._scoreboard().set_score(lead_slot, long_score)
 			var big := await _wait_leader(func(e: Dictionary) -> bool: return String(e.info.score).contains("12345"))
 			_check(not big.is_empty() and _chip_fits(big),
 					"%s: a score of 5 digits fits inside the chip and the chip inside the margin" % state)
@@ -348,7 +354,7 @@ func _set_scores(id: String, slots: Array, pts: Array) -> void:
 		return
 	var board = _game._scoreboard()
 	for k in slots.size():
-		board.set_score(slots[k], pts[k])
+		board.set_score(slots[k], 50.0 - float(pts[k]) if id == "mini_golf" else pts[k])   # Mini Golf: the fewest strokes lead.
 
 
 ## Looks at the leader chip for up to 60 frames until `accept` says it is the one (the chip updates within 1 s, REQ-GM-46).

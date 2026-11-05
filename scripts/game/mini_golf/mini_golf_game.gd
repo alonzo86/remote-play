@@ -11,6 +11,7 @@ const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 
+const STATUS_X := 560.0         # The status text of the bar (the hole and the par) stands where the timer is in the other games.
 const TEXT_SIZE := 32   # The hole text and the column heads of the hole card (REQ-FL-40: 32 px or more).
 const Haptics = preload("res://scripts/game/haptics.gd")
 
@@ -157,6 +158,18 @@ func _start_turn() -> void:
 	player(slot).recenter()   # The pose at the start of the turn is straight ahead (REQ-MG-4).
 	Sound.sfx("golf_turn")
 	_haptics.pulse(slot, 60, BUZZ_GAP_MS)
+
+
+## TEMP-DEBUG (owner, 2026-11-05; remove before release, with `golf_rules.gd` `debug_jump_to_hole()`): the keys 1 to 5 on the TV
+## jump to that hole, to test it.
+func _unhandled_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed or key.echo or key.keycode < KEY_1 or key.keycode > KEY_5 or is_over:
+		return
+	rules.debug_jump_to_hole(key.keycode - KEY_1 + 1)
+	_balls.clear()
+	_load_hole()
+	_start_turn()
 
 
 func _game_tick(delta: float) -> void:
@@ -458,6 +471,7 @@ func _banner_plate(msg: String, font_size: int, color: Color) -> void:
 func _game_draw() -> void:
 	Shell.title(self, "registry.mini_golf")
 	_draw_hole_text()
+	draw_leader_chip(self)   # The leader (the fewest strokes) in the black bar, as in every other game (owner, 2026-11-05).
 	_draw_bar()
 	if is_over:
 		return
@@ -493,9 +507,8 @@ func chip_text(slot: int) -> String:
 
 func _draw_hole_text() -> void:
 	var text := hole_text()
-	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE).x
-	var at := Vector2(Shell.mx(self, size.x - 60.0 - w, w), 96.0)
-	draw_string(UiTheme.font(), at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.TEXT)
+	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, Shell.STATUS_FONT).x
+	Shell.status(self, STATUS_X, w, text)
 
 
 ## The bar at the bottom (REQ-MG-3): a chip for every player with the strokes on this hole; the player on turn has a frame.
