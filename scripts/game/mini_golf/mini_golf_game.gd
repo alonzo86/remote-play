@@ -153,6 +153,7 @@ func _start_turn() -> void:
 	_putter = slot
 	sim.start(_hole, _ball_of(slot))
 	_spot = sim.pos
+	_heading = GolfSim.heading_to_cup(_hole, sim.pos)   # Straight ahead of the phone is the cup (REQ-MG-4).
 	detector.reset()
 	detector.threshold = float(level(difficulty).threshold)
 	player(slot).recenter()   # The pose at the start of the turn is straight ahead (REQ-MG-4).
@@ -235,11 +236,13 @@ func _tick_aim(delta: float) -> void:
 	if pressed and not detector.aim_locked:
 		_aim_held = not _aim_held   # A locks the aim, and a second press unlocks it (REQ-MG-4).
 	if not detector.aim_locked and not _aim_held:
-		_heading = -p.yaw_offset()   # The whole circle: a putt can go back or to the side (owner, 2026-11-03).
+		# The phone as it is at the start of the turn points at the cup (the game recenters by itself); turning it to the right or
+		# to the left aims clockwise or anticlockwise from the cup. The player never has to turn round to hit the ball, and a
+		# hit at the cup is the same pose on every turn (owner, 2026-11-05).
 		var to_cup := GolfSim.heading_to_cup(_hole, sim.pos)
-		_snapped = absf(angle_difference(_heading, to_cup)) <= SNAP
-		if _snapped:
-			_heading = to_cup   # Near the cup the aim goes to the cup: most putts are straight at the hole.
+		var turn := -p.yaw_offset()
+		_snapped = absf(turn) <= SNAP
+		_heading = to_cup if _snapped else wrapf(to_cup + turn, -PI, PI)
 	detector.update(delta, p.linear_accel())
 	if detector.weak:
 		_weak_left = WEAK_HINT_TIME

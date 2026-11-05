@@ -1428,6 +1428,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 16i. (Added 2026-11-01, issue #209.) Medium. Putt 10 soft putts, a real slow pendulum swing as for a short putt. Check: at least 9 of 10 roll the ball, and none rolls at the stop of the back swing. Write down the misses and how you held the phone. The speed rule (`GATE_SPEED` 0.5 m/s) is a first guess and a soft putt can be dropped by it: if more than 1 of 10 is dropped, report it (issue #142).
 
 16j. (Added 2026-11-03.) Medium. Put the ball close to the cup (about 5 ball widths away) and putt it with the lightest swing you can make that is still a swing (a back swing of about 5 cm and a forward swing of about 5 cm), 10 times. Check: at least 9 of 10 light swings roll the ball (the plate "SWING A BIT MORE!" does not show and each swing of the golfer is followed by a rolling ball), and the ball stops less than a fifth of the screen width from where it started in at least 8 of 10 (the putt is a light one). Then repeat 16h's 10 moves to the side: 0 of 10 make a putt. (REQ-MG-5)
+16k. (Added 2026-11-05.) Medium, hole 3 (press 3 on the TV keyboard: temporary). Stand so that you can see the TV and hold the phone as you like, still, at the start of your turn, 5 turns in a row, one after the other. Check: at the start of each turn the dotted line points at the cup (5 of 5 turns) with no turn of the phone. Hit the ball and, on your next turn, hold the phone as you hold it after the hit, without moving it. Check: the dotted line points at the cup again and the putt goes toward the cup (5 of 5 turns); you never turn round or move your feet to hit in the direction of the cup (5 of 5). Turn the phone 30 degrees to the right. Check: the dotted line turns clockwise by about the same angle (within 10 degrees, 5 of 5). (REQ-MG-4)
 
 Items 1a, 2a, 2c, 3a, 3c, 3d, 4a, 4b, 4c, 4d, 5a, 5b, 5c, 5d, 6a to 6c, 7a to 7c, 7d, 7e, 7f, 8a, 8b, 8c, 8d, 8e, 8f, 9a to 9d, 10a to 10d, 11a to 11c moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-26-1a to A-26-11c). Item 3b was split: the shirt color is automated and 3b2 keeps the white cap, trousers and shoes. The numbers of the other items do not change.
 
@@ -1461,6 +1462,7 @@ Measurements (write down, no pass or fail): the turn angle that moves the aim ma
 | 16h | Note: strokes after the moves, the shakes and the walk, on Medium and on Easy | Not run | | | Added 2026-11-01 (issue #209). |
 | 16i | Note: soft putts that rolled (of 10) and the misses | Not run | | | Added 2026-11-01 (issue #209). |
 | 16j | Note: light putts that rolled (of 10), distances, and the 10 moves to the side | Not run | | | Added 2026-11-03 (light swings). |
+| 16k | Note: lines at the cup at the start of the turn (of 5), the putts toward the cup after a hit (of 5), moves of the feet needed (0), the angle for 30 degrees | Not run | | | Added 2026-11-05 (the straight ahead of the phone is the cup). |
 
 History:
 

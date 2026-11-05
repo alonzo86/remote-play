@@ -211,10 +211,10 @@ func _run() -> void:
 	# ---- 4e: near the cup the aim snaps to it; A locks the aim and a second press unlocks it (REQ-MG-4) ----
 	var gsn := await _start(app)
 	var to_cup: float = GolfSim.heading_to_cup(gsn._hole, gsn.sim.pos)
-	_turn(gsn, 0, -rad_to_deg(to_cup + 0.06), 0.5)   # 0.06 rad (3.4 degrees) from the cup: inside the snap
+	_turn(gsn, 0, -rad_to_deg(0.06), 0.5)   # 0.06 rad (3.4 degrees) from the cup: inside the snap
 	_check(gsn._snapped and gsn._heading == to_cup,
 			"3 degrees from the cup the aim snaps to the cup (heading %.3f, cup %.3f)" % [gsn._heading, to_cup])
-	_turn(gsn, 0, -rad_to_deg(0.19), 0.5)
+	_turn(gsn, 0, -rad_to_deg(0.13), 0.5)
 	_check(not gsn._snapped and absf(gsn._heading - to_cup) > 0.15,
 			"14 degrees from the cup the aim does not snap (%.2f rad away)" % absf(gsn._heading - to_cup))
 	_sample(gsn, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)   # A goes down: the aim is locked.
@@ -228,6 +228,22 @@ func _run() -> void:
 	_sample(gsn, 0, Vector3.ZERO)
 	_turn(gsn, 0, -10.0, 0.5)
 	_check(not gsn._aim_held and gsn._heading != held_at, "a second press on A unlocks it: the aim follows the phone again")
+	# The phone points at the cup at the start of every turn, wherever the cup is (owner, 2026-11-05): on hole 3 a phone that is
+	# held still aims at the cup, and a turn of 20 degrees to the right aims 20 degrees clockwise from the cup.
+	var g3c := await _start(app, {"holes": "3"})
+	g3c.rules.next_hole()
+	g3c.rules.next_hole()
+	g3c._balls.clear()
+	g3c._load_hole()
+	g3c._start_turn()
+	_rest(g3c, 0, 0.3)
+	var cup3: float = GolfSim.heading_to_cup(g3c._hole, g3c.sim.pos)
+	_check(absf(cup3) > 0.5 and absf(g3c._heading - cup3) < 0.03 and g3c._snapped,
+			"hole 3: a phone that is held still aims at the cup (%.2f rad, the cup is at %.2f)" % [g3c._heading, cup3])
+	_turn(g3c, 0, -20.0, 0.5)
+	_check(absf(wrapf(g3c._heading - cup3, -PI, PI) - 0.35) < 0.06 and not g3c._snapped,
+			"hole 3: a turn of 20 degrees to the right aims 20 degrees clockwise from the cup (%.2f rad from it)"
+			% wrapf(g3c._heading - cup3, -PI, PI))
 	# An A that is held while the turn starts is not a press, and a press during the back swing changes nothing.
 	var gk := await _start(app)
 	gk.player(0).buttons = Protocol.BTN_A
