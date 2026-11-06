@@ -54,6 +54,8 @@ static func clean_name(text: String) -> String:
 static func clean_avatar(v: Variant) -> int:
 	if not (v is int or v is float):
 		return -1
+	if v is float and not is_finite(v):
+		return -1
 	var n := int(v)
 	return n if n >= 0 and n <= 255 else -1
 

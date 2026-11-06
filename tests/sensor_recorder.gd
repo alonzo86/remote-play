@@ -49,6 +49,7 @@ func _run() -> void:
 	DebugOverlay = load("res://scripts/ui/debug_overlay.gd")
 	_round_trip()
 	_packets_reach_the_recorder()
+	_row_cap()
 	_labels()
 	_files()
 	_bad_files()
@@ -94,6 +95,18 @@ func _round_trip() -> void:
 	var gap := SensorRecorder.resample(SensorRecorder.parse(SensorRecorder.to_csv("sweep", 0,
 			[[0, Vector3(1, 0, 0), Vector3.ZERO], [500, Vector3(2, 0, 0), Vector3.ZERO]])))
 	_check(gap.lin[10].x == 1.0 and gap.lin[gap.lin.size() - 1].x == 2.0, "a gap of lost packets keeps the last value")
+
+
+func _row_cap() -> void:
+	print("a long recording")
+	var rec := SensorRecorder.new()
+	rec.start("sweep", 0)
+	for i in SensorRecorder.MAX_ROWS + 500:
+		rec.add(0, i, Vector3.ZERO, Vector3.ZERO)
+	_check(rec.count(0) == SensorRecorder.MAX_ROWS,
+			"the rows of one phone stop at %d (%d)" % [SensorRecorder.MAX_ROWS, rec.count(0)])
+	rec.add(1, 0, Vector3.ZERO, Vector3.ZERO)
+	_check(rec.count(1) == 1, "another phone still records")
 
 
 func _packets_reach_the_recorder() -> void:

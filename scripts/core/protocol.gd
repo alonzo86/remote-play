@@ -104,7 +104,7 @@ static func hosts_for_code(code: String, own: Array) -> Array[String]:
 
 
 static func make_token() -> String:
-	return "%08x%08x" % [randi(), randi()]
+	return Crypto.new().generate_random_bytes(16).hex_encode()   # 32 hex characters from the system random source (issue #388).
 
 
 ## Pack one sensor sample. Little-endian. Layout: docs/PROTOCOL.md.
@@ -129,10 +129,13 @@ static func encode_sensor(seq: int, ts_ms: int, gyro: Vector3, accel: Vector3,
 	return b
 
 
-## Returns an empty Dictionary when the packet is not a valid sensor packet.
+## Returns an empty Dictionary when the packet is not a valid sensor packet (a wrong size or type, or a NaN or INF float).
 static func decode_sensor(b: PackedByteArray) -> Dictionary:
 	if b.size() != SENSOR_PACKET_SIZE or b.decode_u8(0) != PKT_SENSOR:
 		return {}
+	for at in [8, 12, 16, 20, 24, 28]:
+		if not is_finite(b.decode_float(at)):
+			return {}   # NaN or INF would go into the orientation state (issue #388).
 	var flags := b.decode_u8(1)
 	return {
 		"flags": flags,

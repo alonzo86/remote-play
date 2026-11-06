@@ -21,6 +21,9 @@ var ip := "":
 		room_code = Protocol.room_code_for_ip(value)
 ## Finds the address of this device. A test sets another one (an empty text is a device with no network).
 var address_lookup: Callable = Protocol.local_ipv4
+## A `hello` with an empty `room` is accepted only in a debug build (a run on a desktop: `--join=127.0.0.1`, issue #388). A test
+## sets it to false to check a release build.
+var allow_empty_room := OS.is_debug_build()
 var tv_name := "Living Room TV"
 ## False while a game without a pointer is running: the phones then hide the Recenter box (REQ-GM-37). It is sent in the
 ## `phase` and `welcome` messages as `rc` and only when it is false.
@@ -49,7 +52,18 @@ var peer_timeout_ms := Protocol.PEER_TIMEOUT_MS
 var slot_grace_ms := Protocol.SLOT_GRACE_MS
 var paused_slot_grace_ms := Protocol.PAUSED_SLOT_GRACE_MS
 
+## Limits against a client on the Wi-Fi that opens many connections or sends big frames (issue #387). The phone sends 36-byte
+## sensor packets and JSON messages of a few hundred bytes, so these are far above real use.
+const MAX_PENDING := 16                 # Connections that have not sent `hello` yet. More are closed at once.
+const MAX_TEXT_BYTES := 4096            # A longer text frame is dropped before it is parsed.
+const BUFFER_BYTES := 8192              # Inbound and outbound buffer of a socket: a bigger frame closes that socket.
+const MAX_QUEUED_PACKETS := 256         # Frames a socket may hold between two polls (a sensor packet every 16 ms).
+const ACCEPT_WINDOW_MS := 10000
+## Connections that one address may open in `ACCEPT_WINDOW_MS`. A real phone opens a few (a retry, a reconnect). A test sets it.
+var max_accepts_per_ip := 30
+
 var _address_timer := 0.0
+var _accepts := {}                   # address -> [times (ms) of its recent connections]
 var _tcp := TCPServer.new()
 var _pending: Array = []             # [{ws, since_ms}]
 var _sockets: Array[WebSocketPeer] = []
@@ -302,13 +316,44 @@ func _process(delta: float) -> void:
 	var now := Time.get_ticks_msec()
 	while _tcp.is_connection_available():
 		var stream := _tcp.take_connection()
+		if _pending.size() >= MAX_PENDING or not _accept_allowed(stream.get_connected_host(), now):
+			stream.disconnect_from_host()
+			continue
 		var ws := WebSocketPeer.new()
+		ws.inbound_buffer_size = BUFFER_BYTES
+		ws.outbound_buffer_size = BUFFER_BYTES
+		ws.max_queued_packets = MAX_QUEUED_PACKETS
 		if ws.accept_stream(stream) == OK:
 			_pending.append({"ws": ws, "since": now})
 	_poll_pending(now)
 	for i in _sockets.size():
 		_poll_slot(i, now)
 		players[i].tick(now)
+
+
+## True when the address `host` has not used up its connections in the last `ACCEPT_WINDOW_MS`. A refused try is not counted.
+func _accept_allowed(host: String, now: int) -> bool:
+	var times: Array = _accepts.get(host, [])
+	while not times.is_empty() and now - int(times[0]) > ACCEPT_WINDOW_MS:
+		times.pop_front()
+	if times.size() >= max_accepts_per_ip:
+		_accepts[host] = times
+		return false
+	times.append(now)
+	_accepts[host] = times
+	if _accepts.size() > 256:   # Forget the addresses that are quiet.
+		for h in _accepts.keys():
+			var t: Array = _accepts[h]
+			if t.is_empty() or now - int(t[t.size() - 1]) > ACCEPT_WINDOW_MS:
+				_accepts.erase(h)
+	return true
+
+
+## The JSON object of a text frame; empty for a frame above `MAX_TEXT_BYTES`, without parsing it.
+func _parse_text(data: PackedByteArray) -> Dictionary:
+	if data.size() > MAX_TEXT_BYTES:
+		return {}
+	return Protocol.parse_json(data.get_string_from_utf8())
 
 
 func _poll_pending(now: int) -> void:
@@ -321,7 +366,7 @@ func _poll_pending(now: int) -> void:
 			if ws.get_available_packet_count() > 0:
 				var data := ws.get_packet()
 				if ws.was_string_packet():
-					_handle_hello(ws, Protocol.parse_json(data.get_string_from_utf8()), now)
+					_handle_hello(ws, _parse_text(data), now)
 				drop = true # Either it joined (moved to a slot) or it was rejected.
 		elif st == WebSocketPeer.STATE_CLOSED:
 			drop = true
@@ -340,7 +385,7 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 		_reject(ws, "version")
 		return
 	var room := Protocol.text(msg, "room").to_upper()
-	if room != "" and room != room_code:
+	if room != room_code and not (room == "" and allow_empty_room):
 		_reject(ws, "bad_room")
 		return
 	var token := Protocol.text(msg, "token")
@@ -518,7 +563,7 @@ func _poll_slot(i: int, now: int) -> void:
 				var data := ws.get_packet()
 				_last_rx_ms[i] = now
 				if ws.was_string_packet():
-					_handle_control(i, Protocol.parse_json(data.get_string_from_utf8()), now)
+					_handle_control(i, _parse_text(data), now)
 				else:
 					var pkt := Protocol.decode_sensor(data)
 					if not pkt.is_empty():
@@ -534,7 +579,7 @@ func _poll_slot(i: int, now: int) -> void:
 			while ws.get_available_packet_count() > 0: # Frames that came with the close.
 				var data2 := ws.get_packet()
 				if ws.was_string_packet():
-					_handle_control(i, Protocol.parse_json(data2.get_string_from_utf8()), now)
+					_handle_control(i, _parse_text(data2), now)
 			if _sockets[i] == ws: # A "bye" in those frames may have cleared the slot.
 				_sockets[i] = null
 				_mark_lost(i)

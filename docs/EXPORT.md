@@ -217,7 +217,7 @@ tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh
 
 ```sh
 godot --path . -- --role=tv                          # TV window (1280x720)
-godot --path . -- --role=controller --join=127.0.0.1  # phone window, joins the TV at that address
+godot --path . -- --role=controller --join=127.0.0.1  # phone window, joins the TV at that address (the TV must be a debug build: it accepts a join with no room code only then)
 ```
 
 Keyboard on the TV window: arrow keys move, Enter selects, Esc goes back, F3 toggles the overlay.

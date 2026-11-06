@@ -71,6 +71,8 @@ func _names() -> void:
 	_check(Profile.clean_avatar(3) == 3 and Profile.clean_avatar(3.0) == 3 and Profile.clean_avatar(-1) == -1
 			and Profile.clean_avatar(300) == -1 and Profile.clean_avatar("x") == -1 and Profile.clean_avatar(null) == -1,
 			"an avatar index from 0 to 255 is taken, anything else is none")
+	_check(Profile.clean_avatar(NAN) == -1 and Profile.clean_avatar(INF) == -1 and Profile.clean_avatar(-INF) == -1,
+			"an avatar that is NaN or INF is none")
 
 
 func _ids() -> void:
