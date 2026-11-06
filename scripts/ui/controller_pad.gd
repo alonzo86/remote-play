@@ -350,10 +350,17 @@ func _draw() -> void:
 	if online and c.turn_state != 0:
 		var turn_rect := Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
 		var golf: bool = c.turn_kind == "golf"
-		var turn_text := Lang.t("bowling.phone_turn") if c.turn_state == 1 else Lang.f(
-				"mini_golf.phone_wait" if golf else "bowling.phone_wait", [c.turn_who])
-		draw_string(f, Vector2(turn_rect.position.x, UiTheme.centered_baseline(f, turn_rect, 32)), turn_text.to_upper(),
-				HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO)
+		var turn_color: Color = UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO
+		if golf and c.turn_state == 1:
+			# Mini Golf tells the player on turn what to do with the phone (the TV shows no instructions during the game).
+			var hint_rect := Rect2(turn_rect.position, Vector2(turn_rect.size.x, 80))
+			_draw_lines_centered(f, UiTheme.wrap_lines(f, Lang.t("mini_golf.phone_turn").to_upper(), hint_rect.size.x, 32), hint_rect,
+					32, HORIZONTAL_ALIGNMENT_LEFT, hint_rect.position.x, turn_color)
+		else:
+			var turn_text := Lang.t("bowling.phone_turn") if c.turn_state == 1 else Lang.f(
+					"mini_golf.phone_wait" if golf else "bowling.phone_wait", [c.turn_who])
+			draw_string(f, Vector2(turn_rect.position.x, UiTheme.centered_baseline(f, turn_rect, 32)), turn_text.to_upper(),
+					HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, turn_color)
 
 	# NEW BEST! with the game name, only while the result of the game is open (REQ-GM-100; App.current_best() decides).
 	var best: Dictionary = App.current_best()

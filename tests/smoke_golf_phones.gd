@@ -73,6 +73,14 @@ func _join_to(app: Node, clients: Array, n: int) -> void:
 func _to_turn(game: Control) -> void:
 	game._start_turn()
 	game._game_tick(0.016)
+	_settle(game)
+
+
+## A phone that is held calm for 0.5 s takes its pose as straight ahead (REQ-MG-4: the first calm pose of a turn).
+func _settle(game: Control) -> void:
+	var slot: int = game.rules.current_slot()
+	if slot >= 0:
+		_rest(game, slot, 0.5)
 
 
 ## Feeds one sample to the phone of `slot` and ticks the game.
@@ -251,6 +259,34 @@ func _run() -> void:
 	_sample(gk, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)
 	_check(gk.detector.aim_locked and not gk._aim_held, "a press on A during the back swing does nothing")
 
+	# ---- 4f: a phone that is passed to the player on turn (REQ-MG-4, the first calm pose is straight ahead) ----
+	var gh1 := await _start(app)
+	gh1.rules.putt_done(false)
+	gh1._start_turn()   # Phone 2 is on turn: it is in the hand of the one that putted, and it is passed on.
+	var cup_h: float = GolfSim.heading_to_cup(gh1._hole, gh1.sim.pos)
+	var slot_h: int = gh1.rules.current_slot()
+	for i in int(0.8 / DT):   # The phone turns 100 degrees to the left in 0.8 s and is pushed on the way.
+		_sample(gh1, slot_h, Vector3(0, 9.0, 0) if i < 12 else Vector3(0, -9.0, 0), Vector3(0, 0, deg_to_rad(100.0) / 0.8))
+	_check(gh1._settling and not gh1.detector.aim_locked and absf(gh1._heading - cup_h) < 0.001,
+			"while the phone is passed on the aim stays on the cup and the push is no back swing (4f)")
+	_rest(gh1, slot_h, 0.6)
+	_check(not gh1._settling and absf(gh1._heading - cup_h) < 0.03 and gh1.player(slot_h).yaw_offset() == 0.0,
+			"the pose the new player holds still is straight ahead, not the pose of the start of the turn (heading %.2f, cup %.2f)"
+			% [gh1._heading, cup_h])
+	_turn(gh1, slot_h, -20.0, 0.5)
+	_check(absf(wrapf(gh1._heading - cup_h, -PI, PI) - 0.35) < 0.06,
+			"after the hand-over a turn of 20 degrees to the right aims 20 degrees clockwise from the cup (4f)")
+	# A phone that is never calm does not hold the turn for ever.
+	var gh2 := await _start(app)
+	gh2.rules.putt_done(false)
+	gh2._start_turn()
+	var slot_h2: int = gh2.rules.current_slot()
+	for i in int((gh2.SETTLE_MAX + 0.5) / DT):
+		_sample(gh2, slot_h2, Vector3.ZERO, Vector3(0, 0, 0.8))
+	_check(not gh2._settling, "a phone that never rests lets the turn go on after %.0f s (4f)" % gh2.SETTLE_MAX)
+	_rest(gh2, slot_h2, 0.6)
+	gh2.player(slot_h2).recenter()   # The phone turned for 4 s: the next test starts from a straight phone.
+
 	# ---- 4b: RECENTER straightens the aim within a second ----
 	var g2 := await _start(app)
 	_turn(g2, 0, 30.0, 0.5)
@@ -378,9 +414,10 @@ func _run() -> void:
 			gw._hole = flat
 			gw._spot = flat.tee
 			gw.sim.start(flat, flat.tee)
-			# The weakest putt is a pendulum swing as a hand moves it (it brakes the back swing, issue #209).
-			var weak_fwd: float = (6.0 if d == "easy" else 8.6) + rng.randf_range(0.0, 0.3)
-			_feed(gw, 0, Array(R.pendulum(Vector3(1, 0, 0), 5.0 if d == "easy" else 8.0, weak_fwd, 0.25).lin))
+			# The weakest putt is a pendulum swing as a hand moves it (it brakes the back swing, issue #209). The same swing on both
+			# levels: only the weakest putt of the level differs (REQ-MG-13).
+			var weak_fwd: float = 6.0 + rng.randf_range(0.0, 0.3)
+			_feed(gw, 0, Array(R.pendulum(Vector3(1, 0, 0), 5.0, weak_fwd, 0.25).lin))
 			for i in 180:
 				if gw.phase != gw.Phase.AIM:
 					break
