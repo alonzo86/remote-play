@@ -56,9 +56,14 @@ var paused_slot_grace_ms := Protocol.PAUSED_SLOT_GRACE_MS
 ## sensor packets and JSON messages of a few hundred bytes, so these are far above real use.
 const MAX_PENDING := 16                 # Connections that have not sent `hello` yet. More are closed at once.
 const MAX_TEXT_BYTES := 4096            # A longer text frame is dropped before it is parsed.
-const BUFFER_BYTES := 8192              # Inbound and outbound buffer of a socket: a bigger frame closes that socket.
-const MAX_QUEUED_PACKETS := 256         # Frames a socket may hold between two polls (a sensor packet every 16 ms).
+# Inbound and outbound buffer of a socket: a bigger frame closes that socket. About 15 s of 36-byte sensor packets, so a
+# hitch of the TV does not drop a phone.
+const BUFFER_BYTES := 32768
+const MAX_QUEUED_PACKETS := 1024        # Frames a socket may hold between two polls (a sensor packet every 16 ms, about 17 s).
 const ACCEPT_WINDOW_MS := 10000
+## Connections of one address that have not sent `hello` yet. One device cannot fill the whole `MAX_PENDING` and keep the
+## phones of the family out. Four are enough for 4 phones that join at the same moment behind one address.
+var max_pending_per_ip := 4
 ## Connections that one address may open in `ACCEPT_WINDOW_MS`. A real phone opens a few (a retry, a reconnect). A test sets it.
 var max_accepts_per_ip := 30
 
@@ -316,7 +321,8 @@ func _process(delta: float) -> void:
 	var now := Time.get_ticks_msec()
 	while _tcp.is_connection_available():
 		var stream := _tcp.take_connection()
-		if _pending.size() >= MAX_PENDING or not _accept_allowed(stream.get_connected_host(), now):
+		var host := stream.get_connected_host()
+		if _pending.size() >= MAX_PENDING or _pending_of(host) >= max_pending_per_ip or not _accept_allowed(host, now):
 			stream.disconnect_from_host()
 			continue
 		var ws := WebSocketPeer.new()
@@ -324,11 +330,20 @@ func _process(delta: float) -> void:
 		ws.outbound_buffer_size = BUFFER_BYTES
 		ws.max_queued_packets = MAX_QUEUED_PACKETS
 		if ws.accept_stream(stream) == OK:
-			_pending.append({"ws": ws, "since": now})
+			_pending.append({"ws": ws, "since": now, "host": host})
 	_poll_pending(now)
 	for i in _sockets.size():
 		_poll_slot(i, now)
 		players[i].tick(now)
+
+
+## How many connections of the address `host` have not sent `hello` yet.
+func _pending_of(host: String) -> int:
+	var n := 0
+	for entry in _pending:
+		if entry.get("host", "") == host:
+			n += 1
+	return n
 
 
 ## True when the address `host` has not used up its connections in the last `ACCEPT_WINDOW_MS`. A refused try is not counted.

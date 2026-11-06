@@ -464,7 +464,7 @@ a real device, but they make a regression show in CI before a person sees it. Th
 | `run_tests` | protocol, server, slots, the controller client, remove and kick, sensors, tilt and recenter |
 | `config_files` | the settings and last-TV files: a failed save is reported, values of the wrong type load the defaults, volumes and the port are cut to their range (REQ-C12, issue #309) |
 | `net_malformed` | frames with fields of the wrong type (Array, object, number for text) reach no script error and change no state, on the TV and on the phone (REQ-N10, issue #308) |
-| `net_limits` | the TV caps connections that never send `hello`, limits connections per address, drops a text frame above 4096 bytes, and a release build turns away a `hello` with no room (issues #387, #388) |
+| `net_limits` | the TV caps connections that never send `hello` (in all and per address), limits connections per address, drops a huge sensor value, drops a text frame above 4096 bytes, and a release build turns away a `hello` with no room (issues #387, #388) |
 | `pixel_art` | the sprite outline that the look files share (`PixelArt.outlined`, issue #294): a one pixel line around the colored pixels, none at the corners, not wider than one pixel, the source not changed |
 | `shell_timed_hud` | `Shell.timed_hud` (issue #293): the timer box only while the round runs, the countdown only with players, the hint in the first seconds, nothing when the game is over |
 | `net_cleanup` | `ClosingSockets` (the close frame after 300 ms, the drop after 1500 ms, a closed socket leaves) and `TvServer.start` called twice (issue #310) |

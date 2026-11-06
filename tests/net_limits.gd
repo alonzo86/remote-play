@@ -88,6 +88,7 @@ func _stop_server() -> void:
 func _run() -> void:
 	_codec()
 	await _pending_cap()
+	await _pending_per_address()
 	await _accept_rate()
 	await _big_frames()
 	await _empty_room()
@@ -104,6 +105,12 @@ func _codec() -> void:
 			_check(Protocol.decode_sensor(evil).is_empty(), "a packet with %s in float %d is rejected" % [str(bad), field])
 	var good := Protocol.encode_sensor(1, 1, Vector3(1, 2, 3), Vector3(0, 9.81, 0), 0, 0, Vector2.ZERO)
 	_check(not Protocol.decode_sensor(good).is_empty(), "a packet with finite floats is read")
+	var huge := Protocol.encode_sensor(1, 1, Vector3(3.0e38, 0, 0), Vector3(0, 9.81, 0), 0, 0, Vector2.ZERO)
+	_check(Protocol.decode_sensor(huge).is_empty(), "a packet with a huge float (3e38) is dropped")
+	var big_accel := Protocol.encode_sensor(1, 1, Vector3.ZERO, Vector3(0, Protocol.SENSOR_MAX_ABS + 1.0, 0), 0, 0, Vector2.ZERO)
+	var top_accel := Protocol.encode_sensor(1, 1, Vector3.ZERO, Vector3(0, 160.0, 0), 0, 0, Vector2.ZERO)
+	_check(Protocol.decode_sensor(big_accel).is_empty() and not Protocol.decode_sensor(top_accel).is_empty(),
+			"an accel above 1000 is dropped, 160 m/s2 (a hard hit) is read")
 	var t1 := Protocol.make_token()
 	_check(t1.length() == 32 and t1.is_valid_hex_number(false) and t1 != Protocol.make_token(),
 			"a token is 32 hex characters and not repeated: " + t1)
@@ -112,6 +119,7 @@ func _codec() -> void:
 func _pending_cap() -> void:
 	print("connections that never send hello")
 	_new_server()
+	_server.max_pending_per_ip = 100   # Here every socket comes from 127.0.0.1: only the global cap is under test.
 	var socks: Array[WebSocketPeer] = []
 	for i in TvServer.MAX_PENDING + 8:
 		socks.append(_connect())
@@ -128,6 +136,27 @@ func _pending_cap() -> void:
 	_server._pending.clear()
 	var ok := await _open()
 	_check(_has(await _pump(ok), "welcome"), "a phone joins when the pending connections are gone")
+	await _stop_server()
+
+
+func _pending_per_address() -> void:
+	print("connections of one address that never send hello")
+	_new_server()
+	_server.max_pending_per_ip = 3
+	var socks: Array[WebSocketPeer] = []
+	for i in 5:
+		socks.append(_connect())
+		await _frames(2)
+	await _frames(20)
+	_check(_server._pending.size() == 3 and _server._pending_of("127.0.0.1") == 3,
+			"one address holds at most 3 (the 4th and 5th are closed): %d" % _server._pending.size())
+	_check(_server._pending_of("10.0.0.7") == 0, "another address has none pending")
+	for s in socks:
+		s.close()
+	await _frames(10)
+	_server._pending.clear()
+	var ok := await _open()
+	_check(_has(await _pump(ok), "welcome"), "the address joins again when its pending connections are gone")
 	await _stop_server()
 
 
