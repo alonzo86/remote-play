@@ -26,7 +26,7 @@ Counts: a 98, todo 0, review 13, obsolete 0, device 0 (total 111; 122 before the
 | REQ-2D-1 | a (done) | req_registry (new check) |
 | REQ-2D-2 | a (done) | small_screen (new suite: every game at 1280x720; no game is listed as a fixed layout since issue #348) |
 | REQ-2D-3 | review | draw calls instead of one node for each moving object: the code-reviewer reads it (frame_cost.gd shows the cost only) |
-| REQ-2D-4 | review | a convention for units (pixels at 1920x1080, tilt as sin of the angle): the reviewer reads it |
+| REQ-2D-4 | review | a convention for units (pixels at 1920x1080, tilt as sin of the angle, full from 90 degrees on): the reviewer reads it |
 | REQ-AH-1 | a (done) | named in the existing check of smoke_air_hockey.gd |
 | REQ-AH-2 | a (done) | req_registry (new check) |
 | REQ-AH-3 | a (done) | named in the existing check of smoke_air_hockey.gd |

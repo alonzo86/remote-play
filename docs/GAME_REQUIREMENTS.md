@@ -147,7 +147,7 @@ Tests
 - REQ-2D-1: A 2D game extends `minigame.gd` and draws in `_game_draw()`.
 - REQ-2D-2: A 2D game builds its layout from `size`, not from fixed pixels. The picture must work at 1280x720 and 1920x1080.
 - REQ-2D-3: A 2D game draws with `draw_*` calls. It does not add one node for each object that moves.
-- REQ-2D-4: Positions and speeds use pixels at 1920x1080. Tilt 1.0 means sin(angle), 15 degrees gives about 0.26.
+- REQ-2D-4: Positions and speeds use pixels at 1920x1080. Tilt 1.0 means sin(angle) up to 90 degrees from the neutral pose and full beyond it (it does not fall again), 15 degrees gives about 0.26.
 
 ## 3D games
 

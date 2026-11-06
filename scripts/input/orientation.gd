@@ -13,6 +13,9 @@ const STILL_TIME_FOR_BIAS := 0.5
 const BIAS_RATE := 0.02
 ## A recenter within this angle of flat (screen up) takes exactly flat as the neutral pose (issue #124).
 const FLAT_SNAP_DEG := 1.7
+## The phone counts as calm (held steady, not turning and not pushed) below these values (hand-over detection, `calm_s`).
+const CALM_GYRO := 0.35         # rad/s.
+const CALM_ACCEL := 1.5         # m/s2 away from 1 g.
 
 var settings: Dictionary
 
@@ -20,6 +23,8 @@ var up := Vector3(0, 0, 1)      # World "up" in the phone frame.
 var yaw := 0.0                  # Radians. Positive = phone turns left.
 var gyro_bias := Vector3.ZERO
 var still := false
+## Seconds the phone has been calm in a row: slow turn and no push. A hand shake is calm, a phone that is passed on is not.
+var calm_s := 0.0
 ## True while a swing runs: the accelerometer then holds the push of the hand, not gravity, so `up` follows the gyroscope only.
 var hold_accel := false
 
@@ -62,6 +67,11 @@ func update(ts_ms: int, gyro: Vector3, accel: Vector3) -> void:
 	if alen > 0.1 and absf(alen - G) < ACCEL_TRUST_BAND and not hold_accel:
 		up = up.lerp(a / alen, BLEND).normalized()
 
+	if w.length() < CALM_GYRO and absf(alen - G) < CALM_ACCEL:
+		calm_s += dt
+	else:
+		calm_s = 0.0
+
 	# Stationary detection: freeze yaw and learn the gyro bias.
 	var moving := (gyro - gyro_bias).length() > STILL_GYRO or absf(alen - G) > 0.6
 	if moving:
@@ -100,10 +110,15 @@ func _elevation() -> float:
 
 
 ## Tray tilt. x: positive = right side down. y: positive = top of phone up
-## (ball rolls toward the player). Range about -1..1 (sin of the angle).
+## (ball rolls toward the player). Range -1..1: the sine of the angle up to 90 degrees from the neutral pose, full from there on.
 func tilt() -> Vector2:
 	var d := up - _ref_up
-	return Vector2(clampf(-d.x, -1.0, 1.0), clampf(d.y, -1.0, 1.0))
+	var t := Vector2(-d.x, d.y)
+	# Beyond 90 degrees from the neutral pose the sine of the angle falls again, so a phone that is tilted too far would roll the
+	# ball back the other way. From there on the tilt is full, in the same direction, until the phone comes back.
+	if up.dot(_ref_up) < 0.0 and t.length() > 0.001:
+		t = t.normalized()
+	return Vector2(clampf(t.x, -1.0, 1.0), clampf(t.y, -1.0, 1.0))
 
 
 ## Pointer in -1..1 on both axes. The phone y axis points at the TV.

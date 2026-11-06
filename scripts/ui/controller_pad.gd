@@ -125,6 +125,15 @@ func _draw_lines_centered(f: Font, lines: Array[String], rect: Rect2, fs: int, a
 		draw_string(f, Vector2(x, UiTheme.centered_baseline(f, line_rect, fs)), lines[i], align, rect.size.x, fs, color)
 
 
+## The turn line of the pad (REQ-BW-14, REQ-MG-20): `kind` is "" for Pin Pals and "golf" for Mini Golf, `state` 1 is this phone on
+## turn and 2 another player (`who`). Mini Golf says what to do with the phone to the phone on turn.
+static func turn_text(kind: String, state: int, who: String) -> String:
+	var golf := kind == "golf"
+	if state == 1:
+		return Lang.t("mini_golf.phone_turn" if golf else "bowling.phone_turn").to_upper()
+	return Lang.f("mini_golf.phone_wait" if golf else "bowling.phone_wait", [who]).to_upper()
+
+
 ## The square in the slot color with the slot number, at the top left of the pad on the header row (REQ-FL-52).
 func _rect_slot_square() -> Rect2:
 	return Rect2(Vector2(60, HEADER_Y - 45.0), Vector2(90, 90))
@@ -349,11 +358,16 @@ func _draw() -> void:
 	# Whose turn it is, in a game with turns, on the row of NEW BEST! (the two never show together, REQ-BW-14).
 	if online and c.turn_state != 0:
 		var turn_rect := Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
-		var golf: bool = c.turn_kind == "golf"
-		var turn_text := Lang.t("bowling.phone_turn") if c.turn_state == 1 else Lang.f(
-				"mini_golf.phone_wait" if golf else "bowling.phone_wait", [c.turn_who])
-		draw_string(f, Vector2(turn_rect.position.x, UiTheme.centered_baseline(f, turn_rect, 32)), turn_text.to_upper(),
-				HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO)
+		var turn_color: Color = UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO
+		if c.turn_kind == "golf" and c.turn_state == 1:
+			# Mini Golf tells the player on turn what to do with the phone (the TV shows no instructions during the game). The
+			# Recenter help line is not drawn in this game, so the two lines have the room.
+			var hint_rect := Rect2(turn_rect.position, Vector2(turn_rect.size.x, 80))
+			_draw_lines_centered(f, UiTheme.wrap_lines(f, turn_text(c.turn_kind, c.turn_state, c.turn_who), hint_rect.size.x, 32),
+					hint_rect, 32, HORIZONTAL_ALIGNMENT_LEFT, hint_rect.position.x, turn_color)
+		else:
+			draw_string(f, Vector2(turn_rect.position.x, UiTheme.centered_baseline(f, turn_rect, 32)),
+					turn_text(c.turn_kind, c.turn_state, c.turn_who), HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, turn_color)
 
 	# NEW BEST! with the game name, only while the result of the game is open (REQ-GM-100; App.current_best() decides).
 	var best: Dictionary = App.current_best()
