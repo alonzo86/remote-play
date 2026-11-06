@@ -175,23 +175,27 @@ func sync_setup() -> void:
 		return
 	_setup_sig = sig
 	for s in slots:
-		_send_json(s, {"t": "setup", "swing": setup_swing, "pick": setup_pick and slots.size() >= 2, "in": not _out.has(s)})
+		var many := slots.size() >= 2   # With one phone nobody is asked, and an OUT from before does not count.
+		_send_json(s, {"t": "setup", "swing": setup_swing, "pick": setup_pick and many, "in": not many or not _out.has(s)})
 
 
 ## The connected phones that play the next game: all of them, except the ones that chose OUT in the settings view (REQ-GM-104).
 func players_in() -> Array[int]:
 	var r: Array[int] = []
-	for s in connected_slots():
-		if not _out.has(s):
+	var slots := connected_slots()
+	for s in slots:
+		# With one phone left nobody is asked, so an OUT choice from before (the other phone left) no longer counts.
+		if slots.size() < 2 or not _out.has(s):
 			r.append(s)
 	return r
 
 
-## A phone chose IN (`true`) or OUT. The last phone that is IN cannot go OUT: a game needs a player.
+## A phone chose IN (`true`) or OUT. With two or more phones every phone may go OUT: with nobody IN, Start is off. A single phone
+## is never asked and cannot go OUT, as before.
 func set_in(slot: int, value: bool) -> void:
 	if value:
 		_out.erase(slot)
-	elif players_in().has(slot) and players_in().size() > 1:
+	elif connected_slots().size() >= 2 and connected_slots().has(slot):
 		_out[slot] = true
 
 

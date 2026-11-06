@@ -451,7 +451,3 @@ func _fit_size() -> void:
 	var need: float = Shell.name_x(3) + 10.0 * 32.0 + Shell.CHIP_PAD
 	_check(Shell.chip_width("WWWWWWWWWW", 100.0, 3) == need, "a chip is as wide as a name of 10 letters needs (%.0f px)" % need)
 	_check(Shell.chip_width("1P", 240.0, 3) == 240.0, "a short text keeps the width the game asked for")
-	var rows: Array = mini.bar_lines([560.0, 560.0, 560.0, 560.0], 1800.0, 16.0)
-	_check(rows == [[0, 1, 2], [3]], "four wide chips of Mini Golf go on two rows: %s" % str(rows))
-	rows = mini.bar_lines([300.0, 300.0, 300.0, 300.0], 1800.0, 16.0)
-	_check(rows == [[0, 1, 2, 3]], "four short chips stay on one row: %s" % str(rows))

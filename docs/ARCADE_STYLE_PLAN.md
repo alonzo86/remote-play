@@ -28,7 +28,8 @@ A small fixed palette, taken from the NES palette. All text colors have a contra
 |-------|-------|-----|-------------------|
 | `BG` | `#000000` | Every screen background | - |
 | `TEXT` | `#fcfcfc` | Text, the outer frame line | 20.5:1 |
-| `TEXT_INFO` | `#fcfcfc` | Active info text: help text, "WAIT", empty slots, the player range (issue #221; white since 2026-11-02, owner) | 20.5:1 |
+| `TEXT_INFO` | `#fcfcfc` | Active info text: "WAIT", empty slots, the player range (issue #221; white since 2026-11-02, owner) | 20.5:1 |
+| `TEXT_DESC` | `#d0d0d0` | Hints and descriptions: the game description, the help lines, how to play (owner, 2026-11-03; a little under white, so the yellow reason under a description stands out) | 13.5:1 |
 | `TEXT_DIM` | `#7c7c7c` | A disabled item only, and the frame of a tile that is not focused (not text) | 5.0:1 |
 | `ACCENT` | `#f8b800` | Titles, the room code, the focused item, "PRESS OK" | 11.8:1 |
 | `FRAME` | `#0058f8` | The inner frame line (not text) | 3.8:1 |
@@ -80,12 +81,13 @@ black. They show as a filled square next to the slot number, never as the only c
 - Every enabled button, on the phone and on the TV, has a black face, white text and a white border (issue #173, 2026-10-29; changed 2026-11-02): the face is `BUTTON_FACE`, the text
   is `BUTTON_TEXT` (white), the border is `BUTTON_BORDER` (white). Pressed is the reverse (white face, black text). A disabled button keeps
   its dim look (a `TEXT_DIM` line on black). A mark (the chosen IN or OUT, the active player) is a `MARK_W`
-  `ACCENT` border around the black face, so it is a shape and a color. The focus is a yellow face with black text and the same border. The code is `UiTheme.button_box()` and
+  `ACCENT` border around the black face, so it is a shape and a color. The focus is a black face with yellow text and the same yellow border (no yellow fill, owner 2026-11-02). The code is `UiTheme.button_box()` and
   `UiTheme.style_button()`; no screen styles a button by itself (`tests/design_tokens.gd`). A text menu item has no face (it
   is white text with a cursor, section 2.4); a game tile is a picture with a frame, not a button.
-- A and B are round arcade buttons: a 6 px white ring, a `BUTTON_EDGE` lower edge and a black face with a white
-  letter (the button looks pressed in when it is down). A and B differ by the letter only (question 6).
-- RECENTER and DISCONNECT are white text boxes. DISCONNECT leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
+- A and B are round arcade buttons: a 6 px white ring, a `BUTTON_EDGE` lower edge and a face in color with a black
+  letter: A green (`OK`), B red (`BAD`; owner, 2026-11-03, question 6). They are the exception to the black button face.
+  The button looks pressed in when it is down.
+- RECENTER is a small black text box right above the HOLD TO LEAVE box (REQ-FL-52, 2026-11-03); DISCONNECT is a black text box. DISCONNECT leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
 - The slot color square and "2P" are at the top. The text under them says what to do ("TILT TO ROLL").
 
 ### 2.6 Motion
@@ -197,7 +199,7 @@ Each question has a default. On 2026-10-10 the owner said to keep the defaults; 
 5. **Logo.** The owner makes the logo (FD-15). It must now read on black, and pixel art fits the style. Default: text
    logo in the arcade font until then. Done on 2026-10-10: a pixel-art logo and splash (FD-21 (naming), FD-26).
 6. **Phone A and B colors.** The mockup shows two red arcade buttons. The rule was A green, B red (REQ-FL-52). Decided
-   2026-10-29 (issue #173, the owner's wording "all enabled buttons are white"): A and B are white, the letter tells them apart.
+   2026-10-29 (issue #173, the owner's wording "all enabled buttons are white"): A and B were white, then black with a white ring. Decided 2026-11-03 (owner): A green and B red again.
 7. **Where to choose the language** (section 7.1). Decided 2026-10-10: on the logo screen at the first start only,
    then automatic as now, and a Language row in Settings.
 

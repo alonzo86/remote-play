@@ -137,11 +137,15 @@ func _tiles_follow_phones() -> void:
 	await _frames(3)
 	_check(games == _app.current_screen() and paint.fits and paint.modulate.a == 1.0 and not sumo.fits and sumo.modulate.a < 1.0,
 			"REQ-FL-27: one phone joins: Paint Grab opens, Sumo Bumpers stays dim")
-	_check(sumo._meta.text == Registry.reason(sumo.game, 1).to_upper(), "and Sumo Bumpers shows why: '%s'" % sumo._meta.text)
+	sumo.grab_focus()
+	await _frames(3)
+	_check(games._reason.text == Registry.reason(sumo.game, 1).to_upper(),
+			"and the info bar shows why Sumo Bumpers cannot start: '%s'" % games._reason.text)
 	var b := await _join("Noam")
 	await _frames(3)
-	_check(sumo.fits and sumo.modulate.a == 1.0 and sumo._meta.text == sumo.players_text().to_upper(),
-			"REQ-FL-27: a second phone joins: Sumo Bumpers opens and shows its player range ('%s')" % sumo._meta.text)
+	_check(sumo.fits and sumo.modulate.a == 1.0 and sumo._meta.text == sumo.players_text().to_upper() and games._reason.text == "",
+			"REQ-FL-27: a second phone joins: Sumo Bumpers opens, shows its player range ('%s') and the reason goes away"
+			% sumo._meta.text)
 	await _leave(b)
 	await _frames(3)
 	_check(not sumo.fits and sumo.modulate.a < 1.0 and paint.fits, "REQ-FL-27: the second phone leaves: Sumo Bumpers is dim again")

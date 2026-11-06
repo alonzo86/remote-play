@@ -292,14 +292,16 @@ func _leader_and_winner() -> void:
 			game._process(DT)
 	var leader_slot := func() -> int:
 		return int(game._board.leaders()[0].slot)
+	var pct := func(n: int) -> String:
+		return "%d%%" % game.percent_of(n)
 	paint.call(0, 0, 5, rows[0])
-	_check(leader_slot.call() == 0 and game.leader_text() == str(game.floor_map.count(0)) and game.floor_map.count(0) >= 5,
-			"after 5 tiles the leader chip shows player 0 with its tiles: %s"
+	_check(leader_slot.call() == 0 and game.leader_text() == pct.call(game.floor_map.count(0)) and game.floor_map.count(0) >= 5,
+			"after 5 tiles the leader chip shows player 0 with its percent: %s"
 			% game.leader_text())
 	paint.call(1, 0, 8, rows[1])
 	paint.call(2, 0, 3, rows[2])
-	_check(leader_slot.call() == 1 and game.leader_text() == str(game.floor_map.count(1)) and game.floor_map.count(1) >= 8,
-			"after player 1 painted 8 the chip shows player 1 with its tiles: %s" % game.leader_text())
+	_check(leader_slot.call() == 1 and game.leader_text() == pct.call(game.floor_map.count(1)) and game.floor_map.count(1) >= 8,
+			"after player 1 painted 8 the chip shows player 1 with its percent: %s" % game.leader_text())
 	# Player 0 rolls over 6 tiles of player 1 (parked out of the way first): 5 + 6 = 11 against 8 - 6 + 1.
 	game._bodies[1].pos = (Vector2(15, 8) + Vector2(0.5, 0.5)) * 100.0
 	game._process(DT)
@@ -307,7 +309,7 @@ func _leader_and_winner() -> void:
 	var counts := [game.floor_map.count(0), game.floor_map.count(1), game.floor_map.count(2)]
 	var best: int = counts.max()
 	var best_slot: int = counts.find(best)
-	_check(counts.count(best) == 1 and leader_slot.call() == best_slot and game.leader_text() == str(best) and best_slot == 0,
+	_check(counts.count(best) == 1 and leader_slot.call() == best_slot and game.leader_text() == pct.call(best) and best_slot == 0,
 			"after taking tiles the chip follows the floor: player 0 leads with %d (%s)" % [best, str(counts)])
 	game._round.time = game.ROUND_TIME - 0.001
 	game._process(0.01)

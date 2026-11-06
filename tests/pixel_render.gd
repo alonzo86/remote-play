@@ -196,8 +196,8 @@ func _ink_box(img: Image, rect: Rect2i, bg: int) -> Rect2i:
 
 func _ui_palette() -> Dictionary:
 	var d := {}
-	for c in [UiTheme.BG, UiTheme.TEXT, UiTheme.TEXT_DIM, UiTheme.TEXT_INFO, UiTheme.ACCENT, UiTheme.FRAME, UiTheme.OK, UiTheme.BAD,
-			UiTheme.SLOT_EMPTY]:
+	for c in [UiTheme.BG, UiTheme.TEXT, UiTheme.TEXT_DIM, UiTheme.TEXT_INFO, UiTheme.TEXT_DESC, UiTheme.ACCENT,
+			UiTheme.FRAME, UiTheme.OK, UiTheme.BAD, UiTheme.SLOT_EMPTY]:
 		d[_rgb(c)] = true
 	return d
 
@@ -266,7 +266,7 @@ func _sharp_items(tag: String) -> void:
 	var example := ""
 	var ink_total := 0
 	var ink := {_rgb(UiTheme.TEXT): true, _rgb(UiTheme.BAD): true, _rgb(UiTheme.ACCENT): true, _rgb(UiTheme.TEXT_DIM): true,
-			_rgb(UiTheme.TEXT_INFO): true}
+			_rgb(UiTheme.TEXT_INFO): true, _rgb(UiTheme.TEXT_DESC): true}
 	for b in layer.get_children():
 		var r: Rect2 = b.get_global_rect()
 		var px := Rect2i(Vector2i((r.position * scale).round()), Vector2i((r.size * scale).round()))
@@ -348,7 +348,8 @@ func _sharp_logo(tag: String) -> void:
 	var bad := 0
 	var example := ""
 	var seen_ink := 0
-	var ink := {_rgb(UiTheme.TEXT_DIM): true, _rgb(UiTheme.TEXT_INFO): true, _rgb(UiTheme.TEXT): true, _rgb(UiTheme.ACCENT): true}
+	var ink := {_rgb(UiTheme.TEXT_DIM): true, _rgb(UiTheme.TEXT_INFO): true, _rgb(UiTheme.TEXT_DESC): true, _rgb(UiTheme.TEXT): true,
+			_rgb(UiTheme.ACCENT): true}
 	var nodes := screen.find_children("*", "Label", true, false)
 	nodes.append_array(screen.find_children("*", "Button", true, false))
 	for attempt in 12:   # The hint blinks: look again until it is on.

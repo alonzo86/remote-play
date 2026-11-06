@@ -17,7 +17,7 @@ func _init() -> void:
 func _build() -> void:
 	body.add_theme_constant_override("separation", 18)
 	body.add_child(UiKit.title("common.players", 48))
-	var hint := UiKit.label("connect.same_wi_fi", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
+	var hint := UiKit.label("connect.same_wi_fi", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD   # The line is wider than the card: it wraps, the card stays 1400 px (REQ-GM-40).
 	body.add_child(hint)
 

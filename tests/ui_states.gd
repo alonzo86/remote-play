@@ -562,9 +562,10 @@ func _pad_aim_strip() -> void:
 	await process_frame
 	pad._sampler.set_process(false)
 	app.client.state = ControllerClient.State.CONNECTED
-	var strip: Rect2 = pad._rect_recenter()
+	var strip: Rect2 = pad._rect_aim()
 	var a_at: Vector2 = pad._center_a()
-	_check(pad._zone_at(strip.get_center()) == "recenter", "outside a Pin Pals turn the box is Recenter")
+	_check(pad._zone_at(pad._rect_recenter().get_center()) == "recenter" and pad._zone_at(strip.get_center()) == "pad",
+			"outside a Pin Pals turn the small box at the bottom is Recenter and the strip area is plain pad")
 	app.client.turn_state = 1
 	app.client.turn_kind = ""
 	_check(pad._zone_at(strip.get_center()) == "aim", "on the turn of this phone in Pin Pals the box is the aim strip")
@@ -616,6 +617,6 @@ func _pad_aim_strip() -> void:
 	pad._process(0.0)
 	_check(is_equal_approx(pad._aim_frac, 0.5), "the mark is back in the middle when the turn is over")
 	app.client.recenter_button = true
-	_check(pad._zone_at(strip.get_center()) == "recenter", "a pointer game shows the Recenter box again")
+	_check(pad._zone_at(pad._rect_recenter().get_center()) == "recenter", "a pointer game shows the Recenter box again")
 	app.client.state = ControllerClient.State.IDLE
 	pad.queue_free()

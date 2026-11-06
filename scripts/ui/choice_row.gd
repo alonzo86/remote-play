@@ -92,8 +92,26 @@ func _refresh() -> void:
 	_right.modulate.a = 1.0 if i < row.values.size() - 1 else 0.3
 
 
+## A tap on an arrow (touch, the phone Settings): the arrow of the previous value steps back and the arrow of the next value steps
+## forward, wherever the layout puts them (in Hebrew they swap sides). The target is bigger than the glyph; a tap on a dim arrow
+## at an end of the list does nothing, as the key does.
+func _arrow_at(pos: Vector2) -> int:
+	for pair in [[_left, -1], [_right, 1]]:
+		var node: Control = pair[0]
+		var r := Rect2(node.global_position - global_position, node.size).grow_individual(36, 30, 36, 30)
+		if r.has_point(pos):
+			return pair[1]
+	return 0
+
+
 func _gui_input(event: InputEvent) -> void:
 	var forward := -1 if is_layout_rtl() else 1   # The step of a press of Right.
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		var d := _arrow_at(event.position)
+		if d != 0:
+			move(d)
+		accept_event()
+		return
 	if event.is_action_pressed("ui_left"):
 		move(-forward)
 		accept_event()

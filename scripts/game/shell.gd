@@ -107,9 +107,11 @@ static func hud_bar(ci: CanvasItem, width: float) -> Rect2:
 
 ## The status text of the bar (REQ-GM-45c): `x` and `w` are the box on a left to right screen (mirrored in Hebrew by `mx()`),
 ## the text is centered in it at `STATUS_BASELINE`. The game gives the whole text, so nothing is cut.
-static func status(ci: CanvasItem, x: float, w: float, msg: String, color: Color = UiTheme.TEXT) -> void:
-	text(ci, Vector2(mx(ci, x, w), STATUS_BASELINE), msg, STATUS_FONT, color, HORIZONTAL_ALIGNMENT_CENTER, w)
-	_note("status", ci, Rect2(mx(ci, x, w), STATUS_BASELINE - UiTheme.font().get_ascent(32), w, UiTheme.font().get_height(32)),
+## `base` is the baseline: `STATUS_BASELINE`, or `TITLE_BASELINE` for a game whose status text stands on the row of its title
+## (Pin Pals: "PIN PALS" and "FRAME 1/10" are one row, REQ-BW-12).
+static func status(ci: CanvasItem, x: float, w: float, msg: String, color: Color = UiTheme.TEXT, base := STATUS_BASELINE) -> void:
+	text(ci, Vector2(mx(ci, x, w), base), msg, STATUS_FONT, color, HORIZONTAL_ALIGNMENT_CENTER, w)
+	_note("status", ci, Rect2(mx(ci, x, w), base - UiTheme.font().get_ascent(32), w, UiTheme.font().get_height(32)),
 			{"text": msg})
 
 

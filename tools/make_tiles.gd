@@ -14,8 +14,6 @@ const GameSettings = preload("res://scripts/game/game_settings.gd")
 ## The height of the HUD strip at the top of a game at 1080p (the world starts below it).
 const HUD_BAR := 112
 const OUT_DIR := "res://assets/tiles/"
-## Mini Golf: the course ends at y 1032 of 1080 and the rest of the screen is black, so the tile is cut above it (issue #304).
-const MINI_GOLF_BOTTOM := 1024.0
 const TILE_SIZE := Vector2i(640, 360)
 ## Seconds to wait before the picture. The default is for games that need no countdown.
 const WAIT := {"maze": 4.6, "marble_race": 5.4, "snowball_splat": 11.0, "paint_grab": 4.0, "sumo_bumpers": 4.0,
@@ -82,14 +80,17 @@ func _place_tennis(game: Control) -> void:
 	game._request_redraw()
 
 
-## The Mini Golf picture: the second hole (windmill, blade, lake), the ball of the first golfer on its way.
+## The Mini Golf picture: the second hole (lake with its bridge, the windmill with its door, blade), the balls of all players on
+## the tee, the ball of the first golfer on its way over the bridge just after the swing.
 func _place_mini_golf(game: Control) -> void:
 	game.rules.next_hole()
 	game._load_hole()
 	game._start_turn()
 	game.detector.aim_locked = true
+	game.detector.power = 0.5
+	game._heading = 0.0
 	game._putt(game.rules.current_slot())
-	for i in 22:
+	for i in 24:
 		game._game_tick(0.016)
 	game.set_process(false)
 	game._request_redraw()
@@ -498,8 +499,6 @@ func _run() -> void:
 		var bottom := 1080.0
 		if String(g.id) == "bowling":
 			bottom = app.current_screen()._sheet_top()
-		elif String(g.id) == "mini_golf":
-			bottom = MINI_GOLF_BOTTOM
 		img = _world_crop(img, bottom)
 		img.resize(TILE_SIZE.x, TILE_SIZE.y, Image.INTERPOLATE_LANCZOS)
 		var path := OUT_DIR + String(g.id) + ".png"

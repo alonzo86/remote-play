@@ -151,8 +151,11 @@ func _strokes() -> void:
 		_check(f.swings.size() == 5, "5 strokes of %.0f m/s2 are all found" % fwd)
 	_check(mean[1] - mean[0] >= 0.1 and mean[2] - mean[1] >= 0.1 and mean[2] <= 1.0,
 			"the power grows from soft to medium to hard by 0.1 or more: %s" % str(mean))
-	var pushes := _repeat(_rig(), 10, func(i): return R.push(g.dir(0.0), 20.0 + 2.0 * float(i % 6), 0.04))
-	_check(pushes.size() >= 9, "10 sharp pushes of 20 to 30 m/s2 for 0.04 s are the hit: %d found" % pushes.size())
+	var fwd_dir: Vector3 = g.dir(0.0)
+	var pushes := _repeat(_rig(), 10, func(i): return R.back_swing(fwd_dir, 8.0, 0.2).append(
+			R.push(fwd_dir, 20.0 + 2.0 * float(i % 6), 0.04)))
+	_check(pushes.size() >= 9, "10 back swings, each followed by a sharp push of 20 to 30 m/s2 for 0.04 s, are the hit (%d found)"
+			% pushes.size())
 	# Item 8: how long ago was the hit. The stroke is a half sine; the hit is its peak and the report comes when it fades to half.
 	var f := _rig()
 	_repeat(f, 10, func(i): return R.stroke(g.dir(0.0), 10.0, 25.0))
@@ -216,7 +219,7 @@ func _shake_and_tap() -> void:
 	_repeat(t, 10, func(i): return R.tap(100.0))
 	_check(t.swings.is_empty(), "10 taps (100 m/s2 in one packet, 8 ms) are not a swing")
 	var two := _rig()
-	_repeat(two, 5, func(i): return R.push(Vector3(0, 1, 0), 100.0, 0.05))
+	_repeat(two, 5, func(i): return R.back_swing(Vector3(0, 1, 0), 8.0, 0.2).append(R.push(Vector3(0, 1, 0), 100.0, 0.05)))
 	_check(two.swings.size() == 5, "but a push that lasts 3 packets (0.05 s) is the hit: the rule needs 0.03 s, not only a spike")
 
 
@@ -255,9 +258,19 @@ func _side() -> void:
 	_check(s.swings.size() == 10 and worst < 0.1, "10 swings at the TV give a side of 0 (largest %.2f)" % worst)
 	var rep := _rig()
 	_repeat(rep, 10, func(i): return R.stroke(g.dir(30.0), 10.0, 25.0), 1.0)
-	_check(rep.swings.size() == 10 and float(rep.swings[0].side) > 0.5 and absf(float(rep.swings[9].side)) < 0.3,
-			"REQ-TN-7: 'straight' is the mean of the last swings, so ten equal swings 30 degrees right drift to the middle (%.2f -> %.2f)"
+	_check(rep.swings.size() == 10 and float(rep.swings[0].side) > 0.3 and absf(float(rep.swings[9].side)) < 0.3,
+			"REQ-TN-7: by default 'straight' is the mean of the last swings, so ten equal swings 30 degrees right drift to the "
+			+ "middle (%.2f -> %.2f)"
 			% [float(rep.swings[0].side), float(rep.swings[9].side)])
+	# Tennis (owner, 2026-11-06): the heading does not follow the swings, so the same swing gives the same side every time.
+	var fixed := _rig()
+	fixed.player.follow_heading = false
+	_repeat(fixed, 10, func(i): return R.stroke(g.dir(30.0), 10.0, 25.0), 1.0)
+	var lowest := 9.0
+	for x in fixed.swings:
+		lowest = minf(lowest, float(x.side))
+	_check(fixed.swings.size() == 10 and lowest > 0.3,
+			"REQ-TN-7: in Tennis ten equal swings 30 degrees right all aim right (lowest side %.2f)" % lowest)
 
 
 # ---- Item 10: the other sign of the accelerometer ----

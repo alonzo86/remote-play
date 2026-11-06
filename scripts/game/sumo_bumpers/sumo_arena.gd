@@ -11,18 +11,18 @@ const BUMP_RESTITUTION := 0.95   # Close to 1: a hit pushes the other bumper awa
 const BUMP_BUZZ_SPEED := 300.0   # The speed between two bumpers that buzzes the phones (REQ-SB-8).
 ## After the first fall of a round the platform shrinks this many times faster, so a bumper that fell waits at most
 ## `shrink_time / FALL_SPEEDUP` seconds (REQ-SB-6, REQ-SB-9). REQ-GM-83 asks for about 20 s at most (MAX_WAIT).
-const FALL_SPEEDUP := 2.0
+const FALL_SPEEDUP := 2.5
 const MAX_WAIT := 20.0
 ## Difficulty (REQ-SB-20): the start radius of the platform, the time it needs to shrink to MIN_RADIUS, and the time before the
 ## dash is ready again. First guesses (Test 15).
 const LEVELS := {
-	"easy": {"radius": 430.0, "shrink": 30.0, "dash": 1.5},
-	"medium": {"radius": 380.0, "shrink": 24.0, "dash": 2.0},
-	"hard": {"radius": 330.0, "shrink": 18.0, "dash": 2.5},
+	"easy": {"radius": 440.0, "shrink": 50.0, "dash": 1.5},
+	"medium": {"radius": 400.0, "shrink": 40.0, "dash": 2.0},
+	"hard": {"radius": 360.0, "shrink": 30.0, "dash": 2.5},
 }
 
-var start_radius := 380.0
-var shrink_time := 24.0
+var start_radius := 400.0
+var shrink_time := 40.0
 var dash_time := 2.0
 var time := 0.0   # The time of the shrinking in this round: seconds since GO, but faster after the first fall.
 var speedup := 1.0

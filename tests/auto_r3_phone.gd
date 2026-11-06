@@ -1,6 +1,7 @@
 extends SceneTree
 ## Phone screens: what used to be looked at by hand in manual tests 16, 17 and 18 and a machine can check (docs/MANUAL_TESTS.md):
-## the pad buttons A and B that sit lower while pressed (16.6b), the Recenter box that fills with yellow for 0.34 s after a tap
+## the pad buttons A and B that sit lower while pressed (16.6b), the Recenter box (small, above HOLD TO LEAVE) that fills
+## with white for 0.34 s after a tap
 ## (16.6c), the slot square at the top of the pad (16.6e), the Connect screen of a Hebrew phone and of an English phone (17.4a),
 ## the Hebrew texts of the pad that fit their boxes (17.7a), the HAPTICS switch that is on at the first start (18.10a) and the
 ## waiting screen where Settings does not touch Disconnect on 4 phone shapes (18.10f). Run:
@@ -135,11 +136,14 @@ func _pad_checks() -> void:
 	pad._process(0.15)
 	_check(pad._recenter_fill() == UiTheme.BUTTON_FACE, "0.35 s after the tap it is black again")
 
-	# 16.6e: the color square with the slot number is at the top left of the pad, on the row of Disconnect.
+	# 16.6e: the color square with the slot number is at the top left of the pad, on the row of the name.
 	var sq: Rect2 = pad._rect_slot_square()
 	var leave: Rect2 = pad._rect_leave()
-	_check(sq.position.x <= 60.0 and sq.end.y < pad.size.y * 0.15 and is_equal_approx(sq.get_center().y, leave.get_center().y)
-			and not sq.intersects(leave), "the slot square is in the top 15 percent of the pad, on the row of Disconnect: %s" % str(sq))
+	var name_rect: Rect2 = pad._rect_name(false)
+	_check(sq.position.x <= 60.0 and sq.end.y < pad.size.y * 0.15 and is_equal_approx(sq.get_center().y, name_rect.get_center().y)
+			and not sq.intersects(leave) and leave.position.y > pad.size.y * 0.85,
+			"the slot square is in the top 15 percent of the pad, on the row of the name, and HOLD TO LEAVE is at the bottom: %s"
+			% str(sq))
 	_app.client.state = ControllerClient.State.CONNECTED
 	_check(pad._slot_square_color() == Protocol.PLAYER_COLORS[1], "joined: the square has the color of the slot")
 	_app.client.state = ControllerClient.State.IDLE
@@ -163,14 +167,14 @@ func _hebrew_pad() -> void:
 	_app.set_language("he", false)
 	var font := UiTheme.font()
 	var room := {"recenter": pad._rect_recenter().size.x, "disconnect": pad._rect_leave().size.x,
-			"hint": pad._rect_recenter().size.x}
-	var sizes := {"recenter": 72, "disconnect": 24, "hint": 32}
+			"hint": pad._rect_hint().size.x}
+	var sizes := {"recenter": pad.RECENTER_SIZE, "disconnect": pad.LEAVE_SIZE, "hint": 32}
 	var names := ["recenter", "disconnect", "hint"]
 	for i in 3:
 		var w := font.get_string_size(texts.he[i], HORIZONTAL_ALIGNMENT_LEFT, -1, int(sizes[names[i]])).x
 		if names[i] == "hint":
 			# Issue #246: the help line keeps 32 px; when it is wider than the box it goes on more lines, nothing is cut.
-			var lines: Array[String] = pad.hint_lines(font, pad._rect_recenter())
+			var lines: Array[String] = pad.hint_lines(font, pad._rect_hint())
 			var widest := 0.0
 			for line in lines:
 				widest = maxf(widest, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 32).x)
@@ -214,13 +218,25 @@ func _connect_language() -> void:
 			right = right and shown[key] == table[key][pair[1]]
 			if table[key].en != table.get(key, {}).he:
 				different += 1
-		_check(Lang.current() == pair[1] and shown.size() >= 4 and right,
+		_check(Lang.current() == pair[1] and shown.size() >= 3 and right,
 				"device language %s: %d texts of the Connect screen are in %s" % [pair[0], shown.size(),
 				"Hebrew" if pair[1] == "he" else "English"])
 		if pair[1] == "he":
-			_check(different >= 4, "device language %s: at least 4 of them differ from the English text (%d)" % [pair[0], different])
+			_check(different >= 3, "device language %s: at least 3 of them differ from the English text (%d)" % [pair[0], different])
 	Lang.device_locale = ""
 	_app.set_language("en", false)
+
+
+## A real tap (a mouse press pushed into the window) on the middle of `arrow`, a label of a choice row.
+func _tap_arrow(arrow: Control) -> void:
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	var to_window := Vector2(root.size) / Vector2(root.content_scale_size)   # The window is smaller than the 1080 x 1920 viewport.
+	press.position = arrow.get_global_rect().get_center() * to_window
+	press.global_position = press.position
+	root.push_input(press)
+	await _frames(3)
 
 
 ## 18.10a: the first time the phone is used the HAPTICS switch on the Settings screen is ON. The default comes from a fresh App
@@ -246,8 +262,9 @@ func _haptics_default() -> void:
 		settings_button.pressed.emit()
 		await _frames(3)
 		var screen: Control = _app.current_screen()
-		_check(screen.get_script().resource_path.ends_with("controller_settings.gd") and screen._haptics.text == "HAPTICS: ON",
-				"Settings opens, with the row '%s'" % (screen._haptics.text if "_haptics" in screen else "-"))
+		_check(screen.get_script().resource_path.ends_with("controller_settings.gd") and "_haptics" in screen
+				and screen._haptics_state.text == "common.on",
+				"Settings opens, with the HAPTICS switch ON")
 	_app.settings.haptics = saved
 
 
@@ -267,13 +284,16 @@ func _phone_language() -> void:
 			b.pressed.emit()
 	await _frames(3)
 	var screen: Control = _app.current_screen()
-	_check(screen.get_script().resource_path.ends_with("controller_settings.gd") and screen._language.text == "LANGUAGE: ENGLISH",
-			"the Settings screen shows the language button in English: '%s'" % screen._language.text)
-	screen._language.pressed.emit()
-	await _frames(3)
-	_check(Lang.current() == "he" and _app.settings.language == "he" and Lang.is_rtl() and screen._language.text == "שפה: עברית"
+	_check(screen.get_script().resource_path.ends_with("controller_settings.gd")
+			and screen._language._name.tr(screen._language._name.text) == "LANGUAGE"
+			and screen._language._value.text == "ENGLISH",
+			"the Settings screen shows the language row in English: '%s'" % screen._language._value.text)
+	await _tap_arrow(screen._language._right)
+	_check(Lang.current() == "he" and _app.settings.language == "he" and Lang.is_rtl()
+			and screen._language._name.tr(screen._language._name.text) == "שפה"
+			and screen._language._value.text == "עברית"
 			and root.get_layout_direction() == Window.LAYOUT_DIRECTION_RTL,
-			"a tap switches the phone to Hebrew, right to left, and saves it: '%s'" % screen._language.text)
+			"a tap on the enabled arrow switches the phone to Hebrew, right to left, and saves it: '%s'" % screen._language._value.text)
 	# The TV says English and the connection comes and goes: the phone keeps its own choice.
 	_app.client._handle({"t": "lang", "v": "en"}, Time.get_ticks_msec())
 	_check(Lang.current() == "he", "a lang message of the TV changes nothing")
@@ -294,10 +314,15 @@ func _phone_language() -> void:
 	_app.go(_app.ControllerSettings)   # The lost connection took the phone to the Connect screen.
 	await _frames(3)
 	screen = _app.current_screen()
-	screen._language.pressed.emit()
-	await _frames(3)
-	_check(Lang.current() == "en" and _app.settings.language == "en" and screen._language.text == "LANGUAGE: ENGLISH",
-			"a second tap switches back to English")
+	# In Hebrew the row is mirrored: the enabled arrow (the one of the previous value) is at the right.
+	var back: Control = screen._language._left
+	_check(back.global_position.x > screen._language._right.global_position.x,
+			"in Hebrew the arrow of the previous value is at the right")
+	await _tap_arrow(screen._language._right)   # A dim arrow: nothing happens.
+	_check(Lang.current() == "he", "a tap on the dim arrow changes nothing")
+	await _tap_arrow(back)
+	_check(Lang.current() == "en" and _app.settings.language == "en" and screen._language._value.text == "ENGLISH",
+			"a tap on the enabled arrow switches back to English")
 	Lang.device_locale = ""
 	_app.settings.language = saved_lang
 	_app.save_settings()

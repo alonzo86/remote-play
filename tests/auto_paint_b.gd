@@ -67,7 +67,8 @@ func _run() -> void:
 
 
 ## 14.4a: roll over 5 free tiles. Each of the 5 tiles belongs to the blob and is drawn in the hue of its color (the hidden picture
-## makes a tile lighter or darker, never another color, REQ-PG-22), and the count on the phone goes from 0 to 5 (REQ-PG-4, 13).
+## makes a tile lighter or darker, never another color, REQ-PG-22), and the count on the phone goes from 0% to the
+## percent of 5 tiles (REQ-PG-4, 13).
 func _five_free_tiles() -> void:
 	print("rolling over 5 free tiles")
 	var game := _play()
@@ -96,7 +97,8 @@ func _five_free_tiles() -> void:
 	_check(owned and game.floor_map.count(0) == 5 and steps < 600,
 			"after rolling over 5 free tiles the tiles (0..4, 3) are the tiles of the blob, and it has exactly 5 (%d frames)" % steps)
 	_check(hue_ok, "each of the 5 tiles is drawn in the hue of the blob, not in the hue of the other blob")
-	_check(before == "0" and after == "5" and _clients[0].score_rank == 1,
+	# The phone shows the percent of the picture, not the tiles (REQ-PG-13, REQ-FL-67).
+	_check(before == "0%" and after == "%d%%" % game.percent_of(5) and _clients[0].score_rank == 1,
 			"the count on the phone goes from '%s' to '%s' (place %d)" % [before, after, _clients[0].score_rank])
 
 

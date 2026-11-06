@@ -207,10 +207,14 @@ func _finish() -> void:
 	open_results(_board, heading, [], _score_text)
 
 
-## "34 tiles (23%)" for the result list.
+## "23%" for the result list: the share of the picture, rounded down (REQ-PG-21). The ranking uses the exact tiles.
 func _score_text(tiles: float) -> String:
-	return Lang.f("paint_grab.tiles", [int(tiles),
-			percent_of(int(tiles))])   # The percent is rounded down (REQ-PG-21).
+	return Lang.f("paint_grab.percent", [percent_of(int(tiles))])
+
+
+## The chip of the leader and the score line of the phones show the percent too (REQ-PG-13, REQ-FL-67).
+func _score_label(entry: Dictionary) -> String:
+	return _score_text(entry.score) if entry.finished else ""
 
 
 ## The share of the picture that `tiles` tiles are, in percent, rounded down (REQ-PG-21).

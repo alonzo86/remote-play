@@ -10,7 +10,9 @@ const SensorRecorder = preload("res://scripts/input/sensor_recorder.gd")
 
 const SWING_THRESHOLD := 0.75   # Tennis counts a lighter swing than Pin Pals (the factor on the thresholds of the detector).
 const SWING_WINDOW_S := 3.0     # A player draws back early: a back swing waits this long (s) for the forward swing.
-const SWING_SIDE_FULL := 0.7854   # A swing 45 degrees (rad) to the side of the TV aims all the way to the side (REQ-TN-7).
+# A swing 70 degrees (rad) to the side of the TV aims all the way to the side (REQ-TN-7; it was 45 degrees until 2026-11-05:
+# almost every shot went to the sideline).
+const SWING_SIDE_FULL := 1.2217
 const HEADING_PRIOR := 1.0       # The weight of the guess "the TV is where the phone pointed at GO" (azimuth 0).
 const HEADING_KEEP := 0.9        # The share of the old swings that stays when a new swing comes (the last ~10 count).
 const SWING_HOLD_S := 0.5       # A back swing does not correct gravity from the accelerometer for this long (s).
@@ -67,6 +69,9 @@ var _prev_buttons := 0
 var _swing_ts := -1
 ## The azimuth of a swing at the TV (rad, in the world frame of the sensor fusion), and if the player calibrated it.
 var heading := 0.0
+## False: `heading` stays where the last recenter left it (0) and does not follow the player's swings. Tennis sets it (owner,
+## 2026-11-06: the same swing read as left after some swings and as right after others, because the mean moved).
+var follow_heading := true
 var _head_x := 0.0               # The weighted mean direction of the swings so far, as a vector (sin, cos).
 var _head_y := HEADING_PRIOR
 var _hold_s := 0.0
@@ -291,7 +296,8 @@ func _feed_swing(pkt: Dictionary, now_ms: int) -> void:
 		"azimuth": OrientationFusion.azimuth(world),
 		"world_dir": world.normalized(),
 	}
-	_follow_heading(last_swing.azimuth)
+	if follow_heading:
+		_follow_heading(last_swing.azimuth)
 	last_swing_ms = now_ms
 	swing_count += 1
 	swung.emit(last_swing)

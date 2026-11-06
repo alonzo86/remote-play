@@ -136,7 +136,11 @@ func _run() -> void:
 	# No script writes the English name of a game as a literal text: it always goes through the key.
 	var literal: Array[String] = []
 	for path in _script_files("res://scripts"):
-		var src := FileAccess.get_file_as_string(path)
+		var code_lines: Array[String] = []
+		for line in FileAccess.get_file_as_string(path).split("\n"):
+			if not line.strip_edges().begins_with("#"):   # A comment may quote a name; only the code matters.
+				code_lines.append(line)
+		var src := "\n".join(code_lines)
 		for name in english:   # Case matters: the ids are in lower case ("tennis").
 			if src.contains('"' + name + '"') or src.contains('"' + name.capitalize() + '"'):
 				literal.append("%s: %s" % [path.get_file(), name])

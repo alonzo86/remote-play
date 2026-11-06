@@ -27,6 +27,8 @@ var _badge: Button
 var _room: Label   # The room code in the header (REQ-FL-15a). It follows the address of the TV.
 var _gear: Button
 var _info: Label   # The description of the focused game.
+var _reason: Label   # Under it, in yellow: why the focused game cannot start with the players now (REQ-FL-14).
+var _shown: Dictionary = {}   # The game that the info bar shows.
 var _modal: Control
 var _players := -1
 
@@ -122,10 +124,17 @@ func _show_grid(focus_id := "") -> void:
 	var bar := PanelContainer.new()
 	bar.add_theme_stylebox_override("panel", UiTheme.line_box(UiTheme.TEXT_DIM))
 	view.add_child(bar)
-	_info = UiKit.label("", UiTheme.SIZE_BODY)
+	var texts := VBoxContainer.new()
+	texts.add_theme_constant_override("separation", 0)
+	bar.add_child(texts)
+	_info = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 	_info.autowrap_mode = TextServer.AUTOWRAP_WORD
-	_info.custom_minimum_size = Vector2(0, 3.0 * 44.0)
-	bar.add_child(_info)
+	_info.custom_minimum_size = Vector2(0, 2.0 * 44.0)
+	texts.add_child(_info)
+	_reason = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
+	_reason.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_reason.custom_minimum_size = Vector2(0, 44.0)
+	texts.add_child(_reason)
 
 	_wire_focus()
 	_players = -1
@@ -213,10 +222,15 @@ func _update_fit() -> void:
 	_players = n
 	for t in _tiles:
 		t.fits = Registry.accepts(t.game, n)
+	if not _shown.is_empty():
+		_show_description(_shown)   # The reason changes with the players.
 
 
 func _show_description(game: Dictionary) -> void:
+	_shown = game
 	_info.text = Lang.t(String(game.get("description", ""))).to_upper()
+	var n: int = App.server.connected_slots().size()
+	_reason.text = "" if Registry.accepts(game, n) else Registry.reason(game, n).to_upper()
 
 
 func _on_tile(game: Dictionary) -> void:

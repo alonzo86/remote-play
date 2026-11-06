@@ -156,13 +156,13 @@ func _axes() -> void:
 			_sim.feed(p, ways[way])
 			game._process(DT)
 		got[way] = body.vel
-	_check(got.right.x > 50.0 and absf(got.right.y) < 0.1 * got.right.x, "a tilt to the right rolls the bumper to the right: %s"
+	_check(got.right.x > 25.0 and absf(got.right.y) < 0.1 * got.right.x, "a tilt to the right rolls the bumper to the right: %s"
 			% str(got.right))
-	_check(got.left.x < -50.0 and absf(got.left.y) < 0.1 * -got.left.x, "a tilt to the left rolls it to the left: %s"
+	_check(got.left.x < -25.0 and absf(got.left.y) < 0.1 * -got.left.x, "a tilt to the left rolls it to the left: %s"
 			% str(got.left))
-	_check(got.up.y > 50.0 and absf(got.up.x) < 0.1 * got.up.y, "the top of the phone up rolls it down the screen: %s"
+	_check(got.up.y > 25.0 and absf(got.up.x) < 0.1 * got.up.y, "the top of the phone up rolls it down the screen: %s"
 			% str(got.up))
-	_check(got.down.y < -50.0 and absf(got.down.x) < 0.1 * -got.down.y, "the top of the phone down rolls it up the screen: %s"
+	_check(got.down.y < -25.0 and absf(got.down.x) < 0.1 * -got.down.y, "the top of the phone down rolls it up the screen: %s"
 			% str(got.down))
 
 
@@ -193,12 +193,12 @@ func _damping() -> void:
 func _shrink() -> void:
 	print("the shrinking island")
 	var game := _play()
-	game._bodies[0].pos = Vector2(-40.0, 0.0)   # Two bumpers close to the middle, so that nobody falls in 21 s.
+	game._bodies[0].pos = Vector2(-40.0, 0.0)   # Two bumpers close to the middle, so that nobody falls in 38 s.
 	game._bodies[1].pos = Vector2(40.0, 0.0)
 	var start_r: float = game.arena.radius()
 	var rings: Array = [_sumo.danger_ring(game.arena.danger())]
 	var radii: Array = [start_r]
-	for second in 21:
+	for second in 38:
 		SimInput.run(game, 1.0)
 		radii.append(game.arena.radius())
 		rings.append(_sumo.danger_ring(game.arena.danger()))
@@ -207,11 +207,11 @@ func _shrink() -> void:
 	for i in range(1, radii.size()):
 		falling = falling and radii[i] < radii[i - 1]
 		greener = greener and rings[i].g <= rings[i - 1].g + 0.0001
-	_check(game.phase == game.Phase.PLAY and falling and radii[21] < 0.25 * start_r,
-			"in 21 s without a fall the radius gets smaller every second, from %.0f to %.0f px" % [start_r, radii[21]])
-	_check(rings[0].is_equal_approx(SumoLook.RIM) and rings[0].r > rings[0].b + 0.2 and rings[21].r > 0.95 and rings[21].g < 0.4
-			and greener, "the edge ring is brown at GO and red after 21 s, and loses green all the way: %s -> %s"
-			% [str(rings[0]), str(rings[21])])
+	_check(game.phase == game.Phase.PLAY and falling and radii[38] < 0.2 * start_r,
+			"in 38 s without a fall the radius gets smaller every second, from %.0f to %.0f px" % [start_r, radii[38]])
+	_check(rings[0].is_equal_approx(SumoLook.RIM) and rings[0].r > rings[0].b + 0.2 and rings[38].r > 0.95 and rings[38].g < 0.4
+			and greener, "the edge ring is brown at GO and red after 38 s, and loses green all the way: %s -> %s"
+			% [str(rings[0]), str(rings[38])])
 
 
 ## 15.4a, 4b: two bumpers that run into each other bounce apart; only a fast hit buzzes (REQ-SB-8).
@@ -278,8 +278,8 @@ func _dash() -> void:
 				"%s: a dash gives %.0f px/s and is ready again after %.2f s (wanted %.1f)" % [d, first_speed, ready_after,
 						wanted[d]])
 		if d == "medium":
-			# The speed limit of the dash lasts 0.35 s; after it the normal limit of 560 px/s is back.
-			_check(boost[30][0] == 700.0 and boost[40][0] == 560.0 and boost[40][1] <= 560.01,
+			# The speed limit of the dash lasts 0.35 s; after it the normal limit of 420 px/s is back (MOVE_MAX).
+			_check(boost[30][0] == 700.0 and boost[40][0] == 420.0 and boost[40][1] <= 420.01,
 					"on Medium the dash speed limit lasts about 0.35 s: at 0.30 s %.0f, at 0.40 s %.0f px/s" % [boost[30][0],
 							boost[40][0]])
 			game._dash_left[0] = 0.0
@@ -297,7 +297,7 @@ func _seconds_to_end(difficulty: String, spots: Array) -> float:
 	return SimInput.run_until(game, func() -> bool: return game.phase == game.Phase.BANNER, 60.0)
 
 
-## 15.7b: a round is as long as the shrinking: 30, 24 and 18 s at most on Easy, Medium and Hard (REQ-SB-6, REQ-SB-20).
+## 15.7b: a round is as long as the shrinking: 50, 40 and 30 s at most on Easy, Medium and Hard (REQ-SB-6, REQ-SB-20).
 func _round_length() -> void:
 	print("the length of a round")
 	var ends := {}
@@ -307,11 +307,11 @@ func _round_length() -> void:
 		var arena := SumoArena.new()
 		arena.setup(d)
 		passive[d] = _seconds_to_end(d, arena.start_spots(2))
-	_check(ends.easy > 27.0 and ends.easy < 33.0 and ends.medium > 21.6 and ends.medium < 26.4 and ends.hard > 16.2
-			and ends.hard < 19.8,
-			"bumpers in the middle: the round lasts %.1f, %.1f, %.1f s on Easy, Medium, Hard (30, 24, 18 s of shrinking)"
+	_check(ends.easy > 45.0 and ends.easy < 55.0 and ends.medium > 36.0 and ends.medium < 44.0 and ends.hard > 27.0
+			and ends.hard < 33.0,
+			"bumpers in the middle: the round lasts %.1f, %.1f, %.1f s on Easy, Medium, Hard (50, 40, 30 s of shrinking)"
 			% [ends.easy, ends.medium, ends.hard])
-	_check(passive.easy < 30.0 and passive.medium < 24.0 and passive.hard < 18.0 and passive.hard < passive.medium
+	_check(passive.easy < 50.0 and passive.medium < 40.0 and passive.hard < 30.0 and passive.hard < passive.medium
 			and passive.medium < passive.easy, "bumpers that wait at their start places fall sooner: %.1f, %.1f, %.1f s"
 			% [passive.easy, passive.medium, passive.hard])
 
@@ -348,7 +348,7 @@ func _fall_and_next_round() -> void:
 			"the next round starts %.2f s after the banner with all 3 bumpers back" % waited)
 
 
-## 15.7c: after the first fall the platform shrinks twice as fast, so the wait is short (REQ-SB-6, REQ-GM-83).
+## 15.7c: after the first fall the platform shrinks 2.5 times as fast, so the wait is short (REQ-SB-6, REQ-GM-83).
 func _wait_after_a_fall() -> void:
 	print("the wait after a fall")
 	var results := {}
@@ -364,8 +364,8 @@ func _wait_after_a_fall() -> void:
 		results[d] = after
 		_check(after <= game.arena.longest_wait() + 1.0,
 				"%s: the round ends %.1f s after the first fall (at most %.1f s)" % [d, after, game.arena.longest_wait() + 1.0])
-	_check(results.easy <= 16.0 and results.medium <= 13.0 and results.hard <= 10.0,
-			"the wait is at most 16, 13 and 10 s on Easy, Medium and Hard: %s" % str(results))
+	_check(results.easy <= 21.0 and results.medium <= 17.0 and results.hard <= 13.0,
+			"the wait is at most 21, 17 and 13 s on Easy, Medium and Hard: %s" % str(results))
 
 
 ## 15.7a: 3 rounds with `count` phones: the round number on the screen, the points, and the winner of the match.

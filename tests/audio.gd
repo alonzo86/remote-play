@@ -411,29 +411,31 @@ func _phone_haptics(app: Node) -> void:
 	app.go(ControllerSettings)
 	await _frames(3)
 	var screen: Control = app.current_screen()
-	app.settings.haptics = true
-	screen._refresh()
-	_check(screen._haptics.text == "HAPTICS: ON", "the switch shows ON")
-	screen._haptics.pressed.emit()
-	_check(app.settings.haptics == false and screen._haptics.text == "HAPTICS: OFF", "OK turns haptics off")
-	# Issue #290: the label is a string row, so a phone in Hebrew shows it in Hebrew (the same switch, the state word of the row).
+	var hap: Button = screen._haptics
+	var state: Label = screen._haptics_state
+	_check(hap.get_global_rect().size.y >= 96 and state.text == "common.on" and app.settings.haptics == true,
+			"the HAPTICS row is a switch, at least 96 px high, and shows ON (%s)" % state.text)
+	var sw: Control = screen._haptics_switch
+	var knob_on: Rect2 = sw.knob_rect()
+	hap.pressed.emit()
+	_check(app.settings.haptics == false and state.text == "common.off" and sw.on == false
+			and sw.knob_rect().position.x < knob_on.position.x, "a tap on the row turns haptics off and the knob of the switch moves")
+	hap.pressed.emit()
+	_check(app.settings.haptics == true and state.text == "common.on", "a second tap turns it on again")
+	# Issue #290: the name and the state are string rows, so a phone in Hebrew shows them in Hebrew.
 	app.set_language("he", false)
-	screen._refresh()
-	_check(screen._haptics.text == "רטט: כבוי", "a phone in Hebrew shows the switch in Hebrew: %s" % screen._haptics.text)
-	app.settings.haptics = true
-	screen._refresh()
-	_check(screen._haptics.text == "רטט: פועל", "and the state ON in Hebrew: %s" % screen._haptics.text)
-	app.settings.haptics = false
+	hap.pressed.emit()
+	_check(state.tr(state.text) == "כבוי", "a phone in Hebrew shows the state OFF in Hebrew: %s" % state.tr(state.text))
+	hap.pressed.emit()
+	_check(state.tr(state.text) == "פועל", "and the state ON in Hebrew: %s" % state.tr(state.text))
 	app.set_language("en", false)
-	screen._refresh()
+	hap.pressed.emit()   # Off.
 	var cfg := ConfigFile.new()
 	cfg.load(app.SETTINGS_FILE)
 	_check(cfg.get_value("settings", "haptics", true) == false, "the choice is saved")
 	app.settings.haptics = true
 	app._load_settings()
 	_check(app.settings.haptics == false, "the saved choice is loaded at the next start")
-	screen._haptics.pressed.emit()
-	_check(app.settings.haptics == true, "OK turns haptics on again")
 	app.settings.haptics = old
 	app.save_settings()
 
@@ -543,7 +545,7 @@ func _loudness_and_songs(sound: Node, app: Node) -> void:
 			if Synth.to_pcm16(bufs[ids[i]]) == Synth.to_pcm16(bufs[ids[j]]):
 				distinct = false
 				print("  same samples: %s %s" % [ids[i], ids[j]])
-	_check(distinct and ids.size() == 16, "all %d songs have different samples" % ids.size())
+	_check(distinct and ids.size() == 22, "all %d songs have different samples" % ids.size())
 	var bad_ids: Array[String] = []
 	for g in Registry.all():
 		if String(g.id) == "menu" or not Songs.SONGS.has(String(g.id)):

@@ -67,6 +67,7 @@ func _run() -> void:
 	root.size = Vector2i(1920, 1080)
 	_Bowling = load("res://scripts/game/bowling/bowling_game.gd")
 	_app = root.get_node("App")
+	_app.set_language("en", false)   # The texts are compared in English, whatever language the saved settings have.
 	load("res://scripts/game/game_settings.gd").clear()
 	for i in 4:
 		var c := ControllerClient.new()

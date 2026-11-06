@@ -334,7 +334,7 @@ func _the_end() -> void:
 	var buttons: Array = game.menu_buttons().map(func(b): return b.text)
 	_check(game.is_over and labels[0] == "SIM1 WINS!" and labels.has("1ST   SIM1   5 STARS") and labels.has("2ND   SIM0   3 STARS"),
 			"time up: the title names the winner, and the list has the stars: %s" % str(labels))
-	_check(buttons == ["minigame.restart", "common.settings", "minigame.back_to_menu"], "the buttons: %s" % str(buttons))
+	_check(buttons == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"], "the buttons: %s" % str(buttons))
 	_check(_heard.has("win"), "the win sound plays")
 	var tie := _play()
 	_clear_floor(tie)

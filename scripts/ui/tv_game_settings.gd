@@ -12,7 +12,7 @@ const ChoiceRow = preload("res://scripts/ui/choice_row.gd")
 const TrackPicker = preload("res://scripts/ui/track_picker.gd")
 
 const WIDE_W := 1500.0   # The width of the warning and of how to play (issue #120).
-const ROSTER_SIZE := 32   # The size of the lines IN and OUT (a TV text is 32 px or more, REQ-GM-41); the tallest view must fit.
+const ROSTER_SIZE := 32   # The size of the players line (a TV text is 32 px or more, REQ-GM-41).
 
 ## Set by `App.go_game_settings()` before the screen enters the tree.
 var game_id := ""
@@ -21,10 +21,9 @@ var game := {}
 var rows: Array[Control] = []   # The row controls: a choice row or a track list.
 var start_button: Button
 var back_button: Button
-var in_label: Label    # Who plays this game, and who sits out (issue #76, REQ-GM-104). Hidden with one phone.
-var out_label: Label
+var in_label: Label    # Who plays this game (issue #76, REQ-GM-104): one line, empty with one phone.
 var how_to_label: Label   # How to play (REQ-GM-103).
-var reason_label: Label   # Why Start does not work now (REQ-GM-20): not enough phones. Empty when it works.
+var reason_label: Label   # Why Start does not work now (REQ-GM-20): one line, empty when it works.
 var _parked_on: Control   # Where the view put the focus while Start waits (issue #226).
 
 
@@ -68,14 +67,6 @@ func _ready() -> void:
 		row.changed.connect(func(v: String): GameSettings.set_value(game, r, v))
 		box.add_child(row)
 		rows.append(row)
-	# The enrolled players, under the settings: one line for who plays and one for who sits out (issue #76, REQ-GM-104).
-	in_label = UiKit.label("", ROSTER_SIZE, UiTheme.OK)
-	out_label = UiKit.label("", ROSTER_SIZE, UiTheme.TEXT_INFO)
-	for l in [in_label, out_label]:
-		l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # It holds player names, which are never translated (REQ-FL-63).
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		l.autowrap_mode = TextServer.AUTOWRAP_WORD   # No minimum width: the column stays as wide as its widest row (REQ-GM-90).
-		box.add_child(l)
 	box.add_child(UiKit.spacer(10))
 	# Back and Start are on one line, spaced to the two edges of the view: Back on the left, Start on the right
 	# (REQ-GM-90). Back is a quiet item.
@@ -99,11 +90,20 @@ func _ready() -> void:
 	start_button.set_focus_neighbor(start_side, start_button.get_path_to(start_button))
 	back_button.set_focus_neighbor(start_side, back_button.get_path_to(start_button))
 	back_button.set_focus_neighbor(back_side, back_button.get_path_to(back_button))
-	reason_label = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
-	reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(reason_label)
 	# How to play: the text of the game at the bottom of the screen, for the whole room (issue #77, REQ-GM-103).
-	how_to_label = UiKit.label(String(game.get("how_to", "")), UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
+	# Two reserved lines right above it (decision of the owner, 2026-11-06): why Start is off, then the players that are IN. Each is
+	# one line, cut at the edge when it is too long, so nothing else moves when they change (issue #76, REQ-GM-104).
+	reason_label = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.ACCENT)
+	in_label = UiKit.label("", ROSTER_SIZE, UiTheme.OK)
+	in_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # Player names are never translated (REQ-FL-63).
+	for l in [reason_label, in_label]:
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.autowrap_mode = TextServer.AUTOWRAP_OFF
+		l.clip_text = true
+		l.custom_minimum_size = Vector2(WIDE_W, UiTheme.font().get_height(int(l.get_theme_font_size("font_size"))))
+		l.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		page.add_child(l)
+	how_to_label = UiKit.label(String(game.get("how_to", "")), UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 	how_to_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	how_to_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	how_to_label.custom_minimum_size = Vector2(WIDE_W, 0)
@@ -132,8 +132,12 @@ func _update_fit() -> void:
 	var waiting: bool = fits and not App.server.swing_pending().is_empty()
 	start_button.disabled = not fits or waiting
 	_set_start_reachable(not start_button.disabled)
-	reason_label.text = Lang.t("game_settings.waiting_phones").to_upper() if waiting else (
-			"" if fits else Registry.reason(game, n).to_upper())
+	var why := "" if fits else Registry.reason(game, n)
+	if not fits and n == 0 and not App.server.connected_slots().is_empty():
+		# Phones are here but every one chose OUT (REQ-GM-104).
+		var need := int(game.min_players)
+		why = Lang.t("games.needs_at_least_one") if need == 1 else Lang.f("games.needs_at_least", [need])
+	reason_label.text = Lang.t("game_settings.waiting_phones").to_upper() if waiting else why.to_upper()
 	_update_roster()
 
 
@@ -158,20 +162,16 @@ func _set_start_reachable(reachable: bool) -> void:
 	last.focus_neighbor_bottom = last.get_path_to(start_button if reachable else back_button)
 
 
-## Two lines under Start with two or more phones: "IN: names" and, when someone sits out, "OUT: names" (REQ-GM-104).
+## The line "IN: names" above how to play, with two or more phones (REQ-GM-104). A game that enrolls has none (REQ-GM-106).
 func _update_roster() -> void:
 	var ins: Array[String] = []
-	var outs: Array[String] = []
 	var here: Array[int] = App.server.connected_slots()
 	var playing: Array[int] = App.server.players_in()
 	for s in here:
-		(ins if playing.has(s) else outs).append(String(App.server.players[s].player_name).to_upper())
-	var show: bool = here.size() >= 2 and not bool(game.get("enroll", false))   # An enrolling game has no IN and OUT (REQ-GM-106).
-	in_label.visible = show and not ins.is_empty()
-	out_label.visible = show and not outs.is_empty()
-	in_label.text = Lang.t("setup.in").to_upper() + ": " + ", ".join(ins)
-	out_label.text = Lang.t("setup.out").to_upper() + ": " + ", ".join(outs)
-	reason_label.visible = reason_label.text != ""
+		if playing.has(s):
+			ins.append(String(App.server.players[s].player_name).to_upper())
+	var show: bool = here.size() >= 2 and not bool(game.get("enroll", false))
+	in_label.text = Lang.t("setup.in").to_upper() + ": " + ", ".join(ins) if show and not ins.is_empty() else ""
 
 
 func start() -> void:

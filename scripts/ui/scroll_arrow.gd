@@ -41,10 +41,19 @@ static func more_above(value: float) -> bool:
 	return value > SLACK
 
 
+## The rectangles of the arrow, one for each pixel row, inside a box that is `width` px wide. The tip (the narrowest row) is at
+## the top of an up arrow and at the bottom of a down arrow.
+static func rects(is_up: bool, width: float) -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	for r in ROWS:
+		var w := (2 * r + 1) * CELL
+		var y := (r if is_up else ROWS - 1 - r) * CELL
+		out.append(Rect2((width - w) / 2.0, y, w, CELL))
+	return out
+
+
 func _draw() -> void:
 	if not is_lit():
 		return
-	for r in ROWS:
-		var w := (2 * r + 1) * CELL
-		var y := (ROWS - 1 - r if up else r) * CELL
-		draw_rect(Rect2((size.x - w) / 2.0, y, w, CELL), UiTheme.ACCENT)
+	for rect in rects(up, size.x):
+		draw_rect(rect, UiTheme.ACCENT)

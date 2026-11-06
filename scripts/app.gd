@@ -362,6 +362,7 @@ func _on_client_state(state: int) -> void:
 		last_error = ""
 		_show_phone_screen()
 	elif state == ControllerClient.State.IDLE:
+		last_best = {}   # The player left: the message never shows without its game (REQ-GM-100).
 		# A failed connection does not close the profile screens: a typed name stays (the phone works without the TV).
 		if not (_screen is ControllerConnect or _screen is ControllerProfileEdit or _screen is ControllerProfileShare):
 			go(ControllerConnect)
@@ -377,6 +378,8 @@ func apply_profile() -> void:
 
 
 func _on_client_phase(phase: String) -> void:
+	if not phase in ["playing", "paused"]:
+		last_best = {}   # NEW BEST! belongs to the result of its game: it is gone when the TV goes back to the menu (REQ-GM-100).
 	if phase == "playing":
 		last_best = {}
 	_show_phone_screen()
@@ -391,9 +394,14 @@ func _on_result(key: String, value: int) -> void:
 
 
 ## The NEW BEST! of the player on this phone, or an empty dictionary. A best that belongs to another profile is not shown after
-## a switch of the player (REQ-GM-100).
+## a switch of the player. It shows only while the phone is joined and in the game phases, where the result of the game is open:
+## never on the waiting screen, after the player left, or when the TV is back at the menu (REQ-GM-100).
 func current_best() -> Dictionary:
-	return last_best if not last_best.is_empty() and last_best.pid == client.pid else {}
+	if last_best.is_empty() or last_best.pid != client.pid:
+		return {}
+	if client.state != ControllerClient.State.CONNECTED or not client.phase in ["playing", "paused"]:
+		return {}
+	return last_best
 
 
 ## Takes the text of a scan that should be a player code (FD-22, REQ-FL-76). Returns the sentence for the

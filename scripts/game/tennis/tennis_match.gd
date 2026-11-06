@@ -11,6 +11,10 @@ const Rules = preload("res://scripts/game/tennis/tennis_rules.gd")
 
 enum Phase { SERVE, TOSS, RALLY, POINT, END }
 
+## A swing that comes up to this early (s) before the contact is kept and the hit happens at the contact: the ball is not hit
+## before it reaches the racket (owner, 2026-11-06: the character swung long before the ball came, and swings 0.6 to 0.7 s early
+## were lost).
+const EARLY_W := 0.9
 const HIT_W := 0.55             # A swing counts when its hit is this close (s) to the contact time.
 const SERVE_W := 0.45           # The same for a serve, around the top of the toss.
 const TOSS_UP := 4.6            # The speed (m/s) of the toss.
@@ -124,6 +128,7 @@ func server_slot() -> int:
 
 
 func _begin_serve() -> void:
+	pending = {}
 	phase = Phase.SERVE
 	phase_time = 0.0
 	sim.clear()
@@ -189,6 +194,9 @@ func swing(slot: int, power: float, down: bool, tilt_x: float, hit_age: float) -
 	return result
 
 
+var pending := {}   # An early swing that waits for the contact: {slot, power, tilt_x, green}.
+
+
 func _swing_result(slot: int, power: float, down: bool, tilt_x: float, hit_age: float) -> String:
 	var t := time - hit_age
 	match phase:
@@ -198,9 +206,13 @@ func _swing_result(slot: int, power: float, down: bool, tilt_x: float, hit_age: 
 			_serve_hit(slot, power, tilt_x, absf(t - _toss_apex) <= level.green)
 			return "serve"
 		Phase.RALLY:
-			if slot != hitter or contact.is_empty() or absf(t - float(contact.t)) > HIT_W:
+			if slot != hitter or contact.is_empty() or t - float(contact.t) < -EARLY_W or t - float(contact.t) > HIT_W:
 				return "none"
-			_rally_hit(slot, power, tilt_x, absf(t - float(contact.t)) <= level.green)
+			var green: bool = absf(t - float(contact.t)) <= level.green
+			if t < float(contact.t) and time < float(contact.t):   # Early: the hit happens when the ball is at the racket.
+				pending = {"slot": slot, "power": power, "tilt_x": tilt_x, "green": green}
+				return "hit"
+			_rally_hit(slot, power, tilt_x, green)
 			return "hit"
 	return "none"
 
@@ -250,7 +262,7 @@ func aim_x(slot: int, tilt_x: float, serving: bool, noise := 0.0) -> float:
 			tx = clampf(tx, minf(box * 0.3, box * (hw - 0.3)), maxf(box * 0.3, box * (hw - 0.3)))
 		return tx
 	var hw2 := half_width()
-	var tx2 := tilt_x * mirror(team) * hw2 * 1.12 + noise
+	var tx2 := tilt_x * mirror(team) * hw2 * 1.0 + noise   # A swing all the way to the side ends on the sideline.
 	if level.inside:
 		tx2 = clampf(tx2, -(hw2 - 0.4), hw2 - 0.4)
 	return tx2
@@ -263,6 +275,7 @@ static func _on_screen(v: Vector2) -> Vector2:
 
 ## The ball was hit by `team` (`slot`, or -1 for the machine): the other team has to return it.
 func _after_hit(slot: int, team: int, green: bool, power: float) -> void:
+	pending = {}
 	hit_team = team
 	expect_team = rules.other(team) if not solo else 1 - team
 	phase = Phase.RALLY
@@ -369,6 +382,11 @@ func _tick_toss(delta: float) -> void:
 
 func _tick_rally(delta: float) -> void:
 	sim.tick(delta)
+	if not pending.is_empty() and not contact.is_empty() and time >= float(contact.t):   # The ball is at the racket.
+		var pd := pending
+		pending = {}
+		_rally_hit(int(pd.slot), float(pd.power), float(pd.tilt_x), bool(pd.green))
+		return
 	if solo and expect_team == 1 and not contact.is_empty() and time >= float(contact.t):
 		_machine_hit()
 		return

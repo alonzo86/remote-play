@@ -1,8 +1,8 @@
 extends SceneTree
 ## Mini Golf, the rest of Test 26 (docs/MANUAL_TESTS.md test 26), with simulated phones over the loopback and the game stepped by
 ## hand: what is drawn at the start of a turn (3a, 3b), the plate with the name (3c), the lines on the two phones (3d), the gold
-## aim mark (4c), the swing of the golfer and the moment the ball starts (5b), the sliding barriers (7d), the banner after the
-## 6th stroke (8c), the strokes in the bar (8f), the result menu (10a) and its three buttons (10c, 10d).
+## aim mark (4c), the swing of the golfer and the moment the ball starts (5b), the banner after the 6th stroke (8c), the
+## strokes in the bar (8f), the result menu (10a) and its three buttons (10c, 10d).
 ## The golfer, the ball, the aim mark and the plates are seen through `Shell.recorder` (the game draws with `draw_*`).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_golf.gd -- --role=tv
 
@@ -70,8 +70,6 @@ func _run() -> void:
 	await _phone_lines()
 	await _aim_mark()
 	await _swing_and_ball()
-	_barriers()
-	_barrier_passes()
 	await _picked_up()
 	await _bar_counts()
 	await _result_menu()
@@ -158,7 +156,9 @@ func _putt_result(game: Control, in_cup: bool) -> void:
 
 # ---- 3a, 3b ----
 
-## 3a: at the start of a turn 1 golfer and 1 white ball are drawn. 3b: the shirt has the color of the phone on turn.
+## 3a: at the start of a turn 1 golfer and 1 white ball (the ball of the player on turn) are drawn, with no ring and no flashing
+## halo (REQ-MG-2, owner 2026-11-03: the balls of the others are not drawn). 3b: the shirt of the golfer has the color of the
+## phone on turn.
 func _start_of_turn() -> void:
 	print("the start of a turn")
 	var game := await _new_game()
@@ -168,7 +168,9 @@ func _start_of_turn() -> void:
 	_check(game.rules.current_slot() == 0 and golfers.size() == 1 and balls.size() == 1,
 			"3a: 1 golfer and 1 ball are drawn at the start of the turn of phone 1 (%d golfers, %d balls)"
 			% [golfers.size(), balls.size()])
-	_check(not balls.is_empty() and balls[0].info.color == GolfLook.WHITE, "3a: the ball is white")
+	_check(balls.size() == 1 and balls[0].info.color == GolfLook.WHITE and not balls[0].info.has("ring")
+			and not balls[0].info.has("turn") and int(balls[0].info.slot) == 0,
+			"3a: the ball is white, with no ring of a slot color and no flashing halo")
 	_check(not golfers.is_empty() and golfers[0].info.shirt == game.player(0).color,
 			"3b: the shirt of the golfer has the color of phone 1")
 	_putt_result(game, false)
@@ -176,25 +178,34 @@ func _start_of_turn() -> void:
 	await _draw_once()
 	golfers = _last("golfer")
 	balls = _last("ball")
-	_check(game.rules.current_slot() == 1 and golfers.size() == 1 and balls.size() == 1,
-			"3a: on the turn of phone 2 there is still 1 golfer and 1 ball (%d, %d)" % [golfers.size(), balls.size()])
+	_check(game.rules.current_slot() == 1 and golfers.size() == 1 and balls.size() == 1 and int(balls[0].info.slot) == 1,
+			"3a: on the turn of phone 2 there is 1 golfer and the 1 ball of phone 2 (%d golfers, %d balls)"
+			% [golfers.size(), balls.size()])
 	_check(not golfers.is_empty() and golfers[0].info.shirt == game.player(1).color
 			and game.player(0).color != game.player(1).color, "3b: the shirt is now the color of phone 2, not of phone 1")
 
 
 # ---- 3c ----
 
-## 3c: the plate "<NAME>'S TURN!" shows for 1.0 to 2.0 s: a look every 0.1 s of game time.
+## 3c: the plate "<NAME>'S TURN!" shows for 1.0 to 2.0 s: a look every 0.1 s of game time. It keeps off the cup and the balls.
 func _plate_time() -> void:
 	print("the plate with the name")
 	var game := await _new_game()
 	var want := Lang.f("mini_golf.turn", [game.player(0).player_name])
 	var shown := 0
+	var on_cup := 0
+	var on_balls := 0
 	var first_hint := ""
 	for k in 26:
 		await _draw_once()
 		if _plate() == want:
 			shown += 1
+			var rect: Rect2 = _last("plate")[0].rect
+			if rect.intersects(GolfLook.cup_zone(game._geo(), game._hole)):
+				on_cup += 1
+			for b in _last("ball"):
+				if rect.intersects(b.rect):
+					on_balls += 1
 		elif first_hint == "" and k > 0:
 			first_hint = _plate()
 		game._game_tick(0.1)
@@ -202,6 +213,8 @@ func _plate_time() -> void:
 	_check(seconds >= 1.0 and seconds <= 2.0,
 			"3c: the plate '%s' showed in %d of 26 looks, 0.1 s apart: %.1f s (1.0 to 2.0 s)" % [want, shown, seconds])
 	_check(first_hint != want, "3c: after the plate it is gone (the next plate is '%s')" % first_hint)
+	_check(on_cup == 0 and on_balls == 0 and shown > 0,
+			"3c: the plate with the name covers neither the cup and its flag (%d looks) nor a ball (%d)" % [on_cup, on_balls])
 
 
 # ---- 3d ----
@@ -290,66 +303,6 @@ func _swing_and_ball() -> void:
 
 # ---- 7d ----
 
-## 7d: at every moment of 30 s a gap of 0.18 m or more is open at each sliding barrier (holes 3 and 5).
-func _barriers() -> void:
-	print("the sliding barriers")
-	for n in [3, 5]:
-		var h: Dictionary = Holes.hole(n)
-		_check(h.movers.size() == 1, "7d: hole %d has a sliding barrier" % n)
-		for m in h.movers:
-			var along_z := String(m.axis) == "z"
-			var r0: Rect2 = m.rect
-			var cross: float = r0.get_center().x if along_z else r0.get_center().y
-			var lo := 99.0
-			var hi := -99.0
-			for f in h.fairway:
-				var fr: Rect2 = f
-				var inside := (fr.position.x <= cross and cross <= fr.end.x) if along_z \
-						else (fr.position.y <= cross and cross <= fr.end.y)
-				if inside:
-					lo = minf(lo, fr.position.y if along_z else fr.position.x)
-					hi = maxf(hi, fr.end.y if along_z else fr.end.x)
-			var worst := 99.0
-			var lowest := 99.0
-			var highest := -99.0
-			for k in 600:   # 30 s, a look every 0.05 s
-				var r: Rect2 = Holes.mover_rect(m, float(k) * 0.05)
-				var b0: float = r.position.y if along_z else r.position.x
-				var b1: float = r.end.y if along_z else r.end.x
-				worst = minf(worst, maxf(b0 - lo, hi - b1))
-				lowest = minf(lowest, b0)
-				highest = maxf(highest, b0)
-			_check(hi > lo and worst >= 4.0 * Holes.BALL_R,
-					"7d: hole %d: the widest gap is never under %.2f m (the ball is %.2f m wide)" % [n, worst, 2.0 * Holes.BALL_R])
-			_check(highest - lowest > 0.5 * float(m.amp), "7d: hole %d: the barrier moves by %.2f m" % [n, highest - lowest])
-
-
-## 7d: a ball aimed at the gap passes the barrier of hole 3 at least once in 5 putts started at different times.
-func _barrier_passes() -> void:
-	var h: Dictionary = Holes.hole(3)
-	var m: Dictionary = h.movers[0]
-	var passed := 0
-	for k in 5:
-		var t0 := float(k) * 0.9
-		var r: Rect2 = Holes.mover_rect(m, t0 + 0.2)
-		var below_w: float = r.position.y - 2.9
-		var above_w: float = 4.3 - r.end.y
-		var zc: float = 2.9 + below_w * 0.5 if below_w >= above_w else r.end.y + above_w * 0.5
-		var sim := GolfSim.new()
-		sim.start(h, Vector2(1.25, zc))
-		sim.clock = t0
-		sim.putt(PI * 0.5, 2.5)
-		var max_x := sim.pos.x
-		var guard := 0
-		while not sim.finished and guard < 2000:
-			sim.tick(DT)
-			max_x = maxf(max_x, sim.pos.x)
-			guard += 1
-		if max_x > 2.0:
-			passed += 1
-	_check(passed >= 1, "7d: a ball aimed at the gap passed the barrier in %d of 5 putts (at least 1)" % passed)
-
-
 # ---- 8c ----
 
 ## 8c: the 6th stroke of a player that does not get the ball in shows "Picked up after 6 strokes" and the hole counts 6.
@@ -376,9 +329,10 @@ func _picked_up() -> void:
 
 # ---- 8f ----
 
-## 8f: after every putt the number in the bar is the number of putts of that player counted by hand.
+## 8f: after every putt the leader chip of the top bar says the strokes on this hole and in all, counted by hand
+## (owner, 2026-11-05: the chips of the bottom bar are gone).
 func _bar_counts() -> void:
-	print("the bar")
+	print("the leader chip")
 	var game := await _new_game()
 	var by_hand := [0, 0]
 	var all_same := true
@@ -386,18 +340,17 @@ func _bar_counts() -> void:
 		var slot: int = game.rules.current_slot()
 		by_hand[slot] += 1
 		_putt_result(game, false)
-		var text0: String = game.chip_text(0)
-		var text1: String = game.chip_text(1)
-		var want0: String = Lang.f("mini_golf.chip", [game.player(0).player_name, by_hand[0]])
-		var want1: String = Lang.f("mini_golf.chip", [game.player(1).player_name, by_hand[1]])
-		if text0 != want0 or text1 != want1:
-			all_same = false
-			print("    putt %d: '%s' / '%s', counted '%s' / '%s'" % [k + 1, text0, text1, want0, want1])
+		for s in 2:
+			var entry := {"slot": s, "finished": true}
+			var want: String = Lang.f("mini_golf.leader_score", [by_hand[s], by_hand[s]])
+			if game._score_label(entry) != want:
+				all_same = false
+				print("    putt %d: phone %d shows '%s', counted '%s'" % [k + 1, s + 1, game._score_label(entry), want])
 		game._after_result()
 		if game.rules.hole_done():
 			break
 	_check(all_same and by_hand[0] + by_hand[1] >= 10,
-			"8f: the chips of the bar agree with the putts counted by hand (%s) after each of them" % str(by_hand))
+			"8f: the leader chip says the strokes of a player as counted by hand (%s) after each putt" % str(by_hand))
 
 
 # ---- 10a, 10c, 10d ----
@@ -465,7 +418,7 @@ func _result_menu() -> void:
 	_check(again.is_over and texts.has(Lang.t("minigame.tie").to_lower()),
 			"10a: with equal strokes the title is 'Tie!': %s" % str(texts))
 	# 10d: New game opens the settings view, Back to menu on the next result menu opens the Games screen.
-	_check(_press(again, "common.settings"), "10d: the menu has the button New game")
+	_check(_press(again, "minigame.new_game"), "10d: the menu has the button New game")
 	await _frames(4)
 	_check(_screen_file() == "tv_game_settings.gd", "10d: New game opens the settings view of the game (%s)" % _screen_file())
 	var third := await _new_game({"holes": "1"})

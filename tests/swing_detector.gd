@@ -106,11 +106,12 @@ func _detector_additions() -> void:
 		stop.update(DT, Vector3(-f, 0, 0))
 	_check(stop.released, "the real forward swing after the stop is found")
 
-	# The hit is a sharp strong push in any direction, after a small first move and a gentle slow pull back (found 2026-10-18).
+	# The hit is a sharp strong push against the back swing, after a small first move (the back swing) and a gentle slow pull
+	# (found 2026-10-18; the back swing is needed since 2026-11-03: a real stroke goes back, then forward).
 	var strike := SwingDetector.new()
 	strike.hand_speed = true
 	for i in 12:
-		strike.update(DT, Vector3(-8, 0, 0))   # A small first move to the left.
+		strike.update(DT, Vector3(8, 0, 0))   # A small first move to the right: the back swing.
 	for i in 30:
 		strike.update(DT, Vector3(4, 0, 0))   # A slow gentle pull back to the right.
 	_check(not strike.released and strike.state != SwingDetector.State.FORWARD, "a gentle move is not the hit")
@@ -119,12 +120,36 @@ func _detector_additions() -> void:
 	_check(strike.state == SwingDetector.State.LOCKED and strike.forward_dir.is_equal_approx(Vector3(-1, 0, 0))
 			and strike.power > 0.5,
 			"a sharp strong push is the hit, in the direction it pushed (power %.2f)" % strike.power)
+	# Two phases (REQ-TN-5): the hit is on the forward move after a back swing, never on the back move or on a push alone.
 	var fresh := SwingDetector.new()
 	fresh.hand_speed = true
 	for f in [30.0, 50.0, 35.0, 20.0, 8.0]:
 		fresh.update(DT, Vector3(0, f, 0))
-	_check(fresh.state == SwingDetector.State.LOCKED and fresh.forward_dir.is_equal_approx(Vector3(0, 1, 0)),
-			"a sharp push alone is the hit too")
+	_check(not fresh.released and fresh.state != SwingDetector.State.LOCKED and fresh.state != SwingDetector.State.FORWARD,
+			"a sharp push with no back swing before it is not the hit (forward only: no hit)")
+	var back_only := SwingDetector.new()
+	back_only.hand_speed = true
+	for i in 30:
+		back_only.update(DT, Vector3(40, 0, 0))   # A hard, long move one way: the back swing, however strong.
+	for i in 30:
+		back_only.update(DT, Vector3.ZERO)
+	_check(not back_only.released and back_only.state == SwingDetector.State.BACK,
+			"a back swing alone (even a hard one) is not the hit")
+	var same_way := SwingDetector.new()
+	same_way.hand_speed = true
+	for i in 6:
+		same_way.update(DT, Vector3(6, 0, 0))
+	for f in [30.0, 50.0, 35.0, 20.0, 8.0]:
+		same_way.update(DT, Vector3(f, 0, 0))   # A sharp push the same way as the back swing is more back swing.
+	_check(not same_way.released, "a sharp push the same way as the back swing is not the hit")
+	var two_phase := SwingDetector.new()
+	two_phase.hand_speed = true
+	for i in 6:
+		two_phase.update(DT, Vector3(6, 0, 0))
+	for f in [-30.0, -50.0, -35.0, -20.0, -8.0]:
+		two_phase.update(DT, Vector3(f, 0, 0))
+	_check(two_phase.state == SwingDetector.State.LOCKED and two_phase.forward_dir.is_equal_approx(Vector3(-1, 0, 0)),
+			"a back swing and then a sharp push against it is the hit, on the forward move")
 
 	var smooth_back := SwingDetector.new()   # A back swing is gentle: 10 m/s2 is not the hit.
 	for i in 12:
@@ -198,7 +223,7 @@ func _player_slot() -> void:
 		p.on_sensor(_packet(t, Vector3.ZERO), 100000 + t)
 		t += 17
 	_check(got.is_empty() and p.swing_count == 0 and p.last_swing.is_empty(), "a phone that lies still gives no swing")
-	t = _send(p, t, UP, 500)
+	t = _send(p, t, UP, 700)   # The wait after a swing is 0.6 s: the back swing of the next one needs the time after it.
 	_check(got.size() == 1 and p.swing_count == 1 and p.last_swing_ms > 0, "a swing along the up axis is reported once")
 	var s: Dictionary = got[0]
 	_check(s.down and s.power > 0.5 and s.power <= 1.0 and s.hit_age_ms > 0.0 and s.has("side"),
@@ -349,9 +374,14 @@ func _real_swings() -> void:
 
 # ---- Issue #209: the speed gate of Mini Golf (2026-11-01) ----
 
+## The detector as Mini Golf sets it: the strengths are the constants of the game (read here, so that the test follows them).
 func _golf(level_threshold := 1.0) -> SwingDetector:
+	var c: Dictionary = load("res://scripts/game/mini_golf/mini_golf_game.gd").get_script_constant_map()
 	var d := SwingDetector.new()
 	d.threshold = level_threshold
+	d.back_accel = c.LIGHT_BACK_ACCEL
+	d.fwd_accel = c.LIGHT_FWD_ACCEL
+	d.fwd_full = c.FULL_FWD
 	d.speed_gate = SwingDetector.GATE_SPEED
 	return d
 
@@ -367,19 +397,30 @@ func _golf_gate() -> void:
 	}
 	var bad := []
 	for name in moves:
-		for th in [0.7, 1.0]:
+		for th in [1.0]:   # Every level of Mini Golf has the factor 1.0 since 2026-11-03.
 			if _throws(_golf(th), moves[name]) > 0:
 				bad.append("%s (threshold %.1f)" % [name, th])
 	_check(bad.is_empty(), "moves to the side, slow shakes and walking do not putt. Putted: %s" % "; ".join(bad))
 	var missed := []
 	for fwd in [10.0, 14.0, 20.0, 30.0]:
-		for th in [0.7, 1.0]:
+		for th in [1.0]:
 			var res := R.run_detector(_golf(th), R.still(0.3).append(R.pendulum(x, 9.0, fwd, 0.25)).append(R.still(2.0)))
 			# The back swing and its brake are 0.5 s long (from step 18): the putt is the forward swing after them.
 			if res.releases.size() != 1 or int(res.releases[0].step) < 18 + 30:
 				missed.append("forward %.0f, threshold %.1f: %s" % [fwd, th, str(res.releases)])
 	_check(missed.is_empty(), "a pendulum putt (back 9 and brake, forward 10 to 30) putts once, after the forward swing. Wrong: %s"
 			% "; ".join(missed))
+	# A light putt (owner, 2026-11-03): a gentle back swing and a gentle forward swing, as for a putt close to the hole. Mini
+	# Golf finds it and gives the weakest power; a detector with the common values (Pin Pals, Tennis) does not change.
+	var light := R.still(0.3).append(R.pendulum(x, 3.5, 5.5, 0.25)).append(R.still(2.0))
+	var light_golf := _golf(1.0)
+	var res_light := R.run_detector(light_golf, light)
+	_check(res_light.releases.size() == 1 and light_golf.power < 0.2,
+			"a light putt (back 3.5, forward 5.5 m/s2) is found once by Mini Golf, with a small power (%s)" % str(res_light.releases))
+	_check(_throws(SwingDetector.new(), light) == 0, "the common detector does not find that light swing: its values are unchanged")
+	var defaults := SwingDetector.new()
+	_check(defaults.back_accel == SwingDetector.BACK_ACCEL and defaults.fwd_accel == SwingDetector.FWD_ACCEL
+			and defaults.fwd_full == SwingDetector.FWD_FULL, "the strengths of a new detector are the common constants")
 	var plain := SwingDetector.new()
 	_check(_throws(plain, R.pendulum(x, 9.0, 14.0, 0.25)) == 1 and plain.speed_gate == 0.0,
 			"the gate is off by default (Pin Pals and Tennis keep their rules)")

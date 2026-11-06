@@ -8,14 +8,11 @@ const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
 const Lang = preload("res://scripts/core/lang.gd")
-const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
 const QuitDialog = preload("res://scripts/ui/controller_quit_dialog.gd")
 const SwingCard = preload("res://scripts/ui/controller_swing_card.gd")
 
 var _title: Label
 var _sub: Label
-var _best: Label
-var _best_detail: Label
 var _dot: Control
 var _name: Label
 var _leave: Button
@@ -65,7 +62,7 @@ func _ready() -> void:
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_title)
-	_sub = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
+	_sub = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 	_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_sub.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_sub)
@@ -90,13 +87,6 @@ func _ready() -> void:
 		b.custom_minimum_size = Vector2(0, 96)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		choice.add_child(b)
-	_best = UiKit.title("", 56, UiTheme.OK)   # NEW BEST! after a round that set a personal best (REQ-GM-100).
-	_best.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(_best)
-	_best_detail = UiKit.label("", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
-	_best_detail.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_best_detail.autowrap_mode = TextServer.AUTOWRAP_WORD
-	box.add_child(_best_detail)
 	var settings := UiKit.box_button("common.settings", func(): App.go(App.ControllerSettings), UiTheme.SIZE_ITEM)
 	settings.custom_minimum_size = Vector2(440, 96)
 	settings.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -137,6 +127,7 @@ func _mark(b: Button, chosen: bool) -> void:
 ## and this phone has not tapped OK for this view (issues #79 and #148).
 func _update_setup() -> void:
 	_update_pick()
+	_refresh()
 	var want: bool = App.client.setup_swing and not App.client.swing_acked
 	if want and not is_instance_valid(_swing_card):
 		_swing_card = SwingCard.new()
@@ -167,6 +158,8 @@ static func texts_for(phase: String) -> Array:
 func _refresh() -> void:
 	var c: Node = App.client
 	var t := texts_for(c.phase)
+	if c.phase == "menu" and c.setup_open:
+		t = ["wait.get_ready", "" if c.setup_pick else "wait.host_settings"]   # The TV shows the settings of a game.
 	_title.text = Lang.t(String(t[0])).to_upper()
 	_sub.text = Lang.t(String(t[1])).to_upper()
 	if c.phase == "waiting" and c.sat_out:
@@ -174,13 +167,6 @@ func _refresh() -> void:
 	if c.state != ControllerClient.State.CONNECTED:
 		_sub.text = "connect.reconnecting"
 	_name.text = c.tv_player_name.to_upper() if c.tv_pid != "" else "%dP" % (c.slot + 1)
-	var best: Dictionary = App.current_best()
-	_best.text = Lang.t("pad.new_best").to_upper() if not best.is_empty() else ""
-	_best_detail.text = ""
-	if not best.is_empty():
-		_best_detail.text = ProfileKeys.format(best.key, best.value)
-		if best.old > 0:
-			_best_detail.text += "   " + Lang.f("pad.before", [ProfileKeys.format(best.key, best.old)]).to_upper()
 	_dot.queue_redraw()
 
 

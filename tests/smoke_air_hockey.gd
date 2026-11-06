@@ -90,8 +90,8 @@ func _run() -> void:
 	await _stream(clients, 0.4, [flat, flat, flat])
 	_check(is_instance_of(sv, TvGameSettings) and sv.rows.size() == 2 and sv.rows[1].value == "5" and not sv.start_button.disabled,
 			"Air Hockey opens the settings view with Difficulty and Goals on 5; Start works with 3 phones")
-	_check(not sv.in_label.visible and not sv.out_label.visible and not clients[0].setup_pick,
-			"with 3 phones the settings view has no IN and OUT lines and the phones are not asked IN or OUT (REQ-GM-106)")
+	_check(sv.in_label.text == "" and not clients[0].setup_pick,
+			"with 3 phones the settings view has no IN line and the phones are not asked IN or OUT (REQ-GM-106)")
 	_check(GameSettings.props_for(app.Registry.find("air_hockey")) == {"difficulty": "medium", "goals": "5"},
 			"the game gets the props difficulty and goals (REQ-GM-93)")
 	var entry: Dictionary = app.Registry.find("air_hockey")
@@ -184,7 +184,7 @@ func _run() -> void:
 	await _frames(3)
 	var labels := _labels(game)
 	var menu: Array = game.menu_buttons().map(func(b): return b.text)
-	_check(game.is_over and menu == ["minigame.restart", "common.settings", "minigame.back_to_menu"]
+	_check(game.is_over and menu == ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"]
 			and labels[0] == "SIM0 WINS!" and labels[1].contains("3 GOALS") and labels[2].contains("0 GOALS"),
 			"3 goals end the match: the result menu names the winner and lists the goals "
 			+ "(REQ-AH-1, REQ-GM-95): %s %s" % [str(menu), str(labels)])

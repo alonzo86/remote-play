@@ -10,7 +10,7 @@ REQ-GM-46 (decision of the owner) says that a player object on the TV shows **no
 |------|------------------------|--------------------------|-------------------|
 | Pin Pals (bowling) | ball (`BowlingLook.draw_ball`) | yes | Turn order: one ball on the lane at a time; the score sheet rows hold the name chip with the avatar |
 | Tennis | player with a shirt in the slot color | no: skin and hair change with the slot (`TennisLook.draw_person`, `SKINS[slot]`, `HAIRS[slot+1]`) | Side of the court and the team chip; skin and hair (a weak cue) |
-| Mini Golf | golfer with a shirt in the slot color, ball | yes | Turn order: one golfer at a time; the score table has a chip with the avatar |
+| Mini Golf | golfer with a shirt in the slot color; the ball is white, with no ring, and only the ball on turn is drawn (2026-11-03) | yes | Turn order: one golfer at a time, the shirt tells who plays; the chips of the bar name the players; the score table has a chip with the avatar |
 | Air Hockey | mallet (`AirHockeyLook.draw_paddle`) | yes | Position: the seat on the left or on the right, own goal; chips with avatars above the goals |
 | Star Shield | ship hull and beam | yes | None |
 | Bumper Cars | car (`bumper_cars_game._draw_car`) | yes | None (the spark on the pole takes a slot as a random seed only) |
@@ -21,7 +21,7 @@ REQ-GM-46 (decision of the owner) says that a player object on the TV shows **no
 | Snowball Splat | cursor ring | yes | None |
 | Sumo Bumpers | penguin (`SumoLook.penguin_image`) | yes | None |
 | Whack-a-Mole | cursor ring | yes | None |
-| Freeze Dance | dancer (`DanceLook.dancer_image`) | yes | Place: dancers stand in slot order; the bench has chips with the avatar |
+| Freeze Dance | dancer (`DanceLook.dancer_image`) | yes | Place: dancers stand in slot order; a mover stays on the floor, dim |
 | Tower Builder | brick | yes | Turn order: one brick hangs from the crane; the line "turn of NAME" is in the slot color |
 
 Result: 9 of 15 games (Star Shield, Bumper Cars, Car Race, Treasure Maze, Paint Grab, Sheep Herding, Snowball Splat, Sumo Bumpers, Whack-a-Mole) have no cue at all and need the colors to be told apart. The other 6 have a cue of position, turn or place, and only Tennis has a cue on the object itself (skin and hair). A shape or number mark on the object would change REQ-GM-46 ("no number and no avatar on a player object"), so it is not added here: it is a decision for the owner.

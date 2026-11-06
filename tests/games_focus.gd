@@ -146,6 +146,12 @@ func _cue_checks(app: Node) -> void:
 			"more_below: true in the middle, false at the end")
 	_check(Arrow.more_above(50) and not Arrow.more_above(0), "more_above: true when scrolled, false at the top")
 	_check(not Arrow.more_below(1610, 626, 2252), "more_below: false when only the 16 px padding of the grid is hidden")
+	var up_rects: Array = Arrow.rects(true, 44.0)
+	var down_rects: Array = Arrow.rects(false, 44.0)
+	_check(up_rects[0].size.x < up_rects[-1].size.x and up_rects[0].position.y < up_rects[-1].position.y,
+			"the up arrow points up: its narrow tip is the top row")
+	_check(down_rects[0].size.x < down_rects[-1].size.x and down_rects[0].position.y > down_rects[-1].position.y,
+			"the down arrow points down: its narrow tip is the bottom row")
 	for code in ["en", "he"]:
 		app.set_language(code, false)
 		app.go_games()
@@ -193,18 +199,32 @@ func _tile_look_checks(app: Node) -> void:
 		_check(title_px == 40 and range_px == 32 and title_px > range_px, "%s: the title is 40 px, the player range 32 px" % code)
 		var ok_lines := true
 		var ok_below := true
+		var ok_cursor := true
 		for i in screen._tiles.size():
 			var tile: Button = screen._tiles[i]
 			tile.grab_focus()
 			await _frames(3)
 			ok_lines = ok_lines and tile._name.get_line_count() <= 2 and tile._name.get_theme_font_size("font_size") == 40
 			ok_below = ok_below and tile._name.position.y + tile._name.size.y <= tile._meta.position.y
+			# The title keeps clear of the cursor: it is as wide as the tile minus the room of the cursor, at the right of the
+			# cursor in English and at the left of it in Hebrew, and a title that is too long for it breaks into 2 lines.
+			var room: float = tile.CURSOR_ROOM
+			var title: Rect2 = tile._name.get_rect()
+			var clear_of_cursor: bool = title.size.x <= tile.SHOT.x - room + 0.5 \
+					and (title.position.x >= room - 0.5 if code == "en" else title.end.x <= tile.SHOT.x - room + 0.5)
+			var text_w: float = tile._name.get_theme_font("font").get_string_size(
+					tile._name.tr(tile._name.text).to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 40).x
+			ok_cursor = ok_cursor and clear_of_cursor and (tile._name.get_line_count() == 2 or text_w <= title.size.x + 0.5)
 			var frame := tile._frame.get_theme_stylebox("panel") as StyleBoxFlat
 			_check(frame.border_width_left == UiTheme.LINE * 2,
 					"%s: the focused tile %d has a frame of %d px" % [code, i, UiTheme.LINE * 2])
 			var other: StyleBoxFlat = screen._tiles[(i + 1) % screen._tiles.size()]._frame.get_theme_stylebox("panel")
 			if other.border_width_left != UiTheme.LINE:
 				ok_below = false
+		_check(screen._info.get_theme_color("font_color") == UiTheme.TEXT_DESC
+				and screen._reason.get_theme_color("font_color") == UiTheme.ACCENT,
+				"%s: the description in the info bar is the light gray and the reason under it is yellow" % code)
+		_check(ok_cursor, "%s: every focused title is clear of the cursor, and a long one breaks into 2 lines" % code)
 		_check(ok_lines, "%s: every focused title has at most 2 lines at 40 px" % code)
 		_check(ok_below, "%s: the title is above the player range, and the other tiles keep the thin frame" % code)
 	app.set_language("en", false)

@@ -7,11 +7,11 @@ const Sim = preload("res://scripts/game/mini_golf/golf_sim.gd")
 const Rules = preload("res://scripts/game/mini_golf/golf_rules.gd")
 const Look = preload("res://scripts/game/mini_golf/golf_look.gd")
 const Shell = preload("res://scripts/game/shell.gd")
+const Protocol = preload("res://scripts/core/protocol.gd")
 
 const DT := 1.0 / 60.0
 
 var _checks := 0
-var _clock := 0.0
 var _fails := 0
 
 
@@ -39,8 +39,9 @@ func _initialize() -> void:
 	_leaving()
 	_words_and_medals()
 	_things_bounce()
-	_blades_on_holes()
-	_barriers_leave_a_gap()
+	_windmill_door()
+	_rocks_do_not_trap()
+	_hills()
 	_pars()
 	await _grid()
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -58,13 +59,13 @@ func _roll(sim: Sim, heading: float, speed: float) -> void:
 
 func _flat_hole() -> Dictionary:
 	return {"par": 2, "tee": Vector2(0.0, 1.0), "cup": Vector2(0.0, 5.0), "fairway": [Rect2(-1.0, 0.75, 2.0, 5.0)],
-			"water": [], "bridges": [], "spinners": [], "blocks": [], "rocks": [], "movers": []}
+			"water": [], "bridges": [], "blocks": [], "rocks": []}
 
 
 ## REQ-MG-12: five holes with a par of 2 to 4, and a tee and a cup on the ground, away from the things on the course.
 func _holes() -> void:
 	print("holes")
-	_check(Holes.COUNT == 5, "the game has 5 holes")
+	_check(Holes.COUNT == 10, "the game has 10 holes")
 	for n in range(1, Holes.COUNT + 1):
 		var h := Holes.hole(n)
 		_check(int(h.par) >= 2 and int(h.par) <= 4, "hole %d has a par of 2 to 4" % n)
@@ -78,14 +79,10 @@ func _holes() -> void:
 			var rv: Vector3 = rk
 			clear = clear and (Vector2(rv.x, rv.y) - Vector2(h.tee)).length() > rv.z + 0.3 \
 					and (Vector2(rv.x, rv.y) - Vector2(h.cup)).length() > rv.z + 0.3
-		for m in h.get("movers", []):
-			for tt in [0.0, 1.0, 2.0, 3.0, 4.0]:
-				var mr: Rect2 = Holes.mover_rect(m, tt)
-				# Hole 5: the barrier passes 0.25 m from the cup, less than the 0.3 m of the other things. Not decided by the test (Alon).
-				clear = clear and not mr.has_point(h.tee) and not mr.has_point(h.cup)
-		_check(clear, "hole %d: no water, blade, rock or barrier on the tee or the cup" % n)
-	_check(Holes.hole(0) == Holes.hole(1) and Holes.hole(9) == Holes.hole(5), "a hole number outside 1 to 5 gives the nearest hole")
-	_check(Holes.par_total(3) == 8 and Holes.par_total(5) == 15 and Holes.par_total(0) == 0, "the par of the first holes together")
+		_check(clear, "hole %d: no water, rock or hill on the tee or the cup" % n)
+	_check(Holes.hole(0) == Holes.hole(1) and Holes.hole(99) == Holes.hole(10),
+			"a hole number outside 1 to 10 gives the nearest hole")
+	_check(Holes.par_total(3) == 8 and Holes.par_total(10) == 30 and Holes.par_total(0) == 0, "the par of the first holes together")
 
 
 ## REQ-MG-5, 10: the power sets how far the ball rolls, the ball slows down and stops, a wall brings it back.
@@ -121,9 +118,9 @@ func _ball() -> void:
 			and Sim.heading_to_cup(_flat_hole(), Vector2(-1.0, 5.0)) > 1.4, "the heading to the cup")
 
 
-## REQ-MG-9, 10: water sends the ball back, a bridge lets it over, a blade and a block bounce it.
+## REQ-MG-9, 10: water sends the ball back, a bridge lets it over, a block bounces it.
 func _obstacles() -> void:
-	print("water, bridges, blades")
+	print("water, bridges, blocks")
 	var h := _flat_hole()
 	h.water = [Rect2(-1.0, 2.8, 2.0, 0.6)]
 	var wet := Sim.new()
@@ -153,33 +150,6 @@ func _obstacles() -> void:
 		for e in rock.events:
 			bounced = bounced or e.t == "rock"
 	_check(bounced and rock.pos.y < 3.0, "a ball that hits a rock bounces back (REQ-MG-10)")
-	h = _flat_hole()
-	h.movers = [{"rect": Rect2(-1.0, 3.0, 2.0, 0.2), "axis": "z", "amp": 1.0, "speed": 1.0}]
-	_check(absf(Holes.mover_rect(h.movers[0], -PI / 2.0).position.y - 3.0) < 0.001
-			and absf(Holes.mover_rect(h.movers[0], PI / 2.0).position.y - 4.0) < 0.001, "a sliding barrier moves along its axis")
-	var gate := Sim.new()
-	gate.start(h, Vector2(0.0, 1.0))
-	_roll(gate, 0.0, 3.0)
-	_check(gate.pos.y < 3.0, "a ball cannot pass a barrier that stands across the course (REQ-MG-10)")
-	var squeezed := Sim.new()
-	squeezed.start(h, Vector2(0.0, 3.1))
-	squeezed.clock = 0.0
-	squeezed.putt(0.0, 0.5)
-	squeezed.tick(DT)
-	_check(not Holes.mover_rect(h.movers[0], squeezed.clock).grow(Holes.BALL_R).has_point(squeezed.pos),
-			"a barrier that slides into the ball pushes it out")
-	h = _flat_hole()
-	h.spinners = [{"c": Vector2(0.0, 3.0), "len": 0.5, "speed": 0.0}]
-	var blade := Sim.new()
-	blade.start(h, Vector2(0.0, 1.0))
-	var hit := false
-	var back := false
-	blade.putt(0.0, 3.0)
-	while not blade.finished:
-		blade.tick(DT)
-		hit = hit or not blade.events.filter(func(e: Dictionary) -> bool: return e.t == "blade").is_empty()
-		back = back or blade.vel.y < -0.1
-	_check(hit and back, "a turning blade bounces the ball (REQ-MG-10)")
 	h = _flat_hole()
 	h.blocks = [Rect2(-0.3, 3.0, 0.6, 0.3)]
 	var blocked := Sim.new()
@@ -214,16 +184,42 @@ func _cup() -> void:
 
 
 ## Every hole can be played in a few strokes: a simple search of putts (each one starts from the stopped ball that is nearest to
-## the cup) finds the cup in at most par + 1 strokes.
+## the cup) finds the cup in at most par + 1 strokes. Hole 2 has a wall with the door of the windmill in it: there the
+## search goes through the door first.
 func _solvable() -> void:
 	print("every hole can be played")
 	for n in range(1, Holes.COUNT + 1):
 		var h := Holes.hole(n)
-		for clock in [0.0, 1.3, 2.9]:
-			_clock = clock
-			var best := _search(h, Vector2(h.tee), 0, int(h.par) + 1)
-			_check(best > 0 and best <= int(h.par) + 1, "hole %d at time %.1f: the cup is reachable in %d strokes (par %d)"
-					% [n, clock, best, h.par])
+		var best := _solve_through_the_door(h) if h.get("windmill", false) else _search(h, Vector2(h.tee), 0, int(h.par) + 1)
+		_check(best > 0 and best <= int(h.par) + 1, "hole %d: the cup is reachable in %d strokes (par %d)" % [n, best, h.par])
+
+
+## A hole with the door of the windmill in a wall: a putt that stops in front of the door (on the side of the tee), a putt through
+## the door, then the search finds the cup. Returns the number of strokes, or 0.
+func _solve_through_the_door(h: Dictionary) -> int:
+	var tower: Rect2 = h.blocks[0]
+	var zc := tower.get_center().y
+	var cx := tower.get_center().x
+	var side := 1.0 if Vector2(h.tee).x > cx else -1.0
+	var aim := Vector2(cx + side * 0.7, zc)
+	var sim := Sim.new()
+	var tee: Vector2 = h.tee
+	for speed in range(14, 34, 1):
+		for deg in [-6.0, -4.0, -2.0, 0.0, 2.0, 4.0, 6.0]:
+			sim.start(h, tee)
+			_roll(sim, Sim.heading_to_cup({"cup": aim}, tee) + deg_to_rad(deg), float(speed) * 0.1)
+			if sim.in_water or absf(sim.pos.y - zc) > 0.08 or (sim.pos.x - cx) * side < 0.25:
+				continue
+			var from: Vector2 = sim.pos
+			for sp2 in [2.6, 3.4, 1.8]:
+				for i in range(-2, 3):
+					sim.start(h, from)
+					_roll(sim, Sim.heading_to_cup({"cup": Vector2(cx, zc)}, from) + deg_to_rad(float(i) * 3.0), sp2)
+					if (sim.pos.x - cx) * side < -0.3 and not sim.in_water:
+						var rest := _search(h, sim.pos, 2, int(h.par) + 1)
+						if rest > 0:
+							return rest
+	return 0
 
 
 ## Returns the number of strokes of the shortest way found, or 0.
@@ -236,7 +232,6 @@ func _search(h: Dictionary, from: Vector2, used: int, limit: int) -> int:
 	for i in range(-12, 13):
 		for p in [0.15, 0.3, 0.5, 0.7, 0.9]:
 			sim.start(h, from)
-			sim.clock = _clock
 			_roll(sim, base + deg_to_rad(float(i) * 5.0), Sim.speed_for(p, 0.8))
 			if sim.in_cup:
 				return used + 1
@@ -300,10 +295,10 @@ func _pick_up() -> void:
 	_check(last.label == "", "no words for a picked up ball")
 
 
-## REQ-MG-1, 7, 12: the match has 1 to 5 holes, the strokes are added up and the last hole ends the match.
+## REQ-MG-1, 7, 12: the match has 1 to 10 holes, the strokes are added up and the last hole ends the match.
 func _holes_and_totals() -> void:
 	print("holes and totals")
-	_check(_two_players(0).holes == 1 and _two_players(9).holes == 5 and _two_players(4).holes == 4,
+	_check(_two_players(0).holes == 1 and _two_players(99).holes == 10 and _two_players(4).holes == 4,
 			"the number of holes is 1 to 5")
 	var r := _two_players(2)
 	r.putt_done(true)   # slot 0: 1 stroke
@@ -369,13 +364,12 @@ func _words_and_medals() -> void:
 
 # ---- Added for the automated half of Manual test 26 ----
 
-## Rolls a ball from `from` at `speed` towards `target` for at most `seconds`, with the sliding things at time `clock`. Returns
+## Rolls a ball from `from` at `speed` towards `target` for at most `seconds`. Returns
 ## `{events, off}`: the types of the events in order, and whether the ball was ever off the ground (outside the fairway or in
 ## a block).
-func _shoot(h: Dictionary, from: Vector2, target: Vector2, speed: float, clock := 0.0, seconds := 4.0) -> Dictionary:
+func _shoot(h: Dictionary, from: Vector2, target: Vector2, speed: float, seconds := 4.0) -> Dictionary:
 	var sim := Sim.new()
 	sim.start(h, from)
-	sim.clock = clock
 	var d := target - from
 	sim.putt(atan2(d.x, d.y), speed)
 	var types: Array = []
@@ -395,11 +389,10 @@ func _around(centre: Vector2, dist: float) -> Array:
 	return [centre + Vector2(0, -dist), centre + Vector2(0, dist), centre + Vector2(-dist, 0), centre + Vector2(dist, 0)]
 
 
-## REQ-MG-10: a rock, a brick wall and the windmill block bounce the ball and it stays on the ground, on each hole.
+## REQ-MG-10: a rock and the windmill tower bounce the ball and it stays on the ground, on each hole.
 func _things_bounce() -> void:
-	print("rocks, brick walls and the windmill on every hole")
+	print("rocks and the windmill on every hole")
 	var rock_holes: Array = []
-	var block_holes: Array = []
 	var windmill_holes: Array = []
 	for n in range(1, Holes.COUNT + 1):
 		var h := Holes.hole(n)
@@ -415,73 +408,167 @@ func _things_bounce() -> void:
 				bounced = bounced or (r.events.size() > 0 and r.events[0] == "rock")
 			_check(bounced, "hole %d: a ball shot at the rock at (%.2f, %.2f) bounces from it" % [n, rv.x, rv.y])
 			rock_holes.append(n)
-		for i in h.blocks.size():
-			var blk: Rect2 = h.blocks[i]
+		var solid := Holes.solid_blocks(h)
+		if h.get("windmill", false):   # The tower is two pillars with a door between them.
 			var bounced2 := false
-			var centre := blk.get_center()
-			for from in _around(centre, maxf(blk.size.x, blk.size.y) * 0.5 + 0.4):
-				if not Sim.walkable(h, from):
-					continue
-				var r2 := _shoot(h, from, centre, 2.5)
-				all_off = all_off or r2.off
-				bounced2 = bounced2 or (r2.events.size() > 0 and r2.events[0] == "wall")
-			var what := "windmill block" if h.get("windmill", false) and i == 0 else "brick wall"
-			_check(bounced2, "hole %d: a ball shot at the %s bounces from it" % [n, what])
-			block_holes.append(n)
-			if h.get("windmill", false) and i == 0:
-				windmill_holes.append(n)
+			var windmill_pieces: Array[Rect2] = [solid[0], solid[1]]
+			for blk in windmill_pieces:
+				var centre := blk.get_center()
+				for from in _around(centre, maxf(blk.size.x, blk.size.y) * 0.5 + 0.4):
+					if not Sim.walkable(h, from):
+						continue
+					var r2 := _shoot(h, from, centre, 2.5)
+					all_off = all_off or r2.off
+					bounced2 = bounced2 or (r2.events.size() > 0 and r2.events[0] == "wall")
+			_check(bounced2, "hole %d: a ball shot at a pillar of the windmill bounces from it" % n)
+			windmill_holes.append(n)
 		_check(not all_off, "hole %d: the ball never leaves the ground or enters a block" % n)
-	_check(block_holes == [1, 2, 3, 5] and windmill_holes == [2, 5],
-			"brick walls are on holes 1, 2, 3 and 5, the windmill on 2 and 5")
-	_check(rock_holes.size() == 6, "the holes have 6 rocks in all (%d)" % rock_holes.size())
+	_check(windmill_holes == [2], "the windmill is on hole 2 only (there are no brick walls, sliding barriers or blades any more)")
+	_check(rock_holes.size() == 11, "the holes have 11 rocks in all (%d)" % rock_holes.size())
 
 
-## REQ-MG-10: a turning blade bounces the ball, on holes 2, 4 and 5; it depends on where the blade is, so many times are tried.
-func _blades_on_holes() -> void:
-	print("turning blades")
-	for n in [2, 4, 5]:
-		var h := Holes.hole(n)
-		var sp: Dictionary = h.spinners[0]
-		var c: Vector2 = sp.c
-		var from := c - Vector2(0.0, float(sp.len) + 0.35)
-		var hits := 0
-		var tunnels := false
-		for k in 24:
-			var clock := float(k) / 24.0 * TAU / absf(float(sp.speed))
-			var r := _shoot(h, from, c, 3.0, clock, 3.0)
-			hits += 1 if r.events.has("blade") else 0
-			tunnels = tunnels or r.off
-		_check(from.y > 0.0 and Sim.walkable(h, from), "hole %d: the place to shoot from is on the ground" % n)
-		_check(hits >= 6, "hole %d: the blade bounces the ball in %d of 24 positions of the blade" % [n, hits])
-		_check(not tunnels, "hole %d: the ball never gets out of the course through a blade" % n)
-
-
-## REQ-MG-10: a sliding barrier always leaves a gap that is wider than the ball, at every moment.
-func _barriers_leave_a_gap() -> void:
-	print("sliding barriers leave a gap")
-	var seen := 0
+## REQ-MG-10 (owner, 2026-11-05: a rock was hit wrong and the ball could get stuck near it): a rock never leaves a pinch against a
+## wall that a ball can wedge in (the free lane is 0.15 m or more on each side), and a ball shot at a rock from any side, hard or
+## soft, straight or off the middle, ends on the ground and outside the rock.
+func _rocks_do_not_trap() -> void:
+	print("rocks do not trap the ball")
 	for n in range(1, Holes.COUNT + 1):
 		var h := Holes.hole(n)
-		for m in h.movers:
-			seen += 1
+		for rk in h.rocks:
+			var rv: Vector3 = rk
+			var c := Vector2(rv.x, rv.y)
+			var reach := rv.z + Holes.BALL_R
 			var narrowest := 99.0
-			for k in 600:   # 30 s in steps of 0.05 s
-				var r := Holes.mover_rect(m, float(k) * 0.05).grow(Holes.BALL_R)
-				var centre := Holes.mover_rect(m, 0.0).get_center()
-				var run := 0.0
-				var best := 0.0
-				for i in 700:
-					var along := float(i) * 0.01
-					var p := Vector2(centre.x, along) if String(m.axis) == "z" else Vector2(along, centre.y)
-					if Sim.walkable(h, p) and not r.has_point(p):
-						run += 0.01
-						best = maxf(best, run)
-					else:
-						run = 0.0
-				narrowest = minf(narrowest, best)
-			_check(narrowest > 2.0 * Holes.BALL_R + 0.1,
-					"hole %d: the gap beside the barrier is at least %.2f m wide at every time" % [n, narrowest])
-	_check(seen == 2, "two holes have a sliding barrier (%d)" % seen)
+			for dir in [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]:
+				var d := reach
+				while d < 3.0 and Sim.walkable(h, c + dir * d):
+					d += 0.005
+				narrowest = minf(narrowest, d - reach if d < 3.0 else 99.0)
+			_check(narrowest >= 0.15, "hole %d: the rock at (%.2f, %.2f) leaves a lane of %.2f m beside it, at least 0.15 m"
+					% [n, rv.x, rv.y, narrowest])
+			var bad := 0
+			var shots := 0
+			for k in 24:
+				var a := TAU * float(k) / 24.0
+				var from := c + Vector2(cos(a), sin(a)) * (reach + 0.3)
+				if not Sim.walkable(h, from):
+					continue
+				for off in [-0.08, 0.0, 0.08]:
+					for speed in [0.8, 2.5]:
+						var sim := Sim.new()
+						sim.start(h, from)
+						var aim: Vector2 = c + Vector2(-sin(a), cos(a)) * off - from
+						_roll(sim, atan2(aim.x, aim.y), speed)
+						shots += 1
+						if not sim.finished or not Sim.walkable(h, sim.pos) or (sim.pos - c).length() < reach - 0.001:
+							bad += 1
+			_check(shots > 0 and bad == 0, "hole %d: %d shots at the rock end on the ground and outside it (%d did not)" % [n, shots, bad])
+
+
+## REQ-MG-10, 12: the tower of a windmill has a door that the ball goes through; the tower is two pillars on both sides of it, and
+## on hole 2 the door is the only way into the far row (owner, 2026-11-04).
+func _windmill_door() -> void:
+	print("the door of the windmill")
+	for n in [2]:
+		var h := Holes.hole(n)
+		var tower: Rect2 = h.blocks[0]
+		var door: float = h.get("door", 0.3)
+		var solid := Holes.solid_blocks(h)
+		_check(h.get("windmill", false) and solid.size() == h.blocks.size() + 1
+				and is_equal_approx(solid[0].size.y + solid[1].size.y + door, tower.size.y)
+				and is_equal_approx(solid[0].end.y + door, solid[1].position.y),
+				"hole %d: the tower is two pillars with a door of %.2f m in the middle" % [n, door])
+		var zc := tower.get_center().y
+		_check(not Sim.walkable(h, Vector2(tower.get_center().x, tower.position.y + 0.02))
+				and Sim.walkable(h, Vector2(tower.get_center().x, zc)),
+				"hole %d: the ball can stand in the door, not in a pillar" % n)
+	# Hole 2: a ball shot up the screen (heading -90 degrees) through the door gets into the far row; beside it, it does not.
+	var h2 := Holes.hole(2)
+	var zd: float = Rect2(h2.blocks[0]).get_center().y
+	var through := Sim.new()
+	through.start(h2, Vector2(0.6, zd))
+	through.putt(-PI * 0.5, 3.0)
+	var crossed := false
+	while not through.finished:
+		through.tick(DT)
+		crossed = crossed or through.pos.x < -0.3
+	_check(crossed and not through.in_water, "hole 2: a ball shot straight at the door goes through it into the far row")
+	var beside := Sim.new()
+	beside.start(h2, Vector2(0.6, zd - 0.6))
+	beside.putt(-PI * 0.5, 3.0)
+	var got_in := false
+	while not beside.finished:
+		beside.tick(DT)
+		got_in = got_in or beside.pos.x < 0.0
+	_check(not got_in, "hole 2: a ball shot up beside the door stays in the near row (the wall stops it)")
+	_check(Sim.walkable(h2, h2.cup) and Vector2(h2.cup).x < -0.13 and Vector2(h2.tee).x > 0.13,
+			"hole 2: the tee is in the near row and the cup in the far row")
+
+
+## REQ-MG-10: a hill is a bump across the whole width: a soft putt does not get over it and rolls back, a strong one does and
+## speeds up again on the way down (owner, 2026-11-04).
+func _hills() -> void:
+	print("hills")
+	var h := _flat_hole()
+	h.hills = [{"rect": Rect2(-1.0, 2.0, 2.0, 1.0), "height": 0.12}]
+	_check(is_zero_approx(Holes.hill_height(h, Vector2(0.0, 1.9))) and absf(Holes.hill_height(h, Vector2(0.0, 2.5)) - 0.12) < 0.001
+			and is_zero_approx(Holes.hill_height(h, Vector2(0.0, 3.1))),
+			"the hill is 0.12 m high in the middle and flat outside")
+	_check(Holes.hill_slope(h, Vector2(0.0, 2.25)) > 0.2 and Holes.hill_slope(h, Vector2(0.0, 2.75)) < -0.2
+			and absf(Holes.hill_slope(h, Vector2(0.0, 2.5))) < 0.001, "it rises, is level at the top and falls")
+	var soft := Sim.new()
+	soft.start(h, Vector2(0.0, 1.2))
+	_roll(soft, 0.0, 1.2)
+	_check(soft.finished and soft.pos.y < 2.5, "a soft putt (1.2 m/s) does not get over the hill (stops at z %.2f)" % soft.pos.y)
+	var rolled_back := Sim.new()
+	rolled_back.start(h, Vector2(0.0, 1.2))
+	rolled_back.putt(0.0, 1.5)
+	var top := 0.0
+	var back := false
+	while not rolled_back.finished:
+		rolled_back.tick(DT)
+		top = maxf(top, rolled_back.pos.y)
+		back = back or (top > 2.0 and rolled_back.vel.y < -0.05)
+	_check(back and rolled_back.pos.y < top - 0.05,
+			"a putt that does not make it rolls back down the hill (the top %.2f, the end %.2f)" % [top, rolled_back.pos.y])
+	var strong := Sim.new()
+	strong.start(h, Vector2(0.0, 1.2))
+	_roll(strong, 0.0, 3.5)
+	_check(strong.pos.y > 3.1, "a strong putt (3.5 m/s) gets over the hill (stops at z %.2f)" % strong.pos.y)
+	var speeds: Array = []
+	for hole_data in [h, _flat_hole()]:
+		var run := Sim.new()
+		run.start(hole_data, Vector2(0.0, 1.2))
+		run.putt(0.0, 3.5)
+		var at := -1.0
+		while not run.finished and at < 0.0:
+			run.tick(DT)
+			if run.pos.y > 2.5:
+				at = run.vel.length()
+		speeds.append(at)
+	_check(speeds[0] > 0.0 and speeds[0] < speeds[1] - 0.3,
+			"a putt is slower on the top of the hill (%.2f m/s at z 2.5, against %.2f m/s on flat ground)" % [speeds[0], speeds[1]])
+	# A ramp up to a platform and a slide down (hole 4).
+	var hs := _flat_hole()
+	hs.hills = [{"rect": Rect2(-1.0, 2.0, 2.0, 1.0), "height": 0.14, "kind": "slide"}]
+	_check(is_zero_approx(Holes.hill_height(hs, Vector2(0.0, 2.0))) and absf(Holes.hill_height(hs, Vector2(0.0, 2.5)) - 0.14) < 0.001
+			and Holes.hill_height(hs, Vector2(0.0, 2.999)) < 0.01,
+			"the slide is 0.14 m high on the platform and 0 at both ends")
+	_check(Holes.hill_slope(hs, Vector2(0.0, 2.2)) > 0.2 and is_zero_approx(Holes.hill_slope(hs, Vector2(0.0, 2.5)))
+			and Holes.hill_slope(hs, Vector2(0.0, 2.8)) < -0.2, "it rises on the ramp, is level on the platform and falls on the slide")
+	var weak_slide := Sim.new()
+	weak_slide.start(hs, Vector2(0.0, 1.2))
+	_roll(weak_slide, 0.0, 1.5)
+	_check(weak_slide.pos.y < 2.5, "a soft putt (1.5 m/s) does not get up the ramp (stops at z %.2f)" % weak_slide.pos.y)
+	var strong_slide := Sim.new()
+	strong_slide.start(hs, Vector2(0.0, 1.2))
+	_roll(strong_slide, 0.0, 3.5)
+	_check(strong_slide.pos.y > 3.0, "a strong putt (3.5 m/s) goes up the ramp, over the platform and down the slide (z %.2f)"
+			% strong_slide.pos.y)
+	for n in range(1, Holes.COUNT + 1):
+		var hh := Holes.hole(n)
+		_check(is_zero_approx(Holes.hill_height(hh, hh.tee)) and is_zero_approx(Holes.hill_height(hh, hh.cup)),
+				"hole %d: the tee and the cup are not on a hill" % n)
 
 
 ## REQ-MG-12, 6: the par of each hole, and the words of the holes that are not covered above.
@@ -490,7 +577,7 @@ func _pars() -> void:
 	var pars: Array = []
 	for n in range(1, Holes.COUNT + 1):
 		pars.append(int(Holes.hole(n).par))
-	_check(pars == [2, 3, 3, 3, 4], "the five holes have the pars 2, 3, 3, 3 and 4 (8a)")
+	_check(pars == [2, 3, 3, 3, 4, 3, 3, 3, 3, 3], "the ten holes have the pars 2, 3, 3, 3, 4, 3, 3, 3, 3 and 3 (8a)")
 	_check(Rules.label_for(2, 2) == "mini_golf.par" and Rules.label_for(3, 2) == "mini_golf.bogey" and Rules.label_for(4, 2) == ""
 			and Rules.label_for(2, 4) == "mini_golf.birdie" and Rules.label_for(4, 4) == "mini_golf.par"
 			and Rules.label_for(5, 4) == "mini_golf.bogey" and Rules.label_for(6, 4) == "",
@@ -502,25 +589,25 @@ func _pars() -> void:
 func _grid() -> void:
 	print("pixel grid")
 	var ci := Node2D.new()
-	var geo := Look.Geo.new(Vector2(1920.0, 1080.0))
-	var feet: Array[Vector2] = []
+	var hole: Dictionary = Holes.hole(1)
+	var geo := Look.Geo.new(Vector2(1920.0, 1080.0), hole)
+	var centers: Array[Vector2] = []
 	Shell.recorder = func(kind: String, _ci: CanvasItem, rect: Rect2, _info: Dictionary) -> void:
-		# The foot of the ball and the tip of the aim mark, from the box each one records.
-		if kind == "ball":
-			feet.append(rect.position + Vector2(rect.size.x * 0.5, rect.size.y))
-		elif kind == "aim":
-			feet.append(rect.position + Vector2(rect.size.x * 0.5, rect.size.y * 1.4))
+		# The middle of the ball and of the tip of the aim mark, from the box each one records.
+		if kind == "ball" or kind == "aim":
+			centers.append(rect.get_center())
 	ci.draw.connect(func() -> void:
 		for i in 12:
-			var p := Vector2(-1.0 + 0.037 * float(i), 2.0 + 0.0113 * float(i))
-			Look.draw_ball(ci, geo, p)
-			Look.draw_aim(ci, geo, p, 0.3, 1.0, false))
+			var p := Vector2(-0.5 + 0.037 * float(i), 2.0 + 0.0113 * float(i))
+			Look.draw_ball(ci, geo, geo.at(p), 0)
+			Look.draw_aim(ci, geo, hole, p, 0.3, 1.0, false))
 	root.add_child(ci)
 	await process_frame
 	Shell.recorder = Callable()
 	var off := 0
-	for f in feet:
+	for f in centers:
 		if absf(f.x - snappedf(f.x, 4.0)) > 0.001 or absf(f.y - snappedf(f.y, 4.0)) > 0.001:
 			off += 1
 	ci.queue_free()
-	_check(feet.size() == 24 and off == 0, "the ball and the aim mark stand on the 4-unit grid (%d of %d off)" % [off, feet.size()])
+	_check(centers.size() == 24 and off == 0,
+			"the ball and the aim mark stand on the 4-unit grid (%d of %d off)" % [off, centers.size()])

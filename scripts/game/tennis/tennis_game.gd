@@ -4,6 +4,7 @@ extends "res://scripts/game/minigame.gd"
 ## The game is for children too (REQ-GM-80 to 84): a bad swing gives a slow lob that stays in play, and nobody is hurt.
 
 const Match = preload("res://scripts/game/tennis/tennis_match.gd")
+const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const Look = preload("res://scripts/game/tennis/tennis_look.gd")
 const Rules = preload("res://scripts/game/tennis/tennis_rules.gd")
 const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
@@ -55,6 +56,13 @@ func _game_ready() -> void:
 	play.setup(slots, scoring == "quick", difficulty, int(Time.get_ticks_msec()))
 	_board = Scoreboard.new(participants)
 	for s in participants:
+		var det: SwingDetector = player(s).swing   # The strengths of Tennis (owner, 2026-11-06: swings that were not found).
+		det.fwd_gain = 1.0
+		det.forward_hold = 0.08
+		det.strike_against = 0.0
+		det.fast_full = 5.0
+		det.strike_without_back = true
+		player(s).follow_heading = false   # Left stays left: the straight direction is the one at the start.
 		player(s).button_pressed.connect(_on_button.bind(s))
 		player(s).swung.connect(_on_swing.bind(s))
 		_wired.append(s)
@@ -273,14 +281,16 @@ func _publish_scores() -> void:
 
 func leader_text() -> String:
 	if play.solo:
-		return super()
+		return _streak_text()
 	return str(_best_tally()) if _best_tally() > 0 else ""
 
 
 ## The leader chip shows the team in front with its games, or TIE when the teams are level (REQ-TN-13).
 func draw_leader_chip(ci: CanvasItem) -> void:
 	if play.solo:
-		super(ci)
+		for s in participants:
+			Shell.leader_chip(ci, Shell.area_width(ci), [player(s)], _streak_text())
+			return
 		return
 	var best := _best_tally()
 	if best <= 0:
@@ -366,7 +376,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	if play.phase == Match.Phase.RALLY:
 		_draw_target(ci, p)
 	Look.draw_tower(ci, p)
-	var things: Array = [{"y": 0.0, "k": "net"}, {"y": -0.5, "k": "kid"}]
+	var things: Array = [{"y": 0.0, "k": "net"}]
 	if play.sim.active:
 		Look.draw_ball_shadow(ci, p, play.sim.pos)
 		things.append({"y": play.sim.pos.y, "k": "ball"})
@@ -380,8 +390,6 @@ func _world_draw(ci: CanvasItem) -> void:
 		match String(t.k):
 			"net":
 				Look.draw_net(ci, p)
-			"kid":
-				Look.draw_ball_kid(ci, p)
 			"ball":
 				_draw_ball(ci, p)
 			"machine":
@@ -534,16 +542,11 @@ func _draw_panel() -> void:
 					32, UiTheme.TEXT)
 
 
-## With 1 player: the running rally, the best one and the time left (REQ-TN-15).
+## With 1 player: the time left. The running rally and the best one are in the badge of the top bar (REQ-TN-15).
 func _draw_solo_panel() -> void:
-	var f := UiTheme.font()
-	var rally := Lang.f("tennis.rally", [play.rally]).to_upper()
-	var best := Lang.f("tennis.best", [maxi(play.best_rally, play.rally)]).to_upper()
-	var x := Shell.mx(self, 60.0, 400.0)
-	var y := Look.HUD_H + 16.0
-	for i in 2:
-		var row := Rect2(x, y + i * PANEL_ROW, 400.0, PANEL_ROW - 6.0)
-		draw_style_box(UiTheme.line_box(UiTheme.FRAME, UiTheme.BG, 4), row)
-		draw_string(f, Vector2(row.position.x + 16.0, row.position.y + 38.0), rally if i == 0 else best,
-				HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.ACCENT if i == 0 else UiTheme.TEXT)
 	Shell.timer(self, Vector2(Shell.TIMER_X, Shell.TIMER_Y), maxf(0.0, play.solo_left))
+
+
+## The text of the one badge of a solo round: "RALLY 3 / BEST 7".
+func _streak_text() -> String:
+	return "%s / %s" % [Lang.f("tennis.rally", [play.rally]), Lang.f("tennis.best", [maxi(play.best_rally, play.rally)])]

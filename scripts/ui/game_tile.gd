@@ -118,20 +118,18 @@ func _refresh() -> void:
 	# Only the focused tile has the cursor, so only its title is moved in to make room for it: at the left of the title, and at the
 	# right of it in Hebrew.
 	var room := CURSOR_ROOM if f else 0.0
-	_name.size = Vector2(SHOT.x - room, _name.size.y)
 	_name.position = Vector2(0.0 if Lang.is_rtl() else room, _name.position.y)
 	# A title that is wider than the tile breaks into two lines at 40 px (REQ-FL-12, REQ-FL-40), and the player range moves down.
 	var shown := UiKit.shown(_name.tr(_name.text))
 	var title_w := _name.get_theme_font("font").get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_ITEM).x
 	var lines := 2 if title_w > SHOT.x - room else 1
-	_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if lines > 1 else TextServer.AUTOWRAP_OFF
-	_name.size.y = TITLE_LINE_H * lines
+	# The title always wraps by word: a label without wrap cannot be narrower than its text, so its size would stay too wide
+	# (it was 480 px with the cursor in front of it) and a long title would run under the cursor.
+	_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_name.size = Vector2(SHOT.x - room, TITLE_LINE_H * lines)
 	_meta.position.y = SHOT.y + 64.0 + TITLE_LINE_H * (lines - 1)
-	if fits:
-		_meta.text = players_text().to_upper()
-		_meta.add_theme_color_override("font_color", UiTheme.TEXT_INFO)
-	else:
-		_meta.text = reason().to_upper()
-		_meta.add_theme_color_override("font_color", UiTheme.ACCENT)
+	# The tile always shows its player range; why a dimmed game cannot start is in the info bar (REQ-FL-14).
+	_meta.text = players_text().to_upper()
+	_meta.add_theme_color_override("font_color", UiTheme.TEXT_INFO)
 	modulate = Color(1, 1, 1, 1.0 if fits else 0.5)
 	queue_redraw()

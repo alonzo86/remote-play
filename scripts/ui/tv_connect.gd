@@ -52,7 +52,7 @@ func _ready() -> void:
 	cols.add_child(right)
 	right.add_child(UiKit.title("common.players"))
 	for help_key in ["connect.same_wi_fi", "connect.open_app_scan_code", "connect.or_type_code"]:
-		var help := UiKit.label(help_key, UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
+		var help := UiKit.label(help_key, UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 		help.autowrap_mode = TextServer.AUTOWRAP_WORD
 		right.add_child(help)
 	right.add_child(UiKit.spacer(10))

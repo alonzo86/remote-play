@@ -119,7 +119,7 @@ func _run() -> void:
 	# Colors the theme derives in code.
 	wanted.append(Color(UiTheme.BG, 0.8))
 	# Each named token holds the value of its UiTheme constant (a swap of two values is caught).
-	var named := {"bg": UiTheme.BG, "text": UiTheme.TEXT, "text-info": UiTheme.TEXT_INFO,
+	var named := {"bg": UiTheme.BG, "text": UiTheme.TEXT, "text-info": UiTheme.TEXT_INFO, "text-desc": UiTheme.TEXT_DESC,
 			"text-dim": UiTheme.TEXT_DIM, "accent": UiTheme.ACCENT,
 			"frame": UiTheme.FRAME, "ok": UiTheme.OK, "bad": UiTheme.BAD, "slot-empty": UiTheme.SLOT_EMPTY,
 			"dim-layer": Color(UiTheme.BG, 0.8), "player-1": Protocol.PLAYER_COLORS[0],
@@ -187,7 +187,7 @@ func _check_outside_theme(data: Dictionary, by_name: Dictionary) -> void:
 func _contrast_checks() -> void:
 	print("contrast")
 	var palette := {"TEXT": UiTheme.TEXT, "TEXT_INFO": UiTheme.TEXT_INFO,
-			"TEXT_DIM": UiTheme.TEXT_DIM, "ACCENT": UiTheme.ACCENT, "OK": UiTheme.OK,
+			"TEXT_DESC": UiTheme.TEXT_DESC, "TEXT_DIM": UiTheme.TEXT_DIM, "ACCENT": UiTheme.ACCENT, "OK": UiTheme.OK,
 			"BAD": UiTheme.BAD}
 	var low: Array[String] = []
 	for n in palette:
@@ -212,8 +212,8 @@ func _contrast_checks() -> void:
 
 
 ## Issue #173, REQ-FL-38a: every enabled button is white (the face is the white token, the text is black and readable), a
-## disabled button keeps its dim look, and the focus is a yellow face with black text, distinct from a mark (a thick border
-## on the white face). A new button cannot use another color.
+## disabled button keeps its dim look, and the focus has a black face with yellow text and a thick yellow border (the same border
+## as a mark; no yellow fill, owner 2026-11-02). A new button cannot use another color.
 func _white_buttons() -> void:
 	print("white buttons")
 	_check(UiTheme.BUTTON_FACE == UiTheme.BG and UiTheme.BUTTON_TEXT == Color("fcfcfc") and UiTheme.BUTTON_BORDER == Color("fcfcfc"),
@@ -235,10 +235,10 @@ func _white_buttons() -> void:
 		_check(b.get_theme_color("font_color") == UiTheme.BUTTON_TEXT, "%s: its text is white" % names[i])
 		_check(b.get_theme_stylebox("hover").bg_color == UiTheme.BUTTON_FACE, "%s: hovered, it is still black" % names[i])
 		var focus: StyleBoxFlat = b.get_theme_stylebox("focus")
-		_check(focus.bg_color == UiTheme.ACCENT and focus.border_color == UiTheme.ACCENT
-				and focus.border_width_left == UiTheme.MARK_W
+		_check(focus.bg_color == UiTheme.BUTTON_FACE and focus.border_color == UiTheme.ACCENT
+				and focus.border_width_left == UiTheme.MARK_W and b.get_theme_color("font_focus_color") == UiTheme.ACCENT
 				and UiTheme.contrast(b.get_theme_color("font_focus_color"), focus.bg_color) >= 4.5,
-				"%s: the focus is a yellow face with a thick yellow border and readable black text" % names[i])
+				"%s: the focus has a black face, a thick yellow border and yellow text (no yellow fill)" % names[i])
 		var margins := {}
 		for st in ["normal", "hover", "focus", "pressed", "disabled"]:
 			var sb: StyleBoxFlat = b.get_theme_stylebox(st)
@@ -576,6 +576,10 @@ func _info_text() -> void:
 	var c_dim := UiTheme.contrast(UiTheme.TEXT_DIM, UiTheme.BG)
 	_check(c_info >= 7.0 and c_info > c_dim, "the info text has 7:1 or more on black (%.1f), more than the disabled color (%.1f)"
 			% [c_info, c_dim])
+	var c_desc := UiTheme.contrast(UiTheme.TEXT_DESC, UiTheme.BG)
+	_check(c_desc >= 7.0 and c_desc < c_info and c_desc > c_dim and UiTheme.TEXT_DESC != UiTheme.TEXT_DIM,
+			"the description text has 7:1 or more on black (%.1f), a little less than white (%.1f) and more than the disabled color"
+			% [c_desc, c_info])
 	var re := RegEx.create_from_string("label\\(|draw_string|font_color|blinking\\(|draw_centered|Shell\\.(text|hint)")
 	var offenders: Array[String] = []
 	for dir in ["res://scripts/ui", "res://scripts/game"]:

@@ -19,7 +19,7 @@ app.room_full_4_players,THE ROOM IS FULL (4 PLAYERS).,החדר מלא (4 שחק�
 app.room_link,THIS IS A ROOM LINK.,זה קישור של חדר.,"Phone, new player screen (IMPORT) or Connect screen: message when the QR code of a TV (room link) is scanned instead of a player code",
 app.wrong_room_code,WRONG ROOM CODE.,קוד החדר שגוי.,"Phone, Connect screen: error for a wrong room code",
 connect.bad_code,THAT IS NOT A ROOM CODE. IT HAS 4 LETTERS.,זה לא קוד חדר. הוא כולל 4 אותיות.,"Phone, Connect screen: error when the typed text is not a room code",
-connect.join,JOIN,הצטרפו,"Phone, Connect screen: button next to the room code field",
+connect.join,JOIN,הצטרפו,"Phone, Connect screen: name and tooltip of the JOIN icon button (the enter arrow) next to the room code field; the button shows no text",
 connect.or_type_code,OR TYPE THE ROOM CODE.,או הקלידו את קוד החדר.,"TV Connect screen: help line under the title, third sentence",
 connect.room_not_found,"CAN'T FIND THIS ROOM. CHECK THE CODE, OR SCAN THE QR CODE.","לא נמצא חדר כזה. בדקו את הקוד, או סרקו את קוד ה־QR.","Phone, Connect screen: error when no TV answers to the typed room code",
 connect.type_code,TYPE THE ROOM CODE FROM THE TV,הקלידו את קוד החדר מהטלוויזיה,"Phone, Connect screen: label above the room code field",
@@ -54,11 +54,13 @@ game_settings.hard,HARD,קשה,TV game settings: Hard value of the difficulty ro
 game_settings.medium,MEDIUM,בינוני,TV game settings: Medium value of the difficulty row; also in the medal title after a round,
 game_settings.start,START,התחילו,TV game settings: Start button,
 games.n_players,%d players,%d שחקנים,"TV Games screen: game tile, a game for exactly this many players","the number sign (%d, %.1f ...) is replaced by a number"
-games.needs_players,Needs %d players,דרושים %d שחקנים,"TV game settings and game tile: why a game cannot start when too few phones have joined, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
+games.needs_players,Needs %d players,דרושים %d שחקנים,"TV game settings and Games screen (yellow line in the info bar under the description): why a game cannot start when too few phones have joined, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
+games.needs_at_least,At least %d players needed,נדרשים לפחות %d שחקנים,"TV game settings (yellow line under Start): every connected phone chose OUT and the game needs 2 or more players, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
+games.needs_at_least_one,AT LEAST 1 PLAYER NEEDED,נדרש לפחות שחקן אחד,"TV game settings (yellow line under Start): every connected phone chose OUT and the game can start with one player",
 games.one_player,1 player,שחקן אחד,"TV Games screen: game tile, a game for 1 player",
 games.range_players,%d-%d players,%d-%d שחקנים,"TV Games screen: game tile, a game for a range of players","the number sign (%d, %.1f ...) is replaced by a number"
 games.select_game,SELECT GAME,בחרו משחק,TV Games screen: title,
-games.up_to_players,Up to %d players,עד %d שחקנים,"TV game settings and game tile: why a game cannot start when too many phones have joined, %d is the maximum","the number sign (%d, %.1f ...) is replaced by a number"
+games.up_to_players,Up to %d players,עד %d שחקנים,"TV game settings and Games screen (yellow line in the info bar under the description): why a game cannot start when too many phones have joined, %d is the maximum","the number sign (%d, %.1f ...) is replaced by a number"
 gear_button.options,OPTIONS,אפשרויות,TV Games screen: Options button at the top,
 logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים עם הטלפון כשלט תנועה,TV logo screen: line under the logo,
 logo.press_ok_start,PRESS OK TO START,לחצו OK להתחלה,"TV logo screen, first start: prompt to choose a language",
@@ -71,20 +73,21 @@ maze.join_with_sababi_app,"JOIN WITH THE SABABI APP, THEN START AGAIN.",הצטר
 minigame.back_to_menu,BACK TO MENU,חזרה לתפריט,Button in the result menu and the 'no players' menu of every game,
 minigame.end_game_ask,END THE GAME?,לסיים את המשחק?,Title of the question 'End the game?' after Back during play,
 minigame.end_game,END GAME,סיום המשחק,"Button End game in the pause menu (leaves at once), in the question 'End the game?' and in the card of a lost phone",
-minigame.no_players_connected,NO PLAYERS CONNECTED,אין שחקנים מחוברים,"Title of the menu when every phone has left a game, and of the card when the only phone of the game is lost (it waits for the phone)",
+minigame.no_players_connected,NO PLAYERS CONNECTED,אין שחקנים מחוברים,"Title of the menu when every phone has left a game, and of the card when the only phone of the game is lost (it waits for the phone); also the yellow line in the info bar of the Games screen when no phone has joined",
+minigame.new_game,NEW GAME,משחק חדש,Button in the game result menu: back to the settings of the game,
 minigame.restart,TRY AGAIN,נסו שוב,Button Try again in the pause menu and the result menu,
 minigame.resume,RESUME,המשיכו,"Button Resume in the pause menus, the pause card and the question 'End the game?'",
 minigame.round_over,ROUND OVER,הסיבוב נגמר,Title of the result menu when there is no winner to name,
-common.settings,SETTINGS,הגדרות,"Title of the TV and phone Settings screens; Settings button on the phone waiting screen; button in the game result menu (back to the settings of the game)",
+common.settings,SETTINGS,הגדרות,"Title of the TV and phone Settings screens; Settings button on the phone waiting screen",
 minigame.tie,TIE!,תיקו!,Title of the result menu when scores are equal,
-pad.before,Before: %s,קודם: %s,"Phone: after a personal best, shows the old best, %s is the old value",%s is replaced by a name or a value
+pad.before,Before: %s,קודם: %s,"Phone game screen: next to NEW BEST!, shows the old best, %s is the old value",%s is replaced by a name or a value
 pad.disconnect,DISCONNECT,התנתקות,Phone: Disconnect button at the top of the game and waiting screens,
-pad.disconnect_hold,HOLD TO LEAVE,החזיקו להתנתקות,Phone: Disconnect button on the game screen (hold it for 0.8 s to leave; a tap does nothing),New 2026-10-30 (issue #239). The waiting screen keeps pad.disconnect.
-pad.new_best,NEW BEST!,שיא חדש!,Phone: after a round that set a personal best,
-pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,Phone game screen: help line under the Recenter button,
+pad.disconnect_hold,HOLD TO LEAVE,החזיקו להתנתקות,Phone: HOLD TO LEAVE box at the bottom of the game screen, inset 60 px from the sides and 40 px from the bottom so rounded corners do not cut it (hold it for 0.8 s to leave; a tap does nothing),New 2026-10-30 (issue #239). The waiting screen keeps pad.disconnect.
+pad.new_best,NEW BEST!,שיא חדש!,Phone game screen: after a round that set a personal best, only while the result of that game is open (not on the waiting screen); large (56 px), yellow, centered in the upper half of the play area under the name of the game,
+pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,Phone game screen: help line in the upper half of the play area, above the small Recenter button at the bottom,
 pad.recenter,RECENTER,מרכוז,Phone game screen: Recenter button,
 pad.slide_to_aim,SLIDE TO MOVE THE BALL,החליקו כדי להזיז את הכדור,Phone game screen: help line on the aim strip while it is the turn of this phone in Pin Pals,
-paint_grab.tiles,%d tiles (%d%%),%d אריחים (%d%%),Paint Grab result list: tiles painted and percent,"the number sign (%d, %.1f ...) is replaced by a number"
+paint_grab.percent,%d%%,%d%%,"Paint Grab: the share of the picture that a player painted (leader chip, phone score line, result list)","the number sign (%d) is replaced by a whole number"
 paint_grab.tilt_phone_roll_paint,TILT YOUR PHONE TO ROLL AND PAINT THE TILES!,הטו את הטלפון כדי להתגלגל ולצבוע את האריחים!,Paint Grab: hint during the countdown,
 pause.and, AND , ו־,Pause card: joins the names of two or more phones ('2P AND 3P'),keep the spaces at the start and the end
 pause.is_back,IS BACK,חזר,Pause card: a phone that came back,
@@ -138,10 +141,10 @@ result.winner,%s wins!,%s ניצח!,Result menu title: %s is the name of the win
 settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row,
 settings.effects,EFFECTS,אפקטים,TV Settings: name of the sound effects volume row,
 settings.invert_tilt_axes,INVERT AXES,היפוך צירים,TV Settings: name of the row,
-settings.language,LANGUAGE,שפה,TV Settings: name of the Language row; phone Settings: start of the language button (LANGUAGE: ENGLISH),
-common.off,OFF,כבוי,"TV Settings: state of a switch that is off (Debug overlay, Mute, Invert tilt axes); phone Settings: state in the HAPTICS switch (settings.haptics)",
-common.on,ON,פועל,"TV Settings: state of a switch that is on; phone Settings: state in the HAPTICS switch (settings.haptics)",
-settings.phone_vibrates_games_when,"THE PHONE VIBRATES IN GAMES: WHEN YOU SCORE, BUMP OR START.","הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים.",Phone Settings screen: help line under the haptics switch,
+settings.language,LANGUAGE,שפה,TV Settings: name of the Language row; phone Settings: name of the Language row (LANGUAGE  < ENGLISH >),
+common.off,OFF,כבוי,"TV Settings: state of a switch that is off (Debug overlay, Mute, Invert tilt axes); phone Settings: state of the HAPTICS switch (settings.haptics_row)",
+common.on,ON,פועל,"TV Settings: state of a switch that is on; phone Settings: state of the HAPTICS switch (settings.haptics_row)",
+settings.phone_vibrates_games_when,"THE PHONE VIBRATES IN GAMES: WHEN YOU SCORE, BUMP OR START.","הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים.",Phone Settings screen: help line under the HAPTICS switch and the LANGUAGE row,
 settings.track_n,Track %d,מסלול %d,"Car Race: name of a fixed track, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 shell.seconds,%.1f s,%.1f ש׳,"Game HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 shell.tie,TIE,תיקו,Game HUD: leader chip when two or more players share first place,
@@ -157,6 +160,8 @@ wait.you_chose_out,YOU CHOSE OUT. YOU JOIN NEXT ROUND.,בחרתם להישאר �
 wait.round_running,A ROUND IS IN PROGRESS,סיבוב מתנהל כעת,Phone waiting screen: title when a round runs and the phone is not in it,
 wait.use_tv_remote_phone,USE THE TV REMOTE. YOUR PHONE IS READY.,השתמשו בשלט הטלוויזיה. הטלפון שלכם מוכן.,Phone waiting screen: second line while the TV shows the menus,
 wait.waiting_host,WAITING FOR THE HOST,ממתינים למארח,Phone waiting screen: title before the TV has chosen a game,
+wait.get_ready,GET READY!,היכונו!,Phone waiting screen: title while the TV shows the settings of a game,
+wait.host_settings,THE HOST IS PICKING THE SETTINGS.,המארח בוחר את ההגדרות.,Phone waiting screen: second line while the TV shows the settings of a game and one phone is connected (with two or more the question PLAY THIS GAME? shows instead),
 registry.star_shield,STAR SHIELD,מגן הכוכבים,"Name of the game Star Shield: Games screen, game settings, in-game title",
 registry.desc_asteroid_blast,A SPACE ADVENTURE IN A SKY FULL OF FALLING ROCKS.,הרפתקה בחלל בשמיים מלאים בסלעים נופלים.,"Description of Star Shield: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.theme,THEME,ערכת נושא,game settings of Treasure Maze and Car Race: name of the theme row,
@@ -208,8 +213,8 @@ tennis.fault,FAULT,הגשה פסולה,Tennis: banner when a serve is out or in 
 tennis.out,OUT,בחוץ,Tennis: banner when the ball lands outside the lines,
 tennis.net,NET,רשת,Tennis: banner when the ball hits the net,
 tennis.great,GREAT!,מעולה!,Tennis: text over a player after a swing at the perfect time,
-tennis.rally,RALLY %d,רצף %d,"Tennis with 1 player: score panel and banner, %d is the balls hit back in a row","the number sign (%d, %.1f ...) is replaced by a number"
-tennis.best,BEST %d,שיא %d,"Tennis with 1 player: score panel, %d is the longest rally of the round","the number sign (%d, %.1f ...) is replaced by a number"
+tennis.rally,RALLY %d,רצף %d,"Tennis with 1 player: the badge in the top bar (left part, RALLY n / BEST m) and the banner, %d is the balls hit back in a row","the number sign (%d, %.1f ...) is replaced by a number"
+tennis.best,BEST %d,שיא %d,"Tennis with 1 player: the badge in the top bar (right part, RALLY n / BEST m), %d is the longest rally of the round","the number sign (%d, %.1f ...) is replaced by a number"
 registry.mini_golf,MINI GOLF,מיני גולף,"Name of the game Mini Golf: Games screen, game settings, in-game title",
 registry.desc_mini_golf,"MINI GOLF ON FUNNY COURSES, WITH YOUR PHONE AS THE CLUB.","מיני גולף במסלולים מצחיקים, והטלפון הוא המחבט.","Description of Mini Golf: info bar of the Games screen (what the game is, no instructions, issue #78)",
 mini_golf.holes,HOLES,גומות,Mini Golf settings view: name of the Holes row,
@@ -218,12 +223,15 @@ mini_golf.holes_2,2 HOLES,2 גומות,Mini Golf settings view: value 2 of the H
 mini_golf.holes_3,3 HOLES,3 גומות,Mini Golf settings view: value 3 of the Holes row,
 mini_golf.holes_4,4 HOLES,4 גומות,Mini Golf settings view: value 4 of the Holes row,
 mini_golf.holes_5,5 HOLES,5 גומות,Mini Golf settings view: value 5 of the Holes row,
+mini_golf.holes_6,6 HOLES,6 גומות,Mini Golf settings view: value 6 of the Holes row,
+mini_golf.holes_7,7 HOLES,7 גומות,Mini Golf settings view: value 7 of the Holes row,
+mini_golf.holes_8,8 HOLES,8 גומות,Mini Golf settings view: value 8 of the Holes row,
+mini_golf.holes_9,9 HOLES,9 גומות,Mini Golf settings view: value 9 of the Holes row,
+mini_golf.holes_10,10 HOLES,10 גומות,Mini Golf settings view: value 10 of the Holes row,
 mini_golf.hole,Hole %d/%d  Par %d,גומה %d/%d  פר %d,"Mini Golf: top bar, right side: the hole that is played, the holes of the match and the par of the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.turn,%s's turn!,התור של %s!,"Mini Golf: plate over the course for 1.5 seconds at the start of a turn, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
-mini_golf.chip,%s  %d,%s: %d,"Mini Golf: chip of a player in the bar at the bottom, the name and the strokes on this hole","the number sign (%d, %.1f ...) is replaced by a number"
-mini_golf.hint_aim,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT!",הזיזו את הטלפון כדי לכוון. הניפו אחורה ואז קדימה כדי לדחוף!,Mini Golf: hint on a plate over the course at the start of a turn,
+mini_golf.leader_score,%d / %d,%d / %d,"Mini Golf: the score of the leader chip in the top bar, the strokes on this hole and the strokes in all","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Mini Golf: hint on a plate after a swing that was too weak,
-mini_golf.hint_power,SWING FORWARD. A BIGGER SWING GOES FARTHER!,הניפו קדימה. תנופה גדולה יותר מגיעה רחוק יותר!,Mini Golf on Easy: hint on a plate after the aim is locked,
 mini_golf.strokes,%d strokes,%d מכות,"Mini Golf: banner after a ball went in with more strokes than par plus one, %d is the strokes on the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hole_in_one,HOLE IN ONE!,גומה במכה אחת!,Mini Golf: banner after a ball went in with the first stroke,
 mini_golf.birdie,BIRDIE!,ברדי!,Mini Golf: banner after a ball went in with fewer strokes than par,
@@ -300,8 +308,7 @@ freeze_dance.hint,"WIGGLE YOUR PHONE TO THE MUSIC. WHEN IT STOPS, FREEZE!","נע
 freeze_dance.wiggle,WIGGLE!,נענעו!,Freeze Dance: banner at the top of the TV while the music plays,
 freeze_dance.freeze,FREEZE!,קפאו!,Freeze Dance: banner at the top of the TV from the moment the music stops (the phones show nothing),
 freeze_dance.song_n,SONG %d OF %d,שיר %d מתוך %d,"Freeze Dance HUD: box in the place of the timer, the song that plays now and the number of songs","the number sign (%d, %.1f ...) is replaced by a number"
-freeze_dance.back_in,BACK IN %d,חוזרים בעוד %d,"Freeze Dance: under the name of a player who moved in the freeze, the seconds until the next song, where the player dances again","the number sign (%d, %.1f ...) is replaced by a number"
 players.default_name,Player %d,שחקן %d,"TV, everywhere a player name shows (Players list, HUD chips, pause card, result menu): name of a phone that has no profile name, %d is the slot number (1 to 4)","the number sign (%d, %.1f ...) is replaced by a number; it is not saved: it follows the TV language"
 about.qr_scanner,QR scanner,סורק QR,"About screen, Android phone: name of the page about the QR scanner (list entry and heading of the page)",
 about.android_libraries,Android libraries,ספריות אנדרואיד,"About screen, Android phone, 3rd Party Libraries: name of the page of the Android libraries (list entry and heading of the page)",
-settings.haptics,HAPTICS: %s,רטט: %s,"Phone Settings: the haptics switch button, %s is the state (common.on or common.off), for example HAPTICS: ON","%s is replaced by the state word ON or OFF, in the same language"
+settings.haptics_row,HAPTICS,רטט,"Phone Settings: name of the HAPTICS switch row (a tap on the row turns it on or off)",Replaces settings.haptics (HAPTICS: %s); the state is the row value (common.on or common.off)

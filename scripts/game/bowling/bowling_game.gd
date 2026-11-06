@@ -354,7 +354,9 @@ func _readable(c: Color) -> bool:
 func _draw_frame_text() -> void:
 	var text := Lang.f("bowling.frame", [rules.current_frame(), BowlingRules.FRAMES, maxi(1, rules.current_ball())]).to_upper()
 	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE).x
-	Shell.status(self, size.x - 60.0 - w, w, text)   # The status text of the bar, the same place as in Air Hockey (REQ-GM-45c).
+	# The status text of the bar at the right margin, on the baseline of the title: "PIN PALS" and "FRAME 1/10" are one row, in
+	# Hebrew too (the shell mirrors both, REQ-BW-12).
+	Shell.status(self, size.x - 60.0 - w, w, text, UiTheme.TEXT, Shell.TITLE_BASELINE)
 
 
 ## The width of the name column of the score sheet: `NAME_W`, or more when a name needs it (the chip grows, nothing is cut).

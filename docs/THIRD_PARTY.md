@@ -14,6 +14,8 @@ Every library, plugin, font, sound, image or other resource that Sababi ships an
 | gdtoolkit (gdlint) | 4.x | CI | no | MIT | Scony and contributors | No | Done |
 | setup-godot GitHub Action | v2 | CI | no | MIT | Chickensoft | No | Done |
 
+Public-domain melodies need no row. Freeze Dance uses six traditional tunes (Frère Jacques, Twinkle Twinkle Little Star, Mary Had a Little Lamb, Ode to Joy, London Bridge, Hot Cross Buns), written as notes in `scripts/audio/songs.gd`: the melodies are centuries old and no recording or arrangement of another maker is used. `license-reviewer` confirms the choice of any further song.
+
 The code, art and documents of Sababi itself are under `LICENSE` (all rights reserved, Alon Yampolski, decided on 2026-10-13). Our own work needs no row: the sounds (made in code), the QR encoder, the avatars, icons, tiles, medals and the logo. For the art made with an AI tool (the logo and the mascot, drawn in code by Claude, and the scripted avatars) see the open questions in the legal drafts of the project.
 
 The privacy notice and the terms (drafts, English and Hebrew) and the store listing draft are in `docs/legal/`. The longer notes and the questions for a lawyer are in the project files (`legal/`).

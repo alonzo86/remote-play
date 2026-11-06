@@ -158,22 +158,24 @@ func _run() -> void:
 	var game: Control = app.current_screen()
 	_check(not game.has_method("_countdown_spots") and game.player(0).player_name != game.player(1).player_name,
 			"the game has no name tags (removed 2026-10-21) and the 2 phones have different names (2a)")
-	_check(game.hole_text() == "HOLE 1/3  PAR 2"
-			and game.chip_text(0) == game.player(0).player_name + "  0" and game.chip_text(1) == game.player(1).player_name + "  0",
-			"the top right says '%s' and the bar has one chip per player: '%s', '%s' (2c)"
-			% [game.hole_text(), game.chip_text(0), game.chip_text(1)])
-	var balls: Array = [GolfLook.Geo.new(Vector2(1920, 1080)).ball_r(Holes.hole(1).tee.y) * 2.0]
-	print("   the ball is %.0f px wide at the tee on a 1080p screen (%.1f%% of the height)" % [balls[0], balls[0] / 10.8])
-	# REQ-GM-47e / 47m: a key object (the ball) is 48 px (4.4 % of 1080) or more on the screen, also at the far end.
+	_check(game.hole_text() == "HOLE 1/3  PAR 2", "the bar says '%s' (2c)" % game.hole_text())
+	# The ball is 32 units (3 % of 1080; an exception to REQ-GM-47m, owner 2026-11-03: 48 was too big) on every hole, and the cup is
+	# bigger than the ball (the view has one scale for a hole, so it is the same at the tee and at the cup).
 	var smallest := 9999.0
+	var cup_ok := true
 	for n in [1, 2, 3, 4, 5]:
-		var hh: Dictionary = Holes.hole(n)
-		smallest = minf(smallest, GolfLook.Geo.new(Vector2(1920, 1080)).ball_r(hh.cup.y) * 2.0)
-	_check(balls[0] >= 48.0 and smallest >= 48.0,
-			"the golf ball is 48 px or more at 1080p at the tee and at every cup (%.0f, %.0f px)"
-			% [balls[0], smallest])
+		var geo := GolfLook.Geo.new(Vector2(1920, 1080), Holes.hole(n))
+		smallest = minf(smallest, geo.ball_d())
+		cup_ok = cup_ok and geo.cup_r() * 2.0 > geo.ball_d()
+	print("   the ball is %.0f units wide on a 1080p screen (%.1f%% of the height)" % [smallest, smallest / 10.8])
+	_check(smallest == 32.0 and cup_ok,
+			"the golf ball is 32 units at 1080p on every hole, and the cup is wider (%.0f)" % smallest)
 	_to_turn(game)
-	_check(game._putter == game.rules.current_slot() and game._putter == 0, "only the golfer of the player on turn is drawn (3a)")
+	var on_course: Array = game.ball_list()
+	_check(game._putter == game.rules.current_slot() and game._putter == 0 and game.golfer_shown(),
+			"only the golfer of the player on turn is drawn (3a)")
+	_check(on_course.size() == 1 and on_course[0].turn and on_course[0].slot == 0,
+			"only the ball of the player on turn is on the course (REQ-MG-2, owner 2026-11-03)")
 	_check(game.TURN_BANNER >= 1.0 and game.TURN_BANNER <= 2.0,
 			"the name of the player on turn shows for %.1f s, between 1 and 2 (3c)"
 			% game.TURN_BANNER)
@@ -189,12 +191,65 @@ func _run() -> void:
 			"20 degrees to the right aims +%.2f rad, 20 degrees to the left aims %.2f rad (4a)" % [right, left])
 	_turn(game, 0, -20.0, 0.5)
 	_check(absf(game._heading) < 0.06, "back at the start the aim is straight again (%.2f rad)" % game._heading)
+	_turn(game, 0, 150.0, 1.0)   # Nearly backwards: the aim is not limited to the front (owner, 2026-11-04).
+	_check(game._heading < -2.4 and game._heading > -2.8,
+			"150 degrees to the left aims %.2f rad: the putt can go back" % game._heading)
+	_check(game.golfer_flipped(), "when the aim points back the golfer turns the other way")
+	_turn(game, 0, -150.0, 1.0)
+	_check(absf(game._heading) < 0.06 and not game.golfer_flipped(),
+			"and back at the start the aim is straight again (%.2f rad) and the golfer faces the cup" % game._heading)
 	_feed(game, 0, Trace.stroke(Vector3(1, 0, 0), 8.0, 0.0, 0.25, 0.01).slice(0, 15))
 	_check(game.detector.aim_locked, "the back swing locks the aim")
 	var locked_at: float = game._heading
 	_turn(game, 0, 20.0, 0.5)
 	_check(game.detector.aim_locked
 				and game._heading == locked_at, "a turn of 20 degrees while the aim is locked changes nothing (4c)")
+
+	# ---- 4e: near the cup the aim snaps to it; A locks the aim and a second press unlocks it (REQ-MG-4) ----
+	var gsn := await _start(app)
+	var to_cup: float = GolfSim.heading_to_cup(gsn._hole, gsn.sim.pos)
+	_turn(gsn, 0, -rad_to_deg(0.06), 0.5)   # 0.06 rad (3.4 degrees) from the cup: inside the snap
+	_check(gsn._snapped and gsn._heading == to_cup,
+			"3 degrees from the cup the aim snaps to the cup (heading %.3f, cup %.3f)" % [gsn._heading, to_cup])
+	_turn(gsn, 0, -rad_to_deg(0.13), 0.5)
+	_check(not gsn._snapped and absf(gsn._heading - to_cup) > 0.15,
+			"14 degrees from the cup the aim does not snap (%.2f rad away)" % absf(gsn._heading - to_cup))
+	_sample(gsn, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)   # A goes down: the aim is locked.
+	_sample(gsn, 0, Vector3.ZERO)
+	var held_at: float = gsn._heading
+	_turn(gsn, 0, 25.0, 0.5)
+	_check(gsn._aim_held and not gsn.detector.aim_locked and gsn._heading == held_at,
+			"A locks the aim: a turn of 25 degrees changes nothing, and the swing has not started")
+	_check(gsn.aim_hint_key() == "", "while the aim is locked by A no instruction shows on the screen (owner, 2026-11-04)")
+	_sample(gsn, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)
+	_sample(gsn, 0, Vector3.ZERO)
+	_turn(gsn, 0, -10.0, 0.5)
+	_check(not gsn._aim_held and gsn._heading != held_at, "a second press on A unlocks it: the aim follows the phone again")
+	# The phone points at the cup at the start of every turn, wherever the cup is (owner, 2026-11-05): on hole 3 a phone that is
+	# held still aims at the cup, and a turn of 20 degrees to the right aims 20 degrees clockwise from the cup.
+	var g3c := await _start(app, {"holes": "3"})
+	g3c.rules.next_hole()
+	g3c.rules.next_hole()
+	g3c._balls.clear()
+	g3c._load_hole()
+	g3c._start_turn()
+	_rest(g3c, 0, 0.3)
+	var cup3: float = GolfSim.heading_to_cup(g3c._hole, g3c.sim.pos)
+	_check(absf(cup3) > 0.5 and absf(g3c._heading - cup3) < 0.03 and g3c._snapped,
+			"hole 3: a phone that is held still aims at the cup (%.2f rad, the cup is at %.2f)" % [g3c._heading, cup3])
+	_turn(g3c, 0, -20.0, 0.5)
+	_check(absf(wrapf(g3c._heading - cup3, -PI, PI) - 0.35) < 0.06 and not g3c._snapped,
+			"hole 3: a turn of 20 degrees to the right aims 20 degrees clockwise from the cup (%.2f rad from it)"
+			% wrapf(g3c._heading - cup3, -PI, PI))
+	# An A that is held while the turn starts is not a press, and a press during the back swing changes nothing.
+	var gk := await _start(app)
+	gk.player(0).buttons = Protocol.BTN_A
+	_rest(gk, 0, 0.3)
+	_check(not gk._aim_held, "an A that is held from before is not a press")
+	gk.player(0).buttons = 0
+	_feed(gk, 0, Trace.stroke(Vector3(1, 0, 0), 8.0, 0.0, 0.25, 0.01).slice(0, 15))
+	_sample(gk, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)
+	_check(gk.detector.aim_locked and not gk._aim_held, "a press on A during the back swing does nothing")
 
 	# ---- 4b: RECENTER straightens the aim within a second ----
 	var g2 := await _start(app)
@@ -223,7 +278,7 @@ func _run() -> void:
 	for k in 5:
 		var speeds: Array = []
 		var dists: Array = []
-		for peak in [12.0, 20.0, 30.0]:
+		for peak in [8.0, 12.0, 18.0]:   # Full power is reached at 18 m/s2 (FULL_FWD).
 			var g := await _start(app)
 			_swing(g, 0, peak + rng.randf_range(-1.0, 1.0))
 			speeds.append(g.sim.vel.length())
@@ -312,17 +367,17 @@ func _run() -> void:
 		var gh := await _start(app, {"difficulty": d})
 		var unlocked: String = gh.aim_hint_key()
 		_feed(gh, 0, Trace.stroke(Vector3(1, 0, 0), 8.0, 0.0, 0.25, 0.01).slice(0, 15))
-		var locked: String = gh.aim_hint_key()
-		if d == "easy":
-			hint_ok = hint_ok and unlocked == "mini_golf.hint_aim" and locked == "mini_golf.hint_power" \
-					and Lang.t(locked) == "SWING FORWARD. A BIGGER SWING GOES FARTHER!"
-		else:
-			hint_ok = hint_ok and unlocked == "mini_golf.hint_aim" and locked == ""
-	_check(hint_ok, "'SWING FORWARD...' shows after the lock on Easy only (9b)")
+		hint_ok = hint_ok and unlocked == "" and gh.aim_hint_key() == ""
+	_check(hint_ok, "no instruction shows before or after the lock on any level (9b, owner 2026-11-04)")
 	var dist := {"easy": 0.0, "medium": 0.0}
 	for d in ["easy", "medium"]:
 		for k in 5:
 			var gw := await _start(app, {"difficulty": d})
+			var flat := {"par": 2, "tee": Vector2(0.0, 1.1), "cup": Vector2(0.0, 5.1), "fairway": [Rect2(-0.8, 0.75, 1.6, 5.0)],
+					"water": [], "bridges": [], "blocks": [], "rocks": []}   # No hill: the weakest putts roll free.
+			gw._hole = flat
+			gw._spot = flat.tee
+			gw.sim.start(flat, flat.tee)
 			# The weakest putt is a pendulum swing as a hand moves it (it brakes the back swing, issue #209).
 			var weak_fwd: float = (6.0 if d == "easy" else 8.6) + rng.randf_range(0.0, 0.3)
 			_feed(gw, 0, Array(R.pendulum(Vector3(1, 0, 0), 5.0 if d == "easy" else 8.0, weak_fwd, 0.25).lin))
@@ -344,14 +399,17 @@ func _run() -> void:
 	_check(same, "hole 1 is the same on every level (9d)")
 
 	# ---- 8: the holes, the card and the next hole ----
-	var g5 := await _start(app, {"holes": "5"})
+	var g5 := await _start(app, {"holes": "10"})
 	var texts: Array = []
-	for n in 5:
+	for n in 10:
 		texts.append(g5.hole_text())
-		if n < 4:
+		if n < 9:
 			g5.rules.next_hole()
-	_check(texts == ["HOLE 1/5  PAR 2", "HOLE 2/5  PAR 3", "HOLE 3/5  PAR 3", "HOLE 4/5  PAR 3", "HOLE 5/5  PAR 4"],
-			"the top right text of the 5 holes: %s (8a)" % str(texts))
+	var pars := [2, 3, 3, 3, 4, 3, 3, 3, 3, 3]
+	var want: Array = []
+	for k in 10:
+		want.append("HOLE %d/10  PAR %d" % [k + 1, pars[k]])
+	_check(texts == want, "the text of the 10 holes in the bar: %s (8a)" % str(texts))
 	var g6 := await _start(app, {"holes": "2"})
 	g6.sim.in_cup = true
 	g6._putt_done()
@@ -367,28 +425,23 @@ func _run() -> void:
 			"the card says 'Hole 1 done!' with 1 and 2 strokes and the totals 1 and 2 (8d)")
 	for i in 60:
 		_sample(g6, 0, Vector3.ZERO)
-	_check(g6.phase == g6.Phase.HOLE, "the card stays while nobody presses A (1 s)")
-	_sample(g6, 0, Vector3.ZERO, Vector3.ZERO, Protocol.BTN_A)
-	_sample(g6, 0, Vector3.ZERO)
-	_check(g6.phase == g6.Phase.AIM and g6.rules.hole_number() == 2 and g6._phase_time < 0.2,
-			"A on a phone starts the next hole at once (8e)")
+	_check(g6.phase == g6.Phase.HOLE, "the card stays for 1 s (it goes on by itself, no button: owner, 2026-11-03)")
+	for i in int((g6.HOLE_TIME + 0.5) / DT):
+		_sample(g6, 0, Vector3.ZERO)
+	_check(g6.phase == g6.Phase.AIM and g6.rules.hole_number() == 2,
+			"the card goes on to the next hole by itself after %.1f s (8e)" % g6.HOLE_TIME)
 	_check(g6.rules.total(0) == 1 and g6.rules.total(1) == 2, "the totals go on to hole 2: 1 and 2 strokes")
 
-	# A held A does not skip the banner of a putt: the button is read in every phase, so only a new press counts (REQ-MG-3).
+	# A button held on the phone does nothing: the game has no button (REQ-GM-37a).
 	var g7 := await _start(app, {"holes": "3"})
 	g7.player(0).buttons = Protocol.BTN_A
-	g7.player(1).buttons = Protocol.BTN_A
-	g7._game_tick(DT)   # In the AIM phase: A goes down.
 	g7.sim.in_cup = true   # A putt that holes out has a banner.
 	g7._putt_done()
 	g7._game_tick(DT)
-	_check(g7.phase == g7.Phase.RESULT and g7._banner != "", "A held since the aim does not skip the putt banner")
 	g7.player(0).buttons = 0
-	g7.player(1).buttons = 0
-	g7._game_tick(DT)
 	g7.player(0).buttons = Protocol.BTN_A
 	g7._game_tick(DT)
-	_check(g7.phase != g7.Phase.RESULT, "a new press on A skips the putt banner")
+	_check(g7.phase == g7.Phase.RESULT and g7._banner != "", "a press on A does not skip the putt banner: the game has no button")
 
 	# ---- 10b: the score of 3 holes alone is the number of strokes (no medal tiers, REQ-GM-73, REQ-MG-14) ----
 	var strokes_ok := true

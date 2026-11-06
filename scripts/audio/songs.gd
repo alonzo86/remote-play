@@ -1,7 +1,8 @@
 extends RefCounted
 ## The songs and the sound effects (docs/AUDIO_PLAN.md, sections 2 and 4). Everything is data: a song is a tempo, four
 ## chords and two lead phrases of 16 beats. `events()` turns it into synth events, so a change is a text change.
-## All songs are original. Do not copy a known melody.
+## All songs are original, except the six traditional melodies of Freeze Dance (`FREEZE_DANCE_SONGS`), which are in the public
+## domain (docs/THIRD_PARTY.md). Do not copy any other known melody.
 
 const Synth = preload("res://scripts/audio/synth.gd")
 
@@ -11,6 +12,9 @@ const SECTION_BEATS := 16
 
 ## id -> song. `prog`: the 4 chords of a section, a bar each, as 3 note names. `lead`: voice and duty of the melody.
 ## `drums`: "pop", "drive", "light" or "march". Lead phrases are "NOTE:beats" tokens; "-" is a rest.
+const FREEZE_DANCE_SONGS := ["freeze_dance", "freeze_dance_jacques", "freeze_dance_twinkle", "freeze_dance_lamb",
+		"freeze_dance_ode", "freeze_dance_london", "freeze_dance_buns"]
+
 const SONGS := {
 	"menu": {"bpm": 112, "lead_duty": 0.5, "drums": "pop",
 		"prog": [["C3", "E3", "G3"], ["A2", "C3", "E3"], ["F2", "A2", "C3"], ["G2", "B2", "D3"]],
@@ -86,6 +90,33 @@ const SONGS := {
 		"a": ("E5:0.5 -:0.5 E5:0.5 G5:0.5 A5:1 G5:0.5 E5:0.5  D5:0.5 -:0.5 D5:0.5 F5:0.5 A5:1 F5:1  " +
 				"D5:0.5 -:0.5 D5:0.5 G5:0.5 B5:1 G5:0.5 D5:0.5  E5:0.5 -:0.5 G5:0.5 E5:0.5 C5:1 -:1"),
 		"b": "A5:1 G5:0.5 E5:0.5 A5:1 C6:1  A5:1 F5:0.5 D5:0.5 F5:1 A5:1  B5:1 G5:0.5 D5:0.5 G5:1 B5:1  C6:1 B5:0.5 A5:0.5 G5:1 E5:1"},
+	# Freeze Dance: six traditional melodies in the public domain (Frère Jacques, 18th century; Twinkle Twinkle, "Ah! vous
+	# dirai-je, maman", 1761; Mary Had a Little Lamb, 1830; Ode to Joy, Beethoven, 1824; London Bridge, 18th century; Hot Cross Buns,
+	# 18th century). The notes are written here for the synth, no recording is used.
+	"freeze_dance_jacques": {"bpm": 120, "lead_duty": 0.5, "drums": "pop",
+		"prog": [["C3", "E3", "G3"], ["C3", "E3", "G3"], ["G2", "B2", "D3"], ["C3", "E3", "G3"]],
+		"a": "C5:1 D5:1 E5:1 C5:1  C5:1 D5:1 E5:1 C5:1  E5:1 F5:1 G5:2  E5:1 F5:1 G5:2",
+		"b": "G5:1 A5:1 G5:1 F5:1  E5:2 C5:2  G5:1 A5:1 G5:1 F5:1  E5:2 C5:2"},
+	"freeze_dance_twinkle": {"bpm": 116, "lead_duty": 0.25, "drums": "light",
+		"prog": [["C3", "E3", "G3"], ["F2", "A2", "C3"], ["C3", "E3", "G3"], ["G2", "B2", "D3"]],
+		"a": "C5:1 C5:1 G5:1 G5:1  A5:1 A5:1 G5:2  F5:1 F5:1 E5:1 E5:1  D5:1 D5:1 C5:2",
+		"b": "G5:1 G5:1 F5:1 F5:1  E5:1 E5:1 D5:2  G5:1 G5:1 F5:1 F5:1  E5:1 E5:1 D5:2"},
+	"freeze_dance_lamb": {"bpm": 128, "lead_duty": 0.25, "drums": "drive",
+		"prog": [["C3", "E3", "G3"], ["C3", "E3", "G3"], ["G2", "B2", "D3"], ["C3", "E3", "G3"]],
+		"a": "E5:1 D5:1 C5:1 D5:1  E5:1 E5:1 E5:2  D5:1 D5:1 D5:2  E5:1 G5:1 G5:2",
+		"b": "E5:1 D5:1 C5:1 D5:1  E5:1 E5:1 E5:1 E5:1  D5:1 D5:1 E5:1 D5:1  C5:4"},
+	"freeze_dance_ode": {"bpm": 112, "lead_duty": 0.5, "drums": "pop",
+		"prog": [["C3", "E3", "G3"], ["G2", "B2", "D3"], ["C3", "E3", "G3"], ["G2", "B2", "D3"]],
+		"a": "E5:1 E5:1 F5:1 G5:1  G5:1 F5:1 E5:1 D5:1  C5:1 C5:1 D5:1 E5:1  E5:1.5 D5:0.5 D5:2",
+		"b": "E5:1 E5:1 F5:1 G5:1  G5:1 F5:1 E5:1 D5:1  C5:1 C5:1 D5:1 E5:1  D5:1.5 C5:0.5 C5:2"},
+	"freeze_dance_london": {"bpm": 124, "lead_duty": 0.25, "drums": "light",
+		"prog": [["C3", "E3", "G3"], ["C3", "E3", "G3"], ["G2", "B2", "D3"], ["C3", "E3", "G3"]],
+		"a": "G5:1.5 A5:0.5 G5:1 F5:1  E5:1 F5:1 G5:2  D5:1 E5:1 F5:2  E5:1 F5:1 G5:2",
+		"b": "G5:1.5 A5:0.5 G5:1 F5:1  E5:1 F5:1 G5:2  D5:2 G5:2  E5:2 C5:2"},
+	"freeze_dance_buns": {"bpm": 132, "lead_duty": 0.5, "drums": "drive",
+		"prog": [["C3", "E3", "G3"], ["G2", "B2", "D3"], ["C3", "E3", "G3"], ["G2", "B2", "D3"]],
+		"a": ("E5:1 D5:1 C5:2  E5:1 D5:1 C5:2  C5:0.5 C5:0.5 C5:0.5 C5:0.5 D5:0.5 D5:0.5 D5:0.5 D5:0.5  E5:1 D5:1 C5:2"),
+		"b": ("E6:1 D6:1 C6:2  E6:1 D6:1 C6:2  C6:0.5 C6:0.5 C6:0.5 C6:0.5 D6:0.5 D6:0.5 D6:0.5 D6:0.5  E6:1 D6:1 C6:2")},
 }
 
 
@@ -251,7 +282,9 @@ static func effects() -> Dictionary:
 	fx["golf_turn"] = _run(["F5", "A5"], 0.08, 0.25)
 	fx["golf_putt"] = [_noise(2000.0, 1000.0, 0.05, 0.25), _blip(600.0, 350.0, 0.06, 0.28, 0.25)]
 	fx["golf_wall"] = [_blip(300.0, 220.0, 0.05, 0.22, 0.25)]
-	fx["golf_blade"] = [_blip(500.0, 900.0, 0.08, 0.3, 0.25)]
+	fx["golf_loop"] = [_blip(300.0, 1200.0, 0.5, 0.3, 0.25)]
+	fx["golf_cannon"] = [_noise(500.0, 80.0, 0.35, 0.23), _blip(160.0, 60.0, 0.3, 0.23)]
+	fx["golf_teleport"] = [_blip(1200.0, 300.0, 0.25, 0.3, 0.25)]
 	fx["golf_splash"] = [_noise(3000.0, 600.0, 0.3, 0.21), _blip(700.0, 200.0, 0.25, 0.14)]
 	fx["golf_hole"] = _run(["C5", "E5", "G5"], 0.08, 0.3)
 	fx["golf_ace"] = _run(["C5", "E5", "G5", "C6", "E6", "G6"], 0.075, 0.35, 0.5, 1.0)

@@ -202,7 +202,7 @@ func _disconnect_button() -> void:
 				"[%s] the text of a pressed button turns black on the white fill, a normal one is white on black" % lang)
 		holder.queue_free()
 	_app.set_language("en", false)
-	# The Disconnect box of the pad: the rect is the top right of the pad.
+	# The HOLD TO LEAVE box of the pad: the rect is the bottom of the pad, the whole width.
 	var pad_script: GDScript = _pad_script
 	var holder2 := Control.new()
 	holder2.size = viewport
@@ -212,12 +212,21 @@ func _disconnect_button() -> void:
 	await process_frame
 	await process_frame
 	var leave: Rect2 = pad._rect_leave()
-	_check(leave.end.x > pad.size.x * 0.8 and leave.position.y < pad.size.y * 0.15 and leave.size.y >= 80.0,
-			"Disconnect is in the top right corner of the pad and at least 80 px high: %s" % str(leave))
+	# Inset so that the rounded corners of a phone do not cut it: a corner of radius 150 px (a large one) leaves its corners whole.
+	var corner := 150.0
+	var inset_x: float = leave.position.x
+	var inset_y: float = pad.size.y - leave.end.y
+	_check(inset_x >= 48.0 and inset_y >= 32.0 and is_equal_approx(pad.size.x - leave.end.x, inset_x) and leave.size.y >= 80.0
+			and Vector2(corner - inset_x, corner - inset_y).length() < corner,
+			"HOLD TO LEAVE is at the bottom, inset %.0f px at the sides, %.0f px at the bottom (no corner is cut): %s"
+			% [inset_x, inset_y, str(leave)])
+	var a_bottom: float = pad._center_a().y + pad._radius()
+	_check(a_bottom < leave.position.y and pad._center_b().y + pad._radius() < leave.position.y,
+			"the A and B buttons end above the HOLD TO LEAVE box (%.0f against %.0f px)" % [a_bottom, leave.position.y])
 	holder2.queue_free()
 
 
-## Test 7.6c, 6d: A and B are white (issue #173); a pressed button sits lower (REQ-FL-52).
+## Test 7.6c, 6d: A is green and B is red; a pressed button sits lower (REQ-FL-52).
 func _pad_buttons() -> void:
 	print("A and B")
 	var pad_script: GDScript = _pad_script
@@ -225,9 +234,13 @@ func _pad_buttons() -> void:
 			"a pressed arcade button sits lower than a free one (%.0f against %.0f px)"
 			% [pad_script.BUTTON_LIFT_DOWN, pad_script.BUTTON_LIFT])
 	var src := FileAccess.get_file_as_string("res://scripts/ui/controller_pad.gd")
-	var draws_a: bool = src.contains('_draw_button(_center_a(), "A", Protocol.BTN_A)')
-	var draws_b: bool = src.contains('_draw_button(_center_b(), "B", Protocol.BTN_B)')
-	_check(draws_a and draws_b, "the pad draws A and B with no color of their own (a white face, issue #173)")
+	var draws_a: bool = src.contains('_draw_button(_center_a(), "A", Protocol.BTN_A, UiTheme.OK)')
+	var draws_b: bool = src.contains('_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)')
+	_check(draws_a and draws_b, "the pad draws A green (OK) and B red (BAD), REQ-FL-52 (owner, 2026-11-03)")
+	var on_green := UiTheme.contrast(UiTheme.text_on(UiTheme.OK), UiTheme.OK)
+	var on_red := UiTheme.contrast(UiTheme.text_on(UiTheme.BAD), UiTheme.BAD)
+	_check(on_green >= 4.5 and on_red >= 4.5,
+			"the letter on the green A and the red B reads (4.5:1)")
 
 
 ## Issue #238, REQ-FL-52b: a long name fits the header, and a lost link buzzes the phone once (HAPTICS ON only).
@@ -248,10 +261,15 @@ func _pad_header() -> void:
 			var widest := 0.0
 			for line in lines:
 				widest = maxf(widest, UiTheme.font().get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 48).x)
-			_check(widest <= rect.size.x and "".join(lines) == names[lang] and lines.size() == 2
-					and rect.end.x <= pad._rect_leave().position.x,
-					"[%s] a name of 16 letters goes on 2 lines at 48 px, nothing cut, with%s an avatar (%.0f of %.0f px)"
+			_check(widest <= rect.size.x and "".join(lines) == names[lang] and lines.size() <= 2
+					and rect.end.x <= pad.size.x - 60.0 + 0.5 and rect.end.y <= pad._rect_leave().position.y,
+					"[%s] a name of 16 letters is on 1 or 2 lines at 48 px, nothing cut, with%s an avatar (%.0f of %.0f px)"
 					% [lang, "" if avatar else "out", widest, rect.size.x])
+			# A name that is wider than the room still goes on a second line (REQ-FL-52b): 24 letters do not fit one line.
+			var long_name: String = names[lang] + names[lang].substr(0, 8)
+			var long_lines: Array[String] = _pad_script.name_lines(long_name, rect.size.x)
+			_check(long_lines.size() == 2 and "".join(long_lines) == long_name,
+					"[%s] a name of 24 letters goes on 2 lines at 48 px, nothing cut, with%s an avatar" % [lang, "" if avatar else "out"])
 	_check(_pad_script.name_lines("MAYA", pad._rect_name(true).size.x) == ["MAYA"],
 			"a short name is one line of the full 48 px type")
 	_check(_pad_script.name_lines("WWWWWWWWWW", pad._rect_name(true).size.x).size() == 1,

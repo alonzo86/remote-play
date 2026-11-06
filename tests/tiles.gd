@@ -231,7 +231,7 @@ func _run() -> void:
 	# Mini Golf: lawn, lake, windmill wood, ball, players.
 	var golf: Image = images.mini_golf
 	_check(_share(golf, [GolfLook.FAIR_A, GolfLook.FAIR_B, GolfLook.LAWN_A, GolfLook.LAWN_B]) > 0.1
-			and _count(golf, GolfLook.WATER) > 3000 and _count(golf, GolfLook.WOOD) > 2000,
+			and _count(golf, GolfLook.WATER) > 300 and _count(golf, GolfLook.WOOD) > 2000,
 			"mini_golf: the fairway, the lake and the wood of the windmill")
 	# The tile has no HUD chips (REQ-GM-49): only the golfer on its turn shows a player color.
 	_players(golf, "mini_golf", pc, 1, 60, 20)

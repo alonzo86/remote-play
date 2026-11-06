@@ -181,17 +181,15 @@ func _choices() -> void:
 	_check(sim.clients[0].setup_pick and sim.clients[1].setup_pick and sim.clients[2].setup_pick
 			and sim.clients[0].setup_in and sim.clients[1].setup_in and app.server.players_in() == [0, 1, 2],
 			"with 3 phones every phone gets the question and everybody is IN")
-	_check(view.in_label.visible and not view.out_label.visible
-			and view.in_label.text == "IN: %s, %s, %s" % [_name(0), _name(1), _name(2)],
+	_check(view.in_label.text == "IN: %s, %s, %s" % [_name(0), _name(1), _name(2)],
 			"the TV lists the 3 players as IN: %s" % view.in_label.text)
 	sim.clients[1].send_play(false)
 	await _wait_for(func(): return app.server.players_in() == [0, 2])
 	await sim.frames(3)
 	_check(app.server.players_in() == [0, 2] and not sim.clients[1].setup_in and sim.clients[0].setup_in,
 			"OUT on phone 2: the TV keeps players 1 and 3")
-	_check(view.in_label.text == "IN: %s, %s" % [_name(0), _name(2)] and view.out_label.visible
-			and view.out_label.text == "OUT: %s" % _name(1),
-			"the TV list says OUT for player 2: %s / %s" % [view.in_label.text, view.out_label.text])
+	_check(view.in_label.text == "IN: %s, %s" % [_name(0), _name(2)],
+			"the TV list has the players that are IN only, no OUT line: %s" % view.in_label.text)
 	# Start counts the players that are IN.
 	app.go_game_settings("sumo_bumpers")
 	await sim.frames(4)
@@ -204,10 +202,14 @@ func _choices() -> void:
 			and view.reason_label.text == Lang.t("games.needs_players").replace("%d", "2").to_upper(),
 			"Sumo Bumpers needs 2 players: with one phone IN Start is off and the line says so")
 	sim.clients[0].send_play(false)
-	await sim.frames(6)
-	await _wait_for(func(): return sim.clients[0].setup_in)
-	_check(app.server.players_in() == [0] and sim.clients[0].setup_in,
-			"the last phone that is IN cannot go OUT, and its button says IN again")
+	await _wait_for(func(): return app.server.players_in().is_empty())
+	await sim.frames(3)
+	_check(app.server.players_in().is_empty() and not sim.clients[0].setup_in and view.start_button.disabled
+			and view.in_label.text == ""
+			and view.reason_label.text == Lang.f("games.needs_at_least", [2]).to_upper(),
+			"every phone may go OUT: nobody is IN, Start is off, the list is empty and the line says AT LEAST 2 PLAYERS NEEDED")
+	sim.clients[0].send_play(true)
+	await _wait_for(func(): return app.server.players_in() == [0])
 	sim.clients[2].send_play(true)
 	await _wait_for(func(): return app.server.players_in() == [0, 2])
 	await sim.frames(3)
@@ -228,6 +230,20 @@ func _choices() -> void:
 	app.go_games()
 	await sim.frames(4)
 	_check(app.server.players_in() == [0, 1, 2], "the Games screen makes everybody IN again")
+	_check(not sim.clients[0].setup_open, "the phone knows that the settings view is closed, so it shows 'choose a game' again")
+	# Review of PR 379: a phone that is OUT must not be stuck OUT when the other phone leaves (nobody is asked with one phone).
+	app.go_game_settings("maze")
+	await sim.frames(4)
+	_check(sim.clients[0].setup_open, "with the settings view open the phone knows it (GET READY! on the waiting screen)")
+	sim.clients[2].leave()
+	await _wait_for(func(): return app.server.connected_slots() == [0, 1])
+	sim.clients[1].send_play(false)
+	await _wait_for(func(): return app.server.players_in() == [0])
+	sim.clients[0].leave()
+	await _wait_for(func(): return app.server.connected_slots() == [1])
+	await sim.frames(4)
+	_check(app.server.players_in() == [1] and sim.clients[1].setup_in and not app.current_screen().start_button.disabled,
+			"the last phone is IN even when it chose OUT before the other phone left: Start works")
 
 
 ## With one phone the question does not show.
@@ -239,8 +255,12 @@ func _one_phone() -> void:
 	app.go_game_settings("maze")
 	await _wait_for(func(): return app.server.setup_open)
 	await sim.frames(6)
-	_check(not sim.clients[0].setup_pick and not app.current_screen().in_label.visible,
+	_check(not sim.clients[0].setup_pick and app.current_screen().in_label.text == "",
 			"with one phone there is no question and no list")
+	sim.clients[0].send_play(false)
+	await sim.frames(6)
+	_check(app.server.players_in() == [0] and not app.current_screen().start_button.disabled,
+			"with one phone an OUT message changes nothing: the phone stays IN and Start works")
 
 
 ## The tallest views (the track list of Car Race; a swing game has the safety line) with 3 players listed stay inside the 60 px
@@ -254,8 +274,8 @@ func _fit() -> void:
 		await _wait_for(func(): return sim.clients[3].setup_pick)
 		await sim.frames(4)
 		var view: Control = app.current_screen()
-		var low: float = view.out_label.get_global_rect().end.y if view.out_label.visible else view.in_label.get_global_rect().end.y
-		_check(view.in_label.visible and low <= 1080.0 - 60.0 and view.how_to_label.get_global_rect().position.y >= 60.0,
+		var low: float = view.in_label.get_global_rect().end.y
+		_check(view.in_label.text != "" and low <= 1080.0 - 60.0 and view.how_to_label.get_global_rect().position.y >= 60.0,
 				"%s with 4 players listed: the view ends at %.0f px of 1020" % [id, low])
 		# REQ-GM-90: the IN and OUT lines do not widen the column: the rows and the Back and Start line keep the width of the
 		# widest row (880 px, wider only for the track list), not the 1500 px of how to play.

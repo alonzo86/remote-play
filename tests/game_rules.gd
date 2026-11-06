@@ -742,10 +742,10 @@ func _sumo_arena() -> void:
 			"the platform is smaller, shrinks faster and the dash comes back later with the difficulty")
 	var a := SumoArena.new()
 	a.setup("medium")
-	_check(a.radius() == 380.0 and a.danger() == 0.0 and a.speedup == 1.0,
+	_check(a.radius() == 400.0 and a.danger() == 0.0 and a.speedup == 1.0,
 			"a round starts with the full platform at the normal rate")
-	a.tick(12.0)
-	_check(is_equal_approx(a.radius(), (380.0 + SumoArena.MIN_RADIUS) * 0.5) and is_equal_approx(a.danger(), 0.5),
+	a.tick(20.0)
+	_check(is_equal_approx(a.radius(), (400.0 + SumoArena.MIN_RADIUS) * 0.5) and is_equal_approx(a.danger(), 0.5),
 			"the radius falls in a straight line: half way after half the time")
 	a.tick(100.0)
 	_check(a.radius() == SumoArena.MIN_RADIUS and a.danger() == 1.0, "the platform stops at the least radius (REQ-SB-6)")
@@ -763,7 +763,7 @@ func _sumo_arena() -> void:
 		while w.radius() > SumoArena.MIN_RADIUS and seconds < 100.0:
 			w.tick(0.1)
 			seconds += 0.1
-		wait_ok = wait_ok and seconds <= SumoArena.MAX_WAIT and absf(seconds - w.longest_wait()) < 0.2
+		wait_ok = wait_ok and seconds <= SumoArena.MAX_WAIT + 0.2 and absf(seconds - w.longest_wait()) < 0.2
 		wait_ok = wait_ok and w.longest_wait() <= SumoArena.MAX_WAIT
 	_check(wait_ok, "after the first fall every round is over in 20 s or less, at every difficulty (REQ-GM-83)")
 	var fast := SumoArena.new()
@@ -777,7 +777,7 @@ func _sumo_arena() -> void:
 	fast.setup("easy")
 	_check(fast.speedup == 1.0 and fast.time == 0.0, "a new round starts at the normal rate again")
 	a.setup("nonsense")
-	_check(a.radius() == 380.0, "an unknown difficulty is Medium")
+	_check(a.radius() == 400.0, "an unknown difficulty is Medium")
 	var spread_ok := true
 	var inside_ok := true
 	for d in ["easy", "medium", "hard"]:

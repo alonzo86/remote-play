@@ -580,26 +580,32 @@ func _hebrew_results() -> void:
 		mz._game_tick(0.016)
 		await _frames(6)
 		_check(mz.is_over and mz._menu_box != null, "[%s] a ball in the exit opens the result menu" % lang)
-		var rows: Array = mz._menu_box.find_children("*", "HBoxContainer", true, false).filter(
-				func(h): return h.get_children().any(func(c): return c is ColorRect))
-		_check(rows.size() == 2, "[%s] the result menu has 2 rows" % lang)
-		if rows.size() == 2:
-			var time_text := String(_labels(rows[0])[0].text)
+		# The result list is a table of 6 columns: color square, avatar, medal, place, name, score (the time here).
+		var grids: Array = mz._menu_box.find_children("*", "GridContainer", true, false)
+		var cells: Array = grids[0].get_children() if grids.size() == 1 else []
+		var rows: int = cells.size() / 6
+		_check(rows == 2 and cells.size() == 12, "[%s] the result menu has 2 rows" % lang)
+		if rows == 2:
+			var time_text := String(cells[5].text)
 			var unit_ok: bool = time_text.ends_with("ש׳") if lang == "he" else time_text.ends_with(" S")
 			_check(unit_ok, "[%s] the time of the winner ends with the unit of seconds: '%s'" % [lang, time_text])
+			var aligned := true   # The columns line up: the same cell of both rows starts at the same x (the table, REQ-GM-72).
+			for col in 6:
+				aligned = aligned and is_equal_approx(cells[col].get_global_rect().position.x, cells[6 + col].get_global_rect().position.x)
+			_check(aligned, "[%s] the columns of the result table are aligned" % lang)
 			var near := true
 			var indexes := []
 			for r in rows:
-				var squares: Array = r.get_children().filter(func(c): return c is ColorRect)
-				var avatars: Array = r.get_children().filter(func(c): return c is AvatarView)
-				if squares.size() != 1 or avatars.size() != 1:
+				var square = cells[r * 6]
+				var avatar = cells[r * 6 + 1]
+				if not square is ColorRect or not avatar is AvatarView:
 					near = false
 					continue
-				var s: Rect2 = squares[0].get_global_rect()
-				var a: Rect2 = avatars[0].get_global_rect()
+				var s: Rect2 = square.get_global_rect()
+				var a: Rect2 = avatar.get_global_rect()
 				var gap := maxf(a.position.x - s.end.x, s.position.x - a.end.x)
-				near = near and gap >= 0.0 and gap <= 30.0 and a.position.y < s.end.y and s.position.y < a.end.y
-				indexes.append(avatars[0].index)
+				near = near and gap >= 0.0 and gap <= 40.0 and a.position.y < s.end.y and s.position.y < a.end.y
+				indexes.append(avatar.index)
 			_check(near and indexes == [3, 4], "[%s] each row has the avatar of its player next to the color square: %s" % [lang,
 					str(indexes)])
 		for i in 2:

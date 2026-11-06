@@ -5,7 +5,8 @@ extends RefCounted
 
 const BG := Color("000000")          # Every screen background.
 const TEXT := Color("fcfcfc")        # Text and the outer frame line.
-const TEXT_INFO := Color("fcfcfc")   # Active info text: hints, ranges, WAIT, help. White (owner 2026-11-02; was #b0b0b0, #221).
+const TEXT_INFO := Color("fcfcfc")   # Active info text: ranges, WAIT, empty slots. White (owner 2026-11-02; was #b0b0b0, #221).
+const TEXT_DESC := Color("d0d0d0")   # Descriptions and hints: a little under white (owner, 2026-11-03).
 const TEXT_DIM := Color("7c7c7c")    # A disabled item only; never enabled text (#221).
 const ACCENT := Color("f8b800")      # Titles, the room code, the focused item, PRESS OK.
 const FRAME := Color("0058f8")       # The inner frame line (not text).
@@ -94,8 +95,8 @@ static func line_box(color: Color, fill: Color = BG, width := LINE) -> StyleBoxF
 ## The box of a button in one state ("normal", "hover", "focus", "pressed" or "disabled"). Enabled: a black face with white
 ## text and a white border (`BUTTON_FACE`, `BUTTON_TEXT`, `BUTTON_BORDER`). `marked` (the chosen IN or OUT, the active player) is
 ## a yellow border twice as thick, so the mark is a shape and a color and the face stays black. The focus (the TV remote, a
-## keyboard) is different: a yellow face with black text (11.8:1) and the same thick border, so a focused button is never taken
-## for a marked one. Pressed is the reverse (white face, black text). Disabled keeps its dim look (a dim line on black).
+## keyboard) has the same thick yellow border and yellow text (the face stays black; owner, 2026-11-02: no yellow fill). Pressed
+## is the reverse (white face, black text). Disabled keeps its dim look (a dim line on black).
 static func button_box(state: String, marked := false) -> StyleBoxFlat:
 	match state:
 		"disabled":
@@ -103,7 +104,7 @@ static func button_box(state: String, marked := false) -> StyleBoxFlat:
 		"pressed":
 			return _same_margins(line_box(BUTTON_BORDER, BUTTON_TEXT))
 		"focus":
-			return _same_margins(line_box(ACCENT, ACCENT, MARK_W))
+			return _same_margins(line_box(ACCENT, BUTTON_FACE, MARK_W))
 		_:
 			var edge := ACCENT if marked else BUTTON_BORDER
 			return _same_margins(line_box(edge, BUTTON_FACE, MARK_W if marked else LINE))
@@ -121,7 +122,9 @@ static func button_text(state: String) -> Color:
 	match state:
 		"disabled":
 			return DISABLED
-		"pressed", "focus":   # A white face and a yellow face have black text.
+		"focus":   # A black face with a yellow border has yellow text.
+			return ACCENT
+		"pressed":   # A white face has black text.
 			return BUTTON_FACE
 		_:
 			return BUTTON_TEXT
