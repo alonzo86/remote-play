@@ -612,6 +612,9 @@ func _pad_aim_strip() -> void:
 	app.client.turn_kind = "golf"
 	app.client.recenter_button = false   # Mini Golf is not a pointer game (REQ-GM-37, issue #55).
 	_check(pad._zone_at(strip.get_center()) == "pad", "Mini Golf has no Recenter box, the strip is plain pad")
+	_check(pad_script.turn_text("golf", 1, "").begins_with("YOUR TURN: AIM")
+			and pad_script.turn_text("", 1, "") == "YOUR TURN" and pad_script.turn_text("golf", 2, "Maya") == "MAYA IS PUTTING",
+			"the phone on turn in Mini Golf is told what to do with the phone, the others see who putts (REQ-MG-20)")
 	app.client.turn_state = 0
 	app.client.turn_kind = ""
 	pad._process(0.0)

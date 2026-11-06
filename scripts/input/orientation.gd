@@ -110,7 +110,7 @@ func _elevation() -> float:
 
 
 ## Tray tilt. x: positive = right side down. y: positive = top of phone up
-## (ball rolls toward the player). Range about -1..1 (sin of the angle).
+## (ball rolls toward the player). Range -1..1: the sine of the angle up to 90 degrees from the neutral pose, full from there on.
 func tilt() -> Vector2:
 	var d := up - _ref_up
 	var t := Vector2(-d.x, d.y)
