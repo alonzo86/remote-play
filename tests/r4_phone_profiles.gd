@@ -425,7 +425,7 @@ func _scan_flow() -> void:
 	# Owner, 2026-11-06 (REQ-FL-76): after a good scan the phone goes to the Connect screen with the new player selected.
 	_check(_app.current_screen().get_script() == _app.ControllerConnect and _app.profiles.find(noam.id) != null
 			and _app.profiles.find(noam.id).player_name == "Noam" and _app.profiles.active_id == noam.id
-			and _app.current_screen().note == Lang.t("app.player_added").to_upper(),
+			and _app.current_screen()._status.text == Lang.t("app.player_added").to_upper(),
 			"IMPORT of a player code adds the player and goes to the Connect screen with that player selected (%s)"
 			% _app.profiles.active_id)
 	_app.go(_app.ControllerProfileEdit, {"profile_id": ""})   # The new player screen again, for the next checks.
