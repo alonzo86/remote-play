@@ -61,7 +61,7 @@ func _has_countdown() -> bool:
 ## One of the songs of the game, picked at random when the game opens and kept for the whole round (REQ-FD-2).
 func _song_id() -> String:
 	if _song_pick == "":
-		_song_pick = Songs.FREEZE_DANCE_SONGS[randi() % Songs.FREEZE_DANCE_SONGS.size()]
+		_song_pick = Songs.FREEZE_DANCE_SONGS[randi() % Songs.FREEZE_DANCE_SONGS.size()]   # Not seeded: a test reads the pick.
 	return _song_pick
 
 

@@ -359,7 +359,7 @@ func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(l)
-	if rows.all(func(r: Dictionary) -> bool: return not r.get("cells", []).is_empty()):
+	if not rows.is_empty() and rows.all(func(r: Dictionary) -> bool: return not r.get("cells", []).is_empty()):
 		box.add_child(_result_table(rows))
 	else:
 		for r in rows:

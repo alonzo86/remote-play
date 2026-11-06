@@ -589,6 +589,10 @@ func _hebrew_results() -> void:
 			var time_text := String(cells[5].text)
 			var unit_ok: bool = time_text.ends_with("ש׳") if lang == "he" else time_text.ends_with(" S")
 			_check(unit_ok, "[%s] the time of the winner ends with the unit of seconds: '%s'" % [lang, time_text])
+			var aligned := true   # The columns line up: the same cell of both rows starts at the same x (the table, REQ-GM-72).
+			for col in 6:
+				aligned = aligned and is_equal_approx(cells[col].get_global_rect().position.x, cells[6 + col].get_global_rect().position.x)
+			_check(aligned, "[%s] the columns of the result table are aligned" % lang)
 			var near := true
 			var indexes := []
 			for r in rows:

@@ -230,6 +230,20 @@ func _choices() -> void:
 	app.go_games()
 	await sim.frames(4)
 	_check(app.server.players_in() == [0, 1, 2], "the Games screen makes everybody IN again")
+	_check(not sim.clients[0].setup_open, "the phone knows that the settings view is closed, so it shows 'choose a game' again")
+	# Review of PR 379: a phone that is OUT must not be stuck OUT when the other phone leaves (nobody is asked with one phone).
+	app.go_game_settings("maze")
+	await sim.frames(4)
+	_check(sim.clients[0].setup_open, "with the settings view open the phone knows it (GET READY! on the waiting screen)")
+	sim.clients[2].leave()
+	await _wait_for(func(): return app.server.connected_slots() == [0, 1])
+	sim.clients[1].send_play(false)
+	await _wait_for(func(): return app.server.players_in() == [0])
+	sim.clients[0].leave()
+	await _wait_for(func(): return app.server.connected_slots() == [1])
+	await sim.frames(4)
+	_check(app.server.players_in() == [1] and sim.clients[1].setup_in and not app.current_screen().start_button.disabled,
+			"the last phone is IN even when it chose OUT before the other phone left: Start works")
 
 
 ## With one phone the question does not show.
