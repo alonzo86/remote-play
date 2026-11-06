@@ -11,7 +11,8 @@ const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const GolfLook = preload("res://scripts/game/mini_golf/golf_look.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 
-const STATUS_X := 560.0         # The status text of the bar (the hole and the par) stands where the timer is in the other games.
+const STATUS_X := 560.0         # The status text of the bar (the hole and the par) stands where the timer is in the other games,
+#                               on the baseline of the title (owner, 2026-11-05: it was higher than the title).
 const TEXT_SIZE := 32   # The hole text and the column heads of the hole card (REQ-FL-40: 32 px or more).
 const Haptics = preload("res://scripts/game/haptics.gd")
 
@@ -22,14 +23,13 @@ const HOLE_TIME := 4.0          # The card at the end of a hole.
 const END_DELAY := 1.2
 const SNAP := 0.1               # The aim snaps to the cup when it is this close to it (radians, about 6 degrees; REQ-MG-4).
 const WEAK_HINT_TIME := 3.0
+const PORTAL_ANIM := 1.6        # The teleport opens its exit and closes both pads in this time (owner, 2026-11-05).
 # The swing strengths of a putt (m/s2), lower than the common ones of `SwingDetector` (REQ-MG-5). The gate is the common one.
 const LIGHT_BACK_ACCEL := 3.0
 const LIGHT_FWD_ACCEL := 5.0
 const FULL_FWD := 18.0           # A hard swing reaches the full power at this strength (m/s2); the common value is 30.
 const BUZZ_GAP_MS := 150
 const PAUSE_GAP_MS := 400
-const BAR_H := 56.0
-const BAR_MARGIN := 64.0   # Chips and the 4 px frame of the player on turn end inside the 60 px margin (REQ-GM-40, #223).
 
 enum Phase { AIM, ROLL, RESULT, HOLE, END }
 
@@ -62,6 +62,8 @@ var _spot := Vector2.ZERO       # Where the last putt started: the ball goes bac
 var _swing_age := 99.0
 var _lock_age := 0.0            # How long the direction is locked.
 var _a_down := {}               # Which phone holds A (a press is the change from up to down).
+var _portal_used := {}           # Slot -> true when that player's ball has gone through the teleport on this hole.
+var _portal_anim := -1.0         # Seconds since a ball went in (-1: no animation).
 var _aim_held := false          # The player locked the aim with A (REQ-MG-4); a second press on A unlocks it.
 var _snapped := false           # The aim is on the cup now.
 var _banner := ""
@@ -73,7 +75,6 @@ var _splash_age := 99.0
 var _spark_age := 99.0
 var _last_event := {}
 var _putter := -1               # The slot of the golfer who is drawn (the player on turn).
-var _bar_rows := -1             # Rows of chips in the bar at the bottom (-1: not counted).
 var _balls := {}                # slot -> where the ball of that player lies on this hole.
 
 
@@ -113,10 +114,11 @@ func _set_swing_feel() -> void:
 
 func _load_hole() -> void:
 	_hole = Holes.hole(rules.hole_number())
+	_portal_used.clear()
+	_portal_anim = -1.0
 	_spot = _hole.tee
 	sim.start(_hole, _spot)
 	_putter = -1
-	_bar_rows = -1
 
 
 func _on_player_left(slot: int) -> void:
@@ -161,23 +163,13 @@ func _start_turn() -> void:
 	_haptics.pulse(slot, 60, BUZZ_GAP_MS)
 
 
-## TEMP-DEBUG (owner, 2026-11-05; remove before release, with `golf_rules.gd` `debug_jump_to_hole()`): the keys 1 to 5 on the TV
-## jump to that hole, to test it.
-func _unhandled_input(event: InputEvent) -> void:
-	var key := event as InputEventKey
-	if key == null or not key.pressed or key.echo or key.keycode < KEY_1 or key.keycode > KEY_5 or is_over:
-		return
-	rules.debug_jump_to_hole(key.keycode - KEY_1 + 1)
-	_balls.clear()
-	_load_hole()
-	_start_turn()
-
-
 func _game_tick(delta: float) -> void:
 	_time += delta
 	_splash_age += delta
 	_spark_age += delta
 	_swing_age += delta
+	if _portal_anim >= 0.0:
+		_portal_anim = _portal_anim + delta if _portal_anim + delta < PORTAL_ANIM else -1.0
 	_lock_age = _lock_age + delta if detector.aim_locked else 0.0
 	if is_over:
 		return
@@ -267,6 +259,14 @@ func _tick_roll(delta: float) -> void:
 		match String(e.t):
 			"wall", "rock":
 				Sound.sfx("golf_wall")
+			"loop":
+				Sound.sfx("golf_loop")
+			"teleport":
+				Sound.sfx("golf_teleport")
+				_portal_used[rules.current_slot()] = true
+				_portal_anim = 0.0
+			"cannon":
+				Sound.sfx("golf_cannon")
 	if sim.finished:
 		_putt_done()
 
@@ -338,6 +338,14 @@ func _finish() -> void:
 	open_results(_board)
 
 
+## The score of the leader chip: the strokes on this hole and in all, "2 / 5" (owner, 2026-11-05: the chips of the bottom bar are
+## gone; the top chip shows both).
+func _score_label(entry: Dictionary) -> String:
+	if not entry.finished:
+		return ""
+	return Lang.f("mini_golf.leader_score", [rules.strokes_on_hole(entry.slot), rules.total(entry.slot)])
+
+
 func _scoreboard() -> Scoreboard:
 	return _board if _scored else null
 
@@ -355,21 +363,7 @@ func _pixel_world() -> bool:
 
 ## The scale of the course on the screen: one for the whole hole (see `golf_look.gd`).
 func _geo() -> GolfLook.Geo:
-	if _bar_rows < 0 and size.x > 0.0:
-		_bar_rows = _bar_row_count()
-	return GolfLook.Geo.new(size, _hole, maxi(_bar_rows, 1))
-
-
-## The rows of chips that the bar at the bottom needs on this screen (REQ-MG-3). The course ends above them.
-func _bar_row_count() -> int:
-	var widths: Array = []
-	for r in rules.rows:
-		if participants.has(r.slot):
-			var text := Lang.f("mini_golf.chip", [player(r.slot).player_name, GolfRules.MAX_STROKES])
-			widths.append(Shell.chip_width(text, 200.0, player(r.slot).avatar))
-	if widths.is_empty():
-		return 1
-	return bar_lines(widths, size.x - 120.0, 16.0).size()
+	return GolfLook.Geo.new(size, _hole)
 
 
 func _line_length() -> float:
@@ -406,6 +400,20 @@ func golfer_flipped() -> bool:
 	return cos(_heading) < 0.0
 
 
+## How big the entrance and the exit of the teleport are now (0 to 1): the entrance grows at the start of a turn of a player who
+## has not been through yet; when the ball has gone in, the exit opens, then both close and nothing is left (owner, 2026-11-05).
+func _portal_sizes() -> Vector2:
+	if _portal_anim >= 0.0:
+		var q := _portal_anim / PORTAL_ANIM
+		var a_k := 1.0 if q < 0.3 else clampf((0.7 - q) / 0.4, 0.0, 1.0)
+		var b_k := clampf((q - 0.15) / 0.25, 0.0, 1.0) if q < 0.6 else clampf((1.0 - q) / 0.4, 0.0, 1.0)
+		return Vector2(a_k, b_k)
+	var slot := rules.current_slot()
+	if slot < 0 or bool(_portal_used.get(slot, false)) or phase == Phase.HOLE or phase == Phase.END:
+		return Vector2.ZERO
+	return Vector2(clampf(_phase_time / 0.5, 0.0, 1.0) if phase == Phase.AIM else 1.0, 0.0)
+
+
 ## The screen place of a point of the course with the height of the ground (a hill lifts the ball).
 func _lifted(geo: GolfLook.Geo, p: Vector2) -> Vector2:
 	return geo.at(p) - Vector2(0.0, geo.up(Holes.hill_height(_hole, p)))
@@ -416,6 +424,9 @@ func _world_draw(ci: CanvasItem) -> void:
 	GolfLook.draw_lawn(ci, geo)
 	GolfLook.draw_scenery(ci, geo, _hole, rules.hole_number(), _time)
 	GolfLook.draw_course(ci, geo, _hole)
+	for tp in _hole.get("teleports", []):
+		var ks := _portal_sizes()
+		GolfLook.Ground.draw_portals(ci, geo, tp, ks.x, ks.y, _time)
 	# The obstacles, the ball and the golfer are drawn from far to near (the camera is tilted, so a tall obstacle hides what is
 	# behind it); the flag and the aim line stay on top.
 	var items: Array = []
@@ -428,6 +439,12 @@ func _world_draw(ci: CanvasItem) -> void:
 	for r in _hole.rocks:
 		var rock: Vector3 = r
 		items.append([geo.at(Vector2(rock.x, rock.y)).y, func() -> void: GolfLook.draw_rock(ci, geo, rock)])
+	for lp in _hole.get("loops", []):
+		var loop: Dictionary = lp
+		items.append([geo.at((loop.base as Rect2).end).y, func() -> void: GolfLook.Ground.draw_loop_ring(ci, geo, loop)])
+	for cn in _hole.get("cannons", []):
+		var cannon: Dictionary = cn
+		items.append([geo.at(cannon.pos).y, func() -> void: GolfLook.Ground.draw_cannon(ci, geo, cannon)])
 	var list := ball_list()
 	if golfer_shown():
 		var spot := geo.at(_spot) - Vector2(0.0, geo.up(Holes.hill_height(_hole, _spot)))
@@ -435,11 +452,25 @@ func _world_draw(ci: CanvasItem) -> void:
 			GolfLook.draw_golfer(ci, geo, spot, _pose(), player(_putter).color, golfer_flipped())])
 	if not list.is_empty():
 		var ball: Dictionary = list[0]
-		# The ball is on top of everything (a tall obstacle never hides it), except inside the tunnel of the windmill, where it
-		# disappears behind the door and comes out on the other side.
-		var in_tunnel: bool = windmill and blocks.size() > 0 and (blocks[0] as Rect2).has_point(ball.pos)
-		var ball_key: float = geo.at((blocks[0] as Rect2).end).y - 1.0 if in_tunnel else INF
-		items.append([ball_key, func() -> void: GolfLook.draw_ball(ci, geo, _lifted(geo, ball.pos), ball.slot)])
+		# The ball is drawn in its place among the obstacles: behind a rock it is behind it (it never seems to roll on it). Only the
+		# tall windmill never hides it: the ball is on top of it behind it, and goes behind the door inside the tunnel.
+		var ball_key: float = geo.at(ball.pos).y + 1.0
+		if windmill and blocks.size() > 0:
+			var tower: Rect2 = blocks[0]
+			if tower.has_point(ball.pos):
+				ball_key = geo.at(tower.end).y - 1.0
+			elif ball.pos.x < tower.position.x and absf(ball.pos.y - tower.get_center().y) < tower.size.y * 0.5 + 0.4:
+				ball_key = INF
+		var ball_at := _lifted(geo, ball.pos)
+		if sim.loop_t >= 0.0 and phase == Phase.ROLL:   # Round the ring of a loop.
+			var kind := String(sim.loop_info.get("kind", "loop"))
+			ball_at = GolfLook.Ground.loop_ball(geo, sim.loop_info, sim.loop_t) if kind == "loop" \
+					else GolfLook.Ground.flight_ball(geo, sim.loop_info, sim.loop_t)
+			ball_key = INF
+		var ball_draw_at := ball_at
+		var out_of_sight := _portal_anim >= 0.0 and _portal_anim / PORTAL_ANIM < 0.3   # The ball is between the two pads.
+		if ball_draw_at.is_finite() and not out_of_sight:   # A ball inside the cannon is not drawn.
+			items.append([ball_key, func() -> void: GolfLook.draw_ball(ci, geo, ball_draw_at, ball.slot)])
 	items.sort_custom(func(a, b) -> bool: return a[0] < b[0])
 	for it in items:
 		it[1].call()
@@ -475,7 +506,6 @@ func _game_draw() -> void:
 	Shell.title(self, "registry.mini_golf")
 	_draw_hole_text()
 	draw_leader_chip(self)   # The leader (the fewest strokes) in the black bar, as in every other game (owner, 2026-11-05).
-	_draw_bar()
 	if is_over:
 		return
 	var slot := rules.current_slot()
@@ -503,58 +533,10 @@ func hole_text() -> String:
 	return Lang.f("mini_golf.hole", [rules.hole_number(), rules.holes, rules.par()]).to_upper()
 
 
-## The text of the chip of a player in the bar at the bottom: the name and the strokes on this hole (REQ-MG-3).
-func chip_text(slot: int) -> String:
-	return Lang.f("mini_golf.chip", [player(slot).player_name, rules.strokes_on_hole(slot)])
-
-
 func _draw_hole_text() -> void:
 	var text := hole_text()
 	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, Shell.STATUS_FONT).x
-	Shell.status(self, STATUS_X, w, text)
-
-
-## The bar at the bottom (REQ-MG-3): a chip for every player with the strokes on this hole; the player on turn has a frame.
-func _draw_bar() -> void:
-	var items: Array = []   # [row, text, width]
-	for r in rules.rows:
-		if participants.has(r.slot):
-			var text := Lang.f("mini_golf.chip", [player(r.slot).player_name, r.strokes])
-			items.append([r, text, Shell.chip_width(text, 200.0, player(r.slot).avatar)])
-	if items.is_empty():
-		return
-	var gap := 16.0
-	var widths: Array = items.map(func(it): return it[2])
-	var lines := bar_lines(widths, size.x - 120.0, gap)   # Index lists: a long name does not fit one row, so the bar gets a second.
-	var on := rules.current_slot() if phase != Phase.HOLE else -1
-	for li in lines.size():
-		var line_w := gap * float(lines[li].size() - 1)
-		for k in lines[li]:
-			line_w += float(widths[k])
-		var x := (size.x - line_w) * 0.5
-		var y := size.y - BAR_MARGIN - BAR_H - float(lines.size() - 1 - li) * (BAR_H + gap)
-		for k in lines[li]:
-			var p := player(items[k][0].slot)
-			var rect := Shell.chip(self, Vector2(x, y), items[k][1], p.color, widths[k], BAR_H, p.avatar)
-			if items[k][0].slot == on and not is_over:
-				draw_rect(rect.grow(4.0), UiTheme.ACCENT, false, 4.0)
-			x += float(widths[k]) + gap
-
-
-## The chips of the bar in rows: the indexes of `widths` that stand in each row, in order. A chip is as wide as its text needs
-## (nothing is cut, issue #246), so when they do not fit one row of `avail` px the bar gets one more row.
-static func bar_lines(widths: Array, avail: float, gap: float) -> Array:
-	var lines: Array = [[]]
-	var used := 0.0
-	for k in widths.size():
-		var need: float = float(widths[k]) + (gap if not lines[-1].is_empty() else 0.0)
-		if not lines[-1].is_empty() and used + need > avail:
-			lines.append([])
-			need = float(widths[k])
-			used = 0.0
-		lines[-1].append(k)
-		used += need
-	return lines
+	Shell.status(self, STATUS_X, w, text, UiTheme.TEXT, Shell.TITLE_BASELINE)   # On the row of the title, as in Pin Pals.
 
 
 ## The card at the end of a hole: the strokes of each player on the hole and in all (REQ-MG-6).

@@ -251,6 +251,9 @@ static func effects() -> Dictionary:
 	fx["golf_turn"] = _run(["F5", "A5"], 0.08, 0.25)
 	fx["golf_putt"] = [_noise(2000.0, 1000.0, 0.05, 0.25), _blip(600.0, 350.0, 0.06, 0.28, 0.25)]
 	fx["golf_wall"] = [_blip(300.0, 220.0, 0.05, 0.22, 0.25)]
+	fx["golf_loop"] = [_blip(300.0, 1200.0, 0.5, 0.3, 0.25)]
+	fx["golf_cannon"] = [_noise(500.0, 80.0, 0.35, 0.3), _blip(160.0, 60.0, 0.3, 0.3)]
+	fx["golf_teleport"] = [_blip(1200.0, 300.0, 0.25, 0.3, 0.25)]
 	fx["golf_splash"] = [_noise(3000.0, 600.0, 0.3, 0.21), _blip(700.0, 200.0, 0.25, 0.14)]
 	fx["golf_hole"] = _run(["C5", "E5", "G5"], 0.08, 0.3)
 	fx["golf_ace"] = _run(["C5", "E5", "G5", "C6", "E6", "G6"], 0.075, 0.35, 0.5, 1.0)

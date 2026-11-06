@@ -41,7 +41,6 @@ func _initialize() -> void:
 	_things_bounce()
 	_windmill_door()
 	_rocks_do_not_trap()
-	_debug_jump()
 	_hills()
 	_pars()
 	await _grid()
@@ -66,7 +65,7 @@ func _flat_hole() -> Dictionary:
 ## REQ-MG-12: five holes with a par of 2 to 4, and a tee and a cup on the ground, away from the things on the course.
 func _holes() -> void:
 	print("holes")
-	_check(Holes.COUNT == 5, "the game has 5 holes")
+	_check(Holes.COUNT == 10, "the game has 10 holes")
 	for n in range(1, Holes.COUNT + 1):
 		var h := Holes.hole(n)
 		_check(int(h.par) >= 2 and int(h.par) <= 4, "hole %d has a par of 2 to 4" % n)
@@ -81,8 +80,9 @@ func _holes() -> void:
 			clear = clear and (Vector2(rv.x, rv.y) - Vector2(h.tee)).length() > rv.z + 0.3 \
 					and (Vector2(rv.x, rv.y) - Vector2(h.cup)).length() > rv.z + 0.3
 		_check(clear, "hole %d: no water, rock or hill on the tee or the cup" % n)
-	_check(Holes.hole(0) == Holes.hole(1) and Holes.hole(9) == Holes.hole(5), "a hole number outside 1 to 5 gives the nearest hole")
-	_check(Holes.par_total(3) == 8 and Holes.par_total(5) == 15 and Holes.par_total(0) == 0, "the par of the first holes together")
+	_check(Holes.hole(0) == Holes.hole(1) and Holes.hole(99) == Holes.hole(10),
+			"a hole number outside 1 to 10 gives the nearest hole")
+	_check(Holes.par_total(3) == 8 and Holes.par_total(10) == 31 and Holes.par_total(0) == 0, "the par of the first holes together")
 
 
 ## REQ-MG-5, 10: the power sets how far the ball rolls, the ball slows down and stops, a wall brings it back.
@@ -295,10 +295,10 @@ func _pick_up() -> void:
 	_check(last.label == "", "no words for a picked up ball")
 
 
-## REQ-MG-1, 7, 12: the match has 1 to 5 holes, the strokes are added up and the last hole ends the match.
+## REQ-MG-1, 7, 12: the match has 1 to 10 holes, the strokes are added up and the last hole ends the match.
 func _holes_and_totals() -> void:
 	print("holes and totals")
-	_check(_two_players(0).holes == 1 and _two_players(9).holes == 5 and _two_players(4).holes == 4,
+	_check(_two_players(0).holes == 1 and _two_players(99).holes == 10 and _two_players(4).holes == 4,
 			"the number of holes is 1 to 5")
 	var r := _two_players(2)
 	r.putt_done(true)   # slot 0: 1 stroke
@@ -424,18 +424,7 @@ func _things_bounce() -> void:
 			windmill_holes.append(n)
 		_check(not all_off, "hole %d: the ball never leaves the ground or enters a block" % n)
 	_check(windmill_holes == [2], "the windmill is on hole 2 only (there are no brick walls, sliding barriers or blades any more)")
-	_check(rock_holes.size() == 6, "the holes have 6 rocks in all (%d)" % rock_holes.size())
-
-
-## TEMP-DEBUG (remove with `Rules.debug_jump_to_hole()`): the jump to a hole for testing.
-func _debug_jump() -> void:
-	print("temporary: jump to a hole")
-	var r := _two_players(3)
-	r.debug_jump_to_hole(4)
-	_check(r.hole_number() == 4 and r.holes == Holes.COUNT and r.strokes_on_hole(0) == 0 and r.total(0) == 0
-			and r.current_slot() == 0, "TEMP-DEBUG: a jump to hole 4 starts hole 4 of 5 with no strokes")
-	r.debug_jump_to_hole(99)
-	_check(r.hole_number() == Holes.COUNT, "TEMP-DEBUG: a jump past the last hole goes to the last hole")
+	_check(rock_holes.size() == 11, "the holes have 11 rocks in all (%d)" % rock_holes.size())
 
 
 ## REQ-MG-10 (owner, 2026-11-05: a rock was hit wrong and the ball could get stuck near it): a rock never leaves a pinch against a
@@ -588,7 +577,7 @@ func _pars() -> void:
 	var pars: Array = []
 	for n in range(1, Holes.COUNT + 1):
 		pars.append(int(Holes.hole(n).par))
-	_check(pars == [2, 3, 3, 3, 4], "the five holes have the pars 2, 3, 3, 3 and 4 (8a)")
+	_check(pars == [2, 3, 3, 3, 4, 3, 3, 3, 3, 3], "the ten holes have the pars 2, 3, 3, 3, 4, 3, 3, 3, 3 and 3 (8a)")
 	_check(Rules.label_for(2, 2) == "mini_golf.par" and Rules.label_for(3, 2) == "mini_golf.bogey" and Rules.label_for(4, 2) == ""
 			and Rules.label_for(2, 4) == "mini_golf.birdie" and Rules.label_for(4, 4) == "mini_golf.par"
 			and Rules.label_for(5, 4) == "mini_golf.bogey" and Rules.label_for(6, 4) == "",

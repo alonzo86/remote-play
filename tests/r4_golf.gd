@@ -329,9 +329,10 @@ func _picked_up() -> void:
 
 # ---- 8f ----
 
-## 8f: after every putt the number in the bar is the number of putts of that player counted by hand.
+## 8f: after every putt the leader chip of the top bar says the strokes on this hole and in all, counted by hand
+## (owner, 2026-11-05: the chips of the bottom bar are gone).
 func _bar_counts() -> void:
-	print("the bar")
+	print("the leader chip")
 	var game := await _new_game()
 	var by_hand := [0, 0]
 	var all_same := true
@@ -339,18 +340,17 @@ func _bar_counts() -> void:
 		var slot: int = game.rules.current_slot()
 		by_hand[slot] += 1
 		_putt_result(game, false)
-		var text0: String = game.chip_text(0)
-		var text1: String = game.chip_text(1)
-		var want0: String = Lang.f("mini_golf.chip", [game.player(0).player_name, by_hand[0]])
-		var want1: String = Lang.f("mini_golf.chip", [game.player(1).player_name, by_hand[1]])
-		if text0 != want0 or text1 != want1:
-			all_same = false
-			print("    putt %d: '%s' / '%s', counted '%s' / '%s'" % [k + 1, text0, text1, want0, want1])
+		for s in 2:
+			var entry := {"slot": s, "finished": true}
+			var want: String = Lang.f("mini_golf.leader_score", [by_hand[s], by_hand[s]])
+			if game._score_label(entry) != want:
+				all_same = false
+				print("    putt %d: phone %d shows '%s', counted '%s'" % [k + 1, s + 1, game._score_label(entry), want])
 		game._after_result()
 		if game.rules.hole_done():
 			break
 	_check(all_same and by_hand[0] + by_hand[1] >= 10,
-			"8f: the chips of the bar agree with the putts counted by hand (%s) after each of them" % str(by_hand))
+			"8f: the leader chip says the strokes of a player as counted by hand (%s) after each putt" % str(by_hand))
 
 
 # ---- 10a, 10c, 10d ----

@@ -1,14 +1,17 @@
 extends RefCounted
-## The five holes of Mini Golf (REQ-MG-12), made in advance. A hole is data: the ground the ball may roll on (`fairway`, a list
+## The ten holes of Mini Golf (REQ-MG-12), made in advance. A hole is data: the ground the ball may roll on (`fairway`, a list
 ## of rectangles that overlap at the turns), the place of the tee and of the cup, and the things on the course: lakes (`water`,
 ## a rectangle from wall to wall) with `bridges`, rocks (`Vector3(x, z, radius)`) and the tower of a windmill
 ## (`blocks`, `Rect2`; the first block of a hole with `windmill` is the tower, with a door of width `door` along z in the middle
-## that the ball goes through along x, `solid_blocks()`) and hills (`hills`: a bump, or a ramp up to a platform and a slide down).
-## All in the same units as the picture (`golf_look.gd`): x across (the middle of the view is 0) and z along, away from the
-## camera, about a meter each. `Rect2(x, z, width, depth)` has its near left corner at (x, z). The par of a hole is the strokes
-## of a good player (REQ-MG-6). The first values are guesses (Manual test 26).
+## that the ball goes through along x, `solid_blocks()`), hills (`hills`: a bump, or a ramp up to a platform and a slide down),
+## sand traps (`sand`, `Rect2`: the ball slows down fast), loops (`loops`: a ball that comes fast enough goes round a ring and
+## comes out somewhere else, `loop_at()`), teleport pads (`teleports`: a slow ball that falls into the entrance pad `a` comes out
+## of the exit pad `b`, one way), jump ramps over a lake (`jumps`) and cannons (`cannons`). All in the same units as the picture
+## (`golf_look.gd`): x across (the middle of the view is 0) and z along, away from the camera, about a meter each. `Rect2(x, z,
+## width, depth)` has its near left corner at (x, z). The par of a hole is the strokes of a good player (REQ-MG-6). The first
+## values are guesses (Manual test 26).
 
-const COUNT := 5
+const COUNT := 10
 const BALL_R := 0.045
 const CUP_R := 0.1
 
@@ -44,6 +47,46 @@ const HOLES: Array[Dictionary] = [
 			"water": [], "bridges": [],
 			"hills": [{"rect": Rect2(-1.2, 1.6, 1.4, 0.8), "height": 0.1}, {"rect": Rect2(0.6, 4.3, 1.2, 0.8), "height": 0.1}],
 			"blocks": [], "rocks": [Vector3(-0.55, 2.85, 0.14)]},
+	# 6: sand and a hill. A sand trap lies in front of the tee (it slows a ball down fast; the free lane is on the right), then a
+	# rock in the lane and a hill before the cup.
+	{"par": 3, "tee": Vector2(0.0, 1.1), "cup": Vector2(0.0, 5.3),
+			"fairway": [Rect2(-1.25, 0.75, 2.5, 5.0)], "water": [], "bridges": [],
+			"sand": [Rect2(-1.25, 1.8, 1.7, 1.0)],
+			"hills": [{"rect": Rect2(-1.25, 3.5, 2.5, 0.8), "height": 0.1}],
+			"blocks": [], "rocks": [Vector3(0.85, 3.0, 0.13)]},
+	# 7: the loop. A straight leg, then a ramp that leads into a ring: a ball that comes fast enough goes round it and comes out at
+	# the corner, going down the screen towards the cup in the second leg, so the player never has to aim down. A
+	# soft putt rolls back.
+	{"par": 3, "tee": Vector2(0.0, 1.1), "cup": Vector2(2.3, 4.9),
+			"fairway": [Rect2(-0.5, 0.75, 1.0, 3.3), Rect2(-0.5, 3.6, 3.2, 1.8)], "water": [], "bridges": [],
+			"loops": [{"enter": Rect2(-0.5, 2.9, 1.0, 0.3), "base": Rect2(-0.5, 3.3, 1.0, 0.45), "ring": Vector2(0.0, 3.52),
+					"radius": 0.26, "exit": Vector2(0.75, 4.1), "heading": 1.14, "min_speed": 2.0, "time": 1.0}],
+			"hills": [{"rect": Rect2(-0.5, 1.5, 1.0, 0.6), "height": 0.06}],
+			"blocks": [], "rocks": [Vector3(1.6, 5.1, 0.13)]},
+	# 8: the teleport. The hole has two sections with a wall between them: the only way from the first to the second is the pad
+	# (a slow ball falls in it, a fast one rolls over). A hill and a rock lie before the pad.
+	{"par": 3, "tee": Vector2(-0.6, 1.1), "cup": Vector2(0.5, 5.5),
+			"fairway": [Rect2(-1.1, 0.75, 2.2, 2.6), Rect2(-1.1, 3.63, 2.2, 2.6)], "water": [], "bridges": [],
+			"teleports": [{"a": Vector2(0.55, 2.9), "b": Vector2(-0.5, 4.3), "r": 0.17}],
+			"hills": [{"rect": Rect2(-1.1, 1.7, 2.2, 0.6), "height": 0.06}],
+			"sand": [Rect2(0.0, 5.0, 0.4, 0.9)],
+			"blocks": [], "rocks": [Vector3(0.15, 2.6, 0.13)]},
+	# 9: the jump. A lake from wall to wall with no bridge: the only way over it is the ramp. A ball that comes into the ramp with
+	# 1.8 m/s or more flies over the lake; a slower one rolls back, and one that misses the ramp falls into the water.
+	{"par": 3, "tee": Vector2(0.0, 1.1), "cup": Vector2(0.0, 5.4),
+			"fairway": [Rect2(-1.25, 0.75, 2.5, 5.0)], "water": [Rect2(-1.25, 2.85, 2.5, 1.2)], "bridges": [],
+			"jumps": [{"kind": "jump", "enter": Rect2(-0.35, 2.25, 0.7, 0.45), "exit": Vector2(0.0, 4.6), "heading": 0.0,
+					"min_speed": 1.8, "time": 0.8}],
+			"sand": [Rect2(-1.25, 1.6, 0.9, 0.7)],
+			"blocks": [], "rocks": [Vector3(0.7, 5.0, 0.13)]},
+	# 10: the cannon. A lake from wall to wall; a ball that is hit into the hatch of the cannon is fired across the lake and
+	# comes down near the cup, whatever its speed.
+	{"par": 3, "tee": Vector2(-0.9, 1.1), "cup": Vector2(0.9, 5.4),
+			"fairway": [Rect2(-1.25, 0.75, 2.5, 5.0)], "water": [Rect2(-1.25, 2.85, 2.5, 1.2)], "bridges": [],
+			"cannons": [{"kind": "cannon", "enter": Rect2(-0.8, 1.85, 0.5, 0.4), "pos": Vector2(-0.55, 2.4),
+					"exit": Vector2(0.5, 4.5), "heading": 0.45, "speed": 0.7, "time": 1.2}],
+			"hills": [{"rect": Rect2(-1.25, 1.4, 0.8, 0.3), "height": 0.05}],
+			"blocks": [], "rocks": [Vector3(0.1, 5.0, 0.13)]},
 ]
 
 
@@ -59,7 +102,37 @@ static func solid_blocks(h: Dictionary) -> Array[Rect2]:
 			out.append(Rect2(b.position.x, b.end.y - side, b.size.x, side))
 		else:
 			out.append(b)
+	for l in h.get("loops", []):
+		out.append(l.base)   # The foot of the ring: a ball cannot roll through it.
 	return out
+
+
+## True when a ball at `p` is in a sand trap (`sand`).
+static func in_sand(h: Dictionary, p: Vector2) -> bool:
+	for r in h.get("sand", []):
+		if (r as Rect2).has_point(p):
+			return true
+	return false
+
+
+## The loop, jump or cannon whose entry zone has `p`, or an empty dictionary. `loops`: a ball that comes fast enough goes round
+## a ring and comes out at `exit` going in `heading`; a slower one is turned back. `jumps` (`"kind": "jump"`): a ramp before a
+## lake, a fast enough ball flies over it to `exit`. `cannons` (`"kind": "cannon"`): a ball of any speed that rolls into the
+## hatch is fired from the cannon across the field to `exit`, and rolls on in `heading` with `speed`.
+static func loop_at(h: Dictionary, p: Vector2) -> Dictionary:
+	for key in ["loops", "jumps", "cannons"]:
+		for l in h.get(key, []):
+			if (l.enter as Rect2).has_point(p):
+				return l
+	return {}
+
+
+## True when `p` is on the entrance pad of a teleport (inside its radius). The exit pad does nothing: the way is one way.
+static func on_pad(h: Dictionary, p: Vector2) -> bool:
+	for t in h.get("teleports", []):
+		if p.distance_to(t.a) < float(t.r):
+			return true
+	return false
 
 
 ## The shape of a hill (`hills`, `{"rect": Rect2, "height": m, "kind": "bump" | "slide"}`) along z, for `t` from 0 to 1 over its

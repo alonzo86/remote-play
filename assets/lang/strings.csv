@@ -219,9 +219,14 @@ mini_golf.holes_2,2 HOLES,2 גומות,Mini Golf settings view: value 2 of the H
 mini_golf.holes_3,3 HOLES,3 גומות,Mini Golf settings view: value 3 of the Holes row,
 mini_golf.holes_4,4 HOLES,4 גומות,Mini Golf settings view: value 4 of the Holes row,
 mini_golf.holes_5,5 HOLES,5 גומות,Mini Golf settings view: value 5 of the Holes row,
+mini_golf.holes_6,6 HOLES,6 גומות,Mini Golf settings view: value 6 of the Holes row,
+mini_golf.holes_7,7 HOLES,7 גומות,Mini Golf settings view: value 7 of the Holes row,
+mini_golf.holes_8,8 HOLES,8 גומות,Mini Golf settings view: value 8 of the Holes row,
+mini_golf.holes_9,9 HOLES,9 גומות,Mini Golf settings view: value 9 of the Holes row,
+mini_golf.holes_10,10 HOLES,10 גומות,Mini Golf settings view: value 10 of the Holes row,
 mini_golf.hole,Hole %d/%d  Par %d,גומה %d/%d  פר %d,"Mini Golf: top bar, right side: the hole that is played, the holes of the match and the par of the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.turn,%s's turn!,התור של %s!,"Mini Golf: plate over the course for 1.5 seconds at the start of a turn, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
-mini_golf.chip,%s  %d,%s: %d,"Mini Golf: chip of a player in the bar at the bottom, the name and the strokes on this hole","the number sign (%d, %.1f ...) is replaced by a number"
+mini_golf.leader_score,%d / %d,%d / %d,"Mini Golf: the score of the leader chip in the top bar, the strokes on this hole and the strokes in all","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Mini Golf: hint on a plate after a swing that was too weak,
 mini_golf.strokes,%d strokes,%d מכות,"Mini Golf: banner after a ball went in with more strokes than par plus one, %d is the strokes on the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hole_in_one,HOLE IN ONE!,גומה במכה אחת!,Mini Golf: banner after a ball went in with the first stroke,

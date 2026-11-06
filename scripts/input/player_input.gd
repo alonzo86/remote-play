@@ -10,7 +10,9 @@ const SensorRecorder = preload("res://scripts/input/sensor_recorder.gd")
 
 const SWING_THRESHOLD := 0.75   # Tennis counts a lighter swing than Pin Pals (the factor on the thresholds of the detector).
 const SWING_WINDOW_S := 3.0     # A player draws back early: a back swing waits this long (s) for the forward swing.
-const SWING_SIDE_FULL := 0.7854   # A swing 45 degrees (rad) to the side of the TV aims all the way to the side (REQ-TN-7).
+# A swing 70 degrees (rad) to the side of the TV aims all the way to the side (REQ-TN-7; it was 45 degrees until 2026-11-05:
+# almost every shot went to the sideline).
+const SWING_SIDE_FULL := 1.2217
 const HEADING_PRIOR := 1.0       # The weight of the guess "the TV is where the phone pointed at GO" (azimuth 0).
 const HEADING_KEEP := 0.9        # The share of the old swings that stays when a new swing comes (the last ~10 count).
 const SWING_HOLD_S := 0.5       # A back swing does not correct gravity from the accelerometer for this long (s).

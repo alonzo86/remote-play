@@ -10,8 +10,6 @@ const Look = preload("res://scripts/game/mini_golf/golf_look.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 
 const SCREEN := Vector2(1920.0, 1080.0)
-const CHIPS_TOP := 956.0        # The top of the frame of the first row of chips of the bar (y 960 and a frame of 4).
-const CHIP_ROW := 72.0          # A second row of chips stands this much higher.
 
 var _checks := 0
 var _fails := 0
@@ -52,17 +50,13 @@ func _fits() -> void:
 	print("the hole fits the room")
 	for n in range(1, Holes.COUNT + 1):
 		var hole: Dictionary = Holes.hole(n)
-		for rows in [1, 2]:
-			var geo := Look.Geo.new(SCREEN, hole, rows)
-			var c := _course_rect(geo)
-			var chips := CHIPS_TOP - CHIP_ROW * float(rows - 1)
-			_check(c.position.x >= 60.0 - 0.01 and c.end.x <= 1860.0 + 0.01 and c.position.y >= 112.0 and c.end.y <= chips - 8.0,
-					"hole %d, %d row(s) of chips: the course %s is inside x 60 to 1860 and y 112 to %.0f (the chips)"
-					% [n, rows, str(c), chips - 8.0])
-			var fill := maxf(c.size.x / geo.area.size.x, c.size.y / geo.area.size.y)
-			_check(fill > 0.99, "hole %d, %d row(s): one side of the course fills the room (%.3f)" % [n, rows, fill])
-		var one := Look.Geo.new(SCREEN, hole, 1)
-		_check(one.s >= 200.0, "hole %d: the course is at least 200 units for each course unit (%.0f), so it can be read" % [n, one.s])
+		var geo := Look.Geo.new(SCREEN, hole)
+		var c := _course_rect(geo)
+		_check(c.position.x >= 60.0 - 0.01 and c.end.x <= 1860.0 + 0.01 and c.position.y >= 112.0 and c.end.y <= 1020.0 + 0.01,
+				"hole %d: the course %s is inside x 60 to 1860 and y 112 to 1020 (the 60 unit margin, no chips at the bottom)" % [n, str(c)])
+		var fill := maxf(c.size.x / geo.area.size.x, c.size.y / geo.area.size.y)
+		_check(fill > 0.99, "hole %d: one side of the course fills the room (%.3f)" % [n, fill])
+		_check(geo.s >= 200.0, "hole %d: the course is at least 200 units for each course unit (%.0f), so it can be read" % [n, geo.s])
 
 
 ## One scale: a course unit along the course is as long on the screen at the tee as at the cup, and across it is squashed by the
@@ -72,7 +66,7 @@ func _one_scale() -> void:
 	print("one scale")
 	for n in range(1, Holes.COUNT + 1):
 		var hole: Dictionary = Holes.hole(n)
-		var geo := Look.Geo.new(SCREEN, hole, 1)
+		var geo := Look.Geo.new(SCREEN, hole)
 		var near := geo.at(Vector2(0.0, 1.0)).distance_to(geo.at(Vector2(0.0, 2.0)))
 		var far := geo.at(Vector2(0.0, 4.0)).distance_to(geo.at(Vector2(0.0, 5.0)))
 		var side := geo.at(Vector2(0.0, 3.0)).distance_to(geo.at(Vector2(1.0, 3.0)))
@@ -81,10 +75,10 @@ func _one_scale() -> void:
 				% [n, geo.s, near, far, side, geo.k])
 		_check(geo.ball_d() == 32.0 and geo.cup_r() * 2.0 >= geo.ball_d() + 8.0,
 				"hole %d: the ball is %.0f units wide and the cup %.0f, the ball fits in it" % [n, geo.ball_d(), geo.cup_r() * 2.0])
-	var small := Look.Geo.new(Vector2(960.0, 540.0), Holes.hole(2), 1)
+	var small := Look.Geo.new(Vector2(960.0, 540.0), Holes.hole(2))
 	_check(is_equal_approx(small.ball_d(), 16.0),
 			"on a screen of half the size everything is half as big (the ball is %.0f)" % small.ball_d())
-	var a := Look.Geo.new(SCREEN, Holes.hole(3), 1)
+	var a := Look.Geo.new(SCREEN, Holes.hole(3))
 	var p := Vector2(1.3, 3.7)
 	_check(a.point_at(a.at(p)).is_equal_approx(p), "a point of the course is found again from its place on the screen")
 
@@ -94,7 +88,7 @@ func _one_scale() -> void:
 func _aim() -> void:
 	print("the aim line")
 	var hole: Dictionary = Holes.hole(1)
-	var geo := Look.Geo.new(SCREEN, hole, 1)
+	var geo := Look.Geo.new(SCREEN, hole)
 	var from := Vector2(0.0, 1.1)
 	for want in [3.0, 1.2]:
 		var got := (Look.aim_end(geo, hole, from, 0.0, want) - geo.at(from)).length() / geo.s
@@ -118,7 +112,7 @@ func _ball() -> void:
 	print("the ball")
 	var ci := Node2D.new()
 	var hole: Dictionary = Holes.hole(1)
-	var geo := Look.Geo.new(SCREEN, hole, 1)
+	var geo := Look.Geo.new(SCREEN, hole)
 	var seen: Array = []
 	Shell.recorder = func(kind: String, _ci: CanvasItem, rect: Rect2, info: Dictionary) -> void:
 		if kind == "ball":
@@ -139,7 +133,7 @@ func _plate() -> void:
 	print("the banner plate")
 	for n in range(1, Holes.COUNT + 1):
 		var hole: Dictionary = Holes.hole(n)
-		var geo := Look.Geo.new(SCREEN, hole, 1)
+		var geo := Look.Geo.new(SCREEN, hole)
 		var avoid: Array = [Look.cup_zone(geo, hole), Look.golfer_zone(geo, geo.at(hole.tee))]
 		var ball := geo.snap(geo.at(hole.tee))
 		avoid.append(Rect2(ball - Vector2(36.0, 36.0), Vector2(72.0, 72.0)))
@@ -154,7 +148,7 @@ func _plate() -> void:
 		_check(covers.is_empty(), "hole %d: the plate covers neither the cup nor the ball nor the golfer (%s)" % [n, str(covers)])
 	# The cup is covered only when there is no other place.
 	var hole2: Dictionary = Holes.hole(2)
-	var geo2 := Look.Geo.new(SCREEN, hole2, 1)
+	var geo2 := Look.Geo.new(SCREEN, hole2)
 	var everywhere: Array = [Rect2(Vector2.ZERO, SCREEN)]
 	var at2 := Look.plate_at(geo2, "A", 64, everywhere)
 	_check(at2.x > 0.0 and at2.y > 0.0, "when every place is taken the plate still has a place (%s)" % str(at2))
@@ -166,7 +160,7 @@ func _scenery() -> void:
 	print("the scenery")
 	for n in range(1, Holes.COUNT + 1):
 		var hole: Dictionary = Holes.hole(n)
-		var geo := Look.Geo.new(SCREEN, hole, 1)
+		var geo := Look.Geo.new(SCREEN, hole)
 		var items := Look.scenery(geo, hole, n)
 		var on_course := 0
 		var in_hud := 0

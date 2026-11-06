@@ -12,15 +12,15 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Holes = preload("res://scripts/game/mini_golf/golf_holes.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Palette = preload("res://scripts/game/palette.gd")
+const Ground = preload("res://scripts/game/mini_golf/golf_ground.gd")
 
 const WALL_W := 0.14              # The width of a wall, in course units.
-## Design units (1920x1080): the room for the course. The black bar ends at y 112, the chips of the bar stand at y 960 or higher
-## (a second row of chips 72 units higher), so the course stays 12 units clear of them (REQ-MG-3).
+## Design units (1920x1080): the room for the course. The black bar ends at y 112; the bottom has no chips any more (owner,
+## 2026-11-05), so the course ends at the 60 unit margin.
 const AREA_L := 60.0
 const AREA_R := 1860.0
 const AREA_T := 124.0
-const AREA_B := 944.0
-const ROW_H := 72.0
+const AREA_B := 1020.0
 ## The ball is drawn at one size on every hole: 32 screen pixels with its outline (8 world pixels; owner, 2026-11-03: it was 48,
 ## REQ-GM-47m, and too big; the cup stays 64 and the aim arrow shows where it goes).
 const BALL_OUT := 16.0            # Radius with the outline.
@@ -92,14 +92,13 @@ class Geo:
 	var area := Rect2()           # The room for the course, in screen units.
 	var grid := 4.0               # One world pixel of the pixel view, in screen units.
 
-	## `rows` is the number of rows of chips in the bar at the bottom (1 or 2): the course ends above the first of them.
-	func _init(p_size: Vector2, hole: Dictionary, rows := 1) -> void:
+	func _init(p_size: Vector2, hole: Dictionary) -> void:
 		size = p_size
 		u = minf(size.x / 1920.0, size.y / 1080.0)
 		off = Vector2(size.x - 1920.0 * u, size.y - 1080.0 * u) * 0.5
 		grid = size.x / 480.0
 		area = Rect2(off + Vector2(AREA_L, AREA_T) * u,
-				Vector2(AREA_R - AREA_L, AREA_B - AREA_T - float(maxi(rows, 1) - 1) * ROW_H) * u)
+				Vector2(AREA_R - AREA_L, AREA_B - AREA_T) * u)
 		bounds = Geo.ground_bounds(hole)
 		s = minf(area.size.x / maxf(bounds.size.y, 0.01), area.size.y / maxf(bounds.size.x * k + WALL_UNITS, 0.01))
 		wall_h = WALL_UNITS * s
@@ -209,6 +208,14 @@ static func draw_course(ci: CanvasItem, geo: Geo, hole: Dictionary) -> void:
 		_draw_bridge(ci, geo, r)
 	for hl in hole.get("hills", []):
 		_draw_hill(ci, geo, hl)
+	for r in hole.get("sand", []):
+		Ground.draw_sand(ci, geo, r)
+	for l in hole.get("loops", []):
+		Ground.draw_loop_ground(ci, geo, l)
+	for j in hole.get("jumps", []):
+		Ground.draw_jump_ramp(ci, geo, j)
+	for c in hole.get("cannons", []):
+		Ground.draw_cannon_hatch(ci, geo, c)
 	draw_cup(ci, geo, hole)
 
 
@@ -346,7 +353,7 @@ static func draw_rock(ci: CanvasItem, geo: Geo, r: Vector3) -> void:
 	var base := geo.snap(geo.at(Vector2(r.x, r.y)))
 	var rad := maxf(geo.len(r.z), 16.0 * geo.u)   # The footprint is the circle that the ball bounces from.
 	ci.draw_colored_polygon(_ellipse_pts(base + Vector2(6.0, 4.0) * geo.u, rad * 1.05, rad * 0.4), SHADOW)
-	var p := func(dx: float, dy: float) -> Vector2: return base + Vector2(dx, dy) * rad
+	var p := func(dx: float, dy: float) -> Vector2: return base + Vector2(dx, dy * 0.65) * rad   # A low boulder.
 	var body := PackedVector2Array([p.call(-1.0, -0.1), p.call(-0.65, -1.15), p.call(0.15, -1.4), p.call(0.95, -0.85),
 			p.call(0.9, -0.1), p.call(0.0, 0.25)])
 	ci.draw_colored_polygon(body, ROCK)
@@ -609,7 +616,7 @@ static func scenery(geo: Geo, hole: Dictionary, n: int) -> Array:
 	for sp in spots:
 		var c: Vector2 = geo.off + (sp as Vector2) * u
 		var box := Rect2(c - Vector2(36.0, 36.0) * u, Vector2(72.0, 72.0) * u)
-		if _free(box, keep, used) and not (sp.y > 930.0 and sp.y < 1030.0):
+		if _free(box, keep, used):
 			out.append([kinds[i % kinds.size()], c])
 			used.append(box)
 			i += 1

@@ -152,19 +152,6 @@ func next_hole() -> bool:
 	return true
 
 
-## TEMP-DEBUG (owner, 2026-11-05; remove before release): jumps to hole `n` (1 to Holes.COUNT) with no strokes, to test a hole.
-func debug_jump_to_hole(n: int) -> void:
-	holes = Holes.COUNT
-	_hole = clampi(n, 1, Holes.COUNT)
-	_turn = 0
-	for r in rows:
-		r.done.clear()
-		for i in _hole - 1:
-			r.done.append(0)
-		r.strokes = 0
-		r.state = State.PLAY
-
-
 ## A player that left: the strokes go away with the row (REQ-MG-11). The turn passes to the next player when it was the turn of
 ## the one who left.
 func remove_player(slot: int) -> void:

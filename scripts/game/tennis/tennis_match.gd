@@ -250,7 +250,7 @@ func aim_x(slot: int, tilt_x: float, serving: bool, noise := 0.0) -> float:
 			tx = clampf(tx, minf(box * 0.3, box * (hw - 0.3)), maxf(box * 0.3, box * (hw - 0.3)))
 		return tx
 	var hw2 := half_width()
-	var tx2 := tilt_x * mirror(team) * hw2 * 1.12 + noise
+	var tx2 := tilt_x * mirror(team) * hw2 * 1.0 + noise   # A swing all the way to the side ends on the sideline.
 	if level.inside:
 		tx2 = clampf(tx2, -(hw2 - 0.4), hw2 - 0.4)
 	return tx2

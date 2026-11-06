@@ -158,10 +158,7 @@ func _run() -> void:
 	var game: Control = app.current_screen()
 	_check(not game.has_method("_countdown_spots") and game.player(0).player_name != game.player(1).player_name,
 			"the game has no name tags (removed 2026-10-21) and the 2 phones have different names (2a)")
-	_check(game.hole_text() == "HOLE 1/3  PAR 2"
-			and game.chip_text(0) == game.player(0).player_name + "  0" and game.chip_text(1) == game.player(1).player_name + "  0",
-			"the top right says '%s' and the bar has one chip per player: '%s', '%s' (2c)"
-			% [game.hole_text(), game.chip_text(0), game.chip_text(1)])
+	_check(game.hole_text() == "HOLE 1/3  PAR 2", "the bar says '%s' (2c)" % game.hole_text())
 	# The ball is 32 units (3 % of 1080; an exception to REQ-GM-47m, owner 2026-11-03: 48 was too big) on every hole, and the cup is
 	# bigger than the ball (the view has one scale for a hole, so it is the same at the tee and at the cup).
 	var smallest := 9999.0
@@ -402,14 +399,17 @@ func _run() -> void:
 	_check(same, "hole 1 is the same on every level (9d)")
 
 	# ---- 8: the holes, the card and the next hole ----
-	var g5 := await _start(app, {"holes": "5"})
+	var g5 := await _start(app, {"holes": "10"})
 	var texts: Array = []
-	for n in 5:
+	for n in 10:
 		texts.append(g5.hole_text())
-		if n < 4:
+		if n < 9:
 			g5.rules.next_hole()
-	_check(texts == ["HOLE 1/5  PAR 2", "HOLE 2/5  PAR 3", "HOLE 3/5  PAR 3", "HOLE 4/5  PAR 3", "HOLE 5/5  PAR 4"],
-			"the top right text of the 5 holes: %s (8a)" % str(texts))
+	var pars := [2, 3, 3, 3, 4, 3, 3, 3, 3, 3]
+	var want: Array = []
+	for k in 10:
+		want.append("HOLE %d/10  PAR %d" % [k + 1, pars[k]])
+	_check(texts == want, "the text of the 10 holes in the bar: %s (8a)" % str(texts))
 	var g6 := await _start(app, {"holes": "2"})
 	g6.sim.in_cup = true
 	g6._putt_done()
