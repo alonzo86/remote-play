@@ -69,6 +69,9 @@ var _prev_buttons := 0
 var _swing_ts := -1
 ## The azimuth of a swing at the TV (rad, in the world frame of the sensor fusion), and if the player calibrated it.
 var heading := 0.0
+## False: `heading` stays where the last recenter left it (0) and does not follow the player's swings. Tennis sets it (owner,
+## 2026-11-06: the same swing read as left after some swings and as right after others, because the mean moved).
+var follow_heading := true
 var _head_x := 0.0               # The weighted mean direction of the swings so far, as a vector (sin, cos).
 var _head_y := HEADING_PRIOR
 var _hold_s := 0.0
@@ -293,7 +296,8 @@ func _feed_swing(pkt: Dictionary, now_ms: int) -> void:
 		"azimuth": OrientationFusion.azimuth(world),
 		"world_dir": world.normalized(),
 	}
-	_follow_heading(last_swing.azimuth)
+	if follow_heading:
+		_follow_heading(last_swing.azimuth)
 	last_swing_ms = now_ms
 	swing_count += 1
 	swung.emit(last_swing)

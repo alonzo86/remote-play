@@ -4,6 +4,7 @@ extends "res://scripts/game/minigame.gd"
 ## The game is for children too (REQ-GM-80 to 84): a bad swing gives a slow lob that stays in play, and nobody is hurt.
 
 const Match = preload("res://scripts/game/tennis/tennis_match.gd")
+const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const Look = preload("res://scripts/game/tennis/tennis_look.gd")
 const Rules = preload("res://scripts/game/tennis/tennis_rules.gd")
 const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
@@ -55,6 +56,13 @@ func _game_ready() -> void:
 	play.setup(slots, scoring == "quick", difficulty, int(Time.get_ticks_msec()))
 	_board = Scoreboard.new(participants)
 	for s in participants:
+		var det: SwingDetector = player(s).swing   # The strengths of Tennis (owner, 2026-11-06: swings that were not found).
+		det.fwd_gain = 1.0
+		det.forward_hold = 0.08
+		det.strike_against = 0.0
+		det.fast_full = 5.0
+		det.strike_without_back = true
+		player(s).follow_heading = false   # Left stays left: the straight direction is the one at the start.
 		player(s).button_pressed.connect(_on_button.bind(s))
 		player(s).swung.connect(_on_swing.bind(s))
 		_wired.append(s)

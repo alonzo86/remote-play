@@ -48,6 +48,22 @@ var threshold := 1.0
 var back_accel := BACK_ACCEL   # A move stronger than this (times `threshold`) for BACK_TIME is the back swing.
 var fwd_accel := FWD_ACCEL     # A push the other way stronger than this (times `threshold`) is the forward swing.
 var fwd_full := FWD_FULL       # The forward strength of the strongest ball.
+## Settings that Tennis uses (owner, 2026-11-06, from the swings that were not found); the defaults keep the feel of the other
+## games. `fwd_gain`: a push also counts when the hand has gained this much speed (m/s) since its slowest point in the back swing,
+## because the speed estimate of a back swing is off by a lot (the gravity of a turning phone looks like movement): 0 turns it
+## off. `forward_hold`: a forward swing that starts weak waits this long (s) before it is let go, so that the real hit that
+## follows a few hundredths of a second later is not locked out: 0 turns it off.
+var fwd_gain := 0.0
+var forward_hold := 0.0
+## `strike_against`: how much of a sharp push must go against the back swing, as a share of `STRIKE_ACCEL` (Tennis sets 0: the hit
+## of a real stroke often goes the same way as the first move of the back swing, owner logs 2026-11-06).
+var strike_against := STRIKE_AGAINST
+## `fast_full`: the forward hand speed (m/s) of the strongest ball. Tennis sets 5 (owner logs 2026-11-06: hits felt too strong; a
+## sharp hit starts the speed estimate at 0, so it reached the common 3 m/s at almost every hit).
+var fast_full := FWD_FAST_FULL
+## `strike_without_back`: a sharp push counts as the hit also when no back swing came before it (Tennis: a forward-only swing,
+## or a back swing and a forward swing, owner 2026-11-06).
+var strike_without_back := false
 ## The wait after a throw (s). Tennis uses a shorter one than bowling, so that the next ball can be hit.
 var lock_after := LOCK_AFTER
 ## How long (s) a back swing waits for its forward swing. Tennis waits longer, because a player draws back early while the
@@ -95,6 +111,7 @@ var _sign := 0                # The side of the last strong acceleration along t
 var _reversal_times: Array[float] = []
 var _back_peak := 0.0   # The strongest acceleration of the back swing along the axis (m/s2).
 var _back_time := 0.0   # How long the back swing had lasted when the forward swing started.
+var _speed_min := 0.0   # The lowest `_speed` of this back swing (m/s).
 var _speed := 0.0   # The speed of the hand along the swing axis (m/s), forward positive, from the start of the back swing.
 
 
@@ -115,6 +132,7 @@ func reset() -> void:
 	_back_peak = 0.0
 	_back_time = 0.0
 	_peak_speed = 0.0
+	_speed_min = 0.0
 	_strike = 0.0
 	_strike_sum = Vector3.ZERO
 	_sign = 0
@@ -139,6 +157,8 @@ func update(delta: float, lin: Vector3) -> void:
 
 
 func _update_ready(delta: float, lin: Vector3) -> void:
+	if strike_without_back and _check_strike(delta, lin):
+		return
 	if lin.length() > back_accel * threshold:
 		_above += delta
 		_sum += lin * delta
@@ -148,6 +168,7 @@ func _update_ready(delta: float, lin: Vector3) -> void:
 			_reversal_times.clear()
 			_back_peak = _sum.length() / _above
 			_speed = -_sum.length()   # The hand already moves back: it must turn round before a forward swing can count.
+			_speed_min = _speed
 			state = State.BACK
 			aim_locked = true
 			_time = 0.0
@@ -162,6 +183,7 @@ func _update_back(delta: float, lin: Vector3) -> void:
 	_time += delta
 	var f := -lin.dot(_axis)
 	_speed += f * delta - _speed * SPEED_LEAK * delta
+	_speed_min = minf(_speed_min, _speed)
 	_back_peak = maxf(_back_peak, -f)
 	_count_reversals(f)
 	var shaking := max_reversals > 0 and _reversal_times.size() > max_reversals
@@ -169,7 +191,8 @@ func _update_back(delta: float, lin: Vector3) -> void:
 	if speed_gate > 0.0:
 		pushed = pushed and _speed > speed_gate * threshold
 	if hand_speed:
-		pushed = (pushed and _speed > FWD_SPEED * threshold) or _speed > FWD_FAST * threshold
+		var gained := fwd_gain > 0.0 and _speed - _speed_min > fwd_gain
+		pushed = (pushed and (_speed > FWD_SPEED * threshold or gained)) or _speed > FWD_FAST * threshold
 	if pushed:
 		state = State.FORWARD
 		_peak = maxf(f, 0.0)
@@ -198,8 +221,9 @@ func _count_reversals(f: float) -> void:
 ## stroke goes back first and then forward (REQ-TN-5). A sharp move with no back swing before it, or one the same way as the
 ## back swing, is not the hit (it is the back swing).
 func _check_strike(delta: float, lin: Vector3) -> bool:
-	if not hand_speed or state != State.BACK or lin.length() <= STRIKE_ACCEL * threshold \
-			or -lin.dot(_axis) < STRIKE_ACCEL * threshold * STRIKE_AGAINST:
+	if not hand_speed or not (state == State.BACK or (strike_without_back and state == State.READY)) \
+			or lin.length() <= STRIKE_ACCEL * threshold \
+			or (strike_against > 0.0 and -lin.dot(_axis) < STRIKE_ACCEL * threshold * strike_against):
 		_strike = 0.0
 		_strike_sum = Vector3.ZERO
 		return false
@@ -228,6 +252,8 @@ func _update_forward(delta: float, lin: Vector3) -> void:
 		_since_peak = 0.0
 	else:
 		_since_peak += delta
+	if f < _peak * RELEASE_AT and _time < forward_hold and _peak < STRIKE_ACCEL * threshold:
+		return   # A weak start: the real hit may still come in a few hundredths of a second.
 	if f < _peak * RELEASE_AT or _time > FORWARD_MAX:
 		if fwd_ratio > 0.0 and _back_time > 0.0 and _peak < _back_peak * fwd_ratio:
 			# As gentle as the back swing: a move to the side, a shake or the stop of the back swing. Not a throw.
@@ -241,7 +267,7 @@ func _update_forward(delta: float, lin: Vector3) -> void:
 		var fast_low := FWD_FAST * threshold
 		power = clampf((_peak - low) / (fwd_full - low), 0.0, 1.0)
 		if hand_speed:
-			power = maxf(power, clampf((_peak_speed - fast_low) / (FWD_FAST_FULL - fast_low), 0.0, 1.0))
+			power = maxf(power, clampf((_peak_speed - fast_low) / (fast_full - fast_low), 0.0, 1.0))
 		released = true
 		forward_dir = -_axis
 		hit_age = _since_peak
