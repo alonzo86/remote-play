@@ -16,6 +16,7 @@ tests/pixel_art.gd|tv|sprite outline shared by the look files|unit
 tests/config_files.gd|controller|settings and last-TV files: save result, wrong types|unit
 tests/net_profiles.gd|controller|profiles over the network|unit
 tests/net_malformed.gd|controller|TV and phone: frames with fields of the wrong type|unit
+tests/net_limits.gd|controller|TV limits: pending cap, per-address rate, big frames, empty room (issues #387, #388)|unit
 tests/room_code.gd|controller|room code: encode, decode, hosts, TV link|unit
 tests/about_pages.gd|controller|About pages and About screen|scenario
 tests/game_helpers.gd|controller|game helpers|unit

@@ -87,7 +87,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 | ID | Decision |
 |----|----------|
-| D1 | Join by the room code or the QR code (FD-28; it was UDP discovery plus room code). The TV shows a QR code that holds `ws://IP:PORT/ROOM` and the room code, which is its address in 4 letters. The phone scans the QR code with a small Android plugin (Google code scanner) or types the code. A phone without the plugin (also a PC) has no scan button: it types the code, or uses `--join=127.0.0.1`. |
+| D1 | Join by the room code or the QR code (FD-28; it was UDP discovery plus room code). The TV shows a QR code that holds `ws://IP:PORT/ROOM` and the room code, which is its address in 4 letters. The phone scans the QR code with a small Android plugin (Google code scanner) or types the code. A phone without the plugin (also a PC) has no scan button: it types the code, or uses `--join=127.0.0.1` (the TV must be a debug build: only then does it take a join with no room code, issue #388). |
 | D2 | All data goes over WebSocket (TCP) in v1. The overlay shows sensor age so the user can see TCP delay. |
 | D3 | The TV does sensor fusion. The phone sends raw values. |
 | D4 | Godot 4.7 stable. |

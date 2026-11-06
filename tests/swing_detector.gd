@@ -383,6 +383,7 @@ func _golf(level_threshold := 1.0) -> SwingDetector:
 	d.fwd_accel = c.LIGHT_FWD_ACCEL
 	d.fwd_full = c.FULL_FWD
 	d.speed_gate = SwingDetector.GATE_SPEED
+	d.max_reversals = c.MAX_REVERSALS
 	return d
 
 
@@ -421,9 +422,34 @@ func _golf_gate() -> void:
 	var defaults := SwingDetector.new()
 	_check(defaults.back_accel == SwingDetector.BACK_ACCEL and defaults.fwd_accel == SwingDetector.FWD_ACCEL
 			and defaults.fwd_full == SwingDetector.FWD_FULL, "the strengths of a new detector are the common constants")
+	# Issue #209 item 1 (2026-11-06): a very hard shake (25 m/s2 or more, 2 to 3 Hz) passed the speed gate, because the hand
+	# does move at the push. A shake turns the acceleration round again and again, a putt only once (the brake of the back swing).
+	# MADE-UP series (SensorReplay), not recordings: the limit is a first guess (Test 26 step 16h).
+	var hard := {}
+	for amp in [25.0, 30.0, 40.0]:
+		for hz in [2.0, 3.0, 5.0]:
+			if amp == 40.0 and hz == 2.0:
+				continue   # Still putts (one swing of 0.25 s each way is a hard pendulum): the known limit, Test 26 step 16h.
+			hard["a %.0f Hz shake of %.0f m/s2" % [hz, amp]] = R.shake(1.0, amp, hz)
+	var shook := []
+	for name in hard:
+		if _throws(_golf(), hard[name]) > 0:
+			shook.append(name)
+	_check(shook.is_empty(), "a hard shake (made-up, 25 to 40 m/s2, 2 to 5 Hz, but not 40 at 2 Hz) does not putt. Putted: %s"
+			% "; ".join(shook))
+	var lost := []
+	for back in [6.0, 9.0, 14.0]:
+		for fwd in [10.0, 20.0, 30.0]:
+			for s in [0.2, 0.3, 0.45]:
+				if _throws(_golf(), R.pendulum(x, back, fwd, s)) != 1:
+					lost.append("back %.0f forward %.0f, %.2f s" % [back, fwd, s])
+	_check(lost.is_empty(), "made-up pendulum putts (back 6 to 14, forward 10 to 30, 0.2 to 0.45 s) still putt with the shake rule."
+			+ " Lost: %s" % "; ".join(lost))
+	_check(_golf().max_reversals == 1 and SwingDetector.new().max_reversals == 0,
+			"Mini Golf allows one turn round (the brake), the default is off")
 	var plain := SwingDetector.new()
 	_check(_throws(plain, R.pendulum(x, 9.0, 14.0, 0.25)) == 1 and plain.speed_gate == 0.0,
 			"the gate is off by default (Pin Pals and Tennis keep their rules)")
 	var tennis := PlayerInput.new(0, {}).swing
-	_check(tennis.speed_gate == 0.0 and tennis.fwd_ratio == 0.0 and tennis.hand_speed,
+	_check(tennis.speed_gate == 0.0 and tennis.fwd_ratio == 0.0 and tennis.max_reversals == 0 and tennis.hand_speed,
 			"Tennis keeps its detector: no speed gate, no ratio, the hand speed and strike rules (issue #209 item 4)")

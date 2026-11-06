@@ -369,7 +369,8 @@ func _release_presets() -> void:
 		_check(rel.get("package/signed", "") == "true", "%s signs the bundle" % pair[1])
 		for key in ["include_filter", "exclude_filter", "export_filter", "custom_features"]:
 			_check(rel_top.has(key) and rel_top.get(key) == dbg_top.get(key), "%s has the %s of %s" % [pair[1], key, pair[0]])
-		for key in ["package/unique_name", "package/name", "version/code", "version/name", "gradle_build/gradle_build_directory",
+		for key in ["package/unique_name", "package/name", "version/code", "version/name",
+				"gradle_build/gradle_build_directory", "gradle_build/min_sdk", "gradle_build/target_sdk",
 				"architectures/arm64-v8a", "architectures/armeabi-v7a", "package/show_in_android_tv"]:
 			_check(rel.has(key) and rel.get(key) == dbg.get(key), "%s has the %s of %s" % [pair[1], key, pair[0]])
 		for key in ["keystore/release", "keystore/release_user", "keystore/release_password", "keystore/debug",

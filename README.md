@@ -93,7 +93,7 @@ all made from seeds by `MarbleTrack.generate()` in `scripts/game/marble_race/mar
 
 ```sh
 godot --path . -- --role=tv                       # TV window
-godot --path . -- --role=controller --join=127.0.0.1   # phone window. Joins the TV at that address.
+godot --path . -- --role=controller --join=127.0.0.1   # phone window. Joins the TV at that address (the TV must be a debug build: it accepts a join with no room code only then).
 ```
 
 TV keys: arrows, Enter, Esc (back), F3 (overlay; with the overlay on: F5 starts and stops the sensor recorder, F6 / F7 change its label, REQ-T7).

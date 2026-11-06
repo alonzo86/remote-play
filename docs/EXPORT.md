@@ -19,6 +19,15 @@ The two IDs are different, so you can install both apps on one device.
    `android/build/config.gradle`). The Gradle build does not need the NDK or CMake. (CI has no APK job: the job
    `build-android` was removed on 2026-10-31, issue #286, because it exported nothing. The manifest patch is tested by
    `tests/ci_scripts.sh`. When an APK job is added, use these versions.)
+   **Android levels (issue #389).** All four presets set `gradle_build/min_sdk="24"` (Android 7.0) and
+   `gradle_build/target_sdk="36"` (Android 16). These are the defaults of the 4.7.2 template
+   (`android/build/config.gradle`: `minSdk 24`, `targetSdk 36`, `compileSdk 36`), written into the presets so a template
+   update cannot change them silently. Read from the template source; no APK was built here. Google Play's current
+   target-API rule was NOT checked (no web access): before the first upload, read the rule on the Play Console help page and
+   confirm that 36 meets it. Check the built file with
+   `aapt dump badging build/sababi-tv.apk | grep -E "sdkVersion|targetSdkVersion"` (expect 24 and 36). Whether API 24 covers
+   the oldest Android TV box the owner wants to support is the owner's decision. The Android 13 monochrome launcher icon
+   (`adaptive_monochrome`) is not set.
 4. In Godot open **Editor > Editor Settings > Export > Android**.
    Set `Java SDK Path` and `Android SDK Path`.
 5. Open **Editor > Manage Export Templates** and install the templates for your Godot version.
@@ -208,7 +217,7 @@ tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh
 
 ```sh
 godot --path . -- --role=tv                          # TV window (1280x720)
-godot --path . -- --role=controller --join=127.0.0.1  # phone window, joins the TV at that address
+godot --path . -- --role=controller --join=127.0.0.1  # phone window, joins the TV at that address (the TV must be a debug build: it accepts a join with no room code only then)
 ```
 
 Keyboard on the TV window: arrow keys move, Enter selects, Esc goes back, F3 toggles the overlay.

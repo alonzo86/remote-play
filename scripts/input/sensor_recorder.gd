@@ -20,6 +20,9 @@ const HEADER := "t_ms,lin_x,lin_y,lin_z,gyro_x,gyro_y,gyro_z"
 ## The kinds of movement that Test 24 step 12d asks for, in the order the overlay cycles through them.
 const LABELS: Array[String] = ["sweep", "hard_shake", "slow_shake", "swing_soft", "swing_medium", "swing_hard"]
 
+## Rows kept for one phone: 10 minutes at 60 Hz. A recording that runs longer stops growing (issue #387).
+const MAX_ROWS := 36000
+
 var label := LABELS[0]
 var recording := false
 var started_ms := 0
@@ -50,6 +53,8 @@ func add(slot: int, ts: int, lin: Vector3, gyro: Vector3) -> void:
 	if not _rows.has(slot):
 		_rows[slot] = {"t0": ts, "rows": []}
 	var r: Dictionary = _rows[slot]
+	if r.rows.size() >= MAX_ROWS:
+		return
 	r.rows.append([(ts - r.t0) & 0xFFFFFFFF, lin, gyro])
 
 

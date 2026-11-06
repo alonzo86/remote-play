@@ -349,7 +349,8 @@ func _start_controller() -> void:
 			client.connect_to(join_host, Protocol.WS_PORT, "")
 
 
-## For desktop runs: `--join=127.0.0.1` joins the TV at that address without a room code (the TV takes a hello with no room).
+## For desktop runs: `--join=127.0.0.1` joins the TV at that address without a room code (only a debug TV takes a hello
+## with no room).
 func _join_arg(args: PackedStringArray = OS.get_cmdline_user_args()) -> String:
 	for a in args:
 		if a.begins_with("--join="):

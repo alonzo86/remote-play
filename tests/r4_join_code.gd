@@ -157,8 +157,12 @@ func _tv_rules() -> void:
 			"another room code is bad_room, and the answer says nothing else about the TV")
 	_check(_server.player_count() == 0, "and nobody joined")
 	var none := await _raw_hello({"room": ""})
-	_check(none.reply.get("t", "") == "welcome", "a hello with no room joins (a run on a desktop: --join=127.0.0.1)")
+	_check(none.reply.get("t", "") == "welcome", "a debug build: a hello with no room joins (a run on a desktop: --join=127.0.0.1)")
 	_free_all()
+	_server.allow_empty_room = false
+	var none_release := await _raw_hello({"room": ""})
+	_check(none_release.reply.get("reason", "") == "bad_room", "a release build: a hello with no room is bad_room")
+	_server.allow_empty_room = true
 	var unknown := await _raw_hello({"token": token})
 	_check(unknown.reply.get("t", "") == "welcome", "a token that the TV does not know joins as a new phone (no PIN to ask)")
 	_free_all()
