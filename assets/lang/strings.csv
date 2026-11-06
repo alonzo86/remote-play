@@ -242,6 +242,7 @@ mini_golf.splash,SPLASH! TRY AGAIN FROM HERE,ספלאש! מנסים שוב מכ�
 mini_golf.hole_done,Hole %d done!,גומה %d הסתיימה!,"Mini Golf: title of the card at the end of a hole, %d is the number of the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.col_strokes,Strokes,מכות,"Mini Golf: card at the end of a hole, title of the column with the strokes on the hole",
 mini_golf.col_total,Total,סה״כ,"Mini Golf: card at the end of a hole, title of the column with the strokes of the whole match",
+mini_golf.phone_turn,"YOUR TURN: AIM, THEN SWING BACK AND FORWARD LIKE A PUTTER!","התור שלך: כוונו, ואז הניפו אחורה וקדימה כמו מחבט גולף!","Mini Golf: phone screen, line under the player and score rows while it is the turn of this phone (two lines at most): says what to do with the phone",
 mini_golf.phone_wait,%s IS PUTTING,%s מבצע/ת מכה,"Mini Golf: phone screen, line under the player and score rows while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
 common.ok,OK,אישור,Phone safety card of a swing game (OK button),
 swing.card_title,HOLD ON TIGHT!,החזיקו חזק!,"Phone: title of the safety card that shows each time the settings view of a swing game (Pin Pals, Tennis, Mini Golf, Freeze Dance) is open on the TV",

@@ -23,6 +23,8 @@ const HOLE_TIME := 4.0          # The card at the end of a hole.
 const END_DELAY := 1.2
 const SNAP := 0.1               # The aim snaps to the cup when it is this close to it (radians, about 6 degrees; REQ-MG-4).
 const WEAK_HINT_TIME := 3.0
+const SETTLE_CALM := 0.4         # The phone is held calm this long (s) and the cup is straight ahead (REQ-MG-4, a hand-over).
+const SETTLE_MAX := 4.0          # A turn waits at most this long (s) for a calm phone, then goes on with the pose it has.
 const PORTAL_ANIM := 1.6        # The teleport opens its exit and closes both pads in this time (owner, 2026-11-05).
 # The swing strengths of a putt (m/s2), lower than the common ones of `SwingDetector` (REQ-MG-5). The gate is the common one.
 const LIGHT_BACK_ACCEL := 3.0
@@ -66,6 +68,8 @@ var _portal_used := {}           # Slot -> true when that player's ball has gone
 var _portal_anim := -1.0         # Seconds since a ball went in (-1: no animation).
 var _aim_held := false          # The player locked the aim with A (REQ-MG-4); a second press on A unlocks it.
 var _snapped := false           # The aim is on the cup now.
+var _settling := false          # The turn has begun and the phone has not been held calm yet (a hand-over): the cup is ahead.
+var _settle_time := 0.0
 var _banner := ""
 var _banner_color := UiTheme.ACCENT
 var _weak_left := 0.0
@@ -159,6 +163,8 @@ func _start_turn() -> void:
 	detector.reset()
 	detector.threshold = float(level(difficulty).threshold)
 	player(slot).recenter()   # The pose at the start of the turn is straight ahead (REQ-MG-4).
+	_settling = true          # ... unless the phone is passed on: the first calm pose is straight ahead (REQ-MG-4).
+	_settle_time = 0.0
 	Sound.sfx("golf_turn")
 	_haptics.pulse(slot, 60, BUZZ_GAP_MS)
 
@@ -225,6 +231,21 @@ func _tick_aim(delta: float) -> void:
 	if _last_tick_ms > 0 and Time.get_ticks_msec() - _last_tick_ms > PAUSE_GAP_MS:
 		detector.reset()   # The game was paused: a swing that was under way starts again.
 	var pressed := _a_pressed(slot)
+	if _settling:
+		# A phone that is passed to the player on turn turns and is pushed on the way. The pose at the start of the turn is then
+		# not the pose that the player holds, so the aim waits for the first calm pose and takes it as straight ahead (REQ-MG-4).
+		_settle_time += delta
+		if p.orientation.calm_s >= SETTLE_CALM:
+			p.recenter()
+			_settling = false
+			detector.reset()
+		elif _settle_time >= SETTLE_MAX:
+			_settling = false
+		else:
+			_heading = GolfSim.heading_to_cup(_hole, sim.pos)
+			_snapped = true
+			detector.reset()
+			return
 	if pressed and not detector.aim_locked:
 		_aim_held = not _aim_held   # A locks the aim, and a second press unlocks it (REQ-MG-4).
 	if not detector.aim_locked and not _aim_held:

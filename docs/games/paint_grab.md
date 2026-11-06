@@ -43,7 +43,7 @@ Movement
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-PG-7 | Tilt gives the acceleration of the blob (`TiltBody`): a dead zone, a damping so that the blob slows down by itself, a speed limit, and a soft bounce at the edge of the floor. All players have the same values (REQ-GM-24). The blob never leaves the floor. | Device | run_tests (rules), Device (feel), auto_paint (Test 14 step 13a) |
+| REQ-PG-7 | Tilt gives the acceleration of the blob (`TiltBody`): a dead zone, a damping so that the blob slows down by itself, a speed limit, and a soft bounce at the edge of the floor. All players have the same values (REQ-GM-24). **A phone that is tilted too far (owner feedback, 2026-11-06: tilting too much messed up the movement afterwards):** the tilt reaches 1.0 at 90 degrees from the neutral pose and stays 1.0, in the same direction, beyond it (`Orientation.tilt()`); it used to fall again past 90 degrees, so the blob was pushed the other way, and the blob came back only after the phone had come back through the whole range. The blob never leaves the floor. | Device | run_tests (rules), orientation_rules (past 90 degrees), Device (feel), auto_paint (Test 14 step 13a) |
 | REQ-PG-8 | Blobs bounce off each other softly (no one is pushed through a wall). A blob is at least 48 px high on the screen (REQ-GM-47e) and shows no number (REQ-GM-46). | Done | run_tests, auto_paint |
 | REQ-PG-9 | Children (REQ-GM-80 to 84): the blobs are friendly made-up creatures, the paint is colorful and funny, a painted-over tile costs only that tile, no player is out or waits, the hint is one line ("Tilt your phone to roll and paint the tiles!"), the blobs are large and slow at the start, and all texts are positive. | Done | review |
 
