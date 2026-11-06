@@ -11,6 +11,7 @@ const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
+const About = preload("res://scripts/core/about.gd")
 const ProfileDropdown = preload("res://scripts/ui/profile_dropdown.gd")
 const EnterIcon = preload("res://scripts/ui/enter_icon.gd")
 const PhoneIcon = preload("res://scripts/ui/phone_icon.gd")
@@ -172,7 +173,9 @@ func _on_qr_text(text: String) -> void:
 		return
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():
-		App.last_error = Lang.t("connect.not_sababi_code")
+		# The QR code "GET THE APP" of the TV is not a room code: say so, so that the player scans the other one.
+		App.last_error = Lang.t("connect.app_code_scanned") if text.strip_edges().begins_with(About.APP_URL) \
+				else Lang.t("connect.not_sababi_code")
 		_on_state(ControllerClient.State.IDLE)
 		return
 	_typed_room = ""

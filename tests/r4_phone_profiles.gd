@@ -14,6 +14,7 @@ const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
+const About = preload("res://scripts/core/about.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const PencilIcon = preload("res://scripts/ui/pencil_icon.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
@@ -470,6 +471,12 @@ func _scan_flow() -> void:
 			and _app.profiles.active_id == maya.id,
 			"15c: a scan of a player code on the Connect screen adds the player, selects it and says PLAYER ADDED: '%s'"
 			% connect._status.text)
+	# The QR code "GET THE APP" of the TV is not a room code: the status line says so (owner, 2026-11-06).
+	connect._on_qr_text(About.APP_URL)
+	var app_text := Lang.t("connect.app_code_scanned")
+	_check(_app.last_error == app_text and connect._status.text == app_text.to_upper(),
+			"the Sababi scanner reading the app code says THAT IS THE APP CODE. SCAN THE OTHER ONE.: '%s'" % connect._status.text)
+	_app.last_error = ""
 	# Owner, 2026-11-06: ABOUT and SETTINGS (icons) are on the Connect screen too; Back from Settings returns to it.
 	_check(connect.find_child("AboutButton", true, false) != null and connect.find_child("SettingsButton", true, false) != null,
 			"the Connect screen has the icon buttons ABOUT and SETTINGS")

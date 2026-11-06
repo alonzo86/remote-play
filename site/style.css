@@ -1,0 +1,30 @@
+/* Sababi website. The colors are the design tokens of the app (docs/design-system/tokens.css). */
+:root { --bg: #000000; --text: #fcfcfc; --desc: #d0d0d0; --dim: #7c7c7c; --accent: #f8b800; --frame: #0058f8; --ok: #00b800; }
+* { box-sizing: border-box; }
+html { background: var(--bg); color: var(--text); font: 18px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+body { margin: 0; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+header, main, footer { max-width: 880px; margin: 0 auto; padding: 16px 24px; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; border-bottom: 2px solid var(--text); }
+.brand { color: var(--accent); font-size: 28px; font-weight: 700; text-decoration: none; margin-inline-end: auto; letter-spacing: 2px; }
+nav { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+nav a { color: var(--text); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
+nav a:hover, nav a[aria-current="page"] { border-bottom-color: var(--accent); }
+h1 { color: var(--accent); font-size: 34px; line-height: 1.2; margin: 32px 0 8px; }
+h2 { color: var(--accent); font-size: 24px; margin: 40px 0 8px; }
+p, li { color: var(--desc); }
+.lead { font-size: 22px; color: var(--text); }
+.steps { counter-reset: step; list-style: none; padding: 0; }
+.steps li { counter-increment: step; margin: 12px 0; padding-inline-start: 56px; position: relative; }
+.steps li::before { content: counter(step); position: absolute; inset-inline-start: 0; top: 0; width: 40px; height: 40px; line-height: 40px; text-align: center; background: var(--text); color: var(--bg); font-weight: 700; }
+.card { border: 4px double var(--frame); outline: 2px solid var(--text); outline-offset: 4px; padding: 20px 24px; margin: 24px 4px; }
+.stores { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0; }
+.store { display: block; min-width: 240px; padding: 14px 20px; border: 2px solid var(--text); color: var(--text); text-decoration: none; background: var(--bg); }
+.store strong { display: block; font-size: 20px; }
+.store small { color: var(--desc); }
+.store[aria-disabled="true"] { border-color: var(--dim); color: var(--dim); }
+.store[aria-disabled="true"] small { color: var(--dim); }
+.note { color: var(--dim); }
+footer { color: var(--dim); border-top: 2px solid var(--text); margin-top: 48px; font-size: 15px; }
+footer a { color: var(--desc); }

@@ -8,7 +8,9 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const About = preload("res://scripts/core/about.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const QrView = preload("res://scripts/ui/qr_view.gd")
 
+const APP_QR_SIDE := 560.0   # The QR code of "GET THE APP" on the TV.
 const TEXT_SIZE := 32          # The text of a page on the TV (REQ-FL-40: TV text is 32 px or more).
 const PHONE_TEXT_SIZE := 24   # On a phone screen of about 1080 px width (REQ-FL-40: 24 px or more).
 const SCROLL_STEP := 240
@@ -28,7 +30,7 @@ var _first: Control
 
 
 func _ready() -> void:
-	_pages = About.pages(scanner_note)
+	_pages = About.pages(scanner_note, not Role.is_controller())
 	_libs = About.libraries(OS.get_name() == "Android")
 	var m := UiKit.margin(self, 60, 60, 60, 60)
 	_box = VBoxContainer.new()
@@ -99,6 +101,9 @@ func show_page(i: int) -> void:
 	_clear()
 	open_page = i
 	var page: Dictionary = _current[i]
+	if String(page.kind) == "get_app":
+		_show_get_app(page)
+		return
 	var t := UiKit.title(About.title_text(page), 40)
 	t.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -112,6 +117,32 @@ func show_page(i: int) -> void:
 	_scroll.add_child(body)
 	for chunk in chunks(About.text(page)):
 		body.add_child(_text_label(chunk))
+	var back := _button("common.back", on_back, false, "quiet")
+	_box.add_child(back)
+	UiKit.focus_later(back)
+
+
+## The page "GET THE APP" of the TV: only the QR code of the phone app, so it is not mixed up with the room code of the Connect
+## screen. A phone scans it with its camera; the line says what the code is.
+func _show_get_app(page: Dictionary) -> void:
+	var t := UiKit.title(About.title_text(page), 40)
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_box.add_child(t)
+	var center := CenterContainer.new()
+	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_box.add_child(center)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 24)
+	center.add_child(col)
+	var qr := QrView.new()
+	qr.name = "AppQr"
+	qr.quiet = 4   # A code that another phone scans: a quiet zone of 4 modules and whole pixels (as the player code, FD-22).
+	qr.custom_minimum_size = Vector2(APP_QR_SIDE, APP_QR_SIDE)
+	qr.text = String(page.arg)
+	col.add_child(qr)
+	var line := UiKit.label("about.get_app_scan", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
+	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	col.add_child(line)
 	var back := _button("common.back", on_back, false, "quiet")
 	_box.add_child(back)
 	UiKit.focus_later(back)

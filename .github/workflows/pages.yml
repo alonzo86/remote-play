@@ -1,0 +1,36 @@
+name: Website
+
+# The website of Sababi (the folder site/): the home page with the store links, /get/ (the page that the QR code of the TV opens),
+# and the Privacy, Terms and Licenses sections (issue #37). It is served by GitHub Pages at https://alonzo86.github.io/remote-play/.
+# GitHub Pages works only for a public repository (or a paid plan) and needs Settings > Pages > Source = "GitHub Actions" once.
+# While the repository is private the job is skipped, so a push does not turn red.
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
