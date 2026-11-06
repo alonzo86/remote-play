@@ -7,7 +7,9 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 
-const PORT := 47911   # Not the game port: another test or a TV app may hold it.
+# Not the game port: another test or a TV app may hold it. It depends on the process, so two runs of this suite at the same
+# time (two agents, two terminals) do not share a port and fail each other (found in the review of PR #391).
+var PORT := 47000 + OS.get_process_id() % 900
 
 var _checks := 0
 var _fails := 0
