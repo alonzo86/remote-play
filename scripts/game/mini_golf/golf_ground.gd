@@ -4,9 +4,11 @@ extends RefCounted
 ## `golf_look.gd` with its `Geo` (the place of a point of the course on the screen; it is not typed here, so that the two files
 ## do not need each other).
 
+const Palette = preload("res://scripts/game/palette.gd")
+
 const OL := Color("181818")
 const GOLD := Color("f8b800")
-const RED := Color("f83800")   # The red of `Palette.NES_RED`.
+const RED := Palette.NES_RED
 const WOOD := Color("ac6418")
 const WOOD_HI := Color("d8a868")
 const SAND := Color("e8d098")
@@ -90,7 +92,7 @@ static func draw_loop_ring(ci: CanvasItem, geo, l: Dictionary) -> void:
 ## now: the entrance shows at the start of a turn, the exit opens when the ball has gone in, and then both close (owner,
 ## 2026-11-05).
 static func draw_portals(ci: CanvasItem, geo, t: Dictionary, a_k: float, b_k: float, time: float) -> void:
-	var pads: Array = [[t.a, Color("aa3df2"), Color("e0b0fc"), a_k], [t.b, Color("3dcef2"), Color("b0f0fc"), b_k]]
+	var pads: Array = [[t.a, Palette.GOLF_PAD_A, Color("e0b0fc"), a_k], [t.b, Palette.GOLF_PAD_B, Color("b0f0fc"), b_k]]
 	for p in pads:
 		var k: float = float(p[3])
 		if k <= 0.01:

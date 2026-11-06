@@ -81,7 +81,7 @@ func _run() -> void:
 	sv.start()
 	await _frames(4)
 	var hard: Control = app.current_screen()
-	_check(is_instance_of(hard, Sumo) and hard.difficulty == "hard" and hard.arena.start_radius == 330.0,
+	_check(is_instance_of(hard, Sumo) and hard.difficulty == "hard" and hard.arena.start_radius == 360.0,
 			"Hard gives a platform of 330 px (REQ-SB-20)")
 	GameSettings.clear()
 
@@ -147,8 +147,9 @@ func _run() -> void:
 			"a bumper outside the platform falls and the round goes on with two")
 	var shrunk: float = game.arena.time
 	game._game_tick(0.1)
-	_check(game.arena.speedup == 2.0 and is_equal_approx(game.arena.time - shrunk, 0.2),
-			"after the first fall the platform shrinks twice as fast (REQ-SB-6)")
+	var fast: float = game.arena.FALL_SPEEDUP
+	_check(game.arena.speedup == fast and is_equal_approx(game.arena.time - shrunk, 0.1 * fast),
+			"after the first fall the platform shrinks 2.5 times as fast (REQ-SB-6)")
 	game._bodies[2].pos = Vector2(0.0, edge)
 	game._game_tick(0.016)
 	_check(game.phase == game.Phase.BANNER and game._board.score(0) == 1.0 and game.banner_text.ends_with("wins the round!"),
@@ -156,7 +157,7 @@ func _run() -> void:
 	game._banner_left = 0.01
 	game._game_tick(0.02)
 	_check(game.round_no == 2 and game.phase == game.Phase.PLAY and game._alive.size() == 3 and game.arena.time == 0.0
-			and game._bodies[1].pos.is_equal_approx(spots[1]) and game.arena.radius() == 380.0 and game.arena.speedup == 1.0,
+			and game._bodies[1].pos.is_equal_approx(spots[1]) and game.arena.radius() == 400.0 and game.arena.speedup == 1.0,
 			"round 2 starts with all bumpers back, also the ones that fell, on a full platform (REQ-SB-2)")
 	for s in [0, 1, 2]:
 		game._bodies[s].pos = Vector2.from_angle(2.1 * s) * edge   # Apart, so that the bumps do not push one back in.

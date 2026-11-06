@@ -32,7 +32,6 @@ func _initialize() -> void:
 	_grace_and_moves()
 	_hard_stop()
 	_mover()
-	_back_in()
 	_end()
 	_levels()
 	_lights()
@@ -270,46 +269,6 @@ func _mover() -> void:
 	_check(_run(r2, 30.0, {}).size() > 0, "the round goes on with nobody")
 
 
-## REQ-FD-8: the seconds on the bench.
-func _back_in() -> void:
-	print("dance: back in")
-	var r := _rules("medium", [0, 1])
-	_check(r.back_in(0) == -1.0 and r.back_in(99) == -1.0, "a player on the floor, or unknown, has no back-in time")
-	_until(r, "freeze", {0: 4.0, 1: 4.0})
-	_run(r, 1.0, {0: 0.0, 1: 0.0})
-	_until(r, "moved", func(_r: DanceRules) -> Dictionary: return {0: 6.0, 1: 0.0})
-	var freeze_left := r.phase_left()
-	var expect := freeze_left + DanceRules.REST
-	_check(absf(r.back_in(0) - expect) < 0.01, "a mover is back at the start of the next song (%.1f s)" % r.back_in(0))
-	_check(r.back_in(1) == -1.0, "the player that held still has none")
-	_run(r, 1.0, {})
-	_check(r.back_in(0) < expect - 0.9, "the time goes down")
-	_until(r, "song", {})
-	_check(r.back_in(0) == -1.0, "in the next song the player is on the floor: no time")
-	# Moving in the last song: nothing to wait for.
-	var last := _rules("medium", [0])
-	for k in DanceRules.SONGS - 1:
-		_until(last, "song", {})
-	_check(last.song == DanceRules.SONGS, "this is the last song")
-	_until(last, "freeze", {0: 4.0})
-	_until(last, "moved", {0: 6.0})
-	_check(last.back_in(0) == -1.0, "a mover in the last song has no back-in time: nothing is left to play")
-	_check(last.is_out(0) and not _rules("medium", [0]).is_out(0) and not last.is_out(99),
-			"but it is still out of the floor, so the bench can show it (REQ-FD-8)")
-	var fifth := _rules("medium", [0])
-	for k in DanceRules.SONGS - 2:
-		_until(fifth, "song", {})
-	_until(fifth, "freeze", {0: 4.0})
-	_until(fifth, "moved", {0: 6.0})
-	_check(fifth.back_in(0) > 0.0, "a mover in the 5th song is back for the 6th")
-	var fourth := _rules("medium", [0])
-	for k in 2:
-		_until(fourth, "song", {})
-	_until(fourth, "freeze", {0: 4.0})
-	_until(fourth, "moved", {0: 6.0})
-	_check(fourth.back_in(0) > 0.0, "a mover in the 3rd song is back for the 4th")
-
-
 func _end() -> void:
 	print("dance: end")
 	var r := _rules("medium", [0])
@@ -452,7 +411,7 @@ func _pictures() -> void:
 	var down := DanceLook.dancer_image(Color("ff5050"), 0)
 	_check(up.get_pixel(2, 5).a == 1.0 and down.get_pixel(2, 5).a == 0.0, "pose 1 lifts the left arm, pose 0 has the arms down")
 	var dim := DanceLook.dancer_image(Color("ff5050"), 0, true)
-	_check(dim.get_pixel(5, 12).r < 0.4, "a dancer on the bench is dim")
+	_check(dim.get_pixel(5, 12).r < 0.4, "a dancer that moved is dim")
 	var corners := DanceLook.tile_corners(0, 0, area)
 	var near := DanceLook.tile_corners(DanceRules.ROWS - 1, 0, area)
 	_check(corners.size() == 4 and (corners[1].x - corners[0].x) < (near[1].x - near[0].x),

@@ -110,7 +110,11 @@ func _run() -> void:
 			var text: String = he % args
 			rows += 1
 			var para := TextParagraph.new()
-			para.direction = TextServer.DIRECTION_RTL
+			# A line with no Hebrew letter ("12 / 12") is drawn left to right, as the engine does when the direction is automatic.
+			var has_hebrew := false
+			for i in text.length():
+				has_hebrew = has_hebrew or _is_hebrew(text.unicode_at(i))
+			para.direction = TextServer.DIRECTION_RTL if has_hebrew else TextServer.DIRECTION_AUTO
 			para.add_string(text, font, 32)
 			var glyphs: Array[Dictionary] = te.shaped_text_get_glyphs(para.get_line_rid(0))
 			for i in text.length():

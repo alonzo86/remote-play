@@ -281,14 +281,16 @@ func _publish_scores() -> void:
 
 func leader_text() -> String:
 	if play.solo:
-		return super()
+		return _streak_text()
 	return str(_best_tally()) if _best_tally() > 0 else ""
 
 
 ## The leader chip shows the team in front with its games, or TIE when the teams are level (REQ-TN-13).
 func draw_leader_chip(ci: CanvasItem) -> void:
 	if play.solo:
-		super(ci)
+		for s in participants:
+			Shell.leader_chip(ci, Shell.area_width(ci), [player(s)], _streak_text())
+			return
 		return
 	var best := _best_tally()
 	if best <= 0:
@@ -374,7 +376,7 @@ func _world_draw(ci: CanvasItem) -> void:
 	if play.phase == Match.Phase.RALLY:
 		_draw_target(ci, p)
 	Look.draw_tower(ci, p)
-	var things: Array = [{"y": 0.0, "k": "net"}, {"y": -0.5, "k": "kid"}]
+	var things: Array = [{"y": 0.0, "k": "net"}]
 	if play.sim.active:
 		Look.draw_ball_shadow(ci, p, play.sim.pos)
 		things.append({"y": play.sim.pos.y, "k": "ball"})
@@ -388,8 +390,6 @@ func _world_draw(ci: CanvasItem) -> void:
 		match String(t.k):
 			"net":
 				Look.draw_net(ci, p)
-			"kid":
-				Look.draw_ball_kid(ci, p)
 			"ball":
 				_draw_ball(ci, p)
 			"machine":
@@ -542,16 +542,11 @@ func _draw_panel() -> void:
 					32, UiTheme.TEXT)
 
 
-## With 1 player: the running rally, the best one and the time left (REQ-TN-15).
+## With 1 player: the time left. The running rally and the best one are in the badge of the top bar (REQ-TN-15).
 func _draw_solo_panel() -> void:
-	var f := UiTheme.font()
-	var rally := Lang.f("tennis.rally", [play.rally]).to_upper()
-	var best := Lang.f("tennis.best", [maxi(play.best_rally, play.rally)]).to_upper()
-	var x := Shell.mx(self, 60.0, 400.0)
-	var y := Look.HUD_H + 16.0
-	for i in 2:
-		var row := Rect2(x, y + i * PANEL_ROW, 400.0, PANEL_ROW - 6.0)
-		draw_style_box(UiTheme.line_box(UiTheme.FRAME, UiTheme.BG, 4), row)
-		draw_string(f, Vector2(row.position.x + 16.0, row.position.y + 38.0), rally if i == 0 else best,
-				HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE, UiTheme.ACCENT if i == 0 else UiTheme.TEXT)
 	Shell.timer(self, Vector2(Shell.TIMER_X, Shell.TIMER_Y), maxf(0.0, play.solo_left))
+
+
+## The text of the one badge of a solo round: "RALLY 3 / BEST 7".
+func _streak_text() -> String:
+	return "%s / %s" % [Lang.f("tennis.rally", [play.rally]), Lang.f("tennis.best", [maxi(play.best_rally, play.rally)])]

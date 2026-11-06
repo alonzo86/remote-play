@@ -246,6 +246,8 @@ func _tile_reason() -> void:
 	await _frames(5)
 	_check(screen._reason.text == "", "Paint Grab, which fits 1 phone, has no reason in the info bar")
 	_check(sumo.modulate.a < 1.0 and paint.modulate.a == 1.0, "the tile that does not fit is dim")
+	sumo.grab_focus()   # OK is pressed on the tile that does not fit.
+	await _frames(5)
 	var heard: Array[String] = []
 	var cb := func(id: String) -> void: heard.append(id)
 	_sound.sfx_played.connect(cb)

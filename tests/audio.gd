@@ -545,7 +545,7 @@ func _loudness_and_songs(sound: Node, app: Node) -> void:
 			if Synth.to_pcm16(bufs[ids[i]]) == Synth.to_pcm16(bufs[ids[j]]):
 				distinct = false
 				print("  same samples: %s %s" % [ids[i], ids[j]])
-	_check(distinct and ids.size() == 16, "all %d songs have different samples" % ids.size())
+	_check(distinct and ids.size() == 22, "all %d songs have different samples" % ids.size())
 	var bad_ids: Array[String] = []
 	for g in Registry.all():
 		if String(g.id) == "menu" or not Songs.SONGS.has(String(g.id)):

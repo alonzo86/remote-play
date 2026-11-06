@@ -185,7 +185,7 @@ These requirements replaced the Party Pop ones (FD-13) in phase 1 of `docs/ARCAD
 - REQ-FL-27: When the player count changes on the Games screen, the tiles update at once (REQ-FL-14).
 
 ### Phone app
-- REQ-FL-28: The phone shows the TV phase after it has joined: "WAITING FOR THE HOST" (logo and Connect screen), "CHOOSE A GAME ON THE TV" (Games and Settings screens), and the game pad (playing and paused). The wait screen shows the slot color square with the slot number and "1P" to "4P".
+- REQ-FL-28: The phone shows the TV phase after it has joined: "WAITING FOR THE HOST" (logo and Connect screen), "CHOOSE A GAME ON THE TV" (Games screen), "GET READY!" and "THE HOST IS PICKING THE SETTINGS." (the settings screen of a game, `wait.get_ready`, `wait.host_settings`), and the game pad (playing and paused). The wait screen shows the slot color square with the slot number and "1P" to "4P".
 - REQ-FL-29: The TV sends the phase with the existing `phase` message. A new value is needed for the Connect and Games screens. Change `docs/PROTOCOL.md` in the same commit (use the `change-protocol` skill).
 
 ### Android export

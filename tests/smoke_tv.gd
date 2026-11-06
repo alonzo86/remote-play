@@ -435,9 +435,7 @@ func _run() -> void:
 	_check(mz.is_over and mz._winner == mz._balls[0].slot, "a ball in the exit wins")
 	var labels: Array = mz.menu_buttons().map(func(b): return b.text)
 	_check(labels == RESULT_MENU and mz.is_paused(), "the result menu opens: %s" % str(labels))
-	var maze_rows: Array = []
-	for l in mz._menu_box.find_children("*", "Label", true, false):
-		maze_rows.append(l.text)
+	var maze_rows: Array = _row_texts(mz)
 	_check(maze_rows.size() == 3 and maze_rows[0].ends_with("WINS!") and maze_rows[1].begins_with("1ST")
 			and maze_rows[1].ends_with(" S") and maze_rows[2].begins_with("2ND") and maze_rows[2].ends_with("NOT FINISHED"),
 			"the maze result lists the winner with the time and the other ball as not finished: %s" % str(maze_rows))
@@ -461,9 +459,7 @@ func _run() -> void:
 	board.set_score(rg.participants[1], 9)
 	rg.open_results(board)
 	await _frames(2)
-	var row_labels: Array = []
-	for l in rg._menu_box.find_children("*", "Label", true, false):
-		row_labels.append(l.text)
+	var row_labels: Array = _row_texts(rg)
 	var result_buttons: Array = rg.menu_buttons().map(func(b): return b.text)
 	_check(rg.is_over and result_buttons == RESULT_MENU and not rg._can_open_menu(),
 			"the result menu has Restart, New game and Back to menu, and the game is over: %s" % str(result_buttons))
@@ -695,9 +691,7 @@ func _run() -> void:
 	ss._round.time = ss.ROUND_TIME - 0.005
 	ss._game_tick(0.01)
 	await _frames(8)
-	var ss_rows: Array = []
-	for l in ss._menu_box.find_children("*", "Label", true, false):
-		ss_rows.append(l.text)
+	var ss_rows: Array = _row_texts(ss)
 	var ss_buttons: Array = ss.menu_buttons().map(func(b): return b.text)
 	_check(ss.is_over and ss_buttons == RESULT_MENU and ss_rows.size() == 3
 			and ss_rows[0] == (p0.player_name + " wins!").to_upper() and ss_rows[1].begins_with("1ST") and ss_rows[1].ends_with("30")
@@ -863,9 +857,7 @@ func _run() -> void:
 	mr._open_results()
 	await _frames(2)
 	var race_labels: Array = mr.menu_buttons().map(func(b): return b.text)
-	var race_rows: Array = []
-	for l in mr._menu_box.find_children("*", "Label", true, false):
-		race_rows.append(l.text)
+	var race_rows: Array = _row_texts(mr)
 	_check(race_labels == RESULT_MENU and race_labels.size() == 3 and race_labels[1] == "minigame.new_game",
 			"REQ-MR-55: the results menu of the race is Try again, Settings, Back to menu (no Choose track): %s" % str(race_labels))
 	_check(race_labels == RESULT_MENU and race_rows.size() == 3 and race_rows[0].ends_with("WINS!")
@@ -874,9 +866,7 @@ func _run() -> void:
 	mr._racers[1].finish_time = -1.0   # The second car did not reach the line.
 	mr._open_results()
 	await _frames(2)
-	var late_rows: Array = []
-	for l in mr._menu_box.find_children("*", "Label", true, false):
-		late_rows.append(l.text)
+	var late_rows: Array = _row_texts(mr)
 	_check(late_rows.size() == 3 and late_rows[2].begins_with("2ND") and late_rows[2].ends_with("NOT FINISHED"),
 			"a car that did not finish is listed as not finished, after the finishers: %s" % str(late_rows))
 	mr._racers[1].finish_time = mr._racers[0].finish_time + 1.0
@@ -996,3 +986,12 @@ func _run() -> void:
 		c.leave()
 	await _frames(30)
 	quit(1 if _fails > 0 else 0)
+
+
+## The title and the rows of a result menu (a row is its hidden full text; the cells of the table are skipped).
+func _row_texts(game) -> Array:
+	var texts: Array = []
+	for l in game._menu_box.find_children("*", "Label", true, false):
+		if not l.get_parent() is GridContainer:
+			texts.append(l.text)
+	return texts

@@ -217,8 +217,9 @@ func _finish_with_bot() -> void:
 	var rows: Array = []
 	for i in order.size():
 		var seat := order[i]
-		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(i + 1), seats[seat].name, _goals_text(float(scores[seat]))],
-				"color": seats[seat].color, "avatar": seats[seat].avatar})
+		var goals := _goals_text(float(scores[seat]))
+		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(i + 1), seats[seat].name, goals],
+				"color": seats[seat].color, "avatar": seats[seat].avatar, "cells": [Scoreboard.ordinal(i + 1), seats[seat].name, goals]})
 	var heading := Lang.f("result.winner", [String(seats[order[0]].name)])
 	open_result_menu(heading, rows, [], order[0] == 0)
 

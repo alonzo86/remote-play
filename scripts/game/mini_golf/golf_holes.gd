@@ -62,7 +62,7 @@ const HOLES: Array[Dictionary] = [
 			"loops": [{"enter": Rect2(-0.5, 2.9, 1.0, 0.3), "base": Rect2(-0.5, 3.3, 1.0, 0.45), "ring": Vector2(0.0, 3.52),
 					"radius": 0.26, "exit": Vector2(0.75, 4.1), "heading": 1.14, "min_speed": 2.0, "time": 1.0}],
 			"hills": [{"rect": Rect2(-0.5, 1.5, 1.0, 0.6), "height": 0.06}],
-			"blocks": [], "rocks": [Vector3(1.6, 5.1, 0.13)]},
+			"blocks": [], "rocks": [Vector3(1.6, 4.95, 0.13)]},
 	# 8: the teleport. The hole has two sections with a wall between them: the only way from the first to the second is the pad
 	# (a slow ball falls in it, a fast one rolls over). A hill and a rock lie before the pad.
 	{"par": 3, "tee": Vector2(-0.6, 1.1), "cup": Vector2(0.5, 5.5),

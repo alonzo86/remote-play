@@ -198,8 +198,10 @@ const MEANING := {
 	"scripts/ui/tv_game_settings.gd": [1, 0],     # OK: the roster line "IN" (good, taking part).
 	"scripts/ui/controller_connect.gd": [0, 1],   # BAD: a failed join (an error).
 	"scripts/ui/tv_settings.gd": [1, 0],          # OK: a switch that is ON.
-	"scripts/ui/controller_wait.gd": [1, 0],      # OK: NEW BEST! (good).
-	"scripts/ui/controller_pad.gd": [1, 5],       # OK: the best score. BAD: the lost link (badge, name), the B button, its stripes.
+	"scripts/ui/controller_settings.gd": [1, 0],  # OK: the haptics switch is ON.
+	"scripts/ui/switch_icon.gd": [1, 0],          # OK: a switch that is ON.
+	"scripts/ui/controller_pad.gd": [1, 6],       # OK: the best score. BAD: the lost link, the B button, its stripes.
+	"scripts/game/mini_golf/golf_look.gd": [1, 0],   # OK: the aim mark is snapped to the cup (good aim).
 	"scripts/ui/slot_list.gd": [1, 1],            # OK: READY. BAD: LOST.
 	"scripts/game/marble_race/marble_race.gd": [1, 0]}   # OK: the GO word (go).
 

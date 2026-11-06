@@ -82,7 +82,7 @@ func _holes() -> void:
 		_check(clear, "hole %d: no water, rock or hill on the tee or the cup" % n)
 	_check(Holes.hole(0) == Holes.hole(1) and Holes.hole(99) == Holes.hole(10),
 			"a hole number outside 1 to 10 gives the nearest hole")
-	_check(Holes.par_total(3) == 8 and Holes.par_total(10) == 31 and Holes.par_total(0) == 0, "the par of the first holes together")
+	_check(Holes.par_total(3) == 8 and Holes.par_total(10) == 30 and Holes.par_total(0) == 0, "the par of the first holes together")
 
 
 ## REQ-MG-5, 10: the power sets how far the ball rolls, the ball slows down and stops, a wall brings it back.

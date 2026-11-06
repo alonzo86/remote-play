@@ -5,6 +5,7 @@ extends "res://scripts/game/minigame.gd"
 ## The game is for children too (REQ-GM-80 to 84).
 ## The rules are in dance_rules.gd, the pictures in dance_look.gd. This script has the input, the round and the drawing.
 
+const Songs = preload("res://scripts/audio/songs.gd")
 const DanceRules = preload("res://scripts/game/freeze_dance/dance_rules.gd")
 const DanceLook = preload("res://scripts/game/freeze_dance/dance_look.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
@@ -21,8 +22,6 @@ const WIN_BUZZ_MS := 400
 const POP_COUNT := 8
 const POP_LIFE := 1.2
 const DANCE_RATE := 5.0          # Steps of the dance in a second.
-const BENCH_STEP := 104.0        # The height of one place on the bench.
-const BENCH_W := 280.0
 const SONG_WAIT_MAX := 8.0   # Seconds the first round waits for its song at most.
 
 ## A "+10" that floats up above a dancer. The pool is made once (REQ-GM-51).
@@ -45,6 +44,7 @@ var _draw_order: Array[int] = [] # The slots, the far dancers first.
 var _lit := {}                   # The lit tiles of the floor (Vector2i(row, col)).
 var _light_clock := 0.0
 var _light_step := -1
+var _song_pick := ""              # The song of this round, one of `Songs.FREEZE_DANCE_SONGS` (picked once).
 var _song_ready := false         # The song is made and the first round may start (issue #149).
 var _song_wait := 0.0
 var _scene_time := 0.0           # Game time of the dance: it stands still while the game is paused (REQ-FL-43).
@@ -56,6 +56,13 @@ var _meters := {}                # slot -> DanceRules.Meter
 ## No countdown (REQ-GM-35): the game has no timer, and the first song starts at once.
 func _has_countdown() -> bool:
 	return false
+
+
+## One of the songs of the game, picked at random when the game opens and kept for the whole round (REQ-FD-2).
+func _song_id() -> String:
+	if _song_pick == "":
+		_song_pick = Songs.FREEZE_DANCE_SONGS[randi() % Songs.FREEZE_DANCE_SONGS.size()]
+	return _song_pick
 
 
 func _game_ready() -> void:
@@ -94,7 +101,7 @@ func _game_tick(delta: float) -> void:
 	_scene_time += delta
 	if not _song_ready:   # The first round waits until the song is made, so it has music (issue #149).
 		_song_wait += delta
-		_song_ready = Sound.song_ready(Registry.id_of_script(get_script())) or _song_wait >= SONG_WAIT_MAX
+		_song_ready = Sound.song_ready(_song_id()) or _song_wait >= SONG_WAIT_MAX
 		return
 	for p in _pops:
 		if p.age >= 0.0:
@@ -178,20 +185,16 @@ func _world_draw(ci: CanvasItem) -> void:
 	DanceLook.draw_hall(ci, size, BAR_H, _lit, _scene_time)
 	for s in _draw_order:
 		var d: DanceRules.Dancer = _rules.dancers.get(s)
-		if d == null or not d.plays():
+		if d == null:
 			continue
 		var at := DanceLook.place(int(_seat[s]), _seat_count, size)
 		var step := floori(_scene_time * DANCE_RATE)
-		var dancing := _rules.phase == DanceRules.Phase.MUSIC and d.energy >= DanceRules.WIGGLE_MIN * 0.5
+		var dancing := d.plays() and _rules.phase == DanceRules.Phase.MUSIC and d.energy >= DanceRules.WIGGLE_MIN * 0.5
 		var pose := (1 + step % 2) if dancing else 0
 		var hop := wp if dancing and step % 2 == 0 else 0.0   # A hop of one world pixel.
-		DanceLook.draw_dancer(ci, _texture(s, pose, false), Vector2(float(at.x), float(at.y) - hop), int(at.scale), wp)
+		# A dancer that moved in the freeze stays where it is, dim, until the next song (REQ-FD-8).
+		DanceLook.draw_dancer(ci, _texture(s, pose, not d.plays()), Vector2(float(at.x), float(at.y) - hop), int(at.scale), wp)
 	DanceLook.draw_stage(ci, size)
-	var row := 0
-	for s in _bench():   # The dancers that moved, on the bench at the right (REQ-FD-8).
-		var feet := _bench_feet(row)
-		DanceLook.draw_dancer(ci, _texture(s, 0, true), feet, 1, wp)
-		row += 1
 
 
 func _texture(slot: int, pose: int, dim: bool) -> ImageTexture:
@@ -199,28 +202,6 @@ func _texture(slot: int, pose: int, dim: bool) -> ImageTexture:
 	if not _tex.has(key):
 		_tex[key] = ImageTexture.create_from_image(DanceLook.dancer_image(player(slot).color, pose, dim))
 	return _tex[key]
-
-
-## The slots that moved in this song (REQ-FD-8), in slot order. A mover in the last song has no "BACK IN" time.
-func _bench() -> Array[int]:
-	var out: Array[int] = []
-	if is_over:
-		return out
-	for s in participants:
-		if _rules.is_out(s):
-			out.append(s)
-	return out
-
-
-## The left edge of the "back in n" text under a chip at `chip_x`: centered under the chip, and inside the 60 px safe margin even
-## when the text is wider than the bench (the Hebrew text is, issue #151).
-static func bench_text_x(chip_x: float, text_w: float, area_w: float) -> float:
-	return clampf(chip_x + (BENCH_W - 40.0) * 0.5 - text_w * 0.5, 60.0, area_w - 60.0 - text_w)
-
-
-## The middle of the feet of the dancer on place `row` of the bench: the first place is the lowest.
-func _bench_feet(row: int) -> Vector2:
-	return Vector2(size.x - 60.0 - BENCH_W - 60.0, size.y - 120.0 - float(row) * BENCH_STEP + 40.0)
 
 
 func _game_draw() -> void:
@@ -240,7 +221,6 @@ func _draw_hud() -> void:
 	if not is_over:
 		_draw_song_counter()
 		_draw_banner()
-		_draw_bench_plates()
 		if _rules.song == 1 and _scene_time < HINT_TIME:
 			Shell.hint(self, size, "freeze_dance.hint")
 
@@ -266,19 +246,3 @@ func _draw_banner() -> void:
 			color = Color("a0f0ff")
 	if key != "":
 		Shell.label_plate(self, Vector2(size.x * 0.5, BANNER_Y), key, BANNER_SIZE, color)
-
-
-## The name and the time of each player on the bench (REQ-FD-8). The dancer is drawn in the world, at the left of the chip.
-func _draw_bench_plates() -> void:
-	var row := 0
-	for s in _bench():
-		var feet := _bench_feet(row)
-		var x := feet.x + 60.0
-		var y := feet.y - 40.0
-		var p := player(s)
-		Shell.chip(self, Vector2(x, y - 20.0), slot_label(s), p.color, BENCH_W - 40.0, 64.0, p.avatar)
-		if _rules.back_in(s) >= 0.0:   # A mover in the last song has no time (REQ-FD-8).
-			var back_in := Lang.f("freeze_dance.back_in", [ceili(_rules.back_in(s))])
-			var text_w := UiTheme.font().get_string_size(back_in.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, UiTheme.SIZE_BODY).x
-			Shell.text(self, Vector2(bench_text_x(x, text_w, size.x), y + 76.0), back_in, UiTheme.SIZE_BODY, UiTheme.TEXT)
-		row += 1

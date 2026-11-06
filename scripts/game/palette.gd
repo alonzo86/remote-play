@@ -46,6 +46,9 @@ const GOLF_SKY := Color("68d0fc")
 const LEAF_ORANGE := Color("e0842c")
 const GOLD_SHADE := Color("d69614")
 const HAIR_BLOND := Color("c8861e")
+## The two pads of a Mini Golf teleport (violet and cyan, a pair that is told apart from each other, not from a player).
+const GOLF_PAD_A := Color("aa3df2")
+const GOLF_PAD_B := Color("3dcef2")
 ## Changed in issue #237 because a car in the slot color has to be told from the wall of the track: the old Space wall was
 ## cyan (3ddcff, slot 1 is now 3dcef2). The Candy red (was e8286c, near the new pink slot 4) is now `RACE_RED`.
 const SPACE_WALL := Color("8c9cff")

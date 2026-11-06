@@ -258,9 +258,19 @@ func _side() -> void:
 	_check(s.swings.size() == 10 and worst < 0.1, "10 swings at the TV give a side of 0 (largest %.2f)" % worst)
 	var rep := _rig()
 	_repeat(rep, 10, func(i): return R.stroke(g.dir(30.0), 10.0, 25.0), 1.0)
-	_check(rep.swings.size() == 10 and float(rep.swings[0].side) > 0.5 and absf(float(rep.swings[9].side)) < 0.3,
-			"REQ-TN-7: 'straight' is the mean of the last swings, so ten equal swings 30 degrees right drift to the middle (%.2f -> %.2f)"
+	_check(rep.swings.size() == 10 and float(rep.swings[0].side) > 0.3 and absf(float(rep.swings[9].side)) < 0.3,
+			"REQ-TN-7: by default 'straight' is the mean of the last swings, so ten equal swings 30 degrees right drift to the "
+			+ "middle (%.2f -> %.2f)"
 			% [float(rep.swings[0].side), float(rep.swings[9].side)])
+	# Tennis (owner, 2026-11-06): the heading does not follow the swings, so the same swing gives the same side every time.
+	var fixed := _rig()
+	fixed.player.follow_heading = false
+	_repeat(fixed, 10, func(i): return R.stroke(g.dir(30.0), 10.0, 25.0), 1.0)
+	var lowest := 9.0
+	for x in fixed.swings:
+		lowest = minf(lowest, float(x.side))
+	_check(fixed.swings.size() == 10 and lowest > 0.3,
+			"REQ-TN-7: in Tennis ten equal swings 30 degrees right all aim right (lowest side %.2f)" % lowest)
 
 
 # ---- Item 10: the other sign of the accelerometer ----

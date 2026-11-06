@@ -45,6 +45,7 @@ var recenter_button := true    # False in a game without a pointer: the pad hide
 var pad_buttons := "ab"       # The buttons the pad shows: "", "a", "b" or "ab" (REQ-GM-37a).
 var setup_swing := false      # The TV settings view of a swing game is open: the phone shows the safety card (REQ-GM-102).
 var setup_pick := false       # Two or more phones are connected: the phone asks "play this game?" (issue #76, REQ-GM-104).
+var setup_open := false       # The TV settings view of a game is open: the waiting screen says so.
 var setup_in := true          # This phone plays the game (the choice IN); the TV sets it back to IN when it refuses the last OUT.
 var sat_out := false          # The round that runs began with this phone OUT: the waiting screen says so (issue #242).
 var swing_acked := false      # The player tapped OK for the settings view that is open; the next view asks again (issue #148).
@@ -283,6 +284,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			phase = Protocol.text(msg, "v", "connect")
 			recenter_button = Protocol.flag(msg, "rc", true)
 			pad_buttons = Protocol.text(msg, "ab", "ab")
+			setup_open = false
 			var was_out := setup_pick and not setup_in   # The view closes with this phone OUT (REQ-GM-104).
 			sat_out = (sat_out or was_out) if phase == "waiting" else false
 			if setup_swing or setup_pick:
@@ -296,6 +298,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			phase_changed.emit(phase)
 			_sync_profile()
 		"setup":
+			setup_open = true
 			setup_swing = Protocol.flag(msg, "swing", false)
 			setup_pick = Protocol.flag(msg, "pick", false)
 			setup_in = Protocol.flag(msg, "in", true)

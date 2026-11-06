@@ -388,7 +388,9 @@ func _points() -> void:
 	var o := _match([0, 1])
 	_serve_now(o, 0.5)
 	_until_contact(o)
-	o.swing(1, 1.0, false, -1.0, 0.0)   # The hardest swing with the widest aim, on Medium: out.
+	# The widest aim ends on the sideline, which is in (2026-11-06). A swing that is not green (0.3 s late) adds a random
+	# sideways miss to it (the match has a fixed seed), and this one is out.
+	o.swing(1, 1.0, false, -1.0, -0.3)
 	_run(o, 2.0)
 	_check(o.rules.points == [1, 0] and o.last_point.reason == "out", "a ball that lands out is a point for the other team")
 	# A ball that stays in is returned back and forth.

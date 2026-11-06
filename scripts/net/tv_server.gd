@@ -187,11 +187,12 @@ func players_in() -> Array[int]:
 	return r
 
 
-## A phone chose IN (`true`) or OUT. The last phone that is IN cannot go OUT: a game needs a player.
+## A phone chose IN (`true`) or OUT. With two or more phones every phone may go OUT: with nobody IN, Start is off. A single phone
+## is never asked and cannot go OUT, as before.
 func set_in(slot: int, value: bool) -> void:
 	if value:
 		_out.erase(slot)
-	elif players_in().has(slot) and players_in().size() > 1:
+	elif connected_slots().size() >= 2 and connected_slots().has(slot):
 		_out[slot] = true
 
 

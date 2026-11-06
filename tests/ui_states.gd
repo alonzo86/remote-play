@@ -617,6 +617,6 @@ func _pad_aim_strip() -> void:
 	pad._process(0.0)
 	_check(is_equal_approx(pad._aim_frac, 0.5), "the mark is back in the middle when the turn is over")
 	app.client.recenter_button = true
-	_check(pad._zone_at(strip.get_center()) == "recenter", "a pointer game shows the Recenter box again")
+	_check(pad._zone_at(pad._rect_recenter().get_center()) == "recenter", "a pointer game shows the Recenter box again")
 	app.client.state = ControllerClient.State.IDLE
 	pad.queue_free()

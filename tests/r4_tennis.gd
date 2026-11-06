@@ -222,6 +222,8 @@ func _runs_and_great() -> void:
 			_swing(game2, hitter2, 0.6, false)
 			game2._process(DT)
 			no_great += 0 if game2._great.has(hitter2) else 1
+			if trials[done] == "early":   # An early swing waits for the ball: the hit happens at the contact.
+				_until(game2, t_c + 0.02)
 			done += 1
 			# The ball goes on to the other side: wait for the next contact and see that the rally is still on.
 			if game2.play.phase == Match.Phase.RALLY and game2.play.hitter == 0 and not game2.play.contact.is_empty():

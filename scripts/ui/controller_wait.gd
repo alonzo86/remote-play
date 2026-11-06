@@ -127,6 +127,7 @@ func _mark(b: Button, chosen: bool) -> void:
 ## and this phone has not tapped OK for this view (issues #79 and #148).
 func _update_setup() -> void:
 	_update_pick()
+	_refresh()
 	var want: bool = App.client.setup_swing and not App.client.swing_acked
 	if want and not is_instance_valid(_swing_card):
 		_swing_card = SwingCard.new()
@@ -157,6 +158,8 @@ static func texts_for(phase: String) -> Array:
 func _refresh() -> void:
 	var c: Node = App.client
 	var t := texts_for(c.phase)
+	if c.phase == "menu" and c.setup_open:
+		t = ["wait.get_ready", "" if c.setup_pick else "wait.host_settings"]   # The TV shows the settings of a game.
 	_title.text = Lang.t(String(t[0])).to_upper()
 	_sub.text = Lang.t(String(t[1])).to_upper()
 	if c.phase == "waiting" and c.sat_out:

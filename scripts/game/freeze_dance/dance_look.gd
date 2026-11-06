@@ -53,7 +53,7 @@ static func place(index: int, count: int, area: Vector2) -> Dictionary:
 
 
 ## The picture of a dancer: a head with a cap in `color`, two dots for the eyes and a mouth, a body in `color`, two arms and two
-## legs, a black outline. `pose` is 0 (arms down), 1 (left arm up) or 2 (right arm up). `dim` is the dancer on the bench.
+## legs, a black outline. `pose` is 0 (arms down), 1 (left arm up) or 2 (right arm up). `dim`: a mover.
 static func dancer_image(color: Color, pose: int, dim := false) -> Image:
 	var img := Image.create(IMG.x, IMG.y, false, Image.FORMAT_RGBA8)
 	var c := color

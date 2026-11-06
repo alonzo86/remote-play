@@ -246,29 +246,41 @@ static func head_pos(foot: Vector2, s: float) -> Vector2:
 	return foot - Vector2(0.0, 1.9 * s)
 
 
-## The umpire's chair at the side of the net, with the umpire on top (REQ-TN-2).
+## The umpire's chair at the side of the net, with the umpire on top (REQ-TN-2): a blue steel frame with cross braces, a step
+## ladder, a seat with a shade board, a small net-side table and an umpire in a white shirt and a blue cap.
 static func draw_tower(ci: CanvasItem, p: Proj) -> void:
 	var x := -(Sim.HALF_W_DOUBLES + 1.8)
 	var foot := p.at(x, 0.0)
 	var s := p.scale(0.0)
+	var steel := Color("3c5a9a")
+	var steel_dark := Color("26396a")
+	var seat := Color("f4f4f4")
 	var parts: Array = []
-	for sx in [-0.45, 0.45]:
-		parts.append([_r(foot, s, sx - 0.05, sx + 0.05, 0.0, 2.2), Color("8a8a9a")])
-	parts.append([_r(foot, s, -0.2, 0.2, 0.6, 0.68), Color("8a8a9a")])
-	parts.append([_r(foot, s, -0.2, 0.2, 1.3, 1.38), Color("8a8a9a")])
-	parts.append([_r(foot, s, -0.6, 0.6, 2.2, 2.3), Color("f4f4f4")])
-	parts.append([_r(foot, s, -0.4, 0.4, 2.3, 2.9), Color("d0d0dc")])
-	parts.append([_r(foot, s, -0.2, 0.2, 2.35, 2.8), Color("f4f4f4")])
-	parts.append([_r(foot, s, -0.13, 0.13, 2.82, 3.06), SKINS[1]])
-	parts.append([_r(foot, s, -0.18, 0.18, 3.06, 3.14), Color("f4f4f4")])
+	# The four legs seen from behind are two, with a cross brace between them and a foot plate on the ground.
+	for sx in [-0.5, 0.5]:
+		parts.append([_r(foot, s, sx - 0.06, sx + 0.06, 0.0, 2.3), steel])
+		parts.append([_r(foot, s, sx - 0.14, sx + 0.14, 0.0, 0.08), steel_dark])
+	for h in [0.5, 1.2, 1.9]:
+		parts.append([_r(foot, s, -0.5, 0.5, h, h + 0.07), steel_dark])
+	# The step ladder on the court side: two rails and rungs.
+	for sx in [0.62, 0.9]:
+		parts.append([_r(foot, s, sx - 0.03, sx + 0.03, 0.0, 1.3), steel_dark])
+	for h in [0.3, 0.65, 1.0]:
+		parts.append([_r(foot, s, 0.62, 0.9, h, h + 0.05), steel])
+	# The seat, the arm rests and the back with the shade board on top.
+	parts.append([_r(foot, s, -0.62, 0.62, 2.3, 2.42), seat])
+	parts.append([_r(foot, s, -0.62, -0.5, 2.42, 2.7), steel])
+	parts.append([_r(foot, s, 0.5, 0.62, 2.42, 2.7), steel])
+	parts.append([_r(foot, s, -0.5, 0.5, 2.42, 3.0), Color("c8d4ec")])
+	# The umpire: legs, white shirt, arms on the rests, head with a blue cap.
+	parts.append([_r(foot, s, -0.2, 0.2, 2.42, 2.6), Color("e0e0e8")])
+	parts.append([_r(foot, s, -0.22, 0.22, 2.6, 3.0), seat])
+	parts.append([_r(foot, s, -0.36, -0.22, 2.62, 2.9), SKINS[1]])
+	parts.append([_r(foot, s, 0.22, 0.36, 2.62, 2.9), SKINS[1]])
+	parts.append([_r(foot, s, -0.12, 0.12, 3.0, 3.26), SKINS[1]])
+	parts.append([_r(foot, s, -0.15, 0.15, 3.22, 3.34), steel])
+	parts.append([_r(foot, s, -0.15, 0.22, 3.2, 3.24), steel_dark])
 	_draw_parts(ci, parts)
-
-
-## The ball kid at the left net post (REQ-TN-2): a small player in orange who waits.
-static func draw_ball_kid(ci: CanvasItem, p: Proj) -> void:
-	var foot := p.at(-(Sim.HALF_W_DOUBLES + 0.5), 0.5)
-	var s := p.scale(0.5) * 0.7
-	draw_person(ci, foot, s, {"shirt": Color("f08a30"), "slot": 3, "back": false, "hand": -1.0, "pose": "idle"})
 
 
 ## The friendly ball machine of a rally (REQ-TN-15), pink with two eyes. `squash` 0..1 after it sent a ball.

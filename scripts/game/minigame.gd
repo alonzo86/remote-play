@@ -61,6 +61,11 @@ var tile_mode := false
 var _pixel_layer: Control        # Draws the world of a pixel game, inside the low-resolution view.
 
 
+## The id of the song of the game (`Songs.SONGS`): the id of the game. A game with several songs picks one (Freeze Dance).
+func _song_id() -> String:
+	return Registry.id_of_script(get_script())
+
+
 func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	participants = game_host.players_in()   # The phones that chose OUT in the settings view do not play (REQ-GM-104).
@@ -70,9 +75,9 @@ func _ready() -> void:
 	game_host.set_phase("playing", participants)
 	Sound.duck(false)
 	if _has_countdown():
-		Sound.music_at_go(Registry.id_of_script(get_script()))   # The song starts at GO (REQ-FL-65a).
+		Sound.music_at_go(_song_id())   # The song starts at GO (REQ-FL-65a).
 	else:
-		Sound.music(Registry.id_of_script(get_script()))   # No countdown: the song starts with the play (REQ-GM-35).
+		Sound.music(_song_id())   # No countdown: the song starts with the play (REQ-GM-35).
 	if _pixel_world():
 		_build_pixel_view()
 	_give_host_to_haptics()
@@ -354,8 +359,11 @@ func open_menu(title: String, entries: Array, rows: Array = []) -> void:
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(l)
-	for r in rows:
-		box.add_child(_menu_row(String(r.text), r.color, int(r.get("avatar", -1)), String(r.get("medal", ""))))
+	if rows.all(func(r: Dictionary) -> bool: return not r.get("cells", []).is_empty()):
+		box.add_child(_result_table(rows))
+	else:
+		for r in rows:
+			box.add_child(_menu_row(String(r.text), r.color, int(r.get("avatar", -1)), String(r.get("medal", ""))))
 	var items := UiKit.menu(entries)
 	items.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(items)
@@ -371,20 +379,68 @@ func _menu_row(text: String, color: Color, avatar := -1, medal_tier := "") -> Co
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 18)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	var square := ColorRect.new()
-	square.color = color
-	square.custom_minimum_size = Vector2(24, 24)
-	square.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(square)
+	row.add_child(_color_square(color))
 	if Shell.has_chip_avatar(avatar):
-		var av := AvatarView.new(avatar, 48.0)
-		av.tappable = false
-		av.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(av)
+		row.add_child(_avatar_cell(avatar))
 	if medal_tier != "":
 		row.add_child(MedalView.new(medal_tier))
 	row.add_child(UiKit.label(text, UiTheme.SIZE_BODY))
 	return row
+
+
+func _color_square(color: Color) -> ColorRect:
+	var square := ColorRect.new()
+	square.color = color
+	square.custom_minimum_size = Vector2(24, 24)
+	square.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	return square
+
+
+func _avatar_cell(avatar: int) -> Control:
+	var av := AvatarView.new(avatar, 48.0)
+	av.tappable = false
+	av.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return av
+
+
+## The result list as a table (REQ-GM-72): one grid, so every column is as wide as its widest cell and all rows are aligned: the
+## player color, the avatar, the medal, the place, the name and the score (the order is mirrored in Hebrew). A row without an
+## avatar or a medal keeps the room of the column. Each row also has its text as one hidden label (`text` of the row), which is
+## what a test reads.
+func _result_table(rows: Array) -> Control:
+	var holder := VBoxContainer.new()
+	holder.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var texts := Control.new()
+	texts.visible = false
+	holder.add_child(texts)
+	var grid := GridContainer.new()
+	grid.columns = 6
+	grid.add_theme_constant_override("h_separation", 36)
+	grid.add_theme_constant_override("v_separation", 18)
+	holder.add_child(grid)
+	var any_avatar := rows.any(func(r: Dictionary) -> bool: return Shell.has_chip_avatar(int(r.get("avatar", -1))))
+	var any_medal := rows.any(func(r: Dictionary) -> bool: return String(r.get("medal", "")) != "")
+	for r in rows:
+		texts.add_child(UiKit.label(String(r.text), UiTheme.SIZE_BODY))
+		grid.add_child(_color_square(r.color))
+		var avatar := int(r.get("avatar", -1))
+		if any_avatar:
+			grid.add_child(_avatar_cell(avatar) if Shell.has_chip_avatar(avatar) else _gap(48.0))
+		else:
+			grid.add_child(_gap(0.0))
+		if String(r.get("medal", "")) != "":
+			grid.add_child(MedalView.new(String(r.medal)))
+		else:
+			grid.add_child(_gap(48.0 if any_medal else 0.0))
+		for i in 3:
+			grid.add_child(UiKit.label(String(r.cells[i]), UiTheme.SIZE_BODY))
+	return holder
+
+
+func _gap(w: float) -> Control:
+	var c := Control.new()
+	c.custom_minimum_size = Vector2(w, 0)
+	return c
 
 
 ## Ends a round with scores (REQ-GM-34, 72, 73): sets `is_over` and opens the result menu. It lists the ranking, and its
@@ -410,7 +466,7 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 		if e.finished:
 			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color,
-				"avatar": p.avatar})
+				"avatar": p.avatar, "cells": [Scoreboard.ordinal(e.rank), p.player_name, text]})
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title

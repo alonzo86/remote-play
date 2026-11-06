@@ -55,6 +55,8 @@ game_settings.medium,MEDIUM,בינוני,TV game settings: Medium value of the d
 game_settings.start,START,התחילו,TV game settings: Start button,
 games.n_players,%d players,%d שחקנים,"TV Games screen: game tile, a game for exactly this many players","the number sign (%d, %.1f ...) is replaced by a number"
 games.needs_players,Needs %d players,דרושים %d שחקנים,"TV game settings and Games screen (yellow line in the info bar under the description): why a game cannot start when too few phones have joined, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
+games.needs_at_least,At least %d players needed,נדרשים לפחות %d שחקנים,"TV game settings (yellow line under Start): every connected phone chose OUT and the game needs 2 or more players, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
+games.needs_at_least_one,AT LEAST 1 PLAYER NEEDED,נדרש לפחות שחקן אחד,"TV game settings (yellow line under Start): every connected phone chose OUT and the game can start with one player",
 games.one_player,1 player,שחקן אחד,"TV Games screen: game tile, a game for 1 player",
 games.range_players,%d-%d players,%d-%d שחקנים,"TV Games screen: game tile, a game for a range of players","the number sign (%d, %.1f ...) is replaced by a number"
 games.select_game,SELECT GAME,בחרו משחק,TV Games screen: title,
@@ -158,6 +160,8 @@ wait.you_chose_out,YOU CHOSE OUT. YOU JOIN NEXT ROUND.,בחרתם להישאר �
 wait.round_running,A ROUND IS IN PROGRESS,סיבוב מתנהל כעת,Phone waiting screen: title when a round runs and the phone is not in it,
 wait.use_tv_remote_phone,USE THE TV REMOTE. YOUR PHONE IS READY.,השתמשו בשלט הטלוויזיה. הטלפון שלכם מוכן.,Phone waiting screen: second line while the TV shows the menus,
 wait.waiting_host,WAITING FOR THE HOST,ממתינים למארח,Phone waiting screen: title before the TV has chosen a game,
+wait.get_ready,GET READY!,היכונו!,Phone waiting screen: title while the TV shows the settings of a game,
+wait.host_settings,THE HOST IS PICKING THE SETTINGS.,המארח בוחר את ההגדרות.,Phone waiting screen: second line while the TV shows the settings of a game and one phone is connected (with two or more the question PLAY THIS GAME? shows instead),
 registry.star_shield,STAR SHIELD,מגן הכוכבים,"Name of the game Star Shield: Games screen, game settings, in-game title",
 registry.desc_asteroid_blast,A SPACE ADVENTURE IN A SKY FULL OF FALLING ROCKS.,הרפתקה בחלל בשמיים מלאים בסלעים נופלים.,"Description of Star Shield: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.theme,THEME,ערכת נושא,game settings of Treasure Maze and Car Race: name of the theme row,
@@ -209,8 +213,8 @@ tennis.fault,FAULT,הגשה פסולה,Tennis: banner when a serve is out or in 
 tennis.out,OUT,בחוץ,Tennis: banner when the ball lands outside the lines,
 tennis.net,NET,רשת,Tennis: banner when the ball hits the net,
 tennis.great,GREAT!,מעולה!,Tennis: text over a player after a swing at the perfect time,
-tennis.rally,RALLY %d,רצף %d,"Tennis with 1 player: score panel and banner, %d is the balls hit back in a row","the number sign (%d, %.1f ...) is replaced by a number"
-tennis.best,BEST %d,שיא %d,"Tennis with 1 player: score panel, %d is the longest rally of the round","the number sign (%d, %.1f ...) is replaced by a number"
+tennis.rally,RALLY %d,רצף %d,"Tennis with 1 player: the badge in the top bar (left part, RALLY n / BEST m) and the banner, %d is the balls hit back in a row","the number sign (%d, %.1f ...) is replaced by a number"
+tennis.best,BEST %d,שיא %d,"Tennis with 1 player: the badge in the top bar (right part, RALLY n / BEST m), %d is the longest rally of the round","the number sign (%d, %.1f ...) is replaced by a number"
 registry.mini_golf,MINI GOLF,מיני גולף,"Name of the game Mini Golf: Games screen, game settings, in-game title",
 registry.desc_mini_golf,"MINI GOLF ON FUNNY COURSES, WITH YOUR PHONE AS THE CLUB.","מיני גולף במסלולים מצחיקים, והטלפון הוא המחבט.","Description of Mini Golf: info bar of the Games screen (what the game is, no instructions, issue #78)",
 mini_golf.holes,HOLES,גומות,Mini Golf settings view: name of the Holes row,
@@ -304,7 +308,6 @@ freeze_dance.hint,"WIGGLE YOUR PHONE TO THE MUSIC. WHEN IT STOPS, FREEZE!","נע
 freeze_dance.wiggle,WIGGLE!,נענעו!,Freeze Dance: banner at the top of the TV while the music plays,
 freeze_dance.freeze,FREEZE!,קפאו!,Freeze Dance: banner at the top of the TV from the moment the music stops (the phones show nothing),
 freeze_dance.song_n,SONG %d OF %d,שיר %d מתוך %d,"Freeze Dance HUD: box in the place of the timer, the song that plays now and the number of songs","the number sign (%d, %.1f ...) is replaced by a number"
-freeze_dance.back_in,BACK IN %d,חוזרים בעוד %d,"Freeze Dance: under the name of a player who moved in the freeze, the seconds until the next song, where the player dances again","the number sign (%d, %.1f ...) is replaced by a number"
 players.default_name,Player %d,שחקן %d,"TV, everywhere a player name shows (Players list, HUD chips, pause card, result menu): name of a phone that has no profile name, %d is the slot number (1 to 4)","the number sign (%d, %.1f ...) is replaced by a number; it is not saved: it follows the TV language"
 about.qr_scanner,QR scanner,סורק QR,"About screen, Android phone: name of the page about the QR scanner (list entry and heading of the page)",
 about.android_libraries,Android libraries,ספריות אנדרואיד,"About screen, Android phone, 3rd Party Libraries: name of the page of the Android libraries (list entry and heading of the page)",

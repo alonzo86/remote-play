@@ -36,6 +36,7 @@ The clip ids are the game ids. The games were renamed later: `maze` is Treasure 
 | `asteroid_blast` | Star Shield | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
 | `whack_a_mole` | Whack-a-Mole (added 2026-10-23) | Bouncy and light, short notes with rests in C major (120 BPM) | 16 bars (32 s) |
 | `freeze_dance` | Freeze Dance (added 2026-10-24) | A disco groove in A minor with a four-on-the-floor beat (124 BPM). It is held (stopped at once) in every freeze and goes on from the same place (`Sound.hold_music()`) | 16 bars (31 s) |
+| `freeze_dance_jacques`, `_twinkle`, `_lamb`, `_ode`, `_london`, `_buns` | Freeze Dance, more songs (2026-11-06) | Six traditional melodies in the public domain (Frère Jacques at 120 BPM, Twinkle Twinkle Little Star at 116, Mary Had a Little Lamb at 128, Ode to Joy at 112, London Bridge at 124, Hot Cross Buns at 132), written as notes for the synth. The game picks one of the seven songs of the game for each round. No known song that is still protected is used. |
 
 Rules:
 - Game music of a game with a countdown starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1). Only a game with a visible timer has a countdown (REQ-GM-35); the music of the other games (Star Shield, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players) starts with the play.
@@ -197,7 +198,7 @@ Each row is one effect. "Where" names the event that the game already has (it ha
 |----|------|-------|
 | `freeze_stop` | The freeze starts (the song is held at once, the lights go out) | A soft "record stop": a pitch that drops from 520 to 90 Hz in 0.35 s, with a little noise. Not an alarm (REQ-GM-81) |
 | `dance_points` | The "+10" appears, after the freeze | A short two-note ping. The pitch depends on the player slot, as `snow_points` |
-| `dance_out` | A player moved and goes to the bench | A soft, funny "boop-boop" (two short notes, down and up). Not sad (REQ-GM-81) |
+| `dance_out` | A player moved in the freeze | A soft, funny "boop-boop" (two short notes, down and up). Not sad (REQ-GM-81) |
 
 ### 4.5a Whack-a-Mole (`whack_a_mole`, added 2026-10-23)
 

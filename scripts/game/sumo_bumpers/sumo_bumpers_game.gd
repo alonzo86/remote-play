@@ -13,6 +13,8 @@ const ROUNDS := 3
 const BANNER_TIME := 2.5
 const DASH_BOOST_TIME := 0.35   # While a dash is fresh the speed limit is the dash speed, so the dash is not cut at once.
 const FALL_TIME := 0.8          # A fallen bumper spins and shrinks in this time (REQ-SB-9).
+const MOVE_ACCEL := 1650.0    # Slower than the shared TiltBody (2200 and 560): small children play this game (REQ-SB-7).
+const MOVE_MAX := 420.0
 const BUZZ_GAP_MS := 150
 const HINT_TIME := 5.0
 const SIM_AREA := Vector2(1800.0, 890.0)   # The simulation area: the platform fits in it at every difficulty.
@@ -44,7 +46,7 @@ var _alive: Array[int] = []
 var _falling := {}              # slot -> {pos, age}
 var _dash_left := {}            # slot -> seconds until the dash is ready
 var _boost_left := {}           # slot -> seconds that the dash speed limit lasts
-var _normal_speed := TiltBody.new().max_speed   # The speed limit without a dash.
+var _normal_speed := MOVE_MAX   # The speed limit without a dash.
 var _dashes: Array[int] = []    # The slots of the presses of A, kept until the next tick.
 var _fell: Array[int] = []      # The slots that fell in this tick (one array for all ticks: nothing is made in each frame).
 var _banner_left := 0.0
@@ -63,6 +65,8 @@ func _game_ready() -> void:
 	for s in participants:
 		var b: TiltBody = TiltBody.new()
 		b.radius = SumoArena.BUMPER_R
+		b.accel = MOVE_ACCEL
+		b.max_speed = MOVE_MAX
 		_bodies[s] = b
 		player(s).button_pressed.connect(_on_button.bind(s))
 	_start_round()

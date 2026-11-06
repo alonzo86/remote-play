@@ -104,24 +104,6 @@ func is_out(slot: int) -> bool:
 	return d != null and not d.plays()
 
 
-## The seconds until the song where the player plays again, or -1 when the player is not out or the song is after the last one
-## (REQ-FD-8).
-func back_in(slot: int) -> float:
-	var d: Dancer = dancers.get(slot)
-	if d == null or d.plays():
-		return -1.0
-	var left := 0.0
-	var returns := song + 1   # The song where the player plays again.
-	match phase:
-		Phase.MUSIC:
-			left = phase_left() + float(level.freeze) + REST
-		Phase.FREEZE:
-			left = phase_left() + REST
-		_:
-			left = phase_left()
-	return left if returns <= SONGS else -1.0
-
-
 ## One step. `energies` is slot -> the raw energy of the phone (`energy_of()`). Returns the events of the step, in order:
 ## {"type": "freeze"}, {"type": "moved", "slot"}, {"type": "held", "slot", "points"}, {"type": "song", "song"},
 ## {"type": "done"}.

@@ -324,12 +324,14 @@ func _round_checks(id: String, spec: Array) -> void:
 		# A long score still fits inside the chip, and the chip inside the margin (REQ-GM-46).
 		if id != "marble_race" and id != "mini_golf":
 			var long_score := 12345.0
-			if id == "paint_grab":   # It shows a percent of the picture: a score of tiles that reads as 12345 percent.
-				long_score = 12345.0 * float(_game._picture_total) / 100.0 + 1.0
+			var digits := "12345"
+			if id == "paint_grab":   # It shows a percent of the picture: the longest one is the whole picture, 100 percent.
+				long_score = float(_game._picture_total)
+				digits = "100"
 			_game._scoreboard().set_score(lead_slot, long_score)
-			var big := await _wait_leader(func(e: Dictionary) -> bool: return String(e.info.score).contains("12345"))
+			var big := await _wait_leader(func(e: Dictionary) -> bool: return String(e.info.score).contains(digits))
 			_check(not big.is_empty() and _chip_fits(big),
-					"%s: a score of 5 digits fits inside the chip and the chip inside the margin" % state)
+					"%s: the longest score (5 digits, 100 percent in Paint Grab) fits inside the chip and the chip inside the margin" % state)
 		# A tie: the chip says TIE in the language of the TV, with a gray square (REQ-GM-46).
 		# Tennis counts a tie between the teams (REQ-TN-13): the two players of one team are not a tie.
 		_set_scores(id, slots, [10.0, 40.0, 40.0, 20.0] if id == "tennis" else [10.0, 20.0, 40.0, 40.0])
@@ -389,7 +391,7 @@ func _chip_edge_checks(state: String, snap: Dictionary, lang: String) -> void:
 	_check(_chip_fits(l), "%s: the whole name and score fit inside the chip, inside the margin (%s)" % [state, str(l.rect)])
 
 
-## Issue #223: every chip the game draws (name and score chips, lists, the bench) is inside the 60 px margin of the 1920x1080
+## Issue #223: every chip the game draws (name and score chips, lists) is inside the 60 px margin of the 1920x1080
 ## screen: at the sides, at the bottom and, below the black bar, at the top. A chip in the bar (the leader chip) keeps the
 ## 60 px at the sides only, as the bar rule above says. Older TV boxes crop 2 to 5 percent of each edge.
 func _chip_margin_checks(state: String, snap: Dictionary) -> void:
@@ -428,8 +430,10 @@ func _row_checks(state: String, snap: Dictionary, lang: String, has_timer: bool)
 		_check(is_equal_approx(base, Shell.TITLE_BASELINE),
 				"%s: the title stands on the common baseline (y %.0f)" % [state, base])
 	for st in snap.get("status", []):
-		# Pin Pals: "FRAME 1/10" stands on the baseline of its title (REQ-BW-12); the other games use the status baseline.
-		var want := Shell.TITLE_BASELINE if state.begins_with("bowling") else Shell.STATUS_BASELINE
+		# Pin Pals ("FRAME 1/10", REQ-BW-12) and Mini Golf ("HOLE 3 OF 10") stand on the baseline of their title; the other
+		# games use the status baseline.
+		var want := Shell.TITLE_BASELINE if state.begins_with("bowling") or state.begins_with("mini_golf") \
+				else Shell.STATUS_BASELINE
 		_check(is_equal_approx(st.rect.position.y + _ascent(), want),
 				"%s: the status text stands on the common baseline (y %.0f)" % [state, st.rect.position.y + _ascent()])
 		if state.begins_with("bowling"):
