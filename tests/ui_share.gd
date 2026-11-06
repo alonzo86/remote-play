@@ -187,9 +187,10 @@ func _connect_screen() -> void:
 	_app.profiles.delete(_app.profiles.profiles[2].id)
 	connect._on_qr_text(_code("cd".repeat(16), "Dana", 2))
 	await process_frame
-	_check(_app.current_screen() == connect and connect._status.text == "PLAYER ADDED."
-			and _app.profiles.find("cd".repeat(16)) != null,
-			"a player code on the Connect screen is taken and the status line says so (no list screen)")
+	connect = _app.current_screen()   # The screen is built again with the new player selected (2026-11-06).
+	_check(connect.get_script() == _app.ControllerConnect and connect._status.text == "PLAYER ADDED."
+			and _app.profiles.find("cd".repeat(16)) != null and _app.profiles.active_id == "cd".repeat(16),
+			"a player code on the Connect screen is taken, selected, and the status line says so (no list screen)")
 
 
 func _round_closes_share() -> void:

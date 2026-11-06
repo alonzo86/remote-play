@@ -189,8 +189,11 @@ func _disconnect_button() -> void:
 				"[%s] the Disconnect text fits in its button (text %.0f px, room %.0f px, button %.0f px)" % [lang,
 						text_w, room, b.size.x])
 		var r := b.get_global_rect()
-		_check(r.end.x > viewport.x * 0.8 and r.position.y < viewport.y * 0.15,
-				"[%s] Disconnect is in the top right corner of the waiting screen (right %.0f, top %.0f)" % [lang, r.end.x, r.position.y])
+		# The row follows the language (2026-11-06, REQ-FL-52): the corner is top right in English and top left in Hebrew.
+		var in_corner: bool = (r.end.x > viewport.x * 0.8) if lang == "en" else (r.position.x < viewport.x * 0.2)
+		_check(in_corner and r.position.y < viewport.y * 0.15,
+				"[%s] Disconnect is in the %s corner of the waiting screen (right %.0f, top %.0f)" % [lang,
+				"top right" if lang == "en" else "top left", r.end.x, r.position.y])
 		_check(b.size.y >= 80.0, "[%s] and it is at least 80 px high (%.0f)" % [lang, b.size.y])
 		var pressed := b.get_theme_stylebox("pressed") as StyleBoxFlat
 		var normal := b.get_theme_stylebox("normal") as StyleBoxFlat

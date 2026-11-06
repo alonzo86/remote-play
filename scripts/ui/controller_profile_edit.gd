@@ -207,7 +207,14 @@ func _on_scanned(text: String) -> void:
 		Haptics.on_message(QrScanner.BUZZ_MS)   # A scan on an iPhone buzzes once (REQ-FL-89).
 	if App.client.state == ControllerClient.State.CONNECTED and not App.client.can_change_profile():
 		return   # A round has started: a scan that comes late changes nothing (REQ-FL-71).
-	_hint.text = App.import_profile_text(text).to_upper()
+	var sentence := App.import_profile_text(text).to_upper()
+	_hint.text = sentence
+	if App.last_import_id != "":   # The new player is selected: the Connect screen shows it, with the sentence (REQ-FL-76).
+		if App.client.state == ControllerClient.State.IDLE:
+			App.last_error = ""
+			App.go(App.ControllerConnect, {"note": sentence})
+		else:
+			App.leave_profile_screens()
 
 
 func _on_scan_failed(reason: String) -> void:

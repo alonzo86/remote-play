@@ -217,7 +217,7 @@ func _run() -> void:
 	# ends with "!" when it tells the player to act; the end mark is the same in English and Hebrew.
 	var voice: Array = []
 	var one_words := ["games.one_player", "result.one_point", "result.one_star", "bowling.pin_left", "mini_golf.col_strokes",
-			"mini_golf.col_total", "mini_golf.holes_1", "sheep_herding.all_safe"]
+			"mini_golf.col_total", "sheep_herding.all_safe"]
 	for k in table:
 		var en_text := String(table[k].en)
 		var bare := fmtre.sub(en_text, "", true)

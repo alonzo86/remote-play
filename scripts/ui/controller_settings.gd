@@ -4,7 +4,6 @@ extends Control
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
-const ControllerWait = preload("res://scripts/ui/controller_wait.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const ChoiceRow = preload("res://scripts/ui/choice_row.gd")
@@ -100,5 +99,6 @@ func _on_language(code: String) -> void:
 	_language.set_value(code)   # Written again in the new language.
 
 
+## Back goes to the screen that the phone has now: the Connect screen before a TV is joined, the waiting screen after.
 func on_back() -> void:
-	App.go(ControllerWait)
+	App.leave_profile_screens()

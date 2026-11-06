@@ -4,6 +4,7 @@ extends SceneTree
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/ui_states.gd -- --role=controller
 
 const PencilIcon = preload("res://scripts/ui/pencil_icon.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
@@ -113,7 +114,9 @@ func _wait_screen_leave() -> void:
 	var wait: Control = load("res://scripts/ui/controller_wait.gd").new()
 	root.add_child(wait)
 	await process_frame
-	_check(wait._leave.text == "pad.disconnect", "the button says DISCONNECT (pad.disconnect)")
+	_check(wait._leave.text == "" and wait._leave.name == "DisconnectButton"
+			and wait._leave.accessibility_name == Lang.t("pad.disconnect"),
+			"the button is an icon; its name for a screen reader is DISCONNECT (pad.disconnect)")
 	_check(wait._leave.get_global_rect().position.y < wait._name.get_global_rect().position.y,
 			"Disconnect is above the content of the waiting screen")
 	app.client._set_state(ControllerClient.State.CONNECTED)
@@ -121,8 +124,9 @@ func _wait_screen_leave() -> void:
 	_check(app.client.state == ControllerClient.State.IDLE, "one tap leaves the TV")
 	_check(wait.find_children("*", "Button", true, false).all(func(b): return b.text != "wait.player"),
 			"there is no PLAYER button while joined (REQ-FL-71)")
-	var wait_buttons: Array = wait.find_children("*", "Button", true, false).map(func(b): return b.text)
-	_check(wait_buttons.slice(-2) == ["common.settings", "common.about"], "About is the button after Settings")
+	var wait_buttons: Array = wait.find_children("*", "Button", true, false).map(func(b): return str(b.name))
+	_check(wait_buttons.slice(0, 3) == ["AboutButton", "SettingsButton", "DisconnectButton"],
+			"the top row: About, Settings, Disconnect %s" % str(wait_buttons))
 	wait.queue_free()
 
 
@@ -529,6 +533,8 @@ func _pad_buttons() -> void:
 	pad.size = Vector2(1080, 2160)
 	root.add_child(pad)
 	await process_frame
+	_check(pad.find_child("AboutButton", true, false) == null and pad.find_child("SettingsButton", true, false) == null,
+			"inside a game the pad has no About and no Settings button (they are for the screens outside a game)")
 	pad._sampler.set_process(false)
 	app.client.state = ControllerClient.State.CONNECTED
 	var both_a: Vector2 = pad._center_a()

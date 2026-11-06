@@ -62,7 +62,7 @@ static func title_of(row: Dictionary, v: String) -> String:
 ## The text of a value for the screen. A row with `format_number` writes a numeric value into its title (a "Track %d" key).
 static func title_text(row: Dictionary, v: String) -> String:
 	var title := title_of(row, v)
-	if row.get("format_number", false) and v.is_valid_int():
+	if row.get("format_number", false) and v.is_valid_int() and Lang.t(title).contains("%"):   # "1 HOLE" has no number sign.
 		return Lang.f(title, [int(v)])
 	return Lang.t(title)
 

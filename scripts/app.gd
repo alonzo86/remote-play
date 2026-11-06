@@ -404,9 +404,15 @@ func current_best() -> Dictionary:
 	return last_best
 
 
+## The ID of the player that the last scan added or updated; empty when the last scan was refused (REQ-FL-76).
+var last_import_id := ""
+
+
 ## Takes the text of a scan that should be a player code (FD-22, REQ-FL-76). Returns the sentence for the
-## player: the player was added or updated, or why the text does not work. A change of the active profile goes to the TV.
+## player: the player was added or updated, or why the text does not work. A player that was added or updated becomes the
+## selected player (`last_import_id`), and the change goes to the TV.
 func import_profile_text(text: String) -> String:
+	last_import_id = ""
 	if not text.strip_edges().begins_with(ProfileCode.PREFIX):
 		return Lang.t("app.room_link") if not Protocol.parse_pair_url(text).is_empty() else Lang.t("app.code_does_not_work")
 	var r := ProfileCode.decode(text)
@@ -415,8 +421,9 @@ func import_profile_text(text: String) -> String:
 	var done: Dictionary = profiles.import_profile(r.profile)
 	if done.status == "full":
 		return Lang.f("profiles.maximum", [ProfileStore.MAX_PROFILES])
-	if done.id == profiles.active_id:
-		apply_profile()
+	profiles.set_active(done.id)
+	apply_profile()
+	last_import_id = done.id
 	return Lang.t("app.player_added") if done.status == "added" else Lang.t("app.player_updated")
 
 

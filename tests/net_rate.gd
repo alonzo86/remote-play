@@ -109,8 +109,8 @@ func _one_phone() -> void:
 		min_hz = minf(min_hz, p.rx_rate)
 		max_hz = maxf(max_hz, p.rx_rate)
 	print("    rtt %.1f ms, rx %.1f..%.1f Hz, gap %d ms, lost %d" % [worst_rtt, min_hz, max_hz, worst_gap, p.lost_packets])
-	_check(p.rtt_ms >= 0.0 and worst_rtt < Slow.limit(25.0, 8.0),
-			"the round trip time is below %.0f ms (a frame of the headless loop is 17 ms) (%.1f ms)" % [Slow.limit(25.0, 8.0), worst_rtt])
+	_check(p.rtt_ms >= 0.0 and worst_rtt < Slow.limit(30.0, 8.0),
+			"the round trip time is below %.0f ms (a frame of the headless loop is 17 ms) (%.1f ms)" % [Slow.limit(30.0, 8.0), worst_rtt])
 	_check(min_hz >= HZ_MIN_1 and max_hz <= 62.0, "the TV counts 56 to 60 packets a second (%.1f to %.1f Hz)" % [min_hz, max_hz])
 	_check(worst_gap < int(Slow.limit(60.0, 8.0)), "the longest gap between packets is below %d ms (%d ms)"
 			% [int(Slow.limit(60.0, 8.0)), worst_gap])

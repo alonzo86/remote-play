@@ -723,10 +723,11 @@ func _test_connect_screen() -> void:
 	root.add_child(ios_screen)
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
-	# About is in the top row; then the profile dropdown and its + (FD-22). None of them is a scan or paste button.
-	_check(ios_buttons == ["common.about", "", "+", ""] and ios_screen.find_child("JoinButton", true, false) != null,
+	# About and Settings (icons) are in the top row; then the profile dropdown and its + (FD-22). None is a scan or paste button.
+	_check(ios_buttons == ["", "", "", "+", ""] and ios_screen.find_child("AboutButton", true, false) != null
+			and ios_screen.find_child("SettingsButton", true, false) != null and ios_screen.find_child("JoinButton", true, false) != null,
 			"iPhone without the plugin: no scan or paste button")
-	var about_btn: Button = ios_screen.find_children("*", "Button", true, false).front()
+	var about_btn: Button = ios_screen.find_child("AboutButton", true, false)
 	ios_screen.size = Vector2(1080, 1920)
 	await process_frame
 	root.set_layout_direction(Window.LAYOUT_DIRECTION_RTL)

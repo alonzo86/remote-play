@@ -104,7 +104,7 @@ func _joined_screens() -> void:
 	var wait: Control = _app.current_screen()
 	var wait_ok: bool = wait.get_script() == _app.ControllerWait
 	offenders.append_array(_profile_ways("wait", wait))
-	_find_button(wait, "common.settings").pressed.emit()
+	wait.find_child("SettingsButton", true, false).pressed.emit()
 	await process_frame
 	var settings: Control = _app.current_screen()
 	var settings_ok: bool = settings.get_script() == _app.ControllerSettings
@@ -251,7 +251,7 @@ func _connect_layout() -> void:
 			for _i in 4:
 				await process_frame
 			var safe := Rect2(m.x, m.y, c.view.x - m.x - m.z, c.view.y - m.y - m.w)
-			var about: Button = _find_button(screen, "common.about")
+			var about: Button = screen.find_child("AboutButton", true, false)
 			var plus: Button = _find_button(screen, "+")
 			var pencil: Button = _buttons(screen).filter(
 					func(b): return b.get_child_count() > 0 and b.get_child(0).get_script() == PencilIcon).front()
