@@ -29,6 +29,8 @@ const PORTAL_ANIM := 1.6        # The teleport opens its exit and closes both pa
 # The swing strengths of a putt (m/s2), lower than the common ones of `SwingDetector` (REQ-MG-5). The gate is the common one.
 const LIGHT_BACK_ACCEL := 3.0
 const LIGHT_FWD_ACCEL := 5.0
+# A putt turns the acceleration round once (the brake of the back swing); a shake again and again (issue #209, first guess).
+const MAX_REVERSALS := 1
 const FULL_FWD := 18.0           # A hard swing reaches the full power at this strength (m/s2); the common value is 30.
 const BUZZ_GAP_MS := 150
 const PAUSE_GAP_MS := 400
@@ -114,6 +116,7 @@ func _set_swing_feel() -> void:
 	detector.fwd_accel = LIGHT_FWD_ACCEL
 	detector.fwd_full = FULL_FWD
 	detector.speed_gate = SwingDetector.GATE_SPEED
+	detector.max_reversals = MAX_REVERSALS
 
 
 func _load_hole() -> void:
