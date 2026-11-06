@@ -119,6 +119,30 @@ func _wait_screen_leave() -> void:
 			"the button is an icon; its name for a screen reader is DISCONNECT (pad.disconnect)")
 	_check(wait._leave.get_global_rect().position.y < wait._name.get_global_rect().position.y,
 			"Disconnect is above the content of the waiting screen")
+	# The sentence that the Connect screen is opened with (PLAYER ADDED.) shows once: a later failed join does not bring it back.
+	var connect: Control = load("res://scripts/ui/controller_connect.gd").new()
+	connect.note = "PLAYER ADDED."
+	connect.theme = app.theme_res
+	root.add_child(connect)
+	await process_frame
+	var first: String = connect._status.text
+	connect._on_state(ControllerClient.State.IDLE)
+	_check(first == "PLAYER ADDED." and connect._status.text == "",
+			"the sentence of a scan shows once on the Connect screen: '%s', then '%s'" % [first, connect._status.text])
+	connect.queue_free()
+	# The icons (phone_icon.gd): the names for a screen reader, and the mirror of the DISCONNECT arrow in a right to left layout.
+	var PhoneIcon: GDScript = load("res://scripts/ui/phone_icon.gd")
+	var about_b: Button = wait.find_child("AboutButton", true, false)
+	var settings_b: Button = wait.find_child("SettingsButton", true, false)
+	_check(about_b.accessibility_name == Lang.t("common.about") and about_b.tooltip_text == Lang.t("common.about")
+			and settings_b.accessibility_name == Lang.t("common.settings") and wait._leave.tooltip_text == Lang.t("pad.disconnect"),
+			"the icon buttons are named ABOUT, SETTINGS and DISCONNECT for a screen reader and in the tooltip")
+	var plain: Array = PhoneIcon.cells(PhoneIcon.DISCONNECT)
+	var mirrored: Array = PhoneIcon.cells(PhoneIcon.DISCONNECT, true)
+	var cols: int = String(PhoneIcon.ROWS[PhoneIcon.DISCONNECT][0]).length()
+	_check(plain.size() == mirrored.size() and plain != mirrored
+			and plain.all(func(c): return mirrored.any(func(m): return m.y == c.y and m.x == cols - 1 - c.x)),
+			"the DISCONNECT arrow is mirrored left to right in a right to left layout")
 	app.client._set_state(ControllerClient.State.CONNECTED)
 	wait._leave.pressed.emit()
 	_check(app.client.state == ControllerClient.State.IDLE, "one tap leaves the TV")

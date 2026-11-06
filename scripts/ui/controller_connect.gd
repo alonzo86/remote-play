@@ -108,6 +108,7 @@ func _on_state(state: int) -> void:
 			elif note != "":
 				_status.text = note
 				_status.add_theme_color_override("font_color", UiTheme.TEXT_INFO)
+				note = ""   # Shown once: a later failed or cancelled join must not bring PLAYER ADDED. back.
 			else:
 				_status.text = ""
 

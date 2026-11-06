@@ -180,14 +180,8 @@ func _disconnect_button() -> void:
 		await process_frame
 		await process_frame
 		var b: Button = wait._leave
-		var font := b.get_theme_font("font")
-		var fs := b.get_theme_font_size("font_size")
-		var text_w := font.get_string_size(b.tr(b.text), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-		var sb := b.get_theme_stylebox("normal")
-		var room := b.size.x - sb.get_margin(SIDE_LEFT) - sb.get_margin(SIDE_RIGHT)
-		_check(b.get_minimum_size().x <= b.size.x + 0.5 and text_w <= room + 0.5,
-				"[%s] the Disconnect text fits in its button (text %.0f px, room %.0f px, button %.0f px)" % [lang,
-						text_w, room, b.size.x])
+		_check(b.text == "" and b.get_child_count() == 1 and b.size.x >= 80.0 and absf(b.size.x - b.size.y) < 1.0,
+				"[%s] Disconnect is a square icon button with no text (%.0f x %.0f px)" % [lang, b.size.x, b.size.y])
 		var r := b.get_global_rect()
 		# The row follows the language (2026-11-06, REQ-FL-52): the corner is top right in English and top left in Hebrew.
 		var in_corner: bool = (r.end.x > viewport.x * 0.8) if lang == "en" else (r.position.x < viewport.x * 0.2)
