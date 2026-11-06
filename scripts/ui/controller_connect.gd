@@ -11,9 +11,12 @@ const QrScanner = preload("res://scripts/net/qr_scanner.gd")
 const Haptics = preload("res://scripts/game/haptics.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
+const About = preload("res://scripts/core/about.gd")
 const ProfileDropdown = preload("res://scripts/ui/profile_dropdown.gd")
 const EnterIcon = preload("res://scripts/ui/enter_icon.gd")
+const PhoneIcon = preload("res://scripts/ui/phone_icon.gd")
 
+var note := ""   # A sentence for the status line when the screen opens (PLAYER ADDED after a scan of a player code).
 var _status: Label
 var _quit_dialog: Control
 var _qr: Node
@@ -30,17 +33,17 @@ func _ready() -> void:
 	box.add_theme_constant_override("separation", 24)
 	margin.add_child(box)
 
-	# The title and About share the top row. The row mirrors in Hebrew: About is at the right in English, at the left in Hebrew.
+	# The title, ABOUT and SETTINGS (icon buttons, no words) share the top row. The row mirrors in Hebrew: the icons are at the
+	# right in English, at the left in Hebrew.
 	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 24)
 	box.add_child(top)
 	var title := UiKit.title("SABABI", 56)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(title)
-	var about := UiKit.box_button("common.about", func():
-		App.go(App.AboutScreen, {"back_screen": App.ControllerConnect, "scanner_note": os_name == "Android"}),
-			UiTheme.SIZE_BODY)
-	about.custom_minimum_size = Vector2(0, 80)
-	top.add_child(about)
+	top.add_child(PhoneIcon.button(PhoneIcon.ABOUT, "AboutButton", func():
+		App.go(App.AboutScreen, {"back_screen": App.ControllerConnect, "scanner_note": os_name == "Android"})))
+	top.add_child(PhoneIcon.button(PhoneIcon.SETTINGS, "SettingsButton", func(): App.go(App.ControllerSettings)))
 	box.add_child(ProfileDropdown.new())
 
 	_status = UiKit.label("", UiTheme.SIZE_BODY)
@@ -103,6 +106,10 @@ func _on_state(state: int) -> void:
 			if App.last_error != "":
 				_status.text = App.last_error.to_upper()
 				_status.add_theme_color_override("font_color", UiTheme.BAD)
+			elif note != "":
+				_status.text = note
+				_status.add_theme_color_override("font_color", UiTheme.TEXT_INFO)
+				note = ""   # Shown once: a later failed or cancelled join must not bring PLAYER ADDED. back.
 			else:
 				_status.text = ""
 
@@ -156,12 +163,19 @@ func _on_qr_text(text: String) -> void:
 	if _qr.buzzes_on_scan():
 		Haptics.on_message(QrScanner.BUZZ_MS)   # Once, when the code is read; follows the HAPTICS switch (REQ-FL-89).
 	if text.strip_edges().begins_with(ProfileCode.PREFIX):   # A player code, not a TV link (FD-22).
-		_status.text = App.import_profile_text(text).to_upper()   # The sentence stays on this screen (owner, 2026-11-02).
+		var sentence := App.import_profile_text(text).to_upper()
+		if App.last_import_id != "":
+			App.last_error = ""   # An old error must not hide the sentence.
+			App.go(App.ControllerConnect, {"note": sentence})   # The same screen again, with the new player selected.
+			return
+		_status.text = sentence   # A refused code: the sentence says why.
 		_status.add_theme_color_override("font_color", UiTheme.TEXT_INFO)
 		return
 	var pair := Protocol.parse_pair_url(text)
 	if pair.is_empty():
-		App.last_error = Lang.t("connect.not_sababi_code")
+		# The QR code "GET THE APP" of the TV is not a room code: say so, so that the player scans the other one.
+		App.last_error = Lang.t("connect.app_code_scanned") if text.strip_edges().begins_with(About.APP_URL) \
+				else Lang.t("connect.not_sababi_code")
 		_on_state(ControllerClient.State.IDLE)
 		return
 	_typed_room = ""

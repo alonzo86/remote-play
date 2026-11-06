@@ -342,6 +342,12 @@ func _medals() -> void:
 func _game_settings() -> void:
 	print("game settings")
 	GameSettings.clear()
+	# Mini Golf: one row for the values 2 to 10 ("%d HOLES") and one for 1 (no number sign): the 10 duplicates are gone.
+	var golf_row: Dictionary = GameSettings.rows_for(Registry.find("mini_golf"))[1]
+	var holes: Array = golf_row.values.map(func(v): return GameSettings.title_text(golf_row, String(v)))
+	_check(holes[0] == Lang.t("mini_golf.hole_one") and holes[6] == Lang.f("mini_golf.holes_n", [7]) and holes[9] == "10 HOLES"
+			and golf_row.titles.count("mini_golf.holes_n") == 9,
+			"the Holes row: 1 HOLE, then 2 to 10 from one row with a number: %s" % str(holes))
 	var game := {"id": "t", "settings": [{"key": "mode", "label": "Mode", "values": ["a", "b"], "titles": ["A", "B"]}]}
 	var rows := GameSettings.rows_for(game)
 	_check(rows.size() == 2 and rows[0].key == "difficulty" and rows[1].key == "mode", "Difficulty is the first row (REQ-GM-91)")

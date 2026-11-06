@@ -3,7 +3,7 @@ about.app_scans_with_google,"The app scans the QR code with the Google code scan
 about.pages_below_list_parts,"The pages below list the parts of other makers that Sababi uses, and their licenses.","הדפים שלמטה מפרטים את החלקים של יוצרים אחרים ש־SABABI משתמש בהם, ואת הרישיונות שלהם.","About screen, first page: line before the list of other makers' parts",
 about.phones_tv_communicate_over,"The phones and the TV communicate over your Wi-Fi. The link is not encrypted, so play on a network you trust.","הטלפונים והטלוויזיה מתקשרים דרך הרשת האלחוטית שלכם. החיבור אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.","About screen, first page: the link is not encrypted, play on a trusted network",
 about.nothing_leaves_network,Nothing leaves your network.,שום דבר לא יוצא מהרשת שלכם.,"About screen, first page: last sentence of the Wi-Fi paragraph",
-common.about,ABOUT,אודות,"Button About: phone waiting screen (after Settings) and top corner of the phone Connect screen, TV Settings screen; title of the About screen",
+common.about,ABOUT,אודות,"Phone: name and tooltip of the ABOUT icon button (no word on the button) in the top row of the waiting and Connect screens; TV Settings screen: the About row; title of the About screen",
 about.sababi_has_no_account,"Sababi has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.","ב־SABABI אין חשבון, אין פרסומות ואין ניתוח נתונים. השם, הדמות והשיאים שלכם נשארים בטלפון.","About screen, first page: what data Sababi keeps",
 about.sababi_party_game_tv,Sababi is a party game for the TV. The phones are the controllers.,SABABI הוא משחק מסיבה לטלוויזיה. הטלפונים הם השלטים.,"About screen, first page: what Sababi is",
 about.third_party_libraries,3rd Party Libraries,ספריות צד שלישי,"About screen: row that opens the list of libraries of other makers, and the title of that list",
@@ -78,10 +78,10 @@ minigame.new_game,NEW GAME,משחק חדש,Button in the game result menu: back 
 minigame.restart,TRY AGAIN,נסו שוב,Button Try again in the pause menu and the result menu,
 minigame.resume,RESUME,המשיכו,"Button Resume in the pause menus, the pause card and the question 'End the game?'",
 minigame.round_over,ROUND OVER,הסיבוב נגמר,Title of the result menu when there is no winner to name,
-common.settings,SETTINGS,הגדרות,"Title of the TV and phone Settings screens; Settings button on the phone waiting screen",
+common.settings,SETTINGS,הגדרות,"Title of the TV and phone Settings screens; phone: name and tooltip of the SETTINGS icon button (no word on the button) in the top row of the waiting and Connect screens",
 minigame.tie,TIE!,תיקו!,Title of the result menu when scores are equal,
 pad.before,Before: %s,קודם: %s,"Phone game screen: next to NEW BEST!, shows the old best, %s is the old value",%s is replaced by a name or a value
-pad.disconnect,DISCONNECT,התנתקות,Phone: Disconnect button at the top of the game and waiting screens,
+pad.disconnect,DISCONNECT,התנתקות,Phone: name and tooltip of the DISCONNECT icon button (no word on the button) in the corner of the top row of the waiting screen (top right in English, top left in Hebrew),
 pad.disconnect_hold,HOLD TO LEAVE,החזיקו להתנתקות,Phone: HOLD TO LEAVE box at the bottom of the game screen, inset 60 px from the sides and 40 px from the bottom so rounded corners do not cut it (hold it for 0.8 s to leave; a tap does nothing),New 2026-10-30 (issue #239). The waiting screen keeps pad.disconnect.
 pad.new_best,NEW BEST!,שיא חדש!,Phone game screen: after a round that set a personal best, only while the result of that game is open (not on the waiting screen); large (56 px), yellow, centered in the upper half of the play area under the name of the game,
 pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,Phone game screen: help line in the upper half of the play area, above the small Recenter button at the bottom,
@@ -218,16 +218,8 @@ tennis.best,BEST %d,שיא %d,"Tennis with 1 player: the badge in the top bar (r
 registry.mini_golf,MINI GOLF,מיני גולף,"Name of the game Mini Golf: Games screen, game settings, in-game title",
 registry.desc_mini_golf,"MINI GOLF ON FUNNY COURSES, WITH YOUR PHONE AS THE CLUB.","מיני גולף במסלולים מצחיקים, והטלפון הוא המחבט.","Description of Mini Golf: info bar of the Games screen (what the game is, no instructions, issue #78)",
 mini_golf.holes,HOLES,גומות,Mini Golf settings view: name of the Holes row,
-mini_golf.holes_1,1 HOLE,גומה אחת,Mini Golf settings view: value 1 of the Holes row,
-mini_golf.holes_2,2 HOLES,2 גומות,Mini Golf settings view: value 2 of the Holes row,
-mini_golf.holes_3,3 HOLES,3 גומות,Mini Golf settings view: value 3 of the Holes row,
-mini_golf.holes_4,4 HOLES,4 גומות,Mini Golf settings view: value 4 of the Holes row,
-mini_golf.holes_5,5 HOLES,5 גומות,Mini Golf settings view: value 5 of the Holes row,
-mini_golf.holes_6,6 HOLES,6 גומות,Mini Golf settings view: value 6 of the Holes row,
-mini_golf.holes_7,7 HOLES,7 גומות,Mini Golf settings view: value 7 of the Holes row,
-mini_golf.holes_8,8 HOLES,8 גומות,Mini Golf settings view: value 8 of the Holes row,
-mini_golf.holes_9,9 HOLES,9 גומות,Mini Golf settings view: value 9 of the Holes row,
-mini_golf.holes_10,10 HOLES,10 גומות,Mini Golf settings view: value 10 of the Holes row,
+mini_golf.hole_one,1 HOLE,גומה אחת,"Mini Golf settings view: the value 1 of the Holes row (the other values are mini_golf.holes_n)",
+mini_golf.holes_n,%d HOLES,%d גומות,"Mini Golf settings view: the values 2 to 10 of the Holes row, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hole,Hole %d/%d  Par %d,גומה %d/%d  פר %d,"Mini Golf: top bar, right side: the hole that is played, the holes of the match and the par of the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.turn,%s's turn!,התור של %s!,"Mini Golf: plate over the course for 1.5 seconds at the start of a turn, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.leader_score,%d / %d,%d / %d,"Mini Golf: the score of the leader chip in the top bar, the strokes on this hole and the strokes in all","the number sign (%d, %.1f ...) is replaced by a number"
@@ -313,3 +305,8 @@ players.default_name,Player %d,שחקן %d,"TV, everywhere a player name shows (
 about.qr_scanner,QR scanner,סורק QR,"About screen, Android phone: name of the page about the QR scanner (list entry and heading of the page)",
 about.android_libraries,Android libraries,ספריות אנדרואיד,"About screen, Android phone, 3rd Party Libraries: name of the page of the Android libraries (list entry and heading of the page)",
 settings.haptics_row,HAPTICS,רטט,"Phone Settings: name of the HAPTICS switch row (a tap on the row turns it on or off)",Replaces settings.haptics (HAPTICS: %s); the state is the row value (common.on or common.off)
+about.get_app,Get the app,הורידו את האפליקציה,"About screen, TV only: title of the page and the row that opens it; the page shows the QR code of the phone app","Only on the TV, after the first row (Sababi)"
+about.get_app_scan,Scan the code with your phone to get the app.,סרקו את הקוד עם הטלפון כדי להוריד את האפליקציה.,"About screen, TV only, page Get the app: the line under the QR code",
+connect.get_app,GET THE PHONE APP TO PLAY,הורידו את אפליקציית הטלפון כדי לשחק,"TV Connect screen: label of the card with the QR code of the phone app, which is needed to play (until a phone has joined)",
+connect.scan_to_join,SCAN TO JOIN,סרקו כדי להצטרף,"TV Connect screen: label above the QR code of the room, which the Sababi app scans",
+connect.app_code_scanned,THAT IS THE APP CODE. SCAN THE OTHER ONE.,זה קוד האפליקציה. סרקו את הקוד השני.,"Phone Connect screen, status line: the player scanned the QR code Get the app of the TV instead of the room code",

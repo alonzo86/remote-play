@@ -87,7 +87,7 @@ black. They show as a filled square next to the slot number, never as the only c
 - A and B are round arcade buttons: a 6 px white ring, a `BUTTON_EDGE` lower edge and a face in color with a black
   letter: A green (`OK`), B red (`BAD`; owner, 2026-11-03, question 6). They are the exception to the black button face.
   The button looks pressed in when it is down.
-- RECENTER is a small black text box right above the HOLD TO LEAVE box (REQ-FL-52, 2026-11-03); DISCONNECT is a black text box. DISCONNECT leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
+- RECENTER is a small black text box right above the HOLD TO LEAVE box (REQ-FL-52, 2026-11-03); ABOUT, SETTINGS and DISCONNECT on the phone are black square icon buttons since 2026-11-06 (REQ-FL-52). DISCONNECT on the waiting screen leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
 - The slot color square and "2P" are at the top. The text under them says what to do ("TILT TO ROLL").
 
 ### 2.6 Motion

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sababi: get the phone app</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+<h1>Get the phone app</h1>
+<p class="lead">Sababi: Remote is the controller of Sababi: TV Games.</p>
+<p lang="he" dir="rtl" class="lead">הורידו את אפליקציית הטלפון של Sababi.</p>
+<div class="stores">
+<a class="store" data-store="play" data-open="Open Google Play"><strong>Google Play</strong><small></small></a>
+<a class="store" data-store="appStore" data-open="Open the App Store"><strong>App Store</strong><small></small></a>
+</div>
+<p><a href="../index.html">Sababi</a> · <a href="../he/index.html" lang="he">עברית</a></p>
+</main>
+<script src="../stores.js"></script>
+<script>
+// The QR code of the TV opens this page. A phone goes straight to its own store when that address is filled in.
+(function () {
+  var ua = navigator.userAgent || "";
+  var s = window.SABABI_STORES;
+  if (/android/i.test(ua) && s.play) { location.replace(s.play); }
+  else if (/iPhone|iPad|iPod/i.test(ua) && s.appStore) { location.replace(s.appStore); }
+})();
+</script>
+<noscript><p>Open the Google Play or the App Store on your phone and search for Sababi: Remote.</p></noscript>
+</body>
+</html>

@@ -14,6 +14,7 @@ const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
+const About = preload("res://scripts/core/about.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const PencilIcon = preload("res://scripts/ui/pencil_icon.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
@@ -234,12 +235,13 @@ func _edit_and_join() -> void:
 func _waiting_screen() -> void:
 	print("the waiting screen")
 	var wait: Control = _app.current_screen()
-	var texts: Array = _buttons(wait).filter(func(b): return b.is_visible_in_tree()).map(func(b): return b.text)
-	_check(texts == ["pad.disconnect", "common.settings", "common.about"],
-			"the waiting screen has only DISCONNECT, SETTINGS and ABOUT: %s" % str(texts))
+	var names: Array = _buttons(wait).filter(func(b): return b.is_visible_in_tree()).map(func(b): return str(b.name))
+	_check(names == ["AboutButton", "SettingsButton", "DisconnectButton"],
+			"the waiting screen has only the icon buttons ABOUT, SETTINGS and DISCONNECT: %s" % str(names))
 	var leave: Rect2 = wait._leave.get_global_rect()
-	var settings: Rect2 = _buttons(wait)[1].get_global_rect()
-	_check(settings.position.y > leave.end.y, "DISCONNECT is above the other buttons")
+	var settings: Rect2 = wait.find_child("SettingsButton", true, false).get_global_rect()
+	_check(absf(settings.position.y - leave.position.y) < 1.0 and settings.end.x < leave.position.x,
+			"DISCONNECT is in the corner at the end of the top row, after ABOUT and SETTINGS")
 	await _leave_app_client()
 
 
@@ -421,9 +423,15 @@ func _scan_flow() -> void:
 			"15b: a scan of the QR code of a TV says THIS IS A ROOM LINK.: '%s'" % screen._hint.text)
 	fake.scanned.emit(ProfileCode.encode(noam))
 	await _frames(2)
-	_check(screen._hint.text == Lang.t("app.player_added").to_upper() and _app.profiles.find(noam.id) != null
-			and _app.profiles.find(noam.id).player_name == "Noam" and _app.current_screen() == screen,
-			"IMPORT of a player code adds the player, says PLAYER ADDED and stays on the screen: '%s'" % screen._hint.text)
+	# Owner, 2026-11-06 (REQ-FL-76): after a good scan the phone goes to the Connect screen with the new player selected.
+	_check(_app.current_screen().get_script() == _app.ControllerConnect and _app.profiles.find(noam.id) != null
+			and _app.profiles.find(noam.id).player_name == "Noam" and _app.profiles.active_id == noam.id
+			and _app.current_screen()._status.text == Lang.t("app.player_added").to_upper(),
+			"IMPORT of a player code adds the player and goes to the Connect screen with that player selected (%s)"
+			% _app.profiles.active_id)
+	_app.go(_app.ControllerProfileEdit, {"profile_id": ""})   # The new player screen again, for the next checks.
+	await _frames(3)
+	screen = _app.current_screen()
 	fake.scanned.emit("WP1.not-a-code")
 	await _frames(2)
 	_check(screen._hint.text == Lang.t("app.code_does_not_work").to_upper(),
@@ -457,10 +465,28 @@ func _scan_flow() -> void:
 	scan.pressed.emit()
 	fake.scanned.emit(ProfileCode.encode(maya))
 	await _frames(3)
-	_check(_app.current_screen() == connect and connect._status.text == Lang.t("app.player_added").to_upper()
-			and _app.profiles.find(maya.id) != null and _app.profiles.find(maya.id).player_name == "Maya",
-			"15c: a scan of a player code on the Connect screen adds the player and says PLAYER ADDED there: '%s'"
+	connect = _app.current_screen()   # The Connect screen is built again, with the new player selected.
+	_check(connect.get_script() == _app.ControllerConnect and connect._status.text == Lang.t("app.player_added").to_upper()
+			and _app.profiles.find(maya.id) != null and _app.profiles.find(maya.id).player_name == "Maya"
+			and _app.profiles.active_id == maya.id,
+			"15c: a scan of a player code on the Connect screen adds the player, selects it and says PLAYER ADDED: '%s'"
 			% connect._status.text)
+	# The QR code "GET THE APP" of the TV is not a room code: the status line says so (owner, 2026-11-06).
+	connect._on_qr_text(About.APP_URL)
+	var app_text := Lang.t("connect.app_code_scanned")
+	_check(_app.last_error == app_text and connect._status.text == app_text.to_upper(),
+			"the Sababi scanner reading the app code says THAT IS THE APP CODE. SCAN THE OTHER ONE.: '%s'" % connect._status.text)
+	_app.last_error = ""
+	# Owner, 2026-11-06: ABOUT and SETTINGS (icons) are on the Connect screen too; Back from Settings returns to it.
+	_check(connect.find_child("AboutButton", true, false) != null and connect.find_child("SettingsButton", true, false) != null,
+			"the Connect screen has the icon buttons ABOUT and SETTINGS")
+	connect.find_child("SettingsButton", true, false).pressed.emit()
+	await _frames(3)
+	var settings_screen: Control = _app.current_screen()
+	_check(settings_screen.get_script() == _app.ControllerSettings, "SETTINGS on the Connect screen opens the phone Settings")
+	settings_screen.on_back()
+	await _frames(3)
+	_check(_app.current_screen().get_script() == _app.ControllerConnect, "Back from Settings returns to the Connect screen")
 	Engine.unregister_singleton("QrScanner")
 	fake.free()
 	_app.go(_app.ControllerProfileEdit, {"profile_id": ""})

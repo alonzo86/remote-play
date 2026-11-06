@@ -10,6 +10,7 @@ const Avatar = preload("res://scripts/ui/avatar.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const QuitDialog = preload("res://scripts/ui/controller_quit_dialog.gd")
 const SwingCard = preload("res://scripts/ui/controller_swing_card.gd")
+const PhoneIcon = preload("res://scripts/ui/phone_icon.gd")
 
 var _title: Label
 var _sub: Label
@@ -28,13 +29,19 @@ func _ready() -> void:
 	var m := UiKit.margin(self, 40, 60, 40, 60)
 	var page := VBoxContainer.new()
 	m.add_child(page)
-	# Disconnect is at the top right, where the pad has it (REQ-FL-52). One tap leaves the TV.
+	# The top row has three icon buttons (no words): ABOUT and SETTINGS, then DISCONNECT in the corner at the end of the row, with a
+	# gap so that a tap on one does not hit the other. The row follows the language: the corner is the top right in English and the
+	# top left in Hebrew. One tap on DISCONNECT leaves the TV (REQ-FL-52).
 	var top := HBoxContainer.new()
-	top.layout_direction = Control.LAYOUT_DIRECTION_LTR   # The pad is not mirrored in Hebrew, so this is not either.
-	top.alignment = BoxContainer.ALIGNMENT_END
+	top.add_theme_constant_override("separation", 24)
 	page.add_child(top)
-	_leave = UiKit.box_button("pad.disconnect", App.client.leave, 32)
-	_leave.custom_minimum_size = Vector2(0, 90)
+	top.add_child(UiKit.spacer(0, true))
+	top.add_child(PhoneIcon.button(PhoneIcon.ABOUT, "AboutButton", func():
+		App.go(App.AboutScreen, {"back_screen": App.ControllerWait, "scanner_note": OS.get_name() == "Android"})))
+	top.add_child(PhoneIcon.button(PhoneIcon.SETTINGS, "SettingsButton", func(): App.go(App.ControllerSettings)))
+	top.add_child(UiKit.spacer(0))
+	top.get_child(top.get_child_count() - 1).custom_minimum_size = Vector2(32, 0)
+	_leave = PhoneIcon.button(PhoneIcon.DISCONNECT, "DisconnectButton", App.client.leave)
 	top.add_child(_leave)
 	# The content scrolls when the screen is too low for it (a phone held in landscape), and is centered when it fits.
 	var scroll := ScrollContainer.new()
@@ -87,16 +94,6 @@ func _ready() -> void:
 		b.custom_minimum_size = Vector2(0, 96)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		choice.add_child(b)
-	var settings := UiKit.box_button("common.settings", func(): App.go(App.ControllerSettings), UiTheme.SIZE_ITEM)
-	settings.custom_minimum_size = Vector2(440, 96)
-	settings.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	box.add_child(settings)
-	var about := UiKit.box_button("common.about", func():
-		App.go(App.AboutScreen, {"back_screen": App.ControllerWait, "scanner_note": OS.get_name() == "Android"}),
-			UiTheme.SIZE_ITEM)
-	about.custom_minimum_size = Vector2(440, 96)
-	about.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	box.add_child(about)
 
 	# Connect methods, not lambdas: App.client outlives this screen, and Godot disconnects a method
 	# when its node is freed.

@@ -4,6 +4,7 @@ extends SceneTree
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/ui_states.gd -- --role=controller
 
 const PencilIcon = preload("res://scripts/ui/pencil_icon.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const Shell = preload("res://scripts/game/shell.gd")
@@ -113,16 +114,43 @@ func _wait_screen_leave() -> void:
 	var wait: Control = load("res://scripts/ui/controller_wait.gd").new()
 	root.add_child(wait)
 	await process_frame
-	_check(wait._leave.text == "pad.disconnect", "the button says DISCONNECT (pad.disconnect)")
+	_check(wait._leave.text == "" and wait._leave.name == "DisconnectButton"
+			and wait._leave.accessibility_name == Lang.t("pad.disconnect"),
+			"the button is an icon; its name for a screen reader is DISCONNECT (pad.disconnect)")
 	_check(wait._leave.get_global_rect().position.y < wait._name.get_global_rect().position.y,
 			"Disconnect is above the content of the waiting screen")
+	# The sentence that the Connect screen is opened with (PLAYER ADDED.) shows once: a later failed join does not bring it back.
+	var connect: Control = load("res://scripts/ui/controller_connect.gd").new()
+	connect.note = "PLAYER ADDED."
+	connect.theme = app.theme_res
+	root.add_child(connect)
+	await process_frame
+	var first: String = connect._status.text
+	connect._on_state(ControllerClient.State.IDLE)
+	_check(first == "PLAYER ADDED." and connect._status.text == "",
+			"the sentence of a scan shows once on the Connect screen: '%s', then '%s'" % [first, connect._status.text])
+	connect.queue_free()
+	# The icons (phone_icon.gd): the names for a screen reader, and the mirror of the DISCONNECT arrow in a right to left layout.
+	var PhoneIcon: GDScript = load("res://scripts/ui/phone_icon.gd")
+	var about_b: Button = wait.find_child("AboutButton", true, false)
+	var settings_b: Button = wait.find_child("SettingsButton", true, false)
+	_check(about_b.accessibility_name == Lang.t("common.about") and about_b.tooltip_text == Lang.t("common.about")
+			and settings_b.accessibility_name == Lang.t("common.settings") and wait._leave.tooltip_text == Lang.t("pad.disconnect"),
+			"the icon buttons are named ABOUT, SETTINGS and DISCONNECT for a screen reader and in the tooltip")
+	var plain: Array = PhoneIcon.cells(PhoneIcon.DISCONNECT)
+	var mirrored: Array = PhoneIcon.cells(PhoneIcon.DISCONNECT, true)
+	var cols: int = String(PhoneIcon.ROWS[PhoneIcon.DISCONNECT][0]).length()
+	_check(plain.size() == mirrored.size() and plain != mirrored
+			and plain.all(func(c): return mirrored.any(func(m): return m.y == c.y and m.x == cols - 1 - c.x)),
+			"the DISCONNECT arrow is mirrored left to right in a right to left layout")
 	app.client._set_state(ControllerClient.State.CONNECTED)
 	wait._leave.pressed.emit()
 	_check(app.client.state == ControllerClient.State.IDLE, "one tap leaves the TV")
 	_check(wait.find_children("*", "Button", true, false).all(func(b): return b.text != "wait.player"),
 			"there is no PLAYER button while joined (REQ-FL-71)")
-	var wait_buttons: Array = wait.find_children("*", "Button", true, false).map(func(b): return b.text)
-	_check(wait_buttons.slice(-2) == ["common.settings", "common.about"], "About is the button after Settings")
+	var wait_buttons: Array = wait.find_children("*", "Button", true, false).map(func(b): return str(b.name))
+	_check(wait_buttons.slice(0, 3) == ["AboutButton", "SettingsButton", "DisconnectButton"],
+			"the top row: About, Settings, Disconnect %s" % str(wait_buttons))
 	wait.queue_free()
 
 
@@ -529,6 +557,8 @@ func _pad_buttons() -> void:
 	pad.size = Vector2(1080, 2160)
 	root.add_child(pad)
 	await process_frame
+	_check(pad.find_child("AboutButton", true, false) == null and pad.find_child("SettingsButton", true, false) == null,
+			"inside a game the pad has no About and no Settings button (they are for the screens outside a game)")
 	pad._sampler.set_process(false)
 	app.client.state = ControllerClient.State.CONNECTED
 	var both_a: Vector2 = pad._center_a()

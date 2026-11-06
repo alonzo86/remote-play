@@ -1,7 +1,7 @@
 #!/bin/sh
 # Decides what the CI has to run, from the files that a change touches. Usage: tools/ci_changes.sh [<base rev>]  (for example origin/main)
 # Prints two lines for $GITHUB_OUTPUT:
-#   code=true|false    something other than documentation changed (Markdown, docs/, .claude/; the design tokens in docs/ count as code)
+#   code=true|false    something other than documentation changed (Markdown, docs/, .claude/, the website in site/; the design tokens in docs/ count as code)
 #   render=true|false  something that can change a drawn frame changed (the job `pixels` checks frames)
 # With no base rev (a manual run, or a new branch) both are true. When git cannot list the changes (the base is not in the
 # history, for example after a force-push) both are true too: it is better to run too much than too little.
@@ -24,7 +24,7 @@ while IFS= read -r F; do
 	[ -n "$F" ] || continue
 	case "$F" in
 		docs/design-system/tokens.json | docs/design-system/tokens.css) CODE=true ;;
-		*.md | docs/* | .claude/*) continue ;;
+		*.md | docs/* | .claude/* | site/*) continue ;;
 		*) CODE=true ;;
 	esac
 	case "$F" in

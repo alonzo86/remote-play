@@ -37,6 +37,7 @@ func _run() -> void:
 	_connect_script = load("res://scripts/ui/controller_connect.gd")
 	_about()
 	await _about_screen()
+	await _get_the_app()
 
 
 func _about() -> void:
@@ -152,6 +153,26 @@ func _known_bug(issue: String, cond: bool, what: String) -> void:
 
 
 ## A fresh About screen that fills the window, with the layout done.
+## The TV About list has the page "Get the app" with only the QR code of the app.
+## The phone has none.
+func _get_the_app() -> void:
+	print("get the app")
+	var tv_pages: Array = About.pages(false, true)
+	_check(String(tv_pages[1].kind) == "get_app" and tv_pages[1].arg == About.APP_URL
+			and About.pages(false).size() == tv_pages.size() - 1
+			and not About.pages(true).any(func(p): return p.kind == "get_app"), "only the TV list has the page Get the app")
+	var screen: Control = await _open_about()
+	screen._current = tv_pages
+	screen.show_page(1)
+	await process_frame
+	var qr: Control = screen.find_child("AppQr", true, false)
+	_check(qr != null and qr.text == About.APP_URL and qr.quiet == 4 and qr.custom_minimum_size.x >= 400.0,
+			"the page shows the QR code of the app address with a quiet zone, and no room code")
+	_check(screen.find_children("*", "Label", true, false).any(func(l): return l.text == "about.get_app_scan"),
+			"and the line that says what the code is")
+	screen.queue_free()
+
+
 func _open_about(props := {}) -> Control:
 	var screen: Control = _about_script.new()
 	for k in props:

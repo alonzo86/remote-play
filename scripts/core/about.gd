@@ -15,10 +15,18 @@ const FONT_LICENSES := {
 }
 
 
+## Where the QR code "GET THE PHONE APP TO PLAY" of the TV points: the page `site/get/` of the website (GitHub Pages of this
+## repository), which sends each phone to its store (the store addresses are in `site/stores.js`). The TV draws this address in
+## every installed copy, so it must stay: change where the page sends people, not this address.
+const APP_URL := "https://alonzo86.github.io/remote-play/get/"
+
+
 ## The pages of the About list, in order. Each is {"title": text, "kind": text, "arg": text}. `scanner` adds the note about the
 ## Google code scanner (the Android phone). "3rd Party Libraries" opens the list of `libraries()`.
-static func pages(scanner := false) -> Array:
+static func pages(scanner := false, tv := false) -> Array:
 	var out: Array = [{"title": "Sababi", "kind": "summary", "arg": ""}]
+	if tv:   # The TV shows the QR code of the phone app (a placeholder address until the app has a page in the stores).
+		out.append({"title": "about.get_app", "kind": "get_app", "arg": APP_URL})
 	if scanner:
 		out.append({"title": "about.qr_scanner", "kind": "scanner", "arg": ""})
 	out.append({"title": "Godot Engine", "kind": "godot", "arg": ""})

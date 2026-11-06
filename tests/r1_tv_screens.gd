@@ -8,6 +8,7 @@ extends SceneTree
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const About = preload("res://scripts/core/about.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
@@ -261,7 +262,14 @@ func _connect_screen() -> void:
 	await _frames(4)
 	var screen: Control = _app.current_screen()
 	var qrs := _with_script(screen, _qr_script)
-	_check(qrs.size() == 1, "the screen has one QR code")
+	# Owner, 2026-11-06: two codes while no phone is joined, at the two ends of the row: the room (left, large) and the app (right).
+	_check(qrs.size() == 2 and qrs[1].name == "AppQr" and qrs[1].text == About.APP_URL and qrs[1].quiet == 4
+			and qrs[1].custom_minimum_size.x < qrs[0].custom_minimum_size.x,
+			"the screen has the room QR code and the smaller QR code of the app (GET THE PHONE APP TO PLAY)")
+	var card: Control = screen.find_child("AppCard", true, false)
+	var room_card: Control = qrs[0].get_parent().get_parent()
+	_check(card != null and card.visible and absf(card.get_global_rect().position.y - room_card.get_global_rect().position.y) < 1.0,
+			"the app card shows while no phone is joined, on the same top edge as the room card")
 	var qr: Control = qrs[0]
 	var pair := Protocol.parse_pair_url(qr.text)
 	_check(not pair.is_empty() and pair.host == "192.168.1.20" and pair.room == _app.server.room_code
@@ -280,6 +288,11 @@ func _connect_screen() -> void:
 	var lists := _with_script(screen, _slot_list_script)
 	_check(lists.size() == 1 and lists[0].get_child_count() == 4
 			and ["1P", "2P", "3P", "4P"].all(func(s): return texts.has(s)), "the screen has 4 slots, 1P to 4P")
+	_check(texts.has("connect.scan_to_join") and texts.has("connect.get_app"), "the two cards say SCAN TO JOIN and GET THE APP")
+	_app.server.players[0].state = 1   # The first phone joins: the app card goes, only the room code is left.
+	await _frames(3)
+	_check(not card.visible, "the app card goes away when the first phone has joined")
+	_app.server.players[0].state = 0
 
 
 ## 1f: a TV with no network address shows an empty QR code and the line that says so.

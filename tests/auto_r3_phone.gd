@@ -218,11 +218,11 @@ func _connect_language() -> void:
 			right = right and shown[key] == table[key][pair[1]]
 			if table[key].en != table.get(key, {}).he:
 				different += 1
-		_check(Lang.current() == pair[1] and shown.size() >= 3 and right,
+		_check(Lang.current() == pair[1] and shown.size() >= 2 and right,
 				"device language %s: %d texts of the Connect screen are in %s" % [pair[0], shown.size(),
 				"Hebrew" if pair[1] == "he" else "English"])
 		if pair[1] == "he":
-			_check(different >= 3, "device language %s: at least 3 of them differ from the English text (%d)" % [pair[0], different])
+			_check(different >= 2, "device language %s: both of them differ from the English text (%d)" % [pair[0], different])
 	Lang.device_locale = ""
 	_app.set_language("en", false)
 
@@ -253,10 +253,7 @@ func _haptics_default() -> void:
 	_app.go(_wait_script)
 	await _frames(3)
 	var wait: Control = _app.current_screen()
-	var settings_button: Button = null
-	for b in wait.find_children("*", "Button", true, false):
-		if b.text == "common.settings":
-			settings_button = b
+	var settings_button: Button = wait.find_child("SettingsButton", true, false)
 	_check(settings_button != null, "the waiting screen has a Settings button")
 	if settings_button != null:
 		settings_button.pressed.emit()
@@ -279,9 +276,7 @@ func _phone_language() -> void:
 	_app.set_language(_app.language_to_use(), false)
 	_app.go(_wait_script)
 	await _frames(3)
-	for b in _app.current_screen().find_children("*", "Button", true, false):
-		if b.text == "common.settings":
-			b.pressed.emit()
+	_app.current_screen().find_child("SettingsButton", true, false).pressed.emit()
 	await _frames(3)
 	var screen: Control = _app.current_screen()
 	_check(screen.get_script().resource_path.ends_with("controller_settings.gd")
@@ -346,15 +341,17 @@ func _wait_layout() -> void:
 			wait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 			await _frames(3)
 			var leave: Rect2 = wait._leave.get_global_rect()
-			var settings_rect := Rect2()
-			for b in wait.find_children("*", "Button", true, false):
-				if b.text == "common.settings":
-					settings_rect = b.get_global_rect()
-			var screen_rect := Rect2(Vector2.ZERO, viewport)
-			var gap := settings_rect.position.y - leave.end.y
+			var settings_rect: Rect2 = wait.find_child("SettingsButton", true, false).get_global_rect()
+			var screen_rect := Rect2(wait.get_global_rect().position, viewport)   # Hebrew: a wide holder sits left of 0.
+			# One row: Settings is beside Disconnect, at the start side of it (left in English, right in Hebrew).
+			var gap := maxf(leave.position.x - settings_rect.end.x, settings_rect.position.x - leave.end.x)
 			_check(settings_rect.size != Vector2.ZERO and not settings_rect.intersects(leave) and gap >= MIN_GAP
 					and screen_rect.encloses(settings_rect) and screen_rect.encloses(leave),
-					"[%s] %dx%d: Settings is %.0f px under Disconnect (24 or more) and both are on the screen" % [code,
+					"[%s] %dx%d: Settings is %.0f px beside Disconnect (24 or more) and both are on the screen" % [code,
 					viewport.x, viewport.y, gap])
+			# Mirrored: Disconnect is in the right half in English and in the left half in Hebrew (REQ-FL-52).
+			var right_half: bool = leave.get_center().x > wait.get_global_rect().get_center().x
+			_check(right_half == (code == "en"), "[%s] %dx%d: Disconnect is in the %s corner" % [code, viewport.x, viewport.y,
+					"right" if code == "en" else "left"])
 			holder.queue_free()
 	_app.set_language("en", false)

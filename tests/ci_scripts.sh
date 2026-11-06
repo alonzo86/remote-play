@@ -44,6 +44,8 @@ plan() { (cd "$TMP/repo" && CIRCLE_BRANCH="${BRANCH:-feature}" tools/ci_plan_cir
 echo "ci_changes.sh"
 make_repo README.md docs/a.md .claude/skills/x.md
 check "only documentation: no code, no render" "code=false render=false " "$(changes)"
+make_repo site/index.html site/style.css site/get/index.html
+check "only the website (site/): no code, no render" "code=false render=false " "$(changes)"
 make_repo docs/design-system/tokens.json
 check "design tokens in docs/ are code and drawn" "code=true render=true " "$(changes)"
 make_repo tests/run_all.sh
