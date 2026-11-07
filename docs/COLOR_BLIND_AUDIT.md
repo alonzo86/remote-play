@@ -20,11 +20,11 @@ REQ-GM-46 (decision of the owner) says that a player object on the TV shows **no
 | Sheep Herding | dog (`SheepLook`, a texture per color) | yes | None; the score is shared by the team, so who is who matters less |
 | Snowball Splat | cursor ring | yes | None |
 | Sumo Bumpers | penguin (`SumoLook.penguin_image`) | yes | None |
-| Whack-a-Mole | cursor ring | yes | None |
+| Mole Bonk | cursor ring | yes | None |
 | Freeze Dance | dancer (`DanceLook.dancer_image`) | yes | Place: dancers stand in slot order; a mover stays on the floor, dim |
 | Tower Builder | brick | yes | Turn order: one brick hangs from the crane; the line "turn of NAME" is in the slot color |
 
-Result: 9 of 15 games (Star Shield, Bumper Cars, Car Race, Treasure Maze, Paint Grab, Sheep Herding, Snowball Splat, Sumo Bumpers, Whack-a-Mole) have no cue at all and need the colors to be told apart. The other 6 have a cue of position, turn or place, and only Tennis has a cue on the object itself (skin and hair). A shape or number mark on the object would change REQ-GM-46 ("no number and no avatar on a player object"), so it is not added here: it is a decision for the owner.
+Result: 9 of 15 games (Star Shield, Bumper Cars, Car Race, Treasure Maze, Paint Grab, Sheep Herding, Snowball Splat, Sumo Bumpers, Mole Bonk) have no cue at all and need the colors to be told apart. The other 6 have a cue of position, turn or place, and only Tennis has a cue on the object itself (skin and hair). A shape or number mark on the object would change REQ-GM-46 ("no number and no avatar on a player object"), so it is not added here: it is a decision for the owner.
 
 ## 2. The present palette under a color-blind simulation
 

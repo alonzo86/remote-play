@@ -32,11 +32,11 @@ THE GAMES
 • Banana Party: point your phone and throw bananas at the hungry animals.
 • Paint Grab: tilt to move your paint blob and cover the floor with your color.
 • Sumo Bumpers: bump your friends off the platform (2 to 4 players).
-• Star Shield: fly your spaceship, blast the asteroids and grab upgrades.
+• Star Shield: fly your spaceship, blast the rocks and grab upgrades.
 • Pin Pals: swing your phone to bowl, with the phone as the ball.
 • Tennis: swing your phone like a racket.
 • Mini Golf: aim by turning your phone, swing to putt on funny courses.
-• Whack-a-Mole: friendly moles pop out of their holes, point at them and bonk them.
+• Mole Bonk: friendly moles pop out of their holes, point at them and bonk them.
 • Air Hockey: slide your mallet and score goals, alone against the robot ROBO or with a friend.
 • Bumper Cars (2 to 4 players): bump your friends in the rink and collect gold stars.
 • Sheep Herding: steer your dog and herd all the sheep into the pen together.

@@ -240,7 +240,7 @@ func _run() -> void:
 	_check(_share(tower, [TowerLook.GRASS_A, TowerLook.GRASS_B]) > 0.1 and _share(tower, TowerLook.SKY) > 0.2
 			and _count(tower, TowerLook.SUN) > 600, "tower_builder: the sky, the sun and the grass")
 	_players(tower, "tower_builder", pc, 2, 300, 60)
-	# Whack-a-Mole: the lawn, the fence, the dirt of the holes, the fur of a mole and 2 rings of the players.
+	# Mole Bonk: the lawn, the fence, the dirt of the holes, the fur of a mole and 2 rings of the players.
 	var mole: Image = images.whack_a_mole
 	_check(_share(mole, MoleLook.GRASS) > 0.3 and _count(mole, MoleLook.FENCE) > 100 and _count(mole, MoleLook.DIRT, 0.05) > 300
 			and _count(mole, MoleLook.FUR, 0.05) > 300, "whack_a_mole: the lawn, the fence, the dirt of the holes and the fur of a mole")

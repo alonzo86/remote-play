@@ -1,5 +1,5 @@
 extends SceneTree
-## The rules of Whack-a-Mole, without a screen: the holes, popping up and down, spawning, the hit test and the pictures
+## The rules of Mole Bonk, without a screen: the holes, popping up and down, spawning, the hit test and the pictures
 ## (REQ-WM-6 to 10, 15). Run: godot --headless --path . --script tests/mole_rules.gd -- --role=controller
 
 const MoleField = preload("res://scripts/game/whack_a_mole/mole_field.gd")
@@ -228,7 +228,7 @@ func _hit_motion() -> void:
 	_check(m.out() == 1.0, "and it is fully out after %.2f s" % MoleField.HIT_RISE)
 
 
-## The pointer mapping that Banana Party and Whack-a-Mole share (REQ-WM-3).
+## The pointer mapping that Banana Party and Mole Bonk share (REQ-WM-3).
 func _pointer_map() -> void:
 	print("pointer map")
 	var area := Rect2(60.0, 150.0, 1800.0, 870.0)
