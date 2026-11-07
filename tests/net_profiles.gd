@@ -13,6 +13,8 @@ const Lang = preload("res://scripts/core/lang.gd")
 const ID_A := "9f2c4e7a1b3d5f60718293a4b5c6d7e8"
 const ID_B := "00112233445566778899aabbccddeeff"
 
+# Not the game port: it depends on the process, so two runs at the same time do not fail each other (as in net_limits.gd).
+var PORT := 47000 + OS.get_process_id() % 900
 var _checks := 0
 var _fails := 0
 var _server: TvServer
@@ -50,7 +52,7 @@ func _phone(pid := "", p_name := "", av := -1) -> ControllerClient:
 	var c := ControllerClient.new()
 	root.add_child(c)
 	c.set_profile(pid, p_name, av)
-	c.connect_to("127.0.0.1", Protocol.WS_PORT, _server.room_code)
+	c.connect_to("127.0.0.1", PORT, _server.room_code)
 	await _wait_until(func(): return c.state == ControllerClient.State.CONNECTED or c.state == ControllerClient.State.IDLE)
 	return c
 
@@ -58,7 +60,7 @@ func _phone(pid := "", p_name := "", av := -1) -> ControllerClient:
 ## Sends one raw `hello` (so the test can send what a real phone never would) and returns the first answer.
 func _raw_hello(fields: Dictionary) -> Dictionary:
 	var ws := WebSocketPeer.new()
-	ws.connect_to_url("ws://127.0.0.1:%d" % Protocol.WS_PORT)
+	ws.connect_to_url("ws://127.0.0.1:%d" % PORT)
 	var msg := {"t": "hello", "v": Protocol.VERSION, "room": _server.room_code, "token": "", "name": ""}
 	msg.merge(fields, true)
 	var sent := false
@@ -94,7 +96,10 @@ func _leave(c: ControllerClient) -> void:
 
 
 func _run() -> void:
+	await process_frame   # The App autoload applies the saved language in its _ready; set ours after it.
+	Lang.set_language("en", root)   # The texts are checked in English, whatever language this machine saved.
 	_server = TvServer.new()
+	_server.port = PORT
 	root.add_child(_server)
 	_server.start({})
 	_server.set_phase("menu")
@@ -212,7 +217,7 @@ func _same_profile() -> void:
 	root.add_child(b)
 	b.rejected.connect(func(reason): b_rejected.append(reason))
 	b.set_profile(ID_A, "Maya", 1)
-	b.connect_to("127.0.0.1", Protocol.WS_PORT, _server.room_code)
+	b.connect_to("127.0.0.1", PORT, _server.room_code)
 	await _wait_until(func(): return not b_rejected.is_empty())
 	_check(rejected.is_empty() and a.state == ControllerClient.State.CONNECTED and _server.players[0].token == token_a
 			and _server.players[0].profile_id == ID_A, "a connected holder keeps its profile (issue #388, REQ-FL-74)")

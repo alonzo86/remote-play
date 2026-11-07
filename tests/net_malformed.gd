@@ -7,7 +7,10 @@ extends SceneTree
 const Protocol = preload("res://scripts/core/protocol.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
+# Not the game port: it depends on the process, so two runs at the same time do not fail each other (as in net_limits.gd).
+var PORT := 47000 + OS.get_process_id() % 900
 var _checks := 0
 var _fails := 0
 var _server: TvServer
@@ -45,7 +48,7 @@ func _pump(ws: WebSocketPeer, ms := 400) -> Array:
 
 func _open(fields: Dictionary) -> WebSocketPeer:
 	var ws := WebSocketPeer.new()
-	ws.connect_to_url("ws://127.0.0.1:%d" % Protocol.WS_PORT)
+	ws.connect_to_url("ws://127.0.0.1:%d" % PORT)
 	var t0 := Time.get_ticks_msec()
 	while ws.get_ready_state() != WebSocketPeer.STATE_OPEN and Time.get_ticks_msec() - t0 < 3000:
 		ws.poll()
@@ -64,7 +67,10 @@ func _welcome(frames: Array) -> Dictionary:
 
 
 func _run() -> void:
+	await process_frame   # The App autoload applies the saved language in its _ready; set ours after it.
+	Lang.set_language("en", root)   # The texts are checked in English, whatever language this machine saved.
 	_server = TvServer.new()
+	_server.port = PORT
 	root.add_child(_server)
 	_server.start({})
 	_server.set_phase("menu")
