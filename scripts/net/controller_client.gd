@@ -16,7 +16,8 @@ signal result_received(key: String, value: int)   # A round result for the activ
 signal setup_changed()   # The safety card of a swing game opened or closed (issue #79).
 signal profile_answered()   # The TV told which profile this phone has now (REQ-FL-70).
 
-enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING }
+## WAITING is last, so the numbers of the other states do not change. The TV has the `hello` and waits for its host (`pending`).
+enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING, WAITING }
 
 const LAST_FILE := "user://controller.cfg"
 const RETRY_DELAYS := [0.5, 1.0, 2.0]
@@ -100,6 +101,14 @@ func leave() -> void:
 	_was_connected = false
 	_set_state(State.IDLE)
 	_save_last(true)
+
+
+## The player cancels the wait for the host (REQ-FL-100): the TV is told, the socket closes, and no message shows. Nothing happens
+## in another state.
+func cancel_wait() -> void:
+	if state != State.WAITING:
+		return
+	leave()
 
 
 func send_sensor(packet: PackedByteArray) -> void:
@@ -213,6 +222,8 @@ func _process(_delta: float) -> void:
 				_tick_connected(now)
 			elif state == State.JOINING and now - _last_rx_ms > Protocol.HELLO_TIMEOUT_MS:
 				_ws.close()
+			elif state == State.WAITING and now - _last_rx_ms > Protocol.HELLO_TIMEOUT_MS:
+				_end_wait()   # The TV sent no `pending` for 5 s: the link is lost. No retry (a retry would queue again).
 		WebSocketPeer.STATE_CLOSED:
 			# The last frames (for example "reject") can arrive together with the close.
 			while _ws.get_available_packet_count() > 0:
@@ -267,6 +278,10 @@ func _handle(msg: Dictionary, now: int) -> void:
 			# `lang` (the TV language) is ignored: a phone has its own language (REQ-FL-62).
 			phase_changed.emit(phase)
 			_sync_profile()   # The TV may have ignored the profile (a round was running): send it again in a menu.
+		"pending":
+			# The TV has the `hello` and waits for its host. Nothing is sent; the frames show that the TV is alive.
+			if state == State.JOINING or state == State.WAITING:
+				_set_state(State.WAITING)
 		"reject":
 			var reason := Protocol.text(msg, "reason", "unknown")
 			_close_socket()
@@ -333,7 +348,9 @@ func _handle(msg: Dictionary, now: int) -> void:
 		"kicked":
 			# The host removed this phone, or another phone took its profile (`reason` "replaced"). Forget the token. Do not
 			# reconnect (REQ-FL-33).
-			var kicked_reason := "replaced" if Protocol.text(msg, "reason", "") == "replaced" else "kicked"
+			var kicked_reason := Protocol.text(msg, "reason", "")
+			if not kicked_reason in ["replaced", "refused", "timeout", "busy"]:
+				kicked_reason = "kicked"
 			_close_socket()
 			_token = ""
 			slot = -1
@@ -362,7 +379,17 @@ func _on_closed() -> void:
 	_ws = null
 	if state == State.IDLE:
 		return
+	if state == State.WAITING:
+		_end_wait()   # The TV closed the socket with no message while the phone waited: no retry.
+		return
 	_schedule_retry_or_give_up()
+
+
+## The wait for the host ended because the link is lost: back to IDLE with the reason `wait_lost`, and no retry (FD-30.13).
+func _end_wait() -> void:
+	_close_socket()
+	_set_state(State.IDLE)
+	rejected.emit("wait_lost")
 
 
 func _schedule_retry_or_give_up() -> void:
