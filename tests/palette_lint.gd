@@ -203,6 +203,7 @@ const MEANING := {
 	"scripts/ui/controller_pad.gd": [1, 6],       # OK: the best score. BAD: the lost link, the B button, its stripes.
 	"scripts/game/mini_golf/golf_look.gd": [1, 0],   # OK: the aim mark is snapped to the cup (good aim).
 	"scripts/ui/slot_list.gd": [1, 1],            # OK: READY. BAD: LOST.
+	"scripts/ui/join_card.gd": [1, 1],            # OK: the ALLOW word and cursor. BAD: the REFUSE word and cursor (the mock).
 	"scripts/game/marble_race/marble_race.gd": [1, 0]}   # OK: the GO word (go).
 
 

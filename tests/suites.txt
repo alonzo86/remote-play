@@ -120,3 +120,4 @@ tests/tv_flow_reqs.gd|tv|TV flow: phase, tiles follow phones, Players modal (REQ
 tests/pixel_world_lint.gd|controller|pixel worlds: no text in the world draw, positions snapped (REQ-GM-47n, 47l)|unit
 tests/join_approval.gd|controller|join approval: queue, limits, refusal counter, known tokens, old and new phone (issue #393)|unit
 tests/join_approval_phone.gd|controller|join approval, phone screens: waiting, CANCEL and Back, refused/timeout/busy/lost texts, strings, layout (issue #393)|scenario
+tests/join_approval_tv.gd|tv|join approval, TV card: content, focus, 1 s guard, BACK ignored, over modals, ends, round, 3 refusals, Hebrew, layout (issue #393)|scenario

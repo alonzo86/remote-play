@@ -7,6 +7,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 var _seq := [0, 0]
 
 
@@ -54,6 +55,69 @@ func _shot_buttons() -> void:
 	layer.queue_free()
 
 
+## A phone that asks to join, at the made-up address `host` (the TV reads the address of the pending entry). Returns its socket.
+func _request(app: Node, host: String, fields: Dictionary) -> WebSocketPeer:
+	var ws := WebSocketPeer.new()
+	ws.connect_to_url("ws://127.0.0.1:%d" % Protocol.WS_PORT)
+	var tagged := false
+	for i in 300:
+		ws.poll()
+		if not tagged:
+			for e in app.server._pending:
+				if not e.has("test"):
+					e["test"] = true
+					e.host = host
+					tagged = true
+					break
+		if tagged and ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
+			var msg := {"t": "hello", "v": Protocol.VERSION, "room": app.server.room_code, "token": "", "name": ""}
+			msg.merge(fields, true)
+			ws.send_text(Protocol.to_json(msg))
+			break
+		await process_frame
+	return ws
+
+
+func _card_for(app: Node, player_name: String) -> void:
+	for i in 400:
+		var c: Control = app.join_requests.card if app.join_requests.is_open() else null
+		if c != null and String(c.request.get("name", "")) == player_name:
+			break
+		await process_frame
+	await _frames(20)
+
+
+## The join card (issue #393, REQ-FL-97) over the Games screen, in English and Hebrew, with "+2 WAITING" and without it.
+func _shot_join_card(app: Node) -> void:
+	var lang: String = Lang.current()
+	app.go_games()
+	app.server.max_accepts_per_ip = 100000
+	app.server.max_pending_per_ip = 100
+	app.server.set_approve_new(true)
+	var socks := []
+	for code in ["en", "he"]:
+		app.set_language(code, false)
+		await _frames(10)
+		var tag := 0 if code == "en" else 1
+		socks.append(await _request(app, "10.7.%d.1" % tag, {"pid": "9f2c4e7a1b3d5f60718293a4b5c6d7e8", "name": "Maya", "av": 6}))
+		socks.append(await _request(app, "10.7.%d.2" % tag, {"name": "Bo"}))
+		socks.append(await _request(app, "10.7.%d.3" % tag, {"name": "Cy"}))
+		await _card_for(app, "Maya")
+		await _shot("join_card_%s" % code)
+		app.server.refuse_request(app.join_requests.card.request_id())
+		await _card_for(app, "Bo")
+		app.server.refuse_request(app.join_requests.card.request_id())
+		await _card_for(app, "Cy")
+		await _shot("join_card_%s_nobadge" % code)
+		app.server.refuse_request(app.join_requests.card.request_id())
+		await _frames(5)
+	for ws in socks:
+		ws.close()
+	app.server.set_approve_new(false)
+	app.set_language(lang, false)
+	await _frames(10)
+
+
 func _stream(c: Array, seconds: float, a0: Vector3, g0 := Vector3.ZERO) -> void:
 	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
 	while Time.get_ticks_msec() < end:
@@ -94,6 +158,7 @@ func _run() -> void:
 	await _frames(20)
 	await _shot("players")
 	app.current_screen().on_back()
+	await _shot_join_card(app)
 	app.go_settings()
 	await _frames(10)
 	await _shot("settings")

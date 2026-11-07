@@ -11,6 +11,7 @@ const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const DebugOverlay = preload("res://scripts/ui/debug_overlay.gd")
 const Backdrop = preload("res://scripts/ui/backdrop.gd")
+const JoinRequests = preload("res://scripts/ui/join_requests.gd")
 const TvLogo = preload("res://scripts/ui/tv_logo.gd")
 const TvConnect = preload("res://scripts/ui/tv_connect.gd")
 const TvGames = preload("res://scripts/ui/tv_games.gd")
@@ -44,6 +45,7 @@ var settings := {
 var theme_res: Theme
 var server: Node            # TV only
 var overlay: CanvasLayer    # TV only
+var join_requests: CanvasLayer   # TV only. The card of a phone that asks to join (issue #393, FD-30.12).
 var client: Node            # Controller only
 ## The last personal best of this phone: {"key", "value", "old"} or empty (REQ-GM-100). Cleared when the next round starts.
 var last_best := {}
@@ -170,6 +172,9 @@ func go(script: GDScript, props := {}) -> void:
 		# Menu screens fade in (REQ-FL-42). Games do not: they start at once.
 		_screen.modulate.a = 0.0
 		_screen.create_tween().tween_property(_screen, "modulate:a", 1.0, 0.18)
+	if join_requests != null:
+		move_child(join_requests, -1)   # The card layer is the last child: its keys come first (issue #393, 7.2).
+		join_requests.on_screen_changed()
 
 
 ## A phone screen stays inside the safe area: a notch, a Dynamic Island, the status bar and the home bar cover nothing
@@ -233,11 +238,18 @@ func current_screen() -> Control:
 	return _screen
 
 
+## The join card consumed a BACK key: the notification of the same press (up to 250 ms later) is dropped by `_back()`.
+func note_back() -> void:
+	_last_back_ms = Time.get_ticks_msec()
+
+
 func _back() -> void:
 	var now := Time.get_ticks_msec()
 	if now - _last_back_ms < 250:
 		return # The same press can arrive as a key and as a notification.
 	_last_back_ms = now
+	if join_requests != null and join_requests.is_open():
+		return # BACK does nothing while a join card shows (owner, D12).
 	if _screen != null and _screen.has_method("on_back"):
 		_screen.on_back()
 		# A screen can take longer than 250 ms to build. The second event of the same press waits in the queue
@@ -302,6 +314,9 @@ func _start_tv() -> void:
 	overlay = DebugOverlay.new()
 	overlay.visible = bool(settings.overlay)
 	add_child(overlay)
+	join_requests = JoinRequests.new()
+	add_child(join_requests)
+	join_requests.setup(server)
 	Sound.music("menu")
 	go_logo()
 

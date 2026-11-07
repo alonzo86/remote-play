@@ -53,7 +53,7 @@ scripts/
   net/                   tv_server, controller_client, qr_scanner
   input/                 sensor_sampler (phone), orientation (fusion), player_input (state per slot)
   game/                  minigame.gd (base class of the games), registry.gd (game list), shell.gd (HUD, cards), bot.gd, and one folder for each game (maze/, marble_race/, snowball_splat/ ... )
-  ui/                    TV screens (tv_logo, tv_connect, tv_games, tv_settings, players_modal), controller screens
+  ui/                    TV screens (tv_logo, tv_connect, tv_games, tv_settings, players_modal, join_card), controller screens
                          (controller_connect, controller_wait, controller_pad), ui_theme, ui_kit, debug_overlay
 android/plugin/          QrScannerPlugin.java (Android plugin: Google code scanner)
 tests/                   headless tests (see below) and screenshot scripts
