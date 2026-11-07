@@ -117,7 +117,7 @@ static func name_lines(text: String, width: float) -> Array[String]:
 ## Draws `lines` one under the other, the block centered on the middle of `rect` (the box grows around the middle).
 func _draw_lines_centered(f: Font, lines: Array[String], rect: Rect2, fs: int, align: HorizontalAlignment, x: float,
 		color: Color) -> void:
-	var step := f.get_height(fs)
+	var step := f.get_height(fs) + UiTheme.line_gap(fs)   # The gap keeps the lines apart, also the Hebrew final letters (issue #403).
 	var mid := rect.get_center()
 	for i in lines.size():
 		var line_rect := Rect2(rect.position.x, mid.y + (float(i) - float(lines.size() - 1) * 0.5) * step - step * 0.5,

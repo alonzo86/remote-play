@@ -158,7 +158,7 @@ func _text_label(text: String) -> Label:
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var size := text_size()
 	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_constant_override("line_spacing", size / 4)
+	l.add_theme_constant_override("line_spacing", UiTheme.line_gap(size))
 	return l
 
 
