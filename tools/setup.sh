@@ -17,7 +17,8 @@ echo "Godot: $GODOT ($VERSION)"
 
 # JDK 17: JAVA_HOME when it is a 17, then the Homebrew one (tools/env.sh sets JAVA_HOME from it), then /usr/libexec/java_home (macOS).
 JDK17="${JAVA_HOME:-}"
-case "$("$JDK17/bin/java" -version 2>&1 | head -1)" in *'"17.'*) ;; *) JDK17="" ;; esac
+# `java -version` prints a "Picked up JAVA_TOOL_OPTIONS" line first when that variable is set: read the line that has the version.
+case "$("$JDK17/bin/java" -version 2>&1 | grep -m1 ' version "')" in *'"17.'*) ;; *) JDK17="" ;; esac
 if [ -z "$JDK17" ] && [ -x /usr/libexec/java_home ]; then JDK17="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"; fi
 [ -n "$JDK17" ] || { echo "JDK 17 not found. Set JAVA_HOME to a JDK 17 (macOS: brew install openjdk@17; Linux: your package manager, e.g. openjdk-17-jdk)." >&2; exit 1; }
 echo "JDK 17: $JDK17"
