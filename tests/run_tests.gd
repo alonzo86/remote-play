@@ -722,7 +722,8 @@ func _test_connect_screen() -> void:
 	ios_screen.theme = app.theme_res
 	root.add_child(ios_screen)
 	await process_frame
-	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false).map(func(b): return b.text)
+	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false) \
+			.filter(func(b): return b.is_visible_in_tree()).map(func(b): return b.text)   # The hidden waiting view has CANCEL.
 	# About and Settings (icons) are in the top row; then the profile dropdown and its + (FD-22). None is a scan or paste button.
 	_check(ios_buttons == ["", "", "", "+", ""] and ios_screen.find_child("AboutButton", true, false) != null
 			and ios_screen.find_child("SettingsButton", true, false) != null and ios_screen.find_child("JoinButton", true, false) != null,

@@ -32,6 +32,7 @@ var _wait_cancel: Button
 var _code: LineEdit
 var _typed_room := ""                 # The room code of a join by a typed code, while its guesses of the address run.
 var _candidates: Array[String] = []   # The addresses of that join that are not tried yet.
+var port := Protocol.WS_PORT   # The TCP port of a join by a typed code. A test that runs beside a TV app gives another one.
 var os_name := OS.get_name() # A test sets it to "iOS".
 var local_ips_lookup: Callable = Protocol.private_ipv4s   # The addresses of this phone for a typed code. A test gives its own.
 
@@ -246,7 +247,7 @@ func _try_next_host() -> void:
 	var host: String = _candidates.pop_front()
 	App.last_error = ""
 	App.client.use_saved_token("")
-	App.client.connect_to(host, Protocol.WS_PORT, _typed_room, true)
+	App.client.connect_to(host, port, _typed_room, true)
 
 
 func _fail(key: String) -> void:

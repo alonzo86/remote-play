@@ -15,7 +15,6 @@ const Lang = preload("res://scripts/core/lang.gd")
 
 const PATH := "user://test_join_approval_phone.cfg"
 const TV_IP := "192.168.0.1"   # A phone at 127.0.x.x builds the address 127.0.0.1 from this code (as tests/r4_join_code.gd).
-const FAKE_PORT := 49100
 const KEYS := ["connect.waiting_approval", "connect.waiting_approval_hint", "connect.approval_cancel", "connect.approval_refused",
 		"connect.approval_timeout", "connect.approval_busy"]
 const TEXTS := {
@@ -27,6 +26,9 @@ const TEXTS := {
 	"connect.approval_busy": ["TOO MANY PLAYERS ARE WAITING. TRY AGAIN IN A MINUTE.", "יותר מדי שחקנים ממתינים. נסו שוב בעוד דקה."],
 }
 
+# One port for each process (as tests/net_limits.gd): two runs at the same time, or one after the other, do not meet on 47801.
+var PORT := 47000 + OS.get_process_id() % 900
+var FAKE_PORT := 48000 + OS.get_process_id() % 900   # The ranges do not meet.
 var _checks := 0
 var _fails := 0
 var _app: Node
@@ -51,8 +53,10 @@ class FakeTv extends RefCounted:
 	var hellos := 0
 	var frames: Array = []
 
-	func _init(port: int) -> void:
-		tcp.listen(port, "127.0.0.1")
+	var listening := false
+
+	func _init(port: int, bind := "127.0.0.1") -> void:
+		listening = tcp.listen(port, bind) == OK
 
 	func poll() -> void:
 		while tcp.is_connection_available():
@@ -115,7 +119,13 @@ func _new_tv() -> void:
 	_server.approve_new = true
 	_server.approval_gap_ms = 50
 	root.add_child(_server)
-	_server.start({})
+	_server.port = PORT
+	var err := _server.start({})
+	if err != OK:
+		_check(false, "the TV listens on port %d (error %d)" % [PORT, err])
+		print("%d checks, %d failed (stopped: the port is taken)" % [_checks, _fails])
+		quit(1)   # One clear line, not a list of failures that follow from it.
+		await _frames(1000000)
 	_server.set_phase("menu")
 	_app.server = _server
 
@@ -135,6 +145,7 @@ func _connect_screen() -> Control:
 	await _frames(3)
 	var screen: Control = _app.current_screen()
 	screen.local_ips_lookup = func() -> Array[String]: return ["127.0.0.9"] as Array[String]
+	screen.port = PORT
 	return screen
 
 
@@ -166,6 +177,7 @@ func _run() -> void:
 	await _waiting_screen()
 	await _real_tv_flows()
 	await _fake_tv_flows()
+	await _wait_lost_no_other_address()
 	await _layout()
 	if _app.client.state != ControllerClient.State.IDLE:
 		_app.client.leave()
@@ -310,6 +322,10 @@ func _real_tv_flows() -> void:
 func _fake_tv_flows() -> void:
 	print("a fake TV: the reasons, in both languages")
 	_fake = FakeTv.new(FAKE_PORT)
+	_check(_fake.listening, "the fake TV listens on port %d" % FAKE_PORT)
+	if not _fake.listening:
+		quit(1)
+		await _frames(1000000)
 	var cases := [["refused", "connect.approval_refused"], ["timeout", "connect.approval_timeout"],
 			["busy", "connect.approval_busy"]]
 	for code in ["en", "he"]:
@@ -348,6 +364,44 @@ func _fake_tv_flows() -> void:
 			"CANCEL: back to Connect with an empty status line")
 	_fake.stop()
 	_fake = null
+
+
+## A typed code with two addresses of the phone: the first answers `pending`, then the link is lost (a closed socket, and the
+## silence of 5 s): the phone does not try the second address (FD-30.13, REQ-FL-103); it shows ROOM NOT FOUND and stops.
+func _wait_lost_no_other_address() -> void:
+	print("a lost link while waiting tries no other address (REQ-FL-103)")
+	for how in ["closed", "silent"]:
+		_fake = FakeTv.new(FAKE_PORT)
+		var second := FakeTv.new(FAKE_PORT, "127.1.0.1")
+		_check(_fake.listening and second.listening, "[%s] two fake TVs listen, on 127.0.0.1 and 127.1.0.1" % how)
+		_fake.frames = [{"t": "pending"}]
+		var screen := await _connect_screen()
+		screen.local_ips_lookup = func() -> Array[String]: return ["127.0.0.9", "127.1.0.9"] as Array[String]
+		screen.port = FAKE_PORT
+		screen._code.text = Protocol.room_code_for_ip(TV_IP)
+		var t0 := Time.get_ticks_msec()
+		screen.join_typed()
+		_check(screen._candidates.size() == 1, "[%s] the join has a second address to try" % how)
+		await _until(func() -> bool: return _app.client.state == ControllerClient.State.WAITING, 3000)
+		_check(_app.client.state == ControllerClient.State.WAITING and screen._candidates.is_empty(),
+				"[%s] `pending` from the first address: WAITING and no address left to try" % how)
+		if how == "closed":
+			for ws in _fake.peers:
+				ws.close()
+		else:
+			pass   # The fake TV sends no keepalive after `pending`: 5 s of silence.
+		await _until(func() -> bool: return _app.client.state == ControllerClient.State.IDLE, 9000)
+		var dt := Time.get_ticks_msec() - t0
+		await _frames(2)
+		_check(_status_is(screen, "connect.room_not_found"), "[%s] the link is lost: ROOM NOT FOUND after %d ms" % [how, dt])
+		await _spin(1500)
+		_check(second.peers.is_empty() and not second.tcp.is_connection_available() and _fake.peers.size() == 1
+				and _app.client.state == ControllerClient.State.IDLE,
+				"[%s] the second address got no connection, the first got one, no retry" % how)
+		second.stop()
+		_fake.stop()
+		_fake = null
+		await _frames(3)
 
 
 ## The waiting view and the new status lines fit the phone width at the smallest text size, in both languages (REQ-FL-40).
