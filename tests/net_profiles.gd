@@ -207,19 +207,33 @@ func _same_profile() -> void:
 	var token_a := _server.players[0].token
 	var rejected := []
 	a.rejected.connect(func(reason): rejected.append(reason))
-	var b := await _phone(ID_A, "Maya", 1)
-	await _wait_until(func(): return _server.player_count() == 2)
+	var b_rejected := []
+	var b := ControllerClient.new()
+	root.add_child(b)
+	b.rejected.connect(func(reason): b_rejected.append(reason))
+	b.set_profile(ID_A, "Maya", 1)
+	b.connect_to("127.0.0.1", Protocol.WS_PORT, _server.room_code)
+	await _wait_until(func(): return not b_rejected.is_empty())
 	_check(rejected.is_empty() and a.state == ControllerClient.State.CONNECTED and _server.players[0].token == token_a
 			and _server.players[0].profile_id == ID_A, "a connected holder keeps its profile (issue #388, REQ-FL-74)")
-	_check(b.state == ControllerClient.State.CONNECTED and _server.player_count() == 2 and _server.players[1].profile_id == ""
-			and _server.players[1].player_name == "Player 2" and b.tv_pid == "", "the newer phone joins as a guest with no profile")
+	_check(b_rejected == ["replaced"] and b.state == ControllerClient.State.IDLE and _server.player_count() == 1
+			and not _server.players[1].is_present() and b.slot == -1,
+			"the newer phone is sent away with `replaced` and takes no slot")
+	_check(b._token == "", "the rejected phone keeps no token")
+	var raw := await _raw_hello({"pid": ID_A})
+	_check(raw.reply.get("t", "") == "kicked" and raw.reply.get("reason", "") == "replaced" and _server.player_count() == 1,
+			"a raw hello with a held pid gets `kicked` / `replaced` on the wire")
+	raw.ws.close()
 	# The same with a `profile` message of a phone that is already in.
 	var e := await _phone(ID_B, "Dana", 2)
+	_check(_server.player_count() == 2, "the second phone with another profile joined")
 	e.set_profile(ID_A, "Maya", 1)
-	await _wait_until(func(): return _server.players[2].profile_id != ID_B)
-	_check(_server.players[2].profile_id == "" and _server.players[0].profile_id == ID_A
+	await _wait_until(func(): return _server.players[1].profile_id != ID_B)
+	_check(_server.players[1].profile_id == "" and _server.players[0].profile_id == ID_A
 			and a.state == ControllerClient.State.CONNECTED,
-			"a `profile` message with the pid of a connected holder makes that phone a guest; the holder stays")
+			"a `profile` message with the pid of a connected holder makes that phone a guest; the holder stays, nobody is kicked")
+	_check(e.state == ControllerClient.State.CONNECTED and _server.player_count() == 2,
+			"the phone that asked for a held profile stays connected as a guest")
 	await _leave(e)
 	await _leave(b)
 	# The holder is lost (slot kept in grace): a takeover is allowed.
@@ -233,8 +247,17 @@ func _same_profile() -> void:
 	_check(stale.reply.get("t", "") == "kicked" and stale.reply.get("reason", "") == "replaced" and _server.player_count() == 1,
 			"a phone that comes back with the old token is sent away and does not replace the new one")
 	stale.ws.close()
-	await _leave(a)
+	var f := await _phone(ID_B, "Dana", 2)
+	d.set_process(false)
+	await _wait_until(func(): return _server.players[0].state == PlayerInput.State.LOST, 8000)
+	f.set_profile(ID_A, "Maya", 1)
+	await _wait_until(func(): return _server.players[1].profile_id == ID_A)
+	_check(_server.players[1].profile_id == ID_A and not _server.players[0].is_present() and _server.player_count() == 1,
+			"a `profile` message with the pid of a LOST holder replaces the holder (takeover)")
+	d.set_process(true)
+	await _leave(f)
 	await _leave(d)
+	await _leave(a)
 	await _free_all()
 
 	print("a full TV")
@@ -284,12 +307,16 @@ func _round_rules() -> void:
 	var a := await _phone(ID_A, "Sam", 1)
 	var b := await _phone(ID_B, "Lea", 2)
 	_server.set_phase("playing", [0, 1] as Array[int])
-	var late := await _phone(ID_B, "Lea", 4)
-	_check(late.state == ControllerClient.State.CONNECTED and _server.player_count() == 3
-			and b.state == ControllerClient.State.CONNECTED
-			and _server.players[1].profile_id == ID_B and late.tv_pid == "",
-			"in a round a second phone with a profile does not replace anybody; it joins as a guest")
-	_check(_server.players[2].player_name == "Player 3", "the guest has no profile name")
+	var late_raw := await _raw_hello({"pid": ID_B, "name": "Lea", "av": 4})
+	_check(late_raw.reply.get("t", "") == "kicked" and late_raw.reply.get("reason", "") == "replaced"
+			and _server.player_count() == 2 and b.state == ControllerClient.State.CONNECTED
+			and _server.players[1].profile_id == ID_B,
+			"in a round a phone with the profile of a connected holder is sent away and takes no slot")
+	late_raw.ws.close()
+	var late := await _phone(ID_A.replace("9", "8"), "Zed", 4)
+	_check(late.state == ControllerClient.State.CONNECTED and _server.player_count() == 3 and _server.players[2].profile_id == ""
+			and late.tv_pid == "" and _server.players[2].player_name == "Player 3",
+			"in a round a new phone with a free profile joins as a guest")
 	var same := await _raw_hello({"name": "Sam"})
 	_check(_server.players[3].player_name == "Sam 2" and _server.players[0].player_name == "Sam",
 			"a name that joins in a round gets a number and nobody else changes name")

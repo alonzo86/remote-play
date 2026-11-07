@@ -424,15 +424,20 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 				slot = p.slot
 				resumed = true
 				break
-	if pid != "":
-		var dup := _slot_with_pid(pid)
+	var want_pid := Profile.clean_id(Protocol.text(msg, "pid"))   # In every phase: a held profile is not taken.
+	if want_pid != "":
+		var dup := _slot_with_pid(want_pid)
 		if dup >= 0 and dup != slot:
 			if players[dup].state == PlayerInput.State.CONNECTED:
-				# The phone that holds the profile is connected: it keeps it, the newer phone joins as a guest (issue #388, REQ-FL-74).
-				pid = ""
+				if not resumed:
+					# The phone that holds the profile is connected: the newer phone is sent away with a message and takes no
+					# slot (owner decision 2026-11-07, issue #388, REQ-FL-74).
+					_send_kicked(ws, "replaced")
+					return
+				pid = ""   # A phone that returns with the profile of another connected phone is a guest.
 				av = -1
 				p_name = ""
-			else:
+			elif pid != "":
 				_replace_slot(dup, now)   # The holder is lost: a takeover is allowed (a family moves a profile). Before the "full" check.
 	if slot < 0:
 		for p in players:
