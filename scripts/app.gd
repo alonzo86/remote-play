@@ -95,6 +95,7 @@ func set_language(code: String, remember := true) -> void:
 	if not (code in Lang.CODES):
 		return
 	Lang.set_language(code, get_tree().root)
+	UiTheme.refresh_line_gaps(self)   # The open screen: the Hebrew final letters need a larger gap (issue #403).
 	if remember:
 		settings.language = code
 		save_settings()

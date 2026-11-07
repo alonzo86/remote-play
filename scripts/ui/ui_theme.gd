@@ -40,6 +40,8 @@ const LINE := 6                      # The width of a frame line in pixels at 19
 const OUTLINE_W := LINE
 # There are no shadows and no round corners (REQ-FL-38).
 
+const Lang = preload("res://scripts/core/lang.gd")
+
 const FONT_FILE := "res://assets/fonts/PressStart2P-Regular.ttf"
 const FONT_HEBREW := "res://assets/fonts/SababiPixelHebrew.ttf"
 
@@ -54,6 +56,23 @@ const BLINK_S := 0.55                # A prompt is on for 0.55 s and off for 0.5
 const CURSOR_UNIT := 5.0             # One pixel of the cursor on the TV. The cursor is 4 pixels wide and 7 high.
 
 static var _font: Font
+
+
+## The space between two lines of a wrapped text at `font_size` (issue #403). The pixel font has no leading: a quarter of the
+## size keeps the lines apart. The Hebrew final letters (ק ך ן ף ץ) go one font pixel (an eighth of the size) below the line,
+## so in Hebrew the gap is an eighth of the size larger, and the descender keeps the same distance from the next line as a
+## Latin letter has.
+static func line_gap(font_size: int) -> int:
+	return font_size / 4 + (font_size / 8 if Lang.is_rtl() else 0)
+
+
+## Sets the line gap again on every label under `node` that has one: a screen that stays open when the language changes (the
+## phone Settings screen) keeps the gap of the old language otherwise (issue #403).
+static func refresh_line_gaps(node: Node) -> void:
+	if node is Label and node.has_theme_constant_override("line_spacing") and node.has_theme_font_size_override("font_size"):
+		node.add_theme_constant_override("line_spacing", line_gap(node.get_theme_font_size("font_size")))
+	for child in node.get_children():
+		refresh_line_gaps(child)
 
 
 ## The one font: Press Start 2P, with the project Hebrew pixel font as its fallback for Hebrew names.
