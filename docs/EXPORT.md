@@ -22,7 +22,9 @@ The two IDs are different, so you can install both apps on one device.
    **Android levels (issue #389).** All four presets set `gradle_build/min_sdk="24"` (Android 7.0) and
    `gradle_build/target_sdk="36"` (Android 16). These are the defaults of the 4.7.2 template
    (`android/build/config.gradle`: `minSdk 24`, `targetSdk 36`, `compileSdk 36`), written into the presets so a template
-   update cannot change them silently. Read from the template source; no APK was built here. Google Play's current
+   update cannot change them silently. Read from the template source, and confirmed in a dry run of 2026-11-07 (debug APKs and
+   release AABs built in a cloud container with a throwaway keystore; `aapt2 dump badging` of both APKs and `aapt2 dump
+   xmltree` of the manifests of both AABs: min 24, target 36, compile 36). Google Play's current
    target-API rule was NOT checked (no web access): before the first upload, read the rule on the Play Console help page and
    confirm that 36 meets it. Check the built file with
    `aapt dump badging build/sababi-tv.apk | grep -E "sdkVersion|targetSdkVersion"` (expect 24 and 36). Whether API 24 covers
@@ -181,7 +183,14 @@ GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD=... \
 tools/build.sh aab        # exports tv-release and controller-release with --export-release
 ```
 
-Run `tools/patch_android_manifest.sh` first, as for the APKs (section 3). Not verified: no bundle was built yet (it needs the upload keystore).
+Run `tools/patch_android_manifest.sh` first, as for the APKs (section 3). Dry run of 2026-11-07 (issue #289, a throwaway upload keystore outside the repository, nothing uploaded): `tools/build.sh apk` took
+2 min 19 s (it also filled the Gradle cache) and `tools/build.sh aab` 55 s; both release bundles pass `jarsigner -verify` and
+`bundletool validate`; sizes: TV bundle 54.3 MB, controller bundle 30.2 MB (the base limit is 200 MB); the manifests have the
+permissions of section 5 of the privacy notice and nothing more (TV: internet, network state, wifi state, wake lock; controller: the
+same and vibrate); the TV app has the banner and `LEANBACK_LAUNCHER` and no scanner, the controller app has the scanner plugin and
+ML Kit; ABIs: arm64-v8a for both, armeabi-v7a for the TV; the arm64 libraries have a 16 KB LOAD alignment (0x4000), the armeabi-v7a
+libraries 0x1000 (Google's 16 KB rule is for 64-bit libraries, not verified here). Still not done: the real upload keystore, Play
+App Signing, the version name (`tools/set_version.sh 1.0.0`) and a run on a real device.
 
 ### The version (one place)
 
