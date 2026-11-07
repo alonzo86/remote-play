@@ -33,6 +33,8 @@ func _initialize() -> void:
 	if not preload("res://tests/import_guard.gd").ok():
 		quit(1)
 		return
+	await process_frame   # The App autoload applies the saved language in its _ready; set ours after it.
+	Lang.set_language("en", root)   # The texts are checked in English, whatever language this machine saved.
 	SnowGame = load("res://scripts/game/snowball_splat/snowball_splat_game.gd")
 	_round_clock()
 	_haptics()

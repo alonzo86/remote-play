@@ -37,6 +37,8 @@ The scripts that decide what runs (`tools/ci_changes.sh`, `tools/ci_plan_circlec
 
 A suite that prints a `SCRIPT ERROR` line fails in `tests/run_suites.sh` even when it ends with `0 failed` and exit 0 (issue #276): the error stops the code that ran it, so the checks after it did not run.
 
+Each suite that `tests/run_one.sh` and `tests/run_suites.sh` start runs with its own empty user data folder (a temporary `HOME` and `XDG_DATA_HOME`, removed afterwards), so a suite never reads or changes the saved settings (`settings.cfg`, the language) of the person who runs it, and two runs at the same time do not share user files (issue #394). A suite started directly with `godot --script` still uses the real user data folder; `net_profiles` and `net_malformed` set the language they expect themselves and use a port that depends on the process.
+
 The free CI plans have a limited number of minutes each month. The CI runs the unit suites and the pixel checks only (Alon, 2026-10-22). The workflow `.github/workflows/ci.yml` spends the minutes like this (the job `changes` decides):
 
 | Case | lint | test | coverage | pixels |
