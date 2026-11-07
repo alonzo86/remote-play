@@ -349,7 +349,7 @@ func _place_snow(game: Node, pad: Array, flats: Array) -> void:
 	await _frames(3)
 
 
-## The Whack-a-Mole picture: five moles out (one golden, one just hit and smiling) and two rings, one on a mole.
+## The Mole Bonk picture: five moles out (one golden, one just hit and smiling) and two rings, one on a mole.
 func _place_mole(game: Node) -> void:
 	var MoleField = load("res://scripts/game/whack_a_mole/mole_field.gd")
 	var area: Rect2 = game._area()

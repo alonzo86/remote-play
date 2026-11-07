@@ -34,7 +34,7 @@ The clip ids are the game ids. The games were renamed later: `maze` is Treasure 
 | `sumo_bumpers` | Sumo Bumpers | Heavy and comic, a march with a strong beat (about 132 BPM) | 16 bars (29 s) |
 | `snowball_splat` | Snowball Splat | Light and playful, bell-like (about 124 BPM) | 16 bars (31 s) |
 | `asteroid_blast` | Star Shield | Bright and driving, a march in A minor (about 140 BPM) | 16 bars (27 s) |
-| `whack_a_mole` | Whack-a-Mole (added 2026-10-23) | Bouncy and light, short notes with rests in C major (120 BPM) | 16 bars (32 s) |
+| `whack_a_mole` | Mole Bonk (added 2026-10-23) | Bouncy and light, short notes with rests in C major (120 BPM) | 16 bars (32 s) |
 | `freeze_dance` | Freeze Dance (added 2026-10-24) | A disco groove in A minor with a four-on-the-floor beat (124 BPM). It is held (stopped at once) in every freeze and goes on from the same place (`Sound.hold_music()`) | 16 bars (31 s) |
 | `freeze_dance_jacques`, `_twinkle`, `_lamb`, `_ode`, `_london`, `_buns` | Freeze Dance, more songs (2026-11-06) | Six traditional melodies in the public domain (Frère Jacques at 120 BPM, Twinkle Twinkle Little Star at 116, Mary Had a Little Lamb at 128, Ode to Joy at 112, London Bridge at 124, Hot Cross Buns at 132), written as notes for the synth. The game picks one of the seven songs of the game for each round. No known song that is still protected is used. |
 
@@ -71,7 +71,7 @@ Proposed scenes (the game files get the final list; the current code already has
 
 | Scene | Haptic | Games |
 |-------|--------|-------|
-| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, whack-a-mole, paint grab, Sheep Herding, Tennis alone. Not Star Shield, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
+| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, mole bonk, paint grab, Sheep Herding, Tennis alone. Not Star Shield, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
 | The player scores or reaches the goal (exit, finish line, a hit on a Puff) | 120 ms, or 40 ms for a small score | maze, marble race, snowball splat |
 | The player's own object touches something (wall, bumper, another player) | 15 to 30 ms, with a cool-down | maze, marble race, paint grab, sumo |
 | A bump that pushes the player (stronger when harder) | 20 to 80 ms | sumo |
@@ -200,7 +200,7 @@ Each row is one effect. "Where" names the event that the game already has (it ha
 | `dance_points` | The "+10" appears, after the freeze | A short two-note ping. The pitch depends on the player slot, as `snow_points` |
 | `dance_out` | A player moved in the freeze | A soft, funny "boop-boop" (two short notes, down and up). Not sad (REQ-GM-81) |
 
-### 4.5a Whack-a-Mole (`whack_a_mole`, added 2026-10-23)
+### 4.5a Mole Bonk (`whack_a_mole`, added 2026-10-23)
 
 | Id | When | Sound |
 |----|------|-------|

@@ -70,8 +70,8 @@ tests/smoke_maze.gd|tv|Treasure Maze|scenario
 tests/smoke_race.gd|tv|Car Race|scenario
 tests/race_bot.gd|tv|Car Race bot (33 races)|scenario
 tests/smoke_banana.gd|tv|Banana Party|scenario
-tests/mole_rules.gd|controller|Whack-a-Mole rules and pictures|unit
-tests/smoke_mole.gd|tv|Whack-a-Mole|scenario
+tests/mole_rules.gd|controller|Mole Bonk rules and pictures|unit
+tests/smoke_mole.gd|tv|Mole Bonk|scenario
 tests/dance_rules.gd|controller|Freeze Dance rules, motion meter, light tiles and pictures|unit
 tests/smoke_freeze.gd|tv|Freeze Dance: songs, stop, points, moves (dim on the floor), round, leave|scenario
 tests/device_mocks_b.gd|tv|buzzes, RECENTER, silent phone (maze, race, banana)|scenario

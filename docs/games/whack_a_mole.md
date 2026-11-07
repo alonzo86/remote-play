@@ -1,4 +1,4 @@
-# Whack-a-Mole (`whack_a_mole`)
+# Mole Bonk (`whack_a_mole`)
 
 Type: 2D. Players: 1 to 4. Input: pointer (`PlayerInput.pointer()`), A (bonk), Recenter.
 General requirements: `docs/GAME_REQUIREMENTS.md`, also the rules for children (REQ-GM-80 to 84). Exceptions are in the first section.
@@ -106,6 +106,6 @@ The rows are in `assets/lang/strings.csv`: `registry.whack_a_mole`, `registry.de
 
 ## Open questions
 
-- Name: no trademark search was done for "Whack-a-Mole" (a name that others may own). This is not a clearance, and the decision about the name Sababi does not cover it. Check the name before the store release.
+- Name: the display name was "Whack-a-Mole" until 2026-11-07. The owner renamed it to "Mole Bonk" (issue #297) because "Whac-A-Mole" is a registered mark for games. Only the display name changed: the id `whack_a_mole`, the files, the keys and the saved bests stay. The desk check was not a clearance; the owner searches the stores before the public release.
 - Personal best: decided 2026-10-30, built (issue #216): keys 43 to 45, profile code format version 3.
 - The Hebrew texts were written by Claude and need a native reader.

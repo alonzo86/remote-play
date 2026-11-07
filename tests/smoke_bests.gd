@@ -123,7 +123,7 @@ func _keys() -> void:
 	await _frames(2)
 	keys.mole = _app.current_screen().best_key()
 	_check(keys.mole == "whack_a_mole|hard" and ProfileKeys.number_of(keys.mole) == 45
-			and not ProfileKeys.lower_is_better(keys.mole), "Whack-a-Mole: game, difficulty, higher is better (REQ-WM-16)")
+			and not ProfileKeys.lower_is_better(keys.mole), "Mole Bonk: game, difficulty, higher is better (REQ-WM-16)")
 	var all_known := true
 	for k in [keys.snow, keys.paint, keys.race, keys.blast, keys.bowling, keys.mole]:
 		all_known = all_known and ProfileKeys.number_of(k) > 0
@@ -223,7 +223,7 @@ func _tennis_round() -> void:
 	mole._board.set_score(0, 130.0)
 	mole.open_results(mole._board)
 	await _frames(20)
-	_check(got[0] == [["whack_a_mole|easy", 130]], "Whack-a-Mole sends the points of the player: %s" % str(got[0]))
+	_check(got[0] == [["whack_a_mole|easy", 130]], "Mole Bonk sends the points of the player: %s" % str(got[0]))
 	for c in clients:
 		c.leave()
 		c.queue_free()
@@ -239,7 +239,7 @@ func _store() -> void:
 	var p = s.create("Maya", 1)
 	_check(s.record_best(p.id, "whack_a_mole|medium", 90).new_best and not s.record_best(p.id, "whack_a_mole|medium", 80).new_best
 			and s.record_best(p.id, "tennis|easy", 12).new_best and s.record_best(p.id, "tennis|easy", 15).old == 12,
-			"Whack-a-Mole points and the Tennis rally are bests when higher")
+			"Mole Bonk points and the Tennis rally are bests when higher")
 	var first := s.record_best(p.id, "paint_grab|easy", 10)
 	_check(first.new_best and first.old == 0 and p.bests["paint_grab|easy"] == 10, "the first score is a new best")
 	_check(not s.record_best(p.id, "paint_grab|easy", 8).new_best and p.bests["paint_grab|easy"] == 10,

@@ -1,5 +1,5 @@
 extends SceneTree
-## Whack-a-Mole with simulated phones, stepped by hand (REQ-WM-*, test 28 of docs/MANUAL_TESTS.md). Run:
+## Mole Bonk with simulated phones, stepped by hand (REQ-WM-*, test 28 of docs/MANUAL_TESTS.md). Run:
 ##   godot --headless --path . --script tests/smoke_mole.gd -- --role=tv
 
 const MedalView = preload("res://scripts/ui/medal_view.gd")

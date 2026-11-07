@@ -84,6 +84,10 @@ func _run() -> void:
 		_check(String(desc.he) != "" and not _latin(String(desc.he)),
 				"%s: the description has a Hebrew text without Latin letters" % g.id)
 	_check(english.size() == 15, "15 games are checked (%d)" % english.size())
+	# Owner decision 2026-11-07 (issue #297): the English name is MOLE BONK, the Hebrew name is unchanged.
+	var mole: Dictionary = Lang.table()["registry.whack_a_mole"]
+	_check(String(mole.en) == "MOLE BONK" and String(mole.he) == "הכו בחפרפרת",
+			"whack_a_mole: English name MOLE BONK, Hebrew name unchanged (%s / %s)" % [mole.en, mole.he])
 
 	# The Games screen: a tile title for every game, and the info bar for the focused tile.
 	app.go_games()

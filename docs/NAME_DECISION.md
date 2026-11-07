@@ -105,3 +105,5 @@ Web search, the owner's register search and Claude's verification (above) were u
 4. Skipped by the owner on 2026-10-15: no trademark attorney. The owner accepts the risk that nobody with legal training has checked the name.
 5. Done on 2026-10-15: the store titles are "Sababi: TV Games" and "Sababi: Remote" (`docs/legal/store-listing-draft.md`). The other spellings are not in the texts.
 6. Done on 2026-10-15: the app was renamed (FD-26). If the register search finds a blocking SABABA mark, the name changes again. The `com.example.*` package names were replaced on 2026-10-15 by `io.github.alonzo86.sababi.*` (FD-27).
+
+7. Game name (2026-11-07, issue #297): the owner renamed the game "Whack-a-Mole" to "MOLE BONK" (display name only; the id `whack_a_mole` stays) because "Whac-A-Mole" is a registered mark for games, and took the word "asteroids" out of the store text of Star Shield. The owner searches the other game names in the stores before the public release.
