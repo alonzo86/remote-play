@@ -465,6 +465,7 @@ func _gap() -> void:
 func _replace_same_address() -> void:
 	print("one request for each address")
 	_new_server()
+	_server.set_phase("playing")   # No card shows yet: the old request is not shown when it is replaced.
 	var a := await _fake("10.0.0.5", {"name": "One"})
 	await _until(func() -> bool: return a.has("pending"))
 	var other := await _fake("10.0.0.6", {"name": "Other"})
@@ -475,9 +476,10 @@ func _replace_same_address() -> void:
 	await _until(func() -> bool: return b.has("pending"))
 	_check(_server.request_count() == 2, "a second hello of the same address does not add a request")
 	_check(_server._waiting[0].id == id and _server._waiting[0].arrived_ms == arrived and _server._waiting[0].host == "10.0.0.5",
-			"the new hello keeps the place, the id and the arrival time of the old one")
+			"the new hello of a request that was not shown keeps the place, the id and the arrival time of the old one")
 	await _until(func() -> bool: return a.is_closed(), 2500)
 	_check(a.is_closed() and not a.has("kicked") and not a.has("welcome"), "the old socket is closed with no message")
+	_server.set_phase("menu")
 	await _until(_shown)
 	_check(_server.shown_request().name == "Two", "the card shows the newer hello")
 	_server.allow_request(id)

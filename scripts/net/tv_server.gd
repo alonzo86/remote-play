@@ -59,6 +59,7 @@ var paused_slot_grace_ms := Protocol.PAUSED_SLOT_GRACE_MS
 
 ## True when a new phone waits for the host (`allow_request`, `refuse_request`) before it gets a slot (FD-30, REQ-FL-93). It is
 ## false here: the App sets it from the setting, so a TV server that nobody configures joins a phone in one step, as before.
+## Write it only through `set_approve_new` (OFF refuses the waiting requests); the App in phase 4 must call the setter.
 var approve_new := false
 ## Approval timers and limits (docs/JOIN_APPROVAL_PLAN.md 4.5). Tests make them short.
 var approval_timeout_ms := 60000   # A request that is shown with no answer ends as `timeout` after this.
@@ -375,17 +376,77 @@ func _process(delta: float) -> void:
 		players[i].tick(now)
 
 
-## How many connections of the address `host` have not sent `hello` yet.
+## The key of every per-address table (accept window, pending, waiting, refusals), so that one phone cannot get many keys by
+## changing its IPv6 address (security review of PR #397). An IPv4-mapped IPv6 address (`::ffff:1.2.3.4`) is the IPv4 address;
+## an IPv6 address is its /64 prefix (the first 4 groups, lower case, 4 digits each); an IPv4 address and anything that is not
+## a valid IPv6 address stay as they are.
+static func address_key(host: String) -> String:
+	if not host.contains(":"):
+		return host
+	var s := host.to_lower()
+	var zone := s.find("%")
+	if zone >= 0:
+		s = s.substr(0, zone)
+	if s.begins_with("[") and s.ends_with("]"):
+		s = s.substr(1, s.length() - 2)
+	var parts: Array = []
+	var dots := s.rfind(".")
+	if dots >= 0:   # A dotted IPv4 tail takes the place of the last two groups.
+		var cut := s.rfind(":")
+		var v4 := s.substr(cut + 1).split(".")
+		if v4.size() != 4:
+			return host
+		var bytes: Array[int] = []
+		for b in v4:
+			if not b.is_valid_int() or int(b) < 0 or int(b) > 255 or b.length() > 3:
+				return host
+			bytes.append(int(b))
+		s = s.substr(0, cut + 1) + "%x:%x" % [bytes[0] * 256 + bytes[1], bytes[2] * 256 + bytes[3]]
+	var halves := s.split("::")
+	if halves.size() > 2:
+		return host
+	var head: PackedStringArray = halves[0].split(":") if halves[0] != "" else PackedStringArray()
+	var tail := PackedStringArray()
+	if halves.size() == 2 and halves[1] != "":
+		tail = halves[1].split(":")
+	var count := head.size() + tail.size()
+	if halves.size() == 2:
+		if count > 7:
+			return host
+		parts.append_array(head)
+		for i in 8 - count:
+			parts.append("0")
+		parts.append_array(tail)
+	else:
+		if count != 8:
+			return host
+		parts.append_array(head)
+	for i in parts.size():
+		var g: String = parts[i]
+		if g.length() < 1 or g.length() > 4 or not g.is_valid_hex_number(false):
+			return host
+		parts[i] = g.lpad(4, "0")
+	if parts[0] == "0000" and parts[1] == "0000" and parts[2] == "0000" and parts[3] == "0000" and parts[4] == "0000" \
+			and parts[5] == "ffff":
+		var hi: int = parts[6].hex_to_int()
+		var lo: int = parts[7].hex_to_int()
+		return "%d.%d.%d.%d" % [hi >> 8, hi & 255, lo >> 8, lo & 255]
+	return "%s:%s:%s:%s" % [parts[0], parts[1], parts[2], parts[3]]
+
+
+## How many connections of the address `host` have not sent `hello` yet (the key of `address_key`).
 func _pending_of(host: String) -> int:
+	var key := address_key(host)
 	var n := 0
 	for entry in _pending:
-		if entry.get("host", "") == host:
+		if address_key(str(entry.get("host", ""))) == key:
 			n += 1
 	return n
 
 
 ## True when the address `host` has not used up its connections in the last `ACCEPT_WINDOW_MS`. A refused try is not counted.
-func _accept_allowed(host: String, now: int) -> bool:
+func _accept_allowed(address: String, now: int) -> bool:
+	var host := address_key(address)
 	var times: Array = _accepts.get(host, [])
 	while not times.is_empty() and now - int(times[0]) > ACCEPT_WINDOW_MS:
 		times.pop_front()
@@ -483,17 +544,25 @@ func _refusal_for(msg: Dictionary) -> String:
 
 ## The approval gate (4.2 step 10): a blocked address, a replacement of the request of the same address, a full queue, a new
 ## request.
-func _queue_request(ws: WebSocketPeer, msg: Dictionary, now: int, host: String) -> void:
+func _queue_request(ws: WebSocketPeer, msg: Dictionary, now: int, address: String) -> void:
+	var host := address_key(address)   # Phones behind one address (NAT, hotspot) share one request: an accepted limit.
 	if _refusals.is_blocked(host, now):
 		_send_kicked(ws, "refused")   # Not counted again.
 		return
 	if max_waiting_per_ip > 0 and _waiting_of(host) >= max_waiting_per_ip:
-		for entry in _waiting:   # The newest `hello` of the address takes the place, the id and the times of the old one.
+		for entry in _waiting:   # The newest `hello` of the address takes the place and the times of the old one.
 			if entry.host == host:
 				_discard(entry.ws)
 				entry.ws = ws
 				entry.hello = msg
 				entry.last_keepalive_ms = now
+				if int(entry.shown_ms) >= 0:
+					# The host saw the old phone: the new one is a new request (a late allow of the old id does nothing),
+					# and the card shows again after the gap.
+					entry.id = _next_request_id
+					_next_request_id += 1
+					entry.shown_ms = -1
+					_last_card_end_ms = now
 				_send_pending(ws)
 				requests_changed.emit()
 				return
@@ -779,9 +848,10 @@ func _send_pending(ws: WebSocketPeer) -> void:
 
 ## How many requests of the address `host` wait.
 func _waiting_of(host: String) -> int:
+	var key := address_key(host)
 	var n := 0
 	for entry in _waiting:
-		if entry.host == host:
+		if address_key(str(entry.host)) == key:
 			n += 1
 	return n
 

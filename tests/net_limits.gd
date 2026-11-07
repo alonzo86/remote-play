@@ -93,6 +93,10 @@ func _run() -> void:
 	await _pending_per_address()
 	await _requests_count()
 	await _accept_rate()
+	_address_key()
+	await _address_keys()
+	await _replace_shown()
+	await _refusal_keys()
 	await _big_frames()
 	await _empty_room()
 
@@ -243,6 +247,117 @@ func _accept_rate() -> void:
 			and _server._accept_allowed("10.0.0.7", 100 + TvServer.ACCEPT_WINDOW_MS + 1),
 			"an address may connect again after the window")
 	await _stop_server()
+
+
+## Addresses of one /64 and a mapped address share the tables of the TV (security review of PR #397).
+func _address_keys() -> void:
+	print("one key for the addresses of one device")
+	_new_server()
+	_server.max_accepts_per_ip = 2
+	_check(_server._accept_allowed("2001:db8:1:2::1", 0) and _server._accept_allowed("2001:DB8:1:2:aaaa::7", 1)
+			and not _server._accept_allowed("2001:db8:1:2:5::5", 2), "the accept window counts one /64 as one address")
+	_check(_server._accept_allowed("2001:db8:1:3::1", 3), "another /64 has its own window")
+	_check(_server._accept_allowed("::ffff:10.0.0.9", 0) and _server._accept_allowed("10.0.0.9", 1)
+			and not _server._accept_allowed("::ffff:10.0.0.9", 2), "a mapped address and its IPv4 address share the window")
+	_server._pending.append({"ws": null, "since": 0, "host": "2001:db8:1:2::1"})
+	_server._pending.append({"ws": null, "since": 0, "host": "2001:db8:1:2::2"})
+	_server._pending.append({"ws": null, "since": 0, "host": "::ffff:10.0.0.9"})
+	_check(_server._pending_of("2001:db8:1:2:ffff::1") == 2 and _server._pending_of("10.0.0.9") == 1
+			and _server._pending_of("2001:db8:1:9::1") == 0, "the pending count of a /64 and of a mapped address")
+	_server._pending.clear()
+	_server.max_accepts_per_ip = 1000
+	_server.max_pending_per_ip = 100   # Here every socket is tagged with its own address: only the waiting list is under test.
+	_server.approve_new = true
+	var held: Array[WebSocketPeer] = []   # A socket that is freed closes: the request would end.
+	for i in TvServer.MAX_WAITING:
+		held.append(await _request("2001:db8:%d::1" % (i + 1)))
+		await _frames(5)
+	_check(_server._waiting.size() == TvServer.MAX_WAITING, "4 requests from 4 different /64 fill the waiting list")
+	var same := await _request("2001:db8:1:0:ffff::5")
+	await _frames(15)
+	_check(_server._waiting.size() == TvServer.MAX_WAITING, "a new address of an old /64 replaces its request, it is not a fifth")
+	var fifth := await _request("2001:db8:99::1")
+	var got := await _pump(fifth, 400)
+	_check(_has(got, "kicked") and not _has(got, "pending"), "a fifth /64 gets busy")
+	same.close()
+	for h in held:
+		h.close()
+	await _stop_server()
+
+
+func _address_key() -> void:
+	print("the key of an address")
+	_check(TvServer.address_key("1.2.3.4") == "1.2.3.4" and TvServer.address_key("::ffff:1.2.3.4") == "1.2.3.4"
+			and TvServer.address_key("::FFFF:1.2.3.4") == "1.2.3.4" and TvServer.address_key("0:0:0:0:0:ffff:102:304") == "1.2.3.4",
+			"an IPv4-mapped IPv6 address is the IPv4 address")
+	_check(TvServer.address_key("2001:db8:1:2::1") == TvServer.address_key("2001:DB8:1:2:ffff:ffff:ffff:ffff")
+			and TvServer.address_key("2001:db8:1:2::1") == "2001:0db8:0001:0002",
+			"an IPv6 address is its /64 prefix, in lower case")
+	_check(TvServer.address_key("2001:db8:1:2::1") != TvServer.address_key("2001:db8:1:3::1"),
+			"two different /64 are different keys")
+	_check(TvServer.address_key("2001:db8::1") == "2001:0db8:0000:0000", "'::' expands to zero groups")
+	_check(TvServer.address_key("::1") == "0000:0000:0000:0000" and TvServer.address_key("fe80::1%eth0") == "fe80:0000:0000:0000",
+			"::1 and a zone id")
+	for odd in ["", "garbage", "1:2:3", "2001:db8::1::2", "zzzz::1", "1:2:3:4:5:6:7:8:9", "::ffff:1.2.3", "::ffff:1.2.3.999"]:
+		_check(TvServer.address_key(odd) == odd, "anything that is not an address stays as it is: '%s'" % odd)
+
+
+func _shown_id() -> int:
+	return int(_server.shown_request().get("id", -1))
+
+
+## The old request was already on the card: the newer `hello` is a new request (new id, shows again after the gap).
+func _replace_shown() -> void:
+	print("a request that was shown and is replaced")
+	_new_server()
+	_server.approve_new = true
+	_server.approval_gap_ms = 50
+	var a := await _request("10.0.0.5")
+	for i in 200:
+		if _shown_id() > 0:
+			break
+		await _frames(1)
+	var old_id := _shown_id()
+	var b := await _request("10.0.0.5")
+	await _frames(5)
+	_check(_server._waiting.size() == 1 and int(_server._waiting[0].id) != old_id,
+			"the shown request that is replaced is a new request (a new id)")
+	for i in 200:
+		if _shown_id() > 0:
+			break
+		await _frames(1)
+	var new_id := _shown_id()
+	_check(old_id > 0 and new_id > 0 and new_id != old_id, "it shows again with a new id (%d -> %d)" % [old_id, new_id])
+	_server.allow_request(old_id)
+	var got := await _pump(b, 200)
+	_check(not _has(got, "welcome") and _server.request_count() == 1, "a late allow of the old id does nothing")
+	_server.allow_request(new_id)
+	_check(_has(await _pump(b, 400), "welcome"), "the allow of the new id gives the slot to the new socket")
+	a.close()
+	await _stop_server()
+
+
+## Refusals from two addresses of one /64, or from a mapped address and its IPv4 address, add up to one block.
+func _refusal_keys() -> void:
+	print("the refusal block uses one key for a /64 and for a mapped address")
+	for pair in [["2001:db8:5:5::1", "2001:db8:5:5:9::2"], ["::ffff:10.9.9.9", "10.9.9.9"]]:
+		_new_server()
+		_server.approve_new = true
+		_server.approval_gap_ms = 50
+		_server.max_pending_per_ip = 100
+		var held: Array[WebSocketPeer] = []
+		for i in 3:
+			held.append(await _request(pair[i % 2]))
+			for k in 200:
+				if _shown_id() > 0:
+					break
+				await _frames(1)
+			_server.refuse_request(_shown_id())
+			await _frames(5)
+		var late := await _request(pair[1])
+		var got := await _pump(late, 400)
+		_check(_has(got, "kicked") and not _has(got, "pending"), "3 refusals from %s and %s block the address" % pair)
+		await _stop_server()
 
 
 func _big_frames() -> void:
