@@ -116,7 +116,7 @@ A `hello` that resumes a slot with a token follows the same guard: outside `conn
 
 The `pid` check runs before the slot is chosen, so a full TV does not reject the phone that replaces its own profile.
 
-- In the phases `connect` and `menu`, if a `hello` or a `profile` brings a `pid` that is already present in **another** slot, the **newer phone wins**. The TV frees the older slot and tells that phone `{"t":"kicked","reason":"replaced"}`. The phone shows `THIS PLAYER IS ALREADY IN THE ROOM.` (key `app.player_already_in_room`; the plan first had "YOUR PLAYER JOINED ANOTHER PHONE") (the text for plain `kicked` stays `The host removed you...`), forgets its token and does not reconnect by itself. The TV also remembers the token of the freed slot for 10 minutes, and answers a `hello` with that token with the same `kicked`, so a phone that was offline when it was replaced does not come back and replace the newer one.
+- In the phases `connect` and `menu`, if a `hello` or a `profile` brings a `pid` that is already present in **another** slot, and the phone of that slot is **lost**, the **newer phone wins** (since 2026-11-07, issue #388: when that phone is connected, it keeps the profile and the newer phone joins as a guest). The TV frees the older slot and tells that phone `{"t":"kicked","reason":"replaced"}`. The phone shows `THIS PLAYER IS ALREADY IN THE ROOM.` (key `app.player_already_in_room`; the plan first had "YOUR PLAYER JOINED ANOTHER PHONE") (the text for plain `kicked` stays `The host removed you...`), forgets its token and does not reconnect by itself. The TV also remembers the token of the freed slot for 10 minutes, and answers a `hello` with that token with the same `kicked`, so a phone that was offline when it was replaced does not come back and replace the newer one.
 - In the phases `playing`, `paused` and `waiting` the TV does **not** free a slot because of a `pid`. The newer phone joins as a guest (as every late phone waits for the next round, REQ-FL-25) and its `pid` is ignored; it can send `profile` in the next menu.
 - A phone that reconnects with its token is checked first and is not affected (the token path of `tv_server.gd` stays first).
 
@@ -234,7 +234,7 @@ Items 1, 8 and 10 are decided by the owner. The others are defaults that the own
 
 1. **Tilt Maze has no personal best** (decided by the owner). The maze is random in every round, and only the winner has a time.
 2. **8 profiles** on one phone, and a `GUEST` row.
-3. A profile ID on two phones: **the newer phone wins** in a menu, and a phone never replaces another one during a round (section 4.4).
+3. A profile ID on two phones: a connected holder keeps it and the newer phone is a guest; **the newer phone wins** only when the holder is lost (issue #388), and a phone never replaces another one during a round (section 4.4).
 4. The profile list **cannot be opened during a round**; a phone switches between rounds only.
 5. `NEW BEST!` shows on the **phone only**. The TV result menu does not change. This changes what the TV shows, so the owner decides: for example a `NEW BEST` tag on the row of the result list.
 6. Deleting a profile on the phone that is not the active one tells no TV. Deleting the active one makes the phone a guest on the TV.
@@ -299,7 +299,7 @@ Needs: 2 to 4 phones (one an iPhone if possible), 1 TV, a grown-up and a child o
 5. A guest next to profile players: the guest keeps the number.
 6. Pause card with profile names (switch Wi-Fi off): two names of 10 letters, a Hebrew name in an English sentence and an English name in Hebrew; check that the text fits and reads right.
 7. All avatars on all four slot colors and on the smallest ball, from the sofa; a child names five of them.
-8. The same profile on a second phone joins the same TV in the menu: the older phone shows `THIS PLAYER IS ALREADY IN THE ROOM.` (key `app.player_already_in_room`; the plan first had "YOUR PLAYER JOINED ANOTHER PHONE"). Then repeat during a round: the second phone waits as a guest and nobody is removed.
+8. The same profile on a second phone joins the same TV in the menu: the older phone keeps its profile and the second phone is a guest (issue #388); when the older phone is lost, the second one takes the profile and the older one shows `THIS PLAYER IS ALREADY IN THE ROOM.` when it comes back (key `app.player_already_in_room`; the plan first had "YOUR PLAYER JOINED ANOTHER PHONE"). Then repeat during a round: the second phone waits as a guest and nobody is removed.
 9. Play Snowball Splat, Paint Grab and Marble Race (a fixed track) with a profile; check `NEW BEST!` and that a worse round does not change the best; one round with 2 phones.
 10. Close the app and open it: the profiles and bests are still there. Join another TV: the same name and avatar.
 11. Tilt Maze, Sumo Bumpers and a random Marble Race track: no best.

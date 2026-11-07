@@ -427,7 +427,13 @@ func _handle_hello(ws: WebSocketPeer, msg: Dictionary, now: int) -> void:
 	if pid != "":
 		var dup := _slot_with_pid(pid)
 		if dup >= 0 and dup != slot:
-			_replace_slot(dup, now)   # The newer phone wins. This is before the "full" check, so a full TV still takes it.
+			if players[dup].state == PlayerInput.State.CONNECTED:
+				# The phone that holds the profile is connected: it keeps it, the newer phone joins as a guest (issue #388, REQ-FL-74).
+				pid = ""
+				av = -1
+				p_name = ""
+			else:
+				_replace_slot(dup, now)   # The holder is lost: a takeover is allowed (a family moves a profile). Before the "full" check.
 	if slot < 0:
 		for p in players:
 			if not p.is_present():
@@ -549,7 +555,12 @@ func _handle_profile(i: int, msg: Dictionary, now: int) -> void:
 		if pid != "":
 			var dup := _slot_with_pid(pid)
 			if dup >= 0 and dup != i:
-				_replace_slot(dup, now)
+				if players[dup].state == PlayerInput.State.CONNECTED:
+					pid = ""   # The holder is connected: this phone becomes a guest (issue #388, REQ-FL-74).
+					av = -1
+					p_name = ""
+				else:
+					_replace_slot(dup, now)
 		players[i].set_profile(pid, av, p_name)
 		_assign_names()
 	var p := players[i]

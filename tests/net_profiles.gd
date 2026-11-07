@@ -208,17 +208,33 @@ func _same_profile() -> void:
 	var rejected := []
 	a.rejected.connect(func(reason): rejected.append(reason))
 	var b := await _phone(ID_A, "Maya", 1)
-	await _wait_until(func(): return not rejected.is_empty())
-	_check(rejected == ["replaced"] and a.state == ControllerClient.State.IDLE,
-			"in a menu the newer phone wins; the older one is told")
-	_check(_server.player_count() == 1 and _server.players[0].profile_id == ID_A and _server.players[0].token != token_a,
-			"only one player is left, with the new token")
+	await _wait_until(func(): return _server.player_count() == 2)
+	_check(rejected.is_empty() and a.state == ControllerClient.State.CONNECTED and _server.players[0].token == token_a
+			and _server.players[0].profile_id == ID_A, "a connected holder keeps its profile (issue #388, REQ-FL-74)")
+	_check(b.state == ControllerClient.State.CONNECTED and _server.player_count() == 2 and _server.players[1].profile_id == ""
+			and _server.players[1].player_name == "Player 2" and b.tv_pid == "", "the newer phone joins as a guest with no profile")
+	# The same with a `profile` message of a phone that is already in.
+	var e := await _phone(ID_B, "Dana", 2)
+	e.set_profile(ID_A, "Maya", 1)
+	await _wait_until(func(): return _server.players[2].profile_id != ID_B)
+	_check(_server.players[2].profile_id == "" and _server.players[0].profile_id == ID_A
+			and a.state == ControllerClient.State.CONNECTED,
+			"a `profile` message with the pid of a connected holder makes that phone a guest; the holder stays")
+	await _leave(e)
+	await _leave(b)
+	# The holder is lost (slot kept in grace): a takeover is allowed.
+	a.set_process(false)
+	await _wait_until(func(): return _server.players[0].state == PlayerInput.State.LOST, 8000)
+	var d := await _phone(ID_A, "Maya", 1)
+	_check(d.state == ControllerClient.State.CONNECTED and _server.player_count() == 1 and _server.players[0].profile_id == ID_A
+			and _server.players[0].token != token_a, "a lost holder is replaced by the newer phone")
+	a.set_process(true)
 	var stale := await _raw_hello({"token": token_a, "pid": ID_A})
 	_check(stale.reply.get("t", "") == "kicked" and stale.reply.get("reason", "") == "replaced" and _server.player_count() == 1,
 			"a phone that comes back with the old token is sent away and does not replace the new one")
 	stale.ws.close()
 	await _leave(a)
-	await _leave(b)
+	await _leave(d)
 	await _free_all()
 
 	print("a full TV")
@@ -227,6 +243,8 @@ func _same_profile() -> void:
 	for i in 3:
 		guests.append(await _phone())
 	_check(_server.player_count() == Protocol.MAX_PLAYERS, "the TV is full")
+	first.set_process(false)   # The holder is lost, so the takeover is allowed.
+	await _wait_until(func(): return _server.players[0].state == PlayerInput.State.LOST, 8000)
 	var again := await _phone(ID_A, "Maya", 2)
 	_check(again.state == ControllerClient.State.CONNECTED and _server.player_count() == Protocol.MAX_PLAYERS
 			and _server.players[0].avatar == 2, "a full TV still takes the phone that replaces its own profile")

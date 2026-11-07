@@ -62,7 +62,7 @@ Counts: a 98, todo 0, review 13, obsolete 0, device 0 (total 111; 122 before the
 | REQ-FL-65b | a (done) | named in the existing checks of audio.gd, audio_phones.gd |
 | REQ-FL-65c | a (done) | named in the existing check of audio.gd, audio_controller.gd |
 | REQ-FL-70 | a (done) | named in the existing checks of tv_profiles.gd, smoke_settings.gd (unknown index), r4_tv_profiles.gd; design_tokens.gd (new check: no avatar on a game object) |
-| REQ-FL-74 | a (done) | named in the existing check of r4_phone_profiles.gd |
+| REQ-FL-74 | a (done) | net_profiles.gd (connected holder kept, lost holder replaced, a round) and r4_phone_profiles.gd (8a) |
 | REQ-FL-77 | a (done) | named in the existing check of ui_share.gd |
 | REQ-FL-78 | a (done) | named in the existing check of profile_code.gd |
 | REQ-FL-79 | a (done) | named in the existing check of r4_bests.gd |

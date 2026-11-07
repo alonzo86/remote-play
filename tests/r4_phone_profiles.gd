@@ -312,8 +312,9 @@ func _equal_names() -> void:
 	await _leave_app_client()
 
 
-## 8a: a second phone with the same profile joins while the TV is in a menu. The older phone is sent to the Connect screen with
-## the text THIS PLAYER IS ALREADY IN THE ROOM.
+## 8a: a second phone with the same profile joins while the TV is in a menu. While the first phone is connected it keeps the
+## profile and the second phone is a guest. When the first phone is lost, the second one takes the profile and the first one is
+## sent to the Connect screen with the text THIS PLAYER IS ALREADY IN THE ROOM. when it comes back.
 func _replaced() -> void:
 	print("the same profile on a second phone")
 	_reset_store()
@@ -328,17 +329,35 @@ func _replaced() -> void:
 	root.add_child(second)
 	second.set_profile(maya.id, "Maya", 3)
 	second.connect_to("127.0.0.1", _port, _server.room_code)
-	var kicked := await _wait_until(func(): return _app.client.state == ControllerClient.State.IDLE, 4000)
+	await _wait_until(func(): return second.state == ControllerClient.State.CONNECTED, 4000)
+	await _frames(3)
+	_check(_app.client.state == ControllerClient.State.CONNECTED and _app.current_screen().get_script() == _app.ControllerWait
+			and _app.last_error == "", "the connected holder stays on its screen (issue #388, REQ-FL-74)")
+	_check(_server.player_count() == 2 and _server.players[0].profile_id == maya.id and _server.players[1].profile_id == "",
+			"the newer phone is a guest and the holder keeps the profile")
+	# The holder is lost (the phone stops): a takeover is allowed, and the old phone is sent away when it comes back.
+	_app.client.set_process(false)
+	await _wait_until(func(): return _server.players[0].state == PlayerInput.State.LOST, 8000)
+	second.leave()
+	second.queue_free()
+	await _wait_until(func(): return _server.player_count() == 1, 3000)
+	second = ControllerClient.new()
+	root.add_child(second)
+	second.set_profile(maya.id, "Maya", 3)
+	second.connect_to("127.0.0.1", _port, _server.room_code)
+	await _wait_until(func(): return second.state == ControllerClient.State.CONNECTED, 4000)
+	_check(second.state == ControllerClient.State.CONNECTED and _server.player_count() == 1
+			and _server.players[0].profile_id == maya.id and _server.players[0].state == PlayerInput.State.CONNECTED,
+			"a lost holder is replaced: the newer phone holds the one slot")
+	_app.client.set_process(true)
+	var kicked := await _wait_until(func(): return _app.client.state == ControllerClient.State.IDLE, 8000)
 	await _frames(3)
 	var screen: Control = _app.current_screen()
-	_check(kicked and screen.get_script() == _app.ControllerConnect, "the older phone goes to the Connect screen")
+	_check(kicked and screen.get_script() == _app.ControllerConnect, "the older phone goes to the Connect screen when it comes back")
 	_check(_app.last_error == Lang.t("app.player_already_in_room"),
 			"and its message is THIS PLAYER IS ALREADY IN THE ROOM. (REQ-FL-74): '%s'" % _app.last_error)
 	_check(screen._status.text == Lang.t("app.player_already_in_room").to_upper(),
 			"the Connect screen shows that text in its status line: '%s'" % screen._status.text)
-	await _wait_until(func(): return second.state == ControllerClient.State.CONNECTED, 4000)
-	_check(second.state == ControllerClient.State.CONNECTED and _server.player_count() == 1
-			and _server.players[0].profile_id == maya.id, "the newer phone holds the one slot")
 	second.leave()
 	second.queue_free()
 	await _wait_until(func(): return _server.player_count() == 0, 3000)

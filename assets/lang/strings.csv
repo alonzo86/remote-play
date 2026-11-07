@@ -65,7 +65,8 @@ gear_button.options,OPTIONS,אפשרויות,TV Games screen: Options button at 
 logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים עם הטלפון כשלט תנועה,TV logo screen: line under the logo,
 logo.press_ok_start,PRESS OK TO START,לחצו OK להתחלה,"TV logo screen, first start: prompt to choose a language",
 logo.press_ok_skip,PRESS OK TO SKIP,לחצו OK לדילוג,TV logo screen: prompt to skip the logo,
-marble_race.go,GO,צאו,Car Race countdown: the word GO after 1 (only this game shows it; the other games go from 1 to the play),
+marble_race.go,GO,צאו,Car Race countdown: the word GO after 1 in a round of 2 or more players (only this game shows it; the other games go from 1 to the play),
+marble_race.go_one,GO,צא,Car Race countdown: the word GO after 1 in a round of one player (Hebrew singular),
 marble_race.meters,%d m behind,%d מ׳ מאחור,"Car Race: marker at the screen edge for a car that is out of view, %d is meters behind the leader","the number sign (%d, %.1f ...) is replaced by a number"
 marble_race.random_track,RANDOM TRACK,מסלול אקראי,"Car Race: name of the random track, HUD and track choice",
 maze.hold_phone_level_it,HOLD THE PHONE LEVEL. IT RECENTERS AT GO.,החזיקו את הטלפון ישר. הוא מתמרכז כשהמשחק מתחיל.,Treasure Maze: hint during the countdown,
