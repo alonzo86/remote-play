@@ -461,4 +461,8 @@ func _on_client_rejected(reason: String) -> void:
 		"tv_closed": Lang.t("app.tv_closed_connection"),
 		"kicked": Lang.t("app.host_removed_scan_code"),
 		"replaced": Lang.t("app.player_already_in_room"),
+		"refused": Lang.t("connect.approval_refused"),   # The join approval (issue #393, REQ-FL-101, REQ-FL-103).
+		"timeout": Lang.t("connect.approval_timeout"),
+		"busy": Lang.t("connect.approval_busy"),
+		"wait_lost": Lang.t("connect.room_not_found"),
 	}.get(reason, Lang.f("connect.refused", [reason]))

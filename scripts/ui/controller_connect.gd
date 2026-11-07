@@ -15,20 +15,31 @@ const About = preload("res://scripts/core/about.gd")
 const ProfileDropdown = preload("res://scripts/ui/profile_dropdown.gd")
 const EnterIcon = preload("res://scripts/ui/enter_icon.gd")
 const PhoneIcon = preload("res://scripts/ui/phone_icon.gd")
+const Avatar = preload("res://scripts/ui/avatar.gd")
+const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 
 var note := ""   # A sentence for the status line when the screen opens (PLAYER ADDED after a scan of a player code).
 var _status: Label
 var _quit_dialog: Control
 var _qr: Node
+var _main: Control   # The normal Connect screen; hidden while the phone waits for the host (REQ-FL-100).
+var _wait_view: Control   # The waiting screen of the join (issue #393): no slot yet, so it is not the screen of REQ-FL-28.
+var _wait_dots: Control
+var _wait_chip: Control
+var _wait_name: Label
+var _wait_avatar: Control
+var _wait_cancel: Button
 var _code: LineEdit
 var _typed_room := ""                 # The room code of a join by a typed code, while its guesses of the address run.
 var _candidates: Array[String] = []   # The addresses of that join that are not tried yet.
+var port := Protocol.WS_PORT   # The TCP port of a join by a typed code. A test that runs beside a TV app gives another one.
 var os_name := OS.get_name() # A test sets it to "iOS".
 var local_ips_lookup: Callable = Protocol.private_ipv4s   # The addresses of this phone for a typed code. A test gives its own.
 
 
 func _ready() -> void:
 	var margin := UiKit.margin(self, 40, 60, 40, 60)
+	_main = margin
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 24)
 	margin.add_child(box)
@@ -89,12 +100,103 @@ func _ready() -> void:
 		scan.custom_minimum_size = Vector2(0, 130)
 		box.add_child(scan)
 
+	_build_wait_view()
 	App.client.state_changed.connect(_on_state)
 	App.client.rejected.connect(_on_rejected)
 	_on_state(App.client.state)
 
 
+## The waiting screen of the join (REQ-FL-100, mock docs/design-system/components/JoinApproval/): the TV has the `hello` and waits
+## for its host. It has no slot, so it shows the chosen player (avatar and name, no slot color) and CANCEL.
+func _build_wait_view() -> void:
+	_wait_view = UiKit.margin(self, 40, 60, 40, 60)
+	_wait_view.visible = false
+	var page := VBoxContainer.new()
+	page.add_theme_constant_override("separation", 48)
+	_wait_view.add_child(page)
+	var mid := VBoxContainer.new()
+	mid.alignment = BoxContainer.ALIGNMENT_CENTER
+	mid.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	mid.add_theme_constant_override("separation", 48)
+	page.add_child(mid)
+	_wait_dots = Control.new()   # Four stepped squares, one lit (the mock); it moves every 400 ms.
+	_wait_dots.custom_minimum_size = Vector2(0, 48)
+	_wait_dots.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_wait_dots.draw.connect(_draw_dots)
+	mid.add_child(_wait_dots)
+	var msg := UiKit.label("connect.waiting_approval", 56)
+	msg.name = "WaitTitle"
+	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	msg.autowrap_mode = TextServer.AUTOWRAP_WORD
+	mid.add_child(msg)
+	var sub := UiKit.label("connect.waiting_approval_hint", UiTheme.SIZE_ITEM, UiTheme.TEXT_DESC)
+	sub.name = "WaitHint"
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.autowrap_mode = TextServer.AUTOWRAP_WORD
+	mid.add_child(sub)
+	_wait_chip = HBoxContainer.new()
+	_wait_chip.alignment = BoxContainer.ALIGNMENT_CENTER
+	_wait_chip.add_theme_constant_override("separation", 28)
+	page.add_child(_wait_chip)
+	_wait_avatar = AvatarView.new(0, 96.0)
+	_wait_avatar.framed = false
+	_wait_avatar.tappable = false
+	_wait_chip.add_child(_wait_avatar)
+	_wait_name = UiKit.label("", 48)
+	_wait_name.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # A player name is never translated (REQ-FL-63).
+	_wait_chip.add_child(_wait_name)
+	_wait_cancel = UiKit.box_button("connect.approval_cancel", cancel_wait, 48)
+	_wait_cancel.name = "CancelButton"
+	_wait_cancel.custom_minimum_size = Vector2(0, 140)
+	page.add_child(_wait_cancel)
+
+
+func _process(_delta: float) -> void:
+	if _wait_view != null and _wait_view.visible:
+		_wait_dots.queue_redraw()
+
+
+func _draw_dots() -> void:
+	var lit := int(Time.get_ticks_msec() / 400) % 4
+	var side := 48.0
+	var width := side * 4.0 + 24.0 * 3.0
+	var x0 := (_wait_dots.size.x - width) * 0.5
+	for i in 4:
+		var r := Rect2(Vector2(x0 + i * (side + 24.0), 0.0), Vector2(side, side))
+		if i == lit:
+			_wait_dots.draw_rect(r, UiTheme.ACCENT)
+		else:
+			_wait_dots.draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM, UiTheme.BG, 4), r)
+
+
+## Shows or hides the waiting screen. The chip shows the active player; a guest has no chip.
+func _show_waiting(on: bool) -> void:
+	_main.visible = not on
+	_wait_view.visible = on
+	if not on:
+		return
+	var p = App.profiles.active()
+	_wait_chip.visible = p != null
+	if p != null:
+		_wait_name.text = String(p.player_name).to_upper()
+		_wait_avatar.set_index(int(p.avatar))
+		_wait_avatar.visible = Avatar.is_known(int(p.avatar))
+
+
+## CANCEL and Back withdraw the request (REQ-FL-100): the TV is told, and the Connect screen shows with no message.
+func cancel_wait() -> void:
+	_typed_room = ""
+	_candidates.clear()
+	App.last_error = ""
+	App.client.cancel_wait()
+
+
 func _on_state(state: int) -> void:
+	_show_waiting(state == ControllerClient.State.WAITING)
+	if state == ControllerClient.State.WAITING:
+		_typed_room = ""   # `pending` means that the right address answered: no other address is tried, also after wait_lost.
+		_candidates.clear()
+		return
 	match state:
 		ControllerClient.State.CONNECTING, ControllerClient.State.JOINING:
 			_status.text = "connect.connecting"
@@ -145,7 +247,7 @@ func _try_next_host() -> void:
 	var host: String = _candidates.pop_front()
 	App.last_error = ""
 	App.client.use_saved_token("")
-	App.client.connect_to(host, Protocol.WS_PORT, _typed_room, true)
+	App.client.connect_to(host, port, _typed_room, true)
 
 
 func _fail(key: String) -> void:
@@ -206,6 +308,9 @@ func _on_rejected(reason: String) -> void:
 
 ## Back asks whether to quit the app (REQ-FL-55, issue #110); Back again answers "stay".
 func on_back() -> void:
+	if App.client.state == ControllerClient.State.WAITING:
+		cancel_wait()   # Back is CANCEL while the phone waits for the host (REQ-FL-100); no quit dialog.
+		return
 	if is_instance_valid(_quit_dialog):
 		_quit_dialog.close()
 		return
