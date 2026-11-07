@@ -91,6 +91,7 @@ func _run() -> void:
 	_codec()
 	await _pending_cap()
 	await _pending_per_address()
+	await _requests_count()
 	await _accept_rate()
 	await _big_frames()
 	await _empty_room()
@@ -159,6 +160,69 @@ func _pending_per_address() -> void:
 	_server._pending.clear()
 	var ok := await _open()
 	_check(_has(await _pump(ok), "welcome"), "the address joins again when its pending connections are gone")
+	await _stop_server()
+
+
+## A phone that waits for the host: its `hello` is queued, and the entry gets the address `host` (one machine has one address).
+func _request(host: String) -> WebSocketPeer:
+	var ws := _connect()
+	var tagged := false
+	var t0 := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - t0 < 3000:
+		ws.poll()
+		if not tagged:
+			for e in _server._pending:
+				if not e.has("test"):
+					e["test"] = true
+					e.host = host
+					tagged = true
+					break
+		if tagged and ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
+			ws.send_text(Protocol.to_json({"t": "hello", "v": Protocol.VERSION, "room": _server.room_code, "token": "", "name": ""}))
+			break
+		await process_frame
+	return ws
+
+
+func _requests_count() -> void:
+	print("phones that wait for the host count toward the limits of connections without hello (FD-30.8)")
+	_new_server()
+	_server.approve_new = true
+	_server.max_pending_per_ip = 100
+	var reqs: Array[WebSocketPeer] = []
+	for i in TvServer.MAX_WAITING:
+		reqs.append(await _request("10.0.0.%d" % (i + 1)))
+	await _frames(10)
+	_check(_server._waiting.size() == TvServer.MAX_WAITING and _server._pending.is_empty(), "4 requests wait, none is pending")
+	var socks: Array[WebSocketPeer] = []
+	for i in TvServer.MAX_PENDING:
+		socks.append(_connect())
+		await _frames(2)
+	await _frames(20)
+	_check(_server._pending.size() == TvServer.MAX_PENDING - TvServer.MAX_WAITING,
+			"with 4 requests the TV holds only %d more connections (16 together): %d" % [
+					TvServer.MAX_PENDING - TvServer.MAX_WAITING, _server._pending.size()])
+	for s in socks + reqs:
+		if s.get_ready_state() == WebSocketPeer.STATE_OPEN:
+			s.close()
+	await _frames(10)
+	await _stop_server()
+	_new_server()
+	_server.approve_new = true
+	var one := await _request("127.0.0.1")
+	await _frames(10)
+	_check(_server._waiting_of("127.0.0.1") == 1, "one address has a request")
+	var more: Array[WebSocketPeer] = []
+	for i in 5:
+		more.append(_connect())
+		await _frames(2)
+	await _frames(20)
+	_check(_server._pending_of("127.0.0.1") == _server.max_pending_per_ip - 1,
+			"the request is one of the 4 of its address: %d more connections are held" % _server._pending_of("127.0.0.1"))
+	for m in more + [one]:
+		if m.get_ready_state() == WebSocketPeer.STATE_OPEN:
+			m.close()
+	await _frames(10)
 	await _stop_server()
 
 

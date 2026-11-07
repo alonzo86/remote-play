@@ -11,6 +11,7 @@ const PKT_SENSOR := 1
 const SLOT_GRACE_MS := 5000    # A lost slot outside a paused game is freed after this (REQ-FL-8).
 const PAUSED_SLOT_GRACE_MS := 300000   # A lost slot is kept this long while the game is paused for it (a phone call).
 const HELLO_TIMEOUT_MS := 5000
+const PENDING_KEEPALIVE_MS := 2000   # A waiting phone gets `pending` this often (under half of HELLO_TIMEOUT_MS).
 const PEER_TIMEOUT_MS := 3000
 const ROOM_ALPHABET := "ACDEFGHJKLMNPQRTUVWXYZ"
 const ROOM_LENGTH := 4                 # Letters of a room code.
@@ -29,7 +30,7 @@ const MESSAGES := {
 	"ping": "phone", "pong": "tv", "stat": "phone", "recenter": "phone",
 	"phase": "tv", "lang": "tv", "haptic": "tv", "score": "tv", "turn": "tv",
 	"setup": "tv", "play": "phone", "swing_ok": "phone",
-	"profile": "both", "result": "tv", "bye": "both", "kicked": "tv",
+	"profile": "both", "result": "tv", "bye": "both", "kicked": "tv", "pending": "tv",
 }
 
 ## `lang` and `welcome.lang` are still sent, but the phone ignores them (issue #171). Remove both at the next VERSION bump,

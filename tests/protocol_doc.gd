@@ -6,6 +6,7 @@ extends SceneTree
 ##   godot --headless --path . --script tests/protocol_doc.gd -- --role=controller
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const TvServer = preload("res://scripts/net/tv_server.gd")
 
 var _checks := 0
 var _fails := 0
@@ -104,6 +105,25 @@ func _run() -> void:
 			"PAUSED_SLOT_GRACE_MS (min)")
 	_quote(text, "for (\\d+) minutes \\(`REPLACED_TOKEN_MS`", Protocol.REPLACED_TOKEN_MS / 60000, "REPLACED_TOKEN_MS (min)")
 	_quote(text, "`NAME_MAX` = (\\d+)", Protocol.NAME_MAX, "NAME_MAX")
+
+	# The join approval (FD-30): the keepalive of `pending` and the numbers of the TV that the document quotes.
+	_quote(text, "again every (\\d+) seconds \\(`PENDING_KEEPALIVE_MS`", Protocol.PENDING_KEEPALIVE_MS / 1000,
+		"PENDING_KEEPALIVE_MS (s)")
+	var tv: TvServer = TvServer.new()
+	_quote(text, "(\\d+) seconds with the card shown \\(`approval_timeout_ms`", tv.approval_timeout_ms / 1000,
+		"approval_timeout_ms (s)")
+	_quote(text, "or (\\d+) seconds in total \\(`approval_total_ms`", tv.approval_total_ms / 1000, "approval_total_ms (s)")
+	_quote(text, "(\\d+) second after the last \\(`approval_gap_ms`", tv.approval_gap_ms / 1000, "approval_gap_ms (s)")
+	_quote(text, "at most (\\d+) requests wait at one time \\(`TvServer.MAX_WAITING`", TvServer.MAX_WAITING, "MAX_WAITING")
+	_quote(text, "at most (\\d+) request \\(`max_waiting_per_ip`", tv.max_waiting_per_ip, "max_waiting_per_ip")
+	_quote(text, "After (\\d+) host refusals in a row from one address \\(`refuse_block_after`", tv.refuse_block_after,
+		"refuse_block_after")
+	_quote(text, "blocked for (\\d+) seconds \\(`refuse_block_ms`", tv.refuse_block_ms / 1000, "refuse_block_ms (s)")
+	_quote(text, "for at most (\\d+) addresses \\(`max_refusal_entries`", tv.max_refusal_entries, "max_refusal_entries")
+	_quote(text, "keeps at most (\\d+) \\(`MAX_KNOWN_TOKENS`", TvServer.MAX_KNOWN_TOKENS, "MAX_KNOWN_TOKENS")
+	_quote(text, "for at most (\\d+) frames in each frame \\(`MAX_WAITING_FRAMES`", TvServer.MAX_WAITING_FRAMES,
+		"MAX_WAITING_FRAMES")
+	tv.free()
 
 	# REQ-FL-29: the document names every value of `phase` that the TV code sends, among them `connect` and `menu`.
 	var phase_row := ""
