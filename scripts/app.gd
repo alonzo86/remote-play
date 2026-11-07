@@ -36,6 +36,7 @@ const SETTINGS_FILE := "user://settings.cfg"
 var settings := {
 	"invert_tilt": false,
 	"overlay": false,
+	"approve_players": true,   # TV: the host lets each new phone in (REQ-FL-93, issue #393). ON by default.
 	"music_volume": 7,   # TV: 0 to 10 (REQ-FL-64)
 	"sfx_volume": 8,     # TV: 0 to 10
 	"haptics": true,     # Phone: vibrate in games (REQ-FL-66)
@@ -306,6 +307,7 @@ func _load_settings(path := SETTINGS_FILE) -> void:
 func _start_tv() -> void:
 	server = TvServer.new()
 	add_child(server)
+	server.set_approve_new(bool(settings.approve_players))   # Before start(): the setter, never the member (FD-30.3).
 	server.start(settings)
 	server.language = Lang.current()
 	server.player_joined.connect(func(_s): Sound.sfx("join"))
@@ -329,6 +331,14 @@ func set_overlay(on: bool) -> void:
 	settings.overlay = on
 	overlay.visible = on
 	save_settings()
+
+
+## The setting "approve new players" (REQ-FL-93). OFF refuses the phones that wait (REQ-FL-102).
+func set_approve_players(on: bool) -> void:
+	settings.approve_players = on
+	save_settings()
+	if server != null:
+		server.set_approve_new(on)
 
 
 # ---- Controller ----

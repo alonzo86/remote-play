@@ -278,7 +278,7 @@ func _keys() -> void:
 	_app.go_settings()
 	await _frames(25)
 	var rows: Array = _app.current_screen()._rows
-	rows[0].grab_focus()
+	rows[1].grab_focus()   # Row 0 is 'approve new players'; the overlay row is the second (issue #393).
 	await _frames(2)
 	var before: bool = _app.settings.overlay
 	await _ok_key()

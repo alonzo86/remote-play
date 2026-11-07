@@ -354,9 +354,9 @@ func _settings_rows(sound: Node, app: Node) -> void:
 	await _frames(3)
 	var screen: Control = app.current_screen()
 	var rows: Array = screen._rows
-	_check(rows.size() == 5, "the Settings screen has 5 rows (debug, invert, music, effects, language), no Mute (issue #49)")
+	_check(rows.size() == 6, "the Settings screen has 6 rows (approve, debug, invert, music, effects, language), no Mute")
 	app.settings.music_volume = 10
-	rows[2].pressed.emit()
+	rows[3].pressed.emit()
 	_check(app.settings.music_volume == 0, "OK on Music after 10 goes back to 0")
 	_check(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music")) <= -80.0,
 			"the new Music level is applied at once")
@@ -364,13 +364,13 @@ func _settings_rows(sound: Node, app: Node) -> void:
 	var ev := InputEventAction.new()
 	ev.action = "ui_right"
 	ev.pressed = true
-	rows[3].gui_input.emit(ev)
+	rows[4].gui_input.emit(ev)
 	_check(app.settings.sfx_volume == 5, "Right on Effects adds one")
 	ev = InputEventAction.new()
 	ev.action = "ui_left"
 	ev.pressed = true
-	rows[3].gui_input.emit(ev)
-	rows[3].gui_input.emit(ev)
+	rows[4].gui_input.emit(ev)
+	rows[4].gui_input.emit(ev)
 	_check(app.settings.sfx_volume == 3, "Left on Effects takes one away")
 	# Language (issue #49): Left and Right pick a language from the list, OK goes to the next; the language is saved.
 	app.set_language("en")
@@ -378,14 +378,14 @@ func _settings_rows(sound: Node, app: Node) -> void:
 	ev = InputEventAction.new()
 	ev.action = "ui_right"
 	ev.pressed = true
-	rows[4].gui_input.emit(ev)
+	rows[5].gui_input.emit(ev)
 	_check(app.settings.language == "he", "Right on Language gives Hebrew (was %s)" % lang_before)
 	ev = InputEventAction.new()
 	ev.action = "ui_left"
 	ev.pressed = true
-	rows[4].gui_input.emit(ev)
+	rows[5].gui_input.emit(ev)
 	_check(app.settings.language == "en", "Left on Language gives English again")
-	rows[4].pressed.emit()
+	rows[5].pressed.emit()
 	_check(app.settings.language == "he", "OK on Language goes to the next language")
 	app.set_language("en")
 	var cfg := ConfigFile.new()
@@ -627,7 +627,7 @@ func _menu_keys(sound: Node, app: Node) -> void:
 	# OK on a row: `select`. The row 'invert tilt' is a switch; the setting is put back.
 	var screen: Control = app.current_screen()
 	var old_invert = app.settings.invert_tilt
-	screen._rows[1].grab_focus()
+	screen._rows[2].grab_focus()   # Rows: approve, debug, invert (issue #393).
 	await _frames(2)
 	ids.clear()
 	await _key("ui_accept")
@@ -662,11 +662,11 @@ func _settings_sweep(sound: Node, app: Node) -> void:
 	var rows: Array = screen._rows
 	var lang = load("res://scripts/core/lang.gd")
 	var titles := rows.map(func(r: Control) -> String: return String(_row_texts(r)[0]))
-	_check(titles[2] in ["settings.music", lang.t("settings.music")] and titles[3] in ["settings.effects",
+	_check(titles[3] in ["settings.music", lang.t("settings.music")] and titles[4] in ["settings.effects",
 			lang.t("settings.effects")],
-			"the Settings rows 3 and 4 are Music and Effects (%s)" % str(titles))
-	_check(rows.size() == 5 and not titles.has("settings.mute") and not titles.has(lang.t("settings.mute")),
-			"the Settings screen has 5 rows and no Mute row (issue #49)")
+			"the Settings rows 4 and 5 are Music and Effects (%s)" % str(titles))
+	_check(rows.size() == 6 and not titles.has("settings.mute") and not titles.has(lang.t("settings.mute")),
+			"the Settings screen has 6 rows and no Mute row (issue #49)")
 	var labels_ok := true
 	for r in rows:
 		labels_ok = labels_ok and _row_texts(r).size() == 2   # The name and the value: no explanation text.
@@ -674,30 +674,30 @@ func _settings_sweep(sound: Node, app: Node) -> void:
 	# 3b: Left until 0, then Right 10 times: +1 for each press, the bus follows, and it is silent at 0.
 	var music_bus := AudioServer.get_bus_index("Music")
 	for i in 11:
-		await _press_on(rows[2], "ui_left")
+		await _press_on(rows[3], "ui_left")
 	_check(int(app.settings.music_volume) == 0 and AudioServer.get_bus_volume_db(music_bus) <= -80.0,
 			"Music at 0 is silent (bus %.0f dB)" % AudioServer.get_bus_volume_db(music_bus))
 	var steps_ok := true
 	var rising := true
 	var db := {0: AudioServer.get_bus_volume_db(music_bus)}
 	for v in range(1, 11):
-		await _press_on(rows[2], "ui_right")
+		await _press_on(rows[3], "ui_right")
 		steps_ok = steps_ok and int(app.settings.music_volume) == v
 		db[v] = AudioServer.get_bus_volume_db(music_bus)
 		rising = rising and float(db[v]) > float(db[v - 1])
 	_check(steps_ok, "Right x10 raises Music by 1 for each press, from 0 to 10")
 	_check(rising and float(db[2]) < float(db[5]) and float(db[5]) < float(db[10]),
 			"the Music bus rises with every step (2: %.1f, 5: %.1f, 10: %.1f dB)" % [db[2], db[5], db[10]])
-	_check(_row_texts(rows[2]).has("10 / 10"), "the Music row shows 10 / 10")
+	_check(_row_texts(rows[3]).has("10 / 10"), "the Music row shows 10 / 10")
 	# 3c: one sample (`select`) for each change of Effects.
 	var ids: Array[String] = []
 	var cb := func(id: String): ids.append(id)
 	await _wait(0.06)   # The same effect twice in 40 ms is one sound.
 	sound.sfx_played.connect(cb)
-	await _press_on(rows[3], "ui_left")
+	await _press_on(rows[4], "ui_left")
 	await _wait(0.06)
 	var after_left := ids.count("select")
-	await _press_on(rows[3], "ui_right")
+	await _press_on(rows[4], "ui_right")
 	await _wait(0.06)
 	sound.sfx_played.disconnect(cb)
 	_check(after_left == 1 and ids.count("select") == 2,
@@ -705,11 +705,11 @@ func _settings_sweep(sound: Node, app: Node) -> void:
 	# 3d: Effects at 0 is silent; Effects at 6 plays again.
 	var sfx_bus := AudioServer.get_bus_index("SFX")
 	for i in 11:
-		await _press_on(rows[3], "ui_left")
+		await _press_on(rows[4], "ui_left")
 	_check(int(app.settings.sfx_volume) == 0 and AudioServer.get_bus_volume_db(sfx_bus) <= -80.0,
 			"Effects at 0 is silent (bus %.0f dB)" % AudioServer.get_bus_volume_db(sfx_bus))
 	for i in 6:
-		await _press_on(rows[3], "ui_right")
+		await _press_on(rows[4], "ui_right")
 	_check(int(app.settings.sfx_volume) == 6 and absf(AudioServer.get_bus_volume_db(sfx_bus) - sound.step_db(6)) < 0.01
 			and sound.step_db(6) > -20.0, "Effects at 6 is audible again (bus %.1f dB)" % AudioServer.get_bus_volume_db(sfx_bus))
 	app.settings.merge(old, true)

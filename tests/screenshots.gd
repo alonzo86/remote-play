@@ -131,6 +131,7 @@ func _stream(c: Array, seconds: float, a0: Vector3, g0 := Vector3.ZERO) -> void:
 func _run() -> void:
 	await _frames(5)
 	var app: Node = root.get_node("App")
+	app.server.set_approve_new(false)   # The two phones below join at once (the setting is ON by default, issue #393).
 	var MazeGame = load("res://scripts/game/maze/maze_game.gd")
 	var MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")
 	var clients := []
