@@ -1,0 +1,47 @@
+/* Join approval mocks (issue #393). TV pages are 1920x1080 px, phone pages 1080x2160 px. */
+html{background:var(--bg)}
+body.tv{width:1920px;height:1080px;padding:0;overflow:hidden;position:relative}
+body.phone{width:1080px;height:2160px;padding:0;overflow:hidden}
+.avatar{display:block;background-image:url(../../../../assets/avatars/avatars.png);image-rendering:pixelated;flex:none}
+.bd{position:absolute;inset:60px}
+.bd-h{display:flex;justify-content:space-between;align-items:center}
+.bd-t{display:flex;gap:48px;margin-top:80px}
+.bd-t i{display:block;width:480px;height:270px;border:var(--line-w) solid var(--text-dim)}
+.dim{position:absolute;inset:0;background:var(--dim-layer);display:flex;align-items:center;justify-content:center}
+.card{width:1240px;margin:0;padding:40px 56px;box-sizing:border-box;display:flex;flex-direction:column;gap:32px}
+.card .top{display:flex;justify-content:space-between;align-items:center}
+.card h2{margin:0;font:48px var(--font-pixel);color:var(--accent)}
+.queue{color:var(--text-info);border:var(--line-w) solid var(--text-dim);padding:10px 20px;font-size:32px}
+.who{display:flex;align-items:center;gap:40px;justify-content:flex-start}
+.pname{font-size:64px;line-height:1.2}
+.wants{color:var(--text-desc);font-size:32px;margin-top:10px}
+.timer{display:flex;align-items:center;gap:32px}
+.bar{display:flex;gap:8px;flex:1}
+.bar i{display:block;height:32px;flex:1;border:4px solid var(--text-dim);box-sizing:border-box}
+.bar i.on{background:var(--text);border-color:var(--text)}
+.secs{font-size:32px;color:var(--text-info);min-width:170px;text-align:end}
+.hints{display:flex;justify-content:space-around;font-size:40px;padding-top:8px}
+.hints span{display:flex;align-items:center;gap:20px}
+.key{display:inline-block;border:var(--line-w) solid var(--text);padding:8px 18px;font-size:32px;color:var(--text)}
+.hints b{font-weight:400}
+.okl{color:var(--ok)}.bdl{color:var(--bad)}
+.set{position:absolute;inset:60px;display:flex;flex-direction:column;align-items:center;gap:40px}
+.set .rows{display:flex;flex-direction:column;gap:12px}
+.row{position:relative;display:flex;align-items:center;gap:20px;width:1500px;height:88px;padding:0 44px;box-sizing:border-box;font-size:40px}
+.row .nm{width:820px}
+.row .vl{width:300px;text-align:center}
+.row .ar.end{color:var(--text-dim)}
+.row.focus .nm{color:var(--accent)}
+.row.focus::before{content:"";position:absolute;inset-inline-start:8px;top:50%;width:5px;height:5px;margin-top:-2.5px;background:var(--accent);box-shadow:5px -5px 0 var(--accent),5px 0 0 var(--accent),5px 5px 0 var(--accent),10px -10px 0 var(--accent),10px -5px 0 var(--accent),10px 0 0 var(--accent),10px 5px 0 var(--accent),10px 10px 0 var(--accent),15px -5px 0 var(--accent),15px 0 0 var(--accent),15px 5px 0 var(--accent),20px 0 0 var(--accent);transform:scale(2);transform-origin:left center}
+[dir=rtl] .row.focus::before{transform:scale(-2,2);transform-origin:right center}
+.set .back{color:var(--text-dim);position:static}
+.ph{position:relative;width:1080px;height:2160px;box-sizing:border-box;padding:60px;display:flex;flex-direction:column;text-transform:uppercase}
+.ptop{display:flex;justify-content:space-between;height:120px}
+.sq{width:120px;height:120px;box-sizing:border-box;border:var(--line-w) solid var(--text)}
+.pmid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:48px}
+.msg{font-size:56px;line-height:1.4;color:var(--text)}
+.sub{font-size:40px;line-height:1.5;color:var(--text-desc)}
+.dots{display:flex;gap:24px}.dots i{display:block;width:48px;height:48px;border:4px solid var(--text-dim);box-sizing:border-box}.dots i.on{background:var(--accent);border-color:var(--accent)}
+.pwho{display:flex;align-items:center;gap:28px;justify-content:center;margin-bottom:48px;font-size:48px}
+.sqp{width:48px;height:48px;background:var(--player-2)}
+.pbtn{height:140px;display:flex;align-items:center;justify-content:center;border:var(--line-w) solid var(--text);font-size:48px;margin-bottom:40px}

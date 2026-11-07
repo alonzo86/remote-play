@@ -1,0 +1,6 @@
+Mocks for issue #393 (the host approves each new phone with the TV remote). The texts are PROPOSALS, not `strings.csv` rows. Open `join_approval.html?screen=<tv|settings|waiting|refused|timeout>&lang=<en|he>` (TV pages 1920x1080, phone pages 1080x2160). PNG files next to it: `tv_*`, `settings_*` (TV, 2x), `waiting_*`, `refused_*`, `timeout_*` (phone, 1x), each `_en` and `_he`.
+
+- TV request card: double-frame panel over the dimmed Games screen. Title NEW PLAYER (`accent`, 48px), queue box "+2 WAITING", avatar (16x16 at 8x) with the name (64px) or "PLAYER N", a 12-step time bar with the seconds, key hints in boxes: OK = ALLOW (`ok`), BACK = REFUSE (`bad`). Hebrew: mirrored (avatar and title at the right); the key boxes keep the Latin words OK and BACK, as on the remote.
+- TV Settings: the row "APPROVE NEW PLAYERS" `< ON >` after INVERT AXES, before MUSIC (switch row, REQ-FL-23).
+- Phone: Connect-screen style (black, 6px white box button at least 96px high at the bottom, no focus, square slot color and avatar above the button). WAITING (stepped pixel dots, CANCEL), THE TV SAID NO (red pixel X, TRY AGAIN), NO ANSWER (yellow pixel clock, TRY AGAIN). The top boxes stand for the ABOUT and SETTINGS icon buttons.
+- Not redrawn: the message THIS PLAYER IS ALREADY IN THE ROOM. (`app.player_already_in_room`).
