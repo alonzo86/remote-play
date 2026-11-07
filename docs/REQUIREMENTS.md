@@ -25,7 +25,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 - REQ-A1: The TV runs a WebSocket server (`TCPServer` + `WebSocketPeer`) on fixed TCP port 47801.
 - REQ-A2: **Removed (issue #52, FD-28).** The TV sends nothing on the network by itself: no UDP beacon, no port 47800.
 - REQ-A3: The TV shows a QR code and a 4-letter room code on screen. The room code is the code of the LAN address of the TV (REQ-FL-84).
-- REQ-A4: The phone joins in one of two ways: it scans the QR code (Android; and an iPhone whose build has the iOS scanner plugin, REQ-FL-58, planned, issue #299; a phone with no scanner has no scan button and no paste button), or the player types the room code of the TV in a field (all phones, also an iPhone; REQ-FL-83). There is no list of discovered rooms, no Refresh button and no search of the network.
+- REQ-A4: The phone joins in one of two ways: it scans the QR code (Android; and an iPhone whose build has the iOS scanner plugin, REQ-FL-58, planned, issue #299; a phone with no scanner has no scan button and no paste button), or the player types the room code of the TV in a field (all phones, also an iPhone; REQ-FL-83). There is no list of discovered rooms, no Refresh button and no search of the network. **Planned (issue #393, FD-30):** while the setting "approve new players" is ON, a phone that joined by either way waits for the host to allow it on the TV (REQ-FL-93 to REQ-FL-104); the two ways do not change.
 - REQ-A5: The TV accepts up to 4 phones at the same time.
 - REQ-A6: Input handling and networking are in separate scripts from game logic.
 - REQ-A7: To add a minigame, a developer adds one folder and extends `minigame.gd`.
