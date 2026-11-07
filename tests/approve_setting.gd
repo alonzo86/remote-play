@@ -92,6 +92,11 @@ func _run() -> void:
 	if not _app.server.listening:
 		_check(false, "the TV server listens (another TV app or test holds port %d)" % Protocol.WS_PORT)
 		return
+	# The real boot path: `_start_tv` gave the server the saved setting (the default is ON; the machine's own settings file may say
+	# OFF, so the check compares with the setting, not with the literal). tests/import_guard.gd kept the value before it turned the
+	# approval off for the suite.
+	_check(_app.has_meta("approve_at_boot") and bool(_app.get_meta("approve_at_boot")) == bool(_app.settings.approve_players),
+			"at boot the server got the saved setting: %s" % str(_app.get_meta("approve_at_boot", "not kept")))
 	var had := FileAccess.file_exists(_app.SETTINGS_FILE)
 	var old_text := FileAccess.get_file_as_string(_app.SETTINGS_FILE) if had else ""
 	var old_settings: Dictionary = _app.settings.duplicate()

@@ -55,6 +55,8 @@ static func approval_off() -> void:
 		return
 	var off := func() -> void:
 		if app.get("server") != null:
+			if not app.has_meta("approve_at_boot"):
+				app.set_meta("approve_at_boot", app.server.approve_new)   # What `_start_tv` gave the server (tests/approve_setting.gd).
 			app.server.set_approve_new(false)
 	if app.is_node_ready():
 		off.call()

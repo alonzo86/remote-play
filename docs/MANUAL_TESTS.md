@@ -189,6 +189,8 @@ History:
 
 Needs: 1 phone, 1 TV, a stopwatch, a second QR code that is not from Sababi (for example a code with the text `https://example.com`). Covers: RISKS C5.
 
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
+
 
 **Steps**
 
@@ -695,6 +697,8 @@ History:
 ### Controller on an iPhone
 
 Needs: 1 iPhone, 1 Mac with Xcode, 1 TV, a stopwatch. Covers: `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 59, 68, 83, 84. New. Nothing in the iOS path has run yet.
+
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island") in the Run log.
 
 **Steps**
@@ -918,6 +922,8 @@ History:
 ### Hebrew and right to left (REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19)
 
 Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it with the TV set to Hebrew, region Israel, and again set to English), a person who reads Hebrew, a stopwatch. Covers: REQ-FL-54, 60 to 63, REQ-GM-47o. Items 9b and 9c (issue #171, the phones keep their own language) are new on 2026-10-29. New, written on 2026-10-10 for phase 5 of `docs/ARCADE_STYLE_PLAN.md`. The headless tests `tests/smoke_lang.gd`, `tests/smoke_settings.gd`, `tests/screens_sweep.gd`, `tests/hud_layout.gd` and `tests/run_tests.gd` check the table, the layout positions, the fit of every text, the language choice and the protocol; they cannot check how the text looks on a TV or whether it reads right.
+
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 
 **Steps**
 
@@ -1826,6 +1832,8 @@ History:
 ### iPhone QR scanner (camera view, permission, cancel, privacy)
 
 Needs: 1 iPhone, 1 Mac with Xcode, 1 TV with the Sababi TV app, a second phone with a player profile (for item 4b), a stopwatch, a child of about 5 to 8 years for item 9b, and a native reader of Hebrew for item 8a. Covers: REQ-FL-58, REQ-FL-88, REQ-FL-89, REQ-FL-90, REQ-FL-91, REQ-FL-92 (`docs/TV_FLOW.md`), `docs/IOS_SCANNER_PLAN.md`, issue #299.
+
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 
 New (2026-11-01). The plugin (`ios/plugin/qr_scanner/`) was written without Xcode and without an iPhone: it was never built and never run. Run Test 13 steps 1a to 2d first, so that a scanner problem can be told from a join problem. In Test 13, step 2c ("no scan button") stays true until the code of the scanner is built; after that, the scan button is expected on an iPhone that has the plugin, and Claude changes step 2c then.
 Write the model of the iPhone and the iOS version in the Run log.
