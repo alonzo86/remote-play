@@ -1,8 +1,14 @@
 # Join approval plan: the host lets each new phone in with the TV remote (FD-30, issue #393)
 
-Status (2026-11-07): **plan, nothing is built.** Written by the role `software-architect` for issue #393. The owner decided on 2026-11-07 (issue #385) that the host approves each new phone with the TV remote, with a TV setting "approve new players" that is ON by default. The behavior rules (what the host and the player see) are REQ-FL-93 to REQ-FL-104 in `docs/TV_FLOW.md`, written by the `product-engineer`; the look is the mock in `docs/design-system/components/JoinApproval/` (the owner approves it). This file says **how**: the join state machine of the TV, the protocol, the phone and TV code, the tests and the phases. Where this plan and REQ-FL-93 to 104 differ, section 12 lists the point; the requirement wins for what the user sees, this plan wins for the wire and the code structure. No code, no string and no legal text is changed by this file.
+Status (2026-11-07): **plan, nothing is built.** Written by the role `software-architect` for issue #393. The owner decided on 2026-11-07 (issue #385) that the host approves each new phone with the TV remote, with a TV setting "approve new players" that is ON by default. The behavior rules (what the host and the player see) are REQ-FL-93 to REQ-FL-104 in `docs/TV_FLOW.md`, written by the `product-engineer`; the look is the mock in `docs/design-system/components/JoinApproval/` (the owner approves it). This file says **how**: the join state machine of the TV, the protocol, the phone and TV code, the tests and the phases. Where this plan and REQ-FL-93 to 104 differed, section 12 lists the point and the final choice of the plan; the requirement wins for what the user sees, this plan wins for the wire and the code structure. No code, no string and no legal text is changed by this file.
 
 Style: ASD-STE100 Simplified Technical English, like the other plans. File and line references were checked on 2026-11-07 against `main` (after PR #391 and PR #392).
+
+## Decided by the owner (2026-11-07)
+
+1. **Block after 3 refusals in a row.** A host refusal does not block the address by itself. The address is blocked for 60 s only after 3 **consecutive** refusals by the host from that address. An allow resets the counter to 0. A timeout or a cancel by the phone does not count and does not reset. The TV keeps the counter for each address for the run of the TV app (FD-30.8, section 4.6).
+2. **No countdown on the TV card.** The card shows no time text, no time bar and no seconds left. The internal timeouts (60 s shown, 180 s total) stay, and the host does not see them (FD-30.14).
+3. **The setting "approve new players" is ON by default** (FD-30.3).
 
 ## 1. Goals and non-goals
 
@@ -20,7 +26,8 @@ Non-goals:
 - No PIN, no password, no encryption. FD-28 stays: the room code is the address, not a secret. The approval stops a stranger who joins; it does not stop a device that reads the traffic (section 9).
 - No approval for a profile change, a slot change or a resume. The approval is about the device, once per session.
 - No list of waiting phones in the Players modal and no "allow all" action. The queue is small (4) and the card shows one request at a time.
-- No memory across a TV restart: the TV forgets every token and every block when the app closes (no new saved data except the setting).
+- No memory across a TV restart: the TV forgets every token, every refusal counter and every block when the app closes (no new saved data except the setting).
+- No countdown for the host: the TV card shows no remaining time (owner, 2026-11-07).
 - No change to the 4 slots, to the pause rules (REQ-GM-30) or to REQ-FL-74 (held profile).
 
 ## 2. The state today (facts this plan starts from)
@@ -55,12 +62,13 @@ Each decision has its reason. FD-30 is the owner's decision in `docs/TV_FLOW.md`
 - **FD-30.5 The checks that exist today run before the queue, and run again at the moment of the allow.** Before: room code, replaced token, resume, held profile (`kicked`/`replaced`, REQ-FL-74, issue #388), a full TV (`reject`/`full`). A request that cannot get a slot is never shown. At the allow: the held profile and the free slot are checked again (the room can change in 60 s), and the takeover of a **lost** holder (`_replace_slot`) happens only then, never at the request: a stranger who is not allowed must not free the slot of a lost child.
 - **FD-30.6 Allowed is `welcome`. Every end without a slot is `kicked` with a reason: `refused`, `timeout`, `busy`.** `kicked` already means "no slot, forget the token, do not retry", and issue #388 already sends it to a phone that has no slot (`replaced`). An old phone maps any reason except `replaced` to `kicked` and shows "THE HOST REMOVED YOU. SCAN THE CODE TO JOIN AGAIN." in its own language: a clear, true enough text with the right action. A `reject` with a new reason would show the raw code ("Connection refused: timeout") on an old phone.
 - **FD-30.7 The TV sends `{"t":"pending"}` when the request is queued and again every 2 s (`Protocol.PENDING_KEEPALIVE_MS`).** An old phone closes a `JOINING` socket after 5 s with no frame (`controller_client.gd:214`); any frame resets that clock, and the old phone ignores the unknown `t`. So the old phone waits as long as the TV wants, with no change to its code. The new phone uses the same frames to see that the TV is alive. 2 s is under half of 5 s, so one late frame on a weak Wi-Fi (gaps of 380 ms were measured, `change-protocol` step 5) does not drop the phone.
-- **FD-30.8 Limits.** A request counts toward `MAX_PENDING` (16) and `max_pending_per_ip` (4) of issue #387. On top: at most 4 requests at one time (`MAX_WAITING`, REQ-FL-99; a fifth gets `busy`), at most **1 request for each address**: a new `hello` from an address that has a request **replaces** it (the old socket is closed with no message; the new one keeps the place in the queue, the arrival time and the card time). Reason: a real phone that retries after a Wi-Fi gap leaves a half-open socket that the TV cannot see (an old phone sends nothing while it waits); the replacement lets that phone in, and a rogue device can still hold only one card and cannot make its 60 s or its 180 s longer. A host refusal blocks the address for 60 s (REQ-FL-104, `refuse_block_ms`); a timeout, a cancel and the setting turned OFF do not block.
+- **FD-30.8 Limits.** A request counts toward `MAX_PENDING` (16) and `max_pending_per_ip` (4) of issue #387. On top: at most 4 requests at one time (`MAX_WAITING`, REQ-FL-99; a fifth gets `busy`), at most **1 request for each address**: a new `hello` from an address that has a request **replaces** it (the old socket is closed with no message; the new one keeps the place in the queue, the arrival time and the card time). Reason: a real phone that retries after a Wi-Fi gap leaves a half-open socket that the TV cannot see (an old phone sends nothing while it waits); the replacement lets that phone in, and a rogue device can still hold only one card and cannot make its 60 s or its 180 s longer. **Refusal counter (owner, 2026-11-07):** one host refusal does not block. The TV counts the host refusals (BACK on the card) for each address; at the 3rd refusal in a row (`refuse_block_after`) the address is blocked for 60 s (REQ-FL-104, `refuse_block_ms`) and its counter goes back to 0, so after the block the address has 3 new chances. An allow of a request from the address sets the counter to 0. A timeout, a cancel by the phone (`bye` or a closed socket), a replacement by a newer `hello` and the setting turned OFF do not count and do not reset. A `hello` that arrives during the block gets `kicked`/`refused` (5.1) and does not count. The table is kept in memory for the run of the TV app and is bounded (section 4.6). Reason: a child who taps JOIN by mistake, or a parent who presses BACK by mistake, must not lock a family phone out for 60 s; 3 refusals in a row still stop a device that asks again and again.
 - **FD-30.9 The card shows only in a menu phase, one at a time, 1 s after the last answer.** The head request is "shown" when `in_menu_phase()` is true and 1 s (`approval_gap_ms`) has passed since the last card closed. Its 60 s (`approval_timeout_ms`) counts from that moment. A request also ends as a timeout 180 s (`approval_total_ms`) after it arrived, shown or not (REQ-FL-96). When the phase goes to a round while a card is shown (no host key can start a round while the card holds the input, but the code must not trust that), the request goes back to "not shown" and gets a new 60 s at the next menu phase; the 180 s still bounds it.
-- **FD-30.10 Turning the setting OFF refuses every waiting request (`kicked`/`refused`, no address block); turning it ON changes nothing for the phones in the room.** This follows REQ-FL-102 (D2): nobody gets in without an answer of the host. The OFF refusal does not block, so the phone can join at once with one tap.
+- **FD-30.10 Turning the setting OFF refuses every waiting request (`kicked`/`refused`); it does not count toward the refusal counter and does not reset it; turning it ON changes nothing for the phones in the room.** This follows REQ-FL-102 (D2): nobody gets in without an answer of the host. The OFF refusal does not block, so the phone can join at once with one tap.
 - **FD-30.11 `VERSION` stays 5.** Neither side waits for a new message: the phone waits for `welcome` as before, the TV waits for `hello` as before. `pending` is optional for the phone (FD-30.7), `kicked` exists, its new reasons fall back to the known text on an old phone (FD-30.6). By the rule of `docs/PROTOCOL.md` ("Version change") this is compatible. `LANG_REMOVE_AFTER_VERSION` is not touched.
 - **FD-30.12 The card lives in a layer that the App owns, above the screens, not inside a screen.** A request can show on any menu screen (Connect, Games, Settings, a game settings view, the Players modal, About) and must survive a screen change. The App keeps one `JoinRequests` node (a `CanvasLayer`) and the Back key goes to it first (section 7).
 - **FD-30.13 The phone never sends `hello` again while it waits, and does not retry after the wait ends.** A retry would make a new request at the end of the queue. A lost socket while waiting ends the join with the reason `wait_lost` (REQ-FL-103). CANCEL sends the existing `{"t":"bye"}`.
+- **FD-30.14 No time is shown to the host and no message carries the remaining time (owner, 2026-11-07).** The card has no time text, no time bar and no update each second; `shown_request()` has no `ms_left`. The 60 s and the 180 s are server timers only. `pending` has no field for the time, and the phone shows no time either (REQ-FL-100 has none). Reason: the owner decision; it also removes the only part of the card that redraws while it waits (JA-R9).
 
 ## 4. The join state machine on the TV
 
@@ -71,12 +79,22 @@ TCP accept ──(limits of #387)──> PENDING ──hello──> checks (4.2)
    │                                │                               ├─> closed (reject / kicked / close)   [a check fails]
    └─ refused at once               └─ 5 s no hello: close          └─> WAITING ─┬─ allow: re-check ─┬─> SLOT (welcome)
                                                                                  │                   └─> closed (reject full / kicked replaced)
-                                                                                 ├─ BACK: kicked refused (+ block the address 60 s)
-                                                                                 ├─ 60 s shown, or 180 s total: kicked timeout
-                                                                                 ├─ setting OFF: kicked refused (no block)
+                                                                                 │   (allow: refusal counter of the address = 0)
+                                                                                 ├─ BACK: kicked refused, counter + 1 (at 3: block the address 60 s, counter = 0)
+                                                                                 ├─ 60 s shown, or 180 s total: kicked timeout (counter not changed)
+                                                                                 ├─ setting OFF: kicked refused (counter not changed, no block)
                                                                                  ├─ replaced by a newer hello of the same address: close, no message
-                                                                                 ├─ phone sends bye, or the socket closes: removed, no message
+                                                                                 ├─ phone sends bye, or the socket closes: removed, no message (counter not changed)
                                                                                  └─ TV stops: bye
+```
+
+Refusal state of an address (section 4.6), kept for the run of the TV app:
+
+```
+COUNT n (0, 1, 2) ──host BACK──> COUNT n+1 ──(n+1 = 3)──> BLOCKED 60 s, counter 0 ──60 s passed──> COUNT 0
+      │                                                        │
+      └─ allow: COUNT 0                                         └─ hello: kicked refused, no card, not counted
+      (timeout, cancel, socket closed, replaced, setting OFF: no change)
 ```
 
 ### 4.2 Order of the checks of a `hello` (the new code)
@@ -91,7 +109,7 @@ TCP accept ──(limits of #387)──> PENDING ──hello──> checks (4.2)
 8. No free slot: `reject`/`full` (today). No card for a phone that cannot get a slot (REQ-FL-94, D9).
 9. `approve_new` is false, or step 6 matched: the slot path of today (`_admit`), including the lost-holder takeover.
 10. Else, the approval gate:
-    1. The address is blocked (a refusal in the last 60 s): `kicked`/`refused`, no card.
+    1. The address is blocked (3 host refusals in a row, the last one less than 60 s ago, section 4.6): `kicked`/`refused`, no card, the counter is not changed.
     2. The address has a request: replace it (FD-30.8), send `pending`, stop.
     3. `_waiting.size() >= MAX_WAITING`: `kicked`/`busy`.
     4. Append `{id, ws, host, hello, arrived_ms, shown_ms = -1, last_keepalive_ms}` to `_waiting`, send `pending`, emit `requests_changed`.
@@ -117,7 +135,10 @@ Order matters, so that a phone that closed its old socket and opened a new one i
 | The phone loses its Wi-Fi with no close | The TV cannot see it (an old phone sends nothing while it waits). The request ends by the 60 s or the 180 s, or by a newer `hello` of the same address (FD-30.8). An allow of a dead socket gives a slot that is LOST 3 s later (`PEER_TIMEOUT_MS`) and freed 5 s after that: the cost is one wrong slot for 8 s. |
 | 4 phones joined while a request waits | At the allow: `reject`/`full` (REQ-FL-95). |
 | The holder of the requested profile connected while the request waited | At the allow: `kicked`/`replaced` (REQ-FL-74). |
-| The setting goes OFF | All requests: `kicked`/`refused`, no block (FD-30.10). |
+| The setting goes OFF | All requests: `kicked`/`refused`; the refusal counters do not change, no block (FD-30.10). |
+| The host presses BACK on the card | `kicked`/`refused`; the counter of the address goes up by 1; at 3 the address is blocked for 60 s (4.6). |
+| The host presses OK and the allow gives a slot (`welcome`) | The counter of the address goes to 0. An allow that ends in `reject`/`full` or `kicked`/`replaced` (the room changed) also sets it to 0: the host said yes to that address. |
+| The request ends by `timeout` | The counter does not change. |
 | The TV app stops (`stop()`) | Each waiting phone gets `bye` (the phone shows "THE TV APP CLOSED THE CONNECTION.", today's text for a TV that quits), sockets closed 300 ms later (issue #169). |
 | The TV address changes | No change: the sockets stay as the slots do today. |
 
@@ -125,10 +146,19 @@ Order matters, so that a phone that closed its old socket and opened a new one i
 
 - `var approve_new := false`; `func set_approve_new(on: bool)` (OFF refuses the waiting requests, FD-30.10).
 - `signal requests_changed()`: a request was added, removed, shown or hidden. The UI reads the state; the signal carries no data, so the UI never keeps its own copy of the queue.
-- `func shown_request() -> Dictionary`: empty, or `{id, name, av, slot_hint, ms_left, others}`. `name` is `Profile.clean_name` of the `hello` (empty for a phone with no name; the UI shows `players.default_name` with `slot_hint + 1`, the first free slot now), `av` is `Profile.clean_avatar` when the `pid` is valid, else -1. `others` is the number of other requests.
+- `func shown_request() -> Dictionary`: empty, or `{id, name, av, slot_hint, others}` (no remaining time, FD-30.14). `name` is `Profile.clean_name` of the `hello` (empty for a phone with no name; the UI shows `players.default_name` with `slot_hint + 1`, the first free slot now), `av` is `Profile.clean_avatar` when the `pid` is valid, else -1. `others` is the number of other requests.
 - `func request_count() -> int`.
 - `func allow_request(id: int)`, `func refuse_request(id: int)`: do nothing for an id that is not shown (a key press that comes after a timeout).
-- Settable for the tests, like `peer_timeout_ms`: `approval_timeout_ms` (60000), `approval_total_ms` (180000), `approval_gap_ms` (1000), `refuse_block_ms` (60000), `max_waiting_per_ip` (1). Constant: `MAX_WAITING` (4), `MAX_KNOWN_TOKENS` (32). The time comes from `Time.get_ticks_msec()` as in the rest of the server; the tests use short values, as `net_loss` does for the grace.
+- Settable for the tests, like `peer_timeout_ms`: `approval_timeout_ms` (60000), `approval_total_ms` (180000), `approval_gap_ms` (1000), `refuse_block_ms` (60000), `refuse_block_after` (3), `max_refusal_entries` (64), `max_waiting_per_ip` (1). Constant: `MAX_WAITING` (4), `MAX_KNOWN_TOKENS` (32). The time comes from `Time.get_ticks_msec()` as in the rest of the server; the tests use short values, as `net_loss` does for the grace.
+
+### 4.6 The refusal table (owner decision 1)
+
+- `_refusals: Dictionary`, address (String) to `{count, blocked_until_ms, touched_ms}`. Memory only; it is not cleared by a phase change, a screen change or the setting, only by the end of the TV app.
+- Host BACK on a shown card: `count += 1`, `touched_ms = now`. When `count >= refuse_block_after`: `blocked_until_ms = now + refuse_block_ms`, `count = 0`.
+- Allow (OK on a shown card): the entry of the address is erased (count 0 and no block is the same as no entry). When the address is blocked at that moment (not possible today: a blocked address has no request; the code does not trust that), the block stays.
+- Blocked: `now < blocked_until_ms`. An entry with `count == 0` and an ended block is erased when it is read, so the table holds only addresses that have a live counter or a live block.
+- **Bound:** at most `max_refusal_entries` = 64 entries (a home LAN has far fewer devices; each entry is a short string and three integers, a few kB in total). When a new address must be added and the table is full: first erase every entry with an ended block and `count == 0`; if it is still full, erase the entry with the oldest `touched_ms` that is **not** blocked; if every entry is blocked, erase the one whose block ends first. So a device with many addresses can at worst make the TV forget an old counter (the cost: that address gets its 3 chances again), never grow the memory, and it cannot lift a younger block.
+- Timeout, cancel (`bye` or a closed socket), replacement by a newer `hello`, setting OFF: no access to the table.
 
 ## 5. Protocol
 
@@ -136,13 +166,15 @@ Order matters, so that a phone that closed its old socket and opened a new one i
 
 | From | Message | Meaning |
 |------|---------|---------|
-| TV | `{"t":"pending"}` | New. The TV has the `hello` and waits for the host. Sent when the request is queued and again every `PENDING_KEEPALIVE_MS` = 2000 ms until the end of the wait. The phone shows its waiting screen and sends nothing more (except `bye` for CANCEL). It has no field today; a later optional field (for example the place in the queue, or "a round runs", decision D7 of `docs/TV_FLOW.md`) is compatible, because the phone ignores fields that it does not know. Sent only by a TV whose setting is ON. |
+| TV | `{"t":"pending"}` | New. The TV has the `hello` and waits for the host. Sent when the request is queued and again every `PENDING_KEEPALIVE_MS` = 2000 ms until the end of the wait. The phone shows its waiting screen and sends nothing more (except `bye` for CANCEL). It has no field, and it carries **no remaining time** (FD-30.14: neither the TV card nor the phone shows a time). A later optional field (for example the place in the queue, or "a round runs", decision D7 of `docs/TV_FLOW.md`) is compatible, because the phone ignores fields that it does not know. Sent only by a TV whose setting is ON. |
 | TV | `{"t":"welcome", ...}` | Unchanged. The host allowed the phone (or no approval was needed). |
-| TV | `{"t":"kicked","reason":"refused"}` | New reason. The host pressed BACK, or the address is blocked after a refusal (60 s), or the setting was turned OFF while the phone waited. |
+| TV | `{"t":"kicked","reason":"refused"}` | New reason. The host pressed BACK, or the address is blocked (3 host refusals in a row, for 60 s; the `hello` gets this at once, with no card), or the setting was turned OFF while the phone waited. |
 | TV | `{"t":"kicked","reason":"timeout"}` | New reason. 60 s with the card shown, or 180 s in total, with no answer. |
 | TV | `{"t":"kicked","reason":"busy"}` | New reason. 4 requests already wait. |
 | Phone | `{"t":"bye"}` | Unchanged message; new use: CANCEL on the waiting screen withdraws the request. |
 | TV | `{"t":"bye"}` | Unchanged message; also sent to a waiting phone when the TV app stops. |
+
+**What a blocked address gets: `kicked`/`refused`, not `busy`, and no new reason.** Reasons: (1) it is true: the host refused this address, and the phone shows `connect.approval_refused`, which tells the player to ask the host; `busy` would tell the player that others wait and invite a retry that is refused again. (2) No new reason means no new text and no new mapping: an old phone (VERSION 5) maps `refused` to `kicked` like every other new reason and shows "THE HOST REMOVED YOU. SCAN THE CODE TO JOIN AGAIN."; a new phone already knows `refused`. (3) It does not tell a rogue device when the block ends. `VERSION` stays 5 (FD-30.11): no message, field or wait is added by the counter; it is TV state only.
 
 After a `kicked` the TV closes the socket 300 ms later (`_discard`, as today). `Protocol.MESSAGES` gets `"pending": "tv"`; `tests/protocol_doc.gd` then checks it against the tables of `docs/PROTOCOL.md` and the literals of the net code.
 
@@ -163,11 +195,11 @@ After a `kicked` the TV closes the socket 300 ms later (`_discard`, as today). `
 
 - "Join" table: the rows `pending` and the three `kicked` reasons; a paragraph "Approval (FD-30)" with the order of the checks (4.2), the known tokens (FD-30.4), the limits (FD-30.8) and the timers (FD-30.9).
 - "Messages after the join": the `bye` row says that a waiting phone may send it (CANCEL) and that a waiting phone gets it when the TV stops; the `kicked` rows say that `refused`, `timeout` and `busy` are sent to a phone that has no slot.
-- "Limits of the TV": a waiting phone counts toward `MAX_PENDING` and `max_pending_per_ip`; `MAX_WAITING` 4; 1 request for each address; the 60 s block.
+- "Limits of the TV": a waiting phone counts toward `MAX_PENDING` and `max_pending_per_ip`; `MAX_WAITING` 4; 1 request for each address; the 60 s block after 3 host refusals in a row from one address (`refuse_block_after`, `refuse_block_ms`), reset by an allow, not changed by a timeout or a cancel, at most `max_refusal_entries` 64 addresses kept; a blocked `hello` gets `kicked`/`refused`.
 - "Slots, loss and reconnect": "A `hello` with an unknown token is a new player" gets "and needs the approval when the setting is ON"; the known tokens.
 - "Version change": one sentence that `pending` keeps `VERSION` 5 and why (FD-30.7, FD-30.11).
 - The text "the TV asks for nothing else" (section "Room code") gets "except the approval of the host when the setting is ON".
-- `tests/protocol_doc.gd` checks the numbers that the document quotes: `PENDING_KEEPALIVE_MS` is in `protocol.gd`; the TV numbers (60 s, 180 s, 4, 1, 60 s block) are quoted with their `TvServer` names, as `MAX_PENDING` is today.
+- `tests/protocol_doc.gd` checks the numbers that the document quotes: `PENDING_KEEPALIVE_MS` is in `protocol.gd`; the TV numbers (60 s, 180 s, 4, 1, 3 refusals, 60 s block, 64 entries) are quoted with their `TvServer` names, as `MAX_PENDING` is today.
 
 ### 5.4 Tests that prove old and new together (phase 1, `tests/join_approval.gd`)
 
@@ -179,6 +211,16 @@ The old phone is a **frozen copy** of `scripts/net/controller_client.gd` as it i
 4. New phone, new TV, setting OFF: the first frame after `hello` is `welcome` and no `pending` is ever sent: this is the wire behavior of a TV of today, so the new phone against an old TV is the path that every current net suite already tests.
 5. New phone, setting ON: `WAITING` after `pending`; `CONNECTED` after the allow; `rejected` gives exactly `refused`, `timeout`, `busy`; `wait_lost` when the TV socket goes silent for 5 s; `tv_closed` when the TV stops.
 6. `Protocol.VERSION` is 5 and `protocol_doc` passes with `pending` in `MESSAGES` and in `docs/PROTOCOL.md`.
+6a. The refusal counter (section 4.6, owner decision 1), with a short `refuse_block_ms`:
+    - 1 and 2 refusals from one address: the next `hello` of that address gets `pending` and a card (no block).
+    - 3 refusals in a row: the next `hello` gets `kicked`/`refused` with no `pending` and no `requests_changed`; after `refuse_block_ms` the next `hello` gets a card again.
+    - 2 refusals, 1 allow, 2 refusals: no block (the allow reset the counter).
+    - 2 refusals, then a timeout, a `bye` (CANCEL), a closed socket, a replacement by a newer `hello` and the setting OFF: the count is still 2; the next refusal blocks.
+    - A blocked `hello` does not count: after the block ends, the address needs 3 new refusals.
+    - Two addresses keep separate counters (2 refusals on each: no block on either).
+    - The bound (with a small `max_refusal_entries`, for example 2, and addresses of 127.0.0.x): when the table is full, the address with the oldest counter that is not blocked starts again from 0 (one refusal does not block it), and a blocked address stays blocked. The tests check the behavior through `hello`, not the table.
+    - An old phone (the frozen copy) against a blocked address: `IDLE`, `rejected` gave `kicked`, no retry.
+6b. No remaining time on the wire (FD-30.14): `pending` has only the field `t`, and `shown_request()` has no time key.
 7. A real pair on devices (the `change-protocol` skill, step 6): Manual test 34, plus one step with an older controller build against the new TV (section 11).
 
 ## 6. Phone side
@@ -208,7 +250,7 @@ The old phone is a **frozen copy** of `scripts/net/controller_client.gd` as it i
 ### 7.1 Where the card lives
 
 - New `scripts/ui/join_requests.gd` (a `CanvasLayer`, layer above the screens and below the debug overlay) made by `App._start_tv()` and kept for the whole run. It connects to `server.requests_changed` and opens or closes one card. It is the only UI code that calls `allow_request` and `refuse_request`.
-- New `scripts/ui/join_card.gd` extends `scripts/ui/tv_modal.gd` (the dim layer, the double frame, the focus held inside, `card_width` 1200, the 60 px safe margin of REQ-FL-81). It builds the content of the mock: title, avatar (the `Avatar` drawing of REQ-FL-70) and name, the time bar and seconds (`ms_left`, redrawn once a second, not each frame), the "+N WAITING" box (`others`), the two key hints. The name label has `auto_translate_mode` disabled (a player name is never a key) and the text direction of the name itself (a Hebrew name in the English UI and the reverse, REQ-FL-69); the card mirrors in Hebrew through the layout direction like every modal.
+- New `scripts/ui/join_card.gd` extends `scripts/ui/tv_modal.gd` (the dim layer, the double frame, the focus held inside, `card_width` 1200, the 60 px safe margin of REQ-FL-81). It builds the content of the mock: title, avatar (the `Avatar` drawing of REQ-FL-70) and name, the "+N WAITING" box (`others`), the two key hints. **No time text, no time bar and no update each second** (owner, FD-30.14): the card changes only on `requests_changed`; the 60 s and 180 s timers run in the server and the host does not see them. The time bar of the mock is removed (the `ui-ux-designer` updates the mock before phase 3). The name label has `auto_translate_mode` disabled (a player name is never a key) and the text direction of the name itself (a Hebrew name in the English UI and the reverse, REQ-FL-69); the card mirrors in Hebrew through the layout direction like every modal.
 - It has **no focusable button**: OK and BACK are keys, not menu items (the mock shows key hints). That keeps it out of the D-pad walk.
 
 ### 7.2 Keys and focus
@@ -225,7 +267,7 @@ The old phone is a **frozen copy** of `scripts/net/controller_client.gd` as it i
 
 - `App.settings` gets `"approve_players": true` (FD-30.3). `_start_tv()` sets `server.approve_new = bool(settings.approve_players)` before `server.start()`.
 - `App.set_approve_players(on)` (like `set_overlay`): `settings.approve_players = on`, `save_settings()`, `server.set_approve_new(on)`.
-- `tv_settings.gd`: `_add_row(rows, "settings.approve_players", "approve_players", Callable())`, and the on/off branch calls `App.set_approve_players(on)` for this key (as it does for `overlay`). The position of the row is open between REQ-FL-93 (last, after Language) and the mock (after INVERT AXES); the code is the same either way (section 12).
+- `tv_settings.gd`: `_add_row(rows, "settings.approve_players", "approve_players", Callable())`, and the on/off branch calls `App.set_approve_players(on)` for this key (as it does for `overlay`). The row is the **last** row, after Language (REQ-FL-93, decision D8); the mock follows (section 12).
 - The phone does not need the setting and the protocol does not carry it. The TV sends nothing about it.
 - A `settings.cfg` without the key loads as `true`; a value of another type loads as `true` (`ConfigIO.fit`).
 
@@ -246,8 +288,9 @@ Flooding and spam, with the limits that apply:
 |--------|-------|
 | Many connections that never send `hello` | `MAX_PENDING` 16, 4 for each address, 30 accepts for each address in 10 s (issue #387). Requests count toward 16 and 4. |
 | Many `hello` from one device to fill the queue | 1 request for each address (FD-30.8): the device holds one card, and each new `hello` only replaces its own request (same place, same timers; it cannot make its wait longer). |
-| The same device asks again and again after a refusal | The address is blocked for 60 s after a refusal by the host: `kicked`/`refused` with no card (REQ-FL-104). |
-| A device with many addresses fills the 4 places | A real phone then gets `busy` for at most 180 s; the host refuses each card (each refusal blocks its address). Turning the setting OFF would let the device in; the host can kick it (REQ-FL-33). Accepted: it needs several addresses on the network and is a nuisance, not a data leak. |
+| The same device asks again and again after a refusal | After 3 host refusals in a row the address is blocked for 60 s: `kicked`/`refused` with no card (REQ-FL-104, owner decision 1). So one address costs the host at most 3 BACK presses each 60 s (plus the 1 s gap between cards). A timeout does not count, so a device that waits for the timeout costs the host nothing but 60 s of one card; the limit of 1 request for each address holds it to one card. |
+| Many addresses fill the refusal table | At most `max_refusal_entries` 64 entries; the oldest entry that is not blocked goes first (4.6). Memory is bounded; the worst case is that an old counter is forgotten. |
+| A device with many addresses fills the 4 places | A real phone then gets `busy` for at most 180 s; the host refuses each card (3 refusals block an address). Turning the setting OFF would let the device in; the host can kick it (REQ-FL-33). Accepted: it needs several addresses on the network and is a nuisance, not a data leak. |
 | A crafted name or avatar on the card | `Profile.clean_name` (letters, digits, space, 10 characters) and `Profile.clean_avatar`; the label never translates the name (7.1). |
 | A waiting socket that sends a flood of frames | At most 8 frames read for each socket in each frame, `MAX_TEXT_BYTES`, `BUFFER_BYTES` and `MAX_QUEUED_PACKETS` as for the slots. |
 | A stranger frees the slot of a lost child by sending its `pid` | The lost-holder takeover runs only at the allow (FD-30.5); with the setting ON a stranger is never allowed without the host. |
@@ -276,7 +319,7 @@ The `security-reviewer` reviews phases 1 and 4 (network input and a saved settin
 
 The proposed rows are in `docs/TV_FLOW.md` ("Proposed strings"). The keys the code needs:
 
-- TV, phase 3: `approval.title`, `approval.hint_ok`, `approval.hint_back`, `approval.time_left`, `approval.others_waiting` (the mock also has a title "NEW PLAYER" and key boxes "ALLOW" / "REFUSE"; the `product-engineer` and the designer settle the set before phase 3).
+- TV, phase 3: `approval.title`, `approval.hint_ok`, `approval.hint_back`, `approval.others_waiting`. No time key (`approval.time_left` is dropped, owner decision 2). The wording (REQ-FL-97 or the mock) is the `product-engineer`'s (section 12, point 5).
 - TV, phase 4: `settings.approve_players`.
 - Phone, phase 2: `connect.waiting_approval`, `connect.waiting_approval_hint`, `connect.approval_cancel`, `connect.approval_refused`, `connect.approval_timeout`, `connect.approval_busy`, and the text for `wait_lost` (REQ-FL-103 reuses `connect.room_not_found`; see section 12).
 - Reused, no change: `common.on`, `common.off`, `players.default_name`, `app.player_already_in_room`, `app.room_full_4_players`, `app.tv_closed_connection`, `app.host_removed_scan_code` (what an old phone shows for `refused`, `timeout` and `busy`).
@@ -287,23 +330,23 @@ Every phase is shippable: after phase 1 to 3 a user sees no change, because the 
 
 | Phase | Content | Files | Tests | Manual test |
 |-------|---------|-------|-------|-------------|
-| 1. TV server, protocol, phone client | FD-30.1 to 30.11, 30.13; sections 4, 5, 6.1. `approve_new` false in the code; the App does not set it. | `scripts/core/protocol.gd` (`MESSAGES.pending`, `PENDING_KEEPALIVE_MS`), `scripts/net/tv_server.gd`, `scripts/net/controller_client.gd`, `docs/PROTOCOL.md`, `tests/join_approval.gd` (new), `tests/fixtures/controller_client_v5.gd` (new, frozen), `tests/suites.txt`, `tests/net_limits.gd` (requests count toward the pending limits), `tests/protocol_doc.gd` (if a number check needs a line), `docs/AUTOMATED_TESTS.md`, `docs/TV_FLOW.md` (statuses) | `join_approval` (all rules of section 4 and the pairs of 5.4), `net_limits`, `net_profiles`, `protocol_doc`, `join_flow`, `net_loss`; the `qa` decides on the whole suite (a change of the net). | none (headless only) |
+| 1. TV server, protocol, phone client | FD-30.1 to 30.11, 30.13, 30.14 (no time in `shown_request` or `pending`); sections 4 (with the refusal table of 4.6), 5, 6.1. `approve_new` false in the code; the App does not set it. | `scripts/core/protocol.gd` (`MESSAGES.pending`, `PENDING_KEEPALIVE_MS`), `scripts/net/tv_server.gd`, `scripts/net/controller_client.gd`, `docs/PROTOCOL.md`, `tests/join_approval.gd` (new), `tests/fixtures/controller_client_v5.gd` (new, frozen), `tests/suites.txt`, `tests/net_limits.gd` (requests count toward the pending limits), `tests/protocol_doc.gd` (if a number check needs a line), `docs/AUTOMATED_TESTS.md`, `docs/TV_FLOW.md` (statuses) | `join_approval` (all rules of section 4, the pairs of 5.4, the refusal counter and its bound of 5.4 item 6a, no time on the wire of 6b), `net_limits`, `net_profiles`, `protocol_doc`, `join_flow`, `net_loss`; the `qa` decides on the whole suite (a change of the net). | none (headless only) |
 | 2. Phone UI | Section 6.2. The waiting state of the Connect screen, CANCEL and Back, the texts of the reasons. | `scripts/ui/controller_connect.gd`, `scripts/app.gd` (`_on_client_rejected`), `assets/lang/strings.csv` (phone rows), `tests/r4_join_code.gd` or a new `tests/join_approval_phone.gd` (states and texts with a TvServer with `approve_new = true`), `tests/smoke_lang.gd`, `tests/screenshots_controller.gd` (the waiting screen), `docs/TV_FLOW.md`, `docs/AUTOMATED_TESTS.md` | the touched suites; pixel checks of the phone screen in both languages | test 34 steps for the phone (Not run until phase 4) |
-| 3. TV card | Sections 7.1, 7.2. `join_requests.gd` and `join_card.gd`, the App layer, `_back()` routing, `go()` keeps the layer last, sounds. Reached only with `server.approve_new = true` (tests). | `scripts/ui/join_requests.gd` (new), `scripts/ui/join_card.gd` (new), `scripts/app.gd`, `assets/lang/strings.csv` (TV card rows), `tests/join_approval_tv.gd` (new: OK after 1 s allows, OK before 1 s does nothing, BACK refuses one request for one press with the double event, the card over the Players modal and its focus restored, a screen change under the card, no card in a round), `tests/screens_sweep.gd`, `tests/design_tokens.gd` (sizes, margin), `tests/focus_walk.gd`, `tests/suites.txt`, `docs/AUTOMATED_TESTS.md`, `docs/TV_FLOW.md` | the touched suites; pixel check of the card in English and Hebrew | none yet |
-| 4. Setting, default ON, docs | Section 7.3, section 8 (TV app suites set the approval off), section 10.1 and 10.2. | `scripts/app.gd` (`approve_players`, `set_approve_players`), `scripts/ui/tv_settings.gd`, `assets/lang/strings.csv` (`settings.approve_players`), the TV app suites of section 8, `tests/smoke_settings.gd` (default ON, saved, a file with no key), `README.md`, `docs/MANUAL_TESTS.md` (Summary, order, join steps), `docs/AUTOMATED_TESTS.md`, `docs/REQUIREMENTS.md`, `docs/TV_FLOW.md`, `docs/RISKS.md` (C6). Owner only, named in the PR with `needs-owner`: `docs/legal/privacy-notice.md`, `.he.md`. | the touched suites and the whole suite (the `qa` decides; many TV suites change) | Manual test 34 (a real remote, 2 phones; one step with an older controller build) |
+| 3. TV card | Sections 7.1, 7.2. `join_requests.gd` and `join_card.gd`, the App layer, `_back()` routing, `go()` keeps the layer last, sounds. Reached only with `server.approve_new = true` (tests). | `scripts/ui/join_requests.gd` (new), `scripts/ui/join_card.gd` (new), `scripts/app.gd`, `assets/lang/strings.csv` (TV card rows), `tests/join_approval_tv.gd` (new: OK after 1 s allows, OK before 1 s does nothing, BACK refuses one request for one press with the double event, the card over the Players modal and its focus restored, a screen change under the card, no card in a round, BACK three times on cards of one address gives the block and a fourth `hello` shows no card, the card shows no time and its text does not change while it waits with no event), `tests/screens_sweep.gd`, `tests/design_tokens.gd` (sizes, margin), `tests/focus_walk.gd`, `tests/suites.txt`, `docs/AUTOMATED_TESTS.md`, `docs/TV_FLOW.md` | the touched suites; pixel check of the card in English and Hebrew | none yet |
+| 4. Setting, default ON, docs | Section 7.3, section 8 (TV app suites set the approval off), section 10.1 and 10.2. | `scripts/app.gd` (`approve_players`, `set_approve_players`), `scripts/ui/tv_settings.gd` (the row last, after Language), `assets/lang/strings.csv` (`settings.approve_players`), the TV app suites of section 8, `tests/smoke_settings.gd` (default ON, saved, a file with no key), `README.md`, `docs/MANUAL_TESTS.md` (Summary, order, join steps), `docs/AUTOMATED_TESTS.md`, `docs/REQUIREMENTS.md`, `docs/TV_FLOW.md`, `docs/RISKS.md` (C6). Owner only, named in the PR with `needs-owner`: `docs/legal/privacy-notice.md`, `.he.md`. | the touched suites and the whole suite (the `qa` decides; many TV suites change) | Manual test 34 (a real remote, 2 phones; one step with an older controller build) |
 
 The PR of phase 4 is merged when its checks pass; the privacy notice is a separate owner PR or comment (CLAUDE.md, "Split work so that the owner's part is small"), not a block of phase 4, unless the owner says that the notice must ship in the same release (a release is not made by the agents).
 
 ## 12. Points to align with the requirements and the mock
 
-These are for the `product-engineer` and the `ui-ux-designer`; none of them needs the owner unless they disagree about what the user sees.
+Final choices of the plan (2026-11-07). The `product-engineer` aligns `docs/TV_FLOW.md` at the same time; where the two texts differ, this list is the plan's answer, and the requirement still wins for what the user sees.
 
-1. REQ-FL-94: "known token" is wider (FD-30.4: a token of this session that was not revoked, not only inside the 5 s grace).
-2. REQ-FL-99: add "1 request for each address; a new request of the same address replaces the old one" (FD-30.8).
-3. REQ-FL-103: a TV that **quits** sends `bye`, so the phone shows today's `app.tv_closed_connection`; only a **lost** link (no frame for 5 s, or a close with no message) is `wait_lost`, for which the requirement chooses `connect.room_not_found`. Both are existing texts.
-4. The Settings row: REQ-FL-93 puts it last (after Language), the mock puts it after INVERT AXES. One of them changes before phase 4.
-5. The card texts: REQ-FL-97 has "LET %s IN?", "PRESS OK TO LET IN", "PRESS BACK TO REFUSE", "TIME LEFT: %d", "OTHERS WAITING: %d"; the mock has "NEW PLAYER", "+2 WAITING", "ALLOW", "REFUSE" and a time bar. One set before phase 3.
-6. REQ-FL-102 (OFF refuses): the plan adds "with no 60 s block" (FD-30.10).
+1. REQ-FL-94, known token: **kept as in the plan** (FD-30.4: a token of this session that was not revoked, not only inside the 5 s grace); owner decision to confirm.
+2. REQ-FL-99: **1 waiting request for each address**; a new request of the same address replaces the old one (FD-30.8).
+3. REQ-FL-103: a TV that **quits** sends `bye` (the phone shows `app.tv_closed_connection`); only a **lost** link is `wait_lost` (`connect.room_not_found`).
+4. The Settings row: **last, after Language** (REQ-FL-93, decision D8); the mock follows.
+5. The card texts: **no time text and no time bar** (owner decision 2); the keys are those of 10.3, the wording is the `product-engineer`'s before phase 3.
+6. REQ-FL-102 and REQ-FL-104: the OFF refusal neither counts nor blocks (FD-30.10); the block comes only after 3 host refusals in a row (owner decision 1).
 
 ## 13. Risks
 
@@ -317,7 +360,7 @@ These are for the `product-engineer` and the `ui-ux-designer`; none of them need
 | JA-R6 | A sniffed token resumes a slot with no card. | A device that reads the Wi-Fi can play as another player. | Not in scope (no encryption, FD-28). `docs/RISKS.md` C6 and the privacy notice say that the traffic is not encrypted. |
 | JA-R7 | An old phone shows "THE HOST REMOVED YOU" for a timeout or a full queue. | A slightly wrong text on old builds. | Only builds from before phase 2; the right action (scan again) is in the text. |
 | JA-R8 | The 1 s key lock feels like a missed press on a slow TV box. | The host presses OK twice. | The second press, after 1 s, allows; it cannot answer a second card, because that card also waits 1 s. Manual test 34 measures it on the real remote. |
-| JA-R9 | Low-end TV box load. | None expected: at most 4 more sockets polled, one frame of 15 bytes every 2 s for each, one modal redrawn once a second. | Manual test 34 checks the frame rate in the menu with 4 phones and a card (debug overlay). |
+| JA-R9 | Low-end TV box load. | None expected: at most 4 more sockets polled, one frame of 15 bytes every 2 s for each, one modal that redraws only when the queue changes (no countdown, FD-30.14), a refusal table of at most 64 entries. | Manual test 34 checks the frame rate in the menu with 4 phones and a card (debug overlay). |
 
 ## 14. Owner questions
 
