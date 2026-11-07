@@ -17,9 +17,10 @@ const PID := "9f2c4e7a1b3d5f60718293a4b5c6d7e8"
 const KEYS := {
 	"approval.title": ["NEW PLAYER", "שחקן חדש"],
 	"approval.wants": ["WANTS TO JOIN", "רוצה להצטרף"],
-	"approval.allow": ["ALLOW", "לאשר"],
-	"approval.refuse": ["REFUSE", "לסרב"],
+	"approval.allow": ["ALLOW", "אשרו"],
+	"approval.refuse": ["REFUSE", "סרבו"],
 	"approval.others_waiting": ["+%d WAITING", "עוד %d ממתינים"],
+	"approval.one_waiting": ["+1 WAITING", "עוד אחד ממתין"],
 }
 
 var _checks := 0
@@ -268,6 +269,8 @@ func _strings() -> void:
 				row = r
 		_check(row.size() >= 4 and String(row[1]) == KEYS[key][0] and String(row[2]) == KEYS[key][1]
 				and String(row[3]).strip_edges() != "", "%s has English, Hebrew and a where, with the text of the table" % key)
+	for k in KEYS:
+		_check(Lang.has(k), "%s is a key of the app" % k)
 	_check(not Lang.has("approval.hint_ok") and not Lang.has("approval.hint_back") and not Lang.has("approval.time_left"),
 			"the card has no key hint and no time text: those keys do not exist")
 
@@ -621,8 +624,8 @@ func _hebrew_and_layout() -> void:
 	await _card_ready()
 	var card := _card()
 	var texts := _texts(card)
-	_check(texts.has("שחקן חדש") and texts.has("רוצה להצטרף") and texts.has("לאשר") and texts.has("לסרב")
-			and texts.has("עוד 1 ממתינים"),
+	_check(texts.has("שחקן חדש") and texts.has("רוצה להצטרף") and texts.has("אשרו") and texts.has("סרבו")
+			and texts.has("עוד אחד ממתין"),
 			"Hebrew: title, line, buttons and badge (%s)" % str(texts))
 	var allow := _button(card, "approval.allow")
 	var refuse := _button(card, "approval.refuse")
@@ -635,6 +638,14 @@ func _hebrew_and_layout() -> void:
 	_check(_focus() == refuse, "Hebrew: Left moves the focus to REFUSE (the button at the left)")
 	await _key(KEY_RIGHT)
 	_check(_focus() == allow, "Hebrew: Right moves it back to ALLOW")
+	var r: Dictionary = card.request.duplicate()
+	r.others = 3
+	card.update(r)
+	_check(_texts(card).has("עוד 3 ממתינים"), "Hebrew: 3 others wait: the plural text of `approval.others_waiting`")
+	r.others = 1
+	card.update(r)
+	_check(_texts(card).has("עוד אחד ממתין") and not _texts(card).has("עוד 1 ממתינים"),
+			"Hebrew: 1 other waits: the singular text of `approval.one_waiting`, not \"1 ממתינים\"")
 	_layout(card, "Hebrew")
 	b.ws.close()
 	c.ws.close()

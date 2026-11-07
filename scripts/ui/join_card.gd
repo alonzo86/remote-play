@@ -110,7 +110,11 @@ func update(r: Dictionary) -> void:
 	var n := int(r.get("others", 0))
 	if _others != null:
 		_others.visible = n > 0
-		_others_label.text = Lang.f("approval.others_waiting", [n]) if n > 0 else ""
+		# The table has no plural: exactly 1 other has its own row.
+		var text := "" if n <= 0 else Lang.t("approval.one_waiting")
+		if n >= 2:
+			text = Lang.f("approval.others_waiting", [n])
+		_others_label.text = text
 
 
 ## The card owns the arrows and, in its first second, OK too (nothing reaches the screen under it).
