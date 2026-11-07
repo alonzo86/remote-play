@@ -18,7 +18,8 @@ static func label(text: String, size := UiTheme.SIZE_BODY, color: Color = UiThem
 	l.text = shown(text)
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
-	l.add_theme_constant_override("line_spacing", UiTheme.line_gap(size))   # The pixel font has no leading: wrapped lines would touch (issue #403).
+	# The pixel font has no leading: wrapped lines would touch (issue #403).
+	l.add_theme_constant_override("line_spacing", UiTheme.line_gap(size))
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return l
 
