@@ -19,6 +19,7 @@ Rules
 
 - Claude does not run these tests and never marks a step `Pass`. Claude writes down what you report, in your words, with the evidence you give.
 - A requirement with the status **Device** is not done until the test for it is `Pass`.
+- **Join approval (issue #393, phase 4).** The TV setting "APPROVE NEW PLAYERS" (Settings, first row) is ON by default. In **every** test in which a phone joins a TV that you start or restart, the phone waits for the host: press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW), or turn the setting OFF first (Settings, first row, press Left; the setting is saved and stays OFF until you turn it ON). A test that tests the approval (Test 34) needs it ON. Tests 1, 2, 7, 8b, 13, 17, 20, 21 and 33 repeat this rule at their start; the other tests do not.
 - Evidence files go in `docs/evidence/<test>/`, named `<run>-<what>.<ext>`, for example `R1-t10-04-miss-fade.mp4`. Photos up to 1920 px wide, videos up to 30 s and 20 MB.
   Bigger files: put them in your own storage and link them. Do not commit private data: crop or blur the name of your Wi-Fi and addresses on your home network.
 - Do not turn a number into a pass without a measurement. Write the value in the Notes.
