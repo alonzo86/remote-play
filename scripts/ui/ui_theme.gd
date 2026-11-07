@@ -66,6 +66,15 @@ static func line_gap(font_size: int) -> int:
 	return font_size / 4 + (font_size / 8 if Lang.is_rtl() else 0)
 
 
+## Sets the line gap again on every label under `node` that has one: a screen that stays open when the language changes (the
+## phone Settings screen) keeps the gap of the old language otherwise (issue #403).
+static func refresh_line_gaps(node: Node) -> void:
+	if node is Label and node.has_theme_constant_override("line_spacing") and node.has_theme_font_size_override("font_size"):
+		node.add_theme_constant_override("line_spacing", line_gap(node.get_theme_font_size("font_size")))
+	for child in node.get_children():
+		refresh_line_gaps(child)
+
+
 ## The one font: Press Start 2P, with the project Hebrew pixel font as its fallback for Hebrew names.
 static func font() -> Font:
 	if _font == null:
