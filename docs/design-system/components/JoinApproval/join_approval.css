@@ -15,15 +15,17 @@ body.phone{width:1080px;height:2160px;padding:0;overflow:hidden}
 .who{display:flex;align-items:center;gap:40px;justify-content:flex-start}
 .pname{font-size:64px;line-height:1.2}
 .wants{color:var(--text-desc);font-size:32px;margin-top:10px}
-.hints{display:flex;justify-content:space-around;font-size:40px;padding-top:8px}
-.hints span{display:flex;align-items:center;gap:20px}
-.key{display:inline-block;border:var(--line-w) solid var(--text);padding:8px 18px;font-size:32px;color:var(--text)}
-.hints b{font-weight:400}
+.hints{display:flex;justify-content:center;gap:160px;font-size:48px;padding-top:8px}
+/* menu-item buttons (rp-item style): text, pixel cursor in front when focused; the words are the cue, not the color */
+.btn{position:relative;padding:10px 16px;padding-inline-start:84px;text-transform:uppercase}
+.btn.focus::before{content:"";position:absolute;inset-inline-start:8px;top:50%;width:5px;height:5px;margin-top:-2.5px;background:var(--ok);box-shadow:5px -5px 0 var(--ok),5px 0 0 var(--ok),5px 5px 0 var(--ok),10px -10px 0 var(--ok),10px -5px 0 var(--ok),10px 0 0 var(--ok),10px 5px 0 var(--ok),10px 10px 0 var(--ok),15px -5px 0 var(--ok),15px 0 0 var(--ok),15px 5px 0 var(--ok),20px 0 0 var(--ok);transform:scale(2.4);transform-origin:left center}
+[dir=rtl] .btn.focus::before{transform:scale(-2.4,2.4);transform-origin:right center}
+.btn:not(.focus){padding-inline-start:16px}
 .okl{color:var(--ok)}.bdl{color:var(--bad)}
 .set{position:absolute;inset:60px;display:flex;flex-direction:column;align-items:center;gap:40px}
 .set .rows{display:flex;flex-direction:column;gap:12px}
-.row{position:relative;display:flex;align-items:center;gap:20px;width:1500px;height:88px;padding:0 44px;box-sizing:border-box;font-size:40px}
-.row .nm{width:820px}
+.row{position:relative;display:flex;align-items:center;gap:20px;width:1500px;height:88px;padding:0 44px;padding-inline-start:72px;box-sizing:border-box;font-size:40px}
+.row .nm{width:790px}
 .row .vl{width:300px;text-align:center}
 .row .ar.end{color:var(--text-dim)}
 .row.focus .nm{color:var(--accent)}

@@ -9,7 +9,7 @@
       title: "NEW PLAYER", wants: "WANTS TO JOIN", allow: "ALLOW", refuse: "REFUSE", queue: "+2 WAITING",
       settings: "SETTINGS", approve: "APPROVE NEW PLAYERS", debug: "DEBUG OVERLAY", invert: "INVERT AXES", music: "MUSIC", effects: "EFFECTS",
       language: "LANGUAGE", langname: "ENGLISH", on: "ON", off: "OFF", back: "BACK", select: "SELECT GAME", room: "ROOM CODE",
-      wait: "WAITING FOR THE TV TO LET YOU IN.", waitSub: "ASK THE HOST TO PRESS OK ON THE TV.", cancel: "CANCEL",
+      wait: "WAITING FOR THE HOST TO GET YOU IN.", waitSub: "ASK THE HOST TO ALLOW YOU ON THE TV.", cancel: "CANCEL",
       no: "THE HOST DID NOT LET YOU IN.", to: "NO ANSWER FROM THE TV. TRY AGAIN.", busy: "TOO MANY PLAYERS ARE WAITING. TRY AGAIN IN A MINUTE.",
       type: "TYPE THE ROOM CODE FROM THE TV", scan: "SCAN QR CODE", logo: "SABABI", you: "YOU ARE MAYA", name: "MAYA"
     },
@@ -17,7 +17,7 @@
       title: "שחקן חדש", wants: "רוצה להצטרף", allow: "לאשר", refuse: "לסרב", queue: "עוד 2 ממתינים",
       settings: "הגדרות", approve: "אישור שחקנים חדשים", debug: "מסך אבחון", invert: "היפוך צירים", music: "מוזיקה", effects: "אפקטים",
       language: "שפה", langname: "עברית", on: "פועל", off: "כבוי", back: "חזרה", select: "בחרו משחק", room: "קוד חדר",
-      wait: "ממתינים שהטלוויזיה תכניס אתכם.", waitSub: "בקשו מהמארח ללחוץ OK בטלוויזיה.", cancel: "ביטול",
+      wait: "ממתינים שהמארח יאשר אתכם.", waitSub: "בקשו מהמארח לאשר אתכם בטלוויזיה.", cancel: "ביטול",
       no: "המארח לא הכניס אתכם.", to: "אין תשובה מהטלוויזיה. נסו שוב.", busy: "יותר מדי שחקנים ממתינים. נסו שוב בעוד דקה.",
       type: "הקלידו את קוד החדר מהטלוויזיה", scan: "סרקו קוד QR", logo: "SABABI", you: "אתם מייה", name: "מאיה"
     }
@@ -53,7 +53,7 @@
     card.innerHTML =
       '<div class="top"><h2>' + T.title + '</h2><span class="queue">' + T.queue + '</span></div>' +
       '<div class="who">' + avatar(8) + '<div><div class="pname">' + T.name + '</div><div class="wants">' + T.wants + '</div></div></div>' +
-      '<div class="hints"><span>' + key("OK", "okk") + ' <b class="okl">' + T.allow + '</b></span><span>' + key("BACK", "bkk") + ' <b class="bdl">' + T.refuse + '</b></span></div>';
+      '<div class="hints"><span class="btn focus okl">' + T.allow + '</span><span class="btn bdl">' + T.refuse + '</span></div>';
     dim.appendChild(card); root.appendChild(dim);
   } else if (screen === "settings") {
     var box = el("div", "set");
@@ -64,12 +64,12 @@
       return r;
     }
     var rows = el("div", "rows");
+    rows.appendChild(row(T.approve, T.on, 1, 0, 1, "var(--ok)"));   /* owner 2026-11-07: the first row, keeps the focus */
     rows.appendChild(row(T.debug, T.off, 0, 1, 0, "var(--text-dim)"));
     rows.appendChild(row(T.invert, T.off, 0, 1, 0, "var(--text-dim)"));
     rows.appendChild(row(T.music, "7 / 10", 0, 0, 0));
     rows.appendChild(row(T.effects, "8 / 10", 0, 0, 0));
     rows.appendChild(row(T.language, T.langname, 0, 0, 0, "var(--accent)"));
-    rows.appendChild(row(T.approve, T.on, 1, 0, 1, "var(--ok)"));   /* D8: the last row, after Language */
     box.appendChild(rows);
     box.appendChild(el("div", "rp-item back", T.back));
     root.appendChild(box);
