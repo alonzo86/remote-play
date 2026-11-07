@@ -84,6 +84,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [31](#test-31) | Freeze Dance (wiggle, freeze, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [33](#test-33) | iPhone QR scanner (camera view, permission, cancel, privacy) | 1 iPhone, 1 Mac with Xcode, 1 TV, a second phone, a child for item 9b, a Hebrew reader for item 8a | REQ-FL-58, 88 to 92 (`docs/TV_FLOW.md`), issue #299 | Not run | | |
+| [34](#test-34) | Join approval with the TV remote (planned, not built) | 2 phones (a third for item 4c), 1 TV with its real remote, a stopwatch, a native reader of Hebrew for item 7a | REQ-FL-93 to REQ-FL-104, FD-30 (`docs/TV_FLOW.md`), issue #393 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -95,6 +96,7 @@ Tests the user has to run now (status on 2026-11-01 after run R5; the list is in
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
+| 34 | **New, planned (join approval, issue #393). Do not run it before the feature is built.** 2 phones and the real TV remote: the setting row and its default (1a to 1c), the card and OK and BACK (2a to 2d), the waiting text and CANCEL on the phone (3a, 3b), the refusal, the timeout and a full queue (4a to 4c), a returning phone with no card (5a), the TV that closes while a phone waits (5b), a join during a round (6a), a held profile (6b), the Hebrew texts (7a), a child of 5 to 8 years (8a). The rules (queue, limits, the 60 s, the held profile, OFF) are planned as headless checks in `tests/join_approval.gd` (`docs/AUTOMATED_TESTS.md` when built) | The owner decided on 2026-11-07 (issue #385) that the host approves each new phone with the remote; the details are FD-30 and REQ-FL-93 to REQ-FL-104. All texts, the card, the 60 s and the 1 s guard are first guesses; the Hebrew is written by Claude |
 | 33 | **New (iPhone QR scanner).** An iPhone with a Mac and Xcode: build the plugin and deploy (1a), the scan button, the camera question on the first scan and the view (2a, 2b, 3a, 3b), a TV code, a profile code and a web page code (4a to 4d), CANCEL, swipe down and the home button (5a to 5c), the camera off in Settings and on again (6a, 6b), no photo saved and only Camera and Local Network listed (7a, 7b), Hebrew from a Hebrew reader (8a), a dark room and a child of 5 to 8 years (9a, 9b). Run test 13 steps 1a to 2d first. Nothing here can be done headless | The iPhone scanner was planned on 2026-11-01 (`docs/IOS_SCANNER_PLAN.md`, issue #299, REQ-FL-58, 88 to 92). The plugin source is written on Linux and was never built or run: every value, the plugin and the texts (also the Hebrew camera question) are unverified. Needed before it is merged and before the privacy notice text about the iPhone camera is final |
 | 32 | **New game.** Bumper Cars with 2 to 4 phones: the tile against the game, a tester points at a star and a car, the FPS with 2 phones on the TV box, a child of 5 to 8 years, the how-to line (3 testers), the Hebrew texts (a Hebrew reader), the pixel look from the sofa. The tilt times, the stars, the hits, the buzz, the round and Easy and Hard are automated (`docs/AUTOMATED_TESTS.md`, A-32-*) | Bumper Cars was added on 2026-10-24 (`docs/games/bumper_cars.md`). Needed before it is merged. All values (speeds, hit speed, stars on the floor, rink size), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-29 that a hit takes no star (it was 1 star from each car); the how-to line says so since 2026-10-30 (issue #212) and the hint line is shorter (owner text, issue #191), so step 11a and the Hebrew reader (11b) read the new texts |
 | 31 | **New game.** Freeze Dance with 1 to 4 phones: the tile against the game, a gentle wiggle of a child and a relaxed hand, a loose grip and three poses of the phone held still (5a, 5c, 5d), the stop on the TV at 240 fps, the safety card, the FPS with 1 phone on the TV box, a child of 5 to 8 years, the pixel look and Hebrew from the sofa. The music, the freeze lengths, the points, the dim mover and the round are automated (A-31-*) | Freeze Dance was added on 2026-10-24 (`docs/games/freeze_dance.md`). Needed before it is merged. Every value (the wiggle level, the limit for "still", the grace time, the music and freeze lengths), the pictures, the song and the Hebrew texts are first guesses |
@@ -1870,3 +1872,61 @@ Nothing in this test can be done headless (it needs a real camera): the GDScript
 History:
 
 - -: **Not run**. New (2026-11-01, issue #299).
+
+## Test 34
+
+### Join approval with the TV remote (planned, issue #393)
+
+Needs: 1 TV with the Sababi TV app and its real remote (not a keyboard), 2 phones with the Sababi controller (phone A, phone B), a third phone for step 4c, a stopwatch, a child of about 5 to 8 years for step 8a, a native reader of Hebrew for step 7a. Covers: REQ-FL-93, REQ-FL-94, REQ-FL-95, REQ-FL-96, REQ-FL-97, REQ-FL-98, REQ-FL-99, REQ-FL-100, REQ-FL-101, REQ-FL-102, REQ-FL-103, REQ-FL-104, REQ-FL-74, FD-30 (`docs/TV_FLOW.md`), issue #393.
+
+New (2026-11-07). **Planned: the feature is not built, so every step is Not run and the test must not be run before the build.** Claude does not mark any step Pass. The texts of the steps are the proposed strings of `docs/TV_FLOW.md` ("Proposed strings"); when the owner or the reviewer changes a text, change the step in the same commit. Use English first. Write the build in the Run log. Phones A and B have different player profiles (or none) for steps 2 to 6.
+
+**Steps**
+
+1a. Install a new TV app (no `settings.cfg`) and open Settings (OPTIONS on the Games screen), then go down to the last row. Check: the last row is APPROVE NEW PLAYERS with the value ON in green, after Language. (REQ-FL-93)
+1b. On that row press Left, then close the app with the TV remote and open it again. Check: the row shows OFF after the restart; OK on the row changes nothing. (REQ-FL-93)
+1c. With OFF, join phone A with the typed room code. Check: A is on its waiting screen within 3 seconds (stopwatch) and no card shows on the TV. Then set the row to ON again. (REQ-FL-94)
+2a. Set ON, phone A leaves (DISCONNECT) and the TV is on the Connect screen. Join with phone B. Check: B shows the waiting text; the TV shows a card with the title LET (name) IN?, the avatar when B has a profile, TIME LEFT: 60 counting down, and the hints PRESS OK TO LET IN and PRESS BACK TO REFUSE, inside the screen edge; the slot list is empty (0 players joined). (REQ-FL-94, REQ-FL-97)
+2b. Press OK on the remote within 0.5 seconds after the card shows (a helper counts). Check: the card is still there. Press Left, Right, Up, Down and Menu: the card is still there. (REQ-FL-97)
+2c. Press OK 2 seconds after the card shows. Check: the card closes, B is in slot 1P with its name on the Connect screen, B shows the waiting screen of the TV phase, within 2 seconds, and the `join` sound plays (yes or no). (REQ-FL-95, REQ-FL-97)
+2d. Phone B leaves. Join with phone B again, and after 2 seconds press BACK. Check: the card closes, no slot is used, and the TV plays the denied sound (yes or no). (REQ-FL-97)
+3a. While B waits (join again, do not press anything on the TV): read the phone. Check: the text WAITING FOR THE TV TO LET YOU IN., the line ASK THE HOST TO PRESS OK ON THE TV. and a CANCEL button at least 96 px high, all inside the safe area; no JOIN button. (REQ-FL-100)
+3b. Tap CANCEL on B. Check: the card closes on the TV within 2 seconds, the phone shows the Connect screen with no message, and no slot is used. (REQ-FL-99, REQ-FL-100)
+4a. Join with B and press BACK on the remote. Check: B shows THE HOST DID NOT LET YOU IN. in red on the Connect screen within 2 seconds. Tap JOIN again at once: B shows the same text and the TV shows no card (the 60 seconds block); after 65 seconds JOIN shows a card again. (REQ-FL-101, REQ-FL-104)
+4b. Join with B and press nothing. Check: the card is open at 55 seconds and closed at 65 seconds (stopwatch from the card), and B shows NO ANSWER FROM THE TV. TRY AGAIN. Tap JOIN again at once: a new card shows (a timeout does not block). (REQ-FL-98, REQ-FL-101, REQ-FL-104)
+4c. Make 5 requests at once (B, the third phone, and more joins from phones or from other profiles; write how many you made). Check: the first card shows, the next card shows about 1 second after an answer, and a phone that asks while 4 already wait shows TOO MANY PLAYERS ARE WAITING. TRY AGAIN IN A MINUTE. If you have fewer than 5 requests write "less than 5" in the result. (REQ-FL-99, REQ-FL-101)
+5a. Phone A joins and is allowed (slot 1P). A turns off its Wi-Fi for 3 seconds and turns it on again. Check: A gets its slot 1P back with no card on the TV, within 10 seconds. (REQ-FL-94)
+5b. Phone B waits (a card is open). Close the TV app with Back and Quit. Check: B leaves the waiting screen within 5 seconds and shows CAN'T FIND THIS ROOM. CHECK THE CODE, OR SCAN THE QR CODE.; it does not join by itself after the TV opens again. (REQ-FL-103)
+6a. Start a game with phone A. Join with phone B during the round. Check: the TV shows no card during the round (watch the whole round, at least 60 seconds), B shows the waiting text, and the card shows within 2 seconds after the TV goes back to the Games screen. Press OK: B joins. (REQ-FL-96, REQ-FL-95)
+6b. Join with the same profile as phone A, on phone B, in a menu (REQ-FL-74). Check: B shows THIS PLAYER IS ALREADY IN THE ROOM. at once and the TV shows no card. (REQ-FL-94, REQ-FL-74)
+7a. Set the app (both phones and the TV) to Hebrew. Check: the texts of steps 2a, 3a, 4a, 4b and 4c are in Hebrew, read right to left and inside the screen edge; the native reader writes the words that are wrong, with the reason. (REQ-FL-63a, REQ-FL-97, REQ-FL-100, REQ-FL-101)
+8a. A child of about 5 to 8 years holds phone B, and an adult holds the remote. The child joins with the room code or the QR code and says what the phone says. Check: the child says in own words that the phone waits for the TV (yes or no) and the child joins within 60 seconds after the adult presses OK (stopwatch). (REQ-FL-100)
+
+The rules of this test that need no device (queue order, the limits, the 60 seconds, the setting saved, a held profile, OFF) are planned as headless tests (`tests/join_approval.gd`).
+
+**Results**
+
+| Item | Evidence to capture | Result | Run | Evidence | Notes |
+|------|---------------------|--------|-----|----------|-------|
+| 1a | Photo of the Settings screen, last row | Not run | | | |
+| 1b | Photo of the row after the restart | Not run | | | |
+| 1c | Note: seconds to the waiting screen; photo of the TV (no card) | Not run | | | |
+| 2a | Photo of the card; note: the 6 things read | Not run | | | |
+| 2b | Video of the keys at 0.5 s | Not run | | | |
+| 2c | Video; note: seconds, the sound (yes/no) | Not run | | | |
+| 2d | Video; note: the sound (yes/no) | Not run | | | |
+| 3a | Photo of the phone | Not run | | | |
+| 3b | Video; note: seconds | Not run | | | |
+| 4a | Video with the stopwatch; photo of the status line | Not run | | | |
+| 4b | Video with the stopwatch; photo of the status line | Not run | | | |
+| 4c | Note: how many requests; the order of the cards; photo of the busy text | Not run | | | |
+| 5a | Video; note: seconds | Not run | | | |
+| 5b | Video of the phone; note: seconds | Not run | | | |
+| 6a | Video of a whole round; note: seconds to the card | Not run | | | |
+| 6b | Photo of the phone and the TV | Not run | | | |
+| 7a | Photos in Hebrew; note: the words the reader marks, with the reason | Not run | | | |
+| 8a | Note: the child, the age, what the child said, seconds | Not run | | | |
+
+History:
+
+- -: **Not run**. New (2026-11-07, issue #393).
