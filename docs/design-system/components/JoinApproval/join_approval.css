@@ -8,18 +8,13 @@ body.phone{width:1080px;height:2160px;padding:0;overflow:hidden}
 .bd-t{display:flex;gap:48px;margin-top:80px}
 .bd-t i{display:block;width:480px;height:270px;border:var(--line-w) solid var(--text-dim)}
 .dim{position:absolute;inset:0;background:var(--dim-layer);display:flex;align-items:center;justify-content:center}
-.card{width:1240px;margin:0;padding:40px 56px;box-sizing:border-box;display:flex;flex-direction:column;gap:32px}
+.card{width:1240px;margin:0;padding:56px 64px;box-sizing:border-box;display:flex;flex-direction:column;gap:56px}
 .card .top{display:flex;justify-content:space-between;align-items:center}
 .card h2{margin:0;font:48px var(--font-pixel);color:var(--accent)}
 .queue{color:var(--text-info);border:var(--line-w) solid var(--text-dim);padding:10px 20px;font-size:32px}
 .who{display:flex;align-items:center;gap:40px;justify-content:flex-start}
 .pname{font-size:64px;line-height:1.2}
 .wants{color:var(--text-desc);font-size:32px;margin-top:10px}
-.timer{display:flex;align-items:center;gap:32px}
-.bar{display:flex;gap:8px;flex:1}
-.bar i{display:block;height:32px;flex:1;border:4px solid var(--text-dim);box-sizing:border-box}
-.bar i.on{background:var(--text);border-color:var(--text)}
-.secs{font-size:32px;color:var(--text-info);min-width:170px;text-align:end}
 .hints{display:flex;justify-content:space-around;font-size:40px;padding-top:8px}
 .hints span{display:flex;align-items:center;gap:20px}
 .key{display:inline-block;border:var(--line-w) solid var(--text);padding:8px 18px;font-size:32px;color:var(--text)}
@@ -45,3 +40,19 @@ body.phone{width:1080px;height:2160px;padding:0;overflow:hidden}
 .pwho{display:flex;align-items:center;gap:28px;justify-content:center;margin-bottom:48px;font-size:48px}
 .sqp{width:48px;height:48px;background:var(--player-2)}
 .pbtn{height:140px;display:flex;align-items:center;justify-content:center;border:var(--line-w) solid var(--text);font-size:48px;margin-bottom:40px}
+
+/* Connect screen of the phone (controller_connect.gd): margins 40 / 60, separation 24 */
+.cn{padding:60px 40px;gap:24px;text-transform:uppercase}
+.cn-top{display:flex;align-items:center;gap:24px;height:120px}
+.cn-logo{flex:1;font:56px var(--font-pixel);color:var(--accent);text-align:start}
+.cn-pl{display:flex;gap:16px;height:110px}
+.cn-head{flex:1;display:flex;align-items:center;gap:24px;border:var(--line-w) solid var(--text);padding:0 20px;font-size:40px}
+.cn-head b{font-weight:400}
+.cn-b{width:110px;height:110px;box-sizing:border-box;border:var(--line-w) solid var(--text);display:flex;align-items:center;justify-content:center;font-size:64px}
+.cn-status{font-size:32px;line-height:1.5;color:var(--bad)}
+.cn-label{font-size:32px;line-height:1.5;color:var(--text-desc)}
+.cn-row{display:flex;gap:16px;height:130px}
+.cn-code{flex:1;border:var(--line-w) solid var(--text-dim);box-sizing:border-box}
+.cn-join{width:160px;height:130px;box-sizing:border-box;border:var(--line-w) solid var(--text);display:flex;align-items:center;justify-content:center}
+.cn-scan{height:130px;box-sizing:border-box;border:var(--line-w) solid var(--text);display:flex;align-items:center;justify-content:center;font-size:56px}
+[dir=rtl] .cn-join svg{transform:scaleX(-1)}
