@@ -1886,17 +1886,19 @@ New (2026-11-07). **Planned: the feature is not built, so every step is Not run 
 1a. Install a new TV app (no `settings.cfg`) and open Settings (OPTIONS on the Games screen), then go down to the last row. Check: the last row is APPROVE NEW PLAYERS with the value ON in green, after Language. (REQ-FL-93)
 1b. On that row press Left, then close the app with the TV remote and open it again. Check: the row shows OFF after the restart; OK on the row changes nothing. (REQ-FL-93)
 1c. With OFF, join phone A with the typed room code. Check: A is on its waiting screen within 3 seconds (stopwatch) and no card shows on the TV. Then set the row to ON again. (REQ-FL-94)
-2a. Set ON, phone A leaves (DISCONNECT) and the TV is on the Connect screen. Join with phone B. Check: B shows the waiting text; the TV shows a card with the title LET (name) IN?, the avatar when B has a profile, TIME LEFT: 60 counting down, and the hints PRESS OK TO LET IN and PRESS BACK TO REFUSE, inside the screen edge; the slot list is empty (0 players joined). (REQ-FL-94, REQ-FL-97)
+2a. Set ON, phone A leaves (DISCONNECT) and the TV is on the Connect screen. Join with phone B. Check: B shows the waiting text; the TV shows a card with the title NEW PLAYER and the name of B, the avatar when B has a profile, the line WANTS TO JOIN, the key boxes OK ALLOW and BACK REFUSE, and no time bar and no seconds, inside the screen edge; the slot list is empty (0 players joined). (REQ-FL-94, REQ-FL-97)
 2b. Press OK on the remote within 0.5 seconds after the card shows (a helper counts). Check: the card is still there. Press Left, Right, Up, Down and Menu: the card is still there. (REQ-FL-97)
 2c. Press OK 2 seconds after the card shows. Check: the card closes, B is in slot 1P with its name on the Connect screen, B shows the waiting screen of the TV phase, within 2 seconds, and the `join` sound plays (yes or no). (REQ-FL-95, REQ-FL-97)
 2d. Phone B leaves. Join with phone B again, and after 2 seconds press BACK. Check: the card closes, no slot is used, and the TV plays the denied sound (yes or no). (REQ-FL-97)
 3a. While B waits (join again, do not press anything on the TV): read the phone. Check: the text WAITING FOR THE TV TO LET YOU IN., the line ASK THE HOST TO PRESS OK ON THE TV. and a CANCEL button at least 96 px high, all inside the safe area; no JOIN button. (REQ-FL-100)
 3b. Tap CANCEL on B. Check: the card closes on the TV within 2 seconds, the phone shows the Connect screen with no message, and no slot is used. (REQ-FL-99, REQ-FL-100)
-4a. Join with B and press BACK on the remote. Check: B shows THE HOST DID NOT LET YOU IN. in red on the Connect screen within 2 seconds. Tap JOIN again at once: B shows the same text and the TV shows no card (the 60 seconds block); after 65 seconds JOIN shows a card again. (REQ-FL-101, REQ-FL-104)
-4b. Join with B and press nothing. Check: the card is open at 55 seconds and closed at 65 seconds (stopwatch from the card), and B shows NO ANSWER FROM THE TV. TRY AGAIN. Tap JOIN again at once: a new card shows (a timeout does not block). (REQ-FL-98, REQ-FL-101, REQ-FL-104)
+4a. Join with B and press BACK on the remote. Check: B shows THE HOST DID NOT LET YOU IN. in red on the Connect screen within 2 seconds. Tap JOIN again at once: a new card shows (one refusal does not block). (REQ-FL-101, REQ-FL-104)
+4b. Join with B and press nothing. Check: the card is open at 55 seconds and closed at 65 seconds (stopwatch from the card), with no time bar and no seconds at any time, and B shows NO ANSWER FROM THE TV. TRY AGAIN. Tap JOIN again at once: a new card shows (a timeout does not block). (REQ-FL-98, REQ-FL-101, REQ-FL-104)
 4c. Make 5 requests at once (B, the third phone, and more joins from phones or from other profiles; write how many you made). Check: the first card shows, the next card shows about 1 second after an answer, and a phone that asks while 4 already wait shows TOO MANY PLAYERS ARE WAITING. TRY AGAIN IN A MINUTE. If you have fewer than 5 requests write "less than 5" in the result. (REQ-FL-99, REQ-FL-101)
+4d. Phone B joins and the host presses BACK 3 times in a row (join, BACK, tap JOIN, BACK, tap JOIN, BACK). Check: the 4th try is blocked: after the 3rd BACK, tap JOIN at once: B shows THE HOST DID NOT LET YOU IN. and the TV shows no card; tap JOIN at 50 seconds (stopwatch from the 3rd BACK): still no card; tap JOIN at 65 seconds: a card shows. (REQ-FL-104)
+4e. Phone B joins, BACK; joins again, OK (B is allowed); B leaves (DISCONNECT); B joins, BACK; joins, BACK. Check: the 5th try shows a card at once (the allow reset the counter, so only 2 refusals in a row count). (REQ-FL-104)
 5a. Phone A joins and is allowed (slot 1P). A turns off its Wi-Fi for 3 seconds and turns it on again. Check: A gets its slot 1P back with no card on the TV, within 10 seconds. (REQ-FL-94)
-5b. Phone B waits (a card is open). Close the TV app with Back and Quit. Check: B leaves the waiting screen within 5 seconds and shows CAN'T FIND THIS ROOM. CHECK THE CODE, OR SCAN THE QR CODE.; it does not join by itself after the TV opens again. (REQ-FL-103)
+5b. Phone B waits (a card is open). Close the TV app with Back and Quit. Check: B leaves the waiting screen within 5 seconds and shows THE TV APP CLOSED THE CONNECTION.; it does not join by itself after the TV opens again. (REQ-FL-103)
 6a. Start a game with phone A. Join with phone B during the round. Check: the TV shows no card during the round (watch the whole round, at least 60 seconds), B shows the waiting text, and the card shows within 2 seconds after the TV goes back to the Games screen. Press OK: B joins. (REQ-FL-96, REQ-FL-95)
 6b. Join with the same profile as phone A, on phone B, in a menu (REQ-FL-74). Check: B shows THIS PLAYER IS ALREADY IN THE ROOM. at once and the TV shows no card. (REQ-FL-94, REQ-FL-74)
 7a. Set the app (both phones and the TV) to Hebrew. Check: the texts of steps 2a, 3a, 4a, 4b and 4c are in Hebrew, read right to left and inside the screen edge; the native reader writes the words that are wrong, with the reason. (REQ-FL-63a, REQ-FL-97, REQ-FL-100, REQ-FL-101)
@@ -1911,7 +1913,7 @@ The rules of this test that need no device (queue order, the limits, the 60 seco
 | 1a | Photo of the Settings screen, last row | Not run | | | |
 | 1b | Photo of the row after the restart | Not run | | | |
 | 1c | Note: seconds to the waiting screen; photo of the TV (no card) | Not run | | | |
-| 2a | Photo of the card; note: the 6 things read | Not run | | | |
+| 2a | Photo of the card; note: the things read | Not run | | | |
 | 2b | Video of the keys at 0.5 s | Not run | | | |
 | 2c | Video; note: seconds, the sound (yes/no) | Not run | | | |
 | 2d | Video; note: the sound (yes/no) | Not run | | | |
@@ -1920,6 +1922,8 @@ The rules of this test that need no device (queue order, the limits, the 60 seco
 | 4a | Video with the stopwatch; photo of the status line | Not run | | | |
 | 4b | Video with the stopwatch; photo of the status line | Not run | | | |
 | 4c | Note: how many requests; the order of the cards; photo of the busy text | Not run | | | |
+| 4d | Video with the stopwatch; photo of the status line | Not run | | | |
+| 4e | Video; note: card yes/no on the last try | Not run | | | |
 | 5a | Video; note: seconds | Not run | | | |
 | 5b | Video of the phone; note: seconds | Not run | | | |
 | 6a | Video of a whole round; note: seconds to the card | Not run | | | |
