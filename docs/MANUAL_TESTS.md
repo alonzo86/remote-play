@@ -19,6 +19,7 @@ Rules
 
 - Claude does not run these tests and never marks a step `Pass`. Claude writes down what you report, in your words, with the evidence you give.
 - A requirement with the status **Device** is not done until the test for it is `Pass`.
+- **Join approval (issue #393, phase 4).** The TV setting "APPROVE NEW PLAYERS" (Settings, first row) is ON by default. In **every** test in which a phone joins a TV that you start or restart, the phone waits for the host: press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW), or turn the setting OFF first (Settings, first row, press Left; the setting is saved and stays OFF until you turn it ON). A test that tests the approval (Test 34) needs it ON. Tests 1, 2, 7, 8b, 13, 17, 20, 21 and 33 repeat this rule at their start; the other tests do not.
 - Evidence files go in `docs/evidence/<test>/`, named `<run>-<what>.<ext>`, for example `R1-t10-04-miss-fade.mp4`. Photos up to 1920 px wide, videos up to 30 s and 20 MB.
   Bigger files: put them in your own storage and link them. Do not commit private data: crop or blur the name of your Wi-Fi and addresses on your home network.
 - Do not turn a number into a pass without a measurement. Write the value in the Notes.
@@ -84,7 +85,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [31](#test-31) | Freeze Dance (wiggle, freeze, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
 | [33](#test-33) | iPhone QR scanner (camera view, permission, cancel, privacy) | 1 iPhone, 1 Mac with Xcode, 1 TV, a second phone, a child for item 9b, a Hebrew reader for item 8a | REQ-FL-58, 88 to 92 (`docs/TV_FLOW.md`), issue #299 | Not run | | |
-| [34](#test-34) | Join approval with the TV remote (planned, not built) | 2 phones, 1 TV with its real remote, a stopwatch, a native reader of Hebrew for item 7a | REQ-FL-93 to REQ-FL-104, FD-30 (`docs/TV_FLOW.md`), issue #393 | Not run | | |
+| [34](#test-34) | Join approval with the TV remote (built, not run) | 2 phones, 1 TV with its real remote, a stopwatch, a native reader of Hebrew for item 7a | REQ-FL-93 to REQ-FL-104, FD-30 (`docs/TV_FLOW.md`), issue #393 | Not run | | |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -96,7 +97,7 @@ Tests the user has to run now (status on 2026-11-01 after run R5; the list is in
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
-| 34 | **New, planned (join approval, issue #393). Do not run it before the feature is built.** 2 phones and the real TV remote: the setting row and its default (1a to 1c), the card, its two buttons, OK, and BACK that does nothing on the card (2a to 2e), the waiting text and CANCEL on the phone (3a, 3b), the refusal, the timeout and a full queue (4a to 4c), a returning phone with no card (5a), the TV that closes while a phone waits (5b), a join during a round (6a), a held profile (6b), the Hebrew texts (7a), a child of 5 to 8 years (8a). The rules (queue, limits, the 60 s, the held profile, OFF) are planned as headless checks in `tests/join_approval.gd` (`docs/AUTOMATED_TESTS.md` when built) | The owner decided on 2026-11-07 (issue #385) that the host approves each new phone with the remote; the details are FD-30 and REQ-FL-93 to REQ-FL-104. All texts, the card, the 60 s and the 1 s guard are first guesses; the Hebrew is written by Claude |
+| 34 | **New (join approval, issue #393). Built in 4 phases (2026-11-07); not run.** 2 phones and the real TV remote: the setting row and its default (1a to 1c), the card, its two buttons, OK, and BACK that does nothing on the card (2a to 2e), the waiting text and CANCEL on the phone (3a, 3b), the refusal, the timeout and a full queue (4a to 4c), a returning phone with no card (5a), the TV that closes while a phone waits (5b), a join during a round (6a), a held profile (6b), the Hebrew texts (7a), a child of 5 to 8 years (8a). The rules (queue, limits, the 60 s, the held profile, OFF) are planned as headless checks in `tests/join_approval.gd` (`docs/AUTOMATED_TESTS.md` when built) | The owner decided on 2026-11-07 (issue #385) that the host approves each new phone with the remote; the details are FD-30 and REQ-FL-93 to REQ-FL-104. All texts, the card, the 60 s and the 1 s guard are first guesses; the Hebrew is written by Claude |
 | 33 | **New (iPhone QR scanner).** An iPhone with a Mac and Xcode: build the plugin and deploy (1a), the scan button, the camera question on the first scan and the view (2a, 2b, 3a, 3b), a TV code, a profile code and a web page code (4a to 4d), CANCEL, swipe down and the home button (5a to 5c), the camera off in Settings and on again (6a, 6b), no photo saved and only Camera and Local Network listed (7a, 7b), Hebrew from a Hebrew reader (8a), a dark room and a child of 5 to 8 years (9a, 9b). Run test 13 steps 1a to 2d first. Nothing here can be done headless | The iPhone scanner was planned on 2026-11-01 (`docs/IOS_SCANNER_PLAN.md`, issue #299, REQ-FL-58, 88 to 92). The plugin source is written on Linux and was never built or run: every value, the plugin and the texts (also the Hebrew camera question) are unverified. Needed before it is merged and before the privacy notice text about the iPhone camera is final |
 | 32 | **New game.** Bumper Cars with 2 to 4 phones: the tile against the game, a tester points at a star and a car, the FPS with 2 phones on the TV box, a child of 5 to 8 years, the how-to line (3 testers), the Hebrew texts (a Hebrew reader), the pixel look from the sofa. The tilt times, the stars, the hits, the buzz, the round and Easy and Hard are automated (`docs/AUTOMATED_TESTS.md`, A-32-*) | Bumper Cars was added on 2026-10-24 (`docs/games/bumper_cars.md`). Needed before it is merged. All values (speeds, hit speed, stars on the floor, rink size), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-29 that a hit takes no star (it was 1 star from each car); the how-to line says so since 2026-10-30 (issue #212) and the hint line is shorter (owner text, issue #191), so step 11a and the Hebrew reader (11b) read the new texts |
 | 31 | **New game.** Freeze Dance with 1 to 4 phones: the tile against the game, a gentle wiggle of a child and a relaxed hand, a loose grip and three poses of the phone held still (5a, 5c, 5d), the stop on the TV at 240 fps, the safety card, the FPS with 1 phone on the TV box, a child of 5 to 8 years, the pixel look and Hebrew from the sofa. The music, the freeze lengths, the points, the dim mover and the round are automated (A-31-*) | Freeze Dance was added on 2026-10-24 (`docs/games/freeze_dance.md`). Needed before it is merged. Every value (the wiggle level, the limit for "still", the grace time, the music and freeze lengths), the pictures, the song and the Hebrew texts are first guesses |
@@ -135,6 +136,8 @@ Test 2 (QR scan) passed in R0. Run it again only when the QR plugin or the conne
 ### Start and join
 
 Needs: 1 phone, 1 TV, a stopwatch. Covers: REQ-A3, REQ-A4, REQ-FL-5 to 10, REQ-FL-80, 83, 83a, 84, FD-28.
+
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 
 Uninstall the old apps first. The package names changed (FD-26 and FD-27; the list is in `README.md`). Use a stopwatch for every time limit.
 
@@ -186,6 +189,8 @@ History:
 ### QR scan (plugin, unverified)
 
 Needs: 1 phone, 1 TV, a stopwatch, a second QR code that is not from Sababi (for example a code with the text `https://example.com`). Covers: RISKS C5.
+
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 
 
 **Steps**
@@ -346,6 +351,8 @@ History:
 
 Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-MR-14, REQ-MZ-8.
 
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
+
 Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Protocol.PEER_TIMEOUT_MS`, issue #56), so "at once" means 3.6 seconds at most (REQ-GM-30), measured from the moment you switch the Wi-Fi off. With one phone, the card then says "NO PLAYERS CONNECTED" and offers only **End game** (REQ-GM-30a, issue #46); when the phone is back, the card says "1P RECONNECTED" with **Resume**.
 
 **Steps**
@@ -450,6 +457,8 @@ History:
 ### The TV flow and the style
 
 Needs: 1 to 2 phones, 1 TV, a stopwatch. Covers: REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23. Item 7 (a TV set to Hebrew) moved to Test 17 on 2026-10-10: FD-19 replaced REQ-FL-54, so the TV now offers Hebrew and no longer stays English.
+
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 
 
 **Steps**
@@ -689,6 +698,8 @@ History:
 ### Controller on an iPhone
 
 Needs: 1 iPhone, 1 Mac with Xcode, 1 TV, a stopwatch. Covers: `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 59, 68, 83, 84. New. Nothing in the iOS path has run yet.
+
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 Write the model of the iPhone (for example "iPhone 15 Pro, with Dynamic Island") in the Run log.
 
 **Steps**
@@ -913,6 +924,8 @@ History:
 
 Needs: 2 phones (one with the system language Hebrew, one English), 1 TV (run it with the TV set to Hebrew, region Israel, and again set to English), a person who reads Hebrew, a stopwatch. Covers: REQ-FL-54, 60 to 63, REQ-GM-47o. Items 9b and 9c (issue #171, the phones keep their own language) are new on 2026-10-29. New, written on 2026-10-10 for phase 5 of `docs/ARCADE_STYLE_PLAN.md`. The headless tests `tests/smoke_lang.gd`, `tests/smoke_settings.gd`, `tests/screens_sweep.gd`, `tests/hud_layout.gd` and `tests/run_tests.gd` check the table, the layout positions, the fit of every text, the language choice and the protocol; they cannot check how the text looks on a TV or whether it reads right.
 
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
+
 **Steps**
 
 2e. The person who reads Hebrew reads each TV screen aloud (Connect, Games, Settings, About, the quit question). Check: the punctuation (`. , ! ? -`) is at the correct end of every sentence. Write down every text that is wrong. (That a Hebrew text ends with the same punctuation as its English text is checked by `tests/smoke_lang.gd`.)
@@ -1040,6 +1053,8 @@ History:
 
 Needs: 2 to 4 phones (one an iPhone if possible), 1 TV on 1080p, a grown-up, a child of about 5 to 8 years for items 7b and 17d, a person who reads Hebrew for item 6e, a stopwatch. Covers: REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22. Items 1 to 8 are phase A (names and avatars), items 9 to 11 are phase C (personal bests), items 12 to 15 are phase B (copy by QR), items 16 and 17 are the Connect screen and the HUD changes of 2026-10-11 (`docs/PROFILES_PLAN.md`, section 11.2).
 
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
+
 New (2026-10-10). The headless tests check the rules and the drawing. They do not show how an avatar looks from the sofa, or how the profile screens work in a hand.
 
 **Steps**
@@ -1091,6 +1106,8 @@ History:
 ### Join by room code and About screens (REQ-FL-83, 84, 85, FD-25, FD-28)
 
 Needs: 2 phones (an Android phone and, if possible, an iPhone; 4 phones for step 1d), 1 TV on 1080p, a grown-up, a person who reads Hebrew for steps 1e and 10a, a stopwatch. Covers: REQ-FL-83, REQ-FL-84, REQ-FL-85, FD-25, FD-28.
+
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 
 New (2026-10-11). The headless tests check the rules and the pages. They do not show how the typed room code works in a hand, or how long the Godot pages take to open on a TV box. Issue #52 (2026-10-21) removed the join PIN, the PIN pad, the list of found TVs, Refresh and the beacon. The steps that stay are about the real phone, the iPhone, a stopwatch and a reader. The old results of the steps about the PIN are kept in the History.
 
@@ -1817,6 +1834,8 @@ History:
 
 Needs: 1 iPhone, 1 Mac with Xcode, 1 TV with the Sababi TV app, a second phone with a player profile (for item 4b), a stopwatch, a child of about 5 to 8 years for item 9b, and a native reader of Hebrew for item 8a. Covers: REQ-FL-58, REQ-FL-88, REQ-FL-89, REQ-FL-90, REQ-FL-91, REQ-FL-92 (`docs/TV_FLOW.md`), `docs/IOS_SCANNER_PLAN.md`, issue #299.
 
+Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
+
 New (2026-11-01). The plugin (`ios/plugin/qr_scanner/`) was written without Xcode and without an iPhone: it was never built and never run. Run Test 13 steps 1a to 2d first, so that a scanner problem can be told from a join problem. In Test 13, step 2c ("no scan button") stays true until the code of the scanner is built; after that, the scan button is expected on an iPhone that has the plugin, and Claude changes step 2c then.
 Write the model of the iPhone and the iOS version in the Run log.
 
@@ -1875,11 +1894,11 @@ History:
 
 ## Test 34
 
-### Join approval with the TV remote (planned, issue #393)
+### Join approval with the TV remote (issue #393)
 
 Needs: 1 TV with the Sababi TV app and its real remote (not a keyboard), 2 phones with the Sababi controller (phone A, phone B; two different Wi-Fi addresses), a stopwatch, a child of about 5 to 8 years for step 8a, a native reader of Hebrew for step 7a. Covers: REQ-FL-93, REQ-FL-94, REQ-FL-95, REQ-FL-96, REQ-FL-97, REQ-FL-98, REQ-FL-99, REQ-FL-100, REQ-FL-101, REQ-FL-102, REQ-FL-103, REQ-FL-104, REQ-FL-74, FD-30 (`docs/TV_FLOW.md`), issue #393.
 
-New (2026-11-07). **Planned: the feature is not built, so every step is Not run and the test must not be run before the build.** Claude does not mark any step Pass. The texts of the steps are the proposed strings of `docs/TV_FLOW.md` ("Proposed strings"); when the owner or the reviewer changes a text, change the step in the same commit. Use English first. Write the build in the Run log. Phones A and B have different player profiles (or none) for steps 2 to 6.
+New (2026-11-07). **Built (phases 1 to 4, 2026-11-07): every step is Not run.** Claude does not mark any step Pass. The texts of the steps are the proposed strings of `docs/TV_FLOW.md` ("Proposed strings"); when the owner or the reviewer changes a text, change the step in the same commit. Use English first. Write the build in the Run log. Phones A and B have different player profiles (or none) for steps 2 to 6.
 
 **Steps**
 

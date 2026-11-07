@@ -297,6 +297,7 @@ func _settings_walk() -> void:
 	var screen: Control = _app.current_screen()
 	var first := _focus()
 	_check(first != null, "a row of Settings has the focus")
+	_check(first == screen._rows[0], "the first focus of Settings is the first row, 'approve new players' (issue #393)")
 	var visible_rect := Rect2(Vector2.ZERO, Vector2(1920, 1080))
 	var inside := true
 	var seen := {}

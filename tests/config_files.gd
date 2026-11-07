@@ -85,6 +85,28 @@ func _settings() -> void:
 	_check(app.settings.music_volume == 4 and typeof(app.settings.music_volume) == TYPE_INT, "a volume 4.0 is the integer 4")
 	_check(app.settings.language == "he" and app.settings.sfx_volume == 0, "a good language is kept (mute as a text is no mute)")
 
+	# Issue #393, REQ-FL-93: "approve new players" is ON by default, a file keeps OFF, a wrong type loads ON.
+	var fresh: Node = app.get_script().new()
+	_check(fresh.settings.approve_players == true, "approve_players is ON in the settings of a new App")
+	fresh.free()
+	_write(SETTINGS_TEMP, "settings", {"music_volume": 3})
+	app._load_settings(SETTINGS_TEMP)
+	_check(app.settings.approve_players == true, "a file with no approve_players key loads ON")
+	_write(SETTINGS_TEMP, "settings", {"approve_players": false})
+	app._load_settings(SETTINGS_TEMP)
+	_check(app.settings.approve_players == false, "a file with approve_players = false keeps OFF")
+	for bad in ["no", [false], 0, 1.5, {"a": false}]:
+		_write(SETTINGS_TEMP, "settings", {"approve_players": bad})
+		var one: Node = app.get_script().new()
+		one._load_settings(SETTINGS_TEMP)
+		_check(one.settings.approve_players == true, "approve_players of the type %d loads ON (the default)" % typeof(bad))
+		one.free()
+	app.settings.approve_players = false
+	_check(app.save_settings(SETTINGS_TEMP), "a save with the setting OFF works")
+	app.settings.approve_players = true
+	app._load_settings(SETTINGS_TEMP)
+	_check(app.settings.approve_players == false, "the saved OFF is read back")
+
 	app.settings.music_volume = 6
 	_check(app.save_settings(SETTINGS_TEMP), "a save to a good path reports true")
 	var cfg := ConfigFile.new()

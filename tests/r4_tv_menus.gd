@@ -154,7 +154,7 @@ func _settings_about() -> void:
 	var settings: Control = _app.current_screen()
 	_check(settings.get_script() == _app.TvSettings, "8a2: the Settings screen is open")
 	# Issue #122: an on/off row changes with Left and Right, and OK does nothing.
-	var invert_row: Button = settings._rows[1]
+	var invert_row: Button = settings._rows[2]   # Rows: approve new players, debug overlay, invert tilt axes (issue #393).
 	var invert_before: bool = _app.settings.invert_tilt
 	invert_row.grab_focus()
 	await _frames(1)

@@ -1,6 +1,6 @@
 extends Control
-## Settings screen (REQ-FL-23, 24): the debug overlay and the invert tilt switch, and the language (REQ-FL-61). Back returns to
-## Games.
+## Settings screen (REQ-FL-23, 24, 93): approve new players, the debug overlay and the invert tilt switch, and the language
+## (REQ-FL-61). Back returns to Games.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -33,6 +33,7 @@ func _ready() -> void:
 	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rows.add_theme_constant_override("separation", 22)
 	scroll.add_child(rows)
+	_add_row(rows, "settings.approve_players", "approve_players", Callable())
 	_add_row(rows, "settings.debug_overlay", "overlay", Callable())
 	_add_row(rows, "settings.invert_tilt_axes", "invert_tilt", Callable())
 	_add_level_row(rows, "settings.music", "music_volume")
@@ -92,6 +93,8 @@ func _add_row(parent: Control, title: String, key: String, custom: Callable) -> 
 					var on: bool = (forward if action == "ui_right" else -forward) > 0
 					if key == "overlay":
 						App.set_overlay(on)
+					elif key == "approve_players":
+						App.set_approve_players(on)
 					else:
 						App.settings[key] = on
 						App.save_settings()

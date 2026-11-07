@@ -29,6 +29,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
 - The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`). The room code is the address of the TV (its last two numbers, scrambled).
   The phone types the room code (all phones, also an iPhone), or scans the QR code (Android plugin; the iPhone plugin is written but not built, see docs/IOS_SCANNER_PLAN.md). The TV sends nothing on the network by itself: no beacon, no list of TVs ([protocol](docs/PROTOCOL.md), "Room code").
+  With the Settings row **APPROVE NEW PLAYERS** ON (the default, issue #393), a new phone waits and a card on the TV asks the host to ALLOW or REFUSE it with the remote; with it OFF a phone joins at once. In the debug run below, press Enter on the TV window to ALLOW the phone (or turn the row OFF in Settings).
 - The phone sends raw sensor values. The TV does the sensor fusion (`scripts/input/orientation.gd`),
   so one code path is easy to tune.
 - A phone that loses the connection (or is silent for 3 seconds) keeps its slot and reconnects with a token: 5 seconds, and
@@ -93,7 +94,7 @@ all made from seeds by `MarbleTrack.generate()` in `scripts/game/marble_race/mar
 
 ```sh
 godot --path . -- --role=tv                       # TV window
-godot --path . -- --role=controller --join=127.0.0.1   # phone window. Joins the TV at that address (the TV must be a debug build: it accepts a join with no room code only then).
+godot --path . -- --role=controller --join=127.0.0.1   # phone window. Joins the TV at that address (the TV must be a debug build: it accepts a join with no room code only then; the TV shows the approval card, press Enter on the TV window to ALLOW, or turn APPROVE NEW PLAYERS off in Settings first).
 ```
 
 TV keys: arrows, Enter, Esc (back), F3 (overlay; with the overlay on: F5 starts and stops the sensor recorder, F6 / F7 change its label, REQ-T7).

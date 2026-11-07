@@ -137,7 +137,7 @@ Or copy the APK to the phone and open it (allow installs from this source).
 
 1. Connect the TV and the phone to the **same Wi-Fi network** (best: 5 GHz).
 2. Start the TV app. After the logo it shows the Connect screen with the room code and the QR code.
-3. Start the controller app. Tap **SCAN QR CODE** and scan the code. (Or type the room code of the TV in the field and tap **JOIN**.)
+3. Start the controller app. Tap **SCAN QR CODE** and scan the code. (Or type the room code of the TV in the field and tap **JOIN**.) With the setting **APPROVE NEW PLAYERS** ON (the default) the TV shows a card: press OK on ALLOW with the remote to let the phone in.
 4. On the TV, press OK on the Connect screen ("PRESS OK TO CONTINUE"). Press the Menu key (or open **Settings**, the OPTIONS button, and switch **Debug overlay** on) to see the latency numbers.
 5. Select **Treasure Maze**. Hold the phone flat during the countdown. Tilt to roll the ball.
    If the ball rolls the wrong way, select **INVERT AXES** on the Settings screen.
@@ -217,7 +217,7 @@ tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh
 
 ```sh
 godot --path . -- --role=tv                          # TV window (1280x720)
-godot --path . -- --role=controller --join=127.0.0.1  # phone window, joins the TV at that address (the TV must be a debug build: it accepts a join with no room code only then)
+godot --path . -- --role=controller --join=127.0.0.1  # phone window, joins the TV at that address (the TV must be a debug build: it accepts a join with no room code only then; press Enter on the TV window to ALLOW the phone, or turn APPROVE NEW PLAYERS off in Settings)
 ```
 
 Keyboard on the TV window: arrow keys move, Enter selects, Esc goes back, F3 toggles the overlay.
