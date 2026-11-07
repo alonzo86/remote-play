@@ -154,9 +154,11 @@ func _go_word() -> void:
 	Shell.recorder = func(kind: String, ci: CanvasItem, rect: Rect2, info: Dictionary) -> void:
 		if kind == "countdown" and ci == holder:
 			_countdown_log.append({"rect": rect, "text": info.text, "size": info.size, "lang": Lang.current()})
+	var MarbleRace = load("res://scripts/game/marble_race/marble_race.gd")   # load, not preload: it needs the autoloads.
+	var go_key := ["marble_race.go"]
 	holder.draw.connect(func() -> void:
 		for e in [0.0, 0.1, 0.2, 0.9]:
-			Shell.countdown(holder, holder.size, "marble_race.go", e))
+			Shell.countdown(holder, holder.size, go_key[0], e))
 	for code in ["en", "he"]:
 		_app.set_language(code, false)
 		_countdown_log.clear()
@@ -170,8 +172,22 @@ func _go_word() -> void:
 			texts_ok = texts_ok and e.text == want
 		_check(_countdown_log.size() >= 4 and texts_ok and inside,
 				"[%s] GO is '%s' at 4 sizes, whole and inside the 60 px margin (%d boxes)" % [code, want, _countdown_log.size()])
+	# The Hebrew word depends on the players of the round (issue #113): one player "צא", 2 to 4 players "צאו"; English GO for all.
 	_app.set_language("he", false)
-	_check(Lang.t("marble_race.go") == "צאו", "the Hebrew GO word is the text 'צאו'")
+	_check(Lang.t(MarbleRace.go_key(1)) == "צא", "Hebrew, 1 player: the GO word is 'צא'")
+	for n in [2, 3, 4]:
+		_check(Lang.t(MarbleRace.go_key(n)) == "צאו", "Hebrew, %d players: the GO word is 'צאו'" % n)
+	go_key[0] = MarbleRace.go_key(1)
+	_countdown_log.clear()
+	holder.queue_redraw()
+	await _frames(3)
+	var one_ok := _countdown_log.size() >= 4
+	for e in _countdown_log:
+		one_ok = one_ok and e.text == "צא" and Rect2(60, 60, 1800, 960).encloses(e.rect)
+	_check(one_ok, "Hebrew, 1 player: the drawn GO word is 'צא', inside the 60 px margin at 4 sizes")
+	_app.set_language("en", false)
+	for n in [1, 2, 3, 4]:
+		_check(Lang.t(MarbleRace.go_key(n)) == "GO", "English, %d players: the GO word is 'GO'" % n)
 	_app.set_language("en", false)
 	Shell.recorder = Callable()
 	holder.queue_free()

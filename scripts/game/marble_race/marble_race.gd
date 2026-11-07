@@ -435,12 +435,18 @@ func _game_draw() -> void:
 	if _round.is_counting():
 		Shell.countdown(self, size, str(_round.count_number()), _round.count_elapsed())
 	elif _round.time < GO_SHOW:
-		Shell.countdown(self, size, "marble_race.go", _round.time / GO_SHOW, UiTheme.OK)
+		Shell.countdown(self, size, go_key(participants.size()), _round.time / GO_SHOW, UiTheme.OK)
 	elif not is_over:
 		Shell.timer(self, Vector2(TIMER_X, 36.0), _round.time, 240.0)
 	_draw_edge_markers()
 	Shell.text(self, Vector2(Shell.mx(self, size.x - 360.0, 300.0), size.y - 70), track.title, 32,
 			UiTheme.TEXT, HORIZONTAL_ALIGNMENT_LEFT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_RIGHT, 300.0)
+
+
+## The key of the countdown word GO for a round of `players` cars: Hebrew has a singular for one player and a plural for
+## two or more (issue #113); English is GO for both.
+static func go_key(players: int) -> String:
+	return "marble_race.go_one" if players == 1 else "marble_race.go"
 
 
 ## Only the 10 fixed tracks have a personal best; a random track has none (REQ-MR-56).
