@@ -177,6 +177,16 @@ func _rect_hint() -> Rect2:
 	return Rect2(60, 430.0 + INFO_Y - 50.0, size.x - 120, 120)
 
 
+## The row of the place and the score of this player (REQ-FL-67): its first line is centered on `SCORE_Y`.
+func _rect_score() -> Rect2:
+	return Rect2(60, SCORE_Y - 30.0, size.x - 120, 60)
+
+
+## The row of whose turn it is (REQ-BW-14), on the row of NEW BEST!.
+func _rect_turn() -> Rect2:
+	return Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
+
+
 ## Where NEW BEST! is written: centered, in the upper half of the play area under the help line.
 func _rect_best() -> Rect2:
 	return Rect2(60, 655.0, size.x - 120, 160)
@@ -355,13 +365,13 @@ func _draw() -> void:
 	# The place and the score of this player, on a row of their own under the header (REQ-FL-67).
 	var line := score_line(c.score_rank, c.score_of, c.score_text) if online else ""
 	if line != "":
-		var line_rect := Rect2(60, SCORE_Y - 30.0, size.x - 120, 60)
+		var line_rect := _rect_score()
 		_draw_lines_centered(f, score_lines(line, line_rect.size.x), line_rect, LINE_SIZE, HORIZONTAL_ALIGNMENT_LEFT,
 				line_rect.position.x, UiTheme.TEXT, SCORE_GROWS_DOWN)
 
 	# Whose turn it is, in a game with turns, on the row of NEW BEST! (the two never show together, REQ-BW-14).
 	if online and c.turn_state != 0:
-		var turn_rect := Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
+		var turn_rect := _rect_turn()
 		var turn_color: Color = UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO
 		if c.turn_kind == "golf" and c.turn_state == 1:
 			# Mini Golf tells the player on turn what to do with the phone (the TV shows no instructions during the game). The

@@ -6,7 +6,8 @@ extends SceneTree
 ## (a quarter of the size) from the top of the next line (measured on the outline of the glyphs of the project font).
 ## 3. A screen that stays open when the language changes gets the new gap (`UiTheme.refresh_line_gaps`).
 ## 4. The pad (`controller_pad.gd`): a two-line name in the header does not touch the score row, and a two-line game name does
-## not touch a two-line NEW BEST!, in both languages (the two cases of the review of PR #405).
+## not touch a two-line NEW BEST!, in both languages (the two cases of the review of PR #405); a long score text (two lines)
+## starts where the one-line row starts, is below the name and ends above the turn row (issue #408).
 
 const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -106,7 +107,7 @@ func _run() -> void:
 		Lang.set_language(code)
 		var letter := "ק" if code == "he" else "A"
 		var name_ink := _block_ink(pad._rect_name(true), 2, pad.NAME_SIZE, letter)
-		var score_rect := Rect2(60, pad.SCORE_Y - 30.0, pad.size.x - 120, 60)
+		var score_rect: Rect2 = pad._rect_score()
 		var score_ink := _block_ink(score_rect, 1, pad.LINE_SIZE, "ב", pad.SCORE_GROWS_DOWN)
 		_check(name_ink.y < score_ink.x, "%s: a two-line name (ink to y %.0f) is above the score row (ink from y %.0f)"
 				% [code, name_ink.y, score_ink.x])
@@ -114,7 +115,7 @@ func _run() -> void:
 		var score2_ink := _block_ink(score_rect, 2, pad.LINE_SIZE, "ק" if code == "he" else "A", pad.SCORE_GROWS_DOWN)
 		_check(name_ink.y < score2_ink.x, "%s: a two-line name is above a two-line score row (ink from y %.0f)" % [code, score2_ink.x])
 		_check(is_equal_approx(score2_ink.x, score_ink.x), "%s: a two-line score row starts where the one-line row starts" % code)
-		var turn_top: float = 376.0 + pad.INFO_Y - 50.0
+		var turn_top: float = pad._rect_turn().position.y
 		_check(score2_ink.y < turn_top, "%s: a two-line score row ends (y %.0f) above the turn row (y %.0f)"
 				% [code, score2_ink.y, turn_top])
 		var game_ink := _block_ink(pad._rect_best_game(), 2, pad.BEST_GAME_SIZE, letter)
