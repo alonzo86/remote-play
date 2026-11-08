@@ -66,6 +66,11 @@ static func line_gap(font_size: int) -> int:
 	return font_size / 4 + (font_size / 8 if Lang.is_rtl() else 0)
 
 
+## The distance from one baseline of a wrapped text to the next at `font_size` in font `f` (issue #403).
+static func line_step(f: Font, font_size: int) -> float:
+	return f.get_height(font_size) + line_gap(font_size)
+
+
 ## Sets the line gap again on every label under `node` that has one: a screen that stays open when the language changes (the
 ## phone Settings screen) keeps the gap of the old language otherwise (issue #403).
 static func refresh_line_gaps(node: Node) -> void:

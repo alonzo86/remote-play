@@ -122,3 +122,4 @@ tests/join_approval.gd|controller|join approval: queue, limits, refusal counter,
 tests/join_approval_phone.gd|controller|join approval, phone screens: waiting, CANCEL and Back, refused/timeout/busy/lost texts, strings, layout (issue #393)|scenario
 tests/join_approval_tv.gd|tv|join approval, TV card: content, focus, 1 s guard, BACK ignored, over modals, ends, round, 3 refusals, Hebrew, layout (issue #393)|scenario
 tests/approve_setting.gd|tv|Settings row approve new players: first and focused, Left/Right/OK, saved, OFF refuses waiting, layout, texts (issue #393)|scenario
+tests/line_gap.gd|controller|line gap of wrapped text: Hebrew final letters, open screen refresh, pad blocks (issues #403, #406)|unit

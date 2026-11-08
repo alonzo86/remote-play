@@ -24,7 +24,7 @@ var _leave_hold := 0.0   # Seconds that a finger has stayed on Disconnect (issue
 var _aim_frac := 0.5   # Where the finger left the aim strip (0 left, 1 right) in Pin Pals.
 
 const HEADER_Y := 110.0   # The vertical middle of the header row.
-const SCORE_Y := 205.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
+const SCORE_Y := 210.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
 const INFO_Y := 50.0      # How far the Recenter box and the turn and best rows move down for the score row.
 const AIM_KNOB := 88.0       # The radius of the aim knob (it was 56 px; a finger covers a small one, issue #236, REQ-BW-4a).
 const AIM_TRAIL := 8         # How many places of the knob the trail keeps.
@@ -118,7 +118,7 @@ static func name_lines(text: String, width: float) -> Array[String]:
 func _draw_lines_centered(f: Font, lines: Array[String], rect: Rect2, fs: int, align: HorizontalAlignment, x: float,
 		color: Color) -> void:
 	# The gap keeps the lines apart, also the Hebrew final letters (issue #403).
-	var step := f.get_height(fs) + UiTheme.line_gap(fs)
+	var step := UiTheme.line_step(f, fs)
 	var mid := rect.get_center()
 	for i in lines.size():
 		var line_rect := Rect2(rect.position.x, mid.y + (float(i) - float(lines.size() - 1) * 0.5) * step - step * 0.5,
@@ -176,7 +176,7 @@ func _rect_hint() -> Rect2:
 
 ## Where NEW BEST! is written: centered, in the upper half of the play area under the help line.
 func _rect_best() -> Rect2:
-	return Rect2(60, 640.0, size.x - 120, 160)
+	return Rect2(60, 655.0, size.x - 120, 160)
 
 
 ## The name of the game that NEW BEST! belongs to, on the line above it.
