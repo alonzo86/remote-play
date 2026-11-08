@@ -14,7 +14,7 @@
       type: "TYPE THE ROOM CODE FROM THE TV", scan: "SCAN QR CODE", logo: "SABABI", you: "YOU ARE MAYA", name: "MAYA"
     },
     he: {
-      title: "שחקן חדש", wants: "רוצה להצטרף", allow: "אשרו", refuse: "סרבו", queue: "עוד 2 ממתינים",
+      title: "שחקן חדש", wants: "רוצה להצטרף", allow: "אשר", refuse: "סרב", queue: "עוד 2 ממתינים",
       settings: "הגדרות", approve: "אישור שחקנים חדשים", debug: "מסך אבחון", invert: "היפוך צירים", music: "מוזיקה", effects: "אפקטים",
       language: "שפה", langname: "עברית", on: "פועל", off: "כבוי", back: "חזרה", select: "בחרו משחק", room: "קוד חדר",
       wait: "ממתינים שהמארח יאשר אתכם.", waitSub: "בקשו מהמארח לאשר אתכם בטלוויזיה.", cancel: "ביטול",

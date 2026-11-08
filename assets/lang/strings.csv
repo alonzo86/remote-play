@@ -52,8 +52,8 @@ connect.approval_timeout,NO ANSWER FROM THE TV. TRY AGAIN.,אין תשובה מ�
 connect.approval_busy,TOO MANY PLAYERS ARE WAITING. TRY AGAIN IN A MINUTE.,יותר מדי שחקנים ממתינים. נסו שוב בעוד דקה.,"Phone, Connect screen: status line when 4 players already wait for the host",
 approval.title,NEW PLAYER,שחקן חדש,"TV, approval card over a menu screen: title",
 approval.wants,WANTS TO JOIN,רוצה להצטרף,"TV, approval card: line under the name of the phone",
-approval.allow,ALLOW,אשרו,"TV, approval card: first button (the focus starts here)","The button at the left in English, at the right in Hebrew. Hebrew is the plural imperative (REQ-FL-63a)."
-approval.refuse,REFUSE,סרבו,"TV, approval card: second button (the BACK key does not press it)","Hebrew is the plural imperative (REQ-FL-63a)."
+approval.allow,ALLOW,אשר,"TV, approval card: first button (the focus starts here)","The button at the left in English, at the right in Hebrew. Hebrew is the singular imperative: the card talks to the one host (owner, 2026-11-08; the exception of REQ-FL-63a)."
+approval.refuse,REFUSE,סרב,"TV, approval card: second button (the BACK key does not press it)","Hebrew is the singular imperative: the card talks to the one host (owner, 2026-11-08; the exception of REQ-FL-63a)."
 approval.others_waiting,+%d WAITING,עוד %d ממתינים,"TV, approval card: number of other phones that wait, shown only when it is 2 or more (exactly 1 is approval.one_waiting)",
 approval.one_waiting,+1 WAITING,עוד אחד ממתין,"TV, approval card: badge when exactly 1 other phone waits",
 connect.room_code,ROOM CODE,קוד חדר,TV Connect screen: label above the room code; Games screen: label above the room code in the header,
