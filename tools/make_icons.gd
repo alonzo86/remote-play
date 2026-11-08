@@ -14,7 +14,9 @@ func _initialize() -> void:
 	_save(_icon(mascot, 192, 0.7), "icon_192")
 	_save(_icon(mascot, 1024, 0.7), "icon_1024")   # The project icon (iOS builds it down to every size).
 	# The adaptive icon: Android crops it to a circle or a rounded square, so the mascot stays inside the middle 66 percent.
-	_save(_icon(mascot, 432, 0.5, Color(0, 0, 0, 0)), "adaptive_foreground_432")
+	# The mascot is 22 cells wide with 16 px cells; at 12 px cells (264 px) its speed lines too stay inside the circle that
+	# Android may cut (issue #384, owner 2026-11-08: the lines were cut at 352 px).
+	_save(_icon(_scaled(mascot, 0.75), 432, 0.5, Color(0, 0, 0, 0)), "adaptive_foreground_432")
 	var bg := Image.create(432, 432, false, Image.FORMAT_RGBA8)
 	bg.fill(BG)
 	_save(bg, "adaptive_background_432")
@@ -33,6 +35,13 @@ func _mascot() -> Image:
 	var img: Image = (load("res://assets/logo/splash.png") as Texture2D).get_image()
 	img.convert(Image.FORMAT_RGBA8)
 	return img.get_region(img.get_used_rect())
+
+
+## The mascot at `factor` of its size (nearest filter, so its pixels stay sharp; use a factor that keeps whole pixels).
+func _scaled(mascot: Image, factor: float) -> Image:
+	var m := mascot.duplicate() as Image
+	m.resize(roundi(mascot.get_width() * factor), roundi(mascot.get_height() * factor), Image.INTERPOLATE_NEAREST)
+	return m
 
 
 ## A square icon: the mascot in the middle, as large as a whole-number scale allows inside `share` of the side.
