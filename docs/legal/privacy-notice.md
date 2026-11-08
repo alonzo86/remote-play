@@ -18,7 +18,7 @@ The two apps talk to each other over the Wi-Fi network you are both on. They do 
 |-------------|----------------|-----|----------|
 | Player profile: a random ID, a name (up to 10 letters, digits or spaces), an avatar number, personal best scores | On the phone, in the private storage of the app. Up to 8 profiles on a phone | To show your name and avatar on the TV and to keep your best scores | Until you delete the profile, clear the data of the app or uninstall it |
 | Last TV you joined: its network address, port, room code and a session token | On the phone | To reconnect after a short break | Until you leave the TV or uninstall |
-| Settings: sound volume, vibration, tilt inversion, language | On the phone or on the TV, where you changed it | To remember your choices | Until you uninstall or clear data |
+| Settings: sound volume, vibration, tilt inversion, language, approve new players | On the phone or on the TV, where you changed it | To remember your choices | Until you uninstall or clear data |
 | Motion data: accelerometer and gyroscope readings | Sent from the phone to the TV about 60 times a second while you are connected. Not saved | To steer the game | Used at once and discarded |
 | Name, avatar and scores of the players in the current game | On the TV, in memory only | To show names and results on the screen | Gone when the TV app closes |
 | Connection data: delay and packet rate | Sent from the phone to the TV. Not saved | To keep play smooth | Discarded |
