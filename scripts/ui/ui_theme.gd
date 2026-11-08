@@ -71,6 +71,14 @@ static func line_step(f: Font, font_size: int) -> float:
 	return f.get_height(font_size) + line_gap(font_size)
 
 
+## The middle y of line `index` of `count` lines `step` apart. The block is centered on `mid_y` (it grows both ways), or with
+## `from_top` the first line stays on `mid_y` and the block grows downward (issue #408).
+static func line_center(mid_y: float, count: int, step: float, index: int, from_top := false) -> float:
+	if from_top:
+		return mid_y + float(index) * step
+	return mid_y + (float(index) - float(count - 1) * 0.5) * step
+
+
 ## Sets the line gap again on every label under `node` that has one: a screen that stays open when the language changes (the
 ## phone Settings screen) keeps the gap of the old language otherwise (issue #403).
 static func refresh_line_gaps(node: Node) -> void:

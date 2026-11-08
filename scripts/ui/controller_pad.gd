@@ -25,6 +25,8 @@ var _aim_frac := 0.5   # Where the finger left the aim strip (0 left, 1 right) i
 
 const HEADER_Y := 110.0   # The vertical middle of the header row.
 const SCORE_Y := 210.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
+# A long score text goes on a second line below the first, so it never reaches the name above it (issue #408).
+const SCORE_GROWS_DOWN := true
 const INFO_Y := 50.0      # How far the Recenter box and the turn and best rows move down for the score row.
 const AIM_KNOB := 88.0       # The radius of the aim knob (it was 56 px; a finger covers a small one, issue #236, REQ-BW-4a).
 const AIM_TRAIL := 8         # How many places of the knob the trail keeps.
@@ -114,14 +116,15 @@ static func name_lines(text: String, width: float) -> Array[String]:
 	return UiTheme.wrap_lines(UiTheme.font(), text, width, NAME_SIZE)
 
 
-## Draws `lines` one under the other, the block centered on the middle of `rect` (the box grows around the middle).
+## Draws `lines` one under the other, the block centered on the middle of `rect` (the box grows around the middle). With
+## `from_top` the first line stays on the middle of `rect` and the block grows downward (the score row, issue #408).
 func _draw_lines_centered(f: Font, lines: Array[String], rect: Rect2, fs: int, align: HorizontalAlignment, x: float,
-		color: Color) -> void:
+		color: Color, from_top := false) -> void:
 	# The gap keeps the lines apart, also the Hebrew final letters (issue #403).
 	var step := UiTheme.line_step(f, fs)
 	var mid := rect.get_center()
 	for i in lines.size():
-		var line_rect := Rect2(rect.position.x, mid.y + (float(i) - float(lines.size() - 1) * 0.5) * step - step * 0.5,
+		var line_rect := Rect2(rect.position.x, UiTheme.line_center(mid.y, lines.size(), step, i, from_top) - step * 0.5,
 				rect.size.x, step)
 		draw_string(f, Vector2(x, UiTheme.centered_baseline(f, line_rect, fs)), lines[i], align, rect.size.x, fs, color)
 
@@ -172,6 +175,16 @@ func _rect_aim() -> Rect2:
 ## The help line of RECENTER ("POINT AT THE CENTER OF THE TV, THEN TAP"): under the turn row, in the upper half of the play area.
 func _rect_hint() -> Rect2:
 	return Rect2(60, 430.0 + INFO_Y - 50.0, size.x - 120, 120)
+
+
+## The row of the place and the score of this player (REQ-FL-67): its first line is centered on `SCORE_Y`.
+func _rect_score() -> Rect2:
+	return Rect2(60, SCORE_Y - 30.0, size.x - 120, 60)
+
+
+## The row of whose turn it is (REQ-BW-14), on the row of NEW BEST!.
+func _rect_turn() -> Rect2:
+	return Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
 
 
 ## Where NEW BEST! is written: centered, in the upper half of the play area under the help line.
@@ -352,13 +365,13 @@ func _draw() -> void:
 	# The place and the score of this player, on a row of their own under the header (REQ-FL-67).
 	var line := score_line(c.score_rank, c.score_of, c.score_text) if online else ""
 	if line != "":
-		var line_rect := Rect2(60, SCORE_Y - 30.0, size.x - 120, 60)
+		var line_rect := _rect_score()
 		_draw_lines_centered(f, score_lines(line, line_rect.size.x), line_rect, LINE_SIZE, HORIZONTAL_ALIGNMENT_LEFT,
-				line_rect.position.x, UiTheme.TEXT)
+				line_rect.position.x, UiTheme.TEXT, SCORE_GROWS_DOWN)
 
 	# Whose turn it is, in a game with turns, on the row of NEW BEST! (the two never show together, REQ-BW-14).
 	if online and c.turn_state != 0:
-		var turn_rect := Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
+		var turn_rect := _rect_turn()
 		var turn_color: Color = UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO
 		if c.turn_kind == "golf" and c.turn_state == 1:
 			# Mini Golf tells the player on turn what to do with the phone (the TV shows no instructions during the game). The

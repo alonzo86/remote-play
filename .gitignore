@@ -41,3 +41,6 @@ ios/plugins/
 *.keystore
 *.jks
 *.p12
+
+# Godot makes an .import file for every image it sees, also the store images that the app does not use
+docs/store-assets/**/*.import
