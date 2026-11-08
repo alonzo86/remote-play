@@ -99,7 +99,7 @@ pad.disconnect_hold,HOLD TO LEAVE,החזיקו להתנתקות,Phone: HOLD TO L
 pad.new_best,NEW BEST!,שיא חדש!,Phone game screen: after a round that set a personal best, only while the result of that game is open (not on the waiting screen); large (56 px), yellow, centered in the upper half of the play area under the name of the game,
 pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,Phone game screen: help line in the upper half of the play area, above the small Recenter button at the bottom,
 pad.recenter,RECENTER,מרכוז,Phone game screen: Recenter button,
-pad.slide_to_aim,SLIDE TO MOVE THE BALL,החליקו כדי להזיז את הכדור,Phone game screen: help line on the aim strip while it is the turn of this phone in Pin Pals,
+pad.slide_to_aim,SLIDE TO MOVE THE BALL,החליקו כדי להזיז את הכדור,Phone game screen: help line on the aim strip while it is the turn of this phone in Bowling,
 paint_grab.percent,%d%%,%d%%,"Paint Grab: the share of the picture that a player painted (leader chip, phone score line, result list)","the number sign (%d) is replaced by a whole number"
 paint_grab.tilt_phone_roll_paint,TILT YOUR PHONE TO ROLL AND PAINT THE TILES!,הטו את הטלפון כדי להתגלגל ולצבוע את האריחים!,Paint Grab: hint during the countdown,
 pause.and, AND , ו־,Pause card: joins the names of two or more phones ('2P AND 3P'),keep the spaces at the start and the end
@@ -191,25 +191,25 @@ asteroid_blast.wave_n,Wave %d,גל %d,"Star Shield: wave number in the HUD and t
 asteroid_blast.wave_clear,Wave %d clear!,גל %d הסתיים!,"Star Shield: banner when a wave is over, %d is the wave",
 asteroid_blast.next_wave_in,Next wave in %d,הגל הבא בעוד %d,"Star Shield: banner in the rest between two waves, %d is seconds",
 asteroid_blast.reached_wave,Reached wave %d,הגעתם לגל %d,"Star Shield: title of the result menu for one player, %d is the wave",
-registry.pin_pals,PIN PALS,באולינג חברים,"Name of the game Pin Pals: Games screen, game settings, in-game title",
-registry.desc_bowling,"BOWLING WITH FRIENDS, WITH YOUR PHONE AS THE BALL.","באולינג עם חברים, והטלפון הוא הכדור.","Description of Pin Pals: info bar of the Games screen (what the game is, no instructions, issue #78)",
-bowling.rails,RAILS,מעקות,Pin Pals settings view: name of the Rails row,
-bowling.with_rails,WITH,עם,Pin Pals settings view: the value of the Rails row when the lane has rails (the gutters are covered),
-bowling.without_rails,WITHOUT,בלי,Pin Pals settings view: the value of the Rails row when the lane has no rails (the default),
-bowling.turn,"%s, your turn!","%s, תורך!","Pin Pals: plate in the top bar while a player bowls, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
-bowling.frame,Frame %d/%d  Ball %d,פריים %d/%d  כדור %d,"Pin Pals: top bar, right side: the frame (of 10) and the ball (1 to 3) that is bowled now","the number sign (%d, %.1f ...) is replaced by a number"
-bowling.hint_slide,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD!",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה!,Pin Pals: hint on a plate over the lane at the start of a turn,
-bowling.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Pin Pals: hint on a plate after a swing that was too weak,
-bowling.hint_lift,"LIFT YOUR FINGER, THEN SWING!",הרימו את האצבע ואז הניפו!,Pin Pals: hint on a plate after a swing with a finger on the aim strip,
-bowling.strike,STRIKE!,סטרייק!,Pin Pals: banner after a strike (all 10 pins with the first ball),
-bowling.spare,SPARE!,ספייר!,Pin Pals: banner after a spare (all 10 pins with 2 balls),
-bowling.gutter,OOPS! OFF THE SIDE,אופס! יצא לצד,Pin Pals: banner after a ball that knocked no pin or went into the gutter,
-bowling.nice_roll,NICE ROLL!,גלגול יפה!,"Pin Pals: banner after a ball that knocked 7 or more pins, but no strike or spare",
-bowling.nice_try,NICE TRY!,ניסיון יפה!,Pin Pals: banner after a ball that knocked 1 to 6 pins,
-bowling.pins_left,%d pins left. One more ball!,נשארו %d פינים. עוד כדור!,"Pin Pals: line under the banner before the second ball, %d is the pins that stand","the number sign (%d, %.1f ...) is replaced by a number"
-bowling.pin_left,1 pin left. One more ball!,נשאר פין אחד. עוד כדור!,Pin Pals: line under the banner before the second ball when 1 pin stands,
-bowling.phone_turn,YOUR TURN,התור שלך,"Pin Pals: phone screen, line under the player and score rows while it is the turn of this phone",
-bowling.phone_wait,%s IS BOWLING,%s משחק/ת,"Pin Pals: phone screen, same line while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
+registry.bowling,BOWLING,באולינג,"Name of the game Bowling: Games screen, game settings, in-game title",
+registry.desc_bowling,"BOWLING WITH FRIENDS, WITH YOUR PHONE AS THE BALL.","באולינג עם חברים, והטלפון הוא הכדור.","Description of Bowling: info bar of the Games screen (what the game is, no instructions, issue #78)",
+bowling.rails,RAILS,מעקות,Bowling settings view: name of the Rails row,
+bowling.with_rails,WITH,עם,Bowling settings view: the value of the Rails row when the lane has rails (the gutters are covered),
+bowling.without_rails,WITHOUT,בלי,Bowling settings view: the value of the Rails row when the lane has no rails (the default),
+bowling.turn,"%s, your turn!","%s, תורך!","Bowling: plate in the top bar while a player bowls, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
+bowling.frame,Frame %d/%d  Ball %d,פריים %d/%d  כדור %d,"Bowling: top bar, right side: the frame (of 10) and the ball (1 to 3) that is bowled now","the number sign (%d, %.1f ...) is replaced by a number"
+bowling.hint_slide,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD!",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה!,Bowling: hint on a plate over the lane at the start of a turn,
+bowling.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Bowling: hint on a plate after a swing that was too weak,
+bowling.hint_lift,"LIFT YOUR FINGER, THEN SWING!",הרימו את האצבע ואז הניפו!,Bowling: hint on a plate after a swing with a finger on the aim strip,
+bowling.strike,STRIKE!,סטרייק!,Bowling: banner after a strike (all 10 pins with the first ball),
+bowling.spare,SPARE!,ספייר!,Bowling: banner after a spare (all 10 pins with 2 balls),
+bowling.gutter,OOPS! OFF THE SIDE,אופס! יצא לצד,Bowling: banner after a ball that knocked no pin or went into the gutter,
+bowling.nice_roll,NICE ROLL!,גלגול יפה!,"Bowling: banner after a ball that knocked 7 or more pins, but no strike or spare",
+bowling.nice_try,NICE TRY!,ניסיון יפה!,Bowling: banner after a ball that knocked 1 to 6 pins,
+bowling.pins_left,%d pins left. One more ball!,נשארו %d פינים. עוד כדור!,"Bowling: line under the banner before the second ball, %d is the pins that stand","the number sign (%d, %.1f ...) is replaced by a number"
+bowling.pin_left,1 pin left. One more ball!,נשאר פין אחד. עוד כדור!,Bowling: line under the banner before the second ball when 1 pin stands,
+bowling.phone_turn,YOUR TURN,התור שלך,"Bowling: phone screen, line under the player and score rows while it is the turn of this phone",
+bowling.phone_wait,%s IS BOWLING,%s משחק/ת,"Bowling: phone screen, same line while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
 registry.tennis,TENNIS,טניס,"Name of the game Tennis: Games screen, game settings, in-game title",
 registry.desc_tennis,A TENNIS MATCH WITH YOUR PHONE AS THE RACKET.,"משחק טניס, והטלפון הוא המחבט.","Description of Tennis: info bar of the Games screen (what the game is, no instructions, issue #78)",
 tennis.scoring,SCORING,ניקוד,Tennis settings view: name of the Scoring row,
@@ -251,9 +251,9 @@ mini_golf.col_total,Total,סה״כ,"Mini Golf: card at the end of a hole, title 
 mini_golf.phone_turn,"YOUR TURN: AIM, THEN SWING BACK AND FORWARD LIKE A PUTTER!","התור שלך: כוונו, ואז הניפו אחורה וקדימה כמו מחבט גולף!","Mini Golf: phone screen, line under the player and score rows while it is the turn of this phone (two lines at most): says what to do with the phone",
 mini_golf.phone_wait,%s IS PUTTING,%s מבצע/ת מכה,"Mini Golf: phone screen, line under the player and score rows while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
 common.ok,OK,אישור,Phone safety card of a swing game (OK button),
-swing.card_title,HOLD ON TIGHT!,החזיקו חזק!,"Phone: title of the safety card that shows each time the settings view of a swing game (Pin Pals, Tennis, Mini Golf, Freeze Dance) is open on the TV",
+swing.card_title,HOLD ON TIGHT!,החזיקו חזק!,"Phone: title of the safety card that shows each time the settings view of a swing game (Bowling, Tennis, Mini Golf, Freeze Dance) is open on the TV",
 swing.card_text,GRIP FIRMLY. KEEP SPACE AROUND YOU.,אחזו חזק. שמרו מרחק מסביב.,Phone: text of the safety card of a swing game (under a picture of a phone with a wrist strap),Shortened 2026-10-30 (issue #235); was: GRIP YOUR PHONE FIRMLY. CHECK THAT NOBODY IS CLOSE AND NOTHING IS IN THE WAY.
-swing.tv_line,HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.,החזיקו את הטלפון חזק ושמרו מרחק מסביב.,"TV game settings view of Pin Pals, Tennis, Mini Golf and Freeze Dance: safety line under the rows, always shown",
+swing.tv_line,HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.,החזיקו את הטלפון חזק ושמרו מרחק מסביב.,"TV game settings view of Bowling, Tennis, Mini Golf and Freeze Dance: safety line under the rows, always shown",
 game_settings.waiting_phones,WAITING FOR PHONES,ממתינים לטלפונים,TV game settings view of a swing game: line under Start while a phone has not tapped OK on its safety card (Start is off),
 how_to.maze,TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.,הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.,"TV game settings view of Treasure Maze: how to play, under the title (issue #77; the text that was the description before)",
 how_to.marble_race,TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.,הטו כדי להוביל את המכונית לאורך הכביש. המכונית הראשונה מעל הקו מנצחת.,"TV game settings view of Car Race: how to play, under the title (issue #77; the text that was the description before)",
@@ -261,7 +261,7 @@ how_to.paint_grab,TILT YOUR PHONE TO ROLL YOUR PAINT BLOB OVER THE FLOOR. THE MO
 how_to.sumo_bumpers,TILT TO ROLL YOUR BUMPER AND PUSH THE OTHERS OFF THE SHRINKING PLATFORM. MOST POINTS IN 3 ROUNDS WINS.,הטו כדי לגלגל את הפגוש שלכם ולדחוף את האחרים מהפלטפורמה המצטמקת. מי שצבר הכי הרבה נקודות ב־3 סיבובים מנצח.,"TV game settings view of Sumo Bumpers: how to play, under the title (issue #77; the text that was the description before)",
 how_to.snowball_splat,POINT YOUR PHONE AT THE SCREEN AND PRESS A TO THROW BANANAS AT THE HUNGRY ANIMALS. MOST POINTS IN 60 S WINS.,כוונו את הטלפון אל המסך ולחצו A כדי לזרוק בננות על החיות הרעבות. מי שצבר הכי הרבה נקודות תוך 60 שניות מנצח.,"TV game settings view of Banana Party: how to play, under the title (issue #77; the text that was the description before)",
 how_to.asteroid_blast,TILT TO FLY YOUR SPACESHIP AND BLAST THE ASTEROIDS. THE GAME GOES ON UNTIL EVERY SHIP IS GONE.,הטו כדי להטיס את החללית ולפוצץ אסטרואידים. המשחק נמשך עד שכל החלליות נעלמו.,"TV game settings view of Star Shield: how to play, under the title (issue #77; the text that was the description before)",
-how_to.bowling,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD TO ROLL THE BALL! KNOCK DOWN ALL THE PINS.",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה כדי לגלגל את הכדור! הפילו את כל הפינים.,"TV game settings view of Pin Pals: how to play, under the title (issue #77)",
+how_to.bowling,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD TO ROLL THE BALL! KNOCK DOWN ALL THE PINS.",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה כדי לגלגל את הכדור! הפילו את כל הפינים.,"TV game settings view of Bowling: how to play, under the title (issue #77)",
 how_to.tennis,SWING YOUR PHONE WHEN THE BALL ARRIVES. SWING TO A SIDE TO AIM. PRESS A TO TOSS THE BALL FOR A SERVE.,הניפו את הטלפון כשהכדור מגיע. הניפו לצד כדי לכוון. לחצו A כדי לזרוק את הכדור להגשה.,"TV game settings view of Tennis: how to play, under the title (issue #77)",
 how_to.mini_golf,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT THE BALL INTO THE HOLE.",הזיזו את הטלפון כדי לכוון. הניפו אחורה ואז קדימה כדי לדחוף את הכדור לגומה.,"TV game settings view of Mini Golf: how to play, under the title (issue #77)",
 setup.question,PLAY THIS GAME?,לשחק במשחק הזה?,"Phone waiting screen, while the TV settings view of a game is open and two or more phones are connected: the question above the IN and OUT buttons",

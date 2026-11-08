@@ -21,7 +21,7 @@ var _quit_dialog: Control
 var _flash := {"recenter": 0.0}
 var _aim_trail: Array[float] = []   # The last places of the knob, oldest first, for the trail.
 var _leave_hold := 0.0   # Seconds that a finger has stayed on Disconnect (issue #239).
-var _aim_frac := 0.5   # Where the finger left the aim strip (0 left, 1 right) in Pin Pals.
+var _aim_frac := 0.5   # Where the finger left the aim strip (0 left, 1 right) in Bowling.
 
 const HEADER_Y := 110.0   # The vertical middle of the header row.
 const SCORE_Y := 210.0    # The vertical middle of the row under it: the place and the score of this player (REQ-FL-67).
@@ -129,7 +129,7 @@ func _draw_lines_centered(f: Font, lines: Array[String], rect: Rect2, fs: int, a
 		draw_string(f, Vector2(x, UiTheme.centered_baseline(f, line_rect, fs)), lines[i], align, rect.size.x, fs, color)
 
 
-## The turn line of the pad (REQ-BW-14, REQ-MG-20): `kind` is "" for Pin Pals and "golf" for Mini Golf, `state` 1 is this phone on
+## The turn line of the pad (REQ-BW-14, REQ-MG-20): `kind` is "" for Bowling and "golf" for Mini Golf, `state` 1 is this phone on
 ## turn and 2 another player (`who`). Mini Golf says what to do with the phone to the phone on turn.
 static func turn_text(kind: String, state: int, who: String) -> String:
 	var golf := kind == "golf"
@@ -165,7 +165,7 @@ func _rect_recenter() -> Rect2:
 	return Rect2((size.x - RECENTER_W) * 0.5, leave.position.y - RECENTER_GAP - RECENTER_H, RECENTER_W, RECENTER_H)
 
 
-## The aim strip of Pin Pals (REQ-BW-4): the big box in the upper half of the play area.
+## The aim strip of Bowling (REQ-BW-4): the big box in the upper half of the play area.
 func _rect_aim() -> Rect2:
 	var top := 360.0 + INFO_Y
 	var h := minf(size.y * 0.30, 620.0)
@@ -197,7 +197,7 @@ func _rect_best_game() -> Rect2:
 	return Rect2(60, 580.0, size.x - 120, 56)
 
 
-## True while this phone is on turn in Pin Pals: the Recenter box becomes the aim strip (REQ-BW-4).
+## True while this phone is on turn in Bowling: the Recenter box becomes the aim strip (REQ-BW-4).
 func _aim_mode() -> bool:
 	var c: Node = App.client
 	return c.state == ControllerClient.State.CONNECTED and c.turn_state == 1 and c.turn_kind == ""
@@ -469,7 +469,7 @@ static func crossed_middle(before: float, now: float) -> bool:
 	return (before - 0.5) * (now - 0.5) < 0.0 or (now == 0.5 and before != 0.5)
 
 
-## The aim strip of Pin Pals (REQ-BW-4): a finger slides the ball left or right along the foul line. The mark stays where the
+## The aim strip of Bowling (REQ-BW-4): a finger slides the ball left or right along the foul line. The mark stays where the
 ## finger left it. The word is the help line; the lane lines are drawn as a plain row of ticks.
 func _draw_aim_strip(rr: Rect2, f: Font) -> void:
 	var col: Color = App.client.color

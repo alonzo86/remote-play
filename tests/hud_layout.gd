@@ -12,7 +12,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
-## id -> [script, props, has leader chip, has timer in this run]. A game with its own score card (Pin Pals) and the maze
+## id -> [script, props, has leader chip, has timer in this run]. A game with its own score card (Bowling) and the maze
 ## (no score, REQ-MZ-10) have no leader chip. Mini Golf has one since 2026-11-05 (the fewest strokes lead). Sheep Herding has a
 ## team chip instead (tests/smoke_sheep.gd).
 const GAMES := {
@@ -430,7 +430,7 @@ func _row_checks(state: String, snap: Dictionary, lang: String, has_timer: bool)
 		_check(is_equal_approx(base, Shell.TITLE_BASELINE),
 				"%s: the title stands on the common baseline (y %.0f)" % [state, base])
 	for st in snap.get("status", []):
-		# Pin Pals ("FRAME 1/10", REQ-BW-12) and Mini Golf ("HOLE 3 OF 10") stand on the baseline of their title; the other
+		# Bowling ("FRAME 1/10", REQ-BW-12) and Mini Golf ("HOLE 3 OF 10") stand on the baseline of their title; the other
 		# games use the status baseline.
 		var want := Shell.TITLE_BASELINE if state.begins_with("bowling") or state.begins_with("mini_golf") \
 				else Shell.STATUS_BASELINE

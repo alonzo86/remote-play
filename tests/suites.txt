@@ -43,8 +43,8 @@ tests/smoke_asteroid.gd|tv|Star Shield|scenario
 tests/smoke_bests.gd|tv|personal bests|scenario
 tests/audio.gd|tv|audio: synth, songs, effects, volume and haptics switch|unit
 tests/smoke_lang.gd|tv|languages and right to left|scenario
-tests/bowling_rules.gd|controller|Pin Pals rules, lane and swing|unit
-tests/smoke_bowling.gd|tv|Pin Pals|scenario
+tests/bowling_rules.gd|controller|Bowling rules, lane and swing|unit
+tests/smoke_bowling.gd|tv|Bowling|scenario
 tests/smoke_tennis.gd|tv|Tennis|scenario
 tests/golf_rules.gd|controller|Mini Golf rules, ball and holes|unit
 tests/orientation_rules.gd|controller|sensor fusion: tilt past 90 degrees, calm phone|unit
@@ -53,7 +53,7 @@ tests/smoke_golf.gd|tv|Mini Golf|scenario
 tests/multi_phone.gd|tv|games with 3 and 4 simulated phones: GO buzz, places, tie, leaving, frame cost|scenario
 tests/swing_replay.gd|tv|swing detector replay (Test 24)|unit
 tests/sensor_recorder.gd|tv|sensor recorder: CSV round trip into the swing detector (Test 24 12d)|unit
-tests/bowling_replay.gd|tv|Pin Pals replay (Test 23)|unit
+tests/bowling_replay.gd|tv|Bowling replay (Test 23)|unit
 tests/smoke_tennis_phones.gd|tv|Tennis with sensor traces and 4 phones|scenario
 tests/smoke_golf_phones.gd|tv|Mini Golf with sensor traces|scenario
 tests/auto_paint.gd|tv|Paint Grab: tilt, levels, medals, grid (fixed step)|scenario
@@ -99,7 +99,7 @@ tests/r4_join_code.gd|controller|Join by room code: TV rules, Connect screen, er
 tests/qr_scanner_ios.gd|controller|iPhone QR scanner, GDScript side: texts, reasons, button, buzz (issue #299)|unit
 tests/r4_tv_menus.gd|tv|Connect screen, Players modal, Settings, About|scenario
 tests/r4_asteroid.gd|tv|Star Shield: ship at the sides, Reached wave N|scenario
-tests/r4_bowling.gd|tv|Pin Pals: totals, last frame, rails, plate, scores, winner, leave|scenario
+tests/r4_bowling.gd|tv|Bowling: totals, last frame, rails, plate, scores, winner, leave|scenario
 tests/r4_tennis.gd|tv|Tennis: leader chip, toss, runs, GREAT, places, rally|scenario
 tests/r4_golf.gd|tv|Mini Golf: turn, plate, phones, aim mark, swing, barriers, banner, bar, result menu|scenario
 tests/air_hockey_rules.gd|controller|Air Hockey rules, puck and ROBO|unit

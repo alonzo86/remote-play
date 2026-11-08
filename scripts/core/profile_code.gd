@@ -7,7 +7,7 @@ const Profile = preload("res://scripts/core/profile.gd")
 const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
 
 const PREFIX := "WP1."
-## Version 1 carries up to 39 bests (numbers 1 to 39). Version 2 carries up to 42 (Pin Pals, numbers 40 to 42). Version 3 carries
+## Version 1 carries up to 39 bests (numbers 1 to 39). Version 2 carries up to 42 (Bowling, numbers 40 to 42). Version 3 carries
 ## up to 48 (Whack-a-Mole 43 to 45 and Tennis 46 to 48). A profile is written with the lowest version that holds its bests, so an
 ## older app reads it when it can. All versions have the same layout, and this app reads all of them.
 const FORMAT_VERSION := 1

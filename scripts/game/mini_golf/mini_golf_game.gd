@@ -560,7 +560,7 @@ func hole_text() -> String:
 func _draw_hole_text() -> void:
 	var text := hole_text()
 	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, Shell.STATUS_FONT).x
-	Shell.status(self, STATUS_X, w, text, UiTheme.TEXT, Shell.TITLE_BASELINE)   # On the row of the title, as in Pin Pals.
+	Shell.status(self, STATUS_X, w, text, UiTheme.TEXT, Shell.TITLE_BASELINE)   # On the row of the title, as in Bowling.
 
 
 ## The card at the end of a hole: the strokes of each player on the hole and in all (REQ-MG-6).

@@ -14,7 +14,7 @@ const ID_A := "9f2c4e7a1b3d5f60718293a4b5c6d7e8"
 const ID_B := "00112233445566778899aabbccddeeff"
 const TEMP := "user://test_profile_code.cfg"
 const GOLDEN := "WP1.AZ8sTnobPV9gcYKTpLXG1-gLAwRNYXlhAwLUAgQRHpLCArDh"
-## A code of the app before issue #216 (version 2, with a Pin Pals best): this app must still read it.
+## A code of the app before issue #216 (version 2, with a Bowling best): this app must still read it.
 const GOLDEN_V2 := "WP1.Ap8sTnobPV9gcYKTpLXG1-gDAgRNYXlhAgQHKb4Bkkw"
 ## A fixed profile with a Whack-a-Mole and a Tennis best (version 3): protects the numbers 43 to 48.
 const GOLDEN_V3 := "WP1.A58sTnobPV9gcYKTpLXG1-gDAgRNYXlhAizwATAfu6U"
@@ -134,11 +134,11 @@ func _round_trip() -> void:
 	var bowl := {"bowling|easy": 150, "bowling|medium": 190, "bowling|hard": 240}
 	var bowl_back = ProfileCode.decode(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, bowl))).get("profile")
 	_check(bowl_back != null and bowl_back.bests == bowl and not ProfileKeys.lower_is_better("bowling|hard"),
-			"the bests of keys 40 to 42 (Pin Pals) survive a code (REQ-BW-19)")
+			"the bests of keys 40 to 42 (Bowling) survive a code (REQ-BW-19)")
 	var bowl_raw := _raw_of(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, bowl)))
 	var old_raw := _raw_of(ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, blast)))
 	_check(bowl_raw[0] == 2 and old_raw[0] == 1,
-			"a code with a Pin Pals best is version 2; a code without one stays version 1, so an old app reads it")
+			"a code with a Bowling best is version 2; a code without one stays version 1, so an old app reads it")
 	var mole_tennis := {"whack_a_mole|easy": 120, "whack_a_mole|medium": 240, "whack_a_mole|hard": 310,
 			"tennis|easy": 9, "tennis|medium": 14, "tennis|hard": 31}
 	var mt_code := ProfileCode.encode(_profile(ID_A, "Maya", 3, 1, mole_tennis))
@@ -161,7 +161,7 @@ func _round_trip() -> void:
 	_check(ProfileCode.encode(_profile(ID_A, "Maya", 3, 2, {"whack_a_mole|medium": 240, "tennis|hard": 31})) == GOLDEN_V3,
 			"a fixed profile with a Whack-a-Mole and a Tennis best gives a fixed text (this protects the numbers 43 to 48)")
 	_check(ProfileCode.encode(_profile(ID_A, "Maya", 3, 2, {"bowling|medium": 190, "paint_grab|easy": 7})) == GOLDEN_V2,
-			"a profile with a Pin Pals best still gives the version 2 text")
+			"a profile with a Bowling best still gives the version 2 text")
 	var small := ProfileCode.encode(_profile(ID_A, "Maya", 1))
 	_check(small.length() < 70 and not QrEncoder.encode(small).is_empty(),
 			"a profile with no bests is short: %d characters" % small.length())

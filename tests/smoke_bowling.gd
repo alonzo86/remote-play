@@ -1,5 +1,5 @@
 extends SceneTree
-## Smoke test of Pin Pals with two simulated phones (REQ-BW-*). Run:
+## Smoke test of Bowling with two simulated phones (REQ-BW-*). Run:
 ##   godot --headless --path . --script tests/smoke_bowling.gd -- --role=tv
 
 const Shell = preload("res://scripts/game/shell.gd")
@@ -86,7 +86,7 @@ func _run() -> void:
 	await _frames(6)
 	var sv: Control = app.current_screen()
 	_check(sv.rows.size() == 2 and sv.rows[0].value == "medium" and sv.rows[1].value == "off" and not sv.start_button.disabled,
-			"Pin Pals opens the settings view with Difficulty on Medium and Rails off (REQ-BW-16, 17)")
+			"Bowling opens the settings view with Difficulty on Medium and Rails off (REQ-BW-16, 17)")
 	var rails_row: Dictionary = sv.rows[1].row
 	_check(GameSettings.title_text(rails_row, "off") == "WITHOUT" and GameSettings.title_text(rails_row, "on") == "WITH",
 			"the Rails values read WITHOUT and WITH, not OFF and ON (issue #140)")

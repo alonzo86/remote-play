@@ -8,7 +8,7 @@ REQ-GM-46 (decision of the owner) says that a player object on the TV shows **no
 
 | Game | Player object on the TV | Same shape for all slots | Cue besides color |
 |------|------------------------|--------------------------|-------------------|
-| Pin Pals (bowling) | ball (`BowlingLook.draw_ball`) | yes | Turn order: one ball on the lane at a time; the score sheet rows hold the name chip with the avatar |
+| Bowling (bowling) | ball (`BowlingLook.draw_ball`) | yes | Turn order: one ball on the lane at a time; the score sheet rows hold the name chip with the avatar |
 | Tennis | player with a shirt in the slot color | no: skin and hair change with the slot (`TennisLook.draw_person`, `SKINS[slot]`, `HAIRS[slot+1]`) | Side of the court and the team chip; skin and hair (a weak cue) |
 | Mini Golf | golfer with a shirt in the slot color; the ball is white, with no ring, and only the ball on turn is drawn (2026-11-03) | yes | Turn order: one golfer at a time, the shirt tells who plays; the chips of the bar name the players; the score table has a chip with the avatar |
 | Air Hockey | mallet (`AirHockeyLook.draw_paddle`) | yes | Position: the seat on the left or on the right, own goal; chips with avatars above the goals |

@@ -1,6 +1,6 @@
 extends SceneTree
 ## Test 20 steps 9a to 9d and 10, the whole way from the TV to the phone: two simulated phones with a profile and one guest
-## finish a round of each game that has a personal best (Banana Party, Paint Grab, Star Shield, Pin Pals, Car Race on a
+## finish a round of each game that has a personal best (Banana Party, Paint Grab, Star Shield, Bowling, Car Race on a
 ## fixed track). The result goes over the network to each phone, the phone logic of the App (`_on_result`) keeps the best, and
 ## the waiting screen and the pad say NEW BEST! and BEFORE: with the old best:
 ##   round 1 a first score: NEW BEST!, no BEFORE (9a);
@@ -9,7 +9,7 @@ extends SceneTree
 ##   the guest never sees a best (9d);
 ##   after a restart of the app (the file is read again, a new client, the same profile) the next better score says BEFORE: the
 ##   best from before the restart; the key does not name a TV (10).
-## Pin Pals with Rails On has no best and no NEW BEST! (23.7b).
+## Bowling with Rails On has no best and no NEW BEST! (23.7b).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_bests.gd -- --role=tv
 
 const Protocol = preload("res://scripts/core/protocol.gd")
@@ -276,9 +276,9 @@ func _restart() -> void:
 			"10: the next better round says BEFORE: %d, the best from before the restart: '%s'" % [old, shown.detail])
 
 
-## 23.7b: Pin Pals with Rails On has no key, so the phones get no result and show no NEW BEST!.
+## 23.7b: Bowling with Rails On has no key, so the phones get no result and show no NEW BEST!.
 func _rails_on() -> void:
-	print("Pin Pals with Rails On")
+	print("Bowling with Rails On")
 	var g: Dictionary = GAMES[3]
 	_app.go(load(g.path), {"difficulty": "medium", "rails": "on"})
 	await _frames(3)

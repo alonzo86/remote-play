@@ -1,6 +1,6 @@
 extends SceneTree
 ## The setup of a game in the TV settings view (issues #79 and #76, REQ-GM-102, REQ-GM-104), with simulated phones on the
-## loopback network. Swing games (Pin Pals, Tennis, Mini Golf): the settings view sends `setup` to the phones, Start waits
+## loopback network. Swing games (Bowling, Tennis, Mini Golf): the settings view sends `setup` to the phones, Start waits
 ## for the answer `swing_ok` of every phone that plays, the card shows every time the view opens (tests/ui_states_a.gd), and
 ## the other games have no card. IN and OUT: each phone chooses, the TV lists it, the game has the IN players only. Run:
 ##   godot --headless --path . --script tests/swing_setup.gd -- --role=tv
@@ -52,7 +52,7 @@ func _wait_for(cond: Callable) -> void:
 		await process_frame
 
 
-## Only the games with the `swing` flag of the registry have the card (Pin Pals, Tennis, Mini Golf, Freeze Dance).
+## Only the games with the `swing` flag of the registry have the card (Bowling, Tennis, Mini Golf, Freeze Dance).
 func _games() -> void:
 	print("which games")
 	var swing: Array[String] = []
@@ -61,7 +61,7 @@ func _games() -> void:
 			swing.append(String(g.id))
 	swing.sort()
 	_check(swing == ["bowling", "freeze_dance", "mini_golf", "tennis"],
-			"the swing games are Pin Pals, Freeze Dance (it is wiggled), Mini Golf and Tennis: %s" % [swing])
+			"the swing games are Bowling, Freeze Dance (it is wiggled), Mini Golf and Tennis: %s" % [swing])
 	var app: Node = sim.app
 	app.go_game_settings("maze")
 	await sim.frames(6)

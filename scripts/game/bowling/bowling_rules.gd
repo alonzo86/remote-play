@@ -1,5 +1,5 @@
 extends RefCounted
-## The rules of Pin Pals (REQ-BW-1 to 3): ten-pin bowling for 1 to 4 players. It keeps the rolls of each player, the turn order
+## The rules of Bowling (REQ-BW-1 to 3): ten-pin bowling for 1 to 4 players. It keeps the rolls of each player, the turn order
 ## (frame by frame, in slot order inside a frame), the standing pins of the rack and the score sheet. Pure logic: it draws
 ## nothing and uses no nodes, so the rules can be tested without a screen.
 

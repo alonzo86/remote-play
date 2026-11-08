@@ -1,5 +1,5 @@
 extends SceneTree
-## The rules, the lane and the swing of Pin Pals (REQ-BW-*), pure logic and pictures. Run:
+## The rules, the lane and the swing of Bowling (REQ-BW-*), pure logic and pictures. Run:
 ##   godot --headless --path . --script tests/bowling_rules.gd -- --role=controller
 
 const BowlingRules = preload("res://scripts/game/bowling/bowling_rules.gd")

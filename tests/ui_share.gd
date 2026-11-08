@@ -232,7 +232,7 @@ func _new_best() -> void:
 	var line: String = _app.ControllerPad.best_line(_app.current_best())
 	_check(line == "NEW BEST! 340  BEFORE: 300", "the pad line: %s" % line)
 	_check(_app.ControllerPad.best_game_name({"key": "paint_grab|easy"}) == "PAINT GRAB"
-			and _app.ControllerPad.best_game_name({"key": "bowling|easy"}) == "PIN PALS"
+			and _app.ControllerPad.best_game_name({"key": "bowling|easy"}) == "BOWLING"
 			and _app.ControllerPad.best_game_name({"key": "asteroid_blast|hard"}) == "STAR SHIELD",
 			"the pad writes the name of the game of the best above the line (also when the key id differs from the title)")
 	c.phase = "paused"

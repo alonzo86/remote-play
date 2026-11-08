@@ -217,7 +217,7 @@ func _run() -> void:
 	_check(rocks.size() >= 3 and float(rocks[-1]) / float(rocks[0]) >= 3.0,
 			"asteroid_blast: at least 3 asteroids and the biggest is 3 times the area of the smallest: %s" % str(rocks.slice(-6)))
 	_check(_count(blast, BlastLook.WEAPON_COLOR, 0.08) > 10, "asteroid_blast: a beam of the weapon color")
-	# Pin Pals: the lane, the pins (white), a ball.
+	# Bowling: the lane, the pins (white), a ball.
 	var bowling: Image = images.bowling
 	var pins: Array = _blobs(bowling, Color("fcfcfc"), 0.06).filter(func(a: int) -> bool: return a >= 6)
 	_check(_count(bowling, BowlingLook.FLOOR) > 3000 and pins.size() >= 10,

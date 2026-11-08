@@ -273,9 +273,9 @@ func _player_slot() -> void:
 	_check(p.swing_count == 0 and p.last_swing.is_empty(), "a slot that is reset starts again without swings")
 
 
-# ---- Issues #141 and #142: made-up sensor series for Pin Pals (2026-10-29) ----
+# ---- Issues #141 and #142: made-up sensor series for Bowling (2026-10-29) ----
 
-## The detector as Pin Pals sets it (bowling_game.gd `_game_ready()`) for `level`.
+## The detector as Bowling sets it (bowling_game.gd `_game_ready()`) for `level`.
 func _pins(level := "medium") -> SwingDetector:
 	var d := SwingDetector.new()
 	d.threshold = float(BowlingRules.level(level).threshold)
@@ -316,7 +316,7 @@ func _not_a_throw() -> void:
 	cases["the stop of a back swing (back 8, a push of 10 the other way)"] = R.stroke(Vector3(0, 1, 0), 8.0, 0.0, 0.2, 0.2, 10.0)
 	var bad := []
 	for name in cases:
-		for who in ["Pin Pals Medium", "Pin Pals Easy", "Pin Pals Hard"]:
+		for who in ["Bowling Medium", "Bowling Easy", "Bowling Hard"]:
 			var d := _pins(who.get_slice(" ", 2).to_lower())
 			if _throws(d, cases[name]) > 0:
 				bad.append("%s: %s" % [who, name])
@@ -358,14 +358,14 @@ func _real_swings() -> void:
 	}
 	var missed := []
 	for name in cases:
-		for who in ["Pin Pals Easy", "Pin Pals Medium", "Pin Pals Hard"]:
+		for who in ["Bowling Easy", "Bowling Medium", "Bowling Hard"]:
 			var d := _pins(who.get_slice(" ", 2).to_lower())
 			if _throws(d, cases[name]) != 1:
 				missed.append("%s: %s" % [who, name])
 	_check(missed.is_empty(), "%d real swings, soft to hard, throw exactly once in 3 levels. Missed: %s" %
 			[cases.size(), "; ".join(missed)])
 	var easy := _pins("easy")
-	_check(_throws(easy, R.stroke(y, 4.5, 6.0, 0.25, 0.25)) == 1, "Pin Pals Easy counts an even lighter swing (back 4.5, forward 6)")
+	_check(_throws(easy, R.stroke(y, 4.5, 6.0, 0.25, 0.25)) == 1, "Bowling Easy counts an even lighter swing (back 4.5, forward 6)")
 	var powers := []
 	for fwd in [9.0, 18.0, 32.0]:
 		powers.append(float(R.run_detector(_pins(), R.still(0.3).append(R.stroke(y, 5.0, fwd)).append(R.still(2.0))).releases[0].power))
@@ -412,7 +412,7 @@ func _golf_gate() -> void:
 	_check(missed.is_empty(), "a pendulum putt (back 9 and brake, forward 10 to 30) putts once, after the forward swing. Wrong: %s"
 			% "; ".join(missed))
 	# A light putt (owner, 2026-11-03): a gentle back swing and a gentle forward swing, as for a putt close to the hole. Mini
-	# Golf finds it and gives the weakest power; a detector with the common values (Pin Pals, Tennis) does not change.
+	# Golf finds it and gives the weakest power; a detector with the common values (Bowling, Tennis) does not change.
 	var light := R.still(0.3).append(R.pendulum(x, 3.5, 5.5, 0.25)).append(R.still(2.0))
 	var light_golf := _golf(1.0)
 	var res_light := R.run_detector(light_golf, light)
@@ -449,7 +449,7 @@ func _golf_gate() -> void:
 			"Mini Golf allows one turn round (the brake), the default is off")
 	var plain := SwingDetector.new()
 	_check(_throws(plain, R.pendulum(x, 9.0, 14.0, 0.25)) == 1 and plain.speed_gate == 0.0,
-			"the gate is off by default (Pin Pals and Tennis keep their rules)")
+			"the gate is off by default (Bowling and Tennis keep their rules)")
 	var tennis := PlayerInput.new(0, {}).swing
 	_check(tennis.speed_gate == 0.0 and tennis.fwd_ratio == 0.0 and tennis.max_reversals == 0 and tennis.hand_speed,
 			"Tennis keeps its detector: no speed gate, no ratio, the hand speed and strike rules (issue #209 item 4)")

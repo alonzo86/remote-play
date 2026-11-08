@@ -63,7 +63,7 @@ Each requirement has an ID. Use the ID in code comments and tests.
 
 ## 6. TV application
 
-- REQ-T1: The games are the fifteen games of the registry (`scripts/game/registry.gd`): Treasure Maze, Car Race, Paint Grab, Sumo Bumpers, Banana Party, Star Shield, Pin Pals, Tennis, Mini Golf, Sheep Herding, Mole Bonk, Tower Builder, Freeze Dance, Air Hockey and Bumper Cars. Each has its requirements in `docs/games/<id>.md`. In the maze each phone tilts a ball through a maze. The first ball to reach the exit wins.
+- REQ-T1: The games are the fifteen games of the registry (`scripts/game/registry.gd`): Treasure Maze, Car Race, Paint Grab, Sumo Bumpers, Banana Party, Star Shield, Bowling, Tennis, Mini Golf, Sheep Herding, Mole Bonk, Tower Builder, Freeze Dance, Air Hockey and Bumper Cars. Each has its requirements in `docs/games/<id>.md`. In the maze each phone tilts a ball through a maze. The first ball to reach the exit wins.
 - REQ-T3: All menus, the restart function, and the back function work with the TV remote D-pad.
 - REQ-T4: A debug overlay shows, for each player: latency, packet rate, sensor age, packet loss, and raw sensor values, and the last swing (power, direction, age of the hit) that the swing detector found (`scripts/input/swing_detector.gd`).
 - REQ-T5: The game pauses when a phone disconnects, also when the phone is only silent (no Wi-Fi, a phone call). A card tells which player (by the profile name, or "2P" for a guest), and the player chooses: resume without it (while another phone is connected), resume when it is back, or end the game (REQ-GM-30, 30a). The game never goes on by itself.

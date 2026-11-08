@@ -39,7 +39,7 @@ The clip ids are the game ids. The games were renamed later: `maze` is Treasure 
 | `freeze_dance_jacques`, `_twinkle`, `_lamb`, `_ode`, `_london`, `_buns` | Freeze Dance, more songs (2026-11-06) | Six traditional melodies in the public domain (Frère Jacques at 120 BPM, Twinkle Twinkle Little Star at 116, Mary Had a Little Lamb at 128, Ode to Joy at 112, London Bridge at 124, Hot Cross Buns at 132), written as notes for the synth. The game picks one of the seven songs of the game for each round. No known song that is still protected is used. |
 
 Rules:
-- Game music of a game with a countdown starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1). Only a game with a visible timer has a countdown (REQ-GM-35); the music of the other games (Star Shield, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players) starts with the play.
+- Game music of a game with a countdown starts at the end of the countdown ("GO"), not before it. The countdown has its own beeps (section 4.1). Only a game with a visible timer has a countdown (REQ-GM-35); the music of the other games (Star Shield, Sumo Bumpers, Bowling, Mini Golf, Tennis with 2 to 4 players) starts with the play.
 - Music is quieter than effects (about 6 dB), so a hit is always heard. Every effect is 3 to 9 dB above the music at the default levels (RMS, bus gains applied), and no effect or song clips (peak 1.0 or lower); `tests/audio.gd` asserts this for every effect.
 - The pause menu and the "phone lost" card lower the music to 30% (it does not stop, so Resume has no jump). The result menu stops the music and plays a short jingle, then goes quiet; it does not loop under a menu where the players talk.
 - The menu music goes on across the menu screens with no restart (the Games screen to the Settings screen and back). It restarts only after a game.
@@ -71,7 +71,7 @@ Proposed scenes (the game files get the final list; the current code already has
 
 | Scene | Haptic | Games |
 |-------|--------|-------|
-| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, mole bonk, paint grab, Sheep Herding, Tennis alone. Not Star Shield, Sumo Bumpers, Pin Pals, Mini Golf, Tennis with 2 to 4 players |
+| The countdown ends ("GO") | 60 ms | the games with a countdown: maze, marble race, snowball splat, mole bonk, paint grab, Sheep Herding, Tennis alone. Not Star Shield, Sumo Bumpers, Bowling, Mini Golf, Tennis with 2 to 4 players |
 | The player scores or reaches the goal (exit, finish line, a hit on a Puff) | 120 ms, or 40 ms for a small score | maze, marble race, snowball splat |
 | The player's own object touches something (wall, bumper, another player) | 15 to 30 ms, with a cool-down | maze, marble race, paint grab, sumo |
 | A bump that pushes the player (stronger when harder) | 20 to 80 ms | sumo |

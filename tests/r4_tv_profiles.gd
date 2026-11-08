@@ -16,7 +16,7 @@ const Shell = preload("res://scripts/game/shell.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const TcpRelay = preload("res://tests/tcp_relay.gd")
 
-## id -> [script, props, has a leader chip]. The games with their own score card (Mini Golf, Pin Pals) and the maze have no
+## id -> [script, props, has a leader chip]. The games with their own score card (Mini Golf, Bowling) and the maze have no
 ## leader chip.
 const GAMES := {
 	"snowball_splat": ["res://scripts/game/snowball_splat/snowball_splat_game.gd", {"difficulty": "medium"}, true],
