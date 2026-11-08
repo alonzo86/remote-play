@@ -30,8 +30,9 @@ const FWD_RATIO := 1.3         # See `fwd_ratio`: the value Bowling sets.
 
 enum State { READY, BACK, FORWARD, LOCKED }
 
-## The forward swing is "down" (a serve) when it points this far below the horizon: the sine of the angle (-0.5 is 30 degrees).
-const DOWN_SINE := -0.5
+## The forward swing is "down" (a serve) when it points below the horizon by this much: the sine of the angle (-0.1 is about 6
+## degrees). It was -0.5 (30 degrees) until 2026-11-08: a real serve was not found on the owner's phone (issue #419).
+const DOWN_SINE := -0.1
 
 var state := State.READY
 ## True from the start of the back swing until the throw is done or dropped: the aim must not change (REQ-BW-5).

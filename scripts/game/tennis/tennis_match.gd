@@ -16,7 +16,7 @@ enum Phase { SERVE, TOSS, RALLY, POINT, END }
 ## were lost).
 const EARLY_W := 0.9
 const HIT_W := 0.55             # A swing counts when its hit is this close (s) to the contact time.
-const SERVE_W := 0.45           # The same for a serve, around the top of the toss.
+const SERVE_W := 0.6            # The same for a serve, around the top of the toss (it was 0.45 until 2026-11-08, issue #419).
 const TOSS_UP := 4.6            # The speed (m/s) of the toss.
 const TOSS_FROM := 1.0          # The height (m) of the hand at the toss.
 const POINT_PAUSE := 1.8        # The banner after a point, a fault and a game.
