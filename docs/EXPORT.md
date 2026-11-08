@@ -24,12 +24,12 @@ The two IDs are different, so you can install both apps on one device.
    (`android/build/config.gradle`: `minSdk 24`, `targetSdk 36`, `compileSdk 36`), written into the presets so a template
    update cannot change them silently. Read from the template source, and confirmed in a dry run of 2026-11-07 (debug APKs and
    release AABs built in a cloud container with a throwaway keystore; `aapt2 dump badging` of both APKs and `aapt2 dump
-   xmltree` of the manifests of both AABs: min 24, target 36, compile 36). Google Play's current
-   target-API rule was NOT checked (no web access): before the first upload, read the rule on the Play Console help page and
-   confirm that 36 meets it. Check the built file with
+   xmltree` of the manifests of both AABs: min 24, target 36, compile 36). **Owner decision, 2026-11-08 (issue #389):** keep
+   target 36; the owner checked that 36 meets Google Play's current target-API rule (the rule changes: read it again before
+   each upload on the Play Console help page). Check the built file with
    `aapt dump badging build/sababi-tv.apk | grep -E "sdkVersion|targetSdkVersion"` (expect 24 and 36). Whether API 24 covers
-   the oldest Android TV box the owner wants to support is the owner's decision. The Android 13 monochrome launcher icon
-   (`adaptive_monochrome`) is not set.
+   the oldest Android TV box the owner wants to support is the owner's decision (min 24 stays). The Android 13 monochrome launcher icon
+   (`adaptive_monochrome`) is not set: **owner decision, 2026-11-08: skip it.**
 4. In Godot open **Editor > Editor Settings > Export > Android**.
    Set `Java SDK Path` and `Android SDK Path`.
 5. Open **Editor > Manage Export Templates** and install the templates for your Godot version.
@@ -216,7 +216,7 @@ tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh
 
 1. The owner agrees to the release and to its version name.
 2. `tools/set_version.sh <name> <code>`, then `tools/set_version.sh --check`.
-3. The privacy notice and the store forms are final (issues #36 and #37): the Play **Data safety** form (the controller uses the Google code scanner, the TV does not, see `tools/patch_android_manifest.sh`), the App Store privacy answers (Data Not Collected; the iPhone scanner uses the camera on the device only), the age rating, the Local Network text and the camera text.
+3. The privacy notice and the store forms are final (issues #36 and #37): the Play **Data safety** form (the controller uses the Google code scanner, the TV does not, see `tools/patch_android_manifest.sh`), the App Store privacy answers (Data Not Collected; the iPhone scanner uses the camera on the device only), the age rating (owner decision of 2026-11-08, issue #383: Google Play target audience **13 and over**, Apple age rating **9+**, not the Kids category; a general-audience app that children may also use), the Local Network text and the camera text.
 4. The suites of the change and the manual tests with status `Device` that the release needs are Pass in `docs/MANUAL_TESTS.md`.
 5. Android: export the bundles with `tools/build.sh aab`, check them like in section 4 (the TV has no `QrScanner`, the controller has it) and upload both to the internal testing track first.
 6. iOS: export the Xcode project (`controller-ios`), open it in Xcode, set the team, Product > Archive, Distribute App > App Store Connect, then test in TestFlight. (Not verified: no Mac with Xcode was used for this.)
