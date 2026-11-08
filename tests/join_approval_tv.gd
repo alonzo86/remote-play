@@ -17,8 +17,8 @@ const PID := "9f2c4e7a1b3d5f60718293a4b5c6d7e8"
 const KEYS := {
 	"approval.title": ["NEW PLAYER", "שחקן חדש"],
 	"approval.wants": ["WANTS TO JOIN", "רוצה להצטרף"],
-	"approval.allow": ["ALLOW", "אשרו"],
-	"approval.refuse": ["REFUSE", "סרבו"],
+	"approval.allow": ["ALLOW", "אשר"],
+	"approval.refuse": ["REFUSE", "סרב"],
 	"approval.others_waiting": ["+%d WAITING", "עוד %d ממתינים"],
 	"approval.one_waiting": ["+1 WAITING", "עוד אחד ממתין"],
 }
@@ -624,7 +624,7 @@ func _hebrew_and_layout() -> void:
 	await _card_ready()
 	var card := _card()
 	var texts := _texts(card)
-	_check(texts.has("שחקן חדש") and texts.has("רוצה להצטרף") and texts.has("אשרו") and texts.has("סרבו")
+	_check(texts.has("שחקן חדש") and texts.has("רוצה להצטרף") and texts.has("אשר") and texts.has("סרב")
 			and texts.has("עוד אחד ממתין"),
 			"Hebrew: title, line, buttons and badge (%s)" % str(texts))
 	var allow := _button(card, "approval.allow")
