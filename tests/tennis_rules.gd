@@ -736,8 +736,11 @@ func _swing_chain() -> void:
 			"a swing 0.5 s after the top of the toss serves (too late with 0.45 s) (issue #419)")
 	var m_early := _match([0, 1])
 	m_early.press_a(0)
-	m_early.tick(DT * 3.0)
-	_check(m_early.swing(0, 0.6, true, 0.0, 0.0) == "serve", "a swing right after the toss (0.5 s before the top) serves (#419)")
+	_check(m_early.swing(0, 0.6, true, 0.0, 0.0) == "serve", "a swing at the moment of the toss (0.47 s before the top) serves (#419)")
+	var m_back := _match([0, 1])
+	m_back.press_a(0)
+	_check(m_back.swing(0, 0.6, true, 0.0, 0.1) == "serve",
+			"a swing that is reported at the toss and was hit 0.1 s before the press still serves (REQ-TN-9, #419)")
 	var m_flat := _match([0, 1])
 	m_flat.press_a(0)
 	while m_flat.time < m_flat._toss_apex + 0.5 and m_flat.phase == Match.Phase.TOSS:
