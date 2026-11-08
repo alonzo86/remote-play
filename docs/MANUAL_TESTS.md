@@ -93,7 +93,7 @@ Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The 
 
 Moved from `CLAUDE.md` on 2026-10-31 (issue #312). Brought in line with the Results tables on 2026-11-01. The Sababi Test Tracker holds the live results; the Results tables of each test are the source for this table.
 
-Tests the user has to run now (status on 2026-11-01 after run R5; the list is in the order to do them. Failures of R4 that R5 did not retest (their issues #111 to #114 are closed, the steps stay Fail until a retest); #109 and #110 passed in R5). Tests 2, 8 and 8b have no open step (all steps Pass), so they are not in the table; run them again only when their area changes:
+Tests the user has to run now (status on 2026-11-01 after run R5; the list is in the order to do them. Failures of R4 that R5 did not retest (their issues #111 to #114 are closed, the steps stay Fail until a retest); #109 and #110 passed in R5). Tests 2, 8 and 8b have no open step (all steps Pass), so they are not in the table; run them again only when their area changes. Tests 13 and 33 (iPhone) are for the next release (iOS, issue #415): they are at the end of the table and are not run for the first (Android) release:
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
