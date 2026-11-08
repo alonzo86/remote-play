@@ -455,7 +455,7 @@ func _fit_size() -> void:
 	_check("".join(he) == "אבגדהוזחטי" and he.size() == 2, "Hebrew keeps every letter on two lines: %s" % str(he))
 	for line in long_word:
 		_check(f.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 32).x <= 5.0 * 32.0, "every line is inside the box (%s)" % line)
-	# A chip grows with its text (the name column of Pin Pals and the bar of Mini Golf were cutting a name of 10 letters).
+	# A chip grows with its text (the name column of Bowling and the bar of Mini Golf were cutting a name of 10 letters).
 	var need: float = Shell.name_x(3) + 10.0 * 32.0 + Shell.CHIP_PAD
 	_check(Shell.chip_width("WWWWWWWWWW", 100.0, 3) == need, "a chip is as wide as a name of 10 letters needs (%.0f px)" % need)
 	_check(Shell.chip_width("1P", 240.0, 3) == 240.0, "a short text keeps the width the game asked for")

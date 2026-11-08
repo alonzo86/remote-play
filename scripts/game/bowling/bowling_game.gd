@@ -1,5 +1,5 @@
 extends "res://scripts/game/minigame.gd"
-## Pin Pals: ten-pin bowling for 1 to 4 phones (REQ-BW-1 to 20). The players bowl in turns, 10 frames each. A finger on the
+## Bowling: ten-pin bowling for 1 to 4 phones (REQ-BW-1 to 20). The players bowl in turns, 10 frames each. A finger on the
 ## phone slides the ball along the foul line to aim, swinging the phone back and then forward throws the ball. The rules are in
 ## bowling_rules.gd, the ball and the pins in lane_sim.gd, the swing in swing_detector.gd and the pictures in bowling_look.gd.
 ## The game is for children too (REQ-GM-80 to 84): a turn has no time limit,
@@ -316,7 +316,7 @@ func _world_draw(ci: CanvasItem) -> void:
 
 
 func _game_draw() -> void:
-	Shell.title(self, "registry.pin_pals")
+	Shell.title(self, "registry.bowling")
 	var geo := _geo()
 	_draw_frame_text()
 	_draw_sheet()
@@ -354,7 +354,7 @@ func _readable(c: Color) -> bool:
 func _draw_frame_text() -> void:
 	var text := Lang.f("bowling.frame", [rules.current_frame(), BowlingRules.FRAMES, maxi(1, rules.current_ball())]).to_upper()
 	var w := UiTheme.font().get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, TEXT_SIZE).x
-	# The status text of the bar at the right margin, on the baseline of the title: "PIN PALS" and "FRAME 1/10" are one row, in
+	# The status text of the bar at the right margin, on the baseline of the title: "BOWLING" and "FRAME 1/10" are one row, in
 	# Hebrew too (the shell mirrors both, REQ-BW-12).
 	Shell.status(self, size.x - 60.0 - w, w, text, UiTheme.TEXT, Shell.TITLE_BASELINE)
 

@@ -1,5 +1,5 @@
 extends SceneTree
-## Pin Pals with moving phones (Test 23): sensor traces (tests/sensor_replay.gd) go into the running game, which is stepped
+## Bowling with moving phones (Test 23): sensor traces (tests/sensor_replay.gd) go into the running game, which is stepped
 ## by hand at 60 Hz. The aim from the turn of the phone, the swing in three grips, the ball speed, the hint after a weak swing,
 ## the banners, the turn order and the pause. One check sends a swing over a real loopback phone.
 ## Run: godot --headless --path . --script tests/bowling_replay.gd -- --role=tv

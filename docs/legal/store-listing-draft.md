@@ -33,7 +33,7 @@ THE GAMES
 • Paint Grab: tilt to move your paint blob and cover the floor with your color.
 • Sumo Bumpers: bump your friends off the platform (2 to 4 players).
 • Star Shield: fly your spaceship, blast the rocks and grab upgrades.
-• Pin Pals: swing your phone to bowl, with the phone as the ball.
+• Bowling: swing your phone to bowl, with the phone as the ball.
 • Tennis: swing your phone like a racket.
 • Mini Golf: aim by turning your phone, swing to putt on funny courses.
 • Mole Bonk: friendly moles pop out of their holes, point at them and bonk them.
@@ -65,7 +65,7 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 • חטיפת צבע: מטים כדי להזיז את כתם הצבע ולכסות את הרצפה בצבע שלכם.
 • סומו מתנגשים: דוחפים את החברים מהפלטפורמה (2 עד 4 שחקנים).
 • מגן הכוכבים: מטיסים חללית, מפוצצים אסטרואידים ואוספים שדרוגים.
-• באולינג חברים: מניפים את הטלפון כדי לשחק באולינג, והטלפון הוא הכדור.
+• באולינג: מניפים את הטלפון כדי לשחק באולינג, והטלפון הוא הכדור.
 • טניס: מניפים את הטלפון כמו מחבט.
 • מיני גולף: מכוונים בסיבוב הטלפון ומניפים כדי לדחוף את הכדור במסלולים מצחיקים.
 • הכו בחפרפרת: חפרפרות חביבות מציצות מהחורים, מכוונים אליהן ומכים.

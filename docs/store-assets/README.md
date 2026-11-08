@@ -9,7 +9,7 @@ Images for the store listings. The owner approved the English set on 2026-11-07 
 |------|------|-----|
 | `google-play/icon_512.png` | 512x512 | App icon of the listing. It is `assets/icons/icon_1024.png` scaled down by 2 (nearest neighbour, so the pixels stay sharp). Fully opaque, no rounded corners: the store masks it. |
 | `google-play/feature_graphic_1024x500.png` | 1024x500 | Feature graphic. Made from the game tiles (`assets/tiles/`), the logo and the Press Start 2P font (see `docs/THIRD_PARTY.md`). |
-| `google-play/tv/0_logo.png` .. `9_pin_pals.png` | 1920x1080 | TV screenshots, in the order of the file names. |
+| `google-play/tv/0_logo.png` .. `9_bowling.png` | 1920x1080 | TV screenshots, in the order of the file names. |
 | `google-play/phone/1_choose_game_on_tv.png`, `2_pad_a_b.png` | 1080x1920 | Phone screenshots. |
 
 The TV and phone screenshots are captures of the real apps (headless Godot with a software GL driver), with the player names

@@ -1,5 +1,5 @@
 extends RefCounted
-## Finds a swing in the motion of a phone: a back swing and then a forward swing. Pin Pals throws a ball with it (REQ-BW-5, 6),
+## Finds a swing in the motion of a phone: a back swing and then a forward swing. Bowling throws a ball with it (REQ-BW-5, 6),
 ## Tennis hits the ball with it (REQ-TN-5 to 9). The game sets `lock_after` and `threshold` and reads `forward_dir` and `hit_age`.
 ## It reads the acceleration without gravity (m/s2, in the phone
 ## frame) and does not need to know how the phone is held: the first strong move is the back swing and it gives the swing axis;
@@ -26,7 +26,7 @@ const REVERSAL_SPAN := 0.5     # See `max_reversals`.
 const LOCK_AFTER := 1.5        # After a throw the detector waits this long (s).
 const REJECT_GRACE := 0.6      # After a forward swing that `fwd_ratio` rejects, the back swing waits this long (s) more.
 const GATE_SPEED := 0.5        # See `speed_gate`: the value Mini Golf sets (m/s; a putt of 10 m/s2 for 0.25 s reaches about 1.6).
-const FWD_RATIO := 1.3         # See `fwd_ratio`: the value Pin Pals sets.
+const FWD_RATIO := 1.3         # See `fwd_ratio`: the value Bowling sets.
 
 enum State { READY, BACK, FORWARD, LOCKED }
 
@@ -75,19 +75,19 @@ var min_back := 0.0
 ## A shake reverses the direction of the acceleration again and again. When this is above 0, a push does not count while the
 ## acceleration along the swing axis turned round (strongly, more than `BACK_ACCEL`) more than this many times in the last
 ## `REVERSAL_SPAN` seconds. A real swing turns round once, from the back swing to the forward swing. 0 turns the rule off
-## (Tennis, Mini Golf). Pin Pals sets 1 (REQ-BW-5).
+## (Tennis, Mini Golf). Bowling sets 1 (REQ-BW-5).
 var max_reversals := 0
 ## A real throw is harder forward than back (the back swing is gentle, the hit is not). When this is above 0, a forward swing
 ## whose peak is less than this times the peak of the back swing is not a throw: a move to the side or a shake pushes as hard
 ## on the way back as on the way out (issue #141). The detector then goes back to the back swing and waits for the real forward
 ## swing, so the stop of a back swing does not throw. 0 turns the rule off (Tennis; Mini Golf, where a putt is a pendulum and
-## its forward swing is as soft as its back swing). Pin Pals sets `FWD_RATIO`.
+## its forward swing is as soft as its back swing). Bowling sets `FWD_RATIO`.
 var fwd_ratio := 0.0
 ## Tennis finds the swing with the speed of the hand and a sharp strike (a gentle back swing, then a hard push in any
-## direction, see `STRIKE_ACCEL`). Pin Pals and Mini Golf keep the plain rule: a back swing, then a push the other way.
+## direction, see `STRIKE_ACCEL`). Bowling and Mini Golf keep the plain rule: a back swing, then a push the other way.
 var hand_speed := false
 ## Mini Golf: the hand must move forward at least this fast (m/s, along the swing axis, times `threshold`) when the forward push
-## comes; 0 turns the rule off (Pin Pals and Tennis). A move to the side or a slow shake ends with the hand stopped: its second
+## comes; 0 turns the rule off (Bowling and Tennis). A move to the side or a slow shake ends with the hand stopped: its second
 ## half is only the brake of the first, so the speed at the push is about zero. The brake of a real back swing is the same: the
 ## hand is at rest at the top, and the putt is the push after it. Unlike `hand_speed`, there is no sharp strike and no smooth wide
 ## swing here (a putt is gentle). `GATE_SPEED` is the value Mini Golf sets.

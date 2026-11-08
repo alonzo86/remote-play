@@ -1,5 +1,5 @@
 extends SceneTree
-## Pin Pals, the rest of Test 23 (docs/MANUAL_TESTS.md test 23), with simulated phones over the loopback and the game stepped by
+## Bowling, the rest of Test 23 (docs/MANUAL_TESTS.md test 23), with simulated phones over the loopback and the game stepped by
 ## hand: the total of a whole game against an independent count (6a), Frame 10/10 and the time to the result menu (6c), the rails
 ## (7a), the plate with the name of the player on turn in slot order (8a), the score and the place on every phone (8c), the
 ## winner and the order of the list (8d), YOUR TURN, <NAME> IS BOWLING and the buzz (9a to 9c), a player that leaves (10a, 10b),
@@ -295,7 +295,7 @@ func _no_a() -> void:
 	game.player(0).buttons = Protocol.BTN_A
 	game._game_tick(DT)
 	_check(game.phase == game.Phase.RESULT, "11: a press on A does not skip the banner of the ball")
-	_check(Registry.find("bowling").pad.is_empty(), "11: the pad of Pin Pals has no A, no B and no Recenter box (REQ-GM-37a)")
+	_check(Registry.find("bowling").pad.is_empty(), "11: the pad of Bowling has no A, no B and no Recenter box (REQ-GM-37a)")
 	game._game_tick(game.RESULT_TIME)
 	_check(game.phase == game.Phase.AIM, "11: the banner ends after its time")
 

@@ -54,7 +54,7 @@ func _stream(c: Array, seconds: float, accel: Array, gyro := []) -> void:
 		await _frames(1)
 
 
-## The Pin Pals picture: a few frames in the sheet and a ball that is about to hit the pins.
+## The Bowling picture: a few frames in the sheet and a ball that is about to hit the pins.
 func _place_bowling(game: Control) -> void:
 	for n in [10, 7, 2, 9, 1, 10, 6, 3]:
 		game.rules.record_roll(n)
@@ -374,7 +374,7 @@ func _place_mole(game: Node) -> void:
 
 ## The picture without the strip that the HUD uses (112 px at 1080p), cut to 16:9 around the middle, so that a tile shows the
 ## world and no black bar where the HUD was (REQ-GM-49).
-## `bottom` (at 1080p) cuts the picture above it: Pin Pals keeps the lanes and drops the score board (issue #112).
+## `bottom` (at 1080p) cuts the picture above it: Bowling keeps the lanes and drops the score board (issue #112).
 func _world_crop(img: Image, bottom := 1080.0) -> Image:
 	var top := roundi(HUD_BAR * img.get_height() / 1080.0)
 	var h := roundi(bottom * img.get_height() / 1080.0) - top

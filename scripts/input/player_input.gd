@@ -8,7 +8,7 @@ const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const SwingDetector = preload("res://scripts/input/swing_detector.gd")
 const SensorRecorder = preload("res://scripts/input/sensor_recorder.gd")
 
-const SWING_THRESHOLD := 0.75   # Tennis counts a lighter swing than Pin Pals (the factor on the thresholds of the detector).
+const SWING_THRESHOLD := 0.75   # Tennis counts a lighter swing than Bowling (the factor on the thresholds of the detector).
 const SWING_WINDOW_S := 3.0     # A player draws back early: a back swing waits this long (s) for the forward swing.
 # A swing 70 degrees (rad) to the side of the TV aims all the way to the side (REQ-TN-7; it was 45 degrees until 2026-11-05:
 # almost every shot went to the sideline).

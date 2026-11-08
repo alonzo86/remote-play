@@ -1,5 +1,5 @@
 extends RefCounted
-## The lane of Pin Pals (REQ-BW-9, 10): a ball that rolls down the lane and ten pins. A fixed 2D simulation in metres (x across
+## The lane of Bowling (REQ-BW-9, 10): a ball that rolls down the lane and ten pins. A fixed 2D simulation in metres (x across
 ## the
 ## lane, 0 in the middle and positive to the right; y along the lane, 0 at the foul line). Circles only. It uses sub-steps of
 ## 1/120 s (REQ-GM-13) and no random number, so the same throw always gives the same result. Pure logic: it draws nothing.

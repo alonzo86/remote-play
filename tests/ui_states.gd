@@ -582,7 +582,7 @@ func _pad_buttons() -> void:
 	pad.queue_free()
 
 
-## Pin Pals, the turn of this phone: the Recenter box is the aim strip (REQ-BW-4).
+## Bowling, the turn of this phone: the Recenter box is the aim strip (REQ-BW-4).
 func _pad_aim_strip() -> void:
 	print("pad aim strip")
 	var app: Node = root.get_node("App")
@@ -595,10 +595,10 @@ func _pad_aim_strip() -> void:
 	var strip: Rect2 = pad._rect_aim()
 	var a_at: Vector2 = pad._center_a()
 	_check(pad._zone_at(pad._rect_recenter().get_center()) == "recenter" and pad._zone_at(strip.get_center()) == "pad",
-			"outside a Pin Pals turn the small box at the bottom is Recenter and the strip area is plain pad")
+			"outside a Bowling turn the small box at the bottom is Recenter and the strip area is plain pad")
 	app.client.turn_state = 1
 	app.client.turn_kind = ""
-	_check(pad._zone_at(strip.get_center()) == "aim", "on the turn of this phone in Pin Pals the box is the aim strip")
+	_check(pad._zone_at(strip.get_center()) == "aim", "on the turn of this phone in Bowling the box is the aim strip")
 	pad._input(_touch(5, true, a_at))
 	_check((pad._sampler.buttons & Protocol.BTN_A) != 0 and not pad._sampler.touching,
 			"a finger on A during the aim is not the touch point the TV reads")

@@ -355,7 +355,7 @@ func _race() -> void:
 		game._step(1.0 / 120.0))
 
 
-# ---- Pin Pals (REQ-BW-S1 to S7) ----
+# ---- Bowling (REQ-BW-S1 to S7) ----
 
 func _bowling_game() -> Control:
 	var game := _game(BOWLING, {"difficulty": "medium"})
@@ -363,7 +363,7 @@ func _bowling_game() -> Control:
 
 
 func _bowling() -> void:
-	print("Pin Pals")
+	print("Bowling")
 	var game := _bowling_game()
 	var on: int = game.rules.current_slot()
 	await _event(game, "a turn starts", ["bowl_turn"], {on: 60}, func() -> void: game._start_turn())

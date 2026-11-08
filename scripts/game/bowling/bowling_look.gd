@@ -1,5 +1,5 @@
 extends RefCounted
-## The pictures of Pin Pals (REQ-BW-13): a pixel bowling hall seen from behind the ball. The own lane is narrow and long; more
+## The pictures of Bowling (REQ-BW-13): a pixel bowling hall seen from behind the ball. The own lane is narrow and long; more
 ## lanes
 ## stand at its sides; at the far end of all lanes a wall has a disco light grid in its top two thirds and black in its bottom
 ## third.

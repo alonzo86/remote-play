@@ -14,7 +14,7 @@ extends RefCounted
 ##             (see game_settings.gd). An empty list means Difficulty only. A row with `"type": "tracks"` is the track list
 ##             of Car Race (`scripts/ui/track_picker.gd`).
 ##   pad     the controls of the phone pad while the game runs (issue #80, REQ-GM-37a): "a", "b", "recenter". The pad shows only
-##           these. Pin Pals also has the aim strip on the turn of a phone (REQ-BW-4); it is not listed here.
+##           these. Bowling also has the aim strip on the turn of a phone (REQ-BW-4); it is not listed here.
 ##   swing   optional. True for a game played with swings of the phone (issue #79; also Freeze Dance, where it is wiggled): the
 ##           settings view shows the safety line and every phone shows the card "hold on tight" once, before the game can start
 ##           (REQ-GM-102).
@@ -72,7 +72,7 @@ const GAMES: Array[Dictionary] = [
 			"description": "registry.desc_asteroid_blast",
 			"tile": "res://assets/tiles/asteroid_blast.png",
 			"path": "res://scripts/game/asteroid_blast/asteroid_blast_game.gd", "min_players": 1, "max_players": 4, "settings": []},
-	{"id": "bowling", "doc": "res://docs/games/bowling.md", "title": "registry.pin_pals", "dim": "2d",
+	{"id": "bowling", "doc": "res://docs/games/bowling.md", "title": "registry.bowling", "dim": "2d",
 			"pad": [],
 			"swing": true,
 			"how_to": "how_to.bowling",

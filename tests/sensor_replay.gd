@@ -1,5 +1,5 @@
 extends RefCounted
-## Made-up sensor traces and ways to replay them, for every test that needs a moving phone (Pin Pals, Tennis, Mini Golf, the
+## Made-up sensor traces and ways to replay them, for every test that needs a moving phone (Bowling, Tennis, Mini Golf, the
 ## swing detector). It is a helper, not a suite: `const SensorReplay = preload("res://tests/sensor_replay.gd")`.
 ##
 ## A `Trace` is a list of 60 Hz steps (`DT`): the acceleration of the hand without gravity (`lin`, m/s2, phone frame) and the

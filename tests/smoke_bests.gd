@@ -89,7 +89,7 @@ func _keys() -> void:
 	_app.go(Bowling, {"difficulty": "easy", "rails": "on"})
 	await _frames(2)
 	_check(keys.bowling == "bowling|easy" and _app.current_screen().best_key() == "",
-			"Pin Pals uses the game and the difficulty, and rails give no best (REQ-BW-19)")
+			"Bowling uses the game and the difficulty, and rails give no best (REQ-BW-19)")
 	_app.go(Race, {"difficulty": "medium", "track_seed": 42})
 	await _frames(2)
 	var race: Control = _app.current_screen()

@@ -260,7 +260,7 @@ static func effects() -> Dictionary:
 	fx["blast_shield"] = [_blip(900.0, 300.0, 0.2, 0.3), _noise(2500.0, 800.0, 0.1, 0.2)]
 	fx["blast_lost"] = [_noise(2500.0, 200.0, 0.45, 0.19), _blip(300.0, 40.0, 0.45, 0.18, 0.25)]
 	fx["blast_wave"] = _run(["A4", "E5", "A5"], 0.1, 0.3)
-	# Pin Pals.
+	# Bowling.
 	fx["bowl_turn"] = _run(["E5", "G5"], 0.08, 0.25)
 	fx["bowl_throw"] = [_noise(1500.0, 5000.0, 0.25, 0.2)]
 	fx["bowl_pins"] = [_noise(3000.0, 1500.0, 0.3, 0.24), _blip(300.0, 200.0, 0.12, 0.17, 0.25)]

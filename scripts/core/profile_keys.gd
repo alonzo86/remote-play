@@ -7,7 +7,7 @@ extends RefCounted
 ## Numbers: 1 to 3 Banana Party, id snowball_splat (easy, medium, hard), 4 to 6 Paint Grab, 7 to 36 Marble Race: 7 + 10 *
 ## difficulty + (track - 1).
 ## 37 to 39 Star Shield (easy, medium, hard).
-## 40 to 42 Pin Pals, id bowling (easy, medium, hard), only without rails.
+## 40 to 42 Bowling, id bowling (easy, medium, hard), only without rails.
 ## 43 to 45 Whack-a-Mole (easy, medium, hard), the points; 46 to 48 Tennis against the machine (1 player only; easy, medium,
 ## hard), the longest rally. Tennis with 2 to 4 players has no key.
 ## Treasure Maze, Sumo Bumpers and a random Car Race track have no key (the owner, 2026-10-10).

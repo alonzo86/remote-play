@@ -51,7 +51,7 @@ var setup_in := true          # This phone plays the game (the choice IN); the T
 var sat_out := false          # The round that runs began with this phone OUT: the waiting screen says so (issue #242).
 var swing_acked := false      # The player tapped OK for the settings view that is open; the next view asks again (issue #148).
 var turn_state := 0           # 0 no turn line, 1 this phone is on turn, 2 another player is on turn (REQ-BW-14).
-var turn_kind := ""           # "" for the words of Pin Pals, "golf" for Mini Golf.
+var turn_kind := ""           # "" for the words of Bowling, "golf" for Mini Golf.
 var turn_who := ""            # The name of the player on turn when turn_state is 2.
 var score_text := ""         # The score as the TV shows it. Empty when there is no score yet.
 
