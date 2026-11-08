@@ -82,8 +82,7 @@ func _run() -> void:
 				% [size, int(gap_he), size / 4])
 	Lang.set_language("en")
 	for size in SIZES:
-		var gap_en := float(UiTheme.line_gap(size)) - _extent("A", size).y
-		_check(gap_en >= float(size) / 4.0, "%d px: English, the gap is %d px (at least %d)" % [size, int(gap_en), size / 4])
+		_check(UiTheme.line_gap(size) == size / 4, "%d px: English, the gap stays a quarter of the size (%d)" % [size, size / 4])
 
 	# 3. An open screen gets the new gap.
 	Lang.set_language("en")
