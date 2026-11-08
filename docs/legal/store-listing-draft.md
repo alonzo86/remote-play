@@ -134,4 +134,4 @@ The Hebrew texts have no Latin words, as in the app (REQ-FL-63): the game names 
 
 1. "Made for family and friends" matches your answer on the audience. Google's target-audience form (issue #36) may still ask about children: decide your answer there.
 2. Decided: the names on the device are the same as the store titles (`export_presets.cfg`, FD-27). The iPhone app has the same name (`tools/deploy-ios.sh`).
-3. Screenshots, the feature graphic (1024x500) and the icon are not drafted here.
+3. Screenshots, the feature graphic (1024x500) and the icon are in `docs/store-assets/google-play/` (English, approved by the owner on 2026-11-07; see `docs/store-assets/README.md`).

@@ -29,7 +29,7 @@ We do not collect your location, contacts, photos, microphone recordings, advert
 
 The TV sends nothing on your network by itself. A phone finds the TV when you type the room code that the TV shows, or scan the QR code on the TV. The room code stands for the address of the TV on your Wi-Fi network: the phone builds that address from its own Wi-Fi address and the code, and tries to connect to it (one try for each Wi-Fi address of the phone). The phone then connects directly to the TV and sends your profile name, avatar and ID, the motion readings and the button presses. A device that has the address of a wrong guess gets a connection attempt and nothing else.
 
-There is no PIN or password: anyone on the same network who knows the room code or sees the QR code on the TV can join the game.
+The host can approve or refuse every join request: when a new phone wants to join, the TV shows its name and the host chooses ALLOW or REFUSE with the TV remote.
 
 **This traffic is not encrypted.** A device that can read the traffic between a phone and the TV on your network can read it. Play only on a network you trust, and do not play on public Wi-Fi.
 
