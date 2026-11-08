@@ -63,9 +63,11 @@ func _detector_additions() -> void:
 
 	_check(SwingDetector.is_down(Vector3(0, 0, -1), UP) and SwingDetector.is_down(Vector3(0.6, 0, -0.8), UP),
 			"a swing that points 30 degrees or more below the horizon is down")
+	_check(SwingDetector.is_down(Vector3(0.9, 0, -0.3), UP) and SwingDetector.is_down(Vector3(0.95, 0, -0.15), UP),
+			"a swing that points a little below the horizon (about 9 and 17 degrees) is down too (issue #419)")
 	_check(not SwingDetector.is_down(Vector3(1, 0, 0), UP) and not SwingDetector.is_down(Vector3(0, 0, 1), UP)
-			and not SwingDetector.is_down(Vector3(0.9, 0, -0.3), UP),
-			"a sideways, an upward and a flat swing (less than 30 degrees down) are not down")
+			and not SwingDetector.is_down(Vector3(0.99, 0, -0.05), UP),
+			"a sideways, an upward and a flat swing (less than about 6 degrees down) are not down")
 
 	# A shake turns the acceleration round again and again; with `max_reversals` it throws nothing, a real swing still does.
 	for hz in [6.0, 8.0, 12.0]:

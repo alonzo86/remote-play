@@ -253,7 +253,7 @@ func _serve() -> void:
 	_check(m.phase == Match.Phase.TOSS and m.sim.tossed, "A tosses the ball")
 	_check(m.swing(0, 0.6, false, 0.0, 0.0) == "none" and m.phase == Match.Phase.TOSS,
 			"a swing that is not from top to bottom does nothing")
-	_check(m.swing(0, 0.6, true, 0.0, 0.0) == "none", "a swing long before the top of the toss does nothing")
+	# (Until 2026-11-08 a swing right after the toss did nothing; the window is now the whole toss, issue #419.)
 	_until_toss_top(m)
 	_check(m.swing(1, 0.6, true, 0.0, 0.0) == "none", "the other player cannot serve")
 	_check(m.swing(0, 0.6, true, 0.0, 0.0) == "serve" and m.phase == Match.Phase.RALLY and m.serve_ball,
@@ -727,6 +727,22 @@ func _swing_chain() -> void:
 		m2.press_a(0)
 		wrong += 1 if _play(m2, rig2, Trace.stroke(Vector3(1, 0, 0), 10.0, 25.0), m2._toss_apex) != "none" else 0
 	_check(wrong == 0, "a forehand at the top of the toss never serves (0 of 5)")
+	# Issue #419: the window is 0.6 s each side of the top of the toss, from the toss until the ball is back at the hand.
+	var m_late := _match([0, 1])
+	m_late.press_a(0)
+	while m_late.time < m_late._toss_apex + 0.5 and m_late.phase == Match.Phase.TOSS:
+		m_late.tick(DT)
+	_check(m_late.phase == Match.Phase.TOSS and m_late.swing(0, 0.6, true, 0.0, 0.0) == "serve",
+			"a swing 0.5 s after the top of the toss serves (too late with 0.45 s) (issue #419)")
+	var m_early := _match([0, 1])
+	m_early.press_a(0)
+	m_early.tick(DT * 3.0)
+	_check(m_early.swing(0, 0.6, true, 0.0, 0.0) == "serve", "a swing right after the toss (0.5 s before the top) serves (#419)")
+	var m_flat := _match([0, 1])
+	m_flat.press_a(0)
+	while m_flat.time < m_flat._toss_apex + 0.5 and m_flat.phase == Match.Phase.TOSS:
+		m_flat.tick(DT)
+	_check(m_flat.swing(0, 0.6, false, 0.0, 0.0) == "none", "a swing that is not down at the end of the toss does nothing (#419)")
 	# 4d: swings with the hit inside the green part come back, green.
 	var returned := 0
 	var green := 0
