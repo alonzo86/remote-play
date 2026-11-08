@@ -132,6 +132,6 @@ The Hebrew texts have no Latin words, as in the app (REQ-FL-63): the game names 
 
 ## Still open
 
-1. "Made for family and friends" matches your answer on the audience. Google's target-audience form (issue #36) may still ask about children: decide your answer there.
+1. "Made for family and friends" matches your answer on the audience. Decided by the owner on 2026-11-08 (issue #383): the Google Play target-audience form lists the age groups **13 and over** (13-15, 16-17, 18+), and the Apple age rating is **9+** (not the Kids category). Google may still ask for younger groups if the listing or the screenshots clearly target young children: keep the texts and the images general (family, party, couch).
 2. Decided: the names on the device are the same as the store titles (`export_presets.cfg`, FD-27). The iPhone app has the same name (`tools/deploy-ios.sh`).
 3. Screenshots, the feature graphic (1024x500) and the icon are in `docs/store-assets/google-play/` (English, approved by the owner on 2026-11-07; see `docs/store-assets/README.md`).
