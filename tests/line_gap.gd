@@ -51,13 +51,13 @@ func _extent(ch: String, size: int) -> Vector2:
 
 
 ## The top and the bottom y of the ink of `n` lines of size `fs` drawn like `controller_pad._draw_lines_centered` in `rect`;
-## `letter` is a letter of the lines (a final letter goes below the baseline).
-func _block_ink(rect: Rect2, n: int, fs: int, letter: String) -> Vector2:
+## `letter` is a letter of the lines (a final letter goes below the baseline). `from_top`: the score row (the first line stays).
+func _block_ink(rect: Rect2, n: int, fs: int, letter: String, from_top := false) -> Vector2:
 	var f := UiTheme.font()
 	var step := UiTheme.line_step(f, fs)
 	var ext := _extent(letter, fs)
-	var first_center := rect.get_center().y - float(n - 1) * 0.5 * step
-	var last_center := first_center + float(n - 1) * step
+	var first_center := UiTheme.line_center(rect.get_center().y, n, step, 0, from_top)
+	var last_center := UiTheme.line_center(rect.get_center().y, n, step, n - 1, from_top)
 	var first_base := first_center + (f.get_ascent(fs) - f.get_descent(fs)) * 0.5
 	var last_base := last_center + (f.get_ascent(fs) - f.get_descent(fs)) * 0.5
 	return Vector2(first_base + _extent("ב", fs).x, last_base + ext.y)
@@ -107,9 +107,16 @@ func _run() -> void:
 		var letter := "ק" if code == "he" else "A"
 		var name_ink := _block_ink(pad._rect_name(true), 2, pad.NAME_SIZE, letter)
 		var score_rect := Rect2(60, pad.SCORE_Y - 30.0, pad.size.x - 120, 60)
-		var score_ink := _block_ink(score_rect, 1, pad.LINE_SIZE, "ב")
+		var score_ink := _block_ink(score_rect, 1, pad.LINE_SIZE, "ב", pad.SCORE_GROWS_DOWN)
 		_check(name_ink.y < score_ink.x, "%s: a two-line name (ink to y %.0f) is above the score row (ink from y %.0f)"
 				% [code, name_ink.y, score_ink.x])
+		# A long score text (two lines, 64 px) grows downward: it starts at the same place and ends above the turn row (issue #408).
+		var score2_ink := _block_ink(score_rect, 2, pad.LINE_SIZE, "ק" if code == "he" else "A", pad.SCORE_GROWS_DOWN)
+		_check(name_ink.y < score2_ink.x, "%s: a two-line name is above a two-line score row (ink from y %.0f)" % [code, score2_ink.x])
+		_check(is_equal_approx(score2_ink.x, score_ink.x), "%s: a two-line score row starts where the one-line row starts" % code)
+		var turn_top: float = 376.0 + pad.INFO_Y - 50.0
+		_check(score2_ink.y < turn_top, "%s: a two-line score row ends (y %.0f) above the turn row (y %.0f)"
+				% [code, score2_ink.y, turn_top])
 		var game_ink := _block_ink(pad._rect_best_game(), 2, pad.BEST_GAME_SIZE, letter)
 		var best_ink := _block_ink(pad._rect_best(), 2, pad.BEST_SIZE, "ב")
 		_check(game_ink.y < best_ink.x, "%s: a two-line game name (to y %.0f) is above a two-line NEW BEST! (from y %.0f)"
