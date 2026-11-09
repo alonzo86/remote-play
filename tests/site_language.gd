@@ -73,6 +73,11 @@ func _run() -> void:
 				"%s: the footer has the copyright line in English and in Hebrew" % page)
 	_check(_exists("site/favicon.ico") and _exists("site/icon-192.png") and Image.load_from_file(
 			"res://site/icon-192.png").get_size() == Vector2i(192, 192), "the favicon files exist (icon 192 x 192)")
+	for path in ["site/index.html", "site/he/index.html", "site/get/index.html", "site/stores.js"]:
+		var text := FileAccess.get_file_as_string("res://" + path)
+		_check(not text.contains("app-store") and not text.contains("Apple Inc") and not text.contains("appStore:"),
+				"%s has no App Store badge, link or credit (removed by the owner, 2026-11-09)" % path)
+	_check(not _exists("site/badges/app-store.svg"), "the App Store badge file is gone")
 	var get_html := FileAccess.get_file_as_string("res://site/get/index.html")
 	_check(get_html.contains('<link rel="icon" href="../favicon.ico" sizes="any">'), "site/get/index.html has the favicon")
 	# The store screenshots on the home page (owner request of 2026-11-09): 10 for the TV, 2 for the phone, in one carousel line.
