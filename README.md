@@ -60,7 +60,7 @@ android/plugin/          QrScannerPlugin.java (Android plugin: Google code scann
 tests/                   headless tests (see below) and screenshot scripts
 tools/                   make_icons.gd, make_tiles.gd, make_medals.gd, patch_android_manifest.sh, coverage.sh, build and deploy scripts
 docs/                    requirements, protocol, export, risks
-site/                    the website (GitHub Pages): home, store links, /get/ (the QR code of the TV), privacy, terms, licenses; see site/README.md
+site/                    the website (GitHub Pages): home, store links, /get/ (the QR code of the TV), the screenshots, privacy, terms; see site/README.md
 ```
 
 All screens are built in code in the 8-bit arcade style (FD-18, docs/TV_FLOW.md, docs/ARCADE_STYLE_PLAN.md): the menus, the phone and the game shell since phase 1; the worlds of Sumo Bumpers (phase 2), Car Race (phase 3, a flat pixel world since 2026-10-15) and Treasure Maze, Paint Grab and Banana Party (phase 4) and Star Shield (2026-10-16) are pixel worlds (a 480x270 view scaled up, REQ-GM-47i to 47n): all game worlds are pixel worlds now. The UI has two languages, English and Hebrew (right to left), chosen on the first start and in Settings (FD-19): `scripts/core/lang.gd` and `assets/lang/strings.csv` (the key, the English and the Hebrew text of each UI text). Image files: the pixel font and the Hebrew fallback font (`assets/fonts`),
