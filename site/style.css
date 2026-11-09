@@ -54,10 +54,11 @@ details.lang li a:hover, details.lang li a:focus-visible { background: var(--fra
 details.lang li a[aria-current="true"] { color: var(--accent); }
 details.lang img { display: block; width: 24px; height: 16px; flex: none; }
 /* The store screenshots on the home page (copies of docs/store-assets, half size): one line that scrolls and snaps. */
-.carousel { position: relative; margin: 16px 0 24px; }
+.carousel { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; margin: 16px 0 24px; }
 .car-track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
 .car-track img { height: 240px; width: auto; flex: none; scroll-snap-align: start; border: 2px solid var(--dim); image-rendering: pixelated; }
-.car-prev, .car-next { position: absolute; top: 50%; transform: translateY(-50%); z-index: 1; width: 44px; height: 44px; font: inherit; font-size: 28px; line-height: 1; color: var(--text); background: var(--bg); border: 2px solid var(--text); cursor: pointer; }
-.car-prev { inset-inline-start: 0; }
-.car-next { inset-inline-end: 0; }
+/* With the script the arrows scroll the line and the scrollbar is hidden; without it the scrollbar stays. */
+.carousel.js .car-track { scrollbar-width: none; padding-bottom: 0; }
+.carousel.js .car-track::-webkit-scrollbar { display: none; }
+.car-prev, .car-next { width: 40px; height: 40px; font: inherit; font-size: 28px; line-height: 1; color: var(--text); background: var(--bg); border: 2px solid var(--text); cursor: pointer; }
 .car-prev[hidden], .car-next[hidden] { display: none; }

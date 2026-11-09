@@ -4,6 +4,7 @@
 	var box = document.querySelector(".carousel");
 	if (!box) { return; }
 	var track = box.querySelector(".car-track");
+	box.classList.add("js");
 	var rtl = getComputedStyle(track).direction === "rtl";
 	[["car-prev", -1], ["car-next", 1]].forEach(function (b) {
 		var btn = box.querySelector("." + b[0]);
