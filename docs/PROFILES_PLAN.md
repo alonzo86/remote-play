@@ -33,7 +33,7 @@ What this plan does not do: no profile data on the TV (so no shared leaderboard 
 | Connect screen | A dropdown at the top shows the active profile (avatar and name together, or `GUEST`), with a `+` next to it for a new player (REQ-FL-71, built on 2026-10-11). The dropdown lists the profiles and `GUEST` (the `PLAYERS` entry was removed on 2026-11-02; EDIT and SHARE are on the edit screen, IMPORT is on the new player screen). Nothing blocks joining. After the phone has joined a TV the player cannot be changed: the player taps `DISCONNECT` and chooses again. |
 | Profile list ("WHO IS PLAYING?"; removed on 2026-11-02, see the status note at the top) | One row for each profile: the avatar and the name. A tap on a row makes it the active profile. A row `GUEST` plays without a profile. The buttons are `NEW PLAYER`, `SCAN A PLAYER` and `PASTE A CODE` (see 2.3) and, on each row, `EDIT` and `SHARE`. When the list holds 8 profiles, `NEW PLAYER` is dim and a line says `8 PLAYERS IS THE MAXIMUM`. The list is reached from the Connect screen and from the waiting screen, only while the TV is in the phase `connect` or `menu`. When the phase changes to `playing`, `paused` or `waiting`, the phone closes the list, the edit, share and scan screens and hides any QR code. |
 | Edit | The name field (1 to 10 letters, the keyboard of the phone), the avatar picker (32 avatars, 6 in a row, the list scrolls by dragging, the picked one has a frame), `SAVE`, `DELETE`. `DELETE` asks `DELETE <name>?` first. The avatar can be changed here at any time. |
-| Share | A QR code of the profile, the text of the code with a `COPY CODE` button, and two lines: everybody who scans the code gets this player and the best scores; the two phones do not stay in sync after the copy. The QR code goes away after 60 seconds (section 6.3). |
+| Share | A QR code of the profile and two lines (`COPY CODE` was removed on 2026-11-09, owner): everybody who scans the code gets this player and the best scores; the two phones do not stay in sync after the copy. The QR code goes away after 60 seconds (section 6.3). |
 | Waiting screen and pad | The colored square at the top shows the avatar instead of the slot number. The text next to it shows the profile name. A guest sees the slot number and `2P` as now. While the phone reconnects, the text says `Reconnecting...` as now. |
 
 The texts are English and Hebrew (REQ-FL-54).
@@ -56,7 +56,7 @@ A guest keeps the slot number and the name `Player N`. Names that are the same o
 
 1. On the first phone: profile list, `SHARE` on the row. The QR code shows.
 2. On the second phone: profile list, `SCAN A PLAYER`. The camera scans the code and the profile is made, with the same ID, name, avatar and best scores.
-3. (History: `PASTE A CODE` was removed on 2026-11-02; a phone imports a player with IMPORT, a scan, REQ-FL-76.) Original plan, no longer true: a phone that cannot scan used `COPY CODE` and `PASTE A CODE` (clipboard); an iPhone had no scan button. Now the iPhone scans too (issue #299) and there is no paste.
+3. (History: `PASTE A CODE` was removed on 2026-11-02; a phone imports a player with IMPORT, a scan, REQ-FL-76.) Original plan, no longer true: a phone that cannot scan used `COPY CODE` and `PASTE A CODE` (clipboard; `COPY CODE` was removed on 2026-11-09); an iPhone had no scan button. Now the iPhone scans too (issue #299) and there is no paste.
 
 The result is a **copy**, not a move. If the second phone already has a profile with the same ID, the two are merged (section 6.5). After the copy the two phones do not sync.
 
@@ -223,7 +223,7 @@ One pull request for each phase, stacked, with the code, the tests, the document
 | Phase | Content | Manual test |
 |-------|---------|-------------|
 | A. Profiles and names | `Profile` and `ProfileStore` (new modules), the avatar sheet and the `Avatar` drawing, the phone screens (list, edit, avatar picker, switch), `hello`, `welcome` and `profile`, the TV validation and `display_name`, avatars instead of numbers, names in the pause card, the result menu and the lists, the duplicate ID rule, the text edits of section 10. | Test 20 items 1 to 8 |
-| B. Share by QR | The QR encoder up to version 14, the code format and the import rules, `SHARE`, `SCAN A PLAYER`, `COPY CODE`, `PASTE A CODE` (as planned; PASTE A CODE and the list were removed on 2026-11-02), the merge. The code has k = 0 bests until phase C. | Test 20 items 12 to 15 |
+| B. Share by QR | The QR encoder up to version 14, the code format and the import rules, `SHARE`, `SCAN A PLAYER`, `COPY CODE`, `PASTE A CODE` (as planned; PASTE A CODE and the list were removed on 2026-11-02, COPY CODE on 2026-11-09), the merge. The code has k = 0 bests until phase C. | Test 20 items 12 to 15 |
 | C. Personal bests | `ProfileKeys` directions, `best_key()` in `Minigame` and in the games, the `result` message, the update rule, `NEW BEST!` on the phone, the bests in the code. The requirements file of each game. | Test 20 items 9 to 11 |
 
 Phase A is useful alone. Phase B needs A and gives the copy of a profile early (a child's profile can move to a new phone before bests exist). Phase C needs A and B.

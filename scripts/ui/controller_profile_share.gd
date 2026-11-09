@@ -1,12 +1,11 @@
 extends Control
 ## Phone screen "SHARE PLAYER" (FD-22, REQ-FL-77): a QR code of one profile, which another phone scans (IMPORT on its new player
-## screen), and the text of the same code for COPY CODE. It opens from the edit player screen and Back goes back there.
+## screen). It opens from the edit player screen and Back goes back there.
 ## `profile_id` is set before the screen enters the tree. The code is made once, when the screen opens, and it goes away after
 ## `SHOW_SECONDS`.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
-const Lang = preload("res://scripts/core/lang.gd")
 const ProfileCode = preload("res://scripts/core/profile_code.gd")
 const QrView = preload("res://scripts/ui/qr_view.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
@@ -17,7 +16,6 @@ const QUIET_MODULES := 4
 var profile_id := ""
 var code := ""
 
-var _copy: Button
 var _timer: Timer
 
 
@@ -58,9 +56,6 @@ func _ready() -> void:
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD
 		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		box.add_child(line)
-	_copy = UiKit.box_button("profile_share.copy_code", _on_copy, UiTheme.SIZE_ITEM)
-	_copy.custom_minimum_size = Vector2(0, 110)
-	box.add_child(_copy)
 	var back := UiKit.box_button("common.back", on_back, UiTheme.SIZE_ITEM)
 	back.custom_minimum_size = Vector2(0, 96)
 	box.add_child(back)
@@ -70,11 +65,6 @@ func _ready() -> void:
 	_timer.timeout.connect(on_back)
 	add_child(_timer)
 	_timer.start()
-
-
-func _on_copy() -> void:
-	DisplayServer.clipboard_set(code)
-	_copy.text = Lang.t("profile_share.code_copied").to_upper()
 
 
 func on_back() -> void:

@@ -35,10 +35,10 @@ The host can approve or refuse every join request: when a new phone wants to joi
 
 The apps themselves send nothing outside your local network.
 
-## 4. Camera, clipboard and sharing a profile
+## 4. Camera and sharing a profile
 
 - **QR code scan (Android).** To scan the QR code of the TV or of a shared profile, the Controller opens the Google code scanner, which is part of Google Play services. The picture of the camera stays on your phone and is not sent to us or to Google. Sababi receives only the text of the code. Google receives technical data about how the scanner works and uses it to run and improve the scanner. Google's terms apply: <https://developers.google.com/ml-kit/terms>. A phone without Google Play services cannot scan and types the room code instead.
-- **Share a profile.** A profile can be copied to another phone as a QR code or as text. The code holds the profile ID, the name, the avatar and the best scores, with no password. Anyone who scans the QR code or reads the text gets a copy. The QR code is hidden after 60 seconds. If you copy the text, other apps on your phone may be able to read it. The Controller never reads the clipboard.
+- **Share a profile.** A profile can be copied to another phone as a QR code. The code holds the profile ID, the name, the avatar and the best scores, with no password. Anyone who scans the QR code gets a copy. The QR code is hidden after 60 seconds.
 
 ## 5. Permissions
 

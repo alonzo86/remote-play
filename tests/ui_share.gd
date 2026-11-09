@@ -96,8 +96,8 @@ func _share(maya: RefCounted) -> void:
 	var decoded := ProfileCode.decode(screen.code)
 	_check(decoded.ok and decoded.profile.id == maya.id and decoded.profile.player_name == "Maya" and decoded.profile.avatar == 4,
 			"the text is the profile of that player")
-	_find_button(screen, "profile_share.copy_code").pressed.emit()
-	_check(_find_button(screen, "CODE COPIED") != null, "COPY CODE says the code was copied")
+	_check(screen.find_children("*", "Button", true, false).size() == 1 and _find_button(screen, "common.back") != null,
+			"the screen has only BACK: no COPY CODE, a profile goes to another phone only by a scan (owner, 2026-11-09)")
 	_check(screen._timer.wait_time == 60.0 and not screen._timer.is_stopped(), "the code goes away after 60 seconds")
 	screen._timer.timeout.emit()
 	await process_frame

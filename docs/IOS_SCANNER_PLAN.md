@@ -133,7 +133,7 @@ Privacy and store texts are owner-only. Everything in this section is a proposal
 
 > - **QR code scan (iPhone and iPad).** To scan the QR code of the TV or of a shared profile, the Controller uses the camera of your iPhone. iOS asks for your permission the first time. The camera picture is shown on the scan screen only while it is open. It stays on your phone: Sababi does not save it and does not send it to us or to anyone else. Sababi receives only the text of the code. If you tap Don't Allow, you can type the room code instead, and you can turn the camera on later in Settings > Sababi.
 
-The Android bullet stays as it is. The heading "4. Camera, clipboard and sharing a profile" stays.
+The Android bullet stays as it is. (Update 2026-11-09: the heading is now "4. Camera and sharing a profile", the clipboard is gone because COPY CODE was removed, and the owner removed all iPhone wording from the notice until the iOS app is published; the texts of this section 5 are kept in issue #425. Read this section as the draft to add back then.)
 
 ### 5.2 `docs/legal/privacy-notice.md`, sections 5 and 6
 
