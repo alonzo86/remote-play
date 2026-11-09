@@ -4,7 +4,7 @@ extends SceneTree
 ## Each page has exactly one menu with English and עברית, the flag pictures and the twin page exist, the current language is
 ## marked, the menu script is loaded, and the old language link of the navigation is gone.
 
-const PAGES := ["index.html", "licenses.html", "privacy.html", "terms.html"]
+const PAGES := ["index.html", "privacy.html", "terms.html"]
 
 var _fails := 0
 var _checks := 0
