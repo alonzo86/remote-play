@@ -1,12 +1,12 @@
 # Sababi Contributor License Agreement (CLA)
 
-**Draft for a lawyer to read before the repository is opened.** Not legal advice. Decided by the owner on 2026-11-09: the repository is public, the owner keeps all the rights, and contributors give their contributions to the owner.
+Decided by the owner on 2026-11-09: the repository is public, the copyright of the whole project stays with the owner, and contributors are named in the credits.
 
 "Owner" means Alon Yampolski, Israel (sababi.play@gmail.com). "You" means the person who sends a Contribution. A "Contribution" is any code, text, image, sound, translation or other work that you send to this repository (a pull request, a patch, an issue with code, a comment with a suggested change).
 
 ## 1. How you agree
 
-You agree to this CLA by writing this sentence in the first pull request that you send: **"I have read the Sababi Contributor License Agreement (CLA.md) and I agree to it."** It covers that Contribution and every later one, until you write to the owner that it stops. If you send a Contribution for a company or for an employer, you also confirm that you may agree for them (section 5).
+You agree to this CLA by writing this sentence in the first pull request that you send, with your full name: **"I, <your full name>, have read the Sababi Contributor License Agreement (CLA.md) and I agree to it."** This is your written agreement; the owner keeps the pull request as the record. It covers that Contribution and every later one, until you write to the owner that it stops. If you send a Contribution for a company or for an employer, you also confirm that you may agree for them (section 5).
 
 ## 2. What you give the owner
 
@@ -21,7 +21,7 @@ The owner gives you back a free, non-exclusive, worldwide licence to use your ow
 
 ## 4. What the owner promises
 
-Nothing else than this: the owner does not have to accept, keep, credit or pay for a Contribution, and may change or remove it at any time. Your name may be kept in the history of the repository (git) and in the list of contributors, if you agree.
+The owner names you in the credits of the project (`CONTRIBUTORS.md` in the repository, and the website when it has a credits place) for each Contribution that is accepted, with the name that you gave, unless you ask the owner not to. The owner does not have to accept, keep or pay for a Contribution, and may change or remove it at any time. Your name stays in the history of the repository (git).
 
 ## 5. What you promise
 
@@ -35,6 +35,6 @@ Nothing else than this: the owner does not have to accept, keep, credit or pay f
 
 - The Contribution is given "as is", with no warranty, except what section 5 says.
 - If a part of this CLA is not valid, the rest stays in force.
-- The law of Israel applies, and the courts of Israel decide (to be confirmed by the lawyer).
+- The law of Israel applies, and the courts of Israel decide.
 - This CLA is in English. A translation is for help only.
 - The owner may change this CLA for new Contributions. A change does not touch a Contribution that is already agreed.
