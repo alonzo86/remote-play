@@ -124,3 +124,4 @@ tests/join_approval_tv.gd|tv|join approval, TV card: content, focus, 1 s guard, 
 tests/approve_setting.gd|tv|Settings row approve new players: first and focused, Left/Right/OK, saved, OFF refuses waiting, layout, texts (issue #393)|scenario
 tests/line_gap.gd|controller|line gap of wrapped text: Hebrew final letters, open screen refresh, pad blocks (issues #403, #406)|unit
 tests/legal_pages.gd|controller|website privacy and terms pages: up to date with docs/legal, headings, right to left, twin links, table (issue #37)|unit
+tests/site_language.gd|controller|website language menu: both languages with flags, twin pages, current language, script (issue #37)|unit
