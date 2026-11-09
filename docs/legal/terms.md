@@ -1,13 +1,13 @@
 # Sababi Terms of Use
 
-**Draft, not published.** Sababi: TV Games and Sababi: Remote. Last updated: 2026-10-15.
+**Draft, not published.** "Sababi: TV Games" and "Sababi: Remote". Last updated: 2026-10-15.
 Provider: Alon Yampolski, Israel. Contact: sababi.play@gmail.com
 
 By installing or using Sababi you agree to these terms. If you do not agree, do not use the apps.
 
 ## 1. The licence we give you
 
-We give you a personal, non-exclusive, non-transferable licence to install and use Sababi: TV Games and Sababi: Remote on devices that you own or control, for private, non-commercial play. We keep all other rights.
+We give you a personal, non-exclusive, non-transferable licence to install and use "Sababi: TV Games" and "Sababi: Remote" on devices that you own or control, for private, non-commercial play. We keep all other rights.
 
 ## 2. What you may not do
 
