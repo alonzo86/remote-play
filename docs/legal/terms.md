@@ -11,7 +11,7 @@ We give you a personal, non-exclusive, non-transferable licence to install and u
 
 ## 2. What you may not do
 
-- Copy, sell, rent or give the apps to others, or change them, except as the law or the licence of a third-party part allows.
+- Copy, sell, rent or give the apps to others, or change them, except as the law, the licence of a third-party part or the licence of the source code repository (the file LICENSE) allows.
 - Remove or hide the copyright and licence notices in the apps.
 - Use the apps to harass others, for example with offensive profile names.
 - Try to break, overload or get access to the devices of other people through the apps.
