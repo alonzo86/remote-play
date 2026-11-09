@@ -1,6 +1,6 @@
 # Sababi Terms of Use
 
-**Draft, not published.** "Sababi: TV Games" and "Sababi: Remote". Last updated: 2026-10-15.
+"Sababi: TV Games" and "Sababi: Remote". Last updated: 2026-11-09.
 Provider: Alon Yampolski, Israel. Contact: sababi.play@gmail.com
 
 By installing or using Sababi you agree to these terms. If you do not agree, do not use the apps.

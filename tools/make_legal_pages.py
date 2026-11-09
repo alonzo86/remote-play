@@ -5,7 +5,7 @@ Usage: tools/make_legal_pages.py          write the four pages (en and he)
 
 The header, the navigation and the footer of each page stay as they are in the file: only the <title> and the part between
 <main> and </main> are written from the Markdown text. The text is converted as it is: nothing is added, cut or reworded, so the
-pages say "Draft, not published" for as long as the Markdown text does. The Markdown subset is the one that the four texts use:
+pages say what the Markdown text says (the "Draft, not published" line was removed on 2026-11-09, owner). The Markdown subset is the one that the four texts use:
 # and ## headings, paragraphs (a line break stays a line break), "- " lists, one table, **bold**, `code`, [text](url), <url>
 and e-mail addresses (and the <div dir="rtl" lang="he"> wrapper of the Hebrew texts, which is left out). A line that this converter does not know makes it stop with an error, so a new kind of line is noticed."""
 import html

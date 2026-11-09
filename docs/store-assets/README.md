@@ -15,6 +15,8 @@ Images for the store listings. The owner approved the English set on 2026-11-07 
 The TV and phone screenshots are captures of the real apps (headless Godot with a software GL driver), with the player names
 "Player 1" and "Player 2" and the room code of a local test. The phone screens show no debug overlay and no RECENTER button.
 
+The home page of the website shows these screenshots at half size (`site/screens/`, see `site/README.md`). Capture a screenshot again: make its copy there again.
+
 ## Rules
 
 - No Hebrew set yet. Phone Hebrew texts of two or more lines are drawn too close together (issue #403): fix it, then capture the

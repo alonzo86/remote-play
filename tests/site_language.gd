@@ -64,5 +64,26 @@ func _run() -> void:
 			_check(html.contains('<script src="%slang.js" defer></script>' % pre), "%s loads the menu script" % name)
 			_check(not html.contains('lang="he">עברית</a></nav>') and not html.contains('lang="en">English</a></nav>'),
 					"%s has no old language link at the end of the navigation" % name)
+			_check(html.contains('<link rel="icon" href="%sfavicon.ico" sizes="any">' % pre)
+					and html.contains('<link rel="apple-touch-icon" href="%sicon-192.png">' % pre),
+					"%s has the Sababi icon as its favicon" % name)
+	_check(_exists("site/favicon.ico") and _exists("site/icon-192.png") and Image.load_from_file(
+			"res://site/icon-192.png").get_size() == Vector2i(192, 192), "the favicon files exist (icon 192 x 192)")
+	var get_html := FileAccess.get_file_as_string("res://site/get/index.html")
+	_check(get_html.contains('<link rel="icon" href="../favicon.ico" sizes="any">'), "site/get/index.html has the favicon")
+	# The store screenshots on the home page (owner request of 2026-11-09): 10 for the TV, 2 for the phone, with a text each.
+	for lang in ["en", "he"]:
+		var dir := "site/" if lang == "en" else "site/he/"
+		var html := FileAccess.get_file_as_string("res://" + dir + "index.html")
+		var pattern := '<img src="(?:\\.\\./)?(screens/[^"]+)" width="(\\d+)" height="(\\d+)" alt="([^"]+)"'
+		var imgs := RegEx.create_from_string(pattern).search_all(html)
+		_check(imgs.size() == 12 and html.count('class="shots tv"') == 1 and html.count('class="shots phone"') == 1,
+				"%s home page: 12 screenshots (10 TV, 2 phone)" % dir)
+		var ok := true
+		for m in imgs:
+			var path: String = "site/" + m.get_string(1)
+			var size := Image.load_from_file("res://" + path).get_size() if _exists(path) else Vector2i.ZERO
+			ok = ok and size == Vector2i(int(m.get_string(2)), int(m.get_string(3))) and m.get_string(4).strip_edges() != ""
+		_check(ok, "%s home page: each screenshot file exists, its size is in the tag and it has a text" % dir)
 	print("\n%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
