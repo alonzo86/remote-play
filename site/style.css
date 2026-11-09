@@ -53,8 +53,11 @@ details.lang li a { display: flex; align-items: center; gap: 8px; padding: 8px 1
 details.lang li a:hover, details.lang li a:focus-visible { background: var(--frame); }
 details.lang li a[aria-current="true"] { color: var(--accent); }
 details.lang img { display: block; width: 24px; height: 16px; flex: none; }
-/* The store screenshots on the home page (copies of docs/store-assets, half size). */
-.shots { display: grid; gap: 16px; margin: 16px 0; }
-.shots.tv { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-.shots.phone { grid-template-columns: repeat(auto-fill, minmax(160px, 220px)); }
-.shots img { width: 100%; height: auto; display: block; border: 2px solid var(--dim); image-rendering: pixelated; }
+/* The store screenshots on the home page (copies of docs/store-assets, half size): one line that scrolls and snaps. */
+.carousel { position: relative; margin: 16px 0 24px; }
+.car-track { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
+.car-track img { height: 240px; width: auto; flex: none; scroll-snap-align: start; border: 2px solid var(--dim); image-rendering: pixelated; }
+.car-prev, .car-next { position: absolute; top: 50%; transform: translateY(-50%); z-index: 1; width: 44px; height: 44px; font: inherit; font-size: 28px; line-height: 1; color: var(--text); background: var(--bg); border: 2px solid var(--text); cursor: pointer; }
+.car-prev { inset-inline-start: 0; }
+.car-next { inset-inline-end: 0; }
+.car-prev[hidden], .car-next[hidden] { display: none; }

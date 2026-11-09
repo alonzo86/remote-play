@@ -31,7 +31,7 @@ func _exists(path: String) -> bool:
 
 
 func _run() -> void:
-	_check(_exists("site/flags/us.svg") and _exists("site/flags/il.svg") and _exists("site/lang.js"),
+	_check(_exists("site/flags/us.svg") and _exists("site/flags/il.svg") and _exists("site/lang.js") and _exists("site/carousel.js"),
 			"the two flag pictures and the menu script exist")
 	for page in PAGES:
 		for lang in ["en", "he"]:
@@ -71,14 +71,17 @@ func _run() -> void:
 			"res://site/icon-192.png").get_size() == Vector2i(192, 192), "the favicon files exist (icon 192 x 192)")
 	var get_html := FileAccess.get_file_as_string("res://site/get/index.html")
 	_check(get_html.contains('<link rel="icon" href="../favicon.ico" sizes="any">'), "site/get/index.html has the favicon")
-	# The store screenshots on the home page (owner request of 2026-11-09): 10 for the TV, 2 for the phone, with a text each.
+	# The store screenshots on the home page (owner request of 2026-11-09): 10 for the TV, 2 for the phone, in one carousel line.
 	for lang in ["en", "he"]:
 		var dir := "site/" if lang == "en" else "site/he/"
 		var html := FileAccess.get_file_as_string("res://" + dir + "index.html")
 		var pattern := '<img src="(?:\\.\\./)?(screens/[^"]+)" width="(\\d+)" height="(\\d+)" alt="([^"]+)"'
 		var imgs := RegEx.create_from_string(pattern).search_all(html)
-		_check(imgs.size() == 12 and html.count('class="shots tv"') == 1 and html.count('class="shots phone"') == 1,
-				"%s home page: 12 screenshots (10 TV, 2 phone)" % dir)
+		_check(imgs.size() == 12 and html.count('class="car-track"') == 1 and html.count('class="carousel"') == 1
+				and html.contains("%scarousel.js" % ("" if lang == "en" else "../")) and not html.contains("<h2>Screenshots"),
+				"%s home page: 12 screenshots in one carousel line, under the description, with no title of their own" % dir)
+		_check(html.find('class="lead"') < html.find('class="carousel"') and html.find('class="carousel"') < html.find("steps"),
+				"%s home page: the carousel is between the description and How it works" % dir)
 		var ok := true
 		for m in imgs:
 			var path: String = "site/" + m.get_string(1)
