@@ -44,6 +44,7 @@ ios/plugins/
 
 # Godot makes an .import file for every image it sees, also the store images that the app does not use
 docs/store-assets/**/*.import
+site/**/*.import
 
 # Python makes this folder when a test imports tools/make_legal_pages.py
 __pycache__/
