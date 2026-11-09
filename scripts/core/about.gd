@@ -77,7 +77,7 @@ static func title_text(page: Dictionary) -> String:
 static func text(page: Dictionary) -> String:
 	match String(page.kind):
 		"summary":
-			return Lang.t("about.sababi_party_game_tv") + "\n\n" \
+			return Lang.t("about.sababi_game_tv") + "\n\n" \
 					+ Lang.t("about.sababi_has_no_account") \
 					+ "\n\n" + Lang.t("about.phones_tv_communicate_over") \
 					+ " " + Lang.t("about.nothing_leaves_network") \

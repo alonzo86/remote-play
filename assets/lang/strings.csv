@@ -5,7 +5,7 @@ about.phones_tv_communicate_over,"The phones and the TV communicate over your Wi
 about.nothing_leaves_network,Nothing leaves your network.,שום דבר לא יוצא מהרשת שלכם.,"About screen, first page: last sentence of the Wi-Fi paragraph",
 common.about,ABOUT,אודות,"Phone: name and tooltip of the ABOUT icon button (no word on the button) in the top row of the waiting and Connect screens; TV Settings screen: the About row; title of the About screen",
 about.sababi_has_no_account,"Sababi has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.","ב־SABABI אין חשבון, אין פרסומות ואין ניתוח נתונים. השם, הדמות והשיאים שלכם נשארים בטלפון.","About screen, first page: what data Sababi keeps",
-about.sababi_party_game_tv,Sababi is a party game for the TV. The phones are the controllers.,SABABI הוא משחק מסיבה לטלוויזיה. הטלפונים הם השלטים.,"About screen, first page: what Sababi is",
+about.sababi_game_tv,Sababi is a game for the TV. The phones are the controllers.,SABABI הוא משחק לטלוויזיה. הטלפונים הם השלטים.,"About screen, first page: what Sababi is",
 about.third_party_libraries,3rd Party Libraries,ספריות צד שלישי,"About screen: row that opens the list of libraries of other makers, and the title of that list",
 app.app_version_does_not,APP VERSION DOES NOT MATCH THE TV APP.,גרסת האפליקציה אינה תואמת לאפליקציית הטלוויזיה.,"Phone, Connect screen: error when the app and the TV versions differ",
 app.cannot_connect_room,CANNOT CONNECT TO THE ROOM. CHECK YOUR WI-FI CONNECTION.,אי אפשר להתחבר לחדר. בדקו את החיבור שלכם לרשת האלחוטית.,"Phone, Connect screen: error when the room (TV) cannot be reached",

@@ -20,6 +20,15 @@ The code, art and documents of Sababi itself are under `LICENSE` (all rights res
 
 The privacy notice and the terms (drafts, English and Hebrew) and the store listing draft are in `docs/legal/`. The longer notes and the questions for a lawyer are in the project files (`legal/`).
 
+## Website store badges (added 2026-11-09; the website `site/`, not shipped in the apps)
+
+The home page and the page of the QR code (`/get/`) show the official store badges. They are **not** under an open license: they are artwork of the store owners, offered for linking to an app in the store under the brand guidelines of each store. Rules that the site follows: use only the files as they were published (not changed, not animated, not recolored), keep the clear space around them, link only to our own app, and put the credit lines once on the site (in the footer of the home page, English). Not checked against the current pages of Google (the guidelines page was not reachable from the session): the owner or the `license-reviewer` reads them before the site is published.
+
+| Resource | Files | Source | Used in | Terms | Owner | Notice needed | Status |
+|----------|-------|--------|---------|-------|-------|---------------|--------|
+| Google Play badge, English and Hebrew (`en_badge_web_generic.png`, `iw_badge_web_generic.png`) | `site/badges/google-play-en.png`, `site/badges/google-play-he.png` | `https://play.google.com/intl/en_us/badges/static/images/badges/` (fetched 2026-11-09) | home page (TV app and phone app), `/get/` | Google Play badge guidelines (brand terms, not a free license) | Google LLC | Yes: "Google Play and the Google Play logo are trademarks of Google LLC." in the footer of the home page | Open: guidelines to be read before publishing |
+| Download on the App Store badge (black, US-UK; the Hebrew version could not be fetched, "App Store" stays in English) | `site/badges/app-store.svg` | `https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg` (fetched 2026-11-09) | home page (phone app, with "Coming soon" under it), `/get/` | Apple's marketing guidelines for the App Store badge (`developer.apple.com/app-store/marketing/guidelines/`, read 2026-11-09: do not modify, angle or animate; at least 40 px high; clear space of a quarter of the height; credit Apple once) | Apple Inc. | Yes: "App Store and the Apple logo are registered trademarks of Apple Inc." in the footer of the home page | Open: Apple prefers the badge when the app is available; it is shown now with "Coming soon" (owner decision of 2026-11-09) |
+
 ## Android libraries (checked 2026-10-13)
 
 The list comes from `./gradlew dependencies --configuration standardReleaseRuntimeClasspath` in `android/build` (Godot 4.7 template, after `tools/patch_android_manifest.sh`). The `releaseRuntimeClasspath` name in the old note does not exist in this template: the configuration has the flavor in its name (`standard`). The licenses come from the POM of each library in the Gradle cache. Libraries inside the Godot engine itself are in the rows above.
