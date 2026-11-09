@@ -67,6 +67,10 @@ func _run() -> void:
 			_check(html.contains('<link rel="icon" href="%sfavicon.ico" sizes="any">' % pre)
 					and html.contains('<link rel="apple-touch-icon" href="%sicon-192.png">' % pre),
 					"%s has the Sababi icon as its favicon" % name)
+	for page in PAGES:
+		_check(FileAccess.get_file_as_string("res://site/" + page).contains("&copy; 2026 Alon Yampolski. All rights reserved.")
+				and FileAccess.get_file_as_string("res://site/he/" + page).contains("&copy; 2026 אלון ימפולסקי. כל הזכויות שמורות."),
+				"%s: the footer has the copyright line in English and in Hebrew" % page)
 	_check(_exists("site/favicon.ico") and _exists("site/icon-192.png") and Image.load_from_file(
 			"res://site/icon-192.png").get_size() == Vector2i(192, 192), "the favicon files exist (icon 192 x 192)")
 	var get_html := FileAccess.get_file_as_string("res://site/get/index.html")
