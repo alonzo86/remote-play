@@ -50,8 +50,17 @@ func _run() -> void:
 					"%s marks its own language in the menu" % name)
 			_check(html.contains("English</a></li>") and html.contains("עברית</a></li>"), "%s lists English and עברית" % name)
 			var pre := "" if lang == "en" else "../"
-			_check(html.contains('src="%sflags/us.svg"' % pre) and html.contains('src="%sflags/il.svg"' % pre),
-					"%s uses both flag pictures (%sflags/)" % [name, pre])
+			var us := pre + "flags/us.svg"
+			var il := pre + "flags/il.svg"
+			var mark := ' aria-current="true"'
+			var en_entry := 'hreflang="en"%s><img src="%s"' % [mark if lang == "en" else "", us]
+			var he_entry := 'hreflang="he"%s><img src="%s"' % [mark if lang == "he" else "", il]
+			_check(html.contains(en_entry), "%s: the English entry has the flag of the United States (%s)" % [name, us])
+			_check(html.contains(he_entry), "%s: the עברית entry has the flag of Israel (%s)" % [name, il])
+			var own_flag := us if lang == "en" else il
+			var own_label := "Language: English" if lang == "en" else "שפה: עברית"
+			_check(html.contains('<summary aria-label="%s"><img src="%s"' % [own_label, own_flag]),
+					"%s: the button shows the flag of its own language (%s)" % [name, own_flag])
 			_check(html.contains('<script src="%slang.js" defer></script>' % pre), "%s loads the menu script" % name)
 			_check(not html.contains('lang="he">עברית</a></nav>') and not html.contains('lang="en">English</a></nav>'),
 					"%s has no old language link at the end of the navigation" % name)
