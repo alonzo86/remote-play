@@ -21,6 +21,8 @@ PAGES = [  # (Markdown text, page)
 	("docs/legal/terms.he.md", "site/he/terms.html"),
 ]
 SITE_TITLE = {"en": "Sababi", "he": "Sababi"}
+# A line that starts like another kind of Markdown block (a quote, a numbered or starred list, code, a rule, an indented line).
+UNKNOWN = re.compile(r"^(>|\d+[.)] |[*+] |\s+\S|---|===|```|~~~|\[[^\]]+\]:)")
 INLINE = re.compile(r"<(https?://[^>\s]+)>|\*\*(.+?)\*\*|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)|([\w.+-]+@[\w-]+(?:\.[\w-]+)*\.[A-Za-z]{2,})")
 
 
@@ -28,7 +30,7 @@ def inline(text: str) -> str:
 	out = []
 	pos = 0
 	for m in INLINE.finditer(text):
-		out.append(html.escape(text[pos:m.start()], quote=False))
+		out.append(plain(text[pos:m.start()]))
 		if m.group(1):
 			out.append('<a href="%s">%s</a>' % (html.escape(m.group(1)), html.escape(m.group(1), quote=False)))
 		elif m.group(2) is not None:
@@ -40,8 +42,16 @@ def inline(text: str) -> str:
 		else:
 			out.append('<a href="mailto:%s">%s</a>' % (m.group(6), m.group(6)))
 		pos = m.end()
-	out.append(html.escape(text[pos:], quote=False))
+	out.append(plain(text[pos:]))
 	return "".join(out)
+
+
+def plain(text: str) -> str:
+	"""Text between the marked parts: escaped. A mark that the converter does not know (*italic*, _italic_, a backslash escape)
+	stops it, because it would be written as it is, wrongly."""
+	if "*" in text or "\\" in text or re.search(r"(^|\s)_\S", text):
+		raise SystemExit("emphasis or escape that the converter does not know: %r" % text)
+	return html.escape(text, quote=False)
 
 
 def cells(line: str) -> list:
@@ -72,6 +82,8 @@ def convert(markdown: str) -> tuple:
 			while i < len(lines) and lines[i].startswith("- "):
 				out.append("<li>%s</li>" % inline(lines[i][2:].strip()))
 				i += 1
+				if i < len(lines) and lines[i].strip() != "" and not lines[i].startswith(("- ", "#", "|")):
+					raise SystemExit("a list item goes on in the next line (not known to the converter): %r" % lines[i])
 			out.append("</ul>")
 		elif line.startswith("|"):
 			rows = []
@@ -80,17 +92,23 @@ def convert(markdown: str) -> tuple:
 				i += 1
 			if len(rows) < 3 or not re.fullmatch(r"\|[-| :]+\|", rows[1].strip()):
 				raise SystemExit("a table needs a header row and a separator row: %r" % rows[0])
+			width = len(cells(rows[0]))
+			for r in rows:
+				if len(cells(r)) != width or "\\|" in r:
+					raise SystemExit("a table row with another number of cells (or an escaped |): %r" % r)
 			out.append('<div class="table-wrap"><table>')
 			out.append("<thead><tr>%s</tr></thead>" % "".join("<th>%s</th>" % inline(c) for c in cells(rows[0])))
 			out.append("<tbody>")
 			for r in rows[2:]:
 				out.append("<tr>%s</tr>" % "".join("<td>%s</td>" % inline(c) for c in cells(r)))
 			out.append("</tbody></table></div>")
-		elif line.startswith(("#", ">", "1.", "* ", "    ", "\t", "---")):
+		elif UNKNOWN.match(line):
 			raise SystemExit("this kind of line is not known to the converter: %r" % line)
 		else:
 			para = []
 			while i < len(lines) and lines[i].strip() != "" and not lines[i].startswith(("#", "- ", "|")):
+				if UNKNOWN.match(lines[i]):
+					raise SystemExit("this kind of line is not known to the converter: %r" % lines[i])
 				para.append(lines[i].strip())
 				i += 1
 			out.append("<p>%s</p>" % "<br>\n".join(inline(p) for p in para))
