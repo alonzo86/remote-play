@@ -24,12 +24,10 @@ p, li { color: var(--desc); }
 .stores { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0; }
 .store-badge { display: block; }
 .store-badge img { display: block; width: auto; }
-/* The Google Play file has a transparent margin of 41 of 250 px: 12 px at 72 px high. The negative margin lines its visible 48 px up with the App Store badge. */
+/* The Google Play file has a transparent margin of 41 of 250 px: 12 px at 72 px high. The negative margin trims it, so the visible badge is 48 px high. */
 .store-badge img[height="72"] { margin: -12px; }
 .store-badge[aria-disabled="true"] { cursor: default; }
-.store-soon { position: relative; }
-.store-soon .soon { position: absolute; top: 100%; inset-inline-start: 0; margin-top: 4px; white-space: nowrap; color: var(--dim); }
-.stores { align-items: flex-start; padding-bottom: 28px; }
+.stores { align-items: flex-start; }
 .note { color: var(--dim); }
 footer { color: var(--dim); border-top: 2px solid var(--text); margin-top: 48px; font-size: 15px; }
 footer a { color: var(--desc); }
