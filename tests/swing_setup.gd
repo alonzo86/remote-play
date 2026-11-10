@@ -96,7 +96,7 @@ func _answers() -> void:
 	for l in view.find_children("*", "Label", true, false):
 		line_shown = line_shown or (l.text == tv_line and l.is_visible_in_tree())
 	_check(line_shown,
-			"the settings view of a swing game shows the safety line under the rows and Start waits for the OK "
+			"the settings view of a swing game shows the safety line in a large box under the title and Start waits for the OK "
 			+ "of every phone (Test 23 step 14a, REQ-BW-22)")
 	# Issue #121: a disabled Start cannot be reached. Down from the last row goes to Back, and Start takes no focus.
 	var last: Control = view.rows[-1]
