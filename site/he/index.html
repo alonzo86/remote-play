@@ -3,30 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sababi: משחקי מסיבה בטלוויזיה</title>
+<title>Sababi: משחקים בטלוויזיה</title>
 <link rel="stylesheet" href="../style.css">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="../icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="../icon-192.png">
+<script src="../lang.js" defer></script>
+<script src="../carousel.js" defer></script>
 </head>
 <body>
 <header>
-<a class="brand" href="index.html">SABABI</a>
-<nav aria-label="Sababi"><a href="index.html" aria-current="page">בית</a><a href="index.html#get">הורדת האפליקציה</a><a href="privacy.html">פרטיות</a><a href="terms.html">תנאי שימוש</a><a href="licenses.html">רישיונות</a><a href="../index.html" lang="en">English</a></nav>
+<div class="top"><a class="brand" href="index.html">SABABI</a><details class="lang"><summary aria-label="שפה: עברית"><img src="../flags/il.svg" alt="" width="24" height="16"><span lang="he">עברית</span></summary><ul><li><a href="../index.html" lang="en" hreflang="en"><img src="../flags/us.svg" alt="" width="24" height="16"> English</a></li><li><a href="index.html" lang="he" hreflang="he" aria-current="true"><img src="../flags/il.svg" alt="" width="24" height="16"> עברית</a></li></ul></details></div>
+<nav aria-label="Sababi"><a href="index.html" aria-current="page">בית</a><a href="privacy.html">פרטיות</a><a href="terms.html">תנאי שימוש</a></nav>
 </header>
 <main>
-<h1>משחקי מסיבה בטלוויזיה.</h1>
+<h1>משחקים בטלוויזיה.</h1>
 <p class="lead">הטלפון שלכם הוא השלט. מטים אותו, מכוונים אותו, מניפים אותו, ומשחקים ביחד על המסך הגדול.</p>
+<div class="carousel"><button class="car-prev" type="button" aria-label="הקודם" hidden>&#8249;</button><div class="car-track" tabindex="0"><img src="../screens/0_logo.png" width="960" height="540" alt="מסך הפתיחה של Sababi" loading="lazy"><img src="../screens/1_connect.png" width="960" height="540" alt="הטלוויזיה מציגה קוד QR, קוד חדר ואת השחקנים שהצטרפו" loading="lazy"><img src="../screens/2_games.png" width="960" height="540" alt="תפריט המשחקים בטלוויזיה" loading="lazy"><img src="../screens/3_games_mole_bonk.png" width="960" height="540" alt="תפריט המשחקים עם Mole Bonk נבחר" loading="lazy"><img src="../screens/4_mole_bonk_play.png" width="960" height="540" alt="המשחק Mole Bonk" loading="lazy"><img src="../screens/5_result.png" width="960" height="540" alt="תוצאת Mole Bonk: שחקן 1 מנצח" loading="lazy"><img src="../screens/6_star_shield.png" width="960" height="540" alt="המשחק Star Shield" loading="lazy"><img src="../screens/7_mini_golf.png" width="960" height="540" alt="המשחק Mini Golf" loading="lazy"><img src="../screens/8_air_hockey.png" width="960" height="540" alt="המשחק Air Hockey" loading="lazy"><img src="../screens/9_bowling.png" width="960" height="540" alt="המשחק Bowling" loading="lazy"><img src="../screens/phone_1_choose_game.png" width="540" height="960" alt="הטלפון: בחירת משחק בטלוויזיה" loading="lazy"><img src="../screens/phone_2_pad.png" width="540" height="960" alt="הטלפון כשלט, עם הכפתורים A ו־B" loading="lazy"></div><button class="car-next" type="button" aria-label="הבא" hidden>&#8250;</button></div>
 <h2>איך זה עובד</h2>
-<ol class="steps"><li>הורידו את אפליקציית הטלפון (Sababi: Remote). צריך אותה כדי לשחק.</li><li>הפעילו את Sababi: TV Games בטלוויזיית האנדרואיד שלכם. הטלוויזיה מציגה קוד.</li><li>פתחו את אפליקציית הטלפון וסרקו את הקוד. בחרו משחק בטלוויזיה ושחקו!</li></ol>
+<ol class="steps"><li>התקינו את "Sababi: TV Games" בטלוויזיית האנדרואיד שלכם.</li><li>הורידו את אפליקציית הטלפון "Sababi: Remote". צריך אותה כדי לשחק.</li><li>הפעילו את "Sababi: TV Games" בטלוויזיית האנדרואיד שלכם.</li><li>פתחו את אפליקציית הטלפון והצטרפו לחדר.</li><li>בחרו משחק בטלוויזיה ושחקו!</li></ol>
+<section id="get-tv" class="card">
+<h2 style="margin-top:0">הורידו את אפליקציית הטלוויזיה</h2>
+<p>"Sababi: TV Games" מריצה את המשחקים בטלוויזיית האנדרואיד שלכם.</p>
+<div class="stores">
+<a class="store-badge" data-store="playTv"><img src="../badges/google-play-he.png" alt="כעת ב-Google Play" height="72"></a>
+</div>
+</section>
 <section id="get" class="card">
 <h2 style="margin-top:0">הורידו את אפליקציית הטלפון</h2>
-<p>צריך את אפליקציית הטלפון כדי לשחק: הטלוויזיה מציגה את המשחקים והטלפון הוא השלט. האפליקציה בחינם.</p>
+<p>צריך את אפליקציית הטלפון כדי לשחק. "Sababi: Remote" היא השלט של המשחקים.</p>
 <div class="stores">
-<a class="store" data-store="play" data-open="פתחו את Google Play"><strong>Google Play</strong><small></small></a>
-<a class="store" data-store="appStore" data-open="פתחו את ה-App Store"><strong>App Store</strong><small></small></a>
+<a class="store-badge" data-store="play"><img src="../badges/google-play-he.png" alt="כעת ב-Google Play" height="72"></a>
 </div>
-<p class="note">אפליקציית הטלוויזיה, Sababi: TV Games, פועלת על Android TV.</p>
 </section>
 </main>
-<footer>Sababi · ספק: אלון ימפולסקי, ישראל · יצירת קשר: <a href="mailto:sababi.play@gmail.com">sababi.play@gmail.com</a></footer>
+<footer>Sababi · ספק: אלון ימפולסקי, ישראל · יצירת קשר: <a href="mailto:sababi.play@gmail.com">sababi.play@gmail.com</a><p class="note">&copy; 2026 אלון ימפולסקי. כל הזכויות שמורות.</p></footer>
 <script src="../stores.js"></script>
 </body>
 </html>

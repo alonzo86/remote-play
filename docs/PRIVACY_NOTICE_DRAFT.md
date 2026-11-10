@@ -4,7 +4,7 @@
 
 ## English
 
-**QR code scanner (Android).** To join a game, the Android phone app can scan a QR code from the TV. The scan uses the Google code scanner, which is part of Google Play services. The camera picture stays on your phone and is not sent to us or to Google. Sababi receives only the text of the code. Google receives technical data about how the scanner works, such as the phone model, the operating system version, the app version and performance information, and uses it to run and improve the scanner. See Google's ML Kit terms: https://developers.google.com/ml-kit/terms.
+**QR code scanner (Android).** To join a game, the Android phone app can scan a QR code from the TV. The scan uses the Google code scanner, which is part of Google Play services. The camera picture stays on your phone and is not sent to us or to Google. Sababi receives only the text of the code. Google receives technical data about how the scanner works and uses it to run and improve the scanner (the notice of 2026-11-09 is this short; the examples are in the facts below). See Google's ML Kit terms: https://developers.google.com/ml-kit/terms.
 
 ## Hebrew
 
@@ -21,7 +21,7 @@ Written in `docs/legal/privacy-notice.he.md` (section 4), based on the Hebrew of
 
 ## iPhone and iPad (added 2026-11-01, issue #299)
 
-The paragraph is in `docs/legal/privacy-notice.md` (section 4, with sections 5 and 6) and its Hebrew twin. The owner accepted the draft on 2026-11-01. Facts behind it:
+**Not in the notice now:** on 2026-11-09 the owner removed all iPhone wording from `docs/legal/privacy-notice.md` and its Hebrew twin until the iOS app is published (issue #425 keeps the removed text and adds it back then). The owner accepted this draft on 2026-11-01. Facts behind it:
 
 - The scan uses Apple's VisionKit (`DataScannerViewController`, QR codes only) in our own plugin. It runs on the device. No third-party code and no network call are added.
 - The camera picture is shown on the scan screen only. Nothing is saved, sent or kept after the screen closes (REQ-FL-92, Manual test 33 steps 7a and 7b).

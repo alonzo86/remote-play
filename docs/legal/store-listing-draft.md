@@ -13,7 +13,7 @@ Facts these texts use (checked in `README.md` and `docs/games/`): 15 games (`scr
 | Field | English | Hebrew |
 |---|---|---|
 | Title (30) | Sababi: TV Games | Sababi: TV Games |
-| Short description (80) | Party games on your Android TV. Your phone is the motion controller. | משחקי מסיבה בטלוויזיה. הטלפון שלכם הוא השלט עם חיישני התנועה. |
+| Short description (80) | Games on your Android TV. Your phone is the motion controller. | משחקים בטלוויזיה. הטלפון שלכם הוא השלט עם חיישני התנועה. |
 
 ### Full description, English
 
@@ -84,11 +84,11 @@ Sababi הופך את הסלון שלכם לערב משחקים. משחקים ע�
 | Field | English | Hebrew |
 |---|---|---|
 | Title (30) | Sababi: Remote | Sababi: Remote |
-| Short description (80) | Use your phone as a motion controller for Sababi party games on your TV. | הפכו את הטלפון לשלט תנועה למשחקי Sababi בטלוויזיה. |
+| Short description (80) | Use your phone as a motion controller for Sababi games on your TV. | הפכו את הטלפון לשלט תנועה למשחקי Sababi בטלוויזיה. |
 
 ### Full description, English
 
-Sababi: Remote turns your phone into a motion controller for the Sababi party games on your Android TV.
+Sababi: Remote turns your phone into a motion controller for the Sababi games on your Android TV.
 
 This app needs the free Sababi: TV Games app on your Android TV or streaming box. Phone and TV must be on the same Wi-Fi.
 
@@ -116,7 +116,7 @@ Sababi: Remote הופך את הטלפון לשלט תנועה למשחקי המ�
 
 ## Keywords
 
-Play reads these words from the texts above, so each is in them once or twice: party games, TV, Android TV, motion controller, phone controller, family, couch, multiplayer, tilt, local multiplayer.
+Play reads these words from the texts above, so each is in them once or twice: games, TV, Android TV, motion controller, phone controller, family, couch, multiplayer, tilt, local multiplayer.
 
 Sababa and Sababy: the owner decided on 2026-10-15 not to add the other spellings to the texts.
 

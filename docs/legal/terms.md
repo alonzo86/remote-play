@@ -1,17 +1,17 @@
 # Sababi Terms of Use
 
-**Draft, not published.** Sababi: TV Games and Sababi: Remote. Last updated: 2026-10-15.
+"Sababi: TV Games" and "Sababi: Remote". Last updated: 2026-11-09.
 Provider: Alon Yampolski, Israel. Contact: sababi.play@gmail.com
 
 By installing or using Sababi you agree to these terms. If you do not agree, do not use the apps.
 
 ## 1. The licence we give you
 
-We give you a personal, non-exclusive, non-transferable licence to install and use Sababi: TV Games and Sababi: Remote on devices that you own or control, for private, non-commercial play. We keep all other rights.
+We give you a personal, non-exclusive, non-transferable licence to install and use "Sababi: TV Games" and "Sababi: Remote" on devices that you own or control, for private, non-commercial play. We keep all other rights.
 
 ## 2. What you may not do
 
-- Copy, sell, rent or give the apps to others, or change them, except as the law or the licence of a third-party part allows.
+- Copy, sell, rent or give the apps to others, or change them, except as the law, the licence of a third-party part or the licence of the source code repository (the file LICENSE) allows.
 - Remove or hide the copyright and licence notices in the apps.
 - Use the apps to harass others, for example with offensive profile names.
 - Try to break, overload or get access to the devices of other people through the apps.
@@ -35,7 +35,7 @@ Sababi, its games, art, sounds, logo and text belong to Alon Yampolski or to his
 
 ## 7. Updates, changes and availability
 
-We may update, change or stop the apps at any time. We do not promise that every game works on every phone, TV or TV box, or that a feature will stay. Sababi is an early version, and values such as scores and difficulty may change between updates, which can affect saved personal bests.
+We may update, change or stop the apps at any time. We do not promise that every game works on every phone, TV or TV box, or that a feature will stay.
 
 ## 8. No warranty
 
@@ -51,7 +51,7 @@ You can stop at any time by uninstalling the apps. We may end your licence if yo
 
 ## 11. Stores
 
-If you get the apps from an app store, the terms of the store also apply. The store (for example Google or Apple) is not responsible for the apps or for support.
+If you get the apps from an app store, the terms of the store also apply. The store is not responsible for the apps or for support.
 
 ## 12. Law and disputes
 

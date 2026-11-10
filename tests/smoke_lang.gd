@@ -198,7 +198,7 @@ func _run() -> void:
 	# imperative (Alon, 2026-10-31: the buttons were singular before); "hold" has one spelling (the standard "החזיקו").
 	var button_keys := ["connect.join", "connect.scan_qr_code", "minigame.restart", "minigame.resume", "game_settings.start",
 			"profile_edit.save", "profile_edit.delete", "players.remove", "players_modal.close", "profiles.share",
-			"profile_edit.import", "marble_race.go", "profile_edit.edit_player", "profile_share.copy_code", "pad.disconnect_hold"]
+			"profile_edit.import", "marble_race.go", "profile_edit.edit_player", "pad.disconnect_hold"]
 	var prompt_keys := ["wait.choose_game_tv", "games.select_game", "swing.card_title", "swing.tv_line"]
 	var bad_form: Array = []
 	for k in button_keys:

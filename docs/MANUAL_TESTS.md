@@ -1067,7 +1067,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 12c2. Share a profile from 30 cm with the screen at full brightness. Check: the code shows within 2 s of the tap on SHARE, and PLAYER ADDED. shows 10 s or less after the start of the scan. (The size of the largest code and the time to make it are automated.)
 12d. Repeat from 60 cm, and with the screen at low brightness (4 combinations). Check: PLAYER ADDED. shows within 20 s in each combination.
 12e. New 2026-11-02 (owner). On the Connect screen open the dropdown, then tap + and then the pencil. Check: the dropdown has no PLAYERS button; the new player screen has IMPORT and no SHARE; the edit screen has SHARE and no IMPORT (3 of 3 yes).
-14a. An iPhone: tap COPY CODE on the Share screen. Check: the phone says CODE COPIED. (Open question for the owner, 2026-11-02: COPY CODE has no use since PASTE A CODE was removed; keep or remove it. Until then this step stays.)
+14a. Removed on 2026-11-09 (owner): COPY CODE is gone from the Share screen (it is checked by `tests/ui_share.gd`).
 14b. Removed on 2026-11-02 (owner): PASTE A CODE is gone. On the iPhone use IMPORT on the new player screen (step 12a). Check: the iPhone shows PLAYER ADDED. with the same name, avatar and bests as in step 12.
 16b. Tap **+**. Tap the name field. Check: the keyboard opens and stays open. Tap outside the field: the keyboard closes.
 16c2. On the new player screen drag the avatar line with one finger by about 3 cm. Check: the line follows the finger, and the first avatar in view changes by 1 or more. (The 32 avatars in one line, the arrows with 3 avatars for each tap and the picked avatar in view at open are automated.)
@@ -1088,7 +1088,7 @@ Items 5, 11 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-20-5 and 
 | 12c2 | Value: seconds to show and to scan | Not run | | | |
 | 12d | Values: seconds for the 4 combinations | Not run | | | |
 | 12e | Note: the answers (3 of 3) | Not run | | | New 2026-11-02. |
-| 14a | Note: the iPhone model; the message | Not run | | | |
+| 14a | Removed 2026-11-09 | Removed | | | The COPY CODE button was removed (owner). |
 | 14b | Photo of the iPhone screen | Not run | | | |
 | 16b | Video of the keyboard | Not run | | | |
 | 16c2 | Video of the drag on the avatar line | Not run | | | |

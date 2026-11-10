@@ -3,19 +3,67 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sababi: party games on your TV</title>
+<title>Sababi Privacy Notice | Sababi</title>
 <link rel="stylesheet" href="style.css">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="lang.js" defer></script>
 </head>
 <body>
 <header>
-<a class="brand" href="index.html">SABABI</a>
-<nav aria-label="Sababi"><a href="index.html">Home</a><a href="index.html#get">Get the app</a><a href="privacy.html" aria-current="page">Privacy</a><a href="terms.html">Terms</a><a href="licenses.html">Licenses</a><a href="he/privacy.html" lang="he">עברית</a></nav>
+<div class="top"><a class="brand" href="index.html">SABABI</a><details class="lang"><summary aria-label="Language: English"><img src="flags/us.svg" alt="" width="24" height="16"><span lang="en">English</span></summary><ul><li><a href="privacy.html" lang="en" hreflang="en" aria-current="true"><img src="flags/us.svg" alt="" width="24" height="16"> English</a></li><li><a href="he/privacy.html" lang="he" hreflang="he"><img src="flags/il.svg" alt="" width="24" height="16"> עברית</a></li></ul></details></div>
+<nav aria-label="Sababi"><a href="index.html">Home</a><a href="privacy.html" aria-current="page">Privacy</a><a href="terms.html">Terms</a></nav>
 </header>
 <main>
-<h1>Privacy</h1>
-<div class="card"><h2 style="margin-top:0">Coming soon</h2><p>This page will be published here before the apps are released.</p></div>
+<h1>Sababi Privacy Notice</h1>
+<p>"Sababi: TV Games" and "Sababi: Remote". Last updated: 2026-11-09.<br>
+Provider: Alon Yampolski, Israel. Contact: <a href="mailto:sababi.play@gmail.com">sababi.play@gmail.com</a></p>
+<p>Sababi does not collect your personal data. We run no server, no account system and no analytics, so we never receive your name, your scores or your sensor readings. Everything below describes what stays on your own devices and your own Wi-Fi.</p>
+<h2>1. What the apps are</h2>
+<ul>
+<li><strong>"Sababi: TV Games"</strong> runs on a TV or TV box and shows the games.</li>
+<li><strong>"Sababi: Remote"</strong> runs on a phone and is the game controller.</li>
+</ul>
+<p>The two apps communicate over the Wi-Fi network you are both on. They do not need the internet to play.</p>
+<h2>2. Information the apps handle</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Information</th><th>Where it lives</th><th>Why</th><th>How long</th></tr></thead>
+<tbody>
+<tr><td>Player profile: a random ID, a name, an avatar and best scores</td><td>On the phone, in the private storage of the app</td><td>To show your name and avatar on the TV and to keep your best scores</td><td>Until you delete the profile, clear the data of the app or uninstall it</td></tr>
+<tr><td>Last TV you joined: its network address, port, room code and a session token</td><td>On the phone</td><td>To reconnect after a short break</td><td>Until you leave the TV or uninstall</td></tr>
+<tr><td>Settings: your choices in the apps</td><td>On the phone or on the TV, where you changed it</td><td>To remember your choices</td><td>Until you uninstall or clear data</td></tr>
+<tr><td>Motion data: accelerometer and gyroscope readings</td><td>Sent from the phone to the TV about 60 times a second while you are connected. Not saved</td><td>To steer the game</td><td>Used at once and discarded</td></tr>
+<tr><td>Name, avatar and scores of the players in the current game</td><td>On the TV, in memory only</td><td>To show names and results on the screen</td><td>Gone when the TV app closes</td></tr>
+<tr><td>Connection data: delay and packet rate</td><td>Sent from the phone to the TV. Not saved</td><td>To keep play smooth</td><td>Discarded</td></tr>
+</tbody></table></div>
+<p>The profile ID is random and made on your phone. It is not tied to your phone or to you.</p>
+<h2>3. What is sent over your Wi-Fi</h2>
+<p>The TV sends nothing on your network by itself. A phone finds the TV when you type the room code that the TV shows, or scan the QR code on the TV. The room code identifies the TV on your Wi-Fi network. The phone then connects directly to the TV and sends your profile name, avatar and ID, the motion readings and the button presses.</p>
+<p>The host can approve or refuse every join request: when a new phone wants to join, the TV shows its name and the host chooses ALLOW or REFUSE with the TV remote.</p>
+<p><strong>This traffic is not encrypted.</strong> A device that can read the traffic between a phone and the TV on your network can read it. Play only on a network you trust, and do not play on public Wi-Fi.</p>
+<p>The apps themselves send nothing outside your local network.</p>
+<h2>4. Camera and sharing a profile</h2>
+<ul>
+<li><strong>QR code scan (Android).</strong> To scan the QR code of the TV or of a shared profile, the Controller opens the Google code scanner, which is part of Google Play services. The picture of the camera stays on your phone and is not sent to us or to Google. Sababi receives only the text of the code. Google receives technical data about how the scanner works and uses it to run and improve the scanner. Google's terms apply: <a href="https://developers.google.com/ml-kit/terms">https://developers.google.com/ml-kit/terms</a>. A phone without Google Play services cannot scan and types the room code instead.</li>
+<li><strong>Share a profile.</strong> A profile can be copied to another phone as a QR code. The code holds the profile ID, the name, the avatar and the best scores, with no password. Anyone who scans the QR code gets a copy. The QR code is hidden after 60 seconds.</li>
+</ul>
+<h2>5. Permissions</h2>
+<p>Android: internet and network state (to communicate with the TV), Wi-Fi state (to keep the connection steady), keep awake (so the screen does not sleep during a game), and vibration (the Controller only).</p>
+<h2>6. Sharing and third parties</h2>
+<p>We do not sell or share personal data. The only third-party component that touches your data on the device is Google Play services (the QR scanner, Android only).</p>
+<h2>7. Children</h2>
+<p>Sababi is a game for family and friends. A profile name stays on the phone and is shown on the TV to the people in the room. Parents are advised to choose or review the profile name, and to be near when a child plays.</p>
+<h2>8. Your choices</h2>
+<ul>
+<li>Edit or delete a profile in the Controller (the pencil next to the player name on the Connect screen). Deleting removes it from that phone.</li>
+<li><strong>Disconnect</strong> in the Controller ends the session with the TV and clears its token. The address of the TV stays saved until you uninstall the app or clear its data.</li>
+<li>Uninstall the app or clear its data to remove everything. A copy of a profile that you shared to another phone stays on that phone until it is deleted there.</li>
+</ul>
+<h2>9. Security</h2>
+<p>Profiles are stored in the private storage of the app and are not encrypted. Network traffic on your Wi-Fi is not encrypted (section 3).</p>
 </main>
-<footer>Sababi · Provider: Alon Yampolski, Israel · Contact: <a href="mailto:sababi.play@gmail.com">sababi.play@gmail.com</a></footer>
+<footer>Sababi · Provider: Alon Yampolski, Israel · Contact: <a href="mailto:sababi.play@gmail.com">sababi.play@gmail.com</a><p class="note">&copy; 2026 Alon Yampolski. All rights reserved.</p></footer>
 
 </body>
 </html>

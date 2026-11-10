@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sababi: get the phone app</title>
 <link rel="stylesheet" href="../style.css">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="../icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="../icon-192.png">
 </head>
 <body>
 <main>
@@ -12,10 +15,9 @@
 <p class="lead">Sababi: Remote is the controller of Sababi: TV Games.</p>
 <p lang="he" dir="rtl" class="lead">הורידו את אפליקציית הטלפון של Sababi.</p>
 <div class="stores">
-<a class="store" data-store="play" data-open="Open Google Play"><strong>Google Play</strong><small></small></a>
-<a class="store" data-store="appStore" data-open="Open the App Store"><strong>App Store</strong><small></small></a>
+<a class="store-badge" data-store="play"><img src="../badges/google-play-en.png" alt="Get it on Google Play" height="72"></a>
 </div>
-<p><a href="../index.html">Sababi</a> · <a href="../he/index.html" lang="he">עברית</a></p>
+<p><a href="../index.html">Sababi</a> · <a href="../privacy.html">Privacy</a> · <a href="../terms.html">Terms</a> · <a href="../he/index.html" lang="he">עברית</a> · <a href="../he/privacy.html" lang="he">פרטיות</a> · <a href="../he/terms.html" lang="he">תנאי שימוש</a></p>
 </main>
 <script src="../stores.js"></script>
 <script>
@@ -24,9 +26,8 @@
   var ua = navigator.userAgent || "";
   var s = window.SABABI_STORES;
   if (/android/i.test(ua) && s.play) { location.replace(s.play); }
-  else if (/iPhone|iPad|iPod/i.test(ua) && s.appStore) { location.replace(s.appStore); }
 })();
 </script>
-<noscript><p>Open the Google Play or the App Store on your phone and search for Sababi: Remote.</p></noscript>
+<noscript><p>Open Google Play on your phone and search for Sababi: Remote.</p></noscript>
 </body>
 </html>
