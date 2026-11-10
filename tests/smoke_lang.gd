@@ -283,9 +283,10 @@ func _run() -> void:
 			"each language is written in its own language")
 	var pictures := logo.find_children("*", "TextureRect", true, false)
 	var picture: TextureRect = pictures[0] if pictures.size() > 0 else null
-	_check(picture != null and picture.texture.get_size() == Vector2(1600, 600) and picture.custom_minimum_size == Vector2(1200, 450)
-			and picture.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
-			"the logo screen shows the logo file at 3 screen pixels per logo pixel, with sharp pixels (REQ-FL-50)")
+	var art: AtlasTexture = picture.texture as AtlasTexture if picture != null else null
+	_check(art != null and art.atlas.get_size() == Vector2(1600, 600) and art.region == Rect2(160, 148, 1280, 304)
+			and picture.custom_minimum_size == Vector2(1280, 304) and picture.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
+			"the logo screen shows the artwork of the logo file (no empty margins) at 4 screen pixels per logo pixel, sharp (REQ-FL-50)")
 	var splash := str(ProjectSettings.get_setting("application/boot_splash/image"))
 	_check(splash == "res://assets/logo/splash.png" and ResourceLoader.exists(splash)
 			and not ProjectSettings.get_setting("application/boot_splash/use_filter"),

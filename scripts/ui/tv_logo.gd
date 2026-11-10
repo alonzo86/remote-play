@@ -1,6 +1,6 @@
 extends Control
 ## The logo screen after the Android splash (REQ-FL-2 to 4). It does not move on by itself (owner, 2026-11-10): it waits
-## for OK, Back or a touch. Beside the logo it shows the card "GET THE PHONE APP TO PLAY" with the QR code of the phone app
+## for OK, Back or a touch. Under the logo it shows the card "GET THE PHONE APP TO PLAY" with the QR code of the phone app
 ## (`About.APP_URL`), for a player whose phone has no app yet. The server already runs while it shows.
 ## At the first start (no saved language) it first asks for the language, "ENGLISH" or "עברית" (REQ-FL-60). OK chooses, and
 ## Back chooses the language that has the focus; then the screen waits for OK like every later start.
@@ -13,8 +13,9 @@ const About = preload("res://scripts/core/about.gd")
 const QrView = preload("res://scripts/ui/qr_view.gd")
 
 const LOGO_FILE := "res://assets/logo/logo.png"
-const APP_QR_SIDE := 340.0   # The QR code of the app: a phone camera reads it from the sofa.
-const CARD_GAP := 80.0      # Between the logo and the card of the app.
+const APP_QR_SIDE := 220.0   # The QR code of the app (a quiet zone of 4 modules, whole pixels).
+const CARD_TITLE_W := 380.0 # The title of the card wraps in this width, in Hebrew too.
+const LOGO_GRID := 4        # The file has 4 x 4 file pixels for each logo pixel (REQ-FL-50).
 const DROP_FROM := -640.0   # The logo starts this far above its place.
 const DROP_S := 0.5
 const STEP := 16.0          # The logo moves in steps of this many pixels.
@@ -31,25 +32,18 @@ func _ready() -> void:
 	_center = CenterContainer.new()
 	add_child(_center)
 	_center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	# The logo (with the language choice under it at the first start) and the card of the app side by side. The row is
-	# left to right in both languages, so that the logo does not move when the language changes.
-	var row := HBoxContainer.new()
-	row.layout_direction = Control.LAYOUT_DIRECTION_LTR
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", int(CARD_GAP))
-	_center.add_child(row)
+	# One column: the logo (with the language choice under it at the first start), then the card of the app.
 	var box := VBoxContainer.new()
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	box.add_theme_constant_override("separation", 18)
-	row.add_child(box)
-	row.add_child(_app_card())
+	box.add_theme_constant_override("separation", 40)
+	_center.add_child(box)
 	if ResourceLoader.exists(LOGO_FILE):
 		var tr := TextureRect.new()
-		tr.texture = load(LOGO_FILE)
+		tr.texture = _logo_art()
 		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tr.custom_minimum_size = Vector2(1200, 450) # 62.5% of the screen width: 3 screen pixels per logo pixel.
+		tr.custom_minimum_size = tr.texture.get_size()   # 1:1: 4 screen pixels for each logo pixel (REQ-FL-50).
+		tr.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST # Sharp pixels (REQ-FL-50).
 		box.add_child(tr)
 	else:
@@ -61,9 +55,11 @@ func _ready() -> void:
 		box.add_child(sub)
 	asks_language = App.needs_language_choice()
 	if asks_language:
-		box.add_child(UiKit.spacer(24))
 		_choice = _language_choice()
 		box.add_child(_choice)
+	var card := _app_card()
+	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	box.add_child(card)
 	_hint = UiKit.blinking("logo.press_ok_start", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_hint)
@@ -81,19 +77,33 @@ func _ready() -> void:
 	get_tree().create_timer(0.35).timeout.connect(_burst)
 
 
-## The card "GET THE PHONE APP TO PLAY" with the QR code of the phone app. It has no button and no focus (FD-17). Its text
-## follows the language of the app (the row is left to right, the card follows the language).
+## The part of the logo file that has the artwork, without its empty margins (REQ-FL-50), on the grid of the logo pixels.
+func _logo_art() -> Texture2D:
+	var file: Texture2D = load(LOGO_FILE)
+	var used := file.get_image().get_used_rect()
+	var x0 := used.position.x / LOGO_GRID * LOGO_GRID
+	var y0 := used.position.y / LOGO_GRID * LOGO_GRID
+	var x1 := ceili(float(used.end.x) / LOGO_GRID) * LOGO_GRID
+	var y1 := ceili(float(used.end.y) / LOGO_GRID) * LOGO_GRID
+	var art := AtlasTexture.new()
+	art.atlas = file
+	art.region = Rect2(x0, y0, x1 - x0, y1 - y0)
+	return art
+
+
+## The card "GET THE PHONE APP TO PLAY": the title and the QR code of the phone app side by side. It has no button and no
+## focus (FD-17). It follows the language of the app: in Hebrew the QR code is at the left and the title at the right.
 func _app_card() -> Control:
 	var card := UiKit.panel(24)
 	card.name = "AppCard"
 	card.layout_direction = Control.LAYOUT_DIRECTION_APPLICATION_LOCALE
-	card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var av := VBoxContainer.new()
-	av.add_theme_constant_override("separation", 14)
+	var av := HBoxContainer.new()
+	av.add_theme_constant_override("separation", 24)
 	card.add_child(av)
 	var title := UiKit.label("connect.get_app", UiTheme.SIZE_BODY, UiTheme.TEXT_INFO)
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD   # The card is as wide as its code, in Hebrew too: a long title wraps.
-	title.custom_minimum_size = Vector2(APP_QR_SIDE, 0)
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD
+	title.custom_minimum_size = Vector2(CARD_TITLE_W, 0)
+	title.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	av.add_child(title)
 	var qr := QrView.new()
 	qr.name = "AppQr"

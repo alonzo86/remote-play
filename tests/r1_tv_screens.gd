@@ -212,15 +212,17 @@ func _logo_time() -> void:
 	var card: Control = logo.find_child("AppCard", true, false)
 	var qr: Control = logo.find_child("AppQr", true, false)
 	_check(card != null and card.visible and qr != null and qr.text == About.APP_URL and qr.quiet == 4
-			and qr.custom_minimum_size == Vector2(340, 340), "the logo screen has the card with the QR code of the phone app (340 px)")
+			and qr.custom_minimum_size == Vector2(220, 220), "the logo screen has the card with the QR code of the phone app (220 px)")
 	var texts := _label_texts(logo)
 	_check(texts.has("connect.get_app") and texts.has("logo.press_ok_start") and not texts.has("logo.press_ok_skip"),
 			"it says GET THE PHONE APP TO PLAY and PRESS OK TO START")
 	var safe := Rect2(Vector2(60, 60), logo.size - Vector2(120, 120))
 	var logo_pic: Control = logo.find_children("*", "TextureRect", true, false)[0]
 	_check(safe.encloses(card.get_global_rect()) and safe.encloses(logo_pic.get_global_rect())
-			and not card.get_global_rect().intersects(logo_pic.get_global_rect()),
-			"the card and the logo are inside the 60 px safe area and do not overlap")
+			and card.get_global_rect().position.y >= logo_pic.get_global_rect().end.y,
+			"the card is under the logo, and both are inside the 60 px safe area")
+	_check(absf(card.get_global_rect().get_center().x - logo_pic.get_global_rect().get_center().x) < 2.0,
+			"the card and the logo are centered on the same line")
 	await _key(KEY_ENTER)
 	var gone := await _wait_until(func(): return _screen_is(_connect_script), 1000)
 	_check(gone, "OK goes on to the Connect screen")

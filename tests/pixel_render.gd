@@ -300,7 +300,8 @@ func _sharp_logo(tag: String) -> void:
 	var src: Image = pic.texture.get_image()
 	var rect: Rect2 = pic.get_global_rect()
 	var fit: float = minf(rect.size.x / src.get_width(), rect.size.y / src.get_height())
-	# REQ-FL-50: the file has 4x4 file pixels for each logo pixel, so that the screen shows 3x3 screen pixels (a whole number).
+	# REQ-FL-50: the file has 4x4 file pixels for each logo pixel, and the screen shows 4x4 screen pixels (a whole number;
+	# the logo is shown 1:1 since 2026-11-10).
 	var uniform := true
 	for y in range(0, src.get_height(), 4):
 		for x in range(0, src.get_width(), 4):
