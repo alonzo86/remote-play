@@ -18,7 +18,7 @@ Public-domain melodies need no row. Freeze Dance uses six traditional tunes (Fr√
 
 The code, art and documents of Sababi itself are under `LICENSE` (all rights reserved, Alon Yampolski, decided on 2026-10-13; on 2026-11-09 the owner decided to open the repository to read, to fork on GitHub for a contribution and to send pull requests, with the copyright of the whole project staying with the owner: `LICENSE` has that permission, `CLA.md` is the contributor agreement (no lawyer involved, owner's decision), `CONTRIBUTING.md` the rules and `CONTRIBUTORS.md` the credits). Our own work needs no row: the sounds (made in code), the QR encoder, the avatars, icons, tiles, medals and the logo. For the art made with an AI tool (the logo and the mascot, drawn in code by Claude, and the scripted avatars) see the open questions in the legal drafts of the project.
 
-The privacy notice and the terms (drafts, English and Hebrew) and the store listing draft are in `docs/legal/`. The longer notes and the questions for a lawyer are in the project files (`legal/`).
+The privacy notice and the terms (English and Hebrew) and the store listing draft are in `docs/legal/`. The longer notes and the questions for a lawyer are in the project files (`legal/`).
 
 ## Website store badges (added 2026-11-09; the website `site/`, not shipped in the apps)
 

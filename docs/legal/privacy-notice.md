@@ -21,6 +21,7 @@ The two apps communicate over the Wi-Fi network you are both on. They do not nee
 | Settings: your choices in the apps | On the phone or on the TV, where you changed it | To remember your choices | Until you uninstall or clear data |
 | Motion data: accelerometer and gyroscope readings | Sent from the phone to the TV about 60 times a second while you are connected. Not saved | To steer the game | Used at once and discarded |
 | Name, avatar and scores of the players in the current game | On the TV, in memory only | To show names and results on the screen | Gone when the TV app closes |
+| Connection data: delay and packet rate | Sent from the phone to the TV. Not saved | To keep play smooth | Discarded |
 
 The profile ID is random and made on your phone. It is not tied to your phone or to you.
 
