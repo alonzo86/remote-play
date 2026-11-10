@@ -98,7 +98,7 @@ func _run() -> void:
 
 func _screens(code: String) -> void:
 	_app.go_logo()
-	await _frames(6)
+	await create_timer(1.2).timeout   # The logo and the card of the phone app have dropped in (0.5 s), the hint shows (0.8 s).
 	await _sweep("logo", code)
 	_app.go_connect()
 	await _frames(6)

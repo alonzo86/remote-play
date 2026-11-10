@@ -302,8 +302,12 @@ func _run() -> void:
 	_check(app.current_screen() == logo, "OK without a choice does not skip the logo at the first start")
 	logo.language_buttons.he.pressed.emit()
 	await _frames(4)
-	_check(is_instance_of(app.current_screen(), TvConnect) and Lang.current() == "he" and app.settings.language == "he"
-			and app.server.language == "he", "choosing Hebrew saves it, switches the UI and opens the Connect screen")
+	_check(app.current_screen() == logo and not logo.asks_language and logo.language_buttons.is_empty() and Lang.current() == "he"
+			and app.settings.language == "he" and app.server.language == "he",
+			"choosing Hebrew saves it and switches the UI; the logo stays and waits for OK")
+	logo._unhandled_input(accept)
+	await _frames(4)
+	_check(is_instance_of(app.current_screen(), TvConnect), "OK then opens the Connect screen")
 	var cfg := ConfigFile.new()
 	cfg.load(app.SETTINGS_FILE)
 	_check(cfg.get_value("settings", "language", "") == "he" and not app.needs_language_choice(),
@@ -327,8 +331,11 @@ func _run() -> void:
 	logo.language_buttons.en.grab_focus()
 	logo.on_back()
 	await _frames(3)
-	_check(Lang.current() == "en" and is_instance_of(app.current_screen(), TvConnect),
-			"Back at the first start chooses the focused language")
+	_check(Lang.current() == "en" and app.current_screen() == logo and not logo.asks_language,
+			"Back at the first start chooses the focused language and the logo stays")
+	logo.on_back()   # Back on the logo then goes on to the Connect screen (REQ-FL-3).
+	await _frames(3)
+	_check(is_instance_of(app.current_screen(), TvConnect), "Back on the logo goes on to the Connect screen")
 	await _frames(2)
 	var qr_en := _first(app.current_screen(), "QrView").get_global_rect().get_center().x
 	var slots_en := _first(app.current_screen(), "SlotList").get_global_rect().get_center().x
@@ -512,7 +519,7 @@ func _device_language_checks(app: Node, tv_logo: GDScript, tv_connect: GDScript)
 				"device language %s: the focus is on the %s button" % [pair[0], "Hebrew" if pair[1] == "he" else "English"])
 		_check(app.language_to_use() == pair[1] and Lang.system_language() == pair[1],
 				"device language %s: a start without a saved language uses %s" % [pair[0], pair[1]])
-	# A saved language: no question, the logo goes on to Connect by itself, and a fresh start reads the file.
+	# A saved language: no question, the logo waits for OK, and a fresh start reads the file.
 	Lang.device_locale = "en"
 	app.settings.language = "he"
 	app.save_settings()
@@ -526,10 +533,15 @@ func _device_language_checks(app: Node, tv_logo: GDScript, tv_connect: GDScript)
 	var logo2: Control = app.current_screen()
 	_check(not logo2.asks_language and logo2.language_buttons.is_empty(), "with a saved language the logo asks nothing")
 	var started := Time.get_ticks_msec()
-	while app.current_screen() == logo2 and Time.get_ticks_msec() - started < 5000:
+	while Time.get_ticks_msec() - started < 3500:
 		await process_frame
-	_check(is_instance_of(app.current_screen(), tv_connect) and Time.get_ticks_msec() - started < 5000 and Lang.current() == "he",
-			"the logo goes on to Connect by itself within 5 s, in Hebrew (%d ms)" % (Time.get_ticks_msec() - started))
+	_check(app.current_screen() == logo2 and Lang.current() == "he", "the logo does not go on by itself, in Hebrew")
+	var accept2 := InputEventAction.new()
+	accept2.action = "ui_accept"
+	accept2.pressed = true
+	logo2._unhandled_input(accept2)
+	await _frames(4)
+	_check(is_instance_of(app.current_screen(), tv_connect), "OK goes on to the Connect screen, in Hebrew")
 	Lang.device_locale = ""
 	app.set_language("en", false)
 

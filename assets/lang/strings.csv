@@ -75,8 +75,7 @@ games.select_game,SELECT GAME,בחרו משחק,TV Games screen: title,
 games.up_to_players,Up to %d players,עד %d שחקנים,"TV game settings and Games screen (yellow line in the info bar under the description): why a game cannot start when too many phones have joined, %d is the maximum","the number sign (%d, %.1f ...) is replaced by a number"
 gear_button.options,OPTIONS,אפשרויות,TV Games screen: Options button at the top,
 logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים עם הטלפון כשלט תנועה,TV logo screen: line under the logo,
-logo.press_ok_start,PRESS OK TO START,לחצו OK להתחלה,"TV logo screen, first start: prompt to choose a language",
-logo.press_ok_skip,PRESS OK TO SKIP,לחצו OK לדילוג,TV logo screen: prompt to skip the logo,
+logo.press_ok_start,PRESS OK TO START,לחצו OK להתחלה,"TV logo screen: prompt to go on (at the first start also to choose a language)",
 marble_race.go,GO,צאו,Car Race countdown: the word GO after 1 in a round of 2 or more players (only this game shows it; the other games go from 1 to the play),
 marble_race.go_one,GO,צא,Car Race countdown: the word GO after 1 in a round of one player (Hebrew singular),Owner decision 2026-11-07 (issue #113): singular imperative for one player; marble_race.go (plural) is used for 2 or more players
 marble_race.meters,%d m behind,%d מ׳ מאחור,"Car Race: marker at the screen edge for a car that is out of view, %d is meters behind the leader","the number sign (%d, %.1f ...) is replaced by a number"
@@ -319,6 +318,6 @@ about.android_libraries,Android libraries,ספריות אנדרואיד,"About s
 settings.haptics_row,HAPTICS,רטט,"Phone Settings: name of the HAPTICS switch row (a tap on the row turns it on or off)",Replaces settings.haptics (HAPTICS: %s); the state is the row value (common.on or common.off)
 about.get_app,Get the app,הורידו את האפליקציה,"About screen, TV only: title of the page and the row that opens it; the page shows the QR code of the phone app","Only on the TV, after the first row (Sababi)"
 about.get_app_scan,Scan the code with your phone to get the app.,סרקו את הקוד עם הטלפון כדי להוריד את האפליקציה.,"About screen, TV only, page Get the app: the line under the QR code",
-connect.get_app,GET THE PHONE APP TO PLAY,הורידו את אפליקציית הטלפון כדי לשחק,"TV Connect screen: label of the card with the QR code of the phone app, which is needed to play (until a phone has joined)",
+connect.get_app,GET THE PHONE APP TO PLAY,הורידו את אפליקציית הטלפון כדי לשחק,"TV logo screen: label of the card with the QR code of the phone app, which is needed to play (it was on the Connect screen until 2026-11-10)",
 connect.scan_to_join,SCAN TO JOIN,סרקו כדי להצטרף,"TV Connect screen: label above the QR code of the room, which the Sababi app scans",
 connect.app_code_scanned,THAT IS THE APP CODE. SCAN THE OTHER ONE.,זה קוד האפליקציה. סרקו את הקוד השני.,"Phone Connect screen, status line: the player scanned the QR code Get the app of the TV instead of the room code",

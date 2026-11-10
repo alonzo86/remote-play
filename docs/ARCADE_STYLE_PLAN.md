@@ -235,7 +235,7 @@ Decided on 2026-10-10 (open question 7):
   under it: "ENGLISH" and "עברית", each in its own font. The focus starts on the language of the TV (Hebrew when the
   system language is Hebrew, else English). OK chooses, the app saves it and goes to the Connect screen. This changes
   REQ-FL-2 and REQ-FL-3 for the first start only.
-- **Every later start:** the logo screen moves on by itself as now (REQ-FL-2, 2 to 3 seconds).
+- **Every later start:** the logo screen moves on by itself as now (REQ-FL-2, 2 to 3 seconds). (Changed 2026-11-10, owner: it waits for OK on every start, and the first start stays on the logo after the choice; see `docs/TV_FLOW.md` REQ-FL-2, 2a and 60.)
 - **To change it later:** a "LANGUAGE" row on the Settings screen (FD-4) switches between English and Hebrew at once,
   with no restart.
 - **The phone:** before it joins, the phone uses the language of the phone (Hebrew when the system language is Hebrew,

@@ -198,19 +198,36 @@ func _run() -> void:
 
 # ---- Test 1 items 1c, 1d and Test 8b items 1a, 1c: the logo screen ----
 
-## 1d and 8b.1a (the logic half): with a saved language the logo goes on to Connect after 2.0 to 3.0 s (REQ-FL-2).
+## 1d and 8b.1a (the logic half): with a saved language the logo does not go on by itself (owner, 2026-11-10, REQ-FL-2); OK does.
+## The card of the phone app is on it (REQ-FL-2a).
 func _logo_time() -> void:
-	print("the logo screen lasts 2 to 3 s")
+	print("the logo screen waits for OK")
 	_app.settings.language = "en"
 	_app.go_logo()
-	var t0 := Time.get_ticks_msec()
-	_check(_screen_is(_logo_script), "the logo screen shows")
-	var left := await _wait_until(func(): return _screen_is(_connect_script), 5000)
-	var ms := Time.get_ticks_msec() - t0
-	_check(left and ms >= 2000 and ms <= 3000, "the Connect screen shows %d ms after the logo (2000 to 3000 ms, REQ-FL-2)" % ms)
+	await _frames(4)
+	var logo: Control = _app.current_screen()
+	_check(_screen_is(_logo_script) and not logo.asks_language, "the logo screen shows and asks nothing")
+	await create_timer(3.5).timeout   # More than the 2.5 s that it used to last.
+	_check(_app.current_screen() == logo and not logo._done, "3.5 s later the logo is still there: it waits for OK")
+	var card: Control = logo.find_child("AppCard", true, false)
+	var qr: Control = logo.find_child("AppQr", true, false)
+	_check(card != null and card.visible and qr != null and qr.text == About.APP_URL and qr.quiet == 4
+			and qr.custom_minimum_size == Vector2(340, 340), "the logo screen has the card with the QR code of the phone app (340 px)")
+	var texts := _label_texts(logo)
+	_check(texts.has("connect.get_app") and texts.has("logo.press_ok_start") and not texts.has("logo.press_ok_skip"),
+			"it says GET THE PHONE APP TO PLAY and PRESS OK TO START")
+	var safe := Rect2(Vector2(60, 60), logo.size - Vector2(120, 120))
+	var logo_pic: Control = logo.find_children("*", "TextureRect", true, false)[0]
+	_check(safe.encloses(card.get_global_rect()) and safe.encloses(logo_pic.get_global_rect())
+			and not card.get_global_rect().intersects(logo_pic.get_global_rect()),
+			"the card and the logo are inside the 60 px safe area and do not overlap")
+	await _key(KEY_ENTER)
+	var gone := await _wait_until(func(): return _screen_is(_connect_script), 1000)
+	_check(gone, "OK goes on to the Connect screen")
 
 
-## 1c: at the first start (no saved language) the logo does not go on until OK; OK chooses the language that has the focus.
+## 1c: at the first start (no saved language) the logo asks for the language; OK chooses the language that has the focus, then
+## the screen waits for OK like every later start (REQ-FL-60).
 func _first_start() -> void:
 	print("the first start waits for OK")
 	_app.settings.language = ""
@@ -218,11 +235,17 @@ func _first_start() -> void:
 	await _frames(3)
 	var logo: Control = _app.current_screen()
 	_check(logo.asks_language and logo.language_buttons.size() == 2, "the first start asks for the language")
-	await create_timer(3.5).timeout   # More than the 2.5 s of the normal logo.
-	_check(_app.current_screen() == logo and not logo._done, "3.5 s later the logo is still there: it waits for OK")
+	await create_timer(3.5).timeout   # More than the 2.5 s that the logo used to last.
+	_check(_app.current_screen() == logo and not logo._done, "3.5 s later the logo is still there: it waits for the choice")
+	await _key(KEY_ENTER)
+	await _frames(3)
+	_check(String(_app.settings.language) in Lang.CODES and _app.current_screen() == logo and not logo._done
+			and not logo.asks_language and logo.language_buttons.is_empty(),
+			"OK chooses the language and the logo stays, with no language items")
+	_check(logo.find_child("AppCard", true, false) != null, "the card of the phone app is on the screen")
 	await _key(KEY_ENTER)
 	var gone := await _wait_until(func(): return _screen_is(_connect_script), 2000)
-	_check(gone and String(_app.settings.language) in Lang.CODES, "OK chooses the language and the Connect screen follows")
+	_check(gone, "a second OK goes on to the Connect screen")
 	_app.settings.language = "en"
 	_app.set_language("en", false)
 
@@ -262,14 +285,9 @@ func _connect_screen() -> void:
 	await _frames(4)
 	var screen: Control = _app.current_screen()
 	var qrs := _with_script(screen, _qr_script)
-	# Owner, 2026-11-06: two codes while no phone is joined, at the two ends of the row: the room (left, large) and the app (right).
-	_check(qrs.size() == 2 and qrs[1].name == "AppQr" and qrs[1].text == About.APP_URL and qrs[1].quiet == 4
-			and qrs[1].custom_minimum_size.x < qrs[0].custom_minimum_size.x,
-			"the screen has the room QR code and the smaller QR code of the app (GET THE PHONE APP TO PLAY)")
-	var card: Control = screen.find_child("AppCard", true, false)
-	var room_card: Control = qrs[0].get_parent().get_parent()
-	_check(card != null and card.visible and absf(card.get_global_rect().position.y - room_card.get_global_rect().position.y) < 1.0,
-			"the app card shows while no phone is joined, on the same top edge as the room card")
+	# Owner, 2026-11-10: the QR code of the phone app moved to the logo screen. Connect has only the room code.
+	_check(qrs.size() == 1 and screen.find_child("AppCard", true, false) == null and screen.find_child("AppQr", true, false) == null,
+			"the Connect screen has only the room QR code (the app QR code is on the logo screen)")
 	var qr: Control = qrs[0]
 	var pair := Protocol.parse_pair_url(qr.text)
 	_check(not pair.is_empty() and pair.host == "192.168.1.20" and pair.room == _app.server.room_code
@@ -288,11 +306,7 @@ func _connect_screen() -> void:
 	var lists := _with_script(screen, _slot_list_script)
 	_check(lists.size() == 1 and lists[0].get_child_count() == 4
 			and ["1P", "2P", "3P", "4P"].all(func(s): return texts.has(s)), "the screen has 4 slots, 1P to 4P")
-	_check(texts.has("connect.scan_to_join") and texts.has("connect.get_app"), "the two cards say SCAN TO JOIN and GET THE APP")
-	_app.server.players[0].state = 1   # The first phone joins: the app card goes, only the room code is left.
-	await _frames(3)
-	_check(not card.visible, "the app card goes away when the first phone has joined")
-	_app.server.players[0].state = 0
+	_check(texts.has("connect.scan_to_join") and not texts.has("connect.get_app"), "the card says SCAN TO JOIN and no GET THE APP")
 
 
 ## 1f: a TV with no network address shows an empty QR code and the line that says so.
