@@ -261,6 +261,12 @@ func _back() -> void:
 		_quit()
 
 
+## A phone asks to end the game (REQ-FL-52c): the screen that runs the game does what Back on the TV remote does.
+func _on_leave_asked(slot: int) -> void:
+	if _screen != null and _screen.has_method("request_leave"):
+		_screen.request_leave(slot)
+
+
 func _quit() -> void:
 	if server != null:
 		if server.stop() and not quit_hook.is_valid():
@@ -311,6 +317,7 @@ func _start_tv() -> void:
 	server.set_approve_new(bool(settings.approve_players))   # Before start(): the setter, never the member (FD-30.3).
 	server.start(settings)
 	server.language = Lang.current()
+	server.leave_asked.connect(_on_leave_asked)
 	server.player_joined.connect(func(_s): Sound.sfx("join"))
 	server.player_lost.connect(func(_s): Sound.sfx("leave"))
 	server.player_removed.connect(func(_s): Sound.sfx("leave"))

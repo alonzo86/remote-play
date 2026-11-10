@@ -58,8 +58,8 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Pass | R7 | |
 | [4](#test-4) | Latency and packet rate | 1 phone, 1 TV | RISKS A3, B1, B2, B3, B5, B6 | Fail (step 1a); still open: R7 was on a desktop, not a TV box (issues #437, #386) | R7 | |
 | [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Pass | R7 | |
-| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R7 | |
-| [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Pass | R5 | |
+| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-FL-52c, REQ-FL-55, REQ-GM-31a, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R7 | |
+| [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-52c, REQ-FL-55 | Partial (see the result table) | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Pass | R3 | |
 | [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
 | [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37 | Pass | R7 | |
@@ -115,7 +115,8 @@ Tests the user has to run now (status on 2026-11-10 after run R7; the list is in
 | 19 | **New (leader chip, phone score).** Banana Party, Paint Grab and Sumo Bumpers with 4 phones, two with names of 10 letters: one leader chip on one row, TIE, the place and score on each phone, Car Race and Treasure Maze, a child of 5 to 8 years, Hebrew. New items 8c and 8d (2026-10-30, issue #237): the new player colors cyan, orange, purple and pink, 4 testers and one with red-green color blindness | The row of 4 player chips wrapped and covered the play area (issue #25). Replaced on 2026-10-10 (FD-21, REQ-FL-67, REQ-GM-46; the name tags of the countdown were removed on 2026-10-21 by decision of the owner). Needed before it is merged. The sizes are first guesses |
 | 18 | **New (sound and haptics).** The menu song, the effects of the menus and of all games, the Music and Effects rows, the phone Settings screen with the HAPTICS row, the sound of the pause and result menus, a child of 5 to 8 years | Audio was added on 2026-10-10 (FD-20, `docs/AUDIO_PLAN.md`). Needed before it is merged. All songs, effects and levels are first guesses; the render time of a song on a TV box is not measured |
 | 16 | **Open: items 6b2** (after run R7 of 2026-11-10; 11 of 12 steps are Pass or N/A in the Results table). | Phase 1 of `docs/ARCADE_STYLE_PLAN.md` was built on 2026-10-10. Needed before it is merged. The games are in the pixel style too (phases 2 to 4 are built). All sizes and values come from the plan |
-| 7 | **Open: items 6a, 9a and 9b** (after run R7 of 2026-11-10; 9a and 9b changed on 2026-11-10 with the softer lost-link look, issue #433, and are Not run again). | R1 found that a phone without Wi-Fi did not pause the game, and that a phone call ended the game with no way to resume. Fixed and changed on 2026-10-09 (REQ-GM-30, 30a) |
+| 7 | **Open: items 6a, 6b, 6f, 6g, 6h, 6i, 9a and 9b** (after run R7 of 2026-11-10; 9a and 9b changed on 2026-11-10 with the softer lost-link look, issue #433, and are Not run again; 6b changed with the text HOLD TO DISCONNECT and 6f to 6i are new, issue #435, REQ-FL-52c). | R1 found that a phone without Wi-Fi did not pause the game, and that a phone call ended the game with no way to resume. Fixed and changed on 2026-10-09 (REQ-GM-30, 30a) |
+| 8 | **Open: item 6b** (changed 2026-11-10, issue #435: Back on the phone in a game asks the TV "End the game?"; the other steps are Pass in R3 to R5). | Back on the pad in a game no longer opens QUIT SABABI? on the phone (REQ-FL-52c, REQ-FL-55). Needs a phone and the real Android Back key |
 | 14 | **Open: items 11h, 12, 13a, 13a2, 13e, 13f, 13g** (after run R7 of 2026-11-10; steps 8, 13b, 13c and 13d were removed on 2026-11-10; 6 of 13 steps are Pass or N/A in the Results table). | Paint Grab and `TiltBody` were added on 2026-10-09 on branch `games/paint-grab`. On 2026-10-10 the floor became a pixel world (phase 4 of the arcade style). All values are first guesses |
 | 12 | **Open: items 1c, 10, 11** (after run R7 of 2026-11-10; 10 of 13 steps are Pass or N/A in the Results table). | REQ-GM-49. Claude makes the tiles again when they differ |
 | 4 | **Open: step 1a failed in R7 (issue #437); a run on a real TV box is needed (issue #386).** 1 phone and a real TV box (not a desktop or an emulator), the TV on Ethernet or Wi-Fi with the game mode on (RISKS B6): read the overlay at 10, 20 and 30 s, still and moving (steps 1a to 4a). R7 was on a desktop, so its Pass of steps 2a, 3a and 4a does not count for a TV box. | R0 and R7 were on a desktop. RTT was above 60 ms in R0; in R7 the owner said that some reading was at or above 40 ms. The numbers on a TV box are not known (RISKS B6, REQ-GM-12) |
@@ -336,7 +337,7 @@ History:
 
 ### Disconnect and reconnect
 
-Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-MR-14, REQ-MZ-8.
+Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52c, REQ-FL-55, REQ-GM-31a, REQ-MR-14, REQ-MZ-8.
 
 Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 
@@ -348,19 +349,23 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 3a. On the Games screen (not in a game), switch the phone Wi-Fi off for 45 seconds. Check: after 45 seconds the TV shows the slot of the phone as empty (it is empty 5 seconds after the phone was lost, REQ-FL-8).
 3b. Switch the Wi-Fi on. Check: within 10 seconds the phone joins again by itself (the TV does not know it any more, so it takes a new slot, maybe a different one) and shows "CHOOSE A GAME ON THE TV". No question is asked. (Issue #52: the PIN pad is gone.)
 3c. (Removed with the join PIN, issue #52. The phone joins again by itself in 3b.)
-6a. On the phone pad (in a game), tap **HOLD TO LEAVE** (the box at the bottom edge) quickly 5 times. Check: the phone is still on the pad (no leave). (REQ-FL-52a, issue #239)
-6b. On the phone pad, press **HOLD TO LEAVE** and keep the finger on it. Check: the box is at the bottom edge, with a gap of at least 48 px at the left and right and 32 px at the bottom, none of its four corners is cut by the round corner of the phone (yes or no), and it shows the whole text HOLD TO LEAVE (also in Hebrew; changed 2026-11-03); the box fills from left to right and the phone shows the Connect screen 0.8 to 1.2 seconds after the press. A Hebrew reader checks the text HOLD TO LEAVE (`pad.disconnect_hold`). (REQ-FL-52a, issue #239)
-6c. Swing the phone in Tennis or Bowling for 20 swings with the thumb near the bottom edge (changed 2026-11-02: HOLD TO LEAVE is at the bottom; it was at the top right). Check: the phone does not leave the TV (yes or no). (issue #239)
+6a. On the phone pad (in a game), tap **HOLD TO DISCONNECT** (the box at the bottom edge) quickly 5 times. Check: the phone is still on the pad (no leave). (REQ-FL-52a, issue #239)
+6b. On the phone pad, press **HOLD TO DISCONNECT** and keep the finger on it. Check: the box is at the bottom edge, with a gap of at least 48 px at the left and right and 32 px at the bottom, none of its four corners is cut by the round corner of the phone (yes or no), and it shows the whole text HOLD TO DISCONNECT (also in Hebrew; changed 2026-11-03; the English text changed on 2026-11-10, issue #435: it was HOLD TO LEAVE); the box fills from left to right and the phone shows the Connect screen 0.8 to 1.2 seconds after the press. A Hebrew reader checks the text (`pad.disconnect_hold`). The tester also says what the box does: it disconnects the phone from the TV (yes or no). (REQ-FL-52a, issue #239)
+6c. Swing the phone in Tennis or Bowling for 20 swings with the thumb near the bottom edge (changed 2026-11-02: HOLD TO DISCONNECT is at the bottom; it was at the top right). Check: the phone does not leave the TV (yes or no). (issue #239)
 7a. With one phone in a game, call that phone from another phone and answer. Check: within 4 seconds of the answer (3 s of silence plus 1 s) the game pauses with the card "NO PLAYERS CONNECTED" (one phone, issue #46).
 7b. End the call and go back to the controller app. Check: the phone says "RECONNECTING..." and then joins again in 10 seconds or less (stopwatch from the return to the app).
 7c. Check: the card says "1P reconnected" with **Resume**, and **Resume** goes on with the game.
 7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot.
 8a. **The TV closes (2026-10-29, issue #169).** With one phone joined and on the Games screen, press Back on the TV remote until the TV app quits. Check: within 3 seconds the phone leaves the waiting screen and shows the Connect screen or "RECONNECTING..." (yes or no). (REQ-GM-30)
 8b. Join again, then kill the TV app (swipe it away in the recent apps, or unplug the box). Check: within 5 seconds the phone shows "RECONNECTING..." and not the waiting screen with the game name (yes or no). (REQ-GM-30)
+6f. **Pause button (2026-11-10, issue #435).** Start a game with one phone and look at the top right of the pad. Check: a square button with a white frame and two white bars (a pause symbol) is at the right end of the header row, about 1 cm from the right edge, and no letter of the player name is covered by it (yes or no for each of the two). Repeat with a profile whose name is 10 letters of the widest kind (for example WWWWWWWWWW) and an avatar: the name goes on a second line and none of its letters is under the button (yes or no).
+6g. In the game, tap the pause button once. Check: within 1 second the TV pauses the game and shows the question "END THE GAME?" with RESUME first and in focus (yes or no), and the phone still shows the pad. Press OK on the TV: the game goes on.
+6h. In the game, press the Android Back key on the phone once (a swipe from the edge on a phone with gestures). Check: the TV shows the same question "END THE GAME?" as in 6g, and the phone does not show "QUIT SABABI?" (yes or no for each of the two). Press Back on the phone twice more, with a pause of 2 seconds: the question stays and no "QUIT SABABI?" shows.
+6i. While the question "END THE GAME?" shows on the TV, tap the pause button 5 times. Check: the question stays as it is and the game stays paused (yes or no). Then, on the menu of the TV (Games screen), look at the pad: the pause button shows only while a game plays (yes or no: no button on the waiting screen).
 9a. **Lost link on the pad (2026-10-30, issue #238).** Start a game with one phone, then switch the phone Wi-Fi off. Check: within 4 seconds the phone vibrates once for about 0.7 s and the pad shows a thin yellow frame around the whole screen, the A and B buttons dimmed and RECONNECTING... in yellow in the middle (changed 2026-11-10, owner, issue #433: it was a frame of red and white dashes; yes or no for each of the four). (REQ-FL-52b)
 9b. Look at the phone for the yellow frame with a color-blindness filter on (or in gray scale). Check: the frame, the dimmed buttons and the words RECONNECTING... are still visible (yes or no for each of the three; changed 2026-11-10, owner, issue #433: it was the ring of dashes).
 9c. With the HAPTICS switch OFF repeat 9a. Check: the phone does not vibrate; the frame still shows.
-9d. Join with a profile whose name is 10 letters of the widest kind (for example WWWWWWWWWW) and an avatar. Check: all letters of the name show in the header and none is cut at the right edge of the screen (yes or no; changed 2026-11-02: HOLD TO LEAVE is at the bottom).
+9d. Join with a profile whose name is 10 letters of the widest kind (for example WWWWWWWWWW) and an avatar. Check: all letters of the name show in the header and none is cut at the right edge of the screen (yes or no; changed 2026-11-02: the leave box is at the bottom).
 
 **Results**
 
@@ -371,8 +376,12 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 | 3b | Photo of the phone after the join, with the seconds | Pass | R4 |  |  |
 | 3c | (Removed with the join PIN) | N/A | | | Owner decision 2026-11-01: the step was removed with the join PIN (issue #52); the join by itself is step 3b. |
 | 6a | Video of 5 quick taps on the pad | Not run | | | Changed 2026-10-30 (issue #239). R4 passed the old one-tap step. |
-| 6b | Video of the hold: the fill and the seconds to the Connect screen | Pass | R7 |  | R7: Pass - question: should "hold to leave" leave the game or disconnect from the TV? Added 2026-10-30 (issue #239). |
+| 6b | Video of the hold: the fill and the seconds to the Connect screen | Not run | | | R7: Pass was for the text HOLD TO LEAVE; the text changed to HOLD TO DISCONNECT on 2026-11-10 (issue #435, owner), so the step is not run again yet. R7 note: question: should "hold to leave" leave the game or disconnect from the TV? Added 2026-10-30 (issue #239). |
 | 6c | Video of 20 swings | Pass | R7 |  | R7: Pass Added 2026-10-30 (issue #239). |
+| 6f | Photo of the pad with the pause button, also with a 10 letter name | Not run | | | New 2026-11-10 (issue #435). |
+| 6g | Video of a tap on the pause button and the question on the TV | Not run | | | New 2026-11-10 (issue #435). |
+| 6h | Video of Back on the phone in a game | Not run | | | New 2026-11-10 (issue #435). |
+| 6i | Video of 5 taps while the question shows | Not run | | | New 2026-11-10 (issue #435). |
 | 7a | Video of a phone call: the card, with the seconds | Pass | R4 |  |  |
 | 7b | Video of the return: 'RECONNECTING...', the join, the seconds | Pass | R4 |  |  |
 | 7c | Video: the card 'reconnected', Resume, the game goes on | Pass | R4 |  |  |
@@ -390,6 +399,7 @@ Measurements (not steps): write the reconnect time after the call (7b) in the No
 
 History:
 
+- 2026-11-10 (issue #435, owner decision): the text of the box is HOLD TO DISCONNECT (it was HOLD TO LEAVE; Hebrew unchanged), the pad has a pause button at the top right and Back on the phone in a game asks the TV "End the game?" (REQ-FL-52c). Step 6b is Not run again (the R7 Pass was for the old text); new steps 6f to 6i are Not run. The step 6b of Test 8 changed too.
 - 2026-11-10 (recorded; R7 in the tracker): Pass: steps 6b, 6c, 8a, 8b, 9a, 9b, 9c, 9d. Step 6b: the owner asked "should HOLD TO LEAVE leave the game or disconnect from the TV?" (answer: it disconnects from the TV, REQ-FL-52a). Step 9b: the owner asked why the dashed frame is needed and called it alarming and not friendly: issue #433. Decided by the owner on 2026-11-10: a thin yellow frame (8 px), the A and B buttons dimmed, the header word and RECONNECTING... in yellow, the slot square keeps its color (no red); steps 9a and 9b changed and are Not run again (the R7 Pass was for the old look).
 - 2026-11-01 (N/A): step 3c was removed with the join PIN (issue #52); the owner decided to mark it N/A. It was "Not run". The join by itself is step 3b.
 - 2026-10-25 (N/A): step 4b was removed (the PIN question it mentions is gone since issue #52; the join by itself is step 3b).
@@ -402,7 +412,7 @@ History:
 
 ### TV remote
 
-Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55.
+Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-52c, REQ-FL-55.
 
 
 **Steps**
@@ -413,7 +423,7 @@ Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a
 3b. Press Back on the Connect screen. Check: the quit question opens with **Stay** in focus.
 4. Press the Menu key. If the remote has no Menu key, open **Settings** (the OPTIONS button on the Games screen) and use **Debug overlay**. Check: the overlay shows the header line that starts with "DEBUG" and the FPS number.
 6a. On the phone, press the Android Back key on the Connect screen (before joining), then join and press it again on the waiting screen (the TV on the Games screen). Check: the question "QUIT SABABI?" opens, with no button in focus (no yellow frame), and the app is still open 5 seconds later (REQ-FL-86).
-6b. Press the Android Back key in the middle of a game (the pad screen). Check: the same question opens and the app is still open 5 seconds later. Tap **A** 5 times while the question shows. Check: the TV shows no action of A.
+6b. Press the Android Back key on the phone in the middle of a game (the pad screen). Check: the question "QUIT SABABI?" does not open on the phone; the TV pauses the game and shows "END THE GAME?" (changed 2026-11-10, issue #435, REQ-FL-52c: it opened QUIT SABABI? on the phone). Press Back on the phone again after 2 seconds: the question stays on the TV. Then pause the game with a lost phone card (switch the phone Wi-Fi off and on, wait for the pad) and press Back on the pad: "QUIT SABABI?" opens, the app is still open 5 seconds later, and tapping **A** 5 times while it shows does nothing on the TV.
 6d. Press Back, then choose **Quit**. Check: the app closes (REQ-FL-55).
 
 **Results**
@@ -426,7 +436,7 @@ Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a
 | 3b | Photo of the quit question | Pass | R3 | Chat report 2026-10-09 (no file) | Same result as old item 3. |
 | 4 | Photo of the overlay after the Menu key, or of the Settings switch | Pass | R3 |  |  |
 | 6a | Video of Back on the phone Connect screen and waiting screen, with the stopwatch | Pass | R5 |  | R5: Pass, no notes (issue #110: the Connect screen had no question; fixed). Before: R3: Pass - buttons should never be in focus in the mobile app, this needs to be fixed; R4: Fail - "QUIT SABABI?" question isn't shown The question and its answers are tested without a phone (`ui_states`); only the real Back key is open. Issue #110. |
-| 6b | Video of Back on the pad screen and 5 taps on A | Pass | R3 |  | R3: Pass - buttons should never be in focus in the mobile app, this needs to be fixed Same result as old item 6. |
+| 6b | Video of Back on the pad in a game (the TV question) and of Back on the pad of a paused game (QUIT SABABI?), with 5 taps on A | Not run | | | R3: Pass was for the old step (Back opened QUIT SABABI? on the pad in a game); the behavior changed on 2026-11-10 (issue #435, REQ-FL-52c), so the step is not run again yet. R3: buttons should never be in focus in the mobile app, this needs to be fixed Same result as old item 6. |
 | 6d | Video of Quit | Pass | R3 |  | R3: Pass - buttons should never be in focus in the mobile app, this needs to be fixed Same result as old item 6. |
 
 Items 1b, 1c, 2a to 2f, 5a, 5b and 6c moved to the automated tests (docs/AUTOMATED_TESTS.md, A-8-1 to A-8-6; items 2c and 2f are A-8-2c). Items 5a and 5b (the home row of the TV) are now part of step 1a of Test 1. What stays here needs the real remote or the real Android Back key. The numbers of the other items do not change.
@@ -860,7 +870,7 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 2d. Do step 2c on a 4K TV, if you have one. Check: the same result. (Skip this step if you have no 4K TV and write "no 4K TV" in the notes.)
 4d. On the real TV remote, in each menu of the Games screen, a game settings view and the quit question, press OK, Back and the D-pad once each. Check: OK does the action of the focused item, Back closes the menu or goes up one step, and the D-pad moves the focus (the same result as in Test 8).
 6a. On a phone, go through the Connect, the waiting and the pad screens. Hold the phone at 50 cm and read aloud every text of each screen. Check: you read each text without a mistake.
-6b2. Look at the phone pad from 50 cm. Check: A is green and B is red, each with a black letter and a white ring (2 of 2; changed 2026-11-03 by the owner: black with a white letter since 2026-11-02, white before, green and red before 2026-10-29), RECENTER is a small box (not full width) centered right above HOLD TO LEAVE, and the NEW BEST! text, when shown, is centered and larger than the slot number (yes or no), and the tester reads the slot number in the slot square at the top of the pad aloud, without a mistake. (The lift of the buttons, the independent press and the place of the square are checked by A-16-6b.)
+6b2. Look at the phone pad from 50 cm. Check: A is green and B is red, each with a black letter and a white ring (2 of 2; changed 2026-11-03 by the owner: black with a white letter since 2026-11-02, white before, green and red before 2026-10-29), RECENTER is a small box (not full width) centered right above HOLD TO DISCONNECT, and the NEW BEST! text, when shown, is centered and larger than the slot number (yes or no), and the tester reads the slot number in the slot square at the top of the pad aloud, without a mistake. (The lift of the buttons, the independent press and the place of the square are checked by A-16-6b.)
 6b3. Look at the Connect or waiting screen of a phone from 50 cm. Check: the icon buttons (JOIN, ABOUT, SETTINGS; DISCONNECT on the waiting screen) have a black face, white icon and a white border (all of them), and the tester says what each icon is without a mistake (changed 2026-11-06, owner: ABOUT, SETTINGS and DISCONNECT are icons with no word). (New 2026-10-29, issue #173; the colors changed 2026-11-02.)
 6b4. Look at the TV Games screen from the sofa (3 m), with the focus on OPTIONS. Check: OPTIONS has a black face with yellow text and a thick yellow border (changed 2026-11-02: no yellow fill), and the tester names the focused item within 5 s. Do the same in Hebrew. (New 2026-10-29, issue #173.)
 6b5. **A and B reach (2026-10-30, issue #240).** Use one phone with a screen of 6.7 inches or more (the one that is held in the right hand), in a game that uses both A and B (for example Star Shield). Hold it in one hand, the way you hold it to play, and without moving the hand, reach A and then B with the thumb, 10 times each. Measure the height of the middle of A above the bottom edge of the screen with a ruler (the code puts it 330 px above the bottom, about 2.6 cm on a 6.7-inch phone). Check: the thumb reaches A and B without moving the hand in 10 of 10 tries each (yes or no), and write the height in cm and the phone model. Repeat with the left hand: 10 of 10 tries each (yes or no).
@@ -996,7 +1006,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 **Steps**
 
 3c. Hold a phone at 50 cm. Check: you read aloud the place and the score of the line without a mistake.
-3d. On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out), take a photo of the pad. Check: the colored square, the player number and the HOLD TO LEAVE box at the bottom are fully visible, and A and B are fully on the screen (REQ-FL-68; HOLD TO LEAVE moved from the top right on 2026-11-02).
+3d. On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out), take a photo of the pad. Check: the colored square, the player number and the HOLD TO DISCONNECT box at the bottom are fully visible, and A and B are fully on the screen (REQ-FL-68; HOLD TO DISCONNECT (then HOLD TO LEAVE) moved from the top right on 2026-11-02).
 3e. Turn the same phone to landscape and back. Check: nothing is hidden at the top, at the bottom (the home bar) or at the side.
 8a. A child of 5 to 8 years plays a game. In the countdown, ask the child to point to its own object (the one in the color of its phone). Check: the child points to the right object within 10 s and without help.
 8b. After one minute of play, ask the child to read aloud the number on its phone. Check: the child says the number that the phone shows.

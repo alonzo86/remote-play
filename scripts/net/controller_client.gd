@@ -122,6 +122,13 @@ func send_recenter() -> void:
 	_send_json({"t": "recenter"})
 
 
+## The pause button and Back of the pad ask the TV to do what Back on the TV remote does in a game: pause and ask "End the game?"
+## (REQ-FL-52c, REQ-GM-31a). Only while the phone is connected and the game plays; the TV decides.
+func send_leave_ask() -> void:
+	if state == State.CONNECTED and phase == "playing":
+		_send_json({"t": "leave_ask"})
+
+
 ## The player chose IN (`true`) or OUT for the game of the settings view (issue #76). The TV answers with `setup` and the
 ## choice it accepted.
 func send_play(value: bool) -> void:

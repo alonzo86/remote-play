@@ -531,7 +531,7 @@ func _test_pad(app: Node, server: Node) -> void:
 				"pad %dx%d: a touch gives the right zone: %s" % [dim.x, dim.y, str(hits)])
 		_check(rec.size.y >= 64.0 and rec.size.x < dim.x * 0.6 and is_equal_approx(rec.get_center().x, dim.x * 0.5)
 				and rec.end.y < leave.position.y and leave.position.y - rec.end.y <= 40.0 and box_a.end.y < rec.position.y,
-				"pad %dx%d: RECENTER is small (%s), centered, right above HOLD TO LEAVE, and the A and B buttons are above it"
+				"pad %dx%d: RECENTER is small (%s), centered, right above HOLD TO DISCONNECT, and the A and B buttons are above it"
 				% [dim.x, dim.y, str(rec.size)])
 		lay.free()
 	var lat: Control = pad_script.new()

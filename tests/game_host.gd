@@ -8,6 +8,7 @@ const PlayerInput = preload("res://scripts/input/player_input.gd")
 var _checks := 0
 var _fails := 0
 var _stub_host: GDScript
+var _minigame: GDScript
 
 
 func _check(cond: bool, what: String) -> void:
@@ -35,6 +36,7 @@ func _names(host: Object) -> Array:
 func _run() -> void:
 	print("a game with a stub host")
 	var Minigame = load("res://scripts/game/minigame.gd")   # Loaded here: the game needs the App autoload to compile.
+	_minigame = Minigame
 	_stub_host = load("res://tests/stub_game_host.gd")
 	var host = _stub_host.new()
 	var game = Minigame.new()
@@ -82,8 +84,34 @@ func _run() -> void:
 	_check(_names(empty).has("menu"), "its button goes to the menu through the host")
 	g2.queue_free()
 	await process_frame
+	await _phone_leave_ask()
 	await _haptics()
 	_no_app_in_games()
+
+
+## REQ-FL-52c (issue #435): a phone asks the game to end with `leave_ask`; `request_leave(from_phone)` opens the question
+## "End the game?" only for a participant, only when no menu is open and only while the game is not over.
+func _phone_leave_ask() -> void:
+	print("a phone asks to end the game")
+	var host = _stub_host.new()
+	var game = _minigame.new()
+	game.game_host = host
+	root.add_child(game)
+	await process_frame
+	game.request_leave(1)   # Slot 1 does not take part (the stub host gives the slots 0 and 2).
+	_check(not game._menu_open, "a phone that does not take part cannot open the question")
+	game.request_leave(0)
+	_check(game._menu_open and not _names(host).has("menu"), "a participant opens the question and the game does not leave at once")
+	var first_button = game.menu_buttons()[0]
+	game.request_leave(2)
+	_check(game._menu_open and game.menu_buttons()[0] == first_button, "a second request while the question is open changes nothing")
+	game.close_menu()
+	game.is_over = true
+	game.request_leave(0)
+	_check(not game._menu_open and not _names(host).has("menu"),
+			"a request on a game that is over does nothing (the result menu stays, the game does not leave)")
+	game.queue_free()
+	await process_frame
 
 
 ## Step 2 of the plan of issue #300: a buzz goes through the host, also the one of the `Haptics` helper of a game.
