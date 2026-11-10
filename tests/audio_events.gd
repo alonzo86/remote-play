@@ -17,6 +17,7 @@ const PuffField = preload("res://scripts/game/snowball_splat/puff_field.gd")
 const ASTEROID := "res://scripts/game/asteroid_blast/asteroid_blast_game.gd"
 const SUMO := "res://scripts/game/sumo_bumpers/sumo_bumpers_game.gd"
 const PAINT := "res://scripts/game/paint_grab/paint_grab_game.gd"
+const MOLE := "res://scripts/game/whack_a_mole/whack_a_mole_game.gd"
 const SHEEP := "res://scripts/game/sheep_herding/sheep_herding_game.gd"
 const BANANA := "res://scripts/game/snowball_splat/snowball_splat_game.gd"
 const MAZE := "res://scripts/game/maze/maze_game.gd"
@@ -71,6 +72,7 @@ func _run() -> void:
 	await _asteroid()
 	await _sumo()
 	await _paint()
+	await _mole()
 	await _sheep()
 	await _bumper()
 	await _banana()
@@ -218,6 +220,61 @@ func _paint() -> void:
 	await _event(game, "a blob takes a tile of another color", ["paint_steal"], {1: 20}, func() -> void:
 		game._bodies[1].pos = spot
 		game._paint_under(1), false, ["paint_tile"])
+	# The end of the round: only the phone of the winner buzzes for 400 ms (REQ-PG-12).
+	await _event(game, "the round ends: the winner buzzes 400 ms", [], {1: 400}, func() -> void:
+		game._board.set_score(1, 50)
+		game._finish())
+	_check(not _buzz[0].has(400) and not _buzz[2].has(400),
+			"only the phone of the winner buzzes at the end (the 2 others got %s and %s)" % [str(_buzz[0]), str(_buzz[2])])
+
+
+# ---- Mole Bonk (REQ-WM-12) ----
+
+## The pitch of the last `mole_points` effect (each player has a pitch, REQ-WM-12).
+func _points_pitch() -> float:
+	for i in _sound._pool.size():
+		if _sound._pool_id[i] == "mole_points":
+			return _sound._pool[i].pitch_scale
+	return -1.0
+
+
+func _mole() -> void:
+	print("Mole Bonk")
+	var game := _game(MOLE, {"difficulty": "medium", "seed": 3})
+	SimInput.to_play(game, func() -> bool: return game._round.is_counting())
+	game._field.moles.clear()
+	game._field._spawn_left = 1000.0   # No new mole while a check works with its own moles.
+	game._field._bonus_left = 1000.0
+	var area: Rect2 = game._area()
+	var pitches := {}
+	for slot in [0, 2]:
+		await _event(game, "player %d bonks a mole: the hit and the points sound, 40 ms on its phone only" % slot,
+				["mole_hit", "mole_points"], {slot: 40}, func() -> void:
+			game._field._add(4, false)
+			var m = game._field.moles[game._field.moles.size() - 1]
+			m.age = 1.0
+			game._players[slot].aim = game._field.head_pos(m, area)
+			game._players[slot].reload_left = 0.0
+			game._bonk(slot, area), false, ["mole_miss"])
+		var others := 0
+		for i in 3:
+			others += 0 if i == slot else _buzz[i].size()
+		_check(others == 0, "the phones that did not bonk got no buzz for the hit of player %d" % slot)
+		pitches[slot] = _points_pitch()
+		game._field.moles.clear()
+	_check(pitches[0] > 0.0 and pitches[2] > 0.0 and not is_equal_approx(pitches[0], pitches[2]),
+			"the points sound has a different pitch for each player (%.2f, %.2f)" % [pitches[0], pitches[2]])
+	await _event(game, "a bonk on an empty hole: the miss sound, 15 ms on its phone only", ["mole_miss"], {1: 15}, func() -> void:
+		game._players[1].aim = game._field.hole_pos(0, area)
+		game._players[1].reload_left = 0.0
+		game._bonk(1, area), false, ["mole_hit", "mole_points"])
+	_check(_buzz[0].is_empty() and _buzz[2].is_empty() and _buzz[1] == [15],
+			"only the phone of the player that missed buzzed: %s" % str(_buzz))
+	await _event(game, "the round ends: the winner buzzes 400 ms", [], {1: 400}, func() -> void:
+		game._board.add(1, 100)
+		game._finish())
+	_check(not _buzz[0].has(400) and not _buzz[2].has(400),
+			"only the phone of the winner buzzes at the end (the 2 others got %s and %s)" % [str(_buzz[0]), str(_buzz[2])])
 
 
 # ---- Sheep Herding (REQ-SH-S1 to S3, REQ-SH-12) ----

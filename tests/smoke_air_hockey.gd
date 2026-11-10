@@ -321,7 +321,8 @@ func _run() -> void:
 		game.size = res
 		game._fit_design(game.CHIP_Y, game.CHIP_H)
 		scaled[res] = {"k": game.design_k, "a": game._to_screen(rink_before.position), "b": game._to_screen(rink_before.end),
-				"chip": game._chip_pos(1, 250.0)}
+				"chip": game._chip_pos(1, 250.0), "chip0": game._chip_pos(0, 250.0), "goal0": game._to_screen(Vector2(
+				game.sim.goal_x(0), 540.0)), "goal1": game._to_screen(Vector2(game.sim.goal_x(1), 540.0))}
 	game.size = size_before
 	var s720: Dictionary = scaled[Vector2(1280, 720)]
 	var s1080: Dictionary = scaled[Vector2(1920, 1080)]
@@ -336,6 +337,14 @@ func _run() -> void:
 			"REQ-AH-23: at 1920x1080 nothing moves (factor 1, chip at 1550, 940)")
 	_check(is_equal_approx(s43.k, 5.0 / 6.0) and s43.a.x >= 0.0 and s43.b.x <= 1600.0 and s43.b.y <= 1200.0
 			and s43.chip.y + 64.0 <= 1200.0, "REQ-AH-23: a 4:3 window keeps one factor and the table is centered: %s" % str(s43))
+	var chips_ok := true
+	for res in scaled:
+		var sc: Dictionary = scaled[res]
+		# The left chip starts under the left goal line and the right chip ends under the right one; both are fully on screen.
+		chips_ok = chips_ok and absf(sc.chip0.x - sc.goal0.x) < 0.5 and absf(sc.chip.x + 250.0 - sc.goal1.x) < 0.5 \
+				and sc.chip0.x >= 0.0 and sc.chip.x + 250.0 <= res.x and sc.chip0.y == sc.chip.y and sc.chip0.x < sc.chip.x
+	_check(chips_ok, "REQ-AH-23 (issue #348): at 1280x720, 1920x1080 and 1600x1200 the left chip stands under the left goal and "
+			+ "the right chip under the right goal, both fully on screen: %s" % str(scaled))
 	_check(game.sim.RINK == rink_before, "REQ-AH-23: the rink of the simulation is in design units whatever the window")
 
 	# One phone and two phones: the TV remote starts a match against ROBO (REQ-GM-106).
