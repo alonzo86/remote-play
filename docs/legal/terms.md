@@ -35,7 +35,7 @@ Sababi, its games, art, sounds, logo and text belong to Alon Yampolski or to his
 
 ## 7. Updates, changes and availability
 
-We may update, change or stop the apps at any time. We do not promise that every game works on every phone, TV or TV box, or that a feature will stay. Sababi is an early version, and values such as scores and difficulty may change between updates, which can affect saved personal bests.
+We may update, change or stop the apps at any time. We do not promise that every game works on every phone, TV or TV box, or that a feature will stay.
 
 ## 8. No warranty
 
@@ -51,7 +51,7 @@ You can stop at any time by uninstalling the apps. We may end your licence if yo
 
 ## 11. Stores
 
-If you get the apps from an app store, the terms of the store also apply. The store (for example Google or Apple) is not responsible for the apps or for support.
+If you get the apps from an app store, the terms of the store also apply. The store is not responsible for the apps or for support.
 
 ## 12. Law and disputes
 

@@ -8,7 +8,7 @@ Sababi does not collect your personal data. We run no server, no account system 
 ## 1. What the apps are
 
 - **"Sababi: TV Games"** runs on a TV or TV box and shows the games.
-- **"Sababi: Remote"** runs on a phone and is the game controller. It uses the motion sensors of the phone.
+- **"Sababi: Remote"** runs on a phone and is the game controller.
 
 The two apps communicate over the Wi-Fi network you are both on. They do not need the internet to play.
 
@@ -18,10 +18,9 @@ The two apps communicate over the Wi-Fi network you are both on. They do not nee
 |-------------|----------------|-----|----------|
 | Player profile: a random ID, a name, an avatar and best scores | On the phone, in the private storage of the app | To show your name and avatar on the TV and to keep your best scores | Until you delete the profile, clear the data of the app or uninstall it |
 | Last TV you joined: its network address, port, room code and a session token | On the phone | To reconnect after a short break | Until you leave the TV or uninstall |
-| Settings: your choices in the apps, such as sound and language | On the phone or on the TV, where you changed it | To remember your choices | Until you uninstall or clear data |
+| Settings: your choices in the apps | On the phone or on the TV, where you changed it | To remember your choices | Until you uninstall or clear data |
 | Motion data: accelerometer and gyroscope readings | Sent from the phone to the TV about 60 times a second while you are connected. Not saved | To steer the game | Used at once and discarded |
 | Name, avatar and scores of the players in the current game | On the TV, in memory only | To show names and results on the screen | Gone when the TV app closes |
-| Connection data: delay and packet rate | Sent from the phone to the TV. Not saved | To keep play smooth | Discarded |
 
 The profile ID is random and made on your phone. It is not tied to your phone or to you.
 
@@ -46,7 +45,7 @@ Android: internet and network state (to communicate with the TV), Wi-Fi state (t
 
 ## 6. Sharing and third parties
 
-We do not sell or share personal data. The only third-party component that touches your data on the device is Google Play services (the QR scanner, Android only). If you install the apps from Google Play or from another store, that store collects its own data under its own policy.
+We do not sell or share personal data. The only third-party component that touches your data on the device is Google Play services (the QR scanner, Android only).
 
 ## 7. Children
 
@@ -57,16 +56,7 @@ Sababi is a game for family and friends. A profile name stays on the phone and i
 - Edit or delete a profile in the Controller (the pencil next to the player name on the Connect screen). Deleting removes it from that phone.
 - **Disconnect** in the Controller ends the session with the TV and clears its token. The address of the TV stays saved until you uninstall the app or clear its data.
 - Uninstall the app or clear its data to remove everything. A copy of a profile that you shared to another phone stays on that phone until it is deleted there.
-- We hold no data about you, so there is nothing for us to look up, correct or delete for you. The data is on your devices and under your control.
 
 ## 9. Security
 
-Profiles are stored in the private storage of the app and are not encrypted. Network traffic on your Wi-Fi is not encrypted (section 3). Names are limited to letters, digits and spaces, and the TV checks everything it receives.
-
-## 10. Changes
-
-If an update adds a server, an account, analytics, advertising or online play, we will change this notice before the update is released, and show the new date at the top.
-
-## 11. Contact
-
-Alon Yampolski · sababi.play@gmail.com
+Profiles are stored in the private storage of the app and are not encrypted. Network traffic on your Wi-Fi is not encrypted (section 3).

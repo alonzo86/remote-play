@@ -369,7 +369,7 @@ What each phase changes in each document:
 ### 10.2 Privacy notice and store texts (owner only; phase 4 names them and carries `needs-owner`)
 
 - `docs/legal/privacy-notice.md` and `.he.md`, section 3: **done 2026-11-08, applies the owner's decision of 2026-11-08 (issue #385):** the sentence "There is no PIN or password: anyone on the same network ... can join the game" is replaced by a short sentence that the host can approve or refuse every join request (the owner asked for the short version and no mention of a PIN or password). The sentence on the unencrypted traffic stays true. Note: with "approve new players" OFF anyone on the network can still join; the notice no longer says so (the owner's wording).
-- Section 2, the table: the row "Settings" (on the TV) held "approve new players" (since the owner's edit of 2026-11-09 it says "your choices in the apps, such as sound and language", with no list); the row "Name, avatar and scores ... on the TV, in memory only" now also covers a phone that waits for approval (its name and avatar show on the card, memory only). No new data, nothing saved about a phone.
+- Section 2, the table: the row "Settings" (on the TV) held "approve new players" (since the owner's edit of 2026-11-09 it says "your choices in the apps", with no list); the row "Name, avatar and scores ... on the TV, in memory only" now also covers a phone that waits for approval (its name and avatar show on the card, memory only). No new data, nothing saved about a phone.
 - `docs/legal/store-listing-draft.md`: no sentence is false today; the owner may add that the host lets each phone in (a feature for parents). Not required.
 
 ### 10.3 Strings (keys only; the `product-engineer` writes the texts, the `localization-reviewer` reviews)
