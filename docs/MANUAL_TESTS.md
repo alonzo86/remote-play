@@ -275,7 +275,7 @@ Reading rule: for each phone, read the overlay row at 10 s, 20 s and 30 s of a 3
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1a (RTT ms: good below 20, acceptable below 40, problem above 60) | Overlay screenshots at 10, 20 and 30 s, still and moving (write the 6 values) | Pass | R7 |  | R7: Pass - mostly below 40. Before (R0): Fail - above 60 ms (exact value not written down). TV app on a desktop, not a TV box. The TV of R7 was not written down. |
+| 1a (RTT ms: good below 20, acceptable below 40, problem above 60) | Overlay screenshots at 10, 20 and 30 s, still and moving (write the 6 values) | Pass | R7 |  | R7: Pass - mostly below 40 (question to the owner: issue #437). Before (R0): Fail - above 60 ms (exact value not written down). TV app on a desktop, not a TV box. The TV of R7 was not written down. |
 | 2a (Rx Hz: good 58 to 60, acceptable 50 to 58, problem below 50) | Same screenshots as 1a | Pass | R7 |  | R7: Pass. Before (R0): Retest - 'above 55' (exact value not written down). Desktop TV. |
 | 3a (Gap ms: longest gap in 1 s; good below 40, acceptable below 80, problem above 100) | Same screenshots as 1a | Pass | R7 |  | R7: Pass. Before (R0): Fail - 150 to 380 ms. Desktop TV. |
 | 4a (Lost: good 0) | Same screenshots as 1a | Pass | R7 |  | R7: Pass. Before (R0): Pass - 0. |
@@ -579,7 +579,7 @@ Measurements (not a test; no pass or fail). Write these values in the Notes colu
 
 History:
 
-- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 4c2, 5a2, 12a. Step 4c2: the tester ticked Pass but the note says "the orangutan has sparkles" (REQ-SS-13 says hearts and no sparkles); the note is the same as the R4 note. Waiting for the tester to confirm. Step 5a2: the tester wrote "don't understand what needs to be tested and verified": the step was written again in plainer words (same check, 6 of 6).
+- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 4c2, 5a2, 12a. Step 4c2: the tester ticked Pass but the note says "the orangutan has sparkles" (REQ-SS-13 says hearts and no sparkles); the note is the same as the R4 note. Waiting for the tester to confirm: issue #436. Step 5a2: the tester wrote "don't understand what needs to be tested and verified": the step was written again in plainer words (same check, 6 of 6).
 - 2026-10-25 (R4 notes): step 7c (4 phones) was removed (one phone only). Step 5a2 was written again in simpler words (a second person names the six animals; same check, 6 of 6). Step 4c2 failed: issue #111.
 - 2026-10-21 (automated): item 10c moved to the automated tests (`auto_banana_b`: the most animals with 1 phone, 5, 4 and 3). Item 4c was split (the closed eyes and three cheers are automated, 4c2 keeps the water, hearts and sparkles) and item 5a was split (the crown is automated, 5a2 keeps the six names).
 - 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 11f). Each new step keeps the result of the old step with the same number. Step 8a follows the 3 s rule of REQ-GM-30 (the owner asked for 2 to 3 seconds, built as 3 s in issue #56).
