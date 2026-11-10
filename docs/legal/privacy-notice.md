@@ -50,7 +50,7 @@ We do not sell or share personal data. The only third-party component that touch
 
 ## 7. Children
 
-Sababi is a game for family and friends. A profile name stays on the phone and is shown on the TV to the people in the room. Parents should choose a first name or a nickname, not a full name, and should be near when a child plays.
+Sababi is a game for family and friends. A profile name stays on the phone and is shown on the TV to the people in the room. Parents are advised to choose or review the profile name, and to be near when a child plays.
 
 ## 8. Your choices
 
