@@ -70,6 +70,8 @@ func _run() -> void:
 	await _leader_and_winner()
 	await _pop_and_grid()
 	await _takes_and_pots()
+	await _buzz_rate()
+	await _tilt_in_countdown()
 	await _leave_and_end()
 	for c in _clients:
 		c.leave()
@@ -427,6 +429,85 @@ func _takes_and_pots() -> void:
 	_check(game._pots.pots.is_empty() and game.floor_map.owner_of(Vector2i(2, 7)) == 1
 			and game._board.score(0) == game.floor_map.count(0),
 			"the roller takes a tile of the other player back, and the score of that player falls")
+
+
+## 14.13b: the cool-down of the buzz of a take (REQ-PG-12, REQ-GM-43). Player 0 owns 5 tiles of a row and player 1 takes them
+## one after the other, `spacing` ms apart on a clock that the test sets. Returns the buzzes that the game let through.
+func _takes_with_spacing(spacing: int) -> Array:
+	var game := _play()
+	game._bodies.erase(2)
+	var clock: RefCounted = load("res://tests/clock_haptics.gd").new()
+	game._haptics = clock
+	for i in 5:   # Player 0 paints (i, 3); player 1 waits far away on a free tile.
+		game._bodies[0].pos = (Vector2(i, 3) + Vector2(0.5, 0.5)) * 100.0
+		game._bodies[0].vel = Vector2.ZERO
+		game._bodies[1].pos = Vector2(1450.0, 750.0)
+		game._process(DT)
+	clock.log.clear()
+	clock.now = 1000
+	game._bodies[0].pos = Vector2(1450.0, 150.0)
+	for i in 5:
+		game._bodies[1].pos = (Vector2(i, 3) + Vector2(0.5, 0.5)) * 100.0
+		game._bodies[1].vel = Vector2.ZERO
+		game._process(DT)
+		clock.now += spacing
+	var taken := 0
+	for i in 5:
+		taken += 1 if game.floor_map.owner_of(Vector2i(i, 3)) == 1 else 0
+	_check(taken == 5, "player 1 took the 5 tiles of player 0 (%d of 5)" % taken)
+	return clock.log
+
+
+## 14.13b: 5 tiles of another color taken within 0.5 s give at most 4 buzzes, each 20 ms on the phone of the taker, and two
+## buzzes of one phone are 150 ms apart or more; when the takes are slower than the cool-down, every take buzzes.
+func _buzz_rate() -> void:
+	print("the buzz rate of takes")
+	var fast := _takes_with_spacing(100)
+	var gaps_ok := true
+	for i in range(1, fast.size()):
+		gaps_ok = gaps_ok and int(fast[i][2]) - int(fast[i - 1][2]) >= 150
+	_check(fast.size() >= 1 and fast.size() <= 4 and gaps_ok and fast.all(func(b: Array) -> bool: return b[0] == 1 and b[1] == 20),
+			"5 takes in 0.4 s give 1 to 4 buzzes of 20 ms on the phone of the taker, 150 ms apart or more: %s" % str(fast))
+	var slow := _takes_with_spacing(200)
+	_check(slow.size() == 5 and slow.all(func(b: Array) -> bool: return b[0] == 1 and b[1] == 20),
+			"5 takes 200 ms apart give 5 buzzes (5 of 5 tiles): %s" % str(slow))
+
+
+## 14.13c (REQ-PG-14): the pose that a phone is held in during the countdown is the center. A phone tilted 15 degrees (full
+## sensor path) in the countdown and for 5 s after GO moves the blob less than one blob width; the same tilt that starts after GO
+## rolls it far (so the check can fail).
+func _tilt_in_countdown() -> void:
+	print("a phone held tilted in the countdown")
+	var t15 := Vector2(sin(deg_to_rad(15.0)), 0.0)
+	var moved := {}
+	for case in ["held in the countdown", "tilted after GO"]:
+		for p in _app.server.players:
+			SimInput.set_tilt(p, Vector2.ZERO)
+		var game := SimInput.start_game(_app, _game_script, {"difficulty": "medium", "seed": 7})
+		game._bodies.erase(1)
+		game._bodies.erase(2)
+		var p: RefCounted = _app.server.players[0]
+		for i in 400:
+			_sim.feed(p, Vector2.ZERO)   # Held flat: the filter settles.
+		var tilt := t15 if case == "held in the countdown" else Vector2.ZERO
+		var frames := 0
+		while game._round.is_counting() and frames < 700:
+			_sim.feed(p, tilt)
+			game._process(DT)
+			frames += 1
+		var start: Vector2 = game._bodies[0].pos
+		var far := 0.0
+		for i in 300:   # 5 s of play.
+			_sim.feed(p, t15)
+			game._process(DT)
+			far = maxf(far, game._bodies[0].pos.distance_to(start))
+		moved[case] = far
+	var width: float = 2.0 * _game_script.BLOB_R
+	_check(moved["held in the countdown"] < width,
+			"a phone held at 15 degrees in the countdown moves the blob %.0f px in 5 s (less than one blob width, %.0f px)"
+			% [moved["held in the countdown"], width])
+	_check(moved["tilted after GO"] > 3.0 * width,
+			"the same tilt that starts after GO moves it %.0f px (so the check can fail)" % moved["tilted after GO"])
 
 
 ## 14.6c: a player leaves, the blob goes, the tiles stay and the round still ends after 60 s (REQ-PG-10).
