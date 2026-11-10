@@ -324,8 +324,11 @@ func on_back() -> void:
 
 
 ## Leaves the game for the Games screen (REQ-GM-31a). While the game is in progress it asks first: a round
-## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
-func request_leave() -> void:
+## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once. `from_phone` is the slot of
+## a phone that asked with `leave_ask` (REQ-FL-52c): the same question as for Back on the remote, unless a menu is open.
+func request_leave(from_phone := -1) -> void:
+	if from_phone >= 0 and (_menu_open or is_over or not participants.has(from_phone)):
+		return   # A phone asked (REQ-FL-52c): nothing happens when a menu or a question is open, or that phone does not play.
 	if _in_progress():
 		open_menu("minigame.end_game_ask", [["minigame.resume", close_menu], ["minigame.end_game", game_host.go_menu, "danger"]])
 	else:

@@ -105,6 +105,7 @@ func _run() -> void:
 			"PAUSED_SLOT_GRACE_MS (min)")
 	_quote(text, "for (\\d+) minutes \\(`REPLACED_TOKEN_MS`", Protocol.REPLACED_TOKEN_MS / 60000, "REPLACED_TOKEN_MS (min)")
 	_quote(text, "`NAME_MAX` = (\\d+)", Protocol.NAME_MAX, "NAME_MAX")
+	_quote(text, "`LEAVE_ASK_MIN_MS` \\((\\d+) ms", Protocol.LEAVE_ASK_MIN_MS, "LEAVE_ASK_MIN_MS (ms)")
 
 	# The join approval (FD-30): the keepalive of `pending` and the numbers of the TV that the document quotes.
 	_quote(text, "again every (\\d+) seconds \\(`PENDING_KEEPALIVE_MS`", Protocol.PENDING_KEEPALIVE_MS / 1000,

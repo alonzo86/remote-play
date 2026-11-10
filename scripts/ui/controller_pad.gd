@@ -33,17 +33,22 @@ const AIM_TRAIL := 8         # How many places of the knob the trail keeps.
 const AIM_TICK_MS := 20      # The tick when the knob crosses the middle of the strip.
 const LOST_FRAME := 8.0    # The width of the yellow frame that shows a lost link (REQ-FL-52b; it was 20 px red and white dashes).
 const LOST_BUZZ_MS := 700  # The buzz when the link is lost (REQ-FL-52b).
-const LEAVE_H := 110.0   # The height of the HOLD TO LEAVE box at the bottom.
+const LEAVE_H := 110.0   # The height of the HOLD TO DISCONNECT box at the bottom.
 const LEAVE_SIDE := 60.0    # Its gap to the left and right edge: the rounded corners of a phone must not cut it (REQ-FL-52a).
 const LEAVE_BOTTOM := 40.0  # Its gap to the bottom edge.
-const RECENTER_W := 480.0   # The RECENTER button: about as wide as its text, right above the HOLD TO LEAVE box (REQ-FL-52).
+const RECENTER_W := 480.0   # The RECENTER button: about as wide as its text, right above the HOLD TO DISCONNECT box (REQ-FL-52).
 const RECENTER_H := 80.0
 const RECENTER_SIZE := 48   # Its text.
-const RECENTER_GAP := 24.0  # The gap between RECENTER and HOLD TO LEAVE, and between the A and B buttons and RECENTER.
+const RECENTER_GAP := 24.0  # The gap between RECENTER and HOLD TO DISCONNECT, and between the A and B buttons and RECENTER.
 const BEST_GAME_SIZE := 40  # The game name above it.
 const BEST_SIZE := 56       # NEW BEST!: large and centered in the upper half of the play area (at least 48 px).
 const LEAVE_SIZE := 40    # Its text: it fills the box, so the longest text (Hebrew) fits without cutting.
 const LEAVE_HOLD := 0.8   # A game needs a long press to leave: a swinging child must not leave by accident (REQ-FL-52a).
+const PAUSE_SIZE := 96.0   # The pause button at the top right: a square like the icon buttons of the waiting screen (REQ-FL-52c).
+const PAUSE_GAP := 24.0    # Its gap to the name in the header.
+const PAUSE_BAR_W := 18.0  # The two bars of its symbol.
+const PAUSE_BAR_H := 44.0
+const PAUSE_BAR_GAP := 18.0
 const BUTTON_LIFT := 12.0        # How far the face of an arcade button stands above its lower edge.
 const BUTTON_LIFT_DOWN := 4.0    # The same while it is pressed: the button looks pressed in.
 
@@ -93,8 +98,8 @@ func _process(delta: float) -> void:
 
 # ---- Layout (all in viewport coordinates) ----
 
-## The HOLD TO LEAVE box: at the bottom of the pad, inset from the sides and the bottom so that the rounded corners of a phone
-## do not cut it (REQ-FL-52a). The header row has the badge and the name.
+## The HOLD TO DISCONNECT box: at the bottom of the pad, inset from the sides and the bottom so that the rounded corners of a
+## phone do not cut it (REQ-FL-52a). The header row has the badge and the name.
 func _rect_leave() -> Rect2:
 	return Rect2(LEAVE_SIDE, size.y - LEAVE_BOTTOM - LEAVE_H, size.x - 2.0 * LEAVE_SIDE, LEAVE_H)
 
@@ -102,7 +107,21 @@ func _rect_leave() -> Rect2:
 ## Where the player name (or RECONNECTING...) is written in the header: between the badge (and the avatar) and the right margin.
 func _rect_name(has_avatar: bool) -> Rect2:
 	var name_x := 270.0 if has_avatar else 190.0
-	return Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 60.0, 90)
+	var room := PAUSE_SIZE + PAUSE_GAP if _pause_shown() else 0.0   # The pause button takes the right end of the row.
+	return Rect2(name_x, HEADER_Y - 45.0, size.x - name_x - 60.0 - room, 90)
+
+
+## True while the pad shows the pause button: only while the game plays and the phone is connected (REQ-FL-52c). Not while it is
+## paused, and never in a menu (the pad is not shown there).
+func _pause_shown() -> bool:
+	var c: Node = App.client
+	return c.phase == "playing" and c.state == ControllerClient.State.CONNECTED
+
+
+## The pause button: a 96 px square at the right end of the header row, 60 px from the right edge like the icon buttons of the
+## waiting screen (REQ-FL-52c).
+func _rect_pause() -> Rect2:
+	return Rect2(size.x - 60.0 - PAUSE_SIZE, HEADER_Y - PAUSE_SIZE * 0.5, PAUSE_SIZE, PAUSE_SIZE)
 
 
 const LINE_SIZE := 64   # The place and the score under the header (REQ-FL-67): never smaller, two lines when long (#288).
@@ -159,7 +178,7 @@ func _button_face(center: Vector2, bit: int) -> Vector2:
 	return center - Vector2(0, BUTTON_LIFT_DOWN if (_sampler.buttons & bit) != 0 else BUTTON_LIFT)
 
 
-## The RECENTER button: small, in the middle, right above the HOLD TO LEAVE box (REQ-FL-52).
+## The RECENTER button: small, in the middle, right above the HOLD TO DISCONNECT box (REQ-FL-52).
 func _rect_recenter() -> Rect2:
 	var leave := _rect_leave()
 	return Rect2((size.x - RECENTER_W) * 0.5, leave.position.y - RECENTER_GAP - RECENTER_H, RECENTER_W, RECENTER_H)
@@ -232,25 +251,37 @@ func _radius() -> float:
 
 
 func _zone_at(pos: Vector2) -> String:
+	if _pause_shown() and _rect_pause().has_point(pos):
+		return "pause"
 	if _rect_leave().has_point(pos):
 		return "leave"
 	if _aim_mode() and _rect_aim().has_point(pos):
 		return "aim"
 	if _recenter_shown() and not _aim_mode() and _rect_recenter().has_point(pos):
 		return "recenter"
+	var button := _button_zone(pos)
+	return button if button != "" else "pad"
+
+
+## "a" or "b" when `pos` is on that round button, else "".
+func _button_zone(pos: Vector2) -> String:
 	if _button_shown("a") and pos.distance_to(_center_a()) <= _radius() * 1.25:
 		return "a"
 	if _button_shown("b") and pos.distance_to(_center_b()) <= _radius() * 1.25:
 		return "b"
-	return "pad"
+	return ""
 
 
 # ---- Input ----
 
-## Back asks whether to quit the app (REQ-FL-55); Back again answers "stay". The pad ignores touches while the question shows.
+## Back during play asks the TV to pause and ask "End the game?", as the pause button does (REQ-FL-52c). In every other state it
+## asks whether to quit the app (REQ-FL-55); Back again answers "stay". The pad ignores touches while the question shows.
 func on_back() -> void:
 	if is_instance_valid(_quit_dialog):
 		_quit_dialog.close()
+		return
+	if _pause_shown():
+		App.client.send_leave_ask()
 		return
 	for index in _fingers.keys():
 		_on_zone_up(_fingers[index], index)
@@ -281,6 +312,8 @@ func _on_zone_down(zone: String, index: int, pos: Vector2) -> void:
 	match zone:
 		"leave":
 			_leave_hold = 0.0   # The leave happens in _process after LEAVE_HOLD seconds.
+		"pause":
+			App.client.send_leave_ask()
 		"recenter":
 			App.client.send_recenter()
 			_flash.recenter = 1.0
@@ -394,6 +427,9 @@ func _draw() -> void:
 		_draw_lines_centered(f, UiTheme.wrap_lines(f, best_line(best), best_rect.size.x, BEST_SIZE), best_rect, BEST_SIZE,
 				HORIZONTAL_ALIGNMENT_CENTER, best_rect.position.x, UiTheme.ACCENT)
 
+	if _pause_shown():
+		_draw_pause(_rect_pause())
+
 	# Disconnect: a framed text box. A game needs a press of LEAVE_HOLD seconds; the box fills while the finger stays (REQ-FL-52a).
 	var lr := _rect_leave()
 	_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), LEAVE_SIZE, UiTheme.BUTTON_TEXT)
@@ -420,7 +456,7 @@ func _draw() -> void:
 
 
 ## The link is lost (REQ-FL-52b; softer since 2026-11-10, owner, issue #433): the play area with the buttons is dimmed (the
-## header and the HOLD TO LEAVE box are not), a thin yellow frame runs around the pad and RECONNECTING... is written in the
+## header and the HOLD TO DISCONNECT box are not), a thin yellow frame runs around the pad and RECONNECTING... is written in the
 ## middle in yellow. The cue is not only a color: the buttons go dark, and the frame and the words show; the buzz is in
 ## `_on_state`.
 func _draw_lost_link(f: Font) -> void:
@@ -436,6 +472,14 @@ func _draw_lost_link(f: Font) -> void:
 	var msg := Lang.t("connect.reconnecting").to_upper()
 	_draw_lines_centered(f, UiTheme.wrap_lines(f, msg, mid.size.x, LOST_SIZE), mid, LOST_SIZE, HORIZONTAL_ALIGNMENT_CENTER,
 			mid.position.x, UiTheme.ACCENT)
+
+
+## The pause button: the frame and the black fill of the icon buttons, and the two white bars of a pause symbol (REQ-FL-52c).
+func _draw_pause(r: Rect2) -> void:
+	draw_style_box(UiTheme.line_box(UiTheme.TEXT, UiTheme.BUTTON_FACE), r)
+	var mid := r.get_center()
+	for dx in [-(PAUSE_BAR_GAP + PAUSE_BAR_W) * 0.5, (PAUSE_BAR_GAP + PAUSE_BAR_W) * 0.5]:
+		draw_rect(Rect2(mid.x + dx - PAUSE_BAR_W * 0.5, mid.y - PAUSE_BAR_H * 0.5, PAUSE_BAR_W, PAUSE_BAR_H), UiTheme.BUTTON_TEXT)
 
 
 ## Recenter: a black box with white text that turns white with black text for a moment when it is tapped.

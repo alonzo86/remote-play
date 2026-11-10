@@ -1,6 +1,6 @@
 extends SceneTree
 ## Phone screens: what used to be looked at by hand in manual tests 16, 17 and 18 and a machine can check (docs/MANUAL_TESTS.md):
-## the pad buttons A and B that sit lower while pressed (16.6b), the Recenter box (small, above HOLD TO LEAVE) that fills
+## the pad buttons A and B that sit lower while pressed (16.6b), the Recenter box (small, above HOLD TO DISCONNECT) that fills
 ## with white for 0.34 s after a tap
 ## (16.6c), the slot square at the top of the pad (16.6e), the Connect screen of a Hebrew phone and of an English phone (17.4a),
 ## the Hebrew texts of the pad that fit their boxes (17.7a), the HAPTICS switch that is on at the first start (18.10a) and the
@@ -142,7 +142,7 @@ func _pad_checks() -> void:
 	var name_rect: Rect2 = pad._rect_name(false)
 	_check(sq.position.x <= 60.0 and sq.end.y < pad.size.y * 0.15 and is_equal_approx(sq.get_center().y, name_rect.get_center().y)
 			and not sq.intersects(leave) and leave.position.y > pad.size.y * 0.85,
-			"the slot square is in the top 15 percent of the pad, on the row of the name, and HOLD TO LEAVE is at the bottom: %s"
+			"the slot square is in the top 15 percent of the pad, on the row of the name, and HOLD TO DISCONNECT is at the bottom: %s"
 			% str(sq))
 	_app.client.state = ControllerClient.State.CONNECTED
 	_check(pad._slot_square_color() == Protocol.PLAYER_COLORS[1], "joined: the square has the color of the slot")
@@ -161,7 +161,7 @@ func _hebrew_pad() -> void:
 	var texts := {}   # language -> [recenter, disconnect, hint]
 	for code in ["en", "he"]:
 		_app.set_language(code, false)
-		texts[code] = [Lang.t("pad.recenter").to_upper(), Lang.t("pad.disconnect").to_upper(),
+		texts[code] = [Lang.t("pad.recenter").to_upper(), Lang.t("pad.disconnect_hold").to_upper(),
 				Lang.t("pad.point_at_tv_then").to_upper()]
 	_check(texts.he[0] != texts.en[0] and texts.he[1] != texts.en[1] and texts.he[2] != texts.en[2],
 			"the three texts of the pad are different in Hebrew and in English")
@@ -187,6 +187,11 @@ func _hebrew_pad() -> void:
 		var what := "Hebrew %s: %.0f px of text in a box of %.0f px (the frame takes %d px)" % [names[i], w, room[names[i]],
 				2 * UiTheme.LINE]
 		_check(ok, what)
+	# Issue #435: the English text of the box, "HOLD TO DISCONNECT", is the whole text at 40 px inside the box too.
+	_check(texts.en[1] == "HOLD TO DISCONNECT", "the English text of the leave box is HOLD TO DISCONNECT: %s" % texts.en[1])
+	var w_en := font.get_string_size(texts.en[1], HORIZONTAL_ALIGNMENT_LEFT, -1, pad.LEAVE_SIZE).x
+	_check(w_en > 0.0 and w_en <= pad._rect_leave().size.x - 2.0 * UiTheme.LINE,
+			"English HOLD TO DISCONNECT: %.0f px of text in a box of %.0f px at %d px" % [w_en, pad._rect_leave().size.x, pad.LEAVE_SIZE])
 	_app.set_language("en", false)
 	made.holder.queue_free()
 

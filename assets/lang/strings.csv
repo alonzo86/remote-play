@@ -94,7 +94,7 @@ common.settings,SETTINGS,הגדרות,"Title of the TV and phone Settings screen
 minigame.tie,TIE!,תיקו!,Title of the result menu when scores are equal,
 pad.before,Before: %s,קודם: %s,"Phone game screen: next to NEW BEST!, shows the old best, %s is the old value",%s is replaced by a name or a value
 pad.disconnect,DISCONNECT,התנתקות,Phone: name and tooltip of the DISCONNECT icon button (no word on the button) in the corner of the top row of the waiting screen (top right in English, top left in Hebrew),
-pad.disconnect_hold,HOLD TO LEAVE,החזיקו להתנתקות,Phone: HOLD TO LEAVE box at the bottom of the game screen, inset 60 px from the sides and 40 px from the bottom so rounded corners do not cut it (hold it for 0.8 s to leave; a tap does nothing),New 2026-10-30 (issue #239). The waiting screen keeps pad.disconnect.
+pad.disconnect_hold,HOLD TO DISCONNECT,החזיקו להתנתקות,Phone: HOLD TO DISCONNECT box at the bottom of the game screen, inset 60 px from the sides and 40 px from the bottom so rounded corners do not cut it (hold it for 0.8 s to disconnect the phone from the TV; a tap does nothing),New 2026-10-30 (issue #239). The waiting screen keeps pad.disconnect.
 pad.new_best,NEW BEST!,שיא חדש!,Phone game screen: after a round that set a personal best, only while the result of that game is open (not on the waiting screen); large (56 px), yellow, centered in the upper half of the play area under the name of the game,
 pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,Phone game screen: help line in the upper half of the play area, above the small Recenter button at the bottom,
 pad.recenter,RECENTER,מרכוז,Phone game screen: Recenter button,

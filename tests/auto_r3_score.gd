@@ -139,6 +139,18 @@ func _four_phones() -> void:
 		after.append([_clients[slots[i]].score_rank, _clients[slots[i]].score_of, _clients[slots[i]].score_text])
 	_check(after == before and before[0][2] == "120", "in the pause menu every phone keeps its place and score: %s" % str(after))
 	game.close_menu()
+	# Issue #435, REQ-FL-52c: a phone asks to end the game and the TV asks "End the game?" with Resume first; another phone's
+	# request while the question is open changes nothing.
+	_clients[slots[1]].send_leave_ask()
+	var asked := await _until(4, func() -> bool: return game._menu_open)
+	var buttons: Array = game.menu_buttons().map(func(b): return b.text)
+	_check(asked >= 0 and buttons == ["minigame.resume", "minigame.end_game"] and game.menu_buttons()[0].has_focus(),
+			"a leave_ask from a phone opens 'End the game?' with Resume first and focused: %s" % str(buttons))
+	_clients[slots[2]].send_leave_ask()
+	await _stream(0.5, 4)
+	_check(game._menu_open and game.menu_buttons().map(func(b): return b.text) == buttons and game.participants.size() == 4,
+			"a request from another phone while the question is open changes nothing")
+	game.close_menu()
 	# Back to the menu of games: the score is gone from every phone.
 	_app.go_menu()
 	var cleared := await _until(4, func() -> bool:

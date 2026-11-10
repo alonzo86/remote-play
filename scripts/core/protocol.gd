@@ -19,6 +19,7 @@ const ROOM_MULTIPLIER := 40503         # The scramble of a room code: a multipli
 const ROOM_MULTIPLIER_INVERSE := 30599 # ROOM_MULTIPLIER * ROOM_MULTIPLIER_INVERSE = 1 modulo 65536.
 const NAME_MAX := 10                   # The longest player name, on the phone, on the TV and in a code (FD-22).
 const AVATAR_COUNT := 32               # Avatars in the sprite sheet (assets/avatars/avatars.png).
+const LEAVE_ASK_MIN_MS := 1000        # The TV takes one `leave_ask` from a phone each second at most (docs/PROTOCOL.md).
 const REPLACED_TOKEN_MS := 600000      # The TV remembers the token of a replaced phone this long (docs/PROTOCOL.md).
 
 ## Every message of the JSON protocol: the value `"t"` -> who sends it (`"phone"`, `"tv"` or `"both"`). The net code writes the
@@ -29,7 +30,7 @@ const MESSAGES := {
 	"hello": "phone", "welcome": "tv", "reject": "tv",
 	"ping": "phone", "pong": "tv", "stat": "phone", "recenter": "phone",
 	"phase": "tv", "lang": "tv", "haptic": "tv", "score": "tv", "turn": "tv",
-	"setup": "tv", "play": "phone", "swing_ok": "phone",
+	"setup": "tv", "play": "phone", "swing_ok": "phone", "leave_ask": "phone",
 	"profile": "both", "result": "tv", "bye": "both", "kicked": "tv", "pending": "tv",
 }
 
