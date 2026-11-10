@@ -212,15 +212,17 @@ func _logo_time() -> void:
 	var card: Control = logo.find_child("AppCard", true, false)
 	var qr: Control = logo.find_child("AppQr", true, false)
 	_check(card != null and card.visible and qr != null and qr.text == About.APP_URL and qr.quiet == 4
-			and qr.custom_minimum_size == Vector2(340, 340), "the logo screen has the card with the QR code of the phone app (340 px)")
+			and qr.custom_minimum_size == Vector2(220, 220), "the logo screen has the card with the QR code of the phone app (220 px)")
 	var texts := _label_texts(logo)
 	_check(texts.has("connect.get_app") and texts.has("logo.press_ok_start") and not texts.has("logo.press_ok_skip"),
 			"it says GET THE PHONE APP TO PLAY and PRESS OK TO START")
 	var safe := Rect2(Vector2(60, 60), logo.size - Vector2(120, 120))
 	var logo_pic: Control = logo.find_children("*", "TextureRect", true, false)[0]
 	_check(safe.encloses(card.get_global_rect()) and safe.encloses(logo_pic.get_global_rect())
-			and not card.get_global_rect().intersects(logo_pic.get_global_rect()),
-			"the card and the logo are inside the 60 px safe area and do not overlap")
+			and card.get_global_rect().position.y >= logo_pic.get_global_rect().end.y,
+			"the card is under the logo, and both are inside the 60 px safe area")
+	_check(absf(card.get_global_rect().get_center().x - logo_pic.get_global_rect().get_center().x) < 2.0,
+			"the card and the logo are centered on the same line")
 	await _key(KEY_ENTER)
 	var gone := await _wait_until(func(): return _screen_is(_connect_script), 1000)
 	_check(gone, "OK goes on to the Connect screen")
@@ -235,6 +237,15 @@ func _first_start() -> void:
 	await _frames(3)
 	var logo: Control = _app.current_screen()
 	_check(logo.asks_language and logo.language_buttons.size() == 2, "the first start asks for the language")
+	await create_timer(1.2).timeout   # The logo has dropped in and the hint shows.
+	var pic: Control = logo.find_children("*", "TextureRect", true, false)[0]
+	var items: Rect2 = logo.language_buttons.en.get_global_rect().merge(logo.language_buttons.he.get_global_rect())
+	var first_card: Rect2 = logo.find_child("AppCard", true, false).get_global_rect()
+	var first_safe := Rect2(Vector2(60, 60), logo.size - Vector2(120, 120))
+	_check(pic.get_global_rect().end.y <= items.position.y and items.end.y <= first_card.position.y
+			and first_safe.encloses(pic.get_global_rect()) and first_safe.encloses(first_card)
+			and first_card.end.y <= logo.size.y - 120,
+			"at the first start: the logo, the language items and the card from the top, all in the safe area above the hint")
 	await create_timer(3.5).timeout   # More than the 2.5 s that the logo used to last.
 	_check(_app.current_screen() == logo and not logo._done, "3.5 s later the logo is still there: it waits for the choice")
 	await _key(KEY_ENTER)
