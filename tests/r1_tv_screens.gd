@@ -237,6 +237,15 @@ func _first_start() -> void:
 	await _frames(3)
 	var logo: Control = _app.current_screen()
 	_check(logo.asks_language and logo.language_buttons.size() == 2, "the first start asks for the language")
+	await create_timer(1.2).timeout   # The logo has dropped in and the hint shows.
+	var pic: Control = logo.find_children("*", "TextureRect", true, false)[0]
+	var items: Rect2 = logo.language_buttons.en.get_global_rect().merge(logo.language_buttons.he.get_global_rect())
+	var first_card: Rect2 = logo.find_child("AppCard", true, false).get_global_rect()
+	var first_safe := Rect2(Vector2(60, 60), logo.size - Vector2(120, 120))
+	_check(pic.get_global_rect().end.y <= items.position.y and items.end.y <= first_card.position.y
+			and first_safe.encloses(pic.get_global_rect()) and first_safe.encloses(first_card)
+			and first_card.end.y <= logo.size.y - 120,
+			"at the first start: the logo, the language items and the card from the top, all in the safe area above the hint")
 	await create_timer(3.5).timeout   # More than the 2.5 s that the logo used to last.
 	_check(_app.current_screen() == logo and not logo._done, "3.5 s later the logo is still there: it waits for the choice")
 	await _key(KEY_ENTER)

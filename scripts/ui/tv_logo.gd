@@ -37,9 +37,10 @@ func _ready() -> void:
 	box.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_theme_constant_override("separation", 40)
 	_center.add_child(box)
-	if ResourceLoader.exists(LOGO_FILE):
+	var art := _logo_art() if ResourceLoader.exists(LOGO_FILE) else null
+	if art != null:
 		var tr := TextureRect.new()
-		tr.texture = _logo_art()
+		tr.texture = art
 		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		tr.custom_minimum_size = tr.texture.get_size()   # 1:1: 4 screen pixels for each logo pixel (REQ-FL-50).
@@ -78,9 +79,15 @@ func _ready() -> void:
 
 
 ## The part of the logo file that has the artwork, without its empty margins (REQ-FL-50), on the grid of the logo pixels.
+## Null when the file cannot be read or has no visible pixel: the screen then draws the text "SABABI" instead.
 func _logo_art() -> Texture2D:
 	var file: Texture2D = load(LOGO_FILE)
-	var used := file.get_image().get_used_rect()
+	var image: Image = file.get_image() if file != null else null
+	if image == null:
+		return null
+	var used := image.get_used_rect()
+	if used.size.x <= 0 or used.size.y <= 0:
+		return null
 	var x0 := used.position.x / LOGO_GRID * LOGO_GRID
 	var y0 := used.position.y / LOGO_GRID * LOGO_GRID
 	var x1 := ceili(float(used.end.x) / LOGO_GRID) * LOGO_GRID
