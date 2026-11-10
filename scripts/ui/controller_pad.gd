@@ -31,7 +31,7 @@ const INFO_Y := 50.0      # How far the Recenter box and the turn and best rows 
 const AIM_KNOB := 88.0       # The radius of the aim knob (it was 56 px; a finger covers a small one, issue #236, REQ-BW-4a).
 const AIM_TRAIL := 8         # How many places of the knob the trail keeps.
 const AIM_TICK_MS := 20      # The tick when the knob crosses the middle of the strip.
-const LOST_FRAME := 20.0   # The width of the frame that shows a lost link (REQ-FL-52b).
+const LOST_FRAME := 8.0    # The width of the yellow frame that shows a lost link (REQ-FL-52b; it was 20 px red and white dashes).
 const LOST_BUZZ_MS := 700  # The buzz when the link is lost (REQ-FL-52b).
 const LEAVE_H := 110.0   # The height of the HOLD TO LEAVE box at the bottom.
 const LEAVE_SIDE := 60.0    # Its gap to the left and right edge: the rounded corners of a phone must not cut it (REQ-FL-52a).
@@ -108,6 +108,7 @@ func _rect_name(has_avatar: bool) -> Rect2:
 const LINE_SIZE := 64   # The place and the score under the header (REQ-FL-67): never smaller, two lines when long (#288).
 const NAME_SIZE := 48   # The name in the header: never smaller, a wide name goes on two lines (#246).
 const LOST_SIZE := 56   # RECONNECTING... on the dimmed pad.
+const LOST_DIM := 0.62  # How dark the play area (the buttons) gets when the link is lost.
 const HINT_SIZE := 32   # The help line of the Recenter box.
 
 
@@ -143,10 +144,9 @@ func _rect_slot_square() -> Rect2:
 	return Rect2(Vector2(60, HEADER_Y - 45.0), Vector2(90, 90))
 
 
-## The color of that square: the slot color, and red when the link to the TV is lost.
+## The color of that square: the slot color, also when the link to the TV is lost (owner, 2026-11-10: no red, issue #433).
 func _slot_square_color() -> Color:
-	var c: Node = App.client
-	return c.color if c.state == ControllerClient.State.CONNECTED else UiTheme.BAD
+	return App.client.color
 
 
 ## The fill of the Recenter box: black like every enabled button (REQ-FL-38a); white for a moment after a tap (REQ-FL-52).
@@ -344,7 +344,7 @@ func _draw() -> void:
 	var c: Node = App.client
 	draw_rect(Rect2(Vector2.ZERO, size), UiTheme.BG)
 
-	# The slot color square with the slot number, and the state word. The square is red when the link is lost.
+	# The slot color square with the slot number, and the state word (RECONNECTING... when the link is lost).
 	var online: bool = c.state == ControllerClient.State.CONNECTED
 	var square := _rect_slot_square()
 	var square_color: Color = _slot_square_color()
@@ -360,7 +360,7 @@ func _draw() -> void:
 	var status := own if online else Lang.t("connect.reconnecting")
 	var name_rect := _rect_name(has_avatar)
 	_draw_lines_centered(f, name_lines(status.to_upper(), name_rect.size.x), name_rect, NAME_SIZE, HORIZONTAL_ALIGNMENT_LEFT,
-			name_rect.position.x, UiTheme.ACCENT if online else UiTheme.BAD)
+			name_rect.position.x, UiTheme.ACCENT)
 
 	# The place and the score of this player, on a row of their own under the header (REQ-FL-67).
 	var line := score_line(c.score_rank, c.score_of, c.score_text) if online else ""
@@ -394,9 +394,6 @@ func _draw() -> void:
 		_draw_lines_centered(f, UiTheme.wrap_lines(f, best_line(best), best_rect.size.x, BEST_SIZE), best_rect, BEST_SIZE,
 				HORIZONTAL_ALIGNMENT_CENTER, best_rect.position.x, UiTheme.ACCENT)
 
-	if not online:
-		_draw_lost_link(f)
-
 	# Disconnect: a framed text box. A game needs a press of LEAVE_HOLD seconds; the box fills while the finger stays (REQ-FL-52a).
 	var lr := _rect_leave()
 	_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), LEAVE_SIZE, UiTheme.BUTTON_TEXT)
@@ -417,36 +414,28 @@ func _draw() -> void:
 	if _button_shown("b"):
 		_draw_button(_center_b(), "B", Protocol.BTN_B, UiTheme.BAD)
 
+	# The link is lost: the buttons and the Recenter box are dimmed, a thin yellow frame and RECONNECTING... on top (REQ-FL-52b).
+	if not online:
+		_draw_lost_link(f)
 
-## The link is lost (REQ-FL-52b): the play area is dimmed and a frame of white and red dashes runs around the pad. Dashes, not
-## only red, so a color-blind player and a child who looks at the TV see a change; the buzz is in `_on_state`.
+
+## The link is lost (REQ-FL-52b; softer since 2026-11-10, owner, issue #433): the play area with the buttons is dimmed (the
+## header and the HOLD TO LEAVE box are not), a thin yellow frame runs around the pad and RECONNECTING... is written in the
+## middle in yellow. The cue is not only a color: the buttons go dark, and the frame and the words show; the buzz is in
+## `_on_state`.
 func _draw_lost_link(f: Font) -> void:
 	var top := HEADER_Y + 60.0
-	draw_rect(Rect2(0, top, size.x, size.y - top), Color(UiTheme.BG, 0.6))
-	var dash := 60.0
+	var bottom := _rect_leave().position.y
+	draw_rect(Rect2(0, top, size.x, bottom - top), Color(UiTheme.BG, LOST_DIM))
 	var fw := LOST_FRAME
-	var i := 0
-	var x := 0.0
-	while x < size.x:
-		var col: Color = UiTheme.BAD if i % 2 == 0 else UiTheme.TEXT
-		var w := minf(dash, size.x - x)
-		draw_rect(Rect2(x, 0, w, fw), col)
-		draw_rect(Rect2(x, size.y - fw, w, fw), col)
-		x += dash
-		i += 1
-	var y := 0.0
-	i = 0
-	while y < size.y:
-		var col2: Color = UiTheme.BAD if i % 2 == 0 else UiTheme.TEXT
-		var h := minf(dash, size.y - y)
-		draw_rect(Rect2(0, y, fw, h), col2)
-		draw_rect(Rect2(size.x - fw, y, fw, h), col2)
-		y += dash
-		i += 1
+	draw_rect(Rect2(0, 0, size.x, fw), UiTheme.ACCENT)
+	draw_rect(Rect2(0, size.y - fw, size.x, fw), UiTheme.ACCENT)
+	draw_rect(Rect2(0, 0, fw, size.y), UiTheme.ACCENT)
+	draw_rect(Rect2(size.x - fw, 0, fw, size.y), UiTheme.ACCENT)
 	var mid := Rect2(60, size.y * 0.5 - 40.0, size.x - 120, 80)
 	var msg := Lang.t("connect.reconnecting").to_upper()
 	_draw_lines_centered(f, UiTheme.wrap_lines(f, msg, mid.size.x, LOST_SIZE), mid, LOST_SIZE, HORIZONTAL_ALIGNMENT_CENTER,
-			mid.position.x, UiTheme.TEXT)
+			mid.position.x, UiTheme.ACCENT)
 
 
 ## Recenter: a black box with white text that turns white with black text for a moment when it is tapped.

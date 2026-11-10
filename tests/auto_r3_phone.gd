@@ -146,8 +146,9 @@ func _pad_checks() -> void:
 			% str(sq))
 	_app.client.state = ControllerClient.State.CONNECTED
 	_check(pad._slot_square_color() == Protocol.PLAYER_COLORS[1], "joined: the square has the color of the slot")
-	_app.client.state = ControllerClient.State.IDLE
-	_check(pad._slot_square_color() == UiTheme.BAD, "without the link to the TV the square is red")
+	_app.client.state = ControllerClient.State.RECONNECTING
+	_check(pad._slot_square_color() == Protocol.PLAYER_COLORS[1],
+			"without the link to the TV the square keeps its color (issue #433)")
 	made.holder.queue_free()
 
 
