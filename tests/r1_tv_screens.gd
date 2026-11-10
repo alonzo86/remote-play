@@ -268,6 +268,24 @@ func _logo_back() -> void:
 	await _frames(3)
 	await _key(KEY_BACK)
 	_check(_screen_is(_connect_script) and _quits[0] == 0, "the Back key on the logo shows the Connect screen and does not quit")
+	_app.settings.language = "en"
+	_app.go_logo()
+	await _frames(3)
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	_app.current_screen()._unhandled_input(touch)
+	await _frames(3)
+	_check(_screen_is(_connect_script), "a touch on the logo goes on to the Connect screen (REQ-FL-3)")
+	_app.settings.language = ""
+	_app.go_logo()
+	await _frames(3)
+	var logo: Control = _app.current_screen()
+	logo._unhandled_input(touch)
+	await _frames(3)
+	_check(_app.current_screen() == logo and logo.asks_language,
+			"a touch at the first start does not move on: the language is asked first")
+	_app.settings.language = "en"
+	_app.set_language("en", false)
 
 
 # ---- Test 1 items 1e, 1f and Test 8b item 3a ----
