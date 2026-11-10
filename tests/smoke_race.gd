@@ -44,6 +44,7 @@ func _run() -> void:
 	await _grid_and_directions()
 	await _motion()
 	await _edge_markers()
+	await _spread_pack()
 	await _end_delay()
 	await _restart_and_seeds()
 	await _settings_view()
@@ -196,6 +197,75 @@ func _edge_markers() -> void:
 		game._game_tick(Sim.DT)
 	_check(game.edge_markers().is_empty() or lead_arc_now > 0.0 and game.edge_markers().size() < 3,
 			"cars that are in view get no arrow")
+
+
+## Test 9.14f (REQ-MR-41, REQ-MR-42): 4 cars, one far ahead: the leader stays in view, every car that is out of view has an
+## arrow in its color inside the 60 px margin and under the bar, the text names the meters within 3 m, the middle of the pack
+## is in the lower half of the screen.
+func _spread_pack() -> void:
+	print("race: a pack that is spread out")
+	var game: Control = await sim.start(Race, {"track_choice": "1", "difficulty": "hard"})
+	_flat_all()
+	sim.through_countdown(game)
+	var tr = game.track
+	var lead_arc := minf(tr.length - 12.0, 130.0)
+	var behind := {0: 0.0, 1: 45.0, 2: 70.0, 3: 110.0}   # Meters behind the leader along the track.
+	for s in 4:
+		var arc: float = lead_arc - float(behind[s])
+		game._racers[s].pos = tr.point_at(arc)
+		game._racers[s].arc = arc
+		game._racers[s].vel = Vector2.ZERO
+	game._cam_set = false
+	sim.step(game, 1.5, {0: Sim.FLAT, 1: Sim.FLAT, 2: Sim.FLAT, 3: Sim.FLAT})
+	var size: Vector2 = game.size
+	var window := Rect2(Vector2.ZERO, size)
+	var lead_screen := _screen_of(game, game._racers[0].pos)
+	_check(window.grow(-60.0).has_point(lead_screen) and lead_screen.y > 136.0,
+			"the leader stays in view: %s on a %s screen, under the bar" % [str(lead_screen), str(size)])
+	var markers: Array = game.edge_markers()
+	var by_slot := {}
+	for m in markers:
+		by_slot[m.slot] = m
+	var rect := Rect2(60.0, 136.0, size.x - 120.0, size.y - 136.0 - 60.0).grow(0.01)
+	var out_of_view := 0
+	var all_ok := true
+	var texts_ok := true
+	for s in [1, 2, 3]:
+		var sp := _screen_of(game, game._racers[s].pos)
+		if window.has_point(sp):
+			continue
+		out_of_view += 1
+		if not by_slot.has(s):
+			all_ok = false
+			print("    car %d is out of view (%s) and has no arrow" % [s, str(sp)])
+			continue
+		var m: Dictionary = by_slot[s]
+		var meters := float(String(m.text).split(" ")[0])
+		var real: float = float(behind[s])
+		print("    car %d: arrow at %s, text '%s', real %.0f m" % [s, str(m.pos), m.text, real])
+		all_ok = all_ok and rect.has_point(m.pos)
+		texts_ok = texts_ok and absf(meters - real) <= 3.0 and m.text == "%d m behind" % roundi(meters)
+	_check(out_of_view >= 2 and all_ok,
+			"%d cars are out of view and each has an arrow inside the 60 px margin and under the bar" % out_of_view)
+	_check(texts_ok, "the text of each arrow names the meters within 3 m of the real distance")
+	_check(not by_slot.has(0), "the leader has no arrow")
+	var colors_ok := true
+	for s in by_slot:
+		colors_ok = colors_ok and game.player(s).color == Protocol.PLAYER_COLORS[s]
+	_check(colors_ok and not by_slot.is_empty(), "each arrow is drawn in the color of its car")
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	for s in 4:
+		lo = lo.min(game._racers[s].pos)
+		hi = hi.max(game._racers[s].pos)
+	var middle := _screen_of(game, (lo + hi) * 0.5)
+	_check(middle.y > size.y * 0.5,
+			"the middle of the pack is in the lower half of the screen (y %.0f of %.0f)" % [middle.y, size.y])
+
+
+## The screen position of a point of the track, in screen units (the camera is `_cam`, the anchor is 620 down).
+func _screen_of(game: Control, p: Vector2) -> Vector2:
+	return (p - game._cam) * Race.SCALE + Vector2(game.size.x * 0.5, Race.ANCHOR_Y)
 
 
 ## Test 9.8b: the others have 4 s after the first car finishes, then the result menu opens.

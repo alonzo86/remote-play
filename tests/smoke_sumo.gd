@@ -3,6 +3,7 @@ extends SceneTree
 ##   godot --headless --path . --script tests/smoke_sumo.gd -- --role=tv
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
 var _fails := 0
@@ -176,6 +177,38 @@ func _run() -> void:
 			and clients[1].score_rank == 2 and clients[2].score_rank == 2 and clients[1].score_text == "1",
 			"each phone gets its place and its points; equal points share a place (REQ-FL-67)")
 	_check(game.leader_text() == "3", "the leader chip shows the points of the leader (REQ-GM-46)")
+	# Test 15 13b (REQ-SB-14): the leader chip names the leader, the chip says TIE when the points are equal, every phone is told the
+	# place of the TV, and nothing but the chip and the title is a text box over the bumpers (no number on a bumper).
+	var boxes: Array = []
+	var shell_script = load("res://scripts/game/shell.gd")
+	shell_script.recorder = func(kind: String, ci: CanvasItem, _rect: Rect2, info: Dictionary) -> void:
+		if ci == game:
+			boxes.append({"kind": kind, "info": info})
+	await _frames(3)
+	var chips: Array = boxes.filter(func(b): return b.kind == "leader")
+	var tags: Array = boxes.filter(func(b): return b.kind == "tag")
+	_check(not chips.is_empty() and chips[-1].info.name == "Sim0" and chips[-1].info.score == "3" and not chips[-1].info.tie,
+			"the leader chip names the leader and shows its 3 points: %s" % str(chips[-1].info if not chips.is_empty() else {}))
+	_check(tags.is_empty(), "no name or number is drawn on a bumper (REQ-GM-46)")
+	_check(clients.all(func(c): return c.pad_buttons == "a" and not c.recenter_button),
+			"every phone has the pad with A only and no Recenter box (REQ-SB-14, REQ-GM-37a)")
+	var ranking: Array = game._scoreboard().ranking()
+	var same_place := true
+	for e in ranking:
+		same_place = same_place and clients[e.slot].score_rank == int(e.rank)
+	_check(same_place and ranking.size() == 3,
+			"each phone shows the place that the TV list has (%s)" % str(ranking.map(func(e): return e.rank)))
+	for s in [0, 1, 2]:
+		game._board.set_score(s, 2.0)
+	boxes.clear()
+	await _frames(3)
+	chips = boxes.filter(func(b): return b.kind == "leader")
+	_check(not chips.is_empty() and chips[-1].info.tie and chips[-1].info.name == Lang.t("shell.tie"),
+			"equal points (2, 2, 2): the chip says TIE (%s)" % str(chips[-1].info if not chips.is_empty() else {}))
+	shell_script.recorder = Callable()
+	for s in [0, 1, 2]:
+		game._board.set_score(s, [3.0, 1.0, 1.0][s])   # As before: the next checks use these points.
+	await _frames(3)
 	game._banner_left = 0.01
 	game._game_tick(0.02)
 	await _frames(3)
