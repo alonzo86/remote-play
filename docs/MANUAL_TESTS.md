@@ -61,30 +61,30 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R7 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Pass | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Pass | R3 | |
-| [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Pass | R7 | |
-| [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50 | Pass | R7 | |
+| [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
+| [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37 | Pass | R7 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Pass | R7 | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Retest (steps 1c, 11) | R7 | |
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 68, 83, 84 | Not run (next release, iOS, issue #415) |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
-| [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Pass | R7 | |
+| [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
 | [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-38a, 41a, 52, 53, REQ-GM-45, 46, FD-18 | Partial (see the result table) | R7 | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Pass | R7 | |
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip and phone score | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Not run | | |
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 | [21](#test-21) | Join by room code and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-83, REQ-FL-84, REQ-FL-85, FD-25, FD-28 | Partial (see the result table) | R4 | |
-| [22](#test-22) | Star Shield (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Partial (see the result table) | R6 | |
+| [22](#test-22) | Star Shield (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
 | [23](#test-23) | Bowling (aim with a finger, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Fail (steps 4g) | R7 | |
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Fail (steps 6b) | R6 | |
 | [28](#test-28) | Mole Bonk (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
-| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
 | [31](#test-31) | Freeze Dance (wiggle, freeze, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
-| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n | Not run | | |
 | [33](#test-33) | iPhone QR scanner (camera view, permission, cancel, privacy) | 1 iPhone, 1 Mac with Xcode, 1 TV, a second phone, a child for item 9b, a Hebrew reader for item 8a | REQ-FL-58, 88 to 92 (`docs/TV_FLOW.md`), issue #299 | Not run (next release, iOS, issue #415) | | |
 | [34](#test-34) | Join approval with the TV remote (built, not run) | 2 phones, 1 TV with its real remote, a stopwatch, a native reader of Hebrew for item 7a | REQ-FL-93 to REQ-FL-104, FD-30 (`docs/TV_FLOW.md`), issue #393 | Not run | | |
 
@@ -94,22 +94,22 @@ Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The 
 
 Moved from `CLAUDE.md` on 2026-10-31 (issue #312). Brought in line with the Results tables on 2026-11-01. The Sababi Test Tracker holds the live results; the Results tables of each test are the source for this table.
 
-Tests the user has to run now (status on 2026-11-10 after run R7; the list is in the order to do them. R7 retested the steps of the closed issues #111 to #114 (4c2 of Test 10, 6c of Test 17, 4 and 8 of Test 12): all Pass, but the owner's note of step 4c2 says the orangutan has sparkles, which is open for the tester to confirm. Open failures: step 6b of Test 27 (issue #431) and step 4g of Test 23 (issue #432)). Tests 1, 2, 3, 4, 6, 8, 8b, 9, 10, 11, 15 and 17 have no open step (all steps Pass), so they are not in the table; run them again only when their area changes. Tests 13 and 33 (iPhone) are for the next release (iOS, issue #415): they are at the end of the table and are not run for the first (Android) release:
+Tests the user has to run now (status on 2026-11-10 after run R7; the list is in the order to do them. R7 retested the steps of the closed issues #111 to #114 (4c2 of Test 10, 6c of Test 17, 4 and 8 of Test 12): all Pass; the owner's note of step 4c2 said the orangutan has sparkles, and the owner confirmed on 2026-11-10 (issue #436) that it showed hearts. Open failures: step 6b of Test 27 (issue #431) and step 4g of Test 23 (issue #432)). Tests 1, 2, 3, 4, 6, 8, 8b, 9, 10, 11, 15 and 17 have no open step (all steps Pass), so they are not in the table; run them again only when their area changes. Tests 13 and 33 (iPhone) are for the next release (iOS, issue #415): they are at the end of the table and are not run for the first (Android) release:
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
 | 34 | **New (join approval, issue #393). Built in 4 phases (2026-11-07); not run.** 2 phones and the real TV remote: the setting row and its default (1a to 1c), the card, its two buttons, OK, and BACK that does nothing on the card (2a to 2e), the waiting text and CANCEL on the phone (3a, 3b), the refusal, the timeout and a full queue (4a to 4c), a returning phone with no card (5a), the TV that closes while a phone waits (5b), a join during a round (6a), a held profile (6b), the Hebrew texts (7a), a child of 5 to 8 years (8a). The rules (queue, limits, the 60 s, the held profile, OFF) are planned as headless checks in `tests/join_approval.gd` (`docs/AUTOMATED_TESTS.md` when built) | The owner decided on 2026-11-07 (issue #385) that the host approves each new phone with the remote; the details are FD-30 and REQ-FL-93 to REQ-FL-104. All texts, the card, the 60 s and the 1 s guard are first guesses; the Hebrew is written by Claude |
-| 32 | **New game.** Bumper Cars with 2 to 4 phones: the tile against the game, a tester points at a star and a car, the FPS with 2 phones on the TV box, a child of 5 to 8 years, the how-to line (3 testers), the Hebrew texts (a Hebrew reader), the pixel look from the sofa. The tilt times, the stars, the hits, the buzz, the round and Easy and Hard are automated (`docs/AUTOMATED_TESTS.md`, A-32-*) | Bumper Cars was added on 2026-10-24 (`docs/games/bumper_cars.md`). Needed before it is merged. All values (speeds, hit speed, stars on the floor, rink size), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-29 that a hit takes no star (it was 1 star from each car); the how-to line says so since 2026-10-30 (issue #212) and the hint line is shorter (owner text, issue #191), so step 11a and the Hebrew reader (11b) read the new texts |
+| 32 | **New game.** Bumper Cars with 2 to 4 phones: the tile against the game, a tester points at a star and a car, a child of 5 to 8 years, the how-to line (3 testers), the Hebrew texts (a Hebrew reader), the pixel look from the sofa. The tilt times, the stars, the hits, the buzz, the round and Easy and Hard are automated (`docs/AUTOMATED_TESTS.md`, A-32-*) | Bumper Cars was added on 2026-10-24 (`docs/games/bumper_cars.md`). Needed before it is merged. All values (speeds, hit speed, stars on the floor, rink size), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-29 that a hit takes no star (it was 1 star from each car); the how-to line says so since 2026-10-30 (issue #212) and the hint line is shorter (owner text, issue #191), so step 11a and the Hebrew reader (11b) read the new texts |
 | 31 | **Open: items 10c, 12b, 13** (after run R7 of 2026-11-10; step 11 was removed on 2026-11-10; 11 of 14 steps are Pass or N/A in the Results table). | Freeze Dance was added on 2026-10-24 (`docs/games/freeze_dance.md`). Needed before it is merged. Every value (the wiggle level, the limit for "still", the grace time, the music and freeze lengths), the pictures, the song and the Hebrew texts are first guesses |
-| 30 | **New game.** Tower Builder with 1 to 4 phones: the tile against the game, a lost Wi-Fi during a turn (8a), the FPS with 1 phone on the TV box, a child of 5 to 8 years, a tester reads the plates, the brick and the tower are pointed at, Hebrew from the sofa. The swing, the drop, the miss, the topple, the turn times, the 12 bricks, the medals and a player that leaves are automated (A-30-*) | Tower Builder was added on 2026-10-23 (`docs/games/tower_builder.md`). Needed before it is merged. All values (the swing, the 12 bricks, the slack of the joints), the pictures, the song and the Hebrew texts are first guesses |
-| 29 | **New game.** Sheep Herding with 1 to 4 phones: the tile against the game, a tester points at the gate, an adult herds all the sheep in the time (4 and 6a), the FPS with 1 phone on the TV box, a child of 5 to 8 years, the how-to line, the Hebrew texts. The tilt times, how the sheep run, the buzz and the dog size are automated (A-29-*) | Sheep Herding was added on 2026-10-23 (`docs/games/sheep_herding.md`, issue #98). Needed before it is merged. All values (dog speed, the scare distance, the sheep speed, the gate, the time of a round), the pictures, the song and the Hebrew texts are first guesses; a Hebrew reader checks the 7 new texts |
+| 30 | **New game.** Tower Builder with 1 to 4 phones: the tile against the game, a lost Wi-Fi during a turn (8a), a child of 5 to 8 years, a tester reads the plates, the brick and the tower are pointed at, Hebrew from the sofa. The swing, the drop, the miss, the topple, the turn times, the 12 bricks, the medals and a player that leaves are automated (A-30-*) | Tower Builder was added on 2026-10-23 (`docs/games/tower_builder.md`). Needed before it is merged. All values (the swing, the 12 bricks, the slack of the joints), the pictures, the song and the Hebrew texts are first guesses |
+| 29 | **New game.** Sheep Herding with 1 to 4 phones: the tile against the game, a tester points at the gate, an adult herds all the sheep in the time (4 and 6a), a child of 5 to 8 years, the how-to line, the Hebrew texts. The tilt times, how the sheep run, the buzz and the dog size are automated (A-29-*) | Sheep Herding was added on 2026-10-23 (`docs/games/sheep_herding.md`, issue #98). Needed before it is merged. All values (dog speed, the scare distance, the sheep speed, the gate, the time of a round), the pictures, the song and the Hebrew texts are first guesses; a Hebrew reader checks the 7 new texts |
 | 28 | **Open: items 13b** (after run R7 of 2026-11-10; steps 11 and 13a were removed on 2026-11-10; 10 of 11 steps are Pass or N/A in the Results table). | Mole Bonk was added on 2026-10-23 (`docs/games/whack_a_mole.md`). Needed before it is merged. All values (the stay, the spawn time, the hit circle, the points), the pictures, the song and the Hebrew texts are first guesses |
 | 27 | **Open: items 1a, 3a, 6b, 11b, 11d** (after run R7 of 2026-11-10; steps 10 and 11e were removed on 2026-11-10; 9 of 14 steps are Pass or N/A in the Results table). Step 6b failed (issue #431). | Air Hockey and ROBO were added on 2026-10-23 (`docs/games/air_hockey.md`, REQ-GM-105, 106). Needed before they are merged. All values (the mallet and puck physics, the goal size, the levels of ROBO), the pictures, the song, the effects and the Hebrew texts are first guesses |
 | 26 | **New game.** Mini Golf with 1 to 4 phones: the aim by turning the phone and its lock at the back swing, the power of soft, medium and hard putts and the delay, the turns, the 5 holes (walls, rocks, hills, a ramp and slide, windmill with a door, lake and bridge), the words (birdie, par, bogey, hole in one, picked up), Easy, Medium and Hard help, the medal, a player that leaves, a child of 5 to 8 years, the pixel look from the sofa, the view from above, the white ball of the player on turn (steps 14d and 14e, new on 2026-11-03), light swings (step 16j, 2026-11-03), the phone passed to the next player and the hint on the phone (steps 16b3 and 16b4, 2026-11-06) | Mini Golf was added on 2026-10-17 (`docs/games/mini_golf.md`); its view was redesigned on 2026-11-03 (`docs/MINI_GOLF_REDESIGN.md`). Needed before it is merged. It uses the swing detector of tests 23 and 24, so run test 24 first. All values (swing thresholds, putt speeds, friction, the hole designs), the pictures, the song and the Hebrew texts are first guesses |
 | 25 | **New game.** Tennis with 1 to 4 phones: the two-phase swing (back, then forward; step 16h, 2026-11-03), the safety card with 3 children of 5 to 8 years (15c, 2026-10-30), toss with A and a serve swing from top to bottom, the hit window (the ring on the court, green and yellow, early and late swings), power and left or right aim, the characters that run by themselves, the ball and its shadow from the sofa, Real and Quick scoring, 2 against 1 and 2 against 2, the machine rally alone (medals), a player that leaves, a child of 5 to 8 years | Tennis was added on 2026-10-17 (`docs/games/tennis.md`). Needed before it is merged. It uses the swing detector of tests 23 and 24, so run test 24 first. All values (the hit window, the green zone, the ball speeds), the pictures, the song and the Hebrew texts are first guesses |
 | 24 | **New (swing detector for Tennis).** Debug overlay with 1 to 2 phones: no swing when still or walking, strokes (back, then forward) found with a power that grows from soft to hard, a serve from top to bottom says DOWN and a stroke from left to right does not, one swing for swing and back, a tap or shake is not a swing (also a sideways move or a slow shake, which the forward ratio rejects since 2026-10-29, issues #141 and #142), a sharp push counts, the side value of a swing to the left and to the right, the delay in ms, an iPhone | The Bowling swing detector was moved to `scripts/input/` and used for Tennis on 2026-10-17 (`docs/games/tennis.md`, REQ-TN-5 to 9). Needed before Tennis is built on it. Every threshold and the forward ratio (`FWD_RATIO`, 2026-10-29) is a first guess and is tuned from this test |
 | 23 | **Open: items 4g, 14a, 14b, 14c** (after run R7 of 2026-11-10; step 12 was removed on 2026-11-10; 17 of 21 steps are Pass or N/A in the Results table). Step 4g failed twice (issue #432). | Bowling was added on 2026-10-16 (`docs/games/bowling.md`). Needed before it is merged. It was only tested with made-up sensor values (the thresholds and the forward ratio `FWD_RATIO` were tuned on 2026-10-29 with made-up series only): the swing thresholds, the strip size, the ball speeds, the pictures, the song, the effects and the Hebrew text are first guesses |
-| 22 | **Open: items 11, 12b, 12i, 12j, 12k, 14a, 14b** (after run R7 of 2026-11-10; 9 of 16 steps are Pass or N/A in the Results table). | Star Shield was added on 2026-10-16 (`docs/games/asteroid_blast.md`). Needed before it is merged. All values (speeds, waves, upgrade times), the pictures, the song, the effects and the Hebrew text are first guesses |
+| 22 | **Open: items 12b, 12i, 12j, 12k, 14a, 14b** (after run R7 of 2026-11-10; step 11 was removed on 2026-11-10; 9 of 15 steps are Pass or N/A in the Results table). | Star Shield was added on 2026-10-16 (`docs/games/asteroid_blast.md`). Needed before it is merged. All values (speeds, waves, upgrade times), the pictures, the song, the effects and the Hebrew text are first guesses |
 | 21 | **Changed 2026-10-21 (join by room code, About screens); room code on the Games screen added 2026-11-01.** Open: steps 1c to 1e, the room code, always in the header of the Games screen (issue #172, REQ-FL-15a): read it from 3 m with 0 and with 4 players in English, and with 0 and 2 players in Hebrew. The other steps (join with the QR code, with the typed room code, an Android phone and an iPhone, one hand, the time to join, the About screens on the TV and on a phone, Hebrew) passed in R3 and R4 | The join PIN, the list of TVs and Refresh were removed on 2026-10-21 (issue #52, FD-28): the phone types the room code (the TV address in 4 letters) or scans the QR code, protocol version 5. Both apps have an About screen with the license notices (FD-25). Needed before it is merged. The texts are first guesses; a Hebrew reader checks the new texts |
 | 20 | **New (player profiles, phases A to C; items 16 and 17 added 2026-10-11).** Items 16 and 17: the dropdown and + on the Connect screen, the one-line avatar carousel, Back and Save at the bottom, no PLAYER button when joined, the avatar on the HUD chips and no number or avatar on any game object. Phase C: personal bests (NEW BEST! on the phone, a worse round, the bests after a restart, no best in the maze and Sumo). Phase B: share a player by QR to a second phone (distance, time, brightness), a rename merge, an iPhone that imports with IMPORT (PASTE A CODE and the player list were removed on 2026-11-02), a broken code, step 12e. Phase A: 2 to 4 phones, one profile each with a name and an avatar, a guest, a parent phone with 3 profiles, the same profile on 2 phones, `Sam` and `sam`, the pause card with names, all 32 avatars from the sofa and the scrolling picker, a child of 5 to 8 years, Hebrew names | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). Needed before it is merged. The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
 | 19 | **New (leader chip, phone score).** Banana Party, Paint Grab and Sumo Bumpers with 4 phones, two with names of 10 letters: one leader chip on one row, TIE, the place and score on each phone, Car Race and Treasure Maze, a child of 5 to 8 years, Hebrew. New items 8c and 8d (2026-10-30, issue #237): the new player colors cyan, orange, purple and pink, 4 testers and one with red-green color blindness | The row of 4 player chips wrapped and covered the play area (issue #25). Replaced on 2026-10-10 (FD-21, REQ-FL-67, REQ-GM-46; the name tags of the countdown were removed on 2026-10-21 by decision of the owner). Needed before it is merged. The sizes are first guesses |
@@ -482,7 +482,7 @@ History:
 
 ### Car Race
 
-Needs: 1 to 4 phones (2 to 4 for step 11a), 1 TV, a phone camera, a child of about 5 to 8 years for step 13h. Covers: REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 1 to 4 phones (2 to 4 for step 11a), 1 TV, a phone camera, a child of about 5 to 8 years for step 13h. Covers: REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n.
 
 Needs 1 to 4 phones (one phone is a time trial). Requirements: `docs/games/marble_race.md`. Start "Car Race" and pick a track.
 
@@ -502,7 +502,7 @@ Needs 1 to 4 phones (one phone is a time trial). Requirements: `docs/games/marbl
 14h. Zoom a photo of the TV to 300% on the edge of the road, on a wall and on the finish line. Check: all 3 places are made of square steps with no blended pixel (3 of 3). Count the rows of the finish line. Check: 2 rows of black and white cells, each cell 16 px wide at 1080p (14 px to 18 px). Look at the ground. Check: a chess board that repeats. (REQ-MR-44)
 14i. In each theme, from 3 m, a tester names the ground, the road and the walls. Check: Candy: pink chess ground with sprinkles, cream road with pink dashes, candy cane walls; Space: starry sky, metal road of panels, glowing cyan walls; Jungle: dark green ground with grass, dirt road with specks, leafy hedges (9 of 9 named right by each of 3 testers). An obstacle is 48 px or more high (12 world pixels) in a photo with a ruler (3 of 3 kinds). Start the same track twice. Check: the obstacles stand in the same places both times (3 of 3 tracks). (REQ-MR-46)
 
-Items 1a, 1b, 1d, 2a, 2b, 3a, 3b, 5a, 5b, 7a, 7b, 8a, 8b, 9a to 9e, 11b, 11c, 12a to 12d, 13a, 13c, 13d, 13f and 13g moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-9-1 to A-9-13). Item 1c keeps the reading from 3 m, item 6 keeps the frame rate on the TV box (it also holds the frame rate of old item 12d), item 13b keeps the naming of the pictures. Item 13e stays manual until the owner has decided which list of scenery is right (see the notes of this change); the geometry of the scenery (no piece on the road, no two pieces overlap) is checked by A-9-13e. Items 4 and 10 were removed earlier (10 is A-9-10). The numbers of the other items do not change. The result menu with Try again, New game and Back to menu is covered by A-11-1 and A-11-5.
+Items 1a, 1b, 1d, 2a, 2b, 3a, 3b, 5a, 5b, 7a, 7b, 8a, 8b, 9a to 9e, 11b, 11c, 12a to 12d, 13a, 13c, 13d, 13f and 13g moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-9-1 to A-9-13). Item 1c keeps the reading from 3 m, item 6 was removed (2026-10-25), item 13b keeps the naming of the pictures. Item 13e stays manual until the owner has decided which list of scenery is right (see the notes of this change); the geometry of the scenery (no piece on the road, no two pieces overlap) is checked by A-9-13e. Items 4 and 10 were removed earlier (10 is A-9-10). The numbers of the other items do not change. The result menu with Try again, New game and Back to menu is covered by A-11-1 and A-11-5.
 
 Measurements (no pass or fail): note how the car feels at `ACCEL` and `DAMPING` and tell the owner if a constant needs a change. The winning times of the 69 races of `tests/race_bot.gd` are printed by that test.
 
@@ -524,6 +524,7 @@ Measurements (no pass or fail): note how the car feels at `ACCEL` and `DAMPING` 
 | 14i | Note: the answers; photo with the ruler; the 3 tracks | Pass | R7 |  | R7: Pass Added 2026-10-31 (issue #306). |
 
 History:
+- 2026-11-10 (REQ-GM-50 dropped): Owner decision of 2026-11-10 (issue #440, the owner answered: remove the FPS steps on the TV box; the owner has 1 Android phone and no TV box). This test has no FPS step now (Test 9 step 6 and Test 10 step 7c were removed on 2026-10-25); REQ-GM-50 is dropped from the Covers line, and the old frame-rate notes in the text and in the Measurements table are removed. The cost of a frame with 4 phones stays automated (`frame_cost`, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device).
 
 - 2026-11-10 (recorded; R7 in the tracker): Pass: steps 14a, 14c, 14d, 14e, 14g, 14h, 14i. Steps 14b and 14f (4 phones) were marked N/A by the owner ("remove step, i don't have 4 phones. try automating.") and are removed. 14b: the one leader chip in the bar and the 4 result rows are A-9-14b (`layout_menus`) and A-11-3, A-11-3a, A-11-3b; 14f: the leader in view, the arrows with the meters and the middle of the pack are the new A-9-14f (REQ-MR-41, 42).
 - 2026-10-25 (N/A): step 6 (4 phones, Hard track, 3 themes) was removed (the tester has one phone). The frame rate with 4 phones is still a step in other tests; the track and theme looks stay in the other steps.
@@ -537,7 +538,7 @@ History:
 
 ### Banana Party (pointer)
 
-Needs: 1 to 4 phones, 1 TV, a second phone with an angle app (or a paper protractor), and a child of about 5 to 8 years for steps 9a and 9b. Covers: REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, a second phone with an angle app (or a paper protractor), and a child of about 5 to 8 years for steps 9a and 9b. Covers: REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37.
 
 Hold each phone like a remote control, pointing at the TV, from the sofa (about 3 m). This is the first game that uses the
 gyroscope pointer, so this test also checks the pointer itself (the old Test 5 for drift was removed).
@@ -563,7 +564,7 @@ Items 1a, 1b, 1c, 2a, 2b, 4a, 4b, 4d, 4e, 5b to 5e, 6a to 6c, 7a, 7b, 8a, 8b, 10
 |------|---------------------|--------|-----|----------|-------|
 | 3a | Photo at the start and at 40 s; the drift in % of the screen width | Pass | R3 |  | Now one real phone. The simulated gyro is in A-10-3a. |
 | 3b | Video of RECENTER, the cursor in the middle | Pass | R3 |  |  |
-| 4c2 | Video of the cheers of the elephant, the orangutan and the monkey | Pass | R7 |  | R7: Pass - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Before (R4): Retest - R4: Fail - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Now holds the water, the hearts and the sparkles of old item 4b. Issue #111. |
+| 4c2 | Video of the cheers of the elephant, the orangutan and the monkey | Pass | R7 |  | R7: Pass - the owner confirmed on 2026-11-10 (issue #436) that the orangutan showed hearts (REQ-SS-13); the words "the orangutan has sparkles" in the earlier note were copied from R4. The result (Pass, ticked by the owner) does not change. Before (R4): Retest - R4: Fail - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Now holds the water, the hearts and the sparkles of old item 4b. Issue #111. |
 | 5a2 | Photo of the animals; the six names that were given | Pass | R7 |  | R7: Pass. Before (R4): N/A - R4: N/A - don't understand what needs to be tested and verified (the step was written again in plainer words on 2026-11-10). The crown of old item 5d is A-10-5a. |
 | 9a | The age of the child; short video (only with the permission of the parent) | Pass | R3 |  |  |
 | 9b | The words of the child; yes or no for "again?" | Pass | R3 |  |  |
@@ -575,11 +576,11 @@ Measurements (not a test; no pass or fail). Write these values in the Notes colu
 | Value | Step | Result | Run | Notes |
 |-------|------|--------|-----|-------|
 | Drift after 40 s still (% of the screen width) | 3a | | | |
-| Frame rate with 4 phones (aim 60) | 7c | | | |
 
 History:
+- 2026-11-10 (REQ-GM-50 dropped): Owner decision of 2026-11-10 (issue #440, the owner answered: remove the FPS steps on the TV box; the owner has 1 Android phone and no TV box). This test has no FPS step now (Test 9 step 6 and Test 10 step 7c were removed on 2026-10-25); REQ-GM-50 is dropped from the Covers line, and the old frame-rate notes in the text and in the Measurements table are removed. The cost of a frame with 4 phones stays automated (`frame_cost`, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device).
 
-- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 4c2, 5a2, 12a. Step 4c2: the tester ticked Pass but the note says "the orangutan has sparkles" (REQ-SS-13 says hearts and no sparkles); the note is the same as the R4 note. Waiting for the tester to confirm: issue #436. Step 5a2: the tester wrote "don't understand what needs to be tested and verified": the step was written again in plainer words (same check, 6 of 6).
+- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 4c2, 5a2, 12a. Step 4c2: the tester ticked Pass but the note said "the orangutan has sparkles" (REQ-SS-13 says hearts and no sparkles). The owner answered on 2026-11-10 (issue #436): the orangutan showed hearts, and the note was a leftover of R4. The note is corrected; the result Pass does not change. Step 5a2: the tester wrote "don't understand what needs to be tested and verified": the step was written again in plainer words (same check, 6 of 6).
 - 2026-10-25 (R4 notes): step 7c (4 phones) was removed (one phone only). Step 5a2 was written again in simpler words (a second person names the six animals; same check, 6 of 6). Step 4c2 failed: issue #111.
 - 2026-10-21 (automated): item 10c moved to the automated tests (`auto_banana_b`: the most animals with 1 phone, 5, 4 and 3). Item 4c was split (the closed eyes and three cheers are automated, 4c2 keeps the water, hearts and sparkles) and item 5a was split (the crown is automated, 5a2 keeps the six names).
 - 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 11f). Each new step keeps the result of the old step with the same number. Step 8a follows the 3 s rule of REQ-GM-30 (the owner asked for 2 to 3 seconds, built as 3 s in issue #56).
@@ -799,7 +800,7 @@ History:
 
 ### Sumo Bumpers (tilt and A)
 
-Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for step 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for step 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody`), the bounce, the dash and the difficulty values are first guesses. "Full tilt" means the phone is tilted about 45 degrees. Record videos at 30 frames per second or more.
 
@@ -808,7 +809,6 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 6b. Check the phone that fell. Check: the phone buzzes at the fall (yes or no). (REQ-SB-11)
 8a. Let a child of about 5 to 8 years play 1 match, with a grown-up next to them. The grown-up reads the hint line once and says nothing more. Check: the child makes the bumper move in the first 10 seconds, and nobody touches the phone for the child. Write down the age. (REQ-SB-9, REQ-GM-80 to 84)
 8b. Check the child during the match. Check: the child plays all 3 rounds to the end without asking to stop or crying, also after a fall, and answers "yes" when asked "again?" (yes or no). (REQ-SB-9, REQ-GM-80 to 84)
-10. Play with 2 phones on Hard on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-15-10, issue #132).
 11e2. Zoom a photo of the TV to 300% on the edge of the island and on the edge of a cloud. Check: both edges are made of square steps, with no soft (blended) pixel at either edge (2 of 2). (REQ-GM-47i to 47n, REQ-SB-15. The view of 480 x 270 pixels, the whole scale and the nearest filter are checked by A-15-11e.)
 11g. From 3 m, read the word "WHEE!" and the round banner. Check: the tester reads both aloud without error. (REQ-SB-15, REQ-FL-40)
 12a. Look at the pad of a phone while the match runs. Check: the pad shows the green button A alone, in the middle of the row, and no button B and no RECENTER box (3 of 3). (REQ-GM-37a, issue #80)
@@ -823,7 +823,6 @@ Items 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-15-2, A-15
 | 6b | Note: buzz felt, yes or no | Pass | R7 |  | R7: Pass |
 | 8a | The age of the child; what the child did in 10 s | Pass | R7 |  | R7: Pass |
 | 8b | The words of the child; yes or no for "again?" | Pass | R7 |  | R7: Pass |
-| 10 | Overlay screenshot (FPS) with 2 phones on the TV box | Pass | R7 |  | R7: Pass Wording fixed 2026-11-01: the game needs 2 to 4 phones, so "1 phone" could not be done. |
 | 11e2 | Zoomed photo of the island edge and of a cloud edge | Pass | R7 |  | R7: Pass |
 | 11g | Note: the texts that were read; the TV (1080p or 4K) | Pass | R7 |  | R7: Pass |
 | 12a | Photo of the pad during the match | Pass | R7 |  | R7: Pass |
@@ -836,8 +835,9 @@ Measurements (not a test; no pass or fail). Write these values in the Notes colu
 | The TV (1080p or 4K) | 11g | | | |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 10) is removed: nobody can do it now. The step had the result Pass in R7 (the screenshot of the FPS with 2 phones on the TV box); that result is removed with the step. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-15-10, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
-- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 6b, 8a, 8b, 10, 11e2, 11g, 12a, 13a. Step 13b (3 phones) was marked N/A by the owner ("remove step, i don't have 3 phones. try automating.") and is removed: the leader chip, TIE, the score of each phone and the pad with A only are the new A-15-13b (REQ-SB-14).
+- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 6b, 8a, 8b, 10 (step 10, the FPS on the TV box, was removed the same day, issue #440), 11e2, 11g, 12a, 13a. Step 13b (3 phones) was marked N/A by the owner ("remove step, i don't have 3 phones. try automating.") and is removed: the leader chip, TIE, the score of each phone and the pad with A only are the new A-15-13b (REQ-SB-14).
 - 2026-11-01: step 10 says 2 phones (it said 1 phone, but the game needs 2 to 4 phones, `min_players` 2).
 - 2026-10-21 (decision of the owner, REQ-GM-35): Sumo Bumpers has no timer, so it has no countdown. A round starts at once; step 11g lost the countdown digits (no result recorded, it was not run). No recorded result changed.
 - 2026-10-21 (automated): items 4b, 11c and 11f moved to the automated tests (`auto_sumo_b`). Item 11e was split: the view size, the scale and the filter are automated, 11e2 keeps the photo of the edges. The suite fails on step 11c today: the slowest cloud moves under 4 % of the view in 10 s (REQ-SB-15 says 2 to 3 world pixels per second).
@@ -1136,7 +1136,7 @@ History:
 
 ### Star Shield (tilt, waves, upgrades)
 
-Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9c. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9c. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 Hold each phone upright or flat as you do for the other tilt games. New game (2026-10-16). Every number (ship speed, the rate of fire, the asteroid speeds, the waves, the upgrade times) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
@@ -1148,7 +1148,6 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 9a. Let a child of about 5 to 8 years play, with a grown-up next to them who does not help. Check: the child points at its own ship within 10 s after Start (there is no countdown).
 9b. Same child. Check: the child moves the ship from the middle to the left side of the screen within 30 s after Start, with no help.
 9c. Same child. Lose the ship of the child on purpose while another ship flies. Check: the child is still at the game 30 s later (does not stop and does not give the phone back). Ask: "Play again?". Check: the child says yes (1 of 1 children asked).
-11. Play with 1 phone on Hard until wave 8 or later on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-22-11, issue #132).
 12b. From 3 m, look for the objects. Check: you can point at all of these: stars, the far dark world, an asteroid with craters, a ship, a beam, an upgrade and an explosion.
 12f. Take a close photo of the TV (30 cm). Check: the edges of the ship and of an asteroid are steps of square pixels, with no blurred edge and no gradient inside a color area.
 13a. Look at the pad of a phone while the game runs. Check: the pad shows no button A, no button B and no RECENTER box (3 of 3). (REQ-GM-37a, issue #80)
@@ -1174,7 +1173,6 @@ Measurements (write down, no pass or fail): the real delay from a tilt to the sh
 | 9a | Note: the child, the age, seconds until it points | Pass | R6 |  | R6: Pass |
 | 9b | Note: seconds until the ship is at the left side | Pass | R6 |  | R6: Pass |
 | 9c | Note: the child is still at the game after 30 s (yes or no); the answer | Pass | R6 |  | R6: Pass |
-| 11 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 12b | Note: the seven objects, each yes or no | Not run | | | |
 | 12f | Close photo of the TV (30 cm) | Pass | R6 |  | R6: Pass |
 | 13a | Photo of the pad while the game runs | Pass | R6 |  | R6: Pass |
@@ -1186,6 +1184,7 @@ Measurements (write down, no pass or fail): the real delay from a tilt to the sh
 | 14b | Note: buzzes per event; the sounds heard (of 7) | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 11) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-22-11, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-11-10 (recorded; R6 in the tracker): Pass: steps 1b, 2e, 3c, 9a, 9b, 9c, 12f, 13a, 12h. R6: step 11 passed on the old text (4 phones on Hard until wave 8) and step 12b on the old list of objects (the planet with the ring); both stay Not run because the steps changed (11 is 1 phone on the TV box now, A-22-11). Step 2e: the owner noted that the hint is the description of the game and that the test needed to change: the step says now which text it is. Step 12g: see below. Step 12g (4 phones) was marked N/A by the owner ("don't have 4 phones, remove this step or automate if possible") and is removed: the 4 ship colors are told apart by A-22-12g (REQ-AB-*, REQ-GM-46).
 - 2026-10-21 (decision of the owner, REQ-GM-35): Star Shield has no timer, so it has no countdown: wave 1 starts at once after Start. Steps 2e, 9a and 9b say "after Start" instead of "3, 2, 1" and "GO" (they were not run). No recorded result changed.
@@ -1333,7 +1332,6 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 12b. Same child. Check: the child serves a ball in play (over the net, inside the box) within 5 tries.
 12c. Same child. Check: the child returns a ball at least once in the first 3 min of a rally.
 12d. After the match, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
-13. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-25-13, issue #132).
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester calls "in" or "out" at the moment of the bounce for 10 balls. Check: at least 8 of 10 calls agree with the banner ("OUT" or no banner). The ball and its shadow are visible.
 14b. With 4 phones, from 3 m, each tester names the shirt color of the two far characters. Check: 2 of 2 answers are right for each of 3 testers (3 of 3 testers).
 14c. From 3 m, read aloud the scoreboard and one banner. Check: no error.
@@ -1366,7 +1364,6 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 12b | Note: tries until a served ball | Not run | | | |
 | 12c | Note: returns in 3 min | Not run | | | |
 | 12d | Note: the answer of the child | Not run | | | |
-| 13 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 14a | Note: calls that agree, of 10 | Not run | | | |
 | 14b | Note: answers of each tester | Not run | | | |
 | 14c | Note: errors made when reading | Not run | | | |
@@ -1384,6 +1381,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 16h | Note: hits on the forward move (of 10), on back-only (of 10), on forward-only (of 10) | Not run | | | Added 2026-11-03 (two-phase swing). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 13) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-25-13, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-21 (decision of the owner, REQ-GM-35): a Tennis match of 2 to 4 players has no timer, so it has no countdown and starts at once after Start; only the solo machine rally keeps the 3 s countdown. Steps 2b and 12a say "after Start" (not run). No recorded result changed.
 - 2026-10-21 (automated): 10 steps moved to the automated tests (`r4_tennis`, `smoke_tennis_phones`). `r4_tennis` is red today on three known bugs: no sparks in the code (5a), the other team shows place 3 and not 2 (9e), and a new rally starts about 3.4 s after a miss (10b said 1.5 to 2.5 s).
@@ -1408,7 +1406,6 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 12b. Same child. Check: the child turns the phone and the aim mark moves to the left side within 30 s after the first plate "<NAME>'S TURN!", with no help.
 12c. Same child. Check: the child putts the ball (one stroke counted) within 60 s after the first plate, with no help.
 12d. After the match, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
-13. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-26-13, issue #132).
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the ball each time you say "mark" while it rolls on hole 5. Check: the finger points at the ball in 5 of 5 tries. Check: the ball is 32 px high on the screen at 1080p (photo; 32 px is an exception to the 48 px of REQ-GM-47e for this game, owner 2026-11-03). (REQ-GM-47e)
 14b. From 3 m, ask a tester to point at the golfer and then at the windmill. Check: both answers are right for each of 3 testers (3 of 3 testers).
 14c. From 3 m, read aloud the names and strokes in the bar and one banner. Check: no error.
@@ -1447,7 +1444,6 @@ Measurements (write down, no pass or fail): the turn angle that moves the aim ma
 | 12b | Note: seconds until the mark moves | Not run | | | |
 | 12c | Note: seconds until the first stroke | Not run | | | |
 | 12d | Note: the answer of the child | Not run | | | |
-| 13 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 14a | Note: right answers of 5; photo of the ball with its height in px | Not run | | | |
 | 14b | Note: answers of each tester | Not run | | | |
 | 14c | Note: errors made when reading | Not run | | | |
@@ -1468,6 +1464,7 @@ Measurements (write down, no pass or fail): the turn angle that moves the aim ma
 | 16k | Note: lines at the cup at the start of the turn (of 5), the putts toward the cup after a hit (of 5), moves of the feet needed (0), the angle for 30 degrees | Not run | | | Added 2026-11-05 (the straight ahead of the phone is the cup). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 13) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-26-13, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-21 (decision of the owner, REQ-GM-35): Mini Golf has no timer, so it has no countdown: the first turn starts at once after Start, with the turn banner and the turn buzz. Step 12a says "after Start" (not run). No recorded result changed.
 - 2026-10-21 (automated): 11 steps moved to the automated tests (`r4_golf`). Step 3b was split (3b2). `r4_golf` is red today on one known bug: the ball starts to move at swing age 0, while the club reaches it at 0.12 s (step 5b).
@@ -1583,7 +1580,7 @@ History:
 
 ### Sheep Herding (tilt, a team herds the sheep into the pen)
 
-Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-23). It was only tested with made-up sensor values. Every number (the speed of the dogs, how far a dog scares a sheep, how fast a sheep runs, the gate, the time of the round, the pictures, the song and the Hebrew texts) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. The sheep and the dogs run by themselves, so do not count on the same round twice.
 
@@ -1593,7 +1590,6 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 2a. From 3 m, a tester points at the gate of the pen. Check: the finger points at the gap in the left fence (5 of 5 testers).
 4. Play alone on Easy, an adult. Check: the adult herds all 8 sheep into the pen in 90 s or less, in 2 of 3 rounds.
 6a. Play with 2 phones on Medium, 2 adults, who talk to each other. Check: the 2 adults herd all 11 sheep into the pen in 75 s or less, in 2 of 3 rounds.
-7. Play with 1 phone on Hard on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-29-7, issue #132).
 8a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own dog (the one in the color of its phone) within 10 s after GO.
 8b. Same child. Check: the child moves its dog next to a sheep and the sheep runs away, within 30 s after GO, with no help.
 8c. Same child. Check: at least 1 sheep is in the pen at the end of the round, with no help.
@@ -1621,7 +1617,6 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 | 2a | Note: right answers of 5 | Not run | | | |
 | 4 | Note: sheep and seconds in each of 3 rounds | Not run | | | |
 | 6a | Note: sheep and seconds in each of 3 rounds | Not run | | | |
-| 7 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 8a | Note: the child, the age, seconds until it points | Not run | | | |
 | 8b | Note: seconds until the sheep runs | Not run | | | |
 | 8c | Note: sheep in the pen | Not run | | | |
@@ -1638,6 +1633,7 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 | 10h | Note: answers of each tester; errors in reading | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 7) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-29-7, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-24 (automated): steps 2b, 3a, 3b, 5a, 5b, 6b moved to the automated tests (smoke_sheep, sheep_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23).
@@ -1646,7 +1642,7 @@ History:
 
 ### Tower Builder (turns, swing, drop, wobble, 12 bricks)
 
-Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n.
 
 New game (2026-10-23). It was tested only with made-up button presses. Every number (the swing, the 12 bricks, the widths of the bricks, the 24 px of overlap, the 8 px of slack, the turn times) is a first guess; write what you measure in the Notes.
 
@@ -1658,7 +1654,6 @@ New game (2026-10-23). It was tested only with made-up button presses. Every num
 9b. Same child. Check: the child drops at least 2 bricks that stay in a game of 12 bricks (yes or no). (REQ-TB-11, REQ-GM-96)
 9c. Same child. Check: the child plays to the end without asking to stop or crying (yes or no), also after a topple (yes or no). (REQ-GM-83)
 9d. After the game, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
-10. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-30-10, issue #132).
 11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester reads the plate "<NAME>'S TURN", "BRICK n OF 12" and one banner aloud. Check: no error when reading. (REQ-TB-19, REQ-FL-40)
 11b. From 3 m, a tester points at the brick that hangs on the crane and at the top brick of the tower. Check: both answers are right for each of 3 testers (3 of 3 testers), and the brick is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 48 px expected). (REQ-GM-47e, REQ-TB-18)
 12. Set the TV language to Hebrew and start a game. Check: the title and the plates are mirrored to the right side, the tower and the crane are not mirrored, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "בונים מגדל", "התור של ...", "קראש! חיחי!". (REQ-GM-47o, REQ-TB-19)
@@ -1681,7 +1676,6 @@ Measurements (write down, no pass or fail): the time for one drop that people re
 | 9b | Note: bricks that stayed | Not run | | | |
 | 9c | Note: yes or no for crying or stopping, also after a topple | Not run | | | |
 | 9d | Note: the answer of the child | Not run | | | |
-| 10 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 11a | Note: errors made when reading | Not run | | | |
 | 11b | Note: answers of each tester; photo of the brick with its height in px | Not run | | | |
 | 12 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
@@ -1691,6 +1685,7 @@ Measurements (write down, no pass or fail): the time for one drop that people re
 | 13d | Photo of the screen next to the photo of 1a; note: yes or no for each check | Not run | | | Added 2026-11-01 (issue #348). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 10) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-30-10, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-24 (automated): steps 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b, 13 moved to the automated tests (smoke_tower, tower_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23). The headless checks of the rules and the screens are in `tower_rules` and `smoke_tower` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
@@ -1754,7 +1749,7 @@ History:
 
 ### Bumper Cars (tilt, drive over stars and bump the others)
 
-Needs: 2 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9d. Covers: REQ-BC-* (`docs/games/bumper_cars.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 2 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9d. Covers: REQ-BC-* (`docs/games/bumper_cars.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-24). It was only tested with made-up sensor values. Every number (the speed of the cars, the size of the rink, the number of stars on the floor, the size of a bump, the 60 s of the round), the pictures, the song, the sounds and the Hebrew texts are first guesses. Changed 2026-10-29 (owner): a hit takes no star (it took 1 star from each car from 2026-10-24); a bump is only a bonk, a spark and a buzz (REQ-BC-7).
 
@@ -1762,7 +1757,6 @@ New game (2026-10-24). It was only tested with made-up sensor values. Every numb
 
 1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the red and white tent, the rink with its black rail, gold stars on the floor, and the cars.
 2a. From 3 m, a tester points at one star and at one car. Check: both answers are right for each of 5 testers (5 of 5 testers).
-7. Play with 2 phones on Hard on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-32-7, issue #132).
 9a. Let a child of about 5 to 8 years play with 2 phones on Easy, with a grown-up next to them who does not help. Check: the child points at its own car (the one in the color of its phone) within 10 s after GO.
 9b. Same child. Check: the child drives over at least 1 star within 30 s after GO, with no help.
 9c. Same child. Check: the child has at least 3 stars at the end of the round.
@@ -1782,7 +1776,6 @@ Measurements (write down, no pass or fail): the time that a car needs from the m
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the tile next to a photo of the game | Not run | | | |
 | 2a | Note: right answers of 5 | Not run | | | |
-| 7 | Overlay screenshot (FPS) with 2 phones on the TV box | Not run | | | Wording fixed 2026-11-01: the game needs 2 to 4 phones, so "1 phone" could not be done. |
 | 9a | Note: the child, the age, seconds until it points | Not run | | | |
 | 9b | Note: seconds until the first star | Not run | | | |
 | 9c | Note: stars at the end | Not run | | | |
@@ -1793,6 +1786,7 @@ Measurements (write down, no pass or fail): the time that a car needs from the m
 | 12b | Note: answers of each tester; directions right (of 4); reading errors | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 7) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-32-7, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-11-01: step 7 says 2 phones (it said 1 phone, but the game needs 2 to 4 phones, `min_players` 2).
 - 2026-10-24 (automated): steps 2b, 3a to 3c, 4a, 4b, 5a to 5d, 6a, 6b, 8a, 8b and 10 moved to the automated tests (`smoke_bumper_cars`, `bumper_rules`). Nothing was run on a device, so no result moved.
