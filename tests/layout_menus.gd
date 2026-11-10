@@ -101,6 +101,40 @@ func _run() -> void:
 		for n in NAMES[lang]:
 			all_names = all_names and names_shown.any(func(t: String) -> bool: return t.contains(String(n).to_upper()))
 		_check(all_names, "%s: every long name is in the list, none is cut" % lang)
+		# The buttons of a result menu are Try again, New game and Back to menu, 60 px (3.1 %) from the screen edge (Test 11.3a, 3b).
+		var buttons := _texts(game._menu_box).filter(func(c): return c is Button)
+		var wanted := ["minigame.restart", "minigame.new_game", "minigame.back_to_menu"]   # The buttons carry the text key.
+		var got := buttons.map(func(b): return String(b.text))
+		_check(got == wanted, "%s: the race results have the 3 buttons %s (%s)" % [lang, str(wanted), str(got)])
+		var edge_ok := not buttons.is_empty()
+		for b in buttons:
+			var r: Rect2 = b.get_global_rect()
+			edge_ok = edge_ok and r.position.x >= 1920.0 * 0.031 and r.end.x <= 1920.0 * (1.0 - 0.031)
+		_check(edge_ok, "%s: no button is closer than 3.1 %% of the screen width (59.5 px) to the left or right edge" % lang)
+		# One car finished, three did not (REQ-MR-9, REQ-FL-65): the places are 1st to 4th, the rows of the others say not finished.
+		board = Scoreboard.new([], true)
+		board.set_score(2, 41.5)
+		board.set_unfinished(0, 80.0)
+		board.set_unfinished(1, 120.0)
+		board.set_unfinished(3, 20.0)
+		game.open_results(board)
+		await _frames(3)
+		var rows := []
+		for l in game._menu_box.find_children("*", "Label", true, false):
+			if not l.get_parent() is GridContainer:
+				rows.append(String(l.text).to_upper())
+		rows = rows.slice(1)   # The first text is the title.
+		var places := [Lang.t("result.place_1"), Lang.t("result.place_2"), Lang.t("result.place_3"), Lang.t("result.place_4")]
+		var order := [2, 1, 0, 3]   # The finisher, then the others by how far they got.
+		var rows_ok := rows.size() == 4
+		for i in mini(rows.size(), 4):
+			rows_ok = rows_ok and rows[i].begins_with(String(places[i]).to_upper()) \
+					and rows[i].contains(String(NAMES[lang][order[i]]).to_upper())
+			rows_ok = rows_ok and (rows[i].ends_with(Lang.t("result.not_finished").to_upper()) == (i > 0))
+		rows_ok = rows_ok and rows[0].contains("41.5")
+		_check(rows_ok and _problems(game._menu_box).is_empty(),
+				"%s: 4 rows, places 1st to 4th, the finisher with its time and 3 cars not finished, all in the edge: %s"
+				% [lang, str(rows)])
 		# The pause menu and the card of a lost phone.
 		game.restart()
 		await _frames(5)

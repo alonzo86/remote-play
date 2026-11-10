@@ -479,6 +479,37 @@ func _pictures() -> void:
 					BlastLook.FLAME_A,
 					BlastLook.FLAME_B, BlastLook.OUTLINE])
 	_check(ships_ok, "every ship picture has whole pixels in the color of the player and 5 fixed colors")
+	# Test 22 12g: the 4 ships are told apart by the pixels of the pictures themselves, also with color blindness (REQ-GM-46a).
+	var hulls: Array = []
+	var hull_big := true
+	for col in Protocol.PLAYER_COLORS:
+		var img := BlastLook.ship_image(col, 0)
+		var colored := 0
+		var opaque := 0
+		var fixed := [Color("fcfcfc"), Color("5ad2ff"), BlastLook.FLAME_A, BlastLook.FLAME_B, BlastLook.OUTLINE]
+		for y in img.get_height():
+			for x in img.get_width():
+				var px := img.get_pixel(x, y)
+				if px.a == 0.0:
+					continue
+				opaque += 1
+				if fixed.all(func(f: Color) -> bool: return not px.is_equal_approx(f)):
+					colored += 1
+					if hulls.size() == Protocol.PLAYER_COLORS.find(col):
+						hulls.append(px)
+		hull_big = hull_big and float(colored) / float(opaque) >= 0.25
+	for i in hulls.size():
+		hull_big = hull_big and hulls[i].is_equal_approx(Protocol.PLAYER_COLORS[i])
+	_check(hulls.size() == 4 and hull_big,
+			"the hull of each ship picture has the color of its player and is at least a quarter of the picture")
+	var CbLint = preload("res://tests/palette_lint.gd")
+	for n in ["normal vision"] + CbLint.CB_MATRICES.keys():
+		var seen: Array = []
+		for h in hulls:
+			seen.append(h if n == "normal vision" else CbLint.simulate(h, CbLint.CB_MATRICES[n]))
+		var d := SimInput.min_delta_e(seen)
+		_check(hulls.size() == 4 and d >= CbLint.CB_MIN_DELTA_E,
+				"%s: the closest two ship hulls are %.1f delta E apart (%.0f or more)" % [n, d, CbLint.CB_MIN_DELTA_E])
 	var h: int = BlastLook.ship_image(Protocol.PLAYER_COLORS[0], 0).get_height()
 	_check(float(h) * BlastLook.PX / 1080.0 >= 0.044,
 			"a ship is %.1f %% of the screen height (4.4 %% or more) at 1080p and at 720p"

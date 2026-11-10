@@ -86,6 +86,7 @@ func _run() -> void:
 	await _grips()
 	await _weak_and_wait()
 	await _banners_and_turns()
+	await _four_names_sheet()
 	await _wait_time()
 	await _pause()
 	await _over_the_network()
@@ -410,6 +411,62 @@ func _weak_and_wait() -> void:
 	_check(g2.phase == g2.Phase.AIM and g2.rules.current_slot() == 0 and not g2.detector.aim_locked
 			and g2.rules.row_of(0).rolls.is_empty(),
 			"5 swings of the phone that is not on turn do nothing")
+
+
+## Test 23 14f (REQ-BW-12): 4 players, two names of 10 letters. The bar has the title and "FRAME N/10  BALL N" and no leader
+## chip, the
+## score sheet has one row for each of the 4 players with 10 cells each, and no name is cut.
+func _four_names_sheet() -> void:
+	print("four players with long names")
+	var ctx := await _new_game(4)
+	var game: Control = ctx.game
+	var names := ["WWWWWWWWWW", "Maximilian", "Ann", "Bo"]
+	for s in 4:
+		game.player(s).player_name = names[s]
+	_begin(game)
+	game.rules.record_roll(10)   # Player 0 has thrown a strike: the frame of the bar is still 1 for the next player.
+	var boxes: Array = []
+	var shell = load("res://scripts/game/shell.gd")   # The same script as the game uses.
+	shell.recorder = func(kind: String, ci: CanvasItem, rect: Rect2, info: Dictionary) -> void:
+		if ci == game:
+			boxes.append({"kind": kind, "rect": rect, "info": info})
+	await _frames(3)
+	shell.recorder = Callable()
+	var of_kind := func(k: String) -> Array: return boxes.filter(func(b): return b.kind == k)
+	var status: Array = of_kind.call("status")
+	var expect_text: String = Lang.f("bowling.frame", [game.rules.current_frame(), 10, game.rules.current_ball()]).to_upper()
+	var bar_ok: bool = not status.is_empty() and status[-1].info.text == expect_text and expect_text.begins_with("FRAME ")
+	_check(bar_ok and expect_text.contains("/10  BALL "),
+			"the bar says '%s' (%s)" % [expect_text, str(status[-1].info.text if not status.is_empty() else "-")])
+	_check(not of_kind.call("title").is_empty() and of_kind.call("leader").is_empty(),
+			"the bar has the title and no leader chip (REQ-BW-12)")
+	var chips: Array = of_kind.call("chip")
+	var rows := {}
+	for c in chips:
+		rows[c.info.name] = c.rect
+	var all_rows: bool = game.rules.rows.size() == 4
+	var cells_ok := true
+	for r in game.rules.rows:
+		cells_ok = cells_ok and BowlingRules.sheet_cells(r.rolls).size() == 10
+	var whole_names := true
+	var inside := true
+	var stacked: Array = []
+	for n in names:
+		whole_names = whole_names and rows.has(n)
+		if rows.has(n):
+			var need: float = game.name_column_width()
+			var need_name: float = shell.chip_width(n, 0.0, game.player(names.find(n)).avatar)
+			whole_names = whole_names and rows[n].size.x >= need_name - 0.5 and need >= need_name
+			inside = inside and rows[n].end.x <= 1920.0 - 60.0 and rows[n].end.y <= 1080.0 - 60.0
+			stacked.append(rows[n].position.y)
+	_check(all_rows and cells_ok and rows.size() == 4 and whole_names,
+			"the sheet has one row for each of the 4 players with 10 cells each, and each name chip holds its whole name (%s)"
+			% str(rows.keys()))
+	stacked.sort()
+	var one_each := stacked.size() == 4
+	for i in range(1, stacked.size()):
+		one_each = one_each and stacked[i] - stacked[i - 1] >= game.ROW_H - 0.5
+	_check(one_each and inside, "the 4 rows stand one under the other and inside the 60 px edge (y: %s)" % str(stacked))
 
 
 # ---- Items 6b, 8a: the banners and the turn order ----
