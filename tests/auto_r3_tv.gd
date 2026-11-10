@@ -90,7 +90,7 @@ func _run() -> void:
 ## hand with 200 steps of 0.05 s; the state of its alpha is read after every step.
 func _blinking_prompt() -> void:
 	print("the blinking prompt")
-	var blink: Label = UiKit.blinking("logo.press_ok_skip")
+	var blink: Label = UiKit.blinking("logo.press_ok_start")
 	var states: Array[bool] = []
 	for i in 200:
 		blink._process(0.05)
