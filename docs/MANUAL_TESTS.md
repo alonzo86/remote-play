@@ -30,7 +30,6 @@ Rules
 - 1 Android TV or streaming box, with the `tv` APK installed, and its remote control.
 - 1 to 4 Android phones with the `controller` APK. The phones need Google Play services (for the QR scanner).
 - 1 Wi-Fi network for all devices. Best: 5 GHz. Turn off VPN on the phones. A TV app on a desktop is **not** a TV box: say so in the Run log.
-- A phone camera (240 fps slow motion for Test 4).
 - Before every run: the current APKs are installed, **Invert axes** is off, and the TV and the phones are on the same Wi-Fi.
 
 ## Run log
@@ -69,7 +68,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 68, 83, 84 | Not run (next release, iOS, issue #415) |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Partial (see the result table) | R6 | |
 | [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Pass | R7 | |
-| [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-38a, 41a, 52, 53, REQ-GM-45, 46, FD-18 | Pass | R7 | |
+| [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-38a, 41a, 52, 53, REQ-GM-45, 46, FD-18 | Partial (see the result table) | R7 | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Pass | R7 | |
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip and phone score | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Not run | | |
@@ -526,7 +525,7 @@ Measurements (no pass or fail): note how the car feels at `ACCEL` and `DAMPING` 
 
 History:
 
-- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 14a, 14c, 14d, 14e, 14g, 14h, 14i. Steps 14b and 14f (4 phones) were marked N/A by the owner ("remove step, i don't have 4 phones. try automating.") and are removed. 14b: the one leader chip in the bar and the 4 result rows are A-9-1 and A-11-3; 14f: the leader in view, the arrows with the meters and the middle of the pack are the new A-9-14f (REQ-MR-41, 42).
+- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 14a, 14c, 14d, 14e, 14g, 14h, 14i. Steps 14b and 14f (4 phones) were marked N/A by the owner ("remove step, i don't have 4 phones. try automating.") and are removed. 14b: the one leader chip in the bar and the 4 result rows are A-9-14b (`layout_menus`) and A-11-3, A-11-3a, A-11-3b; 14f: the leader in view, the arrows with the meters and the middle of the pack are the new A-9-14f (REQ-MR-41, 42).
 - 2026-10-25 (N/A): step 6 (4 phones, Hard track, 3 themes) was removed (the tester has one phone). The frame rate with 4 phones is still a step in other tests; the track and theme looks stay in the other steps.
 - 2026-10-20 (not run): the steps were made measurable and split. Item 4 (feel) is removed. Items 8b and 9e are new checks (REQ-MR-8, REQ-MR-52). Item 11b changes with issue #55.
 - 2026-10-20 (automated): 29 steps moved to the automated tests (see the note above the Results table). The limit of old item 11b is 20 px (decided by the owner; measured 7.6 px in the test). The Hebrew wording check of old item 13g is a string review in the pull request.
@@ -564,8 +563,8 @@ Items 1a, 1b, 1c, 2a, 2b, 4a, 4b, 4d, 4e, 5b to 5e, 6a to 6c, 7a, 7b, 8a, 8b, 10
 |------|---------------------|--------|-----|----------|-------|
 | 3a | Photo at the start and at 40 s; the drift in % of the screen width | Pass | R3 |  | Now one real phone. The simulated gyro is in A-10-3a. |
 | 3b | Video of RECENTER, the cursor in the middle | Pass | R3 |  |  |
-| 4c2 | Video of the cheers of the elephant, the orangutan and the monkey | Pass | R7 |  | R7: Pass - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Before (R4): Retest - R4: Fail - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Now holds the water, the hearts and the sparkles of old item 4b. Issue #111. Retest (2026-11-06, issue #390): issue #111 was closed on 2026-10-25 with no pull request and no comment; the fix commit was not found in git (no commit names #111). Run it again: the orangutan must show hearts. The owner says he verified it on a device (told on 2026-11-07; run ID not remembered; no result recorded). The step stays Retest: only a run with a run ID makes it Pass. |
-| 5a2 | Photo of the animals; the six names that were given | Pass | R7 |  | R7: Pass - don't understand what needs to be tested and verified Before (R4): N/A - R4: N/A - don't understand what needs to be tested and verified The crown of old item 5d is A-10-5a. |
+| 4c2 | Video of the cheers of the elephant, the orangutan and the monkey | Pass | R7 |  | R7: Pass - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Before (R4): Retest - R4: Fail - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Now holds the water, the hearts and the sparkles of old item 4b. Issue #111. |
+| 5a2 | Photo of the animals; the six names that were given | Pass | R7 |  | R7: Pass. Before (R4): N/A - R4: N/A - don't understand what needs to be tested and verified (the step was written again in plainer words on 2026-11-10). The crown of old item 5d is A-10-5a. |
 | 9a | The age of the child; short video (only with the permission of the parent) | Pass | R3 |  |  |
 | 9b | The words of the child; yes or no for "again?" | Pass | R3 |  |  |
 | 11b | Note: the texts that were read aloud | Pass | R3 |  | Added 2026-10-10 (phase 4 of the arcade style). Look changed on 2026-10-16 (jungle, REQ-SS-12). |
@@ -618,7 +617,7 @@ Items 2a and 3c moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-11-2a
 
 History:
 
-- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 1a, 1b, 2b. Steps 3a and 3b (4 phones) were marked N/A by the owner ("remove step, i don't have 4 phones. try automating.") and are removed: the race results with 4 rows, the 3 buttons and the 60 px edge are A-11-3.
+- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 1a, 1b, 2b. Steps 3a and 3b (4 phones) were marked N/A by the owner ("remove step, i don't have 4 phones. try automating.") and are removed: the race results with 4 rows, the 3 buttons and the 60 px edge are A-11-3, A-11-3a and A-11-3b (`layout_menus`).
 - 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 3c).
 - 2026-10-20 (automated): item 2a (the same edge check as 3a, on the maze; the layout is tested for both) and item 3c (the colors and the order of the medals) moved to the automated tests. In 1b and 2b only what a person must see is left. REQ-GM-73a (the medal of the place with more than one player) is checked by `results_medals`.
 - -: **Not run**. New.
@@ -660,10 +659,10 @@ Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TEST
 | 1g | Photos from the sofa in English and in Hebrew; the seconds until the tester points at the tile | Pass | R7 |  | R7: Pass Row added 2026-10-31 (issue #303); step added for issue #225. |
 | 2 | Photos: tile next to the game, for each game | Pass | R4 |  |  |
 | 3b | Photo of the Car Race tile and of the running game | Pass | R4 |  | Same result as old item 3. Car Race and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
-| 4 | Photo of the tile and of the running game | Pass | R7 |  | R7: Pass Before (R3): Retest - R3: Fail - the tile shows 5 cursor rings instead of 4 Banana Party tile remade 2026-10-16 (a jungle, 4 players, a hit, a banana in the air). Issue #114. Retest (2026-11-06, issue #390): issue #114 was closed on 2026-10-25 with no pull request and no comment; no commit names #114. The tile may be the 2026-10-16 remake that the note names, but the R3 result is older than or equal to it. Count the rings at the next run. The owner says he verified it on a device (told on 2026-11-07; run ID not remembered; no result recorded). The step stays Retest: only a run with a run ID makes it Pass. |
+| 4 | Photo of the tile and of the running game | Pass | R7 |  | R7: Pass Before (R3): Retest - R3: Fail - the tile shows 5 cursor rings instead of 4 Banana Party tile remade 2026-10-16 (a jungle, 4 players, a hit, a banana in the air). Issue #114. |
 | 4b | Photo of the two tiles and of the running games | Pass | R7 |  | R7: Pass Added 2026-10-29 (issue #123). |
 | 5 | Photo of the tile and of the running game | Pass | R4 |  | Paint Grab tile remade 2026-10-16. |
-| 8 | Photo of the Bowling tile next to a photo of the game | Pass | R7 |  | R7: Pass Before (R4): Retest - R4: Fail - in the tile show the bawling tracks without the score board but fill the tile. currently there's a gray area in the bottom which doesn't look good Issue #112. Retest (2026-11-06, issue #390): issue #112 was closed on 2026-10-25 with no pull request and no comment; no commit names #112. Commit fb1e64b (2026-10-31, issue #304) made the bottom rows of every tile checked by a test (not confirmed to be this gray area), and 54f8dfb (issue #348) fitted the Bowling plates. Check the tile again. The owner says he verified it on a device (told on 2026-11-08; run ID not remembered; no result recorded). The step stays Retest: only a run with a run ID makes it Pass. |
+| 8 | Photo of the Bowling tile next to a photo of the game | Pass | R7 |  | R7: Pass Before (R4): Retest - R4: Fail - in the tile show the bawling tracks without the score board but fill the tile. currently there's a gray area in the bottom which doesn't look good Issue #112. |
 | 9 | Photo of the Tennis tile next to a photo of the game | Pass | R4 |  |  |
 | 10 | Photo of the Mini Golf tile next to a photo of the game | Not run |  |  | The tile was remade on 2026-11-03 (view from above, a golfer and one white ball). The R4 Pass was for the old tile and no longer counts: retest. |
 | 11 | Photos of the 15 settings views from the sofa; the number read without error | Retest | R4 |  | R4: Pass, counted 13 settings views (13 games then). Reset to Retest on 2026-11-01: the step counts 15 games. Count 15 at the next run. |
@@ -938,7 +937,7 @@ Items 1a to 1d, 2a, 2b, 2c, 2d, 3a to 3c, 4a, 4b, 6a, 6d, 7a, 8a and 8b moved to
 |------|---------------------|--------|-----|----------|-------|
 | 2e | A list of the sentences with wrong punctuation | Pass | R4 |  |  |
 | 4c | Photo of the Connect screen with the names; note from the Hebrew reader | Pass | R4 |  |  |
-| 6c | Same photos and the countdown | Pass | R7 |  | R7: Pass Before (R4): Retest - R4: Fail - change the string to צא instead of קדימה Issue #113. Retest (2026-11-06, issue #390): the owner confirmed "צא" in a comment on issue #113 (2026-10-25), but commit 53278b6 (2026-10-31, issue #351, made by Claude) set `marble_race.go` and the step text to "צאו" (plural), and no owner decision for the plural was found. Owner decision (issue #113, 2026-11-07): one player shows "צא", two or more show "צאו"; built, so this step stays Retest until it is run on the TV. |
+| 6c | Same photos and the countdown | Pass | R7 |  | R7: Pass Before (R4): Retest - R4: Fail - change the string to צא instead of קדימה Issue #113. Owner decision (issue #113, 2026-11-07): one player shows "צא", two or more show "צאו"; R7 ran it on the TV. |
 | 6e2 | Photos of the pause and result menus; note from the Hebrew reader | Pass | R4 |  |  |
 | 9b | Photos of phone and TV side by side, in both combinations | Pass | R7 |  | R7: Pass New 2026-10-29 (issue #171) |
 | 9c | Photo of the Settings screen before and after the tap; photo after the restart | Pass | R7 |  | R7: Pass New 2026-10-29 (issue #171) |

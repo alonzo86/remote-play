@@ -14,7 +14,7 @@ const FRAME_BUDGET_MS := 8.0   # 60 fps leaves 16.7 ms: half is for the drawing 
 const BURST := 60              # Frames that are timed in a row; the phones send between two bursts.
 const BURSTS := 8
 const PHONES := 4
-## Games that need a state that costs more than the start: Star Shield at wave 8 (Test 22 step 12g).
+## Games that need a state that costs more than the start: Star Shield at wave 8 (Test 22 step 11).
 const LATE_WAVE := 8
 
 var _checks := 0

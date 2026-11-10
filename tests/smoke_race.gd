@@ -252,7 +252,7 @@ func _spread_pack() -> void:
 	var colors_ok := true
 	for s in by_slot:
 		colors_ok = colors_ok and game.player(s).color == Protocol.PLAYER_COLORS[s]
-	_check(colors_ok and not by_slot.is_empty(), "each arrow is drawn in the color of its car")
+	_check(colors_ok and not by_slot.is_empty(), "each car that has an arrow plays in the color of its slot")
 	var lo := Vector2(INF, INF)
 	var hi := Vector2(-INF, -INF)
 	for s in 4:
