@@ -283,9 +283,12 @@ func _run() -> void:
 			"each language is written in its own language")
 	var pictures := logo.find_children("*", "TextureRect", true, false)
 	var picture: TextureRect = pictures[0] if pictures.size() > 0 else null
-	_check(picture != null and picture.texture.get_size() == Vector2(1600, 600) and picture.custom_minimum_size == Vector2(1200, 450)
-			and picture.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
-			"the logo screen shows the logo file at 3 screen pixels per logo pixel, with sharp pixels (REQ-FL-50)")
+	var art: AtlasTexture = picture.texture as AtlasTexture if picture != null else null
+	var used := Rect2(art.atlas.get_image().get_used_rect()) if art != null else Rect2()
+	_check(art != null and art.atlas.get_size() == Vector2(1600, 600) and art.region == used and used.size.x > 0
+			and int(used.position.x) % 4 == 0 and int(used.position.y) % 4 == 0 and int(used.size.x) % 4 == 0
+			and picture.custom_minimum_size == used.size and picture.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
+			"the logo screen shows the artwork of the logo file (no empty margins) at 4 screen pixels per logo pixel, sharp (REQ-FL-50)")
 	var splash := str(ProjectSettings.get_setting("application/boot_splash/image"))
 	_check(splash == "res://assets/logo/splash.png" and ResourceLoader.exists(splash)
 			and not ProjectSettings.get_setting("application/boot_splash/use_filter"),
@@ -536,6 +539,12 @@ func _device_language_checks(app: Node, tv_logo: GDScript, tv_connect: GDScript)
 	while Time.get_ticks_msec() - started < 3500:
 		await process_frame
 	_check(app.current_screen() == logo2 and Lang.current() == "he", "the logo does not go on by itself, in Hebrew")
+	var he_qr: Control = logo2.find_child("AppQr", true, false)
+	var he_title: Label = null
+	for l in logo2.find_child("AppCard", true, false).find_children("*", "Label", true, false):
+		he_title = l
+	_check(he_qr != null and he_title != null and he_qr.get_global_rect().position.x < he_title.get_global_rect().position.x,
+			"in Hebrew the QR code of the card is at the left of its title")
 	var accept2 := InputEventAction.new()
 	accept2.action = "ui_accept"
 	accept2.pressed = true
