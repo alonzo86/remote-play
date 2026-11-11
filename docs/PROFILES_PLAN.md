@@ -14,7 +14,7 @@ Decided by the owner on 2026-10-10 (this thread):
 1. There is no server and no account (REQ-P5). A login with Google or another service is **not** planned now. It could be added later only as an optional backup of the profiles, and the profile ID stays the identity. Not part of this plan.
 2. The phone does everything: a profile is made, changed, chosen and shared on the phone. The TV has no login, no keyboard entry and no profile screen.
 3. One phone can hold several profiles (a parent with several children). One phone is one controller, so one profile plays at a time. The phone decides when to switch; the TV does not ask.
-4. A player with a profile is called by the profile name everywhere the TV and the phone now say "Player N", "2P" or "P2". A phone without a profile is a guest and keeps the number.
+4. A player with a profile is called by the profile name everywhere the TV and the phone now say "Player N", "2P" or "P2". A phone without a profile is a guest and keeps the number (and, since 2026-11-11, shows the guest picture, section 7).
 5. The avatar is picked from a sprite sheet of pixel avatars, and can be changed later. On the TV the avatar takes the place of the player number.
 6. The best score of the player is kept in the profile on the phone. Every round counts.
 7. A profile can be copied to another phone with a QR code, one profile at a time. The code contains the best scores.
@@ -34,7 +34,7 @@ What this plan does not do: no profile data on the TV (so no shared leaderboard 
 | Profile list ("WHO IS PLAYING?"; removed on 2026-11-02, see the status note at the top) | One row for each profile: the avatar and the name. A tap on a row makes it the active profile. A row `GUEST` plays without a profile. The buttons are `NEW PLAYER`, `SCAN A PLAYER` and `PASTE A CODE` (see 2.3) and, on each row, `EDIT` and `SHARE`. When the list holds 8 profiles, `NEW PLAYER` is dim and a line says `8 PLAYERS IS THE MAXIMUM`. The list is reached from the Connect screen and from the waiting screen, only while the TV is in the phase `connect` or `menu`. When the phase changes to `playing`, `paused` or `waiting`, the phone closes the list, the edit, share and scan screens and hides any QR code. |
 | Edit | The name field (1 to 10 letters, the keyboard of the phone), the avatar picker (32 avatars, 6 in a row, the list scrolls by dragging, the picked one has a frame), `SAVE`, `DELETE`. `DELETE` asks `DELETE <name>?` first. The avatar can be changed here at any time. |
 | Share | A QR code of the profile and two lines (`COPY CODE` was removed on 2026-11-09, owner): everybody who scans the code gets this player and the best scores; the two phones do not stay in sync after the copy. The QR code goes away after 60 seconds (section 6.3). |
-| Waiting screen and pad | The colored square at the top shows the avatar instead of the slot number. The text next to it shows the profile name. A guest sees the slot number and `2P` as now. While the phone reconnects, the text says `Reconnecting...` as now. |
+| Waiting screen and pad | The colored square at the top shows the avatar instead of the slot number. The text next to it shows the profile name. A guest sees the slot number and `2P` as now, and the guest picture beside the square (section 7; owner, 2026-11-11). While the phone reconnects, the text says `Reconnecting...` as now. |
 
 The texts are English and Hebrew (REQ-FL-54).
 
@@ -50,7 +50,7 @@ The texts are English and Hebrew (REQ-FL-54).
 | Leader chip (REQ-GM-46) | the name and the score | no change: there is no number in it |
 | Debug overlay | `P2` | no change (it is a developer tool) |
 
-A guest keeps the slot number and the name `Player N`. Names that are the same on one TV get a number (section 4.3). Two names of 10 letters fit in the pause card title on one line.
+A guest keeps the slot number and the name `Player N` (and shows the guest picture, section 7). Names that are the same on one TV get a number (section 4.3). Two names of 10 letters fit in the pause card title on one line.
 
 ### 2.3 Copy a profile to another phone
 
@@ -213,6 +213,7 @@ If the phone has a profile with the same ID: the profile with the higher `rev` g
 - File: `assets/avatars/avatars.png`, 64 x 128 px, 32 cells of 16 x 16 px in 4 columns and 8 rows (decided by the owner on 2026-10-11: 32 avatars in the same style; the first 16 are unchanged), transparent background, the colors of the NES palette of `UiTheme` (REQ-FL-37), a 1 px dark outline on each avatar, no antialiasing. The index is row by row from the top left.
 - 32 friendly characters that a child of 5 years knows at once and that are different in their shape, not only in their color (animals and a robot, an alien, a ghost, a star; 16 to 31: lion, mouse, koala, cow, monkey, tiger, duck, turtle, bat, octopus, bee, dino, unicorn, ladybug, crab, wizard). The first version is drawn by Claude with a script that is kept in the project files, as for the logo; the owner changes the list if a picture does not work.
 - Rule: the avatar is drawn at a whole-number scale with the nearest filter, in the place of the number, centered in the colored square. It must be readable on all four slot colors and from the sofa. The pixel-world games draw the ball in the low-resolution layer and the number later on the HUD (`Shell.ball_number()`, `shell.gd:171`), and the 3D marble has its own number (`marble_race.gd:404`). Phase A lists every place and sets the size for each; a 16 x 16 sprite at 2x is 32 px, so the smallest ball radius is checked first.
+- **The guest picture (owner, 2026-11-11, option A of six mocks):** `assets/avatars/guest.png`, 16 x 16 px, a grey silhouette with a question mark, made by `tools/make_guest_avatar.gd`. It is not one of the 32 and not in the sheet, so a player cannot choose it: the picker has the 32 and `Profile.clean_avatar` takes 0 to 255, while the code uses `Protocol.GUEST_AVATAR` (1000) for it. `PlayerInput.avatar` stays -1 for a guest (what the phone sent and what the TV sends back: no protocol change); `PlayerInput.shown_avatar()` gives the guest picture for a player with no profile, and the TV draws that everywhere it draws an avatar (the Players list, the chips and the result rows, the card of a request, the hold card). The phone draws it in the pad header, the waiting screen and the guest row of the dropdown. It is imported like the sheet.
 - REQ-P6 gets the new allowed file. The file is imported without a filter and without mipmaps, like the logo, and `tests/design_tokens.gd` checks the import settings. A license line in `assets/avatars/README.md` says that the art is made for the project.
 - Both apps load the same sheet (the export presets export all resources, `export_presets.cfg`). The index stays valid for ever (section 3.1).
 

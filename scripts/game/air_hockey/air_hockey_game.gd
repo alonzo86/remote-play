@@ -92,7 +92,7 @@ func _start_match() -> void:
 	participants = _enrolled.duplicate()
 	seats.clear()
 	for s in participants:
-		seats.append({"slot": s, "name": player(s).player_name, "color": player(s).color, "avatar": player(s).avatar})
+		seats.append({"slot": s, "name": player(s).player_name, "color": player(s).color, "avatar": player(s).shown_avatar()})
 	if participants.size() == 1:
 		bot = HockeyBot.new(difficulty, 1, int(Time.get_ticks_usec()))
 		seats.append({"slot": -1, "name": Lang.t("air_hockey.bot_name"), "color": Look.BOT_COLOR, "avatar": -1})
@@ -295,5 +295,5 @@ func _draw_enroll() -> void:
 				32, UiTheme.TEXT)
 	for i in _enrolled.size():
 		var p := player(_enrolled[i])
-		var w := Shell.score_chip_width(p.player_name, Lang.t("setup.in"), 64.0, 250.0, Shell.CHIP_FONT, p.avatar)
-		Shell.score_chip(self, _chip_pos(i, w), p.player_name, Lang.t("setup.in"), p.color, w, 64.0, p.avatar)
+		var w := Shell.score_chip_width(p.player_name, Lang.t("setup.in"), 64.0, 250.0, Shell.CHIP_FONT, p.shown_avatar())
+		Shell.score_chip(self, _chip_pos(i, w), p.player_name, Lang.t("setup.in"), p.color, w, 64.0, p.shown_avatar())

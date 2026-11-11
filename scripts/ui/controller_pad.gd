@@ -384,11 +384,12 @@ func _draw() -> void:
 	draw_rect(square, square_color)
 	UiTheme.draw_centered(self, f, str(c.slot + 1), square, 56, UiTheme.text_on(square_color))
 	# The avatar is next to the color square, not on it (REQ-FL-70).
-	var has_avatar: bool = c.tv_pid != "" and Avatar.is_known(c.tv_avatar)
+	var shown: int = c.tv_avatar if c.tv_pid != "" else Avatar.GUEST   # A guest has its own picture (owner, 2026-11-11).
+	var has_avatar: bool = Avatar.is_known(shown)
 	if has_avatar:
 		var av := Rect2(Vector2(square.end.x + 10.0, square.position.y), square.size)
 		draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM, UiTheme.BG, 4), av)
-		Avatar.draw(self, av.grow(-5.0), c.tv_avatar)
+		Avatar.draw(self, av.grow(-5.0), shown)
 	var own: String = c.tv_player_name if c.tv_pid != "" else "%dP" % (c.slot + 1)
 	var status := own if online else Lang.t("connect.reconnecting")
 	var name_rect := _rect_name(has_avatar)

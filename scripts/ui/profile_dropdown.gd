@@ -5,6 +5,7 @@ extends VBoxContainer
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
+const Avatar = preload("res://scripts/ui/avatar.gd")
 const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 const PencilIcon = preload("res://scripts/ui/pencil_icon.gd")
 
@@ -22,7 +23,7 @@ func _ready() -> void:
 	row.add_theme_constant_override("separation", 16)
 	add_child(row)
 	var active = App.profiles.active()
-	_head = _row(active.avatar if active != null else -1, active.player_name if active != null else "connect.guest",
+	_head = _row(active.avatar if active != null else Avatar.GUEST, active.player_name if active != null else "connect.guest",
 			active != null, toggle, false, true)
 	_head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(_head)
@@ -61,7 +62,7 @@ func _fill() -> void:
 	_list.add_child(_row(-1, "connect.guest", false, _pick.bind(""), store.active_id == ""))
 
 
-## A framed row: the avatar (none for the guest), the name, and a triangle on the head row.
+## A framed row: the avatar (the picture of a guest for the guest), the name, and a triangle on the head row.
 func _row(avatar: int, text: String, is_name: bool, cb: Callable, marked: bool, head := false) -> Button:
 	var b := UiKit.box_button("", cb, UiTheme.SIZE_ITEM, marked)
 	b.custom_minimum_size = Vector2(0, ROW_H)

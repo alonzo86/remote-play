@@ -244,14 +244,18 @@ func _four_slots() -> void:
 			screen.queue_free()
 	_app.client = real_client
 	_check(on_screens, "the waiting screen and the pad of each phone take the color of its TV slot")
-	# The number in the square is the slot number: the TV says 1P to 4P in the same slot order.
+	# The TV list has a row for each of the 4 guests: color square, guest picture (it replaces the number, REQ-FL-70), READY.
 	var tv_slots: Control = _slot_list_script.new()
 	tv_slots.theme = _app.theme_res
 	root.add_child(tv_slots)
 	await _frames(3)
-	var numbers := _labels(tv_slots).filter(func(t): return t.ends_with("P"))
-	_check(numbers == ["1P", "2P", "3P", "4P"] and _labels(tv_slots).count("slot_list.ready") == 4,
-			"the TV lists 1P to 4P, all READY: %s" % str(numbers))
+	var pictures: Array = []
+	for n in tv_slots.find_children("*", "Control", true, false):
+		if n.get_script() != null and n.get_script().resource_path.ends_with("avatar_view.gd"):
+			pictures.append(n)
+	var pictures_ok: bool = pictures.size() == 4 and pictures.all(func(n: Node) -> bool: return n.index == Protocol.GUEST_AVATAR)
+	_check(pictures_ok and _labels(tv_slots).count("slot_list.ready") == 4,
+			"the TV lists the 4 guests, each with the guest picture (the number is not drawn), all READY: %d pictures" % pictures.size())
 	tv_slots.queue_free()
 	for c in phones:
 		c.leave()

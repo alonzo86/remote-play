@@ -218,7 +218,7 @@ func _update_hold() -> void:
 	for s in lost:
 		if not _hold_info.has(s):
 			_hold_info[s] = {"name": player(s).player_name, "color": player(s).color, "label": slot_label(s),
-					"avatar": player(s).avatar}
+					"avatar": player(s).shown_avatar()}
 	if not _hold:
 		return
 	if _menu_open and _menu_kind != "hold":
@@ -469,7 +469,7 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 		if e.finished:
 			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color,
-				"avatar": p.avatar, "cells": [Scoreboard.ordinal(e.rank), p.player_name, text]})
+				"avatar": p.shown_avatar(), "cells": [Scoreboard.ordinal(e.rank), p.player_name, text]})
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title

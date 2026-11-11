@@ -364,7 +364,7 @@ func name_column_width() -> float:
 	var w := NAME_W
 	for r in rules.rows:
 		if participants.has(r.slot):
-			w = maxf(w, Shell.chip_width(player(r.slot).player_name, 0.0, player(r.slot).avatar) + 6.0)
+			w = maxf(w, Shell.chip_width(player(r.slot).player_name, 0.0, player(r.slot).shown_avatar()) + 6.0)
 	return w
 
 
@@ -384,7 +384,7 @@ func _draw_sheet() -> void:
 			continue
 		var active: bool = r.slot == on_turn and not is_over
 		var p := player(r.slot)
-		var name_rect := Shell.chip(self, Vector2(x0, y), p.player_name, p.color, name_w - 6.0, ROW_H - 6.0, p.avatar)
+		var name_rect := Shell.chip(self, Vector2(x0, y), p.player_name, p.color, name_w - 6.0, ROW_H - 6.0, p.shown_avatar())
 		if active:
 			draw_rect(name_rect, UiTheme.ACCENT, false, 4.0)
 		var cells := BowlingRules.sheet_cells(r.rolls)
