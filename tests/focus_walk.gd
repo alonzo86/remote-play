@@ -430,7 +430,7 @@ func _quit_question() -> void:
 	# The Android Back key arrives as a notification, not as a key.
 	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
 	await _frames(4)
-	_check(connect._modal != null and quits[0] == 0, "the Back notification of Android opens QUIT SABABI? and does not quit")
+	_check(connect._modal != null and quits[0] == 0, "the Back notification of Android opens QUIT SABABI APP? and does not quit")
 	_check(_focus() != null and _focus().text == "connect.stay", "STAY has the focus")
 	_check(ProjectSettings.get_setting("application/config/quit_on_go_back", true) == false,
 			"the engine does not quit on Back by itself")

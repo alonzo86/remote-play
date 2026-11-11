@@ -485,7 +485,7 @@ func _qr_scan() -> void:
 	fake.scanned.emit("https://example.com")
 	_check(screen._status.text == Lang.t("connect.not_sababi_code").to_upper()
 			and screen._status.get_theme_color("font_color") == UiTheme.BAD,
-			"a scan of https://example.com says THIS IS NOT A SABABI CODE: '%s'" % screen._status.text)
+			"a scan of https://example.com says THIS IS NOT A SABABI APP CODE: '%s'" % screen._status.text)
 	_check(_app.client.state == ControllerClient.State.IDLE and _server.player_count() == 0, "and nothing is joined")
 	# A good code: joined in less than 5 s.
 	var url := "ws://127.0.0.1:%d/%s" % [_port, _server.room_code]

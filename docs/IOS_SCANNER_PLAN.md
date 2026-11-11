@@ -190,7 +190,7 @@ No existing row changes. Four new rows (key, English, Hebrew, where):
 |-----|---------|--------|-------|
 | `connect.scan_hint` | POINT THE CAMERA AT THE QR CODE ON THE TV! | כוונו את המצלמה אל קוד ה־QR שבטלוויזיה! | Phone (iPhone), scan view: help line over the camera picture |
 | `connect.scan_cancel` | CANCEL | ביטול | Phone (iPhone), scan view: button that closes the camera |
-| `connect.camera_denied` | THE CAMERA IS OFF FOR SABABI. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE. | המצלמה כבויה עבור SABABI. הפעילו אותה בהגדרות, או הקלידו את קוד החדר. | Phone, Connect screen: message after the player said no to the camera |
+| `connect.camera_denied` | THE CAMERA IS OFF FOR SABABI APP. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE. | המצלמה כבויה עבור אפליקציית SABABI. הפעילו אותה בהגדרות, או הקלידו את קוד החדר. | Phone, Connect screen: message after the player said no to the camera |
 | `connect.no_camera` | THIS PHONE HAS NO CAMERA. TYPE THE ROOM CODE. | אין מצלמה בטלפון הזה. הקלידו את קוד החדר. | Phone, Connect screen: message when the scan cannot start |
 
 No existing row has the text CANCEL, so none is reused. Hebrew keeps SABABI and QR in Latin letters, as the rules say. These rows are shown on the iPhone only; the key for the Android failure text, `connect.qr_failed`, does not change.
@@ -206,7 +206,7 @@ Needs: 1 iPhone, 1 Mac with Xcode, 1 TV with the Sababi TV app, a second phone f
 4a. Point the phone at the QR code on the TV from 30 cm to 1 m (note the distance range that reads). Check: the view closes and the phone is on the waiting screen within 3 seconds of the code being in the picture. (REQ-FL-89) Note: the time in seconds, 5 tries.
 4b. 4b. Scan a QR code of a shared player profile (a second phone, Share) with SCAN QR CODE. Check: the Connect screen shows the new player selected and its status line says PLAYER ADDED. (changed 2026-11-02: the player list is gone; 2026-11-06: the new player is selected). (REQ-FL-89)
 4d. Scan a good TV code with haptics on. Check: the phone buzzes once when the view closes (yes/no). (REQ-FL-89)
-4c. Scan a QR code of a web page. Check: the Connect screen shows "THIS IS NOT A SABABI CODE." and the camera is closed. (REQ-FL-89)
+4c. Scan a QR code of a web page. Check: the Connect screen shows "THIS IS NOT A SABABI APP CODE." and the camera is closed. (REQ-FL-89)
 5a. Open the scan view and tap CANCEL. Check: the view closes, the Connect screen shows no message, and the typed room code still joins. (REQ-FL-90)
 5b. Open the scan view and swipe down. Check: same result as 5a. (REQ-FL-90)
 5c. Open the scan view, press the home button and return. Check: the camera view is closed, no message; the green camera dot in the status bar is off. (REQ-FL-88, 90)
