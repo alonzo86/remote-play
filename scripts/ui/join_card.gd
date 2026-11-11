@@ -72,7 +72,7 @@ func _build() -> void:
 	var name_l := UiKit.label(_name_text(), 64, UiTheme.TEXT)
 	name_l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # A player name is never translated (REQ-FL-63).
 	name_l.text_direction = Control.TEXT_DIRECTION_AUTO
-	name_l.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY   # A name of 10 letters fits; a longer one would wrap, never shrink.
+	name_l.autowrap_mode = TextServer.AUTOWRAP_OFF   # One line always (owner, 2026-11-11): "Player 1" never breaks.
 	texts.add_child(name_l)
 	texts.add_child(UiKit.label("approval.wants", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC))
 	who.add_child(texts)

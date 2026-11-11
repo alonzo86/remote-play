@@ -391,6 +391,10 @@ func _card_and_flow() -> void:
 	var guest_views := _card().find_children("*", "Control", true, false).filter(func(n: Node) -> bool: return n is AvatarView)
 	_check(guest_views.size() == 1 and guest_views[0].index == Protocol.GUEST_AVATAR,
 			"a phone with no profile shows the picture of a guest (owner, 2026-11-11)")
+	var name_labels := _card().find_children("*", "Label", true, false).filter(func(n: Node) -> bool: return n.text == "CY")
+	_check(name_labels.size() == 1 and name_labels[0].autowrap_mode == TextServer.AUTOWRAP_OFF
+			and name_labels[0].get_line_count() == 1,
+			"the name on the card is one line, never wrapped (owner, 2026-11-11)")
 	c.ws.close()
 
 
