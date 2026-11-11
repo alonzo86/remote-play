@@ -178,7 +178,7 @@ And line 192 (release checklist, item 3) gets: "the App Store privacy answers (D
 
 | Key | English | Hebrew | where |
 |-----|---------|--------|-------|
-| `about.app_scans_with_apple` | The app scans the QR code with the camera of your iPhone. The picture stays on your phone and is not saved. Sababi gets only the text. | האפליקציה סורקת את קוד ה־QR באמצעות המצלמה של האייפון. התמונה נשארת בטלפון ולא נשמרת. SABABI מקבל רק את הטקסט. | About screen, iPhone: text of the QR scanner page |
+| `about.app_scans_with_apple` | The app scans the QR code with the camera of your iPhone. The picture stays on your phone and is not saved. SABABI app gets only the text. | האפליקציה סורקת את קוד ה־QR באמצעות המצלמה של האייפון. התמונה נשארת בטלפון ולא נשמרת. אפליקציית SABABI מקבלת רק את הטקסט. | About screen, iPhone: text of the QR scanner page |
 
 and `scanner_note` becomes true for iOS in `controller_connect.gd:44` (`about.qr_scanner` is reused as the page title).
 
