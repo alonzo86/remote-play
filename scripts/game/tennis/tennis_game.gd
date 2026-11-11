@@ -312,7 +312,7 @@ func draw_leader_chip(ci: CanvasItem) -> void:
 		for s in slots:
 			names.append(player(s).player_name)
 		chips.append({"player_name": " + ".join(names), "color": player(slots[0]).color,
-				"avatar": player(slots[0]).avatar if slots.size() == 1 else -1})
+				"avatar": player(slots[0]).shown_avatar() if slots.size() == 1 else -1})
 	Shell.leader_chip(ci, Shell.area_width(ci), chips, leader_text())
 
 

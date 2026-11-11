@@ -58,6 +58,8 @@ func _build() -> void:
 	var who := HBoxContainer.new()
 	who.add_theme_constant_override("separation", 24)
 	var av := int(request.get("av", -1))
+	if bool(request.get("guest", false)):
+		av = Avatar.GUEST   # A phone with no profile shows the picture of a guest (owner, 2026-11-11).
 	if Avatar.is_known(av):
 		var view := AvatarView.new(av, 128.0)
 		view.framed = false

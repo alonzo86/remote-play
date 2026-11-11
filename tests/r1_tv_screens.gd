@@ -626,6 +626,7 @@ func _hebrew_results() -> void:
 			var p = _app.server.players[i]
 			p.state = 1
 			p.player_name = ["נועה", "דני"][i]
+			p.profile_id = "0123456789abcdef0123456789abcde%d" % i   # A player with a profile: a guest shows the guest picture.
 			p.avatar = 3 + i
 		_app.go(_maze)
 		await _frames(4)

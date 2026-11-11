@@ -44,7 +44,7 @@ func first_remove_button() -> Button:
 func _signature() -> String:
 	var s := ""
 	for p in App.server.players:
-		s += "%d:%d:%s:%d;" % [p.slot, p.state, p.player_name, p.avatar if p.has_profile() else -1]
+		s += "%d:%d:%s:%d;" % [p.slot, p.state, p.player_name, p.shown_avatar()]
 	return s
 
 
@@ -84,8 +84,8 @@ func _make_row(p: PlayerInput) -> Control:
 	square.color = p.color if present else UiTheme.SLOT_EMPTY
 	h.add_child(square)
 
-	if present and p.has_profile() and Avatar.is_known(p.avatar):
-		var av := AvatarView.new(p.avatar, 64.0)
+	if present and Avatar.is_known(p.shown_avatar()):   # A guest has its own picture (owner, 2026-11-11).
+		var av := AvatarView.new(p.shown_avatar(), 64.0)
 		av.tappable = false
 		av.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		h.add_child(av)

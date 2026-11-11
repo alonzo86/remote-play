@@ -147,6 +147,13 @@ func has_profile() -> bool:
 	return profile_id != ""
 
 
+## The avatar that the TV draws for this player: the avatar of the profile, or the picture of a guest (owner, 2026-11-11,
+## `Protocol.GUEST_AVATAR`), so a guest has a face too. `avatar` stays -1 for a guest: it is what the phone sent and what the TV
+## sends back.
+func shown_avatar() -> int:
+	return avatar if has_profile() else Protocol.GUEST_AVATAR
+
+
 func on_lost() -> void:
 	if state == State.CONNECTED:
 		state = State.LOST

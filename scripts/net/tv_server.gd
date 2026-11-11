@@ -892,7 +892,8 @@ func shown_request() -> Dictionary:
 			hint = p.slot
 			break
 	return {"id": int(_waiting[0].id), "name": Profile.clean_name(Protocol.text(msg, "name")),
-			"av": Profile.clean_avatar(msg.get("av", -1)) if has_pid else -1, "slot_hint": hint, "others": _waiting.size() - 1}
+			"av": Profile.clean_avatar(msg.get("av", -1)) if has_pid else -1, "guest": not has_pid, "slot_hint": hint,
+			"others": _waiting.size() - 1}
 
 
 ## The host allowed the shown request: the phone gets a slot (or the answer that the room gives now) and the refusal count of its
