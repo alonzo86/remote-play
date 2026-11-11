@@ -191,16 +191,26 @@ func _run() -> void:
 	wordre.compile("[A-Za-z][A-Za-z\\-]*")
 	for k in table:
 		for m in wordre.search_all(fmtre.sub(String(table[k].he), "", true)):
+			# "Play services" is the name of the Google scanner, written in Latin letters (Alon, 2026-11-11, PR 447).
+			if k == "about.app_scans_with_google" and m.get_string() in ["Play", "services"]:
+				continue
 			if not (m.get_string() in ["A", "B", "OK", "QR", "SABABI", "Sababi"]):
 				latin_he.append("%s: %s" % [k, m.get_string()])
-	_check(latin_he.is_empty(), "no Hebrew text has a Latin word except A, B, OK, QR and the brand Sababi " + str(latin_he))
-	# The Hebrew form (REQ-FL-63a, issue #230): a button, a prompt, a hint and a sentence to the players all use the plural
-	# imperative (Alon, 2026-10-31: the buttons were singular before); "hold" has one spelling (the standard "החזיקו").
-	var button_keys := ["connect.join", "connect.scan_qr_code", "minigame.restart", "minigame.resume", "game_settings.start",
-			"profile_edit.save", "profile_edit.delete", "players.remove", "players_modal.close", "profiles.share",
-			"profile_edit.import", "marble_race.go", "profile_edit.edit_player", "pad.disconnect_hold"]
+	_check(latin_he.is_empty(),
+			"no Hebrew text has a Latin word except A, B, OK, QR, Sababi and Play services " + str(latin_he))
+	# The Hebrew form (REQ-FL-63a, issue #230): a prompt, a hint and a sentence to the players use the plural imperative; a button
+	# that acts for the one player who taps it uses the masculine singular imperative (Alon, 2026-11-11, PR 447; the buttons were
+	# plural before). The buttons not in `singular_buttons` are still plural. "hold" has one spelling (the standard "החזיקו"
+	# in a prompt; "החזק" in the HOLD TO DISCONNECT button).
+	var singular_buttons := ["game_settings.start", "profile_edit.save", "profile_edit.delete", "players.remove",
+			"players_modal.close", "profiles.share", "profile_edit.import", "pad.disconnect", "pad.disconnect_hold"]
+	var button_keys := ["connect.join", "connect.scan_qr_code", "minigame.restart", "minigame.resume", "marble_race.go",
+			"profile_edit.edit_player"]
 	var prompt_keys := ["wait.choose_game_tv", "games.select_game", "swing.card_title", "swing.tv_line"]
 	var bad_form: Array = []
+	for k in singular_buttons:
+		if String(table[k].he).split(" ")[0].ends_with("ו"):
+			bad_form.append(k + " (a button in the plural)")
 	for k in button_keys:
 		if not String(table[k].he).split(" ")[0].ends_with("ו"):
 			bad_form.append(k + " (a button in the singular)")
@@ -211,7 +221,7 @@ func _run() -> void:
 		if String(table[k].he).contains("תחזיק"):
 			bad_form.append(k + " (colloquial 'hold')")
 	_check(bad_form.is_empty(),
-			"the Hebrew buttons and prompts are plural, 'hold' has one spelling " + str(bad_form))
+			"the Hebrew prompts are plural, the buttons of one player are singular, 'hold' has one spelling " + str(bad_form))
 	# The text voice (REQ-FL-39a, issue #234): a row is upper case; sentence case is for the About paragraphs and for rows with a
 	# value or a name inside (the code makes them upper case when it draws them); a how-to text ends with a full stop, a game hint
 	# ends with "!" when it tells the player to act; the end mark is the same in English and Hebrew.
