@@ -107,6 +107,7 @@ tests/r4_tennis.gd|tv|Tennis: leader chip, toss, runs, GREAT, places, rally|scen
 tests/r4_golf.gd|tv|Mini Golf: turn, plate, phones, aim mark, swing, barriers, banner, bar, result menu|scenario
 tests/air_hockey_rules.gd|controller|Air Hockey rules, puck and ROBO|unit
 tests/hockey_bot.gd|tv|ROBO in simulated matches and shots: own goals, defence (issues #146, #147)|unit
+tests/hockey_robo_own_goals.gd|tv|Air Hockey: ROBO on Easy scores no own goal against a player who stands still, at most 10% against a chaser (issue #431)|unit
 tests/smoke_air_hockey.gd|tv|Air Hockey: enroll, tilt, goals, ROBO, pause, leave, results|scenario
 tests/tower_rules.gd|controller|Tower Builder rules: landing, toppling, turn time|unit
 tests/smoke_tower.gd|tv|Tower Builder: turns, drop, miss, topple, leave, results, solo medal|scenario
