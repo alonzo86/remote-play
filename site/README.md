@@ -14,7 +14,7 @@ The pages of https://alonzo86.github.io/remote-play/ (GitHub Pages, deployed fro
 | `badges/` | The official Google Play badge (English and Hebrew), **not our artwork**: use it as published, never edit it, and keep its row in `docs/THIRD_PARTY.md` ("Website store badges"). There is **no App Store badge** (removed on 2026-11-09, owner: Apple allows its badge only for an app that is available): add it back, with its row and credit line, when the iOS app is published (the issue about the iOS release steps) |
 | `stores.js` | The two Google Play addresses (phone app and TV app; the home page has a section for each app, the TV app first). They are made from the package ids and work when the apps are published. An empty address shows the badge without a link. There is no App Store address |
 | (footer) | Every page's footer names the provider and the contact and has the line "© 2026 Alon Yampolski. All rights reserved." (Hebrew: "© 2026 אלון ימפולסקי. כל הזכויות שמורות."; owner decision of 2026-11-09, the Hebrew approved by the owner). It matches `LICENSE` (all rights reserved). The credits that `CLA.md` promises to contributors are in `CONTRIBUTORS.md`; the website has no credits place yet (add one, in English and Hebrew, when the first contributor is credited) |
-| `style.css` | The look, with the colors of the design tokens (`docs/design-system/tokens.css`) |
+| `style.css` | The look, with the colors of the design tokens (`docs/design-system/tokens.css`). The header (name, language menu and tabs) is sticky: it stays at the top of the window when the page scrolls (owner, 2026-11-12) |
 
 Rules:
 - The address of `get/` is drawn by every installed TV app (`scripts/core/about.gd`, `APP_URL`): never move it. Change where it sends people in `stores.js`.

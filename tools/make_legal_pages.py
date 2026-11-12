@@ -102,7 +102,7 @@ def convert(markdown: str) -> tuple:
 			for r in rows[2:]:
 				out.append("<tr>%s</tr>" % "".join("<td>%s</td>" % inline(c) for c in cells(r)))
 			out.append("</tbody></table></div>")
-		elif UNKNOWN.match(line):
+		elif UNKNOWN.match(line) or line.startswith("#"):   # "#" is a heading level ("### ") or a text that it does not know.
 			raise SystemExit("this kind of line is not known to the converter: %r" % line)
 		else:
 			para = []

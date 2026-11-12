@@ -8,6 +8,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
 const About = preload("res://scripts/core/about.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const LegalText = preload("res://scripts/core/legal_text.gd")
 const QrView = preload("res://scripts/ui/qr_view.gd")
 
 const APP_QR_SIDE := 560.0   # The QR code of "GET THE APP" on the TV.
@@ -104,6 +105,9 @@ func show_page(i: int) -> void:
 	if String(page.kind) == "get_app":
 		_show_get_app(page)
 		return
+	if String(page.kind) == "privacy":
+		_show_privacy(page)
+		return
 	var t := UiKit.title(About.title_text(page), 40)
 	t.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -146,6 +150,45 @@ func _show_get_app(page: Dictionary) -> void:
 	var back := _button("common.back", on_back, false, "quiet")
 	_box.add_child(back)
 	UiKit.focus_later(back)
+
+
+## The page "Privacy policy": the privacy notice itself, from the file of the website (`legal_text.gd`), in the language of the
+## app. It is not a link: the app opens no web page. A text of the law is shown as it is written, in lower case too, so each
+## block is a label of its own (a long text is shaped in parts). Headings are yellow and larger; a row of the table keeps the
+## name of each column. The Hebrew text is laid out right to left.
+func _show_privacy(page: Dictionary) -> void:
+	var t := UiKit.title(About.title_text(page), 40)
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_box.add_child(t)
+	_scroll = ScrollContainer.new()
+	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_box.add_child(_scroll)
+	var body := VBoxContainer.new()
+	body.name = "PrivacyText"
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 20)
+	_scroll.add_child(body)
+	for block in LegalText.privacy_blocks():
+		body.add_child(_notice_label(block))
+	var back := _button("common.back", on_back, false, "quiet")
+	_box.add_child(back)
+	UiKit.focus_later(back)
+
+
+## One block of the notice as a label.
+func _notice_label(block: Dictionary) -> Label:
+	var heading := String(block.kind) in ["h1", "h2"]
+	var l := _text_label(("- " if String(block.kind) == "li" else "") + String(block.text))
+	l.name = "Notice_" + String(block.kind)
+	l.text_direction = Control.TEXT_DIRECTION_RTL if Lang.is_rtl() else Control.TEXT_DIRECTION_LTR
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if Lang.is_rtl() else HORIZONTAL_ALIGNMENT_LEFT
+	if heading:
+		var size := text_size() + (8 if String(block.kind) == "h1" else 4)
+		l.add_theme_font_size_override("font_size", size)
+		l.add_theme_constant_override("line_spacing", UiTheme.line_gap(size))
+		l.add_theme_color_override("font_color", UiTheme.ACCENT)
+	return l
 
 
 ## A label for a part of a text. Not UiKit.label: a license is shown as it is written, in lower case too.

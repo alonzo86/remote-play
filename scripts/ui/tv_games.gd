@@ -1,6 +1,6 @@
 extends Control
 ## Games screen (REQ-FL-11 to 19): a grid of tiles (16:9 screenshot, title, player range), the
-## players badge, the OPTIONS button, and an info bar under the grid with the description of the focused game.
+## players badge, the ABOUT and OPTIONS icon buttons, and an info bar under the grid with the description of the focused game.
 
 const Lang = preload("res://scripts/core/lang.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
@@ -10,7 +10,7 @@ const Registry = preload("res://scripts/game/registry.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const GameTile = preload("res://scripts/ui/game_tile.gd")
 const PlayersBadge = preload("res://scripts/ui/players_badge.gd")
-const GearButton = preload("res://scripts/ui/gear_button.gd")
+const PhoneIcon = preload("res://scripts/ui/phone_icon.gd")
 const PlayersModal = preload("res://scripts/ui/players_modal.gd")
 const ScrollArrow = preload("res://scripts/ui/scroll_arrow.gd")
 
@@ -25,7 +25,8 @@ var _arrow_up: Control   # Blinks when rows are hidden above the grid (REQ-FL-12
 var _arrow_down: Control   # Blinks when rows are hidden below the grid.
 var _badge: Button
 var _room: Label   # The room code in the header (REQ-FL-15a). It follows the address of the TV.
-var _gear: Button
+var _about: Button   # The ABOUT icon button (owner, 2026-11-12), before OPTIONS as on the phone.
+var _gear: Button    # The OPTIONS icon button.
 var _info: Label   # The description of the focused game.
 var _reason: Label   # Under it, in yellow: why the focused game cannot start with the players now (REQ-FL-14).
 var _shown: Dictionary = {}   # The game that the info bar shows.
@@ -74,10 +75,14 @@ func _show_grid(focus_id := "") -> void:
 	_badge = PlayersBadge.new()
 	_badge.pressed.connect(_open_players)
 	head.add_child(_badge)
-	_gear = GearButton.new()
-	_gear.pressed.connect(func():
+	# ABOUT and OPTIONS are icon buttons with no word, as on the phone (owner, 2026-11-12); the focus is the thick yellow border.
+	_about = PhoneIcon.button(PhoneIcon.ABOUT, "AboutButton", func():
+		App.last_game = "@about"   # Back from About puts the focus on this button (REQ-FL-24).
+		App.go(App.AboutScreen))
+	head.add_child(_about)
+	_gear = PhoneIcon.button(PhoneIcon.SETTINGS, "OptionsButton", func():
 		App.last_game = "@gear" # Back from Settings puts the focus on the gear (REQ-FL-24).
-		App.go_settings())
+		App.go_settings(), "gear_button.options")
 	head.add_child(_gear)
 
 	_scroll = ScrollContainer.new()
@@ -145,20 +150,22 @@ func _show_grid(focus_id := "") -> void:
 			first = t
 	if focus_id == "@gear":
 		first = _gear
+	if focus_id == "@about":
+		first = _about
 	UiKit.focus_later(first)
 
 
-## The arrow keys between the header (the players badge and OPTIONS) and the tiles are set here, not left to the position of the
-## controls: when the grid has scrolled, the first row of tiles is under the header and the nearest control to the right of the
-## badge was a tile, so OPTIONS could not be reached. The header order is the one on the screen (OPTIONS is at the left in
-## Hebrew). Up and Down at the edges stay where they are, so the focus does not jump to the other end.
+## The arrow keys between the header (the players badge, ABOUT and OPTIONS) and the tiles are set here, not left to the
+## position of the controls: when the grid has scrolled, the first row of tiles is under the header and the nearest control to
+## the right of the badge was a tile, so OPTIONS could not be reached. The header order is the one on the screen (ABOUT and
+## OPTIONS are at the left in Hebrew). Up and Down at the edges stay where they are, so the focus does not jump to the other end.
 func _wire_focus() -> void:
 	if _tiles.is_empty():
 		return
 	var rtl := Lang.is_rtl()
-	var order: Array[Control] = [_badge, _gear]
+	var order: Array[Control] = [_badge, _about, _gear]
 	if rtl:
-		order = [_gear, _badge]
+		order = [_gear, _about, _badge]
 	var over_a: Control = _tiles[0] if rtl else _tiles[mini(ROW_LEN, _tiles.size()) - 1]   # The tile under the badge.
 	var over_b: Control = _tiles[mini(ROW_LEN, _tiles.size()) - 1] if rtl else over_a        # The tile under OPTIONS.
 	for i in order.size():
@@ -167,6 +174,7 @@ func _wire_focus() -> void:
 		_link(c, SIDE_RIGHT, order[i + 1] if i < order.size() - 1 else c)
 		_link(c, SIDE_TOP, c)
 	_link(_badge, SIDE_BOTTOM, over_a)
+	_link(_about, SIDE_BOTTOM, over_b)
 	_link(_gear, SIDE_BOTTOM, over_b)
 	for i in mini(ROW_LEN, _tiles.size()):
 		_link(_tiles[i], SIDE_TOP, _badge)

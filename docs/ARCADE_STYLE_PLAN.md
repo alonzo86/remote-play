@@ -143,7 +143,7 @@ The menus and the shell change in the same pull request, so a game never shows a
    blinking label.
 4. TV screens: `tv_logo.gd`, `tv_connect.gd`, `slot_list.gd`, `tv_games.gd`, `game_tile.gd` (square corners, remove
    `GameTile.rounded()` and REQ-FL-57), `players_badge.gd`, `players_modal.gd`, `tv_modal.gd`, `tv_settings.gd`,
-   `tv_game_settings.gd`, `track_picker.gd`, `gear_button.gd`, `confetti.gd`, `choice_row.gd`, `backdrop.gd`.
+   `tv_game_settings.gd`, `track_picker.gd`, `confetti.gd`, `choice_row.gd`, `backdrop.gd`.
 5. Phone screens: `controller_connect.gd`, `controller_wait.gd`, `controller_pad.gd`.
 6. Game shell: `scripts/game/shell.gd`, `minigame.gd`, `minigame_3d.gd` (HUD, chips, timer, countdown, hint, pause and
    result menus).

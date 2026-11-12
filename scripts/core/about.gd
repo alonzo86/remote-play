@@ -4,6 +4,7 @@ extends RefCounted
 ## (`Engine.get_license_text()`, `get_copyright_info()`, `get_license_info()`), so they are always those of the running version.
 
 const Lang = preload("res://scripts/core/lang.gd")
+const LegalText = preload("res://scripts/core/legal_text.gd")
 
 static var _non_ascii: RegEx   # Any character outside ASCII (made on the first use).
 
@@ -30,6 +31,7 @@ static func pages(scanner := false, tv := false) -> Array:
 	if scanner:
 		out.append({"title": "about.qr_scanner", "kind": "scanner", "arg": ""})
 	out.append({"title": "Godot Engine", "kind": "godot", "arg": ""})
+	out.append({"title": "about.privacy", "kind": "privacy", "arg": ""})
 	out.append({"title": "about.third_party_libraries", "kind": "libraries", "arg": ""})
 	return out
 
@@ -84,6 +86,8 @@ static func text(page: Dictionary) -> String:
 					+ "\n\n" + Lang.t("about.pages_below_list_parts")
 		"scanner":
 			return Lang.t("about.app_scans_with_google")
+		"privacy":   # The privacy notice itself, from the file of the website (`legal_text.gd`), as plain text.
+			return "\n\n".join(LegalText.privacy_blocks().map(func(b): return String(b.text)))
 		"godot":
 			return safe(Engine.get_license_text())
 		"file":

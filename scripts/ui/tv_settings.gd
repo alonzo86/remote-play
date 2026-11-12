@@ -40,8 +40,6 @@ func _ready() -> void:
 	_add_level_row(rows, "settings.effects", "sfx_volume")
 	_add_row(rows, "settings.language", "language", func(): _step_language(1))
 	box.add_child(UiKit.spacer(10))
-	box.add_child(UiKit.item("common.about", func(): App.go(App.AboutScreen, {"back_screen": App.TvSettings}),
-			UiTheme.SIZE_ITEM, "quiet"))
 	box.add_child(UiKit.item("common.back", on_back, UiTheme.SIZE_ITEM, "quiet"))
 	UiKit.focus_later(_rows[0])
 

@@ -1,6 +1,6 @@
 # Sababi Privacy Notice
 
-"Sababi: TV Games" and "Sababi: Remote". Last updated: 2026-11-09.
+"Sababi: TV Games" and "Sababi: Remote". Last updated: 2026-11-12.
 Provider: Alon Yampolski, Israel. Contact: sababi.play@gmail.com
 
 Sababi does not collect your personal data. We run no server, no account system and no analytics, so we never receive your name, your scores or your sensor readings. Everything below describes what stays on your own devices and your own Wi-Fi.
@@ -51,6 +51,8 @@ We do not sell or share personal data. The only third-party component that touch
 ## 7. Children
 
 Sababi is a game for family and friends. A profile name stays on the phone and is shown on the TV to the people in the room. Parents are advised to choose or review the profile name, and to be near when a child plays.
+
+Children may play Sababi, and we collect no personal data from anyone, children included. We run no server, no account system, no ads and no analytics, so we never receive a name, an age, a contact detail, a location or any other data about a child. We do not ask for a real name: the profile name is chosen by the player and can be any name. A parent can delete a profile, or all the data of the app, at any time (section 8). If you think that a child has put personal data in a profile name, delete that profile. You can also write to us: sababi.play@gmail.com
 
 ## 8. Your choices
 
