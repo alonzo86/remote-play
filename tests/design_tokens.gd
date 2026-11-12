@@ -67,6 +67,7 @@ func _font_licences() -> void:
 	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
 	var filters := 0
 	var csv_filters := 0
+	var notice_filters := 0
 	var licence_filters := 0
 	var presets_count := 0
 	for line in presets.split("\n"):
@@ -78,11 +79,28 @@ func _font_licences() -> void:
 			licence_filters += 1
 		if line.begins_with("include_filter=") and line.contains("assets/lang/strings.csv"):
 			csv_filters += 1
+		if line.begins_with("include_filter=") and line.contains("docs/legal/privacy-notice.md") \
+				and line.contains("docs/legal/privacy-notice.he.md"):
+			notice_filters += 1
 	_check(presets_count > 0 and filters == presets_count, "every export preset packs the font licence files")
 	_check(presets_count > 0 and licence_filters == presets_count,
 			"every export preset packs the licence files of the Android libraries")
 	_check(presets_count > 0 and csv_filters == presets_count,
 			"every export preset packs the table of texts (assets/lang/strings.csv)")
+	_check(presets_count > 0 and notice_filters == presets_count,
+			"every export preset packs the privacy notice (both languages), which the About screen shows")
+	# The notice is the only part of docs/ in the apps: every other folder of docs/ (images are resources and would be packed) is
+	# excluded by name in every preset, so a new folder of docs/ must be added to the exclude filters (docs/EXPORT.md).
+	var unexcluded: Array = []
+	var excludes: Array = []
+	for line in presets.split("\n"):
+		if line.begins_with("exclude_filter="):
+			excludes.append(line)
+	for d in DirAccess.get_directories_at("res://docs"):
+		if d != "legal" and not excludes.all(func(e): return String(e).contains("docs/%s/*" % d)):
+			unexcluded.append(d)
+	_check(not excludes.is_empty() and unexcluded.is_empty() and excludes.all(func(e): return not String(e).contains("docs/*,")),
+			"every folder of docs/ except legal is excluded in every preset, and docs/* is not (the notice is packed): %s" % [unexcluded])
 	var imp := FileAccess.get_file_as_string("res://assets/lang/strings.csv.import")
 	_check(imp.contains('importer="keep"'),
 			"the table of texts is not imported as a Godot translation: the app reads the file itself")

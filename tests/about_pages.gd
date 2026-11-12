@@ -5,6 +5,7 @@ extends SceneTree
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const About = preload("res://scripts/core/about.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const LegalText = preload("res://scripts/core/legal_text.gd")
 
 var _checks := 0
 var _fails := 0
@@ -175,37 +176,67 @@ func _get_the_app() -> void:
 	screen.queue_free()
 
 
-## Google Play wants a link to the privacy policy inside the app (the web address of the website, in the language of the app).
+## The privacy notice is in the app (Google Play wants the policy inside the app): the page shows the text of the file of the
+## website (`docs/legal/privacy-notice*.md`), not a link, so the app, the website and the store forms have one text.
 func _privacy_page() -> void:
 	print("privacy policy page")
 	var idx := About.pages(false).map(func(p): return p.kind).find("privacy")
 	_check(idx >= 0 and About.pages(false, true).any(func(p): return p.kind == "privacy"),
 			"the Privacy policy page is in the list of the phone and of the TV")
-	var keep := Lang.current()
-	Lang.set_language(Lang.EN)
-	_check(About.privacy_url() == "https://alonzo86.github.io/remote-play/privacy.html"
-			and About.text({"kind": "privacy"}).ends_with(About.privacy_url()), "in English the address is the page privacy.html")
-	Lang.set_language(Lang.HE)
-	_check(About.privacy_url() == "https://alonzo86.github.io/remote-play/he/privacy.html", "in Hebrew it is the Hebrew page")
-	Lang.set_language(keep)
-	var screen: Control = await _open_about()
-	screen.show_page(idx)
-	await process_frame
-	var url: Label = screen.find_child("PrivacyUrl", true, false)
-	_check(url != null and url.text == About.privacy_url(), "the page shows the address")
-	_check(screen.find_child("OpenPrivacyButton", true, false) != null, "the phone has the button that opens it")
-	screen.queue_free()
+	_check(LegalText.privacy_file(Lang.EN) == "res://docs/legal/privacy-notice.md"
+			and LegalText.privacy_file(Lang.HE) == "res://docs/legal/privacy-notice.he.md", "each language has its file")
+	for language in [Lang.EN, Lang.HE]:
+		await _notice_matches_file(language)
+	_check(LegalText.parse("# T\n\n## H\n\nA **bold** `code` [text](http://x.y) <https://a.b>\nsecond line\n\n- one\n- two\n\n"
+			+ "| A | B |\n|---|---|\n| 1 | 2 |\n").map(func(b): return b.kind) == ["h1", "h2", "p", "li", "li", "row"],
+			"the blocks: heading, paragraph, list items and a row of the table")
+	_check(LegalText.plain("A **bold** `code` [text](http://x.y) <https://a.b>") == "A bold code text (http://x.y) https://a.b",
+			"the marks are removed and a link keeps its address as text")
+	_check(LegalText.parse("| Where | Why |\n|---|---|\n| phone | steer |\n").front().text == "Where: phone\nWhy: steer",
+			"a row of the table keeps the name of each column")
 	var role: Node = root.get_node("Role")
 	var was: int = role.kind
-	role.kind = role.Kind.TV   # A TV has no browser: the page shows the address and no button.
+	role.kind = role.Kind.TV
 	var tv: Control = await _open_about()
 	tv._current = About.pages(false, true)
 	tv.show_page(About.pages(false, true).map(func(p): return p.kind).find("privacy"))
 	await process_frame
-	_check(tv.find_child("PrivacyUrl", true, false) != null and tv.find_child("OpenPrivacyButton", true, false) == null,
-			"the TV shows the address and has no button")
+	_check(tv.find_child("PrivacyText", true, false) != null and tv.find_children("*", "Button", true, false).size() == 1,
+			"the TV shows the notice and only the Back button")
 	tv.queue_free()
 	role.kind = was
+
+
+## The page shows every line and every cell of the file of the language, no mark of Markdown is left, and the Hebrew page is
+## laid out right to left.
+func _notice_matches_file(language: String) -> void:
+	var keep := Lang.current()
+	Lang.set_language(language)
+	var screen: Control = await _open_about()
+	screen.show_page(About.pages(false).map(func(p): return p.kind).find("privacy"))
+	await process_frame
+	var labels: Array = screen.find_child("PrivacyText", true, false).get_children()
+	var shown := "\n".join(labels.map(func(l): return String(l.text)))
+	var missing: Array = []
+	for line in FileAccess.get_file_as_string(LegalText.privacy_file(language)).split("\n"):
+		var t := String(line).strip_edges()
+		if t == "" or t.begins_with("<") or t.begins_with("|--") or t.begins_with("|:--"):
+			continue
+		for part in (t.trim_prefix("|").trim_suffix("|").split("|") if t.begins_with("|") else [t]):
+			var want := LegalText.plain(String(part).trim_prefix("# ").trim_prefix("## ").trim_prefix("- ").strip_edges())
+			if want != "" and not shown.contains(want):
+				missing.append(want.left(40))
+	_check(missing.is_empty(), "%s: every line and cell of the file is on the page (missing: %s)" % [language, missing])
+	_check(labels.size() > 20 and not shown.contains("**") and not shown.contains("`") and not shown.contains("|"),
+			"%s: no mark of Markdown is left on the page" % language)
+	var rtl := language == Lang.HE
+	_check(labels.all(func(l): return (l.text_direction == Control.TEXT_DIRECTION_RTL) == rtl),
+			"%s: the text is laid out %s" % [language, "right to left" if rtl else "left to right"])
+	_check(rtl == shown.contains("\u05d0"), "%s: the page is in its own language" % language)
+	_check(labels.any(func(l): return l.name == "Notice_h2") and screen.find_children("*", "Button", true, false).size() == 1,
+			"%s: headings and one Back button" % language)
+	screen.queue_free()
+	Lang.set_language(keep)
 
 
 func _open_about(props := {}) -> Control:
