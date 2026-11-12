@@ -526,6 +526,8 @@ func _scan_flow() -> void:
 	_check(quit_b != null and quit_b.text == "" and quit_b.accessibility_name == Lang.t("connect.quit")
 			and quit_b.get_index() == quit_b.get_parent().get_child_count() - 1,
 			"the Connect screen has the icon button QUIT at the end of the row")
+	if quit_b == null:
+		return
 	quit_b.pressed.emit()
 	await _frames(2)
 	_check(is_instance_valid(connect._quit_dialog) and connect._quit_dialog.stay_button != null,
@@ -533,6 +535,19 @@ func _scan_flow() -> void:
 	connect._quit_dialog.close()
 	await _frames(2)
 	_check(not is_instance_valid(connect._quit_dialog), "STAY closes the question")
+	# The question has a QUIT button that leaves the app (App._quit), and while the phone waits for the host (REQ-FL-100) the
+	# Connect view with the QUIT icon is hidden: Back is CANCEL there and there is no way to ask the question by mistake.
+	quit_b.pressed.emit()
+	await _frames(2)
+	_check(connect._quit_dialog.quit_button.pressed.is_connected(_app._quit), "QUIT in the question leaves the app")
+	connect._quit_dialog.close()
+	await _frames(2)
+	connect._show_waiting(true)
+	await _frames(1)
+	_check(not quit_b.is_visible_in_tree(), "while the phone waits for the host the QUIT icon is not shown")
+	connect._show_waiting(false)
+	await _frames(1)
+	_check(quit_b.is_visible_in_tree(), "and it is back when the wait ends")
 	connect.find_child("SettingsButton", true, false).pressed.emit()
 	await _frames(3)
 	var settings_screen: Control = _app.current_screen()
