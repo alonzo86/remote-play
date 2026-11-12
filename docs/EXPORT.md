@@ -186,7 +186,7 @@ tools/build.sh aab        # exports tv-release and controller-release with --exp
 Run `tools/patch_android_manifest.sh` first, as for the APKs (section 3). Dry run of 2026-11-07 (issue #289, a throwaway upload keystore outside the repository, nothing uploaded): `tools/build.sh apk` took
 2 min 19 s (it also filled the Gradle cache) and `tools/build.sh aab` 55 s; both release bundles pass `jarsigner -verify` and
 `bundletool validate`; sizes: TV bundle 54.3 MB, controller bundle 30.2 MB (the base limit is 200 MB); the manifests have the
-permissions of section 5 of the privacy notice and nothing more (TV: internet, network state, wifi state, change wifi multicast state, wake lock; controller: the
+permissions of section 5 of the privacy notice and nothing more (TV: internet, network state, wifi state, wake lock; controller: the
 same and vibrate); the TV app has the banner and `LEANBACK_LAUNCHER` and no scanner, the controller app has the scanner plugin and
 ML Kit; ABIs: arm64-v8a for both, armeabi-v7a for the TV; the arm64 libraries have a 16 KB LOAD alignment (0x4000), the armeabi-v7a
 libraries 0x1000 (Google's 16 KB rule is for 64-bit libraries, not verified here). Still not done: the real upload keystore, Play
