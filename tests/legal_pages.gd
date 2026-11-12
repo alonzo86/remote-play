@@ -119,7 +119,8 @@ func _run() -> void:
 		var other: String = "../" + String(p[1]).get_file() if p[2] == "he" else "he/" + String(p[1]).get_file()
 		_check(page.contains('href="%s"' % other), "%s links to its twin in the other language (%s)" % [p[1], other])
 	if int(r.code) != -1:
-		for bad in ["a\n- x\n  more", "a\n2. b", "a\n> q", "*it*", "a _u_ b", "| a | b |\n|---|---|\n| 1 |", "a\n    code"]:
+		for bad in ["a\n- x\n  more", "a\n2. b", "a\n> q", "*it*", "a _u_ b", "| a | b |\n|---|---|\n| 1 |", "a\n    code",
+				"### three", "#tag", "#"]:
 			_check(int(_convert(bad).code) != 0, "the converter stops on %s" % JSON.stringify(bad))
 		var good := _convert("# T\n\nok **b** and `c`\n- x\n- y\n\n| a | b |\n|---|---|\n| 1 | 2 |")
 		_check(int(good.code) == 0 and str(good.out).contains("<strong>b</strong>") and str(good.out).contains("<ul>")

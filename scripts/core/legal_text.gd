@@ -54,7 +54,8 @@ static func parse(markdown: String) -> Array:
 					parts.append("%s: %s" % [names[c], rows[r][c] if c < rows[r].size() else ""])
 				out.append({"kind": "row", "text": "\n".join(parts)})
 		else:
-			var para := PackedStringArray()
+			var para := PackedStringArray([plain(line.strip_edges())])   # The first line is always taken (a "###" line is text here).
+			i += 1
 			while i < lines.size() and String(lines[i]).strip_edges() != "" and not _starts_block(lines[i]):
 				para.append(plain(String(lines[i]).strip_edges()))
 				i += 1
@@ -63,7 +64,7 @@ static func parse(markdown: String) -> Array:
 
 
 static func _starts_block(line: String) -> bool:
-	return line.begins_with("#") or line.begins_with("- ") or line.begins_with("|")
+	return line.begins_with("# ") or line.begins_with("## ") or line.begins_with("- ") or line.begins_with("|")
 
 
 ## The cells of a table line, without the marks.

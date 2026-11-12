@@ -8,7 +8,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outlin
 header, main, footer { max-width: 880px; margin: 0 auto; padding: 16px 24px; }
 /* The header (the name, the language menu and the tabs) stays at the top of the window when the page scrolls. The menu of the
    languages opens inside it, above the page. A link to a part of a page stops below the header (scroll-padding-top). */
-html { scroll-padding-top: 150px; }
+html { scroll-padding-top: 12rem; }   /* More than the header: it is taller when its name, menu and tabs wrap on a narrow screen. */
 header { position: sticky; top: 0; z-index: 20; background: var(--bg); border-bottom: 2px solid var(--text); }
 /* The first row of the header: the name of the site and the language menu; the tabs are below it. */
 header .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 24px; }

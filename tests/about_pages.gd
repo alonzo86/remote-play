@@ -192,6 +192,12 @@ func _privacy_page() -> void:
 			"the blocks: heading, paragraph, list items and a row of the table")
 	_check(LegalText.plain("A **bold** `code` [text](http://x.y) <https://a.b>") == "A bold code text (http://x.y) https://a.b",
 			"the marks are removed and a link keeps its address as text")
+	_check(LegalText.parse("### three\n#tag\nx\n").map(func(b): return b.kind) == ["p"] and LegalText.parse("#").size() == 1,
+			"a line that starts with # but is no heading is text, and the parser ends")
+	_check(LegalText.parse("# T\r\n\r\nline one\r\n- item\r\n").map(func(b): return b.text) == ["T", "line one", "item"],
+			"the lines of a file with CRLF are read like the others")
+	_check(LegalText.parse("| A | B |\n|---|---|\n| 1 |\n").front().text == "A: 1\nB: ",
+			"a short row of the table has an empty last value")
 	_check(LegalText.parse("| Where | Why |\n|---|---|\n| phone | steer |\n").front().text == "Where: phone\nWhy: steer",
 			"a row of the table keeps the name of each column")
 	var role: Node = root.get_node("Role")
