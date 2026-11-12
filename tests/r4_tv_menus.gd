@@ -168,14 +168,13 @@ func _settings_about() -> void:
 	_check(not _app.settings.invert_tilt, "8a2: Left sets it to OFF")
 	_app.settings.invert_tilt = invert_before
 	_app.save_settings()
-	var about_item: Button = null
-	for b in _buttons(settings):
-		if b.text == "common.about":
-			about_item = b
-	_check(about_item != null, "8a2: Settings has the item About")
-	if about_item == null:
-		return
-	await _ok_on(about_item)
+	_check(not _buttons(settings).any(func(b): return b.text == "common.about"),
+			"8a2: Settings has no item About (it is an icon button on the Games screen, owner 2026-11-12)")
+	_app.go_games()
+	await _frames(4)
+	var games: Control = _app.current_screen()
+	_check(games._about != null and games._about.text == "", "8a2: the Games screen has the ABOUT icon button")
+	await _ok_on(games._about)
 	await _frames(4)
 	var screen: Control = _app.current_screen()
 	_check(screen.get_script() == _app.AboutScreen, "8a2: OK on About opens the About screen")

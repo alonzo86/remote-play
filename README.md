@@ -24,7 +24,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 ```
 
 - TV flow: Android splash, logo screen (waits for OK, with the QR code of the phone app), **Connect controllers** (QR code, room code, 4 slots, "PRESS OK TO CONTINUE"), **Games** (tiles with a
-  screenshot, the players badge, the OPTIONS button; the description of the focused game is in a bar under the grid), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
+  screenshot, the players badge, the ABOUT and OPTIONS icon buttons; the description of the focused game is in a bar under the grid), then the game. Back goes one step back. Full flow: [docs/TV_FLOW.md](docs/TV_FLOW.md).
   Phones follow the TV: they show "Waiting for the host", "Choose a game on the TV", or the pad.
 - The role is chosen by the feature tag `tv` or `controller`. On desktop, use `-- --role=tv` or `-- --role=controller`.
 - The TV shows a 4-letter room code and a QR code (`ws://IP:47801/ROOM`). The room code is the address of the TV (its last two numbers, scrambled).
@@ -126,7 +126,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 4. Open the debug overlay. Watch RTT, *Age ms*, *Gap ms*, and *Rx Hz*.
    The full test plan with pass criteria is in [docs/MANUAL_TESTS.md](docs/MANUAL_TESTS.md).
 5. Run **Treasure Maze** with 1 to 4 phones. If the ball rolls the wrong way, use **Invert tilt axes** on the TV Settings screen
-   (the OPTIONS button on the Games screen).
+   (the OPTIONS icon button on the Games screen).
 6. Run **Car Race** and check the frame rate with 4 phones.
 
 ## Controls

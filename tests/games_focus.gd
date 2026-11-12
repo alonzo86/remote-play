@@ -55,10 +55,12 @@ func _run() -> void:
 	_check(screen._badge.focus_neighbor_right != NodePath(), "the header is still linked when there are no tiles")
 
 
-## From every tile, in the scrolled and in the unscrolled grid: Up reaches the badge, and the badge reaches OPTIONS and back.
+## From every tile, in the scrolled and in the unscrolled grid: Up reaches the badge, and the badge reaches ABOUT, then OPTIONS,
+## and back.
 func _reach(screen: Control, code: String) -> void:
 	print("games screen in ", code)
-	var to_gear := SIDE_LEFT if code == "he" else SIDE_RIGHT   # OPTIONS is at the left in Hebrew.
+	var to_gear := SIDE_LEFT if code == "he" else SIDE_RIGHT   # ABOUT and OPTIONS are at the left in Hebrew.
+	var to_badge := SIDE_RIGHT if code == "he" else SIDE_LEFT
 	var ok_up := true
 	var ok_gear := true
 	var ok_back := true
@@ -74,13 +76,16 @@ func _reach(screen: Control, code: String) -> void:
 				break
 		ok_up = ok_up and up == screen._badge
 		await _frames(10)   # The focus stays on the tile: the grid stays scrolled, and the first row of tiles is under the header.
-		ok_gear = ok_gear and screen._badge.find_valid_focus_neighbor(to_gear) == screen._gear
-		ok_back = ok_back and screen._gear.find_valid_focus_neighbor(SIDE_RIGHT if code == "he" else SIDE_LEFT) == screen._badge
+		ok_gear = ok_gear and screen._badge.find_valid_focus_neighbor(to_gear) == screen._about \
+				and screen._about.find_valid_focus_neighbor(to_gear) == screen._gear
+		ok_back = ok_back and screen._gear.find_valid_focus_neighbor(to_badge) == screen._about \
+				and screen._about.find_valid_focus_neighbor(to_badge) == screen._badge
 		ok_stay = ok_stay and screen._badge.find_valid_focus_neighbor(SIDE_TOP) == screen._badge \
+				and screen._about.find_valid_focus_neighbor(SIDE_TOP) == screen._about \
 				and screen._gear.find_valid_focus_neighbor(SIDE_TOP) == screen._gear
 	_check(ok_up, "from every tile the arrow key up reaches the players badge")
-	_check(ok_gear, "from the badge the arrow key toward OPTIONS reaches it, also when the grid has scrolled")
-	_check(ok_back, "and from OPTIONS the other way goes back to the badge")
+	_check(ok_gear, "from the badge the arrow key toward OPTIONS reaches ABOUT and then OPTIONS, also when the grid has scrolled")
+	_check(ok_back, "and from OPTIONS the other way goes back through ABOUT to the badge")
 	_check(ok_stay, "up from the header stays in the header")
 
 

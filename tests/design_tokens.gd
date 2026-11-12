@@ -5,7 +5,7 @@ extends SceneTree
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
-const GearButton = preload("res://scripts/ui/gear_button.gd")
+const PhoneIcon = preload("res://scripts/ui/phone_icon.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const QrScanner = preload("res://scripts/net/qr_scanner.gd")
@@ -241,11 +241,10 @@ func _white_buttons() -> void:
 	_check(UiTheme.contrast(UiTheme.ACCENT, UiTheme.BG) >= 4.5 and UiTheme.MARK_W == 2 * UiTheme.LINE,
 			"the yellow mark is 4.5:1 on the black screen and twice as thick as a normal line")
 	var buttons: Array[Button] = [UiKit.box_button("x", func(): pass), UiKit.box_button("x", func(): pass, 40, true),
-			GearButton.new()]
+			PhoneIcon.button(PhoneIcon.SETTINGS, "OptionsButton", func(): pass, "gear_button.options")]
 	for b in buttons:
 		b.size = Vector2(300, 84)
-	buttons[2]._ready()   # The OPTIONS button sets its look in `_ready()`.
-	var names := ["a box button", "a marked box button", "OPTIONS"]
+	var names := ["a box button", "a marked box button", "the OPTIONS icon button"]
 	for i in buttons.size():
 		var b := buttons[i]
 		var rest: StyleBoxFlat = b.get_theme_stylebox("normal")

@@ -3,7 +3,7 @@ about.app_scans_with_google,"The app scans the QR code with the Google code scan
 about.pages_below_list_parts,"The pages below list the parts of other makers that SABABI app uses, and their licenses.","הדפים שלמטה מפרטים את החלקים של יוצרים אחרים שאפליקציית SABABI משתמשת בהם, ואת הרישיונות שלהם.","About screen, first page: line before the list of other makers' parts",
 about.phones_tv_communicate_over,"The phones and the TV communicate over your Wi-Fi. The link is not encrypted, so play on a network you trust.","הטלפונים והטלוויזיה מתקשרים דרך הרשת האלחוטית שלכם. החיבור אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.","About screen, first page: the link is not encrypted, play on a trusted network",
 about.nothing_leaves_network,Nothing leaves your network.,שום דבר לא יוצא מהרשת שלכם.,"About screen, first page: last sentence of the Wi-Fi paragraph",
-common.about,ABOUT,אודות,Phone: name and tooltip of the ABOUT icon button (no word on the button) in the top row of the waiting and Connect screens; TV Settings screen: the About row; title of the About screen,
+common.about,ABOUT,אודות,Phone: name and tooltip of the ABOUT icon button (no word on the button) in the top row of the waiting and Connect screens; TV Games screen: name and tooltip of the ABOUT icon button in the header, before OPTIONS; title of the About screen,
 about.sababi_has_no_account,"SABABI app has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.","באפליקציית SABABI אין חשבון, אין פרסומות ואין ניתוח נתונים. השם, הדמות והשיאים שלכם נשארים בטלפון.","About screen, first page: what data Sababi keeps",
 about.sababi_game_tv,SABABI is a game for the TV. The phones are the controllers.,SABABI הוא משחק לטלוויזיה. הטלפונים הם השלטים.,"About screen, first page: what Sababi is",
 about.third_party_libraries,3rd Party Libraries,ספריות צד שלישי,"About screen: row that opens the list of libraries of other makers, and the title of that list",
@@ -40,7 +40,7 @@ connect.camera_denied,"THE CAMERA IS OFF FOR SABABI APP. TURN IT ON IN SETTINGS,
 connect.no_camera,THIS PHONE HAS NO CAMERA. TYPE THE ROOM CODE.,אין מצלמה בטלפון הזה. הקלידו את קוד החדר.,"Phone, Connect screen: message when the scan cannot start",
 connect.scan_cancel,CANCEL,ביטול,"Phone (iPhone), scan view: button that closes the camera",
 connect.scan_hint,POINT THE CAMERA AT THE QR CODE ON THE TV!,כוונו את המצלמה אל קוד ה־QR שבטלוויזיה!,"Phone (iPhone), scan view: help line over the camera picture",
-connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens (Back key): Quit button of the quit dialog,
+connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens (Back key): Quit button of the quit dialog; phone Connect screen: name and tooltip of the QUIT icon button (no word on the button) at the end of the top row,
 connect.quit_sababi,QUIT SABABI APP?,לצאת מאפליקציית SABABI?,TV Connect screen and phone waiting and pad screens (Back key): title of the quit dialog,
 connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens), also big in the middle of the pad with a dashed frame (issue #238)",
 connect.refused,Connection refused: %s,החיבור נדחה: %s,"Phone, Connect screen: error when the TV refuses for another reason, %s is the reason code",%s is replaced by a name or a value
@@ -73,7 +73,7 @@ games.one_player,1 player,שחקן אחד,"TV Games screen: game tile, a game fo
 games.range_players,%d-%d players,%d-%d שחקנים,"TV Games screen: game tile, a game for a range of players","the number sign (%d, %.1f ...) is replaced by a number"
 games.select_game,SELECT GAME,בחרו משחק,TV Games screen: title,
 games.up_to_players,Up to %d players,עד %d שחקנים,"TV game settings and Games screen (yellow line in the info bar under the description): why a game cannot start when too many phones have joined, %d is the maximum","the number sign (%d, %.1f ...) is replaced by a number"
-gear_button.options,OPTIONS,אפשרויות,TV Games screen: Options button at the top,
+gear_button.options,OPTIONS,אפשרויות,TV Games screen: name and tooltip of the OPTIONS icon button (no word on the button) at the end of the header, after ABOUT,
 logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים עם הטלפון כשלט תנועה,TV logo screen: line under the logo,
 logo.press_ok_start,PRESS OK TO START,לחצו OK כדי להתחיל,TV logo screen: prompt to go on (at the first start also to choose a language),
 marble_race.go,GO,צאו,Car Race countdown: the word GO after 1 in a round of 2 or more players (only this game shows it; the other games go from 1 to the play),

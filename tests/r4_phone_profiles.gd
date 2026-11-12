@@ -520,6 +520,19 @@ func _scan_flow() -> void:
 	# Owner, 2026-11-06: ABOUT and SETTINGS (icons) are on the Connect screen too; Back from Settings returns to it.
 	_check(connect.find_child("AboutButton", true, false) != null and connect.find_child("SettingsButton", true, false) != null,
 			"the Connect screen has the icon buttons ABOUT and SETTINGS")
+	# Owner, 2026-11-12: a QUIT icon button at the end of the row opens the question QUIT SABABI APP? (no Back key when the system
+	# buttons are hidden); asked again, it closes.
+	var quit_b: Button = connect.find_child("QuitButton", true, false)
+	_check(quit_b != null and quit_b.text == "" and quit_b.accessibility_name == Lang.t("connect.quit")
+			and quit_b.get_index() == quit_b.get_parent().get_child_count() - 1,
+			"the Connect screen has the icon button QUIT at the end of the row")
+	quit_b.pressed.emit()
+	await _frames(2)
+	_check(is_instance_valid(connect._quit_dialog) and connect._quit_dialog.stay_button != null,
+			"QUIT opens the question with STAY and QUIT")
+	connect._quit_dialog.close()
+	await _frames(2)
+	_check(not is_instance_valid(connect._quit_dialog), "STAY closes the question")
 	connect.find_child("SettingsButton", true, false).pressed.emit()
 	await _frames(3)
 	var settings_screen: Control = _app.current_screen()
