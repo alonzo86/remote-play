@@ -9,11 +9,13 @@ const PlayerInput = preload("res://scripts/input/player_input.gd")
 const OrientationFusion = preload("res://scripts/input/orientation.gd")
 const R = preload("res://tests/sensor_replay.gd")
 const BowlingRules = preload("res://scripts/game/bowling/bowling_rules.gd")
+const SensorRecorder = preload("res://scripts/input/sensor_recorder.gd")
 
 const DT := 1.0 / 60.0
 const G := 9.81
 const UP := Vector3(0, 0, 1)
 
+var BowlingGame: GDScript   # Loaded in _initialize(): the game script needs the autoloads.
 var _checks := 0
 var _fails := 0
 
@@ -31,9 +33,11 @@ func _initialize() -> void:
 	if not preload("res://tests/import_guard.gd").ok():
 		quit(1)
 		return
+	BowlingGame = load("res://scripts/game/bowling/bowling_game.gd")
 	_detector_additions()
 	_player_slot()
 	_not_a_throw()
+	_real_shakes_432()
 	_real_swings()
 	_golf_gate()
 	print("%d checks, %d failed" % [_checks, _fails])
@@ -281,7 +285,8 @@ func _player_slot() -> void:
 func _pins(level := "medium") -> SwingDetector:
 	var d := SwingDetector.new()
 	d.threshold = float(BowlingRules.level(level).threshold)
-	d.min_back = load("res://scripts/game/bowling/bowling_game.gd").MIN_BACK
+	d.min_back = BowlingGame.MIN_BACK
+	d.min_forward = BowlingGame.MIN_FORWARD
 	d.max_reversals = 1
 	d.fwd_ratio = SwingDetector.FWD_RATIO
 	return d
@@ -337,6 +342,53 @@ func _not_a_throw() -> void:
 	_check(SwingDetector.new().fwd_ratio == 0.0, "the rule is off by default (Tennis keeps its own rule)")
 
 
+## Issue #432 (Test 23 step 4g): two recordings of a real fast shake from the owner's phone (tests/fixtures/shake_432, recorded
+## with the sensor recorder of the TV, label hard_shake, 2026-11-12). A shake that starts from rest has a weak first half cycle
+## and a hard second one, about 0.1 s each, so with `min_back` 0.1 and the ratio rule alone it threw a ball at its start. Bowling
+## now has `min_back` 0.12 and `min_forward` 0.1: a shake throws nothing, in the three levels. The price: a wind-up shorter than
+## 0.12 s and a push barely above the threshold (peak 7 m/s2, over in 0.07 s) no longer throw.
+func _real_shakes_432() -> void:
+	print("issue #432: real shakes")
+	_check(is_equal_approx(BowlingGame.MIN_BACK, 0.12) and is_equal_approx(BowlingGame.MIN_FORWARD, 0.1),
+			"Bowling sets min_back 0.12 s and min_forward 0.1 s")
+	for n in [1, 2]:
+		var parsed := SensorRecorder.parse(FileAccess.get_file_as_string("res://tests/fixtures/shake_432/hard_shake_%d.csv" % n))
+		var grid := SensorRecorder.resample(parsed)
+		var trace := R.Trace.new()
+		for i in grid.lin.size():
+			trace.add(grid.lin[i], grid.gyro[i])
+		_check(parsed.ok and trace.size() > 240, "the recording %d is read (%d steps)" % [n, trace.size()])
+		var old := SwingDetector.new()   # Bowling before the fix: min_back 0.1, no min_forward.
+		old.threshold = float(BowlingRules.level("medium").threshold)
+		old.min_back = 0.1
+		old.max_reversals = 1
+		old.fwd_ratio = SwingDetector.FWD_RATIO
+		_check(R.run_detector(old, trace).releases.size() == 1, "recording %d: the old rules throw a ball (the bug)" % n)
+		for level in ["easy", "medium", "hard"]:
+			_check(R.run_detector(_pins(level), trace).releases.is_empty(),
+					"recording %d: a fast shake throws nothing in Bowling %s" % [n, level])
+	var y := Vector3(0, 1, 0)
+	var gone := {"a wind-up of 0.1 s": R.stroke(y, 10.0, 25.0, 0.1, 0.15),
+			"a push of 7 m/s2 (barely above the threshold)": R.stroke(y, 4.5, 7.0)}
+	for name in gone:
+		_check(_throws(_pins(), gone[name]) == 0, "since #432 not a throw: %s" % name)
+	# min_forward on its own: a push that is over in 0.08 s is not a throw, one of 0.2 s is.
+	var short := SwingDetector.new()
+	short.min_forward = 0.1
+	short.fwd_ratio = SwingDetector.FWD_RATIO
+	var fw := Vector3(0, 1, 0)
+	var short_push := R.still(0.3).append(R.stroke(fw, 8.0, 30.0, 0.25, 0.08)).append(R.still(2.0))
+	_check(R.run_detector(short, short_push).releases.is_empty(),
+			"min_forward: a hard push that is over in 0.08 s is not a throw")
+	var long_push := SwingDetector.new()
+	long_push.min_forward = 0.1
+	long_push.fwd_ratio = SwingDetector.FWD_RATIO
+	var long_trace := R.still(0.3).append(R.stroke(fw, 8.0, 30.0, 0.25, 0.2)).append(R.still(2.0))
+	_check(R.run_detector(long_push, long_trace).releases.size() == 1,
+			"min_forward: a push of 0.2 s throws once")
+	_check(SwingDetector.new().min_forward == 0.0, "the rule is off by default (Tennis and Mini Golf keep their own rules)")
+
+
 func _real_swings() -> void:
 	print("issue #142: real swings that must throw")
 	var y := Vector3(0, 1, 0)
@@ -345,11 +397,9 @@ func _real_swings() -> void:
 		"soft and slow (back 4.5, forward 9, 0.3 s each)": R.stroke(y, 4.5, 9.0, 0.3, 0.3),
 		"a gentle back swing (back 3.5, forward 10)": R.stroke(y, 3.5, 10.0),
 		"a gentle back swing (back 4.2, forward 12)": R.stroke(y, 4.2, 12.0),
-		"a soft forward swing (back 4.5, forward 7)": R.stroke(y, 4.5, 7.0),
 		"medium (back 8, forward 18)": R.stroke(y, 8.0, 18.0),
 		"hard (back 10, forward 32)": R.stroke(y, 10.0, 32.0),
 		"a long back swing (0.5 s)": R.stroke(y, 6.0, 20.0, 0.5, 0.2),
-		"a short back swing (0.1 s)": R.stroke(y, 10.0, 25.0, 0.1, 0.15),
 		"a wide slow swing (0.4 s each way)": R.stroke(y, 6.0, 14.0, 0.4, 0.4),
 		"a pause of 0.4 s between the back and the forward swing":
 				R.back_swing(y, 8.0, 0.25).append(R.still(0.4)).append(R.forward_swing(y, 20.0, 0.2)),

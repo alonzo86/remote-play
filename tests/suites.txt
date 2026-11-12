@@ -47,6 +47,7 @@ tests/audio.gd|tv|audio: synth, songs, effects, volume and haptics switch|unit
 tests/smoke_lang.gd|tv|languages and right to left|scenario
 tests/bowling_rules.gd|controller|Bowling rules, lane and swing|unit
 tests/smoke_bowling.gd|tv|Bowling|scenario
+tests/bowling_shake_432.gd|tv|Bowling: made-up fast shakes throw no ball, through the game (issue #432)|scenario
 tests/smoke_tennis.gd|tv|Tennis|scenario
 tests/golf_rules.gd|controller|Mini Golf rules, ball and holes|unit
 tests/orientation_rules.gd|controller|sensor fusion: tilt past 90 degrees, calm phone|unit
