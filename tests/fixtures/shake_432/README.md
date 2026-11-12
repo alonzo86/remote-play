@@ -1,0 +1,1 @@
+Two recordings of a real fast shake (issue #432, Test 23 step 4g): the sensor recorder of the TV (F5, label `hard_shake`) with the owner's phone, 2026-11-12. Phone in the hand, finger off the aim strip, shaking back and forth with no wind-up. Format: `scripts/input/sensor_recorder.gd`. `tests/swing_detector.gd` replays them through the Bowling detector.

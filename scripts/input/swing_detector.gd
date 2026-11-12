@@ -73,6 +73,11 @@ var window := SWING_WINDOW
 ## The shortest back swing (s) that a forward swing may follow. A shake goes back and forth in about 0.1 s each way, a wind-up
 ## takes longer. A push before this time is not counted. 0 turns the rule off (Tennis, Mini Golf).
 var min_back := 0.0
+## The shortest forward swing (s), from the start of the push until the strength falls to half its peak. A shake that starts
+## from rest has a weak first half cycle and a hard second one, so it passes `min_back` and `fwd_ratio` once (issue #432), but its
+## hard half cycle lasts only about 0.1 s; a throw pushes longer. A shorter push is not a throw: it is handled like a push that
+## `fwd_ratio` rejects. 0 turns the rule off (Tennis, Mini Golf). Bowling sets `MIN_FORWARD` in its game.
+var min_forward := 0.0
 ## A shake reverses the direction of the acceleration again and again. When this is above 0, a push does not count while the
 ## acceleration along the swing axis turned round (strongly, more than `BACK_ACCEL`) more than this many times in the last
 ## `REVERSAL_SPAN` seconds. A real swing turns round once, from the back swing to the forward swing. 0 turns the rule off
@@ -256,8 +261,11 @@ func _update_forward(delta: float, lin: Vector3) -> void:
 	if f < _peak * RELEASE_AT and _time < forward_hold and _peak < STRIKE_ACCEL * threshold:
 		return   # A weak start: the real hit may still come in a few hundredths of a second.
 	if f < _peak * RELEASE_AT or _time > FORWARD_MAX:
-		if fwd_ratio > 0.0 and _back_time > 0.0 and _peak < _back_peak * fwd_ratio:
-			# As gentle as the back swing: a move to the side, a shake or the stop of the back swing. Not a throw.
+		var too_gentle := fwd_ratio > 0.0 and _back_time > 0.0 and _peak < _back_peak * fwd_ratio
+		var too_short := min_forward > 0.0 and _back_time > 0.0 and _time < min_forward
+		if too_gentle or too_short:
+			# As gentle as the back swing (a move to the side, a slow shake or the stop of the back swing) or too short (the hard
+			# half cycle of a fast shake). Not a throw.
 			# Back to the back swing, but only REJECT_GRACE seconds more: the real forward swing after a hard stop comes at once,
 			# a player who moved to the side and swings again must not wait for the whole window.
 			state = State.BACK
