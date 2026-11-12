@@ -19,6 +19,10 @@ const FONT_LICENSES := {
 ## repository), which sends each phone to its store (the store addresses are in `site/stores.js`). The TV draws this address in
 ## every installed copy, so it must stay: change where the page sends people, not this address.
 const APP_URL := "https://alonzo86.github.io/remote-play/get/"
+## The privacy policy on the website (the Play Console and the App Store ask for this address, and Google Play wants a link to it
+## inside the app). The Hebrew app shows the Hebrew page. The pages are made from `docs/legal/privacy-notice*.md` (issue #37).
+const PRIVACY_URL := "https://alonzo86.github.io/remote-play/privacy.html"
+const PRIVACY_URL_HE := "https://alonzo86.github.io/remote-play/he/privacy.html"
 
 
 ## The pages of the About list, in order. Each is {"title": text, "kind": text, "arg": text}. `scanner` adds the note about the
@@ -30,8 +34,14 @@ static func pages(scanner := false, tv := false) -> Array:
 	if scanner:
 		out.append({"title": "about.qr_scanner", "kind": "scanner", "arg": ""})
 	out.append({"title": "Godot Engine", "kind": "godot", "arg": ""})
+	out.append({"title": "about.privacy", "kind": "privacy", "arg": ""})
 	out.append({"title": "about.third_party_libraries", "kind": "libraries", "arg": ""})
 	return out
+
+
+## The web address of the privacy policy in the language of the app.
+static func privacy_url() -> String:
+	return PRIVACY_URL_HE if Lang.current() == Lang.HE else PRIVACY_URL
 
 
 ## The libraries of other makers, as pages: {"title": name, "kind": "library" or "file", "arg": name or file, "license": types}.
@@ -84,6 +94,8 @@ static func text(page: Dictionary) -> String:
 					+ "\n\n" + Lang.t("about.pages_below_list_parts")
 		"scanner":
 			return Lang.t("about.app_scans_with_google")
+		"privacy":
+			return Lang.t("about.privacy_url_line") + "\n\n" + privacy_url()
 		"godot":
 			return safe(Engine.get_license_text())
 		"file":

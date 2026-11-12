@@ -1115,6 +1115,7 @@ New (2026-10-11). The headless tests check the rules and the pages. They do not 
 8d2. Read the first line of a page aloud from 3 m. Check: you read it without a mistake. (Down and Up scroll the text: automated.)
 8f. On the TV box, use the stopwatch from OK on "3rd Party Libraries" to the list on the screen, and from OK on a library to its page. Check: the list opens within 3 s and the page within 2 s.
 9b2. On a phone open a long page (for example a library with two licenses) and drag it with one finger. Check: the text moves with the finger and the last line of the page can be reached by touch.
+9h. **New 2026-11-12 (owner).** Needs the website to be live (repository public, Pages on). On an Android phone open About, then "Privacy policy". Check: the page shows the web address `https://alonzo86.github.io/remote-play/privacy.html` and the button OPEN IN BROWSER, and a tap on the button opens that page in the browser. Set the phone to Hebrew: the address ends in `he/privacy.html`. (On the TV the same page shows the address and no button: automated.)
 9d. Open the page "Android libraries" and scroll to the end with the stopwatch. Check: it opens within 3 s and you reach the end of the text.
 10a. Set the TV to Hebrew. Check: the About list and the pages "Sababi" show in Hebrew, and the Hebrew reader says that the wording is correct. (The Settings changes of issue #49 are built and checked by `audio`.)
 

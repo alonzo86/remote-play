@@ -104,6 +104,9 @@ func show_page(i: int) -> void:
 	if String(page.kind) == "get_app":
 		_show_get_app(page)
 		return
+	if String(page.kind) == "privacy":
+		_show_privacy(page)
+		return
 	var t := UiKit.title(About.title_text(page), 40)
 	t.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -143,6 +146,32 @@ func _show_get_app(page: Dictionary) -> void:
 	var line := UiKit.label("about.get_app_scan", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(line)
+	var back := _button("common.back", on_back, false, "quiet")
+	_box.add_child(back)
+	UiKit.focus_later(back)
+
+
+## The page "Privacy policy": a line and the web address of the policy. A phone has a button that opens the address in the
+## browser; a TV has no browser, so it shows the address only (Google Play wants a link to the policy inside the app).
+func _show_privacy(page: Dictionary) -> void:
+	var t := UiKit.title(About.title_text(page), 40)
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_box.add_child(t)
+	var line := UiKit.label("about.privacy_url_line", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
+	line.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_box.add_child(line)
+	var url := _text_label(About.privacy_url())
+	url.name = "PrivacyUrl"
+	url.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY   # An address has no spaces: it breaks anywhere.
+	_box.add_child(url)
+	var spare := Control.new()
+	spare.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_box.add_child(spare)
+	if Role.is_controller():
+		var open := UiKit.box_button("about.privacy_open", func(): OS.shell_open(About.privacy_url()), UiTheme.SIZE_ITEM)
+		open.name = "OpenPrivacyButton"
+		open.custom_minimum_size = Vector2(0, 110)
+		_box.add_child(open)
 	var back := _button("common.back", on_back, false, "quiet")
 	_box.add_child(back)
 	UiKit.focus_later(back)

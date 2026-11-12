@@ -38,13 +38,15 @@ func _run() -> void:
 	_about()
 	await _about_screen()
 	await _get_the_app()
+	await _privacy_page()
 
 
 func _about() -> void:
 	print("About pages")
 	var pages := About.pages(false)
 	var titles := pages.map(func(p): return p.title)
-	_check(titles == ["Sababi", "Godot Engine", "about.third_party_libraries"], "the About list: Sababi, Godot, 3rd Party Libraries")
+	_check(titles == ["Sababi", "Godot Engine", "about.privacy", "about.third_party_libraries"],
+			"the About list: Sababi, Godot, Privacy policy, 3rd Party Libraries")
 	_check(not ("about.qr_scanner" in titles) and "about.qr_scanner" in About.pages(true).map(func(p): return p.title),
 			"the scanner note is only for the Android phone")
 	var by := {}
@@ -171,6 +173,39 @@ func _get_the_app() -> void:
 	_check(screen.find_children("*", "Label", true, false).any(func(l): return l.text == "about.get_app_scan"),
 			"and the line that says what the code is")
 	screen.queue_free()
+
+
+## Google Play wants a link to the privacy policy inside the app (the web address of the website, in the language of the app).
+func _privacy_page() -> void:
+	print("privacy policy page")
+	var idx := About.pages(false).map(func(p): return p.kind).find("privacy")
+	_check(idx >= 0 and About.pages(false, true).any(func(p): return p.kind == "privacy"),
+			"the Privacy policy page is in the list of the phone and of the TV")
+	var keep := Lang.current()
+	Lang.set_language(Lang.EN)
+	_check(About.privacy_url() == "https://alonzo86.github.io/remote-play/privacy.html"
+			and About.text({"kind": "privacy"}).ends_with(About.privacy_url()), "in English the address is the page privacy.html")
+	Lang.set_language(Lang.HE)
+	_check(About.privacy_url() == "https://alonzo86.github.io/remote-play/he/privacy.html", "in Hebrew it is the Hebrew page")
+	Lang.set_language(keep)
+	var screen: Control = await _open_about()
+	screen.show_page(idx)
+	await process_frame
+	var url: Label = screen.find_child("PrivacyUrl", true, false)
+	_check(url != null and url.text == About.privacy_url(), "the page shows the address")
+	_check(screen.find_child("OpenPrivacyButton", true, false) != null, "the phone has the button that opens it")
+	screen.queue_free()
+	var role: Node = root.get_node("Role")
+	var was: int = role.kind
+	role.kind = role.Kind.TV   # A TV has no browser: the page shows the address and no button.
+	var tv: Control = await _open_about()
+	tv._current = About.pages(false, true)
+	tv.show_page(About.pages(false, true).map(func(p): return p.kind).find("privacy"))
+	await process_frame
+	_check(tv.find_child("PrivacyUrl", true, false) != null and tv.find_child("OpenPrivacyButton", true, false) == null,
+			"the TV shows the address and has no button")
+	tv.queue_free()
+	role.kind = was
 
 
 func _open_about(props := {}) -> Control:
