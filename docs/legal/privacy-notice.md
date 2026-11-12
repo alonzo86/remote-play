@@ -42,7 +42,7 @@ The apps themselves send nothing outside your local network.
 
 ## 5. Permissions
 
-Android: internet and network state (to communicate with the TV), Wi-Fi state (to keep the connection steady), keep awake (so the screen does not sleep during a game), and vibration (the Controller only).
+Android: internet and network state (to communicate with the TV), Wi-Fi state and change Wi-Fi multicast state (to keep the connection steady and fast), keep awake (so the screen does not sleep during a game), and vibration (the Controller only).
 
 ## 6. Sharing and third parties
 
