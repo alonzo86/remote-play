@@ -456,6 +456,12 @@ func _points() -> void:
 	o.rng.seed = 2
 	o.swing(1, 1.0, false, -1.0, -0.3)
 	_run(o, 2.0)
+	var out_pos := Vector3.ZERO
+	for e in o.take_events():
+		if e.t == "out":
+			out_pos = e.pos
+	_check(absf(out_pos.x) > o.half_width() + Match.LINE_TOL or absf(out_pos.y) > Sim.HALF_L + Match.LINE_TOL,
+			"the ball landed more than the line margin outside the court (%.2f, %.2f)" % [out_pos.x, out_pos.y])
 	_check(o.rules.points == [1, 0] and o.last_point.reason == "out", "a ball that lands out is a point for the other team")
 	# A ball that stays in is returned back and forth.
 	var r := _match([0, 1])

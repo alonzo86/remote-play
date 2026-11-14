@@ -136,6 +136,22 @@ func _run() -> void:
 	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down right after the wind-up serves")
 	_check(game._look_of(server, game.play.chars[server]).pose == "serve", "the serve shows the serve pose")
 
+	# The rule of the wind-up (#419): a swing down with a wind-up of its own serves at once; one that follows a swing of the server
+	# by more than `SERVE_WIND_GAP` does not (the wind-up was too long ago, so this one is a wind-up again).
+	game.play._begin_serve()
+	var server2: int = game.play.server_slot()
+	game._on_button(Protocol.BTN_A, server2)
+	for i in int(apex / 0.016):
+		game._game_tick(0.016)
+	game._wind_ms[server2] = Time.get_ticks_msec() - int(game.SERVE_WIND_GAP * 1000.0) - 200
+	game._tick_ms = Time.get_ticks_msec()
+	game._on_swing({"power": 0.8, "down": true, "wind_up_s": 0.0, "hit_age_ms": 0.0}, server2)
+	_check(game.play.phase == game.Match.Phase.TOSS,
+			"a swing down 1 s after the last swing of the server, with no wind-up, is no serve")
+	game._wind_ms.clear()
+	game._on_swing({"power": 0.8, "down": true, "wind_up_s": 0.5, "hit_age_ms": 0.0}, server2)
+	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down with its own wind-up serves at once")
+
 	# The ball in play shows the target ring and the people draw (REQ-TN-5).
 	for i in 20:
 		game._game_tick(0.016)
