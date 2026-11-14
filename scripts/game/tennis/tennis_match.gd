@@ -22,6 +22,8 @@ const AUTO_TOSS := 1.5          # With 2 to 4 players the ball is tossed by itse
 const TOSS_FROM := 1.0          # The height (m) of the hand at the toss.
 const POINT_PAUSE := 1.8        # The banner after a point, a fault and a game.
 const FAULT_PAUSE := 1.4
+const LINE_TOL := 0.15           # A ball that lands this close (m) outside a line counts as on the line, so it is in.
+const SERVE_LONG_MARGIN := 0.25  # The hardest serve is aimed this far (m) before the service line (it was 0.5 m behind it).
 const GAME_PAUSE := 2.6
 const FEED_DELAY := 1.6         # With 1 player the machine sends the first ball after this time.
 const NEXT_RALLY := 2.0         # ... and a new rally starts this long after a miss (REQ-TN-15): banner time plus the rest.
@@ -228,7 +230,7 @@ func _swing_result(slot: int, power: float, down: bool, tilt_x: float, hit_age: 
 func _serve_hit(slot: int, power: float, tilt_x: float, green: bool) -> void:
 	var team := team_of(slot)
 	var from := sim.pos
-	var depth := lerpf(2.6, 6.9, power) if green else lerpf(3.0, 5.0, power)
+	var depth := lerpf(2.6, Sim.SERVICE - SERVE_LONG_MARGIN, power) if green else lerpf(3.0, 5.0, power)
 	var noise := 0.0 if green else rng.randf_range(-1.0, 1.0) * 0.8
 	var tx := aim_x(slot, tilt_x, true, noise)
 	if level.inside:
@@ -452,7 +454,7 @@ func _bounce(e: Dictionary) -> void:
 
 ## The ball landed inside the lines of the side of the team that has to return it.
 func _in_court(p: Vector3) -> bool:
-	return p.y * side(hit_team) < 0.0 and absf(p.y) <= Sim.HALF_L and absf(p.x) <= half_width()
+	return p.y * side(hit_team) < 0.0 and absf(p.y) <= Sim.HALF_L + LINE_TOL and absf(p.x) <= half_width() + LINE_TOL
 
 
 ## The service box across the net from the server: the half of the court with the sign `box` in x, up to the service line.
@@ -460,7 +462,8 @@ func _in_service_box(p: Vector3) -> bool:
 	var server := server_slot()
 	var st := team_of(server)
 	var box := -signf(_serve_x(st))
-	return p.y * side(st) < 0.0 and absf(p.y) <= Sim.SERVICE and p.x * box >= 0.0 and absf(p.x) <= Sim.HALF_W_SINGLES
+	return p.y * side(st) < 0.0 and absf(p.y) <= Sim.SERVICE + LINE_TOL and p.x * box >= -LINE_TOL \
+			and absf(p.x) <= Sim.HALF_W_SINGLES + LINE_TOL
 
 
 # ---- Points ----

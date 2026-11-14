@@ -115,7 +115,7 @@ func _until(game: Control, t: float) -> void:
 
 
 func _swing(game: Control, slot: int, power: float, down: bool, side := 0.0) -> void:
-	game._on_swing({"power": power, "down": down, "side": side, "hit_age_ms": 0.0}, slot)
+	game._on_swing({"power": power, "down": down, "side": side, "hit_age_ms": 0.0, "wind_up_s": 0.5}, slot)
 
 
 ## The server tosses (A, at once) and swings from top to bottom `offset` seconds from the top of the toss.

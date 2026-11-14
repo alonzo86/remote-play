@@ -18,6 +18,8 @@ const BANNER_TIME := 1.6
 const GREAT_TIME := 0.8
 const BUZZ_HIT_MS := 30
 const BUZZ_GREAT_MS := 60
+const SERVE_WIND_UP := 0.25      # A serve needs a wind-up: its own back swing lasted this long (s) ...
+const SERVE_WIND_GAP := 0.8      # ... or a swing of the server was thrown less than this long (s) before it.
 const PAUSE_GAP_MS := 400       # A gap between two ticks longer than this means the game was paused: swings are ignored.
 const PANEL_W := 760.0   # The least width of the team panel; `panel_width()` grows it (#246).
 const PANEL_ROW := 60.0
@@ -42,6 +44,7 @@ var _banner_color := UiTheme.ACCENT
 var _great: Dictionary = {}     # slot -> seconds left of the GREAT! text over the player.
 var _sparks: Array = []         # {pos: Vector3, age: float} of the green hits: a few pixel sparks at the racket (REQ-TN-6).
 var _tick_ms := 0
+var _wind_ms := {}              # slot -> the time (ms) of the last swing of the server that was taken as a wind-up.
 var _wired: Array[int] = []     # The slots whose signals are connected, also the ones that left later.
 
 
@@ -104,7 +107,21 @@ func _on_swing(info: Dictionary, slot: int) -> void:
 	if not _live() or Time.get_ticks_msec() - _tick_ms > PAUSE_GAP_MS:
 		return
 	var side := clampf(float(info.get("side", 0.0)), -1.0, 1.0)   # The side of the swing, not the tilt (REQ-TN-7).
-	play.swing(slot, float(info.power), bool(info.down), side, float(info.hit_age_ms) / 1000.0)
+	var down := bool(info.down)
+	if not play.solo and slot == play.server_slot() and (play.phase == Match.Phase.SERVE or play.phase == Match.Phase.TOSS):
+		# A serve is a wind-up (up and back) and then a swing forward and down (owner, 2026-11-14, issue #419). The wind-up is a sharp
+		# push too: the detector takes it for the hit, and when the phone turns early it can even look like down. So a swing counts
+		# as the serve only when it came after a wind-up: its own back swing lasted `SERVE_WIND_UP` or a swing of the server was
+		# thrown less than `SERVE_WIND_GAP` s before. Any other swing of the server is the wind-up: the detector starts again so
+		# that the swing down that follows is found.
+		var now := Time.get_ticks_msec()
+		var wound: bool = float(info.get("wind_up_s", 0.0)) >= SERVE_WIND_UP \
+				or now - int(_wind_ms.get(slot, -100000)) <= SERVE_WIND_GAP * 1000.0
+		if not down or not wound:
+			_wind_ms[slot] = now
+			down = false
+			player(slot).swing.reset()
+	play.swing(slot, float(info.power), down, side, float(info.hit_age_ms) / 1000.0)
 
 
 ## True while the match is on: not in the countdown (only the solo match has one), not over, not paused.

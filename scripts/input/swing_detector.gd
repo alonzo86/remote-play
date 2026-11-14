@@ -107,6 +107,9 @@ var hit_age := 0.0
 var _above := 0.0
 var _sum := Vector3.ZERO
 var _axis := Vector3.ZERO
+## How long the back swing lasted (s) before the swing that was just thrown, valid after `released`; 0 when the swing had none
+## (a sharp push from rest). Tennis uses it: a serve needs a wind-up (issue #419).
+var wind_up := 0.0
 var _time := 0.0
 var _peak := 0.0
 var _since_peak := 0.0
@@ -137,6 +140,7 @@ func reset() -> void:
 	_speed = 0.0
 	_back_peak = 0.0
 	_back_time = 0.0
+	wind_up = 0.0
 	_peak_speed = 0.0
 	_speed_min = 0.0
 	_strike = 0.0
@@ -205,6 +209,7 @@ func _update_back(delta: float, lin: Vector3) -> void:
 		_peak_speed = _speed
 		_since_peak = 0.0
 		_back_time = _time
+		wind_up = _time
 		_time = 0.0
 	elif _time > window:
 		weak = true
@@ -238,6 +243,7 @@ func _check_strike(delta: float, lin: Vector3) -> bool:
 	if _strike < STRIKE_TIME:
 		return false
 	_axis = -_strike_sum.normalized()
+	wind_up = _time if state == State.BACK else 0.0
 	state = State.FORWARD
 	aim_locked = true
 	_peak = lin.length()

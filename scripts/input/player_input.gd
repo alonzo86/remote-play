@@ -267,6 +267,15 @@ func _new_swing_detector() -> void:
 	_swing_ts = -1
 
 
+## True when the forward swing went down in the world (a serve, REQ-TN-9). It is the push as it happened in the world, summed
+## while the swing ran: the phone turns in a serve, so the direction in the phone frame at the start does not tell where the
+## hand went (issue #419). A push with no world direction (nothing summed) falls back to the direction at the start and the tilt.
+func _went_down(world: Vector3) -> bool:
+	if world.length() < 0.001:
+		return SwingDetector.is_down(swing.forward_dir, orientation.up)
+	return world.normalized().z < SwingDetector.DOWN_SINE
+
+
 ## Feeds the swing detector with one sensor packet. When a swing is thrown, `swung` is emitted with: `power` (0 to 1),
 ## `down` (a swing from top to bottom, like a serve), `forward_dir` (the direction in the phone frame), `hit_age_ms`
 ## (the hit was this long ago), `side` (-1 left to 1 right of the TV, from the direction of the swing) and `world_dir`.
@@ -296,9 +305,10 @@ func _feed_swing(pkt: Dictionary, now_ms: int) -> void:
 	var world := _fwd_world
 	last_swing = {
 		"power": swing.power,
-		"down": SwingDetector.is_down(swing.forward_dir, orientation.up),
+		"down": _went_down(world),
 		"forward_dir": swing.forward_dir,
 		"hit_age_ms": swing.hit_age * 1000.0,
+		"wind_up_s": swing.wind_up,
 		"side": OrientationFusion.swing_side(world, SWING_SIDE_FULL, heading),
 		"azimuth": OrientationFusion.azimuth(world),
 		"world_dir": world.normalized(),

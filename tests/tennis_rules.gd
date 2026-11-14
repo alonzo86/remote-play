@@ -339,6 +339,16 @@ func _serve() -> void:
 	var fe2 := f.take_events()
 	_check(f.rules.points == [0, 1] and _has(fe2, "point") and f.last_point.reason == "double_fault",
 			"a second fault is a point for the other team")
+	# Issue #419: the hardest serve straight ahead is not long, and a ball on the line is in.
+	var hard := _match([0, 1])
+	_serve_now(hard, 1.0, 0.0)
+	_run(hard, 1.5)
+	_check(not _has(hard.take_events(), "fault") and hard.faults == 0, "the hardest serve straight ahead lands in the box, not long")
+	var box_x := -signf(hard._serve_x(hard.team_of(hard.server_slot()))) * 2.0
+	var sy := -hard.side(hard.team_of(hard.server_slot()))
+	_check(hard._in_service_box(Vector3(box_x, sy * (Sim.SERVICE + 0.1), 0.0))
+			and not hard._in_service_box(Vector3(box_x, sy * (Sim.SERVICE + 0.4), 0.0)),
+			"a ball 0.1 m past the service line is on the line (in), 0.4 m past it is out")
 	var easy := _match([0, 1], false, "easy")
 	_serve_now(easy, 1.0, 1.0)
 	_run(easy, 1.5)
@@ -442,7 +452,8 @@ func _points() -> void:
 	_serve_now(o, 0.5)
 	_until_contact(o)
 	# The widest aim ends on the sideline, which is in (2026-11-06). A swing that is not green (0.3 s late) adds a random
-	# sideways miss to it (the match has a fixed seed), and this one is out.
+	# sideways miss to it, and with this seed the ball lands more than the line margin (`LINE_TOL`) outside.
+	o.rng.seed = 2
 	o.swing(1, 1.0, false, -1.0, -0.3)
 	_run(o, 2.0)
 	_check(o.rules.points == [1, 0] and o.last_point.reason == "out", "a ball that lands out is a point for the other team")

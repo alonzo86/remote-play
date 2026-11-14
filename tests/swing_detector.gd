@@ -238,6 +238,14 @@ func _player_slot() -> void:
 	_check(got.size() == 2 and not got[1].down, "a second swing after the wait is found, and a sideways swing is not down")
 	_check(absf(float(got[0].side)) < 0.01 and float(got[1].side) < -0.9,
 			"the side of a swing follows its direction: straight down gives 0, a forward swing to the left gives -1 (REQ-TN-7)")
+	# Issue #419: the phone turns in a serve, so "down" is the push in the world, not the phone-frame direction at the start.
+	var q := PlayerInput.new(1, {})
+	q.orientation.up = Vector3(0, 1, 0)   # At the end of the swing the phone is upright, its top points up the world "up" no more.
+	q.swing.forward_dir = Vector3(0, 1, 0)   # In the phone frame the push went along the world "up" of this end pose (not down).
+	_check(q._went_down(Vector3(0.2, 0.3, -0.9)) and not q._went_down(Vector3(0.2, 0.3, 0.9))
+			and not q._went_down(Vector3(1, 0.1, -0.05)),
+			"a serve is down by the push in the world (z), whatever the phone frame says at the end of the swing (#419)")
+	_check(not q._went_down(Vector3.ZERO), "with no push in the world, the phone-frame direction and tilt decide (here: not down)")
 	var o := OrientationFusion.new({})
 	o.update(0, Vector3.ZERO, Vector3(0, 0, 9.81))   # Flat on a table, the top of the phone points at the TV.
 	var full := 0.7854

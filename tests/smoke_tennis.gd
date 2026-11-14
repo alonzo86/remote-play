@@ -120,8 +120,20 @@ func _run() -> void:
 	game._on_swing({"power": 0.8, "down": false, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
 	_check(game.play.phase == game.Match.Phase.TOSS and game._look_of(server, game.play.chars[server]).pose == "serve",
 			"a missed swing during the toss shows the serve pose")
-	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
-	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down at the top of the toss serves")
+	game.player(server).swing.state = game.player(server).swing.State.LOCKED   # The detector locked after the wind-up.
+	game._on_swing({"power": 0.8, "down": false, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
+	_check(game.player(server).swing.state == game.player(server).swing.State.READY,
+			"a swing of the server that is not down does not lock the detector: the swing down after the wind-up is found (#419)")
+	# A swing down with no wind-up (none of its own, no swing of the server just before) is the wind-up: no serve. The swing
+	# down that follows it serves (the detector starts again after the wind-up).
+	game._wind_ms.clear()
+	game.player(server).swing.state = game.player(server).swing.State.LOCKED
+	game._on_swing({"power": 0.8, "down": true, "wind_up_s": 0.0, "hit_age_ms": 0.0}, server)
+	var det = game.player(server).swing
+	_check(game.play.phase == game.Match.Phase.TOSS and det.state == det.State.READY,
+			"a swing down that has no wind-up is the wind-up: no serve, and the detector starts again (#419)")
+	game._on_swing({"power": 0.8, "down": true, "wind_up_s": 0.0, "hit_age_ms": 0.0}, server)
+	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down right after the wind-up serves")
 	_check(game._look_of(server, game.play.chars[server]).pose == "serve", "the serve shows the serve pose")
 
 	# The ball in play shows the target ring and the people draw (REQ-TN-5).
