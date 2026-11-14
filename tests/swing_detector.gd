@@ -238,6 +238,37 @@ func _player_slot() -> void:
 	_check(got.size() == 2 and not got[1].down, "a second swing after the wait is found, and a sideways swing is not down")
 	_check(absf(float(got[0].side)) < 0.01 and float(got[1].side) < -0.9,
 			"the side of a swing follows its direction: straight down gives 0, a forward swing to the left gives -1 (REQ-TN-7)")
+	# Issue #419: `wind_up` is the length of the back swing before a throw (Tennis needs it for a serve).
+	var wd := SwingDetector.new()
+	for i in 30:   # A back swing of 0.5 s ...
+		wd.update(DT, UP * 8.0)
+	for f in [10.0, 30.0, 30.0, 10.0]:
+		wd.update(DT, -UP * f)
+	_check(wd.released and wd.wind_up >= 0.25, "a back swing of 0.5 s gives a wind-up of at least 0.25 s (%.2f)" % wd.wind_up)
+	var sharp := SwingDetector.new()   # The settings of Tennis: a sharp push from rest is a swing with no back swing.
+	sharp.hand_speed = true
+	sharp.strike_without_back = true
+	sharp.strike_against = 0.0
+	for i in 12:
+		sharp.update(DT, -UP * 40.0)
+		if sharp.released:
+			break
+	for i in 12:
+		if sharp.released:
+			break
+		sharp.update(DT, Vector3.ZERO)
+	_check(sharp.released and sharp.wind_up == 0.0, "a sharp push from rest has no wind-up (%.2f)" % sharp.wind_up)
+	sharp.reset()
+	_check(sharp.wind_up == 0.0, "reset() clears the wind-up")
+
+	# Issue #419: the phone turns in a serve, so "down" is the push in the world, not the phone-frame direction at the start.
+	var q := PlayerInput.new(1, {})
+	q.orientation.up = Vector3(0, 1, 0)   # At the end of the swing the phone is upright, its top points up the world "up" no more.
+	q.swing.forward_dir = Vector3(0, 1, 0)   # In the phone frame the push went along the world "up" of this end pose (not down).
+	_check(q._went_down(Vector3(0.2, 0.3, -0.9)) and not q._went_down(Vector3(0.2, 0.3, 0.9))
+			and not q._went_down(Vector3(1, 0.1, -0.05)),
+			"a serve is down by the push in the world (z), whatever the phone frame says at the end of the swing (#419)")
+	_check(not q._went_down(Vector3.ZERO), "with no push in the world, the phone-frame direction and tilt decide (here: not down)")
 	var o := OrientationFusion.new({})
 	o.update(0, Vector3.ZERO, Vector3(0, 0, 9.81))   # Flat on a table, the top of the phone points at the TV.
 	var full := 0.7854
