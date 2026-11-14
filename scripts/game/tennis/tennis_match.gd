@@ -16,8 +16,9 @@ enum Phase { SERVE, TOSS, RALLY, POINT, END }
 ## were lost).
 const EARLY_W := 0.9
 const HIT_W := 0.55             # A swing counts when its hit is this close (s) to the contact time.
-const SERVE_W := 0.6            # The same for a serve, around the top of the toss (it was 0.45 until 2026-11-08, issue #419).
-const TOSS_UP := 4.6            # The speed (m/s) of the toss.
+const SERVE_W := 0.8            # A serve counts this long (s) around the top of the toss: the whole toss (0.45 until 2026-11-08).
+const TOSS_UP := 6.5            # The speed (m/s) of the toss: the top is 3.1 m high, 0.66 s after it (4.6 m/s until 2026-11-14).
+const AUTO_TOSS := 1.5          # With 2 to 4 players the ball is tossed by itself this long (s) after the serve phase starts.
 const TOSS_FROM := 1.0          # The height (m) of the hand at the toss.
 const POINT_PAUSE := 1.8        # The banner after a point, a fault and a game.
 const FAULT_PAUSE := 1.4
@@ -172,6 +173,13 @@ func press_a(slot: int) -> void:
 			_feed_after = minf(_feed_after, FEED_DELAY * 0.5)   # A skips the wait of the machine.
 		return
 	if phase != Phase.SERVE or slot != server_slot():
+		return
+	_toss(slot)
+
+
+## The ball goes up from the hand of the server (A, or by itself after `AUTO_TOSS`).
+func _toss(slot: int) -> void:
+	if not chars.has(slot):
 		return
 	var c = chars[slot]
 	sim.toss(Vector3(c.pos.x, c.pos.y, TOSS_FROM), TOSS_UP)
@@ -355,6 +363,8 @@ func _move(delta: float) -> void:
 
 func _tick_serve(_delta: float) -> void:
 	if not solo:
+		if phase_time >= AUTO_TOSS:   # The server needs no button: pressing A with a thumb and swinging with the same hand is hard.
+			_toss(server_slot())
 		return
 	if phase_time >= _feed_after:
 		_feed()

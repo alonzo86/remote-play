@@ -101,22 +101,28 @@ func _run() -> void:
 	game.player(0).player_name = old_names[0]
 	game.player(1).player_name = old_names[1]
 
-	# A press on A of the server tosses the ball, a swing down serves (REQ-TN-9).
+	# A press on A of the server tosses the ball at once (it also goes up by itself), a swing down serves (REQ-TN-9).
 	_go(game)
 	var server: int = game.play.server_slot()
 	game._on_button(Protocol.BTN_A, 1 - server)
 	_check(game.play.phase == game.Match.Phase.SERVE, "A of the other phone does not toss")
 	game._on_button(Protocol.BTN_A, server)
 	_check(game.play.phase == game.Match.Phase.TOSS, "A of the server tosses the ball")
-	var apex := 4.6 / 9.81
+	var apex: float = game.Match.TOSS_UP / 9.81   # The top of the toss (0.66 s after it).
 	for i in int(apex / 0.016):
 		game._game_tick(0.016)
 	game._tick_ms = 0   # The game was paused a moment ago: a swing now is ignored.
 	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
 	_check(game.play.phase == game.Match.Phase.TOSS, "a swing right after a pause does nothing")
 	game._tick_ms = Time.get_ticks_msec()
+	# A swing that misses the serve (not from top to bottom) still shows the serve pose: the racket goes high, not a plain hit
+	# (owner, 2026-11-14, issue #419).
+	game._on_swing({"power": 0.8, "down": false, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
+	_check(game.play.phase == game.Match.Phase.TOSS and game._look_of(server, game.play.chars[server]).pose == "serve",
+			"a missed swing during the toss shows the serve pose")
 	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
 	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down at the top of the toss serves")
+	_check(game._look_of(server, game.play.chars[server]).pose == "serve", "the serve shows the serve pose")
 
 	# The ball in play shows the target ring and the people draw (REQ-TN-5).
 	for i in 20:
