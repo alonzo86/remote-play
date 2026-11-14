@@ -115,8 +115,14 @@ func _run() -> void:
 	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
 	_check(game.play.phase == game.Match.Phase.TOSS, "a swing right after a pause does nothing")
 	game._tick_ms = Time.get_ticks_msec()
+	# A swing that misses the serve (not from top to bottom) still shows the serve pose: the racket goes high, not a plain hit
+	# (owner, 2026-11-14, issue #419).
+	game._on_swing({"power": 0.8, "down": false, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
+	_check(game.play.phase == game.Match.Phase.TOSS and game._look_of(server, game.play.chars[server]).pose == "serve",
+			"a missed swing during the toss shows the serve pose")
 	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
 	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down at the top of the toss serves")
+	_check(game._look_of(server, game.play.chars[server]).pose == "serve", "the serve shows the serve pose")
 
 	# The ball in play shows the target ring and the people draw (REQ-TN-5).
 	for i in 20:

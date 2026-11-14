@@ -362,7 +362,10 @@ func _look_of(slot: int, c: Dictionary) -> Dictionary:
 	var pose := "idle"
 	var anim := float(c.anim)
 	if anim < 0.4:
-		pose = "serve" if play.serve_ball and anim < 0.4 and slot == play.server_slot() else "hit"
+		# The server swings its racket high for a serve, also when the swing misses the ball (before or during the toss).
+		var serving: bool = slot == play.server_slot() and (play.serve_ball \
+				or (not play.solo and (play.phase == Match.Phase.SERVE or play.phase == Match.Phase.TOSS)))
+		pose = "serve" if serving else "hit"
 	elif (c.pos as Vector2).distance_to(c.target) > 0.05:
 		pose = "run"
 	return {"shirt": player(slot).color, "slot": slot, "back": near, "hand": 1.0 if near else -1.0, "pose": pose,

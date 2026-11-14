@@ -147,7 +147,7 @@ func _run() -> void:
 	_check(game.difficulty == "medium", "the difficulty is Medium by default (1a)")
 	_go(game)
 	_settle(game)
-	_check(game._hint() == "tennis.hint_serve" and Lang.t("tennis.hint_serve").begins_with("PRESS A TO TOSS"),
+	_check(game._hint() == "tennis.hint_serve" and Lang.t("tennis.hint_serve").begins_with("WAIT FOR THE TOSS"),
 			"at the start the hint line is the serve hint: %s (3a)" % Lang.t("tennis.hint_serve"))
 	_tick_n(game, 14.0)
 	_check(game._hint() == "tennis.hint_serve", "the hint is still there after 14 s")
