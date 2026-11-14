@@ -265,6 +265,17 @@ func _auto_toss() -> void:
 	_check(_has(events, "toss_lost"), "an automatic toss that is not hit falls")
 	_run(again, Match.AUTO_TOSS + 0.1)
 	_check(again.phase == Match.Phase.TOSS, "and the ball is tossed again by itself")
+	# 4 players: the server leaves while its ball is up (tossed by itself): the serve starts again with the next server, whose
+	# ball is tossed by itself too (no error, the same teams rules as REQ-TN-20).
+	var four := _match([0, 1, 2, 3])
+	var first_server := four.server_slot()
+	_run(four, Match.AUTO_TOSS + 0.3)
+	_check(four.phase == Match.Phase.TOSS, "4 players: the first server's ball is up")
+	four.remove_player(first_server)
+	_check(four.phase == Match.Phase.SERVE and not four.chars.has(first_server) and four.chars.has(four.server_slot()),
+			"4 players: when the server leaves, the serve starts again with a server who is still in the match")
+	_run(four, Match.AUTO_TOSS + 0.3)
+	_check(four.phase == Match.Phase.TOSS and four.server_slot() != first_server, "and the next server's ball is tossed by itself")
 	var solo := _match([0])   # One player: the machine feeds the ball (REQ-TN-1), nobody tosses.
 	var tossed := false
 	for i in int(4.0 / DT):

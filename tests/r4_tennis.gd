@@ -1,9 +1,9 @@
 extends SceneTree
 ## Tennis, the rest of Test 25 (docs/MANUAL_TESTS.md test 25), with simulated phones and a fixed time step: no leader chip before
-## the first point (2c), the toss goes up at once and falls when nobody swings (3b, 3d), the character runs by itself into the
-## ring (4c), GREAT! for a green swing and not for an early or a late one (5a, 5b), wide and long shots keep the characters on
-## the screen and the swings return the ball (6b), the place of a phone is the place of its team (9e), the rally count, the best
-## rally and the new rally after a miss (10b). The round of 90 s (10c) is in tests/smoke_tennis_phones.gd.
+## the first point (2c), A tosses the ball at once and it falls when nobody swings (3b, 3d), the character runs by itself into
+## the ring (4c), GREAT! for a green swing and not for an early or a late one (5a, 5b), wide and long shots keep the characters
+## on the screen and the swings return the ball (6b), the place of a phone is the place of its team (9e), the rally count, the
+## best rally and the new rally after a miss (10b). The round of 90 s (10c) is in tests/smoke_tennis_phones.gd.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_tennis.gd -- --role=tv
 
 const SimInput = preload("res://tests/sim_input.gd")
@@ -11,6 +11,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Match = preload("res://scripts/game/tennis/tennis_match.gd")
+const Sim = preload("res://scripts/game/tennis/tennis_sim.gd")
 var Look: GDScript   # Loaded in _initialize: this script needs the App autoload (#276).
 
 const DT := 1.0 / 60.0
@@ -117,7 +118,7 @@ func _swing(game: Control, slot: int, power: float, down: bool, side := 0.0) -> 
 	game._on_swing({"power": power, "down": down, "side": side, "hit_age_ms": 0.0}, slot)
 
 
-## The server tosses (A) and swings from top to bottom `offset` seconds from the top of the toss.
+## The server tosses (A, at once) and swings from top to bottom `offset` seconds from the top of the toss.
 func _serve(game: Control, offset := 0.0, power := 0.5) -> int:
 	var server: int = game.play.server_slot()
 	game._on_button(Protocol.BTN_A, server)
@@ -156,11 +157,13 @@ func _toss() -> void:
 		t += DT
 		top = maxf(top, game.play.sim.pos.z)
 	_check(top - Match.TOSS_FROM >= 0.5, "3b: within 0.5 s the ball went up %.2f m" % (top - Match.TOSS_FROM))
-	# 3d: no swing. The ball is taken away when it is back near the hand (it fell) and the server tosses again.
+	# 3d: no swing. The ball is taken away when it is back near the hand (it fell) and the server tosses again (by itself, or A).
 	var fell := SimInput.run_until(game, func() -> bool: return game.play.phase == Match.Phase.SERVE, 3.0)
 	var total := t + fell
-	_check(game.play.phase == Match.Phase.SERVE and total >= 0.5 and total <= 1.5,
-			"3d: with no swing the ball is down %.2f s after the toss (0.5 to 1.5 s) and the server can toss again" % total)
+	var fall := 2.0 * Match.TOSS_UP / Sim.G   # About 1.4 s: it is caught when it is back near the hand (issue #419: toss 6.5 m/s).
+	_check(game.play.phase == Match.Phase.SERVE and total >= fall * 0.8 and total <= fall * 1.2,
+			"3d: with no swing the ball is down %.2f s after the toss (%.1f to %.1f s) and the server can toss again" %
+			[total, fall * 0.8, fall * 1.2])
 	game._on_button(Protocol.BTN_A, server)
 	_check(game.play.phase == Match.Phase.TOSS, "3d: A tosses again (no fault, no point lost)")
 	_check(game.play.rules.tally[0] == 0 and game.play.rules.tally[1] == 0 and game.play.faults == 0, "3d: and no point was scored")

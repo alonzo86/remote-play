@@ -101,14 +101,14 @@ func _run() -> void:
 	game.player(0).player_name = old_names[0]
 	game.player(1).player_name = old_names[1]
 
-	# A press on A of the server tosses the ball, a swing down serves (REQ-TN-9).
+	# A press on A of the server tosses the ball at once (it also goes up by itself), a swing down serves (REQ-TN-9).
 	_go(game)
 	var server: int = game.play.server_slot()
 	game._on_button(Protocol.BTN_A, 1 - server)
 	_check(game.play.phase == game.Match.Phase.SERVE, "A of the other phone does not toss")
 	game._on_button(Protocol.BTN_A, server)
 	_check(game.play.phase == game.Match.Phase.TOSS, "A of the server tosses the ball")
-	var apex := 4.6 / 9.81
+	var apex: float = game.Match.TOSS_UP / 9.81   # The top of the toss (0.66 s after it).
 	for i in int(apex / 0.016):
 		game._game_tick(0.016)
 	game._tick_ms = 0   # The game was paused a moment ago: a swing now is ignored.

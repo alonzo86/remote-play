@@ -188,7 +188,7 @@ func _run() -> void:
 		_settle(g2)
 		var server2: int = g2.play.server_slot()
 		g2._on_button(Protocol.BTN_A, server2)
-		_tick_n(g2, 4.6 / 9.81, 0.016)
+		_tick_n(g2, g2.Match.TOSS_UP / 9.81, 0.016)
 		g2._on_swing({"power": 0.5, "down": true, "side": 0.0, "hit_age_ms": 0.0}, server2)
 		var first_green := 99.0
 		var frames_green := 0
