@@ -11,6 +11,7 @@ const TvServer = preload("res://scripts/net/tv_server.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 
 # Not the game port: it depends on the process (as in pad_pause.gd).
@@ -154,6 +155,10 @@ func _pad_shows_the_line() -> void:
 	_check(_pad._zone_at(a) == "pad" and _pad._zone_at(recenter) == "pad" and _pad._zone_at(pause) == "pad",
 			"a finger on the old places of A, RECENTER and the pause button presses nothing")
 	_check(_pad._zone_at(leave) == "leave", "a finger on the HOLD TO DISCONNECT box is in its zone (REQ-FL-67a)")
+	_pad.leave_drawn = false
+	await process_frame
+	await process_frame
+	_check(_pad._leave_shown() and _pad.leave_drawn, "the HOLD TO DISCONNECT box is drawn while the result shows")
 	var aim_pos: Vector2 = _pad._rect_aim().get_center()
 	_check(_pad._zone_at(aim_pos) == "pad" and _pad._zone_at(_pad._center_b()) == "pad", "the aim strip and B are dead too")
 	_check(not _pad._rect_leave().intersects(_pad._rect_final()), "the leave box does not overlap the line")
@@ -199,14 +204,14 @@ func _touch(pressed: bool, pos: Vector2) -> InputEventScreenTouch:
 
 
 ## The box and the line do not meet on a small phone (720x1280), a 1080x1920 and a tall one; the longest line (60 characters,
-## wrapped) is about 76 px per row, centered on the middle.
+## wrapped) is one line step of the pad per row, centered on the middle.
 func _layout_does_not_overlap(holder: Control) -> void:
 	var longest := "".rpad(60, "W")
 	for sz in [Vector2(720, 1280), Vector2(1080, 1920), Vector2(1080, 1440), Vector2(1080, 2400)]:
 		holder.size = sz
 		_pad.size = sz
 		var rows: int = _pad.final_lines(longest, _pad._rect_final().size.x).size()
-		var half := rows * 76.0 * 0.5
+		var half := rows * UiTheme.line_step(UiTheme.font(), _pad.LINE_SIZE) * 0.5
 		var mid: float = _pad.size.y * 0.5
 		_check(mid + half < _pad._rect_leave().position.y and _pad._zone_at(Vector2(sz.x * 0.5, mid)) == "pad",
 				"%s: %d rows of the longest line end at %.0f, above the box at %.0f" % [str(sz), rows, mid + half,
@@ -237,9 +242,9 @@ func _hold_leaves(slot: int) -> void:
 	_pad._process(0.4)
 	_check(_pad._leave_hold > 0.39 and _client.state == ControllerClient.State.CONNECTED, "0.4 s: the box is half full, still here")
 	_pad._process(0.45)
-	_check(not _server.players[slot].is_present() or _client.slot == -1 or _client.state != ControllerClient.State.CONNECTED,
+	_check(_client.slot == -1 and _client.state != ControllerClient.State.CONNECTED,
 			"after 0.8 s on the box the phone leaves the TV")
-	await _wait_until(func(): return not _server.players[slot].is_present(), 4000)
+	_check(await _wait_until(func(): return not _server.players[slot].is_present(), 4000), "and the TV frees its slot")
 
 
 ## The same phone that returns while the result is open gets its line again; a new phone in a freed slot gets none.
