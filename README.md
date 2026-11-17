@@ -187,7 +187,7 @@ Phone-only and Android-only code (`qr_scanner.gd`, `sensor_sampler.gd`) stays lo
 
 - Tested: headless tests above, and a two-process run (TV and phone) on one PC.
   The QR codes decode with an independent decoder (OpenCV).
-- **Not tested: real Android TV, real phone sensors, real Wi-Fi.** The iPhone controller was deployed and joins a TV, but its sensor directions are not measured (Manual test 13). The first on-device run must check the
+- **Not tested: real Android TV, real phone sensors, real Wi-Fi.** The iPhone controller was deployed and joins a TV, but its sensor directions are not measured (Manual test 13, step 4b). The first on-device run must check the
   items marked *unverified* in [docs/RISKS.md](docs/RISKS.md), mainly the sensor signs and the key mapping.
 - The QR scanner plugin needs Google Play services on the phone. It scanned on a phone in Test 2 (R5); run Test 2 again when the plugin or the Connect screen changes.
 

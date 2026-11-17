@@ -19,7 +19,8 @@ var _simulate := false
 
 
 ## Platforms where Godot reports the accelerometer with the opposite sign to the protocol (flat, screen up: z = -9.8).
-## Measured on Android. iOS is assumed to be the same until Manual test 13, item 3, measures it: remove "iOS" here
+## Measured on Android. iOS is assumed to be the same until Manual test 13, step 4b (the ball rolls to the lowered side),
+## shows it: remove "iOS" here
 ## if the directions are wrong on the iPhone. The only place where the sign is fixed.
 const ACCEL_INVERTED_ON := ["Android", "iOS"]
 
