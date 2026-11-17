@@ -7,6 +7,7 @@ extends RefCounted
 ## A sheep that walks in through the gate is in the pen for good (REQ-SH-6); nothing hurts it.
 
 const RADIUS := 28.0              # A sheep is about 72 x 56 px on the screen (REQ-GM-47e).
+const HALF := Vector2(36.0, 28.0) # Half of the picture of a sheep: all of it stays on the grass (REQ-SH-22).
 const FLEE_ACCEL := 2600.0        # px/s2 for a dog right next to the sheep. It falls to 0 at the flee radius.
 const DAMPING := 2.5              # 1/s.
 const GRAZE_SPEED := 45.0         # The speed limit of a sheep that nobody scares.
@@ -134,7 +135,7 @@ func tick(dt: float, dogs: Dictionary, rng: RandomNumberGenerator) -> void:
 			_tick_penned(s, dt, rng)
 		else:
 			_tick_free(i, s, dt, dogs, rng)
-	_separate()
+	_separate()   # It puts both sheep of a pair back on the grass and out of the walls (REQ-SH-22).
 
 
 func _tick_free(i: int, s: Sheep, dt: float, dogs: Dictionary, rng: RandomNumberGenerator) -> void:
@@ -168,7 +169,7 @@ func _tick_free(i: int, s: Sheep, dt: float, dogs: Dictionary, rng: RandomNumber
 	if s.vel.length() > limit:
 		s.vel = s.vel.normalized() * limit
 	s.pos += s.vel * dt
-	var fixed := resolve(s.pos, s.vel, RADIUS)
+	var fixed := resolve(s.pos, s.vel, RADIUS, HALF)
 	s.pos = fixed[0]
 	s.vel = fixed[1]
 	if _in_pen(s.pos):
@@ -247,21 +248,21 @@ func _separate() -> void:
 			var push := n * (reach - dist) * 0.5
 			sa.pos -= push
 			sb.pos += push
-			if not sa.penned:
-				sa.pos = resolve(sa.pos, sa.vel, RADIUS)[0]
-			if not sb.penned:
-				sb.pos = resolve(sb.pos, sb.vel, RADIUS)[0]
+			sa.pos = resolve(sa.pos, sa.vel, RADIUS, HALF)[0]
+			sb.pos = resolve(sb.pos, sb.vel, RADIUS, HALF)[0]
 
 
 ## Moves a circle out of the fence, the barn and the edge of the field (not the scenery, REQ-SH-4). Returns `[pos, vel]`:
-## the speed that goes into a wall is turned back a little. It is used for the sheep and for the dogs.
-func resolve(pos: Vector2, vel: Vector2, r: float) -> Array:
+## the speed that goes into a wall is turned back a little. It is used for the sheep and for the dogs. `half` is half of the
+## picture (the width and the height): the picture stays on the grass, so the middle keeps at least `half` from the edge, and at
+## least `r` (REQ-SH-22).
+func resolve(pos: Vector2, vel: Vector2, r: float, half := Vector2.ZERO) -> Array:
 	for w in walls:
 		var push := push_out_of_rect(pos, r, w)
 		if push != Vector2.ZERO:
 			pos += push
 			vel = _bounce(vel, push.normalized())
-	var inner := field.grow(-r)
+	var inner := field.grow_individual(-maxf(r, half.x), -maxf(r, half.y), -maxf(r, half.x), -maxf(r, half.y))
 	var kept := pos.clamp(inner.position, inner.end)
 	if kept != pos:
 		vel = _bounce(vel, (kept - pos).normalized())
