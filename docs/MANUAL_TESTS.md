@@ -49,6 +49,7 @@ One row for each session with the devices. The *Run* ID is used in the result ta
 | R7 | 2026-11-10 | the project owner | not written down | Android TV | 1 phone (no 2, 3 or 4 phones) | same Wi-Fi | Results typed in the test tracker (the tracker was synced with this file on 2026-11-10). Tests 1, 3, 4, 6, 7, 9, 10, 11, 12, 15, 16, 17 and 23. Steps that need more than 1 phone were marked N/A with the request to remove or automate them: removed from this file (see the History of each test). Recorded on 2026-11-10. |
 | R8 | 2026-11-16 | the project owner | not written down | not written down | not written down | same Wi-Fi | Results typed in the test tracker. Tests 14, 19 and 20. Recorded in this file on 2026-11-17. |
 | R9 | 2026-11-17 | the project owner | not written down | not written down | not written down | same Wi-Fi | Results typed in the test tracker. Tests 20, 21, 22, 23, 25, 26, 27, 28, 30, 32 and 34 (the join approval, Test 34, was run for the first time). Recorded on 2026-11-17. Steps for 3 or 4 phones and for the debug overlay were marked N/A with the request to remove or automate them (issues #457 and #458). |
+| R10 | 2026-11-17 | the project owner | not written down | Android TV | an Android phone set to Hebrew (and a second phone for the 2-phone steps) | same Wi-Fi | Results typed in the test tracker. Tests 1, 7, 18, 19, 20, 21, 25 and 29. Recorded on 2026-11-17. Step 3c of Test 19 failed (issue #470); the Tennis tile (Test 25 step 1b) passed. |
 
 ## Summary
 
@@ -56,12 +57,12 @@ Update this table after every run. *Latest* is the newest result of the whole te
 
 | Test | Title | Needs | Covers | Latest | Run | Evidence |
 |------|-------|-------|--------|--------|-----|----------|
-| [1](#test-1) | Start and join | 1 phone, 1 TV | REQ-A3, REQ-A4, REQ-FL-5 to 10, REQ-FL-80, 83, 84 | Pass | R7 | |
+| [1](#test-1) | Start and join | 1 phone, 1 TV | REQ-A3, REQ-A4, REQ-FL-5 to 10, REQ-FL-80, 83, 84 | Pass | R10 | |
 | [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Pass | R5 | |
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Pass | R7 | |
 | [4](#test-4) | Latency and packet rate (no manual step since 2026-11-17) | no device | RISKS A3, B1, B2, B3, B5, B6 | Not run (no manual step: see the History; the R7 results of 1a to 4a were removed with the steps) | | |
 | [6](#test-6) | Treasure Maze feel | 1 to 2 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Pass | R7 | |
-| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-FL-52c, REQ-FL-55, REQ-GM-31a, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R7 | |
+| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-FL-52c, REQ-FL-55, REQ-GM-31a, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R10 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-52c, REQ-FL-55 | Partial (see the result table) | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Pass | R3 | |
 | [9](#test-9) | Car Race | 1 to 2 phones (2 for items 11a and 14c), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
@@ -73,18 +74,18 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [15](#test-15) | Sumo Bumpers (tilt and A) | 2 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
 | [16](#test-16) | The arcade look (phase 1) | 1 to 2 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-38a, 41a, 52, 53, REQ-GM-45, 46, FD-18 | Partial (see the result table) | R7 | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Pass | R7 | |
-| [18](#test-18) | Sound and haptics | 1 to 2 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
-| [19](#test-19) | Leader chip and phone score | 2 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Fail (step 3c, R8); built for issue #455: 3c, 3c2, 3c3, 3c4, 3c5 and 3c6 to run | R8 | |
-| [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Partial (see the result table) | R9 | |
-| [21](#test-21) | Join by room code and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-83, REQ-FL-84, REQ-FL-85, FD-25, FD-28 | Pass | R9 | |
+| [18](#test-18) | Sound and haptics | 1 to 2 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Pass | R10 | |
+| [19](#test-19) | Leader chip and phone score | 2 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Fail (steps 3c) | R10 | |
+| [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Partial (see the result table) | R10 | |
+| [21](#test-21) | Join by room code and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-83, REQ-FL-84, REQ-FL-85, FD-25, FD-28 | Pass | R10 | |
 | [22](#test-22) | Star Shield (tilt, waves, upgrades) | 1 to 2 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
 | [23](#test-23) | Bowling (aim with a finger, swing to throw) | 1 to 2 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
 | [24](#test-24) | Swing detector for Tennis (no manual step since 2026-11-17) | no device | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4, REQ-T7 | Not run (no manual step: see the History; issue #209 has no manual test) | | |
-| [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 2 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Fail (steps 1b) | R9 | |
+| [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 2 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R10 | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 2 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R9 | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 2 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
 | [28](#test-28) | Mole Bonk (pointer, bonk, moles, difficulty) | 1 to 2 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R9 | |
-| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 2 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 2 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R10 | |
 | [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 2 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
 | [31](#test-31) | Freeze Dance (wiggle, freeze, difficulty) | 1 to 2 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
 | [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
@@ -97,22 +98,19 @@ Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The 
 
 Moved from `CLAUDE.md` on 2026-10-31 (issue #312). Brought in line with the Results tables on 2026-11-01. The Sababi Test Tracker holds the live results; the Results tables of each test are the source for this table.
 
-Tests the user has to run now (status on 2026-11-17 after run R9; the list is in the order to do them. Open failures: step 3c of Test 19 (issue #455) and step 1b of Test 25 (issue #456); steps 6b of Test 27 and 4g of Test 23 passed in R9 after their fixes (issues #431 and #432 are closed)). Tests 4 and 24 have no manual step since 2026-11-17 (the owner's decision of issue #458: no manual step reads the debug overlay; their History says which automated tests cover them), so they are not in the table; issue #437 (RTT of Test 4), issue #386 (a run on a TV box) and issue #209 (the swing detector on a device) have no manual test now. Tests 1, 2, 3, 6, 8, 8b, 9, 10, 11, 14, 15, 17, 21, 26, 28, 30 and 32 have no open step (all steps Pass), so they are not in the table; run them again only when their area changes. Tests 13 and 33 (iPhone) are for the next release (iOS, issue #415): they are at the end of the table and are not run for the first (Android) release:
+Tests the user has to run now (status on 2026-11-17 after run R10; the list is in the order to do them. Open failure: step 3c of Test 19 (issue #470: a phone set to Hebrew shows the place and the time unit in English); the Tennis tile (Test 25 step 1b) passed in R10). Tests 4 and 24 have no manual step since 2026-11-17 (the owner's decision of issue #458: no manual step reads the debug overlay; their History says which automated tests cover them), so they are not in the table; issue #437 (RTT of Test 4), issue #386 (a run on a TV box) and issue #209 (the swing detector on a device) have no manual test now. Tests 1, 2, 3, 6, 8, 8b, 9, 10, 11, 14, 15, 17, 18, 21, 25, 26, 28, 29, 30 and 32 have no open step (all steps Pass), so they are not in the table; run them again only when their area changes. Tests 13 and 33 (iPhone) are for the next release (iOS, issue #415): they are at the end of the table and are not run for the first (Android) release:
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
 | 34 | **Open: items 4c** (after run R9 of 2026-11-17; 22 of 23 steps are Pass or N/A in the Results table). | The owner decided on 2026-11-07 (issue #385) that the host approves each new phone with the remote; the details are FD-30 and REQ-FL-93 to REQ-FL-104. All texts, the card, the 60 s and the 1 s guard are first guesses; the Hebrew is written by Claude |
 | 31 | **Open: items 10c, 12b, 13** (after run R7 of 2026-11-10; step 11 was removed on 2026-11-10; 11 of 14 steps are Pass or N/A in the Results table). | Freeze Dance was added on 2026-10-24 (`docs/games/freeze_dance.md`). Needed before it is merged. Every value (the wiggle level, the limit for "still", the grace time, the music and freeze lengths), the pictures, the song and the Hebrew texts are first guesses |
-| 29 | **New game.** Sheep Herding with 1 to 4 phones: the tile against the game, a tester points at the gate, an adult herds all the sheep in the time (4 and 6a), a child of 5 to 8 years, the how-to line, the Hebrew texts. The tilt times, how the sheep run, the buzz and the dog size are automated (A-29-*) | Sheep Herding was added on 2026-10-23 (`docs/games/sheep_herding.md`, issue #98). Needed before it is merged. All values (dog speed, the scare distance, the sheep speed, the gate, the time of a round), the pictures, the song and the Hebrew texts are first guesses; a Hebrew reader checks the 7 new texts |
 | 27 | **Open: items 1a, 11b** (after run R9 of 2026-11-17; 12 of 14 steps are Pass or N/A in the Results table). | Air Hockey and ROBO were added on 2026-10-23 (`docs/games/air_hockey.md`, REQ-GM-105, 106). Needed before they are merged. All values (the mallet and puck physics, the goal size, the levels of ROBO), the pictures, the song, the effects and the Hebrew texts are first guesses |
-| 25 | **Open: items 1b** (after run R9 of 2026-11-17; 20 of 21 steps are Pass or N/A in the Results table). Step 1b failed (issue #456). | Tennis was added on 2026-10-17 (`docs/games/tennis.md`). Needed before it is merged. It uses the swing detector that machines check (A-24-*; Test 24 has no manual step). All values (the hit window, the green zone, the ball speeds), the pictures, the song and the Hebrew texts are first guesses |
 | 23 | **Open: items 14c** (after run R9 of 2026-11-17; 20 of 21 steps are Pass or N/A in the Results table). | Bowling was added on 2026-10-16 (`docs/games/bowling.md`). Needed before it is merged. It was only tested with made-up sensor values (the thresholds and the forward ratio `FWD_RATIO` were tuned on 2026-10-29 with made-up series only): the swing thresholds, the strip size, the ball speeds, the pictures, the song, the effects and the Hebrew text are first guesses |
 | 22 | **Open: items 12b** (after run R9 of 2026-11-17; 14 of 15 steps are Pass or N/A in the Results table). | Star Shield was added on 2026-10-16 (`docs/games/asteroid_blast.md`). Needed before it is merged. All values (speeds, waves, upgrade times), the pictures, the song, the effects and the Hebrew text are first guesses |
-| 20 | **Open: items 1b3, 9a, 14b** (after run R9 of 2026-11-17; 11 of 14 steps are Pass or N/A in the Results table; 9a is open again after its rewording of 2026-11-17, issue #455). | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). Needed before it is merged. The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
-| 19 | **Open: items 3c, 3c2, 3c3, 3c4, 3c5, 3c6, 3d** (after run R9 of 2026-11-17; 5 of 10 steps are Pass or N/A in the Results table). Step 3c failed (issue #455); the phone result line is built (PR of issue #455) and steps 3c, 3c2, 3c3, 3c4, 3c5 and 3c6 are the open device checks with the new wording (3c and 3c5: the three lines, the medal and the middle, owner design of 2026-11-17) (3c2 and 3c4: only the HOLD TO DISCONNECT box stays on the phone in the result, owner, 2026-11-17). | The row of 4 player chips wrapped and covered the play area (issue #25). Replaced on 2026-10-10 (FD-21, REQ-FL-67, REQ-GM-46; the name tags of the countdown were removed on 2026-10-21 by decision of the owner). Needed before it is merged. The sizes are first guesses |
-| 18 | **New (sound and haptics).** The menu song, the effects of the menus and of all games, the Music and Effects rows, the phone Settings screen with the HAPTICS row, the sound of the pause and result menus, a child of 5 to 8 years | Audio was added on 2026-10-10 (FD-20, `docs/AUDIO_PLAN.md`). Needed before it is merged. All songs, effects and levels are first guesses; the render time of a song on a TV box is not measured |
+| 20 | **Open: items 9a, 14a, 14b** (after run R10 of 2026-11-17; 11 of 14 steps are Pass or N/A in the Results table). | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). Needed before it is merged. The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
+| 19 | **Open: items 3c** (after run R10 of 2026-11-17; 11 of 12 steps are Pass or N/A in the Results table). Step 3c failed (issue #470). | The row of 4 player chips wrapped and covered the play area (issue #25). Replaced on 2026-10-10 (FD-21, REQ-FL-67, REQ-GM-46; the name tags of the countdown were removed on 2026-10-21 by decision of the owner). Needed before it is merged. The sizes are first guesses |
 | 16 | **Open: items 6b2** (after run R7 of 2026-11-10; 11 of 12 steps are Pass or N/A in the Results table). | Phase 1 of `docs/ARCADE_STYLE_PLAN.md` was built on 2026-10-10. Needed before it is merged. The games are in the pixel style too (phases 2 to 4 are built). All sizes and values come from the plan |
-| 7 | **Open: items 6a, 6b, 6f, 6g, 6h, 6i, 9a and 9b** (after run R7 of 2026-11-10; 9a and 9b changed on 2026-11-10 with the softer lost-link look, issue #433, and are Not run again; 6b changed with the text HOLD TO DISCONNECT and 6f to 6i are new, issue #435, REQ-FL-52c). | R1 found that a phone without Wi-Fi did not pause the game, and that a phone call ended the game with no way to resume. Fixed and changed on 2026-10-09 (REQ-GM-30, 30a) |
+| 7 | **Open: items 6a, 6b, 9a, 9b** (after run R10 of 2026-11-17; 17 of 21 steps are Pass or N/A in the Results table). | R1 found that a phone without Wi-Fi did not pause the game, and that a phone call ended the game with no way to resume. Fixed and changed on 2026-10-09 (REQ-GM-30, 30a) |
 | 8 | **Open: item 6b** (changed 2026-11-10, issue #435: Back on the phone in a game asks the TV "End the game?"; the other steps are Pass in R3 to R5). | Back on the pad in a game no longer opens QUIT SABABI APP? on the phone (REQ-FL-52c, REQ-FL-55). Needs a phone and the real Android Back key |
 | 12 | **Open: items 1c, 9, 10, 11** (after run R9 of 2026-11-17; 9 of 13 steps are Pass or N/A in the Results table). Step 9 (the Tennis tile) is Not run again: the tile was retaken on 2026-11-17 (issue #456). | REQ-GM-49. Claude makes the tiles again when they differ |
 | 13 | **Next release (iOS, issue #415).** **Open: items 1a, 1b, 2b, 2c, 2d, 4a, 4b, 5a, 5b, 5c, 6b, 6d, 7** (after run R9 of 2026-11-17; 0 of 13 steps are Pass or N/A in the Results table). | New on 2026-10-09. Written on a Mac without Xcode, so never run |
@@ -163,6 +161,8 @@ Uninstall the old apps first. The package names changed (FD-26 and FD-27; the li
 | 4h | Note: scans of 5 that joined | Pass | R7 |  | R7: Pass Added 2026-11-06; changed 2026-11-10. |
 | 6a | Photo of the TV slots 5 s after the tap, and the seconds until the slot is empty | Pass | R4 |  | R3: Pass - when disconnected, the tv still shows the previously connected player with status "LOST" which disappears after some time. i think the "LOST" state is no needed here, if a player disconnected they need to be removed from the list or maybe give some grace but no more then 3-5 seconds; R4: Pass |
 | 6b | Video of the app start in portrait: splash, then the Connect screen | Pass | R3 |  | R3: Pass - when disconnected, the tv still shows the previously connected player with status "LOST" which disappears after some time. i think the "LOST" state is no needed here, if a player disconnected they need to be removed from the list or maybe give some grace but no more then 3-5 seconds |
+| 4i | Note from the tracker | Pass | R10 |  | R10: Pass |
+| 4j | Note from the tracker | Pass | R10 |  | R10: Pass |
 
 Items 1c to 1f, 3a, 3b, 3c, 3d, 4a, 4b, 6c and 6d moved to the automated tests (docs/AUTOMATED_TESTS.md, A-1-2, A-1-3, A-1-4, A-1-6). Steps 8.5a and 8.5b of Test 8 (the Android TV home row) are now part of step 1a. The numbers of the other items do not change.
 
@@ -170,6 +170,7 @@ Measurements (not steps): write the seconds from JOIN to the waiting screen (4c)
 
 History:
 
+- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 4i, 4j.
 - 2026-11-10 (recorded; R7 in the tracker): Pass: steps 4e, 4f, 4g, 4h.
 - 2026-10-21 (issue #52, FD-28): steps 4c and 4d are about the typed room code now (they were about Refresh and the scan of the network, which are gone). Their old results were "Not run", so nothing is lost.
 - 2026-10-21 (automated): steps 1c to 1f, 3a, 4a, 4b and 6c moved to the automated tests (`r1_tv_screens`, `join_flow`). The R1 result of step 3a (Retest) is kept in the History line below and in the result database.
@@ -344,10 +345,10 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 | 6a | Video of 5 quick taps on the pad | Not run | | | Changed 2026-10-30 (issue #239). R4 passed the old one-tap step. |
 | 6b | Video of the hold: the fill and the seconds to the Connect screen | Not run | | | R7: Pass was for the text HOLD TO LEAVE; the text changed to HOLD TO DISCONNECT on 2026-11-10 (issue #435, owner), so the step is not run again yet. R7 note: question: should "hold to leave" leave the game or disconnect from the TV? Added 2026-10-30 (issue #239). |
 | 6c | Video of 20 swings | Pass | R7 |  | R7: Pass Added 2026-10-30 (issue #239). |
-| 6f | Photo of the pad with the pause button, also with a 10 letter name | Not run | | | New 2026-11-10 (issue #435). |
-| 6g | Video of a tap on the pause button and the question on the TV | Not run | | | New 2026-11-10 (issue #435). |
-| 6h | Video of Back on the phone in a game | Not run | | | New 2026-11-10 (issue #435). |
-| 6i | Video of 5 taps while the question shows | Not run | | | New 2026-11-10 (issue #435). |
+| 6f | Photo of the pad with the pause button, also with a 10 letter name | Pass | R10 |  | R10: Pass New 2026-11-10 (issue #435). |
+| 6g | Video of a tap on the pause button and the question on the TV | Pass | R10 |  | R10: Pass New 2026-11-10 (issue #435). |
+| 6h | Video of Back on the phone in a game | Pass | R10 |  | R10: Pass New 2026-11-10 (issue #435). |
+| 6i | Video of 5 taps while the question shows | Pass | R10 |  | R10: Pass New 2026-11-10 (issue #435). |
 | 7a | Video of a phone call: the card, with the seconds | Pass | R4 |  |  |
 | 7b | Video of the return: 'RECONNECTING...', the join, the seconds | Pass | R4 |  |  |
 | 7c | Video: the card 'reconnected', Resume, the game goes on | Pass | R4 |  |  |
@@ -365,6 +366,7 @@ Measurements (not steps): write the reconnect time after the call (7b) in the No
 
 History:
 
+- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 6f, 6g, 6h, 6i.
 - 2026-11-10 (issue #435, owner decision): the text of the box is HOLD TO DISCONNECT (it was HOLD TO LEAVE; Hebrew unchanged), the pad has a pause button at the top right and Back on the phone in a game asks the TV "End the game?" (REQ-FL-52c). Step 6b is Not run again (the R7 Pass was for the old text); new steps 6f to 6i are Not run. The step 6b of Test 8 changed too.
 - 2026-11-10 (recorded; R7 in the tracker): Pass: steps 6b, 6c, 8a, 8b, 9a, 9b, 9c, 9d. Step 6b: the owner asked "should HOLD TO LEAVE leave the game or disconnect from the TV?" (answer: it disconnects from the TV, REQ-FL-52a). Step 9b: the owner asked why the dashed frame is needed and called it alarming and not friendly: issue #433. Decided by the owner on 2026-11-10: a thin yellow frame (8 px), the A and B buttons dimmed, the header word and RECONNECTING... in yellow, the slot square keeps its color (no red); steps 9a and 9b changed and are Not run again (the R7 Pass was for the old look).
 - 2026-11-01 (N/A): step 3c was removed with the join PIN (issue #52); the owner decided to mark it N/A. It was "Not run". The join by itself is step 3b.
@@ -944,14 +946,15 @@ Measurements: write down the meter reading of step 9a and the delay of steps 6b 
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 6b | Video; the frames between the buzz and the sound | Not run | | | |
-| 9a | Note: the child, the age, the highest meter reading, what happened | Not run | | | |
-| 10c2 | Note: the vibration at GO and at 2 events (yes or no each) | Not run |  |  |  |
-| 11a | Video; the frames for 3 events; the delay in ms | Not run | | | |
-| 11b | Value: seconds until the first song | Not run | | | |
+| 6b | Video; the frames between the buzz and the sound | Pass | R10 |  | R10: Pass |
+| 9a | Note: the child, the age, the highest meter reading, what happened | Pass | R10 |  | R10: Pass |
+| 10c2 | Note: the vibration at GO and at 2 events (yes or no each) | Pass | R10 |  | R10: Pass |
+| 11a | Video; the frames for 3 events; the delay in ms | Pass | R10 |  | R10: Pass |
+| 11b | Value: seconds until the first song | Pass | R10 |  | R10: Pass |
 
 History:
 
+- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 6b, 9a, 10c2, 11a, 11b.
 - 2026-10-21 (automated): items 3a, 3d, 6a, 10a and 10f moved to the automated tests (`audio`, `auto_r3_tv`, `audio_events`, `auto_r3_phone`). Item 10c was split (10c2 keeps the motor of a real phone). The Mute row was dropped on 2026-10-21 (issue #49); `audio` checks that it is gone and that the Language row changes with Left and Right.
 - -: **Not run**. New.
 
@@ -984,13 +987,13 @@ Items 1a to 1c, 2a to 2d, 3a, 3b, 3f, 4a to 4c, 5a to 5c, 6, 7a, 7b, 7c, 9a and 
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 3c | Note: the three lines in order, yes or no; the medal of each phone | Fail (old wording) | R8 |  | R8 (on the old wording of the step, before the fix of issue #455; not run on the new wording): Fail - the summary needs to be consistant across games on the phone. the phone should show, for each user, the same line that is shown in the summary on the tv just without the color and avatar. it should be shown in the center of the screen while all buttons shouldn't be visible anymore until game time. Issue #455. |
-| 3c2 | Note: buttons visible (only HOLD TO DISCONNECT), the touches that did nothing | Not run | | | New on 2026-11-17 (issue #455): split from 3c, which checked four things. Reworded on 2026-11-17 (owner): the HOLD TO DISCONNECT box stays visible. |
-| 3c3 | Note: the buttons back at the next game (yes or no on each phone) | Not run | | | New on 2026-11-17 (issue #455): split from 3c2, which checked three things. |
-| 3c4 | Note: the tap (stayed or left), the seconds of the hold, the phone type | Not run | | | New on 2026-11-17 (issue #455): the HOLD TO DISCONNECT box stays in the result (owner). |
-| 3c5 | Note: the distance of the middle of the three lines in cm | Not run | | | New on 2026-11-17 (issue #455): split from 3c, which now checks the three lines and the medal. |
-| 3c6 | Photo of the Hebrew pad; note: the time; yes or no for each check | Not run | | | New on 2026-11-17 (issue #455): the Hebrew NEW BEST! on a long time. |
-| 3d | Photo of the pad on an Android phone with a cut-out | Not run | | | The iPhone half (Dynamic Island) moved to Test 13 step 7 on 2026-11-17. |
+| 3c | Note: the three lines in order, yes or no; the medal of each phone | Fail | R10 |  | R10: Fail - my phone is configured to hebrew and showing the game's name correctly in hebrew but it shows 1st instead of ראשון and s instead of ש׳ Issue #470. Before (R8): Fail (old wording) - R8 (on the old wording of the step, before the fix of issue #455; not run on the new wording): Fail - the summary needs to be consistant across games on the phone. the phone should show, for each user, the same line that is shown in the summary on the tv just without the color and avatar. it should be shown in the center of the screen while all buttons shouldn't be visible anymore until game time. Issue #455. |
+| 3c2 | Note: buttons visible (only HOLD TO DISCONNECT), the touches that did nothing | Pass | R10 |  | R10: Pass New on 2026-11-17 (issue #455): split from 3c, which checked four things. Reworded on 2026-11-17 (owner): the HOLD TO DISCONNECT box stays visible. |
+| 3c3 | Note: the buttons back at the next game (yes or no on each phone) | Pass | R10 |  | R10: Pass New on 2026-11-17 (issue #455): split from 3c2, which checked three things. |
+| 3c4 | Note: the tap (stayed or left), the seconds of the hold, the phone type | Pass | R10 |  | R10: Pass New on 2026-11-17 (issue #455): the HOLD TO DISCONNECT box stays in the result (owner). |
+| 3c5 | Note: the distance of the middle of the three lines in cm | Pass | R10 |  | R10: Pass New on 2026-11-17 (issue #455): split from 3c, which now checks the three lines and the medal. |
+| 3c6 | Photo of the Hebrew pad; note: the time; yes or no for each check | Pass | R10 |  | R10: Pass New on 2026-11-17 (issue #455): the Hebrew NEW BEST! on a long time. |
+| 3d | Photo of the pad on an Android phone with a cut-out | Pass | R10 |  | R10: Pass The iPhone half (Dynamic Island) moved to Test 13 step 7 on 2026-11-17. |
 | 3e | Photos of the phone in landscape | Pass | R8 |  | R8: Pass |
 | 8a | Note: the child, the age, the seconds | Pass | R8 |  | R8: Pass |
 | 8b | Note: the child, the age, the number | Pass | R8 |  | R8: Pass |
@@ -999,6 +1002,7 @@ Items 1a to 1c, 2a to 2d, 3a, 3b, 3f, 4a to 4c, 5a to 5c, 6, 7a, 7b, 7c, 9a and 
 
 History:
 
+- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 3c2, 3c3, 3c4, 3c5, 3c6, 3d. Fail: step 3c. Step 3c Fail: issue #470 (a phone set to Hebrew shows the place and the time unit in English, the language of the TV). Steps 3c2 to 3c6 and 3d Pass.
 - 2026-11-17 (issue #455, strings review): new step 3c6 (the Hebrew NEW BEST! on a long time breaks after the title), Not run.
 - 2026-11-17 (issue #455, owner design v3 of 2026-11-17): the phone result is a block of three lines (the game name, the place with a medal, the score; NEW BEST! in place of the score on the phone of the player with a best, Test 20 step 9a). Step 3c now checks the three lines in order and the medal (it said "the line of the TV row"); its middle-of-the-screen check moved to the new step 3c5; the R8 Fail stays in the Notes of 3c; 3c5 is Not run; nothing is marked Pass.
 - 2026-11-17 (issue #455): step 3c is reworded and split into 3c, 3c2 and 3c3 (the phone result line: the TV row, centered, no button, buttons back at the next game). The R8 Fail stays in the Notes of 3c; 3c2 and 3c3 are new and Not run.
@@ -1043,7 +1047,7 @@ Items 5, 11 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-20-5 and 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1b2 | Photo of the leader chip; note: found, yes or no | Pass | R8 |  | R8: Pass |
-| 1b3 | Photos of the Players list, a game chip and the pad of the guest | Not run |  |  | New 2026-11-11 (owner: a picture for guests). |
+| 1b3 | Photos of the Players list, a game chip and the pad of the guest | Pass | R10 |  | R10: Pass New 2026-11-11 (owner: a picture for guests). |
 | 6e | Photo of the card in English and in Hebrew; note from the Hebrew reader | Pass | R8 |  | R8: Pass |
 | 9a | Photo of NEW BEST! on a phone | Not run | |  | R8: Pass on the old wording (NEW BEST! zone with the old best). The step was rewritten on 2026-11-17 (issue #455: NEW BEST! is line 3 of the result block, no old best), so it is not run on the new wording. |
 | 12a | Video: the scan | Pass | R8 |  | R8: Pass |
@@ -1059,6 +1063,7 @@ Items 5, 11 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-20-5 and 
 
 History:
 
+- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 1b3.
 - 2026-11-17 (issue #455): step 9a is reworded (NEW BEST! is line 3 of the result block of the phone, in place of the score, with no old best). Its R8 Pass was for the old wording and stays in the Notes; the result is Not run and the step is open again.
 - 2026-11-17 (owner, issue #457): step 7b (a child of 5 to 8 years points to its own avatar among 4 on the TV) was removed: it needed 4 phones, and a manual step never needs more than 2 phones. Its recorded result stays: Pass in R8 (2026-11-16). What a machine can check is A-20-7b (`r4_tv_profiles`): with 4 simulated phones that each sent a name and an avatar, every slot row of the Players list and of the Connect screen shows the avatar of its phone, the 4 pictures differ in their sheet cells, each row control is 64 px (16 px x 4), in English and in Hebrew. Nothing verifies any more that a child of 5 to 8 years finds its own avatar among 4 on a real TV within 10 s and without help.
 - 2026-11-17 (recorded; R8 and R9 in the tracker): Pass: steps 1b2, 6e, 7b, 9a (reworded later the same day, see above), 12a, 12c2, 12d, 12e, 16b, 16c2, 17c, 17d. Step 17d was run on 2026-11-17 (R9), the others on 2026-11-16 (R8).
@@ -1109,9 +1114,11 @@ Items 8c, 8e, 9a, 9c, 9e, 10b moved to the automated tests, and items 8a, 8d, 9b
 | 9b2 | Note: scroll by touch | Pass | R3 |  |  |
 | 9d | Value: seconds to open the page | Pass | R4 |  | New limit (3 s) after R1. |
 | 10a | Photo of the Hebrew About screen; note from the Hebrew reader | Pass | R4 |  | R1: "1. language should be modified by left and right keys. should be a selection of languages. 2. no explanation strings needed for the settings 3. drop Mute. it should be covered by music=0 and/or effects=0" (This note is about the Settings screen: issue #49, done 2026-10-21 and checked by `audio`.) |
+| 9h | Note from the tracker | Pass | R10 |  | R10: Pass |
 
 History:
 
+- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 9h.
 - 2026-11-17 (the A button was removed, owner decision in chat; REQ-TN-8, REQ-TN-9): the Tennis pad has no button. Step 16f now checks that the pad shows no A, no B and no RECENTER; its recorded result is kept (the A button was optional and the old check was about B and RECENTER). Steps 16c, 16d and 16g do not mention A as an action. Machines check it (A-25-16h). No recorded result changed.
 - 2026-11-17 (steps removed, where each is covered; owner decisions of 2026-11-17, issue #457 and the answer on step 6a): step 1d (4 phones on the Games screen: the label ROOM CODE and the same 4 letters, and the code covers no tile and not the yellow frame of the cursor; it was Not run) is covered by A-21-1d (`games_focus`: with 4 players, in English and in Hebrew, the room code is visible, equal to the TV code, inside the 60 px margin, not over a tile (the cursor frame is the frame of a tile) and not a focus target). Step 6a (an iPhone joins with the typed room code within 5 s; the result was Pass in R3, which is removed with it) is the same as Test 13 step 2d (with the stopwatch and the TV in slot 1); the code half is A-21-1a, 7 and `r4_join_code`. What is not verified by anything now: a real iPhone that types the code, until Test 13 (next release, issue #415) runs.
 - 2026-11-17 (recorded; R9 in the tracker): Pass: steps 1c, 1e. Step 1d (4 phones) and step 6a (iPhone; it is Test 13 step 2d) were marked N/A by the owner and are removed (issue #457).
@@ -1319,7 +1326,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1b | Photo of the tile next to a photo of the game | Fail | R9 |  | R9: Fail - need to retake the game tile screenshot since there were some changes Issue #456. |
+| 1b | Photo of the tile next to a photo of the game | Pass | R10 |  | R10: Pass Before (R9): Fail - R9: Fail - need to retake the game tile screenshot since there were some changes Issue #456. |
 | 2b | Photo of the court; note: the nine objects, each yes or no | Pass | R9 |  | R9: Pass |
 | 4g | Video (240 fps); note: frames and ms for 5 hits | Pass | R9 |  | R9: Pass |
 | 6c | Note: balls in the right half of 5, and in the left half of 5 | Pass | R9 |  | R9: Pass |
@@ -1334,11 +1341,11 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 15a | Photo of the TV and of both phones | Pass | R9 |  | R9: Pass |
 | 15c | Note: the ages and the answers of 3 children; a photo of the card | Pass | R9 |  | R9: Pass Added 2026-10-30 (issue #235). |
 | 16a | Photo with the heights; note: the answers of each tester | Pass | R9 |  | R9: Pass Added 2026-10-31 (issue #306). |
-| 16b | Video; note: sparks (of 5), lobs in play (of 5 and of 5), the 2 medians | Pass | R9 |  | R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
-| 16c | Video at 60 fps; note: counted serves in each group of 5 | Pass | R9 |  | R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
-| 16d | Note: the 3 fall times; the two outs | Pass | R9 |  | R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
-| 16f | Photo of the pad; note: the buzzes (of 10), the pairs right (of 5) | Pass | R9 |  | R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). 2026-11-17: the A button was removed (owner); the step text now checks that the pad has no button. |
-| 16g | Photos of the 3 hint lines; note: the 3 times | Pass | R9 |  | R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
+| 16b | Video; note: sparks (of 5), lobs in play (of 5 and of 5), the 2 medians | Pass | R10 |  | R10: Pass Before (R9): Pass - R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
+| 16c | Video at 60 fps; note: counted serves in each group of 5 | Pass | R10 |  | R10: Pass Before (R9): Pass - R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
+| 16d | Note: the 3 fall times; the two outs | Pass | R10 |  | R10: Pass Before (R9): Pass - R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
+| 16f | Photo of the pad; note: the buzzes (of 10), the pairs right (of 5) | Pass | R10 |  | R10: Pass Before (R9): Pass - R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). 2026-11-17: the A button was removed (owner); the step text now checks that the pad has no button. |
+| 16g | Photos of the 3 hint lines; note: the 3 times | Pass | R10 |  | R10: Pass Before (R9): Pass - R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
 | 16h | Note: hits on the forward move (of 10), on back-only (of 10), on forward-only (of 10) | Pass | R9 |  | R9: Pass, run on the text with the overlay counter; the overlay half was removed on 2026-11-17 (issue #458), the rest of the step stays as run. Added 2026-11-03 (two-phase swing). |
 
 History:
@@ -1351,6 +1358,7 @@ History:
 
 History:
 
+- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 1b, 16b, 16c, 16d, 16f, 16g. Step 1b Pass (the Tennis tile retaken in #462 and #464, owner looked at it on the TV). Steps 16b, 16c, 16d, 16f and 16g Pass again with the A button gone (#460).
 - 2026-11-17 (steps removed, where each is covered; owner decisions of 2026-11-17, issues #457 and #458): step 14b (4 phones: each tester names the shirt color of the two far characters, 2 of 2 for each of 3 testers; it was Not run) is covered by A-25-14b (`smoke_tennis_phones`, new: with 4 phones each of the 4 characters, near and far, wears the color of its phone, and the 4 colors differ; the palette is A-237-1). Step 16e (the overlay counts 1 swing for a swing and the stroke back at once and 2 for strokes 0.7 s apart; it was Not run) is covered by A-25-16e (`swing_replay`, A-24-6: a stroke and the stroke back at once is one swing; two strokes 0.5 s and 1.0 s apart are both found). Step 16h lost its overlay half (the counter `swing_count`); the hit on the forward move, in 9 of 10 strokes, 0 of 10 back-only and 0 of 10 forward-only, stays (it passed in R9 with both halves; the result stays). Stray rows 14d and 14e of Test 26 in the Results table of this test are removed. What is not verified by anything now: that 3 testers name the shirt colors from 3 m (REQ-TN-3), and the swing counter of the real phone in a Tennis game (the hit counted on the forward move is still checked by a person in 16h). The Needs line says 1 to 2 phones.
 - 2026-11-17 (recorded; R9 in the tracker): Pass: steps 2b, 4g, 6c, 6e, 6h, 12a, 12b, 12c, 12d, 14a, 14c, 15a, 15c, 16a, 16h. Fail: step 1b. Step 1b Fail: issue #456 (retake the tile). Steps 16b, 16c, 16d, 16f and 16g: the toss is automatic since 2026-11-14, the owner verified them and asked to set them to Pass after the step text changed (16c and 16f were changed today to not use the A button). Step 14b (4 phones) and step 16e (debug overlay) were marked N/A and are removed (issues #457, #458).
 - 2026-11-17 (tile retaken, issue #456; not run): `assets/tiles/tennis.png` was made again with `tools/make_tiles.gd --only=tennis` (the tool had two stale parts: it pressed the removed A button, and the join approval card kept the simulated phones out). The new tile shows the court, the net, 4 characters and the ball in the air over the far half (a serve just hit, the racket of the near player out), with no HUD; step 9 of Test 12 said "high over the near half" and now says "in the air over the court". Step 1b of this test and the Tennis tile step of Test 12 stay device checks: look at the new tile next to the game on the TV. The R9 Fail of step 1b stays until the owner reports a new result.
@@ -1584,30 +1592,34 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1 | Photo of the tile next to a photo of the game | Not run | | | |
-| 2a | Note: right answers of 5 | Not run | | | |
-| 4 | Note: sheep and seconds in each of 3 rounds | Not run | | | |
-| 6a | Note: sheep and seconds in each of 3 rounds | Not run | | | |
-| 8a | Note: the child, the age, seconds until it points | Not run | | | |
-| 8b | Note: seconds until the sheep runs | Not run | | | |
-| 8c | Note: sheep in the pen | Not run | | | |
-| 8d | Note: the answer of the child | Not run | | | |
-| 9a | Note: answers of each tester | Not run | | | |
-| 9b | Note: the texts that the reader marks, with the reason | Not run | | | |
-| 10a | Video; note: the 3 crossing times; the movement in 10 s | Not run | | | Added 2026-10-31 (issue #306). |
-| 10b | Video; note: stop times (3), edges (of 4) | Not run | | | Added 2026-10-31 (issue #306). |
-| 10c | Note: touches with one sound (of 5) | Not run | | | Added 2026-10-31 (issue #306). |
-| 10d | Note: phones that buzzed at GO (of 2); phones that felt a longer final buzz (of 2) | Not run | | | Added 2026-10-31 (issue #306). |
-| 10e | Note: buzzes of phone A (of 5), buzzes of phone B (of 5) | Not run | | | Added 2026-10-31 (issue #306). |
-| 10f | Photo of the card; note: the time before and 10 s after; photo of the pad | Not run | | | Added 2026-10-31 (issue #306). |
-| 10g | Video; note: the movement in px | Not run | | | Added 2026-10-31 (issue #306). |
-| 10h | Note: answers of each tester; errors in reading | Not run | | | Added 2026-10-31 (issue #306). |
+| 1 | Photo of the tile next to a photo of the game | Pass | R10 |  | R10: Pass |
+| 2a | Note: right answers of 5 | Pass | R10 |  | R10: Pass |
+| 4 | Note: sheep and seconds in each of 3 rounds | Pass | R10 |  | R10: Pass |
+| 6a | Note: sheep and seconds in each of 3 rounds | Pass | R10 |  | R10: Pass |
+| 8a | Note: the child, the age, seconds until it points | Pass | R10 |  | R10: Pass |
+| 8b | Note: seconds until the sheep runs | Pass | R10 |  | R10: Pass |
+| 8c | Note: sheep in the pen | Pass | R10 |  | R10: Pass |
+| 8d | Note: the answer of the child | Pass | R10 |  | R10: Pass |
+| 9a | Note: answers of each tester | Pass | R10 |  | R10: Pass |
+| 9b | Note: the texts that the reader marks, with the reason | Pass | R10 |  | R10: Pass |
+| 10a | Video; note: the 3 crossing times; the movement in 10 s | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
+| 10b | Video; note: stop times (3), edges (of 4) | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
+| 10c | Note: touches with one sound (of 5) | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
+| 10d | Note: phones that buzzed at GO (of 2); phones that felt a longer final buzz (of 2) | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
+| 10e | Note: buzzes of phone A (of 5), buzzes of phone B (of 5) | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
+| 10f | Photo of the card; note: the time before and 10 s after; photo of the pad | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
+| 10g | Video; note: the movement in px | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
+| 10h | Note: answers of each tester; errors in reading | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
 
 History:
 - 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 7) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-29-7, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-24 (automated): steps 2b, 3a, 3b, 5a, 5b, 6b moved to the automated tests (smoke_sheep, sheep_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23).
+
+History:
+
+- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 1, 2a, 4, 6a, 8a, 8b, 8c, 8d, 9a, 9b, 10a, 10b, 10c, 10d, 10f, 10e, 10g, 10h. The result is for the layout before the pen moved to a corner (issue of 2026-11-17); the steps that the new layout changes are set to Not run in that change.
 
 ## Test 30
 
