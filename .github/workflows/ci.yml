@@ -40,7 +40,7 @@ jobs:
   changes:
     # Decides what the other jobs do. Takes a few seconds.
     if: github.event.pull_request.draft != true
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     outputs:
       code: ${{ steps.files.outputs.code }}
       render: ${{ steps.files.outputs.render }}
@@ -86,7 +86,7 @@ jobs:
   lint:
     needs: changes
     if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -109,7 +109,7 @@ jobs:
     # The suites of the tier that `changes` picked run, on the instrumented copy, so the job `coverage` can always report.
     needs: changes
     if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     env:
       SUITE_TIER: ${{ needs.changes.outputs.tier }}
     steps:
@@ -139,7 +139,7 @@ jobs:
     # Modules that are set aside (with a reason) are in tools/coverage/exclusions.txt.
     needs: [changes, test]
     if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -173,7 +173,7 @@ jobs:
     # tests/suites.txt, it has no coverage, and no other job needs it. It runs tests/pixel_render.gd at 1920x1080 and at 3840x2160, and tests/pixel_games.gd at 1920x1080.
     needs: changes
     if: needs.changes.outputs.code == 'true' && needs.changes.outputs.pixels == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v4
       - uses: chickensoft-games/setup-godot@v2
