@@ -169,7 +169,7 @@ func _run() -> void:
 		await _frames(3)
 		var server: int = g.play.server_slot()
 		_buzzes[server] = 0
-		g._on_button(Protocol.BTN_A, server)
+		_tick_n(g, g.Match.AUTO_TOSS + 0.02, 0.016)   # The ball is tossed by itself (no A button).
 		var peak: float = g.play._toss_apex + rng.randf_range(-0.1, 0.1)
 		_play(g, server, Trace.stroke(Vector3(0, 0, -1), 10.0, 25.0, 0.5), peak)   # A wind-up of 0.5 s, then down (#419).
 		await _frames(3)
@@ -187,7 +187,7 @@ func _run() -> void:
 		_go(g2)
 		_settle(g2)
 		var server2: int = g2.play.server_slot()
-		g2._on_button(Protocol.BTN_A, server2)
+		_tick_n(g2, g2.Match.AUTO_TOSS + 0.02, 0.016)
 		_tick_n(g2, g2.Match.TOSS_UP / 9.81, 0.016)
 		g2._on_swing({"power": 0.5, "down": true, "side": 0.0, "hit_age_ms": 0.0, "wind_up_s": 0.5}, server2)
 		var first_green := 99.0

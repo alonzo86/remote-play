@@ -254,7 +254,7 @@ func _test_registry() -> void:
 	_check(bad_desc.is_empty(), "each description is a short sentence in both languages with no instruction: %s" % [bad_desc])
 	# Issue #80, REQ-GM-37a: the controls of the pad of each game (the inventory of the game files).
 	var pads := {"maze": [], "marble_race": [], "paint_grab": [], "asteroid_blast": [], "sumo_bumpers": ["a"],
-			"bowling": [], "tennis": ["a"], "mini_golf": ["a"], "snowball_splat": ["a", "recenter"],
+			"bowling": [], "tennis": [], "mini_golf": ["a"], "snowball_splat": ["a", "recenter"],
 			"whack_a_mole": ["a", "recenter"], "air_hockey": ["a"], "sheep_herding": [], "tower_builder": ["a"],
 			"freeze_dance": [], "bumper_cars": []}
 	var pad_bad: Array[String] = []
@@ -263,8 +263,8 @@ func _test_registry() -> void:
 			pad_bad.append(String(g.id))
 	_check(pad_bad.is_empty() and pads.size() == Registry.all().size(), "each game lists the controls of its pad: %s" % str(pad_bad))
 	_check(Registry.buttons_of(Registry.find("snowball_splat")) == "a" and Registry.buttons_of(Registry.find("maze")) == ""
-			and Registry.has_control(Registry.find("snowball_splat"), "recenter")
-			and not Registry.has_control(Registry.find("tennis"), "recenter"), "buttons_of and has_control read the pad list")
+			and Registry.has_control(Registry.find("snowball_splat"), "recenter") and Registry.buttons_of(Registry.find("tennis")) == "",
+			"buttons_of and has_control read the pad list; Tennis has no button (owner, 2026-11-17)")
 	var docs_ok := true
 	for g in Registry.all():
 		if not FileAccess.file_exists(String(g.get("doc", ""))):

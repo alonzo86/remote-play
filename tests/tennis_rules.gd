@@ -231,9 +231,17 @@ func _until_contact(m: Match) -> void:
 
 ## The server tosses and swings: power 0.6, no aim.
 func _serve_now(m: Match, power := 0.6, tilt := 0.0, down := true) -> String:
-	m.press_a(m.server_slot())
+	_toss_now(m)
 	_until_toss_top(m)
 	return m.swing(m.server_slot(), power, down, tilt, 0.0)
+
+
+## Runs the match until the server's ball is tossed (by itself, after `AUTO_TOSS`): the A button does not exist any more.
+func _toss_now(m: Match) -> void:
+	for i in int(Match.AUTO_TOSS * 2.0 / DT):
+		if m.phase != Match.Phase.SERVE:
+			return
+		m.tick(DT)
 
 
 func _has(events: Array, t: String) -> bool:
@@ -255,9 +263,9 @@ func _auto_toss() -> void:
 	_until_toss_top(m)
 	_check(m.swing(0, 0.6, true, 0.0, 0.0) == "serve", "a swing down at the top of an automatic toss serves")
 	var press := _match([0, 1])
+	_check(not press.has_method("press_a"), "there is no A press that tosses at once (A removed, 2026-11-17)")
 	_run(press, 0.3)
-	press.press_a(0)
-	_check(press.phase == Match.Phase.TOSS, "A still tosses at once")
+	_check(press.phase == Match.Phase.SERVE and not press.sim.tossed, "0.3 s after the start nothing tosses the ball")
 	var again := _match([0, 1])
 	_run(again, Match.AUTO_TOSS + 0.1)
 	_run(again, 2.0)   # The ball falls (not hit), and the server's ball is tossed again by itself.
@@ -300,10 +308,9 @@ func _serve() -> void:
 	_check(m.phase == Match.Phase.SERVE and m.server_slot() == 0, "the match starts with a serve of the first player")
 	m.swing(0, 0.6, true, 0.0, 0.0)
 	_check(m.phase == Match.Phase.SERVE, "a swing before the toss does nothing")
-	m.press_a(1)
-	_check(m.phase == Match.Phase.SERVE, "A of the player who does not serve does nothing")
-	m.press_a(0)
-	_check(m.phase == Match.Phase.TOSS and m.sim.tossed, "A tosses the ball")
+	_toss_now(m)
+	_check(m.phase == Match.Phase.TOSS and m.sim.tossed and m.sim.pos.x == m.chars[0].pos.x,
+			"the ball is tossed by itself from the hand of the server")
 	_check(m.swing(0, 0.6, false, 0.0, 0.0) == "none" and m.phase == Match.Phase.TOSS,
 			"a swing that is not from top to bottom does nothing")
 	# (Until 2026-11-08 a swing right after the toss did nothing; the window is now the whole toss, issue #419.)
@@ -313,7 +320,7 @@ func _serve() -> void:
 			"a swing from top to bottom at the top of the toss is the serve")
 	_check(m.expect_team == 1 and m.hitter == 1 and m.chars[1].target.y > 0.0, "the other team returns it, and its player runs")
 	var lost := _match([0, 1])
-	lost.press_a(0)
+	_toss_now(lost)
 	_run(lost, 2.0)
 	_check(lost.phase == Match.Phase.SERVE and _has(lost.take_events(), "toss_lost"),
 			"a toss that is not hit falls and the server tosses again, with no fault")
@@ -533,10 +540,11 @@ func _solo() -> void:
 	m.solo_left = 0.5
 	_run(m, 1.0)
 	_check(m.is_over() and _has(m.take_events(), "time_up") and m.best_rally >= best, "after 90 s the round is over")
-	var skip := _match([3])
-	skip.press_a(3)
-	_run(skip, 1.0)
-	_check(skip.phase == Match.Phase.RALLY, "A of the player skips the wait of the machine")
+	var feed := _match([3])   # With 1 player the machine feeds the ball by itself after FEED_DELAY, no press needed.
+	_run(feed, Match.FEED_DELAY - 0.3)
+	_check(feed.phase == Match.Phase.SERVE, "with 1 player the machine waits %.1f s before the first ball" % Match.FEED_DELAY)
+	_run(feed, 0.6)
+	_check(feed.phase == Match.Phase.RALLY, "with 1 player the machine feeds the ball by itself, with no press")
 
 
 ## Players that leave (REQ-TN-20).
@@ -784,7 +792,7 @@ func _swing_chain() -> void:
 	for k in 10:
 		var m := _match([0, 1])
 		var rig := Rig.new(0)
-		m.press_a(0)
+		_toss_now(m)
 		var peak: float = m._toss_apex + rng.randf_range(-0.1, 0.1)
 		var res := _play(m, rig, Trace.stroke(Vector3(0, 0, -1), 10.0, 25.0), peak)
 		served += 1 if res == "serve" else 0
@@ -794,26 +802,26 @@ func _swing_chain() -> void:
 	for k in 5:
 		var m2 := _match([0, 1])
 		var rig2 := Rig.new(0)
-		m2.press_a(0)
+		_toss_now(m2)
 		wrong += 1 if _play(m2, rig2, Trace.stroke(Vector3(1, 0, 0), 10.0, 25.0), m2._toss_apex) != "none" else 0
 	_check(wrong == 0, "a forehand at the top of the toss never serves (0 of 5)")
 	# Issue #419: the window is 0.6 s each side of the top of the toss, from the toss until the ball is back at the hand.
 	var m_late := _match([0, 1])
-	m_late.press_a(0)
+	_toss_now(m_late)
 	while m_late.time < m_late._toss_apex + 0.5 and m_late.phase == Match.Phase.TOSS:
 		m_late.tick(DT)
 	_check(m_late.phase == Match.Phase.TOSS and m_late.swing(0, 0.6, true, 0.0, 0.0) == "serve",
 			"a swing 0.5 s after the top of the toss serves (too late with 0.45 s) (issue #419)")
 	var m_early := _match([0, 1])
-	m_early.press_a(0)
+	_toss_now(m_early)
 	_check(m_early.swing(0, 0.6, true, 0.0, 0.0) == "serve",
 			"a swing at the moment of the toss (0.47 s before the top) serves (#419)")
 	var m_back := _match([0, 1])
-	m_back.press_a(0)
+	_toss_now(m_back)
 	_check(m_back.swing(0, 0.6, true, 0.0, 0.1) == "serve",
 			"a swing that is reported at the toss and was hit 0.1 s before the press still serves (REQ-TN-9, #419)")
 	var m_flat := _match([0, 1])
-	m_flat.press_a(0)
+	_toss_now(m_flat)
 	while m_flat.time < m_flat._toss_apex + 0.5 and m_flat.phase == Match.Phase.TOSS:
 		m_flat.tick(DT)
 	_check(m_flat.swing(0, 0.6, false, 0.0, 0.0) == "none", "a swing that is not down at the end of the toss does nothing (#419)")

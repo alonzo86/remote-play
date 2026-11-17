@@ -66,7 +66,6 @@ func _game_ready() -> void:
 		det.fast_full = 5.0
 		det.strike_without_back = true
 		player(s).follow_heading = false   # Left stays left: the straight direction is the one at the start.
-		player(s).button_pressed.connect(_on_button.bind(s))
 		player(s).swung.connect(_on_swing.bind(s))
 		_wired.append(s)
 	if _has_countdown():
@@ -81,9 +80,6 @@ func _exit_tree() -> void:
 		var pl := player(s)
 		if pl == null:
 			continue
-		var cb := _on_button.bind(s)
-		if pl.button_pressed.is_connected(cb):
-			pl.button_pressed.disconnect(cb)
 		var sw := _on_swing.bind(s)
 		if pl.swung.is_connected(sw):
 			pl.swung.disconnect(sw)
@@ -96,12 +92,6 @@ func _on_player_left(slot: int) -> void:
 
 
 # ---- The phones ----
-
-func _on_button(bit: int, slot: int) -> void:
-	if bit != Protocol.BTN_A or not _live():
-		return
-	play.press_a(slot)
-
 
 func _on_swing(info: Dictionary, slot: int) -> void:
 	if not _live() or Time.get_ticks_msec() - _tick_ms > PAUSE_GAP_MS:
