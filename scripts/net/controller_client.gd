@@ -343,7 +343,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			score_text = Protocol.text(msg, "v", "").substr(0, 12)
 			score_changed.emit()
 		"final":
-			final_text = Protocol.text(msg, "v", "").substr(0, FINAL_MAX)
+			final_text = _clean_line(Protocol.text(msg, "v", ""))
 			score_changed.emit()
 		"turn":
 			turn_state = clampi(Protocol.whole(msg, "s", 0), 0, 2)
@@ -431,6 +431,14 @@ func _close_socket() -> void:
 func _send_json(d: Dictionary) -> void:
 	if _ws != null and _ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
 		_ws.send_text(Protocol.to_json(d))
+
+
+## The text of a `final` message for the screen: control characters and line breaks become spaces, at most `FINAL_MAX` characters.
+static func _clean_line(text: String) -> String:
+	var out := ""
+	for i in mini(text.length(), FINAL_MAX):
+		out += " " if text.unicode_at(i) < 32 or text.unicode_at(i) == 127 else text[i]
+	return out.strip_edges()
 
 
 ## Forgets the line of the result (REQ-FL-67a).

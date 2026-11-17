@@ -132,6 +132,7 @@ func start(settings: Dictionary) -> Error:
 ## A slot that is freed during a round (left, removed, grace time over, host continued without it)
 ## is not in the round any more. A new phone in that slot waits for the next round (REQ-FL-25).
 func _on_player_removed(slot: int) -> void:
+	_final_sent.erase(slot)   # A new phone in this slot never gets the row of the player that left (REQ-FL-67a).
 	round_slots.erase(slot)
 	if not in_round():
 		PlayerNames.assign(players)
@@ -676,8 +677,8 @@ func _admit(ws: WebSocketPeer, msg: Dictionary, now: int, known: bool) -> void:
 	if pad_buttons != "ab":
 		welcome["ab"] = pad_buttons
 	_send_json(slot, welcome)
-	if _final_sent.has(slot) and in_round():
-		_send_json(slot, _final_sent[slot])   # The result is open: the phone that returns shows its line again.
+	if resumed and _final_sent.has(slot) and in_round():   # The result menu runs in the phase `playing`.
+		_send_json(slot, _final_sent[slot])   # The same phone returns while the result is open: its line again.
 	if not resumed:
 		_swing_ok.erase(slot)   # A new phone in a used slot has not tapped OK yet, and is IN.
 		_out.erase(slot)

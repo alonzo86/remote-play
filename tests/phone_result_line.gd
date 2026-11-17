@@ -4,6 +4,7 @@ extends SceneTree
 ## ends through the shared result menu, (2) that menu sends each phone the text of its row, (3) a real TV server and the phone
 ## pad: the line shows, no button shows or works, the buttons come back at the next round. Run:
 ##   godot --headless --path . --script tests/phone_result_line.gd -- --role=controller
+## The flag `--role=controller` is needed: without it the App makes no phone client.
 
 const Protocol = preload("res://scripts/core/protocol.gd")
 const TvServer = preload("res://scripts/net/tv_server.gd")
@@ -177,5 +178,47 @@ func _pad_shows_the_line() -> void:
 	_server.set_phase("menu")
 	await _wait_until(func(): return _client.phase == "menu")
 	_check(_client.final_text == "" and _server._final_sent.is_empty(), "the menu clears the line on the phone and on the TV")
+	await _returning_and_new_phone(slot, line)
+	await _older_phone(line)
 	_client.leave()
 	_server.stop()
+
+
+## The same phone that returns while the result is open gets its line again; a new phone in a freed slot gets none.
+func _returning_and_new_phone(slot: int, line: String) -> void:
+	print("a phone that returns, and a new phone")
+	_server.set_phase("playing")
+	await _wait_until(func(): return _client.phase == "playing")
+	_server.send_final(slot, line)
+	await _wait_until(func(): return _client.final_text == line)
+	_client._close_socket()   # The link drops; the phone reconnects with its token.
+	_client._on_closed()
+	await _wait_until(func(): return _client.state == ControllerClient.State.CONNECTED and _client.final_text == line, 8000)
+	_check(_client.state == ControllerClient.State.CONNECTED and _client.slot == slot and _client.final_text == line,
+			"the same phone returns during the result and gets its line again: '%s'" % _client.final_text)
+	_check(not _pad._button_shown("a") and not _pad._pause_shown(), "and its pad shows no button")
+	_client.leave()
+	await _wait_until(func(): return not _server.players[slot].is_present(), 4000)
+	_server.drop_player(slot)
+	_check(not _server._final_sent.has(slot), "the row of a player that left is forgotten")
+	var other := ControllerClient.new()
+	root.add_child(other)
+	other.connect_to("127.0.0.1", PORT, _server.room_code)
+	await _wait_until(func(): return other.state == ControllerClient.State.CONNECTED)
+	await create_timer(0.3).timeout
+	_check(other.state == ControllerClient.State.CONNECTED and other.final_text == "",
+			"a new phone that joins during the result gets no line (slot %d)" % other.slot)
+	other.leave()
+	other.queue_free()
+
+
+## A phone of an older build has no handler for `final`: the message is an unknown type and changes nothing (change-protocol).
+func _older_phone(line: String) -> void:
+	print("an older phone")
+	var old := ControllerClient.new()
+	root.add_child(old)
+	var before := [old.phase, old.score_text, old.final_text, old.pad_buttons, old.recenter_button]
+	old._handle({"t": "final_v99_unknown", "v": line}, Time.get_ticks_msec())   # What an older build does with `final`.
+	_check([old.phase, old.score_text, old.final_text, old.pad_buttons, old.recenter_button] == before,
+			"a message of a type the phone does not know changes nothing: the pad stays")
+	old.queue_free()
