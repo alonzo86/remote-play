@@ -1,8 +1,8 @@
 extends SceneTree
 ## The result of a game on the phone (issue #455, REQ-FL-67a, step 3c of Test 19): at the end of every game each phone shows
-## the line of its own row of the TV result list, centered, with no button, until the next round. Three parts: (1) every game
-## ends through the shared result menu, (2) that menu sends each phone the text of its row, (3) a real TV server and the phone
-## pad: the line shows, no button shows or works, the buttons come back at the next round. Run:
+## the line of its own row of the TV result list, centered, with only the HOLD TO DISCONNECT box, until the next round.
+## Three parts: (1) every game ends through the shared result menu, (2) that menu sends each phone the text of its row, (3) a real TV server and the phone
+## pad: the line shows, only the leave box shows and works, the buttons come back at the next round. Run:
 ##   godot --headless --path . --script tests/phone_result_line.gd -- --role=controller
 ## The flag `--role=controller` is needed: without it the App makes no phone client.
 
@@ -111,7 +111,7 @@ func _menu_sends_rows() -> void:
 
 
 func _pad_shows_the_line() -> void:
-	print("the pad shows the line and no button")
+	print("the pad shows the line and only the leave box")
 	var app: Node = root.get_node("App")
 	_client = app.client
 	_server = TvServer.new()
@@ -151,8 +151,14 @@ func _pad_shows_the_line() -> void:
 	_check(_pad._result_shown(), "the pad shows the result")
 	_check(not _pad._button_shown("a") and not _pad._button_shown("b") and not _pad._recenter_shown()
 			and not _pad._pause_shown() and not _pad._aim_mode(), "no A, B, RECENTER, pause button or aim strip shows")
-	_check(_pad._zone_at(a) == "pad" and _pad._zone_at(leave) == "pad" and _pad._zone_at(recenter) == "pad"
-			and _pad._zone_at(pause) == "pad", "a finger on their old places presses nothing (no HOLD TO DISCONNECT either)")
+	_check(_pad._zone_at(a) == "pad" and _pad._zone_at(recenter) == "pad" and _pad._zone_at(pause) == "pad",
+			"a finger on the old places of A, RECENTER and the pause button presses nothing")
+	_check(_pad._zone_at(leave) == "leave", "a finger on the HOLD TO DISCONNECT box is in its zone (REQ-FL-67a)")
+	var aim_pos: Vector2 = _pad._rect_aim().get_center()
+	_check(_pad._zone_at(aim_pos) == "pad" and _pad._zone_at(_pad._center_b()) == "pad", "the aim strip and B are dead too")
+	_check(not _pad._rect_leave().intersects(_pad._rect_final()), "the leave box does not overlap the line")
+	_layout_does_not_overlap(holder)
+	await _short_tap_does_nothing(leave, slot)
 	var r: Rect2 = _pad._rect_final()
 	_check(is_equal_approx(r.get_center().y, _pad.size.y * 0.5) and is_equal_approx(r.get_center().x, _pad.size.x * 0.5),
 			"the line is centered on the middle of the screen: %s" % str(r.get_center()))
@@ -184,6 +190,58 @@ func _pad_shows_the_line() -> void:
 	_server.stop()
 
 
+func _touch(pressed: bool, pos: Vector2) -> InputEventScreenTouch:
+	var e := InputEventScreenTouch.new()
+	e.index = 5
+	e.pressed = pressed
+	e.position = pos
+	return e
+
+
+## The box and the line do not meet on a small phone (720x1280), a 1080x1920 and a tall one; the longest line (60 characters,
+## wrapped) is about 76 px per row, centered on the middle.
+func _layout_does_not_overlap(holder: Control) -> void:
+	var longest := "".rpad(60, "W")
+	for sz in [Vector2(720, 1280), Vector2(1080, 1920), Vector2(1080, 1440), Vector2(1080, 2400)]:
+		holder.size = sz
+		_pad.size = sz
+		var rows: int = _pad.final_lines(longest, _pad._rect_final().size.x).size()
+		var half := rows * 76.0 * 0.5
+		var mid: float = _pad.size.y * 0.5
+		_check(mid + half < _pad._rect_leave().position.y and _pad._zone_at(Vector2(sz.x * 0.5, mid)) == "pad",
+				"%s: %d rows of the longest line end at %.0f, above the box at %.0f" % [str(sz), rows, mid + half,
+				_pad._rect_leave().position.y])
+	holder.size = Vector2(1080, 1920)
+	_pad.size = holder.size
+
+
+## A tap on the box (shorter than 0.8 s) does not leave the TV while the line shows.
+func _short_tap_does_nothing(leave: Vector2, slot: int) -> void:
+	_pad._input(_touch(true, leave))
+	_pad._process(0.5)
+	_pad._input(_touch(false, leave))
+	_pad._process(0.5)
+	_check(_client.state == ControllerClient.State.CONNECTED and _client.slot == slot and _pad._leave_hold == 0.0,
+			"a short tap on the box does not leave the TV")
+	_pad._input(_touch(true, _pad._center_a()))
+	_pad._process(2.0)
+	_check(_client.state == ControllerClient.State.CONNECTED and _pad._leave_hold == 0.0,
+			"a long press on the old place of A does nothing")
+	_pad._input(_touch(false, _pad._center_a()))
+
+
+## A hold of 0.8 s on the box while the line shows leaves the TV, and the box fills from left to right.
+func _hold_leaves(slot: int) -> void:
+	var leave: Vector2 = _pad._rect_leave().get_center()
+	_pad._input(_touch(true, leave))
+	_pad._process(0.4)
+	_check(_pad._leave_hold > 0.39 and _client.state == ControllerClient.State.CONNECTED, "0.4 s: the box is half full, still here")
+	_pad._process(0.45)
+	_check(not _server.players[slot].is_present() or _client.slot == -1 or _client.state != ControllerClient.State.CONNECTED,
+			"after 0.8 s on the box the phone leaves the TV")
+	await _wait_until(func(): return not _server.players[slot].is_present(), 4000)
+
+
 ## The same phone that returns while the result is open gets its line again; a new phone in a freed slot gets none.
 func _returning_and_new_phone(slot: int, line: String) -> void:
 	print("a phone that returns, and a new phone")
@@ -196,8 +254,8 @@ func _returning_and_new_phone(slot: int, line: String) -> void:
 	await _wait_until(func(): return _client.state == ControllerClient.State.CONNECTED and _client.final_text == line, 8000)
 	_check(_client.state == ControllerClient.State.CONNECTED and _client.slot == slot and _client.final_text == line,
 			"the same phone returns during the result and gets its line again: '%s'" % _client.final_text)
-	_check(not _pad._button_shown("a") and not _pad._pause_shown(), "and its pad shows no button")
-	_client.leave()
+	_check(not _pad._button_shown("a") and not _pad._pause_shown(), "and its pad shows no A and no pause button")
+	await _hold_leaves(slot)
 	await _wait_until(func(): return not _server.players[slot].is_present(), 4000)
 	_server.drop_player(slot)
 	_check(not _server._final_sent.has(slot), "the row of a player that left is forgotten")

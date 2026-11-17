@@ -81,7 +81,7 @@ func _on_phase(_phase: String) -> void:
 
 func _process(delta: float) -> void:
 	_flash.recenter = maxf(_flash.recenter - delta * 3.0, 0.0)
-	if _fingers.values().has("leave") and not _result_shown():
+	if _fingers.values().has("leave"):
 		_leave_hold += delta
 		if _leave_hold >= LEAVE_HOLD:
 			_leave_hold = 0.0
@@ -118,7 +118,8 @@ func _pause_shown() -> bool:
 	return c.phase == "playing" and c.state == ControllerClient.State.CONNECTED and not _result_shown()
 
 
-## True while the result of the game shows on the phone (REQ-FL-67a): the line of the player in the middle and no button.
+## True while the result of the game shows on the phone (REQ-FL-67a): the line of the player in the middle and only the
+## HOLD TO DISCONNECT box.
 func _result_shown() -> bool:
 	return App.client.final_text != "" and App.client.state == ControllerClient.State.CONNECTED
 
@@ -267,7 +268,8 @@ func _radius() -> float:
 
 func _zone_at(pos: Vector2) -> String:
 	if _result_shown():
-		return "pad"   # No button shows, so none can be pressed (REQ-FL-67a).
+		# Only the HOLD TO DISCONNECT box shows and works; the places of the other buttons are dead (REQ-FL-67a).
+		return "leave" if _rect_leave().has_point(pos) else "pad"
 	if _pause_shown() and _rect_pause().has_point(pos):
 		return "pause"
 	if _rect_leave().has_point(pos):
@@ -448,21 +450,20 @@ func _draw() -> void:
 	if _pause_shown():
 		_draw_pause(_rect_pause())
 
-	# The result of the game (REQ-FL-67a): the line of this player, in the middle, and no button below.
+	# The result of the game (REQ-FL-67a): the line of this player, in the middle, and only the HOLD TO DISCONNECT box below.
 	if _result_shown():
 		var final_rect := _rect_final()
 		_draw_lines_centered(f, final_lines(c.final_text, final_rect.size.x), final_rect, LINE_SIZE, HORIZONTAL_ALIGNMENT_CENTER,
 				final_rect.position.x, UiTheme.TEXT)
 
 	# Disconnect: a framed text box. A game needs a press of LEAVE_HOLD seconds; the box fills while the finger stays (REQ-FL-52a).
-	if not _result_shown():
-		var lr := _rect_leave()
-		_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), LEAVE_SIZE, UiTheme.BUTTON_TEXT)
-		if _leave_hold > 0.0:
-			var fill := Rect2(lr.position, Vector2(lr.size.x * minf(_leave_hold / LEAVE_HOLD, 1.0), lr.size.y))
-			draw_rect(fill, UiTheme.BAD)
-			draw_string(UiTheme.font(), Vector2(lr.position.x, UiTheme.centered_baseline(UiTheme.font(), lr, LEAVE_SIZE)),
-					Lang.t("pad.disconnect_hold").to_upper(), HORIZONTAL_ALIGNMENT_CENTER, lr.size.x, LEAVE_SIZE, UiTheme.BG)
+	var lr := _rect_leave()
+	_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), LEAVE_SIZE, UiTheme.BUTTON_TEXT)
+	if _leave_hold > 0.0:
+		var fill := Rect2(lr.position, Vector2(lr.size.x * minf(_leave_hold / LEAVE_HOLD, 1.0), lr.size.y))
+		draw_rect(fill, UiTheme.BAD)
+		draw_string(UiTheme.font(), Vector2(lr.position.x, UiTheme.centered_baseline(UiTheme.font(), lr, LEAVE_SIZE)),
+				Lang.t("pad.disconnect_hold").to_upper(), HORIZONTAL_ALIGNMENT_CENTER, lr.size.x, LEAVE_SIZE, UiTheme.BG)
 
 	if _aim_mode():
 		_draw_aim_strip(_rect_aim(), f)
