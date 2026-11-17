@@ -6,7 +6,7 @@ extends SceneTree
 ## - 4a: the phones `Sam` and `sam` are SAM and SAM 2 on the Players list;
 ## - 4b: a name of 10 letters in Latin and in Hebrew is whole in the Players list and on the Connect screen, in both languages;
 ## - 7b (the machine part): with 4 phones that each sent a name and an avatar, every slot row of the Players list and of the
-##   Connect screen shows the avatar its phone sent, the 4 are different pictures, each is drawn at 64 px (16 px x 4), a whole
+##   Connect screen shows the avatar its phone sent, the 4 are different pictures, each row control is 64 px (16 px x 4), a whole
 ##   number scale (REQ-FL-70), in English and in Hebrew;
 ## - 6a2: a phone whose Wi-Fi goes away without a close (a relay cuts the link) pauses the game in 3.6 s or less; the card
 ##   names it.
@@ -296,7 +296,7 @@ func _lists() -> void:
 
 
 ## 7b (machine part): the avatars in the slot rows of `node`. Slot N shows the avatar that phone N sent, the 4 pictures differ in
-## their pixels, and each is drawn at 64 px, which is 16 px x 4, a whole-number scale that a child can find (REQ-FL-70).
+## their pixels, and each row control is 64 px, which is 16 px x 4, a whole-number scale that a child can find (REQ-FL-70).
 func _avatar_row_checks(state: String, node: Node) -> void:
 	var views: Array = node.find_children("*", "Control", true, false).filter(
 			func(c: Node) -> bool: return c.get_script() == AvatarView)
@@ -318,7 +318,7 @@ func _avatar_row_checks(state: String, node: Node) -> void:
 	for i in pix.size():
 		for j in range(i + 1, pix.size()):
 			distinct = distinct and pix[i] != pix[j]
-	_check(ok, "%s: the 4 rows show the avatars the phones sent %s, each 64 px (%s)" % [state, str(sent), str(sizes)])
+	_check(ok, "%s: the 4 rows show the avatars the phones sent %s, each row control 64 px (%s)" % [state, str(sent), str(sizes)])
 	_check(distinct and pix.size() == 4, "%s: the 4 avatar pictures differ in their pixels" % state)
 	var empty := true
 	for d in pix:
