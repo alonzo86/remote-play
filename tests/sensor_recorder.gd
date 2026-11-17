@@ -1,5 +1,6 @@
 extends SceneTree
-## Test 24 step 12d (REQ-T7): the sensor recorder of the debug overlay. A recording of a made-up swing is written as CSV, read
+## A-24-12 (REQ-T7; Test 24 step 12d was removed from docs/MANUAL_TESTS.md on 2026-11-17): the sensor recorder of the
+## debug overlay. A recording of a made-up swing is written as CSV, read
 ## back, put on the 60 Hz grid of tests/sensor_replay.gd and replayed in the swing detector: the detector finds the same swing
 ## as in the original trace. Also: the packets of a phone reach the recorder, the labels, bad files.
 ## Run: godot --headless --path . --script tests/sensor_recorder.gd -- --role=tv

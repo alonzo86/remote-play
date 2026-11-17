@@ -1,6 +1,7 @@
 extends RefCounted
-## Records the sensor packets of the phones on the TV, to get real traces for tuning the swing detector (Test 24 step
-## 12d, REQ-T7). The debug overlay starts and stops it (`debug_overlay.gd`); `PlayerInput.on_sensor()` calls `add()` for
+## Records the sensor packets of the phones on the TV, to get real traces for tuning the swing detector (REQ-T7; the
+## manual Test 24 step 12d was removed on 2026-11-17, issue #458). The debug overlay starts and stops it
+## (`debug_overlay.gd`); `PlayerInput.on_sensor()` calls `add()` for
 ## every packet.
 ## A recording is one CSV file per phone (`user://sensor_traces/<label>_<time>_p<slot>.csv`):
 ##
@@ -17,7 +18,7 @@ extends RefCounted
 const DIR := "user://sensor_traces"
 const MAGIC := "# sababi sensor trace 1"
 const HEADER := "t_ms,lin_x,lin_y,lin_z,gyro_x,gyro_y,gyro_z"
-## The kinds of movement that Test 24 step 12d asks for, in the order the overlay cycles through them.
+## The kinds of movement that the removed Test 24 step 12d asked for, in the order the overlay cycles through them.
 const LABELS: Array[String] = ["sweep", "hard_shake", "slow_shake", "swing_soft", "swing_medium", "swing_hard"]
 
 ## Rows kept for one phone: 10 minutes at 60 Hz. A recording that runs longer stops growing (issue #387).

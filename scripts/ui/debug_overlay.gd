@@ -131,7 +131,7 @@ class _Canvas extends Control:
 			parts.append("P%d %d" % [p.slot + 1, rec.count(p.slot)])
 		return "RECORDING %s  %.1f s  packets: %s   F5 stop and save" % [rec.label, rec.seconds(now_ms), "  ".join(parts)]
 
-	## The line of a swing is in the color of the player for `SWING_LIT_MS` after the swing, then dim (Test 24 item 3).
+	## The line of a swing is in the color of the player for `SWING_LIT_MS` after the swing, then dim (`swing_replay`, A-24-3).
 	func _swing_color(p: PlayerInput, now_ms: int) -> Color:
 		return p.color if now_ms - p.last_swing_ms < SWING_LIT_MS else UiTheme.TEXT_DIM
 

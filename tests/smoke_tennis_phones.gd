@@ -254,6 +254,15 @@ func _run() -> void:
 		for j in range(i + 1, 4):
 			distinct = distinct and f.player(i).color != f.player(j).color
 	_check(distinct, "the 4 player colors are different")
+	# 14b: each of the 4 characters, the 2 near ones and the 2 far ones, wears the color of its own phone (REQ-TN-3).
+	var shirts_ok: bool = f.play.chars.size() == 4
+	var teams := [0, 0]
+	for s in 4:
+		shirts_ok = shirts_ok and f.play.chars.has(s) and f._look_of(s, f.play.chars[s]).shirt == Protocol.PLAYER_COLORS[s]
+		if f.play.chars.has(s):
+			teams[int(f.play.chars[s].team)] += 1
+	_check(shirts_ok and teams == [2, 2],
+			"4 phones: each of the 4 characters, near and far, wears the color of its phone (2 near, 2 far; 14b)")
 	_go(f)
 	for i in 4:
 		f.play.rules.score_point(0)

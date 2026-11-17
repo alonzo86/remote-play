@@ -1,9 +1,9 @@
 extends SceneTree
-## The numbers of the network test (docs/MANUAL_TESTS.md test 4) on the loopback, with simulated phones that send 60 packets a
-## second: the round trip time, the packet rate, the longest gap and the lost packets that the TV overlay shows, with 1 phone and
-## with 4 phones while the maze runs. The loopback guards the code of the TV (a stall in the main
-## thread, the ping answer, the rate
-## and gap arithmetic); the real radio is the manual part.
+## The numbers of the network test (A-4-1, A-4-5; Test 4 of docs/MANUAL_TESTS.md has no manual step since 2026-11-17)
+## on the loopback, with simulated phones that send 60 packets a second: the round trip time, the packet rate, the longest
+## gap and the lost packets that the TV overlay shows, with 1 phone and with 4 phones while the maze runs. The loopback
+## guards the code of the TV (a stall in the main thread, the ping answer, the rate and gap arithmetic); the real radio is
+## not measured by a person since 2026-11-17.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/net_rate.gd -- --role=tv
 
 const Protocol = preload("res://scripts/core/protocol.gd")
