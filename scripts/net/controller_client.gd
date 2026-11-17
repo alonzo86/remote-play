@@ -5,6 +5,7 @@ extends Node
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ConfigIO = preload("res://scripts/core/config_io.gd")
 const ClosingSockets = preload("res://scripts/net/closing_sockets.gd")
+const Medal = preload("res://scripts/ui/medal.gd")   # Its TIERS: the only list of medals the phone draws (`m` of `final`).
 
 signal state_changed(state: int)
 signal welcomed(slot: int, color: Color)
@@ -21,7 +22,6 @@ enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING, WAITING }
 
 const LAST_FILE := "user://controller.cfg"
 const FINAL_MAX := 60   # The longest line of the result that the phone keeps (REQ-FL-67a).
-const MEDAL_TIERS := ["gold", "silver", "bronze"]   # The medals the phone draws (`m` of `final`); another text is no medal.
 const RETRY_DELAYS := [0.5, 1.0, 2.0]
 const CONNECT_TIMEOUT_MS := 4000
 const GIVE_UP_AFTER := 3   # Failed first attempts before "unreachable".
@@ -354,7 +354,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			final_place = _clean_line(Protocol.text(msg, "p", ""))
 			final_score = _clean_line(Protocol.text(msg, "s", ""))
 			var medal := _clean_line(Protocol.text(msg, "m", ""))
-			final_medal = medal if MEDAL_TIERS.has(medal) else ""
+			final_medal = medal if Medal.TIERS.has(medal) else ""
 			score_changed.emit()
 		"turn":
 			turn_state = clampi(Protocol.whole(msg, "s", 0), 0, 2)

@@ -158,8 +158,9 @@ static func game_name(id: String) -> String:
 
 
 ## Line 3 of the result on lines of at most `width`: the score, the time or NOT FINISHED in white; when this player set a personal
-## best (`best` is true: `App.current_best()` is set), NEW BEST! and the value in yellow in its place. They are on one line when they fit, else
-## the title is one line and the value the next: the wrap never takes the unit away from the number, and the text is never smaller.
+## best (`best` is true: `App.current_best()` is set), NEW BEST! and the value in yellow in its place. They are on one line
+## when they fit, else the title is one line and the value the next: the wrap never takes the unit away from the number, and
+## the text is never smaller.
 static func line3_lines(score: String, best: bool, width: float) -> Array[String]:
 	var f := UiTheme.font()
 	var value := score.to_upper()
@@ -175,7 +176,8 @@ static func line3_lines(score: String, best: bool, width: float) -> Array[String
 
 ## The block of the result (REQ-FL-67a), centered as a whole on the middle of the screen: the game name (40 px), 48 px, the place
 ## row (128 px), 32 px, line 3 (64 px, one line or two). `block_top = floor(size.y / 2 - h / 2)`. The rectangles are in the
-## coordinates of the pad; `game_lines` and `line3` are the texts; a game that is not known has no name line and no gap above the row.
+## coordinates of the pad; `game_lines` and `line3_lines` are the texts; a game that is not known has no name line and no gap
+## above the row.
 func _final_block() -> Dictionary:
 	var c: Node = App.client
 	var f := UiTheme.font()
@@ -203,7 +205,7 @@ static func _lines_height(count: int, font_size: int) -> float:
 	return float(count * font_size + (count - 1) * UiTheme.line_gap(font_size))
 
 
-## Draws `lines` from the top of `rect`, centered, one line gap apart. The text of a line is centered in a box as high as its font.
+## Draws `lines` from the top of `rect`, centered, one line gap apart. A line is centered in a box as high as its font.
 func _draw_block_lines(f: Font, lines: Array[String], rect: Rect2, fs: int, color: Color) -> void:
 	var pitch := float(fs + UiTheme.line_gap(fs))
 	for i in lines.size():

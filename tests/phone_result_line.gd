@@ -15,6 +15,7 @@ const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const STUB_HOST := "res://tests/stub_game_host.gd"
 const PAD_SCRIPT := "res://scripts/ui/controller_pad.gd"
+const Medals = preload("res://scripts/game/medals.gd")
 const Medal = preload("res://scripts/ui/medal.gd")
 
 # Not the game port: it depends on the process (as in pad_pause.gd).
@@ -286,24 +287,31 @@ func _pad_shows_the_line() -> void:
 	await _three_lines_over_the_wire(slot, line)
 	await _block_layout(app)
 	await _new_best_line(app)
-	_set_final("", "", "", "")
+	_half_a_result_is_the_old_line(line)
+	_medal_lists_agree()
+	_set_final("snowball_splat", "1ST", "12", "gold")
 	_server.set_phase("paused")
 	await _wait_until(func(): return _client.phase == "paused")
 	_server.set_phase("playing")
 	await _wait_until(func(): return _client.phase == "playing")
 	_check(_client.final_text == line and _server._final_sent.has(slot), "a pause and its resume keep the line")
+	_check(_has_all_parts("snowball_splat", "1ST", "12", "gold"), "and its pieces g, p, s, m")
 
 	_server.set_phase("playing")   # The next round (Try again) is a phase message that follows a phase 'playing'.
 	await _wait_until(func(): return _client.final_text == "")
 	_check(_client.final_text == "" and not _pad._result_shown(), "the next round clears the line")
+	_check(_has_all_parts("", "", "", ""), "the next round clears g, p, s and m too, not only v")
 	_check(_pad._button_shown("a") and _pad._button_shown("b") and _pad._recenter_shown() and _pad._pause_shown()
 			and _pad._zone_at(leave) == "leave", "and the buttons are back")
 
-	_server.send_final(slot, line)
-	await _wait_until(func(): return _client.final_text == line)
+	_server.send_final(slot, line, {"g": "snowball_splat", "p": "2ND", "s": "9", "m": "silver"})
+	await _wait_until(func(): return _client.final_score == "9")
+	_check(_has_all_parts("snowball_splat", "2ND", "9", "silver"), "a second result brings its own pieces")
 	_server.set_phase("menu")
 	await _wait_until(func(): return _client.phase == "menu")
 	_check(_client.final_text == "" and _server._final_sent.is_empty(), "the menu clears the line on the phone and on the TV")
+	_check(_has_all_parts("", "", "", ""), "the menu clears g, p, s and m too")
+	_welcome_clears_the_result()
 	await _returning_and_new_phone(slot, line)
 	await _older_phone(line)
 	_client.leave()
@@ -400,6 +408,58 @@ func _older_phone(line: String) -> void:
 	_check([old.phase, old.score_text, old.final_text, old.pad_buttons, old.recenter_button] == before,
 			"a message of a type the phone does not know changes nothing: the pad stays")
 	old.queue_free()
+
+
+## True when the client has exactly these pieces of the result and, for an empty set, no line `v` either.
+func _has_all_parts(g: String, p: String, sc: String, m: String) -> bool:
+	var empty := g == "" and p == "" and sc == "" and m == ""
+	return _client.final_game == g and _client.final_place == p and _client.final_score == sc and _client.final_medal == m \
+			and (not empty or _client.final_text == "")
+
+
+## A new connection (the `welcome` message) clears every part of the result of an earlier connection.
+func _welcome_clears_the_result() -> void:
+	var fresh := ControllerClient.new()
+	root.add_child(fresh)
+	fresh.final_text = "1ST   Noa   12"
+	fresh.final_game = "snowball_splat"
+	fresh.final_place = "1ST"
+	fresh.final_score = "12"
+	fresh.final_medal = "gold"
+	fresh._handle({"t": "welcome", "slot": 1, "phase": "menu"}, Time.get_ticks_msec())
+	_check(fresh.final_text == "" and fresh.final_game == "" and fresh.final_place == "" and fresh.final_score == ""
+			and fresh.final_medal == "", "a new connection clears v, g, p, s and m")
+	fresh.queue_free()
+
+
+## The medals the phone accepts are the medals of the sheet and the medals the TV gives (one list, no drift).
+func _medal_lists_agree() -> void:
+	var tiers: Array = Medal.TIERS.duplicate()
+	var names: Array = Medals.NAMES.duplicate()
+	tiers.sort()
+	names.sort()
+	_check(tiers == names, "the tiers of the medal sheet are the tiers of Medals.for_place: %s %s" % [str(tiers), str(names)])
+	var ok := true
+	for t in Medal.TIERS:
+		var c := ControllerClient.new()
+		c._handle({"t": "final", "v": "x", "p": "1ST", "s": "1", "m": t}, Time.get_ticks_msec())
+		ok = ok and c.final_medal == t
+		c.free()
+	_check(ok, "the phone keeps each medal tier of the sheet")
+
+
+## An old TV sends no `p` or no `s`: with only one of the two the pad shows the one line `v`, with no game and no medal.
+func _half_a_result_is_the_old_line(line: String) -> void:
+	print("a result with only one of p and s")
+	for half in [{"p": "1ST"}, {"s": "12"}]:
+		var msg := {"t": "final", "v": line, "g": "snowball_splat", "m": "gold"}
+		msg.merge(half)
+		_client._handle(msg, Time.get_ticks_msec())
+		_check(_client.final_text == line and not _pad._final_structured() and _pad._result_shown(),
+				"%s without the other: the pad shows the one line v, not the block" % str(half.keys()))
+	_client._handle({"t": "final", "v": line, "p": "1ST", "s": "12"}, Time.get_ticks_msec())
+	_check(_pad._final_structured(), "both p and s: the block shows")
+	_set_final("", "", "", "")
 
 
 func _set_final(g: String, p: String, sc: String, m: String) -> void:
