@@ -135,9 +135,7 @@ func tick(dt: float, dogs: Dictionary, rng: RandomNumberGenerator) -> void:
 			_tick_penned(s, dt, rng)
 		else:
 			_tick_free(i, s, dt, dogs, rng)
-	_separate()
-	for s in sheep:
-		s.pos = resolve(s.pos, s.vel, RADIUS, HALF)[0]   # The push between two sheep never leaves a sheep in a wall or off the grass.
+	_separate()   # It puts both sheep of a pair back on the grass and out of the walls (REQ-SH-22).
 
 
 func _tick_free(i: int, s: Sheep, dt: float, dogs: Dictionary, rng: RandomNumberGenerator) -> void:

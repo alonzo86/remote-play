@@ -18,7 +18,8 @@ const ROUND_TICKS := 240             # 8 s of a round.
 const HERD_SEEDS := 24
 const SLACK := 1.0                   # A circle may touch a wall; more than 1 px inside it is "in the wall".
 const CELL := 8.0
-const DOG_PICTURE := Vector2(40.0, 28.0)   # Half of the 80 x 56 px picture of a dog.
+const SHEEP_PICTURE := Vector2(36.0, 28.0)   # How far the middle of a sheep stays from the edge (half of 72 x 56 px).
+const DOG_PICTURE := Vector2(40.0, 30.0)   # The same for a dog (REQ-SH-22): 40 px sideways, 30 px up and down.
 
 var _checks := 0
 var _fails := 0
@@ -99,7 +100,7 @@ func _problem(f: SheepFlock, p: Vector2, r: float, half: Vector2) -> String:
 ## The first problem of the dogs and the sheep of a flock, or "".
 func _first_problem(f: SheepFlock, dogs: Dictionary) -> String:
 	for s in f.sheep:
-		var why := _problem(f, s.pos, SheepFlock.RADIUS, SheepFlock.HALF)
+		var why := _problem(f, s.pos, SheepFlock.RADIUS, SHEEP_PICTURE)
 		if why != "":
 			return "sheep %s" % why
 	for slot in dogs:
@@ -208,7 +209,7 @@ func _narrow_gaps() -> Array[String]:
 
 ## A cell of the grid where the middle of a sheep can stand (the picture on the grass, no wall touched).
 func _is_free(f: SheepFlock, p: Vector2) -> bool:
-	return _field.encloses(Rect2(p - SheepFlock.HALF, SheepFlock.HALF * 2.0)) and _depth(f, p, SheepFlock.RADIUS) <= SLACK
+	return _field.encloses(Rect2(p - SHEEP_PICTURE, SHEEP_PICTURE * 2.0)) and _depth(f, p, SheepFlock.RADIUS) <= SLACK
 
 
 ## Static pockets: the free space for a sheep is one region (reached from the gate), and a sheep that is made to stand on a

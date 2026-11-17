@@ -269,7 +269,7 @@ func _place_sheep(game: Node) -> void:
 		var s = flock.sheep[i]
 		if i < 3:
 			s.penned = true
-			s.pos = pen.position + Vector2(70.0 + 80.0 * float(i), 110.0 + 70.0 * float(i % 2))
+			s.pos = pen.position + Vector2(60.0 + 60.0 * float(i), 110.0 + 70.0 * float(i % 2))
 		else:
 			s.pos = gate + Vector2(-170.0 - 130.0 * float((i - 3) % 3) + 50.0 * sin(float(i) * 2.3),
 					-300.0 + 95.0 * float((i - 3) / 3 % 4) + 40.0 * cos(float(i) * 1.7))
