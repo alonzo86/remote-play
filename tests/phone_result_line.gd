@@ -13,6 +13,8 @@ const Registry = preload("res://scripts/game/registry.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
+const STUB_HOST := "res://tests/stub_game_host.gd"
+const PAD_SCRIPT := "res://scripts/ui/controller_pad.gd"
 const Medal = preload("res://scripts/ui/medal.gd")
 
 # Not the game port: it depends on the process (as in pad_pause.gd).
@@ -82,7 +84,7 @@ func _every_game_uses_the_shared_result() -> void:
 	_check(own.is_empty(), "no game sends the line of its own (the base class does): %s" % str(own))
 	# The base class sends `g` = Registry.id_of_script(get_script()) for each of them: the id must find the game, and the phone must
 	# have its name in both languages (an unknown id draws no game line).
-	var pad_script: GDScript = load("res://scripts/ui/controller_pad.gd")
+	var pad_script: GDScript = load(PAD_SCRIPT)
 	var no_id: Array[String] = []
 	var no_name: Array[String] = []
 	for g in games:
@@ -101,7 +103,7 @@ func _every_game_uses_the_shared_result() -> void:
 func _menu_sends_rows() -> void:
 	print("the result menu sends each phone its row")
 	var Minigame = load("res://scripts/game/minigame.gd")
-	var host = load("res://tests/stub_game_host.gd").new()
+	var host = load(STUB_HOST).new()
 	var game = Minigame.new()
 	game.game_host = host
 	root.add_child(game)
@@ -201,7 +203,7 @@ func _medal_per_place(game, host) -> void:
 
 ## A real game (not the base class) sends the registry id of the game as `g`.
 func _real_game_sends_its_id() -> void:
-	var host = load("res://tests/stub_game_host.gd").new()
+	var host = load(STUB_HOST).new()
 	var script: GDScript = Registry.load_script("snowball_splat")
 	var game = script.new()
 	game.game_host = host
@@ -214,7 +216,8 @@ func _real_game_sends_its_id() -> void:
 	game.open_results(board)
 	var finals: Array = host.calls.filter(func(c: Array) -> bool: return c[0] == "final")
 	_check(finals.size() == 2 and _final_of(finals, 0)[3].get("g") == "snowball_splat"
-			and _final_of(finals, 2)[3].get("g") == "snowball_splat", "a real game (Banana Party) sends its registry id as g: %s" % str(finals))
+			and _final_of(finals, 2)[3].get("g") == "snowball_splat",
+			"a real game (Banana Party) sends its registry id as g: %s" % str(finals))
 	game.queue_free()
 	await process_frame
 
@@ -233,7 +236,7 @@ func _pad_shows_the_line() -> void:
 	var holder := Control.new()
 	holder.size = Vector2(1080, 1920)
 	root.add_child(holder)
-	_pad = load("res://scripts/ui/controller_pad.gd").new()
+	_pad = load(PAD_SCRIPT).new()
 	_pad.theme = app.theme_res
 	holder.add_child(_pad)
 	_pad.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -406,7 +409,7 @@ func _set_final(g: String, p: String, sc: String, m: String) -> void:
 	_client.final_medal = m
 
 
-## The parts of `final` reach the phone, are cleaned like `v`, and an older TV (only `v`) or an older phone (only reads `v`) still works.
+## The parts of `final` reach the phone, are cleaned like `v`; an older TV and an older phone still work.
 func _three_lines_over_the_wire(slot: int, line: String) -> void:
 	print("the three lines over the wire")
 	_server.send_final(slot, line, {"g": "snowball_splat", "p": "1st", "s": "12", "m": "gold"})
@@ -421,10 +424,11 @@ func _three_lines_over_the_wire(slot: int, line: String) -> void:
 	_client._handle(nothing, Time.get_ticks_msec())
 	_check(_client.final_text == line and _client.final_place == "" and _client.final_game == "" and not _pad._final_structured()
 			and _pad._result_shown(), "an older TV (no p, no s): the pad falls back to the one line v and has no game line")
-	_client._handle({"t": "final", "v": "x", "g": "a\nb", "p": "1ST\u0007", "s": "W".repeat(80), "m": "platinum"}, Time.get_ticks_msec())
+	var dirty := {"t": "final", "v": "x", "g": "a\nb", "p": "1ST\u0007", "s": "W".repeat(80), "m": "platinum"}
+	_client._handle(dirty, Time.get_ticks_msec())
 	_check(_client.final_game == "a b" and _client.final_place == "1ST" and _client.final_score.length() == 60
 			and _client.final_medal == "",
-			"each part is cleaned like v (control characters to spaces, 60 characters); a medal that is not gold, silver or bronze is none")
+			"each part is cleaned like v (control characters to spaces, 60 characters); an unknown medal is none")
 	_client._handle({"t": "final", "v": 5, "g": [1], "p": {"a": 1}, "s": 3, "m": null}, Time.get_ticks_msec())
 	_check(_client.final_game == "" and _client.final_place == "" and _client.final_score == "" and _client.final_medal == "",
 			"parts of the wrong type are empty")
@@ -439,7 +443,7 @@ func _three_lines_over_the_wire(slot: int, line: String) -> void:
 	_set_final("snowball_splat", "1ST", "12", "gold")
 
 
-## The block: game name, place row, line 3, in this order, centered as a whole on the middle of the screen (the formula of REQ-FL-67a),
+## The block: game name, place row, line 3, in this order, centered as a whole on the middle (the formula of REQ-FL-67a),
 ## and clear of the header and of the HOLD TO DISCONNECT box on every size.
 func _block_layout(app: Node) -> void:
 	print("the block of three lines")
@@ -535,7 +539,8 @@ func _new_best_line(app: Node) -> void:
 	var nb: Dictionary = _pad._final_block()
 	_check(nb.best == true and nb.line3_lines == ["NEW BEST! 12"] and not str(nb).to_lower().contains("before"),
 			"this player set a best: line 3 is NEW BEST! and the score, no old value")
-	_check(nb.line3.position.y == plain.line3.position.y and nb.h == plain.h, "and it takes the place of the score (one line, same block)")
+	_check(nb.line3.position.y == plain.line3.position.y and nb.h == plain.h,
+			"and it takes the place of the score (one line, same block)")
 	app.last_best = {"pid": "f".repeat(32), "key": "snowball_splat|medium", "value": 12, "old": 0}
 	_check(_pad._final_block().best == false and _pad._final_block().line3_lines == ["12"],
 			"a best of another profile is not shown on this phone")

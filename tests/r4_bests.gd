@@ -209,7 +209,8 @@ func _game(g: Dictionary) -> void:
 			"9a %s: both phones with a profile get the key and the score: %s %s" % [g.id, str(_rigs[0].got), str(_rigs[1].got)])
 	_check(shown.best == "NEW BEST!" and shown.detail == ProfileKeys.format(key, first).to_upper(),
 			"9a %s: the waiting screen says NEW BEST! with the score (REQ-FL-79): '%s' '%s'" % [g.id, shown.best, shown.detail])
-	_check(String(shown.pad).begins_with("NEW BEST! " + ProfileKeys.format(key, first).to_upper()) and not String(shown.pad).contains("BEFORE"),
+	var first_line := "NEW BEST! " + ProfileKeys.format(key, first).to_upper()
+	_check(String(shown.pad).begins_with(first_line) and not String(shown.pad).contains("BEFORE"),
 			"9a %s: line 3 of the pad is NEW BEST! and the score, no BEFORE: '%s'" % [g.id, shown.pad])
 	var shown_b: Dictionary = await _phone_shows(_rigs[1])
 	_check(shown_b.best == "NEW BEST!", "9a %s: the second phone says NEW BEST! too" % g.id)
