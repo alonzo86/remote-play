@@ -45,8 +45,8 @@ Sheep
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SH-4 | A sheep (a circle of 28 px radius, 72 x 56 px on the screen) walks through nothing: not through a blocker (the pond, a rock, a tree, a hay stack or bales), the barn and the silo, the fence of the pen or the edge of the field. It slides along them and keeps a little of its speed. A dog is blocked the same way, so a dog cannot park inside a tree or the pond. Bushes and flowers are only drawn. | Done | sheep_rules, smoke_sheep |
-| REQ-SH-7 | A free sheep keeps away from a dog that is closer than the flee radius (REQ-SH-17): it accelerates away from every dog in range, the harder the closer the dog is, up to the run speed of the difficulty. Several dogs add up. A sheep that is cornered at the edge slides along it. Dogs do not touch or push a sheep. | Done | sheep_rules, smoke_sheep |
+| REQ-SH-4 | A sheep (a circle of 28 px radius, 72 x 56 px on the screen) walks through the barn and the silo, the fence of the pen and the edge of the field: it slides along them and keeps a little of its speed. A dog is blocked the same way. The pond, the rocks, the trees, the pines, the hay stacks, the bales, the bushes and the flowers are only scenery (decoration): they never block a dog or a sheep and never change how it moves (owner decision, 2026-11-17). The sheep and the dogs still start clear of them (REQ-SH-2, REQ-SH-16). | Done | sheep_rules, smoke_sheep |
+| REQ-SH-7 | A free sheep keeps away from a dog that is closer than the flee radius (REQ-SH-17): it accelerates away from every dog in range, the harder the closer the dog is, up to the run speed of the difficulty. Several dogs add up. A sheep that is cornered at the edge slides along it. Dogs do not touch or push a sheep. A scared sheep is also helped toward the gate by the difficulty (REQ-SH-21). | Done | sheep_rules, smoke_sheep |
 | REQ-SH-8 | A sheep that no dog is near grazes: it walks slowly (at most 45 px/s) for a moment in a random direction, then stands, and chooses again. It is pulled weakly (40 px/s2) toward the middle of the free sheep that are closer than 340 px, so the flock stays together. Two sheep do not overlap. | Done | sheep_rules |
 | REQ-SH-9 | Children (REQ-GM-80 to 84): the dogs and the sheep are friendly made-up creatures, nothing is hurt or caught, a scared sheep only runs, no player is out and no player waits, the hint is one line, the dogs are slower than the blob of Paint Grab and the speed is the same for all players, and all texts are positive. A player who leaves takes the dog out, and the round goes on with the others (REQ-GM-21); when nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sheep |
 | REQ-SH-10 | A sheep whose middle goes through the gate into the pen is in the pen for good (the fence is yellow for 0.5 s, a star pops over it, it hops once). It no longer runs from dogs; it grazes inside the pen, slowly, and cannot leave. The pen holds all the sheep of Hard (14). The number of sheep in the pen is the score of every player (REQ-SH-5). | Done | sheep_rules, smoke_sheep |
@@ -65,7 +65,7 @@ Look
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SH-15 | Visual language (REQ-GM-45 to 49). The world is a pixel world (REQ-GM-47i to 47n), drawn in the 480x270 view: a black screen, the grass `#2f8f3a` with a one-pixel black line and darker tufts, a path of sand dots to the gate, the pen (sand, a brown fence, yellow gate posts), flat colors, a one-pixel black outline on every thing. A dog is 20 x 14 world pixels (80 x 56 px): the body is the color of the player (no number and no avatar on it, REQ-GM-46), with a cream muzzle, belly and paws, a dark ear, a white collar, a pink tongue and a tail. It looks the way it moves (left or right). A sheep is 18 x 14 world pixels (72 x 56 px): white wool, a dark face and legs. A calm sheep has a heart or a sleepy "z" over it; a running sheep has three speed dashes behind it. All text is 32 px or larger and inside the 60 px margin. | Device | review, smoke_sheep, Device (Test 29 step 10h) |
-| REQ-SH-16 | Around the field (REQ-GM-47i to 47n): the barn with a gambrel roof, a hayloft window, double doors with white crosses, a stone base, a weather vane and a silo (above the pen), a pond, 7 round trees, 4 pines, 3 hay stacks, 2 piles of bales, 3 rocks, 6 bushes and 28 flowers. They are scattered over the whole field, also in the middle, and the places that must stay open are kept free of blockers: the start strip of the dogs (280 px), the start of the sheep, the way from the flock to the gate (300 px wide) and the pen. A thing that finds no room is left out. Things are drawn in order from the back to the front, and the dogs and the sheep are drawn over them so that no sheep is hidden behind a crown. | Done | sheep_rules, smoke_sheep |
+| REQ-SH-16 | Around the field (REQ-GM-47i to 47n): the barn with a gambrel roof, a hayloft window, double doors with white crosses, a stone base, a weather vane and a silo (above the pen), a pond, 7 round trees, 4 pines, 3 hay stacks, 2 piles of bales, 3 rocks, 6 bushes and 28 flowers. They are scattered over the whole field, also in the middle, and the places that must stay open are kept free of things (a dog or a sheep never starts on one, though nothing blocks them, REQ-SH-4): the start strip of the dogs (280 px), the start of the sheep, the way from the flock to the gate (300 px wide) and the pen. A thing that finds no room is left out. Things are drawn in order from the back to the front, and the dogs and the sheep are drawn over them so that no sheep is hidden behind a crown. | Done | sheep_rules, smoke_sheep |
 | REQ-SH-19 | The layout comes from `size` (REQ-2D-2): the world is simulated and drawn in design units (1920x1080) and scaled to `size`; the field is the screen inside the 60 px margin and under the HUD. It works at 1280x720 and 1920x1080. | Done | smoke_sheep |
 
 Settings (REQ-GM-90 to 97)
@@ -74,16 +74,17 @@ Settings (REQ-GM-90 to 97)
 |----|-------------|--------|-------|
 | REQ-SH-17 | The settings view has the row Difficulty (registry `settings: []`), and `difficulty` is a prop of the game. The values are in the table below. The number of dogs does not change them: the field is the same with 1 or 4 dogs. | Done | smoke_sheep, sheep_rules |
 | REQ-SH-18 | One player: the result shows the number of sheep in the pen at the end and no medal (REQ-GM-73, issue #119); the title of the result is the difficulty. | Done | smoke_sheep, sheep_rules |
+| REQ-SH-21 | Help toward the gate (issue to be filed). While a dog scares a sheep, a part of its flee force turns toward the middle of the gate. The part is the `assist` of the difficulty: Easy 0.8, Medium 0.45, Hard 0 (no help). The help is added to the push away from the dog and scaled the same way (the closer the dog, the more). It never points toward a dog: the part of the way to the gate that points at the dog is dropped, so a dog in front makes the sheep slide to the side. A sheep that no dog scares gets no help, and a sheep in the pen is not helped. All players have the same help (REQ-GM-24). | Done | sheep_rules |
 | REQ-SH-20 | Personal best (REQ-GM-98): exception, no key (`best_key()` is empty). The result is shared by the team, so it does not belong to the profile of one player. | Done | smoke_bests |
 
-| Difficulty | Sheep | Flee radius | Run speed | Gate | Time |
-|------------|-------|-------------|-----------|------|------|
-| Easy | 8 | 220 px | 230 px/s | 220 px | 90 s |
-| Medium | 11 | 260 px | 270 px/s | 180 px | 75 s |
-| Hard | 14 | 300 px | 320 px/s | 150 px | 60 s |
+| Difficulty | Sheep | Flee radius | Run speed | Gate | Time | Help toward the gate |
+|------------|-------|-------------|-----------|------|------|----------------------|
+| Easy | 8 | 220 px | 230 px/s | 220 px | 90 s | 0.8 |
+| Medium | 11 | 260 px | 270 px/s | 180 px | 75 s | 0.45 |
+| Hard | 14 | 300 px | 320 px/s | 150 px | 60 s | 0 |
 
 A dog is faster than the fastest sheep for most of a run (440 px/s against 320 px/s), but a sheep that is scared from the front runs
-away from the pen, so the dogs have to come from the right side.
+away from the pen, so the dogs have to come from the right side. On Easy and Medium the help (REQ-SH-21) bends the run of a scared sheep toward the gate, so a dog that comes from the side still sends the sheep roughly the right way.
 
 ## Parameters
 
@@ -94,7 +95,7 @@ Values that change how the game feels. Tune them on a device (Test 29). First va
 | `COUNTDOWN`, the time of a round | `sheep_herding_game.gd` | 3 s; 90, 75 and 60 s (table above) |
 | `DOG_R`, `DOG_SPEED`, `ACCEL`, `DAMPING`, `DEADZONE`, `BOUNCE` | `sheep_herding_game.gd` / `tilt_body.gd` | 30 px, 440 px/s, 2200 px/s2 for tilt 1.0, 1.4 1/s, 0.03, 0.35 |
 | `RADIUS`, `FLEE_ACCEL`, `DAMPING`, `GRAZE_SPEED`, `COHESION_R`, `COHESION_ACCEL`, `SCARED_TIME`, `SCARED_AT` | `sheep_flock.gd` | 28 px, 2600 px/s2, 2.5 1/s, 45 px/s, 340 px, 40 px/s2, 0.7 s, 0.25 |
-| The levels | `sheep_herding_game.gd` | table above |
+| The levels, `assist` | `sheep_herding_game.gd`, `sheep_flock.gd` | table above (assist 0.8, 0.45, 0) |
 | The pen, the gate, the barn | `sheep_herding_game.gd` | pen 320 x 360 px at the right, a gate of 150 to 220 px |
 | The things around the field | `sheep_scenery.gd` | counts in REQ-SH-16 |
 | `END_DELAY`, `GLOW_TIME`, `BAA_GAP` | `sheep_herding_game.gd` | 1.6 s, 0.5 s, 0.6 s |
@@ -102,7 +103,8 @@ Values that change how the game feels. Tune them on a device (Test 29). First va
 ## Open questions
 
 - Is the time right (90, 75 and 60 s)? Can one child of 5 herd 8 sheep alone on Easy?
-- Do the sheep run too far or too fast? Do they get stuck in the corners or behind a tree?
+- Do the sheep run too far or too fast? Do they get stuck in the corners?
+- Is the help right: strong enough on Easy that a child herds without planning, and still a game on Medium? (Test 29)
 - Is the gate easy to find from the sofa, and is 150 px on Hard too narrow?
 - Should a sheep that is out of the pen after the round go on grazing (it does) or should the result show the sheep that were left out?
 - No trademark search was done for the name (classes 9 and 41). "Sheep Herding" is plain words.

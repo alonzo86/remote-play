@@ -102,18 +102,13 @@ func _fence_and_blockers() -> void:
 			"a sheep on the fence is pushed out of it: %s" % str(wall_hit[0]))
 	var blockers: Array[Dictionary] = [{"pos": Vector2(500, 500), "r": 40.0}]
 	var g := _flock({"gate": 180.0, "flee": 260.0, "speed": 270.0}, blockers)
-	var hit := g.resolve(Vector2(520, 500), Vector2(-200, 0), SheepFlock.RADIUS)
-	_check(hit[0].distance_to(Vector2(500, 500)) >= 40.0 + SheepFlock.RADIUS - 0.01 and hit[1].x > -200.0,
-			"a sheep in a blocker is pushed out, and the speed into it is turned back a little: %s" % str(hit))
-	var tight := g.resolve(Vector2(500, 500), Vector2.ZERO, SheepFlock.RADIUS)
-	_check(tight[0].distance_to(Vector2(500, 500)) >= 40.0 + SheepFlock.RADIUS - 0.01,
-			"a sheep exactly in the middle of a blocker leaves it")
+	var over := g.resolve(Vector2(520, 500), Vector2(-200, 0), SheepFlock.RADIUS)
+	_check(over[0] == Vector2(520, 500) and over[1] == Vector2(-200, 0),
+			"scenery (a tree, the pond) does not block a sheep or a dog: it walks over it (REQ-SH-4): %s" % str(over))
 	var edge := g.resolve(Vector2(10, 10), Vector2(-100, -100), 30.0)
 	_check(edge[0] == FIELD.position + Vector2(30, 30), "the edge of the field keeps a circle inside: %s" % str(edge[0]))
 	var free := g.resolve(Vector2(800, 400), Vector2(50, 20), 30.0)
 	_check(free[0] == Vector2(800, 400) and free[1] == Vector2(50, 20), "a circle in free space is not changed")
-	var away := g.resolve(Vector2(520, 500), Vector2(200, 0), SheepFlock.RADIUS)
-	_check(away[1] == Vector2(200, 0), "a speed that goes away from the blocker is kept")
 
 
 ## The flock starts apart from each other and from the blockers, the same for the same seed (REQ-SH-2).
@@ -141,6 +136,31 @@ func _spawn() -> void:
 	crowded.spawn(40, Rect2(440, 312, 200, 200), _rng(1))
 	_check(crowded.sheep.size() < 40, "a crowded start places fewer sheep and does not hang: %d" % crowded.sheep.size())
 	_check(not _flock().all_penned(), "a field without sheep is not full")
+
+
+## The help toward the gate (REQ-SH-21): a scared sheep is turned toward the gate by `assist`, and never toward the dog.
+func _assist() -> void:
+	print("the help toward the gate")
+	var p := {"gate": 180.0, "flee": 260.0, "speed": 270.0}
+	var gate_y := PEN.position.y + PEN.size.y * 0.5
+	var at := Vector2(600, gate_y + 200.0)   # Below the line to the gate: the gate is up and to the right.
+	var dog := {0: at + Vector2(-120, 0)}    # The dog is at its left: running away is to the right.
+	var plain := _flock(p)
+	var plain_s := _sheep_at(plain, at)
+	plain.tick(DT, dog, _rng(3))
+	var helped := _flock(p.merged({"assist": 0.8}))
+	var helped_s := _sheep_at(helped, at)
+	helped.tick(DT, dog, _rng(3))
+	_check(plain_s.vel.y == 0.0, "without help a sheep runs straight away from the dog: %s" % str(plain_s.vel))
+	_check(helped_s.vel.y < -1.0 and helped_s.vel.x > 0.0, "with help it also turns toward the gate: %s" % str(helped_s.vel))
+	var front := _flock(p.merged({"assist": 1.0}))
+	var front_s := _sheep_at(front, Vector2(1000, gate_y))   # The dog is between the sheep and the gate.
+	front.tick(DT, {0: Vector2(1100, gate_y)}, _rng(3))
+	_check(front_s.vel.x < 0.0, "help never pushes a sheep toward the dog: %s" % str(front_s.vel))
+	var calm := _flock(p.merged({"assist": 1.0}))
+	var calm_s := _sheep_at(calm, at)
+	calm.tick(DT, {0: Vector2(0, 0)}, _rng(3))
+	_check(calm_s.scared == 0.0 and calm_s.vel.length() <= SheepFlock.GRAZE_SPEED, "no dog near: no help, the sheep grazes")
 
 
 ## A sheep runs from a dog (REQ-SH-7).
@@ -186,6 +206,7 @@ func _running_away() -> void:
 		hard_f.tick(DT, {0: hard_s.pos - Vector2(80, 0)}, _rng(5))
 	_check(hard_s.vel.length() > 270.0 and hard_s.vel.length() <= 320.01,
 			"on Hard a sheep runs faster than on Medium: %.0f" % hard_s.vel.length())
+	_assist()
 	var cornered := _flock()
 	var c := _sheep_at(cornered, FIELD.position + Vector2(40, 40))
 	for i in 120:
@@ -413,6 +434,8 @@ func _levels() -> void:
 	_check(lv.easy.gate > lv.medium.gate and lv.medium.gate > lv.hard.gate and lv.hard.gate >= 150.0,
 			"harder levels have a narrower gate")
 	_check(lv.easy.time > lv.medium.time and lv.medium.time > lv.hard.time, "harder levels have less time")
+	_check(lv.easy.assist > lv.medium.assist and lv.medium.assist > lv.hard.assist and lv.hard.assist == 0.0,
+			"easier levels help more toward the gate, Hard gives no help (REQ-SH-21)")
 	_check(not lv.easy.has("tiers") and not lv.medium.has("tiers") and not lv.hard.has("tiers"),
 			"no level has medal tiers (REQ-GM-73)")
 	var tiers_ok := true

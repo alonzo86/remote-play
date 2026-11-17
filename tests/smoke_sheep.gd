@@ -249,6 +249,8 @@ func _tilt_and_flock() -> void:
 	sheep.scared = 0.0
 	game._baa_wait = 0.0
 	var at: Vector2 = sheep.pos
+	game.dogs[0].pos = Vector2(1500.0, 950.0)   # Dog 0 ran over the scenery and could be the nearer dog: keep it away.
+	game.dogs[0].vel = Vector2.ZERO
 	game.dogs[1].pos = at + Vector2(-80.0, 0.0)
 	game.dogs[1].vel = Vector2.ZERO
 	_heard.clear()
@@ -259,13 +261,12 @@ func _tilt_and_flock() -> void:
 	_check(sheep.pos.x > at.x + 20.0 and sheep.last_dog == 1, "a sheep runs from a dog that comes close: %s" % str(sheep.pos - at))
 	_check(_heard.has("sheep_baa") and _heard.count("sheep_baa") <= 1,
 			"a scared sheep says baa, once for a moment: %s" % str(_heard))
-	# A dog is blocked by the pond and the trees, and bounces off another dog.
+	# A dog walks over the scenery, and bounces off another dog.
 	var blocker: Dictionary = game.scenery.blockers[0]
 	game.dogs[0].pos = blocker.pos
 	game.dogs[0].vel = Vector2.ZERO
 	game._process(DT)
-	_check(game.dogs[0].pos.distance_to(blocker.pos) >= float(blocker.r) + game.DOG_R - 1.0,
-			"a dog is pushed out of a blocker (REQ-SH-4)")
+	_check(game.dogs[0].pos.distance_to(blocker.pos) < 5.0, "a dog is not pushed out of the scenery (REQ-SH-4)")
 	_quiet()
 	await _real_wait(60)   # The same effect twice in 40 ms of real time is one sound.
 	_heard.clear()
