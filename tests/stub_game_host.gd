@@ -31,8 +31,8 @@ func send_score(slot: int, rank: int, of: int, text: String) -> void:
 	calls.append(["score", slot, rank, of, text])
 
 
-func send_final(slot: int, text: String) -> void:
-	calls.append(["final", slot, text])
+func send_final(slot: int, text: String, parts := {}) -> void:
+	calls.append(["final", slot, text, parts])
 
 
 func send_result(slot: int, key: String, value: int) -> void:

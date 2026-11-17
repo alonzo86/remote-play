@@ -21,6 +21,7 @@ enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING, WAITING }
 
 const LAST_FILE := "user://controller.cfg"
 const FINAL_MAX := 60   # The longest line of the result that the phone keeps (REQ-FL-67a).
+const MEDAL_TIERS := ["gold", "silver", "bronze"]   # The medals the phone draws (`m` of `final`); another text is no medal.
 const RETRY_DELAYS := [0.5, 1.0, 2.0]
 const CONNECT_TIMEOUT_MS := 4000
 const GIVE_UP_AFTER := 3   # Failed first attempts before "unreachable".
@@ -54,6 +55,10 @@ var swing_acked := false      # The player tapped OK for the settings view that 
 var turn_state := 0           # 0 no turn line, 1 this phone is on turn, 2 another player is on turn (REQ-BW-14).
 var turn_kind := ""           # "" for the words of Bowling, "golf" for Mini Golf.
 var turn_who := ""            # The name of the player on turn when turn_state is 2.
+var final_game := ""          # The registry id of the game that ended (the `g` of `final`): the phone writes its name in its own language.
+var final_place := ""         # The place text of this player ("1ST", the `p` of `final`).
+var final_score := ""         # The score, the time or NOT FINISHED (the `s` of `final`).
+var final_medal := ""         # The medal tier of the place: gold, silver, bronze or empty (the `m` of `final`).
 var final_text := ""          # The line of this phone in the result, as the TV shows it. Empty outside a result (REQ-FL-67a).
 var score_text := ""         # The score as the TV shows it. Empty when there is no score yet.
 
@@ -344,6 +349,12 @@ func _handle(msg: Dictionary, now: int) -> void:
 			score_changed.emit()
 		"final":
 			final_text = _clean_line(Protocol.text(msg, "v", ""))
+			# The parts of the line (an older TV sends only `v`; the pad then shows `v` as before).
+			final_game = _clean_line(Protocol.text(msg, "g", ""))
+			final_place = _clean_line(Protocol.text(msg, "p", ""))
+			final_score = _clean_line(Protocol.text(msg, "s", ""))
+			var medal := _clean_line(Protocol.text(msg, "m", ""))
+			final_medal = medal if MEDAL_TIERS.has(medal) else ""
 			score_changed.emit()
 		"turn":
 			turn_state = clampi(Protocol.whole(msg, "s", 0), 0, 2)
@@ -443,8 +454,13 @@ static func _clean_line(text: String) -> String:
 
 ## Forgets the line of the result (REQ-FL-67a).
 func clear_final() -> void:
-	if final_text != "":
-		final_text = ""
+	var had := final_text != "" or final_place != "" or final_score != ""
+	final_text = ""
+	final_game = ""
+	final_place = ""
+	final_score = ""
+	final_medal = ""
+	if had:
 		score_changed.emit()
 
 

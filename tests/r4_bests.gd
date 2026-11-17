@@ -2,13 +2,13 @@ extends SceneTree
 ## Test 20 steps 9a to 9d and 10, the whole way from the TV to the phone: two simulated phones with a profile and one guest
 ## finish a round of each game that has a personal best (Banana Party, Paint Grab, Star Shield, Bowling, Car Race on a
 ## fixed track). The result goes over the network to each phone, the phone logic of the App (`_on_result`) keeps the best, and
-## the waiting screen and the pad say NEW BEST! and BEFORE: with the old best:
-##   round 1 a first score: NEW BEST!, no BEFORE (9a);
+## the waiting screen and line 3 of the pad result say NEW BEST! with the value (no BEFORE part any more, REQ-GM-100):
+##   round 1 a first score: NEW BEST! (9a);
 ##   round 2 a worse score: no NEW BEST!, the best stays (9b);
-##   round 3 a better score: NEW BEST! and BEFORE: the score of round 1 (9b, 9c; a race time in seconds);
+##   round 3 a better score: NEW BEST! with the new value; the app still keeps the old best (9b, 9c; a race time in seconds);
 ##   the guest never sees a best (9d);
-##   after a restart of the app (the file is read again, a new client, the same profile) the next better score says BEFORE: the
-##   best from before the restart; the key does not name a TV (10).
+##   after a restart of the app (the file is read again, a new client, the same profile) the next better score is a NEW BEST!
+##   and the app keeps the best from before the restart as the old one; the key does not name a TV (10).
 ## Bowling with Rails On has no best and no NEW BEST! (23.7b).
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_bests.gd -- --role=tv
 
@@ -112,7 +112,7 @@ func _deliver(rig: Dictionary, key: String, v: int) -> void:
 	_app.last_best = keep_best
 
 
-## What the phone shows after the round: the pad line (NEW BEST!, the score, BEFORE) and the game id above it. The waiting
+## What the phone shows after the round: line 3 of the pad result (NEW BEST! and the value) and the game id. The waiting
 ## screen shows no NEW BEST! any more (REQ-GM-100): the pad shows it only while the result of the game is open, so the rig
 ## client is put in the phase "playing" for the look (it is joined; the result menu is open).
 func _phone_shows(rig: Dictionary) -> Dictionary:
@@ -125,7 +125,7 @@ func _phone_shows(rig: Dictionary) -> Dictionary:
 	var out := {"best": "", "detail": "", "pad": "", "game": ""}
 	var best: Dictionary = _app.current_best()
 	if not best.is_empty():
-		out.pad = _pad_script.best_line(best)
+		out.pad = " ".join(_pad_script.line3_lines(ProfileKeys.format(best.key, best.value), true, 960.0))
 		out.best = "NEW BEST!"
 		out.detail = out.pad.trim_prefix("NEW BEST! ")
 		out.game = ProfileKeys.game_of(best.key)
@@ -207,10 +207,10 @@ func _game(g: Dictionary) -> void:
 	var shown: Dictionary = await _phone_shows(_rigs[0])
 	_check(_rigs[0].got == [[key, first]] and _rigs[1].got == [[key, first]],
 			"9a %s: both phones with a profile get the key and the score: %s %s" % [g.id, str(_rigs[0].got), str(_rigs[1].got)])
-	_check(shown.best == "NEW BEST!" and shown.detail == ProfileKeys.format(key, first),
+	_check(shown.best == "NEW BEST!" and shown.detail == ProfileKeys.format(key, first).to_upper(),
 			"9a %s: the waiting screen says NEW BEST! with the score (REQ-FL-79): '%s' '%s'" % [g.id, shown.best, shown.detail])
-	_check(String(shown.pad).begins_with("NEW BEST! " + ProfileKeys.format(key, first)) and not String(shown.pad).contains("BEFORE"),
-			"9a %s: the pad line has no BEFORE for a first score: '%s'" % [g.id, shown.pad])
+	_check(String(shown.pad).begins_with("NEW BEST! " + ProfileKeys.format(key, first).to_upper()) and not String(shown.pad).contains("BEFORE"),
+			"9a %s: line 3 of the pad is NEW BEST! and the score, no BEFORE: '%s'" % [g.id, shown.pad])
 	var shown_b: Dictionary = await _phone_shows(_rigs[1])
 	_check(shown_b.best == "NEW BEST!", "9a %s: the second phone says NEW BEST! too" % g.id)
 	# 9d: the guest gets nothing and shows nothing.
@@ -223,18 +223,16 @@ func _game(g: Dictionary) -> void:
 	_check(_rigs[0].got == [[key, worse]] and shown.best == "" and shown.detail == ""
 			and _stored(_rigs[0], key) == first,
 			"9b %s: a worse round (%d) says nothing and the best stays %d" % [g.id, worse, _stored(_rigs[0], key)])
-	# Round 3: a better score. BEFORE is the first score.
+	# Round 3: a better score. The pad has the new value; the old best (the first score) stays in the app, not on the pad.
 	await _round(g, [g.scores[2], g.scores[2], g.scores[2]])
 	shown = await _phone_shows(_rigs[0])
-	var before := "BEFORE: " + ProfileKeys.format(key, first).to_upper()
-	_check(shown.best == "NEW BEST!" and String(shown.detail).begins_with(ProfileKeys.format(key, better))
-			and String(shown.detail).contains(before),
-			"9b/9c %s: the next better round shows '%s' with the old best: '%s'" % [g.id, before, shown.detail])
-	_check(_stored(_rigs[0], key) == better and String(shown.pad).contains(before),
-			"and the phone keeps the new best %d" % better)
+	_check(shown.best == "NEW BEST!" and String(shown.detail).begins_with(ProfileKeys.format(key, better).to_upper())
+			and not String(shown.pad).contains("BEFORE") and _rigs[0].last_best.old == first,
+			"9b/9c %s: the next better round shows NEW BEST! and the new value, with no old best: '%s'" % [g.id, shown.pad])
+	_check(_stored(_rigs[0], key) == better, "and the phone keeps the new best %d" % better)
 	if g.id == "marble_race":
-		_check(String(shown.detail).contains("41.20 S") and String(shown.detail).begins_with("39.50 s"),
-				"9c: the times of the race are in seconds: '%s'" % shown.detail)
+		_check(String(shown.detail) == "39.50 S" and String(shown.pad) == "NEW BEST! 39.50 S",
+				"9c: the time of the race is in seconds on line 3: '%s'" % shown.pad)
 	guest = await _phone_shows(_rigs[2])
 	_check(_rigs[2].got.is_empty() and guest.best == "", "9d %s: the guest still shows nothing" % g.id)
 
@@ -272,8 +270,8 @@ func _restart() -> void:
 	var score: float = g.scores[3]
 	await _round(g, [score, g.scores[0], g.scores[0]])
 	var shown: Dictionary = await _phone_shows(rig)
-	_check(shown.best == "NEW BEST!" and String(shown.detail).contains("BEFORE: " + str(old)),
-			"10: the next better round says BEFORE: %d, the best from before the restart: '%s'" % [old, shown.detail])
+	_check(shown.best == "NEW BEST!" and not String(shown.pad).contains("BEFORE") and int(rig.last_best.get("old", -1)) == old,
+			"10: the next better round is a NEW BEST! and the app has the best from before the restart (%d) as the old one" % old)
 
 
 ## 23.7b: Bowling with Rails On has no key, so the phones get no result and show no NEW BEST!.

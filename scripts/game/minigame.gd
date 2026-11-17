@@ -501,10 +501,19 @@ func open_result_menu(heading: String, rows: Array, extra_entries: Array = [], w
 	entries.append(["minigame.back_to_menu", game_host.go_menu])
 	for r in rows:   # Every phone shows its own row of the list as its line of the result, with no button (REQ-FL-67a).
 		if int(r.get("slot", -1)) >= 0:
-			game_host.send_final(int(r.slot), String(r.text))
+			game_host.send_final(int(r.slot), String(r.text), _final_parts(id, r))
 	open_menu(heading, entries, rows)
 	Sound.stop_music()
 	Sound.sfx("win" if won else "tie")
+
+
+## The row of one phone in pieces for its result (REQ-FL-67a): the id of the game, the place, the score text and the medal tier
+## (empty for no medal). A row without the three cells (place, name, score) has no pieces: the phone shows the one line.
+func _final_parts(id: String, row: Dictionary) -> Dictionary:
+	var cells: Array = row.get("cells", [])
+	if cells.size() < 3:
+		return {}
+	return {"g": id, "p": String(cells[0]), "s": String(cells[2]), "m": String(row.get("medal", ""))}
 
 
 ## The key of the personal best of this game and its settings (REQ-GM-98), for example `snowball_splat|medium`; a key of

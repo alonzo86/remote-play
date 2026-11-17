@@ -11,7 +11,7 @@ const Haptics = preload("res://scripts/game/haptics.gd")
 const Scoreboard = preload("res://scripts/game/scoreboard.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
-const ProfileKeys = preload("res://scripts/core/profile_keys.gd")
+const Medal = preload("res://scripts/ui/medal.gd")
 const QuitDialog = preload("res://scripts/ui/controller_quit_dialog.gd")
 
 var _sampler: Node
@@ -41,8 +41,11 @@ const RECENTER_W := 480.0   # The RECENTER button: about as wide as its text, ri
 const RECENTER_H := 80.0
 const RECENTER_SIZE := 48   # Its text.
 const RECENTER_GAP := 24.0  # The gap between RECENTER and HOLD TO DISCONNECT, and between the A and B buttons and RECENTER.
-const BEST_GAME_SIZE := 40  # The game name above it.
-const BEST_SIZE := 56       # NEW BEST!: large and centered in the upper half of the play area (at least 48 px).
+const GAME_SIZE := 40       # The name of the game, line 1 of the result (REQ-FL-67a).
+const RESULT_GAP_GAME := 48.0   # The gap between the game name and the place row of the result.
+const RESULT_GAP_ROW := 32.0    # The gap between the place row and line 3 (the score).
+const RESULT_ROW_H := 128.0     # The place row: the medal is 128 px (the 16 px sheet at scale 8); the row is as high without it.
+const RESULT_MEDAL_GAP := 32.0  # The gap between the medal and the place text.
 const LEAVE_SIZE := 40    # Its text: it fills the box, so the longest text (Hebrew) fits without cutting.
 const LEAVE_HOLD := 0.8   # A game needs a long press to leave: a swinging child must not leave by accident (REQ-FL-52a).
 const PAUSE_SIZE := 96.0   # The pause button at the top right: a square like the icon buttons of the waiting screen (REQ-FL-52c).
@@ -131,7 +134,7 @@ func _leave_shown() -> bool:
 	return true
 
 
-## Where the line of the result is written: the middle of the screen (REQ-FL-67a).
+## Where the one line of an older TV is written (no place and no score in its `final` message): the middle of the screen.
 func _rect_final() -> Rect2:
 	return Rect2(60, size.y * 0.5 - 60.0, size.x - 120, 120)
 
@@ -139,6 +142,104 @@ func _rect_final() -> Rect2:
 ## The line of the result on lines of at most `width`: 64 px like the score line, never smaller, never cut (REQ-FL-67a).
 static func final_lines(text: String, width: float) -> Array[String]:
 	return UiTheme.wrap_lines(UiTheme.font(), text.to_upper(), width, LINE_SIZE)
+
+
+## True when the TV sent the parts of the result (the place and the score): the block of three lines shows. An older TV sends only
+## the one line `v`, and the phone shows it as before, with no game name and no medal (REQ-FL-67a).
+func _final_structured() -> bool:
+	var c: Node = App.client
+	return c.final_place != "" and c.final_score != ""
+
+
+## The name of the game with registry id `id` in the language of the phone, in capitals. Empty for an unknown id.
+static func game_name(id: String) -> String:
+	var game := Registry.find(id)
+	return Lang.t(String(game.title)).to_upper() if not game.is_empty() else ""
+
+
+## Line 3 of the result on lines of at most `width`: the score, the time or NOT FINISHED in white; when this player set a personal
+## best (`best` is true: `App.current_best()` is set), NEW BEST! and the value in yellow in its place. They are on one line when they fit, else
+## the title is one line and the value the next: the wrap never takes the unit away from the number, and the text is never smaller.
+static func line3_lines(score: String, best: bool, width: float) -> Array[String]:
+	var f := UiTheme.font()
+	var value := score.to_upper()
+	if not best:
+		return UiTheme.wrap_lines(f, value, width, LINE_SIZE)
+	var title := Lang.t("pad.new_best").to_upper()
+	if UiTheme.text_width(f, title + " " + value, LINE_SIZE) <= width:
+		return [title + " " + value] as Array[String]
+	var lines: Array[String] = [title]
+	lines.append_array(UiTheme.wrap_lines(f, value, width, LINE_SIZE))
+	return lines
+
+
+## The block of the result (REQ-FL-67a), centered as a whole on the middle of the screen: the game name (40 px), 48 px, the place
+## row (128 px), 32 px, line 3 (64 px, one line or two). `block_top = floor(size.y / 2 - h / 2)`. The rectangles are in the
+## coordinates of the pad; `game_lines` and `line3` are the texts; a game that is not known has no name line and no gap above the row.
+func _final_block() -> Dictionary:
+	var c: Node = App.client
+	var f := UiTheme.font()
+	var width := size.x - 120.0
+	var title := game_name(c.final_game)
+	var game_lines: Array[String] = []
+	if title != "":
+		game_lines = UiTheme.wrap_lines(f, title, width, GAME_SIZE)
+	var best := not App.current_best().is_empty()
+	var line3 := line3_lines(c.final_score, best, width)
+	var h_game := 0.0
+	if not game_lines.is_empty():
+		h_game = _lines_height(game_lines.size(), GAME_SIZE) + RESULT_GAP_GAME
+	var h_line3 := _lines_height(line3.size(), LINE_SIZE)
+	var h := h_game + RESULT_ROW_H + RESULT_GAP_ROW + h_line3
+	var top := floorf(size.y * 0.5 - h * 0.5)
+	var row_top := top + h_game
+	return {"top": top, "h": h, "game_lines": game_lines, "game": Rect2(60, top, width, maxf(h_game - RESULT_GAP_GAME, 0.0)),
+			"row": Rect2(60, row_top, width, RESULT_ROW_H), "line3_lines": line3, "best": best,
+			"line3": Rect2(60, row_top + RESULT_ROW_H + RESULT_GAP_ROW, width, h_line3)}
+
+
+## The height of `count` lines of `font_size` that are a line gap apart: the size of a line is the size of the font.
+static func _lines_height(count: int, font_size: int) -> float:
+	return float(count * font_size + (count - 1) * UiTheme.line_gap(font_size))
+
+
+## Draws `lines` from the top of `rect`, centered, one line gap apart. The text of a line is centered in a box as high as its font.
+func _draw_block_lines(f: Font, lines: Array[String], rect: Rect2, fs: int, color: Color) -> void:
+	var pitch := float(fs + UiTheme.line_gap(fs))
+	for i in lines.size():
+		var line_rect := Rect2(rect.position.x, rect.position.y + float(i) * pitch, rect.size.x, float(fs))
+		draw_string(f, Vector2(line_rect.position.x, UiTheme.centered_baseline(f, line_rect, fs)), lines[i],
+				HORIZONTAL_ALIGNMENT_CENTER, line_rect.size.x, fs, color)
+
+
+## Where the parts of the place row are (a test uses it): the place text (64 px) and, when this player has a medal, the medal
+## (128 px) beside it: on the left of the text, and on the right of it in Hebrew. The row is centered as a whole. `medal` has no
+## size when the player has no medal; the text keeps its place and the row keeps its height.
+func _place_row_layout(row: Rect2) -> Dictionary:
+	var c: Node = App.client
+	var tw := UiTheme.text_width(UiTheme.font(), c.final_place.to_upper(), LINE_SIZE)
+	var has_medal := Medal.is_known(c.final_medal)
+	var total := tw + (RESULT_ROW_H + RESULT_MEDAL_GAP if has_medal else 0.0)
+	var x0 := row.position.x + (row.size.x - total) * 0.5
+	var medal := Rect2()
+	var text_x := x0
+	if has_medal:
+		if Lang.is_rtl():
+			medal = Rect2(x0 + tw + RESULT_MEDAL_GAP, row.position.y, RESULT_ROW_H, RESULT_ROW_H)
+		else:
+			medal = Rect2(x0, row.position.y, RESULT_ROW_H, RESULT_ROW_H)
+			text_x = x0 + RESULT_ROW_H + RESULT_MEDAL_GAP
+	return {"medal": medal, "text": Rect2(text_x, row.position.y, tw, row.size.y)}
+
+
+func _draw_place_row(f: Font, row: Rect2) -> void:
+	var c: Node = App.client
+	var parts := _place_row_layout(row)
+	if parts.medal.size.x > 0.0:
+		Medal.draw(self, parts.medal, c.final_medal)
+	var text_rect: Rect2 = parts.text
+	draw_string(f, Vector2(text_rect.position.x, UiTheme.centered_baseline(f, text_rect, LINE_SIZE)), c.final_place.to_upper(),
+			HORIZONTAL_ALIGNMENT_LEFT, text_rect.size.x + 8.0, LINE_SIZE, UiTheme.TEXT)
 
 
 ## The pause button: a 96 px square at the right end of the header row, 60 px from the right edge like the icon buttons of the
@@ -224,19 +325,9 @@ func _rect_score() -> Rect2:
 	return Rect2(60, SCORE_Y - 30.0, size.x - 120, 60)
 
 
-## The row of whose turn it is (REQ-BW-14), on the row of NEW BEST!.
+## The row of whose turn it is (REQ-BW-14).
 func _rect_turn() -> Rect2:
 	return Rect2(60, 376.0 + INFO_Y - 50.0, size.x - 120, 40)
-
-
-## Where NEW BEST! is written: centered, in the upper half of the play area under the help line.
-func _rect_best() -> Rect2:
-	return Rect2(60, 655.0, size.x - 120, 160)
-
-
-## The name of the game that NEW BEST! belongs to, on the line above it.
-func _rect_best_game() -> Rect2:
-	return Rect2(60, 580.0, size.x - 120, 56)
 
 
 ## True while this phone is on turn in Bowling: the Recenter box becomes the aim strip (REQ-BW-4).
@@ -384,20 +475,6 @@ func _update_touch(pos: Vector2) -> void:
 
 # ---- Drawing ----
 
-## The text of a new best on the pad: "NEW BEST! 340", with the old best when there was one.
-static func best_line(best: Dictionary) -> String:
-	var text := Lang.t("pad.new_best").to_upper() + " " + ProfileKeys.format(best.key, best.value)
-	if best.old > 0:
-		text += "  " + Lang.f("pad.before", [ProfileKeys.format(best.key, best.old)]).to_upper()
-	return text
-
-
-## The name of the game that a NEW BEST! belongs to ("PAINT GRAB"), from the key of the best. Empty for an unknown game.
-static func best_game_name(best: Dictionary) -> String:
-	var game := Registry.find(ProfileKeys.game_of(String(best.get("key", ""))))
-	return Lang.t(String(game.title)).to_upper() if not game.is_empty() else ""
-
-
 func _draw() -> void:
 	var f := UiTheme.font()
 	var c: Node = App.client
@@ -429,7 +506,7 @@ func _draw() -> void:
 		_draw_lines_centered(f, score_lines(line, line_rect.size.x), line_rect, LINE_SIZE, HORIZONTAL_ALIGNMENT_LEFT,
 				line_rect.position.x, UiTheme.TEXT, SCORE_GROWS_DOWN)
 
-	# Whose turn it is, in a game with turns, on the row of NEW BEST! (the two never show together, REQ-BW-14).
+	# Whose turn it is, in a game with turns, (it is not drawn while the result shows).
 	if online and c.turn_state != 0 and not _result_shown():
 		var turn_rect := _rect_turn()
 		var turn_color: Color = UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO
@@ -443,25 +520,22 @@ func _draw() -> void:
 			draw_string(f, Vector2(turn_rect.position.x, UiTheme.centered_baseline(f, turn_rect, 32)),
 					turn_text(c.turn_kind, c.turn_state, c.turn_who), HORIZONTAL_ALIGNMENT_LEFT, turn_rect.size.x, 32, turn_color)
 
-	# NEW BEST! with the game name, only while the result of the game is open (REQ-GM-100; App.current_best() decides).
-	var best: Dictionary = App.current_best()
-	if not best.is_empty() and c.state == ControllerClient.State.CONNECTED:
-		var game_rect := _rect_best_game()
-		var game_name := best_game_name(best)
-		_draw_lines_centered(f, UiTheme.wrap_lines(f, game_name, game_rect.size.x, BEST_GAME_SIZE), game_rect, BEST_GAME_SIZE,
-				HORIZONTAL_ALIGNMENT_CENTER, game_rect.position.x, UiTheme.TEXT)
-		var best_rect := _rect_best()
-		_draw_lines_centered(f, UiTheme.wrap_lines(f, best_line(best), best_rect.size.x, BEST_SIZE), best_rect, BEST_SIZE,
-				HORIZONTAL_ALIGNMENT_CENTER, best_rect.position.x, UiTheme.ACCENT)
-
 	if _pause_shown():
 		_draw_pause(_rect_pause())
 
-	# The result of the game (REQ-FL-67a): the line of this player, in the middle, and only the HOLD TO DISCONNECT box below.
+	# The result of the game (REQ-FL-67a): the block of three lines in the middle, and only the HOLD TO DISCONNECT box below.
+	# An older TV sends one line, shown as before.
 	if _result_shown():
-		var final_rect := _rect_final()
-		_draw_lines_centered(f, final_lines(c.final_text, final_rect.size.x), final_rect, LINE_SIZE, HORIZONTAL_ALIGNMENT_CENTER,
-				final_rect.position.x, UiTheme.TEXT)
+		if _final_structured():
+			var block := _final_block()
+			if not block.game_lines.is_empty():
+				_draw_block_lines(f, block.game_lines, block.game, GAME_SIZE, UiTheme.TEXT_DESC)
+			_draw_place_row(f, block.row)
+			_draw_block_lines(f, block.line3_lines, block.line3, LINE_SIZE, UiTheme.ACCENT if block.best else UiTheme.TEXT)
+		else:
+			var final_rect := _rect_final()
+			_draw_lines_centered(f, final_lines(c.final_text, final_rect.size.x), final_rect, LINE_SIZE,
+					HORIZONTAL_ALIGNMENT_CENTER, final_rect.position.x, UiTheme.TEXT)
 
 	# Disconnect: a framed text box. A game needs a press of LEAVE_HOLD seconds; the box fills while the finger stays (REQ-FL-52a).
 	var lr := _rect_leave()
