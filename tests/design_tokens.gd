@@ -40,6 +40,7 @@ func _initialize() -> void:
 	_typed_sizes()
 	_no_avatar_on_objects()
 	_confetti_in_code()
+	_no_shader()
 	print("%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
 
@@ -723,6 +724,25 @@ func _confetti_in_code() -> void:
 	_check(back.get_script_constant_map().has("UiTheme") and UiTheme.BG == Color.BLACK
 			and not FileAccess.get_file_as_string("res://scripts/ui/backdrop.gd").contains("texture"),
 			"REQ-FL-45: the backdrop is drawn in code in plain black, with no texture")
+
+## REQ-FL-44: the style uses no shader (it must run at 60 fps on the weakest TV box; a person does not measure the frame
+## rate since 2026-11-17). No shader file, no shader resource in a scene, no script that makes a shader or a material.
+func _no_shader() -> void:
+	print("no shader")
+	var users: Array[String] = []
+	for dir in ["res://scripts", "res://scenes", "res://assets", "res://tools"]:
+		for f in _files(dir):
+			var ext := f.get_extension().to_lower()
+			if ext == "gdshader" or ext == "gdshaderinc":
+				users.append(f)
+			elif ext == "gd" or ext == "tscn" or ext == "tres":
+				var src := FileAccess.get_file_as_string(f)
+				if src.contains("ShaderMaterial") or src.contains("Shader.new") or src.contains("shader_parameter") \
+						or src.contains("shader_type"):
+					users.append(f)
+	var project := FileAccess.get_file_as_string("res://project.godot")
+	_check(users.is_empty() and not project.contains("shader_type"),
+			"REQ-FL-44: no shader file, shader material or shader code in scripts, scenes, assets and tools (found: %s)" % str(users))
 
 
 func _files(dir: String) -> Array[String]:

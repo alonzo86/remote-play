@@ -1,5 +1,6 @@
 extends SceneTree
-## Test 24 (the swing detector with the debug overlay) with made-up sensor traces (tests/sensor_replay.gd): a hand that is
+## The swing detector with the debug overlay line (A-24-1 to A-24-11; Test 24 of docs/MANUAL_TESTS.md has no manual step
+## since 2026-11-17) with made-up sensor traces (tests/sensor_replay.gd): a hand that is
 ## still, walking, trembling; strokes of three strengths in three grips; serves; shakes and taps; two loopback phones.
 ## Run: godot --headless --path . --script tests/swing_replay.gd -- --role=tv
 
