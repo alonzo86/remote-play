@@ -1,6 +1,6 @@
 extends RefCounted
 ## One tennis match without a screen (REQ-TN-1 to 20): the players on the court, the serve, the rally, the points and the end.
-## Pure logic. The game passes in what the phones do (`press_a()`, `swing()`) and the time (`tick()`), reads the positions
+## Pure logic. The game passes in what the phones do (`swing()`) and the time (`tick()`), reads the positions
 ## and `sim` to draw, and takes the `events` for the sound, the buzz and the banners.
 ## The near team (team 0) stands at negative `y`. A player runs by itself to the place where the ball will be hit; a swing
 ## whose hit time is inside the hit window (HIT_W) of the contact time returns the ball (REQ-TN-4 to 7).
