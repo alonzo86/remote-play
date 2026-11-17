@@ -66,15 +66,16 @@ func _place_bowling(game: Control) -> void:
 		game.sim.tick(1.0 / 60.0)
 
 
-## The Tennis picture: a doubles serve just hit, the ball high over the near half of the court.
+## The Tennis picture: a doubles serve just hit (the toss is automatic), the ball in the air over the far half of the court.
 func _place_tennis(game: Control) -> void:
 	var server: int = game.play.server_slot()
-	game.play.press_a(server)
-	for i in 36:
+	for i in 600:   # The ball is tossed by itself (no button), then goes up to its top.
 		game._game_tick(0.016)
+		if game.play.phase == game.Match.Phase.TOSS and game.play.time >= game.play._toss_apex:
+			break
 	game._tick_ms = Time.get_ticks_msec()
 	game.play.swing(server, 0.9, true, 0.2, 0.0)
-	for i in 30:
+	for i in 12:
 		game._game_tick(0.016)
 	game.set_process(false)
 	game._request_redraw()
@@ -388,6 +389,7 @@ func _run() -> void:
 	var Registry = load("res://scripts/game/registry.gd")
 	if app.overlay.visible:
 		app.toggle_overlay()
+	app.server.set_approve_new(false)   # The simulated phones join at once (no approval card to click).
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
 	var clients := []
 	for i in 2:
