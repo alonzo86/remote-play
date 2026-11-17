@@ -66,7 +66,7 @@ func _place_bowling(game: Control) -> void:
 		game.sim.tick(1.0 / 60.0)
 
 
-## The Tennis picture: a doubles serve just hit (the toss is automatic), the ball in the air over the far half of the court.
+## The Tennis picture: a doubles serve hit by the near player (the toss is automatic), the ball over the far half of the court.
 func _place_tennis(game: Control) -> void:
 	var server: int = game.play.server_slot()
 	for i in 600:   # The ball is tossed by itself (no button), then goes up to its top.
@@ -77,7 +77,7 @@ func _place_tennis(game: Control) -> void:
 		push_error("make_tiles: the Tennis toss did not reach its top; the tile is wrong")
 	game._tick_ms = Time.get_ticks_msec()
 	game.play.swing(server, 0.9, true, 0.2, 0.0)
-	for i in 12:
+	for i in 34:   # 34 ticks after the hit (0.54 s): the ball is clear of the far players (owner's choice, 2026-11-17).
 		game._game_tick(0.016)
 	game.set_process(false)
 	game._request_redraw()
