@@ -23,12 +23,13 @@ Rules
 - Evidence files go in `docs/evidence/<test>/`, named `<run>-<what>.<ext>`, for example `R1-t10-04-miss-fade.mp4`. Photos up to 1920 px wide, videos up to 30 s and 20 MB.
   Bigger files: put them in your own storage and link them. Do not commit private data: crop or blur the name of your Wi-Fi and addresses on your home network.
 - Do not turn a number into a pass without a measurement. Write the value in the Notes.
+- A manual step never needs more than 2 phones (owner decision, 2026-11-17, issue #457).
 - Every step has a clear pass or fail criterion (a number with a limit, an exact text, an object that is visible or not). A step that asks for a feeling or an opinion is not a test: do not write it. A step checks one thing, or two linked things; split it when it checks more.
 
 ## What you need
 
 - 1 Android TV or streaming box, with the `tv` APK installed, and its remote control.
-- 1 to 4 Android phones with the `controller` APK. The phones need Google Play services (for the QR scanner).
+- 1 to 2 Android phones with the `controller` APK. The phones need Google Play services (for the QR scanner).
 - 1 Wi-Fi network for all devices. Best: 5 GHz. Turn off VPN on the phones. A TV app on a desktop is **not** a TV box: say so in the Run log.
 - Before every run: the current APKs are installed, **Invert axes** is off, and the TV and the phones are on the same Wi-Fi.
 
@@ -59,34 +60,34 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Pass | R5 | |
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Pass | R7 | |
 | [4](#test-4) | Latency and packet rate (no manual step since 2026-11-17) | no device | RISKS A3, B1, B2, B3, B5, B6 | Not run (no manual step: see the History; the R7 results of 1a to 4a were removed with the steps) | | |
-| [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Pass | R7 | |
+| [6](#test-6) | Treasure Maze feel | 1 to 2 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Pass | R7 | |
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-FL-52c, REQ-FL-55, REQ-GM-31a, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R7 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-52c, REQ-FL-55 | Partial (see the result table) | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Pass | R3 | |
 | [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
-| [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37 | Pass | R7 | |
+| [10](#test-10) | Banana Party (pointer) | 1 to 2 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37 | Pass | R7 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 2 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Pass | R7 | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Retest (steps 1c, 11) | R7 | |
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 68, 83, 84 | Not run |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 phone, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R8 | |
-| [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
-| [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-38a, 41a, 52, 53, REQ-GM-45, 46, FD-18 | Partial (see the result table) | R7 | |
+| [15](#test-15) | Sumo Bumpers (tilt and A) | 2 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
+| [16](#test-16) | The arcade look (phase 1) | 1 to 2 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-38a, 41a, 52, 53, REQ-GM-45, 46, FD-18 | Partial (see the result table) | R7 | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Pass | R7 | |
-| [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
+| [18](#test-18) | Sound and haptics | 1 to 2 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip and phone score | 2 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Fail (steps 3c) | R8 | |
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Partial (see the result table) | R9 | |
 | [21](#test-21) | Join by room code and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-83, REQ-FL-84, REQ-FL-85, FD-25, FD-28 | Pass | R9 | |
-| [22](#test-22) | Star Shield (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
-| [23](#test-23) | Bowling (aim with a finger, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
+| [22](#test-22) | Star Shield (tilt, waves, upgrades) | 1 to 2 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
+| [23](#test-23) | Bowling (aim with a finger, swing to throw) | 1 to 2 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
 | [24](#test-24) | Swing detector for Tennis (no manual step since 2026-11-17) | no device | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4, REQ-T7 | Not run (no manual step: see the History; issue #209 has no manual test) | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 2 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Fail (steps 1b) | R9 | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 2 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R9 | |
-| [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
-| [28](#test-28) | Mole Bonk (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R9 | |
-| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
-| [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
-| [31](#test-31) | Freeze Dance (wiggle, freeze, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
-| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
+| [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 2 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
+| [28](#test-28) | Mole Bonk (pointer, bonk, moles, difficulty) | 1 to 2 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R9 | |
+| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 2 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
+| [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 2 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
+| [31](#test-31) | Freeze Dance (wiggle, freeze, difficulty) | 1 to 2 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
+| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
 | [33](#test-33) | iPhone QR scanner (camera view, permission, cancel, privacy) | 1 iPhone, 1 Mac with Xcode, 1 TV, a second phone, a child for item 9b, a Hebrew reader for item 8a | REQ-FL-58, 88 to 92 (`docs/TV_FLOW.md`), issue #299 | Not run |  | |
 | [34](#test-34) | Join approval with the TV remote (built, not run) | 2 phones, 1 TV with its real remote, a stopwatch, a native reader of Hebrew for item 7a | REQ-FL-93 to REQ-FL-104, FD-30 (`docs/TV_FLOW.md`), issue #393 | Partial (see the result table) | R9 | |
 
@@ -260,7 +261,7 @@ History:
 
 ### Treasure Maze
 
-Needs: 1 to 4 phones, 1 TV, a protractor app, a child of about 5 to 8 years for step 7g. Covers: REQ-MZ-3 to 9, REQ-MZ-12, REQ-MZ-13, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95.
+Needs: 1 to 2 phones, 1 TV, a protractor app, a child of about 5 to 8 years for step 7g. Covers: REQ-MZ-3 to 9, REQ-MZ-12, REQ-MZ-13, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95.
 
 
 **Steps**
@@ -512,7 +513,7 @@ History:
 
 ### Banana Party (pointer)
 
-Needs: 1 to 4 phones, 1 TV, a second phone with an angle app (or a paper protractor), and a child of about 5 to 8 years for steps 9a and 9b. Covers: REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37.
+Needs: 1 to 2 phones, 1 TV, a second phone with an angle app (or a paper protractor), and a child of about 5 to 8 years for steps 9a and 9b. Covers: REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37.
 
 Hold each phone like a remote control, pointing at the TV, from the sofa (about 3 m). This is the first game that uses the
 gyroscope pointer, so this test also checks the pointer itself (the old Test 5 for drift was removed).
@@ -770,7 +771,7 @@ History:
 
 ### Sumo Bumpers (tilt and A)
 
-Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for step 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+Needs: 2 phones, 1 TV, and a child of about 5 to 8 years for step 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody`), the bounce, the dash and the difficulty values are first guesses. "Full tilt" means the phone is tilted about 45 degrees. Record videos at 30 frames per second or more.
 
@@ -819,7 +820,7 @@ History:
 
 ### The arcade look (REQ-FL-37 to 46, FD-18)
 
-Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 to 8 years for items 8a and 8b, a tape measure or a marked distance of 3 m, a stopwatch, a phone camera. Covers: REQ-FL-37 to 46, 41a, 52, 53, REQ-GM-45, 46. New, written on 2026-10-10 for phase 1 of `docs/ARCADE_STYLE_PLAN.md`. The games are in the pixel style too (phases 2 to 4 are built); this test checks the menus, the phone and the game shell (HUD, countdown, menus, hints). The headless suites `tests/screens_sweep.gd`, `tests/hud_layout.gd` and `tests/games_focus.gd` and the render suite `tests/pixel_render.gd` check the sizes, colors, rows, cursors and pixels; this test keeps what needs a real TV, a real phone or a person.
+Needs: 1 to 2 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 to 8 years for items 8a and 8b, a tape measure or a marked distance of 3 m, a stopwatch, a phone camera. Covers: REQ-FL-37 to 46, 41a, 52, 53, REQ-GM-45, 46. New, written on 2026-10-10 for phase 1 of `docs/ARCADE_STYLE_PLAN.md`. The games are in the pixel style too (phases 2 to 4 are built); this test checks the menus, the phone and the game shell (HUD, countdown, menus, hints). The headless suites `tests/screens_sweep.gd`, `tests/hud_layout.gd` and `tests/games_focus.gd` and the render suite `tests/pixel_render.gd` check the sizes, colors, rows, cursors and pixels; this test keeps what needs a real TV, a real phone or a person.
 
 **Steps**
 
@@ -925,7 +926,7 @@ History:
 
 ### Sound and haptics
 
-Needs: 1 to 4 phones, 1 TV, a grown-up, a child of about 5 to 8 years for item 9, a phone with a sound level meter app (dB(A)), a camera at 60 fps or more for items 6b and 11a, a stopwatch for item 11b. Covers: REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43.
+Needs: 1 to 2 phones, 1 TV, a grown-up, a child of about 5 to 8 years for item 9, a phone with a sound level meter app (dB(A)), a camera at 60 fps or more for items 6b and 11a, a stopwatch for item 11b. Covers: REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43.
 
 New (2026-10-10). The songs, the effects and the levels are first guesses (`scripts/audio/songs.gd`). The headless tests check the data (the notes, the levels in dB, the order of the sounds, the ducking, the haptics calls, the effect and the buzz of every event of the game tables), not how it sounds in the room. Items 1a to 1c, 2a to 2e, 3a to 3e, 4a, 4b, 5a to 5e, 6a, 6c, 7a to 7c, 8a to 8d, 10a, 10b, 10d, 10e and 10f moved to the automated tests (docs/AUTOMATED_TESTS.md, A-18-1 to A-18-10). Item 10c was split: the TV side is automated, 10c2 keeps the motor of a real phone. The numbers of the other items do not change. Put the phone with the meter app at the sofa seat and keep the TV volume the same for the whole test. A meter reading is the highest value in 5 s.
 
@@ -983,7 +984,7 @@ Items 1a to 1c, 2a to 2d, 3a, 3b, 3f, 4a to 4c, 5a to 5c, 6, 7a, 7b, 7c, 9a and 
 | 3e | Photos of the phone in landscape | Pass | R8 |  | R8: Pass |
 | 8a | Note: the child, the age, the seconds | Pass | R8 |  | R8: Pass |
 | 8b | Note: the child, the age, the number | Pass | R8 |  | R8: Pass |
-| 8d | Note: the tester, the type of color blindness, the seconds | Pass | R8 |  | R8: Pass Added 2026-10-30 (issue #237). |
+| 8d | Note: the tester, the type of color blindness, the seconds | Pass | R8 |  | R8: Pass, run on the old text ("same as 8c", which needed 4 phones); the step was reworded on 2026-11-17 to need 1 phone and the owner has not run the new text. Added 2026-10-30 (issue #237). |
 | 9c | Photo of the Hebrew phone header; note from the Hebrew reader | Pass | R8 |  | R8: Pass |
 
 History:
@@ -1109,7 +1110,7 @@ History:
 
 ### Star Shield (tilt, waves, upgrades)
 
-Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9c. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+Needs: 1 to 2 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9c. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 Hold each phone upright or flat as you do for the other tilt games. New game (2026-10-16). Every number (ship speed, the rate of fire, the asteroid speeds, the waves, the upgrade times) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
@@ -1128,7 +1129,7 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 12i. Watch the rest between two waves, in 3 waves. Check: 1.5 s after the banner "Wave n clear!" shows there is no asteroid on the screen, in 3 of 3 waves. (REQ-AB-8, issue #136)
 12j. Let an asteroid hit a ship that has a force field, 3 times. Check: the ship blinks for 2.5 s to 3.5 s (stopwatch) and shoots meanwhile, and an asteroid that touches it in this time does not blow it up, in 3 of 3 tries. (REQ-AB-12, issue #137)
 12k. From 3 m, play 30 s and ask each of 2 testers what the dark round thing in the top right is ("background" or "target"). Check: both say "background" and nobody shoots at it in 30 s. (REQ-AB-17, issue #138)
-14a. Look at the pad of a phone while the game runs. Hold the phone tilted 15 degrees to the right during the countdown (Start) and keep it so for 5 s. Check: the pad shows no RECENTER box, no A and no B (3 of 3 phones), and the ship does not move to the side for more than its own width in 5 s (2 of 2 tries). (REQ-AB-3)
+14a. Look at the pad of a phone while the game runs. Hold the phone tilted 15 degrees to the right during the countdown (Start) and keep it so for 5 s. Check: the pad shows no RECENTER box, no A and no B (3 of 3 absent on 1 phone), and the ship does not move to the side for more than its own width in 5 s (2 of 2 tries). (REQ-AB-3)
 14b. Play a round with 2 phones, one in each hand of two testers, and take 5 pickups, let a ship with a force field be hit 3 times and lose 1 ship. Check: a pickup buzzes the phone shortly (5 of 5), a force field hit buzzes it longer than a pickup (3 of 3 pairs felt right), a lost ship gives the longest buzz (1 of 1), the winner buzzes at the end (1 of 1). Listen to the round. Check: you hear a sound for each of these 7 events: an asteroid breaks, a pickup is taken, a force field takes a hit, a ship is lost, a ship comes back, a wave ends, a wave begins (7 of 7). (REQ-AB-15)
 (The music and the effects are checked in Test 18.)
 
@@ -1174,7 +1175,7 @@ History:
 
 ### Bowling (aim with a finger, swing to throw)
 
-Needs: 1 to 4 phones, 1 TV, a stopwatch, a phone camera (60 fps or more), and a child of about 5 to 8 years for items 11a to 11c. Covers: REQ-BW-*, REQ-GM-80 to 84, REQ-GM-90 to 98, REQ-GM-37, REQ-GM-47i to 47n.
+Needs: 1 to 2 phones, 1 TV, a stopwatch, a phone camera (60 fps or more), and a child of about 5 to 8 years for items 11a to 11c. Covers: REQ-BW-*, REQ-GM-80 to 84, REQ-GM-90 to 98, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-16). It was only tested with made-up sensor values. Every number (the swing thresholds 4, 8 and 30 m/s2, the aim ranges, the ball speeds, the lane, the pins) is a first guess, but each step below has a fixed limit. Hold the phone in one hand like a ball, arm down at the side. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
@@ -1323,7 +1324,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 16d | Note: the 3 fall times; the two outs | Pass | R9 |  | R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
 | 16f | Photo of the pad; note: the buzzes (of 10), the pairs right (of 5) | Pass | R9 |  | R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
 | 16g | Photos of the 3 hint lines; note: the 3 times | Pass | R9 |  | R9: Pass - the owner verified it on the TV and asked to set it to Pass after the step text was changed (the toss is automatic; the step does not use the A button). The N/A note of the tracker: the steps needed to change. Added 2026-10-31 (issue #306). |
-| 16h | Note: hits on the forward move (of 10), on back-only (of 10), on forward-only (of 10) | Pass | R9 |  | R9: Pass Added 2026-11-03 (two-phase swing). |
+| 16h | Note: hits on the forward move (of 10), on back-only (of 10), on forward-only (of 10) | Pass | R9 |  | R9: Pass, run on the text with the overlay counter; the overlay half was removed on 2026-11-17 (issue #458), the rest of the step stays as run. Added 2026-11-03 (two-phase swing). |
 
 History:
 - 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 13) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-25-13, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
@@ -1363,7 +1364,7 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 16b. Aim to the left, begin the backswing (the first clear movement back) and turn the phone to the right while the club goes back and forward. Wait until the ball stops, then turn the phone to the right again. Check: during the swing the aim mark stays where it was at the start of the backswing (it moves less than the width of the ball) in 5 of 5 putts, and after the ball has stopped the mark follows the turn of the phone again (5 of 5). (REQ-MG-4)
 16b2. (Added 2026-11-03.) Hold the phone like a putter in the aim phase. Turn it until the dotted line is about 20 degrees from the cup, press A, then turn the phone 30 degrees and swing back and forward, 5 times. Check: the dotted line does not move after A (gold dots, 5 of 5 putts). Press A again. Check: the dotted line follows the phone again (5 of 5). Then turn the phone until the line is within about 5 degrees of the cup, 5 times. Check: the line goes to the cup and turns green (5 of 5), and 15 degrees away it stays white (5 of 5). (REQ-MG-4)
 16b3. (Added 2026-11-06, owner feedback.) Play with 2 phones. Player 1 putts. While the turn banner of player 2 shows, player 1 hands the phone to player 2, who turns it any way while taking it and then holds it still toward the TV. Check: after 1 s of holding still, the dotted line points at the cup (the first line is within 6 degrees of the cup, 5 of 5 hand-overs), and a turn of 20 degrees to the right then moves it about 20 degrees clockwise (5 of 5). (REQ-MG-4)
-16b4. (Added 2026-11-06, owner feedback.) A person who has never played reads the phone when it is their turn and swings. Check: the phone shows the line "YOUR TURN: AIM, THEN SWING BACK AND FORWARD LIKE A PUTTER!" (3 of 3 phones on turn), and the person putts within 30 s of the banner without help (3 of 3 people). (REQ-MG-20)
+16b4. (Added 2026-11-06, owner feedback.) A person who has never played reads the phone when it is their turn and swings. Check: the phone shows the line "YOUR TURN: AIM, THEN SWING BACK AND FORWARD LIKE A PUTTER!" (shown at 3 of 3 turns on 1 phone), and the person putts within 30 s of the banner without help (3 of 3 people). (REQ-MG-20)
 16c. On hole 1 putt 5 soft, 5 medium and 5 hard swings. Measure how far each ball rolls (a photo of the end place, or the number of lawn tiles). Check: the median distance of the soft putts is smaller than the median of the medium putts, and that is smaller than the median of the hard putts (2 of 2 comparisons). (REQ-MG-5)
 16d. Move only the hand a little (about 5 cm) in the swing place, 5 times, with no real backswing. Then make one real swing. Check: no stroke is counted in the 5 small moves (0 of 5), the ball does not move, and the real swing is counted (1 of 1). (REQ-MG-5)
 16e. Play one hole on Easy, one on Medium and one on Hard and look at the aim phase. Check: Easy shows a long aim line; Medium shows a short aim line; no text instruction shows on any of them; Hard shows no aim line, only a small marker on the ground (3 of 3 difficulties as written). Then on Easy and on Medium make the weakest swing that still counts as a putt, 5 times each. Check: the median distance of the 5 Easy putts is larger than the median of the 5 Medium putts. (REQ-MG-13)
@@ -1427,7 +1428,7 @@ History:
 
 ### Air Hockey (tilt, enroll with A, ROBO the bot)
 
-Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), and a child of about 5 to 8 years for item 9. Covers: REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-105, REQ-GM-106, REQ-GM-47i to 47n.
+Needs: 1 to 2 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), and a child of about 5 to 8 years for item 9. Covers: REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-105, REQ-GM-106, REQ-GM-47i to 47n.
 
 New game (2026-10-23), and the first game with a computer player. It was tested only with made-up sensor values. Every number (the mallet speed, the puck friction and hit speed, the goal size, the three levels of ROBO) is a first guess; write what you measure in the Notes. Hold each phone flat like a tray. "Full tilt" means the phone is tilted about 45 degrees.
 
@@ -1483,7 +1484,7 @@ History:
 
 ### Mole Bonk (pointer, bonk, moles, difficulty)
 
-Needs: 1 to 4 phones, 1 TV, a 240 fps phone camera (item 4b), and a child of about 5 to 8 years for items 10a to 10d. Covers: REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+Needs: 1 to 2 phones, 1 TV, a 240 fps phone camera (item 4b), and a child of about 5 to 8 years for items 10a to 10d. Covers: REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-23). It was only tested with made-up sensor values. Every number (the stay of a mole, the time between moles, the size of the hit circle, the 9 places of the holes, the points) is a first guess, but each step below has a fixed limit. Hold the phone like a remote control and point it at the TV. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
@@ -1533,7 +1534,7 @@ History:
 
 ### Sheep Herding (tilt, a team herds the sheep into the pen)
 
-Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+Needs: 1 to 2 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-23). It was only tested with made-up sensor values. Every number (the speed of the dogs, how far a dog scares a sheep, how fast a sheep runs, the gate, the time of the round, the pictures, the song and the Hebrew texts) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. The sheep and the dogs run by themselves, so do not count on the same round twice.
 
@@ -1595,7 +1596,7 @@ History:
 
 ### Tower Builder (turns, swing, drop, wobble, 12 bricks)
 
-Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n.
+Needs: 1 to 2 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n.
 
 New game (2026-10-23). It was tested only with made-up button presses. Every number (the swing, the 12 bricks, the widths of the bricks, the 24 px of overlap, the 8 px of slack, the turn times) is a first guess; write what you measure in the Notes.
 
@@ -1651,7 +1652,7 @@ History:
 
 ### Freeze Dance (wiggle, freeze, difficulty)
 
-Needs: 1 to 4 phones, 1 TV, a stopwatch, a phone camera (240 fps for item 4a), and a child of about 5 to 8 years for item 10. Covers: REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-102, REQ-GM-47i to 47n.
+Needs: 1 to 2 phones, 1 TV, a stopwatch, a phone camera (240 fps for item 4a), and a child of about 5 to 8 years for item 10. Covers: REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-102, REQ-GM-47i to 47n.
 
 New game (2026-10-24). It was tested only with made-up sensor values. Every number (the wiggle level, the limit for "still", the grace time, the length of the music and of the freeze) is a first guess; write what you measure in the Notes. Hold each phone like a remote control. Play on Medium unless the step says another difficulty. The checks of the rules (the points, the sit-out, the order of the songs, the light tiles) are automated (`dance_rules`, `smoke_freeze`, `docs/AUTOMATED_TESTS.md`).
 
@@ -1706,7 +1707,7 @@ History:
 
 ### Bumper Cars (tilt, drive over stars and bump the others)
 
-Needs: 2 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9d. Covers: REQ-BC-* (`docs/games/bumper_cars.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
+Needs: 2 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9d. Covers: REQ-BC-* (`docs/games/bumper_cars.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-24). It was only tested with made-up sensor values. Every number (the speed of the cars, the size of the rink, the number of stars on the floor, the size of a bump, the 60 s of the round), the pictures, the song, the sounds and the Hebrew texts are first guesses. Changed 2026-10-29 (owner): a hit takes no star (it took 1 star from each car from 2026-10-24); a bump is only a bonk, a spark and a buzz (REQ-BC-7).
 

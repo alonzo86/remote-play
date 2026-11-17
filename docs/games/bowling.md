@@ -154,7 +154,7 @@ Values that change the feel. Tune them with the debug overlay and a device test 
 - **Aim by finger (decided 2026-10-20).** Aiming by the turn of the phone (yaw) drifted and was hard to hold, so the aim is now a finger on the phone (REQ-BW-4). The old question, kept for the record: "Moving the phone left or right" cannot be measured as a slide (a phone cannot know a distance). The plan turns the phone
   (yaw, like the Banana Party pointer) and sets the center at each turn, so drift does not matter. The other way is to tilt the phone
   left or right (roll, no drift, like Star Shield). Which one feels like bowling?
-- **Does the swing work with any grip?** The detector finds the swing axis from the back swing. This is never tried with a real phone (Test 23; the sensor directions test, Test 3, is still open).
+- **Does the swing work with any grip?** The detector finds the swing axis from the back swing. This is never tried with a real phone (Test 23; the sensor directions test, Test 3, passed in R7 and has only the ball direction steps 2b and 3b since 2026-11-17).
 - **Spin (hook).** A twist of the wrist at the release could curve the ball and make splits (7-10) possible. It is not in the first version (straight balls only).
 - **The code of the profile.** Bowling added keys 40 to 42. A code with a Bowling best is format version 2; any other code stays version 1, so an old app reads it and refuses only a version 2 code (`docs/PROFILES_PLAN.md`).
 - **Name.** Decided by the owner on 2026-11-08 (issue #297): the display name is **"Bowling"** (it was "Pin Pals"; Hebrew "באולינג", it was "באולינג חברים"): a generic sport word, so no mark can be claimed on it. The id `bowling` and the saved bests do not change.
