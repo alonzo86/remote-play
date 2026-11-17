@@ -469,7 +469,7 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 		if e.finished:
 			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color,
-				"avatar": p.shown_avatar(), "cells": [Scoreboard.ordinal(e.rank), p.player_name, text]})
+				"avatar": p.shown_avatar(), "slot": e.slot, "cells": [Scoreboard.ordinal(e.rank), p.player_name, text]})
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title
@@ -499,6 +499,9 @@ func open_result_menu(heading: String, rows: Array, extra_entries: Array = [], w
 	if GameSettings.has_view(Registry.find(id)):
 		entries.append(["minigame.new_game", game_host.go_game_settings.bind(id)])   # REQ-GM-95: back to the settings of the game
 	entries.append(["minigame.back_to_menu", game_host.go_menu])
+	for r in rows:   # Every phone shows its own row of the list as its line of the result, with no button (REQ-FL-67a).
+		if int(r.get("slot", -1)) >= 0:
+			game_host.send_final(int(r.slot), String(r.text))
 	open_menu(heading, entries, rows)
 	Sound.stop_music()
 	Sound.sfx("win" if won else "tie")

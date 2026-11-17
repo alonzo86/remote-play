@@ -81,7 +81,7 @@ func _on_phase(_phase: String) -> void:
 
 func _process(delta: float) -> void:
 	_flash.recenter = maxf(_flash.recenter - delta * 3.0, 0.0)
-	if _fingers.values().has("leave"):
+	if _fingers.values().has("leave") and not _result_shown():
 		_leave_hold += delta
 		if _leave_hold >= LEAVE_HOLD:
 			_leave_hold = 0.0
@@ -115,7 +115,22 @@ func _rect_name(has_avatar: bool) -> Rect2:
 ## paused, and never in a menu (the pad is not shown there).
 func _pause_shown() -> bool:
 	var c: Node = App.client
-	return c.phase == "playing" and c.state == ControllerClient.State.CONNECTED
+	return c.phase == "playing" and c.state == ControllerClient.State.CONNECTED and not _result_shown()
+
+
+## True while the result of the game shows on the phone (REQ-FL-67a): the line of the player in the middle and no button.
+func _result_shown() -> bool:
+	return App.client.final_text != "" and App.client.state == ControllerClient.State.CONNECTED
+
+
+## Where the line of the result is written: the middle of the screen (REQ-FL-67a).
+func _rect_final() -> Rect2:
+	return Rect2(60, size.y * 0.5 - 60.0, size.x - 120, 120)
+
+
+## The line of the result on lines of at most `width`: 64 px like the score line, never smaller, never cut (REQ-FL-67a).
+static func final_lines(text: String, width: float) -> Array[String]:
+	return UiTheme.wrap_lines(UiTheme.font(), text.to_upper(), width, LINE_SIZE)
 
 
 ## The pause button: a 96 px square at the right end of the header row, 60 px from the right edge like the icon buttons of the
@@ -219,17 +234,17 @@ func _rect_best_game() -> Rect2:
 ## True while this phone is on turn in Bowling: the Recenter box becomes the aim strip (REQ-BW-4).
 func _aim_mode() -> bool:
 	var c: Node = App.client
-	return c.state == ControllerClient.State.CONNECTED and c.turn_state == 1 and c.turn_kind == ""
+	return not _result_shown() and c.state == ControllerClient.State.CONNECTED and c.turn_state == 1 and c.turn_kind == ""
 
 
 ## True while the pad has the Recenter box: in a game where the phone is a pointer (REQ-GM-37) and outside a game.
 func _recenter_shown() -> bool:
-	return App.client.recenter_button
+	return App.client.recenter_button and not _result_shown()
 
 
 ## True while the pad shows the button `key` ("a" or "b"): the game says which buttons it uses (REQ-GM-37a, issue #80).
 func _button_shown(key: String) -> bool:
-	return App.client.pad_buttons.contains(key)
+	return not _result_shown() and App.client.pad_buttons.contains(key)
 
 
 ## A button that is alone stands in the middle of the row; two buttons stand left and right.
@@ -251,6 +266,8 @@ func _radius() -> float:
 
 
 func _zone_at(pos: Vector2) -> String:
+	if _result_shown():
+		return "pad"   # No button shows, so none can be pressed (REQ-FL-67a).
 	if _pause_shown() and _rect_pause().has_point(pos):
 		return "pause"
 	if _rect_leave().has_point(pos):
@@ -397,14 +414,14 @@ func _draw() -> void:
 			name_rect.position.x, UiTheme.ACCENT)
 
 	# The place and the score of this player, on a row of their own under the header (REQ-FL-67).
-	var line := score_line(c.score_rank, c.score_of, c.score_text) if online else ""
+	var line := score_line(c.score_rank, c.score_of, c.score_text) if online and not _result_shown() else ""
 	if line != "":
 		var line_rect := _rect_score()
 		_draw_lines_centered(f, score_lines(line, line_rect.size.x), line_rect, LINE_SIZE, HORIZONTAL_ALIGNMENT_LEFT,
 				line_rect.position.x, UiTheme.TEXT, SCORE_GROWS_DOWN)
 
 	# Whose turn it is, in a game with turns, on the row of NEW BEST! (the two never show together, REQ-BW-14).
-	if online and c.turn_state != 0:
+	if online and c.turn_state != 0 and not _result_shown():
 		var turn_rect := _rect_turn()
 		var turn_color: Color = UiTheme.ACCENT if c.turn_state == 1 else UiTheme.TEXT_INFO
 		if c.turn_kind == "golf" and c.turn_state == 1:
@@ -431,14 +448,21 @@ func _draw() -> void:
 	if _pause_shown():
 		_draw_pause(_rect_pause())
 
+	# The result of the game (REQ-FL-67a): the line of this player, in the middle, and no button below.
+	if _result_shown():
+		var final_rect := _rect_final()
+		_draw_lines_centered(f, final_lines(c.final_text, final_rect.size.x), final_rect, LINE_SIZE, HORIZONTAL_ALIGNMENT_CENTER,
+				final_rect.position.x, UiTheme.TEXT)
+
 	# Disconnect: a framed text box. A game needs a press of LEAVE_HOLD seconds; the box fills while the finger stays (REQ-FL-52a).
-	var lr := _rect_leave()
-	_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), LEAVE_SIZE, UiTheme.BUTTON_TEXT)
-	if _leave_hold > 0.0:
-		var fill := Rect2(lr.position, Vector2(lr.size.x * minf(_leave_hold / LEAVE_HOLD, 1.0), lr.size.y))
-		draw_rect(fill, UiTheme.BAD)
-		draw_string(UiTheme.font(), Vector2(lr.position.x, UiTheme.centered_baseline(UiTheme.font(), lr, LEAVE_SIZE)),
-				Lang.t("pad.disconnect_hold").to_upper(), HORIZONTAL_ALIGNMENT_CENTER, lr.size.x, LEAVE_SIZE, UiTheme.BG)
+	if not _result_shown():
+		var lr := _rect_leave()
+		_draw_box(lr, UiTheme.TEXT, UiTheme.BUTTON_FACE, Lang.t("pad.disconnect_hold"), LEAVE_SIZE, UiTheme.BUTTON_TEXT)
+		if _leave_hold > 0.0:
+			var fill := Rect2(lr.position, Vector2(lr.size.x * minf(_leave_hold / LEAVE_HOLD, 1.0), lr.size.y))
+			draw_rect(fill, UiTheme.BAD)
+			draw_string(UiTheme.font(), Vector2(lr.position.x, UiTheme.centered_baseline(UiTheme.font(), lr, LEAVE_SIZE)),
+					Lang.t("pad.disconnect_hold").to_upper(), HORIZONTAL_ALIGNMENT_CENTER, lr.size.x, LEAVE_SIZE, UiTheme.BG)
 
 	if _aim_mode():
 		_draw_aim_strip(_rect_aim(), f)
