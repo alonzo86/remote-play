@@ -1578,7 +1578,7 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 
 Items 2b, 3a, 3b, 5a, 5b and 6b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-29-*). The numbers of the other items do not change.
 
-Measurements (write down, no pass or fail): the time that a dog needs from the left edge to the gate with a steady tilt; the speed of the sheep that you see (too slow, too fast); if a sheep gets stuck in a corner, behind a tree, at the pond or at the fence; the time that a round of 1 child takes on Easy; how many sheep an adult herds alone on Hard in 60 s. Use them to tune the speed of the dogs, how far they scare a sheep, the gate and the time of a round.
+Measurements (write down, no pass or fail): the time that a dog needs from the left edge to the gate with a steady tilt; the speed of the sheep that you see (too slow, too fast); if a sheep gets stuck in a corner or at the fence; whether the help toward the gate (REQ-SH-21) is felt on Easy and Medium and not on Hard (the sheep bend toward the gate when a dog comes from the side); the time that a round of 1 child takes on Easy; how many sheep an adult herds alone on Hard in 60 s. Use them to tune the speed of the dogs, how far they scare a sheep, the gate and the time of a round.
 
 **Results**
 
