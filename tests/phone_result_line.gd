@@ -1,8 +1,8 @@
 extends SceneTree
 ## The result of a game on the phone (issue #455, REQ-FL-67a, step 3c of Test 19): at the end of every game each phone shows
 ## the line of its own row of the TV result list, centered, with only the HOLD TO DISCONNECT box, until the next round.
-## Three parts: (1) every game ends through the shared result menu, (2) that menu sends each phone the text of its row, (3) a real TV server and the phone
-## pad: the line shows, only the leave box shows and works, the buttons come back at the next round. Run:
+## Three parts: (1) every game ends through the shared result menu, (2) that menu sends each phone the text of its row,
+## (3) a real TV server and the phone pad: the line shows, only the leave box shows and works, the buttons come back at the next round. Run:
 ##   godot --headless --path . --script tests/phone_result_line.gd -- --role=controller
 ## The flag `--role=controller` is needed: without it the App makes no phone client.
 
