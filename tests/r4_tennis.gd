@@ -118,10 +118,10 @@ func _swing(game: Control, slot: int, power: float, down: bool, side := 0.0) -> 
 	game._on_swing({"power": power, "down": down, "side": side, "hit_age_ms": 0.0, "wind_up_s": 0.5}, slot)
 
 
-## The server tosses (A, at once) and swings from top to bottom `offset` seconds from the top of the toss.
+## The server's ball is tossed by itself (no A button); the server swings from top to bottom `offset` s from the top.
 func _serve(game: Control, offset := 0.0, power := 0.5) -> int:
 	var server: int = game.play.server_slot()
-	game._on_button(Protocol.BTN_A, server)
+	_until(game, Match.AUTO_TOSS + 0.02)
 	_until(game, game.play._toss_apex + offset)
 	_swing(game, server, power, true)
 	return server
@@ -147,9 +147,12 @@ func _leader_chip() -> void:
 func _toss() -> void:
 	print("the toss")
 	var game := await _new_game()
-	var server: int = game.play.server_slot()
-	game._on_button(Protocol.BTN_A, server)
-	_check(game.play.phase == Match.Phase.TOSS and game.play.sim.active, "3b: A starts the toss at once")
+	_check(not game.has_method("_on_button"), "3b: Tennis does not read any button (no A to toss at once)")
+	_until(game, Match.AUTO_TOSS - 0.1)
+	_check(game.play.phase == Match.Phase.SERVE, "3b: before AUTO_TOSS the ball is not tossed")
+	_until(game, Match.AUTO_TOSS + 0.02)
+	_check(game.play.phase == Match.Phase.TOSS and game.play.sim.active,
+			"3b: with no press the toss starts by itself after AUTO_TOSS")
 	var top := 0.0
 	var t := 0.0
 	while t < 0.5:
@@ -157,15 +160,15 @@ func _toss() -> void:
 		t += DT
 		top = maxf(top, game.play.sim.pos.z)
 	_check(top - Match.TOSS_FROM >= 0.5, "3b: within 0.5 s the ball went up %.2f m" % (top - Match.TOSS_FROM))
-	# 3d: no swing. The ball is taken away when it is back near the hand (it fell) and the server tosses again (by itself, or A).
+	# 3d: no swing. The ball is taken away when it is back near the hand (it fell) and the server tosses again by itself.
 	var fell := SimInput.run_until(game, func() -> bool: return game.play.phase == Match.Phase.SERVE, 3.0)
 	var total := t + fell
 	var fall := 2.0 * Match.TOSS_UP / Sim.G   # About 1.4 s: it is caught when it is back near the hand (issue #419: toss 6.5 m/s).
 	_check(game.play.phase == Match.Phase.SERVE and total >= fall * 0.8 and total <= fall * 1.2,
 			"3d: with no swing the ball is down %.2f s after the toss (%.1f to %.1f s) and the server can toss again" %
 			[total, fall * 0.8, fall * 1.2])
-	game._on_button(Protocol.BTN_A, server)
-	_check(game.play.phase == Match.Phase.TOSS, "3d: A tosses again (no fault, no point lost)")
+	_until(game, game.play.time + Match.AUTO_TOSS + 0.05)
+	_check(game.play.phase == Match.Phase.TOSS, "3d: the ball is tossed again by itself (no fault, no point lost)")
 	_check(game.play.rules.tally[0] == 0 and game.play.rules.tally[1] == 0 and game.play.faults == 0, "3d: and no point was scored")
 
 
@@ -261,8 +264,11 @@ func _wide_and_long() -> void:
 		var m := Match.new()
 		m.setup(slots, false, "medium", 11 + n)
 		var server: int = m.server_slot()
-		m.press_a(server)
 		var guard := 0
+		while m.phase == Match.Phase.SERVE and guard < 600:
+			m.tick(DT)
+			guard += 1
+		guard = 0
 		while m.time < m._toss_apex and guard < 600:
 			m.tick(DT)
 			guard += 1

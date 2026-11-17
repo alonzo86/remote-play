@@ -82,7 +82,7 @@ const GAMES: Array[Dictionary] = [
 			"settings": [{"key": "rails", "label": "bowling.rails", "values": ["off", "on"],
 					"titles": ["bowling.without_rails", "bowling.with_rails"], "default": "off"}]},
 	{"id": "tennis", "doc": "res://docs/games/tennis.md", "title": "registry.tennis", "dim": "2d",
-			"pad": ["a"],
+			"pad": [],
 			"swing": true,
 			"how_to": "how_to.tennis",
 			"description": "registry.desc_tennis",

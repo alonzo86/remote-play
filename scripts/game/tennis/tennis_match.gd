@@ -169,17 +169,7 @@ func _set_formation(team: int, lead: int, lead_pos: Vector2, partner_pos: Vector
 		chars[s].target = lead_pos if s == lead else partner_pos
 
 
-func press_a(slot: int) -> void:
-	if solo:
-		if phase == Phase.SERVE and chars.has(slot):
-			_feed_after = minf(_feed_after, FEED_DELAY * 0.5)   # A skips the wait of the machine.
-		return
-	if phase != Phase.SERVE or slot != server_slot():
-		return
-	_toss(slot)
-
-
-## The ball goes up from the hand of the server (A, or by itself after `AUTO_TOSS`).
+## The ball goes up from the hand of the server (by itself after `AUTO_TOSS`).
 func _toss(slot: int) -> void:
 	if not chars.has(slot):
 		return
@@ -365,7 +355,7 @@ func _move(delta: float) -> void:
 
 func _tick_serve(_delta: float) -> void:
 	if not solo:
-		if phase_time >= AUTO_TOSS:   # The server needs no button: pressing A with a thumb and swinging with the same hand is hard.
+		if phase_time >= AUTO_TOSS:   # The server needs no button (the A button was removed on 2026-11-17, owner).
 			_toss(server_slot())
 		return
 	if phase_time >= _feed_after:
