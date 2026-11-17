@@ -73,6 +73,8 @@ func _place_tennis(game: Control) -> void:
 		game._game_tick(0.016)
 		if game.play.phase == game.Match.Phase.TOSS and game.play.time >= game.play._toss_apex:
 			break
+	if game.play.phase != game.Match.Phase.TOSS:   # The loop ended with no apex: the tile would show no serve.
+		push_error("make_tiles: the Tennis toss did not reach its top; the tile is wrong")
 	game._tick_ms = Time.get_ticks_msec()
 	game.play.swing(server, 0.9, true, 0.2, 0.0)
 	for i in 12:

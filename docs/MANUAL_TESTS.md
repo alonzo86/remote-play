@@ -640,7 +640,7 @@ Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TEST
 | 4b | Photo of the two tiles and of the running games | Pass | R7 |  | R7: Pass Added 2026-10-29 (issue #123). |
 | 5 | Photo of the tile and of the running game | Pass | R4 |  | Paint Grab tile remade 2026-10-16. |
 | 8 | Photo of the Bowling tile next to a photo of the game | Pass | R7 |  | R7: Pass Before (R4): Retest - R4: Fail - in the tile show the bawling tracks without the score board but fill the tile. currently there's a gray area in the bottom which doesn't look good Issue #112. |
-| 9 | Photo of the Tennis tile next to a photo of the game | Pass | R4 |  |  |
+| 9 | Photo of the Tennis tile next to a photo of the game | Not run |  |  | R4: Pass on the old tile and the old text (the ball high over the near half). The tile was retaken on 2026-11-17 (issue #456) and the step reworded: run it again. |
 | 10 | Photo of the Mini Golf tile next to a photo of the game | Not run |  |  | The tile was remade on 2026-11-03 (view from above, a golfer and one white ball). The R4 Pass was for the old tile and no longer counts: retest. |
 | 11 | Photos of the 15 settings views from the sofa; the number read without error | Retest | R4 |  | R4: Pass, counted 13 settings views (13 games then). Reset to Retest on 2026-11-01: the step counts 15 games. Count 15 at the next run. |
 
