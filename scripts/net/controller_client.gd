@@ -20,6 +20,7 @@ signal profile_answered()   # The TV told which profile this phone has now (REQ-
 enum State { IDLE, CONNECTING, JOINING, CONNECTED, RECONNECTING, WAITING }
 
 const LAST_FILE := "user://controller.cfg"
+const FINAL_MAX := 60   # The longest line of the result that the phone keeps (REQ-FL-67a).
 const RETRY_DELAYS := [0.5, 1.0, 2.0]
 const CONNECT_TIMEOUT_MS := 4000
 const GIVE_UP_AFTER := 3   # Failed first attempts before "unreachable".
@@ -53,6 +54,7 @@ var swing_acked := false      # The player tapped OK for the settings view that 
 var turn_state := 0           # 0 no turn line, 1 this phone is on turn, 2 another player is on turn (REQ-BW-14).
 var turn_kind := ""           # "" for the words of Bowling, "golf" for Mini Golf.
 var turn_who := ""            # The name of the player on turn when turn_state is 2.
+var final_text := ""          # The line of this phone in the result, as the TV shows it. Empty outside a result (REQ-FL-67a).
 var score_text := ""         # The score as the TV shows it. Empty when there is no score yet.
 
 var host := ""
@@ -273,6 +275,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			tv_avatar = Protocol.whole(msg, "av", -1) if tv_pid != "" else -1
 			tv_player_name = Protocol.text(msg, "pname", "")
 			clear_score()   # The score comes again with the next frame of the game (REQ-FL-67).
+			clear_final()   # The TV sends it again when the result is open (REQ-FL-67a).
 			_was_connected = true
 			connect_timeout_ms = CONNECT_TIMEOUT_MS   # A reconnect on a weak Wi-Fi gets the long timeout.
 			_attempt = 0
@@ -303,6 +306,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 			_send_json({"t": "stat", "rtt": snappedf(rtt_ms, 0.1),
 					"off": snappedf(clock_offset_ms, 0.1), "hz": snappedf(tx_rate, 0.1)})
 		"phase":
+			var was_phase := phase
 			phase = Protocol.text(msg, "v", "connect")
 			recenter_button = Protocol.flag(msg, "rc", true)
 			pad_buttons = Protocol.text(msg, "ab", "ab")
@@ -317,6 +321,8 @@ func _handle(msg: Dictionary, now: int) -> void:
 				setup_changed.emit()
 			if not phase in ["playing", "paused"]:
 				clear_score()   # A pause keeps the score on the phone (REQ-FL-67).
+			if phase != "paused" and was_phase != "paused":
+				clear_final()   # A new round ends the result line; a pause and its resume keep it (REQ-FL-67a).
 			phase_changed.emit(phase)
 			_sync_profile()
 		"setup":
@@ -335,6 +341,9 @@ func _handle(msg: Dictionary, now: int) -> void:
 			score_rank = clampi(Protocol.whole(msg, "rank", 0), 0, Protocol.MAX_PLAYERS)
 			score_of = clampi(Protocol.whole(msg, "of", 0), 0, Protocol.MAX_PLAYERS)
 			score_text = Protocol.text(msg, "v", "").substr(0, 12)
+			score_changed.emit()
+		"final":
+			final_text = Protocol.text(msg, "v", "").substr(0, FINAL_MAX)
 			score_changed.emit()
 		"turn":
 			turn_state = clampi(Protocol.whole(msg, "s", 0), 0, 2)
@@ -422,6 +431,13 @@ func _close_socket() -> void:
 func _send_json(d: Dictionary) -> void:
 	if _ws != null and _ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
 		_ws.send_text(Protocol.to_json(d))
+
+
+## Forgets the line of the result (REQ-FL-67a).
+func clear_final() -> void:
+	if final_text != "":
+		final_text = ""
+		score_changed.emit()
 
 
 ## Forgets the score: the phase changed or the TV is gone (REQ-FL-67).

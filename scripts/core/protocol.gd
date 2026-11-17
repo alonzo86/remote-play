@@ -30,7 +30,7 @@ const REPLACED_TOKEN_MS := 600000      # The TV remembers the token of a replace
 const MESSAGES := {
 	"hello": "phone", "welcome": "tv", "reject": "tv",
 	"ping": "phone", "pong": "tv", "stat": "phone", "recenter": "phone",
-	"phase": "tv", "lang": "tv", "haptic": "tv", "score": "tv", "turn": "tv",
+	"phase": "tv", "lang": "tv", "haptic": "tv", "score": "tv", "turn": "tv", "final": "tv",
 	"setup": "tv", "play": "phone", "swing_ok": "phone", "leave_ask": "phone",
 	"profile": "both", "result": "tv", "bye": "both", "kicked": "tv", "pending": "tv",
 }
