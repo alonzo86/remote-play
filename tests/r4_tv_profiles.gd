@@ -5,6 +5,9 @@ extends SceneTree
 ##   for the whole name, also a Hebrew name of 10 letters;
 ## - 4a: the phones `Sam` and `sam` are SAM and SAM 2 on the Players list;
 ## - 4b: a name of 10 letters in Latin and in Hebrew is whole in the Players list and on the Connect screen, in both languages;
+## - 7b (the machine part): with 4 phones that each sent a name and an avatar, every slot row of the Players list and of the
+##   Connect screen shows the avatar its phone sent, the 4 are different pictures, each row control is 64 px (16 px x 4), a whole
+##   number scale (REQ-FL-70), in English and in Hebrew;
 ## - 6a2: a phone whose Wi-Fi goes away without a close (a relay cuts the link) pauses the game in 3.6 s or less; the card
 ##   names it.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/r4_tv_profiles.gd -- --role=tv
@@ -14,6 +17,8 @@ const ControllerClient = preload("res://scripts/net/controller_client.gd")
 const Lang = preload("res://scripts/core/lang.gd")
 const Shell = preload("res://scripts/game/shell.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
+const Avatar = preload("res://scripts/ui/avatar.gd")
+const AvatarView = preload("res://scripts/ui/avatar_view.gd")
 const TcpRelay = preload("res://tests/tcp_relay.gd")
 
 ## id -> [script, props, has a leader chip]. The games with their own score card (Mini Golf, Bowling) and the maze have no
@@ -273,12 +278,14 @@ func _lists() -> void:
 		var widths := "(%s px for 400 px of text, %s px)" % [str(latin[0].size.x) if not latin.is_empty() else "-",
 				str(hebrew[0].size.x) if not hebrew.is_empty() else "-"]
 		_check(whole, "4b: %s: both names are whole %s" % [state, widths])
+		_avatar_row_checks("7b: " + state, modal)
 		games.on_back()
 		await _frames(2)
 		_app.go_connect()
 		await _frames(4)
 		var connect: Control = _app.current_screen()
 		state = "Connect screen in " + ("Hebrew" if lang == "he" else "English")
+		_avatar_row_checks("7b: " + state, connect)
 		var latin2 := _name_labels(connect, "ABCDEFGHIJ")
 		var hebrew2 := _name_labels(connect, String(PHONES[1].name))
 		_check(latin2.size() == 1 and hebrew2.size() == 1 and latin2.all(_fits) and hebrew2.all(_fits),
@@ -286,6 +293,37 @@ func _lists() -> void:
 	_app.set_language("en", false)
 	_app.go_games()
 	await _frames(2)
+
+
+## 7b (machine part): the avatars in the slot rows of `node`. Slot N shows the avatar that phone N sent, the 4 pictures differ in
+## their pixels, and each row control is 64 px, which is 16 px x 4, a whole-number scale that a child can find (REQ-FL-70).
+func _avatar_row_checks(state: String, node: Node) -> void:
+	var views: Array = node.find_children("*", "Control", true, false).filter(
+			func(c: Node) -> bool: return c.get_script() == AvatarView)
+	var seen := PackedStringArray()
+	var ok := views.size() == 4
+	var sizes := []
+	var sent := []
+	var pix := []
+	var sheet := Avatar.texture().get_image()
+	for i in views.size():
+		var v: Control = views[i]
+		sent.append(v.index)
+		sizes.append(v.size.x)
+		ok = ok and v.index == PHONES[i].av and v.size.x == 64.0 and v.size.y == 64.0 \
+				and Avatar.scale_for(minf(v.size.x, v.size.y)) * Avatar.CELL == 64
+		var r := Avatar.region(v.index)
+		pix.append(sheet.get_region(Rect2i(r)).get_data())
+	var distinct := true
+	for i in pix.size():
+		for j in range(i + 1, pix.size()):
+			distinct = distinct and pix[i] != pix[j]
+	_check(ok, "%s: the 4 rows show the avatars the phones sent %s, each row control 64 px (%s)" % [state, str(sent), str(sizes)])
+	_check(distinct and pix.size() == 4, "%s: the 4 avatar pictures differ in their pixels" % state)
+	var empty := true
+	for d in pix:
+		empty = empty and d.count(0) < d.size()   # Not an empty (fully clear) cell.
+	_check(empty and pix.size() == 4, "%s: no avatar cell is empty" % state)
 
 
 ## 6a2: a phone whose link goes away with no close (what switching the Wi-Fi off does). The relay drops every byte. The game is
