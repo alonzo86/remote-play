@@ -64,7 +64,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-FL-52c, REQ-FL-55, REQ-GM-31a, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R7 | |
 | [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-52c, REQ-FL-55 | Partial (see the result table) | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Pass | R3 | |
-| [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
+| [9](#test-9) | Car Race | 1 to 2 phones (2 for items 11a and 14c), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
 | [10](#test-10) | Banana Party (pointer) | 1 to 2 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37 | Pass | R7 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 2 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Pass | R7 | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Retest (steps 1c, 11) | R7 | |
@@ -457,9 +457,9 @@ History:
 
 ### Car Race
 
-Needs: 1 to 4 phones (2 to 4 for step 11a), 1 TV, a phone camera, a child of about 5 to 8 years for step 13h. Covers: REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n.
+Needs: 1 to 2 phones (2 for steps 11a and 14c), 1 TV, a phone camera, a child of about 5 to 8 years for step 13h. Covers: REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n.
 
-Needs 1 to 4 phones (one phone is a time trial). Requirements: `docs/games/marble_race.md`. Start "Car Race" and pick a track.
+Needs 1 to 2 phones for the manual steps (one phone is a time trial; the game takes up to 4 players). Requirements: `docs/games/marble_race.md`. Start "Car Race" and pick a track.
 
 
 **Steps**
