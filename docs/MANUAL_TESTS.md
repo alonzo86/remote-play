@@ -1216,6 +1216,10 @@ History:
 - 2026-10-20: the steps that a machine can check moved to the automated tests (A-22-1 to A-22-12). 2c, 5c, 12a, 12c and 12e were split into the automated part and 2e, 5f, 12f, 12g and 12h (each keeps the result of the old step). Step 8e (the title and the medal of one player) is automated now (`r4_asteroid`); it finds that the medal does not follow the score (REQ-AB-14), so that suite is red until that is fixed.
 - -: **Not run**. New (2026-10-16).
 
+History:
+
+- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 12j, 12i, 12k, 14a, 14b.
+
 ## Test 23
 
 ### Bowling (aim with a finger, swing to throw)
@@ -1282,7 +1286,6 @@ Measurements (write down, no pass or fail): if the strip is too small or too lar
 History:
 
 - 2026-11-17 (recorded; R9 in the tracker): Pass: steps 4g, 14a, 14b. Step 4g passed on the second try (the fix of issue #432, run after the change of the detector).
-- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 12j, 12i, 12k, 14a, 14b.
 - 2026-11-10 (step removed): Owner request of 2026-11-10 (tracker and chat: "Tests 14, 23, 27, 28 and 31 still have steps that either need to be removed or automated"; the owner has 1 Android phone and no TV box). The FPS step on the TV box is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-23-12); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device).
 - 2026-11-10 (recorded; R7 and R6 in the tracker): Pass: steps 1b, 3e, 3f, 3g, 3h, 4e, 4f, 4h, 11a, 11b, 11c, 13b, 13c, 14d, 14e, 14g, 14h. Fail: step 4g. Step 14f (4 phones) was marked N/A by the owner ("don't have 4 phones, remove this step or automate if possible") and is removed: the top bar, the 4 rows of the score sheet and the whole names are the new A-23-14f (REQ-BW-12). Step 4g failed twice (issue #432). The R6 N/A of the old steps 12, 14a and 14b is not recorded: those steps changed after R6 (12 is 1 phone now; the safety card is checked by A-23-14a, A-23-14b and A-25-15a).
 - 2026-10-21 (decision of the owner, REQ-GM-35): Bowling has no timer, so it has no countdown: the first turn starts at once after Start, with the plate and the turn buzz. Step 11a says "after Start" (not run). No recorded result changed.
@@ -1413,6 +1416,10 @@ History:
 - 2026-10-21 (aligned with the requirements, not run): steps 6c and 6d are merged into 6c (alternate right and left, REQ-TN-7); 6e says 'the way you swing when you do not aim'. No recorded result changed.
 - -: **Not run**. New (2026-10-17).
 
+History:
+
+- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 2b, 4g, 6c, 6e, 6h, 12a, 12b, 12c, 12d, 14a, 14c, 15a, 15c, 16a, 16h. Fail: step 1b. Step 1b Fail: issue #456 (retake the tile). Steps 16b, 16c, 16d, 16f and 16g: the toss is automatic since 2026-11-14, the owner verified them and asked to set them to Pass after the step text changed (16c and 16f were changed today to not use the A button). Step 14b (4 phones) and step 16e (debug overlay) were marked N/A and are removed (issues #457, #458).
+
 ## Test 26
 
 ### Mini Golf (aim, putt power, turns, 5 holes)
@@ -1497,6 +1504,10 @@ History:
 - 2026-10-21 (aligned with the requirements, not run): step 14a also checks the ball height of 48 px or more (REQ-GM-47e). No recorded result changed.
 - 2026-11-03 (the redesign of the view, owner decision, `docs/MINI_GOLF_REDESIGN.md` option A; nothing in this test had a recorded result): the course is seen from above with one scale per hole and only the ball on turn is drawn, white (changed again later the same day: it was first all balls in rings of the slot colors). Steps 1b and 2b describe the new look, 14a asks for hole 5 (the ball has one size on every hole now) and steps 14d and 14e are new (Not run). The steps of the aim, the power and the rules did not change.
 
+History:
+
+- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 1b, 3b2, 5e, 12a, 12b, 12c, 12d, 14a, 14b, 14c, 15a, 16a, 16b, 16b2, 16b3, 16b4, 16c, 16d, 16e, 16f, 16g, 16h, 16i, 16j, 16k. Steps 2b, 14d and 14e (4 phones) were marked N/A by the owner and are removed (issue #457).
+
 ## Test 27
 
 ### Air Hockey (tilt, enroll with A, ROBO the bot)
@@ -1548,8 +1559,6 @@ Measurements (write down, no pass or fail): the time for a mallet to cross its h
 History:
 
 - 2026-11-17 (recorded; R9 in the tracker): Pass: steps 3a, 6b, 11d.
-- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 1b, 3b2, 5e, 12a, 12b, 12c, 12d, 14a, 14b, 14c, 15a, 16a, 16b, 16b2, 16b3, 16b4, 16c, 16d, 16e, 16f, 16g, 16h, 16i, 16j, 16k. Steps 2b, 14d and 14e (4 phones) were marked N/A by the owner and are removed (issue #457).
-- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 2b, 4g, 6c, 6e, 6h, 12a, 12b, 12c, 12d, 14a, 14c, 15a, 15c, 16a, 16h. Fail: step 1b. Step 1b Fail: issue #456 (retake the tile). Steps 16b, 16c, 16d, 16f and 16g: the toss is automatic since 2026-11-14, the owner verified them and asked to set them to Pass after the step text changed (16c and 16f were changed today to not use the A button). Step 14b (4 phones) and step 16e (debug overlay) were marked N/A and are removed (issues #457, #458).
 - 2026-11-10 (steps removed): Owner request of 2026-11-10 (tracker and chat: "Tests 14, 23, 27, 28 and 31 still have steps that either need to be removed or automated"; the owner has 1 Android phone and no TV box). The FPS step on the TV box is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-27-10); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). Step 11e (2 phones, after the screen scaling of issue #348) is the new A-27-11e: `smoke_air_hockey` checks at 1280x720, 1920x1080 and 1600x1200 that the left chip starts at the left goal and the right chip ends at the right goal, both on the screen, and the top rail is under the bar (REQ-AH-23). What is not verified by anything now: the photo of the real TV box against the photo of step 11a (each edge within 10 px).
 - 2026-11-10 (recorded; R6 in the tracker): Pass: steps 3b, 6c, 9a, 9b, 9c, 9d, 11a, 11c, 12. Step 6b: Fail before the fix of #146 and #147 (see the row; it is Not run for the current build). The N/A of step 10 (4 phones) is not recorded: the step is 1 phone on the TV box now (A-27-10). Steps 1a and 11b passed on the old text (black rails); they stay Not run because the step says dark gray rails now.
 - 2026-10-24 (automated): steps 2a, 2b, 2c, 3a, 3c, 4a, 4b, 4c, 4d, 5a, 6a, 6d, 7a, 7b, 8a, 8b, 13 moved to the automated tests (smoke_air_hockey, air_hockey_rules). Nothing was run on a device, so no result moved.
@@ -1719,6 +1728,10 @@ History:
 - 2026-10-24 (automated): steps 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b, 13 moved to the automated tests (smoke_tower, tower_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23). The headless checks of the rules and the screens are in `tower_rules` and `smoke_tower` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
 
+History:
+
+- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 1a, 8a, 9a, 9b, 9c, 9d, 11a, 11b, 12, 13a, 13b, 13c, 13d.
+
 ## Test 31
 
 ### Freeze Dance (wiggle, freeze, difficulty)
@@ -1769,7 +1782,6 @@ Measurements (write down, no pass or fail): in how many stops a still hand was m
 
 History:
 
-- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 1a, 8a, 9a, 9b, 9c, 9d, 11a, 11b, 12, 13a, 13b, 13c, 13d.
 - 2026-11-10 (step removed): Owner request of 2026-11-10 (tracker and chat: "Tests 14, 23, 27, 28 and 31 still have steps that either need to be removed or automated"; the owner has 1 Android phone and no TV box). The FPS step on the TV box is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-31-11); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device).
 - 2026-11-10 (recorded; R6 in the tracker): Pass: steps 1a, 2a, 3c, 4b, 5a, 5c, 5d, 10a, 10b, 10d, 12a. R6: the N/A of step 11 (4 phones) is not recorded: the step is 1 phone on the TV box now (A-31-11). Steps 10c, 12b and 13 passed on an older text (the bench plate; the move in one of 3 songs); they stay Not run because the steps changed.
 - 2026-10-24 (automated): steps 2b, 3a, 3b, 3d, 4a, 5b, 6a, 6b, 6c, 7a, 7b, 8a, 8b, 8c, 9a, 9b moved to the automated tests (smoke_freeze, dance_rules). Nothing was run on a device, so no result moved.
@@ -1821,6 +1833,10 @@ History:
 - 2026-11-01: step 7 says 2 phones (it said 1 phone, but the game needs 2 to 4 phones, `min_players` 2).
 - 2026-10-24 (automated): steps 2b, 3a to 3c, 4a, 4b, 5a to 5d, 6a, 6b, 8a, 8b and 10 moved to the automated tests (`smoke_bumper_cars`, `bumper_rules`). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-24).
+
+History:
+
+- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 1, 2a, 7, 9a, 9b, 9c, 9d, 11a, 11b, 12a, 12b.
 
 ## Test 33
 
@@ -1884,7 +1900,6 @@ Nothing in this test can be done headless (it needs a real camera): the GDScript
 
 History:
 
-- 2026-11-17 (recorded; R9 in the tracker): Pass: steps 1, 2a, 7, 9a, 9b, 9c, 9d, 11a, 11b, 12a, 12b.
 - -: **Not run**. New (2026-11-01, issue #299).
 
 ## Test 34
