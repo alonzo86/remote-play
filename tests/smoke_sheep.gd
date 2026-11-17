@@ -250,7 +250,7 @@ func _tilt_and_flock() -> void:
 	sheep.scared = 0.0
 	game._baa_wait = 0.0
 	var at: Vector2 = sheep.pos
-	game.dogs[0].pos = Vector2(1500.0, 950.0)   # Dog 0 ran over the scenery and could be the nearer dog: keep it away.
+	game.dogs[0].pos = Vector2(1200.0, 950.0)   # Dog 0 ran over the scenery and could be the nearer dog: keep it away.
 	game.dogs[0].vel = Vector2.ZERO
 	game.dogs[1].pos = at + Vector2(-80.0, 0.0)
 	game.dogs[1].vel = Vector2.ZERO
@@ -457,7 +457,8 @@ func _layout_and_restart() -> void:
 	var inside := f.position.x >= 60.0 and f.position.y >= 152.0 and f.end.x <= 1860.0 and f.end.y <= 1020.0 \
 			and fmod(f.position.x, 4.0) == 0.0 and fmod(f.size.x, 4.0) == 0.0 and fmod(f.size.y, 4.0) == 0.0
 	_check(inside, "the field is inside the margin and under the HUD, on the grid of world pixels: %s" % str(f))
-	_check(f.grow(1.0).encloses(game.pen) and game.pen.end.x <= f.end.x - 40.0, "the pen is inside the field")
+	_check(f.grow(1.0).encloses(game.pen) and is_equal_approx(game.pen.end.x, f.end.x) and is_equal_approx(game.pen.end.y, f.end.y),
+			"the pen is in the bottom right corner of the field (REQ-SH-23)")
 	var things_in := true
 	for it in game.scenery.items:
 		things_in = things_in and f.has_point(it.pos)
@@ -465,7 +466,7 @@ func _layout_and_restart() -> void:
 		things_in = things_in and f.has_point(s.pos)
 	_check(things_in, "every thing and every sheep stands on the field")
 	var barn: Rect2 = game._barn_box()
-	_check(f.has_point(barn.position) and f.has_point(barn.end) and barn.end.y < game.pen.position.y + 1.0,
+	_check(f.grow(1.0).encloses(barn) and barn.end.y < game.pen.position.y + 1.0,
 			"the barn, the silo and the vane are on the field, above the pen: %s" % str(barn))
 	var vane_top: float = game.barn_origin.y - 14.0 * 4.0
 	_check(vane_top >= f.position.y, "the weather vane is on the field")

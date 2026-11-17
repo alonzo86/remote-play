@@ -260,7 +260,7 @@ func _place_bumper(game: Node) -> void:
 	await _frames(3)
 
 
-## The sheep picture: three sheep are in the pen, the flock is near the gate and the four dogs stand behind it.
+## The sheep picture: three sheep are in the pen (bottom right corner), the flock is near the gate, the four dogs stand behind it.
 func _place_sheep(game: Node) -> void:
 	var flock = game.flock
 	var pen: Rect2 = game.pen
@@ -269,15 +269,15 @@ func _place_sheep(game: Node) -> void:
 		var s = flock.sheep[i]
 		if i < 3:
 			s.penned = true
-			s.pos = pen.position + Vector2(90.0 + 90.0 * float(i), 110.0 + 70.0 * float(i % 2))
+			s.pos = pen.position + Vector2(70.0 + 80.0 * float(i), 110.0 + 70.0 * float(i % 2))
 		else:
 			s.pos = gate + Vector2(-170.0 - 130.0 * float((i - 3) % 3) + 50.0 * sin(float(i) * 2.3),
-					-120.0 + 95.0 * float((i - 3) / 3 % 4) + 40.0 * cos(float(i) * 1.7))
+					-300.0 + 95.0 * float((i - 3) / 3 % 4) + 40.0 * cos(float(i) * 1.7))
 		s.scared = 0.7 if i % 3 == 0 and i >= 3 else 0.0
 		s.vel = Vector2(120.0, 0.0) if s.scared > 0.0 else Vector2.ZERO
 	var slots: Array = game.participants
 	for i in slots.size():
-		game.dogs[slots[i]].pos = gate + Vector2(-620.0 - 40.0 * float(i % 2), -170.0 + 115.0 * float(i))
+		game.dogs[slots[i]].pos = gate + Vector2(-620.0 - 40.0 * float(i % 2), -330.0 + 115.0 * float(i))
 		game.dogs[slots[i]].vel = Vector2(160.0, 0.0)
 	game._glow = 0.3
 	game.set_process(false)   # Freeze the picture.

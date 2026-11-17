@@ -10,7 +10,7 @@ const SheepLook = preload("res://scripts/game/sheep_herding/sheep_look.gd")
 
 const DT := 1.0 / 60.0
 const FIELD := Rect2(60, 152, 1800, 868)
-const PEN := Rect2(1488, 452, 320, 360)
+const PEN := Rect2(1568, 660, 292, 360)
 
 var _checks := 0
 var _fails := 0
@@ -92,13 +92,13 @@ func _fence_and_scenery() -> void:
 	var f := _flock()
 	_check(f.walls.size() == 5, "the fence is 5 pieces: top, bottom, right and the left side in two (the gate between)")
 	var gate := f.gate_center()
-	_check(gate == Vector2(1488, 632), "the gate is in the middle of the left side: %s" % str(gate))
+	_check(gate == Vector2(1568, 840), "the gate is in the middle of the left side: %s" % str(gate))
 	var through := f.resolve(gate + Vector2(10, 0), Vector2.ZERO, SheepFlock.RADIUS)
 	_check(through[0] == gate + Vector2(10, 0), "a sheep fits through the gate of 180 px")
 	var narrow := _flock({"gate": 40.0, "flee": 260.0, "speed": 270.0})
 	var stuck: Array = narrow.resolve(gate + Vector2(14, 0), Vector2.ZERO, SheepFlock.RADIUS)
 	_check(stuck[0] != gate + Vector2(14, 0), "a gate narrower than a sheep (40 px) holds the sheep back")
-	var wall_hit := f.resolve(Vector2(1500, 470), Vector2(0, -300), SheepFlock.RADIUS)
+	var wall_hit := f.resolve(Vector2(1600, 670), Vector2(0, -300), SheepFlock.RADIUS)
 	_check(wall_hit[0].y >= PEN.position.y + SheepFlock.WALL - 1.0 or wall_hit[0].y <= PEN.position.y - SheepFlock.RADIUS + 1.0,
 			"a sheep on the fence is pushed out of it: %s" % str(wall_hit[0]))
 	var blockers: Array[Dictionary] = [{"pos": Vector2(500, 500), "r": 40.0}]
@@ -307,12 +307,12 @@ func _the_pen() -> void:
 	_check(s.penned and s.scared == 0.0 and inner.grow(1.0).has_point(s.pos) and s.vel.length() <= SheepFlock.GRAZE_SPEED + 0.01,
 			"a sheep in the pen stays inside, does not run, and dogs do not scare it")
 	var wall := _flock()
-	var out_of_gate := _sheep_at(wall, Vector2(1490, 480))
+	var out_of_gate := _sheep_at(wall, Vector2(1566, 700))
 	out_of_gate.vel = Vector2(150, 0)
 	wall.tick(DT, {}, _rng(1))
 	_check(not out_of_gate.penned, "a sheep at the fence outside the gate (above the opening) is not in the pen")
 	var dropped := _flock()
-	var inside := _sheep_at(dropped, Vector2(1600, 640))
+	var inside := _sheep_at(dropped, Vector2(1700, 760))
 	dropped.tick(DT, {}, _rng(1))
 	_check(inside.penned, "a sheep whose middle is inside the pen is counted")
 	var full := _flock()
@@ -331,8 +331,8 @@ func _the_pen() -> void:
 ## The things around the field (REQ-SH-3, 16).
 func _scenery() -> void:
 	print("the scenery")
-	var free: Array[Rect2] = [Rect2(60, 152, 280, 868), Rect2(440, 312, 560, 548), Rect2(440, 482, 1048, 300), PEN.grow(120)]
-	var clear: Array[Rect2] = [PEN.grow(40), Rect2(1424, 220, 304, 248)]
+	var free: Array[Rect2] = [Rect2(60, 152, 280, 868), Rect2(440, 312, 560, 548), Rect2(440, 690, 1128, 300), PEN.grow(120)]
+	var clear: Array[Rect2] = [PEN.grow(40), Rect2(1552, 420, 308, 240)]
 	var a := SheepScenery.new()
 	a.generate(FIELD, free, clear, _rng(5))
 	var counts := {}
@@ -430,7 +430,8 @@ func _pictures() -> void:
 	_check(tree.get_pixel(0, 0).a == 0.0 and tree.get_pixel(12, tree.get_height() - 3).is_equal_approx(Color("6b4420"))
 			and tree.get_pixel(12, tree.get_height() - 2) == SheepLook.OUTLINE, "a tree stands on its trunk, with a black line around it")
 	var blocks := SheepLook.barn_blocks(Vector2(1000, 200))
-	_check(blocks.size() == 2 and blocks[0].size == Vector2(224, 128) and blocks[1].size.y == 152.0,
+	_check(blocks.size() == 2 and blocks[0].size == Vector2(248, 128) and blocks[1].size.y == 160.0
+			and blocks[0].end.x == 1000.0 + 236.0 and blocks[0].end.y == blocks[1].end.y,
 			"the barn blocks its walls and the silo")
 
 

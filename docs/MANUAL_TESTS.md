@@ -85,7 +85,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 2 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R9 | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 2 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Partial (see the result table) | R9 | |
 | [28](#test-28) | Mole Bonk (pointer, bonk, moles, difficulty) | 1 to 2 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R9 | |
-| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 2 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R10 | |
+| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 2 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R10 | |
 | [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 2 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
 | [31](#test-31) | Freeze Dance (wiggle, freeze, difficulty) | 1 to 2 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
 | [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
@@ -98,7 +98,7 @@ Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The 
 
 Moved from `CLAUDE.md` on 2026-10-31 (issue #312). Brought in line with the Results tables on 2026-11-01. The Sababi Test Tracker holds the live results; the Results tables of each test are the source for this table.
 
-Tests the user has to run now (status on 2026-11-17 after run R10; the list is in the order to do them. Open failure: step 3c of Test 19 (issue #470: a phone set to Hebrew shows the place and the time unit in English); the Tennis tile (Test 25 step 1b) passed in R10). Tests 4 and 24 have no manual step since 2026-11-17 (the owner's decision of issue #458: no manual step reads the debug overlay; their History says which automated tests cover them), so they are not in the table; issue #437 (RTT of Test 4), issue #386 (a run on a TV box) and issue #209 (the swing detector on a device) have no manual test now. Tests 1, 2, 3, 6, 8, 8b, 9, 10, 11, 14, 15, 17, 18, 21, 25, 26, 28, 29, 30 and 32 have no open step (all steps Pass), so they are not in the table; run them again only when their area changes. Tests 13 and 33 (iPhone) are for the next release (iOS, issue #415): they are at the end of the table and are not run for the first (Android) release:
+Tests the user has to run now (status on 2026-11-17 after run R10; the list is in the order to do them. Open failure: step 3c of Test 19 (issue #470: a phone set to Hebrew shows the place and the time unit in English); the Tennis tile (Test 25 step 1b) passed in R10). Tests 4 and 24 have no manual step since 2026-11-17 (the owner's decision of issue #458: no manual step reads the debug overlay; their History says which automated tests cover them), so they are not in the table; issue #437 (RTT of Test 4), issue #386 (a run on a TV box) and issue #209 (the swing detector on a device) have no manual test now. Tests 1, 2, 3, 6, 8, 8b, 9, 10, 11, 14, 15, 17, 18, 21, 25, 26, 28, 30 and 32 have no open step (all steps Pass), so they are not in the table; run them again only when their area changes. Tests 13 and 33 (iPhone) are for the next release (iOS, issue #415): they are at the end of the table and are not run for the first (Android) release:
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
@@ -109,6 +109,7 @@ Tests the user has to run now (status on 2026-11-17 after run R10; the list is i
 | 22 | **Open: items 12b** (after run R9 of 2026-11-17; 14 of 15 steps are Pass or N/A in the Results table). | Star Shield was added on 2026-10-16 (`docs/games/asteroid_blast.md`). Needed before it is merged. All values (speeds, waves, upgrade times), the pictures, the song, the effects and the Hebrew text are first guesses |
 | 20 | **Open: items 9a, 14b** (after run R10 of 2026-11-17; 12 of 14 steps are Pass, N/A or Removed in the Results table). | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). Needed before it is merged. The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
 | 19 | **Open: items 3c** (after run R10 of 2026-11-17; 11 of 12 steps are Pass or N/A in the Results table). Step 3c failed (issue #470). | The row of 4 player chips wrapped and covered the play area (issue #25). Replaced on 2026-10-10 (FD-21, REQ-FL-67, REQ-GM-46; the name tags of the countdown were removed on 2026-10-21 by decision of the owner). Needed before it is merged. The sizes are first guesses |
+| 29 | **Open: items 1, 2a, 4, 6a, 8c, 10b, 10c, 10h, 11a, 11b** (after the layout change of 2026-11-17; 10 of 20 steps are Pass in the Results table, the 8 steps that depend on the pen or the edges are Not run again, 2 steps are new). | The pen moved to the bottom right corner with the barn on it, and no dog or sheep can leave the grass or wedge in a wall (REQ-SH-22, REQ-SH-23; owner request of 2026-11-17). The R10 results of these steps were for the old layout. The tile of the game was made again. |
 | 16 | **Open: items 6b2** (after run R7 of 2026-11-10; 11 of 12 steps are Pass or N/A in the Results table). | Phase 1 of `docs/ARCADE_STYLE_PLAN.md` was built on 2026-10-10. Needed before it is merged. The games are in the pixel style too (phases 2 to 4 are built). All sizes and values come from the plan |
 | 7 | **Open: items 6a, 6b, 9a, 9b** (after run R10 of 2026-11-17; 17 of 21 steps are Pass or N/A in the Results table). | R1 found that a phone without Wi-Fi did not pause the game, and that a phone call ended the game with no way to resume. Fixed and changed on 2026-10-09 (REQ-GM-30, 30a) |
 | 8 | **Open: item 6b** (changed 2026-11-10, issue #435: Back on the phone in a game asks the TV "End the game?"; the other steps are Pass in R3 to R5). | Back on the pad in a game no longer opens QUIT SABABI APP? on the phone (REQ-FL-52c, REQ-FL-55). Needs a phone and the real Android Back key |
@@ -1565,8 +1566,8 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 
 **Steps**
 
-1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the sheep, a dog, the pen with its fence, and the barn.
-2a. From 3 m, a tester points at the gate of the pen. Check: the finger points at the gap in the left fence (5 of 5 testers).
+1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the sheep, a dog, the pen with its fence in the bottom right corner of the grass, and the barn on top of the pen.
+2a. From 3 m, a tester points at the gate of the pen. Check: the finger points at the gap in the left fence of the pen in the bottom right corner (5 of 5 testers).
 4. Play alone on Easy, an adult. Check: the adult herds all 8 sheep into the pen in 90 s or less, in 2 of 3 rounds.
 6a. Play with 2 phones on Medium, 2 adults, who talk to each other. Check: the 2 adults herd all 11 sheep into the pen in 75 s or less, in 2 of 3 rounds.
 8a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own dog (the one in the color of its phone) within 10 s after GO.
@@ -1576,13 +1577,15 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 9a. Open the settings view and read the how-to line under the name, then play 1 round. Check: a tester can tell what to do (tilt the phone, bring all the sheep into the pen) without more help (3 of 3 testers).
 9b. A native reader of Hebrew reads the 7 new texts of the game (the 7 rows of `assets/lang/strings.csv` that start with `sheep_herding.`, `registry.sheep_herding`, `registry.desc_sheep_herding` and `how_to.sheep_herding`) on the TV set to Hebrew. Check: the reader marks 0 texts as wrong and 0 texts as cut.
 10a. Tilt the phone 15 degrees to one side and hold it for 5 s; record the TV with the phone camera (60 fps or more). Check: the dog crosses the full width of the screen (1920 px) in 4.3 s or more in each of 3 tries (the speed limit is 440 px/s), and with the phone laid flat and still for 10 s the dog moves less than one dog length (80 px). (REQ-SH-11)
-10b. Tilt the phone flat after a hold of 3 s, and tilt the dog into each of the 4 edges for 3 s. Check: the dog stops within 2 s after the phone is flat (3 of 3 tries), and the dog stays fully inside the field at each edge and comes back softly (4 of 4 edges). (REQ-SH-11)
+10b. Tilt the phone flat after a hold of 3 s, and tilt the dog into each of the 4 edges for 3 s. Check: the dog stops within 2 s after the phone is flat (3 of 3 tries), and the whole picture of the dog stays on the grass at each edge, with none of it on the black margin, and the dog comes back softly (4 of 4 edges). (REQ-SH-11, REQ-SH-22)
 10c. With 2 phones, drive the two dogs into each other 5 times. Check: each touch plays one sound only (5 of 5 touches, no double sound) and the dogs move apart without a jump (5 of 5). (REQ-SH-11)
 10d. Play a round with 2 phones and hold both phones. Check: both phones buzz at GO, and a tester with a phone in the hand says that the GO buzz is shorter than the buzz at the end of a round in which all sheep are in (2 of 2 phones, 60 ms against 400 ms). (REQ-SH-12)
 10e. Herd 5 sheep into the pen one after another with dog A (the phone of A in your hand, the phone of B on the table). Check: the phone of A buzzes shortly for each sheep that walks in (5 of 5 sheep) and the phone of B does not buzz for them (0 of 5). (REQ-SH-12)
 10f. Play a round with 2 phones. Turn the Wi-Fi of one phone off and note the time on the TV. Check: the card of a lost phone shows within 5 s, the time of the round changes by 1 s or less in the next 10 s, and after the Wi-Fi is on again and Resume is chosen the round goes on (3 of 3). Look at the pad of both phones: no RECENTER box and no A or B (2 of 2 phones). (REQ-SH-14, REQ-GM-30)
 10g. Hold the phone tilted 15 degrees to the right during the countdown and keep that angle for 5 s after GO. Check: the dog moves less than one dog length (80 px) in the 5 s after GO (2 of 2 tries). (REQ-SH-14)
-10h. From 3 m, a tester points at: a dog, a sheep, the pen, the gate posts and the path of sand dots to the gate. Check: 5 of 5 right for each of 3 testers (3 of 3 testers). Then you make one sheep calm and one run. Check: the tester says which sheep is running (the one with three speed dashes) in 5 of 5 tries. Read aloud the timer and the title: no error. (REQ-SH-15)
+10h. From 3 m, a tester points at: a dog, a sheep, the pen in the bottom right corner, the gate posts and the path of sand dots to the gate. Check: 5 of 5 right for each of 3 testers (3 of 3 testers). Then you make one sheep calm and one run. Check: the tester says which sheep is running (the one with three speed dashes) in 5 of 5 tries. Read aloud the timer and the title: no error. (REQ-SH-15)
+11a. Play 2 rounds on Hard with 2 phones. In each round drive the two dogs into every edge and every corner of the field (also into the pen corner and the barn) and herd for 60 s. Check: no dog and no sheep is ever drawn, even in part, on the black margin around the grass (0 of 2 rounds). (REQ-SH-22)
+11b. Same 2 rounds, and one round on Easy alone. Check: a sheep that no dog is near is never held against the barn, the fence or an edge for more than 10 s (0 sheep in 3 rounds), and at the end every sheep is in the pen or free in the open field. (REQ-SH-23)
 
 Items 2b, 3a, 3b, 5a, 5b and 6b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-29-*). The numbers of the other items do not change.
 
@@ -1592,26 +1595,29 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1 | Photo of the tile next to a photo of the game | Pass | R10 |  | R10: Pass |
-| 2a | Note: right answers of 5 | Pass | R10 |  | R10: Pass |
-| 4 | Note: sheep and seconds in each of 3 rounds | Pass | R10 |  | R10: Pass |
-| 6a | Note: sheep and seconds in each of 3 rounds | Pass | R10 |  | R10: Pass |
+| 1 | Photo of the tile next to a photo of the game | Not run |  |  | R10: Pass on the old layout (pen at the right, pen 52 px from the right edge, in the middle of the height). Run again on the new layout (pen in the bottom right corner, 2026-11-17). |
+| 2a | Note: right answers of 5 | Not run |  |  | R10: Pass on the old layout (pen at the right, pen 52 px from the right edge, in the middle of the height). Run again on the new layout (pen in the bottom right corner, 2026-11-17). |
+| 4 | Note: sheep and seconds in each of 3 rounds | Not run |  |  | R10: Pass on the old layout (pen at the right, pen 52 px from the right edge, in the middle of the height). Run again on the new layout (pen in the bottom right corner, 2026-11-17). |
+| 6a | Note: sheep and seconds in each of 3 rounds | Not run |  |  | R10: Pass on the old layout (pen at the right, pen 52 px from the right edge, in the middle of the height). Run again on the new layout (pen in the bottom right corner, 2026-11-17). |
 | 8a | Note: the child, the age, seconds until it points | Pass | R10 |  | R10: Pass |
 | 8b | Note: seconds until the sheep runs | Pass | R10 |  | R10: Pass |
-| 8c | Note: sheep in the pen | Pass | R10 |  | R10: Pass |
+| 8c | Note: sheep in the pen | Not run |  |  | R10: Pass on the old layout (pen at the right, pen 52 px from the right edge, in the middle of the height). Run again on the new layout (pen in the bottom right corner, 2026-11-17). |
 | 8d | Note: the answer of the child | Pass | R10 |  | R10: Pass |
 | 9a | Note: answers of each tester | Pass | R10 |  | R10: Pass |
 | 9b | Note: the texts that the reader marks, with the reason | Pass | R10 |  | R10: Pass |
 | 10a | Video; note: the 3 crossing times; the movement in 10 s | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
-| 10b | Video; note: stop times (3), edges (of 4) | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
-| 10c | Note: touches with one sound (of 5) | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
+| 10b | Video; note: stop times (3), edges (of 4) | Not run |  |  | R10: Pass on the old layout (pen at the right, the barn 32 px above the pen, the dogs and sheep could reach the margin). Run again on the new layout (pen in the bottom right corner, 2026-11-17). Added 2026-10-31 (issue #306). |
+| 10c | Note: touches with one sound (of 5) | Not run |  |  | R10: Pass on the old layout (pen at the right, the barn 32 px above the pen, the dogs and sheep could reach the margin). Run again on the new layout (pen in the bottom right corner, 2026-11-17). Added 2026-10-31 (issue #306). |
 | 10d | Note: phones that buzzed at GO (of 2); phones that felt a longer final buzz (of 2) | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
 | 10e | Note: buzzes of phone A (of 5), buzzes of phone B (of 5) | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
 | 10f | Photo of the card; note: the time before and 10 s after; photo of the pad | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
 | 10g | Video; note: the movement in px | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
-| 10h | Note: answers of each tester; errors in reading | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
+| 10h | Note: answers of each tester; errors in reading | Not run |  |  | R10: Pass on the old layout (pen at the right, pen 52 px from the right edge, in the middle of the height). Run again on the new layout (pen in the bottom right corner, 2026-11-17). Added 2026-10-31 (issue #306). |
+| 11a | Video; note: rounds with a dog or a sheep on the margin (of 2) | Not run |  |  | New (2026-11-17, REQ-SH-22). |
+| 11b | Note: sheep held against a wall for more than 10 s (of 3 rounds) | Not run |  |  | New (2026-11-17, REQ-SH-23). |
 
 History:
+- 2026-11-17 (layout change, owner request): the pen moved to the bottom right corner with the barn on it, and nothing can leave the grass (REQ-SH-22, REQ-SH-23). Steps 1, 2a, 4, 6a, 8c, 10b, 10c and 10h are Not run again (their R10 Pass was for the old layout, kept in their Notes); the new steps 11a and 11b are Not run. Steps 8a, 8b, 8d, 9a, 9b, 10a, 10d, 10e, 10f and 10g stay Pass (R10): they do not depend on the pen or the edges.
 - 2026-11-17 (recorded; R10 in the tracker): Pass: steps 1, 2a, 4, 6a, 8a, 8b, 8c, 8d, 9a, 9b, 10a, 10b, 10c, 10d, 10f, 10e, 10g, 10h. The result is for the layout before the pen moved to a corner (issue of 2026-11-17); the steps that the new layout changes are set to Not run in that change.
 - 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 7) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-29-7, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
