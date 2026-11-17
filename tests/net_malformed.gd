@@ -159,6 +159,12 @@ func _client_fields() -> void:
 		c._handle({"t": "final", "v": bad}, now)
 		_check(c.final_text.length() <= 60 and not c.final_text.contains("\n") and not c.final_text.contains("\u0007")
 				and (c.final_text == "" or bad is String), "a final line with a bad value is empty or clean: %s" % str(c.final_text.left(12)))
+	for part in ["g", "p", "s", "m"]:   # The pieces of the result: the same bad values, no error, empty or clean.
+		for bad in [{}, [1], null, "x".repeat(100000), "A\nB\tC\u0007D"]:
+			c._handle({"t": "final", "v": "1ST   A   1", part: bad}, now)
+			var got: String = {"g": c.final_game, "p": c.final_place, "s": c.final_score, "m": c.final_medal}[part]
+			_check(got.length() <= 60 and not got.contains("\n") and not got.contains("\u0007") and (got == "" or bad is String)
+					and (part != "m" or got == ""), "final piece %s with a bad value is empty or clean: %s" % [part, str(got.left(12))])
 	c._handle({"t": "final"}, now)
 	_check(c.final_text == "", "a final without a value is an empty line")
 	c._handle({"t": "final", "v": "A\nB"}, now)

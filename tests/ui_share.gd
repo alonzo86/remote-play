@@ -229,12 +229,11 @@ func _new_best() -> void:
 	c.result_received.emit("paint_grab|easy", 100)
 	_check(_app.last_best.value == 340 and who.bests["paint_grab|easy"] == 340, "a worse result changes nothing")
 	_check(_app.current_best().value == 340, "the pad shows the best of this player while the result menu is open")
-	var line: String = _app.ControllerPad.best_line(_app.current_best())
-	_check(line == "NEW BEST! 340  BEFORE: 300", "the pad line: %s" % line)
-	_check(_app.ControllerPad.best_game_name({"key": "paint_grab|easy"}) == "PAINT GRAB"
-			and _app.ControllerPad.best_game_name({"key": "bowling|easy"}) == "BOWLING"
-			and _app.ControllerPad.best_game_name({"key": "asteroid_blast|hard"}) == "STAR SHIELD",
-			"the pad writes the name of the game of the best above the line (also when the key id differs from the title)")
+	var line: Array[String] = _app.ControllerPad.line3_lines("340", not _app.current_best().is_empty(), 960.0)
+	_check(line == ["NEW BEST! 340"], "line 3 of the pad result: NEW BEST! and the value, no old best: %s" % str(line))
+	_check(_app.ControllerPad.game_name("paint_grab") == "PAINT GRAB" and _app.ControllerPad.game_name("bowling") == "BOWLING"
+			and _app.ControllerPad.game_name("asteroid_blast") == "STAR SHIELD" and _app.ControllerPad.game_name("nope") == "",
+			"the pad writes the name of the game from its registry id (also when the id differs from the title); an unknown id has none")
 	c.phase = "paused"
 	_check(not _app.current_best().is_empty(), "a paused result menu still shows it")
 	var other_pid: String = c.pid
