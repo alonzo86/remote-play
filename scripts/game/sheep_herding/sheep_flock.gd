@@ -1,8 +1,10 @@
 extends RefCounted
 ## The sheep of Sheep Herding and the fence around them (REQ-SH-4 to 12). Pure logic, no nodes and no drawing. Units: px and
 ## seconds, on the 1920 x 1080 screen (REQ-GM-13: `dt` only). A sheep keeps away from a dog that comes close, stays with its
-## friends a little, grazes when no dog is near, and cannot walk through a blocker (a pond, a rock, a tree, a hay stack), the
-## barn or the fence of the pen. A sheep that walks in through the gate is in the pen for good (REQ-SH-6); nothing hurts it.
+## friends a little, grazes when no dog is near, and cannot walk through the barn, the fence of the pen or the edge of the field.
+## The things around the field (a pond, a rock, a tree, a hay stack) are only scenery: nothing walks into them, but they are
+## where the sheep and dogs do not start (REQ-SH-4). A scared sheep is helped toward the gate by the difficulty (REQ-SH-21).
+## A sheep that walks in through the gate is in the pen for good (REQ-SH-6); nothing hurts it.
 
 const RADIUS := 28.0              # A sheep is about 72 x 56 px on the screen (REQ-GM-47e).
 const FLEE_ACCEL := 2600.0        # px/s2 for a dog right next to the sheep. It falls to 0 at the flee radius.
@@ -34,14 +36,15 @@ var field := Rect2()
 var pen := Rect2()               # The outside of the pen, the fence included.
 var gate := 180.0                # The height of the gap in the left fence.
 var walls: Array[Rect2] = []     # The fence, and the barn.
-var blockers: Array[Dictionary] = []   # {pos: Vector2, r: float}
+var blockers: Array[Dictionary] = []   # {pos: Vector2, r: float}: the scenery. Sheep do not start on it; it never blocks.
 var sheep: Array[Sheep] = []
 var flee_radius := 260.0
 var run_speed := 270.0
+var assist := 0.0                # 0 to 1: how much of the flee force of a scared sheep turns toward the gate (REQ-SH-21).
 var events: Array[Dictionary] = []   # What happened in the last `tick()`: {t: "startled" | "penned", i, slot, pos}.
 
 
-## `params`: gate (px), flee (px), speed (px/s). The fence is built from `pen_rect` and `gate`.
+## `params`: gate (px), flee (px), speed (px/s), assist (0 to 1, optional). The fence is built from `pen_rect` and `gate`.
 func setup(field_rect: Rect2, pen_rect: Rect2, params: Dictionary, p_blockers: Array[Dictionary],
 		extra_walls: Array[Rect2]) -> void:
 	field = field_rect
@@ -49,6 +52,7 @@ func setup(field_rect: Rect2, pen_rect: Rect2, params: Dictionary, p_blockers: A
 	gate = float(params.gate)
 	flee_radius = float(params.flee)
 	run_speed = float(params.speed)
+	assist = clampf(float(params.get("assist", 0.0)), 0.0, 1.0)
 	blockers = p_blockers
 	walls = _fence()
 	walls.append_array(extra_walls)
@@ -143,7 +147,8 @@ func _tick_free(i: int, s: Sheep, dt: float, dogs: Dictionary, rng: RandomNumber
 		if dist >= flee_radius:
 			continue
 		var away := d / dist if dist > 0.001 else Vector2.RIGHT
-		force += away * FLEE_ACCEL * (1.0 - dist / flee_radius)   # The closer the dog, the harder the sheep runs.
+		var push := FLEE_ACCEL * (1.0 - dist / flee_radius)   # The closer the dog, the harder the sheep runs.
+		force += away * push + _assist_dir(s.pos, away) * push * assist
 		if dist < nearest:
 			nearest = dist
 			nearest_slot = int(slot)
@@ -171,6 +176,16 @@ func _tick_free(i: int, s: Sheep, dt: float, dogs: Dictionary, rng: RandomNumber
 		s.hop = HOP_TIME
 		s.scared = 0.0
 		events.append({"t": "penned", "i": i, "slot": s.last_dog, "pos": s.pos})
+
+
+## The way a scared sheep is helped (REQ-SH-21): toward the gate, but never toward the dog. The part of the way to the gate that
+## points at the dog is dropped, so a dog in front makes the sheep slide to the side and not run into the dog.
+func _assist_dir(pos: Vector2, away: Vector2) -> Vector2:
+	if assist <= 0.0:
+		return Vector2.ZERO
+	var to_gate := (gate_center() - pos).normalized()
+	var toward_dog := to_gate.dot(away)
+	return to_gate - away * toward_dog if toward_dog < 0.0 else to_gate
 
 
 ## A sheep that nobody scares walks a little in one direction and then stands still, and picks a new way.
@@ -238,17 +253,9 @@ func _separate() -> void:
 				sb.pos = resolve(sb.pos, sb.vel, RADIUS)[0]
 
 
-## Moves a circle out of the blockers, the fence, the barn and the edge of the field. Returns `[pos, vel]`: the speed that goes
-## into a wall is turned back a little. It is used for the sheep and for the dogs.
+## Moves a circle out of the fence, the barn and the edge of the field (not the scenery, REQ-SH-4). Returns `[pos, vel]`:
+## the speed that goes into a wall is turned back a little. It is used for the sheep and for the dogs.
 func resolve(pos: Vector2, vel: Vector2, r: float) -> Array:
-	for b in blockers:
-		var d: Vector2 = pos - b.pos
-		var reach: float = float(b.r) + r
-		var dist := d.length()
-		if dist < reach:
-			var n := d / dist if dist > 0.001 else Vector2.UP
-			pos += n * (reach - dist)
-			vel = _bounce(vel, n)
 	for w in walls:
 		var push := push_out_of_rect(pos, r, w)
 		if push != Vector2.ZERO:

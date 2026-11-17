@@ -31,12 +31,12 @@ const TIMER_W := Shell.TIMER_W
 const CHIP_W := 280.0
 const CONFETTI_COUNT := 70
 ## Difficulty (REQ-SH-17): the number of sheep, how far a dog scares a sheep, how fast a scared sheep
-## runs, the gate, the time of the
-## round. First guesses (Test 26). The number of dogs changes nothing.
+## runs, the gate, the time of the round, and how much a scared sheep is helped toward the gate (REQ-SH-21).
+## First guesses (Test 29). The number of dogs changes nothing.
 const LEVELS := {
-	"easy": {"sheep": 8, "flee": 220.0, "speed": 230.0, "gate": 220.0, "time": 90.0},
-	"medium": {"sheep": 11, "flee": 260.0, "speed": 270.0, "gate": 180.0, "time": 75.0},
-	"hard": {"sheep": 14, "flee": 300.0, "speed": 320.0, "gate": 150.0, "time": 60.0},
+	"easy": {"sheep": 8, "flee": 220.0, "speed": 230.0, "gate": 220.0, "time": 90.0, "assist": 0.8},
+	"medium": {"sheep": 11, "flee": 260.0, "speed": 270.0, "gate": 180.0, "time": 75.0, "assist": 0.45},
+	"hard": {"sheep": 14, "flee": 300.0, "speed": 320.0, "gate": 150.0, "time": 60.0, "assist": 0.0},
 }
 ## Where the dogs start (the share of the height of the field, on the left edge), for 1 to 4 dogs.
 const START_Y := [[0.5], [0.3, 0.7], [0.2, 0.5, 0.8], [0.15, 0.38, 0.62, 0.85]]
@@ -157,7 +157,7 @@ func _tick_dogs(delta: float) -> void:
 	for s in dogs:
 		var b: TiltBody = dogs[s]
 		b.step(delta, player(s).tilt(), field)
-		var fixed := flock.resolve(b.pos, b.vel, b.radius)   # A dog walks around the pond, the trees and the fence.
+		var fixed := flock.resolve(b.pos, b.vel, b.radius)   # A dog walks around the fence and the barn, and over the scenery.
 		b.pos = fixed[0]
 		b.vel = fixed[1]
 		if absf(b.vel.x) > 20.0:

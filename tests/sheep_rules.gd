@@ -1,5 +1,5 @@
 extends SceneTree
-## The rules of Sheep Herding, without a screen: the fence and the blockers, how a sheep runs from a
+## The rules of Sheep Herding, without a screen: the fence and the scenery, how a sheep runs from a
 ## dog, grazes and stays with its
 ## friends, the pen, the things around the field, the pictures and the difficulty (REQ-SH-2 to 4, 7, 8, 10, 15 to 18).
 ## Run: godot --headless --path . --script tests/sheep_rules.gd -- --role=controller
@@ -30,7 +30,7 @@ func _initialize() -> void:
 		quit(1)
 		return
 	_rect_push()
-	_fence_and_blockers()
+	_fence_and_scenery()
 	_spawn()
 	_running_away()
 	_grazing_and_flock()
@@ -85,9 +85,10 @@ func _rect_push() -> void:
 			"at a corner the push is along the line from the corner")
 
 
-## The fence has a gate, a sheep cannot walk through a blocker, the fence or the edge, and keeps part of its speed (REQ-SH-4).
-func _fence_and_blockers() -> void:
-	print("the fence and the blockers")
+## The fence has a gate; a sheep cannot walk through the fence or the edge and keeps part of its speed; scenery does not block
+## (REQ-SH-4).
+func _fence_and_scenery() -> void:
+	print("the fence and the scenery")
 	var f := _flock()
 	_check(f.walls.size() == 5, "the fence is 5 pieces: top, bottom, right and the left side in two (the gate between)")
 	var gate := f.gate_center()
@@ -102,21 +103,16 @@ func _fence_and_blockers() -> void:
 			"a sheep on the fence is pushed out of it: %s" % str(wall_hit[0]))
 	var blockers: Array[Dictionary] = [{"pos": Vector2(500, 500), "r": 40.0}]
 	var g := _flock({"gate": 180.0, "flee": 260.0, "speed": 270.0}, blockers)
-	var hit := g.resolve(Vector2(520, 500), Vector2(-200, 0), SheepFlock.RADIUS)
-	_check(hit[0].distance_to(Vector2(500, 500)) >= 40.0 + SheepFlock.RADIUS - 0.01 and hit[1].x > -200.0,
-			"a sheep in a blocker is pushed out, and the speed into it is turned back a little: %s" % str(hit))
-	var tight := g.resolve(Vector2(500, 500), Vector2.ZERO, SheepFlock.RADIUS)
-	_check(tight[0].distance_to(Vector2(500, 500)) >= 40.0 + SheepFlock.RADIUS - 0.01,
-			"a sheep exactly in the middle of a blocker leaves it")
+	var over := g.resolve(Vector2(520, 500), Vector2(-200, 0), SheepFlock.RADIUS)
+	_check(over[0] == Vector2(520, 500) and over[1] == Vector2(-200, 0),
+			"scenery (a tree, the pond) does not block a sheep or a dog: it walks over it (REQ-SH-4): %s" % str(over))
 	var edge := g.resolve(Vector2(10, 10), Vector2(-100, -100), 30.0)
 	_check(edge[0] == FIELD.position + Vector2(30, 30), "the edge of the field keeps a circle inside: %s" % str(edge[0]))
 	var free := g.resolve(Vector2(800, 400), Vector2(50, 20), 30.0)
 	_check(free[0] == Vector2(800, 400) and free[1] == Vector2(50, 20), "a circle in free space is not changed")
-	var away := g.resolve(Vector2(520, 500), Vector2(200, 0), SheepFlock.RADIUS)
-	_check(away[1] == Vector2(200, 0), "a speed that goes away from the blocker is kept")
 
 
-## The flock starts apart from each other and from the blockers, the same for the same seed (REQ-SH-2).
+## The flock starts apart from each other and from the scenery, the same for the same seed (REQ-SH-2).
 func _spawn() -> void:
 	print("the start of the flock")
 	var blockers: Array[Dictionary] = [{"pos": Vector2(700, 600), "r": 80.0}]
@@ -130,7 +126,7 @@ func _spawn() -> void:
 		inside = inside and area.has_point(f.sheep[i].pos) and f.sheep[i].pos.distance_to(Vector2(700, 600)) >= 80.0 + SheepFlock.RADIUS
 		for j in range(i + 1, f.sheep.size()):
 			apart = apart and f.sheep[i].pos.distance_to(f.sheep[j].pos) >= 2.0 * SheepFlock.RADIUS
-	_check(apart and inside, "the sheep do not overlap and stand outside the blocker")
+	_check(apart and inside, "the sheep do not overlap and do not start on the scenery")
 	var h := _flock({"gate": 180.0, "flee": 260.0, "speed": 270.0}, blockers)
 	h.spawn(11, area, _rng(4))
 	var same := true
@@ -141,6 +137,41 @@ func _spawn() -> void:
 	crowded.spawn(40, Rect2(440, 312, 200, 200), _rng(1))
 	_check(crowded.sheep.size() < 40, "a crowded start places fewer sheep and does not hang: %d" % crowded.sheep.size())
 	_check(not _flock().all_penned(), "a field without sheep is not full")
+
+
+## The help toward the gate (REQ-SH-21): a scared sheep is turned toward the gate by `assist`, and never toward the dog.
+func _assist() -> void:
+	print("the help toward the gate")
+	var p := {"gate": 180.0, "flee": 260.0, "speed": 270.0}
+	var gate_y := PEN.position.y + PEN.size.y * 0.5
+	var at := Vector2(600, gate_y + 200.0)   # Below the line to the gate: the gate is up and to the right.
+	var dog := {0: at + Vector2(-120, 0)}    # The dog is at its left: running away is to the right.
+	var plain := _flock(p)
+	var plain_s := _sheep_at(plain, at)
+	plain.tick(DT, dog, _rng(3))
+	var helped := _flock(p.merged({"assist": 0.8}))
+	var helped_s := _sheep_at(helped, at)
+	helped.tick(DT, dog, _rng(3))
+	_check(plain_s.vel.y == 0.0, "without help a sheep runs straight away from the dog: %s" % str(plain_s.vel))
+	_check(helped_s.vel.y < -1.0 and helped_s.vel.x > 0.0, "with help it also turns toward the gate: %s" % str(helped_s.vel))
+	var front := _flock(p.merged({"assist": 1.0}))
+	var front_s := _sheep_at(front, Vector2(1000, gate_y))   # The dog is between the sheep and the gate.
+	front.tick(DT, {0: Vector2(1100, gate_y)}, _rng(3))
+	_check(front_s.vel.x < 0.0, "help never pushes a sheep toward the dog: %s" % str(front_s.vel))
+	var mid := _flock(p.merged({"assist": float(_level_table().medium.assist)}))
+	var mid_s := _sheep_at(mid, at)
+	mid.tick(DT, dog, _rng(3))
+	_check(mid_s.vel.y < -1.0 and absf(mid_s.vel.y) < absf(helped_s.vel.y),
+			"Medium helps less than Easy: %s against %s" % [str(mid_s.vel), str(helped_s.vel)])
+	var two := _flock(p.merged({"assist": 0.8}))
+	var two_s := _sheep_at(two, at)
+	two.tick(DT, {0: at + Vector2(-120, 0), 1: at + Vector2(-100, 60)}, _rng(3))
+	_check(two_s.vel.x > 0.0 and two_s.vel.y < 0.0 and two_s.vel.y > -two_s.vel.x * 3.0,
+			"with two dogs the help adds up and the sheep still runs away: %s" % str(two_s.vel))
+	var calm := _flock(p.merged({"assist": 1.0}))
+	var calm_s := _sheep_at(calm, at)
+	calm.tick(DT, {0: Vector2(0, 0)}, _rng(3))
+	_check(calm_s.scared == 0.0 and calm_s.vel.length() <= SheepFlock.GRAZE_SPEED, "no dog near: no help, the sheep grazes")
 
 
 ## A sheep runs from a dog (REQ-SH-7).
@@ -186,6 +217,7 @@ func _running_away() -> void:
 		hard_f.tick(DT, {0: hard_s.pos - Vector2(80, 0)}, _rng(5))
 	_check(hard_s.vel.length() > 270.0 and hard_s.vel.length() <= 320.01,
 			"on Hard a sheep runs faster than on Medium: %.0f" % hard_s.vel.length())
+	_assist()
 	var cornered := _flock()
 	var c := _sheep_at(cornered, FIELD.position + Vector2(40, 40))
 	for i in 120:
@@ -314,7 +346,7 @@ func _scenery() -> void:
 		for r in free:
 			if r.grow(float(b.r)).has_point(b.pos):
 				blocker_ok = false
-	_check(blocker_ok, "no blocker stands in the start strip, the start of the sheep, the way to the gate or near the pen")
+	_check(blocker_ok, "no scenery circle stands in the start strip, the start of the sheep, the way to the gate or near the pen")
 	var clear_ok := true
 	for it in a.items:
 		for r in clear:
@@ -346,7 +378,7 @@ func _scenery() -> void:
 	for blk in a.blockers:
 		if is_equal_approx(float(blk.r), 58.0):
 			pond_blockers += 1
-	_check(pond_blockers == 3, "the pond blocks with three circles along its length")
+	_check(pond_blockers == 3, "the pond has three circles along its length (they only keep the start clear)")
 	var wanted := 0
 	for kind in SheepScenery.KINDS:
 		wanted += int(SheepScenery.KINDS[kind].count)
@@ -402,10 +434,15 @@ func _pictures() -> void:
 			"the barn blocks its walls and the silo")
 
 
+## The levels of the game (loaded when needed: the game script uses autoloads, so it cannot be preloaded here).
+func _level_table() -> Dictionary:
+	return load("res://scripts/game/sheep_herding/sheep_herding_game.gd").LEVELS
+
+
 ## The difficulty (REQ-SH-17, 18).
 func _levels() -> void:
 	print("the difficulty")
-	var lv: Dictionary = load("res://scripts/game/sheep_herding/sheep_herding_game.gd").LEVELS
+	var lv: Dictionary = _level_table()
 	_check(lv.easy.sheep == 8 and lv.medium.sheep == 11 and lv.hard.sheep == 14,
 			"8, 11 and 14 sheep on Easy, Medium and Hard (REQ-SH-17)")
 	_check(lv.easy.flee < lv.medium.flee and lv.medium.flee < lv.hard.flee and lv.easy.speed < lv.medium.speed
@@ -413,6 +450,8 @@ func _levels() -> void:
 	_check(lv.easy.gate > lv.medium.gate and lv.medium.gate > lv.hard.gate and lv.hard.gate >= 150.0,
 			"harder levels have a narrower gate")
 	_check(lv.easy.time > lv.medium.time and lv.medium.time > lv.hard.time, "harder levels have less time")
+	_check(lv.easy.assist > lv.medium.assist and lv.medium.assist > lv.hard.assist and lv.hard.assist == 0.0,
+			"easier levels help more toward the gate, Hard gives no help (REQ-SH-21)")
 	_check(not lv.easy.has("tiers") and not lv.medium.has("tiers") and not lv.hard.has("tiers"),
 			"no level has medal tiers (REQ-GM-73)")
 	var tiers_ok := true
