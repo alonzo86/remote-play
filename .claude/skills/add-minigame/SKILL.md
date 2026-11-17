@@ -21,7 +21,7 @@ description: Add a new minigame to the Sababi TV app. Use when asked to create a
    Make the tile screenshot with `tools/make_tiles.gd` and check it next to the Games screen (REQ-GM-49).
 4a. Decide the personal best (REQ-GM-98): override `best_key()` (a key that is also added at the end of `ProfileKeys`, with its direction) and `best_value()` when the saved number is not the score, or leave the key empty and write the exception row in the requirements file (`docs/games/TEMPLATE.md`). Add the game to `tests/smoke_bests.gd`.
 5. Add a check to `tests/smoke_tv.gd` (start the game with simulated phones, check one state change), and unit tests for pure logic.
-   Put the requirement ID in the check text. Add a test to `docs/MANUAL_TESTS.md` for what only a device can check: the steps, a results table with "Evidence to capture" and a row in its Summary. Add the test to the table "Tests to run, in order" in `docs/MANUAL_TESTS.md`.
+   Put the requirement ID in the check text. Add a test to `docs/MANUAL_TESTS.md` for what only a device can check: the steps, a results table with "Evidence to capture" and a row in its Summary. Add the test to the table "Tests to run, in order" in `docs/MANUAL_TESTS.md`. A manual step never needs more than 2 phones (owner decision, 2026-11-17, issue #457): a check for 3 or 4 phones is a headless test with simulated phones.
    Every script of the game needs 80% line coverage (`tools/coverage.sh`, REQ-GM-63). Test the rules of the game (win, collision, leaving
    players, buttons), not only that it starts.
 6. Run the `run-tests` skill and the `review` skill (the `code-reviewer` agent runs it), then update the README project structure if needed.

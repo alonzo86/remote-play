@@ -160,6 +160,8 @@ The agents are in `.claude/agents/`. Use them for the steps below when the task 
 
 - Every manual step has a clear pass or fail criterion (a number with a limit, an exact text, an object that is visible or not). Write no step that asks for a feeling ("too slow", "easy to read"). A step checks one thing (at most two linked things): split it with letters (3a, 3b) when it checks more. When you revise a step that has a recorded result, copy the result to the new steps unless what is checked changed.
 
+- A manual step never needs more than 2 phones (owner decision, 2026-11-17, issue #457: "Add a rule to not write tests that require more then 2 phones"). A check that needs 3 or 4 phones is a headless test with simulated phones, or it is not written. A step for 2 phones is allowed. When you find a step that needs more, remove it and name the headless test that covers it (see the bullet "What a machine can check" below).
+
 - What a machine can check is in `docs/AUTOMATED_TESTS.md` (how to run it on the Mac, and which manual steps it replaced). When a manual step can be
   done by a headless test, write the test, add it to `tests/suites.txt`, and move the step: remove it from `docs/MANUAL_TESTS.md`, keep the numbers of the other steps, and add an `A-<test>-<item>` row there.
 
