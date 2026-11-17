@@ -304,12 +304,18 @@ static func pixel_eyes(ci: CanvasItem, center: Vector2, radius: float, look: Vec
 ## the best place: one player shows its name in its color, more than one shows "TIE" with a gray square. `score` is the text
 ## (it can be empty). The chip is as wide as its content, so no name is cut, and a 16 letter name still fits next to the
 ## timer. `area_w` is the width of the screen; the chip ends at the right 60 px margin (at the left margin in Hebrew).
+## The avatar to draw for a leader: a player is asked (a guest has its own picture); a game that passes a dictionary (Tennis, a
+## team) has put the avatar to draw in it.
+static func _leader_avatar(leader: Variant) -> int:
+	return int(leader.shown_avatar()) if leader is Object else int(leader.avatar)
+
+
 static func leader_chip(ci: CanvasItem, area_w: float, leaders: Array, score: String, y := 36.0) -> void:
 	if leaders.is_empty():
 		return
 	var tie := leaders.size() > 1
 	var label := Lang.t("shell.tie") if tie else String(leaders[0].player_name)
-	var avatar: int = -1 if tie else int(leaders[0].avatar)   # A tie has no one player to show.
+	var avatar: int = -1 if tie else _leader_avatar(leaders[0])   # A tie has no one player to show.
 	var color: Color = UiTheme.TEXT_DIM if tie else leaders[0].color
 	var w := score_chip_width(label, score, 64.0, 200.0, CHIP_FONT, avatar)
 	var r := score_chip(ci, Vector2(leader_chip_x(area_w, w), y), label, score, color, w, 64.0, avatar)

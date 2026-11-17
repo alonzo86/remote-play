@@ -1,8 +1,9 @@
 extends Control
-## The pixel icons of the top buttons of the phone: ABOUT (an "i" in a circle), SETTINGS (a gear) and DISCONNECT (a door with an
-## arrow that goes out). A button shows the icon and no word, so it needs no Hebrew text and is small; the name and the tooltip
-## say the word for a screen reader (keys `common.about`, `common.settings`, `pad.disconnect`). The cells are white, as the text
-## of every enabled button (REQ-FL-38a). Rows run from the top. In a right to left layout the DISCONNECT arrow is mirrored.
+## The pixel icons of the top buttons of the phone and of the TV: ABOUT (an "i" in a circle), SETTINGS (a gear),
+## DISCONNECT (a door with an arrow that goes out) and QUIT (a power sign). A button shows the icon and no word, so it needs
+## no Hebrew text and is small; the name and the tooltip say the word for a screen reader (keys `common.about`,
+## `common.settings`, `pad.disconnect`, `connect.quit`). The cells are white, as the text of every enabled button
+## (REQ-FL-38a). Rows run from the top. In a right to left layout the DISCONNECT arrow is mirrored.
 
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
@@ -11,6 +12,7 @@ const Lang = preload("res://scripts/core/lang.gd")
 const ABOUT := "about"
 const SETTINGS := "settings"
 const DISCONNECT := "disconnect"
+const QUIT := "quit"
 const BUTTON_SIZE := 96.0   # A button is a square of this size (px of the 1080 wide phone layout).
 
 const ROWS := {
@@ -38,6 +40,17 @@ const ROWS := {
 		".w..www..w.",
 		".....w.....",
 	],
+	QUIT: [
+		"....w....",
+		"..w.w.w..",
+		".w..w..w.",
+		".w..w..w.",
+		"w.......w",
+		"w.......w",
+		".w.....w.",
+		"..w...w..",
+		"...www...",
+	],
 	DISCONNECT: [
 		"wwwwww.....",
 		"w....w..w..",
@@ -50,7 +63,7 @@ const ROWS := {
 	],
 }
 ## The key of the word of each icon (the name for a screen reader).
-const WORDS := {ABOUT: "common.about", SETTINGS: "common.settings", DISCONNECT: "pad.disconnect"}
+const WORDS := {ABOUT: "common.about", SETTINGS: "common.settings", DISCONNECT: "pad.disconnect", QUIT: "connect.quit"}
 
 var kind := ABOUT
 
@@ -86,11 +99,13 @@ func _draw() -> void:
 
 
 ## A square button with the icon `icon` and no text. `node_name` is the name of the node (a test finds the button by it).
-static func button(icon: String, node_name: String, cb: Callable) -> Button:
+## `word` is the key of the name for a screen reader (default: the word of the icon). On the TV it has the focus, like any button.
+static func button(icon: String, node_name: String, cb: Callable, word := "") -> Button:
+	var key: String = word if word != "" else String(WORDS[icon])
 	var b := UiKit.box_button("", cb, UiTheme.SIZE_ITEM)
 	b.name = node_name
-	b.accessibility_name = Lang.t(WORDS[icon])
-	b.tooltip_text = Lang.t(WORDS[icon])
+	b.accessibility_name = Lang.t(key)
+	b.tooltip_text = Lang.t(key)
 	b.custom_minimum_size = Vector2(BUTTON_SIZE, BUTTON_SIZE)
 	var node: Control = load("res://scripts/ui/phone_icon.gd").new()
 	node.set("kind", icon)

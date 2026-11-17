@@ -17,7 +17,8 @@ const HINT_TIME := 12.0         # The hint shows this long at the start of a tur
 const WEAK_HINT_TIME := 3.0
 const PLATE_TIME := 1.5         # The plate "NAME, YOUR TURN!" shows this long at the start of a turn (REQ-BW-21).
 const LIFT_HINT_TIME := 3.0     # The hint "lift your finger" shows this long after a swing with a finger on the strip.
-const MIN_BACK := 0.1          # A back swing shorter than this (s) is a shake, not a wind-up (REQ-BW-5).
+const MIN_BACK := 0.12         # A back swing shorter than this (s) is a shake, not a wind-up (REQ-BW-5; 0.1 until issue #432).
+const MIN_FORWARD := 0.1       # A push over sooner than this (s; start of the push to half its peak) is a shake (issue #432).
 const BUZZ_GAP_MS := 150
 # The aim at its end is this far from the middle of the lane (m): past the lane edge, in the gutter.
 const AIM_X := 0.60
@@ -72,6 +73,7 @@ func _game_ready() -> void:
 	_board = Scoreboard.new(participants)
 	detector.threshold = float(BowlingRules.level(difficulty).threshold)
 	detector.min_back = MIN_BACK
+	detector.min_forward = MIN_FORWARD
 	detector.max_reversals = 1   # A shake turns the acceleration round again and again: it throws nothing (REQ-BW-5).
 	detector.fwd_ratio = SwingDetector.FWD_RATIO   # A move to the side is as hard back as out: it throws nothing (REQ-BW-5).
 	if not participants.is_empty():
@@ -174,6 +176,7 @@ func _tick_aim(delta: float) -> void:
 		detector.reset()
 		_probe.threshold = detector.threshold
 		_probe.min_back = detector.min_back
+		_probe.min_forward = detector.min_forward
 		_probe.max_reversals = detector.max_reversals
 		_probe.fwd_ratio = detector.fwd_ratio
 		_probe.update(delta, p.linear_accel())
@@ -364,7 +367,7 @@ func name_column_width() -> float:
 	var w := NAME_W
 	for r in rules.rows:
 		if participants.has(r.slot):
-			w = maxf(w, Shell.chip_width(player(r.slot).player_name, 0.0, player(r.slot).avatar) + 6.0)
+			w = maxf(w, Shell.chip_width(player(r.slot).player_name, 0.0, player(r.slot).shown_avatar()) + 6.0)
 	return w
 
 
@@ -384,7 +387,7 @@ func _draw_sheet() -> void:
 			continue
 		var active: bool = r.slot == on_turn and not is_over
 		var p := player(r.slot)
-		var name_rect := Shell.chip(self, Vector2(x0, y), p.player_name, p.color, name_w - 6.0, ROW_H - 6.0, p.avatar)
+		var name_rect := Shell.chip(self, Vector2(x0, y), p.player_name, p.color, name_w - 6.0, ROW_H - 6.0, p.shown_avatar())
 		if active:
 			draw_rect(name_rect, UiTheme.ACCENT, false, 4.0)
 		var cells := BowlingRules.sheet_cells(r.rolls)

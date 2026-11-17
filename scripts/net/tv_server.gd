@@ -15,6 +15,8 @@ signal player_joined(slot: int)
 signal player_lost(slot: int)
 signal player_resumed(slot: int)
 signal player_removed(slot: int)
+## A phone asks to end the game that runs (`leave_ask`): the App gives it to the game, which asks "End the game?" (REQ-FL-52c).
+signal leave_asked(slot: int)
 ## A join request was added, removed, shown or hidden (docs/JOIN_APPROVAL_PLAN.md 4.5). No data: read `shown_request()`.
 signal requests_changed()
 
@@ -94,6 +96,7 @@ var _tcp := TCPServer.new()
 var _pending: Array = []             # [{ws, since_ms}]
 var _sockets: Array[WebSocketPeer] = []
 var _last_rx_ms: Array[int] = []
+var _last_leave_ask_ms := {}         # slot -> when the TV took the last `leave_ask` of that phone.
 var _waiting: Array = []             # [{id, ws, host, hello, arrived_ms, shown_ms, last_keepalive_ms}], the head is shown first.
 var _next_request_id := 1
 var _last_card_end_ms := -1000000    # When the last request that was shown ended or was hidden (for the gap of the next one).
@@ -816,6 +819,8 @@ func _handle_control(i: int, msg: Dictionary, now: int) -> void:
 			players[i].on_stat(Protocol.num(msg, "rtt", -1.0), Protocol.num(msg, "off"))
 		"recenter":
 			players[i].recenter(false)   # The button: the pose in the hand is neutral, no snap to flat.
+		"leave_ask":
+			_handle_leave_ask(i, now)
 		"swing_ok":
 			if setup_swing:
 				_swing_ok[i] = true
@@ -833,6 +838,18 @@ func _handle_control(i: int, msg: Dictionary, now: int) -> void:
 			_forget_token(players[i].token)   # The player left: its token no longer skips the approval.
 			players[i].reset()
 			player_removed.emit(i)
+
+
+## A `leave_ask` from a phone (docs/PROTOCOL.md, REQ-FL-52c). The TV takes it only while a game plays, from a connected phone that
+## takes part in the round, and at most once each `Protocol.LEAVE_ASK_MIN_MS` from one phone (a child must not spam it). Any other
+## `leave_ask` is ignored with no answer. The game decides whether a question is already open (`leave_asked`).
+func _handle_leave_ask(i: int, now: int) -> void:
+	if phase_for(i) != "playing" or not players[i].is_connected_now():
+		return
+	if _last_leave_ask_ms.has(i) and now - int(_last_leave_ask_ms[i]) < Protocol.LEAVE_ASK_MIN_MS:
+		return
+	_last_leave_ask_ms[i] = now
+	leave_asked.emit(i)
 
 
 func _send_json(slot: int, d: Dictionary) -> void:
@@ -875,7 +892,8 @@ func shown_request() -> Dictionary:
 			hint = p.slot
 			break
 	return {"id": int(_waiting[0].id), "name": Profile.clean_name(Protocol.text(msg, "name")),
-			"av": Profile.clean_avatar(msg.get("av", -1)) if has_pid else -1, "slot_hint": hint, "others": _waiting.size() - 1}
+			"av": Profile.clean_avatar(msg.get("av", -1)) if has_pid else -1, "guest": not has_pid, "slot_hint": hint,
+			"others": _waiting.size() - 1}
 
 
 ## The host allowed the shown request: the phone gets a slot (or the answer that the room gives now) and the refusal count of its

@@ -101,22 +101,56 @@ func _run() -> void:
 	game.player(0).player_name = old_names[0]
 	game.player(1).player_name = old_names[1]
 
-	# A press on A of the server tosses the ball, a swing down serves (REQ-TN-9).
+	# A press on A of the server tosses the ball at once (it also goes up by itself), a swing down serves (REQ-TN-9).
 	_go(game)
 	var server: int = game.play.server_slot()
 	game._on_button(Protocol.BTN_A, 1 - server)
 	_check(game.play.phase == game.Match.Phase.SERVE, "A of the other phone does not toss")
 	game._on_button(Protocol.BTN_A, server)
 	_check(game.play.phase == game.Match.Phase.TOSS, "A of the server tosses the ball")
-	var apex := 4.6 / 9.81
+	var apex: float = game.Match.TOSS_UP / 9.81   # The top of the toss (0.66 s after it).
 	for i in int(apex / 0.016):
 		game._game_tick(0.016)
 	game._tick_ms = 0   # The game was paused a moment ago: a swing now is ignored.
 	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
 	_check(game.play.phase == game.Match.Phase.TOSS, "a swing right after a pause does nothing")
 	game._tick_ms = Time.get_ticks_msec()
-	game._on_swing({"power": 0.8, "down": true, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
-	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down at the top of the toss serves")
+	# A swing that misses the serve (not from top to bottom) still shows the serve pose: the racket goes high, not a plain hit
+	# (owner, 2026-11-14, issue #419).
+	game._on_swing({"power": 0.8, "down": false, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
+	_check(game.play.phase == game.Match.Phase.TOSS and game._look_of(server, game.play.chars[server]).pose == "serve",
+			"a missed swing during the toss shows the serve pose")
+	game.player(server).swing.state = game.player(server).swing.State.LOCKED   # The detector locked after the wind-up.
+	game._on_swing({"power": 0.8, "down": false, "forward_dir": Vector3.ZERO, "hit_age_ms": 0.0}, server)
+	_check(game.player(server).swing.state == game.player(server).swing.State.READY,
+			"a swing of the server that is not down does not lock the detector: the swing down after the wind-up is found (#419)")
+	# A swing down with no wind-up (none of its own, no swing of the server just before) is the wind-up: no serve. The swing
+	# down that follows it serves (the detector starts again after the wind-up).
+	game._wind_ms.clear()
+	game.player(server).swing.state = game.player(server).swing.State.LOCKED
+	game._on_swing({"power": 0.8, "down": true, "wind_up_s": 0.0, "hit_age_ms": 0.0}, server)
+	var det = game.player(server).swing
+	_check(game.play.phase == game.Match.Phase.TOSS and det.state == det.State.READY,
+			"a swing down that has no wind-up is the wind-up: no serve, and the detector starts again (#419)")
+	game._on_swing({"power": 0.8, "down": true, "wind_up_s": 0.0, "hit_age_ms": 0.0}, server)
+	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down right after the wind-up serves")
+	_check(game._look_of(server, game.play.chars[server]).pose == "serve", "the serve shows the serve pose")
+
+	# The rule of the wind-up (#419): a swing down with a wind-up of its own serves at once; one that follows a swing of the server
+	# by more than `SERVE_WIND_GAP` does not (the wind-up was too long ago, so this one is a wind-up again).
+	game.play._begin_serve()
+	var server2: int = game.play.server_slot()
+	game._on_button(Protocol.BTN_A, server2)
+	for i in int(apex / 0.016):
+		game._game_tick(0.016)
+	game._wind_ms[server2] = Time.get_ticks_msec() - int(game.SERVE_WIND_GAP * 1000.0) - 200
+	game._tick_ms = Time.get_ticks_msec()
+	game._on_swing({"power": 0.8, "down": true, "wind_up_s": 0.0, "hit_age_ms": 0.0}, server2)
+	_check(game.play.phase == game.Match.Phase.TOSS,
+			"a swing down 1 s after the last swing of the server, with no wind-up, is no serve")
+	game._wind_ms.clear()
+	game._on_swing({"power": 0.8, "down": true, "wind_up_s": 0.5, "hit_age_ms": 0.0}, server2)
+	_check(game.play.phase == game.Match.Phase.RALLY and game.play.serve_ball, "a swing down with its own wind-up serves at once")
 
 	# The ball in play shows the target ring and the people draw (REQ-TN-5).
 	for i in 20:

@@ -16,11 +16,14 @@ enum Phase { SERVE, TOSS, RALLY, POINT, END }
 ## were lost).
 const EARLY_W := 0.9
 const HIT_W := 0.55             # A swing counts when its hit is this close (s) to the contact time.
-const SERVE_W := 0.6            # The same for a serve, around the top of the toss (it was 0.45 until 2026-11-08, issue #419).
-const TOSS_UP := 4.6            # The speed (m/s) of the toss.
+const SERVE_W := 0.8            # A serve counts this long (s) around the top of the toss: the whole toss (0.45 until 2026-11-08).
+const TOSS_UP := 6.5            # The speed (m/s) of the toss: the top is 3.1 m high, 0.66 s after it (4.6 m/s until 2026-11-14).
+const AUTO_TOSS := 1.5          # With 2 to 4 players the ball is tossed by itself this long (s) after the serve phase starts.
 const TOSS_FROM := 1.0          # The height (m) of the hand at the toss.
 const POINT_PAUSE := 1.8        # The banner after a point, a fault and a game.
 const FAULT_PAUSE := 1.4
+const LINE_TOL := 0.15           # A ball that lands this close (m) outside a line counts as on the line, so it is in.
+const SERVE_LONG_MARGIN := 0.25  # The hardest serve is aimed this far (m) before the service line (it was 0.5 m behind it).
 const GAME_PAUSE := 2.6
 const FEED_DELAY := 1.6         # With 1 player the machine sends the first ball after this time.
 const NEXT_RALLY := 2.0         # ... and a new rally starts this long after a miss (REQ-TN-15): banner time plus the rest.
@@ -173,6 +176,13 @@ func press_a(slot: int) -> void:
 		return
 	if phase != Phase.SERVE or slot != server_slot():
 		return
+	_toss(slot)
+
+
+## The ball goes up from the hand of the server (A, or by itself after `AUTO_TOSS`).
+func _toss(slot: int) -> void:
+	if not chars.has(slot):
+		return
 	var c = chars[slot]
 	sim.toss(Vector3(c.pos.x, c.pos.y, TOSS_FROM), TOSS_UP)
 	_toss_apex = time + TOSS_UP / Sim.G
@@ -220,7 +230,7 @@ func _swing_result(slot: int, power: float, down: bool, tilt_x: float, hit_age: 
 func _serve_hit(slot: int, power: float, tilt_x: float, green: bool) -> void:
 	var team := team_of(slot)
 	var from := sim.pos
-	var depth := lerpf(2.6, 6.9, power) if green else lerpf(3.0, 5.0, power)
+	var depth := lerpf(2.6, Sim.SERVICE - SERVE_LONG_MARGIN, power) if green else lerpf(3.0, 5.0, power)
 	var noise := 0.0 if green else rng.randf_range(-1.0, 1.0) * 0.8
 	var tx := aim_x(slot, tilt_x, true, noise)
 	if level.inside:
@@ -355,6 +365,8 @@ func _move(delta: float) -> void:
 
 func _tick_serve(_delta: float) -> void:
 	if not solo:
+		if phase_time >= AUTO_TOSS:   # The server needs no button: pressing A with a thumb and swinging with the same hand is hard.
+			_toss(server_slot())
 		return
 	if phase_time >= _feed_after:
 		_feed()
@@ -442,7 +454,7 @@ func _bounce(e: Dictionary) -> void:
 
 ## The ball landed inside the lines of the side of the team that has to return it.
 func _in_court(p: Vector3) -> bool:
-	return p.y * side(hit_team) < 0.0 and absf(p.y) <= Sim.HALF_L and absf(p.x) <= half_width()
+	return p.y * side(hit_team) < 0.0 and absf(p.y) <= Sim.HALF_L + LINE_TOL and absf(p.x) <= half_width() + LINE_TOL
 
 
 ## The service box across the net from the server: the half of the court with the sign `box` in x, up to the service line.
@@ -450,7 +462,8 @@ func _in_service_box(p: Vector3) -> bool:
 	var server := server_slot()
 	var st := team_of(server)
 	var box := -signf(_serve_x(st))
-	return p.y * side(st) < 0.0 and absf(p.y) <= Sim.SERVICE and p.x * box >= 0.0 and absf(p.x) <= Sim.HALF_W_SINGLES
+	return p.y * side(st) < 0.0 and absf(p.y) <= Sim.SERVICE + LINE_TOL and p.x * box >= -LINE_TOL \
+			and absf(p.x) <= Sim.HALF_W_SINGLES + LINE_TOL
 
 
 # ---- Points ----

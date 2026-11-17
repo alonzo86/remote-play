@@ -1,7 +1,8 @@
 extends SceneTree
 ## Issue #432 (REQ-BW-5, MIN_BACK; Test 23 step 4g): a fast shake of the phone with no wind-up and no finger on the aim strip
-## must throw no ball. 5 shakes of 2 s, 2 s apart, 4 speeds, 3 directions. The detector throws on some of them today, so this
-## suite FAILS and is NOT in tests/suites.txt until the detector is fixed (then add it there as `scenario`).
+## must throw no ball. 5 shakes of 2 s, 2 s apart, 4 speeds, 3 directions, made up, through the running game (the real shakes of
+## the owner's phone are replayed in tests/swing_detector.gd). The detector did throw on one of them (`MIN_BACK` 0.1 s, no
+## `MIN_FORWARD`); with the rules of 2026-11-12 it does not.
 ## Run: godot --headless --path . --script tests/bowling_shake_432.gd -- --role=tv
 
 const R = preload("res://tests/sensor_replay.gd")

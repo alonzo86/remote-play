@@ -5,6 +5,7 @@ extends SceneTree
 ## remote and the real Android Back key stay manual (test 8R); this checks everything after the key reaches the engine.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/focus_walk.gd -- --role=tv
 
+const Lang = preload("res://scripts/core/lang.gd")
 const Protocol = preload("res://scripts/core/protocol.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
@@ -210,21 +211,34 @@ func _games_walk() -> void:
 		_check(now != null and now != before, "%s moves the focus to another item (%s)" % [action,
 				now.name if now != null else "none"])
 		before = now
-	# 8a: from the first tile, the OPTIONS button is reachable in at most 2 key presses (up, then right).
+	# 8a: from the first tile, the ABOUT icon button is reachable in at most 2 key presses (up, then right) and OPTIONS, next to
+	# it, in 3 (owner, 2026-11-12: both are icon buttons in the header).
 	games._tiles[0].grab_focus()
 	await _frames(2)
 	var presses := 0
-	while _focus() != games._gear and presses < 6:
+	while _focus() != games._about and presses < 6:
 		await _press("ui_up" if _focus() in games._tiles else "ui_right")
 		presses += 1
-	_check(_focus() == games._gear and presses <= 2,
-			"OPTIONS is reached from the first tile in %d key presses (at most 2)" % presses)
+	_check(_focus() == games._about and presses <= 2, "ABOUT is reached from the first tile in %d key presses (at most 2)" % presses)
+	await _press("ui_right")
+	_check(_focus() == games._gear, "OPTIONS is next to ABOUT: 3 key presses from the first tile")
 	seen["gear"] = true
 	await _press("ui_accept")
 	_check(_app.current_screen().get_script() == _settings_script, "OK on OPTIONS opens Settings")
 	await _key(KEY_BACK)
 	_check(_app.current_screen().get_script() == _games_script and _app.current_screen()._gear.has_focus(),
 			"Back from Settings returns to OPTIONS")
+	var header: Control = _app.current_screen()
+	_check(header._about.name == "AboutButton" and header._about.text == "" and header._gear.name == "OptionsButton"
+			and header._gear.text == "" and header._gear.accessibility_name == Lang.t("gear_button.options"),
+			"ABOUT and OPTIONS are icon buttons with no word")
+	header._about.grab_focus()
+	await _frames(2)
+	await _press("ui_accept")
+	_check(_app.current_screen().get_script() == _app.AboutScreen, "OK on ABOUT opens the About screen")
+	await _key(KEY_BACK)
+	_check(_app.current_screen().get_script() == _games_script and _app.current_screen()._about.has_focus(),
+			"Back from About returns to ABOUT (REQ-FL-24)")
 
 
 ## 8.1b and 1d: the focused item is yellow and has a cursor, a destructive one is red; the frame, the text and the contrast.
@@ -430,7 +444,7 @@ func _quit_question() -> void:
 	# The Android Back key arrives as a notification, not as a key.
 	_app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
 	await _frames(4)
-	_check(connect._modal != null and quits[0] == 0, "the Back notification of Android opens QUIT SABABI? and does not quit")
+	_check(connect._modal != null and quits[0] == 0, "the Back notification of Android opens QUIT SABABI APP? and does not quit")
 	_check(_focus() != null and _focus().text == "connect.stay", "STAY has the focus")
 	_check(ProjectSettings.get_setting("application/config/quit_on_go_back", true) == false,
 			"the engine does not quit on Back by itself")

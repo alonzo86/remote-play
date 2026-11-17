@@ -374,7 +374,7 @@ func chip_rects() -> Array[Rect2]:
 	var total := 0.0
 	for s in participants:
 		var p := player(s)
-		var w := Shell.score_chip_width(p.player_name, str(int(_board.score(s))), 64.0, 250.0, Shell.CHIP_FONT, p.avatar)
+		var w := Shell.score_chip_width(p.player_name, str(int(_board.score(s))), 64.0, 250.0, Shell.CHIP_FONT, p.shown_avatar())
 		widths.append(w)
 		total += w + CHIP_GAP
 	var avail := size.x - 2.0 * CHIP_MARGIN
@@ -405,6 +405,6 @@ func _draw_chips() -> void:
 		var s: int = participants[i]
 		var p := player(s)
 		var r := Shell.score_chip(self, rects[i].position, p.player_name, str(int(_board.score(s))), p.color, rects[i].size.x, 64.0,
-				p.avatar)
+				p.shown_avatar())
 		if s == current_slot() and not is_over:
 			draw_rect(r.grow(8.0), UiTheme.TEXT, false, 4.0)

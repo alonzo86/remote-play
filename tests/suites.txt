@@ -16,6 +16,8 @@ tests/pixel_art.gd|tv|sprite outline shared by the look files|unit
 tests/config_files.gd|controller|settings and last-TV files: save result, wrong types|unit
 tests/net_profiles.gd|controller|profiles over the network|unit
 tests/net_malformed.gd|controller|TV and phone: frames with fields of the wrong type|unit
+tests/net_leave_ask.gd|controller|leave_ask: a phone asks the TV to end the game (issue #435)|unit
+tests/pad_pause.gd|controller|phone pad: pause button and Back in a game (issue #435)|unit
 tests/net_limits.gd|controller|TV limits: pending cap, per-address rate, big frames, empty room (issues #387, #388)|unit
 tests/room_code.gd|controller|room code: encode, decode, hosts, TV link|unit
 tests/about_pages.gd|controller|About pages and About screen|scenario
@@ -45,6 +47,7 @@ tests/audio.gd|tv|audio: synth, songs, effects, volume and haptics switch|unit
 tests/smoke_lang.gd|tv|languages and right to left|scenario
 tests/bowling_rules.gd|controller|Bowling rules, lane and swing|unit
 tests/smoke_bowling.gd|tv|Bowling|scenario
+tests/bowling_shake_432.gd|tv|Bowling: made-up fast shakes throw no ball, through the game (issue #432)|scenario
 tests/smoke_tennis.gd|tv|Tennis|scenario
 tests/golf_rules.gd|controller|Mini Golf rules, ball and holes|unit
 tests/orientation_rules.gd|controller|sensor fusion: tilt past 90 degrees, calm phone|unit
@@ -104,6 +107,7 @@ tests/r4_tennis.gd|tv|Tennis: leader chip, toss, runs, GREAT, places, rally|scen
 tests/r4_golf.gd|tv|Mini Golf: turn, plate, phones, aim mark, swing, barriers, banner, bar, result menu|scenario
 tests/air_hockey_rules.gd|controller|Air Hockey rules, puck and ROBO|unit
 tests/hockey_bot.gd|tv|ROBO in simulated matches and shots: own goals, defence (issues #146, #147)|unit
+tests/hockey_robo_own_goals.gd|tv|Air Hockey: ROBO on Easy scores no own goal against a player who stands still, at most 10% against a chaser (issue #431)|unit
 tests/smoke_air_hockey.gd|tv|Air Hockey: enroll, tilt, goals, ROBO, pause, leave, results|scenario
 tests/tower_rules.gd|controller|Tower Builder rules: landing, toppling, turn time|unit
 tests/smoke_tower.gd|tv|Tower Builder: turns, drop, miss, topple, leave, results, solo medal|scenario

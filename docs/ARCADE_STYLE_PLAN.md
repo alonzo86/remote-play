@@ -87,7 +87,7 @@ black. They show as a filled square next to the slot number, never as the only c
 - A and B are round arcade buttons: a 6 px white ring, a `BUTTON_EDGE` lower edge and a face in color with a black
   letter: A green (`OK`), B red (`BAD`; owner, 2026-11-03, question 6). They are the exception to the black button face.
   The button looks pressed in when it is down.
-- RECENTER is a small black text box right above the HOLD TO LEAVE box (REQ-FL-52, 2026-11-03); ABOUT, SETTINGS and DISCONNECT on the phone are black square icon buttons since 2026-11-06 (REQ-FL-52). DISCONNECT on the waiting screen leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
+- RECENTER is a small black text box right above the HOLD TO DISCONNECT box (REQ-FL-52, 2026-11-03); ABOUT, SETTINGS and DISCONNECT on the phone are black square icon buttons since 2026-11-06 (REQ-FL-52). DISCONNECT on the waiting screen leaves with one tap (REQ-FL-52; it was LEAVE with two taps until 2026-10-11).
 - The slot color square and "2P" are at the top. The text under them says what to do ("TILT TO ROLL").
 
 ### 2.6 Motion
@@ -143,7 +143,7 @@ The menus and the shell change in the same pull request, so a game never shows a
    blinking label.
 4. TV screens: `tv_logo.gd`, `tv_connect.gd`, `slot_list.gd`, `tv_games.gd`, `game_tile.gd` (square corners, remove
    `GameTile.rounded()` and REQ-FL-57), `players_badge.gd`, `players_modal.gd`, `tv_modal.gd`, `tv_settings.gd`,
-   `tv_game_settings.gd`, `track_picker.gd`, `gear_button.gd`, `confetti.gd`, `choice_row.gd`, `backdrop.gd`.
+   `tv_game_settings.gd`, `track_picker.gd`, `confetti.gd`, `choice_row.gd`, `backdrop.gd`.
 5. Phone screens: `controller_connect.gd`, `controller_wait.gd`, `controller_pad.gd`.
 6. Game shell: `scripts/game/shell.gd`, `minigame.gd`, `minigame_3d.gd` (HUD, chips, timer, countdown, hint, pause and
    result menus).

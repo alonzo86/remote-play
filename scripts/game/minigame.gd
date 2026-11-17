@@ -218,7 +218,7 @@ func _update_hold() -> void:
 	for s in lost:
 		if not _hold_info.has(s):
 			_hold_info[s] = {"name": player(s).player_name, "color": player(s).color, "label": slot_label(s),
-					"avatar": player(s).avatar}
+					"avatar": player(s).shown_avatar()}
 	if not _hold:
 		return
 	if _menu_open and _menu_kind != "hold":
@@ -324,8 +324,11 @@ func on_back() -> void:
 
 
 ## Leaves the game for the Games screen (REQ-GM-31a). While the game is in progress it asks first: a round
-## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once.
-func request_leave() -> void:
+## must not end by a slip of the thumb. A game that is over (result menu, no players) leaves at once. `from_phone` is the slot of
+## a phone that asked with `leave_ask` (REQ-FL-52c): the same question as for Back on the remote, unless a menu is open.
+func request_leave(from_phone := -1) -> void:
+	if from_phone >= 0 and (_menu_open or is_over or not participants.has(from_phone)):
+		return   # A phone asked (REQ-FL-52c): nothing happens when a menu or a question is open, or that phone does not play.
 	if _in_progress():
 		open_menu("minigame.end_game_ask", [["minigame.resume", close_menu], ["minigame.end_game", game_host.go_menu, "danger"]])
 	else:
@@ -466,7 +469,7 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 		if e.finished:
 			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color,
-				"avatar": p.avatar, "cells": [Scoreboard.ordinal(e.rank), p.player_name, text]})
+				"avatar": p.shown_avatar(), "cells": [Scoreboard.ordinal(e.rank), p.player_name, text]})
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title

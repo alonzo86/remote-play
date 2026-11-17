@@ -6,6 +6,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const Profile = preload("res://scripts/core/profile.gd")
 const ProfileStore = preload("res://scripts/core/profile_store.gd")
 const Avatar = preload("res://scripts/ui/avatar.gd")
+const PlayerInput = preload("res://scripts/input/player_input.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 
 const TEMP := "user://test_profiles.cfg"
@@ -175,6 +176,19 @@ func _avatars() -> void:
 		all_ok = all_ok and opaque > 60 and cell.get_pixel(8, 8).a > 0.0
 		seen[cell.get_data().hex_encode()] = true
 	_check(all_ok and seen.size() == Protocol.AVATAR_COUNT, "all 32 avatars are drawn and no two are the same")
+	# The guest picture (owner, 2026-11-11): its own file, not one of the 32, never taken from a phone.
+	var guest := Avatar.guest_texture().get_image()
+	var guest_data := guest.get_data().hex_encode()
+	_check(guest.get_size() == Vector2i(16, 16) and Avatar.is_known(Avatar.GUEST) and not seen.has(guest_data),
+			"the guest has a 16 x 16 picture of its own that differs from the 32 avatars")
+	_check(Avatar.GUEST >= 256 and Profile.clean_avatar(Avatar.GUEST) == -1 and not Avatar.is_known(Protocol.AVATAR_COUNT)
+			and Avatar.region(Avatar.GUEST) == Rect2(0, 0, 16, 16),
+			"a phone cannot send the guest picture (clean_avatar takes 0 to 255), and the picker has only the 32")
+	var guest_input := PlayerInput.new(0, {})
+	_check(guest_input.shown_avatar() == Avatar.GUEST and guest_input.avatar == -1,
+			"a player with no profile is shown with the guest picture and keeps the avatar -1")
+	guest_input.set_profile("0123456789abcdef0123456789abcdef", 5, "Maya")
+	_check(guest_input.shown_avatar() == 5, "a player with a profile is shown with the avatar of the profile")
 	var canvas := Control.new()
 	root.add_child(canvas)
 	var drew := []

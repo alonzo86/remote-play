@@ -199,7 +199,7 @@ func _disconnect_button() -> void:
 				"[%s] the text of a pressed button turns black on the white fill, a normal one is white on black" % lang)
 		holder.queue_free()
 	_app.set_language("en", false)
-	# The HOLD TO LEAVE box of the pad: the rect is the bottom of the pad, the whole width.
+	# The HOLD TO DISCONNECT box of the pad: the rect is the bottom of the pad, the whole width.
 	var pad_script: GDScript = _pad_script
 	var holder2 := Control.new()
 	holder2.size = viewport
@@ -215,11 +215,11 @@ func _disconnect_button() -> void:
 	var inset_y: float = pad.size.y - leave.end.y
 	_check(inset_x >= 48.0 and inset_y >= 32.0 and is_equal_approx(pad.size.x - leave.end.x, inset_x) and leave.size.y >= 80.0
 			and Vector2(corner - inset_x, corner - inset_y).length() < corner,
-			"HOLD TO LEAVE is at the bottom, inset %.0f px at the sides, %.0f px at the bottom (no corner is cut): %s"
+			"HOLD TO DISCONNECT is at the bottom, inset %.0f px at the sides, %.0f px at the bottom (no corner is cut): %s"
 			% [inset_x, inset_y, str(leave)])
 	var a_bottom: float = pad._center_a().y + pad._radius()
 	_check(a_bottom < leave.position.y and pad._center_b().y + pad._radius() < leave.position.y,
-			"the A and B buttons end above the HOLD TO LEAVE box (%.0f against %.0f px)" % [a_bottom, leave.position.y])
+			"the A and B buttons end above the HOLD TO DISCONNECT box (%.0f against %.0f px)" % [a_bottom, leave.position.y])
 	holder2.queue_free()
 
 

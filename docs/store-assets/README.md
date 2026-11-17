@@ -17,8 +17,6 @@ The TV and phone screenshots are captures of the real apps (headless Godot with 
 
 The home page of the website shows these screenshots at half size (`site/screens/`, see `site/README.md`). Capture a screenshot again: make its copy there again.
 
-**Out of date (2026-11-10):** the logo screen now waits for OK and has the card with the QR code of the phone app, and the Connect screen no longer has that card. `tv/0_logo.png` and `tv/1_connect.png` (and their copies in `site/screens/`) show the old screens; the owner decided not to capture them again yet. Capture both again before the store upload.
-
 ## Rules
 
 - No Hebrew set yet. Phone Hebrew texts of two or more lines are drawn too close together (issue #403): fix it, then capture the

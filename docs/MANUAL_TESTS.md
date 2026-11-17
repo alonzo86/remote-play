@@ -56,35 +56,35 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [1](#test-1) | Start and join | 1 phone, 1 TV | REQ-A3, REQ-A4, REQ-FL-5 to 10, REQ-FL-80, 83, 84 | Pass | R7 | |
 | [2](#test-2) | QR scan (plugin, unverified) | 1 phone, 1 TV | RISKS C5 | Pass | R5 | |
 | [3](#test-3) | Sensor directions | 1 phone, 1 TV | RISKS A2 | Pass | R7 | |
-| [4](#test-4) | Latency and packet rate | 1 phone, 1 TV | RISKS A3, B1, B2, B3, B5, B6 | Pass | R7 | |
+| [4](#test-4) | Latency and packet rate | 1 phone, 1 TV | RISKS A3, B1, B2, B3, B5, B6 | Fail (step 1a); still open: R7 was on a desktop, not a TV box (issues #437, #386) | R7 | |
 | [6](#test-6) | Treasure Maze feel | 1 to 4 phones, 1 TV (item 7i: a Mac) | REQ-MZ-4, 6, 7, 8, 9, 12, 13, 15, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-90 to 95 | Pass | R7 | |
-| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R7 | |
-| [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55 | Pass | R5 | |
+| [7](#test-7) | Disconnect and reconnect | 2 phones, 1 TV | REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52b, REQ-FL-52c, REQ-FL-55, REQ-GM-31a, REQ-MR-14, REQ-MZ-8 | Partial (see the result table) | R7 | |
+| [8](#test-8) | TV remote | 1 phone, 1 TV with its remote | REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-52c, REQ-FL-55 | Partial (see the result table) | R5 | |
 | [8b](#test-8b) | The TV flow and the style | 1 to 2 phones, 1 TV (item 7 moved to Test 17) | REQ-FL-1 to 46, REQ-FL-56, 57, REQ-FL-81, FD-1 to 17, FD-23 | Pass | R3 | |
-| [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Pass | R7 | |
-| [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50 | Pass | R7 | |
+| [9](#test-9) | Car Race | 1 to 4 phones (2 to 4 for items 5, 7 and 11), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
+| [10](#test-10) | Banana Party (pointer) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37 | Pass | R7 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 4 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Pass | R7 | |
 | [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Retest (steps 1c, 11) | R7 | |
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 68, 83, 84 | Not run (next release, iOS, issue #415) |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 to 4 phones, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
-| [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Pass | R7 | |
+| [15](#test-15) | Sumo Bumpers (tilt and A) | 2 to 4 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
 | [16](#test-16) | The arcade look (phase 1) | 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child for item 8 | REQ-FL-37 to 46, REQ-FL-38a, 41a, 52, 53, REQ-GM-45, 46, FD-18 | Partial (see the result table) | R7 | |
 | [17](#test-17) | Hebrew and right to left (phase 5) | 2 phones (one set to Hebrew), 1 TV (once set to Hebrew, once to English) | REQ-FL-54, 60 to 63, REQ-GM-47o, FD-19 | Pass | R7 | |
 | [18](#test-18) | Sound and haptics | 1 to 4 phones, 1 TV | REQ-FL-64 to 66, REQ-GM-49a to 49c, REQ-GM-43 | Not run | | |
 | [19](#test-19) | Leader chip and phone score | 2 to 4 phones (names of 10 letters), 1 TV, a child for item 8 | REQ-FL-67, REQ-FL-68, REQ-GM-46, FD-21 | Not run | | |
 | [20](#test-20) | Player profiles (names, avatars, personal bests, copy by QR) | 2 to 4 phones, 1 TV, a child for item 7 | REQ-FL-69 to 79, REQ-GM-98 to 101, REQ-N8, REQ-C7 to C11, FD-22 | Not run | | |
 | [21](#test-21) | Join by room code and About screens | 2 phones (one Android, one iPhone if possible), 1 TV | REQ-FL-83, REQ-FL-84, REQ-FL-85, FD-25, FD-28 | Partial (see the result table) | R4 | |
-| [22](#test-22) | Star Shield (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Partial (see the result table) | R6 | |
+| [22](#test-22) | Star Shield (tilt, waves, upgrades) | 1 to 4 phones, 1 TV, a child for item 9 | REQ-AB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
 | [23](#test-23) | Bowling (aim with a finger, swing to throw) | 1 to 4 phones, 1 TV, a child for item 11 | REQ-BW-*, REQ-GM-80 to 84, 90 to 98, REQ-GM-37, REQ-GM-47i to 47n | Fail (steps 4g) | R7 | |
 | [24](#test-24) | Swing detector for Tennis (debug overlay) | 1 to 2 phones, 1 TV with its remote | REQ-TN-5 to 9 (`docs/games/tennis.md`), REQ-T4 | Not run | | |
 | [25](#test-25) | Tennis (swing, toss, serve, rally, scoring) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-TN-* (`docs/games/tennis.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [26](#test-26) | Mini Golf (aim, putt power, turns, 5 holes) | 1 to 4 phones, 1 TV, a child for item 12 | REQ-MG-* (`docs/games/mini_golf.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [27](#test-27) | Air Hockey (tilt, enroll with A, ROBO the bot) | 1 to 4 phones, 1 TV with its remote, a stopwatch, a phone camera (240 fps for item 3b), a child for item 9 | REQ-AH-* (`docs/games/air_hockey.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-105, 106, REQ-GM-47i to 47n | Fail (steps 6b) | R6 | |
 | [28](#test-28) | Mole Bonk (pointer, bonk, moles, difficulty) | 1 to 4 phones, 1 TV, a 240 fps camera, a child for item 10 | REQ-WM-* (`docs/games/whack_a_mole.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
-| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [29](#test-29) | Sheep Herding (tilt, a team herds the sheep into the pen) | 1 to 4 phones, 1 TV, a child for items 8a to 8d | REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Not run | | |
 | [30](#test-30) | Tower Builder (turns, swing, drop, wobble, 12 bricks) | 1 to 4 phones, 1 TV, a stopwatch, a child for item 9 | REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-47i to 47n | Not run | | |
 | [31](#test-31) | Freeze Dance (wiggle, freeze, difficulty) | 1 to 4 phones, 1 TV, a stopwatch, a 240 fps camera (item 4a), a child for item 10 | REQ-FD-* (`docs/games/freeze_dance.md`), REQ-GM-80 to 84, 90 to 97, REQ-GM-102, REQ-GM-47i to 47n | Partial (see the result table) | R6 | |
-| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50 | Not run | | |
+| [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 to 4 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n | Not run | | |
 | [33](#test-33) | iPhone QR scanner (camera view, permission, cancel, privacy) | 1 iPhone, 1 Mac with Xcode, 1 TV, a second phone, a child for item 9b, a Hebrew reader for item 8a | REQ-FL-58, 88 to 92 (`docs/TV_FLOW.md`), issue #299 | Not run (next release, iOS, issue #415) | | |
 | [34](#test-34) | Join approval with the TV remote (built, not run) | 2 phones, 1 TV with its real remote, a stopwatch, a native reader of Hebrew for item 7a | REQ-FL-93 to REQ-FL-104, FD-30 (`docs/TV_FLOW.md`), issue #393 | Not run | | |
 
@@ -94,30 +94,32 @@ Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The 
 
 Moved from `CLAUDE.md` on 2026-10-31 (issue #312). Brought in line with the Results tables on 2026-11-01. The Sababi Test Tracker holds the live results; the Results tables of each test are the source for this table.
 
-Tests the user has to run now (status on 2026-11-10 after run R7; the list is in the order to do them. R7 retested the steps of the closed issues #111 to #114 (4c2 of Test 10, 6c of Test 17, 4 and 8 of Test 12): all Pass, but the owner's note of step 4c2 says the orangutan has sparkles, which is open for the tester to confirm. Open failures: step 6b of Test 27 (issue #431) and step 4g of Test 23 (issue #432)). Tests 1, 2, 3, 4, 6, 8, 8b, 9, 10, 11, 15 and 17 have no open step (all steps Pass), so they are not in the table; run them again only when their area changes. Tests 13 and 33 (iPhone) are for the next release (iOS, issue #415): they are at the end of the table and are not run for the first (Android) release:
+Tests the user has to run now (status on 2026-11-10 after run R7; the list is in the order to do them. R7 retested the steps of the closed issues #111 to #114 (4c2 of Test 10, 6c of Test 17, 4 and 8 of Test 12): all Pass; the owner's note of step 4c2 said the orangutan has sparkles, and the owner confirmed on 2026-11-10 (issue #436) that it showed hearts. Open: step 6b of Test 27 has no result for the build after the fix of issues #146 and #147 (the R6 Fail of 2026-10-27 was before it; issue #431, filed from that row, was closed as a duplicate on 2026-11-12); step 4g of Test 23 was fixed in #449 (issue #432, closed on the owner's word of 2026-11-12; the result is not recorded yet)). Open failure: step 1a of Test 4 (issue #437, and R7 was on a desktop, not a TV box: issue #386). Tests 1, 2, 3, 6, 8, 8b, 9, 10, 11, 15 and 17 have no open step (all steps Pass), so they are not in the table; run them again only when their area changes. Tests 13 and 33 (iPhone) are for the next release (iOS, issue #415): they are at the end of the table and are not run for the first (Android) release:
 
 | Test | What the user does | Why |
 |------|--------------------|-----|
 | 34 | **New (join approval, issue #393). Built in 4 phases (2026-11-07); not run.** 2 phones and the real TV remote: the setting row and its default (1a to 1c), the card, its two buttons, OK, and BACK that does nothing on the card (2a to 2e), the waiting text and CANCEL on the phone (3a, 3b), the refusal, the timeout and a full queue (4a to 4c), a returning phone with no card (5a), the TV that closes while a phone waits (5b), a join during a round (6a), a held profile (6b), the Hebrew texts (7a), a child of 5 to 8 years (8a). The rules (queue, limits, the 60 s, the held profile, OFF) are planned as headless checks in `tests/join_approval.gd` (`docs/AUTOMATED_TESTS.md` when built) | The owner decided on 2026-11-07 (issue #385) that the host approves each new phone with the remote; the details are FD-30 and REQ-FL-93 to REQ-FL-104. All texts, the card, the 60 s and the 1 s guard are first guesses; the Hebrew is written by Claude |
-| 32 | **New game.** Bumper Cars with 2 to 4 phones: the tile against the game, a tester points at a star and a car, the FPS with 2 phones on the TV box, a child of 5 to 8 years, the how-to line (3 testers), the Hebrew texts (a Hebrew reader), the pixel look from the sofa. The tilt times, the stars, the hits, the buzz, the round and Easy and Hard are automated (`docs/AUTOMATED_TESTS.md`, A-32-*) | Bumper Cars was added on 2026-10-24 (`docs/games/bumper_cars.md`). Needed before it is merged. All values (speeds, hit speed, stars on the floor, rink size), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-29 that a hit takes no star (it was 1 star from each car); the how-to line says so since 2026-10-30 (issue #212) and the hint line is shorter (owner text, issue #191), so step 11a and the Hebrew reader (11b) read the new texts |
+| 32 | **New game.** Bumper Cars with 2 to 4 phones: the tile against the game, a tester points at a star and a car, a child of 5 to 8 years, the how-to line (3 testers), the Hebrew texts (a Hebrew reader), the pixel look from the sofa. The tilt times, the stars, the hits, the buzz, the round and Easy and Hard are automated (`docs/AUTOMATED_TESTS.md`, A-32-*) | Bumper Cars was added on 2026-10-24 (`docs/games/bumper_cars.md`). Needed before it is merged. All values (speeds, hit speed, stars on the floor, rink size), the pictures, the song, the sounds and the Hebrew texts are first guesses. The owner decided on 2026-10-29 that a hit takes no star (it was 1 star from each car); the how-to line says so since 2026-10-30 (issue #212) and the hint line is shorter (owner text, issue #191), so step 11a and the Hebrew reader (11b) read the new texts |
 | 31 | **Open: items 10c, 12b, 13** (after run R7 of 2026-11-10; step 11 was removed on 2026-11-10; 11 of 14 steps are Pass or N/A in the Results table). | Freeze Dance was added on 2026-10-24 (`docs/games/freeze_dance.md`). Needed before it is merged. Every value (the wiggle level, the limit for "still", the grace time, the music and freeze lengths), the pictures, the song and the Hebrew texts are first guesses |
-| 30 | **New game.** Tower Builder with 1 to 4 phones: the tile against the game, a lost Wi-Fi during a turn (8a), the FPS with 1 phone on the TV box, a child of 5 to 8 years, a tester reads the plates, the brick and the tower are pointed at, Hebrew from the sofa. The swing, the drop, the miss, the topple, the turn times, the 12 bricks, the medals and a player that leaves are automated (A-30-*) | Tower Builder was added on 2026-10-23 (`docs/games/tower_builder.md`). Needed before it is merged. All values (the swing, the 12 bricks, the slack of the joints), the pictures, the song and the Hebrew texts are first guesses |
-| 29 | **New game.** Sheep Herding with 1 to 4 phones: the tile against the game, a tester points at the gate, an adult herds all the sheep in the time (4 and 6a), the FPS with 1 phone on the TV box, a child of 5 to 8 years, the how-to line, the Hebrew texts. The tilt times, how the sheep run, the buzz and the dog size are automated (A-29-*) | Sheep Herding was added on 2026-10-23 (`docs/games/sheep_herding.md`, issue #98). Needed before it is merged. All values (dog speed, the scare distance, the sheep speed, the gate, the time of a round), the pictures, the song and the Hebrew texts are first guesses; a Hebrew reader checks the 7 new texts |
+| 30 | **New game.** Tower Builder with 1 to 4 phones: the tile against the game, a lost Wi-Fi during a turn (8a), a child of 5 to 8 years, a tester reads the plates, the brick and the tower are pointed at, Hebrew from the sofa. The swing, the drop, the miss, the topple, the turn times, the 12 bricks, the medals and a player that leaves are automated (A-30-*) | Tower Builder was added on 2026-10-23 (`docs/games/tower_builder.md`). Needed before it is merged. All values (the swing, the 12 bricks, the slack of the joints), the pictures, the song and the Hebrew texts are first guesses |
+| 29 | **New game.** Sheep Herding with 1 to 4 phones: the tile against the game, a tester points at the gate, an adult herds all the sheep in the time (4 and 6a), a child of 5 to 8 years, the how-to line, the Hebrew texts. The tilt times, how the sheep run, the buzz and the dog size are automated (A-29-*) | Sheep Herding was added on 2026-10-23 (`docs/games/sheep_herding.md`, issue #98). Needed before it is merged. All values (dog speed, the scare distance, the sheep speed, the gate, the time of a round), the pictures, the song and the Hebrew texts are first guesses; a Hebrew reader checks the 7 new texts |
 | 28 | **Open: items 13b** (after run R7 of 2026-11-10; steps 11 and 13a were removed on 2026-11-10; 10 of 11 steps are Pass or N/A in the Results table). | Mole Bonk was added on 2026-10-23 (`docs/games/whack_a_mole.md`). Needed before it is merged. All values (the stay, the spawn time, the hit circle, the points), the pictures, the song and the Hebrew texts are first guesses |
-| 27 | **Open: items 1a, 3a, 6b, 11b, 11d** (after run R7 of 2026-11-10; steps 10 and 11e were removed on 2026-11-10; 9 of 14 steps are Pass or N/A in the Results table). Step 6b failed (issue #431). | Air Hockey and ROBO were added on 2026-10-23 (`docs/games/air_hockey.md`, REQ-GM-105, 106). Needed before they are merged. All values (the mallet and puck physics, the goal size, the levels of ROBO), the pictures, the song, the effects and the Hebrew texts are first guesses |
+| 27 | **Open: items 1a, 3a, 6b, 11b, 11d** (after run R7 of 2026-11-10; steps 10 and 11e were removed on 2026-11-10; 9 of 14 steps are Pass or N/A in the Results table). Step 6b has no result for the current build: the R6 Fail was before the fix of #146 and #147 (issue #431 was a duplicate). | Air Hockey and ROBO were added on 2026-10-23 (`docs/games/air_hockey.md`, REQ-GM-105, 106). Needed before they are merged. All values (the mallet and puck physics, the goal size, the levels of ROBO), the pictures, the song, the effects and the Hebrew texts are first guesses |
 | 26 | **New game.** Mini Golf with 1 to 4 phones: the aim by turning the phone and its lock at the back swing, the power of soft, medium and hard putts and the delay, the turns, the 5 holes (walls, rocks, hills, a ramp and slide, windmill with a door, lake and bridge), the words (birdie, par, bogey, hole in one, picked up), Easy, Medium and Hard help, the medal, a player that leaves, a child of 5 to 8 years, the pixel look from the sofa, the view from above, the white ball of the player on turn (steps 14d and 14e, new on 2026-11-03), light swings (step 16j, 2026-11-03), the phone passed to the next player and the hint on the phone (steps 16b3 and 16b4, 2026-11-06) | Mini Golf was added on 2026-10-17 (`docs/games/mini_golf.md`); its view was redesigned on 2026-11-03 (`docs/MINI_GOLF_REDESIGN.md`). Needed before it is merged. It uses the swing detector of tests 23 and 24, so run test 24 first. All values (swing thresholds, putt speeds, friction, the hole designs), the pictures, the song and the Hebrew texts are first guesses |
-| 25 | **New game.** Tennis with 1 to 4 phones: the two-phase swing (back, then forward; step 16h, 2026-11-03), the safety card with 3 children of 5 to 8 years (15c, 2026-10-30), toss with A and a serve swing from top to bottom, the hit window (the ring on the court, green and yellow, early and late swings), power and left or right aim, the characters that run by themselves, the ball and its shadow from the sofa, Real and Quick scoring, 2 against 1 and 2 against 2, the machine rally alone (medals), a player that leaves, a child of 5 to 8 years | Tennis was added on 2026-10-17 (`docs/games/tennis.md`). Needed before it is merged. It uses the swing detector of tests 23 and 24, so run test 24 first. All values (the hit window, the green zone, the ball speeds), the pictures, the song and the Hebrew texts are first guesses |
+| 25 | **New game.** Tennis with 1 to 4 phones: the two-phase swing (back, then forward; step 16h, 2026-11-03), the safety card with 3 children of 5 to 8 years (15c, 2026-10-30), the ball tossed by itself (A tosses at once) and a serve swing from top to bottom, the hit window (the ring on the court, green and yellow, early and late swings), power and left or right aim, the characters that run by themselves, the ball and its shadow from the sofa, Real and Quick scoring, 2 against 1 and 2 against 2, the machine rally alone (medals), a player that leaves, a child of 5 to 8 years | Tennis was added on 2026-10-17 (`docs/games/tennis.md`). Needed before it is merged. It uses the swing detector of tests 23 and 24, so run test 24 first. All values (the hit window, the green zone, the ball speeds), the pictures, the song and the Hebrew texts are first guesses |
 | 24 | **New (swing detector for Tennis).** Debug overlay with 1 to 2 phones: no swing when still or walking, strokes (back, then forward) found with a power that grows from soft to hard, a serve from top to bottom says DOWN and a stroke from left to right does not, one swing for swing and back, a tap or shake is not a swing (also a sideways move or a slow shake, which the forward ratio rejects since 2026-10-29, issues #141 and #142), a sharp push counts, the side value of a swing to the left and to the right, the delay in ms, an iPhone | The Bowling swing detector was moved to `scripts/input/` and used for Tennis on 2026-10-17 (`docs/games/tennis.md`, REQ-TN-5 to 9). Needed before Tennis is built on it. Every threshold and the forward ratio (`FWD_RATIO`, 2026-10-29) is a first guess and is tuned from this test |
 | 23 | **Open: items 4g, 14a, 14b, 14c** (after run R7 of 2026-11-10; step 12 was removed on 2026-11-10; 17 of 21 steps are Pass or N/A in the Results table). Step 4g failed twice (issue #432). | Bowling was added on 2026-10-16 (`docs/games/bowling.md`). Needed before it is merged. It was only tested with made-up sensor values (the thresholds and the forward ratio `FWD_RATIO` were tuned on 2026-10-29 with made-up series only): the swing thresholds, the strip size, the ball speeds, the pictures, the song, the effects and the Hebrew text are first guesses |
-| 22 | **Open: items 11, 12b, 12i, 12j, 12k, 14a, 14b** (after run R7 of 2026-11-10; 9 of 16 steps are Pass or N/A in the Results table). | Star Shield was added on 2026-10-16 (`docs/games/asteroid_blast.md`). Needed before it is merged. All values (speeds, waves, upgrade times), the pictures, the song, the effects and the Hebrew text are first guesses |
+| 22 | **Open: items 12b, 12i, 12j, 12k, 14a, 14b** (after run R7 of 2026-11-10; step 11 was removed on 2026-11-10; 9 of 15 steps are Pass or N/A in the Results table). | Star Shield was added on 2026-10-16 (`docs/games/asteroid_blast.md`). Needed before it is merged. All values (speeds, waves, upgrade times), the pictures, the song, the effects and the Hebrew text are first guesses |
 | 21 | **Changed 2026-10-21 (join by room code, About screens); room code on the Games screen added 2026-11-01.** Open: steps 1c to 1e, the room code, always in the header of the Games screen (issue #172, REQ-FL-15a): read it from 3 m with 0 and with 4 players in English, and with 0 and 2 players in Hebrew. The other steps (join with the QR code, with the typed room code, an Android phone and an iPhone, one hand, the time to join, the About screens on the TV and on a phone, Hebrew) passed in R3 and R4 | The join PIN, the list of TVs and Refresh were removed on 2026-10-21 (issue #52, FD-28): the phone types the room code (the TV address in 4 letters) or scans the QR code, protocol version 5. Both apps have an About screen with the license notices (FD-25). Needed before it is merged. The texts are first guesses; a Hebrew reader checks the new texts |
-| 20 | **New (player profiles, phases A to C; items 16 and 17 added 2026-10-11).** Items 16 and 17: the dropdown and + on the Connect screen, the one-line avatar carousel, Back and Save at the bottom, no PLAYER button when joined, the avatar on the HUD chips and no number or avatar on any game object. Phase C: personal bests (NEW BEST! on the phone, a worse round, the bests after a restart, no best in the maze and Sumo). Phase B: share a player by QR to a second phone (distance, time, brightness), a rename merge, an iPhone that imports with IMPORT (PASTE A CODE and the player list were removed on 2026-11-02), a broken code, step 12e. Phase A: 2 to 4 phones, one profile each with a name and an avatar, a guest, a parent phone with 3 profiles, the same profile on 2 phones, `Sam` and `sam`, the pause card with names, all 32 avatars from the sofa and the scrolling picker, a child of 5 to 8 years, Hebrew names | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). Needed before it is merged. The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
+| 20 | **New (player profiles, phases A to C; items 16 and 17 added 2026-10-11).** Item 1b3 (new 2026-11-11: the grey guest picture with a question mark for a phone with no profile). Items 16 and 17: the dropdown and + on the Connect screen, the one-line avatar carousel, Back and Save at the bottom, no PLAYER button when joined, the avatar on the HUD chips and no number or avatar on any game object. Phase C: personal bests (NEW BEST! on the phone, a worse round, the bests after a restart, no best in the maze and Sumo). Phase B: share a player by QR to a second phone (distance, time, brightness), a rename merge, an iPhone that imports with IMPORT (PASTE A CODE and the player list were removed on 2026-11-02), a broken code, step 12e. Phase A: 2 to 4 phones, one profile each with a name and an avatar, a guest, a parent phone with 3 profiles, the same profile on 2 phones, `Sam` and `sam`, the pause card with names, all 32 avatars from the sofa and the scrolling picker, a child of 5 to 8 years, Hebrew names | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). Needed before it is merged. The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
 | 19 | **New (leader chip, phone score).** Banana Party, Paint Grab and Sumo Bumpers with 4 phones, two with names of 10 letters: one leader chip on one row, TIE, the place and score on each phone, Car Race and Treasure Maze, a child of 5 to 8 years, Hebrew. New items 8c and 8d (2026-10-30, issue #237): the new player colors cyan, orange, purple and pink, 4 testers and one with red-green color blindness | The row of 4 player chips wrapped and covered the play area (issue #25). Replaced on 2026-10-10 (FD-21, REQ-FL-67, REQ-GM-46; the name tags of the countdown were removed on 2026-10-21 by decision of the owner). Needed before it is merged. The sizes are first guesses |
 | 18 | **New (sound and haptics).** The menu song, the effects of the menus and of all games, the Music and Effects rows, the phone Settings screen with the HAPTICS row, the sound of the pause and result menus, a child of 5 to 8 years | Audio was added on 2026-10-10 (FD-20, `docs/AUDIO_PLAN.md`). Needed before it is merged. All songs, effects and levels are first guesses; the render time of a song on a TV box is not measured |
 | 16 | **Open: items 6b2** (after run R7 of 2026-11-10; 11 of 12 steps are Pass or N/A in the Results table). | Phase 1 of `docs/ARCADE_STYLE_PLAN.md` was built on 2026-10-10. Needed before it is merged. The games are in the pixel style too (phases 2 to 4 are built). All sizes and values come from the plan |
-| 7 | **Open: items 6a** (after run R7 of 2026-11-10; 16 of 17 steps are Pass or N/A in the Results table). The question about step 9b is issue #433. | R1 found that a phone without Wi-Fi did not pause the game, and that a phone call ended the game with no way to resume. Fixed and changed on 2026-10-09 (REQ-GM-30, 30a) |
+| 7 | **Open: items 6a, 6b, 6f, 6g, 6h, 6i, 9a and 9b** (after run R7 of 2026-11-10; 9a and 9b changed on 2026-11-10 with the softer lost-link look, issue #433, and are Not run again; 6b changed with the text HOLD TO DISCONNECT and 6f to 6i are new, issue #435, REQ-FL-52c). | R1 found that a phone without Wi-Fi did not pause the game, and that a phone call ended the game with no way to resume. Fixed and changed on 2026-10-09 (REQ-GM-30, 30a) |
+| 8 | **Open: item 6b** (changed 2026-11-10, issue #435: Back on the phone in a game asks the TV "End the game?"; the other steps are Pass in R3 to R5). | Back on the pad in a game no longer opens QUIT SABABI APP? on the phone (REQ-FL-52c, REQ-FL-55). Needs a phone and the real Android Back key |
 | 14 | **Open: items 11h, 12, 13a, 13a2, 13e, 13f, 13g** (after run R7 of 2026-11-10; steps 8, 13b, 13c and 13d were removed on 2026-11-10; 6 of 13 steps are Pass or N/A in the Results table). | Paint Grab and `TiltBody` were added on 2026-10-09 on branch `games/paint-grab`. On 2026-10-10 the floor became a pixel world (phase 4 of the arcade style). All values are first guesses |
 | 12 | **Open: items 1c, 10, 11** (after run R7 of 2026-11-10; 10 of 13 steps are Pass or N/A in the Results table). | REQ-GM-49. Claude makes the tiles again when they differ |
+| 4 | **Open: step 1a failed in R7 (issue #437); a run on a real TV box is needed (issue #386).** 1 phone and a real TV box (not a desktop or an emulator), the TV on Ethernet or Wi-Fi with the game mode on (RISKS B6): read the overlay at 10, 20 and 30 s, still and moving (steps 1a to 4a). R7 was on a desktop, so its Pass of steps 2a, 3a and 4a does not count for a TV box. | R0 and R7 were on a desktop. RTT was above 60 ms in R0; in R7 the owner said that some reading was at or above 40 ms. The numbers on a TV box are not known (RISKS B6, REQ-GM-12) |
 | 13 | **Next release (iOS, issue #415).** Controller on an iPhone: deploy with `IOS_TEAM_ID=<id> tools/deploy-ios.sh`, join with the typed room code, sensor directions, lock and unlock | New on 2026-10-09. Written on a Mac without Xcode, so never run |
 | 33 | **Next release (iOS, issue #415).** **New (iPhone QR scanner).** An iPhone with a Mac and Xcode: build the plugin and deploy (1a), the scan button, the camera question on the first scan and the view (2a, 2b, 3a, 3b), a TV code, a profile code and a web page code (4a to 4d), CANCEL, swipe down and the home button (5a to 5c), the camera off in Settings and on again (6a, 6b), no photo saved and only Camera and Local Network listed (7a, 7b), Hebrew from a Hebrew reader (8a), a dark room and a child of 5 to 8 years (9a, 9b). Run test 13 steps 1a to 2d first. Nothing here can be done headless | The iPhone scanner was planned on 2026-11-01 (`docs/IOS_SCANNER_PLAN.md`, issue #299, REQ-FL-58, 88 to 92). The plugin source is written on Linux and was never built or run: every value, the plugin and the texts (also the Hebrew camera question) are unverified. Needed before it is merged and before the privacy notice text about the iPhone camera is final |
 
@@ -145,6 +147,8 @@ Uninstall the old apps first. The package names changed (FD-26 and FD-27; the li
 4f. Tap **Disconnect**. Type the 4 letters of the room code. Check: the phone does not join by itself (still on the Connect screen 3 s after the 4th letter, 3 of 3 tries) and the letters show as capitals while you type; then tap JOIN: the phone shows the waiting screen less than 5 seconds later. A child of 5 to 8 years reads the 4 letters from the TV and types them: note the seconds and the wrong letters.
 4g. **New 2026-11-06 (owner); changed 2026-11-10 (owner: the app QR code moved from the Connect screen to the logo screen).** Start the TV app and look at the logo screen from the sofa. Check: the logo is at the top and the card with the words GET THE PHONE APP TO PLAY and its QR code under it, both centered, the screen is still there after 10 s (it does not go on by itself), and OK goes on to the Connect screen, which has only the room QR code with the words SCAN TO JOIN (4 of 4 yes). With the TV set to Hebrew, the Hebrew title of the card is read by a native reader: it wraps to two or more lines inside the card and reads right (yes or no). Scan the code on the logo screen with a phone camera: it opens the page https://alonzo86.github.io/remote-play/get/ (it works once the repository is public and Pages is on, issue #37; the store button says "Coming soon" until the app has its store page).
 4h. **New 2026-11-06 (owner); changed 2026-11-10 (owner: the two codes are no longer on one screen).** On the Connect screen, hold a phone with the Sababi app 2 m from the TV and tap SCAN QR CODE 5 times (re-aiming each time). Check: the phone joins in 5 of 5 scans (there is only the room code in view).
+4i. **New 2026-11-12 (owner).** On an Android phone with the system buttons hidden (full screen), open the Sababi app and look at the Connect screen. Check: a QUIT icon button (a power sign) is in the corner at the end of the top row, after ABOUT and SETTINGS (at the right in English, at the left in Hebrew); a tap opens the question QUIT SABABI APP? with STAY and QUIT; STAY closes it and QUIT leaves the app.
+4j. **New 2026-11-12 (owner).** On the TV, open the Games screen. Check: the header has the players badge, then the ABOUT icon button, then the OPTIONS icon button (no word on them); OK on ABOUT opens the About screen and Back returns to ABOUT; OK on OPTIONS opens Settings, which has no About row.
 6a. Tap **Disconnect** on the phone. Check: within 6 seconds the TV slot of the phone is empty (the slot may show "LOST" for 5 seconds at most, REQ-FL-8, issue #44).
 6b. Close the controller app and start it again, and film the start. Check: the Android splash (the mascot on black) is already in portrait and the phone does not turn at any frame of the video, and it is the only splash: the Connect screen follows at once, with no logo screen.
 
@@ -275,10 +279,10 @@ Reading rule: for each phone, read the overlay row at 10 s, 20 s and 30 s of a 3
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
-| 1a (RTT ms: good below 20, acceptable below 40, problem above 60) | Overlay screenshots at 10, 20 and 30 s, still and moving (write the 6 values) | Pass | R7 |  | R7: Pass - mostly below 40 (question to the owner: issue #437). Before (R0): Fail - above 60 ms (exact value not written down). TV app on a desktop, not a TV box. The TV of R7 was not written down. |
-| 2a (Rx Hz: good 58 to 60, acceptable 50 to 58, problem below 50) | Same screenshots as 1a | Pass | R7 |  | R7: Pass. Before (R0): Retest - 'above 55' (exact value not written down). Desktop TV. |
-| 3a (Gap ms: longest gap in 1 s; good below 40, acceptable below 80, problem above 100) | Same screenshots as 1a | Pass | R7 |  | R7: Pass. Before (R0): Fail - 150 to 380 ms. Desktop TV. |
-| 4a (Lost: good 0) | Same screenshots as 1a | Pass | R7 |  | R7: Pass. Before (R0): Pass - 0. |
+| 1a (RTT ms: good below 20, acceptable below 40, problem above 60) | Overlay screenshots at 10, 20 and 30 s, still and moving (write the 6 values) | Fail | R7 |  | R7: Fail - the owner first ticked Pass with the note 'mostly below 40'; the owner confirmed on 2026-11-10 (issue #437) that some reading was at or above 40 ms (the values were not written down; the highest reading is unknown). The TV of R7 was a desktop or an emulator, not a real TV box (like R0, issue #386): this step needs a run on a TV box. Before (R0): Fail - above 60 ms (exact value not written down). TV app on a desktop, not a TV box. |
+| 2a (Rx Hz: good 58 to 60, acceptable 50 to 58, problem below 50) | Same screenshots as 1a | Pass | R7 |  | R7: Pass as reported, but measured on a desktop or an emulator, not on a real TV box (issue #386): a run on a TV box is needed. Before (R0): Retest - 'above 55' (exact value not written down). Desktop TV. |
+| 3a (Gap ms: longest gap in 1 s; good below 40, acceptable below 80, problem above 100) | Same screenshots as 1a | Pass | R7 |  | R7: Pass as reported, but measured on a desktop or an emulator, not on a real TV box (issue #386): a run on a TV box is needed. Before (R0): Fail - 150 to 380 ms. Desktop TV. |
+| 4a (Lost: good 0) | Same screenshots as 1a | Pass | R7 |  | R7: Pass as reported, but measured on a desktop or an emulator, not on a real TV box (issue #386): a run on a TV box is needed. Before (R0): Pass - 0. |
 
 The same four values are read on the loopback by the automated tests (docs/AUTOMATED_TESTS.md, A-4-1), with looser limits because a headless frame is 17 ms. The steps for 4 phones (1b, 2b, 3b, 4b) and for the camera (5) were removed on 2026-11-10 at the request of the owner, who has 1 phone: the 4 phone numbers are A-4-1 (`net_rate`, 4 phones in the maze) and the response in frames is A-4-5 (`net_rate`). What stays here: the numbers of the real radio with 1 phone.
 
@@ -286,7 +290,7 @@ Measurements (not steps): the values read in R0 are in the Notes. Write the exac
 
 History:
 
-- 2026-11-10 (R7): steps 1a, 2a, 3a and 4a Pass (1 phone; the note of 1a says "mostly below 40"; the TV was not written down). Steps 1b, 2b, 3b, 4b (4 phones) and 5 (the camera at 240 fps) were marked N/A by the owner ("remove step, i don't have 4 phones. try automating with load testing"; "either remove this step or automate, this is impossible to manually test") and are removed from this file. The 4 phone load is in A-4-1 (`net_rate`); the delay in frames is A-4-5 (`net_rate`). The delay of the real phone and TV with a camera is not measured by anything now: REQ-GM-12 (150 ms) stays Device.
+- 2026-11-10 (R7): step 1a **Fail**; steps 2a, 3a and 4a Pass (1 phone). The owner first ticked Pass for 1a with the note "mostly below 40"; on 2026-11-10 (issue #437) the owner confirmed that some reading was at or above 40 ms (the values were not written down; the highest reading is unknown), so 1a is Fail (rule: the worst of the three readings counts). The TV of R7 was a desktop or an emulator, not a real TV box (like R0, issue #386): the Pass of 2a, 3a and 4a stays as reported but was measured on a desktop. Test 4 is still open: it needs a run on a real TV box (RISKS B6: game mode on, Ethernet or Wi-Fi written in the Run log), and issue #386 stays open. Steps 1b, 2b, 3b, 4b (4 phones) and 5 (the camera at 240 fps) were marked N/A by the owner ("remove step, i don't have 4 phones. try automating with load testing"; "either remove this step or automate, this is impossible to manually test") and are removed from this file. The 4 phone load is in A-4-1 (`net_rate`); the delay in frames is A-4-5 (`net_rate`). The delay of the real phone and TV with a camera is not measured by anything now: REQ-GM-12 (150 ms) stays Device.
 - R0: **Fail**. RTT above 60 ms, Rx Hz above 55, Gap 150 to 380 ms, Lost 0. TV app on a desktop (not a TV box), phone on the same Wi-Fi: not yet representative of a real TV. The total delay (camera) was not tested.
 
 ## Test 6
@@ -335,7 +339,7 @@ History:
 
 ### Disconnect and reconnect
 
-Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-MR-14, REQ-MZ-8.
+Needs: 2 phones, 1 TV, a stopwatch, a third phone to call (for item 7). Covers: REQ-GM-30, REQ-GM-30a, REQ-T5, REQ-N5, REQ-N6, REQ-FL-25, REQ-FL-52, REQ-FL-52a, REQ-FL-52c, REQ-FL-55, REQ-GM-31a, REQ-MR-14, REQ-MZ-8.
 
 Join approval (issue #393, phase 4): the TV setting "APPROVE NEW PLAYERS" is ON by default, so each phone that joins in this test waits for the host. Before the first join either turn the setting OFF (Settings, first row, press Left) or press OK on ALLOW on the TV card each time a phone joins (the focus is on ALLOW; REQ-FL-93, 94).
 
@@ -347,19 +351,23 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 3a. On the Games screen (not in a game), switch the phone Wi-Fi off for 45 seconds. Check: after 45 seconds the TV shows the slot of the phone as empty (it is empty 5 seconds after the phone was lost, REQ-FL-8).
 3b. Switch the Wi-Fi on. Check: within 10 seconds the phone joins again by itself (the TV does not know it any more, so it takes a new slot, maybe a different one) and shows "CHOOSE A GAME ON THE TV". No question is asked. (Issue #52: the PIN pad is gone.)
 3c. (Removed with the join PIN, issue #52. The phone joins again by itself in 3b.)
-6a. On the phone pad (in a game), tap **HOLD TO LEAVE** (the box at the bottom edge) quickly 5 times. Check: the phone is still on the pad (no leave). (REQ-FL-52a, issue #239)
-6b. On the phone pad, press **HOLD TO LEAVE** and keep the finger on it. Check: the box is at the bottom edge, with a gap of at least 48 px at the left and right and 32 px at the bottom, none of its four corners is cut by the round corner of the phone (yes or no), and it shows the whole text HOLD TO LEAVE (also in Hebrew; changed 2026-11-03); the box fills from left to right and the phone shows the Connect screen 0.8 to 1.2 seconds after the press. A Hebrew reader checks the text HOLD TO LEAVE (`pad.disconnect_hold`). (REQ-FL-52a, issue #239)
-6c. Swing the phone in Tennis or Bowling for 20 swings with the thumb near the bottom edge (changed 2026-11-02: HOLD TO LEAVE is at the bottom; it was at the top right). Check: the phone does not leave the TV (yes or no). (issue #239)
+6a. On the phone pad (in a game), tap **HOLD TO DISCONNECT** (the box at the bottom edge) quickly 5 times. Check: the phone is still on the pad (no leave). (REQ-FL-52a, issue #239)
+6b. On the phone pad, press **HOLD TO DISCONNECT** and keep the finger on it. Check: the box is at the bottom edge, with a gap of at least 48 px at the left and right and 32 px at the bottom, none of its four corners is cut by the round corner of the phone (yes or no), and it shows the whole text HOLD TO DISCONNECT (also in Hebrew; changed 2026-11-03; the English text changed on 2026-11-10, issue #435: it was HOLD TO LEAVE); the box fills from left to right and the phone shows the Connect screen 0.8 to 1.2 seconds after the press. A Hebrew reader checks the text (`pad.disconnect_hold`). The tester also says what the box does: it disconnects the phone from the TV (yes or no). (REQ-FL-52a, issue #239)
+6c. Swing the phone in Tennis or Bowling for 20 swings with the thumb near the bottom edge (changed 2026-11-02: HOLD TO DISCONNECT is at the bottom; it was at the top right). Check: the phone does not leave the TV (yes or no). (issue #239)
 7a. With one phone in a game, call that phone from another phone and answer. Check: within 4 seconds of the answer (3 s of silence plus 1 s) the game pauses with the card "NO PLAYERS CONNECTED" (one phone, issue #46).
 7b. End the call and go back to the controller app. Check: the phone says "RECONNECTING..." and then joins again in 10 seconds or less (stopwatch from the return to the app).
 7c. Check: the card says "1P reconnected" with **Resume**, and **Resume** goes on with the game.
 7d. Do a call that lasts 70 seconds (the slot is kept 5 minutes while the game is paused). Check: after the call the phone joins again in the same slot.
 8a. **The TV closes (2026-10-29, issue #169).** With one phone joined and on the Games screen, press Back on the TV remote until the TV app quits. Check: within 3 seconds the phone leaves the waiting screen and shows the Connect screen or "RECONNECTING..." (yes or no). (REQ-GM-30)
 8b. Join again, then kill the TV app (swipe it away in the recent apps, or unplug the box). Check: within 5 seconds the phone shows "RECONNECTING..." and not the waiting screen with the game name (yes or no). (REQ-GM-30)
-9a. **Lost link on the pad (2026-10-30, issue #238).** Start a game with one phone, then switch the phone Wi-Fi off. Check: within 4 seconds the phone vibrates once for about 0.7 s and the pad shows a frame of red and white dashes around the whole screen, a dimmed play area and RECONNECTING... in the middle (yes or no for each of the three). (REQ-FL-52b)
-9b. Look at the phone for the dashed frame with a color-blindness filter on (or in gray scale). Check: the frame is still visible as a ring of dashes (yes or no).
+6f. **Pause button (2026-11-10, issue #435).** Start a game with one phone and look at the top right of the pad. Check: a square button with a white frame and two white bars (a pause symbol) is at the right end of the header row, about 1 cm from the right edge, and no letter of the player name is covered by it (yes or no for each of the two). Repeat with a profile whose name is 10 letters of the widest kind (for example WWWWWWWWWW) and an avatar: the name goes on a second line and none of its letters is under the button (yes or no).
+6g. In the game, tap the pause button once. Check: within 1 second the TV pauses the game and shows the question "END THE GAME?" with RESUME first and in focus (yes or no), and the phone still shows the pad. Press OK on the TV: the game goes on.
+6h. In the game, press the Android Back key on the phone once (a swipe from the edge on a phone with gestures). Check: the TV shows the same question "END THE GAME?" as in 6g, and the phone does not show "QUIT SABABI APP?" (yes or no for each of the two). Press Back on the phone twice more, with a pause of 2 seconds: the question stays and no "QUIT SABABI APP?" shows.
+6i. While the question "END THE GAME?" shows on the TV, tap the pause button 5 times. Check: the question stays as it is and the game stays paused (yes or no). Then, on the menu of the TV (Games screen), look at the pad: the pause button shows only while a game plays (yes or no: no button on the waiting screen).
+9a. **Lost link on the pad (2026-10-30, issue #238).** Start a game with one phone, then switch the phone Wi-Fi off. Check: within 4 seconds the phone vibrates once for about 0.7 s and the pad shows a thin yellow frame around the whole screen, the A and B buttons dimmed and RECONNECTING... in yellow in the middle (changed 2026-11-10, owner, issue #433: it was a frame of red and white dashes; yes or no for each of the four). (REQ-FL-52b)
+9b. Look at the phone for the yellow frame with a color-blindness filter on (or in gray scale). Check: the frame, the dimmed buttons and the words RECONNECTING... are still visible (yes or no for each of the three; changed 2026-11-10, owner, issue #433: it was the ring of dashes).
 9c. With the HAPTICS switch OFF repeat 9a. Check: the phone does not vibrate; the frame still shows.
-9d. Join with a profile whose name is 10 letters of the widest kind (for example WWWWWWWWWW) and an avatar. Check: all letters of the name show in the header and none is cut at the right edge of the screen (yes or no; changed 2026-11-02: HOLD TO LEAVE is at the bottom).
+9d. Join with a profile whose name is 10 letters of the widest kind (for example WWWWWWWWWW) and an avatar. Check: all letters of the name show in the header and none is cut at the right edge of the screen (yes or no; changed 2026-11-02: the leave box is at the bottom).
 
 **Results**
 
@@ -370,16 +378,20 @@ Time limit used below: the TV pauses when a phone is silent for 3 seconds (`Prot
 | 3b | Photo of the phone after the join, with the seconds | Pass | R4 |  |  |
 | 3c | (Removed with the join PIN) | N/A | | | Owner decision 2026-11-01: the step was removed with the join PIN (issue #52); the join by itself is step 3b. |
 | 6a | Video of 5 quick taps on the pad | Not run | | | Changed 2026-10-30 (issue #239). R4 passed the old one-tap step. |
-| 6b | Video of the hold: the fill and the seconds to the Connect screen | Pass | R7 |  | R7: Pass - question: should "hold to leave" leave the game or disconnect from the TV? Added 2026-10-30 (issue #239). |
+| 6b | Video of the hold: the fill and the seconds to the Connect screen | Not run | | | R7: Pass was for the text HOLD TO LEAVE; the text changed to HOLD TO DISCONNECT on 2026-11-10 (issue #435, owner), so the step is not run again yet. R7 note: question: should "hold to leave" leave the game or disconnect from the TV? Added 2026-10-30 (issue #239). |
 | 6c | Video of 20 swings | Pass | R7 |  | R7: Pass Added 2026-10-30 (issue #239). |
+| 6f | Photo of the pad with the pause button, also with a 10 letter name | Not run | | | New 2026-11-10 (issue #435). |
+| 6g | Video of a tap on the pause button and the question on the TV | Not run | | | New 2026-11-10 (issue #435). |
+| 6h | Video of Back on the phone in a game | Not run | | | New 2026-11-10 (issue #435). |
+| 6i | Video of 5 taps while the question shows | Not run | | | New 2026-11-10 (issue #435). |
 | 7a | Video of a phone call: the card, with the seconds | Pass | R4 |  |  |
 | 7b | Video of the return: 'RECONNECTING...', the join, the seconds | Pass | R4 |  |  |
 | 7c | Video: the card 'reconnected', Resume, the game goes on | Pass | R4 |  |  |
 | 7d | Video of the 70 s call and the return, same slot | Pass | R4 |  |  |
 | 8a | Video of the phone when the TV app quits | Pass | R7 |  | R7: Pass Added 2026-10-29 (issue #169). |
 | 8b | Video of the phone when the TV app is killed | Pass | R7 |  | R7: Pass Added 2026-10-29 (issue #169). |
-| 9a | Video of the Wi-Fi cut: the buzz (sound or feel), the frame, the time | Pass | R7 |  | R7: Pass Added 2026-10-30 (issue #238). |
-| 9b | Photo in gray scale | Pass | R7 |  | R7: Pass - question: it's visible but it's very alarming and not friendly, why is this frame even needed? Added 2026-10-30 (issue #238). Question and change request: issue #433. |
+| 9a | Video of the Wi-Fi cut: the buzz (sound or feel), the frame, the dimmed buttons, the time | Not run | | | R7: Pass was for the old frame of red and white dashes; the look changed on 2026-11-10 (issue #433), so the step is not run again yet. Added 2026-10-30 (issue #238). |
+| 9b | Photo in gray scale | Not run | | | R7: Pass was for the old dashed frame (the owner said: very alarming and not friendly, issue #433); the frame is now thin and yellow with dimmed buttons (owner, 2026-11-10), so the step is not run again yet. Added 2026-10-30 (issue #238). |
 | 9c | Video with HAPTICS OFF | Pass | R7 |  | R7: Pass Added 2026-10-30 (issue #238). |
 | 9d | Photo of the header | Pass | R7 |  | R7: Pass Added 2026-10-30 (issue #238). |
 
@@ -389,7 +401,8 @@ Measurements (not steps): write the reconnect time after the call (7b) in the No
 
 History:
 
-- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 6b, 6c, 8a, 8b, 9a, 9b, 9c, 9d. Step 6b: the owner asked "should HOLD TO LEAVE leave the game or disconnect from the TV?" (answer: it disconnects from the TV, REQ-FL-52a). Step 9b: the owner asked why the dashed frame is needed and called it alarming and not friendly: issue #433 (the owner decides).
+- 2026-11-10 (issue #435, owner decision): the text of the box is HOLD TO DISCONNECT (it was HOLD TO LEAVE; Hebrew unchanged), the pad has a pause button at the top right and Back on the phone in a game asks the TV "End the game?" (REQ-FL-52c). Step 6b is Not run again (the R7 Pass was for the old text); new steps 6f to 6i are Not run. The step 6b of Test 8 changed too.
+- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 6b, 6c, 8a, 8b, 9a, 9b, 9c, 9d. Step 6b: the owner asked "should HOLD TO LEAVE leave the game or disconnect from the TV?" (answer: it disconnects from the TV, REQ-FL-52a). Step 9b: the owner asked why the dashed frame is needed and called it alarming and not friendly: issue #433. Decided by the owner on 2026-11-10: a thin yellow frame (8 px), the A and B buttons dimmed, the header word and RECONNECTING... in yellow, the slot square keeps its color (no red); steps 9a and 9b changed and are Not run again (the R7 Pass was for the old look).
 - 2026-11-01 (N/A): step 3c was removed with the join PIN (issue #52); the owner decided to mark it N/A. It was "Not run". The join by itself is step 3b.
 - 2026-10-25 (N/A): step 4b was removed (the PIN question it mentions is gone since issue #52; the join by itself is step 3b).
 - 2026-10-21 (automated): items 1d, 4a and 5a to 5d moved to the automated tests (`r1_reconnect`: a phone that goes silent, with the real timeouts). Item 1a was split: the card on the TV is automated (A-7-7), and the phone half is automated too (A-7-8, `join_flow`, failing until issue #61 is fixed); step 1a2 was removed. The R1 result of 1a2 (Retest: the phone showed 'Reconnecting...' but the seconds were not written down) stays in the result database. The R1 results of 1a, 1d (Fail) and 5a to 5d (Retest) were about the TV; they stay in the result database.
@@ -401,7 +414,7 @@ History:
 
 ### TV remote
 
-Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-55.
+Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a, REQ-GM-33, REQ-FL-41, REQ-FL-52c, REQ-FL-55.
 
 
 **Steps**
@@ -411,8 +424,8 @@ Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a
 3a. On the Games screen press Back on the real remote. Check: the Connect screen shows, the app is still open 5 seconds later, and the player slots are still filled (same number of players).
 3b. Press Back on the Connect screen. Check: the quit question opens with **Stay** in focus.
 4. Press the Menu key. If the remote has no Menu key, open **Settings** (the OPTIONS button on the Games screen) and use **Debug overlay**. Check: the overlay shows the header line that starts with "DEBUG" and the FPS number.
-6a. On the phone, press the Android Back key on the Connect screen (before joining), then join and press it again on the waiting screen (the TV on the Games screen). Check: the question "QUIT SABABI?" opens, with no button in focus (no yellow frame), and the app is still open 5 seconds later (REQ-FL-86).
-6b. Press the Android Back key in the middle of a game (the pad screen). Check: the same question opens and the app is still open 5 seconds later. Tap **A** 5 times while the question shows. Check: the TV shows no action of A.
+6a. On the phone, press the Android Back key on the Connect screen (before joining), then join and press it again on the waiting screen (the TV on the Games screen). Check: the question "QUIT SABABI APP?" opens, with no button in focus (no yellow frame), and the app is still open 5 seconds later (REQ-FL-86).
+6b. Press the Android Back key on the phone in the middle of a game (the pad screen). Check: the question "QUIT SABABI APP?" does not open on the phone; the TV pauses the game and shows "END THE GAME?" (changed 2026-11-10, issue #435, REQ-FL-52c: it opened QUIT SABABI APP? on the phone). Press Back on the phone again after 2 seconds: the question stays on the TV. Then pause the game with a lost phone card (switch the phone Wi-Fi off and on, wait for the pad) and press Back on the pad: "QUIT SABABI APP?" opens, the app is still open 5 seconds later, and tapping **A** 5 times while it shows does nothing on the TV.
 6d. Press Back, then choose **Quit**. Check: the app closes (REQ-FL-55).
 
 **Results**
@@ -424,8 +437,8 @@ Needs: 1 phone, 1 TV with its remote, a stopwatch. Covers: REQ-GM-31, REQ-GM-31a
 | 3a | Video of Back on the Games screen, with the slots visible | Pass | R3 | Chat report 2026-10-09 (no file) | R1: Back quits the app on every screen. The owner saw the app go back to the previous view for a moment before it closed. Same cause and fix as item 2. Retest. |
 | 3b | Photo of the quit question | Pass | R3 | Chat report 2026-10-09 (no file) | Same result as old item 3. |
 | 4 | Photo of the overlay after the Menu key, or of the Settings switch | Pass | R3 |  |  |
-| 6a | Video of Back on the phone Connect screen and waiting screen, with the stopwatch | Pass | R5 |  | R5: Pass, no notes (issue #110: the Connect screen had no question; fixed). Before: R3: Pass - buttons should never be in focus in the mobile app, this needs to be fixed; R4: Fail - "QUIT SABABI?" question isn't shown The question and its answers are tested without a phone (`ui_states`); only the real Back key is open. Issue #110. |
-| 6b | Video of Back on the pad screen and 5 taps on A | Pass | R3 |  | R3: Pass - buttons should never be in focus in the mobile app, this needs to be fixed Same result as old item 6. |
+| 6a | Video of Back on the phone Connect screen and waiting screen, with the stopwatch | Pass | R5 |  | R5: Pass, no notes (issue #110: the Connect screen had no question; fixed). Before: R3: Pass - buttons should never be in focus in the mobile app, this needs to be fixed; R4: Fail - "QUIT SABABI APP?" question isn't shown The question and its answers are tested without a phone (`ui_states`); only the real Back key is open. Issue #110. |
+| 6b | Video of Back on the pad in a game (the TV question) and of Back on the pad of a paused game (QUIT SABABI APP?), with 5 taps on A | Not run | | | R3: Pass was for the old step (Back opened QUIT SABABI APP? on the pad in a game); the behavior changed on 2026-11-10 (issue #435, REQ-FL-52c), so the step is not run again yet. R3: buttons should never be in focus in the mobile app, this needs to be fixed Same result as old item 6. |
 | 6d | Video of Quit | Pass | R3 |  | R3: Pass - buttons should never be in focus in the mobile app, this needs to be fixed Same result as old item 6. |
 
 Items 1b, 1c, 2a to 2f, 5a, 5b and 6c moved to the automated tests (docs/AUTOMATED_TESTS.md, A-8-1 to A-8-6; items 2c and 2f are A-8-2c). Items 5a and 5b (the home row of the TV) are now part of step 1a of Test 1. What stays here needs the real remote or the real Android Back key. The numbers of the other items do not change.
@@ -482,7 +495,7 @@ History:
 
 ### Car Race
 
-Needs: 1 to 4 phones (2 to 4 for step 11a), 1 TV, a phone camera, a child of about 5 to 8 years for step 13h. Covers: REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 1 to 4 phones (2 to 4 for step 11a), 1 TV, a phone camera, a child of about 5 to 8 years for step 13h. Covers: REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n.
 
 Needs 1 to 4 phones (one phone is a time trial). Requirements: `docs/games/marble_race.md`. Start "Car Race" and pick a track.
 
@@ -502,7 +515,7 @@ Needs 1 to 4 phones (one phone is a time trial). Requirements: `docs/games/marbl
 14h. Zoom a photo of the TV to 300% on the edge of the road, on a wall and on the finish line. Check: all 3 places are made of square steps with no blended pixel (3 of 3). Count the rows of the finish line. Check: 2 rows of black and white cells, each cell 16 px wide at 1080p (14 px to 18 px). Look at the ground. Check: a chess board that repeats. (REQ-MR-44)
 14i. In each theme, from 3 m, a tester names the ground, the road and the walls. Check: Candy: pink chess ground with sprinkles, cream road with pink dashes, candy cane walls; Space: starry sky, metal road of panels, glowing cyan walls; Jungle: dark green ground with grass, dirt road with specks, leafy hedges (9 of 9 named right by each of 3 testers). An obstacle is 48 px or more high (12 world pixels) in a photo with a ruler (3 of 3 kinds). Start the same track twice. Check: the obstacles stand in the same places both times (3 of 3 tracks). (REQ-MR-46)
 
-Items 1a, 1b, 1d, 2a, 2b, 3a, 3b, 5a, 5b, 7a, 7b, 8a, 8b, 9a to 9e, 11b, 11c, 12a to 12d, 13a, 13c, 13d, 13f and 13g moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-9-1 to A-9-13). Item 1c keeps the reading from 3 m, item 6 keeps the frame rate on the TV box (it also holds the frame rate of old item 12d), item 13b keeps the naming of the pictures. Item 13e stays manual until the owner has decided which list of scenery is right (see the notes of this change); the geometry of the scenery (no piece on the road, no two pieces overlap) is checked by A-9-13e. Items 4 and 10 were removed earlier (10 is A-9-10). The numbers of the other items do not change. The result menu with Try again, New game and Back to menu is covered by A-11-1 and A-11-5.
+Items 1a, 1b, 1d, 2a, 2b, 3a, 3b, 5a, 5b, 7a, 7b, 8a, 8b, 9a to 9e, 11b, 11c, 12a to 12d, 13a, 13c, 13d, 13f and 13g moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-9-1 to A-9-13). Item 1c keeps the reading from 3 m, item 6 was removed (2026-10-25), item 13b keeps the naming of the pictures. Item 13e stays manual until the owner has decided which list of scenery is right (see the notes of this change); the geometry of the scenery (no piece on the road, no two pieces overlap) is checked by A-9-13e. Items 4 and 10 were removed earlier (10 is A-9-10). The numbers of the other items do not change. The result menu with Try again, New game and Back to menu is covered by A-11-1 and A-11-5.
 
 Measurements (no pass or fail): note how the car feels at `ACCEL` and `DAMPING` and tell the owner if a constant needs a change. The winning times of the 69 races of `tests/race_bot.gd` are printed by that test.
 
@@ -524,6 +537,7 @@ Measurements (no pass or fail): note how the car feels at `ACCEL` and `DAMPING` 
 | 14i | Note: the answers; photo with the ruler; the 3 tracks | Pass | R7 |  | R7: Pass Added 2026-10-31 (issue #306). |
 
 History:
+- 2026-11-10 (REQ-GM-50 dropped): Owner decision of 2026-11-10 (issue #440, the owner answered: remove the FPS steps on the TV box; the owner has 1 Android phone and no TV box). This test has no FPS step now (Test 9 step 6 and Test 10 step 7c were removed on 2026-10-25); REQ-GM-50 is dropped from the Covers line, and the old frame-rate notes in the text and in the Measurements table are removed. The cost of a frame with 4 phones stays automated (`frame_cost`, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device).
 
 - 2026-11-10 (recorded; R7 in the tracker): Pass: steps 14a, 14c, 14d, 14e, 14g, 14h, 14i. Steps 14b and 14f (4 phones) were marked N/A by the owner ("remove step, i don't have 4 phones. try automating.") and are removed. 14b: the one leader chip in the bar and the 4 result rows are A-9-14b (`layout_menus`) and A-11-3, A-11-3a, A-11-3b; 14f: the leader in view, the arrows with the meters and the middle of the pack are the new A-9-14f (REQ-MR-41, 42).
 - 2026-10-25 (N/A): step 6 (4 phones, Hard track, 3 themes) was removed (the tester has one phone). The frame rate with 4 phones is still a step in other tests; the track and theme looks stay in the other steps.
@@ -537,7 +551,7 @@ History:
 
 ### Banana Party (pointer)
 
-Needs: 1 to 4 phones, 1 TV, a second phone with an angle app (or a paper protractor), and a child of about 5 to 8 years for steps 9a and 9b. Covers: REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, a second phone with an angle app (or a paper protractor), and a child of about 5 to 8 years for steps 9a and 9b. Covers: REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37.
 
 Hold each phone like a remote control, pointing at the TV, from the sofa (about 3 m). This is the first game that uses the
 gyroscope pointer, so this test also checks the pointer itself (the old Test 5 for drift was removed).
@@ -563,7 +577,7 @@ Items 1a, 1b, 1c, 2a, 2b, 4a, 4b, 4d, 4e, 5b to 5e, 6a to 6c, 7a, 7b, 8a, 8b, 10
 |------|---------------------|--------|-----|----------|-------|
 | 3a | Photo at the start and at 40 s; the drift in % of the screen width | Pass | R3 |  | Now one real phone. The simulated gyro is in A-10-3a. |
 | 3b | Video of RECENTER, the cursor in the middle | Pass | R3 |  |  |
-| 4c2 | Video of the cheers of the elephant, the orangutan and the monkey | Pass | R7 |  | R7: Pass - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Before (R4): Retest - R4: Fail - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Now holds the water, the hearts and the sparkles of old item 4b. Issue #111. |
+| 4c2 | Video of the cheers of the elephant, the orangutan and the monkey | Pass | R7 |  | R7: Pass - the owner confirmed on 2026-11-10 (issue #436) that the orangutan showed hearts (REQ-SS-13); the words "the orangutan has sparkles" in the earlier note were copied from R4. The result (Pass, ticked by the owner) does not change. Before (R4): Retest - R4: Fail - elephant sprays water, the orangutan has sparkles and the monkey has sparkles Now holds the water, the hearts and the sparkles of old item 4b. Issue #111. |
 | 5a2 | Photo of the animals; the six names that were given | Pass | R7 |  | R7: Pass. Before (R4): N/A - R4: N/A - don't understand what needs to be tested and verified (the step was written again in plainer words on 2026-11-10). The crown of old item 5d is A-10-5a. |
 | 9a | The age of the child; short video (only with the permission of the parent) | Pass | R3 |  |  |
 | 9b | The words of the child; yes or no for "again?" | Pass | R3 |  |  |
@@ -575,11 +589,11 @@ Measurements (not a test; no pass or fail). Write these values in the Notes colu
 | Value | Step | Result | Run | Notes |
 |-------|------|--------|-----|-------|
 | Drift after 40 s still (% of the screen width) | 3a | | | |
-| Frame rate with 4 phones (aim 60) | 7c | | | |
 
 History:
+- 2026-11-10 (REQ-GM-50 dropped): Owner decision of 2026-11-10 (issue #440, the owner answered: remove the FPS steps on the TV box; the owner has 1 Android phone and no TV box). This test has no FPS step now (Test 9 step 6 and Test 10 step 7c were removed on 2026-10-25); REQ-GM-50 is dropped from the Covers line, and the old frame-rate notes in the text and in the Measurements table are removed. The cost of a frame with 4 phones stays automated (`frame_cost`, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device).
 
-- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 4c2, 5a2, 12a. Step 4c2: the tester ticked Pass but the note says "the orangutan has sparkles" (REQ-SS-13 says hearts and no sparkles); the note is the same as the R4 note. Waiting for the tester to confirm: issue #436. Step 5a2: the tester wrote "don't understand what needs to be tested and verified": the step was written again in plainer words (same check, 6 of 6).
+- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 4c2, 5a2, 12a. Step 4c2: the tester ticked Pass but the note said "the orangutan has sparkles" (REQ-SS-13 says hearts and no sparkles). The owner answered on 2026-11-10 (issue #436): the orangutan showed hearts, and the note was a leftover of R4. The note is corrected; the result Pass does not change. Step 5a2: the tester wrote "don't understand what needs to be tested and verified": the step was written again in plainer words (same check, 6 of 6).
 - 2026-10-25 (R4 notes): step 7c (4 phones) was removed (one phone only). Step 5a2 was written again in simpler words (a second person names the six animals; same check, 6 of 6). Step 4c2 failed: issue #111.
 - 2026-10-21 (automated): item 10c moved to the automated tests (`auto_banana_b`: the most animals with 1 phone, 5, 4 and 3). Item 4c was split (the closed eyes and three cheers are automated, 4c2 keeps the water, hearts and sparkles) and item 5a was split (the crown is automated, 5a2 keeps the six names).
 - 2026-10-20: the steps were rewritten with a measurable Check and split with letters (1a to 11f). Each new step keeps the result of the old step with the same number. Step 8a follows the 3 s rule of REQ-GM-30 (the owner asked for 2 to 3 seconds, built as 3 s in issue #56).
@@ -799,7 +813,7 @@ History:
 
 ### Sumo Bumpers (tilt and A)
 
-Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for step 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 2 to 4 phones, 1 TV, and a child of about 5 to 8 years for step 8. Covers: REQ-SB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody`), the bounce, the dash and the difficulty values are first guesses. "Full tilt" means the phone is tilted about 45 degrees. Record videos at 30 frames per second or more.
 
@@ -808,7 +822,6 @@ Hold each phone flat like a tray. New game (2026-10-09). The movement (`TiltBody
 6b. Check the phone that fell. Check: the phone buzzes at the fall (yes or no). (REQ-SB-11)
 8a. Let a child of about 5 to 8 years play 1 match, with a grown-up next to them. The grown-up reads the hint line once and says nothing more. Check: the child makes the bumper move in the first 10 seconds, and nobody touches the phone for the child. Write down the age. (REQ-SB-9, REQ-GM-80 to 84)
 8b. Check the child during the match. Check: the child plays all 3 rounds to the end without asking to stop or crying, also after a fall, and answers "yes" when asked "again?" (yes or no). (REQ-SB-9, REQ-GM-80 to 84)
-10. Play with 2 phones on Hard on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-15-10, issue #132).
 11e2. Zoom a photo of the TV to 300% on the edge of the island and on the edge of a cloud. Check: both edges are made of square steps, with no soft (blended) pixel at either edge (2 of 2). (REQ-GM-47i to 47n, REQ-SB-15. The view of 480 x 270 pixels, the whole scale and the nearest filter are checked by A-15-11e.)
 11g. From 3 m, read the word "WHEE!" and the round banner. Check: the tester reads both aloud without error. (REQ-SB-15, REQ-FL-40)
 12a. Look at the pad of a phone while the match runs. Check: the pad shows the green button A alone, in the middle of the row, and no button B and no RECENTER box (3 of 3). (REQ-GM-37a, issue #80)
@@ -823,7 +836,6 @@ Items 2, 9 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-15-2, A-15
 | 6b | Note: buzz felt, yes or no | Pass | R7 |  | R7: Pass |
 | 8a | The age of the child; what the child did in 10 s | Pass | R7 |  | R7: Pass |
 | 8b | The words of the child; yes or no for "again?" | Pass | R7 |  | R7: Pass |
-| 10 | Overlay screenshot (FPS) with 2 phones on the TV box | Pass | R7 |  | R7: Pass Wording fixed 2026-11-01: the game needs 2 to 4 phones, so "1 phone" could not be done. |
 | 11e2 | Zoomed photo of the island edge and of a cloud edge | Pass | R7 |  | R7: Pass |
 | 11g | Note: the texts that were read; the TV (1080p or 4K) | Pass | R7 |  | R7: Pass |
 | 12a | Photo of the pad during the match | Pass | R7 |  | R7: Pass |
@@ -836,8 +848,9 @@ Measurements (not a test; no pass or fail). Write these values in the Notes colu
 | The TV (1080p or 4K) | 11g | | | |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 10) is removed: nobody can do it now. The step had the result Pass in R7 (the screenshot of the FPS with 2 phones on the TV box); that result is removed with the step. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-15-10, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
-- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 6b, 8a, 8b, 10, 11e2, 11g, 12a, 13a. Step 13b (3 phones) was marked N/A by the owner ("remove step, i don't have 3 phones. try automating.") and is removed: the leader chip, TIE, the score of each phone and the pad with A only are the new A-15-13b (REQ-SB-14).
+- 2026-11-10 (recorded; R7 in the tracker): Pass: steps 6b, 8a, 8b, 10 (step 10, the FPS on the TV box, was removed the same day, issue #440), 11e2, 11g, 12a, 13a. Step 13b (3 phones) was marked N/A by the owner ("remove step, i don't have 3 phones. try automating.") and is removed: the leader chip, TIE, the score of each phone and the pad with A only are the new A-15-13b (REQ-SB-14).
 - 2026-11-01: step 10 says 2 phones (it said 1 phone, but the game needs 2 to 4 phones, `min_players` 2).
 - 2026-10-21 (decision of the owner, REQ-GM-35): Sumo Bumpers has no timer, so it has no countdown. A round starts at once; step 11g lost the countdown digits (no result recorded, it was not run). No recorded result changed.
 - 2026-10-21 (automated): items 4b, 11c and 11f moved to the automated tests (`auto_sumo_b`). Item 11e was split: the view size, the scale and the filter are automated, 11e2 keeps the photo of the edges. The suite fails on step 11c today: the slowest cloud moves under 4 % of the view in 10 s (REQ-SB-15 says 2 to 3 world pixels per second).
@@ -859,9 +872,9 @@ Needs: 1 to 4 phones, 1 TV on 1080p (and a 4K TV if you have one), a child of 5 
 2d. Do step 2c on a 4K TV, if you have one. Check: the same result. (Skip this step if you have no 4K TV and write "no 4K TV" in the notes.)
 4d. On the real TV remote, in each menu of the Games screen, a game settings view and the quit question, press OK, Back and the D-pad once each. Check: OK does the action of the focused item, Back closes the menu or goes up one step, and the D-pad moves the focus (the same result as in Test 8).
 6a. On a phone, go through the Connect, the waiting and the pad screens. Hold the phone at 50 cm and read aloud every text of each screen. Check: you read each text without a mistake.
-6b2. Look at the phone pad from 50 cm. Check: A is green and B is red, each with a black letter and a white ring (2 of 2; changed 2026-11-03 by the owner: black with a white letter since 2026-11-02, white before, green and red before 2026-10-29), RECENTER is a small box (not full width) centered right above HOLD TO LEAVE, and the NEW BEST! text, when shown, is centered and larger than the slot number (yes or no), and the tester reads the slot number in the slot square at the top of the pad aloud, without a mistake. (The lift of the buttons, the independent press and the place of the square are checked by A-16-6b.)
+6b2. Look at the phone pad from 50 cm. Check: A is green and B is red, each with a black letter and a white ring (2 of 2; changed 2026-11-03 by the owner: black with a white letter since 2026-11-02, white before, green and red before 2026-10-29), RECENTER is a small box (not full width) centered right above HOLD TO DISCONNECT, and the NEW BEST! text, when shown, is centered and larger than the slot number (yes or no), and the tester reads the slot number in the slot square at the top of the pad aloud, without a mistake. (The lift of the buttons, the independent press and the place of the square are checked by A-16-6b.)
 6b3. Look at the Connect or waiting screen of a phone from 50 cm. Check: the icon buttons (JOIN, ABOUT, SETTINGS; DISCONNECT on the waiting screen) have a black face, white icon and a white border (all of them), and the tester says what each icon is without a mistake (changed 2026-11-06, owner: ABOUT, SETTINGS and DISCONNECT are icons with no word). (New 2026-10-29, issue #173; the colors changed 2026-11-02.)
-6b4. Look at the TV Games screen from the sofa (3 m), with the focus on OPTIONS. Check: OPTIONS has a black face with yellow text and a thick yellow border (changed 2026-11-02: no yellow fill), and the tester names the focused item within 5 s. Do the same in Hebrew. (New 2026-10-29, issue #173.)
+6b4. Look at the TV Games screen from the sofa (3 m), with the focus on the OPTIONS icon button, then on the ABOUT icon button. Check: each has a black face with a white icon and a thick yellow border (changed 2026-11-02: no yellow fill; changed 2026-11-12: icon buttons), and the tester names the icon within 5 s. Do the same in Hebrew. (New 2026-10-29, issue #173.)
 6b5. **A and B reach (2026-10-30, issue #240).** Use one phone with a screen of 6.7 inches or more (the one that is held in the right hand), in a game that uses both A and B (for example Star Shield). Hold it in one hand, the way you hold it to play, and without moving the hand, reach A and then B with the thumb, 10 times each. Measure the height of the middle of A above the bottom edge of the screen with a ruler (the code puts it 330 px above the bottom, about 2.6 cm on a 6.7-inch phone). Check: the thumb reaches A and B without moving the hand in 10 of 10 tries each (yes or no), and write the height in cm and the phone model. Repeat with the left hand: 10 of 10 tries each (yes or no).
 8a. A child of 5 to 8 years sits at the TV with the Games screen open. Ask: "Which game is chosen now?". Check: the child points to the focused tile (the one with the cursor) within 10 s and without help.
 8b. Show the child the screen with PRESS OK TO CONTINUE. Ask the child to continue. Check: the child presses OK within 10 s and without help.
@@ -995,7 +1008,7 @@ New (2026-10-10). The HUD shows one chip, the leader, and not a chip for each pl
 **Steps**
 
 3c. Hold a phone at 50 cm. Check: you read aloud the place and the score of the line without a mistake.
-3d. On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out), take a photo of the pad. Check: the colored square, the player number and the HOLD TO LEAVE box at the bottom are fully visible, and A and B are fully on the screen (REQ-FL-68; HOLD TO LEAVE moved from the top right on 2026-11-02).
+3d. On an iPhone with a Dynamic Island (and on an Android phone with a camera cut-out), take a photo of the pad. Check: the colored square, the player number and the HOLD TO DISCONNECT box at the bottom are fully visible, and A and B are fully on the screen (REQ-FL-68; HOLD TO DISCONNECT (then HOLD TO LEAVE) moved from the top right on 2026-11-02).
 3e. Turn the same phone to landscape and back. Check: nothing is hidden at the top, at the bottom (the home bar) or at the side.
 8a. A child of 5 to 8 years plays a game. In the countdown, ask the child to point to its own object (the one in the color of its phone). Check: the child points to the right object within 10 s and without help.
 8b. After one minute of play, ask the child to read aloud the number on its phone. Check: the child says the number that the phone shows.
@@ -1037,6 +1050,7 @@ New (2026-10-10). The headless tests check the rules and the drawing. They do no
 **Steps**
 
 1b2. Start a game. Start a game and make this phone the leader. From 3 m look at the leader chip. Check: the tester finds the avatar of the phone in the chip (1 of 1 found). (That the chip holds the square, the avatar and the name in this order is checked by A-20-1b.)
+1b3. **New 2026-11-11 (owner).** Join one phone without a profile (a guest) and one phone with a profile to a TV, and start a game. Check: the guest has a grey silhouette with a question mark, the same everywhere: in the Players list beside its color square, on its chip in the game and in the result rows, and on its own phone in the header of the pad and on the waiting screen beside the number square; the other player has the avatar of its profile; the guest picture is not in the avatar picker of the edit screen (4 of 4 yes). (The test `profiles` checks that a guest is shown with the picture and a profile with its avatar; the look and the places are manual.)
 6e. Show the card with a Hebrew name in the English sentence, and with an English name in the Hebrew sentence. The Hebrew reader reads both cards aloud. Check: for each of the 2 cards the reader says that the letters of the name are in the typed order and that the sentence is in the right order (2 of 2 yes).
 7b. A child of 5 to 8 years joins with a phone, and 3 other players join. Ask the child to point to its own avatar on the TV. Check: the child points to it within 10 s and without help.
 9a. Play Banana Party, Paint Grab, Star Shield, Bowling (Rails Without; with Rails With there is no NEW BEST) and Car Race (a fixed track) with a profile on 2 phones. When the round is over, check: the phone of a player who scores shows NEW BEST! on the pad, centered, in yellow, with the name of the game above it, while the result is open, and does not show it on the waiting screen or after the TV is back at the menu.
@@ -1058,6 +1072,7 @@ Items 5, 11 moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-20-5 and 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1b2 | Photo of the leader chip; note: found, yes or no | Not run |  |  |  |
+| 1b3 | Photos of the Players list, a game chip and the pad of the guest | Not run |  |  | New 2026-11-11 (owner: a picture for guests). |
 | 6e | Photo of the card in English and in Hebrew; note from the Hebrew reader | Not run | | | |
 | 7b | Note: the child, the age, the seconds | Not run | | | |
 | 9a | Photo of NEW BEST! on a phone | Not run | | | |
@@ -1076,6 +1091,7 @@ History:
 
 - 2026-10-21: the name tags of the countdown were removed (decision of the owner, Alon). Step 1b2 now checks the leader chip only, and 17d says the child finds its object by the color. No recorded result changed.
 - 2026-10-21 (automated): 24 steps moved to the automated tests (`r4_phone_profiles`, `r4_tv_profiles`, `r4_bests`). Step 1b was split (1b2 keeps the look of the avatar). The suite `r4_phone_profiles` fails on step 8a today: the Connect screen shows no reason after the phone was replaced (known bug).
+- 2026-11-11 (owner): guests have a picture of their own, a grey silhouette with a question mark (REQ-FL-70). New step 1b3, Not run. No recorded result changed.
 - -: **Not run**. New.
 
 ## Test 21
@@ -1101,6 +1117,7 @@ New (2026-10-11). The headless tests check the rules and the pages. They do not 
 8d2. Read the first line of a page aloud from 3 m. Check: you read it without a mistake. (Down and Up scroll the text: automated.)
 8f. On the TV box, use the stopwatch from OK on "3rd Party Libraries" to the list on the screen, and from OK on a library to its page. Check: the list opens within 3 s and the page within 2 s.
 9b2. On a phone open a long page (for example a library with two licenses) and drag it with one finger. Check: the text moves with the finger and the last line of the page can be reached by touch.
+9h. **New 2026-11-12 (owner).** On an Android phone (an exported app, not the editor) open About, then "Privacy policy". Check: the page shows the text "Sababi Privacy Notice" with the sections 1 to 9, and you reach the last line of section 9 by dragging the page. Set the phone to Hebrew: the page shows the Hebrew notice right to left, and the person who reads Hebrew confirms that it reads right to left without a broken line. On the TV box open About, Privacy policy and scroll to the end with Down. (That the text is the file of the website is automated: `about_pages`.)
 9d. Open the page "Android libraries" and scroll to the end with the stopwatch. Check: it opens within 3 s and you reach the end of the text.
 10a. Set the TV to Hebrew. Check: the About list and the pages "Sababi" show in Hebrew, and the Hebrew reader says that the wording is correct. (The Settings changes of issue #49 are built and checked by `audio`.)
 
@@ -1136,7 +1153,7 @@ History:
 
 ### Star Shield (tilt, waves, upgrades)
 
-Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9c. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9c. Covers: REQ-AB-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 Hold each phone upright or flat as you do for the other tilt games. New game (2026-10-16). Every number (ship speed, the rate of fire, the asteroid speeds, the waves, the upgrade times) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. Play on Medium unless the step says another difficulty.
 
@@ -1148,7 +1165,6 @@ Hold each phone upright or flat as you do for the other tilt games. New game (20
 9a. Let a child of about 5 to 8 years play, with a grown-up next to them who does not help. Check: the child points at its own ship within 10 s after Start (there is no countdown).
 9b. Same child. Check: the child moves the ship from the middle to the left side of the screen within 30 s after Start, with no help.
 9c. Same child. Lose the ship of the child on purpose while another ship flies. Check: the child is still at the game 30 s later (does not stop and does not give the phone back). Ask: "Play again?". Check: the child says yes (1 of 1 children asked).
-11. Play with 1 phone on Hard until wave 8 or later on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-22-11, issue #132).
 12b. From 3 m, look for the objects. Check: you can point at all of these: stars, the far dark world, an asteroid with craters, a ship, a beam, an upgrade and an explosion.
 12f. Take a close photo of the TV (30 cm). Check: the edges of the ship and of an asteroid are steps of square pixels, with no blurred edge and no gradient inside a color area.
 13a. Look at the pad of a phone while the game runs. Check: the pad shows no button A, no button B and no RECENTER box (3 of 3). (REQ-GM-37a, issue #80)
@@ -1174,7 +1190,6 @@ Measurements (write down, no pass or fail): the real delay from a tilt to the sh
 | 9a | Note: the child, the age, seconds until it points | Pass | R6 |  | R6: Pass |
 | 9b | Note: seconds until the ship is at the left side | Pass | R6 |  | R6: Pass |
 | 9c | Note: the child is still at the game after 30 s (yes or no); the answer | Pass | R6 |  | R6: Pass |
-| 11 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 12b | Note: the seven objects, each yes or no | Not run | | | |
 | 12f | Close photo of the TV (30 cm) | Pass | R6 |  | R6: Pass |
 | 13a | Photo of the pad while the game runs | Pass | R6 |  | R6: Pass |
@@ -1186,6 +1201,7 @@ Measurements (write down, no pass or fail): the real delay from a tilt to the sh
 | 14b | Note: buzzes per event; the sounds heard (of 7) | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 11) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-22-11, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-11-10 (recorded; R6 in the tracker): Pass: steps 1b, 2e, 3c, 9a, 9b, 9c, 12f, 13a, 12h. R6: step 11 passed on the old text (4 phones on Hard until wave 8) and step 12b on the old list of objects (the planet with the ring); both stay Not run because the steps changed (11 is 1 phone on the TV box now, A-22-11). Step 2e: the owner noted that the hint is the description of the game and that the test needed to change: the step says now which text it is. Step 12g: see below. Step 12g (4 phones) was marked N/A by the owner ("don't have 4 phones, remove this step or automate if possible") and is removed: the 4 ship colors are told apart by A-22-12g (REQ-AB-*, REQ-GM-46).
 - 2026-10-21 (decision of the owner, REQ-GM-35): Star Shield has no timer, so it has no countdown: wave 1 starts at once after Start. Steps 2e, 9a and 9b say "after Start" instead of "3, 2, 1" and "GO" (they were not run). No recorded result changed.
@@ -1211,7 +1227,7 @@ New game (2026-10-16). It was only tested with made-up sensor values. Every numb
 3h. **Knob, trail and tick (2026-10-30, issue #236).** On the phone on turn, slide a finger slowly from the left end to the right end of the strip, with the HAPTICS switch ON. Check: the knob is still visible next to the finger (yes or no), a fading trail follows it (yes or no), and the phone ticks once as the knob passes the middle mark (once in 5 of 5 slides). (REQ-BW-4a)
 4e. Throw 5 balls with each grip: screen up, screen to the side, and the other hand. Check: at least 4 of 5 swings throw a ball for each grip. (REQ-BW-5)
 4f. Walk 10 steps with the phone in your hand. Check: no ball is thrown.
-4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK)
+4g. Shake the phone fast, back and forth, with no wind-up, 5 times 2 s apart, once with the finger off the strip and once with a finger on the strip. Check: no ball is thrown in the 10 shakes. Then swing normally 5 times. Check: at least 4 of 5 swings throw a ball. (REQ-BW-5, MIN_BACK, MIN_FORWARD; changed 2026-11-12, issue #432: retest with the new rules, the same check)
 4h. Swing normally with a thumb still on the aim strip, 5 times. Check: no ball is thrown and the hint "Lift your finger, then swing!" shows in 5 of 5 swings.
 11a. Let a child of about 5 to 8 years play on Easy with Rails With, with a grown-up next to them who does not help. Check: the child points at its own ball (the one in the color of its phone) within 10 s after Start (there is no countdown).
 11b. Same child. Check: the child throws a ball (a ball leaves the foul line) within 60 s after the first plate "YOUR TURN", with no help.
@@ -1333,7 +1349,6 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 12b. Same child. Check: the child serves a ball in play (over the net, inside the box) within 5 tries.
 12c. Same child. Check: the child returns a ball at least once in the first 3 min of a rally.
 12d. After the match, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
-13. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-25-13, issue #132).
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester calls "in" or "out" at the moment of the bounce for 10 balls. Check: at least 8 of 10 calls agree with the banner ("OUT" or no banner). The ball and its shadow are visible.
 14b. With 4 phones, from 3 m, each tester names the shirt color of the two far characters. Check: 2 of 2 answers are right for each of 3 testers (3 of 3 testers).
 14c. From 3 m, read aloud the scoreboard and one banner. Check: no error.
@@ -1341,11 +1356,11 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 15c. **The card with children (2026-10-30, issue #235).** Show the card (open the Tennis settings view) on a phone to 3 children of 5 to 8 years, 5 seconds each, and ask: "What do you do before you play?". Check: at least 2 of 3 answer with holding the phone tight or making space around them. A Hebrew reader checks the Hebrew line "אחזו חזק. שמרו מרחק מסביב." (`swing.card_text`).
 16a. From 3 m, a tester points at: a near character, a far character, the ball and the shadow of the ball. Check: 4 of 4 right for each of 3 testers (3 of 3 testers). Measure the height of a near character and of a far character in a photo of the 1080p TV. Check: the near one is at least 1.5 times as high as the far one, the near one is seen from behind and the far one faces the camera (2 of 2), and the ball has a thin black border in a photo zoomed to 300% (yes or no). (REQ-TN-3)
 16b. Serve 5 times with a swing in the green part of the ring, 5 times too early and 5 times too late. Check: a swing in the green part gives a fast shot with sparks in at least 4 of 5 swings; an early or a late swing gives a slower high lob that lands in the court in at least 4 of 5 swings each, with no sparks (0 of 10); the median flight time of the 10 lobs is longer than the median flight time of the 5 fast shots (video at 60 fps). (REQ-TN-6)
-16c. Press A to toss and swing the phone from top to bottom when the ball is at its top, 5 times. Check: the serve is counted in 5 of 5 tries. Swing 0.3 s after the top: counted in 5 of 5 tries. Swing about 0.3 s after pressing A, before the top (added 2026-11-08, issue #419): counted in 5 of 5 tries. Swing 0.8 s after the top (the ball is low): not counted in 5 of 5 tries (0 counted). (REQ-TN-9)
-16d. Toss and do not swing, 3 times, with a stopwatch from the toss. Check: the ball falls 0.8 s to 1.2 s after the toss and the server tosses again, with no fault and no point lost (3 of 3). Make a serve land out. Check: it is served again (1 of 1). Make the second serve land out too. Check: the point goes to the other team (1 of 1). (REQ-TN-9)
+16c. Wait for the ball to be tossed by itself (about 1.5 s after "X SERVES", or press A) and swing the phone as a serve when the ball is at its top (up and a little back, then forward and down, in one move), 5 times with the phone in one hand (no thumb on A; changed 2026-11-14, issue #419). Check: the serve is counted in 5 of 5 tries. Swing 0.3 s after the top: counted in 5 of 5 tries. Swing about 0.3 s after the toss, before the top (added 2026-11-08, issue #419): counted in 5 of 5 tries. Swing 0.8 s after the top (the ball is low): not counted in 5 of 5 tries (0 counted). Swing and miss on purpose (a swing that does not go down): the character shows the serve pose, with the racket high, and not a plain hit (5 of 5). (REQ-TN-9)
+16d. Toss and do not swing, 3 times, with a stopwatch from the toss. Check: the ball falls 1.2 s to 1.6 s after the toss and the server's ball is tossed again by itself about 1.5 s later, with no fault and no point lost (3 of 3). A hard serve straight ahead lands in the box, and a ball that touches a line is in (added 2026-11-14, issue #419). Make a serve land out (clearly wide, not on a line). Check: it is served again (1 of 1). Make the second serve land out too. Check: the point goes to the other team (1 of 1). (REQ-TN-9)
 16e. Open the debug overlay. Swing and swing back at once (the second stroke starts less than 0.3 s after the first), 5 times. Check: the overlay counts 1 swing for each of the 5 pairs (5 of 5). Swing, wait 0.7 s and swing again, 5 times. Check: the overlay counts 2 swings for each of the 5 pairs (5 of 5). (REQ-TN-8)
 16f. Look at the pad of a phone in a match. Check: the pad shows the button A alone and no B and no RECENTER box (3 of 3 phones). Hit 5 normal shots and 5 fast shots with the phone in your hand. Check: every hit buzzes (10 of 10) and, with your eyes closed, you name the fast shot (60 ms) of a pair right in 4 of 5 pairs against the normal shot (30 ms). (REQ-TN-8)
-16g. Start a match with 2 phones and a stopwatch. Check: before the first serve the hint line shows one line at the bottom that tells to press A to toss, swing down to serve and swing to a side to aim; in a rally it tells to swing when the ball arrives and to swing to a side to aim; a match with 1 player shows the line for 1 player (3 of 3 variants as written); the line goes away 15 s to 17 s after it began (3 of 3 matches). (REQ-TN-8)
+16g. Start a match with 2 phones and a stopwatch. Check: before the first serve the hint line shows one line at the bottom that tells to wait for the toss, swing down to serve and swing to a side to aim (changed 2026-11-14: it said to press A); in a rally it tells to swing when the ball arrives and to swing to a side to aim; a match with 1 player shows the line for 1 player (3 of 3 variants as written); the line goes away 15 s to 17 s after it began (3 of 3 matches). (REQ-TN-8)
 16h. Start a solo rally. When the ball glows, move the phone back (a wind-up, about 0.3 s) and then forward through the ball, 10 times. Then 10 times move the phone only back, hard and fast, and stop. Then 10 times move the phone only forward, fast, from rest. Check: the hit is counted on the forward move in 9 of 10 back-then-forward strokes, in 0 of 10 back-only moves, and in 0 of 10 forward-only moves; the overlay `swing_count` goes up at the forward move, not at the wind-up (REQ-TN-5, two-phase swing, 2026-11-03).
 
 Items 1a, 2a, 2c, 3a, 3b, 3c, 3d, 3e, 3f, 4a, 4b, 4c, 4d, 4e, 4f, 5a, 5b, 5c, 5d, 6a, 6b, 6f, 6g, 7a to 7d, 8a, 8b, 9a to 9e, 10a, 10b, 10c, 10d, 11a, 11b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-25-1a to A-25-11b). The numbers of the other items do not change.
@@ -1366,7 +1381,6 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 12b | Note: tries until a served ball | Not run | | | |
 | 12c | Note: returns in 3 min | Not run | | | |
 | 12d | Note: the answer of the child | Not run | | | |
-| 13 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 14a | Note: calls that agree, of 10 | Not run | | | |
 | 14b | Note: answers of each tester | Not run | | | |
 | 14c | Note: errors made when reading | Not run | | | |
@@ -1384,6 +1398,7 @@ Measurements (write down, no pass or fail): the time of a whole match with 2 pho
 | 16h | Note: hits on the forward move (of 10), on back-only (of 10), on forward-only (of 10) | Not run | | | Added 2026-11-03 (two-phase swing). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 13) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-25-13, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-21 (decision of the owner, REQ-GM-35): a Tennis match of 2 to 4 players has no timer, so it has no countdown and starts at once after Start; only the solo machine rally keeps the 3 s countdown. Steps 2b and 12a say "after Start" (not run). No recorded result changed.
 - 2026-10-21 (automated): 10 steps moved to the automated tests (`r4_tennis`, `smoke_tennis_phones`). `r4_tennis` is red today on three known bugs: no sparks in the code (5a), the other team shows place 3 and not 2 (9e), and a new rally starts about 3.4 s after a miss (10b said 1.5 to 2.5 s).
@@ -1408,7 +1423,6 @@ New game (2026-10-17). It was only tested with made-up sensor values. Every numb
 12b. Same child. Check: the child turns the phone and the aim mark moves to the left side within 30 s after the first plate "<NAME>'S TURN!", with no help.
 12c. Same child. Check: the child putts the ball (one stroke counted) within 60 s after the first plate, with no help.
 12d. After the match, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
-13. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-26-13, issue #132).
 14a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester points at the ball each time you say "mark" while it rolls on hole 5. Check: the finger points at the ball in 5 of 5 tries. Check: the ball is 32 px high on the screen at 1080p (photo; 32 px is an exception to the 48 px of REQ-GM-47e for this game, owner 2026-11-03). (REQ-GM-47e)
 14b. From 3 m, ask a tester to point at the golfer and then at the windmill. Check: both answers are right for each of 3 testers (3 of 3 testers).
 14c. From 3 m, read aloud the names and strokes in the bar and one banner. Check: no error.
@@ -1447,7 +1461,6 @@ Measurements (write down, no pass or fail): the turn angle that moves the aim ma
 | 12b | Note: seconds until the mark moves | Not run | | | |
 | 12c | Note: seconds until the first stroke | Not run | | | |
 | 12d | Note: the answer of the child | Not run | | | |
-| 13 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 14a | Note: right answers of 5; photo of the ball with its height in px | Not run | | | |
 | 14b | Note: answers of each tester | Not run | | | |
 | 14c | Note: errors made when reading | Not run | | | |
@@ -1468,6 +1481,7 @@ Measurements (write down, no pass or fail): the turn angle that moves the aim ma
 | 16k | Note: lines at the cup at the start of the turn (of 5), the putts toward the cup after a hit (of 5), moves of the feet needed (0), the angle for 30 degrees | Not run | | | Added 2026-11-05 (the straight ahead of the phone is the cup). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 13) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-26-13, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-21 (decision of the owner, REQ-GM-35): Mini Golf has no timer, so it has no countdown: the first turn starts at once after Start, with the turn banner and the turn buzz. Step 12a says "after Start" (not run). No recorded result changed.
 - 2026-10-21 (automated): 11 steps moved to the automated tests (`r4_golf`). Step 3b was split (3b2). `r4_golf` is red today on one known bug: the ball starts to move at swing age 0, while the club reaches it at 0.12 s (step 5b).
@@ -1511,7 +1525,7 @@ Measurements (write down, no pass or fail): the time for a mallet to cross its h
 | 1a | Photo of the tile next to a photo of the game | Not run | | | |
 | 3a | Note: the tries in which the tester pointed at the puck within 1 s (of 5); photo of the screen | Not run | | | Row added 2026-10-31 (issue #303); step added for issue #227. |
 | 3b | Video (240 fps); note: frames and ms for 5 tilts | Pass | R6 |  | R6: Pass |
-| 6b | Note: the winner and the goals of ROBO in each of 5 matches | Fail | R6 |  | R6: Fail - 1. the player scored 1 goal and then robo scored 4 own goals 2. robo sometimes moves away from the puck allowing the player to score a goal Issue #431. |
+| 6b | Note: the winner and the goals of ROBO in each of 5 matches | Not run | | | R6 (2026-10-27) was Fail, before the fix of issues #146 and #147 (commit b2b9ca5, 2026-10-27): "1. the player scored 1 goal and then robo scored 4 own goals 2. robo sometimes moves away from the puck allowing the player to score a goal". Not run again on the current build. Issue #431 was filed from this row by mistake and closed as a duplicate on 2026-11-12. Machine half: A-27-6b. |
 | 6c | Note: the goals of ROBO and the winner in each of 3 matches | Pass | R6 |  | R6: Pass |
 | 9a | Note: the child, the age, seconds until it points | Pass | R6 |  | R6: Pass |
 | 9b | Note: seconds until the first hit | Pass | R6 |  | R6: Pass |
@@ -1526,7 +1540,7 @@ Measurements (write down, no pass or fail): the time for a mallet to cross its h
 History:
 
 - 2026-11-10 (steps removed): Owner request of 2026-11-10 (tracker and chat: "Tests 14, 23, 27, 28 and 31 still have steps that either need to be removed or automated"; the owner has 1 Android phone and no TV box). The FPS step on the TV box is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-27-10); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). Step 11e (2 phones, after the screen scaling of issue #348) is the new A-27-11e: `smoke_air_hockey` checks at 1280x720, 1920x1080 and 1600x1200 that the left chip starts at the left goal and the right chip ends at the right goal, both on the screen, and the top rail is under the bar (REQ-AH-23). What is not verified by anything now: the photo of the real TV box against the photo of step 11a (each edge within 10 px).
-- 2026-11-10 (recorded; R6 in the tracker): Pass: steps 3b, 6c, 9a, 9b, 9c, 9d, 11a, 11c, 12. Fail: step 6b. R6: step 6b failed (issue #431). The N/A of step 10 (4 phones) is not recorded: the step is 1 phone on the TV box now (A-27-10). Steps 1a and 11b passed on the old text (black rails); they stay Not run because the step says dark gray rails now.
+- 2026-11-10 (recorded; R6 in the tracker): Pass: steps 3b, 6c, 9a, 9b, 9c, 9d, 11a, 11c, 12. Step 6b: Fail before the fix of #146 and #147 (see the row; it is Not run for the current build). The N/A of step 10 (4 phones) is not recorded: the step is 1 phone on the TV box now (A-27-10). Steps 1a and 11b passed on the old text (black rails); they stay Not run because the step says dark gray rails now.
 - 2026-10-24 (automated): steps 2a, 2b, 2c, 3a, 3c, 4a, 4b, 4c, 4d, 5a, 6a, 6d, 7a, 7b, 8a, 8b, 13 moved to the automated tests (smoke_air_hockey, air_hockey_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23). The headless checks of the rules, the bot and the screens are in `air_hockey_rules` and `smoke_air_hockey` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
 
@@ -1583,7 +1597,7 @@ History:
 
 ### Sheep Herding (tilt, a team herds the sheep into the pen)
 
-Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 8a to 8d. Covers: REQ-SH-* (`docs/games/sheep_herding.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-23). It was only tested with made-up sensor values. Every number (the speed of the dogs, how far a dog scares a sheep, how fast a sheep runs, the gate, the time of the round, the pictures, the song and the Hebrew texts) is a first guess, but each step below has a fixed limit. "From 3 m" means: sit or stand 3 m from the TV. The sheep and the dogs run by themselves, so do not count on the same round twice.
 
@@ -1593,7 +1607,6 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 2a. From 3 m, a tester points at the gate of the pen. Check: the finger points at the gap in the left fence (5 of 5 testers).
 4. Play alone on Easy, an adult. Check: the adult herds all 8 sheep into the pen in 90 s or less, in 2 of 3 rounds.
 6a. Play with 2 phones on Medium, 2 adults, who talk to each other. Check: the 2 adults herd all 11 sheep into the pen in 75 s or less, in 2 of 3 rounds.
-7. Play with 1 phone on Hard on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-29-7, issue #132).
 8a. Let a child of about 5 to 8 years play on Easy, with a grown-up next to them who does not help. Check: the child points at its own dog (the one in the color of its phone) within 10 s after GO.
 8b. Same child. Check: the child moves its dog next to a sheep and the sheep runs away, within 30 s after GO, with no help.
 8c. Same child. Check: at least 1 sheep is in the pen at the end of the round, with no help.
@@ -1621,7 +1634,6 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 | 2a | Note: right answers of 5 | Not run | | | |
 | 4 | Note: sheep and seconds in each of 3 rounds | Not run | | | |
 | 6a | Note: sheep and seconds in each of 3 rounds | Not run | | | |
-| 7 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 8a | Note: the child, the age, seconds until it points | Not run | | | |
 | 8b | Note: seconds until the sheep runs | Not run | | | |
 | 8c | Note: sheep in the pen | Not run | | | |
@@ -1638,6 +1650,7 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 | 10h | Note: answers of each tester; errors in reading | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 7) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-29-7, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-24 (automated): steps 2b, 3a, 3b, 5a, 5b, 6b moved to the automated tests (smoke_sheep, sheep_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23).
@@ -1646,7 +1659,7 @@ History:
 
 ### Tower Builder (turns, swing, drop, wobble, 12 bricks)
 
-Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 1 to 4 phones, 1 TV with its remote, a stopwatch, and a child of about 5 to 8 years for item 9. Covers: REQ-TB-* (`docs/games/tower_builder.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n.
 
 New game (2026-10-23). It was tested only with made-up button presses. Every number (the swing, the 12 bricks, the widths of the bricks, the 24 px of overlap, the 8 px of slack, the turn times) is a first guess; write what you measure in the Notes.
 
@@ -1658,7 +1671,6 @@ New game (2026-10-23). It was tested only with made-up button presses. Every num
 9b. Same child. Check: the child drops at least 2 bricks that stay in a game of 12 bricks (yes or no). (REQ-TB-11, REQ-GM-96)
 9c. Same child. Check: the child plays to the end without asking to stop or crying (yes or no), also after a topple (yes or no). (REQ-GM-83)
 9d. After the game, ask: "Play again?". Check: the child says yes (1 of 1 children asked).
-10. Play with 1 phone on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-30-10, issue #132).
 11a. **Pixel world (REQ-GM-47i to 47n).** From 3 m, a tester reads the plate "<NAME>'S TURN", "BRICK n OF 12" and one banner aloud. Check: no error when reading. (REQ-TB-19, REQ-FL-40)
 11b. From 3 m, a tester points at the brick that hangs on the crane and at the top brick of the tower. Check: both answers are right for each of 3 testers (3 of 3 testers), and the brick is 48 px or more high on the screen at 1080p (photo with a ruler on a 1080p TV: 48 px expected). (REQ-GM-47e, REQ-TB-18)
 12. Set the TV language to Hebrew and start a game. Check: the title and the plates are mirrored to the right side, the tower and the crane are not mirrored, and no text is cut (3 of 3). A person who reads Hebrew also checks the words: "בונים מגדל", "התור של ...", "קראש! חיחי!". (REQ-GM-47o, REQ-TB-19)
@@ -1681,7 +1693,6 @@ Measurements (write down, no pass or fail): the time for one drop that people re
 | 9b | Note: bricks that stayed | Not run | | | |
 | 9c | Note: yes or no for crying or stopping, also after a topple | Not run | | | |
 | 9d | Note: the answer of the child | Not run | | | |
-| 10 | Overlay screenshot (FPS) with 1 phone on the TV box | Not run | | | |
 | 11a | Note: errors made when reading | Not run | | | |
 | 11b | Note: answers of each tester; photo of the brick with its height in px | Not run | | | |
 | 12 | Photo of the TV in Hebrew; note: words that a reader changed | Not run | | | |
@@ -1691,6 +1702,7 @@ Measurements (write down, no pass or fail): the time for one drop that people re
 | 13d | Photo of the screen next to the photo of 1a; note: yes or no for each check | Not run | | | Added 2026-11-01 (issue #348). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 10) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-30-10, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-24 (automated): steps 2a, 2b, 3a, 3b, 3c, 3d, 4a, 4b, 4c, 5a, 5b, 6a, 6b, 7a, 8b, 13 moved to the automated tests (smoke_tower, tower_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23). The headless checks of the rules and the screens are in `tower_rules` and `smoke_tower` (`docs/AUTOMATED_TESTS.md`); this test holds what needs a person, a phone or a TV.
@@ -1754,7 +1766,7 @@ History:
 
 ### Bumper Cars (tilt, drive over stars and bump the others)
 
-Needs: 2 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9d. Covers: REQ-BC-* (`docs/games/bumper_cars.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n, REQ-GM-50.
+Needs: 2 to 4 phones, 1 TV, a stopwatch, and a child of about 5 to 8 years for items 9a to 9d. Covers: REQ-BC-* (`docs/games/bumper_cars.md`), REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-37, REQ-GM-47i to 47n.
 
 New game (2026-10-24). It was only tested with made-up sensor values. Every number (the speed of the cars, the size of the rink, the number of stars on the floor, the size of a bump, the 60 s of the round), the pictures, the song, the sounds and the Hebrew texts are first guesses. Changed 2026-10-29 (owner): a hit takes no star (it took 1 star from each car from 2026-10-24); a bump is only a bonk, a spark and a buzz (REQ-BC-7).
 
@@ -1762,7 +1774,6 @@ New game (2026-10-24). It was only tested with made-up sensor values. Every numb
 
 1. Put the tile next to the game screen (REQ-GM-49). Check: the tile and the game show the same four things: the red and white tent, the rink with its black rail, gold stars on the floor, and the cars.
 2a. From 3 m, a tester points at one star and at one car. Check: both answers are right for each of 5 testers (5 of 5 testers).
-7. Play with 2 phones on Hard on the TV box and open the debug overlay. Check: the FPS value is 55 or more for 30 s. (REQ-GM-50) The cost of a frame with 4 phones on Hard is automated (A-32-7, issue #132).
 9a. Let a child of about 5 to 8 years play with 2 phones on Easy, with a grown-up next to them who does not help. Check: the child points at its own car (the one in the color of its phone) within 10 s after GO.
 9b. Same child. Check: the child drives over at least 1 star within 30 s after GO, with no help.
 9c. Same child. Check: the child has at least 3 stars at the end of the round.
@@ -1782,7 +1793,6 @@ Measurements (write down, no pass or fail): the time that a car needs from the m
 |------|---------------------|--------|-----|----------|-------|
 | 1 | Photo of the tile next to a photo of the game | Not run | | | |
 | 2a | Note: right answers of 5 | Not run | | | |
-| 7 | Overlay screenshot (FPS) with 2 phones on the TV box | Not run | | | Wording fixed 2026-11-01: the game needs 2 to 4 phones, so "1 phone" could not be done. |
 | 9a | Note: the child, the age, seconds until it points | Not run | | | |
 | 9b | Note: seconds until the first star | Not run | | | |
 | 9c | Note: stars at the end | Not run | | | |
@@ -1793,6 +1803,7 @@ Measurements (write down, no pass or fail): the time that a car needs from the m
 | 12b | Note: answers of each tester; directions right (of 4); reading errors | Not run | | | Added 2026-10-31 (issue #306). |
 
 History:
+- 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 7) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-32-7, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-11-01: step 7 says 2 phones (it said 1 phone, but the game needs 2 to 4 phones, `min_players` 2).
 - 2026-10-24 (automated): steps 2b, 3a to 3c, 4a, 4b, 5a to 5d, 6a, 6b, 8a, 8b and 10 moved to the automated tests (`smoke_bumper_cars`, `bumper_rules`). Nothing was run on a device, so no result moved.
@@ -1818,12 +1829,12 @@ Write the model of the iPhone and the iOS version in the Run log.
 3b. Tap Allow. Check: the camera view opens within 2 seconds, in portrait, with a live picture, the hint line and a CANCEL button at least 96 points high (about 1.5 cm, measure on the screen) at the bottom. The texts use the iOS system font, not the pixel font: this is a known limit, write in the Notes if the look should change. (REQ-FL-88)
 4a. Point the phone at the QR code on the TV from 30 cm to 1 m. Check: the view closes and the phone is on the waiting screen within 3 seconds of the code being in the picture, in 5 tries out of 5. Note the distance range that reads. (REQ-FL-89)
 4b. Scan the QR code of a shared player profile (a second phone, Share) with SCAN QR CODE on the Connect screen. Check: the Connect screen shows the new player selected in the dropdown and its status line says PLAYER ADDED. (changed 2026-11-02: the player list is gone; 2026-11-06: the new player is selected). (REQ-FL-89)
-4c. Scan a QR code of a web page. Check: the Connect screen shows "THIS IS NOT A SABABI CODE." and the camera is closed (no green dot in the status bar). (REQ-FL-89)
+4c. Scan a QR code of a web page. Check: the Connect screen shows "THIS IS NOT A SABABI APP CODE." and the camera is closed (no green dot in the status bar). (REQ-FL-89)
 4d. Scan a good TV code with HAPTICS on. Check: the phone buzzes once when the view closes (yes or no). Then switch HAPTICS off in the Settings of the phone and scan again: no buzz (yes or no). (REQ-FL-89)
 5a. Open the scan view and tap CANCEL. Check: the view closes, the Connect screen shows no message, and the typed room code still joins. (REQ-FL-90)
 5b. Open the scan view and swipe down. Check: same result as 5a. (REQ-FL-90)
 5c. Open the scan view, press the home button and return. Check: the camera view is closed, the Connect screen shows no message, and the green camera dot in the status bar is off. (REQ-FL-88, REQ-FL-90)
-6a. Switch the camera off for Sababi (Settings > Sababi > Camera) and tap SCAN QR CODE. Check: no camera view opens, the Connect screen shows the exact text of `connect.camera_denied` ("THE CAMERA IS OFF FOR SABABI. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE."), and the typed room code joins. (REQ-FL-91)
+6a. Switch the camera off for Sababi (Settings > Sababi > Camera) and tap SCAN QR CODE. Check: no camera view opens, the Connect screen shows the exact text of `connect.camera_denied` ("THE CAMERA IS OFF FOR SABABI APP. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE."), and the typed room code joins. (REQ-FL-91)
 6b. Switch the camera on again and tap SCAN QR CODE. Check: the scan works without a restart of the app. (REQ-FL-91)
 7a. After a scan and after a CANCEL, open the Photos app. Check: no new picture. (REQ-FL-92)
 7b. Open Settings > Sababi. Check: the only permissions listed are Camera and Local Network (no Photos, no Microphone). (REQ-FL-92)

@@ -55,6 +55,12 @@ func _ready() -> void:
 	top.add_child(PhoneIcon.button(PhoneIcon.ABOUT, "AboutButton", func():
 		App.go(App.AboutScreen, {"back_screen": App.ControllerConnect, "scanner_note": os_name == "Android"})))
 	top.add_child(PhoneIcon.button(PhoneIcon.SETTINGS, "SettingsButton", func(): App.go(App.ControllerSettings)))
+	# QUIT (a power sign) is in the corner at the end of the row, after a gap, as DISCONNECT is on the waiting screen. A phone with
+	# the system buttons hidden has no Back key to reach the quit question (owner, 2026-11-12); a tap asks the same question.
+	var gap := UiKit.spacer(0)
+	gap.custom_minimum_size = Vector2(32, 0)
+	top.add_child(gap)
+	top.add_child(PhoneIcon.button(PhoneIcon.QUIT, "QuitButton", ask_quit))
 	box.add_child(ProfileDropdown.new())
 
 	_status = UiKit.label("", UiTheme.SIZE_BODY)
@@ -311,6 +317,11 @@ func on_back() -> void:
 	if App.client.state == ControllerClient.State.WAITING:
 		cancel_wait()   # Back is CANCEL while the phone waits for the host (REQ-FL-100); no quit dialog.
 		return
+	ask_quit()
+
+
+## The question "Quit Sababi?" (REQ-FL-55): the Back key and the QUIT icon button open it; asked again, it closes (STAY).
+func ask_quit() -> void:
 	if is_instance_valid(_quit_dialog):
 		_quit_dialog.close()
 		return

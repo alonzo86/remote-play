@@ -8,6 +8,7 @@ const Match = preload("res://scripts/game/tennis/tennis_match.gd")
 const Trace = preload("res://tests/golf_tennis_trace.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 
+var Look: GDScript
 const DT := 1.0 / 60.0
 
 var _checks := 0
@@ -27,11 +28,13 @@ func _initialize() -> void:
 	if not preload("res://tests/import_guard.gd").ok():
 		quit(1)
 		return
+	Look = load("res://scripts/game/tennis/tennis_look.gd")   # Loaded here: the look needs the autoloads.
 	_scoring_real()
 	_scoring_quick()
 	_teams()
 	_ball()
 	_serve()
+	_auto_toss()
 	_rally()
 	_points()
 	_on_screen()
@@ -240,6 +243,56 @@ func _has(events: Array, t: String) -> bool:
 	return false
 
 
+## The toss goes up by itself (owner, 2026-11-14, issue #419: pressing A and swinging with one hand is hard) and goes higher.
+func _auto_toss() -> void:
+	print("the toss by itself")
+	var m := _match([0, 1])
+	_run(m, Match.AUTO_TOSS - 0.2)
+	_check(m.phase == Match.Phase.SERVE and not m.sim.tossed, "before %.1f s the ball is not tossed" % Match.AUTO_TOSS)
+	_run(m, 0.4)
+	_check(m.phase == Match.Phase.TOSS and m.sim.tossed and _has(m.take_events(), "toss"),
+			"after %.1f s the ball is tossed by itself, with no press of A" % Match.AUTO_TOSS)
+	_until_toss_top(m)
+	_check(m.swing(0, 0.6, true, 0.0, 0.0) == "serve", "a swing down at the top of an automatic toss serves")
+	var press := _match([0, 1])
+	_run(press, 0.3)
+	press.press_a(0)
+	_check(press.phase == Match.Phase.TOSS, "A still tosses at once")
+	var again := _match([0, 1])
+	_run(again, Match.AUTO_TOSS + 0.1)
+	_run(again, 2.0)   # The ball falls (not hit), and the server's ball is tossed again by itself.
+	var events: Array = again.take_events()
+	_check(_has(events, "toss_lost"), "an automatic toss that is not hit falls")
+	_run(again, Match.AUTO_TOSS + 0.1)
+	_check(again.phase == Match.Phase.TOSS, "and the ball is tossed again by itself")
+	# 4 players: the server leaves while its ball is up (tossed by itself): the serve starts again with the next server, whose
+	# ball is tossed by itself too (no error, the same teams rules as REQ-TN-20).
+	var four := _match([0, 1, 2, 3])
+	var first_server := four.server_slot()
+	_run(four, Match.AUTO_TOSS + 0.3)
+	_check(four.phase == Match.Phase.TOSS, "4 players: the first server's ball is up")
+	four.remove_player(first_server)
+	_check(four.phase == Match.Phase.SERVE and not four.chars.has(first_server) and four.chars.has(four.server_slot()),
+			"4 players: when the server leaves, the serve starts again with a server who is still in the match")
+	_run(four, Match.AUTO_TOSS + 0.3)
+	_check(four.phase == Match.Phase.TOSS and four.server_slot() != first_server, "and the next server's ball is tossed by itself")
+	var solo := _match([0])   # One player: the machine feeds the ball (REQ-TN-1), nobody tosses.
+	var tossed := false
+	for i in int(4.0 / DT):
+		solo.tick(DT)
+		tossed = tossed or solo.phase == Match.Phase.TOSS
+	_check(not tossed, "with 1 player no ball is tossed by itself")
+	_check(absf(Match.TOSS_UP / Sim.G - 0.66) < 0.02,
+			"the top of the toss is about 0.66 s after the toss (%.2f s)" % (Match.TOSS_UP / Sim.G))
+	# The ball at its top stays on the picture under the black bar (112 px at 1080p), also for the server at the far end.
+	var apex := Match.TOSS_FROM + Match.TOSS_UP * Match.TOSS_UP / (2.0 * Sim.G)
+	var proj = Look.Proj.new(Vector2(1920, 1080))
+	var far_top: float = proj.at(0.0, Sim.HALF_L, apex).y
+	_check(far_top >= 112.0 + 40.0, "the ball at its top (%.1f m) is at y %.0f for the far server, under the bar" % [apex, far_top])
+	# The window covers the whole toss: a swing at the press and one 0.1 s before it serve (issue #419).
+	_check(Match.SERVE_W >= Match.TOSS_UP / Sim.G + 0.1, "the serve window is at least the time to the top plus 0.1 s")
+
+
 ## The serve (REQ-TN-9).
 func _serve() -> void:
 	print("the serve")
@@ -286,6 +339,16 @@ func _serve() -> void:
 	var fe2 := f.take_events()
 	_check(f.rules.points == [0, 1] and _has(fe2, "point") and f.last_point.reason == "double_fault",
 			"a second fault is a point for the other team")
+	# Issue #419: the hardest serve straight ahead is not long, and a ball on the line is in.
+	var hard := _match([0, 1])
+	_serve_now(hard, 1.0, 0.0)
+	_run(hard, 1.5)
+	_check(not _has(hard.take_events(), "fault") and hard.faults == 0, "the hardest serve straight ahead lands in the box, not long")
+	var box_x := -signf(hard._serve_x(hard.team_of(hard.server_slot()))) * 2.0
+	var sy := -hard.side(hard.team_of(hard.server_slot()))
+	_check(hard._in_service_box(Vector3(box_x, sy * (Sim.SERVICE + 0.1), 0.0))
+			and not hard._in_service_box(Vector3(box_x, sy * (Sim.SERVICE + 0.4), 0.0)),
+			"a ball 0.1 m past the service line is on the line (in), 0.4 m past it is out")
 	var easy := _match([0, 1], false, "easy")
 	_serve_now(easy, 1.0, 1.0)
 	_run(easy, 1.5)
@@ -389,9 +452,16 @@ func _points() -> void:
 	_serve_now(o, 0.5)
 	_until_contact(o)
 	# The widest aim ends on the sideline, which is in (2026-11-06). A swing that is not green (0.3 s late) adds a random
-	# sideways miss to it (the match has a fixed seed), and this one is out.
+	# sideways miss to it, and with this seed the ball lands more than the line margin (`LINE_TOL`) outside.
+	o.rng.seed = 2
 	o.swing(1, 1.0, false, -1.0, -0.3)
 	_run(o, 2.0)
+	var out_pos := Vector3.ZERO
+	for e in o.take_events():
+		if e.t == "out":
+			out_pos = e.pos
+	_check(absf(out_pos.x) > o.half_width() + Match.LINE_TOL or absf(out_pos.y) > Sim.HALF_L + Match.LINE_TOL,
+			"the ball landed more than the line margin outside the court (%.2f, %.2f)" % [out_pos.x, out_pos.y])
 	_check(o.rules.points == [1, 0] and o.last_point.reason == "out", "a ball that lands out is a point for the other team")
 	# A ball that stays in is returned back and forth.
 	var r := _match([0, 1])
@@ -418,7 +488,7 @@ func _matches() -> void:
 			if m.rules.match_over():
 				break
 			_run(m, Match.GAME_PAUSE + 0.1)
-			if m.phase != Match.Phase.SERVE:
+			if m.phase != Match.Phase.SERVE and m.phase != Match.Phase.TOSS:   # The toss may have started by itself.
 				break
 			# The other player serves after a game: this loop gives the points to whoever serves, so alternate by hand.
 			if p == 3:

@@ -170,7 +170,8 @@ func _refresh() -> void:
 func _draw_dot() -> void:
 	var c: Node = App.client
 	var side := minf(280.0, _dot.size.y - 20.0)
-	var has_avatar: bool = c.tv_pid != "" and Avatar.is_known(c.tv_avatar)
+	var shown: int = c.tv_avatar if c.tv_pid != "" else Avatar.GUEST   # A guest has its own picture (owner, 2026-11-11).
+	var has_avatar: bool = Avatar.is_known(shown)
 	# The color square with its number, and the avatar next to it (REQ-FL-70); the pair is centered.
 	var width := side * 2.0 + 20.0 if has_avatar else side
 	var box := Rect2(Vector2((_dot.size.x - width) * 0.5, (_dot.size.y - side) * 0.5), Vector2(side, side))
@@ -179,7 +180,7 @@ func _draw_dot() -> void:
 	if has_avatar:
 		var av := Rect2(box.position + Vector2(side + 20.0, 0.0), box.size)
 		_dot.draw_style_box(UiTheme.line_box(UiTheme.TEXT_DIM, UiTheme.BG, 6), av)
-		Avatar.draw(_dot, av.grow(-20.0), c.tv_avatar)
+		Avatar.draw(_dot, av.grow(-20.0), shown)
 
 
 ## Back asks whether to quit the app (REQ-FL-55); Back again answers "stay".

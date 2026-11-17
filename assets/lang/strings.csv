@@ -1,11 +1,11 @@
 ﻿key,en,he,where,notes
-about.app_scans_with_google,"The app scans the QR code with the Google code scanner (Play services). The picture stays on your phone and Sababi gets only the text. Google receives technical data about how the scanner works, such as the phone model and the app version.","האפליקציה סורקת את קוד ה־QR באמצעות סורק הקודים של גוגל (שירותי גוגל פליי). התמונה נשארת בטלפון ו־SABABI מקבל רק את הטקסט. גוגל מקבלת נתונים טכניים על פעולת הסורק, כמו דגם הטלפון וגרסת האפליקציה.","About screen, Android phone only: note about the Google code scanner",
-about.pages_below_list_parts,"The pages below list the parts of other makers that Sababi uses, and their licenses.","הדפים שלמטה מפרטים את החלקים של יוצרים אחרים ש־SABABI משתמש בהם, ואת הרישיונות שלהם.","About screen, first page: line before the list of other makers' parts",
+about.app_scans_with_google,"The app scans the QR code with the Google code scanner (Play services). The picture stays on your phone and SABABI app gets only the text. Google receives technical data about how the scanner works, such as the phone model and the app version.","האפליקציה סורקת את קוד ה־QR באמצעות סורק הקודים של גוגל (Play services). התמונה נשארת בטלפון ואפליקציית SABABI מקבלת רק את הטקסט. גוגל מקבלת נתונים טכניים על פעולת הסורק, כמו דגם הטלפון וגרסת האפליקציה.","About screen, Android phone only: note about the Google code scanner",
+about.pages_below_list_parts,"The pages below list the parts of other makers that SABABI app uses, and their licenses.","הדפים שלמטה מפרטים את החלקים של יוצרים אחרים שאפליקציית SABABI משתמשת בהם, ואת הרישיונות שלהם.","About screen, first page: line before the list of other makers' parts",
 about.phones_tv_communicate_over,"The phones and the TV communicate over your Wi-Fi. The link is not encrypted, so play on a network you trust.","הטלפונים והטלוויזיה מתקשרים דרך הרשת האלחוטית שלכם. החיבור אינו מוצפן, לכן שחקו ברשת שאתם סומכים עליה.","About screen, first page: the link is not encrypted, play on a trusted network",
 about.nothing_leaves_network,Nothing leaves your network.,שום דבר לא יוצא מהרשת שלכם.,"About screen, first page: last sentence of the Wi-Fi paragraph",
-common.about,ABOUT,אודות,"Phone: name and tooltip of the ABOUT icon button (no word on the button) in the top row of the waiting and Connect screens; TV Settings screen: the About row; title of the About screen",
-about.sababi_has_no_account,"Sababi has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.","ב־SABABI אין חשבון, אין פרסומות ואין ניתוח נתונים. השם, הדמות והשיאים שלכם נשארים בטלפון.","About screen, first page: what data Sababi keeps",
-about.sababi_game_tv,Sababi is a game for the TV. The phones are the controllers.,SABABI הוא משחק לטלוויזיה. הטלפונים הם השלטים.,"About screen, first page: what Sababi is",
+common.about,ABOUT,אודות,Phone: name and tooltip of the ABOUT icon button (no word on the button) in the top row of the waiting and Connect screens; TV Games screen: name and tooltip of the ABOUT icon button in the header, before OPTIONS; title of the About screen,
+about.sababi_has_no_account,"SABABI app has no account, no ads and no analytics. Your name, avatar and best scores stay on your phone.","באפליקציית SABABI אין חשבון, אין פרסומות ואין ניתוח נתונים. השם, הדמות והשיאים שלכם נשארים בטלפון.","About screen, first page: what data Sababi keeps",
+about.sababi_game_tv,SABABI is a game for the TV. The phones are the controllers.,SABABI הוא משחק לטלוויזיה. הטלפונים הם השלטים.,"About screen, first page: what Sababi is",
 about.third_party_libraries,3rd Party Libraries,ספריות צד שלישי,"About screen: row that opens the list of libraries of other makers, and the title of that list",
 app.app_version_does_not,APP VERSION DOES NOT MATCH THE TV APP.,גרסת האפליקציה אינה תואמת לאפליקציית הטלוויזיה.,"Phone, Connect screen: error when the app and the TV versions differ",
 app.cannot_connect_room,CANNOT CONNECT TO THE ROOM. CHECK YOUR WI-FI CONNECTION.,אי אפשר להתחבר לחדר. בדקו את החיבור שלכם לרשת האלחוטית.,"Phone, Connect screen: error when the room (TV) cannot be reached",
@@ -29,19 +29,19 @@ slot_list.ready,READY,מוכן,TV Connect screen and Players modal: state of a p
 slot_list.wait,WAIT,ממתין,TV Connect screen and Players modal: state of a free slot,
 connect.same_wi_fi,MOBILE PHONE MUST BE CONNECTED TO THE SAME WI-FI NETWORK.,הטלפון חייב להיות מחובר לאותה רשת אלחוטית.,"TV Connect screen: help line under the title, first sentence; TV Players modal: help line",
 connect.open_app_scan_code,OPEN THE SABABI APP ON YOUR PHONE AND SCAN THE CODE.,פתחו את אפליקציית SABABI בטלפון וסרקו את הקוד.,"TV Connect screen: help line under the title, second sentence",
-common.players,PLAYERS,שחקנים,"TV Connect screen and TV Players modal: title Players",
+common.players,PLAYERS,שחקנים,TV Connect screen and TV Players modal: title Players,
 connect.connecting,CONNECTING...,מתחבר...,"Phone, Connect screen: status line while connecting",
 connect.guest,GUEST,אורח,Phone: player row (the dropdown) on the Connect screen,
 connect.no_wi_fi_address,NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK.,לא נמצאה כתובת ברשת האלחוטית. חברו את הטלוויזיה לרשת.,TV Connect screen: hint when the TV has no Wi-Fi address,
-connect.not_sababi_code,THIS IS NOT A SABABI CODE.,זה לא קוד של SABABI.,"Phone, Connect screen: message when the scanned text is not a Sababi code",
+connect.not_sababi_code,THIS IS NOT A SABABI APP CODE.,זה לא קוד של אפליקציית SABABI.,"Phone, Connect screen: message when the scanned text is not a Sababi code",
 connect.press_ok_continue,PRESS OK TO CONTINUE,לחצו OK להמשך,TV Connect screen: blinking prompt once a phone has joined,
 connect.qr_failed,QR scan failed: %s,סריקת QR נכשלה: %s,"Phone: message when the QR scan fails, %s is the reason",%s is replaced by a name or a value
-connect.camera_denied,"THE CAMERA IS OFF FOR SABABI. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE.","המצלמה כבויה עבור SABABI. הפעילו אותה בהגדרות, או הקלידו את קוד החדר.","Phone, Connect screen: message after the player said no to the camera",
+connect.camera_denied,"THE CAMERA IS OFF FOR SABABI APP. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE.","המצלמה כבויה עבור אפליקציית SABABI. הפעילו אותה בהגדרות, או הקלידו את קוד החדר.","Phone, Connect screen: message after the player said no to the camera",
 connect.no_camera,THIS PHONE HAS NO CAMERA. TYPE THE ROOM CODE.,אין מצלמה בטלפון הזה. הקלידו את קוד החדר.,"Phone, Connect screen: message when the scan cannot start",
 connect.scan_cancel,CANCEL,ביטול,"Phone (iPhone), scan view: button that closes the camera",
 connect.scan_hint,POINT THE CAMERA AT THE QR CODE ON THE TV!,כוונו את המצלמה אל קוד ה־QR שבטלוויזיה!,"Phone (iPhone), scan view: help line over the camera picture",
-connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens (Back key): Quit button of the quit dialog,
-connect.quit_sababi,QUIT SABABI?,לצאת מ־SABABI?,TV Connect screen and phone waiting and pad screens (Back key): title of the quit dialog,
+connect.quit,QUIT,יציאה,TV Connect screen and phone waiting and pad screens (Back key): Quit button of the quit dialog; phone Connect screen: name and tooltip of the QUIT icon button (no word on the button) at the end of the top row,
+connect.quit_sababi,QUIT SABABI APP?,לצאת מאפליקציית SABABI?,TV Connect screen and phone waiting and pad screens (Back key): title of the quit dialog,
 connect.reconnecting,RECONNECTING...,מתחבר מחדש...,"Phone: status line while the connection is lost (Connect, waiting and play screens), also big in the middle of the pad with a dashed frame (issue #238)",
 connect.refused,Connection refused: %s,החיבור נדחה: %s,"Phone, Connect screen: error when the TV refuses for another reason, %s is the reason code",%s is replaced by a name or a value
 connect.waiting_approval,WAITING FOR THE HOST TO GET YOU IN.,ממתינים שהמארח יאשר אתכם.,"Phone, Connect screen while it waits for the host: title",
@@ -64,18 +64,18 @@ game_settings.difficulty,DIFFICULTY,רמת קושי,TV game settings: name of th
 game_settings.easy,EASY,קל,TV game settings: Easy value of the difficulty row; also in the medal title after a round,
 game_settings.hard,HARD,קשה,TV game settings: Hard value of the difficulty row; also in the medal title after a round,
 game_settings.medium,MEDIUM,בינוני,TV game settings: Medium value of the difficulty row; also in the medal title after a round,
-game_settings.start,START,התחילו,TV game settings: Start button,
+game_settings.start,START,התחל,TV game settings: Start button,
 games.n_players,%d players,%d שחקנים,"TV Games screen: game tile, a game for exactly this many players","the number sign (%d, %.1f ...) is replaced by a number"
 games.needs_players,Needs %d players,דרושים %d שחקנים,"TV game settings and Games screen (yellow line in the info bar under the description): why a game cannot start when too few phones have joined, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
-games.needs_at_least,At least %d players needed,נדרשים לפחות %d שחקנים,"TV game settings (yellow line under Start): every connected phone chose OUT and the game needs 2 or more players, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
-games.needs_at_least_one,AT LEAST 1 PLAYER NEEDED,נדרש לפחות שחקן אחד,"TV game settings (yellow line under Start): every connected phone chose OUT and the game can start with one player",
+games.needs_at_least,At least %d players needed,דרושים לפחות %d שחקנים,"TV game settings (yellow line under Start): every connected phone chose OUT and the game needs 2 or more players, %d is the minimum","the number sign (%d, %.1f ...) is replaced by a number"
+games.needs_at_least_one,AT LEAST 1 PLAYER NEEDED,דרוש לפחות שחקן אחד,TV game settings (yellow line under Start): every connected phone chose OUT and the game can start with one player,
 games.one_player,1 player,שחקן אחד,"TV Games screen: game tile, a game for 1 player",
 games.range_players,%d-%d players,%d-%d שחקנים,"TV Games screen: game tile, a game for a range of players","the number sign (%d, %.1f ...) is replaced by a number"
 games.select_game,SELECT GAME,בחרו משחק,TV Games screen: title,
 games.up_to_players,Up to %d players,עד %d שחקנים,"TV game settings and Games screen (yellow line in the info bar under the description): why a game cannot start when too many phones have joined, %d is the maximum","the number sign (%d, %.1f ...) is replaced by a number"
-gear_button.options,OPTIONS,אפשרויות,TV Games screen: Options button at the top,
+gear_button.options,OPTIONS,אפשרויות,TV Games screen: name and tooltip of the OPTIONS icon button (no word on the button) at the end of the header, after ABOUT,
 logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים עם הטלפון כשלט תנועה,TV logo screen: line under the logo,
-logo.press_ok_start,PRESS OK TO START,לחצו OK להתחלה,"TV logo screen: prompt to go on (at the first start also to choose a language)",
+logo.press_ok_start,PRESS OK TO START,לחצו OK כדי להתחיל,TV logo screen: prompt to go on (at the first start also to choose a language),
 marble_race.go,GO,צאו,Car Race countdown: the word GO after 1 in a round of 2 or more players (only this game shows it; the other games go from 1 to the play),
 marble_race.go_one,GO,צא,Car Race countdown: the word GO after 1 in a round of one player (Hebrew singular),Owner decision 2026-11-07 (issue #113): singular imperative for one player; marble_race.go (plural) is used for 2 or more players
 marble_race.meters,%d m behind,%d מ׳ מאחור,"Car Race: marker at the screen edge for a car that is out of view, %d is meters behind the leader","the number sign (%d, %.1f ...) is replaced by a number"
@@ -90,16 +90,16 @@ minigame.new_game,NEW GAME,משחק חדש,Button in the game result menu: back 
 minigame.restart,TRY AGAIN,נסו שוב,Button Try again in the pause menu and the result menu,
 minigame.resume,RESUME,המשיכו,"Button Resume in the pause menus, the pause card and the question 'End the game?'",
 minigame.round_over,ROUND OVER,הסיבוב נגמר,Title of the result menu when there is no winner to name,
-common.settings,SETTINGS,הגדרות,"Title of the TV and phone Settings screens; phone: name and tooltip of the SETTINGS icon button (no word on the button) in the top row of the waiting and Connect screens",
+common.settings,SETTINGS,הגדרות,Title of the TV and phone Settings screens; phone: name and tooltip of the SETTINGS icon button (no word on the button) in the top row of the waiting and Connect screens,
 minigame.tie,TIE!,תיקו!,Title of the result menu when scores are equal,
 pad.before,Before: %s,קודם: %s,"Phone game screen: next to NEW BEST!, shows the old best, %s is the old value",%s is replaced by a name or a value
-pad.disconnect,DISCONNECT,התנתקות,Phone: name and tooltip of the DISCONNECT icon button (no word on the button) in the corner of the top row of the waiting screen (top right in English, top left in Hebrew),
-pad.disconnect_hold,HOLD TO LEAVE,החזיקו להתנתקות,Phone: HOLD TO LEAVE box at the bottom of the game screen, inset 60 px from the sides and 40 px from the bottom so rounded corners do not cut it (hold it for 0.8 s to leave; a tap does nothing),New 2026-10-30 (issue #239). The waiting screen keeps pad.disconnect.
-pad.new_best,NEW BEST!,שיא חדש!,Phone game screen: after a round that set a personal best, only while the result of that game is open (not on the waiting screen); large (56 px), yellow, centered in the upper half of the play area under the name of the game,
-pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,Phone game screen: help line in the upper half of the play area, above the small Recenter button at the bottom,
-pad.recenter,RECENTER,מרכוז,Phone game screen: Recenter button,
+pad.disconnect,DISCONNECT,התנתק,"Phone: name and tooltip of the DISCONNECT icon button (no word on the button) in the corner of the top row of the waiting screen (top right in English, top left in Hebrew)",
+pad.disconnect_hold,HOLD TO DISCONNECT,החזק להתנתקות,"Phone: HOLD TO DISCONNECT box at the bottom of the game screen, inset 60 px from the sides and 40 px from the bottom so rounded corners do not cut it (hold it for 0.8 s to disconnect the phone from the TV; a tap does nothing)",New 2026-10-30 (issue #239). The waiting screen keeps pad.disconnect.
+pad.new_best,NEW BEST!,שיא חדש!,"Phone game screen: after a round that set a personal best, only while the result of that game is open (not on the waiting screen); large (56 px), yellow, centered in the upper half of the play area under the name of the game",
+pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,"Phone game screen: help line in the upper half of the play area, above the small Recenter button at the bottom",
+pad.recenter,RECENTER,מרכז,Phone game screen: Recenter button,
 pad.slide_to_aim,SLIDE TO MOVE THE BALL,החליקו כדי להזיז את הכדור,Phone game screen: help line on the aim strip while it is the turn of this phone in Bowling,
-paint_grab.percent,%d%%,%d%%,"Paint Grab: the share of the picture that a player painted (leader chip, phone score line, result list)","the number sign (%d) is replaced by a whole number"
+paint_grab.percent,%d%%,%d%%,"Paint Grab: the share of the picture that a player painted (leader chip, phone score line, result list)",the number sign (%d) is replaced by a whole number
 paint_grab.tilt_phone_roll_paint,TILT YOUR PHONE TO ROLL AND PAINT THE TILES!,הטו את הטלפון כדי להתגלגל ולצבוע את האריחים!,Paint Grab: hint during the countdown,
 pause.and, AND , ו־,Pause card: joins the names of two or more phones ('2P AND 3P'),keep the spaces at the start and the end
 pause.is_back,IS BACK,חזר,Pause card: a phone that came back,
@@ -109,23 +109,23 @@ pause.lost_connection,%s lost connection,החיבור של %s אבד,"Pause card
 pause.reconnected,%s reconnected,%s התחבר מחדש,"Pause card title: phones that came back, %s is the names",%s is replaced by a name or a value
 pause.resume_without,Resume without %s,המשך בלי %s,"Pause card button: go on without the lost phones, %s is the names",%s is replaced by a name or a value
 pause.waiting_reconnect,WAITING TO RECONNECT,ממתין להתחברות מחדש,Pause card: state of a phone that lost the connection,
-players.remove,REMOVE,הסירו,TV Players modal: Remove button of a phone,
-players_modal.close,CLOSE,סגרו,TV Players modal: Close button,
-profile_edit.delete,DELETE,מחקו,"Phone, edit player: Delete button",
+players.remove,REMOVE,הסר,TV Players modal: Remove button of a phone,
+players_modal.close,CLOSE,סגור,TV Players modal: Close button,
+profile_edit.delete,DELETE,מחק,"Phone, edit player: Delete button",
 profile_edit.delete_ask,Delete %s?,למחוק את %s?,"Phone, edit player: Delete button after the first tap, %s is the player name",%s is replaced by a name or a value
 profile_edit.edit_player,EDIT PLAYER,ערכו שחקן,"Phone, edit player: title for an existing player",
-profile_edit.import,IMPORT,ייבאו,"Phone, new player screen: Import button, opens the QR scanner",
+profile_edit.import,IMPORT,ייבא,"Phone, new player screen: Import button, opens the QR scanner",
 profile_edit.letters_digits_space_only,"LETTERS, DIGITS AND SPACE ONLY","אותיות, ספרות ורווח בלבד","Phone, edit player: hint under the name field",
 profile_edit.name,NAME,שם,"Phone, edit player: label of the name field",
 profile_edit.new_player,NEW PLAYER,שחקן חדש,Phone: title of the new player screen,
-profile_edit.save,SAVE,שמרו,"Phone, edit player: Save button",
+profile_edit.save,SAVE,שמור,"Phone, edit player: Save button",
 profile_share.code_goes_away_after,THE CODE GOES AWAY AFTER 60 SECONDS.,הקוד יעלם אחרי 60 שניות.,"Phone, share player: help line",
 profile_share.everyone_who_scans_code,EVERYONE WHO SCANS THIS CODE CAN IMPORT THIS PLAYER'S PROFILE.,כל מי שסורק את הקוד הזה יכול לייבא את הפרופיל של השחקן הזה.,"Phone, share player: help line",
 profile_share.share_player,SHARE PLAYER,שתף שחקן,"Phone, share player: title",
 profile_share.two_phones_do_not,THE TWO PHONES DO NOT STAY IN SYNC AFTER THE COPY.,שני הטלפונים לא מסתנכרנים אחרי ההעתקה.,"Phone, share player: help line",
 profiles.could_not_save,COULD NOT SAVE,שמירה נכשלה,"Phone, edit player: message when saving the player fails",
 profiles.maximum,%d players is the maximum,%d שחקנים זה המקסימום,"Phone, new player screen (Import) and Connect screen (scan of a player code): message when the phone has the maximum of players, %d is the limit","the number sign (%d, %.1f ...) is replaced by a number"
-profiles.share,SHARE,שתפו,"Phone, edit player: Share button",
+profiles.share,SHARE,שתף,"Phone, edit player: Share button",
 registry.marble_race,CAR RACE,מירוץ מכוניות,"Name of the game Car Race: Games screen, game settings, result",
 registry.paint_grab,PAINT GRAB,חטיפת צבע,"Name of the game Paint Grab: Games screen, game settings, in-game title",
 registry.desc_snowball_splat,A JUNGLE PARTY WITH HUNGRY ANIMALS AND LOTS OF BANANAS.,מסיבה בג׳ונגל עם חיות רעבות והרבה בננות.,"Description of Banana Party: info bar of the Games screen (what the game is, no instructions, issue #78)",
@@ -154,7 +154,7 @@ settings.effects,EFFECTS,אפקטים,TV Settings: name of the sound effects vol
 settings.invert_tilt_axes,INVERT AXES,היפוך צירים,TV Settings: name of the row,
 settings.language,LANGUAGE,שפה,TV Settings: name of the Language row; phone Settings: name of the Language row (LANGUAGE  < ENGLISH >),
 common.off,OFF,כבוי,"TV Settings: state of a switch that is off (Approve new players, Debug overlay, Mute, Invert tilt axes); phone Settings: state of the HAPTICS switch (settings.haptics_row)",
-common.on,ON,פועל,"TV Settings: state of a switch that is on (Approve new players and the others); phone Settings: state of the HAPTICS switch (settings.haptics_row)",
+common.on,ON,פועל,TV Settings: state of a switch that is on (Approve new players and the others); phone Settings: state of the HAPTICS switch (settings.haptics_row),
 settings.phone_vibrates_games_when,"THE PHONE VIBRATES IN GAMES: WHEN YOU SCORE, BUMP OR START.","הטלפון רוטט במשחקים: כשמקבלים נקודה, מתנגשים או מתחילים.",Phone Settings screen: help line under the HAPTICS switch and the LANGUAGE row,
 settings.track_n,Track %d,מסלול %d,"Car Race: name of a fixed track, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 shell.seconds,%.1f s,%.1f ש׳,"Game HUD: timer, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
@@ -172,7 +172,7 @@ wait.round_running,A ROUND IS IN PROGRESS,סיבוב מתנהל כעת,Phone wai
 wait.use_tv_remote_phone,USE THE TV REMOTE. YOUR PHONE IS READY.,השתמשו בשלט הטלוויזיה. הטלפון שלכם מוכן.,Phone waiting screen: second line while the TV shows the menus,
 wait.waiting_host,WAITING FOR THE HOST,ממתינים למארח,Phone waiting screen: title before the TV has chosen a game,
 wait.get_ready,GET READY!,היכונו!,Phone waiting screen: title while the TV shows the settings of a game,
-wait.host_settings,THE HOST IS PICKING THE SETTINGS.,המארח בוחר את ההגדרות.,Phone waiting screen: second line while the TV shows the settings of a game and one phone is connected (with two or more the question PLAY THIS GAME? shows instead),
+wait.host_settings,THE HOST IS SETTING UP THE GAME.,המארח מכין את הגדרות המשחק.,Phone waiting screen: second line while the TV shows the settings of a game and one phone is connected (with two or more the question PLAY THIS GAME? shows instead),
 registry.star_shield,STAR SHIELD,מגן הכוכבים,"Name of the game Star Shield: Games screen, game settings, in-game title",
 registry.desc_asteroid_blast,A SPACE ADVENTURE IN A SKY FULL OF FALLING ROCKS.,הרפתקה בחלל בשמיים מלאים בסלעים נופלים.,"Description of Star Shield: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.theme,THEME,ערכת נושא,game settings of Treasure Maze and Car Race: name of the theme row,
@@ -212,7 +212,7 @@ registry.desc_tennis,A TENNIS MATCH WITH YOUR PHONE AS THE RACKET.,"משחק ט�
 tennis.scoring,SCORING,ניקוד,Tennis settings view: name of the Scoring row,
 tennis.real,REAL,אמיתי,"Tennis settings view: Real value of the Scoring row (15, 30, 40, deuce, first to 3 games)",
 tennis.quick,QUICK,מהיר,Tennis settings view: Quick value of the Scoring row (first to 5 points),
-tennis.hint_serve,PRESS A TO TOSS. SWING DOWN TO SERVE! SWING TO A SIDE TO AIM!,לחצו A כדי לזרוק. הניפו מלמעלה למטה כדי להגיש! הניפו לצד כדי לכוון!,Tennis: hint line at the bottom while a player serves (first 16 seconds of the match),
+tennis.hint_serve,WAIT FOR THE TOSS. SWING DOWN TO SERVE! SWING TO A SIDE TO AIM!,חכו לזריקה. הניפו מלמעלה למטה כדי להגיש! הניפו לצד כדי לכוון!,Tennis: hint line at the bottom while a player serves (first 16 seconds of the match),
 tennis.hint_hit,SWING WHEN THE BALL ARRIVES! SWING TO A SIDE TO AIM!,הניפו כשהכדור מגיע! הניפו לצד כדי לכוון!,Tennis: hint line at the bottom during a rally (first 16 seconds of the match),
 tennis.hint_solo,HIT EVERY BALL BACK TO KEEP THE RALLY GOING!,הדפו כל כדור כדי להמשיך את הרצף!,Tennis with 1 player: hint line at the bottom (first 16 seconds of the match),
 tennis.serves,%s SERVES,%s מגיש/ה,"Tennis: plate in the middle of the screen before a serve, %s is the name of the server",%s is replaced by a name or a value
@@ -229,7 +229,7 @@ tennis.best,BEST %d,שיא %d,"Tennis with 1 player: the badge in the top bar (r
 registry.mini_golf,MINI GOLF,מיני גולף,"Name of the game Mini Golf: Games screen, game settings, in-game title",
 registry.desc_mini_golf,"MINI GOLF ON FUNNY COURSES, WITH YOUR PHONE AS THE CLUB.","מיני גולף במסלולים מצחיקים, והטלפון הוא המחבט.","Description of Mini Golf: info bar of the Games screen (what the game is, no instructions, issue #78)",
 mini_golf.holes,HOLES,גומות,Mini Golf settings view: name of the Holes row,
-mini_golf.hole_one,1 HOLE,גומה אחת,"Mini Golf settings view: the value 1 of the Holes row (the other values are mini_golf.holes_n)",
+mini_golf.hole_one,1 HOLE,גומה אחת,Mini Golf settings view: the value 1 of the Holes row (the other values are mini_golf.holes_n),
 mini_golf.holes_n,%d HOLES,%d גומות,"Mini Golf settings view: the values 2 to 10 of the Holes row, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hole,Hole %d/%d  Par %d,גומה %d/%d  פר %d,"Mini Golf: top bar, right side: the hole that is played, the holes of the match and the par of the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.turn,%s's turn!,התור של %s!,"Mini Golf: plate over the course for 1.5 seconds at the start of a turn, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
@@ -253,13 +253,13 @@ swing.card_text,GRIP FIRMLY. KEEP SPACE AROUND YOU.,אחזו חזק. שמרו מ
 swing.tv_line,HOLD YOUR PHONE TIGHT AND KEEP SPACE AROUND YOU.,החזיקו את הטלפון חזק ושמרו מרחק מסביב.,"TV game settings view of Bowling, Tennis, Mini Golf and Freeze Dance: safety line in a large box under the title, always shown",
 game_settings.waiting_phones,WAITING FOR PHONES,ממתינים לטלפונים,TV game settings view of a swing game: line under Start while a phone has not tapped OK on its safety card (Start is off),
 how_to.maze,TILT YOUR PHONE TO ROLL YOUR BALL THROUGH THE MAZE. THE FIRST BALL IN THE EXIT WINS.,הטו את הטלפון כדי לגלגל את הכדור במבוך. הכדור הראשון ביציאה מנצח.,"TV game settings view of Treasure Maze: how to play, under the title (issue #77; the text that was the description before)",
-how_to.marble_race,TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.,הטו כדי להוביל את המכונית לאורך הכביש. המכונית הראשונה מעל הקו מנצחת.,"TV game settings view of Car Race: how to play, under the title (issue #77; the text that was the description before)",
+how_to.marble_race,TILT TO STEER YOUR CAR ALONG THE ROAD. THE FIRST CAR OVER THE LINE WINS.,הטו כדי להוביל את המכונית לאורך הכביש. המכונית הראשונה מעבר לקו מנצחת.,"TV game settings view of Car Race: how to play, under the title (issue #77; the text that was the description before)",
 how_to.paint_grab,TILT YOUR PHONE TO ROLL YOUR PAINT BLOB OVER THE FLOOR. THE MOST PAINTED TILES IN 60 S WINS.,הטו את הטלפון כדי לגלגל את כתם הצבע על הרצפה. מי שצבע הכי הרבה אריחים תוך 60 שניות מנצח.,"TV game settings view of Paint Grab: how to play, under the title (issue #77; the text that was the description before)",
 how_to.sumo_bumpers,TILT TO ROLL YOUR BUMPER AND PUSH THE OTHERS OFF THE SHRINKING PLATFORM. MOST POINTS IN 3 ROUNDS WINS.,הטו כדי לגלגל את הפגוש שלכם ולדחוף את האחרים מהפלטפורמה המצטמקת. מי שצבר הכי הרבה נקודות ב־3 סיבובים מנצח.,"TV game settings view of Sumo Bumpers: how to play, under the title (issue #77; the text that was the description before)",
 how_to.snowball_splat,POINT YOUR PHONE AT THE SCREEN AND PRESS A TO THROW BANANAS AT THE HUNGRY ANIMALS. MOST POINTS IN 60 S WINS.,כוונו את הטלפון אל המסך ולחצו A כדי לזרוק בננות על החיות הרעבות. מי שצבר הכי הרבה נקודות תוך 60 שניות מנצח.,"TV game settings view of Banana Party: how to play, under the title (issue #77; the text that was the description before)",
 how_to.asteroid_blast,TILT TO FLY YOUR SPACESHIP AND BLAST THE ASTEROIDS. THE GAME GOES ON UNTIL EVERY SHIP IS GONE.,הטו כדי להטיס את החללית ולפוצץ אסטרואידים. המשחק נמשך עד שכל החלליות נעלמו.,"TV game settings view of Star Shield: how to play, under the title (issue #77; the text that was the description before)",
 how_to.bowling,"SLIDE A FINGER TO AIM. SWING BACK, THEN FORWARD TO ROLL THE BALL! KNOCK DOWN ALL THE PINS.",החליקו אצבע כדי לכוון. הניפו אחורה ואז קדימה כדי לגלגל את הכדור! הפילו את כל הפינים.,"TV game settings view of Bowling: how to play, under the title (issue #77)",
-how_to.tennis,SWING YOUR PHONE WHEN THE BALL ARRIVES. SWING TO A SIDE TO AIM. PRESS A TO TOSS THE BALL FOR A SERVE.,הניפו את הטלפון כשהכדור מגיע. הניפו לצד כדי לכוון. לחצו A כדי לזרוק את הכדור להגשה.,"TV game settings view of Tennis: how to play, under the title (issue #77)",
+how_to.tennis,SWING YOUR PHONE WHEN THE BALL ARRIVES. SWING TO A SIDE TO AIM. TO SERVE WAIT FOR THE TOSS (OR PRESS A) AND SWING DOWN.,הניפו את הטלפון כשהכדור מגיע. הניפו לצד כדי לכוון. להגשה חכו לזריקה (או לחצו A) והניפו מלמעלה למטה.,"TV game settings view of Tennis: how to play, under the title (issue #77)",
 how_to.mini_golf,"MOVE THE PHONE TO AIM. SWING BACK, THEN FORWARD TO PUTT THE BALL INTO THE HOLE.",הזיזו את הטלפון כדי לכוון. הניפו אחורה ואז קדימה כדי לדחוף את הכדור לגומה.,"TV game settings view of Mini Golf: how to play, under the title (issue #77)",
 setup.question,PLAY THIS GAME?,לשחק במשחק הזה?,"Phone waiting screen, while the TV settings view of a game is open and two or more phones are connected: the question above the IN and OUT buttons",
 setup.in,IN,בפנים,Phone waiting screen: the IN button (this phone plays the game); TV game settings view: the word after the name of a player who plays,
@@ -296,12 +296,12 @@ bumper_cars.hint,TILT TO DRIVE AND PICK UP STARS!,הטו כדי לנסוע ול�
 result.one_star,1 star,כוכב אחד,Bumper Cars result list: score of 1 star,
 result.stars,%d stars,%d כוכבים,"Bumper Cars result list: score, %d is the stars","the number sign (%d, %.1f ...) is replaced by a number"
 registry.tower_builder,TOWER BUILDER,בונים מגדל,"Name of the game Tower Builder: Games screen, game settings, in-game title",
-registry.desc_tower_builder,A TEAM GAME OF STACKING BRICKS INTO ONE TALL TOWER.,משחק קבוצתי של בניית מגדל גבוה אחד מלבנים.,"Description of Tower Builder: info bar of the Games screen (what the game is, no instructions, issue #78)",
+registry.desc_tower_builder,A TEAM GAME OF STACKING BRICKS INTO A TALL TOWER.,משחק קבוצתי של בניית מגדל גבוה מלבנים.,"Description of Tower Builder: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.tower_builder,"WAIT FOR YOUR TURN, THEN PRESS A TO DROP THE SWINGING BRICK. STACK ALL THE BRICKS ON ONE TOWER WITHOUT LETTING IT FALL.",חכו לתור שלכם ואז לחצו A כדי לשחרר את הלבנה המתנדנדת. ערמו את כל הלבנים על מגדל אחד בלי שהוא יתמוטט.,"TV game settings view of Tower Builder: how to play, under the title (issue #77)",
 tower_builder.turn_of,%s'S TURN,התור של %s,"Tower Builder HUD: the player whose turn it is, on a plate at the left of the tower, %s is the name of the player",%s is replaced by a name or a value
 tower_builder.brick_n_of,BRICK %d OF %d,לבנה %d מתוך %d,"Tower Builder HUD: the brick that is dropped now, on a plate at the left of the tower, first %d is the brick, second is the total","the number sign (%d, %.1f ...) is replaced by a number"
 tower_builder.missed,WHOOPS! IT MISSED!,אופס! הלבנה פספסה!,Tower Builder: banner in the middle of the screen when a brick falls beside the tower,
-tower_builder.crash,CRASH! GIGGLE!,קראש! חיחי!,Tower Builder: banner in the middle of the screen when the top of the tower falls down,
+tower_builder.crash,CRASH! GIGGLE!,התרסק! חיחי!,Tower Builder: banner in the middle of the screen when the top of the tower falls down,
 tower_builder.one_brick,1 BRICK,לבנה אחת,Tower Builder result list: the score of a player with one brick that stayed,
 tower_builder.n_bricks,%d BRICKS,%d לבנים,"Tower Builder result list: the score of a player, the bricks that stayed on the tower, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 tower_builder.hint,WAIT FOR YOUR TURN. PRESS A TO DROP THE BRICK!,חכו לתור שלכם. לחצו A כדי לשחרר את הלבנה!,"Tower Builder: hint at the start of the game, bottom of the screen",
@@ -315,9 +315,10 @@ freeze_dance.song_n,SONG %d OF %d,שיר %d מתוך %d,"Freeze Dance HUD: box i
 players.default_name,Player %d,שחקן %d,"TV, everywhere a player name shows (Players list, HUD chips, pause card, result menu): name of a phone that has no profile name, %d is the slot number (1 to 4)","the number sign (%d, %.1f ...) is replaced by a number; it is not saved: it follows the TV language"
 about.qr_scanner,QR scanner,סורק QR,"About screen, Android phone: name of the page about the QR scanner (list entry and heading of the page)",
 about.android_libraries,Android libraries,ספריות אנדרואיד,"About screen, Android phone, 3rd Party Libraries: name of the page of the Android libraries (list entry and heading of the page)",
-settings.haptics_row,HAPTICS,רטט,"Phone Settings: name of the HAPTICS switch row (a tap on the row turns it on or off)",Replaces settings.haptics (HAPTICS: %s); the state is the row value (common.on or common.off)
+settings.haptics_row,HAPTICS,רטט,Phone Settings: name of the HAPTICS switch row (a tap on the row turns it on or off),Replaces settings.haptics (HAPTICS: %s); the state is the row value (common.on or common.off)
 about.get_app,Get the app,הורידו את האפליקציה,"About screen, TV only: title of the page and the row that opens it; the page shows the QR code of the phone app","Only on the TV, after the first row (Sababi)"
 about.get_app_scan,Scan the code with your phone to get the app.,סרקו את הקוד עם הטלפון כדי להוריד את האפליקציה.,"About screen, TV only, page Get the app: the line under the QR code",
 connect.get_app,GET THE PHONE APP TO PLAY,הורידו את אפליקציית הטלפון כדי לשחק,"TV logo screen: label of the card with the QR code of the phone app, which is needed to play",
 connect.scan_to_join,SCAN TO JOIN,סרקו כדי להצטרף,"TV Connect screen: label above the QR code of the room, which the Sababi app scans",
 connect.app_code_scanned,THAT IS THE APP CODE. SCAN THE OTHER ONE.,זה קוד האפליקציה. סרקו את הקוד השני.,"Phone Connect screen, status line: the player scanned the QR code Get the app of the TV instead of the room code",
+about.privacy,Privacy policy,מדיניות פרטיות,"About screen, TV and phone: title of the page and the row that opens it (the page shows the privacy notice itself, read from the files in docs/legal; Google Play wants the policy inside the app)",
