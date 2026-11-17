@@ -9,7 +9,8 @@ const Lang = preload("res://scripts/core/lang.gd")
 const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
 const AVATARS := {"DAN": 9, "MIA": 14, "ELI": 20}
-const SLOT_COLORS: Array[Color] = [Color8(0x3d, 0xce, 0xf2), Color8(0xcc, 0x7e, 0x0a), Color8(0xaa, 0x3d, 0xf2), Color8(0xf2, 0x0c, 0x68)]
+const SLOT_COLORS: Array[Color] = [Color8(0x3d, 0xce, 0xf2), Color8(0xcc, 0x7e, 0x0a), Color8(0xaa, 0x3d, 0xf2),
+		Color8(0xf2, 0x0c, 0x68)]
 
 # [file, language, size, game id, place, score, medal, a personal best, player name, slot]
 const CASES := [
