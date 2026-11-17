@@ -192,7 +192,8 @@ func _tilt_timing() -> void:
 	print("the time of a tilt")
 	var game := _play("easy", 5)
 	var p0: RefCounted = _app.server.players[0]
-	game.scenery.items.clear()   # Trees and the pond are in the way of a straight run; the time is for a free field.
+	_check(is_equal_approx(game.flock.assist, float(game.LEVELS.easy.assist)),
+			"the game gives the help of the difficulty to the flock (REQ-SH-21)")
 	var dog = game.dogs[0]
 	dog.pos = Vector2(game.field.position.x + dog.radius + 4.0, game.field.get_center().y)
 	dog.vel = Vector2.ZERO

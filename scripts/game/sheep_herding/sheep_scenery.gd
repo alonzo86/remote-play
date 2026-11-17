@@ -1,7 +1,8 @@
 extends RefCounted
 ## The things that stand around in the field of Sheep Herding (REQ-SH-16): a pond, trees, pines, hay stacks, bales, rocks and
 ## bushes, scattered over the whole field and not only at the edges. Pure logic. The same seed gives the same field, so Restart
-## keeps it. The things that a sheep or a dog cannot walk through are `blockers` (circles); bushes and flowers are only drawn.
+## keeps it. The circles of the tall things are `blockers`: they only keep a sheep or a dog from starting on a thing, and
+## nothing is blocked by them (REQ-SH-4); bushes and flowers have none.
 ## The places that must stay open (the dogs at the start, the sheep at the start, the way to the gate
 ## and the pen) are `keep_free`.
 
