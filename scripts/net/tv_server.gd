@@ -9,6 +9,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const ClosingSockets = preload("res://scripts/net/closing_sockets.gd")
 const PlayerInput = preload("res://scripts/input/player_input.gd")
 const Profile = preload("res://scripts/core/profile.gd")
+const PlayerNames = preload("res://scripts/net/player_names.gd")
 const RefusalTable = preload("res://scripts/net/refusal_table.gd")
 
 signal player_joined(slot: int)
@@ -104,6 +105,7 @@ var _known_tokens: Array[String] = []   # Tokens of phones that this TV welcomed
 var _refusals := RefusalTable.new()
 var _closing := ClosingSockets.new()   # Rejected, replaced and stopped sockets that finish their close handshake.
 var _replaced_tokens := {}           # token -> time (ms) until which the TV remembers it (a phone that was replaced, FD-22).
+var _final_sent := {}                # slot -> the `final` message of the open result (REQ-FL-67a).
 var _turn_sent := {}                 # slot -> the last turn message sent to that phone.
 var _score_sent := {}                # slot -> the last score message sent to that phone (it is not sent again, REQ-FL-67).
 
@@ -130,9 +132,10 @@ func start(settings: Dictionary) -> Error:
 ## A slot that is freed during a round (left, removed, grace time over, host continued without it)
 ## is not in the round any more. A new phone in that slot waits for the next round (REQ-FL-25).
 func _on_player_removed(slot: int) -> void:
+	_final_sent.erase(slot)   # A new phone in this slot never gets the row of the player that left (REQ-FL-67a).
 	round_slots.erase(slot)
 	if not in_round():
-		_assign_names()
+		PlayerNames.assign(players)
 
 
 ## Stops the server. Every phone gets "bye" first (issue #169). Returns true when sockets are still finishing their close
@@ -176,6 +179,8 @@ func connected_slots() -> Array[int]:
 ## Tells the phones what the TV shows. During a round (`playing`, `paused`), a phone that is not in
 ## `slots` gets the phase `waiting`: it joined late and takes part in the next round (REQ-FL-25).
 func set_phase(p_phase: String, slots: Array[int] = []) -> void:
+	if p_phase != "paused" and not (phase == "paused" and p_phase == "playing"):
+		_final_sent.clear()   # A new round or a menu ends the result line; a pause and its resume keep it (REQ-FL-67a).
 	phase = p_phase
 	if p_phase in ["playing", "paused"]:
 		_hide_shown_request()   # No card in a round: the request waits for the next menu phase (FD-30.9).
@@ -190,7 +195,7 @@ func set_phase(p_phase: String, slots: Array[int] = []) -> void:
 	round_slots.clear()
 	round_limited = false
 	if not p_phase in ["playing", "paused"]:
-		_assign_names()   # The names are made again in the menus only, so they do not change in a round (docs/PROFILES_PLAN.md 4.3).
+		PlayerNames.assign(players)   # Names are made again in the menus only, so they do not change in a round (PROFILES_PLAN 4.3).
 		_turn_sent.clear()
 		_score_sent.clear()   # The phones clear their score at the phase message (REQ-FL-67); a pause keeps it.
 	if p_phase in ["playing", "paused"] and not slots.is_empty():
@@ -273,7 +278,7 @@ func set_language(code: String) -> void:
 		return
 	language = code
 	if in_menu_phase():
-		_assign_names()   # A phone without a name is "Player N" in the new language.
+		PlayerNames.assign(players)   # A phone without a name is "Player N" in the new language.
 	for p in players:
 		if p.is_connected_now():
 			_send_json(p.slot, {"t": "lang", "v": language})
@@ -296,6 +301,17 @@ func send_score(slot: int, rank: int, of: int, text: String) -> void:
 	if slot >= 0 and slot < players.size() and players[slot].is_connected_now():
 		_score_sent[slot] = msg
 		_send_json(slot, msg)
+
+
+## Tells one phone its line of the result of the game (REQ-FL-67a): the text of its row in the result menu of the TV, with the
+## place, the name and the score. The phone shows it in the middle of the screen with no button until the next round. It is kept
+## for a phone that returns while the result is open.
+func send_final(slot: int, text: String) -> void:
+	var msg := {"t": "final", "v": text}
+	if slot >= 0 and slot < players.size():
+		_final_sent[slot] = msg
+		if players[slot].is_connected_now():
+			_send_json(slot, msg)
 
 
 ## Tells one phone whose turn it is in a game with turns (REQ-BW-14): `state` 0 for no turn line, 1 when it is the turn of this
@@ -647,7 +663,7 @@ func _admit(ws: WebSocketPeer, msg: Dictionary, now: int, known: bool) -> void:
 		player.player_name = old_shown   # A phone that returns in a round keeps the name the TV showed (REQ-FL-69).
 	else:
 		player.set_profile(pid, av, p_name)
-		_assign_names(slot if in_round() else -1)
+		PlayerNames.assign(players, slot if in_round() else -1)
 	_turn_sent.erase(slot)
 	_score_sent.erase(slot)   # A phone that joins or returns has no score yet.
 	var welcome := {
@@ -661,6 +677,8 @@ func _admit(ws: WebSocketPeer, msg: Dictionary, now: int, known: bool) -> void:
 	if pad_buttons != "ab":
 		welcome["ab"] = pad_buttons
 	_send_json(slot, welcome)
+	if resumed and _final_sent.has(slot) and in_round():   # The result menu runs in the phase `playing`.
+		_send_json(slot, _final_sent[slot])   # The same phone returns while the result is open: its line again.
 	if not resumed:
 		_swing_ok.erase(slot)   # A new phone in a used slot has not tapped OK yet, and is IN.
 		_out.erase(slot)
@@ -711,28 +729,6 @@ func _send_kicked(ws: WebSocketPeer, reason: String) -> void:
 	_discard(ws)
 
 
-## The names that the TV shows (docs/PROFILES_PLAN.md 4.3): the profile name, or "Player N" for a phone without a name. A
-## name that another player has already gets a number (`Sam`, `Sam 2`); case and spaces at the ends do not count. With `only`
-## set, only that slot is made again (a phone that joins in a round), against the names of the others.
-func _assign_names(only := -1) -> void:
-	var used: Array[String] = []
-	if only >= 0:
-		for p in players:
-			if p.is_present() and p.slot != only:
-				used.append(p.player_name.strip_edges().to_upper())
-	for p in players:
-		if not p.is_present() or (only >= 0 and p.slot != only):
-			continue
-		var base: String = p.raw_name if p.raw_name != "" else PlayerInput.default_name(p.slot)
-		var shown := base
-		var n := 2
-		while used.has(shown.strip_edges().to_upper()):
-			shown = "%s %d" % [base, n]
-			n += 1
-		p.player_name = shown
-		used.append(shown.strip_edges().to_upper())
-
-
 ## A `profile` message from a phone (docs/PROTOCOL.md): it changes the profile of its slot in the menu phases. The answer says
 ## what the TV has now, so the phone shows the truth.
 func _handle_profile(i: int, msg: Dictionary, now: int) -> void:
@@ -750,7 +746,7 @@ func _handle_profile(i: int, msg: Dictionary, now: int) -> void:
 				else:
 					_replace_slot(dup, now)
 		players[i].set_profile(pid, av, p_name)
-		_assign_names()
+		PlayerNames.assign(players)
 	var p := players[i]
 	_send_json(i, {"t": "profile", "pid": p.profile_id, "name": p.player_name if p.has_profile() else "", "av": p.avatar})
 

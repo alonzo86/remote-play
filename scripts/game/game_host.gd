@@ -39,6 +39,11 @@ func send_score(slot: int, rank: int, of: int, text: String) -> void:
 	App.server.send_score(slot, rank, of, text)
 
 
+## The line of the result of this phone (REQ-FL-67a): the text of its row in the result menu.
+func send_final(slot: int, text: String) -> void:
+	App.server.send_final(slot, text)
+
+
 func send_result(slot: int, key: String, value: int) -> void:
 	App.server.send_result(slot, key, value)
 
