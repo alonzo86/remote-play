@@ -49,7 +49,7 @@ One row for each session with the devices. The *Run* ID is used in the result ta
 | R7 | 2026-11-10 | the project owner | not written down | Android TV | 1 phone (no 2, 3 or 4 phones) | same Wi-Fi | Results typed in the test tracker (the tracker was synced with this file on 2026-11-10). Tests 1, 3, 4, 6, 7, 9, 10, 11, 12, 15, 16, 17 and 23. Steps that need more than 1 phone were marked N/A with the request to remove or automate them: removed from this file (see the History of each test). Recorded on 2026-11-10. |
 | R8 | 2026-11-16 | the project owner | not written down | not written down | not written down | same Wi-Fi | Results typed in the test tracker. Tests 14, 19 and 20. Recorded in this file on 2026-11-17. |
 | R9 | 2026-11-17 | the project owner | not written down | not written down | not written down | same Wi-Fi | Results typed in the test tracker. Tests 20, 21, 22, 23, 25, 26, 27, 28, 30, 32 and 34 (the join approval, Test 34, was run for the first time). Recorded on 2026-11-17. Steps for 3 or 4 phones and for the debug overlay were marked N/A with the request to remove or automate them (issues #457 and #458). |
-| R10 | 2026-11-17 | the project owner | not written down | Android TV | an Android phone set to Hebrew (and a second phone for the 2-phone steps) | same Wi-Fi | Results typed in the test tracker. Tests 1, 7, 18, 19, 20, 21, 25 and 29. Recorded on 2026-11-17. Step 3c of Test 19 failed (issue #470); the Tennis tile (Test 25 step 1b) passed. |
+| R10 | 2026-11-17 | the project owner | not written down | not written down | a phone set to Hebrew (the other phones were not written down) | same Wi-Fi | Results typed in the test tracker. Tests 1, 7, 18, 19, 20, 21, 25 and 29. Recorded on 2026-11-17. Step 3c of Test 19 failed (issue #470); the Tennis tile (Test 25 step 1b) passed. |
 
 ## Summary
 
@@ -107,7 +107,7 @@ Tests the user has to run now (status on 2026-11-17 after run R10; the list is i
 | 27 | **Open: items 1a, 11b** (after run R9 of 2026-11-17; 12 of 14 steps are Pass or N/A in the Results table). | Air Hockey and ROBO were added on 2026-10-23 (`docs/games/air_hockey.md`, REQ-GM-105, 106). Needed before they are merged. All values (the mallet and puck physics, the goal size, the levels of ROBO), the pictures, the song, the effects and the Hebrew texts are first guesses |
 | 23 | **Open: items 14c** (after run R9 of 2026-11-17; 20 of 21 steps are Pass or N/A in the Results table). | Bowling was added on 2026-10-16 (`docs/games/bowling.md`). Needed before it is merged. It was only tested with made-up sensor values (the thresholds and the forward ratio `FWD_RATIO` were tuned on 2026-10-29 with made-up series only): the swing thresholds, the strip size, the ball speeds, the pictures, the song, the effects and the Hebrew text are first guesses |
 | 22 | **Open: items 12b** (after run R9 of 2026-11-17; 14 of 15 steps are Pass or N/A in the Results table). | Star Shield was added on 2026-10-16 (`docs/games/asteroid_blast.md`). Needed before it is merged. All values (speeds, waves, upgrade times), the pictures, the song, the effects and the Hebrew text are first guesses |
-| 20 | **Open: items 9a, 14a, 14b** (after run R10 of 2026-11-17; 11 of 14 steps are Pass or N/A in the Results table). | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). Needed before it is merged. The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
+| 20 | **Open: items 9a, 14b** (after run R10 of 2026-11-17; 12 of 14 steps are Pass, N/A or Removed in the Results table). | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). Needed before it is merged. The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
 | 19 | **Open: items 3c** (after run R10 of 2026-11-17; 11 of 12 steps are Pass or N/A in the Results table). Step 3c failed (issue #470). | The row of 4 player chips wrapped and covered the play area (issue #25). Replaced on 2026-10-10 (FD-21, REQ-FL-67, REQ-GM-46; the name tags of the countdown were removed on 2026-10-21 by decision of the owner). Needed before it is merged. The sizes are first guesses |
 | 16 | **Open: items 6b2** (after run R7 of 2026-11-10; 11 of 12 steps are Pass or N/A in the Results table). | Phase 1 of `docs/ARCADE_STYLE_PLAN.md` was built on 2026-10-10. Needed before it is merged. The games are in the pixel style too (phases 2 to 4 are built). All sizes and values come from the plan |
 | 7 | **Open: items 6a, 6b, 9a, 9b** (after run R10 of 2026-11-17; 17 of 21 steps are Pass or N/A in the Results table). | R1 found that a phone without Wi-Fi did not pause the game, and that a phone call ended the game with no way to resume. Fixed and changed on 2026-10-09 (REQ-GM-30, 30a) |
@@ -1612,14 +1612,11 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 | 10h | Note: answers of each tester; errors in reading | Pass | R10 |  | R10: Pass Added 2026-10-31 (issue #306). |
 
 History:
+- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 1, 2a, 4, 6a, 8a, 8b, 8c, 8d, 9a, 9b, 10a, 10b, 10c, 10d, 10f, 10e, 10g, 10h. The result is for the layout before the pen moved to a corner (issue of 2026-11-17); the steps that the new layout changes are set to Not run in that change.
 - 2026-11-10 (step removed): Owner decision of 2026-11-10 (issue #440, the owner answered: remove them; the owner has 1 Android phone and no TV box). The FPS step on the TV box (step 7) is removed: nobody can do it now. The cost of a frame with 4 phones on Hard stays automated (`frame_cost`, A-29-7, issue #132); what is not verified by anything now is the frame rate of the real TV box (REQ-GM-50 on a real device). REQ-GM-50 is dropped from the Covers line of this test.
 
 - 2026-10-24 (automated): steps 2b, 3a, 3b, 5a, 5b, 6b moved to the automated tests (smoke_sheep, sheep_rules). Nothing was run on a device, so no result moved.
 - -: **Not run**. New (2026-10-23).
-
-History:
-
-- 2026-11-17 (recorded; R10 in the tracker): Pass: steps 1, 2a, 4, 6a, 8a, 8b, 8c, 8d, 9a, 9b, 10a, 10b, 10c, 10d, 10f, 10e, 10g, 10h. The result is for the layout before the pen moved to a corner (issue of 2026-11-17); the steps that the new layout changes are set to Not run in that change.
 
 ## Test 30
 
