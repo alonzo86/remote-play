@@ -364,10 +364,10 @@ func _finish() -> void:
 
 ## The score of the leader chip: the strokes on this hole and in all, "2 / 5" (owner, 2026-11-05: the chips of the bottom bar are
 ## gone; the top chip shows both).
-func _score_label(entry: Dictionary) -> String:
+func _score_spec(entry: Dictionary) -> Array:
 	if not entry.finished:
-		return ""
-	return Lang.f("mini_golf.leader_score", [rules.strokes_on_hole(entry.slot), rules.total(entry.slot)])
+		return []
+	return ResultText.spec("mini_golf.leader_score", [rules.strokes_on_hole(entry.slot), rules.total(entry.slot)])
 
 
 func _scoreboard() -> Scoreboard:

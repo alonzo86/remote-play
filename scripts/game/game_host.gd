@@ -35,8 +35,8 @@ func send_turn(slot: int, state: int, who: String, kind := "") -> void:
 	App.server.send_turn(slot, state, who, kind)
 
 
-func send_score(slot: int, rank: int, of: int, text: String) -> void:
-	App.server.send_score(slot, rank, of, text)
+func send_score(slot: int, rank: int, of: int, text: String, spec: Array = []) -> void:
+	App.server.send_score(slot, rank, of, text, spec)
 
 
 ## The line of the result of this phone (REQ-FL-67a): the text of its row in the result menu.

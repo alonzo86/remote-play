@@ -170,7 +170,15 @@ func _scoreboard() -> Scoreboard:
 ## The score of `slot` as text, for the chip and the phone. The default is the number of the `Scoreboard`; a ranking without
 ## a score yet (a race before the finish) gives an empty text.
 func _score_label(entry: Dictionary) -> String:
-	return Scoreboard.format(entry.score) if entry.finished else ""
+	var spec := _score_spec(entry)
+	return ResultText.spec_text(spec) if spec.size() == 2 else ""
+
+
+## The same score as data, `ResultText.spec(key, numbers)` (REQ-FL-67, REQ-FL-62, issue #474): the phone writes it in its own
+## language, the chip of the TV writes it in the language of the TV (`_score_label()`). Empty while there is no score. A game with
+## its own unit overrides this, never `_score_label()`.
+func _score_spec(entry: Dictionary) -> Array:
+	return ResultText.spec("num", [entry.score]) if entry.finished else []
 
 
 ## Sends each player its place and score (the server sends a changed message only).
@@ -181,7 +189,8 @@ func _publish_scores() -> void:
 	var ranking := board.ranking()
 	var lead := board.has_lead()   # Nobody has a place while everybody is level at 0 (REQ-FL-67).
 	for e in ranking:
-		game_host.send_score(e.slot, e.rank if lead else 0, ranking.size() if lead else 0, _score_label(e))
+		game_host.send_score(e.slot, e.rank if lead else 0, ranking.size() if lead else 0, _score_label(e),
+				_score_spec(e))
 
 
 ## The score text on the leader chip: the score of the first leader, empty when there is no board or no player.

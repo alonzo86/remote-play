@@ -27,8 +27,8 @@ func set_phase(phase: String, slots_in: Array[int]) -> void:
 	calls.append(["phase", phase, slots_in.duplicate()])
 
 
-func send_score(slot: int, rank: int, of: int, text: String) -> void:
-	calls.append(["score", slot, rank, of, text])
+func send_score(slot: int, rank: int, of: int, text: String, spec: Array = []) -> void:
+	calls.append(["score", slot, rank, of, text, spec])
 
 
 func send_final(slot: int, text: String, parts := {}) -> void:

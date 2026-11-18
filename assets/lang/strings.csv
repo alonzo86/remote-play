@@ -145,7 +145,7 @@ result.place_3,3RD,שלישי,Result list and the place on line 2 of the phone r
 result.place_4,4TH,רביעי,Result list and the place on line 2 of the phone result screen: fourth place,
 result.points,%d points,%d נקודות,"Sumo Bumpers result list and line 3 of the phone result screen: score, %d is the points","the number sign (%d, %.1f ...) is replaced by a number"
 result.seconds_1,%.1f s,%.1f ש׳,"Treasure Maze result list and line 3 of the phone result screen: finish time, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
-result.seconds_2,%.2f s,%.2f ש׳,"Car Race result list, line 3 of the phone result screen and the personal best of a race, on the phone profile: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
+result.seconds_2,%.2f s,%.2f ש׳,"Car Race result list, line 3 of the phone result screen, the score row under the header of the phone (the time of the player after the finish) and the personal best of a race, on the phone profile: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 result.winner,%s wins!,%s ניצח!,Result menu title: %s is the name of the winner,%s is replaced by a name or a value
 settings.approve_players,APPROVE NEW PLAYERS,אישור שחקנים חדשים,"TV Settings: name of the first row (on/off, ON by default)",The value is common.on or common.off
 settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row,
@@ -232,7 +232,7 @@ mini_golf.hole_one,1 HOLE,גומה אחת,Mini Golf settings view: the value 1 o
 mini_golf.holes_n,%d HOLES,%d גומות,"Mini Golf settings view: the values 2 to 10 of the Holes row, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hole,Hole %d/%d  Par %d,גומה %d/%d  פר %d,"Mini Golf: top bar, right side: the hole that is played, the holes of the match and the par of the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.turn,%s's turn!,התור של %s!,"Mini Golf: plate over the course for 1.5 seconds at the start of a turn, %s is the name of the player","the number sign (%d, %.1f ...) is replaced by a number"
-mini_golf.leader_score,%d / %d,%d / %d,"Mini Golf: the score of the leader chip in the top bar, the strokes on this hole and the strokes in all","the number sign (%d, %.1f ...) is replaced by a number"
+mini_golf.leader_score,%d / %d,%d / %d,"Mini Golf: the score of the leader chip in the top bar and the score row under the header of the phone, the strokes on this hole and the strokes in all","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hint_weak,SWING A BIT MORE!,הניפו קצת יותר!,Mini Golf: hint on a plate after a swing that was too weak,
 mini_golf.strokes,%d strokes,%d מכות,"Mini Golf: banner after a ball went in with more strokes than par plus one, %d is the strokes on the hole","the number sign (%d, %.1f ...) is replaced by a number"
 mini_golf.hole_in_one,HOLE IN ONE!,גומה במכה אחת!,Mini Golf: banner after a ball went in with the first stroke,
