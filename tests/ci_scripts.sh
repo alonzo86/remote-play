@@ -161,6 +161,11 @@ check "patch: the TV manifest has no QR entry" "0" "$(grep -c 'QrScanner' "$PT/a
 check "patch: the TV has no code scanner dependency" "0" "$(grep -c 'play-services-code-scanner' "$PT/android-tv/build/build.gradle")"
 check "patch: the TV has no plugin source" "no" "$([ -f "$PT/android-tv/build/src/main/java/io/github/alonzo86/sababi/QrScannerPlugin.java" ] && echo yes || echo no)"
 check "patch: both manifests have the banner, the leanback flag and the launcher category" "3 3" "$(for D in android android-tv; do grep -c 'android:banner=\|android.software.leanback\|LEANBACK_LAUNCHER' "$PT/$D/build/src/main/AndroidManifest.xml"; done | tr '\n' ' ' | sed 's/ $//')"
+check "patch: the TV app needs the leanback feature (TV only, owner 2026-11-18)" "1" "$(grep -c 'android.software.leanback" android:required="true"' "$PT/android-tv/build/src/main/AndroidManifest.xml")"
+check "patch: the phone app does not need the leanback feature" "1" "$(grep -c 'android.software.leanback" android:required="false"' "$PT/android/build/src/main/AndroidManifest.xml")"
+sed -i 's/android.software.leanback" android:required="true"/android.software.leanback" android:required="false"/' "$PT/android-tv/build/src/main/AndroidManifest.xml"
+(cd "$PT" && tools/patch_android_manifest.sh tv >/dev/null 2>&1)
+check "patch: an older TV manifest with the flag false is changed to true" "1" "$(grep -c 'android.software.leanback" android:required="true"' "$PT/android-tv/build/src/main/AndroidManifest.xml")"
 cp "$PT/android/build/src/main/AndroidManifest.xml" "$TMP/before.xml"
 (cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)
 check "patch: a second run changes nothing" "same" "$(cmp -s "$TMP/before.xml" "$PT/android/build/src/main/AndroidManifest.xml" && echo same || echo changed)"
