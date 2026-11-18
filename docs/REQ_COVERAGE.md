@@ -13,8 +13,8 @@ Buckets:
   list; a range (`to`) and a wildcard (`REQ-MG-*`) count for none.
 - **todo**: a headless test can check it; it is not written yet. The reason says how. None is left: the tests were written in the pull requests #347, #349 and the one after it.
 - **review**: a rule of work or of taste that a reviewer judges; no machine can.
-- **device**: only a device or a person can check it. None of the 111 is in this bucket: the 63 rows with the status `Device` all
-  have manual steps since the pull requests #320 and #324.
+- **device**: only a device or a person can check it. None of the 111 is in this bucket: the 63 rows that had the status `Device` all
+  had manual steps since the pull requests #320 and #324. After run R11 (2026-11-18) 19 of the game rows still have the status `Device`: the others are `Done` because every manual step that checks them is Pass (REQ-GM-3).
 - **obsolete**: removed, superseded or no longer true. None is left: Alon chose "remove or fix them" (issue #306, 2026-10-31). The 11 ids that were removed
   (REQ-BC-8, REQ-TN-21, REQ-FL-47, 48, 49, REQ-GM-47, 47c, 47f, 47g, 47h, 47k) are not requirements any more and their ids are not used again; the two that said
   something false (REQ-GM-60, REQ-GM-61) were reworded and moved to **review**.

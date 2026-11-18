@@ -22,7 +22,7 @@ Visual language: shell, player colors, pixel world (REQ-GM-45 to 49). Check the 
 | REQ-GM-73 | Rule | One player gets no medal (owner, 2026-10-23, issue #66; the general rule since issue #119). The result shows the points. With more players each row has the medal of its place (REQ-GM-73a). |
 | REQ-GM-98 | Note | No personal best (no key in `ProfileKeys`): the game has no best yet. Decided 2026-10-30 by agents under CLAUDE.md (the owner can revert): it has one, `whack_a_mole|<difficulty>`, the points of the player, higher is better, keys 43 to 45 (REQ-WM-16, built for issue #216), because the points are a personal score that compares between rounds (as Banana Party). |
 | REQ-GM-37 | Note | Recenter is on the pad, as in Banana Party: the pointer uses the yaw of the gyroscope, and yaw drifts (RISKS A4). |
-| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 28). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 28). It was run on a device (run R9; the Results table of the test has the steps). |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | Content: friendly moles, a funny bonk with no hammer and no pain. A miss costs nothing (REQ-WM-5). No player is out of the round. Text is positive. |
 
@@ -67,7 +67,7 @@ End and players
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-WM-13 | The result menu is `open_results()` (REQ-GM-72) with a `Scoreboard` (higher is better): ranking, "X wins!" or "Tie!", Try again, New game, Back to menu. With one player there is no medal (REQ-GM-73); a player who stays after the others left has a technical win and the gold medal (owner, 2026-10-29); with more players each row has the medal of its place (REQ-GM-73a). A player who leaves takes the ring and the score out, and the round goes on. A lost phone pauses the round (REQ-GM-30). When the last player leaves, the menu "No players connected" opens (REQ-GM-21, 22). | Done | smoke_mole |
-| REQ-WM-14 | Children (REQ-GM-80 to 84): friendly moles, a funny bonk, a miss costs nothing, no player is out of the round, the hint is one line, the moles are large (168 px circle) and slow at Easy, and every text is positive. | Device | Review, Device (with a child, Test 28) (Test 28 step 13b) |
+| REQ-WM-14 | Children (REQ-GM-80 to 84): friendly moles, a funny bonk, a miss costs nothing, no player is out of the round, the hint is one line, the moles are large (168 px circle) and slow at Easy, and every text is positive. | Done | Review, Device (with a child, Test 28) (Test 28 step 13b) |
 | REQ-WM-15 | The layout comes from `size` (REQ-2D-2). It works at 1280x720 and 1920x1080: the play area and the sizes of the moles scale with the screen. The ring and the HUD keep their pixel size. | Done | game_rules (scale) |
 | REQ-WM-16 | Personal best (REQ-GM-98): the key is `whack_a_mole|<difficulty>`, the points of the player, higher is better, keys 43 to 45 of `ProfileKeys`; rounds with 1 to 4 players share a key. The phone shows NEW BEST! like in the other games (REQ-GM-99, 100). | Done | smoke_bests, profile_code |
 
