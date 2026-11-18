@@ -373,11 +373,37 @@ func _draw_sheep(ci: CanvasItem, s: SheepFlock.Sheep) -> void:
 	var idx := flock.sheep.find(s)
 	if s.scared > 0.0 and not s.penned:
 		var back := -s.vel.normalized() if s.vel.length() > 1.0 else Vector2.LEFT
-		for k in 3:
-			var at := Shell.snap(center + back * (46.0 + 16.0 * float(k)) + Vector2(0.0, -8.0 + 8.0 * float(k)))
-			ci.draw_rect(Rect2(at, Vector2(Shell.WORLD_PIXEL * 2.0, Shell.WORLD_PIXEL)), Color.WHITE)
+		for r in dash_rects(center, back, field):
+			ci.draw_rect(r, Color.WHITE)
 	else:
-		_draw_centered(ci, _texture("snooze" if idx % 2 == 1 else "heart"), center + Vector2(0.0, -52.0), 1)
+		var tex := _texture("snooze" if idx % 2 == 1 else "heart")
+		var sz := Vector2(tex.get_size()) * Shell.WORLD_PIXEL
+		ci.draw_texture_rect(tex, marker_rect(center + Vector2(0.0, -52.0), sz, field), false)
+
+
+## Where the heart or the "z" over a sheep is drawn: the box of `sz` around `center`, moved in (down or sideways) so that the
+## whole picture is on the grass, never on the black margin or the HUD bar (REQ-SH-15, issue #485).
+static func marker_rect(center: Vector2, sz: Vector2, grass: Rect2) -> Rect2:
+	var tl := Shell.snap(center - sz * 0.5)
+	tl = tl.clamp(grass.position, grass.end - sz)
+	return Rect2(tl, sz)
+
+
+## The three speed dashes behind a running sheep (`back` is the unit direction away from its run), each 2 x 1 world pixels, at
+## 46, 62 and 78 px behind the middle. They are drawn only when all three, at these places, are whole inside the grass and none
+## is on the sheep (inside the 28 px circle of its body); otherwise the result is empty: they are not moved or squeezed, so they
+## never pile up or vanish on the sheep (REQ-SH-15, issue #485, owner decision of 2026-11-18).
+static func dash_rects(center: Vector2, back: Vector2, grass: Rect2) -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	var sz := Vector2(Shell.WORLD_PIXEL * 2.0, Shell.WORLD_PIXEL)
+	for k in 3:
+		var at := Shell.snap(center + back * (46.0 + 16.0 * float(k)) + Vector2(0.0, -8.0 + 8.0 * float(k)))
+		var r := Rect2(at, sz)
+		var near := center.clamp(r.position, r.end)   # The point of the dash that is closest to the middle of the sheep.
+		if not grass.encloses(r) or near.distance_to(center) < SheepFlock.RADIUS:
+			return [] as Array[Rect2]
+		out.append(r)
+	return out
 
 
 func _game_draw() -> void:
