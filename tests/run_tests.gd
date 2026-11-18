@@ -724,20 +724,20 @@ func _test_connect_screen() -> void:
 	await process_frame
 	var ios_buttons: Array = ios_screen.find_children("*", "Button", true, false) \
 			.filter(func(b): return b.is_visible_in_tree()).map(func(b): return b.text)   # The hidden waiting view has CANCEL.
-	# About and Settings (icons) are in the top row; then the profile dropdown and its + (FD-22). None is a scan or paste button.
-	_check(ios_buttons == ["", "", "", "+", ""] and ios_screen.find_child("AboutButton", true, false) != null
-			and ios_screen.find_child("SettingsButton", true, false) != null and ios_screen.find_child("JoinButton", true, false) != null,
-			"iPhone without the plugin: no scan or paste button")
 	var about_btn: Button = ios_screen.find_child("AboutButton", true, false)
+	var quit_btn: Button = ios_screen.find_child("QuitButton", true, false)
+	_check(ios_buttons == ["", "", "", "", "+", ""] and ["AboutButton", "SettingsButton", "QuitButton", "JoinButton"].all(
+			func(n: String) -> bool: return ios_screen.find_child(n, true, false) != null),
+			"iPhone without the plugin: no scan or paste button")
 	ios_screen.size = Vector2(1080, 1920)
-	await process_frame
 	root.set_layout_direction(Window.LAYOUT_DIRECTION_RTL)
 	await process_frame
-	await process_frame
-	_check(about_btn.get_global_rect().position.x < 200.0, "in Hebrew About is in the top-left corner (right in English)")
+	var px := func(b: Button) -> float: return b.get_global_rect().position.x
+	_check(px.call(quit_btn) < 200.0 and px.call(quit_btn) < px.call(about_btn), "in Hebrew QUIT is top-left, then About")
 	root.set_layout_direction(Window.LAYOUT_DIRECTION_LTR)
 	await process_frame
-	_check(about_btn.get_global_rect().end.x > ios_screen.size.x - 200.0, "in English About is in the top-right corner")
+	_check(quit_btn.get_global_rect().end.x > ios_screen.size.x - 200.0 and px.call(about_btn) < px.call(quit_btn),
+			"in English About is before QUIT, which is in the top-right corner")
 	ios_screen.queue_free()
 	screen.queue_free()
 	app.last_error = ""

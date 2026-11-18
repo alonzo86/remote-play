@@ -40,7 +40,7 @@ jobs:
   changes:
     # Decides what the other jobs do. Takes a few seconds.
     if: github.event.pull_request.draft != true
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     outputs:
       code: ${{ steps.files.outputs.code }}
       render: ${{ steps.files.outputs.render }}
@@ -86,7 +86,7 @@ jobs:
   lint:
     needs: changes
     if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -97,8 +97,8 @@ jobs:
         run: gdlint scripts tests tools
       - name: Shell scripts
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y shellcheck
+          # Install only what is missing, and one installer at a time on a computer with several runners (the dpkg lock).
+          command -v shellcheck >/dev/null || flock /tmp/sababi-apt.lock sh -c "sudo apt-get update -qq && sudo apt-get install -y shellcheck"
           shellcheck tests/*.sh tools/*.sh
       - name: CI scripts (what runs when)
         run: tests/ci_scripts.sh
@@ -109,7 +109,7 @@ jobs:
     # The suites of the tier that `changes` picked run, on the instrumented copy, so the job `coverage` can always report.
     needs: changes
     if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     env:
       SUITE_TIER: ${{ needs.changes.outputs.tier }}
     steps:
@@ -122,8 +122,14 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
+          # One folder for each runner: runners on one computer share a home folder, and the action unpacks Godot there.
+          path: godot-${{ runner.name }}
+          downloads-path: downloads-${{ runner.name }}
+          bin-path: bin-${{ runner.name }}
       - name: Tests (instrumented for coverage)
-        run: COVERAGE_STEP=run GODOT="$(which godot)" tools/coverage.sh build/coverage
+        # The suites open local servers on fixed ports (Protocol.WS_PORT): two test jobs on one computer would collide, so a
+        # second one waits here for the first (flock). Other jobs (lint, pixels) are not held back.
+        run: COVERAGE_STEP=run GODOT="$(which godot)" flock /tmp/sababi-tests.lock tools/coverage.sh build/coverage
       - name: Design tokens (CSS)
         run: python3 tools/design_tokens_css.py --check
       - uses: actions/upload-artifact@v4
@@ -139,7 +145,7 @@ jobs:
     # Modules that are set aside (with a reason) are in tools/coverage/exclusions.txt.
     needs: [changes, test]
     if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -173,15 +179,24 @@ jobs:
     # tests/suites.txt, it has no coverage, and no other job needs it. It runs tests/pixel_render.gd at 1920x1080 and at 3840x2160, and tests/pixel_games.gd at 1920x1080.
     needs: changes
     if: needs.changes.outputs.code == 'true' && needs.changes.outputs.pixels == 'true'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v4
       - uses: chickensoft-games/setup-godot@v2
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
+          # One folder for each runner: runners on one computer share a home folder, and the action unpacks Godot there.
+          path: godot-${{ runner.name }}
+          downloads-path: downloads-${{ runner.name }}
+          bin-path: bin-${{ runner.name }}
       - name: Xvfb and the software GL driver
-        run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libglx-mesa0 libegl1
+        run: |
+          # Install only what is missing, and one installer at a time on a computer with several runners (the dpkg lock).
+          PKGS="xvfb libgl1-mesa-dri libglx-mesa0 libegl1"
+          MISSING=""
+          for P in $PKGS; do dpkg -s "$P" >/dev/null 2>&1 || MISSING="$MISSING $P"; done
+          [ -z "$MISSING" ] || flock /tmp/sababi-apt.lock sh -c "sudo apt-get update -qq && sudo apt-get install -y $MISSING"
       - name: Import the project
         run: godot --headless --path . --import || true
       - name: Pixels at 1920x1080

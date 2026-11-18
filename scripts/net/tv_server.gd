@@ -880,9 +880,9 @@ func request_count() -> int:
 	return _waiting.size()
 
 
-## The request that the host sees now: `{id, name, av, slot_hint, others}`, or empty when no card shows. `name` is empty for a
-## phone with no name; `av` is -1 for a guest; `slot_hint` is the first free slot; `others` the requests behind this one. It has
-## no time (FD-30.14).
+## The request that the host sees now: `{id, name, av, guest, slot_hint, others}`, or empty when no card shows. `name` is empty
+## for a phone with no name; `av` is -1 for a guest; `guest` is true when the hello has no valid profile id; `slot_hint` is the
+## first free slot; `others` the requests behind this one. It has no time (FD-30.14).
 func shown_request() -> Dictionary:
 	if _waiting.is_empty() or int(_waiting[0].shown_ms) < 0:
 		return {}

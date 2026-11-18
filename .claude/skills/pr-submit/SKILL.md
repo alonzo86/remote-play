@@ -75,7 +75,7 @@ End the body with `🤖 Generated with [Claude Code](https://claude.com/claude-c
 2. A) `gh pr create --repo owner/repo --base <target> --head <branch> --title ... --body-file <temp file>`.
    B) `gh pr edit <n> --title ... --body-file <temp file>`.
    Use a temp file for the body to avoid escaping problems. Delete it after.
-3. Subscribe to the PR (`mcp__claude-code-remote__subscribe_pr_activity`) so its comments and reviews wake the session. CI is ignored (CLAUDE.md).
+3. Subscribe to the PR (`mcp__claude-code-remote__subscribe_pr_activity`) so its comments and reviews wake the session. After each push, check the state of the GitHub Actions run (CLAUDE.md, "Continuous integration").
 4. Run the `review` skill on the PR with `code-reviewer` (a separate agent, not the author) and post its findings as one comment (see that skill). This is required for every PR (CLAUDE.md).
    Add `security-reviewer` when the change touches network input, saved files, permissions, the camera or privacy data, and `localization-reviewer` / `license-reviewer` when they apply.
    Do not fix the findings yourself as the reviewer. The owner of the PR (`sw-developer`) addresses every finding with a fix or a justification and posts one summary comment; the reviewer then reviews again (at most 2 cycles, then `software-architect` decides; CLAUDE.md "Pull requests").

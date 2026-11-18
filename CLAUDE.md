@@ -16,7 +16,7 @@ Godot 4.7 project (GDScript): a TV app and a phone controller app. Read `README.
   first, unless the user's request or an issue gives the new text. The rules for Hebrew text and for what only a native Hebrew reader
   can confirm are in `.claude/agents/localization-reviewer.md`.
 - Do not decide on your own what the user sees (for example cutting or shortening text, hiding information). Ask the user first.
-- Continuous integration: Alon has no CI credits left. Ignore the state of GitHub Actions and CircleCI; do not file issues or block a pull request because CI is red or did not run. The checks you run yourself (touched suites and `gdlint`) are the gate.
+- Continuous integration (Alon, 2026-11-18): GitHub Actions (`.github/workflows/ci.yml`) is the CI that gives the signal. It runs on Alon's self-hosted Linux runner; CircleCI stays disabled, so ignore it. Check the state of the Actions run of your pull request after each push (the jobs `lint`, `test` and `pixels`; `coverage` only reports): read it with the GitHub tools (`mcp__github__pull_request_read` `get_check_runs`, `mcp__github__actions_list`, `mcp__github__get_job_logs`; the log can be too large to show, then read it from the saved file). A failed job is a failed check: fix it, or when it also fails on `main` file an issue and say so in the pull request (it does not block the merge). A job that stays queued because the runner is offline is not a failure of the change: say so, tell the user, and do not file an issue. Do not report a pass for a run that did not finish. The checks you run yourself (touched suites and `gdlint`) still come first: they are the gate for creating the pull request. The Actions run is also checked before the merge. A change that touches only Markdown, `docs/` or `.claude/` starts no `lint`, `test` or `pixels` job (the job `changes` decides): there is nothing to read, so say in the pull request that it needed no CI run, and do not wait for one.
 - Work on the branch the session gives you. For a delegated sweep of issues, one `claude/issue-<n>-<name>` branch per pull request is allowed
   (worktrees may be used); the session branch is for work in a single pull request. When the user's request is a change to the repository, Claude creates the pull request when the work is done and the checks pass (Alon).
 
@@ -124,7 +124,7 @@ question that only the owner can answer.
    summary comment, run the re-review, get "Strings: approved" and "License: approved" when they apply, and merge when it is allowed.
    When a step needs another agent, call that agent and wait for its result; do not stop and report the next step to the user.
 3. **Events wake the owner.** A subscribed PR delivers comments, reviews and CI to the session. Act on each at once. The checks the agents
-   run themselves are the gate (CI is ignored, see "Rules for this repository").
+   run themselves and the state of the Actions run are the gate (see "Rules for this repository", Continuous integration).
 4. **Close the issues.** After the merge: every issue the PR resolves is closed with a comment (PR number, what changed, tests run).
    An issue that waits for a device gets `needs-device`; a PR or issue that waits for the owner gets `needs-owner`. Open follow-ups are
    filed as issues, never left as text in a PR.

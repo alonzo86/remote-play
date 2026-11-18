@@ -19,7 +19,7 @@ Buckets:
   (REQ-BC-8, REQ-TN-21, REQ-FL-47, 48, 49, REQ-GM-47, 47c, 47f, 47g, 47h, 47k) are not requirements any more and their ids are not used again; the two that said
   something false (REQ-GM-60, REQ-GM-61) were reworded and moved to **review**.
 
-Counts: a 98, todo 0, review 13, obsolete 0, device 0 (total 111; 122 before the 11 removals).
+Counts: a 98, todo 0, review 14, obsolete 0, device 0 (total 112; 122 before the 11 removals).
 
 | ID | Bucket | How it is named, or why it is not |
 |----|--------|-----------------------------------|
@@ -95,6 +95,7 @@ Counts: a 98, todo 0, review 13, obsolete 0, device 0 (total 111; 122 before the
 | REQ-GM-71 | a (done) | named in the existing check of game_helpers.gd |
 | REQ-GM-81 | review | friendly content (no violence, nothing alive shot) is a judgment of the reviewer on pictures and sounds |
 | REQ-GM-84 | review | kind words in titles and messages is a judgment of the localization-reviewer (strings.csv has no list of banned words) |
+| REQ-GM-85 | review | the store content-rating answers stay true for every new game: the game file says "Store rating: checked" and the code-reviewer reports a missing line (the questions are a judgment on pictures, sounds and texts) |
 | REQ-GM-95 | a (done) | named in the existing check of smoke_air_hockey.gd |
 | REQ-GM-100 | a (done) | named in the existing check of ui_share.gd |
 | REQ-GM-101 | a (done) | named in the existing check of profile_code.gd |

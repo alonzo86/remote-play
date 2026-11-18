@@ -11,6 +11,7 @@ extends SceneTree
 const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
 const UiKit = preload("res://scripts/ui/ui_kit.gd")
+const ControllerClient = preload("res://scripts/net/controller_client.gd")
 
 const SIZES := [24, 32, 40, 48, 56, 64]
 
@@ -101,6 +102,11 @@ func _run() -> void:
 
 	# 4. The pad.
 	var pad: Control = (load("res://scripts/ui/controller_pad.gd") as GDScript).new()   # load: the script names the autoload App
+	# The pad reads the state of the phone (the pause button, the result line): a pad in the app always has a client. A new client is
+	# not connected and is in no game, so the pause button and the result are hidden, as at the start of a game.
+	var app: Node = root.get_node("App")
+	var client := ControllerClient.new()
+	app.client = client
 	pad.size = Vector2(1080, 1920)
 	for code in ["en", "he"]:
 		Lang.set_language(code)
@@ -118,6 +124,8 @@ func _run() -> void:
 		_check(score2_ink.y < turn_top, "%s: a two-line score row ends (y %.0f) above the turn row (y %.0f)"
 				% [code, score2_ink.y, turn_top])
 	pad.free()
+	app.client = null
+	client.free()
 	Lang.set_language("en")
 	open_label.queue_free()
 	plain.queue_free()

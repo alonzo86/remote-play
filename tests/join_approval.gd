@@ -345,8 +345,9 @@ func _flow() -> void:
 	var sh := _server.shown_request()
 	var keys := sh.keys()
 	keys.sort()
-	_check(keys == ["av", "id", "name", "others", "slot_hint"], "the shown request has no time key: %s" % str(keys))
-	_check(sh.name == "Sam" and sh.av == 3 and sh.slot_hint == 0 and sh.others == 0, "name, avatar, first free slot, no others")
+	_check(keys == ["av", "guest", "id", "name", "others", "slot_hint"], "the shown request has no time key: %s" % str(keys))
+	_check(sh.name == "Sam" and sh.av == 3 and sh.slot_hint == 0 and sh.others == 0 and sh.guest == false,
+			"name, avatar, first free slot, no others, not a guest")
 	_server.allow_request(int(sh.id) + 99)
 	await _spin(200)
 	_check(_server.request_count() == 1 and not f.has("welcome"), "an allow for another id does nothing")
@@ -362,7 +363,8 @@ func _flow() -> void:
 	var g := await _fake("10.0.0.2", {"name": "Bo!"})
 	await _until(_shown)
 	var gs := _server.shown_request()
-	_check(gs.name == "Bo" and gs.av == -1 and gs.slot_hint == 1, "a guest: the cleaned name, no avatar, slot hint 1")
+	_check(gs.name == "Bo" and gs.av == -1 and gs.slot_hint == 1 and gs.guest == true,
+			"a guest: the cleaned name, no avatar, slot hint 1, marked as a guest")
 	_server.refuse_request(int(gs.id))
 	await _until(func() -> bool: return g.has("kicked"))
 	_check(g.reason() == "refused" and _server.player_count() == 1 and _server.request_count() == 0,
