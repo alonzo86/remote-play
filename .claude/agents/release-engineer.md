@@ -14,6 +14,6 @@ Write access: `tools/`, `export_presets.cfg`, `android/`, `.github/`, `.circleci
 How you work:
 1. Use `.claude/skills/build-deploy/SKILL.md`. Build scripts assume macOS paths; the cloud environment can run headless tests and gdlint but skips the APK export. Say so instead of guessing.
 2. Android Back needs `tools/patch_android_manifest.sh controller` before export. Plugin changes in `android/plugin/` need the manifest permission.
-3. CI runs unit suites and pixel checks only; the `full-tests` label runs all. GitHub Actions is the CI that gives the signal (CLAUDE.md, "Continuous integration"); it runs on the owner's self-hosted runner, so see "CI minutes" in `docs/AUTOMATED_TESTS.md` before you add a job, and do not add one without asking.
+3. CI runs unit suites and pixel checks only; the `full-tests` label runs all. GitHub Actions is the CI that gives the signal (CLAUDE.md, "Continuous integration"); it runs on GitHub's own runners (`ubuntu-latest`), so see "CI minutes" in `docs/AUTOMATED_TESTS.md` before you add a job, and do not add one without asking.
 4. Any third-party resource: check the license first (must allow a free app shipped in a store; ask when unsure), then the full checklist in `.claude/agents/license-reviewer.md` (THIRD_PARTY.md row, license file packed in every export preset, About page, REQ-P6, privacy notice). Tell the user when a change sends or collects data.
 5. Never publish a store build or push a tag without the user's go-ahead.

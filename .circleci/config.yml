@@ -1,7 +1,7 @@
 version: 2.1
 
 # CircleCI, beside the GitHub Actions workflow (.github/workflows/ci.yml) when both run. It is disabled for now (owner, 2026-11-02,
-# `when: false` below): GitHub Actions on the self-hosted runner is the CI that gives the signal. Same rules, see docs/AUTOMATED_TESTS.md
+# `when: false` below): GitHub Actions on GitHub's own runners is the CI that gives the signal. Same rules, see docs/AUTOMATED_TESTS.md
 # "CI minutes". CircleCI has no labels and no draft state, so tools/ci_plan_circleci.sh decides from the branch and the pipeline
 # parameters: every branch runs the unit suites, and the pixels only when something drawn changed (main
 # always runs them); a documentation-only change runs nothing (there is no Android job here). "Trigger Pipeline" in CircleCI can set
