@@ -355,6 +355,8 @@ func _team_chip() -> void:
 	game._request_redraw()
 	await _frames(3)
 	_check(not seen.is_empty() and is_equal_approx(seen[-1][1].position.x, 60.0), "in Hebrew the chip starts at the left margin")
+	_check(not seen.is_empty() and seen[-1][2].text == Lang.LRI + "4 / 11" + Lang.PDI,
+			"in Hebrew the chip text is one left-to-right run, so it reads 4 / 11 (issue #480)")
 	Lang.set_language("en", root)
 	Shell.recorder = Callable()
 

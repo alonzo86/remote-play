@@ -1591,6 +1591,7 @@ New game (2026-10-23). It was only tested with made-up sensor values. Every numb
 11a. Play 2 rounds on Hard with 2 phones. In each round drive the two dogs into every edge and every corner of the field, and then at the barn from every side: the roof, the weather vane, the silo, and the right end of the roof at the edge of the grass; herd for 60 s. Check: no dog and no sheep is ever drawn, even in part, on the black margin around the grass, and none stands on the roof or on the silo (0 of 2 rounds). (REQ-SH-22, REQ-SH-24)
 11b. Same 2 rounds, and one round on Easy alone. Check: a sheep that no dog is near is never held against the barn, the fence or an edge for more than 10 s (0 sheep in 3 rounds), and at the end every sheep is in the pen or free in the open field. (REQ-SH-23)
 11c. Play one round on Easy with 2 phones. When 3 sheep are in the pen, drive both dogs into the gate and push at the sheep at the gate from outside for 20 s, and also stand a dog in the gate. Check: the 3 sheep stay inside the fence for the whole 20 s (0 of 3 sheep leave the pen), and the counter on the TV never goes down from 3 / 8. (REQ-SH-24)
+12. Set the TV and the phone to Hebrew, play 1 round on Easy alone and herd 3 sheep into the pen. Check: the count on the team chip, the score line of the phone and the result row of the TV read "3 / 8" with the 3 first and the 8 after it, in the order of the English text (3 of 3 places; issue #480, REQ-FL-54a).
 
 Items 2b, 3a, 3b, 5a, 5b and 6b moved to the automated tests (`docs/AUTOMATED_TESTS.md`, A-29-*). The numbers of the other items do not change.
 
@@ -1621,6 +1622,7 @@ Measurements (write down, no pass or fail): the time that a dog needs from the l
 | 11a | Video; note: rounds with a dog or a sheep on the margin or on the barn (of 2) | Not run |  |  | New (2026-11-17, REQ-SH-22). Changed 2026-11-18 (issue #476, owner retest): the barn roof, the vane and the silo are added. The owner saw a sheep and a dog on the roof of the barn, and a sheep on the black margin. |
 | 11b | Note: sheep held against a wall for more than 10 s (of 3 rounds) | Not run |  |  | New (2026-11-17, REQ-SH-23). |
 | 11c | Video; note: sheep that left the pen (of 3); the lowest number on the counter | Not run |  |  | New (2026-11-18, REQ-SH-24, issue #476). |
+| 12 | Photo; note: the three texts as read from the left | Not run |  |  | New (2026-11-18, issue #480). |
 
 History:
 - 2026-11-18 (issue #476, owner retest): after PR #472 a sheep and the dog stood on the roof of the barn and a sheep on the margin; sheep in the pen could leave. The barn blocks its whole picture and a sheep in the pen stays in (REQ-SH-24). Step 11a changed (the barn roof, the vane and the silo), step 11c is new; both Not run. Steps 11a, 11b and 11c are the open steps of the issue.

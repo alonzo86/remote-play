@@ -3,6 +3,7 @@ extends Node
 ## It does not know about screens or sensors. Other scripts call send_sensor().
 
 const Protocol = preload("res://scripts/core/protocol.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 const ConfigIO = preload("res://scripts/core/config_io.gd")
 const ClosingSockets = preload("res://scripts/net/closing_sockets.gd")
 const Medal = preload("res://scripts/ui/medal.gd")   # Its TIERS: the only list of medals the phone draws (`m` of `final`).
@@ -346,7 +347,7 @@ func _handle(msg: Dictionary, now: int) -> void:
 		"score":
 			score_rank = clampi(Protocol.whole(msg, "rank", 0), 0, Protocol.MAX_PLAYERS)
 			score_of = clampi(Protocol.whole(msg, "of", 0), 0, Protocol.MAX_PLAYERS)
-			score_text = Protocol.text(msg, "v", "").substr(0, 12)
+			score_text = Lang.ltr_ratios(Protocol.text(msg, "v", "").substr(0, 12))
 			# The score as data: this phone writes it in its own language (REQ-FL-62, issue #474). `v` stays for a TV of an older
 			# build and when `k` or `x` are not valid.
 			var own := _own_score(msg)
