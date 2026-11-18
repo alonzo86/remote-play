@@ -204,12 +204,17 @@ func _finish() -> void:
 	var heading := ""
 	if _board.ranking().size() == 1:   # One player: the difficulty that was played is the title (REQ-PG-21).
 		heading = Lang.t("game_settings." + difficulty)
-	open_results(_board, heading, [], _score_text)
+	open_results(_board, heading)
 
 
 ## "23%" for the result list: the share of the picture, rounded down (REQ-PG-21). The ranking uses the exact tiles.
 func _score_text(tiles: float) -> String:
-	return Lang.f("paint_grab.percent", [percent_of(int(tiles))])
+	return ResultText.spec_text(_result_spec(tiles))
+
+
+## The score as data for the result list and for the phone (issue #470).
+func _result_spec(tiles: float) -> Array:
+	return ResultText.spec("paint_grab.percent", [percent_of(int(tiles))])
 
 
 ## The chip of the leader and the score line of the phones show the percent too (REQ-PG-13, REQ-FL-67).

@@ -307,12 +307,13 @@ func send_score(slot: int, rank: int, of: int, text: String) -> void:
 ## place, the name and the score. The phone shows it in the middle of the screen with no button until the next round. It is kept
 ## for a phone that returns while the result is open. `parts` has the same row in pieces for the three lines of the phone: `g` the
 ## registry id of the game, `p` the place, `s` the score and `m` the medal tier (a field that is empty is not sent). `v` stays for
-## a phone of an older build. The message is the row of that one phone only: a phone never gets the row of another player.
+## a phone of an older build. `n` (place number), `k` (score key of `ResultText`) and `x` (its numbers) are the same place and
+## score as data: the phone writes them in its own language, not the TV's (REQ-FL-62, issue #470). No phone gets another row.
 func send_final(slot: int, text: String, parts := {}) -> void:
 	var msg := {"t": "final", "v": text}
-	for key in ["g", "p", "s", "m"]:
-		if String(parts.get(key, "")) != "":
-			msg[key] = String(parts[key])
+	for key in ["g", "p", "s", "m", "n", "k", "x"]:   # A field that is empty is not sent.
+		if parts.has(key) and str(parts[key]) != "":
+			msg[key] = parts[key]
 	if slot >= 0 and slot < players.size():
 		_final_sent[slot] = msg
 		if players[slot].is_connected_now():

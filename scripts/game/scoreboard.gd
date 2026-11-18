@@ -6,6 +6,7 @@ extends RefCounted
 ## player got. Such players rank after all players with a score, the furthest first.
 
 const Lang = preload("res://scripts/core/lang.gd")
+const ResultText = preload("res://scripts/core/result_text.gd")
 
 const ORDINALS := ["result.place_1", "result.place_2", "result.place_3", "result.place_4"]
 
@@ -126,4 +127,4 @@ static func ordinal(rank: int) -> String:
 
 ## A score for the screen: "12" for a whole number, "12.5" otherwise.
 static func format(value: float) -> String:
-	return str(int(value)) if is_equal_approx(value, roundf(value)) else "%.1f" % value
+	return ResultText.format_number(value)

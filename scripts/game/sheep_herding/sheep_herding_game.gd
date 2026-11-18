@@ -268,12 +268,12 @@ func _finish() -> void:
 		heading = Lang.t("game_settings." + difficulty)
 	else:
 		heading = Lang.t("sheep_herding.all_safe") if all else Lang.f("sheep_herding.some_safe", [n, total])
-	open_results(_board, heading, [], _score_text)
+	open_results(_board, heading)
 
 
-## "6 / 9 sheep" for the result list.
-func _score_text(count: float) -> String:
-	return Lang.f("sheep_herding.count", [int(count), flock.sheep.size()])
+## The score as data for the result list and for the phone (issue #470).
+func _result_spec(count: float) -> Array:
+	return ResultText.spec("sheep_herding.count", [int(count), flock.sheep.size()])
 
 
 func _scoreboard() -> Scoreboard:

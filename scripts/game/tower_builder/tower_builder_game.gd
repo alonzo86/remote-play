@@ -270,12 +270,17 @@ func _tick_rubble(delta: float) -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		game_host.haptic(s, 400)
-	open_results(_board, "", [], bricks_text)
+	open_results(_board)
 
 
 ## "3 bricks" for the result list.
 func bricks_text(score: float) -> String:
-	return Lang.t("tower_builder.one_brick") if int(score) == 1 else Lang.f("tower_builder.n_bricks", [int(score)])
+	return ResultText.spec_text(_result_spec(score))
+
+
+## The score as data for the result list and for the phone (issue #470).
+func _result_spec(score: float) -> Array:
+	return ResultText.spec("tower_builder.one_brick") if int(score) == 1 else ResultText.spec("tower_builder.n_bricks", [int(score)])
 
 
 func _scoreboard() -> Scoreboard:
