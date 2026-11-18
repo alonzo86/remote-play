@@ -48,6 +48,7 @@ func _initialize() -> void:
 	_origin = l.barn_origin
 	_layout_rules()
 	_picture_rect()
+	_markers_inside()
 	_free_space()
 	_barn_picture()
 	_penned_stay()
@@ -232,6 +233,45 @@ func _is_free(f: SheepFlock, p: Vector2) -> bool:
 
 ## Static pockets: the free space for a sheep is one region (reached from the gate), and a sheep that is made to stand on a
 ## place that is not free (the old gap behind the pen) is not left there by `resolve`.
+## The heart, the "z" and the speed dashes of a sheep are on the grass at every place a sheep can stand (the edges too), the
+## corners and every edge (REQ-SH-15, issue #485); in the middle they are where they always were.
+func _markers_inside() -> void:
+	var heart := Vector2(7.0, 6.0) * 4.0
+	var snooze := Vector2(4.0, 5.0) * 4.0
+	var bad_marker := ""
+	var bad_dash := ""
+	var n := 0
+	var x := _field.position.x + SHEEP_PICTURE.x
+	while x <= _field.end.x - SHEEP_PICTURE.x:
+		var y := _field.position.y + SHEEP_PICTURE.y
+		while y <= _field.end.y - SHEEP_PICTURE.y:
+			var c := Vector2(x, y)
+			for sz in [heart, snooze]:
+				var r: Rect2 = Game.marker_rect(c + Vector2(0.0, -52.0), sz, _field)
+				if not _field.encloses(r) and bad_marker == "":
+					bad_marker = "%s at %s" % [str(r), str(c)]
+				n += 1
+			for a in 16:
+				var back := Vector2.from_angle(TAU * float(a) / 16.0)
+				for r in Game.dash_rects(c, back, _field):
+					if not _field.encloses(r) and bad_dash == "":
+						bad_dash = "%s at %s, back %s" % [str(r), str(c), str(back)]
+				n += 1
+			y += 20.0
+		x += 20.0
+	_check(bad_marker == "", "heart and z inside the grass at %d places (%s)" % [n, bad_marker])
+	_check(bad_dash == "", "speed dashes inside the grass at every place and 16 directions (%s)" % bad_dash)
+	var mid := _field.get_center()
+	var r0: Rect2 = Game.marker_rect(mid + Vector2(0.0, -52.0), heart, _field)
+	var want := mid + Vector2(0.0, -52.0)
+	_check(r0.size == heart and r0.get_center().distance_to(want) <= 4.0, "in the middle the heart stays over the sheep")
+	var top: Rect2 = Game.marker_rect(Vector2(mid.x, _field.position.y + 28.0 - 52.0), heart, _field)
+	_check(is_equal_approx(top.position.y, _field.position.y), "at the top edge the heart is moved down to the grass, not cut")
+	var d: Array[Rect2] = Game.dash_rects(mid, Vector2.LEFT, _field)
+	var near := absf(d[0].position.x - (mid.x - 46.0)) <= 2.0 and absf(d[2].position.x - (mid.x - 78.0)) <= 2.0
+	_check(d.size() == 3 and near, "in the middle the dashes are 46 to 78 px behind")
+
+
 func _free_space() -> void:
 	print("the free space of a sheep has no pocket (REQ-SH-23)")
 	var f := _flock("hard")
