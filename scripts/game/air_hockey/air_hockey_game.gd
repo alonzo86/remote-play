@@ -227,11 +227,6 @@ func _finish_with_bot() -> void:
 	open_result_menu(heading, rows, [], order[0] == 0)
 
 
-## "3 goals" for the result list.
-func _goals_text(value: float) -> String:
-	return ResultText.spec_text(_result_spec(value))
-
-
 ## The score as data for the result list and for the phone (issue #470).
 func _result_spec(value: float) -> Array:
 	return ResultText.spec("air_hockey.one_goal") if int(value) == 1 else ResultText.spec("air_hockey.n_goals", [int(value)])

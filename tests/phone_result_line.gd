@@ -144,6 +144,17 @@ func _menu_sends_rows() -> void:
 	await _real_game_sends_its_id()
 
 
+## The key of the score that each game with its own unit sends for a score of 1 and of 3 (the other 7 games send `num`).
+## A game that loses its override fails.
+const EXPECTED_KEYS := {
+	"maze": ["result.seconds_1", "result.seconds_1"], "marble_race": ["result.seconds_2", "result.seconds_2"],
+	"tower_builder": ["tower_builder.one_brick", "tower_builder.n_bricks"],
+	"sheep_herding": ["sheep_herding.count", "sheep_herding.count"], "sumo_bumpers": ["result.one_point", "result.points"],
+	"paint_grab": ["paint_grab.percent", "paint_grab.percent"], "bumper_cars": ["result.one_star", "result.stars"],
+	"air_hockey": ["air_hockey.one_goal", "air_hockey.n_goals"],
+}
+
+
 ## The `final` message of one row as the TV puts it on the wire (`TvServer.send_final()` builds it from the same parts).
 func _wire(row: Array) -> Dictionary:
 	var server := TvServer.new()
@@ -207,6 +218,11 @@ func _phone_writes_its_own_language() -> void:
 						and c.final_score == String(parts.get("s", "")))):
 					bad.append("%s %s>%s slot %d still shows the TV text %s / %s" % [g.id, pair[0], pair[1], slot, c.final_place,
 							c.final_score])
+				var want_key: String = "num"
+				if EXPECTED_KEYS.has(String(g.id)):
+					want_key = EXPECTED_KEYS[String(g.id)][0 if entry.score == 1.0 else 1]
+				if entry.finished and parts.get("k", "") != want_key:
+					bad.append("%s sends the key %s for %s, wanted %s" % [g.id, parts.get("k", ""), entry.score, want_key])
 				if pair[1] == "he" and entry.finished and parts.get("k", "") != "num":
 					seen_units[String(g.id)] = c.final_score
 				c.free()

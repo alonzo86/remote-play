@@ -165,11 +165,6 @@ func _finish() -> void:
 	open_results(_board)
 
 
-## "3 stars" for the result list.
-func _stars_text(stars: float) -> String:
-	return ResultText.spec_text(_result_spec(stars))
-
-
 ## The score as data for the result list and for the phone (issue #470).
 func _result_spec(stars: float) -> Array:
 	return ResultText.spec("result.one_star") if int(stars) == 1 else ResultText.spec("result.stars", [int(stars)])

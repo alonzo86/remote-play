@@ -223,11 +223,6 @@ func _finish() -> void:
 	open_results(_board)
 
 
-## "2 points" for the result list.
-func _points_text(points: float) -> String:
-	return ResultText.spec_text(_result_spec(points))
-
-
 ## The score as data for the result list and for the phone (issue #470).
 func _result_spec(points: float) -> Array:
 	return ResultText.spec("result.one_point") if int(points) == 1 else ResultText.spec("result.points", [int(points)])

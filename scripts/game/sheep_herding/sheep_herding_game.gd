@@ -271,11 +271,6 @@ func _finish() -> void:
 	open_results(_board, heading)
 
 
-## "6 / 9 sheep" for the result list.
-func _score_text(count: float) -> String:
-	return ResultText.spec_text(_result_spec(count))
-
-
 ## The score as data for the result list and for the phone (issue #470).
 func _result_spec(count: float) -> Array:
 	return ResultText.spec("sheep_herding.count", [int(count), flock.sheep.size()])

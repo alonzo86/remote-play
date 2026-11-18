@@ -174,6 +174,9 @@ func _client_fields() -> void:
 					% [part, c.final_place.left(12), c.final_score.left(12)])
 	c._handle({"t": "final", "v": "x", "p": "1ST", "s": "1", "n": 2, "k": "result.points", "x": [1.0e300, 5, 6, 7, 8]}, now)
 	_check(c.final_score.length() <= 60 and c.final_place == "2ND", "a huge number or too many numbers: a clean score, no error")
+	for k in ["result.seconds_1", "result.seconds_2"]:   # A huge time is no long text: 60 characters at most.
+		c._handle({"t": "final", "v": "x", "p": "1ST", "s": "1", "n": 1, "k": k, "x": [1.0e300]}, now)
+		_check(c.final_score.length() <= 60, "%s with 1e300: the score has 60 characters at most: %d" % [k, c.final_score.length()])
 	c._handle({"t": "final"}, now)
 	_check(c.final_text == "", "a final without a value is an empty line")
 	c._handle({"t": "final", "v": "A\nB"}, now)

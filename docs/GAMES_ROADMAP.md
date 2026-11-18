@@ -46,7 +46,7 @@ and 3D-only code (camera, meshes).
 |--------|-------|-----|
 | Scoreboard | `scripts/game/scoreboard.gd` | Score for each slot, ranking, ties (1, 1, 3), `lower_is_better` for times, players without a score (`set_unfinished()`), ordinals (REQ-GM-70). |
 | Round length | `RoundClock` (`duration`, `remaining()`, `is_time_up()`) | A round of fixed length. The visible clock is `Shell.timer()` with `remaining()` (REQ-GM-71). |
-| Ranked result | `Minigame.open_results(board, title, extra_entries, score_spec)` | A result menu with the ranking (dot in the slot color), Try again, extra buttons and Back to menu. Sets `is_over` (REQ-GM-72). Used by both existing games. |
+| Ranked result | `Minigame.open_results(board, title, extra_entries)` (a game overrides `_result_spec(score)` for its own unit) | A result menu with the ranking (dot in the slot color), Try again, extra buttons and Back to menu. Sets `is_over` (REQ-GM-72). Used by both existing games. |
 | Medals | `scripts/game/medals.gd` | The medal of a place (1st gold, 2nd silver, 3rd bronze) with more than one player. No medal for one player. Not saved (REQ-GM-73). |
 | `Shell.ball` | `scripts/game/shell.gd` | The outlined 2D ball (no number since 2026-10-11), moved out of the maze draw code (REQ-GM-46, 47b). It still has the old shadow and shine and is used by no game now: every game draws `Shell.pixel_ball()` (flat colors, REQ-GM-47k) and a ball has no number. |
 | `TiltBody` | Not built yet | Position, velocity, tilt acceleration, damping, bounce. It is built in the Paint Grab branch, with its first user, so that its parameters come from a real need. Maze and race may adopt it later, with a device test, because the damping models differ. |

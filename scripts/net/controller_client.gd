@@ -360,9 +360,9 @@ func _handle(msg: Dictionary, now: int) -> void:
 			var args: Variant = msg.get("x", [])
 			var own_score := ResultText.text(Protocol.text(msg, "k", ""), args.slice(0, ResultText.MAX_ARGS) if args is Array else [])
 			if own_place != "":
-				final_place = own_place
+				final_place = _clean_line(own_place)
 			if own_score != "":
-				final_score = own_score
+				final_score = _clean_line(own_score)
 			var medal := _clean_line(Protocol.text(msg, "m", ""))
 			final_medal = medal if Medal.TIERS.has(medal) else ""
 			score_changed.emit()
