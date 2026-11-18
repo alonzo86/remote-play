@@ -296,7 +296,8 @@ func _old_tv_and_bad_data() -> void:
 			and ResultText.text("result.points", ["a"]) == ""
 			and ResultText.text("result.points", [INF]) == "" and ResultText.place(0) == "" and ResultText.place(5) == "",
 			"ResultText: an unknown key, too few numbers, a value that is not a number and a place out of 1 to 4 give no text")
-	_check(ResultText.text("sheep_herding.count", [3, 11]) == "3 / 11 כבשים" and ResultText.text("num", [2.5]) == "2.5"
+	_check(ResultText.text("sheep_herding.count", [3, 11]) == Lang.LRI + "3 / 11" + Lang.PDI + " כבשים"
+			and ResultText.text("num", [2.5]) == "2.5"
 			and ResultText.text("result.not_finished", []) == "לא סיים", "ResultText in Hebrew: two numbers, a plain number, no number")
 	Lang.set_language("en")
 
