@@ -7,6 +7,7 @@ extends SceneTree
 
 const SimInput = preload("res://tests/sim_input.gd")
 const MedalView = preload("res://scripts/ui/medal_view.gd")
+const Lang = preload("res://scripts/core/lang.gd")
 
 const DT := 1.0 / 60.0
 
@@ -97,6 +98,7 @@ func _run() -> void:
 	root.size = Vector2i(1920, 1080)
 	_app = root.get_node("App")
 	_sound = root.get_node("Sound")
+	Lang.set_language("en", root)   # Not the language that another run saved.
 	_script = load("res://scripts/game/sheep_herding/sheep_herding_game.gd")
 	_sound.sfx_played.connect(func(id: String) -> void: _heard.append(id))
 	load("res://scripts/game/game_settings.gd").clear()
@@ -331,7 +333,6 @@ func _pen_and_score() -> void:
 func _team_chip() -> void:
 	print("the team chip")
 	var Shell = load("res://scripts/game/shell.gd")
-	var Lang = load("res://scripts/core/lang.gd")
 	var game := _play()
 	var seen: Array = []
 	Shell.recorder = func(kind: String, _ci: CanvasItem, rect: Rect2, info: Dictionary) -> void:
@@ -355,6 +356,8 @@ func _team_chip() -> void:
 	game._request_redraw()
 	await _frames(3)
 	_check(not seen.is_empty() and is_equal_approx(seen[-1][1].position.x, 60.0), "in Hebrew the chip starts at the left margin")
+	_check(not seen.is_empty() and seen[-1][2].text == Lang.LRI + "4 / 11" + Lang.PDI,
+			"in Hebrew the chip text is one left-to-right run, so it reads 4 / 11 (issue #480)")
 	Lang.set_language("en", root)
 	Shell.recorder = Callable()
 

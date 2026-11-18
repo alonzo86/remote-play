@@ -284,6 +284,7 @@ func _scoreboard() -> Scoreboard:
 func _publish_scores() -> void:
 	if _board == null:
 		return
+	# The phone adds the isolate of the ratio in its own language (issue #480).
 	var text := "%d / %d" % [flock.penned_count(), flock.sheep.size()]
 	for s in dogs:
 		game_host.send_score(s, 0, 0, text)
@@ -389,6 +390,6 @@ func _game_draw() -> void:
 func draw_leader_chip(ci: CanvasItem) -> void:
 	if flock == null:
 		return
-	var label := "%d / %d" % [flock.penned_count(), flock.sheep.size()]
+	var label := Lang.ltr_ratio(flock.penned_count(), flock.sheep.size())   # "8 / 11" also in Hebrew (issue #480).
 	var r := Shell.chip(ci, Vector2(Shell.leader_chip_x(Shell.area_width(ci), CHIP_W), 36.0), label, UiTheme.TEXT_DIM, CHIP_W)
 	Shell.record("team", ci, r, {"text": label})

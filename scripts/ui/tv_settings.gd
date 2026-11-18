@@ -139,9 +139,9 @@ func _add_level_row(parent: Control, title: String, key: String) -> void:
 		App.settings[key] = v
 		App.save_settings()
 		Sound.apply_settings()
-		value.text = "%d / 10" % v
+		value.text = Lang.ltr_ratio(v, 10)
 		Sound.sfx("select")   # The sample, so the new level is heard.
-	value.text = "%d / 10" % int(App.settings[key])
+	value.text = Lang.ltr_ratio(int(App.settings[key]), 10)
 	b.pressed.connect(func(): set_level.call((int(App.settings[key]) + 1) % 11))
 	b.gui_input.connect(func(e: InputEvent):
 		if e.is_action_pressed("ui_left"):

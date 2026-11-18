@@ -57,7 +57,7 @@ Players and feedback
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
 | REQ-SH-12 | Sounds and haptics (REQ-GM-43, 49a to 49c): GO buzzes every phone (60 ms). When a sheep walks into the pen, the dog that last scared it (the nearest dog when it was last scared) buzzes 40 ms (at most every 150 ms for one slot, `Haptics`). The end with all sheep in buzzes every phone 400 ms. The effects are in the table *Sound and haptics*. | Device | smoke_sheep, audio_events, Device (the buzz) (Test 29 steps 10d, 10e) |
-| REQ-SH-13 | The team chip (REQ-GM-46, in place of the leader chip) shows "N / M" and is updated at every change. Each phone shows the same "N / M" and no place (REQ-FL-67). | Done | smoke_sheep, hud_layout |
+| REQ-SH-13 | The team chip (REQ-GM-46, in place of the leader chip) shows "N / M" and is updated at every change. Each phone shows the same "N / M" and no place (REQ-FL-67). In Hebrew it reads "N / M" too, N at the left, on the chip, on the phone and in the result row (REQ-FL-54a, issue #480). | Done | smoke_sheep, hud_layout, ratio_order |
 | REQ-SH-14 | A lost phone pauses the round with the card of REQ-GM-30. The clock does not run during the pause. The pad has no RECENTER box and no A or B (REQ-GM-37, 37a): the pose held in the countdown is the center. | Device | smoke_tv (shared base class), Device (the pad) (Test 29 steps 10f, 10g) |
 
 Look

@@ -138,4 +138,25 @@ static func t(key: String) -> String:
 
 ## A format text in the current language, with its values. The text uses `%s` and `%d`.
 static func f(key: String, args: Array) -> String:
-	return t(key) % args
+	return ltr_ratios(t(key) % args)
+
+
+const LRI := "\u2066"   # Left-to-right isolate: its text keeps its own order inside a right to left line.
+const PDI := "\u2069"   # Pop directional isolate: closes the isolate.
+
+
+## "8 / 11" as one left-to-right run (issue #480). In a Hebrew line the bidi rules put a "/" with spaces around it in the
+## direction of the line, so "8 / 11" was drawn "11 / 8". The isolate keeps the first number at the left, as in English.
+## In English the text is returned as it is (no mark, so no width and no byte changes).
+static func ltr_ratio(a: int, b: int) -> String:
+	return ltr_ratios("%d / %d" % [a, b])
+
+
+## `text` with every "number / number" inside an isolate (Hebrew only, see `ltr_ratio()`). Any text can go through it, also a text
+## that has the isolates already (the marks are not doubled).
+static func ltr_ratios(text: String) -> String:
+	if not is_rtl() or not text.contains(" / "):
+		return text
+	text = text.replace(LRI, "").replace(PDI, "")
+	var rx := RegEx.create_from_string("[0-9]+ / [0-9]+")
+	return rx.sub(text, LRI + "$0" + PDI, true)
