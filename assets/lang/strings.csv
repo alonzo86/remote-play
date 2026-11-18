@@ -92,10 +92,9 @@ minigame.resume,RESUME,המשיכו,"Button Resume in the pause menus, the pause
 minigame.round_over,ROUND OVER,הסיבוב נגמר,Title of the result menu when there is no winner to name,
 common.settings,SETTINGS,הגדרות,Title of the TV and phone Settings screens; phone: name and tooltip of the SETTINGS icon button (no word on the button) in the top row of the waiting and Connect screens,
 minigame.tie,TIE!,תיקו!,Title of the result menu when scores are equal,
-pad.before,Before: %s,קודם: %s,"Phone game screen: next to NEW BEST!, shows the old best, %s is the old value",%s is replaced by a name or a value
 pad.disconnect,DISCONNECT,התנתק,"Phone: name and tooltip of the DISCONNECT icon button (no word on the button) in the corner of the top row of the waiting screen (top right in English, top left in Hebrew)",
 pad.disconnect_hold,HOLD TO DISCONNECT,החזק להתנתקות,"Phone: HOLD TO DISCONNECT box at the bottom of the game screen, inset 60 px from the sides and 40 px from the bottom so rounded corners do not cut it (hold it for 0.8 s to disconnect the phone from the TV; a tap does nothing)",New 2026-10-30 (issue #239). The waiting screen keeps pad.disconnect.
-pad.new_best,NEW BEST!,שיא חדש!,"Phone game screen: after a round that set a personal best, only while the result of that game is open (not on the waiting screen); large (56 px), yellow, centered in the upper half of the play area under the name of the game",
+pad.new_best,NEW BEST!,שיא חדש!,"Phone, result screen: line 3 of the result, in yellow and in place of the score, only on the phone of the player who set a personal best in that game (not on the waiting screen); 64 px, centered, one line or two",
 pad.point_at_tv_then,"POINT AT THE CENTER OF THE TV, THEN TAP",כוונו אל מרכז הטלוויזיה והקישו,"Phone game screen: help line in the upper half of the play area, above the small Recenter button at the bottom",
 pad.recenter,RECENTER,מרכז,Phone game screen: Recenter button,
 pad.slide_to_aim,SLIDE TO MOVE THE BALL,החליקו כדי להזיז את הכדור,Phone game screen: help line on the aim strip while it is the turn of this phone in Bowling,
@@ -126,27 +125,27 @@ profile_share.two_phones_do_not,THE TWO PHONES DO NOT STAY IN SYNC AFTER THE COP
 profiles.could_not_save,COULD NOT SAVE,שמירה נכשלה,"Phone, edit player: message when saving the player fails",
 profiles.maximum,%d players is the maximum,%d שחקנים זה המקסימום,"Phone, new player screen (Import) and Connect screen (scan of a player code): message when the phone has the maximum of players, %d is the limit","the number sign (%d, %.1f ...) is replaced by a number"
 profiles.share,SHARE,שתף,"Phone, edit player: Share button",
-registry.marble_race,CAR RACE,מירוץ מכוניות,"Name of the game Car Race: Games screen, game settings, result",
-registry.paint_grab,PAINT GRAB,חטיפת צבע,"Name of the game Paint Grab: Games screen, game settings, in-game title",
+registry.marble_race,CAR RACE,מירוץ מכוניות,"Name of the game Car Race: Games screen, game settings, result, top line of the phone result screen",
+registry.paint_grab,PAINT GRAB,חטיפת צבע,"Name of the game Paint Grab: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_snowball_splat,A JUNGLE PARTY WITH HUNGRY ANIMALS AND LOTS OF BANANAS.,מסיבה בג׳ונגל עם חיות רעבות והרבה בננות.,"Description of Banana Party: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.random,RANDOM,אקראי,Car Race track choice: Random value,
-registry.snowball_splat,BANANA PARTY,מסיבת בננות,"Name of the game Banana Party: Games screen, game settings, in-game title",
-registry.sumo_bumpers,SUMO BUMPERS,סומו מתנגשים,"Name of the game Sumo Bumpers: Games screen, game settings, in-game title",
-registry.treasure_maze,TREASURE MAZE,מבוך האוצר,"Name of the game Treasure Maze: Games screen, game settings, in-game title",
+registry.snowball_splat,BANANA PARTY,מסיבת בננות,"Name of the game Banana Party: Games screen, game settings, in-game title, top line of the phone result screen",
+registry.sumo_bumpers,SUMO BUMPERS,סומו מתנגשים,"Name of the game Sumo Bumpers: Games screen, game settings, in-game title, top line of the phone result screen",
+registry.treasure_maze,TREASURE MAZE,מבוך האוצר,"Name of the game Treasure Maze: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_maze,A RACE THROUGH A TWISTY MAZE TO THE EXIT.,מירוץ דרך מבוך מפותל אל היציאה.,"Description of Treasure Maze: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.desc_paint_grab,A COLORFUL RACE TO PAINT THE WHOLE FLOOR.,מירוץ צבעוני לצבוע את כל הרצפה.,"Description of Paint Grab: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.desc_sumo_bumpers,FRIENDLY BUMPERS PUSH EACH OTHER ON A SMALL PLATFORM.,פגושים ידידותיים דוחפים זה את זה על פלטפורמה קטנה.,"Description of Sumo Bumpers: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.desc_marble_race,A CAR RACE ON WINDING ROADS.,מירוץ מכוניות בכבישים מתפתלים.,"Description of Car Race: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.track,TRACK,מסלול,Car Race game settings: name of the track row,
-result.not_finished,NOT FINISHED,לא סיים,Result list: a player who did not finish,
+result.not_finished,NOT FINISHED,לא סיים,Result list and line 3 of the phone result screen: a player who did not finish,
 result.one_point,1 point,נקודה אחת,Sumo Bumpers result list: score of 1 point,
-result.place_1,1ST,ראשון,Result list and phone score line: first place,
-result.place_2,2ND,שני,Result list and phone score line: second place,
-result.place_3,3RD,שלישי,Result list and phone score line: third place,
-result.place_4,4TH,רביעי,Result list and phone score line: fourth place,
-result.points,%d points,%d נקודות,"Sumo Bumpers result list: score, %d is the points","the number sign (%d, %.1f ...) is replaced by a number"
-result.seconds_1,%.1f s,%.1f ש׳,"Treasure Maze result list: finish time, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
-result.seconds_2,%.2f s,%.2f ש׳,"Car Race result list and the personal best of a race, on the phone profile: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
+result.place_1,1ST,ראשון,Result list and the place on line 2 of the phone result screen: first place,
+result.place_2,2ND,שני,Result list and the place on line 2 of the phone result screen: second place,
+result.place_3,3RD,שלישי,Result list and the place on line 2 of the phone result screen: third place,
+result.place_4,4TH,רביעי,Result list and the place on line 2 of the phone result screen: fourth place,
+result.points,%d points,%d נקודות,"Sumo Bumpers result list and line 3 of the phone result screen: score, %d is the points","the number sign (%d, %.1f ...) is replaced by a number"
+result.seconds_1,%.1f s,%.1f ש׳,"Treasure Maze result list and line 3 of the phone result screen: finish time, %.1f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
+result.seconds_2,%.2f s,%.2f ש׳,"Car Race result list, line 3 of the phone result screen and the personal best of a race, on the phone profile: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 result.winner,%s wins!,%s ניצח!,Result menu title: %s is the name of the winner,%s is replaced by a name or a value
 settings.approve_players,APPROVE NEW PLAYERS,אישור שחקנים חדשים,"TV Settings: name of the first row (on/off, ON by default)",The value is common.on or common.off
 settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row,
@@ -173,7 +172,7 @@ wait.use_tv_remote_phone,USE THE TV REMOTE. YOUR PHONE IS READY.,השתמשו ב
 wait.waiting_host,WAITING FOR THE HOST,ממתינים למארח,Phone waiting screen: title before the TV has chosen a game,
 wait.get_ready,GET READY!,היכונו!,Phone waiting screen: title while the TV shows the settings of a game,
 wait.host_settings,THE HOST IS SETTING UP THE GAME.,המארח מכין את הגדרות המשחק.,Phone waiting screen: second line while the TV shows the settings of a game and one phone is connected (with two or more the question PLAY THIS GAME? shows instead),
-registry.star_shield,STAR SHIELD,מגן הכוכבים,"Name of the game Star Shield: Games screen, game settings, in-game title",
+registry.star_shield,STAR SHIELD,מגן הכוכבים,"Name of the game Star Shield: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_asteroid_blast,A SPACE ADVENTURE IN A SKY FULL OF FALLING ROCKS.,הרפתקה בחלל בשמיים מלאים בסלעים נופלים.,"Description of Star Shield: info bar of the Games screen (what the game is, no instructions, issue #78)",
 registry.theme,THEME,ערכת נושא,game settings of Treasure Maze and Car Race: name of the theme row,
 registry.castle,CASTLE,טירה,Treasure Maze theme: Castle,
@@ -188,7 +187,7 @@ asteroid_blast.wave_n,Wave %d,גל %d,"Star Shield: wave number in the HUD and t
 asteroid_blast.wave_clear,Wave %d clear!,גל %d הסתיים!,"Star Shield: banner when a wave is over, %d is the wave",
 asteroid_blast.next_wave_in,Next wave in %d,הגל הבא בעוד %d,"Star Shield: banner in the rest between two waves, %d is seconds",
 asteroid_blast.reached_wave,Reached wave %d,הגעתם לגל %d,"Star Shield: title of the result menu for one player, %d is the wave",
-registry.bowling,BOWLING,באולינג,"Name of the game Bowling: Games screen, game settings, in-game title",
+registry.bowling,BOWLING,באולינג,"Name of the game Bowling: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_bowling,"BOWLING WITH FRIENDS, WITH YOUR PHONE AS THE BALL.","באולינג עם חברים, והטלפון הוא הכדור.","Description of Bowling: info bar of the Games screen (what the game is, no instructions, issue #78)",
 bowling.rails,RAILS,מעקות,Bowling settings view: name of the Rails row,
 bowling.with_rails,WITH,עם,Bowling settings view: the value of the Rails row when the lane has rails (the gutters are covered),
@@ -207,7 +206,7 @@ bowling.pins_left,%d pins left. One more ball!,נשארו %d פינים. עוד 
 bowling.pin_left,1 pin left. One more ball!,נשאר פין אחד. עוד כדור!,Bowling: line under the banner before the second ball when 1 pin stands,
 bowling.phone_turn,YOUR TURN,התור שלך,"Bowling: phone screen, line under the player and score rows while it is the turn of this phone",
 bowling.phone_wait,%s IS BOWLING,%s משחק/ת,"Bowling: phone screen, same line while another player is on turn, %s is the name of that player","the number sign (%d, %.1f ...) is replaced by a number"
-registry.tennis,TENNIS,טניס,"Name of the game Tennis: Games screen, game settings, in-game title",
+registry.tennis,TENNIS,טניס,"Name of the game Tennis: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_tennis,A TENNIS MATCH WITH YOUR PHONE AS THE RACKET.,"משחק טניס, והטלפון הוא המחבט.","Description of Tennis: info bar of the Games screen (what the game is, no instructions, issue #78)",
 tennis.scoring,SCORING,ניקוד,Tennis settings view: name of the Scoring row,
 tennis.real,REAL,אמיתי,"Tennis settings view: Real value of the Scoring row (15, 30, 40, deuce, first to 3 games)",
@@ -226,7 +225,7 @@ tennis.net,NET,רשת,Tennis: banner when the ball hits the net,
 tennis.great,GREAT!,מעולה!,Tennis: text over a player after a swing at the perfect time,
 tennis.rally,RALLY %d,רצף %d,"Tennis with 1 player: the badge in the top bar (left part, RALLY n / BEST m) and the banner, %d is the balls hit back in a row","the number sign (%d, %.1f ...) is replaced by a number"
 tennis.best,BEST %d,שיא %d,"Tennis with 1 player: the badge in the top bar (right part, RALLY n / BEST m), %d is the longest rally of the round","the number sign (%d, %.1f ...) is replaced by a number"
-registry.mini_golf,MINI GOLF,מיני גולף,"Name of the game Mini Golf: Games screen, game settings, in-game title",
+registry.mini_golf,MINI GOLF,מיני גולף,"Name of the game Mini Golf: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_mini_golf,"MINI GOLF ON FUNNY COURSES, WITH YOUR PHONE AS THE CLUB.","מיני גולף במסלולים מצחיקים, והטלפון הוא המחבט.","Description of Mini Golf: info bar of the Games screen (what the game is, no instructions, issue #78)",
 mini_golf.holes,HOLES,גומות,Mini Golf settings view: name of the Holes row,
 mini_golf.hole_one,1 HOLE,גומה אחת,Mini Golf settings view: the value 1 of the Holes row (the other values are mini_golf.holes_n),
@@ -265,18 +264,18 @@ setup.question,PLAY THIS GAME?,לשחק במשחק הזה?,"Phone waiting screen
 setup.in,IN,בפנים,Phone waiting screen: the IN button (this phone plays the game); TV game settings view: the word after the name of a player who plays,
 setup.out,OUT,בחוץ,Phone waiting screen: the OUT button (this phone watches); TV game settings view: the word after the name of a player who sits out,
 setup.out_banner,YOU ARE OUT. TAP IN TO PLAY.,אתם בחוץ. לחצו על בפנים כדי לשחק.,"Phone waiting screen, under the IN and OUT buttons while this phone has chosen OUT (the TV settings view is open)",New 2026-10-30 (issue #242). The Hebrew word for IN must match setup.in.
-registry.sheep_herding,SHEEP HERDING,רועה כבשים,"Name of the game Sheep Herding: Games screen, game settings, in-game title",
+registry.sheep_herding,SHEEP HERDING,רועה כבשים,"Name of the game Sheep Herding: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_sheep_herding,A TEAM GAME: HERD ALL THE SHEEP INTO THE PEN.,משחק קבוצתי: מובילים את כל הכבשים לדיר.,"Description of Sheep Herding: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.sheep_herding,"TILT YOUR PHONE TO RUN YOUR DOG. TOGETHER, HERD ALL THE SHEEP INTO THE PEN BEFORE THE TIME IS UP.","הטו את הטלפון כדי לגרום לכלב לרוץ. יחד, הובילו את כל הכבשים לדיר לפני שהזמן נגמר.","TV game settings view of Sheep Herding: how to play, under the title (issue #77)",
 sheep_herding.hint,TILT YOUR PHONE TO STEER YOUR DOG AND HERD THE SHEEP INTO THE PEN!,הטו את הטלפון כדי להוביל את הכלב ולהכניס את הכבשים לדיר!,Sheep Herding: hint during the countdown and the first seconds,
 sheep_herding.count,%d / %d sheep,%d / %d כבשים,Sheep Herding result list: sheep in the pen out of all sheep (the same for every player),"the number sign (%d, %.1f ...) is replaced by a number"
 sheep_herding.all_safe,All sheep are safe!,כל הכבשים בטוחות!,Sheep Herding: title of the result menu for 2 to 4 players when every sheep is in the pen,
 sheep_herding.some_safe,%d of %d sheep are safe!,%d מתוך %d כבשים בטוחות!,"Sheep Herding: title of the result menu for 2 to 4 players when time is up: sheep in the pen, all sheep","the number sign (%d, %.1f ...) is replaced by a number"
-registry.whack_a_mole,MOLE BONK,הכו בחפרפרת,"Name of the game Mole Bonk (id whack_a_mole): Games screen, game settings, in-game title",
+registry.whack_a_mole,MOLE BONK,הכו בחפרפרת,"Name of the game Mole Bonk (id whack_a_mole): Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_whack_a_mole,FRIENDLY MOLES POP OUT OF THEIR HOLES IN A SUNNY MEADOW.,חפרפרות חביבות מציצות מהחורים שלהן באחו שטוף שמש.,"Description of Mole Bonk (id whack_a_mole): info bar of the Games screen (what the game is, no instructions, issue #78)",
 whack_a_mole.point_at_tv_press,POINT AT THE TV AND PRESS A TO BONK A MOLE. RECENTER IF THE RING DRIFTS.,כוונו אל הטלוויזיה ולחצו A כדי להקיש על חפרפרת. מרכזו אם הטבעת סוטה.,Mole Bonk (id whack_a_mole): hint during the countdown,
 how_to.whack_a_mole,POINT YOUR PHONE AT THE SCREEN AND PRESS A TO BONK THE FRIENDLY MOLES. MOST POINTS IN 60 S WINS.,כוונו את הטלפון אל המסך ולחצו A כדי להקיש על החפרפרות החביבות. מי שצבר הכי הרבה נקודות תוך 60 שניות מנצח.,"TV game settings view of Mole Bonk (id whack_a_mole): how to play, under the title (issue #77)",
-registry.air_hockey,AIR HOCKEY,הוקי אוויר,"Name of the game Air Hockey: Games screen, game settings, in-game title",
+registry.air_hockey,AIR HOCKEY,הוקי אוויר,"Name of the game Air Hockey: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_air_hockey,A FAST TABLE GAME WITH A PUCK AND TWO GOALS.,משחק שולחן מהיר עם דיסקית ושני שערים.,"Description of Air Hockey: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.air_hockey,TILT TO SLIDE YOUR MALLET AND HIT THE PUCK INTO THE OTHER GOAL. THE FIRST TO SCORE THE SET GOALS WINS. SINGLE PLAYER? YOU PLAY ROBO.,הטו כדי להזיז את הידית ולהכניס את הדיסקית לשער השני. הראשון שמבקיע את מספר השערים שנקבע מנצח. שחקן יחיד? משחקים נגד רובו.,"TV game settings view of Air Hockey: how to play, under the title (issue #77). ROBO is the name of the computer player (air_hockey.bot_name)",
 air_hockey.goals_to_win,GOALS,שערים,Air Hockey settings view: name of the row where the players choose how many goals end the match (3 to 10),
@@ -289,13 +288,13 @@ air_hockey.goal_for,GOAL FOR %s!,שער של %s!,"Air Hockey: banner in the midd
 air_hockey.tilt_to_slide,TILT TO SLIDE YOUR MALLET AND HIT THE PUCK!,הטו כדי להזיז את הידית ולהכות בדיסקית!,"Air Hockey: hint at the start of the match, bottom of the screen",
 air_hockey.press_a,PRESS A TO PLAY!,לחצו A כדי לשחק!,Air Hockey: title in the middle of the TV before the match; each phone that wants to play presses A on its pad (two players play),
 air_hockey.or_ok_robo,OR PRESS OK TO PLAY AGAINST %s,או לחצו OK כדי לשחק נגד %s,"Air Hockey: second line before the match, shown when one phone has pressed A and other phones are connected; OK is the TV remote button, %s is the name of the computer player",%s is replaced by a name or a value
-registry.bumper_cars,BUMPER CARS,מכוניות מתנגשות,"Name of the game Bumper Cars: Games screen, game settings, in-game title",
+registry.bumper_cars,BUMPER CARS,מכוניות מתנגשות,"Name of the game Bumper Cars: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_bumper_cars,BUMPER CARS IN A FUN-FAIR RINK: COLLECT GOLD STARS.,מכוניות מתנגשות במתחם שעשועים: אוספים כוכבי זהב.,"Description of Bumper Cars: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.bumper_cars,"TILT YOUR PHONE TO DRIVE YOUR CAR. DRIVE OVER THE STARS TO PICK THEM UP. WHEN CARS BUMP HARD, THEY BONK AND SPARK. NOBODY LOSES A STAR. MOST STARS IN 60 SECONDS WINS.","הטו את הטלפון כדי לנהוג במכונית. סעו על הכוכבים כדי לאסוף אותם. כשמכוניות מתנגשות חזק, יש בונק וניצוץ. אף אחד לא מאבד כוכב. מי שאוסף הכי הרבה כוכבים תוך 60 שניות מנצח.","TV game settings view of Bumper Cars: how to play, under the title (issue #77)",
 bumper_cars.hint,TILT TO DRIVE AND PICK UP STARS!,הטו כדי לנסוע ולאסוף כוכבים!,Bumper Cars: hint during the countdown and the first seconds,
 result.one_star,1 star,כוכב אחד,Bumper Cars result list: score of 1 star,
 result.stars,%d stars,%d כוכבים,"Bumper Cars result list: score, %d is the stars","the number sign (%d, %.1f ...) is replaced by a number"
-registry.tower_builder,TOWER BUILDER,בונים מגדל,"Name of the game Tower Builder: Games screen, game settings, in-game title",
+registry.tower_builder,TOWER BUILDER,בונים מגדל,"Name of the game Tower Builder: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_tower_builder,A TEAM GAME OF STACKING BRICKS INTO A TALL TOWER.,משחק קבוצתי של בניית מגדל גבוה מלבנים.,"Description of Tower Builder: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.tower_builder,"WAIT FOR YOUR TURN, THEN PRESS A TO DROP THE SWINGING BRICK. STACK ALL THE BRICKS ON ONE TOWER WITHOUT LETTING IT FALL.",חכו לתור שלכם ואז לחצו A כדי לשחרר את הלבנה המתנדנדת. ערמו את כל הלבנים על מגדל אחד בלי שהוא יתמוטט.,"TV game settings view of Tower Builder: how to play, under the title (issue #77)",
 tower_builder.turn_of,%s'S TURN,התור של %s,"Tower Builder HUD: the player whose turn it is, on a plate at the left of the tower, %s is the name of the player",%s is replaced by a name or a value
@@ -305,7 +304,7 @@ tower_builder.crash,CRASH! GIGGLE!,התרסק! חיחי!,Tower Builder: banner i
 tower_builder.one_brick,1 BRICK,לבנה אחת,Tower Builder result list: the score of a player with one brick that stayed,
 tower_builder.n_bricks,%d BRICKS,%d לבנים,"Tower Builder result list: the score of a player, the bricks that stayed on the tower, %d is the number","the number sign (%d, %.1f ...) is replaced by a number"
 tower_builder.hint,WAIT FOR YOUR TURN. PRESS A TO DROP THE BRICK!,חכו לתור שלכם. לחצו A כדי לשחרר את הלבנה!,"Tower Builder: hint at the start of the game, bottom of the screen",
-registry.freeze_dance,FREEZE DANCE,ריקוד קפוא,"Name of the game Freeze Dance: Games screen, game settings, in-game title",
+registry.freeze_dance,FREEZE DANCE,ריקוד קפוא,"Name of the game Freeze Dance: Games screen, game settings, in-game title, top line of the phone result screen",
 registry.desc_freeze_dance,A DISCO PARTY WHERE EVERYBODY FREEZES WHEN THE MUSIC STOPS.,מסיבת דיסקו שבה כולם קופאים כשהמוזיקה נפסקת.,"Description of Freeze Dance: info bar of the Games screen (what the game is, no instructions, issue #78)",
 how_to.freeze_dance,"WIGGLE YOUR PHONE WHILE THE MUSIC PLAYS. WHEN IT STOPS, HOLD STILL TO GET POINTS.","נענעו את הטלפון בזמן שהמוזיקה מתנגנת. כשהיא נפסקת, החזיקו בלי לזוז כדי לקבל נקודות.","TV game settings view of Freeze Dance: how to play, under the title (issue #77)",
 freeze_dance.hint,"WIGGLE YOUR PHONE TO THE MUSIC. WHEN IT STOPS, FREEZE!","נענעו את הטלפון לצלילי המוזיקה. כשהיא נפסקת, קפאו!",Freeze Dance: hint at the bottom of the TV during the first 4 seconds of the first song,

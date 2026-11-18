@@ -5,9 +5,8 @@ extends SceneTree
 ## Latin one. 1. The gap of each size in both languages. 2. The descender of a final letter keeps at least two font pixels
 ## (a quarter of the size) from the top of the next line (measured on the outline of the glyphs of the project font).
 ## 3. A screen that stays open when the language changes gets the new gap (`UiTheme.refresh_line_gaps`).
-## 4. The pad (`controller_pad.gd`): a two-line name in the header does not touch the score row, and a two-line game name does
-## not touch a two-line NEW BEST!, in both languages (the two cases of the review of PR #405); a long score text (two lines)
-## starts where the one-line row starts, is below the name and ends above the turn row (issue #408).
+## 4. The pad (`controller_pad.gd`): a two-line name in the header does not touch the score row, in both languages; a long
+## score text (two lines) starts where the one-line row starts, is below the name and ends above the turn row (issue #408).
 
 const Lang = preload("res://scripts/core/lang.gd")
 const UiTheme = preload("res://scripts/ui/ui_theme.gd")
@@ -124,10 +123,6 @@ func _run() -> void:
 		var turn_top: float = pad._rect_turn().position.y
 		_check(score2_ink.y < turn_top, "%s: a two-line score row ends (y %.0f) above the turn row (y %.0f)"
 				% [code, score2_ink.y, turn_top])
-		var game_ink := _block_ink(pad._rect_best_game(), 2, pad.BEST_GAME_SIZE, letter)
-		var best_ink := _block_ink(pad._rect_best(), 2, pad.BEST_SIZE, "ב")
-		_check(game_ink.y < best_ink.x, "%s: a two-line game name (to y %.0f) is above a two-line NEW BEST! (from y %.0f)"
-				% [code, game_ink.y, best_ink.x])
 	pad.free()
 	app.client = null
 	client.free()

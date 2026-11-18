@@ -31,16 +31,18 @@ const TIMER_W := Shell.TIMER_W
 const CHIP_W := 280.0
 const CONFETTI_COUNT := 70
 ## Difficulty (REQ-SH-17): the number of sheep, how far a dog scares a sheep, how fast a scared sheep
-## runs, the gate, the time of the
-## round. First guesses (Test 26). The number of dogs changes nothing.
+## runs, the gate, the time of the round, and how much a scared sheep is helped toward the gate (REQ-SH-21).
+## First guesses (Test 29). The number of dogs changes nothing.
 const LEVELS := {
-	"easy": {"sheep": 8, "flee": 220.0, "speed": 230.0, "gate": 220.0, "time": 90.0},
-	"medium": {"sheep": 11, "flee": 260.0, "speed": 270.0, "gate": 180.0, "time": 75.0},
-	"hard": {"sheep": 14, "flee": 300.0, "speed": 320.0, "gate": 150.0, "time": 60.0},
+	"easy": {"sheep": 8, "flee": 220.0, "speed": 230.0, "gate": 220.0, "time": 90.0, "assist": 0.8},
+	"medium": {"sheep": 11, "flee": 260.0, "speed": 270.0, "gate": 180.0, "time": 75.0, "assist": 0.45},
+	"hard": {"sheep": 14, "flee": 300.0, "speed": 320.0, "gate": 150.0, "time": 60.0, "assist": 0.0},
 }
 ## Where the dogs start (the share of the height of the field, on the left edge), for 1 to 4 dogs.
 const START_Y := [[0.5], [0.3, 0.7], [0.2, 0.5, 0.8], [0.15, 0.38, 0.62, 0.85]]
 const START_X := 120.0
+const DOG_HALF := Vector2(40.0, 30.0)   # A dog is 80 x 56 px: all of it stays on the grass, not on the margin (REQ-SH-22).
+const PEN_SIZE := Vector2(292.0, 360.0)   # As wide as the barn with its silo, so the barn stands on the pen with no ledge.
 
 ## Set before the game starts (REQ-GM-93). `start_props` keeps it, and the seed, for Restart.
 var difficulty := "medium"
@@ -103,19 +105,30 @@ func _game_ready() -> void:
 		_faces[participants[i]] = 1
 
 
-## The grass fits inside the margin and under the HUD, on the grid of world pixels. The pen is at the right, the barn above it.
-func _layout() -> void:
+## The grass fits inside the margin and under the HUD, on the grid of world pixels. The pen stands in the bottom right corner of
+## the grass, flush with both edges (no gap where a sheep can wedge), and the barn stands on the pen, flush with the right edge
+## (REQ-SH-23). `layout()` has the numbers so that a test sees the same world: `field`, `pen`, `barn_origin`.
+static func layout() -> Dictionary:
 	var design := Vector2(DESIGN_SIZE)   # The world is simulated in these units, and scaled to `size` when it is drawn.
-	field = Rect2(Vector2(FIELD_MARGIN, FIELD_TOP), Vector2(design.x - 2.0 * FIELD_MARGIN, design.y - FIELD_TOP - FIELD_MARGIN))
-	field.size = (field.size / Shell.WORLD_PIXEL).floor() * Shell.WORLD_PIXEL
-	pen = Rect2(Vector2(field.end.x - 372.0, field.position.y + 300.0), Vector2(320.0, 360.0))
-	barn_origin = Vector2(pen.position.x + 48.0, pen.position.y - 32.0 - SheepLook.BARN_SIZE.y * Shell.WORLD_PIXEL)
+	var f := Rect2(Vector2(FIELD_MARGIN, FIELD_TOP), Vector2(design.x - 2.0 * FIELD_MARGIN, design.y - FIELD_TOP - FIELD_MARGIN))
+	f.size = (f.size / Shell.WORLD_PIXEL).floor() * Shell.WORLD_PIXEL
+	var p := Rect2(f.end - PEN_SIZE, PEN_SIZE)
+	var origin := Vector2(f.end.x - SheepLook.BARN_RIGHT * Shell.WORLD_PIXEL,
+			p.position.y - SheepLook.BARN_SIZE.y * Shell.WORLD_PIXEL)
+	return {"field": f, "pen": p, "barn_origin": origin}
+
+
+func _layout() -> void:
+	var l := layout()
+	field = l.field
+	pen = l.pen
+	barn_origin = l.barn_origin
 
 
 ## The box around the barn, the silo and the vane, where nothing else stands.
 func _barn_box() -> Rect2:
 	var w := Shell.WORLD_PIXEL
-	return Rect2(barn_origin + Vector2(-16.0, -14.0) * w, Vector2(76.0, 62.0) * w)
+	return Rect2(barn_origin + Vector2(-16.0, -14.0) * w, Vector2(SheepLook.BARN_RIGHT + 16.0, 60.0) * w)
 
 
 func _on_player_left(slot: int) -> void:
@@ -154,24 +167,48 @@ func _game_tick(delta: float) -> void:
 
 
 func _tick_dogs(delta: float) -> void:
+	var tilts := {}
+	for s in dogs:
+		tilts[s] = player(s).tilt()
+	var touching := move_dogs(dogs, tilts, delta, flock)
 	for s in dogs:
 		var b: TiltBody = dogs[s]
-		b.step(delta, player(s).tilt(), field)
-		var fixed := flock.resolve(b.pos, b.vel, b.radius)   # A dog walks around the pond, the trees and the fence.
-		b.pos = fixed[0]
-		b.vel = fixed[1]
 		if absf(b.vel.x) > 20.0:
 			_faces[s] = 1 if b.vel.x > 0.0 else -1
-	var slots: Array = dogs.keys()
+	for pair in touching:
+		if not _touching.has(pair):
+			_touching[pair] = true
+			Sound.sfx("sheep_bump")   # One soft sound for one touch.
+	for pair in _touching.keys():
+		if not touching.has(pair):
+			_touching.erase(pair)
+
+
+## One step of all the dogs (`slot -> TiltBody`, `tilts` is `slot -> Vector2`): the tilt moves a dog, it walks around the fence
+## and the barn (and over the scenery), two dogs bounce off each other, and then every dog is put back on the grass and out of the
+## fence, so that no dog is ever outside the field or inside a wall, also after a bounce at an edge (REQ-SH-22).
+## Returns the pairs of dogs that touch now (the key of a pair is `slot_a * 4 + slot_b`).
+static func move_dogs(bodies: Dictionary, tilts: Dictionary, delta: float, f: SheepFlock) -> Array:
+	var bounds := f.field.grow_individual(-(DOG_HALF.x - DOG_R), 0.0, -(DOG_HALF.x - DOG_R), 0.0)
+	for s in bodies:
+		var b: TiltBody = bodies[s]
+		b.step(delta, tilts.get(s, Vector2.ZERO), bounds)
+		_keep_dog(b, f)
+	var touching := []
+	var slots: Array = bodies.keys()
 	for i in slots.size():
 		for j in range(i + 1, slots.size()):
-			var pair: int = int(slots[i]) * 4 + int(slots[j])
-			if TiltBody.collide(dogs[slots[i]], dogs[slots[j]]):
-				if not _touching.has(pair):
-					_touching[pair] = true
-					Sound.sfx("sheep_bump")   # One soft sound for one touch.
-			else:
-				_touching.erase(pair)
+			if TiltBody.collide(bodies[slots[i]], bodies[slots[j]]):
+				touching.append(int(slots[i]) * 4 + int(slots[j]))
+	for s in bodies:
+		_keep_dog(bodies[s], f)   # A bounce between two dogs must not push one out of the field.
+	return touching
+
+
+static func _keep_dog(b: TiltBody, f: SheepFlock) -> void:
+	var fixed := f.resolve(b.pos, b.vel, b.radius, DOG_HALF)
+	b.pos = fixed[0]
+	b.vel = fixed[1]
 
 
 func _dog_spots() -> Dictionary:
@@ -231,12 +268,12 @@ func _finish() -> void:
 		heading = Lang.t("game_settings." + difficulty)
 	else:
 		heading = Lang.t("sheep_herding.all_safe") if all else Lang.f("sheep_herding.some_safe", [n, total])
-	open_results(_board, heading, [], _score_text)
+	open_results(_board, heading)
 
 
-## "6 / 9 sheep" for the result list.
-func _score_text(count: float) -> String:
-	return Lang.f("sheep_herding.count", [int(count), flock.sheep.size()])
+## The score as data for the result list and for the phone (issue #470).
+func _result_spec(count: float) -> Array:
+	return ResultText.spec("sheep_herding.count", [int(count), flock.sheep.size()])
 
 
 func _scoreboard() -> Scoreboard:

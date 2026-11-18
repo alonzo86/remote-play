@@ -27,6 +27,7 @@ tests/swing_detector.gd|controller|swing detector|unit
 tests/tennis_rules.gd|controller|Tennis rules, ball and match|unit
 tests/paint_rules.gd|controller|Paint Grab rules|unit
 tests/sheep_rules.gd|controller|Sheep Herding rules, scenery and pictures|unit
+tests/sheep_edges.gd|tv|Sheep Herding: nothing leaves the grass, no pocket for a sheep (simulation)|unit
 tests/bumper_rules.gd|controller|Bumper Cars rules, stars and pictures|unit
 tests/asteroid_rules.gd|controller|Star Shield rules and pictures|unit
 tests/design_tokens.gd|controller|design tokens|unit
@@ -129,4 +130,4 @@ tests/approve_setting.gd|tv|Settings row approve new players: first and focused,
 tests/line_gap.gd|controller|line gap of wrapped text: Hebrew final letters, open screen refresh, pad blocks (issues #403, #406)|unit
 tests/legal_pages.gd|controller|website privacy and terms pages: up to date with docs/legal, headings, right to left, twin links, table (issue #37)|unit
 tests/site_language.gd|controller|website language menu: both languages with flags, twin pages, current language, script (issue #37)|unit
-tests/phone_result_line.gd|controller|phone result line: the TV row, centered, only the leave box (issue #455)|unit
+tests/phone_result_line.gd|controller|phone result line: the TV row, centered, only the leave box (issue #455); place and score in the phone language (issue #470)|unit

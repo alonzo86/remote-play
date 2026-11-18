@@ -5,6 +5,8 @@ extends Node
 const Protocol = preload("res://scripts/core/protocol.gd")
 const ConfigIO = preload("res://scripts/core/config_io.gd")
 const ClosingSockets = preload("res://scripts/net/closing_sockets.gd")
+const Medal = preload("res://scripts/ui/medal.gd")   # Its TIERS: the only list of medals the phone draws (`m` of `final`).
+const ResultText = preload("res://scripts/core/result_text.gd")   # The place and the score from data (the phone's language).
 
 signal state_changed(state: int)
 signal welcomed(slot: int, color: Color)
@@ -54,6 +56,10 @@ var swing_acked := false      # The player tapped OK for the settings view that 
 var turn_state := 0           # 0 no turn line, 1 this phone is on turn, 2 another player is on turn (REQ-BW-14).
 var turn_kind := ""           # "" for the words of Bowling, "golf" for Mini Golf.
 var turn_who := ""            # The name of the player on turn when turn_state is 2.
+var final_game := ""          # The registry id of the game that ended (`g` of `final`); the phone writes its name.
+var final_place := ""         # The place text of this player ("1ST", the `p` of `final`).
+var final_score := ""         # The score, the time or NOT FINISHED (the `s` of `final`).
+var final_medal := ""         # The medal tier of the place: gold, silver, bronze or empty (the `m` of `final`).
 var final_text := ""          # The line of this phone in the result, as the TV shows it. Empty outside a result (REQ-FL-67a).
 var score_text := ""         # The score as the TV shows it. Empty when there is no score yet.
 
@@ -344,6 +350,21 @@ func _handle(msg: Dictionary, now: int) -> void:
 			score_changed.emit()
 		"final":
 			final_text = _clean_line(Protocol.text(msg, "v", ""))
+			# The parts of the line (an older TV sends only `v`; the pad then shows `v` as before).
+			final_game = _clean_line(Protocol.text(msg, "g", ""))
+			final_place = _clean_line(Protocol.text(msg, "p", ""))
+			final_score = _clean_line(Protocol.text(msg, "s", ""))
+			# The place and the score as data: this phone writes them in its own language (REQ-FL-62, issue #470). `p` and `s`
+			# stay when the TV is of an older build, or when a field is not valid.
+			var own_place := ResultText.place(Protocol.whole(msg, "n", 0))
+			var args: Variant = msg.get("x", [])
+			var own_score := ResultText.text(Protocol.text(msg, "k", ""), args.slice(0, ResultText.MAX_ARGS) if args is Array else [])
+			if own_place != "":
+				final_place = _clean_line(own_place)
+			if own_score != "":
+				final_score = _clean_line(own_score)
+			var medal := _clean_line(Protocol.text(msg, "m", ""))
+			final_medal = medal if Medal.TIERS.has(medal) else ""
 			score_changed.emit()
 		"turn":
 			turn_state = clampi(Protocol.whole(msg, "s", 0), 0, 2)
@@ -443,8 +464,13 @@ static func _clean_line(text: String) -> String:
 
 ## Forgets the line of the result (REQ-FL-67a).
 func clear_final() -> void:
-	if final_text != "":
-		final_text = ""
+	var had := final_text != "" or final_place != "" or final_score != ""
+	final_text = ""
+	final_game = ""
+	final_place = ""
+	final_score = ""
+	final_medal = ""
+	if had:
 		score_changed.emit()
 
 

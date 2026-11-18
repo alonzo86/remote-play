@@ -192,7 +192,8 @@ func _tilt_timing() -> void:
 	print("the time of a tilt")
 	var game := _play("easy", 5)
 	var p0: RefCounted = _app.server.players[0]
-	game.scenery.items.clear()   # Trees and the pond are in the way of a straight run; the time is for a free field.
+	_check(is_equal_approx(game.flock.assist, float(game.LEVELS.easy.assist)),
+			"the game gives the help of the difficulty to the flock (REQ-SH-21)")
 	var dog = game.dogs[0]
 	dog.pos = Vector2(game.field.position.x + dog.radius + 4.0, game.field.get_center().y)
 	dog.vel = Vector2.ZERO
@@ -249,6 +250,8 @@ func _tilt_and_flock() -> void:
 	sheep.scared = 0.0
 	game._baa_wait = 0.0
 	var at: Vector2 = sheep.pos
+	game.dogs[0].pos = Vector2(1200.0, 950.0)   # Dog 0 ran over the scenery and could be the nearer dog: keep it away.
+	game.dogs[0].vel = Vector2.ZERO
 	game.dogs[1].pos = at + Vector2(-80.0, 0.0)
 	game.dogs[1].vel = Vector2.ZERO
 	_heard.clear()
@@ -259,13 +262,12 @@ func _tilt_and_flock() -> void:
 	_check(sheep.pos.x > at.x + 20.0 and sheep.last_dog == 1, "a sheep runs from a dog that comes close: %s" % str(sheep.pos - at))
 	_check(_heard.has("sheep_baa") and _heard.count("sheep_baa") <= 1,
 			"a scared sheep says baa, once for a moment: %s" % str(_heard))
-	# A dog is blocked by the pond and the trees, and bounces off another dog.
+	# A dog walks over the scenery, and bounces off another dog.
 	var blocker: Dictionary = game.scenery.blockers[0]
 	game.dogs[0].pos = blocker.pos
 	game.dogs[0].vel = Vector2.ZERO
 	game._process(DT)
-	_check(game.dogs[0].pos.distance_to(blocker.pos) >= float(blocker.r) + game.DOG_R - 1.0,
-			"a dog is pushed out of a blocker (REQ-SH-4)")
+	_check(game.dogs[0].pos.distance_to(blocker.pos) < 5.0, "a dog is not pushed out of the scenery (REQ-SH-4)")
 	_quiet()
 	await _real_wait(60)   # The same effect twice in 40 ms of real time is one sound.
 	_heard.clear()
@@ -455,7 +457,8 @@ func _layout_and_restart() -> void:
 	var inside := f.position.x >= 60.0 and f.position.y >= 152.0 and f.end.x <= 1860.0 and f.end.y <= 1020.0 \
 			and fmod(f.position.x, 4.0) == 0.0 and fmod(f.size.x, 4.0) == 0.0 and fmod(f.size.y, 4.0) == 0.0
 	_check(inside, "the field is inside the margin and under the HUD, on the grid of world pixels: %s" % str(f))
-	_check(f.grow(1.0).encloses(game.pen) and game.pen.end.x <= f.end.x - 40.0, "the pen is inside the field")
+	_check(f.grow(1.0).encloses(game.pen) and is_equal_approx(game.pen.end.x, f.end.x) and is_equal_approx(game.pen.end.y, f.end.y),
+			"the pen is in the bottom right corner of the field (REQ-SH-23)")
 	var things_in := true
 	for it in game.scenery.items:
 		things_in = things_in and f.has_point(it.pos)
@@ -463,7 +466,7 @@ func _layout_and_restart() -> void:
 		things_in = things_in and f.has_point(s.pos)
 	_check(things_in, "every thing and every sheep stands on the field")
 	var barn: Rect2 = game._barn_box()
-	_check(f.has_point(barn.position) and f.has_point(barn.end) and barn.end.y < game.pen.position.y + 1.0,
+	_check(f.grow(1.0).encloses(barn) and barn.end.y < game.pen.position.y + 1.0,
 			"the barn, the silo and the vane are on the field, above the pen: %s" % str(barn))
 	var vane_top: float = game.barn_origin.y - 14.0 * 4.0
 	_check(vane_top >= f.position.y, "the weather vane is on the field")
