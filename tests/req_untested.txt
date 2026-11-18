@@ -20,6 +20,7 @@ REQ-GM-61 | review | pure logic has unit tests in the *_rules.gd suites; which l
 REQ-GM-7a | review | the starting point for a new requirements file is a rule of work for the add-minigame skill
 REQ-GM-81 | review | friendly content (no violence, nothing alive shot) is a judgment of the reviewer on pictures and sounds
 REQ-GM-84 | review | kind words in titles and messages is a judgment of the localization-reviewer (strings.csv has no list of banned words)
+REQ-GM-85 | review | the store content-rating answers stay true for every new game: the game file says "Store rating: checked" and the code-reviewer reports a missing line (the questions are a judgment on pictures, sounds and texts)
 #
 # obsolete
 
