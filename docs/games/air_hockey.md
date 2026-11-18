@@ -26,7 +26,7 @@ Games screen.
 | REQ-GM-104 | Exception | There is no IN and OUT choice: the game enrolls its players itself (REQ-GM-106, registry `enroll`). |
 | REQ-GM-30 | Exception | The card of a lost phone never offers "Resume without ..." once the match runs: the match cannot go on without a player (REQ-AH-19). |
 | REQ-GM-47d, 47e, 47m | Exception | Decision of the owner, 2026-10-23: the table is white with rails (black first, dark gray `#4a4e5e` since 2026-10-29, REQ-AH-20) on a black floor, and the puck is black. The mallets keep the slot colors with a black outline, and the puck and the table differ by more than 3:1 in luminance. |
-| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 27). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 27). It was run on a device (run R11; the Results table of the test has the steps). |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-80 to 84 | Note | Content: friendly toy mallets and a puck, nothing is hurt. A goal takes nothing away from anybody (REQ-AH-9), nobody is out, the Easy bot is beatable by a child of 5 (REQ-AH-17), the hint is one line, and every text is positive (ROBO "wins" the same way a player does). |
 

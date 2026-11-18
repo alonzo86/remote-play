@@ -20,7 +20,7 @@ REQ-GM-7 and REQ-GM-103. Visual language: shell, player colors, toy-like world (
 
 | General ID | Kind | Note |
 |------------|------|------|
-| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 29). It is not yet run on a device. |
+| REQ-GM-62 | Gap | `docs/MANUAL_TESTS.md` has a test for this game (Test 29). It was run on a device (run R11; the Results table of the test has the steps). |
 | REQ-GM-50, REQ-GM-51, REQ-GM-52 | Device | Frame rate, per-frame allocation and start time are not measured on a TV box. |
 | REQ-GM-46 | Exception | The leader chip is the team chip: it shows the number of sheep in the pen out of all sheep (REQ-SH-13), in gray, because there is no leader. The phones show the same number and no place. |
 | REQ-GM-72, 73 | Note | The score is shared, so every row of the result list shows the same number and the same place (1st), and with 2 to 4 players every row has the gold medal (REQ-GM-73a, REQ-SH-6). |
@@ -50,15 +50,15 @@ Sheep
 | REQ-SH-8 | A sheep that no dog is near grazes: it walks slowly (at most 45 px/s) for a moment in a random direction, then stands, and chooses again. It is pulled weakly (40 px/s2) toward the middle of the free sheep that are closer than 340 px, so the flock stays together. Two sheep do not overlap. | Done | sheep_rules |
 | REQ-SH-9 | Children (REQ-GM-80 to 84): the dogs and the sheep are friendly made-up creatures, nothing is hurt or caught, a scared sheep only runs, no player is out and no player waits, the hint is one line, the dogs are slower than the blob of Paint Grab and the speed is the same for all players, and all texts are positive. A player who leaves takes the dog out, and the round goes on with the others (REQ-GM-21); when nobody is left the "No players connected" menu opens (REQ-GM-22). | Done | smoke_sheep |
 | REQ-SH-10 | A sheep whose middle goes through the gate into the pen is in the pen for good (the fence is yellow for 0.5 s, a star pops over it, it hops once). It no longer runs from dogs; it grazes inside the pen, slowly, and cannot leave. The pen holds all the sheep of Hard (14). The number of sheep in the pen is the score of every player (REQ-SH-5). | Done | sheep_rules, smoke_sheep |
-| REQ-SH-11 | Dogs (`TiltBody`): tilt gives the acceleration, with a dead zone, damping, a speed limit of 440 px/s and a soft bounce at the edge (the values of Paint Grab, REQ-PG-7, with the lower speed limit). All players have the same values (REQ-GM-24). Dogs bounce off each other softly, with one sound for one touch. | Device | sheep_rules, smoke_sheep, Device (feel) (Test 29 steps 10a to 10c) |
+| REQ-SH-11 | Dogs (`TiltBody`): tilt gives the acceleration, with a dead zone, damping, a speed limit of 440 px/s and a soft bounce at the edge (the values of Paint Grab, REQ-PG-7, with the lower speed limit). All players have the same values (REQ-GM-24). Dogs bounce off each other softly, with one sound for one touch. | Done | sheep_rules, smoke_sheep, Device (feel) (Test 29 steps 10a to 10c) |
 
 Players and feedback
 
 | ID | Requirement | Status | Check |
 |----|-------------|--------|-------|
-| REQ-SH-12 | Sounds and haptics (REQ-GM-43, 49a to 49c): GO buzzes every phone (60 ms). When a sheep walks into the pen, the dog that last scared it (the nearest dog when it was last scared) buzzes 40 ms (at most every 150 ms for one slot, `Haptics`). The end with all sheep in buzzes every phone 400 ms. The effects are in the table *Sound and haptics*. | Device | smoke_sheep, audio_events, Device (the buzz) (Test 29 steps 10d, 10e) |
+| REQ-SH-12 | Sounds and haptics (REQ-GM-43, 49a to 49c): GO buzzes every phone (60 ms). When a sheep walks into the pen, the dog that last scared it (the nearest dog when it was last scared) buzzes 40 ms (at most every 150 ms for one slot, `Haptics`). The end with all sheep in buzzes every phone 400 ms. The effects are in the table *Sound and haptics*. | Done | smoke_sheep, audio_events, Device (the buzz) (Test 29 steps 10d, 10e) |
 | REQ-SH-13 | The team chip (REQ-GM-46, in place of the leader chip) shows "N / M" and is updated at every change. Each phone shows the same "N / M" and no place (REQ-FL-67). In Hebrew it reads "N / M" too, N at the left, on the chip, on the phone and in the result row (REQ-FL-54a, issue #480). | Done | smoke_sheep, hud_layout, ratio_order |
-| REQ-SH-14 | A lost phone pauses the round with the card of REQ-GM-30. The clock does not run during the pause. The pad has no RECENTER box and no A or B (REQ-GM-37, 37a): the pose held in the countdown is the center. | Device | smoke_tv (shared base class), Device (the pad) (Test 29 steps 10f, 10g) |
+| REQ-SH-14 | A lost phone pauses the round with the card of REQ-GM-30. The clock does not run during the pause. The pad has no RECENTER box and no A or B (REQ-GM-37, 37a): the pose held in the countdown is the center. | Done | smoke_tv (shared base class), Device (the pad) (Test 29 steps 10f, 10g) |
 
 Look
 
