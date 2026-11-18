@@ -389,14 +389,20 @@ static func marker_rect(center: Vector2, sz: Vector2, grass: Rect2) -> Rect2:
 	return Rect2(tl, sz)
 
 
-## The three speed dashes behind a running sheep (`back` is the unit direction away from its run): each one is 2 x 1 world pixels
-## and is moved in so that it is on the grass (REQ-SH-15, issue #485).
+## The three speed dashes behind a running sheep (`back` is the unit direction away from its run), each 2 x 1 world pixels, at
+## 46, 62 and 78 px behind the middle. They are drawn only when all three, at these places, are whole inside the grass and none
+## is on the sheep (inside the 28 px circle of its body); otherwise the result is empty: they are not moved or squeezed, so they
+## never pile up or vanish on the sheep (REQ-SH-15, issue #485, owner decision of 2026-11-18).
 static func dash_rects(center: Vector2, back: Vector2, grass: Rect2) -> Array[Rect2]:
 	var out: Array[Rect2] = []
 	var sz := Vector2(Shell.WORLD_PIXEL * 2.0, Shell.WORLD_PIXEL)
 	for k in 3:
 		var at := Shell.snap(center + back * (46.0 + 16.0 * float(k)) + Vector2(0.0, -8.0 + 8.0 * float(k)))
-		out.append(Rect2(at.clamp(grass.position, grass.end - sz), sz))
+		var r := Rect2(at, sz)
+		var near := center.clamp(r.position, r.end)   # The point of the dash that is closest to the middle of the sheep.
+		if not grass.encloses(r) or near.distance_to(center) < SheepFlock.RADIUS:
+			return [] as Array[Rect2]
+		out.append(r)
 	return out
 
 
