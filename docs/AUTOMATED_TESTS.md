@@ -72,7 +72,7 @@ The coverage job always runs, always reports (the summary of the run) and never 
 
 **Temporarily disabled (owner, 2026-11-02):** the workflow `ci` in `.circleci/config.yml` has `when: false`, so no pipeline runs. Remove that line to turn it on again. The rest of this section describes how it works when it is on.
 
-`.circleci/config.yml` runs the same checks while both systems run (Alon, 2026-10-22: keep both for now; since then the Actions workflow is disabled, see above). The repository must be connected in CircleCI first (Projects, Set Up), and "Auto-cancel redundant workflows" turned on. CircleCI has no labels and no draft state, so `tools/ci_plan_circleci.sh` decides from the branch and the pipeline parameters:
+`.circleci/config.yml` runs the same checks while both systems run (Alon, 2026-10-22: keep both for now; CircleCI has been disabled since 2026-11-02 and GitHub Actions on the self-hosted runner is the CI that gives the signal, see above). The repository must be connected in CircleCI first (Projects, Set Up), and "Auto-cancel redundant workflows" turned on. CircleCI has no labels and no draft state, so `tools/ci_plan_circleci.sh` decides from the branch and the pipeline parameters:
 
 | Case | lint | test and coverage | pixels |
 |------|------|-------------------|--------|
@@ -82,7 +82,7 @@ The coverage job always runs, always reports (the summary of the run) and never 
 | "Trigger Pipeline" with `tests` = unit, scenario or all, or `pixels` = true (also for a documentation-only change) | yes | the tier you give | when `pixels` is true |
 | Only Markdown, `docs/` or `.claude/` changed | no | no | no |
 
-Neither system has an Android job (the Actions job `build-android` exported nothing and was removed, issue #286; the manifest patch is checked in `tests/ci_scripts.sh`, which the lint job runs). A documentation-only change therefore runs nothing. Godot is cached between runs. Compare the credits used with the minutes of Actions before you turn one of them off.
+Neither system has an Android job (the Actions job `build-android` exported nothing and was removed, issue #286; the manifest patch is checked in `tests/ci_scripts.sh`, which the lint job runs). A documentation-only change therefore runs nothing. Godot is cached between runs. Actions runs on the self-hosted runner, so it has no minutes; turn CircleCI on again only when the owner decides (see "Which CI counts").
 
 ## What replaced a manual step
 
