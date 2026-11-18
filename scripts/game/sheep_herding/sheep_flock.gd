@@ -229,17 +229,22 @@ func _tick_penned(s: Sheep, dt: float, rng: RandomNumberGenerator) -> void:
 ## the radius of the sheep) at once, from the gate side too, so nothing (the walk, a push of another sheep, the bounce at a wall)
 ## takes it out through the gate. The speed that goes into the fence is dropped.
 func _confine(s: Sheep) -> void:
-	var inner := interior().grow(-RADIUS)
+	var inner := pen_box()
 	var kept := s.pos.clamp(inner.position, inner.end)
 	if kept != s.pos:
 		s.pos = kept
 		s.vel = Vector2.ZERO
 
 
-## True when the middle of a sheep has passed the fence line through the gate.
+## True when the middle of a sheep is in the pen box: the same box that `_confine()` keeps a penned sheep in, so a sheep that
+## has just walked in does not jump (REQ-SH-24).
 func _in_pen(p: Vector2) -> bool:
-	var inner := interior()
-	return p.x >= inner.position.x + RADIUS * 0.5 and p.x <= inner.end.x and p.y >= inner.position.y and p.y <= inner.end.y
+	return pen_box().has_point(p)
+
+
+## Where the middle of a penned sheep stays: the inside of the fence, less the radius of the sheep.
+func pen_box() -> Rect2:
+	return interior().grow(-RADIUS)
 
 
 ## Free sheep do not overlap: each pair is pushed apart by half the overlap each.
