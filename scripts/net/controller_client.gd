@@ -458,7 +458,6 @@ func _send_json(d: Dictionary) -> void:
 		_ws.send_text(Protocol.to_json(d))
 
 
-## The text of a `final` message for the screen: control characters and line breaks become spaces, at most `FINAL_MAX` characters.
 ## The score of a message (`k` the key, `x` the numbers) as text in the language of this phone, clean and at most 60 characters.
 ## Empty when the key is not one of `ResultText.KINDS`, `x` is not an array of numbers or there are too few of them: the caller
 ## keeps the text of the TV then. Only the first `ResultText.MAX_ARGS` numbers are read.
@@ -469,6 +468,7 @@ static func _own_score(msg: Dictionary) -> String:
 	return _clean_line(ResultText.text(Protocol.text(msg, "k", ""), args.slice(0, ResultText.MAX_ARGS)))
 
 
+## The text of a `final` message for the screen: control characters and line breaks become spaces, at most `FINAL_MAX` characters.
 static func _clean_line(text: String) -> String:
 	var out := ""
 	for i in mini(text.length(), FINAL_MAX):
