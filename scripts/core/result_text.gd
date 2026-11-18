@@ -1,5 +1,6 @@
 extends RefCounted
-## The words of a result as data (REQ-FL-67a, REQ-FL-62, issue #470). The TV sends the place as a number and the score as a key of
+## The words of a result and of the live score as data (REQ-FL-67, REQ-FL-67a, REQ-FL-62, issues #470, #474). The TV sends the
+## place as a number and the score as a key of
 ## `assets/lang/strings.csv` with its numbers, never as text, so that each phone writes them in its own language and not in the
 ## one of the TV. The TV writes its own list with the same function, so that both sides use the same keys.
 
@@ -11,6 +12,7 @@ const KINDS := {
 	"num": 1, "result.not_finished": 0, "result.points": 1, "result.one_point": 0, "result.stars": 1, "result.one_star": 0,
 	"result.seconds_1": 1, "result.seconds_2": 1, "tower_builder.n_bricks": 1, "tower_builder.one_brick": 0,
 	"air_hockey.n_goals": 1, "air_hockey.one_goal": 0, "sheep_herding.count": 2, "paint_grab.percent": 1,
+	"mini_golf.leader_score": 2,
 }
 const SECONDS := ["result.seconds_1", "result.seconds_2"]   # The keys whose number is a decimal (the others are whole).
 const PLACES := 4

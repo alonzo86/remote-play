@@ -131,3 +131,4 @@ tests/line_gap.gd|controller|line gap of wrapped text: Hebrew final letters, ope
 tests/legal_pages.gd|controller|website privacy and terms pages: up to date with docs/legal, headings, right to left, twin links, table (issue #37)|unit
 tests/site_language.gd|controller|website language menu: both languages with flags, twin pages, current language, script (issue #37)|unit
 tests/phone_result_line.gd|controller|phone result line: the TV row, centered, only the leave box (issue #455); place and score in the phone language (issue #470)|unit
+tests/phone_score_row.gd|controller|phone score row: the live score in the phone language, every game, old TV and bad data keep v (issue #474)|unit

@@ -218,8 +218,8 @@ func _result_spec(tiles: float) -> Array:
 
 
 ## The chip of the leader and the score line of the phones show the percent too (REQ-PG-13, REQ-FL-67).
-func _score_label(entry: Dictionary) -> String:
-	return _score_text(entry.score) if entry.finished else ""
+func _score_spec(entry: Dictionary) -> Array:
+	return _result_spec(entry.score) if entry.finished else []
 
 
 ## The share of the picture that `tiles` tiles are, in percent, rounded down (REQ-PG-21).

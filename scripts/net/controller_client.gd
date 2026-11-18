@@ -61,7 +61,7 @@ var final_place := ""         # The place text of this player ("1ST", the `p` of
 var final_score := ""         # The score, the time or NOT FINISHED (the `s` of `final`).
 var final_medal := ""         # The medal tier of the place: gold, silver, bronze or empty (the `m` of `final`).
 var final_text := ""          # The line of this phone in the result, as the TV shows it. Empty outside a result (REQ-FL-67a).
-var score_text := ""         # The score as the TV shows it. Empty when there is no score yet.
+var score_text := ""         # The score (own language from `k`, `x`, else `v`). Empty when there is no score yet.
 
 var host := ""
 var port := Protocol.WS_PORT
@@ -347,6 +347,11 @@ func _handle(msg: Dictionary, now: int) -> void:
 			score_rank = clampi(Protocol.whole(msg, "rank", 0), 0, Protocol.MAX_PLAYERS)
 			score_of = clampi(Protocol.whole(msg, "of", 0), 0, Protocol.MAX_PLAYERS)
 			score_text = Protocol.text(msg, "v", "").substr(0, 12)
+			# The score as data: this phone writes it in its own language (REQ-FL-62, issue #474). `v` stays for a TV of an older
+			# build and when `k` or `x` are not valid.
+			var own := _own_score(msg)
+			if own != "":
+				score_text = own
 			score_changed.emit()
 		"final":
 			final_text = _clean_line(Protocol.text(msg, "v", ""))
@@ -357,12 +362,11 @@ func _handle(msg: Dictionary, now: int) -> void:
 			# The place and the score as data: this phone writes them in its own language (REQ-FL-62, issue #470). `p` and `s`
 			# stay when the TV is of an older build, or when a field is not valid.
 			var own_place := ResultText.place(Protocol.whole(msg, "n", 0))
-			var args: Variant = msg.get("x", [])
-			var own_score := ResultText.text(Protocol.text(msg, "k", ""), args.slice(0, ResultText.MAX_ARGS) if args is Array else [])
+			var own_score := _own_score(msg)
 			if own_place != "":
 				final_place = _clean_line(own_place)
 			if own_score != "":
-				final_score = _clean_line(own_score)
+				final_score = own_score
 			var medal := _clean_line(Protocol.text(msg, "m", ""))
 			final_medal = medal if Medal.TIERS.has(medal) else ""
 			score_changed.emit()
@@ -455,6 +459,16 @@ func _send_json(d: Dictionary) -> void:
 
 
 ## The text of a `final` message for the screen: control characters and line breaks become spaces, at most `FINAL_MAX` characters.
+## The score of a message (`k` the key, `x` the numbers) as text in the language of this phone, clean and at most 60 characters.
+## Empty when the key is not one of `ResultText.KINDS`, `x` is not an array of numbers or there are too few of them: the caller
+## keeps the text of the TV then. Only the first `ResultText.MAX_ARGS` numbers are read.
+static func _own_score(msg: Dictionary) -> String:
+	var args: Variant = msg.get("x", [])
+	if not args is Array:
+		return ""
+	return _clean_line(ResultText.text(Protocol.text(msg, "k", ""), args.slice(0, ResultText.MAX_ARGS)))
+
+
 static func _clean_line(text: String) -> String:
 	var out := ""
 	for i in mini(text.length(), FINAL_MAX):

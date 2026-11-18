@@ -155,6 +155,14 @@ func _client_fields() -> void:
 	_check(is_finite(c.rtt_ms) and is_finite(c.clock_offset_ms), "a pong with the wrong types keeps the clock numbers finite")
 	c._handle({"t": "score", "rank": {}, "of": "2", "v": 5}, now)
 	_check(c.score_rank == 0 and c.score_of == 0 and c.score_text == "", "a score with the wrong types is empty")
+	for part in ["k", "x"]:   # The score as data (issue #474): a bad value is no error and `v` stays.
+		for bad in [{}, [1], null, "x".repeat(100000), "A\nB", 1.0e300, -5, [[]], [null, null], ["a", {}], [INF], [NAN]]:
+			c._handle({"t": "score", "rank": 1, "of": 2, "v": "7 s", part: bad}, now)
+			_check(c.score_text == "7 s", "score data %s with a bad value keeps v: %s" % [part, c.score_text.left(12)])
+	for k in ["result.seconds_1", "result.seconds_2", "result.points", "num", "mini_golf.leader_score"]:
+		c._handle({"t": "score", "rank": 1, "of": 2, "v": "x", "k": k, "x": [1.0e300, 1.0e300, 5, 6, 7]}, now)
+		_check(c.score_text.length() <= 60 and not c.score_text.contains("\n"),
+				"score %s with 1e300: 60 characters at most: %d" % [k, c.score_text.length()])
 	for bad in [{}, [1], null, "x".repeat(100000), "A\nB\tC\u0007D"]:   # `final` (REQ-FL-67a): no error, an empty or a clean line.
 		c._handle({"t": "final", "v": bad}, now)
 		_check(c.final_text.length() <= 60 and not c.final_text.contains("\n") and not c.final_text.contains("\u0007")

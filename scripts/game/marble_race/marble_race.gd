@@ -430,8 +430,8 @@ func _scoreboard() -> Scoreboard:
 	return board
 
 
-func _score_label(entry: Dictionary) -> String:
-	return Lang.f("result.seconds_2", [entry.score]) if entry.finished else ""
+func _score_spec(entry: Dictionary) -> Array:
+	return ResultText.spec("result.seconds_2", [entry.score]) if entry.finished else []
 
 
 func _game_draw() -> void:
