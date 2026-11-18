@@ -60,7 +60,7 @@ The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so i
    - copies `assets/icons/banner.png` (320 x 180, the logo; `tools/make_icons.gd` makes it and the icons from `assets/logo`) to `android/build/res/drawable-xhdpi/banner.png`;
    - adds `android:banner="@drawable/banner"` to the `<application>` tag in `android/build/src/main/AndroidManifest.xml`;
    - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer, all with `required="false"` except
-     **leanback in the TV app, which is `required="true"`** (owner, 2026-11-19: "Sababi: TV Games" is installed only on a TV, so
+     **leanback in the TV app, which is `required="true"`** (owner, 2026-11-18: "Sababi: TV Games" is installed only on a TV, so
      Google Play does not offer it to phones and tablets; the phone app has no such limit; an older manifest is changed on the next run);
    - in `android/build` only (the controller): installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
      `android/build/src/main/java/io/github/alonzo86/sababi/`, adds the Gradle dependency
@@ -105,9 +105,11 @@ For a release build for the stores, see "Release to the stores" below (the prese
 aapt dump badging build/sababi-tv.apk | grep -E "banner|package:"
 aapt dump xmltree build/sababi-tv.apk AndroidManifest.xml | grep -E "LEANBACK_LAUNCHER|QrScanner"
 aapt dump xmltree build/sababi-controller.apk AndroidManifest.xml | grep -E "QrScanner"
+aapt dump xmltree build/sababi-tv.apk AndroidManifest.xml | grep -A2 "android.software.leanback"
+aapt dump xmltree build/sababi-controller.apk AndroidManifest.xml | grep -A2 "android.software.leanback"
 ```
 
-The TV apk must show a `banner` entry and `android.intent.category.LEANBACK_LAUNCHER`, and **no** `QrScanner` (the TV app has no scanner). The controller apk must show `org.godotengine.plugin.v2.QrScanner`.
+The TV apk must show a `banner` entry and `android.intent.category.LEANBACK_LAUNCHER`, and **no** `QrScanner` (the TV app has no scanner). The controller apk must show `org.godotengine.plugin.v2.QrScanner`. The `android.software.leanback` line must show `required` true in the TV apk and false in the controller apk (the TV app is installed only on a TV, owner, 2026-11-18). A bundle (`.aab`) is checked the same way with `aapt2 dump xmltree --file AndroidManifest.xml`.
 (Godot 4.7 puts the launcher categories on an `activity-alias`, so `aapt dump badging` does not show a
 `leanback-launchable-activity` line.)
 If you do not see them, run `tools/patch_android_manifest.sh` again and export again.

@@ -46,7 +46,7 @@ fi
 python3 - "$MANIFEST" "$GRADLE" "$WITH_QR" <<'PY'
 import sys
 manifest, gradle, with_qr = sys.argv[1], sys.argv[2], sys.argv[3] == "1"
-# The TV app is for TVs only (owner, 2026-11-19): Google Play offers it only to devices with the leanback feature. The phone app
+# The TV app is for TVs only (owner, 2026-11-18): Google Play offers it only to devices with the leanback feature. The phone app
 # (the one with the scanner) is not limited, so a TV box can still run it.
 tv_only = not with_qr
 
