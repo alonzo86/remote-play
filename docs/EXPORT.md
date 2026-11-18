@@ -59,8 +59,9 @@ The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so i
    The script patches both projects (`tools/patch_android_manifest.sh controller` or `tv` for one). It does these things (you can run it again without harm):
    - copies `assets/icons/banner.png` (320 x 180, the logo; `tools/make_icons.gd` makes it and the icons from `assets/logo`) to `android/build/res/drawable-xhdpi/banner.png`;
    - adds `android:banner="@drawable/banner"` to the `<application>` tag in `android/build/src/main/AndroidManifest.xml`;
-   - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer,
-     all with `required="false"`;
+   - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer, all with `required="false"` except
+     **leanback in the TV app, which is `required="true"`** (owner, 2026-11-19: "Sababi: TV Games" is installed only on a TV, so
+     Google Play does not offer it to phones and tablets; the phone app has no such limit; an older manifest is changed on the next run);
    - in `android/build` only (the controller): installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
      `android/build/src/main/java/io/github/alonzo86/sababi/`, adds the Gradle dependency
      `com.google.android.gms:play-services-code-scanner:16.1.0`, and adds the plugin entry

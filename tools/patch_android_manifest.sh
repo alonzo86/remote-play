@@ -46,6 +46,9 @@ fi
 python3 - "$MANIFEST" "$GRADLE" "$WITH_QR" <<'PY'
 import sys
 manifest, gradle, with_qr = sys.argv[1], sys.argv[2], sys.argv[3] == "1"
+# The TV app is for TVs only (owner, 2026-11-19): Google Play offers it only to devices with the leanback feature. The phone app
+# (the one with the scanner) is not limited, so a TV box can still run it.
+tv_only = not with_qr
 
 def patch(path, marker, edit, label):
     s = open(path).read()
@@ -63,12 +66,19 @@ patch(manifest, "android:banner=",
       "banner attribute")
 
 # A TV has no touchscreen or gyroscope and uses the leanback UI.
-feat = "".join('    <uses-feature android:name="%s" android:required="false" />\n' % n for n in (
+feat = "".join('    <uses-feature android:name="%s" android:required="%s" />\n' % (n, "true" if (tv_only and n == "android.software.leanback") else "false") for n in (
     "android.software.leanback", "android.hardware.touchscreen",
     "android.hardware.sensor.gyroscope", "android.hardware.sensor.accelerometer"))
 patch(manifest, "android.software.leanback",
       lambda s: s.replace("    <application", feat + "\n    <application", 1),
       "uses-feature flags")
+# A manifest patched before this rule has the flag as false: make it true for the TV app.
+if tv_only:
+    old = '<uses-feature android:name="android.software.leanback" android:required="false" />'
+    s = open(manifest).read()
+    if old in s:
+        open(manifest, "w").write(s.replace(old, old.replace('"false"', '"true"')))
+        print("leanback required: set to true (TV app only)")
 
 # Android TV lists only apps with the leanback launcher category, and `monkey` needs it to find the activity.
 patch(manifest, "category.LEANBACK_LAUNCHER",
