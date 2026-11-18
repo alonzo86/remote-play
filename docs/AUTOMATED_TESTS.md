@@ -61,11 +61,12 @@ The coverage job always runs, always reports (the summary of the run) and never 
 
 ### Which CI counts (issue #285)
 
-- **CircleCI is the CI that gives the signal.** Its three jobs (`lint`, `test`, `pixels`) are the checks of a pull request.
-- **The GitHub Actions workflow (`.github/workflows/ci.yml`) is disabled on purpose** (Alon). It stays in the repository as the same plan in a second system and as a way back. Do not wait for it and do not count it as a result. Its last runs (224 to 211, 2026-10-22) ended in `failure` after about 2 s with no step run, which is what a limit of the account's Actions minutes or spending gives; the cause was not read from the logs and only the owner can see it (Settings, Billing, Actions). Runs 219 and before were green.
-- **Branch protection** should require the CircleCI checks only; this is set by the owner on GitHub (an agent cannot see or change it).
+- **GitHub Actions is the CI that gives the signal** (owner, 2026-11-18). Its jobs `lint`, `test` and `pixels` (`.github/workflows/ci.yml`) are the checks of a pull request; the job `coverage` only reports. They run on a self-hosted Linux runner (`runs-on: [self-hosted, linux]`), see "Several self-hosted runners on one computer" above.
+- **Why the runner is self-hosted.** The runs on GitHub's own runners (224 to 211, 2026-10-22) ended in `failure` after about 2 s with no step run, which is what a limit of the account's Actions minutes or spending gives; the cause was not read from the logs and only the owner can see it (Settings, Billing, Actions). Runs 219 and before were green.
+- **CircleCI stays disabled for now** (owner, 2026-11-18; see "CircleCI" below). Do not wait for it and do not count it as a result.
+- **Branch protection** should require the Actions checks `lint`, `test` and `pixels`; this is set by the owner on GitHub (an agent cannot see or change it).
 - **Godot version:** `GODOT_VERSION` in `ci.yml` and in `.circleci/config.yml`, and the cache key `godot-<version>-v1` in `.circleci/config.yml` (two places), are the same number. `tests/ci_scripts.sh` fails when they differ. Change all four together when Godot is updated.
-- When both systems are active a pull request spends minutes twice; that is why Actions is off.
+- When both systems are active a pull request spends minutes twice; that is why CircleCI is off.
 
 ### CircleCI (beside GitHub Actions)
 
