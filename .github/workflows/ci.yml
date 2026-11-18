@@ -97,8 +97,8 @@ jobs:
         run: gdlint scripts tests tools
       - name: Shell scripts
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y shellcheck
+          # Install only what is missing, and one installer at a time on a computer with several runners (the dpkg lock).
+          command -v shellcheck >/dev/null || flock /tmp/sababi-apt.lock sh -c "sudo apt-get update -qq && sudo apt-get install -y shellcheck"
           shellcheck tests/*.sh tools/*.sh
       - name: CI scripts (what runs when)
         run: tests/ci_scripts.sh
@@ -122,8 +122,14 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
+          # One folder for each runner: runners on one computer share a home folder, and the action unpacks Godot there.
+          path: godot-${{ runner.name }}
+          downloads-path: downloads-${{ runner.name }}
+          bin-path: bin-${{ runner.name }}
       - name: Tests (instrumented for coverage)
-        run: COVERAGE_STEP=run GODOT="$(which godot)" tools/coverage.sh build/coverage
+        # The suites open local servers on fixed ports (Protocol.WS_PORT): two test jobs on one computer would collide, so a
+        # second one waits here for the first (flock). Other jobs (lint, pixels) are not held back.
+        run: COVERAGE_STEP=run GODOT="$(which godot)" flock /tmp/sababi-tests.lock tools/coverage.sh build/coverage
       - name: Design tokens (CSS)
         run: python3 tools/design_tokens_css.py --check
       - uses: actions/upload-artifact@v4
@@ -180,8 +186,17 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
+          # One folder for each runner: runners on one computer share a home folder, and the action unpacks Godot there.
+          path: godot-${{ runner.name }}
+          downloads-path: downloads-${{ runner.name }}
+          bin-path: bin-${{ runner.name }}
       - name: Xvfb and the software GL driver
-        run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libglx-mesa0 libegl1
+        run: |
+          # Install only what is missing, and one installer at a time on a computer with several runners (the dpkg lock).
+          PKGS="xvfb libgl1-mesa-dri libglx-mesa0 libegl1"
+          MISSING=""
+          for P in $PKGS; do dpkg -s "$P" >/dev/null 2>&1 || MISSING="$MISSING $P"; done
+          [ -z "$MISSING" ] || flock /tmp/sababi-apt.lock sh -c "sudo apt-get update -qq && sudo apt-get install -y $MISSING"
       - name: Import the project
         run: godot --headless --path . --import || true
       - name: Pixels at 1920x1080

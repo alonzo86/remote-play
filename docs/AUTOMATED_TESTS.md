@@ -57,6 +57,8 @@ The scenario suites that take most time: `hud_layout` 105 s, `multi_phone` 101 s
 
 The coverage job always runs, always reports (the summary of the run) and never fails. The 80% rule (every module) is a local check: `tools/coverage.sh` runs all suites, and CLAUDE.md asks for it before a pull request. The unit suites alone leave the screen modules (`scripts/ui`, most of `scripts/game`) and the audio modules below 80%, because the scenario suites cover them.
 
+**Several self-hosted runners on one computer.** One runner runs one job at a time; the jobs of a run (`lint`, `test`, `pixels`) run at the same time only when more than one runner is free. The workflow is written for that: `setup-godot` installs into a folder named after the runner (`godot-<runner name>`, in the home folder of the runner user), so two jobs never unpack Godot into the same place; the packages of `lint` and `pixels` are installed only when missing, one installer at a time (`flock /tmp/sababi-apt.lock`, the dpkg lock); and the step "Tests (instrumented for coverage)" runs under `flock /tmp/sababi-tests.lock`, because the suites open local servers on fixed ports (`Protocol.WS_PORT`), so two test jobs on one computer wait for each other. Give each runner its own name and folder (`config.sh --name`).
+
 ### Which CI counts (issue #285)
 
 - **CircleCI is the CI that gives the signal.** Its three jobs (`lint`, `test`, `pixels`) are the checks of a pull request.
