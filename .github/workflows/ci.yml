@@ -97,7 +97,7 @@ jobs:
         run: gdlint scripts tests tools
       - name: Shell scripts
         run: |
-          # Install only what is missing, and one installer at a time on a computer with several runners (the dpkg lock).
+          # Install only what is missing. The lock (flock) matters only on a self-hosted computer with several runners (the dpkg lock); it does no harm on a hosted runner.
           command -v shellcheck >/dev/null || flock /tmp/sababi-apt.lock sh -c "sudo apt-get update -qq && sudo apt-get install -y shellcheck"
           shellcheck tests/*.sh tools/*.sh
       - name: CI scripts (what runs when)
@@ -122,13 +122,13 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
-          # One folder for each runner: runners on one computer share a home folder, and the action unpacks Godot there.
+          # One folder for each runner: runners on one self-hosted computer share a home folder, and the action unpacks Godot there. A hosted runner has its own machine, so this is harmless there (checked in run 525, 2026-11-18).
           path: godot-${{ runner.name }}
           downloads-path: downloads-${{ runner.name }}
           bin-path: bin-${{ runner.name }}
       - name: Tests (instrumented for coverage)
-        # The suites open local servers on fixed ports (Protocol.WS_PORT): two test jobs on one computer would collide, so a
-        # second one waits here for the first (flock). Other jobs (lint, pixels) are not held back.
+        # The suites open local servers on fixed ports (Protocol.WS_PORT): on a self-hosted computer two test jobs would collide, so a
+        # second one waits here for the first (flock). A hosted runner has one job at a time, so the lock never waits.
         run: COVERAGE_STEP=run GODOT="$(which godot)" flock /tmp/sababi-tests.lock tools/coverage.sh build/coverage
       - name: Design tokens (CSS)
         run: python3 tools/design_tokens_css.py --check
@@ -186,13 +186,13 @@ jobs:
         with:
           version: ${{ env.GODOT_VERSION }}
           use-dotnet: false
-          # One folder for each runner: runners on one computer share a home folder, and the action unpacks Godot there.
+          # One folder for each runner: runners on one self-hosted computer share a home folder, and the action unpacks Godot there. A hosted runner has its own machine, so this is harmless there (checked in run 525, 2026-11-18).
           path: godot-${{ runner.name }}
           downloads-path: downloads-${{ runner.name }}
           bin-path: bin-${{ runner.name }}
       - name: Xvfb and the software GL driver
         run: |
-          # Install only what is missing, and one installer at a time on a computer with several runners (the dpkg lock).
+          # Install only what is missing. The lock (flock) matters only on a self-hosted computer with several runners (the dpkg lock); it does no harm on a hosted runner.
           PKGS="xvfb libgl1-mesa-dri libglx-mesa0 libegl1"
           MISSING=""
           for P in $PKGS; do dpkg -s "$P" >/dev/null 2>&1 || MISSING="$MISSING $P"; done
