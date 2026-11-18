@@ -389,12 +389,62 @@ func _scenery() -> void:
 		if field_n.items.size() != wanted:
 			short.append("%d:%d" % [seed_n, field_n.items.size()])
 	_check(short.is_empty(), "every thing finds room on the field for 60 seeds (%d wanted); short seeds: %s" % [wanted, str(short)])
+	_scenery_inside(free, clear)
 	var tiny := SheepScenery.new()
 	tiny.generate(Rect2(0, 0, 200, 200), [], [], _rng(1))
 	_check(tiny.items.size() < 26, "things that find no room are left out and nothing hangs: %d" % tiny.items.size())
 	var open := SheepScenery.new()
 	open.generate(FIELD, [], [], _rng(2))
 	_check(open.blockers.size() >= a.blockers.size() - 6, "without keep-free places the same things are placed")
+
+
+## The whole picture of every thing (the pond ellipse with its line, the crowns, the flowers) is inside the grass, never on the
+## black margin, the HUD bar or past the edge (REQ-SH-16, issue #479). The pond size is written here from the drawing
+## (240 x 128 and a 4 px line); the other sizes come from the images of `SheepLook`, the foot is the middle of the bottom edge.
+func _scenery_inside(free: Array[Rect2], clear: Array[Rect2]) -> void:
+	var fields: Array[Rect2] = [FIELD, Rect2(60, 152, 900, 500), Rect2(0, 0, 700, 420)]
+	var bad := []
+	var checked := 0
+	for field in fields:
+		for seed_n in range(1, 81):
+			var s := SheepScenery.new()
+			var f: Array[Rect2] = []
+			var c: Array[Rect2] = []
+			if field == FIELD:
+				f = free
+				c = clear
+			s.generate(field, f, c, _rng(seed_n))
+			for it in s.items:
+				checked += 1
+				var r: Rect2
+				if it.kind == "pond":
+					r = Rect2(it.pos - Vector2(124, 68), Vector2(248, 136))   # 240 x 128 and the black line of 4 px
+				else:
+					var sz := Vector2(SheepLook.image(it.kind).get_size()) * 4.0
+					r = Rect2(it.pos - Vector2(sz.x * 0.5, sz.y), sz)   # the foot is the middle of the bottom edge
+				if not field.encloses(r):
+					bad.append("%s@%d:%s" % [it.kind, seed_n, str(it.pos)])
+			for fl in s.flowers:
+				checked += 1
+				if not field.encloses(Rect2(fl.pos, Vector2(8, 4))):
+					bad.append("flower@%d" % seed_n)
+	_check(checked > 3000 and bad.is_empty(),
+			"the whole picture of every thing is inside the grass for 80 seeds, 3 field sizes (%d checked); outside: %s"
+			% [checked, str(bad.slice(0, 6))])
+	var small := SheepScenery.new()
+	small.generate(Rect2(0, 0, 200, 100), [], [], _rng(3))
+	var small_ok := true
+	for it in small.items:
+		small_ok = small_ok and it.kind != "pond" and Rect2(0, 0, 200, 100).encloses(SheepScenery.picture_rect(it.kind, it.pos))
+	_check(small_ok, "in a field too small, the big things are left out and none is half outside: %d" % small.items.size())
+	var overlap := false
+	for seed_n in range(1, 41):
+		var s := SheepScenery.new()
+		s.generate(FIELD, free, clear, _rng(seed_n))
+		for it in s.items:
+			for r in clear:
+				overlap = overlap or r.intersects(SheepScenery.picture_rect(it.kind, it.pos))
+	_check(not overlap, "no picture of a thing touches the pen or the barn")
 
 
 ## The pictures (REQ-SH-15).

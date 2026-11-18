@@ -90,8 +90,8 @@ func _game_ready() -> void:
 	flock.setup(field, pen, _level, scenery.blockers, SheepLook.barn_blocks(barn_origin))
 	flock.spawn(int(_level.sheep), spawn, _rng)
 	for i in 160:
-		_tufts.append(Shell.snap(Vector2(_rng.randf_range(field.position.x, field.end.x - 8.0),
-				_rng.randf_range(field.position.y, field.end.y - 4.0))))
+		_tufts.append(Shell.snap(Vector2(_rng.randf_range(field.position.x, field.end.x - 12.0),
+				_rng.randf_range(field.position.y, field.end.y - 8.0))))
 	_scenery_order.assign(scenery.items)
 	_scenery_order.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.pos.y < b.pos.y)
 	_board = Scoreboard.new(participants)
