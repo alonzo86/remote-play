@@ -38,6 +38,7 @@ const CONFETTI := Palette.SLOTS + [ Color("f8d800"), Color("fcfcfc")]
 const BARN_SIZE := Vector2(56.0, 46.0)         # The walls and the roof, without the silo and the vane.
 const BARN_WALL_TOP := 14.0
 const SILO_W := 13.0
+const BARN_TOP := -14.0                       # The tip of the vane, from the origin.
 const BARN_RIGHT := 59.0                      # The right end of the roof, from the origin: the barn is flush with the field here.
 
 ## The sheepdog, 20 x 14, looking to the right. `b` the body (the color of the player), `d` its dark ear, `w` the cream
@@ -315,9 +316,10 @@ static func draw_barn(ci: CanvasItem, origin: Vector2) -> void:
 	ci.draw_rect(Rect2(o + Vector2(32.0, -14.0) * w, Vector2(3.0, 3.0) * w), GATE_POST)
 
 
-## What the barn blocks, in the same units as the picture: the walls with the width of the roof (the roof hangs over them) and
-## the silo down to the foot of the walls, so that there is no gap between them and the pen or the edge of the field where a sheep
-## could wedge (REQ-SH-23).
+## What the barn blocks, in the same units as the picture: the whole picture of the barn, from the tip of the weather vane to the
+## foot of the walls and from the left end of the silo to the right end of the roof, so that nothing stands on the roof or beside
+## it, there is no alcove between the silo and the roof, and no gap is left between the barn, the silo, the pen and the edge of
+## the field where a sheep could wedge (REQ-SH-23, REQ-SH-24). The silo is a second box that is as tall as its picture.
 static func barn_blocks(origin: Vector2) -> Array[Rect2]:
-	return [Rect2(origin + Vector2(-3.0, BARN_WALL_TOP) * WORLD_PIXEL, Vector2(BARN_RIGHT + 3.0, 32.0) * WORLD_PIXEL),
-			Rect2(origin + Vector2(-SILO_W - 1.0, 6.0) * WORLD_PIXEL, Vector2(SILO_W, 40.0) * WORLD_PIXEL)]
+	return [Rect2(origin + Vector2(-3.0, BARN_TOP) * WORLD_PIXEL, Vector2(BARN_RIGHT + 3.0, BARN_SIZE.y - BARN_TOP) * WORLD_PIXEL),
+			Rect2(origin + Vector2(-SILO_W - 1.0, 2.0) * WORLD_PIXEL, Vector2(SILO_W, BARN_SIZE.y - 2.0) * WORLD_PIXEL)]

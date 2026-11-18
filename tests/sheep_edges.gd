@@ -48,6 +48,8 @@ func _initialize() -> void:
 	_origin = l.barn_origin
 	_layout_rules()
 	_free_space()
+	_barn_picture()
+	_penned_stay()
 	_random_rounds()
 	_hugging_dogs()
 	_pushed_sheep()
@@ -243,6 +245,228 @@ func _free_space() -> void:
 	_check(_edge_starts().size() >= 10, "there are many legal edge starts for the simulations: %d" % _edge_starts().size())
 
 
+# ---- The barn (REQ-SH-24) ----
+
+## The parts of the picture of the barn, in screen pixels, written from the drawing (`SheepLook.draw_barn`) and not from the
+## collision: the roof and the walls, the tip of the weather vane, the silo with its cap. Nothing may stand on them.
+func _picture_parts() -> Array[Rect2]:
+	var w := 4.0
+	var o := _origin
+	return [Rect2(o + Vector2(-3.0, -5.0) * w, Vector2(62.0, 51.0) * w),    # the roof (a gambrel) and the walls
+			Rect2(o + Vector2(24.0, -14.0) * w, Vector2(11.0, 9.0) * w),    # the weather vane
+			Rect2(o + Vector2(-14.0, 2.0) * w, Vector2(14.0, 44.0) * w)]    # the silo and its cap
+
+
+## How far a circle is inside the picture of the barn (0 when it is clear of it).
+func _in_picture(p: Vector2, r: float) -> float:
+	var worst := 0.0
+	for part in _picture_parts():
+		worst = maxf(worst, SheepFlock.push_out_of_rect(p, r, part).length())
+	return worst
+
+
+## The reason why a dog or a sheep is on the barn or not on the grass, or "".
+func _barn_problem(f: SheepFlock, dogs: Dictionary) -> String:
+	var why := _first_problem(f, dogs)
+	if why != "":
+		return why
+	for s in f.sheep:
+		if _in_picture(s.pos, SheepFlock.RADIUS) > SLACK:
+			return "sheep on the barn at %s" % str(s.pos)
+	for slot in dogs:
+		if _in_picture(dogs[slot].pos, dogs[slot].radius) > SLACK:
+			return "dog on the barn at %s" % str(dogs[slot].pos)
+	return ""
+
+
+## Where a dog or a sheep is aimed at: the places of the picture that were open before (the roof, the vane, the top of the silo,
+## the right end of the roof at the edge of the grass) and the middle of the walls.
+func _barn_targets() -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	for q in [Vector2(28.0, 6.0), Vector2(28.0, -10.0), Vector2(-7.0, 2.0), Vector2(56.0, 5.0), Vector2(58.0, 14.0),
+			Vector2(30.0, 40.0), Vector2(0.0, 0.0), Vector2(57.0, -4.0)]:
+		out.append(_origin + q * 4.0)
+	return out
+
+
+func _on_field(p: Vector2) -> Vector2:
+	return p.clamp(_field.position + Vector2(60.0, 60.0), _field.end - Vector2(60.0, 60.0))
+
+
+func _barn_picture() -> void:
+	print("nothing is on the barn: not the roof, the vane, the silo or the edge beside it (REQ-SH-24)")
+	var f := _flock("hard")
+	var cols := int(_field.size.x / CELL)
+	var rows := int(_field.size.y / CELL)
+	var on_barn := 0
+	var dog_on := 0
+	var dogs := _dogs(1)
+	for cx in cols:
+		for cy in rows:
+			var p := _field.position + Vector2(float(cx) + 0.5, float(cy) + 0.5) * CELL
+			if _is_free(f, p) and _in_picture(p, SheepFlock.RADIUS) > SLACK:
+				on_barn += 1
+			if cx % 4 == 0 and cy % 4 == 0:
+				dogs[0].pos = p
+				dogs[0].vel = Vector2.ZERO
+				_move_dogs(dogs, {0: Vector2.ZERO}, f)
+				if _in_picture(dogs[0].pos, Game.DOG_R) > SLACK:
+					dog_on += 1
+	_check(on_barn == 0, "no place where a sheep can stand is on the picture of the barn: %d cells" % on_barn)
+	_check(dog_on == 0, "a dog put anywhere on the grass is put out of the barn: %d cells" % dog_on)
+	# A dog is driven at every target of the barn from 16 sides.
+	var bad := ""
+	var cases := 0
+	for target in _barn_targets():
+		for k in 16:
+			cases += 1
+			var flock := _flock("hard")
+			var d := _dogs(1)
+			d[0].pos = _on_field(target + Vector2.from_angle(float(k) * TAU / 16.0) * 260.0)
+			for t in 150:
+				_move_dogs(d, {0: (target - d[0].pos).limit_length(100.0) / 100.0}, flock)
+				var why := _barn_problem(flock, d)
+				if why != "":
+					bad = bad if bad != "" else "target %s, side %d, tick %d: %s" % [str(target), k, t, why]
+					break
+	_check(bad == "",
+			"%d dogs driven at the roof, the vane, the silo and the edge stay off the barn (first problem: %s)" % [cases, bad])
+	# A sheep is pushed at every target by a dog that follows it, from 16 sides.
+	bad = ""
+	cases = 0
+	for target in _barn_targets():
+		for k in 16:
+			var r := _rng(4000 + cases)
+			var flock := _flock("hard")
+			var sh := SheepFlock.Sheep.new()
+			sh.pos = _on_field(target + Vector2.from_angle(float(k) * TAU / 16.0) * 200.0)
+			if not _is_free(flock, sh.pos):
+				continue
+			cases += 1
+			flock.sheep.append(sh)
+			var d := _dogs(1)
+			d[0].pos = _on_field(sh.pos - (target - sh.pos).normalized() * 110.0)
+			for t in 240:
+				var behind := sh.pos - (target - sh.pos).normalized() * 90.0
+				_move_dogs(d, {0: (behind - d[0].pos).limit_length(150.0) / 150.0}, flock)
+				flock.tick(DT, _dog_spots(d), r)
+				var why := _barn_problem(flock, d)
+				if why != "":
+					bad = bad if bad != "" else "target %s, side %d, tick %d: %s" % [str(target), k, t, why]
+					break
+	_check(cases >= 40, "many legal starts for the pushed sheep: %d" % cases)
+	_check(bad == "",
+			"%d sheep pushed at the roof, the vane, the silo and the edge stay off the barn (first problem: %s)" % [cases, bad])
+	# A sheep put on the roof is inside a wall of the game, so it is pushed out.
+	var roof := _origin + Vector2(30.0, 4.0) * 4.0
+	_check(_depth(f, roof, SheepFlock.RADIUS) > 40.0, "the roof is a wall of the game: a sheep put on it is pushed out")
+
+
+# ---- The pen holds its sheep (REQ-SH-24) ----
+
+## A penned sheep stays inside the pen box (the inside of the fence, less the radius of the sheep) at every tick.
+func _penned_problem(f: SheepFlock) -> String:
+	var box := f.interior().grow(-SheepFlock.RADIUS).grow(0.01)
+	for s in f.sheep:
+		if s.penned and not box.has_point(s.pos):
+			return "a penned sheep is outside the pen box at %s" % str(s.pos)
+	return ""
+
+
+func _penned_stay() -> void:
+	print("a sheep in the pen stays in the pen (REQ-SH-24)")
+	var bad := ""
+	var cases := 0
+	for k in 12:
+		cases += 1
+		var r := _rng(600 + k)
+		var f := _flock("medium")
+		var gate := f.gate_center()
+		var count := 0
+		# Penned sheep at the gate and along the fence, and free sheep crowding the gate from outside.
+		for q in [Vector2(40.0, 0.0), Vector2(60.0, 70.0), Vector2(60.0, -70.0), Vector2(100.0, 0.0), Vector2(60.0, 130.0)]:
+			var s := SheepFlock.Sheep.new()
+			s.pos = gate + q
+			s.penned = true
+			f.sheep.append(s)
+			count += 1
+		for q in [Vector2(-60.0, 0.0), Vector2(-70.0, 55.0), Vector2(-70.0, -55.0), Vector2(-130.0, 20.0)]:
+			var s := SheepFlock.Sheep.new()
+			s.pos = gate + q
+			f.sheep.append(s)
+		var dogs := _dogs(1 + k % 4)
+		for slot in dogs:
+			dogs[slot].pos = _on_field(gate + Vector2.from_angle(float(k + slot * 3) * TAU / 12.0) * 300.0)
+		var why := ""
+		for t in 360:
+			var tilts := {}
+			for slot in dogs:
+				# Every dog goes to the gate, from a different side, and then stays there and pushes.
+				var side := Vector2.from_angle(float(k + slot * 3) * TAU / 12.0)
+				var aim := gate + side * (60.0 if t > 120 else 200.0)
+				tilts[slot] = (aim - dogs[slot].pos).limit_length(150.0) / 150.0
+			_move_dogs(dogs, tilts, f)
+			f.tick(DT, _dog_spots(dogs), r)
+			why = _penned_problem(f)
+			if why == "" and f.penned_count() < count:
+				why = "a penned sheep got out of the count: %d of %d" % [f.penned_count(), count]
+			if why == "":
+				why = _first_problem(f, dogs)
+			if why != "":
+				why = "case %d tick %d: %s" % [k, t, why]
+				break
+		if why != "":
+			bad = bad if bad != "" else why
+	_check(bad == "",
+			"%d cases: penned sheep at the gate with dogs on every side never leave the pen (first: %s)" % [cases, bad])
+	# A penned sheep that is in the gate (it has just come in) is inside the pen box after one tick.
+	var f2 := _flock("hard")
+	var inn := SheepFlock.Sheep.new()
+	inn.pos = f2.gate_center() + Vector2(-20.0, 10.0)
+	inn.penned = true
+	f2.sheep.append(inn)
+	f2.tick(DT, {}, _rng(1))
+	_check(_penned_problem(f2) == "" and inn.penned, "a penned sheep in the gate is put in the pen box at once: %s" % str(inn.pos))
+	# A herded flock: a sheep is counted once, and once it is in the pen it is in the pen until the end.
+	var in_total := 0
+	var counted := 0
+	bad = ""
+	for n in 12:
+		var r := _rng(8100 + n)
+		var level: String = ["easy", "medium", "hard"][n % 3]
+		var f := _flock(level)
+		f.spawn(int(Game.LEVELS[level].sheep), Rect2(_field.position + Vector2(380.0, 160.0), Vector2(560.0, _field.size.y - 320.0)), r)
+		var herd := _dogs(2)
+		var gate3 := f.gate_center()
+		var seen := {}
+		var was_in := {}
+		for t in 1500:
+			var tilts := {}
+			_herd(f, herd, gate3, tilts)
+			_move_dogs(herd, tilts, f)
+			f.tick(DT, _dog_spots(herd), r)
+			for e in f.events:
+				if String(e.t) == "penned":
+					counted += 1
+					seen[int(e.i)] = int(seen.get(int(e.i), 0)) + 1
+			for i in f.sheep.size():
+				if was_in.has(i) and not f.sheep[i].penned:
+					bad = bad if bad != "" else "seed %d: sheep %d left the pen" % [n, i]
+				if f.sheep[i].penned:
+					was_in[i] = true
+			if bad == "" and _penned_problem(f) != "":
+				bad = "seed %d tick %d: %s" % [n, t, _penned_problem(f)]
+			if bad != "":
+				break
+		for i in seen:
+			if int(seen[i]) != 1:
+				bad = bad if bad != "" else "seed %d: sheep %d was counted %d times" % [n, i, seen[i]]
+		in_total += f.penned_count()
+	_check(bad == "",
+			"a herded flock: a sheep that is in stays in, inside the box, and is counted once (first problem: %s)" % bad)
+	_check(counted == in_total and in_total > 0, "every penned sheep is counted once: %d events, %d sheep" % [counted, in_total])
+
+
 # ---- Simulations ----
 
 func _random_rounds() -> void:
@@ -316,7 +540,8 @@ func _hugging_dogs() -> void:
 	two[1].pos = _field.position + Vector2(62.0, 61.0)
 	for t in 120:
 		_move_dogs(two, {0: Vector2(-1.0, -1.0), 1: Vector2(-1.0, -1.0)}, f2)
-	_check(_first_problem(f2, two) == "", "two dogs pushed into the top left corner stay on the grass: %s" % _first_problem(f2, two))
+	_check(_first_problem(f2, two) == "",
+			"two dogs pushed into the top left corner stay on the grass: %s" % _first_problem(f2, two))
 	two[0].pos = _pen.position + Vector2(-50.0, -50.0)
 	two[1].pos = _pen.position + Vector2(-48.0, -49.0)
 	for t in 120:

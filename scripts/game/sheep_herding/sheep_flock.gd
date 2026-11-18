@@ -4,7 +4,7 @@ extends RefCounted
 ## friends a little, grazes when no dog is near, and cannot walk through the barn, the fence of the pen or the edge of the field.
 ## The things around the field (a pond, a rock, a tree, a hay stack) are only scenery: nothing walks into them, but they are
 ## where the sheep and dogs do not start (REQ-SH-4). A scared sheep is helped toward the gate by the difficulty (REQ-SH-21).
-## A sheep that walks in through the gate is in the pen for good (REQ-SH-6); nothing hurts it.
+## A sheep that walks in through the gate is in the pen for good (REQ-SH-6, REQ-SH-24): it cannot leave, and nothing hurts it.
 
 const RADIUS := 28.0              # A sheep is about 72 x 56 px on the screen (REQ-GM-47e).
 const HALF := Vector2(36.0, 28.0) # Half of the picture of a sheep: all of it stays on the grass (REQ-SH-22).
@@ -136,6 +136,9 @@ func tick(dt: float, dogs: Dictionary, rng: RandomNumberGenerator) -> void:
 		else:
 			_tick_free(i, s, dt, dogs, rng)
 	_separate()   # It puts both sheep of a pair back on the grass and out of the walls (REQ-SH-22).
+	for s in sheep:
+		if s.penned:
+			_confine(s)   # A push of a free sheep must not take a penned sheep out of the pen (REQ-SH-24).
 
 
 func _tick_free(i: int, s: Sheep, dt: float, dogs: Dictionary, rng: RandomNumberGenerator) -> void:
@@ -219,18 +222,29 @@ func _tick_penned(s: Sheep, dt: float, rng: RandomNumberGenerator) -> void:
 	s.vel *= exp(-DAMPING * dt)
 	s.vel = s.vel.limit_length(GRAZE_SPEED)
 	s.pos += s.vel * dt
-	var inner := interior().grow(-RADIUS)
-	# It slides in from the gate instead of jumping.
-	var target := s.pos.clamp(inner.position, inner.end)
-	s.pos = s.pos.move_toward(target, 240.0 * dt) if s.pos != target else s.pos
-	if not inner.has_point(s.pos):
+	_confine(s)
+
+
+## A sheep that is in the pen stays in it (REQ-SH-24): its middle is put back into the pen box (the inside of the fence, less
+## the radius of the sheep) at once, from the gate side too, so nothing (the walk, a push of another sheep, the bounce at a wall)
+## takes it out through the gate. The speed that goes into the fence is dropped.
+func _confine(s: Sheep) -> void:
+	var inner := pen_box()
+	var kept := s.pos.clamp(inner.position, inner.end)
+	if kept != s.pos:
+		s.pos = kept
 		s.vel = Vector2.ZERO
 
 
-## True when the middle of a sheep has passed the fence line through the gate.
+## True when the middle of a sheep is in the pen box: the same box that `_confine()` keeps a penned sheep in, so a sheep that
+## has just walked in does not jump (REQ-SH-24).
 func _in_pen(p: Vector2) -> bool:
-	var inner := interior()
-	return p.x >= inner.position.x + RADIUS * 0.5 and p.x <= inner.end.x and p.y >= inner.position.y and p.y <= inner.end.y
+	return pen_box().has_point(p)
+
+
+## Where the middle of a penned sheep stays: the inside of the fence, less the radius of the sheep.
+func pen_box() -> Rect2:
+	return interior().grow(-RADIUS)
 
 
 ## Free sheep do not overlap: each pair is pushed apart by half the overlap each.
@@ -257,17 +271,31 @@ func _separate() -> void:
 ## picture (the width and the height): the picture stays on the grass, so the middle keeps at least `half` from the edge, and at
 ## least `r` (REQ-SH-22).
 func resolve(pos: Vector2, vel: Vector2, r: float, half := Vector2.ZERO) -> Array:
+	var inner := field.grow_individual(-maxf(r, half.x), -maxf(r, half.y), -maxf(r, half.x), -maxf(r, half.y))
 	for w in walls:
 		var push := push_out_of_rect(pos, r, w)
+		if push != Vector2.ZERO and not inner.has_point(pos + push):
+			push = _exit_inside(pos, r, w, inner, push)   # The nearest way out is the edge: take the nearest way that stays on the grass.
 		if push != Vector2.ZERO:
 			pos += push
 			vel = _bounce(vel, push.normalized())
-	var inner := field.grow_individual(-maxf(r, half.x), -maxf(r, half.y), -maxf(r, half.x), -maxf(r, half.y))
 	var kept := pos.clamp(inner.position, inner.end)
 	if kept != pos:
 		vel = _bounce(vel, (kept - pos).normalized())
 		pos = kept
 	return [pos, vel]
+
+
+## The shortest way out of `rect` (by one of its four sides) that ends inside `inner`; `fallback` when no side does.
+func _exit_inside(pos: Vector2, r: float, rect: Rect2, inner: Rect2, fallback: Vector2) -> Vector2:
+	var best := fallback
+	var best_len := INF
+	for to in [Vector2(rect.position.x - r, pos.y), Vector2(rect.end.x + r, pos.y), Vector2(pos.x, rect.position.y - r),
+			Vector2(pos.x, rect.end.y + r)]:
+		if inner.has_point(to) and pos.distance_to(to) < best_len:
+			best = to - pos
+			best_len = pos.distance_to(to)
+	return best
 
 
 func _bounce(vel: Vector2, n: Vector2) -> Vector2:

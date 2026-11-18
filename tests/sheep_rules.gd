@@ -430,9 +430,9 @@ func _pictures() -> void:
 	_check(tree.get_pixel(0, 0).a == 0.0 and tree.get_pixel(12, tree.get_height() - 3).is_equal_approx(Color("6b4420"))
 			and tree.get_pixel(12, tree.get_height() - 2) == SheepLook.OUTLINE, "a tree stands on its trunk, with a black line around it")
 	var blocks := SheepLook.barn_blocks(Vector2(1000, 200))
-	_check(blocks.size() == 2 and blocks[0].size == Vector2(248, 128) and blocks[1].size.y == 160.0
-			and blocks[0].end.x == 1000.0 + 236.0 and blocks[0].end.y == blocks[1].end.y,
-			"the barn blocks its walls and the silo")
+	_check(blocks.size() == 2 and blocks[0].size == Vector2(248, 240) and blocks[0].position.y == 200.0 - 56.0
+			and blocks[1].size.y == 176.0 and blocks[0].end.x == 1000.0 + 236.0 and blocks[0].end.y == blocks[1].end.y,
+			"the barn blocks the whole picture: the roof up to the tip of the vane, the walls and the silo (REQ-SH-24)")
 
 
 ## The levels of the game (loaded when needed: the game script uses autoloads, so it cannot be preloaded here).
