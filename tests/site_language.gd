@@ -71,6 +71,12 @@ func _run() -> void:
 		_check(FileAccess.get_file_as_string("res://site/" + page).contains("&copy; 2026 Alon Yampolski. All rights reserved.")
 				and FileAccess.get_file_as_string("res://site/he/" + page).contains("&copy; 2026 אלון ימפולסקי. כל הזכויות שמורות."),
 				"%s: the footer has the copyright line in English and in Hebrew" % page)
+		var link := '<a href="https://github.com/sponsors/alonzo86">%s</a>'
+		_check(FileAccess.get_file_as_string("res://site/" + page).contains(link % "Support Sababi")
+				and FileAccess.get_file_as_string("res://site/he/" + page).contains(link % "תמכו ב־Sababi"),
+				"%s: the footer has the Support Sababi link in English and in Hebrew (no payment in the app)" % page)
+	_check(FileAccess.get_file_as_string("res://.github/FUNDING.yml").contains("github: alonzo86"),
+			"FUNDING.yml has the Sponsor button")
 	_check(_exists("site/favicon.ico") and _exists("site/icon-192.png") and Image.load_from_file(
 			"res://site/icon-192.png").get_size() == Vector2i(192, 192), "the favicon files exist (icon 192 x 192)")
 	for path in ["site/index.html", "site/he/index.html", "site/get/index.html", "site/stores.js"]:
