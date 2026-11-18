@@ -47,6 +47,7 @@ func _initialize() -> void:
 	_pen = l.pen
 	_origin = l.barn_origin
 	_layout_rules()
+	_picture_rect()
 	_free_space()
 	_barn_picture()
 	_penned_stay()
@@ -153,6 +154,21 @@ func _raw_starts() -> Array[Vector2]:
 		out.append(Vector2(_pen.end.x + 10.0 + 0.0 * k, _pen.position.y - 40.0 - 56.0 * float(k)))
 		out.append(Vector2(_pen.end.x - 30.0, _pen.position.y - 40.0 - 56.0 * float(k)))        # at the barn and the right edge
 	return out
+
+
+## A picture that is turned around is drawn on the same box as the one that is not (REQ-SH-22). Godot flips a picture when the
+## width of the rectangle is negative and keeps `position` as the left side, so the flipped picture fills `position` to
+## `position + abs(width)`. Found on a real render: a sheep that walked left was drawn one picture too far right, over the
+## barn or off the grass, while its collision stayed where it was.
+func _picture_rect() -> void:
+	print("a turned picture fills the same box as a normal one (REQ-SH-22)")
+	var top_left := Vector2(100.0, 200.0)
+	var sz := Vector2(72.0, 56.0)
+	for face in [1, -1]:
+		var r: Rect2 = Game.picture_rect(top_left, sz, face)
+		var filled := Rect2(r.position, r.size.abs())   # Where Godot draws it.
+		_check(filled == Rect2(top_left, sz), "face %d: the drawn box is the box of the picture: %s" % [face, str(filled)])
+		_check((r.size.x < 0.0) == (face < 0), "face %d: the picture is flipped only when it looks left" % face)
 
 
 # ---- The layout ----

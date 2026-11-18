@@ -310,14 +310,17 @@ func _draw_standing(ci: CanvasItem, kind: String, foot: Vector2) -> void:
 	ci.draw_texture_rect(tex, Rect2(Shell.snap(foot - Vector2(sz.x * 0.5, sz.y)), sz), false)
 
 
+## The rectangle for `draw_texture_rect` that fills the box `top_left`, `sz`, with the picture turned around when `face` is -1.
+## Godot flips a picture when the width is negative and keeps `position` as the left side: the flipped picture fills
+## `position` to `position + abs(width)`. A rectangle that starts at the right side would draw it one picture too far right.
+static func picture_rect(top_left: Vector2, sz: Vector2, face: int) -> Rect2:
+	return Rect2(top_left, Vector2(-sz.x, sz.y)) if face < 0 else Rect2(top_left, sz)
+
+
 ## A picture with its middle at `center`, turned around when `face` is -1.
 func _draw_centered(ci: CanvasItem, tex: ImageTexture, center: Vector2, face: int) -> void:
 	var sz := Vector2(tex.get_size()) * Shell.WORLD_PIXEL
-	var top_left := Shell.snap(center - sz * 0.5)
-	if face < 0:
-		ci.draw_texture_rect(tex, Rect2(top_left + Vector2(sz.x, 0.0), Vector2(-sz.x, sz.y)), false)
-	else:
-		ci.draw_texture_rect(tex, Rect2(top_left, sz), false)
+	ci.draw_texture_rect(tex, picture_rect(Shell.snap(center - sz * 0.5), sz, face), false)
 
 
 func _world_draw(ci: CanvasItem) -> void:
