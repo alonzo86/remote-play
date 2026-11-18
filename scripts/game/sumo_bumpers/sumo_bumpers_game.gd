@@ -220,12 +220,17 @@ func _tick_falls(delta: float) -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		game_host.haptic(s, 400)
-	open_results(_board, "", [], _points_text)
+	open_results(_board)
 
 
 ## "2 points" for the result list.
 func _points_text(points: float) -> String:
-	return Lang.t("result.one_point") if int(points) == 1 else Lang.f("result.points", [int(points)])
+	return ResultText.spec_text(_result_spec(points))
+
+
+## The score as data for the result list and for the phone (issue #470).
+func _result_spec(points: float) -> Array:
+	return ResultText.spec("result.one_point") if int(points) == 1 else ResultText.spec("result.points", [int(points)])
 
 
 # ---- Drawing ----

@@ -17,6 +17,7 @@ const STUB_HOST := "res://tests/stub_game_host.gd"
 const PAD_SCRIPT := "res://scripts/ui/controller_pad.gd"
 const Medals = preload("res://scripts/game/medals.gd")
 const Medal = preload("res://scripts/ui/medal.gd")
+const ResultText = preload("res://scripts/core/result_text.gd")
 
 # Not the game port: it depends on the process (as in pad_pause.gd).
 var PORT := 47000 + OS.get_process_id() % 900
@@ -58,6 +59,8 @@ func _run() -> void:
 	await process_frame
 	_every_game_uses_the_shared_result()
 	await _menu_sends_rows()
+	await _phone_writes_its_own_language()
+	_old_tv_and_bad_data()
 	await _pad_shows_the_line()
 
 
@@ -139,6 +142,147 @@ func _menu_sends_rows() -> void:
 	game.queue_free()
 	await process_frame
 	await _real_game_sends_its_id()
+
+
+## The `final` message of one row as the TV puts it on the wire (`TvServer.send_final()` builds it from the same parts).
+func _wire(row: Array) -> Dictionary:
+	var server := TvServer.new()
+	var msg := {"t": "final", "v": row[2]}
+	for key in ["g", "p", "s", "m"]:
+		if String(row[3].get(key, "")) != "":
+			msg[key] = String(row[3][key])
+	for key in ["n", "k", "x"]:
+		if row[3].has(key):
+			msg[key] = row[3][key]
+	server.free()
+	return JSON.parse_string(JSON.stringify(msg))   # Through JSON: numbers come back as floats, as on a phone.
+
+
+## Issue #470 (REQ-FL-67a, REQ-FL-62, Test 19 step 3c): the place and the score on the phone are in the language of the PHONE, in
+## every game, whatever the language of the TV. For each of the games the TV ends a round in one language and the phone is in the
+## other (Hebrew phone with an English TV, and the reverse): the place is `result.place_<n>` and the score is the text of the game
+## for the same score, both in the language of the phone, never the `p` and `s` that the TV wrote.
+func _phone_writes_its_own_language() -> void:
+	print("the phone writes the place and the score in its own language, in every game")
+	var games := Registry.all()
+	var bad: Array[String] = []
+	var seen_units := {}
+	for pair in [["en", "he"], ["he", "en"]]:   # [language of the TV, language of the phone]
+		for g in games:
+			var host = load(STUB_HOST).new()
+			var three: Array[int] = [0, 1, 2]
+			host.slots = three
+			var game = load(String(g.path)).new()
+			game.game_host = host
+			root.add_child(game)
+			game.visible = false   # Only the result is under test, not the drawing of the world.
+			if game._pixel_layer != null:
+				game._pixel_layer.visible = false
+			await process_frame
+			game.players_at_start = 3
+			var board := Scoreboard.new(three)
+			board.set_score(0, 3.0)
+			board.set_score(1, 1.0)
+			board.set_unfinished(2, 0.4)
+			host.calls.clear()
+			Lang.set_language(pair[0])
+			game.open_results(board)
+			var finals: Array = host.calls.filter(func(c: Array) -> bool: return c[0] == "final")
+			Lang.set_language(pair[1])
+			for slot in three:
+				var row := _final_of(finals, slot)
+				var parts: Dictionary = row[3]
+				var c := ControllerClient.new()
+				c._handle(_wire(row), Time.get_ticks_msec())
+				var ranking := board.ranking()
+				var entry: Dictionary = ranking.filter(func(e: Dictionary) -> bool: return e.slot == slot)[0]
+				var want_place := Lang.t("result.place_%d" % entry.rank)
+				var want_score := Lang.t("result.not_finished")
+				if entry.finished:
+					want_score = ResultText.spec_text(game._result_spec(entry.score))
+				if c.final_place != want_place or c.final_score != want_score:
+					bad.append("%s %s>%s slot %d: %s / %s, wanted %s / %s" % [g.id, pair[0], pair[1], slot, c.final_place,
+							c.final_score, want_place, want_score])
+				if pair[0] != pair[1] and (c.final_place == String(parts.get("p", "")) or (entry.finished == false
+						and c.final_score == String(parts.get("s", "")))):
+					bad.append("%s %s>%s slot %d still shows the TV text %s / %s" % [g.id, pair[0], pair[1], slot, c.final_place,
+							c.final_score])
+				if pair[1] == "he" and entry.finished and parts.get("k", "") != "num":
+					seen_units[String(g.id)] = c.final_score
+				c.free()
+			Lang.set_language("en")
+			game.queue_free()
+			await process_frame
+	_check(bad.is_empty(), "place and score are in the phone's language in all %d games, both ways: %s" % [games.size(), str(bad)])
+	# The Hebrew phone shows the Hebrew unit of a time and of every other score with a unit (no Latin letter of the English unit).
+	var latin: Array = []
+	for id in seen_units:
+		for english in [" s", "BRICK", "GOAL", "sheep", "point", "star"]:
+			if String(seen_units[id]).contains(english):
+				latin.append(id)
+	_check(not seen_units.is_empty() and latin.is_empty(), "a Hebrew phone shows no English unit in any game: %s" % str(seen_units))
+	_check(seen_units.has("marble_race") and seen_units.has("maze") and String(seen_units.get("maze", "")).ends_with("ש׳"),
+			"the maze and the race times end with the Hebrew unit: %s" % str(seen_units.get("maze", "")))
+	await _air_hockey_with_the_bot()
+
+
+## Air Hockey with ROBO builds its own rows (REQ-GM-105): they carry the same data.
+func _air_hockey_with_the_bot() -> void:
+	var host = load(STUB_HOST).new()
+	var game = Registry.load_script("air_hockey").new()
+	game.game_host = host
+	root.add_child(game)
+	await process_frame
+	var seat := {"slot": 0, "name": "Noa", "color": Color.RED, "avatar": -1}
+	var robo := {"slot": -1, "name": "ROBO", "color": Color.BLUE, "avatar": -1}
+	game.seats = [seat, robo] as Array[Dictionary]
+	var goals: Array[int] = [1, 0]
+	game.scores = goals
+	Lang.set_language("en")
+	host.calls.clear()
+	game._finish_with_bot()
+	var finals: Array = host.calls.filter(func(c: Array) -> bool: return c[0] == "final")
+	Lang.set_language("he")
+	var c := ControllerClient.new()
+	c._handle(_wire(_final_of(finals, 0)), Time.get_ticks_msec())
+	_check(c.final_place == Lang.t("result.place_1") and c.final_score == Lang.t("air_hockey.one_goal")
+			and c.final_score != "1 GOAL",
+			"Air Hockey with ROBO: the Hebrew phone gets its place and its goal in Hebrew: %s / %s" % [c.final_place, c.final_score])
+	c.free()
+	Lang.set_language("en")
+	game.queue_free()
+	await process_frame
+
+
+## An old TV sends no `n`, `k`, `x`: the phone shows `p`, `s` (and `v`) as before. Data that is not valid never hides `p` and `s`.
+func _old_tv_and_bad_data() -> void:
+	print("a TV without n, k, x, and data that is not valid")
+	Lang.set_language("he")
+	var c := ControllerClient.new()
+	var now := Time.get_ticks_msec()
+	c._handle({"t": "final", "v": "1ST   Noa   12.3 s", "g": "maze", "p": "1ST", "s": "12.3 s", "m": "gold"}, now)
+	_check(c.final_place == "1ST" and c.final_score == "12.3 s" and c.final_text == "1ST   Noa   12.3 s",
+			"an old TV: the phone shows p, s and v as they come: %s / %s" % [c.final_place, c.final_score])
+	c._handle({"t": "final", "v": "1ST   Noa   12.3 s", "p": "1ST", "s": "12.3 s", "n": 1, "k": "result.seconds_1", "x": [12.3]},
+			now)
+	_check(c.final_place == "ראשון" and c.final_score == "12.3 ש׳", "with n, k, x the phone writes Hebrew: %s / %s"
+			% [c.final_place, c.final_score])
+	for bad in [{"k": "nope.key", "x": [1]}, {"k": "result.seconds_1", "x": []}, {"k": "result.seconds_1", "x": ["a"]},
+			{"k": "result.seconds_1", "x": "12"}, {"k": 5, "x": [1]}, {"k": "result.points", "x": [null]},
+			{"k": "result.seconds_1"}]:
+		var msg := {"t": "final", "v": "x", "p": "1ST", "s": "12.3 s", "n": 9}
+		msg.merge(bad)
+		c._handle(msg, now)
+		_check(c.final_place == "1ST" and c.final_score == "12.3 s",
+				"%s: p and s stay: %s / %s" % [str(bad), c.final_place, c.final_score])
+	c.free()
+	_check(ResultText.text("nope", [1]) == "" and ResultText.text("result.points", []) == ""
+			and ResultText.text("result.points", ["a"]) == ""
+			and ResultText.text("result.points", [INF]) == "" and ResultText.place(0) == "" and ResultText.place(5) == "",
+			"ResultText: an unknown key, too few numbers, a value that is not a number and a place out of 1 to 4 give no text")
+	_check(ResultText.text("sheep_herding.count", [3, 11]) == "3 / 11 כבשים" and ResultText.text("num", [2.5]) == "2.5"
+			and ResultText.text("result.not_finished", []) == "לא סיים", "ResultText in Hebrew: two numbers, a plain number, no number")
+	Lang.set_language("en")
 
 
 func _final_of(finals: Array, slot: int) -> Array:
@@ -307,6 +451,15 @@ func _pad_shows_the_line() -> void:
 	_server.send_final(slot, line, {"g": "snowball_splat", "p": "2ND", "s": "9", "m": "silver"})
 	await _wait_until(func(): return _client.final_score == "9")
 	_check(_has_all_parts("snowball_splat", "2ND", "9", "silver"), "a second result brings its own pieces")
+	# The data over the real wire (issue #470): the TV in English, this phone in Hebrew.
+	Lang.set_language("he")
+	_server.send_final(slot, line,
+			{"g": "maze", "p": "2ND", "s": "9.0 s", "m": "silver", "n": 2, "k": "result.seconds_1", "x": [9.0]})
+	await _wait_until(func(): return _client.final_score.ends_with("ש׳"))
+	_check(_client.final_place == "שני" and _client.final_score == "9.0 ש׳" and _client.final_text == line
+			and _server._final_sent[slot].get("k") == "result.seconds_1",
+			"over the real wire the Hebrew phone writes its place and time: %s / %s" % [_client.final_place, _client.final_score])
+	Lang.set_language("en")
 	_server.set_phase("menu")
 	await _wait_until(func(): return _client.phase == "menu")
 	_check(_client.final_text == "" and _server._final_sent.is_empty(), "the menu clears the line on the phone and on the TV")
@@ -609,6 +762,19 @@ func _new_best_line(app: Node) -> void:
 	_client.phase = "menu"
 	_check(app.current_best().is_empty() and _pad._final_block().best == false, "the TV is at the menu: no NEW BEST!")
 	_client.phase = keep
+	# A Hebrew phone with an English TV (issue #470): the value of NEW BEST! is the score that the phone wrote in Hebrew, with the
+	# Hebrew unit, and the title is Hebrew too (the TV sent `s` "4.22 s" and `p` "1ST").
+	Lang.set_language("he")
+	app.last_best = {"pid": _client.pid, "key": "marble_race|medium", "value": 4220, "old": 0}
+	_client._handle({"t": "final", "v": "1ST   Noa   4.22 s", "g": "marble_race", "p": "1ST", "s": "4.22 s", "m": "gold",
+			"n": 1, "k": "result.seconds_2", "x": [4.22]}, Time.get_ticks_msec())
+	var heb: Dictionary = _pad._final_block()
+	_check(heb.best == true and " ".join(heb.line3_lines).contains("4.22 ש׳") and " ".join(heb.line3_lines).contains("שיא חדש!")
+			and not " ".join(heb.line3_lines).contains(" S") and _client.final_place == "ראשון",
+			"Hebrew phone, English TV: NEW BEST! and its value are Hebrew: %s" % str(heb.line3_lines))
+	Lang.set_language("en")
+	app.last_best = {}
+	_set_final("", "", "", "")
 	# Where it breaks: one line when title and value are 960 px or less, else the title, then the value (never smaller).
 	var width := 960.0
 	_check(_pad.line3_lines("12345", true, width) == ["NEW BEST! 12345"], "NEW BEST! 12345 is 15 characters: one line")

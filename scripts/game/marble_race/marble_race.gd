@@ -231,7 +231,12 @@ func _open_results() -> void:
 		open_menu("minigame.no_players_connected", [["minigame.back_to_menu", game_host.go_menu]])
 		return
 	# Finished cars have their time. The others are ranked by how far they got.
-	open_results(_scoreboard(), "", [], func(t: float) -> String: return Lang.f("result.seconds_2", [t]))
+	open_results(_scoreboard())
+
+
+## The time of the race: seconds with two decimals ("4.22 s", issue #470).
+func _result_spec(score: float) -> Array:
+	return ResultText.spec("result.seconds_2", [score])
 
 
 # ---- Standings ----

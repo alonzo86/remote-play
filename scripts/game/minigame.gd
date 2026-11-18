@@ -22,6 +22,7 @@ const Medals = preload("res://scripts/game/medals.gd")
 const Registry = preload("res://scripts/game/registry.gd")
 const GameSettings = preload("res://scripts/game/game_settings.gd")
 const Lang = preload("res://scripts/core/lang.gd")
+const ResultText = preload("res://scripts/core/result_text.gd")
 const GameHost = preload("res://scripts/game/game_host.gd")
 const HAPTICS_SCRIPT = preload("res://scripts/game/haptics.gd")   # Not `Haptics`: the games name it so.
 
@@ -453,23 +454,26 @@ func _gap(w: float) -> Control:
 ## - With more than one player every row has the medal of its place: 1st gold, 2nd silver, 3rd bronze (`Medals.for_place()`).
 ##   A round that started with one player has no medal and no medal title (REQ-GM-73, issue #119). A player that stays after the
 ##   others left has a technical win and the medal of its place (owner, 2026-10-29).
-## - `score_text` turns a score into text for the list (default `Scoreboard.format`). A player without a score shows
-##   "not finished".
+## - `_result_spec()` turns a score into data for the list, `ResultText.spec(key, numbers)` (a game overrides it; default a plain
+##   number: `Scoreboard.format`). The list writes it as text, and each phone writes it in its own language (issue #470).
+##   A player without a score shows "not finished".
 ## A game with teams sets this before `open_results()` when a team won: two winners of the board are not a tie then.
 var team_won := false
 
 
-func open_results(board: Scoreboard, title := "", extra_entries: Array = [], score_text := Callable()) -> void:
+func open_results(board: Scoreboard, title := "", extra_entries: Array = []) -> void:
 	is_over = true
 	var ranking := board.ranking()
 	var rows: Array = []
 	for e in ranking:
 		var p := player(e.slot)
-		var text := Lang.t("result.not_finished")
+		var spec := ResultText.spec("result.not_finished")
 		if e.finished:
-			text = String(score_text.call(e.score)) if score_text.is_valid() else Scoreboard.format(e.score)
+			spec = _result_spec(e.score)
+		var text := ResultText.spec_text(spec)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(e.rank), p.player_name, text], "color": p.color,
-				"avatar": p.shown_avatar(), "slot": e.slot, "cells": [Scoreboard.ordinal(e.rank), p.player_name, text]})
+				"avatar": p.shown_avatar(), "slot": e.slot, "cells": [Scoreboard.ordinal(e.rank), p.player_name, text],
+				"rank": e.rank, "spec": spec})
 	_send_best_results(ranking)
 	var winners := board.winners()
 	var heading := title
@@ -486,6 +490,12 @@ func open_results(board: Scoreboard, title := "", extra_entries: Array = [], sco
 	# `win` for a winner; `tie` for a tie and for "Round over" (REQ-FL-65).
 	var won := winners.size() == 1 or team_won
 	open_result_menu(heading, rows, extra_entries, won)
+
+
+## The score of a result row as data, `ResultText.spec(key, numbers)` (REQ-GM-72, issue #470). A game with its own unit overrides.
+## The key is one of `ResultText.KINDS`: the list of the TV writes it as text and each phone writes it in its own language.
+func _result_spec(score: float) -> Array:
+	return ResultText.spec("num", [score])
 
 
 ## The result menu itself: the rows, then Try again, `extra_entries`, New game (a game with a settings view) and Back to menu.
@@ -507,13 +517,21 @@ func open_result_menu(heading: String, rows: Array, extra_entries: Array = [], w
 	Sound.sfx("win" if won else "tie")
 
 
-## The row of one phone in pieces for its result (REQ-FL-67a): the id of the game, the place, the score text and the medal tier
-## (empty for no medal). A row without the three cells (place, name, score) has no pieces: the phone shows the one line.
+## The row of one phone in pieces for its result (REQ-FL-67a): the id of the game, the place and the score as text (`p`, `s`: for
+## a phone of an older build) and as data (`n` the place number, `k` the key of the score and `x` its numbers: the phone
+## writes them in its own language, issue #470), and the medal tier (empty for no medal). A row without the three cells (place,
+## name, score) has no pieces: the phone shows the one line.
 func _final_parts(id: String, row: Dictionary) -> Dictionary:
 	var cells: Array = row.get("cells", [])
 	if cells.size() < 3:
 		return {}
-	return {"g": id, "p": String(cells[0]), "s": String(cells[2]), "m": String(row.get("medal", ""))}
+	var parts := {"g": id, "p": String(cells[0]), "s": String(cells[2]), "m": String(row.get("medal", ""))}
+	var spec: Array = row.get("spec", [])
+	if spec.size() == 2:
+		parts["n"] = clampi(int(row.get("rank", 1)), 1, ResultText.PLACES)   # As `Scoreboard.ordinal()`.
+		parts["k"] = String(spec[0])
+		parts["x"] = spec[1]
+	return parts
 
 
 ## The key of the personal best of this game and its settings (REQ-GM-98), for example `snowball_splat|medium`; a key of

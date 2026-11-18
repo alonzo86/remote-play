@@ -165,6 +165,15 @@ func _client_fields() -> void:
 			var got: String = {"g": c.final_game, "p": c.final_place, "s": c.final_score, "m": c.final_medal}[part]
 			_check(got.length() <= 60 and not got.contains("\n") and not got.contains("\u0007") and (got == "" or bad is String)
 					and (part != "m" or got == ""), "final piece %s with a bad value is empty or clean: %s" % [part, str(got.left(12))])
+	for part in ["n", "k", "x"]:   # The place and the score as data (issue #470): a bad value is no error and `p` and `s` stay.
+		for bad in [{}, [1], null, "x".repeat(100000), "A\nB", 1.0e300, -5, [[]], [null, null], ["a", {}]]:
+			c._handle({"t": "final", "v": "1ST   A   1", "p": "1ST", "s": "1", part: bad}, now)
+			_check(c.final_place.length() <= 60 and c.final_score.length() <= 60 and not c.final_place.contains("\n")
+					and not c.final_score.contains("\n") and c.final_place != "" and c.final_score != "",
+					"final data %s with a bad value gives a clean place and score: %s / %s"
+					% [part, c.final_place.left(12), c.final_score.left(12)])
+	c._handle({"t": "final", "v": "x", "p": "1ST", "s": "1", "n": 2, "k": "result.points", "x": [1.0e300, 5, 6, 7, 8]}, now)
+	_check(c.final_score.length() <= 60 and c.final_place == "2ND", "a huge number or too many numbers: a clean score, no error")
 	c._handle({"t": "final"}, now)
 	_check(c.final_text == "", "a final without a value is an empty line")
 	c._handle({"t": "final", "v": "A\nB"}, now)

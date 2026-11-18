@@ -207,7 +207,7 @@ func _finish() -> void:
 		return
 	for s in _board.winners():
 		game_host.haptic(s, 400)
-	open_results(_board, "", [], _goals_text)
+	open_results(_board)
 
 
 func _finish_with_bot() -> void:
@@ -217,17 +217,24 @@ func _finish_with_bot() -> void:
 	var rows: Array = []
 	for i in order.size():
 		var seat := order[i]
-		var goals := _goals_text(float(scores[seat]))
+		var spec := _result_spec(float(scores[seat]))
+		var goals := ResultText.spec_text(spec)
 		rows.append({"text": "%s   %s   %s" % [Scoreboard.ordinal(i + 1), seats[seat].name, goals],
 				"color": seats[seat].color, "avatar": seats[seat].avatar,
-				"slot": seats[seat].slot, "cells": [Scoreboard.ordinal(i + 1), seats[seat].name, goals]})
+				"slot": seats[seat].slot, "cells": [Scoreboard.ordinal(i + 1), seats[seat].name, goals],
+				"rank": i + 1, "spec": spec})
 	var heading := Lang.f("result.winner", [String(seats[order[0]].name)])
 	open_result_menu(heading, rows, [], order[0] == 0)
 
 
 ## "3 goals" for the result list.
 func _goals_text(value: float) -> String:
-	return Lang.t("air_hockey.one_goal") if int(value) == 1 else Lang.f("air_hockey.n_goals", [int(value)])
+	return ResultText.spec_text(_result_spec(value))
+
+
+## The score as data for the result list and for the phone (issue #470).
+func _result_spec(value: float) -> Array:
+	return ResultText.spec("air_hockey.one_goal") if int(value) == 1 else ResultText.spec("air_hockey.n_goals", [int(value)])
 
 
 func _scoreboard() -> Scoreboard:

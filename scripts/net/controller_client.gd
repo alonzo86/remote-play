@@ -6,6 +6,7 @@ const Protocol = preload("res://scripts/core/protocol.gd")
 const ConfigIO = preload("res://scripts/core/config_io.gd")
 const ClosingSockets = preload("res://scripts/net/closing_sockets.gd")
 const Medal = preload("res://scripts/ui/medal.gd")   # Its TIERS: the only list of medals the phone draws (`m` of `final`).
+const ResultText = preload("res://scripts/core/result_text.gd")   # The place and the score from data (the phone's language).
 
 signal state_changed(state: int)
 signal welcomed(slot: int, color: Color)
@@ -353,6 +354,15 @@ func _handle(msg: Dictionary, now: int) -> void:
 			final_game = _clean_line(Protocol.text(msg, "g", ""))
 			final_place = _clean_line(Protocol.text(msg, "p", ""))
 			final_score = _clean_line(Protocol.text(msg, "s", ""))
+			# The place and the score as data: this phone writes them in its own language (REQ-FL-62, issue #470). `p` and `s`
+			# stay when the TV is of an older build, or when a field is not valid.
+			var own_place := ResultText.place(Protocol.whole(msg, "n", 0))
+			var args: Variant = msg.get("x", [])
+			var own_score := ResultText.text(Protocol.text(msg, "k", ""), args.slice(0, ResultText.MAX_ARGS) if args is Array else [])
+			if own_place != "":
+				final_place = own_place
+			if own_score != "":
+				final_score = own_score
 			var medal := _clean_line(Protocol.text(msg, "m", ""))
 			final_medal = medal if Medal.TIERS.has(medal) else ""
 			score_changed.emit()

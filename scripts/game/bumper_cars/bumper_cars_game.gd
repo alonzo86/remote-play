@@ -162,12 +162,17 @@ func _pick_up() -> void:
 func _finish() -> void:
 	for s in _board.winners():
 		game_host.haptic(s, WIN_BUZZ_MS)
-	open_results(_board, "", [], _stars_text)
+	open_results(_board)
 
 
 ## "3 stars" for the result list.
 func _stars_text(stars: float) -> String:
-	return Lang.t("result.one_star") if int(stars) == 1 else Lang.f("result.stars", [int(stars)])
+	return ResultText.spec_text(_result_spec(stars))
+
+
+## The score as data for the result list and for the phone (issue #470).
+func _result_spec(stars: float) -> Array:
+	return ResultText.spec("result.one_star") if int(stars) == 1 else ResultText.spec("result.stars", [int(stars)])
 
 
 func _scoreboard() -> Scoreboard:
