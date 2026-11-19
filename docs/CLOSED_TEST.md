@@ -14,7 +14,7 @@ Replace `<TV link>` and `<phone link>` with the two opt-in links of the closed t
 >
 > **1. Join the test (about 5 minutes)**
 > 1. Use the Google account that you gave me (the one on your phone and your TV).
-> 2. On your phone, open this link and tap **Become a tester** (the button can be in Hebrew on a Hebrew phone): `<phone link>`. Then tap **Download it on Google Play** and install **Sababi: Remote**.
+> 2. On your phone, open this link and tap **Become a tester** (the button can be in Hebrew on a Hebrew phone): `<phone link>`. Then tap **Download it on Google Play** and install **Sababi: Remote**. (Once you are a tester you can also open `https://play.google.com/store/apps/details?id=io.github.alonzo86.sababi.controller` on your phone and install from there.)
 > 3. On your phone or your computer, open this link with the same account and tap **Become a tester**: `<TV link>`.
 > 4. On your TV, open the **Google Play Store**, search for **Sababi: TV Games** and install it. (Or open `https://play.google.com/store/apps/details?id=io.github.alonzo86.sababi.tv` on your phone and choose your TV in the list of devices.) It can take a few minutes until the app is offered. If the app shows a blank tile on the home screen, restart the TV once.
 >
@@ -45,7 +45,7 @@ The verbs are in the plural imperative, as in the app. The names of the Play but
 >
 > **1. הצטרפו לבדיקה (כ־5 דקות)**
 > 1. השתמשו בחשבון Google ששלחתם לי (זה שבטלפון ובטלוויזיה).
-> 2. בטלפון פתחו את הקישור ולחצו על **Become a tester** (בטלפון בעברית הכפתור מופיע בעברית): `<phone link>`. אחר כך לחצו על **Download it on Google Play** והתקינו את **Sababi: Remote**.
+> 2. בטלפון פתחו את הקישור ולחצו על **Become a tester** (בטלפון בעברית הכפתור מופיע בעברית): `<phone link>`. אחר כך לחצו על **Download it on Google Play** והתקינו את **Sababi: Remote**. (אחרי שהפכתם לבודקים אפשר גם לפתוח בטלפון את `https://play.google.com/store/apps/details?id=io.github.alonzo86.sababi.controller` ולהתקין משם.)
 > 3. בטלפון או במחשב, עם אותו חשבון, פתחו את הקישור ולחצו על **Become a tester**: `<TV link>`.
 > 4. בטלוויזיה פתחו את **חנות Google Play**, חפשו **Sababi: TV Games** והתקינו. (אפשר גם לפתוח בטלפון את `https://play.google.com/store/apps/details?id=io.github.alonzo86.sababi.tv` ולבחור את הטלוויזיה ברשימת המכשירים.) לפעמים לוקח כמה דקות עד שהאפליקציה מוצעת. אם במסך הבית מופיע אריח ריק, הפעילו מחדש את הטלוויזיה פעם אחת.
 >
@@ -65,6 +65,10 @@ The verbs are in the plural imperative, as in the app. The names of the Play but
 > - או מלאו טופס ב־GitHub: `https://github.com/alonzo86/remote-play/issues/new?template=tester-feedback.yml` (צריך חשבון GitHub; הטופס פומבי ושם המשתמש שלכם ב־GitHub מוצג, לכן אל תכתבו בו פרטים אישיים ואל תצרפו תמונות או סרטונים שרואים בהם אנשים או ילדים).
 >
 > תודה!
+
+## The store addresses
+
+The two public addresses are the ones of the website (`site/stores.js`): `https://play.google.com/store/apps/details?id=io.github.alonzo86.sababi.controller` (phone) and `https://play.google.com/store/apps/details?id=io.github.alonzo86.sababi.tv` (TV). The owner checked on 2026-11-19 that both open for a tester account. For everybody else they answer "not found" until the apps are in production (issue #427), so the message sends the testers to the opt-in links first and names these addresses only as the place to install from.
 
 ## Feedback channel
 
