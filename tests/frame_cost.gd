@@ -127,7 +127,7 @@ func _measure(app: Node, spec: Dictionary, budget: float) -> void:
 	# REQ-GM-51: a game does not create nodes in a frame. 480 ticks of play (8 s) may add a few nodes for events (a banner, a
 	# pop-up), but not one for each frame.
 	# Only Star Shield may end in the window. Any other game must be counted in every burst, or the check would measure nothing.
-	_check(counted == BURSTS or (id == "asteroid_blast" and counted < BURSTS),
+	_check(counted == BURSTS or (id == "asteroid_blast" and counted >= 1),
 			"%s: the game was still running in %d of %d bursts (all of them, except Star Shield)" % [id, counted, BURSTS])
 	_check(grown <= 2, "%s: REQ-GM-51: %d ticks add %d nodes (2 or less, not one for each frame)" % [id, BURST * counted, grown])
 	print("  info %s: nodes added in %d ticks: %d" % [id, BURST * counted, grown])

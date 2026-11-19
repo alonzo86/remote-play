@@ -19,7 +19,7 @@ for key in play playTv; do
 done
 # /get/ sends an Android phone to stores.js `play` (the phone app): the page must load that file and have the redirect.
 if grep -q 'stores.js' site/get/index.html && grep -q 'location.replace(s.play)' site/get/index.html; then
-	echo "OK   get/ redirects an Android phone to the phone app"
+	echo "OK   get/ has the redirect code for an Android phone"
 else
 	echo "FAIL get/ has no redirect to stores.js play"
 	fail=1
