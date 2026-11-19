@@ -25,7 +25,7 @@ Replace `<TV link>` and `<phone link>` with the two opt-in links of the closed t
 > - Play at least 3 games. Try one where you tilt the phone and one where you point it at the screen.
 > - Join with a second phone (a friend or family member) and play together.
 > - Pause a game and end it from the phone (the pause button) and from the TV remote (Back).
-> - Change the language between English and Hebrew and look at both: on the TV (the OPTIONS button on the Games screen, then Language) and on the phone (the Settings button on the waiting screen, then Language). Each device has its own language.
+> - Change the language between English and Hebrew and look at both: on the TV (the gear icon on the Games screen, then Language) and on the phone (the Settings icon in the top row of the waiting screen, then Language). Each device has its own language.
 > - Make a player on the phone (a name and a picture), join with it, and then join as a guest.
 > - Close the phone app in the middle of a game and open it again. Turn the Wi-Fi of the phone off and on.
 >
@@ -56,7 +56,7 @@ The verbs are in the plural imperative, as in the app. The names of the Play but
 > - שחקו לפחות 3 משחקים: אחד שבו מטים את הטלפון ואחד שבו מכוונים אותו אל המסך.
 > - הצטרפו עם טלפון שני (חבר או בן משפחה) ושחקו יחד.
 > - עצרו משחק וסיימו אותו מהטלפון (כפתור העצירה) ומשלט הטלוויזיה (חזרה).
-> - החליפו שפה בין אנגלית לעברית והסתכלו על שתיהן: בטלוויזיה (הכפתור OPTIONS במסך המשחקים, ואז השפה) ובטלפון (כפתור ההגדרות במסך ההמתנה, ואז השפה). לכל מכשיר יש שפה משלו.
+> - החליפו שפה בין אנגלית לעברית והסתכלו על שתיהן: בטלוויזיה (סמל גלגל השיניים במסך המשחקים, ואז השפה) ובטלפון (סמל ההגדרות בשורה העליונה של מסך ההמתנה, ואז השפה). לכל מכשיר יש שפה משלו.
 > - צרו שחקן בטלפון (שם ותמונה), הצטרפו איתו, ואחר כך הצטרפו כאורח.
 > - סגרו את אפליקציית הטלפון באמצע משחק ופתחו אותה שוב. כבו והדליקו את ה־Wi-Fi של הטלפון.
 >
