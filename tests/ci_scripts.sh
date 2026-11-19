@@ -166,6 +166,9 @@ check "patch: the phone app does not need the leanback feature" "1" "$(grep -c '
 sed -i 's/android.software.leanback" android:required="true"/android.software.leanback" android:required="false"/' "$PT/android-tv/build/src/main/AndroidManifest.xml"
 (cd "$PT" && tools/patch_android_manifest.sh tv >/dev/null 2>&1)
 check "patch: an older TV manifest with the flag false is changed to true" "1" "$(grep -c 'android.software.leanback" android:required="true"' "$PT/android-tv/build/src/main/AndroidManifest.xml")"
+check "patch: the Wi-Fi feature is declared and not required in both apps (Play: required hardware features)" "1 1" "$(grep -c 'android.hardware.wifi" android:required="false"' "$PT/android/build/src/main/AndroidManifest.xml") $(grep -c 'android.hardware.wifi" android:required="false"' "$PT/android-tv/build/src/main/AndroidManifest.xml")"
+check "patch: the controller declares the portrait screen as not required, and not the landscape one" "1 0" "$(grep -c 'android.hardware.screen.portrait" android:required="false"' "$PT/android/build/src/main/AndroidManifest.xml") $(grep -c 'android.hardware.screen.landscape' "$PT/android/build/src/main/AndroidManifest.xml" || true)"
+check "patch: the TV declares the landscape screen as not required, and not the portrait one" "1 0" "$(grep -c 'android.hardware.screen.landscape" android:required="false"' "$PT/android-tv/build/src/main/AndroidManifest.xml") $(grep -c 'android.hardware.screen.portrait' "$PT/android-tv/build/src/main/AndroidManifest.xml" || true)"
 cp "$PT/android/build/src/main/AndroidManifest.xml" "$TMP/before.xml"
 (cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)
 check "patch: a second run changes nothing" "same" "$(cmp -s "$TMP/before.xml" "$PT/android/build/src/main/AndroidManifest.xml" && echo same || echo changed)"

@@ -65,13 +65,20 @@ patch(manifest, "android:banner=",
       lambda s: s.replace('android:icon="@mipmap/icon"', 'android:icon="@mipmap/icon"\n        android:banner="@drawable/banner"', 1),
       "banner attribute")
 
-# A TV has no touchscreen or gyroscope and uses the leanback UI.
-feat = "".join('    <uses-feature android:name="%s" android:required="%s" />\n' % (n, "true" if (tv_only and n == "android.software.leanback") else "false") for n in (
-    "android.software.leanback", "android.hardware.touchscreen",
-    "android.hardware.sensor.gyroscope", "android.hardware.sensor.accelerometer"))
-patch(manifest, "android.software.leanback",
-      lambda s: s.replace("    <application", feat + "\n    <application", 1),
-      "uses-feature flags")
+# A TV has no touchscreen or gyroscope and uses the leanback UI. Google Play also counts the features that the manifest implies: the
+# Wi-Fi permissions imply android.hardware.wifi, and the screen orientation of the activity implies android.hardware.screen.portrait
+# (the controller) or android.hardware.screen.landscape (the TV). A required feature that some device does not have hides the app
+# from that device (Play Console, "Required hardware feature declarations are restricting your app's availability", 2026-11-19), so
+# these are declared as not required. Each line is added when it is missing, so a manifest patched before this rule gets it too.
+features = [("android.software.leanback", "true" if tv_only else "false"), ("android.hardware.touchscreen", "false"),
+            ("android.hardware.sensor.gyroscope", "false"), ("android.hardware.sensor.accelerometer", "false"),
+            ("android.hardware.wifi", "false"),
+            ("android.hardware.screen.landscape" if tv_only else "android.hardware.screen.portrait", "false")]
+for name, required in features:
+    patch(manifest, 'android:name="%s"' % name,
+          lambda s, name=name, required=required: s.replace("    <application",
+              '    <uses-feature android:name="%s" android:required="%s" />\n\n    <application' % (name, required), 1),
+          "uses-feature " + name)
 # A manifest patched before this rule has the flag as false: make it true for the TV app.
 if tv_only:
     old = '<uses-feature android:name="android.software.leanback" android:required="false" />'
