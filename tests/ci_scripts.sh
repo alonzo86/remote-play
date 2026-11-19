@@ -177,12 +177,29 @@ check "ci.yml has a GODOT_VERSION" "yes" "$([ -n "$V_ACTIONS" ] && echo yes)"
 check "GODOT_VERSION is the same in ci.yml and in .circleci/config.yml" "$V_ACTIONS" "$V_CIRCLE"
 check "the CircleCI cache keys name that version (2 keys, same key)" "godot-$V_ACTIONS-v1 godot-$V_ACTIONS-v1" "$(sed -n 's/^[[:space:]]*key:[[:space:]]*\(godot-.*\)$/\1/p' "$ROOT/.circleci/config.yml" | tr '\n' ' ' | sed 's/ $//')"
 
-echo "tools/set_version.sh (one app version, issue #289)"
-check "the 5 version places (10 lines) of export_presets.cfg agree" "0" "$("$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+echo "tools/set_version.sh (a version for each app, issue #289; owner, 2026-11-19)"
+check "the version places of export_presets.cfg agree inside each app (TV 4 lines, controller 6 lines)" "0" "$("$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
 cp "$ROOT/export_presets.cfg" "$TMP/presets.cfg"
 FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 2.3.4 12 >/dev/null
 check "set_version writes name and code to the 10 lines" "10" "$(grep -c '"2.3.4"\|^version/code=12$\|^application/version="12"$' "$TMP/presets.cfg")"
 check "after set_version the check passes" "0" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 2.4.0 13 tv >/dev/null
+check "set_version for the TV app writes only its 4 lines" "4" "$(grep -c '"2.4.0"\|^version/code=13$' "$TMP/presets.cfg")"
+check "and the controller app keeps its 6 lines" "6" "$(grep -c '"2.3.4"\|^version/code=12$\|^application/version="12"$' "$TMP/presets.cfg")"
+check "the two apps may have different versions: the check passes" "0" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 2.5.0 14 controller >/dev/null
+check "set_version for the controller app writes its 6 lines (Android and iOS)" "6" "$(grep -c '"2.5.0"\|^version/code=14$\|^application/version="14"$' "$TMP/presets.cfg")"
+check "and the TV app keeps its 4 lines" "4" "$(grep -c '"2.4.0"\|^version/code=13$' "$TMP/presets.cfg")"
+check "an unknown app is refused" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 1.0.0 1 phone >/dev/null 2>&1; echo $?)"
+FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 2.3.4 12 >/dev/null
+awk '/^version\/code=12$/ && !done { print "version/code=99"; done = 1; next } { print }' "$TMP/presets.cfg" > "$TMP/presets.mut" && cp "$TMP/presets.mut" "$TMP/presets.cfg"
+check "a differing line inside the TV app makes the check fail" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
+check "and the message names the app and the values" "yes" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check 2>&1 | grep -q 'Version mismatch of the tv app' && echo yes)"
+FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" 2.3.4 12 >/dev/null
+printf 'name="foo"\nversion/name="1.0.0"\nversion/code=1\n' > "$TMP/odd.cfg"
+check "an app with no version lines is reported (not a silent exit)" "yes" "$(FILE="$TMP/odd.cfg" "$ROOT/tools/set_version.sh" --check 2>&1 | grep -q 'Version mismatch of the tv app in .*found 0 values' && echo yes)"
+check "a preset that is not tv counts as the controller app" "yes" "$(FILE="$TMP/odd.cfg" "$ROOT/tools/set_version.sh" --check 2>&1 | grep -q 'Version mismatch of the controller app in .*found 2 values' && echo yes)"
+check "set_version for an app with no preset fails with a message and leaves the file" "yes" "$(cp "$TMP/odd.cfg" "$TMP/odd2.cfg"; FILE="$TMP/odd2.cfg" "$ROOT/tools/set_version.sh" 3.0.0 9 tv 2>&1 | grep -q 'Version mismatch' && echo yes)"
 sed -i.bak 's/^application\/version="12"/application\/version="13"/' "$TMP/presets.cfg"
 check "one place that differs makes the check fail" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" --check >/dev/null 2>&1; echo $?)"
 check "a bad name is refused" "1" "$(FILE="$TMP/presets.cfg" "$ROOT/tools/set_version.sh" abc 1 >/dev/null 2>&1; echo $?)"

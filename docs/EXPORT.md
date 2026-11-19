@@ -195,16 +195,18 @@ ML Kit; ABIs: arm64-v8a for both, armeabi-v7a for the TV; the arm64 libraries ha
 libraries 0x1000 (Google's 16 KB rule is for 64-bit libraries, not verified here). Still not done: the real upload keystore, Play
 App Signing, the version name (`tools/set_version.sh 1.0.0`) and a run on a real device.
 
-### The version (one place)
+### The version (one place for each app)
 
-The version is written in five presets of `export_presets.cfg` (`tv`, `controller`, `controller-ios`, `tv-release`, `controller-release`: ten lines). Do not edit them by hand:
+The version is written in five presets of `export_presets.cfg`: the TV app has `tv` and `tv-release` (4 lines), the controller app has `controller`, `controller-release` and `controller-ios` (6 lines). The two apps are two Google Play listings, so each can have its own name and code (owner, 2026-11-19). Do not edit the lines by hand:
 
 ```sh
-tools/set_version.sh 0.2.0 2     # name x.y.z and one whole number, written to all ten lines
-tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh runs it in the lint job
+tools/set_version.sh 1.0.0 2              # both apps: name x.y.z and one whole number, written to all ten lines
+tools/set_version.sh 1.0.1 3 tv           # only the TV app (4 lines)
+tools/set_version.sh 1.1.0 5 controller   # only the controller app (6 lines, the iOS build number too)
+tools/set_version.sh --check              # exits 1 when the presets of ONE app differ; tests/ci_scripts.sh runs it in the lint job
 ```
 
-- The **code** (Android `version/code`, iOS build number) must be higher than the one of the last upload. Google Play rejects a repeated or lower code, and App Store Connect rejects a repeated build number for a version. The TV and the controller are two listings; both use the same number, so the rule is one number that only goes up (+1 for each upload, also for a rejected build that reached the store).
+- The **code** (Android `version/code`, iOS build number) must be higher than the one of the last upload. Google Play rejects a repeated or lower code, and App Store Connect rejects a repeated build number for a version. The TV and the controller are two listings, and Google Play counts the code of each app on its own (owner, 2026-11-19): the code of an app only goes up (+1 for each upload of that app, also for a rejected build that reached the store). Raise only the app that you upload again (`tools/set_version.sh <name> <code> tv` or `controller`); the other app keeps its number.
 - The **name** is what people see. Raise it for a change that people notice.
 - The protocol `VERSION` (`scripts/core/protocol.gd`, `docs/PROTOCOL.md`) is a separate number. It changes only when the wire format changes (the `change-protocol` skill) and has no link to the app version. A TV and a phone of different app versions work together as long as the protocol version is the same.
 
@@ -218,7 +220,7 @@ tools/set_version.sh --check     # exits 1 when they differ; tests/ci_scripts.sh
 ### Checklist for a store release (owner decides each step)
 
 1. The owner agrees to the release and to its version name.
-2. `tools/set_version.sh <name> <code>`, then `tools/set_version.sh --check`.
+2. `tools/set_version.sh <name> <code> [tv|controller]` (no app: both), then `tools/set_version.sh --check`.
 3. The privacy notice and the store forms are final (issues #36 and #37; the privacy policy URL of the forms is `https://alonzo86.github.io/remote-play/privacy.html`, live since 2026-11-18: the repository is public and Pages is on): the Play **Data safety** form (the controller uses the Google code scanner, the TV does not, see `tools/patch_android_manifest.sh`), the App Store privacy answers (Data Not Collected; the iPhone scanner uses the camera on the device only), the age rating (owner decision of 2026-11-08, issue #383: Google Play target audience **6-8, 9-12, 13-15, 16-17 and 18 and over** since 2026-11-12, so the Families policy applies and the whole app is made compliant; Apple age rating **9+**, not the Kids category), the Local Network text and the camera text.
 4. The suites of the change and the manual tests with status `Device` that the release needs are Pass in `docs/MANUAL_TESTS.md`.
 4b. The privacy notice is inside the apps: every preset has `docs/legal/privacy-notice.md` and `privacy-notice.he.md` in `include_filter`, and excludes the other folders of `docs/` by name in `exclude_filter` (not `docs/*`, which would drop the notice too; `design_tokens` fails when a new folder of `docs/` is not excluded). The website folder `site/*` is excluded too: no script loads it (issue #496; `design_tokens` checks it in every preset). A change of the notice needs a new build of the apps; the website changes at once.
