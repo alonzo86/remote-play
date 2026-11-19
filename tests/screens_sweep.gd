@@ -289,6 +289,7 @@ func _keys() -> void:
 	_check(not _app.settings.overlay, "Left on the overlay row sets it OFF")
 	# A release build (the store bundles) has no debug overlay: no Settings row, no Menu or F3 key, no switch (owner, 2026-11-18).
 	var rows_debug: int = _app.current_screen()._rows.size()
+	_check(_app.debug_tools == OS.is_debug_build(), "the overlay tools follow the build (on in a debug build, off in a release)")
 	_app.debug_tools = false
 	_app.go_settings()
 	await _frames(25)
