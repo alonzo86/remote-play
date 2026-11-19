@@ -128,8 +128,13 @@ func _run() -> void:
 	for line in presets.split("\n"):
 		if line.begins_with("export_filter="):
 			all_resources += 1 if line.contains("all_resources") else 0
-		if line.begins_with("exclude_filter=") and (line.contains("assets") or line.contains("png") or line.contains("tiles")):
-			excluded = true
+		if line.begins_with("exclude_filter="):
+			# One entry at a time: "docs/store-assets/*" is not under assets/ (the app's own folder), "assets/*" would be.
+			for entry in line.split("\"")[1].split(","):
+				var e := entry.strip_edges().trim_prefix("res://")
+				if e.begins_with("assets") or e.begins_with("*assets") or e.contains("/assets") or e.contains("png") \
+						or e.contains("tiles"):
+					excluded = true
 	_check(all_resources == 5 and not excluded,
 			"all 5 export presets pack all resources and exclude nothing under assets/ (the tiles are packed)")
 	var images := {}
