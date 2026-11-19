@@ -30,12 +30,12 @@ check() {
 	BAD=0
 	for APP in tv controller; do
 		WANT=4; [ "$APP" = controller ] && WANT=6
-		N="$(values | grep -c "^$APP ")"
+		N="$(values | grep -c "^$APP " || true)"   # grep -c exits 1 on a count of 0: a missing app is reported below, not a silent exit
 		NAMES="$(values | sed -n "s/^$APP name //p" | sort -u | wc -l | tr -d ' ')"
 		CODES="$(values | sed -n "s/^$APP code //p" | sort -u | wc -l | tr -d ' ')"
 		if [ "$N" -ne "$WANT" ] || [ "$NAMES" -ne 1 ] || [ "$CODES" -ne 1 ]; then
 			echo "Version mismatch of the $APP app in $FILE (found $N values, expected $WANT; $NAMES different names, $CODES different codes):" >&2
-			values | grep "^$APP " >&2
+			values | grep "^$APP " >&2 || true
 			BAD=1
 		fi
 	done
@@ -56,6 +56,7 @@ case "$CODE" in ''|*[!0-9]*) echo "The code must be a whole number." >&2; exit 1
 case "$NAME" in *[!0-9.]*) echo "The name must be digits and dots (x.y.z)." >&2; exit 1 ;; esac
 case "$TARGET" in all|tv|controller) ;; *) echo "The app must be tv or controller (or nothing for both)." >&2; exit 1 ;; esac
 TMP="$(mktemp)"
+trap 'rm -f "$TMP"' EXIT
 awk -v target="$TARGET" -v name="$NAME" -v code="$CODE" '
 	/^name="/ { cur = ($0 ~ /^name="tv/) ? "tv" : "controller" }
 	{
@@ -68,5 +69,4 @@ awk -v target="$TARGET" -v name="$NAME" -v code="$CODE" '
 	}
 ' "$FILE" > "$TMP"
 cat "$TMP" > "$FILE"
-rm -f "$TMP"
 FILE="$FILE" "$0" --check
