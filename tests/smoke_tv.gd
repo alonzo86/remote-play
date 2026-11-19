@@ -461,7 +461,7 @@ func _run() -> void:
 	var result_buttons: Array = rg.menu_buttons().map(func(b): return b.text)
 	_check(rg.is_over and result_buttons == RESULT_MENU and not rg._can_open_menu(),
 			"the result menu has Restart, New game and Back to menu, and the game is over: %s" % str(result_buttons))
-	_check(row_labels.size() == 3 and row_labels[1].begins_with("1ST") and row_labels[1].ends_with("9")
+	_check(row_labels.size() == 3 and row_labels[1].begins_with("1ST") and row_labels[1].contains("9.0")
 			and row_labels[2].begins_with("2ND") and row_labels[0].ends_with("WINS!"),
 			"the ranking lists the best first and the title names the winner: %s" % str(row_labels))
 	var dots: Array = rg._menu_box.find_children("*", "ColorRect", true, false)

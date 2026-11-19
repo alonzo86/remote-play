@@ -58,6 +58,8 @@ func _untranslated_literals() -> Array:
 			var t := m.get_string(1)
 			if t == "" or _has_he(t) or t.to_upper() in KEEP or t.to_upper() == t.to_lower() or t.ends_with("."):
 				continue   # Empty, translated, a brand, or without letters.
+			if t.contains("%d") and Lang.has(t.replace("%d", "1")):
+				continue   # A key that the code builds from a number (result.place_%d): its rows are in the table.
 			missing.append("%s: %s" % [path.get_file(), t])
 	return missing
 
