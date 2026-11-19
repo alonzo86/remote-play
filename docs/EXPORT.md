@@ -226,6 +226,7 @@ tools/set_version.sh --check              # exits 1 when the presets of ONE app 
 4b. The privacy notice is inside the apps: every preset has `docs/legal/privacy-notice.md` and `privacy-notice.he.md` in `include_filter`, and excludes the other folders of `docs/` by name in `exclude_filter` (not `docs/*`, which would drop the notice too; `design_tokens` fails when a new folder of `docs/` is not excluded). The website folder `site/*` is excluded too: no script loads it (issue #496; `design_tokens` checks it in every preset). A change of the notice needs a new build of the apps; the website changes at once.
 5. Android: export the bundles with `tools/build.sh aab`, check them like in section 4 (the TV has no `QrScanner`, the controller has it) and upload both to the internal testing track first.
 6. iOS: export the Xcode project (`controller-ios`), open it in Xcode, set the team, Product > Archive, Distribute App > App Store Connect, then test in TestFlight. (Not verified: no Mac with Xcode was used for this.)
+6b. Closed test (Google asks a new personal account for it before production): `docs/CLOSED_TEST.md` has the message for the testers, the feedback channel and the checklist of the 14 days.
 7. Only after the owner says so: promote to production and push the tag `v<name>`. No agent pushes a tag or publishes a store build on its own.
 
 ## Desktop tests (no Android)
