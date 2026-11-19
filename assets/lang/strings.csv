@@ -148,7 +148,7 @@ result.seconds_1,%.1f s,%.1f ש׳,"Treasure Maze result list and line 3 of the p
 result.seconds_2,%.2f s,%.2f ש׳,"Car Race result list, line 3 of the phone result screen, the score row under the header of the phone (the time of the player after the finish) and the personal best of a race, on the phone profile: finish time, %.2f is seconds","the number sign (%d, %.1f ...) is replaced by a number"
 result.winner,%s wins!,%s ניצח!,Result menu title: %s is the name of the winner,%s is replaced by a name or a value
 settings.approve_players,APPROVE NEW PLAYERS,אישור שחקנים חדשים,"TV Settings: name of the first row (on/off, ON by default)",The value is common.on or common.off
-settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row,
+settings.debug_overlay,DEBUG OVERLAY,מסך אבחון,TV Settings: name of the row (shown in a debug build only),
 settings.effects,EFFECTS,אפקטים,TV Settings: name of the sound effects volume row,
 settings.invert_tilt_axes,INVERT AXES,היפוך צירים,TV Settings: name of the row,
 settings.language,LANGUAGE,שפה,TV Settings: name of the Language row; phone Settings: name of the Language row (LANGUAGE  < ENGLISH >),

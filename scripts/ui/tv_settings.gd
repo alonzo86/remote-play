@@ -34,7 +34,8 @@ func _ready() -> void:
 	rows.add_theme_constant_override("separation", 22)
 	scroll.add_child(rows)
 	_add_row(rows, "settings.approve_players", "approve_players", Callable())
-	_add_row(rows, "settings.debug_overlay", "overlay", Callable())
+	if App.debug_tools:   # The overlay is a tool of a debug build only (owner, 2026-11-18).
+		_add_row(rows, "settings.debug_overlay", "overlay", Callable())
 	_add_row(rows, "settings.invert_tilt_axes", "invert_tilt", Callable())
 	_add_level_row(rows, "settings.music", "music_volume")
 	_add_level_row(rows, "settings.effects", "sfx_volume")

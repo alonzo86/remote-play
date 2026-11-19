@@ -39,7 +39,7 @@ Docs: [requirements](docs/REQUIREMENTS.md) | [game requirements](docs/GAME_REQUI
 - Sound (FD-20, [docs/AUDIO_PLAN.md](docs/AUDIO_PLAN.md)): the TV plays an arcade-style song for the menus and one for each game, and sound
   effects. It is made in code by a small chip synthesizer (`scripts/audio/`), so there is no audio file. The Settings screen has Music and Effects
   (0 is silent; there is no Mute row). The phone makes no sound: it vibrates in games, and its Settings screen (a button on the waiting screen) has a Haptics ON/OFF switch.
-- The debug overlay (Menu key, F3, or the switch on the Settings screen) shows per player: RTT, sensor age, packet rate,
+- The debug overlay (Menu key, F3, or the switch on the Settings screen; a debug build only: a release build has no overlay, no key and no switch, owner 2026-11-18) shows per player: RTT, sensor age, packet rate,
   longest gap, lost packets, raw gyroscope and accelerometer, tilt and pointer.
 
 ## Project structure
@@ -97,7 +97,7 @@ godot --path . -- --role=tv                       # TV window
 godot --path . -- --role=controller --join=127.0.0.1   # phone window. Joins the TV at that address (the TV must be a debug build: it accepts a join with no room code only then; the TV shows the approval card, press Enter on the TV window to ALLOW, or turn APPROVE NEW PLAYERS off in Settings first).
 ```
 
-TV keys: arrows, Enter, Esc (back), F3 (overlay; with the overlay on: F5 starts and stops the sensor recorder, F6 / F7 change its label, REQ-T7).
+TV keys: arrows, Enter, Esc (back), F3 (overlay, debug build only; with the overlay on: F5 starts and stops the sensor recorder, F6 / F7 change its label, REQ-T7).
 The phone window has no sensors. The mouse simulates tilt (position) and yaw (movement).
 
 ## Build and export
@@ -140,7 +140,7 @@ Short version. Full steps and a problem table: [docs/EXPORT.md](docs/EXPORT.md).
 | TV remote | D-pad | Move the focus |
 | TV remote | OK | Select. In a game: nothing (Back pauses and asks to end the game) |
 | TV remote | Back | Back one level. Games: Connect screen (players stay). Connect: quit question |
-| TV remote | Menu (or F3) | Show or hide the debug overlay |
+| TV remote | Menu (or F3) | Show or hide the debug overlay (debug build only) |
 
 ## Tests
 

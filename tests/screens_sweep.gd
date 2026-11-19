@@ -287,6 +287,26 @@ func _keys() -> void:
 	_check(_app.settings.overlay, "Right on the overlay row sets it ON")
 	await _key("ui_left")
 	_check(not _app.settings.overlay, "Left on the overlay row sets it OFF")
+	# A release build (the store bundles) has no debug overlay: no Settings row, no Menu or F3 key, no switch (owner, 2026-11-18).
+	var rows_debug: int = _app.current_screen()._rows.size()
+	_check(_app.debug_tools == OS.is_debug_build(), "the overlay tools follow the build (on in a debug build, off in a release)")
+	_app.debug_tools = false
+	_app.go_settings()
+	await _frames(25)
+	var release_rows: Array = _app.current_screen()._rows
+	var has_overlay_text: bool = not _app.current_screen().find_children("*", "Label", true, false).filter(
+			func(n: Node) -> bool: return n.text == Lang.t("settings.debug_overlay")).is_empty()
+	_check(release_rows.size() == rows_debug - 1 and not has_overlay_text,
+			"a release build: no Debug overlay row on Settings (%d rows, a debug build has %d)" % [release_rows.size(), rows_debug])
+	var shown_before: bool = _app.overlay.visible
+	_app.set_overlay(true)
+	var f3 := InputEventKey.new()
+	f3.keycode = KEY_F3
+	f3.pressed = true
+	_app._input(f3)
+	_check(not _app.settings.overlay and _app.overlay.visible == shown_before,
+			"a release build: set_overlay and the F3 key do not switch the overlay on")
+	_app.debug_tools = true
 	_app.go_connect()
 	await _frames(6)
 	_app.current_screen().on_back()

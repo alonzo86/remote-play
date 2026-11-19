@@ -45,7 +45,10 @@ var settings := {
 
 var theme_res: Theme
 var server: Node            # TV only
-var overlay: CanvasLayer    # TV only
+var overlay: CanvasLayer    # TV only, and only when `debug_tools` is true (a debug build).
+## The debug overlay and its keys exist only in a debug build (owner, 2026-11-18): a release build (the store bundles) has no
+## overlay, no Menu or F3 key for it and no Settings row. A test may set it to check a release build.
+var debug_tools := OS.is_debug_build()
 var join_requests: CanvasLayer   # TV only. The card of a phone that asks to join (issue #393, FD-30.12).
 var client: Node            # Controller only
 ## The last personal best of this phone: {"key", "value", "old"} or empty (REQ-GM-100). Cleared when the next round starts.
@@ -321,9 +324,10 @@ func _start_tv() -> void:
 	server.player_joined.connect(func(_s): Sound.sfx("join"))
 	server.player_lost.connect(func(_s): Sound.sfx("leave"))
 	server.player_removed.connect(func(_s): Sound.sfx("leave"))
-	overlay = DebugOverlay.new()
-	overlay.visible = bool(settings.overlay)
-	add_child(overlay)
+	if debug_tools:
+		overlay = DebugOverlay.new()
+		overlay.visible = bool(settings.overlay)
+		add_child(overlay)
 	join_requests = JoinRequests.new()
 	add_child(join_requests)
 	join_requests.setup(server)
@@ -336,6 +340,8 @@ func toggle_overlay() -> void:
 
 
 func set_overlay(on: bool) -> void:
+	if not debug_tools or overlay == null:
+		return   # A release build has no overlay.
 	settings.overlay = on
 	overlay.visible = on
 	save_settings()
