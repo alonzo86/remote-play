@@ -1,0 +1,53 @@
+name: Tester feedback
+description: Tell us what worked and what did not in the Sababi closed test
+title: "[Tester] "
+labels: ["tester-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for testing Sababi! This form is public and your GitHub name shows: please do not write personal details (your name, your address, your email) in it. If you prefer, write to sababi.play@gmail.com instead.
+  - type: dropdown
+    id: app
+    attributes:
+      label: Which app?
+      options:
+        - Sababi: TV Games (the TV app)
+        - Sababi: Remote (the phone app)
+        - Both
+    validations:
+      required: true
+  - type: input
+    id: devices
+    attributes:
+      label: Your devices
+      description: The model of the TV and of the phone, and the Android version if you know it.
+      placeholder: "TV: Sony BRAVIA 4K UR3 (Google TV). Phone: Pixel 8, Android 15"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you do?
+      description: The steps, one by one (the game, the buttons, the language).
+    validations:
+      required: true
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: false
+  - type: textarea
+    id: media
+    attributes:
+      label: A photo or a short video
+      description: Drag a file here. Do not add a photo or a video that shows people, faces or children (send those by email), and make sure that it shows no personal details.
+    validations:
+      required: false
