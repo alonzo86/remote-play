@@ -79,13 +79,15 @@ for name, required in features:
           lambda s, name=name, required=required: s.replace("    <application",
               '    <uses-feature android:name="%s" android:required="%s" />\n\n    <application' % (name, required), 1),
           "uses-feature " + name)
-# A manifest patched before this rule has the flag as false: make it true for the TV app.
-if tv_only:
-    old = '<uses-feature android:name="android.software.leanback" android:required="false" />'
+# A manifest patched before this rule can have a feature with another value (for example leanback as false in the TV app): set the
+# value of each line to the one above.
+for name, required in features:
     s = open(manifest).read()
-    if old in s:
-        open(manifest, "w").write(s.replace(old, old.replace('"false"', '"true"')))
-        print("leanback required: set to true (TV app only)")
+    for other in ("true", "false"):
+        old = '<uses-feature android:name="%s" android:required="%s" />' % (name, other)
+        if other != required and old in s:
+            open(manifest, "w").write(s.replace(old, old.replace('"%s" />' % other, '"%s" />' % required)))
+            print("uses-feature %s: required set to %s" % (name, required))
 
 # Android TV lists only apps with the leanback launcher category, and `monkey` needs it to find the activity.
 patch(manifest, "category.LEANBACK_LAUNCHER",
