@@ -45,7 +45,7 @@ Nobody has tested it on a real TV or phone yet. Items marked **(unverified)** ne
 | D3 | **32-bit TV boxes.** Many boxes run a 32-bit system. | `arm64` APK does not install. | The `tv` preset builds `armeabi-v7a` and `arm64-v8a`. |
 | D4 | **Gradle build is required for Android TV.** | The export needs JDK, SDK and the template. | See `docs/EXPORT.md`. |
 | D5 | **Overscan and TV safe area.** | Text near the edge can be cut. | The layout keeps 60 px margins. Check on your TV. |
-| D6 | **Android TV has no touchscreen and sometimes no sensors.** | None for the TV app. | The manifest sets `required="false"` for these features. |
+| D6 | **Android TV has no touchscreen and sometimes no sensors.** | None for the TV app. | The manifest sets `required="false"` for these features, and for Wi-Fi and the screen orientation (Google Play counts the features that the Wi-Fi permissions and the orientation imply; PR #505). |
 
 ## E. Known limits
 

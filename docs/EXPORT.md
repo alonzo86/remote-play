@@ -59,7 +59,7 @@ The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so i
    The script patches both projects (`tools/patch_android_manifest.sh controller` or `tv` for one). It does these things (you can run it again without harm):
    - copies `assets/icons/banner.png` (320 x 180, the logo; `tools/make_icons.gd` makes it and the icons from `assets/logo`) to `android/build/res/drawable-xhdpi/banner.png`;
    - adds `android:banner="@drawable/banner"` to the `<application>` tag in `android/build/src/main/AndroidManifest.xml`;
-   - adds `uses-feature` lines for leanback, touchscreen, gyroscope and accelerometer, all with `required="false"` except
+   - adds `uses-feature` lines for leanback, touchscreen, gyroscope, accelerometer, Wi-Fi and the screen orientation of the app (`android.hardware.screen.portrait` for the controller, `android.hardware.screen.landscape` for the TV; the Wi-Fi permissions and the orientation of the activity imply these features, and Google Play hides an app from the devices that lack a required feature: Play Console, "Required hardware feature declarations are restricting your app's availability", 2026-11-19), all with `required="false"` except
      **leanback in the TV app, which is `required="true"`** (owner, 2026-11-18: "Sababi: TV Games" is installed only on a TV, so
      Google Play does not offer it to phones and tablets; the phone app has no such limit; an older manifest is changed on the next run);
    - in `android/build` only (the controller): installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
@@ -107,9 +107,11 @@ aapt dump xmltree build/sababi-tv.apk AndroidManifest.xml | grep -E "LEANBACK_LA
 aapt dump xmltree build/sababi-controller.apk AndroidManifest.xml | grep -E "QrScanner"
 aapt dump xmltree build/sababi-tv.apk AndroidManifest.xml | grep -A2 "android.software.leanback"
 aapt dump xmltree build/sababi-controller.apk AndroidManifest.xml | grep -A2 "android.software.leanback"
+aapt dump xmltree build/sababi-tv.apk AndroidManifest.xml | grep -A2 "android.hardware.wifi\|android.hardware.screen"
+aapt dump xmltree build/sababi-controller.apk AndroidManifest.xml | grep -A2 "android.hardware.wifi\|android.hardware.screen"
 ```
 
-The TV apk must show a `banner` entry and `android.intent.category.LEANBACK_LAUNCHER`, and **no** `QrScanner` (the TV app has no scanner). The controller apk must show `org.godotengine.plugin.v2.QrScanner`. The `android.software.leanback` line must show `required` true in the TV apk and false in the controller apk (the TV app is installed only on a TV, owner, 2026-11-18). A bundle (`.aab`) is checked the same way with `aapt2 dump xmltree --file AndroidManifest.xml`.
+The TV apk must show a `banner` entry and `android.intent.category.LEANBACK_LAUNCHER`, and **no** `QrScanner` (the TV app has no scanner). The controller apk must show `org.godotengine.plugin.v2.QrScanner`. The lines of `android.hardware.wifi` and of the screen (`android.hardware.screen.landscape` in the TV apk, `android.hardware.screen.portrait` in the controller apk) must show `required` false in both. The `android.software.leanback` line must show `required` true in the TV apk and false in the controller apk (the TV app is installed only on a TV, owner, 2026-11-18). A bundle (`.aab`) is checked the same way with `aapt2 dump xmltree --file AndroidManifest.xml`.
 (Godot 4.7 puts the launcher categories on an `activity-alias`, so `aapt dump badging` does not show a
 `leanback-launchable-activity` line.)
 If you do not see them, run `tools/patch_android_manifest.sh` again and export again.
