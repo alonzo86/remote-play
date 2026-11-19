@@ -21,3 +21,7 @@ Rules:
 - The store badge (Google Play) is trademarked artwork: use only the official file and follow the brand rules of the store, and add any new badge to `docs/THIRD_PARTY.md` first.
 - The privacy notice, the terms and the store texts are owner only (CLAUDE.md). Edit `docs/legal/*.md`, never the generated pages by hand.
 - To see it: `cd site && python3 -m http.server 8000`.
+
+## After the apps are published
+
+Run `tools/check_store_links.sh` (issue #427): it opens both Google Play addresses of `stores.js` and checks that `get/` redirects an Android phone. Before the release the addresses answer 404 and the script fails. A person still looks at the listings and the badges of the English and Hebrew home pages.

@@ -78,6 +78,7 @@ func _run() -> void:
 		_check(not text.contains("app-store") and not text.contains("Apple Inc") and not text.contains("appStore:"),
 				"%s has no App Store badge, link or credit (removed by the owner, 2026-11-09)" % path)
 	_check(not _exists("site/badges/app-store.svg"), "the App Store badge file is gone")
+	_stores_match_presets()
 	var get_html := FileAccess.get_file_as_string("res://site/get/index.html")
 	_check(get_html.contains('<link rel="icon" href="../favicon.ico" sizes="any">'), "site/get/index.html has the favicon")
 	# The store screenshots on the home page (owner request of 2026-11-09): 10 for the TV, 2 for the phone, in one carousel line.
@@ -99,3 +100,27 @@ func _run() -> void:
 		_check(ok, "%s home page: each screenshot file exists, its size is in the tag and it has a text" % dir)
 	print("\n%d checks, %d failed" % [_checks, _fails])
 	quit(1 if _fails > 0 else 0)
+
+
+## Issue #427: the Google Play addresses of `site/stores.js` are made from the package ids. The ids must be the ones of the export
+## presets (the real bundles), or the website sends people to a "not found" page after the release. The phone app is the
+## controller, the TV app is the tv (the Android presets of each app share one id).
+func _stores_match_presets() -> void:
+	var stores := FileAccess.get_file_as_string("res://site/stores.js")
+	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
+	var ids := RegEx.create_from_string('package/unique_name="([^"]+)"').search_all(presets)
+	var controller: Array = []
+	var tv: Array = []
+	for m in ids:
+		var id: String = m.get_string(1)
+		if id.ends_with(".controller") and not controller.has(id):
+			controller.append(id)
+		elif id.ends_with(".tv") and not tv.has(id):
+			tv.append(id)
+	_check(controller.size() == 1 and tv.size() == 1, "export_presets.cfg: one package id for the phone app and one for the TV app")
+	if controller.size() != 1 or tv.size() != 1:
+		return
+	var base := "https://play.google.com/store/apps/details?id="
+	_check(stores.contains('play: "%s%s"' % [base, controller[0]]),
+			"stores.js: `play` is the listing of the phone app (%s)" % controller[0])
+	_check(stores.contains('playTv: "%s%s"' % [base, tv[0]]), "stores.js: `playTv` is the listing of the TV app (%s)" % tv[0])
