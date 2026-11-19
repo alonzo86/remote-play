@@ -450,6 +450,10 @@ func _app_identity() -> void:
 	for preset_name in ["tv", "controller", "controller-ios", "tv-release", "controller-release"]:
 		_check(String(_preset_top(preset_name).get("exclude_filter", "")).contains("ios/plugin/*"),
 				"the %s preset leaves the source of the iOS plugin out of the pck" % preset_name)
+	# The website (site/, issue #496) is not part of the apps: no script loads it, so every preset leaves it out of the pck.
+	for preset_name in ["tv", "controller", "controller-ios", "tv-release", "controller-release"]:
+		_check(String(_preset_top(preset_name).get("exclude_filter", "")).contains("site/*"),
+				"the %s preset leaves the website (site/) out of the pck" % preset_name)
 	# The source of the iPhone scanner plugin (issue #299) cannot be built here; these checks keep its parts in step.
 	var gdip := FileAccess.get_file_as_string("res://ios/plugin/qr_scanner/QrScanner.gdip")
 	var plugin_mm := FileAccess.get_file_as_string("res://ios/plugin/qr_scanner/qr_scanner_module.mm")
