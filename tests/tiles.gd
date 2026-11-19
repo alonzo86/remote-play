@@ -131,8 +131,9 @@ func _run() -> void:
 		if line.begins_with("exclude_filter="):
 			# One entry at a time: "docs/store-assets/*" is not under assets/ (the app's own folder), "assets/*" would be.
 			for entry in line.split("\"")[1].split(","):
-				var e := entry.strip_edges()
-				if e.begins_with("assets") or e.contains("png") or e.contains("tiles"):
+				var e := entry.strip_edges().trim_prefix("res://")
+				if e.begins_with("assets") or e.begins_with("*assets") or e.contains("/assets") or e.contains("png") \
+						or e.contains("tiles"):
 					excluded = true
 	_check(all_resources == 5 and not excluded,
 			"all 5 export presets pack all resources and exclude nothing under assets/ (the tiles are packed)")
