@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for testing Sababi! This form is public: please do not write personal details (your name, your address, your account) in it. If you prefer, write to sababi.play@gmail.com instead.
+        Thank you for testing Sababi! This form is public and your GitHub name shows: please do not write personal details (your name, your address, your email) in it. If you prefer, write to sababi.play@gmail.com instead.
   - type: dropdown
     id: app
     attributes:
@@ -48,6 +48,6 @@ body:
     id: media
     attributes:
       label: A photo or a short video
-      description: Drag a file here. Make sure that it shows no personal details.
+      description: Drag a file here. Do not add a photo or a video that shows people, faces or children (send those by email), and make sure that it shows no personal details.
     validations:
       required: false
