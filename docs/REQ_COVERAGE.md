@@ -86,7 +86,7 @@ Counts: a 98, todo 0, review 14, obsolete 0, device 0 (total 112; 122 before the
 | REQ-GM-49b | a (done) | audio.gd (limits and lengths of every effect), audio_events.gd (a buzz comes with a sound effect) |
 | REQ-GM-49c | a (done) | named in the existing check of audio.gd, audio_controller.gd |
 | REQ-GM-49d | a (done) | named in the existing check of game_names_hebrew.gd |
-| REQ-GM-51 | a (done) | frame_cost.gd (480 ticks add no nodes in any game) |
+| REQ-GM-51 | a (done) | frame_cost.gd (480 ticks add no nodes in any game, counted in the bursts where the game runs) |
 | REQ-GM-52 | a (done) | frame_cost.gd (every game builds its scene in 2 s or less) |
 | REQ-GM-60 | review | each game has its own smoke_<name>.gd suite in tests/suites.txt (the names are not the game ids, so no test can derive them); reworded in issue #306 |
 | REQ-GM-61 | review | pure logic has unit tests in the *_rules.gd suites; reworded in issue #306 |

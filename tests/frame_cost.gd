@@ -108,18 +108,29 @@ func _measure(app: Node, spec: Dictionary, budget: float) -> void:
 	await _pause_menu(id, game, app)
 	await _frames(3)   # The menu is freed.
 	var worst := 0.0
-	var nodes_before := Performance.get_monitor(Performance.OBJECT_NODE_COUNT)
+	# Nodes are counted for each burst (the burst and the phone stream after it). A game can end in the window (Star Shield at
+	# wave 8 on Hard, with an RNG that has no seed, can lose all 4 ships): the result menu is one event with tens of nodes, not a
+	# cost of each frame (issue #495). The segment in which the game ends and the ones after it are not counted.
+	var grown := 0
+	var counted := 0
 	for b in BURSTS:
+		var nodes_before := Performance.get_monitor(Performance.OBJECT_NODE_COUNT)
 		var start := Time.get_ticks_usec()
 		for i in BURST:
 			game._process(1.0 / 60.0)
 		worst = maxf(worst, float(Time.get_ticks_usec() - start) / float(BURST) / 1000.0)
 		await _stream(0.1, float(b))
+		if game.is_over:
+			break
+		grown += int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT) - nodes_before)
+		counted += 1
 	# REQ-GM-51: a game does not create nodes in a frame. 480 ticks of play (8 s) may add a few nodes for events (a banner, a
 	# pop-up), but not one for each frame.
-	var grown := Performance.get_monitor(Performance.OBJECT_NODE_COUNT) - nodes_before
-	_check(grown <= 2, "%s: REQ-GM-51: %d ticks add %d nodes (2 or less, not one for each frame)" % [id, BURST * BURSTS, int(grown)])
-	print("  info %s: nodes added in %d ticks: %d" % [id, BURST * BURSTS, int(grown)])
+	# Only Star Shield may end in the window. Any other game must be counted in every burst, or the check would measure nothing.
+	_check(counted == BURSTS or (id == "asteroid_blast" and counted >= 1),
+			"%s: the game was still running in %d of %d bursts (all of them, except Star Shield)" % [id, counted, BURSTS])
+	_check(grown <= 2, "%s: REQ-GM-51: %d ticks add %d nodes (2 or less, not one for each frame)" % [id, BURST * counted, grown])
+	print("  info %s: nodes added in %d ticks: %d" % [id, BURST * counted, grown])
 	print("  info %s: worst logic of one frame %.2f ms" % [id, worst])
 	_check(worst < budget, "%s: the logic of a frame with %d phones on Hard is under %.0f ms (%.2f ms)"
 			% [id, PHONES, budget, worst])
