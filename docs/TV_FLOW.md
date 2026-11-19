@@ -185,7 +185,7 @@ These requirements replaced the Party Pop ones (FD-13) in phase 1 of `docs/ARCAD
 - REQ-FL-31: Only phones on the same local network as the TV can join (FD-10). The app uses no internet service for play (REQ-P5). The Connect screen help text tells the players to be in the same room and on the same Wi-Fi.
 
 ### Players that join and leave
-- REQ-FL-25: A phone can join on any screen of the TV, also during a game. A new phone waits for the next round (it gets the slot but does not take part). **Planned (issue #393, FD-30):** while the setting "approve new players" is ON, a new phone gets a slot only after the host allows it (REQ-FL-93 to REQ-FL-104); the rest of this rule stays.
+- REQ-FL-25: A phone can join on any screen of the TV, also during a game. A new phone waits for the next round (it gets the slot but does not take part). **Built (issue #393, FD-30):** while the setting "approve new players" is ON (the default), a new phone gets a slot only after the host allows it (REQ-FL-93 to REQ-FL-104); the rest of this rule stays.
 - REQ-FL-26: A phone that leaves or is lost during a game uses the existing pause and reconnect rules (REQ-T5, REQ-N5).
 - REQ-FL-27: When the player count changes on the Games screen, the tiles update at once (REQ-FL-14).
 
