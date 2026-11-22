@@ -93,7 +93,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
 | [33](#test-33) | iPhone QR scanner (camera view, permission, cancel, privacy) | 1 iPhone, 1 Mac with Xcode, 1 TV, a second phone, a child for item 9b, a Hebrew reader for item 8a | REQ-FL-58, 88 to 92 (`docs/TV_FLOW.md`), issue #299 | Not run |  | |
 | [34](#test-34) | Join approval with the TV remote | 2 phones, 1 TV with its real remote, a stopwatch, a native reader of Hebrew for item 7a | REQ-FL-93 to REQ-FL-104, FD-30 (`docs/TV_FLOW.md`), issue #393 | Pass | R9 | Set to Pass on 2026-11-19 on the owner's instruction: 22 of 23 steps are Pass in R9, step 4c is the headless test A-34-4c |
-| [35](#test-35) | TAP prompts of the TV app on a phone (closed test build) | 1 phone with the TV app of the closed test (`--any-device`), 1 phone with the controller app, 1 TV with the TV app | REQ-FL-3, REQ-FL-6, REQ-FL-7a (`docs/TV_FLOW.md`), `docs/CLOSED_TEST.md` | Not run | | New (2026-11-22). The headless tests cover the words and the tap (`A-35-1`); the answer of Android (touchscreen, leanback) can be read only on the devices |
+| [35](#test-35) | TAP prompts and taps of the TV app on a phone (closed test build) | 1 phone with the TV app of the closed test (`--any-device`), 2 phones with the controller app, 1 TV with the TV app, a native reader of Hebrew for item 6a | REQ-FL-3, REQ-FL-6, REQ-FL-7a (`docs/TV_FLOW.md`), `docs/CLOSED_TEST.md` | Not run | | New (2026-11-22). The headless tests cover the words and the tap (`A-35-1`); the answer of Android (touchscreen, leanback) can be read only on the devices |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -108,7 +108,7 @@ Tests the user has to run now (status on 2026-11-18 after run R12; the list is i
 | 20 | **Next release (iPhone).** **Open: item 14b** (after run R11 of 2026-11-18; 13 of 14 steps are Pass, N/A or Removed in the Results table). Step 14b needs an iPhone: the owner said that the iPhone tests are not planned for the first release. | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
 | 13 | **Next release (iOS, issue #415).** **Open: items 1a, 1b, 2b, 2c, 2d, 4a, 4b, 5a, 5b, 5c, 6b, 6d, 7** (after run R9 of 2026-11-17; 0 of 13 steps are Pass or N/A in the Results table). | New on 2026-10-09. Written on a Mac without Xcode, so never run |
 | 33 | **Next release (iOS, issue #415).** **New (iPhone QR scanner).** An iPhone with a Mac and Xcode: build the plugin and deploy (1a), the scan button, the camera question on the first scan and the view (2a, 2b, 3a, 3b), a TV code, a profile code and a web page code (4a to 4d), CANCEL, swipe down and the home button (5a to 5c), the camera off in Settings and on again (6a, 6b), no photo saved and only Camera and Local Network listed (7a, 7b), Hebrew from a Hebrew reader (8a), a dark room and a child of 5 to 8 years (9a, 9b). Run test 13 steps 1a to 2d first. Nothing here can be done headless | The iPhone scanner was planned on 2026-11-01 (`docs/IOS_SCANNER_PLAN.md`, issue #299, REQ-FL-58, 88 to 92). The plugin source is written on Linux and was never built or run: every value, the plugin and the texts (also the Hebrew camera question) are unverified. Needed before it is merged and before the privacy notice text about the iPhone camera is final |
-| 35 | **New.** Install the closed test build of the TV app on a phone and on the TV (steps 1a, 1b, 2a, 2b, 3a). | The prompts say TAP on a phone and PRESS OK on a TV (issue about the TV app on phones, option C of `docs/CLOSED_TEST.md`); only a device can tell |
+| 35 | **New.** Install the closed test build of the TV app on a phone and on the TV (steps 1a to 4b), and the Hebrew read (6a). | The prompts say TAP on a phone and PRESS OK on a TV (issue about the TV app on phones, option C of `docs/CLOSED_TEST.md`); only a device can tell |
 | 12 | **New (issue #510).** Items 1h to 1k: swipe up and down on the Games screen of the TV app on a phone (the closed test build), a swipe on a tile opens nothing, a tap opens the game. | The Games grid had no touch scroll; the swipe is new and only a device shows the real touch |
 
 Test 2 (QR scan) passed in R0. Run it again only when the QR plugin or the connect screen changes. It changed on 2026-10-21 (Back in the scanner is a cancel, issue #43); item 3a passed again in R5.
@@ -1954,29 +1954,47 @@ History:
 
 ## Test 35
 
-### TAP prompts of the TV app on a phone (closed test build)
+### TAP prompts and taps of the TV app on a phone (closed test build)
 
-Needs: 1 phone with the closed test build of the TV app (`tools/patch_android_manifest.sh tv --any-device`, `docs/EXPORT.md`; a debug build with `tools/deploy.sh tv` is the same for this test), 1 TV with the TV app, 1 more phone with the controller app. Covers: REQ-FL-3, REQ-FL-6, REQ-FL-7a (`docs/TV_FLOW.md`), `docs/CLOSED_TEST.md`.
+Needs: 1 phone with the closed test build of the TV app (`tools/patch_android_manifest.sh tv --any-device`, `docs/EXPORT.md`; a debug build with `tools/deploy.sh tv` is the same for this test), 1 TV with the TV app, 2 more phones with the controller app (phones B and C), a native reader of Hebrew for step 6a. Covers: REQ-FL-3, REQ-FL-6, REQ-FL-7a (`docs/TV_FLOW.md`), `docs/CLOSED_TEST.md`.
+
+Join approval (issue #393): the TV setting APPROVE NEW PLAYERS is ON by default, so a card shows on the TV phone for each phone that joins; answer it with a tap on ALLOW (a card needs 1 second before it takes a tap).
 
 New (2026-11-22). Claude does not mark a step Pass on its own.
 
 **Steps**
 
-1a. Open the TV app on the phone (the language is saved: when it asks for the language, tap one). Check: the logo screen shows the blinking line TAP TO START, and not PRESS OK TO START.
-1b. Tap anywhere on the logo screen (not on the card). Check: the Connect screen shows. (REQ-FL-3)
-2a. On the Connect screen, join with the controller app on the other phone (type the room code; ALLOW on the join card with a tap). Check: the blinking line TAP TO CONTINUE shows at the bottom, and the Games screen does not open when the card is answered. (REQ-FL-6, REQ-FL-7a)
-2b. Tap on an empty place of the Connect screen. Check: the Games screen opens. (REQ-FL-7a)
-3a. Open the TV app on the real TV. Check: the logo screen says PRESS OK TO START and the Connect screen says PRESS OK TO CONTINUE after a phone joined (never TAP), and OK on the remote works as before. (REQ-FL-3, REQ-FL-6)
+1a. Open the TV app on the phone (the language is saved: when it asks for the language, tap one). Check: the logo screen shows the blinking line TAP TO START.
+1b. On the logo screen, check that the line does not say PRESS OK. (REQ-FL-3, REQ-FL-7a)
+2a. Tap anywhere on the logo screen, not on the card. Check: the Connect screen shows. (REQ-FL-3)
+2b. Open the TV app again and, on the logo screen, press and move the finger away before lifting it (a swipe of 3 cm on the screen). Check: the Connect screen shows when the finger is lifted (yes or no). (REQ-FL-3)
+3a. On the Connect screen, tap an empty place before any phone has joined. Check: the screen stays on Connect (a tap does nothing before a phone joined). (REQ-FL-7a)
+3b. Join with phone B (type the room code). A card shows on the TV phone. Tap ALLOW on the card. Check: the card closes, phone B is in slot 1P, and the Games screen does not open. (REQ-FL-7a)
+3c. Check that the blinking line TAP TO CONTINUE shows at the bottom of the Connect screen. (REQ-FL-6)
+3d. Join with phone C (type the room code). While its card is open, tap ALLOW. Check: the card closes, phone C is in slot 2P, and the Games screen does not open (with a phone already joined, the tap on the card does not continue). (REQ-FL-7a)
+3e. Press Back on the TV phone (the Android back gesture): the quit question opens. Tap on an empty place outside its buttons. Check: the Games screen does not open. Tap STAY. (REQ-FL-7a)
+3f. Tap on an empty place of the Connect screen. Check: the Games screen opens. (REQ-FL-7a)
+4a. Open the TV app on the real TV. Check: the logo screen says PRESS OK TO START and never TAP. (REQ-FL-3)
+4b. Press OK on the remote, join a phone, and check that the Connect screen says PRESS OK TO CONTINUE and never TAP, and that OK opens the Games screen. (REQ-FL-6, REQ-FL-7a)
+6a. Set the app to Hebrew. Check: the native reader says whether הקישו כדי להתחיל and הקישו להמשך read as "tap to start" and "tap to continue" (yes or no; the words that are wrong, with the reason). (REQ-FL-63a)
 
 **Results**
 
 | Item | Evidence to capture | Result | Run | Evidence | Notes |
 |------|---------------------|--------|-----|----------|-------|
 | 1a | Photo of the phone | Not run | | | |
-| 1b | Note: yes or no | Not run | | | |
-| 2a | Photo of the phone | Not run | | | |
+| 1b | Photo of the phone | Not run | | | |
+| 2a | Note: yes or no | Not run | | | |
 | 2b | Note: yes or no | Not run | | | |
-| 3a | Photo of the TV | Not run | | | |
+| 3a | Note: yes or no | Not run | | | |
+| 3b | Photo of the TV phone after the tap | Not run | | | |
+| 3c | Photo of the TV phone | Not run | | | |
+| 3d | Photo of the TV phone after the tap | Not run | | | |
+| 3e | Note: yes or no | Not run | | | |
+| 3f | Note: yes or no | Not run | | | |
+| 4a | Photo of the TV | Not run | | | |
+| 4b | Photo of the TV | Not run | | | |
+| 6a | Photos in Hebrew; note: the words the reader marks, with the reason | Not run | | | |
 
 History:
 

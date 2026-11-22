@@ -245,6 +245,18 @@ func _tv_tap_to_games() -> void:
 	await _frames(2)
 	screen._input(touch.call(false))
 	_check(_server.phase == "connect", "a press that started on the quit question does not continue when the question is gone")
+	# A join card that is open: the tap that answers it does not continue (the card has its own buttons).
+	var card_script := GDScript.new()
+	card_script.source_code = "extends CanvasLayer\nvar open := true\nfunc is_open() -> bool:\n\treturn open\n"
+	card_script.reload()
+	var card: CanvasLayer = card_script.new()
+	_app.join_requests = card
+	screen._input(touch.call(true))
+	card.open = false   # The card closes on the same tap, before the finger is lifted.
+	screen._input(touch.call(false))
+	_check(_server.phase == "connect", "a tap that answered the card of a join request does not continue (open at the press)")
+	_app.join_requests = null
+	card.free()
 	screen._input(touch.call(true))
 	screen._input(touch.call(false))
 	_check(_server.phase == "menu" and _app.current_screen().get_script() == _tv_games_script,
