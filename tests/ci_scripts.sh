@@ -184,6 +184,10 @@ check "patch: a run without --any-device requires leanback in the TV manifest ag
 (cd "$PT" && tools/patch_android_manifest.sh --any-device >/dev/null 2>&1)
 check "patch --any-device with no app: the TV manifest has leanback false and the controller keeps its lines" "1 1" "$(grep -c 'android.software.leanback" android:required="false"' "$PT/android-tv/build/src/main/AndroidManifest.xml") $(grep -c 'android.hardware.screen.portrait" android:required="false"' "$PT/android/build/src/main/AndroidManifest.xml")"
 (cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)
+(cd "$PT" && tools/patch_android_manifest.sh --any-device tv >/dev/null 2>&1)
+check "patch: the flag may come before the app (--any-device tv)" "1" "$(grep -c 'android.software.leanback" android:required="false"' "$PT/android-tv/build/src/main/AndroidManifest.xml")"
+(cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)
+check "patch controller --any-device: the flag is ignored for the controller (it keeps its lines, the TV manifest stays required)" "1 1" "$(cd "$PT" && tools/patch_android_manifest.sh controller --any-device >/dev/null 2>&1; grep -c 'android.hardware.screen.portrait" android:required="false"' "$PT/android/build/src/main/AndroidManifest.xml") $(grep -c 'android.software.leanback" android:required="true"' "$PT/android-tv/build/src/main/AndroidManifest.xml")"
 check "patch: an unknown argument is refused" "1" "$(cd "$PT" && tools/patch_android_manifest.sh phone >/dev/null 2>&1; echo $?)"
 cp "$PT/android/build/src/main/AndroidManifest.xml" "$TMP/before.xml"
 (cd "$PT" && tools/patch_android_manifest.sh >/dev/null 2>&1)

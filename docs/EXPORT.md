@@ -214,7 +214,7 @@ tools/set_version.sh --check              # exits 1 when the presets of ONE app 
 
 ### The closed test build of the TV app (phones can install it)
 
-The TV app is installed only on a TV (its manifest requires the leanback feature, owner 2026-11-18), and Google Play accepts such a bundle only on a dedicated Android TV track. For the **closed test** of the TV app the owner decided on 2026-11-22 (option C, `docs/CLOSED_TEST.md`) that testers who only have phones may install it, next to testers with a real TV:
+The TV app is installed only on a TV (its manifest requires the leanback feature, owner 2026-11-18), and the closed track of Google Play does not accept such a bundle (the Console: "APKs and bundles must not require following features: android.software.leanback. Some features can only be required in dedicated tracks."; read as the Android TV track). For the **closed test** of the TV app the owner decided on 2026-11-22 (option C, `docs/CLOSED_TEST.md`) that testers who only have phones may install it, next to testers with a real TV:
 
 ```sh
 tools/set_version.sh <name> <code> tv           # a code higher than any upload of the TV app
@@ -222,7 +222,7 @@ tools/patch_android_manifest.sh tv --any-device   # leanback is not required: th
 tools/build.sh aab                                # build/sababi-tv.aab
 ```
 
-After production access is granted, make the **production build** of the TV app: `tools/patch_android_manifest.sh tv` (no flag: leanback required again), a higher code, `tools/build.sh aab`, and release it on the Android TV production track. Check each bundle (section 4): the closed test bundle must show `required` false for leanback, the production bundle `required` true. The controller app is not affected.
+After production access is granted, make the **production build** of the TV app: `tools/patch_android_manifest.sh tv` (no flag: leanback required again), a higher code, `tools/build.sh aab`, and release it on the track that the Console offers for a TV-only bundle (the Android TV production track; see the risk in `docs/CLOSED_TEST.md`). Check each bundle (section 4): the closed test bundle must show `required` false for leanback, the production bundle `required` true. The controller app is not affected.
 
 ### Keys (never commit them, never paste them in an issue)
 
