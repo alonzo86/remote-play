@@ -240,6 +240,24 @@ func _swipe_checks(app: Node) -> void:
 		screen._input(drag.call(-30.0))
 	screen._input(touch.call(false, on_header))
 	_check(bar.value == before, "a finger that went down on the header does not scroll the grid")
+	# A swipe does not select a game: the tile that took the focus on the press gives it back.
+	var kept: Button = screen._tiles[0]
+	kept.grab_focus()
+	var swiped_tile: Button = screen._tiles[1]
+	screen._input(touch.call(true, on_grid))
+	swiped_tile.grab_focus()   # What the click that the engine makes from the touch does.
+	for i in 3:
+		screen._input(drag.call(-10.0))
+	_check(get_root_focus(screen) == kept, "a swipe gives the focus back to the tile that had it")
+	screen._input(touch.call(false, on_grid))
+	get_root_focus(screen).release_focus()
+	screen._input(touch.call(true, on_grid))
+	swiped_tile.grab_focus()
+	for i in 3:
+		screen._input(drag.call(-10.0))
+	_check(get_root_focus(screen) == null, "with no focus before, a swipe leaves no tile selected")
+	screen._input(touch.call(false, on_grid))
+	before = bar.value   # The swipes above moved the grid.
 	var second: InputEventScreenTouch = touch.call(true, on_grid)
 	second.index = 1
 	screen._input(touch.call(true, on_grid))
@@ -253,6 +271,10 @@ func _swipe_checks(app: Node) -> void:
 	screen._on_tile(game)
 	await _frames(3)
 	_check(app.last_game == String(game.id), "a tap on a tile with no swipe before it opens the game")
+
+
+func get_root_focus(screen: Control) -> Control:
+	return screen.get_viewport().gui_get_focus_owner()
 
 
 ## The tile hierarchy (issue #225, REQ-FL-13): the title is 40 px, bigger than the 32 px player range, the focused frame

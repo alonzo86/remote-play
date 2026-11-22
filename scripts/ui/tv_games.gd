@@ -39,6 +39,7 @@ var _swiped := false   # The finger has moved far enough to be a swipe, not a ta
 var _swipe_end_ms := -SWIPE_END_MS   # When the last swipe ended (Time.get_ticks_msec).
 var _swipe_px := 0.0   # How far the finger has moved since it went down.
 var _swipe_finger := 0   # The finger of the swipe (a second finger is ignored).
+var _focus_at_press: Control   # What had the focus when the finger went down: a swipe gives the focus back to it.
 
 
 func _ready() -> void:
@@ -217,6 +218,7 @@ func _input(event: InputEvent) -> void:
 			_swiped = false
 			_swipe_px = 0.0
 			if _swipe_from:
+				_focus_at_press = get_viewport().gui_get_focus_owner()
 				_scroll.follow_focus = false   # The tile under the finger takes the focus on the press; the grid must not jump to it.
 		elif event.index == _swipe_finger and _swipe_from:
 			if _swiped:
@@ -226,10 +228,24 @@ func _input(event: InputEvent) -> void:
 			_scroll.follow_focus = true
 	elif event is InputEventScreenDrag and _swipe_from and event.index == _swipe_finger:
 		_swipe_px += absf(event.relative.y)
-		_swiped = _swiped or _swipe_px > SWIPE_PX
+		if not _swiped and _swipe_px > SWIPE_PX:
+			_swiped = true
+			_give_focus_back()
 		if _swiped:
 			_scroll.scroll_vertical -= roundi(event.relative.y)
 			get_viewport().set_input_as_handled()   # The scroll box does not scroll a second time.
+
+
+## A swipe does not select a game (owner, 2026-11-22): the tile under the finger took the focus when the finger went down, and
+## the focus goes back to what had it before (or to nothing). Only a tap, or OK of the remote on the focused tile, opens a game.
+func _give_focus_back() -> void:
+	var now := get_viewport().gui_get_focus_owner()
+	if now == _focus_at_press:
+		return
+	if _focus_at_press != null and is_instance_valid(_focus_at_press) and _focus_at_press.is_visible_in_tree():
+		_focus_at_press.grab_focus()
+	else:
+		get_viewport().gui_release_focus()
 
 
 ## Turns the two arrows on when the grid has rows above or below the visible part (REQ-FL-12a).
