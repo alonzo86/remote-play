@@ -72,11 +72,21 @@ func _process(_delta: float) -> void:
 	_refresh()
 
 
-## OK opens the Games screen once a phone has joined (REQ-FL-7). The quit question has its own buttons.
+## OK opens the Games screen once a phone has joined (REQ-FL-7). On a phone or a tablet a tap does the same (REQ-FL-7a). The quit
+## question has its own buttons.
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and can_continue():
 		get_viewport().set_input_as_handled()
 		App.go_games()
+	elif is_continue_tap(event) and can_continue() and not (App.join_requests != null and App.join_requests.is_open()):
+		get_viewport().set_input_as_handled()
+		App.go_games()
+
+
+## A finger that is lifted. The press is not used: the click that the engine makes from the touch would then land on a tile of the
+## Games screen. The card of a join request has its own buttons, so a tap that answers it does not go on (the caller checks).
+func is_continue_tap(event: InputEvent) -> bool:
+	return event is InputEventScreenTouch and not event.pressed and not event.canceled and Role.is_touch_ui()
 
 
 func can_continue() -> bool:
@@ -89,7 +99,7 @@ func _refresh() -> void:
 	_qr.text = Protocol.pair_url(ip, App.server.room_code) if ip != "" else ""
 	if App.server.connected_slots().size() >= 1:
 		_hint.add_theme_color_override("font_color", UiTheme.ACCENT)
-		_hint.text = "connect.press_ok_continue"
+		_hint.text = "connect.tap_continue" if Role.is_touch_ui() else "connect.press_ok_continue"
 		_hint.set_process(true)
 	elif ip == "":
 		_hint.add_theme_color_override("font_color", UiTheme.BAD)

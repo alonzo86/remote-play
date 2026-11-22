@@ -61,7 +61,7 @@ func _ready() -> void:
 	var card := _app_card()
 	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	box.add_child(card)
-	_hint = UiKit.blinking("logo.press_ok_start", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
+	_hint = UiKit.blinking("logo.tap_start" if Role.is_touch_ui() else "logo.press_ok_start", UiTheme.SIZE_BODY, UiTheme.TEXT_DESC)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_hint)
 	_hint.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)

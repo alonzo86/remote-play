@@ -5,6 +5,7 @@ extends Node
 enum Kind { TV, CONTROLLER }
 
 var kind: Kind = Kind.TV
+var _touch_ui := -1   # -1 not asked yet, 0 no, 1 yes. The answer cannot change while the app runs.
 
 
 func _init() -> void:
@@ -37,3 +38,33 @@ static func pick(args: Array, has_feature: Callable) -> Kind:
 		return Kind.TV
 	# No tag and no argument (for example, the editor). Phones are the safer default.
 	return Kind.CONTROLLER if has_feature.call("mobile") else Kind.TV
+
+
+## True on a device that is used by touch: a phone or a tablet. The TV prompts then say TAP and not PRESS OK (REQ-FL-3, 6).
+## `has_system_feature` takes a name of an Android system feature and returns true or false (`system_feature`); a test gives its
+## own. A phone has a touchscreen and is not a TV; an Android TV has the leanback feature, the same feature that the manifest
+## of the TV app requires (docs/EXPORT.md), and a desktop or an unknown device keeps PRESS OK.
+static func touch_ui(has_system_feature: Callable) -> bool:
+	return bool(has_system_feature.call("android.hardware.touchscreen")) \
+			and not bool(has_system_feature.call("android.software.leanback"))
+
+
+## Asks Android if the device has a system feature (`PackageManager.hasSystemFeature`). False when this is not Android or the
+## answer cannot be read: the prompts then keep PRESS OK, which is the safe text on a TV.
+static func system_feature(feature: String) -> bool:
+	if not OS.has_feature("android") or not Engine.has_singleton("AndroidRuntime"):
+		return false
+	var runtime: Object = Engine.get_singleton("AndroidRuntime")
+	var activity: Object = runtime.getActivity() if runtime != null else null
+	if activity == null:
+		return false
+	var manager: Object = activity.getPackageManager()
+	return manager != null and bool(manager.hasSystemFeature(feature))
+
+
+
+## True when the prompts of this device say TAP (a phone or a tablet).
+func is_touch_ui() -> bool:
+	if _touch_ui < 0:
+		_touch_ui = 1 if touch_ui(system_feature) else 0
+	return _touch_ui == 1

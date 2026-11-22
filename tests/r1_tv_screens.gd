@@ -226,6 +226,14 @@ func _logo_time() -> void:
 	await _key(KEY_ENTER)
 	var gone := await _wait_until(func(): return _screen_is(_connect_script), 1000)
 	_check(gone, "OK goes on to the Connect screen")
+	var role: Node = root.get_node("Role")
+	role._touch_ui = 1   # A phone or a tablet says TAP TO START (REQ-FL-3), a TV says PRESS OK TO START (checked above).
+	_app.go_logo()
+	await _frames(4)
+	var touch_texts := _label_texts(_app.current_screen())
+	_check(touch_texts.has("logo.tap_start") and not touch_texts.has("logo.press_ok_start"),
+			"a touch device says TAP TO START on the logo")
+	role._touch_ui = -1
 
 
 ## 1c: at the first start (no saved language) the logo asks for the language; OK chooses the language that has the focus, then
