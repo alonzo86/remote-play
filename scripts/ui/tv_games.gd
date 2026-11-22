@@ -38,6 +38,7 @@ var _swipe_from := false   # The finger went down on the grid (`_input`).
 var _swiped := false   # The finger has moved far enough to be a swipe, not a tap.
 var _swipe_end_ms := -SWIPE_END_MS   # When the last swipe ended (Time.get_ticks_msec).
 var _swipe_px := 0.0   # How far the finger has moved since it went down.
+var _swipe_finger := 0   # The finger of the swipe (a second finger is ignored).
 
 
 func _ready() -> void:
@@ -209,19 +210,26 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventScreenTouch:
 		if event.pressed:
+			if _swipe_from:
+				return   # A second finger does not start a new swipe.
 			_swipe_from = _scroll.get_global_rect().has_point(event.position)
+			_swipe_finger = event.index
 			_swiped = false
 			_swipe_px = 0.0
-		else:
+			if _swipe_from:
+				_scroll.follow_focus = false   # The tile under the finger takes the focus on the press; the grid must not jump to it.
+		elif event.index == _swipe_finger and _swipe_from:
 			if _swiped:
 				_swipe_end_ms = Time.get_ticks_msec()
 			_swipe_from = false
 			_swiped = false
-	elif event is InputEventScreenDrag and _swipe_from:
+			_scroll.follow_focus = true
+	elif event is InputEventScreenDrag and _swipe_from and event.index == _swipe_finger:
 		_swipe_px += absf(event.relative.y)
 		_swiped = _swiped or _swipe_px > SWIPE_PX
 		if _swiped:
 			_scroll.scroll_vertical -= roundi(event.relative.y)
+			get_viewport().set_input_as_handled()   # The scroll box does not scroll a second time.
 
 
 ## Turns the two arrows on when the grid has rows above or below the visible part (REQ-FL-12a).

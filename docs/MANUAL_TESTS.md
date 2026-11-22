@@ -70,7 +70,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [9](#test-9) | Car Race | 1 to 2 phones (2 for items 11a and 14c), 1 TV | REQ-MR-*, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
 | [10](#test-10) | Banana Party (pointer) | 1 to 2 phones, 1 TV, a child for item 9 | REQ-SS-*, REQ-GM-47i to 47n, REQ-GM-80 to 84, 90 to 95, RISKS A4, REQ-GM-37 | Pass | R7 | |
 | [11](#test-11) | Result menus (REQ-GM-72) | 1 to 2 phones, 1 TV | REQ-GM-34, REQ-GM-40, REQ-GM-41, REQ-GM-72, REQ-GM-73, REQ-MZ-5, REQ-MR-31 | Pass | R7 | |
-| [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos) | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41 | Pass | R11 |  |
+| [12](#test-12) | Game tiles and the toy box look (REQ-GM-49) | 1 TV (phones for the game photos), 1 phone with the closed test build of the TV app for items 1h to 1k | REQ-GM-49, REQ-FL-20, REQ-FL-40, REQ-GM-41, REQ-FL-12b | Open (items 1h to 1k) | R11 | New on 2026-11-22 (issue #510): the swipe on a phone. The older steps stay Pass |
 | [13](#test-13) | Controller on an iPhone | 1 iPhone, 1 Mac with Xcode, 1 TV | `tools/deploy-ios.sh`, RISKS A2, REQ-FL-58, 68, 83, 84 | Not run |  | |
 | [14](#test-14) | Paint Grab (tilt) | 1 phone, 1 TV, a child for item 7 | REQ-PG-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R8 | |
 | [15](#test-15) | Sumo Bumpers (tilt and A) | 2 phones, 1 TV, a child for item 8 | REQ-SB-*, REQ-GM-80 to 84, 90 to 97, REQ-GM-37, REQ-GM-47i to 47n | Pass | R7 | |
@@ -107,6 +107,7 @@ Tests the user has to run now (status on 2026-11-18 after run R12; the list is i
 | 20 | **Next release (iPhone).** **Open: item 14b** (after run R11 of 2026-11-18; 13 of 14 steps are Pass, N/A or Removed in the Results table). Step 14b needs an iPhone: the owner said that the iPhone tests are not planned for the first release. | Profiles were added on 2026-10-10 (FD-22, `docs/PROFILES_PLAN.md`, REQ-FL-69 to 75). The avatar drawings and the texts of the profile screens (also in Hebrew) are first guesses |
 | 13 | **Next release (iOS, issue #415).** **Open: items 1a, 1b, 2b, 2c, 2d, 4a, 4b, 5a, 5b, 5c, 6b, 6d, 7** (after run R9 of 2026-11-17; 0 of 13 steps are Pass or N/A in the Results table). | New on 2026-10-09. Written on a Mac without Xcode, so never run |
 | 33 | **Next release (iOS, issue #415).** **New (iPhone QR scanner).** An iPhone with a Mac and Xcode: build the plugin and deploy (1a), the scan button, the camera question on the first scan and the view (2a, 2b, 3a, 3b), a TV code, a profile code and a web page code (4a to 4d), CANCEL, swipe down and the home button (5a to 5c), the camera off in Settings and on again (6a, 6b), no photo saved and only Camera and Local Network listed (7a, 7b), Hebrew from a Hebrew reader (8a), a dark room and a child of 5 to 8 years (9a, 9b). Run test 13 steps 1a to 2d first. Nothing here can be done headless | The iPhone scanner was planned on 2026-11-01 (`docs/IOS_SCANNER_PLAN.md`, issue #299, REQ-FL-58, 88 to 92). The plugin source is written on Linux and was never built or run: every value, the plugin and the texts (also the Hebrew camera question) are unverified. Needed before it is merged and before the privacy notice text about the iPhone camera is final |
+| 12 | **New (issue #510).** Items 1h to 1k: swipe up and down on the Games screen of the TV app on a phone (the closed test build), a swipe on a tile opens nothing, a tap opens the game. | The Games grid had no touch scroll; the swipe is new and only a device shows the real touch |
 
 Test 2 (QR scan) passed in R0. Run it again only when the QR plugin or the connect screen changes. It changed on 2026-10-21 (Back in the scanner is a cancel, issue #43); item 3a passed again in R5.
 
@@ -610,8 +611,10 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 1e. From the sofa (about 3 m), look at the Games screen. Check: the tester reads aloud the title and the player range of 3 tiles and the description of the focused game, without error. (REQ-FL-40)
 1f. From the sofa (about 3 m), open the Games screen with the first row in view. Check: a yellow arrow that points down blinks under the grid, and no arrow points up (issue #220, REQ-FL-12a). Then press Down until the last row is in view. Check: the arrow that points up blinks and the one that points down is gone.
 1g. From the sofa (about 3 m), in English and in Hebrew, find the focused tile. Check: the tester points at the focused tile within 2 seconds, and says which of the title and the player range is bigger (the title: 40 px against 32 px, a 12 px yellow frame; issue #225, REQ-FL-13).
-1h. On a phone with the closed test build of the TV app (`docs/CLOSED_TEST.md`), join a controller and open the Games screen. Swipe up on the grid with one finger, 3 cm. Check: the grid moves up with the finger and the rows below come into view (yes or no), and no game opens when the finger is lifted. (REQ-FL-12b, issue #510)
-1i. On the same screen, tap one tile that accepts the players now. Check: the game (or its settings) opens, with no swipe before it (yes or no). (REQ-FL-12b)
+1h. On a phone with the closed test build of the TV app (`docs/CLOSED_TEST.md`), join a controller and open the Games screen with the first row in view. Swipe up on the grid with one finger over 3 cm (a ruler). Check: the grid moves up by about 3 cm with the finger, and a row that was hidden comes into view (yes or no). (REQ-FL-12b, issue #510)
+1i. Swipe down over 3 cm on the same grid. Check: the grid moves down with the finger and the first row is back in view (yes or no). (REQ-FL-12b)
+1j. Start a swipe of 3 cm on a tile (the finger goes down on a tile) and lift the finger. Check: no game and no settings view opens, and the grid does not jump under the finger when it goes down (yes or no). (REQ-FL-12b)
+1k. Tap one tile that accepts the players now, with no move. Check: the game (or its settings view) opens (yes or no). (REQ-FL-12b)
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
 3b. Check the tile of **Car Race**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
 4. Check the tile of **Banana Party**. Check: an animal was just hit (its peel shows) and a banana is in the air. (The jungle, the four cursor rings, the banana and the black outline of an animal are checked by A-12-4. The tile has no score and no "+10" text.)
@@ -632,8 +635,10 @@ Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TEST
 | 1e | Photo from the sofa; the texts that were read | Pass | R3 |  |  |
 | 1f | Photo of the Games screen with the first row and with the last row in view; the arrows seen | Pass | R7 |  | R7: Pass Row added 2026-10-31 (issue #303); step added for issue #220. |
 | 1g | Photos from the sofa in English and in Hebrew; the seconds until the tester points at the tile | Pass | R7 |  | R7: Pass Row added 2026-10-31 (issue #303); step added for issue #225. |
-| 1h | Video of the swipe; note: yes or no, no game opened | Not run | | | New (issue #510) |
-| 1i | Note: yes or no | Not run | | | New (issue #510) |
+| 1h | Video of the swipe up with a ruler; note: yes or no | Not run | | | New (issue #510) |
+| 1i | Video; note: yes or no | Not run | | | New (issue #510) |
+| 1j | Video; note: no game opened, no jump (yes or no) | Not run | | | New (issue #510) |
+| 1k | Note: yes or no | Not run | | | New (issue #510) |
 | 2 | Photos: tile next to the game, for each game | Pass | R4 |  |  |
 | 3b | Photo of the Car Race tile and of the running game | Pass | R4 |  | Same result as old item 3. Car Race and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
 | 4 | Photo of the tile and of the running game | Pass | R7 |  | R7: Pass Before (R3): Retest - R3: Fail - the tile shows 5 cursor rings instead of 4 Banana Party tile remade 2026-10-16 (a jungle, 4 players, a hit, a banana in the air). Issue #114. |

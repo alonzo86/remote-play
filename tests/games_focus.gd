@@ -3,6 +3,7 @@ extends SceneTree
 ## also when the grid has scrolled (the first row of tiles is under the header then), in English and in Hebrew.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/games_focus.gd -- --role=tv
 
+const Registry = preload("res://scripts/game/registry.gd")
 var _checks := 0
 var _fails := 0
 
@@ -220,8 +221,12 @@ func _swipe_checks(app: Node) -> void:
 		screen._input(drag.call(-30.0))
 	_check(bar.value > 200.0, "a swipe up scrolls the grid down by the distance of the finger: %d px" % int(bar.value))
 	screen._input(touch.call(false, on_grid))
-	_check(Time.get_ticks_msec() - screen._swipe_end_ms < screen.SWIPE_END_MS,
-			"after a swipe the click of the lifted finger is not a tap")
+	_check(Time.get_ticks_msec() - screen._swipe_end_ms < screen.SWIPE_END_MS and screen._scroll.follow_focus,
+			"after a swipe the click of the lifted finger is not a tap, and the grid follows the focus again")
+	var game: Dictionary = Registry.all().filter(func(g): return Registry.accepts(g, 3))[0]
+	app.last_game = ""
+	screen._on_tile(game)
+	_check(app.last_game == "" and app.current_screen() == screen, "the click of the lifted finger after a swipe opens no game")
 	var scrolled := bar.value
 	screen._input(touch.call(true, on_grid))
 	for i in 4:
@@ -235,6 +240,19 @@ func _swipe_checks(app: Node) -> void:
 		screen._input(drag.call(-30.0))
 	screen._input(touch.call(false, on_header))
 	_check(bar.value == before, "a finger that went down on the header does not scroll the grid")
+	var second: InputEventScreenTouch = touch.call(true, on_grid)
+	second.index = 1
+	screen._input(touch.call(true, on_grid))
+	screen._input(second)
+	var drag2: InputEventScreenDrag = drag.call(-300.0)
+	drag2.index = 1
+	screen._input(drag2)
+	_check(bar.value == before and not screen._swiped, "the drag of a second finger does not scroll the grid")
+	screen._input(touch.call(false, on_grid))
+	screen._swipe_end_ms = -1000   # The 200 ms after the swipe are over.
+	screen._on_tile(game)
+	await _frames(3)
+	_check(app.last_game == String(game.id), "a tap on a tile with no swipe before it opens the game")
 
 
 ## The tile hierarchy (issue #225, REQ-FL-13): the title is 40 px, bigger than the 32 px player range, the focused frame
