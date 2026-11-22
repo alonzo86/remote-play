@@ -3,6 +3,7 @@ extends SceneTree
 ## also when the grid has scrolled (the first row of tiles is under the header then), in English and in Hebrew.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/games_focus.gd -- --role=tv
 
+const Registry = preload("res://scripts/game/registry.gd")
 var _checks := 0
 var _fails := 0
 
@@ -43,6 +44,7 @@ func _run() -> void:
 		await _reach(app.current_screen(), code)
 	await _room_checks(app)
 	await _cue_checks(app)
+	await _swipe_checks(app)
 	await _tile_look_checks(app)
 	app.set_language("en", false)
 	app.go_games()
@@ -187,6 +189,70 @@ func _cue_checks(app: Node) -> void:
 	_check(not tall._arrow_up.active and not tall._arrow_down.active, "when all rows fit, no arrow is on")
 	root.size = Vector2i(1280, 720)
 	app.set_language("en", false)
+
+
+## REQ-FL-12b (issue #510): a finger that goes down on the grid and moves up or down scrolls it; a small move is a tap and does
+## not; a finger that goes down on the header does not scroll; a swipe makes the click of the lifted finger no tap on a tile.
+func _swipe_checks(app: Node) -> void:
+	print("swipe on the Games screen")
+	root.size = Vector2i(1280, 720)
+	app.set_language("en", false)
+	app.go_games()
+	await _frames(20)
+	var screen: Control = app.current_screen()
+	var bar: VScrollBar = screen._scroll.get_v_scroll_bar()
+	var touch := func(pressed: bool, at: Vector2) -> InputEventScreenTouch:
+		var t := InputEventScreenTouch.new()
+		t.pressed = pressed
+		t.position = at
+		return t
+	var drag := func(dy: float) -> InputEventScreenDrag:
+		var d := InputEventScreenDrag.new()
+		d.relative = Vector2(0, dy)
+		return d
+	var on_grid: Vector2 = screen._scroll.get_global_rect().get_center()
+	_check(bar.max_value > bar.page, "the grid is taller than its room, so it can scroll")
+	screen._input(touch.call(true, on_grid))
+	screen._input(drag.call(-4.0))
+	screen._input(touch.call(false, on_grid))
+	_check(bar.value == 0.0 and screen._swipe_end_ms < 0, "a move of 4 px is a tap: no scroll, and the click is a tap on the tile")
+	screen._input(touch.call(true, on_grid))
+	for i in 10:
+		screen._input(drag.call(-30.0))
+	_check(bar.value > 200.0, "a swipe up scrolls the grid down by the distance of the finger: %d px" % int(bar.value))
+	screen._input(touch.call(false, on_grid))
+	_check(Time.get_ticks_msec() - screen._swipe_end_ms < screen.SWIPE_END_MS and screen._scroll.follow_focus,
+			"after a swipe the click of the lifted finger is not a tap, and the grid follows the focus again")
+	var game: Dictionary = Registry.all().filter(func(g): return Registry.accepts(g, 3))[0]
+	app.last_game = ""
+	screen._on_tile(game)
+	_check(app.last_game == "" and app.current_screen() == screen, "the click of the lifted finger after a swipe opens no game")
+	var scrolled := bar.value
+	screen._input(touch.call(true, on_grid))
+	for i in 4:
+		screen._input(drag.call(30.0))
+	screen._input(touch.call(false, on_grid))
+	_check(bar.value < scrolled, "a swipe down scrolls the grid up")
+	var before := bar.value
+	var on_header: Vector2 = screen._badge.get_global_rect().get_center()
+	screen._input(touch.call(true, on_header))
+	for i in 10:
+		screen._input(drag.call(-30.0))
+	screen._input(touch.call(false, on_header))
+	_check(bar.value == before, "a finger that went down on the header does not scroll the grid")
+	var second: InputEventScreenTouch = touch.call(true, on_grid)
+	second.index = 1
+	screen._input(touch.call(true, on_grid))
+	screen._input(second)
+	var drag2: InputEventScreenDrag = drag.call(-300.0)
+	drag2.index = 1
+	screen._input(drag2)
+	_check(bar.value == before and not screen._swiped, "the drag of a second finger does not scroll the grid")
+	screen._input(touch.call(false, on_grid))
+	screen._swipe_end_ms = -1000   # The 200 ms after the swipe are over.
+	screen._on_tile(game)
+	await _frames(3)
+	_check(app.last_game == String(game.id), "a tap on a tile with no swipe before it opens the game")
 
 
 ## The tile hierarchy (issue #225, REQ-FL-13): the title is 40 px, bigger than the 32 px player range, the focused frame
