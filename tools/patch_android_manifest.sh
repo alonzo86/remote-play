@@ -6,20 +6,33 @@
 #   - android-tv/build (preset "tv", `gradle_build/gradle_build_directory="android-tv"`): the banner and the flags, no scanner
 # Run once, after tools/setup.sh (or "Project > Install Android Build Template" in the Godot editor, which only makes android/build).
 # Safe to run again. Works on macOS and Linux.
-# Usage: tools/patch_android_manifest.sh [controller|tv]   (no argument: every project that is installed)
+# Usage: tools/patch_android_manifest.sh [controller|tv] [--any-device]   (no app: every project that is installed)
+# The TV app is installed only on a TV: its manifest requires the leanback feature (owner, 2026-11-18). `--any-device` turns that
+# off for the TV app (leanback is not required), so that a phone can install it: only for the closed test of the TV app, when the
+# testers have phones (owner, 2026-11-22; docs/CLOSED_TEST.md). Run the script again without the flag for the production build.
 set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-case "${1:-}" in
+APP=""; ANY_DEVICE=0
+for ARG in "$@"; do
+	case "$ARG" in
+		controller|tv) APP="$ARG" ;;
+		--any-device) ANY_DEVICE=1 ;;
+		*) echo "Usage: $0 [controller|tv] [--any-device]" >&2; exit 1 ;;
+	esac
+done
+case "$APP" in
 	"")
 		[ -d "$ROOT/android/build" ] && "$0" controller
-		[ -d "$ROOT/android-tv/build" ] && "$0" tv
+		if [ -d "$ROOT/android-tv/build" ]; then
+			if [ "$ANY_DEVICE" = 1 ]; then "$0" tv --any-device; else "$0" tv; fi
+		fi
 		exit 0 ;;
 	controller) BUILD="$ROOT/android/build"; WITH_QR=1 ;;
 	tv)         BUILD="$ROOT/android-tv/build"; WITH_QR=0 ;;
-	*) echo "Usage: $0 [controller|tv]" >&2; exit 1 ;;
 esac
-echo "== $1: $BUILD"
+[ "$ANY_DEVICE" = 0 ] || [ "$APP" = tv ] || echo "(--any-device is for the TV app only: ignored for the controller)"
+echo "== $APP: $BUILD"
 MANIFEST="$BUILD/src/main/AndroidManifest.xml"
 [ -f "$MANIFEST" ] || MANIFEST="$BUILD/AndroidManifest.xml"   # older templates
 GRADLE="$BUILD/build.gradle"
@@ -43,12 +56,16 @@ else
 	rm -f "$BUILD/src/main/java/io/github/alonzo86/sababi/QrScannerPlugin.java"
 fi
 
-python3 - "$MANIFEST" "$GRADLE" "$WITH_QR" <<'PY'
+python3 - "$MANIFEST" "$GRADLE" "$WITH_QR" "$ANY_DEVICE" <<'PY'
 import sys
 manifest, gradle, with_qr = sys.argv[1], sys.argv[2], sys.argv[3] == "1"
 # The TV app is for TVs only (owner, 2026-11-18): Google Play offers it only to devices with the leanback feature. The phone app
 # (the one with the scanner) is not limited, so a TV box can still run it.
 tv_only = not with_qr
+# The TV app requires the leanback feature, unless the closed test build is made (--any-device).
+leanback_required = "true" if (tv_only and sys.argv[4] != "1") else "false"
+if tv_only and sys.argv[4] == "1":
+    print("closed test build: the TV app does not require the leanback feature (phones can install it)")
 
 def patch(path, marker, edit, label):
     s = open(path).read()
@@ -70,7 +87,7 @@ patch(manifest, "android:banner=",
 # (the controller) or android.hardware.screen.landscape (the TV). A required feature that some device does not have hides the app
 # from that device (Play Console, "Required hardware feature declarations are restricting your app's availability", 2026-11-19), so
 # these are declared as not required. Each line is added when it is missing, so a manifest patched before this rule gets it too.
-features = [("android.software.leanback", "true" if tv_only else "false"), ("android.hardware.touchscreen", "false"),
+features = [("android.software.leanback", leanback_required), ("android.hardware.touchscreen", "false"),
             ("android.hardware.sensor.gyroscope", "false"), ("android.hardware.sensor.accelerometer", "false"),
             ("android.hardware.wifi", "false"),
             ("android.hardware.screen.landscape" if tv_only else "android.hardware.screen.portrait", "false")]

@@ -60,7 +60,7 @@ The avatar sheet `assets/avatars/avatars.png` (FD-22) is an image resource, so i
    - copies `assets/icons/banner.png` (320 x 180, the logo; `tools/make_icons.gd` makes it and the icons from `assets/logo`) to `android/build/res/drawable-xhdpi/banner.png`;
    - adds `android:banner="@drawable/banner"` to the `<application>` tag in `android/build/src/main/AndroidManifest.xml`;
    - adds `uses-feature` lines for leanback, touchscreen, gyroscope, accelerometer, Wi-Fi and the screen orientation of the app (`android.hardware.screen.portrait` for the controller, `android.hardware.screen.landscape` for the TV; the Wi-Fi permissions and the orientation of the activity imply these features, and Google Play hides an app from the devices that lack a required feature: Play Console, "Required hardware feature declarations are restricting your app's availability", 2026-11-19), all with `required="false"` except
-     **leanback in the TV app, which is `required="true"`** (owner, 2026-11-18: "Sababi: TV Games" is installed only on a TV, so
+     **leanback in the TV app, which is `required="true"` except in the closed test build, `--any-device`, see "The closed test build of the TV app"** (owner, 2026-11-18: "Sababi: TV Games" is installed only on a TV, so
      Google Play does not offer it to phones and tablets; the phone app has no such limit; an older manifest is changed on the next run);
    - in `android/build` only (the controller): installs the **QR scanner plugin**: it copies `android/plugin/QrScannerPlugin.java` to
      `android/build/src/main/java/io/github/alonzo86/sababi/`, adds the Gradle dependency
@@ -211,6 +211,18 @@ tools/set_version.sh --check              # exits 1 when the presets of ONE app 
 - The **code** (Android `version/code`, iOS build number) must be higher than the one of the last upload. Google Play rejects a repeated or lower code, and App Store Connect rejects a repeated build number for a version. The TV and the controller are two listings, and Google Play counts the code of each app on its own (owner, 2026-11-19): the code of an app only goes up (+1 for each upload of that app, also for a rejected build that reached the store). Raise only the app that you upload again (`tools/set_version.sh <name> <code> tv` or `controller`); the other app keeps its number.
 - The **name** is what people see. Raise it for a change that people notice.
 - The protocol `VERSION` (`scripts/core/protocol.gd`, `docs/PROTOCOL.md`) is a separate number. It changes only when the wire format changes (the `change-protocol` skill) and has no link to the app version. A TV and a phone of different app versions work together as long as the protocol version is the same.
+
+### The closed test build of the TV app (phones can install it)
+
+The TV app is installed only on a TV (its manifest requires the leanback feature, owner 2026-11-18), and the closed track of Google Play does not accept such a bundle (the Console: "APKs and bundles must not require following features: android.software.leanback. Some features can only be required in dedicated tracks."; read as the Android TV track). For the **closed test** of the TV app the owner decided on 2026-11-22 (option C, `docs/CLOSED_TEST.md`) that testers who only have phones may install it, next to testers with a real TV:
+
+```sh
+tools/set_version.sh <name> <code> tv           # a code higher than any upload of the TV app
+tools/patch_android_manifest.sh tv --any-device   # leanback is not required: the normal closed track accepts it, phones can install it
+tools/build.sh aab                                # build/sababi-tv.aab
+```
+
+After production access is granted, make the **production build** of the TV app: `tools/patch_android_manifest.sh tv` (no flag: leanback required again), a higher code, `tools/build.sh aab`, and release it on the track that the Console offers for a TV-only bundle (the Android TV production track; see the risk in `docs/CLOSED_TEST.md`). Check each bundle (section 4): the closed test bundle must show `required` false for leanback, the production bundle `required` true. The controller app is not affected.
 
 ### Keys (never commit them, never paste them in an issue)
 
