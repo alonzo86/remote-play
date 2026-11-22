@@ -4,6 +4,15 @@ Google asks a new personal account for a closed test of each app before it opens
 
 The two apps are two tests: the TV app "Sababi: TV Games" and the phone app "Sababi: Remote". A tester needs both, so each tester gets both opt-in links.
 
+## The TV app in the closed test (option C, owner decision of 2026-11-22)
+
+A testing service (Private Testing Starter) gave 15 testers who have Android phones and no Android TV. The TV app is TV-only (its manifest requires the leanback feature), so those testers cannot install it, and Google Play accepts a TV-only bundle only on a dedicated Android TV track. The owner chose option C: a closed test build of the TV app that phones can install, **and** real testers with a TV.
+
+1. **The service (the formal period):** the phone app is tested by the service on phones as it is. For the TV app, the closed test build (`tools/patch_android_manifest.sh tv --any-device`, see `docs/EXPORT.md`, "The closed test build of the TV app") is released on the normal closed track of the TV app. On a phone this build runs as the TV app (logo, Connect screen with the QR code); it cannot be played without a TV remote. Tell the service so: the testers open it, they are not asked to play it.
+2. **Real TV testers (the real feedback):** friends and family with an Android TV or a Google TV (the Sony BRAVIA of the owner is one) install the same build with the message below and play the TV app with the phone app. Their reports are the ones that count for the quality of the TV app.
+3. **The production access form:** answer it truthfully. Say that part of the testers came from a testing service and used phones for the TV app, and that other testers used a real TV. Do not describe the phone testers as TV players. I cannot tell how Google treats testing services: read the current policy of Google before you decide (owner's decision).
+4. **After production access:** make the production build of the TV app, TV-only again (`tools/patch_android_manifest.sh tv`, a higher code, `tools/build.sh aab`) and release it on the Android TV production track. Check the bundle: leanback must show `required` true. Phones that installed the closed test build keep it; new phones cannot find the production TV app.
+
 ## The message for the testers (English)
 
 Replace `<TV link>` and `<phone link>` with the two opt-in links of the closed testing tracks (Play Console, each app, Testing, Closed testing, Testers, "Copy link").
