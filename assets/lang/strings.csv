@@ -35,6 +35,7 @@ connect.guest,GUEST,אורח,Phone: player row (the dropdown) on the Connect scr
 connect.no_wi_fi_address,NO WI-FI ADDRESS FOUND. CONNECT THE TV TO YOUR NETWORK.,לא נמצאה כתובת ברשת האלחוטית. חברו את הטלוויזיה לרשת.,TV Connect screen: hint when the TV has no Wi-Fi address,
 connect.not_sababi_code,THIS IS NOT A SABABI APP CODE.,זה לא קוד של אפליקציית SABABI.,"Phone, Connect screen: message when the scanned text is not a Sababi code",
 connect.press_ok_continue,PRESS OK TO CONTINUE,לחצו OK להמשך,TV Connect screen: blinking prompt once a phone has joined,
+connect.tap_continue,TAP TO CONTINUE,הקישו להמשך,"TV Connect screen on a phone or a tablet: blinking prompt once a phone has joined (a TV shows connect.press_ok_continue)",
 connect.qr_failed,QR scan failed: %s,סריקת QR נכשלה: %s,"Phone: message when the QR scan fails, %s is the reason",%s is replaced by a name or a value
 connect.camera_denied,"THE CAMERA IS OFF FOR SABABI APP. TURN IT ON IN SETTINGS, OR TYPE THE ROOM CODE.","המצלמה כבויה עבור אפליקציית SABABI. הפעילו אותה בהגדרות, או הקלידו את קוד החדר.","Phone, Connect screen: message after the player said no to the camera",
 connect.no_camera,THIS PHONE HAS NO CAMERA. TYPE THE ROOM CODE.,אין מצלמה בטלפון הזה. הקלידו את קוד החדר.,"Phone, Connect screen: message when the scan cannot start",
@@ -76,6 +77,7 @@ games.up_to_players,Up to %d players,עד %d שחקנים,"TV game settings and 
 gear_button.options,OPTIONS,אפשרויות,TV Games screen: name and tooltip of the OPTIONS icon button (no word on the button) at the end of the header, after ABOUT,
 logo.phone_motion_controller_games,PHONE MOTION CONTROLLER GAMES,משחקים עם הטלפון כשלט תנועה,TV logo screen: line under the logo,
 logo.press_ok_start,PRESS OK TO START,לחצו OK כדי להתחיל,TV logo screen: prompt to go on (at the first start also to choose a language),
+logo.tap_start,TAP TO START,הקישו כדי להתחיל,"TV logo screen on a phone or a tablet: prompt to go on (a TV shows logo.press_ok_start)",
 marble_race.go,GO,צאו,Car Race countdown: the word GO after 1 in a round of 2 or more players (only this game shows it; the other games go from 1 to the play),
 marble_race.go_one,GO,צא,Car Race countdown: the word GO after 1 in a round of one player (Hebrew singular),Owner decision 2026-11-07 (issue #113): singular imperative for one player; marble_race.go (plural) is used for 2 or more players
 marble_race.meters,%d m behind,%d מ׳ מאחור,"Car Race: marker at the screen edge for a car that is out of view, %d is meters behind the leader","the number sign (%d, %.1f ...) is replaced by a number"

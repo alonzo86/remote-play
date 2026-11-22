@@ -15,6 +15,7 @@ var _qr: Control
 var _hint: Label
 var _room: Label   # The room code. It follows the address of the TV, so it is read again each frame.
 var _modal: Control
+var _tap_armed := false   # A press that may become a tap (`_tap`).
 
 
 func _ready() -> void:
@@ -72,11 +73,37 @@ func _process(_delta: float) -> void:
 	_refresh()
 
 
-## OK opens the Games screen once a phone has joined (REQ-FL-7). The quit question has its own buttons.
+## OK opens the Games screen once a phone has joined (REQ-FL-7). On a phone or a tablet a tap does the same (REQ-FL-7a). The quit
+## question has its own buttons.
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and can_continue():
 		get_viewport().set_input_as_handled()
 		App.go_games()
+
+
+## A tap (REQ-FL-7a). It is read in `_input`, before the GUI: the screen takes the click that the engine makes from a touch, and
+## nothing is left for `_unhandled_input`. The press arms it when nothing else can take the tap at that moment: a phone
+## has joined, and neither the quit question nor the card of a join request is open. A button of the card or of the question can
+## close it before the finger is lifted, so the lifted finger only follows the press and does not look at the card again. The
+## press does not go on: the click that the engine makes would land on a Games tile.
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		Role.note_touch()
+		_tap(event.pressed, event.canceled)
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_tap(event.pressed, false)
+
+
+func _tap(pressed: bool, canceled: bool) -> void:
+	if pressed:
+		_tap_armed = can_continue() and not (App.join_requests != null and App.join_requests.is_open())
+	elif canceled:
+		_tap_armed = false
+	elif _tap_armed:
+		_tap_armed = false
+		if can_continue():
+			get_viewport().set_input_as_handled()
+			App.go_games()
 
 
 func can_continue() -> bool:
@@ -89,7 +116,7 @@ func _refresh() -> void:
 	_qr.text = Protocol.pair_url(ip, App.server.room_code) if ip != "" else ""
 	if App.server.connected_slots().size() >= 1:
 		_hint.add_theme_color_override("font_color", UiTheme.ACCENT)
-		_hint.text = "connect.press_ok_continue"
+		_hint.text = "connect.tap_continue" if Role.is_touch_ui() else "connect.press_ok_continue"
 		_hint.set_process(true)
 	elif ip == "":
 		_hint.add_theme_color_override("font_color", UiTheme.BAD)

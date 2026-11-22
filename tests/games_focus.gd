@@ -3,6 +3,7 @@ extends SceneTree
 ## also when the grid has scrolled (the first row of tiles is under the header then), in English and in Hebrew.
 ## Run by tests/run_all.sh and tools/coverage.sh: godot --headless --path . --script tests/games_focus.gd -- --role=tv
 
+const Registry = preload("res://scripts/game/registry.gd")
 var _checks := 0
 var _fails := 0
 
@@ -43,6 +44,7 @@ func _run() -> void:
 		await _reach(app.current_screen(), code)
 	await _room_checks(app)
 	await _cue_checks(app)
+	await _swipe_checks(app)
 	await _tile_look_checks(app)
 	app.set_language("en", false)
 	app.go_games()
@@ -187,6 +189,101 @@ func _cue_checks(app: Node) -> void:
 	_check(not tall._arrow_up.active and not tall._arrow_down.active, "when all rows fit, no arrow is on")
 	root.size = Vector2i(1280, 720)
 	app.set_language("en", false)
+
+
+## REQ-FL-12b (issue #510): a finger that goes down on the grid and moves more than 30 px scrolls it and opens nothing (also
+## when it went down on a tile) and no tile takes the focus; a lifted finger with a smaller move is a tap on the tile under it;
+## a finger that went down on the header does not scroll; a second finger is ignored; an open modal ignores fingers.
+func _swipe_checks(app: Node) -> void:
+	print("swipe and tap on the Games screen")
+	root.size = Vector2i(1280, 720)
+	app.set_language("en", false)
+	app.go_games()
+	await _frames(20)
+	var screen: Control = app.current_screen()
+	var bar: VScrollBar = screen._scroll.get_v_scroll_bar()
+	var touch := func(pressed: bool, at: Vector2, index := 0, canceled := false) -> InputEventScreenTouch:
+		var t := InputEventScreenTouch.new()
+		t.pressed = pressed
+		t.position = at
+		t.index = index
+		t.canceled = canceled
+		return t
+	var drag := func(delta: Vector2, index := 0) -> InputEventScreenDrag:
+		var d := InputEventScreenDrag.new()
+		d.relative = delta
+		d.index = index
+		return d
+	var tile: Button = screen._tiles[0]
+	var on_tile: Vector2 = tile.get_global_rect().get_center()
+	var gap: Vector2 = on_tile + Vector2(tile.size.x / 2.0 + 15.0, 0)   # Between two tiles of the row.
+	_check(bar.max_value > bar.page, "the grid is taller than its room, so it can scroll")
+	_check(tile.mouse_filter == Control.MOUSE_FILTER_IGNORE, "a tile ignores the mouse: the screen reads the finger")
+	var open_checks := func() -> bool: return app.last_game != ""
+	# A swipe that goes down on a tile: the grid scrolls, no game opens, no tile takes the focus.
+	app.last_game = ""
+	var focus_before: Control = screen.get_viewport().gui_get_focus_owner()
+	screen._input(touch.call(true, on_tile))
+	for i in 10:
+		screen._input(drag.call(Vector2(0, -30.0)))
+	screen._input(touch.call(false, on_tile))
+	_check(bar.value > 200.0, "a swipe up scrolls the grid down by the distance of the finger: %d px" % int(bar.value))
+	_check(not open_checks.call() and app.current_screen() == screen, "a swipe that went down on a tile opens no game")
+	_check(screen.get_viewport().gui_get_focus_owner() == focus_before, "a swipe does not select a tile (focus as it was)")
+	var scrolled := bar.value
+	screen._input(touch.call(true, gap))
+	for i in 4:
+		screen._input(drag.call(Vector2(0, 30.0)))
+	screen._input(touch.call(false, gap))
+	_check(bar.value < scrolled, "a swipe down scrolls the grid up")
+	_check(not open_checks.call() and app.current_screen() == screen, "a swipe that went down between tiles opens no game")
+	# A slow swipe that starts with a small move, and a wobble to the side, are swipes too (more than 30 px in all).
+	bar.value = 0.0
+	await _frames(2)
+	var tile_pos: Vector2 = tile.get_global_rect().get_center()
+	screen._input(touch.call(true, tile_pos))
+	for i in 4:
+		screen._input(drag.call(Vector2(9.0, -2.0)))
+	screen._input(touch.call(false, tile_pos))
+	_check(not open_checks.call() and app.current_screen() == screen, "a slow swipe with a wobble (37 px in all) opens no game")
+	# The header and a second finger.
+	var before := bar.value
+	var on_header: Vector2 = screen._badge.get_global_rect().get_center()
+	screen._input(touch.call(true, on_header))
+	for i in 10:
+		screen._input(drag.call(Vector2(0, -30.0)))
+	screen._input(touch.call(false, on_header))
+	_check(bar.value == before, "a finger that went down on the header does not scroll the grid")
+	screen._input(touch.call(true, gap))
+	screen._input(touch.call(true, gap, 1))
+	screen._input(drag.call(Vector2(0, -300.0), 1))
+	_check(bar.value == before and not screen._swiped, "the drag of a second finger does not scroll the grid")
+	screen._input(touch.call(false, gap))
+	screen._input(touch.call(false, gap, 1))
+	# A cancelled touch opens nothing.
+	screen._input(touch.call(true, tile_pos))
+	screen._input(touch.call(false, tile_pos, 0, true))
+	_check(not open_checks.call() and app.current_screen() == screen, "a cancelled touch opens no game")
+	# A modal ignores fingers.
+	screen._modal = Control.new()
+	screen._input(touch.call(true, tile_pos))
+	for i in 10:
+		screen._input(drag.call(Vector2(0, -30.0)))
+	screen._input(touch.call(false, tile_pos))
+	_check(bar.value == before and not open_checks.call(), "an open modal ignores a swipe and a tap")
+	screen._modal.free()
+	screen._modal = null
+	# A tap with a small jitter opens the tile under the finger; a tap on a dim tile only plays the denied sound.
+	var game: Dictionary = tile.game
+	screen._input(touch.call(true, tile_pos))
+	screen._input(drag.call(Vector2(3.0, -4.0)))
+	screen._input(touch.call(false, tile_pos))
+	await _frames(3)
+	_check(app.last_game == String(game.id), "a tap with a jitter of 5 px opens the game under it: %s" % app.last_game)
+
+
+func get_root_focus(screen: Control) -> Control:
+	return screen.get_viewport().gui_get_focus_owner()
 
 
 ## The tile hierarchy (issue #225, REQ-FL-13): the title is 40 px, bigger than the 32 px player range, the focused frame

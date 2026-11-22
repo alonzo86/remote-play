@@ -162,6 +162,11 @@ func _run() -> void:
 	connect._unhandled_input(ok_key)
 	await _frames(3)
 	var games: Control = app.current_screen()
+	var tu := func(names: Array) -> bool: return root.get_node("Role").touch_ui(func(n: String) -> bool: return n in names)
+	_check(tu.call(["android.hardware.touchscreen"]) and not tu.call([])
+			and not tu.call(["android.hardware.touchscreen", "android.software.leanback"])
+			and not tu.call(["android.hardware.touchscreen", "android.hardware.type.television"]),
+			"a phone or a tablet is a touch device; a TV, a box and a desktop keep PRESS OK")
 	_check(is_instance_of(games, TvGames) and app.server.phase == "menu", "OK opens the Games screen (REQ-FL-7)")
 	_check(games._tiles.size() == Registry.all().size(), "one tile for each game (REQ-FL-11)")
 	# Every tile keeps its size. The focused tile has a yellow frame, and the description is in the bar (REQ-FL-12, 13).

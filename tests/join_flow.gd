@@ -210,7 +210,59 @@ func _tv_ok_to_games() -> void:
 			and wait._sub.text == Lang.t("wait.use_tv_remote_phone").to_upper(),
 			"the phone says CHOOSE A GAME ON THE TV: '%s'" % wait._title.text)
 	tv_connect.queue_free()
+	await _tv_tap_to_games()
 	await _leave_all()
+
+
+## REQ-FL-6, 7a: on a phone or a tablet the Connect screen says TAP TO CONTINUE and a finger that is pressed and lifted opens the
+## Games screen. A lifted finger with no press, a cancelled touch and a press that started on the quit question do not. A tap
+## works on every device (the words follow `Role.is_touch_ui`: a TV keeps PRESS OK).
+func _tv_tap_to_games() -> void:
+	print("tap on the TV Connect screen")
+	var role: Node = root.get_node("Role")
+	var screen: Control = _tv_connect_script.new()
+	screen.theme = _app.theme_res
+	root.add_child(screen)
+	_server.set_phase("connect")   # The TV phase changes to menu only when the Games screen opens.
+	await _frames(3)
+	var touch := func(pressed: bool, canceled := false) -> InputEventScreenTouch:
+		var t := InputEventScreenTouch.new()
+		t.pressed = pressed
+		t.canceled = canceled
+		return t
+	role._touch_ui = 1
+	await _frames(3)
+	_check(screen._hint.text == "connect.tap_continue", "a touch device says TAP TO CONTINUE: %s" % screen._hint.text)
+	screen._input(touch.call(false))
+	screen._input(touch.call(true))
+	screen._input(touch.call(false, true))
+	screen._input(touch.call(false))
+	_check(_server.phase == "connect", "a lifted finger with no press, and a cancelled touch, do not continue")
+	screen.on_back()   # The quit question opens.
+	await _frames(2)
+	screen._input(touch.call(true))
+	screen.on_back()   # It closes while the finger is down (a button of the question can do that).
+	await _frames(2)
+	screen._input(touch.call(false))
+	_check(_server.phase == "connect", "a press that started on the quit question does not continue when the question is gone")
+	# A join card that is open: the tap that answers it does not continue (the card has its own buttons).
+	var card_script := GDScript.new()
+	card_script.source_code = "extends CanvasLayer\nvar open := true\nfunc is_open() -> bool:\n\treturn open\n"
+	card_script.reload()
+	var card: CanvasLayer = card_script.new()
+	_app.join_requests = card
+	screen._input(touch.call(true))
+	card.open = false   # The card closes on the same tap, before the finger is lifted.
+	screen._input(touch.call(false))
+	_check(_server.phase == "connect", "a tap that answered the card of a join request does not continue (open at the press)")
+	_app.join_requests = null
+	card.free()
+	screen._input(touch.call(true))
+	screen._input(touch.call(false))
+	_check(_server.phase == "menu" and _app.current_screen().get_script() == _tv_games_script,
+			"a press and a lifted finger open the Games screen")
+	role._touch_ui = -1
+	screen.queue_free()
 
 
 ## 8b.6b: the slot color of the phone is the slot color of the TV for the four slots, on the waiting screen and on the pad.

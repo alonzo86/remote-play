@@ -16,6 +16,7 @@ const ScrollArrow = preload("res://scripts/ui/scroll_arrow.gd")
 
 const CONTENT_W := 1720
 const ROW_LEN := 3   # Tiles in a row (REQ-FL-12).
+const SWIPE_PX := 30.0   # A finger that moves more than this is a swipe and not a tap (REQ-FL-12b).
 
 var _root: VBoxContainer
 var _grid_view: Control
@@ -32,6 +33,11 @@ var _reason: Label   # Under it, in yellow: why the focused game cannot start wi
 var _shown: Dictionary = {}   # The game that the info bar shows.
 var _modal: Control
 var _players := -1
+var _swipe_from := false   # The finger went down on the grid (`_input`).
+var _swiped := false   # The finger has moved far enough to be a swipe, not a tap.
+var _swipe_px := 0.0   # How far the finger has moved since it went down.
+var _swipe_finger := 0   # The finger of the swipe (a second finger is ignored).
+var _tap_tile: Button   # The tile under the finger when it went down: a tap opens it, a swipe opens nothing.
 
 
 func _ready() -> void:
@@ -109,6 +115,7 @@ func _show_grid(focus_id := "") -> void:
 			rows.add_child(row)
 		var t: Button = GameTile.new()
 		t.game = g
+		t.mouse_filter = Control.MOUSE_FILTER_IGNORE   # `_input` reads a finger or a click (REQ-FL-12b); the remote uses the focus.
 		t.pressed.connect(_on_tile.bind(g))
 		t.focus_entered.connect(_show_description.bind(g))
 		row.add_child(t)
@@ -192,6 +199,46 @@ func _process(_delta: float) -> void:
 	_update_cue()
 	if _room != null:
 		_room.text = _room_text()
+
+
+## A finger or a mouse on the grid (REQ-FL-12b, issue #510). It is read here, before the GUI, and the tiles do not take the
+## touch (they ignore the mouse): the click that the engine makes from a touch would open a tile at the end of a swipe, or give a
+## tile the focus. A finger that goes down on the grid and moves more than `SWIPE_PX` (in any direction) is a swipe: the grid
+## scrolls by the distance of the finger up or down, and no tile opens or takes the focus. A finger that is lifted without that
+## move is a tap: it opens the tile that was under it when it went down (`_on_tile`). The remote uses the focus, as before.
+func _input(event: InputEvent) -> void:
+	if _scroll == null or _modal != null:
+		return
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			if _swipe_from:
+				return   # A second finger does not start a new swipe.
+			_swipe_from = _scroll.get_global_rect().has_point(event.position)
+			_swipe_finger = event.index
+			_swiped = false
+			_swipe_px = 0.0
+			_tap_tile = _tile_at(event.position) if _swipe_from else null
+		elif event.index == _swipe_finger and _swipe_from:
+			var tapped := _tap_tile if not (event.canceled or _swiped) else null
+			_swipe_from = false
+			_swiped = false
+			_tap_tile = null
+			if tapped != null:
+				_on_tile(tapped.game)
+	elif event is InputEventScreenDrag and _swipe_from and event.index == _swipe_finger:
+		_swipe_px += event.relative.length()
+		_swiped = _swiped or _swipe_px > SWIPE_PX
+		if _swiped:
+			_scroll.scroll_vertical -= roundi(event.relative.y)
+			get_viewport().set_input_as_handled()   # The scroll box does not scroll a second time.
+
+
+## The tile that has this point (a screen position), or null.
+func _tile_at(pos: Vector2) -> Button:
+	for t in _tiles:
+		if t.is_visible_in_tree() and t.get_global_rect().has_point(pos):
+			return t
+	return null
 
 
 ## Turns the two arrows on when the grid has rows above or below the visible part (REQ-FL-12a).
