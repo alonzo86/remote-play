@@ -22,6 +22,7 @@ const STEP := 16.0          # The logo moves in steps of this many pixels.
 
 var _center: CenterContainer
 var _hint: Label
+var _tap_armed := false   # A press that may become a tap (`_input`).
 var _choice: Control            # The two language items, until a language is chosen.
 var _done := false
 var asks_language := false      # True at the first start: the screen waits for the choice.
@@ -155,6 +156,26 @@ func _choose(code: String) -> void:
 	if _choice != null:
 		_choice.queue_free()
 		_choice = null
+
+
+## A tap goes on when the finger is lifted (REQ-FL-3). It is read here, before the GUI, because the screen takes the click that
+## the engine makes from a touch and `_unhandled_input` gets nothing on a phone. The press arms it, so that a tap that began on
+## another screen does nothing; the first touch also tells `Role` that this is a touch device.
+func _input(event: InputEvent) -> void:
+	var pressed := false
+	if event is InputEventScreenTouch:
+		Role.note_touch()
+		pressed = event.pressed
+		_tap_armed = false if event.canceled else (pressed and not asks_language and not _done) or (_tap_armed and not pressed)
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		pressed = event.pressed
+		_tap_armed = (pressed and not asks_language and not _done) or (_tap_armed and not pressed)
+	else:
+		return
+	if not pressed and _tap_armed:
+		_tap_armed = false
+		get_viewport().set_input_as_handled()
+		_next()
 
 
 func _unhandled_input(event: InputEvent) -> void:

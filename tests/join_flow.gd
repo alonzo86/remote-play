@@ -214,8 +214,9 @@ func _tv_ok_to_games() -> void:
 	await _leave_all()
 
 
-## REQ-FL-6, 7a: on a phone or a tablet the Connect screen says TAP TO CONTINUE and a lifted finger opens the Games screen.
-## A pressed finger and a cancelled touch do not, a tap that answers a join request does not, and a TV (no touch) keeps PRESS OK.
+## REQ-FL-6, 7a: on a phone or a tablet the Connect screen says TAP TO CONTINUE and a finger that is pressed and lifted opens the
+## Games screen. A lifted finger with no press, a cancelled touch and a press that started on the quit question do not. A tap
+## works on every device (the words follow `Role.is_touch_ui`: a TV keeps PRESS OK).
 func _tv_tap_to_games() -> void:
 	print("tap on the TV Connect screen")
 	var role: Node = root.get_node("Role")
@@ -229,16 +230,25 @@ func _tv_tap_to_games() -> void:
 		t.pressed = pressed
 		t.canceled = canceled
 		return t
-	_check(not screen.is_continue_tap(touch.call(false)), "a TV (no touchscreen): a lifted finger does not continue")
 	role._touch_ui = 1
 	await _frames(3)
 	_check(screen._hint.text == "connect.tap_continue", "a touch device says TAP TO CONTINUE: %s" % screen._hint.text)
-	screen._unhandled_input(touch.call(true))
-	screen._unhandled_input(touch.call(false, true))
-	_check(_server.phase == "connect", "a pressed finger and a cancelled touch do not continue")
-	screen._unhandled_input(touch.call(false))
+	screen._input(touch.call(false))
+	screen._input(touch.call(true))
+	screen._input(touch.call(false, true))
+	screen._input(touch.call(false))
+	_check(_server.phase == "connect", "a lifted finger with no press, and a cancelled touch, do not continue")
+	screen.on_back()   # The quit question opens.
+	await _frames(2)
+	screen._input(touch.call(true))
+	screen.on_back()   # It closes while the finger is down (a button of the question can do that).
+	await _frames(2)
+	screen._input(touch.call(false))
+	_check(_server.phase == "connect", "a press that started on the quit question does not continue when the question is gone")
+	screen._input(touch.call(true))
+	screen._input(touch.call(false))
 	_check(_server.phase == "menu" and _app.current_screen().get_script() == _tv_games_script,
-			"a lifted finger opens the Games screen")
+			"a press and a lifted finger open the Games screen")
 	role._touch_ui = -1
 	screen.queue_free()
 

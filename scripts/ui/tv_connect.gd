@@ -15,6 +15,7 @@ var _qr: Control
 var _hint: Label
 var _room: Label   # The room code. It follows the address of the TV, so it is read again each frame.
 var _modal: Control
+var _tap_armed := false   # A press that may become a tap (`_tap`).
 
 
 func _ready() -> void:
@@ -78,15 +79,31 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept") and can_continue():
 		get_viewport().set_input_as_handled()
 		App.go_games()
-	elif is_continue_tap(event) and can_continue() and not (App.join_requests != null and App.join_requests.is_open()):
-		get_viewport().set_input_as_handled()
-		App.go_games()
 
 
-## A finger that is lifted. The press is not used: the click that the engine makes from the touch would then land on a tile of the
-## Games screen. The card of a join request has its own buttons, so a tap that answers it does not go on (the caller checks).
-func is_continue_tap(event: InputEvent) -> bool:
-	return event is InputEventScreenTouch and not event.pressed and not event.canceled and Role.is_touch_ui()
+## A tap (REQ-FL-7a). It is read in `_input`, before the GUI: the screen takes the click that the engine makes from a touch, and
+## nothing is left for `_unhandled_input`. The press arms it when nothing else can take the tap at that moment: a phone
+## has joined, and neither the quit question nor the card of a join request is open. A button of the card or of the question can
+## close it before the finger is lifted, so the lifted finger only follows the press and does not look at the card again. The
+## press does not go on: the click that the engine makes would land on a Games tile.
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		Role.note_touch()
+		_tap(event.pressed, event.canceled)
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_tap(event.pressed, false)
+
+
+func _tap(pressed: bool, canceled: bool) -> void:
+	if pressed:
+		_tap_armed = can_continue() and not (App.join_requests != null and App.join_requests.is_open())
+	elif canceled:
+		_tap_armed = false
+	elif _tap_armed:
+		_tap_armed = false
+		if can_continue():
+			get_viewport().set_input_as_handled()
+			App.go_games()
 
 
 func can_continue() -> bool:
