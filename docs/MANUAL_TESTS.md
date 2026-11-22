@@ -93,7 +93,7 @@ Update this table after every run. *Latest* is the newest result of the whole te
 | [32](#test-32) | Bumper Cars (tilt, drive over stars and bump the others) | 2 phones, 1 TV, a stopwatch, a child of about 5 to 8 years | REQ-BC-*, REQ-GM-80 to 84, REQ-GM-90 to 97, REQ-GM-47i to 47n | Pass | R9 | |
 | [33](#test-33) | iPhone QR scanner (camera view, permission, cancel, privacy) | 1 iPhone, 1 Mac with Xcode, 1 TV, a second phone, a child for item 9b, a Hebrew reader for item 8a | REQ-FL-58, 88 to 92 (`docs/TV_FLOW.md`), issue #299 | Not run |  | |
 | [34](#test-34) | Join approval with the TV remote | 2 phones, 1 TV with its real remote, a stopwatch, a native reader of Hebrew for item 7a | REQ-FL-93 to REQ-FL-104, FD-30 (`docs/TV_FLOW.md`), issue #393 | Pass | R9 | Set to Pass on 2026-11-19 on the owner's instruction: 22 of 23 steps are Pass in R9, step 4c is the headless test A-34-4c |
-| [35](#test-35) | TAP prompts and taps of the TV app on a phone (closed test build) | 1 phone with the TV app of the closed test (`--any-device`), 2 phones with the controller app, 1 TV with the TV app, a native reader of Hebrew for item 6a | REQ-FL-3, REQ-FL-6, REQ-FL-7a (`docs/TV_FLOW.md`), `docs/CLOSED_TEST.md` | Not run | | New (2026-11-22). The headless tests cover the words and the tap (`A-35-1`); the answer of Android (touchscreen, leanback) can be read only on the devices |
+| [35](#test-35) | TAP prompts and taps of the TV app on a phone (closed test build) | 1 phone with the TV app of the closed test (`--any-device`), 1 phone with the controller app, 1 TV with the TV app, a native reader of Hebrew for item 6a | REQ-FL-3, REQ-FL-6, REQ-FL-7a (`docs/TV_FLOW.md`), `docs/CLOSED_TEST.md` | Not run | | New (2026-11-22). The headless tests cover the words and the tap (`A-35-1`); the answer of Android (touchscreen, leanback) can be read only on the devices |
 
 Test 5 (pointer drift) was removed on 2026-10-07 with the old pointer test. The pointer is checked again in Test 10.
 
@@ -1956,7 +1956,7 @@ History:
 
 ### TAP prompts and taps of the TV app on a phone (closed test build)
 
-Needs: 1 phone with the closed test build of the TV app (`tools/patch_android_manifest.sh tv --any-device`, `docs/EXPORT.md`; a debug build with `tools/deploy.sh tv` is the same for this test), 1 TV with the TV app, 2 more phones with the controller app (phones B and C), a native reader of Hebrew for step 6a. Covers: REQ-FL-3, REQ-FL-6, REQ-FL-7a (`docs/TV_FLOW.md`), `docs/CLOSED_TEST.md`.
+Needs: 1 phone with the closed test build of the TV app (`tools/patch_android_manifest.sh tv --any-device`, `docs/EXPORT.md`; a debug build with `tools/deploy.sh tv` is the same for this test), 1 TV with the TV app, 1 more phone with the controller app (phone B; at most 2 phones in a step), a native reader of Hebrew for step 6a. Covers: REQ-FL-3, REQ-FL-6, REQ-FL-7a (`docs/TV_FLOW.md`), `docs/CLOSED_TEST.md`.
 
 Join approval (issue #393): the TV setting APPROVE NEW PLAYERS is ON by default, so a card shows on the TV phone for each phone that joins; answer it with a tap on ALLOW (a card needs 1 second before it takes a tap).
 
@@ -1969,9 +1969,9 @@ New (2026-11-22). Claude does not mark a step Pass on its own.
 2a. Tap anywhere on the logo screen, not on the card. Check: the Connect screen shows. (REQ-FL-3)
 2b. Open the TV app again and, on the logo screen, press and move the finger away before lifting it (a swipe of 3 cm on the screen). Check: the Connect screen shows when the finger is lifted (yes or no). (REQ-FL-3)
 3a. On the Connect screen, tap an empty place before any phone has joined. Check: the screen stays on Connect (a tap does nothing before a phone joined). (REQ-FL-7a)
-3b. Join with phone B (type the room code). A card shows on the TV phone. Tap ALLOW on the card. Check: the card closes, phone B is in slot 1P, and the Games screen does not open. (REQ-FL-7a)
+3b. Join with phone B (type the room code). A card shows on the TV phone. Tap ALLOW on the card. Check: the card closes, phone B is in slot 1P, and the Games screen does not open (no phone had joined before B, so a tap on the card could not continue; the case with a phone already joined is the headless test A-35-1). (REQ-FL-7a)
 3c. Check that the blinking line TAP TO CONTINUE shows at the bottom of the Connect screen. (REQ-FL-6)
-3d. Join with phone C (type the room code). While its card is open, tap ALLOW. Check: the card closes, phone C is in slot 2P, and the Games screen does not open (with a phone already joined, the tap on the card does not continue). (REQ-FL-7a)
+3d. Moved to the headless test A-35-1 (`tests/join_flow.gd`, REQ-FL-7a): a tap that answers the card of a second join request needs a third phone (the TV-app phone, phone B and a phone C), and a manual step never needs more than 2 phones (CLAUDE.md). The number 3d stays free.
 3e. Press Back on the TV phone (the Android back gesture): the quit question opens. Tap on an empty place outside its buttons. Check: the Games screen does not open. Tap STAY. (REQ-FL-7a)
 3f. Tap on an empty place of the Connect screen. Check: the Games screen opens. (REQ-FL-7a)
 4a. Open the TV app on the real TV. Check: the logo screen says PRESS OK TO START and never TAP. (REQ-FL-3)
@@ -1989,7 +1989,7 @@ New (2026-11-22). Claude does not mark a step Pass on its own.
 | 3a | Note: yes or no | Not run | | | |
 | 3b | Photo of the TV phone after the tap | Not run | | | |
 | 3c | Photo of the TV phone | Not run | | | |
-| 3d | Photo of the TV phone after the tap | Not run | | | |
+| 3d | Moved to A-35-1 (headless, `tests/join_flow.gd`); no manual step | Moved | | | |
 | 3e | Note: yes or no | Not run | | | |
 | 3f | Note: yes or no | Not run | | | |
 | 4a | Photo of the TV | Not run | | | |
