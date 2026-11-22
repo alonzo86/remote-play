@@ -16,6 +16,8 @@ const ScrollArrow = preload("res://scripts/ui/scroll_arrow.gd")
 
 const CONTENT_W := 1720
 const ROW_LEN := 3   # Tiles in a row (REQ-FL-12).
+const SWIPE_PX := 16.0   # A finger that moves more than this is a swipe and not a tap (REQ-FL-12b).
+const SWIPE_END_MS := 200   # After a swipe the click of the lifted finger is not a tap on a tile.
 
 var _root: VBoxContainer
 var _grid_view: Control
@@ -32,6 +34,10 @@ var _reason: Label   # Under it, in yellow: why the focused game cannot start wi
 var _shown: Dictionary = {}   # The game that the info bar shows.
 var _modal: Control
 var _players := -1
+var _swipe_from := false   # The finger went down on the grid (`_input`).
+var _swiped := false   # The finger has moved far enough to be a swipe, not a tap.
+var _swipe_end_ms := -SWIPE_END_MS   # When the last swipe ended (Time.get_ticks_msec).
+var _swipe_px := 0.0   # How far the finger has moved since it went down.
 
 
 func _ready() -> void:
@@ -194,6 +200,30 @@ func _process(_delta: float) -> void:
 		_room.text = _room_text()
 
 
+## A swipe up or down scrolls the grid by the distance of the finger (REQ-FL-12b, issue #510). It is read here, before the
+## GUI, because a tile (a button) takes the touch, and the grid would not move. The finger must go down on the grid. A finger
+## that moved more than `SWIPE_PX` is a swipe: the tile under it does not open when the finger is lifted (`_on_tile`). The
+## remote is not affected.
+func _input(event: InputEvent) -> void:
+	if _scroll == null or _modal != null:
+		return
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			_swipe_from = _scroll.get_global_rect().has_point(event.position)
+			_swiped = false
+			_swipe_px = 0.0
+		else:
+			if _swiped:
+				_swipe_end_ms = Time.get_ticks_msec()
+			_swipe_from = false
+			_swiped = false
+	elif event is InputEventScreenDrag and _swipe_from:
+		_swipe_px += absf(event.relative.y)
+		_swiped = _swiped or _swipe_px > SWIPE_PX
+		if _swiped:
+			_scroll.scroll_vertical -= roundi(event.relative.y)
+
+
 ## Turns the two arrows on when the grid has rows above or below the visible part (REQ-FL-12a).
 func _update_cue() -> void:
 	if _scroll == null or _arrow_up == null:
@@ -242,6 +272,8 @@ func _show_description(game: Dictionary) -> void:
 
 
 func _on_tile(game: Dictionary) -> void:
+	if Time.get_ticks_msec() - _swipe_end_ms < SWIPE_END_MS:
+		return   # The finger was lifted at the end of a swipe: it is not a tap on the tile.
 	var n: int = App.server.connected_slots().size()
 	if not Registry.accepts(game, n):
 		Sound.sfx("denied")

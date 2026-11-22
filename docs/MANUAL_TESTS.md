@@ -610,6 +610,8 @@ A tile has a 16:9 picture. The colors and the objects of each tile file (the gro
 1e. From the sofa (about 3 m), look at the Games screen. Check: the tester reads aloud the title and the player range of 3 tiles and the description of the focused game, without error. (REQ-FL-40)
 1f. From the sofa (about 3 m), open the Games screen with the first row in view. Check: a yellow arrow that points down blinks under the grid, and no arrow points up (issue #220, REQ-FL-12a). Then press Down until the last row is in view. Check: the arrow that points up blinks and the one that points down is gone.
 1g. From the sofa (about 3 m), in English and in Hebrew, find the focused tile. Check: the tester points at the focused tile within 2 seconds, and says which of the title and the player range is bigger (the title: 40 px against 32 px, a 12 px yellow frame; issue #225, REQ-FL-13).
+1h. On a phone with the closed test build of the TV app (`docs/CLOSED_TEST.md`), join a controller and open the Games screen. Swipe up on the grid with one finger, 3 cm. Check: the grid moves up with the finger and the rows below come into view (yes or no), and no game opens when the finger is lifted. (REQ-FL-12b, issue #510)
+1i. On the same screen, tap one tile that accepts the players now. Check: the game (or its settings) opens, with no swipe before it (yes or no). (REQ-FL-12b)
 2. For each game, compare its tile with a photo of the game running. Check: the tile has the same background color and the same main objects as the photo (the objects are listed in A-12-3 to A-12-10 and in the steps below).
 3b. Check the tile of **Car Race**. Check: the road in the tile turns in a bend (as in Track 1, Hard), with a post beside it. (The 4 cars, the candy ground, the road and the outline of the posts are checked by A-12-3b.)
 4. Check the tile of **Banana Party**. Check: an animal was just hit (its peel shows) and a banana is in the air. (The jungle, the four cursor rings, the banana and the black outline of an animal are checked by A-12-4. The tile has no score and no "+10" text.)
@@ -630,6 +632,8 @@ Items 1a, 1b, 1d, 3a, 6 and 7 moved to the automated tests (`docs/AUTOMATED_TEST
 | 1e | Photo from the sofa; the texts that were read | Pass | R3 |  |  |
 | 1f | Photo of the Games screen with the first row and with the last row in view; the arrows seen | Pass | R7 |  | R7: Pass Row added 2026-10-31 (issue #303); step added for issue #220. |
 | 1g | Photos from the sofa in English and in Hebrew; the seconds until the tester points at the tile | Pass | R7 |  | R7: Pass Row added 2026-10-31 (issue #303); step added for issue #225. |
+| 1h | Video of the swipe; note: yes or no, no game opened | Not run | | | New (issue #510) |
+| 1i | Note: yes or no | Not run | | | New (issue #510) |
 | 2 | Photos: tile next to the game, for each game | Pass | R4 |  |  |
 | 3b | Photo of the Car Race tile and of the running game | Pass | R4 |  | Same result as old item 3. Car Race and Maze tiles remade 2026-10-09 (4 cars on a bend with posts; 4 balls on the way to the exit). |
 | 4 | Photo of the tile and of the running game | Pass | R7 |  | R7: Pass Before (R3): Retest - R3: Fail - the tile shows 5 cursor rings instead of 4 Banana Party tile remade 2026-10-16 (a jungle, 4 players, a hit, a banana in the air). Issue #114. |
